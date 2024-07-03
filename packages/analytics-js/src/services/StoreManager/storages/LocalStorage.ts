@@ -38,7 +38,7 @@ class LocalStorage implements IStorage {
 
   setItem(key: string, value: any) {
     store.set(key, value);
-    this.length = store.keys().length;
+    this.length = store.len();
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -49,7 +49,7 @@ class LocalStorage implements IStorage {
 
   removeItem(key: string) {
     store.remove(key);
-    this.length = store.keys().length;
+    this.length = store.len();
   }
 
   clear() {
@@ -57,9 +57,14 @@ class LocalStorage implements IStorage {
     this.length = 0;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   key(index: number): Nullable<string> {
-    return store.keys()[index] ? (store.keys()[index] as string) : null;
+    const curKeys = this.keys();
+    return curKeys[index] ?? null;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  keys(): string[] {
+    return store.keys();
   }
 }
 

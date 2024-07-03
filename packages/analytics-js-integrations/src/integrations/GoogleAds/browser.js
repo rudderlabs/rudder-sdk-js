@@ -9,14 +9,18 @@ import {
   getHashFromArrayWithDuplicate,
   removeUndefinedAndNullValues,
   getEventMappingFromConfig,
+  isDefinedAndNotNullAndNotEmpty,
 } from '../../utils/commonUtils';
 import {
   shouldSendConversionEvent,
   shouldSendDynamicRemarketingEvent,
   getConversionData,
   newCustomerAcquisitionReporting,
+  generateUserDataPayload,
 } from './utils';
 import { loadNativeSdk } from './nativeSdkLoader';
+
+import { prepareParamsAndEventName } from '../GA4/utils';
 
 const logger = new Logger(DISPLAY_NAME);
 
@@ -45,6 +49,8 @@ class GoogleAds {
     // Depreciating: Added to make changes backward compatible
     this.dynamicRemarketing = config.dynamicRemarketing;
     this.allowEnhancedConversions = config.allowEnhancedConversions || false;
+    this.v2 = config.v2 || true;
+    this.allowIdentify = config.allowIdentify ?? false;
     this.name = NAME;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
@@ -84,6 +90,33 @@ class GoogleAds {
     return this.isLoaded();
   }
 
+  identify(rudderElement) {
+    if (this.allowIdentify === false) {
+      logger.info(
+        'Please enable identify call toggle in your destination settings to send user data to Google Ads.',
+      );
+      return;
+    }
+    const { context } = rudderElement.message;
+    const { traits } = context;
+    if (!isDefinedAndNotNullAndNotEmpty(traits)) {
+      logger.error('Traits are mandatory for identify call');
+      return;
+    }
+    if (
+      !traits.email ||
+      !traits.phone ||
+      (!traits.firstName && !traits.lastName && !traits.postalCode && !traits.country)
+    ) {
+      logger.error(
+        'Email, Phone are mandatory fields and either of FirstName, LastName, PostalCode, Country is mandatory for identify call',
+      );
+      return;
+    }
+    const payload = generateUserDataPayload(traits);
+    window.gtag('set', 'user_data', payload);
+  }
+
   // https://developers.google.com/gtagjs/reference/event
   track(rudderElement) {
     const { event } = rudderElement.message;
@@ -112,6 +145,11 @@ class GoogleAds {
         transaction_id: rudderElement.message?.properties?.order_id,
         send_to: sendToValue,
       };
+      if (this.v2) {
+        const updatedEventName = eventName.trim().replace(/\s+/g, '_');
+        const ecomPayload = prepareParamsAndEventName(rudderElement.message, updatedEventName);
+        properties = { ...properties, ...ecomPayload?.params };
+      }
       properties = removeUndefinedAndNullValues(properties);
       properties = newCustomerAcquisitionReporting(properties);
 
@@ -137,6 +175,13 @@ class GoogleAds {
       );
 
       let { properties } = rudderElement.message;
+      const { event } = rudderElement.message;
+
+      if (this.v2) {
+        const updatedEventName = event.trim().replace(/\s+/g, '_');
+        const ecomPayload = prepareParamsAndEventName(rudderElement.message, updatedEventName);
+        properties = { ...properties, ...ecomPayload?.params };
+      }
 
       // set new customer acquisition reporting
       // docs: https://support.google.com/google-ads/answer/12077475?hl=en#zippy=%2Cinstall-with-the-global-site-tag%2Cinstall-with-google-tag-manager

@@ -33,11 +33,12 @@ const createScriptElement = (
   scriptElement.src = url;
   scriptElement.id = id;
   scriptElement.async = async;
-  scriptElement.setAttribute('data-append-origin', EXTERNAL_SOURCE_LOAD_ORIGIN);
 
   Object.keys(extraAttributes).forEach(attributeName => {
     scriptElement.setAttribute(attributeName, extraAttributes[attributeName] as string);
   });
+
+  scriptElement.setAttribute('data-loader', EXTERNAL_SOURCE_LOAD_ORIGIN);
 
   return scriptElement;
 };

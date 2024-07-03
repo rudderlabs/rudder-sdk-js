@@ -1,7 +1,7 @@
 {
   "name": "@rudderstack/analytics-js",
-  "version": "3.0.0-beta.22",
-  "description": "RudderStack Javascript SDK",
+  "version": "3.5.1",
+  "description": "RudderStack JavaScript SDK",
   "main": "dist/npm/modern/cjs/index.js",
   "module": "dist/npm/modern/esm/index.js",
   "exports": {
@@ -27,6 +27,13 @@
     }
   },
   "types": "./dist/npm/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/npm/index.d.ts"
+      ]
+    }
+  },
   "publishConfig": {
     "access": "public"
   },
@@ -63,7 +70,7 @@
     "build:npm:content-script": "BUNDLED_PLUGINS=all NO_EXTERNAL_HOST=true npm run build:npm:modern",
     "build:npm:modern": "BROWSERSLIST_ENV=modern npm run build:npm",
     "build:package": "npm run build:npm:modern && npm run build:npm && npm run build:npm:bundled && npm run build:npm:content-script",
-    "build:browser:test": "ONLY_IIFE=true npm run build:browser && sed 's/var rudderanalytics/rudderanalytics/g' dist/cdn/legacy/iife/rsa.min.js > __mocks__/cdnSDKv3.js",
+    "build:browser:test": "ONLY_IIFE=true npm run build:browser && sed 's/var rudderanalytics/rudderanalytics/g' dist/cdn/legacy/iife/rsa.min.js > __mocks__/cdnSDK.js",
     "test": "npm run build:browser:test && nx test --maxWorkers=50%",
     "test:ci": "npm run build:browser:test && nx test --parallel=false --configuration=ci --runInBand --maxWorkers=1 --forceExit",
     "check:lint": "nx lint",
@@ -76,19 +83,12 @@
     "check:support:modern": "NODE_ENV=modern npx browserslist --mobile-to-desktop",
     "check:duplicates": "jscpd src",
     "check:security": "npm audit --recursive --audit-level=high",
+    "check:pub": "npx publint",
     "build:modern": "npm run build:browser:modern && npm run build:npm:modern",
     "package": "npm pack",
-    "release": "npm publish",
-    "build:browser:LH": "nx run @rudderstack/analytics-js:build-browser && nx run @rudderstack/analytics-js:build-browser-modern"
+    "release": "npm publish"
   },
-  "devDependencies": {
-    "@lukeed/uuid": "2.0.1",
-    "@preact/signals-core": "1.5.1",
-    "@rudderstack/analytics-js-common": "*",
-    "@rudderstack/analytics-js-plugins": "*",
-    "ramda": "0.29.1",
-    "storejs": "2.0.7"
-  },
+  "devDependencies": {},
   "browserslist": {
     "production": [
       "defaults",
@@ -109,5 +109,12 @@
       "last 1 safari version"
     ]
   },
-  "dependencies": {}
+  "dependencies": {
+    "@rudderstack/analytics-js-common": "*",
+    "@rudderstack/analytics-js-cookies": "*",
+    "@rudderstack/analytics-js-plugins": "*",
+    "@preact/signals-core": "1.6.1",
+    "ramda": "0.30.1",
+    "storejs": "2.1.0"
+  }
 }

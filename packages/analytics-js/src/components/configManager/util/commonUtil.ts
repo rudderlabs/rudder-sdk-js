@@ -17,10 +17,16 @@ import type {
   ConsentResolutionStrategy,
 } from '@rudderstack/analytics-js-common/types/Consent';
 import { clone } from 'ramda';
+import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { isValidURL, removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utilities/url';
+import { MODULE_TYPE, APP_VERSION } from '../../../constants/app';
+import { BUILD_TYPE, DEFAULT_CONFIG_BE_URL } from '../../../constants/urls';
 import { state } from '../../../state';
 import {
+  INVALID_CONFIG_URL_WARNING,
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
   STORAGE_TYPE_VALIDATION_WARNING,
+  UNSUPPORTED_BEACON_API_WARNING,
   UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
   UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY,
   UNSUPPORTED_STORAGE_ENCRYPTION_VERSION_WARNING,
@@ -29,37 +35,33 @@ import {
   isErrorReportingEnabled,
   isMetricsReportingEnabled,
 } from '../../utilities/statsCollection';
-import { removeTrailingSlashes } from '../../utilities/url';
+import { getDomain, removeTrailingSlashes } from '../../utilities/url';
 import type { SourceConfigResponse } from '../types';
 import {
+  DEFAULT_DATA_SERVICE_ENDPOINT,
   DEFAULT_STORAGE_ENCRYPTION_VERSION,
   StorageEncryptionVersionsToPluginNameMap,
 } from '../constants';
-import { isValidStorageType } from './validate';
+import { getDataServiceUrl, isValidStorageType } from './validate';
 import { getConsentManagementData } from '../../utilities/consent';
 
 /**
- * Determines the SDK url
+ * Determines the SDK URL
  * @returns sdkURL
  */
 const getSDKUrl = (): string | undefined => {
   const scripts = document.getElementsByTagName('script');
-  let sdkURL: string | undefined;
-  const scriptList = Array.prototype.slice.call(scripts);
+  const sdkFileNameRegex = /(?:^|\/)rsa(\.min)?\.js$/;
 
-  scriptList.some(script => {
-    const curScriptSrc = removeTrailingSlashes(script.getAttribute('src'));
-    if (curScriptSrc) {
-      const urlMatches = curScriptSrc.match(/^.*rsa?(\.min)?\.js$/);
-      if (urlMatches) {
-        sdkURL = curScriptSrc;
-        return true;
-      }
+  // eslint-disable-next-line no-restricted-syntax
+  for (const script of scripts) {
+    const src = script.getAttribute('src');
+    if (src && sdkFileNameRegex.test(src)) {
+      return src;
     }
-    return false;
-  });
+  }
 
-  return sdkURL;
+  return undefined;
 };
 
 /**
@@ -73,7 +75,11 @@ const updateReportingState = (res: SourceConfigResponse): void => {
 };
 
 const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
-  const storageOptsFromLoad = state.loadOptions.value.storage;
+  const {
+    useServerSideCookies,
+    dataServiceEndpoint,
+    storage: storageOptsFromLoad,
+  } = state.loadOptions.value;
   let storageType = storageOptsFromLoad?.type;
   if (isDefined(storageType) && !isValidStorageType(storageType)) {
     logger?.warn(
@@ -119,7 +125,34 @@ const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
 
   batch(() => {
     state.storage.type.value = storageType;
-    state.storage.cookie.value = storageOptsFromLoad?.cookie;
+    let cookieOptions = storageOptsFromLoad?.cookie ?? {};
+
+    if (useServerSideCookies) {
+      state.serverCookies.isEnabledServerSideCookies.value = useServerSideCookies;
+      const dataServiceUrl = getDataServiceUrl(
+        dataServiceEndpoint ?? DEFAULT_DATA_SERVICE_ENDPOINT,
+      );
+      if (isValidURL(dataServiceUrl)) {
+        state.serverCookies.dataServiceUrl.value = removeTrailingSlashes(dataServiceUrl) as string;
+
+        const curHost = getDomain(window.location.href);
+        const dataServiceHost = getDomain(dataServiceUrl);
+
+        // If the current host is different from the data service host, then it is a cross-site request
+        // For server-side cookies to work, we need to set the SameSite=None and Secure attributes
+        if (curHost !== dataServiceHost) {
+          cookieOptions = {
+            ...cookieOptions,
+            samesite: 'None',
+            secure: true,
+          };
+        }
+      } else {
+        state.serverCookies.isEnabledServerSideCookies.value = false;
+      }
+    }
+
+    state.storage.cookie.value = cookieOptions;
 
     state.storage.encryptionPluginName.value =
       StorageEncryptionVersionsToPluginNameMap[storageEncryptionVersion as string];
@@ -222,10 +255,79 @@ const updateConsentsState = (resp: SourceConfigResponse): void => {
   });
 };
 
+const updateDataPlaneEventsStateFromLoadOptions = (logger?: ILogger) => {
+  if (state.dataPlaneEvents.deliveryEnabled.value) {
+    const defaultEventsQueuePluginName: PluginName = 'XhrQueue';
+    let eventsQueuePluginName: PluginName = defaultEventsQueuePluginName;
+
+    if (state.loadOptions.value.useBeacon) {
+      if (state.capabilities.isBeaconAvailable.value) {
+        eventsQueuePluginName = 'BeaconQueue';
+      } else {
+        eventsQueuePluginName = defaultEventsQueuePluginName;
+
+        logger?.warn(UNSUPPORTED_BEACON_API_WARNING(CONFIG_MANAGER));
+      }
+    }
+
+    batch(() => {
+      state.dataPlaneEvents.eventsQueuePluginName.value = eventsQueuePluginName;
+    });
+  }
+};
+
+const getSourceConfigURL = (
+  configUrl: string | undefined,
+  writeKey: string,
+  lockIntegrationsVersion: boolean,
+  lockPluginsVersion: boolean,
+  logger?: ILogger,
+): string => {
+  const defSearchParams = new URLSearchParams({
+    p: MODULE_TYPE,
+    v: APP_VERSION,
+    build: BUILD_TYPE,
+    writeKey,
+    lockIntegrationsVersion: lockIntegrationsVersion.toString(),
+    lockPluginsVersion: lockPluginsVersion.toString(),
+  });
+
+  let origin = DEFAULT_CONFIG_BE_URL;
+  let searchParams = defSearchParams;
+  let pathname = '/sourceConfig/';
+  let hash = '';
+  if (isValidURL(configUrl)) {
+    const configUrlInstance = new URL(configUrl);
+    if (!(removeTrailingSlashes(configUrlInstance.pathname) as string).endsWith('/sourceConfig')) {
+      configUrlInstance.pathname = `${
+        removeTrailingSlashes(configUrlInstance.pathname) as string
+      }/sourceConfig/`;
+    }
+    configUrlInstance.pathname = removeDuplicateSlashes(configUrlInstance.pathname);
+
+    defSearchParams.forEach((value, key) => {
+      if (configUrlInstance.searchParams.get(key) === null) {
+        configUrlInstance.searchParams.set(key, value);
+      }
+    });
+
+    origin = configUrlInstance.origin;
+    pathname = configUrlInstance.pathname;
+    searchParams = configUrlInstance.searchParams;
+    hash = configUrlInstance.hash;
+  } else {
+    logger?.warn(INVALID_CONFIG_URL_WARNING(CONFIG_MANAGER, configUrl));
+  }
+
+  return `${origin}${pathname}?${searchParams}${hash}`;
+};
+
 export {
   getSDKUrl,
   updateReportingState,
   updateStorageStateFromLoadOptions,
   updateConsentsStateFromLoadOptions,
   updateConsentsState,
+  updateDataPlaneEventsStateFromLoadOptions,
+  getSourceConfigURL,
 };

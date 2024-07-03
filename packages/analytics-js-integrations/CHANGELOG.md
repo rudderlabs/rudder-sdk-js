@@ -2,6 +2,115 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.4.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.3.1...@rudderstack/analytics-js-integrations@3.4.0) (2024-06-21)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.3.1`
+
+### Features
+
+* add counting method from config for dcm floodlight ([#1731](https://github.com/rudderlabs/rudder-sdk-js/issues/1731)) ([951d48f](https://github.com/rudderlabs/rudder-sdk-js/commit/951d48fd853b368c4c90c88a33db230b59dc7241))
+
+
+### Bug Fixes
+
+* improve flushing events on page leave ([#1754](https://github.com/rudderlabs/rudder-sdk-js/issues/1754)) ([1be420f](https://github.com/rudderlabs/rudder-sdk-js/commit/1be420fae16b68629789d2ba37e16e6a6e00017c))
+
+## [3.3.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.3.0...@rudderstack/analytics-js-integrations@3.3.1) (2024-06-07)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.3.0`
+
+### Bug Fixes
+
+* add hashing to user traits of reddit_pixel   ([#1728](https://github.com/rudderlabs/rudder-sdk-js/issues/1728)) ([f6f377d](https://github.com/rudderlabs/rudder-sdk-js/commit/f6f377d71566784c0460d7e02e877cd584886ec5))
+* url validation ([#1730](https://github.com/rudderlabs/rudder-sdk-js/issues/1730)) ([3a3e105](https://github.com/rudderlabs/rudder-sdk-js/commit/3a3e1057f2db91ef5cbf652a664db9443fee9843))
+
+## [3.3.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.2.0...@rudderstack/analytics-js-integrations@3.3.0) (2024-05-24)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.2.0`
+
+### Features
+
+* google ads identify call support for enhanced conversion ([#1710](https://github.com/rudderlabs/rudder-sdk-js/issues/1710)) ([efa70f8](https://github.com/rudderlabs/rudder-sdk-js/commit/efa70f8c219e913913cd481da78edbd1dbe20f50))
+* gtm messageId support for track and page ([#1709](https://github.com/rudderlabs/rudder-sdk-js/issues/1709)) ([90df013](https://github.com/rudderlabs/rudder-sdk-js/commit/90df013a028bfac6d8a065d99eb37bdeb3b9156c))
+* introduce a new config for if hashing is required ([#1725](https://github.com/rudderlabs/rudder-sdk-js/issues/1725)) ([8c76f90](https://github.com/rudderlabs/rudder-sdk-js/commit/8c76f901b3bf865de50f02c6911707e5d1e6101c))
+* onboard bingads enhanced conversions ([#1715](https://github.com/rudderlabs/rudder-sdk-js/issues/1715)) ([e7e27be](https://github.com/rudderlabs/rudder-sdk-js/commit/e7e27be27727271afa52e1d4965776291aaf381e))
+* set server side cookies ([#1649](https://github.com/rudderlabs/rudder-sdk-js/issues/1649)) ([8b8ac8f](https://github.com/rudderlabs/rudder-sdk-js/commit/8b8ac8fb2b7fe0903fa383cfcd0388fe3022330c))
+
+
+### Bug Fixes
+
+* add hashing to user traits of reddit_pixel ([#1728](https://github.com/rudderlabs/rudder-sdk-js/issues/1728)) ([f6f377d](https://github.com/rudderlabs/rudder-sdk-js/commit/f6f377d71566784c0460d7e02e877cd584886ec5))
+* update reddit_pixel identify call ([#1717](https://github.com/rudderlabs/rudder-sdk-js/issues/1717)) ([acc21f2](https://github.com/rudderlabs/rudder-sdk-js/commit/acc21f26f891bd4985520d32c0cb6d3b54378cb0))
+* user sessions behavior ([#1708](https://github.com/rudderlabs/rudder-sdk-js/issues/1708)) ([84e7174](https://github.com/rudderlabs/rudder-sdk-js/commit/84e71744612c8345dc22b8cb0c9362d104eb35e9))
+
+## [3.2.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.1.0...@rudderstack/analytics-js-integrations@3.2.0) (2024-05-10)
+
+
+### Features
+
+* **criteo:** add support of sha256 hashing method for email ([#1680](https://github.com/rudderlabs/rudder-sdk-js/issues/1680)) ([66e0122](https://github.com/rudderlabs/rudder-sdk-js/commit/66e0122d2bcdb536ab0d69745e05d49806a5348b))
+
+## [3.1.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.0.4...@rudderstack/analytics-js-integrations@3.1.0) (2024-04-26)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.0.4`
+
+### Features
+
+* add autoConfig support in FBPixel, add tests ([#1702](https://github.com/rudderlabs/rudder-sdk-js/issues/1702)) ([607c381](https://github.com/rudderlabs/rudder-sdk-js/commit/607c3815128a606efe7cee3c867028a62f1f19c9))
+* added custom domain support in ga4 ([#1697](https://github.com/rudderlabs/rudder-sdk-js/issues/1697)) ([3543cc1](https://github.com/rudderlabs/rudder-sdk-js/commit/3543cc1a1f6dc770381c0a6be75646b183f63afa))
+* supporting add to cart for criteo ([#1696](https://github.com/rudderlabs/rudder-sdk-js/issues/1696)) ([bb7e1df](https://github.com/rudderlabs/rudder-sdk-js/commit/bb7e1df9a1e5a1ffe4e8a81c3d9fdf18d9ef2744))
+
+## [3.0.4](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.0.3...@rudderstack/analytics-js-integrations@3.0.4) (2024-04-12)
+
+
+### Bug Fixes
+
+* making the error message as warn ([#1686](https://github.com/rudderlabs/rudder-sdk-js/issues/1686)) ([56e34be](https://github.com/rudderlabs/rudder-sdk-js/commit/56e34be3575f66531bfe4910ff4aa970ed2ee208))
+
+## [3.0.3](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.0.2...@rudderstack/analytics-js-integrations@3.0.3) (2024-04-02)
+
+
+### Bug Fixes
+
+* ninetailed: modify page support ([#1677](https://github.com/rudderlabs/rudder-sdk-js/issues/1677)) ([e45ef06](https://github.com/rudderlabs/rudder-sdk-js/commit/e45ef06186cb4dc1d0568f2b39d8e786d278390a))
+* updated isLoaded and isReady conditions for mixpanel ([#1650](https://github.com/rudderlabs/rudder-sdk-js/issues/1650)) ([80c76a1](https://github.com/rudderlabs/rudder-sdk-js/commit/80c76a1f7f27a93930a6146730ac94d945b19b25))
+
+## [3.0.2](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.0.1...@rudderstack/analytics-js-integrations@3.0.2) (2024-03-22)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.0.1`
+## [3.0.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.0.0-beta.26...@rudderstack/analytics-js-integrations@3.0.1) (2024-03-21)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.0.0`
+## [3.0.0-beta.26](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.0.0-beta.25...@rudderstack/analytics-js-integrations@3.0.0-beta.26) (2024-03-18)
+
+
+### Bug Fixes
+
+* ninetailed sample app path ([#1634](https://github.com/rudderlabs/rudder-sdk-js/issues/1634)) ([8433366](https://github.com/rudderlabs/rudder-sdk-js/commit/8433366041736407ae7c0015a0afc2a0c47fcbf1))
+
+## [3.0.0-beta.25](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.0.0-beta.24...@rudderstack/analytics-js-integrations@3.0.0-beta.25) (2024-03-01)
+
+
+### Features
+
+* add ecom spec support to google ads via config ([#1611](https://github.com/rudderlabs/rudder-sdk-js/issues/1611)) ([31f8ef6](https://github.com/rudderlabs/rudder-sdk-js/commit/31f8ef6d73280245a54c225d2b577ac40e97e271))
+* add support of custom page event name in mixpanel ([#1622](https://github.com/rudderlabs/rudder-sdk-js/issues/1622)) ([ce97106](https://github.com/rudderlabs/rudder-sdk-js/commit/ce971064dd046e012ec3018780bff7894bb0d877))
+* klaviyo profile mapping ([#1621](https://github.com/rudderlabs/rudder-sdk-js/issues/1621)) ([d5e7ae6](https://github.com/rudderlabs/rudder-sdk-js/commit/d5e7ae6a823a5724652ebf1f28df25eccd72a13a))
+* onboard new destination ninetailed ([#1617](https://github.com/rudderlabs/rudder-sdk-js/issues/1617)) ([080155a](https://github.com/rudderlabs/rudder-sdk-js/commit/080155a74655aeb4b413cc1a90cfa6d66ce3dfbb))
+* update content_type mapping logic for fb pixel ([#1628](https://github.com/rudderlabs/rudder-sdk-js/issues/1628)) ([d81adde](https://github.com/rudderlabs/rudder-sdk-js/commit/d81addeba308992fbc933213282653b5845749b9))
+
 ## [3.0.0-beta.24](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.0.0-beta.23...@rudderstack/analytics-js-integrations@3.0.0-beta.24) (2024-02-16)
 
 

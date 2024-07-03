@@ -5,9 +5,9 @@
     },
     "lintAllEsApis": true,
     "polyfills": [
-      "Promise",
       "URL",
       "URLSearchParams",
+      "Promise",
       "Number.isNaN",
       "Number.isInteger",
       "Array.from",
@@ -16,15 +16,21 @@
       "String.prototype.endsWith",
       "String.prototype.startsWith",
       "String.prototype.includes",
+      "String.prototype.replaceAll",
+      "String.fromCodePoint",
       "Object.entries",
       "Object.values",
-      "Element.prototype.dataset",
-      "String.prototype.replaceAll",
+      "Object.assign",
+      "Object.fromEntries",
       "TextEncoder",
       "TextDecoder",
-      "String.fromCodePoint",
+      "CustomEvent",
       "requestAnimationFrame",
-      "cancelAnimationFrame"
+      "cancelAnimationFrame",
+      "navigator.sendBeacon",
+      "Uint8Array",
+      "Set",
+      "atob"
     ]
   },
   "env": {
@@ -39,7 +45,7 @@
         "airbnb-base",
         "airbnb-typescript/base",
         "plugin:@typescript-eslint/recommended",
-        "plugin:sonarjs/recommended",
+        "plugin:sonarjs/recommended-legacy",
         "prettier",
         "plugin:compat/recommended"
       ],

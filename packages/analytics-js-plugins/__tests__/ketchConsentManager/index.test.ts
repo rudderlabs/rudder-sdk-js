@@ -11,10 +11,10 @@ describe('Plugin - KetchConsentManager', () => {
     (window as any).getKetchUserConsentedPurposes = undefined;
     (window as any).getKetchUserDeniedPurposes = undefined;
     // delete all cookies
-    document.cookie.split(';').forEach(function (c) {
+    document.cookie.split(';').forEach(c => {
       document.cookie = c
         .replace(/^ +/, '')
-        .replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
+        .replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`);
     });
   });
 

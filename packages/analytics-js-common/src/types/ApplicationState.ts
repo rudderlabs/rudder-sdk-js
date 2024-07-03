@@ -94,6 +94,11 @@ export type MetricsState = {
   triggered: Signal<number>;
 };
 
+export type DataPlaneEventsState = {
+  eventsQueuePluginName: Signal<PluginName | undefined>;
+  readonly deliveryEnabled: Signal<boolean>;
+};
+
 export type NativeDestinationsState = {
   configuredDestinations: Signal<Destination[]>;
   activeDestinations: Signal<Destination[]>;
@@ -164,6 +169,11 @@ export type StorageState = {
   trulyAnonymousTracking: Signal<boolean>;
 };
 
+export type ServerCookiesState = {
+  isEnabledServerSideCookies: Signal<boolean>;
+  dataServiceUrl: Signal<string | undefined>;
+};
+
 export interface ApplicationState {
   capabilities: CapabilitiesState;
   consents: ConsentsState;
@@ -178,6 +188,8 @@ export interface ApplicationState {
   session: SessionState;
   source: SourceConfigState;
   storage: StorageState;
+  serverCookies: ServerCookiesState;
+  dataPlaneEvents: DataPlaneEventsState;
 }
 
 export type DebouncedFunction = (...args: any[]) => void;

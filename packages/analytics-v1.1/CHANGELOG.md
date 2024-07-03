@@ -2,6 +2,64 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [2.48.10](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.9...rudder-sdk-js@2.48.10) (2024-06-21)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `2.48.9`
+## [2.48.9](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.8...rudder-sdk-js@2.48.9) (2024-06-07)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `2.48.8`
+
+### Bug Fixes
+
+* url validation ([#1730](https://github.com/rudderlabs/rudder-sdk-js/issues/1730)) ([3a3e105](https://github.com/rudderlabs/rudder-sdk-js/commit/3a3e1057f2db91ef5cbf652a664db9443fee9843))
+
+## [2.48.8](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.7...rudder-sdk-js@2.48.8) (2024-05-24)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `2.48.7`
+## [2.48.7](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.6...rudder-sdk-js@2.48.7) (2024-04-26)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `2.48.6`
+## [2.48.6](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.5...rudder-sdk-js@2.48.6) (2024-03-26)
+
+
+### Bug Fixes
+
+* move analytics common pkg to dev dependencies ([#1674](https://github.com/rudderlabs/rudder-sdk-js/issues/1674)) ([18e0dfb](https://github.com/rudderlabs/rudder-sdk-js/commit/18e0dfbe43b1a6e9814840a5419b1fe00b8ccb1d))
+
+## [2.48.5](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.4...rudder-sdk-js@2.48.5) (2024-03-22)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `2.48.4`
+
+### Bug Fixes
+
+* replace polyfillio with fastly ([#1664](https://github.com/rudderlabs/rudder-sdk-js/issues/1664)) ([24d3a0b](https://github.com/rudderlabs/rudder-sdk-js/commit/24d3a0b383f58b79fc1970d0c74761de30bb3f4a))
+
+## [2.48.4](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.3...rudder-sdk-js@2.48.4) (2024-03-21)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `2.48.3`
+## [2.48.3](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.2...rudder-sdk-js@2.48.3) (2024-03-01)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `2.48.2`
+
+### Bug Fixes
+
+* **analytics-js-service-worker:** update component-type to latest with TS support ([#1627](https://github.com/rudderlabs/rudder-sdk-js/issues/1627)) ([4e1d279](https://github.com/rudderlabs/rudder-sdk-js/commit/4e1d279587099aa6f56e622cd6a20cef45ec9703))
+* **rudder-sdk-js:** updated component-emitter to latest, supporting TS ([#1626](https://github.com/rudderlabs/rudder-sdk-js/issues/1626)) ([ffc0f24](https://github.com/rudderlabs/rudder-sdk-js/commit/ffc0f24e15bdaa8209860b287219e0a4dab4a0c4))
+
 ## [2.48.2](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.1...rudder-sdk-js@2.48.2) (2024-02-16)
 
 ### Dependency Updates

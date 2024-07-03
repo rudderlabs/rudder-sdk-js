@@ -1,8 +1,8 @@
 {
   "name": "@rudderstack/analytics-js-common",
-  "version": "3.0.0-beta.18",
+  "version": "3.5.0",
   "private": true,
-  "description": "RudderStack Javascript SDK common code",
+  "description": "RudderStack JavaScript SDK common code",
   "module": "dist/npm/index.js",
   "types": "./dist/npm/index.d.ts",
   "publishConfig": {},
@@ -55,16 +55,15 @@
     "release": "npm publish"
   },
   "dependencies": {
-    "@lukeed/uuid": "2.0.1",
+    "@preact/signals-core": "1.6.1",
     "@ndhoule/defaults": "2.0.1",
-    "@preact/signals-core": "1.5.1",
+    "rudder-component-cookie": "0.0.1",
     "@segment/top-domain": "3.0.1",
     "crypto-js": "4.2.0",
+    "@lukeed/uuid": "2.0.1",
     "get-value": "3.0.1",
-    "ramda": "0.29.1",
-    "rudder-component-cookie": "0.0.1",
-    "storejs": "2.0.7",
-    "msw": "1.3.2"
+    "ramda": "0.30.1",
+    "storejs": "2.1.0"
   },
   "devDependencies": {},
   "overrides": {},

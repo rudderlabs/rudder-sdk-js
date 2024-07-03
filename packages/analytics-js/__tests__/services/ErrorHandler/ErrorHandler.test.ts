@@ -1,5 +1,6 @@
 import type { SDKError } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { defaultHttpClient } from '../../../src/services/HttpClient';
+import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import { defaultLogger } from '../../../src/services/Logger';
 import { defaultPluginEngine } from '../../../src/services/PluginEngine';
 import { ErrorHandler } from '../../../src/services/ErrorHandler';
@@ -38,6 +39,8 @@ jest.mock('../../../src/services/ErrorHandler/processError', () => {
     processError: jest.fn((error: SDKError): string => error.message || error || ''),
   };
 });
+
+const extSrcLoader = {} as IExternalSrcLoader;
 
 describe('ErrorHandler', () => {
   let errorHandlerInstance: ErrorHandler;
@@ -129,6 +132,9 @@ describe('ErrorHandler', () => {
   });
 
   it('should log and throw for messages with context and custom message if logger exists and shouldAlwaysThrow', () => {
+    // Hard code the presence of the error reporting client
+    errorHandlerInstance.errReportingClient = {};
+
     try {
       state.reporting.isErrorReportingEnabled.value = true;
       state.reporting.isErrorReportingPluginLoaded.value = true;
@@ -186,6 +192,9 @@ describe('ErrorHandler', () => {
   });
 
   it('should log error on notifyError if invoking plugin results in an exception', () => {
+    // Hard code the presence of the error reporting client
+    errorHandlerInstance.errReportingClient = {};
+
     defaultPluginEngine.invokeSingle = jest.fn(() => {
       throw new Error('dummy error');
     });

@@ -2,6 +2,7 @@ import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsM
 
 const DEFAULT_ERROR_REPORTING_PROVIDER = 'bugsnag';
 const DEFAULT_STORAGE_ENCRYPTION_VERSION = 'v3';
+const DEFAULT_DATA_PLANE_EVENTS_TRANSPORT = 'xhr';
 
 export const ConsentManagersToPluginNameMap: Record<string, PluginName> = {
   oneTrust: 'OneTrustConsentManager',
@@ -14,4 +15,16 @@ export const StorageEncryptionVersionsToPluginNameMap: Record<string, PluginName
   legacy: 'StorageEncryptionLegacy',
 };
 
-export { DEFAULT_ERROR_REPORTING_PROVIDER, DEFAULT_STORAGE_ENCRYPTION_VERSION };
+export const DataPlaneEventsTransportToPluginNameMap: Record<string, PluginName> = {
+  [DEFAULT_DATA_PLANE_EVENTS_TRANSPORT]: 'XhrQueue',
+  beacon: 'BeaconQueue',
+};
+
+const DEFAULT_DATA_SERVICE_ENDPOINT = 'rsaRequest';
+
+export {
+  DEFAULT_ERROR_REPORTING_PROVIDER,
+  DEFAULT_STORAGE_ENCRYPTION_VERSION,
+  DEFAULT_DATA_PLANE_EVENTS_TRANSPORT,
+  DEFAULT_DATA_SERVICE_ENDPOINT,
+};

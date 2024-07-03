@@ -1,11 +1,13 @@
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { SourceConfigResponse } from '../../../src/components/configManager/types';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { SourceConfigResponse } from '../../../src/components/configManager/types';
 import {
   getSDKUrl,
   updateReportingState,
   updateStorageStateFromLoadOptions,
   updateConsentsStateFromLoadOptions,
   updateConsentsState,
+  updateDataPlaneEventsStateFromLoadOptions,
+  getSourceConfigURL,
 } from '../../../src/components/configManager/util/commonUtil';
 import { state, resetState } from '../../../src/state';
 
@@ -37,48 +39,35 @@ describe('Config Manager Common Utilities', () => {
       removeScriptElement();
     });
 
-    it('should return SDK url that is being used', () => {
-      const dummySdkURL = 'https://www.dummy.url/fromScript/v3/rsa.min.js';
-      createScriptElement(dummySdkURL);
+    const testCases = [
+      // expected, input
+      [
+        'https://www.dummy.url/fromScript/v3/rsa.min.js',
+        'https://www.dummy.url/fromScript/v3/rsa.min.js',
+      ],
+      [undefined, 'https://www.dummy.url/fromScript/v3/other.min.js'],
+      ['https://www.dummy.url/fromScript/v3/rsa.js', 'https://www.dummy.url/fromScript/v3/rsa.js'],
+      [undefined, 'https://www.dummy.url/fromScript/v3/rudder.min.js'],
+      [undefined, 'https://www.dummy.url/fromScript/v3/analytics.min.js'],
+      [undefined, 'https://www.dummy.url/fromScript/v3/rsa.min'],
+      ['https://www.dummy.url/fromScript/v3/rsa.js', 'https://www.dummy.url/fromScript/v3/rsa.js'],
+      [undefined, 'https://www.dummy.url/fromScript/v3/rsa'],
+      [undefined, 'https://www.dummy.url/fromScript/v3rsa.min.js'],
+      ['/rsa.min.js', '/rsa.min.js'],
+      ['/rsa.js', '/rsa.js'],
+      [undefined, 'https://www.dummy.url/fromScript/v3/rs.min.js'],
+      [undefined, 'https://www.dummy.url/fromScript/v3/rsamin.js'],
+      ['rsa.min.js', 'rsa.min.js'],
+      ['rsa.js', 'rsa.js'],
+      [undefined, 'https://www.dummy.url/fromScript/v3/rsa.min.jsx'],
+      [undefined, null],
+    ];
+
+    test.each(testCases)('should return %s when the script src is %s', (expected, input) => {
+      createScriptElement(input as string);
 
       const sdkURL = getSDKUrl();
-      expect(sdkURL).toBe(dummySdkURL);
-    });
-
-    it('should return sdkURL as undefined when rudder SDK is not used', () => {
-      const dummySdkURL = 'https://www.dummy.url/fromScript/v3/other.min.js';
-      createScriptElement(dummySdkURL);
-
-      const sdkURL = getSDKUrl();
-      expect(sdkURL).toBe(undefined);
-    });
-    it('should return sdkURL when development rudder SDK is used', () => {
-      const dummySdkURL = 'https://www.dummy.url/fromScript/v3/rsa.js';
-      createScriptElement(dummySdkURL);
-
-      const sdkURL = getSDKUrl();
-      expect(sdkURL).toBe(dummySdkURL);
-    });
-    it('should return sdkURL as undefined when different SDK is used with similar name', () => {
-      const dummySdkURL = 'https://www.dummy.url/fromScript/v3/rudder.min.js';
-      createScriptElement(dummySdkURL);
-
-      const sdkURL = getSDKUrl();
-      expect(sdkURL).toBe(undefined);
-    });
-    it('should return sdkURL as undefined when different SDK is used with the name analytics', () => {
-      const dummySdkURL = 'https://www.dummy.url/fromScript/v3/analytics.min.js';
-      createScriptElement(dummySdkURL);
-
-      const sdkURL = getSDKUrl();
-      expect(sdkURL).toBe(undefined);
-    });
-    it('should return sdkURL as undefined when rudder SDK is used with incomplete name', () => {
-      const dummySdkURL = 'https://www.dummy.url/fromScript/v3/rsa.min';
-      createScriptElement(dummySdkURL);
-
-      const sdkURL = getSDKUrl();
-      expect(sdkURL).toBe(undefined);
+      expect(sdkURL).toBe(expected);
     });
   });
 
@@ -493,6 +482,138 @@ describe('Config Manager Common Utilities', () => {
       updateConsentsState(mockSourceConfig);
 
       expect(state.consents.resolutionStrategy.value).toBe('and'); // default value
+    });
+  });
+
+  describe('updateDataPlaneEventsStateFromLoadOptions', () => {
+    beforeEach(() => {
+      resetState();
+    });
+
+    it('should not set the events queue plugin name if events delivery is disabled', () => {
+      state.dataPlaneEvents.deliveryEnabled.value = false;
+
+      updateDataPlaneEventsStateFromLoadOptions(mockLogger);
+
+      expect(state.dataPlaneEvents.eventsQueuePluginName.value).toBeUndefined();
+    });
+
+    it('should set the events queue plugin name to XhrQueue by default', () => {
+      updateDataPlaneEventsStateFromLoadOptions(mockLogger);
+
+      expect(state.dataPlaneEvents.eventsQueuePluginName.value).toMatch('XhrQueue');
+    });
+
+    it('should set the events queue plugin name to BeaconQueue if beacon transport is selected', () => {
+      state.loadOptions.value.useBeacon = true;
+
+      // Force set the beacon availability
+      state.capabilities.isBeaconAvailable.value = true;
+
+      updateDataPlaneEventsStateFromLoadOptions(mockLogger);
+
+      expect(state.dataPlaneEvents.eventsQueuePluginName.value).toMatch('BeaconQueue');
+    });
+
+    it('should set the events queue plugin name to XhrQueue if beacon transport is selected but not available', () => {
+      state.loadOptions.value.useBeacon = true;
+
+      // Force set the beacon availability to false
+      state.capabilities.isBeaconAvailable.value = false;
+
+      updateDataPlaneEventsStateFromLoadOptions(mockLogger);
+
+      expect(state.dataPlaneEvents.eventsQueuePluginName.value).toMatch('XhrQueue');
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        'ConfigManager:: The Beacon API is not supported by your browser. The events will be sent using XHR instead.',
+      );
+    });
+  });
+
+  describe('getSourceConfigURL', () => {
+    it('should return default source config URL if invalid source config URL is provided', () => {
+      const sourceConfigURL = getSourceConfigURL('invalid-url', 'writekey', true, true, mockLogger);
+
+      expect(sourceConfigURL).toBe(
+        'https://api.rudderstack.com/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=true&lockPluginsVersion=true',
+      );
+
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        'ConfigManager:: The provided source config URL "invalid-url" is invalid. Using the default source config URL instead.',
+      );
+    });
+
+    it('should return default source config URL if invalid source config URL is provided and no logger is supplied', () => {
+      // Mock console.warn
+      const consoleWarnMock = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+      const sourceConfigURL = getSourceConfigURL('invalid-url', 'writekey', true, true);
+
+      expect(sourceConfigURL).toBe(
+        'https://api.rudderstack.com/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=true&lockPluginsVersion=true',
+      );
+
+      expect(consoleWarnMock).not.toHaveBeenCalled();
+    });
+
+    it('should return the source config URL with default endpoint appended if no endpoint is present', () => {
+      const sourceConfigURL = getSourceConfigURL('https://www.dummy.url', 'writekey', false, false);
+
+      expect(sourceConfigURL).toBe(
+        'https://www.dummy.url/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=false&lockPluginsVersion=false',
+      );
+    });
+
+    it('should return the source config URL with default endpoint if a different endpoint is present', () => {
+      const sourceConfigURL = getSourceConfigURL(
+        'https://www.dummy.url/some/path',
+        'writekey',
+        false,
+        false,
+      );
+
+      expect(sourceConfigURL).toBe(
+        'https://www.dummy.url/some/path/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=false&lockPluginsVersion=false',
+      );
+    });
+
+    it('should return the source config URL as it is if it already has the default endpoint', () => {
+      const sourceConfigURL = getSourceConfigURL(
+        'https://www.dummy.url/sourceConfig',
+        'writekey',
+        false,
+        false,
+      );
+
+      expect(sourceConfigURL).toBe(
+        'https://www.dummy.url/sourceConfig?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=false&lockPluginsVersion=false',
+      );
+    });
+
+    it('should return source config URL without duplicate slashes', () => {
+      const sourceConfigURL = getSourceConfigURL(
+        'https://www.dummy.url//sourceConfig',
+        'writekey',
+        false,
+        false,
+      );
+
+      expect(sourceConfigURL).toBe(
+        'https://www.dummy.url/sourceConfig?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=false&lockPluginsVersion=false',
+      );
+    });
+
+    it('should return source config URL as it is even if contains query parameters and hash already', () => {
+      const sourceConfigURL = getSourceConfigURL(
+        'https://www.dummy.url/some/path/?abc=def#blog',
+        'writekey',
+        false,
+        false,
+      );
+
+      expect(sourceConfigURL).toBe(
+        'https://www.dummy.url/some/path/sourceConfig/?abc=def&p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=false&lockPluginsVersion=false#blog',
+      );
     });
   });
 });

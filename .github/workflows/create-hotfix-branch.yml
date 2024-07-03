@@ -1,0 +1,21 @@
+name: Create a new hotfix branch
+
+on:
+  workflow_dispatch:
+    inputs:
+      hotfix_name:
+        description: Hotfix branch name
+        required: true
+
+jobs:
+  create-branch:
+    name: Create a new hotfix branch
+    runs-on: [self-hosted, Linux, X64]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Create branch
+        uses: peterjgrainger/action-create-branch@v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          branch: 'hotfix/${{ github.event.inputs.hotfix_name }}'

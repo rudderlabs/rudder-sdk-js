@@ -5,9 +5,14 @@ import type { StorageType } from '@rudderstack/analytics-js-common/types/Storage
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { BatchOpts, QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import {
+  isDefined,
+  isFunction,
+  isNullOrUndefined,
+} from '@rudderstack/analytics-js-common/utilities/checks';
 import { LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
+import { onPageLeave } from '@rudderstack/analytics-js-common/utilities/page';
 import type {
   IQueue,
   QueueItem,
@@ -32,6 +37,8 @@ import {
   DEFAULT_RECLAIM_TIMEOUT_MS,
   DEFAULT_RECLAIM_WAIT_MS,
   DEFAULT_BATCH_FLUSH_INTERVAL_MS,
+  MIN_TIMER_SCALE_FACTOR,
+  MAX_TIMER_SCALE_FACTOR,
 } from './constants';
 
 const sortByTime = (a: QueueItem, b: QueueItem) => a.time - b.time;
@@ -64,6 +71,8 @@ class RetryQueue implements IQueue<QueueItemData> {
   flushBatchTaskId?: string;
   batchingInProgress?: boolean;
   batchSizeCalcCb?: QueueBatchItemsSizeCalculatorCallback<QueueItemData>;
+  reclaimStartVal?: Nullable<string>;
+  reclaimEndVal?: Nullable<string>;
 
   constructor(
     name: string,
@@ -95,12 +104,21 @@ class RetryQueue implements IQueue<QueueItemData> {
       jitter: options.backoffJitter || DEFAULT_BACKOFF_JITTER,
     };
 
+    // Limit the timer scale factor to the minimum value
+    let timerScaleFactor = Math.max(
+      options.timerScaleFactor ?? MIN_TIMER_SCALE_FACTOR,
+      MIN_TIMER_SCALE_FACTOR,
+    );
+
+    // Limit the timer scale factor to the maximum value
+    timerScaleFactor = Math.min(timerScaleFactor, MAX_TIMER_SCALE_FACTOR);
+
     // painstakingly tuned. that's why they're not "easily" configurable
     this.timeouts = {
-      ackTimer: DEFAULT_ACK_TIMER_MS,
-      reclaimTimer: DEFAULT_RECLAIM_TIMER_MS,
-      reclaimTimeout: DEFAULT_RECLAIM_TIMEOUT_MS,
-      reclaimWait: DEFAULT_RECLAIM_WAIT_MS,
+      ackTimer: Math.round(timerScaleFactor * DEFAULT_ACK_TIMER_MS),
+      reclaimTimer: Math.round(timerScaleFactor * DEFAULT_RECLAIM_TIMER_MS),
+      reclaimTimeout: Math.round(timerScaleFactor * DEFAULT_RECLAIM_TIMEOUT_MS),
+      reclaimWait: Math.round(timerScaleFactor * DEFAULT_RECLAIM_WAIT_MS),
     };
 
     this.schedule = new Schedule();
@@ -121,8 +139,8 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.processHead = this.processHead.bind(this);
     this.flushBatch = this.flushBatch.bind(this);
 
-    // Attach visibility change listener to flush the queue
-    this.attachListeners();
+    // Flush the queue on page leave
+    this.flushBatchOnPageLeave();
 
     this.scheduleTimeoutActive = false;
   }
@@ -154,28 +172,28 @@ class RetryQueue implements IQueue<QueueItemData> {
     }
   }
 
-  attachListeners() {
+  flushBatchOnPageLeave() {
     if (this.batch.enabled) {
-      (globalThis as typeof window).addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'hidden') {
-          this.flushBatch();
-        }
-      });
+      onPageLeave(this.flushBatch);
     }
   }
 
   getStorageEntry(
-    name?: string,
+    name: string,
   ): Nullable<QueueItem<QueueItemData>[] | Record<string, any> | number> {
-    return this.store.get(name ?? this.name);
+    return this.store.get(name);
   }
 
   // TODO: fix the type of different queues to be the same if possible
   setStorageEntry(
-    name?: string,
+    name: string,
     value?: Nullable<QueueItem<QueueItemData>[] | Record<string, any>> | number,
   ) {
-    this.store.set(name ?? this.name, value ?? []);
+    if (isNullOrUndefined(value)) {
+      this.store.remove(name);
+    } else {
+      this.store.set(name, value);
+    }
   }
 
   /**
@@ -305,7 +323,7 @@ class RetryQueue implements IQueue<QueueItemData> {
       batchQueue = batchQueue.slice(-batchQueue.length);
       batchQueue.push(entry);
 
-      const batchDispatchInfo = this.getBatchDispInfo(batchQueue);
+      const batchDispatchInfo = this.getBatchDispatchInfo(batchQueue);
       // if batch criteria is met, queue the batch events to the main queue and clear batch queue
       if (batchDispatchInfo.criteriaMet || batchDispatchInfo.criteriaExceeded) {
         let batchItems;
@@ -399,7 +417,7 @@ class RetryQueue implements IQueue<QueueItemData> {
    * @param batchItems Prospective batch items
    * @returns Batch dispatch info
    */
-  getBatchDispInfo(batchItems: QueueItem[]) {
+  getBatchDispatchInfo(batchItems: QueueItem[]) {
     let lengthCriteriaMet = false;
     let lengthCriteriaExceeded = false;
     const configuredBatchMaxItems = this.batch?.maxItems as number;
@@ -520,8 +538,17 @@ class RetryQueue implements IQueue<QueueItemData> {
   // Ack continuously to prevent other tabs from claiming our queue
   ack() {
     this.setStorageEntry(QueueStatuses.ACK, this.schedule.now());
-    this.setStorageEntry(QueueStatuses.RECLAIM_START, null);
-    this.setStorageEntry(QueueStatuses.RECLAIM_END, null);
+
+    if (this.reclaimStartVal != null) {
+      this.reclaimStartVal = null;
+      this.setStorageEntry(QueueStatuses.RECLAIM_START, null);
+    }
+
+    if (this.reclaimEndVal != null) {
+      this.reclaimEndVal = null;
+      this.setStorageEntry(QueueStatuses.RECLAIM_END, null);
+    }
+
     this.schedule.run(this.ack, this.timeouts.ackTimer, ScheduleModes.ASAP);
   }
 
@@ -609,9 +636,10 @@ class RetryQueue implements IQueue<QueueItemData> {
 
   removeStorageEntry(store: IStore, entryIdx: number, backoff: number, attempt = 1) {
     const maxAttempts = 2;
+    const queueEntryKeys = Object.keys(QueueStatuses);
+    const entry = QueueStatuses[queueEntryKeys[entryIdx] as keyof typeof QueueStatuses];
+
     (globalThis as typeof window).setTimeout(() => {
-      const queueEntryKeys = Object.keys(QueueStatuses);
-      const entry = QueueStatuses[queueEntryKeys[entryIdx] as keyof typeof QueueStatuses];
       try {
         store.remove(entry);
 
@@ -633,7 +661,7 @@ class RetryQueue implements IQueue<QueueItemData> {
           this.logger?.error(RETRY_QUEUE_ENTRY_REMOVE_ERROR(RETRY_QUEUE, entry, attempt), err);
         }
 
-        // clear the next entry
+        // clear the next entry after we've exhausted our attempts
         if (attempt === maxAttempts && entryIdx + 1 < queueEntryKeys.length) {
           this.removeStorageEntry(store, entryIdx + 1, backoff);
         }
@@ -678,45 +706,45 @@ class RetryQueue implements IQueue<QueueItemData> {
     };
     const findOtherQueues = (name: string): IStore[] => {
       const res: IStore[] = [];
-      const storage = this.store.getOriginalEngine();
-
-      for (let i = 0; i < storage.length; i++) {
-        const k = storage.key(i);
-        const parts: string[] = k ? k.split('.') : [];
-
-        if (parts.length !== 3) {
-          // eslint-disable-next-line no-continue
-          continue;
+      const storageEngine = this.store.getOriginalEngine();
+      let storageKeys = [];
+      // 'keys' API is not supported by all the core SDK versions
+      // Hence, we need this backward compatibility check
+      if (isFunction(storageEngine.keys)) {
+        storageKeys = storageEngine.keys();
+      } else {
+        for (let i = 0; i < storageEngine.length; i++) {
+          const key = storageEngine.key(i);
+          if (key) {
+            storageKeys.push(key);
+          }
         }
-
-        if (parts[0] !== name) {
-          // eslint-disable-next-line no-continue
-          continue;
-        }
-
-        if (parts[2] !== QueueStatuses.ACK) {
-          // eslint-disable-next-line no-continue
-          continue;
-        }
-
-        res.push(
-          this.storeManager.setStore({
-            id: parts[1] as string,
-            name,
-            validKeys: QueueStatuses,
-            type: LOCAL_STORAGE,
-          }),
-        );
       }
+
+      storageKeys.forEach((k: string) => {
+        const keyParts: string[] = k ? k.split('.') : [];
+
+        if (
+          keyParts.length >= 3 &&
+          keyParts[0] === name &&
+          keyParts[1] !== this.id &&
+          keyParts[2] === QueueStatuses.ACK
+        ) {
+          res.push(
+            this.storeManager.setStore({
+              id: keyParts[1] as string,
+              name,
+              validKeys: QueueStatuses,
+              type: LOCAL_STORAGE,
+            }),
+          );
+        }
+      });
 
       return res;
     };
 
     findOtherQueues(this.name).forEach(store => {
-      if (store.id === this.id) {
-        return;
-      }
-
       if (this.schedule.now() - store.get(QueueStatuses.ACK) < this.timeouts.reclaimTimeout) {
         return;
       }

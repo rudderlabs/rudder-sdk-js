@@ -1,7 +1,7 @@
 {
   "name": "@rudderstack/analytics-js-service-worker",
-  "version": "3.0.4",
-  "description": "RudderStack Javascript Service Worker SDK",
+  "version": "3.1.2",
+  "description": "RudderStack JavaScript Service Worker SDK",
   "main": "dist/npm/umd/index.js",
   "module": "dist/npm/esm/index.js",
   "exports": {
@@ -10,6 +10,13 @@
     "types": "./dist/npm/index.d.ts"
   },
   "types": "./dist/npm/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "dist/npm/index.d.ts"
+      ]
+    }
+  },
   "publishConfig": {
     "access": "public"
   },
@@ -63,20 +70,19 @@
   },
   "dependencies": {
     "@lukeed/uuid": "2.0.1",
+    "@rudderstack/analytics-js-common": "*",
     "@vespaiach/axios-fetch-adapter": "0.3.1",
     "assert": "2.1.0",
-    "axios": "1.6.7",
-    "axios-retry": "3.9.1",
-    "component-type": "1.2.1",
+    "axios": "1.7.2",
+    "axios-retry": "4.4.0",
+    "component-type": "2.0.0",
     "join-component": "1.1.0",
-    "lodash.clonedeep": "4.5.0",
-    "lodash.isstring": "4.0.1",
     "ms": "2.1.3"
   },
   "devDependencies": {
-    "@types/node": "20.11.19",
-    "jest-date-mock": "1.0.8",
-    "msw": "1.3.2"
+    "@types/ms": "0.7.34",
+    "@types/node": "20.14.5",
+    "jest-date-mock": "1.0.10"
   },
   "overrides": {},
   "browserslist": {

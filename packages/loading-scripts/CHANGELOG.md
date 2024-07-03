@@ -2,6 +2,101 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.0.13](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.12...@rudderstack/analytics-js-loading-scripts@3.0.13) (2024-06-25)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.12`
+## [3.0.12](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.11...@rudderstack/analytics-js-loading-scripts@3.0.12) (2024-06-25)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.11`
+## [3.0.11](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.10...@rudderstack/analytics-js-loading-scripts@3.0.11) (2024-06-21)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.10`
+
+### Bug Fixes
+
+* improve flushing events on page leave ([#1754](https://github.com/rudderlabs/rudder-sdk-js/issues/1754)) ([1be420f](https://github.com/rudderlabs/rudder-sdk-js/commit/1be420fae16b68629789d2ba37e16e6a6e00017c))
+
+## [3.0.10](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.9...@rudderstack/analytics-js-loading-scripts@3.0.10) (2024-06-07)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.9`
+
+### Bug Fixes
+
+* improve sdk loading snippet ([#1745](https://github.com/rudderlabs/rudder-sdk-js/issues/1745)) ([d4e0f66](https://github.com/rudderlabs/rudder-sdk-js/commit/d4e0f663a4d0cdb55563ed380166d55e99cf3fc8))
+
+## [3.0.9](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.8...@rudderstack/analytics-js-loading-scripts@3.0.9) (2024-06-04)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.8`
+## [3.0.8](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.7...@rudderstack/analytics-js-loading-scripts@3.0.8) (2024-05-29)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.7`
+## [3.0.7](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.6...@rudderstack/analytics-js-loading-scripts@3.0.7) (2024-05-24)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.6`
+## [3.0.6](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.5...@rudderstack/analytics-js-loading-scripts@3.0.6) (2024-05-10)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.5`
+## [3.0.5](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.4...@rudderstack/analytics-js-loading-scripts@3.0.5) (2024-04-26)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.4`
+## [3.0.4](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.3...@rudderstack/analytics-js-loading-scripts@3.0.4) (2024-04-12)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.3`
+
+### Bug Fixes
+
+* remove unnecessary window globals declarations ([#1687](https://github.com/rudderlabs/rudder-sdk-js/issues/1687)) ([09e5ab8](https://github.com/rudderlabs/rudder-sdk-js/commit/09e5ab89965a0b0dc5070891288a08358c103c0e))
+
+## [3.0.3](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.2...@rudderstack/analytics-js-loading-scripts@3.0.3) (2024-03-22)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.2`
+## [3.0.2](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.1...@rudderstack/analytics-js-loading-scripts@3.0.2) (2024-03-22)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.1`
+
+### Bug Fixes
+
+* replace polyfillio with fastly ([#1664](https://github.com/rudderlabs/rudder-sdk-js/issues/1664)) ([24d3a0b](https://github.com/rudderlabs/rudder-sdk-js/commit/24d3a0b383f58b79fc1970d0c74761de30bb3f4a))
+* type issues ([#1663](https://github.com/rudderlabs/rudder-sdk-js/issues/1663)) ([1f114a1](https://github.com/rudderlabs/rudder-sdk-js/commit/1f114a19ac14ffd9af6ae876a54d4d19afd80d65))
+
+## [3.0.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.0-beta.22...@rudderstack/analytics-js-loading-scripts@3.0.1) (2024-03-21)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.0`
+## [3.0.0-beta.22](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.0-beta.21...@rudderstack/analytics-js-loading-scripts@3.0.0-beta.22) (2024-03-18)
+
+## [3.0.0-beta.21](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.0-beta.20...@rudderstack/analytics-js-loading-scripts@3.0.0-beta.21) (2024-03-01)
+
+
+### Bug Fixes
+
+* **analytics-js-loading-scripts:** add version in polyfill io url ([#1630](https://github.com/rudderlabs/rudder-sdk-js/issues/1630)) ([3e315a6](https://github.com/rudderlabs/rudder-sdk-js/commit/3e315a6555871ef3cadb93236191a38bc21a2973))
+
 ## [3.0.0-beta.20](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.0-beta.19...@rudderstack/analytics-js-loading-scripts@3.0.0-beta.20) (2024-02-16)
 
 ## [3.0.0-beta.19](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.0-beta.18...@rudderstack/analytics-js-loading-scripts@3.0.0-beta.19) (2024-02-02)

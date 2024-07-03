@@ -42,7 +42,10 @@ module.exports = {
     ],
   },
   transformIgnorePatterns: ['<rootDir>/dist/', '<rootDir>/reports/'],
-  testMatch: ['<rootDir>/__tests__/**/*.(j|t)s?(x)', '<rootDir>/src/**/*.?(spec|test).(j|t)s?(x)'],
+  testMatch: [
+    '<rootDir>/__tests__/**/*.(spec|test).(j|t)s?(x)',
+    '<rootDir>/src/**/*.(spec|test).(j|t)s?(x)',
+  ],
   testPathIgnorePatterns: ['__mocks__', '__fixtures__'],
   collectCoverageFrom: [
     '<rootDir>/src/**/*.{js,ts}',
@@ -68,13 +71,13 @@ module.exports = {
   },
   testEnvironmentOptions: {
     ...nxPreset.testEnvironmentOptions,
-    url: 'http://www.test-host.com',
+    url: 'https://www.test-host.com',
     runScripts: 'dangerously',
     resources: 'usable',
   },
   setupFilesAfterEnv: ['../../jest/jest.setup-dom.js'],
   setupFiles: ['core-js', 'jest-date-mock', '../../jest/jest.polyfills.js'],
-  testEnvironment: 'jest-environment-jsdom',
+  testEnvironment: '../../jest/jsdom-extended.js',
   testRunner: 'jest-circus/runner',
   cacheDirectory: '../../node_modules/.cache/unit-tests',
   watchPlugins: ['jest-watch-typeahead/filename', 'jest-watch-typeahead/testname'],

@@ -1,16 +1,16 @@
 import * as R from 'ramda';
 import { batch } from '@preact/signals-core';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
-import { ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
-import {
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+import type { ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
+import type {
   AppInfo,
   LibraryInfo,
   OSInfo,
   ScreenInfo,
 } from '@rudderstack/analytics-js-common/types/EventContext';
-import { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
-import { RudderContext, RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import type { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
+import type { RudderContext, RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { state } from '../../../src/state';
 import {
   checkForReservedElements,
@@ -218,7 +218,7 @@ describe('Event Manager - Utilities', () => {
         title: pageProperties.title,
         url: pageProperties.url,
         referring_domain: pageProperties.referring_domain,
-        tab_url: 'http://www.test-host.com/',
+        tab_url: 'https://www.test-host.com/',
         initial_referrer: state.session.initialReferrer.value,
         initial_referring_domain: state.session.initialReferringDomain.value,
         anonymousId: pageProperties.anonymousId,
@@ -323,8 +323,8 @@ describe('Event Manager - Utilities', () => {
             referring_domain: '',
             search: '',
             title: '',
-            url: 'http://www.test-host.com/',
-            tab_url: 'http://www.test-host.com/',
+            url: 'https://www.test-host.com/',
+            tab_url: 'https://www.test-host.com/',
             initial_referrer: 'https://test.com/page',
             initial_referring_domain: 'https://test.com',
           },
@@ -352,25 +352,25 @@ describe('Event Manager - Utilities', () => {
 
     it('should log a warn message if the object contains reserved elements', () => {
       const obj = {
-        anonymousId: sampleAnonId,
-        originalTimestamp: sampleOriginalTimestamp,
+        anonymous_id: sampleAnonId,
+        original_timestamp: sampleOriginalTimestamp,
         nonReservedKey: 123,
-        messageId: 'myMsgId',
+        id: 'myMsgId',
       } as ApiObject;
 
       checkForReservedElementsInObject(obj, defaultParentKeyPath, mockLogger);
 
-      expect(mockLogger.warn).nthCalledWith(
+      expect(mockLogger.warn).toHaveBeenNthCalledWith(
         1,
-        `EventManager:: The "anonymousId" property defined under "${defaultParentKeyPath}" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (anonymousId,sentAt,receivedAt,timestamp,originalTimestamp,event,messageId,channel).`,
+        `EventManager:: The "anonymous_id" property defined under "${defaultParentKeyPath}" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (id,anonymous_id,user_id,sent_at,timestamp,received_at,original_timestamp,event,event_text,channel,context_ip,context_request_ip,context_passed_ip,group_id,previous_id).`,
       );
-      expect(mockLogger.warn).nthCalledWith(
+      expect(mockLogger.warn).toHaveBeenNthCalledWith(
         2,
-        `EventManager:: The "originalTimestamp" property defined under "${defaultParentKeyPath}" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (anonymousId,sentAt,receivedAt,timestamp,originalTimestamp,event,messageId,channel).`,
+        `EventManager:: The "original_timestamp" property defined under "${defaultParentKeyPath}" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (id,anonymous_id,user_id,sent_at,timestamp,received_at,original_timestamp,event,event_text,channel,context_ip,context_request_ip,context_passed_ip,group_id,previous_id).`,
       );
-      expect(mockLogger.warn).nthCalledWith(
+      expect(mockLogger.warn).toHaveBeenNthCalledWith(
         3,
-        `EventManager:: The "messageId" property defined under "${defaultParentKeyPath}" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (anonymousId,sentAt,receivedAt,timestamp,originalTimestamp,event,messageId,channel).`,
+        `EventManager:: The "id" property defined under "${defaultParentKeyPath}" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (id,anonymous_id,user_id,sent_at,timestamp,received_at,original_timestamp,event,event_text,channel,context_ip,context_request_ip,context_passed_ip,group_id,previous_id).`,
       );
     });
 
@@ -407,18 +407,18 @@ describe('Event Manager - Utilities', () => {
       const obj = {
         EVENT: 'test event',
         nonReservedKey: 123,
-        originalTimestamp: sampleOriginalTimestamp,
+        original_timestamp: sampleOriginalTimestamp,
       } as ApiObject;
 
       checkForReservedElementsInObject(obj, defaultParentKeyPath, mockLogger);
 
-      expect(mockLogger.warn).nthCalledWith(
+      expect(mockLogger.warn).toHaveBeenNthCalledWith(
         1,
-        `EventManager:: The "EVENT" property defined under "${defaultParentKeyPath}" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (anonymousId,sentAt,receivedAt,timestamp,originalTimestamp,event,messageId,channel).`,
+        `EventManager:: The "EVENT" property defined under "${defaultParentKeyPath}" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (id,anonymous_id,user_id,sent_at,timestamp,received_at,original_timestamp,event,event_text,channel,context_ip,context_request_ip,context_passed_ip,group_id,previous_id).`,
       );
-      expect(mockLogger.warn).nthCalledWith(
+      expect(mockLogger.warn).toHaveBeenNthCalledWith(
         2,
-        `EventManager:: The "originalTimestamp" property defined under "${defaultParentKeyPath}" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (anonymousId,sentAt,receivedAt,timestamp,originalTimestamp,event,messageId,channel).`,
+        `EventManager:: The "original_timestamp" property defined under "${defaultParentKeyPath}" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (id,anonymous_id,user_id,sent_at,timestamp,received_at,original_timestamp,event,event_text,channel,context_ip,context_request_ip,context_passed_ip,group_id,previous_id).`,
       );
     });
   });
@@ -429,17 +429,17 @@ describe('Event Manager - Utilities', () => {
       const rudderEvent = {
         type: defaultEventType,
         properties: {
-          anonymousId: sampleAnonId,
-          originalTimestamp: sampleOriginalTimestamp,
+          anonymous_id: sampleAnonId,
+          original_timestamp: sampleOriginalTimestamp,
         },
         traits: {
-          originalTimestamp: sampleOriginalTimestamp,
+          original_timestamp: sampleOriginalTimestamp,
           event: 'test event',
         },
         // @ts-ignore
         context: {
           traits: {
-            anonymousId: sampleAnonId,
+            anonymous_id: sampleAnonId,
           },
           locale: 'en-US',
         } as RudderContext,
@@ -447,25 +447,25 @@ describe('Event Manager - Utilities', () => {
 
       checkForReservedElements(rudderEvent, mockLogger);
 
-      expect(mockLogger.warn).nthCalledWith(
+      expect(mockLogger.warn).toHaveBeenNthCalledWith(
         1,
-        `EventManager:: The "anonymousId" property defined under "properties" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (anonymousId,sentAt,receivedAt,timestamp,originalTimestamp,event,messageId,channel).`,
+        `EventManager:: The "anonymous_id" property defined under "properties" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (id,anonymous_id,user_id,sent_at,timestamp,received_at,original_timestamp,event,event_text,channel,context_ip,context_request_ip,context_passed_ip,group_id,previous_id).`,
       );
-      expect(mockLogger.warn).nthCalledWith(
+      expect(mockLogger.warn).toHaveBeenNthCalledWith(
         2,
-        `EventManager:: The "originalTimestamp" property defined under "properties" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (anonymousId,sentAt,receivedAt,timestamp,originalTimestamp,event,messageId,channel).`,
+        `EventManager:: The "original_timestamp" property defined under "properties" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (id,anonymous_id,user_id,sent_at,timestamp,received_at,original_timestamp,event,event_text,channel,context_ip,context_request_ip,context_passed_ip,group_id,previous_id).`,
       );
-      expect(mockLogger.warn).nthCalledWith(
+      expect(mockLogger.warn).toHaveBeenNthCalledWith(
         3,
-        `EventManager:: The "originalTimestamp" property defined under "traits" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (anonymousId,sentAt,receivedAt,timestamp,originalTimestamp,event,messageId,channel).`,
+        `EventManager:: The "original_timestamp" property defined under "traits" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (id,anonymous_id,user_id,sent_at,timestamp,received_at,original_timestamp,event,event_text,channel,context_ip,context_request_ip,context_passed_ip,group_id,previous_id).`,
       );
-      expect(mockLogger.warn).nthCalledWith(
+      expect(mockLogger.warn).toHaveBeenNthCalledWith(
         4,
-        `EventManager:: The "event" property defined under "traits" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (anonymousId,sentAt,receivedAt,timestamp,originalTimestamp,event,messageId,channel).`,
+        `EventManager:: The "event" property defined under "traits" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (id,anonymous_id,user_id,sent_at,timestamp,received_at,original_timestamp,event,event_text,channel,context_ip,context_request_ip,context_passed_ip,group_id,previous_id).`,
       );
-      expect(mockLogger.warn).nthCalledWith(
+      expect(mockLogger.warn).toHaveBeenNthCalledWith(
         5,
-        `EventManager:: The "anonymousId" property defined under "context.traits" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (anonymousId,sentAt,receivedAt,timestamp,originalTimestamp,event,messageId,channel).`,
+        `EventManager:: The "anonymous_id" property defined under "context.traits" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (id,anonymous_id,user_id,sent_at,timestamp,received_at,original_timestamp,event,event_text,channel,context_ip,context_request_ip,context_passed_ip,group_id,previous_id).`,
       );
     });
   });

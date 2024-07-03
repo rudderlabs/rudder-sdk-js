@@ -43,9 +43,8 @@ const modName = 'rudderanalytics';
 const remotePluginsExportsFilename = `rsa-plugins`;
 const remotePluginsHostPromise = `Promise.resolve(window.RudderStackGlobals && window.RudderStackGlobals.app && window.RudderStackGlobals.app.pluginsCDNPath ? \`\${window.RudderStackGlobals.app.pluginsCDNPath}/${remotePluginsExportsFilename}.js\` : \`${remotePluginsBasePath}/${remotePluginsExportsFilename}.js\`)`;
 const moduleType = process.env.MODULE_TYPE || 'cdn';
-const isNpmPackageBuild = moduleType === 'npm';
 const isCDNPackageBuild = moduleType === 'cdn';
-let polyfillIoUrl = 'https://polyfill.io/v3/polyfill.min.js';
+let polyfillIoUrl = 'https://polyfill-fastly.io/v3/polyfill.min.js';
 
 // For Chrome extension as content script any references in code to third party URLs
 // throw violations at approval phase even if relevant code is not used
@@ -360,6 +359,10 @@ const buildEntries = () => {
             {
               find: '@rudderstack/analytics-js-common',
               replacement: path.resolve('./dist/dts/packages/analytics-js-common/src'),
+            },
+            {
+              find: '@rudderstack/analytics-js-cookies',
+              replacement: path.resolve('./dist/dts/packages/analytics-js-cookies/src'),
             },
           ],
         }),

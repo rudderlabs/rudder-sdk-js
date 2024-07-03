@@ -5,8 +5,8 @@ import {
   NAME,
   DISPLAY_NAME,
 } from '@rudderstack/analytics-js-common/constants/integrations/FacebookPixel/constants';
+import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import Logger from '../../utils/logger';
-import { isDefined } from '../../utils/commonUtils';
 
 const logger = new Logger(DISPLAY_NAME);
 
@@ -228,17 +228,26 @@ const getProductsContentsAndContentIds = (products, quantity, price, deliveryCat
   const contents = products
     ? products
         .filter(product => product)
-        .map(({ product_id: prodId, sku, id, quantity: productQuantity, price: productPrice, delivery_category: prodDeliveryCategory }) => {
-          const productId = prodId || sku || id;
-          return isDefined(productId)
-            ? {
-              id: productId,
-              quantity: productQuantity || quantity || 1,
-              item_price: productPrice || price,
-              delivery_category: prodDeliveryCategory || deliveryCategory,
-              }
-            : null;
-        })
+        .map(
+          ({
+            product_id: prodId,
+            sku,
+            id,
+            quantity: productQuantity,
+            price: productPrice,
+            delivery_category: prodDeliveryCategory,
+          }) => {
+            const productId = prodId || sku || id;
+            return isDefined(productId)
+              ? {
+                  id: productId,
+                  quantity: productQuantity || quantity || 1,
+                  item_price: productPrice || price,
+                  delivery_category: prodDeliveryCategory || deliveryCategory,
+                }
+              : null;
+          },
+        )
         .filter(content => content !== null)
     : [];
 

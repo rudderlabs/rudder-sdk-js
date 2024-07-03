@@ -1,0 +1,50 @@
+name: Deploy to Staging Environment
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: ['main']
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+jobs:
+  deploy:
+    name: Deploy to staging environment
+    # Only manually run the workflow for tags
+    # and PRs raised from release branches to main
+    if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.head_ref, 'hotfix-release/') || startsWith(github.head_ref, 'release/')
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: 'staging'
+      bugsnag_release_stage: 'staging'
+      s3_dir_path: 'staging/latest/v3'
+      s3_dir_path_legacy: 'staging/latest/v1.1'
+      action_type: ''
+    secrets:
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_STAGING_ACCOUNT_ID }}
+      AWS_S3_BUCKET_NAME: ${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}
+      AWS_S3_SYNC_ROLE: ${{ secrets.AWS_STAGING_S3_SYNC_ROLE }}
+      AWS_CF_DISTRIBUTION_ID: ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }}
+      BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
+
+  deploy-sanity-suite:
+    name: Deploy sanity suite
+    needs: deploy
+    uses: ./.github/workflows/deploy-sanity-suite.yml
+    with:
+      environment: 'staging'
+    secrets:
+      AWS_STAGING_ACCOUNT_ID: ${{ secrets.AWS_STAGING_ACCOUNT_ID }}
+      AWS_STAGING_S3_BUCKET_NAME: ${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}
+      AWS_STAGING_S3_SYNC_ROLE: ${{ secrets.AWS_STAGING_S3_SYNC_ROLE }}
+      AWS_STAGING_CF_DISTRIBUTION_ID: ${{ secrets.AWS_STAGING_CF_DISTRIBUTION_ID }}
+      SANITY_SUITE_STAGING_WRITE_KEY: ${{ secrets.SANITY_SUITE_STAGING_WRITE_KEY }}
+      SANITY_SUITE_STAGING_DATAPLANE_URL: ${{ secrets.SANITY_SUITE_STAGING_DATAPLANE_URL }}
+      SANITY_SUITE_STAGING_CONFIG_SERVER_HOST: ${{ secrets.SANITY_SUITE_STAGING_CONFIG_SERVER_HOST }}
+      RS_STAGING_BUGSNAG_API_KEY: ${{ secrets.RS_STAGING_BUGSNAG_API_KEY }}
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}

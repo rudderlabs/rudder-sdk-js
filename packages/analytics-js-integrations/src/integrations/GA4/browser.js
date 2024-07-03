@@ -8,7 +8,7 @@ import {
 import { Cookie } from '@rudderstack/analytics-js-common/v1.1/utils/storage/cookie';
 import Logger from '../../utils/logger';
 import { eventsConfig } from './config';
-import { constructPayload, flattenJsonPayload } from '../../utils/utils';
+import { constructPayload, flattenJsonPayload, removeTrailingSlashes } from '../../utils/utils';
 import {
   shouldSendUserId,
   prepareParamsAndEventName,
@@ -37,6 +37,8 @@ export default class GA4 {
     this.piiPropertiesToIgnore = config.piiPropertiesToIgnore || [];
     this.extendPageViewParams = config.extendPageViewParams || false;
     this.overrideClientAndSessionId = config.overrideClientAndSessionId || false;
+    this.sdkBaseUrl =
+      removeTrailingSlashes(config.sdkBaseUrl) || 'https://www.googletagmanager.com';
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
@@ -44,7 +46,7 @@ export default class GA4 {
     } = destinationInfo ?? {});
   }
 
-  loadScript(measurementId) {
+  loadScript(measurementId, sdkBaseUrl) {
     window.dataLayer = window.dataLayer || [];
     window.gtag =
       window.gtag ||
@@ -128,14 +130,11 @@ export default class GA4 {
       this.sessionNumber = sessionNumber;
     });
 
-    ScriptLoader(
-      'google-analytics 4',
-      `https://www.googletagmanager.com/gtag/js?id=${measurementId}`,
-    );
+    ScriptLoader('google-analytics 4', `${sdkBaseUrl}/gtag/js?id=${measurementId}`);
   }
 
   init() {
-    this.loadScript(this.measurementId);
+    this.loadScript(this.measurementId, this.sdkBaseUrl);
   }
 
   /**

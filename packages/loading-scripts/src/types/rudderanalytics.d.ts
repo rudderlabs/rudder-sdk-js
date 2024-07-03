@@ -1,5 +1,4 @@
 import type {
-  IRudderStackGlobals,
   RudderAnalytics,
   PreloadedEventCall,
   RudderAnalyticsPreloader,
@@ -7,10 +6,14 @@ import type {
 
 declare global {
   interface Window {
-    rudderanalytics: RudderAnalytics | PreloadedEventCall[] | RudderAnalyticsPreloader;
-    RudderStackGlobals: IRudderStackGlobals;
+    rudderanalytics: RudderAnalytics | RudderAnalyticsPreloader | undefined;
     rudderAnalyticsMount: () => void;
     rudderAnalyticsBuildType: 'legacy' | 'modern';
     RudderSnippetVersion?: string;
+    rudderAnalyticsAddScript: (
+      url: string,
+      extraAttributeKey?: string,
+      extraAttributeVal?: string,
+    ) => void;
   }
 }

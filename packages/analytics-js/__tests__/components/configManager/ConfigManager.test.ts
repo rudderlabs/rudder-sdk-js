@@ -1,14 +1,17 @@
-import { batch, effect, signal } from '@preact/signals-core';
-import { rest } from 'msw';
+import { effect, signal } from '@preact/signals-core';
+import { http, HttpResponse } from 'msw';
 import { defaultHttpClient } from '../../../src/services/HttpClient';
 import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
 import { defaultLogger } from '../../../src/services/Logger';
 import { ConfigManager } from '../../../src/components/configManager';
-import { state } from '../../../src/state';
+import { state, resetState } from '../../../src/state';
 import { getSDKUrl } from '../../../src/components/configManager/util/commonUtil';
-import { DEST_SDK_BASE_URL, DEFAULT_CONFIG_BE_URL } from '../../../src/constants/urls';
 import { server } from '../../../__fixtures__/msw.server';
 import { dummySourceConfigResponse } from '../../../__fixtures__/fixtures';
+import {
+  ConfigResponseDestinationItem,
+  SourceConfigResponse,
+} from '../../../src/components/configManager/types';
 
 jest.mock('../../../src/services/Logger', () => {
   const originalModule = jest.requireActual('../../../src/services/Logger');
@@ -52,24 +55,13 @@ describe('ConfigManager', () => {
   let configManagerInstance: ConfigManager;
   const errorMsg =
     'The write key " " is invalid. It must be a non-empty string. Please check that the write key is correct and try again.';
-  const errorMsgSourceConfigResponse = 'Unable to fetch source config';
   const sampleWriteKey = '2LoR1TbVG2bcISXvy7DamldfkgO';
   const sampleDataPlaneUrl = 'https://www.dummy.url';
   const sampleDestSDKUrl = 'https://www.sample.url/integrations';
   const sampleConfigUrl = 'https://dummy.dataplane.host.com';
   const sampleScriptURL = 'https://www.dummy.url/fromScript/v3/rsa.min.js';
   const lockIntegrationsVersion = false;
-
-  const resetState = () => {
-    batch(() => {
-      state.lifecycle.writeKey.value = undefined;
-      state.lifecycle.dataPlaneUrl.value = undefined;
-      state.loadOptions.value.lockIntegrationsVersion = false;
-      state.loadOptions.value.destSDKBaseURL = DEST_SDK_BASE_URL;
-      state.loadOptions.value.logLevel = 'ERROR';
-      state.loadOptions.value.configUrl = DEFAULT_CONFIG_BE_URL;
-    });
-  };
+  const lockPluginsVersion = false;
 
   beforeAll(() => {
     server.listen();
@@ -115,12 +107,13 @@ describe('ConfigManager', () => {
 
     state.lifecycle.writeKey.value = sampleWriteKey;
     state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
-    state.loadOptions.value.lockIntegrationsVersion = false;
     state.loadOptions.value.destSDKBaseURL = sampleDestSDKUrl;
     state.loadOptions.value.logLevel = 'DEBUG';
     state.loadOptions.value.configUrl = sampleConfigUrl;
     state.loadOptions.value.lockIntegrationsVersion = lockIntegrationsVersion;
-    const expectedConfigUrl = `${sampleConfigUrl}/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
+    state.loadOptions.value.lockPluginsVersion = lockPluginsVersion;
+
+    const expectedConfigUrl = `${sampleConfigUrl}/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}&lockPluginsVersion=${lockPluginsVersion}`;
     configManagerInstance.getConfig = jest.fn();
 
     configManagerInstance.init();
@@ -131,14 +124,19 @@ describe('ConfigManager', () => {
     expect(configManagerInstance.getConfig).toHaveBeenCalled();
   });
   it('should fetch configurations using sourceConfig endpoint', done => {
-    state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfigClone/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
+    state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfigClone/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}&lockPluginsVersion=${lockPluginsVersion}`;
     configManagerInstance.processConfig = jest.fn();
 
     const counter = signal(0);
     server.use(
-      rest.get(`${sampleConfigUrl}/sourceConfigClone`, (req, res, ctx) => {
+      http.get(`${sampleConfigUrl}/sourceConfigClone`, () => {
         counter.value = 1;
-        return res(ctx.status(200), ctx.json(dummySourceConfigResponse));
+        return new HttpResponse(JSON.stringify(dummySourceConfigResponse), {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+          },
+        });
       }),
     );
 
@@ -169,13 +167,13 @@ describe('ConfigManager', () => {
     const expectedSourceState = {
       id: dummySourceConfigResponse.source.id,
       config: dummySourceConfigResponse.source.config,
+      workspaceId: dummySourceConfigResponse.source.workspaceId,
     };
     state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
 
     configManagerInstance.processConfig(dummySourceConfigResponse);
 
     expect(state.source.value).toStrictEqual(expectedSourceState);
-    expect(state.lifecycle.activeDataplaneUrl.value).toBe(sampleDataPlaneUrl);
     expect(state.lifecycle.status.value).toBe('configured');
     expect(state.reporting.isErrorReportingEnabled.value).toBe(
       dummySourceConfigResponse.source.config.statsCollection.errors.enabled,
@@ -189,6 +187,28 @@ describe('ConfigManager', () => {
     configManagerInstance.processConfig(undefined);
 
     expect(defaultErrorHandler.onError).toHaveBeenCalled();
+  });
+
+  it('should log error and abort if source is disabled', () => {
+    state.lifecycle.status.value = 'browserCapabilitiesReady';
+
+    const sourceConfigResponse = {
+      source: {
+        id: 'someid',
+        config: {},
+        destinations: [] as ConfigResponseDestinationItem[],
+        enabled: false,
+      },
+    } as SourceConfigResponse;
+    configManagerInstance.processConfig(sourceConfigResponse);
+
+    expect(defaultLogger.error).toHaveBeenCalledTimes(1);
+    expect(defaultLogger.error).toHaveBeenCalledWith(
+      'The source is disabled. Please enable the source in the dashboard to send events.',
+    );
+
+    // No change in the life cycle status
+    expect(state.lifecycle.status.value).toBe('browserCapabilitiesReady');
   });
 
   it('should not call the onError method of errorHandler for correct sourceConfig response in string format', () => {
@@ -206,12 +226,55 @@ describe('ConfigManager', () => {
   });
 
   it('should fetch the source config and process the response', done => {
-    state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
+    state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}&lockPluginsVersion=${lockPluginsVersion}`;
     configManagerInstance.processConfig = jest.fn();
     configManagerInstance.getConfig();
-    effect(() => {
+    setTimeout(() => {
       expect(configManagerInstance.processConfig).toHaveBeenCalled();
       done();
-    });
+    }, 2000);
+  });
+
+  it('should set the data server URL in state if server side cookies feature is enabled', () => {
+    state.lifecycle.writeKey.value = sampleWriteKey;
+    state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
+    state.loadOptions.value.useServerSideCookies = true;
+    state.loadOptions.value.dataServiceEndpoint = '/my/own/endpoint/';
+    state.loadOptions.value.configUrl = sampleConfigUrl;
+
+    configManagerInstance.getConfig = jest.fn();
+
+    configManagerInstance.init();
+
+    expect(state.serverCookies.dataServiceUrl.value).toBe('https://test-host.com/my/own/endpoint');
+  });
+
+  it('should set the data server URL in state with default endpoint if server side cookies feature is enabled and dataServiceEndpoint is not provided', () => {
+    state.lifecycle.writeKey.value = sampleWriteKey;
+    state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
+    state.loadOptions.value.useServerSideCookies = true;
+    state.loadOptions.value.configUrl = sampleConfigUrl;
+
+    configManagerInstance.getConfig = jest.fn();
+
+    configManagerInstance.init();
+
+    expect(state.serverCookies.dataServiceUrl.value).toBe('https://test-host.com/rsaRequest');
+  });
+
+  it('should disable server side cookies feature if provided endpoint is invalid', () => {
+    state.lifecycle.writeKey.value = sampleWriteKey;
+    state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
+    state.loadOptions.value.useServerSideCookies = true;
+    // it'll result in an invalid URL when combined with the top-level domain of the site
+    state.loadOptions.value.dataServiceEndpoint = '?asdf?xyz';
+    state.loadOptions.value.configUrl = sampleConfigUrl;
+
+    configManagerInstance.getConfig = jest.fn();
+
+    configManagerInstance.init();
+
+    expect(state.serverCookies.dataServiceUrl.value).toBeUndefined();
+    expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(false);
   });
 });

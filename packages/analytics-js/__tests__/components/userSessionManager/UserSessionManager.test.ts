@@ -1,9 +1,8 @@
 import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
+import { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
 import { UserSessionManager } from '../../../src/components/userSessionManager';
-import {
-  DEFAULT_USER_SESSION_VALUES,
-  USER_SESSION_STORAGE_KEYS,
-} from '../../../src/components/userSessionManager/constants';
+import { DEFAULT_USER_SESSION_VALUES } from '../../../src/components/userSessionManager/constants';
 import { StoreManager } from '../../../src/services/StoreManager';
 import type { Store } from '../../../src/services/StoreManager/Store';
 import { state, resetState } from '../../../src/state';
@@ -20,9 +19,15 @@ import {
   entriesWithOnlyNoStorage,
   entriesWithStorageOnlyForAnonymousId,
 } from '../../../__fixtures__/fixtures';
+import { server } from '../../../__fixtures__/msw.server';
+import { defaultHttpClient } from '../../../src/services/HttpClient';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
   generateUUID: jest.fn().mockReturnValue('test_uuid'),
+}));
+
+jest.mock('@rudderstack/analytics-js-common/utilities/json', () => ({
+  stringifyWithoutCircular: jest.fn(d => JSON.stringify(d)),
 }));
 
 describe('User session manager', () => {
@@ -44,11 +49,9 @@ describe('User session manager', () => {
   let userSessionManager: UserSessionManager;
 
   defaultStoreManager.init();
-  const clientDataStoreCookie = defaultStoreManager.getStore('clientDataInCookie') as Store;
-  const clientDataStoreLS = defaultStoreManager.getStore('clientDataInLocalStorage') as Store;
-  const clientDataStoreSession = defaultStoreManager.getStore(
-    'clientDataInSessionStorage',
-  ) as Store;
+  let clientDataStoreCookie;
+  let clientDataStoreLS;
+  let clientDataStoreSession;
 
   const setDataInLocalStorage = (data: any) => {
     Object.entries(data).forEach(([key, value]) => {
@@ -69,7 +72,7 @@ describe('User session manager', () => {
   };
 
   const clearStorage = () => {
-    Object.values(USER_SESSION_STORAGE_KEYS).forEach(key => {
+    Object.values(COOKIE_KEYS).forEach(key => {
       clientDataStoreCookie.remove(key);
       clientDataStoreLS.remove(key);
       clientDataStoreSession.remove(key);
@@ -77,13 +80,20 @@ describe('User session manager', () => {
   };
 
   beforeEach(() => {
+    clientDataStoreCookie = defaultStoreManager.getStore('clientDataInCookie') as Store;
+    clientDataStoreLS = defaultStoreManager.getStore('clientDataInLocalStorage') as Store;
+    clientDataStoreSession = defaultStoreManager.getStore('clientDataInSessionStorage') as Store;
+
     clearStorage();
     resetState();
+
+    state.storage.entries.value = entriesWithOnlyCookieStorage;
     userSessionManager = new UserSessionManager(
       defaultErrorHandler,
       defaultLogger,
       defaultPluginsManager,
       defaultStoreManager,
+      defaultHttpClient,
     );
   });
 
@@ -589,7 +599,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         anonymousId: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.anonymousId,
+          key: COOKIE_KEYS.anonymousId,
         },
       };
       userSessionManager.init();
@@ -639,7 +649,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         userId: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.userId,
+          key: COOKIE_KEYS.userId,
         },
       };
       userSessionManager.init();
@@ -672,7 +682,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         userTraits: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.userTraits,
+          key: COOKIE_KEYS.userTraits,
         },
       };
       userSessionManager.init();
@@ -705,7 +715,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         groupId: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.groupId,
+          key: COOKIE_KEYS.groupId,
         },
       };
       userSessionManager.init();
@@ -738,7 +748,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         groupTraits: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.groupTraits,
+          key: COOKIE_KEYS.groupTraits,
         },
       };
       userSessionManager.init();
@@ -776,7 +786,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         initialReferrer: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.initialReferrer,
+          key: COOKIE_KEYS.initialReferrer,
         },
       };
       userSessionManager.init();
@@ -810,7 +820,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         initialReferringDomain: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.initialReferringDomain,
+          key: COOKIE_KEYS.initialReferringDomain,
         },
       };
       userSessionManager.init();
@@ -843,7 +853,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         authToken: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.authToken,
+          key: COOKIE_KEYS.authToken,
         },
       };
       userSessionManager.init();
@@ -881,7 +891,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         sessionInfo: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.sessionInfo,
+          key: COOKIE_KEYS.sessionInfo,
         },
       };
       userSessionManager.init();
@@ -904,7 +914,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         anonymousId: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.anonymousId,
+          key: COOKIE_KEYS.anonymousId,
         },
       };
       userSessionManager.init();
@@ -925,7 +935,6 @@ describe('User session manager', () => {
   describe('setUserId', () => {
     it('should set the provided user ID', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
-      clientDataStoreCookie.set = jest.fn();
       const newUserId = 'new-dummy-user-id';
       userSessionManager.init();
       userSessionManager.setUserId(newUserId);
@@ -937,7 +946,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         userId: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.userId,
+          key: COOKIE_KEYS.userId,
         },
       };
       userSessionManager.init();
@@ -956,7 +965,6 @@ describe('User session manager', () => {
   describe('setUserTraits', () => {
     it('should set the provided user traits', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
-      clientDataStoreCookie.set = jest.fn();
       const newUserTraits = { key1: 'value1', key2: 'value2' };
       userSessionManager.init();
       userSessionManager.setUserTraits(newUserTraits);
@@ -968,7 +976,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         userTraits: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.userTraits,
+          key: COOKIE_KEYS.userTraits,
         },
       };
       userSessionManager.init();
@@ -986,13 +994,15 @@ describe('User session manager', () => {
 
   describe('setGroupId', () => {
     it('should set the provided group id', () => {
+      const cookieStoreSetSpy = jest.spyOn(clientDataStoreCookie, 'set');
+
       state.storage.entries.value = entriesWithOnlyCookieStorage;
-      clientDataStoreCookie.set = jest.fn();
       const newGroupId = 'new-dummy-group-id';
+
       userSessionManager.init();
       userSessionManager.setGroupId(newGroupId);
       expect(state.session.groupId.value).toBe(newGroupId);
-      expect(clientDataStoreCookie.set).toHaveBeenCalled();
+      expect(cookieStoreSetSpy).toHaveBeenCalled();
     });
 
     it('should reset the value to default value if persistence is not enabled for group id', () => {
@@ -1000,7 +1010,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         groupId: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.groupId,
+          key: COOKIE_KEYS.groupId,
         },
       };
       userSessionManager.init();
@@ -1019,7 +1029,6 @@ describe('User session manager', () => {
   describe('setGroupTraits', () => {
     it('should set the provided group traits', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
-      clientDataStoreCookie.set = jest.fn();
       const newGroupTraits = { key1: 'value1', key2: 'value2' };
       userSessionManager.init();
       userSessionManager.setGroupTraits(newGroupTraits);
@@ -1031,7 +1040,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         groupTraits: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.groupTraits,
+          key: COOKIE_KEYS.groupTraits,
         },
       };
       userSessionManager.init();
@@ -1054,7 +1063,6 @@ describe('User session manager', () => {
   describe('setInitialReferrer', () => {
     it('should set the provided initial referrer', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
-      clientDataStoreCookie.set = jest.fn();
       const newReferrer = 'new-dummy-referrer-1';
       userSessionManager.init();
       userSessionManager.setInitialReferrer(newReferrer);
@@ -1066,7 +1074,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         initialReferrer: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.initialReferrer,
+          key: COOKIE_KEYS.initialReferrer,
         },
       };
       userSessionManager.init();
@@ -1085,7 +1093,6 @@ describe('User session manager', () => {
   describe('setInitialReferringDomain', () => {
     it('should set the provided initial referring domain', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
-      clientDataStoreCookie.set = jest.fn();
       const newReferrer = 'new-dummy-referrer-2';
       userSessionManager.init();
       userSessionManager.setInitialReferringDomain(newReferrer);
@@ -1098,7 +1105,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         initialReferringDomain: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.initialReferringDomain,
+          key: COOKIE_KEYS.initialReferringDomain,
         },
       };
       userSessionManager.init();
@@ -1121,7 +1128,6 @@ describe('User session manager', () => {
   describe('setAuthToken', () => {
     it('should set the provided auth token', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
-      clientDataStoreCookie.set = jest.fn();
       const newAuthToken = 'new-dummy-auth-token';
       userSessionManager.init();
       userSessionManager.setAuthToken(newAuthToken);
@@ -1133,7 +1139,7 @@ describe('User session manager', () => {
         ...entriesWithOnlyCookieStorage,
         authToken: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.authToken,
+          key: COOKIE_KEYS.authToken,
         },
       };
       userSessionManager.init();
@@ -1150,7 +1156,7 @@ describe('User session manager', () => {
   });
 
   describe('refreshSession', () => {
-    it('refreshSession: should return empty object if any type of tracking is not enabled', () => {
+    it('should return empty object if any type of tracking is not enabled', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.init();
       state.session.sessionInfo.value = {};
@@ -1158,7 +1164,10 @@ describe('User session manager', () => {
       expect(state.session.sessionInfo.value).toStrictEqual({});
     });
 
-    it('refreshSession: should return session id and sessionStart when auto tracking is enabled', () => {
+    it('should return session id and sessionStart when auto tracking is enabled', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
       const futureTimestamp = Date.now() + 5000;
       state.session.sessionInfo.value = {
         autoTrack: true,
@@ -1177,7 +1186,8 @@ describe('User session manager', () => {
       });
     });
 
-    it('refreshSession: should return session id and sessionStart when manual tracking is enabled', () => {
+    it('should return session id and sessionStart when manual tracking is enabled', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
       const manualTrackingSessionId = 1029384756;
       userSessionManager.init();
       userSessionManager.start(manualTrackingSessionId);
@@ -1189,7 +1199,8 @@ describe('User session manager', () => {
       });
     });
 
-    it('refreshSession: should generate new session id and sessionStart and return when auto tracking session is expired', () => {
+    it('should generate new session id and sessionStart and return when auto tracking session is expired', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.init();
       const pastTimestamp = Date.now() - 5000;
       state.session.sessionInfo.value = {
@@ -1209,7 +1220,7 @@ describe('User session manager', () => {
       });
     });
 
-    it('refreshSession: should return only session id from the second event of the auto session tracking', () => {
+    it('should return only session id from the second event of the auto session tracking', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.init();
       userSessionManager.refreshSession(); // sessionInfo For First Event
@@ -1217,17 +1228,77 @@ describe('User session manager', () => {
       expect(state.session.sessionInfo.value.sessionStart).toBe(false);
     });
 
-    it('refreshSession: should return only session id from the second event of the manual session tracking', () => {
+    it('should return only session id from the second event of the manual session tracking', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
       const manualTrackingSessionId = 1029384756;
       userSessionManager.start(manualTrackingSessionId);
       userSessionManager.refreshSession(); // sessionInfo For First Event
       userSessionManager.refreshSession();
       expect(state.session.sessionInfo.value.sessionStart).toBe(false);
+      userSessionManager.end();
+    });
+
+    it('should not set any session info in state if session info is not available in storage', () => {
+      state.storage.entries.value = entriesWithOnlyNoStorage;
+      userSessionManager.init();
+      userSessionManager.refreshSession();
+      expect(state.session.sessionInfo.value).toStrictEqual({});
+    });
+
+    it('should set default session info to state even if storage data goes out of sync with state', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      // delete session info from storage
+      setDataInCookieStorage({
+        rl_session: null,
+      });
+
+      userSessionManager.refreshSession();
+
+      expect(state.session.sessionInfo.value).toStrictEqual({});
+    });
+
+    it('should explicitly set session info to storage if the SDK is not ready', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+
+      userSessionManager.init();
+
+      state.lifecycle.status.value = 'loaded';
+
+      const syncValueToStorageSpy = jest.spyOn(userSessionManager, 'syncValueToStorage');
+      userSessionManager.refreshSession();
+
+      expect(syncValueToStorageSpy).toHaveBeenCalledTimes(3);
+      expect(syncValueToStorageSpy).toHaveBeenNthCalledWith(1, 'sessionInfo', {
+        autoTrack: true,
+        timeout: 1800000,
+        expiresAt: expect.any(Number),
+        id: expect.any(Number),
+      });
+      expect(syncValueToStorageSpy).toHaveBeenNthCalledWith(2, 'sessionInfo', {
+        autoTrack: true,
+        timeout: 1800000,
+        expiresAt: expect.any(Number),
+        id: expect.any(Number),
+        sessionStart: true,
+      });
+      expect(syncValueToStorageSpy).toHaveBeenNthCalledWith(3, 'sessionInfo', {
+        autoTrack: true,
+        timeout: 1800000,
+        expiresAt: expect.any(Number),
+        id: expect.any(Number),
+        sessionStart: true,
+      });
     });
   });
 
   describe('getSessionId', () => {
-    it('getSessionId: should return session id for active session', () => {
+    it('should return session id for active session', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
       const futureTimestamp = Date.now() + 10000;
       state.session.sessionInfo.value = {
         autoTrack: true,
@@ -1241,7 +1312,10 @@ describe('User session manager', () => {
       expect(sessionId.toString().length).toBeGreaterThan(0);
     });
 
-    it('getSessionId: should return session id for active session', () => {
+    it('should return null for expired session', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
       const pastTimestamp = Date.now() - 5000;
       state.session.sessionInfo.value = {
         autoTrack: true,
@@ -1254,10 +1328,49 @@ describe('User session manager', () => {
       expect(typeof sessionId).toBe('object');
       expect(sessionId).toBe(null);
     });
+
+    it('should return the session ID from storage if it was modified externally', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+
+      // Set session info in storage where the session has expired
+      const pastTimestamp = Date.now() - 5000;
+      state.session.sessionInfo.value = {
+        autoTrack: true,
+        timeout: 10 * 60 * 1000,
+        expiresAt: pastTimestamp,
+        id: 1683613729115,
+        sessionStart: false,
+      };
+
+      userSessionManager.init();
+
+      // Set custom session info in storage directly
+      const customData = {
+        rl_session: {
+          autoTrack: true,
+          timeout: 10 * 60 * 1000,
+          expiresAt: Date.now() + 10000,
+          sessionStart: false,
+          id: 123456789,
+        },
+      };
+      setDataInCookieStorage(customData);
+
+      const sessionId = userSessionManager.getSessionId();
+      expect(sessionId).toBe(customData.rl_session.id);
+    });
+
+    it('should return null if session info is not available in storage', () => {
+      state.storage.entries.value = entriesWithOnlyNoStorage;
+      userSessionManager.init();
+      const sessionId = userSessionManager.getSessionId();
+      expect(sessionId).toBe(null);
+    });
   });
 
-  describe('auto tracking', () => {
-    it('startAutoTracking: should create a new session in case of invalid session', () => {
+  describe('startOrRenewAutoTracking', () => {
+    it('should create a new session if session is expired', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.init();
       state.session.sessionInfo.value = {
         autoTrack: true,
@@ -1266,7 +1379,7 @@ describe('User session manager', () => {
         id: 1683613729115,
         sessionStart: false,
       };
-      userSessionManager.startOrRenewAutoTracking();
+      userSessionManager.startOrRenewAutoTracking(state.session.sessionInfo.value);
       expect(state.session.sessionInfo.value).toEqual({
         autoTrack: true,
         timeout: 10 * 60 * 1000,
@@ -1276,7 +1389,8 @@ describe('User session manager', () => {
       });
     });
 
-    it('startAutoTracking: should not create a new session in case of valid session', () => {
+    it('should not create a new session in case of active session', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.init();
       state.session.sessionInfo.value = {
         autoTrack: true,
@@ -1285,7 +1399,7 @@ describe('User session manager', () => {
         id: 1683613729115,
         sessionStart: false,
       };
-      userSessionManager.startOrRenewAutoTracking();
+      userSessionManager.startOrRenewAutoTracking(state.session.sessionInfo.value);
       expect(state.session.sessionInfo.value).toEqual({
         autoTrack: true,
         timeout: 10 * 60 * 1000,
@@ -1371,16 +1485,320 @@ describe('User session manager', () => {
   });
 
   describe('getExternalAnonymousIdByCookieName', () => {
-    it('Should return null if the cookie value does not exists', () => {
+    it('should return null if the cookie value does not exists', () => {
       const externalAnonymousId =
         userSessionManager.getExternalAnonymousIdByCookieName('anonId_cookie');
       expect(externalAnonymousId).toEqual(null);
     });
-    it('Should return the cookie value if exists', () => {
+    it('should return the cookie value if exists', () => {
       document.cookie = 'anonId_cookie=sampleAnonymousId12345';
       const externalAnonymousId =
         userSessionManager.getExternalAnonymousIdByCookieName('anonId_cookie');
       expect(externalAnonymousId).toEqual('sampleAnonymousId12345');
+    });
+  });
+
+  describe('syncValueToStorage', () => {
+    it('should not call setServerSideCookies method in case isEnabledServerSideCookies state option is not set', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
+      userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId');
+
+      jest.advanceTimersByTime(1000);
+
+      expect(setServerSideCookiesSpy).not.toHaveBeenCalled();
+    });
+
+    it('should call setServerSideCookies method in case isEnabledServerSideCookies state option is set to true', done => {
+      state.serverCookies.isEnabledServerSideCookies.value = true;
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
+      clientDataStoreCookie.set = jest.fn();
+      const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
+      userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId');
+
+      setTimeout(() => {
+        expect(setServerSideCookiesSpy).toHaveBeenCalledWith(
+          [{ name: 'rl_anonymous_id', value: 'dummy_anonymousId' }],
+          expect.any(Function),
+          expect.any(Object),
+        );
+        expect(clientDataStoreCookie.set).toHaveBeenCalled();
+        done();
+      }, 1000);
+    });
+
+    describe('Cookie should be removed from server side', () => {
+      const testCaseData = [null, undefined, '', {}];
+      it.each(testCaseData)('if value is "%s"', cookieValue => {
+        jest.useFakeTimers();
+        state.serverCookies.isEnabledServerSideCookies.value = true;
+        state.storage.entries.value = entriesWithOnlyCookieStorage;
+        userSessionManager.setServerSideCookies = jest.fn();
+        clientDataStoreCookie.remove = jest.fn();
+        userSessionManager.syncValueToStorage('anonymousId', cookieValue);
+
+        jest.advanceTimersByTime(1000);
+
+        expect(userSessionManager.setServerSideCookies).not.toHaveBeenCalled();
+        expect(clientDataStoreCookie.remove).toHaveBeenCalled();
+        jest.useRealTimers();
+      });
+    });
+
+    it('should debounce multiple cookie set network requests', done => {
+      state.serverCookies.isEnabledServerSideCookies.value = true;
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
+      clientDataStoreCookie.set = jest.fn();
+      const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
+
+      // Even though we are calling syncValueToStorage multiple times in quick succession, only the
+      // last value should be sent to the server
+      userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId1');
+      userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId2');
+      userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId3');
+
+      setTimeout(() => {
+        expect(setServerSideCookiesSpy).toHaveBeenCalledTimes(1);
+        expect(setServerSideCookiesSpy).toHaveBeenCalledWith(
+          [{ name: 'rl_anonymous_id', value: 'dummy_anonymousId3' }],
+          expect.any(Function),
+          expect.any(Object),
+        );
+        done();
+      }, 1000);
+    });
+  });
+
+  describe('setServerSideCookies', () => {
+    beforeAll(() => {
+      server.listen();
+    });
+
+    afterAll(() => {
+      server.close();
+    });
+    const mockCookieStore = {
+      encrypt: jest.fn(val => `encrypted_${JSON.parse(val)}`),
+      set: jest.fn(),
+      get: jest.fn(() => ({
+        prop1: 'sample property 1',
+        prop2: 12345678,
+        prop3: { city: 'Kolkata', zip: '700001' },
+      })),
+    };
+    const mockCallback = jest.fn();
+    it('should encrypt cookie value and make request to data service', done => {
+      state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
+      const getEncryptedCookieDataSpy = jest.spyOn(userSessionManager, 'getEncryptedCookieData');
+      const makeRequestToSetCookieSpy = jest.spyOn(userSessionManager, 'makeRequestToSetCookie');
+
+      userSessionManager.setServerSideCookies(
+        [{ name: 'key', value: 'sample_cookie_value_1234' }],
+        () => {},
+        mockCookieStore,
+      );
+      expect(getEncryptedCookieDataSpy).toHaveBeenCalledWith(
+        [{ name: 'key', value: 'sample_cookie_value_1234' }],
+        mockCookieStore,
+      );
+      expect(makeRequestToSetCookieSpy).toHaveBeenCalledWith(
+        [{ name: 'key', value: 'encrypted_sample_cookie_value_1234' }],
+        expect.any(Function),
+      );
+      done();
+    });
+    describe('Network request to Data service is successful', () => {
+      it('should validate cookies are set from the server side', done => {
+        state.source.value = { workspaceId: 'sample_workspaceId' };
+        state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
+        state.storage.cookie.value = {
+          maxage: 10 * 60 * 1000, // 10 min
+          path: '/',
+          domain: 'example.com',
+          samesite: 'Lax',
+        };
+        userSessionManager.setServerSideCookies(
+          [
+            {
+              name: 'key',
+              value: {
+                prop1: 'sample property 1',
+                prop2: 12345678,
+                prop3: { city: 'Kolkata', zip: '700001' },
+              },
+            },
+          ],
+          mockCallback,
+          mockCookieStore,
+        );
+        setTimeout(() => {
+          expect(mockCookieStore.get).toHaveBeenCalledWith('key');
+          expect(mockCookieStore.get()).toStrictEqual({
+            prop1: 'sample property 1',
+            prop2: 12345678,
+            prop3: { city: 'Kolkata', zip: '700001' },
+          });
+          expect(stringifyWithoutCircular).toHaveBeenCalled();
+          expect(defaultLogger.error).not.toHaveBeenCalledWith(
+            'The server failed to set the key cookie. As a fallback, the cookies will be set client side.',
+          );
+          expect(mockCallback).not.toHaveBeenCalled();
+          done();
+        }, 1000);
+      });
+      it('should set cookies from client side if not successfully set from the server side', done => {
+        state.source.value = { workspaceId: 'sample_workspaceId' };
+        state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
+        state.storage.cookie.value = {
+          maxage: 10 * 60 * 1000, // 10 min
+          path: '/',
+          domain: 'example.com',
+          samesite: 'Lax',
+        };
+        userSessionManager.setServerSideCookies(
+          [{ name: 'key', value: { prop1: 'sample property' } }],
+          (name, val) => {
+            mockCookieStore.set(name, val);
+          },
+          mockCookieStore,
+        );
+        setTimeout(() => {
+          expect(mockCookieStore.get).toHaveBeenCalledWith('key');
+          expect(stringifyWithoutCircular).toHaveBeenCalled();
+          expect(defaultLogger.error).toHaveBeenCalledWith(
+            'The server failed to set the key cookie. As a fallback, the cookies will be set client side.',
+          );
+          expect(mockCookieStore.set).toHaveBeenCalledWith('key', { prop1: 'sample property' });
+          done();
+        }, 1000);
+      });
+    });
+
+    it('should set cookie from client side if data service is down', done => {
+      state.source.value = { workspaceId: 'sample_workspaceId' };
+      state.serverCookies.dataServiceUrl.value =
+        'https://dummy.dataplane.host.com/serverDown/rsaRequest';
+      state.storage.cookie.value = {
+        maxage: 10 * 60 * 1000, // 10 min
+        path: '/',
+        domain: 'example.com',
+        samesite: 'Lax',
+      };
+      userSessionManager.setServerSideCookies(
+        [{ name: 'key', value: 'sample_cookie_value_1234' }],
+        mockCallback,
+        mockCookieStore,
+      );
+      setTimeout(() => {
+        expect(mockCallback).toHaveBeenCalled();
+        done();
+      }, 1000);
+    });
+    it('should set cookie from client side if dataServerUrl is invalid', done => {
+      state.source.value = { workspaceId: 'sample_workspaceId' };
+      state.serverCookies.dataServiceUrl.value =
+        'https://dummy.dataplane.host.com/invalidUrl/rsaRequest';
+      state.storage.cookie.value = {
+        maxage: 10 * 60 * 1000, // 10 min
+        path: '/',
+        domain: 'example.com',
+        samesite: 'Lax',
+      };
+      userSessionManager.setServerSideCookies(
+        [{ name: 'key', value: 'sample_cookie_value_1234' }],
+        mockCallback,
+        mockCookieStore,
+      );
+      setTimeout(() => {
+        expect(mockCallback).toHaveBeenCalled();
+        done();
+      }, 1000);
+    });
+    it('should set cookie from client side if any unhandled error ocurred in serServerSideCookie function', () => {
+      state.source.value = { workspaceId: 'sample_workspaceId' };
+      state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
+      userSessionManager.getEncryptedCookieData = jest.fn(() => {
+        throw new Error('test error');
+      });
+      userSessionManager.onError = jest.fn();
+      state.storage.cookie.value = {
+        maxage: 10 * 60 * 1000, // 10 min
+        path: '/',
+        domain: 'example.com',
+        samesite: 'Lax',
+      };
+      userSessionManager.setServerSideCookies(
+        [{ name: 'key', value: 'sample_cookie_value_1234' }],
+        mockCallback,
+        mockCookieStore,
+      );
+      expect(userSessionManager.onError).toHaveBeenCalledTimes(1);
+      expect(userSessionManager.onError).toHaveBeenCalledWith(
+        new Error('test error'),
+        'Failed to set/remove cookies via server. As a fallback, the cookies will be managed client side.',
+      );
+      expect(mockCallback).toHaveBeenCalledWith('key', 'sample_cookie_value_1234');
+    });
+    describe('getEncryptedCookieData', () => {
+      it('cookie value exists', () => {
+        const encryptedData = userSessionManager.getEncryptedCookieData(
+          [{ name: 'key', value: 'sample_cookie_value_1234' }],
+          mockCookieStore,
+        );
+        expect(mockCookieStore.encrypt).toHaveBeenCalled();
+        expect(encryptedData).toStrictEqual([
+          { name: 'key', value: 'encrypted_sample_cookie_value_1234' },
+        ]);
+      });
+    });
+    describe('makeRequestToSetCookie', () => {
+      it('should make external request to exposed endpoint', done => {
+        state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
+        state.source.value = { workspaceId: 'sample_workspaceId' };
+        state.storage.cookie.value = {
+          maxage: 10 * 60 * 1000, // 10 min
+          path: '/',
+          domain: 'example.com',
+          samesite: 'Lax',
+        };
+        const getAsyncDataSpy = jest.spyOn(defaultHttpClient, 'getAsyncData');
+        userSessionManager.makeRequestToSetCookie(
+          [{ name: 'key', value: 'encrypted_sample_cookie_value_1234' }],
+          () => {},
+        );
+        expect(getAsyncDataSpy).toHaveBeenCalledWith({
+          url: `https://dummy.dataplane.host.com/rsaRequest`,
+          options: {
+            method: 'POST',
+            data: JSON.stringify({
+              reqType: 'setCookies',
+              workspaceId: 'sample_workspaceId',
+              data: {
+                options: {
+                  maxAge: 10 * 60 * 1000,
+                  path: '/',
+                  domain: 'example.com',
+                  sameSite: 'Lax',
+                  secure: undefined,
+                },
+                cookies: [
+                  {
+                    name: 'key',
+                    value: 'encrypted_sample_cookie_value_1234',
+                  },
+                ],
+              },
+            }),
+            sendRawData: true,
+            withCredentials: true,
+          },
+          isRawResponse: true,
+          callback: expect.any(Function),
+        });
+        done();
+      });
     });
   });
 });

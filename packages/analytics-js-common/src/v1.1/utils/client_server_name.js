@@ -76,6 +76,7 @@ const clientToServerNames = {
   SPRIG: 'Sprig',
   SPOTIFYPIXEL: 'Spotify Pixel',
   COMMANDBAR: 'CommandBar',
+  NINETAILED: 'Ninetailed',
 };
 
 export { clientToServerNames };

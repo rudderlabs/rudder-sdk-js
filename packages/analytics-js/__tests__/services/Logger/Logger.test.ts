@@ -1,4 +1,4 @@
-import { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
+import type { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
 import {
   LOG_MSG_PREFIX,
   LOG_MSG_PREFIX_STYLE,

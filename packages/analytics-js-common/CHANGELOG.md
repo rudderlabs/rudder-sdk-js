@@ -2,6 +2,71 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.5.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.4.0...@rudderstack/analytics-js-common@3.5.0) (2024-06-21)
+
+
+### Features
+
+* add the ability to lock plugins version ([#1749](https://github.com/rudderlabs/rudder-sdk-js/issues/1749)) ([e2e1620](https://github.com/rudderlabs/rudder-sdk-js/commit/e2e1620677c90169fca35ed3e9057ced3b88a299))
+
+
+### Bug Fixes
+
+* improve flushing events on page leave ([#1754](https://github.com/rudderlabs/rudder-sdk-js/issues/1754)) ([1be420f](https://github.com/rudderlabs/rudder-sdk-js/commit/1be420fae16b68629789d2ba37e16e6a6e00017c))
+* remove data residency feature ([#1748](https://github.com/rudderlabs/rudder-sdk-js/issues/1748)) ([870a7ec](https://github.com/rudderlabs/rudder-sdk-js/commit/870a7ecf3cd251d88c207d9815c2f16c6e9a6883))
+
+## [3.4.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.3.0...@rudderstack/analytics-js-common@3.4.0) (2024-06-07)
+
+
+### Features
+
+* add install type to context ([#1740](https://github.com/rudderlabs/rudder-sdk-js/issues/1740)) ([3d25b65](https://github.com/rudderlabs/rudder-sdk-js/commit/3d25b654a70b0f39c412e80465e29e2bdb578aa7))
+
+
+### Bug Fixes
+
+* handle cross domain server-side cookie requests ([#1741](https://github.com/rudderlabs/rudder-sdk-js/issues/1741)) ([68a2d3b](https://github.com/rudderlabs/rudder-sdk-js/commit/68a2d3b025a45311cc3639b140d33a9659e93e8f))
+* improve sdk loading snippet ([#1745](https://github.com/rudderlabs/rudder-sdk-js/issues/1745)) ([d4e0f66](https://github.com/rudderlabs/rudder-sdk-js/commit/d4e0f663a4d0cdb55563ed380166d55e99cf3fc8))
+* url validation ([#1730](https://github.com/rudderlabs/rudder-sdk-js/issues/1730)) ([3a3e105](https://github.com/rudderlabs/rudder-sdk-js/commit/3a3e1057f2db91ef5cbf652a664db9443fee9843))
+
+## [3.3.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.2.0...@rudderstack/analytics-js-common@3.3.0) (2024-05-24)
+
+
+### Features
+
+* set server side cookies ([#1649](https://github.com/rudderlabs/rudder-sdk-js/issues/1649)) ([8b8ac8f](https://github.com/rudderlabs/rudder-sdk-js/commit/8b8ac8fb2b7fe0903fa383cfcd0388fe3022330c))
+
+## [3.2.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.1.0...@rudderstack/analytics-js-common@3.2.0) (2024-04-26)
+
+
+### Features
+
+* supporting add to cart for criteo ([#1696](https://github.com/rudderlabs/rudder-sdk-js/issues/1696)) ([bb7e1df](https://github.com/rudderlabs/rudder-sdk-js/commit/bb7e1df9a1e5a1ffe4e8a81c3d9fdf18d9ef2744))
+* warn users on missing plugins ([#1691](https://github.com/rudderlabs/rudder-sdk-js/issues/1691)) ([c57cf82](https://github.com/rudderlabs/rudder-sdk-js/commit/c57cf820346a7fede352f2f346db37ad51413cf8))
+
+## [3.1.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.0.1...@rudderstack/analytics-js-common@3.1.0) (2024-03-22)
+
+
+### Features
+
+* add date type in apiobject and apioptions ([#1666](https://github.com/rudderlabs/rudder-sdk-js/issues/1666)) ([a1771e8](https://github.com/rudderlabs/rudder-sdk-js/commit/a1771e8015a38a1edc2a3c24dc700a5fa5b00796))
+
+
+### Bug Fixes
+
+* optimize localstorage transactions ([#1651](https://github.com/rudderlabs/rudder-sdk-js/issues/1651)) ([1289217](https://github.com/rudderlabs/rudder-sdk-js/commit/12892176578dd3628fded2311ea2548e3ff5802c))
+* type issues ([#1663](https://github.com/rudderlabs/rudder-sdk-js/issues/1663)) ([1f114a1](https://github.com/rudderlabs/rudder-sdk-js/commit/1f114a19ac14ffd9af6ae876a54d4d19afd80d65))
+
+## [3.0.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.0.0-beta.19...@rudderstack/analytics-js-common@3.0.1) (2024-03-21)
+
+## [3.0.0-beta.19](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.0.0-beta.18...@rudderstack/analytics-js-common@3.0.0-beta.19) (2024-03-01)
+
+
+### Features
+
+* fetch anonymous id by cookie name provided in load option ([#1625](https://github.com/rudderlabs/rudder-sdk-js/issues/1625)) ([d8ccb10](https://github.com/rudderlabs/rudder-sdk-js/commit/d8ccb109f82398db8f53c51c0ac8f24cd1fd872e))
+* onboard new destination ninetailed ([#1617](https://github.com/rudderlabs/rudder-sdk-js/issues/1617)) ([080155a](https://github.com/rudderlabs/rudder-sdk-js/commit/080155a74655aeb4b413cc1a90cfa6d66ce3dfbb))
+
 ## [3.0.0-beta.18](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.0.0-beta.17...@rudderstack/analytics-js-common@3.0.0-beta.18) (2024-02-16)
 
 

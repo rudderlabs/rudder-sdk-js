@@ -13,11 +13,11 @@ import {
   isObjectLiteralAndNotNull,
   mergeDeepRight,
 } from '@rudderstack/analytics-js-common/utilities/object';
-import { UNSUPPORTED_CONSENT_MANAGER_ERROR } from '@rudderstack/analytics-js/constants/logMessages';
 import { clone } from 'ramda';
-import { state } from '@rudderstack/analytics-js/state';
 import { DEFAULT_INTEGRATIONS_CONFIG } from '@rudderstack/analytics-js-common/constants/integrationsConfig';
 import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import { state } from '../../state';
+import { UNSUPPORTED_CONSENT_MANAGER_ERROR } from '../../constants/logMessages';
 import { ConsentManagersToPluginNameMap } from '../configManager/constants';
 
 /**
@@ -98,8 +98,8 @@ const getConsentManagerInfo = (
   consentManagementOpts: ConsentManagementOptions,
   logger?: ILogger,
 ) => {
-  let { provider }: { provider: ConsentManagementProvider | undefined } = consentManagementOpts;
-  const consentManagerPluginName = ConsentManagersToPluginNameMap[provider];
+  let { provider }: { provider?: ConsentManagementProvider } = consentManagementOpts;
+  const consentManagerPluginName = provider ? ConsentManagersToPluginNameMap[provider] : undefined;
   if (provider && !consentManagerPluginName) {
     logger?.error(
       UNSUPPORTED_CONSENT_MANAGER_ERROR(CONFIG_MANAGER, provider, ConsentManagersToPluginNameMap),

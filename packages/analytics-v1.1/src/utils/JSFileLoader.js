@@ -21,7 +21,7 @@ const loadScript = (url, id, timeout, async = true) =>
       scriptElem.type = 'text/javascript';
       scriptElem.src = url;
       scriptElem.id = id;
-      scriptElem.async = async || true;
+      scriptElem.async = async ?? true;
 
       let timeoutID;
       scriptElem.onload = function onLoad() {

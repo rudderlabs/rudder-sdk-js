@@ -15,8 +15,12 @@ export type ResponseDetails = {
   options: IXHRRequestOptions;
 };
 
+export type AsyncRequestCallback<T> = (
+  data?: T | string | undefined,
+  details?: ResponseDetails,
+) => void;
 export interface IAsyncRequestConfig<T> extends IRequestConfig {
-  callback?(data?: T | string | undefined, details?: ResponseDetails): void;
+  callback?: AsyncRequestCallback<T>;
 }
 
 export interface IXHRRequestOptions {
@@ -25,6 +29,7 @@ export interface IXHRRequestOptions {
   headers: Record<string, string | undefined>;
   data?: XMLHttpRequestBodyInit;
   sendRawData?: boolean;
+  withCredentials?: boolean;
 }
 
 export type HTTPClientMethod =

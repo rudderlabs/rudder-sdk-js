@@ -1,8 +1,9 @@
-import { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { IEventManager } from '@rudderstack/analytics-js/components/eventManager/types';
-import { IUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/types';
-import { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
-import { USER_SESSION_STORAGE_KEYS } from '@rudderstack/analytics-js/components/userSessionManager/constants';
+import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
+import { batch } from '@preact/signals-core';
+import type { IUserSessionManager } from '../../../src/components/userSessionManager/types';
+import type { IEventManager } from '../../../src/components/eventManager/types';
 import {
   entriesWithMixStorage,
   entriesWithOnlyCookieStorage,
@@ -28,6 +29,7 @@ jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
 describe('Core - Analytics', () => {
   let analytics: Analytics;
   const dummyWriteKey = 'qwertyuiopasdfghjklzxcvbnm1';
+  const dummyDataplaneURL = 'https://dummy.dataplane.url';
 
   beforeEach(() => {
     analytics = new Analytics();
@@ -50,6 +52,11 @@ describe('Core - Analytics', () => {
 
   describe('startLifecycle', () => {
     it('should call expected methods in different state status', () => {
+      batch(() => {
+        state.lifecycle.writeKey.value = dummyWriteKey;
+        state.lifecycle.dataPlaneUrl.value = 'https://dummy.dataplane.url';
+      });
+
       analytics.startLifecycle();
       const onMountedSpy = jest.spyOn(analytics, 'onMounted');
       const loadConfigSpy = jest.spyOn(analytics, 'loadConfig');
@@ -136,6 +143,7 @@ describe('Core - Analytics', () => {
       const setAuthHeaderSpy = jest.spyOn(analytics.httpClient, 'setAuthHeader');
       const initSpy = jest.spyOn(analytics.configManager, 'init');
       state.lifecycle.writeKey.value = dummyWriteKey;
+      state.lifecycle.dataPlaneUrl.value = dummyDataplaneURL;
       analytics.loadConfig();
       expect(setAuthHeaderSpy).toHaveBeenCalledTimes(1);
       expect(setAuthHeaderSpy).toHaveBeenCalledWith(dummyWriteKey);
@@ -561,39 +569,39 @@ describe('Core - Analytics', () => {
       expect(state.storage.entries.value).toStrictEqual({
         userId: {
           type: 'sessionStorage',
-          key: USER_SESSION_STORAGE_KEYS.userId,
+          key: COOKIE_KEYS.userId,
         },
         userTraits: {
           type: 'localStorage',
-          key: USER_SESSION_STORAGE_KEYS.userTraits,
+          key: COOKIE_KEYS.userTraits,
         },
         anonymousId: {
           type: 'cookieStorage',
-          key: USER_SESSION_STORAGE_KEYS.anonymousId,
+          key: COOKIE_KEYS.anonymousId,
         },
         groupId: {
           type: 'memoryStorage',
-          key: USER_SESSION_STORAGE_KEYS.groupId,
+          key: COOKIE_KEYS.groupId,
         },
         groupTraits: {
           type: 'memoryStorage',
-          key: USER_SESSION_STORAGE_KEYS.groupTraits,
+          key: COOKIE_KEYS.groupTraits,
         },
         initialReferrer: {
           type: 'cookieStorage',
-          key: USER_SESSION_STORAGE_KEYS.initialReferrer,
+          key: COOKIE_KEYS.initialReferrer,
         },
         initialReferringDomain: {
           type: 'cookieStorage',
-          key: USER_SESSION_STORAGE_KEYS.initialReferringDomain,
+          key: COOKIE_KEYS.initialReferringDomain,
         },
         sessionInfo: {
           type: 'cookieStorage',
-          key: USER_SESSION_STORAGE_KEYS.sessionInfo,
+          key: COOKIE_KEYS.sessionInfo,
         },
         authToken: {
           type: 'none',
-          key: USER_SESSION_STORAGE_KEYS.authToken,
+          key: COOKIE_KEYS.authToken,
         },
       });
 

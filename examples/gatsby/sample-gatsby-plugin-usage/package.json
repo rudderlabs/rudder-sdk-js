@@ -16,16 +16,24 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@emotion/react": "^11.11.1",
-    "gatsby": "^5.12.4",
+    "@emotion/react": "^11.11.4",
+    "gatsby": "5.13.6",
     "gatsby-plugin-rudderstack": "*",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
   },
   "devDependencies": {
-    "@types/node": "^20.3.3",
-    "@types/react": "^18.2.14",
-    "@types/react-dom": "^18.2.6",
-    "typescript": "^5.1.6"
+    "@types/node": "^20.12.7",
+    "@types/react": "^18.2.79",
+    "@types/react-dom": "^18.2.25",
+    "typescript": "^5.4.5"
+  },
+  "overrides": {
+    "pretty-error": "4.0.0",
+    "axios": "1.7.2",
+    "webpack-dev-middleware": "7.2.1",
+    "braces": "3.0.3",
+    "micromatch": "4.0.6",
+    "serialize-javascript": "6.0.2"
   }
 }

@@ -1,13 +1,13 @@
-name: Handle stale PRs
+name: Handle Stale PRs and Branches
 
 on:
   schedule:
-    - cron: '42 1 * * *'
+    - cron: '1 0 * * *' # every day at 00:01
 
 jobs:
   prs:
-    name: Clean up stale prs
-    runs-on: ubuntu-latest
+    name: Clean up stale PRs
+    runs-on: [self-hosted, Linux, X64]
 
     permissions:
       issues: write
@@ -16,25 +16,26 @@ jobs:
     steps:
       - uses: actions/stale@v9
         with:
-          repo-token: ${{ github.token }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
           operations-per-run: 200
-          stale-pr-message: 'This PR is considered to be stale. It has been open 20 days with no further activity thus it is going to be closed in 10 days. To avoid such a case please consider removing the stale label manually or add a comment to the PR.'
+          stale-pr-message: "Hello! This PR has been open for 20 days without any activity. Therefore, it's considered as stale and is scheduled to be closed in 10 days. If you're still working on this, please remove the 'Stale' label or add a comment to keep it open. Thanks for your contribution!"
           days-before-pr-stale: 20
           days-before-pr-close: 10
           stale-pr-label: 'Stale'
 
   branches:
-    name: Cleanup old branches
-    runs-on: ubuntu-latest
+    name: Clean up stale branches
+    runs-on: [self-hosted, Linux, X64]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
       - name: Run delete-old-branches-action
         uses: beatlabs/delete-old-branches-action@v0.0.10
         with:
-          repo_token: ${{ github.token }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
           date: '2 months ago'
           dry_run: false
           delete_tags: false
-          extra_protected_branch_regex: ^(main|master|develop|production|production-staging|v1-staging|v1-production|legacy-develop|legacy-master)$
+          extra_protected_branch_regex: ^(main|develop|production|production-staging|v1-staging|v1-production)$
           exclude_open_pr_branches: true

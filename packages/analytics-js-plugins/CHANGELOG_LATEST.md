@@ -1,7 +1,6 @@
-## [3.0.0-beta.19](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.0.0-beta.18...@rudderstack/analytics-js-plugins@3.0.0-beta.19) (2024-02-16)
+## [3.2.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.2.0...@rudderstack/analytics-js-plugins@3.2.1) (2024-06-25)
 
+### Dependency Updates
 
-### Bug Fixes
-
-* replace lodash.pick with ramda to avoid vulnerabilities ([#1615](https://github.com/rudderlabs/rudder-sdk-js/issues/1615)) ([af9fc16](https://github.com/rudderlabs/rudder-sdk-js/commit/af9fc164612ab9c18656b016a32cc83bf43d9f8f))
-
+* `@rudderstack/analytics-js` updated to version `3.2.0`
+* `@rudderstack/analytics-js-cookies` updated to version `3.2.0`

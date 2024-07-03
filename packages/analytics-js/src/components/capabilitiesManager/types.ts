@@ -5,7 +5,7 @@ import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/servic
 export interface ICapabilitiesManager {
   logger?: ILogger;
   errorHandler?: IErrorHandler;
-  externalSrcLoader?: IExternalSrcLoader;
+  externalSrcLoader: IExternalSrcLoader;
   init(): void;
   detectBrowserCapabilities(): void;
   prepareBrowserCapabilities(): void;

@@ -1,5 +1,5 @@
 /* eslint-disable no-plusplus */
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { DeviceModeTransformations } from '../src/features/core/deviceModeTransformation/transformationHandler';
 import { createPayload } from '../src/features/core/deviceModeTransformation/util';
 import { server } from '../__fixtures__/msw.server';
@@ -16,6 +16,10 @@ import {
 describe('Test suite for device mode transformation feature', () => {
   beforeAll(() => {
     server.listen();
+  });
+
+  afterEach(() => {
+    server.resetHandlers();
   });
 
   afterAll(() => {
@@ -62,7 +66,7 @@ describe('Test suite for device mode transformation feature', () => {
       });
   });
 
-  it('Validate whether the SDK is sending the orginal event in case server returns 404', async () => {
+  it('Validate whether the SDK is sending the original event in case server returns 404', async () => {
     DeviceModeTransformations.init(dummyWriteKey, `${dummyDataplaneHost}/accessDenied`);
 
     await DeviceModeTransformations.sendEventForTransformation(payload, retryCount)
@@ -78,9 +82,11 @@ describe('Test suite for device mode transformation feature', () => {
   it('Validate whether the SDK is retrying the request in case failures', async () => {
     let counter = 0;
     server.use(
-      rest.post(`${dummyDataplaneHost}/serverDown/transform`, (req, res, ctx) => {
+      http.post(`${dummyDataplaneHost}/serverDown/transform`, () => {
         counter += 1;
-        return res(ctx.status(500));
+        return new HttpResponse(null, {
+          status: 500,
+        });
       }),
     );
 
@@ -138,13 +144,17 @@ describe('Test suite for device mode transformation feature', () => {
   it('Transformation server returns success after intermediate retry', async () => {
     let counter = 0;
     server.use(
-      rest.post(`${dummyDataplaneHost}/success/transform`, (req, res, ctx) => {
+      http.post(`${dummyDataplaneHost}/success/transform`, () => {
         if (counter === 0) {
           counter += 1;
-          return res(ctx.status(500));
+          return new HttpResponse(null, {
+            status: 500,
+          });
         }
         counter += 1;
-        return res(ctx.status(200), ctx.json(samplePayloadSuccess));
+        return new HttpResponse(JSON.stringify(samplePayloadSuccess), {
+          status: 200,
+        });
       }),
     );
 

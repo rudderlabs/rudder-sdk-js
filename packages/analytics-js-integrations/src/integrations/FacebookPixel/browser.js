@@ -36,6 +36,7 @@ class FacebookPixel {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
+    this.autoConfig = config.autoConfig === undefined ? true : config.autoConfig;
     this.blacklistPiiProperties = config.blacklistPiiProperties;
     this.categoryToContent = config.categoryToContent || [];
     this.pixelId = config.pixelId;
@@ -72,6 +73,7 @@ class FacebookPixel {
     window.fbq.allowDuplicatePageViews = true; // enables fb
     window.fbq.version = '2.0';
     window.fbq.queue = [];
+    window.fbq('set', 'autoConfig', this.autoConfig, this.pixelId); // toggle autoConfig : sends button click and page metadata
     if (this.advancedMapping) {
       if (this.useUpdatedMapping) {
         const userData = {
@@ -133,7 +135,8 @@ class FacebookPixel {
       contentName,
       product_id: productId,
       product_name: productName,
-      delivery_category: deliveryCategory
+      delivery_category: deliveryCategory,
+      content_type: contentType,
     } = properties;
     let { value, category, currency } = properties;
 
@@ -162,11 +165,16 @@ class FacebookPixel {
     const derivedEventID = getEventId(rudderElement.message);
 
     if (event === 'Product List Viewed') {
-      const { contentIds, contentType, contents } = getProductListViewedEventParams(properties);
+      const {
+        contentIds,
+        contentType: defaultContentType,
+        contents,
+      } = getProductListViewedEventParams(properties);
 
       const productInfo = {
         content_ids: contentIds,
-        content_type: getContentType(rudderElement, contentType, this.categoryToContent),
+        content_type:
+          contentType || getContentType(rudderElement, defaultContentType, this.categoryToContent),
         contents,
         content_category: eventHelpers.getCategory(category),
         content_name: contentName,
@@ -189,7 +197,8 @@ class FacebookPixel {
 
       const productInfo = {
         content_ids: contentIds,
-        content_type: getContentType(rudderElement, 'product', this.categoryToContent),
+        content_type:
+          contentType || getContentType(rudderElement, 'product', this.categoryToContent),
         content_name: eventHelpers.getProdName(productName, name),
         content_category: eventHelpers.getCategory(category),
         currency,
@@ -208,8 +217,12 @@ class FacebookPixel {
         value: productInfo.value,
       });
     } else if (event === 'Order Completed') {
-      const contentType = getContentType(rudderElement, 'product', this.categoryToContent);
-      const { contents, contentIds } = getProductsContentsAndContentIds(products, quantity, price, deliveryCategory);
+      const { contents, contentIds } = getProductsContentsAndContentIds(
+        products,
+        quantity,
+        price,
+        deliveryCategory,
+      );
 
       // ref: https://developers.facebook.com/docs/meta-pixel/implementation/marketing-api#purchase
       // "trackSingle" feature is :
@@ -217,7 +230,8 @@ class FacebookPixel {
 
       const productInfo = {
         content_ids: contentIds,
-        content_type: contentType,
+        content_type:
+          contentType || getContentType(rudderElement, 'product', this.categoryToContent),
         currency,
         value: revValue,
         contents,
@@ -258,7 +272,8 @@ class FacebookPixel {
 
       const productInfo = {
         content_ids: contentIds,
-        content_type: getContentType(rudderElement, 'product', this.categoryToContent),
+        content_type:
+          contentType || getContentType(rudderElement, 'product', this.categoryToContent),
         content_category: contentCategory,
         currency,
         value: revValue,
@@ -277,20 +292,20 @@ class FacebookPixel {
         value: revValue,
       });
     } else if (eventHelpers.isCustomEventNotMapped(standardTo, legacyTo, event)) {
-        payload.value = revValue;
-        window.fbq('trackSingleCustom', this.pixelId, event, payload, {
-          eventID: derivedEventID,
-        });
-      } else {
+      payload.value = revValue;
+      window.fbq('trackSingleCustom', this.pixelId, event, payload, {
+        eventID: derivedEventID,
+      });
+    } else {
       logger.info('Not standard event & no custom mapping available');
-        payload.value = revValue;
-        payload.currency = currency;
-        this.makeTrackSignalCalls(this.pixelId, event, standardTo, derivedEventID, payload);
-        this.makeTrackSignalCalls(this.pixelId, event, legacyTo, derivedEventID, {
-          currency,
-          value: revValue,
-        });
-      }
+      payload.value = revValue;
+      payload.currency = currency;
+      this.makeTrackSignalCalls(this.pixelId, event, standardTo, derivedEventID, payload);
+      this.makeTrackSignalCalls(this.pixelId, event, legacyTo, derivedEventID, {
+        currency,
+        value: revValue,
+      });
+    }
   }
 
   makeTrackSignalCalls(pixelId, event, array, derivedEventID, payload) {

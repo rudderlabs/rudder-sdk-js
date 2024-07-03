@@ -1,4 +1,8 @@
-import { validateLoadArgs } from '../../../src/components/configManager/util/validate';
+import {
+  validateLoadArgs,
+  getTopDomainUrl,
+  getDataServiceUrl,
+} from '../../../src/components/configManager/util/validate';
 
 describe('Config manager util - validate load arguments', () => {
   const sampleWriteKey = 'dummyWriteKey';
@@ -27,5 +31,27 @@ describe('Config manager util - validate load arguments', () => {
     }).toThrow(
       'The data plane URL " " is invalid. It must be a valid URL string. Please check that the data plane URL is correct and try again.',
     );
+  });
+  describe('getTopDomainUrl', () => {
+    const testCaseData = [
+      ['https://sub.example.com', 'https://example.com'],
+      ['https://www.example.com/some/page/iam/viewing.html', 'https://example.com'],
+      ['https://example.com/some/page/iam/viewing.html', 'https://example.com'],
+      ['http://localhost/some/page/iam/viewing.html', 'http://localhost'],
+    ];
+    it.each(testCaseData)('if url is "%s" it should return "%s"', (input, expectedOutput) => {
+      const actualOutput = getTopDomainUrl(input);
+      expect(actualOutput).toBe(expectedOutput);
+    });
+  });
+  describe('getDataServiceUrl', () => {
+    it('should return dataServiceUrl', () => {
+      const dataServiceUrl = getDataServiceUrl('endpoint');
+      expect(dataServiceUrl).toBe('https://test-host.com/endpoint');
+    });
+    it('should prepare the dataServiceUrl with endpoint without leading slash', () => {
+      const dataServiceUrl = getDataServiceUrl('/endpoint');
+      expect(dataServiceUrl).toBe('https://test-host.com/endpoint');
+    });
   });
 });

@@ -25,8 +25,8 @@ import {
 import type { UserSessionKey } from '@rudderstack/analytics-js-common/types/UserSessionStorage';
 import { batch } from '@preact/signals-core';
 import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
-import { USER_SESSION_KEYS } from '@rudderstack/analytics-js/constants/storage';
-import { USER_SESSION_STORAGE_KEYS } from '../../components/userSessionManager/constants';
+import { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
+import { USER_SESSION_KEYS } from '../../constants/storage';
 import { STORAGE_UNAVAILABLE_WARNING } from '../../constants/logMessages';
 import { type StoreManagerOptions, storageClientDataStoreNameMap } from './types';
 import { state } from '../../state';
@@ -148,7 +148,7 @@ class StoreManager implements IStoreManager {
         ...storageEntries,
         [sessionKey]: {
           type: finalStorageType,
-          key: USER_SESSION_STORAGE_KEYS[storageKey],
+          key: COOKIE_KEYS[storageKey],
         },
       };
     });

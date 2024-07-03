@@ -227,6 +227,10 @@ const buildEntries = () => {
               find: '@rudderstack/analytics-js-common',
               replacement: path.resolve('./dist/dts/packages/analytics-js-common/src'),
             },
+            {
+              find: '@rudderstack/analytics-js-cookies',
+              replacement: path.resolve('./dist/dts/packages/analytics-js-cookies/src'),
+            },
           ],
         }),
         dts(),

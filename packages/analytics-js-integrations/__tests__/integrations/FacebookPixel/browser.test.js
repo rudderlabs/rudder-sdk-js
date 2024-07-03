@@ -1,6 +1,8 @@
 import FacebookPixel from '../../../src/integrations/FacebookPixel/browser';
 
-beforeAll(() => {});
+beforeAll(() => {
+  window.fbq = jest.fn();
+});
 
 afterAll(() => {
   jest.restoreAllMocks();
@@ -57,7 +59,7 @@ describe('FacebookPixel init tests', () => {
     });
   });
 
-  test('Testing init call of Facebook Pixel with identified user and updated mapping false', () => {
+  test('Testing init call of Facebook Pixel with identified user and updated mapping false and autoConfig configured', () => {
     const mockAnalytics = {
       getUserTraits: jest.fn(() => ({
         firstName: 'rudder',
@@ -68,12 +70,13 @@ describe('FacebookPixel init tests', () => {
       getUserId: jest.fn(() => 'testUserID'),
     };
     facebookPixel = new FacebookPixel(
-      { pixelId: '12567839', advancedMapping: true, useUpdatedMapping: false },
+      { pixelId: '12567839', advancedMapping: true, useUpdatedMapping: false, autoConfig: true },
       mockAnalytics,
       destinationInfo,
     );
     facebookPixel.init();
     expect(typeof window.fbq).toBe('function');
+    expect(window.fbq).toHaveBeenCalledWith('set', 'autoConfig', true, '12567839');
     expect(facebookPixel.userPayload).toStrictEqual({
       email: 'abcd@rudderstack.com',
       firstName: 'rudder',
@@ -239,6 +242,69 @@ describe('Facebook Pixel Track event', () => {
     });
     expect(window.fbq.mock.calls[0][4]).toEqual({
       eventID: 'purchaseId',
+    });
+  });
+
+  test('Testing Ecommerce Track Events with content_type in properties', () => {
+    facebookPixel.track({
+      message: {
+        context: {},
+        event: 'Order Completed',
+        properties: {
+          content_type: 'product_group',
+          customProp: 'testProp',
+          checkout_id: 'random_id',
+          event_id: 'purchaseId',
+          order_id: 'transactionId',
+          value: 35.0,
+          shipping: 4.0,
+          coupon: 'APPARELSALE',
+          currency: 'GBP',
+          products: [
+            {
+              product_id: 'abc',
+              category: 'Merch',
+              price: 3.0,
+              quantity: 2,
+              currency: 'GBP',
+              value: 6.0,
+              typeOfProduct: 'Food',
+            },
+          ],
+        },
+      },
+    });
+    expect(window.fbq.mock.calls[0][3]).toEqual({
+      checkout_id: 'random_id',
+      content_ids: ['abc'],
+      content_type: 'product_group',
+      currency: 'GBP',
+      content_name: undefined,
+      value: 0,
+      contents: [
+        {
+          id: 'abc',
+          quantity: 2,
+          item_price: 3,
+        },
+      ],
+      num_items: 1,
+      coupon: 'APPARELSALE',
+      customProp: 'testProp',
+      event_id: 'purchaseId',
+      order_id: 'transactionId',
+      products: [
+        {
+          product_id: 'abc',
+          category: 'Merch',
+          price: 3.0,
+          quantity: 2,
+          currency: 'GBP',
+          value: 6.0,
+          typeOfProduct: 'Food',
+        },
+      ],
+      shipping: 4,
     });
   });
 

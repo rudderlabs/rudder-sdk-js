@@ -58,6 +58,7 @@ class GoogleTagManager {
       // it'll be null/undefined before identify call is made
       traits: rudderMessage.context.traits,
       ...rudderMessage.properties,
+      messageId: rudderMessage.messageId,
     };
     this.sendToGTMDatalayer(props);
   }
@@ -87,6 +88,7 @@ class GoogleTagManager {
       // it'll be null/undefined before identify call is made
       traits: rudderMessage.context.traits,
       ...rudderMessage.properties,
+      messageId: rudderMessage.messageId,
     };
 
     this.sendToGTMDatalayer(props);

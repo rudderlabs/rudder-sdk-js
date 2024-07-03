@@ -64,7 +64,7 @@ class LinkedInInsightTag {
       false,
     );
     if (!eventMapping[trimmedEvent]) {
-      logger.error(
+      logger.warn(
         `The "${event}" event is not mapped in the destination dashboard. It'll be skipped`,
       );
       return;
