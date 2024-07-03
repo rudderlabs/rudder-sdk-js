@@ -142,7 +142,7 @@ const SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING = (
   providedCookieDomain: string | undefined,
   currentCookieDomain: string,
 ): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The server side cookie setting feature has been disabled because provided cookie domain (${providedCookieDomain}) is not matching with current domain (${currentCookieDomain}).`;
+  `${context}${LOG_CONTEXT_SEPARATOR}The provided cookie domain (${providedCookieDomain}) does not match the current webpage's domain (${currentCookieDomain}). Hence, the cookies will be set client-side.`;
 
 const RESERVED_KEYWORD_WARNING = (
   context: string,
