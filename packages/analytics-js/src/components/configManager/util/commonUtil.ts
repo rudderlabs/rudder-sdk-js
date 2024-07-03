@@ -49,7 +49,7 @@ import {
   ErrorReportingProvidersToPluginNameMap,
   StorageEncryptionVersionsToPluginNameMap,
 } from '../constants';
-import { getDataServiceUrl, isValidStorageType } from './validate';
+import { getDataServiceUrl, isValidStorageType, isTopLevelDomain } from './validate';
 import { getConsentManagementData } from '../../utilities/consent';
 
 /**
@@ -165,7 +165,16 @@ const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
     if (useServerSideCookies) {
       state.serverCookies.isEnabledServerSideCookies.value = useServerSideCookies;
       const providedCookieDomain = cookieOptions.domain ?? setCookieDomain;
-      const useExactDomain = isDefined(providedCookieDomain) || sameDomainCookiesOnly;
+      /**
+       * Based on the following conditions, we decide whether to use the exact domain or not to determine the data service URL:
+       * 1. If the cookie domain is provided and it is not a top-level domain, then use the exact domain
+       * 2. If the sameDomainCookiesOnly flag is set to true, then use the exact domain
+       */
+      const useExactDomain =
+        (isDefined(providedCookieDomain) &&
+          !isTopLevelDomain(removeLeadingPeriod(providedCookieDomain as string))) ||
+        sameDomainCookiesOnly;
+
       const dataServiceUrl = getDataServiceUrl(
         dataServiceEndpoint ?? DEFAULT_DATA_SERVICE_ENDPOINT,
         useExactDomain ?? false,
@@ -179,6 +188,9 @@ const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
 
         // If the current host is different from the data service host, then it is a cross-site request
         // For server-side cookies to work, we need to set the SameSite=None and Secure attributes
+        // One round of cookie options manipulation is taking place here
+        // Based on these(setCookieDomain/storage.cookie or sameDomainCookiesOnly) two load-options, final cookie options are set in the storage module
+        // TODO: Refactor the cookie options manipulation logic in one place
         if (curHost !== dataServiceHost) {
           cookieOptions = {
             ...cookieOptions,
@@ -186,9 +198,14 @@ const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
             secure: true,
           };
         }
+        /**
+         * If the sameDomainCookiesOnly flag is not set and the cookie domain is provided(not top level domain),
+         * and the data service host is different from the provided cookie domain, then we disable server-side cookies
+         * ex: provided cookie domain: 'random.com', data service host: 'sub.example.com'
+         */
         if (
           !sameDomainCookiesOnly &&
-          isDefined(providedCookieDomain) &&
+          useExactDomain &&
           dataServiceHost !== removeLeadingPeriod(providedCookieDomain as string)
         ) {
           state.serverCookies.isEnabledServerSideCookies.value = false;

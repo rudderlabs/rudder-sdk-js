@@ -37,7 +37,7 @@ const isValidSourceConfig = (res: any): boolean =>
 const isValidStorageType = (storageType?: StorageType): boolean =>
   typeof storageType === 'string' && SUPPORTED_STORAGE_TYPES.includes(storageType);
 
-const getTopDomainUrl = (url: string) => {
+const getTopDomain = (url: string) => {
   // Create a URL object
   const urlObj = new URL(url);
 
@@ -55,6 +55,11 @@ const getTopDomainUrl = (url: string) => {
     // If only two parts or less, return as it is
     topDomain = host;
   }
+  return { topDomain, protocol };
+};
+
+const getTopDomainUrl = (url: string) => {
+  const { topDomain, protocol } = getTopDomain(url);
   return `${protocol}//${topDomain}`;
 };
 
@@ -62,6 +67,11 @@ const getDataServiceUrl = (endpoint: string, useExactDomain: boolean) => {
   const url = useExactDomain ? window.location.origin : getTopDomainUrl(window.location.href);
   const formattedEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
   return `${url}/${formattedEndpoint}`;
+};
+
+const isTopLevelDomain = (providedDomain: string): boolean => {
+  const { topDomain } = getTopDomain(window.location.href);
+  return topDomain === providedDomain;
 };
 
 export {
@@ -72,4 +82,5 @@ export {
   validateDataPlaneUrl,
   getTopDomainUrl,
   getDataServiceUrl,
+  isTopLevelDomain,
 };
