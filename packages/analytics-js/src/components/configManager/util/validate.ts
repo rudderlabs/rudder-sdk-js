@@ -69,7 +69,7 @@ const getDataServiceUrl = (endpoint: string, useExactDomain: boolean) => {
   return `${url}/${formattedEndpoint}`;
 };
 
-const isTopLevelDomain = (providedDomain: string): boolean => {
+const isWebpageTopLevelDomain = (providedDomain: string): boolean => {
   const { topDomain } = getTopDomain(window.location.href);
   return topDomain === providedDomain;
 };
@@ -82,5 +82,5 @@ export {
   validateDataPlaneUrl,
   getTopDomainUrl,
   getDataServiceUrl,
-  isTopLevelDomain,
+  isWebpageTopLevelDomain,
 };

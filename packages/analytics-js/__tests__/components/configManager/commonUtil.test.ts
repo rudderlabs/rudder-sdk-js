@@ -11,7 +11,7 @@ import {
 } from '../../../src/components/configManager/util/commonUtil';
 import {
   getDataServiceUrl,
-  isTopLevelDomain,
+  isWebpageTopLevelDomain,
 } from '../../../src/components/configManager/util/validate';
 import { state, resetState } from '../../../src/state';
 
@@ -37,16 +37,16 @@ describe('Config Manager Common Utilities', () => {
   } as unknown as ILogger;
 
   let originalGetDataServiceUrl: (endpoint: string, useExactDomain: boolean) => string;
-  let originalIsTopLevelDomain: (domain: string) => boolean;
+  let isWebpageTopLevelDomainOriginal: (domain: string) => boolean;
 
   beforeAll(() => {
     // Save the original implementation
     originalGetDataServiceUrl = jest.requireActual(
       '../../../src/components/configManager/util/validate',
     ).getDataServiceUrl;
-    originalIsTopLevelDomain = jest.requireActual(
+    isWebpageTopLevelDomainOriginal = jest.requireActual(
       '../../../src/components/configManager/util/validate',
-    ).isTopLevelDomain;
+    ).isWebpageTopLevelDomain;
   });
 
   beforeEach(() => {
@@ -314,7 +314,7 @@ describe('Config Manager Common Utilities', () => {
       state.loadOptions.value.useServerSideCookies = true;
       state.loadOptions.value.setCookieDomain = 'test-host.com';
 
-      (isTopLevelDomain as jest.Mock).mockImplementation(originalIsTopLevelDomain);
+      (isWebpageTopLevelDomain as jest.Mock).mockImplementation(isWebpageTopLevelDomainOriginal);
       (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
       updateStorageStateFromLoadOptions(mockLogger);
 
@@ -326,7 +326,7 @@ describe('Config Manager Common Utilities', () => {
       state.loadOptions.value.useServerSideCookies = true;
       state.loadOptions.value.setCookieDomain = 'random-host.com';
 
-      (isTopLevelDomain as jest.Mock).mockImplementation(originalIsTopLevelDomain);
+      (isWebpageTopLevelDomain as jest.Mock).mockImplementation(isWebpageTopLevelDomainOriginal);
       (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
       updateStorageStateFromLoadOptions(mockLogger);
 

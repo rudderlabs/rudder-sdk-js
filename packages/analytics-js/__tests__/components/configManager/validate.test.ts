@@ -2,7 +2,7 @@ import {
   validateLoadArgs,
   getTopDomainUrl,
   getDataServiceUrl,
-  isTopLevelDomain,
+  isWebpageTopLevelDomain,
 } from '../../../src/components/configManager/util/validate';
 
 describe('Config manager util - validate load arguments', () => {
@@ -60,13 +60,13 @@ describe('Config manager util - validate load arguments', () => {
     });
   });
 
-  describe('isTopLevelDomain', () => {
+  describe('isWebpageTopLevelDomain', () => {
     it('should return true for top level domain', () => {
-      const isTopLevel = isTopLevelDomain('test-host.com');
+      const isTopLevel = isWebpageTopLevelDomain('test-host.com');
       expect(isTopLevel).toBe(true);
     });
     it('should return false for subdomain', () => {
-      const isTopLevel = isTopLevelDomain('sub.test-host.com');
+      const isTopLevel = isWebpageTopLevelDomain('sub.test-host.com');
       expect(isTopLevel).toBe(false);
     });
   });

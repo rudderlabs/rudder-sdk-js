@@ -49,7 +49,7 @@ import {
   ErrorReportingProvidersToPluginNameMap,
   StorageEncryptionVersionsToPluginNameMap,
 } from '../constants';
-import { getDataServiceUrl, isValidStorageType, isTopLevelDomain } from './validate';
+import { getDataServiceUrl, isValidStorageType, isWebpageTopLevelDomain } from './validate';
 import { getConsentManagementData } from '../../utilities/consent';
 
 /**
@@ -172,7 +172,7 @@ const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
        */
       const useExactDomain =
         (isDefined(providedCookieDomain) &&
-          !isTopLevelDomain(removeLeadingPeriod(providedCookieDomain as string))) ||
+          !isWebpageTopLevelDomain(removeLeadingPeriod(providedCookieDomain as string))) ||
         sameDomainCookiesOnly;
 
       const dataServiceUrl = getDataServiceUrl(
