@@ -68,6 +68,10 @@
     "check:size:json": {
       "inputs": ["default", "^production", "{projectRoot}/.size-limit.js"],
       "cache": true
+    },
+    "check:pub": {
+      "inputs": ["{projectRoot}/package.json"],
+      "cache": true
     }
   },
   "generators": {
@@ -86,7 +90,7 @@
       "{projectRoot}/**/*",
       "!{projectRoot}/.env.example",
       "!{projectRoot}/public/**/*",
-      "!{projectRoot}/LICENSE",
+      "!{projectRoot}/LICENSE.md",
       "!{projectRoot}/**/*.md",
       "!{projectRoot}/**/*.txt",
       "!{projectRoot}/serve.json",

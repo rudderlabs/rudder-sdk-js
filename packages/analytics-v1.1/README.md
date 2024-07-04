@@ -19,6 +19,9 @@
 
 ---
 
+| :warning: This package is deprecated. Please switch to the latest [@rudderstack/analytics-js](https://www.npmjs.com/package/@rudderstack/analytics-js) package for improved features and support. <br>For more details, visit [link](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/). |
+| :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+
 # RudderStack JavaScript SDK
 
 The JavaScript SDK lets you track customer event data from your website and send it to your specified destinations via RudderStack.
@@ -36,8 +39,8 @@ The JavaScript SDK lets you track customer event data from your website and send
 - [**Usage in Chrome Extensions**](#usage-in-chrome-extensions)
 - [**Usage in Serverless Runtimes**](#usage-in-serverless-runtimes)
 
-| **IMPORTANT**: We have deprecated the service worker export from RudderStack JavaScript SDK npm package and decoupled it to a new package. <br/>If you still wish to use it for your project, refer to [**@rudderstack/analytics-js-service-worker package**](https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker). |
-| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **IMPORTANT**: We have deprecated the service worker export from RudderStack JavaScript SDK NPM package and moved it to a separate package. <br/>If you still wish to use it for your project, refer to [**@rudderstack/analytics-js-service-worker package**](https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker). |
+| :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
 ## [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-v1.1/README.md#installing-the-javascript-sdk)Installing the JavaScript SDK
 
@@ -312,10 +315,46 @@ For examples and specific details look into:
 - [Vercel Edge Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/serverless/USAGE.md)
 - [Cloudflare Worker Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/serverless/USAGE.md)
 
+## License
+
+This project is licensed under the Elastic License 2.0. See the [LICENSE.md](LICENSE.md) file for details. Review the license terms to understand your permissions and restrictions.
+
+If you have any questions about licensing, please [contact us](#contact-us) or refer to the [official Elastic licensing](https://www.elastic.co/licensing/elastic-license) page.
+
 ## Contribute
 
-We would love to see you contribute to this project. Get more information on how to contribute [**here**](./CONTRIBUTING.md).
+We invite you to contribute to this project. For more information on how to contribute, please see [**here**](../../CONTRIBUTING.md).
 
 ## Contact us
 
 For more information on any of the sections covered in this readme, you can [**contact us**](mailto:%20docs@rudderstack.com) or start a conversation on our [**Slack**](https://resources.rudderstack.com/join-rudderstack-slack) channel.
+
+## Follow Us
+
+- [RudderStack Blog][rudderstack-blog]
+- [Slack][slack]
+- [Twitter][twitter]
+- [LinkedIn][linkedin]
+- [dev.to][devto]
+- [Medium][medium]
+- [YouTube][youtube]
+- [HackerNews][hackernews]
+- [Product Hunt][producthunt]
+
+## :clap: Our Supporters
+
+[![Stargazers repo roster for @rudderlabs/rudder-sdk-js](https://reporoster.com/stars/rudderlabs/rudder-sdk-js)](https://github.com/rudderlabs/rudder-sdk-js/stargazers)
+
+[![Forkers repo roster for @rudderlabs/rudder-sdk-js](https://reporoster.com/forks/rudderlabs/rudder-sdk-js)](https://github.com/rudderlabs/rudder-sdk-js/network/members)
+
+<!----variables---->
+
+[rudderstack-blog]: https://rudderstack.com/blog/
+[slack]: https://resources.rudderstack.com/join-rudderstack-slack
+[twitter]: https://twitter.com/rudderstack
+[linkedin]: https://www.linkedin.com/company/rudderlabs/
+[devto]: https://dev.to/rudderstack
+[medium]: https://rudderstack.medium.com/
+[youtube]: https://www.youtube.com/channel/UCgV-B77bV_-LOmKYHw8jvBw
+[hackernews]: https://news.ycombinator.com/item?id=21081756
+[producthunt]: https://www.producthunt.com/posts/rudderstack

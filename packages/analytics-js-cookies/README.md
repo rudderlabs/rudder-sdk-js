@@ -21,30 +21,55 @@
 
 # @rudderstack/analytics-js-cookies
 
-RudderStack JavaScript SDK utility for cookies.
+[RudderStack JavaScript SDK](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/) utilities for cookies in browser and Node.js environments. Use the appropriate functions for your environment.
 
 ## APIs
 
-### `getDecryptedValue`
+### `getDecryptedValueBrowser`
+
+> :warning: Only for browser environments
 
 This function decrypts the provided encrypted RudderStack JavaScript cookie value using the RudderStack JavaScript SDK encryption version "v3".
 
-> The encrypted value should be a string starting with `RS_ENC_v3_`.
+> If the provided value is either not encrypted or not properly encrypted, the function returns `null`.
 
-> If the provided value is not properly encrypted, the function will throw an exception.
+> :warning: Any errors during decryption are swallowed by the function, returning `null`.
 
 ```javascript
-import { decrypt } from '@rudderstack/analytics-js-cookies';
+import { getDecryptedValueBrowser } from '@rudderstack/analytics-js-cookies';
 
 const encryptedCookieValue = 'RS_ENC_v3_InRlc3QtZGF0YSI=';
-const decryptedCookieValue = decrypt(encryptedCookieValue);
+const decryptedCookieValue = getDecryptedValueBrowser(encryptedCookieValue);
 console.log('Decrypted Cookie Value: ', decryptedCookieValue);
-// Output: Decrypted Cookie Value: test-data
+// Output:
+// Decrypted Cookie Value: test-data
 ```
 
-### `getDecryptedCookie`
+### `getDecryptedValue`
 
-This function decrypts and returns the RudderStack JavaScript SDK cookie values.
+> :warning: Only for Node.js environments
+
+This function decrypts the provided encrypted RudderStack JavaScript cookie value using the RudderStack JavaScript SDK encryption version "v3".
+
+> If the provided value is either not encrypted or not properly encrypted, the function returns `null`.
+
+> :warning: Any errors during decryption are swallowed by the function, returning `null`.
+
+```javascript
+import { getDecryptedValue } from '@rudderstack/analytics-js-cookies';
+
+const encryptedCookieValue = 'RS_ENC_v3_InRlc3QtZGF0YSI=';
+const decryptedCookieValue = getDecryptedValue(encryptedCookieValue);
+console.log('Decrypted Cookie Value: ', decryptedCookieValue);
+// Output:
+// Decrypted Cookie Value: test-data
+```
+
+### `getDecryptedCookieBrowser`
+
+> :warning: Only for browser environments
+
+This function takes the name of the RudderStack JavaScript SDK cookie and returns the decrypted value.
 
 The return type is either a `string` or an `object` as some cookies like user ID, anonymous user ID have string values while user traits are objects.
 
@@ -56,9 +81,9 @@ It returns `null` in either of the following scenarios:
 - If the decrypted cookie value is not a valid JSON string.
 - If the provided cookie name is not a valid RudderStack JavaScript SDK cookie name.
 
-> Any errors during decryption are swallowed by the function, returning `null`.
+> :warning: Any errors during decryption are swallowed by the function, returning `null`.
 
-The following are the available cookie key exports:
+The following cookie keys are exported which can be used with this function:
 
 - `userIdKey`: The key for the user ID cookie.
 - `userTraitsKey`: The key for the user traits cookie.
@@ -72,22 +97,85 @@ The following are the available cookie key exports:
 
 ```javascript
 import {
-  getDecryptedCookie,
+  getDecryptedCookieBrowser,
   anonymousUserIdKey,
   userTraitsKey,
 } from '@rudderstack/analytics-js-cookies';
 
-const anonymousId = getDecryptedCookie(anonymousUserIdKey);
+const anonymousId = getDecryptedCookieBrowser(anonymousUserIdKey);
 console.log('Anonymous User ID: ', anonymousId);
-// Output: Anonymous User ID: 2c5b6d48-ea90-43a2-a2f6-457d27f90328
+// Output:
+// Anonymous User ID: 2c5b6d48-ea90-43a2-a2f6-457d27f90328
 
-const userTraits = getDecryptedCookie(userTraitsKey);
+const userTraits = getDecryptedCookieBrowser(userTraitsKey);
 console.log('User Traits: ', userTraits);
-// Output: User Traits: {"email":"abc@xyz.com","name":"John Doe"}
+// Output:
+// User Traits: {"email":"abc@xyz.com","name":"John Doe"}
 
-const invalidCookie = getDecryptedCookie('invalid-cookie-name');
+const invalidCookie = getDecryptedCookieBrowser('invalid-cookie-name');
 console.log('Invalid Cookie: ', invalidCookie);
-// Output: Invalid Cookie: null
+// Output:
+// Invalid Cookie: null
 ```
 
-> For detailed documentation on the RudderStack JavaScript SDK, click [**here**](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/).
+## Debugging
+
+As all the above APIs swallow the errors, you can set the `debug` argument to `true` to log the errors.
+
+```javascript
+import { getDecryptedValue } from '@rudderstack/analytics-js-cookies';
+
+const encryptedCookieValue = 'RS_ENC_v3_InRlc3QtZGF0YSI-some-random-data';
+
+// Set the debug flag to true
+const decryptedCookieValue = getDecryptedValue(encryptedCookieValue, true);
+console.log('Decrypted Cookie Value: ', decryptedCookieValue);
+
+// Output:
+// Error occurred during decryption: Unexpected non-whitespace character after JSON at position 11
+// Decrypted Cookie Value: null
+```
+
+## License
+
+This project is licensed under the Elastic License 2.0. See the [LICENSE.md](LICENSE.md) file for details. Review the license terms to understand your permissions and restrictions.
+
+If you have any questions about licensing, please [contact us](#contact-us) or refer to the [official Elastic licensing](https://www.elastic.co/licensing/elastic-license) page.
+
+## Contribute
+
+We invite you to contribute to this project. For more information on how to contribute, please see [**here**](../../CONTRIBUTING.md).
+
+## Contact us
+
+For more information on any of the sections covered in this readme, you can [**contact us**](mailto:%20docs@rudderstack.com) or start a conversation on our [**Slack**](https://resources.rudderstack.com/join-rudderstack-slack) channel.
+
+## Follow Us
+
+- [RudderStack Blog][rudderstack-blog]
+- [Slack][slack]
+- [Twitter][twitter]
+- [LinkedIn][linkedin]
+- [dev.to][devto]
+- [Medium][medium]
+- [YouTube][youtube]
+- [HackerNews][hackernews]
+- [Product Hunt][producthunt]
+
+## :clap: Our Supporters
+
+[![Stargazers repo roster for @rudderlabs/rudder-sdk-js](https://reporoster.com/stars/rudderlabs/rudder-sdk-js)](https://github.com/rudderlabs/rudder-sdk-js/stargazers)
+
+[![Forkers repo roster for @rudderlabs/rudder-sdk-js](https://reporoster.com/forks/rudderlabs/rudder-sdk-js)](https://github.com/rudderlabs/rudder-sdk-js/network/members)
+
+<!----variables---->
+
+[rudderstack-blog]: https://rudderstack.com/blog/
+[slack]: https://resources.rudderstack.com/join-rudderstack-slack
+[twitter]: https://twitter.com/rudderstack
+[linkedin]: https://www.linkedin.com/company/rudderlabs/
+[devto]: https://dev.to/rudderstack
+[medium]: https://rudderstack.medium.com/
+[youtube]: https://www.youtube.com/channel/UCgV-B77bV_-LOmKYHw8jvBw
+[hackernews]: https://news.ycombinator.com/item?id=21081756
+[producthunt]: https://www.producthunt.com/posts/rudderstack

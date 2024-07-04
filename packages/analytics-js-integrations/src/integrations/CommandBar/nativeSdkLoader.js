@@ -73,13 +73,7 @@ function loadNativeSdk(orgId) {
         r(''.concat(f, '/latest/').concat(o, '?').concat(s.join('&')), !0);
     }
   }
-  void 0 === Object.assign || 'undefined' == typeof Symbol || void 0 === Symbol.for
-    ? ((a.__CommandBarBootstrap__ = t),
-      r(
-        'https://polyfill.io/v3/polyfill.min.js?version=3.101.0&callback=__CommandBarBootstrap__&features=' +
-          n,
-      ))
-    : t();
+  t();
 }
 
 export { loadNativeSdk };
