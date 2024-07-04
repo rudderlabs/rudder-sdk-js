@@ -286,7 +286,7 @@ export function getDefaultConfig(distName) {
 
 const outputFilesNpm = [
   {
-    entryFileNames: `index.js`,
+    entryFileNames: `index.mjs`,
     dir: outDirNpm + '/esm/',
     format: 'esm',
     name: modName,
@@ -296,7 +296,7 @@ const outputFilesNpm = [
     },
   },
   {
-    entryFileNames: `index.js`,
+    entryFileNames: `index.cjs`,
     dir: outDirNpm + '/cjs',
     format: 'cjs',
     name: modName,
@@ -369,16 +369,26 @@ const buildEntries = () => {
             {
               find: '@rudderstack/analytics-js-common',
               replacement: path.resolve('./dist/dts/packages/analytics-js-common/src'),
+            },
+            {
+              find: '@rudderstack/analytics-js-cookies',
+              replacement: path.resolve('./dist/dts/packages/analytics-js-cookies/src'),
             }
           ]
         }),
         dts(),
         del({ hook: "buildEnd", targets: "./dist/dts" }),
       ],
-      output: {
-        file: `${outDirNpmRoot}/index.d.ts`,
-        format: 'es',
-      },
+      output: [
+        {
+          file: `${outDirNpmRoot}/index.d.mts`,
+          format: 'es',
+        },
+        {
+          file: `${outDirNpmRoot}/index.d.cts`,
+          format: 'es',
+        }
+      ],
     }
   ];
 }

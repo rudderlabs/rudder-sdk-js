@@ -1,6 +1,6 @@
 {
   "name": "rudder-sdk-js",
-  "version": "2.48.9",
+  "version": "2.48.10",
   "description": "RudderStack JavaScript SDK",
   "main": "dist/npm/index.js",
   "module": "dist/npm/index.es.js",
@@ -28,7 +28,7 @@
   },
   "files": [
     "dist/npm",
-    "LICENSE",
+    "LICENSE.md",
     "README.md",
     "CHANGELOG.md"
   ],
@@ -43,7 +43,7 @@
     "build:package": "npm run build:npm && npm run build:npm:content-script",
     "build:browser:test": "npm run build:browser && sed 's/var rudderanalytics/rudderanalytics/g' dist/cdn/legacy/rudder-analytics.min.js > __mocks__/cdnSDK.js",
     "test": "npm run build:browser:test && nx test --maxWorkers=50%",
-    "test:ci": "npm run build:browser:test && nx test --parallel=false --configuration=ci --runInBand --maxWorkers=1 --forceExit",
+    "test:ci": "npm run build:browser:test && nx test --configuration=ci --runInBand --maxWorkers=1 --forceExit",
     "check:lint": "nx lint",
     "check:lint:ci": "nx lint --configuration=ci",
     "check:size:build": "npm run build:browser && npm run build:package",
@@ -66,7 +66,7 @@
     "rudder"
   ],
   "author": "RudderStack",
-  "license": "MIT",
+  "license": "Elastic-2.0",
   "bugs": {
     "url": "https://github.com/rudderlabs/rudder-sdk-js/issues"
   },

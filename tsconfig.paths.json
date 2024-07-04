@@ -7,6 +7,7 @@
     { "path": "./packages/analytics-js-service-worker/tsconfig.json" },
     { "path": "./packages/analytics-v1.1/tsconfig.json" },
     { "path": "./packages/loading-scripts/tsconfig.json" },
-    { "path": "./packages/sanity-suite/tsconfig.json" }
+    { "path": "./packages/sanity-suite/tsconfig.json" },
+    { "path": "./packages/analytics-js-cookies/tsconfig.json" }
   ]
 }

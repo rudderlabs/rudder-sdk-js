@@ -2,7 +2,7 @@
 import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { encryption } from '../shared-chunks/common';
+import { encrypt, decrypt } from '../shared-chunks/common';
 
 const pluginName: PluginName = 'StorageEncryption';
 
@@ -13,10 +13,10 @@ const StorageEncryption = (): ExtensionPlugin => ({
   },
   storage: {
     encrypt(value: any): string {
-      return encryption.encrypt(value);
+      return encrypt(value);
     },
-    decrypt(value: string): string {
-      return encryption.decrypt(value);
+    decrypt(value: string): string | undefined {
+      return decrypt(value);
     },
   },
 });

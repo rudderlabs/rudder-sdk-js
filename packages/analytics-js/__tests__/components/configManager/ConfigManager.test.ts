@@ -246,7 +246,7 @@ describe('ConfigManager', () => {
 
     configManagerInstance.init();
 
-    expect(state.serverCookies.dataServiceUrl.value).toBe('http://test-host.com/my/own/endpoint');
+    expect(state.serverCookies.dataServiceUrl.value).toBe('https://test-host.com/my/own/endpoint');
   });
 
   it('should set the data server URL in state with default endpoint if server side cookies feature is enabled and dataServiceEndpoint is not provided', () => {
@@ -259,7 +259,7 @@ describe('ConfigManager', () => {
 
     configManagerInstance.init();
 
-    expect(state.serverCookies.dataServiceUrl.value).toBe('http://test-host.com/rsaRequest');
+    expect(state.serverCookies.dataServiceUrl.value).toBe('https://test-host.com/rsaRequest');
   });
 
   it('should disable server side cookies feature if provided endpoint is invalid', () => {

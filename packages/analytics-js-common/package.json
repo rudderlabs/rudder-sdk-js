@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-common",
-  "version": "3.4.0",
+  "version": "3.5.0",
   "private": true,
   "description": "RudderStack JavaScript SDK common code",
   "module": "dist/npm/index.js",
@@ -8,7 +8,7 @@
   "publishConfig": {},
   "files": [
     "dist/npm",
-    "LICENSE",
+    "LICENSE.md",
     "README.md",
     "CHANGELOG.md"
   ],
@@ -17,7 +17,7 @@
     "rudder"
   ],
   "author": "RudderStack",
-  "license": "MIT",
+  "license": "Elastic-2.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rudderlabs/rudder-sdk-js.git",
@@ -38,7 +38,7 @@
     "build:npm:modern": "BROWSERSLIST_ENV=modern npm run build:npm",
     "build:package": "npm run build:npm:modern",
     "test": "nx test --maxWorkers=50%",
-    "test:ci": "nx test --parallel=false --configuration=ci --runInBand --maxWorkers=1 --forceExit",
+    "test:ci": "nx test --configuration=ci --runInBand --maxWorkers=1 --forceExit",
     "check:lint": "nx lint",
     "check:lint:ci": "nx lint --configuration=ci",
     "check:size:build": "npm run build",

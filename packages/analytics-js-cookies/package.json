@@ -1,0 +1,115 @@
+{
+  "name": "@rudderstack/analytics-js-cookies",
+  "version": "0.3.0",
+  "description": "RudderStack JavaScript SDK Cookies Utilities",
+  "main": "dist/npm/modern/cjs/index.cjs",
+  "module": "dist/npm/modern/esm/index.mjs",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/npm/index.d.mts",
+      "require": {
+        "types": "./dist/npm/index.d.cts",
+        "default": "./dist/npm/modern/cjs/index.cjs"
+      },
+      "import": {
+        "types": "./dist/npm/index.d.mts",
+        "default": "./dist/npm/modern/esm/index.mjs"
+      }
+    },
+    "./legacy": {
+      "types": "./dist/npm/index.d.mts",
+      "require": {
+        "types": "./dist/npm/index.d.cts",
+        "default": "./dist/npm/legacy/cjs/index.cjs"
+      },
+      "import": {
+        "types": "./dist/npm/index.d.mts",
+        "default": "./dist/npm/legacy/esm/index.mjs"
+      }
+    }
+  },
+  "types": "./dist/npm/index.d.mts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/npm/index.d.mts"
+      ]
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist/npm",
+    "LICENSE.md",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "keywords": [
+    "analytics",
+    "rudder"
+  ],
+  "author": "RudderStack",
+  "license": "Elastic-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rudderlabs/rudder-sdk-js.git",
+    "directory": "packages/analytics-js-cookies"
+  },
+  "bugs": {
+    "url": "https://github.com/rudderlabs/rudder-sdk-js/issues"
+  },
+  "homepage": "https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-js-cookies/README.md",
+  "scripts": {
+    "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf -rf ./reports",
+    "start": "exit 0",
+    "build": "npm run build:browser && npm run build:package",
+    "build:browser:modern": "exit 0",
+    "build:browser": "exit 0",
+    "build:npm": "rollup -c --environment VERSION:$npm_package_version,ENV:prod,MODULE_TYPE:npm",
+    "build:npm:modern": "BROWSERSLIST_ENV=modern npm run build:npm",
+    "build:package": "npm run build:npm:modern && npm run build:npm",
+    "test": "nx test --maxWorkers=50%",
+    "test:ci": "nx test --configuration=ci --runInBand --maxWorkers=1 --forceExit",
+    "check:lint": "nx lint",
+    "check:lint:ci": "nx lint --configuration=ci",
+    "check:size:build": "npm run build",
+    "check:size": "npm run check:size:build && size-limit",
+    "check:size:json": "size-limit --json",
+    "check:circular": "madge --circular --extensions js,ts src || exit 0",
+    "check:support": "NODE_ENV=production npx browserslist --mobile-to-desktop",
+    "check:support:modern": "NODE_ENV=modern npx browserslist --mobile-to-desktop",
+    "check:duplicates": "jscpd src",
+    "check:security": "npm audit --recursive --audit-level=high",
+    "check:pub": "npx publint",
+    "build:modern": "npm run build:browser:modern && npm run build:npm:modern",
+    "package": "npm pack",
+    "release": "npm publish"
+  },
+  "dependencies": {
+    "@rudderstack/analytics-js-common": "*"
+  },
+  "devDependencies": {},
+  "overrides": {},
+  "browserslist": {
+    "production": [
+      "defaults",
+      "Edge >= 80",
+      "Firefox >= 47",
+      "IE >= 11",
+      "Chrome >= 54",
+      "Safari >= 7",
+      "Opera >= 43"
+    ],
+    "modern": [
+      "defaults and supports es6-module-dynamic-import"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 edge version",
+      "last 1 safari version"
+    ]
+  }
+}

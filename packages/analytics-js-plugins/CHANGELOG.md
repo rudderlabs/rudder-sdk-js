@@ -2,6 +2,46 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.3.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.2.1...@rudderstack/analytics-js-plugins@3.3.0) (2024-07-01)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.2.1`
+* `@rudderstack/analytics-js-cookies` updated to version `3.2.1`
+
+### Features
+
+* expose exclusive cookies functions for server and browser environments ([#1774](https://github.com/rudderlabs/rudder-sdk-js/issues/1774)) ([428e5cd](https://github.com/rudderlabs/rudder-sdk-js/commit/428e5cd96c389ab0944fa9255d6d68c56c71908c))
+
+## [3.2.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.2.0...@rudderstack/analytics-js-plugins@3.2.1) (2024-06-25)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.2.0`
+* `@rudderstack/analytics-js-cookies` updated to version `3.2.0`
+## [3.2.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.1.1...@rudderstack/analytics-js-plugins@3.2.0) (2024-06-25)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.1.1`
+* `@rudderstack/analytics-js-cookies` updated to version `3.1.1`
+
+### Features
+
+* create new package for cookie utilities ([#1759](https://github.com/rudderlabs/rudder-sdk-js/issues/1759)) ([92826a4](https://github.com/rudderlabs/rudder-sdk-js/commit/92826a4f2e87dd2d0d755016592e36e4708f34d4))
+
+## [3.1.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.1.0...@rudderstack/analytics-js-plugins@3.1.1) (2024-06-21)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.1.0`
+* `@rudderstack/analytics-js` updated to version `3.1.0`
+
+### Bug Fixes
+
+* add state metadata even for unhandled errors ([#1755](https://github.com/rudderlabs/rudder-sdk-js/issues/1755)) ([66fc415](https://github.com/rudderlabs/rudder-sdk-js/commit/66fc415474ffccd684972b47f9926ab87c0a514c))
+* improve flushing events on page leave ([#1754](https://github.com/rudderlabs/rudder-sdk-js/issues/1754)) ([1be420f](https://github.com/rudderlabs/rudder-sdk-js/commit/1be420fae16b68629789d2ba37e16e6a6e00017c))
+
 ## [3.1.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.0.6...@rudderstack/analytics-js-plugins@3.1.0) (2024-06-07)
 
 ### Dependency Updates

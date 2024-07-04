@@ -4,8 +4,8 @@ import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { COOKIE_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
+import { cookie } from '@rudderstack/analytics-js-cookies/component-cookie';
 import { isStorageAvailable } from '../../../components/capabilitiesManager/detection';
-import { cookie } from '../component-cookie';
 import { getDefaultCookieOptions } from './defaultOptions';
 
 /**
