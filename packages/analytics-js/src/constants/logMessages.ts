@@ -137,6 +137,13 @@ const STORAGE_DATA_MIGRATION_OVERRIDE_WARNING = (
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The storage data migration has been disabled because the configured storage encryption version (${storageEncryptionVersion}) is not the latest (${defaultVersion}). To enable storage data migration, please update the storage encryption version to the latest version.`;
 
+const SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING = (
+  context: string,
+  providedCookieDomain: string | undefined,
+  currentCookieDomain: string,
+): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The provided cookie domain (${providedCookieDomain}) does not match the current webpage's domain (${currentCookieDomain}). Hence, the cookies will be set client-side.`;
+
 const RESERVED_KEYWORD_WARNING = (
   context: string,
   property: string,
@@ -308,4 +315,5 @@ export {
   INVALID_POLYFILL_URL_WARNING,
   SOURCE_DISABLED_ERROR,
   COMPONENT_BASE_URL_ERROR,
+  SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING,
 };

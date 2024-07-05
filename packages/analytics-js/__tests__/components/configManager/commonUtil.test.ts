@@ -9,7 +9,13 @@ import {
   updateDataPlaneEventsStateFromLoadOptions,
   getSourceConfigURL,
 } from '../../../src/components/configManager/util/commonUtil';
+import {
+  getDataServiceUrl,
+  isWebpageTopLevelDomain,
+} from '../../../src/components/configManager/util/validate';
 import { state, resetState } from '../../../src/state';
+
+jest.mock('../../../src/components/configManager/util/validate');
 
 const createScriptElement = (url: string) => {
   const script = document.createElement('script');
@@ -30,8 +36,22 @@ describe('Config Manager Common Utilities', () => {
     error: jest.fn(),
   } as unknown as ILogger;
 
+  let originalGetDataServiceUrl: (endpoint: string, useExactDomain: boolean) => string;
+  let isWebpageTopLevelDomainOriginal: (domain: string) => boolean;
+
+  beforeAll(() => {
+    // Save the original implementation
+    originalGetDataServiceUrl = jest.requireActual(
+      '../../../src/components/configManager/util/validate',
+    ).getDataServiceUrl;
+    isWebpageTopLevelDomainOriginal = jest.requireActual(
+      '../../../src/components/configManager/util/validate',
+    ).isWebpageTopLevelDomain;
+  });
+
   beforeEach(() => {
     resetState();
+    (getDataServiceUrl as jest.Mock).mockRestore();
   });
 
   describe('getSDKUrl', () => {
@@ -233,6 +253,98 @@ describe('Config Manager Common Utilities', () => {
       expect(mockLogger.warn).toHaveBeenCalledWith(
         'ConfigManager:: The storage data migration has been disabled because the configured storage encryption version (legacy) is not the latest (v3). To enable storage data migration, please update the storage encryption version to the latest version.',
       );
+    });
+
+    it('should not change the value of isEnabledServerSideCookies if the useServerSideCookies is set to false', () => {
+      state.loadOptions.value.useServerSideCookies = false;
+      state.loadOptions.value.storage = {
+        cookie: {
+          samesite: 'secure',
+        },
+      };
+
+      updateStorageStateFromLoadOptions(mockLogger);
+
+      expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(false);
+      expect(state.storage.cookie.value).toEqual({
+        samesite: 'secure',
+      });
+    });
+
+    it('should set the value of isEnabledServerSideCookies to false if the useServerSideCookies is set to true but the dataServiceUrl is not valid url', () => {
+      state.loadOptions.value.useServerSideCookies = true;
+      (getDataServiceUrl as jest.Mock).mockImplementation(() => 'invalid-url');
+      updateStorageStateFromLoadOptions(mockLogger);
+
+      expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(false);
+    });
+
+    it('should set the value of isEnabledServerSideCookies to true if the useServerSideCookies is set to true and the dataServiceUrl is a valid url', () => {
+      state.loadOptions.value.useServerSideCookies = true;
+      (getDataServiceUrl as jest.Mock).mockImplementation(() => 'https://www.dummy.url');
+      updateStorageStateFromLoadOptions(mockLogger);
+
+      expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(true);
+      expect(state.serverCookies.dataServiceUrl.value).toBe('https://www.dummy.url');
+    });
+
+    it('should determine the dataServiceUrl from the exact domain if sameDomainCookiesOnly load option is set to true', () => {
+      state.loadOptions.value.useServerSideCookies = true;
+      state.loadOptions.value.sameDomainCookiesOnly = true;
+
+      (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
+      updateStorageStateFromLoadOptions(mockLogger);
+
+      expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(true);
+      expect(state.serverCookies.dataServiceUrl.value).toBe('https://www.test-host.com/rsaRequest');
+    });
+
+    it('should determine the dataServiceUrl from the exact domain if setCookieDomain load option is provided', () => {
+      state.loadOptions.value.useServerSideCookies = true;
+      state.loadOptions.value.setCookieDomain = 'www.test-host.com';
+
+      (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
+      updateStorageStateFromLoadOptions(mockLogger);
+
+      expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(true);
+      expect(state.serverCookies.dataServiceUrl.value).toBe('https://www.test-host.com/rsaRequest');
+    });
+
+    it('should set isEnabledServerSideCookies to true if provided setCookieDomain load option is top-level domain and sameDomainCookiesOnly option is not set', () => {
+      state.loadOptions.value.useServerSideCookies = true;
+      state.loadOptions.value.setCookieDomain = 'test-host.com';
+
+      (isWebpageTopLevelDomain as jest.Mock).mockImplementation(isWebpageTopLevelDomainOriginal);
+      (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
+      updateStorageStateFromLoadOptions(mockLogger);
+
+      expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(true);
+      expect(state.serverCookies.dataServiceUrl.value).toBe('https://test-host.com/rsaRequest');
+    });
+
+    it('should set isEnabledServerSideCookies to false if provided setCookieDomain load option is different from current domain and sameDomainCookiesOnly option is not set', () => {
+      state.loadOptions.value.useServerSideCookies = true;
+      state.loadOptions.value.setCookieDomain = 'random-host.com';
+
+      (isWebpageTopLevelDomain as jest.Mock).mockImplementation(isWebpageTopLevelDomainOriginal);
+      (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
+      updateStorageStateFromLoadOptions(mockLogger);
+
+      expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(false);
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        "ConfigManager:: The provided cookie domain (random-host.com) does not match the current webpage's domain (www.test-host.com). Hence, the cookies will be set client-side.",
+      );
+    });
+
+    it('should set isEnabledServerSideCookies to true if provided setCookieDomain load option is different from current domain and sameDomainCookiesOnly option is set', () => {
+      state.loadOptions.value.useServerSideCookies = true;
+      state.loadOptions.value.setCookieDomain = 'test-host.com';
+      state.loadOptions.value.sameDomainCookiesOnly = true;
+
+      (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
+      updateStorageStateFromLoadOptions(mockLogger);
+
+      expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(true);
     });
   });
 
