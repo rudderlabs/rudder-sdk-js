@@ -103,11 +103,19 @@ const pageArgumentsToCallOptions = (
     delete payload.name;
     delete payload.category;
     payload.properties = category as Nullable<ApiObject>;
-    payload.options = name as Nullable<ApiOptions>;
+    if (!isFunction(name)) {
+      payload.options = name as Nullable<ApiOptions>;
+    } else {
+      delete payload.options;
+    }
   } else if (isObjectLiteralAndNotNull(name)) {
     delete payload.name;
     payload.properties = name as Nullable<ApiObject>;
-    payload.options = !isFunction(properties) ? (properties as Nullable<ApiOptions>) : null;
+    if (!isFunction(properties)) {
+      payload.options = properties as Nullable<ApiOptions>;
+    } else {
+      delete payload.options;
+    }
   }
 
   // if the category argument alone is provided b/w category and name,
@@ -363,14 +371,7 @@ const groupArgumentsToCallOptions = (
     payload.callback = traits as ApiCallback;
   }
 
-  // TODO: why do we enable overload for group that only passes callback? is there any use case?
-  if (isFunction(groupId)) {
-    // Explicitly set null to prevent resetting the existing value
-    payload.groupId = null;
-    delete payload.traits;
-    delete payload.options;
-    payload.callback = groupId as ApiCallback;
-  } else if (isObjectLiteralAndNotNull(groupId) || isNull(groupId)) {
+  if (isObjectLiteralAndNotNull(groupId) || isNull(groupId)) {
     // Explicitly set null to prevent resetting the existing value
     // in the Analytics class
     payload.groupId = null;

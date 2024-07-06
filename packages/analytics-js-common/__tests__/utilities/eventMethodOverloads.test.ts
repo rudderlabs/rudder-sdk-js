@@ -20,6 +20,25 @@ describe('Core - Event Method Overloads', () => {
       options: { options: {} },
     });
     expect(
+      pageArgumentsToCallOptions('category', 'name', { props: {} }, { options: {} }),
+    ).toStrictEqual({
+      category: 'category',
+      name: 'name',
+      properties: { props: {}, category: 'category', name: 'name' },
+      options: { options: {} },
+    });
+    expect(pageArgumentsToCallOptions('category', 'name', { props: {} })).toStrictEqual({
+      category: 'category',
+      name: 'name',
+      properties: { props: {}, category: 'category', name: 'name' },
+    });
+    expect(pageArgumentsToCallOptions('category', 'name')).toStrictEqual({
+      category: 'category',
+      name: 'name',
+      properties: { category: 'category', name: 'name' },
+    });
+
+    expect(
       pageArgumentsToCallOptions('category', 'name', { props: {} }, callbackMock),
     ).toStrictEqual({
       callback: callbackMock,
@@ -27,76 +46,74 @@ describe('Core - Event Method Overloads', () => {
       name: 'name',
       properties: { props: {}, category: 'category', name: 'name' },
     });
-    expect(pageArgumentsToCallOptions('category', 'name', callbackMock)).toStrictEqual({
-      callback: callbackMock,
-      category: 'category',
-      name: 'name',
-      properties: { category: 'category', name: 'name' },
-    });
-    expect(pageArgumentsToCallOptions('category', callbackMock)).toStrictEqual({
-      callback: callbackMock,
-      name: 'category',
-      properties: { category: null, name: 'category' },
-    });
-    expect(pageArgumentsToCallOptions('category')).toStrictEqual({
-      name: 'category',
-      properties: { category: null, name: 'category' },
-    });
-    expect(pageArgumentsToCallOptions('category', 'name')).toStrictEqual({
-      name: 'name',
-      category: 'category',
-      properties: { category: 'category', name: 'name' },
-    });
     expect(pageArgumentsToCallOptions('category', 'name', { props: {} })).toStrictEqual({
-      name: 'name',
       category: 'category',
-      properties: { category: 'category', name: 'name', props: {} },
+      name: 'name',
+      properties: { props: {}, category: 'category', name: 'name' },
     });
+
     expect(
-      pageArgumentsToCallOptions('category', 'name', { props: {} }, { options: {} }),
+      pageArgumentsToCallOptions('name', { props: {} }, { options: {} }, callbackMock),
     ).toStrictEqual({
+      callback: callbackMock,
       name: 'name',
-      category: 'category',
       options: {
         options: {},
       },
-      properties: { category: 'category', name: 'name', props: {} },
+      properties: { category: null, name: 'name', props: {} },
     });
-    expect(pageArgumentsToCallOptions('category', { props: {} }, { options: {} })).toStrictEqual({
-      name: 'category',
+    expect(pageArgumentsToCallOptions('name', { props: {} }, { options: {} })).toStrictEqual({
+      name: 'name',
       options: {
         options: {},
       },
-      properties: { category: null, name: 'category', props: {} },
+      properties: { category: null, name: 'name', props: {} },
     });
-    expect(pageArgumentsToCallOptions(undefined, 'name', callbackMock)).toStrictEqual({
+
+    expect(pageArgumentsToCallOptions('name', { props: {} }, callbackMock)).toStrictEqual({
+      callback: callbackMock,
+      name: 'name',
+      properties: { category: null, name: 'name', props: {} },
+    });
+    expect(pageArgumentsToCallOptions('name', { props: {} })).toStrictEqual({
+      name: 'name',
+      properties: { category: null, name: 'name', props: {} },
+    });
+
+    expect(pageArgumentsToCallOptions('name', callbackMock)).toStrictEqual({
       callback: callbackMock,
       name: 'name',
       properties: { category: null, name: 'name' },
     });
-    expect(pageArgumentsToCallOptions(callbackMock)).toStrictEqual({
-      callback: callbackMock,
-      properties: { category: null, name: null },
+    expect(pageArgumentsToCallOptions('name')).toStrictEqual({
+      name: 'name',
+      properties: { category: null, name: 'name' },
     });
+
     expect(pageArgumentsToCallOptions({ props: {} }, { options: {} }, callbackMock)).toStrictEqual({
       callback: callbackMock,
       properties: { props: {}, category: null, name: null },
       options: { options: {} },
     });
-    expect(
-      pageArgumentsToCallOptions('category', { props: {} }, { options: {} }, callbackMock),
-    ).toStrictEqual({
-      callback: callbackMock,
-      name: 'category',
-      properties: { props: {}, category: null, name: 'category' },
+    expect(pageArgumentsToCallOptions({ props: {} }, { options: {} })).toStrictEqual({
+      properties: { props: {}, category: null, name: null },
       options: { options: {} },
     });
-    expect(pageArgumentsToCallOptions('category', 'name', null, {}, callbackMock)).toStrictEqual({
+
+    expect(pageArgumentsToCallOptions({ props: {} }, callbackMock)).toStrictEqual({
       callback: callbackMock,
-      category: 'category',
-      name: 'name',
-      properties: { category: 'category', name: 'name' },
-      options: {},
+      properties: { props: {}, category: null, name: null },
+    });
+    expect(pageArgumentsToCallOptions({ props: {} })).toStrictEqual({
+      properties: { props: {}, category: null, name: null },
+    });
+
+    expect(pageArgumentsToCallOptions(callbackMock)).toStrictEqual({
+      callback: callbackMock,
+      properties: { category: null, name: null },
+    });
+    expect(pageArgumentsToCallOptions()).toStrictEqual({
+      properties: { category: null, name: null },
     });
   });
 
@@ -227,11 +244,6 @@ describe('Core - Event Method Overloads', () => {
       callback: callbackMock,
       traits: {},
       groupId: 'groupId',
-    });
-    expect(groupArgumentsToCallOptions(callbackMock)).toStrictEqual({
-      groupId: null,
-      traits: {},
-      callback: callbackMock,
     });
     expect(
       groupArgumentsToCallOptions({ traits: {} }, { options: {} }, callbackMock),
