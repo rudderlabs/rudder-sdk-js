@@ -126,11 +126,30 @@ describe('Core - Event Method Overloads', () => {
       properties: { props: {} },
       options: { options: {} },
     });
+    expect(trackArgumentsToCallOptions('event', { props: {} }, { options: {} })).toStrictEqual({
+      name: 'event',
+      properties: { props: {} },
+      options: { options: {} },
+    });
+    expect(trackArgumentsToCallOptions('event', { props: {} })).toStrictEqual({
+      name: 'event',
+      properties: { props: {} },
+    });
+    expect(trackArgumentsToCallOptions('event')).toStrictEqual({
+      name: 'event',
+      properties: {},
+    });
+
     expect(trackArgumentsToCallOptions('event', { props: {} }, callbackMock)).toStrictEqual({
       callback: callbackMock,
       name: 'event',
       properties: { props: {} },
     });
+    expect(trackArgumentsToCallOptions('event', { props: {} })).toStrictEqual({
+      name: 'event',
+      properties: { props: {} },
+    });
+
     expect(trackArgumentsToCallOptions('event', callbackMock)).toStrictEqual({
       callback: callbackMock,
       name: 'event',
@@ -143,14 +162,6 @@ describe('Core - Event Method Overloads', () => {
         name: 'event',
       },
     );
-    expect(trackArgumentsToCallOptions('event', { properties: {} })).toStrictEqual({
-      properties: { properties: {} },
-      name: 'event',
-    });
-    expect(trackArgumentsToCallOptions('event')).toStrictEqual({
-      properties: {},
-      name: 'event',
-    });
   });
 
   it('should convert facade identify method arguments to analytics identify call options', () => {
