@@ -257,7 +257,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   ): void;
   identify(traits: Nullable<IdentifyTraits>, callback?: ApiCallback): void;
   identify(
-    userId?: string | number | Nullable<IdentifyTraits>,
+    userId: string | number | Nullable<IdentifyTraits>,
     traits?: Nullable<IdentifyTraits> | Nullable<ApiOptions> | ApiCallback,
     options?: Nullable<ApiOptions> | ApiCallback,
     callback?: ApiCallback,
@@ -271,17 +271,12 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    * Process alias arguments and forward to page call
    */
   // These overloads should be same as AnalyticsAliasMethod in @rudderstack/analytics-js-common/types/IRudderAnalytics
+  alias(to: string, from?: string, options?: Nullable<ApiOptions>, callback?: ApiCallback): void;
+  alias(to: string, from?: string, callback?: ApiCallback): void;
+  alias(to: string, options?: Nullable<ApiOptions>, callback?: ApiCallback): void;
+  alias(to: string, callback?: ApiCallback): void;
   alias(
-    to: Nullable<string>,
-    from?: string,
-    options?: Nullable<ApiOptions>,
-    callback?: ApiCallback,
-  ): void;
-  alias(to: Nullable<string>, from?: string, callback?: ApiCallback): void;
-  alias(to: Nullable<string>, options?: Nullable<ApiOptions>, callback?: ApiCallback): void;
-  alias(to: Nullable<string>, callback?: ApiCallback): void;
-  alias(
-    to?: Nullable<string> | ApiCallback,
+    to: string,
     from?: string | Nullable<ApiOptions> | ApiCallback,
     options?: Nullable<ApiOptions> | ApiCallback,
     callback?: ApiCallback,
@@ -308,7 +303,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   ): void;
   group(traits: Nullable<IdentifyTraits>, callback?: ApiCallback): void;
   group(
-    groupId: string | number | Nullable<ApiObject> | ApiCallback,
+    groupId: string | number | Nullable<ApiObject>,
     traits?: Nullable<ApiOptions> | Nullable<ApiObject> | ApiCallback,
     options?: Nullable<ApiOptions> | ApiCallback,
     callback?: ApiCallback,

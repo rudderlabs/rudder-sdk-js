@@ -205,7 +205,7 @@ const trackArgumentsToCallOptions = (
  * Normalise the overloaded arguments of the identify call facade
  */
 const identifyArgumentsToCallOptions = (
-  userId?: Nullable<IdentifyTraits | string | number>,
+  userId: string | number | Nullable<IdentifyTraits>,
   traits?: Nullable<IdentifyTraits> | Nullable<ApiOptions> | ApiCallback,
   options?: Nullable<ApiOptions> | ApiCallback,
   callback?: ApiCallback,
@@ -239,7 +239,11 @@ const identifyArgumentsToCallOptions = (
     // in the Analytics class
     payload.userId = null;
     payload.traits = userId as Nullable<IdentifyTraits>;
-    payload.options = traits as Nullable<ApiOptions>;
+    if (!isFunction(traits)) {
+      payload.options = traits as Nullable<ApiOptions>;
+    } else {
+      delete payload.options;
+    }
   }
 
   // Rest of the code is just to clean up undefined values
@@ -270,7 +274,7 @@ const identifyArgumentsToCallOptions = (
  * Normalise the overloaded arguments of the alias call facade
  */
 const aliasArgumentsToCallOptions = (
-  to?: Nullable<string> | ApiCallback,
+  to: string,
   from?: string | Nullable<ApiOptions> | ApiCallback,
   options?: Nullable<ApiOptions> | ApiCallback,
   callback?: ApiCallback,
@@ -303,17 +307,6 @@ const aliasArgumentsToCallOptions = (
     payload.options = from as Nullable<ApiOptions>;
   }
 
-  if (isFunction(to)) {
-    delete payload.to;
-    delete payload.from;
-    delete payload.options;
-    payload.callback = to as ApiCallback;
-  } else if (isObjectLiteralAndNotNull(to) || isNull(to)) {
-    delete payload.to;
-    delete payload.from;
-    payload.options = to as Nullable<ApiOptions>;
-  }
-
   // Rest of the code is just to clean up undefined values
   // and set some proper defaults
   // Also, to clone the incoming object type arguments
@@ -342,7 +335,7 @@ const aliasArgumentsToCallOptions = (
  * Normalise the overloaded arguments of the group call facade
  */
 const groupArgumentsToCallOptions = (
-  groupId: string | number | Nullable<ApiObject> | ApiCallback,
+  groupId: string | number | Nullable<ApiObject>,
   traits?: Nullable<ApiOptions> | Nullable<ApiObject> | ApiCallback,
   options?: Nullable<ApiOptions> | ApiCallback,
   callback?: ApiCallback,
@@ -376,7 +369,11 @@ const groupArgumentsToCallOptions = (
     // in the Analytics class
     payload.groupId = null;
     payload.traits = groupId as Nullable<ApiObject>;
-    payload.options = !isFunction(traits) ? (traits as Nullable<ApiOptions>) : null;
+    if (!isFunction(traits)) {
+      payload.options = traits as Nullable<ApiOptions>;
+    } else {
+      delete payload.options;
+    }
   }
 
   // Rest of the code is just to clean up undefined values
@@ -388,7 +385,11 @@ const groupArgumentsToCallOptions = (
     delete payload.groupId;
   }
 
-  payload.traits = isObjectLiteralAndNotNull(payload.traits) ? clone(payload.traits) : {};
+  if (isObjectLiteralAndNotNull(payload.traits)) {
+    payload.traits = clone(payload.traits);
+  } else {
+    delete payload.traits;
+  }
 
   if (isDefined(payload.options)) {
     payload.options = clone(payload.options);

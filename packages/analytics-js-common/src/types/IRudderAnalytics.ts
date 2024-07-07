@@ -5,134 +5,6 @@ import type { ApiObject } from './ApiObject';
 import type { ILogger } from './Logger';
 import type { IdentifyTraits } from './traits';
 
-// identify(userId, traits, options, callback);
-// identify(userId, traits, options);
-// identify(userId, traits);
-
-// identify(userId, traits, callback);
-// identify(userId, traits);
-
-// identify(userId, callback);
-// identify(userId);
-
-// identify(traits, options, callback);
-// identify(traits, options);
-
-// identify(traits, callback);
-// identify(traits);
-
-// --------------
-
-// identify(userId, [traits], [options], [callback]);
-// identify(userId, [traits], [callback]);
-// identify(userId, [callback]);
-
-// identify(traits, [options], [callback]);
-// identify(traits, [callback]);
-
-// ================
-// page(category, name, properties, options, callback);
-// page(category, name, properties, options);
-// page(category, name, properties);
-// page(category, name);
-
-// page(category, name, properties, callback);
-// page(category, name, properties);
-
-// page(category, name, callback);
-// page(category, name);
-
-// page(name, properties, options, callback);
-// page(name, properties, options);
-
-// page(name, properties, callback);
-// page(name, properties);
-
-// page(name, callback);
-// page(name);
-
-// page(properties, options, callback);
-// page(properties, options);
-
-// page(properties, callback);
-// page(properties);
-
-// page(callback);
-// page();
-
-// --------------------------------
-// page(category, name, [properties], [options], [callback]);
-// page(category, name, [properties], [callback]);
-// page(category, name, [callback]);
-// page(name, [properties], [options], [callback]);
-// page(name, [properties], [callback]);
-// page(name, [callback]);
-// page(properties, [options], [callback]);
-// page(properties, [callback]);
-// page([callback]);
-
-// ================
-
-// track(event, properties, options, callback);
-// track(event, properties, options);
-
-// track(event, properties, callback);
-// track(event, properties);
-
-// track(event, callback);
-// track(event);
-
-// ---------------
-// track(event, [properties], [options], [callback]);
-// track(event, [properties], [callback]);
-// track(event, [callback]);
-
-// ==================================
-
-// group(groupId, traits, options, callback);
-// group(groupId, traits, options);
-// group(groupId, traits);
-
-// group(groupId, traits, callback);
-// group(groupId, traits);
-
-// group(groupId, callback);
-// group(groupId);
-
-// group(traits, options, callback);
-// group(traits, options);
-
-// group(traits, callback);
-// group(traits);
-
-// -------------
-// group(groupId, [traits], [options], [callback]);
-// group(groupId, [traits], [callback]);
-// group(groupId, [callback]);
-
-// group(traits, [options], [callback]);
-// group(traits, [callback]);
-
-// =======================
-
-// alias(to, from, options, callback);
-// alias(to, from, options);
-// alias(to, from);
-
-// alias(to, from, callback);
-// alias(to, from);
-
-// alias(to, options, callback);
-// alias(to, options);
-
-// alias(to, callback);
-// alias(to);
-// -----------------------
-// alias(to, [from], [options], [callback]);
-// alias(to, [from], [callback]);
-// alias(to, [options], [callback]);
-// alias(to, [callback]);
-
 export type AnalyticsIdentifyMethod = {
   (
     userId: string,
@@ -194,15 +66,10 @@ export type AnalyticsGroupMethod = {
 };
 
 export type AnalyticsAliasMethod = {
-  (
-    to: Nullable<string>,
-    from?: string,
-    options?: Nullable<ApiOptions>,
-    callback?: ApiCallback,
-  ): void;
-  (to: Nullable<string>, from?: string, callback?: ApiCallback): void;
-  (to: Nullable<string>, options?: Nullable<ApiOptions>, callback?: ApiCallback): void;
-  (to: Nullable<string>, callback?: ApiCallback): void;
+  (to: string, from?: string, options?: Nullable<ApiOptions>, callback?: ApiCallback): void;
+  (to: string, from?: string, callback?: ApiCallback): void;
+  (to: string, options?: Nullable<ApiOptions>, callback?: ApiCallback): void;
+  (to: string, callback?: ApiCallback): void;
 };
 
 export interface IRudderAnalytics<T = any> {
