@@ -117,7 +117,7 @@
         "@nx/enforce-module-boundaries": [
           "error",
           {
-            "allow": [],
+            "allow": ["rudderAnalyticsRemotePlugins/*"],
             "banTransitiveDependencies": true,
             "depConstraints": [
               {

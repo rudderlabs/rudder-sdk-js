@@ -47,9 +47,6 @@ jobs:
       - name: Create monorepo release tag
         id: create_monorepo_release
         run: |
-          # We're trying to create the tags as early as possible here,
-          # for the deploy NPM workflow to grab the latest tag.
-          # Similarly, we've timed the other workflow to delay.
           git tag -a v${{ steps.extract-version.outputs.release_version }} -m "chore(monorepo): release v${{ steps.extract-version.outputs.release_version }}"
           git push origin refs/tags/v${{ steps.extract-version.outputs.release_version }}
 
@@ -150,3 +147,15 @@ jobs:
                 }
               ]
             }
+
+  publish-npm-packages:
+    needs: release
+    name: Publish packages to NPM
+    uses: ./.github/workflows/deploy-npm.yml
+    with:
+      is_called: true
+    secrets:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      RS_PROD_BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
