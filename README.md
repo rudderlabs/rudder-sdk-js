@@ -287,9 +287,15 @@ For more details, see:
 - [Vercel Edge Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/serverless/USAGE.md)
 - [Cloudflare Worker Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/serverless/USAGE.md)
 
+## License
+
+This project is licensed under the Elastic License 2.0. See the [LICENSE.md](LICENSE.md) file for details. Review the license terms to understand your permissions and restrictions.
+
+If you have any questions about licensing, please [contact us](#contact-us) or refer to the [official Elastic licensing](https://www.elastic.co/licensing/elastic-license) page.
+
 ## Contribute
 
-We would love to see you contribute to this project. Get more information on how to contribute [**here**](./CONTRIBUTING.md).
+We encourage contributions to this project. For detailed guidelines on how to contribute, please refer to [**here**](./CONTRIBUTING.md).
 
 ## Contact us
 

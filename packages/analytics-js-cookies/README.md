@@ -31,7 +31,7 @@
 
 This function decrypts the provided encrypted RudderStack JavaScript cookie value using the RudderStack JavaScript SDK encryption version "v3".
 
-> The encrypted value should be a string starting with `RS_ENC_v3_`.
+> If the provided value is either not encrypted or not properly encrypted, the function returns `null`.
 
 > :warning: Any errors during decryption are swallowed by the function, returning `null`.
 
@@ -56,10 +56,10 @@ This function decrypts the provided encrypted RudderStack JavaScript cookie valu
 > :warning: Any errors during decryption are swallowed by the function, returning `null`.
 
 ```javascript
-import { decrypt } from '@rudderstack/analytics-js-cookies';
+import { getDecryptedValue } from '@rudderstack/analytics-js-cookies';
 
 const encryptedCookieValue = 'RS_ENC_v3_InRlc3QtZGF0YSI=';
-const decryptedCookieValue = decrypt(encryptedCookieValue);
+const decryptedCookieValue = getDecryptedValue(encryptedCookieValue);
 console.log('Decrypted Cookie Value: ', decryptedCookieValue);
 // Output:
 // Decrypted Cookie Value: test-data
@@ -69,7 +69,7 @@ console.log('Decrypted Cookie Value: ', decryptedCookieValue);
 
 > :warning: Only for browser environments
 
-This function decrypts and returns the RudderStack JavaScript SDK cookie values.
+This function takes the name of the RudderStack JavaScript SDK cookie and returns the decrypted value.
 
 The return type is either a `string` or an `object` as some cookies like user ID, anonymous user ID have string values while user traits are objects.
 
@@ -136,4 +136,46 @@ console.log('Decrypted Cookie Value: ', decryptedCookieValue);
 // Decrypted Cookie Value: null
 ```
 
-> For detailed documentation on the RudderStack JavaScript SDK, click [**here**](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/).
+## License
+
+This project is licensed under the Elastic License 2.0. See the [LICENSE.md](LICENSE.md) file for details. Review the license terms to understand your permissions and restrictions.
+
+If you have any questions about licensing, please [contact us](#contact-us) or refer to the [official Elastic licensing](https://www.elastic.co/licensing/elastic-license) page.
+
+## Contribute
+
+We invite you to contribute to this project. For more information on how to contribute, please see [**here**](../../CONTRIBUTING.md).
+
+## Contact us
+
+For more information on any of the sections covered in this readme, you can [**contact us**](mailto:%20docs@rudderstack.com) or start a conversation on our [**Slack**](https://resources.rudderstack.com/join-rudderstack-slack) channel.
+
+## Follow Us
+
+- [RudderStack Blog][rudderstack-blog]
+- [Slack][slack]
+- [Twitter][twitter]
+- [LinkedIn][linkedin]
+- [dev.to][devto]
+- [Medium][medium]
+- [YouTube][youtube]
+- [HackerNews][hackernews]
+- [Product Hunt][producthunt]
+
+## :clap: Our Supporters
+
+[![Stargazers repo roster for @rudderlabs/rudder-sdk-js](https://reporoster.com/stars/rudderlabs/rudder-sdk-js)](https://github.com/rudderlabs/rudder-sdk-js/stargazers)
+
+[![Forkers repo roster for @rudderlabs/rudder-sdk-js](https://reporoster.com/forks/rudderlabs/rudder-sdk-js)](https://github.com/rudderlabs/rudder-sdk-js/network/members)
+
+<!----variables---->
+
+[rudderstack-blog]: https://rudderstack.com/blog/
+[slack]: https://resources.rudderstack.com/join-rudderstack-slack
+[twitter]: https://twitter.com/rudderstack
+[linkedin]: https://www.linkedin.com/company/rudderlabs/
+[devto]: https://dev.to/rudderstack
+[medium]: https://rudderstack.medium.com/
+[youtube]: https://www.youtube.com/channel/UCgV-B77bV_-LOmKYHw8jvBw
+[hackernews]: https://news.ycombinator.com/item?id=21081756
+[producthunt]: https://www.producthunt.com/posts/rudderstack

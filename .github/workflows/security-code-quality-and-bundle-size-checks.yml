@@ -59,6 +59,10 @@ jobs:
           npm run check:circular
           npm run check:duplicates
 
+      - name: Execute package linting checks
+        run: |
+          npm run check:pub
+
       - name: Execute security checks
         run: |
           npm run check:security

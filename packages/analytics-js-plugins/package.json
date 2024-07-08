@@ -1,34 +1,47 @@
 {
   "name": "@rudderstack/analytics-js-plugins",
-  "version": "3.3.1",
+  "version": "3.3.2",
   "private": true,
   "description": "RudderStack JavaScript SDK plugins",
-  "main": "dist/npm/modern/cjs/index.js",
-  "module": "dist/npm/modern/esm/index.js",
+  "main": "dist/npm/modern/cjs/index.cjs",
+  "module": "dist/npm/modern/esm/index.mjs",
+  "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/npm/index.d.ts",
-      "require": "./dist/npm/modern/cjs/index.js",
-      "import": "./dist/npm/modern/esm/index.js"
+      "types": "./dist/npm/index.d.mts",
+      "require": {
+        "types": "./dist/npm/index.d.cts",
+        "default": "./dist/npm/modern/cjs/index.cjs"
+      },
+      "import": {
+        "types": "./dist/npm/index.d.mts",
+        "default": "./dist/npm/modern/esm/index.mjs"
+      }
     },
     "./legacy": {
-      "types": "./dist/npm/index.d.ts",
-      "require": "./dist/npm/legacy/cjs/index.js",
-      "import": "./dist/npm/legacy/esm/index.js"
+      "types": "./dist/npm/index.d.mts",
+      "require": {
+        "types": "./dist/npm/index.d.cts",
+        "default": "./dist/npm/legacy/cjs/index.cjs"
+      },
+      "import": {
+        "types": "./dist/npm/index.d.mts",
+        "default": "./dist/npm/legacy/esm/index.mjs"
+      }
     }
   },
-  "types": "./dist/npm/index.d.ts",
+  "types": "./dist/npm/index.d.mts",
   "typesVersions": {
     "*": {
       "*": [
-        "./dist/npm/index.d.ts"
+        "./dist/npm/index.d.mts"
       ]
     }
   },
   "publishConfig": {},
   "files": [
     "dist/npm",
-    "LICENSE",
+    "LICENSE.md",
     "README.md",
     "CHANGELOG.md"
   ],
@@ -37,7 +50,7 @@
     "rudder"
   ],
   "author": "RudderStack",
-  "license": "MIT",
+  "license": "Elastic-2.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rudderlabs/rudder-sdk-js.git",
@@ -58,7 +71,7 @@
     "build:npm:modern": "BROWSERSLIST_ENV=modern npm run build:npm",
     "build:package": "npm run build:npm:modern && npm run build:npm",
     "test": "nx test --maxWorkers=50%",
-    "test:ci": "nx test --parallel=false --configuration=ci --runInBand --maxWorkers=1 --forceExit",
+    "test:ci": "nx test --configuration=ci --runInBand --maxWorkers=1 --forceExit",
     "check:lint": "nx lint",
     "check:lint:ci": "nx lint --configuration=ci",
     "check:size:build": "npm run build:browser:modern && npm run build:package",

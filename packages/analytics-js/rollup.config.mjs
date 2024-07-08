@@ -286,7 +286,7 @@ export function getDefaultConfig(distName) {
 
 const outputFilesNpm = [
   {
-    entryFileNames: `index.js`,
+    entryFileNames: `index.mjs`,
     dir: outDirNpm + '/esm/',
     format: 'esm',
     name: modName,
@@ -296,7 +296,7 @@ const outputFilesNpm = [
     },
   },
   {
-    entryFileNames: `index.js`,
+    entryFileNames: `index.cjs`,
     dir: outDirNpm + '/cjs',
     format: 'cjs',
     name: modName,
@@ -379,10 +379,16 @@ const buildEntries = () => {
         dts(),
         del({ hook: "buildEnd", targets: "./dist/dts" }),
       ],
-      output: {
-        file: `${outDirNpmRoot}/index.d.ts`,
-        format: 'es',
-      },
+      output: [
+        {
+          file: `${outDirNpmRoot}/index.d.mts`,
+          format: 'es',
+        },
+        {
+          file: `${outDirNpmRoot}/index.d.cts`,
+          format: 'es',
+        }
+      ],
     }
   ];
 }
