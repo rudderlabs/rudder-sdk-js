@@ -11,6 +11,7 @@ import {
   getURLWithoutQueryString,
   getBugsnagErrorEvent,
   getErrorDeliveryPayload,
+  getConfigForPayloadCreation,
 } from '../../src/errorReporting/utils';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
@@ -19,7 +20,7 @@ jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
 
 describe('Error Reporting utilities', () => {
   describe('createNewBreadcrumb', () => {
-    it('should create and return a breadcrumb ', () => {
+    it('should create and return a breadcrumb', () => {
       const msg = 'sample message';
       const breadcrumb = createNewBreadcrumb(msg);
 
@@ -29,6 +30,13 @@ describe('Error Reporting utilities', () => {
         timestamp: expect.any(Date),
         name: msg,
       });
+    });
+
+    it('should create and return a breadcrumb with empty meta data if not provided', () => {
+      const msg = 'sample message';
+      const breadcrumb = createNewBreadcrumb(msg);
+
+      expect(breadcrumb.metaData).toStrictEqual({});
     });
   });
 
@@ -492,6 +500,52 @@ describe('Error Reporting utilities', () => {
           errors: enhancedErrorPayload,
         }),
       );
+    });
+  });
+
+  describe('getConfigForPayloadCreation', () => {
+    it('should return the config for payload creation in case of unhandled errors', () => {
+      const error = new ErrorEvent('test error');
+      const config = getConfigForPayloadCreation(error, 'unhandledException');
+      expect(config).toEqual({
+        component: 'unhandledException handler',
+        tolerateNonErrors: true,
+        errorFramesToSkip: 1,
+        normalizedError: error,
+      });
+    });
+
+    it('should return the config for payload creation in case of unhandledPromiseRejection', () => {
+      const error = new PromiseRejectionEvent('test error');
+      const config = getConfigForPayloadCreation(error, 'unhandledPromiseRejection');
+      expect(config).toEqual({
+        component: 'unhandledrejection handler',
+        tolerateNonErrors: false,
+        errorFramesToSkip: 1,
+        normalizedError: 'test error',
+      });
+    });
+
+    it('should return the config for payload creation in case of handled errors', () => {
+      const error = new Error('test error');
+      const config = getConfigForPayloadCreation(error, 'handledException');
+      expect(config).toEqual({
+        component: 'notify()',
+        tolerateNonErrors: true,
+        errorFramesToSkip: 2,
+        normalizedError: error,
+      });
+    });
+
+    it('should return the config for payload creation even if the error type is a random value', () => {
+      const error = new Error('test error');
+      const config = getConfigForPayloadCreation(error, 'randomValue');
+      expect(config).toEqual({
+        component: 'notify()',
+        tolerateNonErrors: true,
+        errorFramesToSkip: 2,
+        normalizedError: error,
+      });
     });
   });
 });
