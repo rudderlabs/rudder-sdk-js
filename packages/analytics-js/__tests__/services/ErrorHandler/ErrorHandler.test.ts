@@ -1,9 +1,10 @@
 import type { SDKError } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { defaultHttpClient } from '../../../src/services/HttpClient';
 import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
+import { defaultHttpClient } from '../../../src/services/HttpClient';
 import { defaultLogger } from '../../../src/services/Logger';
 import { defaultPluginEngine } from '../../../src/services/PluginEngine';
 import { ErrorHandler } from '../../../src/services/ErrorHandler';
+import * as processError from '../../../src/services/ErrorHandler/processError';
 import { state, resetState } from '../../../src/state';
 
 jest.mock('../../../src/services/Logger', () => {
@@ -47,6 +48,7 @@ describe('ErrorHandler', () => {
 
   beforeEach(() => {
     resetState();
+    state.reporting.isErrorReportingPluginLoaded.value = false;
     errorHandlerInstance = new ErrorHandler(defaultLogger, defaultPluginEngine, defaultHttpClient);
   });
 
@@ -229,6 +231,21 @@ describe('ErrorHandler', () => {
     onErrorSpy.mockRestore();
   });
 
+  it('should invoke getNormalizedErrorForUnhandledError fn to normalize unhandled error types', () => {
+    const getNormalizedErrorForUnhandledErrorSpy = jest.spyOn(
+      processError,
+      'getNormalizedErrorForUnhandledError',
+    );
+    errorHandlerInstance.onError(
+      new ErrorEvent('error'),
+      undefined,
+      undefined,
+      undefined,
+      'unhandledException',
+    );
+    expect(getNormalizedErrorForUnhandledErrorSpy).toHaveBeenCalled();
+  });
+
   describe('init', () => {
     it('reporting client should not be defined if the plugin engine is not supplied', () => {
       errorHandlerInstance = new ErrorHandler(defaultLogger);
@@ -246,6 +263,57 @@ describe('ErrorHandler', () => {
     expect(unhandledRejectionListener).toHaveBeenCalledWith(
       'unhandledrejection',
       expect.any(Function),
+    );
+  });
+
+  it('should notify buffered errors once Error reporting plugin is loaded', () => {
+    errorHandlerInstance.notifyError = jest.fn();
+    errorHandlerInstance.errorBuffer.enqueue({
+      error: new Error('dummy error'),
+      errorState: {
+        severity: 'error',
+        unhandled: false,
+        severityReason: { type: 'handledException' },
+      },
+    });
+    state.reporting.isErrorReportingPluginLoaded.value = true;
+    setTimeout(() => {
+      expect(errorHandlerInstance.errorBuffer.size()).toBe(0);
+      expect(errorHandlerInstance.notifyError).toHaveBeenCalledTimes(1);
+    }, 1);
+  });
+
+  it('should enqueue errors if Error reporting plugin is not loaded', () => {
+    errorHandlerInstance.errorBuffer.enqueue = jest.fn();
+    state.reporting.isErrorReportingEnabled.value = true;
+    errorHandlerInstance.onError(new Error('dummy error'));
+    expect(errorHandlerInstance.errorBuffer.enqueue).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not invoke the plugin if Error reporting plugin is not loaded', () => {
+    errorHandlerInstance.attachEffect();
+    expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(0);
+  });
+
+  it('should log error in case unhandled error occurs during processing or notifying the error', () => {
+    state.reporting.isErrorReportingEnabled.value = true;
+    state.reporting.isErrorReportingPluginLoaded.value = true;
+    const dummyError = new Error('dummy error');
+    errorHandlerInstance.notifyError = jest.fn(() => {
+      throw dummyError;
+    });
+    errorHandlerInstance.logger.error = jest.fn();
+    errorHandlerInstance.onError(
+      new Error('test error'),
+      undefined,
+      undefined,
+      undefined,
+      'unhandledException',
+    );
+    expect(errorHandlerInstance.logger.error).toHaveBeenCalledTimes(1);
+    expect(errorHandlerInstance.logger.error).toHaveBeenCalledWith(
+      'ErrorHandler:: Failed to notify the error.',
+      dummyError,
     );
   });
 });
