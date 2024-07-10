@@ -20,7 +20,7 @@
 ---
 
 | :warning: This package is deprecated. Please switch to the latest [@rudderstack/analytics-js](https://www.npmjs.com/package/@rudderstack/analytics-js) package for improved features and support. <br>For more details, visit [link](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/). |
-| :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
 # RudderStack JavaScript SDK
 
@@ -40,7 +40,7 @@ The JavaScript SDK lets you track customer event data from your website and send
 - [**Usage in Serverless Runtimes**](#usage-in-serverless-runtimes)
 
 | **IMPORTANT**: We have deprecated the service worker export from RudderStack JavaScript SDK NPM package and moved it to a separate package. <br/>If you still wish to use it for your project, refer to [**@rudderstack/analytics-js-service-worker package**](https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker). |
-| :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
 ## [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-v1.1/README.md#installing-the-javascript-sdk)Installing the JavaScript SDK
 

@@ -11,31 +11,14 @@ export const ninetailed = new Ninetailed({
 });
 
 function App() {
-  useEffect(() => {
-    if (window.rudderanalytics) {
-      return;
-    }
-    let e = (window.rudderanalytics = window.rudderanalytics || []);
-    e.methods = [
-      'load',
-      'page',
-      'track',
-      'identify',
-      'alias',
-      'group',
-      'ready',
-      'reset',
-      'getAnonymousId',
-      'setAnonymousId',
-      'getUserId',
-      'getUserTraits',
-      'getGroupId',
-      'getGroupTraits',
-      'startSession',
-      'endSession',
-    ];
-    e.factory = function (t) {
-      return function () {
+    useEffect(() => {
+      if (window.rudderanalytics) {
+        return;
+      }
+    let e = window.rudderanalytics = window.rudderanalytics || [];
+    e.methods = ["load", "page", "track", "identify", "alias", "group", "ready", "reset", "getAnonymousId", "setAnonymousId", "getUserId", "getUserTraits", "getGroupId", "getGroupTraits", "startSession", "endSession"];
+    e.factory = function(t) {
+      return function() {
         e.push([t].concat(Array.prototype.slice.call(arguments)));
       };
     };
@@ -43,16 +26,16 @@ function App() {
       let r = e.methods[t];
       e[r] = e.factory(r);
     }
-    e.loadJS = function (_e, t) {
-      let r = document.createElement('script');
-      r.type = 'text/javascript';
+    e.loadJS = function(_e, t) {
+      let r = document.createElement("script");
+      r.type = "text/javascript";
       r.async = true;
       r.src = CDN_URL;
-      let a = document.getElementsByTagName('script')[0];
+      let a = document.getElementsByTagName("script")[0];
       a.parentNode.insertBefore(r, a);
     };
     e.loadJS();
-    e.load(WRITE_KEY, DATAPLANE_URL, { configUrl: CONFIG_URL });
+    e.load(WRITE_KEY, DATAPLANE_URL,{configUrl: CONFIG_URL});
   }, []);
   const page = () => {
     window.rudderanalytics.page(

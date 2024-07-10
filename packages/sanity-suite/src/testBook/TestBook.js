@@ -341,7 +341,7 @@ class TestBook {
 
       observer.observe(resultContainerElement, {
         childList: true,
-        attributes: true,
+        attributes: true
       });
     }
   }

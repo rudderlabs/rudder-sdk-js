@@ -35,14 +35,14 @@ const sourceConfigIgnoredProperties = [
     key: `source.destinations.6.updatedAt`,
     type: 'string',
   },
-  {
+{
     key: `source.destinations.8.updatedAt`,
     type: 'string',
   },
   {
     key: `source.destinations.9.updatedAt`,
     type: 'string',
-  },
+  }
 ];
 
 export { sourceConfigIgnoredProperties };
