@@ -278,6 +278,7 @@ describe('ErrorHandler', () => {
     });
     state.reporting.isErrorReportingPluginLoaded.value = true;
     setTimeout(() => {
+      expect(errorHandlerInstance.attachEffect).toHaveBeenCalledTimes(1);
       expect(errorHandlerInstance.errorBuffer.size()).toBe(0);
       expect(errorHandlerInstance.notifyError).toHaveBeenCalledTimes(1);
     }, 1);
