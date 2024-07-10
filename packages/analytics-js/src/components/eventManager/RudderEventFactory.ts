@@ -26,10 +26,6 @@ class RudderEventFactory {
     options?: Nullable<ApiOptions>,
   ): RudderEvent {
     let props = properties ?? {};
-
-    props.name = name;
-    props.category = category;
-
     props = getUpdatedPageProperties(props, options);
 
     const pageEvent: Partial<RudderEvent> = {

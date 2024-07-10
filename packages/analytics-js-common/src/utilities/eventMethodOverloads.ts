@@ -144,12 +144,17 @@ const pageArgumentsToCallOptions = (
     delete payload.options;
   }
 
+  const nameForProperties = isString(payload.name) ? payload.name : payload.properties.name;
+  const categoryForProperties = isString(payload.category)
+    ? payload.category
+    : payload.properties.category;
+
   // add name and category to properties
   payload.properties = mergeDeepRight(
     isObjectLiteralAndNotNull(payload.properties) ? payload.properties : {},
     {
-      name: isString(payload.name) ? payload.name : null,
-      category: isString(payload.category) ? payload.category : null,
+      ...(nameForProperties && { name: nameForProperties }),
+      ...(categoryForProperties && { category: categoryForProperties }),
     },
   );
 

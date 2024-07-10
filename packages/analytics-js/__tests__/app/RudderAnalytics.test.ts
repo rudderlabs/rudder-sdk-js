@@ -129,7 +129,7 @@ describe('Core - Rudder Analytics Facade', () => {
     rudderAnalytics.page('category');
     expect(pageSpy).toHaveBeenCalledWith({
       name: 'category',
-      properties: { category: null, name: 'category' },
+      properties: { name: 'category' },
     });
   });
 

@@ -6,7 +6,7 @@
         "installType": "cdn",
         "name": "RudderLabs JavaScript SDK",
         "namespace": "com.rudderlabs.javascript",
-        "version": "2.22.2"
+        "version": "3.3.0"
       },
       "traits": {
         "name": "John Doe",
@@ -118,12 +118,11 @@
       },
       "timezone": "GMT+0530"
     },
-    "type": "alias",
+    "type": "identify",
     "messageId": "469fccf3-ba54-427d-9bf4-f01940382231",
     "originalTimestamp": "2023-01-13T08:13:58.548Z",
     "anonymousId": "sample anonymousId",
-    "previousId": "customUserID",
-    "userId": "newCustomUserID",
+    "userId": "",
     "event": null,
     "properties": null,
     "integrations": {

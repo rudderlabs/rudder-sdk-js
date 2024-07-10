@@ -60,6 +60,8 @@ describe('RudderEventFactory', () => {
       name: 'name',
       properties: {
         key: 'value',
+        name: 'name',
+        category: 'category',
       },
       options: {
         page: {
