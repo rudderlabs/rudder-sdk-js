@@ -23,15 +23,15 @@ export type TrackCallOptions = {
 };
 
 export type IdentifyCallOptions = {
-  userId?: string | null;
+  userId?: Nullable<string>;
   traits?: Nullable<IdentifyTraits>;
   options?: Nullable<ApiOptions>;
   callback?: ApiCallback;
 };
 
 export type AliasCallOptions = {
-  to?: Nullable<string>;
-  from?: Nullable<string>;
+  to?: string;
+  from?: string;
   options?: Nullable<ApiOptions>;
   callback?: ApiCallback;
 };
@@ -316,13 +316,13 @@ const aliasArgumentsToCallOptions = (
   // and set some proper defaults
   // Also, to clone the incoming object type arguments
   if (isDefined(payload.to)) {
-    payload.to = tryStringify(payload.to);
+    payload.to = tryStringify(payload.to) as typeof payload.to;
   } else {
     delete payload.to;
   }
 
   if (isDefined(payload.from)) {
-    payload.from = tryStringify(payload.from);
+    payload.from = tryStringify(payload.from) as typeof payload.from;
   } else {
     delete payload.from;
   }
