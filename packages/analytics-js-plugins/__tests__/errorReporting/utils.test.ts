@@ -393,7 +393,6 @@ describe('Error Reporting utilities', () => {
                 },
               },
               source: {
-                id: 'sample_source_id',
                 snippetVersion: 'sample_snippet_version',
               },
             },

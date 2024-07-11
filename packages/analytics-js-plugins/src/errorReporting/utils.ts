@@ -132,7 +132,6 @@ const getBugsnagErrorEvent = (
         },
         state: getAppStateForMetadata(state) ?? {},
         source: {
-          id: state.source?.value?.id,
           snippetVersion: (globalThis as typeof window).RudderSnippetVersion,
         },
       },
