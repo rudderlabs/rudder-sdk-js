@@ -10,13 +10,12 @@ const groupMethodSuite = {
   id: 'groupMethod',
   name: 'Group',
   description:
-    'Group Method: \
-  rudderanalytics.group(groupId, [traits], [options], [callback]);\
-  rudderanalytics.group(groupId, [traits], [callback]);\
-  rudderanalytics.group(groupId, [callback]);\
-  rudderanalytics.group(traits, [options], [callback]);\
-  rudderanalytics.group(traits, [callback]);\
-  ',
+    'Group Method: ' +
+    'rudderanalytics.group(groupId, [traits], [options], [callback]);' +
+    'rudderanalytics.group(groupId, [traits], [callback]);' +
+    'rudderanalytics.group(groupId, [callback]);' +
+    'rudderanalytics.group(traits, [options], [callback]);' +
+    'rudderanalytics.group(traits, [callback]);',
   testCases: [
     {
       id: 'group1',

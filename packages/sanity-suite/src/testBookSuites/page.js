@@ -15,17 +15,16 @@ const pageMethodSuite = {
   id: 'pageMethod',
   name: 'Page',
   description:
-    'Page Method: \
-    rudderanalytics.page(category, name, [properties], [options], [callback]);\
-    rudderanalytics.page(category, name, [properties], [callback]);\
-    rudderanalytics.page(category, name, [callback]);\
-    rudderanalytics.page(name, [properties], [options], [callback]);\
-    rudderanalytics.page(name, [properties], [callback]);\
-    rudderanalytics.page(name, [callback]);\
-    rudderanalytics.page(properties, [options], [callback]);\
-    rudderanalytics.page(properties, [callback]);\
-    rudderanalytics.page([callback]);\
-    ',
+    'Page Method: ' +
+    'rudderanalytics.page(category, name, [properties], [options], [callback]);' +
+    'rudderanalytics.page(category, name, [properties], [callback]);' +
+    'rudderanalytics.page(category, name, [callback]);' +
+    'rudderanalytics.page(name, [properties], [options], [callback]);' +
+    'rudderanalytics.page(name, [properties], [callback]);' +
+    'rudderanalytics.page(name, [callback]);' +
+    'rudderanalytics.page(properties, [options], [callback]);' +
+    'rudderanalytics.page(properties, [callback]);' +
+    'rudderanalytics.page([callback]);',
   testCases: [
     {
       id: 'page1',

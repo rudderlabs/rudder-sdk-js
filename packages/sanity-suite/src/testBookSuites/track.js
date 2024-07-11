@@ -9,11 +9,10 @@ const trackMethodSuite = {
   id: 'trackMethod',
   name: 'Track',
   description:
-    'Track Method: \
-    rudderanalytics.track(event, [properties], [options], [callback]);\
-    rudderanalytics.track(event, [properties], [callback]);\
-    rudderanalytics.track(event, [callback]);\
-    ',
+    'Track Method: ' +
+    'rudderanalytics.track(event, [properties], [options], [callback]);' +
+    'rudderanalytics.track(event, [properties], [callback]);' +
+    'rudderanalytics.track(event, [callback]);',
   testCases: [
     {
       id: 'track1',

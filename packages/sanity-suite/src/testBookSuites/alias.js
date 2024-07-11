@@ -9,12 +9,11 @@ const aliasMethodSuite = {
   id: 'aliasMethod',
   name: 'Alias',
   description:
-    'Alias Method: \
-  rudderanalytics.alias(to, [from], [options], [callback]);\
-  rudderanalytics.alias(to, [from], [callback]);\
-  rudderanalytics.alias(to, [options], [callback]);\
-  rudderanalytics.alias(to, [callback]);\
-  ',
+    'Alias Method: ' +
+    'rudderanalytics.alias(to, [from], [options], [callback]);' +
+    'rudderanalytics.alias(to, [from], [callback]);' +
+    'rudderanalytics.alias(to, [options], [callback]);' +
+    'rudderanalytics.alias(to, [callback]);',
   testCases: [
     {
       id: 'alias1',

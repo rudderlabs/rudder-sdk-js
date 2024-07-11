@@ -12,13 +12,12 @@ const identifyMethodSuite = {
   id: 'identifyMethod',
   name: 'Identify',
   description:
-    'Identify Method: \
-    rudderanalytics.identify(userId, [traits], [options], [callback]);\
-    rudderanalytics.identify(userId, [traits], [callback]);\
-    rudderanalytics.identify(userId, [callback]);\
-    rudderanalytics.identify(traits, [options], [callback]);\
-    rudderanalytics.identify(traits, [callback]);\
-    ',
+    'Identify Method: ' +
+    'rudderanalytics.identify(userId, [traits], [options], [callback]);' +
+    'rudderanalytics.identify(userId, [traits], [callback]);' +
+    'rudderanalytics.identify(userId, [callback]);' +
+    'rudderanalytics.identify(traits, [options], [callback]);' +
+    'rudderanalytics.identify(traits, [callback]);',
   testCases: [
     {
       id: 'identify1',

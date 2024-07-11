@@ -288,7 +288,7 @@ const aliasArgumentsToCallOptions = (
   callback?: ApiCallback,
 ): AliasCallOptions => {
   const payload: AliasCallOptions = {
-    to: to as string,
+    to: to,
     from: from as string,
     options: options as Nullable<ApiOptions>,
     callback: undefined,
@@ -299,19 +299,19 @@ const aliasArgumentsToCallOptions = (
   }
 
   if (isFunction(options)) {
-    payload.to = to as string;
+    payload.to = to;
     payload.from = from as string;
     payload.options = undefined;
     payload.callback = options as ApiCallback;
   }
 
   if (isFunction(from)) {
-    payload.to = to as string;
+    payload.to = to;
     payload.from = undefined;
     payload.options = undefined;
     payload.callback = from as ApiCallback;
   } else if (isObjectLiteralAndNotNull(from) || isNull(from)) {
-    payload.to = to as string;
+    payload.to = to;
     payload.from = undefined;
     payload.options = from as Nullable<ApiOptions>;
   }
