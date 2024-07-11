@@ -628,8 +628,25 @@ describe('Core - Analytics', () => {
 
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([
         ['identify', { userId: 'test_user_id' }],
-        ['track', { name: 'Consent Management Interaction', properties: {} }],
-        ['page', { properties: {} }],
+        [
+          'track',
+          {
+            name: 'Consent Management Interaction',
+            properties: {},
+            options: undefined,
+            callback: undefined,
+          },
+        ],
+        [
+          'page',
+          {
+            properties: {},
+            category: undefined,
+            name: undefined,
+            options: undefined,
+            callback: undefined,
+          },
+        ],
       ]);
     });
   });
