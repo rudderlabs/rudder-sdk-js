@@ -4,11 +4,15 @@ import type {
   ApplicationState,
   BreadcrumbMetaData,
 } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import type {
+  ExtensionPlugin,
+  IPluginEngine,
+} from '@rudderstack/analytics-js-common/types/PluginEngine';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import type { ErrorState, SDKError } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import {
   createNewBreadcrumb,
   getConfigForPayloadCreation,
@@ -30,21 +34,32 @@ const ErrorReporting = (): ExtensionPlugin => ({
     state.reporting.breadcrumbs.value = [createNewBreadcrumb('Error Reporting Plugin Loaded')];
   },
   errorReporting: {
-    notify: (
-      error: SDKError,
-      errorState: ErrorState,
+    init: (
       state: ApplicationState,
-      httpClient: IHttpClient,
+      pluginEngine: IPluginEngine,
+      externalSrcLoader: IExternalSrcLoader,
       logger?: ILogger,
+    ) => {
+      // This extension point is deprecated
+      // TODO: Remove this in the next major release
+    },
+    notify: (
+      pluginEngine: IPluginEngine, // Only kept for backward compatibility
+      client: any, // Only kept for backward compatibility
+      error: SDKError,
+      state: ApplicationState,
+      logger?: ILogger,
+      httpClient?: IHttpClient,
+      errorState?: ErrorState,
     ): void => {
       const { component, tolerateNonErrors, errorFramesToSkip, normalizedError } =
-        getConfigForPayloadCreation(error, errorState.severityReason.type);
+        getConfigForPayloadCreation(error, errorState?.severityReason.type as string);
 
       // Generate the error payload
       const errorPayload = ErrorFormat.create(
         normalizedError,
         tolerateNonErrors,
-        errorState,
+        errorState as ErrorState,
         component,
         errorFramesToSkip,
         logger,
@@ -56,10 +71,10 @@ const ErrorReporting = (): ExtensionPlugin => ({
       }
 
       // enrich error payload
-      const bugsnagPayload = getBugsnagErrorEvent(errorPayload, errorState, state);
+      const bugsnagPayload = getBugsnagErrorEvent(errorPayload, errorState as ErrorState, state);
 
       // send it to metrics service
-      httpClient.getAsyncData({
+      httpClient?.getAsyncData({
         url: `https://sdk-metrics.rudderstack.com/sdkmetrics`,
         // url: `${state.lifecycle.dataPlaneUrl.value}/sdk-metrics`,
         options: {
@@ -74,14 +89,23 @@ const ErrorReporting = (): ExtensionPlugin => ({
         },
       });
     },
-    breadcrumb: (message: string, state: ApplicationState, metaData?: BreadcrumbMetaData): void => {
+    breadcrumb: (
+      pluginEngine: IPluginEngine, // Only kept for backward compatibility
+      client: any, // Only kept for backward compatibility
+      message: string,
+      logger?: ILogger, // Only kept for backward compatibility
+      state?: ApplicationState,
+      metaData?: BreadcrumbMetaData,
+    ): void => {
       if (!message) {
         return;
       }
-      state.reporting.breadcrumbs.value = [
-        ...state.reporting.breadcrumbs.value,
-        createNewBreadcrumb(message, metaData),
-      ];
+      if (state) {
+        state.reporting.breadcrumbs.value = [
+          ...state.reporting.breadcrumbs.value,
+          createNewBreadcrumb(message, metaData),
+        ];
+      }
     },
   },
 });

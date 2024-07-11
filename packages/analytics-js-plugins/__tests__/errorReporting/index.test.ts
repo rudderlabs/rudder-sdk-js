@@ -18,7 +18,7 @@ describe('Plugin - ErrorReporting', () => {
     context: {
       locale: signal('en-GB'),
       userAgent: signal('sample user agent'),
-      app: signal({ version: 'sample_version' }),
+      app: signal({ version: 'sample_version', installType: 'sample_installType' }),
     },
     source: signal({
       id: 'test-source-id',
@@ -52,14 +52,17 @@ describe('Plugin - ErrorReporting', () => {
       },
     });
     ErrorReporting().errorReporting.notify(
+      {},
+      undefined,
       normalizedError,
+      state,
+      undefined,
+      mockHttpClient,
       {
         severity: 'error',
         unhandled: false,
         severityReason: { type: 'handledException' },
       },
-      state,
-      mockHttpClient,
     );
 
     expect(mockHttpClient.getAsyncData).toHaveBeenCalled();
@@ -78,14 +81,17 @@ describe('Plugin - ErrorReporting', () => {
       },
     });
     ErrorReporting().errorReporting.notify(
+      {},
+      undefined,
       normalizedError,
+      state,
+      undefined,
+      mockHttpClient,
       {
         severity: 'error',
         unhandled: false,
         severityReason: { type: 'handledException' },
       },
-      state,
-      mockHttpClient,
     );
 
     expect(mockHttpClient.getAsyncData).not.toHaveBeenCalled();
@@ -93,14 +99,14 @@ describe('Plugin - ErrorReporting', () => {
 
   it('should add a new breadcrumb', () => {
     const breadcrumbLength = state.reporting.breadcrumbs.value.length;
-    ErrorReporting().errorReporting.breadcrumb('dummy breadcrumb', state);
+    ErrorReporting().errorReporting.breadcrumb({}, undefined, 'dummy breadcrumb', undefined, state);
 
     expect(state.reporting.breadcrumbs.value.length).toBe(breadcrumbLength + 1);
   });
 
   it('should not add a new breadcrumb if the message is missing', () => {
     const breadcrumbLength = state.reporting.breadcrumbs.value.length;
-    ErrorReporting().errorReporting.breadcrumb(undefined, state);
+    ErrorReporting().errorReporting.breadcrumb({}, undefined, undefined, undefined, state);
 
     expect(state.reporting.breadcrumbs.value.length).not.toBe(breadcrumbLength + 1);
   });

@@ -100,7 +100,7 @@ const getBugsnagErrorEvent = (
 ): ErrorEventPayload => ({
   notifier: {
     name: NOTIFIER_NAME,
-    version: '__PACKAGE_VERSION__',
+    version: state.context.app.value.version,
     url: SDK_GITHUB_URL,
   },
   events: [
@@ -128,7 +128,7 @@ const getBugsnagErrorEvent = (
       metaData: {
         sdk: {
           name: 'JS',
-          installType: '__MODULE_TYPE__',
+          installType: state.context.app.value.installType,
         },
         state: getAppStateForMetadata(state) ?? {},
         source: {
@@ -137,7 +137,7 @@ const getBugsnagErrorEvent = (
         },
       },
       user: {
-        id: state.lifecycle.writeKey.value as string,
+        id: state.source.value?.id || (state.lifecycle.writeKey.value as string),
       },
     },
   ],
@@ -172,7 +172,7 @@ const getErrorDeliveryPayload = (payload: ErrorEventPayload, state: ApplicationS
       name: SOURCE_NAME,
       sdk_version: state.context.app.value.version,
       write_key: state.lifecycle.writeKey.value as string,
-      install_type: '__MODULE_TYPE__',
+      install_type: state.context.app.value.installType,
     },
     errors: payload,
   };

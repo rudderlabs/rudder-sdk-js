@@ -58,6 +58,7 @@ describe('ErrorHandler', () => {
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledWith(
       'errorReporting.breadcrumb',
       'breadcrumb',
+      defaultLogger,
       state,
     );
   });
@@ -71,15 +72,17 @@ describe('ErrorHandler', () => {
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledWith(
       'errorReporting.notify',
+      {},
+      undefined,
       expect.any(Error),
+      state,
+      defaultLogger,
+      defaultHttpClient,
       {
         severity: 'error',
         unhandled: false,
         severityReason: { type: 'handledException' },
       },
-      state,
-      defaultHttpClient,
-      defaultLogger,
     );
   });
 
@@ -91,15 +94,17 @@ describe('ErrorHandler', () => {
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledWith(
       'errorReporting.notify',
+      {},
+      undefined,
       expect.any(Error),
+      state,
+      defaultLogger,
+      defaultHttpClient,
       {
         severity: 'error',
         unhandled: false,
         severityReason: { type: 'handledException' },
       },
-      state,
-      defaultHttpClient,
-      defaultLogger,
     );
 
     expect(defaultLogger.error).toHaveBeenCalledTimes(1);
@@ -116,15 +121,17 @@ describe('ErrorHandler', () => {
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledWith(
       'errorReporting.notify',
+      {},
+      undefined,
       expect.any(Error),
+      state,
+      defaultLogger,
+      defaultHttpClient,
       {
         severity: 'error',
         unhandled: false,
         severityReason: { type: 'handledException' },
       },
-      state,
-      defaultHttpClient,
-      defaultLogger,
     );
 
     expect(defaultLogger.error).toHaveBeenCalledTimes(1);
@@ -134,9 +141,6 @@ describe('ErrorHandler', () => {
   });
 
   it('should log and throw for messages with context and custom message if logger exists and shouldAlwaysThrow', () => {
-    // Hard code the presence of the error reporting client
-    errorHandlerInstance.errReportingClient = {};
-
     try {
       state.reporting.isErrorReportingEnabled.value = true;
       state.reporting.isErrorReportingPluginLoaded.value = true;
@@ -145,15 +149,17 @@ describe('ErrorHandler', () => {
       expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
       expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledWith(
         'errorReporting.notify',
+        {},
+        undefined,
         expect.any(Error),
+        state,
+        defaultLogger,
+        defaultHttpClient,
         {
           severity: 'error',
           unhandled: false,
           severityReason: { type: 'handledException' },
         },
-        state,
-        defaultHttpClient,
-        defaultLogger,
       );
 
       expect(defaultLogger.error).toHaveBeenCalledTimes(1);

@@ -153,7 +153,7 @@ class ErrorHandler implements IErrorHandler {
   leaveBreadcrumb(breadcrumb: string) {
     if (this.pluginEngine) {
       try {
-        this.pluginEngine.invokeSingle('errorReporting.breadcrumb', breadcrumb, state);
+        this.pluginEngine.invokeSingle('errorReporting.breadcrumb', breadcrumb, this.logger, state);
       } catch (err) {
         this.onError(err, ERROR_HANDLER, 'errorReporting.breadcrumb');
       }
@@ -170,11 +170,13 @@ class ErrorHandler implements IErrorHandler {
       try {
         this.pluginEngine?.invokeSingle(
           'errorReporting.notify',
+          {} as IPluginEngine,
+          undefined,
           error,
-          errorState,
           state,
-          this.httpClient,
           this.logger,
+          this.httpClient,
+          errorState,
         );
       } catch (err) {
         // Not calling onError here as we don't want to go into infinite loop

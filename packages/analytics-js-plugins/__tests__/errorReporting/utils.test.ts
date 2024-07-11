@@ -309,7 +309,7 @@ describe('Error Reporting utilities', () => {
         context: {
           locale: signal('en-GB'),
           userAgent: signal('sample user agent'),
-          app: signal({ version: 'sample_version' }),
+          app: signal({ version: 'sample_version', installType: 'sample_installType' }),
         },
         lifecycle: {
           writeKey: signal('sample-write-key'),
@@ -325,7 +325,7 @@ describe('Error Reporting utilities', () => {
       const expectedOutcome = {
         notifier: {
           name: 'RudderStack JavaScript SDK Error Notifier',
-          version: '__PACKAGE_VERSION__',
+          version: 'sample_version',
           url: 'https://github.com/rudderlabs/rudder-sdk-js',
         },
         events: [
@@ -371,7 +371,7 @@ describe('Error Reporting utilities', () => {
             metaData: {
               sdk: {
                 name: 'JS',
-                installType: '__MODULE_TYPE__',
+                installType: 'sample_installType',
               },
               state: {
                 context: {
@@ -379,6 +379,7 @@ describe('Error Reporting utilities', () => {
                   locale: 'en-GB',
                   app: {
                     version: 'sample_version',
+                    installType: 'sample_installType',
                   },
                 },
                 lifecycle: {
@@ -397,7 +398,7 @@ describe('Error Reporting utilities', () => {
               },
             },
             user: {
-              id: 'sample-write-key',
+              id: 'sample_source_id',
             },
           },
         ],
@@ -413,13 +414,13 @@ describe('Error Reporting utilities', () => {
           writeKey: signal('sample-write-key'),
         },
         context: {
-          app: signal({ version: 'sample_version' }),
+          app: signal({ version: 'sample_version', installType: 'sample_installType' }),
         },
       };
       const enhancedErrorPayload = {
         notifier: {
           name: 'Rudderstack JavaScript SDK Error Notifier',
-          version: '__PACKAGE_VERSION__',
+          version: 'sample_version',
           url: 'https://github.com/rudderlabs/rudder-sdk-js',
         },
         events: [
@@ -465,7 +466,7 @@ describe('Error Reporting utilities', () => {
             metaData: {
               sdk: {
                 name: 'JS',
-                installType: '__MODULE_TYPE__',
+                installType: 'sample_installType',
               },
               state: {
                 context: {
@@ -495,7 +496,7 @@ describe('Error Reporting utilities', () => {
             name: 'js',
             sdk_version: 'sample_version',
             write_key: 'sample-write-key',
-            install_type: '__MODULE_TYPE__',
+            install_type: 'sample_installType',
           },
           errors: enhancedErrorPayload,
         }),
