@@ -2,10 +2,20 @@ name: Deploy to NPM
 
 on:
   workflow_dispatch:
-  pull_request:
-    branches: ['main']
-    types:
-      - closed
+  workflow_call:
+    inputs:
+      is_called:
+        type: boolean
+        required: true
+    secrets:
+      RS_PROD_BUGSNAG_API_KEY:
+        required: true
+      NPM_TOKEN:
+        required: true
+      SLACK_BOT_TOKEN:
+        required: true
+      SLACK_RELEASE_CHANNEL_ID:
+        required: true
 
 permissions:
   id-token: write # allows the JWT to be requested from GitHub's OIDC provider
@@ -19,10 +29,7 @@ jobs:
     name: Deploy to NPM
     # As we publish the NPM package with provenance, we need to only use the GitHub hosted runners
     runs-on: ubuntu-latest
-    if: |
-      startsWith(github.ref, 'refs/tags/v') ||
-      (startsWith(github.ref, 'refs/heads/main') &&
-      github.event.pull_request.merged == true)
+    if: ${{ inputs.is_called == 'true' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/tags/v')) }}
 
     steps:
       - name: Checkout
@@ -69,9 +76,6 @@ jobs:
 
       - name: Get the two latest monorepo versions
         run: |
-          # We're trying to grab the tags as late as possible here,
-          # since we've to wait for publish to github workflow to create the tag.
-          # Similarly, we've timed the other workflow to create tag as early as possible.
           CURRENT_VERSION=$(git tag -l "v3*" --sort=-version:refname | head -n 1)
           LAST_VERSION=$(git tag -l "v3*" --sort=-version:refname | head -n 2 | awk 'NR == 2 { print $1 }')
 
@@ -229,7 +233,7 @@ jobs:
             }
 
       - name: Send message to Slack channel for cookie utilities
-        if: env.CURRENT_NPM_VERSION_COOKIE_UTILS != env.CURRENT_NPM_VERSION_COOKIE_UTILS && env.CURRENT_NPM_VERSION_COOKIE_UTILS != 'not found'
+        if: env.CURRENT_NPM_VERSION_COOKIE_UTILS != env.NEW_NPM_VERSION_COOKIE_UTILS && env.NEW_NPM_VERSION_COOKIE_UTILS != 'not found'
         id: slack-cookie-utils
         continue-on-error: true
         uses: slackapi/slack-github-action@v1.26.0
