@@ -4,6 +4,8 @@ import {
   DISPLAY_NAME,
 } from '@rudderstack/analytics-js-common/constants/integrations/XPixel/constants';
 import Logger from '../../utils/logger';
+import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
+import { getTrackResponse } from './utils';
 import { loadNativeSdk } from './nativeSdkLoader';
 
 const logger = new Logger(DISPLAY_NAME);
@@ -14,7 +16,7 @@ class XPixel {
     }
     this.analytics = analytics;
     this.pixelId = config.pixelId;
-    this.event = config.eventId;
+    this.eventToEventIdMap = config.eventToEventIdMap;
     this.name = NAME;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
@@ -36,19 +38,27 @@ class XPixel {
   }
 
   track(rudderElement) {
-    const { event, properties } = rudderElement.message;
-
+    const { event } = rudderElement.message;
     if (!event) {
       logger.error('Event name is missing');
       return;
     }
+    const properties = getTrackResponse(rudderElement.message);
+    const standardEventsMap = getHashFromArrayWithDuplicate(this.eventsToStandard);
+    const eventIds = standardEventsMap[event?.toLowerCase()];
+    eventIds.forEach(eventId => {
+      window.twq('event', eventId, properties);
+    });
+  }
 
-    if (properties) {
-      properties.isRudderEvents = true;
-      window.twq.track(event, properties);
-    } else {
-      window.twq.track(event, { isRudderEvents: true });
-    }
+  page(rudderElement) {
+    const event = 'Page View';
+    const properties = getTrackResponse(rudderElement.message);
+    const standardEventsMap = getHashFromArrayWithDuplicate(this.eventsToStandard);
+    const eventIds = standardEventsMap[event?.toLowerCase()];
+    eventIds.forEach(eventId => {
+      window.twq('event', eventId, properties);
+    });
   }
 }
 export default XPixel;
