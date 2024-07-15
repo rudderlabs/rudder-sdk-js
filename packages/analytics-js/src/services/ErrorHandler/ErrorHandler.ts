@@ -153,7 +153,14 @@ class ErrorHandler implements IErrorHandler {
   leaveBreadcrumb(breadcrumb: string) {
     if (this.pluginEngine) {
       try {
-        this.pluginEngine.invokeSingle('errorReporting.breadcrumb', breadcrumb, this.logger, state);
+        this.pluginEngine.invokeSingle(
+          'errorReporting.breadcrumb',
+          this.pluginEngine, // deprecated parameter
+          undefined, // deprecated parameter
+          breadcrumb,
+          this.logger,
+          state,
+        );
       } catch (err) {
         this.onError(err, ERROR_HANDLER, 'errorReporting.breadcrumb');
       }
@@ -170,8 +177,8 @@ class ErrorHandler implements IErrorHandler {
       try {
         this.pluginEngine?.invokeSingle(
           'errorReporting.notify',
-          {} as IPluginEngine,
-          undefined,
+          this.pluginEngine, // deprecated parameter
+          undefined, // deprecated parameter
           error,
           state,
           this.logger,

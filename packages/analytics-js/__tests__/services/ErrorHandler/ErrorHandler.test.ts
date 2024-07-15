@@ -57,6 +57,8 @@ describe('ErrorHandler', () => {
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledWith(
       'errorReporting.breadcrumb',
+      defaultPluginEngine,
+      undefined,
       'breadcrumb',
       defaultLogger,
       state,
@@ -72,7 +74,7 @@ describe('ErrorHandler', () => {
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledWith(
       'errorReporting.notify',
-      {},
+      defaultPluginEngine,
       undefined,
       expect.any(Error),
       state,
@@ -94,7 +96,7 @@ describe('ErrorHandler', () => {
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledWith(
       'errorReporting.notify',
-      {},
+      defaultPluginEngine,
       undefined,
       expect.any(Error),
       state,
@@ -121,7 +123,7 @@ describe('ErrorHandler', () => {
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledWith(
       'errorReporting.notify',
-      {},
+      defaultPluginEngine,
       undefined,
       expect.any(Error),
       state,
@@ -149,7 +151,7 @@ describe('ErrorHandler', () => {
       expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
       expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledWith(
         'errorReporting.notify',
-        {},
+        defaultPluginEngine,
         undefined,
         expect.any(Error),
         state,
