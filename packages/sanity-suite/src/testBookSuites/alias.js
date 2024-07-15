@@ -120,7 +120,7 @@ const aliasMethodSuite = {
     },
     {
       id: 'alias2',
-      description: 'rudderanalytics.alias(to, options)',
+      description: 'rudderanalytics.alias(to, from)',
       inputData: [
         [true],
         [
