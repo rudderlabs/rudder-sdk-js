@@ -30,7 +30,7 @@ export type IdentifyCallOptions = {
 };
 
 export type AliasCallOptions = {
-  to?: string;
+  to: string;
   from?: string;
   options?: Nullable<ApiOptions>;
   callback?: ApiCallback;
@@ -321,8 +321,6 @@ const aliasArgumentsToCallOptions = (
   // Also, to clone the incoming object type arguments
   if (isDefined(payload.to)) {
     payload.to = tryStringify(payload.to) as typeof payload.to;
-  } else {
-    payload.to = undefined;
   }
 
   if (isDefined(payload.from)) {
