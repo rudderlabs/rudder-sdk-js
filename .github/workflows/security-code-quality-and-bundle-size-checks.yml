@@ -58,6 +58,11 @@ jobs:
         run: |
           npm run check:duplicates
 
+      - name: Build the project
+        run: |
+          npm run build
+          npm run build:modern
+
       - name: Execute package linting checks
         run: |
           npm run check:pub
