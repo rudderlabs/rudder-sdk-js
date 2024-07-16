@@ -26,7 +26,7 @@ jobs:
         uses: rudderlabs/github-action-check-size-limit@v2.10.0
         env:
           HUSKY: 0
-          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          BASE_REF: ${{ github.event.pull_request.base.sha }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           install_script: setup:ci
@@ -61,14 +61,14 @@ jobs:
 
       - name: Build the project
         env:
-          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          BASE_REF: ${{ github.event.pull_request.base.sha }}
         run: |
           npm run build:ci
           npm run build:modern:ci
 
       - name: Execute package linting checks
         env:
-          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          BASE_REF: ${{ github.event.pull_request.base.sha }}
         run: |
           npm run check:pub:ci
 
