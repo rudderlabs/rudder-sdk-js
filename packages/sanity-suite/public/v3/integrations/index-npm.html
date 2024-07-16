@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <link rel="icon" href="https://rudderstack.com/favicon.ico" type="image/x-icon" sizes="48x48">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>RudderStack JS SDK Sanity Suite</title>
@@ -15,23 +16,46 @@
               { CustomGroupId: 'C0003', GroupName: 'Analytical Cookies' },
               { CustomGroupId: 'C0004', GroupName: 'Targeting Cookies' },
               { CustomGroupId: 'C0005', GroupName: 'Social Media Cookies' },
-              { CustomGroupId: 'C0006', GroupName: 'Advertisement Cookies' }
-            ]
+              { CustomGroupId: 'C0006', GroupName: 'Advertisement Cookies' },
+            ],
           };
-        }
+        },
       };
       window.OnetrustActiveGroups = ',C0001,C0003,';
+    </script>
+    
+    <script>
+      (function() {
+        "use strict";
+        window.RudderSnippetVersion = "3.0.10";
+        var identifier = "rudderanalytics";
+        if (!window[identifier]) {
+          window[identifier] = [];
+        }
+        var rudderanalytics = window[identifier];
+        if (Array.isArray(rudderanalytics)) {
+          if (rudderanalytics.snippetExecuted === true && window.console && console.error) {
+            console.error("RudderStack JavaScript SDK snippet included more than once.");
+          } else {
+            rudderanalytics.snippetExecuted = true;
 
-      window.rudderanalytics = [];
-      var methods = [ "setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "setAnonymousId", "startSession", "endSession", "consent" ];
-      for (var i = 0; i < methods.length; i++) {
-        var method = methods[i];
-        window.rudderanalytics[method] = function(methodName) {
-          return function() {
-            window.rudderanalytics.push([ methodName ].concat(Array.prototype.slice.call(arguments)));
-          };
-        }(method);
-      }
+            var methods = [ "setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "setAnonymousId", "startSession", "endSession", "consent" ];
+            for (var i = 0; i < methods.length; i++) {
+              var method = methods[i];
+              rudderanalytics[method] = function(methodName) {
+                return function() {
+                  if (Array.isArray(window[identifier])) {
+                    rudderanalytics.push([ methodName ].concat(Array.prototype.slice.call(arguments)));
+                  } else {
+                    var _methodName;
+                    (_methodName = window[identifier][methodName]) === null || _methodName === void 0 || _methodName.apply(window[identifier], arguments);
+                  }
+                };
+              }(method);
+            }
+          }
+        }
+      })();
     </script>
     <link
       rel="stylesheet"

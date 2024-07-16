@@ -2,7 +2,7 @@ import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store
 import type { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
-import type { USER_SESSION_STORAGE_KEYS } from './constants';
+import type { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
 
 export interface IUserSessionManager {
   storeManager?: IStoreManager;
@@ -26,4 +26,16 @@ export interface IUserSessionManager {
   setAuthToken(token: Nullable<string>): void;
 }
 
-export type UserSessionStorageKeysType = keyof typeof USER_SESSION_STORAGE_KEYS;
+export type UserSessionStorageKeysType = keyof typeof COOKIE_KEYS;
+
+export type CookieData = {
+  name: string;
+  value: ApiObject | string;
+};
+
+export type EncryptedCookieData = {
+  name: string;
+  value?: string;
+};
+
+export type CallbackFunction = (name: string, value: string | ApiObject) => void;

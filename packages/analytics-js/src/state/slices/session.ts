@@ -4,7 +4,7 @@ import type { SessionInfo } from '@rudderstack/analytics-js-common/types/Session
 import { DEFAULT_USER_SESSION_VALUES } from '../../components/userSessionManager/constants';
 import { DEFAULT_SESSION_TIMEOUT_MS } from '../../constants/timeouts';
 
-const defaultSessionInfo: SessionInfo = {
+const defaultSessionConfiguration: SessionInfo = {
   autoTrack: true,
   timeout: DEFAULT_SESSION_TIMEOUT_MS,
 };
@@ -21,4 +21,4 @@ const sessionState: SessionState = {
   authToken: signal(DEFAULT_USER_SESSION_VALUES.authToken),
 };
 
-export { sessionState, defaultSessionInfo };
+export { sessionState, defaultSessionConfiguration };

@@ -17,9 +17,9 @@
   },
   "dependencies": {
     "@rudderstack/analytics-js": "*",
-    "gatsby": "^5.13.4",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "gatsby": "5.13.6",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
   },
   "devDependencies": {
     "@types/node": "^20.12.7",
@@ -29,9 +29,15 @@
   },
   "overrides": {
     "@babel/traverse": "7.23.2",
-    "decode-uri-component": "0.2.1",
     "http-cache-semantics": "4.1.1",
     "json5": "2.2.3",
-    "yaml": "2.3.4"
+    "yaml": "2.3.4",
+    "pretty-error": "4.0.0",
+    "axios": "1.7.2",
+    "webpack-dev-middleware": "7.2.1",
+    "braces": "3.0.3",
+    "micromatch": "4.0.6",
+    "serialize-javascript": "6.0.2",
+    "decode-uri-component": "0.2.2"
   }
 }

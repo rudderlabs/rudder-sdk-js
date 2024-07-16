@@ -2,6 +2,41 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [2.48.12](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.11...rudder-sdk-js@2.48.12) (2024-07-05)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `2.48.11`
+
+### Bug Fixes
+
+* package lint issues ([#1773](https://github.com/rudderlabs/rudder-sdk-js/issues/1773)) ([8e45d05](https://github.com/rudderlabs/rudder-sdk-js/commit/8e45d052bd6366d647d06226aa89b1fa2e512f9d))
+
+## [2.48.11](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.10...rudder-sdk-js@2.48.11) (2024-07-04)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `2.48.10`
+## [2.48.10](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.9...rudder-sdk-js@2.48.10) (2024-06-21)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `2.48.9`
+## [2.48.9](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.8...rudder-sdk-js@2.48.9) (2024-06-07)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `2.48.8`
+
+### Bug Fixes
+
+* url validation ([#1730](https://github.com/rudderlabs/rudder-sdk-js/issues/1730)) ([3a3e105](https://github.com/rudderlabs/rudder-sdk-js/commit/3a3e1057f2db91ef5cbf652a664db9443fee9843))
+
+## [2.48.8](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.7...rudder-sdk-js@2.48.8) (2024-05-24)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `2.48.7`
 ## [2.48.7](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.6...rudder-sdk-js@2.48.7) (2024-04-26)
 
 ### Dependency Updates

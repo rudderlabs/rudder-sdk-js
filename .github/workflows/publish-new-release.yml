@@ -16,7 +16,10 @@ jobs:
     # For publishing GitHub release, we need to only use the GitHub hosted runners
     runs-on: ubuntu-latest
     # only merged pull requests must trigger this job
-    if: (startsWith(github.event.pull_request.head.ref, 'release/') || startsWith(github.event.pull_request.head.ref, 'hotfix-release/')) && github.event.pull_request.merged == true
+    if: >
+      (startsWith(github.event.pull_request.head.ref, 'release/') ||
+      startsWith(github.event.pull_request.head.ref, 'hotfix-release/')) &&
+      github.event.pull_request.merged == true
 
     steps:
       - name: Extract version from branch name (for release branches)
@@ -27,25 +30,12 @@ jobs:
           BRANCH_NAME="${BRANCH_NAME_REF}"
           VERSION=${BRANCH_NAME#hotfix-}
           VERSION=${VERSION#release/}
-
           echo "release_version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
-
-      - name: Install dependencies
-        env:
-          HUSKY: 0
-        run: |
-          npm run setup:ci
 
       # In order to make a commit, we need to initialize a user.
       # You may choose to write something less generic here if you want, it doesn't matter functionality wise.
@@ -60,14 +50,24 @@ jobs:
           git tag -a v${{ steps.extract-version.outputs.release_version }} -m "chore(monorepo): release v${{ steps.extract-version.outputs.release_version }}"
           git push origin refs/tags/v${{ steps.extract-version.outputs.release_version }}
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        env:
+          HUSKY: 0
+        run: |
+          npm run setup:ci
+
       - name: Get the two latest versions
         run: |
           CURRENT_VERSION=$(git tag -l "v3*" --sort=-version:refname | head -n 1)
           LAST_VERSION=$(git tag -l "v3*" --sort=-version:refname | head -n 2 | awk 'NR == 2 { print $1 }')
-
           echo "Current version: $CURRENT_VERSION"
           echo "Previous version: $LAST_VERSION"
-
           echo "current_monorepo_version=$(echo $CURRENT_VERSION)" >> $GITHUB_ENV
           echo "last_monorepo_version=$(echo $LAST_VERSION)" >> $GITHUB_ENV
           echo "DATE=$(date)" >> $GITHUB_ENV
@@ -78,7 +78,17 @@ jobs:
           HUSKY: 0
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # The default behavior of Nx is to consider changes to package-lock.json
+          # as impacting all the packages.
+          # Here is a work around to ignore package-lock.json and package.json
+          # files before publishing the releases.
+          # Ref: https://github.com/nrwl/nx/issues/15116#issuecomment-1535260119
+          echo package-lock.json >> .nxignore
+          echo package.json >> .nxignore
           npm run release:github -- --base=${{ env.last_monorepo_version }} --head=${{ env.current_monorepo_version }}
+
+          # Restore working copy
+          git checkout -- .nxignore
 
       - name: Create pull request into develop
         uses: repo-sync/pull-request@v2
@@ -88,41 +98,27 @@ jobs:
           github_token: ${{ secrets.PAT }}
           pr_title: 'chore(release): pull main into develop post release v${{ steps.extract-version.outputs.release_version }}'
           pr_body: ':crown: *An automated PR*'
-          pr_reviewer: 'MoumitaM,saikumarrs'
-
-      - name: Delete hotfix release branch
-        uses: koj-co/delete-merged-action@master
-        if: startsWith(github.event.pull_request.head.ref, 'hotfix-release/')
-        with:
-          branches: 'hotfix-release/*'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Delete release branch
-        uses: koj-co/delete-merged-action@master
-        if: startsWith(github.event.pull_request.head.ref, 'release/')
-        with:
-          branches: 'release/*'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Send message to Slack channel
         id: slack
-        uses: slackapi/slack-github-action@v1.25.0
+        continue-on-error: true
+        uses: slackapi/slack-github-action@v1.26.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          PROJECT_NAME: 'JS SDK (v3) monorepo'
-          RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/compare/'
+          PROJECT_NAME: 'JS SDK Monorepo'
+          TAG_COMPARE_URL: 'https://github.com/rudderlabs/rudder-sdk-js/compare/'
+          RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/'
         with:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
           payload: |
             {
+              "text": "*New Release: ${{ env.PROJECT_NAME }} - <${{ env.TAG_COMPARE_URL }}${{ env.last_monorepo_version }}...v${{ steps.extract-version.outputs.release_version }}|v${{ steps.extract-version.outputs.release_version }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>",
               "blocks": [
                 {
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "New release: ${{ env.PROJECT_NAME }}"
+                    "text": "New Release: ${{ env.PROJECT_NAME }}"
                   }
                 },
                 {
@@ -132,8 +128,34 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Release: <${{env.RELEASES_URL}}${{ env.last_monorepo_version }}...v${{ steps.extract-version.outputs.release_version }}|v${{ steps.extract-version.outputs.release_version }}>*\n${{ env.DATE }}"
+                    "text": "*<${{ env.TAG_COMPARE_URL }}${{ env.last_monorepo_version }}...v${{ steps.extract-version.outputs.release_version }}|v${{ steps.extract-version.outputs.release_version }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>"
+                  },
+                  "accessory": {
+                    "type": "image",
+                    "image_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+                    "alt_text": "GitHub Icon"
                   }
+                },
+                {
+                  "type": "context",
+                  "elements": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "For more details, check the full release notes <${{ env.RELEASES_URL }}v${{ steps.extract-version.outputs.release_version }}|here>."
+                    }
+                  ]
                 }
               ]
             }
+
+  publish-npm-packages:
+    needs: release
+    name: Publish packages to NPM
+    uses: ./.github/workflows/deploy-npm.yml
+    with:
+      is_called: true
+    secrets:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      RS_PROD_BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}

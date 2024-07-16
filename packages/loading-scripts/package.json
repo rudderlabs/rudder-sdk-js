@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-loading-scripts",
-  "version": "3.0.5",
+  "version": "3.0.16",
   "private": true,
   "description": "Loading script for RudderStack JavaScript SDK",
   "main": "./src/index.js",
@@ -9,7 +9,7 @@
     "rudder"
   ],
   "author": "RudderStack",
-  "license": "MIT",
+  "license": "Elastic-2.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rudderlabs/rudder-sdk-js.git",
@@ -21,13 +21,13 @@
   "homepage": "https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/loading-scripts/README.md",
   "scripts": {
     "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf -rf ./reports",
-    "start": "rollup -c --watch",
+    "start": "rollup -c --watch --environment DEV_SERVER",
     "build": "npm run build:browser",
     "build:browser:modern": "exit 0",
     "build:browser:minified": "rollup -c --environment VERSION:$npm_package_version,UGLIFY",
     "build:browser": "rollup -c --environment VERSION:$npm_package_version && npm run build:browser:minified",
     "test": "nx test --maxWorkers=50%",
-    "test:ci": "nx test --parallel=false --configuration=ci --runInBand --maxWorkers=1 --forceExit",
+    "test:ci": "nx test --configuration=ci --runInBand --maxWorkers=1 --forceExit",
     "check:lint": "nx lint",
     "check:lint:ci": "nx lint --configuration=ci",
     "check:circular": "madge --circular --extensions js,ts src || exit 0",

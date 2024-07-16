@@ -1,5 +1,5 @@
 import { getUserAgent, getLanguage } from '../../src/utils/navigator';
-import BraveBrowser from '../../../../__mocks__/BraveBrowser';
+import BraveBrowser from '../../__mocks__/BraveBrowser';
 
 describe('Navigator Utilities', () => {
   const mockLanguage = 'en-US';

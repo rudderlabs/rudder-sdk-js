@@ -48,14 +48,14 @@
       "options": {
         "jestConfig": "packages/loading-scripts/jest.config.mjs",
         "passWithNoTests": true,
-        "codeCoverage": true,
+        "codeCoverage": false,
         "watchAll": false,
         "forceExit": true
       },
       "configurations": {
         "ci": {
           "ci": true,
-          "codeCoverage": true
+          "codeCoverage": false
         }
       }
     },
@@ -89,9 +89,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-loading-scripts@3.0.5",
-        "title": "@rudderstack/analytics-js-loading-scripts@3.0.5",
-        "discussion-category": "@rudderstack/analytics-js-loading-scripts@3.0.5",
+        "tag": "@rudderstack/analytics-js-loading-scripts@3.0.16",
+        "title": "@rudderstack/analytics-js-loading-scripts@3.0.16",
+        "discussion-category": "@rudderstack/analytics-js-loading-scripts@3.0.16",
         "notesFile": "./packages/loading-scripts/CHANGELOG_LATEST.md"
       }
     }

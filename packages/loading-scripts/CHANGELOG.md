@@ -2,6 +2,77 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.0.16](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.15...@rudderstack/analytics-js-loading-scripts@3.0.16) (2024-07-05)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.15`
+
+### Bug Fixes
+
+* loading snippet to unmangle reserved variables ([#1771](https://github.com/rudderlabs/rudder-sdk-js/issues/1771)) ([40ba82e](https://github.com/rudderlabs/rudder-sdk-js/commit/40ba82ecc10e09d1f05f6e8c546d1304b07dbf9b))
+* package lint issues ([#1773](https://github.com/rudderlabs/rudder-sdk-js/issues/1773)) ([8e45d05](https://github.com/rudderlabs/rudder-sdk-js/commit/8e45d052bd6366d647d06226aa89b1fa2e512f9d))
+
+## [3.0.15](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.14...@rudderstack/analytics-js-loading-scripts@3.0.15) (2024-07-04)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.14`
+## [3.0.14](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.13...@rudderstack/analytics-js-loading-scripts@3.0.14) (2024-07-01)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.13`
+## [3.0.13](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.12...@rudderstack/analytics-js-loading-scripts@3.0.13) (2024-06-25)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.12`
+## [3.0.12](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.11...@rudderstack/analytics-js-loading-scripts@3.0.12) (2024-06-25)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.11`
+## [3.0.11](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.10...@rudderstack/analytics-js-loading-scripts@3.0.11) (2024-06-21)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.10`
+
+### Bug Fixes
+
+* improve flushing events on page leave ([#1754](https://github.com/rudderlabs/rudder-sdk-js/issues/1754)) ([1be420f](https://github.com/rudderlabs/rudder-sdk-js/commit/1be420fae16b68629789d2ba37e16e6a6e00017c))
+
+## [3.0.10](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.9...@rudderstack/analytics-js-loading-scripts@3.0.10) (2024-06-07)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.9`
+
+### Bug Fixes
+
+* improve sdk loading snippet ([#1745](https://github.com/rudderlabs/rudder-sdk-js/issues/1745)) ([d4e0f66](https://github.com/rudderlabs/rudder-sdk-js/commit/d4e0f663a4d0cdb55563ed380166d55e99cf3fc8))
+
+## [3.0.9](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.8...@rudderstack/analytics-js-loading-scripts@3.0.9) (2024-06-04)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.8`
+## [3.0.8](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.7...@rudderstack/analytics-js-loading-scripts@3.0.8) (2024-05-29)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.7`
+## [3.0.7](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.6...@rudderstack/analytics-js-loading-scripts@3.0.7) (2024-05-24)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.6`
+## [3.0.6](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.5...@rudderstack/analytics-js-loading-scripts@3.0.6) (2024-05-10)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.5`
 ## [3.0.5](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.4...@rudderstack/analytics-js-loading-scripts@3.0.5) (2024-04-26)
 
 ### Dependency Updates

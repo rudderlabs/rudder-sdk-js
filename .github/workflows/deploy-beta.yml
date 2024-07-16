@@ -11,23 +11,17 @@ env:
   NODE_OPTIONS: "--no-warnings"
 
 jobs:
-  deploy-tag:
-    name: Deploy BETA/BugBash Feature
+  get-deploy-inputs:
+    name: Get Deploy Inputs
+    if: startsWith(github.ref, 'refs/heads/beta/') || startsWith(github.ref, 'refs/tags/bugbash/')
     runs-on: [self-hosted, Linux, X64]
-    if: startsWith(github.ref, 'refs/heads/beta/') || startsWith(github.ref, 'refs/tags/bugbash')
+    outputs:
+      release_type: ${{ steps.deploy-inputs.outputs.release_type }}
+      feature_name: ${{ steps.deploy-inputs.outputs.feature_name }}
 
     steps:
-      - name: Install AWS cli
-        uses: unfor19/install-aws-cli-action@master
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_PROD_ACCOUNT_ID }}:role/${{ secrets.AWS_PROD_S3_SYNC_ROLE }}
-          aws-region: us-east-1
-
-      - name: Extract feature name from branch
-        id: extract_branch
+      - name: Extract deploy inputs
+        id: deploy-inputs
         shell: bash
         run: |
           source_branch_name=${GITHUB_REF##*/}
@@ -38,57 +32,24 @@ jobs:
           FEATURE_NAME=${FEATURE_NAME#refs/heads/}
           FEATURE_NAME=${FEATURE_NAME#refs/tags/}
 
-          echo "branch_name=$FEATURE_NAME" >> $GITHUB_OUTPUT
-          echo "branch_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
+          echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
+          echo "feature_name=$FEATURE_NAME" >> $GITHUB_OUTPUT
 
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
-
-      - name: Install dependencies
-        env:
-          HUSKY: 0
-          REMOTE_MODULES_BASE_PATH: 'https://cdn.rudderlabs.com/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/modern/plugins'
-          BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
-          BUGSNAG_RELEASE_STAGE: '${{ steps.extract_branch.outputs.branch_type }}'
-        run: |
-          npm run setup:ci
-
-      - name: Build release artifacts
-        env:
-          REMOTE_MODULES_BASE_PATH: 'https://cdn.rudderlabs.com/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/modern/plugins'
-          BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
-          BUGSNAG_RELEASE_STAGE: '${{ steps.extract_branch.outputs.branch_type }}'
-        run: |
-          npm run build:browser
-          npm run build:browser:modern
-
-      - name: Sync files to S3 beta directory
-        run: |
-          aws s3 cp packages/analytics-js/dist/cdn/legacy/iife/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/legacy/ --recursive --cache-control max-age=3600
-          aws s3 cp packages/analytics-js/dist/cdn/modern/iife/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/modern/ --recursive --cache-control max-age=3600
-          aws s3 cp packages/analytics-js-plugins/dist/cdn/modern/plugins/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/modern/plugins/ --recursive --cache-control max-age=3600
-          aws s3 cp packages/analytics-js-integrations/dist/cdn/legacy/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/legacy/js-integrations/ --recursive --cache-control max-age=3600
-          aws s3 cp packages/analytics-js-integrations/dist/cdn/modern/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/modern/js-integrations/ --recursive --cache-control max-age=3600
-
-      - name: Create Cloudfront invalidation
-        run: |
-          AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/*"
-
-
-      # Below steps are for v1.1 SDK (legacy)
-      - name: Sync files to S3 beta directory (v1.1)
-        run: |
-          aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/rudder-analytics.min.js --cache-control max-age=3600
-          aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js.map s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/rudder-analytics.min.js.map --cache-control max-age=3600
-          aws s3 cp packages/analytics-js-integrations/dist/cdn/legacy/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/js-integrations/ --recursive --cache-control max-age=3600
-      
-      - name: Create Cloudfront invalidation
-        run: |
-          AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/${{ steps.extract_branch.outputs.branch_type }}/${{ steps.extract_branch.outputs.branch_name }}/*"
-
+  deploy:
+    name: Deploy BETA/BugBash Feature
+    uses: ./.github/workflows/deploy.yml
+    needs: get-deploy-inputs
+    with:
+      environment: ${{ needs.get-deploy-inputs.outputs.release_type }}
+      bugsnag_release_stage: ${{ needs.get-deploy-inputs.outputs.release_type }}
+      s3_dir_path: ${{ needs.get-deploy-inputs.outputs.release_type }}/${{ needs.get-deploy-inputs.outputs.feature_name }}
+      s3_dir_path_legacy: ${{ needs.get-deploy-inputs.outputs.release_type }}/${{ needs.get-deploy-inputs.outputs.feature_name }}/v1.1
+      action_type: ''
+    secrets:
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_PROD_ACCOUNT_ID }}
+      AWS_S3_BUCKET_NAME: ${{ secrets.AWS_PROD_S3_BUCKET_NAME }}
+      AWS_S3_SYNC_ROLE: ${{ secrets.AWS_PROD_S3_SYNC_ROLE }}
+      AWS_CF_DISTRIBUTION_ID: ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }}
+      BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}

@@ -56,7 +56,6 @@ export interface IQueue<T = any> {
   maxItems: number;
   timeouts: Record<string, number>;
   scheduleTimeoutActive: boolean;
-  attachListeners?(): void;
   getStorageEntry(name?: string): Nullable<QueueItem<T>[] | Record<string, any> | number>;
   setStorageEntry(
     name?: string,

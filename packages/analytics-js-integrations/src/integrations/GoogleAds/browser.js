@@ -9,12 +9,14 @@ import {
   getHashFromArrayWithDuplicate,
   removeUndefinedAndNullValues,
   getEventMappingFromConfig,
+  isDefinedAndNotNullAndNotEmpty,
 } from '../../utils/commonUtils';
 import {
   shouldSendConversionEvent,
   shouldSendDynamicRemarketingEvent,
   getConversionData,
   newCustomerAcquisitionReporting,
+  generateUserDataPayload,
 } from './utils';
 import { loadNativeSdk } from './nativeSdkLoader';
 
@@ -48,6 +50,7 @@ class GoogleAds {
     this.dynamicRemarketing = config.dynamicRemarketing;
     this.allowEnhancedConversions = config.allowEnhancedConversions || false;
     this.v2 = config.v2 || true;
+    this.allowIdentify = config.allowIdentify ?? false;
     this.name = NAME;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
@@ -85,6 +88,33 @@ class GoogleAds {
 
   isReady() {
     return this.isLoaded();
+  }
+
+  identify(rudderElement) {
+    if (this.allowIdentify === false) {
+      logger.info(
+        'Please enable identify call toggle in your destination settings to send user data to Google Ads.',
+      );
+      return;
+    }
+    const { context } = rudderElement.message;
+    const { traits } = context;
+    if (!isDefinedAndNotNullAndNotEmpty(traits)) {
+      logger.error('Traits are mandatory for identify call');
+      return;
+    }
+    if (
+      !traits.email ||
+      !traits.phone ||
+      (!traits.firstName && !traits.lastName && !traits.postalCode && !traits.country)
+    ) {
+      logger.error(
+        'Email, Phone are mandatory fields and either of FirstName, LastName, PostalCode, Country is mandatory for identify call',
+      );
+      return;
+    }
+    const payload = generateUserDataPayload(traits);
+    window.gtag('set', 'user_data', payload);
   }
 
   // https://developers.google.com/gtagjs/reference/event

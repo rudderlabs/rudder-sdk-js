@@ -25,6 +25,7 @@ const defaultLoadOptions: LoadOptions = {
   destinationsQueueOptions: {},
   queueOptions: {},
   lockIntegrationsVersion: false,
+  lockPluginsVersion: false,
   uaChTrackLevel: 'none',
   plugins: [],
   useGlobalIntegrationsConfigInEvents: false,
@@ -37,6 +38,7 @@ const defaultLoadOptions: LoadOptions = {
     migrate: true,
   },
   sendAdblockPageOptions: {},
+  useServerSideCookies: false,
 };
 
 const loadOptionsState: LoadOptionsState = signal(clone(defaultLoadOptions));

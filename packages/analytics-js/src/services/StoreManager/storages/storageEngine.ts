@@ -12,13 +12,12 @@ import {
   SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
 import type { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
+import { state } from '../../../state';
 import { defaultLogger } from '../../Logger';
 import { CookieStorage } from './CookieStorage';
 import { defaultInMemoryStorage } from './InMemoryStorage';
 import { defaultLocalStorage } from './LocalStorage';
 import { defaultSessionStorage } from './sessionStorage';
-
-// TODO: create session storage client (similar to localstorage if needed)
 
 /**
  * A utility to retrieve the storage singleton instance by type
@@ -42,7 +41,15 @@ const getStorageEngine = (type?: StorageType): IStorage => {
  * Configure cookie storage singleton
  */
 const configureCookieStorageEngine = (options: Partial<ICookieStorageOptions>) => {
-  new CookieStorage({}, defaultLogger).configure(options);
+  const cookieStorageOptions = new CookieStorage({}, defaultLogger).configure(options);
+  state.storage.cookie.value = {
+    maxage: cookieStorageOptions.maxage,
+    path: cookieStorageOptions.path,
+    domain: cookieStorageOptions.domain,
+    samesite: cookieStorageOptions.samesite,
+    expires: cookieStorageOptions.expires,
+    secure: cookieStorageOptions.secure,
+  };
 };
 
 /**

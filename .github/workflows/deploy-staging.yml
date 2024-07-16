@@ -9,88 +9,42 @@ on:
       - synchronize
       - reopened
 
-permissions:
-  id-token: write # allows the JWT to be requested from GitHub's OIDC provider
-  contents: read # This is required for actions/checkout
-
-env:
-  NODE_OPTIONS: '--no-warnings'
-
 jobs:
-  deploy-tag:
+  deploy:
     name: Deploy to staging environment
-    runs-on: [self-hosted, Linux, X64]
     # Only manually run the workflow for tags
     # and PRs raised from release branches to main
     if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.head_ref, 'hotfix-release/') || startsWith(github.head_ref, 'release/')
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: 'staging'
+      bugsnag_release_stage: 'staging'
+      s3_dir_path: 'staging/latest/v3'
+      s3_dir_path_legacy: 'staging/latest/v1.1'
+      action_type: ''
+    secrets:
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_STAGING_ACCOUNT_ID }}
+      AWS_S3_BUCKET_NAME: ${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}
+      AWS_S3_SYNC_ROLE: ${{ secrets.AWS_STAGING_S3_SYNC_ROLE }}
+      AWS_CF_DISTRIBUTION_ID: ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }}
+      BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
 
-    steps:
-      - name: Install AWS cli
-        uses: unfor19/install-aws-cli-action@master
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_STAGING_ACCOUNT_ID }}:role/${{ secrets.AWS_STAGING_S3_SYNC_ROLE }}
-          aws-region: us-east-1
-
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Get new version number
-        run: |
-          current_version_v1=$(jq -r .version packages/analytics-v1.1/package.json)
-          current_version=$(jq -r .version packages/analytics-js/package.json)
-          echo "CURRENT_VERSION_V1_VALUE=$current_version_v1" >> $GITHUB_ENV
-          echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
-          echo "DATE=$(date)" >> $GITHUB_ENV
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
-
-      - name: Install dependencies
-        env:
-          HUSKY: 0
-          REMOTE_MODULES_BASE_PATH: 'https://cdn.rudderlabs.com/staging/latest/v3/modern/plugins'
-          BUGSNAG_API_KEY: ${{ secrets.RS_STAGING_BUGSNAG_API_KEY }}
-          BUGSNAG_RELEASE_STAGE: 'staging'
-        run: |
-          npm run setup:ci
-
-      - name: Build files
-        env:
-          REMOTE_MODULES_BASE_PATH: 'https://cdn.rudderlabs.com/staging/latest/v3/modern/plugins'
-          BUGSNAG_API_KEY: ${{ secrets.RS_STAGING_BUGSNAG_API_KEY }}
-          BUGSNAG_RELEASE_STAGE: 'staging'
-        run: |
-          npm run build:browser
-          npm run build:browser:modern
-
-      - name: Sync files to S3 staging directory
-        run: |
-          aws s3 cp packages/analytics-js/dist/cdn/legacy/iife/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/staging/latest/v3/legacy/ --recursive --cache-control max-age=3600
-          aws s3 cp packages/analytics-js/dist/cdn/modern/iife/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/staging/latest/v3/modern/ --recursive --cache-control max-age=3600
-          aws s3 cp packages/analytics-js-plugins/dist/cdn/modern/plugins/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/staging/latest/v3/modern/plugins/ --recursive --cache-control max-age=3600
-          aws s3 cp packages/analytics-js-integrations/dist/cdn/legacy/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/staging/latest/v3/legacy/js-integrations/ --recursive --cache-control max-age=3600
-          aws s3 cp packages/analytics-js-integrations/dist/cdn/modern/js-integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/staging/latest/v3/modern/js-integrations/ --recursive --cache-control max-age=3600
-
-      - name: Create Cloudfront invalidation
-        run: |
-          AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/staging/latest/v3*"
-
-      # Below steps are for v1.1 SDK (legacy)
-      - name: Sync files to S3 v1.1 staging directory
-        run: |
-          aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/staging/latest/v1.1/rudder-analytics.min.js --cache-control max-age=3600
-          aws s3 cp packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js.map s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/staging/latest/v1.1/rudder-analytics.min.js.map --cache-control max-age=3600
-          aws s3 cp packages/analytics-js-integrations/dist/cdn/legacy/js-integrations/ s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/staging/latest/v1.1/js-integrations/ --recursive --cache-control max-age=3600
-          aws s3 cp packages/analytics-v1.1/dist/cdn/modern/rudder-analytics.min.js s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/staging/latest/v1.1/modern/rudder-analytics.min.js --cache-control max-age=3600
-          aws s3 cp packages/analytics-v1.1/dist/cdn/modern/rudder-analytics.min.js.map s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/staging/latest/v1.1/modern/rudder-analytics.min.js.map --cache-control max-age=3600
-          aws s3 cp packages/analytics-js-integrations/dist/cdn/modern/js-integrations/ s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/staging/latest/v1.1/modern/js-integrations/ --recursive --cache-control max-age=3600
-
-      - name: Create Cloudfront invalidation for v1.1
-        run: |
-          AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_STAGING_CF_DISTRIBUTION_ID }} --paths "/staging/latest/v1.1*"
+  deploy-sanity-suite:
+    name: Deploy sanity suite
+    needs: deploy
+    uses: ./.github/workflows/deploy-sanity-suite.yml
+    with:
+      environment: 'staging'
+    secrets:
+      AWS_STAGING_ACCOUNT_ID: ${{ secrets.AWS_STAGING_ACCOUNT_ID }}
+      AWS_STAGING_S3_BUCKET_NAME: ${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}
+      AWS_STAGING_S3_SYNC_ROLE: ${{ secrets.AWS_STAGING_S3_SYNC_ROLE }}
+      AWS_STAGING_CF_DISTRIBUTION_ID: ${{ secrets.AWS_STAGING_CF_DISTRIBUTION_ID }}
+      SANITY_SUITE_STAGING_WRITE_KEY: ${{ secrets.SANITY_SUITE_STAGING_WRITE_KEY }}
+      SANITY_SUITE_STAGING_DATAPLANE_URL: ${{ secrets.SANITY_SUITE_STAGING_DATAPLANE_URL }}
+      SANITY_SUITE_STAGING_CONFIG_SERVER_HOST: ${{ secrets.SANITY_SUITE_STAGING_CONFIG_SERVER_HOST }}
+      RS_STAGING_BUGSNAG_API_KEY: ${{ secrets.RS_STAGING_BUGSNAG_API_KEY }}
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}

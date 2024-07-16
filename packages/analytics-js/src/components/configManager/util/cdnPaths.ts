@@ -1,80 +1,86 @@
-import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { CDN_INT_DIR, CDN_PLUGINS_DIR } from '@rudderstack/analytics-js-common/constants/urls';
-import { CDN_ARCH_VERSION_DIR, DEST_SDK_BASE_URL, PLUGINS_BASE_URL } from '../../../constants/urls';
+import { isValidURL } from '@rudderstack/analytics-js-common/utilities/url';
 import {
-  INTG_CDN_BASE_URL_ERROR,
-  PLUGINS_CDN_BASE_URL_ERROR,
-} from '../../../constants/logMessages';
-import { isValidUrl, removeTrailingSlashes } from '../../utilities/url';
+  BUILD_TYPE,
+  CDN_ARCH_VERSION_DIR,
+  DEST_SDK_BASE_URL,
+  PLUGINS_BASE_URL,
+} from '../../../constants/urls';
+import { COMPONENT_BASE_URL_ERROR } from '../../../constants/logMessages';
+import { removeTrailingSlashes } from '../../utilities/url';
 import { getSDKUrl } from './commonUtil';
+
+const getSDKComponentBaseURL = (
+  componentType: string,
+  pathSuffix: string,
+  baseURL: string,
+  currentVersion: string,
+  lockVersion: boolean,
+  customURL?: string,
+) => {
+  let sdkComponentURL = '';
+
+  if (customURL) {
+    if (!isValidURL(customURL)) {
+      throw new Error(COMPONENT_BASE_URL_ERROR(componentType));
+    }
+
+    return removeTrailingSlashes(customURL) as string;
+  }
+
+  const sdkURL = getSDKUrl();
+  sdkComponentURL = sdkURL ? sdkURL.split('/').slice(0, -1).concat(pathSuffix).join('/') : baseURL;
+
+  if (lockVersion) {
+    sdkComponentURL = sdkComponentURL.replace(
+      `/${CDN_ARCH_VERSION_DIR}/${BUILD_TYPE}/${pathSuffix}`,
+      `/${currentVersion}/${BUILD_TYPE}/${pathSuffix}`,
+    );
+  }
+
+  return sdkComponentURL;
+};
 
 /**
  * A function that determines integration SDK loading path
- * @param requiredVersion
+ * @param currentVersion
  * @param lockIntegrationsVersion
  * @param customIntegrationsCDNPath
  * @returns
  */
 const getIntegrationsCDNPath = (
-  requiredVersion: string,
+  currentVersion: string,
   lockIntegrationsVersion: boolean,
   customIntegrationsCDNPath?: string,
-): string => {
-  let integrationsCDNPath = '';
-
-  // Get the CDN base URL from the user provided URL if any
-  if (customIntegrationsCDNPath) {
-    integrationsCDNPath = removeTrailingSlashes(customIntegrationsCDNPath) as string;
-
-    if (!integrationsCDNPath || (integrationsCDNPath && !isValidUrl(integrationsCDNPath))) {
-      throw new Error(INTG_CDN_BASE_URL_ERROR);
-    }
-
-    return integrationsCDNPath;
-  }
-
-  // Get the base path from the SDK script tag src attribute or use the default path
-  const sdkURL = getSDKUrl();
-  integrationsCDNPath =
-    sdkURL && isString(sdkURL)
-      ? sdkURL.split('/').slice(0, -1).concat(CDN_INT_DIR).join('/')
-      : DEST_SDK_BASE_URL;
-
-  // If version is not locked it will always get the latest version of the integrations
-  if (lockIntegrationsVersion) {
-    integrationsCDNPath = integrationsCDNPath.replace(CDN_ARCH_VERSION_DIR, requiredVersion);
-  }
-
-  return integrationsCDNPath;
-};
+): string =>
+  getSDKComponentBaseURL(
+    'integrations',
+    CDN_INT_DIR,
+    DEST_SDK_BASE_URL,
+    currentVersion,
+    lockIntegrationsVersion,
+    customIntegrationsCDNPath,
+  );
 
 /**
  * A function that determines plugins SDK loading path
- * @param customPluginsCDNPath
- * @returns
+ * @param currentVersion Current SDK version
+ * @param lockPluginsVersion Flag to lock the plugins version
+ * @param customPluginsCDNPath URL to load the plugins from
+ * @returns Final plugins CDN path
  */
-const getPluginsCDNPath = (customPluginsCDNPath?: string): string => {
-  let pluginsCDNPath = '';
-
-  // Get the CDN base URL from the user provided URL if any
-  if (customPluginsCDNPath) {
-    pluginsCDNPath = removeTrailingSlashes(customPluginsCDNPath) as string;
-
-    if (!pluginsCDNPath || (pluginsCDNPath && !isValidUrl(pluginsCDNPath))) {
-      throw new Error(PLUGINS_CDN_BASE_URL_ERROR);
-    }
-
-    return pluginsCDNPath;
-  }
-
-  // Get the base path from the SDK script tag src attribute or use the default path
-  const sdkURL = getSDKUrl();
-  pluginsCDNPath =
-    sdkURL && isString(sdkURL)
-      ? sdkURL.split('/').slice(0, -1).concat(CDN_PLUGINS_DIR).join('/')
-      : PLUGINS_BASE_URL;
-
-  return pluginsCDNPath;
-};
+const getPluginsCDNPath = (
+  currentVersion: string,
+  lockPluginsVersion: boolean,
+  customPluginsCDNPath?: string,
+): string =>
+  getSDKComponentBaseURL(
+    'plugins',
+    CDN_PLUGINS_DIR,
+    PLUGINS_BASE_URL,
+    currentVersion,
+    lockPluginsVersion,
+    customPluginsCDNPath,
+  );
 
 export { getIntegrationsCDNPath, getPluginsCDNPath };

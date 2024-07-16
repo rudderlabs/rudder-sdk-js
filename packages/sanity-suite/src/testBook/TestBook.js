@@ -6,7 +6,10 @@ class TestBook {
     this.markupItems = [];
     this.container = document.getElementById(containerId);
     this.executionDelay = executionDelay;
+    this.currentExecutionIndex = 0;
+    this.nextTestCaseTimeoutId = undefined;
     this.createTestBook(testBookData);
+    this.suiteRunInProgress = false;
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -49,8 +52,8 @@ class TestBook {
                                         <th scope="col">Id</th>
                                         <th scope="col">Test Case</th>
                                         <th scope="col">Status</th>
-                                        <th scope="col">Generated Payload</th>
                                         <th scope="col">Expected Payload</th>
+                                        <th scope="col">Generated Payload</th>
                                     </tr>
                                     </thead>
                                     <tbody class="table-group-divider">
@@ -95,7 +98,7 @@ class TestBook {
                               <pre style="white-space: pre-wrap;">${JSON.stringify(testCase.inputData, undefined, 2)}</pre>
                             </div>
                         </th>
-                        <td style="word-wrap: break-word; position: relative"><span class="badge badge-warning" id="test-case-status-${
+                        <td style="word-wrap: break-word; position: relative"><span class="badge badge-warning testCaseStatus" id="test-case-status-${
                           testCase.id
                         }">pending</span>
                         <div>
@@ -105,21 +108,19 @@ class TestBook {
                         <td style="word-wrap: break-word; position: relative;">
                           <pre data-testid="test-case-expected-${testCase.id}" id="expected-data-${
                             testCase.id
-                          }" style="white-space: pre-wrap;">${JSON.stringify(testCase.expectedResult, undefined, 2)}</pre>
-                          <button type="button" class="btn btn-secondary" style="position: absolute; top:10px; right:10px;">
-                            <i class="bi bi-clipboard" data-clipboard-target="#expected-data-${
-                              testCase.id
-                            }"></i>
+                          }" style="white-space: pre-wrap;" data-expected-result>${JSON.stringify(testCase.expectedResult, undefined, 2)}</pre>
+                          <button type="button" class="btn btn-secondary bi bi-clipboard" style="position: absolute; top:10px; right:10px;" data-clipboard-target="#expected-data-${
+                            testCase.id
+                          }">
                           </button>
                         </td>
                         <td style="word-wrap: break-word; position: relative;">
                           <pre class="testCaseResult" id="test-case-result-${
                             testCase.id
-                          }" data-test-case-id="${testCase.id}" style="white-space: pre-wrap;"></pre>
-                          <button type="button" class="btn btn-secondary" style="position: absolute; top:10px; right:10px;">
-                            <i class="bi bi-clipboard" data-clipboard-target="#test-case-result-${
-                              testCase.id
-                            }"></i>
+                          }" data-test-case-id="${testCase.id}" style="white-space: pre-wrap;" data-actual-result></pre>
+                          <button type="button" class="btn btn-secondary bi bi-clipboard" style="position: absolute; top:10px; right:10px;" data-clipboard-target="#test-case-result-${
+                            testCase.id
+                          }"">
                           </button>
                         </td>
                     </tr>
@@ -178,7 +179,7 @@ class TestBook {
                             ${menuItemText}
                         </a>
                         <button type="button" class="btn btn-outline-dark">
-                            Tests Case pass/total: <span class="badge" id="resultSummary">-</span>
+                            Test Cases - Pass/Total: <span class="badge" id="resultSummary">N/A</span>
                         </button>
                     </p>
                 </div>
@@ -202,9 +203,9 @@ class TestBook {
     inputs.push(resultCallback);
 
     if (typeof clickHandler === 'function') {
-      clickHandler.apply(null, inputs);
+      clickHandler(...inputs);
     } else if (typeof clickHandler === 'string') {
-      window.rudderanalytics[clickHandler].apply(null, inputs);
+      window.rudderanalytics[clickHandler](...inputs);
     }
   }
 
@@ -218,7 +219,7 @@ class TestBook {
       const { suiteIndex } = triggerElement.dataset;
       const { testCaseIndex } = triggerElement.dataset;
       const testCaseData = suiteData[suiteGroupIndex].suites[suiteIndex].testCases[testCaseIndex];
-      const resultCallback = function (generatedPayload, isApiTest) {
+      const resultCallback = (generatedPayload, isApiTest) => {
         const resultContainer = document.getElementById(`test-case-result-${testCaseData.id}`);
         // To cater for both v1.1 and v3 internal data structure & API endpoint tests
         let normalisedResultData = generatedPayload;
@@ -228,6 +229,10 @@ class TestBook {
           };
         }
         resultContainer.innerHTML = JSON.stringify(normalisedResultData, undefined, 2);
+
+        // Force trigger DOM update to trigger MutationObserver in IE11
+        resultContainer.setAttribute('data-dummy', 'dummyValue');
+        resultContainer.removeAttribute('data-dummy');
       };
 
       triggerElement.addEventListener('click', () => {
@@ -276,8 +281,10 @@ class TestBook {
     Array.from(expandToggleElements).forEach(element => {
       element.addEventListener('click', event => {
         if (event.target.parentNode.parentNode.className) {
+          // eslint-disable-next-line no-param-reassign
           event.target.parentNode.parentNode.className = '';
         } else {
+          // eslint-disable-next-line no-param-reassign
           event.target.parentNode.parentNode.className = 'collapsed-row';
         }
       });
@@ -295,13 +302,11 @@ class TestBook {
       const { testCaseId } = resultContainerElement.dataset;
 
       const observer = new MutationObserver(mutationList => {
-        const resultDataElement = mutationList[0].addedNodes[0].parentNode;
+        const resultDataElement = resultRowElement.querySelector('[data-actual-result]');
         const resultData = resultDataElement.textContent.trim();
-        // Get the last but one child from resultRowElement
-        const expectedResult =
-          resultRowElement.childNodes[
-            resultRowElement.childNodes.length - 2
-          ].childNodes[1].textContent.trim();
+
+        const expectedResultElement = resultRowElement.querySelector('[data-expected-result]');
+        const expectedResult = expectedResultElement.textContent.trim();
 
         const { resultData: sanitizedResultData, expectedResultData: sanitizedExpectedResultData } =
           ResultsAssertions.sanitizeResultData(resultData, expectedResult);
@@ -312,7 +317,7 @@ class TestBook {
 
         const statusElement = document.getElementById(`test-case-status-${testCaseId}`);
         statusElement.textContent = assertionResult;
-        statusElement.className = `badge badge-${assertionResult}`;
+        statusElement.className = `badge badge-${assertionResult} testCaseStatus`;
         statusElement.scrollIntoView({
           behavior: 'smooth',
           block: 'center',
@@ -328,10 +333,15 @@ class TestBook {
 
           viewDiffElement.href = `https://jsondiff.com/#left=data:base64,${toBase64(sanitizedExpectedResultData)}&right=data:base64,${toBase64(sanitizedResultData)}`;
         }
+
+        if (this.suiteRunInProgress) {
+          this.executeNextTestCase();
+        }
       });
 
       observer.observe(resultContainerElement, {
         childList: true,
+        attributes: true
       });
     }
   }
@@ -346,25 +356,44 @@ class TestBook {
     resultSummaryElement.classList.add('bg-warning', 'summary-complete');
   }
 
-  executeSuites() {
+  executeNextTestCase() {
+    clearTimeout(this.nextTestCaseTimeoutId);
+
     const testCaseTriggers = document.getElementsByClassName('testCaseTrigger');
+    const totalTestCases = document.getElementsByClassName('testCaseStatus');
     const testCaseTriggersCount = testCaseTriggers.length;
-    let currentExecutionIndex = 0;
-    const delay = this.executionDelay;
+    if (this.currentExecutionIndex < testCaseTriggersCount) {
+      testCaseTriggers[this.currentExecutionIndex].click();
+      this.currentExecutionIndex++;
 
-    const executeTestCase = () => {
-      setTimeout(() => {
-        if (currentExecutionIndex < testCaseTriggersCount) {
-          testCaseTriggers[currentExecutionIndex].click();
-          currentExecutionIndex++;
-          executeTestCase();
-        } else {
-          this.resultStatusSummary();
+      // Move to next test case in case the current test case is
+      // stuck in pending state
+      this.nextTestCaseTimeoutId = setTimeout(() => {
+        if (totalTestCases[this.currentExecutionIndex - 1].textContent === 'pending') {
+          this.executeNextTestCase();
         }
-      }, delay);
-    };
+      }, this.executionDelay);
+    } else {
+      this.suiteRunInProgress = false;
+      this.resultStatusSummary();
+    }
+  }
 
-    executeTestCase();
+  executeSuites() {
+    const totalTestCases = Array.from(document.getElementsByClassName('testCaseStatus'));
+    // iterate all the test cases and set them to pending
+    totalTestCases.forEach(testCase => {
+      testCase.textContent = 'pending';
+      testCase.className = 'badge badge-warning testCaseStatus';
+    });
+
+    const resultSummaryElement = document.getElementById('resultSummary');
+    resultSummaryElement.innerHTML = 'N/A';
+    resultSummaryElement.classList.remove('bg-warning', 'summary-complete');
+
+    this.currentExecutionIndex = 0;
+    this.suiteRunInProgress = true;
+    this.executeNextTestCase();
   }
 
   createTestBook(testSuitesData) {

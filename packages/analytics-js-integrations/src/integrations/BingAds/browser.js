@@ -5,7 +5,12 @@ import {
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
 import { extractCustomFields } from '../../utils/utils';
-import { buildCommonPayload, buildEcommPayload, EXCLUSION_KEYS } from './utils';
+import {
+  buildCommonPayload,
+  buildEcommPayload,
+  EXCLUSION_KEYS,
+  constructPidPayload,
+} from './utils';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
 
 const logger = new Logger(DISPLAY_NAME);
@@ -24,6 +29,8 @@ class BingAds {
       destinationId: this.destinationId,
     } = destinationInfo ?? {});
     this.uniqueId = `bing${this.tagID}`;
+    this.enableEnhancedConversions = config.enableEnhancedConversions;
+    this.isHashRequired = config.isHashRequired;
   }
 
   init() {
@@ -48,7 +55,7 @@ class BingAds {
   */
 
   track = rudderElement => {
-    const { type, properties } = rudderElement.message;
+    const { type, properties, context } = rudderElement.message;
     const eventToSend = properties?.event_action || type;
     if (!eventToSend) {
       logger.error('Event type is not present');
@@ -68,8 +75,10 @@ class BingAds {
     );
 
     payload = { ...payload, ...customProperties };
+    if (this.enableEnhancedConversions === true) {
+      payload.pid = context?.traits?.pid || constructPidPayload(context, this.isHashRequired);
+    }
     payload = removeUndefinedAndNullValues(payload);
-
     window[this.uniqueId].push('event', eventToSend, payload);
   };
 

@@ -10,7 +10,7 @@ jobs:
   draft-new-release:
     name: Draft a new release
     runs-on: [self-hosted, Linux, X64]
-    if: startsWith(github.ref, 'refs/heads/develop') || startsWith(github.ref, 'refs/heads/hotfix/')
+    if: github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/hotfix/')
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -42,7 +42,7 @@ jobs:
         env:
           HUSKY: 0
         run: |
-          source_branch_name=${GITHUB_REF##*/}
+          source_branch_name=${GITHUB_REF#refs/heads/}
           release_type=release
           grep -q "hotfix/" <<< "${GITHUB_REF}" && release_type=hotfix-release
           git fetch origin main
@@ -98,6 +98,29 @@ jobs:
           source_branch: ${{ steps.create-release.outputs.branch_name }}
           destination_branch: 'main'
           github_token: ${{ secrets.PAT }}
-          pr_title: 'chore(release): pulling ${{ steps.create-release.outputs.branch_name }} into main'
+          pr_title: 'chore(release): pull ${{ steps.create-release.outputs.branch_name }} into main'
           pr_body: ':crown: *An automated PR*'
-          pr_reviewer: 'MoumitaM,saikumarrs'
+
+      - name: Delete hotfix release base branch
+        continue-on-error: true
+        if: startsWith(github.ref_name, 'hotfix/')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branchToDelete = '${{ github.ref_name }}';
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const ref = `heads/${branchToDelete}`;
+
+            try {
+              await github.rest.git.deleteRef({
+                owner,
+                repo,
+                ref
+              });
+              console.log(`Branch ${branchToDelete} deleted successfully.`);
+            } catch (error) {
+              console.error(`Error deleting branch ${branchToDelete}:`, error);
+              process.exit(1); // Fail the workflow if branch deletion fails
+            }
+

@@ -1,5 +1,5 @@
-import { SourceConfigResponse } from '@rudderstack/analytics-js/components/configManager/types';
-import { USER_SESSION_STORAGE_KEYS } from '@rudderstack/analytics-js/components/userSessionManager/constants';
+import type { SourceConfigResponse } from '@rudderstack/analytics-js/components/configManager/types';
+import { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
 
 const identifyRequestPayload = {
   userId: '123456',
@@ -230,312 +230,312 @@ const dummySourceConfigResponse: SourceConfigResponse = {
 const entriesWithOnlyCookieStorage = {
   userId: {
     type: 'cookieStorage',
-    key: USER_SESSION_STORAGE_KEYS.userId,
+    key: COOKIE_KEYS.userId,
   },
   userTraits: {
     type: 'cookieStorage',
-    key: USER_SESSION_STORAGE_KEYS.userTraits,
+    key: COOKIE_KEYS.userTraits,
   },
   anonymousId: {
     type: 'cookieStorage',
-    key: USER_SESSION_STORAGE_KEYS.anonymousId,
+    key: COOKIE_KEYS.anonymousId,
   },
   groupId: {
     type: 'cookieStorage',
-    key: USER_SESSION_STORAGE_KEYS.groupId,
+    key: COOKIE_KEYS.groupId,
   },
   groupTraits: {
     type: 'cookieStorage',
-    key: USER_SESSION_STORAGE_KEYS.groupTraits,
+    key: COOKIE_KEYS.groupTraits,
   },
   initialReferrer: {
     type: 'cookieStorage',
-    key: USER_SESSION_STORAGE_KEYS.initialReferrer,
+    key: COOKIE_KEYS.initialReferrer,
   },
   initialReferringDomain: {
     type: 'cookieStorage',
-    key: USER_SESSION_STORAGE_KEYS.initialReferringDomain,
+    key: COOKIE_KEYS.initialReferringDomain,
   },
   sessionInfo: {
     type: 'cookieStorage',
-    key: USER_SESSION_STORAGE_KEYS.sessionInfo,
+    key: COOKIE_KEYS.sessionInfo,
   },
   authToken: {
     type: 'cookieStorage',
-    key: USER_SESSION_STORAGE_KEYS.authToken,
+    key: COOKIE_KEYS.authToken,
   },
 };
 
 const entriesWithOnlyLocalStorage = {
   userId: {
     type: 'localStorage',
-    key: USER_SESSION_STORAGE_KEYS.userId,
+    key: COOKIE_KEYS.userId,
   },
   userTraits: {
     type: 'localStorage',
-    key: USER_SESSION_STORAGE_KEYS.userTraits,
+    key: COOKIE_KEYS.userTraits,
   },
   anonymousId: {
     type: 'localStorage',
-    key: USER_SESSION_STORAGE_KEYS.anonymousId,
+    key: COOKIE_KEYS.anonymousId,
   },
   groupId: {
     type: 'localStorage',
-    key: USER_SESSION_STORAGE_KEYS.groupId,
+    key: COOKIE_KEYS.groupId,
   },
   groupTraits: {
     type: 'localStorage',
-    key: USER_SESSION_STORAGE_KEYS.groupTraits,
+    key: COOKIE_KEYS.groupTraits,
   },
   initialReferrer: {
     type: 'localStorage',
-    key: USER_SESSION_STORAGE_KEYS.initialReferrer,
+    key: COOKIE_KEYS.initialReferrer,
   },
   initialReferringDomain: {
     type: 'localStorage',
-    key: USER_SESSION_STORAGE_KEYS.initialReferringDomain,
+    key: COOKIE_KEYS.initialReferringDomain,
   },
   sessionInfo: {
     type: 'localStorage',
-    key: USER_SESSION_STORAGE_KEYS.sessionInfo,
+    key: COOKIE_KEYS.sessionInfo,
   },
   authToken: {
     type: 'localStorage',
-    key: USER_SESSION_STORAGE_KEYS.authToken,
+    key: COOKIE_KEYS.authToken,
   },
 };
 
 const entriesWithoutCookieStorage = {
   userId: {
     type: 'localStorage',
-    key: USER_SESSION_STORAGE_KEYS.userId,
+    key: COOKIE_KEYS.userId,
   },
   userTraits: {
     type: 'localStorage',
-    key: USER_SESSION_STORAGE_KEYS.userTraits,
+    key: COOKIE_KEYS.userTraits,
   },
   anonymousId: {
     type: 'sessionStorage',
-    key: USER_SESSION_STORAGE_KEYS.anonymousId,
+    key: COOKIE_KEYS.anonymousId,
   },
   groupId: {
     type: 'localStorage',
-    key: USER_SESSION_STORAGE_KEYS.groupId,
+    key: COOKIE_KEYS.groupId,
   },
   groupTraits: {
     type: 'localStorage',
-    key: USER_SESSION_STORAGE_KEYS.groupTraits,
+    key: COOKIE_KEYS.groupTraits,
   },
   initialReferrer: {
     type: 'localStorage',
-    key: USER_SESSION_STORAGE_KEYS.initialReferrer,
+    key: COOKIE_KEYS.initialReferrer,
   },
   initialReferringDomain: {
     type: 'localStorage',
-    key: USER_SESSION_STORAGE_KEYS.initialReferringDomain,
+    key: COOKIE_KEYS.initialReferringDomain,
   },
   sessionInfo: {
     type: 'none',
-    key: USER_SESSION_STORAGE_KEYS.sessionInfo,
+    key: COOKIE_KEYS.sessionInfo,
   },
   authToken: {
     type: 'localStorage',
-    key: USER_SESSION_STORAGE_KEYS.authToken,
+    key: COOKIE_KEYS.authToken,
   },
 };
 
 const entriesWithoutCookieAndLocalStorage = {
   userId: {
     type: 'sessionStorage',
-    key: USER_SESSION_STORAGE_KEYS.userId,
+    key: COOKIE_KEYS.userId,
   },
   userTraits: {
     type: 'memoryStorage',
-    key: USER_SESSION_STORAGE_KEYS.userTraits,
+    key: COOKIE_KEYS.userTraits,
   },
   anonymousId: {
     type: 'sessionStorage',
-    key: USER_SESSION_STORAGE_KEYS.anonymousId,
+    key: COOKIE_KEYS.anonymousId,
   },
   groupId: {
     type: 'sessionStorage',
-    key: USER_SESSION_STORAGE_KEYS.groupId,
+    key: COOKIE_KEYS.groupId,
   },
   groupTraits: {
     type: 'sessionStorage',
-    key: USER_SESSION_STORAGE_KEYS.groupTraits,
+    key: COOKIE_KEYS.groupTraits,
   },
   initialReferrer: {
     type: 'sessionStorage',
-    key: USER_SESSION_STORAGE_KEYS.initialReferrer,
+    key: COOKIE_KEYS.initialReferrer,
   },
   initialReferringDomain: {
     type: 'sessionStorage',
-    key: USER_SESSION_STORAGE_KEYS.initialReferringDomain,
+    key: COOKIE_KEYS.initialReferringDomain,
   },
   sessionInfo: {
     type: 'none',
-    key: USER_SESSION_STORAGE_KEYS.sessionInfo,
+    key: COOKIE_KEYS.sessionInfo,
   },
   authToken: {
     type: 'sessionStorage',
-    key: USER_SESSION_STORAGE_KEYS.authToken,
+    key: COOKIE_KEYS.authToken,
   },
 };
 
 const entriesWithOnlyNoStorage = {
   userId: {
     type: 'none',
-    key: USER_SESSION_STORAGE_KEYS.userId,
+    key: COOKIE_KEYS.userId,
   },
   userTraits: {
     type: 'none',
-    key: USER_SESSION_STORAGE_KEYS.userTraits,
+    key: COOKIE_KEYS.userTraits,
   },
   anonymousId: {
     type: 'none',
-    key: USER_SESSION_STORAGE_KEYS.anonymousId,
+    key: COOKIE_KEYS.anonymousId,
   },
   groupId: {
     type: 'none',
-    key: USER_SESSION_STORAGE_KEYS.groupId,
+    key: COOKIE_KEYS.groupId,
   },
   groupTraits: {
     type: 'none',
-    key: USER_SESSION_STORAGE_KEYS.groupTraits,
+    key: COOKIE_KEYS.groupTraits,
   },
   initialReferrer: {
     type: 'none',
-    key: USER_SESSION_STORAGE_KEYS.initialReferrer,
+    key: COOKIE_KEYS.initialReferrer,
   },
   initialReferringDomain: {
     type: 'none',
-    key: USER_SESSION_STORAGE_KEYS.initialReferringDomain,
+    key: COOKIE_KEYS.initialReferringDomain,
   },
   sessionInfo: {
     type: 'none',
-    key: USER_SESSION_STORAGE_KEYS.sessionInfo,
+    key: COOKIE_KEYS.sessionInfo,
   },
   authToken: {
     type: 'none',
-    key: USER_SESSION_STORAGE_KEYS.authToken,
+    key: COOKIE_KEYS.authToken,
   },
 };
 
 const entriesWithOnlySessionStorage = {
   userId: {
     type: 'sessionStorage',
-    key: USER_SESSION_STORAGE_KEYS.userId,
+    key: COOKIE_KEYS.userId,
   },
   userTraits: {
     type: 'sessionStorage',
-    key: USER_SESSION_STORAGE_KEYS.userTraits,
+    key: COOKIE_KEYS.userTraits,
   },
   anonymousId: {
     type: 'sessionStorage',
-    key: USER_SESSION_STORAGE_KEYS.anonymousId,
+    key: COOKIE_KEYS.anonymousId,
   },
   groupId: {
     type: 'sessionStorage',
-    key: USER_SESSION_STORAGE_KEYS.groupId,
+    key: COOKIE_KEYS.groupId,
   },
   groupTraits: {
     type: 'sessionStorage',
-    key: USER_SESSION_STORAGE_KEYS.groupTraits,
+    key: COOKIE_KEYS.groupTraits,
   },
   initialReferrer: {
     type: 'sessionStorage',
-    key: USER_SESSION_STORAGE_KEYS.initialReferrer,
+    key: COOKIE_KEYS.initialReferrer,
   },
   initialReferringDomain: {
     type: 'sessionStorage',
-    key: USER_SESSION_STORAGE_KEYS.initialReferringDomain,
+    key: COOKIE_KEYS.initialReferringDomain,
   },
   sessionInfo: {
     type: 'sessionStorage',
-    key: USER_SESSION_STORAGE_KEYS.sessionInfo,
+    key: COOKIE_KEYS.sessionInfo,
   },
   authToken: {
     type: 'sessionStorage',
-    key: USER_SESSION_STORAGE_KEYS.authToken,
+    key: COOKIE_KEYS.authToken,
   },
 };
 
 const entriesWithMixStorage = {
   userId: {
     type: 'cookieStorage',
-    key: USER_SESSION_STORAGE_KEYS.userId,
+    key: COOKIE_KEYS.userId,
   },
   userTraits: {
     type: 'localStorage',
-    key: USER_SESSION_STORAGE_KEYS.userTraits,
+    key: COOKIE_KEYS.userTraits,
   },
   anonymousId: {
     type: 'sessionStorage',
-    key: USER_SESSION_STORAGE_KEYS.anonymousId,
+    key: COOKIE_KEYS.anonymousId,
   },
   groupId: {
     type: 'memoryStorage',
-    key: USER_SESSION_STORAGE_KEYS.groupId,
+    key: COOKIE_KEYS.groupId,
   },
   groupTraits: {
     type: 'memoryStorage',
-    key: USER_SESSION_STORAGE_KEYS.groupTraits,
+    key: COOKIE_KEYS.groupTraits,
   },
   initialReferrer: {
     type: 'memoryStorage',
-    key: USER_SESSION_STORAGE_KEYS.initialReferrer,
+    key: COOKIE_KEYS.initialReferrer,
   },
   initialReferringDomain: {
     type: 'memoryStorage',
-    key: USER_SESSION_STORAGE_KEYS.initialReferringDomain,
+    key: COOKIE_KEYS.initialReferringDomain,
   },
   sessionInfo: {
     type: 'none',
-    key: USER_SESSION_STORAGE_KEYS.sessionInfo,
+    key: COOKIE_KEYS.sessionInfo,
   },
   authToken: {
     type: 'memoryStorage',
-    key: USER_SESSION_STORAGE_KEYS.authToken,
+    key: COOKIE_KEYS.authToken,
   },
 };
 
 const entriesWithMixStorageButWithoutNone = {
   userId: {
     type: 'cookieStorage',
-    key: USER_SESSION_STORAGE_KEYS.userId,
+    key: COOKIE_KEYS.userId,
   },
   userTraits: {
     type: 'localStorage',
-    key: USER_SESSION_STORAGE_KEYS.userTraits,
+    key: COOKIE_KEYS.userTraits,
   },
   anonymousId: {
     type: 'sessionStorage',
-    key: USER_SESSION_STORAGE_KEYS.anonymousId,
+    key: COOKIE_KEYS.anonymousId,
   },
   groupId: {
     type: 'memoryStorage',
-    key: USER_SESSION_STORAGE_KEYS.groupId,
+    key: COOKIE_KEYS.groupId,
   },
   groupTraits: {
     type: 'memoryStorage',
-    key: USER_SESSION_STORAGE_KEYS.groupTraits,
+    key: COOKIE_KEYS.groupTraits,
   },
   initialReferrer: {
     type: 'memoryStorage',
-    key: USER_SESSION_STORAGE_KEYS.initialReferrer,
+    key: COOKIE_KEYS.initialReferrer,
   },
   initialReferringDomain: {
     type: 'memoryStorage',
-    key: USER_SESSION_STORAGE_KEYS.initialReferringDomain,
+    key: COOKIE_KEYS.initialReferringDomain,
   },
   sessionInfo: {
     type: 'localStorage',
-    key: USER_SESSION_STORAGE_KEYS.sessionInfo,
+    key: COOKIE_KEYS.sessionInfo,
   },
   authToken: {
     type: 'memoryStorage',
-    key: USER_SESSION_STORAGE_KEYS.authToken,
+    key: COOKIE_KEYS.authToken,
   },
 };
 
@@ -572,39 +572,39 @@ const postConsentStorageEntryOptions = {
 const entriesWithInMemoryFallback = {
   userId: {
     type: 'memoryStorage',
-    key: USER_SESSION_STORAGE_KEYS.userId,
+    key: COOKIE_KEYS.userId,
   },
   userTraits: {
     type: 'memoryStorage',
-    key: USER_SESSION_STORAGE_KEYS.userTraits,
+    key: COOKIE_KEYS.userTraits,
   },
   anonymousId: {
     type: 'memoryStorage',
-    key: USER_SESSION_STORAGE_KEYS.anonymousId,
+    key: COOKIE_KEYS.anonymousId,
   },
   groupId: {
     type: 'memoryStorage',
-    key: USER_SESSION_STORAGE_KEYS.groupId,
+    key: COOKIE_KEYS.groupId,
   },
   groupTraits: {
     type: 'memoryStorage',
-    key: USER_SESSION_STORAGE_KEYS.groupTraits,
+    key: COOKIE_KEYS.groupTraits,
   },
   initialReferrer: {
     type: 'memoryStorage',
-    key: USER_SESSION_STORAGE_KEYS.initialReferrer,
+    key: COOKIE_KEYS.initialReferrer,
   },
   initialReferringDomain: {
     type: 'memoryStorage',
-    key: USER_SESSION_STORAGE_KEYS.initialReferringDomain,
+    key: COOKIE_KEYS.initialReferringDomain,
   },
   sessionInfo: {
     type: 'none',
-    key: USER_SESSION_STORAGE_KEYS.sessionInfo,
+    key: COOKIE_KEYS.sessionInfo,
   },
   authToken: {
     type: 'memoryStorage',
-    key: USER_SESSION_STORAGE_KEYS.authToken,
+    key: COOKIE_KEYS.authToken,
   },
 };
 
@@ -623,117 +623,117 @@ const loadOptionWithInvalidEntry = {
 const entriesWithStorageOnlyForSession = {
   userId: {
     type: 'none',
-    key: USER_SESSION_STORAGE_KEYS.userId,
+    key: COOKIE_KEYS.userId,
   },
   userTraits: {
     type: 'none',
-    key: USER_SESSION_STORAGE_KEYS.userTraits,
+    key: COOKIE_KEYS.userTraits,
   },
   anonymousId: {
     type: 'none',
-    key: USER_SESSION_STORAGE_KEYS.anonymousId,
+    key: COOKIE_KEYS.anonymousId,
   },
   groupId: {
     type: 'none',
-    key: USER_SESSION_STORAGE_KEYS.groupId,
+    key: COOKIE_KEYS.groupId,
   },
   groupTraits: {
     type: 'none',
-    key: USER_SESSION_STORAGE_KEYS.groupTraits,
+    key: COOKIE_KEYS.groupTraits,
   },
   initialReferrer: {
     type: 'none',
-    key: USER_SESSION_STORAGE_KEYS.initialReferrer,
+    key: COOKIE_KEYS.initialReferrer,
   },
   initialReferringDomain: {
     type: 'none',
-    key: USER_SESSION_STORAGE_KEYS.initialReferringDomain,
+    key: COOKIE_KEYS.initialReferringDomain,
   },
   sessionInfo: {
     type: 'cookieStorage',
-    key: USER_SESSION_STORAGE_KEYS.sessionInfo,
+    key: COOKIE_KEYS.sessionInfo,
   },
   authToken: {
     type: 'none',
-    key: USER_SESSION_STORAGE_KEYS.authToken,
+    key: COOKIE_KEYS.authToken,
   },
 };
 
 const anonymousIdWithNoStorageEntries = {
   userId: {
     type: 'cookieStorage',
-    key: USER_SESSION_STORAGE_KEYS.userId,
+    key: COOKIE_KEYS.userId,
   },
   userTraits: {
     type: 'cookieStorage',
-    key: USER_SESSION_STORAGE_KEYS.userTraits,
+    key: COOKIE_KEYS.userTraits,
   },
   anonymousId: {
     type: 'none',
-    key: USER_SESSION_STORAGE_KEYS.anonymousId,
+    key: COOKIE_KEYS.anonymousId,
   },
   groupId: {
     type: 'cookieStorage',
-    key: USER_SESSION_STORAGE_KEYS.groupId,
+    key: COOKIE_KEYS.groupId,
   },
   groupTraits: {
     type: 'cookieStorage',
-    key: USER_SESSION_STORAGE_KEYS.groupTraits,
+    key: COOKIE_KEYS.groupTraits,
   },
   initialReferrer: {
     type: 'cookieStorage',
-    key: USER_SESSION_STORAGE_KEYS.initialReferrer,
+    key: COOKIE_KEYS.initialReferrer,
   },
   initialReferringDomain: {
     type: 'cookieStorage',
-    key: USER_SESSION_STORAGE_KEYS.initialReferringDomain,
+    key: COOKIE_KEYS.initialReferringDomain,
   },
   sessionInfo: {
     type: 'cookieStorage',
-    key: USER_SESSION_STORAGE_KEYS.sessionInfo,
+    key: COOKIE_KEYS.sessionInfo,
   },
   authToken: {
     type: 'cookieStorage',
-    key: USER_SESSION_STORAGE_KEYS.authToken,
+    key: COOKIE_KEYS.authToken,
   },
 };
 
 const entriesWithStorageOnlyForAnonymousId = {
   userId: {
     type: 'none',
-    key: USER_SESSION_STORAGE_KEYS.userId,
+    key: COOKIE_KEYS.userId,
   },
   userTraits: {
     type: 'none',
-    key: USER_SESSION_STORAGE_KEYS.userTraits,
+    key: COOKIE_KEYS.userTraits,
   },
   anonymousId: {
     type: 'cookieStorage',
-    key: USER_SESSION_STORAGE_KEYS.anonymousId,
+    key: COOKIE_KEYS.anonymousId,
   },
   groupId: {
     type: 'none',
-    key: USER_SESSION_STORAGE_KEYS.groupId,
+    key: COOKIE_KEYS.groupId,
   },
   groupTraits: {
     type: 'none',
-    key: USER_SESSION_STORAGE_KEYS.groupTraits,
+    key: COOKIE_KEYS.groupTraits,
   },
   initialReferrer: {
     type: 'none',
-    key: USER_SESSION_STORAGE_KEYS.initialReferrer,
+    key: COOKIE_KEYS.initialReferrer,
   },
   initialReferringDomain: {
     type: 'none',
-    key: USER_SESSION_STORAGE_KEYS.initialReferringDomain,
+    key: COOKIE_KEYS.initialReferringDomain,
   },
   sessionInfo: {
     type: 'none',
-    key: USER_SESSION_STORAGE_KEYS.sessionInfo,
+    key: COOKIE_KEYS.sessionInfo,
   },
   authToken: {
     type: 'none',
-    key: USER_SESSION_STORAGE_KEYS.authToken,
+    key: COOKIE_KEYS.authToken,
   },
 };
 

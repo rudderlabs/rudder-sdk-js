@@ -77,6 +77,32 @@ const handlers = [
       },
     });
   }),
+  http.post(`${dummyDataplaneHost}/rsaRequest`, () => {
+    return new HttpResponse(null, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Set-Cookie':
+          'key1=value1; Path=/; Domain=example.com; Expires=Mon, 22 Apr 2025 10:55:28 GMT; SameSite=Lax',
+      },
+    });
+  }),
+  http.post(`${dummyDataplaneHost}/serverDown/rsaRequest`, () => {
+    return new HttpResponse(null, {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+      },
+    });
+  }),
+  http.post(`${dummyDataplaneHost}/invalidUrl/rsaRequest`, () => {
+    return new HttpResponse(null, {
+      status: 404,
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+      },
+    });
+  }),
 ];
 
 export { handlers };
