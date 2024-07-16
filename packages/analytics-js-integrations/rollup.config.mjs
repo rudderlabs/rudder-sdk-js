@@ -12,7 +12,6 @@ import typescript from 'rollup-plugin-typescript2';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
 import { DEFAULT_EXTENSIONS } from '@babel/core';
 import alias from '@rollup/plugin-alias';
-import del from 'rollup-plugin-delete';
 import * as dotenv from 'dotenv';
 import pkg from './package.json' assert { type: 'json' };
 
@@ -73,7 +72,6 @@ export function getDefaultConfig(distName, moduleType = 'cdn') {
           }
         ]
       }),
-      del({ hook: "buildEnd", targets: "./dist/dts" }),
       nodePolyfills(),
       resolve({
         jsnext: true,
