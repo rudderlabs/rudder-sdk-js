@@ -10,13 +10,13 @@ const trackMethodSuite = {
   name: 'Track',
   description:
     'Track Method: ' +
-    'rudderanalytics.track(event, [properties], [options], [callback]);' +
+    'rudderanalytics.track(event, [properties], [apiOptions], [callback]);' +
     'rudderanalytics.track(event, [properties], [callback]);' +
     'rudderanalytics.track(event, [callback]);',
   testCases: [
     {
       id: 'track1',
-      description: 'rudderanalytics.track(event, properties, options)',
+      description: 'rudderanalytics.track(event, properties, apiOptions)',
       inputData: [
         [true],
         [
@@ -279,7 +279,7 @@ const trackMethodSuite = {
     },
     {
       id: 'track4',
-      description: 'rudderanalytics.track(event, null, options)',
+      description: 'rudderanalytics.track(event, null, apiOptions)',
       inputData: [
         [true],
         [

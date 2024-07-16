@@ -16,19 +16,19 @@ const pageMethodSuite = {
   name: 'Page',
   description:
     'Page Method: ' +
-    'rudderanalytics.page(category, name, [properties], [options], [callback]);' +
+    'rudderanalytics.page(category, name, [properties], [apiOptions], [callback]);' +
     'rudderanalytics.page(category, name, [properties], [callback]);' +
     'rudderanalytics.page(category, name, [callback]);' +
-    'rudderanalytics.page(name, [properties], [options], [callback]);' +
+    'rudderanalytics.page(name, [properties], [apiOptions], [callback]);' +
     'rudderanalytics.page(name, [properties], [callback]);' +
     'rudderanalytics.page(name, [callback]);' +
-    'rudderanalytics.page(properties, [options], [callback]);' +
+    'rudderanalytics.page(properties, [apiOptions], [callback]);' +
     'rudderanalytics.page(properties, [callback]);' +
     'rudderanalytics.page([callback]);',
   testCases: [
     {
       id: 'page1',
-      description: 'rudderanalytics.page(category, name, properties, options)',
+      description: 'rudderanalytics.page(category, name, properties, apiOptions)',
       inputData: [
         [true],
         [
@@ -177,7 +177,7 @@ const pageMethodSuite = {
     },
     {
       id: 'page4',
-      description: 'rudderanalytics.page(category, name, null, options)',
+      description: 'rudderanalytics.page(category, name, null, apiOptions)',
       inputData: [
         [true],
         [
@@ -268,7 +268,7 @@ const pageMethodSuite = {
     },
     {
       id: 'page9',
-      description: 'rudderanalytics.page(name, properties, options)',
+      description: 'rudderanalytics.page(name, properties, apiOptions)',
       inputData: [
         [true],
         [
@@ -381,7 +381,7 @@ const pageMethodSuite = {
     },
     {
       id: 'page11',
-      description: 'rudderanalytics.page(properties, options)',
+      description: 'rudderanalytics.page(properties, apiOptions)',
       inputData: [
         [true],
         [

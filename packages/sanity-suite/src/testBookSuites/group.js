@@ -11,15 +11,15 @@ const groupMethodSuite = {
   name: 'Group',
   description:
     'Group Method: ' +
-    'rudderanalytics.group(groupId, [traits], [options], [callback]);' +
+    'rudderanalytics.group(groupId, [traits], [apiOptions], [callback]);' +
     'rudderanalytics.group(groupId, [traits], [callback]);' +
     'rudderanalytics.group(groupId, [callback]);' +
-    'rudderanalytics.group(traits, [options], [callback]);' +
+    'rudderanalytics.group(traits, [apiOptions], [callback]);' +
     'rudderanalytics.group(traits, [callback]);',
   testCases: [
     {
       id: 'group1',
-      description: 'rudderanalytics.group(groupId, traits, options)',
+      description: 'rudderanalytics.group(groupId, traits, apiOptions)',
       inputData: [
         [true],
         [
@@ -168,7 +168,7 @@ const groupMethodSuite = {
     },
     {
       id: 'group4',
-      description: 'rudderanalytics.group(groupId, null, options)',
+      description: 'rudderanalytics.group(groupId, null, apiOptions)',
       inputData: [
         [true],
         [
@@ -237,7 +237,7 @@ const groupMethodSuite = {
     },
     {
       id: 'group6',
-      description: 'rudderanalytics.group(traits, options)',
+      description: 'rudderanalytics.group(traits, apiOptions)',
       inputData: [
         [true],
         [

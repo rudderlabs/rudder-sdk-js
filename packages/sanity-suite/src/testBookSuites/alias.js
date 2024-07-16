@@ -10,14 +10,14 @@ const aliasMethodSuite = {
   name: 'Alias',
   description:
     'Alias Method: ' +
-    'rudderanalytics.alias(to, [from], [options], [callback]);' +
+    'rudderanalytics.alias(to, [from], [apiOptions], [callback]);' +
     'rudderanalytics.alias(to, [from], [callback]);' +
-    'rudderanalytics.alias(to, [options], [callback]);' +
+    'rudderanalytics.alias(to, [apiOptions], [callback]);' +
     'rudderanalytics.alias(to, [callback]);',
   testCases: [
     {
       id: 'alias1',
-      description: 'rudderanalytics.alias(to, from, options)',
+      description: 'rudderanalytics.alias(to, from, apiOptions)',
       inputData: [
         [true],
         [
@@ -280,7 +280,7 @@ const aliasMethodSuite = {
     },
     {
       id: 'alias6',
-      description: 'rudderanalytics.alias(to, options)',
+      description: 'rudderanalytics.alias(to, apiOptions)',
       inputData: [
         [true],
         [

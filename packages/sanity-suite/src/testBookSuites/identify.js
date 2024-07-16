@@ -13,15 +13,15 @@ const identifyMethodSuite = {
   name: 'Identify',
   description:
     'Identify Method: ' +
-    'rudderanalytics.identify(userId, [traits], [options], [callback]);' +
+    'rudderanalytics.identify(userId, [traits], [apiOptions], [callback]);' +
     'rudderanalytics.identify(userId, [traits], [callback]);' +
     'rudderanalytics.identify(userId, [callback]);' +
-    'rudderanalytics.identify(traits, [options], [callback]);' +
+    'rudderanalytics.identify(traits, [apiOptions], [callback]);' +
     'rudderanalytics.identify(traits, [callback]);',
   testCases: [
     {
       id: 'identify1',
-      description: 'rudderanalytics.identify(userId, traits, options)',
+      description: 'rudderanalytics.identify(userId, traits, apiOptions)',
       inputData: [
         [true],
         [
@@ -170,7 +170,7 @@ const identifyMethodSuite = {
     },
     {
       id: 'identify3',
-      description: 'rudderanalytics.identify(userId, null, options)',
+      description: 'rudderanalytics.identify(userId, null, apiOptions)',
       inputData: [
         [true],
         [
@@ -406,7 +406,7 @@ const identifyMethodSuite = {
     },
     {
       id: 'identify9',
-      description: 'rudderanalytics.identify(traits, options)',
+      description: 'rudderanalytics.identify(traits, apiOptions)',
       inputData: [
         [true],
         [
