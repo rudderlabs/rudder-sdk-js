@@ -121,4 +121,53 @@ describe('XPixel Track event', () => {
       },
     ]);
   });
+
+  test('Testing Track product_added with no content_type in payload', () => {
+    xPixel = new XPixel(basicConfig, { loglevel: 'DEBUG' });
+    xPixel.init();
+    window.twq.track = jest.fn();
+    xPixel.track({
+      message: {
+        context: {},
+        event: 'product_added',
+        properties: {
+          customProp: 'testProp',
+          event_id: 'purchaseId',
+          order_id: 'transactionId',
+          value: 35.0,
+          currency: 'GBP',
+          products: [
+            {
+              customPropProd: 'testPropProd',
+              product_id: 'abc',
+              category: 'Merch',
+              name: 'Food',
+              price: 3.0,
+              quantity: 2,
+              currency: 'GBP',
+              position: 1,
+              value: 6.0,
+              typeOfProduct: 'Food',
+            },
+          ],
+        },
+      },
+    });
+    expect(window.twq.mock.calls[0]).toEqual(['config', '12567839']);
+  });
+
+  test('Test for empty properties', () => {
+    xPixel = new XPixel(basicConfig, { loglevel: 'DEBUG' });
+    xPixel.init();
+    window.twq.track = jest.fn();
+    xPixel.track({
+      message: {
+        type: 'track',
+        context: {},
+        event: 'Sign Up',
+        properties: {},
+      },
+    });
+    expect(window.twq.mock.calls[1]).toEqual(['event', '123', {}]);
+  });
 });
