@@ -257,11 +257,7 @@ const identifyArgumentsToCallOptions = (
   // Rest of the code is just to clean up undefined values
   // and set some proper defaults
   // Also, to clone the incoming object type arguments
-  if (isDefined(payload.userId)) {
-    payload.userId = tryStringify(payload.userId);
-  } else {
-    payload.userId = undefined;
-  }
+  payload.userId = tryStringify(payload.userId);
 
   if (isObjectLiteralAndNotNull(payload.traits)) {
     payload.traits = clone(payload.traits);
@@ -387,11 +383,7 @@ const groupArgumentsToCallOptions = (
   // Rest of the code is just to clean up undefined values
   // and set some proper defaults
   // Also, to clone the incoming object type arguments
-  if (isDefined(payload.groupId)) {
-    payload.groupId = tryStringify(payload.groupId);
-  } else {
-    payload.groupId = undefined;
-  }
+  payload.groupId = tryStringify(payload.groupId);
 
   if (isObjectLiteralAndNotNull(payload.traits)) {
     payload.traits = clone(payload.traits);
