@@ -70,7 +70,7 @@ describe('xPixel page', () => {
 describe('XPixel Track event', () => {
   let xPixel;
   beforeEach(() => {});
-  test('Testing Track Simple Event', () => {
+  test('Testing Track Simple Event with contents build properties.products', () => {
     xPixel = new XPixel(basicConfig, { loglevel: 'DEBUG' }, destinationInfo);
     xPixel.init();
     window.twq = jest.fn();
@@ -89,7 +89,7 @@ describe('XPixel Track event', () => {
               customPropProd: 'testPropProd',
               product_id: 'abc',
               category: 'Merch',
-              name: 'Food/Drink',
+              name: 'Food',
               brand: '',
               variant: 'Extra topped',
               price: 3.0,
@@ -113,7 +113,7 @@ describe('XPixel Track event', () => {
           {
             content_type: 'product',
             content_id: 'abc',
-            content_name: 'Food/Drink',
+            content_name: 'Food',
             price: 3,
             num_items: 2,
           },
@@ -122,10 +122,10 @@ describe('XPixel Track event', () => {
     ]);
   });
 
-  test('Testing Track product_added with no content_type in payload', () => {
+  test('Testing Track product_added with contents', () => {
     xPixel = new XPixel(basicConfig, { loglevel: 'DEBUG' });
     xPixel.init();
-    window.twq.track = jest.fn();
+    window.twq = jest.fn();
     xPixel.track({
       message: {
         context: {},
@@ -136,24 +136,34 @@ describe('XPixel Track event', () => {
           order_id: 'transactionId',
           value: 35.0,
           currency: 'GBP',
-          products: [
-            {
-              customPropProd: 'testPropProd',
-              product_id: 'abc',
-              category: 'Merch',
-              name: 'Food',
-              price: 3.0,
-              quantity: 2,
-              currency: 'GBP',
-              position: 1,
-              value: 6.0,
-              typeOfProduct: 'Food',
-            },
-          ],
+          contents: {
+            content_type: 'product',
+            content_id: 'abc',
+            content_name: 'Food/Drink',
+            price: 3,
+            num_items: 2,
+          },
         },
       },
     });
-    expect(window.twq.mock.calls[0]).toEqual(['config', '12567839']);
+    expect(window.twq.mock.calls[0]).toEqual([
+      'event',
+      '789',
+      {
+        currency: 'GBP',
+        value: 35,
+        event_id: 'purchaseId',
+        contents: [
+          {
+            content_type: 'product',
+            content_id: 'abc',
+            content_name: 'Food/Drink',
+            price: 3,
+            num_items: 2,
+          },
+        ],
+      },
+    ]);
   });
 
   test('Test for empty properties', () => {

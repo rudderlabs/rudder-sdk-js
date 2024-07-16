@@ -32,9 +32,7 @@ const getTrackResponse = message => {
 
   if (message.properties?.products && (!properties || (properties && !properties?.contents))) {
     // retreiving data from products only when contents is not present
-    if (!properties) {
-      properties = {};
-    }
+
     properties = {
       ...properties,
       contents: getContents(message),
