@@ -15,8 +15,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -28,11 +26,10 @@ jobs:
         uses: rudderlabs/github-action-check-size-limit@v2.10.0
         env:
           HUSKY: 0
-          BASE_REF: ${{ github.event.pull_request.base.sha }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           install_script: setup:ci
-          build_script: check:size:build:ci
+          build_script: check:size:build
           clean_script: clean
           script: npm run check:size:json:ci --silent -- --output-style=static --silent=true --exclude=@rudderstack/analytics-js-sanity-suite
           is_monorepo: true
