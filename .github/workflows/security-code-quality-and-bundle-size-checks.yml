@@ -31,7 +31,7 @@ jobs:
           install_script: setup:ci
           build_script: check:size:build
           clean_script: clean
-          script: npm run check:size:json:ci --silent -- --output-style=static --silent=true --exclude=@rudderstack/analytics-js-sanity-suite,@rudderstack/analytics-js-loading-scripts
+          script: npm run check:size:json:ci --silent -- --output-style=static --silent=true --exclude=@rudderstack/analytics-js-sanity-suite
           is_monorepo: true
 
   security-code-quality-checks:

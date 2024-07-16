@@ -288,7 +288,7 @@ const aliasArgumentsToCallOptions = (
   callback?: ApiCallback,
 ): AliasCallOptions => {
   const payload: AliasCallOptions = {
-    to: to,
+    to,
     from: from as string,
     options: options as Nullable<ApiOptions>,
     callback: undefined,

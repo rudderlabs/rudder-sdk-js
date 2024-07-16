@@ -14,6 +14,7 @@ import htmlTemplate from 'rollup-plugin-generate-html-template';
 import typescript from 'rollup-plugin-typescript2';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
 import alias from "@rollup/plugin-alias";
+import del from "rollup-plugin-delete";
 import * as dotenv from 'dotenv';
 import { DEFAULT_EXTENSIONS } from '@babel/core';
 
@@ -85,6 +86,7 @@ export function getDefaultConfig(distName) {
           }
         ]
       }),
+      del({ hook: "buildEnd", targets: "./dist/dts" }),
       nodePolyfills(),
       resolve({
         jsnext: true,
@@ -125,7 +127,6 @@ export function getDefaultConfig(distName) {
           brotliSize: true,
         }),
       filesize({
-        showBeforeSizes: 'build',
         showBrotliSize: true,
       }),
       isLocalServerEnabled &&

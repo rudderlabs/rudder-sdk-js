@@ -12,6 +12,7 @@ import typescript from 'rollup-plugin-typescript2';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
 import { DEFAULT_EXTENSIONS } from '@babel/core';
 import alias from '@rollup/plugin-alias';
+import del from 'rollup-plugin-delete';
 import * as dotenv from 'dotenv';
 import pkg from './package.json' assert { type: 'json' };
 
@@ -32,14 +33,8 @@ const modName = `${process.env.INTG_NAME}${INTG_SUFFIX}`;
 export function getOutputFilePath(dirPath, distName) {
   const fileNamePrefix = `${distName}`;
   const fileNameSuffix = process.env.PROD_DEBUG === 'inline' ? '-map' : '';
-  let outFilePath = '';
-
-  if (process.env.ENV === 'prod') {
-    outFilePath = `${dirPath}/${fileNamePrefix}${fileNameSuffix}.min.js`;
-  } else {
-    outFilePath = `${dirPath}/${fileNamePrefix}.js`;
-  }
-  return outFilePath;
+  const fileExtension = process.env.ENV === 'prod' ? 'min.js' : 'js';
+  return `${dirPath}/${fileNamePrefix}${fileNameSuffix}.${fileExtension}`;
 }
 
 export function getDefaultConfig(distName, moduleType = 'cdn') {
@@ -78,6 +73,7 @@ export function getDefaultConfig(distName, moduleType = 'cdn') {
           }
         ]
       }),
+      del({ hook: "buildEnd", targets: "./dist/dts" }),
       nodePolyfills(),
       resolve({
         jsnext: true,
@@ -110,7 +106,6 @@ export function getDefaultConfig(distName, moduleType = 'cdn') {
           },
         }),
       filesize({
-        showBeforeSizes: 'build',
         showBrotliSize: true,
       }),
       process.env.VISUALIZER === 'true' &&
@@ -138,13 +133,15 @@ const outputFiles = [
   },
 ];
 
-const buildConfig = {
-  ...getDefaultConfig(distName),
+const buildConfig = () => {
+  return {
+    ...getDefaultConfig(distName),
+  };
 };
 
 export default [
   {
-    ...buildConfig,
+    ...buildConfig(),
     input: `src/integrations/${process.env.INTG_NAME}/index.js`,
     output: outputFiles,
   },
