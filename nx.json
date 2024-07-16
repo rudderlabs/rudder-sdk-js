@@ -73,6 +73,23 @@
     "check:pub": {
       "inputs": ["{projectRoot}/package.json"],
       "cache": true
+    },
+    "test:pre-commit:affected": {
+      "inputs": ["default", "^test"],
+      "cache": true
+    },
+    "check:size:build:pre-commit:affected": {
+      "inputs": ["default", "^production"],
+      "cache": true
+    },
+    "check:size:json:pre-commit:affected": {
+      "inputs": [
+        "default",
+        "^production",
+        "{projectRoot}/.size-limit.js",
+        "{projectRoot}/.size-limit.mjs"
+      ],
+      "cache": true
     }
   },
   "generators": {
