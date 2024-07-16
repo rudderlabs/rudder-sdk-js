@@ -44,17 +44,21 @@ class XPixel {
       return;
     }
     const properties = getTrackResponse(rudderElement.message);
-    const standardEventsMap = getHashFromArrayWithDuplicate(this.eventsToStandard);
+    const standardEventsMap = getHashFromArrayWithDuplicate(this.eventToEventIdMap);
     const eventIds = standardEventsMap[event?.toLowerCase()];
-    eventIds.forEach(eventId => {
-      window.twq('event', eventId, properties);
-    });
+    if (Array.isArray(eventIds)) {
+      eventIds.forEach(eventId => {
+        window.twq('event', eventId, properties);
+      });
+    } else {
+      logger.error(`Event name (${event}) is not valid, must be mapped to atleast one Event ID`);
+    }
   }
 
   page(rudderElement) {
     const event = 'Page View';
     const properties = getTrackResponse(rudderElement.message);
-    const standardEventsMap = getHashFromArrayWithDuplicate(this.eventsToStandard);
+    const standardEventsMap = getHashFromArrayWithDuplicate(this.eventToEventIdMap);
     const eventIds = standardEventsMap[event?.toLowerCase()];
     eventIds.forEach(eventId => {
       window.twq('event', eventId, properties);
