@@ -63,7 +63,7 @@
     "build:browser:bundle-size": "VISUALIZER=true npm run build:browser",
     "build:browser:modern:bundle-size": "VISUALIZER=true npm run build:browser:modern",
     "build:npm:dev": "rollup --config rollup-configs/rollup.sdk.npm.mjs --environment VERSION:$npm_package_version,NPM",
-    "package": "cd dist/npm && npm pack --pack-destination ../../",
+    "package": "npm pack",
     "release": "npm publish"
   },
   "keywords": [

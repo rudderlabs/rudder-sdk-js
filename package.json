@@ -19,7 +19,7 @@
     "build:browser:modern": "nx run-many -t build:browser:modern",
     "build:package": "nx run-many -t build:package",
     "build:package:modern": "nx run-many -t build:package:modern",
-    "package": "nx run-many -t pack",
+    "package": "nx run-many -t package",
     "test": "nx run-many -t test",
     "test:ci": "nx run-many -t test --configuration=ci --runInBand --maxWorkers=1 --forceExit",
     "check:lint:ci": "nx run-many -t check:lint:ci --verbose",

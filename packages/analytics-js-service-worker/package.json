@@ -85,7 +85,7 @@
     "check:duplicates": "jscpd src",
     "check:security": "npm audit --recursive --audit-level=high",
     "check:pub": "npx publint",
-    "package": "cd dist/npm && npm pack --pack-destination ../../",
+    "package": "npm pack",
     "release": "npm publish"
   },
   "dependencies": {
