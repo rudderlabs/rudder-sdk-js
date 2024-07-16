@@ -26,10 +26,11 @@ jobs:
         uses: rudderlabs/github-action-check-size-limit@v2.10.0
         env:
           HUSKY: 0
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           install_script: setup:ci
-          build_script: check:size:build
+          build_script: check:size:build:ci
           clean_script: clean
           script: npm run check:size:json:ci --silent -- --output-style=static --silent=true --exclude=@rudderstack/analytics-js-sanity-suite
           is_monorepo: true
@@ -59,13 +60,17 @@ jobs:
           npm run check:duplicates
 
       - name: Build the project
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
         run: |
-          npm run build
-          npm run build:modern
+          npm run build:ci
+          npm run build:modern:ci
 
       - name: Execute package linting checks
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
         run: |
-          npm run check:pub
+          npm run check:pub:ci
 
       - name: Execute security checks
         run: |
