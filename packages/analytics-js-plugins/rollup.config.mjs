@@ -108,12 +108,12 @@ export function getDefaultConfig(distName) {
         sourcemap: sourceMapType,
       }),
       isCDNPackageBuild &&
-      federation({
-        name: modName,
-        filename: remotePluginsExportsFilename,
-        exposes: pluginsMap,
-        remoteType: 'promise',
-      }),
+        federation({
+          name: modName,
+          filename: remotePluginsExportsFilename,
+          exposes: pluginsMap,
+          remoteType: 'promise',
+        }),
       process.env.UGLIFY === 'true' &&
         terser({
           safari10: isLegacyBuild,
@@ -178,7 +178,7 @@ const outputFilesNpm = [
     generatedCode: {
       preset: isLegacyBuild ? 'es5' : 'es2015',
     },
-  }
+  },
 ];
 
 const outputFilesCdn = [
