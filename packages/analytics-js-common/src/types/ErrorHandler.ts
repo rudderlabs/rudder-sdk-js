@@ -2,6 +2,7 @@ import type { IPluginEngine } from './PluginEngine';
 import type { ILogger } from './Logger';
 import type { BufferQueue } from '../services/BufferQueue/BufferQueue';
 import type { IHttpClient } from './HttpClient';
+import type { IExternalSrcLoader } from '../services/ExternalSrcLoader/types';
 
 export type SDKError = unknown | Error | ErrorEvent | Event | PromiseRejectionEvent;
 
@@ -9,7 +10,7 @@ export interface IErrorHandler {
   logger?: ILogger;
   pluginEngine?: IPluginEngine;
   errorBuffer: BufferQueue<PreLoadErrorData>;
-  init(httpClient?: IHttpClient): void;
+  init(httpClient: IHttpClient, externalSrcLoader: IExternalSrcLoader): void;
   onError(
     error: SDKError,
     context?: string,

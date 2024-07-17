@@ -28,6 +28,22 @@ describe('Plugin - ErrorReporting', () => {
 
   let state: any;
 
+  // Deprecated code
+  const mockPluginEngine = {
+    invokeSingle: jest.fn(() => Promise.resolve()),
+  };
+  const mockExtSrcLoader = {
+    loadJSFile: jest.fn(() => Promise.resolve()),
+  };
+  const mockLogger = {
+    error: jest.fn(),
+  };
+  const mockErrReportingProviderClient = {
+    notify: jest.fn(),
+    leaveBreadcrumb: jest.fn(),
+  };
+  // End of deprecated code
+
   beforeEach(() => {
     state = clone(originalState);
   });

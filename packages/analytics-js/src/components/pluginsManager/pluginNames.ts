@@ -10,6 +10,7 @@ const localPluginNames: PluginName[] = [];
  */
 const pluginNamesList: PluginName[] = [
   'BeaconQueue',
+  'Bugsnag', // deprecated
   'CustomConsentManager',
   'DeviceModeDestinations',
   'DeviceModeTransformation',

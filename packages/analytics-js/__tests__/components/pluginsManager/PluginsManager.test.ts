@@ -64,7 +64,7 @@ describe('PluginsManager', () => {
       state.reporting.isErrorReportingEnabled.value = true;
 
       expect(pluginsManager.getPluginsToLoadBasedOnConfig().sort()).toEqual(
-        ['ErrorReporting', 'ExternalAnonymousId', 'GoogleLinker'].sort(),
+        ['ErrorReporting', 'Bugsnag', 'ExternalAnonymousId', 'GoogleLinker'].sort(),
       );
     });
 
@@ -77,7 +77,7 @@ describe('PluginsManager', () => {
       // Expect a warning for user not explicitly configuring it
       expect(defaultLogger.warn).toHaveBeenCalledTimes(1);
       expect(defaultLogger.warn).toHaveBeenCalledWith(
-        "PluginsManager:: Error reporting is enabled, but 'ErrorReporting' plugin was not configured to load. Ignore if this was intentional. Otherwise, consider adding it to the 'plugins' load API option.",
+        "PluginsManager:: Error reporting is enabled, but ['ErrorReporting', 'Bugsnag'] plugins were not configured to load. Ignore if this was intentional. Otherwise, consider adding them to the 'plugins' load API option.",
       );
     });
 

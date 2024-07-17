@@ -22,6 +22,7 @@ import {
 } from './utils';
 import { REQUEST_TIMEOUT_MS } from './constants';
 import { ErrorFormat } from './event/event';
+import { INVALID_SOURCE_CONFIG_ERROR } from './logMessages';
 
 const pluginName: PluginName = 'ErrorReporting';
 
@@ -31,17 +32,33 @@ const ErrorReporting = (): ExtensionPlugin => ({
   initialize: (state: ApplicationState) => {
     state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
     state.reporting.isErrorReportingPluginLoaded.value = true;
-    state.reporting.breadcrumbs.value = [createNewBreadcrumb('Error Reporting Plugin Loaded')];
+    if (state.reporting.breadcrumbs?.value) {
+      state.reporting.breadcrumbs.value = [createNewBreadcrumb('Error Reporting Plugin Loaded')];
+    }
   },
   errorReporting: {
+    // This extension point is deprecated
+    // TODO: Remove this in the next major release
     init: (
       state: ApplicationState,
       pluginEngine: IPluginEngine,
       externalSrcLoader: IExternalSrcLoader,
       logger?: ILogger,
+      flag?: boolean,
     ) => {
-      // This extension point is deprecated
-      // TODO: Remove this in the next major release
+      if (flag) {
+        return undefined;
+      }
+      if (!state.source.value?.config || !state.source.value?.id) {
+        return Promise.reject(new Error(INVALID_SOURCE_CONFIG_ERROR));
+      }
+
+      return pluginEngine.invokeSingle(
+        'errorReportingProvider.init',
+        state,
+        externalSrcLoader,
+        logger,
+      );
     },
     notify: (
       pluginEngine: IPluginEngine, // Only kept for backward compatibility
@@ -52,42 +69,46 @@ const ErrorReporting = (): ExtensionPlugin => ({
       httpClient?: IHttpClient,
       errorState?: ErrorState,
     ): void => {
-      const { component, tolerateNonErrors, errorFramesToSkip, normalizedError } =
-        getConfigForPayloadCreation(error, errorState?.severityReason.type as string);
+      if (httpClient) {
+        const { component, tolerateNonErrors, errorFramesToSkip, normalizedError } =
+          getConfigForPayloadCreation(error, errorState?.severityReason.type as string);
 
-      // Generate the error payload
-      const errorPayload = ErrorFormat.create(
-        normalizedError,
-        tolerateNonErrors,
-        errorState as ErrorState,
-        component,
-        errorFramesToSkip,
-        logger,
-      );
+        // Generate the error payload
+        const errorPayload = ErrorFormat.create(
+          normalizedError,
+          tolerateNonErrors,
+          errorState as ErrorState,
+          component,
+          errorFramesToSkip,
+          logger,
+        );
 
-      // filter errors
-      if (!isRudderSDKError(errorPayload.errors[0])) {
-        return;
+        // filter errors
+        if (!isRudderSDKError(errorPayload.errors[0])) {
+          return;
+        }
+
+        // enrich error payload
+        const bugsnagPayload = getBugsnagErrorEvent(errorPayload, errorState as ErrorState, state);
+
+        // send it to metrics service
+        httpClient?.getAsyncData({
+          url: `https://sdk-metrics.rudderstack.com/sdkmetrics`,
+          // url: `${state.lifecycle.dataPlaneUrl.value}/sdk-metrics`,
+          options: {
+            method: 'POST',
+            data: getErrorDeliveryPayload(bugsnagPayload, state),
+            sendRawData: true,
+          },
+          isRawResponse: true,
+          timeout: REQUEST_TIMEOUT_MS,
+          callback: (result: any, details: any) => {
+            // do nothing
+          },
+        });
+      } else {
+        pluginEngine.invokeSingle('errorReportingProvider.notify', client, error, state, logger);
       }
-
-      // enrich error payload
-      const bugsnagPayload = getBugsnagErrorEvent(errorPayload, errorState as ErrorState, state);
-
-      // send it to metrics service
-      httpClient?.getAsyncData({
-        url: `https://sdk-metrics.rudderstack.com/sdkmetrics`,
-        // url: `${state.lifecycle.dataPlaneUrl.value}/sdk-metrics`,
-        options: {
-          method: 'POST',
-          data: getErrorDeliveryPayload(bugsnagPayload, state),
-          sendRawData: true,
-        },
-        isRawResponse: true,
-        timeout: REQUEST_TIMEOUT_MS,
-        callback: (result: any, details: any) => {
-          // do nothing
-        },
-      });
     },
     breadcrumb: (
       pluginEngine: IPluginEngine, // Only kept for backward compatibility
@@ -105,6 +126,8 @@ const ErrorReporting = (): ExtensionPlugin => ({
           ...state.reporting.breadcrumbs.value,
           createNewBreadcrumb(message, metaData),
         ];
+      } else {
+        pluginEngine.invokeSingle('errorReportingProvider.breadcrumb', client, message, logger);
       }
     },
   },

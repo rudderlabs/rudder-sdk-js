@@ -44,11 +44,13 @@ const remotePluginsExportsFilename = `rsa-plugins`;
 const remotePluginsHostPromise = `Promise.resolve(window.RudderStackGlobals && window.RudderStackGlobals.app && window.RudderStackGlobals.app.pluginsCDNPath ? \`\${window.RudderStackGlobals.app.pluginsCDNPath}/${remotePluginsExportsFilename}.js\` : \`${remotePluginsBasePath}/${remotePluginsExportsFilename}.js\`)`;
 const moduleType = process.env.MODULE_TYPE || 'cdn';
 const isCDNPackageBuild = moduleType === 'cdn';
+let bugsnagSDKUrl = 'https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js';
 let polyfillIoUrl = 'https://polyfill-fastly.io/v3/polyfill.min.js';
 
 // For Chrome extension as content script any references in code to third party URLs
 // throw violations at approval phase even if relevant code is not used
 if (isContentScriptBuild) {
+  bugsnagSDKUrl = '';
   polyfillIoUrl = '';
 }
 
@@ -77,6 +79,10 @@ const getExternalsConfig = () => {
   if (isDynamicCustomBuild) {
     if (!bundledPluginsList.includes('BeaconQueue')) {
       externalGlobalsConfig['@rudderstack/analytics-js-plugins/beaconQueue'] = '{}';
+    }
+
+    if (!bundledPluginsList.includes('Bugsnag')) {
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/bugsnag'] = '{}';
     }
 
     if (!bundledPluginsList.includes('CustomConsentManager')) {
@@ -182,6 +188,9 @@ export function getDefaultConfig(distName) {
         __MODULE_TYPE__: moduleType,
         __SDK_BUNDLE_FILENAME__: distName,
         __RS_POLYFILLIO_SDK_URL__: polyfillIoUrl,
+        __RS_BUGSNAG_API_KEY__: process.env.BUGSNAG_API_KEY || '{{__RS_BUGSNAG_API_KEY__}}',
+        __RS_BUGSNAG_RELEASE_STAGE__: process.env.BUGSNAG_RELEASE_STAGE || 'production',
+        __RS_BUGSNAG_SDK_URL__: bugsnagSDKUrl,
       }),
       resolve({
         jsnext: true,

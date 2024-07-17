@@ -13,7 +13,11 @@ import { ERROR_HANDLER } from '@rudderstack/analytics-js-common/constants/logger
 import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constants/logMessages';
 import { BufferQueue } from '@rudderstack/analytics-js-common/services/BufferQueue/BufferQueue';
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
-import { NOTIFY_FAILURE_ERROR } from '../../constants/logMessages';
+import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
+import {
+  NOTIFY_FAILURE_ERROR,
+  REPORTING_PLUGIN_INIT_FAILURE_ERROR,
+} from '../../constants/logMessages';
 import { state } from '../../state';
 import { defaultPluginEngine } from '../PluginEngine';
 import { defaultLogger } from '../Logger';
@@ -72,8 +76,36 @@ class ErrorHandler implements IErrorHandler {
     }
   }
 
-  init(httpClient?: IHttpClient) {
+  init(httpClient: IHttpClient, externalSrcLoader: IExternalSrcLoader) {
     this.httpClient = httpClient;
+    // Below lines are only kept for backward compatibility
+    // TODO: Remove this in the next major release
+    if (!this.pluginEngine) {
+      return;
+    }
+
+    try {
+      const extPoint = 'errorReporting.init';
+      const errReportingInitVal = this.pluginEngine.invokeSingle(
+        extPoint,
+        state,
+        this.pluginEngine,
+        externalSrcLoader,
+        this.logger,
+        true,
+      );
+      if (errReportingInitVal instanceof Promise) {
+        errReportingInitVal
+          .then((client: any) => {
+            this.errReportingClient = client;
+          })
+          .catch(err => {
+            this.logger?.error(REPORTING_PLUGIN_INIT_FAILURE_ERROR(ERROR_HANDLER), err);
+          });
+      }
+    } catch (err) {
+      this.onError(err, ERROR_HANDLER);
+    }
   }
 
   onError(
@@ -156,7 +188,7 @@ class ErrorHandler implements IErrorHandler {
         this.pluginEngine.invokeSingle(
           'errorReporting.breadcrumb',
           this.pluginEngine, // deprecated parameter
-          undefined, // deprecated parameter
+          this.errReportingClient, // deprecated parameter
           breadcrumb,
           this.logger,
           state,
@@ -178,7 +210,7 @@ class ErrorHandler implements IErrorHandler {
         this.pluginEngine?.invokeSingle(
           'errorReporting.notify',
           this.pluginEngine, // deprecated parameter
-          undefined, // deprecated parameter
+          this.errReportingClient, // deprecated parameter
           error,
           state,
           this.logger,
