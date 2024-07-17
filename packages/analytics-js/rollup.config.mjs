@@ -239,7 +239,6 @@ export function getDefaultConfig(distName) {
           },
         }),
       filesize({
-        showBeforeSizes: 'build',
         showBrotliSize: true,
       }),
       process.env.VISUALIZER === 'true' &&

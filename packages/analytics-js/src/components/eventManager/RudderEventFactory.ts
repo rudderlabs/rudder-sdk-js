@@ -20,16 +20,12 @@ class RudderEventFactory {
    * @param options API options
    */
   generatePageEvent(
-    category?: Nullable<string>,
-    name?: Nullable<string>,
+    category?: string,
+    name?: string,
     properties?: Nullable<ApiObject>,
     options?: Nullable<ApiOptions>,
   ): RudderEvent {
     let props = properties ?? {};
-
-    props.name = name;
-    props.category = category;
-
     props = getUpdatedPageProperties(props, options);
 
     const pageEvent: Partial<RudderEvent> = {
@@ -90,11 +86,7 @@ class RudderEventFactory {
    * @param from Old user ID
    * @param options API options
    */
-  generateAliasEvent(
-    to: Nullable<string>,
-    from?: string,
-    options?: Nullable<ApiOptions>,
-  ): RudderEvent {
+  generateAliasEvent(to: string, from?: string, options?: Nullable<ApiOptions>): RudderEvent {
     const aliasEvent: Partial<RudderEvent> = {
       previousId: from,
       type: 'alias',
@@ -155,7 +147,7 @@ class RudderEventFactory {
         eventObj = this.generateIdentifyEvent(event.userId, event.traits, event.options);
         break;
       case 'alias':
-        eventObj = this.generateAliasEvent(event.to as Nullable<string>, event.from, event.options);
+        eventObj = this.generateAliasEvent(event.to as string, event.from, event.options);
         break;
       case 'group':
         eventObj = this.generateGroupEvent(event.groupId, event.traits, event.options);

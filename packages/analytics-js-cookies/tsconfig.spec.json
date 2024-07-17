@@ -19,6 +19,7 @@
     "__fixtures__/**/*.ts",
     "src/**/*.ts",
     "src/**/*.d.ts",
+    "../../types/**/*",
     "./package.json",
     "../analytics-js-common/src/**/*"
   ]

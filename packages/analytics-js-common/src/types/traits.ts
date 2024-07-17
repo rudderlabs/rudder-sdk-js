@@ -64,7 +64,6 @@ export type IdentifyTraits = {
   prospect?: string | boolean;
   doubleOptin?: string | boolean;
   event_id?: string;
-  constructor?: Record<string, string>;
   organization?: string;
   region?: string;
   anonymous?: string | boolean;
@@ -86,6 +85,7 @@ export type IdentifyTraits = {
     | boolean
     | ApiObject
     | null
-    | (string | number | boolean | null | ApiObject)[]
+    | Date
+    | (string | number | boolean | null | Date | ApiObject)[]
     | undefined;
 };

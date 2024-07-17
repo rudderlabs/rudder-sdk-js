@@ -37,27 +37,23 @@
       "inputs": ["default", "^production"],
       "cache": true
     },
-    "build-browser": {
+    "build:modern": {
       "inputs": ["default", "^production"],
       "cache": true
     },
-    "build-browser-modern": {
+    "build:browser": {
       "inputs": ["default", "^production"],
       "cache": true
     },
-    "build-npm": {
+    "build:browser:modern": {
       "inputs": ["default", "^production"],
       "cache": true
     },
-    "build-npm-modern": {
+    "build:package": {
       "inputs": ["default", "^production"],
       "cache": true
     },
-    "build-package": {
-      "inputs": ["default", "^production"],
-      "cache": true
-    },
-    "build-check-size": {
+    "build:package:modern": {
       "inputs": ["default", "^production"],
       "cache": true
     },
@@ -66,11 +62,33 @@
       "cache": true
     },
     "check:size:json": {
-      "inputs": ["default", "^production", "{projectRoot}/.size-limit.js"],
+      "inputs": [
+        "default",
+        "^production",
+        "{projectRoot}/.size-limit.js",
+        "{projectRoot}/.size-limit.mjs"
+      ],
       "cache": true
     },
     "check:pub": {
       "inputs": ["{projectRoot}/package.json"],
+      "cache": true
+    },
+    "test:pre-commit:affected": {
+      "inputs": ["default", "^test"],
+      "cache": true
+    },
+    "check:size:build:pre-commit:affected": {
+      "inputs": ["default", "^production"],
+      "cache": true
+    },
+    "check:size:json:pre-commit:affected": {
+      "inputs": [
+        "default",
+        "^production",
+        "{projectRoot}/.size-limit.js",
+        "{projectRoot}/.size-limit.mjs"
+      ],
       "cache": true
     }
   },
@@ -95,6 +113,7 @@
       "!{projectRoot}/**/*.txt",
       "!{projectRoot}/serve.json",
       "!{projectRoot}/.size-limit.js",
+      "!{projectRoot}/.size-limit.mjs",
       "!{projectRoot}/.jscpd.json",
       "{workspaceRoot}/tsconfig.build.json",
       "{workspaceRoot}/tsconfig.json",

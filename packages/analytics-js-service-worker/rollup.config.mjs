@@ -19,9 +19,12 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
+const isLegacyBuild = process.env.BROWSERSLIST_ENV !== 'modern';
+const variantSubfolder = isLegacyBuild ? '/legacy' : '/modern';
 const sourceMapType =
   process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
-const outDir = `dist/npm`;
+const outDirNpmRoot = `dist/npm`;
+const outDir = `${outDirNpmRoot}${variantSubfolder}`;
 const distName = 'index';
 const modName = 'rudderServiceWorker';
 
@@ -75,8 +78,8 @@ export function getDefaultConfig(distName) {
       }),
       process.env.UGLIFY === 'true' &&
       terser({
-        safari10: false,
-        ecma: 2017,
+        safari10: isLegacyBuild,
+        ecma: isLegacyBuild ? 2015 : 2017,
         format: {
           comments: false,
         },
@@ -87,7 +90,6 @@ export function getDefaultConfig(distName) {
         ],
       }),
       filesize({
-        showBeforeSizes: 'build',
         showBrotliSize: true,
       }),
       process.env.VISUALIZER === 'true' &&
@@ -111,7 +113,7 @@ const outputFilesNpm = [
     name: modName,
     sourcemap: sourceMapType,
     generatedCode: {
-      preset: 'es5',
+      preset: isLegacyBuild ? 'es5' : 'es2015',
     }
   },
   {
@@ -121,7 +123,7 @@ const outputFilesNpm = [
     name: modName,
     sourcemap: sourceMapType,
     generatedCode: {
-      preset: 'es5',
+      preset: isLegacyBuild ? 'es5' : 'es2015',
     }
   },
   {
@@ -131,7 +133,7 @@ const outputFilesNpm = [
     name: modName,
     sourcemap: sourceMapType,
     generatedCode: {
-      preset: 'es5',
+      preset: isLegacyBuild ? 'es5' : 'es2015',
     }
   },
 ];
@@ -162,11 +164,11 @@ const buildEntries = [
     ],
     output: [
       {
-        file: `${outDir}/index.d.mts`,
+        file: `${outDirNpmRoot}/index.d.mts`,
         format: 'es',
       },
       {
-        file: `${outDir}/index.d.cts`,
+        file: `${outDirNpmRoot}/index.d.cts`,
         format: 'es',
       }
     ]

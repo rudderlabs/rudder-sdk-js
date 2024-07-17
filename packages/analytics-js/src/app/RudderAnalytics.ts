@@ -173,6 +173,36 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   /**
    * Process page arguments and forward to page call
    */
+  // These overloads should be same as AnalyticsPageMethod in @rudderstack/analytics-js-common/types/IRudderAnalytics
+  page(
+    category: string,
+    name: string,
+    properties?: Nullable<ApiObject>,
+    options?: Nullable<ApiOptions>,
+    callback?: ApiCallback,
+  ): void;
+  page(
+    category: string,
+    name: string,
+    properties?: Nullable<ApiObject>,
+    callback?: ApiCallback,
+  ): void;
+  page(category: string, name: string, callback?: ApiCallback): void;
+  page(
+    name: string,
+    properties?: Nullable<ApiObject>,
+    options?: Nullable<ApiOptions>,
+    callback?: ApiCallback,
+  ): void;
+  page(name: string, properties?: Nullable<ApiObject>, callback?: ApiCallback): void;
+  page(name: string, callback?: ApiCallback): void;
+  page(
+    properties: Nullable<ApiObject>,
+    options?: Nullable<ApiOptions>,
+    callback?: ApiCallback,
+  ): void;
+  page(properties: Nullable<ApiObject>, callback?: ApiCallback): void;
+  page(callback?: ApiCallback): void;
   page(
     category?: string | Nullable<ApiObject> | ApiCallback,
     name?: string | Nullable<ApiOptions> | Nullable<ApiObject> | ApiCallback,
@@ -188,6 +218,15 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   /**
    * Process track arguments and forward to page call
    */
+  // These overloads should be same as AnalyticsTrackMethod in @rudderstack/analytics-js-common/types/IRudderAnalytics
+  track(
+    event: string,
+    properties?: Nullable<ApiObject>,
+    options?: Nullable<ApiOptions>,
+    callback?: ApiCallback,
+  ): void;
+  track(event: string, properties?: Nullable<ApiObject>, callback?: ApiCallback): void;
+  track(event: string, callback?: ApiCallback): void;
   track(
     event: string,
     properties?: Nullable<ApiObject> | ApiCallback,
@@ -202,8 +241,23 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   /**
    * Process identify arguments and forward to page call
    */
+  // These overloads should be same as AnalyticsIdentifyMethod in @rudderstack/analytics-js-common/types/IRudderAnalytics
   identify(
-    userId?: string | number | Nullable<IdentifyTraits>,
+    userId: string,
+    traits?: Nullable<IdentifyTraits>,
+    options?: Nullable<ApiOptions>,
+    callback?: ApiCallback,
+  ): void;
+  identify(userId: string, traits?: Nullable<IdentifyTraits>, callback?: ApiCallback): void;
+  identify(userId: string, callback?: ApiCallback): void;
+  identify(
+    traits: Nullable<IdentifyTraits>,
+    options?: Nullable<ApiOptions>,
+    callback?: ApiCallback,
+  ): void;
+  identify(traits: Nullable<IdentifyTraits>, callback?: ApiCallback): void;
+  identify(
+    userId: string | number | Nullable<IdentifyTraits>,
     traits?: Nullable<IdentifyTraits> | Nullable<ApiOptions> | ApiCallback,
     options?: Nullable<ApiOptions> | ApiCallback,
     callback?: ApiCallback,
@@ -216,8 +270,13 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   /**
    * Process alias arguments and forward to page call
    */
+  // These overloads should be same as AnalyticsAliasMethod in @rudderstack/analytics-js-common/types/IRudderAnalytics
+  alias(to: string, from?: string, options?: Nullable<ApiOptions>, callback?: ApiCallback): void;
+  alias(to: string, from?: string, callback?: ApiCallback): void;
+  alias(to: string, options?: Nullable<ApiOptions>, callback?: ApiCallback): void;
+  alias(to: string, callback?: ApiCallback): void;
   alias(
-    to?: Nullable<string> | ApiCallback,
+    to: string,
     from?: string | Nullable<ApiOptions> | ApiCallback,
     options?: Nullable<ApiOptions> | ApiCallback,
     callback?: ApiCallback,
@@ -228,8 +287,23 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   /**
    * Process group arguments and forward to page call
    */
+  // These overloads should be same as AnalyticsGroupMethod in @rudderstack/analytics-js-common/types/IRudderAnalytics
   group(
-    groupId: string | number | Nullable<ApiObject> | ApiCallback,
+    groupId: string,
+    traits?: Nullable<IdentifyTraits>,
+    options?: Nullable<ApiOptions>,
+    callback?: ApiCallback,
+  ): void;
+  group(groupId: string, traits?: Nullable<IdentifyTraits>, callback?: ApiCallback): void;
+  group(groupId: string, callback?: ApiCallback): void;
+  group(
+    traits: Nullable<IdentifyTraits>,
+    options?: Nullable<ApiOptions>,
+    callback?: ApiCallback,
+  ): void;
+  group(traits: Nullable<IdentifyTraits>, callback?: ApiCallback): void;
+  group(
+    groupId: string | number | Nullable<ApiObject>,
     traits?: Nullable<ApiOptions> | Nullable<ApiObject> | ApiCallback,
     options?: Nullable<ApiOptions> | ApiCallback,
     callback?: ApiCallback,

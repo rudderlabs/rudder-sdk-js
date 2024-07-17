@@ -78,7 +78,6 @@ export function getDefaultConfig(distName) {
         preventAssignment: true,
         __PACKAGE_VERSION__: version,
         __MODULE_TYPE__: moduleType,
-        __BUNDLE_ALL_PLUGINS__: isLegacyBuild,
         __RS_BUGSNAG_API_KEY__: process.env.BUGSNAG_API_KEY || '{{__RS_BUGSNAG_API_KEY__}}',
         __RS_BUGSNAG_RELEASE_STAGE__: process.env.BUGSNAG_RELEASE_STAGE || 'production',
         __RS_BUGSNAG_SDK_URL__: bugsnagSDKUrl,
@@ -108,14 +107,13 @@ export function getDefaultConfig(distName) {
         extensions: [...DEFAULT_EXTENSIONS, '.ts'],
         sourcemap: sourceMapType,
       }),
-      !isLegacyBuild &&
-        isCDNPackageBuild &&
-        federation({
-          name: modName,
-          filename: remotePluginsExportsFilename,
-          exposes: pluginsMap,
-          remoteType: 'promise',
-        }),
+      isCDNPackageBuild &&
+      federation({
+        name: modName,
+        filename: remotePluginsExportsFilename,
+        exposes: pluginsMap,
+        remoteType: 'promise',
+      }),
       process.env.UGLIFY === 'true' &&
         terser({
           safari10: isLegacyBuild,
@@ -125,7 +123,6 @@ export function getDefaultConfig(distName) {
           },
         }),
       filesize({
-        showBeforeSizes: 'build',
         showBrotliSize: true,
       }),
       process.env.VISUALIZER === 'true' &&
@@ -172,6 +169,16 @@ const outputFilesNpm = [
       preset: isLegacyBuild ? 'es5' : 'es2015',
     },
   },
+  {
+    entryFileNames: `index.js`,
+    dir: outDirNpm + '/umd',
+    format: 'umd',
+    name: modName,
+    sourcemap: sourceMapType,
+    generatedCode: {
+      preset: isLegacyBuild ? 'es5' : 'es2015',
+    },
+  }
 ];
 
 const outputFilesCdn = [
@@ -202,16 +209,6 @@ const buildConfig = () => {
 
 const buildEntries = () => {
   const outputFiles = isCDNPackageBuild ? outputFilesCdn : outputFilesNpm;
-
-  if (isCDNPackageBuild) {
-    return [
-      {
-        ...buildConfig(),
-        input: 'src/index.ts',
-        output: outputFiles,
-      },
-    ];
-  }
 
   return [
     {

@@ -1,0 +1,121 @@
+{
+  "message": {
+    "channel": "web",
+    "context": {
+      "app": {
+        "installType": "cdn",
+        "name": "RudderLabs JavaScript SDK",
+        "namespace": "com.rudderlabs.javascript",
+        "version": "2.22.2"
+      },
+      "traits": {
+        "subscribed": true,
+        "plan": "Gold",
+        "endDate": "2023-04-13T08:13:58.548Z",
+        "startDate": "2023-01-13T08:13:58.548Z"
+      },
+      "library": {
+        "name": "RudderLabs JavaScript SDK",
+        "version": "3.3.0",
+        "snippetVersion": "3.0.10"
+      },
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
+      "device": {
+        "id": "sdfghj567-cghj5678-fghjvbn888"
+      },
+      "os": {
+        "name": "",
+        "version": ""
+      },
+      "locale": "en-US",
+      "screen": {
+        "density": 2,
+        "width": 1728,
+        "height": 1117,
+        "innerWidth": 1728,
+        "innerHeight": 969
+      },
+      "sessionId": 1673747756719,
+      "campaign": {},
+      "page": {
+        "path": "/best-seller/1",
+        "referrer": "https://www.google.com/search?q=estore+bestseller",
+        "referring_domain": "localhost:3001",
+        "search": "estore bestseller",
+        "title": "The best sellers offered by EStore",
+        "url": "https://www.estore.com/best-seller/1",
+        "tab_url": "http://localhost:4000/",
+        "initial_referrer": "$direct",
+        "initial_referring_domain": ""
+      },
+      "key1": [1, 2, 3, 4],
+      "key2": "sample text",
+      "key3": false,
+      "key4": 9087654,
+      "key5": {
+        "key6": "sample text 2",
+        "key7": [
+          {
+            "color": "#3456789",
+            "name": null
+          },
+          {
+            "color": "#3456767",
+            "name": "Red"
+          }
+        ]
+      },
+      "key8": null,
+      "metaData": {
+        "appVersion": "2.8.0",
+        "appId": "1hKOmRA4GRlm",
+        "release_stage": "Production"
+      },
+      "channel": "random",
+      "consentManagement": {
+        "deniedConsentIds": ["C0002", "C0004", "C0005", "C0006"],
+        "allowedConsentIds": ["C0001", "C0003"],
+        "provider": "oneTrust",
+        "resolutionStrategy": "and"
+      },
+      "timezone": "GMT+0530"
+    },
+    "type": "page",
+    "messageId": "bb934032-05c6-4c8c-a2d8-5d1b6ed58bbf",
+    "originalTimestamp": "2023-01-13T08:13:58.548Z",
+    "anonymousId": "sample anonymousId",
+    "userId": "",
+    "event": null,
+    "properties": {
+      "initial_referrer": "$direct",
+      "initial_referring_domain": "",
+      "name": "Cart",
+      "referring_domain": "",
+      "tab_url": "http://localhost:4000/",
+      "path": "/best-seller/1",
+      "referrer": "https://www.google.com/search?q=estore+bestseller",
+      "search": "estore bestseller",
+      "title": "The best sellers offered by EStore",
+      "url": "https://www.estore.com/best-seller/1",
+      "temp": 12345,
+      "temp1": null,
+      "temp3": [1, 2, 3],
+      "temp4": {
+        "selectedType": "hard copy",
+        "typesAvailable": ["kindle edition", "audio book", "hard copy", null]
+      }
+    },
+    "integrations": {
+      "All": false,
+      "Google Analytics": true,
+      "Amplitude": true,
+      "Google Analytics 4 (GA4)": {
+        "clientId": "284269621.1683957866",
+        "sessionId": 1683957866,
+        "sessionNumber": 1
+      }
+    },
+    "name": "Cart",
+    "sentAt": "2023-01-15T02:37:59.230Z"
+  }
+}
