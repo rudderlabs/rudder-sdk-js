@@ -32,16 +32,18 @@ describe('XPixel init tests', () => {
   let xPixel;
 
   test('Testing init call of XPixel', () => {
-    xPixel = new XPixel(basicConfig, { loglevel: 'debug' }, destinationInfo);
+    xPixel = new XPixel(basicConfig, { logLevel: 'debug' }, destinationInfo);
     xPixel.init();
     expect(typeof window.twq).toBe('function');
+    const isReady = xPixel.isReady();
+    expect(isReady).toBeTruthy();
   });
 });
 
 describe('xPixel page', () => {
   let xPixel;
   beforeEach(() => {
-    xPixel = new XPixel(basicConfig, { loglevel: 'debug' });
+    xPixel = new XPixel(basicConfig, { logLevel: 'debug' });
     xPixel.init();
     window.twq = jest.fn();
   });
@@ -71,7 +73,7 @@ describe('XPixel Track event', () => {
   let xPixel;
   beforeEach(() => {});
   test('Testing Track Simple Event with contents build properties.products', () => {
-    xPixel = new XPixel(basicConfig, { loglevel: 'DEBUG' }, destinationInfo);
+    xPixel = new XPixel(basicConfig, { logLevel: 'DEBUG' }, destinationInfo);
     xPixel.init();
     window.twq = jest.fn();
     xPixel.track({
@@ -123,7 +125,7 @@ describe('XPixel Track event', () => {
   });
 
   test('Testing Track product_added with contents', () => {
-    xPixel = new XPixel(basicConfig, { loglevel: 'DEBUG' });
+    xPixel = new XPixel(basicConfig, { logLevel: 'DEBUG' });
     xPixel.init();
     window.twq = jest.fn();
     xPixel.track({
@@ -167,7 +169,7 @@ describe('XPixel Track event', () => {
   });
 
   test('Test for empty properties', () => {
-    xPixel = new XPixel(basicConfig, { loglevel: 'DEBUG' });
+    xPixel = new XPixel(basicConfig, { logLevel: 'DEBUG' });
     xPixel.init();
     window.twq.track = jest.fn();
     xPixel.track({
@@ -179,5 +181,34 @@ describe('XPixel Track event', () => {
       },
     });
     expect(window.twq.mock.calls[1]).toEqual(['event', '123', {}]);
+  });
+
+  test('Test for no Event name', () => {
+    xPixel = new XPixel(basicConfig, { logLevel: 'DEBUG' });
+    xPixel.init();
+    window.twq.track = jest.fn();
+    xPixel.track({
+      message: {
+        type: 'track',
+        context: {},
+        properties: {},
+      },
+    });
+    expect(window.twq).not.toHaveBeenCalledWith();
+  });
+
+  test('Test for no Event Id for input event', () => {
+    xPixel = new XPixel(basicConfig, { logLevel: 'DEBUG' });
+    xPixel.init();
+    window.twq.track = jest.fn();
+    xPixel.track({
+      message: {
+        type: 'track',
+        context: {},
+        event: 'addToCart',
+        properties: {},
+      },
+    });
+    expect(window.twq).not.toHaveBeenCalledWith();
   });
 });
