@@ -8,13 +8,6 @@
         "namespace": "com.rudderlabs.javascript",
         "version": "2.22.2"
       },
-      "consentManagement": {
-        "deniedConsentIds": ["C0002", "C0004", "C0005", "C0006"],
-        "allowedConsentIds": ["C0001", "C0003"],
-        "provider": "oneTrust",
-        "resolutionStrategy": "and"
-      },
-      "timezone": "GMT+0530",
       "traits": {},
       "library": {
         "name": "RudderLabs JavaScript SDK",
@@ -22,7 +15,9 @@
         "snippetVersion": "3.0.10"
       },
       "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
-      "device": null,
+      "device": {
+        "id": "sdfghj567-cghj5678-fghjvbn888"
+      },
       "os": {
         "name": "",
         "version": ""
@@ -38,38 +33,47 @@
       "sessionId": 1673747756719,
       "campaign": {},
       "page": {
-        "path": "/index.html",
-        "referrer": "http://localhost:3001/index.html",
+        "path": "/best-seller/1",
+        "referrer": "https://www.google.com/search?q=estore+bestseller",
         "referring_domain": "localhost:3001",
-        "search": "",
-        "title": "RudderStack JS SDK Sanity Suite",
-        "url": "http://localhost:3001/index.html",
-        "tab_url": "http://localhost:3001/index.html",
+        "search": "estore bestseller",
+        "title": "The best sellers offered by EStore",
+        "url": "https://www.estore.com/best-seller/1",
+        "tab_url": "http://localhost:4000/",
         "initial_referrer": "$direct",
         "initial_referring_domain": ""
-      }
+      },
+      "consentManagement": {
+        "deniedConsentIds": ["C0002", "C0004", "C0005", "C0006"],
+        "allowedConsentIds": ["C0001", "C0003"],
+        "provider": "oneTrust",
+        "resolutionStrategy": "and"
+      },
+      "timezone": "GMT+0530"
     },
-    "type": "track",
+    "type": "page",
     "messageId": "bb934032-05c6-4c8c-a2d8-5d1b6ed58bbf",
     "originalTimestamp": "2023-01-13T08:13:58.548Z",
     "anonymousId": "sample anonymousId",
     "userId": "",
-    "event": "Order Completed",
+    "event": null,
     "properties": {
-      "revenue": 30,
-      "currency": "USD",
-      "user_actual_id": 12345,
-      "productId": "234567-sdfghj-345tygh-567890dfghj",
-      "productCategory": "clothing",
-      "paid": true,
-      "paymentMode": 4,
-      "paymentModeName": "online",
-      "productSizes": ["XS", "S", "M", "L", "XL", "XXL"],
-      "sampleObj": {
-        "sampleObj1": {
-          "newKey": "sample text"
-        },
-        "newKey1": 3456789009876543
+      "initial_referrer": "$direct",
+      "initial_referring_domain": "",
+      "name": "Cart Item",
+      "referring_domain": "",
+      "tab_url": "http://localhost:4000/",
+      "path": "/best-seller/1",
+      "referrer": "https://www.google.com/search?q=estore+bestseller",
+      "search": "estore bestseller",
+      "title": "The best sellers offered by EStore",
+      "url": "https://www.estore.com/best-seller/1",
+      "temp": 12345,
+      "temp1": null,
+      "temp3": [1, 2, 3],
+      "temp4": {
+        "selectedType": "hard copy",
+        "typesAvailable": ["kindle edition", "audio book", "hard copy", null]
       }
     },
     "integrations": {

@@ -7,37 +7,38 @@ import type { IdentifyTraits } from './traits';
 
 export type AnalyticsIdentifyMethod = {
   (
-    userId?: string,
+    userId: string,
     traits?: Nullable<IdentifyTraits>,
     options?: Nullable<ApiOptions>,
     callback?: ApiCallback,
   ): void;
-  (userId: string, traits: Nullable<IdentifyTraits>, callback: ApiCallback): void;
-  (userId: string, callback: ApiCallback): void;
-  (traits: Nullable<IdentifyTraits>, options: Nullable<ApiOptions>, callback?: ApiCallback): void;
+  (userId: string, traits?: Nullable<IdentifyTraits>, callback?: ApiCallback): void;
+  (userId: string, callback?: ApiCallback): void;
+  (traits: Nullable<IdentifyTraits>, options?: Nullable<ApiOptions>, callback?: ApiCallback): void;
   (traits: Nullable<IdentifyTraits>, callback?: ApiCallback): void;
 };
 
 export type AnalyticsPageMethod = {
   (
-    category?: string,
-    name?: string,
+    category: string,
+    name: string,
     properties?: Nullable<ApiObject>,
     options?: Nullable<ApiOptions>,
     callback?: ApiCallback,
   ): void;
-  (category: string, name: string, properties: Nullable<ApiObject>, callback: ApiCallback): void;
+  (category: string, name: string, properties?: Nullable<ApiObject>, callback?: ApiCallback): void;
+  (category: string, name: string, callback?: ApiCallback): void;
   (
     name: string,
     properties?: Nullable<ApiObject>,
     options?: Nullable<ApiOptions>,
     callback?: ApiCallback,
   ): void;
-  (category: string, name: string, callback: ApiCallback): void;
-  (name: string, properties: Nullable<ApiObject>, callback: ApiCallback): void;
-  (name: string, callback: ApiCallback): void;
-  (properties: Nullable<ApiObject>, options: Nullable<ApiOptions>, callback?: ApiCallback): void;
+  (name: string, properties?: Nullable<ApiObject>, callback?: ApiCallback): void;
+  (name: string, callback?: ApiCallback): void;
+  (properties: Nullable<ApiObject>, options?: Nullable<ApiOptions>, callback?: ApiCallback): void;
   (properties: Nullable<ApiObject>, callback?: ApiCallback): void;
+  (callback?: ApiCallback): void;
 };
 
 export type AnalyticsTrackMethod = {
@@ -47,35 +48,28 @@ export type AnalyticsTrackMethod = {
     options?: Nullable<ApiOptions>,
     callback?: ApiCallback,
   ): void;
-  (event: string, properties: Nullable<ApiObject>, callback: ApiCallback): void;
-  (event: string, callback: ApiCallback): void;
+  (event: string, properties?: Nullable<ApiObject>, callback?: ApiCallback): void;
+  (event: string, callback?: ApiCallback): void;
 };
 
 export type AnalyticsGroupMethod = {
   (
-    groupId: string | number,
-    traits?: Nullable<ApiObject>,
+    groupId: string,
+    traits?: Nullable<IdentifyTraits>,
     options?: Nullable<ApiOptions>,
     callback?: ApiCallback,
   ): void;
-  (groupId: string | number, traits: Nullable<ApiObject>, callback: ApiCallback): void;
-  (groupId: string | number, callback: ApiCallback): void;
-  (traits: Nullable<ApiObject>, options: Nullable<ApiOptions>, callback?: ApiCallback): void;
-  (traits: Nullable<ApiObject>, callback?: ApiCallback): void;
+  (groupId: string, traits?: Nullable<IdentifyTraits>, callback?: ApiCallback): void;
+  (groupId: string, callback?: ApiCallback): void;
+  (traits: Nullable<IdentifyTraits>, options?: Nullable<ApiOptions>, callback?: ApiCallback): void;
+  (traits: Nullable<IdentifyTraits>, callback?: ApiCallback): void;
 };
 
 export type AnalyticsAliasMethod = {
-  (
-    to: Nullable<string>,
-    from?: string,
-    options?: Nullable<ApiOptions>,
-    callback?: ApiCallback,
-  ): void;
-  (to: Nullable<string>, from: string, callback: ApiCallback): void;
-  (to: Nullable<string>, options: Nullable<ApiOptions>, callback?: ApiCallback): void;
-  (to: Nullable<string>, callback: ApiCallback): void;
-  (to: ApiCallback): void;
-  (): void;
+  (to: string, from?: string, options?: Nullable<ApiOptions>, callback?: ApiCallback): void;
+  (to: string, from?: string, callback?: ApiCallback): void;
+  (to: string, options?: Nullable<ApiOptions>, callback?: ApiCallback): void;
+  (to: string, callback?: ApiCallback): void;
 };
 
 export interface IRudderAnalytics<T = any> {

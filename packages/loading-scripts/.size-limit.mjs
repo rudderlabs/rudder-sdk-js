@@ -2,10 +2,10 @@
  * DO NOT EDIT the size limits configured in this file.
  * Should you update them, please contact CODEOWNERS.
  */
-module.exports = [
+export default [
   {
-    name: 'Common - No bundling',
-    path: 'dist/npm/**/*.js',
-    limit: '16.5 KiB',
+    name: 'Load Snippet',
+    path: 'dist/loading-script.min.js',
+    limit: '1 KiB',
   },
 ];

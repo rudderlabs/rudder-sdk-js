@@ -5,48 +5,6 @@
   "projectType": "library",
   "tags": ["type:sdk", "scope:integrations"],
   "targets": {
-    "start": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "start"
-      }
-    },
-    "start-modern": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "start:modern"
-      }
-    },
-    "build": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build"
-      }
-    },
-    "build-browser": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:browser"
-      }
-    },
-    "build-browser-modern": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:browser:modern"
-      }
-    },
-    "build-check-size": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build"
-      }
-    },
-    "clean": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "clean"
-      }
-    },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],

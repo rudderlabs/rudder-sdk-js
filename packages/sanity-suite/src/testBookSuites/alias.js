@@ -8,12 +8,18 @@ import alias6ExpectedData from '../../__fixtures__/alias6.json';
 const aliasMethodSuite = {
   id: 'aliasMethod',
   name: 'Alias',
-  description: 'Alias Method: rudderanalytics.alias(to, from, [apiOptions], [callback]);',
+  description:
+    'Alias Method: ' +
+    'rudderanalytics.alias(to, [from], [apiOptions], [callback]);' +
+    'rudderanalytics.alias(to, [from], [callback]);' +
+    'rudderanalytics.alias(to, [apiOptions], [callback]);' +
+    'rudderanalytics.alias(to, [callback]);',
   testCases: [
     {
       id: 'alias1',
-      description: 'Call with all arguments and all primitives in traits and apiOptions',
+      description: 'rudderanalytics.alias(to, from, apiOptions)',
       inputData: [
+        [true],
         [
           'customUserID',
           {
@@ -110,83 +116,173 @@ const aliasMethodSuite = {
         ],
       ],
       expectedResult: alias1ExpectedData,
-      triggerHandler: ['identify', 'alias'],
+      triggerHandler: ['reset', 'identify', 'alias'],
     },
     {
       id: 'alias2',
-      description: 'Call with to and from as arguments',
-      inputData: ['newCustomUserID', 'customUserID'],
+      description: 'rudderanalytics.alias(to, from)',
+      inputData: [
+        [true],
+        [
+          'customUserID',
+          {
+            name: 'John Doe',
+            title: 'CEO',
+            email: 'name.surname@domain.com',
+            company: 'Company123',
+            phone: '123-456-7890',
+            rating: 'Hot',
+            dob: new Date(Date.UTC(1990, 0, 12)),
+            address: [
+              {
+                city: 'Austin',
+                postalCode: 12345,
+                country: 'US',
+                street: 'Sample Address',
+                state: 'TX',
+                label: 'Home',
+                defaultAddress: true,
+              },
+              {
+                city: 'Houston',
+                postalCode: 345678,
+                country: 'US',
+                street: 'Sample Address 2',
+                state: 'TX',
+                label: 'Office',
+                defaultAddress: false,
+              },
+              {
+                city: 'Dallas',
+                postalCode: 987654,
+                country: 'US',
+                street: 'Sample Address 3',
+                state: 'TX',
+                label: 'Toms place',
+                defaultAddress: false,
+              },
+            ],
+          },
+        ],
+        ['newCustomUserID', 'customUserID'],
+      ],
       expectedResult: alias2ExpectedData,
-      triggerHandler: 'alias',
+      triggerHandler: ['reset', 'identify', 'alias'],
     },
     {
       id: 'alias3',
-      description: 'Call with to and from and null apiOption as arguments',
-      inputData: ['newCustomUserID', 'customUserID', null],
+      description: 'rudderanalytics.alias(to, from, null)',
+      inputData: [
+        [true],
+        [
+          'customUserID',
+          {
+            name: 'John Doe',
+            title: 'CEO',
+            email: 'name.surname@domain.com',
+            company: 'Company123',
+            phone: '123-456-7890',
+            rating: 'Hot',
+            dob: new Date(Date.UTC(1990, 0, 12)),
+            address: [
+              {
+                city: 'Austin',
+                postalCode: 12345,
+                country: 'US',
+                street: 'Sample Address',
+                state: 'TX',
+                label: 'Home',
+                defaultAddress: true,
+              },
+              {
+                city: 'Houston',
+                postalCode: 345678,
+                country: 'US',
+                street: 'Sample Address 2',
+                state: 'TX',
+                label: 'Office',
+                defaultAddress: false,
+              },
+              {
+                city: 'Dallas',
+                postalCode: 987654,
+                country: 'US',
+                street: 'Sample Address 3',
+                state: 'TX',
+                label: 'Toms place',
+                defaultAddress: false,
+              },
+            ],
+          },
+        ],
+        ['newCustomUserID', 'customUserID', null],
+      ],
       expectedResult: alias3ExpectedData,
-      triggerHandler: 'alias',
+      triggerHandler: ['reset', 'identify', 'alias'],
     },
     {
       id: 'alias4',
-      description: 'Call with to as argument',
-      inputData: ['newCustomUserID'],
+      description: 'rudderanalytics.alias(to) with prior identify',
+      inputData: [
+        [true],
+        [
+          'customUserID',
+          {
+            name: 'John Doe',
+            title: 'CEO',
+            email: 'name.surname@domain.com',
+            company: 'Company123',
+            phone: '123-456-7890',
+            rating: 'Hot',
+            dob: new Date(Date.UTC(1990, 0, 12)),
+            address: [
+              {
+                city: 'Austin',
+                postalCode: 12345,
+                country: 'US',
+                street: 'Sample Address',
+                state: 'TX',
+                label: 'Home',
+                defaultAddress: true,
+              },
+              {
+                city: 'Houston',
+                postalCode: 345678,
+                country: 'US',
+                street: 'Sample Address 2',
+                state: 'TX',
+                label: 'Office',
+                defaultAddress: false,
+              },
+              {
+                city: 'Dallas',
+                postalCode: 987654,
+                country: 'US',
+                street: 'Sample Address 3',
+                state: 'TX',
+                label: 'Toms place',
+                defaultAddress: false,
+              },
+            ],
+          },
+        ],
+        ['newCustomUserID'],
+      ],
       expectedResult: alias4ExpectedData,
-      triggerHandler: 'alias',
+      triggerHandler: ['reset', 'identify', 'alias'],
     },
     {
       id: 'alias5',
-      description: 'Call with no argument when userId exists in storage',
-      inputData: [
-        [
-          'customUserID',
-          {
-            name: 'John Doe',
-            title: 'CEO',
-            email: 'name.surname@domain.com',
-            company: 'Company123',
-            phone: '123-456-7890',
-            rating: 'Hot',
-            dob: new Date(Date.UTC(1990, 0, 12)),
-            address: [
-              {
-                city: 'Austin',
-                postalCode: 12345,
-                country: 'US',
-                street: 'Sample Address',
-                state: 'TX',
-                label: 'Home',
-                defaultAddress: true,
-              },
-              {
-                city: 'Houston',
-                postalCode: 345678,
-                country: 'US',
-                street: 'Sample Address 2',
-                state: 'TX',
-                label: 'Office',
-                defaultAddress: false,
-              },
-              {
-                city: 'Dallas',
-                postalCode: 987654,
-                country: 'US',
-                street: 'Sample Address 3',
-                state: 'TX',
-                label: 'Toms place',
-                defaultAddress: false,
-              },
-            ],
-          },
-        ],
-        [],
-      ],
+      description: 'rudderanalytics.alias(to) with no prior identify',
+      inputData: [[true], ['customAnonId'], ['newUserID']],
       expectedResult: alias5ExpectedData,
-      triggerHandler: ['identify', 'alias'],
+      triggerHandler: ['reset', 'setAnonymousId', 'alias'],
     },
     {
       id: 'alias6',
-      description: 'Call with only apiOptions arguments',
+      description: 'rudderanalytics.alias(to, apiOptions)',
       inputData: [
+        [true],
         [
           'customUserID',
           {
@@ -229,6 +325,7 @@ const aliasMethodSuite = {
           },
         ],
         [
+          'newCustomUserID',
           {
             key1: [1, 2, 3, 4],
             key2: 'sample text',
@@ -281,7 +378,7 @@ const aliasMethodSuite = {
         ],
       ],
       expectedResult: alias6ExpectedData,
-      triggerHandler: ['identify', 'alias'],
+      triggerHandler: ['reset', 'identify', 'alias'],
     },
   ],
 };
