@@ -49,12 +49,13 @@ describe('ErrorHandler', () => {
   beforeEach(() => {
     resetState();
     state.reporting.isErrorReportingPluginLoaded.value = false;
-    errorHandlerInstance = new ErrorHandler(defaultLogger, defaultPluginEngine, defaultHttpClient);
+    errorHandlerInstance = new ErrorHandler(defaultLogger, defaultPluginEngine);
+    errorHandlerInstance.init(defaultHttpClient, extSrcLoader);
   });
 
   it('should leaveBreadcrumb if plugin engine is provided', () => {
     errorHandlerInstance.leaveBreadcrumb('breadcrumb');
-    expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
+    expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(2);
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledWith(
       'errorReporting.breadcrumb',
       defaultPluginEngine,
@@ -71,7 +72,7 @@ describe('ErrorHandler', () => {
       unhandled: false,
       severityReason: { type: 'handledException' },
     });
-    expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
+    expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(2);
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledWith(
       'errorReporting.notify',
       defaultPluginEngine,
@@ -93,7 +94,7 @@ describe('ErrorHandler', () => {
     state.reporting.isErrorReportingPluginLoaded.value = true;
     errorHandlerInstance.onError(new Error('dummy error'), 'Unit test', 'dummy  custom  message');
 
-    expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
+    expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(2);
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledWith(
       'errorReporting.notify',
       defaultPluginEngine,
@@ -120,7 +121,7 @@ describe('ErrorHandler', () => {
     state.reporting.isErrorReportingPluginLoaded.value = true;
     errorHandlerInstance.onError('dummy error', 'Unit test', 'dummy custom message');
 
-    expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
+    expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(2);
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledWith(
       'errorReporting.notify',
       defaultPluginEngine,
@@ -148,7 +149,7 @@ describe('ErrorHandler', () => {
       state.reporting.isErrorReportingPluginLoaded.value = true;
       errorHandlerInstance.onError('dummy error', 'Unit test', 'dummy custom message', true);
     } catch (err) {
-      expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
+      expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(2);
       expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledWith(
         'errorReporting.notify',
         defaultPluginEngine,
@@ -177,7 +178,7 @@ describe('ErrorHandler', () => {
     try {
       errorHandlerInstance.onError(new Error('dummy error'), 'Unit test', 'dummy  custom  message');
     } catch (err) {
-      expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(0);
+      expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
       expect(defaultLogger.error).toHaveBeenCalledTimes(0);
       expect(err.message).toStrictEqual('Unit test:: dummy custom message dummy error');
     }
@@ -188,7 +189,7 @@ describe('ErrorHandler', () => {
     try {
       errorHandlerInstance.onError('dummy error', 'Unit test', 'dummy custom message');
     } catch (err) {
-      expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(0);
+      expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
       expect(defaultLogger.error).toHaveBeenCalledTimes(0);
       expect(err.message).toStrictEqual('Unit test:: dummy custom message dummy error');
     }
@@ -197,7 +198,7 @@ describe('ErrorHandler', () => {
   it('should swallow Errors based on processError logic', () => {
     errorHandlerInstance.onError('');
 
-    expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(0);
+    expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
     expect(defaultLogger.error).toHaveBeenCalledTimes(0);
   });
 
@@ -301,7 +302,7 @@ describe('ErrorHandler', () => {
 
   it('should not invoke the plugin if Error reporting plugin is not loaded', () => {
     errorHandlerInstance.attachEffect();
-    expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(0);
+    expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
   });
 
   it('should log error in case unhandled error occurs during processing or notifying the error', () => {

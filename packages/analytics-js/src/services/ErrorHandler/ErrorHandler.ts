@@ -204,7 +204,7 @@ class ErrorHandler implements IErrorHandler {
    * @param {Error} error Error instance from handled error
    */
   notifyError(error: SDKError, errorState: ErrorState) {
-    if (this.pluginEngine && this.httpClient && isAllowedToBeNotified(error)) {
+    if (this.pluginEngine && isAllowedToBeNotified(error)) {
       try {
         this.pluginEngine.invokeSingle(
           'errorReporting.notify',
