@@ -30,6 +30,7 @@ import {
   updateReportingState,
   updateStorageStateFromLoadOptions,
 } from './util/commonUtil';
+import { METRICS_SERVICE_ENDPOINT } from './constants';
 
 class ConfigManager implements IConfigManager {
   httpClient: IHttpClient;
@@ -108,6 +109,7 @@ class ConfigManager implements IConfigManager {
         lockPluginsVersion as boolean,
         this.logger,
       );
+      state.metrics.metricsServiceUrl.value = `${state.lifecycle.activeDataplaneUrl.value}/${METRICS_SERVICE_ENDPOINT}`;
     });
 
     this.getConfig();

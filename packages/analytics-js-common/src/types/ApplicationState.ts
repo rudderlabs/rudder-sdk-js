@@ -92,6 +92,7 @@ export type MetricsState = {
   sent: Signal<number>;
   queued: Signal<number>;
   triggered: Signal<number>;
+  metricsServiceUrl: Signal<string | undefined>;
 };
 
 export type DataPlaneEventsState = {

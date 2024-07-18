@@ -57,8 +57,10 @@ describe('Plugin - ErrorReporting', () => {
 
   it('should invoke the error reporting provider plugin on notify', () => {
     state.lifecycle = {
-      activeDataplaneUrl: signal('https://test.com'),
       writeKey: signal('sample-write-key'),
+    };
+    state.metrics = {
+      metricsServiceUrl: signal('https://test.com'),
     };
     const mockHttpClient = {
       getAsyncData: jest.fn(),

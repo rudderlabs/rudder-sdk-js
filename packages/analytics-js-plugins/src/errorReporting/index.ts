@@ -93,7 +93,7 @@ const ErrorReporting = (): ExtensionPlugin => ({
 
         // send it to metrics service
         httpClient?.getAsyncData({
-          url: `${state.lifecycle.activeDataplaneUrl.value}/rsaMetrics`,
+          url: state.metrics.metricsServiceUrl.value as string,
           options: {
             method: 'POST',
             data: getErrorDeliveryPayload(bugsnagPayload, state),

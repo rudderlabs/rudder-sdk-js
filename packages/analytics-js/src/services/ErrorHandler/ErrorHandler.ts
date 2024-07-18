@@ -38,11 +38,10 @@ class ErrorHandler implements IErrorHandler {
   errorBuffer: BufferQueue<PreLoadErrorData>;
 
   // If no logger is passed errors will be thrown as unhandled error
-  constructor(logger?: ILogger, pluginEngine?: IPluginEngine, httpClient?: IHttpClient) {
+  constructor(logger?: ILogger, pluginEngine?: IPluginEngine) {
     this.logger = logger;
     this.pluginEngine = pluginEngine;
     this.errorBuffer = new BufferQueue();
-    this.httpClient = httpClient;
     this.attachEffect();
   }
 
@@ -205,7 +204,7 @@ class ErrorHandler implements IErrorHandler {
    * @param {Error} error Error instance from handled error
    */
   notifyError(error: SDKError, errorState: ErrorState) {
-    if (this.pluginEngine && isAllowedToBeNotified(error)) {
+    if (this.pluginEngine && this.httpClient && isAllowedToBeNotified(error)) {
       try {
         this.pluginEngine.invokeSingle(
           'errorReporting.notify',
