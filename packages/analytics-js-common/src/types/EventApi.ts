@@ -36,7 +36,7 @@ export type APIEvent = {
   callback?: () => void;
   userId?: Nullable<string>;
   traits?: Nullable<ApiObject>;
-  to?: Nullable<string>;
+  to?: string;
   from?: string;
   groupId?: Nullable<string>;
 };

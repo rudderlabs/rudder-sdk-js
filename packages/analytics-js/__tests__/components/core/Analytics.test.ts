@@ -446,7 +446,7 @@ describe('Core - Analytics', () => {
 
       expect(dequeueSpy).toHaveBeenCalledTimes(2);
       expect(pageSpy).toHaveBeenCalledWith({
-        properties: { path: '/home', category: null, name: null },
+        properties: { path: '/home' },
       });
       expect(trackSpy).toHaveBeenCalledWith({
         name: 'buttonClicked',
@@ -628,8 +628,25 @@ describe('Core - Analytics', () => {
 
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([
         ['identify', { userId: 'test_user_id' }],
-        ['track', { name: 'Consent Management Interaction', properties: {} }],
-        ['page', { properties: { category: null, name: null } }],
+        [
+          'track',
+          {
+            name: 'Consent Management Interaction',
+            properties: {},
+            options: undefined,
+            callback: undefined,
+          },
+        ],
+        [
+          'page',
+          {
+            properties: {},
+            category: undefined,
+            name: undefined,
+            options: undefined,
+            callback: undefined,
+          },
+        ],
       ]);
     });
   });

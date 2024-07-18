@@ -113,6 +113,12 @@ describe('deviceModeDestinations utils', () => {
       identify = () => {};
       group = () => {};
       alias = () => {};
+      getAnonymousId = () => 'anonymousId';
+      getUserId = () => 'userId';
+      getUserTraits = () => ({ trait1: 'value1' });
+      getGroupId = () => 'groupId';
+      getGroupTraits = () => ({ trait2: 'value2' });
+      getSessionId = () => 'sessionId';
     }
 
     // create two mock instances to later choose based on the write key
@@ -203,6 +209,13 @@ describe('deviceModeDestinations utils', () => {
         getGroupTraits: expect.any(Function),
         getSessionId: expect.any(Function),
       });
+
+      expect(destinationInstance.analytics.getAnonymousId()).toEqual('anonymousId');
+      expect(destinationInstance.analytics.getUserId()).toEqual('userId');
+      expect(destinationInstance.analytics.getUserTraits()).toEqual({ trait1: 'value1' });
+      expect(destinationInstance.analytics.getGroupId()).toEqual('groupId');
+      expect(destinationInstance.analytics.getGroupTraits()).toEqual({ trait2: 'value2' });
+      expect(destinationInstance.analytics.getSessionId()).toEqual('sessionId');
 
       // Making sure that the call gets forwarded to the correct instance
       const pageCallSpy = jest.spyOn(mockAnalyticsInstance_writeKey2, 'page');

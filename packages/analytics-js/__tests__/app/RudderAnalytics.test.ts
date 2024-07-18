@@ -129,7 +129,7 @@ describe('Core - Rudder Analytics Facade', () => {
     rudderAnalytics.page('category');
     expect(pageSpy).toHaveBeenCalledWith({
       name: 'category',
-      properties: { category: null, name: 'category' },
+      properties: { name: 'category' },
     });
   });
 
@@ -162,7 +162,7 @@ describe('Core - Rudder Analytics Facade', () => {
     const groupSpy = jest.spyOn(analyticsInstance, 'group');
 
     rudderAnalytics.group(1234);
-    expect(groupSpy).toHaveBeenCalledWith({ groupId: '1234', traits: {} });
+    expect(groupSpy).toHaveBeenCalledWith({ groupId: '1234' });
   });
 
   it('should process reset arguments and forwards to reset call', () => {
