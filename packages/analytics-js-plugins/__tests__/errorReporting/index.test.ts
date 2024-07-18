@@ -119,11 +119,4 @@ describe('Plugin - ErrorReporting', () => {
 
     expect(state.reporting.breadcrumbs.value.length).toBe(breadcrumbLength + 1);
   });
-
-  it('should not add a new breadcrumb if the message is missing', () => {
-    const breadcrumbLength = state.reporting.breadcrumbs.value.length;
-    ErrorReporting().errorReporting.breadcrumb({}, undefined, undefined, undefined, state);
-
-    expect(state.reporting.breadcrumbs.value.length).not.toBe(breadcrumbLength + 1);
-  });
 });

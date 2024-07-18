@@ -44,9 +44,9 @@ const ErrorReporting = (): ExtensionPlugin => ({
       pluginEngine: IPluginEngine,
       externalSrcLoader: IExternalSrcLoader,
       logger?: ILogger,
-      flag?: boolean,
+      isInvokedFromLatestCore?: boolean,
     ) => {
-      if (flag) {
+      if (isInvokedFromLatestCore) {
         return undefined;
       }
       if (!state.source.value?.config || !state.source.value?.id) {
@@ -118,9 +118,6 @@ const ErrorReporting = (): ExtensionPlugin => ({
       state?: ApplicationState,
       metaData?: BreadcrumbMetaData,
     ): void => {
-      if (!message) {
-        return;
-      }
       if (state) {
         state.reporting.breadcrumbs.value = [
           ...state.reporting.breadcrumbs.value,

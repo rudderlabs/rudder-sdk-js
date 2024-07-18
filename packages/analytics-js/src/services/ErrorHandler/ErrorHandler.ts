@@ -207,7 +207,7 @@ class ErrorHandler implements IErrorHandler {
   notifyError(error: SDKError, errorState: ErrorState) {
     if (this.pluginEngine && isAllowedToBeNotified(error)) {
       try {
-        this.pluginEngine?.invokeSingle(
+        this.pluginEngine.invokeSingle(
           'errorReporting.notify',
           this.pluginEngine, // deprecated parameter
           this.errReportingClient, // deprecated parameter
