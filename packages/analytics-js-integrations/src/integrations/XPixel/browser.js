@@ -5,7 +5,7 @@ import {
 } from '@rudderstack/analytics-js-common/constants/integrations/XPixel/constants';
 import Logger from '../../utils/logger';
 import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
-import { getTrackResponse } from './utils';
+import { getTrackResponse, sendEvent } from './utils';
 import { loadNativeSdk } from './nativeSdkLoader';
 
 const logger = new Logger(DISPLAY_NAME);
@@ -45,28 +45,14 @@ class XPixel {
     }
     const properties = getTrackResponse(rudderElement.message);
     const standardEventsMap = getHashFromArrayWithDuplicate(this.eventToEventIdMap);
-    const eventIds = standardEventsMap[event?.toLowerCase()];
-    if (Array.isArray(eventIds)) {
-      eventIds.forEach(eventId => {
-        window.twq('event', eventId, properties);
-      });
-    } else {
-      logger.error(`Event name (${event}) is not valid, must be mapped to atleast one Event ID`);
-    }
+    sendEvent(event, properties, standardEventsMap);
   }
 
   page(rudderElement) {
     const event = 'Page View';
     const properties = getTrackResponse(rudderElement.message);
     const standardEventsMap = getHashFromArrayWithDuplicate(this.eventToEventIdMap);
-    const eventIds = standardEventsMap[event?.toLowerCase()];
-    if (Array.isArray(eventIds)) {
-      eventIds.forEach(eventId => {
-        window.twq('event', eventId, properties);
-      });
-    } else {
-      logger.error(`Event name (${event}) is not valid, must be mapped to atleast one Event ID`);
-    }
+    sendEvent(event, properties, standardEventsMap);
   }
 }
 export default XPixel;

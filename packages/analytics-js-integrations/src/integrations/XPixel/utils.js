@@ -1,6 +1,10 @@
 import { trackPropertyMapping } from '@rudderstack/analytics-js-common/constants/integrations/XPixel/constants';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
 import { constructPayload } from '../../utils/utils';
+import Logger from '../../utils/logger';
+import { DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/XPixel/constants';
+
+const logger = new Logger(DISPLAY_NAME);
 
 const getContents = message => {
   let contents = [];
@@ -44,4 +48,15 @@ const getTrackResponse = message => {
   return removeUndefinedAndNullValues(properties);
 };
 
-export { getTrackResponse };
+const sendEvent = (event, properties, standardEventsMap) => {
+  const eventIds = standardEventsMap[event?.toLowerCase()];
+  if (Array.isArray(eventIds)) {
+    eventIds.forEach(eventId => {
+      window.twq('event', eventId, properties);
+    });
+  } else {
+    logger.error(`Event name (${event}) is not valid, must be mapped to atleast one Event ID`);
+  }
+};
+
+export { getTrackResponse, sendEvent };
