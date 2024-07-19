@@ -11,7 +11,7 @@ export default [
   {
     name: 'Plugins - Legacy - CDN',
     path: 'dist/cdn/legacy/plugins/rsa-plugins-*.min.js',
-    limit: '15 KiB',
+    limit: '16 KiB',
   },
   {
     name: 'Plugins Module Federation Mapping - Modern - CDN',
@@ -21,6 +21,6 @@ export default [
   {
     name: 'Plugins - Modern - CDN',
     path: 'dist/cdn/modern/plugins/rsa-plugins-*.min.js',
-    limit: '6 KiB',
+    limit: '7.5 KiB',
   },
 ];

@@ -29,7 +29,6 @@ import {
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
   STORAGE_TYPE_VALIDATION_WARNING,
   UNSUPPORTED_BEACON_API_WARNING,
-  UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING,
   UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
   UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY,
   UNSUPPORTED_STORAGE_ENCRYPTION_VERSION_WARNING,
@@ -38,15 +37,12 @@ import {
 import {
   isErrorReportingEnabled,
   isMetricsReportingEnabled,
-  getErrorReportingProviderNameFromConfig,
 } from '../../utilities/statsCollection';
 import { getDomain, removeTrailingSlashes } from '../../utilities/url';
 import type { SourceConfigResponse } from '../types';
 import {
   DEFAULT_DATA_SERVICE_ENDPOINT,
-  DEFAULT_ERROR_REPORTING_PROVIDER,
   DEFAULT_STORAGE_ENCRYPTION_VERSION,
-  ErrorReportingProvidersToPluginNameMap,
   StorageEncryptionVersionsToPluginNameMap,
 } from '../constants';
 import { getDataServiceUrl, isValidStorageType, isWebpageTopLevelDomain } from './validate';
@@ -76,35 +72,10 @@ const getSDKUrl = (): string | undefined => {
  * @param res Source config
  * @param logger Logger instance
  */
-const updateReportingState = (res: SourceConfigResponse, logger?: ILogger): void => {
+const updateReportingState = (res: SourceConfigResponse): void => {
   state.reporting.isErrorReportingEnabled.value =
     isErrorReportingEnabled(res.source.config) && !isSDKRunningInChromeExtension();
   state.reporting.isMetricsReportingEnabled.value = isMetricsReportingEnabled(res.source.config);
-
-  if (state.reporting.isErrorReportingEnabled.value) {
-    const errReportingProvider = getErrorReportingProviderNameFromConfig(res.source.config);
-
-    // Get the corresponding plugin name of the selected error reporting provider from the supported error reporting providers
-    const errReportingProviderPlugin = errReportingProvider
-      ? ErrorReportingProvidersToPluginNameMap[errReportingProvider]
-      : undefined;
-
-    if (!isUndefined(errReportingProvider) && !errReportingProviderPlugin) {
-      // set the default error reporting provider
-      logger?.warn(
-        UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING(
-          CONFIG_MANAGER,
-          errReportingProvider,
-          ErrorReportingProvidersToPluginNameMap,
-          DEFAULT_ERROR_REPORTING_PROVIDER,
-        ),
-      );
-    }
-
-    state.reporting.errorReportingProviderPluginName.value =
-      errReportingProviderPlugin ??
-      ErrorReportingProvidersToPluginNameMap[DEFAULT_ERROR_REPORTING_PROVIDER];
-  }
 };
 
 const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {

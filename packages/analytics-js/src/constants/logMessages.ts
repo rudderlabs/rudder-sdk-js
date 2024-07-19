@@ -229,6 +229,8 @@ const UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE = (
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The pre-consent events delivery type "${selectedDeliveryType}" is not supported. Please choose one of the following supported types: "immediate, buffer". The default type "${defaultDeliveryType}" will be used instead.`;
 
+const DEPRECATED_PLUGIN_WARNING = (context: string, pluginName: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}${pluginName} plugin is deprecated. Please exclude it from the load API options.`;
 const generateMisconfiguredPluginsWarning = (
   context: string,
   configurationStatus: string,
@@ -266,6 +268,7 @@ export {
   TIMEOUT_ZERO_WARNING,
   TIMEOUT_NOT_RECOMMENDED_WARNING,
   INVALID_SESSION_ID_WARNING,
+  DEPRECATED_PLUGIN_WARNING,
   REPORTING_PLUGIN_INIT_FAILURE_ERROR,
   NOTIFY_FAILURE_ERROR,
   PLUGIN_NAME_MISSING_ERROR,
