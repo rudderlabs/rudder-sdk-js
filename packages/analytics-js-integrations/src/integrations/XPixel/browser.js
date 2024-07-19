@@ -60,9 +60,13 @@ class XPixel {
     const properties = getTrackResponse(rudderElement.message);
     const standardEventsMap = getHashFromArrayWithDuplicate(this.eventToEventIdMap);
     const eventIds = standardEventsMap[event?.toLowerCase()];
-    eventIds.forEach(eventId => {
-      window.twq('event', eventId, properties);
-    });
+    if (Array.isArray(eventIds)) {
+      eventIds.forEach(eventId => {
+        window.twq('event', eventId, properties);
+      });
+    } else {
+      logger.error(`Event name (${event}) is not valid, must be mapped to atleast one Event ID`);
+    }
   }
 }
 export default XPixel;

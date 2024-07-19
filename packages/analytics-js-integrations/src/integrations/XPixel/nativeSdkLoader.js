@@ -13,6 +13,7 @@ function loadNativeSdk(pixelId) {
       (u.async = !0),
       (u.src = 'https://static.ads-twitter.com/uwt.js'),
       (a = t.getElementsByTagName(n)[0]),
+      u.setAttribute('data-loader', LOAD_ORIGIN),
       a.parentNode.insertBefore(u, a));
   })(window, document, 'script');
   twq('config', pixelId);
