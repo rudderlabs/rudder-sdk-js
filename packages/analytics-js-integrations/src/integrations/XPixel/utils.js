@@ -25,7 +25,7 @@ const getContents = message => {
       return removeUndefinedAndNullValues(singleProduct);
     });
   } else {
-    return undefined;
+    return [];
   }
   return contents;
 };
