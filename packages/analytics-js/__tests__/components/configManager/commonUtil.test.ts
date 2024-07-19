@@ -99,7 +99,6 @@ describe('Config Manager Common Utilities', () => {
             statsCollection: {
               errors: {
                 enabled: true,
-                provider: 'bugsnag',
               },
               metrics: {
                 enabled: true,
@@ -113,8 +112,6 @@ describe('Config Manager Common Utilities', () => {
 
       expect(state.reporting.isErrorReportingEnabled.value).toBe(true);
       expect(state.reporting.isMetricsReportingEnabled.value).toBe(true);
-      expect(state.reporting.errorReportingProviderPluginName.value).toBe('Bugsnag');
-
       expect(mockLogger.warn).not.toHaveBeenCalled();
     });
 
@@ -138,37 +135,7 @@ describe('Config Manager Common Utilities', () => {
 
       expect(state.reporting.isErrorReportingEnabled.value).toBe(true);
       expect(state.reporting.isMetricsReportingEnabled.value).toBe(true);
-      expect(state.reporting.errorReportingProviderPluginName.value).toBe('Bugsnag');
-
       expect(mockLogger.warn).not.toHaveBeenCalled();
-    });
-
-    it('should log a warning if the error reporting provider is not supported', () => {
-      const mockSourceConfig = {
-        source: {
-          config: {
-            statsCollection: {
-              errors: {
-                enabled: true,
-                provider: 'random-provider',
-              },
-              metrics: {
-                enabled: false,
-              },
-            },
-          },
-        },
-      } as SourceConfigResponse;
-
-      updateReportingState(mockSourceConfig, mockLogger);
-
-      expect(state.reporting.isErrorReportingEnabled.value).toBe(true);
-      expect(state.reporting.isMetricsReportingEnabled.value).toBe(false);
-      expect(state.reporting.errorReportingProviderPluginName.value).toBe('Bugsnag');
-
-      expect(mockLogger.warn).toHaveBeenCalledWith(
-        'ConfigManager:: The error reporting provider "random-provider" is not supported. Please choose one of the following supported providers: "bugsnag". The default provider "bugsnag" will be used instead.',
-      );
     });
   });
 

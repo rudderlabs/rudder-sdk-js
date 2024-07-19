@@ -7,6 +7,7 @@ const metricsState: MetricsState = {
   sent: signal(0),
   queued: signal(0),
   triggered: signal(0),
+  metricsServiceUrl: signal(undefined),
 };
 
 export { metricsState };
