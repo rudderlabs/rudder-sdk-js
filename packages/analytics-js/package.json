@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js",
-  "version": "3.6.1",
+  "version": "3.7.0",
   "description": "RudderStack JavaScript SDK",
   "main": "dist/npm/modern/cjs/index.cjs",
   "module": "dist/npm/modern/esm/index.mjs",
@@ -49,6 +49,28 @@
         "types": "./dist/npm/index.d.mts",
         "default": "./dist/npm/modern/content-script/esm/index.mjs"
       }
+    },
+    "./legacy-bundled": {
+      "types": "./dist/npm/index.d.mts",
+      "require": {
+        "types": "./dist/npm/index.d.cts",
+        "default": "./dist/npm/legacy/bundled/cjs/index.cjs"
+      },
+      "import": {
+        "types": "./dist/npm/index.d.mts",
+        "default": "./dist/npm/legacy/bundled/esm/index.mjs"
+      }
+    },
+    "./legacy-content-script": {
+      "types": "./dist/npm/index.d.mts",
+      "require": {
+        "types": "./dist/npm/index.d.cts",
+        "default": "./dist/npm/legacy/content-script/cjs/index.cjs"
+      },
+      "import": {
+        "types": "./dist/npm/index.d.mts",
+        "default": "./dist/npm/legacy/content-script/esm/index.mjs"
+      }
     }
   },
   "types": "./dist/npm/index.d.mts",
@@ -88,19 +110,23 @@
     "start": "rollup -c --watch --environment DEV_SERVER,PROD_DEBUG",
     "start:modern": "BROWSERSLIST_ENV=modern npm run start",
     "build": "npm run build:browser && npm run build:package",
-    "build:browser:modern": "BROWSERSLIST_ENV=modern npm run build:browser",
+    "build:modern": "npm run build:browser:modern && npm run build:package:modern",
     "build:browser": "rollup -c --environment VERSION:$npm_package_version,UGLIFY,PROD_DEBUG,ENV:prod",
+    "build:browser:modern": "BROWSERSLIST_ENV=modern npm run build:browser",
+    "build:package": "npm run build:npm && npm run build:npm:bundled && npm run build:npm:content-script",
+    "build:package:modern": "npm run build:npm:modern && npm run build:npm:bundled:modern && npm run build:npm:content-script:modern",
     "build:npm": "rollup -c --environment VERSION:$npm_package_version,ENV:prod,MODULE_TYPE:npm",
-    "build:npm:bundled": "BUNDLED_PLUGINS=all npm run build:npm:modern",
-    "build:npm:content-script": "BUNDLED_PLUGINS=all NO_EXTERNAL_HOST=true npm run build:npm:modern",
     "build:npm:modern": "BROWSERSLIST_ENV=modern npm run build:npm",
-    "build:package": "npm run build:npm:modern && npm run build:npm && npm run build:npm:bundled && npm run build:npm:content-script",
+    "build:npm:bundled": "BUNDLED_PLUGINS=all npm run build:npm",
+    "build:npm:bundled:modern": "BUNDLED_PLUGINS=all npm run build:npm:modern",
+    "build:npm:content-script": "BUNDLED_PLUGINS=all NO_EXTERNAL_HOST=true npm run build:npm",
+    "build:npm:content-script:modern": "BUNDLED_PLUGINS=all NO_EXTERNAL_HOST=true npm run build:npm:modern",
     "build:browser:test": "ONLY_IIFE=true npm run build:browser && sed 's/var rudderanalytics/rudderanalytics/g' dist/cdn/legacy/iife/rsa.min.js > __mocks__/cdnSDK.js",
     "test": "npm run build:browser:test && nx test --maxWorkers=50%",
     "test:ci": "npm run build:browser:test && nx test --configuration=ci --runInBand --maxWorkers=1 --forceExit",
     "check:lint": "nx lint",
     "check:lint:ci": "nx lint --configuration=ci",
-    "check:size:build": "npm run build:browser && npm run build:browser:modern && npm run build:package",
+    "check:size:build": "npm run build:browser && npm run build:browser:modern && npm run build:package && npm run build:package:modern",
     "check:size": "npm run check:size:build && size-limit",
     "check:size:json": "size-limit --json",
     "check:circular": "madge --circular --extensions js,ts src || exit 0",
@@ -109,7 +135,6 @@
     "check:duplicates": "jscpd src",
     "check:security": "npm audit --recursive --audit-level=high",
     "check:pub": "npx publint",
-    "build:modern": "npm run build:browser:modern && npm run build:npm:modern",
     "package": "npm pack",
     "release": "npm publish"
   },

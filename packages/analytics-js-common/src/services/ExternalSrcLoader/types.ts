@@ -1,3 +1,4 @@
+import type { ErrorState } from '../../types/ErrorHandler';
 import type { ILogger } from '../../types/Logger';
 
 export interface IExternalSourceLoadConfig {
@@ -18,7 +19,7 @@ export interface IExternalSrcLoader {
       shouldAlwaysThrow?: boolean,
     ): void;
     leaveBreadcrumb(breadcrumb: string): void;
-    notifyError(error: Error): void;
+    notifyError(error: Error, errorState: ErrorState): void;
   };
   logger?: ILogger;
   timeout: number;

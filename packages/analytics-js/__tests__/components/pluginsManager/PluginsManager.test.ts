@@ -61,7 +61,7 @@ describe('PluginsManager', () => {
     });
 
     it('should not filter the error reporting plugins if it is configured to load by default', () => {
-      state.reporting.errorReportingProviderPluginName.value = 'Bugsnag';
+      state.reporting.isErrorReportingEnabled.value = true;
 
       expect(pluginsManager.getPluginsToLoadBasedOnConfig().sort()).toEqual(
         ['ErrorReporting', 'Bugsnag', 'ExternalAnonymousId', 'GoogleLinker'].sort(),
@@ -69,7 +69,7 @@ describe('PluginsManager', () => {
     });
 
     it('should filter the error reporting plugins if they are not configured through the plugins input', () => {
-      state.reporting.errorReportingProviderPluginName.value = 'Bugsnag';
+      state.reporting.isErrorReportingEnabled.value = true;
       state.plugins.pluginsToLoadFromConfig.value = [];
 
       expect(pluginsManager.getPluginsToLoadBasedOnConfig().sort()).toEqual([]);
@@ -78,20 +78,6 @@ describe('PluginsManager', () => {
       expect(defaultLogger.warn).toHaveBeenCalledTimes(1);
       expect(defaultLogger.warn).toHaveBeenCalledWith(
         "PluginsManager:: Error reporting is enabled, but ['ErrorReporting', 'Bugsnag'] plugins were not configured to load. Ignore if this was intentional. Otherwise, consider adding them to the 'plugins' load API option.",
-      );
-    });
-
-    it('should log a warning even if the error reporting plugins were partially not configured', () => {
-      state.reporting.errorReportingProviderPluginName.value = 'Bugsnag';
-      // Only ErrorReporting is configured
-      state.plugins.pluginsToLoadFromConfig.value = ['ErrorReporting'];
-
-      expect(pluginsManager.getPluginsToLoadBasedOnConfig().sort()).toEqual(['ErrorReporting']);
-
-      // Expect a warning for user not explicitly configuring it
-      expect(defaultLogger.warn).toHaveBeenCalledTimes(1);
-      expect(defaultLogger.warn).toHaveBeenCalledWith(
-        "PluginsManager:: Error reporting is enabled, but 'Bugsnag' plugin was not configured to load. Ignore if this was intentional. Otherwise, consider adding it to the 'plugins' load API option.",
       );
     });
 

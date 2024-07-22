@@ -20,83 +20,140 @@ describe('Core - Event Method Overloads', () => {
       options: { options: {} },
     });
     expect(
+      pageArgumentsToCallOptions('category', 'name', { props: {} }, { options: {} }),
+    ).toStrictEqual({
+      category: 'category',
+      name: 'name',
+      properties: { props: {}, category: 'category', name: 'name' },
+      options: { options: {} },
+      callback: undefined,
+    });
+    expect(pageArgumentsToCallOptions('category', 'name', { props: {} })).toStrictEqual({
+      category: 'category',
+      name: 'name',
+      options: undefined,
+      properties: { props: {}, category: 'category', name: 'name' },
+      callback: undefined,
+    });
+    expect(pageArgumentsToCallOptions('category', 'name')).toStrictEqual({
+      category: 'category',
+      name: 'name',
+      options: undefined,
+      properties: { category: 'category', name: 'name' },
+      callback: undefined,
+    });
+
+    expect(
       pageArgumentsToCallOptions('category', 'name', { props: {} }, callbackMock),
     ).toStrictEqual({
       callback: callbackMock,
       category: 'category',
       name: 'name',
       properties: { props: {}, category: 'category', name: 'name' },
-    });
-    expect(pageArgumentsToCallOptions('category', 'name', callbackMock)).toStrictEqual({
-      callback: callbackMock,
-      category: 'category',
-      name: 'name',
-      properties: { category: 'category', name: 'name' },
-    });
-    expect(pageArgumentsToCallOptions('category', callbackMock)).toStrictEqual({
-      callback: callbackMock,
-      name: 'category',
-      properties: { category: null, name: 'category' },
-    });
-    expect(pageArgumentsToCallOptions('category')).toStrictEqual({
-      name: 'category',
-      properties: { category: null, name: 'category' },
-    });
-    expect(pageArgumentsToCallOptions('category', 'name')).toStrictEqual({
-      name: 'name',
-      category: 'category',
-      properties: { category: 'category', name: 'name' },
+      options: undefined,
     });
     expect(pageArgumentsToCallOptions('category', 'name', { props: {} })).toStrictEqual({
-      name: 'name',
       category: 'category',
-      properties: { category: 'category', name: 'name', props: {} },
+      name: 'name',
+      properties: { props: {}, category: 'category', name: 'name' },
+      options: undefined,
+      callback: undefined,
     });
+
     expect(
-      pageArgumentsToCallOptions('category', 'name', { props: {} }, { options: {} }),
+      pageArgumentsToCallOptions('name', { props: {} }, { options: {} }, callbackMock),
     ).toStrictEqual({
+      callback: callbackMock,
       name: 'name',
-      category: 'category',
       options: {
         options: {},
       },
-      properties: { category: 'category', name: 'name', props: {} },
+      properties: { name: 'name', props: {} },
+      category: undefined,
     });
-    expect(pageArgumentsToCallOptions('category', { props: {} }, { options: {} })).toStrictEqual({
-      name: 'category',
+    expect(pageArgumentsToCallOptions('name', { props: {} }, { options: {} })).toStrictEqual({
+      name: 'name',
       options: {
         options: {},
       },
-      properties: { category: null, name: 'category', props: {} },
+      properties: { name: 'name', props: {} },
+      category: undefined,
+      callback: undefined,
     });
-    expect(pageArgumentsToCallOptions(undefined, 'name', callbackMock)).toStrictEqual({
+
+    expect(pageArgumentsToCallOptions('name', { props: {} }, callbackMock)).toStrictEqual({
       callback: callbackMock,
       name: 'name',
-      properties: { category: null, name: 'name' },
+      properties: { name: 'name', props: {} },
+      category: undefined,
+      options: undefined,
     });
-    expect(pageArgumentsToCallOptions(callbackMock)).toStrictEqual({
+    expect(pageArgumentsToCallOptions('name', { props: {} })).toStrictEqual({
+      name: 'name',
+      properties: { name: 'name', props: {} },
+      category: undefined,
+      options: undefined,
+      callback: undefined,
+    });
+
+    expect(pageArgumentsToCallOptions('name', callbackMock)).toStrictEqual({
       callback: callbackMock,
-      properties: { category: null, name: null },
+      name: 'name',
+      properties: { name: 'name' },
+      category: undefined,
+      options: undefined,
     });
+    expect(pageArgumentsToCallOptions('name')).toStrictEqual({
+      name: 'name',
+      properties: { name: 'name' },
+      category: undefined,
+      options: undefined,
+      callback: undefined,
+    });
+
     expect(pageArgumentsToCallOptions({ props: {} }, { options: {} }, callbackMock)).toStrictEqual({
       callback: callbackMock,
-      properties: { props: {}, category: null, name: null },
+      properties: { props: {} },
       options: { options: {} },
+      name: undefined,
+      category: undefined,
     });
-    expect(
-      pageArgumentsToCallOptions('category', { props: {} }, { options: {} }, callbackMock),
-    ).toStrictEqual({
-      callback: callbackMock,
-      name: 'category',
-      properties: { props: {}, category: null, name: 'category' },
+    expect(pageArgumentsToCallOptions({ props: {} }, { options: {} })).toStrictEqual({
+      properties: { props: {} },
       options: { options: {} },
+      name: undefined,
+      category: undefined,
+      callback: undefined,
     });
-    expect(pageArgumentsToCallOptions('category', 'name', null, {}, callbackMock)).toStrictEqual({
+
+    expect(pageArgumentsToCallOptions({ props: {} }, callbackMock)).toStrictEqual({
       callback: callbackMock,
-      category: 'category',
-      name: 'name',
-      properties: { category: 'category', name: 'name' },
-      options: {},
+      properties: { props: {} },
+      name: undefined,
+      category: undefined,
+      options: undefined,
+    });
+    expect(pageArgumentsToCallOptions({ props: {} })).toStrictEqual({
+      properties: { props: {} },
+      name: undefined,
+      category: undefined,
+      options: undefined,
+      callback: undefined,
+    });
+
+    expect(pageArgumentsToCallOptions(callbackMock)).toStrictEqual({
+      callback: callbackMock,
+      properties: {},
+      name: undefined,
+      category: undefined,
+      options: undefined,
+    });
+    expect(pageArgumentsToCallOptions()).toStrictEqual({
+      properties: {},
+      name: undefined,
+      category: undefined,
+      options: undefined,
+      callback: undefined,
     });
   });
 
@@ -109,31 +166,52 @@ describe('Core - Event Method Overloads', () => {
       properties: { props: {} },
       options: { options: {} },
     });
+    expect(trackArgumentsToCallOptions('event', { props: {} }, { options: {} })).toStrictEqual({
+      name: 'event',
+      properties: { props: {} },
+      options: { options: {} },
+      callback: undefined,
+    });
+    expect(trackArgumentsToCallOptions('event', { props: {} })).toStrictEqual({
+      name: 'event',
+      properties: { props: {} },
+      options: undefined,
+      callback: undefined,
+    });
+    expect(trackArgumentsToCallOptions('event')).toStrictEqual({
+      name: 'event',
+      properties: {},
+      options: undefined,
+      callback: undefined,
+    });
+
     expect(trackArgumentsToCallOptions('event', { props: {} }, callbackMock)).toStrictEqual({
       callback: callbackMock,
       name: 'event',
       properties: { props: {} },
+      options: undefined,
     });
+    expect(trackArgumentsToCallOptions('event', { props: {} })).toStrictEqual({
+      name: 'event',
+      properties: { props: {} },
+      options: undefined,
+      callback: undefined,
+    });
+
     expect(trackArgumentsToCallOptions('event', callbackMock)).toStrictEqual({
       callback: callbackMock,
       name: 'event',
       properties: {},
+      options: undefined,
     });
     expect(trackArgumentsToCallOptions('event', { properties: {} }, { options: {} })).toStrictEqual(
       {
         properties: { properties: {} },
         options: { options: {} },
         name: 'event',
+        callback: undefined,
       },
     );
-    expect(trackArgumentsToCallOptions('event', { properties: {} })).toStrictEqual({
-      properties: { properties: {} },
-      name: 'event',
-    });
-    expect(trackArgumentsToCallOptions('event')).toStrictEqual({
-      properties: {},
-      name: 'event',
-    });
   });
 
   it('should convert facade identify method arguments to analytics identify call options', () => {
@@ -145,15 +223,39 @@ describe('Core - Event Method Overloads', () => {
       traits: { traits: {} },
       options: { options: {} },
     });
+    expect(identifyArgumentsToCallOptions(1234, { traits: {} }, { options: {} })).toStrictEqual({
+      userId: '1234',
+      traits: { traits: {} },
+      options: { options: {} },
+      callback: undefined,
+    });
+
     expect(identifyArgumentsToCallOptions('userId', { traits: {} }, callbackMock)).toStrictEqual({
       callback: callbackMock,
       userId: 'userId',
       traits: { traits: {} },
+      options: undefined,
     });
+    expect(identifyArgumentsToCallOptions('userId', { traits: {} })).toStrictEqual({
+      userId: 'userId',
+      traits: { traits: {} },
+      options: undefined,
+      callback: undefined,
+    });
+
     expect(identifyArgumentsToCallOptions('userId', callbackMock)).toStrictEqual({
       callback: callbackMock,
       userId: 'userId',
+      traits: undefined,
+      options: undefined,
     });
+    expect(identifyArgumentsToCallOptions('userId')).toStrictEqual({
+      userId: 'userId',
+      traits: undefined,
+      options: undefined,
+      callback: undefined,
+    });
+
     expect(
       identifyArgumentsToCallOptions({ traits: {} }, { options: {} }, callbackMock),
     ).toStrictEqual({
@@ -162,16 +264,24 @@ describe('Core - Event Method Overloads', () => {
       traits: { traits: {} },
       options: { options: {} },
     });
-    expect(identifyArgumentsToCallOptions(1234, { traits: {} }, { options: {} })).toStrictEqual({
-      userId: '1234',
+    expect(identifyArgumentsToCallOptions({ traits: {} }, { options: {} })).toStrictEqual({
+      userId: null,
       traits: { traits: {} },
       options: { options: {} },
+      callback: undefined,
     });
-    expect(
-      identifyArgumentsToCallOptions(undefined, { traits: {} }, { options: {} }),
-    ).toStrictEqual({
+
+    expect(identifyArgumentsToCallOptions({ traits: {} }, callbackMock)).toStrictEqual({
+      callback: callbackMock,
+      userId: null,
       traits: { traits: {} },
-      options: { options: {} },
+      options: undefined,
+    });
+    expect(identifyArgumentsToCallOptions({ traits: {} })).toStrictEqual({
+      userId: null,
+      traits: { traits: {} },
+      options: undefined,
+      callback: undefined,
     });
   });
 
@@ -182,30 +292,50 @@ describe('Core - Event Method Overloads', () => {
       from: 'from',
       options: { options: {} },
     });
+    expect(aliasArgumentsToCallOptions('to', 'from', { options: {} })).toStrictEqual({
+      to: 'to',
+      from: 'from',
+      options: { options: {} },
+      callback: undefined,
+    });
+
     expect(aliasArgumentsToCallOptions('to', 'from', callbackMock)).toStrictEqual({
       callback: callbackMock,
       to: 'to',
       from: 'from',
+      options: undefined,
     });
-    expect(aliasArgumentsToCallOptions('to', callbackMock)).toStrictEqual({
-      callback: callbackMock,
+    expect(aliasArgumentsToCallOptions('to', 'from')).toStrictEqual({
       to: 'to',
+      from: 'from',
+      options: undefined,
+      callback: undefined,
     });
+
     expect(aliasArgumentsToCallOptions('to', { options: {} }, callbackMock)).toStrictEqual({
       callback: callbackMock,
       to: 'to',
       options: { options: {} },
+      from: undefined,
     });
-    expect(aliasArgumentsToCallOptions(callbackMock)).toStrictEqual({
+    expect(aliasArgumentsToCallOptions('to', { options: {} })).toStrictEqual({
+      to: 'to',
+      options: { options: {} },
+      from: undefined,
+      callback: undefined,
+    });
+
+    expect(aliasArgumentsToCallOptions('to', callbackMock)).toStrictEqual({
       callback: callbackMock,
+      to: 'to',
+      from: undefined,
+      options: undefined,
     });
-    expect(identifyArgumentsToCallOptions(1234, { traits: {} }, { options: {} })).toStrictEqual({
-      userId: '1234',
-      traits: { traits: {} },
-      options: { options: {} },
-    });
-    expect(aliasArgumentsToCallOptions({ options: {} })).toStrictEqual({
-      options: { options: {} },
+    expect(aliasArgumentsToCallOptions('to')).toStrictEqual({
+      to: 'to',
+      from: undefined,
+      options: undefined,
+      callback: undefined,
     });
   });
 
@@ -218,21 +348,39 @@ describe('Core - Event Method Overloads', () => {
       traits: { traits: {} },
       options: { options: {} },
     });
+    expect(groupArgumentsToCallOptions(1234, { traits: {} }, { options: {} })).toStrictEqual({
+      groupId: '1234',
+      traits: { traits: {} },
+      options: { options: {} },
+      callback: undefined,
+    });
+
     expect(groupArgumentsToCallOptions('groupId', { traits: {} }, callbackMock)).toStrictEqual({
       callback: callbackMock,
       groupId: 'groupId',
       traits: { traits: {} },
+      options: undefined,
     });
+    expect(groupArgumentsToCallOptions('groupId', { traits: {} })).toStrictEqual({
+      groupId: 'groupId',
+      traits: { traits: {} },
+      options: undefined,
+      callback: undefined,
+    });
+
     expect(groupArgumentsToCallOptions('groupId', callbackMock)).toStrictEqual({
       callback: callbackMock,
-      traits: {},
       groupId: 'groupId',
+      traits: undefined,
+      options: undefined,
     });
-    expect(groupArgumentsToCallOptions(callbackMock)).toStrictEqual({
-      groupId: null,
-      traits: {},
-      callback: callbackMock,
+    expect(groupArgumentsToCallOptions('groupId')).toStrictEqual({
+      groupId: 'groupId',
+      traits: undefined,
+      options: undefined,
+      callback: undefined,
     });
+
     expect(
       groupArgumentsToCallOptions({ traits: {} }, { options: {} }, callbackMock),
     ).toStrictEqual({
@@ -241,20 +389,24 @@ describe('Core - Event Method Overloads', () => {
       traits: { traits: {} },
       options: { options: {} },
     });
+    expect(groupArgumentsToCallOptions({ traits: {} }, { options: {} })).toStrictEqual({
+      groupId: null,
+      traits: { traits: {} },
+      options: { options: {} },
+      callback: undefined,
+    });
+
     expect(groupArgumentsToCallOptions({ traits: {} }, callbackMock)).toStrictEqual({
       groupId: null,
       callback: callbackMock,
-      options: null,
       traits: { traits: {} },
+      options: undefined,
     });
-    expect(groupArgumentsToCallOptions(1234, { traits: {} }, { options: {} })).toStrictEqual({
-      groupId: '1234',
+    expect(groupArgumentsToCallOptions({ traits: {} })).toStrictEqual({
+      groupId: null,
       traits: { traits: {} },
-      options: { options: {} },
-    });
-    expect(groupArgumentsToCallOptions(undefined, { traits: {} }, { options: {} })).toStrictEqual({
-      traits: { traits: {} },
-      options: { options: {} },
+      options: undefined,
+      callback: undefined,
     });
   });
 });

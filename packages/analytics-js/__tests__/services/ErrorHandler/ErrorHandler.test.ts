@@ -1,9 +1,11 @@
 import type { SDKError } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
+import { defaultHttpClient } from '../../../src/services/HttpClient';
 import { defaultLogger } from '../../../src/services/Logger';
 import { defaultPluginEngine } from '../../../src/services/PluginEngine';
 import { ErrorHandler } from '../../../src/services/ErrorHandler';
-import { state } from '../../../src/state';
+import * as processError from '../../../src/services/ErrorHandler/processError';
+import { state, resetState } from '../../../src/state';
 
 jest.mock('../../../src/services/Logger', () => {
   const originalModule = jest.requireActual('../../../src/services/Logger');
@@ -45,58 +47,67 @@ describe('ErrorHandler', () => {
   let errorHandlerInstance: ErrorHandler;
 
   beforeEach(() => {
+    resetState();
+    state.reporting.isErrorReportingPluginLoaded.value = false;
     errorHandlerInstance = new ErrorHandler(defaultLogger, defaultPluginEngine);
+    errorHandlerInstance.init(defaultHttpClient, extSrcLoader);
   });
 
   it('should leaveBreadcrumb if plugin engine is provided', () => {
     errorHandlerInstance.leaveBreadcrumb('breadcrumb');
-    expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
+    expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(2);
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledWith(
       'errorReporting.breadcrumb',
       defaultPluginEngine,
       undefined,
       'breadcrumb',
-      expect.any(Object),
+      defaultLogger,
+      state,
     );
   });
 
-  it('should not notify error if error reporting client is not defined', () => {
-    // since we're not initializing the error handler instance,
-    // the error reporting client will not be defined
-    errorHandlerInstance.notifyError(new Error('notify'));
-    expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(0);
-  });
-
-  it('should notify error if plugin engine is provided', () => {
-    // Hard code the presence of the error reporting client
-    errorHandlerInstance.errReportingClient = {};
-
-    errorHandlerInstance.notifyError(new Error('notify'));
-    expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
+  it('should notifyError if plugin engine is provided', () => {
+    errorHandlerInstance.notifyError(new Error('notify'), {
+      severity: 'error',
+      unhandled: false,
+      severityReason: { type: 'handledException' },
+    });
+    expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(2);
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledWith(
       'errorReporting.notify',
       defaultPluginEngine,
-      {},
+      undefined,
       expect.any(Error),
       state,
-      expect.any(Object),
+      defaultLogger,
+      defaultHttpClient,
+      {
+        severity: 'error',
+        unhandled: false,
+        severityReason: { type: 'handledException' },
+      },
     );
   });
 
   it('should log error for Errors with context and custom message if logger exists', () => {
-    // Hard code the presence of the error reporting client
-    errorHandlerInstance.errReportingClient = {};
-
+    state.reporting.isErrorReportingEnabled.value = true;
+    state.reporting.isErrorReportingPluginLoaded.value = true;
     errorHandlerInstance.onError(new Error('dummy error'), 'Unit test', 'dummy  custom  message');
 
-    expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
+    expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(2);
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledWith(
       'errorReporting.notify',
       defaultPluginEngine,
-      {},
+      undefined,
       expect.any(Error),
       state,
-      expect.any(Object),
+      defaultLogger,
+      defaultHttpClient,
+      {
+        severity: 'error',
+        unhandled: false,
+        severityReason: { type: 'handledException' },
+      },
     );
 
     expect(defaultLogger.error).toHaveBeenCalledTimes(1);
@@ -106,19 +117,24 @@ describe('ErrorHandler', () => {
   });
 
   it('should log error for messages with context and custom message if logger exists', () => {
-    // Hard code the presence of the error reporting client
-    errorHandlerInstance.errReportingClient = {};
-
+    state.reporting.isErrorReportingEnabled.value = true;
+    state.reporting.isErrorReportingPluginLoaded.value = true;
     errorHandlerInstance.onError('dummy error', 'Unit test', 'dummy custom message');
 
-    expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
+    expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(2);
     expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledWith(
       'errorReporting.notify',
       defaultPluginEngine,
-      {},
+      undefined,
       expect.any(Error),
       state,
-      expect.any(Object),
+      defaultLogger,
+      defaultHttpClient,
+      {
+        severity: 'error',
+        unhandled: false,
+        severityReason: { type: 'handledException' },
+      },
     );
 
     expect(defaultLogger.error).toHaveBeenCalledTimes(1);
@@ -128,20 +144,25 @@ describe('ErrorHandler', () => {
   });
 
   it('should log and throw for messages with context and custom message if logger exists and shouldAlwaysThrow', () => {
-    // Hard code the presence of the error reporting client
-    errorHandlerInstance.errReportingClient = {};
-
     try {
+      state.reporting.isErrorReportingEnabled.value = true;
+      state.reporting.isErrorReportingPluginLoaded.value = true;
       errorHandlerInstance.onError('dummy error', 'Unit test', 'dummy custom message', true);
     } catch (err) {
-      expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
+      expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(2);
       expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledWith(
         'errorReporting.notify',
         defaultPluginEngine,
-        {},
+        undefined,
         expect.any(Error),
         state,
-        expect.any(Object),
+        defaultLogger,
+        defaultHttpClient,
+        {
+          severity: 'error',
+          unhandled: false,
+          severityReason: { type: 'handledException' },
+        },
       );
 
       expect(defaultLogger.error).toHaveBeenCalledTimes(1);
@@ -157,7 +178,7 @@ describe('ErrorHandler', () => {
     try {
       errorHandlerInstance.onError(new Error('dummy error'), 'Unit test', 'dummy  custom  message');
     } catch (err) {
-      expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(0);
+      expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
       expect(defaultLogger.error).toHaveBeenCalledTimes(0);
       expect(err.message).toStrictEqual('Unit test:: dummy custom message dummy error');
     }
@@ -168,7 +189,7 @@ describe('ErrorHandler', () => {
     try {
       errorHandlerInstance.onError('dummy error', 'Unit test', 'dummy custom message');
     } catch (err) {
-      expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(0);
+      expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
       expect(defaultLogger.error).toHaveBeenCalledTimes(0);
       expect(err.message).toStrictEqual('Unit test:: dummy custom message dummy error');
     }
@@ -177,7 +198,7 @@ describe('ErrorHandler', () => {
   it('should swallow Errors based on processError logic', () => {
     errorHandlerInstance.onError('');
 
-    expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(0);
+    expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
     expect(defaultLogger.error).toHaveBeenCalledTimes(0);
   });
 
@@ -189,7 +210,11 @@ describe('ErrorHandler', () => {
       throw new Error('dummy error');
     });
 
-    errorHandlerInstance.notifyError(new Error('notify'));
+    errorHandlerInstance.notifyError(new Error('notify'), {
+      severity: 'error',
+      unhandled: false,
+      severityReason: { type: 'handledException' },
+    });
 
     expect(defaultLogger.error).toHaveBeenCalledTimes(1);
     expect(defaultLogger.error).toHaveBeenCalledWith(
@@ -215,69 +240,27 @@ describe('ErrorHandler', () => {
     onErrorSpy.mockRestore();
   });
 
+  it('should invoke getNormalizedErrorForUnhandledError fn to normalize unhandled error types', () => {
+    const getNormalizedErrorForUnhandledErrorSpy = jest.spyOn(
+      processError,
+      'getNormalizedErrorForUnhandledError',
+    );
+    errorHandlerInstance.onError(
+      new ErrorEvent('error'),
+      undefined,
+      undefined,
+      undefined,
+      'unhandledException',
+    );
+    expect(getNormalizedErrorForUnhandledErrorSpy).toHaveBeenCalled();
+  });
+
   describe('init', () => {
     it('reporting client should not be defined if the plugin engine is not supplied', () => {
       errorHandlerInstance = new ErrorHandler(defaultLogger);
-      errorHandlerInstance.init(extSrcLoader);
+      errorHandlerInstance.init(defaultHttpClient);
 
-      expect(errorHandlerInstance.errReportingClient).toBeUndefined();
-    });
-
-    it('reporting client should be defined', done => {
-      const invokeSingleSpy = jest
-        .spyOn(defaultPluginEngine, 'invokeSingle')
-        .mockReturnValue(Promise.resolve({}));
-
-      errorHandlerInstance.init(extSrcLoader);
-
-      expect(invokeSingleSpy).toHaveBeenCalledTimes(1);
-      expect(invokeSingleSpy).toHaveBeenCalledWith(
-        'errorReporting.init',
-        state,
-        defaultPluginEngine,
-        extSrcLoader,
-        defaultLogger,
-      );
-
-      setTimeout(() => {
-        expect(errorHandlerInstance.errReportingClient).toBeDefined();
-        invokeSingleSpy.mockRestore();
-        done();
-      }, 0);
-    });
-
-    it('reporting client should not be defined if the plugin returns a promise that rejects', done => {
-      const invokeSingleSpy = jest
-        .spyOn(defaultPluginEngine, 'invokeSingle')
-        .mockReturnValue(Promise.reject(new Error('dummy error')));
-
-      errorHandlerInstance.init(extSrcLoader);
-
-      expect(invokeSingleSpy).toHaveBeenCalledTimes(1);
-      setTimeout(() => {
-        expect(errorHandlerInstance.errReportingClient).toBeUndefined();
-        expect(defaultLogger.error).toHaveBeenCalledTimes(1);
-        expect(defaultLogger.error).toHaveBeenCalledWith(
-          'ErrorHandler:: Failed to initialize the error reporting plugin.',
-          new Error('dummy error'),
-        );
-
-        invokeSingleSpy.mockRestore();
-        done();
-      }, 0);
-    });
-
-    it('should invoke onError if invoking the plugin results in an exception', () => {
-      defaultPluginEngine.invokeSingle = jest.fn(() => {
-        throw new Error('dummy error');
-      });
-
-      const onErrorSpy = jest.spyOn(errorHandlerInstance, 'onError');
-      errorHandlerInstance.init(extSrcLoader);
-
-      expect(onErrorSpy).toHaveBeenCalledTimes(1);
-      expect(onErrorSpy).toHaveBeenCalledWith(expect.any(Error), 'ErrorHandler');
-      onErrorSpy.mockRestore();
+      expect(errorHandlerInstance.httpClient).not.toBeUndefined();
     });
   });
 
@@ -289,6 +272,58 @@ describe('ErrorHandler', () => {
     expect(unhandledRejectionListener).toHaveBeenCalledWith(
       'unhandledrejection',
       expect.any(Function),
+    );
+  });
+
+  it('should notify buffered errors once Error reporting plugin is loaded', () => {
+    errorHandlerInstance.notifyError = jest.fn();
+    errorHandlerInstance.errorBuffer.enqueue({
+      error: new Error('dummy error'),
+      errorState: {
+        severity: 'error',
+        unhandled: false,
+        severityReason: { type: 'handledException' },
+      },
+    });
+    state.reporting.isErrorReportingPluginLoaded.value = true;
+    setTimeout(() => {
+      expect(errorHandlerInstance.attachEffect).toHaveBeenCalledTimes(1);
+      expect(errorHandlerInstance.errorBuffer.size()).toBe(0);
+      expect(errorHandlerInstance.notifyError).toHaveBeenCalledTimes(1);
+    }, 1);
+  });
+
+  it('should enqueue errors if Error reporting plugin is not loaded', () => {
+    errorHandlerInstance.errorBuffer.enqueue = jest.fn();
+    state.reporting.isErrorReportingEnabled.value = true;
+    errorHandlerInstance.onError(new Error('dummy error'));
+    expect(errorHandlerInstance.errorBuffer.enqueue).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not invoke the plugin if Error reporting plugin is not loaded', () => {
+    errorHandlerInstance.attachEffect();
+    expect(defaultPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
+  });
+
+  it('should log error in case unhandled error occurs during processing or notifying the error', () => {
+    state.reporting.isErrorReportingEnabled.value = true;
+    state.reporting.isErrorReportingPluginLoaded.value = true;
+    const dummyError = new Error('dummy error');
+    errorHandlerInstance.notifyError = jest.fn(() => {
+      throw dummyError;
+    });
+    errorHandlerInstance.logger.error = jest.fn();
+    errorHandlerInstance.onError(
+      new Error('test error'),
+      undefined,
+      undefined,
+      undefined,
+      'unhandledException',
+    );
+    expect(errorHandlerInstance.logger.error).toHaveBeenCalledTimes(1);
+    expect(errorHandlerInstance.logger.error).toHaveBeenCalledWith(
+      'ErrorHandler:: Failed to notify the error.',
+      dummyError,
     );
   });
 });

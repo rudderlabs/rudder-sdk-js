@@ -1,19 +1,32 @@
 {
   "name": "@rudderstack/analytics-js-service-worker",
-  "version": "3.1.4",
+  "version": "3.1.5",
   "description": "RudderStack JavaScript Service Worker SDK",
-  "main": "dist/npm/cjs/index.cjs",
-  "module": "dist/npm/esm/index.mjs",
+  "main": "dist/npm/modern/cjs/index.cjs",
+  "module": "dist/npm/modern/esm/index.mjs",
   "type": "module",
   "exports": {
-    "types": "./dist/npm/index.d.mts",
-    "require": {
-      "types": "./dist/npm/index.d.cts",
-      "default": "./dist/npm/cjs/index.cjs"
-    },
-    "import": {
+    ".": {
       "types": "./dist/npm/index.d.mts",
-      "default": "./dist/npm/esm/index.mjs"
+      "require": {
+        "types": "./dist/npm/index.d.cts",
+        "default": "./dist/npm/modern/cjs/index.cjs"
+      },
+      "import": {
+        "types": "./dist/npm/index.d.mts",
+        "default": "./dist/npm/modern/esm/index.mjs"
+      }
+    },
+    "./legacy": {
+      "types": "./dist/npm/index.d.mts",
+      "require": {
+        "types": "./dist/npm/index.d.cts",
+        "default": "./dist/npm/legacy/cjs/index.cjs"
+      },
+      "import": {
+        "types": "./dist/npm/index.d.mts",
+        "default": "./dist/npm/legacy/esm/index.mjs"
+      }
     }
   },
   "types": "./dist/npm/index.d.mts",
@@ -51,17 +64,19 @@
   "scripts": {
     "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf -rf ./reports",
     "start": "rollup -c --watch --environment PROD_DEBUG",
-    "build": "npm run build:package",
-    "build:browser:modern": "exit 0",
+    "build": "npm run build:browser && npm run build:package",
+    "build:modern": "npm run build:browser:modern && npm run build:package:modern",
     "build:browser": "exit 0",
+    "build:browser:modern": "exit 0",
     "build:npm": "rollup -c --environment VERSION:$npm_package_version,ENV:prod",
     "build:npm:modern": "BROWSERSLIST_ENV=modern npm run build:npm",
-    "build:package": "npm run build:npm:modern",
+    "build:package": "npm run build:npm",
+    "build:package:modern": "npm run build:npm:modern",
     "test": "nx test --maxWorkers=50%",
     "test:ci": "nx test --configuration=ci --runInBand --maxWorkers=1 --forceExit",
     "check:lint": "nx lint",
     "check:lint:ci": "nx lint --configuration=ci",
-    "check:size:build": "npm run build:package",
+    "check:size:build": "npm run build:browser && npm run build:browser:modern && npm run build:package && npm run build:package:modern",
     "check:size": "npm run check:size:build && size-limit",
     "check:size:json": "size-limit --json",
     "check:circular": "madge --circular --extensions js,ts src || exit 0",
@@ -70,11 +85,8 @@
     "check:duplicates": "jscpd src",
     "check:security": "npm audit --recursive --audit-level=high",
     "check:pub": "npx publint",
-    "package": "cd dist/npm && npm pack --pack-destination ../../",
+    "package": "npm pack",
     "release": "npm publish"
-  },
-  "engines": {
-    "node": ">=v12"
   },
   "dependencies": {
     "@lukeed/uuid": "2.0.1",

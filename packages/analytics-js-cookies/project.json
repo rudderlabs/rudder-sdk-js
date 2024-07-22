@@ -5,55 +5,6 @@
   "projectType": "library",
   "tags": ["type:lib", "scope:analytics-v3-cookies"],
   "targets": {
-    "start": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "start"
-      }
-    },
-    "build": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build"
-      }
-    },
-    "build-npm": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:npm"
-      }
-    },
-    "build-npm-modern": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:npm:modern"
-      }
-    },
-    "build-package": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:package"
-      }
-    },
-    "build-check-size": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:package"
-      },
-      "dependsOn": ["build"]
-    },
-    "clean": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "clean"
-      }
-    },
-    "pack": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "package"
-      }
-    },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
@@ -101,9 +52,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-cookies@0.3.2",
-        "title": "@rudderstack/analytics-js-cookies@0.3.2",
-        "discussion-category": "@rudderstack/analytics-js-cookies@0.3.2",
+        "tag": "@rudderstack/analytics-js-cookies@0.3.3",
+        "title": "@rudderstack/analytics-js-cookies@0.3.3",
+        "discussion-category": "@rudderstack/analytics-js-cookies@0.3.3",
         "notesFile": "./packages/analytics-js-cookies/CHANGELOG_LATEST.md"
       }
     }

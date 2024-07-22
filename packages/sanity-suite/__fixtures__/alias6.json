@@ -122,8 +122,8 @@
     "messageId": "469fccf3-ba54-427d-9bf4-f01940382231",
     "originalTimestamp": "2023-01-13T08:13:58.548Z",
     "anonymousId": "sample anonymousId",
-    "userId": "customUserID",
     "previousId": "customUserID",
+    "userId": "newCustomUserID",
     "event": null,
     "properties": null,
     "integrations": {

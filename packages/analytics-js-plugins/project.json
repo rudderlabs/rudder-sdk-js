@@ -5,73 +5,6 @@
   "projectType": "library",
   "tags": ["type:lib", "scope:plugins"],
   "targets": {
-    "start": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "start"
-      }
-    },
-    "start-modern": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "start:modern"
-      }
-    },
-    "build": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build"
-      }
-    },
-    "build-browser": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:browser"
-      }
-    },
-    "build-browser-modern": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:browser:modern"
-      }
-    },
-    "build-npm": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:npm"
-      }
-    },
-    "build-npm-modern": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:npm:modern"
-      }
-    },
-    "build-package": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:package"
-      }
-    },
-    "build-check-size": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:package"
-      },
-      "dependsOn": ["build-browser-modern"]
-    },
-    "clean": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "clean"
-      }
-    },
-    "pack": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "package"
-      }
-    },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
@@ -119,9 +52,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-plugins@3.3.2",
-        "title": "@rudderstack/analytics-js-plugins@3.3.2",
-        "discussion-category": "@rudderstack/analytics-js-plugins@3.3.2",
+        "tag": "@rudderstack/analytics-js-plugins@3.4.0",
+        "title": "@rudderstack/analytics-js-plugins@3.4.0",
+        "discussion-category": "@rudderstack/analytics-js-plugins@3.4.0",
         "notesFile": "./packages/analytics-js-plugins/CHANGELOG_LATEST.md"
       }
     }
