@@ -7,9 +7,8 @@ import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/Plu
 import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { IUBENDA_CONSENT_MANAGER_PLUGIN } from './constants';
-import { checks, storages, string } from '../shared-chunks/common';
 import { DESTINATION_CONSENT_STATUS_ERROR, IUBENDA_ACCESS_ERROR } from './logMessages';
+import { IUBENDA_CONSENT_MANAGER_PLUGIN } from './constants';
 
 const pluginName: PluginName = 'IubendaConsentManager';
 
