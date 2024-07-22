@@ -153,7 +153,7 @@ jobs:
     name: Publish packages to NPM
     uses: ./.github/workflows/deploy-npm.yml
     with:
-      is_called: true
+      is_called: 'true'
     secrets:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       RS_PROD_BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}

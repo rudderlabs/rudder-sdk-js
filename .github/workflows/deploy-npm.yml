@@ -5,7 +5,7 @@ on:
   workflow_call:
     inputs:
       is_called:
-        type: boolean
+        type: string
         required: true
     secrets:
       RS_PROD_BUGSNAG_API_KEY:
@@ -73,6 +73,14 @@ jobs:
           BUGSNAG_RELEASE_STAGE: 'production'
         run: |
           npm run setup:ci
+
+      - name: Build release artifacts
+        env:
+          BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
+          BUGSNAG_RELEASE_STAGE: 'production'
+        run: |
+          npm run build:package
+          npm run build:package:modern
 
       - name: Get the two latest monorepo versions
         run: |

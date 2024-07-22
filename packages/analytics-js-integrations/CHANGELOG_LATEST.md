@@ -1,7 +1,10 @@
-## [3.4.4](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.4.3...@rudderstack/analytics-js-integrations@3.4.4) (2024-07-17)
+## [3.4.5](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.4.4...@rudderstack/analytics-js-integrations@3.4.5) (2024-07-19)
 
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.4.4`
 
 ### Bug Fixes
 
-* upgrade braze version from 5.0 to 5.3 ([#1784](https://github.com/rudderlabs/rudder-sdk-js/issues/1784)) ([60a3111](https://github.com/rudderlabs/rudder-sdk-js/commit/60a31116f4401f1c0cb3e82cf55f94420474429a))
+* event API overloads ([#1782](https://github.com/rudderlabs/rudder-sdk-js/issues/1782)) ([02c5b47](https://github.com/rudderlabs/rudder-sdk-js/commit/02c5b47d0a83250fb5180e9ed467a92361663dab))
 
