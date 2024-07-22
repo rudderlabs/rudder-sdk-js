@@ -67,6 +67,10 @@ class ErrorHandler implements IErrorHandler {
       (globalThis as typeof window).addEventListener(
         'unhandledrejection',
         (event: PromiseRejectionEvent) => {
+          if (!(event.reason instanceof Error)) {
+            // Prevent the default handling by the browser
+            event.preventDefault();
+          }
           this.onError(event, undefined, undefined, undefined, ErrorType.UNHANDLEDREJECTION);
         },
       );
