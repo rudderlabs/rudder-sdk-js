@@ -1,7 +1,10 @@
-## [3.2.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.1.0...@rudderstack/analytics-js-integrations@3.2.0) (2024-05-10)
+## [3.4.5](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.4.4...@rudderstack/analytics-js-integrations@3.4.5) (2024-07-19)
 
+### Dependency Updates
 
-### Features
+* `@rudderstack/analytics-js-common` updated to version `3.4.4`
 
-* **criteo:** add support of sha256 hashing method for email ([#1680](https://github.com/rudderlabs/rudder-sdk-js/issues/1680)) ([66e0122](https://github.com/rudderlabs/rudder-sdk-js/commit/66e0122d2bcdb536ab0d69745e05d49806a5348b))
+### Bug Fixes
+
+* event API overloads ([#1782](https://github.com/rudderlabs/rudder-sdk-js/issues/1782)) ([02c5b47](https://github.com/rudderlabs/rudder-sdk-js/commit/02c5b47d0a83250fb5180e9ed467a92361663dab))
 

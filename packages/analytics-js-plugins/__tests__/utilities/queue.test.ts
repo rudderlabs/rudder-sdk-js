@@ -1,10 +1,10 @@
-import { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import {
   getDeliveryPayload,
   validateEventPayloadSize,
 } from '@rudderstack/analytics-js-plugins/utilities/eventsDelivery';
-import * as utilConstants from '../../src/utilities/constants';
+import * as utilConstants from '@rudderstack/analytics-js-plugins/utilities/constants';
 
 class MockLogger implements ILogger {
   warn = jest.fn();

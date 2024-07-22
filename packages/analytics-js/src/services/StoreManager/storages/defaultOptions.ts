@@ -8,7 +8,7 @@ import { DEFAULT_COOKIE_MAX_AGE_MS } from '../../../constants/timeouts';
 import { domain } from '../top-domain';
 
 const getDefaultCookieOptions = (): ICookieStorageOptions => {
-  const topDomain = domain(globalThis.location.href);
+  const topDomain = `.${domain(globalThis.location.href)}`;
 
   return {
     maxage: DEFAULT_COOKIE_MAX_AGE_MS,

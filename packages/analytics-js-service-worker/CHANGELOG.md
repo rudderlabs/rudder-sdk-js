@@ -2,6 +2,63 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.1.5](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-service-worker@3.1.4...@rudderstack/analytics-js-service-worker@3.1.5) (2024-07-19)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.1.4`
+
+### Bug Fixes
+
+* event API overloads ([#1782](https://github.com/rudderlabs/rudder-sdk-js/issues/1782)) ([02c5b47](https://github.com/rudderlabs/rudder-sdk-js/commit/02c5b47d0a83250fb5180e9ed467a92361663dab))
+
+## [3.1.4](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-service-worker@3.1.3...@rudderstack/analytics-js-service-worker@3.1.4) (2024-07-05)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.1.3`
+
+### Bug Fixes
+
+* package lint issues ([#1773](https://github.com/rudderlabs/rudder-sdk-js/issues/1773)) ([8e45d05](https://github.com/rudderlabs/rudder-sdk-js/commit/8e45d052bd6366d647d06226aa89b1fa2e512f9d))
+
+## [3.1.3](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-service-worker@3.1.2...@rudderstack/analytics-js-service-worker@3.1.3) (2024-07-04)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.1.2`
+## [3.1.2](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-service-worker@3.1.1...@rudderstack/analytics-js-service-worker@3.1.2) (2024-06-21)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.1.1`
+
+### Bug Fixes
+
+* improve flushing events on page leave ([#1754](https://github.com/rudderlabs/rudder-sdk-js/issues/1754)) ([1be420f](https://github.com/rudderlabs/rudder-sdk-js/commit/1be420fae16b68629789d2ba37e16e6a6e00017c))
+
+## [3.1.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-service-worker@3.1.0...@rudderstack/analytics-js-service-worker@3.1.1) (2024-06-07)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.1.0`
+
+### Bug Fixes
+
+* url validation ([#1730](https://github.com/rudderlabs/rudder-sdk-js/issues/1730)) ([3a3e105](https://github.com/rudderlabs/rudder-sdk-js/commit/3a3e1057f2db91ef5cbf652a664db9443fee9843))
+
+## [3.1.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-service-worker@3.0.6...@rudderstack/analytics-js-service-worker@3.1.0) (2024-05-24)
+
+
+### Features
+
+* **analytics-js-service-worker:** auto append batch endpoint ([#1718](https://github.com/rudderlabs/rudder-sdk-js/issues/1718)) ([3e853a5](https://github.com/rudderlabs/rudder-sdk-js/commit/3e853a5c8a2f9dcab614ad6d5e6c9a54f3f61a57))
+
+
+### Bug Fixes
+
+* user sessions behavior ([#1708](https://github.com/rudderlabs/rudder-sdk-js/issues/1708)) ([84e7174](https://github.com/rudderlabs/rudder-sdk-js/commit/84e71744612c8345dc22b8cb0c9362d104eb35e9))
+
 ## [3.0.6](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-service-worker@3.0.5...@rudderstack/analytics-js-service-worker@3.0.6) (2024-03-21)
 
 ## [3.0.5](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-service-worker@3.0.4...@rudderstack/analytics-js-service-worker@3.0.5) (2024-03-01)

@@ -92,6 +92,7 @@ export type MetricsState = {
   sent: Signal<number>;
   queued: Signal<number>;
   triggered: Signal<number>;
+  metricsServiceUrl: Signal<string | undefined>;
 };
 
 export type DataPlaneEventsState = {
@@ -119,11 +120,22 @@ export type PluginsState = {
   totalPluginsToLoad: Signal<number>;
 };
 
+export type BreadcrumbMetaData = {
+  [index: string]: any;
+};
+export type BreadcrumbType = 'error' | 'manual';
+export type Breadcrumb = {
+  type: BreadcrumbType;
+  name: string;
+  timestamp: Date;
+  metaData: BreadcrumbMetaData;
+};
+
 export type ReportingState = {
   isErrorReportingEnabled: Signal<boolean>;
   isMetricsReportingEnabled: Signal<boolean>;
-  errorReportingProviderPluginName: Signal<PluginName | undefined>;
   isErrorReportingPluginLoaded: Signal<boolean>;
+  breadcrumbs: Signal<Breadcrumb[]>;
 };
 
 export type SessionState = {
@@ -158,6 +170,11 @@ export type StorageState = {
   trulyAnonymousTracking: Signal<boolean>;
 };
 
+export type ServerCookiesState = {
+  isEnabledServerSideCookies: Signal<boolean>;
+  dataServiceUrl: Signal<string | undefined>;
+};
+
 export interface ApplicationState {
   capabilities: CapabilitiesState;
   consents: ConsentsState;
@@ -172,6 +189,7 @@ export interface ApplicationState {
   session: SessionState;
   source: SourceConfigState;
   storage: StorageState;
+  serverCookies: ServerCookiesState;
   dataPlaneEvents: DataPlaneEventsState;
 }
 

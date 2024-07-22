@@ -1,19 +1,39 @@
 {
   "name": "@rudderstack/analytics-js-service-worker",
-  "version": "3.0.6",
+  "version": "3.1.5",
   "description": "RudderStack JavaScript Service Worker SDK",
-  "main": "dist/npm/umd/index.js",
-  "module": "dist/npm/esm/index.js",
+  "main": "dist/npm/modern/cjs/index.cjs",
+  "module": "dist/npm/modern/esm/index.mjs",
+  "type": "module",
   "exports": {
-    "require": "./dist/npm/umd/index.js",
-    "import": "./dist/npm/esm/index.js",
-    "types": "./dist/npm/index.d.ts"
+    ".": {
+      "types": "./dist/npm/index.d.mts",
+      "require": {
+        "types": "./dist/npm/index.d.cts",
+        "default": "./dist/npm/modern/cjs/index.cjs"
+      },
+      "import": {
+        "types": "./dist/npm/index.d.mts",
+        "default": "./dist/npm/modern/esm/index.mjs"
+      }
+    },
+    "./legacy": {
+      "types": "./dist/npm/index.d.mts",
+      "require": {
+        "types": "./dist/npm/index.d.cts",
+        "default": "./dist/npm/legacy/cjs/index.cjs"
+      },
+      "import": {
+        "types": "./dist/npm/index.d.mts",
+        "default": "./dist/npm/legacy/esm/index.mjs"
+      }
+    }
   },
-  "types": "./dist/npm/index.d.ts",
+  "types": "./dist/npm/index.d.mts",
   "typesVersions": {
     "*": {
       "*": [
-        "dist/npm/index.d.ts"
+        "./dist/npm/index.d.mts"
       ]
     }
   },
@@ -22,7 +42,7 @@
   },
   "files": [
     "dist/npm",
-    "LICENSE",
+    "LICENSE.md",
     "README.md",
     "CHANGELOG.md"
   ],
@@ -31,7 +51,7 @@
     "rudder"
   ],
   "author": "RudderStack",
-  "license": "MIT",
+  "license": "Elastic-2.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rudderlabs/rudder-sdk-js.git",
@@ -44,17 +64,19 @@
   "scripts": {
     "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf -rf ./reports",
     "start": "rollup -c --watch --environment PROD_DEBUG",
-    "build": "npm run build:package",
-    "build:browser:modern": "exit 0",
+    "build": "npm run build:browser && npm run build:package",
+    "build:modern": "npm run build:browser:modern && npm run build:package:modern",
     "build:browser": "exit 0",
+    "build:browser:modern": "exit 0",
     "build:npm": "rollup -c --environment VERSION:$npm_package_version,ENV:prod",
     "build:npm:modern": "BROWSERSLIST_ENV=modern npm run build:npm",
-    "build:package": "npm run build:npm:modern",
+    "build:package": "npm run build:npm",
+    "build:package:modern": "npm run build:npm:modern",
     "test": "nx test --maxWorkers=50%",
-    "test:ci": "nx test --parallel=false --configuration=ci --runInBand --maxWorkers=1 --forceExit",
+    "test:ci": "nx test --configuration=ci --runInBand --maxWorkers=1 --forceExit",
     "check:lint": "nx lint",
     "check:lint:ci": "nx lint --configuration=ci",
-    "check:size:build": "npm run build:package",
+    "check:size:build": "npm run build:browser && npm run build:browser:modern && npm run build:package && npm run build:package:modern",
     "check:size": "npm run check:size:build && size-limit",
     "check:size:json": "size-limit --json",
     "check:circular": "madge --circular --extensions js,ts src || exit 0",
@@ -62,29 +84,25 @@
     "check:support:modern": "NODE_ENV=modern npx browserslist --mobile-to-desktop",
     "check:duplicates": "jscpd src",
     "check:security": "npm audit --recursive --audit-level=high",
-    "package": "cd dist/npm && npm pack --pack-destination ../../",
+    "check:pub": "npx publint",
+    "package": "npm pack",
     "release": "npm publish"
   },
-  "engines": {
-    "node": ">=v12"
-  },
   "dependencies": {
+    "@lukeed/uuid": "2.0.1",
+    "@rudderstack/analytics-js-common": "*",
     "@vespaiach/axios-fetch-adapter": "0.3.1",
     "assert": "2.1.0",
-    "axios": "1.6.7",
-    "axios-retry": "3.9.1",
+    "axios": "1.7.2",
+    "axios-retry": "4.4.0",
     "component-type": "2.0.0",
     "join-component": "1.1.0",
-    "lodash.clonedeep": "4.5.0",
-    "lodash.isstring": "4.0.1",
     "ms": "2.1.3"
   },
   "devDependencies": {
     "@types/ms": "0.7.34",
-    "@types/lodash.clonedeep": "4.5.6",
-    "@types/lodash.isstring": "4.0.1",
-    "@types/node": "20.11.20",
-    "jest-date-mock": "1.0.8"
+    "@types/node": "20.14.5",
+    "jest-date-mock": "1.0.10"
   },
   "overrides": {},
   "browserslist": {

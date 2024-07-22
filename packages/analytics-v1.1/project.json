@@ -5,61 +5,12 @@
   "projectType": "library",
   "tags": ["type:sdk", "scope:analytics-v1.1"],
   "targets": {
-    "build": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build"
-      }
-    },
-    "build-browser": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:browser"
-      }
-    },
-    "build-browser-modern": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:browser:modern"
-      }
-    },
-    "build-npm": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:npm"
-      }
-    },
-    "build-package": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:package"
-      }
-    },
-    "build-check-size": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:package"
-      },
-      "dependsOn": ["build-browser"]
-    },
-    "clean": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "clean"
-      }
-    },
-    "pack": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "package"
-      }
-    },
     "prepare-test-mocks": {
       "executor": "nx:run-commands",
       "options": {
         "command": "sed 's/var rudderanalytics/rudderanalytics/g' packages/analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js > packages/analytics-v1.1/__mocks__/cdnSDK.js"
       },
-      "dependsOn": ["build-browser"]
+      "dependsOn": ["build:browser"]
     },
     "test": {
       "executor": "@nx/jest:jest",
@@ -109,9 +60,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "rudder-sdk-js@2.48.7",
-        "title": "rudder-sdk-js@2.48.7",
-        "discussion-category": "rudder-sdk-js@2.48.7",
+        "tag": "rudder-sdk-js@2.48.13",
+        "title": "rudder-sdk-js@2.48.13",
+        "discussion-category": "rudder-sdk-js@2.48.13",
         "notesFile": "./packages/analytics-v1.1/CHANGELOG_LATEST.md"
       }
     }

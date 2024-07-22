@@ -3,6 +3,7 @@
     "channel": "web",
     "context": {
       "app": {
+        "installType": "cdn",
         "name": "RudderLabs JavaScript SDK",
         "namespace": "com.rudderlabs.javascript",
         "version": "2.22.2"
@@ -80,10 +81,10 @@
       "channel": "random",
       "library": {
         "name": "RudderLabs JavaScript SDK",
-        "version": "2.22.2"
+        "version": "3.3.0",
+        "snippetVersion": "3.0.10"
       },
       "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
-      "network": null,
       "os": {
         "name": "",
         "version": ""
@@ -121,8 +122,8 @@
     "messageId": "469fccf3-ba54-427d-9bf4-f01940382231",
     "originalTimestamp": "2023-01-13T08:13:58.548Z",
     "anonymousId": "sample anonymousId",
-    "userId": "customUserID",
     "previousId": "customUserID",
+    "userId": "newCustomUserID",
     "event": null,
     "properties": null,
     "integrations": {
@@ -135,7 +136,6 @@
         "sessionNumber": 1
       }
     },
-    "user_properties": null,
     "sentAt": "2023-01-14T20:26:36.001Z"
   }
 }

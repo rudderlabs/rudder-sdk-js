@@ -4,18 +4,21 @@ import track3ExpectedData from '../../__fixtures__/track3.json';
 import track4ExpectedData from '../../__fixtures__/track4.json';
 import track5ExpectedData from '../../__fixtures__/track5.json';
 import track6ExpectedData from '../../__fixtures__/track6.json';
-import track7ExpectedData from '../../__fixtures__/track7.json';
 
 const trackMethodSuite = {
   id: 'trackMethod',
   name: 'Track',
   description:
-    'Track Method: rudderanalytics.track(event, [properties], [apiOptions], [callback]);',
+    'Track Method: ' +
+    'rudderanalytics.track(event, [properties], [apiOptions], [callback]);' +
+    'rudderanalytics.track(event, [properties], [callback]);' +
+    'rudderanalytics.track(event, [callback]);',
   testCases: [
     {
       id: 'track1',
-      description: 'Call with all arguments and all primitives in properties and apiOptions',
+      description: 'rudderanalytics.track(event, properties, apiOptions)',
       inputData: [
+        [true],
         [
           'customUserID',
           {
@@ -129,12 +132,13 @@ const trackMethodSuite = {
         ],
       ],
       expectedResult: track1ExpectedData,
-      triggerHandler: ['identify', 'track'],
+      triggerHandler: ['reset', 'identify', 'track'],
     },
     {
       id: 'track2',
-      description: 'Call with event name, properties as arguments with all possible data types',
+      description: 'rudderanalytics.track(event, properties)',
       inputData: [
+        [true],
         [
           'customUserID',
           {
@@ -199,13 +203,13 @@ const trackMethodSuite = {
         ],
       ],
       expectedResult: track2ExpectedData,
-      triggerHandler: ['identify', 'track'],
+      triggerHandler: ['reset', 'identify', 'track'],
     },
     {
       id: 'track3',
-      description:
-        'Call with event name, properties and null apiOptions as arguments with all possible data types',
+      description: 'rudderanalytics.track(event, properties, null)',
       inputData: [
+        [true],
         [
           'customUserID',
           {
@@ -271,13 +275,13 @@ const trackMethodSuite = {
         ],
       ],
       expectedResult: track3ExpectedData,
-      triggerHandler: ['identify', 'track'],
+      triggerHandler: ['reset', 'identify', 'track'],
     },
     {
       id: 'track4',
-      description:
-        'Call with event name, null properties and apiOptions as arguments with all possible data types',
+      description: 'rudderanalytics.track(event, null, apiOptions)',
       inputData: [
+        [true],
         [
           'customUserID',
           {
@@ -375,18 +379,18 @@ const trackMethodSuite = {
         ],
       ],
       expectedResult: track4ExpectedData,
-      triggerHandler: ['identify', 'track'],
+      triggerHandler: ['reset', 'identify', 'track'],
     },
     {
       id: 'track5',
-      description: 'Call with only event name as argument',
-      inputData: ['Order Completed'],
+      description: 'rudderanalytics.track(event)',
+      inputData: [[true], ['Order Completed']],
       expectedResult: track5ExpectedData,
-      triggerHandler: 'track',
+      triggerHandler: ['reset', 'track'],
     },
     {
       id: 'track6',
-      description: 'Scenarios where no identify is called before track',
+      description: 'rudderanalytics.track(event, properties) with no prior identify',
       inputData: [
         [true],
         [
@@ -411,35 +415,6 @@ const trackMethodSuite = {
         ],
       ],
       expectedResult: track6ExpectedData,
-      triggerHandler: ['reset', 'track'],
-    },
-    {
-      id: 'track7',
-      description: 'Consent denied category Ids are attached to context object of track',
-      inputData: [
-        [true],
-        [
-          'Order Completed',
-          {
-            revenue: 30,
-            currency: 'USD',
-            user_actual_id: 12345,
-            productId: '234567-sdfghj-345tygh-567890dfghj',
-            productCategory: 'clothing',
-            paid: true,
-            paymentMode: 4,
-            paymentModeName: 'online',
-            productSizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-            sampleObj: {
-              sampleObj1: {
-                newKey: 'sample text',
-              },
-              newKey1: 3456789009876543,
-            },
-          },
-        ],
-      ],
-      expectedResult: track7ExpectedData,
       triggerHandler: ['reset', 'track'],
     },
   ],

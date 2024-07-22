@@ -1,10 +1,6 @@
 import type { DestinationConfig } from '@rudderstack/analytics-js-common/types/Destination';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { StatsCollection } from '@rudderstack/analytics-js-common/types/Source';
-import type {
-  RegionDetails,
-  ResidencyServerRegion,
-} from '@rudderstack/analytics-js-common/types/DataResidency';
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
@@ -76,7 +72,6 @@ export type SourceConfigResponse = {
     createdAt: string;
     createdBy: string;
     deleted: boolean;
-    dataplanes?: Record<ResidencyServerRegion, RegionDetails[]>;
   };
 };
 

@@ -11,14 +11,16 @@ import type {
 
 // CONSTANT
 const SOURCE_CONFIG_OPTION_ERROR = `"getSourceConfig" must be a function. Please make sure that it is defined and returns a valid source configuration object.`;
-const INTG_CDN_BASE_URL_ERROR = `Failed to load the SDK as the CDN base URL for integrations is not valid.`;
-const PLUGINS_CDN_BASE_URL_ERROR = `Failed to load the SDK as the CDN base URL for plugins is not valid.`;
 const DATA_PLANE_URL_ERROR = `Failed to load the SDK as the data plane URL could not be determined. Please check that the data plane URL is set correctly and try again.`;
 const SOURCE_CONFIG_RESOLUTION_ERROR = `Unable to process/parse source configuration response.`;
+const SOURCE_DISABLED_ERROR = `The source is disabled. Please enable the source in the dashboard to send events.`;
 const XHR_PAYLOAD_PREP_ERROR = `Failed to prepare data for the request.`;
 const EVENT_OBJECT_GENERATION_ERROR = `Failed to generate the event object.`;
 const PLUGIN_EXT_POINT_MISSING_ERROR = `Failed to invoke plugin because the extension point name is missing.`;
 const PLUGIN_EXT_POINT_INVALID_ERROR = `Failed to invoke plugin because the extension point name is invalid.`;
+
+const COMPONENT_BASE_URL_ERROR = (component: string): string =>
+  `Failed to load the SDK as the base URL for ${component} is not valid.`;
 
 // ERROR
 const UNSUPPORTED_CONSENT_MANAGER_ERROR = (
@@ -67,7 +69,7 @@ const SOURCE_CONFIG_FETCH_ERROR = (reason: Error | undefined): string =>
 const WRITE_KEY_VALIDATION_ERROR = (writeKey?: string): string =>
   `The write key "${writeKey}" is invalid. It must be a non-empty string. Please check that the write key is correct and try again.`;
 
-const DATA_PLANE_URL_VALIDATION_ERROR = (dataPlaneUrl: string): string =>
+const DATA_PLANE_URL_VALIDATION_ERROR = (dataPlaneUrl: string | undefined): string =>
   `The data plane URL "${dataPlaneUrl}" is invalid. It must be a valid URL string. Please check that the data plane URL is correct and try again.`;
 
 const READY_API_CALLBACK_ERROR = (context: string): string =>
@@ -90,6 +92,15 @@ const STORE_DATA_SAVE_ERROR = (key: string): string =>
 
 const STORE_DATA_FETCH_ERROR = (key: string): string =>
   `Failed to retrieve or parse data for "${key}" from storage`;
+
+const DATA_SERVER_URL_INVALID_ERROR = (url: string) =>
+  `The server side cookies functionality is disabled as the provided data server URL, "${url}" is invalid.`;
+
+const DATA_SERVER_REQUEST_FAIL_ERROR = (status?: number) =>
+  `The server responded with status ${status} while setting the cookies. As a fallback, the cookies will be set client side.`;
+const FAILED_SETTING_COOKIE_FROM_SERVER_ERROR = (key: string) =>
+  `The server failed to set the ${key} cookie. As a fallback, the cookies will be set client side.`;
+const FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR = `Failed to set/remove cookies via server. As a fallback, the cookies will be managed client side.`;
 
 // WARNING
 const STORAGE_TYPE_VALIDATION_WARNING = (
@@ -126,12 +137,12 @@ const STORAGE_DATA_MIGRATION_OVERRIDE_WARNING = (
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The storage data migration has been disabled because the configured storage encryption version (${storageEncryptionVersion}) is not the latest (${defaultVersion}). To enable storage data migration, please update the storage encryption version to the latest version.`;
 
-const UNSUPPORTED_RESIDENCY_SERVER_REGION_WARNING = (
+const SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING = (
   context: string,
-  selectedResidencyServerRegion: string | undefined,
-  defaultRegion: string,
+  providedCookieDomain: string | undefined,
+  currentCookieDomain: string,
 ): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The residency server region "${selectedResidencyServerRegion}" is not supported. Please choose one of the following supported regions: "US, EU". The default region "${defaultRegion}" will be used instead.`;
+  `${context}${LOG_CONTEXT_SEPARATOR}The provided cookie domain (${providedCookieDomain}) does not match the current webpage's domain (${currentCookieDomain}). Hence, the cookies will be set client-side.`;
 
 const RESERVED_KEYWORD_WARNING = (
   context: string,
@@ -198,13 +209,11 @@ const DMT_PLUGIN_INITIALIZE_ERROR = `DeviceModeTransformationPlugin initializati
 const NATIVE_DEST_PLUGIN_ENQUEUE_ERROR = `NativeDestinationQueuePlugin event enqueue failed`;
 const DATAPLANE_PLUGIN_ENQUEUE_ERROR = `XhrQueuePlugin event enqueue failed`;
 
-const INVALID_CONFIG_URL_WARNING = (context: string, configUrl: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The provided config URL "${configUrl}" is invalid. Using the default value instead.`;
+const INVALID_CONFIG_URL_WARNING = (context: string, configUrl: string | undefined): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The provided source config URL "${configUrl}" is invalid. Using the default source config URL instead.`;
 
 const POLYFILL_SCRIPT_LOAD_ERROR = (scriptId: string, url: string): string =>
   `Failed to load the polyfill script with ID "${scriptId}" from URL ${url}.`;
-
-const COOKIE_DATA_ENCODING_ERROR = `Failed to encode the cookie data.`;
 
 const UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY = (
   context: string,
@@ -220,27 +229,30 @@ const UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE = (
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The pre-consent events delivery type "${selectedDeliveryType}" is not supported. Please choose one of the following supported types: "immediate, buffer". The default type "${defaultDeliveryType}" will be used instead.`;
 
-const MISCONFIGURED_PLUGINS_WARNING = (
+const DEPRECATED_PLUGIN_WARNING = (context: string, pluginName: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}${pluginName} plugin is deprecated. Please exclude it from the load API options.`;
+const generateMisconfiguredPluginsWarning = (
   context: string,
-  configurationStatusStr: string,
+  configurationStatus: string,
   missingPlugins: PluginName[],
   shouldAddMissingPlugins: boolean,
-) => {
-  const pluginsString =
-    missingPlugins.length === 1
-      ? ` '${missingPlugins[0]}' plugin was`
-      : ` ['${missingPlugins.join("', '")}'] plugins were`;
-
-  const baseWarning = `${context}${LOG_CONTEXT_SEPARATOR}${configurationStatusStr}, but${pluginsString} not configured to load.`;
-  let warningStr;
-
+): string => {
+  const isSinglePlugin = missingPlugins.length === 1;
+  const pluginsString = isSinglePlugin
+    ? ` '${missingPlugins[0]}' plugin was`
+    : ` ['${missingPlugins.join("', '")}'] plugins were`;
+  const baseWarning = `${context}${LOG_CONTEXT_SEPARATOR}${configurationStatus}, but${pluginsString} not configured to load.`;
   if (shouldAddMissingPlugins) {
-    warningStr = `${baseWarning} So, ${missingPlugins.length === 1 ? 'the plugin' : 'those plugins'} will be loaded automatically.`;
-  } else {
-    warningStr = `${baseWarning} Ignore if this was intentional. Otherwise, consider adding ${missingPlugins.length === 1 ? 'it' : 'them'} to the 'plugins' load API option.`;
+    return `${baseWarning} So, ${isSinglePlugin ? 'the plugin' : 'those plugins'} will be loaded automatically.`;
   }
-  return warningStr;
+  return `${baseWarning} Ignore if this was intentional. Otherwise, consider adding ${isSinglePlugin ? 'it' : 'them'} to the 'plugins' load API option.`;
 };
+
+const INVALID_POLYFILL_URL_WARNING = (
+  context: string,
+  customPolyfillUrl: string | undefined,
+): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The provided polyfill URL "${customPolyfillUrl}" is invalid. The default polyfill URL will be used instead.`;
 
 // DEBUG
 
@@ -249,7 +261,6 @@ export {
   UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING,
   UNSUPPORTED_STORAGE_ENCRYPTION_VERSION_WARNING,
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
-  UNSUPPORTED_RESIDENCY_SERVER_REGION_WARNING,
   RESERVED_KEYWORD_WARNING,
   INVALID_CONTEXT_OBJECT_WARNING,
   UNSUPPORTED_BEACON_API_WARNING,
@@ -257,6 +268,7 @@ export {
   TIMEOUT_ZERO_WARNING,
   TIMEOUT_NOT_RECOMMENDED_WARNING,
   INVALID_SESSION_ID_WARNING,
+  DEPRECATED_PLUGIN_WARNING,
   REPORTING_PLUGIN_INIT_FAILURE_ERROR,
   NOTIFY_FAILURE_ERROR,
   PLUGIN_NAME_MISSING_ERROR,
@@ -270,8 +282,6 @@ export {
   STORAGE_UNAVAILABILITY_ERROR_PREFIX,
   SOURCE_CONFIG_FETCH_ERROR,
   SOURCE_CONFIG_OPTION_ERROR,
-  INTG_CDN_BASE_URL_ERROR,
-  PLUGINS_CDN_BASE_URL_ERROR,
   DATA_PLANE_URL_ERROR,
   WRITE_KEY_VALIDATION_ERROR,
   DATA_PLANE_URL_VALIDATION_ERROR,
@@ -292,7 +302,6 @@ export {
   API_CALLBACK_INVOKE_ERROR,
   INVALID_CONFIG_URL_WARNING,
   POLYFILL_SCRIPT_LOAD_ERROR,
-  COOKIE_DATA_ENCODING_ERROR,
   UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY,
   UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
   SOURCE_CONFIG_RESOLUTION_ERROR,
@@ -301,5 +310,13 @@ export {
   DMT_PLUGIN_INITIALIZE_ERROR,
   NATIVE_DEST_PLUGIN_ENQUEUE_ERROR,
   DATAPLANE_PLUGIN_ENQUEUE_ERROR,
-  MISCONFIGURED_PLUGINS_WARNING,
+  DATA_SERVER_URL_INVALID_ERROR,
+  DATA_SERVER_REQUEST_FAIL_ERROR,
+  FAILED_SETTING_COOKIE_FROM_SERVER_ERROR,
+  FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR,
+  generateMisconfiguredPluginsWarning,
+  INVALID_POLYFILL_URL_WARNING,
+  SOURCE_DISABLED_ERROR,
+  COMPONENT_BASE_URL_ERROR,
+  SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING,
 };

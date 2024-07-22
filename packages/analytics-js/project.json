@@ -5,79 +5,12 @@
   "projectType": "library",
   "tags": ["type:sdk", "scope:analytics-v3"],
   "targets": {
-    "start": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "start"
-      }
-    },
-    "start-modern": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "start:modern"
-      }
-    },
-    "build": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build"
-      }
-    },
-    "build-browser": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:browser"
-      }
-    },
-    "build-browser-modern": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:browser:modern"
-      }
-    },
-    "build-npm": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:npm"
-      }
-    },
-    "build-npm-modern": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:npm:modern"
-      }
-    },
-    "build-package": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:package"
-      }
-    },
-    "build-check-size": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:package"
-      },
-      "dependsOn": ["build-browser", "build-browser-modern"]
-    },
-    "clean": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "clean"
-      }
-    },
-    "pack": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "package"
-      }
-    },
     "prepare-test-mocks": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "sed 's/var rudderanalytics/rudderanalytics/g' packages/analytics-js/dist/cdn/legacy/iife/rsa.min.js > packages/analytics-js/__mocks__/cdnSDKv3.js"
+        "command": "sed 's/var rudderanalytics/rudderanalytics/g' packages/analytics-js/dist/cdn/legacy/iife/rsa.min.js > packages/analytics-js/__mocks__/cdnSDK.js"
       },
-      "dependsOn": ["build-browser"]
+      "dependsOn": ["build:browser"]
     },
     "test": {
       "executor": "@nx/jest:jest",
@@ -91,7 +24,8 @@
       },
       "configurations": {
         "ci": {
-          "ci": true
+          "ci": true,
+          "codeCoverage": true
         }
       },
       "dependsOn": ["prepare-test-mocks"]
@@ -126,9 +60,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js@3.1.1",
-        "title": "@rudderstack/analytics-js@3.1.1",
-        "discussion-category": "@rudderstack/analytics-js@3.1.1",
+        "tag": "@rudderstack/analytics-js@3.7.2",
+        "title": "@rudderstack/analytics-js@3.7.2",
+        "discussion-category": "@rudderstack/analytics-js@3.7.2",
         "notesFile": "./packages/analytics-js/CHANGELOG_LATEST.md"
       }
     }

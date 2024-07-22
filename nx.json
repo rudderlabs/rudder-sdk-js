@@ -24,7 +24,7 @@
   },
   "targetDefaults": {
     "test": {
-      "inputs": ["default", "^default", "{workspaceRoot}/jest.preset.js"],
+      "inputs": ["default", "^test"],
       "cache": true
     },
     "version": [
@@ -34,30 +34,61 @@
       }
     ],
     "build": {
+      "inputs": ["default", "^production"],
       "cache": true
     },
-    "build-browser": {
+    "build:modern": {
+      "inputs": ["default", "^production"],
       "cache": true
     },
-    "build-browser-modern": {
+    "build:browser": {
+      "inputs": ["default", "^production"],
       "cache": true
     },
-    "build-npm": {
+    "build:browser:modern": {
+      "inputs": ["default", "^production"],
       "cache": true
     },
-    "build-npm-modern": {
+    "build:package": {
+      "inputs": ["default", "^production"],
       "cache": true
     },
-    "build-worker": {
-      "cache": true
-    },
-    "build-package": {
-      "cache": true
-    },
-    "build-check-size": {
+    "build:package:modern": {
+      "inputs": ["default", "^production"],
       "cache": true
     },
     "check:size:build": {
+      "inputs": ["default", "^production"],
+      "cache": true
+    },
+    "check:size:json": {
+      "inputs": [
+        "default",
+        "^production",
+        "{projectRoot}/.size-limit.js",
+        "{projectRoot}/.size-limit.mjs"
+      ],
+      "cache": true
+    },
+    "check:pub": {
+      "inputs": ["{projectRoot}/package.json"],
+      "cache": true
+    },
+    "test:pre-commit:affected": {
+      "inputs": ["default", "^test"],
+      "cache": true
+    },
+    "check:size:build:pre-commit:affected": {
+      "inputs": ["default", "^production"],
+      "cache": true
+    },
+    "check:size:json:pre-commit:affected": {
+      "inputs": [
+        "default",
+        "^production",
+        "{projectRoot}/.size-limit.js",
+        "{projectRoot}/.size-limit.mjs"
+      ],
       "cache": true
     }
   },
@@ -65,5 +96,52 @@
     "@nx/js:library": {
       "buildable": true
     }
+  },
+  "namedInputs": {
+    "sharedGlobals": [
+      {
+        "runtime": "node --version"
+      }
+    ],
+    "default": [
+      "sharedGlobals",
+      "{projectRoot}/**/*",
+      "!{projectRoot}/.env.example",
+      "!{projectRoot}/public/**/*",
+      "!{projectRoot}/LICENSE.md",
+      "!{projectRoot}/**/*.md",
+      "!{projectRoot}/**/*.txt",
+      "!{projectRoot}/serve.json",
+      "!{projectRoot}/.size-limit.js",
+      "!{projectRoot}/.size-limit.mjs",
+      "!{projectRoot}/.jscpd.json",
+      "{workspaceRoot}/tsconfig.build.json",
+      "{workspaceRoot}/tsconfig.json",
+      "{workspaceRoot}/tsconfig.paths.json",
+      "{workspaceRoot}/package.json",
+      "{workspaceRoot}/package-lock.json",
+      "{workspaceRoot}/babel.config.json",
+      "{workspaceRoot}/types/**/*",
+      "{workspaceRoot}/nx.json"
+    ],
+    "production": [
+      "{projectRoot}/src/**/*",
+      "!{projectRoot}/src/**/*.(spec|test).(j|t)s?(x)",
+      "!{projectRoot}/__tests__/**/*",
+      "!{projectRoot}/__fixtures__/**/*",
+      "!{projectRoot}/__mocks__/**/*",
+      "!{projectRoot}/jest.config.mjs"
+    ],
+    "test": [
+      "{projectRoot}/src/**/*",
+      "{projectRoot}/src/**/*.(spec|test).(j|t)s?(x)",
+      "{projectRoot}/__tests__/**/*",
+      "{projectRoot}/__fixtures__/**/*",
+      "{projectRoot}/__mocks__/**/*",
+      "{projectRoot}/jest.config.mjs",
+      "{workspaceRoot}/jest/**/*",
+      "{workspaceRoot}/jest.preset.js",
+      "{workspaceRoot}/jest.config.js"
+    ]
   }
 }

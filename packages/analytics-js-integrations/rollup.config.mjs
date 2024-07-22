@@ -32,14 +32,8 @@ const modName = `${process.env.INTG_NAME}${INTG_SUFFIX}`;
 export function getOutputFilePath(dirPath, distName) {
   const fileNamePrefix = `${distName}`;
   const fileNameSuffix = process.env.PROD_DEBUG === 'inline' ? '-map' : '';
-  let outFilePath = '';
-
-  if (process.env.ENV === 'prod') {
-    outFilePath = `${dirPath}/${fileNamePrefix}${fileNameSuffix}.min.js`;
-  } else {
-    outFilePath = `${dirPath}/${fileNamePrefix}.js`;
-  }
-  return outFilePath;
+  const fileExtension = process.env.ENV === 'prod' ? 'min.js' : 'js';
+  return `${dirPath}/${fileNamePrefix}${fileNameSuffix}.${fileExtension}`;
 }
 
 export function getDefaultConfig(distName, moduleType = 'cdn') {
@@ -110,7 +104,6 @@ export function getDefaultConfig(distName, moduleType = 'cdn') {
           },
         }),
       filesize({
-        showBeforeSizes: 'build',
         showBrotliSize: true,
       }),
       process.env.VISUALIZER === 'true' &&
@@ -138,13 +131,15 @@ const outputFiles = [
   },
 ];
 
-const buildConfig = {
-  ...getDefaultConfig(distName),
+const buildConfig = () => {
+  return {
+    ...getDefaultConfig(distName),
+  };
 };
 
 export default [
   {
-    ...buildConfig,
+    ...buildConfig(),
     input: `src/integrations/${process.env.INTG_NAME}/index.js`,
     output: outputFiles,
   },

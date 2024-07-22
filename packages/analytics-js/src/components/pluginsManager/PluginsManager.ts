@@ -13,11 +13,10 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { PLUGINS_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { isDefined, isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
-import { MISCONFIGURED_PLUGINS_WARNING } from '@rudderstack/analytics-js/constants/logMessages';
+import { generateMisconfiguredPluginsWarning } from '../../constants/logMessages';
 import { setExposedGlobal } from '../utilities/globals';
 import { state } from '../../state';
 import {
-  ErrorReportingProvidersToPluginNameMap,
   ConsentManagersToPluginNameMap,
   StorageEncryptionVersionsToPluginNameMap,
   DataPlaneEventsTransportToPluginNameMap,
@@ -96,6 +95,16 @@ class PluginsManager implements IPluginsManager {
       return [];
     }
 
+    // TODO: Uncomment below lines after removing deprecated plugin
+    // Filter deprecated plugins
+    // pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(pluginName => {
+    //   if (deprecatedPluginsList.includes(pluginName)) {
+    //     this.logger?.warn(DEPRECATED_PLUGIN_WARNING(PLUGINS_MANAGER, pluginName));
+    //     return false;
+    //   }
+    //   return true;
+    // });
+
     const pluginGroupsToProcess: PluginsGroup[] = [
       {
         configurationStatus: () => isDefined(state.dataPlaneEvents.eventsQueuePluginName.value),
@@ -105,12 +114,9 @@ class PluginsManager implements IPluginsManager {
         shouldAddMissingPlugins: true,
       },
       {
-        configurationStatus: () =>
-          isDefined(state.reporting.errorReportingProviderPluginName.value),
+        configurationStatus: () => state.reporting.isErrorReportingEnabled.value,
         configurationStatusStr: 'Error reporting is enabled',
-        activePluginName: state.reporting.errorReportingProviderPluginName.value,
-        basePlugins: ['ErrorReporting'],
-        supportedPlugins: Object.values(ErrorReportingProvidersToPluginNameMap),
+        supportedPlugins: ['ErrorReporting', 'Bugsnag'] as PluginName[], // TODO: Remove deprecated plugin- Bugsnag
       },
       {
         configurationStatus: () =>
@@ -198,7 +204,7 @@ class PluginsManager implements IPluginsManager {
       }
 
       this.logger?.warn(
-        MISCONFIGURED_PLUGINS_WARNING(
+        generateMisconfiguredPluginsWarning(
           PLUGINS_MANAGER,
           group.configurationStatusStr,
           missingPlugins,

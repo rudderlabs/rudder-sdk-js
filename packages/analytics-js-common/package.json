@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-common",
-  "version": "3.2.0",
+  "version": "3.7.0",
   "private": true,
   "description": "RudderStack JavaScript SDK common code",
   "module": "dist/npm/index.js",
@@ -8,7 +8,7 @@
   "publishConfig": {},
   "files": [
     "dist/npm",
-    "LICENSE",
+    "LICENSE.md",
     "README.md",
     "CHANGELOG.md"
   ],
@@ -17,7 +17,7 @@
     "rudder"
   ],
   "author": "RudderStack",
-  "license": "MIT",
+  "license": "Elastic-2.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rudderlabs/rudder-sdk-js.git",
@@ -31,17 +31,18 @@
     "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf -rf ./reports",
     "start": "exit 0",
     "build": "npm run build:browser && npm run build:package",
-    "copy:src": "rsync -r src/ dist/npm",
-    "build:browser:modern": "exit 0",
+    "build:modern": "npm run build:browser:modern && npm run build:package:modern",
     "build:browser": "exit 0",
+    "build:browser:modern": "exit 0",
     "build:npm": "tsc",
     "build:npm:modern": "BROWSERSLIST_ENV=modern npm run build:npm",
-    "build:package": "npm run build:npm:modern",
+    "build:package": "npm run build:npm",
+    "build:package:modern": "npm run build:npm:modern",
     "test": "nx test --maxWorkers=50%",
-    "test:ci": "nx test --parallel=false --configuration=ci --runInBand --maxWorkers=1 --forceExit",
+    "test:ci": "nx test --configuration=ci --runInBand --maxWorkers=1 --forceExit",
     "check:lint": "nx lint",
     "check:lint:ci": "nx lint --configuration=ci",
-    "check:size:build": "npm run build",
+    "check:size:build": "npm run build:browser && npm run build:browser:modern && npm run build:package && npm run build:package:modern",
     "check:size": "npm run check:size:build && size-limit",
     "check:size:json": "size-limit --json",
     "check:circular": "madge --circular --extensions js,ts src --warning || exit 0",
@@ -50,19 +51,21 @@
     "check:duplicates": "jscpd src",
     "check:security": "npm audit --recursive --audit-level=high",
     "start:modern": "exit 0",
-    "build:modern": "npm run build:npm:modern",
     "package": "npm pack",
     "release": "npm publish"
   },
   "dependencies": {
+    "@preact/signals-core": "1.6.1",
     "@ndhoule/defaults": "2.0.1",
     "rudder-component-cookie": "0.0.1",
     "@segment/top-domain": "3.0.1",
-    "crypto-js": "4.2.0"
+    "crypto-js": "4.2.0",
+    "@lukeed/uuid": "2.0.1",
+    "get-value": "3.0.1",
+    "ramda": "0.30.1",
+    "storejs": "2.1.0"
   },
-  "devDependencies": {
-    "@types/crypto-js": "4.2.2"
-  },
+  "devDependencies": {},
   "overrides": {},
   "browserslist": {
     "production": [

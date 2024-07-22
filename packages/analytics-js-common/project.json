@@ -5,49 +5,6 @@
   "projectType": "library",
   "tags": ["type:lib", "scope:common"],
   "targets": {
-    "build": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build"
-      }
-    },
-    "build-npm": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:npm"
-      }
-    },
-    "build-npm-modern": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:npm:modern"
-      }
-    },
-    "build-package": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:package"
-      }
-    },
-    "build-check-size": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:package"
-      },
-      "dependsOn": ["build"]
-    },
-    "clean": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "clean"
-      }
-    },
-    "pack": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "package"
-      }
-    },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
@@ -95,9 +52,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-common@3.2.0",
-        "title": "@rudderstack/analytics-js-common@3.2.0",
-        "discussion-category": "@rudderstack/analytics-js-common@3.2.0",
+        "tag": "@rudderstack/analytics-js-common@3.7.0",
+        "title": "@rudderstack/analytics-js-common@3.7.0",
+        "discussion-category": "@rudderstack/analytics-js-common@3.7.0",
         "notesFile": "./packages/analytics-js-common/CHANGELOG_LATEST.md"
       }
     }

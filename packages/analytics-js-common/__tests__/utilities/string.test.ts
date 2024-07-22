@@ -4,6 +4,7 @@ import {
   tryStringify,
   toBase64,
   fromBase64,
+  removeLeadingPeriod,
 } from '../../src/utilities/string';
 
 describe('Common Utils - String', () => {
@@ -99,6 +100,16 @@ describe('Common Utils - String', () => {
 
     it('should convert base64 with emoji to string', () => {
       expect(fromBase64('8J+Riw==')).toBe('👋');
+    });
+  });
+
+  describe('removeLeadingPeriod', () => {
+    it('should remove leading dot from the string if any', () => {
+      expect(removeLeadingPeriod('.sample')).toBe('sample');
+      expect(removeLeadingPeriod('sample.')).toBe('sample.');
+      expect(removeLeadingPeriod('..sample')).toBe('sample');
+      expect(removeLeadingPeriod('sample')).toBe('sample');
+      expect(removeLeadingPeriod('sample.com')).toBe('sample.com');
     });
   });
 });

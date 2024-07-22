@@ -4,8 +4,8 @@
  */
 module.exports = [
   {
-    name: 'Common Code - No bundling',
-    path: 'dist/**/*.js',
+    name: 'Common - No bundling',
+    path: 'dist/npm/**/*.js',
     limit: '16.5 KiB',
   },
 ];

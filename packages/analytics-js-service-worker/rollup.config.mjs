@@ -1,4 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
+import path from 'path';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
@@ -12,13 +13,18 @@ import typescript from 'rollup-plugin-typescript2';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
 import { DEFAULT_EXTENSIONS } from '@babel/core';
 import dts from 'rollup-plugin-dts';
+import del from 'rollup-plugin-delete';
+import alias from '@rollup/plugin-alias';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
 
+const isLegacyBuild = process.env.BROWSERSLIST_ENV !== 'modern';
+const variantSubfolder = isLegacyBuild ? '/legacy' : '/modern';
 const sourceMapType =
   process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
-const outDir = `dist/npm`;
+const outDirNpmRoot = `dist/npm`;
+const outDir = `${outDirNpmRoot}${variantSubfolder}`;
 const distName = 'index';
 const modName = 'rudderServiceWorker';
 
@@ -72,8 +78,8 @@ export function getDefaultConfig(distName) {
       }),
       process.env.UGLIFY === 'true' &&
       terser({
-        safari10: false,
-        ecma: 2017,
+        safari10: isLegacyBuild,
+        ecma: isLegacyBuild ? 2015 : 2017,
         format: {
           comments: false,
         },
@@ -84,7 +90,6 @@ export function getDefaultConfig(distName) {
         ],
       }),
       filesize({
-        showBeforeSizes: 'build',
         showBrotliSize: true,
       }),
       process.env.VISUALIZER === 'true' &&
@@ -102,21 +107,33 @@ export function getDefaultConfig(distName) {
 
 const outputFilesNpm = [
   {
+    entryFileNames: `index.mjs`,
     dir: outDir + '/esm/',
     format: 'esm',
     name: modName,
     sourcemap: sourceMapType,
     generatedCode: {
-      preset: 'es5',
+      preset: isLegacyBuild ? 'es5' : 'es2015',
     }
   },
   {
+    entryFileNames: `index.cjs`,
+    dir: outDir + '/cjs/',
+    format: 'cjs',
+    name: modName,
+    sourcemap: sourceMapType,
+    generatedCode: {
+      preset: isLegacyBuild ? 'es5' : 'es2015',
+    }
+  },
+  {
+    entryFileNames: `index.js`,
     dir: outDir + '/umd',
     format: 'umd',
     name: modName,
     sourcemap: sourceMapType,
     generatedCode: {
-      preset: 'es5',
+      preset: isLegacyBuild ? 'es5' : 'es2015',
     }
   },
 ];
@@ -129,11 +146,32 @@ const buildEntries = [
   },
   {
     input: `dist/dts/packages/analytics-js-service-worker/src/index.d.ts`,
-    plugins: [dts()],
-    output: {
-      file: `${outDir}/index.d.ts`,
-      format: 'es',
-    },
+    plugins: [
+      alias({
+        entries: [
+          {
+            find: '@rudderstack/analytics-js-service-worker',
+            replacement: path.resolve('./dist/dts/packages/analytics-js-service-worker/src'),
+          },
+          {
+            find: '@rudderstack/analytics-js-common',
+            replacement: path.resolve('./dist/dts/packages/analytics-js-common/src'),
+          }
+        ]
+      }),
+      dts(),
+      del({ hook: "buildEnd", targets: "./dist/dts" }),
+    ],
+    output: [
+      {
+        file: `${outDirNpmRoot}/index.d.mts`,
+        format: 'es',
+      },
+      {
+        file: `${outDirNpmRoot}/index.d.cts`,
+        format: 'es',
+      }
+    ]
   },
 ];
 

@@ -42,7 +42,10 @@ module.exports = {
     ],
   },
   transformIgnorePatterns: ['<rootDir>/dist/', '<rootDir>/reports/'],
-  testMatch: ['<rootDir>/__tests__/**/*.(j|t)s?(x)', '<rootDir>/src/**/*.?(spec|test).(j|t)s?(x)'],
+  testMatch: [
+    '<rootDir>/__tests__/**/*.(spec|test).(j|t)s?(x)',
+    '<rootDir>/src/**/*.(spec|test).(j|t)s?(x)',
+  ],
   testPathIgnorePatterns: ['__mocks__', '__fixtures__'],
   collectCoverageFrom: [
     '<rootDir>/src/**/*.{js,ts}',
@@ -68,7 +71,7 @@ module.exports = {
   },
   testEnvironmentOptions: {
     ...nxPreset.testEnvironmentOptions,
-    url: 'http://www.test-host.com',
+    url: 'https://www.test-host.com',
     runScripts: 'dangerously',
     resources: 'usable',
   },

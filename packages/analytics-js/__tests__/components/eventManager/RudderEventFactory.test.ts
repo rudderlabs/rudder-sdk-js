@@ -1,14 +1,14 @@
 import { batch } from '@preact/signals-core';
-import { APIEvent } from '@rudderstack/analytics-js-common/types/EventApi';
-import { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
-import {
+import type { APIEvent } from '@rudderstack/analytics-js-common/types/EventApi';
+import type { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
+import type {
   AppInfo,
   LibraryInfo,
   OSInfo,
   ScreenInfo,
 } from '@rudderstack/analytics-js-common/types/EventContext';
-import { state } from '../../../src/state';
-import { RudderEventFactory } from '../../../src/components/eventManager/RudderEventFactory';
+import { state } from '@rudderstack/analytics-js/state';
+import { RudderEventFactory } from '@rudderstack/analytics-js/components/eventManager/RudderEventFactory';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/timestamp', () => ({
   getCurrentTimeFormatted: jest.fn().mockReturnValue('2020-01-01T00:00:00.000Z'),
@@ -60,6 +60,8 @@ describe('RudderEventFactory', () => {
       name: 'name',
       properties: {
         key: 'value',
+        name: 'name',
+        category: 'category',
       },
       options: {
         page: {
@@ -110,8 +112,8 @@ describe('RudderEventFactory', () => {
           referring_domain: 'https://sample.com',
           search: '',
           title: '',
-          url: 'http://www.test-host.com/',
-          tab_url: 'http://www.test-host.com/',
+          url: 'https://www.test-host.com/',
+          tab_url: 'https://www.test-host.com/',
           initial_referrer: 'https://test.com/page',
           initial_referring_domain: 'https://test.com',
         },
@@ -127,8 +129,8 @@ describe('RudderEventFactory', () => {
         referring_domain: 'https://sample.com',
         search: '',
         title: '',
-        url: 'http://www.test-host.com/',
-        tab_url: 'http://www.test-host.com/',
+        url: 'https://www.test-host.com/',
+        tab_url: 'https://www.test-host.com/',
         initial_referrer: 'https://test.com/page',
         initial_referring_domain: 'https://test.com',
       },
@@ -192,8 +194,8 @@ describe('RudderEventFactory', () => {
           referring_domain: '',
           search: '',
           title: '',
-          url: 'http://www.test-host.com/',
-          tab_url: 'http://www.test-host.com/',
+          url: 'https://www.test-host.com/',
+          tab_url: 'https://www.test-host.com/',
           initial_referrer: 'https://test.com/page',
           initial_referring_domain: 'https://test.com',
         },
@@ -261,8 +263,8 @@ describe('RudderEventFactory', () => {
           referring_domain: '',
           search: '',
           title: '',
-          url: 'http://www.test-host.com/',
-          tab_url: 'http://www.test-host.com/',
+          url: 'https://www.test-host.com/',
+          tab_url: 'https://www.test-host.com/',
           initial_referrer: 'https://test.com/page',
           initial_referring_domain: 'https://test.com',
         },
@@ -343,8 +345,8 @@ describe('RudderEventFactory', () => {
           referring_domain: '',
           search: '',
           title: '',
-          url: 'http://www.test-host.com/',
-          tab_url: 'http://www.test-host.com/',
+          url: 'https://www.test-host.com/',
+          tab_url: 'https://www.test-host.com/',
           initial_referrer: 'https://test.com/page',
           initial_referring_domain: 'https://test.com',
         },
@@ -405,8 +407,8 @@ describe('RudderEventFactory', () => {
           referring_domain: '',
           search: '',
           title: '',
-          url: 'http://www.test-host.com/',
-          tab_url: 'http://www.test-host.com/',
+          url: 'https://www.test-host.com/',
+          tab_url: 'https://www.test-host.com/',
           initial_referrer: 'https://test.com/page',
           initial_referring_domain: 'https://test.com',
         },
@@ -481,8 +483,8 @@ describe('RudderEventFactory', () => {
           referring_domain: '',
           search: '',
           title: '',
-          url: 'http://www.test-host.com/',
-          tab_url: 'http://www.test-host.com/',
+          url: 'https://www.test-host.com/',
+          tab_url: 'https://www.test-host.com/',
           initial_referrer: 'https://test.com/page',
           initial_referring_domain: 'https://test.com',
         },

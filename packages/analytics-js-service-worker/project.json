@@ -5,48 +5,6 @@
   "projectType": "library",
   "tags": ["type:sdk", "scope:service-worker"],
   "targets": {
-    "build": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build"
-      }
-    },
-    "build-npm": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:npm"
-      }
-    },
-    "build-npm-modern": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:npm:modern"
-      }
-    },
-    "build-package": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:package"
-      }
-    },
-    "build-check-size": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "build:package"
-      }
-    },
-    "clean": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "clean"
-      }
-    },
-    "pack": {
-      "executor": "nx:run-script",
-      "options": {
-        "script": "package"
-      }
-    },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
@@ -94,9 +52,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-service-worker@3.0.6",
-        "title": "rudderstack/analytics-js-service-worker@3.0.6",
-        "discussion-category": "rudderstack/analytics-js-service-worker@3.0.6",
+        "tag": "@rudderstack/analytics-js-service-worker@3.1.5",
+        "title": "rudderstack/analytics-js-service-worker@3.1.5",
+        "discussion-category": "rudderstack/analytics-js-service-worker@3.1.5",
         "notesFile": "./packages/analytics-js-service-worker/CHANGELOG_LATEST.md"
       }
     }

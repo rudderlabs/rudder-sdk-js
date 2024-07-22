@@ -1,34 +1,47 @@
 {
   "name": "@rudderstack/analytics-js-plugins",
-  "version": "3.0.5",
+  "version": "3.4.2",
   "private": true,
   "description": "RudderStack JavaScript SDK plugins",
-  "main": "dist/npm/modern/cjs/index.js",
-  "module": "dist/npm/modern/esm/index.js",
+  "main": "dist/npm/modern/cjs/index.cjs",
+  "module": "dist/npm/modern/esm/index.mjs",
+  "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/npm/index.d.ts",
-      "require": "./dist/npm/modern/cjs/index.js",
-      "import": "./dist/npm/modern/esm/index.js"
+      "types": "./dist/npm/index.d.mts",
+      "require": {
+        "types": "./dist/npm/index.d.cts",
+        "default": "./dist/npm/modern/cjs/index.cjs"
+      },
+      "import": {
+        "types": "./dist/npm/index.d.mts",
+        "default": "./dist/npm/modern/esm/index.mjs"
+      }
     },
     "./legacy": {
-      "types": "./dist/npm/index.d.ts",
-      "require": "./dist/npm/legacy/cjs/index.js",
-      "import": "./dist/npm/legacy/esm/index.js"
+      "types": "./dist/npm/index.d.mts",
+      "require": {
+        "types": "./dist/npm/index.d.cts",
+        "default": "./dist/npm/legacy/cjs/index.cjs"
+      },
+      "import": {
+        "types": "./dist/npm/index.d.mts",
+        "default": "./dist/npm/legacy/esm/index.mjs"
+      }
     }
   },
-  "types": "./dist/npm/index.d.ts",
+  "types": "./dist/npm/index.d.mts",
   "typesVersions": {
     "*": {
       "*": [
-        "./dist/npm/index.d.ts"
+        "./dist/npm/index.d.mts"
       ]
     }
   },
   "publishConfig": {},
   "files": [
     "dist/npm",
-    "LICENSE",
+    "LICENSE.md",
     "README.md",
     "CHANGELOG.md"
   ],
@@ -37,7 +50,7 @@
     "rudder"
   ],
   "author": "RudderStack",
-  "license": "MIT",
+  "license": "Elastic-2.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rudderlabs/rudder-sdk-js.git",
@@ -51,17 +64,19 @@
     "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf -rf ./reports",
     "start": "rollup -c --watch --environment DEV_SERVER,PROD_DEBUG",
     "start:modern": "BROWSERSLIST_ENV=modern npm run start",
-    "build": "npm run build:browser",
-    "build:browser:modern": "BROWSERSLIST_ENV=modern npm run build:browser",
+    "build": "npm run build:browser && npm run build:package",
+    "build:modern": "npm run build:browser:modern && npm run build:package:modern",
     "build:browser": "rollup -c --environment VERSION:$npm_package_version,UGLIFY,PROD_DEBUG,ENV:prod",
-    "build:npm": "rollup -c --environment VERSION:$npm_package_version,ENV:prod,MODULE_TYPE:npm",
+    "build:browser:modern": "BROWSERSLIST_ENV=modern npm run build:browser",
+    "build:npm": "exit 0",
     "build:npm:modern": "BROWSERSLIST_ENV=modern npm run build:npm",
-    "build:package": "npm run build:npm:modern && npm run build:npm",
+    "build:package": "npm run build:npm",
+    "build:package:modern": "npm run build:npm:modern",
     "test": "nx test --maxWorkers=50%",
-    "test:ci": "nx test --parallel=false --configuration=ci --runInBand --maxWorkers=1 --forceExit",
+    "test:ci": "nx test --configuration=ci --runInBand --maxWorkers=1 --forceExit",
     "check:lint": "nx lint",
     "check:lint:ci": "nx lint --configuration=ci",
-    "check:size:build": "npm run build:browser:modern && npm run build:package",
+    "check:size:build": "npm run build:browser && npm run build:browser:modern && npm run build:package && npm run build:package:modern",
     "check:size": "npm run check:size:build && size-limit",
     "check:size:json": "size-limit --json",
     "check:circular": "madge --circular --extensions js,ts src || exit 0",
@@ -69,13 +84,14 @@
     "check:support:modern": "NODE_ENV=modern npx browserslist --mobile-to-desktop",
     "check:duplicates": "jscpd src",
     "check:security": "npm audit --recursive --audit-level=high",
-    "build:modern": "npm run build:browser:modern",
     "package": "npm pack",
     "release": "npm publish"
   },
   "dependencies": {
     "crypto-es": "2.1.0",
-    "@rudderstack/analytics-js-common": "*"
+    "error-stack-parser": "2.1.4",
+    "@rudderstack/analytics-js-common": "*",
+    "ramda": "0.30.1"
   },
   "devDependencies": {
     "@bugsnag/js": "6.5.2"

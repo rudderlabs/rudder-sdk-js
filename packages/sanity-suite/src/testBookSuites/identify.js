@@ -6,16 +6,22 @@ import identify5ExpectedData from '../../__fixtures__/identify5.json';
 import identify6ExpectedData from '../../__fixtures__/identify6.json';
 import identify7ExpectedData from '../../__fixtures__/identify7.json';
 import identify8ExpectedData from '../../__fixtures__/identify8.json';
+import identify9ExpectedData from '../../__fixtures__/identify9.json';
 
 const identifyMethodSuite = {
   id: 'identifyMethod',
   name: 'Identify',
   description:
-    'Identify Method: rudderanalytics.identify(userId, [traits], [apiOptions], [callback]);',
+    'Identify Method: ' +
+    'rudderanalytics.identify(userId, [traits], [apiOptions], [callback]);' +
+    'rudderanalytics.identify(userId, [traits], [callback]);' +
+    'rudderanalytics.identify(userId, [callback]);' +
+    'rudderanalytics.identify(traits, [apiOptions], [callback]);' +
+    'rudderanalytics.identify(traits, [callback]);',
   testCases: [
     {
       id: 'identify1',
-      description: 'Call with all arguments and all primitives in traits and apiOptions',
+      description: 'rudderanalytics.identify(userId, traits, apiOptions)',
       inputData: [
         [true],
         [
@@ -114,8 +120,9 @@ const identifyMethodSuite = {
     },
     {
       id: 'identify2',
-      description: 'Call with userId and traits as arguments with all possible data types',
+      description: 'rudderanalytics.identify(userId, traits)',
       inputData: [
+        [true],
         [
           'customUserID',
           {
@@ -159,12 +166,11 @@ const identifyMethodSuite = {
         ],
       ],
       expectedResult: identify2ExpectedData,
-      triggerHandler: ['identify'],
+      triggerHandler: ['reset', 'identify'],
     },
     {
       id: 'identify3',
-      description:
-        'Call with userId , null traits and apiOption as arguments with all possible data types',
+      description: 'rudderanalytics.identify(userId, null, apiOptions)',
       inputData: [
         [true],
         [
@@ -226,16 +232,16 @@ const identifyMethodSuite = {
     },
     {
       id: 'identify4',
-      description: 'Call with only userId as argument',
+      description: 'rudderanalytics.identify(userId)',
       inputData: [[true], ['customUserID']],
       expectedResult: identify4ExpectedData,
       triggerHandler: ['reset', 'identify'],
     },
     {
       id: 'identify5',
-      description:
-        'Call with userId and traits and null apiOptions as arguments with all possible data types',
+      description: 'rudderanalytics.identify(userId, traits, null)',
       inputData: [
+        [true],
         [
           'customUserID',
           {
@@ -280,12 +286,13 @@ const identifyMethodSuite = {
         ],
       ],
       expectedResult: identify5ExpectedData,
-      triggerHandler: ['identify'],
+      triggerHandler: ['reset', 'identify'],
     },
     {
       id: 'identify6',
-      description: 'Add or Update traits',
+      description: 'rudderanalytics.identify(traits)',
       inputData: [
+        [true],
         [
           'customUserID',
           {
@@ -337,12 +344,11 @@ const identifyMethodSuite = {
         ],
       ],
       expectedResult: identify6ExpectedData,
-      triggerHandler: ['identify', 'identify'],
+      triggerHandler: ['reset', 'identify', 'identify'],
     },
     {
       id: 'identify7',
-      description:
-        'Set custom anonymousId then call Identify with userId and traits and null apiOptions as arguments with all possible data types',
+      description: 'rudderanalytics.identify(userId, traits) with prior setAnonymousId call',
       inputData: [
         [true],
         ['custom-anonymousId'],
@@ -386,7 +392,6 @@ const identifyMethodSuite = {
               },
             ],
           },
-          null,
         ],
       ],
       expectedResult: identify7ExpectedData,
@@ -395,9 +400,16 @@ const identifyMethodSuite = {
     {
       id: 'identify8',
       description: 'Identify with string userId and then with number userId',
+      inputData: [[true], ['1234567890'], [1234567890]],
+      expectedResult: identify8ExpectedData,
+      triggerHandler: ['reset', 'identify', 'identify'],
+    },
+    {
+      id: 'identify9',
+      description: 'rudderanalytics.identify(traits, apiOptions)',
       inputData: [
+        [true],
         [
-          '1234567890',
           {
             name: 'John Doe',
             title: 'CEO',
@@ -436,18 +448,59 @@ const identifyMethodSuite = {
               },
             ],
           },
-          null,
-        ],
-        [
-          1234567890,
           {
-            name: 'John Snow',
-            alternativeEmail: 'name.surname2@domain.com',
+            key1: [1, 2, 3, 4],
+            key2: 'sample text',
+            key3: false,
+            key4: 9087654,
+            key5: {
+              key6: 'sample text 2',
+              key7: [
+                {
+                  color: '#3456789',
+                  name: null,
+                },
+                {
+                  color: '#3456767',
+                  name: 'Red',
+                },
+              ],
+            },
+            key8: null,
+            key9: undefined,
+            externalIds: [
+              {
+                id: 'some_external_id_1',
+                type: 'brazeExternalId',
+              },
+            ],
+            device: {
+              id: 'sdfghj567-cghj5678-fghjvbn888',
+            },
+            library: {
+              name: 'Random JavaScript SDK',
+              version: '2.22.0',
+            },
+            context: {
+              metaData: {
+                appVersion: '2.8.0',
+                appId: '1hKOmRA4GRlm',
+                release_stage: 'Production',
+              },
+            },
+            integrations: {
+              All: false,
+              'Google Analytics': true,
+              Amplitude: true,
+            },
+            anonymousId: 'sample anonymousId',
+            originalTimestamp: '2023-01-13T08:13:58.548Z',
+            channel: 'random',
           },
         ],
       ],
-      expectedResult: identify8ExpectedData,
-      triggerHandler: ['identify', 'identify'],
+      expectedResult: identify9ExpectedData,
+      triggerHandler: ['reset', 'identify'],
     },
   ],
 };

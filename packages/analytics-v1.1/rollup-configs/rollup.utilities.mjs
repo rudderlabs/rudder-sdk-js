@@ -125,7 +125,6 @@ export function getDefaultConfig(distName) {
           brotliSize: true,
         }),
       filesize({
-        showBeforeSizes: 'build',
         showBrotliSize: true,
       }),
       isLocalServerEnabled &&

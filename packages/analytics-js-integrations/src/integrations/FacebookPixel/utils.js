@@ -5,8 +5,8 @@ import {
   NAME,
   DISPLAY_NAME,
 } from '@rudderstack/analytics-js-common/constants/integrations/FacebookPixel/constants';
+import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import Logger from '../../utils/logger';
-import { isDefined } from '../../utils/commonUtils';
 
 const logger = new Logger(DISPLAY_NAME);
 

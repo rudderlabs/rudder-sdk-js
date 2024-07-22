@@ -21,13 +21,16 @@
       "Object.entries",
       "Object.values",
       "Object.assign",
+      "Object.fromEntries",
       "TextEncoder",
       "TextDecoder",
       "CustomEvent",
       "requestAnimationFrame",
       "cancelAnimationFrame",
       "navigator.sendBeacon",
-      "Uint8Array"
+      "Uint8Array",
+      "Set",
+      "atob"
     ]
   },
   "env": {
@@ -42,7 +45,7 @@
         "airbnb-base",
         "airbnb-typescript/base",
         "plugin:@typescript-eslint/recommended",
-        "plugin:sonarjs/recommended",
+        "plugin:sonarjs/recommended-legacy",
         "prettier",
         "plugin:compat/recommended"
       ],
@@ -114,7 +117,7 @@
         "@nx/enforce-module-boundaries": [
           "error",
           {
-            "allow": [],
+            "allow": ["rudderAnalyticsRemotePlugins/*"],
             "banTransitiveDependencies": true,
             "depConstraints": [
               {

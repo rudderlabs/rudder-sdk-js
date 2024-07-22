@@ -1,14 +1,27 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-param-reassign */
-import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type {
+  ApplicationState,
+  BreadcrumbMetaData,
+} from '@rudderstack/analytics-js-common/types/ApplicationState';
 import type {
   ExtensionPlugin,
   IPluginEngine,
 } from '@rudderstack/analytics-js-common/types/PluginEngine';
-import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type { ErrorState, SDKError } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
+import {
+  createNewBreadcrumb,
+  getConfigForPayloadCreation,
+  isRudderSDKError,
+  getBugsnagErrorEvent,
+  getErrorDeliveryPayload,
+} from './utils';
+import { REQUEST_TIMEOUT_MS } from './constants';
+import { ErrorFormat } from './event/event';
 import { INVALID_SOURCE_CONFIG_ERROR } from './logMessages';
 
 const pluginName: PluginName = 'ErrorReporting';
@@ -18,14 +31,24 @@ const ErrorReporting = (): ExtensionPlugin => ({
   deps: [],
   initialize: (state: ApplicationState) => {
     state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
+    state.reporting.isErrorReportingPluginLoaded.value = true;
+    if (state.reporting.breadcrumbs?.value) {
+      state.reporting.breadcrumbs.value = [createNewBreadcrumb('Error Reporting Plugin Loaded')];
+    }
   },
   errorReporting: {
+    // This extension point is deprecated
+    // TODO: Remove this in the next major release
     init: (
       state: ApplicationState,
       pluginEngine: IPluginEngine,
       externalSrcLoader: IExternalSrcLoader,
       logger?: ILogger,
-    ): Nullable<Promise<any>> => {
+      isInvokedFromLatestCore?: boolean,
+    ) => {
+      if (isInvokedFromLatestCore) {
+        return undefined;
+      }
       if (!state.source.value?.config || !state.source.value?.id) {
         return Promise.reject(new Error(INVALID_SOURCE_CONFIG_ERROR));
       }
@@ -38,21 +61,70 @@ const ErrorReporting = (): ExtensionPlugin => ({
       );
     },
     notify: (
-      pluginEngine: IPluginEngine,
-      client: any,
-      error: Error,
+      pluginEngine: IPluginEngine, // Only kept for backward compatibility
+      client: any, // Only kept for backward compatibility
+      error: SDKError,
       state: ApplicationState,
       logger?: ILogger,
+      httpClient?: IHttpClient,
+      errorState?: ErrorState,
     ): void => {
-      pluginEngine.invokeSingle('errorReportingProvider.notify', client, error, state, logger);
+      if (httpClient) {
+        const { component, tolerateNonErrors, errorFramesToSkip, normalizedError } =
+          getConfigForPayloadCreation(error, errorState?.severityReason.type as string);
+
+        // Generate the error payload
+        const errorPayload = ErrorFormat.create(
+          normalizedError,
+          tolerateNonErrors,
+          errorState as ErrorState,
+          component,
+          errorFramesToSkip,
+          logger,
+        );
+
+        // filter errors
+        if (!isRudderSDKError(errorPayload.errors[0])) {
+          return;
+        }
+
+        // enrich error payload
+        const bugsnagPayload = getBugsnagErrorEvent(errorPayload, errorState as ErrorState, state);
+
+        // send it to metrics service
+        httpClient?.getAsyncData({
+          url: state.metrics.metricsServiceUrl.value as string,
+          options: {
+            method: 'POST',
+            data: getErrorDeliveryPayload(bugsnagPayload, state),
+            sendRawData: true,
+          },
+          isRawResponse: true,
+          timeout: REQUEST_TIMEOUT_MS,
+          callback: (result: any, details: any) => {
+            // do nothing
+          },
+        });
+      } else {
+        pluginEngine.invokeSingle('errorReportingProvider.notify', client, error, state, logger);
+      }
     },
     breadcrumb: (
-      pluginEngine: IPluginEngine,
-      client: any,
+      pluginEngine: IPluginEngine, // Only kept for backward compatibility
+      client: any, // Only kept for backward compatibility
       message: string,
-      logger?: ILogger,
+      logger?: ILogger, // Only kept for backward compatibility
+      state?: ApplicationState,
+      metaData?: BreadcrumbMetaData,
     ): void => {
-      pluginEngine.invokeSingle('errorReportingProvider.breadcrumb', client, message, logger);
+      if (state) {
+        state.reporting.breadcrumbs.value = [
+          ...state.reporting.breadcrumbs.value,
+          createNewBreadcrumb(message, metaData),
+        ];
+      } else {
+        pluginEngine.invokeSingle('errorReportingProvider.breadcrumb', client, message, logger);
+      }
     },
   },
 });

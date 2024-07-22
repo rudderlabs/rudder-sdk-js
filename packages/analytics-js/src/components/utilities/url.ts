@@ -1,25 +1,20 @@
-import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { UTMParameters } from '@rudderstack/analytics-js-common/types/EventContext';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 
 /**
  * Removes trailing slash from url
  * @param url
  * @returns url
  */
-const removeTrailingSlashes = (url: string | null): Nullable<string> =>
-  url && url.endsWith('/') ? removeTrailingSlashes(url.substring(0, url.length - 1)) : url;
+const removeTrailingSlashes = (url: Nullable<string> | undefined): Nullable<string> | undefined =>
+  url?.endsWith('/') ? removeTrailingSlashes(url.substring(0, url.length - 1)) : url;
 
-/**
- * Checks if provided url is valid or not
- * @param url
- * @returns true if `url` is valid and false otherwise
- */
-const isValidUrl = (url: string): boolean => {
+const getDomain = (url: string): Nullable<string> => {
   try {
-    const validUrl = new URL(url);
-    return Boolean(validUrl);
-  } catch (err) {
-    return false;
+    const urlObj = new URL(url);
+    return urlObj.host;
+  } catch (error) {
+    return null;
   }
 };
 
@@ -28,16 +23,7 @@ const isValidUrl = (url: string): boolean => {
  * @param referrer Page referrer
  * @returns Page referring domain
  */
-const getReferringDomain = (referrer: string): string => {
-  let referringDomain = '';
-  try {
-    const url = new URL(referrer);
-    referringDomain = url.host;
-  } catch (error) {
-    // Do nothing
-  }
-  return referringDomain;
-};
+const getReferringDomain = (referrer: string): string => getDomain(referrer) ?? '';
 
 /**
  * Extracts UTM parameters from the URL
@@ -83,8 +69,8 @@ const getUrlWithoutHash = (url: string): string => {
 
 export {
   removeTrailingSlashes,
-  isValidUrl,
   getReferringDomain,
   extractUTMParameters,
   getUrlWithoutHash,
+  getDomain,
 };

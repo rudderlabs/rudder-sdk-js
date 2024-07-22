@@ -4,7 +4,11 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CDN_INT_DIR } from '@rudderstack/analytics-js-common/constants/urls';
 import { json } from '../shared-chunks/common';
 import type { BugsnagLib } from '../types/plugins';
-import { BUGSNAG_SDK_LOAD_ERROR, BUGSNAG_SDK_LOAD_TIMEOUT_ERROR } from './logMessages';
+import {
+  BUGSNAG_SDK_LOAD_ERROR,
+  BUGSNAG_SDK_LOAD_TIMEOUT_ERROR,
+  FAILED_TO_FILTER_ERROR,
+} from './logMessages';
 import {
   API_KEY,
   APP_STATE_EXCLUDE_KEYS,
@@ -41,7 +45,7 @@ const isValidVersion = (globalLibInstance: any) => {
   return version && version.charAt(0) === BUGSNAG_VALID_MAJOR_VERSION;
 };
 
-const isRudderSDKError = (event: any) => {
+const isRudderSDKError = (event: BugsnagLib.Report) => {
   const errorOrigin = event.stacktrace?.[0]?.file;
 
   if (!errorOrigin || typeof errorOrigin !== 'string') {
@@ -60,11 +64,16 @@ const isRudderSDKError = (event: any) => {
   );
 };
 
-const enhanceErrorEventMutator = (event: any, metadataSource: any) => {
+const getAppStateForMetadata = (state: ApplicationState): Record<string, any> | undefined => {
+  const stateStr = json.stringifyWithoutCircular(state, false, APP_STATE_EXCLUDE_KEYS);
+  return stateStr !== null ? JSON.parse(stateStr) : undefined;
+};
+
+const enhanceErrorEventMutator = (state: ApplicationState, event: BugsnagLib.Report): void => {
   event.updateMetaData('source', {
-    metadataSource,
     snippetVersion: (globalThis as typeof window).RudderSnippetVersion,
   });
+  event.updateMetaData('state', getAppStateForMetadata(state) ?? {});
 
   const { errorMessage } = event;
   // eslint-disable-next-line no-param-reassign
@@ -81,26 +90,25 @@ const enhanceErrorEventMutator = (event: any, metadataSource: any) => {
   event.severity = 'error';
 };
 
-const onError = (state: ApplicationState) => {
-  const metadataSource = state.source.value?.id;
-
-  return (event: any) => {
+const onError =
+  (state: ApplicationState, logger?: ILogger): BugsnagLib.BeforeSend =>
+  (event: BugsnagLib.Report): boolean => {
     try {
       // Discard the event if it's not originated at the SDK
       if (!isRudderSDKError(event)) {
         return false;
       }
 
-      enhanceErrorEventMutator(event, metadataSource);
+      enhanceErrorEventMutator(state, event);
 
       return true;
     } catch {
+      logger?.error(FAILED_TO_FILTER_ERROR(BUGSNAG_PLUGIN));
       // Drop the error event if it couldn't be filtered as
       // it is most likely a non-SDK error
       return false;
     }
   };
-};
 
 const getReleaseStage = () => {
   const host = globalThis.location.hostname;
@@ -114,14 +122,14 @@ const getNewClient = (state: ApplicationState, logger?: ILogger): BugsnagLib.Cli
 
   const clientConfig: BugsnagLib.IConfig = {
     apiKey: API_KEY,
-    appVersion: '__PACKAGE_VERSION__', // Set SDK version as the app version from build config
+    appVersion: state.context.app.value.version,
     metaData: {
       SDK: {
         name: 'JS',
-        installType: '__MODULE_TYPE__',
+        installType: state.context.app.value.installType,
       },
     },
-    beforeSend: onError(state),
+    beforeSend: onError(state, logger),
     autoCaptureSessions: false, // auto capture sessions is disabled
     collectUserIp: false, // collecting user's IP is disabled
     // enabledBreadcrumbTypes: ['error', 'log', 'user'], // for v7 and above
@@ -129,7 +137,7 @@ const getNewClient = (state: ApplicationState, logger?: ILogger): BugsnagLib.Cli
     maxBreadcrumbs: 40,
     releaseStage: getReleaseStage(),
     user: {
-      id: state.lifecycle.writeKey.value,
+      id: state.source.value?.id || state.lifecycle.writeKey.value,
     },
     logger,
     networkBreadcrumbsEnabled: false,
@@ -167,11 +175,11 @@ const loadBugsnagSDK = (externalSrcLoader: IExternalSrcLoader, logger?: ILogger)
 
 const initBugsnagClient = (
   state: ApplicationState,
-  promiseResolve: (value: any) => void,
-  promiseReject: (reason?: any) => void,
+  promiseResolve: (value: BugsnagLib.Client) => void,
+  promiseReject: (reason?: Error) => void,
   logger?: ILogger,
   time = 0,
-) => {
+): void => {
   const globalBugsnagLibInstance = getGlobalBugsnagLibInstance();
   if (typeof globalBugsnagLibInstance === 'function') {
     if (isValidVersion(globalBugsnagLibInstance)) {
@@ -192,11 +200,6 @@ const initBugsnagClient = (
       time + SDK_LOAD_POLL_INTERVAL_MS,
     );
   }
-};
-
-const getAppStateForMetadata = (state: ApplicationState): Record<string, any> | undefined => {
-  const stateStr = json.stringifyWithoutCircular(state, false, APP_STATE_EXCLUDE_KEYS);
-  return stateStr !== null ? JSON.parse(stateStr) : undefined;
 };
 
 export {

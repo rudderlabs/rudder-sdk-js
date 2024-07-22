@@ -11,26 +11,26 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { isValidSourceConfig, validateLoadArgs } from './util/validate';
 import {
-  DATA_PLANE_URL_ERROR,
   SOURCE_CONFIG_FETCH_ERROR,
   SOURCE_CONFIG_OPTION_ERROR,
   SOURCE_CONFIG_RESOLUTION_ERROR,
+  SOURCE_DISABLED_ERROR,
 } from '../../constants/logMessages';
-import { getSourceConfigURL } from '../utilities/loadOptions';
 import { filterEnabledDestination } from '../utilities/destinations';
 import { removeTrailingSlashes } from '../utilities/url';
 import { APP_VERSION } from '../../constants/app';
 import { state } from '../../state';
-import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
 import type { IConfigManager, SourceConfigResponse } from './types';
 import {
+  getSourceConfigURL,
   updateConsentsState,
   updateConsentsStateFromLoadOptions,
   updateDataPlaneEventsStateFromLoadOptions,
   updateReportingState,
   updateStorageStateFromLoadOptions,
 } from './util/commonUtil';
+import { METRICS_SERVICE_ENDPOINT } from './constants';
 
 class ConfigManager implements IConfigManager {
   httpClient: IHttpClient;
@@ -63,16 +63,31 @@ class ConfigManager implements IConfigManager {
 
     validateLoadArgs(state.lifecycle.writeKey.value, state.lifecycle.dataPlaneUrl.value);
 
-    const lockIntegrationsVersion = state.loadOptions.value.lockIntegrationsVersion as boolean;
+    const {
+      logLevel,
+      configUrl,
+      lockIntegrationsVersion,
+      lockPluginsVersion,
+      destSDKBaseURL,
+      pluginsSDKBaseURL,
+    } = state.loadOptions.value;
+
+    state.lifecycle.activeDataplaneUrl.value = removeTrailingSlashes(
+      state.lifecycle.dataPlaneUrl.value,
+    ) as string;
 
     // determine the path to fetch integration SDK from
     const intgCdnUrl = getIntegrationsCDNPath(
       APP_VERSION,
-      lockIntegrationsVersion,
-      state.loadOptions.value.destSDKBaseURL,
+      lockIntegrationsVersion as boolean,
+      destSDKBaseURL,
     );
     // determine the path to fetch remote plugins from
-    const pluginsCDNPath = getPluginsCDNPath(state.loadOptions.value.pluginsSDKBaseURL);
+    const pluginsCDNPath = getPluginsCDNPath(
+      APP_VERSION,
+      lockPluginsVersion as boolean,
+      pluginsSDKBaseURL,
+    );
 
     updateStorageStateFromLoadOptions(this.logger);
     updateConsentsStateFromLoadOptions(this.logger);
@@ -83,16 +98,18 @@ class ConfigManager implements IConfigManager {
       state.lifecycle.integrationsCDNPath.value = intgCdnUrl;
       state.lifecycle.pluginsCDNPath.value = pluginsCDNPath;
 
-      if (state.loadOptions.value.logLevel) {
-        state.lifecycle.logLevel.value = state.loadOptions.value.logLevel;
+      if (logLevel) {
+        state.lifecycle.logLevel.value = logLevel;
       }
 
       state.lifecycle.sourceConfigUrl.value = getSourceConfigURL(
-        state.loadOptions.value.configUrl,
+        configUrl,
         state.lifecycle.writeKey.value as string,
-        lockIntegrationsVersion,
+        lockIntegrationsVersion as boolean,
+        lockPluginsVersion as boolean,
         this.logger,
       );
+      state.metrics.metricsServiceUrl.value = `${state.lifecycle.activeDataplaneUrl.value}/${METRICS_SERVICE_ENDPOINT}`;
     });
 
     this.getConfig();
@@ -138,21 +155,15 @@ class ConfigManager implements IConfigManager {
       return;
     }
 
-    // set the values in state for reporting slice
-    updateReportingState(res, this.logger);
-
-    // determine the dataPlane url
-    const dataPlaneUrl = resolveDataPlaneUrl(
-      res.source.dataplanes,
-      state.lifecycle.dataPlaneUrl.value,
-      state.loadOptions.value.residencyServer,
-      this.logger,
-    );
-
-    if (!dataPlaneUrl) {
-      this.onError(new Error(DATA_PLANE_URL_ERROR), undefined, true);
+    // Log error and abort if source is disabled
+    if (res.source.enabled === false) {
+      this.logger?.error(SOURCE_DISABLED_ERROR);
       return;
     }
+
+    // set the values in state for reporting slice
+    updateReportingState(res);
+
     const nativeDestinations: Destination[] =
       res.source.destinations.length > 0 ? filterEnabledDestination(res.source.destinations) : [];
 
@@ -162,6 +173,7 @@ class ConfigManager implements IConfigManager {
       state.source.value = {
         config: res.source.config,
         id: res.source.id,
+        workspaceId: res.source.workspaceId,
       };
 
       // set device mode destination related information in state
@@ -173,8 +185,6 @@ class ConfigManager implements IConfigManager {
       updateConsentsState(res);
 
       // set application lifecycle state
-      // Cast to string as we are sure that the value is not undefined
-      state.lifecycle.activeDataplaneUrl.value = removeTrailingSlashes(dataPlaneUrl) as string;
       state.lifecycle.status.value = 'configured';
     });
   }
@@ -190,7 +200,7 @@ class ConfigManager implements IConfigManager {
       if (!isFunction(sourceConfigFunc)) {
         throw new Error(SOURCE_CONFIG_OPTION_ERROR);
       }
-      // fetch source config from the function
+      // Fetch source config from the function
       const res = sourceConfigFunc();
 
       if (res instanceof Promise) {
@@ -203,7 +213,7 @@ class ConfigManager implements IConfigManager {
         this.processConfig(res as SourceConfigResponse);
       }
     } else {
-      // fetch source config from config url API
+      // Fetch source configuration from the configured URL
       this.httpClient.getAsyncData({
         url: state.lifecycle.sourceConfigUrl.value as string,
         options: {

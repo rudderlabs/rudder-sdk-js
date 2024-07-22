@@ -1,0 +1,26 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "./",
+    "outDir": "../../dist/out-tsc",
+    "module": "commonjs",
+    "noEmit": true,
+    "sourceMap": true,
+    "inlineSourceMap": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": false,
+    "types": ["jest", "node"],
+    "target": "es6"
+  },
+  "include": [
+    "jest.config.mjs",
+    "__tests__/**/*.ts",
+    "__mocks__/**/*.ts",
+    "__fixtures__/**/*.ts",
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "../../types/**/*",
+    "./package.json",
+    "../analytics-js-common/src/**/*"
+  ]
+}

@@ -77,22 +77,12 @@
           "eventUploadPeriodMillis": "0",
           "trackNewCampaigns": true
         },
-        "liveEventsConfig": {
-          "eventDelivery": false,
-          "eventDeliveryTS": 1678873560399
-        },
         "destinationDefinitionId": "1QGzO4fWSyq3lsyFHf4eQAMDSr9",
         "destinationDefinition": {
           "name": "AM",
           "displayName": "Amplitude"
         },
-        "deleted": false,
-        "createdAt": "2021-11-03T14:07:33.995Z",
         "updatedAt": "2023-10-03T13:35:48.152Z",
-        "workspaceId": "1xXCSVsmPjqFKhRlpajnDXkGwYX",
-        "revisionId": "2WFtRcae5UQX4SSjyrjCzKjArfB",
-        "secretConfig": {},
-        "secretVersion": 15,
         "shouldApplyDeviceModeTransformation": true,
         "propagateEventsUntransformedOnError": false
       },
@@ -141,19 +131,12 @@
           ],
           "eventFilteringOption": "disable"
         },
-        "liveEventsConfig": {},
         "destinationDefinitionId": "1QGzNyNSA4alXixnhDcq4C10ac2",
         "destinationDefinition": {
           "name": "GA",
           "displayName": "Google Analytics"
         },
-        "deleted": false,
-        "createdAt": "2022-09-29T12:38:32.756Z",
         "updatedAt": "2023-03-23T12:13:21.120Z",
-        "workspaceId": "1xXCSVsmPjqFKhRlpajnDXkGwYX",
-        "revisionId": "2NPlSvOwdX1RWttnU3acUEhhcsU",
-        "secretConfig": {},
-        "secretVersion": 1,
         "shouldApplyDeviceModeTransformation": true,
         "propagateEventsUntransformedOnError": true
       },
@@ -187,65 +170,17 @@
           "eventFilteringOption": "disable",
           "identityMergeApi": "original"
         },
-        "liveEventsConfig": {},
         "destinationDefinitionId": "1QmWaiefYgYqxl9JGUe5PQio6bx",
         "destinationDefinition": {
           "name": "MP",
           "displayName": "Mixpanel"
         },
-        "deleted": false,
-        "createdAt": "2023-04-19T11:48:36.192Z",
         "updatedAt": "2023-08-28T05:13:33.171Z",
-        "workspaceId": "1xXCSVsmPjqFKhRlpajnDXkGwYX",
-        "revisionId": "2UbDv5kgYDRrpT1HLJJScyBnIym",
-        "secretConfig": {},
-        "secretVersion": 1,
         "shouldApplyDeviceModeTransformation": false,
         "propagateEventsUntransformedOnError": false
       }
     ],
-    "updatedAt": "2023-08-02T12:42:54.176Z",
-    "createdAt": "2022-02-24T10:35:04.577Z",
-    "liveEventsConfig": {
-      "eventUpload": false,
-      "eventUploadTS": 1690980174175
-    },
-    "createdBy": "1xXC9Q9pYMrw0OON9Aw2AFeBsUp",
-    "secretVersion": null,
-    "connections": [
-      {
-        "id": "2FRVvdtwbbvKUSVthPAgNQqGp2O",
-        "sourceId": "25YL7IX4j4g8Mmr98o5ipaQAOle",
-        "destinationId": "2FRVvO6ySmzXKiRl3o7I5BZqacK",
-        "enabled": true,
-        "config": null,
-        "deleted": false,
-        "createdAt": "2022-09-29T12:38:34.141Z",
-        "updatedAt": "2022-09-29T12:38:34.141Z"
-      },
-      {
-        "id": "2OdynCEnQ7PnSIm8j3Bv9lGmAGx",
-        "sourceId": "25YL7IX4j4g8Mmr98o5ipaQAOle",
-        "destinationId": "2OdymzEmiiQRWIcanvDP6ACR3eO",
-        "enabled": true,
-        "config": null,
-        "deleted": false,
-        "createdAt": "2023-04-19T11:48:37.603Z",
-        "updatedAt": "2023-04-19T11:48:37.603Z"
-      },
-      {
-        "id": "25bHzttPBy5HESR54KCID885Pm5",
-        "sourceId": "25YL7IX4j4g8Mmr98o5ipaQAOle",
-        "destinationId": "20Pa0T3VoQZZYPgh5LQS2vuwg3N",
-        "enabled": true,
-        "config": null,
-        "deleted": false,
-        "createdAt": "2022-02-25T11:38:51.835Z",
-        "updatedAt": "2022-09-27T09:30:38.289Z"
-      }
-    ],
-    "deleted": false,
-    "transient": false
+    "updatedAt": "2023-08-02T12:42:54.176Z"
   },
   "updatedAt": "2024-01-09T11:27:50.223Z",
   "consentManagementMetadata": {

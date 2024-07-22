@@ -3,55 +3,19 @@
     "channel": "web",
     "context": {
       "app": {
+        "installType": "cdn",
         "name": "RudderLabs JavaScript SDK",
         "namespace": "com.rudderlabs.javascript",
         "version": "2.22.2"
       },
-      "traits": {
-        "name": "John Doe",
-        "title": "CEO",
-        "email": "name.surname@domain.com",
-        "company": "Company123",
-        "phone": "123-456-7890",
-        "rating": "Hot",
-        "dob": "1990-01-12T00:00:00.000Z",
-        "address": [
-          {
-            "city": "Austin",
-            "postalCode": 12345,
-            "country": "US",
-            "street": "Sample Address",
-            "state": "TX",
-            "label": "Home",
-            "defaultAddress": true
-          },
-          {
-            "city": "Houston",
-            "postalCode": 345678,
-            "country": "US",
-            "street": "Sample Address 2",
-            "state": "TX",
-            "label": "Office",
-            "defaultAddress": false
-          },
-          {
-            "city": "Dallas",
-            "postalCode": 987654,
-            "country": "US",
-            "street": "Sample Address 3",
-            "state": "TX",
-            "label": "Toms place",
-            "defaultAddress": false
-          }
-        ]
-      },
+      "traits": {},
       "library": {
         "name": "RudderLabs JavaScript SDK",
-        "version": "2.22.2"
+        "version": "3.3.0",
+        "snippetVersion": "3.0.10"
       },
       "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
       "device": null,
-      "network": null,
       "os": {
         "name": "",
         "version": ""
@@ -89,7 +53,7 @@
     "messageId": "bb934032-05c6-4c8c-a2d8-5d1b6ed58bbf",
     "originalTimestamp": "2023-01-13T08:13:58.548Z",
     "anonymousId": "sample anonymousId",
-    "userId": "customUserID",
+    "userId": "",
     "event": "Order Completed",
     "properties": {},
     "integrations": {
@@ -100,7 +64,6 @@
         "sessionNumber": 1
       }
     },
-    "user_properties": null,
     "sentAt": "2023-01-15T02:37:59.230Z"
   }
 }

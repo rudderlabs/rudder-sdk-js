@@ -14,6 +14,14 @@ describe('Plugin - Bugsnag', () => {
     source: signal({
       id: 'test-source-id',
     }),
+    context: {
+      app: signal({
+        name: 'test-app',
+        namespace: 'test-namespace',
+        version: '1.0.0',
+        installType: 'npm',
+      }),
+    },
   };
 
   let state: any;
@@ -85,23 +93,9 @@ describe('Plugin - Bugsnag', () => {
 
     const mockError = new Error('Test Error');
 
-    Bugsnag().errorReportingProvider.notify(bsClient, mockError, state);
+    Bugsnag().errorReportingProvider.notify(bsClient, mockError);
 
-    expect(bsClient.notify).toHaveBeenCalledWith(mockError, {
-      metaData: {
-        state: {
-          plugins: {
-            loadedPlugins: [],
-          },
-          source: {
-            id: 'test-source-id',
-          },
-          lifecycle: {
-            writeKey: 'dummy-write-key',
-          },
-        },
-      },
-    });
+    expect(bsClient.notify).toHaveBeenCalledWith(mockError);
   });
 
   it('should leave a breadcrumb', () => {
