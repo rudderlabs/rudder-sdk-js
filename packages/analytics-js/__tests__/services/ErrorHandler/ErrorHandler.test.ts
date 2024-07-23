@@ -267,12 +267,12 @@ describe('ErrorHandler', () => {
   it('should attach error listeners', () => {
     const unhandledRejectionListener = jest.spyOn(window, 'addEventListener');
     errorHandlerInstance.attachErrorListeners();
-    expect(unhandledRejectionListener).toHaveBeenCalledTimes(1);
+    expect(unhandledRejectionListener).toHaveBeenCalledTimes(2);
     expect(unhandledRejectionListener).toHaveBeenCalledWith('error', expect.any(Function));
-    // expect(unhandledRejectionListener).toHaveBeenCalledWith(
-    //   'unhandledrejection',
-    //   expect.any(Function),
-    // );
+    expect(unhandledRejectionListener).toHaveBeenCalledWith(
+      'unhandledrejection',
+      expect.any(Function),
+    );
   });
 
   it('should notify buffered errors once Error reporting plugin is loaded', () => {
