@@ -1,10 +1,10 @@
-## [3.7.4](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.7.3...@rudderstack/analytics-js@3.7.4) (2024-07-23)
+## [3.7.5](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.7.4...@rudderstack/analytics-js@3.7.5) (2024-07-23)
 
 ### Dependency Updates
 
-* `@rudderstack/analytics-js-plugins` updated to version `3.7.3`
+* `@rudderstack/analytics-js-plugins` updated to version `3.7.4`
 
 ### Bug Fixes
 
-* filter non errors ([#1800](https://github.com/rudderlabs/rudder-sdk-js/issues/1800)) ([73de1cc](https://github.com/rudderlabs/rudder-sdk-js/commit/73de1ccc264e9afcbae3e6d7f66e120aca81e49a))
+* disable error reporting ([#1804](https://github.com/rudderlabs/rudder-sdk-js/issues/1804)) ([e61a298](https://github.com/rudderlabs/rudder-sdk-js/commit/e61a298675fcb852b9e5e64082f88d9ded4c248b))
 
