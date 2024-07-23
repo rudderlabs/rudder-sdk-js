@@ -39,26 +39,26 @@ const getNormalizedErrorForUnhandledError = (error: SDKError): SDKError | undefi
       return error;
     }
     // TODO: remove this block once all device mode integrations start using the v3 script loader module (TS)
-    if (error instanceof Event) {
-      const eventTarget = error.target as ErrorTarget;
-      // Discard all the non-script loading errors
-      if (eventTarget && eventTarget.localName !== 'script') {
-        return undefined;
-      }
-      // Discard script errors that are not originated at SDK or from native SDKs
-      if (
-        eventTarget?.dataset &&
-        (eventTarget.dataset.loader !== LOAD_ORIGIN ||
-          eventTarget.dataset.isnonnativesdk !== 'true')
-      ) {
-        return undefined;
-      }
-      const errorMessage = `Error in loading a third-party script from URL ${eventTarget?.src} with ID ${eventTarget?.id}.`;
-      return Object.create(error, {
-        message: { value: errorMessage },
-      });
-    }
-    return error;
+    // if (error instanceof Event) {
+    //   const eventTarget = error.target as ErrorTarget;
+    //   // Discard all the non-script loading errors
+    //   if (eventTarget && eventTarget.localName !== 'script') {
+    //     return undefined;
+    //   }
+    //   // Discard script errors that are not originated at SDK or from native SDKs
+    //   if (
+    //     eventTarget?.dataset &&
+    //     (eventTarget.dataset.loader !== LOAD_ORIGIN ||
+    //       eventTarget.dataset.isnonnativesdk !== 'true')
+    //   ) {
+    //     return undefined;
+    //   }
+    //   const errorMessage = `Error in loading a third-party script from URL ${eventTarget?.src} with ID ${eventTarget?.id}.`;
+    //   return Object.create(error, {
+    //     message: { value: errorMessage },
+    //   });
+    // }
+    return undefined;
   } catch (e) {
     return e;
   }
