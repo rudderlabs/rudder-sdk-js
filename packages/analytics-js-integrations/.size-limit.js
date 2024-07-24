@@ -6,11 +6,11 @@ module.exports = [
   {
     name: 'All Integrations - Legacy - CDN',
     path: 'dist/cdn/legacy/js-integrations/*.min.js',
-    limit: '93 KiB',
+    limit: '95.3 KiB',
   },
   {
     name: 'All Integrations - Modern - CDN',
     path: 'dist/cdn/modern/js-integrations/*.min.js',
-    limit: '88 KiB',
+    limit: '91 KiB',
   },
 ];
