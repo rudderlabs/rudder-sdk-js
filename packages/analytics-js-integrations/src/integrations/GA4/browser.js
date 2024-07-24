@@ -39,6 +39,7 @@ export default class GA4 {
     this.overrideClientAndSessionId = config.overrideClientAndSessionId || false;
     this.sdkBaseUrl =
       removeTrailingSlashes(config.sdkBaseUrl) || 'https://www.googletagmanager.com';
+    this.isExtendedGa4_V2 = config.isExtendedGa4_V2 || false;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
@@ -70,7 +71,7 @@ export default class GA4 {
       gtagParameterObject.cookie_prefix = 'rs';
       gtagParameterObject.client_id = this.analytics.getAnonymousId();
       gtagParameterObject.session_id = this.analytics.getSessionId();
-    } else {
+    } else if(!this.isExtendedGa4_V2){
       // Cookie migration logic
       const clientCookie = this.cookie.get('rs_ga');
       const defaultGA4Cookie = this.cookie.get('_ga');
@@ -260,4 +261,15 @@ export default class GA4 {
       },
     };
   }
+
+  // Is used in GA4_V2
+  getClientDetails() {
+    return {
+      clientId: this.clientId,
+      sessionId: this.sessionId,
+      sessionNumber: this.sessionNumber,
+    };
+  }
 }
+
+

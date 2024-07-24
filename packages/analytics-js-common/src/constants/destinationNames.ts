@@ -63,6 +63,10 @@ export {
   DIR_NAME as GA4DirectoryName,
 } from './integrations/GA4/constants';
 export {
+  DISPLAY_NAME as GA4_V2DisplayName,
+  DIR_NAME as GA4_V2DirectoryName,
+} from './integrations/GA4_V2/constants';
+export {
   DISPLAY_NAME as GoogleAdsDisplayName,
   DIR_NAME as GoogleAdsDirectoryName,
 } from './integrations/GoogleAds/constants';
