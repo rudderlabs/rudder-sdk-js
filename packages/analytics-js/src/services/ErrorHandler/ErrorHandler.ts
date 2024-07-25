@@ -64,17 +64,12 @@ class ErrorHandler implements IErrorHandler {
         this.onError(event, undefined, undefined, undefined, ErrorType.UNHANDLEDEXCEPTION);
       });
 
-      // TODO: uncomment this when we have a way to handle unhandledrejection for non-Error objects
-      // (globalThis as typeof window).addEventListener(
-      //   'unhandledrejection',
-      //   (event: PromiseRejectionEvent) => {
-      //     if (!(event.reason instanceof Error)) {
-      //       // Prevent the default handling by the browser
-      //       event.preventDefault();
-      //     }
-      //     this.onError(event, undefined, undefined, undefined, ErrorType.UNHANDLEDREJECTION);
-      //   },
-      // );
+      (globalThis as typeof window).addEventListener(
+        'unhandledrejection',
+        (event: PromiseRejectionEvent) => {
+          this.onError(event, undefined, undefined, undefined, ErrorType.UNHANDLEDREJECTION);
+        },
+      );
     } else {
       this.logger?.debug(`Failed to attach global error listeners.`);
     }
@@ -159,7 +154,7 @@ class ErrorHandler implements IErrorHandler {
             error: normalizedError,
             errorState,
           });
-        } else {
+        } else if (normalizedError) {
           this.notifyError(normalizedError, errorState);
         }
       }

@@ -52,9 +52,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-loading-scripts@3.0.19",
-        "title": "@rudderstack/analytics-js-loading-scripts@3.0.19",
-        "discussion-category": "@rudderstack/analytics-js-loading-scripts@3.0.19",
+        "tag": "@rudderstack/analytics-js-loading-scripts@3.0.23",
+        "title": "@rudderstack/analytics-js-loading-scripts@3.0.23",
+        "discussion-category": "@rudderstack/analytics-js-loading-scripts@3.0.23",
         "notesFile": "./packages/loading-scripts/CHANGELOG_LATEST.md"
       }
     }

@@ -2,6 +2,43 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.7.6](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.7.5...@rudderstack/analytics-js@3.7.6) (2024-07-24)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-cookies` updated to version `3.7.5`
+* `@rudderstack/analytics-js-common` updated to version `3.7.5`
+* `@rudderstack/analytics-js-plugins` updated to version `3.7.5`
+## [3.7.5](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.7.4...@rudderstack/analytics-js@3.7.5) (2024-07-23)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-plugins` updated to version `3.7.4`
+
+### Bug Fixes
+
+* disable error reporting ([#1804](https://github.com/rudderlabs/rudder-sdk-js/issues/1804)) ([e61a298](https://github.com/rudderlabs/rudder-sdk-js/commit/e61a298675fcb852b9e5e64082f88d9ded4c248b))
+
+## [3.7.4](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.7.3...@rudderstack/analytics-js@3.7.4) (2024-07-23)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-plugins` updated to version `3.7.3`
+
+### Bug Fixes
+
+* filter non errors ([#1800](https://github.com/rudderlabs/rudder-sdk-js/issues/1800)) ([73de1cc](https://github.com/rudderlabs/rudder-sdk-js/commit/73de1ccc264e9afcbae3e6d7f66e120aca81e49a))
+
+## [3.7.3](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.7.2...@rudderstack/analytics-js@3.7.3) (2024-07-23)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-plugins` updated to version `3.7.2`
+
+### Bug Fixes
+
+* filter unhandled errors by message ([#1797](https://github.com/rudderlabs/rudder-sdk-js/issues/1797)) ([2f45d00](https://github.com/rudderlabs/rudder-sdk-js/commit/2f45d001e7d9dbb70b12b017fc73bc740135e870))
+
 ## [3.7.2](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.7.1...@rudderstack/analytics-js@3.7.2) (2024-07-22)
 
 ### Dependency Updates
