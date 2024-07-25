@@ -14,6 +14,7 @@ import { CNameMapping as FacebookPixel } from '../../constants/integrations/Face
 import { CNameMapping as Fullstory } from '../../constants/integrations/Fullstory/constants';
 import { CNameMapping as GA } from '../../constants/integrations/GA/constants';
 import { CNameMapping as GA4 } from '../../constants/integrations/GA4/constants';
+import { CNameMapping as GA4_V2 } from '../../constants/integrations/GA4_V2/constants';
 import { CNameMapping as GoogleAds } from '../../constants/integrations/GoogleAds/constants';
 import { CNameMapping as GoogleOptimize } from '../../constants/integrations/GoogleOptimize/constants';
 import { CNameMapping as GoogleTagManager } from '../../constants/integrations/GoogleTagManager/constants';
@@ -98,6 +99,7 @@ const commonNames = {
   ...Fullstory,
   ...GA,
   ...GA4,
+  ...GA4_V2,
   ...GA360,
   ...GoogleAds,
   ...GoogleOptimize,

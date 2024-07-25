@@ -154,7 +154,7 @@ class ErrorHandler implements IErrorHandler {
             error: normalizedError,
             errorState,
           });
-        } else {
+        } else if (normalizedError) {
           this.notifyError(normalizedError, errorState);
         }
       }

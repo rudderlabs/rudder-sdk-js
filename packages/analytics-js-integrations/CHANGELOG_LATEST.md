@@ -1,7 +1,10 @@
-## [3.4.4](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.4.3...@rudderstack/analytics-js-integrations@3.4.4) (2024-07-17)
+## [3.5.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.4.5...@rudderstack/analytics-js-integrations@3.5.0) (2024-07-24)
 
+### Dependency Updates
 
-### Bug Fixes
+* `@rudderstack/analytics-js-common` updated to version `3.4.5`
 
-* upgrade braze version from 5.0 to 5.3 ([#1784](https://github.com/rudderlabs/rudder-sdk-js/issues/1784)) ([60a3111](https://github.com/rudderlabs/rudder-sdk-js/commit/60a31116f4401f1c0cb3e82cf55f94420474429a))
+### Features
+
+* **analytics-js-integrations:** onboard ga4 v2 hybrid mode ([#1802](https://github.com/rudderlabs/rudder-sdk-js/issues/1802)) ([2c8c3be](https://github.com/rudderlabs/rudder-sdk-js/commit/2c8c3bea8ada300c62729eb114dbe8ff84ae9269))
 

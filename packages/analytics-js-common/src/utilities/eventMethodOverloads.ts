@@ -73,7 +73,7 @@ const pageArgumentsToCallOptions = (
     payload.name = name as string;
     payload.properties = properties as Nullable<ApiObject>;
     payload.options = undefined;
-    payload.callback = options as ApiCallback;
+    payload.callback = options;
   }
 
   if (isFunction(properties)) {
@@ -81,7 +81,7 @@ const pageArgumentsToCallOptions = (
     payload.name = name as string;
     payload.properties = undefined;
     payload.options = undefined;
-    payload.callback = properties as ApiCallback;
+    payload.callback = properties;
   }
 
   if (isFunction(name)) {
@@ -89,7 +89,7 @@ const pageArgumentsToCallOptions = (
     payload.name = undefined;
     payload.properties = undefined;
     payload.options = undefined;
-    payload.callback = name as ApiCallback;
+    payload.callback = name;
   }
 
   if (isFunction(category)) {
@@ -97,7 +97,7 @@ const pageArgumentsToCallOptions = (
     payload.name = undefined;
     payload.properties = undefined;
     payload.options = undefined;
-    payload.callback = category as ApiCallback;
+    payload.callback = category;
   }
 
   if (isObjectLiteralAndNotNull(category)) {
@@ -123,7 +123,7 @@ const pageArgumentsToCallOptions = (
   // use it as name and set category to undefined
   if (isString(category) && !isString(name)) {
     payload.category = undefined;
-    payload.name = category as string;
+    payload.name = category;
   }
 
   // Rest of the code is just to clean up undefined values
@@ -185,13 +185,13 @@ const trackArgumentsToCallOptions = (
   if (isFunction(options)) {
     payload.properties = properties as Nullable<ApiObject>;
     payload.options = undefined;
-    payload.callback = options as ApiCallback;
+    payload.callback = options;
   }
 
   if (isFunction(properties)) {
     payload.properties = undefined;
     payload.options = undefined;
-    payload.callback = properties as ApiCallback;
+    payload.callback = properties;
   }
 
   // Rest of the code is just to clean up undefined values
@@ -232,14 +232,14 @@ const identifyArgumentsToCallOptions = (
     payload.userId = userId as string;
     payload.traits = traits as Nullable<IdentifyTraits>;
     payload.options = undefined;
-    payload.callback = options as ApiCallback;
+    payload.callback = options;
   }
 
   if (isFunction(traits)) {
     payload.userId = userId as string;
     payload.traits = undefined;
     payload.options = undefined;
-    payload.callback = traits as ApiCallback;
+    payload.callback = traits;
   }
 
   if (isObjectLiteralAndNotNull(userId) || isNull(userId)) {
@@ -298,14 +298,14 @@ const aliasArgumentsToCallOptions = (
     payload.to = to;
     payload.from = from as string;
     payload.options = undefined;
-    payload.callback = options as ApiCallback;
+    payload.callback = options;
   }
 
   if (isFunction(from)) {
     payload.to = to;
     payload.from = undefined;
     payload.options = undefined;
-    payload.callback = from as ApiCallback;
+    payload.callback = from;
   } else if (isObjectLiteralAndNotNull(from) || isNull(from)) {
     payload.to = to;
     payload.from = undefined;
@@ -358,14 +358,14 @@ const groupArgumentsToCallOptions = (
     payload.groupId = groupId as string;
     payload.traits = traits as Nullable<ApiObject>;
     payload.options = undefined;
-    payload.callback = options as ApiCallback;
+    payload.callback = options;
   }
 
   if (isFunction(traits)) {
     payload.groupId = groupId as string;
     payload.traits = undefined;
     payload.options = undefined;
-    payload.callback = traits as ApiCallback;
+    payload.callback = traits;
   }
 
   if (isObjectLiteralAndNotNull(groupId) || isNull(groupId)) {

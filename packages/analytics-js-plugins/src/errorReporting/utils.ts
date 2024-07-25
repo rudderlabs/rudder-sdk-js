@@ -116,7 +116,7 @@ const getBugsnagErrorEvent = (
       },
       device: {
         locale: state.context.locale.value ?? undefined,
-        userAgent: state.context.userAgent.value || undefined,
+        userAgent: state.context.userAgent.value ?? undefined,
         time: new Date(),
       },
       request: {
@@ -136,7 +136,7 @@ const getBugsnagErrorEvent = (
         },
       },
       user: {
-        id: state.source.value?.id || (state.lifecycle.writeKey.value as string),
+        id: state.source.value?.id ?? (state.lifecycle.writeKey.value as string),
       },
     },
   ],

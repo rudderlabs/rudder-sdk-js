@@ -1,4 +1,4 @@
-import type { ErrorState } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { ErrorState } from '../../types/ErrorHandler';
 import type { ILogger } from '../../types/Logger';
 
 export interface IExternalSourceLoadConfig {

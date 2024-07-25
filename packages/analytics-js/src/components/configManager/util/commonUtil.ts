@@ -73,8 +73,10 @@ const getSDKUrl = (): string | undefined => {
  * @param logger Logger instance
  */
 const updateReportingState = (res: SourceConfigResponse): void => {
-  state.reporting.isErrorReportingEnabled.value =
-    isErrorReportingEnabled(res.source.config) && !isSDKRunningInChromeExtension();
+  state.reporting.isErrorReportingEnabled.value = false;
+  // TODO: Enable this once the error reporting is tested properly
+  // state.reporting.isErrorReportingEnabled.value =
+  //   isErrorReportingEnabled(res.source.config) && !isSDKRunningInChromeExtension();
   state.reporting.isMetricsReportingEnabled.value = isMetricsReportingEnabled(res.source.config);
 };
 

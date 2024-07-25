@@ -2,6 +2,47 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.1.13](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.1.12...@rudderstack/analytics-js-sanity-suite@3.1.13) (2024-07-24)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.1.12`
+## [3.1.12](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.1.11...@rudderstack/analytics-js-sanity-suite@3.1.12) (2024-07-23)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.1.11`
+## [3.1.11](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.1.10...@rudderstack/analytics-js-sanity-suite@3.1.11) (2024-07-23)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.1.10`
+## [3.1.10](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.1.9...@rudderstack/analytics-js-sanity-suite@3.1.10) (2024-07-23)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.1.9`
+## [3.1.9](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.1.8...@rudderstack/analytics-js-sanity-suite@3.1.9) (2024-07-22)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.1.8`
+## [3.1.8](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.1.7...@rudderstack/analytics-js-sanity-suite@3.1.8) (2024-07-22)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.1.7`
+## [3.1.7](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.1.6...@rudderstack/analytics-js-sanity-suite@3.1.7) (2024-07-19)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.1.6`
+* `rudder-sdk-js` updated to version `3.1.6`
+
+### Bug Fixes
+
+* event API overloads ([#1782](https://github.com/rudderlabs/rudder-sdk-js/issues/1782)) ([02c5b47](https://github.com/rudderlabs/rudder-sdk-js/commit/02c5b47d0a83250fb5180e9ed467a92361663dab))
+
 ## [3.1.6](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.1.5...@rudderstack/analytics-js-sanity-suite@3.1.6) (2024-07-05)
 
 ### Dependency Updates

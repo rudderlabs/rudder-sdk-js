@@ -20,6 +20,7 @@ const configToIntNames = {
   FULLSTORY: 'Fullstory',
   TVSQUARED: 'TVSquared',
   GA4: 'GA4',
+  GA4_V2: 'GA4_V2',
   MOENGAGE: 'MoEngage',
   AM: 'Amplitude',
   PENDO: 'Pendo',

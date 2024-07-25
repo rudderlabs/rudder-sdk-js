@@ -22,6 +22,7 @@ const clientToServerNames = {
   FULLSTORY: 'Fullstory',
   TVSQUARED: 'TVSquared',
   GA4: 'Google Analytics 4 (GA4)',
+  GA4_V2: 'Google Analytics 4 (GA4) V2',
   MOENGAGE: 'MoEngage',
   AM: 'Amplitude',
   PENDO: 'Pendo',
