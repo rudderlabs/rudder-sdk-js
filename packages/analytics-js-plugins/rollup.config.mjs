@@ -44,7 +44,7 @@ const pluginsMap = {
   './ErrorReporting': './src/errorReporting/index.ts',
   './ExternalAnonymousId': './src/externalAnonymousId/index.ts',
   './GoogleLinker': './src/googleLinker/index.ts',
-  './IubendaConsentManager': './src/IubendaConsentManager/index.ts',
+  './IubendaConsentManager': './src/iubendaConsentManager/index.ts',
   './KetchConsentManager': './src/ketchConsentManager/index.ts',
   './NativeDestinationQueue': './src/nativeDestinationQueue/index.ts',
   './OneTrustConsentManager': './src/oneTrustConsentManager/index.ts',
