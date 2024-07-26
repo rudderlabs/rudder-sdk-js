@@ -16,16 +16,17 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-const serverPort = 3003;
-const cdnURLProd = 'https://cdn.rudderlabs.com';
-const defaultSdkVersion = 'v3';
-const sdkVersion = process.env.SDK_VERSION || defaultSdkVersion;
-const isLegacy = sdkVersion === 'v1.1';
+const SERVER_PORT = 3003;
+const BASE_CDN_URL = 'https://cdn.rudderlabs.com';
+const DEFAULT_SDK_VERSION = 'v3';
+
+const sdkVersion = process.env.SDK_VERSION || DEFAULT_SDK_VERSION;
+const isLegacySdk = sdkVersion === 'v1.1';
 const cdnVersionPath = `${process.env.SDK_CDN_VERSION_PATH_PREFIX || ''}${sdkVersion}`;
 const isDMT = process.env.IS_DMT === 'true';
 const isDevEnvTestBook = process.env.IS_DEV_TESTBOOK === 'true';
 const distributionType = process.env.DISTRIBUTION_TYPE || 'cdn';
-const buildType = process.env.BUILD_TYPE || 'modern';
+const buildType = process.env.BUILD_TYPE || 'legacy';
 
 const getDirectoryNames = async sourcePath =>
   (await readdir(sourcePath, { withFileTypes: true }))
@@ -52,25 +53,40 @@ const getHTMLSource = featureName => {
 const getJSSource = () => {
   switch (distributionType) {
     case 'npm':
-      return isLegacy ? 'src/index-npm-v1.1.ts' : 'src/index-npm.ts';
+      return isLegacySdk ? 'src/index-npm-v1.1.ts' : 'src/index-npm.ts';
     case 'cdn':
     default:
       return 'src/index.ts';
   }
 };
 
-const getDestinationsURL = () => {
+const getDestinationSDKBaseURL = () => {
   if (process.env.DEST_SDK_BASE_URL) {
-    return process.env.DEST_SDK_BASE_URL;
+    return process.env.DEST_SDK_BASE_URL || '';
   }
 
   switch (distributionType) {
     case 'cdn':
-      return `${cdnURLProd}/${cdnVersionPath}/js-integrations/`;
+      return ''; // This is automatically determined in the HTML page
     case 'npm':
-      return isLegacy ? `${cdnURLProd}/${cdnVersionPath}/legacy/js-integrations/` : `${cdnURLProd}/${cdnVersionPath}/js-integrations/`;
+      return isLegacySdk ? `${BASE_CDN_URL}/${cdnVersionPath}/js-integrations/` : `${BASE_CDN_URL}/${cdnVersionPath}/${buildType}/js-integrations/`;
     default:
-      return `http://localhost:${serverPort}/js-integrations/`;
+      return `http://localhost:${SERVER_PORT}/js-integrations/`;
+  }
+};
+
+const getPluginsBaseURL = () => {
+  if (process.env.PLUGINS_SDK_BASE_URL) {
+    return process.env.PLUGINS_SDK_BASE_URL || '';
+  }
+
+  switch (distributionType) {
+    case 'cdn':
+      return ''; // This is automatically determined in the HTML page
+    case 'npm':
+      return `${BASE_CDN_URL}/${cdnVersionPath}/${buildType}/plugins/`;
+    default:
+      return `http://localhost:${SERVER_PORT}/plugins/`;
   }
 };
 
@@ -81,37 +97,41 @@ const getCopyTargets = () => {
     case 'npm':
       return [];
     default:
-      return isLegacy
+      return isLegacySdk
         ? [
           {
-            src: '../analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js',
+            src: `../analytics-v1.1/dist/cdn/${buildType}/rudder-analytics.min.js`,
             dest: getDistPath(),
             rename: 'rudder-analytics.min.js',
           },
           {
-            src: '../analytics-v1.1/dist/cdn/legacy/rudder-analytics.min.js.map',
+            src: `../analytics-v1.1/dist/cdn/${buildType}/rudder-analytics.min.js.map`,
             dest: getDistPath(),
             rename: 'rudder-analytics.min.js.map',
           },
           {
-            src: '../analytics-js-integrations/dist/cdn/legacy/js-integrations/*',
+            src: `../analytics-js-integrations/dist/cdn/${buildType}/js-integrations/*`,
             dest: `${getDistPath()}/js-integrations`,
           },
         ]
         : [
           {
-            src: '../analytics-js/dist/cdn/legacy/iife/rsa.min.js',
+            src: `../analytics-js/dist/cdn/${buildType}/iife/rsa.min.js`,
             dest: getDistPath(),
             rename: 'rsa.min.js',
           },
           {
-            src: '../analytics-js/dist/cdn/legacy/iife/rsa.min.js.map',
+            src: `../analytics-js/dist/cdn/${buildType}/iife/rsa.min.js.map`,
             dest: getDistPath(),
             rename: 'rsa.min.js.map',
           },
           {
-            src: '../analytics-js-integrations/dist/cdn/legacy/js-integrations/*',
+            src: `../analytics-js-integrations/dist/cdn/${buildType}/js-integrations/*`,
             dest: `${getDistPath()}/js-integrations`,
+          },
+          {
+            src: `../analytics-js-plugins/dist/cdn/${buildType}/plugins/*`,
+            dest: `${getDistPath()}/plugins`,
           },
         ];
   }
@@ -139,8 +159,8 @@ const getBuildConfig = featureName => ({
       WRITE_KEY: process.env.WRITE_KEY,
       DATA_PLANE_URL: process.env.DATAPLANE_URL,
       CONFIG_SERVER_HOST: process.env.CONFIG_SERVER_HOST,
-      APP_DEST_SDK_BASE_URL: getDestinationsURL() || '',
-      REMOTE_MODULES_BASE_PATH: process.env.REMOTE_MODULES_BASE_PATH || '',
+      APP_DEST_SDK_BASE_URL: getDestinationSDKBaseURL(),
+      APP_PLUGINS_SDK_BASE_URL: getPluginsBaseURL(),
       FEATURE: featureName,
       IS_DEV_TESTBOOK: isDevEnvTestBook,
       IS_DMT: isDMT
@@ -183,8 +203,8 @@ const getBuildConfig = featureName => ({
         __WRITE_KEY__: process.env.WRITE_KEY,
         __DATAPLANE_URL__: process.env.DATAPLANE_URL,
         __CONFIG_SERVER_HOST__: process.env.CONFIG_SERVER_HOST || '',
-        __DEST_SDK_BASE_URL__: getDestinationsURL(),
-        __REMOTE_MODULES_BASE_PATH__: process.env.REMOTE_MODULES_BASE_PATH,
+        __DEST_SDK_BASE_URL__: getDestinationSDKBaseURL(),
+        __PLUGINS_SDK_BASE_URL__: getPluginsBaseURL(),
         __CDN_VERSION_PATH__:`${cdnVersionPath}` || '',
         __FEATURE__: featureName,
         __IS_DEV_TESTBOOK__: isDevEnvTestBook,
@@ -198,7 +218,7 @@ const getBuildConfig = featureName => ({
         openPage: `/index.html`,
         contentBase: [getDistPath()],
         host: 'localhost',
-        port: serverPort,
+        port: SERVER_PORT,
         headers: {
           'Access-Control-Allow-Origin': '*',
         },
