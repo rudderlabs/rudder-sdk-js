@@ -30,6 +30,10 @@ jobs:
           BRANCH_NAME="${BRANCH_NAME_REF}"
           VERSION=${BRANCH_NAME#hotfix-}
           VERSION=${VERSION#release/}
+
+          # Remove the -SDK-<ticket_number> suffix case insensitively
+          VERSION=$(echo "$VERSION" | awk '{sub(/-[sS][dD][kK]-[0-9]+$/, ""); print}')
+
           echo "release_version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Checkout
