@@ -1,5 +1,3 @@
-export * as destDisplayNamesToFileNamesMap from './destDisplayNamesToFileNamesMap';
-export * as destinationNames from './destinationNames';
 export * as htmlAttributes from './htmlAttributes';
 export * as loggerContexts from './loggerContexts';
 export * as logMessages from './logMessages';
