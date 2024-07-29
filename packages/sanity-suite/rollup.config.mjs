@@ -45,6 +45,8 @@ const getHTMLSource = featureName => {
       return `${folderPath}index-cdn.html`;
     case 'npm':
       return `${folderPath}index-npm.html`;
+    case 'npm_bundled':
+      return `${folderPath}index-npm-bundled.html`;
     default:
       return `${folderPath}index-local.html`;
   }
@@ -54,6 +56,8 @@ const getJSSource = () => {
   switch (distributionType) {
     case 'npm':
       return isLegacySdk ? 'src/index-npm-v1.1.ts' : 'src/index-npm.ts';
+    case 'npm_bundled':
+      return 'src/index-npm-bundled.ts';
     case 'cdn':
     default:
       return 'src/index.ts';
@@ -70,6 +74,8 @@ const getDestinationSDKBaseURL = () => {
       return ''; // This is automatically determined in the HTML page
     case 'npm':
       return isLegacySdk ? `${BASE_CDN_URL}/${cdnVersionPath}/js-integrations/` : `${BASE_CDN_URL}/${cdnVersionPath}/${buildType}/js-integrations/`;
+    case 'npm_bundled':
+      return `${BASE_CDN_URL}/${cdnVersionPath}/${buildType}/js-integrations/`;
     default:
       return `http://localhost:${SERVER_PORT}/js-integrations/`;
   }
@@ -83,6 +89,8 @@ const getPluginsBaseURL = () => {
   switch (distributionType) {
     case 'cdn':
       return ''; // This is automatically determined in the HTML page
+    case 'npm_bundled':
+      return ''; // This is not needed for npm_bundled
     case 'npm':
       return `${BASE_CDN_URL}/${cdnVersionPath}/${buildType}/plugins/`;
     default:
@@ -95,6 +103,7 @@ const getCopyTargets = () => {
     case 'cdn':
       return [];
     case 'npm':
+    case 'npm_bundled':
       return [];
     default:
       return isLegacySdk

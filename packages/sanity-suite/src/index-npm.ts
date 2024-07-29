@@ -15,7 +15,6 @@ const getLoadOptions = (): Partial<LoadOptions> => {
   const defaultLoadOptions: Partial<LoadOptions> = {
     logLevel: 'DEBUG',
     configUrl: 'CONFIG_SERVER_HOST',
-    lockIntegrationsVersion: true,
     destSDKBaseURL: 'APP_DEST_SDK_BASE_URL',
     pluginsSDKBaseURL: 'APP_PLUGINS_SDK_BASE_URL',
     consentManagement: {
