@@ -1,4 +1,6 @@
-import * as RudderAnalytics from 'rudder-sdk-js';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import { RudderAnalytics, type LoadOptions } from '@rudderstack/analytics-js/bundled';
 import { initSanitySuite } from './testBook';
 
 const getWriteKey = () => {
@@ -9,15 +11,17 @@ const getWriteKey = () => {
   }
 };
 
-const getLoadOptions = () => {
-  const defaultLoadOptions = {
+const getLoadOptions = (): Partial<LoadOptions> => {
+  const defaultLoadOptions: Partial<LoadOptions> = {
     logLevel: 'DEBUG',
     configUrl: 'CONFIG_SERVER_HOST',
     destSDKBaseURL: 'APP_DEST_SDK_BASE_URL',
-    cookieConsentManager: {
-      oneTrust: {
-        enabled: true,
-      },
+    consentManagement: {
+      enabled: true,
+      provider: 'oneTrust',
+    },
+    storage: {
+      migrate: true,
     },
     anonymousIdOptions: {
       autoCapture: {
@@ -36,17 +40,16 @@ const getLoadOptions = () => {
 };
 
 const sanitySuiteApp = () => {
-  (RudderAnalytics as any).load(getWriteKey(), 'DATA_PLANE_URL', getLoadOptions());
+  const rudderAnalytics = new RudderAnalytics();
+  rudderAnalytics.load(getWriteKey(), 'DATA_PLANE_URL', getLoadOptions());
 
   (window as any).userWriteKey = getWriteKey();
   (window as any).userConfigUrl = getLoadOptions().configUrl;
 
-  (RudderAnalytics as any).ready(() => {
+  rudderAnalytics.ready(() => {
     console.log('We are all set!!!');
     initSanitySuite();
   });
-
-  (window as any).rudderanalytics = RudderAnalytics;
 };
 
 sanitySuiteApp();
