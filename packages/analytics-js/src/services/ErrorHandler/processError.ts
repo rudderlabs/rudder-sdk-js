@@ -1,7 +1,6 @@
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import type { ErrorTarget, SDKError } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { ERROR_MESSAGES_TO_BE_FILTERED } from '../../constants/errors';
 import { LOAD_ORIGIN } from './constant';
 
 /**
@@ -64,19 +63,4 @@ const getNormalizedErrorForUnhandledError = (error: SDKError): SDKError | undefi
   }
 };
 
-/**
- * A function to determine whether the error should be promoted to notify or not
- * @param {Error} error
- * @returns
- */
-const isAllowedToBeNotified = (error: SDKError) => {
-  if ((error instanceof Error || error instanceof ErrorEvent) && error.message) {
-    return !ERROR_MESSAGES_TO_BE_FILTERED.some(e => error.message.includes(e));
-  }
-  if (error instanceof PromiseRejectionEvent && typeof error.reason === 'string') {
-    return !ERROR_MESSAGES_TO_BE_FILTERED.some(e => error.reason.includes(e));
-  }
-  return true;
-};
-
-export { processError, isAllowedToBeNotified, getNormalizedErrorForUnhandledError };
+export { processError, getNormalizedErrorForUnhandledError };

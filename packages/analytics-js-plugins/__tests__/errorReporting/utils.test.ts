@@ -12,6 +12,7 @@ import {
   getBugsnagErrorEvent,
   getErrorDeliveryPayload,
   getConfigForPayloadCreation,
+  isAllowedToBeNotified,
 } from '../../src/errorReporting/utils';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
@@ -115,6 +116,14 @@ describe('Error Reporting utilities', () => {
         expect(isRudderSDKError(event)).toBe(expectedValue);
       },
     );
+
+    it('should return false if error message contains value that is not allowed to be notified', () => {
+      const event = {
+        message: 'The request failed',
+      };
+
+      expect(isRudderSDKError(event)).toBe(false);
+    });
   });
 
   describe('getErrorContext', () => {
@@ -546,6 +555,23 @@ describe('Error Reporting utilities', () => {
         errorFramesToSkip: 2,
         normalizedError: error,
       });
+    });
+  });
+
+  describe('isAllowedToBeNotified', () => {
+    it('should return true for Error argument value', () => {
+      const result = isAllowedToBeNotified('dummy error');
+      expect(result).toBeTruthy();
+    });
+
+    it('should return false for Error argument value', () => {
+      const result = isAllowedToBeNotified('The request failed');
+      expect(result).toBeFalsy();
+    });
+
+    it('should return false for Error argument value', () => {
+      const result = isAllowedToBeNotified('unhandledException handler received a non-error');
+      expect(result).toBeFalsy();
     });
   });
 });
