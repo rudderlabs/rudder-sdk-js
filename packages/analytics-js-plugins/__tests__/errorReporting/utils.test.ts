@@ -115,14 +115,6 @@ describe('Error Reporting utilities', () => {
         expect(isRudderSDKError(event)).toBe(expectedValue);
       },
     );
-
-    it('should return false if the error message contains "a non-error"', () => {
-      const event = {
-        message: 'a non-error',
-      };
-
-      expect(isRudderSDKError(event)).toBe(false);
-    });
   });
 
   describe('getErrorContext', () => {

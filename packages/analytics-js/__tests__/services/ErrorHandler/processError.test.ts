@@ -95,7 +95,7 @@ describe('ErrorHandler - getNormalizedErrorForUnhandledError', () => {
     expect(normalizedError).toBeUndefined();
   });
 
-  it.skip('should return error instance for Event argument value with SDK script target', () => {
+  it('should return error instance for Event argument value with SDK script target', () => {
     const event = new Event('dummyError');
     const targetElement = document.createElement('script');
     targetElement.dataset.loader = 'RS_JS_SDK';

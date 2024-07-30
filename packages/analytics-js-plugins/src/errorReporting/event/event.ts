@@ -73,14 +73,10 @@ const normaliseError = (
   let error;
   let internalFrames = 0;
 
-  const createAndLogInputError = (reason: string) => {
+  const logInputError = (reason: string) => {
     const verb = component === 'error cause' ? 'was' : 'received';
     if (logger) logger.warn(`${component} ${verb} a non-error: "${reason}"`);
-    const err = new Error(
-      `${component} ${verb} a non-error. See "${component}" tab for more detail.`,
-    );
-    err.name = 'InvalidError';
-    return err;
+    return undefined;
   };
 
   // In some cases:
@@ -95,8 +91,7 @@ const normaliseError = (
     if (isError(maybeError)) {
       error = maybeError;
     } else {
-      error = createAndLogInputError(typeof maybeError);
-      internalFrames += 2;
+      error = logInputError(typeof maybeError);
     }
   } else {
     switch (typeof maybeError) {
@@ -107,8 +102,7 @@ const normaliseError = (
         internalFrames += 1;
         break;
       case 'function':
-        error = createAndLogInputError('function');
-        internalFrames += 2;
+        error = logInputError('function');
         break;
       case 'object':
         if (maybeError !== null && isError(maybeError)) {
@@ -118,17 +112,15 @@ const normaliseError = (
           error.name = maybeError.name || maybeError.errorClass;
           internalFrames += 1;
         } else {
-          error = createAndLogInputError(maybeError === null ? 'null' : 'unsupported object');
-          internalFrames += 2;
+          error = logInputError(maybeError === null ? 'null' : 'unsupported object');
         }
         break;
       default:
-        error = createAndLogInputError('nothing');
-        internalFrames += 2;
+        error = logInputError('nothing');
     }
   }
 
-  if (!hasStack(error)) {
+  if (error && !hasStack(error)) {
     // in IE10/11 a new Error() doesn't have a stacktrace until you throw it, so try that here
     try {
       throw error;
@@ -137,7 +129,7 @@ const normaliseError = (
         error = e;
         // if the error only got a stacktrace after we threw it here, we know it
         // will only have one extra internal frame from this function, regardless
-        // of whether it went through createAndLogInputError() or not
+        // of whether it went through logInputError() or not
         internalFrames = 1;
       }
     }
@@ -166,6 +158,9 @@ class ErrorFormat implements IErrorFormat {
       component,
       logger,
     );
+    if (!error) {
+      return undefined;
+    }
     let event;
     try {
       const stacktrace = getStacktrace(

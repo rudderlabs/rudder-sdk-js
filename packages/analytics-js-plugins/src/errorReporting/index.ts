@@ -84,7 +84,7 @@ const ErrorReporting = (): ExtensionPlugin => ({
         );
 
         // filter errors
-        if (!isRudderSDKError(errorPayload.errors[0])) {
+        if (!errorPayload || !isRudderSDKError(errorPayload.errors[0])) {
           return;
         }
 

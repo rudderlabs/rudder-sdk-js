@@ -144,10 +144,6 @@ const getBugsnagErrorEvent = (
 
 const isRudderSDKError = (event: any) => {
   const errorOrigin = event.stacktrace?.[0]?.file;
-  const errorMessage = event.message;
-  if (errorMessage && typeof errorMessage === 'string' && errorMessage.includes('a non-error')) {
-    return false;
-  }
 
   if (!errorOrigin || typeof errorOrigin !== 'string') {
     return false;
