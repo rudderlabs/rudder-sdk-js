@@ -64,60 +64,19 @@ const hasNecessaryFields = (error: any) =>
   (typeof error.name === 'string' || typeof error.errorClass === 'string') &&
   (typeof error.message === 'string' || typeof error.errorMessage === 'string');
 
-const normaliseError = (
-  maybeError: any,
-  tolerateNonErrors: boolean,
-  component: string,
-  logger?: ILogger,
-) => {
+const normaliseError = (maybeError: any, logger?: ILogger) => {
   let error;
   let internalFrames = 0;
 
-  const logInputError = (reason: string) => {
-    const verb = component === 'error cause' ? 'was' : 'received';
-    if (logger) logger.warn(`${component} ${verb} a non-error: "${reason}"`);
-    return undefined;
-  };
-
-  // In some cases:
-  //
-  //  - the promise rejection handler (both in the browser and node)
-  //  - the node uncaughtException handler
-  //
-  // We are really limited in what we can do to get a stacktrace. So we use the
-  // tolerateNonErrors option to ensure that the resulting error communicates as
-  // such.
-  if (!tolerateNonErrors) {
-    if (isError(maybeError)) {
-      error = maybeError;
-    } else {
-      error = logInputError(typeof maybeError);
-    }
+  if (maybeError !== null && isError(maybeError)) {
+    error = maybeError;
+  } else if (maybeError !== null && hasNecessaryFields(maybeError)) {
+    error = new Error(maybeError.message || maybeError.errorMessage);
+    error.name = maybeError.name || maybeError.errorClass;
+    internalFrames += 1;
   } else {
-    switch (typeof maybeError) {
-      case 'string':
-      case 'number':
-      case 'boolean':
-        error = new Error(String(maybeError));
-        internalFrames += 1;
-        break;
-      case 'function':
-        error = logInputError('function');
-        break;
-      case 'object':
-        if (maybeError !== null && isError(maybeError)) {
-          error = maybeError;
-        } else if (maybeError !== null && hasNecessaryFields(maybeError)) {
-          error = new Error(maybeError.message || maybeError.errorMessage);
-          error.name = maybeError.name || maybeError.errorClass;
-          internalFrames += 1;
-        } else {
-          error = logInputError(maybeError === null ? 'null' : 'unsupported object');
-        }
-        break;
-      default:
-        error = logInputError('nothing');
-    }
+    if (logger) logger.warn(error);
+    error = undefined;
   }
 
   if (error && !hasStack(error)) {
@@ -152,12 +111,7 @@ class ErrorFormat implements IErrorFormat {
     errorFramesToSkip = 0,
     logger?: ILogger,
   ) {
-    const [error, internalFrames] = normaliseError(
-      maybeError,
-      tolerateNonErrors,
-      component,
-      logger,
-    );
+    const [error, internalFrames] = normaliseError(maybeError, logger);
     if (!error) {
       return undefined;
     }

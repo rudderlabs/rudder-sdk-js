@@ -19,6 +19,7 @@ import {
   isRudderSDKError,
   getBugsnagErrorEvent,
   getErrorDeliveryPayload,
+  isAllowedToBeNotified,
 } from './utils';
 import { REQUEST_TIMEOUT_MS } from './constants';
 import { ErrorFormat } from './event/event';
@@ -73,6 +74,9 @@ const ErrorReporting = (): ExtensionPlugin => ({
         const { component, tolerateNonErrors, errorFramesToSkip, normalizedError } =
           getConfigForPayloadCreation(error, errorState?.severityReason.type as string);
 
+        if (!isAllowedToBeNotified(error)) {
+          return;
+        }
         // Generate the error payload
         const errorPayload = ErrorFormat.create(
           normalizedError,

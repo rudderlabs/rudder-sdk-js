@@ -116,14 +116,6 @@ describe('Error Reporting utilities', () => {
         expect(isRudderSDKError(event)).toBe(expectedValue);
       },
     );
-
-    it('should return false if error message contains value that is not allowed to be notified', () => {
-      const event = {
-        message: 'The request failed',
-      };
-
-      expect(isRudderSDKError(event)).toBe(false);
-    });
   });
 
   describe('getErrorContext', () => {
@@ -558,19 +550,29 @@ describe('Error Reporting utilities', () => {
     });
   });
 
-  describe('isAllowedToBeNotified', () => {
+  describe('ErrorHandler - isAllowedToBeNotified', () => {
     it('should return true for Error argument value', () => {
-      const result = isAllowedToBeNotified('dummy error');
+      const result = isAllowedToBeNotified(new Error('dummy error'));
       expect(result).toBeTruthy();
     });
 
-    it('should return false for Error argument value', () => {
-      const result = isAllowedToBeNotified('The request failed');
+    it('should return true for Error argument value', () => {
+      const result = isAllowedToBeNotified(new Error('The request failed'));
       expect(result).toBeFalsy();
     });
 
-    it('should return false for Error argument value', () => {
-      const result = isAllowedToBeNotified('unhandledException handler received a non-error');
+    it('should return true for ErrorEvent argument value', () => {
+      const result = isAllowedToBeNotified(new ErrorEvent('dummy error'));
+      expect(result).toBeTruthy();
+    });
+
+    it('should return true for PromiseRejectionEvent argument value', () => {
+      const result = isAllowedToBeNotified(new PromiseRejectionEvent('dummy error'));
+      expect(result).toBeTruthy();
+    });
+
+    it('should return true for PromiseRejectionEvent argument value', () => {
+      const result = isAllowedToBeNotified(new PromiseRejectionEvent('The request failed'));
       expect(result).toBeFalsy();
     });
   });

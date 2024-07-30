@@ -148,8 +148,15 @@ const getBugsnagErrorEvent = (
  * @param {Error} error
  * @returns
  */
-const isAllowedToBeNotified = (errorMessage: string) =>
-  !ERROR_MESSAGES_TO_BE_FILTERED.some(e => errorMessage.includes(e));
+const isAllowedToBeNotified = (error: SDKError) => {
+  if ((error instanceof Error || error instanceof ErrorEvent) && error.message) {
+    return !ERROR_MESSAGES_TO_BE_FILTERED.some(e => error.message.includes(e));
+  }
+  if (error instanceof PromiseRejectionEvent && typeof error.reason === 'string') {
+    return !ERROR_MESSAGES_TO_BE_FILTERED.some(e => error.reason.includes(e));
+  }
+  return true;
+};
 
 /**
  * A function to determine if the error is from Rudder SDK
@@ -158,10 +165,6 @@ const isAllowedToBeNotified = (errorMessage: string) =>
  */
 const isRudderSDKError = (event: any) => {
   const errorOrigin = event.stacktrace?.[0]?.file;
-  const errorMessage = event.message;
-  if (errorMessage && typeof errorMessage === 'string' && !isAllowedToBeNotified(errorMessage)) {
-    return false;
-  }
 
   if (!errorOrigin || typeof errorOrigin !== 'string') {
     return false;
