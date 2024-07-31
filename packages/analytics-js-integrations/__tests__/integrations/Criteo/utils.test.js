@@ -1,5 +1,11 @@
 import md5 from 'md5';
-import { handleCommonFields, handleProductAdded } from '../../../src/integrations/Criteo/utils';
+import sha256 from 'crypto-js/sha256';
+import {
+  handleCommonFields,
+  handleProductAdded,
+  getEmailHashes,
+  getEmail,
+} from '../../../src/integrations/Criteo/utils';
 
 describe('handleCommonFields', () => {
   const inputEvent = {
@@ -173,5 +179,37 @@ describe('handleProductAdded', () => {
     expect(finalPayload[0].item[0].id).toBe('123');
     expect(finalPayload[0].item[0].price).toBe(9.99);
     expect(finalPayload[0].item[0].quantity).toBe(5);
+  });
+});
+
+describe('getEmailHashes', () => {
+  // Returns correct hashes when hashMethod is 'both'
+  it('should return correct hashes when hashMethod is "both"', () => {
+    const email = 'test@example.com';
+    const hashMethod = 'both';
+    const result = getEmailHashes(email, hashMethod);
+    expect(result).toEqual([
+      { event: 'setEmail', hash_method: 'sha256', email: getEmail(email, 'sha256') },
+      { event: 'setEmail', hash_method: 'md5', email: getEmail(email, 'md5') },
+    ]);
+  });
+
+  // Handles empty email input
+  it('should handle empty email input', () => {
+    const email = '';
+    const hashMethod = 'both';
+    const result = getEmailHashes(email, hashMethod);
+    expect(result).toEqual([
+      { event: 'setEmail', hash_method: 'sha256', email: getEmail(email, 'sha256') },
+      { event: 'setEmail', hash_method: 'md5', email: getEmail(email, 'md5') },
+    ]);
+  });
+
+  it('should return correct hash when hashMethod is sha256', () => {
+    const email = 'test@example.com';
+    const hashMethod = 'sha256';
+    const expectedHash = sha256(email).toString();
+    const result = getEmailHashes(email, hashMethod);
+    expect(result).toEqual([{ event: 'setEmail', hash_method: 'sha256', email: expectedHash }]);
   });
 });

@@ -415,6 +415,8 @@ export {
   handleProductView,
   generateExtraData,
   handleCommonFields,
+  getEmail,
   getProductInfo,
+  getEmailHashes,
   handleProductAdded,
 };
