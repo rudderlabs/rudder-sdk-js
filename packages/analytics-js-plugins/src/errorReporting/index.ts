@@ -74,9 +74,6 @@ const ErrorReporting = (): ExtensionPlugin => ({
         const { component, tolerateNonErrors, errorFramesToSkip, normalizedError } =
           getConfigForPayloadCreation(error, errorState?.severityReason.type as string);
 
-        if (!isAllowedToBeNotified(error)) {
-          return;
-        }
         // Generate the error payload
         const errorPayload = ErrorFormat.create(
           normalizedError,
@@ -87,8 +84,12 @@ const ErrorReporting = (): ExtensionPlugin => ({
           logger,
         );
 
+        if (!errorPayload || !isAllowedToBeNotified(errorPayload.errors[0])) {
+          return;
+        }
+
         // filter errors
-        if (!errorPayload || !isRudderSDKError(errorPayload.errors[0])) {
+        if (!isRudderSDKError(errorPayload.errors[0])) {
           return;
         }
 

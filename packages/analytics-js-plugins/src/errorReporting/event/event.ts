@@ -2,8 +2,10 @@ import type { ErrorState } from '@rudderstack/analytics-js-common/types/ErrorHan
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import ErrorStackParser from 'error-stack-parser';
 import type { Exception, Stackframe } from '@rudderstack/analytics-js-common/types/Metrics';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import type { FrameType, IErrorFormat } from '../types';
 import { hasStack, isError } from './utils';
+import { ERROR_REPORTING_PLUGIN } from '../constants';
 
 const normaliseFunctionName = (name: string) =>
   /^global code$/i.test(name) ? 'global code' : name;
@@ -64,18 +66,21 @@ const hasNecessaryFields = (error: any) =>
   (typeof error.name === 'string' || typeof error.errorClass === 'string') &&
   (typeof error.message === 'string' || typeof error.errorMessage === 'string');
 
-const normaliseError = (maybeError: any, logger?: ILogger) => {
+const normaliseError = (maybeError: any, component: string, logger?: ILogger) => {
   let error;
   let internalFrames = 0;
 
-  if (maybeError !== null && isError(maybeError)) {
+  if (typeof maybeError === 'object' && isError(maybeError)) {
     error = maybeError;
-  } else if (maybeError !== null && hasNecessaryFields(maybeError)) {
+  } else if (typeof maybeError === 'object' && hasNecessaryFields(maybeError)) {
     error = new Error(maybeError.message || maybeError.errorMessage);
     error.name = maybeError.name || maybeError.errorClass;
     internalFrames += 1;
   } else {
-    if (logger) logger.warn(error);
+    if (logger)
+      logger.warn(
+        `${ERROR_REPORTING_PLUGIN}:: ${component} received a non-error: ${stringifyWithoutCircular(error)}`,
+      );
     error = undefined;
   }
 
@@ -87,8 +92,7 @@ const normaliseError = (maybeError: any, logger?: ILogger) => {
       if (hasStack(e)) {
         error = e;
         // if the error only got a stacktrace after we threw it here, we know it
-        // will only have one extra internal frame from this function, regardless
-        // of whether it went through logInputError() or not
+        // will only have one extra internal frame from this function
         internalFrames = 1;
       }
     }
@@ -111,7 +115,7 @@ class ErrorFormat implements IErrorFormat {
     errorFramesToSkip = 0,
     logger?: ILogger,
   ) {
-    const [error, internalFrames] = normaliseError(maybeError, logger);
+    const [error, internalFrames] = normaliseError(maybeError, component, logger);
     if (!error) {
       return undefined;
     }

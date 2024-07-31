@@ -550,30 +550,20 @@ describe('Error Reporting utilities', () => {
     });
   });
 
-  describe('ErrorHandler - isAllowedToBeNotified', () => {
+  describe('isAllowedToBeNotified', () => {
     it('should return true for Error argument value', () => {
-      const result = isAllowedToBeNotified(new Error('dummy error'));
+      const result = isAllowedToBeNotified({ message: 'dummy error' });
       expect(result).toBeTruthy();
     });
 
     it('should return true for Error argument value', () => {
-      const result = isAllowedToBeNotified(new Error('The request failed'));
+      const result = isAllowedToBeNotified({ message: 'The request failed' });
       expect(result).toBeFalsy();
     });
 
-    it('should return true for ErrorEvent argument value', () => {
-      const result = isAllowedToBeNotified(new ErrorEvent('dummy error'));
+    it('should return true if message is not defined', () => {
+      const result = isAllowedToBeNotified({ name: 'dummy error' });
       expect(result).toBeTruthy();
-    });
-
-    it('should return true for PromiseRejectionEvent argument value', () => {
-      const result = isAllowedToBeNotified(new PromiseRejectionEvent('dummy error'));
-      expect(result).toBeTruthy();
-    });
-
-    it('should return true for PromiseRejectionEvent argument value', () => {
-      const result = isAllowedToBeNotified(new PromiseRejectionEvent('The request failed'));
-      expect(result).toBeFalsy();
     });
   });
 });

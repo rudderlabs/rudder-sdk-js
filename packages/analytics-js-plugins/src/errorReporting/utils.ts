@@ -148,12 +148,10 @@ const getBugsnagErrorEvent = (
  * @param {Error} error
  * @returns
  */
-const isAllowedToBeNotified = (error: SDKError) => {
-  if ((error instanceof Error || error instanceof ErrorEvent) && error.message) {
-    return !ERROR_MESSAGES_TO_BE_FILTERED.some(e => error.message.includes(e));
-  }
-  if (error instanceof PromiseRejectionEvent && typeof error.reason === 'string') {
-    return !ERROR_MESSAGES_TO_BE_FILTERED.some(e => error.reason.includes(e));
+const isAllowedToBeNotified = (event: any) => {
+  const errorMessage = event.message;
+  if (errorMessage && typeof errorMessage === 'string') {
+    return !ERROR_MESSAGES_TO_BE_FILTERED.some(e => errorMessage.includes(e));
   }
   return true;
 };
