@@ -70,17 +70,16 @@ const normaliseError = (maybeError: any, component: string, logger?: ILogger) =>
   let error;
   let internalFrames = 0;
 
-  if (typeof maybeError === 'object' && isError(maybeError)) {
+  if (isError(maybeError)) {
     error = maybeError;
   } else if (typeof maybeError === 'object' && hasNecessaryFields(maybeError)) {
     error = new Error(maybeError.message || maybeError.errorMessage);
     error.name = maybeError.name || maybeError.errorClass;
     internalFrames += 1;
   } else {
-    if (logger)
-      logger.warn(
-        `${ERROR_REPORTING_PLUGIN}:: ${component} received a non-error: ${stringifyWithoutCircular(error)}`,
-      );
+    logger?.warn(
+      `${ERROR_REPORTING_PLUGIN}:: ${component} received a non-error: ${stringifyWithoutCircular(error)}`,
+    );
     error = undefined;
   }
 
