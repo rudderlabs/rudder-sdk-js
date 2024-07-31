@@ -1,7 +1,6 @@
 import {
   processError,
   getNormalizedErrorForUnhandledError,
-  isAllowedToBeNotified,
 } from '../../../src/services/ErrorHandler/processError';
 
 jest.mock('../../../src/components/utilities/event', () => {
@@ -95,7 +94,7 @@ describe('ErrorHandler - getNormalizedErrorForUnhandledError', () => {
     expect(normalizedError).toBeUndefined();
   });
 
-  it.skip('should return error instance for Event argument value with SDK script target', () => {
+  it('should return error instance for Event argument value with SDK script target', () => {
     const event = new Event('dummyError');
     const targetElement = document.createElement('script');
     targetElement.dataset.loader = 'RS_JS_SDK';
@@ -114,32 +113,5 @@ describe('ErrorHandler - getNormalizedErrorForUnhandledError', () => {
     expect(normalizedError?.message).toStrictEqual(
       'Error in loading a third-party script from URL https://www.test-host.com/dummy with ID dummy.',
     );
-  });
-});
-
-describe('ErrorHandler - isAllowedToBeNotified', () => {
-  it('should return true for Error argument value', () => {
-    const result = isAllowedToBeNotified(new Error('dummy error'));
-    expect(result).toBeTruthy();
-  });
-
-  it('should return true for Error argument value', () => {
-    const result = isAllowedToBeNotified(new Error('The request failed'));
-    expect(result).toBeFalsy();
-  });
-
-  it('should return true for ErrorEvent argument value', () => {
-    const result = isAllowedToBeNotified(new ErrorEvent('dummy error'));
-    expect(result).toBeTruthy();
-  });
-
-  it('should return true for PromiseRejectionEvent argument value', () => {
-    const result = isAllowedToBeNotified(new PromiseRejectionEvent('dummy error'));
-    expect(result).toBeTruthy();
-  });
-
-  it('should return true for PromiseRejectionEvent argument value', () => {
-    const result = isAllowedToBeNotified(new PromiseRejectionEvent('The request failed'));
-    expect(result).toBeFalsy();
   });
 });
