@@ -12,6 +12,7 @@ import {
   getBugsnagErrorEvent,
   getErrorDeliveryPayload,
   getConfigForPayloadCreation,
+  isAllowedToBeNotified,
 } from '../../src/errorReporting/utils';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
@@ -546,6 +547,23 @@ describe('Error Reporting utilities', () => {
         errorFramesToSkip: 2,
         normalizedError: error,
       });
+    });
+  });
+
+  describe('isAllowedToBeNotified', () => {
+    it('should return true for Error argument value', () => {
+      const result = isAllowedToBeNotified({ message: 'dummy error' });
+      expect(result).toBeTruthy();
+    });
+
+    it('should return true for Error argument value', () => {
+      const result = isAllowedToBeNotified({ message: 'The request failed' });
+      expect(result).toBeFalsy();
+    });
+
+    it('should return true if message is not defined', () => {
+      const result = isAllowedToBeNotified({ name: 'dummy error' });
+      expect(result).toBeTruthy();
     });
   });
 });

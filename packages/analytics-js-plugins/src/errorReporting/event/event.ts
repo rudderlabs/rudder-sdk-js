@@ -2,8 +2,10 @@ import type { ErrorState } from '@rudderstack/analytics-js-common/types/ErrorHan
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import ErrorStackParser from 'error-stack-parser';
 import type { Exception, Stackframe } from '@rudderstack/analytics-js-common/types/Metrics';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import type { FrameType, IErrorFormat } from '../types';
 import { hasStack, isError } from './utils';
+import { ERROR_REPORTING_PLUGIN } from '../constants';
 
 const normaliseFunctionName = (name: string) =>
   /^global code$/i.test(name) ? 'global code' : name;
@@ -64,71 +66,24 @@ const hasNecessaryFields = (error: any) =>
   (typeof error.name === 'string' || typeof error.errorClass === 'string') &&
   (typeof error.message === 'string' || typeof error.errorMessage === 'string');
 
-const normaliseError = (
-  maybeError: any,
-  tolerateNonErrors: boolean,
-  component: string,
-  logger?: ILogger,
-) => {
+const normaliseError = (maybeError: any, component: string, logger?: ILogger) => {
   let error;
   let internalFrames = 0;
 
-  const createAndLogInputError = (reason: string) => {
-    const verb = component === 'error cause' ? 'was' : 'received';
-    if (logger) logger.warn(`${component} ${verb} a non-error: "${reason}"`);
-    const err = new Error(
-      `${component} ${verb} a non-error. See "${component}" tab for more detail.`,
-    );
-    err.name = 'InvalidError';
-    return err;
-  };
-
-  // In some cases:
-  //
-  //  - the promise rejection handler (both in the browser and node)
-  //  - the node uncaughtException handler
-  //
-  // We are really limited in what we can do to get a stacktrace. So we use the
-  // tolerateNonErrors option to ensure that the resulting error communicates as
-  // such.
-  if (!tolerateNonErrors) {
-    if (isError(maybeError)) {
-      error = maybeError;
-    } else {
-      error = createAndLogInputError(typeof maybeError);
-      internalFrames += 2;
-    }
+  if (isError(maybeError)) {
+    error = maybeError;
+  } else if (typeof maybeError === 'object' && hasNecessaryFields(maybeError)) {
+    error = new Error(maybeError.message || maybeError.errorMessage);
+    error.name = maybeError.name || maybeError.errorClass;
+    internalFrames += 1;
   } else {
-    switch (typeof maybeError) {
-      case 'string':
-      case 'number':
-      case 'boolean':
-        error = new Error(String(maybeError));
-        internalFrames += 1;
-        break;
-      case 'function':
-        error = createAndLogInputError('function');
-        internalFrames += 2;
-        break;
-      case 'object':
-        if (maybeError !== null && isError(maybeError)) {
-          error = maybeError;
-        } else if (maybeError !== null && hasNecessaryFields(maybeError)) {
-          error = new Error(maybeError.message || maybeError.errorMessage);
-          error.name = maybeError.name || maybeError.errorClass;
-          internalFrames += 1;
-        } else {
-          error = createAndLogInputError(maybeError === null ? 'null' : 'unsupported object');
-          internalFrames += 2;
-        }
-        break;
-      default:
-        error = createAndLogInputError('nothing');
-        internalFrames += 2;
-    }
+    logger?.warn(
+      `${ERROR_REPORTING_PLUGIN}:: ${component} received a non-error: ${stringifyWithoutCircular(error)}`,
+    );
+    error = undefined;
   }
 
-  if (!hasStack(error)) {
+  if (error && !hasStack(error)) {
     // in IE10/11 a new Error() doesn't have a stacktrace until you throw it, so try that here
     try {
       throw error;
@@ -136,8 +91,7 @@ const normaliseError = (
       if (hasStack(e)) {
         error = e;
         // if the error only got a stacktrace after we threw it here, we know it
-        // will only have one extra internal frame from this function, regardless
-        // of whether it went through createAndLogInputError() or not
+        // will only have one extra internal frame from this function
         internalFrames = 1;
       }
     }
@@ -160,12 +114,10 @@ class ErrorFormat implements IErrorFormat {
     errorFramesToSkip = 0,
     logger?: ILogger,
   ) {
-    const [error, internalFrames] = normaliseError(
-      maybeError,
-      tolerateNonErrors,
-      component,
-      logger,
-    );
+    const [error, internalFrames] = normaliseError(maybeError, component, logger);
+    if (!error) {
+      return undefined;
+    }
     let event;
     try {
       const stacktrace = getStacktrace(

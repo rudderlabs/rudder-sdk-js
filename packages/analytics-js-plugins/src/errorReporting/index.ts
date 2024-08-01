@@ -19,6 +19,7 @@ import {
   isRudderSDKError,
   getBugsnagErrorEvent,
   getErrorDeliveryPayload,
+  isAllowedToBeNotified,
 } from './utils';
 import { REQUEST_TIMEOUT_MS } from './constants';
 import { ErrorFormat } from './event/event';
@@ -82,6 +83,10 @@ const ErrorReporting = (): ExtensionPlugin => ({
           errorFramesToSkip,
           logger,
         );
+
+        if (!errorPayload || !isAllowedToBeNotified(errorPayload.errors[0])) {
+          return;
+        }
 
         // filter errors
         if (!isRudderSDKError(errorPayload.errors[0])) {

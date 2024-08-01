@@ -17,6 +17,7 @@ import type {
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { METRICS_PAYLOAD_VERSION } from '@rudderstack/analytics-js-common/constants/metrics';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
+import { ERROR_MESSAGES_TO_BE_FILTERED } from '@rudderstack/analytics-js-common/constants/errors';
 import {
   APP_STATE_EXCLUDE_KEYS,
   DEV_HOSTS,
@@ -142,6 +143,24 @@ const getBugsnagErrorEvent = (
   ],
 });
 
+/**
+ * A function to determine whether the error should be promoted to notify or not
+ * @param {Error} error
+ * @returns
+ */
+const isAllowedToBeNotified = (event: any) => {
+  const errorMessage = event.message;
+  if (errorMessage && typeof errorMessage === 'string') {
+    return !ERROR_MESSAGES_TO_BE_FILTERED.some(e => errorMessage.includes(e));
+  }
+  return true;
+};
+
+/**
+ * A function to determine if the error is from Rudder SDK
+ * @param {Error} event
+ * @returns
+ */
 const isRudderSDKError = (event: any) => {
   const errorOrigin = event.stacktrace?.[0]?.file;
 
@@ -188,4 +207,5 @@ export {
   isRudderSDKError,
   getErrorDeliveryPayload,
   getErrorContext,
+  isAllowedToBeNotified,
 };
