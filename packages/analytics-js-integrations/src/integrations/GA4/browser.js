@@ -8,7 +8,12 @@ import {
 import { Cookie } from '@rudderstack/analytics-js-common/v1.1/utils/storage/cookie';
 import Logger from '../../utils/logger';
 import { eventsConfig } from './config';
-import { constructPayload, flattenJsonPayload, removeTrailingSlashes } from '../../utils/utils';
+import {
+  constructPayload,
+  flattenJsonPayload,
+  isDefinedAndNotNull,
+  removeTrailingSlashes,
+} from '../../utils/utils';
 import {
   shouldSendUserId,
   prepareParamsAndEventName,
@@ -39,6 +44,7 @@ export default class GA4 {
     this.overrideClientAndSessionId = config.overrideClientAndSessionId || false;
     this.sdkBaseUrl =
       removeTrailingSlashes(config.sdkBaseUrl) || 'https://www.googletagmanager.com';
+    this.serverContainerUrl = config.serverContainerUrl || null;
     this.isExtendedGa4_V2 = config.isExtendedGa4_V2 || false;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
@@ -57,6 +63,10 @@ export default class GA4 {
     window.gtag('js', new Date());
     const gtagParameterObject = {};
 
+    if (isDefinedAndNotNull(this.serverContainerUrl)) {
+      gtagParameterObject.server_container_url = this.serverContainerUrl;
+    }
+
     if (this.capturePageView === 'rs') {
       gtagParameterObject.send_page_view = false;
     }
@@ -71,7 +81,7 @@ export default class GA4 {
       gtagParameterObject.cookie_prefix = 'rs';
       gtagParameterObject.client_id = this.analytics.getAnonymousId();
       gtagParameterObject.session_id = this.analytics.getSessionId();
-    } else if(!this.isExtendedGa4_V2){
+    } else if (!this.isExtendedGa4_V2) {
       // Cookie migration logic
       const clientCookie = this.cookie.get('rs_ga');
       const defaultGA4Cookie = this.cookie.get('_ga');
@@ -271,5 +281,3 @@ export default class GA4 {
     };
   }
 }
-
-
