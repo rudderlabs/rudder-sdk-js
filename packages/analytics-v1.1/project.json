@@ -52,9 +52,10 @@
       "executor": "@jscutlery/semver:version",
       "options": {
         "baseBranch": "main",
-        "preset": "conventional",
+        "preset": "conventionalcommits",
         "tagPrefix": "{projectName}@",
-        "trackDeps": true
+        "trackDeps": true,
+        "push": true
       }
     },
     "github": {
