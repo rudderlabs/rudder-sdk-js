@@ -183,9 +183,9 @@ describe('handleProductAdded', () => {
 });
 
 describe('getEmailHashes', () => {
+  const email = 'test@example.com';
   // Returns correct hashes when hashMethod is 'both'
   it('should return correct hashes when hashMethod is "both"', () => {
-    const email = 'test@example.com';
     const hashMethod = 'both';
     const result = getEmailHashes(email, hashMethod);
     expect(result).toEqual([
@@ -206,10 +206,15 @@ describe('getEmailHashes', () => {
   });
 
   it('should return correct hash when hashMethod is sha256', () => {
-    const email = 'test@example.com';
     const hashMethod = 'sha256';
     const expectedHash = sha256(email).toString();
     const result = getEmailHashes(email, hashMethod);
     expect(result).toEqual([{ event: 'setEmail', hash_method: 'sha256', email: expectedHash }]);
+  });
+
+  it('should return correct hash when hashMethod is none', () => {
+    const hashMethod = 'none';
+    const result = getEmailHashes(email, hashMethod);
+    expect(result).toEqual([{ event: 'setEmail', email }]);
   });
 });
