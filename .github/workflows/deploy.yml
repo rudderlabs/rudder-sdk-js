@@ -24,6 +24,9 @@ on:
         type: string
         required: false
         default: ''
+      use_pr_head_sha:
+        type: string
+        default: 'false'
     secrets:
       AWS_ACCOUNT_ID:
         required: true
@@ -63,8 +66,21 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_S3_SYNC_ROLE }}
           aws-region: us-east-1
 
+      - name: Determine checkout SHA
+        id: getSHA
+        run: |
+          if ${{ inputs.use_pr_head_sha }} == 'true'; then
+            sha=$(echo ${{ github.event.pull_request.head.sha }})
+          else
+            sha=$(echo ${{ github.sha }})
+          fi
+          echo "Checkout SHA: $sha"
+          echo "SHA=$sha" >> $GITHUB_OUTPUT
+
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.getSHA.outputs.SHA }}
 
       - name: Get new version number
         run: |
