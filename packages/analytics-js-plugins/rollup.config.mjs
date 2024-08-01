@@ -78,7 +78,6 @@ export function getDefaultConfig(distName) {
         preventAssignment: true,
         __PACKAGE_VERSION__: version,
         __MODULE_TYPE__: moduleType,
-        __BUNDLE_ALL_PLUGINS__: isLegacyBuild,
         __RS_BUGSNAG_API_KEY__: process.env.BUGSNAG_API_KEY || '{{__RS_BUGSNAG_API_KEY__}}',
         __RS_BUGSNAG_RELEASE_STAGE__: process.env.BUGSNAG_RELEASE_STAGE || 'production',
         __RS_BUGSNAG_SDK_URL__: bugsnagSDKUrl,
@@ -108,43 +107,42 @@ export function getDefaultConfig(distName) {
         extensions: [...DEFAULT_EXTENSIONS, '.ts'],
         sourcemap: sourceMapType,
       }),
-      !isLegacyBuild && isCDNPackageBuild &&
-      federation({
-        name: modName,
-        filename: remotePluginsExportsFilename,
-        exposes: pluginsMap,
-        remoteType: 'promise',
-      }),
+      isCDNPackageBuild &&
+        federation({
+          name: modName,
+          filename: remotePluginsExportsFilename,
+          exposes: pluginsMap,
+          remoteType: 'promise',
+        }),
       process.env.UGLIFY === 'true' &&
-      terser({
-        safari10: isLegacyBuild,
-        ecma: isLegacyBuild ? 2015 : 2017,
-        format: {
-          comments: false,
-        },
-      }),
+        terser({
+          safari10: isLegacyBuild,
+          ecma: isLegacyBuild ? 2015 : 2017,
+          format: {
+            comments: false,
+          },
+        }),
       filesize({
-        showBeforeSizes: 'build',
         showBrotliSize: true,
       }),
       process.env.VISUALIZER === 'true' &&
-      visualizer({
-        filename: `./stats/${distName}.html`,
-        title: `Rollup Visualizer - ${distName}`,
-        sourcemap: true,
-        open: true,
-        gzipSize: true,
-        brotliSize: true,
-      }),
+        visualizer({
+          filename: `./stats/${distName}.html`,
+          title: `Rollup Visualizer - ${distName}`,
+          sourcemap: true,
+          open: true,
+          gzipSize: true,
+          brotliSize: true,
+        }),
       isLocalServerEnabled &&
-      serve({
-        contentBase: ['dist'],
-        host: 'localhost',
-        port: 3002,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-        },
-      }),
+        serve({
+          contentBase: ['dist'],
+          host: 'localhost',
+          port: 3002,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+          },
+        }),
       isLocalServerEnabled && livereload(),
     ],
   };
@@ -152,7 +150,7 @@ export function getDefaultConfig(distName) {
 
 const outputFilesNpm = [
   {
-    entryFileNames: `index.js`,
+    entryFileNames: `index.mjs`,
     dir: outDirNpm + '/esm/',
     format: 'esm',
     name: modName,
@@ -162,9 +160,19 @@ const outputFilesNpm = [
     },
   },
   {
-    entryFileNames: `index.js`,
+    entryFileNames: `index.cjs`,
     dir: outDirNpm + '/cjs',
     format: 'cjs',
+    name: modName,
+    sourcemap: sourceMapType,
+    generatedCode: {
+      preset: isLegacyBuild ? 'es5' : 'es2015',
+    },
+  },
+  {
+    entryFileNames: `index.js`,
+    dir: outDirNpm + '/umd',
+    format: 'umd',
     name: modName,
     sourcemap: sourceMapType,
     generatedCode: {
@@ -189,7 +197,7 @@ const outputFilesCdn = [
         // file name without extension
         return path.basename(id).split('.')[0];
       }
-    }
+    },
   },
 ];
 
@@ -201,14 +209,6 @@ const buildConfig = () => {
 
 const buildEntries = () => {
   const outputFiles = isCDNPackageBuild ? outputFilesCdn : outputFilesNpm;
-
-  if(isCDNPackageBuild) {
-    return[{
-      ...buildConfig(),
-      input: 'src/index.ts',
-      output: outputFiles,
-    }];
-  }
 
   return [
     {
@@ -232,18 +232,24 @@ const buildEntries = () => {
             {
               find: '@rudderstack/analytics-js-cookies',
               replacement: path.resolve('./dist/dts/packages/analytics-js-cookies/src'),
-            }
-          ]
+            },
+          ],
         }),
         dts(),
-        del({ hook: "buildEnd", targets: "./dist/dts" }),
+        del({ hook: 'buildEnd', targets: './dist/dts' }),
       ],
-      output: {
-        file: `${outDirNpmRoot}/index.d.ts`,
-        format: 'es',
-      },
-    }
+      output: [
+        {
+          file: `${outDirNpmRoot}/index.d.mts`,
+          format: 'es',
+        },
+        {
+          file: `${outDirNpmRoot}/index.d.cts`,
+          format: 'es',
+        },
+      ],
+    },
   ];
-}
+};
 
 export default buildEntries();

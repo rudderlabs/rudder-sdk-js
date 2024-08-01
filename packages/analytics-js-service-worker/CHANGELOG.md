@@ -2,6 +2,36 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.1.6](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-service-worker@3.1.5...@rudderstack/analytics-js-service-worker@3.1.6) (2024-07-24)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.1.5`
+## [3.1.5](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-service-worker@3.1.4...@rudderstack/analytics-js-service-worker@3.1.5) (2024-07-19)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.1.4`
+
+### Bug Fixes
+
+* event API overloads ([#1782](https://github.com/rudderlabs/rudder-sdk-js/issues/1782)) ([02c5b47](https://github.com/rudderlabs/rudder-sdk-js/commit/02c5b47d0a83250fb5180e9ed467a92361663dab))
+
+## [3.1.4](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-service-worker@3.1.3...@rudderstack/analytics-js-service-worker@3.1.4) (2024-07-05)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.1.3`
+
+### Bug Fixes
+
+* package lint issues ([#1773](https://github.com/rudderlabs/rudder-sdk-js/issues/1773)) ([8e45d05](https://github.com/rudderlabs/rudder-sdk-js/commit/8e45d052bd6366d647d06226aa89b1fa2e512f9d))
+
+## [3.1.3](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-service-worker@3.1.2...@rudderstack/analytics-js-service-worker@3.1.3) (2024-07-04)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.1.2`
 ## [3.1.2](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-service-worker@3.1.1...@rudderstack/analytics-js-service-worker@3.1.2) (2024-06-21)
 
 ### Dependency Updates

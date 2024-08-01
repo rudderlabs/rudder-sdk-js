@@ -2,6 +2,84 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.4.6](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.4.5...@rudderstack/analytics-js-plugins@3.4.6) (2024-07-24)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.4.5`
+* `@rudderstack/analytics-js-cookies` updated to version `3.4.5`
+## [3.4.5](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.4.4...@rudderstack/analytics-js-plugins@3.4.5) (2024-07-23)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.4.4`
+## [3.4.4](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.4.3...@rudderstack/analytics-js-plugins@3.4.4) (2024-07-23)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.4.3`
+## [3.4.3](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.4.2...@rudderstack/analytics-js-plugins@3.4.3) (2024-07-23)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.4.2`
+## [3.4.2](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.4.1...@rudderstack/analytics-js-plugins@3.4.2) (2024-07-22)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.4.1`
+## [3.4.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.4.0...@rudderstack/analytics-js-plugins@3.4.1) (2024-07-22)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.4.0`
+## [3.4.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.3.2...@rudderstack/analytics-js-plugins@3.4.0) (2024-07-19)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.3.2`
+* `@rudderstack/analytics-js` updated to version `3.3.2`
+* `@rudderstack/analytics-js-cookies` updated to version `3.3.2`
+
+### Features
+
+* error reporting plugin ([#1601](https://github.com/rudderlabs/rudder-sdk-js/issues/1601)) ([1f2629e](https://github.com/rudderlabs/rudder-sdk-js/commit/1f2629e594740763ce9bd54a21213b92d80ae085))
+
+
+### Bug Fixes
+
+* event API overloads ([#1782](https://github.com/rudderlabs/rudder-sdk-js/issues/1782)) ([02c5b47](https://github.com/rudderlabs/rudder-sdk-js/commit/02c5b47d0a83250fb5180e9ed467a92361663dab))
+
+## [3.3.2](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.3.1...@rudderstack/analytics-js-plugins@3.3.2) (2024-07-05)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.3.1`
+* `@rudderstack/analytics-js` updated to version `3.3.1`
+* `@rudderstack/analytics-js-cookies` updated to version `3.3.1`
+
+### Bug Fixes
+
+* package lint issues ([#1773](https://github.com/rudderlabs/rudder-sdk-js/issues/1773)) ([8e45d05](https://github.com/rudderlabs/rudder-sdk-js/commit/8e45d052bd6366d647d06226aa89b1fa2e512f9d))
+
+## [3.3.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.3.0...@rudderstack/analytics-js-plugins@3.3.1) (2024-07-04)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.3.0`
+* `@rudderstack/analytics-js` updated to version `3.3.0`
+* `@rudderstack/analytics-js-cookies` updated to version `3.3.0`
+## [3.3.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.2.1...@rudderstack/analytics-js-plugins@3.3.0) (2024-07-01)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.2.1`
+* `@rudderstack/analytics-js-cookies` updated to version `3.2.1`
+
+### Features
+
+* expose exclusive cookies functions for server and browser environments ([#1774](https://github.com/rudderlabs/rudder-sdk-js/issues/1774)) ([428e5cd](https://github.com/rudderlabs/rudder-sdk-js/commit/428e5cd96c389ab0944fa9255d6d68c56c71908c))
+
 ## [3.2.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.2.0...@rudderstack/analytics-js-plugins@3.2.1) (2024-06-25)
 
 ### Dependency Updates

@@ -2,6 +2,67 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.0.23](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.22...@rudderstack/analytics-js-loading-scripts@3.0.23) (2024-07-24)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.22`
+## [3.0.22](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.21...@rudderstack/analytics-js-loading-scripts@3.0.22) (2024-07-23)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.21`
+## [3.0.21](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.20...@rudderstack/analytics-js-loading-scripts@3.0.21) (2024-07-23)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.20`
+## [3.0.20](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.19...@rudderstack/analytics-js-loading-scripts@3.0.20) (2024-07-23)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.19`
+## [3.0.19](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.18...@rudderstack/analytics-js-loading-scripts@3.0.19) (2024-07-22)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.18`
+## [3.0.18](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.17...@rudderstack/analytics-js-loading-scripts@3.0.18) (2024-07-22)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.17`
+## [3.0.17](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.16...@rudderstack/analytics-js-loading-scripts@3.0.17) (2024-07-19)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.16`
+
+### Bug Fixes
+
+* event API overloads ([#1782](https://github.com/rudderlabs/rudder-sdk-js/issues/1782)) ([02c5b47](https://github.com/rudderlabs/rudder-sdk-js/commit/02c5b47d0a83250fb5180e9ed467a92361663dab))
+
+## [3.0.16](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.15...@rudderstack/analytics-js-loading-scripts@3.0.16) (2024-07-05)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.15`
+
+### Bug Fixes
+
+* loading snippet to unmangle reserved variables ([#1771](https://github.com/rudderlabs/rudder-sdk-js/issues/1771)) ([40ba82e](https://github.com/rudderlabs/rudder-sdk-js/commit/40ba82ecc10e09d1f05f6e8c546d1304b07dbf9b))
+* package lint issues ([#1773](https://github.com/rudderlabs/rudder-sdk-js/issues/1773)) ([8e45d05](https://github.com/rudderlabs/rudder-sdk-js/commit/8e45d052bd6366d647d06226aa89b1fa2e512f9d))
+
+## [3.0.15](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.14...@rudderstack/analytics-js-loading-scripts@3.0.15) (2024-07-04)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.14`
+## [3.0.14](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.13...@rudderstack/analytics-js-loading-scripts@3.0.14) (2024-07-01)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.0.13`
 ## [3.0.13](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.12...@rudderstack/analytics-js-loading-scripts@3.0.13) (2024-06-25)
 
 ### Dependency Updates

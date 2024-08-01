@@ -5,9 +5,7 @@
   },
   "defaultBase": "main",
   "release": {
-    "projects": [
-      "*"
-    ],
+    "projects": ["*"],
     "projectsRelationship": "independent",
     "releaseTagPattern": "{projectName}@{version}",
     "version": {
@@ -26,10 +24,7 @@
   },
   "targetDefaults": {
     "test": {
-      "inputs": [
-        "default",
-        "^test"
-      ],
+      "inputs": ["default", "^test"],
       "cache": true
     },
     "version": [
@@ -39,66 +34,60 @@
       }
     ],
     "build": {
-      "inputs": [
-        "default",
-        "^production"
-      ],
+      "inputs": ["default", "^production"],
       "cache": true
     },
-    "build-browser": {
-      "inputs": [
-        "default",
-        "^production"
-      ],
+    "build:modern": {
+      "inputs": ["default", "^production"],
       "cache": true
     },
-    "build-browser-modern": {
-      "inputs": [
-        "default",
-        "^production"
-      ],
+    "build:browser": {
+      "inputs": ["default", "^production"],
       "cache": true
     },
-    "build-npm": {
-      "inputs": [
-        "default",
-        "^production"
-      ],
+    "build:browser:modern": {
+      "inputs": ["default", "^production"],
       "cache": true
     },
-    "build-npm-modern": {
-      "inputs": [
-        "default",
-        "^production"
-      ],
+    "build:package": {
+      "inputs": ["default", "^production"],
       "cache": true
     },
-    "build-package": {
-      "inputs": [
-        "default",
-        "^production"
-      ],
-      "cache": true
-    },
-    "build-check-size": {
-      "inputs": [
-        "default",
-        "^production"
-      ],
+    "build:package:modern": {
+      "inputs": ["default", "^production"],
       "cache": true
     },
     "check:size:build": {
-      "inputs": [
-        "default",
-        "^production"
-      ],
+      "inputs": ["default", "^production"],
       "cache": true
     },
     "check:size:json": {
       "inputs": [
         "default",
         "^production",
-        "{projectRoot}/.size-limit.js"
+        "{projectRoot}/.size-limit.js",
+        "{projectRoot}/.size-limit.mjs"
+      ],
+      "cache": true
+    },
+    "check:pub": {
+      "inputs": ["{projectRoot}/package.json"],
+      "cache": true
+    },
+    "test:pre-commit:affected": {
+      "inputs": ["default", "^test"],
+      "cache": true
+    },
+    "check:size:build:pre-commit:affected": {
+      "inputs": ["default", "^production"],
+      "cache": true
+    },
+    "check:size:json:pre-commit:affected": {
+      "inputs": [
+        "default",
+        "^production",
+        "{projectRoot}/.size-limit.js",
+        "{projectRoot}/.size-limit.mjs"
       ],
       "cache": true
     }
@@ -119,11 +108,12 @@
       "{projectRoot}/**/*",
       "!{projectRoot}/.env.example",
       "!{projectRoot}/public/**/*",
-      "!{projectRoot}/LICENSE",
+      "!{projectRoot}/LICENSE.md",
       "!{projectRoot}/**/*.md",
       "!{projectRoot}/**/*.txt",
       "!{projectRoot}/serve.json",
       "!{projectRoot}/.size-limit.js",
+      "!{projectRoot}/.size-limit.mjs",
       "!{projectRoot}/.jscpd.json",
       "{workspaceRoot}/tsconfig.build.json",
       "{workspaceRoot}/tsconfig.json",

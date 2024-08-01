@@ -17,7 +17,6 @@ import { generateMisconfiguredPluginsWarning } from '../../constants/logMessages
 import { setExposedGlobal } from '../utilities/globals';
 import { state } from '../../state';
 import {
-  ErrorReportingProvidersToPluginNameMap,
   ConsentManagersToPluginNameMap,
   StorageEncryptionVersionsToPluginNameMap,
   DataPlaneEventsTransportToPluginNameMap,
@@ -96,6 +95,16 @@ class PluginsManager implements IPluginsManager {
       return [];
     }
 
+    // TODO: Uncomment below lines after removing deprecated plugin
+    // Filter deprecated plugins
+    // pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(pluginName => {
+    //   if (deprecatedPluginsList.includes(pluginName)) {
+    //     this.logger?.warn(DEPRECATED_PLUGIN_WARNING(PLUGINS_MANAGER, pluginName));
+    //     return false;
+    //   }
+    //   return true;
+    // });
+
     const pluginGroupsToProcess: PluginsGroup[] = [
       {
         configurationStatus: () => isDefined(state.dataPlaneEvents.eventsQueuePluginName.value),
@@ -105,12 +114,9 @@ class PluginsManager implements IPluginsManager {
         shouldAddMissingPlugins: true,
       },
       {
-        configurationStatus: () =>
-          isDefined(state.reporting.errorReportingProviderPluginName.value),
+        configurationStatus: () => state.reporting.isErrorReportingEnabled.value,
         configurationStatusStr: 'Error reporting is enabled',
-        activePluginName: state.reporting.errorReportingProviderPluginName.value,
-        basePlugins: ['ErrorReporting'],
-        supportedPlugins: Object.values(ErrorReportingProvidersToPluginNameMap),
+        supportedPlugins: ['ErrorReporting', 'Bugsnag'] as PluginName[], // TODO: Remove deprecated plugin- Bugsnag
       },
       {
         configurationStatus: () =>

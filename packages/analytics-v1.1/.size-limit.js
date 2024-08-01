@@ -4,13 +4,49 @@
  */
 module.exports = [
   {
-    name: 'Core (legacy build) - CDN - v1.1',
+    name: 'Core (v1.1) - NPM (ESM)',
+    path: 'dist/npm/index.es.js',
+    import: '*',
+    limit: '32 KiB',
+  },
+  {
+    name: 'Core (v1.1) - NPM (CJS)',
+    path: 'dist/npm/index.cjs.js',
+    import: '*',
+    limit: '32 KiB',
+  },
+  {
+    name: 'Core (v1.1) - NPM (UMD)',
+    path: 'dist/npm/index.js',
+    import: '*',
+    limit: '32 KiB',
+  },
+  {
+    name: 'Core (Content Script - v1.1) - NPM (ESM)',
+    path: 'dist/npm/content-script/index.es.js',
+    import: '*',
+    limit: '30 KiB',
+  },
+  {
+    name: 'Core (Content Script - v1.1) - NPM (CJS)',
+    path: 'dist/npm/content-script/index.cjs.js',
+    import: '*',
+    limit: '30 KiB',
+  },
+  {
+    name: 'Core (Content Script - v1.1) - NPM (UMD)',
+    path: 'dist/npm/content-script/index.js',
+    import: '*',
+    limit: '30 KiB',
+  },
+  {
+    name: 'Core - Legacy - CDN',
     path: 'dist/cdn/legacy/rudder-analytics.min.js',
     limit: '32 KiB',
   },
   {
-    name: 'Core - NPM - v1.1',
-    path: 'dist/npm/index.js',
+    name: 'Core - Modern - CDN',
+    path: 'dist/cdn/modern/rudder-analytics.min.js',
     limit: '32 KiB',
   },
 ];

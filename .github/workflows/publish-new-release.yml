@@ -30,24 +30,16 @@ jobs:
           BRANCH_NAME="${BRANCH_NAME_REF}"
           VERSION=${BRANCH_NAME#hotfix-}
           VERSION=${VERSION#release/}
+
+          # Remove the -SDK-<ticket_number> suffix case insensitively
+          VERSION=$(echo "$VERSION" | awk '{sub(/-[sS][dD][kK]-[0-9]+$/, ""); print}')
+
           echo "release_version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
-
-      - name: Install dependencies
-        env:
-          HUSKY: 0
-        run: |
-          npm run setup:ci
 
       # In order to make a commit, we need to initialize a user.
       # You may choose to write something less generic here if you want, it doesn't matter functionality wise.
@@ -61,6 +53,18 @@ jobs:
         run: |
           git tag -a v${{ steps.extract-version.outputs.release_version }} -m "chore(monorepo): release v${{ steps.extract-version.outputs.release_version }}"
           git push origin refs/tags/v${{ steps.extract-version.outputs.release_version }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        env:
+          HUSKY: 0
+        run: |
+          npm run setup:ci
 
       - name: Get the two latest versions
         run: |
@@ -99,22 +103,6 @@ jobs:
           pr_title: 'chore(release): pull main into develop post release v${{ steps.extract-version.outputs.release_version }}'
           pr_body: ':crown: *An automated PR*'
 
-      - name: Delete hotfix release branch
-        uses: koj-co/delete-merged-action@master
-        if: startsWith(github.event.pull_request.head.ref, 'hotfix-release/')
-        with:
-          branches: 'hotfix-release/*'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Delete release branch
-        uses: koj-co/delete-merged-action@master
-        if: startsWith(github.event.pull_request.head.ref, 'release/')
-        with:
-          branches: 'release/*'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Send message to Slack channel
         id: slack
         continue-on-error: true
@@ -128,7 +116,7 @@ jobs:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
           payload: |
             {
-              "text": "*New Release: ${{ env.PROJECT_NAME }} - <${{ env.TAG_COMPARE_URL }}${{ env.last_monorepo_version }}...v${{ steps.extract-version.outputs.release_version }}|v${{ steps.extract-version.outputs.release_version }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>",
+              "text": "*New Release: ${{ env.PROJECT_NAME }} - <${{ env.TAG_COMPARE_URL }}${{ env.last_monorepo_version }}...v${{ steps.extract-version.outputs.release_version }}|v${{ steps.extract-version.outputs.release_version }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D> <!subteam^S07CCQ05F2T>",
               "blocks": [
                 {
                   "type": "header",
@@ -144,7 +132,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*<${{ env.TAG_COMPARE_URL }}${{ env.last_monorepo_version }}...v${{ steps.extract-version.outputs.release_version }}|v${{ steps.extract-version.outputs.release_version }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D>"
+                    "text": "*<${{ env.TAG_COMPARE_URL }}${{ env.last_monorepo_version }}...v${{ steps.extract-version.outputs.release_version }}|v${{ steps.extract-version.outputs.release_version }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D> <!subteam^S07CCQ05F2T>"
                   },
                   "accessory": {
                     "type": "image",
@@ -163,3 +151,15 @@ jobs:
                 }
               ]
             }
+
+  publish-npm-packages:
+    needs: release
+    name: Publish packages to NPM
+    uses: ./.github/workflows/deploy-npm.yml
+    with:
+      is_called: 'true'
+    secrets:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      RS_PROD_BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}

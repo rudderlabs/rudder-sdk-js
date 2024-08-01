@@ -2,6 +2,10 @@ name: Draft a new release
 
 on:
   workflow_dispatch:
+    inputs:
+      release_ticket_id:
+        description: Release ticket ID (Ex:- SDK-1234)
+        required: true
 
 env:
   NODE_OPTIONS: '--no-warnings'
@@ -42,7 +46,7 @@ jobs:
         env:
           HUSKY: 0
         run: |
-          source_branch_name=${GITHUB_REF##*/}
+          source_branch_name=${GITHUB_REF#refs/heads/}
           release_type=release
           grep -q "hotfix/" <<< "${GITHUB_REF}" && release_type=hotfix-release
           git fetch origin main
@@ -54,7 +58,7 @@ jobs:
           new_version=$(jq -r .version package.json)
           git reset --hard
 
-          branch_name="${release_type}/${new_version}"
+          branch_name="${release_type}/${new_version}-${{ github.event.inputs.release_ticket_id }}"
 
           echo "Source branch for new release is $source_branch_name"
           echo "Current version is $current_version"
@@ -83,8 +87,8 @@ jobs:
           ./scripts/generate-last-release-changelog.sh
           npm run bump-version:monorepo
           npx replace $CURRENT_VERSION_VALUE $NEW_VERSION_VALUE sonar-project.properties
+          npm install
           npm run clean
-          npm run setup
           git add .
           git commit -m "chore(monorepo): sync versions and generate release logs" -n
 
@@ -99,4 +103,32 @@ jobs:
           destination_branch: 'main'
           github_token: ${{ secrets.PAT }}
           pr_title: 'chore(release): pull ${{ steps.create-release.outputs.branch_name }} into main'
-          pr_body: ':crown: *An automated PR*'
+          pr_body: |
+            :crown: *An automated PR*
+            \n\n
+            Linear Ticket: 
+            https://linear.app/rudderstack/issue/${{ github.event.inputs.release_ticket_id }}
+
+      - name: Delete hotfix release base branch
+        continue-on-error: true
+        if: startsWith(github.ref_name, 'hotfix/')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branchToDelete = '${{ github.ref_name }}';
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const ref = `heads/${branchToDelete}`;
+
+            try {
+              await github.rest.git.deleteRef({
+                owner,
+                repo,
+                ref
+              });
+              console.log(`Branch ${branchToDelete} deleted successfully.`);
+            } catch (error) {
+              console.error(`Error deleting branch ${branchToDelete}:`, error);
+              process.exit(1); // Fail the workflow if branch deletion fails
+            }
+

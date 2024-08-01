@@ -9,13 +9,45 @@
         "version": "2.22.2"
       },
       "traits": {},
+      "key1": [1, 2, 3, 4],
+      "key2": "sample text",
+      "key3": false,
+      "key4": 9087654,
+      "key5": {
+        "key6": "sample text 2",
+        "key7": [
+          {
+            "color": "#3456789",
+            "name": null
+          },
+          {
+            "color": "#3456767",
+            "name": "Red"
+          }
+        ]
+      },
+      "key8": null,
+      "externalIds": [
+        {
+          "id": "some_external_id_1",
+          "type": "brazeExternalId"
+        }
+      ],
+      "device": {
+        "id": "sdfghj567-cghj5678-fghjvbn888"
+      },
+      "metaData": {
+        "appVersion": "2.8.0",
+        "appId": "1hKOmRA4GRlm",
+        "release_stage": "Production"
+      },
+      "channel": "random",
       "library": {
         "name": "RudderLabs JavaScript SDK",
         "version": "3.3.0",
         "snippetVersion": "3.0.10"
       },
       "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
-      "device": null,
       "os": {
         "name": "",
         "version": ""
@@ -57,14 +89,35 @@
     "event": null,
     "properties": null,
     "integrations": {
-      "All": true,
+      "All": false,
+      "Google Analytics": true,
+      "Amplitude": true,
       "Google Analytics 4 (GA4)": {
         "clientId": "284269621.1683957866",
         "sessionId": 1683957866,
         "sessionNumber": 1
       }
     },
-    "traits": {},
+    "traits": {
+      "groupName": "Anime fan club",
+      "email": "name.surname@domain.com",
+      "company": "Company123",
+      "phone": "123-456-7890",
+      "rating": "Hot",
+      "city": "San Antonio",
+      "postalCode": 890465,
+      "country": "US",
+      "street": "Sample Address",
+      "state": "TX",
+      "label": "club office",
+      "defaultAddress": true,
+      "temp1": null,
+      "temp3": [1, 2, 3],
+      "temp4": {
+        "selectedType": "hard copy",
+        "typesAvailable": ["kindle edition", "audio book", "hard copy", null]
+      }
+    },
     "sentAt": "2023-01-14T20:26:36.001Z"
   }
 }

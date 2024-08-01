@@ -13,7 +13,6 @@ const getLoadOptions = () => {
   const defaultLoadOptions = {
     logLevel: 'DEBUG',
     configUrl: 'CONFIG_SERVER_HOST',
-    lockIntegrationsVersion: true,
     destSDKBaseURL: 'APP_DEST_SDK_BASE_URL',
     cookieConsentManager: {
       oneTrust: {

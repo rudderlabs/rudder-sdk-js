@@ -1,4 +1,10 @@
-export { getDecryptedCookie, getDecryptedValue } from './cookiesUtilities';
+export {
+  getDecryptedValueBrowser,
+  getDecryptedCookieBrowser,
+  getEncryptedValueBrowser,
+  getDecryptedValue,
+  getEncryptedValue,
+} from './cookiesUtilities';
 
 export {
   userIdKey,

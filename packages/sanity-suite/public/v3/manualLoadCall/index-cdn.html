@@ -98,32 +98,32 @@
             } else {
               window.rudderAnalyticsMount();
             }
+
+            var loadOptions = {
+              logLevel: 'DEBUG',
+              configUrl: '__CONFIG_SERVER_HOST__',
+              destSDKBaseURL: sdkBaseUrl + '/' + window.rudderAnalyticsBuildType + '/js-integrations',
+              pluginsSDKBaseURL: sdkBaseUrl + '/' + window.rudderAnalyticsBuildType + '/plugins',
+              consentManagement: {
+                enabled: true,
+                provider: 'oneTrust',
+              },
+              storage: {
+                migrate: true,
+              },
+            };
+
+            window.manualLoad = function (writeKey, dataplane, manualLoadOptions) {
+              var loadOpts = manualLoadOptions || loadOptions;
+
+              rudderanalytics.load(writeKey, dataplane, loadOpts);
+
+              window.userWriteKey = writeKey;
+              window.userConfigUrl = loadOpts.configUrl;
+            };
           }
         }
       })();
-
-      var loadOptions = {
-        logLevel: 'DEBUG',
-        configUrl: '__CONFIG_SERVER_HOST__',
-        destSDKBaseURL: sdkBaseUrl + '/' + window.rudderAnalyticsBuildType + '/js-integrations',
-        pluginsSDKBaseURL: sdkBaseUrl + '/' + window.rudderAnalyticsBuildType + '/plugins',
-        consentManagement: {
-          enabled: true,
-          provider: 'oneTrust',
-        },
-        storage: {
-          migrate: true,
-        },
-      };
-
-      window.manualLoad = function (writeKey, dataplane, manualLoadOptions) {
-        var loadOpts = manualLoadOptions || loadOptions;
-
-        rudderanalytics.load(writeKey, dataplane, loadOpts);
-
-        window.userWriteKey = writeKey;
-        window.userConfigUrl = loadOpts.configUrl;
-      };
 
       rudderanalytics.ready(function () {
         console.log('We are all set!!!');

@@ -1,7 +1,5 @@
-## [0.2.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-cookies@0.1.0...@rudderstack/analytics-js-cookies@0.2.0) (2024-06-25)
+## [0.3.4](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-cookies@0.3.3...@rudderstack/analytics-js-cookies@0.3.4) (2024-07-24)
 
+### Dependency Updates
 
-### Features
-
-* add getDecryptedValue utility ([#1762](https://github.com/rudderlabs/rudder-sdk-js/issues/1762)) ([04cf7e9](https://github.com/rudderlabs/rudder-sdk-js/commit/04cf7e996a6dd09e6c83fff8606135c3941d34c8))
-
+* `@rudderstack/analytics-js-common` updated to version `0.3.3`

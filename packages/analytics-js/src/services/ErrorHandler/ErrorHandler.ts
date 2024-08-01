@@ -1,17 +1,19 @@
 import type { IPluginEngine } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { removeDoubleSpaces } from '@rudderstack/analytics-js-common/utilities/string';
 import { isTypeOfError } from '@rudderstack/analytics-js-common/utilities/checks';
-import type {
-  ErrorState,
-  IErrorHandler,
-  PreLoadErrorData,
-  SDKError,
+import {
+  ErrorType,
+  type ErrorState,
+  type IErrorHandler,
+  type PreLoadErrorData,
+  type SDKError,
 } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import { ERROR_HANDLER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constants/logMessages';
 import { BufferQueue } from '@rudderstack/analytics-js-common/services/BufferQueue/BufferQueue';
+import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import {
   NOTIFY_FAILURE_ERROR,
   REPORTING_PLUGIN_INIT_FAILURE_ERROR,
@@ -19,7 +21,7 @@ import {
 import { state } from '../../state';
 import { defaultPluginEngine } from '../PluginEngine';
 import { defaultLogger } from '../Logger';
-import { isAllowedToBeNotified, processError } from './processError';
+import { getNormalizedErrorForUnhandledError, processError } from './processError';
 
 /**
  * A service to handle errors
@@ -27,6 +29,7 @@ import { isAllowedToBeNotified, processError } from './processError';
 class ErrorHandler implements IErrorHandler {
   logger?: ILogger;
   pluginEngine?: IPluginEngine;
+  httpClient?: IHttpClient;
   errReportingClient?: any;
   errorBuffer: BufferQueue<PreLoadErrorData>;
 
@@ -45,6 +48,7 @@ class ErrorHandler implements IErrorHandler {
 
         if (errorToProcess) {
           // send it to the plugin
+          this.notifyError(errorToProcess.error, errorToProcess.errorState);
         }
       }
     }
@@ -53,13 +57,13 @@ class ErrorHandler implements IErrorHandler {
   attachErrorListeners() {
     if ('addEventListener' in (globalThis as typeof window)) {
       (globalThis as typeof window).addEventListener('error', (event: ErrorEvent | Event) => {
-        this.onError(event, undefined, undefined, undefined, 'unhandledException');
+        this.onError(event, undefined, undefined, undefined, ErrorType.UNHANDLEDEXCEPTION);
       });
 
       (globalThis as typeof window).addEventListener(
         'unhandledrejection',
         (event: PromiseRejectionEvent) => {
-          this.onError(event, undefined, undefined, undefined, 'unhandledPromiseRejection');
+          this.onError(event, undefined, undefined, undefined, ErrorType.UNHANDLEDREJECTION);
         },
       );
     } else {
@@ -67,7 +71,10 @@ class ErrorHandler implements IErrorHandler {
     }
   }
 
-  init(externalSrcLoader: IExternalSrcLoader) {
+  init(httpClient: IHttpClient, externalSrcLoader: IExternalSrcLoader) {
+    this.httpClient = httpClient;
+    // Below lines are only kept for backward compatibility
+    // TODO: Remove this in the next major release
     if (!this.pluginEngine) {
       return;
     }
@@ -80,6 +87,7 @@ class ErrorHandler implements IErrorHandler {
         this.pluginEngine,
         externalSrcLoader,
         this.logger,
+        true,
       );
       if (errReportingInitVal instanceof Promise) {
         errReportingInitVal
@@ -100,35 +108,57 @@ class ErrorHandler implements IErrorHandler {
     context = '',
     customMessage = '',
     shouldAlwaysThrow = false,
-    errorType = 'handled',
+    errorType = ErrorType.HANDLEDEXCEPTION,
   ) {
-    // Error handling is already implemented in processError method
-    let errorMessage = processError(error);
+    let normalizedError;
+    let errorMessage;
+    if (errorType === ErrorType.HANDLEDEXCEPTION) {
+      errorMessage = processError(error);
 
-    // If no error message after we normalize, then we swallow/ignore the errors
-    if (!errorMessage) {
-      return;
+      // If no error message after we normalize, then we swallow/ignore the errors
+      if (!errorMessage) {
+        return;
+      }
+
+      errorMessage = removeDoubleSpaces(
+        `${context}${LOG_CONTEXT_SEPARATOR}${customMessage} ${errorMessage}`,
+      );
+
+      normalizedError = new Error(errorMessage);
+      if (isTypeOfError(error)) {
+        normalizedError = Object.create(error, {
+          message: { value: errorMessage },
+        });
+      }
+    } else {
+      normalizedError = getNormalizedErrorForUnhandledError(error);
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const errorState: ErrorState = {
-      severity: 'error',
-      unhandled: errorType !== 'handled',
-      severityReason: { type: errorType },
-    };
-    errorMessage = removeDoubleSpaces(
-      `${context}${LOG_CONTEXT_SEPARATOR}${customMessage} ${errorMessage}`,
-    );
 
-    let normalizedError = new Error(errorMessage);
-    if (isTypeOfError(error)) {
-      normalizedError = Object.create(error, {
-        message: { value: errorMessage },
-      });
+    const isErrorReportingEnabled = state.reporting.isErrorReportingEnabled.value;
+    const isErrorReportingPluginLoaded = state.reporting.isErrorReportingPluginLoaded.value;
+    try {
+      if (isErrorReportingEnabled) {
+        const errorState: ErrorState = {
+          severity: 'error',
+          unhandled: errorType !== ErrorType.HANDLEDEXCEPTION,
+          severityReason: { type: errorType },
+        };
+
+        if (!isErrorReportingPluginLoaded) {
+          // buffer the error
+          this.errorBuffer.enqueue({
+            error: normalizedError,
+            errorState,
+          });
+        } else if (normalizedError) {
+          this.notifyError(normalizedError, errorState);
+        }
+      }
+    } catch (e) {
+      this.logger?.error(NOTIFY_FAILURE_ERROR(ERROR_HANDLER), e);
     }
-    if (errorType === 'handled') {
-      // TODO: Remove the below line once the new Reporting plugin is ready
-      this.notifyError(normalizedError as Error);
 
+    if (errorType === ErrorType.HANDLEDEXCEPTION) {
       if (this.logger) {
         this.logger.error(errorMessage);
 
@@ -138,18 +168,6 @@ class ErrorHandler implements IErrorHandler {
       } else {
         throw normalizedError;
       }
-    }
-
-    // eslint-disable-next-line sonarjs/no-all-duplicated-branches
-    if (
-      state.reporting.isErrorReportingEnabled.value &&
-      !state.reporting.isErrorReportingPluginLoaded.value
-    ) {
-      // buffer the error
-      // TODO: un-comment the below line once the plugin is ready
-      // this.errorBuffer.enqueue({ error, errorState });
-    } else {
-      // send it to plugin
     }
   }
 
@@ -164,10 +182,11 @@ class ErrorHandler implements IErrorHandler {
       try {
         this.pluginEngine.invokeSingle(
           'errorReporting.breadcrumb',
-          this.pluginEngine,
-          this.errReportingClient,
+          this.pluginEngine, // deprecated parameter
+          this.errReportingClient, // deprecated parameter
           breadcrumb,
           this.logger,
+          state,
         );
       } catch (err) {
         this.onError(err, ERROR_HANDLER, 'errorReporting.breadcrumb');
@@ -180,16 +199,18 @@ class ErrorHandler implements IErrorHandler {
    *
    * @param {Error} error Error instance from handled error
    */
-  notifyError(error: Error) {
-    if (this.errReportingClient && isAllowedToBeNotified(error)) {
+  notifyError(error: SDKError, errorState: ErrorState) {
+    if (this.pluginEngine && this.httpClient) {
       try {
-        this.pluginEngine?.invokeSingle(
+        this.pluginEngine.invokeSingle(
           'errorReporting.notify',
-          this.pluginEngine,
-          this.errReportingClient,
+          this.pluginEngine, // deprecated parameter
+          this.errReportingClient, // deprecated parameter
           error,
           state,
           this.logger,
+          this.httpClient,
+          errorState,
         );
       } catch (err) {
         // Not calling onError here as we don't want to go into infinite loop

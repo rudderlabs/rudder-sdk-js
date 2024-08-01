@@ -137,6 +137,13 @@ const STORAGE_DATA_MIGRATION_OVERRIDE_WARNING = (
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The storage data migration has been disabled because the configured storage encryption version (${storageEncryptionVersion}) is not the latest (${defaultVersion}). To enable storage data migration, please update the storage encryption version to the latest version.`;
 
+const SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING = (
+  context: string,
+  providedCookieDomain: string | undefined,
+  currentCookieDomain: string,
+): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The provided cookie domain (${providedCookieDomain}) does not match the current webpage's domain (${currentCookieDomain}). Hence, the cookies will be set client-side.`;
+
 const RESERVED_KEYWORD_WARNING = (
   context: string,
   property: string,
@@ -222,6 +229,8 @@ const UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE = (
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The pre-consent events delivery type "${selectedDeliveryType}" is not supported. Please choose one of the following supported types: "immediate, buffer". The default type "${defaultDeliveryType}" will be used instead.`;
 
+const DEPRECATED_PLUGIN_WARNING = (context: string, pluginName: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}${pluginName} plugin is deprecated. Please exclude it from the load API options.`;
 const generateMisconfiguredPluginsWarning = (
   context: string,
   configurationStatus: string,
@@ -259,6 +268,7 @@ export {
   TIMEOUT_ZERO_WARNING,
   TIMEOUT_NOT_RECOMMENDED_WARNING,
   INVALID_SESSION_ID_WARNING,
+  DEPRECATED_PLUGIN_WARNING,
   REPORTING_PLUGIN_INIT_FAILURE_ERROR,
   NOTIFY_FAILURE_ERROR,
   PLUGIN_NAME_MISSING_ERROR,
@@ -308,4 +318,5 @@ export {
   INVALID_POLYFILL_URL_WARNING,
   SOURCE_DISABLED_ERROR,
   COMPONENT_BASE_URL_ERROR,
+  SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING,
 };

@@ -15,6 +15,7 @@ import type { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Int
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { IdentifyTraits } from '@rudderstack/analytics-js-common/types/traits';
+import type { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { checks } from '../shared-chunks/common';
 import { eventMethodOverloads, destinations } from '../shared-chunks/deviceModeDestinations';
 import type { DeviceModeDestinationsAnalyticsInstance } from './types';
@@ -55,83 +56,85 @@ const createDestinationInstance = (
   sdkTypeName: string,
   dest: Destination,
   state: ApplicationState,
-) => {
+): DeviceModeDestination => {
   const rAnalytics = (globalThis as any).rudderanalytics as IRudderAnalytics;
   const analytics = rAnalytics.getAnalyticsInstance(state.lifecycle.writeKey.value);
 
-  return new (globalThis as any)[destSDKIdentifier][sdkTypeName](
-    clone(dest.config),
-    {
-      loadIntegration: state.nativeDestinations.loadIntegration.value,
-      logLevel: state.lifecycle.logLevel.value,
-      loadOnlyIntegrations:
-        state.consents.postConsent.value?.integrations ??
-        state.nativeDestinations.loadOnlyIntegrations.value,
-      page: (
-        category?: string | Nullable<ApiObject> | ApiCallback,
-        name?: string | Nullable<ApiOptions> | Nullable<ApiObject> | ApiCallback,
-        properties?: Nullable<ApiOptions> | Nullable<ApiObject> | ApiCallback,
-        options?: Nullable<ApiOptions> | ApiCallback,
-        callback?: ApiCallback,
-      ) =>
-        analytics.page(
-          eventMethodOverloads.pageArgumentsToCallOptions(
-            category,
-            name,
-            properties,
-            options,
-            callback,
-          ),
+  const analyticsInstance: DeviceModeDestinationsAnalyticsInstance = {
+    loadIntegration: state.nativeDestinations.loadIntegration.value,
+    logLevel: state.lifecycle.logLevel.value,
+    loadOnlyIntegrations:
+      state.consents.postConsent.value?.integrations ??
+      state.nativeDestinations.loadOnlyIntegrations.value,
+    page: (
+      category?: string | Nullable<ApiObject> | ApiCallback,
+      name?: string | Nullable<ApiOptions> | Nullable<ApiObject> | ApiCallback,
+      properties?: Nullable<ApiOptions> | Nullable<ApiObject> | ApiCallback,
+      options?: Nullable<ApiOptions> | ApiCallback,
+      callback?: ApiCallback,
+    ) =>
+      analytics.page(
+        eventMethodOverloads.pageArgumentsToCallOptions(
+          category,
+          name,
+          properties,
+          options,
+          callback,
         ),
-      track: (
-        event: string,
-        properties?: Nullable<ApiObject> | ApiCallback,
-        options?: Nullable<ApiOptions> | ApiCallback,
-        callback?: ApiCallback,
-      ) =>
-        analytics.track(
-          eventMethodOverloads.trackArgumentsToCallOptions(event, properties, options, callback),
-        ),
-      identify: (
-        userId?: string | number | Nullable<IdentifyTraits>,
-        traits?: Nullable<IdentifyTraits> | Nullable<ApiOptions> | ApiCallback,
-        options?: Nullable<ApiOptions> | ApiCallback,
-        callback?: ApiCallback,
-      ) =>
-        analytics.identify(
-          eventMethodOverloads.identifyArgumentsToCallOptions(userId, traits, options, callback),
-        ),
-      alias: (
-        to?: Nullable<string> | ApiCallback,
-        from?: string | Nullable<ApiOptions> | ApiCallback,
-        options?: Nullable<ApiOptions> | ApiCallback,
-        callback?: ApiCallback,
-      ) =>
-        analytics.alias(
-          eventMethodOverloads.aliasArgumentsToCallOptions(to, from, options, callback),
-        ),
-      group: (
-        groupId: string | number | Nullable<ApiObject> | ApiCallback,
-        traits?: Nullable<ApiOptions> | Nullable<ApiObject> | ApiCallback,
-        options?: Nullable<ApiOptions> | ApiCallback,
-        callback?: ApiCallback,
-      ) =>
-        analytics.group(
-          eventMethodOverloads.groupArgumentsToCallOptions(groupId, traits, options, callback),
-        ),
-      getAnonymousId: () => analytics.getAnonymousId(),
-      getUserId: () => analytics.getUserId(),
-      getUserTraits: () => analytics.getUserTraits(),
-      getGroupId: () => analytics.getGroupId(),
-      getGroupTraits: () => analytics.getGroupTraits(),
-      getSessionId: () => analytics.getSessionId(),
-    } as DeviceModeDestinationsAnalyticsInstance,
-    {
-      shouldApplyDeviceModeTransformation: dest.shouldApplyDeviceModeTransformation,
-      propagateEventsUntransformedOnError: dest.propagateEventsUntransformedOnError,
-      destinationId: dest.id,
-    },
-  );
+      ),
+    track: (
+      event: string,
+      properties?: Nullable<ApiObject> | ApiCallback,
+      options?: Nullable<ApiOptions> | ApiCallback,
+      callback?: ApiCallback,
+    ) =>
+      analytics.track(
+        eventMethodOverloads.trackArgumentsToCallOptions(event, properties, options, callback),
+      ),
+    identify: (
+      userId: string | number | Nullable<IdentifyTraits>,
+      traits?: Nullable<IdentifyTraits> | Nullable<ApiOptions> | ApiCallback,
+      options?: Nullable<ApiOptions> | ApiCallback,
+      callback?: ApiCallback,
+    ) =>
+      analytics.identify(
+        eventMethodOverloads.identifyArgumentsToCallOptions(userId, traits, options, callback),
+      ),
+    alias: (
+      to: string,
+      from?: string | Nullable<ApiOptions> | ApiCallback,
+      options?: Nullable<ApiOptions> | ApiCallback,
+      callback?: ApiCallback,
+    ) =>
+      analytics.alias(
+        eventMethodOverloads.aliasArgumentsToCallOptions(to, from, options, callback),
+      ),
+    group: (
+      groupId: string | number | Nullable<ApiObject>,
+      traits?: Nullable<ApiOptions> | Nullable<ApiObject> | ApiCallback,
+      options?: Nullable<ApiOptions> | ApiCallback,
+      callback?: ApiCallback,
+    ) =>
+      analytics.group(
+        eventMethodOverloads.groupArgumentsToCallOptions(groupId, traits, options, callback),
+      ),
+    getAnonymousId: (options?: AnonymousIdOptions) => analytics.getAnonymousId(options),
+    getUserId: () => analytics.getUserId(),
+    getUserTraits: () => analytics.getUserTraits(),
+    getGroupId: () => analytics.getGroupId(),
+    getGroupTraits: () => analytics.getGroupTraits(),
+    getSessionId: () => analytics.getSessionId(),
+  };
+
+  const deviceModeDestination: DeviceModeDestination = new (globalThis as any)[destSDKIdentifier][
+    sdkTypeName
+  ](clone(dest.config), analyticsInstance, {
+    shouldApplyDeviceModeTransformation: dest.shouldApplyDeviceModeTransformation,
+    propagateEventsUntransformedOnError: dest.propagateEventsUntransformedOnError,
+    destinationId: dest.id,
+  });
+
+  return deviceModeDestination;
 };
 
 const isDestinationReady = (dest: Destination) =>

@@ -20,6 +20,7 @@ import type {
 import { clone } from 'ramda';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { isValidURL, removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utilities/url';
+import { removeLeadingPeriod } from '@rudderstack/analytics-js-common/utilities/string';
 import { MODULE_TYPE, APP_VERSION } from '../../../constants/app';
 import { BUILD_TYPE, DEFAULT_CONFIG_BE_URL } from '../../../constants/urls';
 import { state } from '../../../state';
@@ -28,26 +29,23 @@ import {
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
   STORAGE_TYPE_VALIDATION_WARNING,
   UNSUPPORTED_BEACON_API_WARNING,
-  UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING,
   UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
   UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY,
   UNSUPPORTED_STORAGE_ENCRYPTION_VERSION_WARNING,
+  SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING,
 } from '../../../constants/logMessages';
 import {
   isErrorReportingEnabled,
   isMetricsReportingEnabled,
-  getErrorReportingProviderNameFromConfig,
 } from '../../utilities/statsCollection';
 import { getDomain, removeTrailingSlashes } from '../../utilities/url';
 import type { SourceConfigResponse } from '../types';
 import {
   DEFAULT_DATA_SERVICE_ENDPOINT,
-  DEFAULT_ERROR_REPORTING_PROVIDER,
   DEFAULT_STORAGE_ENCRYPTION_VERSION,
-  ErrorReportingProvidersToPluginNameMap,
   StorageEncryptionVersionsToPluginNameMap,
 } from '../constants';
-import { getDataServiceUrl, isValidStorageType } from './validate';
+import { getDataServiceUrl, isValidStorageType, isWebpageTopLevelDomain } from './validate';
 import { getConsentManagementData } from '../../utilities/consent';
 
 /**
@@ -74,35 +72,10 @@ const getSDKUrl = (): string | undefined => {
  * @param res Source config
  * @param logger Logger instance
  */
-const updateReportingState = (res: SourceConfigResponse, logger?: ILogger): void => {
+const updateReportingState = (res: SourceConfigResponse): void => {
   state.reporting.isErrorReportingEnabled.value =
     isErrorReportingEnabled(res.source.config) && !isSDKRunningInChromeExtension();
   state.reporting.isMetricsReportingEnabled.value = isMetricsReportingEnabled(res.source.config);
-
-  if (state.reporting.isErrorReportingEnabled.value) {
-    const errReportingProvider = getErrorReportingProviderNameFromConfig(res.source.config);
-
-    // Get the corresponding plugin name of the selected error reporting provider from the supported error reporting providers
-    const errReportingProviderPlugin = errReportingProvider
-      ? ErrorReportingProvidersToPluginNameMap[errReportingProvider]
-      : undefined;
-
-    if (!isUndefined(errReportingProvider) && !errReportingProviderPlugin) {
-      // set the default error reporting provider
-      logger?.warn(
-        UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING(
-          CONFIG_MANAGER,
-          errReportingProvider,
-          ErrorReportingProvidersToPluginNameMap,
-          DEFAULT_ERROR_REPORTING_PROVIDER,
-        ),
-      );
-    }
-
-    state.reporting.errorReportingProviderPluginName.value =
-      errReportingProviderPlugin ??
-      ErrorReportingProvidersToPluginNameMap[DEFAULT_ERROR_REPORTING_PROVIDER];
-  }
 };
 
 const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
@@ -110,6 +83,8 @@ const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
     useServerSideCookies,
     dataServiceEndpoint,
     storage: storageOptsFromLoad,
+    setCookieDomain,
+    sameDomainCookiesOnly,
   } = state.loadOptions.value;
   let storageType = storageOptsFromLoad?.type;
   if (isDefined(storageType) && !isValidStorageType(storageType)) {
@@ -160,9 +135,22 @@ const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
 
     if (useServerSideCookies) {
       state.serverCookies.isEnabledServerSideCookies.value = useServerSideCookies;
+      const providedCookieDomain = cookieOptions.domain ?? setCookieDomain;
+      /**
+       * Based on the following conditions, we decide whether to use the exact domain or not to determine the data service URL:
+       * 1. If the cookie domain is provided and it is not a top-level domain, then use the exact domain
+       * 2. If the sameDomainCookiesOnly flag is set to true, then use the exact domain
+       */
+      const useExactDomain =
+        (isDefined(providedCookieDomain) &&
+          !isWebpageTopLevelDomain(removeLeadingPeriod(providedCookieDomain as string))) ||
+        sameDomainCookiesOnly;
+
       const dataServiceUrl = getDataServiceUrl(
         dataServiceEndpoint ?? DEFAULT_DATA_SERVICE_ENDPOINT,
+        useExactDomain ?? false,
       );
+
       if (isValidURL(dataServiceUrl)) {
         state.serverCookies.dataServiceUrl.value = removeTrailingSlashes(dataServiceUrl) as string;
 
@@ -171,12 +159,34 @@ const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
 
         // If the current host is different from the data service host, then it is a cross-site request
         // For server-side cookies to work, we need to set the SameSite=None and Secure attributes
+        // One round of cookie options manipulation is taking place here
+        // Based on these(setCookieDomain/storage.cookie or sameDomainCookiesOnly) two load-options, final cookie options are set in the storage module
+        // TODO: Refactor the cookie options manipulation logic in one place
         if (curHost !== dataServiceHost) {
           cookieOptions = {
             ...cookieOptions,
             samesite: 'None',
             secure: true,
           };
+        }
+        /**
+         * If the sameDomainCookiesOnly flag is not set and the cookie domain is provided(not top level domain),
+         * and the data service host is different from the provided cookie domain, then we disable server-side cookies
+         * ex: provided cookie domain: 'random.com', data service host: 'sub.example.com'
+         */
+        if (
+          !sameDomainCookiesOnly &&
+          useExactDomain &&
+          dataServiceHost !== removeLeadingPeriod(providedCookieDomain as string)
+        ) {
+          state.serverCookies.isEnabledServerSideCookies.value = false;
+          logger?.warn(
+            SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING(
+              CONFIG_MANAGER,
+              providedCookieDomain,
+              dataServiceHost as string,
+            ),
+          );
         }
       } else {
         state.serverCookies.isEnabledServerSideCookies.value = false;

@@ -2,6 +2,39 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.8.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.7.0...@rudderstack/analytics-js-common@3.8.0) (2024-07-24)
+
+
+### Features
+
+* **analytics-js-integrations:** onboard ga4 v2 hybrid mode ([#1802](https://github.com/rudderlabs/rudder-sdk-js/issues/1802)) ([2c8c3be](https://github.com/rudderlabs/rudder-sdk-js/commit/2c8c3bea8ada300c62729eb114dbe8ff84ae9269))
+
+## [3.7.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.6.1...@rudderstack/analytics-js-common@3.7.0) (2024-07-19)
+
+
+### Features
+
+* error reporting plugin ([#1601](https://github.com/rudderlabs/rudder-sdk-js/issues/1601)) ([1f2629e](https://github.com/rudderlabs/rudder-sdk-js/commit/1f2629e594740763ce9bd54a21213b92d80ae085))
+
+
+### Bug Fixes
+
+* event API overloads ([#1782](https://github.com/rudderlabs/rudder-sdk-js/issues/1782)) ([02c5b47](https://github.com/rudderlabs/rudder-sdk-js/commit/02c5b47d0a83250fb5180e9ed467a92361663dab))
+
+## [3.6.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.6.0...@rudderstack/analytics-js-common@3.6.1) (2024-07-05)
+
+
+### Bug Fixes
+
+* package lint issues ([#1773](https://github.com/rudderlabs/rudder-sdk-js/issues/1773)) ([8e45d05](https://github.com/rudderlabs/rudder-sdk-js/commit/8e45d052bd6366d647d06226aa89b1fa2e512f9d))
+
+## [3.6.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.5.0...@rudderstack/analytics-js-common@3.6.0) (2024-07-04)
+
+
+### Features
+
+* update itp implementation based on load options ([#1777](https://github.com/rudderlabs/rudder-sdk-js/issues/1777)) ([75aa117](https://github.com/rudderlabs/rudder-sdk-js/commit/75aa117911b1811b21576c95d2692d7f8580176c))
+
 ## [3.5.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.4.0...@rudderstack/analytics-js-common@3.5.0) (2024-06-21)
 
 

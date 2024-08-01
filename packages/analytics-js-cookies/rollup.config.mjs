@@ -86,7 +86,6 @@ export function getDefaultConfig(distName) {
           },
         }),
       filesize({
-        showBeforeSizes: 'build',
         showBrotliSize: true,
       }),
       process.env.VISUALIZER === 'true' &&
@@ -104,7 +103,7 @@ export function getDefaultConfig(distName) {
 
 const outputFilesNpm = [
   {
-    entryFileNames: `index.js`,
+    entryFileNames: `index.mjs`,
     dir: outDirNpm + '/esm/',
     format: 'esm',
     name: modName,
@@ -114,7 +113,7 @@ const outputFilesNpm = [
     },
   },
   {
-    entryFileNames: `index.js`,
+    entryFileNames: `index.cjs`,
     dir: outDirNpm + '/cjs',
     format: 'cjs',
     name: modName,
@@ -162,10 +161,16 @@ const buildEntries = () => {
         dts(),
         del({ hook: "buildEnd", targets: "./dist/dts" }),
       ],
-      output: {
-        file: `${outDir}/index.d.ts`,
-        format: 'es',
-      },
+      output: [
+        {
+          file: `${outDir}/index.d.mts`,
+          format: 'es',
+        },
+        {
+          file: `${outDir}/index.d.cts`,
+          format: 'es',
+        }
+      ]
     }
   ];
 }

@@ -2,6 +2,62 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.6.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.5.0...@rudderstack/analytics-js-integrations@3.6.0) (2024-08-01)
+
+
+### Features
+
+* **integrations:** feature for server side container url support ga4 ([cfbea6c](https://github.com/rudderlabs/rudder-sdk-js/commit/cfbea6c615e3ef63e06c0098ccdb19c70572c22a))
+
+## [3.5.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.4.5...@rudderstack/analytics-js-integrations@3.5.0) (2024-07-24)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.4.5`
+
+### Features
+
+* **analytics-js-integrations:** onboard ga4 v2 hybrid mode ([#1802](https://github.com/rudderlabs/rudder-sdk-js/issues/1802)) ([2c8c3be](https://github.com/rudderlabs/rudder-sdk-js/commit/2c8c3bea8ada300c62729eb114dbe8ff84ae9269))
+
+## [3.4.5](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.4.4...@rudderstack/analytics-js-integrations@3.4.5) (2024-07-19)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.4.4`
+
+### Bug Fixes
+
+* event API overloads ([#1782](https://github.com/rudderlabs/rudder-sdk-js/issues/1782)) ([02c5b47](https://github.com/rudderlabs/rudder-sdk-js/commit/02c5b47d0a83250fb5180e9ed467a92361663dab))
+
+## [3.4.4](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.4.3...@rudderstack/analytics-js-integrations@3.4.4) (2024-07-17)
+
+
+### Bug Fixes
+
+* upgrade braze version from 5.0 to 5.3 ([#1784](https://github.com/rudderlabs/rudder-sdk-js/issues/1784)) ([60a3111](https://github.com/rudderlabs/rudder-sdk-js/commit/60a31116f4401f1c0cb3e82cf55f94420474429a))
+
+## [3.4.3](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.4.2...@rudderstack/analytics-js-integrations@3.4.3) (2024-07-05)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.4.2`
+
+### Bug Fixes
+
+* package lint issues ([#1773](https://github.com/rudderlabs/rudder-sdk-js/issues/1773)) ([8e45d05](https://github.com/rudderlabs/rudder-sdk-js/commit/8e45d052bd6366d647d06226aa89b1fa2e512f9d))
+
+## [3.4.2](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.4.1...@rudderstack/analytics-js-integrations@3.4.2) (2024-07-04)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.4.1`
+## [3.4.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.4.0...@rudderstack/analytics-js-integrations@3.4.1) (2024-06-27)
+
+
+### Bug Fixes
+
+* remove pollyfill url from command bar destination ([#1768](https://github.com/rudderlabs/rudder-sdk-js/issues/1768)) ([a98e714](https://github.com/rudderlabs/rudder-sdk-js/commit/a98e71485570e09214d2a59384f41c17ec79f37a))
+
 ## [3.4.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.3.1...@rudderstack/analytics-js-integrations@3.4.0) (2024-06-21)
 
 ### Dependency Updates

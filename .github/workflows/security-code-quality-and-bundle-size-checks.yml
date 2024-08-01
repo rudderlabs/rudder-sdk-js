@@ -31,7 +31,7 @@ jobs:
           install_script: setup:ci
           build_script: check:size:build
           clean_script: clean
-          script: npm run check:size:json:ci --silent -- --output-style=static --silent=true --exclude=@rudderstack/analytics-js-sanity-suite,@rudderstack/analytics-js-loading-scripts
+          script: npm run check:size:json:ci --silent -- --output-style=static --silent=true --exclude=@rudderstack/analytics-js-sanity-suite
           is_monorepo: true
 
   security-code-quality-checks:
@@ -41,6 +41,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -56,8 +58,20 @@ jobs:
 
       - name: Execute code quality checks
         run: |
-          npm run check:circular
           npm run check:duplicates
+
+      - name: Build the project
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.sha }}
+        run: |
+          npm run build:ci
+          npm run build:modern:ci
+
+      - name: Execute package linting checks
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.sha }}
+        run: |
+          npm run check:pub:ci
 
       - name: Execute security checks
         run: |

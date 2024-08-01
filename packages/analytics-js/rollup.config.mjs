@@ -31,16 +31,17 @@ const isContentScriptBuild = process.env.NO_EXTERNAL_HOST;
 const isModuleFederatedBuild = !isDynamicCustomBuild && !isLegacyBuild;
 const sourceMapType =
   process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
-const cdnPath = isDynamicCustomBuild ? `dynamicCdnBundle`: `cdn`
-const remotePluginsBasePath = process.env.REMOTE_MODULES_BASE_PATH || `http://localhost:3002/${cdnPath}/`;
+const cdnPath = isDynamicCustomBuild ? `dynamicCdnBundle` : `cdn`;
+const remotePluginsBasePath =
+  process.env.REMOTE_MODULES_BASE_PATH || `http://localhost:3002/${cdnPath}/`;
 const outDirNpmRoot = `dist/npm`;
-const outDirCDNRoot = isDynamicCustomBuild ? `dist/${cdnPath}`: `dist/${cdnPath}`;
+const outDirCDNRoot = isDynamicCustomBuild ? `dist/${cdnPath}` : `dist/${cdnPath}`;
 let outDirNpm = `${outDirNpmRoot}${variantSubfolder}`;
 const outDirCDN = `${outDirCDNRoot}${variantSubfolder}`;
 const distName = 'rsa';
 const modName = 'rudderanalytics';
 const remotePluginsExportsFilename = `rsa-plugins`;
-const remotePluginsHostPromise = 'Promise.resolve(window.RudderStackGlobals && window.RudderStackGlobals.app && window.RudderStackGlobals.app.pluginsCDNPath ? "" + window.RudderStackGlobals.app.pluginsCDNPath + "/' + `${remotePluginsExportsFilename}.js` + '" : ' + `"${remotePluginsBasePath}/${remotePluginsExportsFilename}.js` + '")';
+const remotePluginsHostPromise = `Promise.resolve(window.RudderStackGlobals && window.RudderStackGlobals.app && window.RudderStackGlobals.app.pluginsCDNPath ? \`\${window.RudderStackGlobals.app.pluginsCDNPath}/${remotePluginsExportsFilename}.js\` : \`${remotePluginsBasePath}/${remotePluginsExportsFilename}.js\`)`;
 const moduleType = process.env.MODULE_TYPE || 'cdn';
 const isCDNPackageBuild = moduleType === 'cdn';
 let bugsnagSDKUrl = 'https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js';
@@ -48,34 +49,34 @@ let polyfillIoUrl = 'https://polyfill-fastly.io/v3/polyfill.min.js';
 
 // For Chrome extension as content script any references in code to third party URLs
 // throw violations at approval phase even if relevant code is not used
-if(isContentScriptBuild) {
+if (isContentScriptBuild) {
   bugsnagSDKUrl = '';
   polyfillIoUrl = '';
 }
 
 // Set paths for other bundling variant named exports contents
-if(isContentScriptBuild) {
+if (isContentScriptBuild) {
   outDirNpm = `${outDirNpm}/content-script`;
-} else if(isDynamicCustomBuild) {
+} else if (isDynamicCustomBuild) {
   outDirNpm = `${outDirNpm}/bundled`;
 }
 
 // Configuration to exclude plugin imports for generated bundle
 const getExternalsConfig = () => {
-  const externalGlobalsConfig = {}
+  const externalGlobalsConfig = {};
 
-  if(isModuleFederatedBuild) {
+  if (isModuleFederatedBuild) {
     externalGlobalsConfig['./bundledBuildPluginImports'] = '{}';
     return externalGlobalsConfig;
   } else {
     externalGlobalsConfig['./federatedModulesBuildPluginImports'] = '{}';
   }
 
-  if(bundledPluginsList === 'all') {
+  if (bundledPluginsList === 'all') {
     return externalGlobalsConfig;
   }
 
-  if(isDynamicCustomBuild) {
+  if (isDynamicCustomBuild) {
     if (!bundledPluginsList.includes('BeaconQueue')) {
       externalGlobalsConfig['@rudderstack/analytics-js-plugins/beaconQueue'] = '{}';
     }
@@ -138,24 +139,24 @@ const getExternalsConfig = () => {
   }
 
   return externalGlobalsConfig;
-}
+};
 
 // Output in console to assist debugging bundle builds
 const configSummaryOutput = () => {
-  if(isDynamicCustomBuild) {
+  if (isDynamicCustomBuild) {
     console.log(`Custom Bundle. Including plugins: ${bundledPluginsList}`);
   }
 
-  if(isLegacyBuild) {
-    console.log(`Legacy Bundle.`)
+  if (isLegacyBuild) {
+    console.log(`Legacy Bundle.`);
   }
 
-  if(isModuleFederatedBuild) {
-    console.log(`Federated Modules Bundle.`)
+  if (isModuleFederatedBuild) {
+    console.log(`Federated Modules Bundle.`);
   }
 
   console.log(`Replaces imports in build time: `, getExternalsConfig());
-}
+};
 
 export function getDefaultConfig(distName) {
   const version = process.env.VERSION || 'dev-snapshot';
@@ -166,10 +167,7 @@ export function getDefaultConfig(distName) {
     watch: {
       include: ['src/**'],
     },
-    external: [
-      /rudderAnalyticsRemotePlugins\/.*/,
-      ...Object.keys(pkg.peerDependencies || {})
-    ],
+    external: [/rudderAnalyticsRemotePlugins\/.*/, ...Object.keys(pkg.peerDependencies || {})],
     onwarn(warning, warn) {
       // Silence 'this' has been rewritten to 'undefined' warning
       // https://rollupjs.org/guide/en/#error-this-is-undefined
@@ -188,10 +186,10 @@ export function getDefaultConfig(distName) {
         __IS_LEGACY_BUILD__: isLegacyBuild,
         __PACKAGE_VERSION__: version,
         __MODULE_TYPE__: moduleType,
-        __RS_BUGSNAG_API_KEY__: process.env.BUGSNAG_API_KEY || '{{__RS_BUGSNAG_API_KEY__}}',
-        __RS_BUGSNAG_RELEASE_STAGE__: process.env.BUGSNAG_RELEASE_STAGE || 'production',
         __SDK_BUNDLE_FILENAME__: distName,
         __RS_POLYFILLIO_SDK_URL__: polyfillIoUrl,
+        __RS_BUGSNAG_API_KEY__: process.env.BUGSNAG_API_KEY || '{{__RS_BUGSNAG_API_KEY__}}',
+        __RS_BUGSNAG_RELEASE_STAGE__: process.env.BUGSNAG_RELEASE_STAGE || 'production',
         __RS_BUGSNAG_SDK_URL__: bugsnagSDKUrl,
       }),
       resolve({
@@ -221,17 +219,17 @@ export function getDefaultConfig(distName) {
       }),
       externalGlobals(getExternalsConfig()),
       !isLegacyBuild &&
-      federation({
-        remotes: {
-          rudderAnalyticsRemotePlugins: {
-            // use promise to set the path to allow override via loadOption value in case of proxy
-            // https://github.com/originjs/vite-plugin-federation#externaltype-urlpromise
-            external: remotePluginsHostPromise,
-            externalType: 'promise',
-            format: 'esm'
+        federation({
+          remotes: {
+            rudderAnalyticsRemotePlugins: {
+              // use promise to set the path to allow override via loadOption value in case of proxy
+              // https://github.com/originjs/vite-plugin-federation#externaltype-urlpromise
+              external: remotePluginsHostPromise,
+              externalType: 'promise',
+              format: 'esm',
+            },
           },
-        }
-      }),
+        }),
       process.env.UGLIFY === 'true' &&
         terser({
           safari10: isLegacyBuild,
@@ -241,7 +239,6 @@ export function getDefaultConfig(distName) {
           },
         }),
       filesize({
-        showBeforeSizes: 'build',
         showBrotliSize: true,
       }),
       process.env.VISUALIZER === 'true' &&
@@ -261,8 +258,7 @@ export function getDefaultConfig(distName) {
           replaceVars: {
             __WRITE_KEY__: process.env.WRITE_KEY,
             __DATAPLANE_URL__: process.env.DATAPLANE_URL,
-            __CONFIG_SERVER_HOST__:
-              process.env.CONFIG_SERVER_HOST || '',
+            __CONFIG_SERVER_HOST__: process.env.CONFIG_SERVER_HOST || '',
             __DEST_SDK_BASE_URL__: process.env.DEST_SDK_BASE_URL,
             __PLUGINS_BASE_URL__: remotePluginsBasePath,
             __SDK_BUNDLE_FILENAME__: distName,
@@ -286,7 +282,7 @@ export function getDefaultConfig(distName) {
 
 const outputFilesNpm = [
   {
-    entryFileNames: `index.js`,
+    entryFileNames: `index.mjs`,
     dir: outDirNpm + '/esm/',
     format: 'esm',
     name: modName,
@@ -296,7 +292,7 @@ const outputFilesNpm = [
     },
   },
   {
-    entryFileNames: `index.js`,
+    entryFileNames: `index.cjs`,
     dir: outDirNpm + '/cjs',
     format: 'cjs',
     name: modName,
@@ -339,12 +335,14 @@ const buildConfig = () => {
 const buildEntries = () => {
   const outputFiles = isCDNPackageBuild ? outputFilesCdn : outputFilesNpm;
 
-  if(isCDNPackageBuild) {
-    return[{
-      ...buildConfig(),
-      input: 'src/browser.ts',
-      output: outputFiles,
-    }];
+  if (isCDNPackageBuild) {
+    return [
+      {
+        ...buildConfig(),
+        input: 'src/browser.ts',
+        output: outputFiles,
+      },
+    ];
   }
 
   return [
@@ -373,18 +371,24 @@ const buildEntries = () => {
             {
               find: '@rudderstack/analytics-js-cookies',
               replacement: path.resolve('./dist/dts/packages/analytics-js-cookies/src'),
-            }
-          ]
+            },
+          ],
         }),
         dts(),
-        del({ hook: "buildEnd", targets: "./dist/dts" }),
+        del({ hook: 'buildEnd', targets: './dist/dts' }),
       ],
-      output: {
-        file: `${outDirNpmRoot}/index.d.ts`,
-        format: 'es',
-      },
-    }
+      output: [
+        {
+          file: `${outDirNpmRoot}/index.d.mts`,
+          format: 'es',
+        },
+        {
+          file: `${outDirNpmRoot}/index.d.cts`,
+          format: 'es',
+        },
+      ],
+    },
   ];
-}
+};
 
 export default buildEntries();
