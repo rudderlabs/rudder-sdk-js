@@ -78,6 +78,7 @@ jobs:
         id: finish-release
         env:
           HUSKY: 0
+          BASE_BRANCH: ${{ steps.create-release.outputs.branch_name }}
         run: |
           echo "Current version: $CURRENT_VERSION_VALUE"
           echo "New version: $NEW_VERSION_VALUE"
