@@ -43,11 +43,9 @@
     "version": {
       "executor": "@jscutlery/semver:version",
       "options": {
-        "baseBranch": "main",
         "preset": "conventionalcommits",
         "tagPrefix": "{projectName}@",
-        "trackDeps": true,
-        "push": true
+        "trackDeps": true
       }
     },
     "github": {
