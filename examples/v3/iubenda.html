@@ -21,7 +21,7 @@
         } else {
           rudderanalytics.snippetExecuted = true;
           window.rudderAnalyticsBuildType = "modern";
-          var sdkBaseUrl = "http://127.0.0.1:3002/cdn";
+          var sdkBaseUrl = "https://cdn.rudderlabs.com/v3";
           var sdkName = "rsa.min.js";
           var scriptLoadingMode = "async";
           var methods = ["setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "setAnonymousId", "startSession", "endSession", "consent"];
@@ -73,6 +73,7 @@
               __globalThis_magic__.globalThis = __globalThis_magic__;
               delete Object.prototype.__globalThis_magic__;
             }
+            window.rudderAnalyticsAddScript("".concat(sdkBaseUrl, "/").concat(window.rudderAnalyticsBuildType, "/").concat(sdkName), "data-rsa-write-key", '__WRITE_KEY__');
           };
           if (typeof Promise === "undefined" || typeof globalThis === "undefined") {
             window.rudderAnalyticsAddScript("https://polyfill-fastly.io/v3/polyfill.min.js?version=3.111.0&features=Symbol%2CPromise&callback=rudderAnalyticsMount");
@@ -94,18 +95,13 @@
               },
             },
             plugins: [
-              'IubendaConsentManager',
-              'XhrQueue',
-              'DeviceModeDestinations',
-              'NativeDestinationQueue',
-              'StorageEncryption',
-              'StorageMigrator',
+              'IubendaConsentManager'
             ],
             consentManagement: {
               enabled: true,
               provider: 'iubenda',
             },
-            // useBeacon : true,
+            useBeacon : true,
           }
           rudderanalytics.load('__WRITE_KEY__', '__DATAPLANE_URL__', loadOptions);
         }
