@@ -83,7 +83,7 @@
             window.rudderAnalyticsMount = function() {
               (function() {
                 if (typeof globalThis === "undefined") {
-                  var getGlobal = function() {
+                  let getGlobal = function() {
                     if (typeof self !== "undefined") { 
                       return self; 
                     }
@@ -93,7 +93,7 @@
                     return null;
                   };
                   
-                  var global = getGlobal();
+                  let global = getGlobal();
                   
                   if (global) {
                     Object.defineProperty(global, 'globalThis', {
