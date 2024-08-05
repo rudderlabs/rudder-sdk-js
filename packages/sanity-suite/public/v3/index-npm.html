@@ -95,16 +95,28 @@
       src="https://polyfill-fastly.io/v3/polyfill.min.js?version=3.111.0&features=Symbol%2CPromise%2CglobalThis"
     ></script>
     <script>
-      if (typeof globalThis === 'undefined') {
-        Object.defineProperty(Object.prototype, '__globalThis_magic__', {
-          get: function get() {
-            return this;
-          },
-          configurable: true
-        });
-        __globalThis_magic__.globalThis = __globalThis_magic__;
-        delete Object.prototype.__globalThis_magic__;
-      }
+      (function() {
+        if (typeof globalThis === "undefined") {
+          var getGlobal = function() {
+            if (typeof self !== "undefined") { 
+              return self; 
+            }
+            if (typeof window !== "undefined") { 
+              return window; 
+            }
+            return null;
+          };
+          
+          var global = getGlobal();
+          
+          if (global) {
+            Object.defineProperty(global, 'globalThis', {
+              value: global,
+              configurable: true
+            });
+          }
+        }
+      })();
     </script>
     <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.10/dist/clipboard.min.js"></script>
     <style>
