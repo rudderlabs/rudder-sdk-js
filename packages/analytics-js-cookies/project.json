@@ -43,8 +43,7 @@
     "version": {
       "executor": "@jscutlery/semver:version",
       "options": {
-        "baseBranch": "main",
-        "preset": "conventional",
+        "preset": "conventionalcommits",
         "tagPrefix": "{projectName}@",
         "trackDeps": true
       }
@@ -52,9 +51,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-cookies@0.3.4",
-        "title": "@rudderstack/analytics-js-cookies@0.3.4",
-        "discussion-category": "@rudderstack/analytics-js-cookies@0.3.4",
+        "tag": "@rudderstack/analytics-js-cookies@0.3.5",
+        "title": "@rudderstack/analytics-js-cookies@0.3.5",
+        "discussion-category": "@rudderstack/analytics-js-cookies@0.3.5",
         "notesFile": "./packages/analytics-js-cookies/CHANGELOG_LATEST.md"
       }
     }

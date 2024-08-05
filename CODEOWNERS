@@ -1,2 +1,3 @@
 * @rudderlabs/js-sdk
-/packages/analytics-js-integrations/ @ItsSudip @shrouti1507 @sandeepdsvs @koladilip @mihir-4116 
+/packages/analytics-js-integrations/ @rudderlabs/js-sdk-dm-intg-eng
+/packages/analytics-js-common/src/constants/integrations @rudderlabs/js-sdk-dm-intg-eng

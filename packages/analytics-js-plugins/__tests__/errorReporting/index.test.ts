@@ -55,7 +55,88 @@ describe('Plugin - ErrorReporting', () => {
     expect(state.reporting.breadcrumbs.value[0].name).toBe('Error Reporting Plugin Loaded');
   });
 
-  it('should invoke the error reporting provider plugin on notify', () => {
+  it('should not invoke error reporting provider plugin on init if request is coming from latest core SDK', () => {
+    ErrorReporting().errorReporting.init({}, mockPluginEngine, mockExtSrcLoader, mockLogger, true);
+    expect(mockPluginEngine.invokeSingle).not.toHaveBeenCalled();
+  });
+
+  it('should not invoke error reporting provider plugin on init if sourceConfig do not have required parameters', () => {
+    ErrorReporting().errorReporting.init(
+      state,
+      mockPluginEngine,
+      mockExtSrcLoader,
+      mockLogger,
+      true,
+    );
+    expect(mockPluginEngine.invokeSingle).not.toHaveBeenCalled();
+  });
+
+  it('should not invoke error reporting provider plugin on init if request is coming from old core SDK', () => {
+    ErrorReporting().errorReporting.init(state, mockPluginEngine, mockExtSrcLoader, mockLogger);
+    expect(mockPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
+    expect(mockPluginEngine.invokeSingle).toHaveBeenCalledWith(
+      'errorReportingProvider.init',
+      state,
+      mockExtSrcLoader,
+      mockLogger,
+    );
+  });
+
+  it('should invoke the error reporting provider plugin on notify if httpClient is not provided', () => {
+    const dummyError = new Error('dummy error');
+    ErrorReporting().errorReporting.notify(
+      mockPluginEngine,
+      mockErrReportingProviderClient,
+      dummyError,
+      state,
+      mockLogger,
+    );
+    expect(mockPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
+    expect(mockPluginEngine.invokeSingle).toHaveBeenCalledWith(
+      'errorReportingProvider.notify',
+      mockErrReportingProviderClient,
+      dummyError,
+      state,
+      mockLogger,
+    );
+  });
+
+  it('should not send data to metrics service if the error message contains certain', () => {
+    state.lifecycle = {
+      writeKey: signal('sample-write-key'),
+    };
+    state.metrics = {
+      metricsServiceUrl: signal('https://test.com'),
+    };
+    const mockHttpClient = {
+      getAsyncData: jest.fn(),
+      setAuthHeader: jest.fn(),
+    } as unknown as IHttpClient;
+    const newError = new Error();
+    const normalizedError = Object.create(newError, {
+      message: { value: 'The request failed due to timeout' },
+      stack: {
+        value: `The request failed due to timeout at Analytics.page (http://localhost:3001/cdn/modern/iife/rsa.js:1610:3) at RudderAnalytics.page (http://localhost:3001/cdn/modern/iife/rsa.js:1666:84)`,
+      },
+    });
+    ErrorReporting().errorReporting.notify(
+      {},
+      undefined,
+      normalizedError,
+      state,
+      undefined,
+      mockHttpClient,
+      {
+        severity: 'error',
+        unhandled: false,
+        severityReason: { type: 'handledException' },
+      },
+    );
+
+    expect(mockHttpClient.getAsyncData).not.toHaveBeenCalled();
+  });
+
+  it('should send data to metrics service on notify when httpClient is provided', () => {
     state.lifecycle = {
       writeKey: signal('sample-write-key'),
     };
@@ -124,5 +205,23 @@ describe('Plugin - ErrorReporting', () => {
     ErrorReporting().errorReporting.breadcrumb({}, undefined, 'dummy breadcrumb', undefined, state);
 
     expect(state.reporting.breadcrumbs.value.length).toBe(breadcrumbLength + 1);
+    expect(mockPluginEngine.invokeSingle).not.toHaveBeenCalled();
+  });
+
+  it('should invoke the error reporting provider plugin on new breadcrumb if state is not provided', () => {
+    ErrorReporting().errorReporting.breadcrumb(
+      mockPluginEngine,
+      mockErrReportingProviderClient,
+      'dummy breadcrumb',
+      mockLogger,
+    );
+
+    expect(mockPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
+    expect(mockPluginEngine.invokeSingle).toHaveBeenCalledWith(
+      'errorReportingProvider.breadcrumb',
+      mockErrReportingProviderClient,
+      'dummy breadcrumb',
+      mockLogger,
+    );
   });
 });
