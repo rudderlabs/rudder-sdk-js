@@ -43,8 +43,7 @@
     "version": {
       "executor": "@jscutlery/semver:version",
       "options": {
-        "baseBranch": "main",
-        "preset": "conventional",
+        "preset": "conventionalcommits",
         "tagPrefix": "{projectName}@",
         "trackDeps": true
       }
@@ -52,9 +51,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-common@3.8.0",
-        "title": "@rudderstack/analytics-js-common@3.8.0",
-        "discussion-category": "@rudderstack/analytics-js-common@3.8.0",
+        "tag": "@rudderstack/analytics-js-common@3.8.1",
+        "title": "@rudderstack/analytics-js-common@3.8.1",
+        "discussion-category": "@rudderstack/analytics-js-common@3.8.1",
         "notesFile": "./packages/analytics-js-common/CHANGELOG_LATEST.md"
       }
     }

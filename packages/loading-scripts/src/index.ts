@@ -99,18 +99,28 @@ if (Array.isArray(rudderanalytics)) {
     window.rudderAnalyticsMount = () => {
       /* eslint-disable */
       // globalThis polyfill as polyfill-fastly.io one does not work in legacy safari
-      if (typeof globalThis === 'undefined') {
-        Object.defineProperty(Object.prototype, '__globalThis_magic__', {
-          get: function get() {
-            return this;
-          },
-          configurable: true,
-        });
-        // @ts-ignore
-        __globalThis_magic__.globalThis = __globalThis_magic__;
-        // @ts-ignore
-        delete Object.prototype.__globalThis_magic__;
-      }
+      (function () {
+        if (typeof globalThis === 'undefined') {
+          let getGlobal = function () {
+            if (typeof self !== 'undefined') {
+              return self;
+            }
+            if (typeof window !== 'undefined') {
+              return window;
+            }
+            return null;
+          };
+
+          let global = getGlobal();
+
+          if (global) {
+            Object.defineProperty(global, 'globalThis', {
+              value: global,
+              configurable: true,
+            });
+          }
+        }
+      })();
       /* eslint-enable */
 
       window.rudderAnalyticsAddScript(

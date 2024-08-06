@@ -8,8 +8,8 @@ import type {
 } from '@rudderstack/analytics-js-common/types/HttpClient';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
+import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js-common/constants/errors';
 import { DEFAULT_XHR_TIMEOUT_MS } from '../../../constants/timeouts';
-import { FAILED_REQUEST_ERR_MSG_PREFIX } from '../../../constants/errors';
 import {
   XHR_PAYLOAD_PREP_ERROR,
   XHR_DELIVERY_ERROR,

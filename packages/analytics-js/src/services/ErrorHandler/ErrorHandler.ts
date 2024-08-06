@@ -21,11 +21,7 @@ import {
 import { state } from '../../state';
 import { defaultPluginEngine } from '../PluginEngine';
 import { defaultLogger } from '../Logger';
-import {
-  isAllowedToBeNotified,
-  getNormalizedErrorForUnhandledError,
-  processError,
-} from './processError';
+import { getNormalizedErrorForUnhandledError, processError } from './processError';
 
 /**
  * A service to handle errors
@@ -204,7 +200,7 @@ class ErrorHandler implements IErrorHandler {
    * @param {Error} error Error instance from handled error
    */
   notifyError(error: SDKError, errorState: ErrorState) {
-    if (this.pluginEngine && this.httpClient && isAllowedToBeNotified(error)) {
+    if (this.pluginEngine && this.httpClient) {
       try {
         this.pluginEngine.invokeSingle(
           'errorReporting.notify',

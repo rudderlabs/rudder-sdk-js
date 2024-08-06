@@ -81,16 +81,28 @@
               }
             };
             window.rudderAnalyticsMount = function() {
-              if (typeof globalThis === "undefined") {
-                Object.defineProperty(Object.prototype, "__globalThis_magic__", {
-                  get: function get() {
-                    return this;
-                  },
-                  configurable: true
-                });
-                __globalThis_magic__.globalThis = __globalThis_magic__;
-                delete Object.prototype.__globalThis_magic__;
-              }
+              (function() {
+                if (typeof globalThis === "undefined") {
+                  let getGlobal = function() {
+                    if (typeof self !== "undefined") { 
+                      return self; 
+                    }
+                    if (typeof window !== "undefined") { 
+                      return window; 
+                    }
+                    return null;
+                  };
+                  
+                  let global = getGlobal();
+                  
+                  if (global) {
+                    Object.defineProperty(global, 'globalThis', {
+                      value: global,
+                      configurable: true
+                    });
+                  }
+                }
+              })();
               // window.rudderAnalyticsAddScript("".concat(sdkBaseUrl, "/").concat(window.rudderAnalyticsBuildType, "/").concat(sdkName), "data-rsa-write-key", "__WRITE_KEY__");
             };
             if (typeof Promise === "undefined" || typeof globalThis === "undefined") {
@@ -103,9 +115,9 @@
               logLevel: 'DEBUG',
               configUrl: '__CONFIG_SERVER_HOST__',
               destSDKBaseURL:
-                '__DEST_SDK_BASE_URL__' + '/' + window.rudderAnalyticsBuildType + '/js-integrations',
+                '__DEST_SDK_BASE_URL__',
               pluginsSDKBaseURL:
-                '__REMOTE_MODULES_BASE_PATH__' + '/' + window.rudderAnalyticsBuildType + '/plugins',
+                '__PLUGINS_SDK_BASE_URL__',
               lockIntegrationsVersion: true,
               consentManagement: {
                 enabled: true,
