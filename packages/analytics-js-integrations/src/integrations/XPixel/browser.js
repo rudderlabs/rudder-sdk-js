@@ -16,7 +16,7 @@ class XPixel {
     }
     this.analytics = analytics;
     this.pixelId = config.pixelId;
-    this.eventToEventIdMap = config.eventToEventIdMap;
+    this.eventsMapping = config.eventsMapping;
     this.name = NAME;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
@@ -44,14 +44,14 @@ class XPixel {
       return;
     }
     const properties = getTrackResponse(rudderElement.message);
-    const standardEventsMap = getHashFromArrayWithDuplicate(this.eventToEventIdMap);
+    const standardEventsMap = getHashFromArrayWithDuplicate(this.eventsMapping);
     sendEvent(event, properties, standardEventsMap);
   }
 
   page(rudderElement) {
     const event = 'Page View';
     const properties = getTrackResponse(rudderElement.message);
-    const standardEventsMap = getHashFromArrayWithDuplicate(this.eventToEventIdMap);
+    const standardEventsMap = getHashFromArrayWithDuplicate(this.eventsMapping);
     sendEvent(event, properties, standardEventsMap);
   }
 }

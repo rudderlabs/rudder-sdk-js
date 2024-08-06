@@ -10,7 +10,7 @@ const destinationInfo = {
 
 const basicConfig = {
   pixelId: '12567839',
-  eventToEventIdMap: [
+  eventsMapping: [
     { from: 'Sign Up', to: '123' },
     { from: 'Custom', to: '987' },
     { from: 'Page View', to: '456' },
