@@ -49,10 +49,9 @@ class XPixel {
   }
 
   page(rudderElement) {
-    const event = 'Page View';
     const properties = getTrackResponse(rudderElement.message);
     const standardEventsMap = getHashFromArrayWithDuplicate(this.eventsMapping);
-    sendEvent(event, properties, standardEventsMap);
+    sendEvent('Page View', properties, standardEventsMap);
   }
 }
 export default XPixel;
