@@ -77,7 +77,7 @@ import { CNameMapping as Sprig } from './Sprig/constants';
 import { CNameMapping as SpotifyPixel } from './SpotifyPixel/constants';
 import { CNameMapping as CommandBar } from './CommandBar/constants';
 import { CNameMapping as Ninetailed } from './Ninetailed/constants';
-
+import { CNameMapping as XPixel } from './XPixel/constants';
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
 const commonNames = {
@@ -161,6 +161,7 @@ const commonNames = {
   ...ActiveCampaign,
   ...Sprig,
   ...SpotifyPixel,
+  ...XPixel,
 };
 
 export { commonNames };
