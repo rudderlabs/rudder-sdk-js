@@ -68,10 +68,10 @@ class TestBook {
         markupString += `
                     <tr class="collapsed-row" data-testid="test-case-${testCase.id}">
                         <td style="word-wrap: break-word; position: relative;">${j + 1}</td>
-                        <th scope="row" class="table-heading" style="word-wrap: break-word; font-weight: normal">
+                        <td scope="row" style="word-wrap: break-word; font-weight: normal;">
                             <button
                               type="button"
-                              class="btn btn-dark btn-sm testCaseTrigger"
+                              class="btn btn-dark btn-sm testCaseTrigger text-break"
                               id="test-case-trigger-${testCase.id}"
                                data-suite-group-index="${groupIndex}"
                                data-suite-index="${i}"
@@ -82,7 +82,7 @@ class TestBook {
                                 </span>
                             </button>
                             <hr>
-                            <button type="button" class="btn btn-secondary btn-sm testCaseToggle">
+                            <button type="button" class="btn btn-secondary btn-sm testCaseToggle text-break">
                                 <i class="bi bi-arrows-expand"></i> Expand/Collapse
                             </button>
                             <hr>
@@ -97,7 +97,7 @@ class TestBook {
                             <div style="word-wrap: break-word; position: relative;">
                               <pre style="white-space: pre-wrap;">${JSON.stringify(testCase.inputData, undefined, 2)}</pre>
                             </div>
-                        </th>
+                        </td>
                         <td style="word-wrap: break-word; position: relative"><span class="badge badge-warning testCaseStatus" id="test-case-status-${
                           testCase.id
                         }">pending</span>
@@ -109,7 +109,7 @@ class TestBook {
                           <pre data-testid="test-case-expected-${testCase.id}" id="expected-data-${
                             testCase.id
                           }" style="white-space: pre-wrap;" data-expected-result>${JSON.stringify(testCase.expectedResult, undefined, 2)}</pre>
-                          <button type="button" class="btn btn-secondary bi bi-clipboard" style="position: absolute; top:10px; right:10px;" data-clipboard-target="#expected-data-${
+                          <button type="button" class="btn btn-secondary bi bi-clipboard text-break" style="position: absolute; top:10px; right:10px;" data-clipboard-target="#expected-data-${
                             testCase.id
                           }">
                           </button>
@@ -118,7 +118,7 @@ class TestBook {
                           <pre class="testCaseResult" id="test-case-result-${
                             testCase.id
                           }" data-test-case-id="${testCase.id}" style="white-space: pre-wrap;" data-actual-result></pre>
-                          <button type="button" class="btn btn-secondary bi bi-clipboard" style="position: absolute; top:10px; right:10px;" data-clipboard-target="#test-case-result-${
+                          <button type="button" class="btn btn-secondary bi bi-clipboard text-break" style="position: absolute; top:10px; right:10px;" data-clipboard-target="#test-case-result-${
                             testCase.id
                           }"">
                           </button>
@@ -168,17 +168,17 @@ class TestBook {
                 <div class="col">
                     <h1>RudderStack JS SDK Sanity Suite</h1>
                     <p>
-                        <button type="button" class="btn btn-dark" id="execute-all-trigger">
+                        <button type="button" class="btn btn-dark text-break" id="execute-all-trigger">
                             Execute All
                         </button>
                         <a href="https://jsondiff.com" target="_blank" class="btn btn-secondary">See payloads diff</a>
-                        <button type="button" class="btn btn-secondary" onClick="window.location.reload()">
+                        <button type="button" class="btn btn-secondary text-break" onClick="window.location.reload()">
                             Reset/Reload
                         </button>
                         <a href="${menuItemUrl}" title="${menuItemTitle}" class="btn btn-secondary">
                             ${menuItemText}
                         </a>
-                        <button type="button" class="btn btn-outline-dark">
+                        <button type="button" class="btn btn-outline-dark text-break">
                             Test Cases - Pass/Total: <span class="badge" id="resultSummary">N/A</span>
                         </button>
                     </p>
@@ -341,7 +341,7 @@ class TestBook {
 
       observer.observe(resultContainerElement, {
         childList: true,
-        attributes: true
+        attributes: true,
       });
     }
   }
