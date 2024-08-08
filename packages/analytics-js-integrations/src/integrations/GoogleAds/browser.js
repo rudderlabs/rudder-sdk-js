@@ -31,7 +31,6 @@ class GoogleAds {
     }
     this.analytics = analytics;
     this.conversionId = config.conversionID;
-    this.pageLoadConversions = config.pageLoadConversions;
     this.clickEventConversions = config.clickEventConversions;
     this.defaultPageConversion = config.defaultPageConversion;
     this.sendPageView = config.sendPageView || true;
