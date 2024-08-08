@@ -33,6 +33,7 @@ class Fullstory {
   static getFSProperties(properties) {
     const fsProperties = {};
     Object.keys(properties).forEach(key => {
+      console.log(key);
       fsProperties[key === 'displayName' || key === 'email' ? key : Fullstory.camelCaseField(key)] =
         properties[key];
     });
@@ -40,6 +41,7 @@ class Fullstory {
   }
 
   static camelCaseField(fieldName) {
+    console.log("field name", fieldName);
     // Do not camel case across type suffixes.
     const parts = fieldName.split('_');
     if (parts.length > 1) {
