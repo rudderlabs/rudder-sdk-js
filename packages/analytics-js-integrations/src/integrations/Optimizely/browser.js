@@ -126,7 +126,7 @@ class Optimizely {
           sendCampaignData(campaignState);
         }
       } catch (e) {
-        logger.error('Page loaded without Optimizely.')
+        logger.error('Page loaded without Optimizely.');
       }
     };
 
@@ -168,7 +168,7 @@ class Optimizely {
       try {
         state = window?.optimizely?.get('state');
       } catch (e) {
-        state = undefined
+        state = undefined;
       }
       if (state) {
         const referrer = checkReferrer();
@@ -194,7 +194,6 @@ class Optimizely {
           },
         });
       }
-
     };
     registerCurrentlyActiveCampaigns();
     registerFutureActiveCampaigns();

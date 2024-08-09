@@ -301,6 +301,7 @@ class TestBook {
       const resultRowElement = resultContainerElement.parentNode.parentNode;
       const { testCaseId } = resultContainerElement.dataset;
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const observer = new MutationObserver(mutationList => {
         const resultDataElement = resultRowElement.querySelector('[data-actual-result]');
         const resultData = resultDataElement.textContent.trim();
@@ -383,7 +384,9 @@ class TestBook {
     const totalTestCases = Array.from(document.getElementsByClassName('testCaseStatus'));
     // iterate all the test cases and set them to pending
     totalTestCases.forEach(testCase => {
+      // eslint-disable-next-line no-param-reassign
       testCase.textContent = 'pending';
+      // eslint-disable-next-line no-param-reassign
       testCase.className = 'badge badge-warning testCaseStatus';
     });
 

@@ -59,9 +59,9 @@ function loadNativeSdk(f, b) {
         'undefined' !== typeof MIXPANEL_CUSTOM_LIB_URL
           ? MIXPANEL_CUSTOM_LIB_URL
           : 'file:' === f.location.protocol &&
-            '//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js'.match(/^\/\//)
-          ? 'https://cdn.mxpnl.com/libs/mixpanel-2-latest.min.js'
-          : '//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js';
+              '//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js'.match(/^\/\//)
+            ? 'https://cdn.mxpnl.com/libs/mixpanel-2-latest.min.js'
+            : '//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js';
       g = f.getElementsByTagName('script')[0];
       g.parentNode.insertBefore(e, g);
     }
