@@ -8,8 +8,8 @@ const distName = 'rudder-analytics';
 const modName = 'rudderanalytics';
 const isContentScriptBuild = process.env.NO_EXTERNAL_HOST;
 
-if(isContentScriptBuild) {
-  npmPackageOutDir = `${npmPackageOutDir}/content-script`
+if (isContentScriptBuild) {
+  npmPackageOutDir = `${npmPackageOutDir}/content-script`;
 }
 
 const outputFiles = [
@@ -36,9 +36,7 @@ const buildConfig = {
 
 buildConfig.plugins.push(
   copy({
-    targets: [
-      { src: 'types/index.d.ts', dest: npmPackageOutDir }
-    ],
+    targets: [{ src: 'types/index.d.ts', dest: npmPackageOutDir }],
   }),
 );
 

@@ -121,7 +121,10 @@ const eventParams = {
     destKey: 'item_id',
   },
   url: { sourceKeys: ['properties.url', 'context.page.url'], destKey: 'page_location' },
-  referrer: { sourceKeys: ['properties.referrer', 'context.page.referrer'], destKey: 'page_referrer' },
+  referrer: {
+    sourceKeys: ['properties.referrer', 'context.page.referrer'],
+    destKey: 'page_referrer',
+  },
   title: { sourceKeys: ['properties.title', 'context.page.title'], destKey: 'page_title' },
 };
 

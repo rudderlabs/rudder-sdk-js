@@ -1,7 +1,7 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
-    <link rel="icon" href="https://rudderstack.com/favicon.ico" type="image/x-icon" sizes="48x48">
+    <link rel="icon" href="https://rudderstack.com/favicon.ico" type="image/x-icon" sizes="48x48" />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>RudderStack JS SDK Sanity Suite</title>
@@ -16,10 +16,10 @@
               { CustomGroupId: 'C0003', GroupName: 'Analytical Cookies' },
               { CustomGroupId: 'C0004', GroupName: 'Targeting Cookies' },
               { CustomGroupId: 'C0005', GroupName: 'Social Media Cookies' },
-              { CustomGroupId: 'C0006', GroupName: 'Advertisement Cookies' }
-            ]
+              { CustomGroupId: 'C0006', GroupName: 'Advertisement Cookies' },
+            ],
           };
-        }
+        },
       };
       window.OnetrustActiveGroups = ',C0001,C0003,';
       rudderanalytics = window.rudderanalytics = [];
@@ -36,7 +36,7 @@
         'setAnonymousId',
         'startSession',
         'endSession',
-        'getSessionId'
+        'getSessionId',
       ];
 
       for (var i = 0; i < methods.length; i++) {
@@ -52,25 +52,19 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
       integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N"
-      crossorigin="anonymous"
-    />
+      crossorigin="anonymous" />
     <link
       rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css"
-    />
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" />
     <script
       src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
       integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
-      crossorigin="anonymous"
-    ></script>
+      crossorigin="anonymous"></script>
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://polyfill-fastly.io/v3/polyfill.min.js?version=3.111.0&features=Number.isNaN%2CURL%2CArray.prototype.find%2CArray.prototype.includes%2CPromise%2CString.prototype.endsWith%2CString.prototype.includes%2CString.prototype.startsWith%2CObject.entries%2CObject.values%2CElement.prototype.dataset%2CString.prototype.replaceAll%2CTextEncoder%2Cnavigator.sendBeacon%2CglobalThis"
-    ></script>
+      crossorigin="anonymous"></script>
+    <script src="https://polyfill-fastly.io/v3/polyfill.min.js?version=3.111.0&features=Number.isNaN%2CURL%2CArray.prototype.find%2CArray.prototype.includes%2CPromise%2CString.prototype.endsWith%2CString.prototype.includes%2CString.prototype.startsWith%2CObject.entries%2CObject.values%2CElement.prototype.dataset%2CString.prototype.replaceAll%2CTextEncoder%2Cnavigator.sendBeacon%2CglobalThis"></script>
     <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.10/dist/clipboard.min.js"></script>
     <style>
       .collapsed-row pre {
@@ -84,13 +78,13 @@
       }
     </style>
     <script>
-      $(document).ready(function(){
-        $("#manualLoadForm").submit(function(event){
+      $(document).ready(function () {
+        $('#manualLoadForm').submit(function (event) {
           event.preventDefault();
           window.manualLoad(
-            $("#writeKey").val(),
-            $("#dataplaneURL").val(),
-            JSON.parse($("#loadOptions").val() ? $("#loadOptions").val() : {})
+            $('#writeKey').val(),
+            $('#dataplaneURL').val(),
+            JSON.parse($('#loadOptions').val() ? $('#loadOptions').val() : {}),
           );
         });
       });
@@ -100,7 +94,7 @@
     <div class="container-xxl">
       <div class="row px-4">
         <div class="col" id="testBook">
-          <div class="row g-0 pt-4 pb-2 mb-2 border-bottom" style="background: #FFFFFF;">
+          <div class="row g-0 pt-4 pb-2 mb-2 border-bottom" style="background: #ffffff">
             <div class="col">
               <h1>RudderStack JS SDK Sanity Suite</h1>
               <p>
@@ -116,19 +110,26 @@
           <div class="row">
             <div class="col mt-4 pt-2 pb-2">
               <h2>Manual JS SDK load</h2>
-              <p>Fill in the form or invoke method "window.manualLoad" to load the SDk and start the Testbook</p>
+              <p>
+                Fill in the form or invoke method "window.manualLoad" to load the SDk and start the
+                Testbook
+              </p>
               <form id="manualLoadForm">
                 <div class="form-group">
                   <label for="writeKey">WriteKey</label>
-                  <input type="text" class="form-control" id="writeKey" placeholder="<writeKey>">
+                  <input type="text" class="form-control" id="writeKey" placeholder="<writeKey>" />
                 </div>
                 <div class="form-group">
                   <label for="dataplaneURL">Dataplane URL</label>
-                  <input type="text" class="form-control" id="dataplaneURL" placeholder="<dataplaneURL>">
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="dataplaneURL"
+                    placeholder="<dataplaneURL>" />
                 </div>
                 <div class="form-group">
                   <label for="loadOptions">LoadOptions (as JSON string)</label>
-                  <textarea class="form-control" id="loadOptions" rows="8" >{}</textarea>
+                  <textarea class="form-control" id="loadOptions" rows="8">{}</textarea>
                 </div>
                 <button type="submit" class="btn btn-primary">Load JS SDK</button>
               </form>

@@ -36,7 +36,7 @@ export type FlushOverrideMessage = {
   host: string;
   writeKey: string;
   data: {
-    batch: Object[],
+    batch: Object[];
     sentAt: string;
   };
   headers: Record<string, string>;
@@ -44,7 +44,7 @@ export type FlushOverrideMessage = {
   flush: (callback?: apiCallback) => void;
   done: (error?: Error) => void;
   isErrorRetryable: (error: Error) => boolean;
-}
+};
 
 /**
  * Represents the constructor options object

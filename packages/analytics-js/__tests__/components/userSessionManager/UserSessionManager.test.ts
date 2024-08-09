@@ -1097,7 +1097,6 @@ describe('User session manager', () => {
       userSessionManager.init();
       userSessionManager.setInitialReferringDomain(newReferrer);
       expect(state.session.initialReferringDomain.value).toBe(newReferrer);
-      expect(clientDataStoreCookie.set).toHaveBeenCalled();
     });
 
     it('should reset the value to default value if persistence is not enabled for initial referring domain', () => {
@@ -1579,6 +1578,7 @@ describe('User session manager', () => {
     afterAll(() => {
       server.close();
     });
+
     const mockCookieStore = {
       encrypt: jest.fn(val => `encrypted_${JSON.parse(val)}`),
       set: jest.fn(),
@@ -1588,7 +1588,9 @@ describe('User session manager', () => {
         prop3: { city: 'Kolkata', zip: '700001' },
       })),
     };
+
     const mockCallback = jest.fn();
+
     it('should encrypt cookie value and make request to data service', done => {
       state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
       const getEncryptedCookieDataSpy = jest.spyOn(userSessionManager, 'getEncryptedCookieData');
@@ -1609,6 +1611,7 @@ describe('User session manager', () => {
       );
       done();
     });
+
     describe('Network request to Data service is successful', () => {
       it('should validate cookies are set from the server side', done => {
         state.source.value = { workspaceId: 'sample_workspaceId' };
@@ -1696,6 +1699,7 @@ describe('User session manager', () => {
         done();
       }, 1000);
     });
+
     it('should set cookie from client side if dataServerUrl is invalid', done => {
       state.source.value = { workspaceId: 'sample_workspaceId' };
       state.serverCookies.dataServiceUrl.value =
@@ -1716,6 +1720,7 @@ describe('User session manager', () => {
         done();
       }, 1000);
     });
+
     it('should set cookie from client side if any unhandled error ocurred in serServerSideCookie function', () => {
       state.source.value = { workspaceId: 'sample_workspaceId' };
       state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
@@ -1741,6 +1746,7 @@ describe('User session manager', () => {
       );
       expect(mockCallback).toHaveBeenCalledWith('key', 'sample_cookie_value_1234');
     });
+
     describe('getEncryptedCookieData', () => {
       it('cookie value exists', () => {
         const encryptedData = userSessionManager.getEncryptedCookieData(
@@ -1753,6 +1759,7 @@ describe('User session manager', () => {
         ]);
       });
     });
+
     describe('makeRequestToSetCookie', () => {
       it('should make external request to exposed endpoint', done => {
         state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';

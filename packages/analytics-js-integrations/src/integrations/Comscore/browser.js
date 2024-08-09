@@ -34,7 +34,7 @@ class Comscore {
     } = destinationInfo ?? {});
   }
 
-  init() { }
+  init() {}
 
   isLoaded() {
     if (!this.isFirstPageCallMade) {

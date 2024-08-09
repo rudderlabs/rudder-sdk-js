@@ -130,7 +130,6 @@ class VWO {
   }
 
   track(rudderElement) {
-
     const eventName = rudderElement.message.event;
     // throw error if event name is not present
     if (!eventName) {

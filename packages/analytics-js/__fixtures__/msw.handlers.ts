@@ -83,7 +83,7 @@ const handlers = [
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
         'Set-Cookie':
-          'key1=value1; Path=/; Domain=example.com; Expires=Mon, 22 Apr 2025 10:55:28 GMT; SameSite=Lax',
+          'key1=value1; Path=/; Domain=dummy.dataplane.host.com; Expires=Mon, 22 Apr 2025 10:55:28 GMT; SameSite=Lax',
       },
     });
   }),

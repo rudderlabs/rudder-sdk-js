@@ -48,7 +48,6 @@ class Qualaroo {
   }
 
   isReady() {
-
     if (this.recordQualarooEvents) {
       recordQualarooEvents(
         this.updateEventNames,

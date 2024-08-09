@@ -2,7 +2,6 @@ import { isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
 import type {
   IAsyncRequestConfig,
   IHttpClient,
-  IRequestConfig,
   ResponseDetails,
 } from '@rudderstack/analytics-js-common/types/HttpClient';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
@@ -23,37 +22,11 @@ class HttpClient implements IHttpClient {
   errorHandler?: IErrorHandler;
   logger?: ILogger;
   basicAuthHeader?: string;
-  hasErrorHandler = false;
 
   constructor(errorHandler?: IErrorHandler, logger?: ILogger) {
     this.errorHandler = errorHandler;
     this.logger = logger;
-    this.hasErrorHandler = Boolean(this.errorHandler);
     this.onError = this.onError.bind(this);
-  }
-
-  /**
-   * Implement requests in a blocking way
-   */
-  async getData<T = any>(
-    config: IRequestConfig,
-  ): Promise<{ data: T | string | undefined; details?: ResponseDetails }> {
-    const { url, options, timeout, isRawResponse } = config;
-
-    try {
-      const data = await xhrRequest(
-        createXhrRequestOptions(url, options, this.basicAuthHeader),
-        timeout,
-        this.logger,
-      );
-      return {
-        data: isRawResponse ? data.response : responseTextToJson<T>(data.response, this.onError),
-        details: data,
-      };
-    } catch (reason) {
-      this.onError((reason as ResponseDetails).error ?? reason);
-      return { data: undefined, details: reason as ResponseDetails };
-    }
   }
 
   /**
@@ -84,7 +57,7 @@ class HttpClient implements IHttpClient {
    * Handle errors
    */
   onError(error: unknown) {
-    if (this.hasErrorHandler) {
+    if (this.errorHandler) {
       this.errorHandler?.onError(error, HTTP_CLIENT);
     } else {
       throw error;
@@ -92,7 +65,7 @@ class HttpClient implements IHttpClient {
   }
 
   /**
-   * Set basic authentication header (eg writekey)
+   * Set basic authentication header
    */
   setAuthHeader(value: string, noBtoa = false) {
     const authVal = noBtoa ? value : toBase64(`${value}:`);

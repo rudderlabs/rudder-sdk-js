@@ -48,7 +48,7 @@ export function getDefaultConfig(distName) {
     plugins: [
       replace({
         preventAssignment: true,
-        __PACKAGE_VERSION__: version
+        __PACKAGE_VERSION__: version,
       }),
       resolve({
         jsnext: true,
@@ -74,20 +74,18 @@ export function getDefaultConfig(distName) {
         sourcemap: sourceMapType,
       }),
       nodePolyfills({
-        include: null
+        include: null,
       }),
       process.env.UGLIFY === 'true' &&
-      terser({
-        safari10: isLegacyBuild,
-        ecma: isLegacyBuild ? 2015 : 2017,
-        format: {
-          comments: false,
-        },
-      }),
+        terser({
+          safari10: isLegacyBuild,
+          ecma: isLegacyBuild ? 2015 : 2017,
+          format: {
+            comments: false,
+          },
+        }),
       copy({
-        targets: [
-          { src: 'types/index.d.ts', dest: outDir }
-        ],
+        targets: [{ src: 'types/index.d.ts', dest: outDir }],
       }),
       filesize({
         showBrotliSize: true,
@@ -100,7 +98,7 @@ export function getDefaultConfig(distName) {
           open: true,
           gzipSize: true,
           brotliSize: true,
-        })
+        }),
     ],
   };
 }
@@ -114,7 +112,7 @@ const outputFilesNpm = [
     sourcemap: sourceMapType,
     generatedCode: {
       preset: isLegacyBuild ? 'es5' : 'es2015',
-    }
+    },
   },
   {
     entryFileNames: `index.cjs`,
@@ -124,7 +122,7 @@ const outputFilesNpm = [
     sourcemap: sourceMapType,
     generatedCode: {
       preset: isLegacyBuild ? 'es5' : 'es2015',
-    }
+    },
   },
   {
     entryFileNames: `index.js`,
@@ -134,7 +132,7 @@ const outputFilesNpm = [
     sourcemap: sourceMapType,
     generatedCode: {
       preset: isLegacyBuild ? 'es5' : 'es2015',
-    }
+    },
   },
 ];
 
@@ -156,11 +154,11 @@ const buildEntries = [
           {
             find: '@rudderstack/analytics-js-common',
             replacement: path.resolve('./dist/dts/packages/analytics-js-common/src'),
-          }
-        ]
+          },
+        ],
       }),
       dts(),
-      del({ hook: "buildEnd", targets: "./dist/dts" }),
+      del({ hook: 'buildEnd', targets: './dist/dts' }),
     ],
     output: [
       {
@@ -170,8 +168,8 @@ const buildEntries = [
       {
         file: `${outDirNpmRoot}/index.d.cts`,
         format: 'es',
-      }
-    ]
+      },
+    ],
   },
 ];
 

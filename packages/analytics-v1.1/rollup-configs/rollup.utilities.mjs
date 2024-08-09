@@ -1,5 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import path from "path";
+import path from 'path';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
@@ -13,7 +13,7 @@ import serve from 'rollup-plugin-serve';
 import htmlTemplate from 'rollup-plugin-generate-html-template';
 import typescript from 'rollup-plugin-typescript2';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
-import alias from "@rollup/plugin-alias";
+import alias from '@rollup/plugin-alias';
 import * as dotenv from 'dotenv';
 import { DEFAULT_EXTENSIONS } from '@babel/core';
 
@@ -26,7 +26,7 @@ let googleAdsSDKUrl = '//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js'
 
 // For Chrome extension as content script any references in code to third party URLs
 // throw violations at approval phase even if relevant code is not used
-if(isContentScriptBuild) {
+if (isContentScriptBuild) {
   bugsnagSDKUrl = '';
   polyfillIoUrl = '';
   googleAdsSDKUrl = '';
@@ -75,15 +75,15 @@ export function getDefaultConfig(distName) {
         __RS_BUGSNAG_RELEASE_STAGE__: process.env.BUGSNAG_RELEASE_STAGE || 'production',
         __RS_POLYFILLIO_SDK_URL__: polyfillIoUrl,
         __RS_BUGSNAG_SDK_URL__: bugsnagSDKUrl,
-        __RS_GOOGLE_ADS_SDK_URL__: googleAdsSDKUrl
+        __RS_GOOGLE_ADS_SDK_URL__: googleAdsSDKUrl,
       }),
       alias({
         entries: [
           {
             find: '@rudderstack/analytics-js-common',
             replacement: path.resolve('../analytics-js-common/src'),
-          }
-        ]
+          },
+        ],
       }),
       nodePolyfills(),
       resolve({
@@ -135,8 +135,7 @@ export function getDefaultConfig(distName) {
           replaceVars: {
             __WRITE_KEY__: process.env.WRITE_KEY,
             __DATAPLANE_URL__: process.env.DATAPLANE_URL,
-            __CONFIG_SERVER_HOST__:
-              process.env.CONFIG_SERVER_HOST || '',
+            __CONFIG_SERVER_HOST__: process.env.CONFIG_SERVER_HOST || '',
             __DEST_SDK_BASE_URL__: process.env.DEST_SDK_BASE_URL,
           },
         }),

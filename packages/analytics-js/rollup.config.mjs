@@ -77,14 +77,6 @@ const getExternalsConfig = () => {
   }
 
   if (isDynamicCustomBuild) {
-    if (!bundledPluginsList.includes('BeaconQueue')) {
-      externalGlobalsConfig['@rudderstack/analytics-js-plugins/beaconQueue'] = '{}';
-    }
-
-    if (!bundledPluginsList.includes('Bugsnag')) {
-      externalGlobalsConfig['@rudderstack/analytics-js-plugins/bugsnag'] = '{}';
-    }
-
     if (!bundledPluginsList.includes('CustomConsentManager')) {
       externalGlobalsConfig['@rudderstack/analytics-js-plugins/customConsentManager'] = '{}';
     }
@@ -133,8 +125,16 @@ const getExternalsConfig = () => {
       externalGlobalsConfig['@rudderstack/analytics-js-plugins/storageMigrator'] = '{}';
     }
 
-    if (!bundledPluginsList.includes('XhrQueue') && bundledPluginsList.includes('BeaconQueue')) {
+    if (!bundledPluginsList.includes('FetchQueue')) {
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/fetchQueue'] = '{}';
+    }
+    
+    if (!bundledPluginsList.includes('XhrQueue')) {
       externalGlobalsConfig['@rudderstack/analytics-js-plugins/xhrQueue'] = '{}';
+    }
+    
+    if (!bundledPluginsList.includes('BeaconQueue')) {
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/beaconQueue'] = '{}';
     }
   }
 

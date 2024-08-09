@@ -610,10 +610,10 @@ describe('Config Manager Common Utilities', () => {
       expect(state.dataPlaneEvents.eventsQueuePluginName.value).toBeUndefined();
     });
 
-    it('should set the events queue plugin name to XhrQueue by default', () => {
+    it('should set the events queue plugin name to FetchQueue by default', () => {
       updateDataPlaneEventsStateFromLoadOptions(mockLogger);
 
-      expect(state.dataPlaneEvents.eventsQueuePluginName.value).toMatch('XhrQueue');
+      expect(state.dataPlaneEvents.eventsQueuePluginName.value).toMatch('FetchQueue');
     });
 
     it('should set the events queue plugin name to BeaconQueue if beacon transport is selected', () => {
@@ -627,7 +627,7 @@ describe('Config Manager Common Utilities', () => {
       expect(state.dataPlaneEvents.eventsQueuePluginName.value).toMatch('BeaconQueue');
     });
 
-    it('should set the events queue plugin name to XhrQueue if beacon transport is selected but not available', () => {
+    it('should set the events queue plugin name to FetchQueue if beacon transport is selected but not available', () => {
       state.loadOptions.value.useBeacon = true;
 
       // Force set the beacon availability to false
@@ -635,7 +635,7 @@ describe('Config Manager Common Utilities', () => {
 
       updateDataPlaneEventsStateFromLoadOptions(mockLogger);
 
-      expect(state.dataPlaneEvents.eventsQueuePluginName.value).toMatch('XhrQueue');
+      expect(state.dataPlaneEvents.eventsQueuePluginName.value).toMatch('FetchQueue');
       expect(mockLogger.warn).toHaveBeenCalledWith(
         'ConfigManager:: The Beacon API is not supported by your browser. The events will be sent using XHR instead.',
       );

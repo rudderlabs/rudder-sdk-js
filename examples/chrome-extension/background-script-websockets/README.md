@@ -11,8 +11,8 @@ It can also give you more insights about how to turn a v2 extension to v3.
 
 In other words, this is a **working, installable v3 extension** example meant for you to **jumpstart** the development of your own extension.
 
-
 ## Installation
+
 - **Fork** this repo, then **clone your forked repo locally**. If you don't have a github account, you can simply download a zip of the repo and unzip it on your computer.
 - **Open [the extensions page](chrome://extensions)** in your browser: `chrome://extensions`. This link works on any chromium-based browser.
 - If you did not do it already, **toggle the "developer mode"**. This is usually a toggle button at the top right of the extensions page.
@@ -21,18 +21,20 @@ In other words, this is a **working, installable v3 extension** example meant fo
 - **Done!** A new extension called _Chrome Addon v3 Starter_ should have appeared in the list.
 
 ## Q&A
+
 > Does this work only on Chrome or on **other web browsers** as well?
 
 At the moment, this works on every chromium-based web browser that supports v3 extensions.
 Therefore, you should be able to install this extension on any of the following browsers (as long as they are up-to-date):
+
 - _Free and open-source browsers_:
-    - Chromium
-    - Brave
+  - Chromium
+  - Brave
 - _Proprietary browsers_:
-    - Chrome
-    - Edge
-    - Vivaldi
-    - Opera
+  - Chrome
+  - Edge
+  - Vivaldi
+  - Opera
 
 > So it doesn't work on **Firefox** or **Safari**?
 
@@ -68,6 +70,7 @@ You should read the [official migration page (v2 to v3)](https://developer.chrom
 Using the debugger if your service worker is not loaded is not possible.
 
 However, if you want to test some piece of code before putting it in your service worker, you can:
+
 - load your extension with a working version of the service worker.
 - click on "service worker" on the page _chrome://extensions_. This will open the console attached to the service worker.
 - paste your code in the console and see if any error is logged.
@@ -86,15 +89,16 @@ Note that in this console, you have access to anything your service worker has a
 - If you forked this repo and cloned your own fork locally, git will push to your fork on your account automatically (i.e. use the command `git push` or `git push origin <your-branch>`).
 
 - If you downloaded a zip or simply cloned this repo locally, do the following:
-    - Create a github account if you don't already have one and install git on your machine.
-    - Create a new (empty) repo on your github and copy its url.
-    - Open a terminal in the folder where the extension is cloned.
-    - Run the command `git init`, then `git commit -am "Initial commit"`
-    - Run the command `git remote add origin <url-of-your-repo>`
-    - Run `git push -u origin master`. The extension code is now on your repo, on brnach _master_.
-    - If you want, you can make the _master_ branch the default one and delete the _main_ branch in the settings of your repo.
+  - Create a github account if you don't already have one and install git on your machine.
+  - Create a new (empty) repo on your github and copy its url.
+  - Open a terminal in the folder where the extension is cloned.
+  - Run the command `git init`, then `git commit -am "Initial commit"`
+  - Run the command `git remote add origin <url-of-your-repo>`
+  - Run `git push -u origin master`. The extension code is now on your repo, on brnach _master_.
+  - If you want, you can make the _master_ branch the default one and delete the _main_ branch in the settings of your repo.
 
 ## External resources
+
 - [Official feature summary for manifest v3](https://developer.chrome.com/docs/extensions/mv3/intro/mv3-overview/)
 - [Migrating from v2 to v3](https://developer.chrome.com/docs/extensions/mv3/intro/mv3-migration/) + [very useful checklist once you think you are done](https://developer.chrome.com/docs/extensions/mv3/mv3-migration-checklist/)
 - [Excellent write-ups of a migration](https://github.com/kentbrew/learning-manifest-v3)

@@ -1,5 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import path from "path";
+import path from 'path';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
@@ -69,8 +69,8 @@ export function getDefaultConfig(distName, moduleType = 'cdn') {
           {
             find: '@rudderstack/analytics-js-common',
             replacement: path.resolve('../analytics-js-common/src'),
-          }
-        ]
+          },
+        ],
       }),
       nodePolyfills(),
       resolve({
@@ -114,7 +114,7 @@ export function getDefaultConfig(distName, moduleType = 'cdn') {
           open: true,
           gzipSize: true,
           brotliSize: true,
-        })
+        }),
     ],
   };
 }

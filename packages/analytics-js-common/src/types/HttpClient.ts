@@ -1,13 +1,6 @@
 import type { IErrorHandler } from './ErrorHandler';
 import type { ILogger } from './Logger';
 
-export interface IRequestConfig {
-  url: string;
-  options?: Partial<IXHRRequestOptions>;
-  isRawResponse?: boolean;
-  timeout?: number;
-}
-
 export type ResponseDetails = {
   response: string;
   error?: Error;
@@ -19,7 +12,12 @@ export type AsyncRequestCallback<T> = (
   data?: T | string | undefined,
   details?: ResponseDetails,
 ) => void;
-export interface IAsyncRequestConfig<T> extends IRequestConfig {
+
+export interface IAsyncRequestConfig<T> {
+  url: string;
+  options?: Partial<IXHRRequestOptions>;
+  isRawResponse?: boolean;
+  timeout?: number;
   callback?: AsyncRequestCallback<T>;
 }
 
@@ -58,10 +56,6 @@ export interface IHttpClient {
   errorHandler?: IErrorHandler;
   logger?: ILogger;
   basicAuthHeader?: string;
-  hasErrorHandler: boolean;
-  getData<T = any>(
-    config: IRequestConfig,
-  ): Promise<{ data: T | string | undefined; details?: ResponseDetails }>;
   getAsyncData<T = any>(config: IAsyncRequestConfig<T>): void;
   setAuthHeader(value: string, noBto?: boolean): void;
   resetAuthHeader(): void;

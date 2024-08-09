@@ -1,8 +1,8 @@
 diff --git a/node_modules/@jscutlery/semver/src/executors/version/utils/try-bump.js b/node_modules/@jscutlery/semver/src/executors/version/utils/try-bump.js
-index 13c94d0..f616b64 100644
+index 2430e89..40958ac 100644
 --- a/node_modules/@jscutlery/semver/src/executors/version/utils/try-bump.js
 +++ b/node_modules/@jscutlery/semver/src/executors/version/utils/try-bump.js
-@@ -167,7 +167,7 @@ function _getDependencyVersions({ commitParserOptions, preset, dependencyRoots,
+@@ -169,7 +169,7 @@ function _getDependencyVersions({ commitParserOptions, preset, dependencyRoots,
      return (0, rxjs_1.forkJoin)(dependencyRoots.map(({ path: projectRoot, name: dependencyName }) => {
          /* Get dependency version changes since last project version */
          const tagPrefix = (0, tag_1.formatTagPrefix)({

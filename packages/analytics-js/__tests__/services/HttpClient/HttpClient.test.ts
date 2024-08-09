@@ -50,21 +50,6 @@ describe('HttpClient', () => {
     server.close();
   });
 
-  it('should getData expecting raw response', async () => {
-    const data = await clientInstance.getData({
-      url: `${dummyDataplaneHost}/rawSample`,
-      isRawResponse: true,
-    });
-    expect(data.data).toStrictEqual('{"raw": "sample"}');
-  });
-
-  it('should getData expecting json response', async () => {
-    const data = await clientInstance.getData({
-      url: `${dummyDataplaneHost}/jsonSample`,
-    });
-    expect(data.data).toStrictEqual({ json: 'sample' });
-  });
-
   it('should getAsyncData expecting raw response', done => {
     const callback = (response: any) => {
       expect(response).toStrictEqual('{"raw": "sample"}');
@@ -139,20 +124,6 @@ describe('HttpClient', () => {
     });
   });
 
-  it('should handle 400 range errors in getData requests', async () => {
-    const response = await clientInstance.getData({
-      url: `${dummyDataplaneHost}/404ErrorSample`,
-    });
-    expect(response.data).toBeUndefined();
-    expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
-    expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
-      new Error(
-        'The request failed with status: 404, Not Found for URL: https://dummy.dataplane.host.com/404ErrorSample.',
-      ),
-      'HttpClient',
-    );
-  });
-
   it('should handle 500 range errors in getAsyncData requests', done => {
     const callback = (response: any, reject: ResponseDetails) => {
       const errResult = new Error(
@@ -167,34 +138,6 @@ describe('HttpClient', () => {
       callback,
       url: `${dummyDataplaneHost}/500ErrorSample`,
     });
-  });
-
-  it('should handle 500 range errors in getData requests', async () => {
-    const response = await clientInstance.getData({
-      url: `${dummyDataplaneHost}/500ErrorSample`,
-    });
-    expect(response.data).toBeUndefined();
-    expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
-    expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
-      new Error(
-        'The request failed with status: 500, Internal Server Error for URL: https://dummy.dataplane.host.com/500ErrorSample.',
-      ),
-      'HttpClient',
-    );
-  });
-
-  it('should handle connection errors in getData requests', async () => {
-    const response = await clientInstance.getData({
-      url: `${dummyDataplaneHost}/noConnectionSample`,
-    });
-    expect(response.data).toBeUndefined();
-    expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
-    expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
-      new Error(
-        'The request failed due to timeout or no connection (error) for URL: https://dummy.dataplane.host.com/noConnectionSample.',
-      ),
-      'HttpClient',
-    );
   });
 
   it('should handle malformed json response when expecting json response', done => {

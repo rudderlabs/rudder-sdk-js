@@ -19,6 +19,7 @@ const defaultOptionalPluginsList: PluginName[] = [
   'StorageEncryptionLegacy',
   'StorageMigrator',
   'XhrQueue',
+  'FetchQueue',
 ];
 
 export { defaultOptionalPluginsList };
