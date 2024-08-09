@@ -298,7 +298,7 @@ const updateConsentsState = (resp: SourceConfigResponse): void => {
 
 const updateDataPlaneEventsStateFromLoadOptions = (logger?: ILogger) => {
   if (state.dataPlaneEvents.deliveryEnabled.value) {
-    const defaultEventsQueuePluginName: PluginName = 'XhrQueue';
+    const defaultEventsQueuePluginName: PluginName = 'FetchQueue';
     let eventsQueuePluginName: PluginName = defaultEventsQueuePluginName;
 
     if (state.loadOptions.value.useBeacon) {

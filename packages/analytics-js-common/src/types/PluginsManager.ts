@@ -26,4 +26,5 @@ export type PluginName =
   | 'StorageEncryption'
   | 'StorageEncryptionLegacy'
   | 'StorageMigrator'
-  | 'XhrQueue';
+  | 'XhrQueue'
+  | 'FetchQueue';

@@ -51,6 +51,7 @@ const pluginsMap = {
   './StorageEncryptionLegacy': './src/storageEncryptionLegacy/index.ts',
   './StorageMigrator': './src/storageMigrator/index.ts',
   './XhrQueue': './src/xhrQueue/index.ts',
+  './fetchQueue': './src/fetchQueue/index.ts',
 };
 
 const bugsnagSDKUrl = 'https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js';
