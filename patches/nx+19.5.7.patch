@@ -1,8 +1,8 @@
 diff --git a/node_modules/nx/src/command-line/yargs-utils/shared-options.js b/node_modules/nx/src/command-line/yargs-utils/shared-options.js
-index b275067..dfde756 100644
+index 684e660..a71bed4 100644
 --- a/node_modules/nx/src/command-line/yargs-utils/shared-options.js
 +++ b/node_modules/nx/src/command-line/yargs-utils/shared-options.js
-@@ -175,6 +175,10 @@ function withRunManyOptions(yargs) {
+@@ -179,6 +179,10 @@ function withRunManyOptions(yargs) {
          describe: '[deprecated] `run-many` runs all targets on all projects in the workspace if no projects are provided. This option is no longer required.',
          type: 'boolean',
          default: true,
@@ -12,34 +12,33 @@ index b275067..dfde756 100644
 +        default: false,
      });
  }
- exports.withRunManyOptions = withRunManyOptions;
+ function withOverrides(args, commandLevel = 1) {
 diff --git a/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js b/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
-index dd9fdf4..703093f 100644
+index dd9fdf4..0c1efbe 100644
 --- a/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
 +++ b/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
-@@ -23,6 +23,10 @@ class StaticRunManyTerminalOutputLifeCycle {
+@@ -23,6 +23,9 @@ class StaticRunManyTerminalOutputLifeCycle {
          this.allCompletedTasks = new Map();
      }
      startCommand() {
 +        if (this.args.silent) {
 +            return;
 +        }
-+
          if (this.projectNames.length <= 0) {
              output_1.output.logSingleLine(`No projects with ${(0, formatting_utils_1.formatTargetsAndProjects)(this.projectNames, this.args.targets, this.tasks)} were run`);
              return;
-@@ -44,6 +48,10 @@ class StaticRunManyTerminalOutputLifeCycle {
+@@ -44,6 +47,10 @@ class StaticRunManyTerminalOutputLifeCycle {
          output_1.output.addVerticalSeparatorWithoutNewLines('cyan');
      }
      endCommand() {
 +        if (this.args.silent) {
 +            return;
 +        }
-+        
++
          output_1.output.addNewline();
          if (this.failedTasks.length === 0) {
              output_1.output.addVerticalSeparatorWithoutNewLines('green');
-@@ -92,8 +100,9 @@ class StaticRunManyTerminalOutputLifeCycle {
+@@ -92,8 +99,9 @@ class StaticRunManyTerminalOutputLifeCycle {
          }
      }
      printTaskTerminalOutput(task, cacheStatus, terminalOutput) {
