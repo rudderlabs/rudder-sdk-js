@@ -1,6 +1,6 @@
-import type { ResponseDetails } from '../types/HttpClient';
+import type { XHRResponseDetails } from '../types/HttpClient';
 
-const isErrRetryable = (details?: ResponseDetails) => {
+const isErrRetryable = (details?: XHRResponseDetails) => {
   let isRetryableNWFailure = false;
   if (details?.error && details?.xhr) {
     const xhrStatus = details.xhr.status;

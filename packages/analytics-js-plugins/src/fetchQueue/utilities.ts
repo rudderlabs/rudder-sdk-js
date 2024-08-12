@@ -1,6 +1,6 @@
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import type { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import type { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
+import type { XHRResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
@@ -41,7 +41,7 @@ const getDeliveryUrl = (dataplaneUrl: string, endpoint: string): string => {
 const getBatchDeliveryUrl = (dataplaneUrl: string): string => getDeliveryUrl(dataplaneUrl, 'batch');
 
 const logErrorOnFailure = (
-  details: ResponseDetails | undefined,
+  details: XHRResponseDetails | undefined,
   url: string,
   willBeRetried?: boolean,
   attemptNumber?: number,

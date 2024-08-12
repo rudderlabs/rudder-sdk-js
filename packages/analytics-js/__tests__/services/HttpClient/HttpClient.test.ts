@@ -1,4 +1,4 @@
-import type { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
+import type { XHRResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { HttpClient } from '../../../src/services/HttpClient';
 import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
 import { defaultLogger } from '../../../src/services/Logger';
@@ -109,7 +109,7 @@ describe('HttpClient', () => {
   });
 
   it('should handle 400 range errors in getAsyncData requests', done => {
-    const callback = (response: any, reject: ResponseDetails) => {
+    const callback = (response: any, reject: XHRResponseDetails) => {
       const errResult = new Error(
         'The request failed with status: 404, Not Found for URL: https://dummy.dataplane.host.com/404ErrorSample.',
       );
@@ -125,7 +125,7 @@ describe('HttpClient', () => {
   });
 
   it('should handle 500 range errors in getAsyncData requests', done => {
-    const callback = (response: any, reject: ResponseDetails) => {
+    const callback = (response: any, reject: XHRResponseDetails) => {
       const errResult = new Error(
         'The request failed with status: 500, Internal Server Error for URL: https://dummy.dataplane.host.com/500ErrorSample.',
       );

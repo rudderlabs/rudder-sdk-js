@@ -79,13 +79,16 @@ const XHR_DELIVERY_ERROR = (
   prefix: string,
   status: number,
   statusText: string,
-  url: string,
+  url: string | URL,
 ): string => `${prefix} with status: ${status}, ${statusText} for URL: ${url}.`;
 
-const XHR_REQUEST_ERROR = (prefix: string, e: ProgressEvent | undefined, url: string): string =>
-  `${prefix} due to timeout or no connection (${e ? e.type : ''}) for URL: ${url}.`;
+const XHR_REQUEST_ERROR = (
+  prefix: string,
+  e: ProgressEvent | undefined,
+  url: string | URL,
+): string => `${prefix} due to timeout or no connection (${e ? e.type : ''}) for URL: ${url}.`;
 
-const XHR_SEND_ERROR = (prefix: string, url: string): string => `${prefix} for URL: ${url}`;
+const XHR_SEND_ERROR = (prefix: string, url: string | URL): string => `${prefix} for URL: ${url}`;
 
 const STORE_DATA_SAVE_ERROR = (key: string): string =>
   `Failed to save the value for "${key}" to storage`;

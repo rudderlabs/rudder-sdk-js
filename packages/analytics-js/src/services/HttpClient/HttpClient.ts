@@ -2,7 +2,8 @@ import { isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
 import type {
   IAsyncRequestConfig,
   IHttpClient,
-  ResponseDetails,
+  IXHRRequestOptions,
+  XHRResponseDetails,
 } from '@rudderstack/analytics-js-common/types/HttpClient';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
@@ -36,8 +37,13 @@ class HttpClient implements IHttpClient {
     const { callback, url, options, timeout, isRawResponse } = config;
     const isFireAndForget = !isFunction(callback);
 
-    xhrRequest(createXhrRequestOptions(url, options, this.basicAuthHeader), timeout, this.logger)
-      .then((data: ResponseDetails) => {
+    xhrRequest(
+      url,
+      createXhrRequestOptions(options as IXHRRequestOptions, this.basicAuthHeader),
+      timeout,
+      this.logger,
+    )
+      .then((data: XHRResponseDetails) => {
         if (!isFireAndForget) {
           callback(
             isRawResponse ? data.response : responseTextToJson<T>(data.response, this.onError),
@@ -45,7 +51,7 @@ class HttpClient implements IHttpClient {
           );
         }
       })
-      .catch((data: ResponseDetails) => {
+      .catch((data: XHRResponseDetails) => {
         this.onError(data.error ?? data);
         if (!isFireAndForget) {
           callback(undefined, data);

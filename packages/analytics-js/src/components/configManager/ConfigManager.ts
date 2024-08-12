@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import type {
   IHttpClient,
-  ResponseDetails,
+  XHRResponseDetails,
 } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { batch, effect } from '@preact/signals-core';
 import { isFunction, isString } from '@rudderstack/analytics-js-common/utilities/checks';
@@ -130,7 +130,7 @@ class ConfigManager implements IConfigManager {
    * A callback function that is executed once we fetch the source config response.
    * Use to construct and store information that are dependent on the sourceConfig.
    */
-  processConfig(response?: SourceConfigResponse | string, details?: ResponseDetails) {
+  processConfig(response?: SourceConfigResponse | string, details?: XHRResponseDetails) {
     // TODO: add retry logic with backoff based on rejectionDetails.xhr.status
     // We can use isErrRetryable utility method
     if (!response) {
@@ -217,6 +217,7 @@ class ConfigManager implements IConfigManager {
       this.httpClient.getAsyncData({
         url: state.lifecycle.sourceConfigUrl.value as string,
         options: {
+          method: 'GET',
           headers: {
             'Content-Type': undefined,
           },

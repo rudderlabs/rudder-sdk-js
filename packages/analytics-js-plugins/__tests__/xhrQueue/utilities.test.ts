@@ -1,5 +1,5 @@
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import type { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
+import type { XHRResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { state, resetState } from '@rudderstack/analytics-js/state';
 import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
@@ -10,7 +10,7 @@ import {
   logErrorOnFailure,
   getRequestInfo,
   getBatchDeliveryPayload,
-} from '@rudderstack/analytics-js-plugins/xhrQueue/utilities';
+} from '../../src/xhrQueue/utilities';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/timestamp', () => ({
   getCurrentTimeFormatted: () => '2021-01-01T00:00:00.000Z',
@@ -120,7 +120,7 @@ describe('xhrQueue Plugin Utilities', () => {
     it('should not log error if there is no error', () => {
       const details = {
         response: {},
-      } as ResponseDetails;
+      } as XHRResponseDetails;
 
       logErrorOnFailure(details, 'https://test.com/v1/page', false, 1, 10, mockLogger);
 
@@ -130,7 +130,7 @@ describe('xhrQueue Plugin Utilities', () => {
     it('should log an error for delivery failure', () => {
       const details = {
         error: {},
-      } as ResponseDetails;
+      } as XHRResponseDetails;
 
       logErrorOnFailure(details, 'https://test.com/v1/page', false, 1, 10, mockLogger);
 
@@ -145,7 +145,7 @@ describe('xhrQueue Plugin Utilities', () => {
         xhr: {
           status: 429,
         },
-      } as ResponseDetails;
+      } as XHRResponseDetails;
 
       logErrorOnFailure(details, 'https://test.com/v1/page', true, 1, 10, mockLogger);
 

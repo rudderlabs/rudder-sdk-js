@@ -1,56 +1,57 @@
 import type { IErrorHandler } from './ErrorHandler';
 import type { ILogger } from './Logger';
 
-export type ResponseDetails = {
+export type XHRResponseDetails = {
   response: string;
   error?: Error;
+  url: string | URL;
   xhr?: XMLHttpRequest;
   options: IXHRRequestOptions;
 };
 
 export type AsyncRequestCallback<T> = (
   data?: T | string | undefined,
-  details?: ResponseDetails,
+  details?: XHRResponseDetails,
 ) => void;
 
 export interface IAsyncRequestConfig<T> {
-  url: string;
-  options?: Partial<IXHRRequestOptions>;
+  url: string | URL;
+  options?: IXHRRequestOptions | IFetchRequestOptions | IBeaconRequestOptions;
   isRawResponse?: boolean;
   timeout?: number;
   callback?: AsyncRequestCallback<T>;
 }
 
-export interface IXHRRequestOptions {
+export interface IRequestOptions {
   method: HTTPClientMethod;
-  url: string;
-  headers: Record<string, string | undefined>;
-  data?: XMLHttpRequestBodyInit;
+  headers?: Record<string, string | undefined>;
   sendRawData?: boolean;
   withCredentials?: boolean;
 }
 
+export interface IXHRRequestOptions extends IRequestOptions {
+  data?: Document | XMLHttpRequestBodyInit | null;
+}
+
+export interface IFetchRequestOptions extends IRequestOptions {
+  data?: BodyInit | null;
+  keepalive?: boolean;
+}
+
+export interface IBeaconRequestOptions extends IRequestOptions {
+  data?: BodyInit | null;
+}
+
 export type HTTPClientMethod =
-  | 'get'
   | 'GET'
-  | 'delete'
   | 'DELETE'
-  | 'head'
+  | 'CONNECT'
   | 'HEAD'
-  | 'options'
   | 'OPTIONS'
-  | 'post'
+  | 'TRACE'
   | 'POST'
-  | 'put'
   | 'PUT'
-  | 'patch'
-  | 'PATCH'
-  | 'purge'
-  | 'PURGE'
-  | 'link'
-  | 'LINK'
-  | 'unlink'
-  | 'UNLINK';
+  | 'PATCH';
 
 export interface IHttpClient {
   errorHandler?: IErrorHandler;

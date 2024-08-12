@@ -4,7 +4,7 @@ import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utili
 import { isNull } from '@rudderstack/analytics-js-common/utilities/checks';
 import type {
   IXHRRequestOptions,
-  ResponseDetails,
+  XHRResponseDetails,
 } from '@rudderstack/analytics-js-common/types/HttpClient';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
@@ -29,7 +29,6 @@ const DEFAULT_XHR_REQUEST_OPTIONS: Partial<IXHRRequestOptions> = {
  * Utility to create request configuration based on default options
  */
 const createXhrRequestOptions = (
-  url: string,
   options?: Partial<IXHRRequestOptions>,
   basicAuthHeader?: string,
 ): IXHRRequestOptions => {
@@ -39,12 +38,10 @@ const createXhrRequestOptions = (
   );
 
   if (basicAuthHeader) {
-    requestOptions.headers = mergeDeepRight(requestOptions.headers, {
+    requestOptions.headers = mergeDeepRight(requestOptions.headers ?? {}, {
       Authorization: basicAuthHeader,
     });
   }
-
-  requestOptions.url = url;
 
   return requestOptions;
 };
@@ -55,10 +52,11 @@ const createXhrRequestOptions = (
  * this is not supported by our sourceConfig API
  */
 const xhrRequest = (
+  url: string | URL,
   options: IXHRRequestOptions,
   timeout = DEFAULT_XHR_TIMEOUT_MS,
   logger?: ILogger,
-): Promise<ResponseDetails> =>
+): Promise<XHRResponseDetails> =>
   new Promise((resolve, reject) => {
     let payload;
     if (options.sendRawData === true) {
@@ -81,12 +79,7 @@ const xhrRequest = (
     const xhrReject = (e?: ProgressEvent) => {
       reject({
         error: new Error(
-          XHR_DELIVERY_ERROR(
-            FAILED_REQUEST_ERR_MSG_PREFIX,
-            xhr.status,
-            xhr.statusText,
-            options.url,
-          ),
+          XHR_DELIVERY_ERROR(FAILED_REQUEST_ERR_MSG_PREFIX, xhr.status, xhr.statusText, url),
         ),
         xhr,
         options,
@@ -94,7 +87,7 @@ const xhrRequest = (
     };
     const xhrError = (e?: ProgressEvent) => {
       reject({
-        error: new Error(XHR_REQUEST_ERROR(FAILED_REQUEST_ERR_MSG_PREFIX, e, options.url)),
+        error: new Error(XHR_REQUEST_ERROR(FAILED_REQUEST_ERR_MSG_PREFIX, e, url)),
         xhr,
         options,
       });
@@ -109,13 +102,14 @@ const xhrRequest = (
           response: xhr.responseText,
           xhr,
           options,
+          url,
         });
       } else {
         xhrReject();
       }
     };
 
-    xhr.open(options.method, options.url);
+    xhr.open(options.method, url);
     if (options.withCredentials === true) {
       xhr.withCredentials = true;
     }
@@ -123,17 +117,17 @@ const xhrRequest = (
     // and the first call to the send method in legacy browsers
     xhr.timeout = timeout;
 
-    Object.keys(options.headers).forEach(headerName => {
-      if (options.headers[headerName]) {
-        xhr.setRequestHeader(headerName, options.headers[headerName] as string);
-      }
-    });
+    if (options.headers) {
+      Object.keys(options.headers).forEach(headerName => {
+        xhr.setRequestHeader(headerName, options.headers?.[headerName] as string);
+      });
+    }
 
     try {
       xhr.send(payload);
     } catch (err) {
       reject({
-        error: getMutatedError(err, XHR_SEND_ERROR(FAILED_REQUEST_ERR_MSG_PREFIX, options.url)),
+        error: getMutatedError(err, XHR_SEND_ERROR(FAILED_REQUEST_ERR_MSG_PREFIX, url)),
         xhr,
         options,
       });
