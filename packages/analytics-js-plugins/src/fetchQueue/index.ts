@@ -72,12 +72,12 @@ const FetchQueue = (): ExtensionPlugin => ({
             logger,
           );
 
-          httpClient.getAsyncData({
+          httpClient.request({
             url,
             options: {
               method: 'POST',
               headers,
-              data: data as string,
+              body: data as string,
               sendRawData: true,
             },
             isRawResponse: true,

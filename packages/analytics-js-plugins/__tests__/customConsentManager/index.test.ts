@@ -255,7 +255,7 @@ describe('Plugin - CustomConsentManager', () => {
       ),
     ).toBe(true);
 
-    expect(mockErrorHandler.onError).toBeCalledWith(
+    expect(mockErrorHandler.onError).toHaveBeenCalledWith(
       new TypeError("Cannot read properties of null (reading 'includes')"),
       'CustomConsentManagerPlugin',
       'Failed to determine the consent status for the destination. Please check the destination configuration and try again.',

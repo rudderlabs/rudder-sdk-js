@@ -26,7 +26,7 @@ describe('EventManager', () => {
     it('should initialize on init', () => {
       const eventRepositoryInitSpy = jest.spyOn(eventRepository, 'init');
       eventManager.init();
-      expect(eventRepositoryInitSpy).toBeCalled();
+      expect(eventRepositoryInitSpy).toHaveBeenCalled();
 
       eventRepositoryInitSpy.mockRestore();
     });
@@ -43,7 +43,7 @@ describe('EventManager', () => {
         },
       });
 
-      expect(mockErrorHandler.onError).toBeCalledWith(
+      expect(mockErrorHandler.onError).toHaveBeenCalledWith(
         new Error('Failed to generate the event object.'),
         'EventManager',
         undefined,
@@ -70,7 +70,7 @@ describe('EventManager', () => {
     it('should resume on resume', () => {
       const eventRepositoryResumeSpy = jest.spyOn(eventRepository, 'resume');
       eventManager.resume();
-      expect(eventRepositoryResumeSpy).toBeCalled();
+      expect(eventRepositoryResumeSpy).toHaveBeenCalled();
 
       eventRepositoryResumeSpy.mockRestore();
     });

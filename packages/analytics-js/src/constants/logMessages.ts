@@ -14,7 +14,7 @@ const SOURCE_CONFIG_OPTION_ERROR = `"getSourceConfig" must be a function. Please
 const DATA_PLANE_URL_ERROR = `Failed to load the SDK as the data plane URL could not be determined. Please check that the data plane URL is set correctly and try again.`;
 const SOURCE_CONFIG_RESOLUTION_ERROR = `Unable to process/parse source configuration response.`;
 const SOURCE_DISABLED_ERROR = `The source is disabled. Please enable the source in the dashboard to send events.`;
-const XHR_PAYLOAD_PREP_ERROR = `Failed to prepare data for the request.`;
+const PAYLOAD_PREP_ERROR = `Failed to prepare data for the request.`;
 const EVENT_OBJECT_GENERATION_ERROR = `Failed to generate the event object.`;
 const PLUGIN_EXT_POINT_MISSING_ERROR = `Failed to invoke plugin because the extension point name is missing.`;
 const PLUGIN_EXT_POINT_INVALID_ERROR = `Failed to invoke plugin because the extension point name is invalid.`;
@@ -75,18 +75,21 @@ const DATA_PLANE_URL_VALIDATION_ERROR = (dataPlaneUrl: string | undefined): stri
 const READY_API_CALLBACK_ERROR = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The callback is not a function.`;
 
-const XHR_DELIVERY_ERROR = (
+const DELIVERY_ERROR = (
   prefix: string,
   status: number,
   statusText: string,
   url: string | URL,
-): string => `${prefix} with status: ${status}, ${statusText} for URL: ${url}.`;
+  e?: ProgressEvent | undefined,
+): string => `${prefix} with status ${status}: ${statusText} (${e?.type ?? ''}), for URL: ${url}.`;
 
-const XHR_REQUEST_ERROR = (
+const REQUEST_ERROR = (
   prefix: string,
-  e: ProgressEvent | undefined,
   url: string | URL,
-): string => `${prefix} due to timeout or no connection (${e ? e.type : ''}) for URL: ${url}.`;
+  timeout: number,
+  e?: ProgressEvent | undefined,
+): string =>
+  `${prefix} due to timeout after ${timeout}ms or no connection (${e?.type ?? ''}) for URL: ${url}.`;
 
 const XHR_SEND_ERROR = (prefix: string, url: string | URL): string => `${prefix} for URL: ${url}`;
 
@@ -289,10 +292,10 @@ export {
   WRITE_KEY_VALIDATION_ERROR,
   DATA_PLANE_URL_VALIDATION_ERROR,
   READY_API_CALLBACK_ERROR,
-  XHR_DELIVERY_ERROR,
-  XHR_REQUEST_ERROR,
+  DELIVERY_ERROR,
+  REQUEST_ERROR,
   XHR_SEND_ERROR,
-  XHR_PAYLOAD_PREP_ERROR,
+  PAYLOAD_PREP_ERROR,
   STORE_DATA_SAVE_ERROR,
   STORE_DATA_FETCH_ERROR,
   EVENT_OBJECT_GENERATION_ERROR,

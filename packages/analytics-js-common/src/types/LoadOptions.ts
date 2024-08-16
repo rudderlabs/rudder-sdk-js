@@ -46,7 +46,7 @@ export type BeaconQueueOpts = {
   flushQueueInterval?: number;
 };
 
-export type EventsTransportMode = 'xhr' | 'beacon';
+export type TransportType = 'fetch' | 'xhr' | 'beacon';
 
 export type BatchOpts = {
   // Whether to enable batching
@@ -143,8 +143,9 @@ export type LoadOptions = {
   dataPlaneEventsBufferTimeout?: number;
   storage?: StorageOpts;
   preConsent?: PreConsentOptions;
-  // transport mechanism to be used for sending batched requests
-  transportMode?: EventsTransportMode; // Unused for now. This will deprecate the useBeacon and beaconQueueOptions
+  // transport mechanism to be used for sending events
+  // This will deprecate the useBeacon and beaconQueueOptions
+  deliveryMethod?: TransportType;
   consentManagement?: ConsentManagementOptions;
   sameDomainCookiesOnly?: boolean;
   externalAnonymousIdCookieName?: string;

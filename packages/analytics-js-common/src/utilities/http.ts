@@ -1,11 +1,11 @@
-import type { XHRResponseDetails } from '../types/HttpClient';
+import type { IResponseDetails } from '../types/HttpClient';
 
-const isErrRetryable = (details?: XHRResponseDetails) => {
+const isErrRetryable = (details: IResponseDetails) => {
   let isRetryableNWFailure = false;
-  if (details?.error && details?.xhr) {
-    const xhrStatus = details.xhr.status;
+  if (details.error?.status) {
+    const { status } = details.error;
     // same as in v1.1
-    isRetryableNWFailure = xhrStatus === 429 || (xhrStatus >= 500 && xhrStatus < 600);
+    isRetryableNWFailure = status === 429 || (status >= 500 && status < 600);
   }
   return isRetryableNWFailure;
 };

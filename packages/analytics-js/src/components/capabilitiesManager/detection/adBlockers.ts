@@ -13,24 +13,21 @@ const detectAdBlockers = (errorHandler?: IErrorHandler, logger?: ILogger): void 
   const baseUrl = new URL(state.lifecycle.sourceConfigUrl.value as string);
   const url = `${baseUrl.origin}${baseUrl.pathname}?view=ad`;
 
-  const httpClient = new HttpClient(errorHandler, logger);
+  const httpClient = new HttpClient('fetch', errorHandler, logger);
   httpClient.setAuthHeader(state.lifecycle.writeKey.value as string);
 
-  httpClient.getAsyncData({
+  httpClient.request({
     url,
     options: {
       // We actually don't need the response from the request, so we are using HEAD
       method: 'HEAD',
-      headers: {
-        'Content-Type': undefined,
-      },
     },
     isRawResponse: true,
     callback: (result, details) => {
       // not ad blocked if the request is successful or it is not internally redirected on the client side
       // Often adblockers instead of blocking the request, they redirect it to an internal URL
       state.capabilities.isAdBlocked.value =
-        details?.error !== undefined || details?.xhr?.responseURL !== url;
+        details?.error !== undefined || details.response?.redirected === true;
     },
   });
 };

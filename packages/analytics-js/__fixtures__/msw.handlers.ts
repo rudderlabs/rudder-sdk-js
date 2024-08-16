@@ -23,14 +23,6 @@ const handlers = [
       },
     });
   }),
-  http.get(`${dummyDataplaneHost}/jsonSample`, () => {
-    return new HttpResponse(JSON.stringify({ json: 'sample' }), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-      },
-    });
-  }),
   http.get(`${dummyDataplaneHost}/404ErrorSample`, () => {
     return new HttpResponse(null, {
       status: 404,

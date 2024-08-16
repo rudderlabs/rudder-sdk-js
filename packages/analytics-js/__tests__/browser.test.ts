@@ -1,7 +1,7 @@
 /* eslint-disable global-require */
 import { loadingSnippet } from './nativeSdkLoader';
 
-const pathToSdk = '../dist/cdn/legacy/iife/rsa.min.js';
+const pathToSdk = '../dist/cdn/legacy/iife/rsa.js';
 
 function wait(time: number) {
   return new Promise(resolve => {
@@ -10,22 +10,29 @@ function wait(time: number) {
 }
 
 describe('Test suite for the SDK', () => {
-  const xhrMock: any = {
-    open: jest.fn(),
-    setRequestHeader: jest.fn(),
-    onload: jest.fn(),
-    onreadystatechange: jest.fn(),
-    responseText: JSON.stringify({
-      source: {
-        config: {},
-        id: 'id',
-        destinations: [],
-      },
+  const fetchMock = jest.fn(() =>
+    Promise.resolve({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          source: {
+            config: {},
+            id: 'id',
+            destinations: [],
+          },
+        }),
+      text: () =>
+        Promise.resolve(
+          JSON.stringify({
+            source: {
+              config: {},
+              id: 'id',
+              destinations: [],
+            },
+          }),
+        ),
     }),
-    status: 200,
-  };
-
-  xhrMock.send = jest.fn(() => xhrMock.onload());
+  );
 
   const userId = 'jest-user-id';
   const userTraits = {
@@ -39,10 +46,17 @@ describe('Test suite for the SDK', () => {
     'jest-group-trait-key-2': 'jest-group-trait-value-2',
   };
 
-  const originalXMLHttpRequest = window.XMLHttpRequest;
+  const originalFetch = window.fetch;
+
+  let skipBeforeEach = true;
 
   beforeEach(async () => {
-    window.XMLHttpRequest = jest.fn(() => xhrMock);
+    if (skipBeforeEach) {
+      return;
+    }
+
+    // Mocking the fetch function
+    window.fetch = fetchMock;
 
     loadingSnippet();
 
@@ -57,14 +71,20 @@ describe('Test suite for the SDK', () => {
 
     window.rudderanalytics = undefined;
 
-    window.XMLHttpRequest = originalXMLHttpRequest;
+    window.fetch = originalFetch;
   });
 
   it('should process the buffered API calls when SDK script is loaded', async () => {
     // Only done for this case to test the
-    // API calls queuing functionality
-    jest.resetModules();
+    // buffered API calls queuing functionality
+    skipBeforeEach = false;
+
+    // Mocking the fetch function
+    window.fetch = fetchMock;
+
+    loadingSnippet();
     rudderanalytics.page();
+
     require(pathToSdk);
     await wait(500);
 
@@ -72,7 +92,7 @@ describe('Test suite for the SDK', () => {
 
     // one source config endpoint call and one implicit page call
     // Refer to above 'beforeEach'
-    expect(xhrMock.send).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   it('should make network requests when event APIs are invoked', () => {
@@ -83,14 +103,14 @@ describe('Test suite for the SDK', () => {
     rudderanalytics.alias('new-jest-user', 'jest-user');
 
     // one source config endpoint call and above API requests
-    expect(xhrMock.send).toHaveBeenCalledTimes(6);
+    expect(fetchMock).toHaveBeenCalledTimes(6);
   });
 
   describe('getAnonymousId', () => {
     it('should return a new UUID when no prior persisted dat is present', () => {
       const anonId = rudderanalytics.getAnonymousId();
 
-      const uuidRegEx = /^[a-z0-9]{8}-[a-z0-9]{4}-4[a-z0-9]{3}-[a-z0-9]{4}-[a-z0-9]{12}$/;
+      const uuidRegEx = /^[\da-z]{8}-[\da-z]{4}-4[\da-z]{3}-[\da-z]{4}-[\da-z]{12}$/;
       expect(anonId).toMatch(uuidRegEx);
     });
 
@@ -105,7 +125,7 @@ describe('Test suite for the SDK', () => {
   });
 
   describe('reset', () => {
-    it('should clear al the persisted data expect for anonymous ID when the flag is not set', () => {
+    it('should clear all the persisted data expect for anonymous ID when the flag is not set', () => {
       // Make identify and group API calls to let the SDK persist
       // user (ID and traits) and group data (ID and traits)
       rudderanalytics.identify(userId, userTraits);

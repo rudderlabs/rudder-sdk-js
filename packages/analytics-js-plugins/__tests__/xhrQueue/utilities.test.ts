@@ -1,5 +1,5 @@
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import type { XHRResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
+import type { IResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { state, resetState } from '@rudderstack/analytics-js/state';
 import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
@@ -120,81 +120,100 @@ describe('xhrQueue Plugin Utilities', () => {
     it('should not log error if there is no error', () => {
       const details = {
         response: {},
-      } as XHRResponseDetails;
+      } as IResponseDetails;
 
       logErrorOnFailure(details, 'https://test.com/v1/page', false, 1, 10, mockLogger);
 
-      expect(mockLogger.error).not.toBeCalled();
+      expect(mockLogger.error).not.toHaveBeenCalled();
     });
 
     it('should log an error for delivery failure', () => {
       const details = {
         error: {},
-      } as XHRResponseDetails;
+      } as IResponseDetails;
 
       logErrorOnFailure(details, 'https://test.com/v1/page', false, 1, 10, mockLogger);
 
-      expect(mockLogger.error).toBeCalledWith(
+      expect(mockLogger.error).toHaveBeenCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. The event(s) will be dropped.',
       );
     });
 
     it('should log an error for retryable network failure', () => {
-      const details = {
-        error: {},
-        xhr: {
+      let details = {
+        error: {
           status: 429,
         },
-      } as XHRResponseDetails;
+      } as IResponseDetails;
 
       logErrorOnFailure(details, 'https://test.com/v1/page', true, 1, 10, mockLogger);
 
-      expect(mockLogger.error).toBeCalledWith(
+      expect(mockLogger.error).toHaveBeenCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. It/they will be retried. Retry attempt 1 of 10.',
       );
 
       // Retryable error but it's the first attempt
-      details.xhr.status = 429;
+      details = {
+        error: {
+          status: 429,
+        },
+      } as IResponseDetails;
 
       logErrorOnFailure(details, 'https://test.com/v1/page', true, 0, 10, mockLogger);
 
-      expect(mockLogger.error).toBeCalledWith(
+      expect(mockLogger.error).toHaveBeenCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. It/they will be retried.',
       );
 
       // 500 error
-      details.xhr.status = 500;
+      details = {
+        error: {
+          status: 500,
+        },
+      } as IResponseDetails;
 
       logErrorOnFailure(details, 'https://test.com/v1/page', true, 1, 10, mockLogger);
 
-      expect(mockLogger.error).toBeCalledWith(
+      expect(mockLogger.error).toHaveBeenCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. It/they will be retried. Retry attempt 1 of 10.',
       );
 
       // 5xx error
-      details.xhr.status = 501;
+      details = {
+        error: {
+          status: 501,
+        },
+      } as IResponseDetails;
 
       logErrorOnFailure(details, 'https://test.com/v1/page', true, 1, 10, mockLogger);
 
-      expect(mockLogger.error).toBeCalledWith(
+      expect(mockLogger.error).toHaveBeenCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. It/they will be retried. Retry attempt 1 of 10.',
       );
 
       // 600 error
-      details.xhr.status = 600;
+      details = {
+        error: {
+          status: 600,
+        },
+      } as IResponseDetails;
 
       logErrorOnFailure(details, 'https://test.com/v1/page', true, 1, 10, mockLogger);
 
-      expect(mockLogger.error).toBeCalledWith(
+      expect(mockLogger.error).toHaveBeenCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. The event(s) will be dropped.',
       );
 
       // Retryable error but exhausted all tries
-      details.xhr.status = 520;
+      details = {
+        error: {
+          status: 520,
+        },
+      } as IResponseDetails;
 
       logErrorOnFailure(details, 'https://test.com/v1/page', false, 10, 10, mockLogger);
 
-      expect(mockLogger.error).toBeCalledWith(
+      expect(mockLogger.error).toHaveBeenCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. Retries exhausted (10). The event(s) will be dropped.',
       );
     });

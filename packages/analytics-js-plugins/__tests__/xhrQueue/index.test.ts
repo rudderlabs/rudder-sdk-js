@@ -10,9 +10,13 @@ import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import type {
+  IHttpClient,
+  IResponseDetails,
+} from '@rudderstack/analytics-js-common/types/HttpClient';
 import { XhrQueue } from '../../src/xhrQueue';
 import { Schedule } from '../../src/utilities/retryQueue/Schedule';
+import { HttpClientError } from '@rudderstack/analytics-js/services/HttpClient/utils';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/timestamp', () => ({
   ...jest.requireActual('@rudderstack/analytics-js-common/utilities/timestamp'),
@@ -51,7 +55,7 @@ describe('XhrQueue', () => {
     });
   });
 
-  const httpClient = new HttpClient();
+  const httpClient = new HttpClient('xhr');
 
   it('should add itself to the loaded plugins list on initialized', () => {
     XhrQueue().initialize(state);
@@ -91,7 +95,7 @@ describe('XhrQueue', () => {
 
     XhrQueue().dataplaneEventsQueue?.enqueue(state, queue, event);
 
-    expect(addItemSpy).toBeCalledWith({
+    expect(addItemSpy).toHaveBeenCalledWith({
       url: 'https://sampleurl.com/v1/track',
       headers: {
         AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
@@ -104,7 +108,7 @@ describe('XhrQueue', () => {
 
   it('should process queue item on start', () => {
     const mockHttpClient = {
-      getAsyncData: ({ callback }) => {
+      request: ({ callback }) => {
         callback(true);
       },
       setAuthHeader: jest.fn(),
@@ -131,7 +135,7 @@ describe('XhrQueue', () => {
     // In actual implementation, this is done based on the state signals
     queue.start();
 
-    expect(queueProcessCbSpy).toBeCalledWith(
+    expect(queueProcessCbSpy).toHaveBeenCalledWith(
       {
         url: 'https://sampleurl.com/v1/track',
         headers: {
@@ -153,8 +157,8 @@ describe('XhrQueue', () => {
 
   it('should log error on retryable failure and requeue the item', () => {
     const mockHttpClient = {
-      getAsyncData: ({ callback }) => {
-        callback(false, { error: 'some error', xhr: { status: 429 } });
+      request: ({ callback }) => {
+        callback(null, { error: new HttpClientError('some error', 429) } as IResponseDetails);
       },
       setAuthHeader: jest.fn(),
     } as unknown as IHttpClient;
@@ -191,7 +195,7 @@ describe('XhrQueue', () => {
     // In actual implementation, this is done based on the state signals
     queue.start();
 
-    expect(mockLogger.error).toBeCalledWith(
+    expect(mockLogger.error).toHaveBeenCalledWith(
       'XhrQueuePlugin:: Failed to deliver event(s) to https://sampleurl.com/v1/track. It/they will be retried.',
     );
 
@@ -229,7 +233,7 @@ describe('XhrQueue', () => {
     });
 
     const mockHttpClient = {
-      getAsyncData: jest.fn(),
+      request: jest.fn(),
       setAuthHeader: jest.fn(),
     } as unknown as IHttpClient;
 
@@ -279,7 +283,7 @@ describe('XhrQueue', () => {
     // In actual implementation, this is done based on the state signals
     queue.start();
 
-    expect(queueProcessCbSpy).toBeCalledWith(
+    expect(queueProcessCbSpy).toHaveBeenCalledWith(
       [
         {
           url: 'https://sampleurl.com/v1/track',
@@ -302,7 +306,7 @@ describe('XhrQueue', () => {
       true,
     );
 
-    expect(mockHttpClient.getAsyncData).toBeCalledWith({
+    expect(mockHttpClient.request).toHaveBeenCalledWith({
       url: 'https://sampleurl.com/v1/batch',
       options: {
         method: 'POST',
@@ -310,7 +314,7 @@ describe('XhrQueue', () => {
           AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
         },
         sendRawData: true,
-        data: '{"batch":[{"type":"track","event":"test","userId":"test","properties":{"test":"test"},"anonymousId":"sampleAnonId","messageId":"test","originalTimestamp":"test","sentAt":"sample_timestamp"},{"type":"track","event":"test2","userId":"test2","properties":{"test2":"test2"},"anonymousId":"sampleAnonId","messageId":"test2","originalTimestamp":"test2","sentAt":"sample_timestamp"}],"sentAt":"sample_timestamp"}',
+        body: '{"batch":[{"type":"track","event":"test","userId":"test","properties":{"test":"test"},"anonymousId":"sampleAnonId","messageId":"test","originalTimestamp":"test","sentAt":"sample_timestamp"},{"type":"track","event":"test2","userId":"test2","properties":{"test2":"test2"},"anonymousId":"sampleAnonId","messageId":"test2","originalTimestamp":"test2","sentAt":"sample_timestamp"}],"sentAt":"sample_timestamp"}',
       },
       isRawResponse: true,
       timeout: 30000,

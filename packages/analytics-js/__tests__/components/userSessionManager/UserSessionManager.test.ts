@@ -1770,16 +1770,16 @@ describe('User session manager', () => {
           domain: 'example.com',
           samesite: 'Lax',
         };
-        const getAsyncDataSpy = jest.spyOn(defaultHttpClient, 'getAsyncData');
+        const requestSpy = jest.spyOn(defaultHttpClient, 'request');
         userSessionManager.makeRequestToSetCookie(
           [{ name: 'key', value: 'encrypted_sample_cookie_value_1234' }],
           () => {},
         );
-        expect(getAsyncDataSpy).toHaveBeenCalledWith({
+        expect(requestSpy).toHaveBeenCalledWith({
           url: `https://dummy.dataplane.host.com/rsaRequest`,
           options: {
             method: 'POST',
-            data: JSON.stringify({
+            body: JSON.stringify({
               reqType: 'setCookies',
               workspaceId: 'sample_workspaceId',
               data: {

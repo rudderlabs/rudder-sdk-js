@@ -320,11 +320,11 @@ class UserSessionManager implements IUserSessionManager {
     encryptedCookieData: EncryptedCookieData[],
     callback: AsyncRequestCallback<any>,
   ) {
-    this.httpClient?.getAsyncData({
+    this.httpClient?.request({
       url: state.serverCookies.dataServiceUrl.value as string,
       options: {
         method: 'POST',
-        data: stringifyWithoutCircular({
+        body: stringifyWithoutCircular({
           reqType: 'setCookies',
           workspaceId: state.source.value?.workspaceId,
           data: {
@@ -359,7 +359,7 @@ class UserSessionManager implements IUserSessionManager {
       if (encryptedCookieData.length > 0) {
         // make request to data service to set the cookie from server side
         this.makeRequestToSetCookie(encryptedCookieData, (res, details) => {
-          if (details?.xhr?.status === 200) {
+          if (details?.response?.status === 200) {
             cookiesData.forEach(cData => {
               const cookieValue = store?.get(cData.name);
               const before = stringifyWithoutCircular(cData.value, false, []);
@@ -372,7 +372,7 @@ class UserSessionManager implements IUserSessionManager {
               }
             });
           } else {
-            this.logger?.error(DATA_SERVER_REQUEST_FAIL_ERROR(details?.xhr?.status));
+            this.logger?.error(DATA_SERVER_REQUEST_FAIL_ERROR(details?.response?.status));
             cookiesData.forEach(each => {
               if (cb) {
                 cb(each.name, each.value);

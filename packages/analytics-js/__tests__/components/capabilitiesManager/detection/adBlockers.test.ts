@@ -3,7 +3,7 @@ import { detectAdBlockers } from '../../../../src/components/capabilitiesManager
 import { state, resetState } from '../../../../src/state';
 
 let errObj;
-let xhrObj;
+let responseObj;
 
 jest.mock('../../../../src/services/HttpClient/HttpClient', () => {
   const originalModule = jest.requireActual('../../../../src/services/HttpClient/HttpClient');
@@ -13,10 +13,10 @@ jest.mock('../../../../src/services/HttpClient/HttpClient', () => {
     ...originalModule,
     HttpClient: jest.fn().mockImplementation(() => ({
       setAuthHeader: jest.fn(),
-      getAsyncData: jest.fn().mockImplementation(({ url, callback }) => {
+      request: jest.fn().mockImplementation(({ url, callback }) => {
         callback(undefined, {
           error: errObj,
-          xhr: xhrObj,
+          response: responseObj,
         });
       }),
     })),
@@ -32,8 +32,8 @@ describe('detectAdBlockers', () => {
     state.lifecycle.sourceConfigUrl.value = 'https://example.com/some/path/';
 
     errObj = new Error('Request blocked');
-    xhrObj = {
-      responseURL: 'https://example.com/some/path/?view=ad',
+    responseObj = {
+      redirected: false,
     };
 
     detectAdBlockers();
@@ -48,8 +48,8 @@ describe('detectAdBlockers', () => {
     state.lifecycle.sourceConfigUrl.value = 'https://example.com/some/path/';
 
     errObj = undefined;
-    xhrObj = {
-      responseURL: 'data:text/css;charset=UTF-8;base64,dGVtcA==',
+    responseObj = {
+      redirected: true,
     };
 
     detectAdBlockers();
@@ -64,8 +64,8 @@ describe('detectAdBlockers', () => {
     state.lifecycle.sourceConfigUrl.value = 'https://example.com/some/path/';
 
     errObj = undefined;
-    xhrObj = {
-      responseURL: 'https://example.com/some/path/?view=ad',
+    responseObj = {
+      redirected: false,
     };
 
     detectAdBlockers();

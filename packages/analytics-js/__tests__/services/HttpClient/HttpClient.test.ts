@@ -1,4 +1,5 @@
-import type { XHRResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
+import type { IResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
+import { HttpClientError } from '../../../src/services/HttpClient/utils';
 import { HttpClient } from '../../../src/services/HttpClient';
 import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
 import { defaultLogger } from '../../../src/services/Logger';
@@ -38,7 +39,7 @@ describe('HttpClient', () => {
   });
 
   beforeEach(() => {
-    clientInstance = new HttpClient(defaultErrorHandler, defaultLogger);
+    clientInstance = new HttpClient('fetch', defaultErrorHandler, defaultLogger);
   });
 
   afterEach(() => {
@@ -50,32 +51,32 @@ describe('HttpClient', () => {
     server.close();
   });
 
-  it('should getAsyncData expecting raw response', done => {
+  it('should request expecting raw response', done => {
     const callback = (response: any) => {
       expect(response).toStrictEqual('{"raw": "sample"}');
       done();
     };
-    clientInstance.getAsyncData({
+    clientInstance.request({
       callback,
       url: `${dummyDataplaneHost}/rawSample`,
       isRawResponse: true,
     });
   });
 
-  it('should getAsyncData expecting json response', done => {
+  it('should request expecting json response', done => {
     const callback = (response: any) => {
-      expect(response).toStrictEqual({ json: 'sample' });
+      expect(response).toEqual({ raw: 'sample' });
       done();
     };
-    clientInstance.getAsyncData({
+    clientInstance.request({
       callback,
-      url: `${dummyDataplaneHost}/jsonSample`,
+      url: `${dummyDataplaneHost}/rawSample`,
     });
   });
 
-  it('should fire and forget getAsyncData', async () => {
-    const response = await clientInstance.getAsyncData({
-      url: `${dummyDataplaneHost}/jsonSample`,
+  it('should fire and forget request', async () => {
+    const response = await clientInstance.request({
+      url: `${dummyDataplaneHost}/rawSample`,
     });
     expect(response).toBeUndefined();
   });
@@ -90,51 +91,51 @@ describe('HttpClient', () => {
     expect(clientInstance.basicAuthHeader).toStrictEqual('Basic dummyWriteKey');
   });
 
-  it('should set auth header', () => {
+  it('should reset auth header', () => {
     clientInstance.setAuthHeader('dummyWriteKey', true);
     clientInstance.resetAuthHeader();
     expect(clientInstance.basicAuthHeader).toBeUndefined();
   });
 
-  it('should getAsyncData with auth header expecting json response', done => {
+  it('should request with auth header expecting json response', done => {
     const callback = (response: any) => {
-      expect(response).toStrictEqual({ json: 'sample' });
+      expect(response).toEqual({ raw: 'sample' });
       done();
     };
     clientInstance.setAuthHeader('dummyWriteKey');
-    clientInstance.getAsyncData({
+    clientInstance.request({
       callback,
-      url: `${dummyDataplaneHost}/jsonSample`,
+      url: `${dummyDataplaneHost}/rawSample`,
     });
   });
 
-  it('should handle 400 range errors in getAsyncData requests', done => {
-    const callback = (response: any, reject: XHRResponseDetails) => {
-      const errResult = new Error(
-        'The request failed with status: 404, Not Found for URL: https://dummy.dataplane.host.com/404ErrorSample.',
+  it('should handle 400 range errors in request requests', done => {
+    const callback = (response: any, details: IResponseDetails) => {
+      const errResult = new HttpClientError(
+        'The request failed with status 404: Not Found (), for URL: https://dummy.dataplane.host.com/404ErrorSample.',
       );
-      expect(reject.error).toEqual(errResult);
+      expect(details.error).toEqual(errResult);
       expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
       expect(defaultErrorHandler.onError).toHaveBeenCalledWith(errResult, 'HttpClient');
       done();
     };
-    clientInstance.getAsyncData({
+    clientInstance.request({
       callback,
       url: `${dummyDataplaneHost}/404ErrorSample`,
     });
   });
 
-  it('should handle 500 range errors in getAsyncData requests', done => {
-    const callback = (response: any, reject: XHRResponseDetails) => {
+  it('should handle 500 range errors in request requests', done => {
+    const callback = (response: any, details: IResponseDetails) => {
       const errResult = new Error(
-        'The request failed with status: 500, Internal Server Error for URL: https://dummy.dataplane.host.com/500ErrorSample.',
+        'The request failed with status 500: Internal Server Error (), for URL: https://dummy.dataplane.host.com/500ErrorSample.',
       );
-      expect(reject.error).toEqual(errResult);
+      expect(details.error).toEqual(errResult);
       expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
       expect(defaultErrorHandler.onError).toHaveBeenCalledWith(errResult, 'HttpClient');
       done();
     };
-    clientInstance.getAsyncData({
+    clientInstance.request({
       callback,
       url: `${dummyDataplaneHost}/500ErrorSample`,
     });
@@ -152,7 +153,7 @@ describe('HttpClient', () => {
       );
       done();
     };
-    clientInstance.getAsyncData({
+    clientInstance.request({
       callback,
       url: `${dummyDataplaneHost}/brokenJsonSample`,
     });
@@ -168,7 +169,7 @@ describe('HttpClient', () => {
       );
       done();
     };
-    clientInstance.getAsyncData({
+    clientInstance.request({
       callback,
       url: `${dummyDataplaneHost}/emptyJsonSample`,
     });
@@ -184,11 +185,11 @@ describe('HttpClient', () => {
       );
       done();
     };
-    clientInstance.getAsyncData({
+    clientInstance.request({
       callback,
       url: `${dummyDataplaneHost}/nonStringifiableDataSample`,
       options: {
-        data: {
+        body: {
           a: 1,
           b: BigInt(1),
         },

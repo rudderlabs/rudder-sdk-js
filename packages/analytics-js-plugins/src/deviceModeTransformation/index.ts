@@ -53,11 +53,11 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
         ) => {
           const payload = createPayload(item.event, item.destinationIds, item.token);
 
-          httpClient.getAsyncData({
+          httpClient.request({
             url: `${state.lifecycle.activeDataplaneUrl.value}/transform`,
             options: {
               method: 'POST',
-              data: getDMTDeliveryPayload(payload) as string,
+              body: getDMTDeliveryPayload(payload) as string,
               sendRawData: true,
             },
             isRawResponse: true,
@@ -72,7 +72,7 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
                   pluginsManager,
                   item.destinationIds,
                   result,
-                  details?.xhr?.status,
+                  details.error?.status ?? details.response?.status,
                   item.event,
                   errorHandler,
                   logger,

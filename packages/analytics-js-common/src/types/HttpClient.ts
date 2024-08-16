@@ -1,46 +1,37 @@
 import type { IErrorHandler } from './ErrorHandler';
 import type { ILogger } from './Logger';
 
-export type XHRResponseDetails = {
-  response: string;
-  error?: Error;
+export interface IHttpClientError extends Error {
+  status?: number;
+  statusText?: string;
+  responseBody?: string | null;
+}
+
+export interface IResponseDetails {
+  response?: Response;
+  error?: IHttpClientError;
   url: string | URL;
-  xhr?: XMLHttpRequest;
-  options: IXHRRequestOptions;
-};
+  options: IRequestOptions;
+}
 
 export type AsyncRequestCallback<T> = (
-  data?: T | string | undefined,
-  details?: XHRResponseDetails,
+  data: T | string | undefined | null,
+  details: IResponseDetails,
 ) => void;
 
 export interface IAsyncRequestConfig<T> {
   url: string | URL;
-  options?: IXHRRequestOptions | IFetchRequestOptions | IBeaconRequestOptions;
+  options?: IRequestOptions;
   isRawResponse?: boolean;
   timeout?: number;
   callback?: AsyncRequestCallback<T>;
 }
 
-export interface IRequestOptions {
-  method: HTTPClientMethod;
-  headers?: Record<string, string | undefined>;
+export interface IBaseRequestOptions {
   sendRawData?: boolean;
-  withCredentials?: boolean;
 }
 
-export interface IXHRRequestOptions extends IRequestOptions {
-  data?: Document | XMLHttpRequestBodyInit | null;
-}
-
-export interface IFetchRequestOptions extends IRequestOptions {
-  data?: BodyInit | null;
-  keepalive?: boolean;
-}
-
-export interface IBeaconRequestOptions extends IRequestOptions {
-  data?: BodyInit | null;
-}
+export type IRequestOptions = IXHRRequestOptions | IFetchRequestOptions | IBeaconRequestOptions;
 
 export type HTTPClientMethod =
   | 'GET'
@@ -57,7 +48,40 @@ export interface IHttpClient {
   errorHandler?: IErrorHandler;
   logger?: ILogger;
   basicAuthHeader?: string;
+  transportFn: (url: string | URL, options: any) => Promise<Response>;
   getAsyncData<T = any>(config: IAsyncRequestConfig<T>): void;
+  request<T = any>(config: IAsyncRequestConfig<T>): void;
   setAuthHeader(value: string, noBto?: boolean): void;
   resetAuthHeader(): void;
+}
+
+export interface IXHRRequestOptions
+  extends Omit<
+      RequestInit,
+      | 'body'
+      | 'mode'
+      | 'cache'
+      | 'redirect'
+      | 'referrerPolicy'
+      | 'integrity'
+      | 'keepalive'
+      | 'method'
+    >,
+    IBaseRequestOptions {
+  withCredentials?: boolean;
+  body?: Document | XMLHttpRequestBodyInit | null;
+  timeout?: number; // timeout in milliseconds
+  method: HTTPClientMethod;
+}
+
+export interface IFetchRequestOptions
+  extends Omit<RequestInit, 'body' | 'method'>,
+    IBaseRequestOptions {
+  body?: BodyInit | null;
+  timeout?: number; // timeout in milliseconds
+  method: HTTPClientMethod;
+}
+
+export interface IBeaconRequestOptions extends IBaseRequestOptions {
+  body?: BodyInit | null;
 }

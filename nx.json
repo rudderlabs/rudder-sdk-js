@@ -61,6 +61,10 @@
       "inputs": ["default", "^production"],
       "cache": true
     },
+    "build:browser:dev": {
+      "inputs": ["default", "^production"],
+      "cache": true
+    },
     "check:size:json": {
       "inputs": [
         "default",
