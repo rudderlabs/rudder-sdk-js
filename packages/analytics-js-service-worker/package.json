@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-service-worker",
-  "version": "3.1.7",
+  "version": "3.1.8",
   "description": "RudderStack JavaScript Service Worker SDK",
   "main": "dist/npm/modern/cjs/index.cjs",
   "module": "dist/npm/modern/esm/index.mjs",
@@ -93,7 +93,7 @@
     "@rudderstack/analytics-js-common": "*",
     "@vespaiach/axios-fetch-adapter": "0.3.1",
     "assert": "2.1.0",
-    "axios": "1.7.2",
+    "axios": "1.7.4",
     "axios-retry": "4.4.0",
     "component-type": "2.0.0",
     "join-component": "1.1.0",
