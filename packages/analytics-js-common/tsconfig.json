@@ -9,6 +9,6 @@
     "sourceMap": false,
     "declarationMap": false
   },
-  "include": ["./src/**/*", "../../types/**/*"],
+  "include": ["./package.json", "../../types/**/*", "./src/**/*"],
   "references": []
 }
