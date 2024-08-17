@@ -1,7 +1,6 @@
 import type { IResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { HttpClientError } from '../../../src/services/HttpClient/utils';
 import { HttpClient } from '../../../src/services/HttpClient';
-import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
 import { defaultLogger } from '../../../src/services/Logger';
 import { server } from '../../../__fixtures__/msw.server';
 import { dummyDataplaneHost } from '../../../__fixtures__/fixtures';
@@ -39,7 +38,7 @@ describe('HttpClient', () => {
   });
 
   beforeEach(() => {
-    clientInstance = new HttpClient('fetch', defaultErrorHandler, defaultLogger);
+    clientInstance = new HttpClient('fetch', defaultLogger);
   });
 
   afterEach(() => {
@@ -115,8 +114,6 @@ describe('HttpClient', () => {
         'The request failed with status 404: Not Found (), for URL: https://dummy.dataplane.host.com/404ErrorSample.',
       );
       expect(details.error).toEqual(errResult);
-      expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
-      expect(defaultErrorHandler.onError).toHaveBeenCalledWith(errResult, 'HttpClient');
       done();
     };
     clientInstance.request({
@@ -131,8 +128,6 @@ describe('HttpClient', () => {
         'The request failed with status 500: Internal Server Error (), for URL: https://dummy.dataplane.host.com/500ErrorSample.',
       );
       expect(details.error).toEqual(errResult);
-      expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
-      expect(defaultErrorHandler.onError).toHaveBeenCalledWith(errResult, 'HttpClient');
       done();
     };
     clientInstance.request({
@@ -144,13 +139,6 @@ describe('HttpClient', () => {
   it('should handle malformed json response when expecting json response', done => {
     const callback = (response: any) => {
       expect(response).toBeUndefined();
-      expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
-      expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
-        new SyntaxError(
-          "Failed to parse response data: Expected property name or '}' in JSON at position 1",
-        ),
-        'HttpClient',
-      );
       done();
     };
     clientInstance.request({
@@ -162,11 +150,6 @@ describe('HttpClient', () => {
   it('should handle empty response when expecting json response', done => {
     const callback = (response: any) => {
       expect(response).toBeUndefined();
-      expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
-      expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
-        new Error('Failed to parse response data: Unexpected end of JSON input'),
-        'HttpClient',
-      );
       done();
     };
     clientInstance.request({
@@ -178,11 +161,6 @@ describe('HttpClient', () => {
   it('should handle if input data contains non-stringifiable values', done => {
     const callback = (response: any) => {
       expect(response).toBeUndefined();
-      expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
-      expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
-        new Error('Failed to prepare data for the request.'),
-        'HttpClient',
-      );
       done();
     };
     clientInstance.request({

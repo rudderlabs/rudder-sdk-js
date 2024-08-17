@@ -37,6 +37,8 @@ const legacyJSEngineRequiredPolyfills: Record<string, () => boolean> = {
   ArrayBuffer: () => !isFunction(globalThis.Uint8Array),
   Set: () => !isFunction(globalThis.Set),
   atob: () => !isFunction(globalThis.atob),
+  AbortController: () => !isFunction(globalThis.AbortController),
+  fetch: () => !isFunction(globalThis.fetch),
 };
 
 const isLegacyJSEngine = (): boolean => {

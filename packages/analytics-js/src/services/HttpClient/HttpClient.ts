@@ -7,17 +7,14 @@ import type {
   IRequestOptions,
   IXHRRequestOptions,
 } from '@rudderstack/analytics-js-common/types/HttpClient';
-import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { toBase64 } from '@rudderstack/analytics-js-common/utilities/string';
-import { HTTP_CLIENT } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import type { TransportType } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import { clone } from 'ramda';
 import { DEFAULT_REQ_TIMEOUT_MS } from '../../constants/timeouts';
 import { PAYLOAD_PREP_ERROR } from '../../constants/logMessages';
-import { defaultErrorHandler } from '../ErrorHandler';
 import { defaultLogger } from '../Logger';
 import { HttpClientError } from './utils';
 import { makeXHRRequest } from './xhr';
@@ -39,12 +36,11 @@ const DEFAULT_REQUEST_OPTIONS: Partial<IRequestOptions> = {
  * Service to handle data communication with APIs
  */
 class HttpClient implements IHttpClient {
-  errorHandler?: IErrorHandler;
   logger?: ILogger;
   basicAuthHeader?: string;
   transportFn: (url: string | URL, options: any) => Promise<Response>;
 
-  constructor(transportType: TransportType, errorHandler?: IErrorHandler, logger?: ILogger) {
+  constructor(transportType: TransportType, logger?: ILogger) {
     switch (transportType) {
       case 'xhr':
         this.transportFn = makeXHRRequest;
@@ -57,9 +53,7 @@ class HttpClient implements IHttpClient {
         this.transportFn = makeFetchRequest;
         break;
     }
-    this.errorHandler = errorHandler;
     this.logger = logger;
-    this.onError = this.onError.bind(this);
   }
 
   /**
@@ -76,7 +70,6 @@ class HttpClient implements IHttpClient {
       // return and don't process further if the payload could not be stringified
       if (isNull(payload)) {
         const err = new HttpClientError(PAYLOAD_PREP_ERROR);
-        this.onError(err);
         if (!isFireAndForget) {
           callback(err.responseBody, {
             error: err,
@@ -115,8 +108,6 @@ class HttpClient implements IHttpClient {
               const finalError = clone(err);
               finalError.message = `Failed to parse response data: ${err.message}`;
 
-              this.onError(finalError);
-
               callback(undefined, {
                 error: finalError,
                 url,
@@ -126,7 +117,6 @@ class HttpClient implements IHttpClient {
         }
       })
       .catch((error: IHttpClientError) => {
-        this.onError(error);
         if (!isFireAndForget) {
           callback(error.responseBody, {
             error,
@@ -139,17 +129,6 @@ class HttpClient implements IHttpClient {
 
   getAsyncData<T>(config: IAsyncRequestConfig<T>) {
     this.request(config);
-  }
-
-  /**
-   * Handle errors
-   */
-  onError(error: unknown) {
-    if (this.errorHandler) {
-      this.errorHandler?.onError(error, HTTP_CLIENT);
-    } else {
-      throw error;
-    }
   }
 
   /**
@@ -168,6 +147,6 @@ class HttpClient implements IHttpClient {
   }
 }
 
-const defaultHttpClient = new HttpClient('fetch', defaultErrorHandler, defaultLogger);
+const defaultHttpClient = new HttpClient('fetch', defaultLogger);
 
 export { HttpClient, defaultHttpClient };

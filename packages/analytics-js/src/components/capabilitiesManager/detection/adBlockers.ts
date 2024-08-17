@@ -13,7 +13,7 @@ const detectAdBlockers = (errorHandler?: IErrorHandler, logger?: ILogger): void 
   const baseUrl = new URL(state.lifecycle.sourceConfigUrl.value as string);
   const url = `${baseUrl.origin}${baseUrl.pathname}?view=ad`;
 
-  const httpClient = new HttpClient('fetch', errorHandler, logger);
+  const httpClient = new HttpClient('fetch', logger);
   httpClient.setAuthHeader(state.lifecycle.writeKey.value as string);
 
   httpClient.request({

@@ -45,7 +45,6 @@ export type HTTPClientMethod =
   | 'PATCH';
 
 export interface IHttpClient {
-  errorHandler?: IErrorHandler;
   logger?: ILogger;
   basicAuthHeader?: string;
   transportFn: (url: string | URL, options: any) => Promise<Response>;

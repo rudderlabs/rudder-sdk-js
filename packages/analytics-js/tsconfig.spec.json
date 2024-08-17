@@ -15,7 +15,7 @@
     "./jest.config.mjs",
     "./__tests__/**/*",
     "./__mocks__/**/*",
-    "__fixtures__/**/*",
+    "./__fixtures__/**/*",
     "./src/**/*",
     "./package.json",
     "../../types/**/*",

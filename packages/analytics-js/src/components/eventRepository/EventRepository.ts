@@ -57,7 +57,7 @@ class EventRepository implements IEventRepository {
     this.pluginsManager = pluginsManager;
     this.errorHandler = errorHandler;
     this.logger = logger;
-    this.httpClient = new HttpClient('fetch', errorHandler, logger);
+    this.httpClient = new HttpClient('fetch', logger);
     this.storeManager = storeManager;
     this.onError = this.onError.bind(this);
   }

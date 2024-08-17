@@ -30,7 +30,9 @@
       "navigator.sendBeacon",
       "Uint8Array",
       "Set",
-      "atob"
+      "atob",
+      "AbortController",
+      "fetch"
     ]
   },
   "env": {
