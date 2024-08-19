@@ -49,37 +49,7 @@ The JavaScript SDK lets you track customer event data from your website and send
 
 ### Using CDN
 
-To integrate the JavaScript SDK with your website, place the following code snippet in the `<head>` section of your website.
-
-```javascript
-<script type="text/javascript">
-  !function(){"use strict";window.RudderSnippetVersion="3.0.10";var e="rudderanalytics";window[e]||(window[e]=[])
-  ;var t=window[e];if(Array.isArray(t)){if(true===t.snippetExecuted&&window.console&&console.error){
-  console.error("RudderStack JavaScript SDK snippet included more than once.")}else{t.snippetExecuted=true,
-  window.rudderAnalyticsBuildType="legacy";var sdkBaseUrl="https://cdn.rudderlabs.com/v3";var sdkName="rsa.min.js"
-  ;var r="async"
-  ;var n=["setDefaultInstanceKey","load","ready","page","track","identify","alias","group","reset","setAnonymousId","startSession","endSession","consent"]
-  ;for(var i=0;i<n.length;i++){var d=n[i];t[d]=function(r){return function(){var n
-  ;Array.isArray(window[e])?t.push([r].concat(Array.prototype.slice.call(arguments))):null===(n=window[e][r])||void 0===n||n.apply(window[e],arguments)
-  }}(d)}try{new Function('return import("")'),window.rudderAnalyticsBuildType="modern"}catch(c){}
-  var o=document.head||document.getElementsByTagName("head")[0]
-  ;var a=document.body||document.getElementsByTagName("body")[0];window.rudderAnalyticsAddScript=function(e,t,n){
-  var i=document.createElement("script");i.src=e,i.setAttribute("data-loader","RS_JS_SDK"),t&&n&&i.setAttribute(t,n),
-  "async"===r?i.async=true:"defer"===r&&(i.defer=true),o?o.insertBefore(i,o.firstChild):a.insertBefore(i,a.firstChild)},
-  window.rudderAnalyticsMount=function(){
-  "undefined"==typeof globalThis&&(Object.defineProperty(Object.prototype,"__globalThis_magic__",{get:function get(){
-  return this},configurable:true}),__globalThis_magic__.globalThis=__globalThis_magic__,
-  delete Object.prototype.__globalThis_magic__),
-  window.rudderAnalyticsAddScript("".concat(sdkBaseUrl,"/").concat(window.rudderAnalyticsBuildType,"/").concat(sdkName),"data-rsa-write-key",<WRITE_KEY>)
-  },
-  "undefined"==typeof Promise||"undefined"==typeof globalThis?window.rudderAnalyticsAddScript("https://polyfill-fastly.io/v3/polyfill.min.js?version=3.111.0&features=Symbol%2CPromise&callback=rudderAnalyticsMount"):window.rudderAnalyticsMount()
-  ;t.load(<WRITE_KEY>,<DATA_PLANE_URL>,{})}}}();
-</script>
-```
-
-<br>
-
-> The above snippet lets you integrate the SDK with your website and load it asynchronously to avoid impacting the performance of your webpages.
+See [CDN installation](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/quickstart/#using-cdn) for detailed steps.
 
 To load SDK script on to your page synchronously, see the [**JavaScript SDK documentation**](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/installation/#synchronous-loading).
 
