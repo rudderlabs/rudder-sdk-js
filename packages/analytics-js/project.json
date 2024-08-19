@@ -51,8 +51,7 @@
     "version": {
       "executor": "@jscutlery/semver:version",
       "options": {
-        "baseBranch": "main",
-        "preset": "conventional",
+        "preset": "conventionalcommits",
         "tagPrefix": "{projectName}@",
         "trackDeps": true
       }
@@ -60,9 +59,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js@3.7.6",
-        "title": "@rudderstack/analytics-js@3.7.6",
-        "discussion-category": "@rudderstack/analytics-js@3.7.6",
+        "tag": "@rudderstack/analytics-js@3.7.8",
+        "title": "@rudderstack/analytics-js@3.7.8",
+        "discussion-category": "@rudderstack/analytics-js@3.7.8",
         "notesFile": "./packages/analytics-js/CHANGELOG_LATEST.md"
       }
     }

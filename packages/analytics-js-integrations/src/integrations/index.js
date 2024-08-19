@@ -76,6 +76,7 @@ import * as Sprig from './Sprig';
 import * as SpotifyPixel from './SpotifyPixel';
 import * as CommandBar from './CommandBar';
 import * as Ninetailed from './Ninetailed';
+import * as XPixel from './XPixel';
 // the key names should match the destination.name value to keep parity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
 
@@ -158,6 +159,7 @@ const integrations = {
   SPRIG: Sprig.default,
   SPOTIFYPIXEL: SpotifyPixel.default,
   NINETAILED: Ninetailed.default,
+  XPIXEL: XPixel.default,
 };
 
 export { integrations };

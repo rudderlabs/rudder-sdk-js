@@ -20,10 +20,40 @@ const getEmail = (email, hashMethod) => {
   if (hashMethod === 'sha256') {
     return sha256(email).toString();
   }
-
   return email;
 };
 
+/**
+ * This function generates different hashes based upon hashMethod and returns an array of object
+ * Criteo Docs: https://help.criteo.com/kb/guide/en/intro-to-the-criteo-onetag-8fjCDwCENw/Steps/775595,853887,2616497,2616569,2616738,2617588
+ * @param {*} email
+ * @param {*} hashMethod
+ * @returns
+ */
+const getEmailHashes = (email, hashMethod) => {
+  const emailHashMethods = [];
+  const emailHashes = [];
+  if (hashMethod === 'both') {
+    emailHashMethods.push('sha256', 'md5');
+  } else if (hashMethod === 'none') {
+    // in case customer don't want to hash email before sending
+    emailHashes.push({
+      event: 'setEmail',
+      email,
+    });
+    return emailHashes;
+  } else {
+    emailHashMethods.push(hashMethod);
+  }
+  emailHashMethods.forEach(method => {
+    emailHashes.push({
+      event: 'setEmail',
+      hash_method: method,
+      email: getEmail(email, method),
+    });
+  });
+  return emailHashes;
+};
 /**
  * Ref : https://help.criteo.com/kb/guide/en/all-criteo-onetag-events-and-parameters-vZbzbEeY86/Steps/775825,868657,868659
  * Ref : https://help.criteo.com/kb/guide/en/all-criteo-onetag-events-and-parameters-vZbzbEeY86/Steps/775825
@@ -35,7 +65,6 @@ const handleCommonFields = (rudderElement, hashMethod) => {
   const { message } = rudderElement;
   const { properties, userId, anonymousId } = message;
 
-  const setEmail = {};
   const setZipcode = {};
 
   const finalRequest = [
@@ -45,12 +74,8 @@ const handleCommonFields = (rudderElement, hashMethod) => {
 
   if (properties?.email) {
     const email = properties.email.trim().toLowerCase();
-    setEmail.event = 'setEmail';
-    if (hashMethod !== 'none') {
-      setEmail.hash_method = hashMethod;
-    }
-    setEmail.email = getEmail(email, hashMethod);
-    finalRequest.push(setEmail);
+    const emailHashes = getEmailHashes(email, hashMethod);
+    finalRequest.push(...emailHashes);
   }
 
   if (properties?.zipCode) {
@@ -390,6 +415,8 @@ export {
   handleProductView,
   generateExtraData,
   handleCommonFields,
+  getEmail,
   getProductInfo,
+  getEmailHashes,
   handleProductAdded,
 };

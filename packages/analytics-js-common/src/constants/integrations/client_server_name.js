@@ -78,6 +78,7 @@ const clientToServerNames = {
   SPOTIFYPIXEL: 'Spotify Pixel',
   COMMANDBAR: 'CommandBar',
   NINETAILED: 'Ninetailed',
+  XPIXEL: 'XPixel',
 };
 
 export { clientToServerNames };

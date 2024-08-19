@@ -79,6 +79,7 @@ const configToIntNames = {
   SPOTIFYPIXEL: 'SpotifyPixel',
   COMMANDBAR: 'CommandBar',
   NINETAILED: 'Ninetailed',
+  XPIXEL: 'XPixel',
 };
 
 export { configToIntNames };
