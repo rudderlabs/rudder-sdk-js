@@ -27,7 +27,7 @@
     <script>
       (function () {
         'use strict';
-        window.RudderSnippetVersion = '3.0.10';
+        window.RudderSnippetVersion = '3.0.26';
         var identifier = 'rudderanalytics';
         if (!window[identifier]) {
           window[identifier] = [];
@@ -95,7 +95,7 @@
     <script>
       (function () {
         if (typeof globalThis === 'undefined') {
-          let getGlobal = function () {
+          var getGlobal = function () {
             if (typeof self !== 'undefined') {
               return self;
             }
@@ -105,7 +105,7 @@
             return null;
           };
 
-          let global = getGlobal();
+          var global = getGlobal();
 
           if (global) {
             Object.defineProperty(global, 'globalThis', {

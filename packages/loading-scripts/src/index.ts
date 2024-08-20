@@ -101,7 +101,7 @@ if (Array.isArray(rudderanalytics)) {
       // globalThis polyfill as polyfill-fastly.io one does not work in legacy safari
       (function () {
         if (typeof globalThis === 'undefined') {
-          let getGlobal = function () {
+          const getGlobal = function () {
             if (typeof self !== 'undefined') {
               return self;
             }
@@ -111,7 +111,7 @@ if (Array.isArray(rudderanalytics)) {
             return null;
           };
 
-          let global = getGlobal();
+          const global = getGlobal();
 
           if (global) {
             Object.defineProperty(global, 'globalThis', {
