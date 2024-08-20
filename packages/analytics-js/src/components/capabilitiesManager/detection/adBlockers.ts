@@ -21,6 +21,7 @@ const detectAdBlockers = (errorHandler?: IErrorHandler, logger?: ILogger): void 
     options: {
       // We actually don't need the response from the request, so we are using HEAD
       method: 'HEAD',
+      useAuth: true,
     },
     isRawResponse: true,
     callback: (result, details) => {

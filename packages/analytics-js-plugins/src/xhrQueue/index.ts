@@ -79,6 +79,7 @@ const XhrQueue = (): ExtensionPlugin => ({
               headers,
               body: data as string,
               sendRawData: true,
+              useAuth: true,
             },
             isRawResponse: true,
             timeout: REQUEST_TIMEOUT_MS,
@@ -139,6 +140,8 @@ const XhrQueue = (): ExtensionPlugin => ({
       // Other default headers are added by the HttpClient
       // Auth header is added during initialization
       const headers = {
+        Accept: 'application/json',
+        'Content-Type': 'application/json;charset=UTF-8',
         // To maintain event ordering while using the HTTP API as per is documentation,
         // make sure to include anonymousId as a header
         AnonymousId: string.toBase64(event.anonymousId),

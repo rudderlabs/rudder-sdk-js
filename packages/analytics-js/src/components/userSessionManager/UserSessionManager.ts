@@ -339,8 +339,13 @@ class UserSessionManager implements IUserSessionManager {
             cookies: encryptedCookieData,
           },
         }) as string,
+        useAuth: true,
         sendRawData: true,
         withCredentials: true,
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json;charset=UTF-8',
+        },
       },
       isRawResponse: true,
       callback,

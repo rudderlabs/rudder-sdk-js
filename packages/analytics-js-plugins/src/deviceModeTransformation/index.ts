@@ -59,6 +59,11 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
               method: 'POST',
               body: getDMTDeliveryPayload(payload) as string,
               sendRawData: true,
+              headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json;charset=UTF-8',
+              },
+              useAuth: true,
             },
             isRawResponse: true,
             timeout: REQUEST_TIMEOUT_MS,

@@ -1800,6 +1800,11 @@ describe('User session manager', () => {
             }),
             sendRawData: true,
             withCredentials: true,
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json;charset=UTF-8',
+            },
+            useAuth: true,
           },
           isRawResponse: true,
           callback: expect.any(Function),

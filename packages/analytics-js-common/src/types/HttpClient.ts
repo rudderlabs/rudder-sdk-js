@@ -29,6 +29,7 @@ export interface IAsyncRequestConfig<T> {
 
 export interface IBaseRequestOptions {
   sendRawData?: boolean;
+  useAuth?: boolean;
 }
 
 export type IRequestOptions = IXHRRequestOptions | IFetchRequestOptions | IBeaconRequestOptions;

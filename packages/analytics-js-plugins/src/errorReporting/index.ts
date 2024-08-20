@@ -103,6 +103,10 @@ const ErrorReporting = (): ExtensionPlugin => ({
             method: 'POST',
             body: getErrorDeliveryPayload(bugsnagPayload, state),
             sendRawData: true,
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json;charset=UTF-8',
+            },
           },
           isRawResponse: true,
           timeout: REQUEST_TIMEOUT_MS,

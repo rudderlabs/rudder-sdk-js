@@ -99,6 +99,8 @@ describe('XhrQueue', () => {
       url: 'https://sampleurl.com/v1/track',
       headers: {
         AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
+        Accept: 'application/json',
+        'Content-Type': 'application/json;charset=UTF-8',
       },
       event: mergeDeepRight(event, { sentAt: 'sample_timestamp' }),
     });
@@ -140,6 +142,8 @@ describe('XhrQueue', () => {
         url: 'https://sampleurl.com/v1/track',
         headers: {
           AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
+          Accept: 'application/json',
+          'Content-Type': 'application/json;charset=UTF-8',
         },
         event: mergeDeepRight(event, { sentAt: 'sample_timestamp' }),
       },
@@ -206,6 +210,8 @@ describe('XhrQueue', () => {
           url: 'https://sampleurl.com/v1/track',
           headers: {
             AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
+            Accept: 'application/json',
+            'Content-Type': 'application/json;charset=UTF-8',
           },
           event: mergeDeepRight(event, { sentAt: 'sample_timestamp' }),
         },
@@ -289,6 +295,8 @@ describe('XhrQueue', () => {
           url: 'https://sampleurl.com/v1/track',
           headers: {
             AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
+            Accept: 'application/json',
+            'Content-Type': 'application/json;charset=UTF-8',
           },
           event: mergeDeepRight(event, { sentAt: 'sample_timestamp' }),
         },
@@ -296,6 +304,8 @@ describe('XhrQueue', () => {
           url: 'https://sampleurl.com/v1/track',
           headers: {
             AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
+            Accept: 'application/json',
+            'Content-Type': 'application/json;charset=UTF-8',
           },
           event: mergeDeepRight(event2, { sentAt: 'sample_timestamp' }),
         },
@@ -312,7 +322,10 @@ describe('XhrQueue', () => {
         method: 'POST',
         headers: {
           AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
+          Accept: 'application/json',
+          'Content-Type': 'application/json;charset=UTF-8',
         },
+        useAuth: true,
         sendRawData: true,
         body: '{"batch":[{"type":"track","event":"test","userId":"test","properties":{"test":"test"},"anonymousId":"sampleAnonId","messageId":"test","originalTimestamp":"test","sentAt":"sample_timestamp"},{"type":"track","event":"test2","userId":"test2","properties":{"test2":"test2"},"anonymousId":"sampleAnonId","messageId":"test2","originalTimestamp":"test2","sentAt":"sample_timestamp"}],"sentAt":"sample_timestamp"}',
       },

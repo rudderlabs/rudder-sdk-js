@@ -22,10 +22,6 @@ import { makeFetchRequest } from './fetch';
 import { makeBeaconRequest } from './beacon';
 
 const DEFAULT_REQUEST_OPTIONS: Partial<IRequestOptions> = {
-  headers: {
-    Accept: 'application/json',
-    'Content-Type': 'application/json;charset=UTF-8',
-  },
   timeout: DEFAULT_REQ_TIMEOUT_MS,
   method: 'GET',
 };
@@ -83,7 +79,7 @@ class HttpClient implements IHttpClient {
       finalOptions.body = payload;
     }
 
-    if ((finalOptions as IXHRRequestOptions | IFetchRequestOptions).headers) {
+    if (finalOptions.useAuth) {
       (finalOptions as IXHRRequestOptions | IFetchRequestOptions).headers = mergeDeepRight(
         {
           Authorization: this.basicAuthHeader,

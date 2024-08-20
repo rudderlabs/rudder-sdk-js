@@ -218,6 +218,7 @@ class ConfigManager implements IConfigManager {
         url: state.lifecycle.sourceConfigUrl.value as string,
         options: {
           method: 'GET',
+          useAuth: true,
         },
         callback: this.processConfig,
       });
