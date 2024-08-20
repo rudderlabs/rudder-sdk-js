@@ -2,6 +2,11 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [2.48.16](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.15...rudder-sdk-js@2.48.16) (2024-08-16)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.9.0`
 ## [2.48.15](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.14...rudder-sdk-js@2.48.15) (2024-08-02)
 
 ### Dependency Updates
