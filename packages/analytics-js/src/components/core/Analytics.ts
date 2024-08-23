@@ -88,13 +88,17 @@ class Analytics implements IAnalytics {
    * Initialize services and components or use default ones if singletons
    */
   constructor() {
+    this.httpClient = defaultHttpClient;
     this.preloadBuffer = new BufferQueue();
     this.initialized = false;
     this.errorHandler = defaultErrorHandler;
     this.logger = defaultLogger;
     this.externalSrcLoader = new ExternalSrcLoader(this.errorHandler, this.logger);
-    this.capabilitiesManager = new CapabilitiesManager(this.errorHandler, this.logger);
-    this.httpClient = defaultHttpClient;
+    this.capabilitiesManager = new CapabilitiesManager(
+      this.httpClient,
+      this.errorHandler,
+      this.logger,
+    );
   }
 
   /**
@@ -208,7 +212,11 @@ class Analytics implements IAnalytics {
    * Load browser polyfill if required
    */
   onMounted() {
-    this.capabilitiesManager.init();
+    if (state.lifecycle.writeKey.value) {
+      this.httpClient.setAuthHeader(state.lifecycle.writeKey.value);
+    }
+
+    this.capabilitiesManager.init(this.httpClient);
   }
 
   /**
@@ -245,6 +253,7 @@ class Analytics implements IAnalytics {
       this.httpClient,
     );
     this.eventRepository = new EventRepository(
+      this.httpClient,
       this.pluginsManager,
       this.storeManager,
       this.errorHandler,
@@ -262,10 +271,6 @@ class Analytics implements IAnalytics {
    * Load configuration
    */
   loadConfig() {
-    if (state.lifecycle.writeKey.value) {
-      this.httpClient.setAuthHeader(state.lifecycle.writeKey.value);
-    }
-
     this.configManager?.init();
   }
 

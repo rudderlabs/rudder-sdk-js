@@ -6,7 +6,6 @@ import {
   updateStorageStateFromLoadOptions,
   updateConsentsStateFromLoadOptions,
   updateConsentsState,
-  updateDataPlaneEventsStateFromLoadOptions,
   getSourceConfigURL,
 } from '../../../src/components/configManager/util/commonUtil';
 import {
@@ -594,51 +593,6 @@ describe('Config Manager Common Utilities', () => {
       updateConsentsState(mockSourceConfig);
 
       expect(state.consents.resolutionStrategy.value).toBe('and'); // default value
-    });
-  });
-
-  describe('updateDataPlaneEventsStateFromLoadOptions', () => {
-    beforeEach(() => {
-      resetState();
-    });
-
-    it('should not set the events queue plugin name if events delivery is disabled', () => {
-      state.dataPlaneEvents.deliveryEnabled.value = false;
-
-      updateDataPlaneEventsStateFromLoadOptions(mockLogger);
-
-      expect(state.dataPlaneEvents.eventsQueuePluginName.value).toBeUndefined();
-    });
-
-    it('should set the events queue plugin name to FetchQueue by default', () => {
-      updateDataPlaneEventsStateFromLoadOptions(mockLogger);
-
-      expect(state.dataPlaneEvents.eventsQueuePluginName.value).toMatch('FetchQueue');
-    });
-
-    it('should set the events queue plugin name to BeaconQueue if beacon transport is selected', () => {
-      state.loadOptions.value.useBeacon = true;
-
-      // Force set the beacon availability
-      state.capabilities.isBeaconAvailable.value = true;
-
-      updateDataPlaneEventsStateFromLoadOptions(mockLogger);
-
-      expect(state.dataPlaneEvents.eventsQueuePluginName.value).toMatch('BeaconQueue');
-    });
-
-    it('should set the events queue plugin name to FetchQueue if beacon transport is selected but not available', () => {
-      state.loadOptions.value.useBeacon = true;
-
-      // Force set the beacon availability to false
-      state.capabilities.isBeaconAvailable.value = false;
-
-      updateDataPlaneEventsStateFromLoadOptions(mockLogger);
-
-      expect(state.dataPlaneEvents.eventsQueuePluginName.value).toMatch('FetchQueue');
-      expect(mockLogger.warn).toHaveBeenCalledWith(
-        'ConfigManager:: The Beacon API is not supported by your browser. The events will be sent using XHR instead.',
-      );
     });
   });
 

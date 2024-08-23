@@ -10,6 +10,11 @@ import type { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptio
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
+import type {
+  IQueue,
+  QueueItemData,
+  DoneCallback,
+} from '@rudderstack/analytics-js-common/utilities/retryQueue/types';
 import { storages, http, timestamp, string, eventsDelivery } from '../shared-chunks/common';
 import {
   getNormalizedQueueOptions,
@@ -18,10 +23,9 @@ import {
   getRequestInfo,
   getBatchDeliveryPayload,
 } from './utilities';
-import type { DoneCallback, IQueue, QueueItemData } from '../types/plugins';
-import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import { QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
 import type { XHRRetryQueueItemData, XHRQueueItemData } from './types';
+import { RetryQueue } from '../shared-chunks/retryQueue';
 
 const pluginName: PluginName = 'XhrQueue';
 

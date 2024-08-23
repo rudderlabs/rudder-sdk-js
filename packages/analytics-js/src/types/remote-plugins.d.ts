@@ -13,4 +13,3 @@ declare module 'rudderAnalyticsRemotePlugins/StorageEncryption';
 declare module 'rudderAnalyticsRemotePlugins/StorageEncryptionLegacy';
 declare module 'rudderAnalyticsRemotePlugins/StorageMigrator';
 declare module 'rudderAnalyticsRemotePlugins/XhrQueue';
-declare module 'rudderAnalyticsRemotePlugins/FetchQueue';

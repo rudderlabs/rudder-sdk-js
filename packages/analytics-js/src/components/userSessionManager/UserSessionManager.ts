@@ -341,9 +341,8 @@ class UserSessionManager implements IUserSessionManager {
         }) as string,
         useAuth: true,
         sendRawData: true,
-        withCredentials: true,
+        credentials: 'include',
         headers: {
-          Accept: 'application/json',
           'Content-Type': 'application/json;charset=UTF-8',
         },
       },
@@ -364,7 +363,7 @@ class UserSessionManager implements IUserSessionManager {
       if (encryptedCookieData.length > 0) {
         // make request to data service to set the cookie from server side
         this.makeRequestToSetCookie(encryptedCookieData, (res, details) => {
-          if (details?.response?.status === 200) {
+          if (details.response?.status === 200) {
             cookiesData.forEach(cData => {
               const cookieValue = store?.get(cData.name);
               const before = stringifyWithoutCircular(cData.value, false, []);

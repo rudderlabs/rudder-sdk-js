@@ -1,9 +1,8 @@
-import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { HttpClient } from '../../../services/HttpClient/HttpClient';
+import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { state } from '../../../state';
 
-const detectAdBlockers = (errorHandler?: IErrorHandler, logger?: ILogger): void => {
+const detectAdBlockers = (httpClient: IHttpClient): void => {
   // Apparently, '?view=ad' is a query param that is blocked by majority of adblockers
 
   // Use source config URL here as it is very unlikely to be blocked by adblockers
@@ -12,9 +11,6 @@ const detectAdBlockers = (errorHandler?: IErrorHandler, logger?: ILogger): void 
   // The edge case where this doesn't work is when HEAD method is not allowed by the server (user's)
   const baseUrl = new URL(state.lifecycle.sourceConfigUrl.value as string);
   const url = `${baseUrl.origin}${baseUrl.pathname}?view=ad`;
-
-  const httpClient = new HttpClient('fetch', logger);
-  httpClient.setAuthHeader(state.lifecycle.writeKey.value as string);
 
   httpClient.request({
     url,
@@ -28,7 +24,7 @@ const detectAdBlockers = (errorHandler?: IErrorHandler, logger?: ILogger): void 
       // not ad blocked if the request is successful or it is not internally redirected on the client side
       // Often adblockers instead of blocking the request, they redirect it to an internal URL
       state.capabilities.isAdBlocked.value =
-        details?.error !== undefined || details.response?.redirected === true;
+        isDefined(details.error) || details.response?.redirected === true;
     },
   });
 };

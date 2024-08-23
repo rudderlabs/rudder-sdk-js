@@ -14,12 +14,15 @@ import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpCli
 import { MEMORY_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { isErrRetryable } from '@rudderstack/analytics-js-common/utilities/http';
+import type {
+  DoneCallback,
+  IQueue,
+} from '@rudderstack/analytics-js-common/utilities/retryQueue/types';
 import { createPayload, sendTransformedEventToDestinations } from './utilities';
 import { getDMTDeliveryPayload } from '../utilities/eventsDelivery';
 import { DEFAULT_TRANSFORMATION_QUEUE_OPTIONS, QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
-import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
-import type { DoneCallback, IQueue } from '../types/plugins';
-import type { TransformationQueueItemData } from './types';
+import type { TransformationQueueItemData, TransformationResponsePayload } from './types';
+import { RetryQueue } from '../shared-chunks/retryQueue';
 
 const pluginName: PluginName = 'DeviceModeTransformation';
 
@@ -53,7 +56,7 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
         ) => {
           const payload = createPayload(item.event, item.destinationIds, item.token);
 
-          httpClient.request({
+          httpClient.request<TransformationResponsePayload>({
             url: `${state.lifecycle.activeDataplaneUrl.value}/transform`,
             options: {
               method: 'POST',
@@ -65,7 +68,6 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
               },
               useAuth: true,
             },
-            isRawResponse: true,
             timeout: REQUEST_TIMEOUT_MS,
             callback: (result, details) => {
               // null means item will not be requeued
@@ -77,7 +79,7 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
                   pluginsManager,
                   item.destinationIds,
                   result,
-                  details.error?.status ?? details.response?.status,
+                  details,
                   item.event,
                   errorHandler,
                   logger,

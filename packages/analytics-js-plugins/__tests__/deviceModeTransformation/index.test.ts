@@ -46,7 +46,7 @@ describe('Device mode transformation plugin', () => {
     });
   });
 
-  const httpClient = new HttpClient('fetch');
+  const httpClient = new HttpClient(defaultLogger);
 
   afterAll(() => {
     server.close();
@@ -230,7 +230,9 @@ describe('Device mode transformation plugin', () => {
       defaultPluginsManager,
       destinationIds,
       JSON.stringify(dmtSuccessResponse),
-      200,
+      {
+        response: { status: 200 } as Response,
+      },
       event,
       defaultErrorHandler,
       defaultLogger,

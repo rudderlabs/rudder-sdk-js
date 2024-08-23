@@ -13,7 +13,6 @@ import { StorageEncryption } from '@rudderstack/analytics-js-plugins/storageEncr
 import { StorageEncryptionLegacy } from '@rudderstack/analytics-js-plugins/storageEncryptionLegacy';
 import { StorageMigrator } from '@rudderstack/analytics-js-plugins/storageMigrator';
 import { XhrQueue } from '@rudderstack/analytics-js-plugins/xhrQueue';
-import { FetchQueue } from '@rudderstack/analytics-js-plugins/fetchQueue';
 import type { PluginMap } from './types';
 
 /**
@@ -35,7 +34,6 @@ const getBundledBuildPluginImports = (): PluginMap => ({
   StorageEncryptionLegacy,
   StorageMigrator,
   XhrQueue,
-  FetchQueue,
 });
 
 export { getBundledBuildPluginImports };

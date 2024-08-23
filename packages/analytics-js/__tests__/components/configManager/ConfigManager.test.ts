@@ -211,13 +211,6 @@ describe('ConfigManager', () => {
     expect(state.lifecycle.status.value).toBe('browserCapabilitiesReady');
   });
 
-  it('should not call the onError method of errorHandler for correct sourceConfig response in string format', () => {
-    state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
-    configManagerInstance.processConfig(JSON.stringify(dummySourceConfigResponse));
-
-    expect(defaultErrorHandler.onError).not.toHaveBeenCalled();
-  });
-
   it('should call the onError method of errorHandler for wrong sourceConfig response in string format', () => {
     state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
     configManagerInstance.processConfig(JSON.stringify({ key: 'value' }));

@@ -3,9 +3,10 @@ import type { Nullable } from './Nullable';
 import type { PluginName } from './PluginsManager';
 import type { IntegrationOpts } from './Integration';
 import type { ApiOptions } from './EventApi';
-import type { ConsentManagementOptions } from './Consent';
-import type { ApiObject } from './ApiObject';
+import type { ConsentManagementMetadata, ConsentManagementOptions } from './Consent';
 import type { StorageOpts, CookieSameSite } from './Storage';
+import type { DestinationConfig } from './Destination';
+import type { StatsCollection } from './Source';
 
 export type UaChTrackLevel = 'none' | 'default' | 'full';
 
@@ -45,8 +46,6 @@ export type BeaconQueueOpts = {
   // Time in milliseconds to flush the queue automatically
   flushQueueInterval?: number;
 };
-
-export type TransportType = 'fetch' | 'xhr' | 'beacon';
 
 export type BatchOpts = {
   // Whether to enable batching
@@ -108,6 +107,64 @@ export type PreConsentOptions = {
   events?: PreConsentEventsOptions;
 };
 
+export type DestinationDefinition = {
+  name: string;
+  displayName: string;
+};
+
+export type ConfigResponseDestinationItem = {
+  shouldApplyDeviceModeTransformation: boolean;
+  propagateEventsUntransformedOnError: boolean;
+  config: DestinationConfig;
+  updatedAt: string;
+  destinationDefinitionId: string;
+  destinationDefinition: DestinationDefinition;
+  enabled: boolean;
+  id: string;
+  name: string;
+};
+
+export type Connection = {
+  createdAt: string;
+  deleted: boolean;
+  destinationId: string;
+  enabled: boolean;
+  id: string;
+  sourceId: string;
+  updatedAt: string;
+};
+
+export type SourceDefinition = {
+  category: Nullable<any>;
+  config: Nullable<any>;
+  configSchema: Nullable<any>;
+  createdAt: string;
+  displayName: string;
+  id: string;
+  name: string;
+  options: Nullable<any>;
+  uiConfig: Nullable<any>;
+  updatedAt: string;
+};
+
+export type SourceConfigResponse = {
+  consentManagementMetadata?: ConsentManagementMetadata;
+  updatedAt: string;
+  source: {
+    destinations: ConfigResponseDestinationItem[];
+    updatedAt: string;
+    workspaceId: string;
+    writeKey: string;
+    enabled: boolean;
+    dataplanes: object;
+    id: string;
+    name: string;
+    config: {
+      statsCollection: StatsCollection;
+    };
+  };
+};
+
 /**
  * Represents the options parameter in the load API
  */
@@ -132,8 +189,7 @@ export type LoadOptions = {
   polyfillIfRequired?: boolean; // defaults to true. Controls whether the SDK should polyfill unsupported browser API's if they are detected as missing
   onLoaded?: OnLoadedCallback;
   uaChTrackLevel?: UaChTrackLevel;
-  // TODO: define type for sourceConfig once the trimmed response is implemented
-  getSourceConfig?: () => string | ApiObject | Promise<ApiObject> | Promise<string>;
+  getSourceConfig?: () => SourceConfigResponse | Promise<SourceConfigResponse>;
   sendAdblockPage?: boolean;
   sendAdblockPageOptions?: ApiOptions;
   plugins?: Nullable<PluginName[]>;
@@ -143,9 +199,6 @@ export type LoadOptions = {
   dataPlaneEventsBufferTimeout?: number;
   storage?: StorageOpts;
   preConsent?: PreConsentOptions;
-  // transport mechanism to be used for sending events
-  // This will deprecate the useBeacon and beaconQueueOptions
-  deliveryMethod?: TransportType;
   consentManagement?: ConsentManagementOptions;
   sameDomainCookiesOnly?: boolean;
   externalAnonymousIdCookieName?: string;

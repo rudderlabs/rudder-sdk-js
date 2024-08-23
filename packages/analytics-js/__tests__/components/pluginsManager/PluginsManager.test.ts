@@ -39,27 +39,6 @@ describe('PluginsManager', () => {
       );
     });
 
-    it('should not filter the data plane queue plugin if it is automatically configured', () => {
-      state.dataPlaneEvents.eventsQueuePluginName.value = 'XhrQueue';
-
-      expect(pluginsManager.getPluginsToLoadBasedOnConfig().sort()).toEqual(
-        ['XhrQueue', 'ExternalAnonymousId', 'GoogleLinker'].sort(),
-      );
-    });
-
-    it('should add the data plane queue plugin if it is not configured through the plugins input', () => {
-      state.plugins.pluginsToLoadFromConfig.value = [];
-      state.dataPlaneEvents.eventsQueuePluginName.value = 'XhrQueue';
-
-      expect(pluginsManager.getPluginsToLoadBasedOnConfig()).toEqual(['XhrQueue']);
-
-      // Expect a warning for user not explicitly configuring it
-      expect(defaultLogger.warn).toHaveBeenCalledTimes(1);
-      expect(defaultLogger.warn).toHaveBeenCalledWith(
-        "PluginsManager:: Data plane events delivery is enabled, but 'XhrQueue' plugin was not configured to load. So, the plugin will be loaded automatically.",
-      );
-    });
-
     it('should not filter the error reporting plugins if it is configured to load by default', () => {
       state.reporting.isErrorReportingEnabled.value = true;
 

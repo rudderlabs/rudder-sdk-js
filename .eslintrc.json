@@ -32,7 +32,8 @@
       "Set",
       "atob",
       "AbortController",
-      "fetch"
+      "fetch",
+      "Response"
     ]
   },
   "env": {

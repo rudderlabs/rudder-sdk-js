@@ -4,7 +4,6 @@ import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsM
  * Plugins to be loaded in the plugins loadOption is not defined
  */
 const defaultOptionalPluginsList: PluginName[] = [
-  'BeaconQueue',
   'Bugsnag',
   'CustomConsentManager',
   'DeviceModeDestinations',
@@ -18,8 +17,6 @@ const defaultOptionalPluginsList: PluginName[] = [
   'StorageEncryption',
   'StorageEncryptionLegacy',
   'StorageMigrator',
-  'XhrQueue',
-  'FetchQueue',
 ];
 
 export { defaultOptionalPluginsList };

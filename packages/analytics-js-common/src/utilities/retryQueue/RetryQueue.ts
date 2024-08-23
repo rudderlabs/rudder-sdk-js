@@ -1,28 +1,26 @@
-import { isObjectLiteralAndNotNull } from '@rudderstack/analytics-js-common/utilities/object';
-import { QueueStatuses } from '@rudderstack/analytics-js-common/constants/QueueStatuses';
-import type { IStore, IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
-import type { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
-import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import type { BatchOpts, QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import {
-  isDefined,
-  isFunction,
-  isNullOrUndefined,
-} from '@rudderstack/analytics-js-common/utilities/checks';
-import { LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
-import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
-import { onPageLeave } from '@rudderstack/analytics-js-common/utilities/page';
-import type {
-  IQueue,
-  QueueItem,
-  QueueItemData,
-  QueueBatchItemsSizeCalculatorCallback,
-  QueueProcessCallback,
-} from '../../types/plugins';
+import { isObjectLiteralAndNotNull } from '../object';
+import { QueueStatuses } from '../../constants/QueueStatuses';
+import type { IStore, IStoreManager } from '../../types/Store';
+import type { StorageType } from '../../types/Storage';
+import type { Nullable } from '../../types/Nullable';
+import type { ILogger } from '../../types/Logger';
+import type { BatchOpts, QueueOpts } from '../../types/LoadOptions';
+import { isDefined, isFunction, isNullOrUndefined } from '../checks';
+import { LOCAL_STORAGE } from '../../constants/storages';
+import { generateUUID } from '../uuId';
+import { onPageLeave } from '../page';
 import { Schedule, ScheduleModes } from './Schedule';
 import { RETRY_QUEUE_ENTRY_REMOVE_ERROR, RETRY_QUEUE_PROCESS_ERROR } from './logMessages';
-import type { QueueTimeouts, QueueBackoff, InProgressQueueItem } from './types';
+import type {
+  QueueTimeouts,
+  QueueBackoff,
+  InProgressQueueItem,
+  IQueue,
+  QueueBatchItemsSizeCalculatorCallback,
+  QueueItem,
+  QueueItemData,
+  QueueProcessCallback,
+} from './types';
 import {
   DEFAULT_MAX_ITEMS,
   DEFAULT_MAX_RETRY_ATTEMPTS,

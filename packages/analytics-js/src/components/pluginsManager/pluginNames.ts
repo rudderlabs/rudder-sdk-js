@@ -24,7 +24,6 @@ const pluginNamesList: PluginName[] = [
   'StorageEncryptionLegacy',
   'StorageMigrator',
   'XhrQueue',
-  'FetchQueue',
 ];
 
 const deprecatedPluginsList = ['Bugsnag'];

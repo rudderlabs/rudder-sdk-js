@@ -124,10 +124,6 @@ const getExternalsConfig = () => {
     if (!bundledPluginsList.includes('StorageMigrator')) {
       externalGlobalsConfig['@rudderstack/analytics-js-plugins/storageMigrator'] = '{}';
     }
-
-    if (!bundledPluginsList.includes('FetchQueue')) {
-      externalGlobalsConfig['@rudderstack/analytics-js-plugins/fetchQueue'] = '{}';
-    }
     
     if (!bundledPluginsList.includes('XhrQueue')) {
       externalGlobalsConfig['@rudderstack/analytics-js-plugins/xhrQueue'] = '{}';

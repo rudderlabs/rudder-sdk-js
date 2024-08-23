@@ -5,6 +5,7 @@ import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
 import { CapabilitiesManager } from '../../../src/components/capabilitiesManager';
 import { state, resetState } from '../../../src/state';
 import { POLYFILL_URL } from '../../../src/components/capabilitiesManager/polyfill';
+import { defaultHttpClient } from '../../../src/services/HttpClient/HttpClient';
 
 // mock isLegacyJSEngine function
 jest.mock('../../../src/components/capabilitiesManager/detection', () => {
@@ -39,7 +40,11 @@ describe('CapabilitiesManager', () => {
 
   describe('prepareBrowserCapabilities', () => {
     beforeEach(() => {
-      capabilitiesManager = new CapabilitiesManager(defaultErrorHandler, mockLogger);
+      capabilitiesManager = new CapabilitiesManager(
+        defaultHttpClient,
+        defaultErrorHandler,
+        mockLogger,
+      );
     });
 
     afterEach(() => {

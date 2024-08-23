@@ -107,13 +107,6 @@ class PluginsManager implements IPluginsManager {
 
     const pluginGroupsToProcess: PluginsGroup[] = [
       {
-        configurationStatus: () => isDefined(state.dataPlaneEvents.eventsQueuePluginName.value),
-        configurationStatusStr: 'Data plane events delivery is enabled',
-        activePluginName: state.dataPlaneEvents.eventsQueuePluginName.value,
-        supportedPlugins: Object.values(DataPlaneEventsTransportToPluginNameMap),
-        shouldAddMissingPlugins: true,
-      },
-      {
         configurationStatus: () => state.reporting.isErrorReportingEnabled.value,
         configurationStatusStr: 'Error reporting is enabled',
         supportedPlugins: ['ErrorReporting', 'Bugsnag'] as PluginName[], // TODO: Remove deprecated plugin- Bugsnag

@@ -12,6 +12,7 @@ import { CAPABILITIES_MANAGER } from '@rudderstack/analytics-js-common/constants
 import { getTimezone } from '@rudderstack/analytics-js-common/utilities/timezone';
 import { isValidURL } from '@rudderstack/analytics-js-common/utilities/url';
 import { isDefinedAndNotNull } from '@rudderstack/analytics-js-common/utilities/checks';
+import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import {
   INVALID_POLYFILL_URL_WARNING,
   POLYFILL_SCRIPT_LOAD_ERROR,
@@ -39,11 +40,13 @@ class CapabilitiesManager implements ICapabilitiesManager {
   logger?: ILogger;
   errorHandler?: IErrorHandler;
   externalSrcLoader: IExternalSrcLoader;
+  httpClient: IHttpClient;
 
-  constructor(errorHandler?: IErrorHandler, logger?: ILogger) {
+  constructor(httpClient: IHttpClient, errorHandler?: IErrorHandler, logger?: ILogger) {
     this.logger = logger;
     this.errorHandler = errorHandler;
     this.externalSrcLoader = new ExternalSrcLoader(this.errorHandler, this.logger);
+    this.httpClient = httpClient;
     this.onError = this.onError.bind(this);
     this.onReady = this.onReady.bind(this);
   }
@@ -106,7 +109,7 @@ class CapabilitiesManager implements ICapabilitiesManager {
         state.loadOptions.value.sendAdblockPage === true &&
         state.lifecycle.sourceConfigUrl.value !== undefined
       ) {
-        detectAdBlockers(this.errorHandler, this.logger);
+        detectAdBlockers(this.httpClient);
       }
     });
   }

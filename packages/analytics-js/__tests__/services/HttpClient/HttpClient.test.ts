@@ -38,7 +38,7 @@ describe('HttpClient', () => {
   });
 
   beforeEach(() => {
-    clientInstance = new HttpClient('fetch', defaultLogger);
+    clientInstance = new HttpClient(defaultLogger);
   });
 
   afterEach(() => {
@@ -111,7 +111,9 @@ describe('HttpClient', () => {
   it('should handle 400 range errors in request requests', done => {
     const callback = (response: any, details: IResponseDetails) => {
       const errResult = new HttpClientError(
-        'The request failed with status 404: Not Found (), for URL: https://dummy.dataplane.host.com/404ErrorSample.',
+        'The request failed with status 404 (Not Found) for URL: https://dummy.dataplane.host.com/404ErrorSample.',
+        404,
+        'Not Found',
       );
       expect(details.error).toEqual(errResult);
       done();
@@ -124,8 +126,10 @@ describe('HttpClient', () => {
 
   it('should handle 500 range errors in request requests', done => {
     const callback = (response: any, details: IResponseDetails) => {
-      const errResult = new Error(
-        'The request failed with status 500: Internal Server Error (), for URL: https://dummy.dataplane.host.com/500ErrorSample.',
+      const errResult = new HttpClientError(
+        'The request failed with status 500 (Internal Server Error) for URL: https://dummy.dataplane.host.com/500ErrorSample.',
+        500,
+        'Internal Server Error',
       );
       expect(details.error).toEqual(errResult);
       done();

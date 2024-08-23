@@ -80,8 +80,7 @@ const DELIVERY_ERROR = (
   status: number,
   statusText: string,
   url: string | URL,
-  e?: ProgressEvent | undefined,
-): string => `${prefix} with status ${status}: ${statusText} (${e?.type ?? ''}), for URL: ${url}.`;
+): string => `${prefix} with status ${status} (${statusText}) for URL: ${url}.`;
 
 const REQUEST_ERROR = (
   prefix: string,
@@ -89,7 +88,7 @@ const REQUEST_ERROR = (
   timeout: number,
   e?: ProgressEvent | undefined,
 ): string =>
-  `${prefix} due to timeout after ${timeout}ms or no connection (${e?.type ?? ''}) for URL: ${url}.`;
+  `${prefix} due to timeout after ${timeout}ms or no connection (${e?.type ?? ''}) or aborted for URL: ${url}.`;
 
 const XHR_SEND_ERROR = (prefix: string, url: string | URL): string => `${prefix} for URL: ${url}`;
 
@@ -209,7 +208,6 @@ const READY_CALLBACK_INVOKE_ERROR = `Failed to invoke the ready callback`;
 
 const API_CALLBACK_INVOKE_ERROR = `API Callback Invocation Failed`;
 const NATIVE_DEST_PLUGIN_INITIALIZE_ERROR = `NativeDestinationQueuePlugin initialization failed`;
-const DATAPLANE_PLUGIN_INITIALIZE_ERROR = `XhrQueuePlugin initialization failed`;
 const DMT_PLUGIN_INITIALIZE_ERROR = `DeviceModeTransformationPlugin initialization failed`;
 
 const NATIVE_DEST_PLUGIN_ENQUEUE_ERROR = `NativeDestinationQueuePlugin event enqueue failed`;
@@ -312,7 +310,6 @@ export {
   UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
   SOURCE_CONFIG_RESOLUTION_ERROR,
   NATIVE_DEST_PLUGIN_INITIALIZE_ERROR,
-  DATAPLANE_PLUGIN_INITIALIZE_ERROR,
   DMT_PLUGIN_INITIALIZE_ERROR,
   NATIVE_DEST_PLUGIN_ENQUEUE_ERROR,
   DATAPLANE_PLUGIN_ENQUEUE_ERROR,

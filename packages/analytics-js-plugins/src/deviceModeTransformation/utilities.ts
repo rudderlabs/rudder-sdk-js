@@ -6,6 +6,11 @@ import type { ApplicationState } from '@rudderstack/analytics-js-common/types/Ap
 import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { isDefinedAndNotNull } from '@rudderstack/analytics-js-common/utilities/checks';
+import type {
+  IHttpClientError,
+  IResponseDetails,
+} from '@rudderstack/analytics-js-common/types/HttpClient';
 import type {
   TransformationRequestPayload,
   TransformationResponsePayload,
@@ -51,8 +56,8 @@ const sendTransformedEventToDestinations = (
   state: ApplicationState,
   pluginsManager: IPluginsManager,
   destinationIds: string[],
-  result: any,
-  status: number | undefined,
+  response: TransformationResponsePayload | undefined | null,
+  details: IResponseDetails,
   event: RudderEvent,
   errorHandler?: IErrorHandler,
   logger?: ILogger,
@@ -64,49 +69,53 @@ const sendTransformedEventToDestinations = (
     d => d && destinationIds.includes(d.id),
   );
 
+  const status = details.error?.status ?? details.response?.status;
+
   destinations.forEach(dest => {
     try {
       const eventsToSend: TransformedEvent[] = [];
       switch (status) {
         case 200: {
-          const response: TransformationResponsePayload = JSON.parse(result);
-          const destTransformedResult = response.transformedBatch.find(
-            (e: TransformedBatch) => e.id === dest.id,
-          );
-          destTransformedResult?.payload.forEach((tEvent: TransformedPayload) => {
-            if (tEvent.status === '200') {
-              eventsToSend.push(tEvent.event);
-            } else {
-              let reason = 'Unknown';
-              if (tEvent.status === '410') {
-                reason = 'Transformation is not available';
-              }
-
-              let action = ACTION_TO_DROP_EVENT;
-              if (dest.propagateEventsUntransformedOnError === true) {
-                action = ACTION_TO_SEND_UNTRANSFORMED_EVENT;
-                eventsToSend.push(event);
-                logger?.warn(
-                  DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR(
-                    DMT_PLUGIN,
-                    dest.displayName,
-                    reason,
-                    action,
-                  ),
-                );
+          if (isDefinedAndNotNull(response)) {
+            const destTransformedResult = response?.transformedBatch.find(
+              (e: TransformedBatch) => e.id === dest.id,
+            );
+            destTransformedResult?.payload.forEach((tEvent: TransformedPayload) => {
+              if (tEvent.status === '200') {
+                eventsToSend.push(tEvent.event);
               } else {
-                logger?.error(
-                  DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR(
-                    DMT_PLUGIN,
-                    dest.displayName,
-                    reason,
-                    action,
-                  ),
-                );
-              }
-            }
-          });
+                let reason = 'Unknown';
+                if (tEvent.status === '410') {
+                  reason = 'Transformation is not available';
+                }
 
+                let action = ACTION_TO_DROP_EVENT;
+                if (dest.propagateEventsUntransformedOnError === true) {
+                  action = ACTION_TO_SEND_UNTRANSFORMED_EVENT;
+                  eventsToSend.push(event);
+                  logger?.warn(
+                    DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR(
+                      DMT_PLUGIN,
+                      dest.displayName,
+                      reason,
+                      action,
+                    ),
+                  );
+                } else {
+                  logger?.error(
+                    DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR(
+                      DMT_PLUGIN,
+                      dest.displayName,
+                      reason,
+                      action,
+                    ),
+                  );
+                }
+              }
+            });
+          } else {
+            throw details.error as IHttpClientError;
+          }
           break;
         }
         // Transformation server access denied

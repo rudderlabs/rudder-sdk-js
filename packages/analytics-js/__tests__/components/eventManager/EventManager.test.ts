@@ -5,6 +5,7 @@ import { UserSessionManager } from '@rudderstack/analytics-js/components/userSes
 import { PluginEngine } from '@rudderstack/analytics-js/services/PluginEngine/PluginEngine';
 import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager/StoreManager';
 import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/PluginsManager';
+import { defaultHttpClient } from '../../../src/services/HttpClient/HttpClient';
 
 describe('EventManager', () => {
   class MockErrorHandler implements IErrorHandler {
@@ -18,7 +19,12 @@ describe('EventManager', () => {
   const pluginEngine = new PluginEngine();
   const pluginsManager = new PluginsManager(pluginEngine, mockErrorHandler);
   const storeManager = new StoreManager(pluginsManager, mockErrorHandler);
-  const eventRepository = new EventRepository(pluginsManager, storeManager, mockErrorHandler);
+  const eventRepository = new EventRepository(
+    defaultHttpClient,
+    pluginsManager,
+    storeManager,
+    mockErrorHandler,
+  );
   const userSessionManager = new UserSessionManager();
   const eventManager = new EventManager(eventRepository, userSessionManager, mockErrorHandler);
 

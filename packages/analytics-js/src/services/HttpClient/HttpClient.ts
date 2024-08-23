@@ -1,15 +1,12 @@
-import { isFunction, isNull } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isDefined, isFunction, isNull } from '@rudderstack/analytics-js-common/utilities/checks';
 import type {
   IAsyncRequestConfig,
-  IFetchRequestOptions,
   IHttpClient,
   IHttpClientError,
   IRequestOptions,
-  IXHRRequestOptions,
 } from '@rudderstack/analytics-js-common/types/HttpClient';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { toBase64 } from '@rudderstack/analytics-js-common/utilities/string';
-import type { TransportType } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import { clone } from 'ramda';
@@ -17,16 +14,12 @@ import { DEFAULT_REQ_TIMEOUT_MS } from '../../constants/timeouts';
 import { PAYLOAD_PREP_ERROR } from '../../constants/logMessages';
 import { defaultLogger } from '../Logger';
 import { HttpClientError } from './utils';
-import { makeXHRRequest } from './xhr';
 import { makeFetchRequest } from './fetch';
-import { makeBeaconRequest } from './beacon';
 
 const DEFAULT_REQUEST_OPTIONS: Partial<IRequestOptions> = {
   timeout: DEFAULT_REQ_TIMEOUT_MS,
   method: 'GET',
 };
-
-// TODO: should we add any debug level loggers?
 
 /**
  * Service to handle data communication with APIs
@@ -34,21 +27,8 @@ const DEFAULT_REQUEST_OPTIONS: Partial<IRequestOptions> = {
 class HttpClient implements IHttpClient {
   logger?: ILogger;
   basicAuthHeader?: string;
-  transportFn: (url: string | URL, options: any) => Promise<Response>;
 
-  constructor(transportType: TransportType, logger?: ILogger) {
-    switch (transportType) {
-      case 'xhr':
-        this.transportFn = makeXHRRequest;
-        break;
-      case 'beacon':
-        this.transportFn = makeBeaconRequest;
-        break;
-      case 'fetch':
-      default:
-        this.transportFn = makeFetchRequest;
-        break;
-    }
+  constructor(logger?: ILogger) {
     this.logger = logger;
   }
 
@@ -61,14 +41,14 @@ class HttpClient implements IHttpClient {
 
     const finalOptions = mergeDeepRight(DEFAULT_REQUEST_OPTIONS, options || {}) as IRequestOptions;
 
-    if (finalOptions.body && !finalOptions.sendRawData) {
+    if (!finalOptions.sendRawData && isDefined(finalOptions.body)) {
       const payload = stringifyWithoutCircular(finalOptions.body, false, [], this.logger);
       // return and don't process further if the payload could not be stringified
       if (isNull(payload)) {
-        const err = new HttpClientError(PAYLOAD_PREP_ERROR);
         if (!isFireAndForget) {
-          callback(err.responseBody, {
-            error: err,
+          const error = new HttpClientError(PAYLOAD_PREP_ERROR);
+          callback(undefined, {
+            error,
             url,
             options: finalOptions,
           });
@@ -79,16 +59,16 @@ class HttpClient implements IHttpClient {
       finalOptions.body = payload;
     }
 
-    if (finalOptions.useAuth) {
-      (finalOptions as IXHRRequestOptions | IFetchRequestOptions).headers = mergeDeepRight(
+    if (finalOptions.useAuth && this.basicAuthHeader) {
+      finalOptions.headers = mergeDeepRight(
         {
           Authorization: this.basicAuthHeader,
         },
-        (finalOptions as IXHRRequestOptions | IFetchRequestOptions).headers ?? {},
+        finalOptions.headers ?? {},
       );
     }
 
-    this.transportFn(url, finalOptions)
+    makeFetchRequest(url, finalOptions)
       .then((response: Response) => {
         if (!isFireAndForget) {
           const finalDataPromise = isRawResponse ? response.text() : response.json();
@@ -101,11 +81,14 @@ class HttpClient implements IHttpClient {
               });
             })
             .catch((err: Error) => {
-              const finalError = clone(err);
-              finalError.message = `Failed to parse response data: ${err.message}`;
+              const error: IHttpClientError = clone(err);
+              error.message = `Failed to parse response data: ${err.message}`;
+              error.status = response.status;
+              error.statusText = response.statusText;
 
               callback(undefined, {
-                error: finalError,
+                response,
+                error,
                 url,
                 options: finalOptions,
               });
@@ -114,7 +97,7 @@ class HttpClient implements IHttpClient {
       })
       .catch((error: IHttpClientError) => {
         if (!isFireAndForget) {
-          callback(error.responseBody, {
+          callback(undefined, {
             error,
             url,
             options: finalOptions,
@@ -123,6 +106,11 @@ class HttpClient implements IHttpClient {
       });
   }
 
+  /**
+   * Makes an async request to the given URL
+   * @param config Request configuration
+   * @deprecated Use `request` instead
+   */
   getAsyncData<T>(config: IAsyncRequestConfig<T>) {
     this.request(config);
   }
@@ -143,6 +131,6 @@ class HttpClient implements IHttpClient {
   }
 }
 
-const defaultHttpClient = new HttpClient('fetch', defaultLogger);
+const defaultHttpClient = new HttpClient(defaultLogger);
 
 export { HttpClient, defaultHttpClient };

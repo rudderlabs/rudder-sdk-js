@@ -96,7 +96,6 @@ export type MetricsState = {
 };
 
 export type DataPlaneEventsState = {
-  eventsQueuePluginName: Signal<PluginName | undefined>;
   readonly deliveryEnabled: Signal<boolean>;
 };
 

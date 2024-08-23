@@ -1799,9 +1799,8 @@ describe('User session manager', () => {
               },
             }),
             sendRawData: true,
-            withCredentials: true,
+            credentials: 'include',
             headers: {
-              Accept: 'application/json',
               'Content-Type': 'application/json;charset=UTF-8',
             },
             useAuth: true,

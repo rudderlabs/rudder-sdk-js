@@ -11,6 +11,7 @@ import {
 import { setExposedGlobal } from '../../../src/components/utilities/globals';
 import { resetState, state } from '../../../src/state';
 import { Analytics } from '../../../src/components/core/Analytics';
+import type { IEventRepository } from '../../../src/components/eventRepository/types';
 
 jest.mock('../../../src/components/utilities/globals', () => {
   const originalModule = jest.requireActual('../../../src/components/utilities/globals');
@@ -77,30 +78,30 @@ describe('Core - Analytics', () => {
 
       state.lifecycle.status.value = 'configured';
       expect(onConfiguredSpy).toHaveBeenCalledTimes(1);
-      expect(state.lifecycle.status.value).toBe('pluginsLoading');
+      expect(state.lifecycle.status.value).toBe('readyExecuted');
 
       state.lifecycle.status.value = 'pluginsLoading';
       expect(onConfiguredSpy).toHaveBeenCalledTimes(1);
       expect(state.lifecycle.status.value).toBe('pluginsLoading');
 
       state.lifecycle.status.value = 'pluginsReady';
-      expect(onPluginsReadySpy).toHaveBeenCalledTimes(1);
+      expect(onPluginsReadySpy).toHaveBeenCalledTimes(2);
       expect(state.lifecycle.status.value).toBe('readyExecuted');
 
       state.lifecycle.status.value = 'initialized';
-      expect(onInitializedSpy).toHaveBeenCalledTimes(2);
+      expect(onInitializedSpy).toHaveBeenCalledTimes(3);
       expect(state.lifecycle.status.value).toBe('readyExecuted');
 
       state.lifecycle.status.value = 'loaded';
-      expect(loadDestinationsSpy).toHaveBeenCalledTimes(3);
+      expect(loadDestinationsSpy).toHaveBeenCalledTimes(4);
       expect(state.lifecycle.status.value).toBe('readyExecuted');
 
       state.lifecycle.status.value = 'destinationsReady';
-      expect(onDestinationsReadySpy).toHaveBeenCalledTimes(4);
+      expect(onDestinationsReadySpy).toHaveBeenCalledTimes(5);
       expect(state.lifecycle.status.value).toBe('readyExecuted');
 
       state.lifecycle.status.value = 'ready';
-      expect(onReadySpy).toHaveBeenCalledTimes(5);
+      expect(onReadySpy).toHaveBeenCalledTimes(6);
       expect(state.lifecycle.status.value).toBe('readyExecuted');
     });
 
@@ -138,15 +139,13 @@ describe('Core - Analytics', () => {
   });
 
   describe('loadConfig', () => {
-    it('should set authentication request header', () => {
+    it('should initialize config manager', () => {
       analytics.prepareInternalServices();
-      const setAuthHeaderSpy = jest.spyOn(analytics.httpClient, 'setAuthHeader');
+
       const initSpy = jest.spyOn(analytics.configManager, 'init');
       state.lifecycle.writeKey.value = dummyWriteKey;
       state.lifecycle.dataPlaneUrl.value = dummyDataplaneURL;
       analytics.loadConfig();
-      expect(setAuthHeaderSpy).toHaveBeenCalledTimes(1);
-      expect(setAuthHeaderSpy).toHaveBeenCalledWith(dummyWriteKey);
       expect(initSpy).toHaveBeenCalledTimes(1);
     });
   });
@@ -478,6 +477,10 @@ describe('Core - Analytics', () => {
         'invokeSingle',
       );
       const resumeSpy = jest.spyOn(analytics.eventManager as IEventManager, 'resume');
+      const dpEventsQueueEnqueueSpy = jest.spyOn(
+        (analytics.eventRepository as IEventRepository).dataplaneEventsQueue,
+        'enqueue',
+      );
       const loadDestinationsSpy = jest.spyOn(analytics, 'loadDestinations');
       const initializeStorageStateSpy = jest.spyOn(
         analytics.storeManager as IStoreManager,
@@ -559,7 +562,8 @@ describe('Core - Analytics', () => {
       });
 
       expect(leaveBreadcrumbSpy).toHaveBeenCalledWith('New consent invocation');
-      expect(invokeSingleSpy).toHaveBeenCalledTimes(6); // 1 for consents data fetch and other for setting active destinations, 2 x 2 for queueing consent track and page events to event queue plugins
+      expect(invokeSingleSpy).toHaveBeenCalledTimes(4); // 1 for consents data fetch and other for setting active destinations, 2 for queueing consent track and page events to event queue plugins
+      expect(dpEventsQueueEnqueueSpy).toHaveBeenCalledTimes(2); // 2 for queueing consent track and page events to event queue plugins
       expect(initializeStorageStateSpy).toHaveBeenCalledTimes(1);
       expect(syncStorageDataToStateSpy).toHaveBeenCalledTimes(1);
       expect(resumeSpy).toHaveBeenCalledTimes(1);

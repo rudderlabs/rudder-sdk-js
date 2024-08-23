@@ -1,4 +1,3 @@
-import type { IErrorHandler } from './ErrorHandler';
 import type { ILogger } from './Logger';
 
 export interface IHttpClientError extends Error {
@@ -15,7 +14,7 @@ export interface IResponseDetails {
 }
 
 export type AsyncRequestCallback<T> = (
-  data: T | string | undefined | null,
+  data: T | undefined | null,
   details: IResponseDetails,
 ) => void;
 
@@ -32,7 +31,7 @@ export interface IBaseRequestOptions {
   useAuth?: boolean;
 }
 
-export type IRequestOptions = IXHRRequestOptions | IFetchRequestOptions | IBeaconRequestOptions;
+export type IRequestOptions = IFetchRequestOptions;
 
 export type HTTPClientMethod =
   | 'GET'
@@ -48,40 +47,18 @@ export type HTTPClientMethod =
 export interface IHttpClient {
   logger?: ILogger;
   basicAuthHeader?: string;
-  transportFn: (url: string | URL, options: any) => Promise<Response>;
+  /**
+   * Makes an async request to the given URL
+   * @param config Request configuration
+   * @deprecated Use `request` instead
+   */
   getAsyncData<T = any>(config: IAsyncRequestConfig<T>): void;
   request<T = any>(config: IAsyncRequestConfig<T>): void;
   setAuthHeader(value: string, noBto?: boolean): void;
   resetAuthHeader(): void;
 }
 
-export interface IXHRRequestOptions
-  extends Omit<
-      RequestInit,
-      | 'body'
-      | 'mode'
-      | 'cache'
-      | 'redirect'
-      | 'referrerPolicy'
-      | 'integrity'
-      | 'keepalive'
-      | 'method'
-    >,
-    IBaseRequestOptions {
-  withCredentials?: boolean;
-  body?: Document | XMLHttpRequestBodyInit | null;
+export interface IFetchRequestOptions extends Omit<RequestInit, 'method'>, IBaseRequestOptions {
   timeout?: number; // timeout in milliseconds
   method: HTTPClientMethod;
-}
-
-export interface IFetchRequestOptions
-  extends Omit<RequestInit, 'body' | 'method'>,
-    IBaseRequestOptions {
-  body?: BodyInit | null;
-  timeout?: number; // timeout in milliseconds
-  method: HTTPClientMethod;
-}
-
-export interface IBeaconRequestOptions extends IBaseRequestOptions {
-  body?: BodyInit | null;
 }

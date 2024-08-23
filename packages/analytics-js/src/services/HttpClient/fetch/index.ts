@@ -7,7 +7,7 @@ import { HttpClientError } from '../utils';
 const makeFetchRequest = (url: string | URL, options: IFetchRequestOptions): Promise<Response> => {
   const controller = new AbortController();
   const { signal } = controller;
-  const fetchOptions: RequestInit = { keepalive: true, signal, ...options };
+  const fetchOptions: RequestInit = { signal, ...options };
 
   const fetchPromise = (globalThis as typeof window)
     .fetch(url, fetchOptions)

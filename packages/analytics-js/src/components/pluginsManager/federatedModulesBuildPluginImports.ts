@@ -40,8 +40,6 @@ const getFederatedModuleImport = (
       return () => import('rudderAnalyticsRemotePlugins/StorageMigrator');
     case 'XhrQueue':
       return () => import('rudderAnalyticsRemotePlugins/XhrQueue');
-    case 'FetchQueue':
-      return () => import('rudderAnalyticsRemotePlugins/FetchQueue');
     default:
       return undefined;
   }

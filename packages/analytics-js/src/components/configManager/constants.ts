@@ -1,7 +1,7 @@
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 
 const DEFAULT_STORAGE_ENCRYPTION_VERSION = 'v3';
-const DEFAULT_DATA_PLANE_EVENTS_TRANSPORT = 'fetch';
+const DEFAULT_DATA_PLANE_EVENTS_TRANSPORT = 'xhr';
 
 export const ConsentManagersToPluginNameMap: Record<string, PluginName> = {
   oneTrust: 'OneTrustConsentManager',
@@ -15,8 +15,7 @@ export const StorageEncryptionVersionsToPluginNameMap: Record<string, PluginName
 };
 
 export const DataPlaneEventsTransportToPluginNameMap: Record<string, PluginName> = {
-  [DEFAULT_DATA_PLANE_EVENTS_TRANSPORT]: 'FetchQueue',
-  xhr: 'XhrQueue',
+  [DEFAULT_DATA_PLANE_EVENTS_TRANSPORT]: 'XhrQueue',
   beacon: 'BeaconQueue',
 };
 

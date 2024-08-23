@@ -12,7 +12,10 @@ import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
-import type { DoneCallback, IQueue } from '../types/plugins';
+import type {
+  DoneCallback,
+  IQueue,
+} from '@rudderstack/analytics-js-common/utilities/retryQueue/types';
 import {
   getNormalizedBeaconQueueOptions,
   getDeliveryUrl,
@@ -26,7 +29,7 @@ import {
   BEACON_QUEUE_SEND_ERROR,
   BEACON_QUEUE_DELIVERY_ERROR,
 } from './logMessages';
-import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
+import { RetryQueue } from '../shared-chunks/retryQueue';
 
 const pluginName: PluginName = 'BeaconQueue';
 
