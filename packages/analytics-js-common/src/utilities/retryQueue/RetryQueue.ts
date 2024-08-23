@@ -172,7 +172,7 @@ class RetryQueue implements IQueue<QueueItemData> {
 
   flushBatchOnPageLeave() {
     if (this.batch.enabled) {
-      onPageLeave(this.flushBatch);
+      onPageLeave(this.flushBatch, true);
     }
   }
 
@@ -237,7 +237,7 @@ class RetryQueue implements IQueue<QueueItemData> {
   /**
    * Flushes the batch queue
    */
-  flushBatch() {
+  flushBatch(pageUnloadInProgress = false) {
     if (!this.batchingInProgress) {
       this.batchingInProgress = true;
       let batchQueue =

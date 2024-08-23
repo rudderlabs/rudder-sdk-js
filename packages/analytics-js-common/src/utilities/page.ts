@@ -1,4 +1,4 @@
-const onPageLeave = (callback: (...args: unknown[]) => void) => {
+const onPageLeave = (callback: (...args: any[]) => void, ...args: any[]) => {
   // To ensure the callback is only called once even if more than one events
   // are fired at once.
   let pageLeft = false;
@@ -10,7 +10,7 @@ const onPageLeave = (callback: (...args: unknown[]) => void) => {
 
     pageLeft = true;
 
-    callback();
+    callback(...args);
   }
 
   // Catches the unloading of the page (e.g., closing the tab or navigating away).
