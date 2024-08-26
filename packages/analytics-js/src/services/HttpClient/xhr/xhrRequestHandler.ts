@@ -115,7 +115,7 @@ const xhrRequest = (
       }
     };
 
-    xhr.open(options.method, options.url);
+    xhr.open(options.method, options.url, true);
     if (options.withCredentials === true) {
       xhr.withCredentials = true;
     }
