@@ -9,6 +9,10 @@ function wait(time: number) {
   });
 }
 
+function dispatchPageHideEvent() {
+  document.dispatchEvent(new Event('pagehide'));
+}
+
 describe('Test suite for the SDK', () => {
   const fetchMock = jest.fn(() =>
     Promise.resolve({
@@ -90,6 +94,8 @@ describe('Test suite for the SDK', () => {
 
     expect(window.rudderanalytics.push).not.toBe(Array.prototype.push);
 
+    dispatchPageHideEvent();
+
     // one source config endpoint call and one implicit page call
     // Refer to above 'beforeEach'
     expect(fetchMock).toHaveBeenCalledTimes(2);
@@ -102,8 +108,10 @@ describe('Test suite for the SDK', () => {
     rudderanalytics.group('jest-group');
     rudderanalytics.alias('new-jest-user', 'jest-user');
 
-    // one source config endpoint call and above API requests
-    expect(fetchMock).toHaveBeenCalledTimes(6);
+    dispatchPageHideEvent();
+
+    // one source config endpoint call and batch call for above API requests
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   describe('getAnonymousId', () => {

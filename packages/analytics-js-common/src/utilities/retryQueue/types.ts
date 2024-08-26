@@ -52,6 +52,7 @@ export type QueueProcessCallback<T = any> = (
   retryAttemptNumber?: number,
   maxRetryAttempts?: number,
   willBeRetried?: boolean,
+  pageUnloadInProgress?: boolean,
 ) => void;
 
 export type QueueBatchItemsSizeCalculatorCallback<T = any> = (item: T) => number;

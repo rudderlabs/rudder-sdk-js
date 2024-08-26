@@ -1,13 +1,19 @@
+import type { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
+
 const QUEUE_NAME = 'rudder';
 
 const DATA_PLANE_API_VERSION = 'v1';
 
-const DEFAULT_RETRY_QUEUE_OPTIONS = {
+const DEFAULT_RETRY_QUEUE_OPTIONS: QueueOpts = {
   maxRetryDelay: 360000,
   minRetryDelay: 1000,
   backoffFactor: 2,
   maxAttempts: 10,
   maxItems: 100,
+  batch: {
+    enabled: true,
+    flushInterval: 1000, // 1 second
+  },
 };
 
 const REQUEST_TIMEOUT_MS = 30 * 1000; // 30 seconds

@@ -49,6 +49,7 @@ class DataPlaneEventsQueue implements IDataPlaneEventsQueue {
         attemptNumber?: number,
         maxRetryAttempts?: number,
         willBeRetried?: boolean,
+        pageUnloadInProgress?: boolean,
       ) => {
         const { data, url, headers } = getRequestInfo(
           itemData as EventsQueueItemData,
@@ -64,6 +65,7 @@ class DataPlaneEventsQueue implements IDataPlaneEventsQueue {
             body: data as string,
             sendRawData: true,
             useAuth: true,
+            keepalive: pageUnloadInProgress === true,
           },
           isRawResponse: true,
           timeout: REQUEST_TIMEOUT_MS,
