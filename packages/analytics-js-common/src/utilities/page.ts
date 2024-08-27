@@ -19,22 +19,22 @@ const onPageLeave = (callback: (isAccessible: boolean) => void) => {
   // refreshing the page, or closing the browser tab
   // Note that 'pagehide' is not supported in IE.
   // So, this is a fallback.
-  (globalThis as typeof window).addEventListener('beforeunload', function () {
+  (globalThis as typeof window).addEventListener('beforeunload', () => {
     isAccessible = false;
     handleOnLeave();
   });
 
-  (globalThis as typeof window).addEventListener('blur', function () {
+  (globalThis as typeof window).addEventListener('blur', () => {
     isAccessible = true;
     handleOnLeave();
   });
 
-  (globalThis as typeof window).addEventListener('focus', function () {
+  (globalThis as typeof window).addEventListener('focus', () => {
     pageLeft = false;
   });
 
   // Catches the page being hidden, including scenarios like closing the tab.
-  document.addEventListener('pagehide', function () {
+  document.addEventListener('pagehide', () => {
     isAccessible = document.visibilityState === 'hidden';
     handleOnLeave();
   });
