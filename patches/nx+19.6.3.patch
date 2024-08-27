@@ -1,8 +1,8 @@
 diff --git a/node_modules/nx/src/command-line/yargs-utils/shared-options.js b/node_modules/nx/src/command-line/yargs-utils/shared-options.js
-index 684e660..a71bed4 100644
+index 5b5cf09..251c7a5 100644
 --- a/node_modules/nx/src/command-line/yargs-utils/shared-options.js
 +++ b/node_modules/nx/src/command-line/yargs-utils/shared-options.js
-@@ -179,6 +179,10 @@ function withRunManyOptions(yargs) {
+@@ -184,6 +184,10 @@ function withRunManyOptions(yargs) {
          describe: '[deprecated] `run-many` runs all targets on all projects in the workspace if no projects are provided. This option is no longer required.',
          type: 'boolean',
          default: true,
