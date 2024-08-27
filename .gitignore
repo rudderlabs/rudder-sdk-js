@@ -85,3 +85,8 @@ tsconfig.build.tsbuildinfo
 
 .nx/cache
 .nx/workspace-data
+
+.angular/
+build/
+vendor/
+

@@ -44,17 +44,19 @@ class Sprig {
       window.Sprig('setUserId', userId);
     }
 
-    const email = get(message, 'context.traits.email');
-    if (email) {
-      window.Sprig('setEmail', email);
+    const ctxEmail = get(message, 'context.traits.email');
+    if (ctxEmail) {
+      window.Sprig('setEmail', ctxEmail);
     }
 
     const { traits } = context;
-    if (traits.email) {
-      delete traits.email;
+    const { email, ...otherTraits } = traits;
+    let finalTraits = traits;
+    if (email) {
+      finalTraits = { ...otherTraits };
     }
-    if (Object.keys(traits).length > 0) {
-      window.Sprig('setAttributes', traits);
+    if (Object.keys(finalTraits).length > 0) {
+      window.Sprig('setAttributes', finalTraits);
     }
   }
 

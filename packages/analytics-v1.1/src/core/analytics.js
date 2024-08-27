@@ -15,8 +15,8 @@
 /* eslint-disable sonarjs/cognitive-complexity */
 import Emitter from 'component-emitter';
 import * as R from 'ramda';
-import { configToIntNames } from '@rudderstack/analytics-js-common/constants/integrations/config_to_integration_names';
-import { commonNames } from '@rudderstack/analytics-js-common/constants/integrations/integration_cname';
+import { configToIntNames } from '@rudderstack/analytics-js-common/constants/integrations/configToIntgNames';
+import { commonNames } from '@rudderstack/analytics-js-common/constants/integrations/integrationsCnames';
 import { handleError } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,

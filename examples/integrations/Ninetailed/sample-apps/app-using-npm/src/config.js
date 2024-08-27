@@ -1,5 +1,5 @@
 const DATAPLANE_URL = 'http://localhost:8080';
-const WRITE_KEY = '2F4kphApmhq8LvdG4GUhYwsMH4P';
+const WRITE_KEY = 'sample_write_key';
 const CONFIG_URL = 'https://api.dev.rudderlabs.com';
 
 module.exports = {

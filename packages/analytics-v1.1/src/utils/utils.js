@@ -1,7 +1,7 @@
 import { v4 as uuid } from '@lukeed/uuid';
 import { v4 as uuidSecure } from '@lukeed/uuid/secure';
-import { commonNames } from '@rudderstack/analytics-js-common/constants/integrations/integration_cname';
-import { clientToServerNames } from '@rudderstack/analytics-js-common/constants/integrations/client_server_name';
+import { commonNames } from '@rudderstack/analytics-js-common/constants/integrations/integrationsCnames';
+import { clientToServerNames } from '@rudderstack/analytics-js-common/constants/integrations/clientToServerIntgNames';
 import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 import { handleError } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';

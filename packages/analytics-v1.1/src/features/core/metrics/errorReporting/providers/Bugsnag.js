@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { configToIntNames } from '@rudderstack/analytics-js-common/constants/integrations/config_to_integration_names';
+import { configToIntNames } from '@rudderstack/analytics-js-common/constants/integrations/configToIntgNames';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import {
   ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME,
