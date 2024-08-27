@@ -26,6 +26,17 @@ describe('onPageLeave', () => {
 
     dispatchDocumentEvent('pagehide');
     expect(evCallback).toHaveBeenCalledTimes(1);
+    expect(evCallback).toHaveBeenCalledWith(false);
+  });
+
+  it('should fire the callback on pagehide event based on visibility state', () => {
+    setVisibilityState('hidden');
+    const evCallback = jest.fn();
+    onPageLeave(evCallback);
+
+    dispatchDocumentEvent('pagehide');
+    expect(evCallback).toHaveBeenCalledTimes(1);
+    expect(evCallback).toHaveBeenCalledWith(true);
   });
 
   it('should fire the callback on beforeunload event', () => {
@@ -34,6 +45,7 @@ describe('onPageLeave', () => {
 
     dispatchWindowEvent('beforeunload');
     expect(evCallback).toHaveBeenCalledTimes(1);
+    expect(evCallback).toHaveBeenCalledWith(false);
   });
 
   it('should fire the callback on visibilitychange event', () => {
@@ -43,6 +55,7 @@ describe('onPageLeave', () => {
     setVisibilityState('hidden');
     dispatchDocumentEvent('visibilitychange');
     expect(evCallback).toHaveBeenCalledTimes(1);
+    expect(evCallback).toHaveBeenCalledWith(true);
   });
 
   it('should not fire the callback on visibilitychange event if visibilityState is visible', () => {
@@ -61,6 +74,7 @@ describe('onPageLeave', () => {
     dispatchDocumentEvent('pagehide');
     dispatchDocumentEvent('pagehide');
     expect(evCallback).toHaveBeenCalledTimes(1);
+    expect(evCallback).toHaveBeenCalledWith(false);
   });
 
   it('should not fire the callback twice on beforeunload event', () => {
@@ -70,6 +84,7 @@ describe('onPageLeave', () => {
     dispatchWindowEvent('beforeunload');
     dispatchWindowEvent('beforeunload');
     expect(evCallback).toHaveBeenCalledTimes(1);
+    expect(evCallback).toHaveBeenCalledWith(false);
   });
 
   it('should fire the callback only once if even multiple events are fired', () => {
@@ -81,6 +96,7 @@ describe('onPageLeave', () => {
     setVisibilityState('hidden');
     dispatchDocumentEvent('visibilitychange');
     expect(evCallback).toHaveBeenCalledTimes(1);
+    expect(evCallback).toHaveBeenCalledWith(false);
   });
 
   it('should fire the callback reliably when visibility changes multiple times', () => {
@@ -96,6 +112,9 @@ describe('onPageLeave', () => {
     setVisibilityState('hidden');
     dispatchDocumentEvent('visibilitychange');
     expect(evCallback).toHaveBeenCalledTimes(2);
+
+    expect(evCallback).toHaveBeenNthCalledWith(1, true);
+    expect(evCallback).toHaveBeenNthCalledWith(2, true);
   });
 
   it('should fire the callback on pagehide event even after multiple visibility changes happen', () => {
@@ -110,6 +129,9 @@ describe('onPageLeave', () => {
 
     dispatchDocumentEvent('pagehide');
     expect(evCallback).toHaveBeenCalledTimes(2);
+
+    expect(evCallback).toHaveBeenNthCalledWith(1, true);
+    expect(evCallback).toHaveBeenNthCalledWith(2, false);
   });
 
   it('should fire the callback on beforeunload event even after multiple visibility changes happen', () => {
@@ -124,5 +146,9 @@ describe('onPageLeave', () => {
 
     dispatchWindowEvent('beforeunload');
     expect(evCallback).toHaveBeenCalledTimes(2);
+
+    expect(evCallback).toHaveBeenNthCalledWith(1, true);
+
+    expect(evCallback).toHaveBeenNthCalledWith(2, false);
   });
 });
