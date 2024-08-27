@@ -5,7 +5,7 @@ describe('onPageLeave', () => {
     document.dispatchEvent(new Event(event));
   };
 
-  const dispatchWindowEvent = (event: 'beforeunload') => {
+  const dispatchWindowEvent = (event: 'beforeunload' | 'blur' | 'focus') => {
     window.dispatchEvent(new Event(event));
   };
 
@@ -67,6 +67,23 @@ describe('onPageLeave', () => {
     expect(evCallback).not.toHaveBeenCalled();
   });
 
+  it('should fire the callback on blur event', () => {
+    const evCallback = jest.fn();
+    onPageLeave(evCallback);
+
+    dispatchWindowEvent('blur');
+    expect(evCallback).toHaveBeenCalledTimes(1);
+    expect(evCallback).toHaveBeenCalledWith(true);
+  });
+
+  it('should not fire the callback on focus event', () => {
+    const evCallback = jest.fn();
+    onPageLeave(evCallback);
+
+    dispatchWindowEvent('focus');
+    expect(evCallback).not.toHaveBeenCalled();
+  });
+
   it('should not fire the callback twice on pagehide event', () => {
     const evCallback = jest.fn();
     onPageLeave(evCallback);
@@ -111,6 +128,20 @@ describe('onPageLeave', () => {
 
     setVisibilityState('hidden');
     dispatchDocumentEvent('visibilitychange');
+    expect(evCallback).toHaveBeenCalledTimes(2);
+
+    expect(evCallback).toHaveBeenNthCalledWith(1, true);
+    expect(evCallback).toHaveBeenNthCalledWith(2, true);
+  });
+
+  it('should fire the callback reliably when blur and focus events are fired multiple times', () => {
+    const evCallback = jest.fn();
+    onPageLeave(evCallback);
+
+    dispatchWindowEvent('blur');
+    dispatchWindowEvent('focus');
+    dispatchWindowEvent('blur');
+    dispatchWindowEvent('focus');
     expect(evCallback).toHaveBeenCalledTimes(2);
 
     expect(evCallback).toHaveBeenNthCalledWith(1, true);
