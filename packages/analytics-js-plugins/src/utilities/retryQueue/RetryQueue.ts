@@ -73,6 +73,7 @@ class RetryQueue implements IQueue<QueueItemData> {
   batchSizeCalcCb?: QueueBatchItemsSizeCalculatorCallback<QueueItemData>;
   reclaimStartVal?: Nullable<string>;
   reclaimEndVal?: Nullable<string>;
+  isPageAccessible: boolean;
 
   constructor(
     name: string,
@@ -138,6 +139,8 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.checkReclaim = this.checkReclaim.bind(this);
     this.processHead = this.processHead.bind(this);
     this.flushBatch = this.flushBatch.bind(this);
+
+    this.isPageAccessible = true;
 
     // Flush the queue on page leave
     this.flushBatchOnPageLeave();
@@ -239,8 +242,9 @@ class RetryQueue implements IQueue<QueueItemData> {
   /**
    * Flushes the batch queue
    */
-  flushBatch() {
+  flushBatch(isAccessible = true) {
     if (!this.batchingInProgress) {
+      this.isPageAccessible = isAccessible;
       this.batchingInProgress = true;
       let batchQueue =
         (this.getStorageEntry(QueueStatuses.BATCH_QUEUE) as Nullable<QueueItem[]>) ?? [];
@@ -458,8 +462,6 @@ class RetryQueue implements IQueue<QueueItemData> {
     // Pop the head off the queue
     let queue =
       (this.getStorageEntry(QueueStatuses.QUEUE) as Nullable<QueueItem<QueueItemData>[]>) ?? [];
-    const inProgress =
-      (this.getStorageEntry(QueueStatuses.IN_PROGRESS) as Nullable<Record<string, any>>) ?? {};
     const now = this.schedule.now();
     const toRun: InProgressQueueItem[] = [];
 
@@ -484,6 +486,13 @@ class RetryQueue implements IQueue<QueueItemData> {
       });
     };
 
+    let inProgress =
+      (this.getStorageEntry(QueueStatuses.IN_PROGRESS) as Nullable<Record<string, any>>) ?? {};
+    // If the page is unloading, clear the previous in progress queue also to avoid any stale data
+    // Otherwise, the next page load will retry the items which were in progress previously
+    if (!this.isPageAccessible) {
+      inProgress = {};
+    }
     let inProgressSize = Object.keys(inProgress).length;
 
     // eslint-disable-next-line no-plusplus
@@ -496,12 +505,15 @@ class RetryQueue implements IQueue<QueueItemData> {
       if (el) {
         const id = generateUUID();
 
-        // Save this to the in progress map
-        inProgress[id] = {
-          item: el.item,
-          attemptNumber: el.attemptNumber,
-          time: this.schedule.now(),
-        };
+        // If the page is unloading, don't add items to the in progress queue
+        if (this.isPageAccessible) {
+          // Save this to the in progress map
+          inProgress[id] = {
+            item: el.item,
+            attemptNumber: el.attemptNumber,
+            time: this.schedule.now(),
+          };
+        }
 
         enqueueItem(el, id);
       }
