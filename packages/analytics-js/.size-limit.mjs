@@ -47,7 +47,7 @@ export default [
   {
     name: 'Core - Modern - CDN',
     path: 'dist/cdn/modern/iife/rsa.min.js',
-    limit: '27 KiB',
+    limit: '27.5 KiB',
   },
   {
     name: 'Core (Bundled) - Legacy - NPM (ESM)',

@@ -90,8 +90,6 @@ const REQUEST_ERROR = (
 ): string =>
   `${prefix} due to timeout after ${timeout}ms or no connection (${e?.type ?? ''}) or aborted for URL: ${url}.`;
 
-const XHR_SEND_ERROR = (prefix: string, url: string | URL): string => `${prefix} for URL: ${url}`;
-
 const STORE_DATA_SAVE_ERROR = (key: string): string =>
   `Failed to save the value for "${key}" to storage`;
 
@@ -292,7 +290,6 @@ export {
   READY_API_CALLBACK_ERROR,
   DELIVERY_ERROR,
   REQUEST_ERROR,
-  XHR_SEND_ERROR,
   PAYLOAD_PREP_ERROR,
   STORE_DATA_SAVE_ERROR,
   STORE_DATA_FETCH_ERROR,

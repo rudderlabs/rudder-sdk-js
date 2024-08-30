@@ -118,103 +118,70 @@ describe('xhrQueue Plugin Utilities', () => {
 
   describe('logErrorOnFailure', () => {
     it('should not log error if there is no error', () => {
-      const details = {
-        response: {},
-      } as IResponseDetails;
-
-      logErrorOnFailure(details, 'https://test.com/v1/page', false, 1, 10, mockLogger);
+      logErrorOnFailure(false, 'https://test.com/v1/page', undefined, false, 1, 10, mockLogger);
 
       expect(mockLogger.error).not.toHaveBeenCalled();
     });
 
     it('should log an error for delivery failure', () => {
-      const details = {
-        error: {},
-      } as IResponseDetails;
-
-      logErrorOnFailure(details, 'https://test.com/v1/page', false, 1, 10, mockLogger);
+      logErrorOnFailure(
+        false,
+        'https://test.com/v1/page',
+        'Something bad happened',
+        false,
+        1,
+        10,
+        mockLogger,
+      );
 
       expect(mockLogger.error).toHaveBeenCalledWith(
-        'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. The event(s) will be dropped.',
+        'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. Original error: Something bad happened. The event(s) will be dropped.',
       );
     });
 
     it('should log an error for retryable network failure', () => {
-      let details = {
-        error: {
-          status: 429,
-        },
-      } as IResponseDetails;
-
-      logErrorOnFailure(details, 'https://test.com/v1/page', true, 1, 10, mockLogger);
+      logErrorOnFailure(
+        true,
+        'https://test.com/v1/page',
+        'Something bad happened',
+        true,
+        1,
+        10,
+        mockLogger,
+      );
 
       expect(mockLogger.error).toHaveBeenCalledWith(
-        'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. It/they will be retried. Retry attempt 1 of 10.',
+        'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. Original error: Something bad happened. It/they will be retried. Retry attempt 1 of 10.',
       );
 
       // Retryable error but it's the first attempt
-      details = {
-        error: {
-          status: 429,
-        },
-      } as IResponseDetails;
-
-      logErrorOnFailure(details, 'https://test.com/v1/page', true, 0, 10, mockLogger);
-
-      expect(mockLogger.error).toHaveBeenCalledWith(
-        'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. It/they will be retried.',
+      logErrorOnFailure(
+        true,
+        'https://test.com/v1/page',
+        'Something bad happened',
+        true,
+        0,
+        10,
+        mockLogger,
       );
 
-      // 500 error
-      details = {
-        error: {
-          status: 500,
-        },
-      } as IResponseDetails;
-
-      logErrorOnFailure(details, 'https://test.com/v1/page', true, 1, 10, mockLogger);
-
       expect(mockLogger.error).toHaveBeenCalledWith(
-        'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. It/they will be retried. Retry attempt 1 of 10.',
-      );
-
-      // 5xx error
-      details = {
-        error: {
-          status: 501,
-        },
-      } as IResponseDetails;
-
-      logErrorOnFailure(details, 'https://test.com/v1/page', true, 1, 10, mockLogger);
-
-      expect(mockLogger.error).toHaveBeenCalledWith(
-        'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. It/they will be retried. Retry attempt 1 of 10.',
-      );
-
-      // 600 error
-      details = {
-        error: {
-          status: 600,
-        },
-      } as IResponseDetails;
-
-      logErrorOnFailure(details, 'https://test.com/v1/page', true, 1, 10, mockLogger);
-
-      expect(mockLogger.error).toHaveBeenCalledWith(
-        'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. The event(s) will be dropped.',
+        'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. Original error: Something bad happened. It/they will be retried.',
       );
 
       // Retryable error but exhausted all tries
-      details = {
-        error: {
-          status: 520,
-        },
-      } as IResponseDetails;
-
-      logErrorOnFailure(details, 'https://test.com/v1/page', false, 10, 10, mockLogger);
+      logErrorOnFailure(
+        true,
+        'https://test.com/v1/page',
+        'Something bad happened',
+        false,
+        10,
+        10,
+        mockLogger,
+      );
 
       expect(mockLogger.error).toHaveBeenCalledWith(
-        'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. Retries exhausted (10). The event(s) will be dropped.',
+        'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. Original error: Something bad happened. Retries exhausted (10). The event(s) will be dropped.',
       );
     });
   });

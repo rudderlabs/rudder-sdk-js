@@ -67,17 +67,7 @@ export type QueueBatchItemsSizeCalculatorCallback<T = any> = (item: T) => number
 export interface IQueue<T = any> {
   name: string;
   id: string;
-  processQueueCb: QueueProcessCallback;
-  store: IStore;
-  storeManager: IStoreManager;
-  maxItems: number;
-  timeouts: Record<string, number>;
   scheduleTimeoutActive: boolean;
-  getStorageEntry(name?: string): Nullable<QueueItem<T>[] | Record<string, any> | number>;
-  setStorageEntry(
-    name?: string,
-    value?: Nullable<QueueItem<T>[] | Record<string, any> | number>,
-  ): void;
   start(): void;
   stop(): void;
   enqueue(item: QueueItem<T>): void;

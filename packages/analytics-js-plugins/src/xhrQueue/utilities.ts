@@ -1,13 +1,12 @@
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import type { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import type { IResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { clone } from 'ramda';
 import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
-import { checks, http, url, json, eventsDelivery } from '../shared-chunks/common';
+import { checks, url, json, eventsDelivery } from '../shared-chunks/common';
 import { DATA_PLANE_API_VERSION, DEFAULT_RETRY_QUEUE_OPTIONS, XHR_QUEUE_PLUGIN } from './constants';
 import type { XHRRetryQueueItemData, XHRQueueItemData, XHRBatchPayload } from './types';
 import { EVENT_DELIVERY_FAILURE_ERROR_PREFIX } from './logMessages';
@@ -37,19 +36,19 @@ const getDeliveryUrl = (dataplaneUrl: string, endpoint: string): string => {
 const getBatchDeliveryUrl = (dataplaneUrl: string): string => getDeliveryUrl(dataplaneUrl, 'batch');
 
 const logErrorOnFailure = (
-  details: IResponseDetails,
+  isRetryableFailure: boolean,
   url: string,
+  err?: string,
   willBeRetried?: boolean,
   attemptNumber?: number,
   maxRetryAttempts?: number,
   logger?: ILogger,
 ) => {
-  if (checks.isUndefined(details.error) || checks.isUndefined(logger)) {
+  if (checks.isUndefined(err) || checks.isUndefined(logger)) {
     return;
   }
 
-  const isRetryableFailure = http.isErrRetryable(details);
-  let errMsg = EVENT_DELIVERY_FAILURE_ERROR_PREFIX(XHR_QUEUE_PLUGIN, url);
+  let errMsg = EVENT_DELIVERY_FAILURE_ERROR_PREFIX(XHR_QUEUE_PLUGIN, err, url);
   const dropMsg = `The event(s) will be dropped.`;
   if (isRetryableFailure) {
     if (willBeRetried) {

@@ -37,6 +37,7 @@ import {
   DEFAULT_BATCH_FLUSH_INTERVAL_MS,
   MIN_TIMER_SCALE_FACTOR,
   MAX_TIMER_SCALE_FACTOR,
+  MAX_PAGE_UNLOAD_BATCH_SIZE_BYTES,
 } from './constants';
 
 const sortByTime = (a: QueueItem, b: QueueItem) => a.time - b.time;
@@ -244,14 +245,33 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.isPageAccessible = isAccessible;
     if (!this.batchingInProgress) {
       this.batchingInProgress = true;
-      let batchQueue =
+      const batchQueue =
         (this.getStorageEntry(QueueStatuses.BATCH_QUEUE) as Nullable<QueueItem[]>) ?? [];
       if (batchQueue.length > 0) {
-        batchQueue = batchQueue.slice(-batchQueue.length);
+        let batchItems: QueueItem[] = [];
+        let remainingBatchItems: QueueItem[] = [];
+        if (!this.isPageAccessible) {
+          // eslint-disable-next-line no-restricted-syntax
+          for (const queueItem of batchQueue) {
+            if (
+              (this.batchSizeCalcCb as QueueBatchItemsSizeCalculatorCallback<QueueItemData>)(
+                [...batchItems, queueItem].map(queueItem => queueItem.item),
+              ) > MAX_PAGE_UNLOAD_BATCH_SIZE_BYTES
+            ) {
+              break;
+            }
 
-        const batchEntry = this.genQueueItem(batchQueue.map(queueItem => queueItem.item));
+            batchItems.push(queueItem);
+          }
 
-        this.setStorageEntry(QueueStatuses.BATCH_QUEUE, []);
+          remainingBatchItems = batchQueue.slice(batchItems.length);
+        } else {
+          batchItems = batchQueue.slice(-batchQueue.length);
+        }
+
+        const batchEntry = this.genQueueItem(batchItems.map(queueItem => queueItem.item));
+
+        this.setStorageEntry(QueueStatuses.BATCH_QUEUE, remainingBatchItems);
 
         this.pushToMainQueue(batchEntry);
       }

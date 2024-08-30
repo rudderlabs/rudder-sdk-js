@@ -2,7 +2,10 @@
 /* eslint-disable no-param-reassign */
 import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import type {
+  IHttpClient,
+  IResponseDetails,
+} from '@rudderstack/analytics-js-common/types/HttpClient';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
@@ -15,6 +18,8 @@ import type {
   QueueItemData,
   DoneCallback,
 } from '@rudderstack/analytics-js-common/utilities/retryQueue/types';
+import { toBase64 } from '@rudderstack/analytics-js-common/utilities/string';
+import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js-common/constants/errors';
 import { storages, http, timestamp, string, eventsDelivery } from '../shared-chunks/common';
 import {
   getNormalizedQueueOptions,
@@ -26,6 +31,7 @@ import {
 import { QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
 import type { XHRRetryQueueItemData, XHRQueueItemData } from './types';
 import { RetryQueue } from '../shared-chunks/retryQueue';
+import { DELIVERY_ERROR, REQUEST_ERROR } from './logMessages';
 
 const pluginName: PluginName = 'XhrQueue';
 
@@ -76,33 +82,87 @@ const XhrQueue = (): ExtensionPlugin => ({
             logger,
           );
 
-          httpClient.request({
-            url,
-            options: {
-              method: 'POST',
-              headers,
-              body: data as string,
-              sendRawData: true,
-              useAuth: true,
-            },
-            isRawResponse: true,
-            timeout: REQUEST_TIMEOUT_MS,
-            callback: (result, details) => {
-              // null means item will not be requeued
-              const queueErrResp = http.isErrRetryable(details) ? details : null;
-
-              logErrorOnFailure(
-                details,
+          const handleResponse = (
+            err?: any,
+            status?: number,
+            statusText?: string,
+            ev?: ProgressEvent,
+          ) => {
+            let errMsg;
+            if (err) {
+              errMsg = REQUEST_ERROR(
+                FAILED_REQUEST_ERR_MSG_PREFIX,
                 url,
-                willBeRetried,
-                attemptNumber,
-                maxRetryAttempts,
-                logger,
+                REQUEST_TIMEOUT_MS,
+                err,
+                ev,
               );
+            } else if (status && (status < 200 || status > 300)) {
+              errMsg = DELIVERY_ERROR(FAILED_REQUEST_ERR_MSG_PREFIX, status, url, statusText, ev);
+            }
 
-              done(queueErrResp, result);
-            },
-          });
+            const details = {
+              error: {
+                status,
+              },
+            } as IResponseDetails;
+
+            const isRetryableFailure = http.isErrRetryable(details);
+
+            // null means item will not be requeued
+            const queueErrResp = isRetryableFailure ? details : null;
+
+            logErrorOnFailure(
+              isRetryableFailure,
+              url,
+              errMsg,
+              willBeRetried,
+              attemptNumber,
+              maxRetryAttempts,
+              logger,
+            );
+
+            done(queueErrResp);
+          };
+
+          const xhr = new XMLHttpRequest();
+          try {
+            xhr.open('POST', url, true);
+          } catch (err: any) {
+            handleResponse(err);
+            return;
+          }
+
+          // The timeout property may be set only in the time interval between a call to the open method
+          // and the first call to the send method in legacy browsers
+          xhr.timeout = REQUEST_TIMEOUT_MS;
+
+          if (headers) {
+            Object.entries(headers).forEach(([headerName, headerValue]) => {
+              xhr.setRequestHeader(headerName, headerValue);
+            });
+          }
+
+          xhr.onload = () => {
+            // This is same as fetch API
+            if (xhr.status >= 200 && xhr.status < 300) {
+              handleResponse(null, xhr.status, xhr.statusText);
+            }
+          };
+
+          const xhrCallback = (ev: ProgressEvent) => {
+            handleResponse(undefined, xhr.status, xhr.statusText, ev);
+          };
+
+          xhr.ontimeout = xhrCallback;
+          xhr.onerror = xhrCallback;
+          xhr.onabort = xhrCallback;
+
+          try {
+            xhr.send(data);
+          } catch (err: any) {
+            handleResponse(err, xhr.status, xhr.statusText);
+          }
         },
         storeManager,
         storages.LOCAL_STORAGE,
@@ -146,6 +206,7 @@ const XhrQueue = (): ExtensionPlugin => ({
       const headers = {
         Accept: 'application/json',
         'Content-Type': 'application/json;charset=UTF-8',
+        Authorization: `Basic ${toBase64(`${state.lifecycle.writeKey.value as string}:`)}`,
         // To maintain event ordering while using the HTTP API as per is documentation,
         // make sure to include anonymousId as a header
         AnonymousId: string.toBase64(event.anonymousId),
