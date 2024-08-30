@@ -178,7 +178,7 @@ describe('Device mode transformation plugin', () => {
       0,
       3,
       true,
-      false,
+      true,
     );
 
     // Item is successfully processed and removed from queue

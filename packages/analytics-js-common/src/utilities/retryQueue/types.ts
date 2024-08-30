@@ -45,6 +45,7 @@ export type QueueItemData =
  * @param {Number} retryAttemptNumber The number of times this item has been attempted to retry
  * @param {Number} maxRetryAttempts The maximum number of times this item should be attempted to retry
  * @param {Number} willBeRetried A boolean indicating if the item will be retried later
+ * @param {Number} isPageAccessible A boolean indicating if the page is accessible
  */
 export type QueueProcessCallback<T = any> = (
   item: T,
@@ -52,7 +53,7 @@ export type QueueProcessCallback<T = any> = (
   retryAttemptNumber?: number,
   maxRetryAttempts?: number,
   willBeRetried?: boolean,
-  pageUnloadInProgress?: boolean,
+  isPageAccessible?: boolean,
 ) => void;
 
 export type QueueBatchItemsSizeCalculatorCallback<T = any> = (item: T) => number;

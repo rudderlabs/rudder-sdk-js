@@ -49,13 +49,15 @@ class DataPlaneEventsQueue implements IDataPlaneEventsQueue {
         attemptNumber?: number,
         maxRetryAttempts?: number,
         willBeRetried?: boolean,
-        pageUnloadInProgress?: boolean,
+        isPageAccessible?: boolean,
       ) => {
         const { data, url, headers } = getRequestInfo(
           itemData as EventsQueueItemData,
           state,
           this.logger,
         );
+
+        const keepalive = isPageAccessible === false;
 
         this.httpClient.request({
           url,
@@ -65,19 +67,36 @@ class DataPlaneEventsQueue implements IDataPlaneEventsQueue {
             body: data as string,
             sendRawData: true,
             useAuth: true,
-            keepalive: pageUnloadInProgress === true,
+            keepalive,
           },
           isRawResponse: true,
           timeout: REQUEST_TIMEOUT_MS,
           callback: (result, details) => {
-            // null means item will not be requeued
-            const queueErrResp = isErrRetryable(details) ? details : null;
+            // The callback will not be fired anyway for keepalive requests
+            // but just in case
+            if (!keepalive) {
+              // null means item will not be requeued
+              const queueErrResp = isErrRetryable(details) ? details : null;
 
-            logErrorOnFailure(details, url, willBeRetried, attemptNumber, maxRetryAttempts, logger);
+              logErrorOnFailure(
+                details,
+                url,
+                willBeRetried,
+                attemptNumber,
+                maxRetryAttempts,
+                logger,
+              );
 
-            done(queueErrResp, result);
+              done(queueErrResp, result);
+            }
           },
         });
+
+        // For requests that happen on page leave, we cannot wait for fetch API to complete
+        // So, we assume that the request is successful and call done immediately
+        if (keepalive) {
+          done(null);
+        }
       },
       this.storeManager,
       LOCAL_STORAGE,

@@ -71,7 +71,7 @@ class RetryQueue implements IQueue<QueueItemData> {
   batchSizeCalcCb?: QueueBatchItemsSizeCalculatorCallback<QueueItemData>;
   reclaimStartVal?: Nullable<string>;
   reclaimEndVal?: Nullable<string>;
-  pageUnloadInProgress: boolean;
+  isPageAccessible: boolean;
 
   constructor(
     name: string,
@@ -138,10 +138,11 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.processHead = this.processHead.bind(this);
     this.flushBatch = this.flushBatch.bind(this);
 
+    this.isPageAccessible = true;
+
     // Flush the queue on page leave
     this.flushBatchOnPageLeave();
 
-    this.pageUnloadInProgress = false;
     this.scheduleTimeoutActive = false;
   }
 
@@ -174,7 +175,7 @@ class RetryQueue implements IQueue<QueueItemData> {
 
   flushBatchOnPageLeave() {
     if (this.batch.enabled) {
-      onPageLeave(this.flushBatch, true);
+      onPageLeave(this.flushBatch);
     }
   }
 
@@ -239,10 +240,9 @@ class RetryQueue implements IQueue<QueueItemData> {
   /**
    * Flushes the batch queue
    */
-  flushBatch(isPageUnload = false) {
+  flushBatch(isAccessible = true) {
+    this.isPageAccessible = isAccessible;
     if (!this.batchingInProgress) {
-      this.pageUnloadInProgress = isPageUnload;
-
       this.batchingInProgress = true;
       let batchQueue =
         (this.getStorageEntry(QueueStatuses.BATCH_QUEUE) as Nullable<QueueItem[]>) ?? [];
@@ -465,19 +465,14 @@ class RetryQueue implements IQueue<QueueItemData> {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const processItemCallback = (el: QueueItem, id: string) => (err?: Error, res?: any) => {
-      if (this.pageUnloadInProgress) {
-        // Reset page unload status
-        this.pageUnloadInProgress = false;
-      } else {
-        const inProgress =
-          (this.getStorageEntry(QueueStatuses.IN_PROGRESS) as Nullable<Record<string, any>>) ?? {};
-        delete inProgress[id];
+      const inProgress =
+        (this.getStorageEntry(QueueStatuses.IN_PROGRESS) as Nullable<Record<string, any>>) ?? {};
+      delete inProgress[id];
 
-        this.setStorageEntry(QueueStatuses.IN_PROGRESS, inProgress);
+      this.setStorageEntry(QueueStatuses.IN_PROGRESS, inProgress);
 
-        if (err) {
-          this.requeue(el.item, el.attemptNumber + 1, err, el.id);
-        }
+      if (err) {
+        this.requeue(el.item, el.attemptNumber + 1, err, el.id);
       }
     };
 
@@ -489,14 +484,8 @@ class RetryQueue implements IQueue<QueueItemData> {
       });
     };
 
-    let inProgress =
+    const inProgress =
       (this.getStorageEntry(QueueStatuses.IN_PROGRESS) as Nullable<Record<string, any>>) ?? {};
-    // If the page is unloading, clear the previous in progress queue also to avoid any stale data
-    // Otherwise, the next page load will retry the items which were in progress previously
-    if (this.pageUnloadInProgress) {
-      inProgress = {};
-    }
-
     let inProgressSize = Object.keys(inProgress).length;
 
     // eslint-disable-next-line no-plusplus
@@ -509,15 +498,12 @@ class RetryQueue implements IQueue<QueueItemData> {
       if (el) {
         const id = generateUUID();
 
-        // Don't save in progress items if the page is unloading
-        if (!this.pageUnloadInProgress) {
-          // Save this to the in progress map
-          inProgress[id] = {
-            item: el.item,
-            attemptNumber: el.attemptNumber,
-            time: this.schedule.now(),
-          };
-        }
+        // Save this to the in progress map
+        inProgress[id] = {
+          item: el.item,
+          attemptNumber: el.attemptNumber,
+          time: this.schedule.now(),
+        };
 
         enqueueItem(el, id);
       }
@@ -536,7 +522,7 @@ class RetryQueue implements IQueue<QueueItemData> {
           el.attemptNumber,
           this.maxAttempts,
           willBeRetried,
-          this.pageUnloadInProgress,
+          this.isPageAccessible,
         );
       } catch (err) {
         this.logger?.error(RETRY_QUEUE_PROCESS_ERROR(RETRY_QUEUE), err);

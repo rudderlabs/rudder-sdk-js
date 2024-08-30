@@ -142,6 +142,62 @@ describe('Queue', () => {
     ]);
   });
 
+  it('should flush queued batch events', () => {
+    const batchQueue = new RetryQueue(
+      'test',
+      { batch: { enabled: true, maxSize: 2 } },
+      jest.fn(),
+      defaultStoreManager,
+      undefined,
+      undefined,
+      (items: []) => items.length,
+    );
+
+    batchQueue.addItem('a');
+
+    batchQueue.flushBatch();
+
+    expect(batchQueue.getStorageEntry('batchQueue')).toEqual([]);
+
+    expect(batchQueue.getStorageEntry('queue')).toEqual([
+      {
+        item: ['a'],
+        attemptNumber: 0,
+        time: expect.any(Number),
+        id: expect.any(String),
+      },
+    ]);
+  });
+
+  it('should not flush queued batch events if another flush is in progress', () => {
+    const batchQueue = new RetryQueue(
+      'test',
+      { batch: { enabled: true, maxSize: 2 } },
+      jest.fn(),
+      defaultStoreManager,
+      undefined,
+      undefined,
+      (items: []) => items.length,
+    );
+
+    batchQueue.batchingInProgress = true;
+
+    batchQueue.addItem('a');
+
+    batchQueue.flushBatch();
+
+    expect(batchQueue.getStorageEntry('batchQueue')).toEqual([
+      {
+        item: 'a',
+        attemptNumber: 0,
+        time: expect.any(Number),
+        id: expect.any(String),
+      },
+    ]);
+
+    expect(batchQueue.getStorageEntry('queue')).toEqual([]);
+  });
+
   it('should run a task', () => {
     queue.start();
 
@@ -153,7 +209,7 @@ describe('Queue', () => {
       0,
       Infinity,
       true,
-      false,
+      true,
     );
   });
 
@@ -176,7 +232,7 @@ describe('Queue', () => {
       0,
       Infinity,
       true,
-      false,
+      true,
     );
 
     // Delay for the first retry
@@ -191,7 +247,7 @@ describe('Queue', () => {
       1,
       Infinity,
       true,
-      false,
+      true,
     );
   });
 
@@ -210,7 +266,7 @@ describe('Queue', () => {
       0,
       Infinity,
       true,
-      false,
+      true,
     );
 
     // Delay for the retry
@@ -225,7 +281,7 @@ describe('Queue', () => {
       1,
       Infinity,
       true,
-      false,
+      true,
     );
   });
 
@@ -304,7 +360,7 @@ describe('Queue', () => {
       0,
       Infinity,
       true,
-      false,
+      true,
     );
   });
 
@@ -342,7 +398,7 @@ describe('Queue', () => {
       1,
       Infinity,
       true,
-      false,
+      true,
     );
   });
 
@@ -393,7 +449,7 @@ describe('Queue', () => {
       0,
       Infinity,
       true,
-      false,
+      true,
     );
   });
 
@@ -436,7 +492,7 @@ describe('Queue', () => {
       0,
       Infinity,
       true,
-      false,
+      true,
     );
     expect(queue.processQueueCb).toHaveBeenNthCalledWith(
       2,
@@ -445,7 +501,7 @@ describe('Queue', () => {
       0,
       Infinity,
       true,
-      false,
+      true,
     );
   });
 
@@ -490,7 +546,7 @@ describe('Queue', () => {
       0,
       Infinity,
       true,
-      false,
+      true,
     );
   });
 
@@ -535,7 +591,7 @@ describe('Queue', () => {
       1,
       Infinity,
       true,
-      false,
+      true,
     );
   });
 
@@ -580,7 +636,7 @@ describe('Queue', () => {
       0,
       Infinity,
       true,
-      false,
+      true,
     );
   });
 
@@ -655,7 +711,7 @@ describe('Queue', () => {
       0,
       Infinity,
       true,
-      false,
+      true,
     );
     expect(queue.processQueueCb).toHaveBeenCalledWith(
       'a',
@@ -663,7 +719,7 @@ describe('Queue', () => {
       0,
       Infinity,
       true,
-      false,
+      true,
     );
     expect(queue.processQueueCb).toHaveBeenCalledWith(
       'b',
@@ -671,7 +727,7 @@ describe('Queue', () => {
       0,
       Infinity,
       true,
-      false,
+      true,
     );
   });
 
@@ -727,7 +783,7 @@ describe('Queue', () => {
       0,
       Infinity,
       true,
-      false,
+      true,
     );
   });
 
@@ -779,7 +835,7 @@ describe('Queue', () => {
       0,
       Infinity,
       true,
-      false,
+      true,
     );
     expect(queue.processQueueCb).toHaveBeenCalledWith(
       'b',
@@ -787,7 +843,7 @@ describe('Queue', () => {
       1,
       Infinity,
       true,
-      false,
+      true,
     );
     expect(queue.processQueueCb).toHaveBeenCalledWith(
       'c',
@@ -795,7 +851,7 @@ describe('Queue', () => {
       0,
       Infinity,
       true,
-      false,
+      true,
     );
   });
 
@@ -838,7 +894,7 @@ describe('Queue', () => {
         0,
         Infinity,
         true,
-        false,
+        true,
       );
     });
 
@@ -876,7 +932,7 @@ describe('Queue', () => {
         1,
         Infinity,
         true,
-        false,
+        true,
       );
     });
 
@@ -921,7 +977,7 @@ describe('Queue', () => {
         0,
         Infinity,
         true,
-        false,
+        true,
       );
       expect(queue.processQueueCb).toHaveBeenCalledWith(
         'b',
@@ -929,7 +985,7 @@ describe('Queue', () => {
         1,
         Infinity,
         true,
-        false,
+        true,
       );
     });
   });
