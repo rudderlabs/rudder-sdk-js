@@ -92,7 +92,7 @@
     "@lukeed/uuid": "2.0.1",
     "@rudderstack/analytics-js-common": "*",
     "@vespaiach/axios-fetch-adapter": "0.3.1",
-    "axios": "1.7.5",
+    "axios": "1.7.7",
     "axios-retry": "4.5.0",
     "component-type": "2.0.0",
     "join-component": "1.1.0",
@@ -100,7 +100,7 @@
   },
   "devDependencies": {
     "@types/ms": "0.7.34",
-    "@types/node": "22.5.0",
+    "@types/node": "22.5.2",
     "jest-date-mock": "1.0.10"
   },
   "overrides": {},
