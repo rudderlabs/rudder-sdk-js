@@ -9,7 +9,7 @@ on:
         options:
           - staging
           - production
-      version:
+      sdkVersion:
         description: Version of the SDK
         required: true
 
@@ -23,4 +23,4 @@ jobs:
           -H "Authorization: token ${{ secrets.PAT }}" \
           -H "Accept: application/vnd.github.v3+json" \
           https://api.github.com/repos/rudderlabs/rudder-client-side-test/dispatches \
-          -d '{"event_type":"triggered_by_source_repo", "client_payload": {"environment": "${{ github.event.inputs.environment }}", "version": "${{ github.event.inputs.version }}"}}'
+          -d '{"event_type":"triggered_by_source_repo", "client_payload": {"environment": "${{ github.event.inputs.environment }}", "sdkVersion": "${{ github.event.inputs.sdkVersion }}"}}'
