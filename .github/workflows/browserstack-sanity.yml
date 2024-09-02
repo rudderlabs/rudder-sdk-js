@@ -2,6 +2,16 @@ name: Run sanity suite on BrowserStack
 
 on:
   workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: Select specific environment to run the tests
+        options:
+          - staging
+          - production
+      version:
+        description: Version of the SDK
+        required: true
 
 jobs:
   trigger:
@@ -10,7 +20,7 @@ jobs:
       - name: Trigger target repo workflow
         run: |
           curl -X POST \
-          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Authorization: token ${{ secrets.PAT }}" \
           -H "Accept: application/vnd.github.v3+json" \
           https://api.github.com/repos/rudderlabs/rudder-client-side-test/dispatches \
-          -d '{"event_type":"triggered_by_source_repo"}'
+          -d '{"event_type":"triggered_by_source_repo", "client_payload": {"environment": "${{ github.event.inputs.environment }}", "version": "${{ github.event.inputs.version }}"}}'
