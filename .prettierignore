@@ -12,3 +12,4 @@ examples/chrome-extension/**/foreground.js
 examples/**/index.html
 examples/gatsby/sample-gatsby-site/public/
 examples/gatsby/sample-gatsby-plugin-usage/public/
+**/nativeSdkLoader.js
