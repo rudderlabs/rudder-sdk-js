@@ -1,5 +1,5 @@
-## [3.0.26](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.25...@rudderstack/analytics-js-loading-scripts@3.0.26) (2024-08-16)
+## [3.0.28](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.27...@rudderstack/analytics-js-loading-scripts@3.0.28) (2024-08-30)
 
 ### Dependency Updates
 
-* `@rudderstack/analytics-js` updated to version `3.7.9`
+* `@rudderstack/analytics-js` updated to version `3.7.11`
