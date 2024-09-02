@@ -5,7 +5,7 @@
  */
 const getTimezone = (): string => {
   const timezone = new Date().toString().match(/([A-Z]+[+-]\d+)/);
-  return timezone && timezone[1] ? timezone[1] : 'NA';
+  return timezone?.[1] ? timezone[1] : 'NA';
 };
 
 export { getTimezone };

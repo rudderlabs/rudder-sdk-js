@@ -39,11 +39,7 @@ const getReleaseStage = () => {
 
 const isValidVersion = globalLibInstance => {
   // For version 7
-  let version =
-    globalLibInstance &&
-    globalLibInstance._client &&
-    globalLibInstance._client._notifier &&
-    globalLibInstance._client._notifier.version;
+  let version = globalLibInstance?._client?._notifier?.version;
 
   // For versions older than 7
   if (!version) {
@@ -55,7 +51,7 @@ const isValidVersion = globalLibInstance => {
         return false;
       },
     });
-    version = tempInstance.notifier && tempInstance.notifier.version;
+    version = tempInstance.notifier?.version;
     tempInstance = undefined;
   }
 
@@ -123,10 +119,7 @@ class BugsnagProvider {
    */
   init() {
     // Return if RS Bugsnag instance is already initialized or should not init
-    if (
-      window.RudderStackGlobals &&
-      window.RudderStackGlobals[ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME]
-    ) {
+    if (window.RudderStackGlobals?.[ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME]) {
       return;
     }
 

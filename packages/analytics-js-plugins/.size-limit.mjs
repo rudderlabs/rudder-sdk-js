@@ -22,5 +22,5 @@ export default [
     name: 'Plugins - Modern - CDN',
     path: 'dist/cdn/modern/plugins/rsa-plugins-*.min.js',
     limit: '7.5 KiB',
-  }
+  },
 ];

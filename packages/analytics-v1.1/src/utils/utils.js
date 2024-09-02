@@ -19,7 +19,7 @@ import {
  * @param {*} inURL
  */
 function removeTrailingSlashes(inURL) {
-  return inURL && inURL.endsWith('/') ? inURL.replace(/\/+$/, '') : inURL;
+  return inURL?.endsWith('/') ? inURL.replace(/\/+$/, '') : inURL;
 }
 
 /**

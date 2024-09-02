@@ -140,7 +140,7 @@ class Optimizely {
       if (!state) {
         return undefined;
       }
-      const referrer = state.getRedirectInfo() && state.getRedirectInfo().referrer;
+      const referrer = state.getRedirectInfo()?.referrer;
       if (!referrer) {
         return undefined;
       }
