@@ -158,9 +158,6 @@ const RESERVED_KEYWORD_WARNING = (
 const INVALID_CONTEXT_OBJECT_WARNING = (logContext: string): string =>
   `${logContext}${LOG_CONTEXT_SEPARATOR}Please make sure that the "context" property in the event API's "options" argument is a valid object literal with key-value pairs.`;
 
-const UNSUPPORTED_BEACON_API_WARNING = (context: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The Beacon API is not supported by your browser. The events will be sent using XHR instead.`;
-
 const TIMEOUT_NOT_NUMBER_WARNING = (
   context: string,
   timeout: number | undefined,
@@ -209,7 +206,7 @@ const NATIVE_DEST_PLUGIN_INITIALIZE_ERROR = `NativeDestinationQueuePlugin initia
 const DMT_PLUGIN_INITIALIZE_ERROR = `DeviceModeTransformationPlugin initialization failed`;
 
 const NATIVE_DEST_PLUGIN_ENQUEUE_ERROR = `NativeDestinationQueuePlugin event enqueue failed`;
-const DATAPLANE_PLUGIN_ENQUEUE_ERROR = `XhrQueuePlugin event enqueue failed`;
+const DATAPLANE_EVENTS_ENQUEUE_ERROR = `Enqueuing events to data plane queue failed`;
 
 const INVALID_CONFIG_URL_WARNING = (context: string, configUrl: string | undefined): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The provided source config URL "${configUrl}" is invalid. Using the default source config URL instead.`;
@@ -265,7 +262,6 @@ export {
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
   RESERVED_KEYWORD_WARNING,
   INVALID_CONTEXT_OBJECT_WARNING,
-  UNSUPPORTED_BEACON_API_WARNING,
   TIMEOUT_NOT_NUMBER_WARNING,
   TIMEOUT_ZERO_WARNING,
   TIMEOUT_NOT_RECOMMENDED_WARNING,
@@ -309,7 +305,7 @@ export {
   NATIVE_DEST_PLUGIN_INITIALIZE_ERROR,
   DMT_PLUGIN_INITIALIZE_ERROR,
   NATIVE_DEST_PLUGIN_ENQUEUE_ERROR,
-  DATAPLANE_PLUGIN_ENQUEUE_ERROR,
+  DATAPLANE_EVENTS_ENQUEUE_ERROR,
   DATA_SERVER_URL_INVALID_ERROR,
   DATA_SERVER_REQUEST_FAIL_ERROR,
   FAILED_SETTING_COOKIE_FROM_SERVER_ERROR,

@@ -11,7 +11,6 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import type { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import type {
   IQueue,
@@ -33,7 +32,7 @@ import type { XHRRetryQueueItemData, XHRQueueItemData, XHRQueueBatchItemData } f
 import { RetryQueue } from '../shared-chunks/retryQueue';
 import { DELIVERY_ERROR, REQUEST_ERROR } from './logMessages';
 
-const pluginName: PluginName = 'XhrQueue';
+const pluginName = 'XhrQueue';
 
 const XhrQueue = (): ExtensionPlugin => ({
   name: pluginName,

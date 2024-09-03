@@ -178,7 +178,6 @@ export type LoadOptions = {
   secureCookie?: boolean; // defaults to false.
   destSDKBaseURL?: string; // defaults to https://cdn.rudderlabs.com/latest/v3/modern/js-integrations
   pluginsSDKBaseURL?: string; // defaults to https://cdn.rudderlabs.com/latest/v3/modern/plugins
-  useBeacon?: boolean; // defaults to false.
   beaconQueueOptions?: BeaconQueueOpts;
   destinationsQueueOptions?: DestinationsQueueOpts;
   anonymousIdOptions?: AnonymousIdOptions;

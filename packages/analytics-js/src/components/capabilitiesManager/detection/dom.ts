@@ -32,7 +32,6 @@ const legacyJSEngineRequiredPolyfills: Record<string, () => boolean> = {
   requestAnimationFrame: () =>
     !isFunction(globalThis.requestAnimationFrame) || !isFunction(globalThis.cancelAnimationFrame),
   CustomEvent: () => !isFunction(globalThis.CustomEvent),
-  'navigator.sendBeacon': () => !isFunction(globalThis.navigator.sendBeacon),
   // Note, the polyfill service serves both ArrayBuffer and Uint8Array under the same feature name, "ArrayBuffer".
   ArrayBuffer: () => !isFunction(globalThis.Uint8Array),
   Set: () => !isFunction(globalThis.Set),

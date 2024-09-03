@@ -10,7 +10,6 @@ import type {
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
-import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import type {
   DoneCallback,
@@ -32,7 +31,7 @@ import {
 } from './logMessages';
 import { RetryQueue } from '../shared-chunks/retryQueue';
 
-const pluginName: PluginName = 'BeaconQueue';
+const pluginName = 'BeaconQueue';
 
 const BeaconQueue = (): ExtensionPlugin => ({
   name: pluginName,

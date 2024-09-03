@@ -25,7 +25,6 @@ import type { ICapabilitiesManager } from './types';
 import { POLYFILL_LOAD_TIMEOUT, POLYFILL_SCRIPT_ID, POLYFILL_URL } from './polyfill';
 import {
   getScreenDetails,
-  hasBeacon,
   hasCrypto,
   hasUAClientHints,
   isIE11,
@@ -84,7 +83,6 @@ class CapabilitiesManager implements ICapabilitiesManager {
       );
 
       // Browser feature detection details
-      state.capabilities.isBeaconAvailable.value = hasBeacon();
       state.capabilities.isUaCHAvailable.value = hasUAClientHints();
       state.capabilities.isCryptoAvailable.value = hasCrypto();
       state.capabilities.isIE11.value = isIE11();

@@ -12,7 +12,7 @@ import { EVENT_REPOSITORY } from '@rudderstack/analytics-js-common/constants/log
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import {
   API_CALLBACK_INVOKE_ERROR,
-  DATAPLANE_PLUGIN_ENQUEUE_ERROR,
+  DATAPLANE_EVENTS_ENQUEUE_ERROR,
   DMT_PLUGIN_INITIALIZE_ERROR,
   NATIVE_DEST_PLUGIN_ENQUEUE_ERROR,
   NATIVE_DEST_PLUGIN_INITIALIZE_ERROR,
@@ -158,7 +158,7 @@ class EventRepository implements IEventRepository {
     try {
       this.dataplaneEventsQueue.enqueue(finalEvent);
     } catch (e) {
-      this.onError(e, DATAPLANE_PLUGIN_ENQUEUE_ERROR);
+      this.onError(e, DATAPLANE_EVENTS_ENQUEUE_ERROR);
     }
 
     try {

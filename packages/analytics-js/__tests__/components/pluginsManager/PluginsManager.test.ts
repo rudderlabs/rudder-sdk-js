@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/no-alphabetical-sort */
 import { PluginsManager } from '../../../src/components/pluginsManager';
 import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
 import { defaultLogger } from '../../../src/services/Logger';
@@ -43,7 +44,7 @@ describe('PluginsManager', () => {
       state.reporting.isErrorReportingEnabled.value = true;
 
       expect(pluginsManager.getPluginsToLoadBasedOnConfig().sort()).toEqual(
-        ['ErrorReporting', 'Bugsnag', 'ExternalAnonymousId', 'GoogleLinker'].sort(),
+        ['ErrorReporting', 'ExternalAnonymousId', 'GoogleLinker'].sort(),
       );
     });
 
