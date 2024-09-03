@@ -12,12 +12,21 @@ on:
       sdkVersion:
         description: Version of the SDK
         required: true
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+        default: production
+      sdkVersion:
+        type: string
+        required: true
 
 jobs:
   trigger:
     runs-on: [self-hosted, Linux, X64]
     steps:
-      - name: Trigger target repo workflow
+      - name: Trigger sanity suite test workflow on rudder-client-side-test
         run: |
           curl -X POST \
           -H "Authorization: token ${{ secrets.PAT }}" \
