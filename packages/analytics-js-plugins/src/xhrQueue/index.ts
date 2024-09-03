@@ -29,7 +29,7 @@ import {
   getBatchDeliveryPayload,
 } from './utilities';
 import { QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
-import type { XHRRetryQueueItemData, XHRQueueItemData } from './types';
+import type { XHRRetryQueueItemData, XHRQueueItemData, XHRQueueBatchItemData } from './types';
 import { RetryQueue } from '../shared-chunks/retryQueue';
 import { DELIVERY_ERROR, REQUEST_ERROR } from './logMessages';
 
@@ -167,9 +167,11 @@ const XhrQueue = (): ExtensionPlugin => ({
         storeManager,
         storages.LOCAL_STORAGE,
         logger,
-        (itemData: XHRQueueItemData[]): number => {
+        (itemData: QueueItemData[]): number => {
           const currentTime = getCurrentTimeFormatted();
-          const events = itemData.map((queueItemData: XHRQueueItemData) => queueItemData.event);
+          const events = (itemData as XHRQueueBatchItemData).map(
+            (queueItemData: XHRQueueItemData) => queueItemData.event,
+          );
           // type casting to string as we know that the event has already been validated prior to enqueue
           return (getBatchDeliveryPayload(events, currentTime, logger) as string)?.length;
         },

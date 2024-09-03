@@ -17,6 +17,7 @@ import { isErrRetryable } from '@rudderstack/analytics-js-common/utilities/http'
 import type {
   DoneCallback,
   IQueue,
+  QueueItemData,
 } from '@rudderstack/analytics-js-common/utilities/retryQueue/types';
 import { createPayload, sendTransformedEventToDestinations } from './utilities';
 import { getDMTDeliveryPayload } from '../utilities/eventsDelivery';
@@ -49,12 +50,13 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
         `${QUEUE_NAME}_${writeKey}`,
         DEFAULT_TRANSFORMATION_QUEUE_OPTIONS,
         (
-          item: TransformationQueueItemData,
+          item: QueueItemData,
           done: DoneCallback,
           attemptNumber?: number,
           maxRetryAttempts?: number,
         ) => {
-          const payload = createPayload(item.event, item.destinationIds, item.token);
+          const curItem = item as TransformationQueueItemData;
+          const payload = createPayload(curItem.event, curItem.destinationIds, curItem.token);
 
           httpClient.request<TransformationResponsePayload>({
             url: `${state.lifecycle.activeDataplaneUrl.value}/transform`,
@@ -77,10 +79,10 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
                 sendTransformedEventToDestinations(
                   state,
                   pluginsManager,
-                  item.destinationIds,
+                  curItem.destinationIds,
                   result,
                   details,
-                  item.event,
+                  curItem.event,
                   errorHandler,
                   logger,
                 );

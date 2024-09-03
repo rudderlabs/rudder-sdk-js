@@ -182,7 +182,7 @@ describe('Device mode transformation plugin', () => {
     );
 
     // Item is successfully processed and removed from queue
-    expect(queue.getStorageEntry('queue').length).toBe(0);
+    expect((queue.getStorageEntry('queue') ?? []).length).toBe(0);
 
     queueProcessCbSpy.mockRestore();
   });

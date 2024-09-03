@@ -14,7 +14,12 @@ import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilit
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { toBase64 } from '@rudderstack/analytics-js-common/utilities/string';
 import { clone } from 'ramda';
-import type { EventsQueueItemData, IDataPlaneEventsQueue, SingleEventData } from './types';
+import type {
+  BatchData,
+  EventsQueueItemData,
+  IDataPlaneEventsQueue,
+  SingleEventData,
+} from './types';
 import {
   getBatchDeliveryPayload,
   getDeliveryUrl,
@@ -101,9 +106,11 @@ class DataPlaneEventsQueue implements IDataPlaneEventsQueue {
       this.storeManager,
       LOCAL_STORAGE,
       logger,
-      (itemData: SingleEventData[]): number => {
+      (itemData: QueueItemData[]): number => {
         const currentTime = getCurrentTimeFormatted();
-        const events = itemData.map((queueItemData: SingleEventData) => queueItemData.event);
+        const events = (itemData as BatchData).map(
+          (queueItemData: SingleEventData) => queueItemData.event,
+        );
         // type casting to string as we know that the event has already been validated prior to enqueue
         return (getBatchDeliveryPayload(events, currentTime, logger) as string)?.length;
       },

@@ -1,5 +1,4 @@
-import type { Nullable } from '../../types/Nullable';
-import type { IStore, IStoreManager } from '../../types/Store';
+import type { IStoreManager } from '../../types/Store';
 
 export type DoneCallback = (error?: any, response?: any) => void;
 
@@ -17,14 +16,14 @@ export type QueueTimeouts = {
   reclaimWait: number;
 };
 
-export type InProgressQueueItem = {
-  item: Record<string, any> | string | number | Record<string, any>[] | string[] | number[];
-  done: DoneCallback;
+export type ProcessQueueItem<T> = {
+  item: T | T[];
   attemptNumber: number;
+  done: DoneCallback;
 };
 
-export type QueueItem<T = QueueItemData> = {
-  item: T;
+export type QueueItem<T> = {
+  item: T | T[];
   attemptNumber: number;
   time: number;
   id: string;
@@ -38,6 +37,8 @@ export type QueueItemData =
   | string[]
   | number[];
 
+export type QueueData<T> = QueueItem<T>[];
+
 /**
  * @callback QueueProcessCallback
  * @param {any} item The item added to the queue to process
@@ -47,7 +48,7 @@ export type QueueItemData =
  * @param {Number} willBeRetried A boolean indicating if the item will be retried later
  * @param {Number} isPageAccessible A boolean indicating if the page is accessible
  */
-export type QueueProcessCallback<T = any> = (
+export type QueueProcessCallback<T = QueueItemData> = (
   item: T,
   done: DoneCallback,
   retryAttemptNumber?: number,
@@ -56,7 +57,7 @@ export type QueueProcessCallback<T = any> = (
   isPageAccessible?: boolean,
 ) => void;
 
-export type QueueBatchItemsSizeCalculatorCallback<T = any> = (item: T) => number;
+export type QueueBatchItemsSizeCalculatorCallback<T> = (items: T[]) => number;
 
 /**
  * @callback DoneCallback
@@ -67,9 +68,11 @@ export type QueueBatchItemsSizeCalculatorCallback<T = any> = (item: T) => number
 export interface IQueue<T = any> {
   name: string;
   id: string;
+  storeManager: IStoreManager;
   scheduleTimeoutActive: boolean;
   start(): void;
   stop(): void;
   enqueue(item: QueueItem<T>): void;
   addItem(item: T): void;
+  clear(): void;
 }

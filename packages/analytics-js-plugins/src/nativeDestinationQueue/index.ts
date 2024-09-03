@@ -16,6 +16,7 @@ import { clone } from 'ramda';
 import type {
   IQueue,
   DoneCallback,
+  QueueItemData,
 } from '@rudderstack/analytics-js-common/utilities/retryQueue/types';
 import { storages } from '../shared-chunks/common';
 import { getNormalizedQueueOptions, isEventDenyListed, sendEventToDestination } from './utilities';
@@ -59,7 +60,8 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
         // adding write key to the queue name to avoid conflicts
         `${QUEUE_NAME}_${writeKey}`,
         finalQOpts,
-        (rudderEvent: RudderEvent, done: DoneCallback) => {
+        (item: QueueItemData, done: DoneCallback) => {
+          const rudderEvent = item as RudderEvent;
           const destinationsToSend = destinationUtils.filterDestinations(
             rudderEvent.integrations,
             state.nativeDestinations.initializedDestinations.value,

@@ -1,31 +1,20 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { QueueStatuses } from '@rudderstack/analytics-js-common/constants/QueueStatuses';
-import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages';
-import { Store, StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
-import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
-import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
+import { QueueStatuses } from '../../../src/constants/QueueStatuses';
 import { Schedule } from '../../../src/utilities/retryQueue/Schedule';
 import { RetryQueue } from '../../../src/utilities/retryQueue/RetryQueue';
+import { defaultStoreManager } from '../../../__mocks__/StoreManager';
+import { Store } from '../../../__mocks__/Store';
+import type { QueueItemData } from '../../../src/utilities/retryQueue/types';
 
 const size = (queue: RetryQueue): { queue: number; inProgress: number } => ({
-  queue: queue.store.get(QueueStatuses.QUEUE).length,
-  inProgress: Object.keys(queue.store.get(QueueStatuses.IN_PROGRESS) || {}).length,
+  queue: (queue.store.get(QueueStatuses.QUEUE) ?? []).length,
+  inProgress: (queue.store.get(QueueStatuses.IN_PROGRESS) ?? []).length,
 });
 
-describe('Queue', () => {
+describe('RetryQueue', () => {
   let queue: RetryQueue;
-  // let clock: InstalledClock;
   let schedule: Schedule;
-  const engine = getStorageEngine('localStorage');
-  const defaultPluginsManager = new PluginsManager(
-    defaultPluginEngine,
-    defaultErrorHandler,
-    defaultLogger,
-  );
-
-  const defaultStoreManager = new StoreManager(defaultPluginsManager);
+  const engine = window.localStorage;
 
   beforeAll(() => {
     jest.useFakeTimers();
@@ -40,7 +29,8 @@ describe('Queue', () => {
     queue = new RetryQueue(
       'test',
       {
-        timerScaleFactor: 2, // scales the timers by 2x. Not a necessity, but added this option to test the timer scaling
+        // scales the timers by 2x. Not a necessity, but added this option to test the timer scaling
+        timerScaleFactor: 2,
       },
       jest.fn(),
       defaultStoreManager,
@@ -90,7 +80,7 @@ describe('Queue', () => {
       },
     ]);
 
-    expect(batchQueue.getStorageEntry('queue')).toEqual([]);
+    expect(batchQueue.getStorageEntry('queue')).toEqual(null);
   });
 
   it('should dispatch batch items to main queue when length criteria is met', () => {
@@ -104,7 +94,7 @@ describe('Queue', () => {
     batchQueue.addItem('a');
     batchQueue.addItem('b');
 
-    expect(batchQueue.getStorageEntry('batchQueue')).toEqual([]);
+    expect(batchQueue.getStorageEntry('batchQueue')).toEqual(null);
 
     expect(batchQueue.getStorageEntry('queue')).toEqual([
       {
@@ -124,13 +114,13 @@ describe('Queue', () => {
       defaultStoreManager,
       undefined,
       undefined,
-      (items: []) => items.length,
+      (items: QueueItemData[]) => items.length,
     );
 
     batchQueue.addItem('a');
     batchQueue.addItem('b');
 
-    expect(batchQueue.getStorageEntry('batchQueue')).toEqual([]);
+    expect(batchQueue.getStorageEntry('batchQueue')).toEqual(null);
 
     expect(batchQueue.getStorageEntry('queue')).toEqual([
       {
@@ -150,14 +140,14 @@ describe('Queue', () => {
       defaultStoreManager,
       undefined,
       undefined,
-      (items: []) => items.length,
+      (items: QueueItemData[]) => items.length,
     );
 
     batchQueue.addItem('a');
 
     batchQueue.flushBatch();
 
-    expect(batchQueue.getStorageEntry('batchQueue')).toEqual([]);
+    expect(batchQueue.getStorageEntry('batchQueue')).toEqual(null);
 
     expect(batchQueue.getStorageEntry('queue')).toEqual([
       {
@@ -177,7 +167,7 @@ describe('Queue', () => {
       defaultStoreManager,
       undefined,
       undefined,
-      (items: []) => items.length,
+      (items: QueueItemData[]) => items.length,
     );
 
     batchQueue.batchingInProgress = true;
@@ -195,7 +185,7 @@ describe('Queue', () => {
       },
     ]);
 
-    expect(batchQueue.getStorageEntry('queue')).toEqual([]);
+    expect(batchQueue.getStorageEntry('queue')).toEqual(null);
   });
 
   it('should run a task', () => {
@@ -237,7 +227,7 @@ describe('Queue', () => {
 
     // Delay for the first retry
     mockProcessItemCb.mockReset();
-    const nextTickDelay = queue.getDelay(1);
+    const nextTickDelay = queue.getRetryDelay(1);
     jest.advanceTimersByTime(nextTickDelay);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
@@ -271,7 +261,7 @@ describe('Queue', () => {
 
     // Delay for the retry
     mockProcessItemCb.mockReset();
-    const nextTickDelay = queue.getDelay(1);
+    const nextTickDelay = queue.getRetryDelay(1);
     jest.advanceTimersByTime(nextTickDelay);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
@@ -286,7 +276,7 @@ describe('Queue', () => {
   });
 
   it('should respect shouldRetry', () => {
-    queue.shouldRetry = (_, attemptNumber) => !(attemptNumber > 2);
+    queue.shouldRetry = attemptNumber => attemptNumber <= 2;
 
     const mockProcessItemCb = jest.fn((_, cb) => cb(new Error('no')));
 
@@ -296,17 +286,17 @@ describe('Queue', () => {
 
     // over maxattempts
     queue.requeue('a', 3);
-    jest.advanceTimersByTime(queue.getDelay(3));
+    jest.advanceTimersByTime(queue.getRetryDelay(3));
     expect(queue.processQueueCb).toHaveBeenCalledTimes(0);
 
     mockProcessItemCb.mockReset();
     queue.requeue('a', 2);
-    jest.advanceTimersByTime(queue.getDelay(2));
+    jest.advanceTimersByTime(queue.getRetryDelay(2));
     expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
 
     mockProcessItemCb.mockReset();
     queue.requeue('a', 3);
-    jest.advanceTimersByTime(queue.getDelay(1));
+    jest.advanceTimersByTime(queue.getRetryDelay(1));
     expect(queue.processQueueCb).toHaveBeenCalledTimes(0);
   });
 
@@ -328,16 +318,12 @@ describe('Queue', () => {
 
   it('should take over a queued task if a queue is abandoned', () => {
     // a wild queue of interest appears
-    const foundQueue = new Store(
-      {
-        name: 'test',
-        id: 'fake-id',
-        validKeys: QueueStatuses,
-      },
-      getStorageEngine('localStorage'),
-    );
-    foundQueue.set(foundQueue.validKeys.ACK, 0); // fake timers starts at time 0
-    foundQueue.set(foundQueue.validKeys.QUEUE, [
+    const foundQueue = new Store({
+      name: 'test',
+      id: 'fake-id',
+    });
+    foundQueue.set('ack', 0); // fake timers starts at time 0
+    foundQueue.set('queue', [
       {
         item: 'a',
         time: 0,
@@ -366,22 +352,19 @@ describe('Queue', () => {
 
   it('should take over an in-progress task if a queue is abandoned', () => {
     // set up a fake queue
-    const foundQueue = new Store(
+    const foundQueue = new Store({
+      name: 'test',
+      id: 'fake-id',
+    });
+    foundQueue.set('ack', -15000);
+    foundQueue.set('inProgress', [
       {
-        name: 'test',
-        id: 'fake-id',
-        validKeys: QueueStatuses,
-      },
-      getStorageEngine('localStorage'),
-    );
-    foundQueue.set(foundQueue.validKeys.ACK, -15000);
-    foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
-      'task-id': {
+        id: 'task-id',
         item: 'a',
         time: 0,
         attemptNumber: 0,
       },
-    });
+    ]);
 
     // wait for the queue to expire
     jest.advanceTimersByTime(queue.timeouts.reclaimTimeout);
@@ -411,16 +394,12 @@ describe('Queue', () => {
     );
 
     // a wild queue of interest appears
-    const foundQueue = new Store(
-      {
-        name: 'test',
-        id: 'fake-id',
-        validKeys: QueueStatuses,
-      },
-      getStorageEngine('localStorage'),
-    );
-    foundQueue.set(foundQueue.validKeys.ACK, 0); // fake timers starts at time 0
-    foundQueue.set(foundQueue.validKeys.BATCH_QUEUE, [
+    const foundQueue = new Store({
+      name: 'test',
+      id: 'fake-id',
+    });
+    foundQueue.set('ack', 0); // fake timers starts at time 0
+    foundQueue.set('batchQueue', [
       {
         item: 'a',
         time: 0,
@@ -455,16 +434,12 @@ describe('Queue', () => {
 
   it('should take over a batch queued task to main queue if a queue is abandoned', () => {
     // a wild queue of interest appears
-    const foundQueue = new Store(
-      {
-        name: 'test',
-        id: 'fake-id',
-        validKeys: QueueStatuses,
-      },
-      getStorageEngine('localStorage'),
-    );
-    foundQueue.set(foundQueue.validKeys.ACK, 0); // fake timers starts at time 0
-    foundQueue.set(foundQueue.validKeys.BATCH_QUEUE, [
+    const foundQueue = new Store({
+      name: 'test',
+      id: 'fake-id',
+    });
+    foundQueue.set('ack', 0); // fake timers starts at time 0
+    foundQueue.set('batchQueue', [
       {
         item: 'a',
         time: 0,
@@ -507,16 +482,13 @@ describe('Queue', () => {
 
   it('should deduplicate ids when reclaiming abandoned queue tasks', () => {
     // set up a fake queue
-    const foundQueue = new Store(
-      {
-        name: 'test',
-        id: 'fake-id',
-        validKeys: QueueStatuses,
-      },
-      getStorageEngine('localStorage'),
-    );
-    foundQueue.set(foundQueue.validKeys.ACK, -15000);
-    foundQueue.set(foundQueue.validKeys.QUEUE, [
+    const foundQueue = new Store({
+      name: 'test',
+      id: 'fake-id',
+      validKeys: QueueStatuses,
+    });
+    foundQueue.set('ack', -15000);
+    foundQueue.set('queue', [
       {
         item: 'a',
         time: 0,
@@ -552,29 +524,26 @@ describe('Queue', () => {
 
   it('should deduplicate ids when reclaiming abandoned in-progress tasks', () => {
     // set up a fake queue
-    const foundQueue = new Store(
-      {
-        name: 'test',
-        id: 'fake-id',
-        validKeys: QueueStatuses,
-      },
-      getStorageEngine('localStorage'),
-    );
-    foundQueue.set(foundQueue.validKeys.ACK, -15000);
-    foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
-      'task-id-0': {
-        item: 'a',
-        time: 0,
-        attemptNumber: 0,
-        id: '123',
-      },
-      'task-id-1': {
-        item: 'a',
-        time: 0,
-        attemptNumber: 0,
-        id: '123',
-      },
+    const foundQueue = new Store({
+      name: 'test',
+      id: 'fake-id',
+      validKeys: QueueStatuses,
     });
+    foundQueue.set('ack', -15000);
+    foundQueue.set('inProgress', [
+      {
+        id: '123',
+        item: 'a',
+        time: 0,
+        attemptNumber: 0,
+      },
+      {
+        id: '123',
+        item: 'a',
+        time: 0,
+        attemptNumber: 0,
+      },
+    ]);
 
     // wait for the queue to expire
     jest.advanceTimersByTime(queue.timeouts.reclaimTimeout);
@@ -597,16 +566,13 @@ describe('Queue', () => {
 
   it('should deduplicate ids when reclaiming abandoned batch queue tasks', () => {
     // set up a fake queue
-    const foundQueue = new Store(
-      {
-        name: 'test',
-        id: 'fake-id',
-        validKeys: QueueStatuses,
-      },
-      getStorageEngine('localStorage'),
-    );
-    foundQueue.set(foundQueue.validKeys.ACK, -15000);
-    foundQueue.set(foundQueue.validKeys.BATCH_QUEUE, [
+    const foundQueue = new Store({
+      name: 'test',
+      id: 'fake-id',
+      validKeys: QueueStatuses,
+    });
+    foundQueue.set('ack', -15000);
+    foundQueue.set('batchQueue', [
       {
         item: 'a',
         time: 0,
@@ -642,31 +608,13 @@ describe('Queue', () => {
 
   it('should deduplicate ids when reclaiming abandoned batch, in-progress and queue tasks', () => {
     // set up a fake queue
-    const foundQueue = new Store(
-      {
-        name: 'test',
-        id: 'fake-id',
-        validKeys: QueueStatuses,
-      },
-      getStorageEngine('localStorage'),
-    );
-    foundQueue.set(foundQueue.validKeys.ACK, -15000);
-    foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
-      'task-id-0': {
-        item: 'a',
-        time: 0,
-        attemptNumber: 0,
-        id: '123',
-      },
-      'task-id-1': {
-        item: 'b',
-        time: 0,
-        attemptNumber: 0,
-        id: '456',
-      },
+    const foundQueue = new Store({
+      name: 'test',
+      id: 'fake-id',
+      validKeys: QueueStatuses,
     });
-
-    foundQueue.set(foundQueue.validKeys.QUEUE, [
+    foundQueue.set('ack', -15000);
+    foundQueue.set('inProgress', [
       {
         item: 'a',
         time: 0,
@@ -681,7 +629,22 @@ describe('Queue', () => {
       },
     ]);
 
-    foundQueue.set(foundQueue.validKeys.BATCH_QUEUE, [
+    foundQueue.set('queue', [
+      {
+        item: 'a',
+        time: 0,
+        attemptNumber: 0,
+        id: '123',
+      },
+      {
+        item: 'b',
+        time: 0,
+        attemptNumber: 0,
+        id: '456',
+      },
+    ]);
+
+    foundQueue.set('batchQueue', [
       {
         item: 'c',
         time: 0,
@@ -733,29 +696,26 @@ describe('Queue', () => {
 
   it('should not deduplicate tasks when ids are not set during reclaim', () => {
     // set up a fake queue
-    const foundQueue = new Store(
-      {
-        name: 'test',
-        id: 'fake-id',
-        validKeys: QueueStatuses,
-      },
-      getStorageEngine('localStorage'),
-    );
-    foundQueue.set(foundQueue.validKeys.ACK, -15000);
-    foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
-      'task-id-0': {
-        item: 'a',
-        time: 0,
-        attemptNumber: 0,
-      },
-      'task-id-1': {
-        item: 'a',
-        time: 0,
-        attemptNumber: 0,
-      },
+    const foundQueue = new Store({
+      name: 'test',
+      id: 'fake-id',
+      validKeys: QueueStatuses,
     });
+    foundQueue.set('ack', -15000);
+    foundQueue.set('inProgress', [
+      {
+        item: 'a',
+        time: 0,
+        attemptNumber: 0,
+      },
+      {
+        item: 'a',
+        time: 0,
+        attemptNumber: 0,
+      },
+    ]);
 
-    foundQueue.set(foundQueue.validKeys.QUEUE, [
+    foundQueue.set('queue', [
       {
         item: 'a',
         time: 0,
@@ -789,36 +749,33 @@ describe('Queue', () => {
 
   it('should take over multiple tasks if a queue is abandoned', () => {
     // set up a fake queue
-    const foundQueue = new Store(
-      {
-        name: 'test',
-        id: 'fake-id',
-        validKeys: QueueStatuses,
-      },
-      getStorageEngine('localStorage'),
-    );
-    foundQueue.set(foundQueue.validKeys.ACK, -15000);
-    foundQueue.set(foundQueue.validKeys.QUEUE, [
+    const foundQueue = new Store({
+      name: 'test',
+      id: 'fake-id',
+      validKeys: QueueStatuses,
+    });
+    foundQueue.set('ack', -15000);
+    foundQueue.set('queue', [
       {
         item: 'a',
         time: 0,
         attemptNumber: 0,
       },
     ]);
-    foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
-      'task-id': {
+    foundQueue.set('inProgress', [
+      {
         item: 'b',
         time: 1,
         attemptNumber: 0,
       },
-    });
-    foundQueue.set(foundQueue.validKeys.BATCH_QUEUE, {
-      'task-id2': {
+    ]);
+    foundQueue.set('batchQueue', [
+      {
         item: 'c',
         time: 1,
         attemptNumber: 0,
       },
-    });
+    ]);
 
     // wait for the queue to expire
     jest.advanceTimersByTime(queue.timeouts.reclaimTimeout);
@@ -862,16 +819,13 @@ describe('Queue', () => {
 
     it('should take over a queued task if a queue is abandoned', () => {
       // a wild queue of interest appears
-      const foundQueue = new Store(
-        {
-          name: 'test',
-          id: 'fake-id',
-          validKeys: QueueStatuses,
-        },
-        getStorageEngine('localStorage'),
-      );
-      foundQueue.set(foundQueue.validKeys.ACK, 0); // fake timers starts at time 0
-      foundQueue.set(foundQueue.validKeys.QUEUE, [
+      const foundQueue = new Store({
+        name: 'test',
+        id: 'fake-id',
+        validKeys: QueueStatuses,
+      });
+      foundQueue.set('ack', 0); // fake timers starts at time 0
+      foundQueue.set('queue', [
         {
           item: 'a',
           time: 0,
@@ -900,22 +854,19 @@ describe('Queue', () => {
 
     it('should take over an in-progress task if a queue is abandoned', () => {
       // set up a fake queue
-      const foundQueue = new Store(
+      const foundQueue = new Store({
+        name: 'test',
+        id: 'fake-id',
+        validKeys: QueueStatuses,
+      });
+      foundQueue.set('ack', -15000);
+      foundQueue.set('inProgress', [
         {
-          name: 'test',
-          id: 'fake-id',
-          validKeys: QueueStatuses,
-        },
-        getStorageEngine('localStorage'),
-      );
-      foundQueue.set(foundQueue.validKeys.ACK, -15000);
-      foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
-        'task-id': {
           item: 'a',
           time: 0,
           attemptNumber: 0,
         },
-      });
+      ]);
 
       // wait for the queue to expire
       jest.advanceTimersByTime(queue.timeouts.reclaimTimeout);
@@ -938,29 +889,26 @@ describe('Queue', () => {
 
     it('should take over multiple tasks if a queue is abandoned', () => {
       // set up a fake queue
-      const foundQueue = new Store(
-        {
-          name: 'test',
-          id: 'fake-id',
-          validKeys: QueueStatuses,
-        },
-        getStorageEngine('localStorage'),
-      );
-      foundQueue.set(foundQueue.validKeys.ACK, -15000);
-      foundQueue.set(foundQueue.validKeys.QUEUE, [
+      const foundQueue = new Store({
+        name: 'test',
+        id: 'fake-id',
+        validKeys: QueueStatuses,
+      });
+      foundQueue.set('ack', -15000);
+      foundQueue.set('queue', [
         {
           item: 'a',
           time: 0,
           attemptNumber: 0,
         },
       ]);
-      foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
-        'task-id': {
+      foundQueue.set('inProgress', [
+        {
           item: 'b',
           time: 1,
           attemptNumber: 0,
         },
-      });
+      ]);
 
       // wait for the queue to expire
       jest.advanceTimersByTime(queue.timeouts.reclaimTimeout);
@@ -997,10 +945,10 @@ describe('Queue', () => {
     queue.maxAttempts = 2;
 
     queue.processQueueCb = (item, done) => {
-      if (!calls[item.index]) {
-        calls[item.index] = 1;
+      if (!calls[(item as Record<string, any>).index]) {
+        calls[(item as Record<string, any>).index] = 1;
       } else {
-        calls[item.index]++;
+        calls[(item as Record<string, any>).index]++;
       }
 
       done(new Error());
@@ -1012,7 +960,7 @@ describe('Queue', () => {
 
     queue.start();
 
-    jest.advanceTimersByTime(queue.getDelay(1) + queue.getDelay(2));
+    jest.advanceTimersByTime(queue.getRetryDelay(1) + queue.getRetryDelay(2));
     calls.forEach(call => {
       expect(call === queue.maxAttempts + 1).toBeTruthy();
     });
@@ -1061,7 +1009,7 @@ describe('Queue', () => {
     expect(size(queue).inProgress).toEqual(0);
 
     // wait for the queue to be processed
-    jest.advanceTimersByTime(queue.getDelay(0));
+    jest.advanceTimersByTime(queue.getRetryDelay(0));
 
     // items should now be in progress
     expect(size(queue).queue).toEqual(0);
@@ -1215,22 +1163,19 @@ describe('Queue', () => {
 
       queue.clear();
 
-      expect(queue.getStorageEntry('queue')).toEqual([]);
-      expect(queue.getStorageEntry('inProgress')).toEqual({});
-      expect(queue.getStorageEntry('batchQueue')).toEqual([]);
+      // Each entry is attempted twice to delete in case of failures which takes at least 50ms
+      // 1 second is added to ensure all the entries are cleared
+      jest.advanceTimersByTime(1000);
+
+      expect(queue.getStorageEntry('queue')).toEqual(null);
+      expect(queue.getStorageEntry('inProgress')).toEqual(null);
+      expect(queue.getStorageEntry('batchQueue')).toEqual(null);
     });
   });
 });
 
 describe('end-to-end', () => {
   let queue: RetryQueue;
-  const defaultPluginsManager = new PluginsManager(
-    defaultPluginEngine,
-    defaultErrorHandler,
-    defaultLogger,
-  );
-
-  const defaultStoreManager = new StoreManager(defaultPluginsManager);
 
   beforeEach(() => {
     queue = new RetryQueue(
