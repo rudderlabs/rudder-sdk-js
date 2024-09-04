@@ -1,7 +1,9 @@
 import {
+  ABANDON,
+  ASAP,
   DEFAULT_CLOCK_LATE_FACTOR,
+  RESCHEDULE,
   Schedule,
-  ScheduleModes,
 } from '../../../src/utilities/retryQueue/Schedule';
 
 describe('Schedule', () => {
@@ -36,7 +38,7 @@ describe('Schedule', () => {
 
     it('should call task ASAP after timeout even after long duration', () => {
       const testCallback = jest.fn();
-      schedule.run(testCallback, clockTick, ScheduleModes.ASAP);
+      schedule.run(testCallback, clockTick, ASAP);
       jest.setSystemTime(clockTick * DEFAULT_CLOCK_LATE_FACTOR);
       jest.advanceTimersByTime(clockTick);
       expect(testCallback).toHaveBeenCalledTimes(1);
@@ -44,7 +46,7 @@ describe('Schedule', () => {
 
     it('should not call ABANDON task if past duration factor', () => {
       const testCallback = jest.fn();
-      schedule.run(testCallback, clockTick, ScheduleModes.ABANDON);
+      schedule.run(testCallback, clockTick, ABANDON);
       // Fast forwards time but doesnt trigger timers
       jest.setSystemTime(schedule.now() + clockTick * DEFAULT_CLOCK_LATE_FACTOR);
       // Trigger timers here
@@ -57,14 +59,14 @@ describe('Schedule', () => {
 
     it('should call ABANDON task if running on time', () => {
       const testCallback = jest.fn();
-      schedule.run(testCallback, clockTick, ScheduleModes.ABANDON);
+      schedule.run(testCallback, clockTick, ABANDON);
       jest.advanceTimersByTime(clockTick);
       expect(testCallback).toHaveBeenCalledTimes(1);
     });
 
     it('should RESCHEDULE and call task if skipped', () => {
       const testCallback = jest.fn();
-      schedule.run(testCallback, clockTick, ScheduleModes.RESCHEDULE);
+      schedule.run(testCallback, clockTick, RESCHEDULE);
       // Fast forwards time but doesnt trigger timers
       jest.setSystemTime(schedule.now() + clockTick * DEFAULT_CLOCK_LATE_FACTOR);
       // Trigger timers here

@@ -72,7 +72,6 @@ export interface IQueue<T = any> {
   scheduleTimeoutActive: boolean;
   start(): void;
   stop(): void;
-  enqueue(item: QueueItem<T>): void;
   addItem(item: T): void;
   clear(): void;
 }
