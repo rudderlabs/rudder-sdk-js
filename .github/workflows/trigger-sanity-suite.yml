@@ -10,13 +10,12 @@ on:
           - staging
           - production
       monorepoVersion:
-        description: Version of the SDK
+        description: Version of the Monorepo
         required: true
   workflow_call:
     inputs:
       environment:
         type: string
-        required: true
         default: production
 
 jobs:
@@ -44,7 +43,7 @@ jobs:
         with:
           ref: ${{ steps.getSHA.outputs.SHA }}
 
-      - name: Determine the SDK version
+      - name: Determine the Monorepo version
         id: determine_version
         run: |
           if [ -n "${{ inputs.monorepoVersion }}" ]; then
