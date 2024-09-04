@@ -9,7 +9,7 @@ on:
         options:
           - staging
           - production
-      sdkVersion:
+      monorepoVersion:
         description: Version of the SDK
         required: true
   workflow_call:
@@ -20,8 +20,8 @@ on:
         default: production
 
 jobs:
-  extract-sdk-version:
-    name: Extract SDK Version
+  extract-monorepo-version:
+    name: Extract Monorepo Version
     runs-on: ubuntu-latest
 
     outputs:
@@ -31,10 +31,10 @@ jobs:
       - name: Determine checkout SHA
         id: getSHA
         run: |
-          if ${{ inputs.environment }} == 'staging'; then
-            sha=$(echo ${{ github.event.pull_request.head.sha }})
+          if [ "${{ inputs.environment }}" = 'staging' ]; then
+            sha=${{ github.event.pull_request.head.sha }}
           else
-            sha=$(echo ${{ github.sha }})
+            sha=${{ github.sha }}
           fi
           echo "Checkout SHA: $sha"
           echo "SHA=$sha" >> $GITHUB_OUTPUT
@@ -47,16 +47,16 @@ jobs:
       - name: Determine the SDK version
         id: determine_version
         run: |
-          if [ -n "${{ inputs.sdkVersion }}" ]; then
-            current_version="${{ inputs.sdkVersion }}"
+          if [ -n "${{ inputs.monorepoVersion }}" ]; then
+            current_version="${{ inputs.monorepoVersion }}"
           else
             current_version=$(jq -r .version package.json)
           fi
-          echo "::set-output name=current_version::$current_version"
+          echo "current_version=$current_version" >> $GITHUB_OUTPUT
 
   trigger:
     runs-on: [self-hosted, Linux, X64]
-    needs: extract-sdk-version
+    needs: extract-monorepo-version
 
     steps:
       - name: Trigger sanity suite test workflow on rudder-client-side-test
@@ -65,4 +65,4 @@ jobs:
           -H "Authorization: token ${{ secrets.PAT }}" \
           -H "Accept: application/vnd.github.v3+json" \
           https://api.github.com/repos/rudderlabs/rudder-client-side-test/dispatches \
-          -d '{"event_type":"triggered_by_source_repo", "client_payload": {"environment": "${{ github.event.inputs.environment }}", "sdkVersion": "${{ needs.extract-sdk-version.outputs.version }}"}}'
+          -d '{"event_type":"triggered_by_source_repo", "client_payload": {"environment": "${{ github.event.inputs.environment }}", "monorepoVersion": "${{ needs.extract-monorepo-version.outputs.version }}"}}'
