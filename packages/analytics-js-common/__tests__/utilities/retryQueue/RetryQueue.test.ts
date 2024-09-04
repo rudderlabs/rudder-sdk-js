@@ -1,10 +1,10 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { QueueStatuses } from '../../../src/constants/QueueStatuses';
 import { Schedule } from '../../../src/utilities/retryQueue/Schedule';
 import { RetryQueue } from '../../../src/utilities/retryQueue/RetryQueue';
 import { defaultStoreManager } from '../../../__mocks__/StoreManager';
 import { Store } from '../../../__mocks__/Store';
 import type { QueueItemData } from '../../../src/utilities/retryQueue/types';
+import { QueueStatuses } from '../../../src/utilities/retryQueue/constants';
 
 const size = (queue: RetryQueue): { queue: number; inProgress: number } => ({
   queue: (queue.store.get(QueueStatuses.QUEUE) ?? []).length,

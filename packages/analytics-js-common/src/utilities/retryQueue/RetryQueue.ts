@@ -1,5 +1,4 @@
 import { isNonEmptyObject, isObjectLiteralAndNotNull } from '../object';
-import { QueueStatuses } from '../../constants/QueueStatuses';
 import type { IStore, IStoreManager } from '../../types/Store';
 import type { StorageType } from '../../types/Storage';
 import type { Nullable } from '../../types/Nullable';
@@ -39,7 +38,7 @@ import {
   MIN_TIMER_SCALE_FACTOR,
   MAX_TIMER_SCALE_FACTOR,
   MAX_PAGE_UNLOAD_BATCH_SIZE_BYTES,
-  RETRY_QUEUE,
+  QueueStatuses,
 } from './constants';
 import { clearQueueEntries, findOtherQueues, sortByTime } from './utilities';
 
@@ -189,7 +188,7 @@ class RetryQueue implements IQueue<QueueItemData> {
       try {
         this.store.remove(name);
       } catch (err) {
-        this.logger?.error(RETRY_QUEUE_ENTRY_REMOVE_ERROR(RETRY_QUEUE, name), err);
+        this.logger?.error(RETRY_QUEUE_ENTRY_REMOVE_ERROR(name), err);
       }
     }
   }
@@ -540,7 +539,7 @@ class RetryQueue implements IQueue<QueueItemData> {
           this.isPageAccessible,
         );
       } catch (err) {
-        this.logger?.error(RETRY_QUEUE_PROCESS_ERROR(RETRY_QUEUE), err);
+        this.logger?.error(RETRY_QUEUE_PROCESS_ERROR, err);
       }
     });
 

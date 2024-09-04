@@ -1,8 +1,7 @@
 import type { IStorage, IStore, IStoreManager } from '../../types/Store';
-import { QueueStatuses } from '../../constants/QueueStatuses';
 import type { QueueItem, QueueItemData } from './types';
 import { RETRY_QUEUE_ENTRY_REMOVE_ERROR } from './logMessages';
-import { RETRY_QUEUE } from './constants';
+import { QueueStatuses, RETRY_QUEUE } from './constants';
 import type { ILogger } from '../../types/Logger';
 import { isFunction } from '../checks';
 import { LOCAL_STORAGE } from '../../constants/storages';
@@ -39,7 +38,7 @@ const deleteStorageEntriesRecursively = (
         // Try clearing the same entry again with some extra delay
         deleteStorageEntriesRecursively(store, entryIdx, backoff + 40, logger, attempt + 1);
       } else {
-        logger?.error(RETRY_QUEUE_ENTRY_REMOVE_ERROR(RETRY_QUEUE, entry, attempt), err);
+        logger?.error(RETRY_QUEUE_ENTRY_REMOVE_ERROR(entry, attempt), err);
       }
 
       // clear the next entry after we've exhausted our attempts
