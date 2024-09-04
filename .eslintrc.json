@@ -140,7 +140,8 @@
               }
             ]
           }
-        ]
+        ],
+        "sonarjs/todo-tag": "warn"
       }
     },
     {

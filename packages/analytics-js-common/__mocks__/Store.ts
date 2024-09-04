@@ -8,14 +8,14 @@ class Store implements IStore {
     this.id = config.id;
     this.name = config.name;
     this.isEncrypted = config.isEncrypted ?? false;
-    this.validKeys = config.validKeys ?? {};
+    this.validKeys = config.validKeys ?? [];
     this.engine = engine ?? defaultLocalStorage;
     this.originalEngine = this.engine;
   }
   id = 'test';
   name = 'test';
   isEncrypted = false;
-  validKeys = {};
+  validKeys: string[];
   engine = defaultLocalStorage;
   originalEngine = defaultLocalStorage;
   createValidKey = (key: string) => {

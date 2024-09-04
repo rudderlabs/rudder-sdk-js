@@ -21,14 +21,15 @@ const MAX_PAGE_UNLOAD_BATCH_SIZE_BYTES = 64 * 1024; // 64 KB
 
 const RETRY_QUEUE = 'RetryQueue';
 
-const QueueStatuses = {
-  IN_PROGRESS: 'inProgress',
-  QUEUE: 'queue',
-  RECLAIM_START: 'reclaimStart',
-  RECLAIM_END: 'reclaimEnd',
-  ACK: 'ack',
-  BATCH_QUEUE: 'batchQueue',
-};
+// Queue entries
+const IN_PROGRESS = 'inProgress';
+const QUEUE = 'queue';
+const RECLAIM_START = 'reclaimStart';
+const RECLAIM_END = 'reclaimEnd';
+const ACK = 'ack';
+const BATCH_QUEUE = 'batchQueue';
+
+const QueueStatuses = [IN_PROGRESS, QUEUE, RECLAIM_START, RECLAIM_END, ACK, BATCH_QUEUE];
 
 export {
   DEFAULT_MIN_RETRY_DELAY_MS,
@@ -49,4 +50,10 @@ export {
   MAX_PAGE_UNLOAD_BATCH_SIZE_BYTES,
   RETRY_QUEUE,
   QueueStatuses,
+  IN_PROGRESS,
+  QUEUE,
+  RECLAIM_START,
+  RECLAIM_END,
+  ACK,
+  BATCH_QUEUE,
 };

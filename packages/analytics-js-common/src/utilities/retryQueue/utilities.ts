@@ -1,10 +1,11 @@
 import type { IStorage, IStore, IStoreManager } from '../../types/Store';
 import type { QueueItem, QueueItemData } from './types';
 import { RETRY_QUEUE_ENTRY_REMOVE_ERROR } from './logMessages';
-import { QueueStatuses, RETRY_QUEUE } from './constants';
+import { ACK, QueueStatuses } from './constants';
 import type { ILogger } from '../../types/Logger';
-import { isFunction } from '../checks';
+import { isDefined, isFunction } from '../checks';
 import { LOCAL_STORAGE } from '../../constants/storages';
+import { isNumber } from '../number';
 
 const sortByTime = (a: QueueItem<QueueItemData>, b: QueueItem<QueueItemData>) => a.time - b.time;
 
@@ -16,15 +17,14 @@ const deleteStorageEntriesRecursively = (
   attempt = 1,
 ) => {
   const maxAttempts = 2;
-  const queueEntryKeys = Object.keys(QueueStatuses);
-  const entry = QueueStatuses[queueEntryKeys[entryIdx] as keyof typeof QueueStatuses];
+  const entry = QueueStatuses[entryIdx] as string;
 
   (globalThis as typeof window).setTimeout(() => {
     try {
       store.remove(entry);
 
       // clear the next entry
-      if (entryIdx + 1 < queueEntryKeys.length) {
+      if (entryIdx + 1 < QueueStatuses.length) {
         deleteStorageEntriesRecursively(store, entryIdx + 1, backoff, logger);
       }
     } catch (err) {
@@ -42,7 +42,7 @@ const deleteStorageEntriesRecursively = (
       }
 
       // clear the next entry after we've exhausted our attempts
-      if (attempt === maxAttempts && entryIdx + 1 < queueEntryKeys.length) {
+      if (attempt === maxAttempts && entryIdx + 1 < QueueStatuses.length) {
         deleteStorageEntriesRecursively(store, entryIdx + 1, backoff, logger);
       }
     }
@@ -86,7 +86,7 @@ const findOtherQueues = (
       keyParts.length >= 3 &&
       keyParts[0] === curName && // match the current queue name
       keyParts[1] !== curId && // not the current queue
-      keyParts[2] === QueueStatuses.ACK // find only the ACK key
+      keyParts[2] === ACK // find only the ACK key
     ) {
       otherStores.push(
         storeManager.setStore({
@@ -102,4 +102,11 @@ const findOtherQueues = (
   return otherStores;
 };
 
-export { sortByTime, clearQueueEntries, findOtherQueues };
+const getOptionVal = (option: number | undefined, defaultVal: number, maxVal?: number): number => {
+  if (isNumber(option)) {
+    return isDefined(maxVal) ? Math.min(option, maxVal as number) : option;
+  }
+  return defaultVal;
+};
+
+export { sortByTime, clearQueueEntries, findOtherQueues, getOptionVal };

@@ -38,9 +38,15 @@ import {
   MIN_TIMER_SCALE_FACTOR,
   MAX_TIMER_SCALE_FACTOR,
   MAX_PAGE_UNLOAD_BATCH_SIZE_BYTES,
+  BATCH_QUEUE,
+  ACK,
+  IN_PROGRESS,
+  QUEUE,
   QueueStatuses,
+  RECLAIM_END,
+  RECLAIM_START,
 } from './constants';
-import { clearQueueEntries, findOtherQueues, sortByTime } from './utilities';
+import { clearQueueEntries, findOtherQueues, getOptionVal, sortByTime } from './utilities';
 
 /**
  * Constructs a RetryQueue backed by localStorage
@@ -91,17 +97,21 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.processQueueCb = queueProcessCb;
     this.batchSizeCalcCb = queueBatchItemsSizeCalculatorCb;
 
-    this.maxItems = options.maxItems || DEFAULT_MAX_ITEMS;
-    this.maxAttempts = options.maxAttempts || DEFAULT_MAX_RETRY_ATTEMPTS;
+    this.maxItems = getOptionVal(options.maxItems, DEFAULT_MAX_ITEMS, DEFAULT_MAX_ITEMS);
+    this.maxAttempts = getOptionVal(
+      options.maxAttempts,
+      DEFAULT_MAX_RETRY_ATTEMPTS,
+      DEFAULT_MAX_RETRY_ATTEMPTS,
+    );
 
     this.batch = { enabled: false };
     this.configureBatchMode(options);
 
     this.backoff = {
-      minRetryDelay: options.minRetryDelay || DEFAULT_MIN_RETRY_DELAY_MS,
-      maxRetryDelay: options.maxRetryDelay || DEFAULT_MAX_RETRY_DELAY_MS,
-      factor: options.backoffFactor || DEFAULT_BACKOFF_FACTOR,
-      jitter: options.backoffJitter || DEFAULT_BACKOFF_JITTER,
+      minRetryDelay: getOptionVal(options.minRetryDelay, DEFAULT_MIN_RETRY_DELAY_MS),
+      maxRetryDelay: getOptionVal(options.maxRetryDelay, DEFAULT_MAX_RETRY_DELAY_MS),
+      factor: getOptionVal(options.backoffFactor, DEFAULT_BACKOFF_FACTOR),
+      jitter: getOptionVal(options.backoffJitter, DEFAULT_BACKOFF_JITTER),
     };
 
     // Limit the timer scale factor to the minimum value
@@ -243,8 +253,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.isPageAccessible = isAccessible;
     if (!this.batchingInProgress) {
       this.batchingInProgress = true;
-      const batchQueue = (this.getStorageEntry(QueueStatuses.BATCH_QUEUE) ??
-        []) as QueueData<QueueItemData>;
+      const batchQueue = (this.getStorageEntry(BATCH_QUEUE) ?? []) as QueueData<QueueItemData>;
       if (batchQueue.length > 0) {
         let batchItems: QueueItem<QueueItemData>[] = [];
         let remainingBatchItems: QueueItem<QueueItemData>[] = [];
@@ -269,7 +278,7 @@ class RetryQueue implements IQueue<QueueItemData> {
 
         const batchEntry = this.genQueueItem(batchItems.map(queueItem => queueItem.item));
 
-        this.setStorageEntry(QueueStatuses.BATCH_QUEUE, remainingBatchItems);
+        this.setStorageEntry(BATCH_QUEUE, remainingBatchItems);
 
         this.pushToMainQueue(batchEntry);
       }
@@ -300,6 +309,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     let ms = this.backoff.minRetryDelay * this.backoff.factor ** attemptNumber;
 
     if (this.backoff.jitter) {
+      // eslint-disable-next-line sonarjs/pseudo-random
       const rand = Math.random();
       const deviation = Math.floor(rand * this.backoff.jitter * ms);
 
@@ -334,8 +344,7 @@ class RetryQueue implements IQueue<QueueItemData> {
    */
   handleNewItemForBatch(entry: QueueItem<QueueItemData>): QueueItem<QueueItemData> | undefined {
     let curEntry: QueueItem<QueueItemData> | undefined;
-    let batchQueue = (this.getStorageEntry(QueueStatuses.BATCH_QUEUE) ??
-      []) as QueueData<QueueItemData>;
+    let batchQueue = (this.getStorageEntry(BATCH_QUEUE) ?? []) as QueueData<QueueItemData>;
 
     if (!this.batchingInProgress) {
       this.batchingInProgress = true;
@@ -368,18 +377,18 @@ class RetryQueue implements IQueue<QueueItemData> {
     }
 
     // update the batch queue
-    this.setStorageEntry(QueueStatuses.BATCH_QUEUE, batchQueue);
+    this.setStorageEntry(BATCH_QUEUE, batchQueue);
     return curEntry;
   }
 
   pushToMainQueue(curEntry: QueueItem<QueueItemData>) {
-    let queue = (this.getStorageEntry(QueueStatuses.QUEUE) ?? []) as QueueData<QueueItemData>;
+    let queue = (this.getStorageEntry(QUEUE) ?? []) as QueueData<QueueItemData>;
 
     queue = queue.slice(-(this.maxItems - 1));
     queue.push(curEntry);
     queue = queue.sort(sortByTime);
 
-    this.setStorageEntry(QueueStatuses.QUEUE, queue);
+    this.setStorageEntry(QUEUE, queue);
 
     if (this.scheduleTimeoutActive) {
       this.processHead();
@@ -471,13 +480,12 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.schedule.cancel(this.processId);
 
     // Pop the head off the queue
-    let queue = (this.getStorageEntry(QueueStatuses.QUEUE) ?? []) as QueueData<QueueItemData>;
+    let queue = (this.getStorageEntry(QUEUE) ?? []) as QueueData<QueueItemData>;
     const now = this.schedule.now();
     const toRun: ProcessQueueItem<QueueItemData>[] = [];
 
     const processItemCallback = (el: QueueItem<QueueItemData>, id: string) => (err?: any) => {
-      const inProgress = (this.getStorageEntry(QueueStatuses.IN_PROGRESS) ??
-        []) as QueueData<QueueItemData>;
+      const inProgress = (this.getStorageEntry(IN_PROGRESS) ?? []) as QueueData<QueueItemData>;
 
       // Remove processed item from inProgress queue
       const pItemIdx = inProgress.findIndex(item => item.id === id);
@@ -485,7 +493,7 @@ class RetryQueue implements IQueue<QueueItemData> {
         inProgress.splice(pItemIdx, 1);
       }
 
-      this.setStorageEntry(QueueStatuses.IN_PROGRESS, inProgress);
+      this.setStorageEntry(IN_PROGRESS, inProgress);
 
       if (!isNullOrUndefined(err)) {
         this.requeue(el.item, el.attemptNumber + 1, el.id);
@@ -500,8 +508,7 @@ class RetryQueue implements IQueue<QueueItemData> {
       });
     };
 
-    const inProgress = (this.getStorageEntry(QueueStatuses.IN_PROGRESS) ??
-      []) as QueueItem<QueueItemData>[];
+    const inProgress = (this.getStorageEntry(IN_PROGRESS) ?? []) as QueueItem<QueueItemData>[];
     while (
       queue.length > 0 &&
       (queue[0] as QueueItem<QueueItemData>).time <= now &&
@@ -523,8 +530,8 @@ class RetryQueue implements IQueue<QueueItemData> {
       }
     }
 
-    this.setStorageEntry(QueueStatuses.QUEUE, queue);
-    this.setStorageEntry(QueueStatuses.IN_PROGRESS, inProgress);
+    this.setStorageEntry(QUEUE, queue);
+    this.setStorageEntry(IN_PROGRESS, inProgress);
 
     toRun.forEach(el => {
       // TODO: handle processQueueCb timeout
@@ -544,7 +551,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     });
 
     // re-read the queue in case the process function finished immediately or added another item
-    queue = (this.getStorageEntry(QueueStatuses.QUEUE) ?? []) as QueueItem<QueueItemData>[];
+    queue = (this.getStorageEntry(QUEUE) ?? []) as QueueItem<QueueItemData>[];
     this.schedule.cancel(this.processId);
 
     if (queue.length > 0) {
@@ -562,27 +569,27 @@ class RetryQueue implements IQueue<QueueItemData> {
     // Schedule the next ack
     this.schedule.run(this.ack, this.timeouts.ackTimer, ScheduleModes.ASAP);
 
-    this.setStorageEntry(QueueStatuses.ACK, this.schedule.now());
+    this.setStorageEntry(ACK, this.schedule.now());
 
     if (this.reclaimStartVal != null) {
       this.reclaimStartVal = null;
-      this.setStorageEntry(QueueStatuses.RECLAIM_START);
+      this.setStorageEntry(RECLAIM_START);
     }
 
     if (this.reclaimEndVal != null) {
       this.reclaimEndVal = null;
-      this.setStorageEntry(QueueStatuses.RECLAIM_END);
+      this.setStorageEntry(RECLAIM_END);
     }
   }
 
   reclaim(otherStore: IStore) {
     const ourData = {
-      queue: (this.getStorageEntry(QueueStatuses.QUEUE) ?? []) as QueueData<QueueItemData>,
+      queue: (this.getStorageEntry(QUEUE) ?? []) as QueueData<QueueItemData>,
     };
     const otherData = {
-      inProgress: (otherStore.get(QueueStatuses.IN_PROGRESS) ?? []) as QueueData<QueueItemData>,
-      batchQueue: (otherStore.get(QueueStatuses.BATCH_QUEUE) ?? []) as QueueData<QueueItemData>,
-      queue: (otherStore.get(QueueStatuses.QUEUE) ?? []) as QueueData<QueueItemData>,
+      inProgress: (otherStore.get(IN_PROGRESS) ?? []) as QueueData<QueueItemData>,
+      batchQueue: (otherStore.get(BATCH_QUEUE) ?? []) as QueueData<QueueItemData>,
+      queue: (otherStore.get(QUEUE) ?? []) as QueueData<QueueItemData>,
     };
     const trackMessageIds: string[] = [];
 
@@ -628,9 +635,9 @@ class RetryQueue implements IQueue<QueueItemData> {
     // if the queue is abandoned, all the in-progress are failed. retry them immediately and increment the attempt#
     concatOtherQueue(otherData.inProgress, 1);
 
-    ourData.queue = ourData.queue.sort(sortByTime);
+    ourData.queue.sort(sortByTime);
 
-    this.setStorageEntry(QueueStatuses.QUEUE, ourData.queue);
+    this.setStorageEntry(QUEUE, ourData.queue);
 
     // remove all keys one by one
     clearQueueEntries(otherStore, this.logger);
@@ -643,10 +650,7 @@ class RetryQueue implements IQueue<QueueItemData> {
 
   checkReclaim() {
     const createReclaimTask = (store: IStore) => () => {
-      if (
-        store.get(QueueStatuses.RECLAIM_START) !== this.id ||
-        store.get(QueueStatuses.RECLAIM_END) !== this.id
-      ) {
+      if (store.get(RECLAIM_START) !== this.id || store.get(RECLAIM_END) !== this.id) {
         return;
       }
 
@@ -654,18 +658,18 @@ class RetryQueue implements IQueue<QueueItemData> {
     };
 
     const createReclaimEndTask = (store: IStore) => () => {
-      if (store.get(QueueStatuses.RECLAIM_START) !== this.id) {
+      if (store.get(RECLAIM_START) !== this.id) {
         return;
       }
 
-      store.set(QueueStatuses.RECLAIM_END, this.id);
+      store.set(RECLAIM_END, this.id);
 
       this.schedule.run(createReclaimTask(store), this.timeouts.reclaimWait, ScheduleModes.ABANDON);
     };
 
     const initiateReclaim = (otherStore: IStore) => {
-      otherStore.set(QueueStatuses.RECLAIM_START, this.id);
-      otherStore.set(QueueStatuses.ACK, this.schedule.now());
+      otherStore.set(RECLAIM_START, this.id);
+      otherStore.set(ACK, this.schedule.now());
 
       this.schedule.run(
         createReclaimEndTask(otherStore),
@@ -676,7 +680,7 @@ class RetryQueue implements IQueue<QueueItemData> {
 
     findOtherQueues(this.store.getOriginalEngine(), this.storeManager, this.name, this.id).forEach(
       otherStore => {
-        const otherStoreAck = otherStore.get(QueueStatuses.ACK);
+        const otherStoreAck = otherStore.get(ACK);
         if (
           isNullOrUndefined(otherStoreAck) ||
           !Number.isInteger(otherStoreAck) ||

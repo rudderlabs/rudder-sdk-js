@@ -25,7 +25,7 @@ class Store implements IStore {
   id: string;
   name: string;
   isEncrypted: boolean;
-  validKeys: Record<string, string>;
+  validKeys: string[];
   engine: IStorage;
   originalEngine: IStorage;
   noKeyValidation?: boolean;
@@ -39,7 +39,7 @@ class Store implements IStore {
     this.id = config.id;
     this.name = config.name;
     this.isEncrypted = config.isEncrypted ?? false;
-    this.validKeys = config.validKeys ?? {};
+    this.validKeys = config.validKeys ?? [];
     this.engine = engine ?? getStorageEngine(LOCAL_STORAGE);
     this.noKeyValidation = Object.keys(this.validKeys).length === 0;
     this.noCompoundKey = config.noCompoundKey;
@@ -62,7 +62,7 @@ class Store implements IStore {
 
     // validate and return undefined if invalid key
     let compoundKey;
-    Object.values(validKeys).forEach(validKeyName => {
+    validKeys.forEach(validKeyName => {
       if (validKeyName === key) {
         compoundKey = noCompoundKey ? key : [name, id, key].join('.');
       }
@@ -81,8 +81,8 @@ class Store implements IStore {
     // grab existing data, but only for this page's queue instance, not all
     // better to keep other queues in localstorage to be flushed later
     // than to pull them into memory and remove them from durable storage
-    Object.keys(validKeys).forEach(key => {
-      const value = this.get(validKeys[key] as string);
+    validKeys.forEach(key => {
+      const value = this.get(key as string);
       const validKey = noCompoundKey ? key : [name, id, key].join('.');
 
       inMemoryStorage.setItem(validKey, value);

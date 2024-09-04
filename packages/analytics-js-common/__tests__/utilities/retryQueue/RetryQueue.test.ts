@@ -3,12 +3,13 @@ import { Schedule } from '../../../src/utilities/retryQueue/Schedule';
 import { RetryQueue } from '../../../src/utilities/retryQueue/RetryQueue';
 import { defaultStoreManager } from '../../../__mocks__/StoreManager';
 import { Store } from '../../../__mocks__/Store';
-import type { QueueItemData } from '../../../src/utilities/retryQueue/types';
-import { QueueStatuses } from '../../../src/utilities/retryQueue/constants';
+import type { DoneCallback, QueueItemData } from '../../../src/utilities/retryQueue/types';
+import { IN_PROGRESS, QUEUE, QueueStatuses } from '../../../src/utilities/retryQueue/constants';
+import type { BatchOpts } from '../../../src/types/LoadOptions';
 
 const size = (queue: RetryQueue): { queue: number; inProgress: number } => ({
-  queue: (queue.store.get(QueueStatuses.QUEUE) ?? []).length,
-  inProgress: (queue.store.get(QueueStatuses.IN_PROGRESS) ?? []).length,
+  queue: (queue.store.get(QUEUE) ?? []).length,
+  inProgress: (queue.store.get(IN_PROGRESS) ?? []).length,
 });
 
 describe('RetryQueue', () => {
@@ -310,7 +311,7 @@ describe('RetryQueue', () => {
       queue.addItem(i);
     }
 
-    const storedQueue = queue.store.get(QueueStatuses.QUEUE);
+    const storedQueue = queue.store.get(QUEUE);
     expect(storedQueue.length).toEqual(100);
     expect(storedQueue[0].item).toEqual(5);
     expect(storedQueue[99].item).toEqual(104);
@@ -967,7 +968,7 @@ describe('RetryQueue', () => {
   });
 
   it('should limit inProgress using maxItems', () => {
-    const waiting: Function[] = [];
+    const waiting: DoneCallback[] = [];
     let i;
 
     queue.maxItems = 100;
@@ -1001,7 +1002,7 @@ describe('RetryQueue', () => {
 
     // resolved all waiting items
     while (waiting.length > 0) {
-      waiting.pop()();
+      (waiting.pop() as DoneCallback)();
     }
 
     // inProgress should now be empty
@@ -1020,7 +1021,7 @@ describe('RetryQueue', () => {
     let batchQueue = new RetryQueue(
       'batchQueue',
       {
-        batch: {},
+        batch: {} as BatchOpts,
       },
       () => {},
       defaultStoreManager,
@@ -1034,7 +1035,7 @@ describe('RetryQueue', () => {
         batch: {
           enabled: true,
           maxSize: 1024,
-          maxItems: '1',
+          maxItems: 1,
         },
       },
       () => {},
@@ -1044,7 +1045,7 @@ describe('RetryQueue', () => {
     expect(batchQueue.batch).toEqual({
       enabled: true,
       maxSize: 1024,
-      maxItems: '1',
+      maxItems: 1,
       flushInterval: 60000,
     });
 
@@ -1053,7 +1054,7 @@ describe('RetryQueue', () => {
       {
         batch: {
           enabled: true,
-          maxSize: '3',
+          maxSize: 3,
           maxItems: 20,
         },
       },
