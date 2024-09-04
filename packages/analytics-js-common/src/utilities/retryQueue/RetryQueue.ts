@@ -46,7 +46,7 @@ import {
   RECLAIM_END,
   RECLAIM_START,
 } from './constants';
-import { clearQueueEntries, findOtherQueues, getOptionVal, sortByTime } from './utilities';
+import { clearQueueEntries, findOtherQueues, getNumberOptionVal, sortByTime } from './utilities';
 
 /**
  * Constructs a RetryQueue backed by localStorage
@@ -72,10 +72,8 @@ class RetryQueue implements IQueue<QueueItemData> {
   logger?: ILogger;
   batch: BatchOpts;
   flushBatchTaskId?: string;
-  batchingInProgress?: boolean;
+  flushInProgress?: boolean;
   batchSizeCalcCb?: QueueBatchItemsSizeCalculatorCallback<QueueItemData>;
-  reclaimStartVal?: Nullable<string>;
-  reclaimEndVal?: Nullable<string>;
   isPageAccessible: boolean;
   storageType: StorageType;
 
@@ -97,31 +95,35 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.processQueueCb = queueProcessCb;
     this.batchSizeCalcCb = queueBatchItemsSizeCalculatorCb;
 
-    this.maxItems = getOptionVal(options.maxItems, DEFAULT_MAX_ITEMS, DEFAULT_MAX_ITEMS);
-    this.maxAttempts = getOptionVal(
+    this.maxItems = getNumberOptionVal(
+      options.maxItems,
+      DEFAULT_MAX_ITEMS,
+      undefined,
+      DEFAULT_MAX_ITEMS,
+    );
+    this.maxAttempts = getNumberOptionVal(
       options.maxAttempts,
       DEFAULT_MAX_RETRY_ATTEMPTS,
+      undefined,
       DEFAULT_MAX_RETRY_ATTEMPTS,
     );
 
     this.batch = { enabled: false };
-    this.configureBatchMode(options);
+    this.configureForBatching(options);
 
     this.backoff = {
-      minRetryDelay: getOptionVal(options.minRetryDelay, DEFAULT_MIN_RETRY_DELAY_MS),
-      maxRetryDelay: getOptionVal(options.maxRetryDelay, DEFAULT_MAX_RETRY_DELAY_MS),
-      factor: getOptionVal(options.backoffFactor, DEFAULT_BACKOFF_FACTOR),
-      jitter: getOptionVal(options.backoffJitter, DEFAULT_BACKOFF_JITTER),
+      minRetryDelay: getNumberOptionVal(options.minRetryDelay, DEFAULT_MIN_RETRY_DELAY_MS),
+      maxRetryDelay: getNumberOptionVal(options.maxRetryDelay, DEFAULT_MAX_RETRY_DELAY_MS),
+      factor: getNumberOptionVal(options.backoffFactor, DEFAULT_BACKOFF_FACTOR),
+      jitter: getNumberOptionVal(options.backoffJitter, DEFAULT_BACKOFF_JITTER),
     };
 
-    // Limit the timer scale factor to the minimum value
-    let timerScaleFactor = Math.max(
-      options.timerScaleFactor ?? MIN_TIMER_SCALE_FACTOR,
+    const timerScaleFactor = getNumberOptionVal(
+      options.timerScaleFactor,
       MIN_TIMER_SCALE_FACTOR,
+      MIN_TIMER_SCALE_FACTOR,
+      MAX_TIMER_SCALE_FACTOR,
     );
-
-    // Limit the timer scale factor to the maximum value
-    timerScaleFactor = Math.min(timerScaleFactor, MAX_TIMER_SCALE_FACTOR);
 
     // painstakingly tuned. that's why they're not "easily" configurable
     this.timeouts = {
@@ -155,24 +157,28 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.scheduleTimeoutActive = false;
   }
 
-  configureBatchMode(options: QueueOpts) {
-    this.batchingInProgress = false;
+  configureForBatching(options: QueueOpts) {
+    this.flushInProgress = false;
+    const { batch: batchOptions } = options;
 
-    if (!isObjectLiteralAndNotNull(options.batch)) {
+    if (!isObjectLiteralAndNotNull(batchOptions)) {
       return;
     }
 
-    const batchOptions = options.batch as BatchOpts;
-
     this.batch.enabled = batchOptions.enabled === true;
     if (this.batch.enabled) {
-      // Set upper cap on the batch payload size
-      this.batch.maxSize = Math.min(
-        batchOptions.maxSize ?? DEFAULT_MAX_BATCH_SIZE_BYTES,
+      this.batch.maxSize = getNumberOptionVal(
+        batchOptions.maxSize,
+        DEFAULT_MAX_BATCH_SIZE_BYTES,
+        undefined,
         DEFAULT_MAX_BATCH_SIZE_BYTES,
       );
-      this.batch.maxItems = batchOptions.maxItems ?? DEFAULT_MAX_BATCH_ITEMS;
-      this.batch.flushInterval = batchOptions.flushInterval ?? DEFAULT_BATCH_FLUSH_INTERVAL_MS;
+
+      this.batch.maxItems = getNumberOptionVal(batchOptions.maxItems, DEFAULT_MAX_BATCH_ITEMS);
+      this.batch.flushInterval = getNumberOptionVal(
+        batchOptions.flushInterval,
+        DEFAULT_BATCH_FLUSH_INTERVAL_MS,
+      );
     }
   }
 
@@ -251,42 +257,50 @@ class RetryQueue implements IQueue<QueueItemData> {
    */
   flushBatch(isAccessible = true) {
     this.isPageAccessible = isAccessible;
-    if (!this.batchingInProgress) {
-      this.batchingInProgress = true;
-      const batchQueue = (this.getStorageEntry(BATCH_QUEUE) ?? []) as QueueData<QueueItemData>;
-      if (batchQueue.length > 0) {
-        let batchItems: QueueItem<QueueItemData>[] = [];
-        let remainingBatchItems: QueueItem<QueueItemData>[] = [];
-        if (!this.isPageAccessible) {
-          // eslint-disable-next-line no-restricted-syntax
-          for (const queueItem of batchQueue) {
-            if (
-              (this.batchSizeCalcCb as QueueBatchItemsSizeCalculatorCallback<QueueItemData>)(
-                [...batchItems, queueItem].map(queueItem => queueItem.item),
-              ) > MAX_PAGE_UNLOAD_BATCH_SIZE_BYTES
-            ) {
-              break;
-            }
 
-            batchItems.push(queueItem);
+    // If batching is already in progress, don't start another batch
+    if (this.flushInProgress) {
+      return;
+    }
+
+    // Set the flag to indicate that batching is in progress
+    this.flushInProgress = true;
+
+    const batchQueue = (this.getStorageEntry(BATCH_QUEUE) ?? []) as QueueData<QueueItemData>;
+    if (batchQueue.length > 0) {
+      let batchItems: QueueItem<QueueItemData>[] = [];
+      let remainingBatchItems: QueueItem<QueueItemData>[] = [];
+
+      if (this.isPageAccessible) {
+        batchItems = batchQueue.slice(-batchQueue.length);
+      } else {
+        // If the page is not accessible, try to send as many items as possible
+        // eslint-disable-next-line no-restricted-syntax
+        for (const queueItem of batchQueue) {
+          if (
+            (this.batchSizeCalcCb as QueueBatchItemsSizeCalculatorCallback<QueueItemData>)(
+              [...batchItems, queueItem].map(queueItem => queueItem.item),
+            ) > MAX_PAGE_UNLOAD_BATCH_SIZE_BYTES
+          ) {
+            break;
           }
 
-          remainingBatchItems = batchQueue.slice(batchItems.length);
-        } else {
-          batchItems = batchQueue.slice(-batchQueue.length);
+          batchItems.push(queueItem);
         }
 
-        const batchEntry = this.genQueueItem(batchItems.map(queueItem => queueItem.item));
-
-        this.setStorageEntry(BATCH_QUEUE, remainingBatchItems);
-
-        this.pushToMainQueue(batchEntry);
+        remainingBatchItems = batchQueue.slice(batchItems.length);
       }
-      this.batchingInProgress = false;
 
-      // Re-schedule the flush task
-      this.scheduleFlushBatch();
+      const batchEntry = this.genQueueItem(batchItems.map(queueItem => queueItem.item));
+
+      this.setStorageEntry(BATCH_QUEUE, remainingBatchItems);
+
+      this.pushToMainQueue(batchEntry);
     }
+    this.flushInProgress = false;
+
+    // Re-schedule the next flush task
+    this.scheduleFlushBatch();
   }
 
   /**
@@ -346,14 +360,16 @@ class RetryQueue implements IQueue<QueueItemData> {
     let curEntry: QueueItem<QueueItemData> | undefined;
     let batchQueue = (this.getStorageEntry(BATCH_QUEUE) ?? []) as QueueData<QueueItemData>;
 
-    if (!this.batchingInProgress) {
-      this.batchingInProgress = true;
+    if (this.flushInProgress) {
+      batchQueue.push(entry);
+    } else {
       batchQueue = batchQueue.slice(-batchQueue.length);
       batchQueue.push(entry);
 
       const batchDispatchInfo = this.getBatchDispatchInfo(batchQueue);
       // if batch criteria is met, queue the batch events to the main queue and clear batch queue
       if (batchDispatchInfo.criteriaMet || batchDispatchInfo.criteriaExceeded) {
+        this.flushInProgress = true;
         let batchItems: QueueItemData[];
         if (batchDispatchInfo.criteriaExceeded) {
           batchItems = batchQueue.slice(0, batchQueue.length - 1).map(queueItem => queueItem.item);
@@ -371,9 +387,7 @@ class RetryQueue implements IQueue<QueueItemData> {
         // re-attach the timeout handler
         this.scheduleFlushBatch();
       }
-      this.batchingInProgress = false;
-    } else {
-      batchQueue.push(entry);
+      this.flushInProgress = false;
     }
 
     // update the batch queue
@@ -570,16 +584,6 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.schedule.run(this.ack, this.timeouts.ackTimer, ScheduleModes.ASAP);
 
     this.setStorageEntry(ACK, this.schedule.now());
-
-    if (this.reclaimStartVal != null) {
-      this.reclaimStartVal = null;
-      this.setStorageEntry(RECLAIM_START);
-    }
-
-    if (this.reclaimEndVal != null) {
-      this.reclaimEndVal = null;
-      this.setStorageEntry(RECLAIM_END);
-    }
   }
 
   reclaim(otherStore: IStore) {

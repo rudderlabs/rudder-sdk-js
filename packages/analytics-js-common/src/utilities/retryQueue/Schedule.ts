@@ -27,7 +27,7 @@ const DEFAULT_CLOCK: ScheduleClock = {
   clearTimeout(id: number) {
     return (globalThis as typeof window).clearTimeout(id);
   },
-  Date: globalThis.Date,
+  Date: (globalThis as typeof window).Date,
   clockLateFactor: DEFAULT_CLOCK_LATE_FACTOR,
 };
 
@@ -73,10 +73,10 @@ class Schedule {
           this.run(callback, timeout, mode);
         }
 
-        return undefined;
+        return;
       }
 
-      return callback();
+      callback();
     };
   }
 

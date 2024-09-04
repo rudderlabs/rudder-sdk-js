@@ -171,7 +171,7 @@ describe('RetryQueue', () => {
       (items: QueueItemData[]) => items.length,
     );
 
-    batchQueue.batchingInProgress = true;
+    batchQueue.flushInProgress = true;
 
     batchQueue.addItem('a');
 

@@ -21,6 +21,9 @@ const MAX_PAGE_UNLOAD_BATCH_SIZE_BYTES = 64 * 1024; // 64 KB
 
 const RETRY_QUEUE = 'RetryQueue';
 
+const MAX_ATTEMPTS_ENTRY_DELETION = 2;
+const RETRY_DELAY_ENTRY_DELETION = 40;
+
 // Queue entries
 const IN_PROGRESS = 'inProgress';
 const QUEUE = 'queue';
@@ -56,4 +59,6 @@ export {
   RECLAIM_END,
   ACK,
   BATCH_QUEUE,
+  MAX_ATTEMPTS_ENTRY_DELETION,
+  RETRY_DELAY_ENTRY_DELETION,
 };
