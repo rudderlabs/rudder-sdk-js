@@ -1,0 +1,68 @@
+name: Run sanity suite on BrowserStack
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: Select specific environment to run the tests
+        options:
+          - staging
+          - production
+      sdkVersion:
+        description: Version of the SDK
+        required: true
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+        default: production
+
+jobs:
+  extract-sdk-version:
+    name: Extract SDK Version
+    runs-on: ubuntu-latest
+
+    outputs:
+      version: ${{ steps.determine_version.outputs.current_version }}
+
+    steps:
+      - name: Determine checkout SHA
+        id: getSHA
+        run: |
+          if ${{ inputs.environment }} == 'staging'; then
+            sha=$(echo ${{ github.event.pull_request.head.sha }})
+          else
+            sha=$(echo ${{ github.sha }})
+          fi
+          echo "Checkout SHA: $sha"
+          echo "SHA=$sha" >> $GITHUB_OUTPUT
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.getSHA.outputs.SHA }}
+
+      - name: Determine the SDK version
+        id: determine_version
+        run: |
+          if [ -n "${{ inputs.sdkVersion }}" ]; then
+            current_version="${{ inputs.sdkVersion }}"
+          else
+            current_version=$(jq -r .version package.json)
+          fi
+          echo "::set-output name=current_version::$current_version"
+
+  trigger:
+    runs-on: [self-hosted, Linux, X64]
+    needs: extract-sdk-version
+
+    steps:
+      - name: Trigger sanity suite test workflow on rudder-client-side-test
+        run: |
+          curl -X POST \
+          -H "Authorization: token ${{ secrets.PAT }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/rudderlabs/rudder-client-side-test/dispatches \
+          -d '{"event_type":"triggered_by_source_repo", "client_payload": {"environment": "${{ github.event.inputs.environment }}", "sdkVersion": "${{ needs.extract-sdk-version.outputs.version }}"}}'

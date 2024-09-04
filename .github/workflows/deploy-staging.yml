@@ -49,40 +49,8 @@ jobs:
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
 
-  extract-version:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout source branch
-        uses: actions/checkout@v4
-
-      - name: Determine the SDK version
-        id: determine_version
-        run: |
-          # Default new_version to empty
-          new_version=""
-
-          # Check if it's a tag
-          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
-            new_version="${{ github.ref }}" 
-            new_version="${new_version#refs/tags/v}"  # Strip refs/tags/v
-
-          # Check if it's a release branch
-          elif [[ "${{ github.head_ref }}" == release/* ]]; then
-            new_version="${{ github.head_ref }}" 
-            new_version="${new_version#release/}"  # Strip release/
-
-          # Check if it's a hotfix release branch
-          elif [[ "${{ github.head_ref }}" == hotfix-release/* ]]; then
-            new_version="${{ github.head_ref }}" 
-            new_version="${new_version#hotfix-release/}"  # Strip hotfix-release/
-          fi
-
-          # Set the version as an output variable
-          echo "SDK_VERSION=$new_version"
-
-  trigger-bs-sanity-suite:
-    uses: ./.github/workflows/browserstack-sanity.yml
+  trigger-sanity-suite:
+    uses: ./.github/workflows/trigger-sanity-suite.yml
+    name: Trigger Sanity Suite
     with:
       environment: staging
-      sdkVersion: $SDK_VERSION
