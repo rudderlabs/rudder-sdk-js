@@ -8,7 +8,7 @@ import { isDefined, isNullOrUndefined } from '../checks';
 import { LOCAL_STORAGE } from '../../constants/storages';
 import { generateUUID } from '../uuId';
 import { onPageLeave } from '../page';
-import { Schedule, ScheduleModes } from './Schedule';
+import { ABANDON, ASAP, RESCHEDULE, Schedule } from './Schedule';
 import { RETRY_QUEUE_ENTRY_REMOVE_ERROR, RETRY_QUEUE_PROCESS_ERROR } from './logMessages';
 import type {
   QueueTimeouts,
@@ -247,7 +247,7 @@ class RetryQueue implements IQueue<QueueItemData> {
       this.flushBatchTaskId = this.schedule.run(
         this.flushBatch,
         this.batch.flushInterval as number,
-        ScheduleModes.ASAP,
+        ASAP,
       );
     }
   }
@@ -570,18 +570,14 @@ class RetryQueue implements IQueue<QueueItemData> {
 
     if (queue.length > 0) {
       const nextProcessExecutionTime = (queue[0] as QueueItem<QueueItemData>).time - now;
-      this.processId = this.schedule.run(
-        this.processHead,
-        nextProcessExecutionTime,
-        ScheduleModes.ASAP,
-      );
+      this.processId = this.schedule.run(this.processHead, nextProcessExecutionTime, ASAP);
     }
   }
 
   // Ack continuously to prevent other tabs from claiming our queue
   ack() {
     // Schedule the next ack
-    this.schedule.run(this.ack, this.timeouts.ackTimer, ScheduleModes.ASAP);
+    this.schedule.run(this.ack, this.timeouts.ackTimer, ASAP);
 
     this.setStorageEntry(ACK, this.schedule.now());
   }
@@ -668,18 +664,14 @@ class RetryQueue implements IQueue<QueueItemData> {
 
       store.set(RECLAIM_END, this.id);
 
-      this.schedule.run(createReclaimTask(store), this.timeouts.reclaimWait, ScheduleModes.ABANDON);
+      this.schedule.run(createReclaimTask(store), this.timeouts.reclaimWait, ABANDON);
     };
 
     const initiateReclaim = (otherStore: IStore) => {
       otherStore.set(RECLAIM_START, this.id);
       otherStore.set(ACK, this.schedule.now());
 
-      this.schedule.run(
-        createReclaimEndTask(otherStore),
-        this.timeouts.reclaimWait,
-        ScheduleModes.ABANDON,
-      );
+      this.schedule.run(createReclaimEndTask(otherStore), this.timeouts.reclaimWait, ABANDON);
     };
 
     findOtherQueues(this.store.getOriginalEngine(), this.storeManager, this.name, this.id).forEach(
@@ -697,7 +689,7 @@ class RetryQueue implements IQueue<QueueItemData> {
       },
     );
 
-    this.schedule.run(this.checkReclaim, this.timeouts.reclaimTimer, ScheduleModes.RESCHEDULE);
+    this.schedule.run(this.checkReclaim, this.timeouts.reclaimTimer, RESCHEDULE);
   }
 
   clear() {
