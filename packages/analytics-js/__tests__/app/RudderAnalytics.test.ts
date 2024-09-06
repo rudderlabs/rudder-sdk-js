@@ -24,8 +24,8 @@ describe('Core - Rudder Analytics Facade', () => {
       ['track'],
     ];
     rudderAnalytics = new RudderAnalytics();
-    (rudderAnalytics as any).analyticsInstances = { writeKey: analyticsInstanceMock };
-    (rudderAnalytics as any).defaultAnalyticsKey = 'writeKey';
+    (rudderAnalytics as any).private_analyticsInstances = { writeKey: analyticsInstanceMock };
+    (rudderAnalytics as any).private_defaultAnalyticsKey = 'writeKey';
   });
 
   afterEach(() => {
@@ -59,13 +59,13 @@ describe('Core - Rudder Analytics Facade', () => {
     (rudderAnalytics as any).defaultAnalyticsKey = '';
     rudderAnalytics.setDefaultInstanceKey('writeKey');
 
-    expect(rudderAnalytics.defaultAnalyticsKey).toEqual('writeKey');
+    expect(rudderAnalytics.private_defaultAnalyticsKey).toEqual('writeKey');
   });
 
   it('should auto set the default analytics key if analytics instances exist', () => {
     rudderAnalytics.setDefaultInstanceKey('writeKey2');
 
-    expect(rudderAnalytics.defaultAnalyticsKey).toEqual('writeKey2');
+    expect(rudderAnalytics.private_defaultAnalyticsKey).toEqual('writeKey2');
   });
 
   it('should return an existing analytics instance', () => {
@@ -84,12 +84,15 @@ describe('Core - Rudder Analytics Facade', () => {
     const analyticsInstance = rudderAnalytics.getAnalyticsInstance();
 
     expect(analyticsInstance).toBeInstanceOf(Analytics);
-    expect(rudderAnalytics.analyticsInstances).toHaveProperty('writeKey', analyticsInstance);
+    expect(rudderAnalytics.private_analyticsInstances).toHaveProperty(
+      'writeKey',
+      analyticsInstance,
+    );
   });
 
   it('should not create a new analytics instance if one already exists for the write key', () => {
     const analyticsInstance = analyticsInstanceMock;
-    rudderAnalytics.analyticsInstances = { writeKey: analyticsInstance };
+    rudderAnalytics.private_analyticsInstances = { writeKey: analyticsInstance };
     rudderAnalytics.load('writeKey', 'data-plane-url');
 
     expect(rudderAnalytics.getAnalyticsInstance('writeKey')).toStrictEqual(analyticsInstance);
@@ -98,17 +101,20 @@ describe('Core - Rudder Analytics Facade', () => {
   it('should set the default analytics key if none has been set', () => {
     rudderAnalytics.load('writeKey', 'data-plane-url');
 
-    expect(rudderAnalytics.defaultAnalyticsKey).toEqual('writeKey');
+    expect(rudderAnalytics.private_defaultAnalyticsKey).toEqual('writeKey');
   });
 
   it('should create a new analytics instance with the write key on load and trigger its load method', () => {
-    rudderAnalytics.analyticsInstances = {};
-    rudderAnalytics.defaultAnalyticsKey = '';
+    rudderAnalytics.private_analyticsInstances = {};
+    rudderAnalytics.private_defaultAnalyticsKey = '';
     rudderAnalytics.load('writeKey', 'data-plane-url', mockLoadOptions);
     const analyticsInstance = rudderAnalytics.getAnalyticsInstance('writeKey');
     const loadSpy = jest.spyOn(analyticsInstance, 'load');
 
-    expect(rudderAnalytics.analyticsInstances).toHaveProperty('writeKey', analyticsInstance);
+    expect(rudderAnalytics.private_analyticsInstances).toHaveProperty(
+      'writeKey',
+      analyticsInstance,
+    );
     expect(loadSpy).toHaveBeenCalledWith('writeKey', 'data-plane-url', mockLoadOptions);
   });
 

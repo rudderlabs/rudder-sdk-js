@@ -36,26 +36,29 @@ import { debounce } from '../utilities/globals';
 
 // TODO: replace direct calls to detection methods with state values when possible
 class CapabilitiesManager implements ICapabilitiesManager {
-  logger?: ILogger;
-  errorHandler?: IErrorHandler;
-  externalSrcLoader: IExternalSrcLoader;
-  httpClient: IHttpClient;
+  private_logger?: ILogger;
+  private_errorHandler?: IErrorHandler;
+  private_externalSrcLoader: IExternalSrcLoader;
+  private_httpClient: IHttpClient;
 
   constructor(httpClient: IHttpClient, errorHandler?: IErrorHandler, logger?: ILogger) {
-    this.logger = logger;
-    this.errorHandler = errorHandler;
-    this.externalSrcLoader = new ExternalSrcLoader(this.errorHandler, this.logger);
-    this.httpClient = httpClient;
-    this.onError = this.onError.bind(this);
-    this.onReady = this.onReady.bind(this);
+    this.private_logger = logger;
+    this.private_errorHandler = errorHandler;
+    this.private_externalSrcLoader = new ExternalSrcLoader(
+      this.private_errorHandler,
+      this.private_logger,
+    );
+    this.private_httpClient = httpClient;
+    this.private_onError = this.private_onError.bind(this);
+    this.private_onReady = this.private_onReady.bind(this);
   }
 
   init() {
     try {
-      this.prepareBrowserCapabilities();
-      this.attachWindowListeners();
+      this.private_prepareBrowserCapabilities();
+      this.private_attachWindowListeners();
     } catch (err) {
-      this.onError(err);
+      this.private_onError(err);
     }
   }
 
@@ -63,23 +66,23 @@ class CapabilitiesManager implements ICapabilitiesManager {
    * Detect supported capabilities and set values in state
    */
   // eslint-disable-next-line class-methods-use-this
-  detectBrowserCapabilities() {
+  private_detectBrowserCapabilities() {
     batch(() => {
       // Storage related details
       state.capabilities.storage.isCookieStorageAvailable.value = isStorageAvailable(
         COOKIE_STORAGE,
         getStorageEngine(COOKIE_STORAGE),
-        this.logger,
+        this.private_logger,
       );
       state.capabilities.storage.isLocalStorageAvailable.value = isStorageAvailable(
         LOCAL_STORAGE,
         undefined,
-        this.logger,
+        this.private_logger,
       );
       state.capabilities.storage.isSessionStorageAvailable.value = isStorageAvailable(
         SESSION_STORAGE,
         undefined,
-        this.logger,
+        this.private_logger,
       );
 
       // Browser feature detection details
@@ -107,7 +110,7 @@ class CapabilitiesManager implements ICapabilitiesManager {
         state.loadOptions.value.sendAdblockPage === true &&
         state.lifecycle.sourceConfigUrl.value !== undefined
       ) {
-        detectAdBlockers(this.httpClient);
+        detectAdBlockers(this.private_httpClient);
       }
     });
   }
@@ -115,7 +118,7 @@ class CapabilitiesManager implements ICapabilitiesManager {
   /**
    * Detect if polyfills are required and then load script from polyfill URL
    */
-  prepareBrowserCapabilities() {
+  private_prepareBrowserCapabilities() {
     state.capabilities.isLegacyDOM.value = isLegacyJSEngine();
     const customPolyfillUrl = state.loadOptions.value.polyfillURL;
     let polyfillUrl = POLYFILL_URL;
@@ -123,7 +126,9 @@ class CapabilitiesManager implements ICapabilitiesManager {
       if (isValidURL(customPolyfillUrl)) {
         polyfillUrl = customPolyfillUrl;
       } else {
-        this.logger?.warn(INVALID_POLYFILL_URL_WARNING(CAPABILITIES_MANAGER, customPolyfillUrl));
+        this.private_logger?.warn(
+          INVALID_POLYFILL_URL_WARNING(CAPABILITIES_MANAGER, customPolyfillUrl),
+        );
       }
     }
 
@@ -140,7 +145,7 @@ class CapabilitiesManager implements ICapabilitiesManager {
         const polyfillCallbackName = `RS_polyfillCallback_${state.lifecycle.writeKey.value}`;
 
         const polyfillCallback = (): void => {
-          this.onReady();
+          this.private_onReady();
 
           // Remove the entry from window so we don't leave room for calling it again
           delete (globalThis as any)[polyfillCallbackName];
@@ -151,28 +156,30 @@ class CapabilitiesManager implements ICapabilitiesManager {
         polyfillUrl = `${polyfillUrl}&callback=${polyfillCallbackName}`;
       }
 
-      this.externalSrcLoader.loadJSFile({
+      this.private_externalSrcLoader.loadJSFile({
         url: polyfillUrl,
         id: POLYFILL_SCRIPT_ID,
         async: true,
         timeout: POLYFILL_LOAD_TIMEOUT,
         callback: (scriptId?: string) => {
           if (!scriptId) {
-            this.onError(new Error(POLYFILL_SCRIPT_LOAD_ERROR(POLYFILL_SCRIPT_ID, polyfillUrl)));
+            this.private_onError(
+              new Error(POLYFILL_SCRIPT_LOAD_ERROR(POLYFILL_SCRIPT_ID, polyfillUrl)),
+            );
           } else if (!isDefaultPolyfillService) {
-            this.onReady();
+            this.private_onReady();
           }
         },
       });
     } else {
-      this.onReady();
+      this.private_onReady();
     }
   }
 
   /**
    * Attach listeners to window to observe event that update capabilities state values
    */
-  attachWindowListeners() {
+  private_attachWindowListeners() {
     globalThis.addEventListener('offline', () => {
       state.capabilities.isOnline.value = false;
     });
@@ -193,8 +200,8 @@ class CapabilitiesManager implements ICapabilitiesManager {
    * Set the lifecycle status to next phase
    */
   // eslint-disable-next-line class-methods-use-this
-  onReady() {
-    this.detectBrowserCapabilities();
+  private_onReady() {
+    this.private_detectBrowserCapabilities();
     state.lifecycle.status.value = 'browserCapabilitiesReady';
   }
 
@@ -202,9 +209,9 @@ class CapabilitiesManager implements ICapabilitiesManager {
    * Handles error
    * @param error The error object
    */
-  onError(error: unknown): void {
-    if (this.errorHandler) {
-      this.errorHandler.onError(error, CAPABILITIES_MANAGER);
+  private_onError(error: unknown): void {
+    if (this.private_errorHandler) {
+      this.private_errorHandler.onError(error, CAPABILITIES_MANAGER);
     } else {
       throw error;
     }

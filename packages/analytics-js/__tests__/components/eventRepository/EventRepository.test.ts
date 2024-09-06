@@ -89,7 +89,7 @@ describe('EventRepository', () => {
       defaultPluginsManager,
       defaultStoreManager,
     );
-    expect(eventRepository.dataplaneEventsQueue).toBeDefined();
+    expect(eventRepository.private_dataplaneEventsQueue).toBeDefined();
 
     const invokeSingleSpy = jest.spyOn(defaultPluginsManager, 'invokeSingle');
     eventRepository.init();
@@ -159,7 +159,7 @@ describe('EventRepository', () => {
     ];
 
     const dpEventsQueueStartSpy = jest.spyOn(
-      eventRepository.dataplaneEventsQueue as DataPlaneEventsQueue,
+      eventRepository.private_dataplaneEventsQueue as DataPlaneEventsQueue,
       'start',
     );
 
@@ -180,7 +180,7 @@ describe('EventRepository', () => {
     state.loadOptions.value.bufferDataPlaneEventsUntilReady = false;
 
     const dpEventsQueueStartSpy = jest.spyOn(
-      eventRepository.dataplaneEventsQueue as DataPlaneEventsQueue,
+      eventRepository.private_dataplaneEventsQueue as DataPlaneEventsQueue,
       'start',
     );
 
@@ -202,7 +202,7 @@ describe('EventRepository', () => {
     state.loadOptions.value.dataPlaneEventsBufferTimeout = 3000;
 
     const dpEventsQueueStartSpy = jest.spyOn(
-      eventRepository.dataplaneEventsQueue as DataPlaneEventsQueue,
+      eventRepository.private_dataplaneEventsQueue as DataPlaneEventsQueue,
       'start',
     );
 
@@ -231,7 +231,7 @@ describe('EventRepository', () => {
     state.loadOptions.value.dataPlaneEventsBufferTimeout = 500;
 
     const dpEventsQueueStartSpy = jest.spyOn(
-      eventRepository.dataplaneEventsQueue as DataPlaneEventsQueue,
+      eventRepository.private_dataplaneEventsQueue as DataPlaneEventsQueue,
       'start',
     );
 
@@ -255,10 +255,10 @@ describe('EventRepository', () => {
 
     eventRepository.init();
 
-    eventRepository?.dataplaneEventsQueue?.stop();
+    eventRepository?.private_dataplaneEventsQueue?.stop();
 
     const dpEventsQueueEnqueueSpy = jest.spyOn(
-      eventRepository.dataplaneEventsQueue as DataPlaneEventsQueue,
+      eventRepository.private_dataplaneEventsQueue as DataPlaneEventsQueue,
       'enqueue',
     );
 
@@ -352,7 +352,7 @@ describe('EventRepository', () => {
     };
 
     const dpEventsQueueStartSpy = jest.spyOn(
-      eventRepository.dataplaneEventsQueue as DataPlaneEventsQueue,
+      eventRepository.private_dataplaneEventsQueue as DataPlaneEventsQueue,
       'start',
     );
 
@@ -369,7 +369,7 @@ describe('EventRepository', () => {
         defaultStoreManager,
       );
       const dpEventsQueueStartSpy = jest.spyOn(
-        eventRepository.dataplaneEventsQueue as DataPlaneEventsQueue,
+        eventRepository.private_dataplaneEventsQueue as DataPlaneEventsQueue,
         'start',
       );
       eventRepository.init();
@@ -385,7 +385,7 @@ describe('EventRepository', () => {
         defaultStoreManager,
       );
       const dpEventsQueueClearSpy = jest.spyOn(
-        eventRepository.dataplaneEventsQueue as DataPlaneEventsQueue,
+        eventRepository.private_dataplaneEventsQueue as DataPlaneEventsQueue,
         'clear',
       );
 

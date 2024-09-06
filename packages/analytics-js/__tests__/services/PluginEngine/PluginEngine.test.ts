@@ -156,10 +156,7 @@ describe('PluginEngine', () => {
         .map(p => p.name),
     ).toStrictEqual(['d2', 'd1', 'd5', 'd4', 'd3']);
 
-    let rawPlugins = null;
-    pluginEngineTestInstance.processRawPlugins(plugins => {
-      rawPlugins = plugins.map(p => p.name);
-    });
+    const rawPlugins = pluginEngineTestInstance.getPlugins().map(p => p.name);
     expect(rawPlugins).toStrictEqual(['p1', 'p2', 'p3', 'd2', 'd1', 'd5', 'd4', 'd3']);
   });
 
@@ -180,18 +177,20 @@ describe('PluginEngine', () => {
     } catch (e: any) {
       expect(e.message).toContain('error');
     }
+  });
 
-    // Failed because throws is true
-    try {
-      pluginEngineTestInstance.config.throws = true;
-      pluginEngineTestInstance.invokeMultiple('fail');
-    } catch (e: any) {
-      expect(e.message).toContain('error');
-    }
+  it('should not throw errors from plugin when invoked but throw is false', () => {
+    const pluginEngine = new PluginEngine({
+      throws: false,
+    });
+    pluginEngine.register({
+      name: 'failed',
+      fail() {
+        throw new Error('error: ext error');
+      },
+    });
 
-    // Not failed because throw is false
-    pluginEngineTestInstance.config.throws = false;
-    pluginEngineTestInstance.invokeMultiple('fail');
+    expect(() => pluginEngine.invokeMultiple('fail')).not.toThrow();
   });
 
   it('should register 1000 plugins in less than 200ms', () => {

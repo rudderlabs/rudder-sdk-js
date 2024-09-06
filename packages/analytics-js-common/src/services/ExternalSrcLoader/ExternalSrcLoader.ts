@@ -32,7 +32,7 @@ class ExternalSrcLoader implements IExternalSrcLoader {
     const { url, id, timeout, async, callback, extraAttributes } = config;
     const isFireAndForget = !isFunction(callback);
 
-    jsFileLoader(url, id, timeout || this.private_timeout, async, extraAttributes)
+    jsFileLoader(url, id, timeout ?? this.private_timeout, async, extraAttributes)
       .then((id?: string) => {
         if (!isFireAndForget) {
           callback(id);

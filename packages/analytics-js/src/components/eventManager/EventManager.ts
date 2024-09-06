@@ -12,11 +12,11 @@ import type { IUserSessionManager } from '../userSessionManager/types';
  * A service to generate valid event payloads and queue them for processing
  */
 class EventManager implements IEventManager {
-  eventRepository: IEventRepository;
-  userSessionManager: IUserSessionManager;
-  errorHandler?: IErrorHandler;
-  logger?: ILogger;
-  eventFactory: RudderEventFactory;
+  private_eventRepository: IEventRepository;
+  private_userSessionManager: IUserSessionManager;
+  private_errorHandler?: IErrorHandler;
+  private_logger?: ILogger;
+  private_eventFactory: RudderEventFactory;
 
   /**
    *
@@ -31,23 +31,23 @@ class EventManager implements IEventManager {
     errorHandler?: IErrorHandler,
     logger?: ILogger,
   ) {
-    this.eventRepository = eventRepository;
-    this.userSessionManager = userSessionManager;
-    this.errorHandler = errorHandler;
-    this.logger = logger;
-    this.eventFactory = new RudderEventFactory(this.logger);
-    this.onError = this.onError.bind(this);
+    this.private_eventRepository = eventRepository;
+    this.private_userSessionManager = userSessionManager;
+    this.private_errorHandler = errorHandler;
+    this.private_logger = logger;
+    this.private_eventFactory = new RudderEventFactory(this.private_logger);
+    this.private_onError = this.private_onError.bind(this);
   }
 
   /**
    * Initializes the event manager
    */
   init() {
-    this.eventRepository.init();
+    this.private_eventRepository.init();
   }
 
   resume() {
-    this.eventRepository.resume();
+    this.private_eventRepository.resume();
   }
 
   /**
@@ -55,12 +55,12 @@ class EventManager implements IEventManager {
    * @param event Incoming event data
    */
   addEvent(event: APIEvent) {
-    this.userSessionManager.refreshSession();
-    const rudderEvent = this.eventFactory.create(event);
+    this.private_userSessionManager.refreshSession();
+    const rudderEvent = this.private_eventFactory.create(event);
     if (rudderEvent) {
-      this.eventRepository.enqueue(rudderEvent, event.callback);
+      this.private_eventRepository.enqueue(rudderEvent, event.callback);
     } else {
-      this.onError(new Error(EVENT_OBJECT_GENERATION_ERROR));
+      this.private_onError(new Error(EVENT_OBJECT_GENERATION_ERROR));
     }
   }
 
@@ -68,9 +68,9 @@ class EventManager implements IEventManager {
    * Handles error
    * @param error The error object
    */
-  onError(error: unknown, customMessage?: string, shouldAlwaysThrow?: boolean): void {
-    if (this.errorHandler) {
-      this.errorHandler.onError(error, EVENT_MANAGER, customMessage, shouldAlwaysThrow);
+  private_onError(error: unknown, customMessage?: string, shouldAlwaysThrow?: boolean): void {
+    if (this.private_errorHandler) {
+      this.private_errorHandler.onError(error, EVENT_MANAGER, customMessage, shouldAlwaysThrow);
     } else {
       throw error;
     }

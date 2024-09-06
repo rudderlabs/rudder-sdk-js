@@ -99,6 +99,8 @@ describe('Event Manager - Utilities', () => {
     defaultLogger,
   );
 
+  defaultPluginsManager.init();
+
   describe('getUpdatedPageProperties', () => {
     let pageProperties: ApiObject;
     beforeEach(() => {
@@ -232,7 +234,6 @@ describe('Event Manager - Utilities', () => {
     });
 
     it('should return processed event if the event processor plugin is registered', () => {
-      defaultPluginsManager.registerLocalPlugins();
       batch(() => {
         state.session.anonymousId.value = 'anon_id';
         state.session.userTraits.value = { test: 'test' };
@@ -342,8 +343,6 @@ describe('Event Manager - Utilities', () => {
         userId: 'user_id',
         event: null,
       });
-
-      defaultPluginsManager.unregisterLocalPlugins();
     });
   });
 

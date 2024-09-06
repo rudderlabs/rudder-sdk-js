@@ -4,13 +4,13 @@ import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/servic
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 
 export interface ICapabilitiesManager {
-  logger?: ILogger;
-  errorHandler?: IErrorHandler;
-  externalSrcLoader: IExternalSrcLoader;
-  httpClient: IHttpClient;
+  private_logger?: ILogger;
+  private_errorHandler?: IErrorHandler;
+  private_externalSrcLoader: IExternalSrcLoader;
+  private_httpClient: IHttpClient;
   init(httpClient: IHttpClient): void;
-  detectBrowserCapabilities(): void;
-  prepareBrowserCapabilities(): void;
-  attachWindowListeners(): void;
-  onReady(): void;
+  private_detectBrowserCapabilities(): void;
+  private_prepareBrowserCapabilities(): void;
+  private_attachWindowListeners(): void;
+  private_onReady(): void;
 }

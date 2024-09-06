@@ -33,24 +33,22 @@ import {
 import { METRICS_SERVICE_ENDPOINT } from './constants';
 
 class ConfigManager implements IConfigManager {
-  httpClient: IHttpClient;
-  errorHandler?: IErrorHandler;
-  logger?: ILogger;
-  hasErrorHandler = false;
+  private_httpClient: IHttpClient;
+  private_errorHandler?: IErrorHandler;
+  private_logger?: ILogger;
 
   constructor(httpClient: IHttpClient, errorHandler?: IErrorHandler, logger?: ILogger) {
-    this.errorHandler = errorHandler;
-    this.logger = logger;
-    this.httpClient = httpClient;
-    this.hasErrorHandler = Boolean(this.errorHandler);
+    this.private_errorHandler = errorHandler;
+    this.private_logger = logger;
+    this.private_httpClient = httpClient;
 
-    this.onError = this.onError.bind(this);
-    this.processConfig = this.processConfig.bind(this);
+    this.private_onError = this.private_onError.bind(this);
+    this.private_processConfig = this.private_processConfig.bind(this);
   }
 
-  attachEffects() {
+  private_attachEffects() {
     effect(() => {
-      this.logger?.setMinLogLevel(state.lifecycle.logLevel.value);
+      this.private_logger?.setMinLogLevel(state.lifecycle.logLevel.value);
     });
   }
 
@@ -59,7 +57,7 @@ class ConfigManager implements IConfigManager {
    * config related information in global state
    */
   init() {
-    this.attachEffects();
+    this.private_attachEffects();
 
     validateLoadArgs(state.lifecycle.writeKey.value, state.lifecycle.dataPlaneUrl.value);
 
@@ -89,8 +87,8 @@ class ConfigManager implements IConfigManager {
       pluginsSDKBaseURL,
     );
 
-    updateStorageStateFromLoadOptions(this.logger);
-    updateConsentsStateFromLoadOptions(this.logger);
+    updateStorageStateFromLoadOptions(this.private_logger);
+    updateConsentsStateFromLoadOptions(this.private_logger);
 
     // set application lifecycle state in global state
     batch(() => {
@@ -106,20 +104,20 @@ class ConfigManager implements IConfigManager {
         state.lifecycle.writeKey.value as string,
         lockIntegrationsVersion as boolean,
         lockPluginsVersion as boolean,
-        this.logger,
+        this.private_logger,
       );
       state.metrics.metricsServiceUrl.value = `${state.lifecycle.activeDataplaneUrl.value}/${METRICS_SERVICE_ENDPOINT}`;
     });
 
-    this.getConfig();
+    this.private_getConfig();
   }
 
   /**
    * Handle errors
    */
-  onError(error: unknown, customMessage?: string, shouldAlwaysThrow?: boolean) {
-    if (this.hasErrorHandler) {
-      this.errorHandler?.onError(error, CONFIG_MANAGER, customMessage, shouldAlwaysThrow);
+  private_onError(error: unknown, customMessage?: string, shouldAlwaysThrow?: boolean) {
+    if (this.private_errorHandler) {
+      this.private_errorHandler.onError(error, CONFIG_MANAGER, customMessage, shouldAlwaysThrow);
     } else {
       throw error;
     }
@@ -129,22 +127,25 @@ class ConfigManager implements IConfigManager {
    * A callback function that is executed once we fetch the source config response.
    * Use to construct and store information that are dependent on the sourceConfig.
    */
-  processConfig(response: SourceConfigResponse | undefined | null, details?: IResponseDetails) {
+  private_processConfig(
+    response: SourceConfigResponse | undefined | null,
+    details?: IResponseDetails,
+  ) {
     // TODO: add retry logic with backoff based on details
     // We can use isErrRetryable utility method
     if (!response) {
-      this.onError(SOURCE_CONFIG_FETCH_ERROR(details?.error));
+      this.private_onError(SOURCE_CONFIG_FETCH_ERROR(details?.error));
       return;
     }
 
     if (!isValidSourceConfig(response)) {
-      this.onError(new Error(SOURCE_CONFIG_RESOLUTION_ERROR), undefined, true);
+      this.private_onError(new Error(SOURCE_CONFIG_RESOLUTION_ERROR), undefined, true);
       return;
     }
 
     // Log error and abort if source is disabled
     if (response.source.enabled === false) {
-      this.logger?.error(SOURCE_DISABLED_ERROR);
+      this.private_logger?.error(SOURCE_DISABLED_ERROR);
       return;
     }
 
@@ -183,7 +184,7 @@ class ConfigManager implements IConfigManager {
    * or from getSourceConfig load option
    * @returns
    */
-  getConfig() {
+  private_getConfig() {
     const sourceConfigFunc = state.loadOptions.value.getSourceConfig;
     if (sourceConfigFunc) {
       if (!isFunction(sourceConfigFunc)) {
@@ -193,22 +194,22 @@ class ConfigManager implements IConfigManager {
       const res = sourceConfigFunc();
       if (res instanceof Promise) {
         res
-          .then(pRes => this.processConfig(pRes))
+          .then(pRes => this.private_processConfig(pRes))
           .catch(err => {
-            this.onError(err, 'SourceConfig', true);
+            this.private_onError(err, 'SourceConfig', true);
           });
       } else {
-        this.processConfig(res);
+        this.private_processConfig(res);
       }
     } else {
       // Fetch source configuration from the configured URL
-      this.httpClient.request<SourceConfigResponse>({
+      this.private_httpClient.request<SourceConfigResponse>({
         url: state.lifecycle.sourceConfigUrl.value as string,
         options: {
           method: 'GET',
           useAuth: true,
         },
-        callback: this.processConfig,
+        callback: this.private_processConfig,
       });
     }
   }

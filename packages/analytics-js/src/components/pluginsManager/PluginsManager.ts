@@ -35,16 +35,15 @@ import type { PluginsGroup } from './types';
 // TODO: add retry mechanism for getting remote plugins
 // TODO: add timeout error mechanism for marking remote plugins that failed to load as failed in state
 class PluginsManager implements IPluginsManager {
-  engine: IPluginEngine;
-  errorHandler?: IErrorHandler;
-  logger?: ILogger;
+  private_engine: IPluginEngine;
+  private_errorHandler?: IErrorHandler;
+  private_logger?: ILogger;
 
   constructor(engine: IPluginEngine, errorHandler?: IErrorHandler, logger?: ILogger) {
-    this.engine = engine;
-
-    this.errorHandler = errorHandler;
-    this.logger = logger;
-    this.onError = this.onError.bind(this);
+    this.private_engine = engine;
+    this.private_errorHandler = errorHandler;
+    this.private_logger = logger;
+    this.private_onError = this.private_onError.bind(this);
   }
 
   /**
@@ -57,9 +56,9 @@ class PluginsManager implements IPluginsManager {
     if (!__BUNDLE_ALL_PLUGINS__) {
       setExposedGlobal('pluginsCDNPath', state.lifecycle.pluginsCDNPath.value);
     }
-    this.setActivePlugins();
-    this.registerLocalPlugins();
-    this.registerRemotePlugins();
+    this.private_setActivePlugins();
+    this.private_registerLocalPlugins();
+    this.private_registerRemotePlugins();
     this.attachEffects();
   }
 
@@ -89,7 +88,7 @@ class PluginsManager implements IPluginsManager {
    * Determine the list of plugins that should be loaded based on sourceConfig & load options
    */
   // eslint-disable-next-line class-methods-use-this
-  getPluginsToLoadBasedOnConfig(): PluginName[] {
+  private_getPluginsToLoadBasedOnConfig(): PluginName[] {
     // This contains the default plugins if load option has been omitted by user
     let pluginsToLoadFromConfig = state.plugins.pluginsToLoadFromConfig.value as PluginName[];
 
@@ -100,7 +99,7 @@ class PluginsManager implements IPluginsManager {
     // Filter deprecated plugins
     pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(pluginName => {
       if (deprecatedPluginsList.includes(pluginName)) {
-        this.logger?.warn(DEPRECATED_PLUGIN_WARNING(PLUGINS_MANAGER, pluginName));
+        this.private_logger?.warn(DEPRECATED_PLUGIN_WARNING(PLUGINS_MANAGER, pluginName));
         return false;
       }
       return true;
@@ -159,7 +158,7 @@ class PluginsManager implements IPluginsManager {
             : pluginName => isDefined(pluginName), // pass through
         );
 
-        this.addMissingPlugins(group, addMissingPlugins, pluginsToLoadFromConfig);
+        this.private_addMissingPlugins(group, addMissingPlugins, pluginsToLoadFromConfig);
       } else {
         pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(
           group.basePlugins !== undefined
@@ -176,7 +175,7 @@ class PluginsManager implements IPluginsManager {
     return [...(Object.keys(getMandatoryPluginsMap()) as PluginName[]), ...pluginsToLoadFromConfig];
   }
 
-  private addMissingPlugins(
+  private private_addMissingPlugins(
     group: PluginsGroup,
     addMissingPlugins: boolean,
     pluginsToLoadFromConfig: PluginName[],
@@ -197,7 +196,7 @@ class PluginsManager implements IPluginsManager {
         pluginsToLoadFromConfig.push(...missingPlugins);
       }
 
-      this.logger?.warn(
+      this.private_logger?.warn(
         generateMisconfiguredPluginsWarning(
           PLUGINS_MANAGER,
           group.configurationStatusStr,
@@ -211,8 +210,8 @@ class PluginsManager implements IPluginsManager {
   /**
    * Determine the list of plugins that should be activated
    */
-  setActivePlugins() {
-    const pluginsToLoad = this.getPluginsToLoadBasedOnConfig();
+  private_setActivePlugins() {
+    const pluginsToLoad = this.private_getPluginsToLoadBasedOnConfig();
     // Merging available mandatory and optional plugin name list
     const availablePlugins = [...Object.keys(pluginsInventory), ...pluginNamesList];
     const activePlugins: PluginName[] = [];
@@ -227,7 +226,7 @@ class PluginsManager implements IPluginsManager {
     });
 
     if (failedPlugins.length > 0) {
-      this.onError(
+      this.private_onError(
         new Error(
           `Ignoring loading of unknown plugins: ${failedPlugins.join(
             ',',
@@ -248,7 +247,7 @@ class PluginsManager implements IPluginsManager {
   /**
    * Register plugins that are direct imports to PluginEngine
    */
-  registerLocalPlugins() {
+  private_registerLocalPlugins() {
     Object.values(pluginsInventory).forEach(localPlugin => {
       if (
         isFunction(localPlugin) &&
@@ -262,7 +261,7 @@ class PluginsManager implements IPluginsManager {
   /**
    * Register plugins that are dynamic imports to PluginEngine
    */
-  registerRemotePlugins() {
+  private_registerRemotePlugins() {
     const remotePluginsList = remotePluginsInventory(
       state.plugins.activePlugins.value as PluginName[],
     );
@@ -277,11 +276,11 @@ class PluginsManager implements IPluginsManager {
               ...state.plugins.failedPlugins.value,
               remotePluginKey,
             ];
-            this.onError(err, remotePluginKey);
+            this.private_onError(err, remotePluginKey);
           });
       }),
     ).catch(err => {
-      this.onError(err);
+      this.private_onError(err);
     });
   }
 
@@ -290,9 +289,9 @@ class PluginsManager implements IPluginsManager {
    */
   invokeMultiple<T = any>(extPoint?: string, ...args: any[]): Nullable<T>[] {
     try {
-      return this.engine.invokeMultiple(extPoint, ...args);
+      return this.private_engine.invokeMultiple(extPoint, ...args);
     } catch (e) {
-      this.onError(e, extPoint);
+      this.private_onError(e, extPoint);
       return [];
     }
   }
@@ -302,9 +301,9 @@ class PluginsManager implements IPluginsManager {
    */
   invokeSingle<T = any>(extPoint?: string, ...args: any[]): Nullable<T> {
     try {
-      return this.engine.invokeSingle(extPoint, ...args);
+      return this.private_engine.invokeSingle(extPoint, ...args);
     } catch (e) {
-      this.onError(e, extPoint);
+      this.private_onError(e, extPoint);
       return null;
     }
   }
@@ -315,21 +314,21 @@ class PluginsManager implements IPluginsManager {
   register(plugins: ExtensionPlugin[]) {
     plugins.forEach(plugin => {
       try {
-        this.engine.register(plugin, state);
+        this.private_engine.register(plugin, state);
       } catch (e) {
         state.plugins.failedPlugins.value = [...state.plugins.failedPlugins.value, plugin.name];
-        this.onError(e);
+        this.private_onError(e);
       }
     });
   }
 
   // TODO: Implement reset API instead
-  unregisterLocalPlugins() {
+  private_unregisterLocalPlugins() {
     Object.values(pluginsInventory).forEach(localPlugin => {
       try {
-        this.engine.unregister(localPlugin().name);
+        this.private_engine.unregister(localPlugin().name);
       } catch (e) {
-        this.onError(e);
+        this.private_onError(e);
       }
     });
   }
@@ -337,9 +336,9 @@ class PluginsManager implements IPluginsManager {
   /**
    * Handle errors
    */
-  onError(error: unknown, customMessage?: string): void {
-    if (this.errorHandler) {
-      this.errorHandler.onError(error, PLUGINS_MANAGER, customMessage);
+  private_onError(error: unknown, customMessage?: string): void {
+    if (this.private_errorHandler) {
+      this.private_errorHandler.onError(error, PLUGINS_MANAGER, customMessage);
     } else {
       throw error;
     }

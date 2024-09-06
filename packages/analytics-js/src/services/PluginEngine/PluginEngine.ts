@@ -25,53 +25,53 @@ import {
 //  plugin that is the normal invoke
 // TODO: add invoke method for extension point that we know only one plugin can be used. add invokeMultiple and invokeSingle methods
 class PluginEngine implements IPluginEngine {
-  plugins: ExtensionPlugin[] = [];
-  byName: Record<string, ExtensionPlugin> = {};
-  cache: Record<string, ExtensionPlugin[]> = {};
-  config: PluginEngineConfig = { throws: true };
-  logger?: ILogger;
+  private_plugins: ExtensionPlugin[] = [];
+  private_byName: Record<string, ExtensionPlugin> = {};
+  private_cache: Record<string, ExtensionPlugin[]> = {};
+  private_config: PluginEngineConfig = { throws: true };
+  private_logger?: ILogger;
 
   constructor(options: PluginEngineConfig = {}, logger?: ILogger) {
-    this.config = {
+    this.private_config = {
       throws: true,
       ...options,
     };
 
-    this.logger = logger;
+    this.private_logger = logger;
   }
 
   register(plugin: ExtensionPlugin, state?: Record<string, any>) {
     if (!plugin.name) {
       const errorMessage = PLUGIN_NAME_MISSING_ERROR(PLUGIN_ENGINE);
-      if (this.config.throws) {
+      if (this.private_config.throws) {
         throw new Error(errorMessage);
       } else {
-        this.logger?.error(errorMessage, plugin);
+        this.private_logger?.error(errorMessage, plugin);
       }
     }
 
-    if (this.byName[plugin.name]) {
+    if (this.private_byName[plugin.name]) {
       const errorMessage = PLUGIN_ALREADY_EXISTS_ERROR(PLUGIN_ENGINE, plugin.name);
-      if (this.config.throws) {
+      if (this.private_config.throws) {
         throw new Error(errorMessage);
       } else {
-        this.logger?.error(errorMessage);
+        this.private_logger?.error(errorMessage);
       }
     }
 
-    this.cache = {};
-    this.plugins = this.plugins.slice();
-    let pos = this.plugins.length;
+    this.private_cache = {};
+    this.private_plugins = this.private_plugins.slice();
+    let pos = this.private_plugins.length;
 
-    this.plugins.forEach((pluginItem: ExtensionPlugin, index: number) => {
+    this.private_plugins.forEach((pluginItem: ExtensionPlugin, index: number) => {
       if (pluginItem.deps?.includes(plugin.name)) {
         pos = Math.min(pos, index);
       }
     });
 
-    this.plugins.splice(pos, 0, plugin);
+    this.private_plugins.splice(pos, 0, plugin);
 
-    this.byName[plugin.name] = plugin;
+    this.private_byName[plugin.name] = plugin;
 
     if (isFunction(plugin.initialize)) {
       plugin.initialize(state);
@@ -79,64 +79,57 @@ class PluginEngine implements IPluginEngine {
   }
 
   unregister(name: string) {
-    const plugin = this.byName[name];
+    const plugin = this.private_byName[name];
 
     if (!plugin) {
       const errorMessage = PLUGIN_NOT_FOUND_ERROR(PLUGIN_ENGINE, name);
-      if (this.config.throws) {
+      if (this.private_config.throws) {
         throw new Error(errorMessage);
       } else {
-        this.logger?.error(errorMessage);
+        this.private_logger?.error(errorMessage);
       }
     }
 
-    const index = this.plugins.indexOf(plugin as ExtensionPlugin);
+    const index = this.private_plugins.indexOf(plugin as ExtensionPlugin);
 
     if (index === -1) {
       const errorMessage = PLUGIN_ENGINE_BUG_ERROR(PLUGIN_ENGINE, name);
-      if (this.config.throws) {
+      if (this.private_config.throws) {
         throw new Error(errorMessage);
       } else {
-        this.logger?.error(errorMessage);
+        this.private_logger?.error(errorMessage);
       }
     }
 
-    this.cache = {};
-    delete this.byName[name];
-    this.plugins = this.plugins.slice();
-    this.plugins.splice(index, 1);
+    this.private_cache = {};
+    delete this.private_byName[name];
+    this.private_plugins = this.private_plugins.slice();
+    this.private_plugins.splice(index, 1);
   }
 
   getPlugin(name: string): ExtensionPlugin | undefined {
-    return this.byName[name];
+    return this.private_byName[name];
   }
 
   getPlugins(extPoint?: string): ExtensionPlugin[] {
     const lifeCycleName = extPoint ?? '.';
 
-    if (!this.cache[lifeCycleName]) {
-      this.cache[lifeCycleName] = this.plugins.filter(plugin => {
-        if (plugin.deps?.some(dependency => !this.byName[dependency])) {
+    if (!this.private_cache[lifeCycleName]) {
+      this.private_cache[lifeCycleName] = this.private_plugins.filter(plugin => {
+        if (plugin.deps?.some(dependency => !this.private_byName[dependency])) {
           // If deps not exist, then not load it.
-          const notExistDeps = plugin.deps.filter(dependency => !this.byName[dependency]);
-          this.logger?.error(PLUGIN_DEPS_ERROR(PLUGIN_ENGINE, plugin.name, notExistDeps));
+          const notExistDeps = plugin.deps.filter(dependency => !this.private_byName[dependency]);
+          this.private_logger?.error(PLUGIN_DEPS_ERROR(PLUGIN_ENGINE, plugin.name, notExistDeps));
           return false;
         }
         return lifeCycleName === '.' ? true : hasValueByPath(plugin, lifeCycleName);
       });
     }
 
-    return this.cache[lifeCycleName] as ExtensionPlugin[];
+    return this.private_cache[lifeCycleName] as ExtensionPlugin[];
   }
 
-  // This method allows to process this.plugins so that it could
-  // do some unified pre-process before application starts.
-  processRawPlugins(callback: (plugins: ExtensionPlugin[]) => any) {
-    callback(this.plugins);
-    this.cache = {};
-  }
-
-  invoke<T = any>(extPoint?: string, allowMultiple = true, ...args: any[]): Nullable<T>[] {
+  private_invoke<T = any>(extPoint?: string, allowMultiple = true, ...args: any[]): Nullable<T>[] {
     let extensionPointName = extPoint;
 
     if (!extensionPointName) {
@@ -144,7 +137,7 @@ class PluginEngine implements IPluginEngine {
     }
 
     const noCall = extensionPointName.startsWith('!');
-    const throws = this.config.throws ?? extensionPointName.endsWith('!');
+    const throws = this.private_config.throws ?? extensionPointName.endsWith('!');
 
     // eslint-disable-next-line unicorn/better-regex
     extensionPointName = extensionPointName.replace(/(^!|!$)/g, '');
@@ -175,7 +168,7 @@ class PluginEngine implements IPluginEngine {
         if (throws) {
           throw err;
         } else {
-          this.logger?.error(
+          this.private_logger?.error(
             PLUGIN_INVOCATION_ERROR(PLUGIN_ENGINE, extensionPointName, plugin.name),
             err,
           );
@@ -187,11 +180,11 @@ class PluginEngine implements IPluginEngine {
   }
 
   invokeSingle<T = any>(extPoint?: string, ...args: any[]): Nullable<T> {
-    return this.invoke(extPoint, false, ...args)[0];
+    return this.private_invoke(extPoint, false, ...args)[0];
   }
 
   invokeMultiple<T = any>(extPoint?: string, ...args: any[]): Nullable<T>[] {
-    return this.invoke(extPoint, true, ...args);
+    return this.private_invoke(extPoint, true, ...args);
   }
 }
 

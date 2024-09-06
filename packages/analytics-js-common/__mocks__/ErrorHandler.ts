@@ -7,8 +7,8 @@ class ErrorHandler implements IErrorHandler {
   leaveBreadcrumb = jest.fn();
   notifyError = jest.fn();
   init = jest.fn();
-  attachErrorListeners = jest.fn();
-  errorBuffer = new BufferQueue<PreLoadErrorData>();
+  private_attachErrorListeners = jest.fn();
+  private_errorBuffer = new BufferQueue<PreLoadErrorData>();
 }
 
 const defaultErrorHandler = new ErrorHandler();

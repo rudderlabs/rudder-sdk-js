@@ -72,12 +72,12 @@ import type {
 import { isPositiveInteger } from '../utilities/number';
 
 class UserSessionManager implements IUserSessionManager {
-  storeManager?: IStoreManager;
-  pluginsManager?: IPluginsManager;
-  errorHandler?: IErrorHandler;
-  httpClient?: IHttpClient;
-  logger?: ILogger;
-  serverSideCookieDebounceFuncs: Record<UserSessionKey, number>;
+  private_storeManager?: IStoreManager;
+  private_pluginsManager?: IPluginsManager;
+  private_errorHandler?: IErrorHandler;
+  private_httpClient?: IHttpClient;
+  private_logger?: ILogger;
+  private_serverSideCookieDebounceFuncs: Record<UserSessionKey, number>;
 
   constructor(
     errorHandler?: IErrorHandler,
@@ -86,13 +86,13 @@ class UserSessionManager implements IUserSessionManager {
     storeManager?: IStoreManager,
     httpClient?: IHttpClient,
   ) {
-    this.storeManager = storeManager;
-    this.pluginsManager = pluginsManager;
-    this.logger = logger;
-    this.errorHandler = errorHandler;
-    this.httpClient = httpClient;
-    this.onError = this.onError.bind(this);
-    this.serverSideCookieDebounceFuncs = {} as Record<UserSessionKey, number>;
+    this.private_storeManager = storeManager;
+    this.private_pluginsManager = pluginsManager;
+    this.private_logger = logger;
+    this.private_errorHandler = errorHandler;
+    this.private_httpClient = httpClient;
+    this.private_onError = this.private_onError.bind(this);
+    this.private_serverSideCookieDebounceFuncs = {} as Record<UserSessionKey, number>;
   }
 
   /**
@@ -102,12 +102,12 @@ class UserSessionManager implements IUserSessionManager {
     this.syncStorageDataToState();
 
     // Register the effect to sync with storage
-    this.registerEffects();
+    this.private_registerEffects();
   }
 
   syncStorageDataToState() {
-    this.migrateStorageIfNeeded();
-    this.migrateDataFromPreviousStorage();
+    this.private_migrateStorageIfNeeded();
+    this.private_migrateDataFromPreviousStorage();
 
     // get the values from storage and set it again
     this.setUserId(this.getUserId());
@@ -120,18 +120,20 @@ class UserSessionManager implements IUserSessionManager {
       isDefinedAndNotNull(externalAnonymousIdCookieName) &&
       typeof externalAnonymousIdCookieName === 'string'
     ) {
-      externalAnonymousId = this.getExternalAnonymousIdByCookieName(externalAnonymousIdCookieName);
+      externalAnonymousId = this.private_getExternalAnonymousIdByCookieName(
+        externalAnonymousIdCookieName,
+      );
     }
     this.setAnonymousId(externalAnonymousId ?? this.getAnonymousId(anonymousIdOptions));
     this.setAuthToken(this.getAuthToken());
-    this.setInitialReferrerInfo();
-    this.configureSessionTracking();
+    this.private_setInitialReferrerInfo();
+    this.private_configureSessionTracking();
   }
 
-  configureSessionTracking() {
+  private_configureSessionTracking() {
     let sessionInfo = this.getSessionInfo();
-    if (this.isPersistenceEnabledForStorageEntry('sessionInfo')) {
-      const configuredSessionTrackingInfo = this.getConfiguredSessionTrackingInfo();
+    if (this.private_isPersistenceEnabledForStorageEntry('sessionInfo')) {
+      const configuredSessionTrackingInfo = this.private_getConfiguredSessionTrackingInfo();
       const initialSessionInfo = sessionInfo ?? defaultSessionConfiguration;
       sessionInfo = {
         ...initialSessionInfo,
@@ -141,7 +143,9 @@ class UserSessionManager implements IUserSessionManager {
       };
     }
 
-    state.session.sessionInfo.value = this.isPersistenceEnabledForStorageEntry('sessionInfo')
+    state.session.sessionInfo.value = this.private_isPersistenceEnabledForStorageEntry(
+      'sessionInfo',
+    )
       ? (sessionInfo as SessionInfo)
       : DEFAULT_USER_SESSION_VALUES.sessionInfo;
 
@@ -151,7 +155,7 @@ class UserSessionManager implements IUserSessionManager {
     }
   }
 
-  setInitialReferrerInfo() {
+  private_setInitialReferrerInfo() {
     const persistedInitialReferrer = this.getInitialReferrer();
     const persistedInitialReferringDomain = this.getInitialReferringDomain();
 
@@ -165,24 +169,24 @@ class UserSessionManager implements IUserSessionManager {
     }
   }
 
-  isPersistenceEnabledForStorageEntry(entryName: UserSessionKey): boolean {
+  private_isPersistenceEnabledForStorageEntry(entryName: UserSessionKey): boolean {
     return isStorageTypeValidForStoringData(
       state.storage.entries.value[entryName]?.type as StorageType,
     );
   }
 
-  migrateDataFromPreviousStorage() {
+  private_migrateDataFromPreviousStorage() {
     const entries = state.storage.entries.value as StorageEntries;
     const storageTypesForMigration = [COOKIE_STORAGE, LOCAL_STORAGE, SESSION_STORAGE];
     Object.keys(entries).forEach(entry => {
       const key = entry as UserSessionStorageKeysType;
       const currentStorage = entries[key]?.type as StorageType;
-      const curStore = this.storeManager?.getStore(
+      const curStore = this.private_storeManager?.getStore(
         storageClientDataStoreNameMap[currentStorage] as string,
       );
       if (curStore) {
         storageTypesForMigration.forEach(storage => {
-          const store = this.storeManager?.getStore(
+          const store = this.private_storeManager?.getStore(
             storageClientDataStoreNameMap[storage] as string,
           );
           if (store && storage !== currentStorage) {
@@ -198,7 +202,7 @@ class UserSessionManager implements IUserSessionManager {
     });
   }
 
-  migrateStorageIfNeeded() {
+  private_migrateStorageIfNeeded() {
     if (!state.storage.migrate.value) {
       return;
     }
@@ -211,7 +215,7 @@ class UserSessionManager implements IUserSessionManager {
 
     const stores: IStore[] = [];
     persistentStoreNames.forEach(storeName => {
-      const store = this.storeManager?.getStore(storeName);
+      const store = this.private_storeManager?.getStore(storeName);
       if (store) {
         stores.push(store);
       }
@@ -220,12 +224,12 @@ class UserSessionManager implements IUserSessionManager {
     Object.keys(COOKIE_KEYS).forEach(storageKey => {
       const storageEntry = COOKIE_KEYS[storageKey as UserSessionStorageKeysType];
       stores.forEach(store => {
-        const migratedVal = this.pluginsManager?.invokeSingle(
+        const migratedVal = this.private_pluginsManager?.invokeSingle(
           'storage.migrate',
           storageEntry,
-          store.engine,
-          this.errorHandler,
-          this.logger,
+          store.getOriginalEngine(),
+          this.private_errorHandler,
+          this.private_logger,
         );
 
         // Skip setting the value if it is null or undefined
@@ -238,7 +242,7 @@ class UserSessionManager implements IUserSessionManager {
     });
   }
 
-  getConfiguredSessionTrackingInfo(): SessionInfo {
+  private_getConfiguredSessionTrackingInfo(): SessionInfo {
     let autoTrack = state.loadOptions.value.sessions?.autoTrack !== false;
 
     // Do not validate any further if autoTrack is disabled
@@ -251,7 +255,7 @@ class UserSessionManager implements IUserSessionManager {
     let timeout: number;
     const configuredSessionTimeout = state.loadOptions.value.sessions?.timeout;
     if (!isPositiveInteger(configuredSessionTimeout)) {
-      this.logger?.warn(
+      this.private_logger?.warn(
         TIMEOUT_NOT_NUMBER_WARNING(
           USER_SESSION_MANAGER,
           configuredSessionTimeout,
@@ -264,13 +268,13 @@ class UserSessionManager implements IUserSessionManager {
     }
 
     if (timeout === 0) {
-      this.logger?.warn(TIMEOUT_ZERO_WARNING(USER_SESSION_MANAGER));
+      this.private_logger?.warn(TIMEOUT_ZERO_WARNING(USER_SESSION_MANAGER));
       autoTrack = false;
     }
     // In case user provides a timeout value greater than 0 but less than 10 seconds SDK will show a warning
     // and will proceed with it
     if (timeout > 0 && timeout < MIN_SESSION_TIMEOUT_MS) {
-      this.logger?.warn(
+      this.private_logger?.warn(
         TIMEOUT_NOT_RECOMMENDED_WARNING(USER_SESSION_MANAGER, timeout, MIN_SESSION_TIMEOUT_MS),
       );
     }
@@ -281,9 +285,9 @@ class UserSessionManager implements IUserSessionManager {
    * Handles error
    * @param error The error object
    */
-  onError(error: unknown, customMessage?: string): void {
-    if (this.errorHandler) {
-      this.errorHandler.onError(error, USER_SESSION_MANAGER, customMessage);
+  private_onError(error: unknown, customMessage?: string): void {
+    if (this.private_errorHandler) {
+      this.private_errorHandler.onError(error, USER_SESSION_MANAGER, customMessage);
     } else {
       throw error;
     }
@@ -295,11 +299,11 @@ class UserSessionManager implements IUserSessionManager {
    * @param store
    * @returns
    */
-  getEncryptedCookieData(cookiesData: CookieData[], store?: IStore): EncryptedCookieData[] {
+  private_getEncryptedCookieData(cookiesData: CookieData[], store?: IStore): EncryptedCookieData[] {
     const encryptedCookieData: EncryptedCookieData[] = [];
     cookiesData.forEach(cData => {
-      const encryptedValue = store?.encrypt(
-        stringifyWithoutCircular(cData.value, false, [], this.logger),
+      const encryptedValue = store?.private_encrypt(
+        stringifyWithoutCircular(cData.value, false, [], this.private_logger),
       );
       if (isDefinedAndNotNull(encryptedValue)) {
         encryptedCookieData.push({
@@ -316,11 +320,11 @@ class UserSessionManager implements IUserSessionManager {
    * @param encryptedCookieData
    * @param callback
    */
-  makeRequestToSetCookie(
+  private_makeRequestToSetCookie(
     encryptedCookieData: EncryptedCookieData[],
     callback: AsyncRequestCallback<any>,
   ) {
-    this.httpClient?.request({
+    this.private_httpClient?.request({
       url: state.serverCookies.dataServiceUrl.value as string,
       options: {
         method: 'POST',
@@ -356,27 +360,31 @@ class UserSessionManager implements IUserSessionManager {
    * @param key       cookie name
    * @param value     encrypted cookie value
    */
-  setServerSideCookies(cookiesData: CookieData[], cb?: CallbackFunction, store?: IStore): void {
+  private_setServerSideCookies(
+    cookiesData: CookieData[],
+    cb?: CallbackFunction,
+    store?: IStore,
+  ): void {
     try {
       // encrypt cookies values
-      const encryptedCookieData = this.getEncryptedCookieData(cookiesData, store);
+      const encryptedCookieData = this.private_getEncryptedCookieData(cookiesData, store);
       if (encryptedCookieData.length > 0) {
         // make request to data service to set the cookie from server side
-        this.makeRequestToSetCookie(encryptedCookieData, (res, details) => {
+        this.private_makeRequestToSetCookie(encryptedCookieData, (res, details) => {
           if (details.response?.status === 200) {
             cookiesData.forEach(cData => {
               const cookieValue = store?.get(cData.name);
               const before = stringifyWithoutCircular(cData.value, false, []);
               const after = stringifyWithoutCircular(cookieValue, false, []);
               if (after !== before) {
-                this.logger?.error(FAILED_SETTING_COOKIE_FROM_SERVER_ERROR(cData.name));
+                this.private_logger?.error(FAILED_SETTING_COOKIE_FROM_SERVER_ERROR(cData.name));
                 if (cb) {
                   cb(cData.name, cData.value);
                 }
               }
             });
           } else {
-            this.logger?.error(DATA_SERVER_REQUEST_FAIL_ERROR(details?.response?.status));
+            this.private_logger?.error(DATA_SERVER_REQUEST_FAIL_ERROR(details?.response?.status));
             cookiesData.forEach(each => {
               if (cb) {
                 cb(each.name, each.value);
@@ -386,7 +394,7 @@ class UserSessionManager implements IUserSessionManager {
         });
       }
     } catch (e) {
-      this.onError(e, FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR);
+      this.private_onError(e, FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR);
       cookiesData.forEach(each => {
         if (cb) {
           cb(each.name, each.value);
@@ -400,14 +408,14 @@ class UserSessionManager implements IUserSessionManager {
    * @param sessionKey
    * @param value
    */
-  syncValueToStorage(
+  private_syncValueToStorage(
     sessionKey: UserSessionKey,
     value: Nullable<ApiObject> | Nullable<string> | undefined,
   ) {
     const entries = state.storage.entries.value;
     const storageType = entries[sessionKey]?.type as StorageType;
     if (isStorageTypeValidForStoringData(storageType)) {
-      const curStore = this.storeManager?.getStore(
+      const curStore = this.private_storeManager?.getStore(
         storageClientDataStoreNameMap[storageType] as string,
       );
       const key = entries[sessionKey]?.key as string;
@@ -418,24 +426,23 @@ class UserSessionManager implements IUserSessionManager {
           state.serverCookies.isEnabledServerSideCookies.value &&
           storageType === COOKIE_STORAGE
         ) {
-          if (this.serverSideCookieDebounceFuncs[sessionKey]) {
+          if (this.private_serverSideCookieDebounceFuncs[sessionKey]) {
             (globalThis as typeof window).clearTimeout(
-              this.serverSideCookieDebounceFuncs[sessionKey],
+              this.private_serverSideCookieDebounceFuncs[sessionKey],
             );
           }
 
-          this.serverSideCookieDebounceFuncs[sessionKey] = (globalThis as typeof window).setTimeout(
-            () => {
-              this.setServerSideCookies(
-                [{ name: key, value }],
-                (cookieName, cookieValue) => {
-                  curStore?.set(cookieName, cookieValue);
-                },
-                curStore,
-              );
-            },
-            SERVER_SIDE_COOKIES_DEBOUNCE_TIME,
-          );
+          this.private_serverSideCookieDebounceFuncs[sessionKey] = (
+            globalThis as typeof window
+          ).setTimeout(() => {
+            this.private_setServerSideCookies(
+              [{ name: key, value }],
+              (cookieName, cookieValue) => {
+                curStore?.set(cookieName, cookieValue);
+              },
+              curStore,
+            );
+          }, SERVER_SIDE_COOKIES_DEBOUNCE_TIME);
         } else {
           curStore?.set(key, value);
         }
@@ -448,11 +455,11 @@ class UserSessionManager implements IUserSessionManager {
   /**
    * Function to update storage whenever state value changes
    */
-  registerEffects() {
+  private_registerEffects() {
     // This will work as long as the user session entry key names are same as the state keys
     USER_SESSION_KEYS.forEach(sessionKey => {
       effect(() => {
-        this.syncValueToStorage(sessionKey, state.session[sessionKey].value);
+        this.private_syncValueToStorage(sessionKey, state.session[sessionKey].value);
       });
     });
   }
@@ -467,9 +474,9 @@ class UserSessionManager implements IUserSessionManager {
    */
   setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string) {
     let finalAnonymousId: string | undefined | null = anonymousId;
-    if (this.isPersistenceEnabledForStorageEntry('anonymousId')) {
+    if (this.private_isPersistenceEnabledForStorageEntry('anonymousId')) {
       if (!finalAnonymousId && rudderAmpLinkerParam) {
-        const linkerPluginsResult = this.pluginsManager?.invokeSingle(
+        const linkerPluginsResult = this.private_pluginsManager?.invokeSingle(
           'userSession.anonymousIdGoogleLinker',
           rudderAmpLinkerParam,
         );
@@ -492,14 +499,12 @@ class UserSessionManager implements IUserSessionManager {
     const storage: StorageType = state.storage.entries.value.anonymousId?.type as StorageType;
     // fetch the anonymousId from storage
     if (isStorageTypeValidForStoringData(storage)) {
-      let persistedAnonymousId = this.getEntryValue('anonymousId');
+      let persistedAnonymousId = this.private_getEntryValue('anonymousId');
       if (!persistedAnonymousId && options) {
         // fetch anonymousId from external source
-        const autoCapturedAnonymousId = this.pluginsManager?.invokeSingle<string | undefined>(
-          'storage.getAnonymousId',
-          getStorageEngine,
-          options,
-        );
+        const autoCapturedAnonymousId = this.private_pluginsManager?.invokeSingle<
+          string | undefined
+        >('storage.getAnonymousId', getStorageEngine, options);
         persistedAnonymousId = autoCapturedAnonymousId;
       }
       state.session.anonymousId.value = persistedAnonymousId || generateAnonymousId();
@@ -507,11 +512,11 @@ class UserSessionManager implements IUserSessionManager {
     return state.session.anonymousId.value as string;
   }
 
-  getEntryValue(sessionKey: UserSessionKey) {
+  private_getEntryValue(sessionKey: UserSessionKey) {
     const entries = state.storage.entries.value;
     const storageType = entries[sessionKey]?.type as StorageType;
     if (isStorageTypeValidForStoringData(storageType)) {
-      const store = this.storeManager?.getStore(
+      const store = this.private_storeManager?.getStore(
         storageClientDataStoreNameMap[storageType] as string,
       );
       const storageKey = entries[sessionKey]?.key as string;
@@ -520,7 +525,7 @@ class UserSessionManager implements IUserSessionManager {
     return null;
   }
 
-  getExternalAnonymousIdByCookieName(key: string) {
+  private_getExternalAnonymousIdByCookieName(key: string) {
     const storageEngine = getStorageEngine(COOKIE_STORAGE);
     if (storageEngine?.isEnabled) {
       return storageEngine.getItem(key) ?? null;
@@ -533,7 +538,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getUserId(): Nullable<string> {
-    return this.getEntryValue('userId');
+    return this.private_getEntryValue('userId');
   }
 
   /**
@@ -541,7 +546,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getUserTraits(): Nullable<ApiObject> {
-    return this.getEntryValue('userTraits');
+    return this.private_getEntryValue('userTraits');
   }
 
   /**
@@ -549,7 +554,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getGroupId(): Nullable<string> {
-    return this.getEntryValue('groupId');
+    return this.private_getEntryValue('groupId');
   }
 
   /**
@@ -557,7 +562,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getGroupTraits(): Nullable<ApiObject> {
-    return this.getEntryValue('groupTraits');
+    return this.private_getEntryValue('groupTraits');
   }
 
   /**
@@ -565,7 +570,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getInitialReferrer(): Nullable<string> {
-    return this.getEntryValue('initialReferrer');
+    return this.private_getEntryValue('initialReferrer');
   }
 
   /**
@@ -573,7 +578,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getInitialReferringDomain(): Nullable<string> {
-    return this.getEntryValue('initialReferringDomain');
+    return this.private_getEntryValue('initialReferringDomain');
   }
 
   /**
@@ -581,7 +586,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getSessionInfo(): Nullable<SessionInfo> {
-    return this.getEntryValue('sessionInfo');
+    return this.private_getEntryValue('sessionInfo');
   }
 
   /**
@@ -589,7 +594,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getAuthToken(): Nullable<string> {
-    return this.getEntryValue('authToken');
+    return this.private_getEntryValue('authToken');
   }
 
   /**
@@ -645,7 +650,7 @@ class UserSessionManager implements IUserSessionManager {
     if (state.lifecycle.status.value !== 'readyExecuted') {
       // Force update the storage as the 'effect' blocks are not getting triggered
       // when processing preload buffered requests
-      this.syncValueToStorage('sessionInfo', sessionInfo);
+      this.private_syncValueToStorage('sessionInfo', sessionInfo);
     }
   }
 
@@ -690,7 +695,7 @@ class UserSessionManager implements IUserSessionManager {
    */
   setUserId(userId?: Nullable<string>) {
     state.session.userId.value =
-      this.isPersistenceEnabledForStorageEntry('userId') && userId
+      this.private_isPersistenceEnabledForStorageEntry('userId') && userId
         ? userId
         : DEFAULT_USER_SESSION_VALUES.userId;
   }
@@ -701,7 +706,7 @@ class UserSessionManager implements IUserSessionManager {
    */
   setUserTraits(traits?: Nullable<ApiObject>) {
     state.session.userTraits.value =
-      this.isPersistenceEnabledForStorageEntry('userTraits') && traits
+      this.private_isPersistenceEnabledForStorageEntry('userTraits') && traits
         ? mergeDeepRight(
             state.session.userTraits.value ?? DEFAULT_USER_SESSION_VALUES.userTraits,
             traits,
@@ -715,7 +720,7 @@ class UserSessionManager implements IUserSessionManager {
    */
   setGroupId(groupId?: Nullable<string>) {
     state.session.groupId.value =
-      this.isPersistenceEnabledForStorageEntry('groupId') && groupId
+      this.private_isPersistenceEnabledForStorageEntry('groupId') && groupId
         ? groupId
         : DEFAULT_USER_SESSION_VALUES.groupId;
   }
@@ -726,7 +731,7 @@ class UserSessionManager implements IUserSessionManager {
    */
   setGroupTraits(traits?: Nullable<ApiObject>) {
     state.session.groupTraits.value =
-      this.isPersistenceEnabledForStorageEntry('groupTraits') && traits
+      this.private_isPersistenceEnabledForStorageEntry('groupTraits') && traits
         ? mergeDeepRight(
             state.session.groupTraits.value ?? DEFAULT_USER_SESSION_VALUES.groupTraits,
             traits,
@@ -740,7 +745,7 @@ class UserSessionManager implements IUserSessionManager {
    */
   setInitialReferrer(referrer?: string) {
     state.session.initialReferrer.value =
-      this.isPersistenceEnabledForStorageEntry('initialReferrer') && referrer
+      this.private_isPersistenceEnabledForStorageEntry('initialReferrer') && referrer
         ? referrer
         : DEFAULT_USER_SESSION_VALUES.initialReferrer;
   }
@@ -751,7 +756,7 @@ class UserSessionManager implements IUserSessionManager {
    */
   setInitialReferringDomain(referringDomain?: string) {
     state.session.initialReferringDomain.value =
-      this.isPersistenceEnabledForStorageEntry('initialReferringDomain') && referringDomain
+      this.private_isPersistenceEnabledForStorageEntry('initialReferringDomain') && referringDomain
         ? referringDomain
         : DEFAULT_USER_SESSION_VALUES.initialReferringDomain;
   }
@@ -777,7 +782,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   start(id?: number) {
-    state.session.sessionInfo.value = generateManualTrackingSession(id, this.logger);
+    state.session.sessionInfo.value = generateManualTrackingSession(id, this.private_logger);
   }
 
   /**
@@ -800,7 +805,7 @@ class UserSessionManager implements IUserSessionManager {
    */
   setAuthToken(token: Nullable<string>) {
     state.session.authToken.value =
-      this.isPersistenceEnabledForStorageEntry('authToken') && token
+      this.private_isPersistenceEnabledForStorageEntry('authToken') && token
         ? token
         : DEFAULT_USER_SESSION_VALUES.authToken;
   }

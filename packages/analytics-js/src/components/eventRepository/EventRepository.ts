@@ -28,14 +28,14 @@ import { DataPlaneEventsQueue } from '../dataPlaneEventsQueue/DataPlaneEventsQue
  * Event repository class responsible for queuing events for further processing and delivery
  */
 class EventRepository implements IEventRepository {
-  errorHandler?: IErrorHandler;
-  logger?: ILogger;
-  pluginsManager: IPluginsManager;
-  httpClient: IHttpClient;
-  storeManager: IStoreManager;
-  dataplaneEventsQueue: IDataPlaneEventsQueue;
-  destinationsEventsQueue: any;
-  dmtEventsQueue: any;
+  private_errorHandler?: IErrorHandler;
+  private_logger?: ILogger;
+  private_pluginsManager: IPluginsManager;
+  private_httpClient: IHttpClient;
+  private_storeManager: IStoreManager;
+  private_dataplaneEventsQueue: IDataPlaneEventsQueue;
+  private_destinationsEventsQueue: any;
+  private_dmtEventsQueue: any;
 
   /**
    *
@@ -51,16 +51,16 @@ class EventRepository implements IEventRepository {
     errorHandler?: IErrorHandler,
     logger?: ILogger,
   ) {
-    this.pluginsManager = pluginsManager;
-    this.errorHandler = errorHandler;
-    this.logger = logger;
-    this.httpClient = httpClient;
-    this.storeManager = storeManager;
+    this.private_pluginsManager = pluginsManager;
+    this.private_errorHandler = errorHandler;
+    this.private_logger = logger;
+    this.private_httpClient = httpClient;
+    this.private_storeManager = storeManager;
     this.onError = this.onError.bind(this);
-    this.dataplaneEventsQueue = new DataPlaneEventsQueue(
-      this.httpClient,
-      this.storeManager,
-      this.logger,
+    this.private_dataplaneEventsQueue = new DataPlaneEventsQueue(
+      this.private_httpClient,
+      this.private_storeManager,
+      this.private_logger,
     );
   }
 
@@ -69,28 +69,28 @@ class EventRepository implements IEventRepository {
    */
   init(): void {
     try {
-      this.dmtEventsQueue = this.pluginsManager.invokeSingle(
+      this.private_dmtEventsQueue = this.private_pluginsManager.invokeSingle(
         `${DMT_EXT_POINT_PREFIX}.init`,
         state,
-        this.pluginsManager,
-        this.httpClient,
-        this.storeManager,
-        this.errorHandler,
-        this.logger,
+        this.private_pluginsManager,
+        this.private_httpClient,
+        this.private_storeManager,
+        this.private_errorHandler,
+        this.private_logger,
       );
     } catch (e) {
       this.onError(e, DMT_PLUGIN_INITIALIZE_ERROR);
     }
 
     try {
-      this.destinationsEventsQueue = this.pluginsManager.invokeSingle(
+      this.private_destinationsEventsQueue = this.private_pluginsManager.invokeSingle(
         `${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.init`,
         state,
-        this.pluginsManager,
-        this.storeManager,
-        this.dmtEventsQueue,
-        this.errorHandler,
-        this.logger,
+        this.private_pluginsManager,
+        this.private_storeManager,
+        this.private_dmtEventsQueue,
+        this.private_errorHandler,
+        this.private_logger,
       );
     } catch (e) {
       this.onError(e, NATIVE_DEST_PLUGIN_INITIALIZE_ERROR);
@@ -99,8 +99,8 @@ class EventRepository implements IEventRepository {
     // Start the queue once the client destinations are ready
     effect(() => {
       if (state.nativeDestinations.clientDestinationsReady.value === true) {
-        this.destinationsEventsQueue?.start();
-        this.dmtEventsQueue?.start();
+        this.private_destinationsEventsQueue?.start();
+        this.private_dmtEventsQueue?.start();
       }
     });
 
@@ -125,26 +125,26 @@ class EventRepository implements IEventRepository {
         !bufferEventsBeforeConsent
       ) {
         (globalThis as typeof window).clearTimeout(timeoutId);
-        this.dataplaneEventsQueue.start();
+        this.private_dataplaneEventsQueue.start();
       }
     });
 
     // Force start the data plane events queue processing after a timeout
     if (state.loadOptions.value.bufferDataPlaneEventsUntilReady === true) {
       timeoutId = (globalThis as typeof window).setTimeout(() => {
-        this.dataplaneEventsQueue.start();
+        this.private_dataplaneEventsQueue.start();
       }, state.loadOptions.value.dataPlaneEventsBufferTimeout);
     }
   }
 
   resume() {
-    if (this.dataplaneEventsQueue.isRunning() !== true) {
+    if (this.private_dataplaneEventsQueue.isRunning() !== true) {
       if (state.consents.postConsent.value.discardPreConsentEvents) {
-        this.dataplaneEventsQueue.clear();
-        this.destinationsEventsQueue?.clear();
+        this.private_dataplaneEventsQueue.clear();
+        this.private_destinationsEventsQueue?.clear();
       }
 
-      this.dataplaneEventsQueue.start();
+      this.private_dataplaneEventsQueue.start();
     }
   }
 
@@ -156,20 +156,20 @@ class EventRepository implements IEventRepository {
   enqueue(event: RudderEvent, callback?: ApiCallback): void {
     const finalEvent = getFinalEvent(event, state);
     try {
-      this.dataplaneEventsQueue.enqueue(finalEvent);
+      this.private_dataplaneEventsQueue.enqueue(finalEvent);
     } catch (e) {
       this.onError(e, DATAPLANE_EVENTS_ENQUEUE_ERROR);
     }
 
     try {
       const dQEvent = clone(finalEvent);
-      this.pluginsManager.invokeSingle(
+      this.private_pluginsManager.invokeSingle(
         `${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.enqueue`,
         state,
-        this.destinationsEventsQueue,
+        this.private_destinationsEventsQueue,
         dQEvent,
-        this.errorHandler,
-        this.logger,
+        this.private_errorHandler,
+        this.private_logger,
       );
     } catch (e) {
       this.onError(e, NATIVE_DEST_PLUGIN_ENQUEUE_ERROR);
@@ -192,8 +192,8 @@ class EventRepository implements IEventRepository {
    * @param shouldAlwaysThrow if it should throw or use logger
    */
   onError(error: unknown, customMessage?: string, shouldAlwaysThrow?: boolean): void {
-    if (this.errorHandler) {
-      this.errorHandler.onError(error, EVENT_REPOSITORY, customMessage, shouldAlwaysThrow);
+    if (this.private_errorHandler) {
+      this.private_errorHandler.onError(error, EVENT_REPOSITORY, customMessage, shouldAlwaysThrow);
     } else {
       throw error;
     }

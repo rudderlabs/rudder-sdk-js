@@ -85,7 +85,7 @@ describe('Store', () => {
           },
           getStorageEngine('localStorage'),
         );
-        expect(store.createValidKey('test')).toStrictEqual('name.id.test');
+        expect(store.private_createValidKey('test')).toStrictEqual('name.id.test');
       });
     });
 
@@ -99,7 +99,7 @@ describe('Store', () => {
           },
           getStorageEngine('localStorage'),
         );
-        expect(store.createValidKey('test')).toBeUndefined();
+        expect(store.private_createValidKey('test')).toBeUndefined();
       });
     });
 
@@ -111,15 +111,15 @@ describe('Store', () => {
         },
         getStorageEngine('localStorage'),
       );
-      expect(store.createValidKey('queue')).toStrictEqual('name.id.queue');
+      expect(store.private_createValidKey('queue')).toStrictEqual('name.id.queue');
     });
   });
 
   describe('.swapEngine', () => {
     it('should switch the underlying storage mechanism', () => {
-      expect(store.engine).toStrictEqual(getStorageEngine('localStorage'));
+      expect(store.private_engine).toStrictEqual(getStorageEngine('localStorage'));
       store.swapQueueStoreToInMemoryEngine();
-      expect(store.engine).toStrictEqual(getStorageEngine('memoryStorage'));
+      expect(store.private_engine).toStrictEqual(getStorageEngine('memoryStorage'));
     });
 
     it('should not switch the original storage mechanism', () => {
@@ -142,7 +142,7 @@ describe('Store', () => {
         store.set(keyValue, 'stuff');
       });
 
-      store.engine.setItem = () => {
+      store.getOriginalEngine().setItem = () => {
         throw new DOMException('error', 'QuotaExceededError');
       };
 

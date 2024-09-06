@@ -7,10 +7,10 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { SourceConfigResponse } from '@rudderstack/analytics-js-common/types/LoadOptions';
 
 export interface IConfigManager {
-  httpClient: IHttpClient;
-  errorHandler?: IErrorHandler;
-  logger?: ILogger;
+  private_httpClient: IHttpClient;
+  private_errorHandler?: IErrorHandler;
+  private_logger?: ILogger;
   init: () => void;
-  getConfig: () => void;
-  processConfig: (response: SourceConfigResponse, details?: IResponseDetails) => void;
+  private_getConfig: () => void;
+  private_processConfig: (response: SourceConfigResponse, details?: IResponseDetails) => void;
 }

@@ -118,6 +118,7 @@ describe('KetchConsentManager - Utils', () => {
       const mockStoreManager = {
         setStore: () => ({
           engine: null,
+          getOriginalEngine: () => null,
         }),
       };
 
