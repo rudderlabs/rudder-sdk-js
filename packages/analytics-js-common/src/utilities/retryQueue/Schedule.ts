@@ -2,7 +2,7 @@ export type ScheduleTaskHandler = (
   id: string,
   callback: () => any,
   timeout: number,
-  mode: ScheduleModes,
+  mode: number,
 ) => any;
 
 export type ScheduleClock = {
@@ -46,7 +46,7 @@ class Schedule {
     return +new this.clock.Date();
   }
 
-  run(task: () => any, timeout: number, mode?: ScheduleModes): string {
+  run(task: () => any, timeout: number, mode?: number): string {
     const id = (this.nextId + 1).toString();
 
     this.tasks[id] = this.clock.setTimeout(this.handle(id, task, timeout, mode ?? ASAP), timeout);
@@ -54,7 +54,7 @@ class Schedule {
     return id;
   }
 
-  handle(id: string, callback: () => any, timeout: number, mode: ScheduleModes): () => any {
+  handle(id: string, callback: () => any, timeout: number, mode: number): () => any {
     const start = this.now();
 
     return () => {
