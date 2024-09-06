@@ -121,6 +121,11 @@ export function getDefaultConfig(distName) {
           format: {
             comments: false,
           },
+          mangle: {
+            properties: {
+               regex: /^private_/
+             }
+           }
         }),
       filesize({
         showBrotliSize: true,
