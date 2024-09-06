@@ -3,6 +3,8 @@ import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsM
 import type { PluginMap } from './types';
 import { pluginNamesList } from './pluginNames';
 
+const IMPORT_PATH_PREFIX = 'rudderAnalyticsRemotePlugins/';
+
 /**
  * Get the lazy loaded dynamic import for a plugin name
  */
@@ -11,29 +13,29 @@ const getFederatedModuleImport = (
 ): (() => Promise<ExtensionPlugin>) | undefined => {
   switch (pluginName) {
     case 'CustomConsentManager':
-      return () => import('rudderAnalyticsRemotePlugins/CustomConsentManager');
+      return () => import(`${IMPORT_PATH_PREFIX}CustomConsentManager`);
     case 'DeviceModeDestinations':
-      return () => import('rudderAnalyticsRemotePlugins/DeviceModeDestinations');
+      return () => import(`${IMPORT_PATH_PREFIX}DeviceModeDestinations`);
     case 'DeviceModeTransformation':
-      return () => import('rudderAnalyticsRemotePlugins/DeviceModeTransformation');
+      return () => import(`${IMPORT_PATH_PREFIX}DeviceModeTransformation`);
     case 'ErrorReporting':
-      return () => import('rudderAnalyticsRemotePlugins/ErrorReporting');
+      return () => import(`${IMPORT_PATH_PREFIX}ErrorReporting`);
     case 'ExternalAnonymousId':
-      return () => import('rudderAnalyticsRemotePlugins/ExternalAnonymousId');
+      return () => import(`${IMPORT_PATH_PREFIX}ExternalAnonymousId`);
     case 'GoogleLinker':
-      return () => import('rudderAnalyticsRemotePlugins/GoogleLinker');
+      return () => import(`${IMPORT_PATH_PREFIX}GoogleLinker`);
     case 'KetchConsentManager':
-      return () => import('rudderAnalyticsRemotePlugins/KetchConsentManager');
+      return () => import(`${IMPORT_PATH_PREFIX}KetchConsentManager`);
     case 'NativeDestinationQueue':
-      return () => import('rudderAnalyticsRemotePlugins/NativeDestinationQueue');
+      return () => import(`${IMPORT_PATH_PREFIX}NativeDestinationQueue`);
     case 'OneTrustConsentManager':
-      return () => import('rudderAnalyticsRemotePlugins/OneTrustConsentManager');
+      return () => import(`${IMPORT_PATH_PREFIX}OneTrustConsentManager`);
     case 'StorageEncryption':
-      return () => import('rudderAnalyticsRemotePlugins/StorageEncryption');
+      return () => import(`${IMPORT_PATH_PREFIX}StorageEncryption`);
     case 'StorageEncryptionLegacy':
-      return () => import('rudderAnalyticsRemotePlugins/StorageEncryptionLegacy');
+      return () => import(`${IMPORT_PATH_PREFIX}StorageEncryptionLegacy`);
     case 'StorageMigrator':
-      return () => import('rudderAnalyticsRemotePlugins/StorageMigrator');
+      return () => import(`${IMPORT_PATH_PREFIX}StorageMigrator`);
     default:
       return undefined;
   }
