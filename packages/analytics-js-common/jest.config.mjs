@@ -11,4 +11,7 @@ export default {
       statements: 0,
     },
   },
+  coveragePathIgnorePatterns: [
+    '<rootDir>/src/constants/integrations',
+  ],
 };

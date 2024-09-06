@@ -38,7 +38,8 @@ class EventRepository implements IEventRepository {
   private_dmtEventsQueue: any;
 
   /**
-   *
+   * Constructor for EventRepository
+   * @param httpClient HTTP client instance
    * @param pluginsManager Plugins manager instance
    * @param storeManager Store Manager instance
    * @param errorHandler Error handler object
@@ -56,7 +57,7 @@ class EventRepository implements IEventRepository {
     this.private_logger = logger;
     this.private_httpClient = httpClient;
     this.private_storeManager = storeManager;
-    this.onError = this.onError.bind(this);
+    this.private_onError = this.private_onError.bind(this);
     this.private_dataplaneEventsQueue = new DataPlaneEventsQueue(
       this.private_httpClient,
       this.private_storeManager,
@@ -79,7 +80,7 @@ class EventRepository implements IEventRepository {
         this.private_logger,
       );
     } catch (e) {
-      this.onError(e, DMT_PLUGIN_INITIALIZE_ERROR);
+      this.private_onError(e, DMT_PLUGIN_INITIALIZE_ERROR);
     }
 
     try {
@@ -93,7 +94,7 @@ class EventRepository implements IEventRepository {
         this.private_logger,
       );
     } catch (e) {
-      this.onError(e, NATIVE_DEST_PLUGIN_INITIALIZE_ERROR);
+      this.private_onError(e, NATIVE_DEST_PLUGIN_INITIALIZE_ERROR);
     }
 
     // Start the queue once the client destinations are ready
@@ -158,7 +159,7 @@ class EventRepository implements IEventRepository {
     try {
       this.private_dataplaneEventsQueue.enqueue(finalEvent);
     } catch (e) {
-      this.onError(e, DATAPLANE_EVENTS_ENQUEUE_ERROR);
+      this.private_onError(e, DATAPLANE_EVENTS_ENQUEUE_ERROR);
     }
 
     try {
@@ -172,7 +173,7 @@ class EventRepository implements IEventRepository {
         this.private_logger,
       );
     } catch (e) {
-      this.onError(e, NATIVE_DEST_PLUGIN_ENQUEUE_ERROR);
+      this.private_onError(e, NATIVE_DEST_PLUGIN_ENQUEUE_ERROR);
     }
 
     // Invoke the callback if it exists
@@ -181,7 +182,7 @@ class EventRepository implements IEventRepository {
       // to ensure the mutated (if any) event is sent to the callback
       callback?.(finalEvent);
     } catch (error) {
-      this.onError(error, API_CALLBACK_INVOKE_ERROR);
+      this.private_onError(error, API_CALLBACK_INVOKE_ERROR);
     }
   }
 
@@ -191,7 +192,7 @@ class EventRepository implements IEventRepository {
    * @param customMessage a message
    * @param shouldAlwaysThrow if it should throw or use logger
    */
-  onError(error: unknown, customMessage?: string, shouldAlwaysThrow?: boolean): void {
+  private_onError(error: unknown, customMessage?: string, shouldAlwaysThrow?: boolean): void {
     if (this.private_errorHandler) {
       this.private_errorHandler.onError(error, EVENT_REPOSITORY, customMessage, shouldAlwaysThrow);
     } else {
