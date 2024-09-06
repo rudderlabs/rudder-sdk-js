@@ -10,21 +10,19 @@ import { jsFileLoader } from './jsFileLoader';
  * Service to load external resources/files
  */
 class ExternalSrcLoader implements IExternalSrcLoader {
-  errorHandler?: IErrorHandler;
-  logger?: ILogger;
-  hasErrorHandler = false;
-  timeout: number;
+  private_errorHandler?: IErrorHandler;
+  private_logger?: ILogger;
+  private_timeout: number;
 
   constructor(
     errorHandler?: IErrorHandler,
     logger?: ILogger,
     timeout = DEFAULT_EXT_SRC_LOAD_TIMEOUT_MS,
   ) {
-    this.errorHandler = errorHandler;
-    this.logger = logger;
-    this.timeout = timeout;
-    this.hasErrorHandler = Boolean(this.errorHandler);
-    this.onError = this.onError.bind(this);
+    this.private_errorHandler = errorHandler;
+    this.private_logger = logger;
+    this.private_timeout = timeout;
+    this.private_onError = this.private_onError.bind(this);
   }
 
   /**
@@ -34,14 +32,14 @@ class ExternalSrcLoader implements IExternalSrcLoader {
     const { url, id, timeout, async, callback, extraAttributes } = config;
     const isFireAndForget = !isFunction(callback);
 
-    jsFileLoader(url, id, timeout || this.timeout, async, extraAttributes)
+    jsFileLoader(url, id, timeout || this.private_timeout, async, extraAttributes)
       .then((id?: string) => {
         if (!isFireAndForget) {
           callback(id);
         }
       })
       .catch(err => {
-        this.onError(err);
+        this.private_onError(err);
         if (!isFireAndForget) {
           callback();
         }
@@ -51,9 +49,9 @@ class ExternalSrcLoader implements IExternalSrcLoader {
   /**
    * Handle errors
    */
-  onError(error: unknown) {
-    if (this.hasErrorHandler) {
-      this.errorHandler?.onError(error, EXTERNAL_SRC_LOADER);
+  private_onError(error: unknown) {
+    if (this.private_errorHandler) {
+      this.private_errorHandler.onError(error, EXTERNAL_SRC_LOADER);
     } else {
       throw error;
     }

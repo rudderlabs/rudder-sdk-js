@@ -106,14 +106,8 @@ class ErrorFormat implements IErrorFormat {
   constructor(errorClass: string, errorMessage: string, stacktrace: any[]) {
     this.errors = [createBugsnagError(errorClass, errorMessage, stacktrace)];
   }
-  static create(
-    maybeError: any,
-    tolerateNonErrors: boolean,
-    handledState: ErrorState,
-    component: string,
-    errorFramesToSkip = 0,
-    logger?: ILogger,
-  ) {
+
+  static create(maybeError: any, component: string, errorFramesToSkip = 0, logger?: ILogger) {
     const [error, internalFrames] = normaliseError(maybeError, component, logger);
     if (!error) {
       return undefined;
@@ -129,7 +123,7 @@ class ErrorFormat implements IErrorFormat {
         internalFrames > 0 ? 1 + internalFrames + errorFramesToSkip : 0,
       );
       event = new ErrorFormat(error.name, error.message, stacktrace);
-    } catch (e) {
+    } catch {
       event = new ErrorFormat(error.name, error.message, []);
     }
 
