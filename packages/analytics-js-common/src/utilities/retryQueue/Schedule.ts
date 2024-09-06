@@ -2,7 +2,7 @@ export type ScheduleTaskHandler = (
   id: string,
   callback: () => any,
   timeout: number,
-  mode: number,
+  mode: ScheduleModes,
 ) => any;
 
 export type ScheduleClock = {
@@ -12,9 +12,11 @@ export type ScheduleClock = {
   clockLateFactor: number;
 };
 
-export const ASAP = 1;
-export const RESCHEDULE = 2;
-export const ABANDON = 3;
+export const enum ScheduleModes {
+  ASAP = 1,
+  RESCHEDULE = 2,
+  ABANDON = 3,
+}
 
 const DEFAULT_CLOCK_LATE_FACTOR = 2;
 
@@ -44,15 +46,18 @@ class Schedule {
     return +new this.clock.Date();
   }
 
-  run(task: () => any, timeout: number, mode?: number): string {
+  run(task: () => any, timeout: number, mode?: ScheduleModes): string {
     const id = (this.nextId + 1).toString();
 
-    this.tasks[id] = this.clock.setTimeout(this.handle(id, task, timeout, mode ?? ASAP), timeout);
+    this.tasks[id] = this.clock.setTimeout(
+      this.handle(id, task, timeout, mode ?? ScheduleModes.ASAP),
+      timeout,
+    );
 
     return id;
   }
 
-  handle(id: string, callback: () => any, timeout: number, mode: number): () => any {
+  handle(id: string, callback: () => any, timeout: number, mode: ScheduleModes): () => any {
     const start = this.now();
 
     return () => {
@@ -60,10 +65,11 @@ class Schedule {
       const elapsedTimeoutTime =
         start + timeout * (this.clock.clockLateFactor || DEFAULT_CLOCK_LATE_FACTOR);
       const currentTime = this.now();
-      const notCompletedOrTimedOut = mode >= RESCHEDULE && elapsedTimeoutTime < currentTime;
+      const notCompletedOrTimedOut =
+        mode >= ScheduleModes.RESCHEDULE && elapsedTimeoutTime < currentTime;
 
       if (notCompletedOrTimedOut) {
-        if (mode === RESCHEDULE) {
+        if (mode === ScheduleModes.RESCHEDULE) {
           this.run(callback, timeout, mode);
         }
 
