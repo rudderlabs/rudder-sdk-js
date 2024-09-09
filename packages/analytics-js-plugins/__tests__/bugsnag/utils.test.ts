@@ -1,7 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import { signal } from '@preact/signals-core';
 import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader';
-import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import * as timeouts from '@rudderstack/analytics-js-common/src/constants/timeouts';
 import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
@@ -20,6 +19,7 @@ import {
 } from '../../src/bugsnag/utils';
 import { server } from '../../__fixtures__/msw.server';
 import type { BugsnagLib } from '../../src/types/plugins';
+import { defaultLogger } from '../../__mocks__/Logger';
 
 let state: ApplicationState;
 
@@ -48,19 +48,6 @@ afterEach(() => {
 });
 
 describe('Bugsnag utilities', () => {
-  class MockLogger implements ILogger {
-    warn = jest.fn();
-    log = jest.fn();
-    error = jest.fn();
-    info = jest.fn();
-    debug = jest.fn();
-    minLogLevel = 0;
-    scope = 'test scope';
-    setMinLogLevel = jest.fn();
-    setScope = jest.fn();
-    logProvider = console;
-  }
-
   class MockErrorHandler implements IErrorHandler {
     init = jest.fn();
     onError = jest.fn();
@@ -408,9 +395,8 @@ describe('Bugsnag utilities', () => {
     });
     let insertBeforeSpy: any;
 
-    const mockLogger = new MockLogger();
     const mockErrorHandler = new MockErrorHandler();
-    const extSrcLoader = new ExternalSrcLoader(mockErrorHandler, mockLogger);
+    const extSrcLoader = new ExternalSrcLoader(mockErrorHandler, defaultLogger);
 
     const origBugsnagUrl = bugsnagConstants.BUGSNAG_CDN_URL;
     const origExtSrcLoadTimeout = timeouts.DEFAULT_EXT_SRC_LOAD_TIMEOUT_MS;
@@ -458,7 +444,7 @@ describe('Bugsnag utilities', () => {
     it('should invoke error handler and log error if Bugsnag SDK could not be loaded', done => {
       timeouts.DEFAULT_EXT_SRC_LOAD_TIMEOUT_MS = 1000; // 1 second
       bugsnagConstants.BUGSNAG_CDN_URL = 'https://asdf.com/bugsnag.min.js';
-      loadBugsnagSDK(extSrcLoader, mockLogger);
+      loadBugsnagSDK(extSrcLoader, defaultLogger);
 
       setTimeout(() => {
         expect(mockErrorHandler.onError).toHaveBeenCalledWith(
@@ -467,7 +453,7 @@ describe('Bugsnag utilities', () => {
           ),
           'ExternalSrcLoader',
         );
-        expect(mockLogger.error).toHaveBeenCalledWith(
+        expect(defaultLogger.error).toHaveBeenCalledWith(
           `BugsnagPlugin:: Failed to load the Bugsnag SDK.`,
         );
         done();
@@ -549,8 +535,6 @@ describe('Bugsnag utilities', () => {
     });
 
     it('should log error and return false if the error could not be filtered', () => {
-      const mockLogger = new MockLogger();
-
       const error = {
         stacktrace: [
           {
@@ -565,10 +549,12 @@ describe('Bugsnag utilities', () => {
         }),
       } as any;
 
-      const onErrorFn = onError(state, mockLogger);
+      const onErrorFn = onError(state, defaultLogger);
 
       expect(onErrorFn(error)).toBe(false);
-      expect(mockLogger.error).toHaveBeenCalledWith('BugsnagPlugin:: Failed to filter the error.');
+      expect(defaultLogger.error).toHaveBeenCalledWith(
+        'BugsnagPlugin:: Failed to filter the error.',
+      );
     });
   });
 

@@ -1,6 +1,5 @@
 import { effect, signal } from '@preact/signals-core';
 import { http, HttpResponse } from 'msw';
-import { defaultHttpClient } from '../../../src/services/HttpClient';
 import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
 import { defaultLogger } from '../../../src/services/Logger';
 import { ConfigManager } from '../../../src/components/configManager';
@@ -12,6 +11,7 @@ import {
   ConfigResponseDestinationItem,
   SourceConfigResponse,
 } from '../../../src/components/configManager/types';
+import { HttpClient } from '../../../src/services/HttpClient';
 
 jest.mock('../../../src/services/Logger', () => {
   const originalModule = jest.requireActual('../../../src/services/Logger');
@@ -62,6 +62,7 @@ describe('ConfigManager', () => {
   const sampleScriptURL = 'https://www.dummy.url/fromScript/v3/rsa.min.js';
   const lockIntegrationsVersion = false;
   const lockPluginsVersion = false;
+  const defaultHttpClient = new HttpClient(defaultLogger);
 
   beforeAll(() => {
     server.listen();

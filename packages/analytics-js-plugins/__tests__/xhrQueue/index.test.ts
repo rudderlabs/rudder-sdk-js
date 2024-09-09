@@ -3,19 +3,19 @@ import { batch } from '@preact/signals-core';
 import { HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 import { state } from '@rudderstack/analytics-js/state';
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
+import { Schedule } from '@rudderstack/analytics-js-common/utilities/retryQueue/Schedule';
 import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type {
   IHttpClient,
   IResponseDetails,
 } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { XhrQueue } from '../../src/xhrQueue';
 import { HttpClientError } from '@rudderstack/analytics-js/services/HttpClient/utils';
+import { defaultLogger } from '../../__mocks__/Logger';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/timestamp', () => ({
   ...jest.requireActual('@rudderstack/analytics-js-common/utilities/timestamp'),
@@ -35,10 +35,6 @@ describe.skip('XhrQueue', () => {
   );
 
   const defaultStoreManager = new StoreManager(defaultPluginsManager);
-
-  const mockLogger = {
-    error: jest.fn(),
-  } as unknown as ILogger;
 
   beforeAll(() => {
     batch(() => {
@@ -161,7 +157,11 @@ describe.skip('XhrQueue', () => {
   it('should log error on retryable failure and requeue the item', () => {
     const mockHttpClient = {
       request: ({ callback }) => {
-        callback(null, { error: new HttpClientError('some error', 429) } as IResponseDetails);
+        callback(null, {
+          error: new HttpClientError('some error', {
+            status: 429,
+          }),
+        } as IResponseDetails);
       },
       setAuthHeader: jest.fn(),
     } as unknown as IHttpClient;
@@ -171,7 +171,7 @@ describe.skip('XhrQueue', () => {
       mockHttpClient,
       defaultStoreManager,
       undefined,
-      mockLogger,
+      defaultLogger,
     );
 
     const schedule = new Schedule();
@@ -198,7 +198,7 @@ describe.skip('XhrQueue', () => {
     // In actual implementation, this is done based on the state signals
     queue.start();
 
-    expect(mockLogger.error).toHaveBeenCalledWith(
+    expect(defaultLogger.error).toHaveBeenCalledWith(
       'XhrQueuePlugin:: Failed to deliver event(s) to https://sampleurl.com/v1/track. It/they will be retried.',
     );
 
@@ -247,7 +247,7 @@ describe.skip('XhrQueue', () => {
       mockHttpClient,
       defaultStoreManager,
       undefined,
-      mockLogger,
+      defaultLogger,
     );
     const queueProcessCbSpy = jest.spyOn(queue, 'processQueueCb');
 
@@ -325,7 +325,6 @@ describe.skip('XhrQueue', () => {
           'Content-Type': 'application/json;charset=UTF-8',
         },
         useAuth: true,
-        sendRawData: true,
         body: '{"batch":[{"type":"track","event":"test","userId":"test","properties":{"test":"test"},"anonymousId":"sampleAnonId","messageId":"test","originalTimestamp":"test","sentAt":"sample_timestamp"},{"type":"track","event":"test2","userId":"test2","properties":{"test2":"test2"},"anonymousId":"sampleAnonId","messageId":"test2","originalTimestamp":"test2","sentAt":"sample_timestamp"}],"sentAt":"sample_timestamp"}',
       },
       isRawResponse: true,

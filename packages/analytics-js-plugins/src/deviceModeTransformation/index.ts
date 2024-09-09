@@ -63,7 +63,6 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
             options: {
               method: 'POST',
               body: getDMTDeliveryPayload(payload) as string,
-              sendRawData: true,
               headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json;charset=UTF-8',

@@ -5,7 +5,6 @@ import { state } from '@rudderstack/analytics-js/state';
 import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type {
@@ -22,6 +21,7 @@ import { server } from '../../__fixtures__/msw.server';
 import * as utils from '@rudderstack/analytics-js-plugins/deviceModeTransformation/utilities';
 import { DeviceModeTransformation } from '@rudderstack/analytics-js-plugins/deviceModeTransformation';
 import { HttpClientError } from '@rudderstack/analytics-js/services/HttpClient/utils';
+import { defaultLogger } from '../../../analytics-js/__mocks__/Logger';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
   ...jest.requireActual('@rudderstack/analytics-js-common/utilities/uuId'),
@@ -243,7 +243,11 @@ describe('Device mode transformation plugin', () => {
   it('SendTransformedEventToDestinations function should not be called in case of unsuccessful transformation', () => {
     const mockHttpClient: IHttpClient = {
       request: ({ callback }) => {
-        callback?.(null, { error: new HttpClientError('some error', 502) } as IResponseDetails);
+        callback?.(null, {
+          error: new HttpClientError('some error', {
+            status: 502,
+          }),
+        } as IResponseDetails);
       },
       setAuthHeader: jest.fn(),
     };

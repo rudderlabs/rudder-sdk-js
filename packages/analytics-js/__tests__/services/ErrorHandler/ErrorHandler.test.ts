@@ -1,23 +1,11 @@
 import type { SDKError } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
-import { defaultHttpClient } from '../../../src/services/HttpClient';
-import { defaultLogger } from '../../../src/services/Logger';
 import { defaultPluginEngine } from '../../../src/services/PluginEngine';
 import { ErrorHandler } from '../../../src/services/ErrorHandler';
 import * as processError from '../../../src/services/ErrorHandler/processError';
 import { state, resetState } from '../../../src/state';
-
-jest.mock('../../../src/services/Logger', () => {
-  const originalModule = jest.requireActual('../../../src/services/Logger');
-
-  return {
-    __esModule: true,
-    ...originalModule,
-    defaultLogger: {
-      error: jest.fn((): void => {}),
-    },
-  };
-});
+import { HttpClient } from '../../../src/services/HttpClient';
+import { defaultLogger } from '../../../__mocks__/Logger';
 
 jest.mock('../../../src/services/PluginEngine', () => {
   const originalModule = jest.requireActual('../../../src/services/PluginEngine');
@@ -45,6 +33,7 @@ const extSrcLoader = {} as IExternalSrcLoader;
 
 describe('ErrorHandler', () => {
   let errorHandlerInstance: ErrorHandler;
+  const defaultHttpClient = new HttpClient(defaultLogger);
 
   beforeEach(() => {
     resetState();

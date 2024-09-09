@@ -1,11 +1,11 @@
-import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { isLegacyJSEngine } from '../../../src/components/capabilitiesManager/detection';
 import type { ICapabilitiesManager } from '../../../src/components/capabilitiesManager/types';
 import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
 import { CapabilitiesManager } from '../../../src/components/capabilitiesManager';
 import { state, resetState } from '../../../src/state';
 import { POLYFILL_URL } from '../../../src/components/capabilitiesManager/polyfill';
-import { defaultHttpClient } from '../../../src/services/HttpClient/HttpClient';
+import { HttpClient } from '../../../src/services/HttpClient';
+import { defaultLogger } from '../../../__mocks__/Logger';
 
 // mock isLegacyJSEngine function
 jest.mock('../../../src/components/capabilitiesManager/detection', () => {
@@ -33,17 +33,14 @@ jest.mock('../../../src/components/capabilitiesManager/polyfill', () => {
 
 describe('CapabilitiesManager', () => {
   let capabilitiesManager: ICapabilitiesManager;
-  const mockLogger = {
-    warn: jest.fn(),
-    error: jest.fn(),
-  } as unknown as ILogger;
+  const defaultHttpClient = new HttpClient(defaultLogger);
 
   describe('prepareBrowserCapabilities', () => {
     beforeEach(() => {
       capabilitiesManager = new CapabilitiesManager(
         defaultHttpClient,
         defaultErrorHandler,
-        mockLogger,
+        defaultLogger,
       );
     });
 
@@ -93,7 +90,7 @@ describe('CapabilitiesManager', () => {
         callback: expect.any(Function),
       });
 
-      expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect(defaultLogger.warn).toHaveBeenCalledWith(
         'CapabilitiesManager:: The provided polyfill URL "invalid-url" is invalid. The default polyfill URL will be used instead.',
       );
     });

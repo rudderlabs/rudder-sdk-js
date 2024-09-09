@@ -102,7 +102,6 @@ const ErrorReporting = (): ExtensionPlugin => ({
           options: {
             method: 'POST',
             body: getErrorDeliveryPayload(bugsnagPayload, state),
-            sendRawData: true,
             headers: {
               'Content-Type': 'application/json;charset=UTF-8',
             },

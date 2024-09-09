@@ -7,7 +7,6 @@ import { StoreManager } from '../../../src/services/StoreManager';
 import type { Store } from '../../../src/services/StoreManager/Store';
 import { state, resetState } from '../../../src/state';
 import { DEFAULT_SESSION_TIMEOUT_MS } from '../../../src/constants/timeouts';
-import { defaultLogger } from '../../../src/services/Logger';
 import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
 import { PluginsManager } from '../../../src/components/pluginsManager';
 import { defaultPluginEngine } from '../../../src/services/PluginEngine';
@@ -20,7 +19,8 @@ import {
   entriesWithStorageOnlyForAnonymousId,
 } from '../../../__fixtures__/fixtures';
 import { server } from '../../../__fixtures__/msw.server';
-import { defaultHttpClient } from '../../../src/services/HttpClient';
+import { HttpClient } from '../../../src/services/HttpClient';
+import { defaultLogger } from '../../../__mocks__/Logger';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
   generateUUID: jest.fn().mockReturnValue('test_uuid'),
@@ -32,8 +32,7 @@ jest.mock('@rudderstack/analytics-js-common/utilities/json', () => ({
 
 describe('User session manager', () => {
   const dummyAnonymousId = 'dummy-anonymousId-12345678';
-  defaultLogger.warn = jest.fn();
-  defaultLogger.error = jest.fn();
+  const defaultHttpClient = new HttpClient(defaultLogger);
 
   const defaultPluginsManager = new PluginsManager(
     defaultPluginEngine,
@@ -1807,7 +1806,6 @@ describe('User session manager', () => {
                 ],
               },
             }),
-            sendRawData: true,
             credentials: 'include',
             headers: {
               'Content-Type': 'application/json;charset=UTF-8',

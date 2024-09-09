@@ -2,6 +2,7 @@ import { signal } from '@preact/signals-core';
 import { clone } from 'ramda';
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { ErrorReporting } from '../../src/errorReporting';
+import { defaultLogger } from '../../__mocks__/Logger';
 
 describe('Plugin - ErrorReporting', () => {
   const originalState = {
@@ -35,9 +36,6 @@ describe('Plugin - ErrorReporting', () => {
   const mockExtSrcLoader = {
     loadJSFile: jest.fn(() => Promise.resolve()),
   };
-  const mockLogger = {
-    error: jest.fn(),
-  };
   const mockErrReportingProviderClient = {
     notify: jest.fn(),
     leaveBreadcrumb: jest.fn(),
@@ -56,7 +54,13 @@ describe('Plugin - ErrorReporting', () => {
   });
 
   it('should not invoke error reporting provider plugin on init if request is coming from latest core SDK', () => {
-    ErrorReporting().errorReporting.init({}, mockPluginEngine, mockExtSrcLoader, mockLogger, true);
+    ErrorReporting().errorReporting.init(
+      {},
+      mockPluginEngine,
+      mockExtSrcLoader,
+      defaultLogger,
+      true,
+    );
     expect(mockPluginEngine.invokeSingle).not.toHaveBeenCalled();
   });
 
@@ -65,20 +69,20 @@ describe('Plugin - ErrorReporting', () => {
       state,
       mockPluginEngine,
       mockExtSrcLoader,
-      mockLogger,
+      defaultLogger,
       true,
     );
     expect(mockPluginEngine.invokeSingle).not.toHaveBeenCalled();
   });
 
   it('should not invoke error reporting provider plugin on init if request is coming from old core SDK', () => {
-    ErrorReporting().errorReporting.init(state, mockPluginEngine, mockExtSrcLoader, mockLogger);
+    ErrorReporting().errorReporting.init(state, mockPluginEngine, mockExtSrcLoader, defaultLogger);
     expect(mockPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
     expect(mockPluginEngine.invokeSingle).toHaveBeenCalledWith(
       'errorReportingProvider.init',
       state,
       mockExtSrcLoader,
-      mockLogger,
+      defaultLogger,
     );
   });
 
@@ -89,7 +93,7 @@ describe('Plugin - ErrorReporting', () => {
       mockErrReportingProviderClient,
       dummyError,
       state,
-      mockLogger,
+      defaultLogger,
     );
     expect(mockPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
     expect(mockPluginEngine.invokeSingle).toHaveBeenCalledWith(
@@ -97,7 +101,7 @@ describe('Plugin - ErrorReporting', () => {
       mockErrReportingProviderClient,
       dummyError,
       state,
-      mockLogger,
+      defaultLogger,
     );
   });
 
@@ -213,7 +217,7 @@ describe('Plugin - ErrorReporting', () => {
       mockPluginEngine,
       mockErrReportingProviderClient,
       'dummy breadcrumb',
-      mockLogger,
+      defaultLogger,
     );
 
     expect(mockPluginEngine.invokeSingle).toHaveBeenCalledTimes(1);
@@ -221,7 +225,7 @@ describe('Plugin - ErrorReporting', () => {
       'errorReportingProvider.breadcrumb',
       mockErrReportingProviderClient,
       'dummy breadcrumb',
-      mockLogger,
+      defaultLogger,
     );
   });
 });

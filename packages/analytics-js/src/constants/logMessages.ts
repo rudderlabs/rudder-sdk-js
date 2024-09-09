@@ -8,13 +8,13 @@ import type {
   DeliveryType,
   StorageStrategy,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js-common/constants/errors';
 
 // CONSTANT
 const SOURCE_CONFIG_OPTION_ERROR = `"getSourceConfig" must be a function. Please make sure that it is defined and returns a valid source configuration object.`;
 const DATA_PLANE_URL_ERROR = `Failed to load the SDK as the data plane URL could not be determined. Please check that the data plane URL is set correctly and try again.`;
 const SOURCE_CONFIG_RESOLUTION_ERROR = `Unable to process/parse source configuration response.`;
 const SOURCE_DISABLED_ERROR = `The source is disabled. Please enable the source in the dashboard to send events.`;
-const PAYLOAD_PREP_ERROR = `Failed to prepare data for the request.`;
 const EVENT_OBJECT_GENERATION_ERROR = `Failed to generate the event object.`;
 const PLUGIN_EXT_POINT_MISSING_ERROR = `Failed to invoke plugin because the extension point name is missing.`;
 const PLUGIN_EXT_POINT_INVALID_ERROR = `Failed to invoke plugin because the extension point name is invalid.`;
@@ -75,20 +75,14 @@ const DATA_PLANE_URL_VALIDATION_ERROR = (dataPlaneUrl: string | undefined): stri
 const READY_API_CALLBACK_ERROR = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The callback is not a function.`;
 
-const DELIVERY_ERROR = (
-  prefix: string,
-  status: number,
-  statusText: string,
-  url: string | URL,
-): string => `${prefix} with status ${status} (${statusText}) for URL: ${url}.`;
+const DELIVERY_ERROR = (status: number, statusText: string, url: string | URL): string =>
+  `${FAILED_REQUEST_ERR_MSG_PREFIX} with status ${status} (${statusText}) for URL "${url}".`;
 
-const REQUEST_ERROR = (
-  prefix: string,
-  url: string | URL,
-  timeout: number,
-  e?: ProgressEvent | undefined,
-): string =>
-  `${prefix} due to timeout after ${timeout}ms or no connection (${e?.type ?? ''}) or aborted for URL: ${url}.`;
+const REQUEST_ERROR = (url: string | URL, timeout: number, originalErrMsg: string): string =>
+  `${FAILED_REQUEST_ERR_MSG_PREFIX} due to timeout after ${timeout}ms or no connection or aborted for URL "${url}": ${originalErrMsg}.`;
+
+const RESPONSE_PARSE_ERROR = (originalErrMsg: string, url: string | URL): string =>
+  `Failed to parse response data for URL "${url}": ${originalErrMsg}.`;
 
 const STORE_DATA_SAVE_ERROR = (key: string): string =>
   `Failed to save the value for "${key}" to storage`;
@@ -286,7 +280,6 @@ export {
   READY_API_CALLBACK_ERROR,
   DELIVERY_ERROR,
   REQUEST_ERROR,
-  PAYLOAD_PREP_ERROR,
   STORE_DATA_SAVE_ERROR,
   STORE_DATA_FETCH_ERROR,
   EVENT_OBJECT_GENERATION_ERROR,
@@ -315,4 +308,5 @@ export {
   SOURCE_DISABLED_ERROR,
   COMPONENT_BASE_URL_ERROR,
   SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING,
+  RESPONSE_PARSE_ERROR,
 };

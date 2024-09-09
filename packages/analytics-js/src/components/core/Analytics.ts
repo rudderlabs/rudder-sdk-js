@@ -33,12 +33,12 @@ import {
   trackArgumentsToCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
 import { BufferQueue } from '@rudderstack/analytics-js-common/services/BufferQueue/BufferQueue';
+import { HttpClient } from '../../services/HttpClient';
 import { defaultLogger } from '../../services/Logger';
 import { defaultErrorHandler } from '../../services/ErrorHandler';
 import { defaultPluginEngine } from '../../services/PluginEngine';
 import { PluginsManager } from '../pluginsManager';
-import { defaultHttpClient } from '../../services/HttpClient';
-import { type Store, StoreManager } from '../../services/StoreManager';
+import { StoreManager } from '../../services/StoreManager';
 import { state } from '../../state';
 import { ConfigManager } from '../configManager/ConfigManager';
 import type { ICapabilitiesManager } from '../capabilitiesManager/types';
@@ -87,11 +87,11 @@ class Analytics implements IAnalytics {
    * Initialize services and components or use default ones if singletons
    */
   constructor() {
-    this.private_httpClient = defaultHttpClient;
+    this.private_logger = defaultLogger;
+    this.private_httpClient = new HttpClient(this.private_logger);
     this.private_preloadBuffer = new BufferQueue();
     this.private_initialized = false;
     this.private_errorHandler = defaultErrorHandler;
-    this.private_logger = defaultLogger;
     this.private_externalSrcLoader = new ExternalSrcLoader(
       this.private_errorHandler,
       this.private_logger,

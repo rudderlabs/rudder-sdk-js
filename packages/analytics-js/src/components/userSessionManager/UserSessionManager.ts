@@ -344,7 +344,6 @@ class UserSessionManager implements IUserSessionManager {
           },
         }) as string,
         useAuth: true,
-        sendRawData: true,
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json;charset=UTF-8',

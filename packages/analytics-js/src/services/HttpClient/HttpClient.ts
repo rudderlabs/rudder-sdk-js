@@ -7,12 +7,9 @@ import type {
 } from '@rudderstack/analytics-js-common/types/HttpClient';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { toBase64 } from '@rudderstack/analytics-js-common/utilities/string';
-import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
-import { clone } from 'ramda';
 import { DEFAULT_REQ_TIMEOUT_MS } from '../../constants/timeouts';
-import { PAYLOAD_PREP_ERROR } from '../../constants/logMessages';
-import { defaultLogger } from '../Logger';
+import { RESPONSE_PARSE_ERROR } from '../../constants/logMessages';
 import { HttpClientError } from './utils';
 import { makeFetchRequest } from './fetch';
 
@@ -25,11 +22,11 @@ const DEFAULT_REQUEST_OPTIONS: Partial<IRequestOptions> = {
  * Service to handle data communication with APIs
  */
 class HttpClient implements IHttpClient {
-  logger?: ILogger;
-  basicAuthHeader?: string;
+  private_logger?: ILogger;
+  private_basicAuthHeader?: string;
 
   constructor(logger?: ILogger) {
-    this.logger = logger;
+    this.private_logger = logger;
   }
 
   /**
@@ -41,28 +38,10 @@ class HttpClient implements IHttpClient {
 
     const finalOptions = mergeDeepRight(DEFAULT_REQUEST_OPTIONS, options || {}) as IRequestOptions;
 
-    if (!finalOptions.sendRawData && isDefined(finalOptions.body)) {
-      const payload = stringifyWithoutCircular(finalOptions.body, false, [], this.logger);
-      // return and don't process further if the payload could not be stringified
-      if (isNull(payload)) {
-        if (!isFireAndForget) {
-          const error = new HttpClientError(PAYLOAD_PREP_ERROR);
-          callback(undefined, {
-            error,
-            url,
-            options: finalOptions,
-          });
-        }
-        return;
-      }
-
-      finalOptions.body = payload;
-    }
-
-    if (finalOptions.useAuth && this.basicAuthHeader) {
+    if (finalOptions.useAuth && this.private_basicAuthHeader) {
       finalOptions.headers = mergeDeepRight(
         {
-          Authorization: this.basicAuthHeader,
+          Authorization: this.private_basicAuthHeader,
         },
         finalOptions.headers ?? {},
       );
@@ -81,14 +60,14 @@ class HttpClient implements IHttpClient {
               });
             })
             .catch((err: Error) => {
-              const error: IHttpClientError = clone(err);
-              error.message = `Failed to parse response data: ${err.message}`;
-              error.status = response.status;
-              error.statusText = response.statusText;
-
+              const finalError = new HttpClientError(RESPONSE_PARSE_ERROR(err.message, url), {
+                originalError: err,
+                status: response.status,
+                statusText: response.statusText,
+              });
               callback(undefined, {
                 response,
-                error,
+                error: finalError,
                 url,
                 options: finalOptions,
               });
@@ -120,17 +99,15 @@ class HttpClient implements IHttpClient {
    */
   setAuthHeader(value: string, noBtoa = false) {
     const authVal = noBtoa ? value : toBase64(`${value}:`);
-    this.basicAuthHeader = `Basic ${authVal}`;
+    this.private_basicAuthHeader = `Basic ${authVal}`;
   }
 
   /**
    * Clear basic authentication header
    */
   resetAuthHeader() {
-    this.basicAuthHeader = undefined;
+    this.private_basicAuthHeader = undefined;
   }
 }
 
-const defaultHttpClient = new HttpClient(defaultLogger);
-
-export { HttpClient, defaultHttpClient };
+export { HttpClient };

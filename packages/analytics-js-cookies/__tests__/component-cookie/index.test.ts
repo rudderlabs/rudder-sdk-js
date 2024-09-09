@@ -1,11 +1,5 @@
-import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { defaultLogger } from '../../__mocks__/Logger';
 import { cookie } from '../../src/component-cookie';
-
-class MockLogger implements ILogger {
-  error = jest.fn();
-}
-
-const mockLoggerInstance = new MockLogger();
 
 beforeEach(() => {
   const allCookies = cookie();
@@ -38,9 +32,9 @@ describe('cookies', () => {
     cookie('bad', '%');
     cookie('bad', null);
 
-    cookie('bad', '\ud83d', undefined, mockLoggerInstance);
-    expect(mockLoggerInstance.error).toHaveBeenCalledTimes(1);
-    expect(mockLoggerInstance.error).toHaveBeenNthCalledWith(
+    cookie('bad', '\ud83d', undefined, defaultLogger);
+    expect(defaultLogger.error).toHaveBeenCalledTimes(1);
+    expect(defaultLogger.error).toHaveBeenNthCalledWith(
       1,
       'Failed to encode the cookie data.',
       expect.any(Error),

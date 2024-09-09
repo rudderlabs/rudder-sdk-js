@@ -1,4 +1,3 @@
-import { batch } from '@preact/signals-core';
 import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import type {
   Destination,
@@ -11,10 +10,10 @@ import { state, resetState } from '../../../src/state';
 import { PluginsManager } from '../../../src/components/pluginsManager';
 import { defaultPluginEngine } from '../../../src/services/PluginEngine';
 import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
-import { defaultLogger } from '../../../src/services/Logger';
 import { StoreManager } from '../../../src/services/StoreManager';
-import { defaultHttpClient } from '../../../src/services/HttpClient/HttpClient';
-import { DataPlaneEventsQueue } from '../../../src/components/dataPlaneEventsQueue/DataPlaneEventsQueue';
+import type { DataPlaneEventsQueue } from '../../../src/components/dataPlaneEventsQueue/DataPlaneEventsQueue';
+import { HttpClient } from '../../../src/services/HttpClient';
+import { defaultLogger } from '../../../__mocks__/Logger';
 
 describe('EventRepository', () => {
   const defaultPluginsManager = new PluginsManager(
@@ -24,6 +23,8 @@ describe('EventRepository', () => {
   );
 
   const defaultStoreManager = new StoreManager(defaultPluginsManager);
+
+  const defaultHttpClient = new HttpClient(defaultLogger);
 
   const mockDestinationsEventsQueue = {
     scheduleTimeoutActive: false,

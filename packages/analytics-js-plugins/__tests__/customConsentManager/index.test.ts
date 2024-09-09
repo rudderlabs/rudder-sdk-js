@@ -1,16 +1,11 @@
 import { state, resetState } from '@rudderstack/analytics-js/state';
 import { CustomConsentManager } from '../../src/customConsentManager';
+import { defaultLogger } from '../../__mocks__/Logger';
 
 describe('Plugin - CustomConsentManager', () => {
   beforeEach(() => {
     resetState();
   });
-
-  const mockLogger = {
-    error: jest.fn(),
-    warn: jest.fn(),
-    log: jest.fn(),
-  };
 
   const mockErrorHandler = {
     onError: jest.fn(),
@@ -32,7 +27,7 @@ describe('Plugin - CustomConsentManager', () => {
         state,
         undefined,
         mockErrorHandler,
-        mockLogger,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -46,7 +41,7 @@ describe('Plugin - CustomConsentManager', () => {
         state,
         destConfig,
         mockErrorHandler,
-        mockLogger,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -79,7 +74,7 @@ describe('Plugin - CustomConsentManager', () => {
         state,
         destConfig,
         mockErrorHandler,
-        mockLogger,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -97,7 +92,7 @@ describe('Plugin - CustomConsentManager', () => {
         state,
         destConfig,
         mockErrorHandler,
-        mockLogger,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -115,7 +110,7 @@ describe('Plugin - CustomConsentManager', () => {
         state,
         destConfig,
         mockErrorHandler,
-        mockLogger,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -149,7 +144,7 @@ describe('Plugin - CustomConsentManager', () => {
         state,
         destConfig,
         mockErrorHandler,
-        mockLogger,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -183,7 +178,7 @@ describe('Plugin - CustomConsentManager', () => {
         state,
         destConfig,
         mockErrorHandler,
-        mockLogger,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -217,7 +212,7 @@ describe('Plugin - CustomConsentManager', () => {
         state,
         destConfig,
         mockErrorHandler,
-        mockLogger,
+        defaultLogger,
       ),
     ).toBe(false);
   });
@@ -251,7 +246,7 @@ describe('Plugin - CustomConsentManager', () => {
         state,
         destConfig,
         mockErrorHandler,
-        mockLogger,
+        defaultLogger,
       ),
     ).toBe(true);
 

@@ -1,6 +1,5 @@
 import * as R from 'ramda';
 import { batch } from '@preact/signals-core';
-import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import type { ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 import type {
@@ -25,7 +24,7 @@ import {
 import { PluginsManager } from '../../../src/components/pluginsManager';
 import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
 import { defaultPluginEngine } from '../../../src/services/PluginEngine';
-import { defaultLogger } from '../../../src/services/Logger';
+import { defaultLogger } from '../../../__mocks__/Logger';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/timestamp', () => ({
   getCurrentTimeFormatted: jest.fn().mockReturnValue('2020-01-01T00:00:00.000Z'),
@@ -77,21 +76,6 @@ const resetApplicationState = () => {
 };
 
 describe('Event Manager - Utilities', () => {
-  class MockLogger implements ILogger {
-    warn = jest.fn();
-    log = jest.fn();
-    error = jest.fn();
-    info = jest.fn();
-    debug = jest.fn();
-    minLogLevel = 0;
-    scope = 'test scope';
-    setMinLogLevel = jest.fn();
-    setScope = jest.fn();
-    logProvider = console;
-  }
-
-  const mockLogger = new MockLogger();
-
   const defaultEventType = 'test';
   const defaultPluginsManager = new PluginsManager(
     defaultPluginEngine,
@@ -357,17 +341,17 @@ describe('Event Manager - Utilities', () => {
         id: 'myMsgId',
       } as ApiObject;
 
-      checkForReservedElementsInObject(obj, defaultParentKeyPath, mockLogger);
+      checkForReservedElementsInObject(obj, defaultParentKeyPath, defaultLogger);
 
-      expect(mockLogger.warn).toHaveBeenNthCalledWith(
+      expect(defaultLogger.warn).toHaveBeenNthCalledWith(
         1,
         `EventManager:: The "anonymous_id" property defined under "${defaultParentKeyPath}" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (id,anonymous_id,user_id,sent_at,timestamp,received_at,original_timestamp,event,event_text,channel,context_ip,context_request_ip,context_passed_ip,group_id,previous_id).`,
       );
-      expect(mockLogger.warn).toHaveBeenNthCalledWith(
+      expect(defaultLogger.warn).toHaveBeenNthCalledWith(
         2,
         `EventManager:: The "original_timestamp" property defined under "${defaultParentKeyPath}" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (id,anonymous_id,user_id,sent_at,timestamp,received_at,original_timestamp,event,event_text,channel,context_ip,context_request_ip,context_passed_ip,group_id,previous_id).`,
       );
-      expect(mockLogger.warn).toHaveBeenNthCalledWith(
+      expect(defaultLogger.warn).toHaveBeenNthCalledWith(
         3,
         `EventManager:: The "id" property defined under "${defaultParentKeyPath}" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (id,anonymous_id,user_id,sent_at,timestamp,received_at,original_timestamp,event,event_text,channel,context_ip,context_request_ip,context_passed_ip,group_id,previous_id).`,
       );
@@ -379,9 +363,9 @@ describe('Event Manager - Utilities', () => {
         nonReservedKey2: 'sample',
       } as ApiObject;
 
-      checkForReservedElementsInObject(obj, defaultParentKeyPath, mockLogger);
+      checkForReservedElementsInObject(obj, defaultParentKeyPath, defaultLogger);
 
-      expect(mockLogger.warn).not.toHaveBeenCalled();
+      expect(defaultLogger.warn).not.toHaveBeenCalled();
     });
 
     it('should not log a warn message if the logger is not provided', () => {
@@ -393,13 +377,13 @@ describe('Event Manager - Utilities', () => {
 
       checkForReservedElementsInObject(obj, defaultParentKeyPath);
 
-      expect(mockLogger.warn).not.toHaveBeenCalled();
+      expect(defaultLogger.warn).not.toHaveBeenCalled();
     });
 
     it('should not log a warn message if the object is not provided', () => {
-      checkForReservedElementsInObject(undefined, defaultParentKeyPath, mockLogger);
+      checkForReservedElementsInObject(undefined, defaultParentKeyPath, defaultLogger);
 
-      expect(mockLogger.warn).not.toHaveBeenCalled();
+      expect(defaultLogger.warn).not.toHaveBeenCalled();
     });
 
     it('should log a warn message if the object contains reserved elements but with different case', () => {
@@ -409,13 +393,13 @@ describe('Event Manager - Utilities', () => {
         original_timestamp: sampleOriginalTimestamp,
       } as ApiObject;
 
-      checkForReservedElementsInObject(obj, defaultParentKeyPath, mockLogger);
+      checkForReservedElementsInObject(obj, defaultParentKeyPath, defaultLogger);
 
-      expect(mockLogger.warn).toHaveBeenNthCalledWith(
+      expect(defaultLogger.warn).toHaveBeenNthCalledWith(
         1,
         `EventManager:: The "EVENT" property defined under "${defaultParentKeyPath}" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (id,anonymous_id,user_id,sent_at,timestamp,received_at,original_timestamp,event,event_text,channel,context_ip,context_request_ip,context_passed_ip,group_id,previous_id).`,
       );
-      expect(mockLogger.warn).toHaveBeenNthCalledWith(
+      expect(defaultLogger.warn).toHaveBeenNthCalledWith(
         2,
         `EventManager:: The "original_timestamp" property defined under "${defaultParentKeyPath}" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (id,anonymous_id,user_id,sent_at,timestamp,received_at,original_timestamp,event,event_text,channel,context_ip,context_request_ip,context_passed_ip,group_id,previous_id).`,
       );
@@ -444,25 +428,25 @@ describe('Event Manager - Utilities', () => {
         } as RudderContext,
       } as RudderEvent;
 
-      checkForReservedElements(rudderEvent, mockLogger);
+      checkForReservedElements(rudderEvent, defaultLogger);
 
-      expect(mockLogger.warn).toHaveBeenNthCalledWith(
+      expect(defaultLogger.warn).toHaveBeenNthCalledWith(
         1,
         `EventManager:: The "anonymous_id" property defined under "properties" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (id,anonymous_id,user_id,sent_at,timestamp,received_at,original_timestamp,event,event_text,channel,context_ip,context_request_ip,context_passed_ip,group_id,previous_id).`,
       );
-      expect(mockLogger.warn).toHaveBeenNthCalledWith(
+      expect(defaultLogger.warn).toHaveBeenNthCalledWith(
         2,
         `EventManager:: The "original_timestamp" property defined under "properties" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (id,anonymous_id,user_id,sent_at,timestamp,received_at,original_timestamp,event,event_text,channel,context_ip,context_request_ip,context_passed_ip,group_id,previous_id).`,
       );
-      expect(mockLogger.warn).toHaveBeenNthCalledWith(
+      expect(defaultLogger.warn).toHaveBeenNthCalledWith(
         3,
         `EventManager:: The "original_timestamp" property defined under "traits" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (id,anonymous_id,user_id,sent_at,timestamp,received_at,original_timestamp,event,event_text,channel,context_ip,context_request_ip,context_passed_ip,group_id,previous_id).`,
       );
-      expect(mockLogger.warn).toHaveBeenNthCalledWith(
+      expect(defaultLogger.warn).toHaveBeenNthCalledWith(
         4,
         `EventManager:: The "event" property defined under "traits" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (id,anonymous_id,user_id,sent_at,timestamp,received_at,original_timestamp,event,event_text,channel,context_ip,context_request_ip,context_passed_ip,group_id,previous_id).`,
       );
-      expect(mockLogger.warn).toHaveBeenNthCalledWith(
+      expect(defaultLogger.warn).toHaveBeenNthCalledWith(
         5,
         `EventManager:: The "anonymous_id" property defined under "context.traits" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (id,anonymous_id,user_id,sent_at,timestamp,received_at,original_timestamp,event,event_text,channel,context_ip,context_request_ip,context_passed_ip,group_id,previous_id).`,
       );
@@ -554,7 +538,7 @@ describe('Event Manager - Utilities', () => {
     });
 
     it('should not update event if options is undefined', () => {
-      processOptions(rudderEvent, undefined);
+      processOptions(rudderEvent);
 
       expect(rudderEvent).toEqual(rudderEvent);
     });
@@ -776,7 +760,7 @@ describe('Event Manager - Utilities', () => {
         context: 'test',
       };
 
-      const mergedContext = getMergedContext(defaultContext, apiOptions, mockLogger);
+      const mergedContext = getMergedContext(defaultContext, apiOptions, defaultLogger);
 
       expect(mergedContext).toEqual({
         library: {
@@ -804,7 +788,7 @@ describe('Event Manager - Utilities', () => {
         },
         userAgent: 'defaultUA',
       });
-      expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect(defaultLogger.warn).toHaveBeenCalledWith(
         `EventManager:: Please make sure that the \"context\" property in the event API's \"options\" argument is a valid object literal with key-value pairs.`,
       );
     });
@@ -817,7 +801,7 @@ describe('Event Manager - Utilities', () => {
         context: null,
       };
 
-      const mergedContext = getMergedContext(defaultContext, apiOptions, mockLogger);
+      const mergedContext = getMergedContext(defaultContext, apiOptions, defaultLogger);
 
       expect(mergedContext).toEqual({
         library: {
@@ -844,7 +828,7 @@ describe('Event Manager - Utilities', () => {
         },
         userAgent: 'defaultUA',
       });
-      expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect(defaultLogger.warn).toHaveBeenCalledWith(
         `EventManager:: Please make sure that the \"context\" property in the event API's \"options\" argument is a valid object literal with key-value pairs.`,
       );
     });
@@ -857,7 +841,7 @@ describe('Event Manager - Utilities', () => {
         context: undefined,
       };
 
-      const mergedContext = getMergedContext(defaultContext, apiOptions, mockLogger);
+      const mergedContext = getMergedContext(defaultContext, apiOptions, defaultLogger);
 
       expect(mergedContext).toEqual({
         library: {
@@ -884,7 +868,7 @@ describe('Event Manager - Utilities', () => {
         },
         userAgent: 'defaultUA',
       });
-      expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect(defaultLogger.warn).toHaveBeenCalledWith(
         `EventManager:: Please make sure that the \"context\" property in the event API's \"options\" argument is a valid object literal with key-value pairs.`,
       );
     });

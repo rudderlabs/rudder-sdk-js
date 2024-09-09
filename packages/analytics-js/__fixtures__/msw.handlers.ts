@@ -2,6 +2,38 @@ import { http, HttpResponse } from 'msw';
 import { dummyDataplaneHost, dummySourceConfigResponse } from './fixtures';
 
 const handlers = [
+  http.get(`${dummyDataplaneHost}/testAuthHeader`, ctx => {
+    const authHeader = ctx.request.headers.get('Authorization');
+
+    if (authHeader === 'Basic ZHVtbXlXcml0ZUtleTo=') {
+      return new HttpResponse('{"success": true}', {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+        },
+      });
+    } else {
+      return new HttpResponse(null, {
+        status: 401,
+      });
+    }
+  }),
+  http.get(`${dummyDataplaneHost}/testRawAuthHeader`, ctx => {
+    const authHeader = ctx.request.headers.get('Authorization');
+
+    if (authHeader === 'Basic rawHeaderValue') {
+      return new HttpResponse('{"success": true}', {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+        },
+      });
+    } else {
+      return new HttpResponse(null, {
+        status: 401,
+      });
+    }
+  }),
   http.get(`${dummyDataplaneHost}/rawSample`, () => {
     return new HttpResponse('{"raw": "sample"}', {
       status: 200,

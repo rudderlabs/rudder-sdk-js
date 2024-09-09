@@ -1,1 +1,1 @@
-export { HttpClient, defaultHttpClient } from './HttpClient';
+export { HttpClient } from './HttpClient';

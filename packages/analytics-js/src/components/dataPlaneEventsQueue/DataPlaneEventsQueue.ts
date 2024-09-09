@@ -70,7 +70,6 @@ class DataPlaneEventsQueue implements IDataPlaneEventsQueue {
             method: 'POST',
             headers,
             body: data as string,
-            sendRawData: true,
             useAuth: true,
             keepalive,
           },

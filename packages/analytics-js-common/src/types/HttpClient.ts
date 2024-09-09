@@ -1,5 +1,12 @@
 import type { ILogger } from './Logger';
 
+export type HttpClientErrorProperties = {
+  status?: number;
+  statusText?: string;
+  responseBody?: string | null;
+  originalError?: Error;
+};
+
 export interface IHttpClientError extends Error {
   status?: number;
   statusText?: string;
@@ -27,7 +34,6 @@ export interface IAsyncRequestConfig<T> {
 }
 
 export interface IBaseRequestOptions {
-  sendRawData?: boolean;
   useAuth?: boolean;
 }
 
@@ -45,8 +51,8 @@ export type HTTPClientMethod =
   | 'PATCH';
 
 export interface IHttpClient {
-  logger?: ILogger;
-  basicAuthHeader?: string;
+  private_logger?: ILogger;
+  private_basicAuthHeader?: string;
   /**
    * Makes an async request to the given URL
    * @param config Request configuration
