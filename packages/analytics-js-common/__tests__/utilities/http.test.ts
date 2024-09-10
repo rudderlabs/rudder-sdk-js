@@ -48,5 +48,9 @@ describe('http utilities', () => {
     it('should return false for undefined status code', () => {
       expect(isErrRetryable({ error: {} as IHttpClientError } as IResponseDetails)).toBe(false);
     });
+
+    it('should return false for undefined error', () => {
+      expect(isErrRetryable({} as IResponseDetails)).toBe(false);
+    });
   });
 });

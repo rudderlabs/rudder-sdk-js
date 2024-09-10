@@ -3,6 +3,7 @@ import type { QueueItem, QueueItemData } from './types';
 import { RETRY_QUEUE_ENTRY_REMOVE_ERROR } from './logMessages';
 import {
   ACK,
+  DEFAULT_BACKOFF_DELETION,
   MAX_ATTEMPTS_ENTRY_DELETION,
   QueueStatuses,
   RETRY_DELAY_ENTRY_DELETION,
@@ -17,7 +18,7 @@ const sortByTime = (a: QueueItem<QueueItemData>, b: QueueItem<QueueItemData>) =>
 const deleteStorageEntriesRecursively = (
   store: IStore,
   entryIdx: number,
-  backoff: number,
+  backoff: number = DEFAULT_BACKOFF_DELETION,
   logger?: ILogger,
   attempt = 1,
 ) => {
@@ -46,11 +47,11 @@ const deleteStorageEntriesRecursively = (
         return;
       }
       logger?.error(RETRY_QUEUE_ENTRY_REMOVE_ERROR(entry, attempt), err);
-    } finally {
-      // clear the next entry
-      if (nextEntryIdx < QueueStatuses.length) {
-        deleteStorageEntriesRecursively(store, nextEntryIdx, backoff, logger);
-      }
+    }
+
+    // clear the next entry
+    if (nextEntryIdx < QueueStatuses.length) {
+      deleteStorageEntriesRecursively(store, nextEntryIdx, undefined, logger);
     }
   }, backoff);
 };
@@ -60,8 +61,8 @@ const deleteStorageEntriesRecursively = (
  * @param store Store to clear the queue entries
  * @param backoff Backoff time. Default is 1 to avoid NS_ERROR_STORAGE_BUSY error
  */
-const clearQueueEntries = (store: IStore, logger?: ILogger, backoff: number = 1) =>
-  deleteStorageEntriesRecursively(store, 0, backoff, logger);
+const clearQueueEntries = (store: IStore, logger?: ILogger) =>
+  deleteStorageEntriesRecursively(store, 0, undefined, logger);
 
 const findOtherQueues = (
   storageEngine: IStorage,
@@ -72,7 +73,7 @@ const findOtherQueues = (
   storageEngine
     .keys()
     .filter((key: string) => {
-      const keyParts: string[] = key ? key.split('.') : [];
+      const keyParts: string[] = key.split('.');
       // Format of the ACK entry is: queueName.queueId.ack
       return (
         keyParts.length >= 3 &&
@@ -82,7 +83,7 @@ const findOtherQueues = (
       );
     })
     .map((key: string) => {
-      const keyParts: string[] = key ? key.split('.') : [];
+      const keyParts: string[] = key.split('.');
       return storeManager.setStore({
         id: keyParts[1] as string,
         name: curName,
