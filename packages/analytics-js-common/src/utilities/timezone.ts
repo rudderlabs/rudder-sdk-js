@@ -6,8 +6,8 @@
 const getTimezone = (): string => {
   // Not susceptible to super-linear backtracking
   // eslint-disable-next-line sonarjs/slow-regex
-  const timezone = /([A-Z]+[+-]\d+)/.exec(new Date().toString());
-  return timezone?.[1] ? timezone[1] : 'NA';
+  const regexMatchValues = /([A-Z]+[+-]\d+)/.exec(new Date().toString());
+  return regexMatchValues?.[1] ? regexMatchValues[1] : 'NA';
 };
 
 export { getTimezone };
