@@ -29,52 +29,146 @@ describe('Schedule', () => {
   });
 
   describe('run', () => {
+    const testCallback = jest.fn();
+
+    beforeEach(() => {
+      testCallback.mockClear();
+    });
+
     it('should call task after timeout', () => {
-      const testCallback = jest.fn();
       schedule.run(testCallback, clockTick);
       jest.advanceTimersByTime(clockTick);
       expect(testCallback).toHaveBeenCalledTimes(1);
     });
 
-    it('should call task ASAP after timeout even after long duration', () => {
-      const testCallback = jest.fn();
+    it('should call ASAP task after timeout even after long duration', () => {
       schedule.run(testCallback, clockTick, ASAP);
-      jest.setSystemTime(clockTick * DEFAULT_CLOCK_LATE_FACTOR);
+
+      // Fast forward the time
+      jest.setSystemTime(schedule.now() + clockTick * DEFAULT_CLOCK_LATE_FACTOR);
+
+      // Trigger timers here
       jest.advanceTimersByTime(clockTick);
+
       expect(testCallback).toHaveBeenCalledTimes(1);
     });
 
     it('should not call ABANDON task if past duration factor', () => {
-      const testCallback = jest.fn();
       schedule.run(testCallback, clockTick, ABANDON);
-      // Fast forwards time but doesnt trigger timers
+
+      // Fast forward the time
       jest.setSystemTime(schedule.now() + clockTick * DEFAULT_CLOCK_LATE_FACTOR);
+
       // Trigger timers here
       jest.advanceTimersByTime(clockTick);
+
       expect(testCallback).toHaveBeenCalledTimes(0);
-      jest.advanceTimersByTime(clockTick);
+
       // Ensure task is not rescheduled
+      jest.advanceTimersByTime(clockTick);
       expect(testCallback).toHaveBeenCalledTimes(0);
     });
 
     it('should call ABANDON task if running on time', () => {
-      const testCallback = jest.fn();
       schedule.run(testCallback, clockTick, ABANDON);
       jest.advanceTimersByTime(clockTick);
       expect(testCallback).toHaveBeenCalledTimes(1);
     });
 
-    it('should RESCHEDULE and call task if skipped', () => {
-      const testCallback = jest.fn();
+    it('should reschedule and call RESCHEDULE task if skipped', () => {
       schedule.run(testCallback, clockTick, RESCHEDULE);
-      // Fast forwards time but doesnt trigger timers
+
+      // Fast forward the time
       jest.setSystemTime(schedule.now() + clockTick * DEFAULT_CLOCK_LATE_FACTOR);
+
       // Trigger timers here
       jest.advanceTimersByTime(clockTick);
+
       expect(testCallback).toHaveBeenCalledTimes(0);
-      jest.advanceTimersByTime(clockTick);
+
       // Ensure task is rescheduled
+      jest.advanceTimersByTime(clockTick);
       expect(testCallback).toHaveBeenCalledTimes(1);
+    });
+
+    it('should call RESCHEDULE task if running on time', () => {
+      schedule.run(testCallback, clockTick, RESCHEDULE);
+      jest.advanceTimersByTime(clockTick);
+      expect(testCallback).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('now', () => {
+    it('should return current time', () => {
+      jest.setSystemTime(100);
+      const now = schedule.now();
+
+      expect(now).toBe(100);
+    });
+  });
+
+  describe('cancel', () => {
+    const testCallback = jest.fn();
+
+    beforeEach(() => {
+      testCallback.mockClear();
+    });
+
+    it('should cancel the task', () => {
+      const id = schedule.run(testCallback, clockTick);
+
+      schedule.cancel(id);
+      jest.advanceTimersByTime(clockTick);
+
+      expect(testCallback).toHaveBeenCalledTimes(0);
+    });
+
+    it('should not cancel the task if already executed', () => {
+      const id = schedule.run(testCallback, clockTick);
+      jest.advanceTimersByTime(clockTick);
+
+      schedule.cancel(id);
+      expect(testCallback).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not cancel the task if already cancelled', () => {
+      const id = schedule.run(testCallback, clockTick);
+
+      schedule.cancel(id);
+      schedule.cancel(id);
+      jest.advanceTimersByTime(clockTick);
+
+      expect(testCallback).toHaveBeenCalledTimes(0);
+    });
+
+    it('should not throw error if task is not found', () => {
+      expect(() => schedule.cancel('invalid-id')).not.toThrow();
+    });
+  });
+
+  describe('cancelAll', () => {
+    const testCallback = jest.fn();
+
+    beforeEach(() => {
+      testCallback.mockClear();
+    });
+
+    it('should cancel all tasks', () => {
+      schedule.run(testCallback, clockTick);
+      schedule.run(testCallback, clockTick);
+
+      schedule.cancelAll();
+      jest.advanceTimersByTime(clockTick);
+
+      expect(testCallback).toHaveBeenCalledTimes(0);
+
+      // Ensure tasks are not rescheduled
+      jest.advanceTimersByTime(clockTick);
+      expect(testCallback).toHaveBeenCalledTimes(0);
+    });
+
+    it('should not throw error if no tasks are found', () => {
+      expect(() => schedule.cancelAll()).not.toThrow();
     });
   });
 });

@@ -47,20 +47,22 @@ class Schedule {
   }
 
   run(task: () => any, timeout: number, mode?: number): string {
-    const id = (this.nextId + 1).toString();
+    const id = this.nextId.toString();
 
-    this.tasks[id] = this.clock.setTimeout(this.handle(id, task, timeout, mode ?? ASAP), timeout);
-
+    this.tasks[id] = this.clock.setTimeout(
+      this.private_handle(id, task, timeout, mode ?? ASAP),
+      timeout,
+    );
+    this.nextId += 1;
     return id;
   }
 
-  handle(id: string, callback: () => any, timeout: number, mode: number): () => any {
+  private_handle(id: string, callback: () => any, timeout: number, mode: number): () => any {
     const start = this.now();
 
     return () => {
       delete this.tasks[id];
-      const elapsedTimeoutTime =
-        start + timeout * (this.clock.clockLateFactor || DEFAULT_CLOCK_LATE_FACTOR);
+      const elapsedTimeoutTime = start + timeout * this.clock.clockLateFactor;
       const currentTime = this.now();
       const notCompletedOrTimedOut = mode >= RESCHEDULE && elapsedTimeoutTime < currentTime;
 
