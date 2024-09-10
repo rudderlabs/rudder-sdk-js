@@ -22,7 +22,7 @@ const encode = (value: any, logger?: ILogger): string | undefined => {
 const decode = (value: string): string | undefined => {
   try {
     return decodeURIComponent(value);
-  } catch (err) {
+  } catch {
     // Do nothing as non-RS SDK cookies may not be URI encoded
     return undefined;
   }

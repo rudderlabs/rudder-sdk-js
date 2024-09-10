@@ -18,7 +18,7 @@ const tryStringify = (val?: any): Nullable<string> | undefined => {
   if (!isString(val) && !isNullOrUndefined(val)) {
     try {
       retVal = JSON.stringify(val);
-    } catch (e) {
+    } catch {
       retVal = null;
     }
   }

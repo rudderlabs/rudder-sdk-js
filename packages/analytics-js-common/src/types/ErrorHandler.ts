@@ -4,7 +4,7 @@ import type { BufferQueue } from '../services/BufferQueue/BufferQueue';
 import type { IHttpClient } from './HttpClient';
 import type { IExternalSrcLoader } from '../services/ExternalSrcLoader/types';
 
-export type SDKError = unknown | Error | ErrorEvent | Event | PromiseRejectionEvent;
+export type SDKError = string | Error | ErrorEvent | Event | PromiseRejectionEvent;
 
 export interface IErrorHandler {
   private_logger?: ILogger;

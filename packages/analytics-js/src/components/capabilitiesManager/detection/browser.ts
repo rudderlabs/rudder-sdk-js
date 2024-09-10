@@ -16,6 +16,6 @@ const hasCrypto = (): boolean =>
 // eslint-disable-next-line compat/compat -- We are checking for the existence of navigator.userAgentData
 const hasUAClientHints = (): boolean => !isNullOrUndefined(globalThis.navigator.userAgentData);
 
-const isIE11 = (): boolean => Boolean(globalThis.navigator.userAgent.match(/Trident.*rv:11\./));
+const isIE11 = (): boolean => Boolean(/Trident.*rv:11\./.exec(globalThis.navigator.userAgent));
 
 export { isBrowser, isNode, hasCrypto, hasUAClientHints, isIE11 };

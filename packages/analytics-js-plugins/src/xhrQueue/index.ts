@@ -106,21 +106,24 @@ const XhrQueue = (): ExtensionPlugin => ({
               },
             } as IResponseDetails;
 
-            const isRetryableFailure = http.isErrRetryable(details);
-
             // null means item will not be requeued
-            const queueErrResp = isRetryableFailure ? details : null;
+            let queueErrResp = null;
+            if (errMsg) {
+              const isRetryableFailure = http.isErrRetryable(details);
+              if (isRetryableFailure) {
+                queueErrResp = details;
+              }
 
-            logErrorOnFailure(
-              isRetryableFailure,
-              url,
-              errMsg,
-              willBeRetried,
-              attemptNumber,
-              maxRetryAttempts,
-              logger,
-            );
-
+              logErrorOnFailure(
+                isRetryableFailure,
+                url,
+                errMsg,
+                willBeRetried,
+                attemptNumber,
+                maxRetryAttempts,
+                logger,
+              );
+            }
             done(queueErrResp);
           };
 

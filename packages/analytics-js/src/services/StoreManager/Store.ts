@@ -91,7 +91,7 @@ class Store implements IStore {
     // better to keep other queues in localstorage to be flushed later
     // than to pull them into memory and remove them from durable storage
     validKeys.forEach(key => {
-      const value = this.get(key as string);
+      const value = this.get(key);
       const validKey = noCompoundKey ? key : [name, id, key].join('.');
 
       inMemoryStorage.setItem(validKey, value);
@@ -127,7 +127,7 @@ class Store implements IStore {
         // and save it there
         this.set(key, value);
       } else {
-        this.onError(getMutatedError(err, STORE_DATA_SAVE_ERROR(key)));
+        this.private_onError(getMutatedError(err, STORE_DATA_SAVE_ERROR(key)));
       }
     }
   }
@@ -152,7 +152,7 @@ class Store implements IStore {
       // storejs that is used in localstorage engine already deserializes json strings but swallows errors
       return JSON.parse(str as string);
     } catch (err) {
-      this.onError(new Error(`${STORE_DATA_FETCH_ERROR(key)}: ${(err as Error).message}`));
+      this.private_onError(new Error(`${STORE_DATA_FETCH_ERROR(key)}: ${(err as Error).message}`));
       return null;
     }
   }
@@ -215,7 +215,7 @@ class Store implements IStore {
   /**
    * Handle errors
    */
-  onError(error: unknown) {
+  private_onError(error: any) {
     if (this.private_errorHandler) {
       this.private_errorHandler.onError(error, `Store ${this.private_id}`);
     } else {

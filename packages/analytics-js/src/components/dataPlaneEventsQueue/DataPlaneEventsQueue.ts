@@ -79,20 +79,27 @@ class DataPlaneEventsQueue implements IDataPlaneEventsQueue {
             // The callback will not be fired anyway for keepalive requests
             // but just in case
             if (!keepalive) {
-              // null means item will not be requeued
-              const queueErrResp = isErrRetryable(details) ? details : null;
+              return;
+            }
+
+            // null means item will not be requeued
+            let queueErrResp = null;
+            if (details.error) {
+              const isRetryableFailure = isErrRetryable(details);
+              if (isRetryableFailure) {
+                queueErrResp = details;
+              }
 
               logErrorOnFailure(
-                details,
-                url,
+                isRetryableFailure,
+                details.error.message,
                 willBeRetried,
                 attemptNumber,
                 maxRetryAttempts,
-                logger,
+                this.logger,
               );
-
-              done(queueErrResp, result);
             }
+            done(queueErrResp, result);
           },
         });
 

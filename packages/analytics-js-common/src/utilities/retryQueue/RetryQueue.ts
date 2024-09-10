@@ -259,7 +259,7 @@ class RetryQueue implements IQueue<QueueItemData> {
   private_flushBatch(isAccessible = true) {
     this.private_IsPageAccessible = isAccessible;
 
-    const batchQueue = (this.getStorageEntry(BATCH_QUEUE) ?? []) as QueueData<QueueItemData>;
+    const batchQueue = this.getStorageEntry(BATCH_QUEUE) ?? [];
     if (batchQueue.length > 0) {
       let batchItems: QueueItem<QueueItemData>[] = [];
       let remainingBatchItems: QueueItem<QueueItemData>[] = [];
@@ -351,7 +351,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     entry: QueueItem<QueueItemData>,
   ): QueueItem<QueueItemData> | undefined {
     let curEntry: QueueItem<QueueItemData> | undefined;
-    let batchQueue = (this.getStorageEntry(BATCH_QUEUE) ?? []) as QueueData<QueueItemData>;
+    let batchQueue = this.getStorageEntry(BATCH_QUEUE) ?? [];
 
     batchQueue = batchQueue.slice(-batchQueue.length);
     batchQueue.push(entry);
@@ -383,7 +383,7 @@ class RetryQueue implements IQueue<QueueItemData> {
   }
 
   private_pushToMainQueue(curEntry: QueueItem<QueueItemData>) {
-    let queue = (this.getStorageEntry(QUEUE) ?? []) as QueueData<QueueItemData>;
+    let queue = this.getStorageEntry(QUEUE) ?? [];
 
     queue = queue.slice(-(this.private_maxItems - 1));
     queue.push(curEntry);
@@ -481,12 +481,12 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.schedule.cancel(this.private_processId);
 
     // Pop the head off the queue
-    let queue = (this.getStorageEntry(QUEUE) ?? []) as QueueData<QueueItemData>;
+    let queue = this.getStorageEntry(QUEUE) ?? [];
     const now = this.schedule.now();
     const toRun: ProcessQueueItem<QueueItemData>[] = [];
 
     const processItemCallback = (el: QueueItem<QueueItemData>, id: string) => (err?: any) => {
-      const inProgress = (this.getStorageEntry(IN_PROGRESS) ?? []) as QueueData<QueueItemData>;
+      const inProgress = this.getStorageEntry(IN_PROGRESS) ?? [];
 
       // Remove processed item from inProgress queue
       const pItemIdx = inProgress.findIndex(item => item.id === id);
@@ -509,7 +509,7 @@ class RetryQueue implements IQueue<QueueItemData> {
       });
     };
 
-    const inProgress = (this.getStorageEntry(IN_PROGRESS) ?? []) as QueueItem<QueueItemData>[];
+    const inProgress = this.getStorageEntry(IN_PROGRESS) ?? [];
     while (
       queue.length > 0 &&
       (queue[0] as QueueItem<QueueItemData>).time <= now &&
@@ -552,7 +552,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     });
 
     // re-read the queue in case the process function finished immediately or added another item
-    queue = (this.getStorageEntry(QUEUE) ?? []) as QueueItem<QueueItemData>[];
+    queue = this.getStorageEntry(QUEUE) ?? [];
     this.schedule.cancel(this.private_processId);
 
     if (queue.length > 0) {
@@ -575,7 +575,7 @@ class RetryQueue implements IQueue<QueueItemData> {
 
   private_reclaim(otherStore: IStore) {
     const ourData = {
-      queue: (this.getStorageEntry(QUEUE) ?? []) as QueueData<QueueItemData>,
+      queue: this.getStorageEntry(QUEUE) ?? [],
     };
     const otherData = {
       inProgress: (otherStore.get(IN_PROGRESS) ?? []) as QueueData<QueueItemData>,

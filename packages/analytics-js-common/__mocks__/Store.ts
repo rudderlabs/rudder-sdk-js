@@ -42,7 +42,7 @@ class Store implements IStore {
     this.private_engine.removeItem(validKey);
   };
   clear = this.private_engine.clear;
-  onError = jest.fn();
+  private_onError = jest.fn();
   private_crypto = jest.fn();
   private_encrypt = jest.fn();
   private_decrypt = jest.fn();

@@ -1,8 +1,4 @@
-import type {
-  IStoreConfig,
-  IStoreManager,
-  StoreId,
-} from '@rudderstack/analytics-js-common/types/Store';
+import type { IStoreConfig, IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
@@ -38,7 +34,7 @@ import { getStorageTypeFromPreConsentIfApplicable } from './utils';
  * A service to manage stores & available storage client configurations
  */
 class StoreManager implements IStoreManager {
-  private_stores: Record<StoreId, Store> = {};
+  private_stores: Record<string, Store> = {};
   private_isInitialized = false;
   private_errorHandler?: IErrorHandler;
   private_logger?: ILogger;
@@ -214,14 +210,14 @@ class StoreManager implements IStoreManager {
   /**
    * Retrieve a store
    */
-  getStore(id: StoreId): Store | undefined {
+  getStore(id: string): Store | undefined {
     return this.private_stores[id];
   }
 
   /**
    * Handle errors
    */
-  private_onError(error: unknown) {
+  private_onError(error: any) {
     if (this.private_errorHandler) {
       this.private_errorHandler.onError(error, STORE_MANAGER);
     } else {

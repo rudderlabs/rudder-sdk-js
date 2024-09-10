@@ -18,6 +18,6 @@ const REQUEST_ERROR = (
   `${prefix} due to timeout after ${timeout}ms or no connection (${ev?.type ?? ''}) or aborted for URL: ${url}. Original message: ${errMsg}.`;
 
 const EVENT_DELIVERY_FAILURE_ERROR_PREFIX = (context: string, err: string, url: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}Failed to deliver event(s) to ${url}. Original error: ${err}.`;
+  `${context}${LOG_CONTEXT_SEPARATOR}Failed to deliver event(s) to URL "${url}": ${err}.`;
 
 export { EVENT_DELIVERY_FAILURE_ERROR_PREFIX, DELIVERY_ERROR, REQUEST_ERROR };

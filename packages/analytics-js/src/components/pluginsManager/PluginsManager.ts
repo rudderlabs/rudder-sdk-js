@@ -336,7 +336,7 @@ class PluginsManager implements IPluginsManager {
   /**
    * Handle errors
    */
-  private_onError(error: unknown, customMessage?: string): void {
+  private_onError(error: any, customMessage?: string): void {
     if (this.private_errorHandler) {
       this.private_errorHandler.onError(error, PLUGINS_MANAGER, customMessage);
     } else {

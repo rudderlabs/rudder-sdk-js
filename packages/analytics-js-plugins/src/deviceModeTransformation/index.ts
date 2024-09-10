@@ -72,9 +72,21 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
             timeout: REQUEST_TIMEOUT_MS,
             callback: (result, details) => {
               // null means item will not be requeued
-              const queueErrResp = isErrRetryable(details) ? details : null;
+              let queueErrResp = null;
+              let shouldSendEvents = false;
+              if (details.error) {
+                const isRetryableFailure = isErrRetryable(details);
+                if (isRetryableFailure) {
+                  queueErrResp = details;
+                } else if (attemptNumber === maxRetryAttempts) {
+                  shouldSendEvents = true;
+                }
+              } else {
+                shouldSendEvents = true;
+              }
 
-              if (!queueErrResp || attemptNumber === maxRetryAttempts) {
+              // Sends events when the request is successful or when the max retry attempts are reached
+              if (shouldSendEvents) {
                 sendTransformedEventToDestinations(
                   state,
                   pluginsManager,

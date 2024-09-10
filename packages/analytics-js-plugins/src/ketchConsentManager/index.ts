@@ -107,7 +107,7 @@ const KetchConsentManager = (): ExtensionPlugin => ({
 
         // If there are no consents configured for the destination for the current provider, events should be sent.
         return true;
-      } catch (err) {
+      } catch (err: any) {
         errorHandler?.onError(err, KETCH_CONSENT_MANAGER_PLUGIN, DESTINATION_CONSENT_STATUS_ERROR);
         return true;
       }

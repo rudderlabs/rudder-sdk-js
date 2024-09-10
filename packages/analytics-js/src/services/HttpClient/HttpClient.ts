@@ -1,4 +1,4 @@
-import { isDefined, isFunction, isNull } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
 import type {
   IAsyncRequestConfig,
   IHttpClient,

@@ -41,7 +41,7 @@ if (Array.isArray(rudderanalytics)) {
       'consent',
     ];
 
-    // eslint-disable-next-line unicorn/no-for-loop
+    // eslint-disable-next-line unicorn/no-for-loop, sonarjs/prefer-for-of
     for (let i = 0; i < methods.length; i++) {
       const method = methods[i] as string;
       (rudderanalytics as unknown as RudderAnalyticsPreloader)[method] = (methodName =>
@@ -62,7 +62,7 @@ if (Array.isArray(rudderanalytics)) {
       // eslint-disable-next-line no-new, @typescript-eslint/no-implied-eval
       new Function('return import("")');
       window.rudderAnalyticsBuildType = 'modern';
-    } catch (e) {
+    } catch {
       // Do nothing
     }
 

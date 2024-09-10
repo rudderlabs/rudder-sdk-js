@@ -6,7 +6,7 @@ import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { clone } from 'ramda';
 import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
-import { checks, url, json, eventsDelivery } from '../shared-chunks/common';
+import { url, json, eventsDelivery } from '../shared-chunks/common';
 import { DATA_PLANE_API_VERSION, DEFAULT_RETRY_QUEUE_OPTIONS, XHR_QUEUE_PLUGIN } from './constants';
 import type { XHRRetryQueueItemData, XHRQueueItemData, XHRBatchPayload } from './types';
 import { EVENT_DELIVERY_FAILURE_ERROR_PREFIX } from './logMessages';
@@ -38,16 +38,12 @@ const getBatchDeliveryUrl = (dataplaneUrl: string): string => getDeliveryUrl(dat
 const logErrorOnFailure = (
   isRetryableFailure: boolean,
   url: string,
-  err?: string,
+  err: string,
   willBeRetried?: boolean,
   attemptNumber?: number,
   maxRetryAttempts?: number,
   logger?: ILogger,
 ) => {
-  if (checks.isUndefined(err) || checks.isUndefined(logger)) {
-    return;
-  }
-
   let errMsg = EVENT_DELIVERY_FAILURE_ERROR_PREFIX(XHR_QUEUE_PLUGIN, err, url);
   const dropMsg = `The event(s) will be dropped.`;
   if (isRetryableFailure) {

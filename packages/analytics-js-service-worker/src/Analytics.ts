@@ -38,8 +38,8 @@ class Analytics implements IAnalytics {
   flushed: boolean;
   axiosInstance: AxiosInstance;
   logger: any;
-  flushTimer?: null | any;
-  timer?: null | any;
+  flushTimer?: null | NodeJS.Timeout;
+  timer?: null | NodeJS.Timeout;
 
   /**
    * Initialize a new `Analytics` with your RudderStack source's `writeKey` and an

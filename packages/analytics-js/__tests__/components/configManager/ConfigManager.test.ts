@@ -187,7 +187,9 @@ describe('ConfigManager', () => {
   it('should call the onError method of errorHandler for undefined sourceConfig response', () => {
     configManagerInstance.private_processConfig(undefined);
 
-    expect(defaultErrorHandler.onError).toHaveBeenCalled();
+    expect(defaultLogger.error).toHaveBeenCalledWith(
+      `Failed to fetch the source configuration: undefined.`,
+    );
   });
 
   it('should log error and abort if source is disabled', () => {

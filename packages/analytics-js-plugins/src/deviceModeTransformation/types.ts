@@ -20,7 +20,7 @@ export type TransformationQueueItemData = {
   token: Nullable<string>;
 };
 
-export type TransformedEvent = RudderEvent | null | Record<string, never> | unknown;
+export type TransformedEvent = RudderEvent | null | Record<string, never>;
 
 export type TransformedPayload = {
   orderNo: number;

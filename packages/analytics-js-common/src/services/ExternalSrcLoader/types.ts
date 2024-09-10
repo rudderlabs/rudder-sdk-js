@@ -4,7 +4,7 @@ import type { ILogger } from '../../types/Logger';
 export interface IExternalSourceLoadConfig {
   url: string;
   id: string;
-  callback?(id?: string): unknown;
+  callback?(id?: string): any;
   async?: boolean;
   timeout?: number;
   extraAttributes?: Record<string, string>;

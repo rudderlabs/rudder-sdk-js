@@ -63,8 +63,8 @@ const PLUGIN_INVOCATION_ERROR = (
 const STORAGE_UNAVAILABILITY_ERROR_PREFIX = (context: string, storageType: StorageType): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The "${storageType}" storage type is `;
 
-const SOURCE_CONFIG_FETCH_ERROR = (reason: Error | undefined): string =>
-  `Failed to fetch the source config. Reason: ${reason}`;
+const SOURCE_CONFIG_FETCH_ERROR = (errMsg: string | undefined): string =>
+  `Failed to fetch the source configuration: ${errMsg}.`;
 
 const WRITE_KEY_VALIDATION_ERROR = (writeKey?: string): string =>
   `The write key "${writeKey}" is invalid. It must be a non-empty string. Please check that the write key is correct and try again.`;

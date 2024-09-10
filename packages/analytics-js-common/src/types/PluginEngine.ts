@@ -1,7 +1,7 @@
 import type { Nullable } from './Nullable';
 
 export interface ExtensionPoint {
-  [lifeCycleName: string]: (...args: any[]) => unknown;
+  [lifeCycleName: string]: (...args: any[]) => any;
 }
 
 /**
@@ -17,7 +17,7 @@ export interface ExtensionPlugin {
     | string
     | (() => void)
     | ExtensionPoint
-    | ((...args: any[]) => unknown | void)
+    | ((...args: any[]) => any)
     | string[]
     | undefined;
 }

@@ -1,7 +1,7 @@
 import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constants/logMessages';
 
-const EVENT_DELIVERY_FAILURE_ERROR_PREFIX = (context: string, url: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}Failed to deliver event(s) to ${url}.`;
+const EVENT_DELIVERY_FAILURE_ERROR_PREFIX = (context: string, err: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}Failed to deliver event(s): ${err}.`;
 
 const EVENT_PAYLOAD_SIZE_CHECK_FAIL_WARNING = (
   context: string,

@@ -115,7 +115,7 @@ class ConfigManager implements IConfigManager {
   /**
    * Handle errors
    */
-  private_onError(error: unknown, customMessage?: string, shouldAlwaysThrow?: boolean) {
+  private_onError(error: any, customMessage?: string, shouldAlwaysThrow?: boolean) {
     if (this.private_errorHandler) {
       this.private_errorHandler.onError(error, CONFIG_MANAGER, customMessage, shouldAlwaysThrow);
     } else {
@@ -134,12 +134,12 @@ class ConfigManager implements IConfigManager {
     // TODO: add retry logic with backoff based on details
     // We can use isErrRetryable utility method
     if (!response) {
-      this.private_onError(SOURCE_CONFIG_FETCH_ERROR(details?.error));
+      this.private_logger?.error(SOURCE_CONFIG_FETCH_ERROR(details?.error?.message));
       return;
     }
 
     if (!isValidSourceConfig(response)) {
-      this.private_onError(new Error(SOURCE_CONFIG_RESOLUTION_ERROR), undefined, true);
+      this.private_onError(SOURCE_CONFIG_RESOLUTION_ERROR);
       return;
     }
 

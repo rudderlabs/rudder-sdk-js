@@ -49,7 +49,7 @@ class ExternalSrcLoader implements IExternalSrcLoader {
   /**
    * Handle errors
    */
-  private_onError(error: unknown) {
+  private_onError(error: any) {
     if (this.private_errorHandler) {
       this.private_errorHandler.onError(error, EXTERNAL_SRC_LOADER);
     } else {

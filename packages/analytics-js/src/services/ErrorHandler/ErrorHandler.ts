@@ -101,7 +101,7 @@ class ErrorHandler implements IErrorHandler {
             this.private_logger?.error(REPORTING_PLUGIN_INIT_FAILURE_ERROR(ERROR_HANDLER), err);
           });
       }
-    } catch (err) {
+    } catch (err: any) {
       this.onError(err, ERROR_HANDLER);
     }
   }
@@ -191,7 +191,7 @@ class ErrorHandler implements IErrorHandler {
           this.private_logger,
           state,
         );
-      } catch (err) {
+      } catch (err: any) {
         this.onError(err, ERROR_HANDLER, 'errorReporting.breadcrumb');
       }
     }

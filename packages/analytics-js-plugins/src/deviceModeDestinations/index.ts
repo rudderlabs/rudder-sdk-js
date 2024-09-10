@@ -79,7 +79,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
       externalSrcLoader: IExternalSrcLoader,
       errorHandler?: IErrorHandler,
       logger?: ILogger,
-      externalScriptOnLoad?: (id?: string) => unknown,
+      externalScriptOnLoad?: (id?: string) => any,
     ) {
       const integrationsCDNPath = state.lifecycle.integrationsCDNPath.value;
       const activeDestinations = state.nativeDestinations.activeDestinations.value;

@@ -8,9 +8,6 @@ import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utilities/url';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import type { IResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
-import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
-import { isErrRetryable } from '@rudderstack/analytics-js-common/utilities/http';
 import {
   DATA_PLANE_API_VERSION,
   DATA_PLANE_EVENTS_QUEUE,
@@ -98,33 +95,28 @@ const getRequestInfo = (
 };
 
 const logErrorOnFailure = (
-  details: IResponseDetails,
-  url: string,
+  isRetryableFailure: boolean,
+  errMsg: string,
   willBeRetried?: boolean,
   attemptNumber?: number,
   maxRetryAttempts?: number,
   logger?: ILogger,
 ) => {
-  if (isUndefined(details.error) || isUndefined(logger)) {
-    return;
-  }
-
-  const isRetryableFailure = isErrRetryable(details);
-  let errMsg = EVENT_DELIVERY_FAILURE_ERROR_PREFIX(DATA_PLANE_EVENTS_QUEUE, url);
+  let finalErrMsg = EVENT_DELIVERY_FAILURE_ERROR_PREFIX(DATA_PLANE_EVENTS_QUEUE, errMsg);
   const dropMsg = `The event(s) will be dropped.`;
   if (isRetryableFailure) {
     if (willBeRetried) {
-      errMsg = `${errMsg} It/they will be retried.`;
+      finalErrMsg = `${errMsg} It/they will be retried.`;
       if ((attemptNumber as number) > 0) {
-        errMsg = `${errMsg} Retry attempt ${attemptNumber} of ${maxRetryAttempts}.`;
+        finalErrMsg = `${finalErrMsg} Retry attempt ${attemptNumber} of ${maxRetryAttempts}.`;
       }
     } else {
-      errMsg = `${errMsg} Retries exhausted (${maxRetryAttempts}). ${dropMsg}`;
+      finalErrMsg = `${finalErrMsg} Retries exhausted (${maxRetryAttempts}). ${dropMsg}`;
     }
   } else {
-    errMsg = `${errMsg} ${dropMsg}`;
+    finalErrMsg = `${finalErrMsg} ${dropMsg}`;
   }
-  logger?.error(errMsg);
+  logger?.error(finalErrMsg);
 };
 
 /**

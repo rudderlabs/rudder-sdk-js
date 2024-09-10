@@ -111,12 +111,6 @@ describe('xhrQueue Plugin Utilities', () => {
   });
 
   describe('logErrorOnFailure', () => {
-    it('should not log error if there is no error', () => {
-      logErrorOnFailure(false, 'https://test.com/v1/page', undefined, false, 1, 10, defaultLogger);
-
-      expect(defaultLogger.error).not.toHaveBeenCalled();
-    });
-
     it('should log an error for delivery failure', () => {
       logErrorOnFailure(
         false,
@@ -129,7 +123,7 @@ describe('xhrQueue Plugin Utilities', () => {
       );
 
       expect(defaultLogger.error).toHaveBeenCalledWith(
-        'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. Original error: Something bad happened. The event(s) will be dropped.',
+        'XhrQueuePlugin:: Failed to deliver event(s) to URL "https://test.com/v1/page": Something bad happened. The event(s) will be dropped.',
       );
     });
 
@@ -145,7 +139,7 @@ describe('xhrQueue Plugin Utilities', () => {
       );
 
       expect(defaultLogger.error).toHaveBeenCalledWith(
-        'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. Original error: Something bad happened. It/they will be retried. Retry attempt 1 of 10.',
+        'XhrQueuePlugin:: Failed to deliver event(s) to URL "https://test.com/v1/page": Something bad happened. It/they will be retried. Retry attempt 1 of 10.',
       );
 
       // Retryable error but it's the first attempt
@@ -160,7 +154,7 @@ describe('xhrQueue Plugin Utilities', () => {
       );
 
       expect(defaultLogger.error).toHaveBeenCalledWith(
-        'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. Original error: Something bad happened. It/they will be retried.',
+        'XhrQueuePlugin:: Failed to deliver event(s) to URL "https://test.com/v1/page": Something bad happened. It/they will be retried.',
       );
 
       // Retryable error but exhausted all tries
@@ -175,7 +169,7 @@ describe('xhrQueue Plugin Utilities', () => {
       );
 
       expect(defaultLogger.error).toHaveBeenCalledWith(
-        'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. Original error: Something bad happened. Retries exhausted (10). The event(s) will be dropped.',
+        'XhrQueuePlugin:: Failed to deliver event(s) to URL "https://test.com/v1/page": Something bad happened. Retries exhausted (10). The event(s) will be dropped.',
       );
     });
   });

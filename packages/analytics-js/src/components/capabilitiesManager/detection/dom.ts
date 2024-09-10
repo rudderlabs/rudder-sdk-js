@@ -40,22 +40,9 @@ const legacyJSEngineRequiredPolyfills: Record<string, () => boolean> = {
   fetch: () => !isFunction(globalThis.fetch),
 };
 
-const isLegacyJSEngine = (): boolean => {
-  const requiredCapabilitiesList = Object.keys(legacyJSEngineRequiredPolyfills);
-  let needsPolyfill = false;
-
-  /* eslint-disable-next-line unicorn/no-for-loop */
-  for (let i = 0; i < requiredCapabilitiesList.length; i++) {
-    const isCapabilityMissing =
-      legacyJSEngineRequiredPolyfills[requiredCapabilitiesList[i] as string];
-
-    if (isFunction(isCapabilityMissing) && isCapabilityMissing()) {
-      needsPolyfill = true;
-      break;
-    }
-  }
-
-  return needsPolyfill;
-};
+const isLegacyJSEngine = (): boolean =>
+  Object.values(legacyJSEngineRequiredPolyfills).some(
+    detectionFn => isFunction(detectionFn) && detectionFn(),
+  );
 
 export { isDatasetAvailable, legacyJSEngineRequiredPolyfills, isLegacyJSEngine };

@@ -58,8 +58,8 @@ const getNormalizedErrorForUnhandledError = (error: SDKError): SDKError | undefi
       });
     }
     return error;
-  } catch (e) {
-    return e;
+  } catch (err: any) {
+    return err;
   }
 };
 

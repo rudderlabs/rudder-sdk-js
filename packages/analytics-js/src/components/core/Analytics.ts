@@ -364,7 +364,7 @@ class Analytics implements IAnalytics {
     state.eventBuffer.readyCallbacksArray.value.forEach((callback: ApiCallback) => {
       try {
         callback();
-      } catch (err) {
+      } catch (err: any) {
         this.private_errorHandler.onError(err, ANALYTICS_CORE, READY_CALLBACK_INVOKE_ERROR);
       }
     });
@@ -488,7 +488,7 @@ class Analytics implements IAnalytics {
     if (state.lifecycle.status.value === 'readyExecuted') {
       try {
         callback();
-      } catch (err) {
+      } catch (err: any) {
         this.private_errorHandler.onError(err, ANALYTICS_CORE, READY_CALLBACK_INVOKE_ERROR);
       }
     } else {

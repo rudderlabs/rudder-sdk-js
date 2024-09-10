@@ -209,7 +209,7 @@ class CapabilitiesManager implements ICapabilitiesManager {
    * Handles error
    * @param error The error object
    */
-  private_onError(error: unknown): void {
+  private_onError(error: any): void {
     if (this.private_errorHandler) {
       this.private_errorHandler.onError(error, CAPABILITIES_MANAGER);
     } else {

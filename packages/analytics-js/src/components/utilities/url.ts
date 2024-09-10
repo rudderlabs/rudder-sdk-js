@@ -13,7 +13,7 @@ const getDomain = (url: string): Nullable<string> => {
   try {
     const urlObj = new URL(url);
     return urlObj.host;
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -45,7 +45,7 @@ const extractUTMParameters = (url: string): UTMParameters => {
         result[utmParam] = value;
       }
     });
-  } catch (error) {
+  } catch {
     // Do nothing
   }
   return result;
@@ -61,7 +61,7 @@ const getUrlWithoutHash = (url: string): string => {
   try {
     const urlObj = new URL(url);
     urlWithoutHash = urlObj.origin + urlObj.pathname + urlObj.search;
-  } catch (error) {
+  } catch {
     // Do nothing
   }
   return urlWithoutHash;

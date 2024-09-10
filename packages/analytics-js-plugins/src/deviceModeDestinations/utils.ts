@@ -175,7 +175,7 @@ const getCumulativeIntegrationsConfig = (
         curDestIntgConfig,
         dest.instance?.getDataForIntegrationsObject(),
       );
-    } catch (err) {
+    } catch (err: any) {
       errorHandler?.onError(
         err,
         DEVICE_MODE_DESTINATIONS_PLUGIN,
@@ -226,7 +226,7 @@ const initializeDestination = (
         // The error message is already formatted in the isDestinationReady function
         logger?.error(err);
       });
-  } catch (err) {
+  } catch (err: any) {
     state.nativeDestinations.failedDestinations.value = [
       ...state.nativeDestinations.failedDestinations.value,
       dest,

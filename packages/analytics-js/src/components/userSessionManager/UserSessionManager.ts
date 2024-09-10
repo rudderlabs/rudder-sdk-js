@@ -285,7 +285,7 @@ class UserSessionManager implements IUserSessionManager {
    * Handles error
    * @param error The error object
    */
-  private_onError(error: unknown, customMessage?: string): void {
+  private_onError(error: any, customMessage?: string): void {
     if (this.private_errorHandler) {
       this.private_errorHandler.onError(error, USER_SESSION_MANAGER, customMessage);
     } else {
@@ -370,7 +370,14 @@ class UserSessionManager implements IUserSessionManager {
       if (encryptedCookieData.length > 0) {
         // make request to data service to set the cookie from server side
         this.private_makeRequestToSetCookie(encryptedCookieData, (res, details) => {
-          if (details.response?.status === 200) {
+          if (details.error) {
+            this.private_logger?.error(DATA_SERVER_REQUEST_FAIL_ERROR(details.error.status));
+            cookiesData.forEach(each => {
+              if (cb) {
+                cb(each.name, each.value);
+              }
+            });
+          } else {
             cookiesData.forEach(cData => {
               const cookieValue = store?.get(cData.name);
               const before = stringifyWithoutCircular(cData.value, false, []);
@@ -380,13 +387,6 @@ class UserSessionManager implements IUserSessionManager {
                 if (cb) {
                   cb(cData.name, cData.value);
                 }
-              }
-            });
-          } else {
-            this.private_logger?.error(DATA_SERVER_REQUEST_FAIL_ERROR(details?.response?.status));
-            cookiesData.forEach(each => {
-              if (cb) {
-                cb(each.name, each.value);
               }
             });
           }

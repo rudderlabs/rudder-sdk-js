@@ -81,7 +81,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
             }
 
             done(null, isEnqueuedInBeacon);
-          } catch (err) {
+          } catch (err: any) {
             errorHandler?.onError(err, BEACON_QUEUE_PLUGIN, BEACON_QUEUE_DELIVERY_ERROR(url));
             // Remove the item from queue
             done(null);

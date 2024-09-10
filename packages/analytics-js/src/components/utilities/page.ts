@@ -81,7 +81,7 @@ const getDefaultPageProperties = (): Record<string, any> => {
       }
 
       path = urlObj.pathname;
-    } catch (err) {
+    } catch {
       // Do nothing
     }
   }

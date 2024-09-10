@@ -21,7 +21,7 @@ const isValidURL = (url: string | undefined): url is string => {
       new URL(url);
     }
     return URL_PATTERN.test(url);
-  } catch (e) {
+  } catch {
     return false;
   }
 };

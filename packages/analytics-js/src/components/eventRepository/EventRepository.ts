@@ -192,7 +192,7 @@ class EventRepository implements IEventRepository {
    * @param customMessage a message
    * @param shouldAlwaysThrow if it should throw or use logger
    */
-  private_onError(error: unknown, customMessage?: string, shouldAlwaysThrow?: boolean): void {
+  private_onError(error: any, customMessage?: string, shouldAlwaysThrow?: boolean): void {
     if (this.private_errorHandler) {
       this.private_errorHandler.onError(error, EVENT_REPOSITORY, customMessage, shouldAlwaysThrow);
     } else {

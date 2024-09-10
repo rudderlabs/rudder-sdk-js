@@ -106,8 +106,9 @@ describe('HttpClient', () => {
   });
 
   it('should request expecting json response', done => {
-    const callback = (response: any) => {
+    const callback = (response: any, details: IResponseDetails) => {
       expect(response).toEqual({ raw: 'sample' });
+      expect(details.error).toBeUndefined();
       done();
     };
 

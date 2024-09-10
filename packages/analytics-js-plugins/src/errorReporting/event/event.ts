@@ -48,7 +48,7 @@ function createBugsnagError(
       try {
         if (JSON.stringify(f) === '{}') return accum;
         return accum.concat(f);
-      } catch (e) {
+      } catch {
         return accum;
       }
     }, []),
