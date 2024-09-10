@@ -356,22 +356,22 @@ describe('utilities', () => {
         );
         expect(logger.error).toHaveBeenNthCalledWith(
           3,
-          'RetryQueue:: Failed to remove local storage entry "reclaimStart" (attempt: 1).',
+          'RetryQueue:: Failed to remove local storage entry "batchQueue" (attempt: 1).',
           new Error('error'),
         );
         expect(logger.error).toHaveBeenNthCalledWith(
           4,
-          'RetryQueue:: Failed to remove local storage entry "reclaimEnd" (attempt: 1).',
+          'RetryQueue:: Failed to remove local storage entry "reclaimStart" (attempt: 1).',
           new Error('error'),
         );
         expect(logger.error).toHaveBeenNthCalledWith(
           5,
-          'RetryQueue:: Failed to remove local storage entry "ack" (attempt: 1).',
+          'RetryQueue:: Failed to remove local storage entry "reclaimEnd" (attempt: 1).',
           new Error('error'),
         );
         expect(logger.error).toHaveBeenNthCalledWith(
           6,
-          'RetryQueue:: Failed to remove local storage entry "batchQueue" (attempt: 1).',
+          'RetryQueue:: Failed to remove local storage entry "ack" (attempt: 1).',
           new Error('error'),
         );
 
@@ -387,7 +387,7 @@ describe('utilities', () => {
       jest.advanceTimersByTime(MAX_TIME_TO_CLEAR);
     });
 
-    it('should retry clearing the entries if the storage is busy', () => {
+    it('should retry clearing an entry if the storage is busy', () => {
       const store = new Store({
         name: 'test',
         id: '1',
@@ -468,7 +468,7 @@ describe('utilities', () => {
       // Advance the time to clear the next entry
       jest.advanceTimersByTime(DEFAULT_BACKOFF);
 
-      expect(store.get('reclaimStart')).toBe('value5');
+      expect(store.get('batchQueue')).toBe('value4');
 
       // Restore the original store remove function
       store.remove = originalStoreRemove;
@@ -477,22 +477,22 @@ describe('utilities', () => {
       jest.advanceTimersByTime(DEFAULT_BACKOFF + RETRY_DELAY);
 
       // Expect that the queue entry is deleted now
-      expect(store.get('reclaimStart')).toBe(null);
+      expect(store.get('batchQueue')).toBe(null);
 
       // The other entries should still be there
       expect(store.get('ack')).toBe('value3');
-      expect(store.get('batchQueue')).toBe('value4');
+      expect(store.get('reclaimStart')).toBe('value5');
       expect(store.get('reclaimEnd')).toBe('value6');
 
       // Advance the time to clear all the remaining entries
       jest.advanceTimersByTime(MAX_TIME_TO_CLEAR);
 
       expect(store.get('ack')).toBe(null);
-      expect(store.get('batchQueue')).toBe(null);
+      expect(store.get('reclaimStart')).toBe(null);
       expect(store.get('reclaimEnd')).toBe(null);
     });
 
-    it('should give up retry clearing the entries after the max attempts', () => {
+    it('should give up retry clearing an entry after the max attempts', () => {
       const store = new Store({
         name: 'test',
         id: '1',
@@ -512,7 +512,59 @@ describe('utilities', () => {
       store.set('reclaimStart', 'value5');
       store.set('reclaimEnd', 'value6');
 
-      clearQueueEntries(store);
+      clearQueueEntries(store, defaultLogger);
+
+      // Advance the time by backoff
+      jest.advanceTimersByTime(DEFAULT_BACKOFF);
+
+      // The value is not cleared yet
+      expect(store.get('inProgress')).toBe('value1');
+
+      // Advance the time to retry clearing the entry
+      jest.advanceTimersByTime(DEFAULT_BACKOFF + RETRY_DELAY);
+
+      // Expect that the inProgress entry is not deleted
+      expect(store.get('inProgress')).toBe('value1');
+
+      expect(defaultLogger.error).toHaveBeenCalledTimes(1);
+      expect(defaultLogger.error).toHaveBeenCalledWith(
+        'RetryQueue:: Failed to remove local storage entry "inProgress" (attempt: 2).',
+        expect.any(Error),
+      );
+
+      // At this point, even the remaining entries should not be cleared
+      expect(store.get('queue')).toBe('value2');
+      expect(store.get('ack')).toBe('value3');
+      expect(store.get('batchQueue')).toBe('value4');
+      expect(store.get('reclaimStart')).toBe('value5');
+      expect(store.get('reclaimEnd')).toBe('value6');
+
+      // Restore the original store remove function
+      store.remove = originalStoreRemove;
+
+      // Advance the time to clear the next entry
+      jest.advanceTimersByTime(DEFAULT_BACKOFF);
+
+      // Expect that the queue entry is deleted now
+      expect(store.get('queue')).toBe(null);
+
+      // The other entries should still be there including the inProgress entry
+      expect(store.get('ack')).toBe('value3');
+      expect(store.get('batchQueue')).toBe('value4');
+      expect(store.get('reclaimStart')).toBe('value5');
+      expect(store.get('reclaimEnd')).toBe('value6');
+      expect(store.get('inProgress')).toBe('value1');
+
+      // Advance the time to clear all the remaining entries
+      jest.advanceTimersByTime(MAX_TIME_TO_CLEAR);
+
+      // Expect all the entries are cleared except the inProgress entry
+      expect(store.get('inProgress')).toBe('value1');
+      expect(store.get('ack')).toBe(null);
+      expect(store.get('batchQueue')).toBe(null);
+      expect(store.get('reclaimStart')).toBe(null);
+      expect(store.get('reclaimEnd')).toBe(null);
+      expect(store.get('queue')).toBe(null);
     });
   });
 });

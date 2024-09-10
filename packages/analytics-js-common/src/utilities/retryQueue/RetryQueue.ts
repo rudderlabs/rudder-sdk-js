@@ -589,17 +589,18 @@ class RetryQueue implements IQueue<QueueItemData> {
       incrementAttemptNumberBy: number = 0,
     ) => {
       queue.forEach((item: QueueItem<QueueItemData>) => {
-        const id = item.id ?? generateUUID();
-
         // ignore duplicates
-        if (!trackMessageIds.includes(id)) {
+        if (!item.id || !trackMessageIds.includes(item.id)) {
           ourData.queue.push({
             item: item.item,
             attemptNumber: item.attemptNumber + incrementAttemptNumberBy,
             time: this.schedule.now(),
-            id,
+            id: item.id ?? generateUUID(),
           });
-          trackMessageIds.push(id);
+
+          if (item.id) {
+            trackMessageIds.push(item.id);
+          }
         }
       });
     };
@@ -610,12 +611,18 @@ class RetryQueue implements IQueue<QueueItemData> {
     // Process batch queue items
     if (this.private_batch.enabled) {
       otherData.batchQueue.forEach((el: QueueItem<QueueItemData>) => {
-        const id = el.id ?? generateUUID();
-        if (trackMessageIds.includes(id)) {
-          // duplicated event
-        } else {
-          this.private_enqueue(el);
-          trackMessageIds.push(id);
+        // ignore duplicates
+        if (!el.id || !trackMessageIds.includes(el.id)) {
+          this.private_enqueue({
+            item: el.item,
+            attemptNumber: el.attemptNumber,
+            time: this.schedule.now(),
+            id: el.id ?? generateUUID(),
+          });
+
+          if (el.id) {
+            trackMessageIds.push(el.id);
+          }
         }
       });
     } else {

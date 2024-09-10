@@ -33,7 +33,9 @@ const RECLAIM_END = 'reclaimEnd';
 const ACK = 'ack';
 const BATCH_QUEUE = 'batchQueue';
 
-const QueueStatuses = [IN_PROGRESS, QUEUE, RECLAIM_START, RECLAIM_END, ACK, BATCH_QUEUE];
+// The ACK entry is intentionally kept as the last item in the array
+// to ensure that it is the last one to be processed (deleted) during the cleanup
+const QueueStatuses = [IN_PROGRESS, QUEUE, BATCH_QUEUE, RECLAIM_START, RECLAIM_END, ACK];
 
 export {
   DEFAULT_MIN_RETRY_DELAY_MS,
