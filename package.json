@@ -37,7 +37,7 @@
     "check:support": "NODE_ENV=production npx browserslist --mobile-to-desktop",
     "check:support:modern": "NODE_ENV=modern npx browserslist --mobile-to-desktop",
     "check:duplicates": "nx run-many -t check:duplicates --verbose",
-    "check:security": "npm audit --recursive --audit-level=high",
+    "check:security": "npm audit --recursive --audit-level=high --omit=dev",
     "check:pub": "nx run-many -t check:pub --verbose",
     "check:pub:ci": "nx affected -t check:pub --verbose --base=$BASE_REF",
     "format": "prettier --write .",
