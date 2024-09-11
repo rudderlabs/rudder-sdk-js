@@ -368,10 +368,7 @@ class RetryQueue implements IQueue<QueueItemData> {
         batchQueue = [];
       }
 
-      // Don't make any batch request if there are no items
-      if (batchItems.length > 0) {
-        curEntry = this.private_genQueueItem(batchItems);
-      }
+      curEntry = this.private_genQueueItem(batchItems);
 
       // re-attach the timeout handler
       this.private_scheduleFlushBatch();
