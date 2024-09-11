@@ -76,13 +76,13 @@ const READY_API_CALLBACK_ERROR = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The callback is not a function.`;
 
 const DELIVERY_ERROR = (status: number, statusText: string, url: string | URL): string =>
-  `${FAILED_REQUEST_ERR_MSG_PREFIX} with status ${status} (${statusText}) for URL "${url}".`;
+  `${FAILED_REQUEST_ERR_MSG_PREFIX} with status ${status} (${statusText}) for URL "${url}"`;
 
-const REQUEST_ERROR = (url: string | URL, timeout: number, originalErrMsg: string): string =>
-  `${FAILED_REQUEST_ERR_MSG_PREFIX} due to timeout after ${timeout}ms or no connection or aborted for URL "${url}": ${originalErrMsg}.`;
+const REQUEST_ERROR = (url: string | URL, timeout: number): string =>
+  `${FAILED_REQUEST_ERR_MSG_PREFIX} due to timeout after ${timeout}ms or no connection or aborted for URL "${url}"`;
 
-const RESPONSE_PARSE_ERROR = (originalErrMsg: string, url: string | URL): string =>
-  `Failed to parse response data for URL "${url}": ${originalErrMsg}.`;
+const RESPONSE_PARSE_ERROR = (url: string | URL): string =>
+  `Failed to parse response data for URL "${url}"`;
 
 const STORE_DATA_SAVE_ERROR = (key: string): string =>
   `Failed to save the value for "${key}" to storage`;
@@ -205,8 +205,8 @@ const DATAPLANE_EVENTS_ENQUEUE_ERROR = `Enqueuing events to data plane queue fai
 const INVALID_CONFIG_URL_WARNING = (context: string, configUrl: string | undefined): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The provided source config URL "${configUrl}" is invalid. Using the default source config URL instead.`;
 
-const POLYFILL_SCRIPT_LOAD_ERROR = (scriptId: string, url: string): string =>
-  `Failed to load the polyfill script with ID "${scriptId}" from URL ${url}.`;
+const POLYFILL_SCRIPT_LOAD_ERROR = (context: string, errMsg: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}Polyfill script: ${errMsg}.`;
 
 const UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY = (
   context: string,

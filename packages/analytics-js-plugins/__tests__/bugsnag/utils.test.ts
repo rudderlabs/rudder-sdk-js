@@ -447,14 +447,8 @@ describe('Bugsnag utilities', () => {
       loadBugsnagSDK(extSrcLoader, defaultLogger);
 
       setTimeout(() => {
-        expect(mockErrorHandler.onError).toHaveBeenCalledWith(
-          new Error(
-            `Failed to load the script with the id "rs-bugsnag" from URL "https://asdf.com/bugsnag.min.js".`,
-          ),
-          'ExternalSrcLoader',
-        );
         expect(defaultLogger.error).toHaveBeenCalledWith(
-          `BugsnagPlugin:: Failed to load the Bugsnag SDK.`,
+          `BugsnagPlugin:: Bugsnag script: Failed to load the script with the id "rs-bugsnag" from URL "https://asdf.com/bugsnag.min.js": "no information".`,
         );
         done();
       }, 2000);

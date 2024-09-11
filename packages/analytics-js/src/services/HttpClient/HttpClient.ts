@@ -60,7 +60,7 @@ class HttpClient implements IHttpClient {
               });
             })
             .catch((err: Error) => {
-              const finalError = new HttpClientError(RESPONSE_PARSE_ERROR(err.message, url), {
+              const finalError = new HttpClientError(RESPONSE_PARSE_ERROR(url), {
                 originalError: err,
                 status: response.status,
                 statusText: response.statusText,

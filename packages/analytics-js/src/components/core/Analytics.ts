@@ -92,10 +92,7 @@ class Analytics implements IAnalytics {
     this.private_preloadBuffer = new BufferQueue();
     this.private_initialized = false;
     this.private_errorHandler = defaultErrorHandler;
-    this.private_externalSrcLoader = new ExternalSrcLoader(
-      this.private_errorHandler,
-      this.private_logger,
-    );
+    this.private_externalSrcLoader = new ExternalSrcLoader();
     this.private_capabilitiesManager = new CapabilitiesManager(
       this.private_httpClient,
       this.private_errorHandler,

@@ -41,7 +41,7 @@ const makeFetchRequest = (url: string | URL, options: IFetchRequestOptions): Pro
         throw err;
       }
 
-      throw new HttpClientError(REQUEST_ERROR(url, options.timeout as number, err.message), {
+      throw new HttpClientError(REQUEST_ERROR(url, options.timeout as number), {
         originalError: err,
       });
     });

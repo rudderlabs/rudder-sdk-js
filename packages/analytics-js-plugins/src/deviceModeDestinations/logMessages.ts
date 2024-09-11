@@ -3,8 +3,8 @@ import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constant
 const DESTINATION_NOT_SUPPORTED_ERROR = (destUserFriendlyId: string): string =>
   `Destination ${destUserFriendlyId} is not supported.`;
 
-const DESTINATION_SDK_LOAD_ERROR = (context: string, destUserFriendlyId: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}Failed to load script for destination ${destUserFriendlyId}.`;
+const DESTINATION_SDK_LOAD_ERROR = (context: string, errMsg: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}Destination script: ${errMsg}.`;
 
 const DESTINATION_INIT_ERROR = (destUserFriendlyId: string): string =>
   `Failed to initialize destination ${destUserFriendlyId}.`;

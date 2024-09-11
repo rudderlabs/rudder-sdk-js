@@ -9,10 +9,10 @@ import { stringifyWithoutCircular } from './json';
  */
 const getMutatedError = (err: any, issue: string): Error => {
   let finalError = err;
-  if (!isTypeOfError(err)) {
-    finalError = new Error(`${issue}: ${stringifyWithoutCircular(err as Record<string, any>)}`);
-  } else {
+  if (isTypeOfError(err)) {
     (finalError as Error).message = `${issue}: ${err.message}`;
+  } else {
+    finalError = new Error(`${issue}: ${stringifyWithoutCircular(err as Record<string, any>)}`);
   }
   return finalError;
 };

@@ -124,7 +124,7 @@ describe('HttpClient', () => {
       expect(response).toBeUndefined();
 
       const errResult = new HttpClientError(
-        'The request failed with status 404 (Not Found) for URL "https://dummy.dataplane.host.com/404ErrorSample".',
+        'The request failed with status 404 (Not Found) for URL "https://dummy.dataplane.host.com/404ErrorSample"',
         {
           status: 404,
           statusText: 'Not Found',
@@ -145,7 +145,7 @@ describe('HttpClient', () => {
       expect(response).toBeUndefined();
 
       const errResult = new HttpClientError(
-        'The request failed with status 500 (Internal Server Error) for URL "https://dummy.dataplane.host.com/500ErrorSample".',
+        'The request failed with status 500 (Internal Server Error) for URL "https://dummy.dataplane.host.com/500ErrorSample"',
         {
           status: 500,
           statusText: 'Internal Server Error',
@@ -165,7 +165,7 @@ describe('HttpClient', () => {
       expect(response).toBeUndefined();
 
       const errResult = new HttpClientError(
-        'Failed to parse response data for URL "https://dummy.dataplane.host.com/brokenJsonSample": Expected property name or \'}\' in JSON at position 1.',
+        'Failed to parse response data for URL "https://dummy.dataplane.host.com/brokenJsonSample": Expected property name or \'}\' in JSON at position 1',
         {
           status: 200,
           statusText: 'OK',
@@ -188,7 +188,7 @@ describe('HttpClient', () => {
       expect(response).toBeUndefined();
 
       const errResult = new HttpClientError(
-        'Failed to parse response data for URL "https://dummy.dataplane.host.com/emptyJsonSample": Unexpected end of JSON input.',
+        'Failed to parse response data for URL "https://dummy.dataplane.host.com/emptyJsonSample": Unexpected end of JSON input',
         {
           status: 200,
           statusText: 'OK',
@@ -215,7 +215,7 @@ describe('HttpClient', () => {
       expect(response).toBeUndefined();
 
       const errResult = new HttpClientError(
-        'The request failed due to timeout after 15000ms or no connection or aborted for URL "https://dummy.dataplane.host.com/noConnectionSample": Failed to fetch.',
+        'The request failed due to timeout after 15000ms or no connection or aborted for URL "https://dummy.dataplane.host.com/noConnectionSample": Failed to fetch',
       );
 
       expect(details.error).toEqual(errResult);

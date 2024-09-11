@@ -44,10 +44,7 @@ class CapabilitiesManager implements ICapabilitiesManager {
   constructor(httpClient: IHttpClient, errorHandler?: IErrorHandler, logger?: ILogger) {
     this.private_logger = logger;
     this.private_errorHandler = errorHandler;
-    this.private_externalSrcLoader = new ExternalSrcLoader(
-      this.private_errorHandler,
-      this.private_logger,
-    );
+    this.private_externalSrcLoader = new ExternalSrcLoader();
     this.private_httpClient = httpClient;
     this.private_onError = this.private_onError.bind(this);
     this.private_onReady = this.private_onReady.bind(this);
@@ -161,10 +158,10 @@ class CapabilitiesManager implements ICapabilitiesManager {
         id: POLYFILL_SCRIPT_ID,
         async: true,
         timeout: POLYFILL_LOAD_TIMEOUT,
-        callback: (scriptId?: string) => {
-          if (!scriptId) {
+        callback: (scriptId?: string, error?: Error) => {
+          if (!scriptId && error) {
             this.private_onError(
-              new Error(POLYFILL_SCRIPT_LOAD_ERROR(POLYFILL_SCRIPT_ID, polyfillUrl)),
+              new Error(POLYFILL_SCRIPT_LOAD_ERROR(CAPABILITIES_MANAGER, error.message)),
             );
           } else if (!isDefaultPolyfillService) {
             this.private_onReady();

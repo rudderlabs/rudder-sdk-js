@@ -94,7 +94,8 @@ const jsFileLoader = (
   new Promise((resolve, reject) => {
     const scriptExists = document.getElementById(id);
     if (scriptExists) {
-      reject(new Error(SCRIPT_ALREADY_EXISTS_ERROR(id)));
+      reject(new Error(SCRIPT_ALREADY_EXISTS_ERROR(id, url)));
+      return;
     }
 
     try {
@@ -105,9 +106,15 @@ const jsFileLoader = (
         resolve(id);
       };
 
-      const onerror = () => {
+      const onerror = (
+        event: Event | string,
+        source?: string,
+        lineno?: number,
+        colno?: number,
+        error?: Error,
+      ) => {
         (globalThis as typeof window).clearTimeout(timeoutID);
-        reject(new Error(SCRIPT_LOAD_ERROR(id, url)));
+        reject(getMutatedError(error ?? 'no information', SCRIPT_LOAD_ERROR(id, url)));
       };
 
       // Create the DOM element to load the script and add it to the DOM

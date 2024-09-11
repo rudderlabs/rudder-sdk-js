@@ -96,13 +96,10 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
             id: dest.userFriendlyId,
             callback:
               externalScriptOnLoad ??
-              ((id?: string) => {
-                if (!id) {
+              ((id?: string, error?: Error) => {
+                if (!id && error) {
                   logger?.error(
-                    DESTINATION_SDK_LOAD_ERROR(
-                      DEVICE_MODE_DESTINATIONS_PLUGIN,
-                      dest.userFriendlyId,
-                    ),
+                    DESTINATION_SDK_LOAD_ERROR(DEVICE_MODE_DESTINATIONS_PLUGIN, error.message),
                   );
                   state.nativeDestinations.failedDestinations.value = [
                     ...state.nativeDestinations.failedDestinations.value,
