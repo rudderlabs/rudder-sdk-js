@@ -579,6 +579,59 @@ describe('RetryQueue', () => {
         false, // page is not accessible
       );
     });
+
+    it('should frequently update the ack to the current time', () => {
+      jest.setSystemTime(0);
+
+      queue.start();
+
+      expect(queue.getStorageEntry('ack')).toBe(0);
+
+      jest.advanceTimersByTime(1000); // ack timer
+
+      expect(queue.getStorageEntry('ack')).toBe(1000);
+
+      jest.advanceTimersByTime(1000); // ack timer
+
+      expect(queue.getStorageEntry('ack')).toBe(2000);
+    });
+
+    it('should slow down all the timer operations by the timerScaleFactor', () => {
+      const tempQueue = new RetryQueue(
+        'test',
+        {
+          maxAttempts: 2,
+          maxItems: 100,
+          backoffJitter: 0.1,
+          timerScaleFactor: 2,
+        },
+        jest.fn(),
+        defaultStoreManager,
+        'localStorage',
+        defaultLogger,
+      );
+      tempQueue.schedule = schedule;
+
+      jest.setSystemTime(0);
+
+      tempQueue.start();
+
+      expect(tempQueue.getStorageEntry('ack')).toBe(0);
+
+      // ack timer is now 2000 (1000 * timerScaleFactor)
+      jest.advanceTimersByTime(1000); // half of ack timer
+
+      // It is not time yet update the ack
+      expect(tempQueue.getStorageEntry('ack')).toBe(0);
+
+      jest.advanceTimersByTime(1000); // remaining timer
+
+      expect(tempQueue.getStorageEntry('ack')).toBe(2000);
+
+      jest.advanceTimersByTime(2000); // ack timer
+
+      expect(tempQueue.getStorageEntry('ack')).toBe(4000);
+    });
   });
 
   describe('while using in memory engine', () => {
