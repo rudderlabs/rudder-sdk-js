@@ -47,6 +47,7 @@ import {
   RECLAIM_START,
 } from './constants';
 import { clearQueueEntries, findOtherQueues, getNumberOptionVal, sortByTime } from './utilities';
+import { isNumber } from '../number';
 
 /**
  * Constructs a RetryQueue backed by localStorage
@@ -198,7 +199,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     // Like an empty array or an empty object or null or undefined
     if (
       !isNullOrUndefined(value) &&
-      ((Array.isArray(value) && value.length > 0) || isNonEmptyObject(value))
+      (isNumber(value) || (Array.isArray(value) && value.length > 0) || isNonEmptyObject(value))
     ) {
       this.store.set(name, value);
     } else {

@@ -3,6 +3,7 @@ import { Schedule } from '../../../src/utilities/retryQueue/Schedule';
 import { RetryQueue } from '../../../src/utilities/retryQueue/RetryQueue';
 import { defaultStoreManager } from '../../../__mocks__/StoreManager';
 import { Store } from '../../../__mocks__/Store';
+import { defaultLogger } from '../../../__mocks__/Logger';
 import type {
   DoneCallback,
   QueueData,
@@ -44,9 +45,12 @@ describe('RetryQueue', () => {
       {
         maxAttempts: 2,
         maxItems: 100,
+        backoffJitter: 0.1,
       },
       jest.fn(),
       defaultStoreManager,
+      'localStorage',
+      defaultLogger,
     );
     queue.schedule = schedule;
   });
@@ -316,9 +320,65 @@ describe('RetryQueue', () => {
         true,
       );
     });
+
+    it('should stop first before starting again', () => {
+      const stopSpy = jest.spyOn(queue, 'stop');
+      queue.start();
+      queue.start();
+
+      expect(stopSpy).toHaveBeenCalledTimes(1);
+      stopSpy.mockRestore();
+    });
+  });
+
+  describe('stop', () => {
+    it('should stop the queue', () => {
+      queue.start();
+      queue.stop();
+
+      expect(queue.scheduleTimeoutActive).toEqual(false);
+    });
+  });
+
+  describe('setStorageEntry', () => {
+    it('should set an entry in the store', () => {
+      queue.setStorageEntry('ack', 1);
+
+      expect(queue.getStorageEntry('ack')).toEqual(1);
+    });
+
+    it('should log an error if the entry had to be removed but could not be', () => {
+      const originalRemove = queue.store.remove;
+      queue.store.remove = jest.fn(() => {
+        throw new Error('no');
+      });
+
+      queue.setStorageEntry('ack', {});
+
+      expect(defaultLogger.error).toHaveBeenCalledWith(
+        'RetryQueue:: Failed to remove local storage entry "ack" (attempt: 1).',
+        new Error('no'),
+      );
+
+      queue.store.remove = originalRemove;
+    });
   });
 
   describe('queue items processing', () => {
+    it('should process a queued item successfully', () => {
+      queue.processQueueCb = jest.fn((item, done) => {
+        done();
+      });
+
+      queue.addItem('a');
+
+      queue.start();
+
+      // Since the process function invoked the done callback, the item should be removed from inProgress and queue
+      expect(queue.getStorageEntry('queue')).toEqual(null);
+      expect(queue.getStorageEntry('inProgress')).toEqual(null);
+    });
+
     it('should retry a task with delay if it fails', () => {
       queue.start();
 
@@ -403,10 +463,121 @@ describe('RetryQueue', () => {
 
       queue.start();
 
+      // Wait for all the retries to be done
       jest.advanceTimersByTime(queue.getRetryDelay(1) + queue.getRetryDelay(2));
       calls.forEach(call => {
         expect(call === 2 + 1).toBeTruthy();
       });
+
+      // Wait for one more retry to ensure the maxAttempts is respected
+      jest.advanceTimersByTime(queue.getRetryDelay(3));
+
+      // Still the same number of calls
+      calls.forEach(call => {
+        expect(call === 2 + 1).toBeTruthy();
+      });
+    });
+
+    it('should log an error if the processQueueCb throws an error', () => {
+      const error = new Error('no');
+      queue.processQueueCb = jest.fn().mockImplementationOnce(() => {
+        throw error;
+      });
+
+      queue.start();
+
+      queue.addItem('a');
+
+      expect(defaultLogger.error).toHaveBeenCalledWith(
+        'RetryQueue:: Process function threw an error.',
+        error,
+      );
+    });
+
+    it('should flush items in the batch queue if page is being unloaded', () => {
+      const batchQueue = new RetryQueue(
+        'test',
+        { batch: { enabled: true, maxSize: 2 } },
+        jest.fn(),
+        defaultStoreManager,
+        undefined,
+        undefined,
+        (items: QueueItemData[]) => items.length,
+      );
+
+      batchQueue.addItem('a');
+
+      batchQueue.start();
+
+      window.dispatchEvent(new Event('beforeunload'));
+
+      expect(batchQueue.getStorageEntry('batchQueue')).toEqual(null);
+
+      expect(batchQueue.getStorageEntry('inProgress')).toEqual([
+        {
+          item: ['a'],
+          attemptNumber: 0,
+          time: expect.any(Number),
+          id: expect.any(String),
+        },
+      ]);
+
+      expect(batchQueue.processQueueCb).toHaveBeenCalledWith(
+        ['a'],
+        expect.any(Function),
+        0,
+        Infinity,
+        true,
+        false, // page is not accessible
+      );
+    });
+
+    it('should flush only possible items in the batch queue if page is being unloaded', () => {
+      const batchQueue = new RetryQueue(
+        'test',
+        { batch: { enabled: true, maxItems: 4 } },
+        jest.fn(),
+        defaultStoreManager,
+        undefined,
+        undefined,
+        (items: QueueItemData[]) => 64 * 1024 * items.length,
+      );
+
+      batchQueue.addItem('a');
+      batchQueue.addItem('b');
+
+      batchQueue.start();
+
+      // This will make the first item exceed the max size limit
+      window.dispatchEvent(new Event('beforeunload'));
+
+      // The second item still remains in the batch queue
+      expect(batchQueue.getStorageEntry('batchQueue')).toEqual([
+        {
+          item: 'b',
+          attemptNumber: 0,
+          time: expect.any(Number),
+          id: expect.any(String),
+        },
+      ]);
+
+      expect(batchQueue.getStorageEntry('inProgress')).toEqual([
+        {
+          item: ['a'],
+          attemptNumber: 0,
+          time: expect.any(Number),
+          id: expect.any(String),
+        },
+      ]);
+
+      expect(batchQueue.processQueueCb).toHaveBeenCalledWith(
+        ['a'],
+        expect.any(Function),
+        0,
+        Infinity,
+        true,
+        false, // page is not accessible
+      );
     });
   });
 
