@@ -123,13 +123,33 @@ class Analytics {
     this.userId = this.storage.getUserId() || '';
     this.storage.setUserId(this.userId);
 
-    this.userTraits = this.storage.getUserTraits() || {};
+    this.userTraits = {};
+    const storedUserTraits = this.storage.getUserTraits();
+    // Ensure that stored user traits is an object indeed
+    if (
+      storedUserTraits !== null &&
+      typeof storedUserTraits === 'object' &&
+      !Array.isArray(storedUserTraits)
+    ) {
+      this.userTraits = storedUserTraits;
+    }
+
     this.storage.setUserTraits(this.userTraits);
 
     this.groupId = this.storage.getGroupId() || '';
     this.storage.setGroupId(this.groupId);
 
-    this.groupTraits = this.storage.getGroupTraits() || {};
+    this.groupTraits = {};
+    const storedGroupTraits = this.storage.getGroupTraits();
+    // Ensure that stored group traits is an object indeed
+    if (
+      storedGroupTraits !== null &&
+      typeof storedGroupTraits === 'object' &&
+      !Array.isArray(storedGroupTraits)
+    ) {
+      this.groupTraits = storedGroupTraits;
+    }
+
     this.storage.setGroupTraits(this.groupTraits);
 
     this.anonymousId = this.getAnonymousId(anonymousIdOptions);
