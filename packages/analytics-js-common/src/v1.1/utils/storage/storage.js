@@ -27,19 +27,11 @@ const anonymousIdKeyMap = {
   segment: 'ajs_anonymous_id',
 };
 
-/**
- * JSON parse the value
- * @param {*} value
- */
-function parse(value) {
-  // if not parsable, return as is without json parse
-  try {
-    return value ? JSON.parse(value) : null;
-  } catch (e) {
-    logger.error(e);
-    return value || null;
-  }
-}
+const CORRUPTED_COOKIES_WARNING = key =>
+  `Unable to retrieve the cookie data for ${key}. The data is dropped. This can potentially stem from using SDK v3 on other sites or web pages that can share cookies with this webpage. Please use the same SDK (v3) version everywhere as soon as possible.`;
+
+const BAD_COOKIES_WARNING = key =>
+  `The cookie data for ${key} seems to be corrupted where the underlying unencrypted data seems to be a cookie created by SDK v3. The decryption of the data was attempted again. This can potentially stem from using SDK v3 on other sites or web pages that can share cookies with this webpage. We recommend using the same SDK (v3) version everywhere.`;
 
 /**
  * trim using regex for browser polyfill
@@ -57,12 +49,12 @@ function decryptValue(value) {
   if (!value || typeof value !== 'string' || trim(value) === '') {
     return value;
   }
-  if (value.substring(0, defaults.prefix.length) === defaults.prefix) {
+  if (value.startsWith(defaults.prefix)) {
     return AES.decrypt(value.substring(defaults.prefix.length), defaults.key).toString(Utf8);
   }
 
   // Try if it is v3 encrypted value
-  if (value.substring(0, defaults.prefixV3.length) === defaults.prefixV3) {
+  if (value.startsWith(defaults.prefixV3)) {
     return fromBase64(value.substring(defaults.prefixV3.length));
   }
   return value;
@@ -207,7 +199,24 @@ class Storage {
    * @param {*} key
    */
   getItem(key) {
-    return parse(decryptValue(this.storage.get(key)));
+    try {
+      let decryptedValue = decryptValue(this.storage.get(key));
+      let finalValue = decryptedValue ? JSON.parse(decryptedValue) : null;
+
+      // check if the final decrypted value is actually a v3 encrypted value
+      // if so, warn the users and try to decrypt it again
+      if (typeof finalValue === 'string' && finalValue.startsWith(defaults.prefixV3)) {
+        logger.warn(BAD_COOKIES_WARNING(key));
+
+        decryptedValue = decryptValue(finalValue);
+        finalValue = decryptedValue ? JSON.parse(decryptedValue) : null;
+      }
+      return finalValue;
+    } catch (err) {
+      // Log the error and drop the value
+      logger.error(CORRUPTED_COOKIES_WARNING(key), err);
+      return null;
+    }
   }
 
   /**
@@ -295,7 +304,7 @@ class Storage {
    */
   getAnonymousId(anonymousIdOptions) {
     // fetch the rl_anonymous_id from storage
-    const rlAnonymousId = parse(decryptValue(this.storage.get(defaults.user_storage_anonymousId)));
+    const rlAnonymousId = this.getItem(defaults.user_storage_anonymousId);
     /**
      * If RS's anonymous ID is available, return from here.
      *
