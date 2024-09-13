@@ -1,5 +1,5 @@
 import { trim } from '@rudderstack/analytics-js-common/utilities/string';
-import { isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isNullOrUndefined, isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import type { IStorage, IStore, IStoreConfig } from '@rudderstack/analytics-js-common/types/Store';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
@@ -12,6 +12,7 @@ import { defaultLogger } from '../Logger';
 import { defaultErrorHandler } from '../ErrorHandler';
 import { isStorageQuotaExceeded } from '../../components/capabilitiesManager/detection';
 import {
+  BAD_COOKIES_WARNING,
   STORAGE_QUOTA_EXCEEDED_WARNING,
   STORE_DATA_FETCH_ERROR,
   STORE_DATA_SAVE_ERROR,
@@ -128,22 +129,29 @@ class Store implements IStore {
    */
   get<T = any>(key: string): Nullable<T> {
     const validKey = this.createValidKey(key);
+    let decryptedValue;
 
     try {
       if (!validKey) {
         return null;
       }
 
-      const str = this.decrypt(this.engine.getItem(validKey));
+      decryptedValue = this.decrypt(this.engine.getItem(validKey));
 
-      if (isNullOrUndefined(str)) {
+      if (isNullOrUndefined(decryptedValue)) {
         return null;
       }
 
       // storejs that is used in localstorage engine already deserializes json strings but swallows errors
-      return JSON.parse(str as string);
+      return JSON.parse(decryptedValue as string);
     } catch (err) {
       this.onError(new Error(`${STORE_DATA_FETCH_ERROR(key)}: ${(err as Error).message}`));
+
+      // A hack for warning the users of potential partial SDK version migrations
+      if (isString(decryptedValue) && decryptedValue.startsWith('RudderEncrypt:')) {
+        this.logger?.warn(BAD_COOKIES_WARNING(key));
+      }
+
       return null;
     }
   }
