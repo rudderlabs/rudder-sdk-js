@@ -1,7 +1,7 @@
-## [3.9.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.8.1...@rudderstack/analytics-js-common@3.9.0) (2024-08-16)
+## [3.9.2](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.9.1...@rudderstack/analytics-js-common@3.9.2) (2024-09-12)
 
 
-### Features
+### Bug Fixes
 
-* onboarded XPixel Integration ([#1783](https://github.com/rudderlabs/rudder-sdk-js/issues/1783)) ([cf9b8cc](https://github.com/rudderlabs/rudder-sdk-js/commit/cf9b8cc41de341be781fae3108e4a07f2b553dda))
+* gracefully handle cross sdk version cookies and warn ([#1847](https://github.com/rudderlabs/rudder-sdk-js/issues/1847)) ([408a838](https://github.com/rudderlabs/rudder-sdk-js/commit/408a8389be845883c35045fdb61695db5414ad21))
 

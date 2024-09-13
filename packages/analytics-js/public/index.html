@@ -272,6 +272,8 @@
     <button data-testid="track-btn" onclick="track()">Track</button>
     <button data-testid="alias-btn" onclick="alias()">Alias</button>
     <button data-testid="group-btn" onclick="group()">Group</button>
+    <button data-testid="reload-page-btn" onclick="reloadPageWithEvents()">Reload Page With Events</button>
+
 
     <p data-testid="action" id="action"></p>
     <p data-testid="payload" id="rudderElement"></p>
@@ -358,6 +360,24 @@
             document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
           }
         );
+      }
+
+      function reloadPageWithEvents() {
+        rudderanalytics.track('Event 1 before reload', function (rudderElement) {
+          console.log('Event 1 before reload');
+
+          document.getElementById('action').innerHTML = 'Event 1 before reload';
+          document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
+        });
+
+        rudderanalytics.track('Event 2 before reload', function (rudderElement) {
+          console.log('Event 2 before reload');
+
+          document.getElementById('action').innerHTML = 'Event 2 before reload';
+          document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
+        });
+
+        window.location.reload();
       }
     </script>
   </body>
