@@ -80,6 +80,7 @@ const configToIntNames = {
   COMMANDBAR: 'CommandBar',
   NINETAILED: 'Ninetailed',
   XPIXEL: 'XPixel',
+  GAINSIGHT_PX_BROWSER: 'GainsightPX',
 };
 
 export { configToIntNames };
