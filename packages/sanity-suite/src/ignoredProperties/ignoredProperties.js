@@ -158,6 +158,7 @@ const ignoredProperties = [
   {
     key: `message.integrations.Google Analytics 4 (GA4).sessionNumber`,
     type: 'number',
+    optional: true,
   },
   {
     key: `source.liveEventsConfig.eventUploadTS`,
