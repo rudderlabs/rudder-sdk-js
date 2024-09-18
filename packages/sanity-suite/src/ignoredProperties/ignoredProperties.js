@@ -177,6 +177,10 @@ const ignoredProperties = [
     optional: true,
   },
   {
+    key: `message.context.consentManagement.deniedConsentIds`,
+    optional: true,
+  },
+  {
     key: `message.context.consentManagement.provider`,
     optional: true,
   },
