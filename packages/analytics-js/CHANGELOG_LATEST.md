@@ -1,12 +1,7 @@
-## [3.7.12](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.7.11...@rudderstack/analytics-js@3.7.12) (2024-09-12)
+## [3.7.13](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.7.12...@rudderstack/analytics-js@3.7.13) (2024-09-17)
 
-### Dependency Updates
-
-* `@rudderstack/analytics-js-cookies` updated to version `0.3.8`
-* `@rudderstack/analytics-js-common` updated to version `3.9.2`
-* `@rudderstack/analytics-js-plugins` updated to version `3.4.12`
 
 ### Bug Fixes
 
-* gracefully handle cross sdk version cookies and warn ([#1847](https://github.com/rudderlabs/rudder-sdk-js/issues/1847)) ([408a838](https://github.com/rudderlabs/rudder-sdk-js/commit/408a8389be845883c35045fdb61695db5414ad21))
+* sdk loading snippet and sanity suite ([#1853](https://github.com/rudderlabs/rudder-sdk-js/issues/1853)) ([d531f14](https://github.com/rudderlabs/rudder-sdk-js/commit/d531f142f9f9f17f3f675962835531d02b687844))
 

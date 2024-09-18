@@ -2,6 +2,7 @@
 import { batch, effect } from '@preact/signals-core';
 import {
   isNonEmptyObject,
+  isObjectLiteralAndNotNull,
   mergeDeepRight,
 } from '@rudderstack/analytics-js-common/utilities/object';
 import {
@@ -697,10 +698,10 @@ class UserSessionManager implements IUserSessionManager {
    */
   setUserTraits(traits?: Nullable<ApiObject>) {
     state.session.userTraits.value =
-      this.isPersistenceEnabledForStorageEntry('userTraits') && traits
+      this.isPersistenceEnabledForStorageEntry('userTraits') && isObjectLiteralAndNotNull(traits)
         ? mergeDeepRight(
             state.session.userTraits.value ?? DEFAULT_USER_SESSION_VALUES.userTraits,
-            traits,
+            traits as ApiObject,
           )
         : DEFAULT_USER_SESSION_VALUES.userTraits;
   }
@@ -722,10 +723,10 @@ class UserSessionManager implements IUserSessionManager {
    */
   setGroupTraits(traits?: Nullable<ApiObject>) {
     state.session.groupTraits.value =
-      this.isPersistenceEnabledForStorageEntry('groupTraits') && traits
+      this.isPersistenceEnabledForStorageEntry('groupTraits') && isObjectLiteralAndNotNull(traits)
         ? mergeDeepRight(
             state.session.groupTraits.value ?? DEFAULT_USER_SESSION_VALUES.groupTraits,
-            traits,
+            traits as ApiObject,
           )
         : DEFAULT_USER_SESSION_VALUES.groupTraits;
   }
