@@ -142,9 +142,11 @@ class UserSessionManager implements IUserSessionManager {
       };
     }
 
-    state.session.sessionInfo.value = this.isPersistenceEnabledForStorageEntry('sessionInfo')
-      ? (sessionInfo as SessionInfo)
-      : DEFAULT_USER_SESSION_VALUES.sessionInfo;
+    state.session.sessionInfo.value =
+      this.isPersistenceEnabledForStorageEntry('sessionInfo') &&
+      (sessionInfo?.autoTrack || sessionInfo?.manualTrack)
+        ? (sessionInfo as SessionInfo)
+        : DEFAULT_USER_SESSION_VALUES.sessionInfo;
 
     // If auto session tracking is enabled start the session tracking
     if (state.session.sessionInfo.value.autoTrack) {
