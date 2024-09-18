@@ -990,6 +990,13 @@ describe('User session manager', () => {
       userSessionManager.setUserTraits();
       expect(state.session.userTraits.value).toStrictEqual(DEFAULT_USER_SESSION_VALUES.userTraits);
     });
+
+    it('should reset the value to default value if the value is not an object', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+      userSessionManager.setUserTraits('dummy-user-traits');
+      expect(state.session.userTraits.value).toStrictEqual(DEFAULT_USER_SESSION_VALUES.userTraits);
+    });
   });
 
   describe('setGroupId', () => {
@@ -1054,6 +1061,15 @@ describe('User session manager', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.init();
       userSessionManager.setGroupTraits();
+      expect(state.session.groupTraits.value).toStrictEqual(
+        DEFAULT_USER_SESSION_VALUES.groupTraits,
+      );
+    });
+
+    it('should reset the value to default value if the value is not an object', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+      userSessionManager.setGroupTraits('dummy-group-traits');
       expect(state.session.groupTraits.value).toStrictEqual(
         DEFAULT_USER_SESSION_VALUES.groupTraits,
       );

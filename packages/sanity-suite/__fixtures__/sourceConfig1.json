@@ -260,6 +260,12 @@
             {
               "purpose": "another_purpose_id"
             }
+          ],
+          "dimensions": [
+            {
+              "from": "",
+              "to": ""
+            }
           ]
         },
         "destinationDefinitionId": "1QGzNyNSA4alXixnhDcq4C10ac2",
