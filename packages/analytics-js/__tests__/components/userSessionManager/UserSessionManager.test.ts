@@ -242,6 +242,27 @@ describe('User session manager', () => {
         sessionStart: false,
       });
     });
+    it('should set sessionInfo if sessionInfo exists in storage with autoTrack enabled', () => {
+      const customData = {
+        rl_session: {
+          id: 1726655503445,
+          expiresAt: Date.now() + 60 * 1000,
+          timeout: 1800000,
+          autoTrack: true,
+          sessionStart: false,
+        },
+      };
+      setDataInCookieStorage(customData);
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.syncStorageDataToState();
+      expect(state.session.sessionInfo.value).toStrictEqual({
+        id: 1726655503445,
+        expiresAt: expect.any(Number),
+        timeout: 1800000,
+        autoTrack: true,
+        sessionStart: false,
+      });
+    });
   });
 
   describe('init', () => {
