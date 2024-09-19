@@ -134,19 +134,22 @@ class UserSessionManager implements IUserSessionManager {
     if (this.isPersistenceEnabledForStorageEntry('sessionInfo')) {
       const configuredSessionTrackingInfo = this.getConfiguredSessionTrackingInfo();
       const initialSessionInfo = sessionInfo ?? defaultSessionConfiguration;
-      sessionInfo = {
-        ...initialSessionInfo,
-        ...configuredSessionTrackingInfo,
-        autoTrack:
-          configuredSessionTrackingInfo.autoTrack && initialSessionInfo.manualTrack !== true,
-      };
+
+      if (!configuredSessionTrackingInfo.autoTrack && initialSessionInfo.manualTrack !== true) {
+        sessionInfo = DEFAULT_USER_SESSION_VALUES.sessionInfo;
+      } else {
+        sessionInfo = {
+          ...initialSessionInfo,
+          ...configuredSessionTrackingInfo,
+          autoTrack:
+            configuredSessionTrackingInfo.autoTrack && initialSessionInfo.manualTrack !== true,
+        };
+      }
+    } else {
+      sessionInfo = DEFAULT_USER_SESSION_VALUES.sessionInfo;
     }
 
-    state.session.sessionInfo.value =
-      this.isPersistenceEnabledForStorageEntry('sessionInfo') &&
-      (sessionInfo?.autoTrack || sessionInfo?.manualTrack)
-        ? (sessionInfo as SessionInfo)
-        : DEFAULT_USER_SESSION_VALUES.sessionInfo;
+    state.session.sessionInfo.value = sessionInfo as SessionInfo;
 
     // If auto session tracking is enabled start the session tracking
     if (state.session.sessionInfo.value.autoTrack) {
