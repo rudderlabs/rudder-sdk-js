@@ -203,6 +203,66 @@ describe('User session manager', () => {
       userSessionManager.syncStorageDataToState();
       expect(state.session.anonymousId.value).toBe('dummy-anonymousId');
     });
+    it('should not set sessionInfo if autoTrack is set to false in loadOption and sessionInfo exists in storage', () => {
+      const customData = {
+        rl_session: {
+          id: 1726655503445,
+          expiresAt: Date.now() + 60 * 1000,
+          timeout: 60000,
+          autoTrack: true,
+          sessionStart: false,
+        },
+      };
+      setDataInCookieStorage(customData);
+      state.loadOptions.value.sessions.autoTrack = false;
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.syncStorageDataToState();
+      expect(state.session.sessionInfo.value).toStrictEqual({});
+    });
+    it('should set sessionInfo if autoTrack is set to false in loadOption and sessionInfo exists in storage with manualTrack enabled', () => {
+      const customData = {
+        rl_session: {
+          id: 1726655503445,
+          expiresAt: Date.now() + 60 * 1000,
+          timeout: 60000,
+          manualTrack: true,
+          sessionStart: false,
+        },
+      };
+      setDataInCookieStorage(customData);
+      state.loadOptions.value.sessions.autoTrack = false;
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.syncStorageDataToState();
+      expect(state.session.sessionInfo.value).toStrictEqual({
+        id: 1726655503445,
+        expiresAt: expect.any(Number),
+        timeout: 60000,
+        manualTrack: true,
+        autoTrack: false,
+        sessionStart: false,
+      });
+    });
+    it('should set sessionInfo if sessionInfo exists in storage with autoTrack enabled', () => {
+      const customData = {
+        rl_session: {
+          id: 1726655503445,
+          expiresAt: Date.now() + 60 * 1000,
+          timeout: 1800000,
+          autoTrack: true,
+          sessionStart: false,
+        },
+      };
+      setDataInCookieStorage(customData);
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.syncStorageDataToState();
+      expect(state.session.sessionInfo.value).toStrictEqual({
+        id: 1726655503445,
+        expiresAt: expect.any(Number),
+        timeout: 1800000,
+        autoTrack: true,
+        sessionStart: false,
+      });
+    });
   });
 
   describe('init', () => {
@@ -537,10 +597,7 @@ describe('User session manager', () => {
         timeout: 10000,
       };
       userSessionManager.init();
-      expect(state.session.sessionInfo.value).toStrictEqual({
-        autoTrack: false,
-        timeout: DEFAULT_SESSION_TIMEOUT_MS,
-      });
+      expect(state.session.sessionInfo.value).toStrictEqual({});
     });
 
     it('should log a warning and use default timeout if provided timeout is not in number format', () => {
@@ -560,7 +617,7 @@ describe('User session manager', () => {
       expect(defaultLogger.warn).toHaveBeenCalledWith(
         'UserSessionManager:: The session timeout value is 0, which disables the automatic session tracking feature. If you want to enable session tracking, please provide a positive integer value for the timeout.',
       );
-      expect(state.session.sessionInfo.value.autoTrack).toBe(false);
+      expect(state.session.sessionInfo.value).toStrictEqual({});
     });
 
     it('should log a warning if provided timeout is less than 10 seconds', () => {
