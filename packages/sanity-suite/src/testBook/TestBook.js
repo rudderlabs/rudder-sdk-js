@@ -179,7 +179,7 @@ class TestBook {
                             ${menuItemText}
                         </a>
                         <button type="button" class="btn btn-outline-dark text-break">
-                            Test Cases - Pass/Total: <span class="badge" id="resultSummary">N/A</span>
+                            Test Cases - Pass/Total: <span class="badge" id="resultSummary">N/A</span> - <span class="badge badge-warning" id="resultStatus">pending</span>
                         </button>
                     </p>
                 </div>
@@ -301,7 +301,7 @@ class TestBook {
       const resultRowElement = resultContainerElement.parentNode.parentNode;
       const { testCaseId } = resultContainerElement.dataset;
 
-      const observer = new MutationObserver(mutationList => {
+      const observer = new MutationObserver(() => {
         const resultDataElement = resultRowElement.querySelector('[data-actual-result]');
         const resultData = resultDataElement.textContent.trim();
 
@@ -354,6 +354,21 @@ class TestBook {
 
     resultSummaryElement.innerHTML = `${totalPassedTestCases}/${totalTestCases}`;
     resultSummaryElement.classList.add('bg-warning', 'summary-complete');
+
+    const finalStatus = totalPassedTestCases === totalTestCases ? 'success' : 'danger';
+    const resultStatusElement = document.getElementById('resultStatus');
+    resultStatusElement.innerHTML = finalStatus;
+    resultStatusElement.className = `badge badge-${finalStatus}`;
+
+    // We need to use a timeout to ensure the scrollIntoView is called after the
+    // last test case result scrolling has been completed
+    // Otherwise the scrollIntoView will not work as expected
+    setTimeout(() => {
+      resultStatusElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    }, 1000);
   }
 
   executeNextTestCase() {
@@ -383,13 +398,20 @@ class TestBook {
     const totalTestCases = Array.from(document.getElementsByClassName('testCaseStatus'));
     // iterate all the test cases and set them to pending
     totalTestCases.forEach(testCase => {
+      // eslint-disable-next-line no-param-reassign
       testCase.textContent = 'pending';
+      // eslint-disable-next-line no-param-reassign
       testCase.className = 'badge badge-warning testCaseStatus';
     });
 
+    // Reset the summary elements
     const resultSummaryElement = document.getElementById('resultSummary');
     resultSummaryElement.innerHTML = 'N/A';
     resultSummaryElement.classList.remove('bg-warning', 'summary-complete');
+
+    const resultStatusElement = document.getElementById('resultStatus');
+    resultStatusElement.innerHTML = 'pending';
+    resultStatusElement.className = 'badge badge-warning';
 
     this.currentExecutionIndex = 0;
     this.suiteRunInProgress = true;
