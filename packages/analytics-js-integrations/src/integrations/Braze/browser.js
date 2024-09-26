@@ -114,7 +114,9 @@ class Braze {
     const { userId } = message;
 
     if (this.isHybridModeEnabled) {
-      window.braze.changeUser(userId);
+      if (userId) {
+        window.braze.changeUser(userId);
+      }
       return;
     }
 
