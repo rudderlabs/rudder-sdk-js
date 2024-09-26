@@ -35,8 +35,6 @@ const getConfigForPayloadCreation = (err: SDKError, errorType: string) => {
       const { error } = err as ErrorEvent;
       return {
         component: 'unhandledException handler',
-        tolerateNonErrors: true,
-        errorFramesToSkip: 1,
         normalizedError: error || err,
       };
     }
@@ -44,8 +42,6 @@ const getConfigForPayloadCreation = (err: SDKError, errorType: string) => {
       const error = err as PromiseRejectionEvent;
       return {
         component: 'unhandledrejection handler',
-        tolerateNonErrors: false,
-        errorFramesToSkip: 1,
         normalizedError: error.reason,
       };
     }
@@ -53,8 +49,6 @@ const getConfigForPayloadCreation = (err: SDKError, errorType: string) => {
     default:
       return {
         component: 'notify()',
-        tolerateNonErrors: true,
-        errorFramesToSkip: 2,
         normalizedError: err,
       };
   }

@@ -510,8 +510,6 @@ describe('Error Reporting utilities', () => {
       const config = getConfigForPayloadCreation(error, 'unhandledException');
       expect(config).toEqual({
         component: 'unhandledException handler',
-        tolerateNonErrors: true,
-        errorFramesToSkip: 1,
         normalizedError: error,
       });
     });
@@ -521,8 +519,6 @@ describe('Error Reporting utilities', () => {
       const config = getConfigForPayloadCreation(error, 'unhandledPromiseRejection');
       expect(config).toEqual({
         component: 'unhandledrejection handler',
-        tolerateNonErrors: false,
-        errorFramesToSkip: 1,
         normalizedError: 'test error',
       });
     });
@@ -532,8 +528,6 @@ describe('Error Reporting utilities', () => {
       const config = getConfigForPayloadCreation(error, 'handledException');
       expect(config).toEqual({
         component: 'notify()',
-        tolerateNonErrors: true,
-        errorFramesToSkip: 2,
         normalizedError: error,
       });
     });
@@ -543,8 +537,6 @@ describe('Error Reporting utilities', () => {
       const config = getConfigForPayloadCreation(error, 'randomValue');
       expect(config).toEqual({
         component: 'notify()',
-        tolerateNonErrors: true,
-        errorFramesToSkip: 2,
         normalizedError: error,
       });
     });

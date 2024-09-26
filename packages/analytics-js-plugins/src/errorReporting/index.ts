@@ -71,18 +71,13 @@ const ErrorReporting = (): ExtensionPlugin => ({
       errorState?: ErrorState,
     ): void => {
       if (httpClient) {
-        const { component, tolerateNonErrors, errorFramesToSkip, normalizedError } =
-          getConfigForPayloadCreation(error, errorState?.severityReason.type as string);
+        const { component, normalizedError } = getConfigForPayloadCreation(
+          error,
+          errorState?.severityReason.type as string,
+        );
 
         // Generate the error payload
-        const errorPayload = ErrorFormat.create(
-          normalizedError,
-          tolerateNonErrors,
-          errorState as ErrorState,
-          component,
-          errorFramesToSkip,
-          logger,
-        );
+        const errorPayload = ErrorFormat.create(normalizedError, component, logger);
 
         if (!errorPayload || !isAllowedToBeNotified(errorPayload.errors[0])) {
           return;

@@ -57,8 +57,8 @@ function createBugsnagError(
 
 // Helpers
 
-const getStacktrace = (error: any, errorFramesToSkip: number) => {
-  if (hasStack(error)) return ErrorStackParser.parse(error).slice(errorFramesToSkip);
+const getStacktrace = (error: any) => {
+  if (hasStack(error)) return ErrorStackParser.parse(error);
   return [];
 };
 
@@ -78,7 +78,7 @@ const normaliseError = (maybeError: any, component: string, logger?: ILogger) =>
     error = undefined;
   }
 
-  return [error, 0];
+  return error;
 };
 
 class ErrorFormat implements IErrorFormat {
@@ -87,28 +87,14 @@ class ErrorFormat implements IErrorFormat {
   constructor(errorClass: string, errorMessage: string, stacktrace: any[]) {
     this.errors = [createBugsnagError(errorClass, errorMessage, stacktrace)];
   }
-  static create(
-    maybeError: any,
-    tolerateNonErrors: boolean,
-    handledState: ErrorState,
-    component: string,
-    errorFramesToSkip = 0,
-    logger?: ILogger,
-  ) {
-    const [error, internalFrames] = normaliseError(maybeError, component, logger);
+  static create(maybeError: any, component: string, logger?: ILogger) {
+    const error = normaliseError(maybeError, component, logger);
     if (!error) {
       return undefined;
     }
     let event;
     try {
-      const stacktrace = getStacktrace(
-        error,
-        // if an error was created/throw in the normaliseError() function, we need to
-        // tell the getStacktrace() function to skip the number of frames we know will
-        // be from our own functions. This is added to the number of frames deep we
-        // were told about
-        internalFrames > 0 ? 1 + internalFrames + errorFramesToSkip : 0,
-      );
+      const stacktrace = getStacktrace(error);
       event = new ErrorFormat(error.name, error.message, stacktrace);
     } catch (e) {
       event = new ErrorFormat(error.name, error.message, []);
