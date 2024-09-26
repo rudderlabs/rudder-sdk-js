@@ -62,20 +62,12 @@ const getStacktrace = (error: any, errorFramesToSkip: number) => {
   return [];
 };
 
-const hasNecessaryFields = (error: any) =>
-  (typeof error.name === 'string' || typeof error.errorClass === 'string') &&
-  (typeof error.message === 'string' || typeof error.errorMessage === 'string');
-
 const normaliseError = (maybeError: any, component: string, logger?: ILogger) => {
   let error;
   let internalFrames = 0;
 
   if (isError(maybeError)) {
     error = maybeError;
-  } else if (typeof maybeError === 'object' && hasNecessaryFields(maybeError)) {
-    error = new Error(maybeError.message || maybeError.errorMessage);
-    error.name = maybeError.name || maybeError.errorClass;
-    internalFrames += 1;
   } else {
     logger?.warn(
       `${ERROR_REPORTING_PLUGIN}:: ${component} received a non-error: ${stringifyWithoutCircular(error)}`,
