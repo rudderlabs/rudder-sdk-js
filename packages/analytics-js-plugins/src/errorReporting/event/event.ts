@@ -64,7 +64,6 @@ const getStacktrace = (error: any, errorFramesToSkip: number) => {
 
 const normaliseError = (maybeError: any, component: string, logger?: ILogger) => {
   let error;
-  let internalFrames = 0;
 
   if (isError(maybeError)) {
     error = maybeError;
@@ -76,20 +75,10 @@ const normaliseError = (maybeError: any, component: string, logger?: ILogger) =>
   }
 
   if (error && !hasStack(error)) {
-    // in IE10/11 a new Error() doesn't have a stacktrace until you throw it, so try that here
-    try {
-      throw error;
-    } catch (e) {
-      if (hasStack(e)) {
-        error = e;
-        // if the error only got a stacktrace after we threw it here, we know it
-        // will only have one extra internal frame from this function
-        internalFrames = 1;
-      }
-    }
+    error = undefined;
   }
 
-  return [error, internalFrames];
+  return [error, 0];
 };
 
 class ErrorFormat implements IErrorFormat {
