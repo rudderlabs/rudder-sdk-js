@@ -304,7 +304,7 @@ describe('Error Reporting utilities', () => {
         unhandled: false,
         severityReason: { type: 'handledException' },
       };
-      const errorPayload = ErrorFormat.create(normalizedError, true, errorState, 'notify()', 2);
+      const errorPayload = ErrorFormat.create(normalizedError, 'notify()');
 
       const appState = {
         context: {
