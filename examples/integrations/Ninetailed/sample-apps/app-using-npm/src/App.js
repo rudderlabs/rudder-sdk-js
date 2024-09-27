@@ -1,8 +1,8 @@
-import logo from './logo.svg';
-import './App.css';
 import { useEffect } from 'react';
 import { RudderAnalytics } from '@rudderstack/analytics-js';
 import { Ninetailed } from '@ninetailed/experience.js';
+import './App.css';
+import logo from './logo.svg';
 import { DATAPLANE_URL, WRITE_KEY, CONFIG_URL } from './config';
 
 export const ninetailed = new Ninetailed({
