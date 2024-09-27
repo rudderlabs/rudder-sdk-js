@@ -6,7 +6,7 @@ const initSanitySuite = () => {
     console.log('Mount sanity suite test book');
     // eslint-disable-next-line no-undef
     const testBookData = IS_DEV_TESTBOOK === true ? devSanityTestBookData : sanityTestBookData;
-    return new TestBook(testBookData, 1500);
+    return new TestBook(testBookData);
   }, 1);
 };
 

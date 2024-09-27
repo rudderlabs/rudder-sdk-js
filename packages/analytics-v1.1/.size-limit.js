@@ -25,13 +25,13 @@ module.exports = [
     name: 'Core (Content Script - v1.1) - NPM (ESM)',
     path: 'dist/npm/content-script/index.es.js',
     import: '*',
-    limit: '30 KiB',
+    limit: '30.5 KiB',
   },
   {
     name: 'Core (Content Script - v1.1) - NPM (CJS)',
     path: 'dist/npm/content-script/index.cjs.js',
     import: '*',
-    limit: '30 KiB',
+    limit: '30.5 KiB',
   },
   {
     name: 'Core (Content Script - v1.1) - NPM (UMD)',

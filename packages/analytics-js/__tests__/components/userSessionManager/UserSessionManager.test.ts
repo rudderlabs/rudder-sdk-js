@@ -1668,16 +1668,16 @@ describe('User session manager', () => {
       const makeRequestToSetCookieSpy = jest.spyOn(userSessionManager, 'makeRequestToSetCookie');
 
       userSessionManager.setServerSideCookies(
-        [{ name: 'key', value: 'sample_cookie_value_1234' }],
+        [{ name: 'key1', value: 'sample_cookie_value_1234' }],
         () => {},
         mockCookieStore,
       );
       expect(getEncryptedCookieDataSpy).toHaveBeenCalledWith(
-        [{ name: 'key', value: 'sample_cookie_value_1234' }],
+        [{ name: 'key1', value: 'sample_cookie_value_1234' }],
         mockCookieStore,
       );
       expect(makeRequestToSetCookieSpy).toHaveBeenCalledWith(
-        [{ name: 'key', value: 'encrypted_sample_cookie_value_1234' }],
+        [{ name: 'key1', value: 'encrypted_sample_cookie_value_1234' }],
         expect.any(Function),
       );
       done();
@@ -1689,7 +1689,7 @@ describe('User session manager', () => {
         state.storage.cookie.value = {
           maxage: 10 * 60 * 1000, // 10 min
           path: '/',
-          domain: 'example.com',
+          domain: 'dummy.dataplane.host.com',
           samesite: 'Lax',
         };
         userSessionManager.setServerSideCookies(
@@ -1727,7 +1727,7 @@ describe('User session manager', () => {
         state.storage.cookie.value = {
           maxage: 10 * 60 * 1000, // 10 min
           path: '/',
-          domain: 'example.com',
+          domain: 'dummy.dataplane.host.com',
           samesite: 'Lax',
         };
         userSessionManager.setServerSideCookies(
@@ -1756,7 +1756,7 @@ describe('User session manager', () => {
       state.storage.cookie.value = {
         maxage: 10 * 60 * 1000, // 10 min
         path: '/',
-        domain: 'example.com',
+        domain: 'dummy.dataplane.host.com',
         samesite: 'Lax',
       };
       userSessionManager.setServerSideCookies(
@@ -1776,7 +1776,7 @@ describe('User session manager', () => {
       state.storage.cookie.value = {
         maxage: 10 * 60 * 1000, // 10 min
         path: '/',
-        domain: 'example.com',
+        domain: 'dummy.dataplane.host.com',
         samesite: 'Lax',
       };
       userSessionManager.setServerSideCookies(
@@ -1799,7 +1799,7 @@ describe('User session manager', () => {
       state.storage.cookie.value = {
         maxage: 10 * 60 * 1000, // 10 min
         path: '/',
-        domain: 'example.com',
+        domain: 'dummy.dataplane.host.com',
         samesite: 'Lax',
       };
       userSessionManager.setServerSideCookies(
@@ -1833,7 +1833,7 @@ describe('User session manager', () => {
         state.storage.cookie.value = {
           maxage: 10 * 60 * 1000, // 10 min
           path: '/',
-          domain: 'example.com',
+          domain: 'dummy.dataplane.host.com',
           samesite: 'Lax',
         };
         const getAsyncDataSpy = jest.spyOn(defaultHttpClient, 'getAsyncData');
@@ -1852,7 +1852,7 @@ describe('User session manager', () => {
                 options: {
                   maxAge: 10 * 60 * 1000,
                   path: '/',
-                  domain: 'example.com',
+                  domain: 'dummy.dataplane.host.com',
                   sameSite: 'Lax',
                   secure: undefined,
                 },
