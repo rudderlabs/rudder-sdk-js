@@ -1083,7 +1083,7 @@ describe('hybrid mode', () => {
     expect(window.braze.changeUser).toBeCalledTimes(0);
   });
 
-  it('should not call the necessary Braze methods for identify call', () => {
+  it('should call the necessary Braze methods for identify call', () => {
     const config = {
       appKey: 'APP_KEY',
       trackAnonymousUser: true,
@@ -1118,6 +1118,6 @@ describe('hybrid mode', () => {
     braze.identify(rudderElement);
 
     // Expect the necessary Braze methods to be called with the correct values
-    expect(window.braze.changeUser).toBeCalledTimes(0);
+    expect(window.braze.changeUser).toBeCalledTimes(1);
   });
 });
