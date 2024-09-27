@@ -1,6 +1,8 @@
 import { legacyJSEngineRequiredPolyfills } from '../detection/dom';
 
 // eslint-disable-next-line no-constant-condition
+// @ts-expect-error we're dynamically filling this value during build
+// eslint-disable-next-line no-constant-condition
 const POLYFILL_URL = '__RS_POLYFILLIO_SDK_URL__'
   ? `__RS_POLYFILLIO_SDK_URL__?version=3.111.0&features=${Object.keys(
       legacyJSEngineRequiredPolyfills,
