@@ -1,11 +1,12 @@
 import { ResultsAssertions } from './ResultAssertions';
 import { toBase64 } from './string';
 
+const TEST_EXECUTION_TIMEOUT = 10000; // 10 seconds
+
 class TestBook {
-  constructor(testBookData, executionDelay = 5000, containerId = 'testBook') {
+  constructor(testBookData, containerId = 'testBook') {
     this.markupItems = [];
     this.container = document.getElementById(containerId);
-    this.executionDelay = executionDelay;
     this.currentExecutionIndex = 0;
     this.nextTestCaseTimeoutId = undefined;
     this.createTestBook(testBookData);
@@ -387,7 +388,7 @@ class TestBook {
         if (totalTestCases[this.currentExecutionIndex - 1].textContent === 'pending') {
           this.executeNextTestCase();
         }
-      }, this.executionDelay);
+      }, TEST_EXECUTION_TIMEOUT);
     } else {
       this.suiteRunInProgress = false;
       this.resultStatusSummary();
