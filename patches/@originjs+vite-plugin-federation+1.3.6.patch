@@ -1,8 +1,19 @@
 diff --git a/node_modules/@originjs/vite-plugin-federation/dist/index.js b/node_modules/@originjs/vite-plugin-federation/dist/index.js
-index 12c1268..b8b156c 100644
+index 12c1268..ff90e02 100644
 --- a/node_modules/@originjs/vite-plugin-federation/dist/index.js
 +++ b/node_modules/@originjs/vite-plugin-federation/dist/index.js
-@@ -393,7 +393,7 @@ function prodRemotePlugin(options) {
+@@ -366,7 +366,9 @@ function prodRemotePlugin(options) {
+                 }
+ 
+                 async function __federation_import(name) {
+-                    currentImports[name] ??= import(name)
++                    if (!currentImports[name]) {
++                        currentImports[name] = import(name)
++                    }
+                     return currentImports[name]
+                 }
+ 
+@@ -393,7 +395,7 @@ function prodRemotePlugin(options) {
                              return new Promise((resolve, reject) => {
                                  const getUrl = typeof remote.url === 'function' ? remote.url : () => Promise.resolve(remote.url);
                                  getUrl().then(url => {
@@ -11,7 +22,16 @@ index 12c1268..b8b156c 100644
                                          if (!remote.inited) {
                                              const shareScope = wrapShareModule(remote.from);
                                              lib.init(shareScope);
-@@ -888,12 +888,11 @@ function prodExposePlugin(options) {
+@@ -710,7 +712,7 @@ const {${imports}} = ${defaultImportDeclaration};
+     }
+   };
+ }
+-const federation_fn_import = "import { satisfy } from '__federation_fn_satisfy'\n\nconst currentImports = {}\n\n// eslint-disable-next-line no-undef\nconst moduleMap = __rf_var__moduleMap\nconst moduleCache = Object.create(null)\nasync function importShared(name, shareScope = 'default') {\n  return moduleCache[name]\n    ? new Promise((r) => r(moduleCache[name]))\n    : (await getSharedFromRuntime(name, shareScope)) || getSharedFromLocal(name)\n}\n// eslint-disable-next-line\nasync function __federation_import(name) {\n  currentImports[name] ??= import(name)\n  return currentImports[name]\n}\nasync function getSharedFromRuntime(name, shareScope) {\n  let module = null\n  if (globalThis?.__federation_shared__?.[shareScope]?.[name]) {\n    const versionObj = globalThis.__federation_shared__[shareScope][name]\n    const versionKey = Object.keys(versionObj)[0]\n    const versionValue = Object.values(versionObj)[0]\n    if (moduleMap[name]?.requiredVersion) {\n      // judge version satisfy\n      if (satisfy(versionKey, moduleMap[name].requiredVersion)) {\n        module = await (await versionValue.get())()\n      } else {\n        console.log(\n          `provider support ${name}(${versionKey}) is not satisfied requiredVersion(\\${moduleMap[name].requiredVersion})`\n        )\n      }\n    } else {\n      module = await (await versionValue.get())()\n    }\n  }\n  if (module) {\n    return flattenModule(module, name)\n  }\n}\nasync function getSharedFromLocal(name) {\n  if (moduleMap[name]?.import) {\n    let module = await (await moduleMap[name].get())()\n    return flattenModule(module, name)\n  } else {\n    console.error(\n      `consumer config import=false,so cant use callback shared module`\n    )\n  }\n}\nfunction flattenModule(module, name) {\n  // use a shared module which export default a function will getting error 'TypeError: xxx is not a function'\n  if (typeof module.default === 'function') {\n    Object.keys(module).forEach((key) => {\n      if (key !== 'default') {\n        module.default[key] = module[key]\n      }\n    })\n    moduleCache[name] = module.default\n    return module.default\n  }\n  if (module.default) module = Object.assign({}, module.default, module)\n  moduleCache[name] = module\n  return module\n}\nexport {\n  importShared,\n  getSharedFromRuntime as importSharedRuntime,\n  getSharedFromLocal as importSharedLocal\n}\n";
++const federation_fn_import = "import { satisfy } from '__federation_fn_satisfy'\n\nconst currentImports = {}\n\n// eslint-disable-next-line no-undef\nconst moduleMap = __rf_var__moduleMap\nconst moduleCache = Object.create(null)\nasync function importShared(name, shareScope = 'default') {\n  return moduleCache[name]\n    ? new Promise((r) => r(moduleCache[name]))\n    : (await getSharedFromRuntime(name, shareScope)) || getSharedFromLocal(name)\n}\n// eslint-disable-next-line\nasync function __federation_import(name) {\n  if (!currentImports[name]) {\n    currentImports[name]\n    }\n  return currentImports[name]\n}\nasync function getSharedFromRuntime(name, shareScope) {\n  let module = null\n  if (globalThis?.__federation_shared__?.[shareScope]?.[name]) {\n    const versionObj = globalThis.__federation_shared__[shareScope][name]\n    const versionKey = Object.keys(versionObj)[0]\n    const versionValue = Object.values(versionObj)[0]\n    if (moduleMap[name]?.requiredVersion) {\n      // judge version satisfy\n      if (satisfy(versionKey, moduleMap[name].requiredVersion)) {\n        module = await (await versionValue.get())()\n      } else {\n        console.log(\n          `provider support ${name}(${versionKey}) is not satisfied requiredVersion(\\${moduleMap[name].requiredVersion})`\n        )\n      }\n    } else {\n      module = await (await versionValue.get())()\n    }\n  }\n  if (module) {\n    return flattenModule(module, name)\n  }\n}\nasync function getSharedFromLocal(name) {\n  if (moduleMap[name]?.import) {\n    let module = await (await moduleMap[name].get())()\n    return flattenModule(module, name)\n  } else {\n    console.error(\n      `consumer config import=false,so cant use callback shared module`\n    )\n  }\n}\nfunction flattenModule(module, name) {\n  // use a shared module which export default a function will getting error 'TypeError: xxx is not a function'\n  if (typeof module.default === 'function') {\n    Object.keys(module).forEach((key) => {\n      if (key !== 'default') {\n        module.default[key] = module[key]\n      }\n    })\n    moduleCache[name] = module.default\n    return module.default\n  }\n  if (module.default) module = Object.assign({}, module.default, module)\n  moduleCache[name] = module\n  return module\n}\nexport {\n  importShared,\n  getSharedFromRuntime as importSharedRuntime,\n  getSharedFromLocal as importSharedLocal\n}\n";
+ const sharedFilePathReg = /__federation_shared_(.+)-.{8}\.js$/;
+ function prodSharedPlugin(options) {
+   parsedOptions.prodShared = parseSharedOptions(options);
+@@ -888,12 +890,11 @@ function prodExposePlugin(options) {
      EXPOSES_MAP.set(item[0], exposeFilepath);
      EXPOSES_KEY_MAP.set(
        item[0],
@@ -26,7 +46,7 @@ index 12c1268..b8b156c 100644
    }
    return {
      name: "originjs:expose-production",
-@@ -903,29 +902,6 @@ function prodExposePlugin(options) {
+@@ -903,31 +904,10 @@ function prodExposePlugin(options) {
        const exportSet = new Set(['Module', '__esModule', 'default', '_export_sfc']);
        let moduleMap = {${moduleMap}}
      const seen = {}
@@ -54,9 +74,14 @@ index 12c1268..b8b156c 100644
 -      })
 -    };
      async function __federation_import(name) {
-         currentImports[name] ??= import(name)
+-        currentImports[name] ??= import(name)
++        if (!currentImports[name]) {
++            currentImports[name] = import(name)
++        }
          return currentImports[name]
-@@ -1038,7 +1014,7 @@ function prodExposePlugin(options) {
+     };
+     export const get =(module) => {
+@@ -1038,7 +1018,7 @@ function prodExposePlugin(options) {
              );
              const slashPath = fileRelativePath.replace(/\\/g, "/");
              remoteEntryChunk.code = remoteEntryChunk.code.replace(
@@ -65,7 +90,7 @@ index 12c1268..b8b156c 100644
                `./${slashPath}`
              );
            }
-@@ -1110,7 +1086,7 @@ const loadJS = async (url, fn) => {
+@@ -1110,7 +1090,7 @@ const loadJS = async (url, fn) => {
    document.getElementsByTagName('head')[0].appendChild(script);
  }
  function get(name, ${REMOTE_FROM_PARAMETER}){
@@ -74,7 +99,7 @@ index 12c1268..b8b156c 100644
      if (${REMOTE_FROM_PARAMETER} === 'webpack') {
        return Object.prototype.toString.call(module).indexOf('Module') > -1 && module.default ? module.default : module
      }
-@@ -1144,7 +1120,7 @@ async function __federation_method_ensure(remoteId) {
+@@ -1144,7 +1124,7 @@ async function __federation_method_ensure(remoteId) {
        return new Promise((resolve, reject) => {
          const getUrl = typeof remote.url === 'function' ? remote.url : () => Promise.resolve(remote.url);
          getUrl().then(url => {
@@ -84,10 +109,21 @@ index 12c1268..b8b156c 100644
                const shareScope = wrapShareScope(remote.from)
                lib.init(shareScope);
 diff --git a/node_modules/@originjs/vite-plugin-federation/dist/index.mjs b/node_modules/@originjs/vite-plugin-federation/dist/index.mjs
-index dd456fe..eb2d811 100644
+index dd456fe..3a4a03a 100644
 --- a/node_modules/@originjs/vite-plugin-federation/dist/index.mjs
 +++ b/node_modules/@originjs/vite-plugin-federation/dist/index.mjs
-@@ -376,7 +376,7 @@ function prodRemotePlugin(options) {
+@@ -349,7 +349,9 @@ function prodRemotePlugin(options) {
+                 }
+ 
+                 async function __federation_import(name) {
+-                    currentImports[name] ??= import(name)
++                    if (!currentImports[name]) {
++                        currentImports[name] = import(name)
++                    }
+                     return currentImports[name]
+                 }
+ 
+@@ -376,7 +378,7 @@ function prodRemotePlugin(options) {
                              return new Promise((resolve, reject) => {
                                  const getUrl = typeof remote.url === 'function' ? remote.url : () => Promise.resolve(remote.url);
                                  getUrl().then(url => {
@@ -96,7 +132,16 @@ index dd456fe..eb2d811 100644
                                          if (!remote.inited) {
                                              const shareScope = wrapShareModule(remote.from);
                                              lib.init(shareScope);
-@@ -871,12 +871,11 @@ function prodExposePlugin(options) {
+@@ -693,7 +695,7 @@ const {${imports}} = ${defaultImportDeclaration};
+     }
+   };
+ }
+-const federation_fn_import = "import { satisfy } from '__federation_fn_satisfy'\n\nconst currentImports = {}\n\n// eslint-disable-next-line no-undef\nconst moduleMap = __rf_var__moduleMap\nconst moduleCache = Object.create(null)\nasync function importShared(name, shareScope = 'default') {\n  return moduleCache[name]\n    ? new Promise((r) => r(moduleCache[name]))\n    : (await getSharedFromRuntime(name, shareScope)) || getSharedFromLocal(name)\n}\n// eslint-disable-next-line\nasync function __federation_import(name) {\n  currentImports[name] ??= import(name)\n  return currentImports[name]\n}\nasync function getSharedFromRuntime(name, shareScope) {\n  let module = null\n  if (globalThis?.__federation_shared__?.[shareScope]?.[name]) {\n    const versionObj = globalThis.__federation_shared__[shareScope][name]\n    const versionKey = Object.keys(versionObj)[0]\n    const versionValue = Object.values(versionObj)[0]\n    if (moduleMap[name]?.requiredVersion) {\n      // judge version satisfy\n      if (satisfy(versionKey, moduleMap[name].requiredVersion)) {\n        module = await (await versionValue.get())()\n      } else {\n        console.log(\n          `provider support ${name}(${versionKey}) is not satisfied requiredVersion(\\${moduleMap[name].requiredVersion})`\n        )\n      }\n    } else {\n      module = await (await versionValue.get())()\n    }\n  }\n  if (module) {\n    return flattenModule(module, name)\n  }\n}\nasync function getSharedFromLocal(name) {\n  if (moduleMap[name]?.import) {\n    let module = await (await moduleMap[name].get())()\n    return flattenModule(module, name)\n  } else {\n    console.error(\n      `consumer config import=false,so cant use callback shared module`\n    )\n  }\n}\nfunction flattenModule(module, name) {\n  // use a shared module which export default a function will getting error 'TypeError: xxx is not a function'\n  if (typeof module.default === 'function') {\n    Object.keys(module).forEach((key) => {\n      if (key !== 'default') {\n        module.default[key] = module[key]\n      }\n    })\n    moduleCache[name] = module.default\n    return module.default\n  }\n  if (module.default) module = Object.assign({}, module.default, module)\n  moduleCache[name] = module\n  return module\n}\nexport {\n  importShared,\n  getSharedFromRuntime as importSharedRuntime,\n  getSharedFromLocal as importSharedLocal\n}\n";
++const federation_fn_import = "import { satisfy } from '__federation_fn_satisfy'\n\nconst currentImports = {}\n\n// eslint-disable-next-line no-undef\nconst moduleMap = __rf_var__moduleMap\nconst moduleCache = Object.create(null)\nasync function importShared(name, shareScope = 'default') {\n  return moduleCache[name]\n    ? new Promise((r) => r(moduleCache[name]))\n    : (await getSharedFromRuntime(name, shareScope)) || getSharedFromLocal(name)\n}\n// eslint-disable-next-line\nasync function __federation_import(name) {\n  if (!currentImports[name]) {\n    currentImports[name]\n    }\n  return currentImports[name]\n}\nasync function getSharedFromRuntime(name, shareScope) {\n  let module = null\n  if (globalThis?.__federation_shared__?.[shareScope]?.[name]) {\n    const versionObj = globalThis.__federation_shared__[shareScope][name]\n    const versionKey = Object.keys(versionObj)[0]\n    const versionValue = Object.values(versionObj)[0]\n    if (moduleMap[name]?.requiredVersion) {\n      // judge version satisfy\n      if (satisfy(versionKey, moduleMap[name].requiredVersion)) {\n        module = await (await versionValue.get())()\n      } else {\n        console.log(\n          `provider support ${name}(${versionKey}) is not satisfied requiredVersion(\\${moduleMap[name].requiredVersion})`\n        )\n      }\n    } else {\n      module = await (await versionValue.get())()\n    }\n  }\n  if (module) {\n    return flattenModule(module, name)\n  }\n}\nasync function getSharedFromLocal(name) {\n  if (moduleMap[name]?.import) {\n    let module = await (await moduleMap[name].get())()\n    return flattenModule(module, name)\n  } else {\n    console.error(\n      `consumer config import=false,so cant use callback shared module`\n    )\n  }\n}\nfunction flattenModule(module, name) {\n  // use a shared module which export default a function will getting error 'TypeError: xxx is not a function'\n  if (typeof module.default === 'function') {\n    Object.keys(module).forEach((key) => {\n      if (key !== 'default') {\n        module.default[key] = module[key]\n      }\n    })\n    moduleCache[name] = module.default\n    return module.default\n  }\n  if (module.default) module = Object.assign({}, module.default, module)\n  moduleCache[name] = module\n  return module\n}\nexport {\n  importShared,\n  getSharedFromRuntime as importSharedRuntime,\n  getSharedFromLocal as importSharedLocal\n}\n";
+ const sharedFilePathReg = /__federation_shared_(.+)-.{8}\.js$/;
+ function prodSharedPlugin(options) {
+   parsedOptions.prodShared = parseSharedOptions(options);
+@@ -871,12 +873,11 @@ function prodExposePlugin(options) {
      EXPOSES_MAP.set(item[0], exposeFilepath);
      EXPOSES_KEY_MAP.set(
        item[0],
@@ -111,7 +156,7 @@ index dd456fe..eb2d811 100644
    }
    return {
      name: "originjs:expose-production",
-@@ -886,29 +885,6 @@ function prodExposePlugin(options) {
+@@ -886,29 +887,6 @@ function prodExposePlugin(options) {
        const exportSet = new Set(['Module', '__esModule', 'default', '_export_sfc']);
        let moduleMap = {${moduleMap}}
      const seen = {}
@@ -141,7 +186,7 @@ index dd456fe..eb2d811 100644
      async function __federation_import(name) {
          currentImports[name] ??= import(name)
          return currentImports[name]
-@@ -1021,7 +997,7 @@ function prodExposePlugin(options) {
+@@ -1021,7 +999,7 @@ function prodExposePlugin(options) {
              );
              const slashPath = fileRelativePath.replace(/\\/g, "/");
              remoteEntryChunk.code = remoteEntryChunk.code.replace(
@@ -150,7 +195,7 @@ index dd456fe..eb2d811 100644
                `./${slashPath}`
              );
            }
-@@ -1093,7 +1069,7 @@ const loadJS = async (url, fn) => {
+@@ -1093,7 +1071,7 @@ const loadJS = async (url, fn) => {
    document.getElementsByTagName('head')[0].appendChild(script);
  }
  function get(name, ${REMOTE_FROM_PARAMETER}){
@@ -159,7 +204,7 @@ index dd456fe..eb2d811 100644
      if (${REMOTE_FROM_PARAMETER} === 'webpack') {
        return Object.prototype.toString.call(module).indexOf('Module') > -1 && module.default ? module.default : module
      }
-@@ -1127,7 +1103,7 @@ async function __federation_method_ensure(remoteId) {
+@@ -1127,7 +1105,7 @@ async function __federation_method_ensure(remoteId) {
        return new Promise((resolve, reject) => {
          const getUrl = typeof remote.url === 'function' ? remote.url : () => Promise.resolve(remote.url);
          getUrl().then(url => {
