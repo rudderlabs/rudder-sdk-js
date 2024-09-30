@@ -51,6 +51,9 @@ jobs:
 
   trigger-sanity-suite:
     uses: ./.github/workflows/trigger-sanity-suite.yml
+    needs: deploy-sanity-suite
     name: Trigger Sanity Suite
     with:
       environment: staging
+    secrets:
+      PAT: ${{ secrets.PAT }}

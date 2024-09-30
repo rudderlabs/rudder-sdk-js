@@ -5,7 +5,7 @@
     <script>
       (function() {
         "use strict";
-        window.RudderSnippetVersion = "3.0.10";
+        window.RudderSnippetVersion = "3.0.30";
         var identifier = "rudderanalytics";
         if (!window[identifier]) {
           window[identifier] = [];
@@ -35,7 +35,7 @@
               }(method);
             }
             try {
-              new Function('return import("")');
+              new Function('class Test{field=()=>{};test({prop=[]}={}){return prop?(prop?.property??[...prop]):import("");}}');
               window.rudderAnalyticsBuildType = "modern";
             } catch (e) {}
             var head = document.head || document.getElementsByTagName("head")[0];
@@ -61,7 +61,7 @@
             window.rudderAnalyticsMount = function() {
               (function() {
                 if (typeof globalThis === "undefined") {
-                  let getGlobal = function() {
+                  var getGlobal = function() {
                     if (typeof self !== "undefined") { 
                       return self; 
                     }
@@ -71,7 +71,7 @@
                     return null;
                   };
                   
-                  let global = getGlobal();
+                  var global = getGlobal();
                   
                   if (global) {
                     Object.defineProperty(global, 'globalThis', {

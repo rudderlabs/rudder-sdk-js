@@ -33,6 +33,8 @@ const Bugsnag = (): ExtensionPlugin => ({
 
         // If SDK URL is empty, don't proceed to initialize the client
         // eslint-disable-next-line no-constant-condition
+        // @ts-expect-error we're dynamically filling this value during build
+        // eslint-disable-next-line no-constant-condition
         if (!'__RS_BUGSNAG_SDK_URL__') {
           reject(new Error(BUGSNAG_SDK_URL_ERROR));
           return;

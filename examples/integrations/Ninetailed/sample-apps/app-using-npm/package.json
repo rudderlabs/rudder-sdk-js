@@ -3,18 +3,19 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@ninetailed/experience.js": "^7.6.1",
+    "@ninetailed/experience.js": "7.8.1",
     "@rudderstack/analytics-js": "*",
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-scripts": "^5.0.1",
-    "web-vitals": "^2.1.4"
+    "@testing-library/jest-dom": "6.5.0",
+    "@testing-library/react": "16.0.1",
+    "@testing-library/user-event": "14.5.2",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-scripts": "5.0.1",
+    "web-vitals": "4.2.3"
   },
   "overrides": {
-    "nth-check": "2.1.1"
+    "nth-check": "2.1.1",
+    "postcss": "8.4.47"
   },
   "scripts": {
     "start": "react-scripts start",
