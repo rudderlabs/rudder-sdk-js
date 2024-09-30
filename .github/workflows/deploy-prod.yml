@@ -50,3 +50,5 @@ jobs:
     needs: deploy-sanity-suite
     with:
       environment: production
+    secrets:
+      PAT: ${{ secrets.PAT }}

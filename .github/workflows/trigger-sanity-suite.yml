@@ -17,6 +17,10 @@ on:
       environment:
         type: string
         default: production
+    secrets:
+      PAT:
+        description: Personal Access Token
+        required: true
 
 jobs:
   extract-monorepo-version:
