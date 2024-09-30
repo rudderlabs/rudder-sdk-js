@@ -55,3 +55,5 @@ jobs:
     name: Trigger Sanity Suite
     with:
       environment: staging
+    secrets:
+      PAT: ${{ secrets.PAT }}

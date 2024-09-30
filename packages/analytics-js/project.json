@@ -59,9 +59,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js@3.7.13",
-        "title": "@rudderstack/analytics-js@3.7.13",
-        "discussion-category": "@rudderstack/analytics-js@3.7.13",
+        "tag": "@rudderstack/analytics-js@3.7.14",
+        "title": "@rudderstack/analytics-js@3.7.14",
+        "discussion-category": "@rudderstack/analytics-js@3.7.14",
         "notesFile": "./packages/analytics-js/CHANGELOG_LATEST.md"
       }
     }
