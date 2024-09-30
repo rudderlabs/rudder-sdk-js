@@ -1,8 +1,9 @@
-import logo from './logo.svg';
-import './App.css';
 import { useEffect } from 'react';
 import { Ninetailed } from '@ninetailed/experience.js';
+import logo from './logo.svg';
+import './App.css';
 import { CONFIG_URL, DATAPLANE_URL, WRITE_KEY } from './config';
+
 export const ninetailed = new Ninetailed({
   // REQUIRED. An API key uniquely identifying your Ninetailed account.
   // OPTIONAL. Your Ninetailed environment, typically either "main" or "development"

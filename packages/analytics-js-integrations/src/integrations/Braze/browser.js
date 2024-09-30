@@ -110,12 +110,16 @@ class Braze {
    */
   // eslint-disable-next-line sonarjs/cognitive-complexity
   identify(rudderElement) {
+    const { message } = rudderElement;
+    const { userId } = message;
+
     if (this.isHybridModeEnabled) {
+      if (userId) {
+        window.braze.changeUser(userId);
+      }
       return;
     }
 
-    const { message } = rudderElement;
-    const { userId } = message;
     const { context } = message;
     const email = context?.traits?.email;
     const firstName = context?.traits?.firstName || context?.traits?.firstname;
