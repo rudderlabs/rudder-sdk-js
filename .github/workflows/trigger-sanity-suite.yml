@@ -34,7 +34,7 @@ jobs:
       - name: Determine checkout SHA
         id: getSHA
         run: |
-          if [ "${{ inputs.environment }}" = 'staging' ]; then
+          if [ "${{ github.event.inputs.environment || inputs.environment }}" = 'staging' ]; then
             sha=${{ github.event.pull_request.head.sha }}
           else
             sha=${{ github.sha }}
@@ -50,8 +50,8 @@ jobs:
       - name: Determine the Monorepo version
         id: determine_version
         run: |
-          if [ -n "${{ inputs.monorepoVersion }}" ]; then
-            current_version="${{ inputs.monorepoVersion }}"
+          if [ -n "${{ github.event.inputs.monorepoVersion }}" ]; then
+            current_version="${{ github.event.inputs.monorepoVersion }}"
           else
             current_version=$(jq -r .version package.json)
           fi
@@ -68,4 +68,4 @@ jobs:
           -H "Authorization: Bearer ${{ secrets.PAT }}" \
           -H "Accept: application/vnd.github.v3+json" \
           https://api.github.com/repos/rudderlabs/rudder-client-side-test/dispatches \
-          -d '{"event_type":"triggered_by_source_repo", "client_payload": {"environment": "${{ github.event.inputs.environment }}", "monorepoVersion": "${{ needs.extract-monorepo-version.outputs.version }}"}}'
+          -d '{"event_type":"triggered_by_source_repo", "client_payload": {"environment": "${{ github.event.inputs.environment || inputs.environment }}", "monorepoVersion": "${{ needs.extract-monorepo-version.outputs.version }}"}}'
