@@ -161,7 +161,7 @@ const integrations = {
   SPOTIFYPIXEL: SpotifyPixel.default,
   NINETAILED: Ninetailed.default,
   XPIXEL: XPixel.default,
-  GAINSIGHT_PX_BROWSER: GainsightPX.default,
+  GAINSIGHT_PX: GainsightPX.default,
 };
 
 export { integrations };

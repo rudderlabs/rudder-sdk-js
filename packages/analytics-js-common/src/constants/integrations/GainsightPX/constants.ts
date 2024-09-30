@@ -1,5 +1,5 @@
 const DIR_NAME = 'GainsightPX';
-const NAME = 'GAINSIGHT_PX_BROWSER';
+const NAME = 'GAINSIGHT_PX';
 const DISPLAY_NAME = 'Gainsight PX';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };

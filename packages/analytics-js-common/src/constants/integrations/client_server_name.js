@@ -79,7 +79,7 @@ const clientToServerNames = {
   COMMANDBAR: 'CommandBar',
   NINETAILED: 'Ninetailed',
   XPIXEL: 'XPixel',
-  GAINSIGHT_PX_BROWSER: 'GainsightPX',
+  GAINSIGHT_PX: 'GainsightPX',
 };
 
 export { clientToServerNames };
