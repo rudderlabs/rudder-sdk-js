@@ -20,7 +20,7 @@ class SessionStorage implements IStorage {
   isSupportAvailable = true;
   isEnabled = true;
   length = 0;
-  store = globalThis.sessionStorage;
+  store?: Storage;
 
   constructor(options: ISessionStorageOptions = {}, logger?: ILogger) {
     this.options = getDefaultSessionStorageOptions();
@@ -30,37 +30,54 @@ class SessionStorage implements IStorage {
 
   configure(options: Partial<ISessionStorageOptions>): ISessionStorageOptions {
     this.options = mergeDeepRight(this.options, options);
-    this.isSupportAvailable = isStorageAvailable(SESSION_STORAGE, this, this.logger);
+    this.isSupportAvailable = isStorageAvailable(SESSION_STORAGE);
+    // when storage is blocked by the user, even accessing the property throws an error
+    if (this.isSupportAvailable) {
+      this.store = globalThis.sessionStorage;
+    }
     this.isEnabled = Boolean(this.options.enabled && this.isSupportAvailable);
     return this.options;
   }
 
   setItem(key: string, value: any) {
+    if (!this.store) {
+      return;
+    }
     this.store.setItem(key, value);
     this.length = this.store.length;
   }
 
   getItem(key: string): any {
+    if (!this.store) {
+      return null;
+    }
     const value = this.store.getItem(key);
     return isUndefined(value) ? null : value;
   }
 
   removeItem(key: string) {
+    if (!this.store) {
+      return;
+    }
     this.store.removeItem(key);
     this.length = this.store.length;
   }
 
   clear() {
-    this.store.clear();
+    this.store?.clear();
     this.length = 0;
   }
 
   key(index: number): Nullable<string> {
-    return this.store.key(index);
+    return this.store?.key(index) ?? null;
   }
 
   keys(): string[] {
     const keys: string[] = [];
+    if (!this.store) {
+      return keys;
+    }
+
     for (let i = 0; i < this.store.length; i += 1) {
       const key = this.store.key(i);
       if (key !== null) {
