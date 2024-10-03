@@ -37,7 +37,7 @@ class CookieStorage implements IStorage {
     if (options.sameDomainCookiesOnly) {
       delete this.options.domain;
     }
-    this.isSupportAvailable = isStorageAvailable(COOKIE_STORAGE, this, this.logger);
+    this.isSupportAvailable = isStorageAvailable(COOKIE_STORAGE, this);
     this.isEnabled = Boolean(this.options.enabled && this.isSupportAvailable);
     return this.options;
   }
