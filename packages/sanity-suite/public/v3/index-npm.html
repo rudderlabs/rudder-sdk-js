@@ -25,6 +25,7 @@
     </script>
 
     <script>
+      // prettier-ignore
       (function() {
         "use strict";
         window.RudderSnippetVersion = "3.0.30";
@@ -35,41 +36,23 @@
         var rudderanalytics = window[identifier];
         if (Array.isArray(rudderanalytics)) {
           if (rudderanalytics.snippetExecuted === true && window.console && console.error) {
-            console.error('RudderStack JavaScript SDK snippet included more than once.');
+            console.error("RudderStack JavaScript SDK snippet included more than once.");
           } else {
             rudderanalytics.snippetExecuted = true;
 
-            var methods = [
-              'setDefaultInstanceKey',
-              'load',
-              'ready',
-              'page',
-              'track',
-              'identify',
-              'alias',
-              'group',
-              'reset',
-              'setAnonymousId',
-              'startSession',
-              'endSession',
-              'consent',
-            ];
+            var methods = [ "setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "setAnonymousId", "startSession", "endSession", "consent" ];
             for (var i = 0; i < methods.length; i++) {
               var method = methods[i];
-              rudderanalytics[method] = (function (methodName) {
-                return function () {
+              rudderanalytics[method] = function(methodName) {
+                return function() {
                   if (Array.isArray(window[identifier])) {
-                    rudderanalytics.push(
-                      [methodName].concat(Array.prototype.slice.call(arguments)),
-                    );
+                    rudderanalytics.push([ methodName ].concat(Array.prototype.slice.call(arguments)));
                   } else {
                     var _methodName;
-                    (_methodName = window[identifier][methodName]) === null ||
-                      _methodName === void 0 ||
-                      _methodName.apply(window[identifier], arguments);
+                    (_methodName = window[identifier][methodName]) === null || _methodName === void 0 || _methodName.apply(window[identifier], arguments);
                   }
                 };
-              })(method);
+              }(method);
             }
           }
         }
@@ -109,7 +92,7 @@
     <script>
       (function () {
         if (typeof globalThis === 'undefined') {
-          var getGlobal = function () {
+          let getGlobal = function () {
             if (typeof self !== 'undefined') {
               return self;
             }
@@ -119,7 +102,7 @@
             return null;
           };
 
-          var global = getGlobal();
+          let global = getGlobal();
 
           if (global) {
             Object.defineProperty(global, 'globalThis', {
