@@ -204,7 +204,7 @@ class GoogleAds {
   page(rudderElement) {
     const { name } = rudderElement.message;
     const conversionData = getConversionData(
-      this.clickEventConversions,
+      this.pageLoadConversions,
       name,
       this.defaultPageConversion,
     );

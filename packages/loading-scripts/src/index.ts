@@ -57,10 +57,12 @@ if (Array.isArray(rudderanalytics)) {
         })(method);
     }
 
-    // Feature detection of dynamic imports
+    // Feature detection of dynamic imports and other legacy browser features
     try {
       // eslint-disable-next-line no-new, @typescript-eslint/no-implied-eval
-      new Function('return import("")');
+      new Function(
+        'class Test{field=()=>{};test({prop=[]}={}){return prop?(prop?.property??[...prop]):import("");}}',
+      );
       window.rudderAnalyticsBuildType = 'modern';
     } catch {
       // Do nothing

@@ -1,11 +1,12 @@
 import { ResultsAssertions } from './ResultAssertions';
 import { toBase64 } from './string';
 
+const TEST_EXECUTION_TIMEOUT = 10000; // 10 seconds
+
 class TestBook {
-  constructor(testBookData, executionDelay = 5000, containerId = 'testBook') {
+  constructor(testBookData, containerId = 'testBook') {
     this.markupItems = [];
     this.container = document.getElementById(containerId);
-    this.executionDelay = executionDelay;
     this.currentExecutionIndex = 0;
     this.nextTestCaseTimeoutId = undefined;
     this.createTestBook(testBookData);
@@ -179,7 +180,7 @@ class TestBook {
                             ${menuItemText}
                         </a>
                         <button type="button" class="btn btn-outline-dark text-break">
-                            Test Cases - Pass/Total: <span class="badge" id="resultSummary">N/A</span>
+                            Test Cases - Pass/Total: <span class="badge" id="resultSummary">N/A</span> - <span class="badge badge-warning" id="resultStatus">pending</span>
                         </button>
                     </p>
                 </div>
@@ -301,8 +302,7 @@ class TestBook {
       const resultRowElement = resultContainerElement.parentNode.parentNode;
       const { testCaseId } = resultContainerElement.dataset;
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const observer = new MutationObserver(mutationList => {
+      const observer = new MutationObserver(() => {
         const resultDataElement = resultRowElement.querySelector('[data-actual-result]');
         const resultData = resultDataElement.textContent.trim();
 
@@ -355,6 +355,21 @@ class TestBook {
 
     resultSummaryElement.innerHTML = `${totalPassedTestCases}/${totalTestCases}`;
     resultSummaryElement.classList.add('bg-warning', 'summary-complete');
+
+    const finalStatus = totalPassedTestCases === totalTestCases ? 'success' : 'danger';
+    const resultStatusElement = document.getElementById('resultStatus');
+    resultStatusElement.innerHTML = finalStatus;
+    resultStatusElement.className = `badge badge-${finalStatus}`;
+
+    // We need to use a timeout to ensure the scrollIntoView is called after the
+    // last test case result scrolling has been completed
+    // Otherwise the scrollIntoView will not work as expected
+    setTimeout(() => {
+      resultStatusElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    }, 1000);
   }
 
   executeNextTestCase() {
@@ -373,7 +388,7 @@ class TestBook {
         if (totalTestCases[this.currentExecutionIndex - 1].textContent === 'pending') {
           this.executeNextTestCase();
         }
-      }, this.executionDelay);
+      }, TEST_EXECUTION_TIMEOUT);
     } else {
       this.suiteRunInProgress = false;
       this.resultStatusSummary();
@@ -390,9 +405,14 @@ class TestBook {
       testCase.className = 'badge badge-warning testCaseStatus';
     });
 
+    // Reset the summary elements
     const resultSummaryElement = document.getElementById('resultSummary');
     resultSummaryElement.innerHTML = 'N/A';
     resultSummaryElement.classList.remove('bg-warning', 'summary-complete');
+
+    const resultStatusElement = document.getElementById('resultStatus');
+    resultStatusElement.innerHTML = 'pending';
+    resultStatusElement.className = 'badge badge-warning';
 
     this.currentExecutionIndex = 0;
     this.suiteRunInProgress = true;

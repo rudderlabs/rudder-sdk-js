@@ -247,7 +247,8 @@ const INVALID_POLYFILL_URL_WARNING = (
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The provided polyfill URL "${customPolyfillUrl}" is invalid. The default polyfill URL will be used instead.`;
 
-// DEBUG
+const BAD_COOKIES_WARNING = (key: string) =>
+  `The cookie data for ${key} seems to be encrypted using SDK versions < v3. The data is dropped. This can potentially stem from using SDK versions < v3 on other sites or web pages that can share cookies with this webpage. We recommend using the same SDK (v3) version everywhere or avoid disabling the storage data migration.`;
 
 export {
   UNSUPPORTED_CONSENT_MANAGER_ERROR,
@@ -309,4 +310,5 @@ export {
   COMPONENT_BASE_URL_ERROR,
   SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING,
   RESPONSE_PARSE_ERROR,
+  BAD_COOKIES_WARNING,
 };

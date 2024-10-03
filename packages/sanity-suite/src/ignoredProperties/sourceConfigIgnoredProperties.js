@@ -36,6 +36,10 @@ const sourceConfigIgnoredProperties = [
     type: 'string',
   },
   {
+    key: `source.destinations.7.updatedAt`,
+    type: 'string',
+  },
+  {
     key: `source.destinations.8.updatedAt`,
     type: 'string',
   },

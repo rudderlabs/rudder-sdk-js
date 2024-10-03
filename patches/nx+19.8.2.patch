@@ -1,33 +1,34 @@
 diff --git a/node_modules/nx/src/command-line/yargs-utils/shared-options.js b/node_modules/nx/src/command-line/yargs-utils/shared-options.js
-index 5b5cf09..251c7a5 100644
+index 7dfaee0..8e02bf0 100644
 --- a/node_modules/nx/src/command-line/yargs-utils/shared-options.js
 +++ b/node_modules/nx/src/command-line/yargs-utils/shared-options.js
-@@ -184,6 +184,10 @@ function withRunManyOptions(yargs) {
-         describe: '[deprecated] `run-many` runs all targets on all projects in the workspace if no projects are provided. This option is no longer required.',
+@@ -97,6 +97,10 @@ function withRunOptions(yargs) {
          type: 'boolean',
-         default: true,
+         hidden: true,
+         alias: 'agents',
 +    })
-+        .option('silent', {
++        .options('silent', {
 +        type: 'boolean',
 +        default: false,
      });
  }
- function withOverrides(args, commandLevel = 1) {
+ function withTargetAndConfigurationOption(yargs, demandOption = true) {
 diff --git a/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js b/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
-index dd9fdf4..0c1efbe 100644
+index dd9fdf4..9055b1e 100644
 --- a/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
 +++ b/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
-@@ -23,6 +23,9 @@ class StaticRunManyTerminalOutputLifeCycle {
+@@ -23,6 +23,10 @@ class StaticRunManyTerminalOutputLifeCycle {
          this.allCompletedTasks = new Map();
      }
      startCommand() {
 +        if (this.args.silent) {
 +            return;
 +        }
++
          if (this.projectNames.length <= 0) {
              output_1.output.logSingleLine(`No projects with ${(0, formatting_utils_1.formatTargetsAndProjects)(this.projectNames, this.args.targets, this.tasks)} were run`);
              return;
-@@ -44,6 +47,10 @@ class StaticRunManyTerminalOutputLifeCycle {
+@@ -44,6 +48,10 @@ class StaticRunManyTerminalOutputLifeCycle {
          output_1.output.addVerticalSeparatorWithoutNewLines('cyan');
      }
      endCommand() {
@@ -38,7 +39,7 @@ index dd9fdf4..0c1efbe 100644
          output_1.output.addNewline();
          if (this.failedTasks.length === 0) {
              output_1.output.addVerticalSeparatorWithoutNewLines('green');
-@@ -92,8 +99,9 @@ class StaticRunManyTerminalOutputLifeCycle {
+@@ -92,8 +100,9 @@ class StaticRunManyTerminalOutputLifeCycle {
          }
      }
      printTaskTerminalOutput(task, cacheStatus, terminalOutput) {

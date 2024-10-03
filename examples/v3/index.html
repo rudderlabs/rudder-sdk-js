@@ -8,7 +8,7 @@
     <script>
       (function() {
         "use strict";
-        window.RudderSnippetVersion = "3.0.26";
+        window.RudderSnippetVersion = "3.0.30";
         var identifier = "rudderanalytics";
         if (!window[identifier]) {
           window[identifier] = [];
@@ -22,8 +22,7 @@
             window.rudderAnalyticsBuildType = "legacy";
             var sdkBaseUrl = "https://cdn.rudderlabs.com/v3";
             var sdkName = "rsa.min.js";
-            var asyncScript = true;
-            var deferScript = false;
+            var scriptLoadingMode = "async";
             var methods = [ "setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "setAnonymousId", "startSession", "endSession", "consent" ];
             for (var i = 0; i < methods.length; i++) {
               var method = methods[i];
@@ -39,7 +38,7 @@
               }(method);
             }
             try {
-              new Function('return import("")');
+              new Function('class Test{field=()=>{};test({prop=[]}={}){return prop?(prop?.property??[...prop]):import("");}}');
               window.rudderAnalyticsBuildType = "modern";
             } catch (e) {}
             var head = document.head || document.getElementsByTagName("head")[0];
@@ -51,9 +50,9 @@
               if (extraAttributeKey && extraAttributeVal) {
                 scriptTag.setAttribute(extraAttributeKey, extraAttributeVal);
               }
-              if (asyncScript) {
+              if (scriptLoadingMode === "async") {
                 scriptTag.async = true;
-              } else if (deferScript) {
+              } else if (scriptLoadingMode === "defer") {
                 scriptTag.defer = true;
               }
               if (head) {
@@ -63,16 +62,26 @@
               }
             };
             window.rudderAnalyticsMount = function() {
-              if (typeof globalThis === "undefined") {
-                Object.defineProperty(Object.prototype, "__globalThis_magic__", {
-                  get: function get() {
-                    return this;
-                  },
-                  configurable: true
-                });
-                __globalThis_magic__.globalThis = __globalThis_magic__;
-                delete Object.prototype.__globalThis_magic__;
-              }
+              (function() {
+                if (typeof globalThis === "undefined") {
+                  var getGlobal = function getGlobal() {
+                    if (typeof self !== "undefined") {
+                      return self;
+                    }
+                    if (typeof window !== "undefined") {
+                      return window;
+                    }
+                    return null;
+                  };
+                  var global = getGlobal();
+                  if (global) {
+                    Object.defineProperty(global, "globalThis", {
+                      value: global,
+                      configurable: true
+                    });
+                  }
+                }
+              })();
               window.rudderAnalyticsAddScript("".concat(sdkBaseUrl, "/").concat(window.rudderAnalyticsBuildType, "/").concat(sdkName), "data-rsa-write-key", "__WRITE_KEY__");
             };
             if (typeof Promise === "undefined" || typeof globalThis === "undefined") {

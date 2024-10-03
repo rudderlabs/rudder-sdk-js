@@ -25,10 +25,10 @@
     </script>
 
     <script>
-      (function () {
-        'use strict';
-        window.RudderSnippetVersion = '3.0.26';
-        var identifier = 'rudderanalytics';
+      (function() {
+        "use strict";
+        window.RudderSnippetVersion = "3.0.30";
+        var identifier = "rudderanalytics";
         if (!window[identifier]) {
           window[identifier] = [];
         }
@@ -75,13 +75,14 @@
               })(method);
             }
             try {
-              new Function('return import("")');
-              window.rudderAnalyticsBuildType = 'modern';
-            } catch (e) {}
-            var head = document.head || document.getElementsByTagName('head')[0];
-            var body = document.body || document.getElementsByTagName('body')[0];
-            window.rudderAnalyticsAddScript = function (url, extraAttributeKey, extraAttributeVal) {
-              var scriptTag = document.createElement('script');
+              new Function('class Test{field=()=>{};test({prop=[]}={}){return prop?(prop?.property??[...prop]):import("");}}');
+              window.rudderAnalyticsBuildType = "modern";
+            } catch (e) {
+            }
+            var head = document.head || document.getElementsByTagName("head")[0];
+            var body = document.body || document.getElementsByTagName("body")[0];
+            window.rudderAnalyticsAddScript = function(url, extraAttributeKey, extraAttributeVal) {
+              var scriptTag = document.createElement("script");
               scriptTag.src = url;
               scriptTag.setAttribute('data-loader', 'RS_JS_SDK');
               if (extraAttributeKey && extraAttributeVal) {
@@ -98,21 +99,21 @@
                 body.insertBefore(scriptTag, body.firstChild);
               }
             };
-            window.rudderAnalyticsMount = function () {
-              (function () {
-                if (typeof globalThis === 'undefined') {
-                  var getGlobal = function () {
-                    if (typeof self !== 'undefined') {
-                      return self;
+            window.rudderAnalyticsMount = function() {
+              (function() {
+                if (typeof globalThis === "undefined") {
+                  var getGlobal = function() {
+                    if (typeof self !== "undefined") { 
+                      return self; 
                     }
                     if (typeof window !== 'undefined') {
                       return window;
                     }
                     return null;
                   };
-
+                  
                   var global = getGlobal();
-
+                  
                   if (global) {
                     Object.defineProperty(global, 'globalThis', {
                       value: global,

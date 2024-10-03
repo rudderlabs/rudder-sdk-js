@@ -31,7 +31,7 @@ export default [
     name: 'Service Worker - Modern - NPM (CJS)',
     path: 'dist/npm/modern/cjs/index.cjs',
     import: '*',
-    limit: '26 KiB',
+    limit: '26.5 KiB',
   },
   {
     name: 'Service Worker - Modern - NPM (UMD)',

@@ -2,6 +2,7 @@
 import { batch, effect } from '@preact/signals-core';
 import {
   isNonEmptyObject,
+  isObjectLiteralAndNotNull,
   mergeDeepRight,
 } from '@rudderstack/analytics-js-common/utilities/object';
 import {
@@ -138,16 +139,19 @@ class UserSessionManager implements IUserSessionManager {
       sessionInfo = {
         ...initialSessionInfo,
         ...configuredSessionTrackingInfo,
+        // If manualTrack is set to true in the storage, then autoTrack should be false
         autoTrack:
           configuredSessionTrackingInfo.autoTrack && initialSessionInfo.manualTrack !== true,
       };
+      // If both autoTrack and manualTrack are disabled, reset the session info to default values
+      if (!sessionInfo.autoTrack && sessionInfo.manualTrack !== true) {
+        sessionInfo = DEFAULT_USER_SESSION_VALUES.sessionInfo;
+      }
+    } else {
+      sessionInfo = DEFAULT_USER_SESSION_VALUES.sessionInfo;
     }
 
-    state.session.sessionInfo.value = this.private_isPersistenceEnabledForStorageEntry(
-      'sessionInfo',
-    )
-      ? (sessionInfo as SessionInfo)
-      : DEFAULT_USER_SESSION_VALUES.sessionInfo;
+    state.session.sessionInfo.value = sessionInfo as SessionInfo;
 
     // If auto session tracking is enabled start the session tracking
     if (state.session.sessionInfo.value.autoTrack) {
@@ -705,10 +709,11 @@ class UserSessionManager implements IUserSessionManager {
    */
   setUserTraits(traits?: Nullable<ApiObject>) {
     state.session.userTraits.value =
-      this.private_isPersistenceEnabledForStorageEntry('userTraits') && traits
+      this.private_isPersistenceEnabledForStorageEntry('userTraits') &&
+      isObjectLiteralAndNotNull(traits)
         ? mergeDeepRight(
             state.session.userTraits.value ?? DEFAULT_USER_SESSION_VALUES.userTraits,
-            traits,
+            traits as ApiObject,
           )
         : DEFAULT_USER_SESSION_VALUES.userTraits;
   }
@@ -730,10 +735,11 @@ class UserSessionManager implements IUserSessionManager {
    */
   setGroupTraits(traits?: Nullable<ApiObject>) {
     state.session.groupTraits.value =
-      this.private_isPersistenceEnabledForStorageEntry('groupTraits') && traits
+      this.private_isPersistenceEnabledForStorageEntry('groupTraits') &&
+      isObjectLiteralAndNotNull(traits)
         ? mergeDeepRight(
             state.session.groupTraits.value ?? DEFAULT_USER_SESSION_VALUES.groupTraits,
-            traits,
+            traits as ApiObject,
           )
         : DEFAULT_USER_SESSION_VALUES.groupTraits;
   }

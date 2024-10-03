@@ -2,6 +2,28 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.8.4](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.8.3...@rudderstack/analytics-js-integrations@3.8.4) (2024-09-27)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.9.3`
+
+### Bug Fixes
+
+* userId in braze hyrbrid ([#1835](https://github.com/rudderlabs/rudder-sdk-js/issues/1835)) ([71a6a30](https://github.com/rudderlabs/rudder-sdk-js/commit/71a6a30a3e0a3be7422a66a063ed6b1816e886a7))
+
+## [3.8.3](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.8.2...@rudderstack/analytics-js-integrations@3.8.3) (2024-09-13)
+
+
+### Bug Fixes
+
+* update google ads page events ([#1832](https://github.com/rudderlabs/rudder-sdk-js/issues/1832)) ([1ad0fec](https://github.com/rudderlabs/rudder-sdk-js/commit/1ad0fec470259cd81643dffa6ece1f9972549775))
+
+## [3.8.2](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.8.1...@rudderstack/analytics-js-integrations@3.8.2) (2024-09-12)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.9.2`
 ## [3.8.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.8.0...@rudderstack/analytics-js-integrations@3.8.1) (2024-08-28)
 
 ### Dependency Updates
