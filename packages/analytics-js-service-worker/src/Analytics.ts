@@ -117,7 +117,7 @@ class Analytics implements IAnalytics {
     axiosRetry(this.axiosInstance, { retries: 0 });
   }
 
-  private_validate(message: Record<string, any>, type?: string) {
+  _validate(message: Record<string, any>, type?: string) {
     try {
       looselyValidateEvent(message, type);
     } catch (e: any) {
@@ -157,8 +157,8 @@ class Analytics implements IAnalytics {
     },
     callback?: ApiCallback,
   ): IAnalytics {
-    this.private_validate(message, 'identify');
-    this.private_enqueue('identify', message, callback);
+    this._validate(message, 'identify');
+    this.enqueue('identify', message, callback);
     return this;
   }
 
@@ -189,8 +189,8 @@ class Analytics implements IAnalytics {
     },
     callback?: ApiCallback,
   ): IAnalytics {
-    this.private_validate(message, 'group');
-    this.private_enqueue('group', message, callback);
+    this._validate(message, 'group');
+    this.enqueue('group', message, callback);
     return this;
   }
 
@@ -221,8 +221,8 @@ class Analytics implements IAnalytics {
     },
     callback?: ApiCallback,
   ): IAnalytics {
-    this.private_validate(message, 'track');
-    this.private_enqueue('track', message, callback);
+    this._validate(message, 'track');
+    this.enqueue('track', message, callback);
     return this;
   }
 
@@ -253,8 +253,8 @@ class Analytics implements IAnalytics {
     },
     callback?: ApiCallback,
   ): IAnalytics {
-    this.private_validate(message, 'page');
-    this.private_enqueue('page', message, callback);
+    this._validate(message, 'page');
+    this.enqueue('page', message, callback);
     return this;
   }
 
@@ -267,8 +267,8 @@ class Analytics implements IAnalytics {
    */
 
   screen(message: { [key: string]: any }, callback?: ApiCallback): IAnalytics {
-    this.private_validate(message, 'screen');
-    this.private_enqueue('screen', message, callback);
+    this._validate(message, 'screen');
+    this.enqueue('screen', message, callback);
     return this;
   }
 
@@ -299,8 +299,8 @@ class Analytics implements IAnalytics {
     },
     callback?: ApiCallback,
   ): IAnalytics {
-    this.private_validate(message, 'alias');
-    this.private_enqueue('alias', message, callback);
+    this._validate(message, 'alias');
+    this.enqueue('alias', message, callback);
     return this;
   }
 
@@ -314,7 +314,7 @@ class Analytics implements IAnalytics {
    * @api private
    */
 
-  private_enqueue(type: string, message: Record<string, any>, callback?: ApiCallback): any {
+  enqueue(type: string, message: Record<string, any>, callback?: ApiCallback): any {
     if (this.queue.length >= this.maxInternalQueueSize) {
       this.logger.error(
         `not adding events for processing as queue size ${this.queue.length} >= than max configuration ${this.maxInternalQueueSize}`,
@@ -482,7 +482,7 @@ class Analytics implements IAnalytics {
         reqTimeout,
         flush: this.flush.bind(this),
         done,
-        isErrorRetryable: this.private_isErrorRetryable.bind(this),
+        isErrorRetryable: this._isErrorRetryable.bind(this),
       });
     } else {
       const req = {
@@ -503,7 +503,7 @@ class Analytics implements IAnalytics {
         ...req,
         'axios-retry': {
           retries: 3,
-          retryCondition: this.private_isErrorRetryable.bind(this),
+          retryCondition: this._isErrorRetryable.bind(this),
           retryDelay: axiosRetry.exponentialDelay,
         },
       } as any)
@@ -527,7 +527,7 @@ class Analytics implements IAnalytics {
     }
   }
 
-  private_isErrorRetryable(error: AxiosError) {
+  _isErrorRetryable(error: AxiosError) {
     // Retry Network Errors.
     if (axiosRetry.isNetworkError(error)) {
       return true;

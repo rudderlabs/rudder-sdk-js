@@ -157,7 +157,7 @@ describe('JS SDK Service Worker', () => {
       },
     });
     analytics.flushed = true;
-    analytics.track(message, (err, data) => {
+    analytics.enqueue('track', message, (err, data) => {
       if (err) {
         console.error('Error:', err);
       } else {
