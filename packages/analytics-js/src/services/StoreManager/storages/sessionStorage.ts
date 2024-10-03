@@ -30,7 +30,7 @@ class SessionStorage implements IStorage {
 
   configure(options: Partial<ISessionStorageOptions>): ISessionStorageOptions {
     this.options = mergeDeepRight(this.options, options);
-    this.isSupportAvailable = isStorageAvailable(SESSION_STORAGE, undefined);
+    this.isSupportAvailable = isStorageAvailable(SESSION_STORAGE);
     // when storage is blocked by the user, even accessing the property throws an error
     if (this.isSupportAvailable) {
       this.store = globalThis.sessionStorage;
