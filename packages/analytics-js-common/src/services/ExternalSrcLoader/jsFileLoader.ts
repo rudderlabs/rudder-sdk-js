@@ -52,16 +52,16 @@ const createScriptElement = (
  */
 const insertScript = (newScriptElement: HTMLScriptElement) => {
   // First try to add it to the head
-  const headElements = document.getElementsByTagName('head');
-  if (headElements[0]) {
-    headElements[0].insertBefore(newScriptElement, headElements[0].firstChild);
+  const headElem = document.getElementsByTagName('head')[0];
+  if (headElem) {
+    headElem.insertBefore(newScriptElement, headElem.firstChild);
     return;
   }
 
   // Else wise add it before the first script tag
-  const scriptElements = document.getElementsByTagName('script');
-  if (scriptElements[0]?.parentNode) {
-    scriptElements[0].parentNode.insertBefore(newScriptElement, scriptElements[0]);
+  const firstScriptElem = document.getElementsByTagName('script')[0];
+  if (firstScriptElem?.parentNode) {
+    firstScriptElem.parentNode.insertBefore(newScriptElement, firstScriptElem);
     return;
   }
 
@@ -70,11 +70,7 @@ const insertScript = (newScriptElement: HTMLScriptElement) => {
   headElement.appendChild(newScriptElement);
 
   const htmlElement = document.getElementsByTagName('html')[0];
-  if (htmlElement) {
-    htmlElement.insertBefore(headElement, htmlElement.firstChild);
-  } else {
-    // This is not possible
-  }
+  htmlElement?.insertBefore(headElement, htmlElement.firstChild);
 };
 
 /**
