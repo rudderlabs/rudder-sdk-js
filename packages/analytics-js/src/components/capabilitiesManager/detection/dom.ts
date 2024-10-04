@@ -19,6 +19,7 @@ const legacyJSEngineRequiredPolyfills: Record<string, () => boolean> = {
   'String.prototype.endsWith': () => !isFunction(globalThis.String.prototype.endsWith),
   'String.prototype.startsWith': () => !isFunction(globalThis.String.prototype.startsWith),
   'String.prototype.includes': () => !isFunction(globalThis.String.prototype.includes),
+  'String.prototype.trim': () => !isFunction(globalThis.String.prototype.trim),
   'String.prototype.replaceAll': () => !isFunction(globalThis.String.prototype.replaceAll),
   'String.fromCodePoint': () => !isFunction(globalThis.String.fromCodePoint),
   'Object.entries': () => !isFunction(globalThis.Object.entries),

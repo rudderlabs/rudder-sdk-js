@@ -36,6 +36,7 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
       }
 
       // Get the groups (cookie categorization), user has created in OneTrust account.
+      // eslint-disable-next-line sonarjs/new-cap
       const oneTrustAllGroupsInfo: OneTrustGroup[] = (globalThis as any).OneTrust.GetDomainData()
         .Groups;
 

@@ -246,7 +246,7 @@ const getEnrichedEvent = (
     channel: CHANNEL,
     context: {
       traits: clone(state.session.userTraits.value),
-      sessionId: state.session.sessionInfo.value.id || undefined,
+      sessionId: state.session.sessionInfo.value.id,
       sessionStart: state.session.sessionInfo.value.sessionStart || undefined,
       // Add 'consentManagement' only if consent management is enabled
       ...(state.consents.enabled.value && {
@@ -271,7 +271,7 @@ const getEnrichedEvent = (
     originalTimestamp: getCurrentTimeFormatted(),
     integrations: DEFAULT_INTEGRATIONS_CONFIG,
     messageId: generateUUID(),
-    userId: rudderEvent.userId || state.session.userId.value,
+    userId: rudderEvent.userId ?? state.session.userId.value,
   } as Partial<RudderEvent>;
 
   if (
@@ -297,8 +297,9 @@ const getEnrichedEvent = (
   }
 
   if (rudderEvent.type === 'group') {
-    if (rudderEvent.groupId || state.session.groupId.value) {
-      commonEventData.groupId = rudderEvent.groupId || state.session.groupId.value;
+    const groupId = rudderEvent.groupId ?? state.session.groupId.value;
+    if (groupId) {
+      commonEventData.groupId = groupId;
     }
 
     if (rudderEvent.traits || state.session.groupTraits.value) {
@@ -312,6 +313,7 @@ const getEnrichedEvent = (
   const processedEvent = mergeDeepRight(rudderEvent, commonEventData) as RudderEvent;
   // Set the default values for the event properties
   // matching with v1.1 payload
+  // eslint-disable-next-line sonarjs/different-types-comparison
   if (processedEvent.event === undefined) {
     processedEvent.event = null;
   }

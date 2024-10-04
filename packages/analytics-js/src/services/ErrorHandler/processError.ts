@@ -28,6 +28,8 @@ const processError = (error: SDKError): string => {
   return errorMessage;
 };
 
+// We return undefined to filter an error. Hence, the lint rule is disabled.
+// eslint-disable-next-line sonarjs/function-return-type
 const getNormalizedErrorForUnhandledError = (error: SDKError): SDKError | undefined => {
   try {
     if (

@@ -54,7 +54,7 @@ const domain = (url: string): string => {
   const levels = levelsFunc(url);
 
   // Lookup the real top level one.
-  // eslint-disable-next-line unicorn/no-for-loop
+  // eslint-disable-next-line unicorn/no-for-loop, sonarjs/prefer-for-of
   for (let i = 0; i < levels.length; i += 1) {
     const domain = levels[i] as string;
     const cname = STORAGE_TEST_TOP_LEVEL_DOMAIN;

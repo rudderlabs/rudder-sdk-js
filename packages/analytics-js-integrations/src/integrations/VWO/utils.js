@@ -30,6 +30,7 @@ const sanitizeName = eventName => `rudder.${eventName.trim()}`;
  */
 const sanitizeAttributes = attributes => {
   const formattedAttributes = {};
+  // eslint-disable-next-line no-restricted-syntax, guard-for-in
   for (const key in attributes) {
     const formattedKey = sanitizeName(key);
     formattedAttributes[formattedKey] = attributes[key];

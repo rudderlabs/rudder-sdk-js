@@ -1,4 +1,3 @@
-import type { ErrorState } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import ErrorStackParser from 'error-stack-parser';
 import type { Exception, Stackframe } from '@rudderstack/analytics-js-common/types/Metrics';

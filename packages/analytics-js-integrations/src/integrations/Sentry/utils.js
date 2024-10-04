@@ -39,6 +39,7 @@ const sentryInit = (
   debugMode,
   environment,
   serverName,
+  // eslint-disable-next-line sonarjs/sonar-max-params
 ) => {
   const formattedAllowUrls = convertObjectToArray(allowUrls, 'allowUrls');
   const formattedDenyUrls = convertObjectToArray(denyUrls, 'denyUrls');
@@ -68,7 +69,7 @@ const sentryInit = (
                 frame.in_app = true;
                 return frame;
               }
-            } catch (e) {
+            } catch {
               // ignored
             }
           }

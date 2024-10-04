@@ -41,11 +41,13 @@ class Sprig {
     const { message } = rudderElement;
     const { userId, context } = message;
     if (userId) {
+      // eslint-disable-next-line sonarjs/new-cap
       window.Sprig('setUserId', userId);
     }
 
     const ctxEmail = get(message, 'context.traits.email');
     if (ctxEmail) {
+      // eslint-disable-next-line sonarjs/new-cap
       window.Sprig('setEmail', ctxEmail);
     }
 
@@ -56,6 +58,7 @@ class Sprig {
       finalTraits = { ...otherTraits };
     }
     if (Object.keys(finalTraits).length > 0) {
+      // eslint-disable-next-line sonarjs/new-cap
       window.Sprig('setAttributes', finalTraits);
     }
   }
@@ -74,6 +77,7 @@ class Sprig {
     }
 
     if (event.toLowerCase() === 'signed out') {
+      // eslint-disable-next-line sonarjs/new-cap
       window.Sprig('logoutUser');
     } else {
       const payload = { eventName: event };
@@ -83,6 +87,7 @@ class Sprig {
       if (typeof properties === 'object' && Object.keys(properties).length > 0) {
         payload.properties = properties;
       }
+      // eslint-disable-next-line sonarjs/new-cap
       window.Sprig('identifyAndTrack', payload);
     }
   }

@@ -41,17 +41,18 @@ import { defaultErrorHandler } from '../services/ErrorHandler';
  * consume SDK preload event buffer
  */
 class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
-  static globalSingleton: Nullable<RudderAnalytics> = null;
+  // eslint-disable-next-line sonarjs/public-static-readonly
+  static private_globalSingleton: Nullable<RudderAnalytics>;
   private_analyticsInstances: Record<string, IAnalytics> = {};
   private_defaultAnalyticsKey = '';
   private_logger = defaultLogger;
 
   // Singleton with constructor bind methods
   constructor() {
-    if (RudderAnalytics.globalSingleton) {
+    if (RudderAnalytics.private_globalSingleton) {
       // START-NO-SONAR-SCAN
       // eslint-disable-next-line no-constructor-return
-      return RudderAnalytics.globalSingleton;
+      return RudderAnalytics.private_globalSingleton;
       // END-NO-SONAR-SCAN
     }
     defaultErrorHandler.private_attachErrorListeners();
@@ -79,7 +80,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     this.setAuthToken = this.setAuthToken.bind(this);
     this.consent = this.consent.bind(this);
 
-    RudderAnalytics.globalSingleton = this;
+    RudderAnalytics.private_globalSingleton = this;
 
     // start loading if a load event was buffered or wait for explicit load call
     this.private_triggerBufferedLoadEvent();

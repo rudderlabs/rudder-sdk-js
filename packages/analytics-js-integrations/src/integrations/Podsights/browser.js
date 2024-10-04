@@ -49,6 +49,9 @@ class Podsights {
     window.pdst =
       window.pdst ||
       function () {
+        // Third-party snippet. Hence, disabling the eslint rule.
+        // Ideally, this should be moved to the nativeSdkLoader.js file.
+        // eslint-disable-next-line sonarjs/no-nested-assignment
         (window.pdst.q = window.pdst.q || []).push(arguments);
       };
     ScriptLoader('pdst-capture', 'https://cdn.pdst.fm/ping.min.js');

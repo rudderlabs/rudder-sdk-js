@@ -59,6 +59,7 @@ const sendTransformedEventToDestinations = (
   event: RudderEvent,
   errorHandler?: IErrorHandler,
   logger?: ILogger,
+  // eslint-disable-next-line sonarjs/sonar-max-params
 ) => {
   const NATIVE_DEST_EXT_POINT = 'destinationsEventsQueue.enqueueEventToDestination';
   const ACTION_TO_SEND_UNTRANSFORMED_EVENT = 'Sending untransformed event';

@@ -34,19 +34,11 @@ const BAD_COOKIES_WARNING = key =>
   `The cookie data for ${key} seems to be corrupted where the underlying unencrypted data seems to be a cookie created by SDK v3. The decryption of the data was attempted again. This can potentially stem from using SDK v3 on other sites or web pages that can share cookies with this webpage. We recommend using the same SDK (v3) version everywhere.`;
 
 /**
- * trim using regex for browser polyfill
- * @param {*} value
- */
-function trim(value) {
-  return value.replace(/^\s+|\s+$/gm, '');
-}
-
-/**
  * decrypt value
  * @param {*} value
  */
 function decryptValue(value) {
-  if (!value || typeof value !== 'string' || trim(value) === '') {
+  if (!value || typeof value !== 'string' || value.trim() === '') {
     return value;
   }
   if (value.startsWith(defaults.prefix)) {
@@ -65,7 +57,7 @@ function decryptValue(value) {
  * @param {*} value
  */
 function encryptValue(value) {
-  if (trim(value) === '') {
+  if (value.trim() === '') {
     return value;
   }
   const prefixedVal = `${defaults.prefix}${AES.encrypt(value, defaults.key).toString()}`;

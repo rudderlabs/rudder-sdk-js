@@ -11,7 +11,7 @@ const getUserAgent = () => {
   if (brave && Object.getPrototypeOf(brave).isBrave) {
     // Example:
     // Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36
-    const matchedArr = userAgent.match(/(chrome)\/([\w.]+)/i);
+    const matchedArr = /(chrome)\/([\w.]+)/i.exec(userAgent);
 
     if (matchedArr) {
       userAgent = `${userAgent} Brave/${matchedArr[2]}`;

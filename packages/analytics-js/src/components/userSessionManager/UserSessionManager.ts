@@ -167,6 +167,7 @@ class UserSessionManager implements IUserSessionManager {
       this.setInitialReferrer(persistedInitialReferrer);
       this.setInitialReferringDomain(persistedInitialReferringDomain);
     } else {
+      // eslint-disable-next-line sonarjs/prefer-nullish-coalescing
       const initialReferrer = persistedInitialReferrer || getReferrer();
       this.setInitialReferrer(initialReferrer);
       this.setInitialReferringDomain(getReferringDomain(initialReferrer));
@@ -485,6 +486,8 @@ class UserSessionManager implements IUserSessionManager {
         );
         finalAnonymousId = linkerPluginsResult;
       }
+      // finalAnonymousId can also be an empty string
+      // eslint-disable-next-line sonarjs/prefer-nullish-coalescing
       finalAnonymousId = finalAnonymousId || generateAnonymousId();
     } else {
       finalAnonymousId = DEFAULT_USER_SESSION_VALUES.anonymousId;

@@ -8,7 +8,7 @@ import crc32 from './crc32';
 import USER_INTERFACE from './userLib';
 import decode from './base64decoder';
 
-const KEY_VALIDATOR = /^[\w.\-]+$/;
+const KEY_VALIDATOR = /^[\w.-]+$/;
 const CHECKSUM_OFFSET_MAX_MIN = 1;
 const VALID_VERSION = 1;
 const DELIMITER = '*';
@@ -55,7 +55,6 @@ function deserialize(serializedIds) {
     const valid = KEY_VALIDATOR.test(key);
     if (valid) {
       const value = decode(params[i + 1]);
-      // const value = params[i + 1];
       keyValuePairs[key] = value;
     }
   }
@@ -89,7 +88,7 @@ function getMinSinceEpoch() {
  */
 function getCheckSum(serializedIds, optOffsetMin, userAgent, language) {
   const fingerprint = getFingerprint(userAgent, language);
-  const offset = optOffsetMin || 0;
+  const offset = optOffsetMin ?? 0;
   const timestamp = getMinSinceEpoch() - offset;
   const crc = crc32([fingerprint, timestamp, serializedIds].join(DELIMITER));
   // Encoded to base36 for less bytes.

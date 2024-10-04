@@ -43,7 +43,7 @@ const isValidVersion = globalLibInstance => {
 
   // For versions older than 7
   if (!version) {
-    let tempInstance = globalLibInstance({
+    const tempInstance = globalLibInstance({
       apiKey: API_KEY,
       releaseStage: 'version-test',
       // eslint-disable-next-line func-names, object-shorthand
@@ -52,7 +52,6 @@ const isValidVersion = globalLibInstance => {
       },
     });
     version = tempInstance.notifier?.version;
-    tempInstance = undefined;
   }
 
   return version && version.charAt(0) === BUGSNAG_VALID_MAJOR_VERSION;
@@ -127,8 +126,8 @@ class BugsnagProvider {
       return;
     }
 
-    const apiKeyRegex = /{{.+}}/;
-    const isAPIKeyValid = !API_KEY.match(apiKeyRegex);
+    // eslint-disable-next-line sonarjs/slow-regex
+    const isAPIKeyValid = !/{{.+}}/.exec(API_KEY);
 
     // If API key token is not parsed or invalid, don't proceed to initialize the client
     if (!isAPIKeyValid) {

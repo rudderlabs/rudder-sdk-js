@@ -17,6 +17,7 @@
       "String.prototype.startsWith",
       "String.prototype.includes",
       "String.prototype.replaceAll",
+      "String.prototype.trim",
       "String.fromCodePoint",
       "Object.entries",
       "Object.values",

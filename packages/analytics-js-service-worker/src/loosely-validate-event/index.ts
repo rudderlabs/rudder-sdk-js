@@ -112,7 +112,7 @@ const validateGenericEvent = (event: any) => {
 const looselyValidateEvent = (event: any, type?: string) => {
   validateGenericEvent(event);
   // eslint-disable-next-line no-param-reassign
-  type = type || event.type;
+  type = type ?? event.type;
   assert(type, 'You must pass an event type.');
 
   switch (type) {

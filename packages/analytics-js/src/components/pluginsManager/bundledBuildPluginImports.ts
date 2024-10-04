@@ -1,3 +1,4 @@
+/* eslint-disable @nx/enforce-module-boundaries */
 import { CustomConsentManager } from '@rudderstack/analytics-js-plugins/customConsentManager';
 import { DeviceModeDestinations } from '@rudderstack/analytics-js-plugins/deviceModeDestinations';
 import { DeviceModeTransformation } from '@rudderstack/analytics-js-plugins/deviceModeTransformation';

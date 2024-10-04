@@ -198,6 +198,9 @@ class DCMFloodlight {
     };
     eventSnippetPayload = removeUndefinedAndNullValues(eventSnippetPayload);
     eventSnippetPayload = flattenPayload(eventSnippetPayload);
+
+    // eventSnippetPayload is finally a string. Hence, it is safe to append it to the src
+    // eslint-disable-next-line sonarjs/no-base-to-string
     const src = `https://${this.advertiserId}.fls.doubleclick.net/activityi;src=${this.advertiserId};type=${this.groupTag};cat=${this.activityTag};${eventSnippetPayload}?`;
     this.addIframe(src);
   }

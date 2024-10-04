@@ -185,6 +185,7 @@ const buildCustomParamsUsingIntegrationsObject = (message, integrationObj) => {
  * Generate a cryptographically secure random number between 0 and 9999999999999
  * @returns
  */
+// eslint-disable-next-line sonarjs/pseudo-random
 const getRandomNumber = () => Math.random() * 10000000000000;
 
 /**

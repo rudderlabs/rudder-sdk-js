@@ -75,6 +75,7 @@ class INTERCOM {
       }
     });
     rawPayload.user_id = userId;
+    // eslint-disable-next-line sonarjs/new-cap
     window.Intercom('update', rawPayload);
   }
 
@@ -101,10 +102,12 @@ class INTERCOM {
 
     rawPayload.created_at = Math.floor(new Date(originalTimestamp).getTime() / 1000);
 
+    // eslint-disable-next-line sonarjs/new-cap
     window.Intercom('trackEvent', rawPayload.event_name, rawPayload);
   }
 
   page(rudderElement) {
+    // eslint-disable-next-line sonarjs/new-cap
     window.Intercom('update');
   }
 }

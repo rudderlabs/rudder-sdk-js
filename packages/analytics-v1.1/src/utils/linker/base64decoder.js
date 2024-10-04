@@ -22,8 +22,8 @@ function b64DecodeUnicode(str) {
  * @return {string}
  */
 function decode(data = '') {
-  data = data.endsWith('..') ? data.substr(0, data.length - 2) : data;
-  return b64DecodeUnicode(data);
+  const finalData = data.endsWith('..') ? data.substring(0, data.length - 2) : data;
+  return b64DecodeUnicode(finalData);
 }
 
 export default decode;

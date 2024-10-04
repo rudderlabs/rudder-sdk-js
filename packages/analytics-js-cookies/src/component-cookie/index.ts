@@ -33,7 +33,7 @@ const decode = (value: string): string | undefined => {
  */
 const parse = (str: string): Record<string, string | undefined> => {
   const obj: Record<string, any> = {};
-  const pairs = str.split(/\s*;\s*/);
+  const pairs = str.split(';').map(pairItem => pairItem.trim());
   let pair;
 
   if (!pairs[0]) {
@@ -119,7 +119,7 @@ const cookie = function (
   value?: Nullable<string | number>,
   options?: CookieOptions,
   logger?: ILogger,
-): void | any {
+): any {
   switch (arguments.length) {
     case 4:
     case 3:

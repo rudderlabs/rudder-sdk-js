@@ -3,8 +3,8 @@ const BATCH_ENDPOINT = 'v1/batch';
 const removeTrailingSlashes = (inURL: string): string =>
   // Disabling the rule because the optimized regex may cause
   // super-linear runtime issue due to backtracking
-  // eslint-disable-next-line unicorn/better-regex
-  inURL && inURL.endsWith('/') ? inURL.replace(/(?:\/+)$/, '') : inURL;
+  // eslint-disable-next-line unicorn/better-regex, sonarjs/slow-regex
+  inURL?.endsWith('/') ? inURL.replace(/(?:\/+)$/, '') : inURL;
 
 const isFunction = (value: any): boolean =>
   typeof value === 'function' && Boolean(value.constructor && value.call && value.apply);

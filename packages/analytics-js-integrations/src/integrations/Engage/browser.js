@@ -62,6 +62,7 @@ class Engage {
     payload.first_name = firstName;
     payload.created_at = originalTimestamp;
     payload = removeUndefinedAndNullValues(payload);
+    // eslint-disable-next-line sonarjs/prefer-nullish-coalescing
     payload.id = engageId || userIdOnly;
     window.Engage.identify(payload);
   }

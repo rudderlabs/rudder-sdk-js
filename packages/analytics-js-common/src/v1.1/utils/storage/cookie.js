@@ -71,7 +71,7 @@ class CookieLocal {
     try {
       cookie(key, null, clone(this.cOpts));
       return true;
-    } catch (e) {
+    } catch {
       return false;
     }
   }

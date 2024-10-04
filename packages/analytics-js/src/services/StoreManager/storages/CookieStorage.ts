@@ -12,6 +12,7 @@ import { getDefaultCookieOptions } from './defaultOptions';
  * A storage utility to persist values in cookies via Storage interface
  */
 class CookieStorage implements IStorage {
+  // eslint-disable-next-line sonarjs/public-static-readonly
   static globalSingleton: Nullable<CookieStorage>;
   logger?: ILogger;
   options?: ICookieStorageOptions;

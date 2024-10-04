@@ -50,7 +50,7 @@ class Keen {
   }
 
   isLoaded() {
-    return !!(this.client != null);
+    return this.client !== null;
   }
 
   isReady() {

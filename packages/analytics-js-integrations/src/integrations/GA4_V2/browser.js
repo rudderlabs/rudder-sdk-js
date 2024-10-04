@@ -8,7 +8,7 @@ import { GA4 } from '../GA4';
 
 const logger = new Logger(DISPLAY_NAME);
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
+// eslint-disable-next-line @typescript-eslint/naming-convention, sonarjs/class-name
 export default class GA4_V2 extends GA4 {
   constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {

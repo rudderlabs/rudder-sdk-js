@@ -1,9 +1,6 @@
 import type { Nullable } from '../types/Nullable';
 import { isNullOrUndefined, isString } from './checks';
 
-// TODO: see if bundle size is bumped up if we use ramda trim instead of custom
-const trim = (value: string): string => value.replace(/^\s+|\s+$/gm, '');
-
 const removeDoubleSpaces = (value: string): string => value.replace(/ {2,}/g, ' ');
 
 const removeLeadingPeriod = (value: string): string => value.replace(/^\.+/, '');
@@ -63,4 +60,4 @@ const toBase64 = (value: string): string => bytesToBase64(new TextEncoder().enco
  */
 const fromBase64 = (value: string): string => new TextDecoder().decode(base64ToBytes(value));
 
-export { trim, removeDoubleSpaces, tryStringify, toBase64, fromBase64, removeLeadingPeriod };
+export { removeDoubleSpaces, tryStringify, toBase64, fromBase64, removeLeadingPeriod };

@@ -19,6 +19,7 @@ import {
  * @param {*} inURL
  */
 function removeTrailingSlashes(inURL) {
+  // eslint-disable-next-line sonarjs/slow-regex
   return inURL?.endsWith('/') ? inURL.replace(/\/+$/, '') : inURL;
 }
 
@@ -62,7 +63,6 @@ function getJSON(url, wrappers, isLoaded, callback) {
   xhr.onload = function () {
     const { status, responseText } = xhr;
     if (status === 200) {
-      // logger.debug("status 200");
       callback(null, responseText, wrappers, isLoaded);
     } else {
       callback(status);
@@ -95,7 +95,6 @@ function getJSONTrimmed(context, url, writeKey, callback) {
   xhr.onload = function () {
     const { status, responseText } = xhr;
     if (status === 200) {
-      // logger.debug("status 200 " + "calling callback");
       cb(200, responseText);
     } else {
       handleError(new Error(`${FAILED_REQUEST_ERR_MSG_PREFIX} ${status} for url: ${url}`));
@@ -110,6 +109,7 @@ function transformNamesCore(integrationObject, namesObj) {
     // eslint-disable-next-line no-prototype-builtins
     if (integrationObject.hasOwnProperty(key)) {
       if (namesObj[key]) {
+        // eslint-disable-next-line no-param-reassign
         integrationObject[namesObj[key]] = integrationObject[key];
       }
       if (
@@ -117,6 +117,7 @@ function transformNamesCore(integrationObject, namesObj) {
         namesObj[key] !== undefined &&
         namesObj[key] !== key
       ) {
+        // eslint-disable-next-line no-param-reassign
         delete integrationObject[key];
       }
     }
@@ -273,7 +274,7 @@ const getConfigUrl = (writeKey, lockIntegrationsVersion) => {
 const getSDKUrlInfo = () => {
   const scripts = document.getElementsByTagName('script');
   let sdkURL;
-  // eslint-disable-next-line unicorn/no-for-loop
+  // eslint-disable-next-line unicorn/no-for-loop, sonarjs/prefer-for-of
   for (let i = 0; i < scripts.length; i += 1) {
     const curScriptSrc = removeTrailingSlashes(scripts[i].getAttribute('src'));
     if (curScriptSrc) {
@@ -395,7 +396,7 @@ const parseQueryString = url => {
     urlObj.searchParams.forEach((value, qParam) => {
       result[qParam] = value;
     });
-  } catch (error) {
+  } catch {
     // Do nothing
   }
   return result;

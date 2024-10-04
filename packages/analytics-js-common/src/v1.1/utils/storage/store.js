@@ -67,7 +67,7 @@ class StoreLocal {
         return true;
       }
       return false;
-    } catch (e) {
+    } catch {
       return false;
     }
   }

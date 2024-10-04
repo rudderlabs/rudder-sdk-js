@@ -21,7 +21,7 @@ const DEFAULT_DATA_PLANE_EVENTS_BUFFER_TIMEOUT_MS = 10000;
 const INTG_SUFFIX = '_RS';
 // eslint-disable-next-line no-constant-condition
 const POLYFILL_URL = '__RS_POLYFILLIO_SDK_URL__'
-  ? '__RS_POLYFILLIO_SDK_URL__?version=3.111.0&features=Number.isNaN%2CURL%2CArray.prototype.find%2CArray.prototype.includes%2CPromise%2CString.prototype.endsWith%2CString.prototype.includes%2CString.prototype.startsWith%2CObject.entries%2CObject.values%2CElement.prototype.dataset%2CString.prototype.replaceAll%2CTextEncoder%2Cnavigator.sendBeacon'
+  ? '__RS_POLYFILLIO_SDK_URL__?version=3.111.0&features=Number.isNaN%2CURL%2CArray.prototype.find%2CArray.prototype.includes%2CPromise%2CString.prototype.endsWith%2CString.prototype.includes%2CString.prototype.startsWith%2CString.prototype.trim%2CObject.entries%2CObject.values%2CElement.prototype.dataset%2CString.prototype.replaceAll%2CTextEncoder%2Cnavigator.sendBeacon'
   : '';
 
 const SAMESITE_COOKIE_OPTS = ['Lax', 'None', 'Strict'];

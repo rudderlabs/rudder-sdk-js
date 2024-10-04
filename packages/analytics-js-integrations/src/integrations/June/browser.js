@@ -73,6 +73,7 @@ class June {
     const { event } = message;
     let { properties } = message;
     ({ groupId, ...properties } = properties || {});
+    // eslint-disable-next-line sonarjs/prefer-nullish-coalescing
     groupId = externalGroupId || groupId;
 
     if (groupId) {

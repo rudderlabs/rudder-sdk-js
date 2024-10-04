@@ -41,7 +41,7 @@ class UserSession {
        * Session timeout: By default, a session lasts until there's 30 minutes of inactivity,
        * but you can configure this limit using "timeout" load option
        */
-      if (options?.sessions && !isNaN(options.sessions.timeout)) {
+      if (options?.sessions && !Number.isNaN(options.sessions.timeout)) {
         const { timeout } = options.sessions;
         // In case user provides 0 as the timeout, auto session tracking will be disabled
         if (timeout === 0) {
@@ -134,7 +134,7 @@ class UserSession {
     const sessionId = id ? this.validateSessionId(id) : this.generateSessionId();
 
     this.sessionInfo = {
-      id: sessionId || this.generateSessionId(),
+      id: sessionId ?? this.generateSessionId(),
       sessionStart: true,
       manualTrack: true,
     };

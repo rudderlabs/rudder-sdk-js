@@ -1,4 +1,3 @@
-import { trim } from '@rudderstack/analytics-js-common/utilities/string';
 import { isNullOrUndefined, isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import type { IStorage, IStore, IStoreConfig } from '@rudderstack/analytics-js-common/types/Store';
@@ -206,7 +205,7 @@ class Store implements IStore {
    */
   private_crypto(value: Nullable<any>, mode: 'encrypt' | 'decrypt'): string {
     const noEncryption =
-      !this.private_isEncrypted || !value || typeof value !== 'string' || trim(value) === '';
+      !this.private_isEncrypted || !value || typeof value !== 'string' || value.trim() === '';
 
     if (noEncryption) {
       return value;

@@ -109,10 +109,11 @@ class TransformationsHandler {
                   if (retryAttempt > 0) {
                     const newRetryAttempt = retryAttempt - 1;
                     setTimeout(
-                      () =>
+                      () => {
                         this.sendEventForTransformation(payload, newRetryAttempt)
                           .then(resolve)
-                          .catch(reject),
+                          .catch(reject);
+                      },
                       RETRY_INTERVAL * backoffFactor ** (this.retryAttempt - newRetryAttempt),
                     );
                   } else {

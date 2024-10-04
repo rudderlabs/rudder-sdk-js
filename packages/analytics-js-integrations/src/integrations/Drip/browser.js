@@ -107,6 +107,7 @@ class Drip {
     payload = removeUndefinedAndNullValues(payload);
     window._dcq.push(['identify', payload]);
 
+    // eslint-disable-next-line sonarjs/prefer-nullish-coalescing
     const campaignId = getDestinationExternalID(message, 'dripCampaignId') || this.campaignId;
 
     if (campaignId) {
