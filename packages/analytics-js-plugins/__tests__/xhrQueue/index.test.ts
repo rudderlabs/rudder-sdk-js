@@ -14,7 +14,7 @@ import type {
   IResponseDetails,
 } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { XhrQueue } from '../../src/xhrQueue';
-import { HttpClientError } from '@rudderstack/analytics-js/services/HttpClient/utils';
+import { HttpClientError } from '@rudderstack/analytics-js/services/HttpClient/HttpClientError';
 import { defaultLogger } from '../../__mocks__/Logger';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/timestamp', () => ({

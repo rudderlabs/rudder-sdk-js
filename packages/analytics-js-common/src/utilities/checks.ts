@@ -63,7 +63,7 @@ const isDefinedNotNullAndNotEmptyString = (value: any): boolean =>
  * @returns true if the input is an instance of Error and false otherwise
  */
 const isTypeOfError = (obj: any): obj is Error =>
-  Object.prototype.toString.call(obj) === '[object Error]';
+  Object.prototype.toString.call(obj) === '[object Error]' || obj instanceof Error;
 
 export {
   isFunction,

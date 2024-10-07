@@ -20,7 +20,7 @@ import {
 import { server } from '../../__fixtures__/msw.server';
 import * as utils from '@rudderstack/analytics-js-plugins/deviceModeTransformation/utilities';
 import { DeviceModeTransformation } from '@rudderstack/analytics-js-plugins/deviceModeTransformation';
-import { HttpClientError } from '@rudderstack/analytics-js/services/HttpClient/utils';
+import { HttpClientError } from '@rudderstack/analytics-js/services/HttpClient/HttpClientError';
 import { defaultLogger } from '../../../analytics-js/__mocks__/Logger';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({

@@ -10,12 +10,11 @@ import { toBase64 } from '@rudderstack/analytics-js-common/utilities/string';
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import { DEFAULT_REQ_TIMEOUT_MS } from '../../constants/timeouts';
 import { RESPONSE_PARSE_ERROR } from '../../constants/logMessages';
-import { HttpClientError } from './utils';
 import { makeFetchRequest } from './fetch';
+import { HttpClientError } from './HttpClientError';
 
 const DEFAULT_REQUEST_OPTIONS: Partial<IRequestOptions> = {
   timeout: DEFAULT_REQ_TIMEOUT_MS,
-  method: 'GET',
 };
 
 /**

@@ -1,6 +1,6 @@
 import type { IFetchRequestOptions } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { DELIVERY_ERROR, REQUEST_ERROR } from '../../../constants/logMessages';
-import { HttpClientError } from '../utils';
+import { HttpClientError } from '../HttpClientError';
 
 const makeFetchRequest = (url: string | URL, options: IFetchRequestOptions): Promise<Response> => {
   const defaultOptions: RequestInit = {

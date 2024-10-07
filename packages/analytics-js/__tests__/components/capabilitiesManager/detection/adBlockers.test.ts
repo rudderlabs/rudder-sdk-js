@@ -1,7 +1,7 @@
 import { effect } from '@preact/signals-core';
 import { detectAdBlockers } from '../../../../src/components/capabilitiesManager/detection/adBlockers';
 import { state, resetState } from '../../../../src/state';
-import { HttpClientError } from '../../../../src/services/HttpClient/utils';
+import { HttpClientError } from '../../../../src/services/HttpClient/HttpClientError';
 
 describe('detectAdBlockers', () => {
   let errObj;

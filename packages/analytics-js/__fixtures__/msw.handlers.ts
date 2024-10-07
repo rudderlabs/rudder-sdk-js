@@ -73,6 +73,13 @@ const handlers = [
   http.get(`${dummyDataplaneHost}/noConnectionSample`, () => {
     return HttpResponse.error();
   }),
+  http.get(`${dummyDataplaneHost}/delayedResponse`, () => {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve(HttpResponse.json({ message: 'This response is delayed' }));
+      }, 11000); // 1 second more than the default timeout value
+    });
+  }),
   http.get(`${dummyDataplaneHost}/jsFileSample`, () => {
     const fileContents = 'console.log("jsFileSample script executed")';
     return new HttpResponse(fileContents, {

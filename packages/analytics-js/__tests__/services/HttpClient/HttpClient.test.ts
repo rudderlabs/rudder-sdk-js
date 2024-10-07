@@ -1,5 +1,6 @@
+/* eslint-disable sonarjs/no-identical-functions */
 import type { IResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
-import { HttpClientError } from '../../../src/services/HttpClient/utils';
+import { HttpClientError } from '../../../src/services/HttpClient/HttpClientError';
 import { HttpClient } from '../../../src/services/HttpClient';
 import { server } from '../../../__fixtures__/msw.server';
 import { dummyDataplaneHost } from '../../../__fixtures__/fixtures';
@@ -29,7 +30,7 @@ describe('HttpClient', () => {
   it('should send requests without authorization header if not set', done => {
     const callback = (response: any, details: IResponseDetails) => {
       expect(response).toBeUndefined();
-      expect(details.error.status).toBe(401);
+      expect(details?.error?.status).toBe(401);
       done();
     };
 
@@ -51,7 +52,11 @@ describe('HttpClient', () => {
       callback,
       url: `${dummyDataplaneHost}/testAuthHeader`,
       options: {
+        method: 'GET',
         useAuth: true,
+        headers: {
+          'Dummy-Header': 'dummyValue',
+        },
       },
     });
   });
@@ -69,7 +74,9 @@ describe('HttpClient', () => {
       callback,
       url: `${dummyDataplaneHost}/testRawAuthHeader`,
       options: {
+        method: 'GET',
         useAuth: true,
+        timeout: undefined, // explicitly set to undefined to not configure any timeout
       },
     });
   });
@@ -80,7 +87,7 @@ describe('HttpClient', () => {
 
     const callback = (response: any, details: IResponseDetails) => {
       expect(response).toBeUndefined();
-      expect(details.error.status).toBe(401);
+      expect(details?.error?.status).toBe(401);
       done();
     };
 
@@ -88,6 +95,7 @@ describe('HttpClient', () => {
       callback,
       url: `${dummyDataplaneHost}/testAuthHeader`,
       options: {
+        method: 'GET',
         useAuth: true,
       },
     });
@@ -102,6 +110,9 @@ describe('HttpClient', () => {
       callback,
       url: `${dummyDataplaneHost}/rawSample`,
       isRawResponse: true,
+      options: {
+        method: 'GET',
+      },
     });
   });
 
@@ -116,6 +127,9 @@ describe('HttpClient', () => {
     clientInstance.request({
       callback,
       url: `${dummyDataplaneHost}/rawSample`,
+      options: {
+        method: 'GET',
+      },
     });
   });
 
@@ -137,6 +151,9 @@ describe('HttpClient', () => {
     clientInstance.request({
       callback,
       url: `${dummyDataplaneHost}/404ErrorSample`,
+      options: {
+        method: 'GET',
+      },
     });
   });
 
@@ -157,6 +174,9 @@ describe('HttpClient', () => {
     clientInstance.request({
       callback,
       url: `${dummyDataplaneHost}/500ErrorSample`,
+      options: {
+        method: 'GET',
+      },
     });
   });
 
@@ -180,6 +200,9 @@ describe('HttpClient', () => {
     clientInstance.request({
       callback,
       url: `${dummyDataplaneHost}/brokenJsonSample`,
+      options: {
+        method: 'GET',
+      },
     });
   });
 
@@ -200,22 +223,24 @@ describe('HttpClient', () => {
 
       done();
     };
-    clientInstance.request({
+
+    // We're using the `getAsyncData` method here for code coverage
+    // It is identical to the `request` method
+    clientInstance.getAsyncData({
       callback,
       url: `${dummyDataplaneHost}/emptyJsonSample`,
+      options: {
+        method: 'GET',
+      },
     });
   });
 
-  it('should handle request timeout error', done => {
-    jest.useFakeTimers();
-
+  it('should handle no connection error', done => {
     const callback = (response: any, details: IResponseDetails) => {
-      jest.useRealTimers();
-
       expect(response).toBeUndefined();
 
       const errResult = new HttpClientError(
-        'The request failed due to timeout after 15000ms or no connection or aborted for URL "https://dummy.dataplane.host.com/noConnectionSample": Failed to fetch',
+        'The request failed due to timeout after 10000ms or no connection or aborted for URL "https://dummy.dataplane.host.com/noConnectionSample": Failed to fetch',
       );
 
       expect(details.error).toEqual(errResult);
@@ -226,10 +251,34 @@ describe('HttpClient', () => {
       callback,
       url: `${dummyDataplaneHost}/noConnectionSample`,
       options: {
-        timeout: 15000, // 15 seconds
+        method: 'GET',
+      },
+    });
+  });
+
+  it('should handle request timeout error', done => {
+    jest.useFakeTimers();
+
+    const callback = (response: any, details: IResponseDetails) => {
+      expect(response).toBeUndefined();
+
+      const errResult = new HttpClientError(
+        'The request failed due to timeout after 10000ms or no connection or aborted for URL "https://dummy.dataplane.host.com/delayedResponse": The operation was aborted.',
+      );
+
+      expect(details.error).toEqual(errResult);
+      done();
+    };
+
+    clientInstance.request({
+      callback,
+      url: `${dummyDataplaneHost}/delayedResponse`,
+      options: {
+        method: 'GET',
       },
     });
 
     jest.advanceTimersByTime(10000);
+    jest.useRealTimers();
   });
 });
