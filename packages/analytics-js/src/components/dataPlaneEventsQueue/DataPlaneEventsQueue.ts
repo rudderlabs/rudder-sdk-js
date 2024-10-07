@@ -78,7 +78,7 @@ class DataPlaneEventsQueue implements IDataPlaneEventsQueue {
           callback: (result, details) => {
             // The callback will not be fired anyway for keepalive requests
             // but just in case
-            if (!keepalive) {
+            if (keepalive) {
               return;
             }
 
