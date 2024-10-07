@@ -28,4 +28,26 @@ describe('SessionStorage', () => {
     expect(engine.keys()).toStrictEqual([]);
     expect(engine.length).toStrictEqual(0);
   });
+
+  it('APIs should respond appropriate when session storage is not available', () => {
+    const sessionStorageEngine = getStorageEngine('sessionStorage');
+
+    sessionStorageEngine.store = undefined;
+
+    sessionStorageEngine.setItem('a', '1');
+    expect(sessionStorageEngine.length).toBe(0);
+    expect(sessionStorageEngine.getItem('a')).toBeNull();
+
+    sessionStorageEngine.removeItem('a');
+
+    expect(sessionStorageEngine.length).toBe(0);
+
+    // clear all entries
+    sessionStorageEngine.clear();
+    expect(sessionStorageEngine.length).toBe(0);
+
+    expect(sessionStorageEngine.key(0)).toBeNull();
+
+    expect(sessionStorageEngine.keys()).toEqual([]);
+  });
 });
