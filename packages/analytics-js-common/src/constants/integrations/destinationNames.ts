@@ -290,3 +290,7 @@ export {
   DISPLAY_NAME as NinetailedDisplayName,
   DIR_NAME as NinetailedDirectoryName,
 } from './Ninetailed/constants';
+export {
+  DISPLAY_NAME as GainsightPXDisplayName,
+  DIR_NAME as GainsightPXDirectoryName,
+} from './GainsightPX/constants';
