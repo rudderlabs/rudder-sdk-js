@@ -71,7 +71,7 @@ class Analytics implements IAnalytics {
     this.queue = [];
     this.writeKey = writeKey;
     this.host = getDataPlaneUrl(dataPlaneURL);
-    this.timeout = options.timeout;
+    this.timeout = options.timeout ?? undefined;
     this.flushAt = options.flushAt ? Math.max(options.flushAt, 1) : 20;
     this.flushInterval = options.flushInterval ?? 20000;
     this.maxInternalQueueSize = options.maxInternalQueueSize ?? 20000;

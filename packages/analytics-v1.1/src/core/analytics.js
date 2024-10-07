@@ -1370,7 +1370,6 @@ class Analytics {
       (!String.prototype.endsWith ||
         !String.prototype.startsWith ||
         !String.prototype.includes ||
-        !String.prototype.trim ||
         !Array.prototype.find ||
         !Array.prototype.includes ||
         typeof window.URL !== 'function' ||

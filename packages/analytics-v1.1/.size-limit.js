@@ -40,12 +40,12 @@ module.exports = [
     limit: '30 KiB',
   },
   {
-    name: 'Core - Legacy - CDN',
+    name: 'Core (v1.1) - Legacy - CDN',
     path: 'dist/cdn/legacy/rudder-analytics.min.js',
     limit: '32.5 KiB',
   },
   {
-    name: 'Core - Modern - CDN',
+    name: 'Core (v1.1) - Modern - CDN',
     path: 'dist/cdn/modern/rudder-analytics.min.js',
     limit: '32 KiB',
   },

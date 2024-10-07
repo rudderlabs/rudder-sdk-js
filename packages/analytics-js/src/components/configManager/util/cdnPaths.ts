@@ -1,5 +1,5 @@
 import { CDN_INT_DIR, CDN_PLUGINS_DIR } from '@rudderstack/analytics-js-common/constants/urls';
-import { isValidURL } from '@rudderstack/analytics-js-common/utilities/url';
+import { isValidURL, removeTrailingSlashes } from '@rudderstack/analytics-js-common/utilities/url';
 import {
   BUILD_TYPE,
   CDN_ARCH_VERSION_DIR,
@@ -7,7 +7,6 @@ import {
   PLUGINS_BASE_URL,
 } from '../../../constants/urls';
 import { COMPONENT_BASE_URL_ERROR } from '../../../constants/logMessages';
-import { removeTrailingSlashes } from '../../utilities/url';
 import { getSDKUrl } from './commonUtil';
 
 const getSDKComponentBaseURL = (

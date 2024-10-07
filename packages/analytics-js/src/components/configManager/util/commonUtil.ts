@@ -19,7 +19,11 @@ import type {
   ConsentResolutionStrategy,
 } from '@rudderstack/analytics-js-common/types/Consent';
 import { clone } from 'ramda';
-import { isValidURL, removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utilities/url';
+import {
+  isValidURL,
+  removeDuplicateSlashes,
+  removeTrailingSlashes,
+} from '@rudderstack/analytics-js-common/utilities/url';
 import { removeLeadingPeriod } from '@rudderstack/analytics-js-common/utilities/string';
 import { MODULE_TYPE, APP_VERSION } from '../../../constants/app';
 import { BUILD_TYPE, DEFAULT_CONFIG_BE_URL } from '../../../constants/urls';
@@ -37,7 +41,7 @@ import {
   isErrorReportingEnabled,
   isMetricsReportingEnabled,
 } from '../../utilities/statsCollection';
-import { getDomain, removeTrailingSlashes } from '../../utilities/url';
+import { getDomain } from '../../utilities/url';
 import {
   DEFAULT_DATA_SERVICE_ENDPOINT,
   DEFAULT_STORAGE_ENCRYPTION_VERSION,

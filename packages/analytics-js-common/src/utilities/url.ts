@@ -1,7 +1,16 @@
 import { URL_PATTERN } from '../constants/urls';
+import type { Nullable } from '../types/Nullable';
 import { isFunction, isString } from './checks';
 
 const removeDuplicateSlashes = (str: string): string => str.replace(/\/{2,}/g, '/');
+
+/**
+ * Removes trailing slash from url
+ * @param url
+ * @returns url
+ */
+const removeTrailingSlashes = (url: Nullable<string> | undefined): Nullable<string> | undefined =>
+  url?.endsWith('/') ? removeTrailingSlashes(url.substring(0, url.length - 1)) : url;
 
 /**
  * Checks if provided url is valid or not
@@ -26,4 +35,4 @@ const isValidURL = (url: string | undefined): url is string => {
   }
 };
 
-export { removeDuplicateSlashes, isValidURL };
+export { removeDuplicateSlashes, isValidURL, removeTrailingSlashes };

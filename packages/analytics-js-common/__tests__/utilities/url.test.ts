@@ -1,4 +1,4 @@
-import { isValidURL } from '../../src/utilities/url';
+import { isValidURL, removeTrailingSlashes } from '../../src/utilities/url';
 
 describe('utilities - url', () => {
   describe('isValidURL', () => {
@@ -33,6 +33,24 @@ describe('utilities - url', () => {
 
     it.each(testCases)('should return %p if URL is %p', (expected, url) => {
       expect(isValidURL(url as string)).toBe(expected);
+    });
+  });
+
+  describe('removeTrailingSlashes', () => {
+    const testCases = [
+      // expected, input
+      ['https://rudderlabs.com', 'https://rudderlabs.com/'],
+      ['https://rudderlabs.com', 'https://rudderlabs.com//'],
+      ['https://rudderlabs.com', 'https://rudderlabs.com'],
+      ['/rudderlabs.com', '/rudderlabs.com/'],
+      ['https://rudderlabs.com/sub/path', 'https://rudderlabs.com/sub/path/'],
+      ['asdf', 'asdf/'],
+      [undefined, undefined],
+      [null, null],
+    ];
+
+    it.each(testCases)('should return %p if input is %p', (expected, input) => {
+      expect(removeTrailingSlashes(input)).toBe(expected);
     });
   });
 });

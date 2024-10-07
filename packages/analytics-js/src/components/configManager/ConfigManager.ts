@@ -10,6 +10,7 @@ import type { Destination } from '@rudderstack/analytics-js-common/types/Destina
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import type { SourceConfigResponse } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { removeTrailingSlashes } from '@rudderstack/analytics-js-common/utilities/url';
 import { isValidSourceConfig, validateLoadArgs } from './util/validate';
 import {
   SOURCE_CONFIG_FETCH_ERROR,
@@ -18,7 +19,6 @@ import {
   SOURCE_DISABLED_ERROR,
 } from '../../constants/logMessages';
 import { filterEnabledDestination } from '../utilities/destinations';
-import { removeTrailingSlashes } from '../utilities/url';
 import { APP_VERSION } from '../../constants/app';
 import { state } from '../../state';
 import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
