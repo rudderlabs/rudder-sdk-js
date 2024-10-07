@@ -1,7 +1,7 @@
 import {
   NAME,
   DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/Clevertap/constants';
+} from '@rudderstack/analytics-js-common/constants/integrations/GainsightPX/constants';
 
 /**
  * Get destination specific options from integrations options

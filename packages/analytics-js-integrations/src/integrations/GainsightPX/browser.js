@@ -6,6 +6,7 @@ import {
 } from '@rudderstack/analytics-js-common/constants/integrations/GainsightPX/constants';
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
+import { getDestinationOptions } from './utils';
 
 const logger = new Logger(DISPLAY_NAME);
 
@@ -17,7 +18,6 @@ class GainsightPX {
     this.analytics = analytics;
     this.productKey = !config.productKey ? '' : config.productKey;
     this.dataCenter = !config.dataCenter ? 'US' : config.dataCenter;
-    this.extraConfig = !config.extraConfig ? "{}" : config.extraConfig;
     this.name = NAME;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
@@ -27,7 +27,8 @@ class GainsightPX {
   }
 
   init() {
-    loadNativeSdk(this.productKey, this.dataCenter, this.extraConfig);
+    const pxConfig = getDestinationOptions(this.analytics.loadOnlyIntegrations) || {};
+    loadNativeSdk(this.productKey, this.dataCenter, pxConfig);
     this.initializeMe();
   }
 
@@ -63,19 +64,14 @@ class GainsightPX {
 
   identify(rudderElement) {
     let visitorObj = {};
-    let accountObj = {};
-    const { userId, groupId, context, traits } = rudderElement.message;
+    const accountObj = {};
+    const { userId, context } = rudderElement.message;
     const id = userId;
     const userTraits = context?.traits || {};
     visitorObj = {
       id,
       ...userTraits,
     };
-
-    const groupTraits = traits || {};
-    if (groupId) {
-      accountObj = { id: groupId, ...groupTraits };
-    }
 
     if (!userId) {
       return;
