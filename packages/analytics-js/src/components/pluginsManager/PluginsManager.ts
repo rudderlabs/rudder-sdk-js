@@ -109,7 +109,7 @@ class PluginsManager implements IPluginsManager {
       {
         configurationStatus: () => state.reporting.isErrorReportingEnabled.value,
         configurationStatusStr: 'Error reporting is enabled',
-        supportedPlugins: ['ErrorReporting', 'Bugsnag'] as PluginName[], // TODO: Remove deprecated plugin- Bugsnag
+        supportedPlugins: ['ErrorReporting'] as PluginName[],
       },
       {
         configurationStatus: () =>
