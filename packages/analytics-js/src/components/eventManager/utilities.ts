@@ -7,6 +7,7 @@ import type { RudderContext, RudderEvent } from '@rudderstack/analytics-js-commo
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
 import {
+  isNonEmptyObject,
   isObjectLiteralAndNotNull,
   mergeDeepRight,
 } from '@rudderstack/analytics-js-common/utilities/object';
@@ -96,7 +97,7 @@ const getUpdatedPageProperties = (
 const checkForReservedElementsInObject = (
   obj: Nullable<ApiObject> | RudderContext | undefined,
   parentKeyPath: string,
-  logger?: ILogger,
+  logger: ILogger,
 ): void => {
   if (isObjectLiteralAndNotNull(obj)) {
     Object.keys(obj as object).forEach(property => {
@@ -104,7 +105,7 @@ const checkForReservedElementsInObject = (
         RESERVED_ELEMENTS.includes(property) ||
         RESERVED_ELEMENTS.includes(property.toLowerCase())
       ) {
-        logger?.warn(
+        logger.warn(
           RESERVED_KEYWORD_WARNING(EVENT_MANAGER, property, parentKeyPath, RESERVED_ELEMENTS),
         );
       }
@@ -117,7 +118,7 @@ const checkForReservedElementsInObject = (
  * @param rudderEvent Generated rudder event
  * @param logger Logger instance
  */
-const checkForReservedElements = (rudderEvent: RudderEvent, logger?: ILogger): void => {
+const checkForReservedElements = (rudderEvent: RudderEvent, logger: ILogger): void => {
   //  properties, traits, contextualTraits are either undefined or object
   const { properties, traits, context } = rudderEvent;
   const { traits: contextualTraits } = context;
@@ -138,7 +139,7 @@ const updateTopLevelEventElements = (rudderEvent: RudderEvent, options: ApiOptio
     rudderEvent.anonymousId = options.anonymousId;
   }
 
-  if (isObjectLiteralAndNotNull<IntegrationOpts>(options.integrations)) {
+  if (isNonEmptyObject<IntegrationOpts>(options.integrations)) {
     // eslint-disable-next-line no-param-reassign
     rudderEvent.integrations = options.integrations;
   }
@@ -186,15 +187,6 @@ const getMergedContext = (
 };
 
 /**
- * A function to determine whether SDK should use the integration option provided in load call
- * @returns boolean
- */
-const shouldUseGlobalIntegrationsConfigInEvents = () =>
-  state.loadOptions.value.useGlobalIntegrationsConfigInEvents &&
-  (isObjectLiteralAndNotNull(state.consents.postConsent.value?.integrations) ||
-    isObjectLiteralAndNotNull(state.nativeDestinations.loadOnlyIntegrations.value));
-
-/**
  * Updates rudder event object with data from the API options
  * @param rudderEvent Generated rudder event
  * @param options API options
@@ -213,19 +205,20 @@ const processOptions = (rudderEvent: RudderEvent, options?: Nullable<ApiOptions>
  * @param integrationsConfig Event's integrations config
  * @returns Final integrations config
  */
-const getEventIntegrationsConfig = (integrationsConfig: IntegrationOpts) => {
+const getEventIntegrationsConfig = (integrationsConfig?: IntegrationOpts) => {
   let finalIntgConfig: IntegrationOpts;
-  if (shouldUseGlobalIntegrationsConfigInEvents()) {
-    finalIntgConfig = clone(
-      state.consents.postConsent.value?.integrations ??
-        state.nativeDestinations.loadOnlyIntegrations.value,
-    );
-  } else if (isObjectLiteralAndNotNull(integrationsConfig)) {
+  // Prefer the integrations object from the consent API response over the load API integrations object
+  const globalIntgConfig =
+    state.consents.postConsent.value.integrations ??
+    state.nativeDestinations.loadOnlyIntegrations.value;
+  if (state.loadOptions.value.useGlobalIntegrationsConfigInEvents) {
+    finalIntgConfig = globalIntgConfig;
+  } else if (integrationsConfig) {
     finalIntgConfig = integrationsConfig;
   } else {
     finalIntgConfig = DEFAULT_INTEGRATIONS_CONFIG;
   }
-  return finalIntgConfig;
+  return clone(finalIntgConfig);
 };
 
 /**
@@ -269,19 +262,18 @@ const getEnrichedEvent = (
       timezone: state.context.timezone.value,
     },
     originalTimestamp: getCurrentTimeFormatted(),
-    integrations: DEFAULT_INTEGRATIONS_CONFIG,
     messageId: generateUUID(),
     userId: rudderEvent.userId ?? state.session.userId.value,
   } as Partial<RudderEvent>;
 
   if (
-    !isStorageTypeValidForStoringData(state.storage.entries.value.anonymousId?.type as StorageType)
+    isStorageTypeValidForStoringData(state.storage.entries.value.anonymousId?.type as StorageType)
   ) {
-    // Generate new anonymous id for each request
-    commonEventData.anonymousId = generateAnonymousId();
-  } else {
     // Type casting to string as the user session manager will take care of initializing the value
     commonEventData.anonymousId = state.session.anonymousId.value as string;
+  } else {
+    // Generate new anonymous id for each request
+    commonEventData.anonymousId = generateAnonymousId();
   }
 
   // set truly anonymous tracking flag
@@ -323,7 +315,10 @@ const getEnrichedEvent = (
   }
 
   processOptions(processedEvent, options);
-  checkForReservedElements(processedEvent, logger);
+
+  if (logger) {
+    checkForReservedElements(processedEvent, logger);
+  }
 
   // Update the integrations config for the event
   processedEvent.integrations = getEventIntegrationsConfig(processedEvent.integrations);
@@ -335,9 +330,10 @@ export {
   getUpdatedPageProperties,
   getEnrichedEvent,
   checkForReservedElements,
-  checkForReservedElementsInObject,
+  checkForReservedElementsInObject, // For testing
   updateTopLevelEventElements,
   getContextPageProperties,
   getMergedContext,
   processOptions,
+  getEventIntegrationsConfig, // For testing
 };

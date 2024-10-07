@@ -1,10 +1,10 @@
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { EventManager } from '@rudderstack/analytics-js/components/eventManager/EventManager';
-import { EventRepository } from '@rudderstack/analytics-js/components/eventRepository/EventRepository';
-import { UserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/UserSessionManager';
-import { PluginEngine } from '@rudderstack/analytics-js/services/PluginEngine/PluginEngine';
-import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager/StoreManager';
-import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/PluginsManager';
+import { EventManager } from '../../../src/components/eventManager/EventManager';
+import { EventRepository } from '../../../src/components/eventRepository/EventRepository';
+import { UserSessionManager } from '../../../src/components/userSessionManager/UserSessionManager';
+import { PluginEngine } from '../../../src/services/PluginEngine/PluginEngine';
+import { StoreManager } from '../../../src/services/StoreManager/StoreManager';
+import { PluginsManager } from '../../../src/components/pluginsManager/PluginsManager';
 import { defaultLogger } from '../../../__mocks__/Logger';
 import { HttpClient } from '../../../src/services/HttpClient';
 
@@ -43,7 +43,7 @@ describe('EventManager', () => {
   describe('addEvent', () => {
     it('should raise error if the event data is invalid', () => {
       eventManager.addEvent({
-        // @ts-ignore
+        // @ts-expect-error Testing invalid event data
         type: 'test',
         event: 'test',
         properties: {
@@ -63,14 +63,14 @@ describe('EventManager', () => {
       const eventManager = new EventManager(eventRepository, userSessionManager);
       expect(() => {
         eventManager.addEvent({
-          // @ts-ignore
+          // @ts-expect-error Testing invalid event data
           type: 'test',
           event: 'test',
           properties: {
             test: 'test',
           },
         });
-      }).toThrowError('Failed to generate the event object.');
+      }).toThrow('Failed to generate the event object.');
     });
   });
 

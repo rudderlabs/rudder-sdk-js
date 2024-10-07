@@ -12,6 +12,7 @@ import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/Error
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import { clone } from 'ramda';
 import { DEFAULT_INTEGRATIONS_CONFIG } from '@rudderstack/analytics-js-common/constants/integrationsConfig';
+import { isNonEmptyObject } from '@rudderstack/analytics-js-common/utilities/object';
 import { isDestinationSDKMounted, initializeDestination } from './utils';
 import { DEVICE_MODE_DESTINATIONS_PLUGIN, SCRIPT_LOAD_TIMEOUT_MS } from './constants';
 import { DESTINATION_NOT_SUPPORTED_ERROR, DESTINATION_SDK_LOAD_ERROR } from './logMessages';
@@ -32,8 +33,11 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
       logger?: ILogger,
     ): void {
       // Normalize the integration options from the load API call
-      state.nativeDestinations.loadOnlyIntegrations.value =
-        clone(state.loadOptions.value.integrations) ?? DEFAULT_INTEGRATIONS_CONFIG;
+      state.nativeDestinations.loadOnlyIntegrations.value = clone(
+        isNonEmptyObject(state.loadOptions.value.integrations)
+          ? state.loadOptions.value.integrations
+          : DEFAULT_INTEGRATIONS_CONFIG,
+      );
 
       state.nativeDestinations.loadIntegration.value = state.loadOptions.value
         .loadIntegration as boolean;

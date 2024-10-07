@@ -1,15 +1,9 @@
-import type { IPluginEngine } from './PluginEngine';
-import type { ILogger } from './Logger';
-import type { BufferQueue } from '../services/BufferQueue/BufferQueue';
 import type { IHttpClient } from './HttpClient';
 import type { IExternalSrcLoader } from '../services/ExternalSrcLoader/types';
 
 export type SDKError = string | Error | ErrorEvent | Event | PromiseRejectionEvent;
 
 export interface IErrorHandler {
-  private_logger?: ILogger;
-  private_pluginEngine?: IPluginEngine;
-  private_errorBuffer: BufferQueue<PreLoadErrorData>;
   init(httpClient: IHttpClient, externalSrcLoader: IExternalSrcLoader): void;
   onError(
     error: SDKError,
@@ -20,7 +14,6 @@ export interface IErrorHandler {
   ): void;
   leaveBreadcrumb(breadcrumb: string): void;
   notifyError(error: Error, errorState: ErrorState): void;
-  private_attachErrorListeners(): void;
 }
 
 export type ErrorState = {
