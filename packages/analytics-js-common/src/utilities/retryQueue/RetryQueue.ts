@@ -586,7 +586,15 @@ class RetryQueue implements IQueue<QueueItemData> {
       queue: QueueData<QueueItemData>,
       incrementAttemptNumberBy: number = 0,
     ) => {
-      queue.forEach((item: QueueItem<QueueItemData>) => {
+      let finalQueue = queue;
+      // As the structure of inProgress queue entry changed,
+      // this is to handle the backward compatibility for the inProgress queue
+      // data from older SDKs
+      if (!Array.isArray(queue)) {
+        finalQueue = Object.values(queue);
+      }
+
+      finalQueue.forEach((item: QueueItem<QueueItemData>) => {
         // ignore duplicates
         if (!item.id || !trackMessageIds.includes(item.id)) {
           ourData.queue.push({
