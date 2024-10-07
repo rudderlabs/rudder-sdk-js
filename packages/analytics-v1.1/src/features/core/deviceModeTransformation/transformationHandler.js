@@ -6,7 +6,7 @@
 import { handleError } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
 import { stringifyWithoutCircularV1 } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
 import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { removeTrailingSlashes } from '../../../utils/utils';
+import { removeTrailingSlashes } from '@rudderstack/analytics-js-common/utilities/url';
 import { createPayload } from './util';
 
 const timeout = 10 * 1000;

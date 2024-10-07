@@ -207,10 +207,11 @@ const XhrQueue = (): ExtensionPlugin => ({
       const url = getDeliveryUrl(dataplaneUrl, event.type);
       // Other default headers are added by the HttpClient
       // Auth header is added during initialization
+      const credsStr = toBase64(`${state.lifecycle.writeKey.value as string}:`);
       const headers = {
         Accept: 'application/json',
         'Content-Type': 'application/json;charset=UTF-8',
-        Authorization: `Basic ${toBase64(`${state.lifecycle.writeKey.value as string}:`)}`,
+        Authorization: `Basic ${credsStr}`,
         // To maintain event ordering while using the HTTP API as per is documentation,
         // make sure to include anonymousId as a header
         AnonymousId: string.toBase64(event.anonymousId),

@@ -1,10 +1,11 @@
 /* eslint-disable no-lonely-if */
 /* eslint-disable class-methods-use-this */
 import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { removeTrailingSlashes } from '@rudderstack/analytics-js-common/utilities/url';
 import { stringifyWithoutCircularV1 } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
 import XHRQueue from './xhrModule';
 import BeaconQueue from './beaconQueue';
-import { getCurrentTimeFormatted, removeTrailingSlashes } from './utils';
+import { getCurrentTimeFormatted } from './utils';
 
 const MESSAGE_LENGTH = 32 * 1000; // ~32 Kb
 

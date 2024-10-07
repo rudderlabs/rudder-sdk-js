@@ -576,9 +576,9 @@ class RetryQueue implements IQueue<QueueItemData> {
       queue: this.getStorageEntry(QUEUE) ?? [],
     };
     const otherData = {
-      inProgress: (otherStore.get(IN_PROGRESS) ?? []) as QueueData<QueueItemData>,
-      batchQueue: (otherStore.get(BATCH_QUEUE) ?? []) as QueueData<QueueItemData>,
-      queue: (otherStore.get(QUEUE) ?? []) as QueueData<QueueItemData>,
+      inProgress: otherStore.get(IN_PROGRESS) ?? [],
+      batchQueue: otherStore.get(BATCH_QUEUE) ?? [],
+      queue: otherStore.get(QUEUE) ?? [],
     };
     const trackMessageIds: string[] = [];
 

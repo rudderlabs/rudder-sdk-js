@@ -32,19 +32,19 @@ import { QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
 import { state } from '../../state';
 
 class DataPlaneEventsQueue implements IDataPlaneEventsQueue {
-  private logger?: ILogger;
-  private httpClient: IHttpClient;
-  private storeManager: IStoreManager;
-  private eventsQueue: RetryQueue;
+  readonly private_logger?: ILogger;
+  readonly private_httpClient: IHttpClient;
+  readonly private_storeManager: IStoreManager;
+  readonly private_eventsQueue: RetryQueue;
 
   constructor(httpClient: IHttpClient, storeManager: IStoreManager, logger?: ILogger) {
-    this.httpClient = httpClient;
-    this.storeManager = storeManager;
-    this.logger = logger;
+    this.private_httpClient = httpClient;
+    this.private_storeManager = storeManager;
+    this.private_logger = logger;
 
     const finalQOpts = getNormalizedQueueOptions(state.loadOptions.value.queueOptions as QueueOpts);
 
-    this.eventsQueue = new RetryQueue(
+    this.private_eventsQueue = new RetryQueue(
       // adding write key to the queue name to avoid conflicts
       `${QUEUE_NAME}_${state.lifecycle.writeKey.value as string}`,
       finalQOpts,
@@ -59,12 +59,12 @@ class DataPlaneEventsQueue implements IDataPlaneEventsQueue {
         const { data, url, headers } = getRequestInfo(
           itemData as EventsQueueItemData,
           state,
-          this.logger,
+          this.private_logger,
         );
 
         const keepalive = isPageAccessible === false;
 
-        this.httpClient.request({
+        this.private_httpClient.request({
           url,
           options: {
             method: 'POST',
@@ -96,7 +96,7 @@ class DataPlaneEventsQueue implements IDataPlaneEventsQueue {
                 willBeRetried,
                 attemptNumber,
                 maxRetryAttempts,
-                this.logger,
+                this.private_logger,
               );
             }
             done(queueErrResp, result);
@@ -109,7 +109,7 @@ class DataPlaneEventsQueue implements IDataPlaneEventsQueue {
           done(null);
         }
       },
-      this.storeManager,
+      this.private_storeManager,
       LOCAL_STORAGE,
       logger,
       (itemData: QueueItemData[]): number => {
@@ -128,7 +128,7 @@ class DataPlaneEventsQueue implements IDataPlaneEventsQueue {
     // sentAt is only added here for the validation step
     // It'll be updated to the latest timestamp during actual delivery
     finalEvent.sentAt = getCurrentTimeFormatted();
-    validateEventPayloadSize(finalEvent, this.logger);
+    validateEventPayloadSize(finalEvent, this.private_logger);
 
     const dataplaneUrl = state.lifecycle.activeDataplaneUrl.value as string;
     const url = getDeliveryUrl(dataplaneUrl, finalEvent.type);
@@ -142,7 +142,7 @@ class DataPlaneEventsQueue implements IDataPlaneEventsQueue {
       AnonymousId: toBase64(finalEvent.anonymousId),
     };
 
-    this.eventsQueue.addItem({
+    this.private_eventsQueue.addItem({
       url,
       headers,
       event: finalEvent,
@@ -150,23 +150,23 @@ class DataPlaneEventsQueue implements IDataPlaneEventsQueue {
   }
 
   start() {
-    if (this.eventsQueue.scheduleTimeoutActive !== true) {
-      this.eventsQueue.start();
+    if (this.private_eventsQueue.scheduleTimeoutActive !== true) {
+      this.private_eventsQueue.start();
     }
   }
 
   stop() {
-    if (this.eventsQueue.scheduleTimeoutActive === true) {
-      this.eventsQueue.stop();
+    if (this.private_eventsQueue.scheduleTimeoutActive === true) {
+      this.private_eventsQueue.stop();
     }
   }
 
   clear() {
-    this.eventsQueue.clear();
+    this.private_eventsQueue.clear();
   }
 
   isRunning() {
-    return this.eventsQueue.scheduleTimeoutActive;
+    return this.private_eventsQueue.scheduleTimeoutActive;
   }
 }
 

@@ -6,6 +6,7 @@ import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 import { handleError } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
 import { stringifyWithoutCircularV1 } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
+import { removeTrailingSlashes } from '@rudderstack/analytics-js-common/utilities/url';
 import {
   CONFIG_URL,
   RESERVED_KEYS,
@@ -13,15 +14,6 @@ import {
   RESIDENCY_SERVERS,
   SUPPORTED_CONSENT_MANAGERS,
 } from './constants';
-
-/**
- * Utility method to remove '/' at the end of URL
- * @param {*} inURL
- */
-function removeTrailingSlashes(inURL) {
-  // eslint-disable-next-line sonarjs/slow-regex
-  return inURL?.endsWith('/') ? inURL.replace(/\/+$/, '') : inURL;
-}
 
 /**
  *
@@ -278,7 +270,7 @@ const getSDKUrlInfo = () => {
   for (let i = 0; i < scripts.length; i += 1) {
     const curScriptSrc = removeTrailingSlashes(scripts[i].getAttribute('src'));
     if (curScriptSrc) {
-      const urlMatches = curScriptSrc.match(/^.*rudder-analytics?(\.min)?\.js$/);
+      const urlMatches = /^.*rudder-analytics?(\.min)?\.js$/.exec(curScriptSrc);
       if (urlMatches) {
         sdkURL = curScriptSrc;
         break;
@@ -413,7 +405,6 @@ export {
   transformToServerNames,
   checkReservedKeywords,
   isDefinedAndNotNull,
-  removeTrailingSlashes,
   getConfigUrl,
   getSDKUrlInfo,
   countDigits,

@@ -5,15 +5,6 @@ import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 
 /**
- * Utility method to remove '/' at the end of URL
- * @param {*} inURL
- */
-function removeTrailingSlashes(inURL) {
-  // eslint-disable-next-line sonarjs/slow-regex
-  return inURL?.endsWith('/') ? inURL.replace(/\/+$/, '') : inURL;
-}
-
-/**
  *
  * Utility function for UUID generation
  * @returns
@@ -580,7 +571,6 @@ export {
   isArray,
   isDefinedAndNotNull,
   getDataFromSource,
-  removeTrailingSlashes,
   constructPayload,
   isEmptyObject,
 };

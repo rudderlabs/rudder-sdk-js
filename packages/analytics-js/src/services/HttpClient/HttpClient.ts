@@ -36,7 +36,7 @@ class HttpClient implements IHttpClient {
     const { callback, url, options, isRawResponse } = config;
     const isFireAndForget = !isFunction(callback);
 
-    const finalOptions = mergeDeepRight(DEFAULT_REQUEST_OPTIONS, options || {}) as IRequestOptions;
+    const finalOptions = mergeDeepRight<IRequestOptions>(DEFAULT_REQUEST_OPTIONS, options || {});
 
     if (finalOptions.useAuth && this.private_basicAuthHeader) {
       finalOptions.headers = mergeDeepRight(

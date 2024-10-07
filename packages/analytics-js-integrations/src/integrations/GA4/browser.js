@@ -5,15 +5,11 @@ import {
   NAME,
   DISPLAY_NAME,
 } from '@rudderstack/analytics-js-common/constants/integrations/GA4/constants';
+import { removeTrailingSlashes } from '@rudderstack/analytics-js-common/utilities/url';
 import { Cookie } from '@rudderstack/analytics-js-common/v1.1/utils/storage/cookie';
 import Logger from '../../utils/logger';
 import { eventsConfig } from './config';
-import {
-  constructPayload,
-  flattenJsonPayload,
-  isDefinedAndNotNull,
-  removeTrailingSlashes,
-} from '../../utils/utils';
+import { constructPayload, flattenJsonPayload, isDefinedAndNotNull } from '../../utils/utils';
 import {
   shouldSendUserId,
   prepareParamsAndEventName,
@@ -43,7 +39,7 @@ export default class GA4 {
     this.extendPageViewParams = config.extendPageViewParams || false;
     this.overrideClientAndSessionId = config.overrideClientAndSessionId || false;
     this.sdkBaseUrl =
-      removeTrailingSlashes(config.sdkBaseUrl) || 'https://www.googletagmanager.com';
+      removeTrailingSlashes(config.sdkBaseUrl) ?? 'https://www.googletagmanager.com';
     this.serverContainerUrl = config.serverContainerUrl || null;
     this.isExtendedGa4_V2 = config.isExtendedGa4_V2 || false;
     ({

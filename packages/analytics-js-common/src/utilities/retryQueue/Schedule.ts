@@ -80,7 +80,7 @@ class Schedule {
 
   cancel(id: string) {
     if (this.tasks[id]) {
-      this.clock.clearTimeout(this.tasks[id] as number);
+      this.clock.clearTimeout(this.tasks[id]);
       delete this.tasks[id];
     }
   }
