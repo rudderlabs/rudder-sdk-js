@@ -24,7 +24,7 @@ const detectAdBlockers = (httpClient: IHttpClient): void => {
       // not ad blocked if the request is successful or it is not internally redirected on the client side
       // Often adblockers instead of blocking the request, they redirect it to an internal URL
       state.capabilities.isAdBlocked.value =
-        isDefined(details.error) || details.response?.redirected === true;
+        isDefined(details.error) || (details.response as Response).redirected === true;
     },
   });
 };

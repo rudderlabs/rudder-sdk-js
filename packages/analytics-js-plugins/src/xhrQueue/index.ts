@@ -4,7 +4,7 @@ import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/Plu
 import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import type {
   IHttpClient,
-  IResponseDetails,
+  ResponseDetails,
 } from '@rudderstack/analytics-js-common/types/HttpClient';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
@@ -104,7 +104,7 @@ const XhrQueue = (): ExtensionPlugin => ({
               error: {
                 status,
               },
-            } as IResponseDetails;
+            } as ResponseDetails;
 
             // null means item will not be requeued
             let queueErrResp = null;

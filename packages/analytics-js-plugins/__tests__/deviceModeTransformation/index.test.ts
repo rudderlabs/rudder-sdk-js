@@ -9,8 +9,11 @@ import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type {
   IHttpClient,
-  IResponseDetails,
+  ResponseDetails,
 } from '@rudderstack/analytics-js-common/types/HttpClient';
+import * as utils from '@rudderstack/analytics-js-plugins/deviceModeTransformation/utilities';
+import { DeviceModeTransformation } from '@rudderstack/analytics-js-plugins/deviceModeTransformation';
+import { HttpClientError } from '@rudderstack/analytics-js/services/HttpClient/HttpClientError';
 import {
   dummyDataplaneHost,
   dummyWriteKey,
@@ -18,10 +21,7 @@ import {
   dmtSuccessResponse,
 } from '../../__fixtures__/fixtures';
 import { server } from '../../__fixtures__/msw.server';
-import * as utils from '@rudderstack/analytics-js-plugins/deviceModeTransformation/utilities';
-import { DeviceModeTransformation } from '@rudderstack/analytics-js-plugins/deviceModeTransformation';
-import { HttpClientError } from '@rudderstack/analytics-js/services/HttpClient/HttpClientError';
-import { defaultLogger } from '../../../analytics-js/__mocks__/Logger';
+import { defaultLogger } from '../../__mocks__/Logger';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
   ...jest.requireActual('@rudderstack/analytics-js-common/utilities/uuId'),
@@ -192,7 +192,7 @@ describe('Device mode transformation plugin', () => {
       request: ({ callback }) => {
         callback?.(JSON.stringify(dmtSuccessResponse), {
           response: { status: 200 } as Response,
-        } as IResponseDetails);
+        } as ResponseDetails);
       },
       setAuthHeader: jest.fn(),
     };
@@ -247,7 +247,7 @@ describe('Device mode transformation plugin', () => {
           error: new HttpClientError('some error', {
             status: 502,
           }),
-        } as IResponseDetails);
+        } as ResponseDetails);
       },
       setAuthHeader: jest.fn(),
     };

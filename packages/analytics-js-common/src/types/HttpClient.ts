@@ -13,16 +13,16 @@ export interface IHttpClientError extends Error {
   responseBody?: string | null;
 }
 
-export interface IResponseDetails {
+export type ResponseDetails = {
   response?: Response;
   error?: IHttpClientError;
   url: string | URL;
   options: IRequestOptions;
-}
+} & ({ response: Response } | { error: IHttpClientError });
 
 export type AsyncRequestCallback<T> = (
   data: T | undefined | null,
-  details: IResponseDetails,
+  details: ResponseDetails,
 ) => void;
 
 export interface IAsyncRequestConfig<T> {

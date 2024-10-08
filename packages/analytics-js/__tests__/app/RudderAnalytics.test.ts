@@ -16,6 +16,8 @@ describe('Core - Rudder Analytics Facade', () => {
   beforeEach(() => {
     Analytics.mockClear();
     analyticsInstanceMock = new Analytics() as jest.Mocked<Analytics>;
+
+    // Queue up some events in the global object
     (window as any).rudderanalytics = [
       ['track'],
       ['consent', { sendPageEvent: true }],
@@ -29,11 +31,11 @@ describe('Core - Rudder Analytics Facade', () => {
   });
 
   afterEach(() => {
-    (rudderAnalytics as any).globalSingleton = null;
+    RudderAnalytics.private_globalSingleton = null;
     jest.resetAllMocks();
   });
 
-  it('should return the global singleton from "rudderanalytics" global object', done => {
+  it('should return the global singleton from "rudderanalytics" global object', () => {
     const expectedPreloadedEvents = [
       ['consent', { sendPageEvent: true }],
       ['consent', { sendPageEvent: false }],
@@ -44,7 +46,6 @@ describe('Core - Rudder Analytics Facade', () => {
 
     expect(window.RudderStackGlobals?.app?.preloadedEventsBuffer).toEqual(expectedPreloadedEvents);
     expect(window.rudderanalytics).toEqual(globalSingleton);
-    done();
   });
 
   it('should return the global singleton if it exists', () => {
@@ -52,6 +53,21 @@ describe('Core - Rudder Analytics Facade', () => {
     rudderAnalytics = new RudderAnalytics();
 
     expect(rudderAnalytics).toEqual(globalSingleton);
+  });
+
+  it('should create a new instance if the global singleton does not exist', () => {
+    // This is not a necessity for the test case but ensures
+    // a code path is covered
+    // Reset the preload buffer
+    (window as any).rudderanalytics = undefined;
+
+    // Reset the global singleton
+    RudderAnalytics.private_globalSingleton = null;
+
+    const newAnalytics = new RudderAnalytics();
+
+    const globalSingleton = rudderAnalytics;
+    expect(newAnalytics).not.toEqual(globalSingleton);
   });
 
   it('should auto set the default analytics key if no analytics instances exist', () => {
@@ -75,7 +91,7 @@ describe('Core - Rudder Analytics Facade', () => {
   it('should create a new analytics instance if none exists', () => {
     (rudderAnalytics as any).analyticsInstances = {};
     (rudderAnalytics as any).defaultAnalyticsKey = '';
-    const analyticsInstance = rudderAnalytics.getAnalyticsInstance('writeKey');
+    const analyticsInstance = rudderAnalytics.getAnalyticsInstance('writeKey1');
 
     expect(analyticsInstance).toBeInstanceOf(Analytics);
   });
@@ -169,6 +185,18 @@ describe('Core - Rudder Analytics Facade', () => {
 
     rudderAnalytics.group(1234);
     expect(groupSpy).toHaveBeenCalledWith({ groupId: '1234' });
+  });
+
+  it('should log an error and not forward empty group call', () => {
+    const analyticsInstance = rudderAnalytics.getAnalyticsInstance();
+    const loggerErrorSpy = jest.spyOn(rudderAnalytics.private_logger, 'error');
+    const groupSpy = jest.spyOn(analyticsInstance, 'group');
+
+    rudderAnalytics.group();
+    expect(groupSpy).not.toHaveBeenCalled();
+    expect(loggerErrorSpy).toHaveBeenCalledWith(
+      'RudderStackApplication:: The group API must be invoked with at least one argument.',
+    );
   });
 
   it('should process reset arguments and forwards to reset call', () => {

@@ -1,6 +1,6 @@
 import type {
   IHttpClient,
-  IResponseDetails,
+  ResponseDetails,
 } from '@rudderstack/analytics-js-common/types/HttpClient';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
@@ -12,5 +12,5 @@ export interface IConfigManager {
   private_logger?: ILogger;
   init: () => void;
   private_getConfig: () => void;
-  private_processConfig: (response: SourceConfigResponse, details?: IResponseDetails) => void;
+  private_processConfig: (response: SourceConfigResponse, details?: ResponseDetails) => void;
 }

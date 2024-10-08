@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import type {
   IHttpClient,
-  IResponseDetails,
+  ResponseDetails,
 } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { batch, effect } from '@preact/signals-core';
 import { isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
@@ -129,7 +129,7 @@ class ConfigManager implements IConfigManager {
    */
   private_processConfig(
     response: SourceConfigResponse | undefined | null,
-    details?: IResponseDetails,
+    details?: ResponseDetails,
   ) {
     // TODO: add retry logic with backoff based on details
     // We can use isErrRetryable utility method

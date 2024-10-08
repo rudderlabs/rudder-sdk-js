@@ -7,7 +7,7 @@ import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/Plu
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { isDefinedAndNotNull } from '@rudderstack/analytics-js-common/utilities/checks';
-import type { IResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
+import type { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import type {
   TransformationRequestPayload,
   TransformationResponsePayload,
@@ -55,7 +55,7 @@ const sendTransformedEventToDestinations = (
   pluginsManager: IPluginsManager,
   destinationIds: string[],
   response: TransformationResponsePayload | undefined | null,
-  details: IResponseDetails,
+  details: ResponseDetails,
   event: RudderEvent,
   errorHandler?: IErrorHandler,
   logger?: ILogger,

@@ -11,10 +11,10 @@ import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type {
   IHttpClient,
-  IResponseDetails,
+  ResponseDetails,
 } from '@rudderstack/analytics-js-common/types/HttpClient';
-import { XhrQueue } from '../../src/xhrQueue';
 import { HttpClientError } from '@rudderstack/analytics-js/services/HttpClient/HttpClientError';
+import { XhrQueue } from '../../src/xhrQueue';
 import { defaultLogger } from '../../__mocks__/Logger';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/timestamp', () => ({
@@ -161,7 +161,7 @@ describe.skip('XhrQueue', () => {
           error: new HttpClientError('some error', {
             status: 429,
           }),
-        } as IResponseDetails);
+        } as ResponseDetails);
       },
       setAuthHeader: jest.fn(),
     } as unknown as IHttpClient;

@@ -1,5 +1,5 @@
 /* eslint-disable sonarjs/no-identical-functions */
-import type { IResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
+import type { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { HttpClientError } from '../../../src/services/HttpClient/HttpClientError';
 import { HttpClient } from '../../../src/services/HttpClient';
 import { server } from '../../../__fixtures__/msw.server';
@@ -28,7 +28,7 @@ describe('HttpClient', () => {
   });
 
   it('should send requests without authorization header if not set', done => {
-    const callback = (response: any, details: IResponseDetails) => {
+    const callback = (response: any, details: ResponseDetails) => {
       expect(response).toBeUndefined();
       expect(details?.error?.status).toBe(401);
       done();
@@ -42,7 +42,7 @@ describe('HttpClient', () => {
   });
 
   it('should send requests with authorization header if set', done => {
-    const callback = (response: any, details: IResponseDetails) => {
+    const callback = (response: any, details: ResponseDetails) => {
       expect(response).toEqual({ success: true });
       expect(details.error).toBeUndefined();
       done();
@@ -64,7 +64,7 @@ describe('HttpClient', () => {
   it('should send requests with raw authorization header if set', done => {
     clientInstance.setAuthHeader('rawHeaderValue', true);
 
-    const callback = (response: any, details: IResponseDetails) => {
+    const callback = (response: any, details: ResponseDetails) => {
       expect(response).toEqual({ success: true });
       expect(details.error).toBeUndefined();
       done();
@@ -85,7 +85,7 @@ describe('HttpClient', () => {
     // Reset the auth header which is set in the `beforeEach` block
     clientInstance.resetAuthHeader();
 
-    const callback = (response: any, details: IResponseDetails) => {
+    const callback = (response: any, details: ResponseDetails) => {
       expect(response).toBeUndefined();
       expect(details?.error?.status).toBe(401);
       done();
@@ -117,7 +117,7 @@ describe('HttpClient', () => {
   });
 
   it('should request expecting json response', done => {
-    const callback = (response: any, details: IResponseDetails) => {
+    const callback = (response: any, details: ResponseDetails) => {
       expect(response).toEqual({ raw: 'sample' });
       expect(details.error).toBeUndefined();
       done();
@@ -134,7 +134,7 @@ describe('HttpClient', () => {
   });
 
   it('should handle 400 range errors in request requests', done => {
-    const callback = (response: any, details: IResponseDetails) => {
+    const callback = (response: any, details: ResponseDetails) => {
       expect(response).toBeUndefined();
 
       const errResult = new HttpClientError(
@@ -158,7 +158,7 @@ describe('HttpClient', () => {
   });
 
   it('should handle 500 range errors in request requests', done => {
-    const callback = (response: any, details: IResponseDetails) => {
+    const callback = (response: any, details: ResponseDetails) => {
       expect(response).toBeUndefined();
 
       const errResult = new HttpClientError(
@@ -181,7 +181,7 @@ describe('HttpClient', () => {
   });
 
   it('should handle malformed json response when expecting json response', done => {
-    const callback = (response: any, details: IResponseDetails) => {
+    const callback = (response: any, details: ResponseDetails) => {
       expect(response).toBeUndefined();
 
       const errResult = new HttpClientError(
@@ -207,7 +207,7 @@ describe('HttpClient', () => {
   });
 
   it('should handle empty response when expecting json response', done => {
-    const callback = (response: any, details: IResponseDetails) => {
+    const callback = (response: any, details: ResponseDetails) => {
       expect(response).toBeUndefined();
 
       const errResult = new HttpClientError(
@@ -236,7 +236,7 @@ describe('HttpClient', () => {
   });
 
   it('should handle no connection error', done => {
-    const callback = (response: any, details: IResponseDetails) => {
+    const callback = (response: any, details: ResponseDetails) => {
       expect(response).toBeUndefined();
 
       const errResult = new HttpClientError(
@@ -259,7 +259,7 @@ describe('HttpClient', () => {
   it('should handle request timeout error', done => {
     jest.useFakeTimers();
 
-    const callback = (response: any, details: IResponseDetails) => {
+    const callback = (response: any, details: ResponseDetails) => {
       expect(response).toBeUndefined();
 
       const errResult = new HttpClientError(

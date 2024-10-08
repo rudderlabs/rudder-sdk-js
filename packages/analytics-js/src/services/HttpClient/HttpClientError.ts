@@ -2,8 +2,6 @@ import type {
   HttpClientErrorProperties,
   IHttpClientError,
 } from '@rudderstack/analytics-js-common/types/HttpClient';
-import { isTypeOfError } from '@rudderstack/analytics-js-common/utilities/checks';
-import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 
 class HttpClientError extends Error implements IHttpClientError {
   public status?: number;
@@ -16,14 +14,8 @@ class HttpClientError extends Error implements IHttpClientError {
     const { status, statusText, responseBody, originalError } = properties || {};
 
     if (originalError) {
-      let originalMsg;
-      if (isTypeOfError(originalError)) {
-        Object.assign(this, originalError);
-        originalMsg = originalError.message;
-      } else {
-        originalMsg = stringifyWithoutCircular(originalError as Record<string, any>);
-      }
-      this.message = `${message}: ${originalMsg}`;
+      Object.assign(this, originalError);
+      this.message = `${message}: ${originalError.message}`;
     }
 
     this.status = status;

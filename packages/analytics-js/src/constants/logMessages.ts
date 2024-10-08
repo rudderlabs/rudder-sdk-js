@@ -191,7 +191,7 @@ const WRITE_KEY_NOT_A_STRING_ERROR = (context: string, writeKey: string | undefi
   `${context}${LOG_CONTEXT_SEPARATOR}The write key "${writeKey}" is not a string. Please check that the write key is correct and try again.`;
 
 const EMPTY_GROUP_CALL_ERROR = (context: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The group() method must be called with at least one argument.`;
+  `${context}${LOG_CONTEXT_SEPARATOR}The group API must be invoked with at least one argument.`;
 
 const READY_CALLBACK_INVOKE_ERROR = `Failed to invoke the ready callback`;
 
