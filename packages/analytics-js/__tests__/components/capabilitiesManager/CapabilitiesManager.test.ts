@@ -35,7 +35,7 @@ describe('CapabilitiesManager', () => {
   let capabilitiesManager: ICapabilitiesManager;
   const defaultHttpClient = new HttpClient(defaultLogger);
 
-  describe('prepareBrowserCapabilities', () => {
+  describe('init', () => {
     beforeEach(() => {
       capabilitiesManager = new CapabilitiesManager(
         defaultHttpClient,
@@ -45,6 +45,7 @@ describe('CapabilitiesManager', () => {
     });
 
     afterEach(() => {
+      POLYFILL_URL = 'https://somevalid.polyfill.url';
       jest.clearAllMocks();
       resetState();
     });
@@ -59,7 +60,7 @@ describe('CapabilitiesManager', () => {
         loadJSFile: jest.fn(),
       } as any;
 
-      capabilitiesManager.private_prepareBrowserCapabilities();
+      capabilitiesManager.init();
 
       expect(capabilitiesManager.private_externalSrcLoader.loadJSFile).toHaveBeenCalledWith({
         url: 'https://www.dummy.url',
@@ -80,7 +81,7 @@ describe('CapabilitiesManager', () => {
         loadJSFile: jest.fn(),
       } as any;
 
-      capabilitiesManager.private_prepareBrowserCapabilities();
+      capabilitiesManager.init();
 
       expect(capabilitiesManager.private_externalSrcLoader.loadJSFile).toHaveBeenCalledWith({
         url: 'https://somevalid.polyfill.url&callback=RS_polyfillCallback_sample-write-key',
@@ -103,11 +104,12 @@ describe('CapabilitiesManager', () => {
       const tempCapabilitiesManager = new CapabilitiesManager(defaultErrorHandler);
 
       isLegacyJSEngine.mockReturnValue(true);
+
       tempCapabilitiesManager.private_externalSrcLoader = {
         loadJSFile: jest.fn(),
       } as any;
 
-      tempCapabilitiesManager.private_prepareBrowserCapabilities();
+      tempCapabilitiesManager.init();
 
       expect(tempCapabilitiesManager.private_externalSrcLoader.loadJSFile).toHaveBeenCalledWith({
         url: 'https://somevalid.polyfill.url&callback=RS_polyfillCallback_sample-write-key',
@@ -136,7 +138,7 @@ describe('CapabilitiesManager', () => {
       } as any;
       capabilitiesManager.private_onReady = jest.fn();
 
-      capabilitiesManager.private_prepareBrowserCapabilities();
+      capabilitiesManager.init();
 
       expect(capabilitiesManager.private_externalSrcLoader.loadJSFile).not.toHaveBeenCalled();
       expect(capabilitiesManager.private_onReady).toHaveBeenCalled();
@@ -144,6 +146,8 @@ describe('CapabilitiesManager', () => {
 
     it('should log an error if polyfill script fails to load', () => {
       POLYFILL_URL = 'https://somevalid.polyfill.url';
+      state.lifecycle.writeKey.value = 'sample-write-key';
+      state.loadOptions.value.polyfillIfRequired = true;
 
       isLegacyJSEngine.mockReturnValue(true);
 
@@ -155,11 +159,84 @@ describe('CapabilitiesManager', () => {
 
       const onErrorSpy = jest.spyOn(capabilitiesManager, 'private_onError');
 
-      capabilitiesManager.private_prepareBrowserCapabilities();
+      capabilitiesManager.init();
 
       expect(onErrorSpy).toHaveBeenCalledWith(
         new Error('CapabilitiesManager:: Polyfill script: Failed to load polyfill script.'),
       );
+    });
+
+    it('should call onReady if polyfill script loads successfully', () => {
+      state.loadOptions.value.polyfillURL = 'https://www.dummy.url';
+      state.lifecycle.writeKey.value = 'sample-write-key';
+      state.loadOptions.value.polyfillIfRequired = true;
+
+      isLegacyJSEngine.mockReturnValue(true);
+
+      capabilitiesManager.private_externalSrcLoader = {
+        loadJSFile: (options: any) => {
+          options.callback('rudderstackPolyfill');
+        },
+      } as any;
+
+      const onReadySpy = jest.spyOn(capabilitiesManager, 'private_onReady');
+
+      capabilitiesManager.init();
+
+      expect(onReadySpy).toHaveBeenCalled();
+    });
+
+    it('should attach event listeners', done => {
+      capabilitiesManager.init();
+
+      // Raise offline event
+      globalThis.dispatchEvent(new Event('offline'));
+
+      expect(state.capabilities.isOnline.value).toBe(false);
+
+      // Raise online event
+      globalThis.dispatchEvent(new Event('online'));
+
+      expect(state.capabilities.isOnline.value).toBe(true);
+
+      const curScreenDetails = {
+        width: globalThis.screen.width,
+        height: globalThis.screen.height,
+        density: globalThis.devicePixelRatio,
+        innerWidth: globalThis.innerWidth,
+        innerHeight: globalThis.innerHeight,
+      };
+
+      // Save the original screen object so it can be restored later
+      const originalScreen = globalThis.screen;
+
+      // Mock the screen object
+      Object.defineProperty(globalThis, 'screen', {
+        writable: true,
+        configurable: true,
+        value: { width: 100, height: 200 },
+      });
+
+      // Raise resize event
+      globalThis.dispatchEvent(new Event('resize'));
+
+      // resize event is debounced, so wait for some time before checking the state
+      setTimeout(() => {
+        expect(state.context.screen.value).toEqual({
+          ...curScreenDetails,
+          width: 100,
+          height: 200,
+        });
+
+        // Restore the original screen object
+        Object.defineProperty(globalThis, 'screen', {
+          writable: true,
+          configurable: true,
+          value: originalScreen,
+        });
+
+        done();
+      }, 500);
     });
   });
 });

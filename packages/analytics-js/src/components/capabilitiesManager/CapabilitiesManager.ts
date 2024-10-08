@@ -51,12 +51,8 @@ class CapabilitiesManager implements ICapabilitiesManager {
   }
 
   init() {
-    try {
-      this.private_prepareBrowserCapabilities();
-      this.private_attachWindowListeners();
-    } catch (err) {
-      this.private_onError(err);
-    }
+    this.private_prepareBrowserCapabilities();
+    this.private_attachWindowListeners();
   }
 
   /**
@@ -159,7 +155,7 @@ class CapabilitiesManager implements ICapabilitiesManager {
         async: true,
         timeout: POLYFILL_LOAD_TIMEOUT,
         callback: (scriptId?: string, error?: Error) => {
-          if (!scriptId && error) {
+          if (error) {
             this.private_onError(
               new Error(POLYFILL_SCRIPT_LOAD_ERROR(CAPABILITIES_MANAGER, error.message)),
             );

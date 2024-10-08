@@ -8,7 +8,7 @@ export interface ICapabilitiesManager {
   private_errorHandler?: IErrorHandler;
   private_externalSrcLoader: IExternalSrcLoader;
   private_httpClient: IHttpClient;
-  init(httpClient: IHttpClient): void;
+  init(): void;
   private_detectBrowserCapabilities(): void;
   private_prepareBrowserCapabilities(): void;
   private_attachWindowListeners(): void;
