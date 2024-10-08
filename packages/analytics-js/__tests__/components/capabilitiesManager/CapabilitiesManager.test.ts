@@ -141,5 +141,25 @@ describe('CapabilitiesManager', () => {
       expect(capabilitiesManager.private_externalSrcLoader.loadJSFile).not.toHaveBeenCalled();
       expect(capabilitiesManager.private_onReady).toHaveBeenCalled();
     });
+
+    it('should log an error if polyfill script fails to load', () => {
+      POLYFILL_URL = 'https://somevalid.polyfill.url';
+
+      isLegacyJSEngine.mockReturnValue(true);
+
+      capabilitiesManager.private_externalSrcLoader = {
+        loadJSFile: (options: any) => {
+          options.callback(undefined, new Error('Failed to load polyfill script'));
+        },
+      } as any;
+
+      const onErrorSpy = jest.spyOn(capabilitiesManager, 'private_onError');
+
+      capabilitiesManager.private_prepareBrowserCapabilities();
+
+      expect(onErrorSpy).toHaveBeenCalledWith(
+        new Error('CapabilitiesManager:: Polyfill script: Failed to load polyfill script.'),
+      );
+    });
   });
 });

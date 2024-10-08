@@ -1082,7 +1082,7 @@ describe('Event Manager - Utilities', () => {
   });
 
   describe('getEventIntegrationsConfig', () => {
-    beforeEach(() => {
+    afterEach(() => {
       resetState();
     });
 
