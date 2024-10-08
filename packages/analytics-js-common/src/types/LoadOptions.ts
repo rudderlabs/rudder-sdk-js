@@ -108,6 +108,17 @@ export type PreConsentOptions = {
   events?: PreConsentEventsOptions;
 };
 
+export enum PageLifecycleEvents {
+  PAGELOADED = 'Page Loaded',
+  PAGEUNLOADED = 'Page Unloaded',
+}
+
+export type TrackPageLifecycleOptions = {
+  enabled: boolean; // default false
+  events?: PageLifecycleEvents[];
+  options?: ApiOptions;
+};
+
 /**
  * Represents the options parameter in the load API
  */
@@ -150,6 +161,7 @@ export type LoadOptions = {
   externalAnonymousIdCookieName?: string;
   useServerSideCookies?: boolean;
   dataServiceEndpoint?: string;
+  trackPageLifecycle?: TrackPageLifecycleOptions;
 };
 
 export type ConsentOptions = {

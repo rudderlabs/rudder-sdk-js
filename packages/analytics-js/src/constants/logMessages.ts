@@ -257,6 +257,9 @@ const INVALID_POLYFILL_URL_WARNING = (
 const BAD_COOKIES_WARNING = (key: string) =>
   `The cookie data for ${key} seems to be encrypted using SDK versions < v3. The data is dropped. This can potentially stem from using SDK versions < v3 on other sites or web pages that can share cookies with this webpage. We recommend using the same SDK (v3) version everywhere or avoid disabling the storage data migration.`;
 
+const PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING = (): string =>
+  `Page Unloaded event is only supported for Beacon transport mechanism. Please set useBeacon to true to enable this feature.`;
+
 export {
   UNSUPPORTED_CONSENT_MANAGER_ERROR,
   UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING,
@@ -321,4 +324,5 @@ export {
   COMPONENT_BASE_URL_ERROR,
   SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING,
   BAD_COOKIES_WARNING,
+  PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING,
 };

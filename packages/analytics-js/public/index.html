@@ -150,12 +150,15 @@
               //   events: {
               //     delivery: 'buffer'
               //   }
-              }
+              },
               // plugins: [
               //   'StorageEncryption',
               //   'StorageMigrator',
               //   'XhrQueue'
               // ]
+              // trackPageLifecycle:{
+              //   enabled: true,
+              // }
             };
 
             rudderanalytics.load('__WRITE_KEY__', '__DATAPLANE_URL__', loadOptions);
