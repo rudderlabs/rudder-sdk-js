@@ -169,7 +169,6 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
         ]);
       }
       if (events.length === 0 || events.includes(PageLifecycleEvents.PAGEUNLOADED)) {
-        // throw warning if beacon is disabled
         if (useBeacon === true) {
           // Register the page unloaded lifecycle event listeners
           onPageLeave((isAccessible: boolean) => {
@@ -202,6 +201,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
             }
           });
         } else {
+          // throw warning if beacon is disabled
           this.logger.warn(PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING());
         }
       }
