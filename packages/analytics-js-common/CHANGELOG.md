@@ -2,6 +2,27 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.9.3](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.9.2...@rudderstack/analytics-js-common@3.9.3) (2024-09-27)
+
+
+### Bug Fixes
+
+* upgrade all packages to latest to fix vulnerabilities ([#1867](https://github.com/rudderlabs/rudder-sdk-js/issues/1867)) ([389348c](https://github.com/rudderlabs/rudder-sdk-js/commit/389348cfa61f2111c5ac4f9e2bad5851a466484d))
+
+## [3.9.2](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.9.1...@rudderstack/analytics-js-common@3.9.2) (2024-09-12)
+
+
+### Bug Fixes
+
+* gracefully handle cross sdk version cookies and warn ([#1847](https://github.com/rudderlabs/rudder-sdk-js/issues/1847)) ([408a838](https://github.com/rudderlabs/rudder-sdk-js/commit/408a8389be845883c35045fdb61695db5414ad21))
+
+## [3.9.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.9.0...@rudderstack/analytics-js-common@3.9.1) (2024-08-28)
+
+
+### Bug Fixes
+
+* handle blur and focus events to detect page leave ([#1837](https://github.com/rudderlabs/rudder-sdk-js/issues/1837)) ([57e735c](https://github.com/rudderlabs/rudder-sdk-js/commit/57e735ced4fb51ec895fbb196b1b879996cc10dd))
+
 ## [3.9.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.8.1...@rudderstack/analytics-js-common@3.9.0) (2024-08-16)
 
 

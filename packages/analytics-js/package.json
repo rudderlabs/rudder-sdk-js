@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js",
-  "version": "3.7.9",
+  "version": "3.7.15",
   "description": "RudderStack JavaScript SDK",
   "main": "dist/npm/modern/cjs/index.cjs",
   "module": "dist/npm/modern/esm/index.mjs",
@@ -141,29 +141,18 @@
   "devDependencies": {},
   "browserslist": {
     "production": [
-      "defaults",
-      "Edge >= 80",
-      "Firefox >= 47",
-      "IE >= 11",
-      "Chrome >= 54",
-      "Safari >= 7",
-      "Opera >= 43"
+      "> 0.1%",
+      "IE >= 11"
     ],
     "modern": [
-      "defaults and supports es6-module-dynamic-import"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 edge version",
-      "last 1 safari version"
+      "defaults and supports es6-module-dynamic-import and not dead"
     ]
   },
   "dependencies": {
     "@rudderstack/analytics-js-common": "*",
     "@rudderstack/analytics-js-cookies": "*",
     "@rudderstack/analytics-js-plugins": "*",
-    "@preact/signals-core": "1.6.1",
+    "@preact/signals-core": "1.8.0",
     "ramda": "0.30.1",
     "storejs": "2.1.0"
   }

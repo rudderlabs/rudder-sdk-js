@@ -48,3 +48,12 @@ jobs:
       RS_STAGING_BUGSNAG_API_KEY: ${{ secrets.RS_STAGING_BUGSNAG_API_KEY }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
+
+  trigger-sanity-suite:
+    uses: ./.github/workflows/trigger-sanity-suite.yml
+    needs: deploy-sanity-suite
+    name: Trigger Sanity Suite
+    with:
+      environment: staging
+    secrets:
+      PAT: ${{ secrets.PAT }}

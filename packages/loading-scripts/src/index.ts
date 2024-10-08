@@ -57,10 +57,12 @@ if (Array.isArray(rudderanalytics)) {
         })(method);
     }
 
-    // Feature detection of dynamic imports
+    // Feature detection of dynamic imports and other legacy browser features
     try {
       // eslint-disable-next-line no-new, @typescript-eslint/no-implied-eval
-      new Function('return import("")');
+      new Function(
+        'class Test{field=()=>{};test({prop=[]}={}){return prop?(prop?.property??[...prop]):import("");}}',
+      );
       window.rudderAnalyticsBuildType = 'modern';
     } catch (e) {
       // Do nothing
@@ -101,7 +103,7 @@ if (Array.isArray(rudderanalytics)) {
       // globalThis polyfill as polyfill-fastly.io one does not work in legacy safari
       (function () {
         if (typeof globalThis === 'undefined') {
-          let getGlobal = function () {
+          const getGlobal = function () {
             if (typeof self !== 'undefined') {
               return self;
             }
@@ -111,7 +113,7 @@ if (Array.isArray(rudderanalytics)) {
             return null;
           };
 
-          let global = getGlobal();
+          const global = getGlobal();
 
           if (global) {
             Object.defineProperty(global, 'globalThis', {

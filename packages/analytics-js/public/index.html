@@ -5,7 +5,7 @@
     <script>
       (function() {
         "use strict";
-        window.RudderSnippetVersion = "3.0.10";
+        window.RudderSnippetVersion = "3.0.30";
         var identifier = "rudderanalytics";
         if (!window[identifier]) {
           window[identifier] = [];
@@ -35,7 +35,7 @@
               }(method);
             }
             try {
-              new Function('return import("")');
+              new Function('class Test{field=()=>{};test({prop=[]}={}){return prop?(prop?.property??[...prop]):import("");}}');
               window.rudderAnalyticsBuildType = "modern";
             } catch (e) {}
             var head = document.head || document.getElementsByTagName("head")[0];
@@ -61,7 +61,7 @@
             window.rudderAnalyticsMount = function() {
               (function() {
                 if (typeof globalThis === "undefined") {
-                  let getGlobal = function() {
+                  var getGlobal = function() {
                     if (typeof self !== "undefined") { 
                       return self; 
                     }
@@ -71,7 +71,7 @@
                     return null;
                   };
                   
-                  let global = getGlobal();
+                  var global = getGlobal();
                   
                   if (global) {
                     Object.defineProperty(global, 'globalThis', {
@@ -272,6 +272,8 @@
     <button data-testid="track-btn" onclick="track()">Track</button>
     <button data-testid="alias-btn" onclick="alias()">Alias</button>
     <button data-testid="group-btn" onclick="group()">Group</button>
+    <button data-testid="reload-page-btn" onclick="reloadPageWithEvents()">Reload Page With Events</button>
+
 
     <p data-testid="action" id="action"></p>
     <p data-testid="payload" id="rudderElement"></p>
@@ -358,6 +360,24 @@
             document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
           }
         );
+      }
+
+      function reloadPageWithEvents() {
+        rudderanalytics.track('Event 1 before reload', function (rudderElement) {
+          console.log('Event 1 before reload');
+
+          document.getElementById('action').innerHTML = 'Event 1 before reload';
+          document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
+        });
+
+        rudderanalytics.track('Event 2 before reload', function (rudderElement) {
+          console.log('Event 2 before reload');
+
+          document.getElementById('action').innerHTML = 'Event 2 before reload';
+          document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
+        });
+
+        window.location.reload();
       }
     </script>
   </body>

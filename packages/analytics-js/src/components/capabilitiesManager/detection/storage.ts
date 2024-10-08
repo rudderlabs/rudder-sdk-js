@@ -33,6 +33,11 @@ const isStorageAvailable = (
   let storage;
   let testData;
 
+  const msgPrefix = STORAGE_UNAVAILABILITY_ERROR_PREFIX(CAPABILITIES_MANAGER, type);
+  let reason = 'unavailable';
+  let isAccessible = true;
+  let errObj;
+
   try {
     switch (type) {
       case MEMORY_STORAGE:
@@ -53,25 +58,29 @@ const isStorageAvailable = (
         return false;
     }
 
-    if (!storage) {
-      return false;
+    if (storage) {
+      storage.setItem(testData, 'true');
+      if (storage.getItem(testData)) {
+        storage.removeItem(testData);
+        return true;
+      }
     }
 
-    storage.setItem(testData, 'true');
-    if (storage.getItem(testData)) {
-      storage.removeItem(testData);
-      return true;
-    }
-    return false;
+    isAccessible = false;
   } catch (err) {
-    const msgPrefix = STORAGE_UNAVAILABILITY_ERROR_PREFIX(CAPABILITIES_MANAGER, type);
-    let reason = 'unavailable';
+    isAccessible = false;
+    errObj = err;
     if (isStorageQuotaExceeded(err)) {
       reason = 'full';
     }
-    logger?.warn(`${msgPrefix}${reason}.`, err);
-    return false;
   }
+
+  if (!isAccessible) {
+    logger?.warn(`${msgPrefix}${reason}.`, errObj);
+  }
+
+  // if we've have reached here, it means the storage is not available
+  return false;
 };
 
 export { isStorageQuotaExceeded, isStorageAvailable };

@@ -203,6 +203,66 @@ describe('User session manager', () => {
       userSessionManager.syncStorageDataToState();
       expect(state.session.anonymousId.value).toBe('dummy-anonymousId');
     });
+    it('should not set sessionInfo if autoTrack is set to false in loadOption and sessionInfo exists in storage', () => {
+      const customData = {
+        rl_session: {
+          id: 1726655503445,
+          expiresAt: Date.now() + 60 * 1000,
+          timeout: 60000,
+          autoTrack: true,
+          sessionStart: false,
+        },
+      };
+      setDataInCookieStorage(customData);
+      state.loadOptions.value.sessions.autoTrack = false;
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.syncStorageDataToState();
+      expect(state.session.sessionInfo.value).toStrictEqual({});
+    });
+    it('should set sessionInfo if autoTrack is set to false in loadOption and sessionInfo exists in storage with manualTrack enabled', () => {
+      const customData = {
+        rl_session: {
+          id: 1726655503445,
+          expiresAt: Date.now() + 60 * 1000,
+          timeout: 60000,
+          manualTrack: true,
+          sessionStart: false,
+        },
+      };
+      setDataInCookieStorage(customData);
+      state.loadOptions.value.sessions.autoTrack = false;
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.syncStorageDataToState();
+      expect(state.session.sessionInfo.value).toStrictEqual({
+        id: 1726655503445,
+        expiresAt: expect.any(Number),
+        timeout: 60000,
+        manualTrack: true,
+        autoTrack: false,
+        sessionStart: false,
+      });
+    });
+    it('should set sessionInfo if sessionInfo exists in storage with autoTrack enabled', () => {
+      const customData = {
+        rl_session: {
+          id: 1726655503445,
+          expiresAt: Date.now() + 60 * 1000,
+          timeout: 1800000,
+          autoTrack: true,
+          sessionStart: false,
+        },
+      };
+      setDataInCookieStorage(customData);
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.syncStorageDataToState();
+      expect(state.session.sessionInfo.value).toStrictEqual({
+        id: 1726655503445,
+        expiresAt: expect.any(Number),
+        timeout: 1800000,
+        autoTrack: true,
+        sessionStart: false,
+      });
+    });
   });
 
   describe('init', () => {
@@ -537,10 +597,7 @@ describe('User session manager', () => {
         timeout: 10000,
       };
       userSessionManager.init();
-      expect(state.session.sessionInfo.value).toStrictEqual({
-        autoTrack: false,
-        timeout: DEFAULT_SESSION_TIMEOUT_MS,
-      });
+      expect(state.session.sessionInfo.value).toStrictEqual({});
     });
 
     it('should log a warning and use default timeout if provided timeout is not in number format', () => {
@@ -560,7 +617,7 @@ describe('User session manager', () => {
       expect(defaultLogger.warn).toHaveBeenCalledWith(
         'UserSessionManager:: The session timeout value is 0, which disables the automatic session tracking feature. If you want to enable session tracking, please provide a positive integer value for the timeout.',
       );
-      expect(state.session.sessionInfo.value.autoTrack).toBe(false);
+      expect(state.session.sessionInfo.value).toStrictEqual({});
     });
 
     it('should log a warning if provided timeout is less than 10 seconds', () => {
@@ -990,6 +1047,13 @@ describe('User session manager', () => {
       userSessionManager.setUserTraits();
       expect(state.session.userTraits.value).toStrictEqual(DEFAULT_USER_SESSION_VALUES.userTraits);
     });
+
+    it('should reset the value to default value if the value is not an object', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+      userSessionManager.setUserTraits('dummy-user-traits');
+      expect(state.session.userTraits.value).toStrictEqual(DEFAULT_USER_SESSION_VALUES.userTraits);
+    });
   });
 
   describe('setGroupId', () => {
@@ -1054,6 +1118,15 @@ describe('User session manager', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.init();
       userSessionManager.setGroupTraits();
+      expect(state.session.groupTraits.value).toStrictEqual(
+        DEFAULT_USER_SESSION_VALUES.groupTraits,
+      );
+    });
+
+    it('should reset the value to default value if the value is not an object', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+      userSessionManager.setGroupTraits('dummy-group-traits');
       expect(state.session.groupTraits.value).toStrictEqual(
         DEFAULT_USER_SESSION_VALUES.groupTraits,
       );
@@ -1595,16 +1668,16 @@ describe('User session manager', () => {
       const makeRequestToSetCookieSpy = jest.spyOn(userSessionManager, 'makeRequestToSetCookie');
 
       userSessionManager.setServerSideCookies(
-        [{ name: 'key', value: 'sample_cookie_value_1234' }],
+        [{ name: 'key1', value: 'sample_cookie_value_1234' }],
         () => {},
         mockCookieStore,
       );
       expect(getEncryptedCookieDataSpy).toHaveBeenCalledWith(
-        [{ name: 'key', value: 'sample_cookie_value_1234' }],
+        [{ name: 'key1', value: 'sample_cookie_value_1234' }],
         mockCookieStore,
       );
       expect(makeRequestToSetCookieSpy).toHaveBeenCalledWith(
-        [{ name: 'key', value: 'encrypted_sample_cookie_value_1234' }],
+        [{ name: 'key1', value: 'encrypted_sample_cookie_value_1234' }],
         expect.any(Function),
       );
       done();
@@ -1616,7 +1689,7 @@ describe('User session manager', () => {
         state.storage.cookie.value = {
           maxage: 10 * 60 * 1000, // 10 min
           path: '/',
-          domain: 'example.com',
+          domain: 'dummy.dataplane.host.com',
           samesite: 'Lax',
         };
         userSessionManager.setServerSideCookies(
@@ -1654,7 +1727,7 @@ describe('User session manager', () => {
         state.storage.cookie.value = {
           maxage: 10 * 60 * 1000, // 10 min
           path: '/',
-          domain: 'example.com',
+          domain: 'dummy.dataplane.host.com',
           samesite: 'Lax',
         };
         userSessionManager.setServerSideCookies(
@@ -1683,7 +1756,7 @@ describe('User session manager', () => {
       state.storage.cookie.value = {
         maxage: 10 * 60 * 1000, // 10 min
         path: '/',
-        domain: 'example.com',
+        domain: 'dummy.dataplane.host.com',
         samesite: 'Lax',
       };
       userSessionManager.setServerSideCookies(
@@ -1703,7 +1776,7 @@ describe('User session manager', () => {
       state.storage.cookie.value = {
         maxage: 10 * 60 * 1000, // 10 min
         path: '/',
-        domain: 'example.com',
+        domain: 'dummy.dataplane.host.com',
         samesite: 'Lax',
       };
       userSessionManager.setServerSideCookies(
@@ -1726,7 +1799,7 @@ describe('User session manager', () => {
       state.storage.cookie.value = {
         maxage: 10 * 60 * 1000, // 10 min
         path: '/',
-        domain: 'example.com',
+        domain: 'dummy.dataplane.host.com',
         samesite: 'Lax',
       };
       userSessionManager.setServerSideCookies(
@@ -1760,7 +1833,7 @@ describe('User session manager', () => {
         state.storage.cookie.value = {
           maxage: 10 * 60 * 1000, // 10 min
           path: '/',
-          domain: 'example.com',
+          domain: 'dummy.dataplane.host.com',
           samesite: 'Lax',
         };
         const getAsyncDataSpy = jest.spyOn(defaultHttpClient, 'getAsyncData');
@@ -1779,7 +1852,7 @@ describe('User session manager', () => {
                 options: {
                   maxAge: 10 * 60 * 1000,
                   path: '/',
-                  domain: 'example.com',
+                  domain: 'dummy.dataplane.host.com',
                   sameSite: 'Lax',
                   secure: undefined,
                 },

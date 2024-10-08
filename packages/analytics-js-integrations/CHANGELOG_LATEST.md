@@ -1,10 +1,10 @@
-## [3.8.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.7.0...@rudderstack/analytics-js-integrations@3.8.0) (2024-08-16)
+## [3.8.4](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.8.3...@rudderstack/analytics-js-integrations@3.8.4) (2024-09-27)
 
 ### Dependency Updates
 
-* `@rudderstack/analytics-js-common` updated to version `3.9.0`
+* `@rudderstack/analytics-js-common` updated to version `3.9.3`
 
-### Features
+### Bug Fixes
 
-* onboarded XPixel Integration ([#1783](https://github.com/rudderlabs/rudder-sdk-js/issues/1783)) ([cf9b8cc](https://github.com/rudderlabs/rudder-sdk-js/commit/cf9b8cc41de341be781fae3108e4a07f2b553dda))
+* userId in braze hyrbrid ([#1835](https://github.com/rudderlabs/rudder-sdk-js/issues/1835)) ([71a6a30](https://github.com/rudderlabs/rudder-sdk-js/commit/71a6a30a3e0a3be7422a66a063ed6b1816e886a7))
 

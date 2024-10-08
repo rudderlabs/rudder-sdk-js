@@ -26,7 +26,17 @@
           "serverUrl": "",
           "blacklistedEvents": [],
           "whitelistedEvents": [],
-          "oneTrustCookieCategories": [],
+          "oneTrustCookieCategories": [
+            {
+              "oneTrustCookieCategory": ""
+            }
+          ],
+          "consentManagement": [
+            {
+              "provider": "oneTrust",
+              "consents": []
+            }
+          ],
           "eventFilteringOption": "disable"
         },
         "destinationDefinitionId": "1X6kXapk8Sf8yZTJn1dYZO3OXFt",
@@ -34,7 +44,7 @@
           "name": "GTM",
           "displayName": "Google Tag Manager"
         },
-        "updatedAt": "2023-11-06T10:42:57.261Z",
+        "updatedAt": "2024-10-01T10:20:52.025Z",
         "shouldApplyDeviceModeTransformation": false,
         "propagateEventsUntransformedOnError": false
       },
@@ -56,21 +66,31 @@
           "disableAdPersonalization": false,
           "blacklistedEvents": [],
           "whitelistedEvents": [],
-          "oneTrustCookieCategories": [],
+          "oneTrustCookieCategories": [
+            {
+              "oneTrustCookieCategory": ""
+            }
+          ],
           "eventFilteringOption": "disable",
           "dynamicRemarketing": {},
           "trackConversions": true,
           "enableConversionEventsFiltering": false,
           "trackDynamicRemarketing": false,
           "allowEnhancedConversions": false,
-          "enableConversionLabel": false
+          "enableConversionLabel": false,
+          "consentManagement": [
+            {
+              "provider": "oneTrust",
+              "consents": []
+            }
+          ]
         },
         "destinationDefinitionId": "1X6kXNpFwP2NmnjWGuVWb8qoJ8L",
         "destinationDefinition": {
           "name": "GOOGLEADS",
           "displayName": "Google Ads"
         },
-        "updatedAt": "2023-11-06T10:43:08.815Z",
+        "updatedAt": "2024-10-01T09:56:28.946Z",
         "shouldApplyDeviceModeTransformation": false,
         "propagateEventsUntransformedOnError": false
       },
@@ -82,15 +102,25 @@
           "siteID": "3382269",
           "blacklistedEvents": [],
           "whitelistedEvents": [],
-          "oneTrustCookieCategories": [],
-          "eventFilteringOption": "disable"
+          "oneTrustCookieCategories": [
+            {
+              "oneTrustCookieCategory": ""
+            }
+          ],
+          "eventFilteringOption": "disable",
+          "consentManagement": [
+            {
+              "provider": "oneTrust",
+              "consents": []
+            }
+          ]
         },
         "destinationDefinitionId": "1SxbQXdfQ2NzIdqNO3GceshF4V0",
         "destinationDefinition": {
           "name": "HOTJAR",
           "displayName": "Hotjar"
         },
-        "updatedAt": "2023-11-06T10:44:20.419Z",
+        "updatedAt": "2024-10-01T10:20:16.906Z",
         "shouldApplyDeviceModeTransformation": false,
         "propagateEventsUntransformedOnError": false
       },
@@ -164,7 +194,7 @@
           "name": "AM",
           "displayName": "Amplitude"
         },
-        "updatedAt": "2023-11-20T11:25:55.490Z",
+        "updatedAt": "2024-09-18T11:17:44.316Z",
         "shouldApplyDeviceModeTransformation": false,
         "propagateEventsUntransformedOnError": false
       },
@@ -203,7 +233,7 @@
           "name": "BRAZE",
           "displayName": "Braze"
         },
-        "updatedAt": "2023-11-06T10:42:45.853Z",
+        "updatedAt": "2024-09-19T10:57:33.488Z",
         "shouldApplyDeviceModeTransformation": false,
         "propagateEventsUntransformedOnError": false
       },
@@ -221,6 +251,12 @@
           "useRichEventNames": false,
           "sampleRate": "100",
           "siteSpeedSampleRate": "1",
+          "dimensions": [
+            {
+              "from": "",
+              "to": ""
+            }
+          ],
           "resetCustomDimensionsOnPage": [],
           "setAllMappedProps": true,
           "anonymizeIp": false,
@@ -252,7 +288,6 @@
               "oneTrustCookieCategory": "C0003"
             }
           ],
-          "eventFilteringOption": "blacklistedEvents",
           "ketchConsentPurposes": [
             {
               "purpose": "analytics"
@@ -260,14 +295,39 @@
             {
               "purpose": "another_purpose_id"
             }
-          ]
+          ],
+          "consentManagement": [
+            {
+              "provider": "oneTrust",
+              "consents": [
+                {
+                  "consent": "C0001"
+                },
+                {
+                  "consent": "C0003"
+                }
+              ]
+            },
+            {
+              "provider": "ketch",
+              "consents": [
+                {
+                  "consent": "analytics"
+                },
+                {
+                  "consent": "another_purpose_id"
+                }
+              ]
+            }
+          ],
+          "eventFilteringOption": "blacklistedEvents"
         },
         "destinationDefinitionId": "1QGzNyNSA4alXixnhDcq4C10ac2",
         "destinationDefinition": {
           "name": "GA",
           "displayName": "Google Analytics"
         },
-        "updatedAt": "2023-11-17T11:24:40.377Z",
+        "updatedAt": "2024-10-01T09:57:51.189Z",
         "shouldApplyDeviceModeTransformation": false,
         "propagateEventsUntransformedOnError": false
       },
@@ -299,10 +359,28 @@
             }
           ],
           "overrideClientAndSessionId": true,
-          "oneTrustCookieCategories": [],
+          "oneTrustCookieCategories": [
+            {
+              "oneTrustCookieCategory": ""
+            }
+          ],
           "ketchConsentPurposes": [
             {
               "purpose": "analytics"
+            }
+          ],
+          "consentManagement": [
+            {
+              "provider": "oneTrust",
+              "consents": []
+            },
+            {
+              "provider": "ketch",
+              "consents": [
+                {
+                  "consent": "analytics"
+                }
+              ]
             }
           ]
         },
@@ -311,7 +389,7 @@
           "name": "GA4",
           "displayName": "Google Analytics 4 (GA4)"
         },
-        "updatedAt": "2023-11-06T10:42:12.911Z",
+        "updatedAt": "2024-10-01T10:07:57.063Z",
         "shouldApplyDeviceModeTransformation": false,
         "propagateEventsUntransformedOnError": false
       },
@@ -325,15 +403,25 @@
           "fs_host": "",
           "blacklistedEvents": [],
           "whitelistedEvents": [],
-          "oneTrustCookieCategories": [],
-          "eventFilteringOption": "disable"
+          "oneTrustCookieCategories": [
+            {
+              "oneTrustCookieCategory": ""
+            }
+          ],
+          "eventFilteringOption": "disable",
+          "consentManagement": [
+            {
+              "provider": "oneTrust",
+              "consents": []
+            }
+          ]
         },
         "destinationDefinitionId": "1aIY8UDEW1vZJ6n21ZO9BmRHgAp",
         "destinationDefinition": {
           "name": "FULLSTORY",
           "displayName": "Fullstory"
         },
-        "updatedAt": "2023-11-06T10:43:33.652Z",
+        "updatedAt": "2024-10-01T10:13:31.740Z",
         "shouldApplyDeviceModeTransformation": false,
         "propagateEventsUntransformedOnError": false
       },
@@ -350,17 +438,27 @@
           "propertyBlackList": [],
           "blacklistedEvents": [],
           "whitelistedEvents": [],
-          "oneTrustCookieCategories": [],
+          "oneTrustCookieCategories": [
+            {
+              "oneTrustCookieCategory": ""
+            }
+          ],
           "enableLocalStoragePersistence": false,
           "eventFilteringOption": "disable",
-          "useV2Group": false
+          "useV2Group": false,
+          "consentManagement": [
+            {
+              "provider": "oneTrust",
+              "consents": []
+            }
+          ]
         },
         "destinationDefinitionId": "1kFwq1W6mIA0COSvz7Zmqsn1DFB",
         "destinationDefinition": {
           "name": "POSTHOG",
           "displayName": "PostHog"
         },
-        "updatedAt": "2023-11-06T10:43:22.164Z",
+        "updatedAt": "2024-10-01T10:19:05.596Z",
         "shouldApplyDeviceModeTransformation": false,
         "propagateEventsUntransformedOnError": false
       },
@@ -387,21 +485,39 @@
           "whitelistPiiProperties": [],
           "blacklistedEvents": [],
           "whitelistedEvents": [],
-          "oneTrustCookieCategories": [],
-          "eventFilteringOption": "disable",
-          "useUpdatedMapping": false,
+          "oneTrustCookieCategories": [
+            {
+              "oneTrustCookieCategory": ""
+            }
+          ],
           "ketchConsentPurposes": [
             {
               "purpose": ""
             }
-          ]
+          ],
+          "consentManagement": [
+            {
+              "provider": "oneTrust",
+              "consents": []
+            },
+            {
+              "provider": "ketch",
+              "consents": [
+                {
+                  "consent": ""
+                }
+              ]
+            }
+          ],
+          "eventFilteringOption": "disable",
+          "useUpdatedMapping": false
         },
         "destinationDefinitionId": "1aIXpsUVMU38nBFIE4QTiZu9Vxo",
         "destinationDefinition": {
           "name": "FACEBOOK_PIXEL",
           "displayName": "Facebook Pixel"
         },
-        "updatedAt": "2023-11-06T10:44:06.686Z",
+        "updatedAt": "2024-10-01T10:17:50.293Z",
         "shouldApplyDeviceModeTransformation": false,
         "propagateEventsUntransformedOnError": false
       }
