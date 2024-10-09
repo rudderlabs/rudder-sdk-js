@@ -215,7 +215,7 @@ class Analytics implements IAnalytics {
       this.private_httpClient.setAuthHeader(state.lifecycle.writeKey.value);
     }
 
-    this.private_capabilitiesManager.init(this.private_httpClient);
+    this.private_capabilitiesManager.init();
   }
 
   /**
