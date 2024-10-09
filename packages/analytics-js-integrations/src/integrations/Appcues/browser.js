@@ -56,7 +56,7 @@ class Appcues {
     const { userId } = rudderElement.message;
     // iterate through traits and flatten any properties that are objects or arrays
     Object.keys(traits).forEach(key => {
-      if ( traits[key] && typeof traits[key] === 'object' ) {
+      if (traits[key] && typeof traits[key] === 'object') {
         Object.keys(traits[key]).forEach(subKey => {
           traits[`${key}.${subKey}`] = traits[key][subKey];
         });
@@ -83,6 +83,19 @@ class Appcues {
   page(rudderElement) {
     const { properties, name } = rudderElement.message;
     window.Appcues.page(name, properties);
+  }
+
+  // docs: https://docs.appcues.com/en_US/dev-installing-appcues/installation-overview-for-developers#identifying-groups-15
+  group(rudderElement) {
+    const { groupId, traits } = rudderElement.message;
+    if (!isDefinedAndNotNullAndNotEmpty(groupId)) {
+      logger.error('group id is required');
+      return;
+    }
+    window.Appcues.group(
+      groupId, // unique, required
+      traits,
+    );
   }
 }
 

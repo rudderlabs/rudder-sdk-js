@@ -20,6 +20,7 @@ const mockAppcuesSDK = () => {
     identify: jest.fn(),
     track: jest.fn(),
     page: jest.fn(),
+    group: jest.fn(),
   };
 };
 
@@ -157,6 +158,28 @@ describe('Appcues page tests', () => {
     const spy = jest.spyOn(window.Appcues, 'page');
     appcues.page(rudderElement);
     expect(spy).toHaveBeenCalledWith('testPage', {
+      name: 'test',
+    });
+  });
+});
+describe('Appcues group tests', () => {
+  let appcues;
+  const rudderElement = {
+    message: {
+      type: 'group',
+      groupId: 'testid',
+      traits: {
+        name: 'test',
+      },
+    },
+  };
+  it('Testing group call of Appcues', () => {
+    appcues = new Appcues(appcuesConfig, { loglevel: 'debug' });
+    appcues.init();
+    mockAppcuesSDK();
+    const spy = jest.spyOn(window.Appcues, 'group');
+    appcues.group(rudderElement);
+    expect(spy).toHaveBeenCalledWith('testid', {
       name: 'test',
     });
   });
