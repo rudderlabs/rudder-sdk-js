@@ -53,6 +53,8 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   analyticsInstances: Record<string, IAnalytics> = {};
   defaultAnalyticsKey = '';
   logger = defaultLogger;
+  visitId = generateUUID();
+  pageLoadedTimestamp = Date.now();
 
   // Singleton with constructor bind methods
   constructor() {
@@ -163,18 +165,15 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
       return;
     }
 
-    const visitId = generateUUID();
-    const pageLoadedTimestamp = Date.now();
-
     // track page loaded event
     if (events.length === 0 || events.includes(PageLifecycleEvents.LOADED)) {
       preloadedEventsArray.unshift([
         'track',
         PageLifecycleEvents.LOADED,
-        { visitId },
+        { visitId: this.visitId },
         {
           ...options,
-          originalTimestamp: new Date(pageLoadedTimestamp).toISOString(),
+          originalTimestamp: new Date(this.pageLoadedTimestamp).toISOString(),
         },
       ]);
     }
@@ -186,11 +185,11 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
         onPageLeave((isAccessible: boolean) => {
           if (isAccessible === false && state.lifecycle.loaded.value) {
             const pageUnloadedTimestamp = Date.now();
-            const visitDuration = pageUnloadedTimestamp - pageLoadedTimestamp;
+            const visitDuration = pageUnloadedTimestamp - this.pageLoadedTimestamp;
             this.track(
               PageLifecycleEvents.UNLOADED,
               {
-                visitId,
+                visitId: this.visitId,
                 visitDuration,
               },
               {
@@ -202,7 +201,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
         });
       } else {
         // throw warning if beacon is disabled
-        this.logger.warn(PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING);
+        this.logger.warn(PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING(RS_APP));
       }
     }
     setExposedGlobal(GLOBAL_PRELOAD_BUFFER, clone(preloadedEventsArray));
