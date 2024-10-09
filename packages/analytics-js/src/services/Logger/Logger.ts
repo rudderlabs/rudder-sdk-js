@@ -11,7 +11,7 @@ const LOG_LEVEL_MAP: Record<LogLevel, number> = {
   NONE: 5,
 };
 
-const DEFAULT_LOG_LEVEL = 'ERROR';
+const DEFAULT_LOG_LEVEL = 'LOG';
 const LOG_MSG_PREFIX = 'RS SDK';
 const LOG_MSG_PREFIX_STYLE = 'font-weight: bold; background: black; color: white;';
 const LOG_MSG_STYLE = 'font-weight: normal;';

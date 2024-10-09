@@ -15,6 +15,7 @@ import { pluginsState } from './slices/plugins';
 import { storageState } from './slices/storage';
 import { serverSideCookiesState } from './slices/serverCookies';
 import { dataPlaneEventsState } from './slices/dataPlaneEvents';
+import { pageLifecycleState } from './slices/pageLifecycle';
 
 const defaultStateValues: ApplicationState = {
   capabilities: capabilitiesState,
@@ -32,6 +33,7 @@ const defaultStateValues: ApplicationState = {
   storage: storageState,
   serverCookies: serverSideCookiesState,
   dataPlaneEvents: dataPlaneEventsState,
+  pageLifecycle: pageLifecycleState,
 };
 
 const state: ApplicationState = {
@@ -54,6 +56,7 @@ const resetState = () => {
   state.storage = clone(defaultStateValues.storage);
   state.serverCookies = clone(defaultStateValues.serverCookies);
   state.dataPlaneEvents = clone(defaultStateValues.dataPlaneEvents);
+  state.pageLifecycle = clone(defaultStateValues.pageLifecycle);
 };
 
 export { state, resetState };

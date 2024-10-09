@@ -53,8 +53,6 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   analyticsInstances: Record<string, IAnalytics> = {};
   defaultAnalyticsKey = '';
   logger = defaultLogger;
-  visitId = generateUUID();
-  pageLoadedTimestamp = Date.now();
 
   // Singleton with constructor bind methods
   constructor() {
@@ -90,7 +88,10 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     this.consent = this.consent.bind(this);
 
     RudderAnalytics.globalSingleton = this;
-    this.logger?.setMinLogLevel('WARN');
+
+    state.pageLifecycle.visitId.value = generateUUID();
+    state.pageLifecycle.pageLoadedTimestamp.value = Date.now();
+
     // start loading if a load event was buffered or wait for explicit load call
     this.triggerBufferedLoadEvent();
 
@@ -161,6 +162,9 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
       options = {},
     } = trackPageLifecycle ?? {};
 
+    const visitId = state.pageLifecycle.visitId.value;
+    const pageLoadedTimestamp = state.pageLifecycle.pageLoadedTimestamp.value as number;
+
     if (!enabled) {
       return;
     }
@@ -170,10 +174,10 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
       preloadedEventsArray.unshift([
         'track',
         PageLifecycleEvents.LOADED,
-        { visitId: this.visitId },
+        { visitId },
         {
           ...options,
-          originalTimestamp: new Date(this.pageLoadedTimestamp).toISOString(),
+          originalTimestamp: new Date(pageLoadedTimestamp).toISOString(),
         },
       ]);
     }
@@ -185,11 +189,11 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
         onPageLeave((isAccessible: boolean) => {
           if (isAccessible === false && state.lifecycle.loaded.value) {
             const pageUnloadedTimestamp = Date.now();
-            const visitDuration = pageUnloadedTimestamp - this.pageLoadedTimestamp;
+            const visitDuration = pageUnloadedTimestamp - pageLoadedTimestamp;
             this.track(
               PageLifecycleEvents.UNLOADED,
               {
-                visitId: this.visitId,
+                visitId,
                 visitDuration,
               },
               {
