@@ -44,7 +44,7 @@ const defaultLoadOptions: LoadOptions = {
   useServerSideCookies: false,
   trackPageLifecycle: {
     enabled: false,
-    events: [PageLifecycleEvents.PAGELOADED, PageLifecycleEvents.PAGEUNLOADED],
+    events: [PageLifecycleEvents.LOADED, PageLifecycleEvents.UNLOADED],
   },
 };
 

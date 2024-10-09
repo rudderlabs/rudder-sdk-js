@@ -153,60 +153,59 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     loadOptions?: Partial<LoadOptions>,
   ) {
     const { trackPageLifecycle, useBeacon } = loadOptions ?? {};
-    const { events = [], enabled = false, options = {} } = trackPageLifecycle ?? {};
-    if (enabled) {
-      const visitId = generateUUID();
-      const pageLoadedTimestamp = Date.now();
-      if (events.length === 0 || events.includes(PageLifecycleEvents.PAGELOADED)) {
-        preloadedEventsArray.unshift([
-          'track',
-          PageLifecycleEvents.PAGELOADED,
-          { visitId },
-          {
-            originalTimestamp: new Date(pageLoadedTimestamp).toISOString(),
-            ...options,
-          },
-        ]);
-      }
-      if (events.length === 0 || events.includes(PageLifecycleEvents.PAGEUNLOADED)) {
-        if (useBeacon === true) {
-          // Register the page unloaded lifecycle event listeners
-          onPageLeave((isAccessible: boolean) => {
-            if (isAccessible === false) {
-              const visitDuration = Date.now() - pageLoadedTimestamp;
-              if (!state.lifecycle.loaded.value) {
-                preloadedEventsArray.unshift([
-                  'track',
-                  PageLifecycleEvents.PAGEUNLOADED,
-                  {
-                    visitId,
-                    visitDuration,
-                  },
-                  {
-                    ...options,
-                  },
-                ]);
-              } else {
-                this.track(
-                  PageLifecycleEvents.PAGEUNLOADED,
-                  {
-                    visitId,
-                    visitDuration,
-                  },
-                  {
-                    ...options,
-                  },
-                );
-              }
-            }
-          });
-        } else {
-          // throw warning if beacon is disabled
-          this.logger.warn(PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING());
-        }
-      }
-      setExposedGlobal(GLOBAL_PRELOAD_BUFFER, clone(preloadedEventsArray));
+    const {
+      events = [PageLifecycleEvents.LOADED, PageLifecycleEvents.UNLOADED],
+      enabled = false,
+      options = {},
+    } = trackPageLifecycle ?? {};
+
+    if (!enabled) {
+      return;
     }
+
+    const visitId = generateUUID();
+    const pageLoadedTimestamp = Date.now();
+
+    // track page loaded event
+    if (events.length === 0 || events.includes(PageLifecycleEvents.LOADED)) {
+      preloadedEventsArray.unshift([
+        'track',
+        PageLifecycleEvents.LOADED,
+        { visitId },
+        {
+          ...options,
+          originalTimestamp: new Date(pageLoadedTimestamp).toISOString(),
+        },
+      ]);
+    }
+
+    // track page unloaded event
+    if (events.length === 0 || events.includes(PageLifecycleEvents.UNLOADED)) {
+      if (useBeacon === true) {
+        // Register the page unloaded lifecycle event listeners
+        onPageLeave((isAccessible: boolean) => {
+          if (isAccessible === false && state.lifecycle.loaded.value) {
+            const pageUnloadedTimestamp = Date.now();
+            const visitDuration = pageUnloadedTimestamp - pageLoadedTimestamp;
+            this.track(
+              PageLifecycleEvents.UNLOADED,
+              {
+                visitId,
+                visitDuration,
+              },
+              {
+                ...options,
+                originalTimestamp: new Date(pageUnloadedTimestamp).toISOString(),
+              },
+            );
+          }
+        });
+      } else {
+        // throw warning if beacon is disabled
+        this.logger.warn(PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING);
+      }
+    }
+    setExposedGlobal(GLOBAL_PRELOAD_BUFFER, clone(preloadedEventsArray));
   }
 
   /**
