@@ -76,6 +76,8 @@ export interface IRudderAnalytics<T = any> {
   analyticsInstances: Record<string, T>;
   defaultAnalyticsKey: string;
   logger: ILogger;
+  visitId: string;
+  pageLoadedTimestamp: number;
 
   /**
    * Set the writeKey of the analytics instance that should be default
