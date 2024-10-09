@@ -121,14 +121,6 @@ const normalizeLoadOptions = (
     normalizedLoadOpts.preConsent = removeUndefinedAndNullValues(normalizedLoadOpts.preConsent);
   }
 
-  if (!isObjectLiteralAndNotNull(normalizedLoadOpts.trackPageLifecycle)) {
-    delete normalizedLoadOpts.trackPageLifecycle;
-  } else {
-    normalizedLoadOpts.trackPageLifecycle = removeUndefinedAndNullValues(
-      normalizedLoadOpts.trackPageLifecycle,
-    );
-  }
-
   const mergedLoadOptions: LoadOptions = mergeDeepRight(loadOptionsFromState, normalizedLoadOpts);
 
   return mergedLoadOptions;
