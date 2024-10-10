@@ -173,7 +173,7 @@ describe('Appcues group tests', () => {
       },
     },
   };
-  it('Testing group call of Appcues', () => {
+  it('Group -> Group Id and traits present', () => {
     appcues = new Appcues(appcuesConfig, { loglevel: 'debug' });
     appcues.init();
     mockAppcuesSDK();
@@ -182,5 +182,13 @@ describe('Appcues group tests', () => {
     expect(spy).toHaveBeenCalledWith('testid', {
       name: 'test',
     });
+  });
+  it('Group -> Group Id not present', () => {
+    appcues = new Appcues(appcuesConfig, { loglevel: 'debug' });
+    appcues.init();
+    mockAppcuesSDK();
+    const spy = jest.spyOn(window.Appcues, 'group');
+    appcues.group({ message: {} });
+    expect(spy).not.toHaveBeenCalled();
   });
 });
