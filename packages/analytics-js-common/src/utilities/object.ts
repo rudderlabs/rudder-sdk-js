@@ -25,10 +25,7 @@ const isObjectAndNotNull = (value: any): value is object =>
 const isObjectLiteralAndNotNull = <T>(value?: T): value is T =>
   !isNull(value) && Object.prototype.toString.call(value) === '[object Object]';
 
-const mergeDeepRightObjectArrays = (
-  leftValue: any | any[],
-  rightValue: any | any[],
-): any | any[] => {
+const mergeDeepRightObjectArrays = (leftValue: any, rightValue: any): any => {
   if (!Array.isArray(leftValue) || !Array.isArray(rightValue)) {
     return clone(rightValue);
   }

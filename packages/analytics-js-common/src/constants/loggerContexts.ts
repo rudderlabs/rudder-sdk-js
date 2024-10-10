@@ -9,7 +9,6 @@ const STORE_MANAGER = 'StoreManager';
 const READY_API = 'readyApi';
 const LOAD_CONFIGURATION = 'LoadConfiguration';
 const EVENT_REPOSITORY = 'EventRepository';
-const EXTERNAL_SRC_LOADER = 'ExternalSrcLoader';
 const HTTP_CLIENT = 'HttpClient';
 const RS_APP = 'RudderStackApplication';
 const ANALYTICS_CORE = 'AnalyticsCore';
@@ -26,7 +25,6 @@ export {
   READY_API,
   LOAD_CONFIGURATION,
   EVENT_REPOSITORY,
-  EXTERNAL_SRC_LOADER,
   HTTP_CLIENT,
   RS_APP,
   ANALYTICS_CORE,

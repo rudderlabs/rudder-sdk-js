@@ -43,9 +43,7 @@ const isDestinationSDKMounted = (
   logger?: ILogger,
 ): boolean =>
   Boolean(
-    (globalThis as any)[destSDKIdentifier] &&
-      (globalThis as any)[destSDKIdentifier][sdkTypeName] &&
-      (globalThis as any)[destSDKIdentifier][sdkTypeName].prototype &&
+    (globalThis as any)[destSDKIdentifier]?.[sdkTypeName]?.prototype &&
       typeof (globalThis as any)[destSDKIdentifier][sdkTypeName].prototype.constructor !==
         'undefined',
   );
@@ -183,7 +181,7 @@ const getCumulativeIntegrationsConfig = (
         curDestIntgConfig,
         dest.instance?.getDataForIntegrationsObject(),
       );
-    } catch (err) {
+    } catch (err: any) {
       errorHandler?.onError(
         err,
         DEVICE_MODE_DESTINATIONS_PLUGIN,
@@ -234,7 +232,7 @@ const initializeDestination = (
         // The error message is already formatted in the isDestinationReady function
         logger?.error(err);
       });
-  } catch (err) {
+  } catch (err: any) {
     state.nativeDestinations.failedDestinations.value = [
       ...state.nativeDestinations.failedDestinations.value,
       dest,

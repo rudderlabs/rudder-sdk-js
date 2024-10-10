@@ -62,7 +62,6 @@ describe('StoreManager', () => {
   });
 
   afterEach(() => {
-    storeManager.isInitialized = false;
     jest.resetAllMocks();
     jest.resetModules();
   });
@@ -83,11 +82,13 @@ describe('StoreManager', () => {
         { enabled: true },
       );
 
-      expect(storeManager.stores).toHaveProperty('clientDataInCookie');
+      expect(storeManager.private_stores).toHaveProperty('clientDataInCookie');
     });
 
     it('should not initialize if already initialized', () => {
-      storeManager.isInitialized = true;
+      storeManager.init();
+
+      configureStorageEngines.mockClear();
       storeManager.init();
       expect(configureStorageEngines).not.toHaveBeenCalled();
     });
@@ -110,10 +111,10 @@ describe('StoreManager', () => {
     it('should initialize client data store for cookie,LS,memory storage,session storage', () => {
       storeManager.initClientDataStores();
 
-      expect(storeManager.stores).toHaveProperty('clientDataInCookie');
-      expect(storeManager.stores).toHaveProperty('clientDataInLocalStorage');
-      expect(storeManager.stores).toHaveProperty('clientDataInMemory');
-      expect(storeManager.stores).toHaveProperty('clientDataInSessionStorage');
+      expect(storeManager.getStore('clientDataInCookie')).toBeDefined();
+      expect(storeManager.getStore('clientDataInLocalStorage')).toBeDefined();
+      expect(storeManager.getStore('clientDataInMemory')).toBeDefined();
+      expect(storeManager.getStore('clientDataInSessionStorage')).toBeDefined();
     });
 
     it('should construct the storage entry state with default storage type if entries or global storage type not provided as load option', () => {
@@ -202,7 +203,7 @@ describe('StoreManager', () => {
       state.loadOptions.value.storage.entries = loadOptionWithEntry;
       storeManager.initClientDataStores();
       expect(state.storage.entries.value).toEqual(entriesWithInMemoryFallback);
-      expect(logger.warn).toBeCalledTimes(8);
+      expect(logger.warn).toHaveBeenCalledTimes(8);
     });
 
     it('should construct the appropriate storage entry state if the pre-consent storage strategy is set to none', () => {
@@ -265,7 +266,7 @@ describe('StoreManager', () => {
           type: 'cookieStorage',
         });
 
-        expect(storeManager.stores).toHaveProperty('dummyStore');
+        expect(storeManager.getStore('dummyStore')).toBeDefined();
       });
     });
   });

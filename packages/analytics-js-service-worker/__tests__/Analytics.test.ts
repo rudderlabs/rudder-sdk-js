@@ -70,7 +70,7 @@ describe('JS SDK Service Worker', () => {
   it('Should initialise with correct values', () => {
     expect(rudderAnalyticsClient.writeKey).toBe(dummyWriteKey);
     expect(rudderAnalyticsClient.host).toBe('https://dummy.dataplane.host.com/v1/batch');
-    expect(rudderAnalyticsClient.timeout).toBe(undefined);
+    expect(rudderAnalyticsClient.timeout).toBe(0);
     expect(rudderAnalyticsClient.flushAt).toBe(dummyInitOptions.flushAt);
     expect(rudderAnalyticsClient.flushInterval).toBe(dummyInitOptions.flushInterval);
     expect(rudderAnalyticsClient.maxInternalQueueSize).toBe(dummyInitOptions.maxInternalQueueSize);

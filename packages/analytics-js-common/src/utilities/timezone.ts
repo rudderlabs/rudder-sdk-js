@@ -4,8 +4,10 @@
  * @returns string
  */
 const getTimezone = (): string => {
-  const timezone = new Date().toString().match(/([A-Z]+[+-]\d+)/);
-  return timezone && timezone[1] ? timezone[1] : 'NA';
+  // Not susceptible to super-linear backtracking
+  // eslint-disable-next-line sonarjs/slow-regex
+  const regexMatchValues = /([A-Z]+[+-]\d+)/.exec(new Date().toString());
+  return regexMatchValues?.[1] ? regexMatchValues[1] : 'NA';
 };
 
 export { getTimezone };

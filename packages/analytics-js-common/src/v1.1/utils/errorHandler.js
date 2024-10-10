@@ -13,7 +13,7 @@ const normalizeError = (error, customMessage, analyticsInstance) => {
     } else {
       errorMessage = error.message ? error.message : stringifyWithoutCircularV1(error);
     }
-  } catch (e) {
+  } catch {
     errorMessage = '';
   }
 

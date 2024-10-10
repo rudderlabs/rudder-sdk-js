@@ -68,7 +68,7 @@ jobs:
           current_version=$(jq -r .version packages/sanity-suite/package.json)
           echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
           echo "DATE=$(date)" >> $GITHUB_ENV
-          
+
           if [ "${{ inputs.environment }}" == "staging" ]; then
             echo "AWS_ACCOUNT_ID=${{ secrets.AWS_STAGING_ACCOUNT_ID }}" >> $GITHUB_ENV
             echo "AWS_S3_SYNC_ROLE=${{ secrets.AWS_STAGING_S3_SYNC_ROLE }}" >> $GITHUB_ENV
@@ -101,7 +101,7 @@ jobs:
 
       - name: Install AWS CLI
         uses: unfor19/install-aws-cli-action@master
-        
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:

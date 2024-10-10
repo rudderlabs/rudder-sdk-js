@@ -1,4 +1,4 @@
-import { resetState, state } from '@rudderstack/analytics-js/state';
+import { resetState, state } from '../../../src/state';
 import {
   getUserSelectedConsentManager,
   getValidPostConsentOptions,
@@ -110,7 +110,7 @@ describe('consent utilties', () => {
       expect(validOptions).toEqual(expectedOutcome);
     });
 
-    it('should return default integrations object if integrations is not an object literal', () => {
+    it('should reset integrations object if integrations is not an object literal', () => {
       state.consents.enabled.value = true;
 
       const consentOptions = {
@@ -118,9 +118,6 @@ describe('consent utilties', () => {
       };
 
       const expectedOutcome = {
-        integrations: {
-          All: true,
-        },
         discardPreConsentEvents: false,
         sendPageEvent: false,
         trackConsent: false,

@@ -2,7 +2,6 @@
  * Determines if the SDK is running inside a chrome extension
  * @returns boolean
  */
-const isSDKRunningInChromeExtension = (): boolean =>
-  !!((window as any).chrome && (window as any).chrome.runtime && (window as any).chrome.runtime.id);
+const isSDKRunningInChromeExtension = (): boolean => !!(window as any).chrome?.runtime?.id;
 
 export { isSDKRunningInChromeExtension };

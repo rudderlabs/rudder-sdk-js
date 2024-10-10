@@ -1,19 +1,11 @@
 import type { UTMParameters } from '@rudderstack/analytics-js-common/types/EventContext';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 
-/**
- * Removes trailing slash from url
- * @param url
- * @returns url
- */
-const removeTrailingSlashes = (url: Nullable<string> | undefined): Nullable<string> | undefined =>
-  url?.endsWith('/') ? removeTrailingSlashes(url.substring(0, url.length - 1)) : url;
-
 const getDomain = (url: string): Nullable<string> => {
   try {
     const urlObj = new URL(url);
     return urlObj.host;
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -45,7 +37,7 @@ const extractUTMParameters = (url: string): UTMParameters => {
         result[utmParam] = value;
       }
     });
-  } catch (error) {
+  } catch {
     // Do nothing
   }
   return result;
@@ -61,16 +53,10 @@ const getUrlWithoutHash = (url: string): string => {
   try {
     const urlObj = new URL(url);
     urlWithoutHash = urlObj.origin + urlObj.pathname + urlObj.search;
-  } catch (error) {
+  } catch {
     // Do nothing
   }
   return urlWithoutHash;
 };
 
-export {
-  removeTrailingSlashes,
-  getReferringDomain,
-  extractUTMParameters,
-  getUrlWithoutHash,
-  getDomain,
-};
+export { getReferringDomain, extractUTMParameters, getUrlWithoutHash, getDomain };

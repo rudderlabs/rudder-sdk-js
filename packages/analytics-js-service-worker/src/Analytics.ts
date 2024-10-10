@@ -38,8 +38,8 @@ class Analytics implements IAnalytics {
   flushed: boolean;
   axiosInstance: AxiosInstance;
   logger: any;
-  flushTimer?: null | any;
-  timer?: null | any;
+  flushTimer?: null | NodeJS.Timeout;
+  timer?: null | NodeJS.Timeout;
 
   /**
    * Initialize a new `Analytics` with your RudderStack source's `writeKey` and an
@@ -71,11 +71,11 @@ class Analytics implements IAnalytics {
     this.queue = [];
     this.writeKey = writeKey;
     this.host = getDataPlaneUrl(dataPlaneURL);
-    this.timeout = options.timeout || undefined;
+    this.timeout = options.timeout ?? undefined;
     this.flushAt = options.flushAt ? Math.max(options.flushAt, 1) : 20;
-    this.flushInterval = options.flushInterval || 20000;
-    this.maxInternalQueueSize = options.maxInternalQueueSize || 20000;
-    this.logLevel = options.logLevel || 'info';
+    this.flushInterval = options.flushInterval ?? 20000;
+    this.maxInternalQueueSize = options.maxInternalQueueSize ?? 20000;
+    this.logLevel = options.logLevel ?? 'info';
     this.flushOverride =
       options.flushOverride && isFunction(options.flushOverride)
         ? options.flushOverride

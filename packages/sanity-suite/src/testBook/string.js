@@ -19,7 +19,7 @@ const bytesToBase64 = bytes => {
 const toBase64 = value => {
   try {
     return bytesToBase64(new TextEncoder().encode(value));
-  } catch (err) {
+  } catch {
     return '';
   }
 };

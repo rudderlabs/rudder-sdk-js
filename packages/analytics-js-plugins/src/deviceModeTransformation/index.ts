@@ -14,12 +14,16 @@ import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpCli
 import { MEMORY_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { isErrRetryable } from '@rudderstack/analytics-js-common/utilities/http';
+import type {
+  DoneCallback,
+  IQueue,
+  QueueItemData,
+} from '@rudderstack/analytics-js-common/utilities/retryQueue/types';
 import { createPayload, sendTransformedEventToDestinations } from './utilities';
 import { getDMTDeliveryPayload } from '../utilities/eventsDelivery';
 import { DEFAULT_TRANSFORMATION_QUEUE_OPTIONS, QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
-import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
-import type { DoneCallback, IQueue } from '../types/plugins';
-import type { TransformationQueueItemData } from './types';
+import type { TransformationQueueItemData, TransformationResponsePayload } from './types';
+import { RetryQueue } from '../shared-chunks/retryQueue';
 
 const pluginName: PluginName = 'DeviceModeTransformation';
 
@@ -46,34 +50,50 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
         `${QUEUE_NAME}_${writeKey}`,
         DEFAULT_TRANSFORMATION_QUEUE_OPTIONS,
         (
-          item: TransformationQueueItemData,
+          item: QueueItemData,
           done: DoneCallback,
           attemptNumber?: number,
           maxRetryAttempts?: number,
         ) => {
-          const payload = createPayload(item.event, item.destinationIds, item.token);
+          const curItem = item as TransformationQueueItemData;
+          const payload = createPayload(curItem.event, curItem.destinationIds, curItem.token);
 
-          httpClient.getAsyncData({
+          httpClient.request<TransformationResponsePayload>({
             url: `${state.lifecycle.activeDataplaneUrl.value}/transform`,
             options: {
               method: 'POST',
-              data: getDMTDeliveryPayload(payload) as string,
-              sendRawData: true,
+              body: getDMTDeliveryPayload(payload) as string,
+              headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json;charset=UTF-8',
+              },
+              useAuth: true,
             },
-            isRawResponse: true,
             timeout: REQUEST_TIMEOUT_MS,
             callback: (result, details) => {
               // null means item will not be requeued
-              const queueErrResp = isErrRetryable(details) ? details : null;
+              let queueErrResp = null;
+              let shouldSendEvents = false;
+              if (details.error) {
+                const isRetryableFailure = isErrRetryable(details);
+                if (isRetryableFailure) {
+                  queueErrResp = details;
+                } else if (attemptNumber === maxRetryAttempts) {
+                  shouldSendEvents = true;
+                }
+              } else {
+                shouldSendEvents = true;
+              }
 
-              if (!queueErrResp || attemptNumber === maxRetryAttempts) {
+              // Sends events when the request is successful or when the max retry attempts are reached
+              if (shouldSendEvents) {
                 sendTransformedEventToDestinations(
                   state,
                   pluginsManager,
-                  item.destinationIds,
+                  curItem.destinationIds,
                   result,
-                  details?.xhr?.status,
-                  item.event,
+                  details,
+                  curItem.event,
                   errorHandler,
                   logger,
                 );

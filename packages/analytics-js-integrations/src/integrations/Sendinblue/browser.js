@@ -43,7 +43,6 @@ class Sendinblue {
   }
 
   isReady() {
-
     return this.isLoaded();
   }
 

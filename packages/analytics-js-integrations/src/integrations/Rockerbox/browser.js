@@ -64,7 +64,6 @@ class Rockerbox {
       return;
     }
 
-
     const { message } = rudderElement;
     const { event, anonymousId, properties } = message;
     if (!event) {

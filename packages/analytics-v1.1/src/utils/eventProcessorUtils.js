@@ -5,6 +5,7 @@ import { SYSTEM_KEYWORDS } from './constants';
 const defaultTopLevelElements = ['integrations', 'anonymousId', 'originalTimestamp'];
 
 const mergeTopLevelElementsMutator = (rudderElementMessage, options = {}) => {
+  // eslint-disable-next-line sonarjs/different-types-comparison
   if (typeof options !== 'object' || options === null) {
     return;
   }
@@ -20,6 +21,7 @@ const mergeTopLevelElementsMutator = (rudderElementMessage, options = {}) => {
 const mergeContext = (rudderElementMessage, options = {}) => {
   let { context } = rudderElementMessage;
 
+  // eslint-disable-next-line sonarjs/different-types-comparison
   if (typeof options !== 'object' || options === null) {
     return context;
   }

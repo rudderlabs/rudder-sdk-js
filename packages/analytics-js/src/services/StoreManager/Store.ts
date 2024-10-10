@@ -1,4 +1,3 @@
-import { trim } from '@rudderstack/analytics-js-common/utilities/string';
 import { isNullOrUndefined, isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import type { IStorage, IStore, IStoreConfig } from '@rudderstack/analytics-js-common/types/Store';
@@ -23,39 +22,43 @@ import { getStorageEngine } from './storages/storageEngine';
  * Store Implementation with dedicated storage
  */
 class Store implements IStore {
-  id: string;
-  name: string;
-  isEncrypted: boolean;
-  validKeys: Record<string, string>;
-  engine: IStorage;
-  originalEngine: IStorage;
-  noKeyValidation?: boolean;
-  noCompoundKey?: boolean;
-  errorHandler?: IErrorHandler;
-  hasErrorHandler = false;
-  logger?: ILogger;
-  pluginsManager?: IPluginsManager;
+  private_id: string;
+  private_name: string;
+  private_isEncrypted: boolean;
+  private_validKeys: string[];
+  private_engine: IStorage;
+  private_originalEngine: IStorage;
+  private_noKeyValidation?: boolean;
+  private_noCompoundKey?: boolean;
+  private_errorHandler?: IErrorHandler;
+  private_logger?: ILogger;
+  private_pluginsManager?: IPluginsManager;
 
   constructor(config: IStoreConfig, engine?: IStorage, pluginsManager?: IPluginsManager) {
-    this.id = config.id;
-    this.name = config.name;
-    this.isEncrypted = config.isEncrypted ?? false;
-    this.validKeys = config.validKeys ?? {};
-    this.engine = engine ?? getStorageEngine(LOCAL_STORAGE);
-    this.noKeyValidation = Object.keys(this.validKeys).length === 0;
-    this.noCompoundKey = config.noCompoundKey;
-    this.originalEngine = this.engine;
-    this.errorHandler = config.errorHandler ?? defaultErrorHandler;
-    this.hasErrorHandler = Boolean(this.errorHandler);
-    this.logger = config.logger ?? defaultLogger;
-    this.pluginsManager = pluginsManager;
+    this.private_id = config.id;
+    this.private_name = config.name;
+    this.private_isEncrypted = config.isEncrypted ?? false;
+    this.private_validKeys = config.validKeys ?? [];
+    this.private_engine = engine ?? getStorageEngine(LOCAL_STORAGE);
+    this.private_noKeyValidation = Object.keys(this.private_validKeys).length === 0;
+    this.private_noCompoundKey = config.noCompoundKey;
+    this.private_originalEngine = this.private_engine;
+    this.private_errorHandler = config.errorHandler ?? defaultErrorHandler;
+    this.private_logger = config.logger ?? defaultLogger;
+    this.private_pluginsManager = pluginsManager;
   }
 
   /**
    * Ensure the key is valid and with correct format
    */
-  createValidKey(key: string): string | undefined {
-    const { name, id, validKeys, noKeyValidation, noCompoundKey } = this;
+  private_createValidKey(key: string): string | undefined {
+    const {
+      private_name: name,
+      private_id: id,
+      private_validKeys: validKeys,
+      private_noKeyValidation: noKeyValidation,
+      private_noCompoundKey: noCompoundKey,
+    } = this;
 
     if (noKeyValidation) {
       return noCompoundKey ? key : [name, id, key].join('.');
@@ -63,7 +66,7 @@ class Store implements IStore {
 
     // validate and return undefined if invalid key
     let compoundKey;
-    Object.values(validKeys).forEach(validKeyName => {
+    validKeys.forEach(validKeyName => {
       if (validKeyName === key) {
         compoundKey = noCompoundKey ? key : [name, id, key].join('.');
       }
@@ -76,14 +79,19 @@ class Store implements IStore {
    * Switch to inMemoryEngine, bringing any existing data with.
    */
   swapQueueStoreToInMemoryEngine() {
-    const { name, id, validKeys, noCompoundKey } = this;
+    const {
+      private_name: name,
+      private_id: id,
+      private_validKeys: validKeys,
+      private_noCompoundKey: noCompoundKey,
+    } = this;
     const inMemoryStorage = getStorageEngine(MEMORY_STORAGE);
 
     // grab existing data, but only for this page's queue instance, not all
     // better to keep other queues in localstorage to be flushed later
     // than to pull them into memory and remove them from durable storage
-    Object.keys(validKeys).forEach(key => {
-      const value = this.get(validKeys[key] as string);
+    validKeys.forEach(key => {
+      const value = this.get(key);
       const validKey = noCompoundKey ? key : [name, id, key].join('.');
 
       inMemoryStorage.setItem(validKey, value);
@@ -92,14 +100,14 @@ class Store implements IStore {
       this.remove(key);
     });
 
-    this.engine = inMemoryStorage;
+    this.private_engine = inMemoryStorage;
   }
 
   /**
    * Set value by key.
    */
   set(key: string, value: any) {
-    const validKey = this.createValidKey(key);
+    const validKey = this.private_createValidKey(key);
 
     if (!validKey) {
       return;
@@ -107,19 +115,19 @@ class Store implements IStore {
 
     try {
       // storejs that is used in localstorage engine already stringifies json
-      this.engine.setItem(
+      this.private_engine.setItem(
         validKey,
-        this.encrypt(stringifyWithoutCircular(value, false, [], this.logger)),
+        this.private_encrypt(stringifyWithoutCircular(value, false, [], this.private_logger)),
       );
     } catch (err) {
       if (isStorageQuotaExceeded(err)) {
-        this.logger?.warn(STORAGE_QUOTA_EXCEEDED_WARNING(`Store ${this.id}`));
+        this.private_logger?.warn(STORAGE_QUOTA_EXCEEDED_WARNING(`Store ${this.private_id}`));
         // switch to inMemory engine
         this.swapQueueStoreToInMemoryEngine();
         // and save it there
         this.set(key, value);
       } else {
-        this.onError(getMutatedError(err, STORE_DATA_SAVE_ERROR(key)));
+        this.private_onError(getMutatedError(err, STORE_DATA_SAVE_ERROR(key)));
       }
     }
   }
@@ -128,7 +136,7 @@ class Store implements IStore {
    * Get by Key.
    */
   get<T = any>(key: string): Nullable<T> {
-    const validKey = this.createValidKey(key);
+    const validKey = this.private_createValidKey(key);
     let decryptedValue;
 
     try {
@@ -136,7 +144,7 @@ class Store implements IStore {
         return null;
       }
 
-      decryptedValue = this.decrypt(this.engine.getItem(validKey));
+      decryptedValue = this.private_decrypt(this.private_engine.getItem(validKey));
 
       if (isNullOrUndefined(decryptedValue)) {
         return null;
@@ -145,11 +153,11 @@ class Store implements IStore {
       // storejs that is used in localstorage engine already deserializes json strings but swallows errors
       return JSON.parse(decryptedValue as string);
     } catch (err) {
-      this.onError(new Error(`${STORE_DATA_FETCH_ERROR(key)}: ${(err as Error).message}`));
+      this.private_onError(new Error(`${STORE_DATA_FETCH_ERROR(key)}: ${(err as Error).message}`));
 
       // A hack for warning the users of potential partial SDK version migrations
       if (isString(decryptedValue) && decryptedValue.startsWith('RudderEncrypt:')) {
-        this.logger?.warn(BAD_COOKIES_WARNING(key));
+        this.private_logger?.warn(BAD_COOKIES_WARNING(key));
       }
 
       return null;
@@ -160,10 +168,10 @@ class Store implements IStore {
    * Remove by Key.
    */
   remove(key: string) {
-    const validKey = this.createValidKey(key);
+    const validKey = this.private_createValidKey(key);
 
     if (validKey) {
-      this.engine.removeItem(validKey);
+      this.private_engine.removeItem(validKey);
     }
   }
 
@@ -171,52 +179,52 @@ class Store implements IStore {
    * Get original engine
    */
   getOriginalEngine(): IStorage {
-    return this.originalEngine;
+    return this.private_originalEngine;
   }
 
   /**
    * Decrypt values
    */
-  decrypt(value?: Nullable<string>): Nullable<string> {
+  private_decrypt(value?: Nullable<string>): Nullable<string> {
     if (isNullOrUndefined(value)) {
       return null;
     }
 
-    return this.crypto(value as string, 'decrypt');
+    return this.private_crypto(value as string, 'decrypt');
   }
 
   /**
    * Encrypt value
    */
-  encrypt(value: Nullable<any>): string {
-    return this.crypto(value, 'encrypt');
+  private_encrypt(value: Nullable<any>): string {
+    return this.private_crypto(value, 'encrypt');
   }
 
   /**
    * Extension point to use with encryption plugins
    */
-  crypto(value: Nullable<any>, mode: 'encrypt' | 'decrypt'): string {
+  private_crypto(value: Nullable<any>, mode: 'encrypt' | 'decrypt'): string {
     const noEncryption =
-      !this.isEncrypted || !value || typeof value !== 'string' || trim(value) === '';
+      !this.private_isEncrypted || !value || typeof value !== 'string' || value.trim() === '';
 
     if (noEncryption) {
       return value;
     }
 
     const extensionPointName = `storage.${mode}`;
-    const formattedValue = this.pluginsManager
-      ? this.pluginsManager.invokeSingle<string>(extensionPointName, value)
+    const formattedValue = this.private_pluginsManager
+      ? this.private_pluginsManager.invokeSingle<string>(extensionPointName, value)
       : value;
 
-    return typeof formattedValue === 'undefined' ? value : formattedValue ?? '';
+    return typeof formattedValue === 'undefined' ? value : (formattedValue ?? '');
   }
 
   /**
    * Handle errors
    */
-  onError(error: unknown) {
-    if (this.hasErrorHandler) {
-      this.errorHandler?.onError(error, `Store ${this.id}`);
+  private_onError(error: any) {
+    if (this.private_errorHandler) {
+      this.private_errorHandler.onError(error, `Store ${this.private_id}`);
     } else {
       throw error;
     }

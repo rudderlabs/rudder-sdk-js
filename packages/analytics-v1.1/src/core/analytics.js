@@ -15,8 +15,8 @@
 /* eslint-disable sonarjs/cognitive-complexity */
 import Emitter from 'component-emitter';
 import * as R from 'ramda';
-import { configToIntNames } from '@rudderstack/analytics-js-common/constants/integrations/config_to_integration_names';
-import { commonNames } from '@rudderstack/analytics-js-common/constants/integrations/integration_cname';
+import { configToIntNames } from '@rudderstack/analytics-js-common/constants/integrations/configToIntgNames';
+import { commonNames } from '@rudderstack/analytics-js-common/constants/integrations/integrationsCnames';
 import { handleError } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
@@ -176,10 +176,6 @@ class Analytics {
             undefined,
         )
       ) {
-        // logger.debug(
-        //   "All integrations loaded dynamically",
-        //   this.initialisedIntegrations
-        // );
         resolve(this);
       } else if (time >= 2 * MAX_WAIT_FOR_INTEGRATION_LOAD) {
         // logger.debug("Max wait for dynamically loaded integrations over")
@@ -210,9 +206,7 @@ class Analytics {
    */
   integrationSDKLoaded(pluginName, modName) {
     return (
-      window[pluginName] &&
-      window[pluginName][modName] &&
-      window[pluginName][modName].prototype &&
+      window[pluginName]?.[modName]?.prototype &&
       typeof window[pluginName][modName].prototype.constructor !== 'undefined'
     );
   }
@@ -227,8 +221,6 @@ class Analytics {
    */
   processResponse(status, responseVal) {
     try {
-      // logger.debug(`===in process response=== ${status}`);
-
       let response = responseVal;
       try {
         if (typeof responseVal === 'string') {
@@ -265,9 +257,6 @@ class Analytics {
       this.transformationHandler.init(this.writeKey, this.serverUrl, this.storage.getAuthToken());
 
       response.source.destinations.forEach(function (destination) {
-        // logger.debug(
-        //   `Destination ${index} Enabled? ${destination.enabled} Type: ${destination.destinationDefinition.name} Use Native SDK? true`
-        // );
         if (destination.enabled) {
           this.clientIntegrations.push({
             name: destination.destinationDefinition.name,
@@ -295,13 +284,13 @@ class Analytics {
         try {
           const cookieConsent = CookieConsentFactory.initialize(this.cookieConsentOptions);
           // Fetch denied consent group Ids and pass it to cloud mode
-          this.deniedConsentIds = cookieConsent && cookieConsent.getDeniedList();
+          this.deniedConsentIds = cookieConsent?.getDeniedList();
           // If cookie consent object is return we filter according to consents given by user
           // else we do not consider any filtering for cookie consent.
           this.clientIntegrations = this.clientIntegrations.filter(
             intg =>
               !cookieConsent || // check if cookieconsent object is present and then do filtering
-              (cookieConsent && cookieConsent.isEnabled(intg.config)),
+              cookieConsent.isEnabled(intg.config),
           );
         } catch (e) {
           handleError(e);
@@ -318,6 +307,8 @@ class Analytics {
 
       // Execute any pending buffered requests
       // (needed if the load call was not previously buffered)
+      // Not interested in moving the code around so suppressing the warning
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
       processDataInAnalyticsArray(this);
 
       // filter destination that doesn't have mapping config-->Integration names
@@ -348,32 +339,25 @@ class Analytics {
           ScriptLoader(pluginName, modURL, { isNonNativeSDK: true });
         }
 
-        const self = this;
         const interval = setInterval(() => {
-          if (self.integrationSDKLoaded(pluginName, modName)) {
+          if (this.integrationSDKLoaded(pluginName, modName)) {
             const intMod = window[pluginName];
             clearInterval(interval);
-
-            // logger.debug(pluginName, " dynamically loaded integration SDK");
 
             let intgInstance;
             try {
               const msg = `[Analytics] processResponse :: trying to initialize integration name:: ${pluginName}`;
-              // logger.debug(msg);
               this.errorReporting.leaveBreadcrumb(msg);
-              intgInstance = new intMod[modName](intg.config, self, intg.destinationInfo);
+              intgInstance = new intMod[modName](intg.config, this, intg.destinationInfo);
               intgInstance.init();
 
-              // logger.debug(pluginName, " initializing destination");
-
-              self.isInitialized(intgInstance).then(() => {
-                // logger.debug(pluginName, " module init sequence complete");
-                self.dynamicallyLoadedIntegrations[pluginName] = intMod[modName];
+              this.isInitialized(intgInstance).then(() => {
+                this.dynamicallyLoadedIntegrations[pluginName] = intMod[modName];
               });
             } catch (e) {
               const message = `[Analytics] 'integration.init()' failed :: ${pluginName} :: ${e.message}`;
               handleError(e, message);
-              self.failedToBeLoadedIntegration.push(intgInstance);
+              this.failedToBeLoadedIntegration.push(intgInstance);
             }
           }
         }, 100);
@@ -383,9 +367,8 @@ class Analytics {
         }, MAX_WAIT_FOR_INTEGRATION_LOAD);
       });
 
-      const self = this;
       this.allModulesInitialized().then(() => {
-        if (!self.clientIntegrations || self.clientIntegrations.length === 0) {
+        if (!this.clientIntegrations || this.clientIntegrations.length === 0) {
           // If no integrations are there to be loaded
           // set clientIntegrationsReady to be true
           this.clientIntegrationsReady = true;
@@ -395,7 +378,7 @@ class Analytics {
           return;
         }
 
-        self.replayEvents(self);
+        this.replayEvents(this);
       });
     } catch (error) {
       handleError(error);
@@ -539,7 +522,7 @@ class Analytics {
     // create two sets of destinations
     destinations.forEach(intg => {
       try {
-        const sendEvent = !this.IsEventBlackListed(rudderElement.message.event, intg.name);
+        const sendEvent = !this.isEventBlackListed(rudderElement.message.event, intg.name);
 
         // Block the event if it is blacklisted for the device-mode destination
         if (sendEvent) {
@@ -592,24 +575,11 @@ class Analytics {
 
   // eslint-disable-next-line class-methods-use-this
   replayEvents(object) {
-    // logger.debug(
-    //   "===replay events called====",
-    //   " successfully loaded count: ",
-    //   object.loadedIntegrationScripts.length,
-    //   " failed loaded count: ",
-    //   object.failedIntegrationScripts.length
-    // );
     this.errorReporting.leaveBreadcrumb(`Started replaying buffered events`);
     // eslint-disable-next-line no-param-reassign
     object.clientIntegrationObjects = [];
     // eslint-disable-next-line no-param-reassign
     object.clientIntegrationObjects = object.successfullyLoadedIntegration;
-
-    // logger.debug(
-    //   "==registering after callback===",
-    //   " after to be called after count : ",
-    //   object.clientIntegrationObjects.length
-    // );
 
     try {
       if (object.clientIntegrationObjects.every(intg => !intg.isReady || intg.isReady())) {
@@ -700,16 +670,23 @@ class Analytics {
       this.toBeProcessedArray.push(['page', ...arguments]);
       return;
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     if (typeof options === 'function') (callback = options), (options = null);
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     if (typeof properties === 'function') (callback = properties), (options = properties = null);
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     if (typeof name === 'function') (callback = name), (options = properties = name = null);
     if (typeof category === 'function')
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       (callback = category), (options = properties = name = category = null);
     if (typeof category === 'object' && category != null && category != undefined)
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       (options = name), (properties = category), (name = category = null);
     if (typeof name === 'object' && name != null && name != undefined)
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       (options = properties), (properties = name), (name = null);
     if (typeof category === 'string' && typeof name !== 'string')
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       (name = category), (category = null);
     if (this.sendAdblockPage && category !== 'RudderJS-Initiated') {
       this.sendSampleRequest();
@@ -748,8 +725,10 @@ class Analytics {
       this.toBeProcessedArray.push(['track', ...arguments]);
       return;
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     if (typeof options === 'function') (callback = options), (options = null);
     if (typeof properties === 'function')
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       (callback = properties), (options = null), (properties = null);
 
     const clonedProperties = R.clone(properties);
@@ -779,8 +758,11 @@ class Analytics {
       this.toBeProcessedArray.push(['identify', ...arguments]);
       return;
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     if (typeof options === 'function') (callback = options), (options = null);
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     if (typeof traits === 'function') (callback = traits), (options = null), (traits = null);
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     if (typeof userId === 'object') (options = traits), (traits = userId), (userId = this.userId);
 
     const normalisedUserId = getStringId(userId);
@@ -817,10 +799,15 @@ class Analytics {
       this.toBeProcessedArray.push(['alias', ...arguments]);
       return;
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     if (typeof options === 'function') (callback = options), (options = null);
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     if (typeof from === 'function') (callback = from), (options = null), (from = null);
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     if (typeof to === 'function') (callback = to), (options = null), (from = null), (to = null);
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     if (typeof from === 'object') (options = from), (from = null);
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     if (typeof to === 'object') (options = to), (from = null), (to = null);
 
     const rudderElement = new RudderElementBuilder().setType('alias').build();
@@ -848,11 +835,15 @@ class Analytics {
     }
     if (arguments.length === 0) return;
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     if (typeof options === 'function') (callback = options), (options = null);
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     if (typeof traits === 'function') (callback = traits), (options = null), (traits = null);
     if (typeof groupId === 'object')
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       (options = traits), (traits = groupId), (groupId = this.groupId);
     if (typeof groupId === 'function')
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       (callback = groupId), (options = null), (traits = null), (groupId = this.groupId);
 
     this.groupId = getStringId(groupId);
@@ -874,8 +865,8 @@ class Analytics {
     this.processAndSendDataToDestinations('group', rudderElement, clonedOptions, callback);
   }
 
-  IsEventBlackListed(eventName, intgName) {
-    if (!eventName || !(typeof eventName === 'string')) {
+  isEventBlackListed(eventName, intgName) {
+    if (!eventName || typeof eventName !== 'string') {
       return false;
     }
     const sdkIntgName = commonNames[intgName];
@@ -1071,7 +1062,7 @@ class Analytics {
           result[utmParam] = value;
         }
       });
-    } catch (error) {
+    } catch {
       // Do nothing
     }
     return result;
@@ -1114,7 +1105,7 @@ class Analytics {
 
   getPageProperties(properties, options) {
     const defaultPageProperties = getDefaultPageProperties();
-    const optionPageProperties = (options && options.page) || {};
+    const optionPageProperties = options?.page || {};
     for (const key in defaultPageProperties) {
       if (properties[key] === undefined) {
         properties[key] = optionPageProperties[key] || defaultPageProperties[key];
@@ -1128,8 +1119,7 @@ class Analytics {
     const defaultPageProperties = getDefaultPageProperties();
     const contextPageProperties = {};
     for (const key in defaultPageProperties) {
-      contextPageProperties[key] =
-        properties && properties[key] ? properties[key] : defaultPageProperties[key];
+      contextPageProperties[key] = properties?.[key] ? properties[key] : defaultPageProperties[key];
     }
     return contextPageProperties;
   }
@@ -1158,7 +1148,6 @@ class Analytics {
   }
 
   getAnonymousId(anonymousIdOptions) {
-    // if (!this.loaded) return;
     this.anonymousId = this.storage.getAnonymousId(anonymousIdOptions);
     if (!this.anonymousId) {
       this.setAnonymousId();
@@ -1197,9 +1186,10 @@ class Analytics {
    * @param {string} rudderAmpLinkerParm
    */
   setAnonymousId(anonymousId, rudderAmpLinkerParm) {
-    // if (!this.loaded) return;
     const parsedAnonymousIdObj = rudderAmpLinkerParm ? parseLinker(rudderAmpLinkerParm) : null;
     const parsedAnonymousId = parsedAnonymousIdObj ? parsedAnonymousIdObj.rs_amp_id : null;
+    // parsedAnonymousId can also be an empty string. Hence, disabling the eslint rule.
+    // eslint-disable-next-line sonarjs/prefer-nullish-coalescing
     this.anonymousId = anonymousId || parsedAnonymousId || generateUUID();
     this.storage.setAnonymousId(this.anonymousId);
   }
@@ -1229,7 +1219,7 @@ class Analytics {
       options = serverUrl;
       serverUrl = null;
     }
-    if (options && options.logLevel) {
+    if (options?.logLevel) {
       this.logLevel = options.logLevel;
       logger.setLogLevel(options.logLevel);
     }
@@ -1239,8 +1229,7 @@ class Analytics {
     if (!this.storage || Object.keys(this.storage).length === 0) {
       throw Error('Cannot proceed as no storage is available');
     }
-    if (options && options.cookieConsentManager)
-      this.cookieConsentOptions = options.cookieConsentManager;
+    if (options?.cookieConsentManager) this.cookieConsentOptions = options.cookieConsentManager;
 
     this.writeKey = writeKey;
     this.serverUrl = serverUrl;
@@ -1248,7 +1237,7 @@ class Analytics {
 
     let storageOptions = {};
 
-    if (options && options.setCookieDomain) {
+    if (options?.setCookieDomain) {
       storageOptions = { ...storageOptions, domain: options.setCookieDomain };
     }
 
@@ -1280,7 +1269,7 @@ class Analytics {
       }, this.uaChTrackLevel);
     }
 
-    if (options && options.integrations) {
+    if (options?.integrations) {
       Object.assign(this.loadOnlyIntegrations, options.integrations);
       transformToRudderNames(this.loadOnlyIntegrations);
     }
@@ -1288,20 +1277,16 @@ class Analytics {
     this.useGlobalIntegrationsConfigInEvents =
       options && options.useGlobalIntegrationsConfigInEvents === true;
 
-    if (options && options.sendAdblockPage) {
+    if (options?.sendAdblockPage) {
       this.sendAdblockPage = true;
     }
-    if (
-      options &&
-      options.sendAdblockPageOptions &&
-      typeof options.sendAdblockPageOptions === 'object'
-    ) {
+    if (options?.sendAdblockPageOptions && typeof options.sendAdblockPageOptions === 'object') {
       this.sendAdblockPageOptions = options.sendAdblockPageOptions;
     }
     // Session initialization
     this.uSession.initialize(options);
 
-    if (options && options.clientSuppliedCallbacks) {
+    if (options?.clientSuppliedCallbacks) {
       // convert to rudder recognized method names
       const transformedCallbackMapping = {};
       Object.keys(this.methodToCallbackMapping).forEach(methodName => {
@@ -1317,7 +1302,7 @@ class Analytics {
       this.registerCallbacks(true);
     }
 
-    if (options && options.loadIntegration != undefined) {
+    if (options?.loadIntegration != undefined) {
       this.loadIntegration = !!options.loadIntegration;
     }
 
@@ -1342,10 +1327,10 @@ class Analytics {
     this.destSDKBaseURL = getIntegrationsCDNPath(
       this.version,
       this.lockIntegrationsVersion,
-      options && options.destSDKBaseURL,
+      options?.destSDKBaseURL,
     );
 
-    if (options && options.getSourceConfig) {
+    if (options?.getSourceConfig) {
       if (typeof options.getSourceConfig !== 'function') {
         handleError(new Error('option "getSourceConfig" must be a function'));
       } else {
@@ -1361,7 +1346,7 @@ class Analytics {
     }
 
     let configUrl = getConfigUrl(writeKey, this.lockIntegrationsVersion);
-    if (options && options.configUrl) {
+    if (options?.configUrl) {
       configUrl = getUserProvidedConfigUrl(options.configUrl, configUrl);
     }
 
@@ -1405,7 +1390,6 @@ class Analytics {
    * @memberof Analytics
    */
   load(writeKey, serverUrl, options) {
-    // logger.debug("inside load ");
     if (this.loaded) return;
 
     // clone options
@@ -1413,7 +1397,6 @@ class Analytics {
     if (this.arePolyfillsRequired(clonedOptions) && POLYFILL_URL) {
       const id = 'polyfill';
       ScriptLoader(id, POLYFILL_URL, { skipDatasetAttributes: true });
-      const self = this;
       const interval = setInterval(() => {
         // check if the polyfill is loaded
         // In chrome 83 and below versions ID of a script is not part of window's scope
@@ -1424,7 +1407,7 @@ class Analytics {
           typeof Promise !== 'undefined'
         ) {
           clearInterval(interval);
-          self.loadAfterPolyfill(writeKey, serverUrl, clonedOptions);
+          this.loadAfterPolyfill(writeKey, serverUrl, clonedOptions);
         }
       }, 100);
 
@@ -1476,27 +1459,11 @@ class Analytics {
           this.clientSuppliedCallbacks[methodName] =
             window.rudderanalytics[this.methodToCallbackMapping[methodName]];
         }
-        // let callback =
-        //   ? typeof window.rudderanalytics[
-        //       this.methodToCallbackMapping[methodName]
-        //     ] == "function"
-        //     ? window.rudderanalytics[this.methodToCallbackMapping[methodName]]
-        //     : () => {}
-        //   : () => {};
-
-        // logger.debug("registerCallbacks", methodName, callback);
-
-        // this.on(methodName, callback);
       });
     }
 
     Object.keys(this.clientSuppliedCallbacks).forEach(methodName => {
       if (this.clientSuppliedCallbacks.hasOwnProperty(methodName)) {
-        // logger.debug(
-        //   "registerCallbacks",
-        //   methodName,
-        //   this.clientSuppliedCallbacks[methodName]
-        // );
         this.on(methodName, this.clientSuppliedCallbacks[methodName]);
       }
     });
@@ -1571,7 +1538,7 @@ function retrieveEventsFromQueryString(url) {
     const data = {};
     Object.keys(qObj).forEach(key => {
       if (key.startsWith(dataType)) {
-        data[key.substr(dataType.length)] = qObj[key];
+        data[key.substring(dataType.length)] = qObj[key];
       }
     });
     return data;

@@ -77,14 +77,6 @@ const normalizeLoadOptions = (
       normalizedLoadOpts.storage?.migrate === true;
   }
 
-  if (!isObjectLiteralAndNotNull(normalizedLoadOpts.beaconQueueOptions)) {
-    delete normalizedLoadOpts.beaconQueueOptions;
-  } else {
-    normalizedLoadOpts.beaconQueueOptions = removeUndefinedAndNullValues(
-      normalizedLoadOpts.beaconQueueOptions,
-    );
-  }
-
   if (!isObjectLiteralAndNotNull(normalizedLoadOpts.destinationsQueueOptions)) {
     delete normalizedLoadOpts.destinationsQueueOptions;
   } else {

@@ -69,7 +69,7 @@ const sendEventToDestination = (
     // Destinations expect the event to be wrapped under the `message` key
     // This will remain until we update the destinations to accept the event directly
     dest.instance?.[methodName]?.({ message: item });
-  } catch (err) {
+  } catch (err: any) {
     errorHandler?.onError(
       err,
       NATIVE_DESTINATION_QUEUE_PLUGIN,

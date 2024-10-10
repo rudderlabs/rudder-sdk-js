@@ -27,10 +27,12 @@
       "CustomEvent",
       "requestAnimationFrame",
       "cancelAnimationFrame",
-      "navigator.sendBeacon",
       "Uint8Array",
       "Set",
-      "atob"
+      "atob",
+      "AbortController",
+      "fetch",
+      "Response"
     ]
   },
   "env": {
@@ -138,7 +140,8 @@
               }
             ]
           }
-        ]
+        ],
+        "sonarjs/todo-tag": "warn"
       }
     },
     {

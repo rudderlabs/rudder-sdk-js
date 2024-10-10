@@ -6,4 +6,13 @@ describe('Common Utils - Timezone', () => {
     expect(typeof timezone).toBe('string');
     expect(timezone.startsWith('GMT')).toBe(true);
   });
+
+  it('should return NA if timezone is not found', () => {
+    jest.spyOn(Date.prototype, 'toString').mockImplementation(() => '');
+
+    const timezone = getTimezone();
+    expect(timezone).toBe('NA');
+
+    jest.spyOn(Date.prototype, 'toString').mockRestore();
+  });
 });

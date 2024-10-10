@@ -1,5 +1,7 @@
 const dummyDataplaneHost = 'https://dummy.dataplane.host.com';
 
+const dummyScriptSourceBase = 'https://cdn.dummy123.com';
+
 const dummySourceConfigResponse = {
   isHosted: true,
   source: {
@@ -158,4 +160,4 @@ const dummySourceConfigResponse = {
   },
 };
 
-export { dummyDataplaneHost, dummySourceConfigResponse };
+export { dummyDataplaneHost, dummySourceConfigResponse, dummyScriptSourceBase };

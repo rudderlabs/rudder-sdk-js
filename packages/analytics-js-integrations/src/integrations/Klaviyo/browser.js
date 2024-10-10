@@ -102,7 +102,7 @@ class Klaviyo {
 
   identify(rudderElement) {
     const { message } = rudderElement;
-    if (!(message.context && message.context.traits)) {
+    if (!message.context?.traits) {
       logger.error('user traits not present');
       return;
     }

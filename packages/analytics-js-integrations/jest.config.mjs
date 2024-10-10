@@ -4,13 +4,13 @@ export default {
   preset: '../../jest.preset.js',
   rootDir: './',
   coveragePathIgnorePatterns: [
-    "/node_modules/",
-    "/__tests__/",
-    "/__fixtures__/",
-    "/__mocks__/",
-    ".test.js",
-    "nativeSdkLoader.js",
-    "/integrations/.*/index.js"
+    '/node_modules/',
+    '/__tests__/',
+    '/__fixtures__/',
+    '/__mocks__/',
+    '.test.js',
+    'nativeSdkLoader.js',
+    '/integrations/.*/index.js',
   ],
   coverageThreshold: {
     global: {

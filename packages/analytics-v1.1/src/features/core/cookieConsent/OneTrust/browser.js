@@ -21,6 +21,7 @@ class OneTrust {
     // Get information about the cookie script - data includes, consent models, cookies in preference centre, etc.
     // We get the groups(cookie categorization), user has created in one trust account.
 
+    // eslint-disable-next-line sonarjs/new-cap
     const oneTrustAllGroupsInfo = window.OneTrust.GetDomainData().Groups;
     this.userSetConsentGroupNames = [];
     this.userDeniedConsentGroupIds = [];

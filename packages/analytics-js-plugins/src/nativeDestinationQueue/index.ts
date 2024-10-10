@@ -13,13 +13,17 @@ import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { clone } from 'ramda';
+import type {
+  IQueue,
+  DoneCallback,
+  QueueItemData,
+} from '@rudderstack/analytics-js-common/utilities/retryQueue/types';
 import { storages } from '../shared-chunks/common';
-import type { DoneCallback, IQueue } from '../types/plugins';
-import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import { getNormalizedQueueOptions, isEventDenyListed, sendEventToDestination } from './utilities';
 import { NATIVE_DESTINATION_QUEUE_PLUGIN, QUEUE_NAME } from './constants';
 import { DESTINATION_EVENT_FILTERING_WARNING } from './logMessages';
 import { destinationUtils } from '../shared-chunks/deviceModeDestinations';
+import { RetryQueue } from '../shared-chunks/retryQueue';
 
 const pluginName: PluginName = 'NativeDestinationQueue';
 
@@ -56,7 +60,8 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
         // adding write key to the queue name to avoid conflicts
         `${QUEUE_NAME}_${writeKey}`,
         finalQOpts,
-        (rudderEvent: RudderEvent, done: DoneCallback) => {
+        (item: QueueItemData, done: DoneCallback) => {
+          const rudderEvent = item as RudderEvent;
           const destinationsToSend = destinationUtils.filterDestinations(
             rudderEvent.integrations,
             state.nativeDestinations.initializedDestinations.value,
@@ -89,7 +94,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
               } else {
                 sendEventToDestination(clonedRudderEvent, dest, errorHandler, logger);
               }
-            } catch (e) {
+            } catch (e: any) {
               errorHandler?.onError(e, NATIVE_DESTINATION_QUEUE_PLUGIN);
             }
           });

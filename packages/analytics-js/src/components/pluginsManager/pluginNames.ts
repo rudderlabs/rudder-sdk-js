@@ -9,8 +9,6 @@ const localPluginNames: PluginName[] = [];
  * List of plugin names that are loaded as dynamic imports in modern builds
  */
 const pluginNamesList: PluginName[] = [
-  'BeaconQueue',
-  'Bugsnag', // deprecated
   'CustomConsentManager',
   'DeviceModeDestinations',
   'DeviceModeTransformation',
@@ -23,9 +21,8 @@ const pluginNamesList: PluginName[] = [
   'StorageEncryption',
   'StorageEncryptionLegacy',
   'StorageMigrator',
-  'XhrQueue',
 ];
 
-const deprecatedPluginsList = ['Bugsnag'];
+const deprecatedPluginsList = ['Bugsnag', 'XhrQueue', 'BeaconQueue'];
 
 export { localPluginNames, pluginNamesList, deprecatedPluginsList };

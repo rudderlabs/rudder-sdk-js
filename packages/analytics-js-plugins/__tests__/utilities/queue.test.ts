@@ -1,25 +1,10 @@
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import {
   getDeliveryPayload,
   validateEventPayloadSize,
 } from '@rudderstack/analytics-js-plugins/utilities/eventsDelivery';
 import * as utilConstants from '@rudderstack/analytics-js-plugins/utilities/constants';
-
-class MockLogger implements ILogger {
-  warn = jest.fn();
-  log = jest.fn();
-  error = jest.fn();
-  info = jest.fn();
-  debug = jest.fn();
-  minLogLevel = 0;
-  scope = 'test scope';
-  setMinLogLevel = jest.fn();
-  setScope = jest.fn();
-  logProvider = console;
-}
-
-const mockLogger = new MockLogger();
+import { defaultLogger } from '../../__mocks__/Logger';
 
 describe('Queue Plugins Utilities', () => {
   describe('getDeliveryPayload', () => {
@@ -230,7 +215,7 @@ describe('Queue Plugins Utilities', () => {
       event.traits = event.context.traits;
       event.context.traits.newTraits = event.traits;
 
-      expect(getDeliveryPayload(event, mockLogger)).toContain('[Circular Reference]');
+      expect(getDeliveryPayload(event, defaultLogger)).toContain('[Circular Reference]');
     });
 
     it('should return null if the payload cannot be stringified', () => {
@@ -242,7 +227,7 @@ describe('Queue Plugins Utilities', () => {
         },
       } as unknown as RudderEvent;
 
-      expect(getDeliveryPayload(event, mockLogger)).toBeNull();
+      expect(getDeliveryPayload(event, defaultLogger)).toBeNull();
     });
   });
 
@@ -270,9 +255,9 @@ describe('Queue Plugins Utilities', () => {
           test: 'test',
         },
       };
-      validateEventPayloadSize(event, mockLogger);
+      validateEventPayloadSize(event, defaultLogger);
 
-      expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect(defaultLogger.warn).toHaveBeenCalledWith(
         'QueueUtilities:: The size of the event payload (129 bytes) exceeds the maximum limit of 50 bytes. Events with large payloads may be dropped in the future. Please review your instrumentation to ensure that event payloads are within the size limit.',
       );
     });
@@ -283,9 +268,9 @@ describe('Queue Plugins Utilities', () => {
         type: 'track',
       };
 
-      validateEventPayloadSize(event, mockLogger);
+      validateEventPayloadSize(event, defaultLogger);
 
-      expect(mockLogger.warn).not.toHaveBeenCalled();
+      expect(defaultLogger.warn).not.toHaveBeenCalled();
     });
 
     it('should not log a warning if the payload size is equal to the max limit', () => {
@@ -297,9 +282,9 @@ describe('Queue Plugins Utilities', () => {
         g: 'j',
       };
 
-      validateEventPayloadSize(event, mockLogger);
+      validateEventPayloadSize(event, defaultLogger);
 
-      expect(mockLogger.warn).not.toHaveBeenCalled();
+      expect(defaultLogger.warn).not.toHaveBeenCalled();
     });
 
     it('should log a warning if the payload size could not be calculated', () => {
@@ -317,9 +302,9 @@ describe('Queue Plugins Utilities', () => {
         },
       } as unknown as RudderEvent;
 
-      validateEventPayloadSize(event, mockLogger);
+      validateEventPayloadSize(event, defaultLogger);
 
-      expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect(defaultLogger.warn).toHaveBeenCalledWith(
         'QueueUtilities:: Failed to validate event payload size. Please make sure that the event payload is within the size limit and is a valid JSON object.',
       );
     });

@@ -6,7 +6,6 @@ export {
   type LoadOptions,
   type SessionOpts,
   type QueueOpts,
-  type BeaconQueueOpts,
   type DestinationsQueueOpts,
   type UaChTrackLevel,
   type ConsentOptions,

@@ -1,5 +1,6 @@
 import { clone } from 'ramda';
 import { stringifyWithoutCircular } from '../../src/utilities/json';
+import { defaultLogger } from '../../__mocks__/Logger';
 
 const identifyTraitsPayloadMock: Record<string, any> = {
   firstName: 'Dummy Name',
@@ -137,16 +138,12 @@ describe('Common Utils - JSON', () => {
     });
 
     it('should return null for input containing BigInt values', () => {
-      const mockLogger = {
-        warn: jest.fn(),
-      };
-
       const objWithBigInt = {
         bigInt: BigInt(9007199254740991),
       };
-      const json = stringifyWithoutCircular(objWithBigInt, false, [], mockLogger);
+      const json = stringifyWithoutCircular(objWithBigInt, false, [], defaultLogger);
       expect(json).toBe(null);
-      expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect(defaultLogger.warn).toHaveBeenCalledWith(
         'Failed to convert the value to a JSON string.',
         new TypeError('Do not know how to serialize a BigInt'),
       );

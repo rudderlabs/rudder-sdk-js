@@ -1,8 +1,4 @@
-import type {
-  IStoreConfig,
-  IStoreManager,
-  StoreId,
-} from '@rudderstack/analytics-js-common/types/Store';
+import type { IStoreConfig, IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
@@ -38,26 +34,24 @@ import { getStorageTypeFromPreConsentIfApplicable } from './utils';
  * A service to manage stores & available storage client configurations
  */
 class StoreManager implements IStoreManager {
-  stores: Record<StoreId, Store> = {};
-  isInitialized = false;
-  errorHandler?: IErrorHandler;
-  logger?: ILogger;
-  pluginsManager?: IPluginsManager;
-  hasErrorHandler = false;
+  private_stores: Record<string, Store> = {};
+  private_isInitialized = false;
+  private_errorHandler?: IErrorHandler;
+  private_logger?: ILogger;
+  private_pluginsManager?: IPluginsManager;
 
   constructor(pluginsManager?: IPluginsManager, errorHandler?: IErrorHandler, logger?: ILogger) {
-    this.errorHandler = errorHandler;
-    this.logger = logger;
-    this.hasErrorHandler = Boolean(this.errorHandler);
-    this.pluginsManager = pluginsManager;
-    this.onError = this.onError.bind(this);
+    this.private_errorHandler = errorHandler;
+    this.private_logger = logger;
+    this.private_pluginsManager = pluginsManager;
+    this.private_onError = this.private_onError.bind(this);
   }
 
   /**
    * Configure available storage client instances
    */
   init() {
-    if (this.isInitialized) {
+    if (this.private_isInitialized) {
       return;
     }
 
@@ -85,7 +79,7 @@ class StoreManager implements IStoreManager {
     );
 
     this.initClientDataStores();
-    this.isInitialized = true;
+    this.private_isInitialized = true;
   }
 
   /**
@@ -138,7 +132,7 @@ class StoreManager implements IStoreManager {
       const storageType =
         preConsentStorageType ?? configuredStorageType ?? globalStorageType ?? DEFAULT_STORAGE_TYPE;
 
-      const finalStorageType = this.getResolvedStorageTypeForEntry(storageType, sessionKey);
+      const finalStorageType = this.private_getResolvedStorageTypeForEntry(storageType, sessionKey);
 
       if (finalStorageType !== NO_STORAGE) {
         trulyAnonymousTracking = false;
@@ -160,7 +154,7 @@ class StoreManager implements IStoreManager {
     });
   }
 
-  private getResolvedStorageTypeForEntry(storageType: StorageType, sessionKey: UserSessionKey) {
+  private_getResolvedStorageTypeForEntry(storageType: StorageType, sessionKey: UserSessionKey) {
     let finalStorageType = storageType;
     switch (storageType) {
       case LOCAL_STORAGE:
@@ -192,7 +186,7 @@ class StoreManager implements IStoreManager {
     }
 
     if (finalStorageType !== storageType) {
-      this.logger?.warn(
+      this.private_logger?.warn(
         STORAGE_UNAVAILABLE_WARNING(STORE_MANAGER, sessionKey, storageType, finalStorageType),
       );
     }
@@ -205,23 +199,27 @@ class StoreManager implements IStoreManager {
    */
   setStore(storeConfig: IStoreConfig): Store {
     const storageEngine = getStorageEngine(storeConfig.type);
-    this.stores[storeConfig.id] = new Store(storeConfig, storageEngine, this.pluginsManager);
-    return this.stores[storeConfig.id] as Store;
+    this.private_stores[storeConfig.id] = new Store(
+      storeConfig,
+      storageEngine,
+      this.private_pluginsManager,
+    );
+    return this.private_stores[storeConfig.id] as Store;
   }
 
   /**
    * Retrieve a store
    */
-  getStore(id: StoreId): Store | undefined {
-    return this.stores[id];
+  getStore(id: string): Store | undefined {
+    return this.private_stores[id];
   }
 
   /**
    * Handle errors
    */
-  onError(error: unknown) {
-    if (this.hasErrorHandler) {
-      this.errorHandler?.onError(error, STORE_MANAGER);
+  private_onError(error: any) {
+    if (this.private_errorHandler) {
+      this.private_errorHandler.onError(error, STORE_MANAGER);
     } else {
       throw error;
     }

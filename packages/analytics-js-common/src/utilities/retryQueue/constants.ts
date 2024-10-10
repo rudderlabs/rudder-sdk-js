@@ -17,6 +17,26 @@ const DEFAULT_MAX_BATCH_SIZE_BYTES = 512 * 1024; // 512 KB; this is also the max
 const DEFAULT_MAX_BATCH_ITEMS = 100;
 const DEFAULT_BATCH_FLUSH_INTERVAL_MS = 60 * 1000; // 1 minutes
 
+const MAX_PAGE_UNLOAD_BATCH_SIZE_BYTES = 64 * 1024; // 64 KB
+
+const RETRY_QUEUE = 'RetryQueue';
+
+const DEFAULT_BACKOFF_DELETION = 1;
+const MAX_ATTEMPTS_ENTRY_DELETION = 2;
+const RETRY_DELAY_ENTRY_DELETION = 40;
+
+// Queue entries
+const IN_PROGRESS = 'inProgress';
+const QUEUE = 'queue';
+const RECLAIM_START = 'reclaimStart';
+const RECLAIM_END = 'reclaimEnd';
+const ACK = 'ack';
+const BATCH_QUEUE = 'batchQueue';
+
+// The ACK entry is intentionally kept as the last item in the array
+// to ensure that it is the last one to be processed (deleted) during the cleanup
+const QueueStatuses = [IN_PROGRESS, QUEUE, BATCH_QUEUE, RECLAIM_START, RECLAIM_END, ACK];
+
 export {
   DEFAULT_MIN_RETRY_DELAY_MS,
   DEFAULT_MAX_RETRY_DELAY_MS,
@@ -33,4 +53,16 @@ export {
   DEFAULT_BATCH_FLUSH_INTERVAL_MS,
   MIN_TIMER_SCALE_FACTOR,
   MAX_TIMER_SCALE_FACTOR,
+  MAX_PAGE_UNLOAD_BATCH_SIZE_BYTES,
+  RETRY_QUEUE,
+  QueueStatuses,
+  IN_PROGRESS,
+  QUEUE,
+  RECLAIM_START,
+  RECLAIM_END,
+  ACK,
+  BATCH_QUEUE,
+  MAX_ATTEMPTS_ENTRY_DELETION,
+  RETRY_DELAY_ENTRY_DELETION,
+  DEFAULT_BACKOFF_DELETION,
 };

@@ -1,5 +1,6 @@
 import { state, resetState } from '@rudderstack/analytics-js/state';
 import { OneTrustConsentManager } from '../../src/oneTrustConsentManager';
+import { defaultLogger } from '../../__mocks__/Logger';
 
 describe('Plugin - OneTrustConsentManager', () => {
   beforeEach(() => {
@@ -7,12 +8,6 @@ describe('Plugin - OneTrustConsentManager', () => {
     delete (window as any).OneTrust;
     delete (window as any).OnetrustActiveGroups;
   });
-
-  const mockLogger = {
-    error: jest.fn(),
-    warn: jest.fn(),
-    log: jest.fn(),
-  };
 
   const mockErrorHandler = {
     onError: jest.fn(),
@@ -40,10 +35,10 @@ describe('Plugin - OneTrustConsentManager', () => {
     (window as any).OnetrustActiveGroups = ',C0001,C0003,';
 
     // Initialize the plugin
-    OneTrustConsentManager().consentManager.init(state, mockLogger);
+    OneTrustConsentManager().consentManager.init(state, defaultLogger);
 
     // Update the consent info from state
-    OneTrustConsentManager().consentManager.updateConsentsInfo(state, undefined, mockLogger);
+    OneTrustConsentManager().consentManager.updateConsentsInfo(state, undefined, defaultLogger);
 
     expect(state.consents.initialized.value).toBe(true);
     expect(state.consents.data.value).toStrictEqual({
@@ -54,13 +49,13 @@ describe('Plugin - OneTrustConsentManager', () => {
 
   it('should not successfully update consents data the plugin if OneTrust SDK is not loaded', () => {
     // Initialize the plugin
-    OneTrustConsentManager().consentManager.init(state, mockLogger);
+    OneTrustConsentManager().consentManager.init(state, defaultLogger);
 
     // Update the consent info from state
-    OneTrustConsentManager().consentManager.updateConsentsInfo(state, undefined, mockLogger);
+    OneTrustConsentManager().consentManager.updateConsentsInfo(state, undefined, defaultLogger);
 
     expect(state.consents.initialized.value).toStrictEqual(false);
-    expect(mockLogger.error).toHaveBeenCalledWith(
+    expect(defaultLogger.error).toHaveBeenCalledWith(
       `OneTrustConsentManagerPlugin:: Failed to access OneTrust SDK resources. Please ensure that the OneTrust SDK is loaded successfully before RudderStack SDK.`,
     );
   });
@@ -93,7 +88,7 @@ describe('Plugin - OneTrustConsentManager', () => {
       state,
       destConfig,
       mockErrorHandler,
-      mockLogger,
+      defaultLogger,
     );
     expect(isDestinationConsented).toBe(true);
   });
@@ -120,7 +115,7 @@ describe('Plugin - OneTrustConsentManager', () => {
       state,
       destConfig,
       mockErrorHandler,
-      mockLogger,
+      defaultLogger,
     );
     expect(isDestinationConsented).toBe(true);
   });
@@ -141,7 +136,7 @@ describe('Plugin - OneTrustConsentManager', () => {
       state,
       destConfig,
       mockErrorHandler,
-      mockLogger,
+      defaultLogger,
     );
     expect(isDestinationConsented).toBe(true);
   });
@@ -169,7 +164,7 @@ describe('Plugin - OneTrustConsentManager', () => {
       state,
       destConfig,
       mockErrorHandler,
-      mockLogger,
+      defaultLogger,
     );
     expect(isDestinationConsented).toBe(false);
   });
@@ -191,7 +186,7 @@ describe('Plugin - OneTrustConsentManager', () => {
       state,
       destConfig,
       mockErrorHandler,
-      mockLogger,
+      defaultLogger,
     );
     expect(isDestinationConsented).toBe(true);
     expect(mockErrorHandler.onError).toHaveBeenCalledWith(
@@ -238,7 +233,7 @@ describe('Plugin - OneTrustConsentManager', () => {
       state,
       destConfig,
       mockErrorHandler,
-      mockLogger,
+      defaultLogger,
     );
     expect(isDestinationConsented).toBe(false);
   });
@@ -269,7 +264,7 @@ describe('Plugin - OneTrustConsentManager', () => {
       state,
       destConfig,
       mockErrorHandler,
-      mockLogger,
+      defaultLogger,
     );
     expect(isDestinationConsented).toBe(true);
   });
@@ -311,7 +306,7 @@ describe('Plugin - OneTrustConsentManager', () => {
       state,
       destConfig,
       mockErrorHandler,
-      mockLogger,
+      defaultLogger,
     );
     expect(isDestinationConsented).toBe(true);
   });
@@ -353,7 +348,7 @@ describe('Plugin - OneTrustConsentManager', () => {
       state,
       destConfig,
       mockErrorHandler,
-      mockLogger,
+      defaultLogger,
     );
     expect(isDestinationConsented).toBe(true);
   });
@@ -388,7 +383,7 @@ describe('Plugin - OneTrustConsentManager', () => {
       state,
       destConfig,
       mockErrorHandler,
-      mockLogger,
+      defaultLogger,
     );
     expect(isDestinationConsented).toBe(true);
   });

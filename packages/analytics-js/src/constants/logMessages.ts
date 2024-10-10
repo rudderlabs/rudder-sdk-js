@@ -8,13 +8,13 @@ import type {
   DeliveryType,
   StorageStrategy,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js-common/constants/errors';
 
 // CONSTANT
 const SOURCE_CONFIG_OPTION_ERROR = `"getSourceConfig" must be a function. Please make sure that it is defined and returns a valid source configuration object.`;
 const DATA_PLANE_URL_ERROR = `Failed to load the SDK as the data plane URL could not be determined. Please check that the data plane URL is set correctly and try again.`;
 const SOURCE_CONFIG_RESOLUTION_ERROR = `Unable to process/parse source configuration response.`;
 const SOURCE_DISABLED_ERROR = `The source is disabled. Please enable the source in the dashboard to send events.`;
-const XHR_PAYLOAD_PREP_ERROR = `Failed to prepare data for the request.`;
 const EVENT_OBJECT_GENERATION_ERROR = `Failed to generate the event object.`;
 const PLUGIN_EXT_POINT_MISSING_ERROR = `Failed to invoke plugin because the extension point name is missing.`;
 const PLUGIN_EXT_POINT_INVALID_ERROR = `Failed to invoke plugin because the extension point name is invalid.`;
@@ -63,8 +63,8 @@ const PLUGIN_INVOCATION_ERROR = (
 const STORAGE_UNAVAILABILITY_ERROR_PREFIX = (context: string, storageType: StorageType): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The "${storageType}" storage type is `;
 
-const SOURCE_CONFIG_FETCH_ERROR = (reason: Error | undefined): string =>
-  `Failed to fetch the source config. Reason: ${reason}`;
+const SOURCE_CONFIG_FETCH_ERROR = (errMsg: string | undefined): string =>
+  `Failed to fetch the source configuration: ${errMsg}.`;
 
 const WRITE_KEY_VALIDATION_ERROR = (writeKey?: string): string =>
   `The write key "${writeKey}" is invalid. It must be a non-empty string. Please check that the write key is correct and try again.`;
@@ -75,17 +75,14 @@ const DATA_PLANE_URL_VALIDATION_ERROR = (dataPlaneUrl: string | undefined): stri
 const READY_API_CALLBACK_ERROR = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The callback is not a function.`;
 
-const XHR_DELIVERY_ERROR = (
-  prefix: string,
-  status: number,
-  statusText: string,
-  url: string,
-): string => `${prefix} with status: ${status}, ${statusText} for URL: ${url}.`;
+const DELIVERY_ERROR = (status: number, statusText: string, url: string | URL): string =>
+  `${FAILED_REQUEST_ERR_MSG_PREFIX} with status ${status} (${statusText}) for URL "${url}"`;
 
-const XHR_REQUEST_ERROR = (prefix: string, e: ProgressEvent | undefined, url: string): string =>
-  `${prefix} due to timeout or no connection (${e ? e.type : ''}) for URL: ${url}.`;
+const REQUEST_ERROR = (url: string | URL, timeout: number): string =>
+  `${FAILED_REQUEST_ERR_MSG_PREFIX} due to timeout after ${timeout}ms or no connection or aborted for URL "${url}"`;
 
-const XHR_SEND_ERROR = (prefix: string, url: string): string => `${prefix} for URL: ${url}`;
+const RESPONSE_PARSE_ERROR = (url: string | URL): string =>
+  `Failed to parse response data for URL "${url}"`;
 
 const STORE_DATA_SAVE_ERROR = (key: string): string =>
   `Failed to save the value for "${key}" to storage`;
@@ -155,9 +152,6 @@ const RESERVED_KEYWORD_WARNING = (
 const INVALID_CONTEXT_OBJECT_WARNING = (logContext: string): string =>
   `${logContext}${LOG_CONTEXT_SEPARATOR}Please make sure that the "context" property in the event API's "options" argument is a valid object literal with key-value pairs.`;
 
-const UNSUPPORTED_BEACON_API_WARNING = (context: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The Beacon API is not supported by your browser. The events will be sent using XHR instead.`;
-
 const TIMEOUT_NOT_NUMBER_WARNING = (
   context: string,
   timeout: number | undefined,
@@ -197,23 +191,22 @@ const WRITE_KEY_NOT_A_STRING_ERROR = (context: string, writeKey: string | undefi
   `${context}${LOG_CONTEXT_SEPARATOR}The write key "${writeKey}" is not a string. Please check that the write key is correct and try again.`;
 
 const EMPTY_GROUP_CALL_ERROR = (context: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The group() method must be called with at least one argument.`;
+  `${context}${LOG_CONTEXT_SEPARATOR}The group API must be invoked with at least one argument.`;
 
 const READY_CALLBACK_INVOKE_ERROR = `Failed to invoke the ready callback`;
 
 const API_CALLBACK_INVOKE_ERROR = `API Callback Invocation Failed`;
 const NATIVE_DEST_PLUGIN_INITIALIZE_ERROR = `NativeDestinationQueuePlugin initialization failed`;
-const DATAPLANE_PLUGIN_INITIALIZE_ERROR = `XhrQueuePlugin initialization failed`;
 const DMT_PLUGIN_INITIALIZE_ERROR = `DeviceModeTransformationPlugin initialization failed`;
 
 const NATIVE_DEST_PLUGIN_ENQUEUE_ERROR = `NativeDestinationQueuePlugin event enqueue failed`;
-const DATAPLANE_PLUGIN_ENQUEUE_ERROR = `XhrQueuePlugin event enqueue failed`;
+const DATAPLANE_EVENTS_ENQUEUE_ERROR = `Enqueuing events to data plane queue failed`;
 
 const INVALID_CONFIG_URL_WARNING = (context: string, configUrl: string | undefined): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The provided source config URL "${configUrl}" is invalid. Using the default source config URL instead.`;
 
-const POLYFILL_SCRIPT_LOAD_ERROR = (scriptId: string, url: string): string =>
-  `Failed to load the polyfill script with ID "${scriptId}" from URL ${url}.`;
+const POLYFILL_SCRIPT_LOAD_ERROR = (context: string, errMsg: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}Polyfill script: ${errMsg}.`;
 
 const UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY = (
   context: string,
@@ -264,7 +257,6 @@ export {
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
   RESERVED_KEYWORD_WARNING,
   INVALID_CONTEXT_OBJECT_WARNING,
-  UNSUPPORTED_BEACON_API_WARNING,
   TIMEOUT_NOT_NUMBER_WARNING,
   TIMEOUT_ZERO_WARNING,
   TIMEOUT_NOT_RECOMMENDED_WARNING,
@@ -287,10 +279,8 @@ export {
   WRITE_KEY_VALIDATION_ERROR,
   DATA_PLANE_URL_VALIDATION_ERROR,
   READY_API_CALLBACK_ERROR,
-  XHR_DELIVERY_ERROR,
-  XHR_REQUEST_ERROR,
-  XHR_SEND_ERROR,
-  XHR_PAYLOAD_PREP_ERROR,
+  DELIVERY_ERROR,
+  REQUEST_ERROR,
   STORE_DATA_SAVE_ERROR,
   STORE_DATA_FETCH_ERROR,
   EVENT_OBJECT_GENERATION_ERROR,
@@ -307,10 +297,9 @@ export {
   UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
   SOURCE_CONFIG_RESOLUTION_ERROR,
   NATIVE_DEST_PLUGIN_INITIALIZE_ERROR,
-  DATAPLANE_PLUGIN_INITIALIZE_ERROR,
   DMT_PLUGIN_INITIALIZE_ERROR,
   NATIVE_DEST_PLUGIN_ENQUEUE_ERROR,
-  DATAPLANE_PLUGIN_ENQUEUE_ERROR,
+  DATAPLANE_EVENTS_ENQUEUE_ERROR,
   DATA_SERVER_URL_INVALID_ERROR,
   DATA_SERVER_REQUEST_FAIL_ERROR,
   FAILED_SETTING_COOKIE_FROM_SERVER_ERROR,
@@ -320,5 +309,6 @@ export {
   SOURCE_DISABLED_ERROR,
   COMPONENT_BASE_URL_ERROR,
   SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING,
+  RESPONSE_PARSE_ERROR,
   BAD_COOKIES_WARNING,
 };

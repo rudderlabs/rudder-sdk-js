@@ -71,6 +71,7 @@ const getDecryptedValueBrowser = (
 const getDecryptedCookieBrowser = (
   cookieKey: string,
   debug: boolean = false,
+  // eslint-disable-next-line sonarjs/function-return-type
 ): Nullable<string | ApiObject> => {
   if (Object.values(COOKIE_KEYS).includes(cookieKey)) {
     return getDecryptedValueBrowser(cookie(cookieKey), debug);

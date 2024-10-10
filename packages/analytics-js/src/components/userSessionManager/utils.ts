@@ -57,7 +57,7 @@ const isManualSessionIdValid = (sessionId?: number, logger?: ILogger): boolean =
  */
 const generateAutoTrackingSession = (sessionTimeout?: number): SessionInfo => {
   const timestamp = Date.now();
-  const timeout: number = sessionTimeout || DEFAULT_SESSION_TIMEOUT_MS;
+  const timeout: number = sessionTimeout ?? DEFAULT_SESSION_TIMEOUT_MS;
   return {
     id: timestamp, // set the current timestamp
     expiresAt: timestamp + timeout, // set the expiry time of the session

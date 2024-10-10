@@ -92,18 +92,16 @@ const ErrorReporting = (): ExtensionPlugin => ({
         const bugsnagPayload = getBugsnagErrorEvent(errorPayload, errorState as ErrorState, state);
 
         // send it to metrics service
-        httpClient?.getAsyncData({
+        httpClient?.request({
           url: state.metrics.metricsServiceUrl.value as string,
           options: {
             method: 'POST',
-            data: getErrorDeliveryPayload(bugsnagPayload, state),
-            sendRawData: true,
+            body: getErrorDeliveryPayload(bugsnagPayload, state),
+            headers: {
+              'Content-Type': 'application/json;charset=UTF-8',
+            },
           },
-          isRawResponse: true,
           timeout: REQUEST_TIMEOUT_MS,
-          callback: (result: any, details: any) => {
-            // do nothing
-          },
         });
       } else {
         pluginEngine.invokeSingle('errorReportingProvider.notify', client, error, state, logger);

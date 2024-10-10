@@ -6,7 +6,7 @@ import {
   getTraitsToSetOnce,
   getTraitsToIncrement,
   getDestinationOptions,
-  formatUrl
+  formatUrl,
 } from '../../../src/integrations/Amplitude/utils';
 
 describe('getTraitsToSetOnce', () => {
@@ -162,7 +162,6 @@ describe('getDestinationOptions', () => {
 });
 
 describe('formatUrl', () => {
-
   // Returns the same URL if it starts with "http://" or "https://"
   it('should return the same URL when it starts with "https://"', () => {
     const url = 'https://example.com';
@@ -187,4 +186,3 @@ describe('formatUrl', () => {
     expect(formatUrl(url)).toBe('https://example.com');
   });
 });
-

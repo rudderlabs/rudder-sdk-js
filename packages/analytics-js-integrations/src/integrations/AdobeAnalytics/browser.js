@@ -98,7 +98,7 @@ class AdobeAnalytics {
     // The referrer variable overrides the automatically collected referrer in reports.
     let referrer;
     let url;
-    if (rudderElement.message.context && rudderElement.message.context.page) {
+    if (rudderElement.message.context?.page) {
       referrer = rudderElement.message.context.page.referrer;
       url = rudderElement.message.context.page.url;
     } else if (rudderElement.message.properties) {
