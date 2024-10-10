@@ -4,6 +4,7 @@ const DEFAULT_STORAGE_ENCRYPTION_VERSION = 'v3';
 const DEFAULT_DATA_PLANE_EVENTS_TRANSPORT = 'xhr';
 
 export const ConsentManagersToPluginNameMap: Record<string, PluginName> = {
+  iubenda: 'IubendaConsentManager',
   oneTrust: 'OneTrustConsentManager',
   ketch: 'KetchConsentManager',
   custom: 'CustomConsentManager',
