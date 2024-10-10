@@ -1,4 +1,4 @@
-## [3.7.15](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.7.14...@rudderstack/analytics-js@3.7.15) (2024-10-03)
+## [3.7.16](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.7.15...@rudderstack/analytics-js@3.7.16) (2024-10-10)
 
 ### Dependency Updates
 
@@ -6,5 +6,5 @@
 
 ### Bug Fixes
 
-* storage access error when cookies are blocked ([#1872](https://github.com/rudderlabs/rudder-sdk-js/issues/1872)) ([966dbc2](https://github.com/rudderlabs/rudder-sdk-js/commit/966dbc2996b0ee292a553058ef435154de73f42e))
+* source config fixture and local storage issue ([cbf0833](https://github.com/rudderlabs/rudder-sdk-js/commit/cbf08337f2a4dfdb0566ef60ef0dcf4c53ce8e00))
 
