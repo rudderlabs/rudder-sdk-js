@@ -34,8 +34,7 @@ const IubendaConsentManager = (): ExtensionPlugin => ({
       (globalThis as any).getIubendaUserDeniedPurposes = () =>
         (state.consents.data.value.deniedConsentIds as string[])?.slice();
 
-      // updateKetchConsent callback function to update current consent purpose state
-      // this will be called from ketch rudderstack plugin
+      // updateIubendaConsent callback function to update current consent purpose state
       (globalThis as any).updateIubendaConsent = (iubendaConsentData: IubendaConsentData) => {
         updateConsentStateFromData(state, iubendaConsentData);
       };
