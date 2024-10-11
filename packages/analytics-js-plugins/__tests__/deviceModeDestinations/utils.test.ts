@@ -1,18 +1,16 @@
 // eslint-disable-next-line max-classes-per-file
 import { signal } from '@preact/signals-core';
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
-import { wait } from '@rudderstack/analytics-js-common/utilities/time';
 import {
   isDestinationReady,
   createDestinationInstance,
   isDestinationSDKMounted,
+  getCumulativeIntegrationsConfig,
 } from '../../src/deviceModeDestinations/utils';
-import * as dmdConstants from '../../src/deviceModeDestinations/constants';
+import { defaultErrorHandler } from '../../__mocks__/ErrorHandler';
 
 describe('deviceModeDestinations utils', () => {
   describe('isDestinationReady', () => {
-    const originalInitializedCheckTimeout = dmdConstants.READY_CHECK_TIMEOUT_MS;
-    const originalInitializedPollInterval = dmdConstants.READY_CHECK_INTERVAL_MS;
     const destination = {
       instance: {
         isLoaded: () => false,
@@ -21,14 +19,12 @@ describe('deviceModeDestinations utils', () => {
     };
 
     beforeEach(() => {
-      // temporarily manipulate the timeout and interval constants to speed up the test
-      dmdConstants.READY_CHECK_TIMEOUT_MS = 200;
-      dmdConstants.READY_CHECK_INTERVAL_MS = 100;
+      jest.useFakeTimers();
+      jest.setSystemTime(0);
     });
 
     afterEach(() => {
-      dmdConstants.READY_CHECK_TIMEOUT_MS = originalInitializedCheckTimeout;
-      dmdConstants.READY_CHECK_INTERVAL_MS = originalInitializedPollInterval;
+      jest.useRealTimers();
       destination.instance.isLoaded = () => false;
     });
 
@@ -39,10 +35,19 @@ describe('deviceModeDestinations utils', () => {
       await expect(isReadyPromise).resolves.toEqual(true);
     });
 
+    it('should return a promise that gets resolve when the destinations loaded and ready', async () => {
+      destination.instance.isLoaded = () => true;
+      destination.instance.isReady = () => true;
+
+      const isReadyPromise = isDestinationReady(destination as Destination);
+
+      await expect(isReadyPromise).resolves.toEqual(true);
+    });
+
     it('should return a promise that gets resolved when the destination is ready after some time', async () => {
       const isReadyPromise = isDestinationReady(destination as Destination);
 
-      await wait(100);
+      jest.advanceTimersByTime(100);
 
       destination.instance.isLoaded = () => true;
 
@@ -52,9 +57,11 @@ describe('deviceModeDestinations utils', () => {
     it('should return a promise that gets rejected when the destination is not ready after the timeout', async () => {
       const isReadyPromise = isDestinationReady(destination as Destination);
 
+      jest.advanceTimersByTime(11000); // 11 seconds
+
       await expect(isReadyPromise).rejects.toThrow(
         new Error(
-          `A timeout of 200 ms occurred while trying to check the ready status for "${destination.userFriendlyId}" destination.`,
+          `A timeout of 11000 ms occurred while trying to check the ready status for "${destination.userFriendlyId}" destination.`,
         ),
       );
     });
@@ -193,6 +200,12 @@ describe('deviceModeDestinations utils', () => {
       expect(isDestinationSDKMounted(destSDKIdentifier, sdkTypeName)).toEqual(false);
     });
 
+    it('should return false if the destination SDK is mounted but type is not defined', () => {
+      (window as any)[destSDKIdentifier] = {};
+
+      expect(isDestinationSDKMounted(destSDKIdentifier, sdkTypeName)).toEqual(false);
+    });
+
     it('should return false if the destination SDK is mounted but it is not a constructable type', () => {
       (window as any)[destSDKIdentifier] = {
         [sdkTypeName]: 'not a constructable type',
@@ -201,12 +214,131 @@ describe('deviceModeDestinations utils', () => {
       expect(isDestinationSDKMounted(destSDKIdentifier, sdkTypeName)).toEqual(false);
     });
 
+    it('should return false if the destination SDK is mounted but the type does not have a constructor', () => {
+      (window as any)[destSDKIdentifier] = {
+        [sdkTypeName]: {
+          prototype: {
+            constructor: undefined,
+          },
+        },
+      };
+
+      expect(isDestinationSDKMounted(destSDKIdentifier, sdkTypeName)).toEqual(false);
+    });
+
     it('should return true if the destination SDK is a constructable type', () => {
       (window as any)[destSDKIdentifier] = {
         [sdkTypeName]: class {
+          // eslint-disable-next-line sonarjs/no-useless-constructor, @typescript-eslint/no-useless-constructor, sonarjs/no-empty-function, @typescript-eslint/no-empty-function
           constructor() {}
         },
       };
+    });
+  });
+
+  describe('getCumulativeIntegrationsConfig', () => {
+    let curIntegrationsConfig: any;
+
+    beforeEach(() => {
+      curIntegrationsConfig = {
+        Amplitude: false,
+      };
+    });
+
+    it('should return the input integrations config if the destination does not support any API for integration config', () => {
+      const dest = {
+        instance: class {},
+      } as unknown as Destination;
+
+      const cumulativeIntegrationsConfig = getCumulativeIntegrationsConfig(
+        dest,
+        curIntegrationsConfig,
+      );
+
+      expect(cumulativeIntegrationsConfig).toEqual(curIntegrationsConfig);
+    });
+
+    it('should return the input integrations config if the destination API for integrations config is not a function', () => {
+      const dest = {
+        instance: {
+          getDataForIntegrationsObject: 'not a function',
+        },
+      } as unknown as Destination;
+
+      const cumulativeIntegrationsConfig = getCumulativeIntegrationsConfig(
+        dest,
+        curIntegrationsConfig,
+      );
+
+      expect(cumulativeIntegrationsConfig).toEqual(curIntegrationsConfig);
+    });
+
+    it('should return the input integrations config if the destination API throws an error', () => {
+      const dest = {
+        userFriendlyId: 'DEST_123',
+        instance: {
+          getDataForIntegrationsObject: () => {
+            throw new Error('Some error');
+          },
+        },
+      } as unknown as Destination;
+
+      const cumulativeIntegrationsConfig = getCumulativeIntegrationsConfig(
+        dest,
+        curIntegrationsConfig,
+        defaultErrorHandler,
+      );
+
+      expect(cumulativeIntegrationsConfig).toEqual(curIntegrationsConfig);
+
+      // Also, ensure that the error handler is called
+      expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
+        new Error('Some error'),
+        'DeviceModeDestinationsPlugin',
+        'Failed to get integrations data for destination "DEST_123".',
+      );
+
+      // Also, check the case when the error handler is not provided
+      defaultErrorHandler.onError.mockClear();
+
+      const cumulativeIntegrationsConfig2 = getCumulativeIntegrationsConfig(
+        dest,
+        curIntegrationsConfig,
+      );
+
+      expect(cumulativeIntegrationsConfig2).toEqual(curIntegrationsConfig);
+
+      // Also, ensure that the error handler is not called
+      // It is already called once above
+      expect(defaultErrorHandler.onError).not.toHaveBeenCalled();
+    });
+
+    it('should return the combined integrations config after deeply merging the data with the input integrations config', () => {
+      const dest = {
+        instance: {
+          getDataForIntegrationsObject: () => ({
+            Mixpanel: {
+              someStaticData: '1234',
+            },
+          }),
+        },
+      } as unknown as Destination;
+
+      curIntegrationsConfig = {
+        Amplitude: false,
+      };
+
+      const cumulativeIntegrationsConfig = getCumulativeIntegrationsConfig(
+        dest,
+        curIntegrationsConfig,
+      );
+
+      expect(cumulativeIntegrationsConfig).toEqual({
+        Amplitude: false,
+        Mixpanel: {
+          someStaticData: '1234',
+        },
+      });
     });
   });
 });

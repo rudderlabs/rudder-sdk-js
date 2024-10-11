@@ -10,7 +10,7 @@ const DESTINATION_INIT_ERROR = (destUserFriendlyId: string): string =>
   `Failed to initialize destination ${destUserFriendlyId}.`;
 
 const DESTINATION_INTEGRATIONS_DATA_ERROR = (destUserFriendlyId: string): string =>
-  `Failed to get integrations data for destination ${destUserFriendlyId}.`;
+  `Failed to get integrations data for destination "${destUserFriendlyId}".`;
 
 const DESTINATION_READY_TIMEOUT_ERROR = (timeout: number, destUserFriendlyId: string): string =>
   `A timeout of ${timeout} ms occurred while trying to check the ready status for "${destUserFriendlyId}" destination.`;

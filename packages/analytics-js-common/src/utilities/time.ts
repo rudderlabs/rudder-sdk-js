@@ -1,11 +1,11 @@
 /**
  * Asynchronously wait for the given time
- * @param time The time to wait in milliseconds
+ * @param delay The time to wait in milliseconds
  * @returns A promise that resolves after the given time
  */
-const wait = (time: number) =>
+const wait = (delay: number) =>
   new Promise(resolve => {
-    (globalThis as typeof window).setTimeout(resolve, time);
+    (globalThis as typeof window).setTimeout(resolve, delay);
   });
 
 /**
