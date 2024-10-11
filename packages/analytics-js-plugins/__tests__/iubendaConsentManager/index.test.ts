@@ -147,7 +147,7 @@ describe('Plugin - IubendaConsentManager', () => {
     const iubendaConsentString = JSON.stringify(iubendaRawConsentData);
 
     // Mock the iubenda cookies
-    document.cookie = `${IUBENDA_CONSENT_EXAMPLE_COOKIE_NAME}=${window.encodeURIComponent(iubendaConsentString)};`;
+    document.cookie = `${IUBENDA_CONSENT_EXAMPLE_COOKIE_NAME}=${encodeURIComponent(iubendaConsentString)};`;
 
     const pluginsManager = new PluginsManager(defaultPluginEngine, undefined, mockLogger);
     const storeManager = new StoreManager(pluginsManager, undefined, mockLogger);
