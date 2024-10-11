@@ -88,22 +88,28 @@ const updateConsentStateFromData = (
   state.consents.data.value = consentData;
 };
 const getIubendaCookieName = (): string => {
-  // Retrieve cookies as a string and split them into an array
-  const cookies = document.cookie.split('; ');
-  
-  // Find the cookie that matches the iubenda cookie pattern
-  const matchedCookie = cookies.find(cookie => {
-    const [name] = cookie.split('=');
-    return IUBENDA_CONSENT_COOKIE_NAME_PATTERN.test(name.trim());
-  });
+  try {
+    // Retrieve cookies as a string and split them into an array
+    const cookies = document.cookie.split('; ');
 
-  if (!matchedCookie) {
-    throw new Error(IUBENDA_CONSENT_COOKIE_READ_ERROR('Cookie not found with the specified pattern.'));
+    // Find the cookie that matches the iubenda cookie pattern
+    const matchedCookie = cookies.find(cookie => {
+      const [name] = cookie.split('=');
+      return IUBENDA_CONSENT_COOKIE_NAME_PATTERN.test(name.trim());
+    });
+
+    if (!matchedCookie) {
+      throw new Error('Iubenda Cookie not found with the specified pattern.');
+    }
+
+    // Extract and return the cookie name
+    const [name] = matchedCookie.split('=');
+    return name;
+  } catch (error) {
+    // Handle the error (you can log it, rethrow it, or handle it as needed)
+    console.error(error);
+    throw new Error(IUBENDA_CONSENT_COOKIE_READ_ERROR(error.message));
   }
-
-  // Extract and return the cookie name
-  const [name] = matchedCookie.split('=');
-  return name;
 };
 
 export { getIubendaConsentData, getConsentData, updateConsentStateFromData, getIubendaCookieName };
