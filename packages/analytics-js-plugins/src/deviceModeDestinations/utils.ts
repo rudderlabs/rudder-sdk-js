@@ -16,7 +16,7 @@ import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { IdentifyTraits } from '@rudderstack/analytics-js-common/types/traits';
 import type { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { checks } from '../shared-chunks/common';
+import { checks, time } from '../shared-chunks/common';
 import { eventMethodOverloads, destinations } from '../shared-chunks/deviceModeDestinations';
 import type { DeviceModeDestinationsAnalyticsInstance } from './types';
 import {
@@ -47,11 +47,6 @@ const isDestinationSDKMounted = (
       typeof (globalThis as any)[destSDKIdentifier][sdkTypeName].prototype.constructor !==
         'undefined',
   );
-
-const wait = (time: number) =>
-  new Promise(resolve => {
-    (globalThis as typeof window).setTimeout(resolve, time);
-  });
 
 const createDestinationInstance = (
   destSDKIdentifier: string,
@@ -139,25 +134,26 @@ const createDestinationInstance = (
   return deviceModeDestination;
 };
 
-const isDestinationReady = (dest: Destination, time = 0) =>
+const isDestinationReady = (dest: Destination, delay = 0) =>
   new Promise((resolve, reject) => {
     const instance = dest.instance as DeviceModeDestination;
     if (instance.isLoaded() && (!instance.isReady || instance.isReady())) {
       resolve(true);
-    } else if (time >= READY_CHECK_TIMEOUT_MS) {
+    } else if (delay >= READY_CHECK_TIMEOUT_MS) {
       reject(
         new Error(DESTINATION_READY_TIMEOUT_ERROR(READY_CHECK_TIMEOUT_MS, dest.userFriendlyId)),
       );
     } else {
       const curTime = Date.now();
-      wait(READY_CHECK_INTERVAL_MS)
+      time
+        .wait(READY_CHECK_INTERVAL_MS)
         .then(() => {
           const elapsedTime = Date.now() - curTime;
-          isDestinationReady(dest, time + elapsedTime)
+          isDestinationReady(dest, delay + elapsedTime)
             .then(resolve)
-            .catch(err => reject(err));
+            .catch((err: Error) => reject(err));
         })
-        .catch(err => reject(err));
+        .catch((err: Error) => reject(err));
     }
   });
 
@@ -248,7 +244,6 @@ const initializeDestination = (
 
 export {
   isDestinationSDKMounted,
-  wait,
   createDestinationInstance,
   isDestinationReady,
   getCumulativeIntegrationsConfig,

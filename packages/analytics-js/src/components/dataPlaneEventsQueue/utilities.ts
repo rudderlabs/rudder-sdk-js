@@ -1,6 +1,5 @@
 import type { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
-import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { clone } from 'ramda';
@@ -8,6 +7,7 @@ import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utilities/url';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/time';
 import {
   DATA_PLANE_API_VERSION,
   DATA_PLANE_EVENTS_QUEUE,

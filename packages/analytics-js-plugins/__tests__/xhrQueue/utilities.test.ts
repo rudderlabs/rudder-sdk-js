@@ -1,6 +1,6 @@
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { state, resetState } from '@rudderstack/analytics-js/state';
-import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
+import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/time';
 import {
   getNormalizedQueueOptions,
   getDeliveryUrl,
@@ -11,7 +11,7 @@ import {
 } from '../../src/xhrQueue/utilities';
 import { defaultLogger } from '../../__mocks__/Logger';
 
-jest.mock('@rudderstack/analytics-js-common/utilities/timestamp', () => ({
+jest.mock('@rudderstack/analytics-js-common/utilities/time', () => ({
   getCurrentTimeFormatted: () => '2021-01-01T00:00:00.000Z',
 }));
 

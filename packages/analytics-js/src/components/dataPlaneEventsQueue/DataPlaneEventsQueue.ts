@@ -10,10 +10,10 @@ import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpCli
 import { isErrRetryable } from '@rudderstack/analytics-js-common/utilities/http';
 import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
-import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { toBase64 } from '@rudderstack/analytics-js-common/utilities/string';
 import { clone } from 'ramda';
+import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/time';
 import type {
   BatchData,
   EventsQueueItemData,

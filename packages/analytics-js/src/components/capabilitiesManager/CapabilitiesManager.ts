@@ -9,10 +9,10 @@ import {
   SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
 import { CAPABILITIES_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { getTimezone } from '@rudderstack/analytics-js-common/utilities/timezone';
 import { isValidURL } from '@rudderstack/analytics-js-common/utilities/url';
 import { isDefinedAndNotNull } from '@rudderstack/analytics-js-common/utilities/checks';
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import { getTimezone } from '@rudderstack/analytics-js-common/utilities/time';
 import {
   INVALID_POLYFILL_URL_WARNING,
   POLYFILL_SCRIPT_LOAD_ERROR,

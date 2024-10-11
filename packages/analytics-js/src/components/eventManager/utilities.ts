@@ -13,10 +13,10 @@ import {
 } from '@rudderstack/analytics-js-common/utilities/object';
 import { EVENT_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
-import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import { NO_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { DEFAULT_INTEGRATIONS_CONFIG } from '@rudderstack/analytics-js-common/constants/integrationsConfig';
 import type { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
+import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/time';
 import { state } from '../../state';
 import {
   INVALID_CONTEXT_OBJECT_WARNING,

@@ -11,7 +11,6 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import type { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import type {
   IQueue,
   QueueItemData,
@@ -19,7 +18,7 @@ import type {
 } from '@rudderstack/analytics-js-common/utilities/retryQueue/types';
 import { toBase64 } from '@rudderstack/analytics-js-common/utilities/string';
 import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js-common/constants/errors';
-import { storages, http, timestamp, string, eventsDelivery } from '../shared-chunks/common';
+import { storages, http, time, string, eventsDelivery } from '../shared-chunks/common';
 import {
   getNormalizedQueueOptions,
   getDeliveryUrl,
@@ -170,7 +169,7 @@ const XhrQueue = (): ExtensionPlugin => ({
         storages.LOCAL_STORAGE,
         logger,
         (itemData: QueueItemData[]): number => {
-          const currentTime = getCurrentTimeFormatted();
+          const currentTime = time.getCurrentTimeFormatted();
           const events = (itemData as XHRQueueBatchItemData).map(
             (queueItemData: XHRQueueItemData) => queueItemData.event,
           );
@@ -200,7 +199,7 @@ const XhrQueue = (): ExtensionPlugin => ({
     ): void {
       // sentAt is only added here for the validation step
       // It'll be updated to the latest timestamp during actual delivery
-      event.sentAt = timestamp.getCurrentTimeFormatted();
+      event.sentAt = time.getCurrentTimeFormatted();
       eventsDelivery.validateEventPayloadSize(event, logger);
 
       const dataplaneUrl = state.lifecycle.activeDataplaneUrl.value as string;

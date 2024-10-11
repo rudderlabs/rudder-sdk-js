@@ -17,8 +17,8 @@ import { HttpClientError } from '@rudderstack/analytics-js/services/HttpClient/H
 import { XhrQueue } from '../../src/xhrQueue';
 import { defaultLogger } from '../../__mocks__/Logger';
 
-jest.mock('@rudderstack/analytics-js-common/utilities/timestamp', () => ({
-  ...jest.requireActual('@rudderstack/analytics-js-common/utilities/timestamp'),
+jest.mock('@rudderstack/analytics-js-common/utilities/time', () => ({
+  ...jest.requireActual('@rudderstack/analytics-js-common/utilities/time'),
   getCurrentTimeFormatted: jest.fn(() => 'sample_timestamp'),
 }));
 

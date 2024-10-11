@@ -1,8 +1,8 @@
 // eslint-disable-next-line max-classes-per-file
 import { signal } from '@preact/signals-core';
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
+import { wait } from '@rudderstack/analytics-js-common/utilities/time';
 import {
-  wait,
   isDestinationReady,
   createDestinationInstance,
   isDestinationSDKMounted,
@@ -10,55 +10,9 @@ import {
 import * as dmdConstants from '../../src/deviceModeDestinations/constants';
 
 describe('deviceModeDestinations utils', () => {
-  describe('wait', () => {
-    it('should return a promise that resolves after the specified time', async () => {
-      const time = 1000;
-      const startTime = Date.now();
-
-      await wait(time);
-
-      const endTime = Date.now();
-
-      expect(endTime - startTime).toBeGreaterThanOrEqual(time);
-    });
-
-    it('should return a promise that resolves immediately even if the time is 0', async () => {
-      const time = 0;
-      const startTime = Date.now();
-
-      await wait(time);
-
-      const endTime = Date.now();
-
-      expect(endTime - startTime).toBeGreaterThanOrEqual(time);
-    });
-
-    it('should return a promise that resolves immediately even if the time is negative', async () => {
-      const time = -1000;
-      const startTime = Date.now();
-
-      await wait(time);
-
-      const endTime = Date.now();
-
-      expect(endTime - startTime).toBeGreaterThanOrEqual(0);
-    });
-
-    it('should return a promise that resolves immediately even if the time is not a number', async () => {
-      const time = '2 seconds';
-      const startTime = Date.now();
-
-      await wait(time);
-
-      const endTime = Date.now();
-
-      expect(endTime - startTime).toBeGreaterThanOrEqual(0);
-    });
-  });
-
   describe('isDestinationReady', () => {
     const originalInitializedCheckTimeout = dmdConstants.READY_CHECK_TIMEOUT_MS;
-    const originalInitializedPollInterval = dmdConstants.LOAD_CHECK_POLL_INTERVAL;
+    const originalInitializedPollInterval = dmdConstants.READY_CHECK_INTERVAL_MS;
     const destination = {
       instance: {
         isLoaded: () => false,
@@ -69,12 +23,12 @@ describe('deviceModeDestinations utils', () => {
     beforeEach(() => {
       // temporarily manipulate the timeout and interval constants to speed up the test
       dmdConstants.READY_CHECK_TIMEOUT_MS = 200;
-      dmdConstants.LOAD_CHECK_POLL_INTERVAL = 100;
+      dmdConstants.READY_CHECK_INTERVAL_MS = 100;
     });
 
     afterEach(() => {
       dmdConstants.READY_CHECK_TIMEOUT_MS = originalInitializedCheckTimeout;
-      dmdConstants.LOAD_CHECK_POLL_INTERVAL = originalInitializedPollInterval;
+      dmdConstants.READY_CHECK_INTERVAL_MS = originalInitializedPollInterval;
       destination.instance.isLoaded = () => false;
     });
 

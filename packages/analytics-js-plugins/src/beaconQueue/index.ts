@@ -10,7 +10,6 @@ import type {
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
-import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import type {
   DoneCallback,
   IQueue,
@@ -21,7 +20,7 @@ import {
   getDeliveryUrl,
   getBatchDeliveryPayload,
 } from './utilities';
-import { eventsDelivery, timestamp, storages } from '../shared-chunks/common';
+import { eventsDelivery, time, storages } from '../shared-chunks/common';
 import { BEACON_QUEUE_PLUGIN, MAX_BATCH_PAYLOAD_SIZE_BYTES, QUEUE_NAME } from './constants';
 import type { BeaconQueueBatchItemData, BeaconQueueItemData } from './types';
 import {
@@ -66,7 +65,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
 
       const queueProcessCallback = (itemData: QueueItemData, done: DoneCallback) => {
         logger?.debug(BEACON_PLUGIN_EVENTS_QUEUE_DEBUG(BEACON_QUEUE_PLUGIN));
-        const currentTime = getCurrentTimeFormatted();
+        const currentTime = time.getCurrentTimeFormatted();
         const finalEvents = (itemData as BeaconQueueBatchItemData).map(
           (queueItemData: BeaconQueueItemData) =>
             eventsDelivery.getFinalEventForDeliveryMutator(queueItemData.event, currentTime),
@@ -107,7 +106,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
         storages.LOCAL_STORAGE,
         logger,
         (itemData: QueueItemData[]): number => {
-          const currentTime = getCurrentTimeFormatted();
+          const currentTime = time.getCurrentTimeFormatted();
           const events = (itemData as BeaconQueueBatchItemData).map(
             (queueItemData: BeaconQueueItemData) => queueItemData.event,
           );
@@ -137,7 +136,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
     ): void {
       // sentAt is only added here for the validation step
       // It'll be updated to the latest timestamp during actual delivery
-      event.sentAt = timestamp.getCurrentTimeFormatted();
+      event.sentAt = time.getCurrentTimeFormatted();
       eventsDelivery.validateEventPayloadSize(event, logger);
 
       eventsQueue.addItem({

@@ -5,8 +5,7 @@ import type { ApplicationState } from '@rudderstack/analytics-js-common/types/Ap
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { clone } from 'ramda';
-import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
-import { url, json, eventsDelivery } from '../shared-chunks/common';
+import { url, json, eventsDelivery, time } from '../shared-chunks/common';
 import { DATA_PLANE_API_VERSION, DEFAULT_RETRY_QUEUE_OPTIONS, XHR_QUEUE_PLUGIN } from './constants';
 import type { XHRRetryQueueItemData, XHRQueueItemData, XHRBatchPayload } from './types';
 import { EVENT_DELIVERY_FAILURE_ERROR_PREFIX } from './logMessages';
@@ -69,7 +68,7 @@ const getRequestInfo = (
   let data;
   let headers;
   let url: string;
-  const currentTime = getCurrentTimeFormatted();
+  const currentTime = time.getCurrentTimeFormatted();
   if (Array.isArray(itemData)) {
     const finalEvents = itemData.map((queueItemData: XHRQueueItemData) =>
       eventsDelivery.getFinalEventForDeliveryMutator(queueItemData.event, currentTime),

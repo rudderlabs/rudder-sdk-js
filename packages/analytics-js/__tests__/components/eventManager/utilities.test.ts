@@ -27,7 +27,7 @@ import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
 import { defaultPluginEngine } from '../../../src/services/PluginEngine';
 import { defaultLogger } from '../../../__mocks__/Logger';
 
-jest.mock('@rudderstack/analytics-js-common/utilities/timestamp', () => ({
+jest.mock('@rudderstack/analytics-js-common/utilities/time', () => ({
   getCurrentTimeFormatted: jest.fn().mockReturnValue('2020-01-01T00:00:00.000Z'),
 }));
 
