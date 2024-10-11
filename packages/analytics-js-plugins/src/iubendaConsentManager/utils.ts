@@ -27,7 +27,7 @@ const getIubendaConsentData = (
       name: IUBENDA_CONSENT_MANAGER_PLUGIN,
       type: storages.COOKIE_STORAGE,
     });
-    rawConsentCookieData = dataStore?.engine.getItem(getIubendaCookieName());
+    rawConsentCookieData = dataStore?.engine.getItem(getIubendaCookieName(logger));
 
   } catch (err) {
     logger?.error(IUBENDA_CONSENT_COOKIE_READ_ERROR(IUBENDA_CONSENT_MANAGER_PLUGIN), err);
@@ -87,7 +87,7 @@ const updateConsentStateFromData = (
   state.consents.initialized.value = isDefined(iubendaConsentData);
   state.consents.data.value = consentData;
 };
-const getIubendaCookieName = (): string => {
+const getIubendaCookieName = ( logger?: ILogger ): string => {
   try {
     // Retrieve cookies as a string and split them into an array
     const cookies = document.cookie.split('; ');
@@ -95,7 +95,7 @@ const getIubendaCookieName = (): string => {
     // Find the cookie that matches the iubenda cookie pattern
     const matchedCookie = cookies.find(cookie => {
       const [name] = cookie.split('=');
-      return IUBENDA_CONSENT_COOKIE_NAME_PATTERN.test(name.trim());
+      return IUBENDA_CONSENT_COOKIE_NAME_PATTERN.test((name || "").trim());
     });
 
     if (!matchedCookie) {
@@ -104,11 +104,10 @@ const getIubendaCookieName = (): string => {
 
     // Extract and return the cookie name
     const [name] = matchedCookie.split('=');
-    return name;
-  } catch (error) {
-    // Handle the error (you can log it, rethrow it, or handle it as needed)
-    console.error(error);
-    throw new Error(IUBENDA_CONSENT_COOKIE_READ_ERROR(error.message));
+    return name || "";
+  } catch (err) {
+    logger?.error(IUBENDA_CONSENT_COOKIE_READ_ERROR(IUBENDA_CONSENT_MANAGER_PLUGIN), err);
+    return "";
   }
 };
 
