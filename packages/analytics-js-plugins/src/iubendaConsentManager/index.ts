@@ -97,12 +97,6 @@ const IubendaConsentManager = (): ExtensionPlugin => ({
           }
         }
 
-        if (iubendaConsentPurposes) {
-          const configuredConsents = iubendaConsentPurposes.map(p => p.purpose.trim()).filter(n => n);
-
-          // Check if any of the destination's mapped iubenda purposes are consented by the user in the browser.
-          return configuredConsents.some(matchPredicate) || configuredConsents.length === 0;
-        }
 
         return true;
       } catch (err) {
