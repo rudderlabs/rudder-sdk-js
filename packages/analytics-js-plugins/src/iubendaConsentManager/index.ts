@@ -7,8 +7,12 @@ import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/Plu
 import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { checks } from '../shared-chunks/common';
 import { DESTINATION_CONSENT_STATUS_ERROR, IUBENDA_ACCESS_ERROR } from './logMessages';
 import { IUBENDA_CONSENT_MANAGER_PLUGIN } from './constants';
+import type { IubendaConsentData } from './types';
+import { updateConsentStateFromData, getIubendaConsentData } from './utils';
+
 
 const pluginName: PluginName = 'IubendaConsentManager';
 
@@ -20,7 +24,21 @@ const IubendaConsentManager = (): ExtensionPlugin => ({
   },
   consentManager: {
     init(state: ApplicationState, logger?: ILogger): void {
-      // Nothing to initialize
+      // getIubendaUserConsentedPurposes returns current iubenda opted-in purposes
+      // This will be helpful for debugging
+      (globalThis as any).getIubendaUserConsentedPurposes = () =>
+        (state.consents.data.value.allowedConsentIds as string[])?.slice();
+
+      // getIubendaUserDeniedPurposes returns current Iubenda opted-out purposes
+      // This will be helpful for debugging
+      (globalThis as any).getIubendaUserDeniedPurposes = () =>
+        (state.consents.data.value.deniedConsentIds as string[])?.slice();
+
+      // updateKetchConsent callback function to update current consent purpose state
+      // this will be called from ketch rudderstack plugin
+      (globalThis as any).updateIubendaConsent = (iubendaConsentData: IubendaConsentData) => {
+        updateConsentStateFromData(state, iubendaConsentData);
+      };
     },
 
     updateConsentsInfo(
@@ -28,41 +46,16 @@ const IubendaConsentManager = (): ExtensionPlugin => ({
       storeManager?: IStoreManager,
       logger?: ILogger,
     ): void {
-      // eslint-disable-next-line no-underscore-dangle
-      if (!(globalThis as any)._iub) {
-        logger?.error(IUBENDA_ACCESS_ERROR(IUBENDA_CONSENT_MANAGER_PLUGIN));
-        state.consents.initialized.value = false;
-        return;
+      // retrieve consent data and update the state
+      let iubendaConsentData;
+      // From window 
+      if (!checks.isUndefined((globalThis as any)._iub.cs.consent.purposes)) {
+        iubendaConsentData = (globalThis as any)._iub.cs.consent.purposes;
+      // From cookie
+      } else {
+        iubendaConsentData = getIubendaConsentData(storeManager, logger);
       }
-
-      // eslint-disable-next-line no-underscore-dangle
-      if (!(globalThis as any)._iub?.cs?.consent?.purposes) {
-        state.consents.initialized.value = false;
-        return;
-      }
-
-      try {
-        const allowedConsentIds: string[] = [];
-        const deniedConsentIds: string[] = [];
-
-        // eslint-disable-next-line no-underscore-dangle
-        const { purposes = {} } = (globalThis as any)._iub.cs.api.getPreferences();
-
-        Object.entries(purposes).forEach(e => {
-          const purposeCode = e[0];
-          const isConsented = e[1];
-          if (isConsented) {
-            allowedConsentIds.push(purposeCode);
-          } else {
-            deniedConsentIds.push(purposeCode);
-          }
-        })
-
-        state.consents.initialized.value = true;
-        state.consents.data.value = { allowedConsentIds, deniedConsentIds };
-      } catch (err) {
-        logger?.error(IUBENDA_ACCESS_ERROR(IUBENDA_CONSENT_MANAGER_PLUGIN), err);
-      }
+      updateConsentStateFromData(state, iubendaConsentData);
     },
 
     isDestinationConsented(
@@ -108,7 +101,7 @@ const IubendaConsentManager = (): ExtensionPlugin => ({
         if (iubendaConsentPurposes) {
           const configuredConsents = iubendaConsentPurposes.map(p => p.purpose.trim()).filter(n => n);
 
-          // Check if any of the destination's mapped ketch purposes are consented by the user in the browser.
+          // Check if any of the destination's mapped iubenda purposes are consented by the user in the browser.
           return configuredConsents.some(matchPredicate) || configuredConsents.length === 0;
         }
 
