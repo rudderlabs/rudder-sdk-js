@@ -2,7 +2,6 @@ import type { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Int
 import { clone } from 'ramda';
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { DEFAULT_INTEGRATIONS_CONFIG } from '@rudderstack/analytics-js-common/constants/integrationsConfig';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 
 /**
@@ -33,10 +32,9 @@ const getFinalEvent = (event: RudderEvent, state: ApplicationState) => {
   const finalEvent = clone(event);
   // Merge the destination specific integrations config with the event's integrations config
   // In general, the preference is given to the event's integrations config
-  const eventIntgConfig = event.integrations ?? DEFAULT_INTEGRATIONS_CONFIG;
   const destinationsIntgConfig = state.nativeDestinations.integrationsConfig.value;
   const overriddenIntgOpts = getOverriddenIntegrationOptions(
-    eventIntgConfig,
+    event.integrations,
     destinationsIntgConfig,
   );
 

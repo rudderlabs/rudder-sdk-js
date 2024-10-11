@@ -2,6 +2,7 @@ import { signal } from '@preact/signals-core';
 import { clone } from 'ramda';
 import type { LoadOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { LoadOptionsState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import { DEFAULT_INTEGRATIONS_CONFIG } from '@rudderstack/analytics-js-common/constants/integrationsConfig';
 import {
   DEFAULT_DATA_PLANE_EVENTS_BUFFER_TIMEOUT_MS,
   DEFAULT_SESSION_TIMEOUT_MS,
@@ -19,7 +20,7 @@ const defaultLoadOptions: LoadOptions = {
   },
   sameSiteCookie: 'Lax',
   polyfillIfRequired: true,
-  integrations: { All: true },
+  integrations: DEFAULT_INTEGRATIONS_CONFIG,
   destinationsQueueOptions: {},
   queueOptions: {},
   lockIntegrationsVersion: false,

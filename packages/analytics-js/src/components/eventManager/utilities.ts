@@ -207,12 +207,11 @@ const processOptions = (rudderEvent: RudderEvent, options?: Nullable<ApiOptions>
  */
 const getEventIntegrationsConfig = (integrationsConfig?: IntegrationOpts) => {
   let finalIntgConfig: IntegrationOpts;
-  // Prefer the integrations object from the consent API response over the load API integrations object
-  const globalIntgConfig =
-    state.consents.postConsent.value.integrations ??
-    state.nativeDestinations.loadOnlyIntegrations.value;
   if (state.loadOptions.value.useGlobalIntegrationsConfigInEvents) {
-    finalIntgConfig = globalIntgConfig;
+    // Prefer the integrations object from the consent API response over the load API integrations object
+    finalIntgConfig =
+      state.consents.postConsent.value.integrations ??
+      state.nativeDestinations.loadOnlyIntegrations.value;
   } else if (integrationsConfig) {
     finalIntgConfig = integrationsConfig;
   } else {

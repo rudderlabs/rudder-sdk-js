@@ -11,6 +11,7 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import type { SourceConfigResponse } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { removeTrailingSlashes } from '@rudderstack/analytics-js-common/utilities/url';
+import type { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
 import { isValidSourceConfig, validateLoadArgs } from './util/validate';
 import {
   SOURCE_CONFIG_FETCH_ERROR,
@@ -68,6 +69,7 @@ class ConfigManager implements IConfigManager {
       lockPluginsVersion,
       destSDKBaseURL,
       pluginsSDKBaseURL,
+      integrations,
     } = state.loadOptions.value;
 
     state.lifecycle.activeDataplaneUrl.value = removeTrailingSlashes(
@@ -107,6 +109,8 @@ class ConfigManager implements IConfigManager {
         this.private_logger,
       );
       state.metrics.metricsServiceUrl.value = `${state.lifecycle.activeDataplaneUrl.value}/${METRICS_SERVICE_ENDPOINT}`;
+      // Data in the loadOptions state is already normalized
+      state.nativeDestinations.loadOnlyIntegrations.value = integrations as IntegrationOpts;
     });
 
     this.private_getConfig();

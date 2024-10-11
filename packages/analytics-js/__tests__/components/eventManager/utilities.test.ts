@@ -1161,4 +1161,85 @@ describe('Event Manager - Utilities', () => {
       });
     });
   });
+
+  describe('getEventIntegrationsConfig', () => {
+    afterEach(() => {
+      resetState();
+    });
+
+    it('should return global load API integrations object', () => {
+      batch(() => {
+        state.loadOptions.value = {
+          useGlobalIntegrationsConfigInEvents: true,
+        };
+
+        state.nativeDestinations.loadOnlyIntegrations.value = {
+          All: false,
+        };
+      });
+
+      expect(getEventIntegrationsConfig()).toEqual({
+        All: false,
+      });
+    });
+
+    it('should return consent API integrations object', () => {
+      batch(() => {
+        state.loadOptions.value = {
+          useGlobalIntegrationsConfigInEvents: true,
+        };
+
+        state.nativeDestinations.loadOnlyIntegrations.value = {
+          All: true,
+          GA4: false,
+        };
+
+        state.consents.postConsent.value = {
+          integrations: {
+            All: false,
+            MP: true,
+          },
+        };
+      });
+
+      expect(getEventIntegrationsConfig()).toEqual({
+        All: false,
+        MP: true,
+      });
+    });
+
+    it('should return global load API integrations object if consent API integrations object is not defined', () => {
+      batch(() => {
+        state.loadOptions.value = {
+          useGlobalIntegrationsConfigInEvents: true,
+        };
+
+        state.nativeDestinations.loadOnlyIntegrations.value = {
+          All: false,
+        };
+      });
+
+      expect(getEventIntegrationsConfig()).toEqual({
+        All: false,
+      });
+    });
+
+    it("should return event's integrations object", () => {
+      expect(
+        getEventIntegrationsConfig({
+          All: true,
+          AM: false,
+        }),
+      ).toEqual({
+        All: true,
+        AM: false,
+      });
+    });
+
+    it("should return default integrations object if event's integrations object is not defined", () => {
+      expect(getEventIntegrationsConfig()).toEqual({
+        All: true,
+      });
+    });
+  });
 });

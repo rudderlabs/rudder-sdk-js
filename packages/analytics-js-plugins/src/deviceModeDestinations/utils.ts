@@ -19,7 +19,11 @@ import type { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/
 import { checks } from '../shared-chunks/common';
 import { eventMethodOverloads, destinations } from '../shared-chunks/deviceModeDestinations';
 import type { DeviceModeDestinationsAnalyticsInstance } from './types';
-import { DEVICE_MODE_DESTINATIONS_PLUGIN, READY_CHECK_TIMEOUT_MS } from './constants';
+import {
+  DEVICE_MODE_DESTINATIONS_PLUGIN,
+  READY_CHECK_INTERVAL_MS,
+  READY_CHECK_TIMEOUT_MS,
+} from './constants';
 import {
   DESTINATION_INIT_ERROR,
   DESTINATION_INTEGRATIONS_DATA_ERROR,
@@ -135,24 +139,26 @@ const createDestinationInstance = (
   return deviceModeDestination;
 };
 
-const isDestinationReady = (dest: Destination) =>
+const isDestinationReady = (dest: Destination, time = 0) =>
   new Promise((resolve, reject) => {
     const instance = dest.instance as DeviceModeDestination;
-    let handleNumber: number;
-    const checkReady = () => {
-      if (instance.isLoaded() && (!instance.isReady || instance.isReady())) {
-        resolve(true);
-      } else {
-        handleNumber = globalThis.requestAnimationFrame(checkReady);
-      }
-    };
-    checkReady();
-    setTimeout(() => {
-      globalThis.cancelAnimationFrame(handleNumber);
+    if (instance.isLoaded() && (!instance.isReady || instance.isReady())) {
+      resolve(true);
+    } else if (time >= READY_CHECK_TIMEOUT_MS) {
       reject(
         new Error(DESTINATION_READY_TIMEOUT_ERROR(READY_CHECK_TIMEOUT_MS, dest.userFriendlyId)),
       );
-    }, READY_CHECK_TIMEOUT_MS);
+    } else {
+      const curTime = Date.now();
+      wait(READY_CHECK_INTERVAL_MS)
+        .then(() => {
+          const elapsedTime = Date.now() - curTime;
+          isDestinationReady(dest, time + elapsedTime)
+            .then(resolve)
+            .catch(err => reject(err));
+        })
+        .catch(err => reject(err));
+    }
   });
 
 /**
