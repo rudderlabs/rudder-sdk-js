@@ -1,5 +1,6 @@
 import { clone } from 'ramda';
 import {
+  isNonEmptyObject,
   isObjectLiteralAndNotNull,
   mergeDeepRight,
   removeUndefinedAndNullValues,
@@ -36,7 +37,7 @@ const normalizeLoadOptions = (
     delete normalizedLoadOpts.uaChTrackLevel;
   }
 
-  if (!isObjectLiteralAndNotNull(normalizedLoadOpts.integrations)) {
+  if (!isNonEmptyObject(normalizedLoadOpts.integrations)) {
     delete normalizedLoadOpts.integrations;
   }
 

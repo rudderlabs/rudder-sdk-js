@@ -7,6 +7,7 @@ import type { RudderContext, RudderEvent } from '@rudderstack/analytics-js-commo
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
 import {
+  isNonEmptyObject,
   isObjectLiteralAndNotNull,
   mergeDeepRight,
 } from '@rudderstack/analytics-js-common/utilities/object';
@@ -138,7 +139,7 @@ const updateTopLevelEventElements = (rudderEvent: RudderEvent, options: ApiOptio
     rudderEvent.anonymousId = options.anonymousId;
   }
 
-  if (isObjectLiteralAndNotNull<IntegrationOpts>(options.integrations)) {
+  if (isNonEmptyObject<IntegrationOpts>(options.integrations)) {
     // eslint-disable-next-line no-param-reassign
     rudderEvent.integrations = options.integrations;
   }
@@ -186,15 +187,6 @@ const getMergedContext = (
 };
 
 /**
- * A function to determine whether SDK should use the integration option provided in load call
- * @returns boolean
- */
-const shouldUseGlobalIntegrationsConfigInEvents = () =>
-  state.loadOptions.value.useGlobalIntegrationsConfigInEvents &&
-  (isObjectLiteralAndNotNull(state.consents.postConsent.value?.integrations) ||
-    isObjectLiteralAndNotNull(state.nativeDestinations.loadOnlyIntegrations.value));
-
-/**
  * Updates rudder event object with data from the API options
  * @param rudderEvent Generated rudder event
  * @param options API options
@@ -213,19 +205,19 @@ const processOptions = (rudderEvent: RudderEvent, options?: Nullable<ApiOptions>
  * @param integrationsConfig Event's integrations config
  * @returns Final integrations config
  */
-const getEventIntegrationsConfig = (integrationsConfig: IntegrationOpts) => {
+const getEventIntegrationsConfig = (integrationsConfig?: IntegrationOpts) => {
   let finalIntgConfig: IntegrationOpts;
-  if (shouldUseGlobalIntegrationsConfigInEvents()) {
-    finalIntgConfig = clone(
-      state.consents.postConsent.value?.integrations ??
-        state.nativeDestinations.loadOnlyIntegrations.value,
-    );
-  } else if (isObjectLiteralAndNotNull(integrationsConfig)) {
+  if (state.loadOptions.value.useGlobalIntegrationsConfigInEvents) {
+    // Prefer the integrations object from the consent API response over the load API integrations object
+    finalIntgConfig =
+      state.consents.postConsent.value.integrations ??
+      state.nativeDestinations.loadOnlyIntegrations.value;
+  } else if (integrationsConfig) {
     finalIntgConfig = integrationsConfig;
   } else {
     finalIntgConfig = DEFAULT_INTEGRATIONS_CONFIG;
   }
-  return finalIntgConfig;
+  return clone(finalIntgConfig);
 };
 
 /**
@@ -269,7 +261,6 @@ const getEnrichedEvent = (
       timezone: state.context.timezone.value,
     },
     originalTimestamp: getCurrentTimeFormatted(),
-    integrations: DEFAULT_INTEGRATIONS_CONFIG,
     messageId: generateUUID(),
     userId: rudderEvent.userId || state.session.userId.value,
   } as Partial<RudderEvent>;
@@ -338,4 +329,5 @@ export {
   getContextPageProperties,
   getMergedContext,
   processOptions,
+  getEventIntegrationsConfig, // For testing
 };

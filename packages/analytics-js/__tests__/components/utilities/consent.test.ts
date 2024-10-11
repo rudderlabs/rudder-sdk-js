@@ -118,9 +118,6 @@ describe('consent utilties', () => {
       };
 
       const expectedOutcome = {
-        integrations: {
-          All: true,
-        },
         discardPreConsentEvents: false,
         sendPageEvent: false,
         trackConsent: false,
