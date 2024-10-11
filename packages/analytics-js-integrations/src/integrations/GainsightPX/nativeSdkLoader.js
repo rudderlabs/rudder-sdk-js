@@ -7,7 +7,7 @@ function loadNativeSdk(productKey, dataCenter, pxConfig) {
       hostName = 'web-sdk-eu.aptrinsic.com';
       break;
     case 'US2':
-      hostName = 'web-sdk-eu.aptrinsic.com';
+      hostName = 'web-sdk-us2.aptrinsic.com';
       break;
   }
   const sdkUrl= "https://" + hostName + "/api/aptrinsic.js";
