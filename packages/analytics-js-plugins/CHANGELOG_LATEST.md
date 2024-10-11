@@ -1,10 +1,10 @@
-## [3.4.16](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.4.15...@rudderstack/analytics-js-plugins@3.4.16) (2024-10-10)
+## [3.4.17](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.4.16...@rudderstack/analytics-js-plugins@3.4.17) (2024-10-11)
 
 ### Dependency Updates
 
-* `@rudderstack/analytics-js` updated to version `3.7.16`
+* `@rudderstack/analytics-js` updated to version `3.7.17`
 
 ### Bug Fixes
 
-* avoid using requestAnimationFrame for polling ([#1878](https://github.com/rudderlabs/rudder-sdk-js/issues/1878)) ([1aca5a0](https://github.com/rudderlabs/rudder-sdk-js/commit/1aca5a0351b44d0dd1d2b91fa7475f86f330ba3f))
+* global integrations object is not used for preloaded events ([#1881](https://github.com/rudderlabs/rudder-sdk-js/issues/1881)) ([2776f07](https://github.com/rudderlabs/rudder-sdk-js/commit/2776f07e0b0142e05bd4bd3dc053c484c8ecf8a0))
 

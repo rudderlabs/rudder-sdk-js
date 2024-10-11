@@ -14,8 +14,6 @@ import {
   mergeDeepRight,
 } from '@rudderstack/analytics-js-common/utilities/object';
 import { clone } from 'ramda';
-import { DEFAULT_INTEGRATIONS_CONFIG } from '@rudderstack/analytics-js-common/constants/integrationsConfig';
-import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { state } from '../../state';
 import { UNSUPPORTED_CONSENT_MANAGER_ERROR } from '../../constants/logMessages';
 import { ConsentManagersToPluginNameMap } from '../configManager/constants';
@@ -62,10 +60,8 @@ const getValidPostConsentOptions = (options?: ConsentOptions) => {
     const clonedOptions = clone(options);
 
     validOptions.storage = clonedOptions.storage;
-    if (isDefined(clonedOptions.integrations)) {
-      validOptions.integrations = isObjectLiteralAndNotNull(clonedOptions.integrations)
-        ? clonedOptions.integrations
-        : DEFAULT_INTEGRATIONS_CONFIG;
+    if (isNonEmptyObject(clonedOptions.integrations)) {
+      validOptions.integrations = clonedOptions.integrations;
     }
     validOptions.discardPreConsentEvents = clonedOptions.discardPreConsentEvents === true;
     validOptions.sendPageEvent = clonedOptions.sendPageEvent === true;
