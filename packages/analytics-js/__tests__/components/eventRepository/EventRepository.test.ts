@@ -60,6 +60,9 @@ describe('EventRepository', () => {
     properties: {
       test: 'test',
     },
+    integrations: {
+      All: true,
+    },
   } as unknown as RudderEvent;
 
   const activeDestinationsWithHybridMode = [
