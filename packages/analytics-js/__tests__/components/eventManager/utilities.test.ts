@@ -11,7 +11,7 @@ import type {
 } from '@rudderstack/analytics-js-common/types/EventContext';
 import type { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
 import type { RudderContext, RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import { state } from '../../../src/state';
+import { resetState, state } from '../../../src/state';
 import {
   checkForReservedElements,
   checkForReservedElementsInObject,
@@ -21,6 +21,7 @@ import {
   updateTopLevelEventElements,
   getUpdatedPageProperties,
   getEnrichedEvent,
+  getEventIntegrationsConfig,
 } from '../../../src/components/eventManager/utilities';
 import { PluginsManager } from '../../../src/components/pluginsManager';
 import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
@@ -1037,6 +1038,87 @@ describe('Event Manager - Utilities', () => {
         integrations: { All: true },
         messageId: 'test_uuid',
         userId: 'user_id',
+      });
+    });
+  });
+
+  describe('getEventIntegrationsConfig', () => {
+    afterEach(() => {
+      resetState();
+    });
+
+    it('should return global load API integrations object', () => {
+      batch(() => {
+        state.loadOptions.value = {
+          useGlobalIntegrationsConfigInEvents: true,
+        };
+
+        state.nativeDestinations.loadOnlyIntegrations.value = {
+          All: false,
+        };
+      });
+
+      expect(getEventIntegrationsConfig()).toEqual({
+        All: false,
+      });
+    });
+
+    it('should return consent API integrations object', () => {
+      batch(() => {
+        state.loadOptions.value = {
+          useGlobalIntegrationsConfigInEvents: true,
+        };
+
+        state.nativeDestinations.loadOnlyIntegrations.value = {
+          All: true,
+          GA4: false,
+        };
+
+        state.consents.postConsent.value = {
+          integrations: {
+            All: false,
+            MP: true,
+          },
+        };
+      });
+
+      expect(getEventIntegrationsConfig()).toEqual({
+        All: false,
+        MP: true,
+      });
+    });
+
+    it('should return global load API integrations object if consent API integrations object is not defined', () => {
+      batch(() => {
+        state.loadOptions.value = {
+          useGlobalIntegrationsConfigInEvents: true,
+        };
+
+        state.nativeDestinations.loadOnlyIntegrations.value = {
+          All: false,
+        };
+      });
+
+      expect(getEventIntegrationsConfig()).toEqual({
+        All: false,
+      });
+    });
+
+    it("should return event's integrations object", () => {
+      expect(
+        getEventIntegrationsConfig({
+          All: true,
+          AM: false,
+        }),
+      ).toEqual({
+        All: true,
+        AM: false,
+      });
+    });
+
+    it("should return default integrations object if event's integrations object is not defined", () => {
+      expect(getEventIntegrationsConfig()).toEqual({
+        All: true,
       });
     });
   });
