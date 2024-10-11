@@ -6,7 +6,7 @@ import type { ConsentsInfo } from '@rudderstack/analytics-js-common/types/Consen
 import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { checks, storages, string } from '../shared-chunks/common';
 import { IUBENDA_CONSENT_COOKIE_READ_ERROR, IUBENDA_CONSENT_COOKIE_PARSE_ERROR } from './logMessages';
-import { IUBENDA_CONSENT_MANAGER_PLUGIN, IUBENDA_CONSENT_EXAMPLE_COOKIE_NAME } from './constants';
+import { IUBENDA_CONSENT_MANAGER_PLUGIN, IUBENDA_CONSENT_COOKIE_NAME_PATTERN } from './constants';
 import type { IubendaConsentData, IubendaConsentCookieData} from './types'
 
 /**
@@ -27,7 +27,7 @@ const getIubendaConsentData = (
       name: IUBENDA_CONSENT_MANAGER_PLUGIN,
       type: storages.COOKIE_STORAGE,
     });
-    rawConsentCookieData = dataStore?.engine.getItem(IUBENDA_CONSENT_EXAMPLE_COOKIE_NAME);
+    rawConsentCookieData = dataStore?.engine.getItem(getIubendaCookieName());
 
   } catch (err) {
     logger?.error(IUBENDA_CONSENT_COOKIE_READ_ERROR(IUBENDA_CONSENT_MANAGER_PLUGIN), err);
@@ -87,5 +87,23 @@ const updateConsentStateFromData = (
   state.consents.initialized.value = isDefined(iubendaConsentData);
   state.consents.data.value = consentData;
 };
+const getIubendaCookieName = (): string => {
+  // Retrieve cookies as a string and split them into an array
+  const cookies = document.cookie.split('; ');
+  
+  // Find the cookie that matches the iubenda cookie pattern
+  const matchedCookie = cookies.find(cookie => {
+    const [name] = cookie.split('=');
+    return IUBENDA_CONSENT_COOKIE_NAME_PATTERN.test(name.trim());
+  });
 
-export { getIubendaConsentData, getConsentData, updateConsentStateFromData };
+  if (!matchedCookie) {
+    throw new Error(IUBENDA_CONSENT_COOKIE_READ_ERROR('Cookie not found with the specified pattern.'));
+  }
+
+  // Extract and return the cookie name
+  const [name] = matchedCookie.split('=');
+  return name;
+};
+
+export { getIubendaConsentData, getConsentData, updateConsentStateFromData, getIubendaCookieName };
