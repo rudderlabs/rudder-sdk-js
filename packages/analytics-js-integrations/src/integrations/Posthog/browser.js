@@ -29,6 +29,7 @@ class Posthog {
     this.propertyBlackList = getPropertyBlackList(config);
     this.xhrHeaders = getXhrHeaders(config);
     this.enableLocalStoragePersistence = config.enableLocalStoragePersistence;
+    this.personProfile = config.personProfile || 'identified_only';
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
@@ -50,6 +51,7 @@ class Posthog {
       disable_session_recording: this.disableSessionRecording,
       property_blacklist: this.propertyBlackList,
       disable_cookie: this.disableCookie,
+      person_profiles: this.personProfile
     };
 
     if (options?.loaded) {
