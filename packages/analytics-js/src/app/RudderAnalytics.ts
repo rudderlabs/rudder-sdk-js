@@ -140,6 +140,9 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     }
 
     this.setDefaultInstanceKey(writeKey);
+    // Track page loaded lifecycle event if enabled
+    this.trackPageLifecycleEvents(loadOptions);
+
     this.analyticsInstances[writeKey] = new Analytics();
     this.getAnalyticsInstance(writeKey).load(writeKey, dataPlaneUrl, loadOptions);
   }
@@ -150,11 +153,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    * @param loadOptions
    * @returns
    */
-  // eslint-disable-next-line class-methods-use-this
-  trackPageLifecycleEvents(
-    preloadedEventsArray: PreloadedEventCall[],
-    loadOptions?: Partial<LoadOptions>,
-  ) {
+  trackPageLifecycleEvents(loadOptions?: Partial<LoadOptions>) {
     const { trackPageLifecycle, useBeacon } = loadOptions ?? {};
     const {
       events = [PageLifecycleEvents.LOADED, PageLifecycleEvents.UNLOADED],
@@ -168,6 +167,10 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     if (!enabled) {
       return;
     }
+
+    const preloadedEventsArray = Array.isArray((globalThis as typeof window).rudderanalytics)
+      ? ((globalThis as typeof window).rudderanalytics as unknown as PreloadedEventCall[])
+      : ([] as PreloadedEventCall[]);
 
     // track page loaded event
     if (events.length === 0 || events.includes(PageLifecycleEvents.LOADED)) {
@@ -233,8 +236,6 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
 
     // Process load method if present in the buffered requests
     if (loadEvent.length > 0) {
-      // Track page loaded lifecycle event if enabled
-      this.trackPageLifecycleEvents(preloadedEventsArray, loadEvent[3]);
       // Remove the event name from the Buffered Event array and keep only arguments
       loadEvent.shift();
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
