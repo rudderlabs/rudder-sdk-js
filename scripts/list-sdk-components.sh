@@ -43,6 +43,10 @@ is_excluded() {
 # Get list of files from S3 (non-recursive)
 # Capture the timestamp, file size, and file name for each file
 FILES=$(aws s3 ls s3://$BUCKET_NAME/$DIRECTORY_PATH/ | awk '{print $1, $2, $4}')
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to list files from S3 bucket" >&2
+    exit 1
+fi
 
 # Start creating HTML file
 echo "<!DOCTYPE html>" > $OUTPUT_HTML_FILE_PATH
