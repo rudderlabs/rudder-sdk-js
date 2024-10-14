@@ -168,9 +168,9 @@ jobs:
           ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} ${{ inputs.s3_dir_path }}/modern/plugins $plugins_html_file $plugins_path_prefix/modern/plugins "Plugins" $plugins_zip_file
 
           # Copy the HTML files to S3
-          aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/$integration_sdks_html_file $s3_path_prefix/legacy/js-integrations/$integration_sdks_html_file $copy_args
-          aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/$integration_sdks_html_file $s3_path_prefix/modern/js-integrations/$integration_sdks_html_file $copy_args
-          aws s3 cp $plugins_path_prefix/modern/plugins/$plugins_html_file $s3_path_prefix/modern/plugins/$plugins_html_file $copy_args
+          aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/$integration_sdks_html_file $s3_path_prefix/legacy/js-integrations/$integration_sdks_html_file --cache-control max-age=${{ env.CACHE_MAX_AGE }}
+          aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/$integration_sdks_html_file $s3_path_prefix/modern/js-integrations/$integration_sdks_html_file --cache-control max-age=${{ env.CACHE_MAX_AGE }}
+          aws s3 cp $plugins_path_prefix/modern/plugins/$plugins_html_file $s3_path_prefix/modern/plugins/$plugins_html_file --cache-control max-age=${{ env.CACHE_MAX_AGE }}
 
       - name: Create Cloudfront invalidation
         run: |
