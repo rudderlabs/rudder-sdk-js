@@ -54,7 +54,7 @@ echo "<html>" >> $OUTPUT_HTML_FILE_PATH
 echo "<head><title>S3 File List</title></head>" >> $OUTPUT_HTML_FILE_PATH
 echo "<body>" >> $OUTPUT_HTML_FILE_PATH
 echo "<h1>RudderStack JavaScript SDK - $COMPONENT_NAME</h1>" >> $OUTPUT_HTML_FILE_PATH
-echo "<p><a href=\"https://$BUCKET_NAME.s3.amazonaws.com/$DIRECTORY_PATH/$ZIP_FILE_NAME\" download><button>Download All Files</button></a></p>" >> $OUTPUT_HTML_FILE_PATH
+echo "<p><a href=\"https://cdn.rudderlabs.com/$DIRECTORY_PATH/$ZIP_FILE_NAME\" download><button>Download All Files</button></a></p>" >> $OUTPUT_HTML_FILE_PATH
 echo "<table>" >> $OUTPUT_HTML_FILE_PATH
 echo "<tr><th>#</th><th>File Name</th><th>Last Updated</th></tr>" >> $OUTPUT_HTML_FILE_PATH
 
@@ -65,7 +65,7 @@ COUNTER=1
 while IFS= read -r LINE; do
   TIMESTAMP=$(echo $LINE | awk '{print $1, $2}')
   FILE=$(echo $LINE | awk '{print $3}')
-  URL="https://$BUCKET_NAME.s3.amazonaws.com/$DIRECTORY_PATH/$FILE"
+  URL="https://cdn.rudderlabs.com/$DIRECTORY_PATH/$FILE"
 
   # Check if the file is in the excluded list
   if is_excluded "$FILE"; then

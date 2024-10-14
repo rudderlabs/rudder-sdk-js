@@ -144,7 +144,7 @@ jobs:
 
           tmp_file="/tmp/modern_$integration_sdks_zip_file"
           tar -czvf "$tmp_file" -C "$integration_sdks_path_prefix/modern/js-integrations/" .
-          mv "$tmp_file" "$integration_sdks_path_prefix/legacy/js-integrations/$integration_sdks_zip_file"
+          mv "$tmp_file" "$integration_sdks_path_prefix/modern/js-integrations/$integration_sdks_zip_file"
 
           # Generate a zip file of all the plugins
           tmp_file="/tmp/$plugins_zip_file"
