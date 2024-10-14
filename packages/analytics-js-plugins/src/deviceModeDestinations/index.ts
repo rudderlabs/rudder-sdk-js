@@ -83,7 +83,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
         const destSDKIdentifier = `${sdkName}_RS`; // this is the name of the object loaded on the window
 
         const sdkTypeName = sdkName;
-        if (sdkTypeName && !isDestinationSDKMounted(destSDKIdentifier, sdkTypeName, logger)) {
+        if (sdkTypeName && !isDestinationSDKMounted(destSDKIdentifier, sdkTypeName)) {
           const destSdkURL = `${integrationsCDNPath}/${sdkName}.min.js`;
           externalSrcLoader.loadJSFile({
             url: destSdkURL,
