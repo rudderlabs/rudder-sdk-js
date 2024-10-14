@@ -56,7 +56,7 @@ class Posthog {
     };
 
     if(this.personProfile) {
-      config.person_profile = this.personProfile;
+      config.person_profiles = this.personProfile;
     }
 
     if (options?.loaded) {
