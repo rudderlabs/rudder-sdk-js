@@ -1,5 +1,19 @@
 #!/bin/bash
 
+if [ "$#" -ne 6 ]; then
+    echo "Error: Incorrect number of arguments"
+    echo "Usage: $0 <BUCKET_NAME> <DIRECTORY_PATH> <OUTPUT_HTML_FILE_NAME> <OUTPUT_HTML_DIR_PATH> <COMPONENT_NAME> <ZIP_FILE_NAME>"
+    exit 1
+fi
+
+# Validate that required arguments are not empty
+for arg in "$@"; do
+    if [ -z "$arg" ]; then
+        echo "Error: Empty argument provided"
+        exit 1
+    fi
+done
+
 # Get arguments
 BUCKET_NAME=$1
 DIRECTORY_PATH=$2
@@ -13,7 +27,7 @@ OUTPUT_HTML_FILE_PATH="$OUTPUT_HTML_DIR_PATH/$OUTPUT_HTML_FILE_NAME"
 # List of files to exclude
 # Exclude the ZIP file and the output HTML file as they'll be
 # in the same directory as the other files
-EXCLUDED_FILES=($ZIP_FILE_NAME $OUTPUT_HTML_FILE)
+EXCLUDED_FILES=("$ZIP_FILE_NAME" "$OUTPUT_HTML_FILE_NAME")
 
 # Function to check if a file is in the excluded list
 is_excluded() {
@@ -54,8 +68,12 @@ while IFS= read -r LINE; do
     continue # Skip this file
   fi
 
-  # Remove the .min.js or .min.js.map extension for display
-  FILE_DISPLAY=$(basename "$FILE" | sed 's/\.min\.js$//' | sed 's/\.min\.js\.map$//' | sed 's/\\.js$//' | sed 's/\\.js\.map$//')
+  # Remove the file extension for display
+  FILE_DISPLAY=$(basename "$FILE")
+  FILE_DISPLAY=${FILE_DISPLAY%.min.js.map}
+  FILE_DISPLAY=${FILE_DISPLAY%.min.js}
+  FILE_DISPLAY=${FILE_DISPLAY%.js.map}
+  FILE_DISPLAY=${FILE_DISPLAY%.js}
 
   if [[ "$FILE" == *.min.js.map || "$FILE" == *.js.map ]]; then
     # Indent map files
