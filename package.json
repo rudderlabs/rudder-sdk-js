@@ -105,15 +105,15 @@
     "storejs": "2.1.0"
   },
   "devDependencies": {
-    "@babel/core": "7.25.7",
-    "@babel/eslint-parser": "7.25.7",
+    "@babel/core": "7.25.8",
+    "@babel/eslint-parser": "7.25.8",
     "@babel/plugin-transform-arrow-functions": "7.25.7",
     "@babel/plugin-transform-class-properties": "7.25.7",
     "@babel/plugin-transform-object-assign": "7.25.7",
     "@babel/plugin-transform-private-methods": "7.25.7",
-    "@babel/plugin-transform-private-property-in-object": "7.25.7",
+    "@babel/plugin-transform-private-property-in-object": "7.25.8",
     "@babel/plugin-transform-runtime": "7.25.7",
-    "@babel/preset-env": "7.25.7",
+    "@babel/preset-env": "7.25.8",
     "@babel/preset-typescript": "7.25.7",
     "@commitlint/config-conventional": "19.5.0",
     "@commitlint/config-nx-scopes": "19.5.0",
@@ -135,7 +135,7 @@
     "@size-limit/file": "11.1.6",
     "@size-limit/webpack": "11.1.6",
     "@swc-node/register": "^1.10.9",
-    "@swc/core": "^1.7.28",
+    "@swc/core": "^1.7.35",
     "@types/component-emitter": "1.2.14",
     "@types/jest": "29.5.13",
     "@types/node": "22.7.5",
@@ -170,7 +170,7 @@
     "join-component": "1.1.0",
     "jscpd": "4.0.5",
     "lint-staged": "15.2.10",
-    "msw": "2.4.9",
+    "msw": "2.4.11",
     "nx": "20.0.0",
     "patch-package": "8.0.0",
     "prettier": "3.3.3",
@@ -206,7 +206,8 @@
   "overrides": {
     "debug": "4.3.4",
     "ws": "7.5.10",
-    "path-to-regexp": "6.3.0"
+    "path-to-regexp": "6.3.0",
+    "cookie": "0.7.2"
   },
   "lint-staged": {
     "*.{json,js,md,ts}": "prettier --write"
