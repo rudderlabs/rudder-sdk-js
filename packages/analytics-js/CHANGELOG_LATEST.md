@@ -1,10 +1,10 @@
-## [3.7.15](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.7.14...@rudderstack/analytics-js@3.7.15) (2024-10-03)
+## [3.7.17](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.7.16...@rudderstack/analytics-js@3.7.17) (2024-10-11)
 
 ### Dependency Updates
 
-* `@rudderstack/analytics-js-plugins` updated to version `3.4.15`
+* `@rudderstack/analytics-js-plugins` updated to version `3.4.16`
 
 ### Bug Fixes
 
-* storage access error when cookies are blocked ([#1872](https://github.com/rudderlabs/rudder-sdk-js/issues/1872)) ([966dbc2](https://github.com/rudderlabs/rudder-sdk-js/commit/966dbc2996b0ee292a553058ef435154de73f42e))
+* global integrations object is not used for preloaded events ([#1881](https://github.com/rudderlabs/rudder-sdk-js/issues/1881)) ([2776f07](https://github.com/rudderlabs/rudder-sdk-js/commit/2776f07e0b0142e05bd4bd3dc053c484c8ecf8a0))
 
