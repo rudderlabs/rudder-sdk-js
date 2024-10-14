@@ -148,6 +148,17 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   }
 
   /**
+   * A function to get preloaded events array from global object
+   * @returns preloaded events array
+   */
+  // eslint-disable-next-line class-methods-use-this
+  getPreloadedEvents() {
+    return Array.isArray((globalThis as typeof window).rudderanalytics)
+      ? ((globalThis as typeof window).rudderanalytics as unknown as PreloadedEventCall[])
+      : ([] as PreloadedEventCall[]);
+  }
+
+  /**
    * A function to track page lifecycle events like page loaded and page unloaded
    * @param preloadedEventsArray
    * @param loadOptions
@@ -168,9 +179,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
       return;
     }
 
-    const preloadedEventsArray = Array.isArray((globalThis as typeof window).rudderanalytics)
-      ? ((globalThis as typeof window).rudderanalytics as unknown as PreloadedEventCall[])
-      : ([] as PreloadedEventCall[]);
+    const preloadedEventsArray = this.getPreloadedEvents();
 
     // track page loaded event
     if (events.length === 0 || events.includes(PageLifecycleEvents.LOADED)) {
@@ -219,9 +228,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    * remaining preloaded events array in global object
    */
   triggerBufferedLoadEvent() {
-    const preloadedEventsArray = Array.isArray((globalThis as typeof window).rudderanalytics)
-      ? ((globalThis as typeof window).rudderanalytics as unknown as PreloadedEventCall[])
-      : ([] as PreloadedEventCall[]);
+    const preloadedEventsArray = this.getPreloadedEvents();
 
     // The array will be mutated in the below method
     promotePreloadedConsentEventsToTop(preloadedEventsArray);

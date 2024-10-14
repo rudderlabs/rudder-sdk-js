@@ -83,7 +83,7 @@ export default [
     name: 'Core (Bundled) - Modern - NPM (UMD)',
     path: 'dist/npm/modern/bundled/umd/index.js',
     import: '*',
-    limit: '39 KiB',
+    limit: '39.5 KiB',
   },
   {
     name: 'Core (Content Script) - Legacy - NPM (ESM)',
