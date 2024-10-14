@@ -89,8 +89,8 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
 
     RudderAnalytics.globalSingleton = this;
 
-    state.pageLifecycle.visitId.value = generateUUID();
-    state.pageLifecycle.pageLoadedTimestamp.value = Date.now();
+    state.autoTrack.pageLifecycle.visitId.value = generateUUID();
+    state.autoTrack.pageLifecycle.pageLoadedTimestamp.value = Date.now();
 
     // start loading if a load event was buffered or wait for explicit load call
     this.triggerBufferedLoadEvent();
@@ -165,15 +165,20 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    * @returns
    */
   trackPageLifecycleEvents(loadOptions?: Partial<LoadOptions>) {
-    const { trackPageLifecycle, useBeacon } = loadOptions ?? {};
+    const { autoTrack, useBeacon } = loadOptions ?? {};
+    const {
+      enabled: autoTrackEnabled = false,
+      options: autoTrackOptions = {},
+      pageLifecycle,
+    } = autoTrack ?? {};
     const {
       events = [PageLifecycleEvents.LOADED, PageLifecycleEvents.UNLOADED],
-      enabled = false,
-      options = {},
-    } = trackPageLifecycle ?? {};
+      enabled = autoTrackEnabled,
+      options = autoTrackOptions,
+    } = pageLifecycle ?? {};
 
-    const visitId = state.pageLifecycle.visitId.value;
-    const pageLoadedTimestamp = state.pageLifecycle.pageLoadedTimestamp.value as number;
+    const visitId = state.autoTrack.pageLifecycle.visitId.value;
+    const pageLoadedTimestamp = state.autoTrack.pageLifecycle.pageLoadedTimestamp.value as number;
 
     if (!enabled) {
       return;

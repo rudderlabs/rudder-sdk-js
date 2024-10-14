@@ -113,10 +113,16 @@ export enum PageLifecycleEvents {
   UNLOADED = 'Page Unloaded',
 }
 
-export type TrackPageLifecycleOptions = {
+export type PageLifecycleOptions = {
   enabled: boolean; // default false
   events?: PageLifecycleEvents[];
   options?: ApiOptions;
+};
+
+export type AutoTrackOptions = {
+  enabled?: boolean; // default false
+  options?: ApiOptions;
+  pageLifecycle?: PageLifecycleOptions;
 };
 
 /**
@@ -161,7 +167,7 @@ export type LoadOptions = {
   externalAnonymousIdCookieName?: string;
   useServerSideCookies?: boolean;
   dataServiceEndpoint?: string;
-  trackPageLifecycle?: TrackPageLifecycleOptions;
+  autoTrack?: AutoTrackOptions;
 };
 
 export type ConsentOptions = {

@@ -43,9 +43,12 @@ const defaultLoadOptions: LoadOptions = {
   },
   sendAdblockPageOptions: {},
   useServerSideCookies: false,
-  trackPageLifecycle: {
+  autoTrack: {
     enabled: false,
-    events: [PageLifecycleEvents.LOADED, PageLifecycleEvents.UNLOADED],
+    pageLifecycle: {
+      enabled: false,
+      events: [PageLifecycleEvents.LOADED, PageLifecycleEvents.UNLOADED],
+    },
   },
 };
 

@@ -83,6 +83,10 @@ export type LifecycleState = {
   dataPlaneUrl: Signal<string | undefined>;
 };
 
+export type AutoTrackState = {
+  pageLifecycle: PageLifecycleState;
+};
+
 export type PageLifecycleState = {
   visitId: Signal<string | undefined>;
   pageLoadedTimestamp: Signal<number | undefined>;
@@ -196,7 +200,7 @@ export interface ApplicationState {
   storage: StorageState;
   serverCookies: ServerCookiesState;
   dataPlaneEvents: DataPlaneEventsState;
-  pageLifecycle: PageLifecycleState;
+  autoTrack: AutoTrackState;
 }
 
 export type DebouncedFunction = (...args: any[]) => void;
