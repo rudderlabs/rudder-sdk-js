@@ -29,8 +29,8 @@ class Posthog {
     this.propertyBlackList = getPropertyBlackList(config);
     this.xhrHeaders = getXhrHeaders(config);
     this.enableLocalStoragePersistence = config.enableLocalStoragePersistence;
-    if(isDefinedAndNotNull(config.personProfile))  {
-      this.personProfile = config.personProfile;
+    if(isDefinedAndNotNull(config.personProfiles))  {
+      this.personProfiles = config.personProfiles;
     }
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
@@ -55,8 +55,8 @@ class Posthog {
       disable_cookie: this.disableCookie,
     };
 
-    if(this.personProfile) {
-      config.person_profiles = this.personProfile;
+    if(this.personProfiles) {
+      configObject.person_profiles = this.personProfiles;
     }
 
     if (options?.loaded) {
