@@ -2,6 +2,26 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.7.17](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.7.16...@rudderstack/analytics-js@3.7.17) (2024-10-11)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-plugins` updated to version `3.4.16`
+
+### Bug Fixes
+
+* global integrations object is not used for preloaded events ([#1881](https://github.com/rudderlabs/rudder-sdk-js/issues/1881)) ([2776f07](https://github.com/rudderlabs/rudder-sdk-js/commit/2776f07e0b0142e05bd4bd3dc053c484c8ecf8a0))
+
+## [3.7.16](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.7.15...@rudderstack/analytics-js@3.7.16) (2024-10-10)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-plugins` updated to version `3.4.15`
+
+### Bug Fixes
+
+* source config fixture and local storage issue ([cbf0833](https://github.com/rudderlabs/rudder-sdk-js/commit/cbf08337f2a4dfdb0566ef60ef0dcf4c53ce8e00))
+
 ## [3.7.15](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.7.14...@rudderstack/analytics-js@3.7.15) (2024-10-03)
 
 ### Dependency Updates
