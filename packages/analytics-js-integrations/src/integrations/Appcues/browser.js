@@ -84,6 +84,19 @@ class Appcues {
     const { properties, name } = rudderElement.message;
     window.Appcues.page(name, properties);
   }
+
+  // docs: https://docs.appcues.com/en_US/dev-installing-appcues/installation-overview-for-developers#identifying-groups-15
+  group(rudderElement) {
+    const { groupId, traits } = rudderElement.message;
+    if (!isDefinedAndNotNullAndNotEmpty(groupId)) {
+      logger.error('group id is required');
+      return;
+    }
+    window.Appcues.group(
+      groupId, // unique, required
+      traits,
+    );
+  }
 }
 
 export default Appcues;
