@@ -138,12 +138,18 @@ jobs:
           plugins_html_file="list.html"
 
           # Generate a zip file of all the integrations
-          tar --exclude="$integration_sdks_zip_file" -czvf $integration_sdks_path_prefix/legacy/js-integrations/$integration_sdks_zip_file -C $integration_sdks_path_prefix/legacy/js-integrations/ .
+          tmp_file="/tmp/legacy_$integration_sdks_zip_file"
+          tar -czvf "$tmp_file" -C "$integration_sdks_path_prefix/legacy/js-integrations/" .
+          mv "$tmp_file" "$integration_sdks_path_prefix/legacy/js-integrations/$integration_sdks_zip_file"
 
-          tar --exclude="$integration_sdks_zip_file" -czvf $integration_sdks_path_prefix/modern/js-integrations/$integration_sdks_zip_file -C $integration_sdks_path_prefix/modern/js-integrations/ .
+          tmp_file="/tmp/modern_$integration_sdks_zip_file"
+          tar -czvf "$tmp_file" -C "$integration_sdks_path_prefix/modern/js-integrations/" .
+          mv "$tmp_file" "$integration_sdks_path_prefix/legacy/js-integrations/$integration_sdks_zip_file"
 
           # Generate a zip file of all the plugins
-          tar --exclude="$plugins_zip_file" -czvf $plugins_path_prefix/modern/plugins/$plugins_zip_file -C $plugins_path_prefix/modern/plugins/ .
+          tmp_file="/tmp/$plugins_zip_file"
+          tar -czvf "$tmp_file" -C $plugins_path_prefix/modern/plugins/ .
+          mv "$tmp_file" "$plugins_path_prefix/modern/plugins/$plugins_zip_file"
 
           # Upload all the files to S3
           aws s3 cp $core_sdk_path_prefix/legacy/iife/ $s3_path_prefix/legacy/ $copy_args
