@@ -51,6 +51,7 @@ const config = {
   disableSessionRecording: false,
   disableCookie: false,
   propertyBlackList: ['name'],
+  personProfiles: 'always'
 };
 
 const analytics = {
@@ -72,6 +73,7 @@ describe('Posthog Test', () => {
       expect(posthogInstance.xhrHeaders).toEqual({});
       expect(posthogInstance.enableLocalStoragePersistence).toBeUndefined();
       expect(posthogInstance.destinationId).toBe(destinationInfo.destinationId);
+      expect(posthogInstance.personProfiles).toEqual('always');
     });
 
     // init() method initializes the Posthog SDK with valid config
