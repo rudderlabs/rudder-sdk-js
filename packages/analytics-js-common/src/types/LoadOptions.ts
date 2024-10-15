@@ -124,29 +124,6 @@ export type ConfigResponseDestinationItem = {
   name: string;
 };
 
-export type Connection = {
-  createdAt: string;
-  deleted: boolean;
-  destinationId: string;
-  enabled: boolean;
-  id: string;
-  sourceId: string;
-  updatedAt: string;
-};
-
-export type SourceDefinition = {
-  category: Nullable<any>;
-  config: Nullable<any>;
-  configSchema: Nullable<any>;
-  createdAt: string;
-  displayName: string;
-  id: string;
-  name: string;
-  options: Nullable<any>;
-  uiConfig: Nullable<any>;
-  updatedAt: string;
-};
-
 export type SourceConfigResponse = {
   consentManagementMetadata?: ConsentManagementMetadata;
   updatedAt: string;
@@ -156,7 +133,7 @@ export type SourceConfigResponse = {
     workspaceId: string;
     writeKey: string;
     enabled: boolean;
-    dataplanes: object;
+    dataplanes: Record<string, any>;
     id: string;
     name: string;
     config: {

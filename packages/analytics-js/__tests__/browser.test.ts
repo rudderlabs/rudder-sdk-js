@@ -60,7 +60,7 @@ describe('Test suite for the SDK', () => {
     }
 
     // Mocking the fetch function
-    window.fetch = fetchMock;
+    window.fetch = fetchMock as unknown as typeof window.fetch;
 
     loadingSnippet();
 
