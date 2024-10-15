@@ -131,12 +131,46 @@ jobs:
           s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/${{ inputs.s3_dir_path }}"
           copy_args="--recursive --cache-control max-age=${{ env.CACHE_MAX_AGE }}"
 
+          integration_sdks_zip_file="all_integration_sdks.tar.gz"
+          plugins_zip_file="all_plugins.tar.gz"
+
+          integration_sdks_html_file="list.html"
+          plugins_html_file="list.html"
+
+          # Generate a zip file of all the integrations
+          tmp_file="/tmp/legacy_$integration_sdks_zip_file"
+          tar -czvf "$tmp_file" -C "$integration_sdks_path_prefix/legacy/js-integrations/" .
+          mv "$tmp_file" "$integration_sdks_path_prefix/legacy/js-integrations/$integration_sdks_zip_file"
+
+          tmp_file="/tmp/modern_$integration_sdks_zip_file"
+          tar -czvf "$tmp_file" -C "$integration_sdks_path_prefix/modern/js-integrations/" .
+          mv "$tmp_file" "$integration_sdks_path_prefix/modern/js-integrations/$integration_sdks_zip_file"
+
+          # Generate a zip file of all the plugins
+          tmp_file="/tmp/$plugins_zip_file"
+          tar -czvf "$tmp_file" -C $plugins_path_prefix/modern/plugins/ .
+          mv "$tmp_file" "$plugins_path_prefix/modern/plugins/$plugins_zip_file"
+
+          # Upload all the files to S3
           aws s3 cp $core_sdk_path_prefix/legacy/iife/ $s3_path_prefix/legacy/ $copy_args
           aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/legacy/js-integrations/ $copy_args
 
           aws s3 cp $core_sdk_path_prefix/modern/iife/ $s3_path_prefix/modern/ $copy_args
           aws s3 cp $plugins_path_prefix/modern/plugins/ $s3_path_prefix/modern/plugins/ $copy_args
           aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
+
+          # Generate the HTML file to list all the integrations
+          ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} ${{ inputs.s3_dir_path }}/legacy/js-integrations $integration_sdks_html_file $integration_sdks_path_prefix/legacy/js-integrations "Device Mode Integrations" $integration_sdks_zip_file
+
+          ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} ${{ inputs.s3_dir_path }}/modern/js-integrations $integration_sdks_html_file $integration_sdks_path_prefix/modern/js-integrations "Device Mode Integrations" $integration_sdks_zip_file
+
+          # Generate the HTML file to list all the plugins
+          ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} ${{ inputs.s3_dir_path }}/modern/plugins $plugins_html_file $plugins_path_prefix/modern/plugins "Plugins" $plugins_zip_file
+
+          # Copy the HTML files to S3
+          aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/$integration_sdks_html_file $s3_path_prefix/legacy/js-integrations/$integration_sdks_html_file --cache-control max-age=${{ env.CACHE_MAX_AGE }}
+          aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/$integration_sdks_html_file $s3_path_prefix/modern/js-integrations/$integration_sdks_html_file --cache-control max-age=${{ env.CACHE_MAX_AGE }}
+          aws s3 cp $plugins_path_prefix/modern/plugins/$plugins_html_file $s3_path_prefix/modern/plugins/$plugins_html_file --cache-control max-age=${{ env.CACHE_MAX_AGE }}
 
       - name: Create Cloudfront invalidation
         run: |

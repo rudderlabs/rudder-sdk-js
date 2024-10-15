@@ -7,7 +7,7 @@ import {
   DISPLAY_NAME,
 } from '@rudderstack/analytics-js-common/constants/integrations/Posthog/constants';
 import Logger from '../../utils/logger';
-import { removeTrailingSlashes } from '../../utils/utils';
+import { isDefinedAndNotNull, removeTrailingSlashes } from '../../utils/utils';
 import { getXhrHeaders, getPropertyBlackList, getDestinationOptions } from './utils';
 import { loadNativeSdk } from './nativeSdkLoader';
 
@@ -29,6 +29,9 @@ class Posthog {
     this.propertyBlackList = getPropertyBlackList(config);
     this.xhrHeaders = getXhrHeaders(config);
     this.enableLocalStoragePersistence = config.enableLocalStoragePersistence;
+    if(isDefinedAndNotNull(config.personProfiles))  {
+      this.personProfiles = config.personProfiles;
+    }
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
@@ -51,6 +54,10 @@ class Posthog {
       property_blacklist: this.propertyBlackList,
       disable_cookie: this.disableCookie,
     };
+
+    if(this.personProfiles) {
+      configObject.person_profiles = this.personProfiles;
+    }
 
     if (options?.loaded) {
       configObject.loaded = options.loaded;
