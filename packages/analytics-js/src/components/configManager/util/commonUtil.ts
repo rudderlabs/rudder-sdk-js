@@ -85,6 +85,7 @@ const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
     useServerSideCookies,
     dataServiceEndpoint,
     storage: storageOptsFromLoad,
+    // eslint-disable-next-line sonarjs/deprecation
     setCookieDomain,
     sameDomainCookiesOnly,
   } = state.loadOptions.value;

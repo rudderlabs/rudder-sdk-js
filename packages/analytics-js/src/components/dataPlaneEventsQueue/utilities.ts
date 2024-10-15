@@ -1,4 +1,4 @@
-import type { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import type { LoadOptions, QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
@@ -21,8 +21,22 @@ import {
   EVENT_PAYLOAD_SIZE_VALIDATION_WARNING,
 } from './logMessages';
 
-const getNormalizedQueueOptions = (queueOpts: QueueOpts): QueueOpts =>
-  mergeDeepRight(DEFAULT_RETRY_QUEUE_OPTIONS, queueOpts);
+const getNormalizedQueueOptions = (loadOptions: LoadOptions): QueueOpts => {
+  // eslint-disable-next-line sonarjs/deprecation
+  const { queueOptions, useBeacon, beaconQueueOptions } = loadOptions;
+  let queueOpts = queueOptions as QueueOpts;
+  // If beacon is enabled, use the beacon queue options for backward compatibility
+  if (useBeacon === true) {
+    queueOpts = {
+      batch: {
+        enabled: true, // In beacon mode, batch delivery was always enabled
+        maxItems: beaconQueueOptions?.maxItems,
+        flushInterval: beaconQueueOptions?.flushQueueInterval,
+      },
+    };
+  }
+  return mergeDeepRight(DEFAULT_RETRY_QUEUE_OPTIONS, queueOpts);
+};
 
 /**
  * Mutates the event and return final event for delivery

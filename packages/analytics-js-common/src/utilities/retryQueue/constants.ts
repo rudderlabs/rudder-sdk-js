@@ -15,7 +15,7 @@ const MAX_TIMER_SCALE_FACTOR = 10;
 
 const DEFAULT_MAX_BATCH_SIZE_BYTES = 512 * 1024; // 512 KB; this is also the max size of a batch
 const DEFAULT_MAX_BATCH_ITEMS = 100;
-const DEFAULT_BATCH_FLUSH_INTERVAL_MS = 60 * 1000; // 1 minutes
+const DEFAULT_BATCH_FLUSH_INTERVAL_MS = 10 * 1000; // 10 seconds
 
 const MAX_PAGE_UNLOAD_BATCH_SIZE_BYTES = 64 * 1024; // 64 KB
 

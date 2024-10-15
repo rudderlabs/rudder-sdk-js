@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/deprecation */
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import {

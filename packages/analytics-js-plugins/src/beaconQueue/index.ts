@@ -60,6 +60,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
       const url = getDeliveryUrl(dataplaneUrl, writeKey);
 
       const finalQOpts: BeaconQueueOpts = getNormalizedBeaconQueueOptions(
+        // eslint-disable-next-line sonarjs/deprecation
         state.loadOptions.value.beaconQueueOptions ?? {},
       );
 

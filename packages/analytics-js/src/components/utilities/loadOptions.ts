@@ -1,7 +1,8 @@
+/* eslint-disable sonarjs/deprecation */
 import { clone } from 'ramda';
 import {
+  getNormalizedObjectValue,
   isNonEmptyObject,
-  isObjectLiteralAndNotNull,
   mergeDeepRight,
   removeUndefinedAndNullValues,
 } from '@rudderstack/analytics-js-common/utilities/object';
@@ -10,7 +11,7 @@ import type {
   UaChTrackLevel,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { StorageOpts, CookieSameSite } from '@rudderstack/analytics-js-common/types/Storage';
-import { isDefined, isString } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { defaultOptionalPluginsList } from '../pluginsManager/defaultPluginsList';
 import { isNumber } from './number';
 
@@ -22,24 +23,22 @@ const normalizeLoadOptions = (
   const normalizedLoadOpts = clone(loadOptions);
 
   if (!isString(normalizedLoadOpts.setCookieDomain)) {
-    delete normalizedLoadOpts.setCookieDomain;
+    normalizedLoadOpts.setCookieDomain = undefined;
   }
 
   const cookieSameSiteValues = ['Strict', 'Lax', 'None'];
   if (!cookieSameSiteValues.includes(normalizedLoadOpts.sameSiteCookie as CookieSameSite)) {
-    delete normalizedLoadOpts.sameSiteCookie;
+    normalizedLoadOpts.sameSiteCookie = undefined;
   }
 
   normalizedLoadOpts.secureCookie = normalizedLoadOpts.secureCookie === true;
 
   const uaChTrackLevels = ['none', 'default', 'full'];
   if (!uaChTrackLevels.includes(normalizedLoadOpts.uaChTrackLevel as UaChTrackLevel)) {
-    delete normalizedLoadOpts.uaChTrackLevel;
+    normalizedLoadOpts.uaChTrackLevel = undefined;
   }
 
-  if (!isNonEmptyObject(normalizedLoadOpts.integrations)) {
-    delete normalizedLoadOpts.integrations;
-  }
+  normalizedLoadOpts.integrations = getNormalizedObjectValue(normalizedLoadOpts.integrations);
 
   normalizedLoadOpts.plugins = normalizedLoadOpts.plugins ?? defaultOptionalPluginsList;
 
@@ -53,68 +52,50 @@ const normalizeLoadOptions = (
 
   normalizedLoadOpts.useServerSideCookies = normalizedLoadOpts.useServerSideCookies === true;
 
-  if (
-    normalizedLoadOpts.dataServiceEndpoint &&
-    typeof normalizedLoadOpts.dataServiceEndpoint !== 'string'
-  ) {
-    delete normalizedLoadOpts.dataServiceEndpoint;
+  if (!isString(normalizedLoadOpts.dataServiceEndpoint)) {
+    normalizedLoadOpts.dataServiceEndpoint = undefined;
   }
 
-  if (!isObjectLiteralAndNotNull(normalizedLoadOpts.sendAdblockPageOptions)) {
-    delete normalizedLoadOpts.sendAdblockPageOptions;
-  }
+  normalizedLoadOpts.sendAdblockPageOptions = getNormalizedObjectValue(
+    normalizedLoadOpts.sendAdblockPageOptions,
+  );
 
-  if (!isDefined(normalizedLoadOpts.loadIntegration)) {
-    delete normalizedLoadOpts.loadIntegration;
-  } else {
-    normalizedLoadOpts.loadIntegration = normalizedLoadOpts.loadIntegration === true;
-  }
+  normalizedLoadOpts.loadIntegration = normalizedLoadOpts.loadIntegration === true;
 
-  if (!isObjectLiteralAndNotNull(normalizedLoadOpts.storage)) {
-    delete normalizedLoadOpts.storage;
+  if (!isNonEmptyObject(normalizedLoadOpts.storage)) {
+    normalizedLoadOpts.storage = undefined;
   } else {
     normalizedLoadOpts.storage = removeUndefinedAndNullValues(normalizedLoadOpts.storage);
     (normalizedLoadOpts.storage as StorageOpts).migrate =
       normalizedLoadOpts.storage?.migrate === true;
+
+    normalizedLoadOpts.storage.cookie = getNormalizedObjectValue(normalizedLoadOpts.storage.cookie);
   }
 
-  if (!isObjectLiteralAndNotNull(normalizedLoadOpts.destinationsQueueOptions)) {
-    delete normalizedLoadOpts.destinationsQueueOptions;
-  } else {
-    normalizedLoadOpts.destinationsQueueOptions = removeUndefinedAndNullValues(
-      normalizedLoadOpts.destinationsQueueOptions,
-    );
-  }
+  normalizedLoadOpts.destinationsQueueOptions = getNormalizedObjectValue(
+    normalizedLoadOpts.destinationsQueueOptions,
+  );
 
-  if (!isObjectLiteralAndNotNull(normalizedLoadOpts.queueOptions)) {
-    delete normalizedLoadOpts.queueOptions;
-  } else {
-    normalizedLoadOpts.queueOptions = removeUndefinedAndNullValues(normalizedLoadOpts.queueOptions);
-  }
+  normalizedLoadOpts.queueOptions = getNormalizedObjectValue(normalizedLoadOpts.queueOptions);
 
   normalizedLoadOpts.lockIntegrationsVersion = normalizedLoadOpts.lockIntegrationsVersion === true;
 
   normalizedLoadOpts.lockPluginsVersion = normalizedLoadOpts.lockPluginsVersion === true;
 
   if (!isNumber(normalizedLoadOpts.dataPlaneEventsBufferTimeout)) {
-    delete normalizedLoadOpts.dataPlaneEventsBufferTimeout;
+    normalizedLoadOpts.dataPlaneEventsBufferTimeout = undefined;
   }
 
-  if (!isObjectLiteralAndNotNull(normalizedLoadOpts.storage?.cookie)) {
-    delete normalizedLoadOpts.storage?.cookie;
-  } else {
-    (normalizedLoadOpts.storage as StorageOpts).cookie = removeUndefinedAndNullValues(
-      normalizedLoadOpts.storage?.cookie,
-    );
-  }
+  normalizedLoadOpts.beaconQueueOptions = getNormalizedObjectValue(
+    normalizedLoadOpts.beaconQueueOptions,
+  );
 
-  if (!isObjectLiteralAndNotNull(normalizedLoadOpts.preConsent)) {
-    delete normalizedLoadOpts.preConsent;
-  } else {
-    normalizedLoadOpts.preConsent = removeUndefinedAndNullValues(normalizedLoadOpts.preConsent);
-  }
+  normalizedLoadOpts.preConsent = getNormalizedObjectValue(normalizedLoadOpts.preConsent);
 
-  const mergedLoadOptions: LoadOptions = mergeDeepRight(loadOptionsFromState, normalizedLoadOpts);
+  const mergedLoadOptions: LoadOptions = mergeDeepRight(
+    loadOptionsFromState,
+    removeUndefinedAndNullValues(normalizedLoadOpts),
+  );
 
   return mergedLoadOptions;
 };

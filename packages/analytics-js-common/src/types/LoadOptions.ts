@@ -178,10 +178,24 @@ export type LoadOptions = {
   secureCookie?: boolean; // defaults to false.
   destSDKBaseURL?: string; // defaults to https://cdn.rudderlabs.com/latest/v3/modern/js-integrations
   pluginsSDKBaseURL?: string; // defaults to https://cdn.rudderlabs.com/latest/v3/modern/plugins
+  /**
+   * @deprecated The beacon functionality is automatically supported by the SDK in a different form.
+   * This option is no longer required.
+   */
+  useBeacon?: boolean; // defaults to false.
+  /**
+   * @deprecated Use queueOptions instead
+   */
   beaconQueueOptions?: BeaconQueueOpts;
   destinationsQueueOptions?: DestinationsQueueOpts;
   anonymousIdOptions?: AnonymousIdOptions;
+  /**
+   * @deprecated Use storage.cookie.domain instead
+   */
   setCookieDomain?: string; // defaults to current domain.
+  /**
+   * @deprecated Use storage.cookie.sameSite instead
+   */
   sameSiteCookie?: CookieSameSite; // defaults to Lax.
   lockIntegrationsVersion?: boolean; // defaults to false.
   lockPluginsVersion?: boolean; // defaults to false.

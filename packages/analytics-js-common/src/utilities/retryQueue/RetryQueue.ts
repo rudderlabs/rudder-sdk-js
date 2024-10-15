@@ -185,9 +185,10 @@ class RetryQueue implements IQueue<QueueItemData> {
   }
 
   private_flushBatchOnPageLeave() {
-    if (this.private_batch.enabled) {
-      onPageLeave(this.private_flushBatch);
-    }
+    onPageLeave(isAccessible => {
+      this.private_IsPageAccessible = isAccessible;
+      this.private_flushForPageLeave();
+    });
   }
 
   getStorageEntry(name: string): Nullable<QueueData<QueueItemData>> {
@@ -257,42 +258,57 @@ class RetryQueue implements IQueue<QueueItemData> {
   /**
    * Flushes the batch queue
    */
-  private_flushBatch(isAccessible = true) {
-    this.private_IsPageAccessible = isAccessible;
-
+  private_flushBatch() {
     const batchQueue = this.getStorageEntry(BATCH_QUEUE) ?? [];
     if (batchQueue.length > 0) {
-      let batchItems: QueueItem<QueueItemData>[] = [];
-      let remainingBatchItems: QueueItem<QueueItemData>[] = [];
-
-      if (this.private_IsPageAccessible) {
-        batchItems = batchQueue.slice(-batchQueue.length);
-      } else {
-        // If the page is not accessible, try to send as many items as possible
-        // eslint-disable-next-line no-restricted-syntax
-        for (const queueItem of batchQueue) {
-          if (
-            (this.private_batchSizeCalcCb as QueueBatchItemsSizeCalculatorCallback<QueueItemData>)(
-              [...batchItems, queueItem].map(queueItem => queueItem.item),
-            ) > MAX_PAGE_UNLOAD_BATCH_SIZE_BYTES
-          ) {
-            break;
-          }
-
-          batchItems.push(queueItem);
-        }
-
-        remainingBatchItems = batchQueue.slice(batchItems.length);
-      }
+      const batchItems = batchQueue.slice(-batchQueue.length);
 
       const batchEntry = this.private_genQueueItem(batchItems.map(queueItem => queueItem.item));
 
-      this.setStorageEntry(BATCH_QUEUE, remainingBatchItems);
+      this.setStorageEntry(BATCH_QUEUE, []);
 
       this.private_pushToMainQueue(batchEntry);
     }
     // Re-schedule the next flush task
     this.private_scheduleFlushBatch();
+  }
+
+  /**
+   * Flushes the batch queue
+   */
+  private_flushForPageLeave() {
+    let dataSource: string;
+    if (this.private_batch.enabled) {
+      dataSource = BATCH_QUEUE;
+    } else {
+      dataSource = QUEUE;
+    }
+
+    const dataSourceQueue = this.getStorageEntry(dataSource) ?? [];
+    if (dataSourceQueue.length === 0) {
+      return;
+    }
+
+    const batchItems: QueueItem<QueueItemData>[] = [];
+    // Try to send as many items as possible
+    // eslint-disable-next-line no-restricted-syntax
+    for (const queueItem of dataSourceQueue) {
+      if (
+        (this.private_batchSizeCalcCb as QueueBatchItemsSizeCalculatorCallback<QueueItemData>)(
+          [...batchItems, queueItem].map(queueItem => queueItem.item),
+        ) > MAX_PAGE_UNLOAD_BATCH_SIZE_BYTES
+      ) {
+        break;
+      }
+
+      batchItems.push(queueItem);
+    }
+
+    const batchEntry = this.private_genQueueItem(batchItems.map(queueItem => queueItem.item));
+
+    this.setStorageEntry(dataSource, dataSourceQueue.slice(batchItems.length));
+
+    this.private_pushToMainQueue(batchEntry);
   }
 
   /**

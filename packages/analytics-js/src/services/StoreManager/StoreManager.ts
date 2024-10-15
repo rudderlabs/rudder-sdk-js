@@ -58,8 +58,10 @@ class StoreManager implements IStoreManager {
     const loadOptions = state.loadOptions.value;
     const config: StoreManagerOptions = {
       cookieStorageOptions: {
+        // eslint-disable-next-line sonarjs/deprecation
         samesite: loadOptions.sameSiteCookie,
         secure: loadOptions.secureCookie,
+        // eslint-disable-next-line sonarjs/deprecation
         domain: loadOptions.setCookieDomain,
         sameDomainCookiesOnly: loadOptions.sameDomainCookiesOnly,
         enabled: true,

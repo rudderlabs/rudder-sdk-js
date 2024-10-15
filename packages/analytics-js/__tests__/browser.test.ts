@@ -110,8 +110,8 @@ describe('Test suite for the SDK', () => {
 
     dispatchPageHideEvent();
 
-    // one source config endpoint call and batch call for above API requests
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    // one source config endpoint call and individual event requests
+    expect(fetchMock).toHaveBeenCalledTimes(6);
   });
 
   describe('getAnonymousId', () => {

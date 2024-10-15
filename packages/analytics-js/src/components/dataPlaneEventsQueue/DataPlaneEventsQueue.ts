@@ -1,6 +1,5 @@
 /* eslint-disable no-param-reassign */
 import { RetryQueue } from '@rudderstack/analytics-js-common/utilities/retryQueue/RetryQueue';
-import type { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type {
   DoneCallback,
   QueueItemData,
@@ -42,7 +41,7 @@ class DataPlaneEventsQueue implements IDataPlaneEventsQueue {
     this.private_storeManager = storeManager;
     this.private_logger = logger;
 
-    const finalQOpts = getNormalizedQueueOptions(state.loadOptions.value.queueOptions as QueueOpts);
+    const finalQOpts = getNormalizedQueueOptions(state.loadOptions.value);
 
     this.private_eventsQueue = new RetryQueue(
       // adding write key to the queue name to avoid conflicts
