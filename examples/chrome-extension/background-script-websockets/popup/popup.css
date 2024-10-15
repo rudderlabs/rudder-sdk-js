@@ -1,11 +1,11 @@
 body {
-    background-color: #222;
-    color: #eee;
+  background-color: #222;
+  color: #eee;
 
-    width: 16rem;
-    height: 4rem;
+  width: 16rem;
+  height: 4rem;
 }
 
 .special-text {
-    color: red;
+  color: red;
 }

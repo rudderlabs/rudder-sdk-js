@@ -51,7 +51,7 @@ const config = {
   disableSessionRecording: false,
   disableCookie: false,
   propertyBlackList: ['name'],
-  personProfiles: 'always'
+  personProfiles: 'always',
 };
 
 const analytics = {

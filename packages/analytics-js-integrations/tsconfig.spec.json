@@ -12,15 +12,13 @@
     "target": "es6"
   },
   "include": [
-    "jest.config.mjs",
-    "__tests__/**/*.ts",
-    "__mocks__/**/*.ts",
-    "__fixtures__/**/*.ts",
-    "__tests__/**/*.js",
-    "__mocks__/**/*.js",
-    "__fixtures__/**/*.js",
-    "src/**/*.ts",
-    "src/**/*.js",
-    "src/**/*.d.ts"
+    "./jest.config.mjs",
+    "./__tests__/**/*",
+    "./__mocks__/**/*",
+    "./__fixtures__/**/*",
+    "./package.json",
+    "../../types/**/*",
+    "./src/**/*",
+    "../analytics-js-common/src/**/*"
   ]
 }

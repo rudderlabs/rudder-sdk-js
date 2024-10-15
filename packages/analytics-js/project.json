@@ -5,13 +5,6 @@
   "projectType": "library",
   "tags": ["type:sdk", "scope:analytics-v3"],
   "targets": {
-    "prepare-test-mocks": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "sed 's/var rudderanalytics/rudderanalytics/g' packages/analytics-js/dist/cdn/legacy/iife/rsa.min.js > packages/analytics-js/__mocks__/cdnSDK.js"
-      },
-      "dependsOn": ["build:browser"]
-    },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
@@ -28,7 +21,7 @@
           "codeCoverage": true
         }
       },
-      "dependsOn": ["prepare-test-mocks"]
+      "dependsOn": ["build:browser:dev"]
     },
     "lint": {
       "executor": "@nx/eslint:lint",

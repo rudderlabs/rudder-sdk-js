@@ -1,5 +1,5 @@
 import { http, HttpResponse } from 'msw';
-import { dummyDataplaneHost, dummySourceConfigResponse } from './fixtures';
+import { dummyDataplaneHost, dummyScriptSourceBase, dummySourceConfigResponse } from './fixtures';
 
 const handlers = [
   http.get(`${dummyDataplaneHost}/rawSample`, () => {
@@ -17,14 +17,6 @@ const handlers = [
   }),
   http.get(`${dummyDataplaneHost}/emptyJsonSample`, () => {
     return new HttpResponse('', {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-      },
-    });
-  }),
-  http.get(`${dummyDataplaneHost}/jsonSample`, () => {
-    return new HttpResponse(JSON.stringify({ json: 'sample' }), {
       status: 200,
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
@@ -49,7 +41,7 @@ const handlers = [
   http.get(`${dummyDataplaneHost}/noConnectionSample`, () => {
     return HttpResponse.error();
   }),
-  http.get(`${dummyDataplaneHost}/jsFileSample.js`, () => {
+  http.get(`${dummyScriptSourceBase}/jsFileSample.js`, () => {
     const fileContents = 'console.log("jsFileSample script executed")';
     return new HttpResponse(fileContents, {
       status: 200,
@@ -59,7 +51,7 @@ const handlers = [
       },
     });
   }),
-  http.get(`${dummyDataplaneHost}/jsFileEmpty.js`, () => {
+  http.get(`${dummyScriptSourceBase}/jsFileEmpty.js`, () => {
     const fileContents = '';
     return new HttpResponse(fileContents, {
       status: 200,
@@ -67,6 +59,17 @@ const handlers = [
         'Content-Type': 'application/javascript',
         'Content-Length': fileContents.length.toString(),
       },
+    });
+  }),
+  http.get(`${dummyScriptSourceBase}/fileDoesNotExist.js`, () => {
+    return HttpResponse.error();
+  }),
+  http.get(`${dummyScriptSourceBase}/longResponseScript.js`, () => {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        const fileContents = 'console.log("jsFileSample script executed")';
+        resolve(HttpResponse.error());
+      }, 101); // Simulating a delay
     });
   }),
   http.get(`${dummyDataplaneHost}/sourceConfig`, () => {

@@ -69,53 +69,57 @@ export function getDefaultConfig(distName) {
           safari10: true,
           webkit: true,
         },
-        compress: shouldUglify ? {
-          evaluate: false,
-          join_vars: false,
-          toplevel: true,
-          dead_code: false,
-          unused: false,
-          top_retain: [
-            'sdkBaseUrl',
-            'sdkName',
-            'loadOptions',
-            'scriptLoadingMode',
-            'rudderanalytics'
-          ],
-          booleans: false
-        } : false,
-        mangle: shouldUglify ? {
-          eval: false,
-          keep_fnames: true,
-          reserved: [
-            'sdkBaseUrl',
-            'sdkName',
-            'loadOptions',
-            'scriptLoadingMode',
-            'rudderanalytics'
-          ],
-          toplevel: true,
-          safari10: true,
-        } : false,
+        compress: shouldUglify
+          ? {
+              evaluate: false,
+              join_vars: false,
+              toplevel: true,
+              dead_code: false,
+              unused: false,
+              top_retain: [
+                'sdkBaseUrl',
+                'sdkName',
+                'loadOptions',
+                'scriptLoadingMode',
+                'rudderanalytics',
+              ],
+              booleans: false,
+            }
+          : false,
+        mangle: shouldUglify
+          ? {
+              eval: false,
+              keep_fnames: true,
+              reserved: [
+                'sdkBaseUrl',
+                'sdkName',
+                'loadOptions',
+                'scriptLoadingMode',
+                'rudderanalytics',
+              ],
+              toplevel: true,
+              safari10: true,
+            }
+          : false,
       }),
       isLocalServerEnabled &&
-      htmlTemplate({
-        template: process.env.TEST_FILE_PATH || 'public/index.html',
-        target: 'index.html',
-        addToHead: true
-      }),
-    isLocalServerEnabled &&
-      serve({
-        open: true,
-        openPage: `/index.html`,
-        contentBase: ['dist'],
-        host: 'localhost',
-        port: 3001,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-        },
-      }),
-    isLocalServerEnabled && livereload(),
+        htmlTemplate({
+          template: process.env.TEST_FILE_PATH || 'public/index.html',
+          target: 'index.html',
+          addToHead: true,
+        }),
+      isLocalServerEnabled &&
+        serve({
+          open: true,
+          openPage: `/index.html`,
+          contentBase: ['dist'],
+          host: 'localhost',
+          port: 3001,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+          },
+        }),
+      isLocalServerEnabled && livereload(),
     ],
   };
 }

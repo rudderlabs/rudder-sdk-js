@@ -1,10 +1,11 @@
 /* eslint-disable no-lonely-if */
 /* eslint-disable class-methods-use-this */
 import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { removeTrailingSlashes } from '@rudderstack/analytics-js-common/utilities/url';
 import { stringifyWithoutCircularV1 } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
 import XHRQueue from './xhrModule';
 import BeaconQueue from './beaconQueue';
-import { getCurrentTimeFormatted, removeTrailingSlashes } from './utils';
+import { getCurrentTimeFormatted } from './utils';
 
 const MESSAGE_LENGTH = 32 * 1000; // ~32 Kb
 
@@ -26,7 +27,7 @@ class EventRepository {
   initialize(writeKey, url, options) {
     let queueOptions = {};
     let targetUrl = removeTrailingSlashes(url);
-    if (options && options.useBeacon && navigator.sendBeacon) {
+    if (options?.useBeacon && navigator.sendBeacon) {
       if (
         options.beaconQueueOptions &&
         options.beaconQueueOptions != null &&
@@ -37,14 +38,13 @@ class EventRepository {
       targetUrl = `${targetUrl}/beacon/v1/batch`;
       this.queue = new BeaconQueue();
     } else {
-      if (options && options.useBeacon) {
+      if (options?.useBeacon) {
         logger.info(
           '[EventRepository] sendBeacon feature not available in this browser :: fallback to XHR',
         );
       }
       if (
-        options &&
-        options.queueOptions &&
+        options?.queueOptions &&
         options.queueOptions != null &&
         typeof options.queueOptions === 'object'
       ) {

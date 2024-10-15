@@ -79,7 +79,7 @@ class Amplitude {
 
     if (
       navigator.userAgent.indexOf('MSIE') !== -1 ||
-      navigator.appVersion.indexOf('Trident/') > -1
+      Boolean(/Trident\//.exec(navigator.userAgent))
     ) {
       initOptions.transport = 'xhr';
     }
@@ -89,7 +89,7 @@ class Amplitude {
   }
 
   isLoaded() {
-    return Boolean(window.amplitude && window.amplitude.getDeviceId());
+    return Boolean(window.amplitude?.getDeviceId());
   }
 
   isReady() {

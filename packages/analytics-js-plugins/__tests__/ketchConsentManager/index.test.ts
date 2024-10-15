@@ -3,6 +3,7 @@ import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEn
 import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager/StoreManager';
 import { KetchConsentManager } from '../../src/ketchConsentManager';
+import { defaultLogger } from '../../__mocks__/Logger';
 
 describe('Plugin - KetchConsentManager', () => {
   beforeEach(() => {
@@ -18,12 +19,6 @@ describe('Plugin - KetchConsentManager', () => {
     });
   });
 
-  const mockLogger = {
-    error: jest.fn(),
-    warn: jest.fn(),
-    log: jest.fn(),
-  };
-
   const mockErrorHandler = {
     onError: jest.fn(),
   };
@@ -35,7 +30,7 @@ describe('Plugin - KetchConsentManager', () => {
 
   it('should initialize the plugin if ketch consent data is already available on the window object', () => {
     // Initialize the plugin
-    KetchConsentManager().consentManager.init(state, mockLogger);
+    KetchConsentManager().consentManager.init(state, defaultLogger);
 
     expect((window as any).getKetchUserConsentedPurposes).toEqual(expect.any(Function));
     expect((window as any).getKetchUserDeniedPurposes).toEqual(expect.any(Function));
@@ -53,10 +48,10 @@ describe('Plugin - KetchConsentManager', () => {
     };
 
     // Initialize the plugin
-    KetchConsentManager().consentManager.init(state, mockLogger);
+    KetchConsentManager().consentManager.init(state, defaultLogger);
 
     // Update the state with the consent data
-    KetchConsentManager().consentManager.updateConsentsInfo(state, undefined, mockLogger);
+    KetchConsentManager().consentManager.updateConsentsInfo(state, undefined, defaultLogger);
 
     expect(state.consents.initialized.value).toBe(true);
     expect(state.consents.data.value).toStrictEqual({
@@ -74,7 +69,7 @@ describe('Plugin - KetchConsentManager', () => {
 
   it('should return undefined values when the window callbacks are invoked and there is no data in the state', () => {
     // Initialize the plugin
-    KetchConsentManager().consentManager.init(state, mockLogger);
+    KetchConsentManager().consentManager.init(state, defaultLogger);
 
     expect((window as any).getKetchUserConsentedPurposes()).toStrictEqual(undefined);
     expect((window as any).getKetchUserDeniedPurposes()).toStrictEqual(undefined);
@@ -91,7 +86,7 @@ describe('Plugin - KetchConsentManager', () => {
     };
 
     // Initialize the plugin
-    KetchConsentManager().consentManager.init(state, mockLogger);
+    KetchConsentManager().consentManager.init(state, defaultLogger);
 
     // Call the callback function
     (window as any).updateKetchConsent({
@@ -138,14 +133,14 @@ describe('Plugin - KetchConsentManager', () => {
     // Mock the ketch cookies
     document.cookie = `_ketch_consent_v1_=${window.btoa(ketchConsentString)};`;
 
-    const pluginsManager = new PluginsManager(defaultPluginEngine, undefined, mockLogger);
-    const storeManager = new StoreManager(pluginsManager, undefined, mockLogger);
+    const pluginsManager = new PluginsManager(defaultPluginEngine, undefined, defaultLogger);
+    const storeManager = new StoreManager(pluginsManager, undefined, defaultLogger);
 
     // Initialize the plugin
-    KetchConsentManager().consentManager.init(state, mockLogger);
+    KetchConsentManager().consentManager.init(state, defaultLogger);
 
     // Update the state with the consent data
-    KetchConsentManager().consentManager.updateConsentsInfo(state, storeManager, mockLogger);
+    KetchConsentManager().consentManager.updateConsentsInfo(state, storeManager, defaultLogger);
 
     expect(state.consents.initialized.value).toBe(true);
     expect(state.consents.data.value).toStrictEqual({
@@ -167,7 +162,7 @@ describe('Plugin - KetchConsentManager', () => {
         state,
         undefined,
         mockErrorHandler,
-        mockLogger,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -190,7 +185,7 @@ describe('Plugin - KetchConsentManager', () => {
         state,
         destConfig,
         mockErrorHandler,
-        mockLogger,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -214,7 +209,7 @@ describe('Plugin - KetchConsentManager', () => {
         state,
         destConfig,
         mockErrorHandler,
-        mockLogger,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -245,7 +240,7 @@ describe('Plugin - KetchConsentManager', () => {
         state,
         destConfig,
         mockErrorHandler,
-        mockLogger,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -276,7 +271,7 @@ describe('Plugin - KetchConsentManager', () => {
         state,
         destConfig,
         mockErrorHandler,
-        mockLogger,
+        defaultLogger,
       ),
     ).toBe(false);
   });
@@ -307,7 +302,7 @@ describe('Plugin - KetchConsentManager', () => {
         state,
         destConfig,
         mockErrorHandler,
-        mockLogger,
+        defaultLogger,
       ),
     ).toBe(true);
     expect(mockErrorHandler.onError).toHaveBeenCalledWith(
@@ -354,7 +349,7 @@ describe('Plugin - KetchConsentManager', () => {
       state,
       destConfig,
       mockErrorHandler,
-      mockLogger,
+      defaultLogger,
     );
     expect(isDestinationConsented).toBe(false);
   });
@@ -385,7 +380,7 @@ describe('Plugin - KetchConsentManager', () => {
       state,
       destConfig,
       mockErrorHandler,
-      mockLogger,
+      defaultLogger,
     );
     expect(isDestinationConsented).toBe(true);
   });
@@ -427,7 +422,7 @@ describe('Plugin - KetchConsentManager', () => {
       state,
       destConfig,
       mockErrorHandler,
-      mockLogger,
+      defaultLogger,
     );
     expect(isDestinationConsented).toBe(true);
   });
@@ -459,7 +454,7 @@ describe('Plugin - KetchConsentManager', () => {
         state,
         destConfig,
         mockErrorHandler,
-        mockLogger,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -491,7 +486,7 @@ describe('Plugin - KetchConsentManager', () => {
         state,
         destConfig,
         mockErrorHandler,
-        mockLogger,
+        defaultLogger,
       ),
     ).toBe(true);
   });

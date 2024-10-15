@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable camelcase */
 import * as utils from './util';
@@ -138,7 +139,8 @@ const heartbeatAdStarted = rudderElement => {
   let adSessionCount = adBreakCounts[session_id || 'deafult'];
   adSessionCount = adSessionCount
     ? adBreakCounts[session_id || 'default'] + 1
-    : (adBreakCounts[session_id || 'default'] = 1);
+    : // eslint-disable-next-line sonarjs/no-nested-assignment
+      (adBreakCounts[session_id || 'default'] = 1);
   const adBreakObj = va.MediaHeartbeat.createAdBreakObject(
     type || 'unknown',
     adSessionCount,

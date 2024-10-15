@@ -1,5 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import path from "path";
+import path from 'path';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
@@ -69,8 +69,8 @@ export function getDefaultConfig(distName, moduleType = 'cdn') {
           {
             find: '@rudderstack/analytics-js-common',
             replacement: path.resolve('../analytics-js-common/src'),
-          }
-        ]
+          },
+        ],
       }),
       nodePolyfills(),
       resolve({
@@ -94,6 +94,7 @@ export function getDefaultConfig(distName, moduleType = 'cdn') {
         exclude: ['node_modules/@babel/**', 'node_modules/core-js/**'],
         extensions: [...DEFAULT_EXTENSIONS, '.ts'],
         sourcemap: sourceMapType,
+        plugins: ['../../babel-plugin-mark-private.mjs'],
       }),
       process.env.UGLIFY === 'true' &&
         terser({
@@ -101,6 +102,11 @@ export function getDefaultConfig(distName, moduleType = 'cdn') {
           ecma: isLegacyBuild ? 2015 : 2017,
           format: {
             comments: false,
+          },
+          mangle: {
+            properties: {
+              regex: /^private_/, // Only mangle properties starting with 'private_'
+            },
           },
         }),
       filesize({
@@ -114,7 +120,7 @@ export function getDefaultConfig(distName, moduleType = 'cdn') {
           open: true,
           gzipSize: true,
           brotliSize: true,
-        })
+        }),
     ],
   };
 }

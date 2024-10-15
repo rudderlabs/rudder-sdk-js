@@ -48,7 +48,7 @@ permissions:
   contents: read # This is required for actions/checkout
 
 env:
-  NODE_OPTIONS: "--no-warnings"
+  NODE_OPTIONS: '--no-warnings'
   CACHE_MAX_AGE: 3600
 
 jobs:

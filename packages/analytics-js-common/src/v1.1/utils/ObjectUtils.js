@@ -31,7 +31,7 @@ const stringifyWithoutCircularV1 = (obj, excludeNull) => {
   try {
     return JSON.stringify(obj, getCircularReplacer(excludeNull));
   } catch (err) {
-    logger.warn(`Failed to convert the value to a JSON string.`);
+    logger.warn('Failed to convert the value to a JSON string.', err);
     return null;
   }
 };

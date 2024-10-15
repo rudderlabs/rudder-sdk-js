@@ -5,10 +5,15 @@ import { state } from '@rudderstack/analytics-js/state';
 import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import type {
+  IHttpClient,
+  ResponseDetails,
+} from '@rudderstack/analytics-js-common/types/HttpClient';
+import * as utils from '@rudderstack/analytics-js-plugins/deviceModeTransformation/utilities';
+import { DeviceModeTransformation } from '@rudderstack/analytics-js-plugins/deviceModeTransformation';
+import { HttpClientError } from '@rudderstack/analytics-js/services/HttpClient/HttpClientError';
 import {
   dummyDataplaneHost,
   dummyWriteKey,
@@ -16,8 +21,7 @@ import {
   dmtSuccessResponse,
 } from '../../__fixtures__/fixtures';
 import { server } from '../../__fixtures__/msw.server';
-import * as utils from '@rudderstack/analytics-js-plugins/deviceModeTransformation/utilities';
-import { DeviceModeTransformation } from '@rudderstack/analytics-js-plugins/deviceModeTransformation';
+import { defaultLogger } from '../../__mocks__/Logger';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
   ...jest.requireActual('@rudderstack/analytics-js-common/utilities/uuId'),
@@ -42,7 +46,7 @@ describe('Device mode transformation plugin', () => {
     });
   });
 
-  const httpClient = new HttpClient();
+  const httpClient = new HttpClient(defaultLogger);
 
   afterAll(() => {
     server.close();
@@ -121,7 +125,7 @@ describe('Device mode transformation plugin', () => {
 
     DeviceModeTransformation().transformEvent?.enqueue(state, queue, event, destinations);
 
-    expect(addItemSpy).toBeCalledWith({
+    expect(addItemSpy).toHaveBeenCalledWith({
       token: authToken,
       destinationIds,
       event,
@@ -132,7 +136,7 @@ describe('Device mode transformation plugin', () => {
 
   it('should process queue item on start', () => {
     const mockHttpClient = {
-      getAsyncData: ({ callback }) => {
+      request: ({ callback }) => {
         callback(true);
       },
       setAuthHeader: jest.fn(),
@@ -164,7 +168,7 @@ describe('Device mode transformation plugin', () => {
     // In actual implementation, this is done based on the state signals
     queue.start();
 
-    expect(queueProcessCbSpy).toBeCalledWith(
+    expect(queueProcessCbSpy).toHaveBeenCalledWith(
       {
         token: authToken,
         destinationIds,
@@ -174,18 +178,21 @@ describe('Device mode transformation plugin', () => {
       0,
       3,
       true,
+      true,
     );
 
     // Item is successfully processed and removed from queue
-    expect(queue.getStorageEntry('queue').length).toBe(0);
+    expect((queue.getStorageEntry('queue') ?? []).length).toBe(0);
 
     queueProcessCbSpy.mockRestore();
   });
 
   it('SendTransformedEventToDestinations function is called in case of successful transformation', () => {
     const mockHttpClient: IHttpClient = {
-      getAsyncData: ({ callback }) => {
-        callback?.(JSON.stringify(dmtSuccessResponse), { xhr: { status: 200 } });
+      request: ({ callback }) => {
+        callback?.(JSON.stringify(dmtSuccessResponse), {
+          response: { status: 200 } as Response,
+        } as ResponseDetails);
       },
       setAuthHeader: jest.fn(),
     };
@@ -218,13 +225,15 @@ describe('Device mode transformation plugin', () => {
     queue.start();
     DeviceModeTransformation().transformEvent?.enqueue(state, queue, event, destinations);
 
-    expect(mockSendTransformedEventToDestinations).toBeCalledTimes(1);
+    expect(mockSendTransformedEventToDestinations).toHaveBeenCalledTimes(1);
     expect(mockSendTransformedEventToDestinations).toHaveBeenCalledWith(
       state,
       defaultPluginsManager,
       destinationIds,
       JSON.stringify(dmtSuccessResponse),
-      200,
+      {
+        response: { status: 200 } as Response,
+      },
       event,
       defaultErrorHandler,
       defaultLogger,
@@ -233,8 +242,12 @@ describe('Device mode transformation plugin', () => {
   });
   it('SendTransformedEventToDestinations function should not be called in case of unsuccessful transformation', () => {
     const mockHttpClient: IHttpClient = {
-      getAsyncData: ({ callback }) => {
-        callback?.(false, { error: 'some error', xhr: { status: 502 } });
+      request: ({ callback }) => {
+        callback?.(null, {
+          error: new HttpClientError('some error', {
+            status: 502,
+          }),
+        } as ResponseDetails);
       },
       setAuthHeader: jest.fn(),
     };
@@ -267,7 +280,7 @@ describe('Device mode transformation plugin', () => {
     queue.start();
     DeviceModeTransformation().transformEvent?.enqueue(state, queue, event, destinations);
 
-    expect(mockSendTransformedEventToDestinations).not.toBeCalled();
+    expect(mockSendTransformedEventToDestinations).not.toHaveBeenCalled();
     // The element is requeued
     expect(queue.getStorageEntry('queue')).toStrictEqual([
       {

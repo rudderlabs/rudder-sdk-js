@@ -6,8 +6,7 @@ import { ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME } from './constants';
  * @param {Error} error Error instance from handled error
  */
 const notifyError = error => {
-  const errorReportingClient =
-    window.RudderStackGlobals && window.RudderStackGlobals[ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME];
+  const errorReportingClient = window.RudderStackGlobals?.[ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME];
   if (errorReportingClient && error instanceof Error) {
     errorReportingClient.notify(error);
   }

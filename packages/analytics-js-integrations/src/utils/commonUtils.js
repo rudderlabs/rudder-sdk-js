@@ -157,7 +157,7 @@ function getEventMappingFromConfig(event, eventsHashmap) {
 function getDestinationExternalID(message, type) {
   let externalIdArray = null;
   let destinationExternalId = null;
-  if (message.context && message.context.externalId) {
+  if (message.context?.externalId) {
     externalIdArray = message.context.externalId;
   }
   if (externalIdArray && Array.isArray(externalIdArray)) {
@@ -189,6 +189,7 @@ const isDefinedNotNullNotEmpty = value =>
 
 const validateEmail = email => {
   const regex =
+    // eslint-disable-next-line sonarjs/regex-complexity
     /^(([^\s"(),.:;<>@[\\\]]+(\.[^\s"(),.:;<>@[\\\]]+)*)|(".+"))@((\[(?:\d{1,3}\.){3}\d{1,3}])|(([\dA-Za-z-]+\.)+[A-Za-z]{2,}))$/;
   return !!regex.test(email);
 };

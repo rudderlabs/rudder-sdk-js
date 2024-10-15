@@ -31,30 +31,30 @@ class Logger implements ILogger {
   }
 
   log(...data: any[]) {
-    this.outputLog('LOG', data);
+    this.private_outputLog('LOG', data);
   }
 
   info(...data: any[]) {
-    this.outputLog('INFO', data);
+    this.private_outputLog('INFO', data);
   }
 
   debug(...data: any[]) {
-    this.outputLog('DEBUG', data);
+    this.private_outputLog('DEBUG', data);
   }
 
   warn(...data: any[]) {
-    this.outputLog('WARN', data);
+    this.private_outputLog('WARN', data);
   }
 
   error(...data: any[]) {
-    this.outputLog('ERROR', data);
+    this.private_outputLog('ERROR', data);
   }
 
-  outputLog(logMethod: LogLevel, data: any[]) {
+  private_outputLog(logMethod: LogLevel, data: any[]) {
     if (this.minLogLevel <= LOG_LEVEL_MAP[logMethod]) {
       this.logProvider[
         logMethod.toLowerCase() as Exclude<Lowercase<LogLevel>, Lowercase<'NONE'>>
-      ]?.(...this.formatLogData(data));
+      ]?.(...this.private_formatLogData(data));
     }
   }
 
@@ -74,7 +74,7 @@ class Logger implements ILogger {
   /**
    * Formats the console message using `scope` and styles
    */
-  formatLogData(data: any[]) {
+  private_formatLogData(data: any[]) {
     if (Array.isArray(data) && data.length > 0) {
       // prefix SDK identifier
       let msg = `%c ${LOG_MSG_PREFIX}`;

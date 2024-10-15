@@ -6,7 +6,7 @@ on:
     types: ['opened', 'reopened', 'synchronize']
 
 env:
-  NODE_OPTIONS: "--no-warnings"
+  NODE_OPTIONS: '--no-warnings'
 
 jobs:
   bundle-size-checks:
@@ -61,6 +61,7 @@ jobs:
 
       - name: Execute code quality checks
         run: |
+          npm run check:circular
           npm run check:duplicates
 
       - name: Build the project

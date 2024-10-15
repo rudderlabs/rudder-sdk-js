@@ -73,7 +73,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
       externalSrcLoader: IExternalSrcLoader,
       errorHandler?: IErrorHandler,
       logger?: ILogger,
-      externalScriptOnLoad?: (id?: string) => unknown,
+      externalScriptOnLoad?: (id?: string) => void,
     ) {
       const integrationsCDNPath = state.lifecycle.integrationsCDNPath.value;
       const activeDestinations = state.nativeDestinations.activeDestinations.value;
@@ -83,20 +83,17 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
         const destSDKIdentifier = `${sdkName}_RS`; // this is the name of the object loaded on the window
 
         const sdkTypeName = sdkName;
-        if (sdkTypeName && !isDestinationSDKMounted(destSDKIdentifier, sdkTypeName, logger)) {
+        if (sdkTypeName && !isDestinationSDKMounted(destSDKIdentifier, sdkTypeName)) {
           const destSdkURL = `${integrationsCDNPath}/${sdkName}.min.js`;
           externalSrcLoader.loadJSFile({
             url: destSdkURL,
             id: dest.userFriendlyId,
             callback:
               externalScriptOnLoad ??
-              ((id?: string) => {
-                if (!id) {
+              ((id?: string, error?: Error) => {
+                if (!id && error) {
                   logger?.error(
-                    DESTINATION_SDK_LOAD_ERROR(
-                      DEVICE_MODE_DESTINATIONS_PLUGIN,
-                      dest.userFriendlyId,
-                    ),
+                    DESTINATION_SDK_LOAD_ERROR(DEVICE_MODE_DESTINATIONS_PLUGIN, error.message),
                   );
                   state.nativeDestinations.failedDestinations.value = [
                     ...state.nativeDestinations.failedDestinations.value,

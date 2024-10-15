@@ -16,7 +16,7 @@ import {
   ADD_TO_CART_EVENT,
   CHECK_OUT_EVENT,
   LEAD_EVENT,
-} from '@rudderstack/analytics-js-common/constants/integrations/CommonIntegrationsConstant/constants'
+} from '@rudderstack/analytics-js-common/constants/integrations/CommonIntegrationsConstant/constants';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import Logger from '../../utils/logger';
 import {
@@ -49,6 +49,9 @@ class SpotifyPixel {
     window.spdt =
       window.spdt ||
       function () {
+        // Third-party snippet. Hence, disabling the eslint rule.
+        // Ideally, this should be moved to the nativeSdkLoader.js file.
+        // eslint-disable-next-line sonarjs/no-nested-assignment
         (window.spdt.q = window.spdt.q || []).push(arguments);
       };
     ScriptLoader('spdt-capture', 'https://pixel.byspotify.com/ping.min.js');
