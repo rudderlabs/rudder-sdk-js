@@ -51,7 +51,7 @@ fi
 # Start creating HTML file
 echo "<!DOCTYPE html>" > $OUTPUT_HTML_FILE_PATH
 echo "<html>" >> $OUTPUT_HTML_FILE_PATH
-echo "<head><title>S3 File List</title></head>" >> $OUTPUT_HTML_FILE_PATH
+echo "<head><title>RudderStack JavaScript SDK - $COMPONENT_NAME</title></head>" >> $OUTPUT_HTML_FILE_PATH
 echo "<body>" >> $OUTPUT_HTML_FILE_PATH
 echo "<h1>RudderStack JavaScript SDK - $COMPONENT_NAME</h1>" >> $OUTPUT_HTML_FILE_PATH
 echo "<p><a href=\"https://cdn.rudderlabs.com/$DIRECTORY_PATH/$ZIP_FILE_NAME\" download><button>Download All Files</button></a></p>" >> $OUTPUT_HTML_FILE_PATH
