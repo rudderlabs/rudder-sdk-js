@@ -3,12 +3,12 @@ import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEn
 import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager/StoreManager';
 import { IubendaConsentManager } from '../../src/iubendaConsentManager';
-import { IUBENDA_CONSENT_EXAMPLE_COOKIE_NAME} from '../../src/iubendaConsentManager/constants';
+import { IUBENDA_CONSENT_EXAMPLE_COOKIE_NAME } from '../../src/iubendaConsentManager/constants';
 
 describe('Plugin - IubendaConsentManager', () => {
   beforeEach(() => {
     resetState();
-    (window as any)._iub = {cs: {consent:{}}};
+    (window as any)._iub = { cs: { consent: {} } };
     (window as any).getIubendaUserConsentedPurposes = undefined;
     (window as any).getIubendaUserDeniedPurposes = undefined;
     // delete all cookies
@@ -157,7 +157,7 @@ describe('Plugin - IubendaConsentManager', () => {
 
     // Update the state with the consent data
     IubendaConsentManager().consentManager.updateConsentsInfo(state, storeManager, mockLogger);
-    
+
     expect(state.consents.initialized.value).toBe(true);
     expect(state.consents.data.value).toStrictEqual({
       allowedConsentIds: ['1', '4', '5'],
@@ -212,12 +212,16 @@ describe('Plugin - IubendaConsentManager', () => {
       allowedConsentIds: ['1', '4', '5'],
       deniedConsentIds: ['2', '3'],
     };
+    state.consents.provider.value = 'iubenda';
 
     const destConfig = {
       blacklistedEvents: [],
       whitelistedEvents: [],
       eventFilteringOption: 'disable',
-      iubendaConsentPurposes: [],
+      consentManagement: [{
+        provider: 'iubenda',
+      }],
+
     };
 
     expect(
@@ -236,18 +240,18 @@ describe('Plugin - IubendaConsentManager', () => {
       allowedConsentIds: ['1', '4', '5'],
       deniedConsentIds: ['2', '3'],
     };
+    state.consents.provider.value = 'iubenda';
 
     const destConfig = {
       blacklistedEvents: [],
       whitelistedEvents: [],
       eventFilteringOption: 'disable',
-      iubendaConsentPurposes: [
+      consentManagement:[
         {
-          purpose: '1',
-        },
-        {
-          purpose: '2',
-        },
+          provider: 'iubenda',
+          consents: [{ consent: '1' }, { consent: '2' }],
+          resolutionStrategy: 'or'
+        }
       ],
     };
 
@@ -267,18 +271,18 @@ describe('Plugin - IubendaConsentManager', () => {
       allowedConsentIds: ['1', '3', '5'],
       deniedConsentIds: ['2', '4'],
     };
+    state.consents.provider.value = 'iubenda';
 
     const destConfig = {
       blacklistedEvents: [],
       whitelistedEvents: [],
       eventFilteringOption: 'disable',
-      iubendaConsentPurposes: [
+      consentManagement:[
         {
-          purpose: '2',
-        },
-        {
-          purpose: '4',
-        },
+          provider: 'iubenda',
+          consents: [{ consent: '2' }, { consent: '4' }],
+          resolutionStrategy: 'and'
+        }
       ],
     };
 
@@ -298,27 +302,27 @@ describe('Plugin - IubendaConsentManager', () => {
       allowedConsentIds: null, // This will throw an exception
       deniedConsentIds: ['2', '4'],
     };
+    state.consents.provider.value = 'iubenda';
 
     const destConfig = {
       blacklistedEvents: [],
       whitelistedEvents: [],
       eventFilteringOption: 'disable',
-      iubendaConsentPurposes: [
+      consentManagement:[
         {
-          purpose: '2',
-        },
-        {
-          purpose: '4',
-        },
+          provider: 'iubenda',
+          consents: [{ consent: '2' }, { consent: '4' }],
+          resolutionStrategy: 'and'
+        }
       ],
     };
-
     expect(
       IubendaConsentManager().consentManager.isDestinationConsented(
         state,
         destConfig,
         mockErrorHandler,
         mockLogger,
+        
       ),
     ).toBe(true);
     expect(mockErrorHandler.onError).toHaveBeenCalledWith(

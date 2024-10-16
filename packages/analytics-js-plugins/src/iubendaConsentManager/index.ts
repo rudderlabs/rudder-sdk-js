@@ -70,8 +70,7 @@ const IubendaConsentManager = (): ExtensionPlugin => ({
       const matchPredicate = (consent: string) => allowedConsentIds.includes(consent);
 
       try {
-        const { iubendaConsentPurposes, consentManagement } = destConfig;
-
+        const { consentManagement } = destConfig;
         // If the destination does not have consent management config, events should be sent.
         if (consentManagement) {
           // Get the corresponding consents for the destination
@@ -96,14 +95,6 @@ const IubendaConsentManager = (): ExtensionPlugin => ({
               return configuredConsents.every(matchPredicate);
           }
         }
-
-        if (iubendaConsentPurposes) {
-          const configuredConsents = iubendaConsentPurposes.map(p => p.purpose.trim()).filter(n => n);
-
-          // Check if any of the destination's mapped iubenda purposes are consented by the user in the browser.
-          return configuredConsents.some(matchPredicate) || configuredConsents.length === 0;
-        }
-
         return true;
       } catch (err) {
         errorHandler?.onError(err, IUBENDA_CONSENT_MANAGER_PLUGIN, DESTINATION_CONSENT_STATUS_ERROR);
