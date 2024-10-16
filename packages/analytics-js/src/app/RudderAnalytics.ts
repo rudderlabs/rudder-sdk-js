@@ -177,55 +177,90 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
       options = autoTrackOptions,
     } = pageLifecycle ?? {};
 
-    const visitId = state.autoTrack.pageLifecycle.visitId.value;
-    const pageLoadedTimestamp = state.autoTrack.pageLifecycle.pageLoadedTimestamp.value as number;
-
-    if (!enabled) {
-      return;
-    }
-
     const preloadedEventsArray = this.getPreloadedEvents();
 
-    // track page loaded event
+    if (enabled) {
+      this.trackPageLoadedEvent(events, options, preloadedEventsArray);
+      this.setupPageUnloadTracking(events, useBeacon, options);
+    }
+
+    // The array will be mutated in the below method
+    promotePreloadedConsentEventsToTop(preloadedEventsArray);
+
+    setExposedGlobal(GLOBAL_PRELOAD_BUFFER, clone(preloadedEventsArray));
+  }
+
+  /**
+   * Buffer the page loaded event in the preloaded events array
+   * @param events
+   * @param options
+   * @param preloadedEventsArray
+   */
+  private trackPageLoadedEvent(
+    events: PageLifecycleEvents[],
+    options: ApiOptions,
+    preloadedEventsArray: PreloadedEventCall[],
+  ) {
     if (events.length === 0 || events.includes(PageLifecycleEvents.LOADED)) {
       preloadedEventsArray.unshift([
         'track',
         PageLifecycleEvents.LOADED,
-        { visitId },
+        { visitId: state.autoTrack.pageLifecycle.visitId.value },
         {
           ...options,
-          originalTimestamp: new Date(pageLoadedTimestamp).toISOString(),
+          originalTimestamp: new Date(
+            state.autoTrack.pageLifecycle.pageLoadedTimestamp.value as number,
+          ).toISOString(),
         },
       ]);
     }
+  }
 
-    // track page unloaded event
+  /**
+   * Setup page unload tracking if enabled
+   * @param events
+   * @param useBeacon
+   * @param options
+   */
+  private setupPageUnloadTracking(
+    events: PageLifecycleEvents[],
+    useBeacon: boolean | undefined,
+    options: ApiOptions,
+  ) {
     if (events.length === 0 || events.includes(PageLifecycleEvents.UNLOADED)) {
       if (useBeacon === true) {
-        // Register the page unloaded lifecycle event listeners
-        onPageLeave((isAccessible: boolean) => {
-          if (isAccessible === false && state.lifecycle.loaded.value) {
-            const pageUnloadedTimestamp = Date.now();
-            const visitDuration = pageUnloadedTimestamp - pageLoadedTimestamp;
-            this.track(
-              PageLifecycleEvents.UNLOADED,
-              {
-                visitId,
-                visitDuration,
-              },
-              {
-                ...options,
-                originalTimestamp: new Date(pageUnloadedTimestamp).toISOString(),
-              },
-            );
-          }
-        });
+        this.registerPageUnloadListener(options);
       } else {
         // throw warning if beacon is disabled
         this.logger.warn(PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING(RS_APP));
       }
     }
-    setExposedGlobal(GLOBAL_PRELOAD_BUFFER, clone(preloadedEventsArray));
+  }
+
+  /**
+   * Register page unload listener to track page unload event
+   * @param options
+   */
+  private registerPageUnloadListener(options: object) {
+    onPageLeave((isAccessible: boolean) => {
+      if (isAccessible === false && state.lifecycle.loaded.value) {
+        const pageUnloadedTimestamp = Date.now();
+        const visitDuration =
+          pageUnloadedTimestamp -
+          (state.autoTrack.pageLifecycle.pageLoadedTimestamp.value as number);
+        this.track(
+          PageLifecycleEvents.UNLOADED,
+          {
+            visitId: state.autoTrack.pageLifecycle.visitId.value,
+            visitDuration,
+          },
+          {
+            ...options,
+            originalTimestamp: new Date(pageUnloadedTimestamp).toISOString(),
+          },
+        );
+      }
+    });
   }
 
   /**
@@ -234,9 +269,6 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    */
   triggerBufferedLoadEvent() {
     const preloadedEventsArray = this.getPreloadedEvents();
-
-    // The array will be mutated in the below method
-    promotePreloadedConsentEventsToTop(preloadedEventsArray);
 
     // Get any load method call that is buffered if any
     // BTW, load method is also removed from the array
