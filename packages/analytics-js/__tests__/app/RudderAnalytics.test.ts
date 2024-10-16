@@ -19,7 +19,7 @@ describe('Core - Rudder Analytics Facade', () => {
     (window as any).rudderanalytics = [
       ['track'],
       ['consent', { sendPageEvent: true }],
-      ['load', 'dummyWriteKey', 'dummyDataPLaneUrl', { option1: true }],
+      ['load', 'dummyWriteKey', 'dummyDataPlaneUrl', { option1: true }],
       ['consent', { sendPageEvent: false }],
       ['track'],
     ];
@@ -295,7 +295,7 @@ describe('Core - Rudder Analytics Facade', () => {
     const bufferedEvents = [
       ['track'],
       ['consent', { sendPageEvent: true }],
-      ['load', 'dummyWriteKey', 'dummyDataPLaneUrl', { option1: true }],
+      ['load', 'dummyWriteKey', 'dummyDataPlaneUrl', { option1: true }],
       ['consent', { sendPageEvent: false }],
       ['track'],
     ];
