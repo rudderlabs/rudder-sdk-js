@@ -113,7 +113,7 @@ export default [
     name: 'Core (Content Script) - Modern - NPM (CJS)',
     path: 'dist/npm/modern/content-script/cjs/index.cjs',
     import: '*',
-    limit: '39 KiB',
+    limit: '40 KiB',
   },
   {
     name: 'Core (Content Script) - Modern - NPM (UMD)',
