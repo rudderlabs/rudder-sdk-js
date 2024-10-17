@@ -78,7 +78,7 @@ const updateReportingState = (res: SourceConfigResponse): void => {
   state.reporting.isMetricsReportingEnabled.value = isMetricsReportingEnabled(res.source.config);
 };
 
-const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
+const getServerSideCookiesStateData = (logger?: ILogger) => {
   const {
     useServerSideCookies,
     dataServiceEndpoint,
@@ -86,48 +86,6 @@ const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
     setCookieDomain,
     sameDomainCookiesOnly,
   } = state.loadOptions.value;
-  let storageType = storageOptsFromLoad?.type;
-  if (isDefined(storageType) && !isValidStorageType(storageType)) {
-    logger?.warn(
-      STORAGE_TYPE_VALIDATION_WARNING(CONFIG_MANAGER, storageType, DEFAULT_STORAGE_TYPE),
-    );
-    storageType = DEFAULT_STORAGE_TYPE;
-  }
-
-  let storageEncryptionVersion = storageOptsFromLoad?.encryption?.version;
-  const encryptionPluginName =
-    storageEncryptionVersion && StorageEncryptionVersionsToPluginNameMap[storageEncryptionVersion];
-
-  if (!isUndefined(storageEncryptionVersion) && isUndefined(encryptionPluginName)) {
-    // set the default encryption plugin
-    logger?.warn(
-      UNSUPPORTED_STORAGE_ENCRYPTION_VERSION_WARNING(
-        CONFIG_MANAGER,
-        storageEncryptionVersion,
-        StorageEncryptionVersionsToPluginNameMap,
-        DEFAULT_STORAGE_ENCRYPTION_VERSION,
-      ),
-    );
-    storageEncryptionVersion = DEFAULT_STORAGE_ENCRYPTION_VERSION;
-  } else if (isUndefined(storageEncryptionVersion)) {
-    storageEncryptionVersion = DEFAULT_STORAGE_ENCRYPTION_VERSION;
-  }
-
-  // Allow migration only if the configured encryption version is the default encryption version
-  const configuredMigrationValue = storageOptsFromLoad?.migrate;
-  const finalMigrationVal =
-    (configuredMigrationValue as boolean) &&
-    storageEncryptionVersion === DEFAULT_STORAGE_ENCRYPTION_VERSION;
-
-  if (configuredMigrationValue === true && finalMigrationVal !== configuredMigrationValue) {
-    logger?.warn(
-      STORAGE_DATA_MIGRATION_OVERRIDE_WARNING(
-        CONFIG_MANAGER,
-        storageEncryptionVersion,
-        DEFAULT_STORAGE_ENCRYPTION_VERSION,
-      ),
-    );
-  }
 
   let cookieOptions = storageOptsFromLoad?.cookie ?? {};
   let sscEnabled = false;
@@ -191,6 +149,60 @@ const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
       sscEnabled = false;
     }
   }
+
+  return {
+    sscEnabled,
+    cookieOptions,
+    finalDataServiceUrl,
+  };
+};
+
+const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
+  const { storage: storageOptsFromLoad } = state.loadOptions.value;
+  let storageType = storageOptsFromLoad?.type;
+  if (isDefined(storageType) && !isValidStorageType(storageType)) {
+    logger?.warn(
+      STORAGE_TYPE_VALIDATION_WARNING(CONFIG_MANAGER, storageType, DEFAULT_STORAGE_TYPE),
+    );
+    storageType = DEFAULT_STORAGE_TYPE;
+  }
+
+  let storageEncryptionVersion = storageOptsFromLoad?.encryption?.version;
+  const encryptionPluginName =
+    storageEncryptionVersion && StorageEncryptionVersionsToPluginNameMap[storageEncryptionVersion];
+
+  if (!isUndefined(storageEncryptionVersion) && isUndefined(encryptionPluginName)) {
+    // set the default encryption plugin
+    logger?.warn(
+      UNSUPPORTED_STORAGE_ENCRYPTION_VERSION_WARNING(
+        CONFIG_MANAGER,
+        storageEncryptionVersion,
+        StorageEncryptionVersionsToPluginNameMap,
+        DEFAULT_STORAGE_ENCRYPTION_VERSION,
+      ),
+    );
+    storageEncryptionVersion = DEFAULT_STORAGE_ENCRYPTION_VERSION;
+  } else if (isUndefined(storageEncryptionVersion)) {
+    storageEncryptionVersion = DEFAULT_STORAGE_ENCRYPTION_VERSION;
+  }
+
+  // Allow migration only if the configured encryption version is the default encryption version
+  const configuredMigrationValue = storageOptsFromLoad?.migrate;
+  const finalMigrationVal =
+    (configuredMigrationValue as boolean) &&
+    storageEncryptionVersion === DEFAULT_STORAGE_ENCRYPTION_VERSION;
+
+  if (configuredMigrationValue === true && finalMigrationVal !== configuredMigrationValue) {
+    logger?.warn(
+      STORAGE_DATA_MIGRATION_OVERRIDE_WARNING(
+        CONFIG_MANAGER,
+        storageEncryptionVersion,
+        DEFAULT_STORAGE_ENCRYPTION_VERSION,
+      ),
+    );
+  }
+
+  const { sscEnabled, finalDataServiceUrl, cookieOptions } = getServerSideCookiesStateData(logger);
 
   batch(() => {
     state.storage.type.value = storageType;
