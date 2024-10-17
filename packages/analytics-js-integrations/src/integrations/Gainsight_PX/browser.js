@@ -3,20 +3,20 @@
 import {
   NAME,
   DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/GainsightPX/constants';
+} from '@rudderstack/analytics-js-common/constants/integrations/Gainsight_PX/constants';
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
 import { getDestinationOptions } from './utils';
 
 const logger = new Logger(DISPLAY_NAME);
 
-class GainsightPX {
+class Gainsight_PX {
   constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
     this.analytics = analytics;
-    this.productKey = !config.productKey ? '' : config.productKey;
+    this.productKey = config.productTagKey;
     this.dataCenter = !config.dataCenter ? 'US' : config.dataCenter;
     this.name = NAME;
     ({
@@ -59,7 +59,7 @@ class GainsightPX {
   /* utility functions --- Ends here ---  */
 
   /*
-   * GainsightPX MAPPED FUNCTIONS :: identify, track, group
+   * Gainsight_PX MAPPED FUNCTIONS :: identify, track, group
    */
 
   identify(rudderElement) {
@@ -116,4 +116,4 @@ class GainsightPX {
   }
 }
 
-export default GainsightPX;
+export default Gainsight_PX;

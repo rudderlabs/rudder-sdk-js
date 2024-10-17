@@ -1,7 +1,7 @@
 import {
   NAME,
   DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/GainsightPX/constants';
+} from '@rudderstack/analytics-js-common/constants/integrations/Gainsight_PX/constants';
 
 /**
  * Get destination specific options from integrations options

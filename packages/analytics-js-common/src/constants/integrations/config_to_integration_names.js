@@ -80,7 +80,7 @@ const configToIntNames = {
   COMMANDBAR: 'CommandBar',
   NINETAILED: 'Ninetailed',
   XPIXEL: 'XPixel',
-  GAINSIGHT_PX: 'GainsightPX',
+  GAINSIGHT_PX: 'Gainsight_PX',
 };
 
 export { configToIntNames };

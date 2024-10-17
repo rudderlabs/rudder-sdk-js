@@ -78,7 +78,7 @@ import { CNameMapping as SpotifyPixel } from './SpotifyPixel/constants';
 import { CNameMapping as CommandBar } from './CommandBar/constants';
 import { CNameMapping as Ninetailed } from './Ninetailed/constants';
 import { CNameMapping as XPixel } from './XPixel/constants';
-import { CNameMapping as GainsightPX } from './GainsightPX/constants';
+import { CNameMapping as Gainsight_PX } from './Gainsight_PX/constants';
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
 const commonNames = {
@@ -163,7 +163,7 @@ const commonNames = {
   ...Sprig,
   ...SpotifyPixel,
   ...XPixel,
-  ...GainsightPX
+  ...Gainsight_PX
 };
 
 export { commonNames };
