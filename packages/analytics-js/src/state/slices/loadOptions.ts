@@ -1,6 +1,9 @@
 import { signal } from '@preact/signals-core';
 import { clone } from 'ramda';
-import type { LoadOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import {
+  PageLifecycleEvents,
+  type LoadOptions,
+} from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { LoadOptionsState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { DEFAULT_INTEGRATIONS_CONFIG } from '@rudderstack/analytics-js-common/constants/integrationsConfig';
 import {
@@ -41,6 +44,13 @@ const defaultLoadOptions: LoadOptions = {
   },
   sendAdblockPageOptions: {},
   useServerSideCookies: false,
+  autoTrack: {
+    enabled: false,
+    pageLifecycle: {
+      enabled: false,
+      events: [PageLifecycleEvents.LOADED, PageLifecycleEvents.UNLOADED],
+    },
+  },
 };
 
 const loadOptionsState: LoadOptionsState = signal(clone(defaultLoadOptions));
