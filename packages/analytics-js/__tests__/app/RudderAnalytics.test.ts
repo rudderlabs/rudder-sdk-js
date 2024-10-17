@@ -1,4 +1,5 @@
 import type { LoadOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { state } from '../../src/state';
 import { RudderAnalytics } from '../../src/app/RudderAnalytics';
 import { Analytics } from '../../src/components/core/Analytics';
 
@@ -378,7 +379,7 @@ describe('trackPageLifecycleEvents', () => {
     ]);
   });
 
-  it.skip('should track Page Unloaded event if useBeacon is set to true and trackPageLifecycle feature is enabled', () => {
+  it('should track Page Unloaded event if useBeacon is set to true and trackPageLifecycle feature is enabled', () => {
     rudderAnalyticsInstance.track = jest.fn();
     rudderAnalyticsInstance.trackPageLifecycleEvents({
       useBeacon: true,
@@ -388,7 +389,7 @@ describe('trackPageLifecycleEvents', () => {
         },
       },
     });
-
+    state.lifecycle.loaded.value = true;
     const event = new Event('beforeunload');
     // Simulate the event
     window.dispatchEvent(event);
