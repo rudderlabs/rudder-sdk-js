@@ -3,7 +3,10 @@ import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/logge
 import { batch } from '@preact/signals-core';
 import { isDefined, isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { isSDKRunningInChromeExtension } from '@rudderstack/analytics-js-common/utilities/detect';
-import { DEFAULT_STORAGE_TYPE } from '@rudderstack/analytics-js-common/types/Storage';
+import {
+  DEFAULT_STORAGE_TYPE,
+  type CookieOptions,
+} from '@rudderstack/analytics-js-common/types/Storage';
 import type {
   DeliveryType,
   StorageStrategy,
@@ -87,7 +90,7 @@ const getServerSideCookiesStateData = (logger?: ILogger) => {
     sameDomainCookiesOnly,
   } = state.loadOptions.value;
 
-  let cookieOptions = storageOptsFromLoad?.cookie ?? {};
+  let cookieOptions = storageOptsFromLoad?.cookie as CookieOptions;
   let sscEnabled = false;
   let finalDataServiceUrl: string | undefined;
   if (useServerSideCookies) {
@@ -101,11 +104,11 @@ const getServerSideCookiesStateData = (logger?: ILogger) => {
     const useExactDomain =
       (isDefined(providedCookieDomain) &&
         !isWebpageTopLevelDomain(removeLeadingPeriod(providedCookieDomain as string))) ||
-      sameDomainCookiesOnly;
+      (sameDomainCookiesOnly as boolean);
 
     const dataServiceUrl = getDataServiceUrl(
       dataServiceEndpoint ?? DEFAULT_DATA_SERVICE_ENDPOINT,
-      useExactDomain ?? false,
+      useExactDomain,
     );
 
     if (isValidURL(dataServiceUrl)) {
