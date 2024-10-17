@@ -2,6 +2,11 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.1.26](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.1.25...@rudderstack/analytics-js-sanity-suite@3.1.26) (2024-10-17)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.7.18`
 ## [3.1.25](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.1.24...@rudderstack/analytics-js-sanity-suite@3.1.25) (2024-10-11)
 
 ### Dependency Updates

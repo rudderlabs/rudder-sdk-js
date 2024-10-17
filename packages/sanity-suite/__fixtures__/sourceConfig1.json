@@ -534,6 +534,10 @@
       {
         "provider": "ketch",
         "resolutionStrategy": "or"
+      },
+      {
+        "provider": "iubenda",
+        "resolutionStrategy": "or"
       }
     ]
   }
