@@ -28,6 +28,8 @@ const getFederatedModuleImport = (
       return () => import('rudderAnalyticsRemotePlugins/GoogleLinker');
     case 'KetchConsentManager':
       return () => import('rudderAnalyticsRemotePlugins/KetchConsentManager');
+    case 'IubendaConsentManager':
+      return () => import('rudderAnalyticsRemotePlugins/IubendaConsentManager');
     case 'NativeDestinationQueue':
       return () => import('rudderAnalyticsRemotePlugins/NativeDestinationQueue');
     case 'OneTrustConsentManager':
