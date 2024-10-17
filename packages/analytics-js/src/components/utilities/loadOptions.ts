@@ -32,6 +32,8 @@ const normalizeLoadOptions = (
 
   normalizedLoadOpts.secureCookie = normalizedLoadOpts.secureCookie === true;
 
+  normalizedLoadOpts.sameDomainCookiesOnly = normalizedLoadOpts.sameDomainCookiesOnly === true;
+
   const uaChTrackLevels = ['none', 'default', 'full'];
   if (!uaChTrackLevels.includes(normalizedLoadOpts.uaChTrackLevel as UaChTrackLevel)) {
     delete normalizedLoadOpts.uaChTrackLevel;
