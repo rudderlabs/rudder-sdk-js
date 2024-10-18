@@ -24,7 +24,7 @@
     "package": "nx run-many -t package",
     "test": "nx run-many -t test",
     "test:pre-commit:affected": "nx affected -t test --base=HEAD",
-    "test:ci": "cross-env nx affected -t test --base=$BASE_REF --configuration=ci --runInBand --maxWorkers=1 --forceExit",
+    "test:ci": "cross-env nx affected -t test --base=7a0afb6a4ad7349058d584bb6abd72e802fa5521 --configuration=ci --runInBand --maxWorkers=1 --forceExit",
     "check:lint:ci": "nx affected -t check:lint:ci --base=$BASE_REF --verbose",
     "check:lint": "nx run-many -t check:lint --verbose",
     "check:size": "nx run-many -t check:size --verbose",
