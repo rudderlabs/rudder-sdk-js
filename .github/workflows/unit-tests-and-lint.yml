@@ -36,11 +36,20 @@ jobs:
         run: |
           npm run setup:ci
 
+      - name: Check for affected projects
+        id: check_affected
+        run: |
+          AFFECTED_PROJECTS=$(npx nx show projects --affected --base=$BASE_REF --head=HEAD~7)
+          echo "Affected projects: $AFFECTED_PROJECTS"
+          echo "affected_projects=$AFFECTED_PROJECTS" >> $GITHUB_OUTPUT
+
       - name: Execute unit tests
+        if: steps.check_affected.outputs.affected_projects != ''
         run: |
           npm run test:ci
 
       - name: Upload coverage reports to Codecov
+        if: steps.check_affected.outputs.affected_projects != ''
         uses: codecov/codecov-action@v4
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -48,10 +57,12 @@ jobs:
           files: ./packages/analytics-js/reports/coverage/clover.xml,./packages/analytics-js-common/reports/coverage/clover.xml,./packages/analytics-js-integrations/reports/coverage/clover.xml,./packages/analytics-js-plugins/reports/coverage/clover.xml,./packages/analytics-js-service-worker/reports/coverage/clover.xml,./packages/analytics-v1.1/reports/coverage/clover.xml,./packages/analytics-js-cookies/reports/coverage/clover.xml
 
       - name: Execute linting check
+        if: steps.check_affected.outputs.affected_projects != ''
         run: |
           npm run check:lint:ci
 
       - name: Fix filesystem paths in generated reports
+        if: steps.check_affected.outputs.affected_projects != ''
         run: |
           ./scripts/fix-reports-path-in-github-runner.sh
 
