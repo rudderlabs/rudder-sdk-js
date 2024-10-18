@@ -36,10 +36,8 @@ jobs:
           npm run setup:ci
 
       - name: Execute unit tests
-        env:
-          BASE_REF: ${{ github.event.pull_request.base.sha || 'HEAD' }}
         run: |
-          npm run test:ci
+          BASE_REF=${{ github.event.pull_request.base.sha || 'HEAD' }} npm run test:ci
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4
