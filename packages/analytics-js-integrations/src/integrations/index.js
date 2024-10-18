@@ -77,6 +77,7 @@ import * as SpotifyPixel from './SpotifyPixel';
 import * as CommandBar from './CommandBar';
 import * as Ninetailed from './Ninetailed';
 import * as XPixel from './XPixel';
+import * as GainsightPX from './GainsightPX';
 // the key names should match the destination.name value to keep parity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
 
@@ -160,6 +161,7 @@ const integrations = {
   SPOTIFYPIXEL: SpotifyPixel.default,
   NINETAILED: Ninetailed.default,
   XPIXEL: XPixel.default,
+  GAINSIGHT_PX: GainsightPX.default,
 };
 
 export { integrations };
