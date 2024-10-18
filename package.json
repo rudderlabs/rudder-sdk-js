@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "setup": "npm i --include=optional && npm run build:package:modern",
-    "setup:ci": "npm ci && npm i @nx/nx-linux-x64-gnu && cross-env nx affected -t build:package:modern --base=$BASE_REF --head=HEAD~5",
+    "setup:ci": "npm ci && npm i @nx/nx-linux-x64-gnu && cross-env nx affected -t build:package:modern --base=$BASE_REF --head=HEAD~6",
     "clean": "nx run-many -t clean && nx reset && git clean -xdf node_modules",
     "clean:cache": "rimraf -rf ./node_modules/.cache && rimraf -rf ./.nx/cache",
     "start": "nx run-many --targets=start --parallel=3 --projects=@rudderstack/analytics-js-integrations,@rudderstack/analytics-js-plugins,@rudderstack/analytics-js",
@@ -24,7 +24,7 @@
     "package": "nx run-many -t package",
     "test": "nx run-many -t test",
     "test:pre-commit:affected": "nx affected -t test --base=HEAD",
-    "test:ci": "cross-env nx affected -t test --base=$BASE_REF --head=HEAD~5 --configuration=ci --runInBand --maxWorkers=1 --forceExit",
+    "test:ci": "cross-env nx affected -t test --base=$BASE_REF --head=HEAD~6 --configuration=ci --runInBand --maxWorkers=1 --forceExit",
     "check:lint:ci": "nx affected -t check:lint:ci --base=$BASE_REF --verbose",
     "check:lint": "nx run-many -t check:lint --verbose",
     "check:size": "nx run-many -t check:size --verbose",

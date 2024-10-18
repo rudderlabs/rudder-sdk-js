@@ -10,6 +10,7 @@ on:
 
 env:
   NODE_OPTIONS: "--no-warnings"
+  BASE_REF: ${{ github.event.pull_request.base.sha || 'HEAD' }}
 
 jobs:
   test:
@@ -36,8 +37,6 @@ jobs:
           npm run setup:ci
 
       - name: Execute unit tests
-        env:
-          BASE_REF: ${{ github.event.pull_request.base.sha || 'HEAD' }}
         run: |
           npm run test:ci
 
@@ -49,8 +48,6 @@ jobs:
           files: ./packages/analytics-js/reports/coverage/clover.xml,./packages/analytics-js-common/reports/coverage/clover.xml,./packages/analytics-js-integrations/reports/coverage/clover.xml,./packages/analytics-js-plugins/reports/coverage/clover.xml,./packages/analytics-js-service-worker/reports/coverage/clover.xml,./packages/analytics-v1.1/reports/coverage/clover.xml,./packages/analytics-js-cookies/reports/coverage/clover.xml
 
       - name: Execute linting check
-        env:
-          BASE_REF: ${{ github.event.pull_request.base.sha || 'HEAD' }}
         run: |
           npm run check:lint:ci
 
