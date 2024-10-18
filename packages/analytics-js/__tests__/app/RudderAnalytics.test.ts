@@ -1,4 +1,5 @@
 import type { LoadOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import type { PreloadedEventCall } from '../../src/components/preloadBuffer/types';
 import { state } from '../../src/state';
 import { RudderAnalytics } from '../../src/app/RudderAnalytics';
 import { Analytics } from '../../src/components/core/Analytics';
@@ -322,20 +323,22 @@ describe('trackPageLifecycleEvents', () => {
   });
 
   it('should not add pageLifecycleEvents in the buffer when the tracking is not enabled through load options', () => {
-    rudderAnalyticsInstance.trackPageLifecycleEvents({});
+    const bufferedEvents: PreloadedEventCall[] = [];
+    rudderAnalyticsInstance.trackPageLifecycleEvents(bufferedEvents, {});
 
-    expect(window.RudderStackGlobals?.app?.preloadedEventsBuffer).toEqual([]);
+    expect(bufferedEvents).toEqual([]);
   });
 
   it('should inherit enabled and options properties from autoTrack load option', () => {
-    rudderAnalyticsInstance.trackPageLifecycleEvents({
+    const bufferedEvents: PreloadedEventCall[] = [];
+    rudderAnalyticsInstance.trackPageLifecycleEvents(bufferedEvents, {
       autoTrack: {
         enabled: true,
         options: { key: 'value' },
       },
     });
 
-    expect(window.RudderStackGlobals?.app?.preloadedEventsBuffer).toEqual([
+    expect(bufferedEvents).toEqual([
       [
         'track',
         'Page Loaded',
@@ -346,7 +349,8 @@ describe('trackPageLifecycleEvents', () => {
   });
 
   it('should override enabled and options properties of autoTrack if provided in load option', () => {
-    rudderAnalyticsInstance.trackPageLifecycleEvents({
+    const bufferedEvents: PreloadedEventCall[] = [];
+    rudderAnalyticsInstance.trackPageLifecycleEvents(bufferedEvents, {
       autoTrack: {
         enabled: true,
         options: { key: 'value' },
@@ -356,11 +360,12 @@ describe('trackPageLifecycleEvents', () => {
       },
     });
 
-    expect(window.RudderStackGlobals?.app?.preloadedEventsBuffer).toEqual([]);
+    expect(bufferedEvents).toEqual([]);
   });
 
   it('should track Page Loaded event irrespective of useBeacon load option', () => {
-    rudderAnalyticsInstance.trackPageLifecycleEvents({
+    const bufferedEvents: PreloadedEventCall[] = [];
+    rudderAnalyticsInstance.trackPageLifecycleEvents(bufferedEvents, {
       useBeacon: false,
       autoTrack: {
         pageLifecycle: {
@@ -369,7 +374,7 @@ describe('trackPageLifecycleEvents', () => {
       },
     });
 
-    expect(window.RudderStackGlobals?.app?.preloadedEventsBuffer).toEqual([
+    expect(bufferedEvents).toEqual([
       [
         'track',
         'Page Loaded',
@@ -380,8 +385,9 @@ describe('trackPageLifecycleEvents', () => {
   });
 
   it('should track Page Unloaded event if useBeacon is set to true and trackPageLifecycle feature is enabled', () => {
+    const bufferedEvents: PreloadedEventCall[] = [];
     rudderAnalyticsInstance.track = jest.fn();
-    rudderAnalyticsInstance.trackPageLifecycleEvents({
+    rudderAnalyticsInstance.trackPageLifecycleEvents(bufferedEvents, {
       useBeacon: true,
       autoTrack: {
         pageLifecycle: {
@@ -402,17 +408,13 @@ describe('trackPageLifecycleEvents', () => {
   });
 
   it('should invoke trackPageLifecycleEvents method when load API is called', () => {
-    const trackPageLifecycleEventsSpy = jest.spyOn(
-      rudderAnalyticsInstance,
-      'trackPageLifecycleEvents',
-    );
-
+    rudderAnalyticsInstance.trackPageLifecycleEvents = jest.fn();
     rudderAnalyticsInstance.load('writeKey', 'data-plane-url', {
       autoTrack: {
         enabled: true,
       },
     });
-    expect(trackPageLifecycleEventsSpy).toHaveBeenCalledWith({
+    expect(rudderAnalyticsInstance.trackPageLifecycleEvents).toHaveBeenCalledWith([], {
       autoTrack: {
         enabled: true,
       },

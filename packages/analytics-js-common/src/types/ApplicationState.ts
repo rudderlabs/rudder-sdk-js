@@ -84,10 +84,12 @@ export type LifecycleState = {
 };
 
 export type AutoTrackState = {
+  enabled: Signal<boolean>;
   pageLifecycle: PageLifecycleState;
 };
 
 export type PageLifecycleState = {
+  enabled: Signal<boolean>;
   visitId: Signal<string | undefined>;
   pageLoadedTimestamp: Signal<number | undefined>;
 };
