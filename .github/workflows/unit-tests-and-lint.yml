@@ -39,7 +39,7 @@ jobs:
       - name: Check for affected projects
         id: check_affected
         run: |
-          AFFECTED_PROJECTS=$(npx nx show projects --affected --base=$BASE_REF --head=HEAD~7)
+          AFFECTED_PROJECTS=$(npx nx show projects --affected --base=$BASE_REF)
           echo "Affected projects: $AFFECTED_PROJECTS"
           echo "affected_projects=$AFFECTED_PROJECTS" >> $GITHUB_OUTPUT
 
@@ -67,6 +67,7 @@ jobs:
           ./scripts/fix-reports-path-in-github-runner.sh
 
       - name: SonarCloud Scan
+        if: steps.check_affected.outputs.affected_projects != ''
         uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
