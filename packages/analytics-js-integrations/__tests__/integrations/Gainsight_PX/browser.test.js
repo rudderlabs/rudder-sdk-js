@@ -65,6 +65,33 @@ describe('Gainsight_PX', () => {
     });
   });
 
+  describe('isLoaded', () => {
+    it('should return true when window.aptrinsic and window.aptrinsic.init exist', () => {
+      window.aptrinsic = { init: jest.fn() };
+      expect(gainsightPX.isLoaded()).toBe(true);
+    });
+
+    it('should return false when window.aptrinsic does not exist', () => {
+      delete window.aptrinsic;
+      expect(gainsightPX.isLoaded()).toBe(false);
+    });
+
+    it('should return false when window.aptrinsic exists but init is missing', () => {
+      window.aptrinsic = {};
+      expect(gainsightPX.isLoaded()).toBe(false);
+    });
+  });
+
+  describe('isReady', () => {
+    it('should return the same value as isLoaded', () => {
+      window.aptrinsic = { init: jest.fn() };
+      expect(gainsightPX.isReady()).toBe(gainsightPX.isLoaded());
+
+      delete window.aptrinsic;
+      expect(gainsightPX.isReady()).toBe(gainsightPX.isLoaded());
+    });
+  });
+
   describe('identify', () => {
     it('should call aptrinsic identify with user data', () => {
       const rudderElement = {
