@@ -1,3 +1,12 @@
 * @rudderlabs/js-sdk
-/packages/analytics-js-integrations/ @rudderlabs/js-sdk-dm-intg-eng
+
+/packages/analytics-js-integrations/src @rudderlabs/js-sdk-dm-intg-eng
+/packages/analytics-js-integrations/__fixtures__ @rudderlabs/js-sdk-dm-intg-eng
+/packages/analytics-js-integrations/__tests__ @rudderlabs/js-sdk-dm-intg-eng
+/packages/analytics-js-integrations/__mocks__ @rudderlabs/js-sdk-dm-intg-eng
+/packages/analytics-js-integrations/README.md @rudderlabs/js-sdk-dm-intg-eng
+/packages/analytics-js-integrations/.size-limit.js @rudderlabs/js-sdk-dm-intg-eng
+
 /packages/analytics-js-common/src/constants/integrations @rudderlabs/js-sdk-dm-intg-eng
+/assets/integrations/AdobeAnalytics @rudderlabs/js-sdk-dm-intg-eng
+/examples/integrations @rudderlabs/js-sdk-dm-intg-eng
