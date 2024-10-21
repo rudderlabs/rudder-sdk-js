@@ -14,6 +14,7 @@ const onPageLeave = (callback: (isAccessible: boolean) => void) => {
     callback(isAccessible);
 
     // Reset pageLeft on the next tick
+    // to ensure callback executes for other listeners
     setTimeout(() => {
       pageLeft = false;
     }, 0);
