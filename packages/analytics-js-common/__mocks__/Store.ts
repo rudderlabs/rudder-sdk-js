@@ -21,7 +21,7 @@ class Store implements IStore {
   private_createValidKey = (key: string) => {
     return [this.private_name, this.private_id, key].join('.');
   };
-  swapQueueStoreToInMemoryEngine = () => {
+  private_swapQueueStoreToInMemoryEngine = () => {
     this.private_engine.keys().forEach(key => {
       const value = this.private_engine.getItem(key);
       defaultInMemoryStorage.setItem(key, value);

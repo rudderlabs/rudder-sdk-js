@@ -42,6 +42,9 @@ describe('CapabilitiesManager', () => {
         defaultErrorHandler,
         defaultLogger,
       );
+
+      state.loadOptions.value.sendAdblockPage = true;
+      state.lifecycle.sourceConfigUrl.value = 'https://www.dummy.url';
     });
 
     afterEach(() => {

@@ -159,6 +159,8 @@ class CapabilitiesManager implements ICapabilitiesManager {
             this.private_onError(
               new Error(POLYFILL_SCRIPT_LOAD_ERROR(CAPABILITIES_MANAGER, error.message)),
             );
+            // The default polyfill service would automatically invoke the callback
+            // which will invoke the onReady method
           } else if (!isDefaultPolyfillService) {
             this.private_onReady();
           }

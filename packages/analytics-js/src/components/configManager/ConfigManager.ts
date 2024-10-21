@@ -12,6 +12,7 @@ import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/logge
 import type { SourceConfigResponse } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { removeTrailingSlashes } from '@rudderstack/analytics-js-common/utilities/url';
 import type { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
+import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { isValidSourceConfig, validateLoadArgs } from './util/validate';
 import {
   SOURCE_CONFIG_FETCH_ERROR,
@@ -156,10 +157,9 @@ class ConfigManager implements IConfigManager {
     // set the values in state for reporting slice
     updateReportingState(response);
 
-    const nativeDestinations: Destination[] =
-      response.source.destinations.length > 0
-        ? filterEnabledDestination(response.source.destinations)
-        : [];
+    const nativeDestinations: Destination[] = filterEnabledDestination(
+      response.source.destinations,
+    );
 
     // set in the state --> source, destination, lifecycle, reporting
     batch(() => {
@@ -174,7 +174,7 @@ class ConfigManager implements IConfigManager {
       state.nativeDestinations.configuredDestinations.value = nativeDestinations;
 
       // set the desired optional plugins
-      state.plugins.pluginsToLoadFromConfig.value = state.loadOptions.value.plugins ?? [];
+      state.plugins.pluginsToLoadFromConfig.value = state.loadOptions.value.plugins as PluginName[];
 
       updateConsentsState(response);
 

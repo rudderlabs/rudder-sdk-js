@@ -5,10 +5,8 @@ import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/Error
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { LOCAL_STORAGE, MEMORY_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
+import { MEMORY_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
-import { defaultLogger } from '../Logger';
-import { defaultErrorHandler } from '../ErrorHandler';
 import { isStorageQuotaExceeded } from '../../components/capabilitiesManager/detection';
 import {
   BAD_COOKIES_WARNING,
@@ -32,19 +30,19 @@ class Store implements IStore {
   private_noCompoundKey?: boolean;
   private_errorHandler?: IErrorHandler;
   private_logger?: ILogger;
-  private_pluginsManager?: IPluginsManager;
+  private_pluginsManager: IPluginsManager;
 
-  constructor(config: IStoreConfig, engine?: IStorage, pluginsManager?: IPluginsManager) {
+  constructor(config: IStoreConfig, engine: IStorage, pluginsManager: IPluginsManager) {
     this.private_id = config.id;
     this.private_name = config.name;
     this.private_isEncrypted = config.isEncrypted ?? false;
     this.private_validKeys = config.validKeys ?? [];
-    this.private_engine = engine ?? getStorageEngine(LOCAL_STORAGE);
+    this.private_engine = engine;
     this.private_noKeyValidation = Object.keys(this.private_validKeys).length === 0;
     this.private_noCompoundKey = config.noCompoundKey;
     this.private_originalEngine = this.private_engine;
-    this.private_errorHandler = config.errorHandler ?? defaultErrorHandler;
-    this.private_logger = config.logger ?? defaultLogger;
+    this.private_errorHandler = config.errorHandler;
+    this.private_logger = config.logger;
     this.private_pluginsManager = pluginsManager;
   }
 
@@ -52,39 +50,36 @@ class Store implements IStore {
    * Ensure the key is valid and with correct format
    */
   private_createValidKey(key: string): string | undefined {
-    const {
-      private_name: name,
-      private_id: id,
-      private_validKeys: validKeys,
-      private_noKeyValidation: noKeyValidation,
-      private_noCompoundKey: noCompoundKey,
-    } = this;
+    const { private_validKeys: validKeys, private_noKeyValidation: noKeyValidation } = this;
+
+    const compoundKey = this.private_getCompoundKey(key);
 
     if (noKeyValidation) {
-      return noCompoundKey ? key : [name, id, key].join('.');
+      return compoundKey;
     }
 
     // validate and return undefined if invalid key
-    let compoundKey;
+    let finalKey;
     validKeys.forEach(validKeyName => {
       if (validKeyName === key) {
-        compoundKey = noCompoundKey ? key : [name, id, key].join('.');
+        finalKey = compoundKey;
       }
     });
 
-    return compoundKey;
+    return finalKey;
+  }
+
+  private_getCompoundKey(key: string): string {
+    const { private_name: name, private_id: id, private_noCompoundKey: noCompoundKey } = this;
+
+    return noCompoundKey ? key : [name, id, key].join('.');
   }
 
   /**
    * Switch to inMemoryEngine, bringing any existing data with.
    */
-  swapQueueStoreToInMemoryEngine() {
-    const {
-      private_name: name,
-      private_id: id,
-      private_validKeys: validKeys,
-      private_noCompoundKey: noCompoundKey,
-    } = this;
+  private_swapQueueStoreToInMemoryEngine() {
+    const { private_validKeys: validKeys, private_logger: logger } = this;
     const inMemoryStorage = getStorageEngine(MEMORY_STORAGE);
 
     // grab existing data, but only for this page's queue instance, not all
@@ -92,9 +87,12 @@ class Store implements IStore {
     // than to pull them into memory and remove them from durable storage
     validKeys.forEach(key => {
       const value = this.get(key);
-      const validKey = noCompoundKey ? key : [name, id, key].join('.');
+      const validKey = this.private_getCompoundKey(key);
 
-      inMemoryStorage.setItem(validKey, value);
+      inMemoryStorage.setItem(
+        validKey,
+        this.private_encrypt(stringifyWithoutCircular(value, false, [], logger)),
+      );
       // TODO: are we sure we want to drop clientData
       //  if cookies are not available and localstorage is full?
       this.remove(key);
@@ -123,7 +121,7 @@ class Store implements IStore {
       if (isStorageQuotaExceeded(err)) {
         this.private_logger?.warn(STORAGE_QUOTA_EXCEEDED_WARNING(`Store ${this.private_id}`));
         // switch to inMemory engine
-        this.swapQueueStoreToInMemoryEngine();
+        this.private_swapQueueStoreToInMemoryEngine();
         // and save it there
         this.set(key, value);
       } else {
@@ -212,9 +210,10 @@ class Store implements IStore {
     }
 
     const extensionPointName = `storage.${mode}`;
-    const formattedValue = this.private_pluginsManager
-      ? this.private_pluginsManager.invokeSingle<string>(extensionPointName, value)
-      : value;
+    const formattedValue = this.private_pluginsManager.invokeSingle<string>(
+      extensionPointName,
+      value,
+    );
 
     return typeof formattedValue === 'undefined' ? value : (formattedValue ?? '');
   }

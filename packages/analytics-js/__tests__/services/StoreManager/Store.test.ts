@@ -1,5 +1,8 @@
+import { PluginsManager } from '../../../src/components/pluginsManager/PluginsManager';
+import { defaultErrorHandler } from '../../../src/services/ErrorHandler/ErrorHandler';
 import { Store } from '../../../src/services/StoreManager/Store';
 import { getStorageEngine } from '../../../src/services/StoreManager/storages/storageEngine';
+import { defaultPluginEngine } from '../../../src/services/PluginEngine';
 
 describe('Store', () => {
   let store: Store;
@@ -30,8 +33,10 @@ describe('Store', () => {
         name: 'name',
         id: 'id',
         validKeys,
+        errorHandler: defaultErrorHandler,
       },
       getStorageEngine('localStorage'),
+      new PluginsManager(defaultPluginEngine),
     );
   });
 
@@ -49,7 +54,6 @@ describe('Store', () => {
       });
     });
 
-    // TODO: fix, caused by Difference is the storejs and retry-queue localstorage implementation
     it('should return null if value is not valid json', () => {
       engine.setItem('name.id.queue', '[{]}');
       expect(store.get('queue')).toBeNull();
@@ -118,13 +122,13 @@ describe('Store', () => {
   describe('.swapEngine', () => {
     it('should switch the underlying storage mechanism', () => {
       expect(store.private_engine).toStrictEqual(getStorageEngine('localStorage'));
-      store.swapQueueStoreToInMemoryEngine();
+      store.private_swapQueueStoreToInMemoryEngine();
       expect(store.private_engine).toStrictEqual(getStorageEngine('memoryStorage'));
     });
 
     it('should not switch the original storage mechanism', () => {
       expect(store.getOriginalEngine()).toStrictEqual(getStorageEngine('localStorage'));
-      store.swapQueueStoreToInMemoryEngine();
+      store.private_swapQueueStoreToInMemoryEngine();
       expect(store.getOriginalEngine()).toStrictEqual(getStorageEngine('localStorage'));
     });
 

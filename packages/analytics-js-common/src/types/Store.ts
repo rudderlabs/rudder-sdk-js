@@ -39,7 +39,7 @@ export interface IStore {
   private_logger?: ILogger;
   private_pluginsManager?: IPluginsManager;
   private_createValidKey(key: string): string | undefined;
-  swapQueueStoreToInMemoryEngine(): void;
+  private_swapQueueStoreToInMemoryEngine(): void;
   set(key: string, value: any): void;
   get<T = any>(key: string): Nullable<T>;
   remove(key: string): void;

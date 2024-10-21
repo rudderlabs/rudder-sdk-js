@@ -636,7 +636,7 @@ describe('RetryQueue', () => {
 
   describe('while using in memory engine', () => {
     beforeEach(() => {
-      queue.store.swapQueueStoreToInMemoryEngine();
+      queue.store.private_swapQueueStoreToInMemoryEngine();
     });
 
     it('should take over a queued task if a queue is abandoned', () => {

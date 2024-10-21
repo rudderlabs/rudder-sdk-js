@@ -58,20 +58,16 @@ class ErrorHandler implements IErrorHandler {
   }
 
   private_attachErrorListeners() {
-    if ('addEventListener' in (globalThis as typeof window)) {
-      (globalThis as typeof window).addEventListener('error', (event: ErrorEvent | Event) => {
-        this.onError(event, undefined, undefined, undefined, ErrorType.UNHANDLEDEXCEPTION);
-      });
+    (globalThis as typeof window).addEventListener('error', (event: ErrorEvent | Event) => {
+      this.private_onErrorInternal(event, ErrorType.UNHANDLEDEXCEPTION);
+    });
 
-      (globalThis as typeof window).addEventListener(
-        'unhandledrejection',
-        (event: PromiseRejectionEvent) => {
-          this.onError(event, undefined, undefined, undefined, ErrorType.UNHANDLEDREJECTION);
-        },
-      );
-    } else {
-      this.private_logger?.debug(`Failed to attach global error listeners.`);
-    }
+    (globalThis as typeof window).addEventListener(
+      'unhandledrejection',
+      (event: PromiseRejectionEvent) => {
+        this.private_onErrorInternal(event, ErrorType.UNHANDLEDREJECTION);
+      },
+    );
   }
 
   init(httpClient: IHttpClient, externalSrcLoader: IExternalSrcLoader) {
@@ -92,6 +88,7 @@ class ErrorHandler implements IErrorHandler {
         this.private_logger,
         true,
       );
+
       if (errReportingInitVal instanceof Promise) {
         errReportingInitVal
           .then((client: any) => {
@@ -104,6 +101,10 @@ class ErrorHandler implements IErrorHandler {
     } catch (err: any) {
       this.onError(err, ERROR_HANDLER);
     }
+  }
+
+  private_onErrorInternal(error: SDKError, errorType: ErrorType) {
+    this.onError(error, undefined, undefined, undefined, errorType);
   }
 
   onError(

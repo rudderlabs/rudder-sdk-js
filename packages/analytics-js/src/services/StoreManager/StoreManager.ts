@@ -38,13 +38,12 @@ class StoreManager implements IStoreManager {
   private_isInitialized = false;
   private_errorHandler?: IErrorHandler;
   private_logger?: ILogger;
-  private_pluginsManager?: IPluginsManager;
+  private_pluginsManager: IPluginsManager;
 
-  constructor(pluginsManager?: IPluginsManager, errorHandler?: IErrorHandler, logger?: ILogger) {
+  constructor(pluginsManager: IPluginsManager, errorHandler?: IErrorHandler, logger?: ILogger) {
     this.private_errorHandler = errorHandler;
     this.private_logger = logger;
     this.private_pluginsManager = pluginsManager;
-    this.private_onError = this.private_onError.bind(this);
   }
 
   /**
@@ -214,17 +213,6 @@ class StoreManager implements IStoreManager {
    */
   getStore(id: string): Store | undefined {
     return this.private_stores[id];
-  }
-
-  /**
-   * Handle errors
-   */
-  private_onError(error: any) {
-    if (this.private_errorHandler) {
-      this.private_errorHandler.onError(error, STORE_MANAGER);
-    } else {
-      throw error;
-    }
   }
 }
 

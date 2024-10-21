@@ -247,9 +247,9 @@ describe('ErrorHandler', () => {
   describe('init', () => {
     it('reporting client should not be defined if the plugin engine is not supplied', () => {
       errorHandlerInstance = new ErrorHandler(defaultLogger);
-      errorHandlerInstance.init(defaultHttpClient);
+      errorHandlerInstance.init(defaultHttpClient, extSrcLoader);
 
-      expect(errorHandlerInstance.private_httpClient).not.toBeUndefined();
+      expect(errorHandlerInstance.private_errReportingClient).toBeUndefined();
     });
   });
 
