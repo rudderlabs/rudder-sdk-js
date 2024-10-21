@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "setup": "npm i --include=optional && npm run build:package:modern",
-    "setup:ci": "npm ci && npm i @nx/nx-linux-x64-gnu && nx affected -t build:package:modern --base=$BASE_REF",
+    "setup:ci": "npm ci && npm i @nx/nx-linux-x64-gnu && npm run build:package:modern",
     "clean": "nx run-many -t clean && nx reset && git clean -xdf node_modules",
     "clean:cache": "rimraf -rf ./node_modules/.cache && rimraf -rf ./.nx/cache",
     "start": "nx run-many --targets=start --parallel=3 --projects=@rudderstack/analytics-js-integrations,@rudderstack/analytics-js-plugins,@rudderstack/analytics-js",

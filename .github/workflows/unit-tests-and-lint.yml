@@ -39,7 +39,7 @@ jobs:
       - name: Check for affected projects
         id: check_affected
         run: |
-          AFFECTED_PROJECTS=$(npx nx show projects --affected --base=$BASE_REF)
+          AFFECTED_PROJECTS=$(npx nx show projects --affected --base=$BASE_REF | tr '\n' ',')
           echo "Affected projects: $AFFECTED_PROJECTS"
           echo "affected_projects=$AFFECTED_PROJECTS" >> $GITHUB_OUTPUT
 
