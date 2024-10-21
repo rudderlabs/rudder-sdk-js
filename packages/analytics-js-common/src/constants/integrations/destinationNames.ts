@@ -290,3 +290,7 @@ export {
   DISPLAY_NAME as NinetailedDisplayName,
   DIR_NAME as NinetailedDirectoryName,
 } from './Ninetailed/constants';
+export {
+  DISPLAY_NAME as XPixelDisplayName,
+  DIR_NAME as XPixelDirectoryName,
+} from './XPixel/constants';
