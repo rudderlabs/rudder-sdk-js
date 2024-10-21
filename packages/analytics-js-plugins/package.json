@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-plugins",
-  "version": "3.4.19",
+  "version": "3.5.0",
   "private": true,
   "description": "RudderStack JavaScript SDK plugins",
   "main": "dist/npm/modern/cjs/index.cjs",
