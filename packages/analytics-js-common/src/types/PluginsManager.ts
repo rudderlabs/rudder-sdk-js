@@ -18,6 +18,7 @@ export type PluginName =
   | 'ErrorReporting'
   | 'ExternalAnonymousId'
   | 'GoogleLinker'
+  | 'IubendaConsentManager'
   | 'KetchConsentManager'
   | 'NativeDestinationQueue'
   | 'OneTrustConsentManager'

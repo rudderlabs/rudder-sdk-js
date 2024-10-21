@@ -7,6 +7,7 @@ on:
 
 env:
   NODE_OPTIONS: '--no-warnings'
+  BASE_REF: ${{ github.event.pull_request.base.sha || 'HEAD' }}
 
 jobs:
   bundle-size-checks:
@@ -65,15 +66,11 @@ jobs:
           npm run check:duplicates
 
       - name: Build the project
-        env:
-          BASE_REF: ${{ github.event.pull_request.base.sha }}
         run: |
           npm run build:ci
           npm run build:modern:ci
 
       - name: Execute package linting checks
-        env:
-          BASE_REF: ${{ github.event.pull_request.base.sha }}
         run: |
           npm run check:pub:ci
 

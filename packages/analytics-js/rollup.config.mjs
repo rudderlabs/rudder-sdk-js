@@ -101,6 +101,10 @@ const getExternalsConfig = () => {
       externalGlobalsConfig['@rudderstack/analytics-js-plugins/googleLinker'] = '{}';
     }
 
+    if (!bundledPluginsList.includes('IubendaConsentManager')) {
+      externalGlobalsConfig['@rudderstack/analytics-js-plugins/iubendaConsentManager'] = '{}';
+    }
+
     if (!bundledPluginsList.includes('KetchConsentManager')) {
       externalGlobalsConfig['@rudderstack/analytics-js-plugins/ketchConsentManager'] = '{}';
     }

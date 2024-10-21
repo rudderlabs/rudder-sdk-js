@@ -10,6 +10,7 @@ on:
 
 env:
   NODE_OPTIONS: '--no-warnings'
+  BASE_REF: ${{ github.event.pull_request.base.sha || 'HEAD' }}
 
 jobs:
   test:
@@ -35,9 +36,14 @@ jobs:
         run: |
           npm run setup:ci
 
+      - name: Check for affected projects
+        id: check_affected
+        run: |
+          AFFECTED_PROJECTS=$(npx nx show projects --affected --base=$BASE_REF | tr '\n' ',')
+          echo "Affected projects: $AFFECTED_PROJECTS"
+          echo "affected_projects=$AFFECTED_PROJECTS" >> $GITHUB_OUTPUT
+
       - name: Execute unit tests
-        env:
-          BASE_REF: ${{ github.event.pull_request.base.sha || 'HEAD' }}
         run: |
           npm run test:ci
 
@@ -49,8 +55,6 @@ jobs:
           files: ./packages/analytics-js/reports/coverage/clover.xml,./packages/analytics-js-common/reports/coverage/clover.xml,./packages/analytics-js-integrations/reports/coverage/clover.xml,./packages/analytics-js-plugins/reports/coverage/clover.xml,./packages/analytics-js-service-worker/reports/coverage/clover.xml,./packages/analytics-v1.1/reports/coverage/clover.xml,./packages/analytics-js-cookies/reports/coverage/clover.xml
 
       - name: Execute linting check
-        env:
-          BASE_REF: ${{ github.event.pull_request.base.sha || 'HEAD' }}
         run: |
           npm run check:lint:ci
 

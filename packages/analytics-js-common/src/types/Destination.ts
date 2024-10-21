@@ -2,6 +2,7 @@ import type { Conversion, EventFilteringOption, EventMapping } from './LoadOptio
 import type {
   OneTrustCookieCategory,
   KetchConsentPurpose,
+  IubendaConsentPurpose,
   ConsentManagementProvider,
 } from './Consent';
 import type { IntegrationOpts } from './Integration';
@@ -37,6 +38,7 @@ export type ConsentManagementProviderConfig = {
 export type DestinationConfig = {
   blacklistedEvents: DestinationEvent[];
   whitelistedEvents: DestinationEvent[];
+  iubendaConsentPurposes?: IubendaConsentPurpose[];
   oneTrustCookieCategories?: OneTrustCookieCategory[];
   ketchConsentPurposes?: KetchConsentPurpose[];
   consentManagement?: ConsentManagementProviderConfig[];

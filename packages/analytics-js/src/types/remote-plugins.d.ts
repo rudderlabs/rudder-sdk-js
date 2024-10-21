@@ -4,6 +4,7 @@ declare module 'rudderAnalyticsRemotePlugins/DeviceModeTransformation';
 declare module 'rudderAnalyticsRemotePlugins/ErrorReporting';
 declare module 'rudderAnalyticsRemotePlugins/ExternalAnonymousId';
 declare module 'rudderAnalyticsRemotePlugins/GoogleLinker';
+declare module 'rudderAnalyticsRemotePlugins/IubendaConsentManager';
 declare module 'rudderAnalyticsRemotePlugins/KetchConsentManager';
 declare module 'rudderAnalyticsRemotePlugins/NativeDestinationQueue';
 declare module 'rudderAnalyticsRemotePlugins/OneTrustConsentManager';

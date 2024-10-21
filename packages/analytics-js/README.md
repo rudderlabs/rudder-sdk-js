@@ -7,6 +7,7 @@
   <br />
   <caption>The Customer Data Platform for Developers</caption>
 </p>
+
 <p align="center">
   <b>
     <a href="https://rudderstack.com">Website</a>

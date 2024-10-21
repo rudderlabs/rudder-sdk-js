@@ -25,7 +25,9 @@ const getFederatedModuleImport = (
     case 'GoogleLinker':
       return () => import(`${IMPORT_PATH_PREFIX}GoogleLinker`);
     case 'KetchConsentManager':
-      return () => import(`${IMPORT_PATH_PREFIX}KetchConsentManager`);
+      return () => import(`${IMPORT_PATH_PREFIX}/KetchConsentManager`);
+    case 'IubendaConsentManager':
+      return () => import(`${IMPORT_PATH_PREFIX}/IubendaConsentManager`);
     case 'NativeDestinationQueue':
       return () => import(`${IMPORT_PATH_PREFIX}NativeDestinationQueue`);
     case 'OneTrustConsentManager':
