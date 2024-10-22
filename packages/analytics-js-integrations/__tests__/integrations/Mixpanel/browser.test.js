@@ -214,7 +214,7 @@ describe('Init tests', () => {
     consoleSpy.mockRestore();
   });
 
-  test('Session replay configuration', () => {
+  test('Session replay configuration with emppty load integration', () => {
     const analytics = {
       loadOnlyIntegrations: {
         Mixpanel: {},
@@ -242,6 +242,51 @@ describe('Init tests', () => {
       loaded: expect.any(Function),
     });
   });
+
+  test('Session replay configuration with all options', () => {
+    const analytics = {
+      loadOnlyIntegrations: {
+        Mixpanel: {
+          recordBlockClass: 'block-class',
+          recordCollectFonts: true,
+          recordIdleTimeout: 5000,
+          recordMaskTextClass: 'mask-text',
+          recordMaskTextSelector: '.sensitive',
+          recordMaxMs: 30000,
+          recordMinMs: 1000,
+        },
+      },
+      logLevel: 'debug',
+    };
+
+    mixpanel = new Mixpanel(
+      {
+        persistenceType: 'localStorage',
+        persistenceName: 'test',
+        sessionReplayPercentage: 50,
+      },
+      analytics,
+      { logLevel: 'debug' },
+    );
+    mixpanel.init();
+
+    expect(window.mixpanel._i[0][1]).toEqual({
+      cross_subdomain_cookie: false,
+      secure_cookie: false,
+      persistence: 'localStorage',
+      persistence_name: 'test',
+      record_block_class: 'block-class',
+      record_collect_fonts: true,
+      record_idle_timeout_ms: 5000,
+      record_mask_text_class: 'mask-text',
+      record_mask_text_selector: '.sensitive',
+      record_max_ms: 30000,
+      record_min_ms: 1000,
+      record_sessions_percent: 50,
+      loaded: expect.any(Function),
+    });
+  });
+
 });
 
 describe('isLoaded and isReady tests', () => {
