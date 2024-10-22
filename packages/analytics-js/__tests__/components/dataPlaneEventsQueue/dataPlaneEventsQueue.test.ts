@@ -28,6 +28,7 @@ describe('DataPlaneEventsQueue', () => {
   beforeEach(() => {
     state.lifecycle.activeDataplaneUrl.value = 'https://test-url.com';
     dataPlaneEventsQueue.clear();
+    dataPlaneEventsQueue.stop();
   });
 
   afterAll(() => {
@@ -117,6 +118,125 @@ describe('DataPlaneEventsQueue', () => {
       );
 
       EVENT_PAYLOAD_SIZE_BYTES_LIMIT = originalMaxPayloadSize;
+    });
+
+    it('should process an enqueued event when the event processing is started', () => {
+      dataPlaneEventsQueue.enqueue(testEvent);
+
+      const requestSpy = jest.spyOn(httpClient, 'request');
+
+      dataPlaneEventsQueue.start();
+
+      const queueEntry = dataPlaneEventsQueue.private_eventsQueue.getStorageEntry('queue');
+      const batchQueueEntry =
+        dataPlaneEventsQueue.private_eventsQueue.getStorageEntry('batchQueue');
+
+      expect(queueEntry).toBeNull();
+      expect(batchQueueEntry).toBeNull();
+
+      expect(requestSpy).toHaveBeenCalledWith({
+        url: 'https://test-url.com/v1/track',
+        options: {
+          method: 'POST',
+          body: '{"type":"track","event":"test event","anonymousId":"test_anonymous_id","sentAt":"1999-01-01T00:00:00.000Z"}',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json;charset=UTF-8',
+            AnonymousId: 'dGVzdF9hbm9ueW1vdXNfaWQ=',
+          },
+          useAuth: true,
+          keepalive: false,
+        },
+        isRawResponse: true,
+        timeout: 10000,
+        callback: expect.any(Function),
+      });
+
+      requestSpy.mockRestore();
+    });
+
+    it('should process last batch of events when the page is being unloaded', () => {
+      state.loadOptions.value.queueOptions = {
+        batch: {
+          enabled: true,
+          maxItems: 10,
+        },
+      };
+
+      const requestSpy = jest.spyOn(httpClient, 'request');
+
+      const tmpDataPlaneEventsQueue = new DataPlaneEventsQueue(
+        httpClient,
+        storeManager,
+        defaultLogger,
+      );
+
+      tmpDataPlaneEventsQueue.start();
+
+      tmpDataPlaneEventsQueue.enqueue(testEvent);
+      tmpDataPlaneEventsQueue.enqueue(testEvent);
+
+      // Dispatch the 'beforeunload' event
+      window.dispatchEvent(new Event('beforeunload'));
+
+      expect(requestSpy).toHaveBeenCalledWith({
+        url: 'https://test-url.com/v1/batch',
+        options: {
+          method: 'POST',
+          // batch payload
+          body: '{"batch":[{"type":"track","event":"test event","anonymousId":"test_anonymous_id","sentAt":"1999-01-01T00:00:00.000Z"},{"type":"track","event":"test event","anonymousId":"test_anonymous_id","sentAt":"1999-01-01T00:00:00.000Z"}],"sentAt":"1999-01-01T00:00:00.000Z"}',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json;charset=UTF-8',
+            AnonymousId: 'dGVzdF9hbm9ueW1vdXNfaWQ=',
+          },
+          useAuth: true,
+          keepalive: true,
+        },
+        isRawResponse: true,
+        timeout: 10000,
+        callback: expect.any(Function),
+      });
+
+      const queueEntry = tmpDataPlaneEventsQueue.private_eventsQueue.getStorageEntry('queue');
+      const batchQueueEntry =
+        tmpDataPlaneEventsQueue.private_eventsQueue.getStorageEntry('batchQueue');
+
+      expect(queueEntry).toBeNull();
+      expect(batchQueueEntry).toBeNull();
+
+      requestSpy.mockRestore();
+    });
+
+    it('should process the response of the request', () => {
+      dataPlaneEventsQueue.start();
+
+      const originalRequest = httpClient.request;
+
+      let requestOverride: any;
+
+      httpClient.request = jest.fn().mockImplementation(config => {
+        requestOverride(config);
+      });
+
+      // Retryable failure
+      requestOverride = (config: any) => {
+        const { callback } = config;
+        callback(undefined, { error: { status: 502 } });
+      };
+
+      dataPlaneEventsQueue.enqueue(testEvent);
+
+      // Success response
+      requestOverride = (config: any) => {
+        const { callback } = config;
+        callback('{"raw": "sample"}');
+      };
+
+      dataPlaneEventsQueue.enqueue(testEvent);
+
+      // Restore the original request method
+      httpClient.request = originalRequest;
     });
   });
 
