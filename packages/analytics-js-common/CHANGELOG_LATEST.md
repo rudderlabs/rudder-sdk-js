@@ -1,7 +1,7 @@
-## [3.9.5](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.9.4...@rudderstack/analytics-js-common@3.9.5) (2024-10-18)
+## [3.10.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.9.5...@rudderstack/analytics-js-common@3.10.0) (2024-10-21)
 
 
-### Bug Fixes
+### Features
 
-* add xpixel missing name mapping ([#1895](https://github.com/rudderlabs/rudder-sdk-js/issues/1895)) ([0800f36](https://github.com/rudderlabs/rudder-sdk-js/commit/0800f361b6a9b9866ba47d9a393cf7c2063b3815))
+* iubenda consent manager plugin ([#1809](https://github.com/rudderlabs/rudder-sdk-js/issues/1809)) ([7ea300c](https://github.com/rudderlabs/rudder-sdk-js/commit/7ea300c61ead9cc094c3f1985e0ef3165b0fcb59))
 
