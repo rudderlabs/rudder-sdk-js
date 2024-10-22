@@ -182,4 +182,21 @@ describe('onPageLeave', () => {
 
     expect(evCallback).toHaveBeenNthCalledWith(2, false);
   });
+
+  it('should fire the callback on beforeunload event on the next tick even when the tab is inactive', () => {
+    const evCallback = jest.fn();
+    onPageLeave(evCallback);
+
+    setVisibilityState('hidden');
+    dispatchDocumentEvent('visibilitychange');
+
+    dispatchWindowEvent('beforeunload');
+
+    expect(evCallback).toHaveBeenCalledTimes(1);
+    expect(evCallback).toHaveBeenNthCalledWith(1, true);
+    setTimeout(() => {
+      expect(evCallback).toHaveBeenCalledTimes(1);
+      expect(evCallback).toHaveBeenNthCalledWith(1, false);
+    }, 0);
+  });
 });
