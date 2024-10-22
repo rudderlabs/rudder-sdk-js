@@ -24,7 +24,7 @@
   },
   "targetDefaults": {
     "test": {
-      "inputs": ["default", "^test"],
+      "inputs": ["default", "^production", "^test"],
       "cache": true
     },
     "version": [
@@ -79,7 +79,7 @@
       "cache": true
     },
     "test:pre-commit:affected": {
-      "inputs": ["default", "^test"],
+      "inputs": ["default", "^production", "^test"],
       "cache": true
     },
     "check:size:build:pre-commit:affected": {
@@ -140,11 +140,6 @@
       "!{projectRoot}/jest.config.mjs"
     ],
     "test": [
-      "{projectRoot}/src/**/*",
-      "{projectRoot}/src/**/*.(spec|test).(j|t)s?(x)",
-      "{projectRoot}/__tests__/**/*",
-      "{projectRoot}/__fixtures__/**/*",
-      "{projectRoot}/__mocks__/**/*",
       "{projectRoot}/jest.config.mjs",
       "{workspaceRoot}/jest/**/*",
       "{workspaceRoot}/jest.preset.js",
