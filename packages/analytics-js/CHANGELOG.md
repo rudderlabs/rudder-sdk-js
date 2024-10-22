@@ -2,6 +2,18 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.8.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.7.19...@rudderstack/analytics-js@3.8.0) (2024-10-21)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-cookies` updated to version `0.3.12`
+* `@rudderstack/analytics-js-common` updated to version `3.10.0`
+* `@rudderstack/analytics-js-plugins` updated to version `3.5.0`
+
+### Features
+
+* iubenda consent manager plugin ([#1809](https://github.com/rudderlabs/rudder-sdk-js/issues/1809)) ([7ea300c](https://github.com/rudderlabs/rudder-sdk-js/commit/7ea300c61ead9cc094c3f1985e0ef3165b0fcb59))
+
 ## [3.7.19](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.7.18...@rudderstack/analytics-js@3.7.19) (2024-10-18)
 
 ### Dependency Updates
