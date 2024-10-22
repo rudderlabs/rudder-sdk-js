@@ -106,13 +106,13 @@ class Mixpanel {
     // ref : https://docs.mixpanel.com/docs/tracking-methods/sdks/javascript#session-replay
     if (mixpanelIntgConfig) {
       const sessionReplayConfig = {
-        record_block_class: mixpanelIntgConfig?.recordBlockClass,
-        record_collect_fonts: mixpanelIntgConfig?.recordCollectFonts,
-        record_idle_timeout_ms: mixpanelIntgConfig?.recordIdleTimeout,
-        record_mask_text_class: mixpanelIntgConfig?.recordMaskTextClass,
-        record_mask_text_selector: mixpanelIntgConfig?.recordMaskTextSelector,
-        record_max_ms: mixpanelIntgConfig?.recordMaxMs,
-        record_min_ms: mixpanelIntgConfig?.recordMinMs,
+        record_block_class: mixpanelIntgConfig.recordBlockClass,
+        record_collect_fonts: mixpanelIntgConfig.recordCollectFonts,
+        record_idle_timeout_ms: mixpanelIntgConfig.recordIdleTimeout,
+        record_mask_text_class: mixpanelIntgConfig.recordMaskTextClass,
+        record_mask_text_selector: mixpanelIntgConfig.recordMaskTextSelector,
+        record_max_ms: mixpanelIntgConfig.recordMaxMs,
+        record_min_ms: mixpanelIntgConfig.recordMinMs,
       };
       options = { ...options, ...removeUndefinedAndNullValues(sessionReplayConfig) };
     }
