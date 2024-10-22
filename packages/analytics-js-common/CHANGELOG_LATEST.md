@@ -1,7 +1,7 @@
-## [3.9.3](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.9.2...@rudderstack/analytics-js-common@3.9.3) (2024-09-27)
+## [3.9.5](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.9.4...@rudderstack/analytics-js-common@3.9.5) (2024-10-18)
 
 
 ### Bug Fixes
 
-* upgrade all packages to latest to fix vulnerabilities ([#1867](https://github.com/rudderlabs/rudder-sdk-js/issues/1867)) ([389348c](https://github.com/rudderlabs/rudder-sdk-js/commit/389348cfa61f2111c5ac4f9e2bad5851a466484d))
+* add xpixel missing name mapping ([#1895](https://github.com/rudderlabs/rudder-sdk-js/issues/1895)) ([0800f36](https://github.com/rudderlabs/rudder-sdk-js/commit/0800f361b6a9b9866ba47d9a393cf7c2063b3815))
 

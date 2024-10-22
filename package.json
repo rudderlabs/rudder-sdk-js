@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-monorepo",
-  "version": "3.42.0",
+  "version": "3.44.0",
   "private": true,
   "description": "Monorepo for RudderStack Analytics JS SDK",
   "workspaces": [
@@ -144,6 +144,7 @@
     "commitizen": "4.3.1",
     "commitlint": "19.5.0",
     "core-js": "3.38.1",
+    "cross-env": "7.0.3",
     "dotenv": "16.4.5",
     "each": "2.7.0",
     "eslint": "8.57.0",

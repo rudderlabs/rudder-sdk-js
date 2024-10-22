@@ -160,6 +160,8 @@ import {
   NinetailedDirectoryName,
   Gainsight_PXDisplayName,
   Gainsight_PXDirectoryName,
+  XPixelDisplayName,
+  XPixelDirectoryName,
 } from './destinationNames';
 
 // The destination directory name is used as the destination SDK file name in CDN
@@ -244,6 +246,7 @@ const destDisplayNamesToFileNamesMap: Record<string, string> = {
   [CommandBarDisplayName]: CommandBarDirectoryName,
   [NinetailedDisplayName]: NinetailedDirectoryName,
   [Gainsight_PXDisplayName]: Gainsight_PXDirectoryName,
+  [XPixelDisplayName]: XPixelDirectoryName,
 };
 
 export { destDisplayNamesToFileNamesMap };
