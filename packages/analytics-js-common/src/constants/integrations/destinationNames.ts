@@ -294,6 +294,7 @@ export {
   DISPLAY_NAME as Gainsight_PXDisplayName,
   DIR_NAME as Gainsight_PXDirectoryName,
 } from './Gainsight_PX/constants';
+export {
   DISPLAY_NAME as XPixelDisplayName,
   DIR_NAME as XPixelDirectoryName,
 } from './XPixel/constants';
