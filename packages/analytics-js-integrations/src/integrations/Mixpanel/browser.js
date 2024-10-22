@@ -16,6 +16,7 @@ import {
   inverseObjectArrays,
   getConsolidatedPageCalls,
   generatePageCustomEventName,
+  getDestinationOptions,
 } from './util';
 import { loadNativeSdk } from './nativeSdkLoader';
 
@@ -66,13 +67,14 @@ class Mixpanel {
     this.ignoreDnt = config.ignoreDnt || false;
     this.useUserDefinedPageEventName = config.useUserDefinedPageEventName || false;
     this.userDefinedPageEventTemplate = config.userDefinedPageEventTemplate;
+    this.sessionReplayPercentage = config.sessionReplayPercentage;
     this.isNativeSDKLoaded = false;
   }
 
   init() {
     // eslint-disable-next-line no-var
     loadNativeSdk();
-    const options = {
+    let options = {
       cross_subdomain_cookie: this.crossSubdomainCookie || false,
       secure_cookie: this.secureCookie || false,
     };
@@ -93,6 +95,22 @@ class Mixpanel {
     }
     if (this.ignoreDnt) {
       options.ignore_dnt = true;
+    }
+
+    const mixpanelIntgConfig = getDestinationOptions(this.analytics.loadOnlyIntegrations);
+    // ref : https://docs.mixpanel.com/docs/tracking-methods/sdks/javascript#session-replay
+    if (mixpanelIntgConfig) {
+      const sessionReplayConfig = {
+        record_sessions_percent : this.sessionReplayPercentage,
+        record_block_class : mixpanelIntgConfig?.recordBlockClass,
+        record_collect_fonts : mixpanelIntgConfig?.recordCollectFonts,
+        record_idle_timeout_ms : mixpanelIntgConfig?.recordIdleTimeout,
+        record_mask_text_class : mixpanelIntgConfig?.recordMaskTextClass,
+        record_mask_text_selector : mixpanelIntgConfig?.recordMaskTextSelector,
+        record_max_ms : mixpanelIntgConfig?.recordMaxMs,
+        record_min_ms : mixpanelIntgConfig?.recordMinMs
+      };
+      options = {...options,...removeUndefinedAndNullValues(sessionReplayConfig)}
     }
     options.loaded = () => {
       this.isNativeSDKLoaded = true;
