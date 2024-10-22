@@ -124,7 +124,7 @@ describe('Init tests', () => {
   test('Session replay configuration with partial options', () => {
     const analytics = {
       loadOnlyIntegrations: {
-        Mixpanel: {
+        MP: {
           recordBlockClass: 'block-class',
           recordCollectFonts: true,
         },
@@ -212,6 +212,35 @@ describe('Init tests', () => {
     );
 
     consoleSpy.mockRestore();
+  });
+
+  test('Session replay configuration', () => {
+    const analytics = {
+      loadOnlyIntegrations: {
+        Mixpanel: {},
+      },
+      logLevel: 'debug',
+    };
+
+    mixpanel = new Mixpanel(
+      {
+        persistenceType: 'localStorage',
+        persistenceName: 'test',
+        sessionReplayPercentage: 50,
+      },
+      analytics,
+      { logLevel: 'debug' },
+    );
+    mixpanel.init();
+
+    expect(window.mixpanel._i[0][1]).toEqual({
+      cross_subdomain_cookie: false,
+      secure_cookie: false,
+      persistence: 'localStorage',
+      persistence_name: 'test',
+      record_sessions_percent: 50,
+      loaded: expect.any(Function),
+    });
   });
 });
 
