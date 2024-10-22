@@ -126,7 +126,7 @@ class Optimizely {
           sendCampaignData(campaignState);
         }
       } catch (e) {
-        logger.error('Page loaded without Optimizely.')
+        logger.error('Page loaded without Optimizely.', e);
       }
     };
 
@@ -134,13 +134,13 @@ class Optimizely {
       let state;
       try {
         state = window?.optimizely?.get('state');
-      } catch (e) {
+      } catch {
         state = undefined;
       }
       if (!state) {
         return undefined;
       }
-      const referrer = state.getRedirectInfo() && state.getRedirectInfo().referrer;
+      const referrer = state.getRedirectInfo()?.referrer;
       if (!referrer) {
         return undefined;
       }
@@ -167,8 +167,8 @@ class Optimizely {
       let state;
       try {
         state = window?.optimizely?.get('state');
-      } catch (e) {
-        state = undefined
+      } catch {
+        state = undefined;
       }
       if (state) {
         const referrer = checkReferrer();
@@ -194,7 +194,6 @@ class Optimizely {
           },
         });
       }
-
     };
     registerCurrentlyActiveCampaigns();
     registerFutureActiveCampaigns();

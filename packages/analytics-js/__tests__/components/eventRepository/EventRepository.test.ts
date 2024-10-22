@@ -1,4 +1,3 @@
-import { batch } from '@preact/signals-core';
 import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import type {
   Destination,
@@ -11,8 +10,10 @@ import { state, resetState } from '../../../src/state';
 import { PluginsManager } from '../../../src/components/pluginsManager';
 import { defaultPluginEngine } from '../../../src/services/PluginEngine';
 import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
-import { defaultLogger } from '../../../src/services/Logger';
 import { StoreManager } from '../../../src/services/StoreManager';
+import type { DataPlaneEventsQueue } from '../../../src/components/dataPlaneEventsQueue/DataPlaneEventsQueue';
+import { HttpClient } from '../../../src/services/HttpClient';
+import { defaultLogger } from '../../../__mocks__/Logger';
 
 describe('EventRepository', () => {
   const defaultPluginsManager = new PluginsManager(
@@ -23,13 +24,9 @@ describe('EventRepository', () => {
 
   const defaultStoreManager = new StoreManager(defaultPluginsManager);
 
-  const mockDestinationsEventsQueue = {
-    scheduleTimeoutActive: false,
-    start: jest.fn(),
-    clear: jest.fn(),
-  };
+  const defaultHttpClient = new HttpClient(defaultLogger);
 
-  const mockDataplaneEventsQueue = {
+  const mockDestinationsEventsQueue = {
     scheduleTimeoutActive: false,
     start: jest.fn(),
     clear: jest.fn(),
@@ -49,7 +46,6 @@ describe('EventRepository', () => {
       if (extPoint === 'transformEvent.init') {
         return mockDMTEventsQueue;
       }
-      return mockDataplaneEventsQueue;
     },
   } as IPluginsManager;
 
@@ -84,60 +80,137 @@ describe('EventRepository', () => {
   ];
 
   beforeEach(() => {
-    batch(() => {
-      resetState();
+    state.lifecycle.activeDataplaneUrl.value = 'https://example.com/dataplane';
+  });
+
+  afterEach(() => {
+    resetState();
+  });
+
+  describe('init', () => {
+    it('should invoke appropriate plugins start on init', () => {
+      const eventRepository = new EventRepository(
+        defaultHttpClient,
+        defaultPluginsManager,
+        defaultStoreManager,
+      );
+      expect(eventRepository.private_dataplaneEventsQueue).toBeDefined();
+
+      const invokeSingleSpy = jest.spyOn(defaultPluginsManager, 'invokeSingle');
+      eventRepository.init();
+
+      expect(invokeSingleSpy).toHaveBeenNthCalledWith(
+        1,
+        'transformEvent.init',
+        state,
+        defaultPluginsManager,
+        expect.objectContaining({}),
+        defaultStoreManager,
+        undefined,
+        undefined,
+      );
+
+      expect(invokeSingleSpy).toHaveBeenNthCalledWith(
+        2,
+        'destinationsEventsQueue.init',
+        state,
+        defaultPluginsManager,
+        defaultStoreManager,
+        undefined,
+        undefined,
+        undefined,
+      );
+      invokeSingleSpy.mockRestore();
+    });
+
+    it('should handle plugin initialization failures', () => {
+      const eventRepository = new EventRepository(
+        defaultHttpClient,
+        defaultPluginsManager,
+        defaultStoreManager,
+        defaultErrorHandler,
+      );
+
+      const invokeSingleSpy = jest
+        .spyOn(defaultPluginsManager, 'invokeSingle')
+        .mockImplementation(() => {
+          throw new Error('test error');
+        });
+
+      const errorHandlerSpy = jest.spyOn(defaultErrorHandler, 'onError');
+
+      eventRepository.init();
+
+      expect(errorHandlerSpy).toHaveBeenCalledTimes(2);
+      expect(errorHandlerSpy).toHaveBeenNthCalledWith(
+        1,
+        new Error('test error'),
+        'EventRepository',
+        'DeviceModeTransformationPlugin initialization failed',
+        undefined,
+      );
+
+      expect(errorHandlerSpy).toHaveBeenNthCalledWith(
+        2,
+        new Error('test error'),
+        'EventRepository',
+        'NativeDestinationQueuePlugin initialization failed',
+        undefined,
+      );
+
+      invokeSingleSpy.mockRestore();
+      errorHandlerSpy.mockRestore();
+    });
+
+    it('should start the destinations events queue when the client destinations are ready', () => {
+      const eventRepository = new EventRepository(
+        defaultHttpClient,
+        mockPluginsManager,
+        defaultStoreManager,
+      );
+
+      eventRepository.init();
+
+      state.nativeDestinations.clientDestinationsReady.value = true;
+
+      expect(mockDestinationsEventsQueue.start).toHaveBeenCalledTimes(1);
+      expect(mockDMTEventsQueue.start).toHaveBeenCalledTimes(1);
+    });
+
+    it('should buffer the data plane events if the pre-consent event delivery strategy is set to buffer', () => {
+      const eventRepository = new EventRepository(
+        defaultHttpClient,
+        mockPluginsManager,
+        defaultStoreManager,
+      );
+
+      state.consents.preConsent.value = {
+        enabled: true,
+        events: {
+          delivery: 'buffer',
+        },
+        storage: {
+          strategy: 'session', // the value should be either 'session' or 'anonymousId'
+        },
+      };
+
+      const dpEventsQueueStartSpy = jest.spyOn(
+        eventRepository.private_dataplaneEventsQueue as DataPlaneEventsQueue,
+        'start',
+      );
+
+      eventRepository.init();
+
+      expect(dpEventsQueueStartSpy).not.toHaveBeenCalled();
     });
   });
 
-  it('should invoke appropriate plugins start on init', () => {
-    const eventRepository = new EventRepository(defaultPluginsManager, defaultStoreManager);
-    const spy = jest.spyOn(defaultPluginsManager, 'invokeSingle');
-    eventRepository.init();
-
-    expect(spy).nthCalledWith(
-      1,
-      'dataplaneEventsQueue.init',
-      state,
-      expect.objectContaining({}),
-      defaultStoreManager,
-      undefined,
-      undefined,
-    );
-    expect(spy).nthCalledWith(
-      2,
-      'transformEvent.init',
-      state,
-      defaultPluginsManager,
-      expect.objectContaining({}),
-      defaultStoreManager,
-      undefined,
-      undefined,
-    );
-    expect(spy).nthCalledWith(
-      3,
-      'destinationsEventsQueue.init',
-      state,
-      defaultPluginsManager,
-      defaultStoreManager,
-      undefined,
-      undefined,
-      undefined,
-    );
-    spy.mockRestore();
-  });
-
-  it('should start the destinations events queue when the client destinations are ready', () => {
-    const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
-
-    eventRepository.init();
-
-    state.nativeDestinations.clientDestinationsReady.value = true;
-
-    expect(mockDestinationsEventsQueue.start).toBeCalledTimes(1);
-  });
-
   it('should start the dataplane events queue when no hybrid destinations are present', () => {
-    const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+    const eventRepository = new EventRepository(
+      defaultHttpClient,
+      mockPluginsManager,
+      defaultStoreManager,
+    );
 
     state.nativeDestinations.activeDestinations.value = [
       {
@@ -158,173 +231,279 @@ describe('EventRepository', () => {
       } as Destination,
     ];
 
+    const dpEventsQueueStartSpy = jest.spyOn(
+      eventRepository.private_dataplaneEventsQueue as DataPlaneEventsQueue,
+      'start',
+    );
+
     eventRepository.init();
 
-    expect(mockDataplaneEventsQueue.start).toBeCalledTimes(1);
+    expect(dpEventsQueueStartSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should start the dataplane events queue when hybrid destinations are present and bufferDataPlaneEventsUntilReady is false', () => {
-    const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+    const eventRepository = new EventRepository(
+      defaultHttpClient,
+      mockPluginsManager,
+      defaultStoreManager,
+    );
 
     state.nativeDestinations.activeDestinations.value = activeDestinationsWithHybridMode;
 
     state.loadOptions.value.bufferDataPlaneEventsUntilReady = false;
 
+    const dpEventsQueueStartSpy = jest.spyOn(
+      eventRepository.private_dataplaneEventsQueue as DataPlaneEventsQueue,
+      'start',
+    );
+
     eventRepository.init();
 
-    expect(mockDataplaneEventsQueue.start).toBeCalledTimes(1);
+    expect(dpEventsQueueStartSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should start the dataplane events queue when hybrid destinations are present and bufferDataPlaneEventsUntilReady is true and client destinations are ready after some time', done => {
-    const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+    const eventRepository = new EventRepository(
+      defaultHttpClient,
+      mockPluginsManager,
+      defaultStoreManager,
+    );
 
     state.nativeDestinations.activeDestinations.value = activeDestinationsWithHybridMode;
 
     state.loadOptions.value.bufferDataPlaneEventsUntilReady = true;
     state.loadOptions.value.dataPlaneEventsBufferTimeout = 3000;
 
+    const dpEventsQueueStartSpy = jest.spyOn(
+      eventRepository.private_dataplaneEventsQueue as DataPlaneEventsQueue,
+      'start',
+    );
+
     eventRepository.init();
 
-    expect(mockDataplaneEventsQueue.start).not.toBeCalled();
+    expect(dpEventsQueueStartSpy).not.toHaveBeenCalled();
 
+    // After 500ms, the client destinations are ready
     setTimeout(() => {
       state.nativeDestinations.clientDestinationsReady.value = true;
-      expect(mockDataplaneEventsQueue.start).toBeCalledTimes(1);
+      expect(dpEventsQueueStartSpy).toHaveBeenCalledTimes(1);
       done();
     }, 500);
   });
 
   it('should start the dataplane events queue when hybrid destinations are present and bufferDataPlaneEventsUntilReady is true and client destinations are not ready until buffer timeout expires', done => {
-    const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+    const eventRepository = new EventRepository(
+      defaultHttpClient,
+      mockPluginsManager,
+      defaultStoreManager,
+    );
 
     state.nativeDestinations.activeDestinations.value = activeDestinationsWithHybridMode;
 
     state.loadOptions.value.bufferDataPlaneEventsUntilReady = true;
     state.loadOptions.value.dataPlaneEventsBufferTimeout = 500;
 
+    const dpEventsQueueStartSpy = jest.spyOn(
+      eventRepository.private_dataplaneEventsQueue as DataPlaneEventsQueue,
+      'start',
+    );
+
     eventRepository.init();
 
-    expect(mockDataplaneEventsQueue.start).not.toBeCalled();
+    expect(dpEventsQueueStartSpy).not.toHaveBeenCalled();
 
+    // After 500ms, the client destinations are ready
     setTimeout(() => {
-      expect(mockDataplaneEventsQueue.start).toBeCalledTimes(1);
+      expect(dpEventsQueueStartSpy).toHaveBeenCalledTimes(1);
       done();
     }, state.loadOptions.value.dataPlaneEventsBufferTimeout + 50);
   });
 
-  it('should pass the enqueued event to both dataplane and destinations events queues', () => {
-    const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+  describe('enqueue', () => {
+    it('should pass the enqueued event to both dataplane and destinations events queues', () => {
+      const eventRepository = new EventRepository(
+        defaultHttpClient,
+        mockPluginsManager,
+        defaultStoreManager,
+      );
 
-    eventRepository.init();
+      eventRepository.init();
 
-    const invokeSingleSpy = jest.spyOn(mockPluginsManager, 'invokeSingle');
-    eventRepository.enqueue(testEvent);
+      eventRepository?.private_dataplaneEventsQueue?.stop();
 
-    expect(invokeSingleSpy).nthCalledWith(
-      1,
-      'dataplaneEventsQueue.enqueue',
-      state,
-      mockDataplaneEventsQueue,
-      {
+      const dpEventsQueueEnqueueSpy = jest.spyOn(
+        eventRepository.private_dataplaneEventsQueue as DataPlaneEventsQueue,
+        'enqueue',
+      );
+
+      const invokeSingleSpy = jest.spyOn(mockPluginsManager, 'invokeSingle');
+      eventRepository.enqueue(testEvent);
+
+      expect(dpEventsQueueEnqueueSpy).toHaveBeenNthCalledWith(1, {
         ...testEvent,
         integrations: { All: true },
-      },
-      undefined,
-      undefined,
-    );
-    expect(invokeSingleSpy).nthCalledWith(
-      2,
-      'destinationsEventsQueue.enqueue',
-      state,
-      mockDestinationsEventsQueue,
-      testEvent,
-      undefined,
-      undefined,
-    );
+      });
 
-    invokeSingleSpy.mockRestore();
-  });
+      expect(invokeSingleSpy).toHaveBeenNthCalledWith(
+        1,
+        'destinationsEventsQueue.enqueue',
+        state,
+        mockDestinationsEventsQueue,
+        {
+          ...testEvent,
+          integrations: { All: true },
+        },
+        undefined,
+        undefined,
+      );
 
-  it('should invoke event callback function if provided', () => {
-    const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
-
-    eventRepository.init();
-
-    const mockEventCallback = jest.fn();
-    eventRepository.enqueue(testEvent, mockEventCallback);
-
-    expect(mockEventCallback).toBeCalledTimes(1);
-    expect(mockEventCallback).toBeCalledWith({
-      ...testEvent,
-      integrations: { All: true },
+      invokeSingleSpy.mockRestore();
+      dpEventsQueueEnqueueSpy.mockRestore();
     });
-  });
 
-  it('should handle error if event callback function throws', () => {
-    const mockErrorHandler = {
-      onError: jest.fn(),
-    } as unknown as IErrorHandler;
+    it('should handle plugin invocation failures when enqueuing events', () => {
+      const eventRepository = new EventRepository(
+        defaultHttpClient,
+        mockPluginsManager,
+        defaultStoreManager,
+        defaultErrorHandler,
+      );
 
-    const eventRepository = new EventRepository(
-      mockPluginsManager,
-      defaultStoreManager,
-      mockErrorHandler,
-    );
+      eventRepository.init();
 
-    eventRepository.init();
+      const invokeSingleSpy = jest
+        .spyOn(mockPluginsManager, 'invokeSingle')
+        .mockImplementation(() => {
+          throw new Error('test error');
+        });
 
-    const mockEventCallback = jest.fn(() => {
-      throw new Error('test error');
+      const errorHandlerSpy = jest.spyOn(defaultErrorHandler, 'onError');
+
+      eventRepository.enqueue(testEvent);
+
+      expect(errorHandlerSpy).toHaveBeenCalledTimes(1);
+      expect(errorHandlerSpy).toHaveBeenCalledWith(
+        new Error('test error'),
+        'EventRepository',
+        'NativeDestinationQueuePlugin event enqueue failed',
+        undefined,
+      );
+
+      invokeSingleSpy.mockRestore();
+      errorHandlerSpy.mockRestore();
     });
-    eventRepository.enqueue(testEvent, mockEventCallback);
 
-    expect(mockErrorHandler.onError).toBeCalledTimes(1);
-    expect(mockErrorHandler.onError).toBeCalledWith(
-      new Error('test error'),
-      'EventRepository',
-      'API Callback Invocation Failed',
-      undefined,
-    );
-  });
+    it('should throw error when plugin invocation fails and no error handler is present', () => {
+      const eventRepository = new EventRepository(
+        defaultHttpClient,
+        mockPluginsManager,
+        defaultStoreManager,
+      );
 
-  it('should buffer the data plane events if the pre-consent event delivery strategy is set to buffer', () => {
-    const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+      eventRepository.init();
 
-    state.consents.preConsent.value = {
-      enabled: true,
-      events: {
-        delivery: 'buffer',
-      },
-      storage: {
-        strategy: 'session', // the value should be either 'session' or 'anonymousId'
-      },
-    };
+      const invokeSingleSpy = jest
+        .spyOn(mockPluginsManager, 'invokeSingle')
+        .mockImplementation(() => {
+          throw new Error('test error');
+        });
 
-    eventRepository.init();
+      expect(() => eventRepository.enqueue(testEvent)).toThrow('test error');
 
-    expect(mockDataplaneEventsQueue.start).not.toBeCalled();
+      invokeSingleSpy.mockRestore();
+    });
+
+    it('should invoke event callback function if provided', () => {
+      const eventRepository = new EventRepository(
+        defaultHttpClient,
+        mockPluginsManager,
+        defaultStoreManager,
+      );
+
+      eventRepository.init();
+
+      const mockEventCallback = jest.fn();
+      eventRepository.enqueue(testEvent, mockEventCallback);
+
+      expect(mockEventCallback).toHaveBeenCalledTimes(1);
+      expect(mockEventCallback).toHaveBeenCalledWith({
+        ...testEvent,
+        integrations: { All: true },
+      });
+    });
+
+    it('should handle error if event callback function throws', () => {
+      const mockErrorHandler = {
+        onError: jest.fn(),
+      } as unknown as IErrorHandler;
+
+      const eventRepository = new EventRepository(
+        defaultHttpClient,
+        mockPluginsManager,
+        defaultStoreManager,
+        mockErrorHandler,
+      );
+
+      eventRepository.init();
+
+      const mockEventCallback = jest.fn(() => {
+        throw new Error('test error');
+      });
+      eventRepository.enqueue(testEvent, mockEventCallback);
+
+      expect(mockErrorHandler.onError).toHaveBeenCalledTimes(1);
+      expect(mockErrorHandler.onError).toHaveBeenCalledWith(
+        new Error('test error'),
+        'EventRepository',
+        'API Callback Invocation Failed',
+        undefined,
+      );
+    });
   });
 
   describe('resume', () => {
     it('should resume events processing on resume', () => {
-      const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+      const eventRepository = new EventRepository(
+        defaultHttpClient,
+        mockPluginsManager,
+        defaultStoreManager,
+      );
+      const dpEventsQueueStartSpy = jest.spyOn(
+        eventRepository.private_dataplaneEventsQueue as DataPlaneEventsQueue,
+        'start',
+      );
       eventRepository.init();
 
       eventRepository.resume();
-      expect(mockDataplaneEventsQueue.start).toBeCalled();
+      expect(dpEventsQueueStartSpy).toHaveBeenCalled();
     });
 
     it('should clear the events queue if discardPreConsentEvents is set to true', () => {
-      const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+      const eventRepository = new EventRepository(
+        defaultHttpClient,
+        mockPluginsManager,
+        defaultStoreManager,
+      );
+      const dpEventsQueueClearSpy = jest.spyOn(
+        eventRepository.private_dataplaneEventsQueue as DataPlaneEventsQueue,
+        'clear',
+      );
 
+      state.consents.preConsent.value.enabled = true;
+      state.consents.preConsent.value.events = {
+        delivery: 'buffer',
+      };
+      state.consents.preConsent.value.storage = {
+        strategy: 'session',
+      };
       state.consents.postConsent.value.discardPreConsentEvents = true;
 
       eventRepository.init();
 
       eventRepository.resume();
 
-      expect(mockDataplaneEventsQueue.clear).toBeCalled();
-      expect(mockDestinationsEventsQueue.clear).toBeCalled();
+      expect(dpEventsQueueClearSpy).toHaveBeenCalled();
+      expect(mockDestinationsEventsQueue.clear).toHaveBeenCalled();
     });
   });
 });

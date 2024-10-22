@@ -52,16 +52,16 @@ const createScriptElement = (
  */
 const insertScript = (newScriptElement: HTMLScriptElement) => {
   // First try to add it to the head
-  const headElements = document.getElementsByTagName('head');
-  if (headElements.length > 0) {
-    headElements[0]?.insertBefore(newScriptElement, headElements[0]?.firstChild);
+  const headElem = document.getElementsByTagName('head')[0];
+  if (headElem) {
+    headElem.insertBefore(newScriptElement, headElem.firstChild);
     return;
   }
 
   // Else wise add it before the first script tag
-  const scriptElements = document.getElementsByTagName('script');
-  if (scriptElements.length > 0 && scriptElements[0]?.parentNode) {
-    scriptElements[0]?.parentNode.insertBefore(newScriptElement, scriptElements[0]);
+  const firstScriptElem = document.getElementsByTagName('script')[0];
+  if (firstScriptElem?.parentNode) {
+    firstScriptElem.parentNode.insertBefore(newScriptElement, firstScriptElem);
     return;
   }
 
@@ -94,7 +94,8 @@ const jsFileLoader = (
   new Promise((resolve, reject) => {
     const scriptExists = document.getElementById(id);
     if (scriptExists) {
-      reject(new Error(SCRIPT_ALREADY_EXISTS_ERROR(id)));
+      reject(new Error(SCRIPT_ALREADY_EXISTS_ERROR(id, url)));
+      return;
     }
 
     try {
@@ -105,9 +106,15 @@ const jsFileLoader = (
         resolve(id);
       };
 
-      const onerror = () => {
+      const onerror = (
+        event: Event | string,
+        source?: string,
+        lineno?: number,
+        colno?: number,
+        error?: Error,
+      ) => {
         (globalThis as typeof window).clearTimeout(timeoutID);
-        reject(new Error(SCRIPT_LOAD_ERROR(id, url)));
+        reject(getMutatedError(error ?? 'no information', SCRIPT_LOAD_ERROR(id, url)));
       };
 
       // Create the DOM element to load the script and add it to the DOM

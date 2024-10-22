@@ -24,7 +24,7 @@
   },
   "targetDefaults": {
     "test": {
-      "inputs": ["default", "^test"],
+      "inputs": ["default", "^production", "^test"],
       "cache": true
     },
     "version": [
@@ -61,6 +61,10 @@
       "inputs": ["default", "^production"],
       "cache": true
     },
+    "build:browser:dev": {
+      "inputs": ["default", "^production"],
+      "cache": true
+    },
     "check:size:json": {
       "inputs": [
         "default",
@@ -75,7 +79,7 @@
       "cache": true
     },
     "test:pre-commit:affected": {
-      "inputs": ["default", "^test"],
+      "inputs": ["default", "^production", "^test"],
       "cache": true
     },
     "check:size:build:pre-commit:affected": {
@@ -115,12 +119,15 @@
       "!{projectRoot}/.size-limit.js",
       "!{projectRoot}/.size-limit.mjs",
       "!{projectRoot}/.jscpd.json",
+      "!{projectRoot}/jest.config.mjs",
+      "!{projectRoot}/rollup-configs/**/*",
       "{workspaceRoot}/tsconfig.build.json",
       "{workspaceRoot}/tsconfig.json",
       "{workspaceRoot}/tsconfig.paths.json",
       "{workspaceRoot}/package.json",
       "{workspaceRoot}/package-lock.json",
       "{workspaceRoot}/babel.config.json",
+      "{workspaceRoot}/babel-plugin-mark-private.mjs",
       "{workspaceRoot}/types/**/*",
       "{workspaceRoot}/nx.json"
     ],
@@ -133,11 +140,6 @@
       "!{projectRoot}/jest.config.mjs"
     ],
     "test": [
-      "{projectRoot}/src/**/*",
-      "{projectRoot}/src/**/*.(spec|test).(j|t)s?(x)",
-      "{projectRoot}/__tests__/**/*",
-      "{projectRoot}/__fixtures__/**/*",
-      "{projectRoot}/__mocks__/**/*",
       "{projectRoot}/jest.config.mjs",
       "{workspaceRoot}/jest/**/*",
       "{workspaceRoot}/jest.preset.js",

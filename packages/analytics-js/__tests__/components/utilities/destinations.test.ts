@@ -1,4 +1,4 @@
-import type { ConfigResponseDestinationItem } from '../../../src/components/configManager/types';
+import type { ConfigResponseDestinationItem } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { filterEnabledDestination } from '../../../src/components/utilities/destinations';
 
 const sampleDestinationResponse1: ConfigResponseDestinationItem[] = [
@@ -25,12 +25,11 @@ const sampleDestinationResponse1: ConfigResponseDestinationItem[] = [
     name: 'GA4 for JS SDK',
     updatedAt: '2023-03-14T11:34:29.216Z',
     enabled: true,
-    deleted: false,
     destinationDefinition: {
       name: 'GA4',
       displayName: 'Google Analytics 4 (GA4)',
-      updatedAt: '2023-03-14T11:21:29.656Z',
     },
+    destinationDefinitionId: 'some-destination-definition-id',
     shouldApplyDeviceModeTransformation: true,
     propagateEventsUntransformedOnError: false,
   },
@@ -57,79 +56,11 @@ const sampleDestinationResponse1: ConfigResponseDestinationItem[] = [
     name: 'Braze for JS SDK',
     updatedAt: '2023-03-14T11:34:29.216Z',
     enabled: true,
-    deleted: false,
     destinationDefinition: {
       name: 'BRAZE',
       displayName: 'Braze',
-      updatedAt: '2023-03-14T11:21:29.656Z',
     },
-    shouldApplyDeviceModeTransformation: false,
-    propagateEventsUntransformedOnError: false,
-  },
-];
-
-const sampleDestinationResponse2: ConfigResponseDestinationItem[] = [
-  {
-    config: {
-      measurementId: 'G-SC6JGSYH6H',
-      capturePageView: 'rs',
-      whitelistedEvents: [
-        {
-          eventName: '',
-        },
-      ],
-      blacklistedEvents: [
-        {
-          eventName: '',
-        },
-      ],
-      useNativeSDKToSend: false,
-      eventFilteringOption: 'disable',
-      extendPageViewParams: false,
-      oneTrustCookieCategories: [],
-    },
-    id: '2LoR1TbVG2bcISXvy7DamldfkgO',
-    name: 'GA4 for JS SDK',
-    updatedAt: '2023-03-14T11:34:29.216Z',
-    enabled: true,
-    deleted: true,
-    destinationDefinition: {
-      name: 'GA4',
-      displayName: 'Google Analytics 4 (GA4)',
-      updatedAt: '2023-03-14T11:21:29.656Z',
-    },
-    shouldApplyDeviceModeTransformation: true,
-    propagateEventsUntransformedOnError: false,
-  },
-  {
-    config: {
-      measurementId: 'G-SC6JGSYH6H',
-      capturePageView: 'rs',
-      whitelistedEvents: [
-        {
-          eventName: '',
-        },
-      ],
-      blacklistedEvents: [
-        {
-          eventName: '',
-        },
-      ],
-      useNativeSDKToSend: false,
-      eventFilteringOption: 'disable',
-      extendPageViewParams: false,
-      oneTrustCookieCategories: [],
-    },
-    id: '2LoR1TbVG2bcISXvy7Damldfkg1',
-    name: 'Braze for JS SDK',
-    updatedAt: '2023-03-14T11:34:29.216Z',
-    enabled: true,
-    deleted: true,
-    destinationDefinition: {
-      name: 'BRAZE',
-      displayName: 'Braze',
-      updatedAt: '2023-03-14T11:21:29.656Z',
-    },
+    destinationDefinitionId: 'some-destination-definition-id',
     shouldApplyDeviceModeTransformation: false,
     propagateEventsUntransformedOnError: false,
   },
@@ -192,10 +123,5 @@ describe('Config manager util - filterEnabledDestination', () => {
   it('should return enabled destinations in specific format', () => {
     const actualOutcome = filterEnabledDestination(sampleDestinationResponse1);
     expect(actualOutcome).toStrictEqual(expectedFilteredDestinations);
-  });
-
-  it('should not return deleted destinations', () => {
-    const actualOutcome = filterEnabledDestination(sampleDestinationResponse2);
-    expect(actualOutcome).toStrictEqual([]);
   });
 });

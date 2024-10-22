@@ -1,12 +1,10 @@
-import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import type { SourceConfigResponse } from '../../../src/components/configManager/types';
+import type { SourceConfigResponse } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import {
   getSDKUrl,
   updateReportingState,
   updateStorageStateFromLoadOptions,
   updateConsentsStateFromLoadOptions,
   updateConsentsState,
-  updateDataPlaneEventsStateFromLoadOptions,
   getSourceConfigURL,
 } from '../../../src/components/configManager/util/commonUtil';
 import {
@@ -14,6 +12,7 @@ import {
   isWebpageTopLevelDomain,
 } from '../../../src/components/configManager/util/validate';
 import { state, resetState } from '../../../src/state';
+import { defaultLogger } from '../../../__mocks__/Logger';
 
 jest.mock('../../../src/components/configManager/util/validate');
 
@@ -31,11 +30,6 @@ const removeScriptElement = () => {
 };
 
 describe('Config Manager Common Utilities', () => {
-  const mockLogger = {
-    warn: jest.fn(),
-    error: jest.fn(),
-  } as unknown as ILogger;
-
   let originalGetDataServiceUrl: (endpoint: string, useExactDomain: boolean) => string;
   let isWebpageTopLevelDomainOriginal: (domain: string) => boolean;
 
@@ -108,11 +102,11 @@ describe('Config Manager Common Utilities', () => {
         },
       } as SourceConfigResponse;
 
-      updateReportingState(mockSourceConfig, mockLogger);
+      updateReportingState(mockSourceConfig);
 
       expect(state.reporting.isErrorReportingEnabled.value).toBe(true);
       expect(state.reporting.isMetricsReportingEnabled.value).toBe(true);
-      expect(mockLogger.warn).not.toHaveBeenCalled();
+      expect(defaultLogger.warn).not.toHaveBeenCalled();
     });
 
     it('should update reporting state with the data from source config even if error reporting provider is not specified', () => {
@@ -131,11 +125,11 @@ describe('Config Manager Common Utilities', () => {
         },
       } as SourceConfigResponse;
 
-      updateReportingState(mockSourceConfig, mockLogger);
+      updateReportingState(mockSourceConfig);
 
       expect(state.reporting.isErrorReportingEnabled.value).toBe(true);
       expect(state.reporting.isMetricsReportingEnabled.value).toBe(true);
-      expect(mockLogger.warn).not.toHaveBeenCalled();
+      expect(defaultLogger.warn).not.toHaveBeenCalled();
     });
   });
 
@@ -161,7 +155,7 @@ describe('Config Manager Common Utilities', () => {
     it('should update storage state with the data even if encryption version is not specified', () => {
       state.loadOptions.value.storage = {};
 
-      updateStorageStateFromLoadOptions(mockLogger);
+      updateStorageStateFromLoadOptions(defaultLogger);
 
       expect(state.storage.encryptionPluginName.value).toBe('StorageEncryption');
     });
@@ -171,10 +165,10 @@ describe('Config Manager Common Utilities', () => {
         type: 'random-type',
       };
 
-      updateStorageStateFromLoadOptions(mockLogger);
+      updateStorageStateFromLoadOptions(defaultLogger);
 
       expect(state.storage.type.value).toBe('cookieStorage');
-      expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect(defaultLogger.warn).toHaveBeenCalledWith(
         'ConfigManager:: The storage type "random-type" is not supported. Please choose one of the following supported types: "localStorage,memoryStorage,cookieStorage,sessionStorage,none". The default type "cookieStorage" will be used instead.',
       );
     });
@@ -186,10 +180,10 @@ describe('Config Manager Common Utilities', () => {
         },
       };
 
-      updateStorageStateFromLoadOptions(mockLogger);
+      updateStorageStateFromLoadOptions(defaultLogger);
 
       expect(state.storage.encryptionPluginName.value).toBe('StorageEncryption');
-      expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect(defaultLogger.warn).toHaveBeenCalledWith(
         'ConfigManager:: The storage encryption version "v2" is not supported. Please choose one of the following supported versions: "v3,legacy". The default version "v3" will be used instead.',
       );
     });
@@ -201,7 +195,7 @@ describe('Config Manager Common Utilities', () => {
         },
       };
 
-      updateStorageStateFromLoadOptions(mockLogger);
+      updateStorageStateFromLoadOptions(defaultLogger);
 
       expect(state.storage.encryptionPluginName.value).toBe('StorageEncryptionLegacy');
     });
@@ -214,10 +208,10 @@ describe('Config Manager Common Utilities', () => {
         migrate: true,
       };
 
-      updateStorageStateFromLoadOptions(mockLogger);
+      updateStorageStateFromLoadOptions(defaultLogger);
 
       expect(state.storage.migrate.value).toBe(false);
-      expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect(defaultLogger.warn).toHaveBeenCalledWith(
         'ConfigManager:: The storage data migration has been disabled because the configured storage encryption version (legacy) is not the latest (v3). To enable storage data migration, please update the storage encryption version to the latest version.',
       );
     });
@@ -230,7 +224,7 @@ describe('Config Manager Common Utilities', () => {
         },
       };
 
-      updateStorageStateFromLoadOptions(mockLogger);
+      updateStorageStateFromLoadOptions(defaultLogger);
 
       expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(false);
       expect(state.storage.cookie.value).toEqual({
@@ -241,7 +235,7 @@ describe('Config Manager Common Utilities', () => {
     it('should set the value of isEnabledServerSideCookies to false if the useServerSideCookies is set to true but the dataServiceUrl is not valid url', () => {
       state.loadOptions.value.useServerSideCookies = true;
       (getDataServiceUrl as jest.Mock).mockImplementation(() => 'invalid-url');
-      updateStorageStateFromLoadOptions(mockLogger);
+      updateStorageStateFromLoadOptions(defaultLogger);
 
       expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(false);
     });
@@ -249,7 +243,7 @@ describe('Config Manager Common Utilities', () => {
     it('should set the value of isEnabledServerSideCookies to true if the useServerSideCookies is set to true and the dataServiceUrl is a valid url', () => {
       state.loadOptions.value.useServerSideCookies = true;
       (getDataServiceUrl as jest.Mock).mockImplementation(() => 'https://www.dummy.url');
-      updateStorageStateFromLoadOptions(mockLogger);
+      updateStorageStateFromLoadOptions(defaultLogger);
 
       expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(true);
       expect(state.serverCookies.dataServiceUrl.value).toBe('https://www.dummy.url');
@@ -260,7 +254,7 @@ describe('Config Manager Common Utilities', () => {
       state.loadOptions.value.sameDomainCookiesOnly = true;
 
       (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
-      updateStorageStateFromLoadOptions(mockLogger);
+      updateStorageStateFromLoadOptions(defaultLogger);
 
       expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(true);
       expect(state.serverCookies.dataServiceUrl.value).toBe('https://www.test-host.com/rsaRequest');
@@ -271,7 +265,7 @@ describe('Config Manager Common Utilities', () => {
       state.loadOptions.value.setCookieDomain = 'www.test-host.com';
 
       (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
-      updateStorageStateFromLoadOptions(mockLogger);
+      updateStorageStateFromLoadOptions(defaultLogger);
 
       expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(true);
       expect(state.serverCookies.dataServiceUrl.value).toBe('https://www.test-host.com/rsaRequest');
@@ -283,7 +277,7 @@ describe('Config Manager Common Utilities', () => {
 
       (isWebpageTopLevelDomain as jest.Mock).mockImplementation(isWebpageTopLevelDomainOriginal);
       (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
-      updateStorageStateFromLoadOptions(mockLogger);
+      updateStorageStateFromLoadOptions(defaultLogger);
 
       expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(true);
       expect(state.serverCookies.dataServiceUrl.value).toBe('https://test-host.com/rsaRequest');
@@ -295,10 +289,10 @@ describe('Config Manager Common Utilities', () => {
 
       (isWebpageTopLevelDomain as jest.Mock).mockImplementation(isWebpageTopLevelDomainOriginal);
       (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
-      updateStorageStateFromLoadOptions(mockLogger);
+      updateStorageStateFromLoadOptions(defaultLogger);
 
       expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(false);
-      expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect(defaultLogger.warn).toHaveBeenCalledWith(
         "ConfigManager:: The provided cookie domain (random-host.com) does not match the current webpage's domain (www.test-host.com). Hence, the cookies will be set client-side.",
       );
     });
@@ -309,7 +303,7 @@ describe('Config Manager Common Utilities', () => {
       state.loadOptions.value.sameDomainCookiesOnly = true;
 
       (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
-      updateStorageStateFromLoadOptions(mockLogger);
+      updateStorageStateFromLoadOptions(defaultLogger);
 
       expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(true);
     });
@@ -357,10 +351,10 @@ describe('Config Manager Common Utilities', () => {
         provider: 'randomManager',
       };
 
-      updateConsentsStateFromLoadOptions(mockLogger);
+      updateConsentsStateFromLoadOptions(defaultLogger);
 
       expect(state.consents.activeConsentManagerPluginName.value).toBe(undefined);
-      expect(mockLogger.error).toHaveBeenCalledWith(
+      expect(defaultLogger.error).toHaveBeenCalledWith(
         'ConfigManager:: The consent manager "randomManager" is not supported. Please choose one of the following supported consent managers: "iubenda,oneTrust,ketch,custom".',
       );
     });
@@ -381,7 +375,7 @@ describe('Config Manager Common Utilities', () => {
         },
       };
 
-      updateConsentsStateFromLoadOptions(mockLogger);
+      updateConsentsStateFromLoadOptions(defaultLogger);
 
       expect(state.consents.preConsent.value).toStrictEqual({
         enabled: true,
@@ -392,7 +386,7 @@ describe('Config Manager Common Utilities', () => {
           delivery: 'immediate',
         },
       });
-      expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect(defaultLogger.warn).toHaveBeenCalledWith(
         'ConfigManager:: The pre-consent storage strategy "random-strategy" is not supported. Please choose one of the following supported strategies: "none, session, anonymousId". The default strategy "none" will be used instead.',
       );
     });
@@ -413,7 +407,7 @@ describe('Config Manager Common Utilities', () => {
         },
       };
 
-      updateConsentsStateFromLoadOptions(mockLogger);
+      updateConsentsStateFromLoadOptions(defaultLogger);
 
       expect(state.consents.preConsent.value).toStrictEqual({
         enabled: true,
@@ -424,7 +418,7 @@ describe('Config Manager Common Utilities', () => {
           delivery: 'immediate',
         },
       });
-      expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect(defaultLogger.warn).toHaveBeenCalledWith(
         'ConfigManager:: The pre-consent events delivery type "random-delivery" is not supported. Please choose one of the following supported types: "immediate, buffer". The default type "immediate" will be used instead.',
       );
     });
@@ -597,60 +591,21 @@ describe('Config Manager Common Utilities', () => {
     });
   });
 
-  describe('updateDataPlaneEventsStateFromLoadOptions', () => {
-    beforeEach(() => {
-      resetState();
-    });
-
-    it('should not set the events queue plugin name if events delivery is disabled', () => {
-      state.dataPlaneEvents.deliveryEnabled.value = false;
-
-      updateDataPlaneEventsStateFromLoadOptions(mockLogger);
-
-      expect(state.dataPlaneEvents.eventsQueuePluginName.value).toBeUndefined();
-    });
-
-    it('should set the events queue plugin name to XhrQueue by default', () => {
-      updateDataPlaneEventsStateFromLoadOptions(mockLogger);
-
-      expect(state.dataPlaneEvents.eventsQueuePluginName.value).toMatch('XhrQueue');
-    });
-
-    it('should set the events queue plugin name to BeaconQueue if beacon transport is selected', () => {
-      state.loadOptions.value.useBeacon = true;
-
-      // Force set the beacon availability
-      state.capabilities.isBeaconAvailable.value = true;
-
-      updateDataPlaneEventsStateFromLoadOptions(mockLogger);
-
-      expect(state.dataPlaneEvents.eventsQueuePluginName.value).toMatch('BeaconQueue');
-    });
-
-    it('should set the events queue plugin name to XhrQueue if beacon transport is selected but not available', () => {
-      state.loadOptions.value.useBeacon = true;
-
-      // Force set the beacon availability to false
-      state.capabilities.isBeaconAvailable.value = false;
-
-      updateDataPlaneEventsStateFromLoadOptions(mockLogger);
-
-      expect(state.dataPlaneEvents.eventsQueuePluginName.value).toMatch('XhrQueue');
-      expect(mockLogger.warn).toHaveBeenCalledWith(
-        'ConfigManager:: The Beacon API is not supported by your browser. The events will be sent using XHR instead.',
-      );
-    });
-  });
-
   describe('getSourceConfigURL', () => {
     it('should return default source config URL if invalid source config URL is provided', () => {
-      const sourceConfigURL = getSourceConfigURL('invalid-url', 'writekey', true, true, mockLogger);
+      const sourceConfigURL = getSourceConfigURL(
+        'invalid-url',
+        'writekey',
+        true,
+        true,
+        defaultLogger,
+      );
 
       expect(sourceConfigURL).toBe(
         'https://api.rudderstack.com/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=true&lockPluginsVersion=true',
       );
 
-      expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect(defaultLogger.warn).toHaveBeenCalledWith(
         'ConfigManager:: The provided source config URL "invalid-url" is invalid. Using the default source config URL instead.',
       );
     });

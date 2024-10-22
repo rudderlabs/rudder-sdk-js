@@ -16,7 +16,7 @@ import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { IdentifyTraits } from '@rudderstack/analytics-js-common/types/traits';
 import type { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { checks } from '../shared-chunks/common';
+import { checks, time } from '../shared-chunks/common';
 import { eventMethodOverloads, destinations } from '../shared-chunks/deviceModeDestinations';
 import type { DeviceModeDestinationsAnalyticsInstance } from './types';
 import {
@@ -34,26 +34,14 @@ import {
  * Determines if the destination SDK code is evaluated
  * @param destSDKIdentifier The name of the global globalThis object that contains the destination SDK
  * @param sdkTypeName The name of the destination SDK type
- * @param logger Logger instance
  * @returns true if the destination SDK code is evaluated, false otherwise
  */
-const isDestinationSDKMounted = (
-  destSDKIdentifier: string,
-  sdkTypeName: string,
-  logger?: ILogger,
-): boolean =>
+const isDestinationSDKMounted = (destSDKIdentifier: string, sdkTypeName: string): boolean =>
   Boolean(
-    (globalThis as any)[destSDKIdentifier] &&
-      (globalThis as any)[destSDKIdentifier][sdkTypeName] &&
-      (globalThis as any)[destSDKIdentifier][sdkTypeName].prototype &&
+    (globalThis as any)[destSDKIdentifier]?.[sdkTypeName]?.prototype &&
       typeof (globalThis as any)[destSDKIdentifier][sdkTypeName].prototype.constructor !==
         'undefined',
   );
-
-const wait = (time: number) =>
-  new Promise(resolve => {
-    (globalThis as typeof window).setTimeout(resolve, time);
-  });
 
 const createDestinationInstance = (
   destSDKIdentifier: string,
@@ -141,25 +129,23 @@ const createDestinationInstance = (
   return deviceModeDestination;
 };
 
-const isDestinationReady = (dest: Destination, time = 0) =>
+const isDestinationReady = (dest: Destination, delay = 0) =>
   new Promise((resolve, reject) => {
     const instance = dest.instance as DeviceModeDestination;
     if (instance.isLoaded() && (!instance.isReady || instance.isReady())) {
       resolve(true);
-    } else if (time >= READY_CHECK_TIMEOUT_MS) {
+    } else if (delay >= READY_CHECK_TIMEOUT_MS) {
       reject(
         new Error(DESTINATION_READY_TIMEOUT_ERROR(READY_CHECK_TIMEOUT_MS, dest.userFriendlyId)),
       );
     } else {
       const curTime = Date.now();
-      wait(READY_CHECK_INTERVAL_MS)
-        .then(() => {
-          const elapsedTime = Date.now() - curTime;
-          isDestinationReady(dest, time + elapsedTime)
-            .then(resolve)
-            .catch(err => reject(err));
-        })
-        .catch(err => reject(err));
+      time.wait(READY_CHECK_INTERVAL_MS).then(() => {
+        const elapsedTime = Date.now() - curTime;
+        isDestinationReady(dest, delay + elapsedTime)
+          .then(resolve)
+          .catch((err: Error) => reject(err));
+      });
     }
   });
 
@@ -177,17 +163,22 @@ const getCumulativeIntegrationsConfig = (
   errorHandler?: IErrorHandler,
 ): IntegrationOpts => {
   let integrationsConfig: IntegrationOpts = curDestIntgConfig;
-  if (checks.isFunction(dest.instance?.getDataForIntegrationsObject)) {
+  const { userFriendlyId, instance } = dest;
+
+  // We have reached this point after destination instance is created
+  // So, we can safely cast the instance to DeviceModeDestination
+  const destInstance = instance as DeviceModeDestination;
+  if (checks.isFunction(destInstance.getDataForIntegrationsObject)) {
     try {
       integrationsConfig = mergeDeepRight(
         curDestIntgConfig,
-        dest.instance?.getDataForIntegrationsObject(),
+        destInstance.getDataForIntegrationsObject(),
       );
-    } catch (err) {
+    } catch (err: any) {
       errorHandler?.onError(
         err,
         DEVICE_MODE_DESTINATIONS_PLUGIN,
-        DESTINATION_INTEGRATIONS_DATA_ERROR(dest.userFriendlyId),
+        DESTINATION_INTEGRATIONS_DATA_ERROR(userFriendlyId),
       );
     }
   }
@@ -234,7 +225,7 @@ const initializeDestination = (
         // The error message is already formatted in the isDestinationReady function
         logger?.error(err);
       });
-  } catch (err) {
+  } catch (err: any) {
     state.nativeDestinations.failedDestinations.value = [
       ...state.nativeDestinations.failedDestinations.value,
       dest,
@@ -250,7 +241,6 @@ const initializeDestination = (
 
 export {
   isDestinationSDKMounted,
-  wait,
   createDestinationInstance,
   isDestinationReady,
   getCumulativeIntegrationsConfig,

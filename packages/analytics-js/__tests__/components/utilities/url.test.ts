@@ -55,22 +55,4 @@ describe('utilities - url', () => {
       expect(extractUTMParameters('abcd')).toEqual({});
     });
   });
-
-  describe('removeTrailingSlashes', () => {
-    const testCases = [
-      // expected, input
-      ['https://rudderlabs.com', 'https://rudderlabs.com/'],
-      ['https://rudderlabs.com', 'https://rudderlabs.com//'],
-      ['https://rudderlabs.com', 'https://rudderlabs.com'],
-      ['/rudderlabs.com', '/rudderlabs.com/'],
-      ['https://rudderlabs.com/sub/path', 'https://rudderlabs.com/sub/path/'],
-      ['asdf', 'asdf/'],
-      [undefined, undefined],
-      [null, null],
-    ];
-
-    it.each(testCases)('should return %p if input is %p', (expected, input) => {
-      expect(removeTrailingSlashes(input)).toBe(expected);
-    });
-  });
 });

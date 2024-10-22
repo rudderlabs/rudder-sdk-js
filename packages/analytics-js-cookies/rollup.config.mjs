@@ -27,7 +27,6 @@ let outDirNpm = `${outDir}${variantSubfolder}`;
 const distName = 'rsaCookies';
 const modName = 'rsaCookies';
 
-
 export function getDefaultConfig(distName) {
   const version = process.env.VERSION || 'dev-snapshot';
 
@@ -35,9 +34,7 @@ export function getDefaultConfig(distName) {
     watch: {
       include: ['src/**'],
     },
-    external: [
-      ...Object.keys(pkg.peerDependencies || {})
-    ],
+    external: [...Object.keys(pkg.peerDependencies || {})],
     onwarn(warning, warn) {
       // Silence 'this' has been rewritten to 'undefined' warning
       // https://rollupjs.org/guide/en/#error-this-is-undefined
@@ -76,6 +73,7 @@ export function getDefaultConfig(distName) {
         exclude: ['node_modules/@babel/**', 'node_modules/core-js/**'],
         extensions: [...DEFAULT_EXTENSIONS, '.ts'],
         sourcemap: sourceMapType,
+        plugins: ['../../babel-plugin-mark-private.mjs'],
       }),
       process.env.UGLIFY === 'true' &&
         terser({
@@ -83,6 +81,11 @@ export function getDefaultConfig(distName) {
           ecma: isLegacyBuild ? 2015 : 2017,
           format: {
             comments: false,
+          },
+          mangle: {
+            properties: {
+              regex: /^private_/, // Only mangle properties starting with 'private_'
+            },
           },
         }),
       filesize({
@@ -96,7 +99,7 @@ export function getDefaultConfig(distName) {
           open: true,
           gzipSize: true,
           brotliSize: true,
-        })
+        }),
     ],
   };
 }
@@ -155,11 +158,11 @@ const buildEntries = () => {
             {
               find: '@rudderstack/analytics-js-common',
               replacement: path.resolve('./dist/dts/packages/analytics-js-common/src'),
-            }
-          ]
+            },
+          ],
         }),
         dts(),
-        del({ hook: "buildEnd", targets: "./dist/dts" }),
+        del({ hook: 'buildEnd', targets: './dist/dts' }),
       ],
       output: [
         {
@@ -169,10 +172,10 @@ const buildEntries = () => {
         {
           file: `${outDir}/index.d.cts`,
           format: 'es',
-        }
-      ]
-    }
+        },
+      ],
+    },
   ];
-}
+};
 
 export default buildEntries();

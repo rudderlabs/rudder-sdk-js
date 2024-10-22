@@ -44,7 +44,7 @@ function getDefaultPageProperties() {
     try {
       const urlObj = new URL(canonicalUrl);
       path = urlObj.pathname;
-    } catch (err) {
+    } catch {
       // Do nothing
     }
   }
@@ -52,11 +52,15 @@ function getDefaultPageProperties() {
   const { search, href } = window.location;
   const { title } = document;
   const url = getUrl(search);
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   const tab_url = href;
 
   const referrer = getReferrer();
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   const referring_domain = getReferringDomain(referrer);
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   const initial_referrer = Storage.getInitialReferrer() || '';
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   const initial_referring_domain = Storage.getInitialReferringDomain() || '';
   return {
     path,

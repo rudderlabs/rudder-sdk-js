@@ -25,10 +25,7 @@ const isObjectAndNotNull = (value: any): value is object =>
 const isObjectLiteralAndNotNull = <T>(value?: T): value is T =>
   !isNull(value) && Object.prototype.toString.call(value) === '[object Object]';
 
-const mergeDeepRightObjectArrays = (
-  leftValue: any | any[],
-  rightValue: any | any[],
-): any | any[] => {
+const mergeDeepRightObjectArrays = (leftValue: any, rightValue: any): any => {
   if (!Array.isArray(leftValue) || !Array.isArray(rightValue)) {
     return clone(rightValue);
   }
@@ -91,18 +88,12 @@ const removeUndefinedAndNullValues = <T = Record<string, any>>(obj: T): T => {
   return result as T;
 };
 
-/**
- * A utility to get all the values from an object
- * @param obj Input object
- * @returns an array of values from the input object
- */
-const getObjectValues = <T = Record<string, any>>(obj: T): any[] => {
-  const result: any[] = [];
-  Object.keys(obj as Record<string, any>).forEach(key => {
-    result.push((obj as Record<string, any>)[key]);
-  });
+const getNormalizedObjectValue = (val: any): any => {
+  if (!isNonEmptyObject(val)) {
+    return undefined;
+  }
 
-  return result;
+  return removeUndefinedAndNullValues(val);
 };
 
 export {
@@ -115,5 +106,5 @@ export {
   isObjectLiteralAndNotNull,
   removeUndefinedValues,
   removeUndefinedAndNullValues,
-  getObjectValues,
+  getNormalizedObjectValue,
 };

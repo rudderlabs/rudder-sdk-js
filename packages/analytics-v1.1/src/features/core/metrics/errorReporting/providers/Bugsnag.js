@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { configToIntNames } from '@rudderstack/analytics-js-common/constants/integrations/config_to_integration_names';
+import { configToIntNames } from '@rudderstack/analytics-js-common/constants/integrations/configToIntgNames';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import {
   ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME,
@@ -39,15 +39,11 @@ const getReleaseStage = () => {
 
 const isValidVersion = globalLibInstance => {
   // For version 7
-  let version =
-    globalLibInstance &&
-    globalLibInstance._client &&
-    globalLibInstance._client._notifier &&
-    globalLibInstance._client._notifier.version;
+  let version = globalLibInstance?._client?._notifier?.version;
 
   // For versions older than 7
   if (!version) {
-    let tempInstance = globalLibInstance({
+    const tempInstance = globalLibInstance({
       apiKey: API_KEY,
       releaseStage: 'version-test',
       // eslint-disable-next-line func-names, object-shorthand
@@ -55,8 +51,7 @@ const isValidVersion = globalLibInstance => {
         return false;
       },
     });
-    version = tempInstance.notifier && tempInstance.notifier.version;
-    tempInstance = undefined;
+    version = tempInstance.notifier?.version;
   }
 
   return version && version.charAt(0) === BUGSNAG_VALID_MAJOR_VERSION;
@@ -123,10 +118,7 @@ class BugsnagProvider {
    */
   init() {
     // Return if RS Bugsnag instance is already initialized or should not init
-    if (
-      window.RudderStackGlobals &&
-      window.RudderStackGlobals[ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME]
-    ) {
+    if (window.RudderStackGlobals?.[ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME]) {
       return;
     }
 
@@ -134,8 +126,8 @@ class BugsnagProvider {
       return;
     }
 
-    const apiKeyRegex = /{{.+}}/;
-    const isAPIKeyValid = !API_KEY.match(apiKeyRegex);
+    // eslint-disable-next-line sonarjs/slow-regex
+    const isAPIKeyValid = !/{{.+}}/.exec(API_KEY);
 
     // If API key token is not parsed or invalid, don't proceed to initialize the client
     if (!isAPIKeyValid) {

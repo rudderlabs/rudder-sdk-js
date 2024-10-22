@@ -190,8 +190,8 @@ describe('Amplitude', () => {
 
       // Mock the navigator object for Microsoft Internet Explorer
       navigatorSpy.mockReturnValue({
-        userAgent: '',
-        appVersion: 'Trident/7.0',
+        userAgent:
+          'Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0; MSN 11.7; MSNbMSNI; MSNmen-us; MSNcOTH) like Gecko',
       });
 
       const amplitude = new Amplitude(destinationConfig, analyticsInstance, destinationInfo);

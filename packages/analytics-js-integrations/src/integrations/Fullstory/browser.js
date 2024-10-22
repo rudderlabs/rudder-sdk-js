@@ -142,7 +142,6 @@ class Fullstory {
   }
 
   page(rudderElement) {
-
     const rudderMessage = rudderElement.message;
     const pageName = rudderMessage.name;
     const props = {
