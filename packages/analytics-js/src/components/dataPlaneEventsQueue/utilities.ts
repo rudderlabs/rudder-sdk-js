@@ -39,9 +39,9 @@ const getNormalizedQueueOptions = (loadOptions: LoadOptions): QueueOpts => {
 };
 
 /**
- * Mutates the event and return final event for delivery
- * Updates certain parameters like sentAt timestamp, integrations config etc.
+ * Utility to update the sentAt timestamp of the event to the current timestamp
  * @param event RudderEvent object
+ * @param currentTime Current timestamp
  * @returns Final event ready to be delivered
  */
 const getFinalEventForDeliveryMutator = (event: RudderEvent, currentTime: string): RudderEvent => {
@@ -95,7 +95,7 @@ const getRequestInfo = (
       getFinalEventForDeliveryMutator(queueItemData.event, currentTime),
     );
     data = getBatchDeliveryPayload(finalEvents, currentTime, logger);
-    headers = itemData[0] ? clone(itemData[0].headers) : {};
+    headers = clone(itemData[0]?.headers);
     url = getBatchDeliveryUrl(state.lifecycle.activeDataplaneUrl.value as string);
   } else {
     const { url: eventUrl, event, headers: eventHeaders } = itemData;
@@ -120,7 +120,7 @@ const logErrorOnFailure = (
   const dropMsg = `The event(s) will be dropped.`;
   if (isRetryableFailure) {
     if (willBeRetried) {
-      finalErrMsg = `${errMsg} It/they will be retried.`;
+      finalErrMsg = `${finalErrMsg} It/they will be retried.`;
       if ((attemptNumber as number) > 0) {
         finalErrMsg = `${finalErrMsg} Retry attempt ${attemptNumber} of ${maxRetryAttempts}.`;
       }
