@@ -15,6 +15,7 @@ const onPageLeave = (callback: (isAccessible: boolean) => void) => {
 
     // Reset pageLeft on the next tick
     // to ensure callback executes for other listeners
+    // when closing an inactive browser tab.
     setTimeout(() => {
       pageLeft = false;
     }, 0);

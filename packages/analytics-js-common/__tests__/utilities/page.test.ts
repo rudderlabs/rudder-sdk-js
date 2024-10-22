@@ -17,6 +17,7 @@ describe('onPageLeave', () => {
   };
 
   beforeEach(() => {
+    jest.useFakeTimers();
     setVisibilityState('visible');
   });
 
@@ -190,13 +191,14 @@ describe('onPageLeave', () => {
     setVisibilityState('hidden');
     dispatchDocumentEvent('visibilitychange');
 
-    dispatchWindowEvent('beforeunload');
-
     expect(evCallback).toHaveBeenCalledTimes(1);
     expect(evCallback).toHaveBeenNthCalledWith(1, true);
-    setTimeout(() => {
-      expect(evCallback).toHaveBeenCalledTimes(1);
-      expect(evCallback).toHaveBeenNthCalledWith(1, false);
-    }, 0);
+
+    jest.runAllTimers();
+
+    dispatchWindowEvent('beforeunload');
+
+    expect(evCallback).toHaveBeenCalledTimes(2);
+    expect(evCallback).toHaveBeenNthCalledWith(2, false);
   });
 });
