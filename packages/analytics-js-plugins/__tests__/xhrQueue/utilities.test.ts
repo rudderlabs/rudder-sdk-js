@@ -361,28 +361,5 @@ describe('xhrQueue Plugin Utilities', () => {
         '[Circular Reference]',
       );
     });
-
-    it('should return null if the payload cannot be stringified', () => {
-      const events = [
-        {
-          channel: 'test',
-          type: 'track',
-          anonymousId: 'test',
-          properties: {
-            someBigInt: BigInt(9007199254740991),
-          },
-        } as unknown as RudderEvent,
-        {
-          channel: 'test',
-          type: 'track',
-          anonymousId: 'test',
-          properties: {
-            test1: 'test1',
-          },
-        } as unknown as RudderEvent,
-      ];
-
-      expect(getBatchDeliveryPayload(events, currentTime, mockLogger)).toBeNull();
-    });
   });
 });

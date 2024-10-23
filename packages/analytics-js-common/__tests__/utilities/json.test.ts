@@ -64,13 +64,13 @@ describe('Common Utils - JSON', () => {
       objWithCircular.keyToExclude = null;
       objWithCircular.keyToNotExclude = '';
 
-      const json = stringifyWithoutCircular(objWithCircular, true);
+      const json = stringifyWithoutCircular(objWithCircular);
       expect(json).toContain(circularReferenceNotice);
       expect(json).not.toContain('keyToExclude');
       expect(json).toContain('keyToNotExclude');
     });
 
-    it('should stringify json with out circular references', () => {
+    it('should stringify json without circular references', () => {
       const objWithoutCircular = clone(identifyTraitsPayloadMock);
       objWithoutCircular.myself = {};
 
@@ -78,7 +78,7 @@ describe('Common Utils - JSON', () => {
       expect(json).not.toContain(circularReferenceNotice);
     });
 
-    it('should stringify json with out circular references and reused objects', () => {
+    it('should stringify json without circular references and reused objects', () => {
       const objWithoutCircular = clone(identifyTraitsPayloadMock);
       const reusableArray = [1, 2, 3];
       const reusableObject = { dummy: 'val' };
@@ -124,19 +124,34 @@ describe('Common Utils - JSON', () => {
       expect(stringJson).toBe('""');
       expect(objectJson).toBe('{}');
       expect(dateJson).toBe('"2023-02-19T18:30:00.000Z"');
-      expect(nullJson).toBe('null');
+      expect(nullJson).toBeUndefined();
       expect(undefinedJson).toBe(undefined);
     });
 
     it('should stringify json after removing the exclude keys', () => {
       const objWithoutCircular = clone(identifyTraitsPayloadMock);
 
-      const json = stringifyWithoutCircular(objWithoutCircular, true, ['size', 'city']);
+      const json = stringifyWithoutCircular(objWithoutCircular, {
+        excludeNull: true,
+        excludeKeys: ['size', 'city'],
+      });
       expect(json).not.toContain('size');
       expect(json).not.toContain('city');
     });
 
-    it('should return null for input containing BigInt values', () => {
+    it('should remove BigInt values from input', () => {
+      const objWithBigInt = {
+        bigInt: BigInt(9007199254740991),
+        other: {
+          anotherBigInt: BigInt(9007199254740991),
+          someKey: 'someValue',
+        },
+      };
+      const json = stringifyWithoutCircular(objWithBigInt);
+      expect(json).toBe('{"other":{"someKey":"someValue"}}');
+    });
+
+    it('should not exclude BigInt values and return null when configured', () => {
       const mockLogger = {
         warn: jest.fn(),
       };
@@ -144,12 +159,21 @@ describe('Common Utils - JSON', () => {
       const objWithBigInt = {
         bigInt: BigInt(9007199254740991),
       };
-      const json = stringifyWithoutCircular(objWithBigInt, false, [], mockLogger);
+      const json = stringifyWithoutCircular(objWithBigInt, { excludeBigInt: false }, mockLogger);
       expect(json).toBe(null);
       expect(mockLogger.warn).toHaveBeenCalledWith(
         'Failed to convert the value to a JSON string.',
         new TypeError('Do not know how to serialize a BigInt'),
       );
+    });
+
+    it('should not exclude null values when configured', () => {
+      const objWithNull = {
+        key1: 'value1',
+        key2: null,
+      };
+      const json = stringifyWithoutCircular(objWithNull, { excludeNull: false });
+      expect(json).toBe('{"key1":"value1","key2":null}');
     });
   });
 });

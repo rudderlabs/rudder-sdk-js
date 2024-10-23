@@ -305,7 +305,7 @@ class UserSessionManager implements IUserSessionManager {
     const encryptedCookieData: EncryptedCookieData[] = [];
     cookiesData.forEach(cData => {
       const encryptedValue = store?.encrypt(
-        stringifyWithoutCircular(cData.value, false, [], this.logger),
+        stringifyWithoutCircular(cData.value, { excludeNull: false }),
       );
       if (isDefinedAndNotNull(encryptedValue)) {
         encryptedCookieData.push({
@@ -368,8 +368,8 @@ class UserSessionManager implements IUserSessionManager {
           if (details?.xhr?.status === 200) {
             cookiesData.forEach(cData => {
               const cookieValue = store?.get(cData.name);
-              const before = stringifyWithoutCircular(cData.value, false, []);
-              const after = stringifyWithoutCircular(cookieValue, false, []);
+              const before = stringifyWithoutCircular(cData.value, { excludeNull: false });
+              const after = stringifyWithoutCircular(cookieValue, { excludeNull: false });
               if (after !== before) {
                 this.logger?.error(FAILED_SETTING_COOKIE_FROM_SERVER_ERROR(cData.name));
                 if (cb) {

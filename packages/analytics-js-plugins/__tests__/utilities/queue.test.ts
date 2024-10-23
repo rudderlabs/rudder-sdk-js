@@ -232,18 +232,6 @@ describe('Queue Plugins Utilities', () => {
 
       expect(getDeliveryPayload(event, mockLogger)).toContain('[Circular Reference]');
     });
-
-    it('should return null if the payload cannot be stringified', () => {
-      const event = {
-        channel: 'test',
-        type: 'track',
-        properties: {
-          someBigInt: BigInt(9007199254740991),
-        },
-      } as unknown as RudderEvent;
-
-      expect(getDeliveryPayload(event, mockLogger)).toBeNull();
-    });
   });
 
   describe('validateEventPayloadSize', () => {
@@ -300,28 +288,6 @@ describe('Queue Plugins Utilities', () => {
       validateEventPayloadSize(event, mockLogger);
 
       expect(mockLogger.warn).not.toHaveBeenCalled();
-    });
-
-    it('should log a warning if the payload size could not be calculated', () => {
-      const event = {
-        channel: 'test',
-        type: 'track',
-        traits: {
-          trait_1: 'trait_1',
-          trait_2: 'trait_2',
-        },
-        userId: 'test',
-        properties: {
-          test: 'test',
-          test1: BigInt(9007199254740991),
-        },
-      } as unknown as RudderEvent;
-
-      validateEventPayloadSize(event, mockLogger);
-
-      expect(mockLogger.warn).toHaveBeenCalledWith(
-        'QueueUtilities:: Failed to validate event payload size. Please make sure that the event payload is within the size limit and is a valid JSON object.',
-      );
     });
   });
 });

@@ -109,7 +109,7 @@ class Store implements IStore {
       // storejs that is used in localstorage engine already stringifies json
       this.engine.setItem(
         validKey,
-        this.encrypt(stringifyWithoutCircular(value, false, [], this.logger)),
+        this.encrypt(stringifyWithoutCircular(value, { excludeNull: false })),
       );
     } catch (err) {
       if (isStorageQuotaExceeded(err)) {
@@ -208,7 +208,7 @@ class Store implements IStore {
       ? this.pluginsManager.invokeSingle<string>(extensionPointName, value)
       : value;
 
-    return typeof formattedValue === 'undefined' ? value : formattedValue ?? '';
+    return typeof formattedValue === 'undefined' ? value : (formattedValue ?? '');
   }
 
   /**
