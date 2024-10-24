@@ -188,7 +188,7 @@ describe('Logger', () => {
     );
   });
 
-  it(`should default the min log level to error if incorrectly set`, () => {
+  it(`should default the min log level to log if incorrectly set`, () => {
     loggerInstance = new Logger();
     loggerInstance.setMinLogLevel('dummy' as LogLevel);
     loggerInstance.error('dummy error msg');
@@ -199,6 +199,6 @@ describe('Logger', () => {
     );
 
     loggerInstance.warn('dummy warn msg');
-    expect(console.warn).not.toHaveBeenCalled();
+    expect(console.warn).toHaveBeenCalled();
   });
 });
