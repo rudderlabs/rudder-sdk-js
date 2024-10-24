@@ -13,7 +13,7 @@ const getEncryptedValueInternal = (
 ): Nullable<string> => {
   const fallbackValue = null;
   try {
-    const strValue = stringifyWithoutCircular(value, false);
+    const strValue = stringifyWithoutCircular(value, { excludeNull: false });
     if (isNull(strValue)) {
       return null;
     }

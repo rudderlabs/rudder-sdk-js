@@ -1,25 +1,26 @@
 import type { ILogger } from '../types/Logger';
 import type { Nullable } from '../types/Nullable';
-import { isNull, isNullOrUndefined } from './checks';
+import { isBigInt, isNull } from './checks';
 import { CIRCULAR_REFERENCE_WARNING, JSON_STRINGIFY_WARNING } from '../constants/logMessages';
+import type { StringifyOptions } from '../types/stringify';
 
 const JSON_STRINGIFY = 'JSONStringify';
 
 const getCircularReplacer = (
-  excludeNull?: boolean,
-  excludeKeys?: string[],
+  options?: StringifyOptions,
   logger?: ILogger,
 ): ((key: string, value: any) => any) => {
+  const { excludeKeys = [], excludeNull = true, excludeBigInt = true } = options ?? {};
   const ancestors: any[] = [];
 
   // Here we do not want to use arrow function to use "this" in function context
   // eslint-disable-next-line func-names
   return function (key, value): any {
-    if (excludeKeys?.includes(key)) {
-      return undefined;
-    }
-
-    if (excludeNull && isNullOrUndefined(value)) {
+    if (
+      (excludeNull && isNull(value)) ||
+      (excludeBigInt && isBigInt(value)) ||
+      excludeKeys.includes(key)
+    ) {
       return undefined;
     }
 
@@ -47,19 +48,18 @@ const getCircularReplacer = (
 /**
  * Utility method for JSON stringify object excluding null values & circular references
  *
- * @param {*} value input
- * @param {boolean} excludeNull if it should exclude nul or not
- * @param {function} logger optional logger methods for warning
+ * @param {*} value input value
+ * @param {StringifyOptions} options optional options for excluding keys and null values
+ * @param {function} logger optional logger instance
  * @returns string
  */
 const stringifyWithoutCircular = <T = Record<string, any> | any[] | number | string>(
-  value?: Nullable<T>,
-  excludeNull?: boolean,
-  excludeKeys?: string[],
+  value: Nullable<T>,
+  options?: StringifyOptions,
   logger?: ILogger,
 ): Nullable<string> => {
   try {
-    return JSON.stringify(value, getCircularReplacer(excludeNull, excludeKeys, logger));
+    return JSON.stringify(value, getCircularReplacer(options, logger));
   } catch (err) {
     logger?.warn(JSON_STRINGIFY_WARNING, err);
     return null;
