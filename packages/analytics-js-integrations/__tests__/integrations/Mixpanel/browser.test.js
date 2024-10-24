@@ -147,8 +147,6 @@ describe('Init tests', () => {
       secure_cookie: false,
       persistence: 'localStorage',
       persistence_name: 'test',
-      record_block_class: 'block-class',
-      record_collect_fonts: true,
       loaded: expect.any(Function),
     });
   });
@@ -286,7 +284,6 @@ describe('Init tests', () => {
       loaded: expect.any(Function),
     });
   });
-
 });
 
 describe('isLoaded and isReady tests', () => {

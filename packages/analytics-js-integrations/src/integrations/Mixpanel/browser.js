@@ -103,30 +103,32 @@ class Mixpanel {
     }
 
     const mixpanelIntgConfig = getDestinationOptions(this.analytics.loadOnlyIntegrations);
-    // ref : https://docs.mixpanel.com/docs/tracking-methods/sdks/javascript#session-replay
-    if (mixpanelIntgConfig) {
-      const sessionReplayConfig = {
-        record_block_class: mixpanelIntgConfig.recordBlockClass,
-        record_collect_fonts: mixpanelIntgConfig.recordCollectFonts,
-        record_idle_timeout_ms: mixpanelIntgConfig.recordIdleTimeout,
-        record_mask_text_class: mixpanelIntgConfig.recordMaskTextClass,
-        record_mask_text_selector: mixpanelIntgConfig.recordMaskTextSelector,
-        record_max_ms: mixpanelIntgConfig.recordMaxMs,
-        record_min_ms: mixpanelIntgConfig.recordMinMs,
-      };
-      options = { ...options, ...removeUndefinedAndNullValues(sessionReplayConfig) };
-    }
 
+    // ref : https://docs.mixpanel.com/docs/tracking-methods/sdks/javascript#session-replay
     if (isDefinedAndNotNull(this.sessionReplayPercentage)) {
       const percentageInt = parseInt(this.sessionReplayPercentage, 10);
       if (percentageInt >= 0 && percentageInt <= 100) {
         options.record_sessions_percent = percentageInt;
+
+        if (mixpanelIntgConfig) {
+          const sessionReplayConfig = removeUndefinedAndNullValues({
+            record_block_class: mixpanelIntgConfig.recordBlockClass,
+            record_collect_fonts: mixpanelIntgConfig.recordCollectFonts,
+            record_idle_timeout_ms: mixpanelIntgConfig.recordIdleTimeout,
+            record_mask_text_class: mixpanelIntgConfig.recordMaskTextClass,
+            record_mask_text_selector: mixpanelIntgConfig.recordMaskTextSelector,
+            record_max_ms: mixpanelIntgConfig.recordMaxMs,
+            record_min_ms: mixpanelIntgConfig.recordMinMs,
+          });
+          options = { ...options, ...sessionReplayConfig };
+        }
       } else {
         logger.warn(
           `Invalid sessionReplayPercentage: ${this.sessionReplayPercentage}. It should be a string matching the pattern "^(100|[1-9]?[0-9])$"`,
         );
       }
     }
+
     options.loaded = () => {
       this.isNativeSDKLoaded = true;
     };
