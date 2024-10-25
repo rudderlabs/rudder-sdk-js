@@ -32,7 +32,7 @@ import {
   trackArgumentsToCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
 import { BufferQueue } from '@rudderstack/analytics-js-common/services/BufferQueue/BufferQueue';
-import { defaultLogger } from '../../services/Logger';
+import { POST_LOAD_LOG_LEVEL, defaultLogger } from '../../services/Logger';
 import { defaultErrorHandler } from '../../services/ErrorHandler';
 import { defaultPluginEngine } from '../../services/PluginEngine';
 import { PluginsManager } from '../pluginsManager';
@@ -129,9 +129,7 @@ class Analytics implements IAnalytics {
     });
 
     // set log level as early as possible
-    if (state.loadOptions.value.logLevel) {
-      this.logger?.setMinLogLevel(state.loadOptions.value.logLevel);
-    }
+    this.logger?.setMinLogLevel(state.loadOptions.value.logLevel ?? POST_LOAD_LOG_LEVEL);
 
     // Expose state to global objects
     setExposedGlobal('state', state, writeKey);

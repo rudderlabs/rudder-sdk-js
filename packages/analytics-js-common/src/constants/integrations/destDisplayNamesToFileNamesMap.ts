@@ -158,6 +158,8 @@ import {
   CommandBarDirectoryName,
   NinetailedDisplayName,
   NinetailedDirectoryName,
+  Gainsight_PXDisplayName,
+  Gainsight_PXDirectoryName,
   XPixelDisplayName,
   XPixelDirectoryName,
 } from './destinationNames';
@@ -243,6 +245,7 @@ const destDisplayNamesToFileNamesMap: Record<string, string> = {
   [SpotifyPixelDisplayName]: SpotifyPixelDirectoryName,
   [CommandBarDisplayName]: CommandBarDirectoryName,
   [NinetailedDisplayName]: NinetailedDirectoryName,
+  [Gainsight_PXDisplayName]: Gainsight_PXDirectoryName,
   [XPixelDisplayName]: XPixelDirectoryName,
 };
 

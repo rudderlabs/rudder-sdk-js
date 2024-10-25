@@ -78,10 +78,10 @@ npm install @rudderstack/analytics-js --save
 ```javascript
 import { RudderAnalytics } from '@rudderstack/analytics-js';
 
-const rudderanalytics = new RudderAnalytics();
+const rudderAnalytics = new RudderAnalytics();
 rudderAnalytics.load(<WRITE_KEY>, <DATA_PLANE_URL>, {});
 
-export { rudderanalytics };
+export { rudderAnalytics };
 ```
 
 - **For CJS using the `require` method**:
@@ -92,7 +92,7 @@ var RudderAnalytics = require('@rudderstack/analytics-js');
 const rudderAnalytics = new RudderAnalytics();
 rudderAnalytics.load(<WRITE_KEY>, <DATA_PLANE_URL>, {});
 
-exports.rudderanalytics = rudderAnalytics;
+exports.rudderAnalytics = rudderAnalytics;
 ```
 
 ### Sample implementations
