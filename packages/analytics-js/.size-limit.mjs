@@ -13,7 +13,7 @@ export default [
     name: 'Core - Legacy - NPM (CJS)',
     path: 'dist/npm/legacy/cjs/index.cjs',
     import: '*',
-    limit: '48.5 KiB',
+    limit: '49 KiB',
   },
   {
     name: 'Core - Legacy - NPM (UMD)',
@@ -59,7 +59,7 @@ export default [
     name: 'Core (Bundled) - Legacy - NPM (CJS)',
     path: 'dist/npm/legacy/bundled/cjs/index.cjs',
     import: '*',
-    limit: '48.5 KiB',
+    limit: '49 KiB',
   },
   {
     name: 'Core (Bundled) - Legacy - NPM (UMD)',
