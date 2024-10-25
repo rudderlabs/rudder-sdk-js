@@ -17,8 +17,8 @@ import type {
 import type { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import { RS_APP } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import type { IdentifyTraits } from '@rudderstack/analytics-js-common/types/traits';
+import { getSanitizedValue } from '@rudderstack/analytics-js-common/utilities/json';
 import { GLOBAL_PRELOAD_BUFFER } from '../constants/app';
 import {
   getPreloadedLoadEvent,
@@ -29,7 +29,7 @@ import { setExposedGlobal } from '../components/utilities/globals';
 import type { IAnalytics } from '../components/core/IAnalytics';
 import { Analytics } from '../components/core/Analytics';
 import { defaultLogger } from '../services/Logger/Logger';
-import { EMPTY_GROUP_CALL_ERROR, WRITE_KEY_NOT_A_STRING_ERROR } from '../constants/logMessages';
+import { EMPTY_GROUP_CALL_ERROR } from '../constants/logMessages';
 import { defaultErrorHandler } from '../services/ErrorHandler';
 
 // TODO: add analytics restart/reset mechanism
@@ -116,21 +116,24 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   }
 
   /**
-   * Create new analytics instance and trigger application lifecycle start
+   * Loads the SDK
+   * @param writeKey Source write key
+   * @param dataPlaneUrl Data plane URL
+   * @param loadOptions Additional options for loading the SDK
+   * @returns none
    */
   load(writeKey: string, dataPlaneUrl: string, loadOptions?: Partial<LoadOptions>) {
-    if (!isString(writeKey)) {
-      this.logger.error(WRITE_KEY_NOT_A_STRING_ERROR(RS_APP, writeKey));
-      return;
-    }
-
     if (this.analyticsInstances[writeKey]) {
       return;
     }
 
     this.setDefaultInstanceKey(writeKey);
     this.analyticsInstances[writeKey] = new Analytics();
-    this.getAnalyticsInstance(writeKey).load(writeKey, dataPlaneUrl, loadOptions);
+    this.getAnalyticsInstance(writeKey).load(
+      writeKey,
+      dataPlaneUrl,
+      getSanitizedValue(loadOptions),
+    );
   }
 
   /**
@@ -211,7 +214,13 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     callback?: ApiCallback,
   ) {
     this.getAnalyticsInstance().page(
-      pageArgumentsToCallOptions(category, name, properties, options, callback),
+      pageArgumentsToCallOptions(
+        getSanitizedValue(category),
+        getSanitizedValue(name),
+        getSanitizedValue(properties),
+        getSanitizedValue(options),
+        callback,
+      ),
     );
   }
 
@@ -234,7 +243,12 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     callback?: ApiCallback,
   ) {
     this.getAnalyticsInstance().track(
-      trackArgumentsToCallOptions(event, properties, options, callback),
+      trackArgumentsToCallOptions(
+        getSanitizedValue(event),
+        getSanitizedValue(properties),
+        getSanitizedValue(options),
+        callback,
+      ),
     );
   }
 

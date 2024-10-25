@@ -173,11 +173,6 @@ describe('Cookie Utilities', () => {
       );
     });
 
-    it('should return null if the input cannot be json stringified', () => {
-      const inputVal = { testKey: BigInt(123) };
-      expect(getEncryptedValueBrowser(inputVal)).toBeNull();
-    });
-
     it('should return encoded value if the input contains unicode characters', () => {
       const inputVal = { testKey: '✓' };
       expect(getEncryptedValueBrowser(inputVal)).toBe('RS_ENC_v3_eyJ0ZXN0S2V5Ijoi4pyTIn0=');
@@ -247,11 +242,6 @@ describe('Cookie Utilities', () => {
       expect(getEncryptedValue({ testKey: 'test-value' })).toBe(
         'RS_ENC_v3_eyJ0ZXN0S2V5IjoidGVzdC12YWx1ZSJ9',
       );
-    });
-
-    it('should return null if the input cannot be json stringified', () => {
-      const inputVal = { testKey: BigInt(123) };
-      expect(getEncryptedValue(inputVal)).toBeNull();
     });
 
     it('should return encoded value if the input contains unicode characters', () => {

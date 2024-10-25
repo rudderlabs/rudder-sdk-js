@@ -1,12 +1,11 @@
 /* eslint-disable prefer-promise-reject-errors */
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
-import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
+import { stringifyData } from '@rudderstack/analytics-js-common/utilities/json';
 import { isNull } from '@rudderstack/analytics-js-common/utilities/checks';
 import type {
   IXHRRequestOptions,
   ResponseDetails,
 } from '@rudderstack/analytics-js-common/types/HttpClient';
-import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
 import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js-common/constants/errors';
 import { DEFAULT_XHR_TIMEOUT_MS } from '../../../constants/timeouts';
@@ -57,14 +56,13 @@ const createXhrRequestOptions = (
 const xhrRequest = (
   options: IXHRRequestOptions,
   timeout = DEFAULT_XHR_TIMEOUT_MS,
-  logger?: ILogger,
 ): Promise<ResponseDetails> =>
   new Promise((resolve, reject) => {
     let payload;
     if (options.sendRawData === true) {
       payload = options.data;
     } else {
-      payload = stringifyWithoutCircular(options.data, false, [], logger);
+      payload = stringifyData(options.data);
       if (isNull(payload)) {
         reject({
           error: new Error(XHR_PAYLOAD_PREP_ERROR),

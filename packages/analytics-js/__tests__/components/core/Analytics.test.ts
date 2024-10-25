@@ -128,13 +128,6 @@ describe('Core - Analytics', () => {
       expect(setMinLogLevelSpy).toHaveBeenCalledWith('ERROR');
       expect(setExposedGlobal).toHaveBeenCalledWith('state', state, dummyWriteKey);
     });
-    it('should load the analytics script without dataPlaneUrl with the given options', () => {
-      const startLifecycleSpy = jest.spyOn(analytics, 'startLifecycle');
-      analytics.load(dummyWriteKey, { logLevel: 'ERROR' });
-      expect(state.lifecycle.status.value).toBe('browserCapabilitiesReady');
-      expect(startLifecycleSpy).toHaveBeenCalledTimes(1);
-      expect(setExposedGlobal).toHaveBeenCalledWith('state', state, dummyWriteKey);
-    });
   });
 
   describe('loadConfig', () => {

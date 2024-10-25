@@ -5,27 +5,10 @@ import {
   type StorageType,
 } from '@rudderstack/analytics-js-common/types/Storage';
 import { isValidURL } from '@rudderstack/analytics-js-common/utilities/url';
-import {
-  WRITE_KEY_VALIDATION_ERROR,
-  DATA_PLANE_URL_VALIDATION_ERROR,
-} from '../../../constants/logMessages';
 
-const validateWriteKey = (writeKey?: string) => {
-  if (!isString(writeKey) || (writeKey as string).trim().length === 0) {
-    throw new Error(WRITE_KEY_VALIDATION_ERROR(writeKey));
-  }
-};
+const isWriteKeyValid = (writeKey: string) => isString(writeKey) && writeKey.trim().length > 0;
 
-const validateDataPlaneUrl = (dataPlaneUrl?: string) => {
-  if (!isValidURL(dataPlaneUrl)) {
-    throw new Error(DATA_PLANE_URL_VALIDATION_ERROR(dataPlaneUrl));
-  }
-};
-
-const validateLoadArgs = (writeKey?: string, dataPlaneUrl?: string) => {
-  validateWriteKey(writeKey);
-  validateDataPlaneUrl(dataPlaneUrl);
-};
+const isDataPlaneUrlValid = (dataPlaneUrl: string) => isValidURL(dataPlaneUrl);
 
 const isValidSourceConfig = (res: any): boolean =>
   isObjectLiteralAndNotNull(res) &&
@@ -75,12 +58,11 @@ const isWebpageTopLevelDomain = (providedDomain: string): boolean => {
 };
 
 export {
-  validateLoadArgs,
   isValidSourceConfig,
   isValidStorageType,
-  validateWriteKey,
-  validateDataPlaneUrl,
   getTopDomainUrl,
   getDataServiceUrl,
   isWebpageTopLevelDomain,
+  isWriteKeyValid,
+  isDataPlaneUrlValid,
 };
