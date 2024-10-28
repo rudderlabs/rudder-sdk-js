@@ -22,6 +22,7 @@ import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import type { IdentifyTraits } from '@rudderstack/analytics-js-common/types/traits';
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { onPageLeave } from '@rudderstack/analytics-js-common/utilities/page';
+import { getFormattedTimestamp } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import { GLOBAL_PRELOAD_BUFFER } from '../constants/app';
 import {
   getPreloadedLoadEvent,
@@ -181,16 +182,20 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
       options: autoTrackOptions = {},
       pageLifecycle,
     } = autoTrack ?? {};
+
     const {
       events = [PageLifecycleEvents.LOADED, PageLifecycleEvents.UNLOADED],
-      enabled = autoTrackEnabled,
+      enabled: pageLifecycleEnabled = autoTrackEnabled,
       options = autoTrackOptions,
     } = pageLifecycle ?? {};
 
-    state.autoTrack.enabled.value = autoTrackEnabled;
-    state.autoTrack.pageLifecycle.enabled.value = enabled;
+    // Set the autoTrack enabled state
+    // if at least one of the autoTrack options is enabled
+    state.autoTrack.enabled.value = autoTrackEnabled || pageLifecycleEnabled;
 
-    if (!enabled) {
+    state.autoTrack.pageLifecycle.enabled.value = pageLifecycleEnabled;
+
+    if (!pageLifecycleEnabled) {
       return;
     }
     this.trackPageLoadedEvent(events, options, preloadedEventsArray);
@@ -213,12 +218,12 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
       preloadedEventsArray.unshift([
         'track',
         PageLifecycleEvents.LOADED,
-        { visitId: state.autoTrack.pageLifecycle.visitId.value },
+        {},
         {
           ...options,
-          originalTimestamp: new Date(
-            state.autoTrack.pageLifecycle.pageLoadedTimestamp.value as number,
-          ).toISOString(),
+          originalTimestamp: getFormattedTimestamp(
+            new Date(state.autoTrack.pageLifecycle.pageLoadedTimestamp.value as number),
+          ),
         },
       ]);
     }
@@ -237,38 +242,30 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   ) {
     if (events.length === 0 || events.includes(PageLifecycleEvents.UNLOADED)) {
       if (useBeacon === true) {
-        this.registerPageUnloadListener(options);
+        onPageLeave((isAccessible: boolean) => {
+          if (isAccessible === false && state.lifecycle.loaded.value) {
+            const pageUnloadedTimestamp = Date.now();
+            const visitDuration =
+              pageUnloadedTimestamp -
+              (state.autoTrack.pageLifecycle.pageLoadedTimestamp.value as number);
+
+            this.track(
+              PageLifecycleEvents.UNLOADED,
+              {
+                visitDuration,
+              },
+              {
+                ...options,
+                originalTimestamp: getFormattedTimestamp(new Date(pageUnloadedTimestamp)),
+              },
+            );
+          }
+        });
       } else {
         // throw warning if beacon is disabled
         this.logger.warn(PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING(RS_APP));
       }
     }
-  }
-
-  /**
-   * Register page unload listener to track page unload event
-   * @param options
-   */
-  private registerPageUnloadListener(options: ApiOptions) {
-    onPageLeave((isAccessible: boolean) => {
-      if (isAccessible === false && state.lifecycle.loaded.value) {
-        const pageUnloadedTimestamp = Date.now();
-        const visitDuration =
-          pageUnloadedTimestamp -
-          (state.autoTrack.pageLifecycle.pageLoadedTimestamp.value as number);
-        this.track(
-          PageLifecycleEvents.UNLOADED,
-          {
-            visitId: state.autoTrack.pageLifecycle.visitId.value,
-            visitDuration,
-          },
-          {
-            ...options,
-            originalTimestamp: new Date(pageUnloadedTimestamp).toISOString(),
-          },
-        );
-      }
-    });
   }
 
   /**
