@@ -339,12 +339,7 @@ describe('trackPageLifecycleEvents', () => {
     });
 
     expect(bufferedEvents).toEqual([
-      [
-        'track',
-        'Page Loaded',
-        { visitId: expect.any(String) },
-        { key: 'value', originalTimestamp: expect.any(String) },
-      ],
+      ['track', 'Page Loaded', {}, { key: 'value', originalTimestamp: expect.any(String) }],
     ]);
   });
 
@@ -375,12 +370,7 @@ describe('trackPageLifecycleEvents', () => {
     });
 
     expect(bufferedEvents).toEqual([
-      [
-        'track',
-        'Page Loaded',
-        { visitId: expect.any(String) },
-        { originalTimestamp: expect.any(String) },
-      ],
+      ['track', 'Page Loaded', {}, { originalTimestamp: expect.any(String) }],
     ]);
   });
 
@@ -402,7 +392,7 @@ describe('trackPageLifecycleEvents', () => {
 
     expect(rudderAnalyticsInstance.track).toHaveBeenCalledWith(
       'Page Unloaded',
-      { visitId: expect.any(String), visitDuration: expect.any(Number) },
+      { visitDuration: expect.any(Number) },
       { originalTimestamp: expect.any(String) },
     );
   });
