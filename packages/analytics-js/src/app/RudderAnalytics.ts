@@ -438,7 +438,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   ) {
     this.getAnalyticsInstance().alias(
       aliasArgumentsToCallOptions(
-        to,
+        getSanitizedValue(to),
         getSanitizedValue(from),
         getSanitizedValue(options),
         callback,

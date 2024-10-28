@@ -1,14 +1,9 @@
 import { isObjectLiteralAndNotNull } from '@rudderstack/analytics-js-common/utilities/object';
-import { isNullOrUndefined, isString } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import {
   SUPPORTED_STORAGE_TYPES,
   type StorageType,
 } from '@rudderstack/analytics-js-common/types/Storage';
-import { isValidURL } from '@rudderstack/analytics-js-common/utilities/url';
-
-const isWriteKeyValid = (writeKey: string) => isString(writeKey) && writeKey.trim().length > 0;
-
-const isDataPlaneUrlValid = (dataPlaneUrl: string) => isValidURL(dataPlaneUrl);
 
 const isValidSourceConfig = (res: any): boolean =>
   isObjectLiteralAndNotNull(res) &&
@@ -63,6 +58,4 @@ export {
   getTopDomainUrl,
   getDataServiceUrl,
   isWebpageTopLevelDomain,
-  isWriteKeyValid,
-  isDataPlaneUrlValid,
 };

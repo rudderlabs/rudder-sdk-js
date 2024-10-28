@@ -67,8 +67,7 @@ import {
 } from '../../constants/logMessages';
 import type { IAnalytics } from './IAnalytics';
 import { getConsentManagementData, getValidPostConsentOptions } from '../utilities/consent';
-import { dispatchSDKEvent } from './utilities';
-import { isWriteKeyValid, isDataPlaneUrlValid } from '../configManager/util/validate';
+import { dispatchSDKEvent, isDataPlaneUrlValid, isWriteKeyValid } from './utilities';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events
