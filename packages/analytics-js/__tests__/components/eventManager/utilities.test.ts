@@ -44,7 +44,7 @@ const sampleAnonId = 'sample-anon-id';
 const sampleIntegrations = { All: true, 'Sample Integration': true };
 const sampleOriginalTimestamp = 'sample-timestamp';
 
-// @ts-ignore
+// @ts-expect-error Omitted other fields for brevity
 const defaultContext = {
   library: {
     name: 'test',
@@ -69,13 +69,6 @@ const defaultContext = {
   },
   userAgent: 'defaultUA',
 } as RudderContext;
-
-const resetApplicationState = () => {
-  batch(() => {
-    state.session.initialReferrer.value = undefined;
-    state.session.initialReferringDomain.value = undefined;
-  });
-};
 
 describe('Event Manager - Utilities', () => {
   class MockLogger implements ILogger {
@@ -229,7 +222,7 @@ describe('Event Manager - Utilities', () => {
 
   describe('getEnrichedEvent', () => {
     beforeEach(() => {
-      resetApplicationState();
+      resetState();
     });
 
     it('should return processed event if the event processor plugin is registered', () => {
@@ -254,9 +247,13 @@ describe('Event Manager - Utilities', () => {
         state.context.screen.value = { width: 100, height: 100 } as ScreenInfo;
         state.context.os.value = { name: 'test', version: '1.0' } as OSInfo;
         state.context.timezone.value = 'GMT+0530';
+
+        state.autoTrack.enabled.value = true;
+        state.autoTrack.pageLifecycle.enabled.value = true;
+        state.autoTrack.pageLifecycle.visitId.value = 'visit_id';
       });
 
-      // @ts-ignore
+      // @ts-expect-error Omitted other fields for brevity
       const event = {
         name: 'test_name',
         category: 'test_category',
@@ -330,6 +327,11 @@ describe('Event Manager - Utilities', () => {
             initial_referring_domain: 'https://test.com',
           },
           userId: 'overridden_user_id',
+          autoTrack: {
+            page: {
+              visitId: 'visit_id',
+            },
+          },
         },
         originalTimestamp: '2020-01-01T00:00:00.000Z',
         properties: {
@@ -937,108 +939,6 @@ describe('Event Manager - Utilities', () => {
       expect(rudderEvent.anonymousId).toEqual(defaultAnonId);
       expect(rudderEvent.integrations).toEqual(defaultIntegrations);
       expect(rudderEvent.originalTimestamp).toEqual(defaultOriginalTimestamp);
-    });
-  });
-
-  describe('getEnrichedEvent', () => {
-    const pageProperties: ApiObject = {
-      path: '/test',
-      referrer: 'https://www.google.com/test',
-      search: '?test=true',
-      title: 'test page',
-      url: 'https://www.rudderlabs.com/test',
-      referring_domain: 'www.google.com',
-      tab_url: 'https://www.rudderlabs.com/test1',
-      initial_referrer: 'https://www.google.com/test1',
-      initial_referring_domain: 'www.google.com',
-    } as ApiObject;
-
-    beforeEach(() => {
-      resetApplicationState();
-    });
-
-    it('should return common event data using the data in state', () => {
-      batch(() => {
-        state.session.anonymousId.value = 'anon_id';
-        state.session.userTraits.value = { test: 'test' };
-        state.session.userId.value = 'user_id';
-        state.session.sessionInfo.value = { sessionStart: true, id: 1234 } as SessionInfo;
-        state.session.initialReferrer.value = 'initial_referrer';
-        state.session.initialReferringDomain.value = 'initial_referring_domain';
-
-        state.consents.data.value.deniedConsentIds = ['id1', 'id2'];
-
-        state.context['ua-ch'].value = { mobile: true } as UADataValues;
-        state.context.app.value = { name: 'test', version: '1.0' } as AppInfo;
-        state.context.library.value = { name: 'test', version: '1.0' } as LibraryInfo;
-        state.context.locale.value = 'en-US';
-        state.context.userAgent.value = 'test';
-        state.context.screen.value = { width: 100, height: 100 } as ScreenInfo;
-        state.context.os.value = { name: 'test', version: '1.0' } as OSInfo;
-        state.context.timezone.value = 'GMT+0530';
-      });
-
-      const rudderEvent = {
-        type: 'track',
-        event: 'test_event',
-      } as RudderEvent;
-
-      const options = {
-        anonymousId: 'modified_anon_id',
-      };
-
-      const enrichedEvent = getEnrichedEvent(rudderEvent, options, pageProperties);
-
-      expect(enrichedEvent).toEqual({
-        event: 'test_event',
-        type: 'track',
-        anonymousId: 'modified_anon_id',
-        channel: 'web',
-        context: {
-          page: {
-            path: pageProperties.path,
-            referrer: pageProperties.referrer,
-            search: pageProperties.search,
-            title: pageProperties.title,
-            url: pageProperties.url,
-            referring_domain: pageProperties.referring_domain,
-            tab_url: pageProperties.tab_url,
-            initial_referrer: pageProperties.initial_referrer,
-            initial_referring_domain: pageProperties.initial_referring_domain,
-          },
-          traits: { test: 'test' },
-          sessionId: 1234,
-          sessionStart: true,
-          campaign: {},
-          library: {
-            name: 'test',
-            version: '1.0',
-          },
-          locale: 'en-US',
-          userAgent: 'test',
-          screen: {
-            height: 100,
-            width: 100,
-          },
-          os: {
-            name: 'test',
-            version: '1.0',
-          },
-          app: {
-            name: 'test',
-            version: '1.0',
-          },
-          'ua-ch': {
-            mobile: true,
-          },
-          timezone: 'GMT+0530',
-        },
-        properties: null,
-        originalTimestamp: '2020-01-01T00:00:00.000Z',
-        integrations: { All: true },
-        messageId: 'test_uuid',
-        userId: 'user_id',
-      });
     });
   });
 
