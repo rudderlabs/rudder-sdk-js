@@ -22,6 +22,7 @@ import type { IdentifyTraits } from '@rudderstack/analytics-js-common/types/trai
 import { getSanitizedValue } from '@rudderstack/analytics-js-common/utilities/json';
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { onPageLeave } from '@rudderstack/analytics-js-common/utilities/page';
+import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { GLOBAL_PRELOAD_BUFFER } from '../constants/app';
 import {
   getPreloadedLoadEvent,
@@ -105,7 +106,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    * TODO: to support multiple analytics instances in the near future
    */
   setDefaultInstanceKey(writeKey: string) {
-    if (writeKey) {
+    if (isString(writeKey) && writeKey) {
       this.defaultAnalyticsKey = writeKey;
     }
   }
@@ -114,7 +115,10 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    * Retrieve an existing analytics instance
    */
   getAnalyticsInstance(writeKey?: string): IAnalytics {
-    const instanceId = writeKey ?? this.defaultAnalyticsKey;
+    let instanceId = writeKey;
+    if (!isString(instanceId) || !instanceId) {
+      instanceId = this.defaultAnalyticsKey;
+    }
 
     const analyticsInstanceExists = Boolean(this.analyticsInstances[instanceId]);
 
@@ -409,7 +413,12 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     callback?: ApiCallback,
   ) {
     this.getAnalyticsInstance().identify(
-      identifyArgumentsToCallOptions(userId, traits, options, callback),
+      identifyArgumentsToCallOptions(
+        getSanitizedValue(userId),
+        getSanitizedValue(traits),
+        getSanitizedValue(options),
+        callback,
+      ),
     );
   }
 
@@ -427,7 +436,14 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     options?: Nullable<ApiOptions> | ApiCallback,
     callback?: ApiCallback,
   ) {
-    this.getAnalyticsInstance().alias(aliasArgumentsToCallOptions(to, from, options, callback));
+    this.getAnalyticsInstance().alias(
+      aliasArgumentsToCallOptions(
+        to,
+        getSanitizedValue(from),
+        getSanitizedValue(options),
+        callback,
+      ),
+    );
   }
 
   /**
@@ -460,20 +476,28 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     }
 
     this.getAnalyticsInstance().group(
-      groupArgumentsToCallOptions(groupId, traits, options, callback),
+      groupArgumentsToCallOptions(
+        getSanitizedValue(groupId),
+        getSanitizedValue(traits),
+        getSanitizedValue(options),
+        callback,
+      ),
     );
   }
 
   reset(resetAnonymousId?: boolean) {
-    this.getAnalyticsInstance().reset(resetAnonymousId);
+    this.getAnalyticsInstance().reset(getSanitizedValue(resetAnonymousId));
   }
 
   getAnonymousId(options?: AnonymousIdOptions) {
-    return this.getAnalyticsInstance().getAnonymousId(options);
+    return this.getAnalyticsInstance().getAnonymousId(getSanitizedValue(options));
   }
 
   setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string) {
-    this.getAnalyticsInstance().setAnonymousId(anonymousId, rudderAmpLinkerParam);
+    this.getAnalyticsInstance().setAnonymousId(
+      getSanitizedValue(anonymousId),
+      getSanitizedValue(rudderAmpLinkerParam),
+    );
   }
 
   getUserId() {
@@ -505,11 +529,11 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   }
 
   setAuthToken(token: string) {
-    return this.getAnalyticsInstance().setAuthToken(token);
+    return this.getAnalyticsInstance().setAuthToken(getSanitizedValue(token));
   }
 
   consent(options?: ConsentOptions) {
-    return this.getAnalyticsInstance().consent(options);
+    return this.getAnalyticsInstance().consent(getSanitizedValue(options));
   }
 }
 
