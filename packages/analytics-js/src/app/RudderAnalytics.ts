@@ -189,11 +189,12 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
       options = autoTrackOptions,
     } = pageLifecycle ?? {};
 
+    state.autoTrack.pageLifecycle.enabled.value = pageLifecycleEnabled;
+
     // Set the autoTrack enabled state
     // if at least one of the autoTrack options is enabled
+    // IMPORTANT: make sure this is done at the end as it depends on the above states
     state.autoTrack.enabled.value = autoTrackEnabled || pageLifecycleEnabled;
-
-    state.autoTrack.pageLifecycle.enabled.value = pageLifecycleEnabled;
 
     if (!pageLifecycleEnabled) {
       return;
