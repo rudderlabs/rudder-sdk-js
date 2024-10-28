@@ -2,10 +2,7 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-prototype-builtins */
 import get from 'get-value';
-import {
-  DISPLAY_NAME,
-  NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/Mixpanel/constants';
+import { DISPLAY_NAME, NAME } from '@rudderstack/analytics-js-common/constants/integrations/Mixpanel/constants';
 import Logger from '../../utils/logger';
 import { getDefinedTraits, extractCustomFields, isDefinedAndNotNull } from '../../utils/utils';
 
@@ -287,6 +284,7 @@ const generatePageCustomEventName = (message, userDefinedEventTemplate) => {
 const getDestinationOptions = integrationsOptions =>
   integrationsOptions && (integrationsOptions[DISPLAY_NAME] || integrationsOptions[NAME]);
 
+
 export {
   mapTraits,
   unionArrays,
@@ -299,5 +297,5 @@ export {
   filterSetOnceTraits,
   unset,
   generatePageCustomEventName,
-  getDestinationOptions,
+  getDestinationOptions
 };

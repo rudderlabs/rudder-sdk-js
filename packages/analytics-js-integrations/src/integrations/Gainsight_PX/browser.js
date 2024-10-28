@@ -101,7 +101,7 @@ class Gainsight_PX {
       };
     }
 
-    window.aptrinsic('identify', visitorObj, accountObj);
+    window.aptrinsic('identify',visitorObj, accountObj);
   }
 
   // Custom Events

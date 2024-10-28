@@ -10,23 +10,20 @@ function loadNativeSdk(productKey, dataCenter, pxConfig) {
       hostName = 'web-sdk-us2.aptrinsic.com';
       break;
   }
-  const sdkUrl = 'https://' + hostName + '/api/aptrinsic.js';
+  const sdkUrl= "https://" + hostName + "/api/aptrinsic.js";
 
-  (function (n, t, a, e, co) {
-    var i = 'aptrinsic';
-    (n[i] =
-      n[i] ||
-      function () {
-        (n[i].q = n[i].q || []).push(arguments);
-      }),
-      (n[i].p = e);
-    n[i].c = co;
-    var r = t.createElement('script');
-    (r.async = !0), (r.src = a + '?a=' + e);
-    r.setAttribute('data-loader', LOAD_ORIGIN);
-    var c = t.getElementsByTagName('script')[0];
-    c.parentNode.insertBefore(r, c);
-  })(window, document, sdkUrl, productKey, pxConfig);
+  (function(n,t,a,e, co){
+      var i="aptrinsic";
+      n[i]=n[i]||function(){
+        (n[i].q=n[i].q||[]).push(arguments)
+      },n[i].p=e;
+      n[i].c=co;
+      var r=t.createElement("script");
+      r.async=!0,r.src=a+"?a="+e;
+      r.setAttribute('data-loader', LOAD_ORIGIN);
+      var c=t.getElementsByTagName("script")[0];
+      c.parentNode.insertBefore(r,c)
+   })(window, document, sdkUrl, productKey, pxConfig);
 }
 
 export { loadNativeSdk };
