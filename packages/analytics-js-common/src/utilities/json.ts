@@ -2,7 +2,7 @@ import { BAD_DATA_WARNING } from '../constants/logMessages';
 import type { ILogger } from '../types/Logger';
 import type { Nullable } from '../types/Nullable';
 import { isBigInt, isNull } from './checks';
-import { isObject, isObjectAndNotNull, isObjectLiteralAndNotNull } from './object';
+import { isObjectLiteralAndNotNull } from './object';
 
 const JSON_UTIL = 'JSON';
 
