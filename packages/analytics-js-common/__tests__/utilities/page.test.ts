@@ -17,6 +17,7 @@ describe('onPageLeave', () => {
   };
 
   beforeEach(() => {
+    jest.useFakeTimers();
     setVisibilityState('visible');
   });
 
@@ -180,6 +181,24 @@ describe('onPageLeave', () => {
 
     expect(evCallback).toHaveBeenNthCalledWith(1, true);
 
+    expect(evCallback).toHaveBeenNthCalledWith(2, false);
+  });
+
+  it('should fire the callback on beforeunload event on the next tick even when the tab is inactive', () => {
+    const evCallback = jest.fn();
+    onPageLeave(evCallback);
+
+    setVisibilityState('hidden');
+    dispatchDocumentEvent('visibilitychange');
+
+    expect(evCallback).toHaveBeenCalledTimes(1);
+    expect(evCallback).toHaveBeenNthCalledWith(1, true);
+
+    jest.runAllTimers();
+
+    dispatchWindowEvent('beforeunload');
+
+    expect(evCallback).toHaveBeenCalledTimes(2);
     expect(evCallback).toHaveBeenNthCalledWith(2, false);
   });
 });

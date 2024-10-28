@@ -8,6 +8,14 @@ import type { ApiObject } from './ApiObject';
 // TODO: fix type
 export type BufferedEvent = any[];
 
+export type PageLifecycle = {
+  visitId: string; // UUID
+};
+
+export type AutoTrack = {
+  page: PageLifecycle;
+};
+
 export type RudderContext = {
   [index: string]:
     | string
@@ -32,6 +40,7 @@ export type RudderContext = {
   campaign?: UTMParameters;
   trulyAnonymousTracking?: boolean;
   timezone: string;
+  autoTrack?: AutoTrack;
 };
 
 export type RudderEvent = {
