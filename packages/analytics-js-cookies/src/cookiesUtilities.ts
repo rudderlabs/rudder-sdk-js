@@ -2,7 +2,7 @@ import { fromBase64, toBase64 } from '@rudderstack/analytics-js-common/utilities
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { isNull, isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
-import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
+import { stringifyData } from '@rudderstack/analytics-js-common/utilities/json';
 import { COOKIE_KEYS, ENCRYPTION_PREFIX_V3 } from './constants/cookies';
 import { cookie } from './component-cookie';
 
@@ -13,7 +13,7 @@ const getEncryptedValueInternal = (
 ): Nullable<string> => {
   const fallbackValue = null;
   try {
-    const strValue = stringifyWithoutCircular(value, false);
+    const strValue = stringifyData(value, false);
     if (isNull(strValue)) {
       return null;
     }

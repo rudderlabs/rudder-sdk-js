@@ -1,6 +1,6 @@
 import { trim } from '@rudderstack/analytics-js-common/utilities/string';
 import { isNullOrUndefined, isString } from '@rudderstack/analytics-js-common/utilities/checks';
-import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
+import { stringifyData } from '@rudderstack/analytics-js-common/utilities/json';
 import type { IStorage, IStore, IStoreConfig } from '@rudderstack/analytics-js-common/types/Store';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
@@ -107,10 +107,7 @@ class Store implements IStore {
 
     try {
       // storejs that is used in localstorage engine already stringifies json
-      this.engine.setItem(
-        validKey,
-        this.encrypt(stringifyWithoutCircular(value, false, [], this.logger)),
-      );
+      this.engine.setItem(validKey, this.encrypt(stringifyData(value, false)));
     } catch (err) {
       if (isStorageQuotaExceeded(err)) {
         this.logger?.warn(STORAGE_QUOTA_EXCEEDED_WARNING(`Store ${this.id}`));
@@ -208,7 +205,7 @@ class Store implements IStore {
       ? this.pluginsManager.invokeSingle<string>(extensionPointName, value)
       : value;
 
-    return typeof formattedValue === 'undefined' ? value : formattedValue ?? '';
+    return typeof formattedValue === 'undefined' ? value : (formattedValue ?? '');
   }
 
   /**
