@@ -13,7 +13,8 @@ export interface ApiObject {
     | ApiObject
     | unknown
     | Date
-    | (string | number | boolean | ApiObject | Date)[];
+    | null
+    | (string | number | boolean | ApiObject | Date | null | undefined)[];
 }
 
 /**
