@@ -105,38 +105,42 @@ class Analytics implements IAnalytics {
    * Start application lifecycle if not already started
    */
   load(writeKey: string, dataPlaneUrl: string, loadOptions: Partial<LoadOptions> = {}) {
-    if (state.lifecycle.status.value) {
-      return;
+    try {
+      if (state.lifecycle.status.value) {
+        return;
+      }
+
+      if (!isWriteKeyValid(writeKey)) {
+        this.logger.error(WRITE_KEY_VALIDATION_ERROR(ANALYTICS_CORE, writeKey));
+        return;
+      }
+
+      if (!isDataPlaneUrlValid(dataPlaneUrl)) {
+        this.logger.error(DATA_PLANE_URL_VALIDATION_ERROR(ANALYTICS_CORE, dataPlaneUrl));
+        return;
+      }
+
+      // Set initial state values
+      batch(() => {
+        state.lifecycle.writeKey.value = clone(writeKey);
+        state.lifecycle.dataPlaneUrl.value = clone(dataPlaneUrl);
+        state.loadOptions.value = normalizeLoadOptions(state.loadOptions.value, loadOptions);
+        state.lifecycle.status.value = 'mounted';
+      });
+
+      // set log level as early as possible
+      this.logger?.setMinLogLevel(state.loadOptions.value.logLevel ?? POST_LOAD_LOG_LEVEL);
+
+      // Expose state to global objects
+      setExposedGlobal('state', state, writeKey);
+
+      // Configure initial config of any services or components here
+
+      // State application lifecycle
+      this.startLifecycle();
+    } catch (err: any) {
+      this.errorHandler.onError(err, ANALYTICS_CORE);
     }
-
-    if (!isWriteKeyValid(writeKey)) {
-      this.logger.error(WRITE_KEY_VALIDATION_ERROR(ANALYTICS_CORE, writeKey));
-      return;
-    }
-
-    if (!isDataPlaneUrlValid(dataPlaneUrl)) {
-      this.logger.error(DATA_PLANE_URL_VALIDATION_ERROR(ANALYTICS_CORE, dataPlaneUrl));
-      return;
-    }
-
-    // Set initial state values
-    batch(() => {
-      state.lifecycle.writeKey.value = clone(writeKey);
-      state.lifecycle.dataPlaneUrl.value = clone(dataPlaneUrl);
-      state.loadOptions.value = normalizeLoadOptions(state.loadOptions.value, loadOptions);
-      state.lifecycle.status.value = 'mounted';
-    });
-
-    // set log level as early as possible
-    this.logger?.setMinLogLevel(state.loadOptions.value.logLevel ?? POST_LOAD_LOG_LEVEL);
-
-    // Expose state to global objects
-    setExposedGlobal('state', state, writeKey);
-
-    // Configure initial config of any services or components here
-
-    // State application lifecycle
-    this.startLifecycle();
   }
 
   // Start lifecycle methods
@@ -180,8 +184,7 @@ class Analytics implements IAnalytics {
             break;
         }
       } catch (err) {
-        const issue = 'Failed to load the SDK';
-        this.errorHandler.onError(getMutatedError(err, issue), ANALYTICS_CORE);
+        this.errorHandler.onError(getMutatedError(err, 'Life cycle failure'), ANALYTICS_CORE);
       }
     });
   }
@@ -441,225 +444,260 @@ class Analytics implements IAnalytics {
 
   // Start consumer exposed methods
   ready(callback: ApiCallback, isBufferedInvocation = false) {
-    const type = 'ready';
+    try {
+      const type = 'ready';
 
-    if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value = [
-        ...state.eventBuffer.toBeProcessedArray.value,
-        [type, callback],
-      ];
-      return;
-    }
-
-    this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
-
-    if (!isFunction(callback)) {
-      this.logger.error(READY_API_CALLBACK_ERROR(READY_API));
-      return;
-    }
-
-    /**
-     * If destinations are loaded or no integration is available for loading
-     * execute the callback immediately else push the callbacks to a queue that
-     * will be executed after loading completes
-     */
-    if (state.lifecycle.status.value === 'readyExecuted') {
-      try {
-        callback();
-      } catch (err) {
-        this.errorHandler.onError(err, ANALYTICS_CORE, READY_CALLBACK_INVOKE_ERROR);
+      if (!state.lifecycle.loaded.value) {
+        state.eventBuffer.toBeProcessedArray.value = [
+          ...state.eventBuffer.toBeProcessedArray.value,
+          [type, callback],
+        ];
+        return;
       }
-    } else {
-      state.eventBuffer.readyCallbacksArray.value = [
-        ...state.eventBuffer.readyCallbacksArray.value,
-        callback,
-      ];
+
+      this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
+
+      if (!isFunction(callback)) {
+        this.logger.error(READY_API_CALLBACK_ERROR(READY_API));
+        return;
+      }
+
+      /**
+       * If destinations are loaded or no integration is available for loading
+       * execute the callback immediately else push the callbacks to a queue that
+       * will be executed after loading completes
+       */
+      if (state.lifecycle.status.value === 'readyExecuted') {
+        try {
+          callback();
+        } catch (err) {
+          this.errorHandler.onError(err, ANALYTICS_CORE, READY_CALLBACK_INVOKE_ERROR);
+        }
+      } else {
+        state.eventBuffer.readyCallbacksArray.value = [
+          ...state.eventBuffer.readyCallbacksArray.value,
+          callback,
+        ];
+      }
+    } catch (err: any) {
+      this.errorHandler.onError(err, ANALYTICS_CORE);
     }
   }
 
   page(payload: PageCallOptions, isBufferedInvocation = false) {
-    const type = 'page';
+    try {
+      const type = 'page';
 
-    if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value = [
-        ...state.eventBuffer.toBeProcessedArray.value,
-        [type, payload],
-      ];
-      return;
-    }
+      if (!state.lifecycle.loaded.value) {
+        state.eventBuffer.toBeProcessedArray.value = [
+          ...state.eventBuffer.toBeProcessedArray.value,
+          [type, payload],
+        ];
+        return;
+      }
 
-    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
-    state.metrics.triggered.value += 1;
+      this.errorHandler.leaveBreadcrumb(`New ${type} event`);
+      state.metrics.triggered.value += 1;
 
-    this.eventManager?.addEvent({
-      type: 'page',
-      category: payload.category,
-      name: payload.name,
-      properties: payload.properties,
-      options: payload.options,
-      callback: payload.callback,
-    });
+      this.eventManager?.addEvent({
+        type: 'page',
+        category: payload.category,
+        name: payload.name,
+        properties: payload.properties,
+        options: payload.options,
+        callback: payload.callback,
+      });
 
-    // TODO: Maybe we should alter the behavior to send the ad-block page event even if the SDK is still loaded. It'll be pushed into the to be processed queue.
+      // TODO: Maybe we should alter the behavior to send the ad-block page event even if the SDK is still loaded. It'll be pushed into the to be processed queue.
 
-    // Send automatic ad blocked page event if ad-blockers are detected on the page
-    // Check page category to avoid infinite loop
-    if (
-      state.capabilities.isAdBlocked.value === true &&
-      payload.category !== ADBLOCK_PAGE_CATEGORY
-    ) {
-      this.page(
-        pageArgumentsToCallOptions(
-          ADBLOCK_PAGE_CATEGORY,
-          ADBLOCK_PAGE_NAME,
-          {
-            // 'title' is intentionally omitted as it does not make sense
-            // in v3 implementation
-            path: ADBLOCK_PAGE_PATH,
-          },
-          state.loadOptions.value.sendAdblockPageOptions,
-        ),
-      );
+      // Send automatic ad blocked page event if ad-blockers are detected on the page
+      // Check page category to avoid infinite loop
+      if (
+        state.capabilities.isAdBlocked.value === true &&
+        payload.category !== ADBLOCK_PAGE_CATEGORY
+      ) {
+        this.page(
+          pageArgumentsToCallOptions(
+            ADBLOCK_PAGE_CATEGORY,
+            ADBLOCK_PAGE_NAME,
+            {
+              // 'title' is intentionally omitted as it does not make sense
+              // in v3 implementation
+              path: ADBLOCK_PAGE_PATH,
+            },
+            state.loadOptions.value.sendAdblockPageOptions,
+          ),
+        );
+      }
+    } catch (err: any) {
+      this.errorHandler.onError(err, ANALYTICS_CORE);
     }
   }
 
   track(payload: TrackCallOptions, isBufferedInvocation = false) {
-    const type = 'track';
+    try {
+      const type = 'track';
 
-    if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value = [
-        ...state.eventBuffer.toBeProcessedArray.value,
-        [type, payload],
-      ];
-      return;
+      if (!state.lifecycle.loaded.value) {
+        state.eventBuffer.toBeProcessedArray.value = [
+          ...state.eventBuffer.toBeProcessedArray.value,
+          [type, payload],
+        ];
+        return;
+      }
+
+      this.errorHandler.leaveBreadcrumb(`New ${type} event`);
+      state.metrics.triggered.value += 1;
+
+      this.eventManager?.addEvent({
+        type,
+        name: payload.name || undefined,
+        properties: payload.properties,
+        options: payload.options,
+        callback: payload.callback,
+      });
+    } catch (err: any) {
+      this.errorHandler.onError(err, ANALYTICS_CORE);
     }
-
-    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
-    state.metrics.triggered.value += 1;
-
-    this.eventManager?.addEvent({
-      type,
-      name: payload.name || undefined,
-      properties: payload.properties,
-      options: payload.options,
-      callback: payload.callback,
-    });
   }
 
   identify(payload: IdentifyCallOptions, isBufferedInvocation = false) {
-    const type = 'identify';
+    try {
+      const type = 'identify';
 
-    if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value = [
-        ...state.eventBuffer.toBeProcessedArray.value,
-        [type, payload],
-      ];
-      return;
+      if (!state.lifecycle.loaded.value) {
+        state.eventBuffer.toBeProcessedArray.value = [
+          ...state.eventBuffer.toBeProcessedArray.value,
+          [type, payload],
+        ];
+        return;
+      }
+
+      this.errorHandler.leaveBreadcrumb(`New ${type} event`);
+      state.metrics.triggered.value += 1;
+
+      const shouldResetSession = Boolean(
+        payload.userId &&
+          state.session.userId.value &&
+          payload.userId !== state.session.userId.value,
+      );
+
+      if (shouldResetSession) {
+        this.reset();
+      }
+
+      // `null` value indicates that previous user ID needs to be retained
+      if (!isNull(payload.userId)) {
+        this.userSessionManager?.setUserId(payload.userId);
+      }
+      this.userSessionManager?.setUserTraits(payload.traits);
+
+      this.eventManager?.addEvent({
+        type,
+        userId: payload.userId,
+        traits: payload.traits,
+        options: payload.options,
+        callback: payload.callback,
+      });
+    } catch (err: any) {
+      this.errorHandler.onError(err, ANALYTICS_CORE);
     }
-
-    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
-    state.metrics.triggered.value += 1;
-
-    const shouldResetSession = Boolean(
-      payload.userId && state.session.userId.value && payload.userId !== state.session.userId.value,
-    );
-
-    if (shouldResetSession) {
-      this.reset();
-    }
-
-    // `null` value indicates that previous user ID needs to be retained
-    if (!isNull(payload.userId)) {
-      this.userSessionManager?.setUserId(payload.userId);
-    }
-    this.userSessionManager?.setUserTraits(payload.traits);
-
-    this.eventManager?.addEvent({
-      type,
-      userId: payload.userId,
-      traits: payload.traits,
-      options: payload.options,
-      callback: payload.callback,
-    });
   }
 
   alias(payload: AliasCallOptions, isBufferedInvocation = false) {
-    const type = 'alias';
+    try {
+      const type = 'alias';
 
-    if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value = [
-        ...state.eventBuffer.toBeProcessedArray.value,
-        [type, payload],
-      ];
-      return;
+      if (!state.lifecycle.loaded.value) {
+        state.eventBuffer.toBeProcessedArray.value = [
+          ...state.eventBuffer.toBeProcessedArray.value,
+          [type, payload],
+        ];
+        return;
+      }
+
+      this.errorHandler.leaveBreadcrumb(`New ${type} event`);
+      state.metrics.triggered.value += 1;
+
+      const previousId =
+        payload.from ??
+        this.userSessionManager?.getUserId() ??
+        this.userSessionManager?.getAnonymousId();
+
+      this.eventManager?.addEvent({
+        type,
+        to: payload.to,
+        from: previousId,
+        options: payload.options,
+        callback: payload.callback,
+      });
+    } catch (err: any) {
+      this.errorHandler.onError(err, ANALYTICS_CORE);
     }
-
-    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
-    state.metrics.triggered.value += 1;
-
-    const previousId =
-      payload.from ??
-      this.userSessionManager?.getUserId() ??
-      this.userSessionManager?.getAnonymousId();
-
-    this.eventManager?.addEvent({
-      type,
-      to: payload.to,
-      from: previousId,
-      options: payload.options,
-      callback: payload.callback,
-    });
   }
 
   group(payload: GroupCallOptions, isBufferedInvocation = false) {
-    const type = 'group';
+    try {
+      const type = 'group';
 
-    if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value = [
-        ...state.eventBuffer.toBeProcessedArray.value,
-        [type, payload],
-      ];
-      return;
+      if (!state.lifecycle.loaded.value) {
+        state.eventBuffer.toBeProcessedArray.value = [
+          ...state.eventBuffer.toBeProcessedArray.value,
+          [type, payload],
+        ];
+        return;
+      }
+
+      this.errorHandler.leaveBreadcrumb(`New ${type} event`);
+      state.metrics.triggered.value += 1;
+
+      // `null` value indicates that previous group ID needs to be retained
+      if (!isNull(payload.groupId)) {
+        this.userSessionManager?.setGroupId(payload.groupId);
+      }
+
+      this.userSessionManager?.setGroupTraits(payload.traits);
+
+      this.eventManager?.addEvent({
+        type,
+        groupId: payload.groupId,
+        traits: payload.traits,
+        options: payload.options,
+        callback: payload.callback,
+      });
+    } catch (err: any) {
+      this.errorHandler.onError(err, ANALYTICS_CORE);
     }
-
-    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
-    state.metrics.triggered.value += 1;
-
-    // `null` value indicates that previous group ID needs to be retained
-    if (!isNull(payload.groupId)) {
-      this.userSessionManager?.setGroupId(payload.groupId);
-    }
-
-    this.userSessionManager?.setGroupTraits(payload.traits);
-
-    this.eventManager?.addEvent({
-      type,
-      groupId: payload.groupId,
-      traits: payload.traits,
-      options: payload.options,
-      callback: payload.callback,
-    });
   }
 
   reset(resetAnonymousId?: boolean, isBufferedInvocation = false) {
-    const type = 'reset';
+    try {
+      const type = 'reset';
 
-    if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value = [
-        ...state.eventBuffer.toBeProcessedArray.value,
-        [type, resetAnonymousId],
-      ];
-      return;
+      if (!state.lifecycle.loaded.value) {
+        state.eventBuffer.toBeProcessedArray.value = [
+          ...state.eventBuffer.toBeProcessedArray.value,
+          [type, resetAnonymousId],
+        ];
+        return;
+      }
+
+      this.errorHandler.leaveBreadcrumb(
+        `New ${type} invocation, resetAnonymousId: ${resetAnonymousId}`,
+      );
+      this.userSessionManager?.reset(resetAnonymousId);
+    } catch (err: any) {
+      this.errorHandler.onError(err, ANALYTICS_CORE);
     }
-
-    this.errorHandler.leaveBreadcrumb(
-      `New ${type} invocation, resetAnonymousId: ${resetAnonymousId}`,
-    );
-    this.userSessionManager?.reset(resetAnonymousId);
   }
 
   getAnonymousId(options?: AnonymousIdOptions): string | undefined {
-    return this.userSessionManager?.getAnonymousId(options);
+    try {
+      return this.userSessionManager?.getAnonymousId(options);
+    } catch (err: any) {
+      this.errorHandler.onError(err, ANALYTICS_CORE);
+      return undefined;
+    }
   }
 
   setAnonymousId(
@@ -667,124 +705,166 @@ class Analytics implements IAnalytics {
     rudderAmpLinkerParam?: string,
     isBufferedInvocation = false,
   ): void {
-    const type = 'setAnonymousId';
-    // Buffering is needed as setting the anonymous ID may require invoking the GoogleLinker plugin
-    if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value = [
-        ...state.eventBuffer.toBeProcessedArray.value,
-        [type, anonymousId, rudderAmpLinkerParam],
-      ];
-      return;
-    }
+    try {
+      const type = 'setAnonymousId';
+      // Buffering is needed as setting the anonymous ID may require invoking the GoogleLinker plugin
+      if (!state.lifecycle.loaded.value) {
+        state.eventBuffer.toBeProcessedArray.value = [
+          ...state.eventBuffer.toBeProcessedArray.value,
+          [type, anonymousId, rudderAmpLinkerParam],
+        ];
+        return;
+      }
 
-    this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
-    this.userSessionManager?.setAnonymousId(anonymousId, rudderAmpLinkerParam);
+      this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
+      this.userSessionManager?.setAnonymousId(anonymousId, rudderAmpLinkerParam);
+    } catch (err: any) {
+      this.errorHandler.onError(err, ANALYTICS_CORE);
+    }
   }
 
   // eslint-disable-next-line class-methods-use-this
   getUserId(): Nullable<string> | undefined {
-    return state.session.userId.value;
+    try {
+      return state.session.userId.value;
+    } catch (err: any) {
+      this.errorHandler.onError(err, ANALYTICS_CORE);
+      return undefined;
+    }
   }
 
   // eslint-disable-next-line class-methods-use-this
   getUserTraits(): Nullable<ApiObject> | undefined {
-    return state.session.userTraits.value;
+    try {
+      return state.session.userTraits.value;
+    } catch (err: any) {
+      this.errorHandler.onError(err, ANALYTICS_CORE);
+      return undefined;
+    }
   }
 
   // eslint-disable-next-line class-methods-use-this
   getGroupId(): Nullable<string> | undefined {
-    return state.session.groupId.value;
+    try {
+      return state.session.groupId.value;
+    } catch (err: any) {
+      this.errorHandler.onError(err, ANALYTICS_CORE);
+      return undefined;
+    }
   }
 
   // eslint-disable-next-line class-methods-use-this
   getGroupTraits(): Nullable<ApiObject> | undefined {
-    return state.session.groupTraits.value;
+    try {
+      return state.session.groupTraits.value;
+    } catch (err: any) {
+      this.errorHandler.onError(err, ANALYTICS_CORE);
+      return undefined;
+    }
   }
 
   startSession(sessionId?: number, isBufferedInvocation = false): void {
-    const type = 'startSession';
+    try {
+      const type = 'startSession';
 
-    if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value = [
-        ...state.eventBuffer.toBeProcessedArray.value,
-        [type, sessionId],
-      ];
-      return;
+      if (!state.lifecycle.loaded.value) {
+        state.eventBuffer.toBeProcessedArray.value = [
+          ...state.eventBuffer.toBeProcessedArray.value,
+          [type, sessionId],
+        ];
+        return;
+      }
+
+      this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
+      this.userSessionManager?.start(sessionId);
+    } catch (err: any) {
+      this.errorHandler.onError(err, ANALYTICS_CORE);
     }
-
-    this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
-    this.userSessionManager?.start(sessionId);
   }
 
   endSession(isBufferedInvocation = false): void {
-    const type = 'endSession';
+    try {
+      const type = 'endSession';
 
-    if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value = [
-        ...state.eventBuffer.toBeProcessedArray.value,
-        [type],
-      ];
-      return;
+      if (!state.lifecycle.loaded.value) {
+        state.eventBuffer.toBeProcessedArray.value = [
+          ...state.eventBuffer.toBeProcessedArray.value,
+          [type],
+        ];
+        return;
+      }
+
+      this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
+      this.userSessionManager?.end();
+    } catch (err: any) {
+      this.errorHandler.onError(err, ANALYTICS_CORE);
     }
-
-    this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
-    this.userSessionManager?.end();
   }
 
   // eslint-disable-next-line class-methods-use-this
   getSessionId(): Nullable<number> {
-    const sessionId = this.userSessionManager?.getSessionId();
-    return sessionId ?? null;
+    const defVal = null;
+    try {
+      const sessionId = this.userSessionManager?.getSessionId();
+      return sessionId ?? defVal;
+    } catch (err: any) {
+      this.errorHandler.onError(err, ANALYTICS_CORE);
+      return defVal;
+    }
   }
 
   consent(options?: ConsentOptions, isBufferedInvocation = false) {
-    const type = 'consent';
+    try {
+      const type = 'consent';
 
-    if (!state.lifecycle.loaded.value) {
-      state.eventBuffer.toBeProcessedArray.value = [
-        ...state.eventBuffer.toBeProcessedArray.value,
-        [type, options],
-      ];
-      return;
+      if (!state.lifecycle.loaded.value) {
+        state.eventBuffer.toBeProcessedArray.value = [
+          ...state.eventBuffer.toBeProcessedArray.value,
+          [type, options],
+        ];
+        return;
+      }
+
+      this.errorHandler.leaveBreadcrumb(`New consent invocation`);
+
+      batch(() => {
+        state.consents.preConsent.value = { ...state.consents.preConsent.value, enabled: false };
+        state.consents.postConsent.value = getValidPostConsentOptions(options);
+
+        const { initialized, consentsData } = getConsentManagementData(
+          state.consents.postConsent.value.consentManagement,
+          this.logger,
+        );
+
+        state.consents.initialized.value = initialized || state.consents.initialized.value;
+        state.consents.data.value = consentsData;
+      });
+
+      // Update consents data in state
+      if (state.consents.enabled.value && !state.consents.initialized.value) {
+        this.pluginsManager?.invokeSingle(
+          `consentManager.updateConsentsInfo`,
+          state,
+          this.storeManager,
+          this.logger,
+        );
+      }
+
+      // Re-init store manager
+      this.storeManager?.initializeStorageState();
+
+      // Re-init user session manager
+      this.userSessionManager?.syncStorageDataToState();
+
+      // Resume event manager to process the events to destinations
+      this.eventManager?.resume();
+
+      this.loadDestinations();
+
+      this.sendTrackingEvents(isBufferedInvocation);
+    } catch (err: any) {
+      this.errorHandler.onError(err, ANALYTICS_CORE);
     }
-
-    this.errorHandler.leaveBreadcrumb(`New consent invocation`);
-
-    batch(() => {
-      state.consents.preConsent.value = { ...state.consents.preConsent.value, enabled: false };
-      state.consents.postConsent.value = getValidPostConsentOptions(options);
-
-      const { initialized, consentsData } = getConsentManagementData(
-        state.consents.postConsent.value.consentManagement,
-        this.logger,
-      );
-
-      state.consents.initialized.value = initialized || state.consents.initialized.value;
-      state.consents.data.value = consentsData;
-    });
-
-    // Update consents data in state
-    if (state.consents.enabled.value && !state.consents.initialized.value) {
-      this.pluginsManager?.invokeSingle(
-        `consentManager.updateConsentsInfo`,
-        state,
-        this.storeManager,
-        this.logger,
-      );
-    }
-
-    // Re-init store manager
-    this.storeManager?.initializeStorageState();
-
-    // Re-init user session manager
-    this.userSessionManager?.syncStorageDataToState();
-
-    // Resume event manager to process the events to destinations
-    this.eventManager?.resume();
-
-    this.loadDestinations();
-
-    this.sendTrackingEvents(isBufferedInvocation);
   }
 
   sendTrackingEvents(isBufferedInvocation: boolean) {
@@ -816,7 +896,11 @@ class Analytics implements IAnalytics {
   }
 
   setAuthToken(token: string): void {
-    this.userSessionManager?.setAuthToken(token);
+    try {
+      this.userSessionManager?.setAuthToken(token);
+    } catch (err: any) {
+      this.errorHandler.onError(err, ANALYTICS_CORE);
+    }
   }
   // End consumer exposed methods
 }
