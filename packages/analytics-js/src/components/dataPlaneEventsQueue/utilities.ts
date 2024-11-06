@@ -4,10 +4,10 @@ import type { ApplicationState } from '@rudderstack/analytics-js-common/types/Ap
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { clone } from 'ramda';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utilities/url';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/time';
+import { stringifyData } from '@rudderstack/analytics-js-common/utilities/json';
 import {
   DATA_PLANE_API_VERSION,
   DATA_PLANE_EVENTS_QUEUE,
@@ -63,13 +63,9 @@ const getDeliveryUrl = (dataplaneUrl: string, endpoint: string): string => {
 
 const getBatchDeliveryUrl = (dataplaneUrl: string): string => getDeliveryUrl(dataplaneUrl, 'batch');
 
-const getBatchDeliveryPayload = (
-  events: RudderEvent[],
-  currentTime: string,
-  logger?: ILogger,
-): Nullable<string> => {
+const getBatchDeliveryPayload = (events: RudderEvent[], currentTime: string): Nullable<string> => {
   const batchPayload: BatchPayload = { batch: events, sentAt: currentTime };
-  return stringifyWithoutCircular(batchPayload, true, undefined, logger);
+  return stringifyData(batchPayload);
 };
 
 /**
@@ -78,14 +74,9 @@ const getBatchDeliveryPayload = (
  * @param logger Logger instance
  * @returns stringified event payload. Empty string if error occurs.
  */
-const getDeliveryPayload = (event: RudderEvent, logger?: ILogger): Nullable<string> =>
-  stringifyWithoutCircular(event, true, undefined, logger);
+const getDeliveryPayload = (event: RudderEvent): Nullable<string> => stringifyData(event);
 
-const getRequestInfo = (
-  itemData: EventsQueueItemData,
-  state: ApplicationState,
-  logger?: ILogger,
-) => {
+const getRequestInfo = (itemData: EventsQueueItemData, state: ApplicationState) => {
   let data;
   let headers;
   let url: string;
@@ -94,14 +85,14 @@ const getRequestInfo = (
     const finalEvents = itemData.map((queueItemData: SingleEventData) =>
       getFinalEventForDeliveryMutator(queueItemData.event, currentTime),
     );
-    data = getBatchDeliveryPayload(finalEvents, currentTime, logger);
+    data = getBatchDeliveryPayload(finalEvents, currentTime);
     headers = clone(itemData[0]?.headers);
     url = getBatchDeliveryUrl(state.lifecycle.activeDataplaneUrl.value as string);
   } else {
     const { url: eventUrl, event, headers: eventHeaders } = itemData;
     const finalEvent = getFinalEventForDeliveryMutator(event, currentTime);
 
-    data = getDeliveryPayload(finalEvent, logger);
+    data = getDeliveryPayload(finalEvent);
     headers = clone(eventHeaders);
     url = eventUrl;
   }
@@ -139,7 +130,7 @@ const logErrorOnFailure = (
  * @param logger Logger instance
  */
 const validateEventPayloadSize = (event: RudderEvent, logger?: ILogger) => {
-  const payloadStr = getDeliveryPayload(event, logger);
+  const payloadStr = getDeliveryPayload(event);
   if (payloadStr) {
     const payloadSize = payloadStr.length;
     if (payloadSize > EVENT_PAYLOAD_SIZE_BYTES_LIMIT) {

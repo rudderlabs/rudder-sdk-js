@@ -259,6 +259,16 @@ const getEnrichedEvent = (
       campaign: extractUTMParameters(globalThis.location.href),
       page: getContextPageProperties(pageProps),
       timezone: state.context.timezone.value,
+      // Add auto tracking information
+      ...(state.autoTrack.enabled.value && {
+        autoTrack: {
+          ...(state.autoTrack.pageLifecycle.enabled.value && {
+            page: {
+              visitId: state.autoTrack.pageLifecycle.visitId.value,
+            },
+          }),
+        },
+      }),
     },
     originalTimestamp: getCurrentTimeFormatted(),
     messageId: generateUUID(),

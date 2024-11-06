@@ -13,7 +13,7 @@ import type { SourceConfigResponse } from '@rudderstack/analytics-js-common/type
 import { removeTrailingSlashes } from '@rudderstack/analytics-js-common/utilities/url';
 import type { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { isValidSourceConfig, validateLoadArgs } from './util/validate';
+import { isValidSourceConfig } from './util/validate';
 import {
   SOURCE_CONFIG_FETCH_ERROR,
   SOURCE_CONFIG_OPTION_ERROR,
@@ -60,8 +60,6 @@ class ConfigManager implements IConfigManager {
    */
   init() {
     this.private_attachEffects();
-
-    validateLoadArgs(state.lifecycle.writeKey.value, state.lifecycle.dataPlaneUrl.value);
 
     const {
       logLevel,

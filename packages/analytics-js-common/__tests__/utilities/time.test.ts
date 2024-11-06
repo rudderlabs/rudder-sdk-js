@@ -1,4 +1,9 @@
-import { getCurrentTimeFormatted, getTimezone, wait } from '../../src/utilities/time';
+import {
+  getCurrentTimeFormatted,
+  getFormattedTimestamp,
+  getTimezone,
+  wait,
+} from '../../src/utilities/time';
 
 describe('time', () => {
   describe('wait', () => {
@@ -53,10 +58,32 @@ describe('time', () => {
     });
   });
 
+  describe('getFormattedTimestamp', () => {
+    it('should return the formatted timestamp', () => {
+      // Arrange
+      const date = new Date('2021-01-01T00:00:00Z');
+
+      // Act
+      const result = getFormattedTimestamp(date);
+
+      // Assert
+      expect(result).toBe('2021-01-01T00:00:00.000Z');
+    });
+  });
+
   describe('getCurrentTimeFormatted', () => {
-    it('should return the current time in ISO format', () => {
-      const currentTime = new Date().toISOString();
-      expect(getCurrentTimeFormatted()).toBe(currentTime);
+    it('should return the current formatted timestamp', () => {
+      // Arrange
+      const date = new Date('2021-01-01T00:00:00Z');
+      const dateSpy = jest.spyOn(global, 'Date').mockImplementationOnce(() => date);
+
+      // Act
+      const result = getCurrentTimeFormatted();
+
+      // Assert
+      expect(result).toBe('2021-01-01T00:00:00.000Z');
+
+      dateSpy.mockRestore();
     });
   });
 });

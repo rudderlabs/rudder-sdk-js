@@ -1,5 +1,5 @@
 import { isNullOrUndefined, isString } from '@rudderstack/analytics-js-common/utilities/checks';
-import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
+import { stringifyData } from '@rudderstack/analytics-js-common/utilities/json';
 import type { IStorage, IStore, IStoreConfig } from '@rudderstack/analytics-js-common/types/Store';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
@@ -79,7 +79,7 @@ class Store implements IStore {
    * Switch to inMemoryEngine, bringing any existing data with.
    */
   private_swapQueueStoreToInMemoryEngine() {
-    const { private_validKeys: validKeys, private_logger: logger } = this;
+    const { private_validKeys: validKeys } = this;
     const inMemoryStorage = getStorageEngine(MEMORY_STORAGE);
 
     // grab existing data, but only for this page's queue instance, not all
@@ -89,10 +89,7 @@ class Store implements IStore {
       const value = this.get(key);
       const validKey = this.private_getCompoundKey(key);
 
-      inMemoryStorage.setItem(
-        validKey,
-        this.private_encrypt(stringifyWithoutCircular(value, false, [], logger)),
-      );
+      inMemoryStorage.setItem(validKey, this.private_encrypt(stringifyData(value, false)));
       // TODO: are we sure we want to drop clientData
       //  if cookies are not available and localstorage is full?
       this.remove(key);
@@ -113,10 +110,7 @@ class Store implements IStore {
 
     try {
       // storejs that is used in localstorage engine already stringifies json
-      this.private_engine.setItem(
-        validKey,
-        this.private_encrypt(stringifyWithoutCircular(value, false, [], this.private_logger)),
-      );
+      this.private_engine.setItem(validKey, this.private_encrypt(stringifyData(value, false)));
     } catch (err) {
       if (isStorageQuotaExceeded(err)) {
         this.private_logger?.warn(STORAGE_QUOTA_EXCEEDED_WARNING(`Store ${this.private_id}`));

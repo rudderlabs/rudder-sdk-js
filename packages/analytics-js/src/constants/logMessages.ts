@@ -66,14 +66,14 @@ const STORAGE_UNAVAILABILITY_ERROR_PREFIX = (context: string, storageType: Stora
 const SOURCE_CONFIG_FETCH_ERROR = (errMsg: string | undefined): string =>
   `Failed to fetch the source configuration: ${errMsg}.`;
 
-const WRITE_KEY_VALIDATION_ERROR = (writeKey?: string): string =>
-  `The write key "${writeKey}" is invalid. It must be a non-empty string. Please check that the write key is correct and try again.`;
+const WRITE_KEY_VALIDATION_ERROR = (context: string, writeKey: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The write key "${writeKey}" is invalid. It must be a non-empty string. Please check that the write key is correct and try again.`;
 
-const DATA_PLANE_URL_VALIDATION_ERROR = (dataPlaneUrl: string | undefined): string =>
-  `The data plane URL "${dataPlaneUrl}" is invalid. It must be a valid URL string. Please check that the data plane URL is correct and try again.`;
+const DATA_PLANE_URL_VALIDATION_ERROR = (context: string, dataPlaneUrl: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The data plane URL "${dataPlaneUrl}" is invalid. It must be a valid URL string. Please check that the data plane URL is correct and try again.`;
 
 const READY_API_CALLBACK_ERROR = (context: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The callback is not a function.`;
+  `${context}${LOG_CONTEXT_SEPARATOR}The provided callback is not a function.`;
 
 const DELIVERY_ERROR = (status: number, statusText: string, url: string | URL): string =>
   `${FAILED_REQUEST_ERR_MSG_PREFIX} with status ${status} (${statusText}) for URL "${url}"`;
@@ -187,9 +187,6 @@ const STORAGE_UNAVAILABLE_WARNING = (
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The storage type "${selectedStorageType}" is not available for entry "${entry}". The SDK will initialize the entry with "${finalStorageType}" storage type instead.`;
 
-const WRITE_KEY_NOT_A_STRING_ERROR = (context: string, writeKey: string | undefined): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The write key "${writeKey}" is not a string. Please check that the write key is correct and try again.`;
-
 const EMPTY_GROUP_CALL_ERROR = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The group API must be invoked with at least one argument.`;
 
@@ -250,6 +247,9 @@ const INVALID_POLYFILL_URL_WARNING = (
 const BAD_COOKIES_WARNING = (key: string) =>
   `The cookie data for ${key} seems to be encrypted using SDK versions < v3. The data is dropped. This can potentially stem from using SDK versions < v3 on other sites or web pages that can share cookies with this webpage. We recommend using the same SDK (v3) version everywhere or avoid disabling the storage data migration.`;
 
+const PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING = (context: string) =>
+  `${context}${LOG_CONTEXT_SEPARATOR}Page Unloaded event can only be tracked when the Beacon transport is active. Please enable "useBeacon" load API option.`;
+
 export {
   UNSUPPORTED_CONSENT_MANAGER_ERROR,
   UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING,
@@ -287,7 +287,6 @@ export {
   PLUGIN_EXT_POINT_MISSING_ERROR,
   PLUGIN_EXT_POINT_INVALID_ERROR,
   STORAGE_TYPE_VALIDATION_WARNING,
-  WRITE_KEY_NOT_A_STRING_ERROR,
   EMPTY_GROUP_CALL_ERROR,
   READY_CALLBACK_INVOKE_ERROR,
   API_CALLBACK_INVOKE_ERROR,
@@ -311,4 +310,5 @@ export {
   SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING,
   RESPONSE_PARSE_ERROR,
   BAD_COOKIES_WARNING,
+  PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING,
 };

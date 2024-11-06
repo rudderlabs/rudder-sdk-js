@@ -1,5 +1,5 @@
 import { isTypeOfError } from './checks';
-import { stringifyWithoutCircular } from './json';
+import { stringifyData } from './json';
 
 /**
  * Get mutated error with issue prepended to error message
@@ -12,7 +12,7 @@ const getMutatedError = (err: any, issue: string): Error => {
   if (isTypeOfError(err)) {
     (finalError as Error).message = `${issue}: ${err.message}`;
   } else {
-    finalError = new Error(`${issue}: ${stringifyWithoutCircular(err as Record<string, any>)}`);
+    finalError = new Error(`${issue}: ${stringifyData(err as Record<string, any>)}`);
   }
   return finalError;
 };

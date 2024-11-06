@@ -148,27 +148,6 @@ describe('DataPlaneEventsQueue utilities', () => {
         '{"batch":[{"type":"track","event":"test event","properties":{"key":"value"},"sentAt":"2021-01-01T00:00:00.000Z"}],"sentAt":"2021-01-01T00:00:00.000Z"}',
       );
     });
-
-    it('should return null when an error occurs while stringifying the batch delivery payload', () => {
-      const events = [
-        {
-          type: 'track',
-          event: 'test event',
-          properties: {
-            key: 'value',
-            // eslint-disable-next-line compat/compat
-            bigIntProperty: BigInt(Number.MAX_SAFE_INTEGER),
-          },
-          sentAt: '2021-01-01T00:00:00.000Z',
-        } as unknown as RudderEvent,
-      ];
-
-      const currentTime = '2021-01-01T00:00:00.000Z';
-
-      const result = getBatchDeliveryPayload(events, currentTime, defaultLogger);
-      expect(result).toBeNull();
-      expect(defaultLogger.warn).toHaveBeenCalled();
-    });
   });
 
   describe('getDeliveryPayload', () => {
@@ -187,23 +166,6 @@ describe('DataPlaneEventsQueue utilities', () => {
       expect(result).toEqual(
         '{"type":"track","event":"test event","properties":{"key":"value"},"sentAt":"2021-01-01T00:00:00.000Z"}',
       );
-    });
-
-    it('should return null when an error occurs while stringifying the event payload', () => {
-      const event = {
-        type: 'track',
-        event: 'test event',
-        properties: {
-          key: 'value',
-          // eslint-disable-next-line compat/compat
-          bigIntProperty: BigInt(Number.MAX_SAFE_INTEGER),
-        },
-        sentAt: '2021-01-01T00:00:00.000Z',
-      } as unknown as RudderEvent;
-
-      const result = getDeliveryPayload(event, defaultLogger);
-      expect(result).toBeNull();
-      expect(defaultLogger.warn).toHaveBeenCalled();
     });
   });
 
@@ -230,7 +192,7 @@ describe('DataPlaneEventsQueue utilities', () => {
         },
       } as unknown as EventsQueueItemData;
 
-      const result = getRequestInfo(item, state, defaultLogger);
+      const result = getRequestInfo(item, state);
       expect(result).toEqual({
         url: 'https://dataplane.rudderstack.com/v1/track',
         data: '{"type":"track","event":"test event","properties":{"key":"value"},"sentAt":"1999-01-01T00:00:00.000Z"}',
@@ -278,7 +240,7 @@ describe('DataPlaneEventsQueue utilities', () => {
         },
       ] as unknown as EventsQueueItemData;
 
-      const result = getRequestInfo(item, state, defaultLogger);
+      const result = getRequestInfo(item, state);
 
       // The sentAt timestamp is set to the current time
       // Headers are taken from the first event
@@ -416,24 +378,6 @@ describe('DataPlaneEventsQueue utilities', () => {
       validateEventPayloadSize(event, defaultLogger);
       expect(defaultLogger.warn).toHaveBeenCalledWith(
         'DataPlaneEventsQueue:: The size of the event payload (102 bytes) exceeds the maximum limit of 32 bytes. Events with large payloads may be dropped in the future. Please review your instrumentation to ensure that event payloads are within the size limit.',
-      );
-    });
-
-    it('should log a warning when the event payload size cannot be calculated', () => {
-      const event = {
-        type: 'track',
-        event: 'test event',
-        properties: {
-          key: 'value',
-          // eslint-disable-next-line compat/compat
-          bigIntProperty: BigInt(Number.MAX_SAFE_INTEGER),
-        },
-        sentAt: '2021-01-01T00:00:00.000Z',
-      } as unknown as RudderEvent;
-
-      validateEventPayloadSize(event, defaultLogger);
-      expect(defaultLogger.warn).toHaveBeenCalledWith(
-        'DataPlaneEventsQueue:: Failed to validate event payload size. Please make sure that the event payload is within the size limit and is a valid JSON object.',
       );
     });
   });

@@ -150,11 +150,17 @@
               //   events: {
               //     delivery: 'buffer'
               //   }
-              }
+              },
               // plugins: [
               //   'StorageEncryption',
               //   'StorageMigrator',
               // ]
+              // autoTrack:{
+              //   enabled: true,
+              //   pageLifecycle:{
+              //     enabled:true
+              //   }
+              // }
             };
 
             rudderanalytics.load('__WRITE_KEY__', '__DATAPLANE_URL__', loadOptions);

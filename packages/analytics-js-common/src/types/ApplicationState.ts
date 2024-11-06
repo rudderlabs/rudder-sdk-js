@@ -82,6 +82,17 @@ export type LifecycleState = {
   dataPlaneUrl: Signal<string | undefined>;
 };
 
+export type AutoTrackState = {
+  enabled: Signal<boolean>;
+  pageLifecycle: PageLifecycleState;
+};
+
+export type PageLifecycleState = {
+  enabled: Signal<boolean>;
+  visitId: Signal<string | undefined>;
+  pageLoadedTimestamp: Signal<number | undefined>;
+};
+
 export type LoadOptionsState = Signal<LoadOptions>;
 
 // TODO: define the metrics that we need to track
@@ -189,6 +200,7 @@ export interface ApplicationState {
   storage: StorageState;
   serverCookies: ServerCookiesState;
   dataPlaneEvents: DataPlaneEventsState;
+  autoTrack: AutoTrackState;
 }
 
 export type DebouncedFunction = (...args: any[]) => void;

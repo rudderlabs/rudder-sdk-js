@@ -55,11 +55,7 @@ class DataPlaneEventsQueue implements IDataPlaneEventsQueue {
         willBeRetried?: boolean,
         isPageAccessible?: boolean,
       ) => {
-        const { data, url, headers } = getRequestInfo(
-          itemData as EventsQueueItemData,
-          state,
-          this.private_logger,
-        );
+        const { data, url, headers } = getRequestInfo(itemData as EventsQueueItemData, state);
 
         const keepalive = isPageAccessible === false;
 
@@ -117,7 +113,7 @@ class DataPlaneEventsQueue implements IDataPlaneEventsQueue {
           (queueItemData: SingleEventData) => queueItemData.event,
         );
         // type casting to string as we know that the event has already been validated prior to enqueue
-        return (getBatchDeliveryPayload(events, currentTime, logger) as string)?.length;
+        return (getBatchDeliveryPayload(events, currentTime) as string)?.length;
       },
     );
   }

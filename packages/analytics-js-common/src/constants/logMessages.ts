@@ -9,16 +9,13 @@ const SCRIPT_LOAD_ERROR = (id: string, url: string): string =>
 const SCRIPT_LOAD_TIMEOUT_ERROR = (id: string, url: string, timeout: number): string =>
   `A timeout of ${timeout} ms occurred while trying to load the script with id "${id}" from URL "${url}"`;
 
-const CIRCULAR_REFERENCE_WARNING = (context: string, key: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}A circular reference has been detected in the object and the property "${key}" has been dropped from the output.`;
-
-const JSON_STRINGIFY_WARNING = `Failed to convert the value to a JSON string.`;
+const BAD_DATA_WARNING = (context: string, key: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}A bad data (like circular reference, BigInt) has been detected in the object and the property "${key}" has been dropped from the output.`;
 
 export {
   LOG_CONTEXT_SEPARATOR,
   SCRIPT_ALREADY_EXISTS_ERROR,
   SCRIPT_LOAD_ERROR,
   SCRIPT_LOAD_TIMEOUT_ERROR,
-  CIRCULAR_REFERENCE_WARNING,
-  JSON_STRINGIFY_WARNING,
+  BAD_DATA_WARNING,
 };

@@ -30,7 +30,7 @@ export default [
     name: 'Core - Modern - NPM (ESM)',
     path: 'dist/npm/modern/esm/index.mjs',
     import: '*',
-    limit: '27 KiB',
+    limit: '27.5 KiB',
   },
   {
     name: 'Core - Modern - NPM (CJS)',

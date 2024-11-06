@@ -8,11 +8,13 @@ const wait = (delay: number) =>
     (globalThis as typeof window).setTimeout(resolve, delay);
   });
 
+const getFormattedTimestamp = (date: Date): string => date.toISOString();
+
 /**
  * To get the current timestamp in ISO string format
  * @returns ISO formatted timestamp string
  */
-const getCurrentTimeFormatted = (): string => new Date().toISOString();
+const getCurrentTimeFormatted = (): string => getFormattedTimestamp(new Date());
 
 /**
  * To get the timezone of the user
@@ -26,4 +28,4 @@ const getTimezone = (): string => {
   return regexMatchValues?.[1] ? regexMatchValues[1] : 'NA';
 };
 
-export { wait, getCurrentTimeFormatted, getTimezone };
+export { wait, getCurrentTimeFormatted, getTimezone, getFormattedTimestamp };

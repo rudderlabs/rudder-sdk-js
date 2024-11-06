@@ -35,6 +35,13 @@ const isUndefined = (value: any): value is undefined => typeof value === 'undefi
 const isNullOrUndefined = (value: any): boolean => isNull(value) || isUndefined(value);
 
 /**
+ * Checks if the input is a BigInt
+ * @param value input value
+ * @returns True if the input is a BigInt
+ */
+const isBigInt = (value: any): value is bigint => typeof value === 'bigint';
+
+/**
  * A function to check given value is defined
  * @param value input value
  * @returns boolean
@@ -74,4 +81,5 @@ export {
   isDefined,
   isDefinedAndNotNull,
   isDefinedNotNullAndNotEmptyString,
+  isBigInt,
 };

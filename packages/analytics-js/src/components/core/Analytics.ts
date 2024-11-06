@@ -18,7 +18,6 @@ import type {
   LoadOptions,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { ApiCallback } from '@rudderstack/analytics-js-common/types/EventApi';
-import { isObjectAndNotNull } from '@rudderstack/analytics-js-common/utilities/object';
 import {
   ANALYTICS_CORE,
   READY_API,
@@ -34,7 +33,7 @@ import {
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
 import { BufferQueue } from '@rudderstack/analytics-js-common/services/BufferQueue/BufferQueue';
 import { HttpClient } from '../../services/HttpClient';
-import { defaultLogger } from '../../services/Logger';
+import { POST_LOAD_LOG_LEVEL, defaultLogger } from '../../services/Logger';
 import { defaultErrorHandler } from '../../services/ErrorHandler';
 import { defaultPluginEngine } from '../../services/PluginEngine';
 import { PluginsManager } from '../pluginsManager';
@@ -60,10 +59,15 @@ import {
   ADBLOCK_PAGE_PATH,
   CONSENT_TRACK_EVENT_NAME,
 } from '../../constants/app';
-import { READY_API_CALLBACK_ERROR, READY_CALLBACK_INVOKE_ERROR } from '../../constants/logMessages';
+import {
+  DATA_PLANE_URL_VALIDATION_ERROR,
+  READY_API_CALLBACK_ERROR,
+  READY_CALLBACK_INVOKE_ERROR,
+  WRITE_KEY_VALIDATION_ERROR,
+} from '../../constants/logMessages';
 import type { IAnalytics } from './IAnalytics';
 import { getConsentManagementData, getValidPostConsentOptions } from '../utilities/consent';
-import { dispatchSDKEvent } from './utilities';
+import { dispatchSDKEvent, isDataPlaneUrlValid, isWriteKeyValid } from './utilities';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events
@@ -103,36 +107,31 @@ class Analytics implements IAnalytics {
   /**
    * Start application lifecycle if not already started
    */
-  load(
-    writeKey: string,
-    dataPlaneUrl?: string | Partial<LoadOptions>,
-    loadOptions: Partial<LoadOptions> = {},
-  ) {
+  load(writeKey: string, dataPlaneUrl: string, loadOptions: Partial<LoadOptions> = {}) {
     if (state.lifecycle.status.value) {
       return;
     }
 
-    let clonedDataPlaneUrl = clone(dataPlaneUrl);
-    let clonedLoadOptions = clone(loadOptions);
+    if (!isWriteKeyValid(writeKey)) {
+      this.private_logger.error(WRITE_KEY_VALIDATION_ERROR(ANALYTICS_CORE, writeKey));
+      return;
+    }
 
-    // dataPlaneUrl is not provided
-    if (isObjectAndNotNull(dataPlaneUrl)) {
-      clonedLoadOptions = dataPlaneUrl;
-      clonedDataPlaneUrl = undefined;
+    if (!isDataPlaneUrlValid(dataPlaneUrl)) {
+      this.private_logger.error(DATA_PLANE_URL_VALIDATION_ERROR(ANALYTICS_CORE, dataPlaneUrl));
+      return;
     }
 
     // Set initial state values
     batch(() => {
-      state.lifecycle.writeKey.value = writeKey;
-      state.lifecycle.dataPlaneUrl.value = clonedDataPlaneUrl as string | undefined;
-      state.loadOptions.value = normalizeLoadOptions(state.loadOptions.value, clonedLoadOptions);
+      state.lifecycle.writeKey.value = clone(writeKey);
+      state.lifecycle.dataPlaneUrl.value = clone(dataPlaneUrl);
+      state.loadOptions.value = normalizeLoadOptions(state.loadOptions.value, loadOptions);
       state.lifecycle.status.value = 'mounted';
     });
 
     // set log level as early as possible
-    if (state.loadOptions.value.logLevel) {
-      this.private_logger?.setMinLogLevel(state.loadOptions.value.logLevel);
-    }
+    this.private_logger?.setMinLogLevel(state.loadOptions.value.logLevel ?? POST_LOAD_LOG_LEVEL);
 
     // Expose state to global objects
     setExposedGlobal('state', state, writeKey);

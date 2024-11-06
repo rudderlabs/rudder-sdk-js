@@ -2,7 +2,10 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-prototype-builtins */
 import get from 'get-value';
-import { DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/Mixpanel/constants';
+import {
+  DISPLAY_NAME,
+  NAME,
+} from '@rudderstack/analytics-js-common/constants/integrations/Mixpanel/constants';
 import Logger from '../../utils/logger';
 import { getDefinedTraits, extractCustomFields, isDefinedAndNotNull } from '../../utils/utils';
 
@@ -273,6 +276,17 @@ const generatePageCustomEventName = (message, userDefinedEventTemplate) => {
   return eventName;
 };
 
+/**
+ * Get destination specific options from integrations options
+ * By default, it will return options for the destination using its display name
+ * If display name is not present, it will return options for the destination using its name
+ * The fallback is only for backward compatibility with SDK versions < v1.1
+ * @param {object} integrationsOptions Integrations options object
+ * @returns destination specific options
+ */
+const getDestinationOptions = integrationsOptions =>
+  integrationsOptions && (integrationsOptions[DISPLAY_NAME] || integrationsOptions[NAME]);
+
 export {
   mapTraits,
   unionArrays,
@@ -285,4 +299,5 @@ export {
   filterSetOnceTraits,
   unset,
   generatePageCustomEventName,
+  getDestinationOptions,
 };
