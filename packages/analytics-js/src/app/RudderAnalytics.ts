@@ -35,7 +35,6 @@ import type { IAnalytics } from '../components/core/IAnalytics';
 import { Analytics } from '../components/core/Analytics';
 import { defaultLogger } from '../services/Logger/Logger';
 import {
-  EMPTY_GROUP_CALL_ERROR,
   GLOBAL_UNHANDLED_ERROR,
   PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING,
 } from '../constants/logMessages';
@@ -115,12 +114,12 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    * TODO: to support multiple analytics instances in the near future
    */
   setDefaultInstanceKey(writeKey: string) {
-    try {
-      if (isString(writeKey) && writeKey) {
-        this.defaultAnalyticsKey = writeKey;
-      }
-    } catch (error: any) {
-      this.logger.error(GLOBAL_UNHANDLED_ERROR(RSA, error));
+    // IMP: Add try-catch block to handle any unhandled errors
+    // similar to other public methods
+    // if the implementation of this method goes beyond
+    // this simple implementation
+    if (isString(writeKey) && writeKey) {
+      this.defaultAnalyticsKey = writeKey;
     }
   }
 
@@ -487,11 +486,6 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     callback?: ApiCallback,
   ) {
     try {
-      if (arguments.length === 0) {
-        this.logger.error(EMPTY_GROUP_CALL_ERROR(RSA));
-        return;
-      }
-
       this.getAnalyticsInstance()?.group(
         groupArgumentsToCallOptions(groupId, traits, options, callback),
       );
