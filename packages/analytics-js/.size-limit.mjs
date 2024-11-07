@@ -24,7 +24,7 @@ export default [
   {
     name: 'Core - Legacy - CDN',
     path: 'dist/cdn/legacy/iife/rsa.min.js',
-    limit: '49 KiB',
+    limit: '48.5 KiB',
   },
   {
     name: 'Core - Modern - NPM (ESM)',
@@ -71,7 +71,7 @@ export default [
     name: 'Core (Bundled) - Modern - NPM (ESM)',
     path: 'dist/npm/modern/bundled/esm/index.mjs',
     import: '*',
-    limit: '40 KiB',
+    limit: '39.5 KiB',
   },
   {
     name: 'Core (Bundled) - Modern - NPM (CJS)',
@@ -95,7 +95,7 @@ export default [
     name: 'Core (Content Script) - Legacy - NPM (CJS)',
     path: 'dist/npm/legacy/content-script/cjs/index.cjs',
     import: '*',
-    limit: '48.5 KiB',
+    limit: '48 KiB',
   },
   {
     name: 'Core (Content Script) - Legacy - NPM (UMD)',
