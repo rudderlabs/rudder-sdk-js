@@ -180,7 +180,8 @@ class Analytics implements IAnalytics {
             break;
         }
       } catch (err) {
-        this.errorHandler.onError(getMutatedError(err, 'Life cycle failure'), ANALYTICS_CORE);
+        const issue = 'Failed to load the SDK';
+        this.errorHandler.onError(getMutatedError(err, issue), ANALYTICS_CORE);
       }
     });
   }
