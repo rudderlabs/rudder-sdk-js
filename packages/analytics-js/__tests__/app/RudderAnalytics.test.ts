@@ -3,7 +3,6 @@ import type { PreloadedEventCall } from '../../src/components/preloadBuffer/type
 import { state } from '../../src/state';
 import { RudderAnalytics } from '../../src/app/RudderAnalytics';
 import { Analytics } from '../../src/components/core/Analytics';
-import { defaultLogger } from '../../src/services/Logger';
 
 jest.mock('../../src/components/core/Analytics');
 
@@ -84,12 +83,12 @@ describe('Core - Rudder Analytics Facade', () => {
     expect(rudderAnalytics).toEqual(globalSingleton);
   });
 
-  it('should log an error if an exception is thrown during the construction', () => {
+  it('should dispatch an error event if an exception is thrown during the construction', () => {
     const originalSingleton = RudderAnalytics.globalSingleton;
 
     RudderAnalytics.globalSingleton = null;
 
-    const errorSpy = jest.spyOn(defaultLogger, 'error');
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
 
     // Explicitly throw an error during the construction
     const nowSpy = jest.spyOn(Date, 'now').mockImplementation(() => {
@@ -99,8 +98,10 @@ describe('Core - Rudder Analytics Facade', () => {
     // eslint-disable-next-line sonarjs/constructor-for-side-effects, no-new
     new RudderAnalytics();
 
-    expect(errorSpy).toHaveBeenCalledWith(
-      'RudderStackAnalytics:: An unhandled error occurred: Error: Error in now function',
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in now function'),
+      }),
     );
 
     RudderAnalytics.globalSingleton = originalSingleton;
@@ -156,16 +157,19 @@ describe('Core - Rudder Analytics Facade', () => {
   });
 
   it('should return undefined and log error if an exception is thrown while getting the analytics instance', () => {
-    const errorSpy = jest.spyOn(rudderAnalytics.logger, 'error');
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
 
     // Intentionally set the parameter to undefined to trigger an error
     (rudderAnalytics as any).analyticsInstances = undefined;
 
     const result = rudderAnalytics.getAnalyticsInstance('writeKey2');
 
-    expect(errorSpy).toHaveBeenCalledWith(
-      "RudderStackAnalytics:: An unhandled error occurred: TypeError: Cannot read properties of undefined (reading 'writeKey2')",
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new TypeError("Cannot read properties of undefined (reading 'writeKey2')"),
+      }),
     );
+
     expect(result).toBeUndefined();
   });
 
@@ -186,8 +190,8 @@ describe('Core - Rudder Analytics Facade', () => {
     expect(loadSpy).toHaveBeenCalledWith('writeKey', 'data-plane-url', mockLoadOptions);
   });
 
-  it('should log an error if an exception is thrown during the load', () => {
-    const errorSpy = jest.spyOn(rudderAnalytics.logger, 'error');
+  it('should dispatch an error event if an exception is thrown during the load', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
 
     // Intentionally set the parameter to undefined to trigger an error
     (rudderAnalytics as any).analyticsInstances = undefined;
@@ -195,9 +199,13 @@ describe('Core - Rudder Analytics Facade', () => {
     rudderAnalytics.defaultAnalyticsKey = '';
     rudderAnalytics.load('writeKey', 'data-plane-url', mockLoadOptions);
 
-    expect(errorSpy).toHaveBeenCalledWith(
-      "RudderStackAnalytics:: An unhandled error occurred: TypeError: Cannot read properties of undefined (reading 'writeKey')",
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new TypeError("Cannot read properties of undefined (reading 'writeKey')"),
+      }),
     );
+
+    dispatchEventSpy.mockRestore();
   });
 
   it('should process ready arguments and forwards to ready call', () => {
@@ -207,8 +215,8 @@ describe('Core - Rudder Analytics Facade', () => {
     expect(analyticsInstanceMock.ready).toHaveBeenCalledWith(expect.any(Function));
   });
 
-  it('should log an error if an exception is thrown during the ready call', () => {
-    const errorSpy = jest.spyOn(rudderAnalytics.logger, 'error');
+  it('should dispatch an error event if an exception is thrown during the ready call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
 
     // Intentionally cause an error during the ready call
     const getAnalyticsInstanceSpy = jest
@@ -221,10 +229,13 @@ describe('Core - Rudder Analytics Facade', () => {
 
     rudderAnalytics.ready(callback);
 
-    expect(errorSpy).toHaveBeenCalledWith(
-      'RudderStackAnalytics:: An unhandled error occurred: Error: Error in getAnalyticsInstance',
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new TypeError("Cannot read properties of undefined (reading 'writeKey')"),
+      }),
     );
 
+    dispatchEventSpy.mockRestore();
     getAnalyticsInstanceSpy.mockRestore();
   });
 
@@ -236,8 +247,8 @@ describe('Core - Rudder Analytics Facade', () => {
     });
   });
 
-  it('should log an error if an exception is thrown during the page call', () => {
-    const errorSpy = jest.spyOn(rudderAnalytics.logger, 'error');
+  it('should dispatch an error event if an exception is thrown during the page call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
 
     // Intentionally cause an error during the page call
     const getAnalyticsInstanceSpy = jest
@@ -248,9 +259,13 @@ describe('Core - Rudder Analytics Facade', () => {
 
     rudderAnalytics.page('category');
 
-    expect(errorSpy).toHaveBeenCalledWith(
-      'RudderStackAnalytics:: An unhandled error occurred: Error: Error in getAnalyticsInstance',
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
     );
+
+    dispatchEventSpy.mockRestore();
 
     getAnalyticsInstanceSpy.mockRestore();
   });
@@ -260,8 +275,8 @@ describe('Core - Rudder Analytics Facade', () => {
     expect(analyticsInstanceMock.track).toHaveBeenCalledWith({ name: 'event', properties: {} });
   });
 
-  it('should log an error if an exception is thrown during the track call', () => {
-    const errorSpy = jest.spyOn(rudderAnalytics.logger, 'error');
+  it('should dispatch an error event if an exception is thrown during the track call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
 
     // Intentionally cause an error during the track call
     const getAnalyticsInstanceSpy = jest
@@ -272,9 +287,13 @@ describe('Core - Rudder Analytics Facade', () => {
 
     rudderAnalytics.track('event');
 
-    expect(errorSpy).toHaveBeenCalledWith(
-      'RudderStackAnalytics:: An unhandled error occurred: Error: Error in getAnalyticsInstance',
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
     );
+
+    dispatchEventSpy.mockRestore();
 
     getAnalyticsInstanceSpy.mockRestore();
   });
@@ -284,8 +303,8 @@ describe('Core - Rudder Analytics Facade', () => {
     expect(analyticsInstanceMock.identify).toHaveBeenCalledWith({ userId: '1234' });
   });
 
-  it('should log an error if an exception is thrown during the identify call', () => {
-    const errorSpy = jest.spyOn(rudderAnalytics.logger, 'error');
+  it('should dispatch an error event if an exception is thrown during the identify call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
 
     // Intentionally cause an error during the identify call
     const getAnalyticsInstanceSpy = jest
@@ -296,9 +315,13 @@ describe('Core - Rudder Analytics Facade', () => {
 
     rudderAnalytics.identify('1234');
 
-    expect(errorSpy).toHaveBeenCalledWith(
-      'RudderStackAnalytics:: An unhandled error occurred: Error: Error in getAnalyticsInstance',
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
     );
+
+    dispatchEventSpy.mockRestore();
 
     getAnalyticsInstanceSpy.mockRestore();
   });
@@ -308,8 +331,8 @@ describe('Core - Rudder Analytics Facade', () => {
     expect(analyticsInstanceMock.alias).toHaveBeenCalledWith({ to: 'abc' });
   });
 
-  it('should log an error if an exception is thrown during the alias call', () => {
-    const errorSpy = jest.spyOn(rudderAnalytics.logger, 'error');
+  it('should dispatch an error event if an exception is thrown during the alias call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
 
     // Intentionally cause an error during the alias call
     const getAnalyticsInstanceSpy = jest
@@ -320,9 +343,13 @@ describe('Core - Rudder Analytics Facade', () => {
 
     rudderAnalytics.alias('abc');
 
-    expect(errorSpy).toHaveBeenCalledWith(
-      'RudderStackAnalytics:: An unhandled error occurred: Error: Error in getAnalyticsInstance',
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
     );
+
+    dispatchEventSpy.mockRestore();
 
     getAnalyticsInstanceSpy.mockRestore();
   });
@@ -332,8 +359,8 @@ describe('Core - Rudder Analytics Facade', () => {
     expect(analyticsInstanceMock.group).toHaveBeenCalledWith({ groupId: '5678' });
   });
 
-  it('should log an error if an exception is thrown during the group call', () => {
-    const errorSpy = jest.spyOn(rudderAnalytics.logger, 'error');
+  it('should dispatch an error event if an exception is thrown during the group call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
 
     // Intentionally cause an error during the group call
     const getAnalyticsInstanceSpy = jest
@@ -344,9 +371,13 @@ describe('Core - Rudder Analytics Facade', () => {
 
     rudderAnalytics.group('5678');
 
-    expect(errorSpy).toHaveBeenCalledWith(
-      'RudderStackAnalytics:: An unhandled error occurred: Error: Error in getAnalyticsInstance',
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
     );
+
+    dispatchEventSpy.mockRestore();
 
     getAnalyticsInstanceSpy.mockRestore();
   });
@@ -356,8 +387,8 @@ describe('Core - Rudder Analytics Facade', () => {
     expect(analyticsInstanceMock.reset).toHaveBeenCalledWith(true);
   });
 
-  it('should log an error if an exception is thrown during the reset call', () => {
-    const errorSpy = jest.spyOn(rudderAnalytics.logger, 'error');
+  it('should dispatch an error event if an exception is thrown during the reset call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
 
     // Intentionally cause an error during the reset call
     const getAnalyticsInstanceSpy = jest
@@ -368,9 +399,13 @@ describe('Core - Rudder Analytics Facade', () => {
 
     rudderAnalytics.reset(true);
 
-    expect(errorSpy).toHaveBeenCalledWith(
-      'RudderStackAnalytics:: An unhandled error occurred: Error: Error in getAnalyticsInstance',
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
     );
+
+    dispatchEventSpy.mockRestore();
 
     getAnalyticsInstanceSpy.mockRestore();
   });
@@ -387,7 +422,7 @@ describe('Core - Rudder Analytics Facade', () => {
   });
 
   it('should return undefined and log an error if an exception is thrown during the getAnonymousId call', () => {
-    const errorSpy = jest.spyOn(rudderAnalytics.logger, 'error');
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
 
     // Intentionally cause an error during the getAnonymousId call
     const getAnalyticsInstanceSpy = jest
@@ -398,9 +433,13 @@ describe('Core - Rudder Analytics Facade', () => {
 
     const result = rudderAnalytics.getAnonymousId();
 
-    expect(errorSpy).toHaveBeenCalledWith(
-      'RudderStackAnalytics:: An unhandled error occurred: Error: Error in getAnalyticsInstance',
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
     );
+
+    dispatchEventSpy.mockRestore();
     expect(result).toBeUndefined();
 
     getAnalyticsInstanceSpy.mockRestore();
@@ -411,8 +450,8 @@ describe('Core - Rudder Analytics Facade', () => {
     expect(analyticsInstanceMock.setAnonymousId).toHaveBeenCalledWith('id', 'param');
   });
 
-  it('should log an error if an exception is thrown during the setAnonymousId call', () => {
-    const errorSpy = jest.spyOn(rudderAnalytics.logger, 'error');
+  it('should dispatch an error event if an exception is thrown during the setAnonymousId call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
 
     // Intentionally cause an error during the setAnonymousId call
     const getAnalyticsInstanceSpy = jest
@@ -423,9 +462,13 @@ describe('Core - Rudder Analytics Facade', () => {
 
     rudderAnalytics.setAnonymousId('id');
 
-    expect(errorSpy).toHaveBeenCalledWith(
-      'RudderStackAnalytics:: An unhandled error occurred: Error: Error in getAnalyticsInstance',
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
     );
+
+    dispatchEventSpy.mockRestore();
 
     getAnalyticsInstanceSpy.mockRestore();
   });
@@ -455,8 +498,8 @@ describe('Core - Rudder Analytics Facade', () => {
     expect(analyticsInstanceMock.startSession).toHaveBeenCalledWith(1234);
   });
 
-  it('should log an error if an exception is thrown during the startSession call', () => {
-    const errorSpy = jest.spyOn(rudderAnalytics.logger, 'error');
+  it('should dispatch an error event if an exception is thrown during the startSession call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
 
     // Intentionally cause an error during the startSession call
     const getAnalyticsInstanceSpy = jest
@@ -467,9 +510,13 @@ describe('Core - Rudder Analytics Facade', () => {
 
     rudderAnalytics.startSession(1234);
 
-    expect(errorSpy).toHaveBeenCalledWith(
-      'RudderStackAnalytics:: An unhandled error occurred: Error: Error in getAnalyticsInstance',
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
     );
+
+    dispatchEventSpy.mockRestore();
 
     getAnalyticsInstanceSpy.mockRestore();
   });
@@ -489,8 +536,8 @@ describe('Core - Rudder Analytics Facade', () => {
     expect(analyticsInstanceMock.setAuthToken).toHaveBeenCalledWith('token');
   });
 
-  it('should log an error if an exception is thrown during the setAuthToken call', () => {
-    const errorSpy = jest.spyOn(rudderAnalytics.logger, 'error');
+  it('should dispatch an error event if an exception is thrown during the setAuthToken call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
 
     // Intentionally cause an error during the setAuthToken call
     const getAnalyticsInstanceSpy = jest
@@ -501,9 +548,13 @@ describe('Core - Rudder Analytics Facade', () => {
 
     rudderAnalytics.setAuthToken('token');
 
-    expect(errorSpy).toHaveBeenCalledWith(
-      'RudderStackAnalytics:: An unhandled error occurred: Error: Error in getAnalyticsInstance',
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
     );
+
+    dispatchEventSpy.mockRestore();
 
     getAnalyticsInstanceSpy.mockRestore();
   });
@@ -523,8 +574,8 @@ describe('Core - Rudder Analytics Facade', () => {
     });
   });
 
-  it('should log an error if an exception is thrown during the consent call', () => {
-    const errorSpy = jest.spyOn(rudderAnalytics.logger, 'error');
+  it('should dispatch an error event if an exception is thrown during the consent call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
 
     // Intentionally cause an error during the consent call
     const getAnalyticsInstanceSpy = jest
@@ -540,9 +591,13 @@ describe('Core - Rudder Analytics Facade', () => {
       },
     });
 
-    expect(errorSpy).toHaveBeenCalledWith(
-      'RudderStackAnalytics:: An unhandled error occurred: Error: Error in getAnalyticsInstance',
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
     );
+
+    dispatchEventSpy.mockRestore();
 
     getAnalyticsInstanceSpy.mockRestore();
   });

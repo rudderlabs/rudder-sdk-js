@@ -75,9 +75,6 @@ const DATA_PLANE_URL_VALIDATION_ERROR = (context: string, dataPlaneUrl: string):
 const READY_API_CALLBACK_ERROR = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The provided callback is not a function.`;
 
-const GLOBAL_UNHANDLED_ERROR = (context: string, error: Error): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}An unhandled error occurred: ${error}`;
-
 const XHR_DELIVERY_ERROR = (
   prefix: string,
   status: number,
@@ -320,5 +317,4 @@ export {
   SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING,
   BAD_COOKIES_WARNING,
   PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING,
-  GLOBAL_UNHANDLED_ERROR,
 };

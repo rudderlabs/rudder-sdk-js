@@ -17,4 +17,8 @@ const getMutatedError = (err: any, issue: string): Error => {
   return finalError;
 };
 
-export { getMutatedError };
+const dispatchErrorEvent = (error: any) => {
+  (globalThis as typeof window).dispatchEvent(new ErrorEvent('error', { error }));
+};
+
+export { getMutatedError, dispatchErrorEvent };

@@ -24,6 +24,7 @@ import { onPageLeave } from '@rudderstack/analytics-js-common/utilities/page';
 import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { getFormattedTimestamp } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import { getSanitizedValue } from '@rudderstack/analytics-js-common/utilities/json';
+import { dispatchErrorEvent } from '@rudderstack/analytics-js-common/utilities/errors';
 import { GLOBAL_PRELOAD_BUFFER } from '../constants/app';
 import {
   getPreloadedLoadEvent,
@@ -34,10 +35,7 @@ import { setExposedGlobal } from '../components/utilities/globals';
 import type { IAnalytics } from '../components/core/IAnalytics';
 import { Analytics } from '../components/core/Analytics';
 import { defaultLogger } from '../services/Logger/Logger';
-import {
-  GLOBAL_UNHANDLED_ERROR,
-  PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING,
-} from '../constants/logMessages';
+import { PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING } from '../constants/logMessages';
 import { defaultErrorHandler } from '../services/ErrorHandler';
 import { state } from '../state';
 
@@ -104,7 +102,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
       // for CDN bundling IIFE exports covers this but for npm ESM and CJS bundling has to be done explicitly
       (globalThis as typeof window).rudderanalytics = this;
     } catch (error: any) {
-      this.logger.error(GLOBAL_UNHANDLED_ERROR(RSA, error));
+      dispatchErrorEvent(error);
     }
   }
 
@@ -141,7 +139,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
 
       return this.analyticsInstances[instanceId] as IAnalytics;
     } catch (error: any) {
-      this.logger.error(GLOBAL_UNHANDLED_ERROR(RSA, error));
+      dispatchErrorEvent(error);
       return undefined;
     }
   }
@@ -177,7 +175,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
         getSanitizedValue(loadOptions),
       );
     } catch (error: any) {
-      this.logger.error(GLOBAL_UNHANDLED_ERROR(RSA, error));
+      dispatchErrorEvent(error);
     }
   }
 
@@ -327,7 +325,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     try {
       this.getAnalyticsInstance()?.ready(getSanitizedValue(callback));
     } catch (error: any) {
-      this.logger.error(GLOBAL_UNHANDLED_ERROR(RSA, error));
+      dispatchErrorEvent(error);
     }
   }
 
@@ -376,7 +374,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
         pageArgumentsToCallOptions(category, name, properties, options, callback),
       );
     } catch (error: any) {
-      this.logger.error(GLOBAL_UNHANDLED_ERROR(RSA, error));
+      dispatchErrorEvent(error);
     }
   }
 
@@ -403,7 +401,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
         trackArgumentsToCallOptions(event, properties, options, callback),
       );
     } catch (error: any) {
-      this.logger.error(GLOBAL_UNHANDLED_ERROR(RSA, error));
+      dispatchErrorEvent(error);
     }
   }
 
@@ -436,7 +434,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
         identifyArgumentsToCallOptions(userId, traits, options, callback),
       );
     } catch (error: any) {
-      this.logger.error(GLOBAL_UNHANDLED_ERROR(RSA, error));
+      dispatchErrorEvent(error);
     }
   }
 
@@ -457,7 +455,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     try {
       this.getAnalyticsInstance()?.alias(aliasArgumentsToCallOptions(to, from, options, callback));
     } catch (error: any) {
-      this.logger.error(GLOBAL_UNHANDLED_ERROR(RSA, error));
+      dispatchErrorEvent(error);
     }
   }
 
@@ -490,7 +488,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
         groupArgumentsToCallOptions(groupId, traits, options, callback),
       );
     } catch (error: any) {
-      this.logger.error(GLOBAL_UNHANDLED_ERROR(RSA, error));
+      dispatchErrorEvent(error);
     }
   }
 
@@ -498,7 +496,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     try {
       this.getAnalyticsInstance()?.reset(getSanitizedValue(resetAnonymousId));
     } catch (error: any) {
-      this.logger.error(GLOBAL_UNHANDLED_ERROR(RSA, error));
+      dispatchErrorEvent(error);
     }
   }
 
@@ -506,7 +504,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     try {
       return this.getAnalyticsInstance()?.getAnonymousId(getSanitizedValue(options));
     } catch (error: any) {
-      this.logger.error(GLOBAL_UNHANDLED_ERROR(RSA, error));
+      dispatchErrorEvent(error);
       return undefined;
     }
   }
@@ -518,7 +516,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
         getSanitizedValue(rudderAmpLinkerParam),
       );
     } catch (error: any) {
-      this.logger.error(GLOBAL_UNHANDLED_ERROR(RSA, error));
+      dispatchErrorEvent(error);
     }
   }
 
@@ -558,7 +556,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     try {
       this.getAnalyticsInstance()?.startSession(getSanitizedValue(sessionId));
     } catch (error: any) {
-      this.logger.error(GLOBAL_UNHANDLED_ERROR(RSA, error));
+      dispatchErrorEvent(error);
     }
   }
 
@@ -582,7 +580,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     try {
       this.getAnalyticsInstance()?.setAuthToken(getSanitizedValue(token));
     } catch (error: any) {
-      this.logger.error(GLOBAL_UNHANDLED_ERROR(RSA, error));
+      dispatchErrorEvent(error);
     }
   }
 
@@ -590,7 +588,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     try {
       this.getAnalyticsInstance()?.consent(getSanitizedValue(options));
     } catch (error: any) {
-      this.logger.error(GLOBAL_UNHANDLED_ERROR(RSA, error));
+      dispatchErrorEvent(error);
     }
   }
 }
