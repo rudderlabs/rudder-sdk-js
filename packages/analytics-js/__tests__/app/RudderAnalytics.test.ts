@@ -106,6 +106,8 @@ describe('Core - Rudder Analytics Facade', () => {
 
     RudderAnalytics.globalSingleton = originalSingleton;
     nowSpy.mockRestore();
+
+    dispatchEventSpy.mockRestore();
   });
 
   it('should auto set the default analytics key if no analytics instances exist', () => {
@@ -171,6 +173,8 @@ describe('Core - Rudder Analytics Facade', () => {
     );
 
     expect(result).toBeUndefined();
+
+    dispatchEventSpy.mockRestore();
   });
 
   it('should set the default analytics key if none has been set', () => {
@@ -231,7 +235,7 @@ describe('Core - Rudder Analytics Facade', () => {
 
     expect(dispatchEventSpy).toHaveBeenCalledWith(
       new ErrorEvent('error', {
-        error: new TypeError("Cannot read properties of undefined (reading 'writeKey')"),
+        error: new Error('Error in getAnalyticsInstance'),
       }),
     );
 
