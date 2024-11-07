@@ -1,8 +1,8 @@
-## [3.11.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.10.0...@rudderstack/analytics-js-common@3.11.0) (2024-10-25)
+## [3.11.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.11.0...@rudderstack/analytics-js-common@3.11.1) (2024-11-07)
 
 
-### Features
+### Bug Fixes
 
-* gainsight PX destination ([#1852](https://github.com/rudderlabs/rudder-sdk-js/issues/1852)) ([#1889](https://github.com/rudderlabs/rudder-sdk-js/issues/1889)) ([3a705f0](https://github.com/rudderlabs/rudder-sdk-js/commit/3a705f063bcae99c7964495ff83ad9ce8d4eb5a3))
-* track time spent on a page ([#1876](https://github.com/rudderlabs/rudder-sdk-js/issues/1876)) ([5590af7](https://github.com/rudderlabs/rudder-sdk-js/commit/5590af712dd951ce9182c06d8042794c4fe6df2f))
+* fixing display name issues ([#1909](https://github.com/rudderlabs/rudder-sdk-js/issues/1909)) ([633d887](https://github.com/rudderlabs/rudder-sdk-js/commit/633d8873a2e3c660573681608acf8ba5c431be3d))
+* move page visit id to context ([#1904](https://github.com/rudderlabs/rudder-sdk-js/issues/1904)) ([76bbd16](https://github.com/rudderlabs/rudder-sdk-js/commit/76bbd16bd764baa00df2995fa9fb287800fd68d3))
 
