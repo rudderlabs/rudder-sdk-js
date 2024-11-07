@@ -1,13 +1,12 @@
-## [3.9.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.8.0...@rudderstack/analytics-js@3.9.0) (2024-10-25)
+## [3.9.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.9.0...@rudderstack/analytics-js@3.9.1) (2024-11-07)
 
 ### Dependency Updates
 
-* `@rudderstack/analytics-js-cookies` updated to version `0.3.13`
-* `@rudderstack/analytics-js-common` updated to version `3.11.0`
-* `@rudderstack/analytics-js-plugins` updated to version `3.5.1`
+* `@rudderstack/analytics-js-cookies` updated to version `0.3.14`
+* `@rudderstack/analytics-js-common` updated to version `3.11.1`
+* `@rudderstack/analytics-js-plugins` updated to version `3.5.2`
 
-### Features
+### Bug Fixes
 
-* gainsight PX destination ([#1852](https://github.com/rudderlabs/rudder-sdk-js/issues/1852)) ([#1889](https://github.com/rudderlabs/rudder-sdk-js/issues/1889)) ([3a705f0](https://github.com/rudderlabs/rudder-sdk-js/commit/3a705f063bcae99c7964495ff83ad9ce8d4eb5a3))
-* track time spent on a page ([#1876](https://github.com/rudderlabs/rudder-sdk-js/issues/1876)) ([5590af7](https://github.com/rudderlabs/rudder-sdk-js/commit/5590af712dd951ce9182c06d8042794c4fe6df2f))
+* move page visit id to context ([#1904](https://github.com/rudderlabs/rudder-sdk-js/issues/1904)) ([76bbd16](https://github.com/rudderlabs/rudder-sdk-js/commit/76bbd16bd764baa00df2995fa9fb287800fd68d3))
 
