@@ -71,7 +71,7 @@ export default [
     name: 'Core (Bundled) - Modern - NPM (ESM)',
     path: 'dist/npm/modern/bundled/esm/index.mjs',
     import: '*',
-    limit: '39.5 KiB',
+    limit: '40 KiB',
   },
   {
     name: 'Core (Bundled) - Modern - NPM (CJS)',

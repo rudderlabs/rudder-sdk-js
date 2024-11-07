@@ -31,11 +31,10 @@ describe('Core - Rudder Analytics Facade', () => {
   });
 
   afterEach(() => {
-    (rudderAnalytics as any).globalSingleton = null;
     jest.resetAllMocks();
   });
 
-  it('should return the global singleton from "rudderanalytics" global object', done => {
+  it('should return the global singleton from "rudderanalytics" global object', () => {
     const expectedPreloadedEvents = [
       ['consent', { sendPageEvent: true }],
       ['consent', { sendPageEvent: false }],
@@ -46,7 +45,6 @@ describe('Core - Rudder Analytics Facade', () => {
 
     expect(window.RudderStackGlobals?.app?.preloadedEventsBuffer).toEqual(expectedPreloadedEvents);
     expect(window.rudderanalytics).toEqual(globalSingleton);
-    done();
   });
 
   it('should retrieve all preloaded events and set to global', () => {
