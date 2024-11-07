@@ -1,6 +1,6 @@
 const DIR_NAME = 'ConvertFlow';
 const NAME = 'CONVERTFLOW';
-const DISPLAY_NAME = 'ConvertFlow';
+const DISPLAY_NAME = 'Convertflow';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
