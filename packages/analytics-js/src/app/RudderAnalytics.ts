@@ -521,35 +521,39 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   }
 
   getUserId() {
-    // IMP: Add try-catch block to handle any unhandled errors
-    // similar to other public methods
-    // if the implementation of this method goes beyond
-    // simply forwarding the call to the analytics instance
-    return this.getAnalyticsInstance()?.getUserId();
+    try {
+      return this.getAnalyticsInstance()?.getUserId();
+    } catch (error: any) {
+      dispatchErrorEvent(error);
+      return undefined;
+    }
   }
 
   getUserTraits() {
-    // IMP: Add try-catch block to handle any unhandled errors
-    // similar to other public methods
-    // if the implementation of this method goes beyond
-    // simply forwarding the call to the analytics instance
-    return this.getAnalyticsInstance()?.getUserTraits();
+    try {
+      return this.getAnalyticsInstance()?.getUserTraits();
+    } catch (error: any) {
+      dispatchErrorEvent(error);
+      return undefined;
+    }
   }
 
   getGroupId() {
-    // IMP: Add try-catch block to handle any unhandled errors
-    // similar to other public methods
-    // if the implementation of this method goes beyond
-    // simply forwarding the call to the analytics instance
-    return this.getAnalyticsInstance()?.getGroupId();
+    try {
+      return this.getAnalyticsInstance()?.getGroupId();
+    } catch (error: any) {
+      dispatchErrorEvent(error);
+      return undefined;
+    }
   }
 
   getGroupTraits() {
-    // IMP: Add try-catch block to handle any unhandled errors
-    // similar to other public methods
-    // if the implementation of this method goes beyond
-    // simply forwarding the call to the analytics instance
-    return this.getAnalyticsInstance()?.getGroupTraits();
+    try {
+      return this.getAnalyticsInstance()?.getGroupTraits();
+    } catch (error: any) {
+      dispatchErrorEvent(error);
+      return undefined;
+    }
   }
 
   startSession(sessionId?: number): void {
@@ -561,19 +565,20 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   }
 
   endSession(): void {
-    // IMP: Add try-catch block to handle any unhandled errors
-    // similar to other public methods
-    // if the implementation of this method goes beyond
-    // simply forwarding the call to the analytics instance
-    this.getAnalyticsInstance()?.endSession();
+    try {
+      this.getAnalyticsInstance()?.endSession();
+    } catch (error: any) {
+      dispatchErrorEvent(error);
+    }
   }
 
   getSessionId() {
-    // IMP: Add try-catch block to handle any unhandled errors
-    // similar to other public methods
-    // if the implementation of this method goes beyond
-    // simply forwarding the call to the analytics instance
-    return this.getAnalyticsInstance()?.getSessionId();
+    try {
+      return this.getAnalyticsInstance()?.getSessionId();
+    } catch (error: any) {
+      dispatchErrorEvent(error);
+      return undefined;
+    }
   }
 
   setAuthToken(token: string): void {

@@ -602,6 +602,154 @@ describe('Core - Rudder Analytics Facade', () => {
     getAnalyticsInstanceSpy.mockRestore();
   });
 
+  it('should dispatch an error event if an exception is thrown during the getUserId call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+
+    // Intentionally cause an error during the getUserId call
+    const getAnalyticsInstanceSpy = jest
+      .spyOn(rudderAnalytics, 'getAnalyticsInstance')
+      .mockImplementation(() => {
+        throw new Error('Error in getAnalyticsInstance');
+      });
+
+    const userIdVal = rudderAnalytics.getUserId();
+
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
+    );
+
+    expect(userIdVal).toBeUndefined();
+
+    dispatchEventSpy.mockRestore();
+
+    getAnalyticsInstanceSpy.mockRestore();
+  });
+
+  it('should dispatch an error event if an exception is thrown during the getUserTraits call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+
+    // Intentionally cause an error during the getUserTraits call
+    const getAnalyticsInstanceSpy = jest
+      .spyOn(rudderAnalytics, 'getAnalyticsInstance')
+      .mockImplementation(() => {
+        throw new Error('Error in getAnalyticsInstance');
+      });
+
+    const traitsVal = rudderAnalytics.getUserTraits();
+
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
+    );
+
+    expect(traitsVal).toBeUndefined();
+
+    dispatchEventSpy.mockRestore();
+
+    getAnalyticsInstanceSpy.mockRestore();
+  });
+
+  it('should dispatch an error event if an exception is thrown during the getGroupId call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+
+    // Intentionally cause an error during the getGroupId call
+    const getAnalyticsInstanceSpy = jest
+      .spyOn(rudderAnalytics, 'getAnalyticsInstance')
+      .mockImplementation(() => {
+        throw new Error('Error in getAnalyticsInstance');
+      });
+
+    const groupId = rudderAnalytics.getGroupId();
+
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
+    );
+
+    expect(groupId).toBeUndefined();
+
+    dispatchEventSpy.mockRestore();
+
+    getAnalyticsInstanceSpy.mockRestore();
+  });
+
+  it('should dispatch an error event if an exception is thrown during the getGroupTraits call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+
+    // Intentionally cause an error during the getGroupTraits call
+    const getAnalyticsInstanceSpy = jest
+      .spyOn(rudderAnalytics, 'getAnalyticsInstance')
+      .mockImplementation(() => {
+        throw new Error('Error in getAnalyticsInstance');
+      });
+
+    const traitsVal = rudderAnalytics.getGroupTraits();
+
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
+    );
+
+    expect(traitsVal).toBeUndefined();
+
+    dispatchEventSpy.mockRestore();
+
+    getAnalyticsInstanceSpy.mockRestore();
+  });
+
+  it('should dispatch an error event if an exception is thrown during the endSession call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+
+    // Intentionally cause an error during the endSession call
+    const getAnalyticsInstanceSpy = jest
+      .spyOn(rudderAnalytics, 'getAnalyticsInstance')
+      .mockImplementation(() => {
+        throw new Error('Error in getAnalyticsInstance');
+      });
+
+    rudderAnalytics.endSession();
+
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
+    );
+
+    dispatchEventSpy.mockRestore();
+
+    getAnalyticsInstanceSpy.mockRestore();
+  });
+
+  it('should dispatch an error event if an exception is thrown during the getSessionId call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+
+    // Intentionally cause an error during the getSessionId call
+    const getAnalyticsInstanceSpy = jest
+      .spyOn(rudderAnalytics, 'getAnalyticsInstance')
+      .mockImplementation(() => {
+        throw new Error('Error in getAnalyticsInstance');
+      });
+
+    const sessionId = rudderAnalytics.getSessionId();
+
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
+    );
+
+    expect(sessionId).toBeUndefined();
+
+    dispatchEventSpy.mockRestore();
+
+    getAnalyticsInstanceSpy.mockRestore();
+  });
+
   describe('trackPageLifecycleEvents', () => {
     let rudderAnalyticsInstance: RudderAnalytics;
 
