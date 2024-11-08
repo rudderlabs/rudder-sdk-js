@@ -21,7 +21,7 @@ const getMutatedError = (err: any, issue: string): Error => {
 
 const dispatchErrorEvent = (error: any) => {
   if (isTypeOfError(error)) {
-    error.stack += `\n${MANUAL_ERROR_IDENTIFIER}`;
+    error.stack = `${error.stack ?? ''}\n${MANUAL_ERROR_IDENTIFIER}`;
   }
   (globalThis as typeof window).dispatchEvent(new ErrorEvent('error', { error }));
 };
