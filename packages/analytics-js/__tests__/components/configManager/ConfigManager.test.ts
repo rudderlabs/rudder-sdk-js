@@ -1,5 +1,9 @@
 import { effect, signal } from '@preact/signals-core';
 import { http, HttpResponse } from 'msw';
+import type {
+  ConfigResponseDestinationItem,
+  SourceConfigResponse,
+} from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
 import { defaultLogger } from '../../../src/services/Logger';
 import { ConfigManager } from '../../../src/components/configManager';
@@ -7,10 +11,6 @@ import { state, resetState } from '../../../src/state';
 import { getSDKUrl } from '../../../src/components/configManager/util/commonUtil';
 import { server } from '../../../__fixtures__/msw.server';
 import { dummySourceConfigResponse } from '../../../__fixtures__/fixtures';
-import {
-  ConfigResponseDestinationItem,
-  SourceConfigResponse,
-} from '../../../src/components/configManager/types';
 import { HttpClient } from '../../../src/services/HttpClient';
 
 jest.mock('../../../src/services/Logger', () => {
@@ -53,8 +53,6 @@ jest.mock('../../../src/components/configManager/util/commonUtil.ts', () => {
 
 describe('ConfigManager', () => {
   let configManagerInstance: ConfigManager;
-  const errorMsg =
-    'The write key " " is invalid. It must be a non-empty string. Please check that the write key is correct and try again.';
   const sampleWriteKey = '2LoR1TbVG2bcISXvy7DamldfkgO';
   const sampleDataPlaneUrl = 'https://www.dummy.url';
   const sampleDestSDKUrl = 'https://www.sample.url/integrations';
@@ -147,6 +145,42 @@ describe('ConfigManager', () => {
     expect(configManagerInstance.private_processConfig).toHaveBeenCalled();
   });
 
+  it('should throw an error if getSourceConfig load option is not a function', () => {
+    // @ts-expect-error Testing for invalid input
+    state.loadOptions.value.getSourceConfig = 'dummySourceConfigResponse';
+
+    expect(() => configManagerInstance.private_getConfig()).toThrow(
+      new Error(
+        '"getSourceConfig" must be a function. Please make sure that it is defined and returns a valid source configuration object.',
+      ),
+    );
+  });
+
+  it('should fetch configuration from getSourceConfig load option even when it returns a promise', done => {
+    state.loadOptions.value.getSourceConfig = () => Promise.resolve(dummySourceConfigResponse);
+
+    configManagerInstance.private_getConfig();
+
+    effect(() => {
+      if (state.lifecycle.status.value === 'configured') {
+        done();
+      }
+    });
+  });
+
+  it('should handle promise rejection errors from getSourceConfig function', done => {
+    state.loadOptions.value.getSourceConfig = () => Promise.reject(new Error('Some error'));
+
+    configManagerInstance.private_onError = jest.fn();
+
+    configManagerInstance.private_getConfig();
+
+    setTimeout(() => {
+      expect(configManagerInstance.private_onError).toHaveBeenCalled();
+      done();
+    }, 1);
+  });
+
   it('should update source, destination, lifecycle and reporting state with proper values', () => {
     const expectedSourceState = {
       id: dummySourceConfigResponse.source.id,
@@ -199,7 +233,11 @@ describe('ConfigManager', () => {
 
   it('should call the onError method of errorHandler for wrong sourceConfig response in string format', () => {
     state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
-    configManagerInstance.private_processConfig(JSON.stringify({ key: 'value' }));
+
+    // Intentionally, passing a string instead of SourceConfigResponse
+    configManagerInstance.private_processConfig(
+      JSON.stringify({ key: 'value' }) as unknown as SourceConfigResponse,
+    );
 
     expect(defaultErrorHandler.onError).toHaveBeenCalled();
   });
