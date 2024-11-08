@@ -16,7 +16,6 @@ describe('Core - Rudder Analytics Facade', () => {
   } as LoadOptions;
 
   beforeEach(() => {
-    Analytics.mockClear();
     analyticsInstanceMock = new Analytics() as jest.Mocked<Analytics>;
 
     // Queue up some events in the global object
@@ -33,7 +32,6 @@ describe('Core - Rudder Analytics Facade', () => {
   });
 
   afterEach(() => {
-    RudderAnalytics.private_globalSingleton = null;
     jest.resetAllMocks();
   });
 
@@ -59,6 +57,27 @@ describe('Core - Rudder Analytics Facade', () => {
     ]);
   });
 
+  it('should return an empty array when globalThis.rudderanalytics is not an array', () => {
+    const rudderAnalyticsInstance = new RudderAnalytics();
+    (globalThis as typeof window).rudderanalytics = undefined;
+    const result = rudderAnalyticsInstance.private_getPreloadedEvents();
+    expect(result).toEqual([]);
+  });
+
+  it('should return buffered events array when globalThis.rudderanalytics is an array', () => {
+    const bufferedEvents = [
+      ['track'],
+      ['consent', { sendPageEvent: true }],
+      ['load', 'dummyWriteKey', 'dummyDataPlaneUrl', { option1: true }],
+      ['consent', { sendPageEvent: false }],
+      ['track'],
+    ];
+    (window as any).rudderanalytics = bufferedEvents;
+    const rudderAnalyticsInstance = new RudderAnalytics();
+    const result = rudderAnalyticsInstance.private_getPreloadedEvents();
+    expect(result).toEqual(bufferedEvents);
+  });
+
   it('should return the global singleton if it exists', () => {
     const globalSingleton = rudderAnalytics;
     rudderAnalytics = new RudderAnalytics();
@@ -81,18 +100,52 @@ describe('Core - Rudder Analytics Facade', () => {
     expect(newAnalytics).not.toEqual(globalSingleton);
   });
 
+  it('should dispatch an error event if an exception is thrown during the construction', () => {
+    const originalSingleton = RudderAnalytics.private_globalSingleton;
+
+    RudderAnalytics.private_globalSingleton = null;
+
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+
+    // Explicitly throw an error during the construction
+    const nowSpy = jest.spyOn(Date, 'now').mockImplementation(() => {
+      throw new Error('Error in now function');
+    });
+
+    // eslint-disable-next-line sonarjs/constructor-for-side-effects, no-new
+    new RudderAnalytics();
+
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in now function'),
+      }),
+    );
+
+    RudderAnalytics.private_globalSingleton = originalSingleton;
+    nowSpy.mockRestore();
+
+    dispatchEventSpy.mockRestore();
+  });
+
   it('should auto set the default analytics key if no analytics instances exist', () => {
-    (rudderAnalytics as any).analyticsInstances = {};
-    (rudderAnalytics as any).defaultAnalyticsKey = '';
+    (rudderAnalytics as any).private_analyticsInstances = {};
+    (rudderAnalytics as any).private_defaultAnalyticsKey = '';
+
     rudderAnalytics.setDefaultInstanceKey('writeKey');
 
     expect(rudderAnalytics.private_defaultAnalyticsKey).toEqual('writeKey');
   });
 
-  it('should auto set the default analytics key if analytics instances exist', () => {
+  it('should set the default analytics key even if analytics instances exist', () => {
     rudderAnalytics.setDefaultInstanceKey('writeKey2');
 
     expect(rudderAnalytics.private_defaultAnalyticsKey).toEqual('writeKey2');
+  });
+
+  it('should not set default analytics key if the key is not a valid string', () => {
+    rudderAnalytics.setDefaultInstanceKey('');
+
+    expect(rudderAnalytics.private_defaultAnalyticsKey).toEqual('writeKey');
   });
 
   it('should return an existing analytics instance', () => {
@@ -100,8 +153,8 @@ describe('Core - Rudder Analytics Facade', () => {
   });
 
   it('should create a new analytics instance if none exists', () => {
-    (rudderAnalytics as any).analyticsInstances = {};
-    (rudderAnalytics as any).defaultAnalyticsKey = '';
+    (rudderAnalytics as any).private_analyticsInstances = {};
+    (rudderAnalytics as any).private_defaultAnalyticsKey = '';
     const analyticsInstance = rudderAnalytics.getAnalyticsInstance('writeKey1');
 
     expect(analyticsInstance).toBeInstanceOf(Analytics);
@@ -125,6 +178,25 @@ describe('Core - Rudder Analytics Facade', () => {
     expect(rudderAnalytics.getAnalyticsInstance('writeKey')).toStrictEqual(analyticsInstance);
   });
 
+  it('should return undefined and log error if an exception is thrown while getting the analytics instance', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+
+    // Intentionally set the parameter to undefined to trigger an error
+    (rudderAnalytics as any).private_analyticsInstances = undefined;
+
+    const result = rudderAnalytics.getAnalyticsInstance('writeKey2');
+
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new TypeError("Cannot read properties of undefined (reading 'writeKey2')"),
+      }),
+    );
+
+    expect(result).toBeUndefined();
+
+    dispatchEventSpy.mockRestore();
+  });
+
   it('should set the default analytics key if none has been set', () => {
     rudderAnalytics.load('writeKey', 'data-plane-url');
 
@@ -135,7 +207,7 @@ describe('Core - Rudder Analytics Facade', () => {
     rudderAnalytics.private_analyticsInstances = {};
     rudderAnalytics.private_defaultAnalyticsKey = '';
     rudderAnalytics.load('writeKey', 'data-plane-url', mockLoadOptions);
-    const analyticsInstance = rudderAnalytics.getAnalyticsInstance('writeKey');
+    const analyticsInstance = rudderAnalytics.getAnalyticsInstance('writeKey') as Analytics;
     const loadSpy = jest.spyOn(analyticsInstance, 'load');
 
     expect(rudderAnalytics.private_analyticsInstances).toHaveProperty(
@@ -145,166 +217,399 @@ describe('Core - Rudder Analytics Facade', () => {
     expect(loadSpy).toHaveBeenCalledWith('writeKey', 'data-plane-url', mockLoadOptions);
   });
 
+  it('should dispatch an error event if an exception is thrown during the load', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+
+    // Intentionally set the parameter to undefined to trigger an error
+    (rudderAnalytics as any).private_analyticsInstances = undefined;
+
+    rudderAnalytics.private_defaultAnalyticsKey = '';
+    rudderAnalytics.load('writeKey', 'data-plane-url', mockLoadOptions);
+
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new TypeError("Cannot read properties of undefined (reading 'writeKey')"),
+      }),
+    );
+
+    dispatchEventSpy.mockRestore();
+  });
+
   it('should process ready arguments and forwards to ready call', () => {
-    const analyticsInstance = rudderAnalytics.getAnalyticsInstance();
-    const readySpy = jest.spyOn(analyticsInstance, 'ready');
+    const callback = () => console.log('Ready!');
+
+    rudderAnalytics.ready(callback);
+    expect(analyticsInstanceMock.ready).toHaveBeenCalledWith(expect.any(Function));
+  });
+
+  it('should dispatch an error event if an exception is thrown during the ready call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+
+    // Intentionally cause an error during the ready call
+    const getAnalyticsInstanceSpy = jest
+      .spyOn(rudderAnalytics, 'getAnalyticsInstance')
+      .mockImplementation(() => {
+        throw new Error('Error in getAnalyticsInstance');
+      });
 
     const callback = () => console.log('Ready!');
 
     rudderAnalytics.ready(callback);
-    expect(readySpy).toHaveBeenCalledWith(expect.any(Function));
+
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
+    );
+
+    dispatchEventSpy.mockRestore();
+    getAnalyticsInstanceSpy.mockRestore();
   });
 
   it('should process page arguments and forwards to page call', () => {
-    const analyticsInstance = rudderAnalytics.getAnalyticsInstance();
-    const pageSpy = jest.spyOn(analyticsInstance, 'page');
-
     rudderAnalytics.page('category');
-    expect(pageSpy).toHaveBeenCalledWith({
+    expect(analyticsInstanceMock.page).toHaveBeenCalledWith({
       name: 'category',
       properties: { name: 'category' },
     });
   });
 
+  it('should dispatch an error event if an exception is thrown during the page call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+
+    // Intentionally cause an error during the page call
+    const getAnalyticsInstanceSpy = jest
+      .spyOn(rudderAnalytics, 'getAnalyticsInstance')
+      .mockImplementation(() => {
+        throw new Error('Error in getAnalyticsInstance');
+      });
+
+    rudderAnalytics.page('category');
+
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
+    );
+
+    dispatchEventSpy.mockRestore();
+
+    getAnalyticsInstanceSpy.mockRestore();
+  });
+
   it('should process track arguments and forwards to track call', () => {
-    const analyticsInstance = rudderAnalytics.getAnalyticsInstance();
-    const trackSpy = jest.spyOn(analyticsInstance, 'track');
+    rudderAnalytics.track('event');
+    expect(analyticsInstanceMock.track).toHaveBeenCalledWith({ name: 'event', properties: {} });
+  });
+
+  it('should dispatch an error event if an exception is thrown during the track call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+
+    // Intentionally cause an error during the track call
+    const getAnalyticsInstanceSpy = jest
+      .spyOn(rudderAnalytics, 'getAnalyticsInstance')
+      .mockImplementation(() => {
+        throw new Error('Error in getAnalyticsInstance');
+      });
 
     rudderAnalytics.track('event');
-    expect(trackSpy).toHaveBeenCalledWith({ name: 'event', properties: {} });
+
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
+    );
+
+    dispatchEventSpy.mockRestore();
+
+    getAnalyticsInstanceSpy.mockRestore();
   });
 
   it('should process identify arguments and forwards to identify call', () => {
-    const analyticsInstance = rudderAnalytics.getAnalyticsInstance();
-    const identifySpy = jest.spyOn(analyticsInstance, 'identify');
+    rudderAnalytics.identify('1234');
+    expect(analyticsInstanceMock.identify).toHaveBeenCalledWith({ userId: '1234' });
+  });
 
-    rudderAnalytics.identify(1234);
-    expect(identifySpy).toHaveBeenCalledWith({ userId: '1234' });
+  it('should dispatch an error event if an exception is thrown during the identify call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+
+    // Intentionally cause an error during the identify call
+    const getAnalyticsInstanceSpy = jest
+      .spyOn(rudderAnalytics, 'getAnalyticsInstance')
+      .mockImplementation(() => {
+        throw new Error('Error in getAnalyticsInstance');
+      });
+
+    rudderAnalytics.identify('1234');
+
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
+    );
+
+    dispatchEventSpy.mockRestore();
+
+    getAnalyticsInstanceSpy.mockRestore();
   });
 
   it('should process alias arguments and forwards to alias call', () => {
-    const analyticsInstance = rudderAnalytics.getAnalyticsInstance();
-    const aliasSpy = jest.spyOn(analyticsInstance, 'alias');
+    rudderAnalytics.alias('abc');
+    expect(analyticsInstanceMock.alias).toHaveBeenCalledWith({ to: 'abc' });
+  });
 
-    rudderAnalytics.alias('1234');
-    expect(aliasSpy).toHaveBeenCalledWith({ to: '1234' });
+  it('should dispatch an error event if an exception is thrown during the alias call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+
+    // Intentionally cause an error during the alias call
+    const getAnalyticsInstanceSpy = jest
+      .spyOn(rudderAnalytics, 'getAnalyticsInstance')
+      .mockImplementation(() => {
+        throw new Error('Error in getAnalyticsInstance');
+      });
+
+    rudderAnalytics.alias('abc');
+
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
+    );
+
+    dispatchEventSpy.mockRestore();
+
+    getAnalyticsInstanceSpy.mockRestore();
   });
 
   it('should process group arguments and forwards to group call', () => {
-    const analyticsInstance = rudderAnalytics.getAnalyticsInstance();
-    const groupSpy = jest.spyOn(analyticsInstance, 'group');
-
-    rudderAnalytics.group(1234);
-    expect(groupSpy).toHaveBeenCalledWith({ groupId: '1234' });
+    rudderAnalytics.group('5678');
+    expect(analyticsInstanceMock.group).toHaveBeenCalledWith({ groupId: '5678' });
   });
 
-  it('should log an error and not forward empty group call', () => {
-    const analyticsInstance = rudderAnalytics.getAnalyticsInstance();
-    const loggerErrorSpy = jest.spyOn(rudderAnalytics.private_logger, 'error');
-    const groupSpy = jest.spyOn(analyticsInstance, 'group');
+  it('should dispatch an error event if an exception is thrown during the group call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
 
-    rudderAnalytics.group();
-    expect(groupSpy).not.toHaveBeenCalled();
-    expect(loggerErrorSpy).toHaveBeenCalledWith(
-      'RudderStackApplication:: The group API must be invoked with at least one argument.',
+    // Intentionally cause an error during the group call
+    const getAnalyticsInstanceSpy = jest
+      .spyOn(rudderAnalytics, 'getAnalyticsInstance')
+      .mockImplementation(() => {
+        throw new Error('Error in getAnalyticsInstance');
+      });
+
+    rudderAnalytics.group('5678');
+
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
     );
+
+    dispatchEventSpy.mockRestore();
+
+    getAnalyticsInstanceSpy.mockRestore();
   });
 
   it('should process reset arguments and forwards to reset call', () => {
-    const analyticsInstance = rudderAnalytics.getAnalyticsInstance();
-    const resetSpy = jest.spyOn(analyticsInstance, 'reset');
+    rudderAnalytics.reset(true);
+    expect(analyticsInstanceMock.reset).toHaveBeenCalledWith(true);
+  });
+
+  it('should dispatch an error event if an exception is thrown during the reset call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+
+    // Intentionally cause an error during the reset call
+    const getAnalyticsInstanceSpy = jest
+      .spyOn(rudderAnalytics, 'getAnalyticsInstance')
+      .mockImplementation(() => {
+        throw new Error('Error in getAnalyticsInstance');
+      });
 
     rudderAnalytics.reset(true);
-    expect(resetSpy).toHaveBeenCalledWith(true);
+
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
+    );
+
+    dispatchEventSpy.mockRestore();
+
+    getAnalyticsInstanceSpy.mockRestore();
   });
 
   it('should process getAnonymousId arguments and forwards to getAnonymousId call', () => {
-    const analyticsInstance = rudderAnalytics.getAnalyticsInstance();
-    const getAnonymousIdSpy = jest.spyOn(analyticsInstance, 'getAnonymousId');
-
     rudderAnalytics.getAnonymousId({
       autoCapture: {
         enabled: true,
       },
     });
-    expect(getAnonymousIdSpy).toHaveBeenCalledWith({ autoCapture: { enabled: true } });
+    expect(analyticsInstanceMock.getAnonymousId).toHaveBeenCalledWith({
+      autoCapture: { enabled: true },
+    });
+  });
+
+  it('should return undefined and log an error if an exception is thrown during the getAnonymousId call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+
+    // Intentionally cause an error during the getAnonymousId call
+    const getAnalyticsInstanceSpy = jest
+      .spyOn(rudderAnalytics, 'getAnalyticsInstance')
+      .mockImplementation(() => {
+        throw new Error('Error in getAnalyticsInstance');
+      });
+
+    const result = rudderAnalytics.getAnonymousId();
+
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
+    );
+
+    dispatchEventSpy.mockRestore();
+    expect(result).toBeUndefined();
+
+    getAnalyticsInstanceSpy.mockRestore();
   });
 
   it('should process setAnonymousId arguments and forwards to setAnonymousId call', () => {
-    const analyticsInstance = rudderAnalytics.getAnalyticsInstance();
-    const setAnonymousIdSpy = jest.spyOn(analyticsInstance, 'setAnonymousId');
-
     rudderAnalytics.setAnonymousId('id', 'param');
-    expect(setAnonymousIdSpy).toHaveBeenCalledWith('id', 'param');
+    expect(analyticsInstanceMock.setAnonymousId).toHaveBeenCalledWith('id', 'param');
+  });
+
+  it('should dispatch an error event if an exception is thrown during the setAnonymousId call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+
+    // Intentionally cause an error during the setAnonymousId call
+    const getAnalyticsInstanceSpy = jest
+      .spyOn(rudderAnalytics, 'getAnalyticsInstance')
+      .mockImplementation(() => {
+        throw new Error('Error in getAnalyticsInstance');
+      });
+
+    rudderAnalytics.setAnonymousId('id');
+
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
+    );
+
+    dispatchEventSpy.mockRestore();
+
+    getAnalyticsInstanceSpy.mockRestore();
   });
 
   it('should process getUserId arguments and forwards to getUserId call', () => {
-    const analyticsInstance = rudderAnalytics.getAnalyticsInstance();
-    const getUserIdSpy = jest.spyOn(analyticsInstance, 'getUserId');
-
     rudderAnalytics.getUserId();
-    expect(getUserIdSpy).toHaveBeenCalledTimes(1);
+    expect(analyticsInstanceMock.getUserId).toHaveBeenCalledTimes(1);
   });
 
   it('should process getUserTraits arguments and forwards to getUserTraits call', () => {
-    const analyticsInstance = rudderAnalytics.getAnalyticsInstance();
-    const getUserTraitsSpy = jest.spyOn(analyticsInstance, 'getUserTraits');
-
     rudderAnalytics.getUserTraits();
-    expect(getUserTraitsSpy).toHaveBeenCalledTimes(1);
+    expect(analyticsInstanceMock.getUserTraits).toHaveBeenCalledTimes(1);
   });
 
   it('should process getGroupId arguments and forwards to getGroupId call', () => {
-    const analyticsInstance = rudderAnalytics.getAnalyticsInstance();
-    const getGroupIdSpy = jest.spyOn(analyticsInstance, 'getGroupId');
-
     rudderAnalytics.getGroupId();
-    expect(getGroupIdSpy).toHaveBeenCalledTimes(1);
+    expect(analyticsInstanceMock.getGroupId).toHaveBeenCalledTimes(1);
   });
 
   it('should process getGroupTraits arguments and forwards to getGroupTraits call', () => {
-    const analyticsInstance = rudderAnalytics.getAnalyticsInstance();
-    const getGroupTraitsSpy = jest.spyOn(analyticsInstance, 'getGroupTraits');
-
     rudderAnalytics.getGroupTraits();
-    expect(getGroupTraitsSpy).toHaveBeenCalledTimes(1);
+    expect(analyticsInstanceMock.getGroupTraits).toHaveBeenCalledTimes(1);
   });
 
   it('should process startSession arguments and forwards to startSession call', () => {
-    const analyticsInstance = rudderAnalytics.getAnalyticsInstance();
-    const startSessionSpy = jest.spyOn(analyticsInstance, 'startSession');
+    rudderAnalytics.startSession(1234);
+    expect(analyticsInstanceMock.startSession).toHaveBeenCalledWith(1234);
+  });
+
+  it('should dispatch an error event if an exception is thrown during the startSession call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+
+    // Intentionally cause an error during the startSession call
+    const getAnalyticsInstanceSpy = jest
+      .spyOn(rudderAnalytics, 'getAnalyticsInstance')
+      .mockImplementation(() => {
+        throw new Error('Error in getAnalyticsInstance');
+      });
 
     rudderAnalytics.startSession(1234);
-    expect(startSessionSpy).toHaveBeenCalledWith(1234);
+
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
+    );
+
+    dispatchEventSpy.mockRestore();
+
+    getAnalyticsInstanceSpy.mockRestore();
   });
 
   it('should process endSession arguments and forwards to endSession call', () => {
-    const analyticsInstance = rudderAnalytics.getAnalyticsInstance();
-    const endSessionSpy = jest.spyOn(analyticsInstance, 'endSession');
-
     rudderAnalytics.endSession();
-    expect(endSessionSpy).toHaveBeenCalledTimes(1);
+    expect(analyticsInstanceMock.endSession).toHaveBeenCalledTimes(1);
   });
 
   it('should process getSessionId arguments and forwards to getSessionId call', () => {
-    const analyticsInstance = rudderAnalytics.getAnalyticsInstance();
-    const getSessionIdSpy = jest.spyOn(analyticsInstance, 'getSessionId');
-
     rudderAnalytics.getSessionId();
-    expect(getSessionIdSpy).toHaveBeenCalledTimes(1);
+    expect(analyticsInstanceMock.getSessionId).toHaveBeenCalledTimes(1);
   });
 
   it('should process setAuthToken arguments and forwards to setAuthToken call', () => {
-    const analyticsInstance = rudderAnalytics.getAnalyticsInstance();
-    const setAuthTokenSpy = jest.spyOn(analyticsInstance, 'setAuthToken');
+    rudderAnalytics.setAuthToken('token');
+    expect(analyticsInstanceMock.setAuthToken).toHaveBeenCalledWith('token');
+  });
+
+  it('should dispatch an error event if an exception is thrown during the setAuthToken call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+
+    // Intentionally cause an error during the setAuthToken call
+    const getAnalyticsInstanceSpy = jest
+      .spyOn(rudderAnalytics, 'getAnalyticsInstance')
+      .mockImplementation(() => {
+        throw new Error('Error in getAnalyticsInstance');
+      });
 
     rudderAnalytics.setAuthToken('token');
-    expect(setAuthTokenSpy).toHaveBeenCalledWith('token');
+
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
+    );
+
+    dispatchEventSpy.mockRestore();
+
+    getAnalyticsInstanceSpy.mockRestore();
   });
 
   it('should process consent arguments and forwards to consent call', () => {
-    const analyticsInstance = rudderAnalytics.getAnalyticsInstance();
-    const consentSpy = jest.spyOn(analyticsInstance, 'consent');
+    rudderAnalytics.consent({
+      consentManagement: {
+        allowedConsentIds: ['1'],
+        deniedConsentIds: ['2'],
+      },
+    });
+    expect(analyticsInstanceMock.consent).toHaveBeenCalledWith({
+      consentManagement: {
+        allowedConsentIds: ['1'],
+        deniedConsentIds: ['2'],
+      },
+    });
+  });
+
+  it('should dispatch an error event if an exception is thrown during the consent call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+
+    // Intentionally cause an error during the consent call
+    const getAnalyticsInstanceSpy = jest
+      .spyOn(rudderAnalytics, 'getAnalyticsInstance')
+      .mockImplementation(() => {
+        throw new Error('Error in getAnalyticsInstance');
+      });
 
     rudderAnalytics.consent({
       consentManagement: {
@@ -312,136 +617,257 @@ describe('Core - Rudder Analytics Facade', () => {
         deniedConsentIds: ['2'],
       },
     });
-    expect(consentSpy).toHaveBeenCalledWith({
-      consentManagement: {
-        allowedConsentIds: ['1'],
-        deniedConsentIds: ['2'],
-      },
-    });
   });
 
-  it('should return an empty array when globalThis.rudderanalytics is not an array', () => {
-    const rudderAnalyticsInstance = new RudderAnalytics();
-    (globalThis as typeof window).rudderanalytics = undefined;
-    const result = rudderAnalyticsInstance.private_getPreloadedEvents();
-    expect(result).toEqual([]);
-  });
+  it('should dispatch an error event if an exception is thrown during the getUserId call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
 
-  it('should return buffered events array when globalThis.rudderanalytics is an array', () => {
-    const bufferedEvents = [
-      ['track'],
-      ['consent', { sendPageEvent: true }],
-      ['load', 'dummyWriteKey', 'dummyDataPlaneUrl', { option1: true }],
-      ['consent', { sendPageEvent: false }],
-      ['track'],
-    ];
-    (window as any).rudderanalytics = bufferedEvents;
-    const rudderAnalyticsInstance = new RudderAnalytics();
-    const result = rudderAnalyticsInstance.private_getPreloadedEvents();
-    expect(result).toEqual(bufferedEvents);
-  });
-});
+    // Intentionally cause an error during the getUserId call
+    const getAnalyticsInstanceSpy = jest
+      .spyOn(rudderAnalytics, 'getAnalyticsInstance')
+      .mockImplementation(() => {
+        throw new Error('Error in getAnalyticsInstance');
+      });
 
-describe('trackPageLifecycleEvents', () => {
-  let rudderAnalyticsInstance: RudderAnalytics;
+    const userIdVal = rudderAnalytics.getUserId();
 
-  beforeEach(() => {
-    (window as any).rudderanalytics = [];
-    rudderAnalyticsInstance = new RudderAnalytics();
-    rudderAnalyticsInstance.private_analyticsInstances = {};
-  });
-
-  afterEach(() => {
-    (rudderAnalyticsInstance as any).globalSingleton = null;
-    jest.resetAllMocks();
-  });
-
-  it('should not add pageLifecycleEvents in the buffer when the tracking is not enabled through load options', () => {
-    const bufferedEvents: PreloadedEventCall[] = [];
-    rudderAnalyticsInstance.private_trackPageLifecycleEvents(bufferedEvents, {});
-
-    expect(bufferedEvents).toEqual([]);
-  });
-
-  it('should inherit enabled and options properties from autoTrack load option', () => {
-    const bufferedEvents: PreloadedEventCall[] = [];
-    rudderAnalyticsInstance.private_trackPageLifecycleEvents(bufferedEvents, {
-      autoTrack: {
-        enabled: true,
-        options: { key: 'value' },
-      },
-    });
-
-    expect(bufferedEvents).toEqual([
-      ['track', 'Page Loaded', {}, { key: 'value', originalTimestamp: expect.any(String) }],
-    ]);
-  });
-
-  it('should override enabled and options properties of autoTrack if provided in load option', () => {
-    const bufferedEvents: PreloadedEventCall[] = [];
-    rudderAnalyticsInstance.private_trackPageLifecycleEvents(bufferedEvents, {
-      autoTrack: {
-        enabled: true,
-        options: { key: 'value' },
-        pageLifecycle: {
-          enabled: false,
-        },
-      },
-    });
-
-    expect(bufferedEvents).toEqual([]);
-  });
-
-  it('should track Page Loaded event irrespective of useBeacon load option', () => {
-    const bufferedEvents: PreloadedEventCall[] = [];
-    rudderAnalyticsInstance.private_trackPageLifecycleEvents(bufferedEvents, {
-      useBeacon: false,
-      autoTrack: {
-        pageLifecycle: {
-          enabled: true,
-        },
-      },
-    });
-
-    expect(bufferedEvents).toEqual([
-      ['track', 'Page Loaded', {}, { originalTimestamp: expect.any(String) }],
-    ]);
-  });
-
-  it('should track Page Unloaded event if useBeacon is set to true and trackPageLifecycle feature is enabled', () => {
-    const bufferedEvents: PreloadedEventCall[] = [];
-    rudderAnalyticsInstance.track = jest.fn();
-    rudderAnalyticsInstance.private_trackPageLifecycleEvents(bufferedEvents, {
-      useBeacon: true,
-      autoTrack: {
-        pageLifecycle: {
-          enabled: true,
-        },
-      },
-    });
-    state.lifecycle.loaded.value = true;
-    const event = new Event('beforeunload');
-    // Simulate the event
-    window.dispatchEvent(event);
-
-    expect(rudderAnalyticsInstance.track).toHaveBeenCalledWith(
-      'Page Unloaded',
-      { visitDuration: expect.any(Number) },
-      { originalTimestamp: expect.any(String) },
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
     );
+
+    expect(userIdVal).toBeUndefined();
+
+    dispatchEventSpy.mockRestore();
+
+    getAnalyticsInstanceSpy.mockRestore();
   });
 
-  it('should invoke trackPageLifecycleEvents method when load API is called', () => {
-    rudderAnalyticsInstance.private_trackPageLifecycleEvents = jest.fn();
-    rudderAnalyticsInstance.load('writeKey', 'data-plane-url', {
-      autoTrack: {
-        enabled: true,
-      },
+  it('should dispatch an error event if an exception is thrown during the getUserTraits call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+
+    // Intentionally cause an error during the getUserTraits call
+    const getAnalyticsInstanceSpy = jest
+      .spyOn(rudderAnalytics, 'getAnalyticsInstance')
+      .mockImplementation(() => {
+        throw new Error('Error in getAnalyticsInstance');
+      });
+
+    const traitsVal = rudderAnalytics.getUserTraits();
+
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
+    );
+
+    expect(traitsVal).toBeUndefined();
+
+    dispatchEventSpy.mockRestore();
+
+    getAnalyticsInstanceSpy.mockRestore();
+  });
+
+  it('should dispatch an error event if an exception is thrown during the getGroupId call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+
+    // Intentionally cause an error during the getGroupId call
+    const getAnalyticsInstanceSpy = jest
+      .spyOn(rudderAnalytics, 'getAnalyticsInstance')
+      .mockImplementation(() => {
+        throw new Error('Error in getAnalyticsInstance');
+      });
+
+    const groupId = rudderAnalytics.getGroupId();
+
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
+    );
+
+    expect(groupId).toBeUndefined();
+
+    dispatchEventSpy.mockRestore();
+
+    getAnalyticsInstanceSpy.mockRestore();
+  });
+
+  it('should dispatch an error event if an exception is thrown during the getGroupTraits call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+
+    // Intentionally cause an error during the getGroupTraits call
+    const getAnalyticsInstanceSpy = jest
+      .spyOn(rudderAnalytics, 'getAnalyticsInstance')
+      .mockImplementation(() => {
+        throw new Error('Error in getAnalyticsInstance');
+      });
+
+    const traitsVal = rudderAnalytics.getGroupTraits();
+
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
+    );
+
+    expect(traitsVal).toBeUndefined();
+
+    dispatchEventSpy.mockRestore();
+
+    getAnalyticsInstanceSpy.mockRestore();
+  });
+
+  it('should dispatch an error event if an exception is thrown during the endSession call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+
+    // Intentionally cause an error during the endSession call
+    const getAnalyticsInstanceSpy = jest
+      .spyOn(rudderAnalytics, 'getAnalyticsInstance')
+      .mockImplementation(() => {
+        throw new Error('Error in getAnalyticsInstance');
+      });
+
+    rudderAnalytics.endSession();
+
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
+    );
+
+    dispatchEventSpy.mockRestore();
+
+    getAnalyticsInstanceSpy.mockRestore();
+  });
+
+  it('should dispatch an error event if an exception is thrown during the getSessionId call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+
+    // Intentionally cause an error during the getSessionId call
+    const getAnalyticsInstanceSpy = jest
+      .spyOn(rudderAnalytics, 'getAnalyticsInstance')
+      .mockImplementation(() => {
+        throw new Error('Error in getAnalyticsInstance');
+      });
+
+    const sessionId = rudderAnalytics.getSessionId();
+
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
+    );
+
+    expect(sessionId).toBeUndefined();
+
+    dispatchEventSpy.mockRestore();
+
+    getAnalyticsInstanceSpy.mockRestore();
+  });
+
+  describe('trackPageLifecycleEvents', () => {
+    let rudderAnalyticsInstance: RudderAnalytics;
+
+    beforeEach(() => {
+      (window as any).rudderanalytics = [];
+      rudderAnalyticsInstance = new RudderAnalytics();
+      rudderAnalyticsInstance.private_analyticsInstances = {};
     });
-    expect(rudderAnalyticsInstance.private_trackPageLifecycleEvents).toHaveBeenCalledWith([], {
-      autoTrack: {
-        enabled: true,
-      },
+
+    afterEach(() => {
+      (rudderAnalyticsInstance as any).globalSingleton = null;
+      jest.resetAllMocks();
+    });
+
+    it('should not add pageLifecycleEvents in the buffer when the tracking is not enabled through load options', () => {
+      const bufferedEvents: PreloadedEventCall[] = [];
+      rudderAnalyticsInstance.private_trackPageLifecycleEvents(bufferedEvents, {});
+
+      expect(bufferedEvents).toEqual([]);
+    });
+
+    it('should inherit enabled and options properties from autoTrack load option', () => {
+      const bufferedEvents: PreloadedEventCall[] = [];
+      rudderAnalyticsInstance.private_trackPageLifecycleEvents(bufferedEvents, {
+        autoTrack: {
+          enabled: true,
+          options: { key: 'value' },
+        },
+      });
+
+      expect(bufferedEvents).toEqual([
+        ['track', 'Page Loaded', {}, { key: 'value', originalTimestamp: expect.any(String) }],
+      ]);
+    });
+
+    it('should override enabled and options properties of autoTrack if provided in load option', () => {
+      const bufferedEvents: PreloadedEventCall[] = [];
+      rudderAnalyticsInstance.private_trackPageLifecycleEvents(bufferedEvents, {
+        autoTrack: {
+          enabled: true,
+          options: { key: 'value' },
+          pageLifecycle: {
+            enabled: false,
+          },
+        },
+      });
+
+      expect(bufferedEvents).toEqual([]);
+    });
+
+    it('should track Page Loaded event irrespective of useBeacon load option', () => {
+      const bufferedEvents: PreloadedEventCall[] = [];
+      rudderAnalyticsInstance.private_trackPageLifecycleEvents(bufferedEvents, {
+        useBeacon: false,
+        autoTrack: {
+          pageLifecycle: {
+            enabled: true,
+          },
+        },
+      });
+
+      expect(bufferedEvents).toEqual([
+        ['track', 'Page Loaded', {}, { originalTimestamp: expect.any(String) }],
+      ]);
+    });
+
+    it('should track Page Unloaded event if useBeacon is set to true and trackPageLifecycle feature is enabled', () => {
+      const bufferedEvents: PreloadedEventCall[] = [];
+      rudderAnalyticsInstance.track = jest.fn();
+      rudderAnalyticsInstance.private_trackPageLifecycleEvents(bufferedEvents, {
+        useBeacon: true,
+        autoTrack: {
+          pageLifecycle: {
+            enabled: true,
+          },
+        },
+      });
+      state.lifecycle.loaded.value = true;
+      const event = new Event('beforeunload');
+      // Simulate the event
+      window.dispatchEvent(event);
+
+      expect(rudderAnalyticsInstance.track).toHaveBeenCalledWith(
+        'Page Unloaded',
+        { visitDuration: expect.any(Number) },
+        { originalTimestamp: expect.any(String) },
+      );
+    });
+
+    it('should invoke trackPageLifecycleEvents method when load API is called', () => {
+      rudderAnalyticsInstance.private_trackPageLifecycleEvents = jest.fn();
+      rudderAnalyticsInstance.load('writeKey', 'data-plane-url', {
+        autoTrack: {
+          enabled: true,
+        },
+      });
+      expect(rudderAnalyticsInstance.private_trackPageLifecycleEvents).toHaveBeenCalledWith([], {
+        autoTrack: {
+          enabled: true,
+        },
+      });
     });
   });
 });

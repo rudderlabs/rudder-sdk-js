@@ -2,6 +2,11 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.0.39](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.38...@rudderstack/analytics-js-loading-scripts@3.0.39) (2024-11-07)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.9.1`
 ## [3.0.38](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-loading-scripts@3.0.37...@rudderstack/analytics-js-loading-scripts@3.0.38) (2024-10-25)
 
 ### Dependency Updates

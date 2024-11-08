@@ -1,6 +1,8 @@
 import { isTypeOfError } from './checks';
 import { stringifyData } from './json';
 
+const MANUAL_ERROR_IDENTIFIER = '[MANUAL ERROR]';
+
 /**
  * Get mutated error with issue prepended to error message
  * @param err Original error
@@ -17,4 +19,11 @@ const getMutatedError = (err: any, issue: string): Error => {
   return finalError;
 };
 
-export { getMutatedError };
+const dispatchErrorEvent = (error: any) => {
+  if (isTypeOfError(error)) {
+    error.stack = `${error.stack ?? ''}\n${MANUAL_ERROR_IDENTIFIER}`;
+  }
+  (globalThis as typeof window).dispatchEvent(new ErrorEvent('error', { error }));
+};
+
+export { getMutatedError, dispatchErrorEvent, MANUAL_ERROR_IDENTIFIER };

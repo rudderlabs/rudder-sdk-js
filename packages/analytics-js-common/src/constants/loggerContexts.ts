@@ -10,7 +10,7 @@ const READY_API = 'readyApi';
 const LOAD_CONFIGURATION = 'LoadConfiguration';
 const EVENT_REPOSITORY = 'EventRepository';
 const HTTP_CLIENT = 'HttpClient';
-const RS_APP = 'RudderStackApplication';
+const RSA = 'RudderStackAnalytics';
 const ANALYTICS_CORE = 'AnalyticsCore';
 
 export {
@@ -26,6 +26,6 @@ export {
   LOAD_CONFIGURATION,
   EVENT_REPOSITORY,
   HTTP_CLIENT,
-  RS_APP,
+  RSA,
   ANALYTICS_CORE,
 };
