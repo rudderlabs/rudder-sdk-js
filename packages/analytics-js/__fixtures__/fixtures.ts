@@ -256,7 +256,7 @@ const entriesWithOnlyCookieStorage = {
     type: 'cookieStorage',
     key: COOKIE_KEYS.authToken,
   },
-} as unknown as StorageEntries;
+} satisfies StorageEntries;
 
 const entriesWithOnlyLocalStorage = {
   userId: {
@@ -295,7 +295,7 @@ const entriesWithOnlyLocalStorage = {
     type: 'localStorage',
     key: COOKIE_KEYS.authToken,
   },
-} as unknown as StorageEntries;
+} satisfies StorageEntries;
 
 const entriesWithoutCookieStorage = {
   userId: {
@@ -334,7 +334,7 @@ const entriesWithoutCookieStorage = {
     type: 'localStorage',
     key: COOKIE_KEYS.authToken,
   },
-} as unknown as StorageEntries;
+} satisfies StorageEntries;
 
 const entriesWithoutCookieAndLocalStorage = {
   userId: {
@@ -373,7 +373,7 @@ const entriesWithoutCookieAndLocalStorage = {
     type: 'sessionStorage',
     key: COOKIE_KEYS.authToken,
   },
-} as unknown as StorageEntries;
+} satisfies StorageEntries;
 
 const entriesWithOnlyNoStorage = {
   userId: {
@@ -412,7 +412,7 @@ const entriesWithOnlyNoStorage = {
     type: 'none',
     key: COOKIE_KEYS.authToken,
   },
-} as unknown as StorageEntries;
+} satisfies StorageEntries;
 
 const entriesWithOnlySessionStorage = {
   userId: {
@@ -451,7 +451,7 @@ const entriesWithOnlySessionStorage = {
     type: 'sessionStorage',
     key: COOKIE_KEYS.authToken,
   },
-} as unknown as StorageEntries;
+} satisfies StorageEntries;
 
 const entriesWithMixStorage = {
   userId: {
@@ -490,7 +490,7 @@ const entriesWithMixStorage = {
     type: 'memoryStorage',
     key: COOKIE_KEYS.authToken,
   },
-} as unknown as StorageEntries;
+} satisfies StorageEntries;
 
 const entriesWithMixStorageButWithoutNone = {
   userId: {
@@ -529,7 +529,7 @@ const entriesWithMixStorageButWithoutNone = {
     type: 'memoryStorage',
     key: COOKIE_KEYS.authToken,
   },
-} as unknown as StorageEntries;
+} satisfies StorageEntries;
 
 const loadOptionWithEntry = {
   userId: {
@@ -598,7 +598,7 @@ const entriesWithInMemoryFallback = {
     type: 'memoryStorage',
     key: COOKIE_KEYS.authToken,
   },
-} as unknown as StorageEntries;
+} satisfies StorageEntries;
 
 const loadOptionWithInvalidEntry = {
   userId: {
@@ -649,7 +649,7 @@ const entriesWithStorageOnlyForSession = {
     type: 'none',
     key: COOKIE_KEYS.authToken,
   },
-} as unknown as StorageEntries;
+} satisfies StorageEntries;
 
 const anonymousIdWithNoStorageEntries = {
   userId: {
@@ -688,7 +688,7 @@ const anonymousIdWithNoStorageEntries = {
     type: 'cookieStorage',
     key: COOKIE_KEYS.authToken,
   },
-} as unknown as StorageEntries;
+} satisfies StorageEntries;
 
 const entriesWithStorageOnlyForAnonymousId = {
   userId: {
@@ -727,7 +727,7 @@ const entriesWithStorageOnlyForAnonymousId = {
     type: 'none',
     key: COOKIE_KEYS.authToken,
   },
-} as unknown as StorageEntries;
+} satisfies StorageEntries;
 
 export {
   identifyRequestPayload,
