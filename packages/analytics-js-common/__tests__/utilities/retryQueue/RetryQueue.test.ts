@@ -709,6 +709,43 @@ describe('RetryQueue', () => {
       );
     });
 
+    it('should take over an in-progress task (which is an object) if a queue is abandoned', () => {
+      // set up a fake queue
+      const foundQueue = new Store({
+        name: 'test',
+        id: 'fake-id',
+        validKeys: QueueStatuses,
+      });
+      foundQueue.set('ack', -15000);
+
+      // Older in progress queues are stored as an object
+      foundQueue.set('inProgress', {
+        id1: {
+          item: 'a',
+          time: 0,
+          attemptNumber: 0,
+        },
+      });
+
+      // wait for the queue to expire
+      jest.advanceTimersByTime(DEFAULT_RECLAIM_TIMEOUT_MS);
+
+      queue.start();
+
+      // wait long enough for the other queue to expire and be reclaimed
+      jest.advanceTimersByTime(DEFAULT_RECLAIM_TIMER_MS + DEFAULT_RECLAIM_WAIT_MS * 2);
+
+      expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
+      expect(queue.processQueueCb).toHaveBeenCalledWith(
+        'a',
+        expect.any(Function),
+        1,
+        2,
+        true,
+        true,
+      );
+    });
+
     it('should take over multiple tasks if a queue is abandoned', () => {
       // set up a fake queue
       const foundQueue = new Store({
