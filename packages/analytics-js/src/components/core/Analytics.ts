@@ -534,7 +534,7 @@ class Analytics implements IAnalytics {
       return;
     }
 
-    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
+    this.errorHandler.leaveBreadcrumb(`New ${type} event - ${payload.name}`);
     state.metrics.triggered.value += 1;
 
     this.eventManager?.addEvent({
