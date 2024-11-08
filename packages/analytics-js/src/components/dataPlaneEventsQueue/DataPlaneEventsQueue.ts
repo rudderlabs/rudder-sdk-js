@@ -13,14 +13,9 @@ import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { toBase64 } from '@rudderstack/analytics-js-common/utilities/string';
 import { clone } from 'ramda';
 import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/time';
-import type {
-  BatchData,
-  EventsQueueItemData,
-  IDataPlaneEventsQueue,
-  SingleEventData,
-} from './types';
+import type { EventsQueueItemData, IDataPlaneEventsQueue, SingleEventData } from './types';
 import {
-  getBatchDeliveryPayload,
+  getBatchSize,
   getDeliveryUrl,
   getNormalizedQueueOptions,
   getRequestInfo,
@@ -40,6 +35,7 @@ class DataPlaneEventsQueue implements IDataPlaneEventsQueue {
     this.private_httpClient = httpClient;
     this.private_storeManager = storeManager;
     this.private_logger = logger;
+    this.private_handleRetryQueueItem = this.private_handleRetryQueueItem.bind(this);
 
     const finalQOpts = getNormalizedQueueOptions(state.loadOptions.value);
 
@@ -47,75 +43,70 @@ class DataPlaneEventsQueue implements IDataPlaneEventsQueue {
       // adding write key to the queue name to avoid conflicts
       `${QUEUE_NAME}_${state.lifecycle.writeKey.value as string}`,
       finalQOpts,
-      (
-        itemData: QueueItemData,
-        done: DoneCallback,
-        attemptNumber?: number,
-        maxRetryAttempts?: number,
-        willBeRetried?: boolean,
-        isPageAccessible?: boolean,
-      ) => {
-        const { data, url, headers } = getRequestInfo(itemData as EventsQueueItemData, state);
-
-        const keepalive = isPageAccessible === false;
-
-        this.private_httpClient.request({
-          url,
-          options: {
-            method: 'POST',
-            headers,
-            body: data as string,
-            useAuth: true,
-            keepalive,
-          },
-          isRawResponse: true,
-          timeout: REQUEST_TIMEOUT_MS,
-          callback: (result, details) => {
-            // The callback will not be fired anyway for keepalive requests
-            // but just in case
-            if (keepalive) {
-              return;
-            }
-
-            // null means item will not be requeued
-            let queueErrResp = null;
-            if (details.error) {
-              const isRetryableFailure = isErrRetryable(details);
-              if (isRetryableFailure) {
-                queueErrResp = details;
-              }
-
-              logErrorOnFailure(
-                isRetryableFailure,
-                details.error.message,
-                willBeRetried,
-                attemptNumber,
-                maxRetryAttempts,
-                this.private_logger,
-              );
-            }
-            done(queueErrResp, result);
-          },
-        });
-
-        // For requests that happen on page leave, we cannot wait for fetch API to complete
-        // So, we assume that the request is successful and call done immediately
-        if (keepalive) {
-          done(null);
-        }
-      },
+      this.private_handleRetryQueueItem,
       this.private_storeManager,
       LOCAL_STORAGE,
       logger,
-      (itemData: QueueItemData[]): number => {
-        const currentTime = getCurrentTimeFormatted();
-        const events = (itemData as BatchData).map(
-          (queueItemData: SingleEventData) => queueItemData.event,
-        );
-        // type casting to string as we know that the event has already been validated prior to enqueue
-        return (getBatchDeliveryPayload(events, currentTime) as string)?.length;
-      },
+      getBatchSize,
     );
+  }
+
+  private_handleRetryQueueItem(
+    itemData: QueueItemData,
+    done: DoneCallback,
+    attemptNumber?: number,
+    maxRetryAttempts?: number,
+    willBeRetried?: boolean,
+    isPageAccessible?: boolean,
+  ) {
+    const { data, url, headers } = getRequestInfo(itemData as EventsQueueItemData, state);
+
+    const keepalive = isPageAccessible === false;
+
+    this.private_httpClient.request({
+      url,
+      options: {
+        method: 'POST',
+        headers,
+        body: data as string,
+        useAuth: true,
+        keepalive,
+      },
+      isRawResponse: true,
+      timeout: REQUEST_TIMEOUT_MS,
+      callback: (result, details) => {
+        // The callback will not be fired anyway for keepalive requests
+        // but just in case
+        if (keepalive) {
+          return;
+        }
+
+        // null means item will not be requeued
+        let queueErrResp = null;
+        if (details.error) {
+          const isRetryableFailure = isErrRetryable(details);
+          if (isRetryableFailure) {
+            queueErrResp = details;
+          }
+
+          logErrorOnFailure(
+            isRetryableFailure,
+            details.error.message,
+            willBeRetried,
+            attemptNumber,
+            maxRetryAttempts,
+            this.private_logger,
+          );
+        }
+        done(queueErrResp, result);
+      },
+    });
+
+    // For requests that happen on page leave, we cannot wait for fetch API to complete
+    // So, we assume that the request is successful and call done immediately
+    if (keepalive) {
+      done(null);
+    }
   }
 
   enqueue(event: RudderEvent) {

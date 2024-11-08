@@ -8,13 +8,17 @@ import { removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utiliti
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/time';
 import { stringifyData } from '@rudderstack/analytics-js-common/utilities/json';
+import type {
+  QueueBatchItemsSizeCalculatorCallback,
+  QueueItemData,
+} from '@rudderstack/analytics-js-common/utilities/retryQueue/types';
 import {
   DATA_PLANE_API_VERSION,
   DATA_PLANE_EVENTS_QUEUE,
   DEFAULT_RETRY_QUEUE_OPTIONS,
   EVENT_PAYLOAD_SIZE_BYTES_LIMIT,
 } from './constants';
-import type { BatchPayload, EventsQueueItemData, SingleEventData } from './types';
+import type { BatchData, BatchPayload, EventsQueueItemData, SingleEventData } from './types';
 import {
   EVENT_DELIVERY_FAILURE_ERROR_PREFIX,
   EVENT_PAYLOAD_SIZE_CHECK_FAIL_WARNING,
@@ -147,6 +151,17 @@ const validateEventPayloadSize = (event: RudderEvent, logger?: ILogger) => {
   }
 };
 
+const getBatchSize: QueueBatchItemsSizeCalculatorCallback<QueueItemData> = (
+  itemData: QueueItemData[],
+): number => {
+  const currentTime = getCurrentTimeFormatted();
+  const events = (itemData as BatchData).map(
+    (queueItemData: SingleEventData) => queueItemData.event,
+  );
+  // type casting to string as we know that the event has already been validated prior to enqueue
+  return (getBatchDeliveryPayload(events, currentTime) as string)?.length;
+};
+
 export {
   getNormalizedQueueOptions,
   getFinalEventForDeliveryMutator,
@@ -157,4 +172,5 @@ export {
   getDeliveryUrl,
   logErrorOnFailure,
   validateEventPayloadSize,
+  getBatchSize,
 };

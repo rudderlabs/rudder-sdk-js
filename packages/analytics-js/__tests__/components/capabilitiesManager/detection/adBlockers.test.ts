@@ -2,10 +2,11 @@ import { effect } from '@preact/signals-core';
 import { detectAdBlockers } from '../../../../src/components/capabilitiesManager/detection/adBlockers';
 import { state, resetState } from '../../../../src/state';
 import { HttpClientError } from '../../../../src/services/HttpClient/HttpClientError';
+import type { HttpClient } from '../../../../src/services/HttpClient/HttpClient';
 
 describe('detectAdBlockers', () => {
-  let errObj;
-  let responseObj;
+  let errObj: any;
+  let responseObj: any;
 
   const mockHttpClient = {
     setAuthHeader: jest.fn(),
@@ -15,7 +16,7 @@ describe('detectAdBlockers', () => {
         response: responseObj,
       });
     }),
-  };
+  } as unknown as HttpClient;
 
   beforeEach(() => {
     state.lifecycle.sourceConfigUrl.value = 'https://example.com/some/path/';
