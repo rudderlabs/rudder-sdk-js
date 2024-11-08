@@ -1,6 +1,9 @@
+/* eslint-disable sonarjs/no-nested-functions */
 import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { stringifyData } from '@rudderstack/analytics-js-common/utilities/json';
 import { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
+import type { IStore } from '@rudderstack/analytics-js-common/types/Store';
+import type { Source } from '@rudderstack/analytics-js-common/types/Source';
 import { UserSessionManager } from '../../../src/components/userSessionManager';
 import { DEFAULT_USER_SESSION_VALUES } from '../../../src/components/userSessionManager/constants';
 import { StoreManager } from '../../../src/services/StoreManager';
@@ -48,9 +51,9 @@ describe('User session manager', () => {
   let userSessionManager: UserSessionManager;
 
   defaultStoreManager.init();
-  let clientDataStoreCookie;
-  let clientDataStoreLS;
-  let clientDataStoreSession;
+  let clientDataStoreCookie: any;
+  let clientDataStoreLS: any;
+  let clientDataStoreSession: any;
 
   const setDataInLocalStorage = (data: any) => {
     Object.entries(data).forEach(([key, value]) => {
@@ -138,45 +141,52 @@ describe('User session manager', () => {
       expect(state.session.anonymousId.value).toBe(customData.rl_anonymous_id);
       expect(state.session.authToken.value).toBe(DEFAULT_USER_SESSION_VALUES.authToken);
     });
+
     it('should set anonymousId from external name if externalAnonymousIdCookieName load option is provided', () => {
       const customData = {
-        rl_anonymous_id: 'dummy-anonymousId',
+        anonId: 'external-anonymousId',
       };
       setDataInCookieStorage(customData);
       state.loadOptions.value.externalAnonymousIdCookieName = 'anonId';
       state.storage.entries.value = entriesWithOnlyCookieStorage;
-      const spy = jest.spyOn(userSessionManager, 'private_getExternalAnonymousIdByCookieName');
+
       userSessionManager.syncStorageDataToState();
-      expect(spy).toHaveBeenCalledWith('anonId');
+
+      // setDataInCookieStorage function results in stringifying the data before setting it in cookies
+      expect(state.session.anonymousId.value).toBe('"external-anonymousId"');
+
+      clientDataStoreCookie.remove('anonId');
     });
+
     it('should set anonymousId with existing logic if external name is not string', () => {
       const customData = {
         rl_anonymous_id: 'dummy-anonymousId',
       };
       setDataInCookieStorage(customData);
+
+      // @ts-expect-error testing invalid externalAnonymousIdCookieName
       state.loadOptions.value.externalAnonymousIdCookieName = 12345;
       state.storage.entries.value = entriesWithOnlyCookieStorage;
-      const spy = jest.spyOn(userSessionManager, 'private_getExternalAnonymousIdByCookieName');
 
       userSessionManager.syncStorageDataToState();
 
-      expect(spy).not.toHaveBeenCalled();
       expect(state.session.anonymousId.value).toBe('dummy-anonymousId');
     });
+
     it('should set anonymousId with existing logic if external name is null', () => {
       const customData = {
         rl_anonymous_id: 'dummy-anonymousId',
       };
       setDataInCookieStorage(customData);
+      // @ts-expect-error testing invalid externalAnonymousIdCookieName
       state.loadOptions.value.externalAnonymousIdCookieName = null;
       state.storage.entries.value = entriesWithOnlyCookieStorage;
-      const spy = jest.spyOn(userSessionManager, 'private_getExternalAnonymousIdByCookieName');
 
       userSessionManager.syncStorageDataToState();
 
-      expect(spy).not.toHaveBeenCalled();
       expect(state.session.anonymousId.value).toBe('dummy-anonymousId');
     });
+
     it('should set anonymousId with existing logic if external name is undefined', () => {
       const customData = {
         rl_anonymous_id: 'dummy-anonymousId',
@@ -184,13 +194,12 @@ describe('User session manager', () => {
       setDataInCookieStorage(customData);
       state.loadOptions.value.externalAnonymousIdCookieName = undefined;
       state.storage.entries.value = entriesWithOnlyCookieStorage;
-      const spy = jest.spyOn(userSessionManager, 'private_getExternalAnonymousIdByCookieName');
 
       userSessionManager.syncStorageDataToState();
 
-      expect(spy).not.toHaveBeenCalled();
       expect(state.session.anonymousId.value).toBe('dummy-anonymousId');
     });
+
     it('should set anonymousId with existing logic if anonymousId fetch by the external name is null', () => {
       const customData = {
         rl_anonymous_id: 'dummy-anonymousId',
@@ -198,10 +207,10 @@ describe('User session manager', () => {
       setDataInCookieStorage(customData);
       state.loadOptions.value.externalAnonymousIdCookieName = 'anonId';
       state.storage.entries.value = entriesWithOnlyCookieStorage;
-      userSessionManager.private_getExternalAnonymousIdByCookieName = jest.fn(() => null);
       userSessionManager.syncStorageDataToState();
       expect(state.session.anonymousId.value).toBe('dummy-anonymousId');
     });
+
     it('should not set sessionInfo if autoTrack is set to false in loadOption and sessionInfo exists in storage', () => {
       const customData = {
         rl_session: {
@@ -213,6 +222,8 @@ describe('User session manager', () => {
         },
       };
       setDataInCookieStorage(customData);
+
+      // @ts-expect-error sessions data is available by default
       state.loadOptions.value.sessions.autoTrack = false;
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.syncStorageDataToState();
@@ -229,6 +240,7 @@ describe('User session manager', () => {
         },
       };
       setDataInCookieStorage(customData);
+      // @ts-expect-error sessions data is available by default
       state.loadOptions.value.sessions.autoTrack = false;
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.syncStorageDataToState();
@@ -281,10 +293,11 @@ describe('User session manager', () => {
       };
 
       class MockPluginsManager implements IPluginsManager {
+        // @ts-expect-error mock implementation
         invokeSingle = jest.fn(() => ''); // always return empty string
       }
 
-      const mockPluginsManager = new MockPluginsManager();
+      const mockPluginsManager = new MockPluginsManager() as unknown as IPluginsManager;
 
       const storeManager = new StoreManager(
         defaultPluginsManager,
@@ -545,7 +558,7 @@ describe('User session manager', () => {
       state.session.sessionInfo.value = {
         autoTrack: true,
         manualTrack: false,
-        id: 'new-session-id',
+        id: 1234,
       };
       state.session.authToken.value = 'new-auth-token';
 
@@ -561,7 +574,7 @@ describe('User session manager', () => {
       expect(clientDataStoreCookie.get('rl_session')).toStrictEqual({
         autoTrack: true,
         manualTrack: false,
-        id: 'new-session-id',
+        id: 1234,
       });
       expect(clientDataStoreCookie.get('rl_auth_token')).toBe('new-auth-token');
     });
@@ -601,6 +614,7 @@ describe('User session manager', () => {
 
     it('should log a warning and use default timeout if provided timeout is not in number format', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
+      // @ts-expect-error sessions data is available by default
       state.loadOptions.value.sessions.timeout = '100000';
       userSessionManager.init();
       expect(defaultLogger.warn).toHaveBeenCalledWith(
@@ -611,6 +625,7 @@ describe('User session manager', () => {
 
     it('should log a warning and disable auto tracking if provided timeout is 0', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
+      // @ts-expect-error sessions data is available by default
       state.loadOptions.value.sessions.timeout = 0;
       userSessionManager.init();
       expect(defaultLogger.warn).toHaveBeenCalledWith(
@@ -621,6 +636,7 @@ describe('User session manager', () => {
 
     it('should log a warning if provided timeout is less than 10 seconds', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
+      // @ts-expect-error sessions data is available by default
       state.loadOptions.value.sessions.timeout = 5000; // provided timeout as 5 second
       userSessionManager.init();
       expect(defaultLogger.warn).toHaveBeenCalledWith(
@@ -663,6 +679,7 @@ describe('User session manager', () => {
       expect(actualAnonymousId).toBe(DEFAULT_USER_SESSION_VALUES.anonymousId);
     });
 
+    // eslint-disable-next-line sonarjs/no-skipped-test
     it.skip('should return anonymous ID from external source', () => {
       const customData = {
         ajs_anonymous_id: 'dummy-anonymousId-12345678',
@@ -1050,6 +1067,8 @@ describe('User session manager', () => {
     it('should reset the value to default value if the value is not an object', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.init();
+
+      // @ts-expect-error invalid value
       userSessionManager.setUserTraits('dummy-user-traits');
       expect(state.session.userTraits.value).toStrictEqual(DEFAULT_USER_SESSION_VALUES.userTraits);
     });
@@ -1125,6 +1144,7 @@ describe('User session manager', () => {
     it('should reset the value to default value if the value is not an object', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.init();
+      // @ts-expect-error invalid value
       userSessionManager.setGroupTraits('dummy-group-traits');
       expect(state.session.groupTraits.value).toStrictEqual(
         DEFAULT_USER_SESSION_VALUES.groupTraits,
@@ -1221,6 +1241,7 @@ describe('User session manager', () => {
     it('should reset the value to default value if the value is not provided', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.init();
+      // @ts-expect-error essential for the test case
       userSessionManager.setAuthToken();
       expect(state.session.authToken.value).toBe(DEFAULT_USER_SESSION_VALUES.authToken);
     });
@@ -1378,7 +1399,7 @@ describe('User session manager', () => {
         id: 1683613729115,
         sessionStart: false,
       };
-      const sessionId = userSessionManager.getSessionId();
+      const sessionId = userSessionManager.getSessionId() as number;
       expect(typeof sessionId).toBe('number');
       expect(sessionId.toString().length).toBeGreaterThan(0);
     });
@@ -1555,20 +1576,6 @@ describe('User session manager', () => {
     });
   });
 
-  describe('getExternalAnonymousIdByCookieName', () => {
-    it('should return null if the cookie value does not exists', () => {
-      const externalAnonymousId =
-        userSessionManager.private_getExternalAnonymousIdByCookieName('anonId_cookie');
-      expect(externalAnonymousId).toEqual(null);
-    });
-    it('should return the cookie value if exists', () => {
-      document.cookie = 'anonId_cookie=sampleAnonymousId12345';
-      const externalAnonymousId =
-        userSessionManager.private_getExternalAnonymousIdByCookieName('anonId_cookie');
-      expect(externalAnonymousId).toEqual('sampleAnonymousId12345');
-    });
-  });
-
   describe('syncValueToStorage', () => {
     it('should not call setServerSideCookies method in case isEnabledServerSideCookies state option is not set', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
@@ -1584,6 +1591,9 @@ describe('User session manager', () => {
     });
 
     it('should call setServerSideCookies method in case isEnabledServerSideCookies state option is set to true', done => {
+      jest.useFakeTimers();
+      jest.setSystemTime(0);
+
       state.serverCookies.isEnabledServerSideCookies.value = true;
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
@@ -1594,6 +1604,9 @@ describe('User session manager', () => {
       );
       userSessionManager.private_syncValueToStorage('anonymousId', 'dummy_anonymousId');
 
+      jest.runAllTimers();
+      jest.useRealTimers();
+
       setTimeout(() => {
         expect(setServerSideCookiesSpy).toHaveBeenCalledWith(
           [{ name: 'rl_anonymous_id', value: 'dummy_anonymousId' }],
@@ -1602,7 +1615,7 @@ describe('User session manager', () => {
         );
         expect(clientDataStoreCookie.set).toHaveBeenCalled();
         done();
-      }, 1000);
+      }, 1);
     });
 
     describe('Cookie should be removed from server side', () => {
@@ -1623,7 +1636,10 @@ describe('User session manager', () => {
       });
     });
 
-    it('should debounce multiple cookie set network requests', done => {
+    it('should debounce multiple cookie set network requests', () => {
+      jest.useFakeTimers();
+      jest.setSystemTime(0);
+
       state.serverCookies.isEnabledServerSideCookies.value = true;
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
@@ -1639,15 +1655,15 @@ describe('User session manager', () => {
       userSessionManager.private_syncValueToStorage('anonymousId', 'dummy_anonymousId2');
       userSessionManager.private_syncValueToStorage('anonymousId', 'dummy_anonymousId3');
 
-      setTimeout(() => {
-        expect(setServerSideCookiesSpy).toHaveBeenCalledTimes(1);
-        expect(setServerSideCookiesSpy).toHaveBeenCalledWith(
-          [{ name: 'rl_anonymous_id', value: 'dummy_anonymousId3' }],
-          expect.any(Function),
-          expect.any(Object),
-        );
-        done();
-      }, 1000);
+      jest.runAllTimers();
+      jest.useRealTimers();
+
+      expect(setServerSideCookiesSpy).toHaveBeenCalledTimes(1);
+      expect(setServerSideCookiesSpy).toHaveBeenCalledWith(
+        [{ name: 'rl_anonymous_id', value: 'dummy_anonymousId3' }],
+        expect.any(Function),
+        expect.any(Object),
+      );
     });
   });
 
@@ -1660,6 +1676,10 @@ describe('User session manager', () => {
       server.close();
     });
 
+    beforeEach(() => {
+      state.source.value = { workspaceId: 'sample_workspaceId' } as unknown as Source;
+    });
+
     const mockCookieStore = {
       private_encrypt: jest.fn(val => `encrypted_${JSON.parse(val)}`),
       set: jest.fn(),
@@ -1668,7 +1688,7 @@ describe('User session manager', () => {
         prop2: 12345678,
         prop3: { city: 'Kolkata', zip: '700001' },
       })),
-    };
+    } as unknown as IStore;
 
     const mockCallback = jest.fn();
 
@@ -1701,7 +1721,6 @@ describe('User session manager', () => {
 
     describe('Network request to Data service is successful', () => {
       it('should validate cookies are set from the server side', done => {
-        state.source.value = { workspaceId: 'sample_workspaceId' };
         state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
         state.storage.cookie.value = {
           maxage: 10 * 60 * 1000, // 10 min
@@ -1725,7 +1744,7 @@ describe('User session manager', () => {
         );
         setTimeout(() => {
           expect(mockCookieStore.get).toHaveBeenCalledWith('key');
-          expect(mockCookieStore.get()).toStrictEqual({
+          expect(mockCookieStore.get('key')).toStrictEqual({
             prop1: 'sample property 1',
             prop2: 12345678,
             prop3: { city: 'Kolkata', zip: '700001' },
@@ -1736,10 +1755,10 @@ describe('User session manager', () => {
           );
           expect(mockCallback).not.toHaveBeenCalled();
           done();
-        }, 1000);
+        }, 1);
       });
+
       it('should set cookies from client side if not successfully set from the server side', done => {
-        state.source.value = { workspaceId: 'sample_workspaceId' };
         state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
         state.storage.cookie.value = {
           maxage: 10 * 60 * 1000, // 10 min
@@ -1762,12 +1781,11 @@ describe('User session manager', () => {
           );
           expect(mockCookieStore.set).toHaveBeenCalledWith('key', { prop1: 'sample property' });
           done();
-        }, 1000);
+        }, 1);
       });
     });
 
     it('should set cookie from client side if data service is down', done => {
-      state.source.value = { workspaceId: 'sample_workspaceId' };
       state.serverCookies.dataServiceUrl.value =
         'https://dummy.dataplane.host.com/serverDown/rsaRequest';
       state.storage.cookie.value = {
@@ -1784,11 +1802,10 @@ describe('User session manager', () => {
       setTimeout(() => {
         expect(mockCallback).toHaveBeenCalled();
         done();
-      }, 1000);
+      }, 1);
     });
 
     it('should set cookie from client side if dataServerUrl is invalid', done => {
-      state.source.value = { workspaceId: 'sample_workspaceId' };
       state.serverCookies.dataServiceUrl.value =
         'https://dummy.dataplane.host.com/invalidUrl/rsaRequest';
       state.storage.cookie.value = {
@@ -1805,11 +1822,10 @@ describe('User session manager', () => {
       setTimeout(() => {
         expect(mockCallback).toHaveBeenCalled();
         done();
-      }, 1000);
+      }, 1);
     });
 
     it('should set cookie from client side if any unhandled error ocurred in serServerSideCookie function', () => {
-      state.source.value = { workspaceId: 'sample_workspaceId' };
       state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
       userSessionManager.private_getEncryptedCookieData = jest.fn(() => {
         throw new Error('test error');
@@ -1844,7 +1860,6 @@ describe('User session manager', () => {
     describe('makeRequestToSetCookie', () => {
       it('should make external request to exposed endpoint', done => {
         state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
-        state.source.value = { workspaceId: 'sample_workspaceId' };
         state.storage.cookie.value = {
           maxage: 10 * 60 * 1000, // 10 min
           path: '/',
