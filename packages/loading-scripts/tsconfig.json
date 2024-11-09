@@ -5,5 +5,5 @@
     "declarationDir": "./dist/dts",
     "isolatedModules": false
   },
-  "include": ["./package.json", "./src/**/*", "../../types/**/*", "../analytics-js/src/**/*"]
+  "include": ["./package.json", "./src/**/*", "../../types/**/*"]
 }

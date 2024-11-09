@@ -13,11 +13,11 @@
   },
   "include": [
     "./package.json",
-    "../../types/**/*",
     "./jest.config.mjs",
     "./__tests__/**/*",
     "./__mocks__/**/*",
     "./__fixtures__/**/*",
+    "../../types/**/*",
     "./src/**/*",
     "../analytics-js/src/**/*"
   ]

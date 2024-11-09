@@ -1,5 +1,10 @@
 /* eslint-disable prefer-rest-params */
 /* Loading snippet start */
+import type {
+  PreloadedEventCall,
+  RudderAnalytics,
+  RudderAnalyticsPreloader,
+} from '@rudderstack/analytics-js';
 
 window.RudderSnippetVersion = '__PACKAGE_VERSION__';
 const identifier = 'rudderanalytics';
@@ -39,12 +44,12 @@ if (Array.isArray(rudderanalytics)) {
     // eslint-disable-next-line unicorn/no-for-loop, sonarjs/prefer-for-of
     for (let i = 0; i < methods.length; i++) {
       const method = methods[i] as string;
-      (rudderanalytics as any)[method] = (methodName =>
+      (rudderanalytics as unknown as RudderAnalyticsPreloader)[method] = (methodName =>
         // eslint-disable-next-line func-names
         function () {
           if (Array.isArray(window[identifier])) {
-            (rudderanalytics as any[]).push(
-              [methodName].concat(Array.prototype.slice.call(arguments) as any),
+            (rudderanalytics as unknown as PreloadedEventCall[]).push(
+              [methodName].concat(Array.prototype.slice.call(arguments) as PreloadedEventCall),
             );
           } else {
             (window[identifier] as any)[methodName]?.apply(window[identifier], arguments);
@@ -140,6 +145,10 @@ if (Array.isArray(rudderanalytics)) {
       // configure your load options here
     };
 
-    (rudderanalytics as any).load('__WRITE_KEY__', '__DATAPLANE_URL__', loadOptions);
+    (rudderanalytics as unknown as RudderAnalytics).load(
+      '__WRITE_KEY__',
+      '__DATAPLANE_URL__',
+      loadOptions,
+    );
   }
 }
