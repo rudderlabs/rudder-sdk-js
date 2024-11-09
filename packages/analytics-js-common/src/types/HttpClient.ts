@@ -40,10 +40,8 @@ export type IRequestOptions = IFetchRequestOptions;
 export type HTTPClientMethod =
   | 'GET'
   | 'DELETE'
-  | 'CONNECT'
   | 'HEAD'
   | 'OPTIONS'
-  | 'TRACE'
   | 'POST'
   | 'PUT'
   | 'PATCH';

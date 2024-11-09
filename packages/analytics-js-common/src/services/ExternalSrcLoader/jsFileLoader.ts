@@ -115,14 +115,14 @@ const jsFileLoader = (
       ) => {
         (globalThis as typeof window).clearTimeout(timeoutID);
 
-        let errorDetails: Error | string;
+        let errorDetails: Error | Event | ErrorEvent | string;
 
         if (error) {
           errorDetails = error;
         } else if (event instanceof ErrorEvent && event.error) {
           errorDetails = event.error;
         } else {
-          errorDetails = 'no information';
+          errorDetails = event;
         }
 
         reject(getMutatedError(errorDetails, SCRIPT_LOAD_ERROR(id, url)));
