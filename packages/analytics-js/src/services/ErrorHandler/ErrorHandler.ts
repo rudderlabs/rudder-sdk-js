@@ -41,6 +41,7 @@ class ErrorHandler implements IErrorHandler {
     this.private_pluginEngine = pluginEngine;
     this.private_errorBuffer = new BufferQueue();
     this.private_attachEffects();
+    this.private_attachErrorListeners();
   }
 
   private_attachEffects() {
