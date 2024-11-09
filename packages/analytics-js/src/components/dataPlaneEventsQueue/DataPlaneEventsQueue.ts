@@ -75,12 +75,6 @@ class DataPlaneEventsQueue implements IDataPlaneEventsQueue {
       isRawResponse: true,
       timeout: REQUEST_TIMEOUT_MS,
       callback: (result, details) => {
-        // The callback will not be fired anyway for keepalive requests
-        // but just in case
-        if (keepalive) {
-          return;
-        }
-
         // null means item will not be requeued
         let queueErrResp = null;
         if (details.error) {

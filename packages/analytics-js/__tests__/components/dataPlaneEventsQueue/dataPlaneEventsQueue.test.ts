@@ -26,7 +26,7 @@ describe('DataPlaneEventsQueue', () => {
   } as unknown as RudderEvent;
 
   beforeEach(() => {
-    state.lifecycle.activeDataplaneUrl.value = 'https://test-url.com';
+    state.lifecycle.activeDataplaneUrl.value = 'https://12345.com';
     dataPlaneEventsQueue.clear();
     dataPlaneEventsQueue.stop();
   });
@@ -91,7 +91,7 @@ describe('DataPlaneEventsQueue', () => {
       dataPlaneEventsQueue.enqueue(testEvent);
 
       expect(addItemSpy).toHaveBeenCalledWith({
-        url: 'https://test-url.com/v1/track',
+        url: 'https://12345.com/v1/track',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json;charset=UTF-8',
@@ -109,6 +109,7 @@ describe('DataPlaneEventsQueue', () => {
       const originalMaxPayloadSize = EVENT_PAYLOAD_SIZE_BYTES_LIMIT;
 
       // Temporarily set the maximum payload size to a smaller value
+      // @ts-expect-error needed for testing
       EVENT_PAYLOAD_SIZE_BYTES_LIMIT = 32;
 
       dataPlaneEventsQueue.enqueue(testEvent);
@@ -117,6 +118,7 @@ describe('DataPlaneEventsQueue', () => {
         'DataPlaneEventsQueue:: The size of the event payload (107 bytes) exceeds the maximum limit of 32 bytes. Events with large payloads may be dropped in the future. Please review your instrumentation to ensure that event payloads are within the size limit.',
       );
 
+      // @ts-expect-error needed for testing
       EVENT_PAYLOAD_SIZE_BYTES_LIMIT = originalMaxPayloadSize;
     });
 
@@ -135,7 +137,7 @@ describe('DataPlaneEventsQueue', () => {
       expect(batchQueueEntry).toBeNull();
 
       expect(requestSpy).toHaveBeenCalledWith({
-        url: 'https://test-url.com/v1/track',
+        url: 'https://12345.com/v1/track',
         options: {
           method: 'POST',
           body: '{"type":"track","event":"test event","anonymousId":"test_anonymous_id","sentAt":"1999-01-01T00:00:00.000Z"}',
@@ -153,6 +155,45 @@ describe('DataPlaneEventsQueue', () => {
       });
 
       requestSpy.mockRestore();
+    });
+
+    it('should process the response of the request', () => {
+      dataPlaneEventsQueue.start();
+
+      const originalRequest = httpClient.request;
+
+      let requestOverride: any;
+
+      httpClient.request = jest.fn().mockImplementation(config => {
+        requestOverride(config);
+      });
+
+      // Retryable failure
+      requestOverride = (config: any) => {
+        const { callback } = config;
+        callback(undefined, { error: { status: 502, message: 'unknown' } });
+      };
+
+      dataPlaneEventsQueue.enqueue(testEvent);
+
+      expect(defaultLogger.error).toHaveBeenCalledWith(
+        'DataPlaneEventsQueue:: Failed to deliver event(s): unknown. It/they will be retried.',
+      );
+
+      defaultLogger.error.mockClear();
+
+      // Success response
+      requestOverride = (config: any) => {
+        const { callback } = config;
+        callback('{"raw": "sample"}', {});
+      };
+
+      dataPlaneEventsQueue.enqueue(testEvent);
+
+      expect(defaultLogger.error).not.toHaveBeenCalled();
+
+      // Restore the original request method
+      httpClient.request = originalRequest;
     });
 
     it('should process last batch of events when the page is being unloaded', () => {
@@ -180,7 +221,7 @@ describe('DataPlaneEventsQueue', () => {
       window.dispatchEvent(new Event('beforeunload'));
 
       expect(requestSpy).toHaveBeenCalledWith({
-        url: 'https://test-url.com/v1/batch',
+        url: 'https://12345.com/v1/batch',
         options: {
           method: 'POST',
           // batch payload
@@ -205,38 +246,9 @@ describe('DataPlaneEventsQueue', () => {
       expect(queueEntry).toBeNull();
       expect(batchQueueEntry).toBeNull();
 
+      // Restore the page's state
+      window.dispatchEvent(new Event('focus'));
       requestSpy.mockRestore();
-    });
-
-    it('should process the response of the request', () => {
-      dataPlaneEventsQueue.start();
-
-      const originalRequest = httpClient.request;
-
-      let requestOverride: any;
-
-      httpClient.request = jest.fn().mockImplementation(config => {
-        requestOverride(config);
-      });
-
-      // Retryable failure
-      requestOverride = (config: any) => {
-        const { callback } = config;
-        callback(undefined, { error: { status: 502 } });
-      };
-
-      dataPlaneEventsQueue.enqueue(testEvent);
-
-      // Success response
-      requestOverride = (config: any) => {
-        const { callback } = config;
-        callback('{"raw": "sample"}');
-      };
-
-      dataPlaneEventsQueue.enqueue(testEvent);
-
-      // Restore the original request method
-      httpClient.request = originalRequest;
     });
   });
 
