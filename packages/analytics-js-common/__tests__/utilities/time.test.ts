@@ -7,11 +7,23 @@ import {
 
 describe('time', () => {
   describe('wait', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+      jest.setSystemTime(0);
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
     it('should return a promise that resolves after the specified time', async () => {
       const time = 1000;
       const startTime = Date.now();
 
-      await wait(time);
+      const waitPromise = wait(time);
+
+      jest.advanceTimersByTime(time);
+
+      await waitPromise;
 
       const endTime = Date.now();
 
@@ -22,7 +34,11 @@ describe('time', () => {
       const time = 0;
       const startTime = Date.now();
 
-      await wait(time);
+      const waitPromise = wait(time);
+
+      jest.advanceTimersByTime(time);
+
+      await waitPromise;
 
       const endTime = Date.now();
 
@@ -30,6 +46,8 @@ describe('time', () => {
     });
 
     it('should return a promise that resolves immediately even if the time is negative', async () => {
+      jest.useRealTimers();
+
       const time = -1000;
       const startTime = Date.now();
 

@@ -21,7 +21,6 @@ import {
   DMT_REQUEST_FAILED_ERROR,
   DMT_SERVER_ACCESS_DENIED_WARNING,
   DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR,
-  INVALID_RESPONSE,
 } from './logMessages';
 
 /**
@@ -68,80 +67,87 @@ const sendTransformedEventToDestinations = (
     d => d && destinationIds.includes(d.id),
   );
 
-  // TODO: Check to see if we can still send the events to the destinations
-  if (!isDefinedAndNotNull(response)) {
-    errorHandler?.onError(INVALID_RESPONSE, DMT_PLUGIN);
-    return;
-  }
+  const reqFailedHandler = (
+    dest: Destination,
+    status: number | undefined,
+    eventsToSend: TransformedEvent[],
+  ) => {
+    if (dest.propagateEventsUntransformedOnError === true) {
+      logger?.warn(
+        DMT_REQUEST_FAILED_ERROR(
+          DMT_PLUGIN,
+          dest.displayName,
+          status,
+          ACTION_TO_SEND_UNTRANSFORMED_EVENT,
+        ),
+      );
+      eventsToSend.push(event);
+    } else {
+      logger?.error(
+        DMT_REQUEST_FAILED_ERROR(DMT_PLUGIN, dest.displayName, status, ACTION_TO_DROP_EVENT),
+      );
+    }
+  };
 
   const status = details.error?.status ?? details.response?.status;
 
   destinations.forEach(dest => {
     try {
       const eventsToSend: TransformedEvent[] = [];
-      switch (status) {
-        case 200: {
-          const destTransformedResult = response?.transformedBatch.find(
-            (e: TransformedBatch) => e.id === dest.id,
-          );
-          destTransformedResult?.payload.forEach((tEvent: TransformedPayload) => {
-            if (tEvent.status === '200') {
-              eventsToSend.push(tEvent.event as TransformedEvent);
-            } else {
-              let reason = 'Unknown';
-              if (tEvent.status === '410') {
-                reason = 'Transformation is not available';
-              }
-
-              let action = ACTION_TO_DROP_EVENT;
-              if (dest.propagateEventsUntransformedOnError === true) {
-                action = ACTION_TO_SEND_UNTRANSFORMED_EVENT;
-                eventsToSend.push(event);
-                logger?.warn(
-                  DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR(
-                    DMT_PLUGIN,
-                    dest.displayName,
-                    reason,
-                    action,
-                  ),
-                );
+      // If the response is invalid, handle it
+      if (!isDefinedAndNotNull(response)) {
+        reqFailedHandler(dest, status, eventsToSend);
+      } else {
+        switch (status) {
+          case 200: {
+            const destTransformedResult = response?.transformedBatch.find(
+              (e: TransformedBatch) => e.id === dest.id,
+            );
+            destTransformedResult?.payload.forEach((tEvent: TransformedPayload) => {
+              if (tEvent.status === '200') {
+                eventsToSend.push(tEvent.event as TransformedEvent);
               } else {
-                logger?.error(
-                  DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR(
-                    DMT_PLUGIN,
-                    dest.displayName,
-                    reason,
-                    action,
-                  ),
-                );
+                let reason = 'Unknown';
+                if (tEvent.status === '410') {
+                  reason = 'Transformation is not available';
+                }
+
+                let action = ACTION_TO_DROP_EVENT;
+                if (dest.propagateEventsUntransformedOnError === true) {
+                  action = ACTION_TO_SEND_UNTRANSFORMED_EVENT;
+                  eventsToSend.push(event);
+                  logger?.warn(
+                    DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR(
+                      DMT_PLUGIN,
+                      dest.displayName,
+                      reason,
+                      action,
+                    ),
+                  );
+                } else {
+                  logger?.error(
+                    DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR(
+                      DMT_PLUGIN,
+                      dest.displayName,
+                      reason,
+                      action,
+                    ),
+                  );
+                }
               }
-            }
-          });
-          break;
-        }
-        // Transformation server access denied
-        case 404: {
-          logger?.warn(DMT_SERVER_ACCESS_DENIED_WARNING(DMT_PLUGIN));
-          eventsToSend.push(event);
-          break;
-        }
-        default: {
-          if (dest.propagateEventsUntransformedOnError === true) {
-            logger?.warn(
-              DMT_REQUEST_FAILED_ERROR(
-                DMT_PLUGIN,
-                dest.displayName,
-                status,
-                ACTION_TO_SEND_UNTRANSFORMED_EVENT,
-              ),
-            );
-            eventsToSend.push(event);
-          } else {
-            logger?.error(
-              DMT_REQUEST_FAILED_ERROR(DMT_PLUGIN, dest.displayName, status, ACTION_TO_DROP_EVENT),
-            );
+            });
+            break;
           }
-          break;
+          // Transformation server access denied
+          case 404: {
+            logger?.warn(DMT_SERVER_ACCESS_DENIED_WARNING(DMT_PLUGIN));
+            eventsToSend.push(event);
+            break;
+          }
+          default: {
+            reqFailedHandler(dest, status, eventsToSend);
+            break;
+          }
         }
       }
       eventsToSend?.forEach((tEvent?: TransformedEvent) => {

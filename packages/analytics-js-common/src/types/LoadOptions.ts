@@ -133,7 +133,6 @@ export type SourceConfigResponse = {
     workspaceId: string;
     writeKey: string;
     enabled: boolean;
-    dataplanes: Record<string, any>;
     id: string;
     name: string;
     config: {

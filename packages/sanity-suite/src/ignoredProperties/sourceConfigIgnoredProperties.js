@@ -47,6 +47,10 @@ const sourceConfigIgnoredProperties = [
     key: `source.destinations.9.updatedAt`,
     type: 'string',
   },
+  {
+    key: `source.dataplanes`,
+    optional: true,
+  },
 ];
 
 export { sourceConfigIgnoredProperties };

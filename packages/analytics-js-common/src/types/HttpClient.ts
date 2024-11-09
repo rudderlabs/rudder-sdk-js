@@ -14,11 +14,9 @@ export interface IHttpClientError extends Error {
 }
 
 export type ResponseDetails = {
-  response?: Response;
-  error?: IHttpClientError;
   url: string | URL;
   options: IRequestOptions;
-} & ({ response: Response } | { error: IHttpClientError });
+} & ({ response: Response; error?: never } | { error: IHttpClientError; response?: never });
 
 export type AsyncRequestCallback<T> = (
   data: T | undefined | null,

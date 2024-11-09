@@ -29,7 +29,7 @@ class Store implements IStore {
 
     this.private_engine = defaultInMemoryStorage;
   };
-  set = (key: string, value) => {
+  set = (key: string, value: any) => {
     const validKey = this.private_createValidKey(key);
     this.private_engine.setItem(validKey, value);
   };
@@ -41,7 +41,9 @@ class Store implements IStore {
     const validKey = this.private_createValidKey(key);
     this.private_engine.removeItem(validKey);
   };
-  clear = this.private_engine.clear;
+  clear = () => {
+    this.private_engine.clear();
+  };
   private_onError = jest.fn();
   private_crypto = jest.fn();
   private_encrypt = jest.fn();

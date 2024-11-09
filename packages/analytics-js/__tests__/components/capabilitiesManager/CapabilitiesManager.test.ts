@@ -1,5 +1,4 @@
 import { isLegacyJSEngine } from '../../../src/components/capabilitiesManager/detection';
-import type { ICapabilitiesManager } from '../../../src/components/capabilitiesManager/types';
 import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
 import { CapabilitiesManager } from '../../../src/components/capabilitiesManager';
 import { state, resetState } from '../../../src/state';
@@ -32,7 +31,7 @@ jest.mock('../../../src/components/capabilitiesManager/polyfill', () => {
 });
 
 describe('CapabilitiesManager', () => {
-  let capabilitiesManager: ICapabilitiesManager;
+  let capabilitiesManager: CapabilitiesManager;
   const defaultHttpClient = new HttpClient(defaultLogger);
 
   describe('init', () => {
@@ -104,7 +103,10 @@ describe('CapabilitiesManager', () => {
       state.lifecycle.writeKey.value = 'sample-write-key';
       state.loadOptions.value.polyfillIfRequired = true;
 
-      const tempCapabilitiesManager = new CapabilitiesManager(defaultErrorHandler);
+      const tempCapabilitiesManager = new CapabilitiesManager(
+        defaultHttpClient,
+        defaultErrorHandler,
+      );
 
       isLegacyJSEngine.mockReturnValue(true);
 

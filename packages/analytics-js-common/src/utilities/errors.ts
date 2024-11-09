@@ -21,6 +21,7 @@ const getMutatedError = (err: any, issue: string): Error => {
 
 const dispatchErrorEvent = (error: any) => {
   if (isTypeOfError(error)) {
+    // eslint-disable-next-line no-param-reassign
     error.stack = `${error.stack ?? ''}\n${MANUAL_ERROR_IDENTIFIER}`;
   }
   (globalThis as typeof window).dispatchEvent(new ErrorEvent('error', { error }));

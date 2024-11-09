@@ -327,115 +327,118 @@ describe('User session manager', () => {
 
       userSessionManager.init();
 
+      const cookiesEngine = clientDataStoreCookie.getOriginalEngine();
+      const localStorageEngine = clientDataStoreLS.getOriginalEngine();
+
       expect(invokeSpy).toHaveBeenCalledWith(
         extensionPoint,
         'rl_user_id',
-        clientDataStoreCookie.getOriginalEngine(),
+        cookiesEngine,
         defaultErrorHandler,
         defaultLogger,
       );
       expect(invokeSpy).toHaveBeenCalledWith(
         extensionPoint,
         'rl_trait',
-        clientDataStoreCookie.getOriginalEngine(),
+        cookiesEngine,
         defaultErrorHandler,
         defaultLogger,
       );
       expect(invokeSpy).toHaveBeenCalledWith(
         extensionPoint,
         'rl_anonymous_id',
-        clientDataStoreCookie.getOriginalEngine(),
+        cookiesEngine,
         defaultErrorHandler,
         defaultLogger,
       );
       expect(invokeSpy).toHaveBeenCalledWith(
         extensionPoint,
         'rl_group_id',
-        clientDataStoreCookie.getOriginalEngine(),
+        cookiesEngine,
         defaultErrorHandler,
         defaultLogger,
       );
       expect(invokeSpy).toHaveBeenCalledWith(
         extensionPoint,
         'rl_group_trait',
-        clientDataStoreCookie.getOriginalEngine(),
+        cookiesEngine,
         defaultErrorHandler,
         defaultLogger,
       );
       expect(invokeSpy).toHaveBeenCalledWith(
         extensionPoint,
         'rl_page_init_referrer',
-        clientDataStoreCookie.getOriginalEngine(),
+        cookiesEngine,
         defaultErrorHandler,
         defaultLogger,
       );
       expect(invokeSpy).toHaveBeenCalledWith(
         extensionPoint,
         'rl_page_init_referring_domain',
-        clientDataStoreCookie.getOriginalEngine(),
+        cookiesEngine,
         defaultErrorHandler,
         defaultLogger,
       );
       expect(invokeSpy).toHaveBeenCalledWith(
         extensionPoint,
         'rl_session',
-        clientDataStoreCookie.getOriginalEngine(),
+        cookiesEngine,
         defaultErrorHandler,
         defaultLogger,
       );
       expect(invokeSpy).toHaveBeenCalledWith(
         extensionPoint,
         'rl_user_id',
-        clientDataStoreLS.getOriginalEngine(),
+        localStorageEngine,
         defaultErrorHandler,
         defaultLogger,
       );
       expect(invokeSpy).toHaveBeenCalledWith(
         extensionPoint,
         'rl_trait',
-        clientDataStoreLS.getOriginalEngine(),
+        localStorageEngine,
         defaultErrorHandler,
         defaultLogger,
       );
       expect(invokeSpy).toHaveBeenCalledWith(
         extensionPoint,
         'rl_anonymous_id',
-        clientDataStoreLS.getOriginalEngine(),
+        localStorageEngine,
         defaultErrorHandler,
         defaultLogger,
       );
       expect(invokeSpy).toHaveBeenCalledWith(
         extensionPoint,
         'rl_group_id',
-        clientDataStoreLS.getOriginalEngine(),
+        localStorageEngine,
         defaultErrorHandler,
         defaultLogger,
       );
       expect(invokeSpy).toHaveBeenCalledWith(
         extensionPoint,
         'rl_group_trait',
-        clientDataStoreLS.getOriginalEngine(),
+        localStorageEngine,
         defaultErrorHandler,
         defaultLogger,
       );
       expect(invokeSpy).toHaveBeenCalledWith(
         extensionPoint,
         'rl_page_init_referrer',
-        clientDataStoreLS.getOriginalEngine(),
+        localStorageEngine,
         defaultErrorHandler,
         defaultLogger,
       );
       expect(invokeSpy).toHaveBeenCalledWith(
         extensionPoint,
         'rl_page_init_referring_domain',
-        clientDataStoreLS.getOriginalEngine(),
+        localStorageEngine,
         defaultErrorHandler,
         defaultLogger,
       );
       expect(invokeSpy).toHaveBeenCalledWith(
         extensionPoint,
         'rl_session',
-        clientDataStoreLS.getOriginalEngine(),
+        localStorageEngine,
         defaultErrorHandler,
         defaultLogger,
       );
@@ -1836,12 +1839,20 @@ describe('User session manager', () => {
         domain: 'dummy.dataplane.host.com',
         samesite: 'Lax',
       };
+      const onErrorSpy = jest.spyOn(defaultErrorHandler, 'onError');
+
       userSessionManager.private_setServerSideCookies(
         [{ name: 'key', value: 'sample_cookie_value_1234' }],
         mockCallback,
         mockCookieStore,
       );
+
       expect(mockCallback).toHaveBeenCalledWith('key', 'sample_cookie_value_1234');
+      expect(onErrorSpy).toHaveBeenCalledWith(
+        new Error('test error'),
+        'UserSessionManager',
+        'Failed to set/remove cookies via server. As a fallback, the cookies will be managed client side.',
+      );
     });
 
     describe('getEncryptedCookieData', () => {

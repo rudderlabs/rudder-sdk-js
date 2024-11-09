@@ -80,9 +80,6 @@ const dummySourceConfigResponse: SourceConfigResponse = {
     enabled: true,
     workspaceId: 'dummyWorkspaceId',
     updatedAt: '2023-02-03T13:53:35.731Z',
-    dataplanes: {
-      US: '',
-    },
     destinations: [
       {
         config: {

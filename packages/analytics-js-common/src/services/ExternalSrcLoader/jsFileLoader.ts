@@ -107,14 +107,25 @@ const jsFileLoader = (
       };
 
       const onerror = (
-        event: Event | string,
+        event: ErrorEvent | Event | string,
         source?: string,
         lineno?: number,
         colno?: number,
         error?: Error,
       ) => {
         (globalThis as typeof window).clearTimeout(timeoutID);
-        reject(getMutatedError(error ?? 'no information', SCRIPT_LOAD_ERROR(id, url)));
+
+        let errorDetails: Error | string;
+
+        if (error) {
+          errorDetails = error;
+        } else if (event instanceof ErrorEvent && event.error) {
+          errorDetails = event.error;
+        } else {
+          errorDetails = 'no information';
+        }
+
+        reject(getMutatedError(errorDetails, SCRIPT_LOAD_ERROR(id, url)));
       };
 
       // Create the DOM element to load the script and add it to the DOM
