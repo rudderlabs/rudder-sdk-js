@@ -198,6 +198,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     preloadedEventsArray: PreloadedEventCall[],
     loadOptions?: Partial<LoadOptions>,
   ) {
+    // eslint-disable-next-line sonarjs/deprecation
     const { autoTrack, useBeacon } = loadOptions ?? {};
     const {
       enabled: autoTrackEnabled = false,

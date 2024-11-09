@@ -1,1 +1,3 @@
-export type Temp = {};
+export type Temp = {
+  test: string;
+};

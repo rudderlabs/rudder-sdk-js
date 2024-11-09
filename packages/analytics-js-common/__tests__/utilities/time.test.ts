@@ -15,6 +15,7 @@ describe('time', () => {
     afterEach(() => {
       jest.useRealTimers();
     });
+
     it('should return a promise that resolves after the specified time', async () => {
       const time = 1000;
       const startTime = Date.now();
@@ -63,7 +64,7 @@ describe('time', () => {
     it('should return timezone of the user', () => {
       const timezone = getTimezone();
       expect(typeof timezone).toBe('string');
-      expect(timezone.startsWith('GMT')).toBe(true);
+      expect(timezone).toMatch(/^GMT[+-]\d{4}$/);
     });
 
     it('should return NA if timezone is not found', () => {

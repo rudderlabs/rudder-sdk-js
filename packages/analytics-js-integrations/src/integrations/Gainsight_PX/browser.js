@@ -49,7 +49,7 @@ class Gainsight_PX {
   }
 
   isLoaded() {
-    return !!(window.aptrinsic && window.aptrinsic.init);
+    return !!window.aptrinsic?.init;
   }
 
   isReady() {

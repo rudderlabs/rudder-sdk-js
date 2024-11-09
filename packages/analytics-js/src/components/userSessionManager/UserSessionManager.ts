@@ -345,7 +345,7 @@ class UserSessionManager implements IUserSessionManager {
             },
             cookies: encryptedCookieData,
           },
-        }) as string,
+        }),
         useAuth: true,
         credentials: 'include',
         headers: {

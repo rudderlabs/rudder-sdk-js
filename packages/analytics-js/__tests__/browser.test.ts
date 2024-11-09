@@ -66,17 +66,17 @@ describe('Test suite for the SDK', () => {
     it('should process the buffered API calls when SDK script is loaded', async () => {
       // Mocking the fetch function
       window.fetch = fetchMock;
-  
+
       loadingSnippet();
       rudderanalytics.page();
-  
+
       require(pathToSdk);
       await wait(500);
-  
+
       expect(window.rudderanalytics.push).not.toBe(Array.prototype.push);
-  
+
       dispatchPageHideEvent();
-  
+
       // one source config endpoint call and one implicit page call
       // Refer to above 'beforeEach'
       expect(fetchMock).toHaveBeenCalledTimes(2);

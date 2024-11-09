@@ -22,7 +22,6 @@ import type { BatchData, BatchPayload, EventsQueueItemData, SingleEventData } fr
 import {
   EVENT_DELIVERY_FAILURE_ERROR_PREFIX,
   EVENT_PAYLOAD_SIZE_CHECK_FAIL_WARNING,
-  EVENT_PAYLOAD_SIZE_VALIDATION_WARNING,
 } from './logMessages';
 
 const getNormalizedQueueOptions = (loadOptions: LoadOptions): QueueOpts => {
@@ -78,7 +77,7 @@ const getBatchDeliveryPayload = (events: RudderEvent[], currentTime: string): Nu
  * @param logger Logger instance
  * @returns stringified event payload. Empty string if error occurs.
  */
-const getDeliveryPayload = (event: RudderEvent): Nullable<string> => stringifyData(event);
+const getDeliveryPayload = (event: RudderEvent): string => stringifyData(event);
 
 const getRequestInfo = (itemData: EventsQueueItemData, state: ApplicationState) => {
   let data;
@@ -134,20 +133,15 @@ const logErrorOnFailure = (
  * @param logger Logger instance
  */
 const validateEventPayloadSize = (event: RudderEvent, logger?: ILogger) => {
-  const payloadStr = getDeliveryPayload(event);
-  if (payloadStr) {
-    const payloadSize = payloadStr.length;
-    if (payloadSize > EVENT_PAYLOAD_SIZE_BYTES_LIMIT) {
-      logger?.warn(
-        EVENT_PAYLOAD_SIZE_CHECK_FAIL_WARNING(
-          DATA_PLANE_EVENTS_QUEUE,
-          payloadSize,
-          EVENT_PAYLOAD_SIZE_BYTES_LIMIT,
-        ),
-      );
-    }
-  } else {
-    logger?.warn(EVENT_PAYLOAD_SIZE_VALIDATION_WARNING(DATA_PLANE_EVENTS_QUEUE));
+  const payloadSize = getDeliveryPayload(event).length;
+  if (payloadSize > EVENT_PAYLOAD_SIZE_BYTES_LIMIT) {
+    logger?.warn(
+      EVENT_PAYLOAD_SIZE_CHECK_FAIL_WARNING(
+        DATA_PLANE_EVENTS_QUEUE,
+        payloadSize,
+        EVENT_PAYLOAD_SIZE_BYTES_LIMIT,
+      ),
+    );
   }
 };
 

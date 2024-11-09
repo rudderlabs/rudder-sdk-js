@@ -3,7 +3,7 @@
  * @param delay The time to wait in milliseconds
  * @returns A promise that resolves after the given time
  */
-const wait = (delay: number) =>
+const wait = (delay: number): Promise<void> =>
   new Promise(resolve => {
     (globalThis as typeof window).setTimeout(resolve, delay);
   });

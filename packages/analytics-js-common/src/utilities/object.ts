@@ -90,6 +90,15 @@ const removeUndefinedAndNullValues = <T = Record<string, any>>(obj: T): T => {
   return result as T;
 };
 
+/**
+ * Normalizes an object by removing undefined and null values.
+ * @param val - The value to normalize
+ * @returns The normalized object, or undefined if input is not a non-empty object
+ * @example
+ * getNormalizedObjectValue({ a: 1, b: null, c: undefined }) // returns { a: 1 }
+ * getNormalizedObjectValue({}) // returns undefined
+ * getNormalizedObjectValue(null) // returns undefined
+ */
 const getNormalizedObjectValue = (val: any): any => {
   if (!isNonEmptyObject(val)) {
     return undefined;

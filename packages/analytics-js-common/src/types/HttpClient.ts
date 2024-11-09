@@ -4,6 +4,9 @@ export type HttpClientErrorProperties = {
   status?: number;
   statusText?: string;
   responseBody?: string | null;
+  /**
+   * Original underlying error instance
+   */
   originalError?: Error;
 };
 
@@ -39,14 +42,7 @@ export interface IBaseRequestOptions {
 
 export type IRequestOptions = IFetchRequestOptions;
 
-export type HTTPClientMethod =
-  | 'GET'
-  | 'DELETE'
-  | 'HEAD'
-  | 'OPTIONS'
-  | 'POST'
-  | 'PUT'
-  | 'PATCH';
+export type HTTPClientMethod = 'GET' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH';
 
 export interface IHttpClient {
   private_logger?: ILogger;
