@@ -67,7 +67,7 @@ describe('JS SDK Service Worker', () => {
     }).toThrow('The provided data plane URL "dummy" is invalid.');
   });
 
-  it('Should initialise with correct values', () => {
+  it('should initialise with correct values', () => {
     expect(rudderAnalyticsClient.writeKey).toBe(dummyWriteKey);
     expect(rudderAnalyticsClient.host).toBe('https://dummy.dataplane.host.com/v1/batch');
     expect(rudderAnalyticsClient.timeout).toBe(0);
@@ -78,7 +78,19 @@ describe('JS SDK Service Worker', () => {
     expect(rudderAnalyticsClient.enable).toBe(dummyInitOptions.enable);
   });
 
-  it('Should record identify', done => {
+  it('should initialize with default values', () => {
+    const analytics = new Analytics(dummyWriteKey, dummyDataplaneHost, {});
+    expect(analytics.writeKey).toBe(dummyWriteKey);
+    expect(analytics.host).toBe('https://dummy.dataplane.host.com/v1/batch');
+    expect(analytics.timeout).toBeUndefined();
+    expect(analytics.flushAt).toBe(20);
+    expect(analytics.flushInterval).toBe(20000);
+    expect(analytics.maxInternalQueueSize).toBe(20000);
+    expect(analytics.logLevel).toBe('info');
+    expect(analytics.enable).toBe(true);
+  });
+
+  it('should record identify', done => {
     rudderAnalyticsClient.identify(identifyRequestPayload);
     rudderAnalyticsClient.flush();
     setTimeout(() => {
@@ -87,7 +99,7 @@ describe('JS SDK Service Worker', () => {
     }, 10);
   });
 
-  it('Should record track', done => {
+  it('should record track', done => {
     rudderAnalyticsClient.track(trackRequestPayload);
     rudderAnalyticsClient.flush();
     setTimeout(() => {
@@ -96,7 +108,7 @@ describe('JS SDK Service Worker', () => {
     }, 10);
   });
 
-  it('Should record page', done => {
+  it('should record page', done => {
     rudderAnalyticsClient.page(pageRequestPayload);
     rudderAnalyticsClient.flush();
 
@@ -106,7 +118,7 @@ describe('JS SDK Service Worker', () => {
     }, 10);
   });
 
-  it('Should record screen', done => {
+  it('should record screen', done => {
     rudderAnalyticsClient.screen(screenRequestPayload);
     rudderAnalyticsClient.flush();
 
@@ -116,7 +128,7 @@ describe('JS SDK Service Worker', () => {
     }, 10);
   });
 
-  it('Should record group', done => {
+  it('should record group', done => {
     rudderAnalyticsClient.group(groupRequestPayload);
     rudderAnalyticsClient.flush();
 
@@ -126,7 +138,7 @@ describe('JS SDK Service Worker', () => {
     }, 10);
   });
 
-  it('Should record alias', done => {
+  it('should record alias', done => {
     rudderAnalyticsClient.alias(aliasRequestPayload);
     rudderAnalyticsClient.flush();
 
