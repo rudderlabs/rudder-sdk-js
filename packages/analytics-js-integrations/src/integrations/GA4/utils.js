@@ -8,7 +8,7 @@ import {
   customParametersExclusion,
   rootLevelProductsSupportedEventsList,
 } from './config';
-import { isBlank, flattenJson } from '../../utils/commonUtils';
+import { isBlank, flattenJson, isDefinedAndNotNull } from '../../utils/commonUtils';
 import { constructPayload, extractCustomFields } from '../../utils/utils';
 
 const logger = new Logger(DISPLAY_NAME);
@@ -297,7 +297,7 @@ const prepareStandardEventParams = (message, eventConfig) => {
   // Validation for required params
   if (Array.isArray(mapping) && mapping.length > 0) {
     const hasMissingRequiredValue = mapping.some(mappingItem => {
-      if (!payload[mappingItem.destKey] && mappingItem.required) {
+      if (!isDefinedAndNotNull(payload[mappingItem.destKey]) && mappingItem.required) {
         logger.error(`Missing required value from ${JSON.stringify(mappingItem.sourceKeys)}`);
         return true;
       }
