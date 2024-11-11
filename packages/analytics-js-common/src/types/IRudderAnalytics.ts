@@ -85,7 +85,7 @@ export interface IRudderAnalytics<T = any> {
   /**
    * Get the instance of Analytics that is set as default
    */
-  getAnalyticsInstance(writeKey?: string): T | undefined;
+  getAnalyticsInstance(writeKey?: string): T;
 
   /**
    * Trigger load event in buffer queue if exists
@@ -188,7 +188,7 @@ export interface IRudderAnalytics<T = any> {
   /**
    * To fetch the current sessionId
    */
-  getSessionId(): Nullable<number> | undefined;
+  getSessionId(): Nullable<number>;
 
   /**
    * To provide consent

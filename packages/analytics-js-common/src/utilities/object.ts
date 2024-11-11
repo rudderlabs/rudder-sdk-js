@@ -9,15 +9,13 @@ const getValueByPath = (obj: Record<string, any>, keyPath: string): any => {
 const hasValueByPath = (obj: Record<string, any>, path: string): boolean =>
   Boolean(getValueByPath(obj, path));
 
-const isObject = (value: any): value is object => typeof value === 'object';
-
 /**
  * Checks if the input is an object literal or built-in object type and not null
  * @param value Input value
  * @returns true if the input is an object and not null
  */
 const isObjectAndNotNull = (value: any): value is object =>
-  !isNull(value) && isObject(value) && !Array.isArray(value);
+  !isNull(value) && typeof value === 'object' && !Array.isArray(value);
 
 /**
  * Checks if the input is an object literal and not null
@@ -118,5 +116,4 @@ export {
   removeUndefinedValues,
   removeUndefinedAndNullValues,
   getObjectValues,
-  isObject,
 };

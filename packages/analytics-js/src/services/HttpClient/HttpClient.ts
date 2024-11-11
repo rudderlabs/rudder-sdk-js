@@ -44,6 +44,7 @@ class HttpClient implements IHttpClient {
       const data = await xhrRequest(
         createXhrRequestOptions(url, options, this.basicAuthHeader),
         timeout,
+        this.logger,
       );
       return {
         data: isRawResponse ? data.response : responseTextToJson<T>(data.response, this.onError),
@@ -62,7 +63,7 @@ class HttpClient implements IHttpClient {
     const { callback, url, options, timeout, isRawResponse } = config;
     const isFireAndForget = !isFunction(callback);
 
-    xhrRequest(createXhrRequestOptions(url, options, this.basicAuthHeader), timeout)
+    xhrRequest(createXhrRequestOptions(url, options, this.basicAuthHeader), timeout, this.logger)
       .then((data: ResponseDetails) => {
         if (!isFireAndForget) {
           callback(

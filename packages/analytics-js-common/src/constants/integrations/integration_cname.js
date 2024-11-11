@@ -163,7 +163,7 @@ const commonNames = {
   ...Sprig,
   ...SpotifyPixel,
   ...XPixel,
-  ...Gainsight_PX,
+  ...Gainsight_PX
 };
 
 export { commonNames };

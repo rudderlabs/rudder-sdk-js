@@ -14,7 +14,6 @@ import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constant
 import { BufferQueue } from '@rudderstack/analytics-js-common/services/BufferQueue/BufferQueue';
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
-import { MANUAL_ERROR_IDENTIFIER } from '@rudderstack/analytics-js-common/utilities/errors';
 import {
   NOTIFY_FAILURE_ERROR,
   REPORTING_PLUGIN_INIT_FAILURE_ERROR,
@@ -169,8 +168,6 @@ class ErrorHandler implements IErrorHandler {
       } else {
         throw normalizedError;
       }
-    } else if ((error as any).error?.stack?.includes(MANUAL_ERROR_IDENTIFIER)) {
-      this.logger?.error('An unknown error occurred:', (error as ErrorEvent).error?.message);
     }
   }
 

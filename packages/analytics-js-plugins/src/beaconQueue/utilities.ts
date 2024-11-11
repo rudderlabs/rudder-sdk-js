@@ -31,7 +31,7 @@ const getBatchDeliveryPayload = (
   };
 
   try {
-    const blobPayload = json.stringifyData(data);
+    const blobPayload = json.stringifyWithoutCircular(data, true);
     const blobOptions: BlobPropertyBag = { type: 'text/plain' };
 
     if (blobPayload) {
