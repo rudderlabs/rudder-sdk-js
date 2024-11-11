@@ -10,6 +10,6 @@ export type ApiObject = {
     | ApiObject
     | null
     | Date
-    | (string | number | boolean | null | Date | ApiObject | undefined)[]
+    | (string | number | boolean | null | Date | ApiObject)[]
     | undefined;
 };

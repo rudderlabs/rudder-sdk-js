@@ -193,6 +193,9 @@ const STORAGE_UNAVAILABLE_WARNING = (
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The storage type "${selectedStorageType}" is not available for entry "${entry}". The SDK will initialize the entry with "${finalStorageType}" storage type instead.`;
 
+const EMPTY_GROUP_CALL_ERROR = (context: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The group() method must be called with at least one argument.`;
+
 const READY_CALLBACK_INVOKE_ERROR = `Failed to invoke the ready callback`;
 
 const API_CALLBACK_INVOKE_ERROR = `API Callback Invocation Failed`;
@@ -294,6 +297,7 @@ export {
   PLUGIN_EXT_POINT_MISSING_ERROR,
   PLUGIN_EXT_POINT_INVALID_ERROR,
   STORAGE_TYPE_VALIDATION_WARNING,
+  EMPTY_GROUP_CALL_ERROR,
   READY_CALLBACK_INVOKE_ERROR,
   API_CALLBACK_INVOKE_ERROR,
   INVALID_CONFIG_URL_WARNING,
