@@ -1,4 +1,4 @@
-import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
+import { stringifyData } from '@rudderstack/analytics-js-common/utilities/json';
 import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import type { ErrorTarget, SDKError } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import { LOAD_ORIGIN } from './constant';
@@ -19,7 +19,7 @@ const processError = (error: SDKError): string => {
     } else {
       errorMessage = (error as any).message
         ? (error as any).message
-        : stringifyWithoutCircular(error as Record<string, any>);
+        : stringifyData(error as Record<string, any>);
     }
   } catch (e) {
     errorMessage = `Unknown error: ${(e as Error).message}`;
