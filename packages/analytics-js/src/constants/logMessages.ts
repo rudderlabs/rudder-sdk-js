@@ -66,14 +66,14 @@ const STORAGE_UNAVAILABILITY_ERROR_PREFIX = (context: string, storageType: Stora
 const SOURCE_CONFIG_FETCH_ERROR = (reason: Error | undefined): string =>
   `Failed to fetch the source config. Reason: ${reason}`;
 
-const WRITE_KEY_VALIDATION_ERROR = (context: string, writeKey: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The write key "${writeKey}" is invalid. It must be a non-empty string. Please check that the write key is correct and try again.`;
+const WRITE_KEY_VALIDATION_ERROR = (writeKey?: string): string =>
+  `The write key "${writeKey}" is invalid. It must be a non-empty string. Please check that the write key is correct and try again.`;
 
-const DATA_PLANE_URL_VALIDATION_ERROR = (context: string, dataPlaneUrl: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The data plane URL "${dataPlaneUrl}" is invalid. It must be a valid URL string. Please check that the data plane URL is correct and try again.`;
+const DATA_PLANE_URL_VALIDATION_ERROR = (dataPlaneUrl: string | undefined): string =>
+  `The data plane URL "${dataPlaneUrl}" is invalid. It must be a valid URL string. Please check that the data plane URL is correct and try again.`;
 
 const READY_API_CALLBACK_ERROR = (context: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The provided callback is not a function.`;
+  `${context}${LOG_CONTEXT_SEPARATOR}The callback is not a function.`;
 
 const XHR_DELIVERY_ERROR = (
   prefix: string,
@@ -193,6 +193,9 @@ const STORAGE_UNAVAILABLE_WARNING = (
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The storage type "${selectedStorageType}" is not available for entry "${entry}". The SDK will initialize the entry with "${finalStorageType}" storage type instead.`;
 
+const WRITE_KEY_NOT_A_STRING_ERROR = (context: string, writeKey: string | undefined): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The write key "${writeKey}" is not a string. Please check that the write key is correct and try again.`;
+
 const EMPTY_GROUP_CALL_ERROR = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The group() method must be called with at least one argument.`;
 
@@ -297,6 +300,7 @@ export {
   PLUGIN_EXT_POINT_MISSING_ERROR,
   PLUGIN_EXT_POINT_INVALID_ERROR,
   STORAGE_TYPE_VALIDATION_WARNING,
+  WRITE_KEY_NOT_A_STRING_ERROR,
   EMPTY_GROUP_CALL_ERROR,
   READY_CALLBACK_INVOKE_ERROR,
   API_CALLBACK_INVOKE_ERROR,

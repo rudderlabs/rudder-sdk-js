@@ -18,11 +18,10 @@ import {
 import type { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import { RS_APP } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import type { IdentifyTraits } from '@rudderstack/analytics-js-common/types/traits';
-import { getSanitizedValue } from '@rudderstack/analytics-js-common/utilities/json';
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { onPageLeave } from '@rudderstack/analytics-js-common/utilities/page';
-import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { getFormattedTimestamp } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import { GLOBAL_PRELOAD_BUFFER } from '../constants/app';
 import {
@@ -37,6 +36,7 @@ import { defaultLogger } from '../services/Logger/Logger';
 import {
   EMPTY_GROUP_CALL_ERROR,
   PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING,
+  WRITE_KEY_NOT_A_STRING_ERROR,
 } from '../constants/logMessages';
 import { defaultErrorHandler } from '../services/ErrorHandler';
 import { state } from '../state';
@@ -107,7 +107,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    * TODO: to support multiple analytics instances in the near future
    */
   setDefaultInstanceKey(writeKey: string) {
-    if (isString(writeKey) && writeKey) {
+    if (writeKey) {
       this.defaultAnalyticsKey = writeKey;
     }
   }
@@ -116,10 +116,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    * Retrieve an existing analytics instance
    */
   getAnalyticsInstance(writeKey?: string): IAnalytics {
-    let instanceId = writeKey;
-    if (!isString(instanceId) || !instanceId) {
-      instanceId = this.defaultAnalyticsKey;
-    }
+    const instanceId = writeKey ?? this.defaultAnalyticsKey;
 
     const analyticsInstanceExists = Boolean(this.analyticsInstances[instanceId]);
 
@@ -131,13 +128,14 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   }
 
   /**
-   * Loads the SDK
-   * @param writeKey Source write key
-   * @param dataPlaneUrl Data plane URL
-   * @param loadOptions Additional options for loading the SDK
-   * @returns none
+   * Create new analytics instance and trigger application lifecycle start
    */
   load(writeKey: string, dataPlaneUrl: string, loadOptions?: Partial<LoadOptions>) {
+    if (!isString(writeKey)) {
+      this.logger.error(WRITE_KEY_NOT_A_STRING_ERROR(RS_APP, writeKey));
+      return;
+    }
+
     if (this.analyticsInstances[writeKey]) {
       return;
     }
@@ -154,11 +152,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     setExposedGlobal(GLOBAL_PRELOAD_BUFFER, clone(preloadedEventsArray));
 
     this.analyticsInstances[writeKey] = new Analytics();
-    this.getAnalyticsInstance(writeKey).load(
-      writeKey,
-      dataPlaneUrl,
-      getSanitizedValue(loadOptions),
-    );
+    this.getAnalyticsInstance(writeKey).load(writeKey, dataPlaneUrl, loadOptions);
   }
 
   /**
@@ -348,13 +342,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     callback?: ApiCallback,
   ) {
     this.getAnalyticsInstance().page(
-      pageArgumentsToCallOptions(
-        getSanitizedValue(category),
-        getSanitizedValue(name),
-        getSanitizedValue(properties),
-        getSanitizedValue(options),
-        callback,
-      ),
+      pageArgumentsToCallOptions(category, name, properties, options, callback),
     );
   }
 
@@ -377,12 +365,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     callback?: ApiCallback,
   ) {
     this.getAnalyticsInstance().track(
-      trackArgumentsToCallOptions(
-        getSanitizedValue(event),
-        getSanitizedValue(properties),
-        getSanitizedValue(options),
-        callback,
-      ),
+      trackArgumentsToCallOptions(event, properties, options, callback),
     );
   }
 
@@ -411,12 +394,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     callback?: ApiCallback,
   ) {
     this.getAnalyticsInstance().identify(
-      identifyArgumentsToCallOptions(
-        getSanitizedValue(userId),
-        getSanitizedValue(traits),
-        getSanitizedValue(options),
-        callback,
-      ),
+      identifyArgumentsToCallOptions(userId, traits, options, callback),
     );
   }
 
@@ -434,14 +412,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     options?: Nullable<ApiOptions> | ApiCallback,
     callback?: ApiCallback,
   ) {
-    this.getAnalyticsInstance().alias(
-      aliasArgumentsToCallOptions(
-        getSanitizedValue(to),
-        getSanitizedValue(from),
-        getSanitizedValue(options),
-        callback,
-      ),
-    );
+    this.getAnalyticsInstance().alias(aliasArgumentsToCallOptions(to, from, options, callback));
   }
 
   /**
@@ -474,28 +445,20 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     }
 
     this.getAnalyticsInstance().group(
-      groupArgumentsToCallOptions(
-        getSanitizedValue(groupId),
-        getSanitizedValue(traits),
-        getSanitizedValue(options),
-        callback,
-      ),
+      groupArgumentsToCallOptions(groupId, traits, options, callback),
     );
   }
 
   reset(resetAnonymousId?: boolean) {
-    this.getAnalyticsInstance().reset(getSanitizedValue(resetAnonymousId));
+    this.getAnalyticsInstance().reset(resetAnonymousId);
   }
 
   getAnonymousId(options?: AnonymousIdOptions) {
-    return this.getAnalyticsInstance().getAnonymousId(getSanitizedValue(options));
+    return this.getAnalyticsInstance().getAnonymousId(options);
   }
 
   setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string) {
-    this.getAnalyticsInstance().setAnonymousId(
-      getSanitizedValue(anonymousId),
-      getSanitizedValue(rudderAmpLinkerParam),
-    );
+    this.getAnalyticsInstance().setAnonymousId(anonymousId, rudderAmpLinkerParam);
   }
 
   getUserId() {
@@ -527,11 +490,11 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   }
 
   setAuthToken(token: string) {
-    return this.getAnalyticsInstance().setAuthToken(getSanitizedValue(token));
+    return this.getAnalyticsInstance().setAuthToken(token);
   }
 
   consent(options?: ConsentOptions) {
-    return this.getAnalyticsInstance().consent(getSanitizedValue(options));
+    return this.getAnalyticsInstance().consent(options);
   }
 }
 
