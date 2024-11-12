@@ -67,6 +67,7 @@ describe('Queue', () => {
         attemptNumber: 0,
         time: expect.any(Number),
         id: expect.any(String),
+        type: 'Single',
       },
     ]);
   });
@@ -87,6 +88,7 @@ describe('Queue', () => {
         attemptNumber: 0,
         time: expect.any(Number),
         id: expect.any(String),
+        type: 'Single',
       },
     ]);
 
@@ -112,6 +114,7 @@ describe('Queue', () => {
         attemptNumber: 0,
         time: expect.any(Number),
         id: expect.any(String),
+        type: 'Batch',
       },
     ]);
   });
@@ -138,6 +141,7 @@ describe('Queue', () => {
         attemptNumber: 0,
         time: expect.any(Number),
         id: expect.any(String),
+        type: 'Batch',
       },
     ]);
   });
@@ -165,6 +169,7 @@ describe('Queue', () => {
         attemptNumber: 0,
         time: expect.any(Number),
         id: expect.any(String),
+        type: 'Batch',
       },
     ]);
   });
@@ -192,6 +197,7 @@ describe('Queue', () => {
         attemptNumber: 0,
         time: expect.any(Number),
         id: expect.any(String),
+        type: 'Single',
       },
     ]);
 
@@ -235,7 +241,7 @@ describe('Queue', () => {
     queue.processQueueCb = mockProcessItemCb;
     queue.start();
 
-    queue.requeue('b', 1);
+    queue.requeue({ item: 'b', attemptNumber: 0, type: 'Single' });
     queue.addItem('a');
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
@@ -260,17 +266,17 @@ describe('Queue', () => {
     queue.start();
 
     // over maxattempts
-    queue.requeue('a', 3);
+    queue.requeue({ item: 'b', attemptNumber: 2, type: 'Single' });
     jest.advanceTimersByTime(queue.getDelay(3));
     expect(queue.processQueueCb).toHaveBeenCalledTimes(0);
 
     mockProcessItemCb.mockReset();
-    queue.requeue('a', 2);
+    queue.requeue({ item: ['a', 'b'], attemptNumber: 1, type: 'Batch' });
     jest.advanceTimersByTime(queue.getDelay(2));
     expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
 
     mockProcessItemCb.mockReset();
-    queue.requeue('a', 3);
+    queue.requeue({ item: 'b', attemptNumber: 2, type: 'Single' });
     jest.advanceTimersByTime(queue.getDelay(1));
     expect(queue.processQueueCb).toHaveBeenCalledTimes(0);
   });
@@ -307,6 +313,23 @@ describe('Queue', () => {
         item: 'a',
         time: 0,
         attemptNumber: 0,
+        type: 'Single',
+      },
+      {
+        item: ['b', 'c'],
+        time: 0,
+        attemptNumber: 0,
+        type: 'Batch',
+      },
+      {
+        item: ['d', 'e'],
+        time: 0,
+        attemptNumber: 0,
+      },
+      {
+        item: 'f',
+        time: 0,
+        attemptNumber: 0,
       },
     ]);
 
@@ -318,8 +341,39 @@ describe('Queue', () => {
     // wait long enough for the other queue to expire and be reclaimed
     jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
-    expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
-    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledTimes(4);
+    expect(queue.processQueueCb).toHaveBeenNthCalledWith(
+      1,
+      'a',
+      expect.any(Function),
+      0,
+      Infinity,
+      true,
+    );
+    expect(queue.processQueueCb).toHaveBeenNthCalledWith(
+      2,
+      ['b', 'c'],
+      expect.any(Function),
+      0,
+      Infinity,
+      true,
+    );
+    expect(queue.processQueueCb).toHaveBeenNthCalledWith(
+      3,
+      ['d', 'e'],
+      expect.any(Function),
+      0,
+      Infinity,
+      true,
+    );
+    expect(queue.processQueueCb).toHaveBeenNthCalledWith(
+      4,
+      'f',
+      expect.any(Function),
+      0,
+      Infinity,
+      true,
+    );
   });
 
   it('should take over an in-progress task if a queue is abandoned', () => {
@@ -334,8 +388,25 @@ describe('Queue', () => {
     );
     foundQueue.set(foundQueue.validKeys.ACK, -15000);
     foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
-      'task-id': {
+      'task-id-1': {
         item: 'a',
+        time: 0,
+        attemptNumber: 0,
+        type: 'Single',
+      },
+      'task-id-2': {
+        item: ['b', 'c'],
+        time: 0,
+        attemptNumber: 0,
+        type: 'Batch',
+      },
+      'task-id-3': {
+        item: ['d', 'e'],
+        time: 0,
+        attemptNumber: 0,
+      },
+      'task-id-4': {
+        item: 'f',
         time: 0,
         attemptNumber: 0,
       },
@@ -349,8 +420,39 @@ describe('Queue', () => {
     // wait long enough for the other queue to expire and be reclaimed
     jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
-    expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
-    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 1, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledTimes(4);
+    expect(queue.processQueueCb).toHaveBeenNthCalledWith(
+      1,
+      'a',
+      expect.any(Function),
+      1,
+      Infinity,
+      true,
+    );
+    expect(queue.processQueueCb).toHaveBeenNthCalledWith(
+      2,
+      ['b', 'c'],
+      expect.any(Function),
+      1,
+      Infinity,
+      true,
+    );
+    expect(queue.processQueueCb).toHaveBeenNthCalledWith(
+      3,
+      ['d', 'e'],
+      expect.any(Function),
+      1,
+      Infinity,
+      true,
+    );
+    expect(queue.processQueueCb).toHaveBeenNthCalledWith(
+      4,
+      'f',
+      expect.any(Function),
+      1,
+      Infinity,
+      true,
+    );
   });
 
   it('should take over a batch queued task if a queue is abandoned', () => {
@@ -376,6 +478,7 @@ describe('Queue', () => {
         item: 'a',
         time: 0,
         attemptNumber: 0,
+        type: 'Single',
       },
       {
         item: 'b',
@@ -419,6 +522,7 @@ describe('Queue', () => {
         item: 'a',
         time: 0,
         attemptNumber: 0,
+        type: 'Single',
       },
       {
         item: 'b',
@@ -1070,18 +1174,21 @@ describe('Queue', () => {
           attemptNumber: 0,
           time: expect.any(Number),
           id: expect.any(String),
+          type: 'Single',
         },
         {
           item: 'b',
           attemptNumber: 0,
           time: expect.any(Number),
           id: expect.any(String),
+          type: 'Single',
         },
         {
           item: 'c',
           attemptNumber: 0,
           time: expect.any(Number),
           id: expect.any(String),
+          type: 'Single',
         },
       ]);
 
