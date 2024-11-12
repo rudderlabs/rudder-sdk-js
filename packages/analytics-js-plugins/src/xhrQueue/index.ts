@@ -66,7 +66,11 @@ const XhrQueue = (): ExtensionPlugin => ({
           maxRetryAttempts?: number,
           willBeRetried?: boolean,
         ) => {
-          const { data, url, headers } = getRequestInfo(itemData as XHRRetryQueueItemData, state);
+          const { data, url, headers } = getRequestInfo(
+            itemData as XHRRetryQueueItemData,
+            state,
+            logger,
+          );
 
           httpClient.getAsyncData({
             url,
@@ -102,7 +106,7 @@ const XhrQueue = (): ExtensionPlugin => ({
           const currentTime = getCurrentTimeFormatted();
           const events = itemData.map((queueItemData: XHRQueueItemData) => queueItemData.event);
           // type casting to string as we know that the event has already been validated prior to enqueue
-          return (getBatchDeliveryPayload(events, currentTime) as string)?.length;
+          return (getBatchDeliveryPayload(events, currentTime, logger) as string)?.length;
         },
       );
 

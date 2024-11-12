@@ -10,7 +10,7 @@ import type { Destination } from '@rudderstack/analytics-js-common/types/Destina
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import type { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
-import { isValidSourceConfig } from './util/validate';
+import { isValidSourceConfig, validateLoadArgs } from './util/validate';
 import {
   SOURCE_CONFIG_FETCH_ERROR,
   SOURCE_CONFIG_OPTION_ERROR,
@@ -61,6 +61,8 @@ class ConfigManager implements IConfigManager {
    */
   init() {
     this.attachEffects();
+
+    validateLoadArgs(state.lifecycle.writeKey.value, state.lifecycle.dataPlaneUrl.value);
 
     const {
       logLevel,
