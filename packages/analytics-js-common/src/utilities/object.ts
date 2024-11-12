@@ -107,6 +107,14 @@ const getNormalizedObjectValue = (val: any): any => {
   return removeUndefinedAndNullValues(val);
 };
 
+const getNormalizedBooleanValue = (val: any, defVal: boolean | undefined): boolean | undefined => {
+  if (isDefined(defVal)) {
+    return isDefined(val) ? val === true : undefined;
+  }
+
+  return val === true;
+};
+
 export {
   getValueByPath,
   hasValueByPath,
@@ -119,4 +127,5 @@ export {
   removeUndefinedAndNullValues,
   getNormalizedObjectValue,
   isObject,
+  getNormalizedBooleanValue,
 };

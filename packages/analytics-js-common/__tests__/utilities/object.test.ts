@@ -8,6 +8,7 @@ import {
   removeUndefinedValues,
   removeUndefinedAndNullValues,
   getNormalizedObjectValue,
+  getNormalizedBooleanValue,
 } from '../../src/utilities/object';
 
 const identifyTraitsPayloadMock = {
@@ -359,5 +360,106 @@ describe('Common Utils - Object', () => {
         });
       });
     });
+  });
+
+  describe('getNormalizedBooleanValue', () => {
+    const tcData = [
+      {
+        input: [true, undefined],
+        output: true,
+      },
+      {
+        input: [false, undefined],
+        output: false,
+      },
+      {
+        input: [undefined, true],
+        output: undefined,
+      },
+      {
+        input: [undefined, false],
+        output: undefined,
+      },
+      {
+        input: [true, false],
+        output: true,
+      },
+      {
+        input: [false, true],
+        output: false,
+      },
+      {
+        input: [undefined, undefined],
+        output: false,
+      },
+      {
+        input: [{}, false],
+        output: false,
+      },
+      {
+        input: [{}, true],
+        output: false,
+      },
+      {
+        input: [{}, undefined],
+        output: false,
+      },
+      {
+        input: [[], false],
+        output: false,
+      },
+      {
+        input: [[], true],
+        output: false,
+      },
+      {
+        input: [[], undefined],
+        output: false,
+      },
+      {
+        input: ['string', false],
+        output: false,
+      },
+      {
+        input: ['string', true],
+        output: false,
+      },
+      {
+        input: ['string', undefined],
+        output: false,
+      },
+      {
+        input: [123456, false],
+        output: false,
+      },
+      {
+        input: [123456, true],
+        output: false,
+      },
+      {
+        input: [123456, undefined],
+        output: false,
+      },
+      {
+        input: [new Date(), false],
+        output: false,
+      },
+      {
+        input: [new Date(), true],
+        output: false,
+      },
+      {
+        input: [new Date(), undefined],
+        output: false,
+      },
+    ];
+
+    it.each(tcData)(
+      'should return $output for input $input',
+      ({ input, output }: { input: any; output: any }) => {
+        const outcome = getNormalizedBooleanValue(input[0], input[1]);
+        expect(outcome).toEqual(output);
+      },
+    );
   });
 });

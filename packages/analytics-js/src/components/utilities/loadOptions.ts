@@ -1,6 +1,7 @@
 /* eslint-disable sonarjs/deprecation */
 import { clone } from 'ramda';
 import {
+  getNormalizedBooleanValue,
   getNormalizedObjectValue,
   isNonEmptyObject,
   mergeDeepRight,
@@ -31,9 +32,15 @@ const normalizeLoadOptions = (
     normalizedLoadOpts.sameSiteCookie = undefined;
   }
 
-  normalizedLoadOpts.secureCookie = normalizedLoadOpts.secureCookie === true;
+  normalizedLoadOpts.secureCookie = getNormalizedBooleanValue(
+    normalizedLoadOpts.secureCookie,
+    loadOptionsFromState.secureCookie,
+  );
 
-  normalizedLoadOpts.sameDomainCookiesOnly = normalizedLoadOpts.sameDomainCookiesOnly === true;
+  normalizedLoadOpts.sameDomainCookiesOnly = getNormalizedBooleanValue(
+    normalizedLoadOpts.sameDomainCookiesOnly,
+    loadOptionsFromState.sameDomainCookiesOnly,
+  );
 
   const uaChTrackLevels = ['none', 'default', 'full'];
   if (!uaChTrackLevels.includes(normalizedLoadOpts.uaChTrackLevel as UaChTrackLevel)) {
@@ -44,15 +51,25 @@ const normalizeLoadOptions = (
 
   normalizedLoadOpts.plugins = normalizedLoadOpts.plugins ?? defaultOptionalPluginsList;
 
-  normalizedLoadOpts.useGlobalIntegrationsConfigInEvents =
-    normalizedLoadOpts.useGlobalIntegrationsConfigInEvents === true;
+  normalizedLoadOpts.useGlobalIntegrationsConfigInEvents = getNormalizedBooleanValue(
+    normalizedLoadOpts.useGlobalIntegrationsConfigInEvents,
+    loadOptionsFromState.useGlobalIntegrationsConfigInEvents,
+  );
 
-  normalizedLoadOpts.bufferDataPlaneEventsUntilReady =
-    normalizedLoadOpts.bufferDataPlaneEventsUntilReady === true;
+  normalizedLoadOpts.bufferDataPlaneEventsUntilReady = getNormalizedBooleanValue(
+    normalizedLoadOpts.bufferDataPlaneEventsUntilReady,
+    loadOptionsFromState.bufferDataPlaneEventsUntilReady,
+  );
 
-  normalizedLoadOpts.sendAdblockPage = normalizedLoadOpts.sendAdblockPage === true;
+  normalizedLoadOpts.sendAdblockPage = getNormalizedBooleanValue(
+    normalizedLoadOpts.sendAdblockPage,
+    loadOptionsFromState.sendAdblockPage,
+  );
 
-  normalizedLoadOpts.useServerSideCookies = normalizedLoadOpts.useServerSideCookies === true;
+  normalizedLoadOpts.useServerSideCookies = getNormalizedBooleanValue(
+    normalizedLoadOpts.useServerSideCookies,
+    loadOptionsFromState.useServerSideCookies,
+  );
 
   if (!isString(normalizedLoadOpts.dataServiceEndpoint)) {
     normalizedLoadOpts.dataServiceEndpoint = undefined;
@@ -62,7 +79,10 @@ const normalizeLoadOptions = (
     normalizedLoadOpts.sendAdblockPageOptions,
   );
 
-  normalizedLoadOpts.loadIntegration = normalizedLoadOpts.loadIntegration === true;
+  normalizedLoadOpts.loadIntegration = getNormalizedBooleanValue(
+    normalizedLoadOpts.loadIntegration,
+    loadOptionsFromState.loadIntegration,
+  );
 
   if (!isNonEmptyObject(normalizedLoadOpts.storage)) {
     normalizedLoadOpts.storage = undefined;
@@ -80,9 +100,15 @@ const normalizeLoadOptions = (
 
   normalizedLoadOpts.queueOptions = getNormalizedObjectValue(normalizedLoadOpts.queueOptions);
 
-  normalizedLoadOpts.lockIntegrationsVersion = normalizedLoadOpts.lockIntegrationsVersion === true;
+  normalizedLoadOpts.lockIntegrationsVersion = getNormalizedBooleanValue(
+    normalizedLoadOpts.lockIntegrationsVersion,
+    loadOptionsFromState.lockIntegrationsVersion,
+  );
 
-  normalizedLoadOpts.lockPluginsVersion = normalizedLoadOpts.lockPluginsVersion === true;
+  normalizedLoadOpts.lockPluginsVersion = getNormalizedBooleanValue(
+    normalizedLoadOpts.lockPluginsVersion,
+    loadOptionsFromState.lockPluginsVersion,
+  );
 
   if (!isNumber(normalizedLoadOpts.dataPlaneEventsBufferTimeout)) {
     normalizedLoadOpts.dataPlaneEventsBufferTimeout = undefined;
