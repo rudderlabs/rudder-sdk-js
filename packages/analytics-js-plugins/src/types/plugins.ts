@@ -7,11 +7,14 @@ export type RudderEventType = 'page' | 'track' | 'identify' | 'alias' | 'group';
 
 export type LogLevel = 'LOG' | 'INFO' | 'DEBUG' | 'WARN' | 'ERROR' | 'NONE';
 
+export type QueueItemType = 'Single' | 'Batch';
+
 export type QueueItem<T = QueueItemData> = {
   item: T;
   attemptNumber: number;
   time: number;
   id: string;
+  type: QueueItemType;
 };
 
 export type QueueItemData =
