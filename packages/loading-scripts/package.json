@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-loading-scripts",
-  "version": "3.0.38",
+  "version": "3.0.41",
   "private": true,
   "description": "Loading script for RudderStack JavaScript SDK",
   "main": "./src/index.js",

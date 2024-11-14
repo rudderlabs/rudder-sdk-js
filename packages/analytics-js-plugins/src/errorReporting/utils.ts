@@ -16,7 +16,7 @@ import type {
 } from '@rudderstack/analytics-js-common/types/Metrics';
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { METRICS_PAYLOAD_VERSION } from '@rudderstack/analytics-js-common/constants/metrics';
-import { stringifyData } from '@rudderstack/analytics-js-common/utilities/json';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { ERROR_MESSAGES_TO_BE_FILTERED } from '@rudderstack/analytics-js-common/constants/errors';
 import {
   APP_STATE_EXCLUDE_KEYS,
@@ -67,8 +67,8 @@ const getReleaseStage = () => {
 };
 
 const getAppStateForMetadata = (state: ApplicationState): Record<string, any> => {
-  const stateStr = json.stringifyData(state, true, APP_STATE_EXCLUDE_KEYS);
-  return JSON.parse(stateStr);
+  const stateStr = json.stringifyWithoutCircular(state, false, APP_STATE_EXCLUDE_KEYS);
+  return stateStr !== null ? JSON.parse(stateStr) : {};
 };
 
 const getURLWithoutQueryString = () => {
@@ -188,7 +188,7 @@ const getErrorDeliveryPayload = (payload: ErrorEventPayload, state: ApplicationS
     },
     errors: payload,
   };
-  return stringifyData<MetricServicePayload>(data) as string;
+  return stringifyWithoutCircular<MetricServicePayload>(data) as string;
 };
 
 export {

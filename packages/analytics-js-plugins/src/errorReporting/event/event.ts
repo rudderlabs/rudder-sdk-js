@@ -1,7 +1,8 @@
+import type { ErrorState } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import ErrorStackParser from 'error-stack-parser';
 import type { Exception, Stackframe } from '@rudderstack/analytics-js-common/types/Metrics';
-import { stringifyData } from '@rudderstack/analytics-js-common/utilities/json';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import type { FrameType, IErrorFormat } from '../types';
 import { hasStack, isError } from './utils';
 import { ERROR_REPORTING_PLUGIN } from '../constants';
@@ -68,7 +69,7 @@ const normaliseError = (maybeError: any, component: string, logger?: ILogger) =>
     error = maybeError;
   } else {
     logger?.warn(
-      `${ERROR_REPORTING_PLUGIN}:: ${component} received a non-error: ${stringifyData(error, false)}`,
+      `${ERROR_REPORTING_PLUGIN}:: ${component} received a non-error: ${stringifyWithoutCircular(error)}`,
     );
     error = undefined;
   }

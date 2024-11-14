@@ -2,6 +2,26 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.2.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-service-worker@3.2.0...@rudderstack/analytics-js-service-worker@3.2.1) (2024-11-12)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.12.1`
+## [3.2.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-service-worker@3.1.17...@rudderstack/analytics-js-service-worker@3.2.0) (2024-11-08)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.12.0`
+
+### Features
+
+* add date datatype ([#1906](https://github.com/rudderlabs/rudder-sdk-js/issues/1906)) ([9c207f1](https://github.com/rudderlabs/rudder-sdk-js/commit/9c207f19f34b998cdb15b34eed3f435daff86dfd))
+
+## [3.1.17](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-service-worker@3.1.16...@rudderstack/analytics-js-service-worker@3.1.17) (2024-11-07)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.11.1`
 ## [3.1.16](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-service-worker@3.1.15...@rudderstack/analytics-js-service-worker@3.1.16) (2024-10-25)
 
 ### Dependency Updates

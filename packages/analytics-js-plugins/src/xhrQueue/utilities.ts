@@ -4,6 +4,7 @@ import type { ResponseDetails } from '@rudderstack/analytics-js-common/types/Htt
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { clone } from 'ramda';
 import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import { checks, http, url, json, eventsDelivery } from '../shared-chunks/common';
@@ -11,9 +12,13 @@ import { DATA_PLANE_API_VERSION, DEFAULT_RETRY_QUEUE_OPTIONS, XHR_QUEUE_PLUGIN }
 import type { XHRRetryQueueItemData, XHRQueueItemData, XHRBatchPayload } from './types';
 import { EVENT_DELIVERY_FAILURE_ERROR_PREFIX } from './logMessages';
 
-const getBatchDeliveryPayload = (events: RudderEvent[], currentTime: string): string => {
+const getBatchDeliveryPayload = (
+  events: RudderEvent[],
+  currentTime: string,
+  logger?: ILogger,
+): Nullable<string> => {
   const batchPayload: XHRBatchPayload = { batch: events, sentAt: currentTime };
-  return json.stringifyData(batchPayload);
+  return json.stringifyWithoutCircular(batchPayload, true, undefined, logger);
 };
 
 const getNormalizedQueueOptions = (queueOpts: QueueOpts): QueueOpts =>
@@ -61,7 +66,11 @@ const logErrorOnFailure = (
   logger?.error(errMsg);
 };
 
-const getRequestInfo = (itemData: XHRRetryQueueItemData, state: ApplicationState) => {
+const getRequestInfo = (
+  itemData: XHRRetryQueueItemData,
+  state: ApplicationState,
+  logger?: ILogger,
+) => {
   let data;
   let headers;
   let url: string;
@@ -70,14 +79,14 @@ const getRequestInfo = (itemData: XHRRetryQueueItemData, state: ApplicationState
     const finalEvents = itemData.map((queueItemData: XHRQueueItemData) =>
       eventsDelivery.getFinalEventForDeliveryMutator(queueItemData.event, currentTime),
     );
-    data = getBatchDeliveryPayload(finalEvents, currentTime);
+    data = getBatchDeliveryPayload(finalEvents, currentTime, logger);
     headers = itemData[0] ? clone(itemData[0].headers) : {};
     url = getBatchDeliveryUrl(state.lifecycle.activeDataplaneUrl.value as string);
   } else {
     const { url: eventUrl, event, headers: eventHeaders } = itemData;
     const finalEvent = eventsDelivery.getFinalEventForDeliveryMutator(event, currentTime);
 
-    data = eventsDelivery.getDeliveryPayload(finalEvent);
+    data = eventsDelivery.getDeliveryPayload(finalEvent, logger);
     headers = clone(eventHeaders);
     url = eventUrl;
   }
