@@ -370,5 +370,6 @@ export {
   getCustomParameters,
   removeInvalidParams,
   prepareParamsAndEventName,
+  prepareStandardEventParams,
   formatAndValidateEventName,
 };
