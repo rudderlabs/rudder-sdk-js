@@ -535,4 +535,25 @@ describe('prepareStandardEventParams function tests', () => {
       order_items: ['item1', 'item2'],
     });
   });
+
+  it('should return null when required parameters are missing', () => {
+    const eventConfig = {
+      event: 'Purchase',
+      mapping: [
+        { sourceKeys: ['properties.total'], destKey: 'order_total', required: true },
+        { sourceKeys: ['properties.currency'], destKey: 'currency', required: true }
+      ],
+    };
+
+    const message = {
+      properties: {
+        // total is missing
+        currency: 'USD'
+      },
+      event: 'Purchase',
+    };
+
+    const result = prepareStandardEventParams(message, eventConfig);
+    expect(result).toBeNull();
+  });
 });
