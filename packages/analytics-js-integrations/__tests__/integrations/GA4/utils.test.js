@@ -10,6 +10,7 @@ import {
   isReservedEventName,
   getCustomParameters,
   formatAndValidateEventName,
+  prepareStandardEventParams,
 } from '../../../src/integrations/GA4/utils';
 
 import {
@@ -378,3 +379,32 @@ describe('Google Analytics 4 utilities tests', () => {
     });
   });
 });
+
+describe('prepareStandardEventParams function tests', () => {
+    it('Should not fail when values are 0', () => {
+      const eventConfig = {
+        event: 'UserSignup',
+        mapping: [
+          { sourceKeys: ['properties.total'], destKey: 'order_total', required: true },
+          { sourceKeys: ['properties.value'], destKey: 'order_value', required: true },
+          { sourceKeys: ['properties.revenue'], destKey: 'order_revenue', required: true },
+          { sourceKeys: ['properties.price'], destKey: 'order_price', required: true },
+        ],
+      };
+      const message = {
+        properties: {
+          total: 0, // Total is 0 but should pass without failure
+          value: 0, // Value is 0 but should pass without failure
+          revenue: 0, // Revenue is 0 but should pass without failure
+          price: 12, // Price is 0 but should pass without failure
+        },
+        event: 'UserSignup',
+      };
+      const result = prepareStandardEventParams(message, eventConfig);
+      expect(result).not.toBeNull(); // Expecting the function not to return null
+      expect(result.order_total).toBe(0); // Expecting total to be 0 and not removed
+      expect(result.order_value).toBe(0); // Expecting value to be 0 and not removed
+      expect(result.order_revenue).toBe(0); // Expecting revenue to be 0 and not removed
+      expect(result.order_price).toBe(12); // Expecting price to be 0 and not removed
+    });
+  });
