@@ -15,6 +15,9 @@ beforeEach(() => {
 afterEach(() => {
   // Reset DOM to original state
   document.getElementById('dummyScript')?.remove();
+  // Reset window.__adroll
+  delete window.__adroll;
+  delete window._adroll_email;
 });
 
 describe('Init tests', () => {
