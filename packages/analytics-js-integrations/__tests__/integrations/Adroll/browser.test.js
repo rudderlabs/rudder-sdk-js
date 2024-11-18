@@ -3,7 +3,6 @@ import { Adroll } from '../../../src/integrations/Adroll';
 
 beforeEach(() => {
   window.__adroll = {};
-
   // Add a dummy script as it is required by the init script
   const scriptElement = document.createElement('script');
   scriptElement.type = 'text/javascript';
@@ -11,11 +10,9 @@ beforeEach(() => {
   const headElements = document.getElementsByTagName('head');
   headElements[0].insertBefore(scriptElement, headElements[0].firstChild);
 });
-
 afterEach(() => {
   // Reset DOM to original state
   document.getElementById('dummyScript')?.remove();
-  // Reset window.__adroll
   delete window.__adroll;
   delete window._adroll_email;
 });
@@ -163,6 +160,30 @@ describe('Track tests', () => {
       },
     });
     expect(window.__adroll.record_user).not.toHaveBeenCalled();
+  });
+
+  test('should handle non-string event names', () => {
+    // Test number event
+    adroll.track({
+      message: {
+        event: 123,
+        properties: {}
+      }
+    });
+    
+    // Test object event
+    adroll.track({
+      message: {
+        event: { toString: () => 'custom event' },
+        properties: {}
+      }
+    });
+    
+    expect(window.__adroll.record_user).toHaveBeenCalledWith(
+      expect.objectContaining({
+        adroll_segments: 'ghi789'
+      })
+    );
   });
 });
 
