@@ -14,11 +14,15 @@ const CIRCULAR_REFERENCE_WARNING = (context: string, key: string): string =>
 
 const JSON_STRINGIFY_WARNING = `Failed to convert the value to a JSON string.`;
 
+const BAD_DATA_WARNING = (context: string, key: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}A bad data (like circular reference, BigInt) has been detected in the object and the property "${key}" has been dropped from the output.`;
+
 export {
   LOG_CONTEXT_SEPARATOR,
   SCRIPT_ALREADY_EXISTS_ERROR,
   SCRIPT_LOAD_ERROR,
   SCRIPT_LOAD_TIMEOUT_ERROR,
   CIRCULAR_REFERENCE_WARNING,
-  JSON_STRINGIFY_WARNING
-}
+  JSON_STRINGIFY_WARNING,
+  BAD_DATA_WARNING,
+};
