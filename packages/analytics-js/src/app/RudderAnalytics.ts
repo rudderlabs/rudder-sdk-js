@@ -17,7 +17,7 @@ import {
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
-import { RS_APP } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { RSA } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import type { IdentifyTraits } from '@rudderstack/analytics-js-common/types/traits';
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
@@ -132,7 +132,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    */
   load(writeKey: string, dataPlaneUrl: string, loadOptions?: Partial<LoadOptions>) {
     if (!isString(writeKey)) {
-      this.logger.error(WRITE_KEY_NOT_A_STRING_ERROR(RS_APP, writeKey));
+      this.logger.error(WRITE_KEY_NOT_A_STRING_ERROR(RSA, writeKey));
       return;
     }
 
@@ -264,7 +264,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
         });
       } else {
         // throw warning if beacon is disabled
-        this.logger.warn(PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING(RS_APP));
+        this.logger.warn(PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING(RSA));
       }
     }
   }
@@ -440,7 +440,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     callback?: ApiCallback,
   ) {
     if (arguments.length === 0) {
-      this.logger.error(EMPTY_GROUP_CALL_ERROR(RS_APP));
+      this.logger.error(EMPTY_GROUP_CALL_ERROR(RSA));
       return;
     }
 
