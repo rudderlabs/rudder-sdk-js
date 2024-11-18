@@ -128,12 +128,77 @@ describe('Core - Analytics', () => {
       expect(setMinLogLevelSpy).toHaveBeenCalledWith('ERROR');
       expect(setExposedGlobal).toHaveBeenCalledWith('state', state, dummyWriteKey);
     });
-    it('should load the analytics script without dataPlaneUrl with the given options', () => {
+
+    it('should not load if the write key is invalid', () => {
       const startLifecycleSpy = jest.spyOn(analytics, 'startLifecycle');
-      analytics.load(dummyWriteKey, { logLevel: 'ERROR' });
-      expect(state.lifecycle.status.value).toBe('browserCapabilitiesReady');
-      expect(startLifecycleSpy).toHaveBeenCalledTimes(1);
-      expect(setExposedGlobal).toHaveBeenCalledWith('state', state, dummyWriteKey);
+      const errorSpy = jest.spyOn(analytics.logger, 'error');
+
+      analytics.load('', sampleDataPlaneUrl, { logLevel: 'ERROR' });
+
+      expect(state.lifecycle.status.value).toBeUndefined();
+      expect(startLifecycleSpy).not.toHaveBeenCalled();
+
+      expect(errorSpy).toHaveBeenCalledTimes(1);
+      expect(errorSpy).toHaveBeenNthCalledWith(
+        1,
+        'AnalyticsCore:: The write key "" is invalid. It must be a non-empty string. Please check that the write key is correct and try again.',
+      );
+
+      // Try with different invalid write key
+      errorSpy.mockClear();
+      analytics.load('  ', sampleDataPlaneUrl, { logLevel: 'ERROR' });
+
+      expect(errorSpy).toHaveBeenNthCalledWith(
+        1,
+        'AnalyticsCore:: The write key "  " is invalid. It must be a non-empty string. Please check that the write key is correct and try again.',
+      );
+
+      // Try with different invalid write key
+      errorSpy.mockClear();
+      analytics.load({} as any, sampleDataPlaneUrl, { logLevel: 'ERROR' });
+
+      expect(errorSpy).toHaveBeenNthCalledWith(
+        1,
+        'AnalyticsCore:: The write key "[object Object]" is invalid. It must be a non-empty string. Please check that the write key is correct and try again.',
+      );
+
+      errorSpy.mockRestore();
+    });
+
+    it('should not load if the data plane URL is invalid', () => {
+      const startLifecycleSpy = jest.spyOn(analytics, 'startLifecycle');
+      const errorSpy = jest.spyOn(analytics.logger, 'error');
+
+      analytics.load(dummyWriteKey, '', { logLevel: 'ERROR' });
+
+      expect(state.lifecycle.status.value).toBeUndefined();
+      expect(startLifecycleSpy).not.toHaveBeenCalled();
+
+      expect(errorSpy).toHaveBeenCalledTimes(1);
+      expect(errorSpy).toHaveBeenNthCalledWith(
+        1,
+        'AnalyticsCore:: The data plane URL "" is invalid. It must be a valid URL string. Please check that the data plane URL is correct and try again.',
+      );
+
+      // Try with different invalid data plane URL
+      errorSpy.mockClear();
+      analytics.load(dummyWriteKey, undefined as any, { logLevel: 'ERROR' });
+
+      expect(errorSpy).toHaveBeenNthCalledWith(
+        1,
+        'AnalyticsCore:: The data plane URL "undefined" is invalid. It must be a valid URL string. Please check that the data plane URL is correct and try again.',
+      );
+
+      // Try with different invalid data plane URL
+      errorSpy.mockClear();
+      analytics.load(dummyWriteKey, 'https:///someinvalidurl', { logLevel: 'ERROR' });
+
+      expect(errorSpy).toHaveBeenNthCalledWith(
+        1,
+        'AnalyticsCore:: The data plane URL "https:///someinvalidurl" is invalid. It must be a valid URL string. Please check that the data plane URL is correct and try again.',
+      );
+
+      errorSpy.mockRestore();
     });
   });
 

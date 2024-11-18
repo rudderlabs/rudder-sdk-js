@@ -32,7 +32,7 @@ import type {
   AsyncRequestCallback,
   IHttpClient,
 } from '@rudderstack/analytics-js-common/types/HttpClient';
-import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
+import { stringifyData } from '@rudderstack/analytics-js-common/utilities/json';
 import { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
 import {
   CLIENT_DATA_STORE_COOKIE,
@@ -304,9 +304,7 @@ class UserSessionManager implements IUserSessionManager {
   getEncryptedCookieData(cookiesData: CookieData[], store?: IStore): EncryptedCookieData[] {
     const encryptedCookieData: EncryptedCookieData[] = [];
     cookiesData.forEach(cData => {
-      const encryptedValue = store?.encrypt(
-        stringifyWithoutCircular(cData.value, false, [], this.logger),
-      );
+      const encryptedValue = store?.encrypt(stringifyData(cData.value, false));
       if (isDefinedAndNotNull(encryptedValue)) {
         encryptedCookieData.push({
           name: cData.name,
@@ -330,21 +328,24 @@ class UserSessionManager implements IUserSessionManager {
       url: state.serverCookies.dataServiceUrl.value as string,
       options: {
         method: 'POST',
-        data: stringifyWithoutCircular({
-          reqType: 'setCookies',
-          workspaceId: state.source.value?.workspaceId,
-          data: {
-            options: {
-              maxAge: state.storage.cookie.value?.maxage,
-              path: state.storage.cookie.value?.path,
-              domain: state.storage.cookie.value?.domain,
-              sameSite: state.storage.cookie.value?.samesite,
-              secure: state.storage.cookie.value?.secure,
-              expires: state.storage.cookie.value?.expires,
+        data: stringifyData(
+          {
+            reqType: 'setCookies',
+            workspaceId: state.source.value?.workspaceId,
+            data: {
+              options: {
+                maxAge: state.storage.cookie.value?.maxage,
+                path: state.storage.cookie.value?.path,
+                domain: state.storage.cookie.value?.domain,
+                sameSite: state.storage.cookie.value?.samesite,
+                secure: state.storage.cookie.value?.secure,
+                expires: state.storage.cookie.value?.expires,
+              },
+              cookies: encryptedCookieData,
             },
-            cookies: encryptedCookieData,
           },
-        }) as string,
+          false,
+        ),
         sendRawData: true,
         withCredentials: true,
       },
@@ -368,8 +369,8 @@ class UserSessionManager implements IUserSessionManager {
           if (details?.xhr?.status === 200) {
             cookiesData.forEach(cData => {
               const cookieValue = store?.get(cData.name);
-              const before = stringifyWithoutCircular(cData.value, false, []);
-              const after = stringifyWithoutCircular(cookieValue, false, []);
+              const before = stringifyData(cData.value, false);
+              const after = stringifyData(cookieValue, false);
               if (after !== before) {
                 this.logger?.error(FAILED_SETTING_COOKIE_FROM_SERVER_ERROR(cData.name));
                 if (cb) {
@@ -468,7 +469,11 @@ class UserSessionManager implements IUserSessionManager {
    * 3. generateUUID: A new unique id is generated and assigned.
    */
   setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string) {
-    let finalAnonymousId: string | undefined | null = anonymousId;
+    let finalAnonymousId: string | undefined = anonymousId;
+    if (!isString(anonymousId) || !finalAnonymousId) {
+      finalAnonymousId = undefined;
+    }
+
     if (this.isPersistenceEnabledForStorageEntry('anonymousId')) {
       if (!finalAnonymousId && rudderAmpLinkerParam) {
         const linkerPluginsResult = this.pluginsManager?.invokeSingle(
@@ -668,7 +673,7 @@ class UserSessionManager implements IUserSessionManager {
       session.groupTraits.value = DEFAULT_USER_SESSION_VALUES.groupTraits;
       session.authToken.value = DEFAULT_USER_SESSION_VALUES.authToken;
 
-      if (resetAnonymousId) {
+      if (resetAnonymousId === true) {
         // This will generate a new anonymous ID
         this.setAnonymousId();
       }
