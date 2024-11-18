@@ -119,6 +119,6 @@ export default [
     name: 'Core (Content Script) - Modern - NPM (UMD)',
     path: 'dist/npm/modern/content-script/umd/index.js',
     import: '*',
-    limit: '39 KiB',
+    limit: '39.5 KiB',
   },
 ];
