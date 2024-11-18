@@ -50,6 +50,7 @@ permissions:
 
 env:
   NODE_OPTIONS: '--no-warnings'
+  CACHE_CONTROL: "\"max-age=3600\""
 
 jobs:
   deploy:
@@ -134,7 +135,7 @@ jobs:
 
       - name: Sync files to S3
         run: |
-          aws s3 cp packages/sanity-suite/dist/ s3://${{ env.AWS_S3_BUCKET_NAME }}/sanity-suite${{ env.SUITE_CDN_PATH }} --recursive --cache-control max-age=3600
+          aws s3 cp packages/sanity-suite/dist/ s3://${{ env.AWS_S3_BUCKET_NAME }}/sanity-suite${{ env.SUITE_CDN_PATH }} --recursive --cache-control ${{ env.CACHE_CONTROL }}
 
       - name: Create Cloudfront invalidation
         run: |
