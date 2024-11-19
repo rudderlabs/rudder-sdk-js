@@ -127,6 +127,7 @@ describe('getDefinedTraits Tests', () => {
       name: 'rudder stack',
       phone: undefined,
       state: undefined,
+      postalCode: undefined,
       userId: 'user123',
       userIdOnly: 'user123',
     });
@@ -327,7 +328,7 @@ describe('flattenJsonPayload Tests', () => {
     const testObj = { prop1: { prop2: 'abc' } };
     testObj.prop3 = testObj;
     const result = utils.flattenJsonPayload(testObj);
-    expect(result).toStrictEqual({ 'prop1.prop2': 'abc', "prop3": "[Circular Reference]" });
+    expect(result).toStrictEqual({ 'prop1.prop2': 'abc', prop3: '[Circular Reference]' });
   });
   test('test case with specified delimeter', () => {
     const testObj = { prop1: { prop2: 'abc' } };
