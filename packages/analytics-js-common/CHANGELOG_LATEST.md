@@ -1,7 +1,7 @@
-## [3.14.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.13.0...@rudderstack/analytics-js-common@3.14.0) (2024-11-18)
+## [3.14.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.14.0...@rudderstack/analytics-js-common@3.14.1) (2024-11-19)
 
 
-### Features
+### Bug Fixes
 
-* error handle public apis ([295793a](https://github.com/rudderlabs/rudder-sdk-js/commit/295793a2cc60172b001c3fb1bc2624bb19fa8546))
+* don't sanitize event method overload inputs ([b819d61](https://github.com/rudderlabs/rudder-sdk-js/commit/b819d61ea278c2f553c63495ecf5bd0305550dfe))
 
