@@ -112,17 +112,16 @@ class SnapPixel {
     }
 
     payload = getUserEmailAndPhone(this.hashMethod, userEmail, userPhoneNumber);
-    payload = {
-      ...payload,
-      ip_address: ipAddress,
-      firstname: firstName,
-      lastname: lastName,
-      age,
-      geo_city: city,
-      geo_region: state,
-      geo_postal_code: postalCode,
-      geo_country: country,
-    };
+
+    // Add additional fields only if they exist
+    if (ipAddress) payload.ip_address = ipAddress;
+    if (firstName) payload.firstname = firstName;
+    if (lastName) payload.lastname = lastName;
+    if (age) payload.age = age;
+    if (city) payload.geo_city = city;
+    if (state) payload.geo_region = state;
+    if (postalCode) payload.geo_postal_code = postalCode;
+    if (country) payload.geo_country = country;
 
     payload = removeUndefinedAndNullValues(payload);
     window.snaptr('init', this.pixelId, payload);
