@@ -163,5 +163,49 @@ describe('SnapPixel', () => {
         },
       ]);
     });
+
+    it('should skip age if in object format', () => {
+      const destinationConfig = {
+        pixelId: '12345',
+        deduplicationKey: 'email',
+        hashMethod: true,
+        enableDeduplication: false,
+        eventMappingFromConfig: false,
+      };
+
+      const analytics = {
+        logLevel: 'debug',
+        getAnonymousId: () => 'ANONYMOUS_ID',
+      };
+
+      const rudderElement = {
+        message: {
+          context: {
+            traits: {
+              email: 'test@example.com',
+              firstName: 'John',
+              city: 'San Francisco',
+              age: {
+                a: 1,
+              },
+            },
+          },
+        },
+      };
+
+      const snapPixel = new SnapPixel(destinationConfig, analytics, destinationInfo);
+      snapPixel.init();
+      snapPixel.identify(rudderElement);
+
+      expect(window.snaptr.mock.calls[1]).toEqual([
+        'init',
+        '12345',
+        {
+          user_email: 'test@example.com',
+          firstname: 'John',
+          geo_city: 'San Francisco',
+        },
+      ]);
+    });
   });
 });

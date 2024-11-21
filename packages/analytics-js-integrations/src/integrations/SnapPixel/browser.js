@@ -13,7 +13,7 @@ import {
 } from '../../utils/commonUtils';
 import { ecommEventPayload, eventPayload, getUserEmailAndPhone, sendEvent } from './util';
 import { loadNativeSdk } from './nativeSdkLoader';
-import { getDefinedTraits } from '@rudderstack/analytics-js-integrations/utils/utils';
+import { getDefinedTraits } from '../../utils/utils';
 
 const logger = new Logger(DISPLAY_NAME);
 
@@ -117,7 +117,8 @@ class SnapPixel {
     if (ipAddress) payload.ip_address = ipAddress;
     if (firstName) payload.firstname = firstName;
     if (lastName) payload.lastname = lastName;
-    if (age) payload.age = age;
+    if (age && (typeof age === 'number' || (!isNaN(Number(age)) && typeof age === 'string')))
+      payload.age = age;
     if (city) payload.geo_city = city;
     if (state) payload.geo_region = state;
     if (postalCode) payload.geo_postal_code = postalCode;
