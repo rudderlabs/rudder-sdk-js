@@ -155,12 +155,6 @@ const traverseWithThis = (obj: any, replacer: (key: string, value: any) => any):
  * @param logger Logger instance
  * @returns Sanitized value
  */
-const getSanitizedValue = <T = any>(value: T, logger?: ILogger): T => {
-  const replacer = getReplacer(logger);
-
-  // This is needed for registering the first ancestor
-  const newValue = replacer.call(value, '', value);
-  return newValue;
-};
+const getSanitizedValue = <T = any>(value: T, logger?: ILogger): T => value;
 
 export { stringifyWithoutCircular, getSanitizedValue, stringifyData };
