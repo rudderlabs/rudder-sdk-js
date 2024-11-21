@@ -468,7 +468,11 @@ class UserSessionManager implements IUserSessionManager {
    * 3. generateUUID: A new unique id is generated and assigned.
    */
   setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string) {
-    let finalAnonymousId: string | undefined | null = anonymousId;
+    let finalAnonymousId: string | undefined = anonymousId;
+    if (!isString(anonymousId) || !finalAnonymousId) {
+      finalAnonymousId = undefined;
+    }
+
     if (this.isPersistenceEnabledForStorageEntry('anonymousId')) {
       if (!finalAnonymousId && rudderAmpLinkerParam) {
         const linkerPluginsResult = this.pluginsManager?.invokeSingle(
@@ -668,7 +672,7 @@ class UserSessionManager implements IUserSessionManager {
       session.groupTraits.value = DEFAULT_USER_SESSION_VALUES.groupTraits;
       session.authToken.value = DEFAULT_USER_SESSION_VALUES.authToken;
 
-      if (resetAnonymousId) {
+      if (resetAnonymousId === true) {
         // This will generate a new anonymous ID
         this.setAnonymousId();
       }
