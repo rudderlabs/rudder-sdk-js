@@ -143,6 +143,7 @@ describe('SnapPixel', () => {
               email: 'test@example.com',
               firstName: 'John',
               city: 'San Francisco',
+              age: '16'
             },
           },
         },
@@ -160,6 +161,7 @@ describe('SnapPixel', () => {
           user_email: 'test@example.com',
           firstname: 'John',
           geo_city: 'San Francisco',
+          age: '16'
         },
       ]);
     });
@@ -168,7 +170,7 @@ describe('SnapPixel', () => {
       const destinationConfig = {
         pixelId: '12345',
         deduplicationKey: 'email',
-        hashMethod: true,
+        hashMethod: false,
         enableDeduplication: false,
         eventMappingFromConfig: false,
       };
@@ -192,7 +194,6 @@ describe('SnapPixel', () => {
           },
         },
       };
-
       const snapPixel = new SnapPixel(destinationConfig, analytics, destinationInfo);
       snapPixel.init();
       snapPixel.identify(rudderElement);
