@@ -23,7 +23,6 @@ import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { onPageLeave } from '@rudderstack/analytics-js-common/utilities/page';
 import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { getFormattedTimestamp } from '@rudderstack/analytics-js-common/utilities/timestamp';
-import { getSanitizedValue } from '@rudderstack/analytics-js-common/utilities/json';
 import { dispatchErrorEvent } from '@rudderstack/analytics-js-common/utilities/errors';
 import { GLOBAL_PRELOAD_BUFFER } from '../constants/app';
 import {
@@ -38,6 +37,7 @@ import { defaultLogger } from '../services/Logger/Logger';
 import { PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING } from '../constants/logMessages';
 import { defaultErrorHandler } from '../services/ErrorHandler';
 import { state } from '../state';
+import { getSanitizedValue } from '@rudderstack/analytics-js-common/utilities/object';
 
 // TODO: add analytics restart/reset mechanism
 
