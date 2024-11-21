@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-integrations",
-  "version": "3.11.0",
+  "version": "3.11.1",
   "private": true,
   "description": "RudderStack JavaScript SDK device mode integrations",
   "main": "dist/npm/modern/cjs/index.js",
