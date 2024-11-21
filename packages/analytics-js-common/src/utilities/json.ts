@@ -26,35 +26,17 @@ const stringifyData = <T = Record<string, any> | any[] | number | string>(
     return value;
   });
 
-const getReplacer = (logger?: ILogger): ((key: string, value: any) => any) => {
-  const ancestors: any[] = []; // Array to track ancestor objects
-
+const getReplacer = (logger?: ILogger): ((key: string, value: any) => any) => 
   // Using a regular function to use `this` for the parent context
-  return function replacer(key, value): any {
+   function replacer(key, value): any {
     if (isBigInt(value)) {
       logger?.warn(BAD_DATA_WARNING(JSON_UTIL, key));
       return '[BigInt]'; // Replace BigInt values
     }
 
-    // `this` is the object that value is contained in, i.e., its direct parent.
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore-next-line
-    while (ancestors.length > 0 && ancestors[ancestors.length - 1] !== this) {
-      ancestors.pop(); // Remove ancestors that are no longer part of the chain
-    }
-
-    // Check for circular references (if the value is already in the ancestors)
-    if (ancestors.includes(value)) {
-      logger?.warn(BAD_DATA_WARNING(JSON_UTIL, key));
-      return '[Circular Reference]';
-    }
-
-    // Add current value to ancestors
-    ancestors.push(value);
-
     return value;
-  };
-};
+  }
+;
 
 const traverseWithThis = (obj: any, replacer: (key: string, value: any) => any): any => {
   // Create a new result object or array
