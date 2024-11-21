@@ -17,6 +17,7 @@ const APP_STATE_EXCLUDE_KEYS = [
   'instance', // destination instance objects
   'eventBuffer', // pre-load event buffer (may contain PII)
   'traits',
+  'authToken'
 ];
 const REQUEST_TIMEOUT_MS = 10 * 1000; // 10 seconds
 const NOTIFIER_NAME = 'RudderStack JavaScript SDK Error Notifier';
