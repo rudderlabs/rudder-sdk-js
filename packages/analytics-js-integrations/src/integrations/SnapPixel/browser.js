@@ -13,6 +13,7 @@ import {
 } from '../../utils/commonUtils';
 import { ecommEventPayload, eventPayload, getUserEmailAndPhone, sendEvent } from './util';
 import { loadNativeSdk } from './nativeSdkLoader';
+import { getDefinedTraits } from '../../utils/utils';
 
 const logger = new Logger(DISPLAY_NAME);
 
@@ -99,6 +100,8 @@ class SnapPixel {
     const userEmail = get(message, 'context.traits.email');
     const userPhoneNumber = get(message, 'context.traits.phone');
     const ipAddress = get(message, 'context.ip') || get(message, 'request_ip');
+    const age = get(message, 'context.traits.age');
+    const { firstName, lastName, postalCode, country, city, state } = getDefinedTraits(message);
     let payload = {};
 
     if (!userEmail && !userPhoneNumber && !ipAddress) {
@@ -109,7 +112,17 @@ class SnapPixel {
     }
 
     payload = getUserEmailAndPhone(this.hashMethod, userEmail, userPhoneNumber);
-    payload = { ...payload, ip_address: ipAddress };
+
+    // Add additional fields only if they exist
+    if (ipAddress) payload.ip_address = ipAddress;
+    if (firstName) payload.firstname = firstName;
+    if (lastName) payload.lastname = lastName;
+    if (age && (typeof age === 'number' || (!isNaN(Number(age)) && typeof age === 'string')))
+      payload.age = age;
+    if (city) payload.geo_city = city;
+    if (state) payload.geo_region = state;
+    if (postalCode) payload.geo_postal_code = postalCode;
+    if (country) payload.geo_country = country;
 
     payload = removeUndefinedAndNullValues(payload);
     window.snaptr('init', this.pixelId, payload);
