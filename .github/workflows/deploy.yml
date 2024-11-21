@@ -49,7 +49,7 @@ permissions:
 
 env:
   NODE_OPTIONS: "--no-warnings"
-  CACHE_MAX_AGE: 3600
+  CACHE_CONTROL: "\"no-store\""
 
 jobs:
   deploy:
@@ -116,7 +116,7 @@ jobs:
       - name: Sync Adobe Analytics assets to S3
         if: ${{ inputs.environment == 'production' }}
         run: |
-          aws s3 cp assets/integrations/AdobeAnalytics/ s3://${{ secrets.AWS_S3_BUCKET_NAME }}/adobe-analytics-js --recursive --cache-control max-age=${{ env.CACHE_MAX_AGE }}
+          aws s3 cp assets/integrations/AdobeAnalytics/ s3://${{ secrets.AWS_S3_BUCKET_NAME }}/adobe-analytics-js --recursive --cache-control ${{ env.CACHE_CONTROL }}
 
       - name: Create Cloudfront invalidation
         if: ${{ inputs.environment == 'production' }}
@@ -129,7 +129,7 @@ jobs:
           integration_sdks_path_prefix="packages/analytics-js-integrations/dist/cdn"
           plugins_path_prefix="packages/analytics-js-plugins/dist/cdn"
           s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/${{ inputs.s3_dir_path }}"
-          copy_args="--recursive --cache-control max-age=${{ env.CACHE_MAX_AGE }}"
+          copy_args="--recursive --cache-control ${{ env.CACHE_CONTROL }}"
 
           integration_sdks_zip_file="all_integration_sdks.tar.gz"
           plugins_zip_file="all_plugins.tar.gz"
@@ -168,9 +168,9 @@ jobs:
           ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} ${{ inputs.s3_dir_path }}/modern/plugins $plugins_html_file $plugins_path_prefix/modern/plugins "Plugins" $plugins_zip_file
 
           # Copy the HTML files to S3
-          aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/$integration_sdks_html_file $s3_path_prefix/legacy/js-integrations/$integration_sdks_html_file --cache-control max-age=${{ env.CACHE_MAX_AGE }}
-          aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/$integration_sdks_html_file $s3_path_prefix/modern/js-integrations/$integration_sdks_html_file --cache-control max-age=${{ env.CACHE_MAX_AGE }}
-          aws s3 cp $plugins_path_prefix/modern/plugins/$plugins_html_file $s3_path_prefix/modern/plugins/$plugins_html_file --cache-control max-age=${{ env.CACHE_MAX_AGE }}
+          aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/$integration_sdks_html_file $s3_path_prefix/legacy/js-integrations/$integration_sdks_html_file --cache-control ${{ env.CACHE_CONTROL }}
+          aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/$integration_sdks_html_file $s3_path_prefix/modern/js-integrations/$integration_sdks_html_file --cache-control ${{ env.CACHE_CONTROL }}
+          aws s3 cp $plugins_path_prefix/modern/plugins/$plugins_html_file $s3_path_prefix/modern/plugins/$plugins_html_file --cache-control ${{ env.CACHE_CONTROL }}
 
       - name: Create Cloudfront invalidation
         run: |
@@ -183,7 +183,7 @@ jobs:
           integration_sdks_path_prefix="packages/analytics-js-integrations/dist/cdn"
           plugins_path_prefix="packages/analytics-js-plugins/dist/cdn"
           s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/${{ env.CURRENT_VERSION_VALUE }}"
-          copy_args="--recursive --cache-control max-age=${{ env.CACHE_MAX_AGE }}"
+          copy_args="--recursive --cache-control ${{ env.CACHE_CONTROL }}"
 
           aws s3 cp $core_sdk_path_prefix/legacy/iife/ $s3_path_prefix/legacy/ $copy_args
           aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/legacy/js-integrations/ $copy_args
@@ -205,7 +205,7 @@ jobs:
           integration_sdks_path_prefix="packages/analytics-js-integrations/dist/cdn"
           plugins_path_prefix="packages/analytics-js-plugins/dist/cdn"
           s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/latest"
-          copy_args="--recursive --cache-control max-age=${{ env.CACHE_MAX_AGE }}"
+          copy_args="--recursive --cache-control ${{ env.CACHE_CONTROL }}"
 
           aws s3 cp $core_sdk_path_prefix/legacy/iife/ $s3_path_prefix/legacy/ $copy_args
           aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/legacy/js-integrations/ $copy_args
@@ -233,7 +233,7 @@ jobs:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
           payload: |
             {
-              "text": "*New Release: ${{ env.PROJECT_NAME }} - <${{ env.CDN_URL }}|${{ env.LINK_TEXT }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D> <!subteam^S07CCQ05F2T>",
+              "text": "*New Release: ${{ env.PROJECT_NAME }} - <${{ env.CDN_URL }}|${{ env.LINK_TEXT }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D> <!subteam^S03SHJ20350>",
               "blocks": [
                 {
                   "type": "header",
@@ -249,7 +249,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*<${{ env.CDN_URL }}|${{ env.LINK_TEXT }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D> <!subteam^S07CCQ05F2T>"
+                    "text": "*<${{ env.CDN_URL }}|${{ env.LINK_TEXT }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D> <!subteam^S03SHJ20350>"
                   },
                   "accessory": {
                     "type": "image",
@@ -268,7 +268,7 @@ jobs:
           core_sdk_path_prefix="packages/analytics-v1.1/dist/cdn"
           integration_sdks_path_prefix="packages/analytics-js-integrations/dist/cdn"
           s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/${{ inputs.s3_dir_path_legacy }}"
-          copy_args="--recursive --cache-control max-age=${{ env.CACHE_MAX_AGE }}"
+          copy_args="--recursive --cache-control ${{ env.CACHE_CONTROL }}"
 
           aws s3 cp $core_sdk_path_prefix/legacy/ $s3_path_prefix/ $copy_args
           aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/js-integrations/ $copy_args
@@ -286,7 +286,7 @@ jobs:
           core_sdk_path_prefix="packages/analytics-v1.1/dist/cdn"
           integration_sdks_path_prefix="packages/analytics-js-integrations/dist/cdn"
           s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/${{ env.CURRENT_VERSION_V1_VALUE }}"
-          copy_args="--recursive --cache-control max-age=${{ env.CACHE_MAX_AGE }}"
+          copy_args="--recursive --cache-control ${{ env.CACHE_CONTROL }}"
 
           aws s3 cp $core_sdk_path_prefix/legacy/ $s3_path_prefix/ $copy_args
           aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/js-integrations/ $copy_args
@@ -305,7 +305,7 @@ jobs:
           core_sdk_path_prefix="packages/analytics-v1.1/dist/cdn"
           integration_sdks_path_prefix="packages/analytics-js-integrations/dist/cdn"
           s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/latest"
-          copy_args="--recursive --cache-control max-age=${{ env.CACHE_MAX_AGE }}"
+          copy_args="--recursive --cache-control ${{ env.CACHE_CONTROL }}"
 
           aws s3 cp $core_sdk_path_prefix/legacy/ $s3_path_prefix/ $copy_args
           aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/js-integrations/ $copy_args

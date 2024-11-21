@@ -17,12 +17,14 @@ import {
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
-import { RS_APP } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
+import { RSA } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import type { IdentifyTraits } from '@rudderstack/analytics-js-common/types/traits';
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { onPageLeave } from '@rudderstack/analytics-js-common/utilities/page';
+import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { getFormattedTimestamp } from '@rudderstack/analytics-js-common/utilities/timestamp';
+import { getSanitizedValue } from '@rudderstack/analytics-js-common/utilities/json';
+import { dispatchErrorEvent } from '@rudderstack/analytics-js-common/utilities/errors';
 import { GLOBAL_PRELOAD_BUFFER } from '../constants/app';
 import {
   getPreloadedLoadEvent,
@@ -33,11 +35,7 @@ import { setExposedGlobal } from '../components/utilities/globals';
 import type { IAnalytics } from '../components/core/IAnalytics';
 import { Analytics } from '../components/core/Analytics';
 import { defaultLogger } from '../services/Logger/Logger';
-import {
-  EMPTY_GROUP_CALL_ERROR,
-  PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING,
-  WRITE_KEY_NOT_A_STRING_ERROR,
-} from '../constants/logMessages';
+import { PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING } from '../constants/logMessages';
 import { defaultErrorHandler } from '../services/ErrorHandler';
 import { state } from '../state';
 
@@ -50,55 +48,62 @@ import { state } from '../state';
  * consume SDK preload event buffer
  */
 class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
+  // START-NO-SONAR-SCAN
+  // eslint-disable-next-line sonarjs/public-static-readonly
   static globalSingleton: Nullable<RudderAnalytics> = null;
+  // END-NO-SONAR-SCAN
   analyticsInstances: Record<string, IAnalytics> = {};
   defaultAnalyticsKey = '';
   logger = defaultLogger;
 
   // Singleton with constructor bind methods
   constructor() {
-    if (RudderAnalytics.globalSingleton) {
-      // START-NO-SONAR-SCAN
-      // eslint-disable-next-line no-constructor-return
-      return RudderAnalytics.globalSingleton;
-      // END-NO-SONAR-SCAN
+    try {
+      if (RudderAnalytics.globalSingleton) {
+        // START-NO-SONAR-SCAN
+        // eslint-disable-next-line no-constructor-return
+        return RudderAnalytics.globalSingleton;
+        // END-NO-SONAR-SCAN
+      }
+      defaultErrorHandler.attachErrorListeners();
+
+      this.setDefaultInstanceKey = this.setDefaultInstanceKey.bind(this);
+      this.getAnalyticsInstance = this.getAnalyticsInstance.bind(this);
+      this.load = this.load.bind(this);
+      this.ready = this.ready.bind(this);
+      this.triggerBufferedLoadEvent = this.triggerBufferedLoadEvent.bind(this);
+      this.page = this.page.bind(this);
+      this.track = this.track.bind(this);
+      this.identify = this.identify.bind(this);
+      this.alias = this.alias.bind(this);
+      this.group = this.group.bind(this);
+      this.reset = this.reset.bind(this);
+      this.getAnonymousId = this.getAnonymousId.bind(this);
+      this.setAnonymousId = this.setAnonymousId.bind(this);
+      this.getUserId = this.getUserId.bind(this);
+      this.getUserTraits = this.getUserTraits.bind(this);
+      this.getGroupId = this.getGroupId.bind(this);
+      this.getGroupTraits = this.getGroupTraits.bind(this);
+      this.startSession = this.startSession.bind(this);
+      this.endSession = this.endSession.bind(this);
+      this.getSessionId = this.getSessionId.bind(this);
+      this.setAuthToken = this.setAuthToken.bind(this);
+      this.consent = this.consent.bind(this);
+
+      RudderAnalytics.globalSingleton = this;
+
+      state.autoTrack.pageLifecycle.visitId.value = generateUUID();
+      state.autoTrack.pageLifecycle.pageLoadedTimestamp.value = Date.now();
+
+      // start loading if a load event was buffered or wait for explicit load call
+      this.triggerBufferedLoadEvent();
+
+      // Assign to global "rudderanalytics" object after processing the preload buffer (if any exists)
+      // for CDN bundling IIFE exports covers this but for npm ESM and CJS bundling has to be done explicitly
+      (globalThis as typeof window).rudderanalytics = this;
+    } catch (error: any) {
+      dispatchErrorEvent(error);
     }
-    defaultErrorHandler.attachErrorListeners();
-
-    this.setDefaultInstanceKey = this.setDefaultInstanceKey.bind(this);
-    this.getAnalyticsInstance = this.getAnalyticsInstance.bind(this);
-    this.load = this.load.bind(this);
-    this.ready = this.ready.bind(this);
-    this.triggerBufferedLoadEvent = this.triggerBufferedLoadEvent.bind(this);
-    this.page = this.page.bind(this);
-    this.track = this.track.bind(this);
-    this.identify = this.identify.bind(this);
-    this.alias = this.alias.bind(this);
-    this.group = this.group.bind(this);
-    this.reset = this.reset.bind(this);
-    this.getAnonymousId = this.getAnonymousId.bind(this);
-    this.setAnonymousId = this.setAnonymousId.bind(this);
-    this.getUserId = this.getUserId.bind(this);
-    this.getUserTraits = this.getUserTraits.bind(this);
-    this.getGroupId = this.getGroupId.bind(this);
-    this.getGroupTraits = this.getGroupTraits.bind(this);
-    this.startSession = this.startSession.bind(this);
-    this.endSession = this.endSession.bind(this);
-    this.getSessionId = this.getSessionId.bind(this);
-    this.setAuthToken = this.setAuthToken.bind(this);
-    this.consent = this.consent.bind(this);
-
-    RudderAnalytics.globalSingleton = this;
-
-    state.autoTrack.pageLifecycle.visitId.value = generateUUID();
-    state.autoTrack.pageLifecycle.pageLoadedTimestamp.value = Date.now();
-
-    // start loading if a load event was buffered or wait for explicit load call
-    this.triggerBufferedLoadEvent();
-
-    // Assign to global "rudderanalytics" object after processing the preload buffer (if any exists)
-    // for CDN bundling IIFE exports covers this but for npm ESM and CJS bundling has to be done explicitly
-    (globalThis as typeof window).rudderanalytics = this;
   }
 
   /**
@@ -107,7 +112,11 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    * TODO: to support multiple analytics instances in the near future
    */
   setDefaultInstanceKey(writeKey: string) {
-    if (writeKey) {
+    // IMP: Add try-catch block to handle any unhandled errors
+    // similar to other public methods
+    // if the implementation of this method goes beyond
+    // this simple implementation
+    if (isString(writeKey) && writeKey) {
       this.defaultAnalyticsKey = writeKey;
     }
   }
@@ -115,44 +124,59 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   /**
    * Retrieve an existing analytics instance
    */
-  getAnalyticsInstance(writeKey?: string): IAnalytics {
-    const instanceId = writeKey ?? this.defaultAnalyticsKey;
+  getAnalyticsInstance(writeKey?: string): IAnalytics | undefined {
+    try {
+      let instanceId = writeKey;
+      if (!isString(instanceId) || !instanceId) {
+        instanceId = this.defaultAnalyticsKey;
+      }
 
-    const analyticsInstanceExists = Boolean(this.analyticsInstances[instanceId]);
+      const analyticsInstanceExists = Boolean(this.analyticsInstances[instanceId]);
 
-    if (!analyticsInstanceExists) {
-      this.analyticsInstances[instanceId] = new Analytics();
+      if (!analyticsInstanceExists) {
+        this.analyticsInstances[instanceId] = new Analytics();
+      }
+
+      return this.analyticsInstances[instanceId] as IAnalytics;
+    } catch (error: any) {
+      dispatchErrorEvent(error);
+      return undefined;
     }
-
-    return this.analyticsInstances[instanceId] as IAnalytics;
   }
 
   /**
-   * Create new analytics instance and trigger application lifecycle start
+   * Loads the SDK
+   * @param writeKey Source write key
+   * @param dataPlaneUrl Data plane URL
+   * @param loadOptions Additional options for loading the SDK
+   * @returns none
    */
-  load(writeKey: string, dataPlaneUrl: string, loadOptions?: Partial<LoadOptions>) {
-    if (!isString(writeKey)) {
-      this.logger.error(WRITE_KEY_NOT_A_STRING_ERROR(RS_APP, writeKey));
-      return;
+  load(writeKey: string, dataPlaneUrl: string, loadOptions?: Partial<LoadOptions>): void {
+    try {
+      if (this.analyticsInstances[writeKey]) {
+        return;
+      }
+
+      this.setDefaultInstanceKey(writeKey);
+      const preloadedEventsArray = this.getPreloadedEvents();
+
+      // Track page loaded lifecycle event if enabled
+      this.trackPageLifecycleEvents(preloadedEventsArray, loadOptions);
+
+      // The array will be mutated in the below method
+      promotePreloadedConsentEventsToTop(preloadedEventsArray);
+
+      setExposedGlobal(GLOBAL_PRELOAD_BUFFER, clone(preloadedEventsArray));
+
+      this.analyticsInstances[writeKey] = new Analytics();
+      this.getAnalyticsInstance(writeKey)?.load(
+        writeKey,
+        dataPlaneUrl,
+        getSanitizedValue(loadOptions),
+      );
+    } catch (error: any) {
+      dispatchErrorEvent(error);
     }
-
-    if (this.analyticsInstances[writeKey]) {
-      return;
-    }
-
-    this.setDefaultInstanceKey(writeKey);
-    const preloadedEventsArray = this.getPreloadedEvents();
-
-    // Track page loaded lifecycle event if enabled
-    this.trackPageLifecycleEvents(preloadedEventsArray, loadOptions);
-
-    // The array will be mutated in the below method
-    promotePreloadedConsentEventsToTop(preloadedEventsArray);
-
-    setExposedGlobal(GLOBAL_PRELOAD_BUFFER, clone(preloadedEventsArray));
-
-    this.analyticsInstances[writeKey] = new Analytics();
-    this.getAnalyticsInstance(writeKey).load(writeKey, dataPlaneUrl, loadOptions);
   }
 
   /**
@@ -210,7 +234,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    * @param preloadedEventsArray
    */
   // eslint-disable-next-line class-methods-use-this
-  private trackPageLoadedEvent(
+  trackPageLoadedEvent(
     events: PageLifecycleEvents[],
     options: ApiOptions,
     preloadedEventsArray: PreloadedEventCall[],
@@ -236,7 +260,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    * @param useBeacon
    * @param options
    */
-  private setupPageUnloadTracking(
+  setupPageUnloadTracking(
     events: PageLifecycleEvents[],
     useBeacon: boolean | undefined,
     options: ApiOptions,
@@ -264,7 +288,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
         });
       } else {
         // throw warning if beacon is disabled
-        this.logger.warn(PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING(RS_APP));
+        this.logger.warn(PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING(RSA));
       }
     }
   }
@@ -298,7 +322,11 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    * Get ready callback arguments and forward to ready call
    */
   ready(callback: ApiCallback) {
-    this.getAnalyticsInstance().ready(callback);
+    try {
+      this.getAnalyticsInstance()?.ready(getSanitizedValue(callback));
+    } catch (error: any) {
+      dispatchErrorEvent(error);
+    }
   }
 
   /**
@@ -341,9 +369,13 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     options?: Nullable<ApiOptions> | ApiCallback,
     callback?: ApiCallback,
   ) {
-    this.getAnalyticsInstance().page(
-      pageArgumentsToCallOptions(category, name, properties, options, callback),
-    );
+    try {
+      this.getAnalyticsInstance()?.page(
+        pageArgumentsToCallOptions(category, name, properties, options, callback),
+      );
+    } catch (error: any) {
+      dispatchErrorEvent(error);
+    }
   }
 
   /**
@@ -364,9 +396,13 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     options?: Nullable<ApiOptions> | ApiCallback,
     callback?: ApiCallback,
   ) {
-    this.getAnalyticsInstance().track(
-      trackArgumentsToCallOptions(event, properties, options, callback),
-    );
+    try {
+      this.getAnalyticsInstance()?.track(
+        trackArgumentsToCallOptions(event, properties, options, callback),
+      );
+    } catch (error: any) {
+      dispatchErrorEvent(error);
+    }
   }
 
   /**
@@ -393,9 +429,13 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     options?: Nullable<ApiOptions> | ApiCallback,
     callback?: ApiCallback,
   ) {
-    this.getAnalyticsInstance().identify(
-      identifyArgumentsToCallOptions(userId, traits, options, callback),
-    );
+    try {
+      this.getAnalyticsInstance()?.identify(
+        identifyArgumentsToCallOptions(userId, traits, options, callback),
+      );
+    } catch (error: any) {
+      dispatchErrorEvent(error);
+    }
   }
 
   /**
@@ -412,7 +452,11 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     options?: Nullable<ApiOptions> | ApiCallback,
     callback?: ApiCallback,
   ) {
-    this.getAnalyticsInstance().alias(aliasArgumentsToCallOptions(to, from, options, callback));
+    try {
+      this.getAnalyticsInstance()?.alias(aliasArgumentsToCallOptions(to, from, options, callback));
+    } catch (error: any) {
+      dispatchErrorEvent(error);
+    }
   }
 
   /**
@@ -439,62 +483,118 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     options?: Nullable<ApiOptions> | ApiCallback,
     callback?: ApiCallback,
   ) {
-    if (arguments.length === 0) {
-      this.logger.error(EMPTY_GROUP_CALL_ERROR(RS_APP));
-      return;
+    try {
+      this.getAnalyticsInstance()?.group(
+        groupArgumentsToCallOptions(groupId, traits, options, callback),
+      );
+    } catch (error: any) {
+      dispatchErrorEvent(error);
     }
-
-    this.getAnalyticsInstance().group(
-      groupArgumentsToCallOptions(groupId, traits, options, callback),
-    );
   }
 
   reset(resetAnonymousId?: boolean) {
-    this.getAnalyticsInstance().reset(resetAnonymousId);
+    try {
+      this.getAnalyticsInstance()?.reset(getSanitizedValue(resetAnonymousId));
+    } catch (error: any) {
+      dispatchErrorEvent(error);
+    }
   }
 
-  getAnonymousId(options?: AnonymousIdOptions) {
-    return this.getAnalyticsInstance().getAnonymousId(options);
+  getAnonymousId(options?: AnonymousIdOptions): string | undefined {
+    try {
+      return this.getAnalyticsInstance()?.getAnonymousId(getSanitizedValue(options));
+    } catch (error: any) {
+      dispatchErrorEvent(error);
+      return undefined;
+    }
   }
 
-  setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string) {
-    this.getAnalyticsInstance().setAnonymousId(anonymousId, rudderAmpLinkerParam);
+  setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string): void {
+    try {
+      this.getAnalyticsInstance()?.setAnonymousId(
+        getSanitizedValue(anonymousId),
+        getSanitizedValue(rudderAmpLinkerParam),
+      );
+    } catch (error: any) {
+      dispatchErrorEvent(error);
+    }
   }
 
   getUserId() {
-    return this.getAnalyticsInstance().getUserId();
+    try {
+      return this.getAnalyticsInstance()?.getUserId();
+    } catch (error: any) {
+      dispatchErrorEvent(error);
+      return undefined;
+    }
   }
 
   getUserTraits() {
-    return this.getAnalyticsInstance().getUserTraits();
+    try {
+      return this.getAnalyticsInstance()?.getUserTraits();
+    } catch (error: any) {
+      dispatchErrorEvent(error);
+      return undefined;
+    }
   }
 
   getGroupId() {
-    return this.getAnalyticsInstance().getGroupId();
+    try {
+      return this.getAnalyticsInstance()?.getGroupId();
+    } catch (error: any) {
+      dispatchErrorEvent(error);
+      return undefined;
+    }
   }
 
   getGroupTraits() {
-    return this.getAnalyticsInstance().getGroupTraits();
+    try {
+      return this.getAnalyticsInstance()?.getGroupTraits();
+    } catch (error: any) {
+      dispatchErrorEvent(error);
+      return undefined;
+    }
   }
 
-  startSession(sessionId?: number) {
-    return this.getAnalyticsInstance().startSession(sessionId);
+  startSession(sessionId?: number): void {
+    try {
+      this.getAnalyticsInstance()?.startSession(getSanitizedValue(sessionId));
+    } catch (error: any) {
+      dispatchErrorEvent(error);
+    }
   }
 
-  endSession() {
-    return this.getAnalyticsInstance().endSession();
+  endSession(): void {
+    try {
+      this.getAnalyticsInstance()?.endSession();
+    } catch (error: any) {
+      dispatchErrorEvent(error);
+    }
   }
 
   getSessionId() {
-    return this.getAnalyticsInstance().getSessionId();
+    try {
+      return this.getAnalyticsInstance()?.getSessionId();
+    } catch (error: any) {
+      dispatchErrorEvent(error);
+      return undefined;
+    }
   }
 
-  setAuthToken(token: string) {
-    return this.getAnalyticsInstance().setAuthToken(token);
+  setAuthToken(token: string): void {
+    try {
+      this.getAnalyticsInstance()?.setAuthToken(getSanitizedValue(token));
+    } catch (error: any) {
+      dispatchErrorEvent(error);
+    }
   }
 
-  consent(options?: ConsentOptions) {
-    return this.getAnalyticsInstance().consent(options);
+  consent(options?: ConsentOptions): void {
+    try {
+      this.getAnalyticsInstance()?.consent(getSanitizedValue(options));
+    } catch (error: any) {
+      dispatchErrorEvent(error);
+    }
   }
 }
 
