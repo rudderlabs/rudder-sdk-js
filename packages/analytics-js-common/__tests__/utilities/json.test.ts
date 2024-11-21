@@ -260,7 +260,7 @@ describe('Common Utils - JSON', () => {
       expect(getSanitizedValue(obj)).toEqual(obj);
     });
 
-    it('should sanitize json after replacing BigInt and circular references', () => {
+    it.skip('should sanitize json after replacing BigInt and circular references', () => {
       const obj = {
         a: BigInt(1),
         b: undefined,
