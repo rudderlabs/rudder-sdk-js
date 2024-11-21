@@ -1,5 +1,5 @@
 import { isTypeOfError } from './checks';
-import { stringifyWithoutCircular } from './json';
+import { stringifyData } from './json';
 
 const MANUAL_ERROR_IDENTIFIER = '[MANUAL ERROR]';
 
@@ -12,7 +12,7 @@ const MANUAL_ERROR_IDENTIFIER = '[MANUAL ERROR]';
 const getMutatedError = (err: any, issue: string): Error => {
   let finalError = err;
   if (!isTypeOfError(err)) {
-    finalError = new Error(`${issue}: ${stringifyWithoutCircular(err as Record<string, any>)}`);
+    finalError = new Error(`${issue}: ${stringifyData(err as Record<string, any>)}`);
   } else {
     (finalError as Error).message = `${issue}: ${err.message}`;
   }

@@ -65,8 +65,8 @@ const isRudderSDKError = (event: BugsnagLib.Report) => {
 };
 
 const getAppStateForMetadata = (state: ApplicationState): Record<string, any> | undefined => {
-  const stateStr = json.stringifyWithoutCircular(state, false, APP_STATE_EXCLUDE_KEYS);
-  return stateStr !== null ? JSON.parse(stateStr) : undefined;
+  const stateStr = json.stringifyData(state, true, APP_STATE_EXCLUDE_KEYS);
+  return JSON.parse(stateStr);
 };
 
 const enhanceErrorEventMutator = (state: ApplicationState, event: BugsnagLib.Report): void => {
