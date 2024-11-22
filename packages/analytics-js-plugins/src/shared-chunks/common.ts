@@ -13,7 +13,10 @@ export { removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utiliti
 export { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 export { isErrRetryable } from '@rudderstack/analytics-js-common/utilities/http';
 export { fromBase64, toBase64 } from '@rudderstack/analytics-js-common/utilities/string';
-export { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
+export {
+  stringifyWithoutCircular,
+  getSanitizedValue,
+} from '@rudderstack/analytics-js-common/utilities/json';
 export { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
 export {
   encryptBrowser as encrypt,
@@ -30,7 +33,6 @@ export {
   mergeDeepRight,
   isNonEmptyObject,
   isObjectLiteralAndNotNull,
-  getSanitizedValue,
 } from '@rudderstack/analytics-js-common/utilities/object';
 export { CDN_INT_DIR } from '@rudderstack/analytics-js-common/constants/urls';
 export { METRICS_PAYLOAD_VERSION } from '@rudderstack/analytics-js-common/constants/metrics';
