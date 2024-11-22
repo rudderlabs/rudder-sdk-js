@@ -24,6 +24,7 @@ import { onPageLeave } from '@rudderstack/analytics-js-common/utilities/page';
 import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { getFormattedTimestamp } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import { dispatchErrorEvent } from '@rudderstack/analytics-js-common/utilities/errors';
+import { getSanitizedValue } from '@rudderstack/analytics-js-common/utilities/json';
 import { GLOBAL_PRELOAD_BUFFER } from '../constants/app';
 import {
   getPreloadedLoadEvent,
@@ -37,7 +38,6 @@ import { defaultLogger } from '../services/Logger/Logger';
 import { PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING } from '../constants/logMessages';
 import { defaultErrorHandler } from '../services/ErrorHandler';
 import { state } from '../state';
-import { getSanitizedValue } from '@rudderstack/analytics-js-common/utilities/object';
 
 // TODO: add analytics restart/reset mechanism
 
@@ -371,7 +371,13 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   ) {
     try {
       this.getAnalyticsInstance()?.page(
-        pageArgumentsToCallOptions(category, name, properties, options, callback),
+        pageArgumentsToCallOptions(
+          getSanitizedValue(category),
+          getSanitizedValue(name),
+          getSanitizedValue(properties),
+          getSanitizedValue(options),
+          getSanitizedValue(callback),
+        ),
       );
     } catch (error: any) {
       dispatchErrorEvent(error);
@@ -398,7 +404,12 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   ) {
     try {
       this.getAnalyticsInstance()?.track(
-        trackArgumentsToCallOptions(event, properties, options, callback),
+        trackArgumentsToCallOptions(
+          getSanitizedValue(event),
+          getSanitizedValue(properties),
+          getSanitizedValue(options),
+          getSanitizedValue(callback),
+        ),
       );
     } catch (error: any) {
       dispatchErrorEvent(error);
@@ -431,7 +442,12 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   ) {
     try {
       this.getAnalyticsInstance()?.identify(
-        identifyArgumentsToCallOptions(userId, traits, options, callback),
+        identifyArgumentsToCallOptions(
+          getSanitizedValue(userId),
+          getSanitizedValue(traits),
+          getSanitizedValue(options),
+          getSanitizedValue(callback),
+        ),
       );
     } catch (error: any) {
       dispatchErrorEvent(error);
@@ -453,7 +469,14 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     callback?: ApiCallback,
   ) {
     try {
-      this.getAnalyticsInstance()?.alias(aliasArgumentsToCallOptions(to, from, options, callback));
+      this.getAnalyticsInstance()?.alias(
+        aliasArgumentsToCallOptions(
+          getSanitizedValue(to),
+          getSanitizedValue(from),
+          getSanitizedValue(options),
+          getSanitizedValue(callback),
+        ),
+      );
     } catch (error: any) {
       dispatchErrorEvent(error);
     }
@@ -485,7 +508,12 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   ) {
     try {
       this.getAnalyticsInstance()?.group(
-        groupArgumentsToCallOptions(groupId, traits, options, callback),
+        groupArgumentsToCallOptions(
+          getSanitizedValue(groupId),
+          getSanitizedValue(traits),
+          getSanitizedValue(options),
+          getSanitizedValue(callback),
+        ),
       );
     } catch (error: any) {
       dispatchErrorEvent(error);

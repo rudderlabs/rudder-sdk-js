@@ -1,5 +1,6 @@
 import { clone } from 'ramda';
 import {
+  getSanitizedValue,
   stringifyData,
   stringifyWithoutCircular,
 } from '../../src/utilities/json';
@@ -228,7 +229,7 @@ describe('Common Utils - JSON', () => {
     });
   });
 
-  describe.skip('getSanitizedValue', () => {
+  describe('getSanitizedValue', () => {
     const mockLogger = {
       warn: jest.fn(),
     };
@@ -259,7 +260,7 @@ describe('Common Utils - JSON', () => {
       expect(getSanitizedValue(obj)).toEqual(obj);
     });
 
-    it.skip('should sanitize json after replacing BigInt and circular references', () => {
+    it('should sanitize json after replacing BigInt and circular references', () => {
       const obj = {
         a: BigInt(1),
         b: undefined,
@@ -332,7 +333,7 @@ describe('Common Utils - JSON', () => {
       );
     });
 
-    it.skip('should sanitize json even if it contains reused objects', () => {
+    it('should sanitize json even if it contains reused objects', () => {
       const obj = {
         a: BigInt(1),
         b: undefined,

@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { clone } from 'ramda';
+import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import type {
   Destination,
   DeviceModeDestination,
@@ -26,15 +27,15 @@ import {
   DESTINATION_INTEGRATIONS_DATA_ERROR,
   DESTINATION_READY_TIMEOUT_ERROR,
 } from './logMessages';
-import { getSanitizedValue, isFunction, mergeDeepRight } from '../shared-chunks/common';
 import {
-  pageArgumentsToCallOptions,
-  trackArgumentsToCallOptions,
-  identifyArgumentsToCallOptions,
   aliasArgumentsToCallOptions,
   groupArgumentsToCallOptions,
+  identifyArgumentsToCallOptions,
   isHybridModeDestination,
+  pageArgumentsToCallOptions,
+  trackArgumentsToCallOptions,
 } from '../shared-chunks/deviceModeDestinations';
+import { getSanitizedValue, isFunction } from '../shared-chunks/common';
 
 /**
  * Determines if the destination SDK code is evaluated
@@ -82,32 +83,74 @@ const createDestinationInstance = (
       properties?: Nullable<ApiOptions> | Nullable<ApiObject> | ApiCallback,
       options?: Nullable<ApiOptions> | ApiCallback,
       callback?: ApiCallback,
-    ) => analytics.page(pageArgumentsToCallOptions(category, name, properties, options, callback)),
+    ) =>
+      analytics.page(
+        pageArgumentsToCallOptions(
+          getSanitizedValue(category),
+          getSanitizedValue(name),
+          getSanitizedValue(properties),
+          getSanitizedValue(options),
+          getSanitizedValue(callback),
+        ),
+      ),
     track: (
       event: string,
       properties?: Nullable<ApiObject> | ApiCallback,
       options?: Nullable<ApiOptions> | ApiCallback,
       callback?: ApiCallback,
-    ) => analytics.track(trackArgumentsToCallOptions(event, properties, options, callback)),
+    ) =>
+      analytics.track(
+        trackArgumentsToCallOptions(
+          getSanitizedValue(event),
+          getSanitizedValue(properties),
+          getSanitizedValue(options),
+          getSanitizedValue(callback),
+        ),
+      ),
     identify: (
       userId: string | number | Nullable<IdentifyTraits>,
       traits?: Nullable<IdentifyTraits> | Nullable<ApiOptions> | ApiCallback,
       options?: Nullable<ApiOptions> | ApiCallback,
       callback?: ApiCallback,
-    ) => analytics.identify(identifyArgumentsToCallOptions(userId, traits, options, callback)),
+    ) =>
+      analytics.identify(
+        identifyArgumentsToCallOptions(
+          getSanitizedValue(userId),
+          getSanitizedValue(traits),
+          getSanitizedValue(options),
+          getSanitizedValue(callback),
+        ),
+      ),
     alias: (
       to: string,
       from?: string | Nullable<ApiOptions> | ApiCallback,
       options?: Nullable<ApiOptions> | ApiCallback,
       callback?: ApiCallback,
-    ) => analytics.alias(aliasArgumentsToCallOptions(to, from, options, callback)),
+    ) =>
+      analytics.alias(
+        aliasArgumentsToCallOptions(
+          getSanitizedValue(to),
+          getSanitizedValue(from),
+          getSanitizedValue(options),
+          getSanitizedValue(callback),
+        ),
+      ),
     group: (
       groupId: string | number | Nullable<ApiObject>,
       traits?: Nullable<ApiOptions> | Nullable<ApiObject> | ApiCallback,
       options?: Nullable<ApiOptions> | ApiCallback,
       callback?: ApiCallback,
-    ) => analytics.group(groupArgumentsToCallOptions(groupId, traits, options, callback)),
-    getAnonymousId: (options?: AnonymousIdOptions) => analytics.getAnonymousId(options),
+    ) =>
+      analytics.group(
+        groupArgumentsToCallOptions(
+          getSanitizedValue(groupId),
+          getSanitizedValue(traits),
+          getSanitizedValue(options),
+          getSanitizedValue(callback),
+        ),
+      ),
+    getAnonymousId: (options?: AnonymousIdOptions) =>
+      analytics.getAnonymousId(getSanitizedValue(options)),
     getUserId: () => analytics.getUserId(),
     getUserTraits: () => analytics.getUserTraits(),
     getGroupId: () => analytics.getGroupId(),
