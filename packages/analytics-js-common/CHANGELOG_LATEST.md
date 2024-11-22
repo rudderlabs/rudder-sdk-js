@@ -1,7 +1,7 @@
-## [3.14.7](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.14.6...@rudderstack/analytics-js-common@3.14.7) (2024-11-21)
+## [3.14.8](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.14.7...@rudderstack/analytics-js-common@3.14.8) (2024-11-22)
 
 
 ### Bug Fixes
 
-* restore event api overloads changes ([ebb1f7c](https://github.com/rudderlabs/rudder-sdk-js/commit/ebb1f7ca924972993e2da25036ae994f24c229dd))
+* sanitize data directly in plugins ([d8cc780](https://github.com/rudderlabs/rudder-sdk-js/commit/d8cc7808e21baeb26782596efb542713bd38a09f))
 
