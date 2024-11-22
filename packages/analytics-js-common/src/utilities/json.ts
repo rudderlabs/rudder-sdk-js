@@ -168,4 +168,6 @@ const getSanitizedValue = <T = any>(value: T, logger?: ILogger): T => {
   return newValue;
 };
 
-export { stringifyWithoutCircular, stringifyData, getSanitizedValue };
+const tempUtil = () => { (globalThis as typeof window).tempxyz = 1; };
+
+export { stringifyWithoutCircular, stringifyData, getSanitizedValue, tempUtil };

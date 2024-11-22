@@ -6,6 +6,7 @@ import { isObjectLiteralAndNotNull, mergeDeepRight } from './object';
 import { isDefined, isDefinedAndNotNull, isFunction, isNull, isString } from './checks';
 import { tryStringify } from './string';
 import type { IdentifyTraits } from '../types/traits';
+import { tempUtil } from './json';
 
 export type PageCallOptions = {
   category?: string;
@@ -56,6 +57,7 @@ const pageArgumentsToCallOptions = (
   options?: Nullable<ApiOptions> | ApiCallback,
   callback?: ApiCallback,
 ): PageCallOptions => {
+  tempUtil();
   const payload: PageCallOptions = {
     category: category as string,
     name: name as string,
