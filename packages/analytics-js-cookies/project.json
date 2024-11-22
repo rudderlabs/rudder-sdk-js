@@ -51,9 +51,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-cookies@0.4.12",
-        "title": "@rudderstack/analytics-js-cookies@0.4.12",
-        "discussion-category": "@rudderstack/analytics-js-cookies@0.4.12",
+        "tag": "@rudderstack/analytics-js-cookies@0.4.13",
+        "title": "@rudderstack/analytics-js-cookies@0.4.13",
+        "discussion-category": "@rudderstack/analytics-js-cookies@0.4.13",
         "notesFile": "./packages/analytics-js-cookies/CHANGELOG_LATEST.md"
       }
     }
