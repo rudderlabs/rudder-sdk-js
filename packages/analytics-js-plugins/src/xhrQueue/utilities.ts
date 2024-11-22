@@ -1,4 +1,3 @@
-import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import type { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
@@ -6,11 +5,19 @@ import type { ApplicationState } from '@rudderstack/analytics-js-common/types/Ap
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { clone } from 'ramda';
-import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
-import { checks, http, url, json, eventsDelivery } from '../shared-chunks/common';
 import { DATA_PLANE_API_VERSION, DEFAULT_RETRY_QUEUE_OPTIONS, XHR_QUEUE_PLUGIN } from './constants';
 import type { XHRRetryQueueItemData, XHRQueueItemData, XHRBatchPayload } from './types';
 import { EVENT_DELIVERY_FAILURE_ERROR_PREFIX } from './logMessages';
+import {
+  getCurrentTimeFormatted,
+  getDeliveryPayload,
+  getFinalEventForDeliveryMutator,
+  isErrRetryable,
+  isUndefined,
+  mergeDeepRight,
+  removeDuplicateSlashes,
+  stringifyWithoutCircular,
+} from '../shared-chunks/common';
 
 const getBatchDeliveryPayload = (
   events: RudderEvent[],
@@ -18,7 +25,7 @@ const getBatchDeliveryPayload = (
   logger?: ILogger,
 ): Nullable<string> => {
   const batchPayload: XHRBatchPayload = { batch: events, sentAt: currentTime };
-  return json.stringifyWithoutCircular(batchPayload, true, undefined, logger);
+  return stringifyWithoutCircular(batchPayload, true, undefined, logger);
 };
 
 const getNormalizedQueueOptions = (queueOpts: QueueOpts): QueueOpts =>
@@ -27,9 +34,7 @@ const getNormalizedQueueOptions = (queueOpts: QueueOpts): QueueOpts =>
 const getDeliveryUrl = (dataplaneUrl: string, endpoint: string): string => {
   const dpUrl = new URL(dataplaneUrl);
   return new URL(
-    url.removeDuplicateSlashes(
-      [dpUrl.pathname, '/', DATA_PLANE_API_VERSION, '/', endpoint].join(''),
-    ),
+    removeDuplicateSlashes([dpUrl.pathname, '/', DATA_PLANE_API_VERSION, '/', endpoint].join('')),
     dpUrl,
   ).href;
 };
@@ -44,11 +49,11 @@ const logErrorOnFailure = (
   maxRetryAttempts?: number,
   logger?: ILogger,
 ) => {
-  if (checks.isUndefined(details?.error) || checks.isUndefined(logger)) {
+  if (isUndefined(details?.error) || isUndefined(logger)) {
     return;
   }
 
-  const isRetryableFailure = http.isErrRetryable(details);
+  const isRetryableFailure = isErrRetryable(details);
   let errMsg = EVENT_DELIVERY_FAILURE_ERROR_PREFIX(XHR_QUEUE_PLUGIN, url);
   const dropMsg = `The event(s) will be dropped.`;
   if (isRetryableFailure) {
@@ -77,16 +82,16 @@ const getRequestInfo = (
   const currentTime = getCurrentTimeFormatted();
   if (Array.isArray(itemData)) {
     const finalEvents = itemData.map((queueItemData: XHRQueueItemData) =>
-      eventsDelivery.getFinalEventForDeliveryMutator(queueItemData.event, currentTime),
+      getFinalEventForDeliveryMutator(queueItemData.event, currentTime),
     );
     data = getBatchDeliveryPayload(finalEvents, currentTime, logger);
     headers = itemData[0] ? clone(itemData[0].headers) : {};
     url = getBatchDeliveryUrl(state.lifecycle.activeDataplaneUrl.value as string);
   } else {
     const { url: eventUrl, event, headers: eventHeaders } = itemData;
-    const finalEvent = eventsDelivery.getFinalEventForDeliveryMutator(event, currentTime);
+    const finalEvent = getFinalEventForDeliveryMutator(event, currentTime);
 
-    data = eventsDelivery.getDeliveryPayload(finalEvent, logger);
+    data = getDeliveryPayload(finalEvent, logger);
     headers = clone(eventHeaders);
     url = eventUrl;
   }

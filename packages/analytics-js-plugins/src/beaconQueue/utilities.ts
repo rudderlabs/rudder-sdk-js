@@ -1,8 +1,6 @@
-import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { BeaconQueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { json, url } from '../shared-chunks/common';
 import {
   BEACON_QUEUE_STRING_CONVERSION_FAILURE_ERROR,
   BEACON_QUEUE_BLOB_CONVERSION_FAILURE_ERROR,
@@ -13,6 +11,11 @@ import {
   DEFAULT_BEACON_QUEUE_OPTIONS,
 } from './constants';
 import type { BeaconBatchData } from './types';
+import {
+  mergeDeepRight,
+  removeDuplicateSlashes,
+  stringifyWithoutCircular,
+} from '../shared-chunks/common';
 
 /**
  * Utility to get the stringified event payload as Blob
@@ -31,7 +34,7 @@ const getBatchDeliveryPayload = (
   };
 
   try {
-    const blobPayload = json.stringifyWithoutCircular(data, true);
+    const blobPayload = stringifyWithoutCircular(data, true);
     const blobOptions: BlobPropertyBag = { type: 'text/plain' };
 
     if (blobPayload) {
@@ -50,7 +53,7 @@ const getNormalizedBeaconQueueOptions = (queueOpts: BeaconQueueOpts): BeaconQueu
 const getDeliveryUrl = (dataplaneUrl: string, writeKey: string): string => {
   const dpUrl = new URL(dataplaneUrl);
   return new URL(
-    url.removeDuplicateSlashes(
+    removeDuplicateSlashes(
       [
         dpUrl.pathname,
         '/',

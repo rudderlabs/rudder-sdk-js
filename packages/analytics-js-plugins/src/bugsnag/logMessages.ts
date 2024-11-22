@@ -1,4 +1,4 @@
-import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constants/logMessages';
+import { LOG_CONTEXT_SEPARATOR } from '../shared-chunks/common';
 
 const BUGSNAG_API_KEY_VALIDATION_ERROR = (apiKey: string): string =>
   `The Bugsnag API key (${apiKey}) is invalid or not provided.`;

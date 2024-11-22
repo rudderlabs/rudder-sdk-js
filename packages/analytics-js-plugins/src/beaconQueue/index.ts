@@ -11,14 +11,12 @@ import type {
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import type { DoneCallback, IQueue } from '../types/plugins';
 import {
   getNormalizedBeaconQueueOptions,
   getDeliveryUrl,
   getBatchDeliveryPayload,
 } from './utilities';
-import { eventsDelivery, timestamp, storages } from '../shared-chunks/common';
 import { BEACON_QUEUE_PLUGIN, MAX_BATCH_PAYLOAD_SIZE_BYTES, QUEUE_NAME } from './constants';
 import type { BeaconQueueBatchItemData, BeaconQueueItemData } from './types';
 import {
@@ -27,6 +25,12 @@ import {
   BEACON_QUEUE_DELIVERY_ERROR,
 } from './logMessages';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
+import {
+  getCurrentTimeFormatted,
+  getFinalEventForDeliveryMutator,
+  LOCAL_STORAGE,
+  validateEventPayloadSize,
+} from '../shared-chunks/common';
 
 const pluginName: PluginName = 'BeaconQueue';
 
@@ -65,7 +69,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
         logger?.debug(BEACON_PLUGIN_EVENTS_QUEUE_DEBUG(BEACON_QUEUE_PLUGIN));
         const currentTime = getCurrentTimeFormatted();
         const finalEvents = itemData.map((queueItemData: BeaconQueueItemData) =>
-          eventsDelivery.getFinalEventForDeliveryMutator(queueItemData.event, currentTime),
+          getFinalEventForDeliveryMutator(queueItemData.event, currentTime),
         );
         const data = getBatchDeliveryPayload(finalEvents, currentTime, logger);
 
@@ -100,7 +104,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
         } as QueueOpts,
         queueProcessCallback,
         storeManager,
-        storages.LOCAL_STORAGE,
+        LOCAL_STORAGE,
         logger,
         (itemData: BeaconQueueItemData[]): number => {
           const currentTime = getCurrentTimeFormatted();
@@ -131,8 +135,8 @@ const BeaconQueue = (): ExtensionPlugin => ({
     ): void {
       // sentAt is only added here for the validation step
       // It'll be updated to the latest timestamp during actual delivery
-      event.sentAt = timestamp.getCurrentTimeFormatted();
-      eventsDelivery.validateEventPayloadSize(event, logger);
+      event.sentAt = getCurrentTimeFormatted();
+      validateEventPayloadSize(event, logger);
 
       eventsQueue.addItem({
         event,

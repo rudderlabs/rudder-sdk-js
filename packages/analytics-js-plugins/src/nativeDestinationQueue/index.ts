@@ -13,13 +13,13 @@ import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { clone } from 'ramda';
-import { storages } from '../shared-chunks/common';
 import type { DoneCallback, IQueue } from '../types/plugins';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import { getNormalizedQueueOptions, isEventDenyListed, sendEventToDestination } from './utilities';
 import { NATIVE_DESTINATION_QUEUE_PLUGIN, QUEUE_NAME } from './constants';
 import { DESTINATION_EVENT_FILTERING_WARNING } from './logMessages';
-import { destinationUtils } from '../shared-chunks/deviceModeDestinations';
+import { MEMORY_STORAGE } from '../shared-chunks/common';
+import { filterDestinations } from '../shared-chunks/deviceModeDestinations';
 
 const pluginName: PluginName = 'NativeDestinationQueue';
 
@@ -57,7 +57,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
         `${QUEUE_NAME}_${writeKey}`,
         finalQOpts,
         (rudderEvent: RudderEvent, done: DoneCallback) => {
-          const destinationsToSend = destinationUtils.filterDestinations(
+          const destinationsToSend = filterDestinations(
             rudderEvent.integrations,
             state.nativeDestinations.initializedDestinations.value,
           );
@@ -109,7 +109,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
           done(null);
         },
         storeManager,
-        storages.MEMORY_STORAGE,
+        MEMORY_STORAGE,
       );
 
       // TODO: This seems to not work as expected. Need to investigate
