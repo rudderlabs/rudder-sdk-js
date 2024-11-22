@@ -1,7 +1,6 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { clone } from 'ramda';
-import { getSanitizedValue, mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import type {
   Destination,
   DeviceModeDestination,
@@ -16,8 +15,6 @@ import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { IdentifyTraits } from '@rudderstack/analytics-js-common/types/traits';
 import type { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { checks } from '../shared-chunks/common';
-import { eventMethodOverloads, destinations } from '../shared-chunks/deviceModeDestinations';
 import type { DeviceModeDestinationsAnalyticsInstance } from './types';
 import {
   DEVICE_MODE_DESTINATIONS_PLUGIN,
@@ -29,6 +26,15 @@ import {
   DESTINATION_INTEGRATIONS_DATA_ERROR,
   DESTINATION_READY_TIMEOUT_ERROR,
 } from './logMessages';
+import { getSanitizedValue, isFunction, mergeDeepRight } from '../shared-chunks/common';
+import {
+  pageArgumentsToCallOptions,
+  trackArgumentsToCallOptions,
+  identifyArgumentsToCallOptions,
+  aliasArgumentsToCallOptions,
+  groupArgumentsToCallOptions,
+  isHybridModeDestination,
+} from '../shared-chunks/deviceModeDestinations';
 
 /**
  * Determines if the destination SDK code is evaluated
@@ -76,53 +82,32 @@ const createDestinationInstance = (
       properties?: Nullable<ApiOptions> | Nullable<ApiObject> | ApiCallback,
       options?: Nullable<ApiOptions> | ApiCallback,
       callback?: ApiCallback,
-    ) =>
-      analytics.page(
-        eventMethodOverloads.pageArgumentsToCallOptions(
-          getSanitizedValue(category),
-          getSanitizedValue(name),
-          getSanitizedValue(properties),
-          getSanitizedValue(options),
-          getSanitizedValue(callback),
-        ),
-      ),
+    ) => analytics.page(pageArgumentsToCallOptions(category, name, properties, options, callback)),
     track: (
       event: string,
       properties?: Nullable<ApiObject> | ApiCallback,
       options?: Nullable<ApiOptions> | ApiCallback,
       callback?: ApiCallback,
-    ) =>
-      analytics.track(
-        eventMethodOverloads.trackArgumentsToCallOptions(getSanitizedValue(event), getSanitizedValue(properties), getSanitizedValue(options), getSanitizedValue(callback)),
-      ),
+    ) => analytics.track(trackArgumentsToCallOptions(event, properties, options, callback)),
     identify: (
       userId: string | number | Nullable<IdentifyTraits>,
       traits?: Nullable<IdentifyTraits> | Nullable<ApiOptions> | ApiCallback,
       options?: Nullable<ApiOptions> | ApiCallback,
       callback?: ApiCallback,
-    ) =>
-      analytics.identify(
-        eventMethodOverloads.identifyArgumentsToCallOptions(getSanitizedValue(userId), getSanitizedValue(traits), getSanitizedValue(options), getSanitizedValue(callback)),
-      ),
+    ) => analytics.identify(identifyArgumentsToCallOptions(userId, traits, options, callback)),
     alias: (
       to: string,
       from?: string | Nullable<ApiOptions> | ApiCallback,
       options?: Nullable<ApiOptions> | ApiCallback,
       callback?: ApiCallback,
-    ) =>
-      analytics.alias(
-        eventMethodOverloads.aliasArgumentsToCallOptions(getSanitizedValue(to), getSanitizedValue(from), getSanitizedValue(options), getSanitizedValue(callback)),
-      ),
+    ) => analytics.alias(aliasArgumentsToCallOptions(to, from, options, callback)),
     group: (
       groupId: string | number | Nullable<ApiObject>,
       traits?: Nullable<ApiOptions> | Nullable<ApiObject> | ApiCallback,
       options?: Nullable<ApiOptions> | ApiCallback,
       callback?: ApiCallback,
-    ) =>
-      analytics.group(
-        eventMethodOverloads.groupArgumentsToCallOptions(getSanitizedValue(groupId), getSanitizedValue(traits), getSanitizedValue(options), getSanitizedValue(callback)),
-      ),
-    getAnonymousId: (options?: AnonymousIdOptions) => analytics.getAnonymousId(getSanitizedValue(options)),
+    ) => analytics.group(groupArgumentsToCallOptions(groupId, traits, options, callback)),
+    getAnonymousId: (options?: AnonymousIdOptions) => analytics.getAnonymousId(options),
     getUserId: () => analytics.getUserId(),
     getUserTraits: () => analytics.getUserTraits(),
     getGroupId: () => analytics.getGroupId(),
@@ -177,11 +162,11 @@ const getCumulativeIntegrationsConfig = (
   errorHandler?: IErrorHandler,
 ): IntegrationOpts => {
   let integrationsConfig: IntegrationOpts = curDestIntgConfig;
-  if (checks.isFunction(dest.instance?.getDataForIntegrationsObject)) {
+  if (isFunction(dest.instance?.getDataForIntegrationsObject)) {
     try {
       integrationsConfig = mergeDeepRight(
         curDestIntgConfig,
-        dest.instance?.getDataForIntegrationsObject(),
+        getSanitizedValue(dest.instance?.getDataForIntegrationsObject()),
       );
     } catch (err) {
       errorHandler?.onError(
@@ -212,7 +197,7 @@ const initializeDestination = (
     isDestinationReady(initializedDestination)
       .then(() => {
         // Collect the integrations data for the hybrid mode destinations
-        if (destinations.isHybridModeDestination(initializedDestination)) {
+        if (isHybridModeDestination(initializedDestination)) {
           state.nativeDestinations.integrationsConfig.value = getCumulativeIntegrationsConfig(
             initializedDestination,
             state.nativeDestinations.integrationsConfig.value,

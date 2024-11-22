@@ -3,11 +3,10 @@ import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import type { ConsentsInfo } from '@rudderstack/analytics-js-common/types/Consent';
-import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
-import { checks, storages, string } from '../shared-chunks/common';
 import { KETCH_CONSENT_COOKIE_PARSE_ERROR, KETCH_CONSENT_COOKIE_READ_ERROR } from './logMessages';
 import { KETCH_CONSENT_COOKIE_NAME_V1, KETCH_CONSENT_MANAGER_PLUGIN } from './constants';
 import type { KetchConsentCookieData, KetchConsentData } from './types';
+import { COOKIE_STORAGE, fromBase64, isDefined, isNullOrUndefined } from '../shared-chunks/common';
 
 /**
  * Gets the consent data from the Ketch's consent cookie
@@ -25,7 +24,7 @@ const getKetchConsentData = (
     const dataStore = storeManager?.setStore({
       id: KETCH_CONSENT_MANAGER_PLUGIN,
       name: KETCH_CONSENT_MANAGER_PLUGIN,
-      type: storages.COOKIE_STORAGE,
+      type: COOKIE_STORAGE,
     });
     rawConsentCookieData = dataStore?.engine.getItem(KETCH_CONSENT_COOKIE_NAME_V1);
   } catch (err) {
@@ -33,14 +32,14 @@ const getKetchConsentData = (
     return undefined;
   }
 
-  if (checks.isNullOrUndefined(rawConsentCookieData)) {
+  if (isNullOrUndefined(rawConsentCookieData)) {
     return undefined;
   }
 
   // Decode and parse the cookie data to JSON
   let consentCookieData: KetchConsentCookieData;
   try {
-    consentCookieData = JSON.parse(string.fromBase64(rawConsentCookieData as string));
+    consentCookieData = JSON.parse(fromBase64(rawConsentCookieData as string));
   } catch (err) {
     logger?.error(KETCH_CONSENT_COOKIE_PARSE_ERROR(KETCH_CONSENT_MANAGER_PLUGIN), err);
     return undefined;

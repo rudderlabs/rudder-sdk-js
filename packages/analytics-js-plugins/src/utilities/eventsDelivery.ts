@@ -1,8 +1,8 @@
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { clone } from 'ramda';
-import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constants/logMessages';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constants/logMessages';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { EVENT_PAYLOAD_SIZE_BYTES_LIMIT } from './constants';
 import type { TransformationRequestPayload } from '../deviceModeTransformation/types';

@@ -1,11 +1,10 @@
-import type { ErrorState } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import ErrorStackParser from 'error-stack-parser';
 import type { Exception, Stackframe } from '@rudderstack/analytics-js-common/types/Metrics';
-import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import type { FrameType, IErrorFormat } from '../types';
 import { hasStack, isError } from './utils';
 import { ERROR_REPORTING_PLUGIN } from '../constants';
+import { stringifyWithoutCircular } from '../../shared-chunks/common';
 
 const normaliseFunctionName = (name: string) =>
   /^global code$/i.test(name) ? 'global code' : name;
