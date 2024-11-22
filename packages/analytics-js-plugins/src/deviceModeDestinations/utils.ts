@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { clone } from 'ramda';
-import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
+import { getSanitizedValue, mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import type {
   Destination,
   DeviceModeDestination,
@@ -79,11 +79,11 @@ const createDestinationInstance = (
     ) =>
       analytics.page(
         eventMethodOverloads.pageArgumentsToCallOptions(
-          category,
-          name,
-          properties,
-          options,
-          callback,
+          getSanitizedValue(category),
+          getSanitizedValue(name),
+          getSanitizedValue(properties),
+          getSanitizedValue(options),
+          getSanitizedValue(callback),
         ),
       ),
     track: (
@@ -93,7 +93,7 @@ const createDestinationInstance = (
       callback?: ApiCallback,
     ) =>
       analytics.track(
-        eventMethodOverloads.trackArgumentsToCallOptions(event, properties, options, callback),
+        eventMethodOverloads.trackArgumentsToCallOptions(getSanitizedValue(event), getSanitizedValue(properties), getSanitizedValue(options), getSanitizedValue(callback)),
       ),
     identify: (
       userId: string | number | Nullable<IdentifyTraits>,
@@ -102,7 +102,7 @@ const createDestinationInstance = (
       callback?: ApiCallback,
     ) =>
       analytics.identify(
-        eventMethodOverloads.identifyArgumentsToCallOptions(userId, traits, options, callback),
+        eventMethodOverloads.identifyArgumentsToCallOptions(getSanitizedValue(userId), getSanitizedValue(traits), getSanitizedValue(options), getSanitizedValue(callback)),
       ),
     alias: (
       to: string,
@@ -111,7 +111,7 @@ const createDestinationInstance = (
       callback?: ApiCallback,
     ) =>
       analytics.alias(
-        eventMethodOverloads.aliasArgumentsToCallOptions(to, from, options, callback),
+        eventMethodOverloads.aliasArgumentsToCallOptions(getSanitizedValue(to), getSanitizedValue(from), getSanitizedValue(options), getSanitizedValue(callback)),
       ),
     group: (
       groupId: string | number | Nullable<ApiObject>,
@@ -120,9 +120,9 @@ const createDestinationInstance = (
       callback?: ApiCallback,
     ) =>
       analytics.group(
-        eventMethodOverloads.groupArgumentsToCallOptions(groupId, traits, options, callback),
+        eventMethodOverloads.groupArgumentsToCallOptions(getSanitizedValue(groupId), getSanitizedValue(traits), getSanitizedValue(options), getSanitizedValue(callback)),
       ),
-    getAnonymousId: (options?: AnonymousIdOptions) => analytics.getAnonymousId(options),
+    getAnonymousId: (options?: AnonymousIdOptions) => analytics.getAnonymousId(getSanitizedValue(options)),
     getUserId: () => analytics.getUserId(),
     getUserTraits: () => analytics.getUserTraits(),
     getGroupId: () => analytics.getGroupId(),

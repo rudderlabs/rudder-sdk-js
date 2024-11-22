@@ -2,7 +2,7 @@ import { clone } from 'ramda';
 import type { ApiObject } from '../types/ApiObject';
 import type { ApiCallback, ApiOptions } from '../types/EventApi';
 import type { Nullable } from '../types/Nullable';
-import { getSanitizedValue, isObjectLiteralAndNotNull, mergeDeepRight } from './object';
+import { isObjectLiteralAndNotNull, mergeDeepRight } from './object';
 import { isDefined, isDefinedAndNotNull, isFunction, isNull, isString } from './checks';
 import { tryStringify } from './string';
 import type { IdentifyTraits } from '../types/traits';
@@ -56,70 +56,64 @@ const pageArgumentsToCallOptions = (
   options?: Nullable<ApiOptions> | ApiCallback,
   callback?: ApiCallback,
 ): PageCallOptions => {
-  const sanitizedCategory = getSanitizedValue(category);
-  const sanitizedName = getSanitizedValue(name);
-  const sanitizedProperties = getSanitizedValue(properties);
-  const sanitizedOptions = getSanitizedValue(options);
-  const sanitizedCallback = getSanitizedValue(callback);
-
   const payload: PageCallOptions = {
-    category: sanitizedCategory as string,
-    name: sanitizedName as string,
-    properties: sanitizedProperties as Nullable<ApiObject>,
-    options: sanitizedOptions as Nullable<ApiOptions>,
+    category: category as string,
+    name: name as string,
+    properties: properties as Nullable<ApiObject>,
+    options: options as Nullable<ApiOptions>,
     callback: undefined,
   };
 
-  if (isFunction(sanitizedCallback)) {
-    payload.callback = sanitizedCallback;
+  if (isFunction(callback)) {
+    payload.callback = callback;
   }
 
-  if (isFunction(sanitizedOptions)) {
-    payload.category = sanitizedCategory as string;
-    payload.name = sanitizedName as string;
-    payload.properties = sanitizedProperties as Nullable<ApiObject>;
+  if (isFunction(options)) {
+    payload.category = category as string;
+    payload.name = name as string;
+    payload.properties = properties as Nullable<ApiObject>;
     payload.options = undefined;
-    payload.callback = sanitizedOptions;
+    payload.callback = options;
   }
 
-  if (isFunction(sanitizedProperties)) {
-    payload.category = sanitizedCategory as string;
-    payload.name = sanitizedName as string;
+  if (isFunction(properties)) {
+    payload.category = category as string;
+    payload.name = name as string;
     payload.properties = undefined;
     payload.options = undefined;
-    payload.callback = sanitizedProperties;
+    payload.callback = properties;
   }
 
-  if (isFunction(sanitizedName)) {
-    payload.category = sanitizedCategory as string;
+  if (isFunction(name)) {
+    payload.category = category as string;
     payload.name = undefined;
     payload.properties = undefined;
     payload.options = undefined;
-    payload.callback = sanitizedName;
+    payload.callback = name;
   }
 
-  if (isFunction(sanitizedCategory)) {
+  if (isFunction(category)) {
     payload.category = undefined;
     payload.name = undefined;
     payload.properties = undefined;
     payload.options = undefined;
-    payload.callback = sanitizedCategory;
+    payload.callback = category;
   }
 
-  if (isObjectLiteralAndNotNull(sanitizedCategory)) {
+  if (isObjectLiteralAndNotNull(category)) {
     payload.name = undefined;
     payload.category = undefined;
-    payload.properties = sanitizedCategory as Nullable<ApiObject>;
-    if (!isFunction(sanitizedName)) {
-      payload.options = sanitizedName as Nullable<ApiOptions>;
+    payload.properties = category as Nullable<ApiObject>;
+    if (!isFunction(name)) {
+      payload.options = name as Nullable<ApiOptions>;
     } else {
       payload.options = undefined;
     }
-  } else if (isObjectLiteralAndNotNull(sanitizedName)) {
+  } else if (isObjectLiteralAndNotNull(name)) {
     payload.name = undefined;
-    payload.properties = sanitizedName as Nullable<ApiObject>;
-    if (!isFunction(sanitizedProperties)) {
-      payload.options = sanitizedProperties as Nullable<ApiOptions>;
+    payload.properties = name as Nullable<ApiObject>;
+    if (!isFunction(properties)) {
+      payload.options = properties as Nullable<ApiOptions>;
     } else {
       payload.options = undefined;
     }
@@ -127,9 +121,9 @@ const pageArgumentsToCallOptions = (
 
   // if the category argument alone is provided b/w category and name,
   // use it as name and set category to undefined
-  if (isString(sanitizedCategory) && !isString(sanitizedName)) {
+  if (isString(category) && !isString(name)) {
     payload.category = undefined;
-    payload.name = sanitizedCategory;
+    payload.name = category;
   }
 
   // Rest of the code is just to clean up undefined values
@@ -177,32 +171,27 @@ const trackArgumentsToCallOptions = (
   options?: Nullable<ApiOptions> | ApiCallback,
   callback?: ApiCallback,
 ): TrackCallOptions => {
-  const sanitizedEvent = getSanitizedValue(event);
-  const sanitizedProperties = getSanitizedValue(properties);
-  const sanitizedOptions = getSanitizedValue(options);
-  const sanitizedCallback = getSanitizedValue(callback);
-
   const payload: TrackCallOptions = {
-    name: sanitizedEvent,
-    properties: sanitizedProperties as Nullable<ApiObject>,
-    options: sanitizedOptions as Nullable<ApiOptions>,
+    name: event,
+    properties: properties as Nullable<ApiObject>,
+    options: options as Nullable<ApiOptions>,
     callback: undefined,
   };
 
-  if (isFunction(sanitizedCallback)) {
-    payload.callback = sanitizedCallback;
+  if (isFunction(callback)) {
+    payload.callback = callback;
   }
 
-  if (isFunction(sanitizedOptions)) {
-    payload.properties = sanitizedProperties as Nullable<ApiObject>;
+  if (isFunction(options)) {
+    payload.properties = properties as Nullable<ApiObject>;
     payload.options = undefined;
-    payload.callback = sanitizedOptions;
+    payload.callback = options;
   }
 
-  if (isFunction(sanitizedProperties)) {
+  if (isFunction(properties)) {
     payload.properties = undefined;
     payload.options = undefined;
-    payload.callback = sanitizedProperties;
+    payload.callback = properties;
   }
 
   // Rest of the code is just to clean up undefined values
@@ -228,43 +217,38 @@ const identifyArgumentsToCallOptions = (
   options?: Nullable<ApiOptions> | ApiCallback,
   callback?: ApiCallback,
 ): IdentifyCallOptions => {
-  const sanitizedUserId = getSanitizedValue(userId);
-  const sanitizedTraits = getSanitizedValue(traits);
-  const sanitizedOptions = getSanitizedValue(options);
-  const sanitizedCallback = getSanitizedValue(callback);
-
   const payload: IdentifyCallOptions = {
-    userId: sanitizedUserId as string,
-    traits: sanitizedTraits as Nullable<IdentifyTraits>,
-    options: sanitizedOptions as Nullable<ApiOptions>,
+    userId: userId as string,
+    traits: traits as Nullable<IdentifyTraits>,
+    options: options as Nullable<ApiOptions>,
     callback: undefined,
   };
 
-  if (isFunction(sanitizedCallback)) {
-    payload.callback = sanitizedCallback;
+  if (isFunction(callback)) {
+    payload.callback = callback;
   }
 
-  if (isFunction(sanitizedOptions)) {
-    payload.userId = sanitizedUserId as string;
-    payload.traits = sanitizedTraits as Nullable<IdentifyTraits>;
+  if (isFunction(options)) {
+    payload.userId = userId as string;
+    payload.traits = traits as Nullable<IdentifyTraits>;
     payload.options = undefined;
-    payload.callback = sanitizedOptions;
+    payload.callback = options;
   }
 
-  if (isFunction(sanitizedTraits)) {
-    payload.userId = sanitizedUserId as string;
+  if (isFunction(traits)) {
+    payload.userId = userId as string;
     payload.traits = undefined;
     payload.options = undefined;
-    payload.callback = sanitizedTraits;
+    payload.callback = traits;
   }
 
-  if (isObjectLiteralAndNotNull(sanitizedUserId) || isNull(sanitizedUserId)) {
+  if (isObjectLiteralAndNotNull(userId) || isNull(userId)) {
     // Explicitly set null to prevent resetting the existing value
     // in the Analytics class
     payload.userId = null;
-    payload.traits = sanitizedUserId as Nullable<IdentifyTraits>;
-    if (!isFunction(sanitizedTraits)) {
-      payload.options = sanitizedTraits as Nullable<ApiOptions>;
+    payload.traits = userId as Nullable<IdentifyTraits>;
+    if (!isFunction(traits)) {
+      payload.options = traits as Nullable<ApiOptions>;
     } else {
       payload.options = undefined;
     }
@@ -299,38 +283,33 @@ const aliasArgumentsToCallOptions = (
   options?: Nullable<ApiOptions> | ApiCallback,
   callback?: ApiCallback,
 ): AliasCallOptions => {
-  const sanitizedTo = getSanitizedValue(to);
-  const sanitizedFrom = getSanitizedValue(from);
-  const sanitizedOptions = getSanitizedValue(options);
-  const sanitizedCallback = getSanitizedValue(callback);
-
   const payload: AliasCallOptions = {
-    to: sanitizedTo,
-    from: sanitizedFrom as string,
-    options: sanitizedOptions as Nullable<ApiOptions>,
+    to,
+    from: from as string,
+    options: options as Nullable<ApiOptions>,
     callback: undefined,
   };
 
-  if (isFunction(sanitizedCallback)) {
-    payload.callback = sanitizedCallback;
+  if (isFunction(callback)) {
+    payload.callback = callback;
   }
 
-  if (isFunction(sanitizedOptions)) {
-    payload.to = sanitizedTo;
-    payload.from = sanitizedFrom as string;
+  if (isFunction(options)) {
+    payload.to = to;
+    payload.from = from as string;
     payload.options = undefined;
-    payload.callback = sanitizedOptions;
+    payload.callback = options;
   }
 
-  if (isFunction(sanitizedFrom)) {
-    payload.to = sanitizedTo;
+  if (isFunction(from)) {
+    payload.to = to;
     payload.from = undefined;
     payload.options = undefined;
-    payload.callback = sanitizedFrom;
-  } else if (isObjectLiteralAndNotNull(sanitizedFrom) || isNull(sanitizedFrom)) {
-    payload.to = sanitizedTo;
+    payload.callback = from;
+  } else if (isObjectLiteralAndNotNull(from) || isNull(from)) {
+    payload.to = to;
     payload.from = undefined;
-    payload.options = sanitizedFrom as Nullable<ApiOptions>;
+    payload.options = from as Nullable<ApiOptions>;
   }
 
   // Rest of the code is just to clean up undefined values
@@ -364,43 +343,38 @@ const groupArgumentsToCallOptions = (
   options?: Nullable<ApiOptions> | ApiCallback,
   callback?: ApiCallback,
 ): GroupCallOptions => {
-  const sanitizedGroupId = getSanitizedValue(groupId);
-  const sanitizedTraits = getSanitizedValue(traits);
-  const sanitizedOptions = getSanitizedValue(options);
-  const sanitizedCallback = getSanitizedValue(callback);
-
   const payload: GroupCallOptions = {
-    groupId: sanitizedGroupId as string,
-    traits: sanitizedTraits as Nullable<ApiObject>,
-    options: sanitizedOptions as Nullable<ApiOptions>,
+    groupId: groupId as string,
+    traits: traits as Nullable<ApiObject>,
+    options: options as Nullable<ApiOptions>,
     callback: undefined,
   };
 
-  if (isFunction(sanitizedCallback)) {
-    payload.callback = sanitizedCallback;
+  if (isFunction(callback)) {
+    payload.callback = callback;
   }
 
-  if (isFunction(sanitizedOptions)) {
-    payload.groupId = sanitizedGroupId as string;
-    payload.traits = sanitizedTraits as Nullable<ApiObject>;
+  if (isFunction(options)) {
+    payload.groupId = groupId as string;
+    payload.traits = traits as Nullable<ApiObject>;
     payload.options = undefined;
-    payload.callback = sanitizedOptions;
+    payload.callback = options;
   }
 
-  if (isFunction(sanitizedTraits)) {
-    payload.groupId = sanitizedGroupId as string;
+  if (isFunction(traits)) {
+    payload.groupId = groupId as string;
     payload.traits = undefined;
     payload.options = undefined;
-    payload.callback = sanitizedTraits;
+    payload.callback = traits;
   }
 
-  if (isObjectLiteralAndNotNull(sanitizedGroupId) || isNull(sanitizedGroupId)) {
+  if (isObjectLiteralAndNotNull(groupId) || isNull(groupId)) {
     // Explicitly set null to prevent resetting the existing value
     // in the Analytics class
     payload.groupId = null;
-    payload.traits = sanitizedGroupId as Nullable<ApiObject>;
-    if (!isFunction(sanitizedTraits)) {
-      payload.options = sanitizedTraits as Nullable<ApiOptions>;
+    payload.traits = groupId as Nullable<ApiObject>;
+    if (!isFunction(traits)) {
+      payload.options = traits as Nullable<ApiOptions>;
     } else {
       payload.options = undefined;
     }
