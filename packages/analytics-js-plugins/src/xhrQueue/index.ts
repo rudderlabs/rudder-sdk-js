@@ -9,8 +9,6 @@ import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store
 import type { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
-import { storages, http, timestamp, string, eventsDelivery } from '../shared-chunks/common';
 import {
   getNormalizedQueueOptions,
   getDeliveryUrl,
@@ -22,6 +20,13 @@ import type { DoneCallback, IQueue, QueueItemData } from '../types/plugins';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import { QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
 import type { XHRRetryQueueItemData, XHRQueueItemData } from './types';
+import {
+  getCurrentTimeFormatted,
+  isErrRetryable,
+  LOCAL_STORAGE,
+  toBase64,
+  validateEventPayloadSize,
+} from '../shared-chunks/common';
 
 const pluginName: PluginName = 'XhrQueue';
 
@@ -84,7 +89,7 @@ const XhrQueue = (): ExtensionPlugin => ({
             timeout: REQUEST_TIMEOUT_MS,
             callback: (result, details) => {
               // null means item will not be requeued
-              const queueErrResp = http.isErrRetryable(details) ? details : null;
+              const queueErrResp = isErrRetryable(details) ? details : null;
 
               logErrorOnFailure(
                 details,
@@ -100,7 +105,7 @@ const XhrQueue = (): ExtensionPlugin => ({
           });
         },
         storeManager,
-        storages.LOCAL_STORAGE,
+        LOCAL_STORAGE,
         logger,
         (itemData: XHRQueueItemData[]): number => {
           const currentTime = getCurrentTimeFormatted();
@@ -131,8 +136,8 @@ const XhrQueue = (): ExtensionPlugin => ({
     ): void {
       // sentAt is only added here for the validation step
       // It'll be updated to the latest timestamp during actual delivery
-      event.sentAt = timestamp.getCurrentTimeFormatted();
-      eventsDelivery.validateEventPayloadSize(event, logger);
+      event.sentAt = getCurrentTimeFormatted();
+      validateEventPayloadSize(event, logger);
 
       const dataplaneUrl = state.lifecycle.activeDataplaneUrl.value as string;
       const url = getDeliveryUrl(dataplaneUrl, event.type);
@@ -141,7 +146,7 @@ const XhrQueue = (): ExtensionPlugin => ({
       const headers = {
         // To maintain event ordering while using the HTTP API as per is documentation,
         // make sure to include anonymousId as a header
-        AnonymousId: string.toBase64(event.anonymousId),
+        AnonymousId: toBase64(event.anonymousId),
       };
 
       eventsQueue.addItem({

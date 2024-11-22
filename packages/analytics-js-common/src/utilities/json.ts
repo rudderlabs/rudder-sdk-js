@@ -9,6 +9,9 @@ import {
 import { isObjectLiteralAndNotNull } from './object';
 
 const JSON_STRINGIFY = 'JSONStringify';
+const JSON_UTIL = 'JSON';
+const BIG_INT_PLACEHOLDER = '[BigInt]';
+const CIRCULAR_REFERENCE_PLACEHOLDER = '[Circular Reference]';
 
 const getCircularReplacer = (
   excludeNull?: boolean,
@@ -41,7 +44,7 @@ const getCircularReplacer = (
 
     if (ancestors.includes(value)) {
       logger?.warn(CIRCULAR_REFERENCE_WARNING(JSON_STRINGIFY, key));
-      return '[Circular Reference]';
+      return CIRCULAR_REFERENCE_PLACEHOLDER;
     }
 
     ancestors.push(value);
@@ -71,8 +74,6 @@ const stringifyWithoutCircular = <T = Record<string, any> | any[] | number | str
   }
 };
 
-const JSON_UTIL = 'JSON';
-
 /**
  * Utility method for JSON stringify object excluding null values & circular references
  *
@@ -100,7 +101,7 @@ const getReplacer = (logger?: ILogger): ((key: string, value: any) => any) => {
   return function replacer(key, value): any {
     if (isBigInt(value)) {
       logger?.warn(BAD_DATA_WARNING(JSON_UTIL, key));
-      return '[BigInt]'; // Replace BigInt values
+      return BIG_INT_PLACEHOLDER; // Replace BigInt values
     }
 
     // `this` is the object that value is contained in, i.e., its direct parent.
@@ -113,7 +114,7 @@ const getReplacer = (logger?: ILogger): ((key: string, value: any) => any) => {
     // Check for circular references (if the value is already in the ancestors)
     if (ancestors.includes(value)) {
       logger?.warn(BAD_DATA_WARNING(JSON_UTIL, key));
-      return '[Circular Reference]';
+      return CIRCULAR_REFERENCE_PLACEHOLDER;
     }
 
     // Add current value to ancestors
@@ -167,4 +168,4 @@ const getSanitizedValue = <T = any>(value: T, logger?: ILogger): T => {
   return newValue;
 };
 
-export { stringifyWithoutCircular, getSanitizedValue, stringifyData };
+export { stringifyWithoutCircular, stringifyData, getSanitizedValue };

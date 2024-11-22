@@ -1,18 +1,8 @@
-import { isObjectLiteralAndNotNull } from '@rudderstack/analytics-js-common/utilities/object';
-import { QueueStatuses } from '@rudderstack/analytics-js-common/constants/QueueStatuses';
 import type { IStore, IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import type { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { BatchOpts, QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import {
-  isDefined,
-  isFunction,
-  isNullOrUndefined,
-} from '@rudderstack/analytics-js-common/utilities/checks';
-import { LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
-import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
-import { onPageLeave } from '@rudderstack/analytics-js-common/utilities/page';
 import type {
   IQueue,
   QueueItem,
@@ -43,6 +33,16 @@ import {
   SINGLE_QUEUE_ITEM_TYPE,
   BATCH_QUEUE_ITEM_TYPE,
 } from './constants';
+import {
+  generateUUID,
+  isDefined,
+  isFunction,
+  isNullOrUndefined,
+  isObjectLiteralAndNotNull,
+  LOCAL_STORAGE,
+  onPageLeave,
+  QueueStatuses,
+} from '../../shared-chunks/common';
 
 const sortByTime = (a: QueueItem, b: QueueItem) => a.time - b.time;
 

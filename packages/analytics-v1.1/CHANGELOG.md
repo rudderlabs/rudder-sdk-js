@@ -2,6 +2,61 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [2.48.40](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.39...rudder-sdk-js@2.48.40) (2024-11-22)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.12`
+## [2.48.39](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.38...rudder-sdk-js@2.48.39) (2024-11-22)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.11`
+## [2.48.38](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.37...rudder-sdk-js@2.48.38) (2024-11-22)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.10`
+## [2.48.37](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.36...rudder-sdk-js@2.48.37) (2024-11-22)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.9`
+## [2.48.36](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.35...rudder-sdk-js@2.48.36) (2024-11-22)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.8`
+## [2.48.35](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.34...rudder-sdk-js@2.48.35) (2024-11-21)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.7`
+## [2.48.34](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.33...rudder-sdk-js@2.48.34) (2024-11-21)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.6`
+## [2.48.33](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.32...rudder-sdk-js@2.48.33) (2024-11-21)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.5`
+## [2.48.32](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.31...rudder-sdk-js@2.48.32) (2024-11-21)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.4`
+## [2.48.31](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.30...rudder-sdk-js@2.48.31) (2024-11-21)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.3`
+## [2.48.30](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.29...rudder-sdk-js@2.48.30) (2024-11-21)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.2`
 ## [2.48.29](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.28...rudder-sdk-js@2.48.29) (2024-11-19)
 
 ### Dependency Updates

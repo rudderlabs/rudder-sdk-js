@@ -3,13 +3,13 @@ import type {
   IntegrationOpts,
 } from '@rudderstack/analytics-js-common/types/Integration';
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
-import { checks } from '../shared-chunks/common';
+import { isUndefined } from '../shared-chunks/common';
 
 const isDestIntgConfigTruthy = (destIntgConfig: DestinationIntgConfig): boolean =>
-  !checks.isUndefined(destIntgConfig) && Boolean(destIntgConfig) === true;
+  !isUndefined(destIntgConfig) && Boolean(destIntgConfig) === true;
 
 const isDestIntgConfigFalsy = (destIntgConfig: DestinationIntgConfig): boolean =>
-  !checks.isUndefined(destIntgConfig) && Boolean(destIntgConfig) === false;
+  !isUndefined(destIntgConfig) && Boolean(destIntgConfig) === false;
 
 /**
  * Filters the destinations that should not be loaded or forwarded events to based on the integration options (load or events API)

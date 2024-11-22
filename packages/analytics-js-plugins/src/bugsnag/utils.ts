@@ -1,8 +1,6 @@
 import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { CDN_INT_DIR } from '@rudderstack/analytics-js-common/constants/urls';
-import { json } from '../shared-chunks/common';
 import type { BugsnagLib } from '../types/plugins';
 import {
   BUGSNAG_SDK_LOAD_ERROR,
@@ -23,6 +21,7 @@ import {
   SDK_FILE_NAME_PREFIXES,
   SDK_LOAD_POLL_INTERVAL_MS,
 } from './constants';
+import { CDN_INT_DIR, stringifyWithoutCircular } from '../shared-chunks/common';
 
 const isValidVersion = (globalLibInstance: any) => {
   // For version 7
@@ -65,7 +64,7 @@ const isRudderSDKError = (event: BugsnagLib.Report) => {
 };
 
 const getAppStateForMetadata = (state: ApplicationState): Record<string, any> | undefined => {
-  const stateStr = json.stringifyWithoutCircular(state, false, APP_STATE_EXCLUDE_KEYS);
+  const stateStr = stringifyWithoutCircular(state, false, APP_STATE_EXCLUDE_KEYS);
   return stateStr !== null ? JSON.parse(stateStr) : undefined;
 };
 

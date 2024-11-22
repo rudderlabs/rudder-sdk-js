@@ -7,12 +7,11 @@ import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/Plu
 import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { checks } from '../shared-chunks/common';
 import { DESTINATION_CONSENT_STATUS_ERROR } from './logMessages';
 import { IUBENDA_CONSENT_MANAGER_PLUGIN } from './constants';
 import type { IubendaConsentData } from './types';
 import { updateConsentStateFromData, getIubendaConsentData } from './utils';
-
+import { isUndefined } from '../shared-chunks/common';
 
 const pluginName: PluginName = 'IubendaConsentManager';
 
@@ -47,10 +46,10 @@ const IubendaConsentManager = (): ExtensionPlugin => ({
     ): void {
       // retrieve consent data and update the state
       let iubendaConsentData;
-      // From window 
-      if (!checks.isUndefined((globalThis as any)._iub.cs.consent.purposes)) {
+      // From window
+      if (!isUndefined((globalThis as any)._iub.cs.consent.purposes)) {
         iubendaConsentData = (globalThis as any)._iub.cs.consent.purposes;
-      // From cookie
+        // From cookie
       } else {
         iubendaConsentData = getIubendaConsentData(storeManager, logger);
       }
@@ -74,7 +73,9 @@ const IubendaConsentManager = (): ExtensionPlugin => ({
         // If the destination does not have consent management config, events should be sent.
         if (consentManagement) {
           // Get the corresponding consents for the destination
-          const cmpConfig = consentManagement.find(c => c.provider === state.consents.provider.value);
+          const cmpConfig = consentManagement.find(
+            c => c.provider === state.consents.provider.value,
+          );
 
           // If there are no consents configured for the destination for the current provider, events should be sent.
           if (!cmpConfig?.consents) {
@@ -84,7 +85,7 @@ const IubendaConsentManager = (): ExtensionPlugin => ({
           const configuredConsents = cmpConfig.consents.map(c => c.consent.trim()).filter(n => n);
           const resolutionStrategy =
             cmpConfig.resolutionStrategy ?? state.consents.resolutionStrategy.value;
-  
+
           // match the configured consents with user provided consents as per
           // the configured resolution strategy
           switch (resolutionStrategy) {
@@ -97,7 +98,11 @@ const IubendaConsentManager = (): ExtensionPlugin => ({
         }
         return true;
       } catch (err) {
-        errorHandler?.onError(err, IUBENDA_CONSENT_MANAGER_PLUGIN, DESTINATION_CONSENT_STATUS_ERROR);
+        errorHandler?.onError(
+          err,
+          IUBENDA_CONSENT_MANAGER_PLUGIN,
+          DESTINATION_CONSENT_STATUS_ERROR,
+        );
         return true;
       }
     },

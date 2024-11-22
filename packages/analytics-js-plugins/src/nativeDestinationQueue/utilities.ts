@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import type { DestinationsQueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
@@ -9,6 +8,7 @@ import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { RudderEventType } from '../types/plugins';
 import { DEFAULT_QUEUE_OPTIONS, NATIVE_DESTINATION_QUEUE_PLUGIN } from './constants';
 import { DESTINATION_EVENT_FORWARDING_ERROR } from './logMessages';
+import { mergeDeepRight } from '../shared-chunks/common';
 
 const getNormalizedQueueOptions = (queueOpts: DestinationsQueueOpts): DestinationsQueueOpts =>
   mergeDeepRight(DEFAULT_QUEUE_OPTIONS, queueOpts);
