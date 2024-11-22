@@ -51,9 +51,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-integrations@3.11.9",
-        "title": "@rudderstack/analytics-js-integrations@3.11.9",
-        "discussion-category": "@rudderstack/analytics-js-integrations@3.11.9",
+        "tag": "@rudderstack/analytics-js-integrations@3.11.10",
+        "title": "@rudderstack/analytics-js-integrations@3.11.10",
+        "discussion-category": "@rudderstack/analytics-js-integrations@3.11.10",
         "notesFile": "./packages/analytics-js-integrations/CHANGELOG_LATEST.md"
       }
     }
