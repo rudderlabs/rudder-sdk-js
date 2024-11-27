@@ -2,6 +2,12 @@ name: Deploy BETA/BugBash Feature
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches: ['main']
+    types:
+      - opened
+      - synchronize
+      - reopened
 
 permissions:
   id-token: write # allows the JWT to be requested from GitHub's OIDC provider
@@ -13,37 +19,62 @@ env:
 jobs:
   get-deploy-inputs:
     name: Get Deploy Inputs
-    if: startsWith(github.ref, 'refs/heads/beta/') || startsWith(github.ref, 'refs/tags/bugbash/')
+    if: startsWith(github.ref, 'refs/heads/beta/') || startsWith(github.ref, 'refs/tags/bugbash/') || startsWith(github.head_ref, 'beta/')
     runs-on: [self-hosted, Linux, X64]
     outputs:
       release_type: ${{ steps.deploy-inputs.outputs.release_type }}
-      feature_name: ${{ steps.deploy-inputs.outputs.feature_name }}
+      latest_feature_name: ${{ steps.deploy-inputs.outputs.latest_feature_name }}
+      commit_feature_name: ${{ steps.deploy-inputs.outputs.commit_feature_name }}
 
     steps:
       - name: Extract deploy inputs
         id: deploy-inputs
         shell: bash
         run: |
-          source_branch_name=${GITHUB_REF##*/}
+          source_branch_name=${${{ github.head_ref }}##*/}
           RELEASE_TYPE=beta
-          grep -q "bugbash/" <<< "${GITHUB_REF}" && RELEASE_TYPE=bugbash
+          grep -q "bugbash/" <<< "${${{ github.head_ref }}}" && RELEASE_TYPE=bugbash
           FEATURE_NAME=${source_branch_name#bugbash/}
           FEATURE_NAME=${FEATURE_NAME#beta/}
           FEATURE_NAME=${FEATURE_NAME#refs/heads/}
           FEATURE_NAME=${FEATURE_NAME#refs/tags/}
+          LATEST_FEATURE_NAME="${FEATURE_NAME}/latest"
+          COMMIT_FEATURE_NAME="${FEATURE_NAME}/$(echo ${{ github.event.pull_request.head.sha }} | cut -c1-7)"
 
           echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
-          echo "feature_name=$FEATURE_NAME" >> $GITHUB_OUTPUT
+          echo "latest_feature_name=$LATEST_FEATURE_NAME" >> $GITHUB_OUTPUT
+          echo "commit_feature_name=$COMMIT_FEATURE_NAME" >> $GITHUB_OUTPUT
 
-  deploy:
+          exit 1
+
+  deploy-latest:
     name: Deploy BETA/BugBash Feature
     uses: ./.github/workflows/deploy.yml
     needs: get-deploy-inputs
     with:
       environment: ${{ needs.get-deploy-inputs.outputs.release_type }}
       bugsnag_release_stage: ${{ needs.get-deploy-inputs.outputs.release_type }}
-      s3_dir_path: ${{ needs.get-deploy-inputs.outputs.release_type }}/${{ needs.get-deploy-inputs.outputs.feature_name }}
-      s3_dir_path_legacy: ${{ needs.get-deploy-inputs.outputs.release_type }}/${{ needs.get-deploy-inputs.outputs.feature_name }}/v1.1
+      s3_dir_path: ${{ needs.get-deploy-inputs.outputs.release_type }}/${{ needs.get-deploy-inputs.outputs.latest_feature_name }}
+      s3_dir_path_legacy: ${{ needs.get-deploy-inputs.outputs.release_type }}/${{ needs.get-deploy-inputs.outputs.latest_feature_name }}/v1.1
+      action_type: ''
+    secrets:
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_PROD_ACCOUNT_ID }}
+      AWS_S3_BUCKET_NAME: ${{ secrets.AWS_PROD_S3_BUCKET_NAME }}
+      AWS_S3_SYNC_ROLE: ${{ secrets.AWS_PROD_S3_SYNC_ROLE }}
+      AWS_CF_DISTRIBUTION_ID: ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }}
+      BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
+
+  deploy-commit:
+    name: Deploy BETA/BugBash Feature
+    uses: ./.github/workflows/deploy.yml
+    needs: get-deploy-inputs
+    with:
+      environment: ${{ needs.get-deploy-inputs.outputs.release_type }}
+      bugsnag_release_stage: ${{ needs.get-deploy-inputs.outputs.release_type }}
+      s3_dir_path: ${{ needs.get-deploy-inputs.outputs.release_type }}/${{ needs.get-deploy-inputs.outputs.commit_feature_name }}
+      s3_dir_path_legacy: ${{ needs.get-deploy-inputs.outputs.release_type }}/${{ needs.get-deploy-inputs.outputs.commit_feature_name }}/v1.1
       action_type: ''
     secrets:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_PROD_ACCOUNT_ID }}
