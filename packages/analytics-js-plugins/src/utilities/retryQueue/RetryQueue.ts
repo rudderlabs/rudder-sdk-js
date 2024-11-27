@@ -541,6 +541,8 @@ class RetryQueue implements IQueue<QueueItemData> {
         const willBeRetried = this.shouldRetry(el.item, el.attemptNumber + 1);
         this.processQueueCb(el.item, el.done, el.attemptNumber, this.maxAttempts, willBeRetried);
       } catch (err) {
+        // drop the event from in progress queue as we're unable to process it
+        el.done();
         this.logger?.error(RETRY_QUEUE_PROCESS_ERROR(RETRY_QUEUE), err);
       }
     });
