@@ -547,7 +547,7 @@ class RetryQueue implements IQueue<QueueItemData> {
         this.processQueueCb(el.item, el.done, el.attemptNumber, this.maxAttempts, willBeRetried);
       } catch (err) {
         // drop the event from in progress queue as we're unable to process it
-        // el.done();
+        el.done();
         this.logger?.error(RETRY_QUEUE_PROCESS_ERROR(RETRY_QUEUE), err);
         this.logger?.error('Debugging data dump starts');
         this.logger?.error('Queue item', el);
