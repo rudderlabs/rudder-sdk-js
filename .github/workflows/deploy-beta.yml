@@ -31,13 +31,18 @@ jobs:
         id: deploy-inputs
         shell: bash
         run: |
-          source_branch_name=${${{ github.head_ref }}##*/}
+          source_branch_name=${{ github.head_ref }}
+
+          echo "source_branch_name=$source_branch_name"
           RELEASE_TYPE=beta
           grep -q "bugbash/" <<< "${${{ github.head_ref }}}" && RELEASE_TYPE=bugbash
           FEATURE_NAME=${source_branch_name#bugbash/}
           FEATURE_NAME=${FEATURE_NAME#beta/}
           FEATURE_NAME=${FEATURE_NAME#refs/heads/}
           FEATURE_NAME=${FEATURE_NAME#refs/tags/}
+
+          echo "feature_name=$FEATURE_NAME"
+
           LATEST_FEATURE_NAME="${FEATURE_NAME}/latest"
           COMMIT_FEATURE_NAME="${FEATURE_NAME}/$(echo ${{ github.event.pull_request.head.sha }} | cut -c1-7)"
 
