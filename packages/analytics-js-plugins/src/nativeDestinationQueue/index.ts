@@ -110,6 +110,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
         },
         storeManager,
         MEMORY_STORAGE,
+        logger
       );
 
       // TODO: This seems to not work as expected. Need to investigate

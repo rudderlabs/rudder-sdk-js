@@ -367,7 +367,12 @@ class RetryQueue implements IQueue<QueueItemData> {
     let queue =
       (this.getStorageEntry(QueueStatuses.QUEUE) as Nullable<QueueItem<QueueItemData>[]>) ?? [];
 
-    queue = queue.slice(-(this.maxItems - 1));
+    if (this.maxItems > 1) {
+      queue = queue.slice(-(this.maxItems - 1));
+    } else {
+      queue = [];
+    }
+    
     queue.push(curEntry);
     queue = queue.sort(sortByTime);
 
@@ -542,8 +547,15 @@ class RetryQueue implements IQueue<QueueItemData> {
         this.processQueueCb(el.item, el.done, el.attemptNumber, this.maxAttempts, willBeRetried);
       } catch (err) {
         // drop the event from in progress queue as we're unable to process it
-        el.done();
+        // el.done();
         this.logger?.error(RETRY_QUEUE_PROCESS_ERROR(RETRY_QUEUE), err);
+        this.logger?.error('Debugging data dump starts');
+        this.logger?.error('Queue item', el);
+        this.logger?.error('RetryQueue Instance', this);
+        this.logger?.error('Primary Queue', this.getStorageEntry(QueueStatuses.QUEUE));
+        this.logger?.error('In-Progress Queue', this.getStorageEntry(QueueStatuses.IN_PROGRESS));
+        this.logger?.error('RudderStack Globals', (globalThis as typeof window).RudderStackGlobals);
+        this.logger?.error('Debugging data dump ends');
       }
     });
 
@@ -586,9 +598,9 @@ class RetryQueue implements IQueue<QueueItemData> {
       validKeys: QueueStatuses,
       type: LOCAL_STORAGE,
     });
-    const our = {
-      queue: (this.getStorageEntry(QueueStatuses.QUEUE) ?? []) as QueueItem[],
-    };
+
+    const reclaimedQueueItems: QueueItem[] = [];
+
     const their = {
       inProgress: other.get(QueueStatuses.IN_PROGRESS) ?? {},
       batchQueue: other.get(QueueStatuses.BATCH_QUEUE) ?? [],
@@ -611,7 +623,7 @@ class RetryQueue implements IQueue<QueueItemData> {
           // and the new entries will have the type field set
           const type = Array.isArray(el.item) ? BATCH_QUEUE_ITEM_TYPE : SINGLE_QUEUE_ITEM_TYPE;
 
-          our.queue.push({
+          reclaimedQueueItems.push({
             item: el.item,
             attemptNumber: el.attemptNumber + incrementAttemptNumberBy,
             time: this.schedule.now(),
@@ -654,9 +666,15 @@ class RetryQueue implements IQueue<QueueItemData> {
     // if the queue is abandoned, all the in-progress are failed. retry them immediately and increment the attempt#
     addConcatQueue(their.inProgress, 1);
 
-    our.queue = our.queue.sort(sortByTime);
+    let ourQueue = (this.getStorageEntry(QueueStatuses.QUEUE) as QueueItem[]) ?? [];
+    const roomInQueue = Math.max(0, this.maxItems - ourQueue.length);
+    if (roomInQueue > 0) {
+      ourQueue.push(...reclaimedQueueItems.slice(0, roomInQueue));
+    }
 
-    this.setStorageEntry(QueueStatuses.QUEUE, our.queue);
+    ourQueue = ourQueue.sort(sortByTime);
+
+    this.setStorageEntry(QueueStatuses.QUEUE, ourQueue);
 
     // remove all keys one by on next tick to avoid NS_ERROR_STORAGE_BUSY error
     this.clearQueueEntries(other, 1);
