@@ -45,6 +45,10 @@ jobs:
           echo "latest_feature_name=$LATEST_FEATURE_NAME" >> $GITHUB_OUTPUT
           echo "commit_feature_name=$COMMIT_FEATURE_NAME" >> $GITHUB_OUTPUT
 
+          echo "release_type=$RELEASE_TYPE"
+          echo "latest_feature_name=$LATEST_FEATURE_NAME"
+          echo "commit_feature_name=$COMMIT_FEATURE_NAME"
+
           exit 1
 
   deploy-latest:
