@@ -54,8 +54,6 @@ jobs:
           echo "latest_feature_name=$LATEST_FEATURE_NAME"
           echo "commit_feature_name=$COMMIT_FEATURE_NAME"
 
-          exit 1
-
   deploy-latest:
     name: Deploy BETA/BugBash Feature
     uses: ./.github/workflows/deploy.yml
