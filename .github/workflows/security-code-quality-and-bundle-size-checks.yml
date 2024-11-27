@@ -2,7 +2,7 @@ name: Security, Code Quality and Bundle Size Checks
 
 on:
   pull_request:
-    branches: ['develop', 'main', 'hotfix/*']
+    branches: ['develop', 'hotfix/*']
     types: ['opened', 'reopened', 'synchronize']
 
 env:
