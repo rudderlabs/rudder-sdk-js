@@ -136,7 +136,7 @@ const getNewClient = (state: ApplicationState, logger?: ILogger): BugsnagLib.Cli
     maxBreadcrumbs: 40,
     releaseStage: getReleaseStage(),
     user: {
-      id: state.source.value?.id || state.lifecycle.writeKey.value,
+      id: state.source.value?.id ?? state.lifecycle.writeKey.value,
     },
     logger,
     networkBreadcrumbsEnabled: false,
@@ -164,9 +164,9 @@ const loadBugsnagSDK = (externalSrcLoader: IExternalSrcLoader, logger?: ILogger)
   externalSrcLoader.loadJSFile({
     url: BUGSNAG_CDN_URL,
     id: ERROR_REPORT_PROVIDER_NAME_BUGSNAG,
-    callback: id => {
-      if (!id) {
-        logger?.error(BUGSNAG_SDK_LOAD_ERROR(BUGSNAG_PLUGIN));
+    callback: (id?: string, error?: Error) => {
+      if (!id && error) {
+        logger?.error(BUGSNAG_SDK_LOAD_ERROR(BUGSNAG_PLUGIN, error.message));
       }
     },
   });

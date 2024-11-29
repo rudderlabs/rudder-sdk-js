@@ -167,22 +167,22 @@ describe('Track tests', () => {
     adroll.track({
       message: {
         event: 123,
-        properties: {}
-      }
+        properties: {},
+      },
     });
-    
+
     // Test object event
     adroll.track({
       message: {
         event: { toString: () => 'custom event' },
-        properties: {}
-      }
+        properties: {},
+      },
     });
-    
+
     expect(window.__adroll.record_user).toHaveBeenCalledWith(
       expect.objectContaining({
-        adroll_segments: 'ghi789'
-      })
+        adroll_segments: 'ghi789',
+      }),
     );
   });
 });

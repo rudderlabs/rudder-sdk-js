@@ -14,6 +14,7 @@ import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constant
 import { BufferQueue } from '@rudderstack/analytics-js-common/services/BufferQueue/BufferQueue';
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
+import { effect } from '@preact/signals-core';
 import { MANUAL_ERROR_IDENTIFIER } from '@rudderstack/analytics-js-common/utilities/errors';
 import {
   NOTIFY_FAILURE_ERROR,
@@ -28,80 +29,84 @@ import { getNormalizedErrorForUnhandledError, processError } from './processErro
  * A service to handle errors
  */
 class ErrorHandler implements IErrorHandler {
-  logger?: ILogger;
-  pluginEngine?: IPluginEngine;
-  httpClient?: IHttpClient;
-  errReportingClient?: any;
-  errorBuffer: BufferQueue<PreLoadErrorData>;
+  private_logger?: ILogger;
+  private_pluginEngine?: IPluginEngine;
+  private_httpClient?: IHttpClient;
+  private_errReportingClient?: any;
+  private_errorBuffer: BufferQueue<PreLoadErrorData>;
 
   // If no logger is passed errors will be thrown as unhandled error
   constructor(logger?: ILogger, pluginEngine?: IPluginEngine) {
-    this.logger = logger;
-    this.pluginEngine = pluginEngine;
-    this.errorBuffer = new BufferQueue();
-    this.attachEffect();
+    this.private_logger = logger;
+    this.private_pluginEngine = pluginEngine;
+    this.private_errorBuffer = new BufferQueue();
+    this.private_attachEffects();
+    this.private_attachErrorListeners();
   }
 
-  attachEffect() {
-    if (state.reporting.isErrorReportingPluginLoaded.value === true) {
-      while (this.errorBuffer.size() > 0) {
-        const errorToProcess = this.errorBuffer.dequeue();
+  private_attachEffects() {
+    effect(() => {
+      if (state.reporting.isErrorReportingPluginLoaded.value === true) {
+        while (this.private_errorBuffer.size() > 0) {
+          const errorToProcess = this.private_errorBuffer.dequeue();
 
-        if (errorToProcess) {
-          // send it to the plugin
-          this.notifyError(errorToProcess.error, errorToProcess.errorState);
+          if (errorToProcess) {
+            // send it to the plugin
+            this.notifyError(errorToProcess.error, errorToProcess.errorState);
+          }
         }
       }
-    }
+    });
   }
 
-  attachErrorListeners() {
-    if ('addEventListener' in (globalThis as typeof window)) {
-      (globalThis as typeof window).addEventListener('error', (event: ErrorEvent | Event) => {
-        this.onError(event, undefined, undefined, undefined, ErrorType.UNHANDLEDEXCEPTION);
-      });
+  private_attachErrorListeners() {
+    (globalThis as typeof window).addEventListener('error', (event: ErrorEvent | Event) => {
+      this.private_onErrorInternal(event, ErrorType.UNHANDLEDEXCEPTION);
+    });
 
-      (globalThis as typeof window).addEventListener(
-        'unhandledrejection',
-        (event: PromiseRejectionEvent) => {
-          this.onError(event, undefined, undefined, undefined, ErrorType.UNHANDLEDREJECTION);
-        },
-      );
-    } else {
-      this.logger?.debug(`Failed to attach global error listeners.`);
-    }
+    (globalThis as typeof window).addEventListener(
+      'unhandledrejection',
+      (event: PromiseRejectionEvent) => {
+        this.private_onErrorInternal(event, ErrorType.UNHANDLEDREJECTION);
+      },
+    );
   }
 
   init(httpClient: IHttpClient, externalSrcLoader: IExternalSrcLoader) {
-    this.httpClient = httpClient;
+    this.private_httpClient = httpClient;
     // Below lines are only kept for backward compatibility
     // TODO: Remove this in the next major release
-    if (!this.pluginEngine) {
+    if (!this.private_pluginEngine) {
       return;
     }
 
     try {
       const extPoint = 'errorReporting.init';
-      const errReportingInitVal = this.pluginEngine.invokeSingle(
+      const errReportingInitVal = this.private_pluginEngine.invokeSingle(
         extPoint,
         state,
-        this.pluginEngine,
+        this.private_pluginEngine,
         externalSrcLoader,
-        this.logger,
+        this.private_logger,
         true,
       );
+
       if (errReportingInitVal instanceof Promise) {
         errReportingInitVal
           .then((client: any) => {
-            this.errReportingClient = client;
+            this.private_errReportingClient = client;
           })
           .catch(err => {
-            this.logger?.error(REPORTING_PLUGIN_INIT_FAILURE_ERROR(ERROR_HANDLER), err);
+            this.private_logger?.error(REPORTING_PLUGIN_INIT_FAILURE_ERROR(ERROR_HANDLER), err);
           });
       }
-    } catch (err) {
+    } catch (err: any) {
       this.onError(err, ERROR_HANDLER);
     }
+  }
+
+  private_onErrorInternal(error: SDKError, errorType: ErrorType) {
+    this.onError(error, undefined, undefined, undefined, errorType);
   }
 
   onError(
@@ -147,7 +152,7 @@ class ErrorHandler implements IErrorHandler {
 
         if (!isErrorReportingPluginLoaded) {
           // buffer the error
-          this.errorBuffer.enqueue({
+          this.private_errorBuffer.enqueue({
             error: normalizedError,
             errorState,
           });
@@ -156,12 +161,12 @@ class ErrorHandler implements IErrorHandler {
         }
       }
     } catch (e) {
-      this.logger?.error(NOTIFY_FAILURE_ERROR(ERROR_HANDLER), e);
+      this.private_logger?.error(NOTIFY_FAILURE_ERROR(ERROR_HANDLER), e);
     }
 
     if (errorType === ErrorType.HANDLEDEXCEPTION) {
-      if (this.logger) {
-        this.logger.error(errorMessage);
+      if (this.private_logger) {
+        this.private_logger.error(errorMessage);
 
         if (shouldAlwaysThrow) {
           throw normalizedError;
@@ -170,7 +175,10 @@ class ErrorHandler implements IErrorHandler {
         throw normalizedError;
       }
     } else if ((error as any).error?.stack?.includes(MANUAL_ERROR_IDENTIFIER)) {
-      this.logger?.error('An unknown error occurred:', (error as ErrorEvent).error?.message);
+      this.private_logger?.error(
+        'An unknown error occurred:',
+        (error as ErrorEvent).error?.message,
+      );
     }
   }
 
@@ -181,17 +189,17 @@ class ErrorHandler implements IErrorHandler {
    * @param {string} breadcrumb breadcrumbs message
    */
   leaveBreadcrumb(breadcrumb: string) {
-    if (this.pluginEngine) {
+    if (this.private_pluginEngine) {
       try {
-        this.pluginEngine.invokeSingle(
+        this.private_pluginEngine.invokeSingle(
           'errorReporting.breadcrumb',
-          this.pluginEngine, // deprecated parameter
-          this.errReportingClient, // deprecated parameter
+          this.private_pluginEngine, // deprecated parameter
+          this.private_errReportingClient, // deprecated parameter
           breadcrumb,
-          this.logger,
+          this.private_logger,
           state,
         );
-      } catch (err) {
+      } catch (err: any) {
         this.onError(err, ERROR_HANDLER, 'errorReporting.breadcrumb');
       }
     }
@@ -203,21 +211,21 @@ class ErrorHandler implements IErrorHandler {
    * @param {Error} error Error instance from handled error
    */
   notifyError(error: SDKError, errorState: ErrorState) {
-    if (this.pluginEngine && this.httpClient) {
+    if (this.private_pluginEngine && this.private_httpClient) {
       try {
-        this.pluginEngine.invokeSingle(
+        this.private_pluginEngine.invokeSingle(
           'errorReporting.notify',
-          this.pluginEngine, // deprecated parameter
-          this.errReportingClient, // deprecated parameter
+          this.private_pluginEngine, // deprecated parameter
+          this.private_errReportingClient, // deprecated parameter
           error,
           state,
-          this.logger,
-          this.httpClient,
+          this.private_logger,
+          this.private_httpClient,
           errorState,
         );
       } catch (err) {
         // Not calling onError here as we don't want to go into infinite loop
-        this.logger?.error(NOTIFY_FAILURE_ERROR(ERROR_HANDLER), err);
+        this.private_logger?.error(NOTIFY_FAILURE_ERROR(ERROR_HANDLER), err);
       }
     }
   }

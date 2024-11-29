@@ -9,7 +9,7 @@ describe('Screen Details Utilities', () => {
   expectedScreenInfo.innerWidth = 1680;
   expectedScreenInfo.innerHeight = 1024;
 
-  it('Should get Screen Details when window is defined', () => {
+  it('should get Screen Details when window is defined', () => {
     jest.spyOn(window.screen, 'width', 'get').mockReturnValue(1680);
     jest.spyOn(window.screen, 'height', 'get').mockReturnValue(1024);
     const screen = getScreenDetails();

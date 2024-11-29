@@ -130,14 +130,13 @@ class VWO {
   }
 
   track(rudderElement) {
-
     const eventName = rudderElement.message.event;
     // throw error if event name is not present
     if (!eventName) {
       logger.error('[VWO] track:: event name is required');
       return;
     }
-    const properties = (rudderElement.message && rudderElement.message.properties) || {};
+    const properties = rudderElement.message?.properties || {};
     window.VWO = window.VWO || [];
     if (eventName === 'Order Completed') {
       const total = rudderElement.message.properties

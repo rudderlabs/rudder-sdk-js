@@ -3,8 +3,7 @@
  * @param value input value
  * @returns boolean
  */
-// eslint-disable-next-line @typescript-eslint/ban-types
-const isFunction = (value: any): value is Function =>
+const isFunction = (value: any): value is (...args: any[]) => any =>
   typeof value === 'function' && Boolean(value.constructor && value.call && value.apply);
 
 /**
@@ -69,7 +68,8 @@ const isDefinedNotNullAndNotEmptyString = (value: any): boolean =>
  * @param obj input value
  * @returns true if the input is an instance of Error and false otherwise
  */
-const isTypeOfError = (obj: any): obj is Error => obj instanceof Error;
+const isTypeOfError = (obj: any): obj is Error =>
+  Object.prototype.toString.call(obj) === '[object Error]' || obj instanceof Error;
 
 export {
   isFunction,

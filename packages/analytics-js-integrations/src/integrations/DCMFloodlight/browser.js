@@ -83,8 +83,9 @@ class DCMFloodlight {
   loadCookieMatching() {
     if (this.doubleclickId && this.googleNetworkId) {
       const image = document.createElement('img');
-      image.src = `https://cm.g.doubleclick.net/pixel?google_nid=${this.googleNetworkId
-        }&google_hm=${btoa(this.analytics.getAnonymousId())}`;
+      image.src = `https://cm.g.doubleclick.net/pixel?google_nid=${
+        this.googleNetworkId
+      }&google_hm=${btoa(this.analytics.getAnonymousId())}`;
       document.getElementsByTagName('head')[0].appendChild(image);
     }
   }
@@ -197,6 +198,9 @@ class DCMFloodlight {
     };
     eventSnippetPayload = removeUndefinedAndNullValues(eventSnippetPayload);
     eventSnippetPayload = flattenPayload(eventSnippetPayload);
+
+    // eventSnippetPayload is finally a string. Hence, it is safe to append it to the src
+    // eslint-disable-next-line sonarjs/no-base-to-string
     const src = `https://${this.advertiserId}.fls.doubleclick.net/activityi;src=${this.advertiserId};type=${this.groupTag};cat=${this.activityTag};${eventSnippetPayload}?`;
     this.addIframe(src);
   }

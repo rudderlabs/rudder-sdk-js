@@ -51,7 +51,7 @@ describe('Gainsight_PX', () => {
       expect(window.aptrinsic).toHaveBeenCalledWith(
         'identify',
         { id: 'test-user-id', name: 'Test User' },
-        { id: 'test-group-id', plan: 'premium' }
+        { id: 'test-group-id', plan: 'premium' },
       );
     });
 
@@ -108,7 +108,7 @@ describe('Gainsight_PX', () => {
       expect(window.aptrinsic).toHaveBeenCalledWith(
         'identify',
         { id: 'test-user-id', name: 'Test User', email: 'test@example.com' },
-        {}
+        {},
       );
     });
 
@@ -127,24 +127,23 @@ describe('Gainsight_PX', () => {
     });
 
     test('Testing identify call with ID only', () => {
-        // call RudderStack function
-        gainsightPX.identify({
-          message: {
-            userId: 'rudder01',
-            context: {}
-          }
-        });
-    
-        // Confirm that it was translated to the appropriate PX call
-        expect(window.aptrinsic.mock.calls[0]).toEqual([
-          'identify',
-          {
-            id: 'rudder01'
-          },
-          {}
-        ]);
+      // call RudderStack function
+      gainsightPX.identify({
+        message: {
+          userId: 'rudder01',
+          context: {},
+        },
       });
-    
+
+      // Confirm that it was translated to the appropriate PX call
+      expect(window.aptrinsic.mock.calls[0]).toEqual([
+        'identify',
+        {
+          id: 'rudder01',
+        },
+        {},
+      ]);
+    });
   });
 
   describe('group', () => {
@@ -165,7 +164,7 @@ describe('Gainsight_PX', () => {
       expect(window.aptrinsic).toHaveBeenCalledWith(
         'identify',
         { id: 'test-user-id', name: 'Test User' },
-        { id: 'test-group-id', plan: 'premium' }
+        { id: 'test-group-id', plan: 'premium' },
       );
     });
 
@@ -182,7 +181,7 @@ describe('Gainsight_PX', () => {
       expect(window.aptrinsic).toHaveBeenCalledWith(
         'identify',
         {},
-        { id: 'anon-id', plan: 'basic' }
+        { id: 'anon-id', plan: 'basic' },
       );
     });
   });
@@ -198,11 +197,10 @@ describe('Gainsight_PX', () => {
 
       gainsightPX.track(rudderElement);
 
-      expect(window.aptrinsic).toHaveBeenCalledWith(
-        'track',
-        'Test Event',
-        { category: 'test', value: 10 }
-      );
+      expect(window.aptrinsic).toHaveBeenCalledWith('track', 'Test Event', {
+        category: 'test',
+        value: 10,
+      });
     });
 
     it('should not call aptrinsic track if event name is missing', () => {
@@ -218,22 +216,17 @@ describe('Gainsight_PX', () => {
     });
 
     test('Test for empty properties', () => {
-        // call RudderStack function
-        gainsightPX.track({
-          message: {
-            context: {},
-            event: 'event-name',
-            properties: {}
-          }
-        });
-    
-        // Confirm that it was translated to the appropriate PX call
-        expect(window.aptrinsic.mock.calls[0]).toEqual([
-          'track',
-          'event-name',
-          {}
-        ]);
+      // call RudderStack function
+      gainsightPX.track({
+        message: {
+          context: {},
+          event: 'event-name',
+          properties: {},
+        },
       });
 
+      // Confirm that it was translated to the appropriate PX call
+      expect(window.aptrinsic.mock.calls[0]).toEqual(['track', 'event-name', {}]);
+    });
   });
 });

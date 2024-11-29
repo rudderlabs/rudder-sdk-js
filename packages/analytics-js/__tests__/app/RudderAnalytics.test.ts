@@ -17,6 +17,8 @@ describe('Core - Rudder Analytics Facade', () => {
 
   beforeEach(() => {
     analyticsInstanceMock = new Analytics() as jest.Mocked<Analytics>;
+
+    // Queue up some events in the global object
     (window as any).rudderanalytics = [
       ['track'],
       ['consent', { sendPageEvent: true }],
@@ -25,8 +27,8 @@ describe('Core - Rudder Analytics Facade', () => {
       ['track'],
     ];
     rudderAnalytics = new RudderAnalytics();
-    (rudderAnalytics as any).analyticsInstances = { writeKey: analyticsInstanceMock };
-    (rudderAnalytics as any).defaultAnalyticsKey = 'writeKey';
+    (rudderAnalytics as any).private_analyticsInstances = { writeKey: analyticsInstanceMock };
+    (rudderAnalytics as any).private_defaultAnalyticsKey = 'writeKey';
   });
 
   afterEach(() => {
@@ -58,7 +60,7 @@ describe('Core - Rudder Analytics Facade', () => {
   it('should return an empty array when globalThis.rudderanalytics is not an array', () => {
     const rudderAnalyticsInstance = new RudderAnalytics();
     (globalThis as typeof window).rudderanalytics = undefined;
-    const result = rudderAnalyticsInstance.getPreloadedEvents();
+    const result = rudderAnalyticsInstance.private_getPreloadedEvents();
     expect(result).toEqual([]);
   });
 
@@ -72,7 +74,7 @@ describe('Core - Rudder Analytics Facade', () => {
     ];
     (window as any).rudderanalytics = bufferedEvents;
     const rudderAnalyticsInstance = new RudderAnalytics();
-    const result = rudderAnalyticsInstance.getPreloadedEvents();
+    const result = rudderAnalyticsInstance.private_getPreloadedEvents();
     expect(result).toEqual(bufferedEvents);
   });
 
@@ -83,10 +85,25 @@ describe('Core - Rudder Analytics Facade', () => {
     expect(rudderAnalytics).toEqual(globalSingleton);
   });
 
-  it('should dispatch an error event if an exception is thrown during the construction', () => {
-    const originalSingleton = RudderAnalytics.globalSingleton;
+  it('should create a new instance if the global singleton does not exist', () => {
+    // This is not a necessity for the test case but ensures
+    // a code path is covered
+    // Reset the preload buffer
+    (window as any).rudderanalytics = undefined;
 
-    RudderAnalytics.globalSingleton = null;
+    // Reset the global singleton
+    RudderAnalytics.private_globalSingleton = null;
+
+    const newAnalytics = new RudderAnalytics();
+
+    const globalSingleton = rudderAnalytics;
+    expect(newAnalytics).not.toEqual(globalSingleton);
+  });
+
+  it('should dispatch an error event if an exception is thrown during the construction', () => {
+    const originalSingleton = RudderAnalytics.private_globalSingleton;
+
+    RudderAnalytics.private_globalSingleton = null;
 
     const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
 
@@ -104,31 +121,31 @@ describe('Core - Rudder Analytics Facade', () => {
       }),
     );
 
-    RudderAnalytics.globalSingleton = originalSingleton;
+    RudderAnalytics.private_globalSingleton = originalSingleton;
     nowSpy.mockRestore();
 
     dispatchEventSpy.mockRestore();
   });
 
   it('should auto set the default analytics key if no analytics instances exist', () => {
-    (rudderAnalytics as any).analyticsInstances = {};
-    (rudderAnalytics as any).defaultAnalyticsKey = '';
+    (rudderAnalytics as any).private_analyticsInstances = {};
+    (rudderAnalytics as any).private_defaultAnalyticsKey = '';
 
     rudderAnalytics.setDefaultInstanceKey('writeKey');
 
-    expect(rudderAnalytics.defaultAnalyticsKey).toEqual('writeKey');
+    expect(rudderAnalytics.private_defaultAnalyticsKey).toEqual('writeKey');
   });
 
   it('should set the default analytics key even if analytics instances exist', () => {
     rudderAnalytics.setDefaultInstanceKey('writeKey2');
 
-    expect(rudderAnalytics.defaultAnalyticsKey).toEqual('writeKey2');
+    expect(rudderAnalytics.private_defaultAnalyticsKey).toEqual('writeKey2');
   });
 
   it('should not set default analytics key if the key is not a valid string', () => {
     rudderAnalytics.setDefaultInstanceKey('');
 
-    expect(rudderAnalytics.defaultAnalyticsKey).toEqual('writeKey');
+    expect(rudderAnalytics.private_defaultAnalyticsKey).toEqual('writeKey');
   });
 
   it('should return an existing analytics instance', () => {
@@ -136,9 +153,9 @@ describe('Core - Rudder Analytics Facade', () => {
   });
 
   it('should create a new analytics instance if none exists', () => {
-    (rudderAnalytics as any).analyticsInstances = {};
-    (rudderAnalytics as any).defaultAnalyticsKey = '';
-    const analyticsInstance = rudderAnalytics.getAnalyticsInstance('writeKey');
+    (rudderAnalytics as any).private_analyticsInstances = {};
+    (rudderAnalytics as any).private_defaultAnalyticsKey = '';
+    const analyticsInstance = rudderAnalytics.getAnalyticsInstance('writeKey1');
 
     expect(analyticsInstance).toBeInstanceOf(Analytics);
   });
@@ -147,12 +164,15 @@ describe('Core - Rudder Analytics Facade', () => {
     const analyticsInstance = rudderAnalytics.getAnalyticsInstance();
 
     expect(analyticsInstance).toBeInstanceOf(Analytics);
-    expect(rudderAnalytics.analyticsInstances).toHaveProperty('writeKey', analyticsInstance);
+    expect(rudderAnalytics.private_analyticsInstances).toHaveProperty(
+      'writeKey',
+      analyticsInstance,
+    );
   });
 
   it('should not create a new analytics instance if one already exists for the write key', () => {
     const analyticsInstance = analyticsInstanceMock;
-    rudderAnalytics.analyticsInstances = { writeKey: analyticsInstance };
+    rudderAnalytics.private_analyticsInstances = { writeKey: analyticsInstance };
     rudderAnalytics.load('writeKey', 'data-plane-url');
 
     expect(rudderAnalytics.getAnalyticsInstance('writeKey')).toStrictEqual(analyticsInstance);
@@ -162,7 +182,7 @@ describe('Core - Rudder Analytics Facade', () => {
     const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
 
     // Intentionally set the parameter to undefined to trigger an error
-    (rudderAnalytics as any).analyticsInstances = undefined;
+    (rudderAnalytics as any).private_analyticsInstances = undefined;
 
     const result = rudderAnalytics.getAnalyticsInstance('writeKey2');
 
@@ -180,17 +200,20 @@ describe('Core - Rudder Analytics Facade', () => {
   it('should set the default analytics key if none has been set', () => {
     rudderAnalytics.load('writeKey', 'data-plane-url');
 
-    expect(rudderAnalytics.defaultAnalyticsKey).toEqual('writeKey');
+    expect(rudderAnalytics.private_defaultAnalyticsKey).toEqual('writeKey');
   });
 
   it('should create a new analytics instance with the write key on load and trigger its load method', () => {
-    rudderAnalytics.analyticsInstances = {};
-    rudderAnalytics.defaultAnalyticsKey = '';
+    rudderAnalytics.private_analyticsInstances = {};
+    rudderAnalytics.private_defaultAnalyticsKey = '';
     rudderAnalytics.load('writeKey', 'data-plane-url', mockLoadOptions);
     const analyticsInstance = rudderAnalytics.getAnalyticsInstance('writeKey') as Analytics;
     const loadSpy = jest.spyOn(analyticsInstance, 'load');
 
-    expect(rudderAnalytics.analyticsInstances).toHaveProperty('writeKey', analyticsInstance);
+    expect(rudderAnalytics.private_analyticsInstances).toHaveProperty(
+      'writeKey',
+      analyticsInstance,
+    );
     expect(loadSpy).toHaveBeenCalledWith('writeKey', 'data-plane-url', mockLoadOptions);
   });
 
@@ -198,9 +221,9 @@ describe('Core - Rudder Analytics Facade', () => {
     const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
 
     // Intentionally set the parameter to undefined to trigger an error
-    (rudderAnalytics as any).analyticsInstances = undefined;
+    (rudderAnalytics as any).private_analyticsInstances = undefined;
 
-    rudderAnalytics.defaultAnalyticsKey = '';
+    rudderAnalytics.private_defaultAnalyticsKey = '';
     rudderAnalytics.load('writeKey', 'data-plane-url', mockLoadOptions);
 
     expect(dispatchEventSpy).toHaveBeenCalledWith(
@@ -594,16 +617,6 @@ describe('Core - Rudder Analytics Facade', () => {
         deniedConsentIds: ['2'],
       },
     });
-
-    expect(dispatchEventSpy).toHaveBeenCalledWith(
-      new ErrorEvent('error', {
-        error: new Error('Error in getAnalyticsInstance'),
-      }),
-    );
-
-    dispatchEventSpy.mockRestore();
-
-    getAnalyticsInstanceSpy.mockRestore();
   });
 
   it('should dispatch an error event if an exception is thrown during the getUserId call', () => {
@@ -760,7 +773,7 @@ describe('Core - Rudder Analytics Facade', () => {
     beforeEach(() => {
       (window as any).rudderanalytics = [];
       rudderAnalyticsInstance = new RudderAnalytics();
-      rudderAnalyticsInstance.analyticsInstances = {};
+      rudderAnalyticsInstance.private_analyticsInstances = {};
     });
 
     afterEach(() => {
@@ -770,14 +783,14 @@ describe('Core - Rudder Analytics Facade', () => {
 
     it('should not add pageLifecycleEvents in the buffer when the tracking is not enabled through load options', () => {
       const bufferedEvents: PreloadedEventCall[] = [];
-      rudderAnalyticsInstance.trackPageLifecycleEvents(bufferedEvents, {});
+      rudderAnalyticsInstance.private_trackPageLifecycleEvents(bufferedEvents, {});
 
       expect(bufferedEvents).toEqual([]);
     });
 
     it('should inherit enabled and options properties from autoTrack load option', () => {
       const bufferedEvents: PreloadedEventCall[] = [];
-      rudderAnalyticsInstance.trackPageLifecycleEvents(bufferedEvents, {
+      rudderAnalyticsInstance.private_trackPageLifecycleEvents(bufferedEvents, {
         autoTrack: {
           enabled: true,
           options: { key: 'value' },
@@ -791,7 +804,7 @@ describe('Core - Rudder Analytics Facade', () => {
 
     it('should override enabled and options properties of autoTrack if provided in load option', () => {
       const bufferedEvents: PreloadedEventCall[] = [];
-      rudderAnalyticsInstance.trackPageLifecycleEvents(bufferedEvents, {
+      rudderAnalyticsInstance.private_trackPageLifecycleEvents(bufferedEvents, {
         autoTrack: {
           enabled: true,
           options: { key: 'value' },
@@ -806,7 +819,7 @@ describe('Core - Rudder Analytics Facade', () => {
 
     it('should track Page Loaded event irrespective of useBeacon load option', () => {
       const bufferedEvents: PreloadedEventCall[] = [];
-      rudderAnalyticsInstance.trackPageLifecycleEvents(bufferedEvents, {
+      rudderAnalyticsInstance.private_trackPageLifecycleEvents(bufferedEvents, {
         useBeacon: false,
         autoTrack: {
           pageLifecycle: {
@@ -823,7 +836,7 @@ describe('Core - Rudder Analytics Facade', () => {
     it('should track Page Unloaded event if useBeacon is set to true and trackPageLifecycle feature is enabled', () => {
       const bufferedEvents: PreloadedEventCall[] = [];
       rudderAnalyticsInstance.track = jest.fn();
-      rudderAnalyticsInstance.trackPageLifecycleEvents(bufferedEvents, {
+      rudderAnalyticsInstance.private_trackPageLifecycleEvents(bufferedEvents, {
         useBeacon: true,
         autoTrack: {
           pageLifecycle: {
@@ -844,13 +857,13 @@ describe('Core - Rudder Analytics Facade', () => {
     });
 
     it('should invoke trackPageLifecycleEvents method when load API is called', () => {
-      rudderAnalyticsInstance.trackPageLifecycleEvents = jest.fn();
+      rudderAnalyticsInstance.private_trackPageLifecycleEvents = jest.fn();
       rudderAnalyticsInstance.load('writeKey', 'data-plane-url', {
         autoTrack: {
           enabled: true,
         },
       });
-      expect(rudderAnalyticsInstance.trackPageLifecycleEvents).toHaveBeenCalledWith([], {
+      expect(rudderAnalyticsInstance.private_trackPageLifecycleEvents).toHaveBeenCalledWith([], {
         autoTrack: {
           enabled: true,
         },

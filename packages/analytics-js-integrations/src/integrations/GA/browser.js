@@ -171,6 +171,7 @@ export default class GA {
 
   // eslint-disable-next-line sonarjs/cognitive-complexity
   track(rudderElement) {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
     // Ecommerce events
     const { event, properties, name, context } = rudderElement.message;
@@ -546,6 +547,7 @@ export default class GA {
     }
 
     const resetCustomDimensions = {};
+    // eslint-disable-next-line sonarjs/prefer-for-of
     for (let i = 0; i < this.resetCustomDimensionsOnPage.length; i += 1) {
       const property = this.resetCustomDimensionsOnPage[i].resetCustomDimensionsOnPage;
       if (this.dimensionsArray[property]) {
@@ -659,9 +661,6 @@ export default class GA {
         Object.keys(custom).forEach(key => {
           ret[key] = custom[key];
         });
-        // each(custom, (key, value) => {
-        //   ret[key] = value;
-        // });
       }
     }
     return ret;
@@ -780,6 +779,7 @@ export default class GA {
       args[2] = 'EnhancedEcommerce';
     }
 
+    // eslint-disable-next-line sonarjs/no-useless-call
     window.ga.call(window, ...args);
   }
 

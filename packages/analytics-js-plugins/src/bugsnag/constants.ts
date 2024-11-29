@@ -31,7 +31,7 @@ const APP_STATE_EXCLUDE_KEYS = [
   'instance', // destination instance objects
   'eventBuffer', // pre-load event buffer (may contain PII)
   'traits',
-  'authToken'
+  'authToken',
 ];
 
 const BUGSNAG_PLUGIN = 'BugsnagPlugin';

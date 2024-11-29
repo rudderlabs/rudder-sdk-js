@@ -34,7 +34,7 @@ class Heap {
   }
 
   isLoaded() {
-    return !!(window.heap && window.heap.appid);
+    return !!window.heap?.appid;
   }
 
   isReady() {

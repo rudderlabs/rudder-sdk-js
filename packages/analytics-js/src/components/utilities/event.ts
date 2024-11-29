@@ -1,3 +1,3 @@
-const isEvent = (error: unknown): boolean => error instanceof Event;
+const isEvent = (error: any): boolean => error instanceof Event;
 
 export { isEvent };

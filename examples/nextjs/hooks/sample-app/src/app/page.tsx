@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from "react";
+import { useEffect } from 'react';
 import Image from 'next/image';
 import useRudderStackAnalytics from './useRudderAnalytics';
 
@@ -69,10 +69,10 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if(analytics) {
+    if (analytics) {
       analytics.page('Auto track');
     }
-  }, [analytics])
+  }, [analytics]);
 
   return (
     <main className='flex min-h-screen flex-col items-center justify-between p-24'>

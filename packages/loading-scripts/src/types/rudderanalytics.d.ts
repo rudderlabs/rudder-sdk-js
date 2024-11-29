@@ -9,7 +9,7 @@ declare global {
     rudderanalytics: RudderAnalytics | RudderAnalyticsPreloader | undefined;
     rudderAnalyticsMount: () => void;
     rudderAnalyticsBuildType: 'legacy' | 'modern';
-    RudderSnippetVersion?: string;
+    RudderSnippetVersion: string;
     rudderAnalyticsAddScript: (
       url: string,
       extraAttributeKey?: string,

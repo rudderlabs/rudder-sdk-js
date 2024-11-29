@@ -105,7 +105,7 @@ describe('Test suite for device mode transformation feature', () => {
       });
   });
 
-  it('Should not filter transformed events that are not 200', async () => {
+  it('should not filter transformed events that are not 200', async () => {
     DeviceModeTransformations.init(dummyWriteKey, `${dummyDataplaneHost}/partialSuccess`);
 
     await DeviceModeTransformations.sendEventForTransformation(payload, retryCount)

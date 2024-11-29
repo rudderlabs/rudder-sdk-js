@@ -541,14 +541,14 @@ describe('prepareStandardEventParams function tests', () => {
       event: 'Purchase',
       mapping: [
         { sourceKeys: ['properties.total'], destKey: 'order_total', required: true },
-        { sourceKeys: ['properties.currency'], destKey: 'currency', required: true }
+        { sourceKeys: ['properties.currency'], destKey: 'currency', required: true },
       ],
     };
 
     const message = {
       properties: {
         // total is missing
-        currency: 'USD'
+        currency: 'USD',
       },
       event: 'Purchase',
     };

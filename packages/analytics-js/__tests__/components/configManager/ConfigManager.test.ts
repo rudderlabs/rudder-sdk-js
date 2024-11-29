@@ -1,6 +1,9 @@
 import { effect, signal } from '@preact/signals-core';
 import { http, HttpResponse } from 'msw';
-import { defaultHttpClient } from '../../../src/services/HttpClient';
+import type {
+  ConfigResponseDestinationItem,
+  SourceConfigResponse,
+} from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
 import { defaultLogger } from '../../../src/services/Logger';
 import { ConfigManager } from '../../../src/components/configManager';
@@ -8,10 +11,7 @@ import { state, resetState } from '../../../src/state';
 import { getSDKUrl } from '../../../src/components/configManager/util/commonUtil';
 import { server } from '../../../__fixtures__/msw.server';
 import { dummySourceConfigResponse } from '../../../__fixtures__/fixtures';
-import {
-  ConfigResponseDestinationItem,
-  SourceConfigResponse,
-} from '../../../src/components/configManager/types';
+import { HttpClient } from '../../../src/services/HttpClient';
 
 jest.mock('../../../src/services/Logger', () => {
   const originalModule = jest.requireActual('../../../src/services/Logger');
@@ -53,8 +53,6 @@ jest.mock('../../../src/components/configManager/util/commonUtil.ts', () => {
 
 describe('ConfigManager', () => {
   let configManagerInstance: ConfigManager;
-  const errorMsg =
-    'The write key " " is invalid. It must be a non-empty string. Please check that the write key is correct and try again.';
   const sampleWriteKey = '2LoR1TbVG2bcISXvy7DamldfkgO';
   const sampleDataPlaneUrl = 'https://www.dummy.url';
   const sampleDestSDKUrl = 'https://www.sample.url/integrations';
@@ -62,6 +60,7 @@ describe('ConfigManager', () => {
   const sampleScriptURL = 'https://www.dummy.url/fromScript/v3/rsa.min.js';
   const lockIntegrationsVersion = false;
   const lockPluginsVersion = false;
+  const defaultHttpClient = new HttpClient(defaultLogger);
 
   beforeAll(() => {
     server.listen();
@@ -97,18 +96,18 @@ describe('ConfigManager', () => {
     state.loadOptions.value.lockPluginsVersion = lockPluginsVersion;
 
     const expectedConfigUrl = `${sampleConfigUrl}/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}&lockPluginsVersion=${lockPluginsVersion}`;
-    configManagerInstance.getConfig = jest.fn();
+    configManagerInstance.private_getConfig = jest.fn();
 
     configManagerInstance.init();
 
     expect(state.lifecycle.logLevel.value).toBe('DEBUG');
     expect(state.lifecycle.integrationsCDNPath.value).toBe(sampleDestSDKUrl);
     expect(state.lifecycle.sourceConfigUrl.value).toBe(expectedConfigUrl);
-    expect(configManagerInstance.getConfig).toHaveBeenCalled();
+    expect(configManagerInstance.private_getConfig).toHaveBeenCalled();
   });
   it('should fetch configurations using sourceConfig endpoint', done => {
     state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfigClone/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}&lockPluginsVersion=${lockPluginsVersion}`;
-    configManagerInstance.processConfig = jest.fn();
+    configManagerInstance.private_processConfig = jest.fn();
 
     const counter = signal(0);
     server.use(
@@ -123,7 +122,7 @@ describe('ConfigManager', () => {
       }),
     );
 
-    configManagerInstance.getConfig();
+    configManagerInstance.private_getConfig();
 
     effect(() => {
       if (counter.value === 1) {
@@ -139,11 +138,47 @@ describe('ConfigManager', () => {
 
   it('should fetch configurations from getSourceConfig load option if present', () => {
     state.loadOptions.value.getSourceConfig = () => dummySourceConfigResponse;
-    configManagerInstance.processConfig = jest.fn();
+    configManagerInstance.private_processConfig = jest.fn();
 
-    configManagerInstance.getConfig();
+    configManagerInstance.private_getConfig();
 
-    expect(configManagerInstance.processConfig).toHaveBeenCalled();
+    expect(configManagerInstance.private_processConfig).toHaveBeenCalled();
+  });
+
+  it('should throw an error if getSourceConfig load option is not a function', () => {
+    // @ts-expect-error Testing for invalid input
+    state.loadOptions.value.getSourceConfig = 'dummySourceConfigResponse';
+
+    expect(() => configManagerInstance.private_getConfig()).toThrow(
+      new Error(
+        '"getSourceConfig" must be a function. Please make sure that it is defined and returns a valid source configuration object.',
+      ),
+    );
+  });
+
+  it('should fetch configuration from getSourceConfig load option even when it returns a promise', done => {
+    state.loadOptions.value.getSourceConfig = () => Promise.resolve(dummySourceConfigResponse);
+
+    configManagerInstance.private_getConfig();
+
+    effect(() => {
+      if (state.lifecycle.status.value === 'configured') {
+        done();
+      }
+    });
+  });
+
+  it('should handle promise rejection errors from getSourceConfig function', done => {
+    state.loadOptions.value.getSourceConfig = () => Promise.reject(new Error('Some error'));
+
+    configManagerInstance.private_onError = jest.fn();
+
+    configManagerInstance.private_getConfig();
+
+    setTimeout(() => {
+      expect(configManagerInstance.private_onError).toHaveBeenCalled();
+      done();
+    }, 1);
   });
 
   it('should update source, destination, lifecycle and reporting state with proper values', () => {
@@ -154,7 +189,7 @@ describe('ConfigManager', () => {
     };
     state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
 
-    configManagerInstance.processConfig(dummySourceConfigResponse);
+    configManagerInstance.private_processConfig(dummySourceConfigResponse);
 
     expect(state.source.value).toStrictEqual(expectedSourceState);
     expect(state.lifecycle.status.value).toBe('configured');
@@ -167,9 +202,11 @@ describe('ConfigManager', () => {
   });
 
   it('should call the onError method of errorHandler for undefined sourceConfig response', () => {
-    configManagerInstance.processConfig(undefined);
+    configManagerInstance.private_processConfig(undefined);
 
-    expect(defaultErrorHandler.onError).toHaveBeenCalled();
+    expect(defaultLogger.error).toHaveBeenCalledWith(
+      `Failed to fetch the source configuration: undefined.`,
+    );
   });
 
   it('should log error and abort if source is disabled', () => {
@@ -183,7 +220,7 @@ describe('ConfigManager', () => {
         enabled: false,
       },
     } as SourceConfigResponse;
-    configManagerInstance.processConfig(sourceConfigResponse);
+    configManagerInstance.private_processConfig(sourceConfigResponse);
 
     expect(defaultLogger.error).toHaveBeenCalledTimes(1);
     expect(defaultLogger.error).toHaveBeenCalledWith(
@@ -194,26 +231,23 @@ describe('ConfigManager', () => {
     expect(state.lifecycle.status.value).toBe('browserCapabilitiesReady');
   });
 
-  it('should not call the onError method of errorHandler for correct sourceConfig response in string format', () => {
-    state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
-    configManagerInstance.processConfig(JSON.stringify(dummySourceConfigResponse));
-
-    expect(defaultErrorHandler.onError).not.toHaveBeenCalled();
-  });
-
   it('should call the onError method of errorHandler for wrong sourceConfig response in string format', () => {
     state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
-    configManagerInstance.processConfig(JSON.stringify({ key: 'value' }));
+
+    // Intentionally, passing a string instead of SourceConfigResponse
+    configManagerInstance.private_processConfig(
+      JSON.stringify({ key: 'value' }) as unknown as SourceConfigResponse,
+    );
 
     expect(defaultErrorHandler.onError).toHaveBeenCalled();
   });
 
   it('should fetch the source config and process the response', done => {
     state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}&lockPluginsVersion=${lockPluginsVersion}`;
-    configManagerInstance.processConfig = jest.fn();
-    configManagerInstance.getConfig();
+    configManagerInstance.private_processConfig = jest.fn();
+    configManagerInstance.private_getConfig();
     setTimeout(() => {
-      expect(configManagerInstance.processConfig).toHaveBeenCalled();
+      expect(configManagerInstance.private_processConfig).toHaveBeenCalled();
       done();
     }, 2000);
   });
@@ -225,7 +259,7 @@ describe('ConfigManager', () => {
     state.loadOptions.value.dataServiceEndpoint = '/my/own/endpoint/';
     state.loadOptions.value.configUrl = sampleConfigUrl;
 
-    configManagerInstance.getConfig = jest.fn();
+    configManagerInstance.private_getConfig = jest.fn();
 
     configManagerInstance.init();
 
@@ -238,7 +272,7 @@ describe('ConfigManager', () => {
     state.loadOptions.value.useServerSideCookies = true;
     state.loadOptions.value.configUrl = sampleConfigUrl;
 
-    configManagerInstance.getConfig = jest.fn();
+    configManagerInstance.private_getConfig = jest.fn();
 
     configManagerInstance.init();
 
@@ -253,7 +287,7 @@ describe('ConfigManager', () => {
     state.loadOptions.value.dataServiceEndpoint = '?asdf?xyz';
     state.loadOptions.value.configUrl = sampleConfigUrl;
 
-    configManagerInstance.getConfig = jest.fn();
+    configManagerInstance.private_getConfig = jest.fn();
 
     configManagerInstance.init();
 

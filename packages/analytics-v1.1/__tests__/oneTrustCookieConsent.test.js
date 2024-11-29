@@ -19,26 +19,26 @@ const expectedDeniedConsentIds = ['C0002', 'C0004', 'C0005', 'C0006'];
 const oneTrust = new OneTrust();
 
 describe('Test suit for OneTrust cookie consent manager', () => {
-  it('Should allow events when no category is set in destination config', () => {
+  it('should allow events when no category is set in destination config', () => {
     const destConfig = {};
     const allowEvent = oneTrust.isEnabled(destConfig);
     expect(allowEvent).toBe(true);
   });
-  it('Should allow events when oneTrustCookieCategory in destination config is present in consented categories', () => {
+  it('should allow events when oneTrustCookieCategory in destination config is present in consented categories', () => {
     const destConfig = {
       oneTrustCookieCategories: [{ oneTrustCookieCategory: 'analytical cookies' }],
     };
     const allowEvent = oneTrust.isEnabled(destConfig);
     expect(allowEvent).toBe(true);
   });
-  it('Should allow events when category ID in destination config is present in consented category IDs', () => {
+  it('should allow events when category ID in destination config is present in consented category IDs', () => {
     const destConfig = {
       oneTrustCookieCategories: [{ oneTrustCookieCategory: 'c0003' }],
     };
     const allowEvent = oneTrust.isEnabled(destConfig);
     expect(allowEvent).toBe(true);
   });
-  it('Should allow events when category ID and name both is present in destination config and present in consented categories', () => {
+  it('should allow events when category ID and name both is present in destination config and present in consented categories', () => {
     const destConfig = {
       oneTrustCookieCategories: [
         { oneTrustCookieCategory: 'c0001' },
@@ -48,21 +48,21 @@ describe('Test suit for OneTrust cookie consent manager', () => {
     const allowEvent = oneTrust.isEnabled(destConfig);
     expect(allowEvent).toBe(true);
   });
-  it('Should not allow events when consented category name is not present in destination config', () => {
+  it('should not allow events when consented category name is not present in destination config', () => {
     const destConfig = {
       oneTrustCookieCategories: [{ oneTrustCookieCategory: 'Performance Cookies' }],
     };
     const allowEvent = oneTrust.isEnabled(destConfig);
     expect(allowEvent).toBe(false);
   });
-  it('Should not allow events when consented category ID is not present in destination config', () => {
+  it('should not allow events when consented category ID is not present in destination config', () => {
     const destConfig = {
       oneTrustCookieCategories: [{ oneTrustCookieCategory: 'c0005' }],
     };
     const allowEvent = oneTrust.isEnabled(destConfig);
     expect(allowEvent).toBe(false);
   });
-  it('Should not allow events when all the category IDs in destination config present in consented category IDs', () => {
+  it('should not allow events when all the category IDs in destination config present in consented category IDs', () => {
     const destConfig = {
       oneTrustCookieCategories: [
         { oneTrustCookieCategory: 'c0001' },
@@ -72,7 +72,7 @@ describe('Test suit for OneTrust cookie consent manager', () => {
     const allowEvent = oneTrust.isEnabled(destConfig);
     expect(allowEvent).toBe(false);
   });
-  it('Should not allow events when all the category IDs/names in destination config present in consented category IDs/names', () => {
+  it('should not allow events when all the category IDs/names in destination config present in consented category IDs/names', () => {
     const destConfig = {
       oneTrustCookieCategories: [
         { oneTrustCookieCategory: 'analytical cookies' },
@@ -82,7 +82,7 @@ describe('Test suit for OneTrust cookie consent manager', () => {
     const allowEvent = oneTrust.isEnabled(destConfig);
     expect(allowEvent).toBe(false);
   });
-  it('Should return the category IDs that the user has not consented for', () => {
+  it('should return the category IDs that the user has not consented for', () => {
     const actualDeniedConsentIds = oneTrust.getDeniedList();
     expect(actualDeniedConsentIds).toEqual(expectedDeniedConsentIds);
   });

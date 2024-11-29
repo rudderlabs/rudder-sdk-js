@@ -7,7 +7,7 @@ wss.on('connection', function connection(ws) {
 
   ws.on('message', function message(data) {
     try {
-      const event = JSON.parse(data)
+      const event = JSON.parse(data);
       console.log('received: %s', event.data.batch[0]);
       event.done();
     } catch (e) {

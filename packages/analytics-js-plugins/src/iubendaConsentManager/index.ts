@@ -47,7 +47,9 @@ const IubendaConsentManager = (): ExtensionPlugin => ({
       // retrieve consent data and update the state
       let iubendaConsentData;
       // From window
+      // eslint-disable-next-line no-underscore-dangle
       if (!isUndefined((globalThis as any)._iub.cs.consent.purposes)) {
+        // eslint-disable-next-line no-underscore-dangle
         iubendaConsentData = (globalThis as any)._iub.cs.consent.purposes;
         // From cookie
       } else {
@@ -97,7 +99,7 @@ const IubendaConsentManager = (): ExtensionPlugin => ({
           }
         }
         return true;
-      } catch (err) {
+      } catch (err: any) {
         errorHandler?.onError(
           err,
           IUBENDA_CONSENT_MANAGER_PLUGIN,

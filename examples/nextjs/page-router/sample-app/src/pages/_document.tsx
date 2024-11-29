@@ -9,7 +9,7 @@ export default function Document() {
           {`
             (function() {
               "use strict";
-              window.RudderSnippetVersion = "3.0.30";
+              window.RudderSnippetVersion = "3.0.39";
               var identifier = "rudderanalytics";
               if (!window[identifier]) {
                 window[identifier] = [];

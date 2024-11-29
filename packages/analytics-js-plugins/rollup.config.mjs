@@ -107,6 +107,7 @@ export function getDefaultConfig(distName) {
         exclude: ['node_modules/@babel/**', 'node_modules/core-js/**'],
         extensions: [...DEFAULT_EXTENSIONS, '.ts'],
         sourcemap: sourceMapType,
+        plugins: ['../../babel-plugin-mark-private.mjs'],
       }),
       isCDNPackageBuild &&
         federation({
@@ -121,6 +122,11 @@ export function getDefaultConfig(distName) {
           ecma: isLegacyBuild ? 2015 : 2017,
           format: {
             comments: false,
+          },
+          mangle: {
+            properties: {
+              regex: /^private_/,
+            },
           },
         }),
       filesize({
