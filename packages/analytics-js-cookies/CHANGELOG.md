@@ -2,6 +2,86 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.4.15](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-cookies@0.4.14...@rudderstack/analytics-js-cookies@0.4.15) (2024-11-22)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.12`
+## [0.4.14](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-cookies@0.4.13...@rudderstack/analytics-js-cookies@0.4.14) (2024-11-22)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.11`
+## [0.4.13](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-cookies@0.4.12...@rudderstack/analytics-js-cookies@0.4.13) (2024-11-22)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.10`
+## [0.4.12](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-cookies@0.4.11...@rudderstack/analytics-js-cookies@0.4.12) (2024-11-22)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.9`
+## [0.4.11](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-cookies@0.4.10...@rudderstack/analytics-js-cookies@0.4.11) (2024-11-22)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.8`
+## [0.4.10](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-cookies@0.4.9...@rudderstack/analytics-js-cookies@0.4.10) (2024-11-21)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.7`
+## [0.4.9](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-cookies@0.4.8...@rudderstack/analytics-js-cookies@0.4.9) (2024-11-21)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.6`
+## [0.4.8](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-cookies@0.4.7...@rudderstack/analytics-js-cookies@0.4.8) (2024-11-21)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.5`
+## [0.4.7](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-cookies@0.4.6...@rudderstack/analytics-js-cookies@0.4.7) (2024-11-21)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.4`
+## [0.4.6](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-cookies@0.4.5...@rudderstack/analytics-js-cookies@0.4.6) (2024-11-21)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.3`
+## [0.4.5](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-cookies@0.4.4...@rudderstack/analytics-js-cookies@0.4.5) (2024-11-21)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.2`
+## [0.4.4](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-cookies@0.4.3...@rudderstack/analytics-js-cookies@0.4.4) (2024-11-19)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.1`
+## [0.4.3](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-cookies@0.4.2...@rudderstack/analytics-js-cookies@0.4.3) (2024-11-18)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.0`
+## [0.4.2](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-cookies@0.4.1...@rudderstack/analytics-js-cookies@0.4.2) (2024-11-18)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.13.0`
+## [0.4.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-cookies@0.4.0...@rudderstack/analytics-js-cookies@0.4.1) (2024-11-12)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.12.1`
+
+### Bug Fixes
+
+* revert sanitization changes ([#1916](https://github.com/rudderlabs/rudder-sdk-js/issues/1916)) ([890fb7b](https://github.com/rudderlabs/rudder-sdk-js/commit/890fb7b615535992290f5008b93d77b540c03955)), closes [#1907](https://github.com/rudderlabs/rudder-sdk-js/issues/1907) [#1902](https://github.com/rudderlabs/rudder-sdk-js/issues/1902)
+
 ## [0.4.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-cookies@0.3.14...@rudderstack/analytics-js-cookies@0.4.0) (2024-11-08)
 
 ### Dependency Updates

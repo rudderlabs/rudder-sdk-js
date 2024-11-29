@@ -675,6 +675,13 @@ describe('Bugsnag utilities', () => {
         },
         ['key4', 'key6'], // excluded keys
       ],
+      [
+        {
+          someKey: BigInt(123),
+        },
+        undefined,
+        [],
+      ],
     ];
 
     it.each(tcData)('should convert signals to JSON %#', (input, expected, excludes) => {

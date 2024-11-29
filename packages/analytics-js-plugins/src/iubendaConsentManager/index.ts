@@ -7,11 +7,11 @@ import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/Plu
 import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { checks } from '../shared-chunks/common';
 import { DESTINATION_CONSENT_STATUS_ERROR } from './logMessages';
 import { IUBENDA_CONSENT_MANAGER_PLUGIN } from './constants';
 import type { IubendaConsentData } from './types';
 import { updateConsentStateFromData, getIubendaConsentData } from './utils';
+import { isUndefined } from '../shared-chunks/common';
 
 const pluginName: PluginName = 'IubendaConsentManager';
 
@@ -48,7 +48,7 @@ const IubendaConsentManager = (): ExtensionPlugin => ({
       let iubendaConsentData;
       // From window
       // eslint-disable-next-line no-underscore-dangle
-      if (!checks.isUndefined((globalThis as any)._iub.cs.consent.purposes)) {
+      if (!isUndefined((globalThis as any)._iub.cs.consent.purposes)) {
         // eslint-disable-next-line no-underscore-dangle
         iubendaConsentData = (globalThis as any)._iub.cs.consent.purposes;
         // From cookie

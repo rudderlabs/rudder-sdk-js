@@ -293,6 +293,7 @@ describe('Device mode transformation plugin', () => {
         id: 'sample_uuid',
         time: expect.any(Number),
         // time: 1 + 500 * 2 ** 1, // this is the delay calculation in RetryQueue
+        type: 'Single',
       },
     ]);
     mockSendTransformedEventToDestinations.mockRestore();

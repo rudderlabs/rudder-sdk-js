@@ -18,12 +18,12 @@ import type {
   DoneCallback,
   QueueItemData,
 } from '@rudderstack/analytics-js-common/utilities/retryQueue/types';
-import { storages } from '../shared-chunks/common';
 import { getNormalizedQueueOptions, isEventDenyListed, sendEventToDestination } from './utilities';
 import { NATIVE_DESTINATION_QUEUE_PLUGIN, QUEUE_NAME } from './constants';
 import { DESTINATION_EVENT_FILTERING_WARNING } from './logMessages';
-import { destinationUtils } from '../shared-chunks/deviceModeDestinations';
 import { RetryQueue } from '../shared-chunks/retryQueue';
+import { MEMORY_STORAGE } from '../shared-chunks/common';
+import { filterDestinations } from '../shared-chunks/deviceModeDestinations';
 
 const pluginName: PluginName = 'NativeDestinationQueue';
 
@@ -62,7 +62,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
         finalQOpts,
         (item: QueueItemData, done: DoneCallback) => {
           const rudderEvent = item as RudderEvent;
-          const destinationsToSend = destinationUtils.filterDestinations(
+          const destinationsToSend = filterDestinations(
             rudderEvent.integrations,
             state.nativeDestinations.initializedDestinations.value,
           );
@@ -114,7 +114,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
           done(null);
         },
         storeManager,
-        storages.MEMORY_STORAGE,
+        MEMORY_STORAGE,
       );
 
       // TODO: This seems to not work as expected. Need to investigate

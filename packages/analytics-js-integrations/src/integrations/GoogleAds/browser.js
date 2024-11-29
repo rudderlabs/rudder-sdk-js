@@ -178,7 +178,7 @@ class GoogleAds {
       const { event } = rudderElement.message;
 
       if (this.v2) {
-        const updatedEventName = event.trim().replace(/\s+/g, '_');
+        const updatedEventName = event.toString().trim().replace(/\s+/g, '_');
         const ecomPayload = prepareParamsAndEventName(rudderElement.message, updatedEventName);
         properties = { ...properties, ...ecomPayload?.params };
       }

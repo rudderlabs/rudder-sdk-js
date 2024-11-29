@@ -2,6 +2,113 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.14.12](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.14.11...@rudderstack/analytics-js-common@3.14.12) (2024-11-22)
+
+
+### Bug Fixes
+
+* revert temp utility ([2f60cae](https://github.com/rudderlabs/rudder-sdk-js/commit/2f60caeea0dc9944bf9434d5981952c8e85eef38))
+
+## [3.14.11](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.14.10...@rudderstack/analytics-js-common@3.14.11) (2024-11-22)
+
+
+### Bug Fixes
+
+* add extra temporary import for testing ([a865344](https://github.com/rudderlabs/rudder-sdk-js/commit/a8653447fea5913421ab9c9cb36fd66611f68657))
+* undefined property ([db84fda](https://github.com/rudderlabs/rudder-sdk-js/commit/db84fda21fb6a21a4c19c085e9214fa2ee2cff0f))
+
+## [3.14.10](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.14.9...@rudderstack/analytics-js-common@3.14.10) (2024-11-22)
+
+
+### Bug Fixes
+
+* restore data sanitization changes but avoid using api overloads ([d0913ae](https://github.com/rudderlabs/rudder-sdk-js/commit/d0913ae32a8c63def26c081c7570a9960dcd1ebf))
+
+## [3.14.9](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.14.8...@rudderstack/analytics-js-common@3.14.9) (2024-11-22)
+
+
+### Bug Fixes
+
+* restore data sanitization changes ([2a13e7c](https://github.com/rudderlabs/rudder-sdk-js/commit/2a13e7c463b2d480f6d9a23f32abe4e56f6557d4))
+
+## [3.14.8](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.14.7...@rudderstack/analytics-js-common@3.14.8) (2024-11-22)
+
+
+### Bug Fixes
+
+* sanitize data directly in plugins ([d8cc780](https://github.com/rudderlabs/rudder-sdk-js/commit/d8cc7808e21baeb26782596efb542713bd38a09f))
+
+## [3.14.7](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.14.6...@rudderstack/analytics-js-common@3.14.7) (2024-11-21)
+
+
+### Bug Fixes
+
+* restore event api overloads changes ([ebb1f7c](https://github.com/rudderlabs/rudder-sdk-js/commit/ebb1f7ca924972993e2da25036ae994f24c229dd))
+
+## [3.14.6](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.14.5...@rudderstack/analytics-js-common@3.14.6) (2024-11-21)
+
+
+### Bug Fixes
+
+* use utility in a different method ([4b9e0cc](https://github.com/rudderlabs/rudder-sdk-js/commit/4b9e0ccd85ef33c00e41072a10a7e27b479c3c43))
+
+## [3.14.5](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.14.4...@rudderstack/analytics-js-common@3.14.5) (2024-11-21)
+
+
+### Bug Fixes
+
+* remove replacer ([e42ba9f](https://github.com/rudderlabs/rudder-sdk-js/commit/e42ba9f92b2d021f27ac2dc300624db6e029ff0e))
+
+## [3.14.4](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.14.3...@rudderstack/analytics-js-common@3.14.4) (2024-11-21)
+
+
+### Bug Fixes
+
+* remove recursive traversal ([26f2468](https://github.com/rudderlabs/rudder-sdk-js/commit/26f2468510050885b159704ad06d28b69d582340))
+
+## [3.14.3](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.14.2...@rudderstack/analytics-js-common@3.14.3) (2024-11-21)
+
+
+### Bug Fixes
+
+* revert api sanitization ([4e5a1ce](https://github.com/rudderlabs/rudder-sdk-js/commit/4e5a1ce9326f946d05c9250740244d8fcea23115))
+* sanitize api inputs ([ad9ed2b](https://github.com/rudderlabs/rudder-sdk-js/commit/ad9ed2b1eab60960aea333a8da93af06d21ce25b))
+
+## [3.14.2](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.14.1...@rudderstack/analytics-js-common@3.14.2) (2024-11-21)
+
+
+### Bug Fixes
+
+* avoid using 'this' and prevent cache ([ab60ea4](https://github.com/rudderlabs/rudder-sdk-js/commit/ab60ea4a047c676fa774bb7ec9fdb1dbcc5ecf77))
+
+## [3.14.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.14.0...@rudderstack/analytics-js-common@3.14.1) (2024-11-19)
+
+
+### Bug Fixes
+
+* don't sanitize event method overload inputs ([b819d61](https://github.com/rudderlabs/rudder-sdk-js/commit/b819d61ea278c2f553c63495ecf5bd0305550dfe))
+
+## [3.14.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.13.0...@rudderstack/analytics-js-common@3.14.0) (2024-11-18)
+
+
+### Features
+
+* error handle public apis ([295793a](https://github.com/rudderlabs/rudder-sdk-js/commit/295793a2cc60172b001c3fb1bc2624bb19fa8546))
+
+## [3.13.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.12.1...@rudderstack/analytics-js-common@3.13.0) (2024-11-18)
+
+
+### Features
+
+* add more utilities ([7bd0cc9](https://github.com/rudderlabs/rudder-sdk-js/commit/7bd0cc98d5de1e9c20aaee4400263da12f2943d1))
+
+## [3.12.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.12.0...@rudderstack/analytics-js-common@3.12.1) (2024-11-12)
+
+
+### Bug Fixes
+
+* revert sanitization changes ([#1916](https://github.com/rudderlabs/rudder-sdk-js/issues/1916)) ([890fb7b](https://github.com/rudderlabs/rudder-sdk-js/commit/890fb7b615535992290f5008b93d77b540c03955)), closes [#1907](https://github.com/rudderlabs/rudder-sdk-js/issues/1907) [#1902](https://github.com/rudderlabs/rudder-sdk-js/issues/1902)
+
 ## [3.12.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.11.1...@rudderstack/analytics-js-common@3.12.0) (2024-11-08)
 
 

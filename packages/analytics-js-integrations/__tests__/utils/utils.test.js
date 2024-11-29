@@ -127,6 +127,7 @@ describe('getDefinedTraits Tests', () => {
       name: 'rudder stack',
       phone: undefined,
       state: undefined,
+      postalCode: undefined,
       userId: 'user123',
       userIdOnly: 'user123',
     });

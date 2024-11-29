@@ -37,6 +37,9 @@ const BATCH_QUEUE = 'batchQueue';
 // to ensure that it is the last one to be processed (deleted) during the cleanup
 const QueueStatuses = [IN_PROGRESS, QUEUE, BATCH_QUEUE, RECLAIM_START, RECLAIM_END, ACK];
 
+const BATCH_QUEUE_ITEM_TYPE = 'Batch';
+const SINGLE_QUEUE_ITEM_TYPE = 'Single';
+
 export {
   DEFAULT_MIN_RETRY_DELAY_MS,
   DEFAULT_MAX_RETRY_DELAY_MS,
@@ -65,4 +68,6 @@ export {
   MAX_ATTEMPTS_ENTRY_DELETION,
   RETRY_DELAY_ENTRY_DELETION,
   DEFAULT_BACKOFF_DELETION,
+  BATCH_QUEUE_ITEM_TYPE,
+  SINGLE_QUEUE_ITEM_TYPE,
 };

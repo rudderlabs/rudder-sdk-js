@@ -1,4 +1,4 @@
-import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constants/logMessages';
+import { LOG_CONTEXT_SEPARATOR } from '../shared-chunks/common';
 
 const DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR = (
   context: string,

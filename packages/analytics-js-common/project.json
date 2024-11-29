@@ -51,9 +51,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-common@3.12.0",
-        "title": "@rudderstack/analytics-js-common@3.12.0",
-        "discussion-category": "@rudderstack/analytics-js-common@3.12.0",
+        "tag": "@rudderstack/analytics-js-common@3.14.12",
+        "title": "@rudderstack/analytics-js-common@3.14.12",
+        "discussion-category": "@rudderstack/analytics-js-common@3.14.12",
         "notesFile": "./packages/analytics-js-common/CHANGELOG_LATEST.md"
       }
     }

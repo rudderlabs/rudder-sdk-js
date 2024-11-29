@@ -1,10 +1,78 @@
-import { BAD_DATA_WARNING } from '../constants/logMessages';
 import type { ILogger } from '../types/Logger';
 import type { Nullable } from '../types/Nullable';
-import { isBigInt, isNull } from './checks';
+import { isBigInt, isNull, isNullOrUndefined } from './checks';
+import {
+  BAD_DATA_WARNING,
+  CIRCULAR_REFERENCE_WARNING,
+  JSON_STRINGIFY_WARNING,
+} from '../constants/logMessages';
 import { isObjectLiteralAndNotNull } from './object';
 
+const JSON_STRINGIFY = 'JSONStringify';
 const JSON_UTIL = 'JSON';
+const BIG_INT_PLACEHOLDER = '[BigInt]';
+const CIRCULAR_REFERENCE_PLACEHOLDER = '[Circular Reference]';
+
+const getCircularReplacer = (
+  excludeNull?: boolean,
+  excludeKeys?: string[],
+  logger?: ILogger,
+): ((key: string, value: any) => any) => {
+  const ancestors: any[] = [];
+
+  // Here we do not want to use arrow function to use "this" in function context
+  // eslint-disable-next-line func-names
+  return function (key, value): any {
+    if (excludeKeys?.includes(key)) {
+      return undefined;
+    }
+
+    if (excludeNull && isNullOrUndefined(value)) {
+      return undefined;
+    }
+
+    if (typeof value !== 'object' || isNull(value)) {
+      return value;
+    }
+
+    // `this` is the object that value is contained in, i.e., its direct parent.
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore-next-line
+    while (ancestors.length > 0 && ancestors[ancestors.length - 1] !== this) {
+      ancestors.pop();
+    }
+
+    if (ancestors.includes(value)) {
+      logger?.warn(CIRCULAR_REFERENCE_WARNING(JSON_STRINGIFY, key));
+      return CIRCULAR_REFERENCE_PLACEHOLDER;
+    }
+
+    ancestors.push(value);
+    return value;
+  };
+};
+
+/**
+ * Utility method for JSON stringify object excluding null values & circular references
+ *
+ * @param {*} value input
+ * @param {boolean} excludeNull if it should exclude nul or not
+ * @param {function} logger optional logger methods for warning
+ * @returns string
+ */
+const stringifyWithoutCircular = <T = Record<string, any> | any[] | number | string>(
+  value?: Nullable<T>,
+  excludeNull?: boolean,
+  excludeKeys?: string[],
+  logger?: ILogger,
+): Nullable<string> => {
+  try {
+    return JSON.stringify(value, getCircularReplacer(excludeNull, excludeKeys, logger));
+  } catch (err) {
+    logger?.warn(JSON_STRINGIFY_WARNING, err);
+    return null;
+  }
+};
 
 /**
  * Utility method for JSON stringify object excluding null values & circular references
@@ -33,7 +101,7 @@ const getReplacer = (logger?: ILogger): ((key: string, value: any) => any) => {
   return function replacer(key, value): any {
     if (isBigInt(value)) {
       logger?.warn(BAD_DATA_WARNING(JSON_UTIL, key));
-      return '[BigInt]'; // Replace BigInt values
+      return BIG_INT_PLACEHOLDER; // Replace BigInt values
     }
 
     // `this` is the object that value is contained in, i.e., its direct parent.
@@ -46,7 +114,7 @@ const getReplacer = (logger?: ILogger): ((key: string, value: any) => any) => {
     // Check for circular references (if the value is already in the ancestors)
     if (ancestors.includes(value)) {
       logger?.warn(BAD_DATA_WARNING(JSON_UTIL, key));
-      return '[Circular Reference]';
+      return CIRCULAR_REFERENCE_PLACEHOLDER;
     }
 
     // Add current value to ancestors
@@ -100,4 +168,4 @@ const getSanitizedValue = <T = any>(value: T, logger?: ILogger): T => {
   return newValue;
 };
 
-export { stringifyData, getSanitizedValue };
+export { stringifyWithoutCircular, stringifyData, getSanitizedValue };

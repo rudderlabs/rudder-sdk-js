@@ -1,6 +1,6 @@
 /* eslint-disable sonarjs/no-nested-functions */
 import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { stringifyData } from '@rudderstack/analytics-js-common/utilities/json';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
 import type { IStore } from '@rudderstack/analytics-js-common/types/Store';
 import type { Source } from '@rudderstack/analytics-js-common/types/Source';
@@ -30,7 +30,7 @@ jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
 }));
 
 jest.mock('@rudderstack/analytics-js-common/utilities/json', () => ({
-  stringifyData: jest.fn(d => JSON.stringify(d)),
+  stringifyWithoutCircular: jest.fn(d => JSON.stringify(d)),
 }));
 
 describe('User session manager', () => {
@@ -1752,7 +1752,7 @@ describe('User session manager', () => {
             prop2: 12345678,
             prop3: { city: 'Kolkata', zip: '700001' },
           });
-          expect(stringifyData).toHaveBeenCalled();
+          expect(stringifyWithoutCircular).toHaveBeenCalled();
           expect(defaultLogger.error).not.toHaveBeenCalledWith(
             'The server failed to set the key cookie. As a fallback, the cookies will be set client side.',
           );
@@ -1778,7 +1778,7 @@ describe('User session manager', () => {
         );
         setTimeout(() => {
           expect(mockCookieStore.get).toHaveBeenCalledWith('key');
-          expect(stringifyData).toHaveBeenCalled();
+          expect(stringifyWithoutCircular).toHaveBeenCalled();
           expect(defaultLogger.error).toHaveBeenCalledWith(
             'The server failed to set the key cookie. As a fallback, the cookies will be set client side.',
           );

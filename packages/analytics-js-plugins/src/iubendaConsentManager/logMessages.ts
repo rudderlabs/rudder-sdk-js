@@ -1,4 +1,4 @@
-import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constants/logMessages';
+import { LOG_CONTEXT_SEPARATOR } from '../shared-chunks/common';
 
 const IUBENDA_CONSENT_COOKIE_READ_ERROR = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}Failed to read the consent cookie.`;

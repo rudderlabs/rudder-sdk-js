@@ -262,6 +262,13 @@ function getDefinedTraits(message) {
       get(message, 'context.traits.Country') ||
       get(message, 'context.traits.address.country') ||
       get(message, 'context.traits.address.Country'),
+    postalCode:
+      get(message, 'context.traits.postalCode') ||
+      get(message, 'context.traits.postalcode') ||
+      get(message, 'context.traits.postal_code') ||
+      get(message, 'context.traits.address.postalCode') ||
+      get(message, 'context.traits.address.postal_code') ||
+      get(message, 'context.traits.address.postalcode'),
   };
 
   if (!get(traitsValue, 'name') && get(traitsValue, 'firstName') && get(traitsValue, 'lastName')) {

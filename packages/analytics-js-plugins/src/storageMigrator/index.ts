@@ -7,7 +7,7 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { checks, decrypt } from '../shared-chunks/common';
+import { decrypt, isNullOrUndefined } from '../shared-chunks/common';
 import { decrypt as decryptLegacy } from '../storageEncryptionLegacy/legacyEncryptionUtils';
 import { STORAGE_MIGRATION_ERROR } from './logMessages';
 import { STORAGE_MIGRATOR_PLUGIN } from './constants';
@@ -28,7 +28,7 @@ const StorageMigrator = (): ExtensionPlugin => ({
     ): Nullable<string> {
       try {
         const storedVal = storageEngine.getItem(key);
-        if (checks.isNullOrUndefined(storedVal)) {
+        if (isNullOrUndefined(storedVal)) {
           return null;
         }
 
@@ -40,7 +40,7 @@ const StorageMigrator = (): ExtensionPlugin => ({
           decryptedVal = decrypt(storedVal);
         }
 
-        if (checks.isNullOrUndefined(decryptedVal)) {
+        if (isNullOrUndefined(decryptedVal)) {
           return null;
         }
 

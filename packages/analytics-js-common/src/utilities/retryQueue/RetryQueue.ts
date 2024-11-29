@@ -20,6 +20,7 @@ import type {
   QueueProcessCallback,
   ProcessQueueItem,
   QueueData,
+  QueueItemType,
 } from './types';
 import {
   DEFAULT_MAX_ITEMS,
@@ -45,6 +46,8 @@ import {
   QueueStatuses,
   RECLAIM_END,
   RECLAIM_START,
+  BATCH_QUEUE_ITEM_TYPE,
+  SINGLE_QUEUE_ITEM_TYPE,
 } from './constants';
 import { clearQueueEntries, findOtherQueues, getNumberOptionVal, sortByTime } from './utilities';
 import { isNumber } from '../number';
@@ -263,7 +266,10 @@ class RetryQueue implements IQueue<QueueItemData> {
     if (batchQueue.length > 0) {
       const batchItems = batchQueue.slice(-batchQueue.length);
 
-      const batchEntry = this.private_genQueueItem(batchItems.map(queueItem => queueItem.item));
+      const batchEntry = this.private_genQueueItem(
+        batchItems.map(queueItem => queueItem.item),
+        BATCH_QUEUE_ITEM_TYPE,
+      );
 
       this.setStorageEntry(BATCH_QUEUE, []);
 
@@ -304,7 +310,10 @@ class RetryQueue implements IQueue<QueueItemData> {
       batchItems.push(queueItem);
     }
 
-    const batchEntry = this.private_genQueueItem(batchItems.map(queueItem => queueItem.item));
+    const batchEntry = this.private_genQueueItem(
+      batchItems.map(queueItem => queueItem.item),
+      BATCH_QUEUE_ITEM_TYPE,
+    );
 
     this.setStorageEntry(dataSource, dataSourceQueue.slice(batchItems.length));
 
@@ -347,7 +356,7 @@ class RetryQueue implements IQueue<QueueItemData> {
 
   private_enqueue(entry: QueueItem<QueueItemData>) {
     let curEntry: QueueItem<QueueItemData> | undefined;
-    if (this.private_batch.enabled) {
+    if (this.private_batch.enabled && entry.type === SINGLE_QUEUE_ITEM_TYPE) {
       curEntry = this.private_handleNewItemForBatch(entry);
     } else {
       curEntry = entry;
@@ -385,7 +394,7 @@ class RetryQueue implements IQueue<QueueItemData> {
         batchQueue = [];
       }
 
-      curEntry = this.private_genQueueItem(batchItems);
+      curEntry = this.private_genQueueItem(batchItems, BATCH_QUEUE_ITEM_TYPE);
 
       // re-attach the timeout handler
       this.private_scheduleFlushBatch();
@@ -416,7 +425,7 @@ class RetryQueue implements IQueue<QueueItemData> {
    * @param {Object} itemData The item to process
    */
   addItem(itemData: QueueItemData) {
-    this.private_enqueue(this.private_genQueueItem(itemData));
+    this.private_enqueue(this.private_genQueueItem(itemData, SINGLE_QUEUE_ITEM_TYPE));
   }
 
   /**
@@ -424,29 +433,32 @@ class RetryQueue implements IQueue<QueueItemData> {
    * @param itemData Queue item data
    * @returns Queue item
    */
-  private_genQueueItem(itemData: QueueItemData): QueueItem<QueueItemData> {
+  private_genQueueItem(itemData: QueueItemData, type: QueueItemType): QueueItem<QueueItemData> {
     return {
       item: itemData,
       attemptNumber: 0,
       time: this.schedule.now(),
       id: generateUUID(),
+      type,
     };
   }
 
   /**
    * Adds an item to the retry queue
    *
-   * @param {Object} itemData The item to retry
-   * @param {Number} attemptNumber The attempt number (1 for first retry)
-   * @param {String} [id] The id of the queued message used for tracking duplicate entries
+   * @param {Object} qItem The item to process
    */
-  requeue(itemData: QueueItemData, attemptNumber: number, id?: string) {
-    if (this.private_shouldRetry(attemptNumber)) {
+  requeue(qItem: QueueItem<QueueItemData>) {
+    const { attemptNumber, item, type, id } = qItem;
+    // Increment the attempt number as we're about to retry
+    const attemptNumberToUse = attemptNumber + 1;
+    if (this.private_shouldRetry(attemptNumberToUse)) {
       this.private_enqueue({
-        item: itemData,
-        attemptNumber,
-        time: this.schedule.now() + this.getRetryDelay(attemptNumber),
+        item,
+        attemptNumber: attemptNumberToUse,
+        time: this.schedule.now() + this.getRetryDelay(attemptNumberToUse),
         id: id ?? generateUUID(),
+        type,
       });
     }
   }
@@ -511,7 +523,7 @@ class RetryQueue implements IQueue<QueueItemData> {
       this.setStorageEntry(IN_PROGRESS, inProgress);
 
       if (!isNullOrUndefined(err)) {
-        this.requeue(el.item, el.attemptNumber + 1, el.id);
+        this.requeue(el);
       }
     };
 
@@ -539,6 +551,7 @@ class RetryQueue implements IQueue<QueueItemData> {
           attemptNumber: el.attemptNumber,
           time: this.schedule.now(),
           id,
+          type: el.type,
         });
 
         enqueueItem(el, id);
@@ -613,11 +626,17 @@ class RetryQueue implements IQueue<QueueItemData> {
       finalQueue.forEach((item: QueueItem<QueueItemData>) => {
         // ignore duplicates
         if (!item.id || !trackMessageIds.includes(item.id)) {
+          // Hack to determine the item type by the contents of the entry
+          // After some point, we can remove this hack as most of the stale data will have been processed
+          // and the new entries will have the type field set
+          const type = Array.isArray(item.item) ? BATCH_QUEUE_ITEM_TYPE : SINGLE_QUEUE_ITEM_TYPE;
+
           ourData.queue.push({
             item: item.item,
             attemptNumber: item.attemptNumber + incrementAttemptNumberBy,
             time: this.schedule.now(),
             id: item.id ?? generateUUID(),
+            type: item.type ?? type,
           });
 
           if (item.id) {
@@ -640,6 +659,7 @@ class RetryQueue implements IQueue<QueueItemData> {
             attemptNumber: el.attemptNumber,
             time: this.schedule.now(),
             id: el.id ?? generateUUID(),
+            type: el.type ?? SINGLE_QUEUE_ITEM_TYPE,
           });
 
           if (el.id) {

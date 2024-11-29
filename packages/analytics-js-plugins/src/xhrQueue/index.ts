@@ -18,7 +18,6 @@ import type {
 } from '@rudderstack/analytics-js-common/utilities/retryQueue/types';
 import { toBase64 } from '@rudderstack/analytics-js-common/utilities/string';
 import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js-common/constants/errors';
-import { storages, http, time, string, eventsDelivery } from '../shared-chunks/common';
 import {
   getNormalizedQueueOptions,
   getDeliveryUrl,
@@ -30,6 +29,12 @@ import { QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
 import type { XHRRetryQueueItemData, XHRQueueItemData, XHRQueueBatchItemData } from './types';
 import { RetryQueue } from '../shared-chunks/retryQueue';
 import { DELIVERY_ERROR, REQUEST_ERROR } from './logMessages';
+import {
+  getCurrentTimeFormatted,
+  isErrRetryable,
+  LOCAL_STORAGE,
+  validateEventPayloadSize,
+} from '../shared-chunks/common';
 
 const pluginName = 'XhrQueue';
 
@@ -74,7 +79,11 @@ const XhrQueue = (): ExtensionPlugin => ({
           maxRetryAttempts?: number,
           willBeRetried?: boolean,
         ) => {
-          const { data, url, headers } = getRequestInfo(itemData as XHRRetryQueueItemData, state);
+          const { data, url, headers } = getRequestInfo(
+            itemData as XHRRetryQueueItemData,
+            state,
+            logger,
+          );
 
           const handleResponse = (
             err?: any,
@@ -104,7 +113,7 @@ const XhrQueue = (): ExtensionPlugin => ({
             // null means item will not be requeued
             let queueErrResp = null;
             if (errMsg) {
-              const isRetryableFailure = http.isErrRetryable(details);
+              const isRetryableFailure = isErrRetryable(details);
               if (isRetryableFailure) {
                 queueErrResp = details;
               }
@@ -162,15 +171,15 @@ const XhrQueue = (): ExtensionPlugin => ({
           }
         },
         storeManager,
-        storages.LOCAL_STORAGE,
+        LOCAL_STORAGE,
         logger,
         (itemData: QueueItemData[]): number => {
-          const currentTime = time.getCurrentTimeFormatted();
+          const currentTime = getCurrentTimeFormatted();
           const events = (itemData as XHRQueueBatchItemData).map(
             (queueItemData: XHRQueueItemData) => queueItemData.event,
           );
           // type casting to string as we know that the event has already been validated prior to enqueue
-          return (getBatchDeliveryPayload(events, currentTime) as string)?.length;
+          return (getBatchDeliveryPayload(events, currentTime, logger) as string)?.length;
         },
       );
 
@@ -195,8 +204,8 @@ const XhrQueue = (): ExtensionPlugin => ({
     ): void {
       // sentAt is only added here for the validation step
       // It'll be updated to the latest timestamp during actual delivery
-      event.sentAt = time.getCurrentTimeFormatted();
-      eventsDelivery.validateEventPayloadSize(event, logger);
+      event.sentAt = getCurrentTimeFormatted();
+      validateEventPayloadSize(event, logger);
 
       const dataplaneUrl = state.lifecycle.activeDataplaneUrl.value as string;
       const url = getDeliveryUrl(dataplaneUrl, event.type);
@@ -209,7 +218,7 @@ const XhrQueue = (): ExtensionPlugin => ({
         Authorization: `Basic ${credsStr}`,
         // To maintain event ordering while using the HTTP API as per is documentation,
         // make sure to include anonymousId as a header
-        AnonymousId: string.toBase64(event.anonymousId),
+        AnonymousId: toBase64(event.anonymousId),
       };
 
       eventsQueue.addItem({

@@ -32,7 +32,7 @@ import type {
   AsyncRequestCallback,
   IHttpClient,
 } from '@rudderstack/analytics-js-common/types/HttpClient';
-import { stringifyData } from '@rudderstack/analytics-js-common/utilities/json';
+import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
 import {
   CLIENT_DATA_STORE_COOKIE,
@@ -307,7 +307,9 @@ class UserSessionManager implements IUserSessionManager {
   private_getEncryptedCookieData(cookiesData: CookieData[], store?: IStore): EncryptedCookieData[] {
     const encryptedCookieData: EncryptedCookieData[] = [];
     cookiesData.forEach(cData => {
-      const encryptedValue = store?.private_encrypt(stringifyData(cData.value, false));
+      const encryptedValue = store?.private_encrypt(
+        stringifyWithoutCircular(cData.value, false, [], this.private_logger),
+      );
       if (isDefinedAndNotNull(encryptedValue)) {
         encryptedCookieData.push({
           name: cData.name,
@@ -331,7 +333,7 @@ class UserSessionManager implements IUserSessionManager {
       url: state.serverCookies.dataServiceUrl.value as string,
       options: {
         method: 'POST',
-        body: stringifyData({
+        body: stringifyWithoutCircular({
           reqType: 'setCookies',
           workspaceId: state.source.value?.workspaceId,
           data: {
@@ -383,8 +385,8 @@ class UserSessionManager implements IUserSessionManager {
           } else {
             cookiesData.forEach(cData => {
               const cookieValue = store?.get(cData.name);
-              const before = stringifyData(cData.value, false);
-              const after = stringifyData(cookieValue, false);
+              const before = stringifyWithoutCircular(cData.value, false, []);
+              const after = stringifyWithoutCircular(cookieValue, false, []);
               if (after !== before) {
                 this.private_logger?.error(FAILED_SETTING_COOKIE_FROM_SERVER_ERROR(cData.name));
                 if (cb) {

@@ -1,6 +1,5 @@
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { isNonEmptyObject } from '@rudderstack/analytics-js-common/utilities/object';
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
@@ -22,6 +21,7 @@ import {
   DMT_SERVER_ACCESS_DENIED_WARNING,
   DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR,
 } from './logMessages';
+import { isNonEmptyObject } from '../shared-chunks/common';
 
 /**
  * A helper function that will take rudderEvent and generate

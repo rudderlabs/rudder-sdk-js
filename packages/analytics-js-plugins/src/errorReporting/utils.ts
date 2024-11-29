@@ -8,16 +8,11 @@ import {
   type ErrorState,
   type SDKError,
 } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import { CDN_INT_DIR } from '@rudderstack/analytics-js-common/constants/urls';
 import { clone } from 'ramda';
 import type {
   ErrorEventPayload,
   MetricServicePayload,
 } from '@rudderstack/analytics-js-common/types/Metrics';
-import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
-import { METRICS_PAYLOAD_VERSION } from '@rudderstack/analytics-js-common/constants/metrics';
-import { stringifyData } from '@rudderstack/analytics-js-common/utilities/json';
-import { ERROR_MESSAGES_TO_BE_FILTERED } from '@rudderstack/analytics-js-common/constants/errors';
 import {
   APP_STATE_EXCLUDE_KEYS,
   DEV_HOSTS,
@@ -26,7 +21,13 @@ import {
   NOTIFIER_NAME,
   SOURCE_NAME,
 } from './constants';
-import { json } from '../shared-chunks/common';
+import {
+  CDN_INT_DIR,
+  ERROR_MESSAGES_TO_BE_FILTERED,
+  generateUUID,
+  METRICS_PAYLOAD_VERSION,
+  stringifyWithoutCircular,
+} from '../shared-chunks/common';
 import type { ErrorFormat } from './event/event';
 
 const getConfigForPayloadCreation = (err: SDKError, errorType: string) => {
@@ -67,8 +68,8 @@ const getReleaseStage = () => {
 };
 
 const getAppStateForMetadata = (state: ApplicationState): Record<string, any> => {
-  const stateStr = json.stringifyData(state, true, APP_STATE_EXCLUDE_KEYS);
-  return JSON.parse(stateStr);
+  const stateStr = stringifyWithoutCircular(state, false, APP_STATE_EXCLUDE_KEYS);
+  return stateStr !== null ? JSON.parse(stateStr) : {};
 };
 
 const getURLWithoutQueryString = () => {
@@ -188,7 +189,7 @@ const getErrorDeliveryPayload = (payload: ErrorEventPayload, state: ApplicationS
     },
     errors: payload,
   };
-  return stringifyData<MetricServicePayload>(data) as string;
+  return stringifyWithoutCircular<MetricServicePayload>(data) as string;
 };
 
 export {

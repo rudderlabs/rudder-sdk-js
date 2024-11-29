@@ -2,6 +2,8 @@ import type { IStoreManager } from '../../types/Store';
 
 export type DoneCallback = (error?: any, response?: any) => void;
 
+export type QueueItemType = 'Single' | 'Batch';
+
 export type QueueBackoff = {
   minRetryDelay: number;
   maxRetryDelay: number;
@@ -27,6 +29,7 @@ export type QueueItem<T> = {
   attemptNumber: number;
   time: number;
   id: string;
+  type: QueueItemType;
 };
 
 export type QueueItemData =

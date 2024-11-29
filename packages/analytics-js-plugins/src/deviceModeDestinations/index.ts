@@ -7,13 +7,15 @@ import type {
 import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
-import { destDisplayNamesToFileNamesMap } from '@rudderstack/analytics-js-common/constants/integrations/destDisplayNamesToFileNamesMap';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import { isDestinationSDKMounted, initializeDestination } from './utils';
 import { DEVICE_MODE_DESTINATIONS_PLUGIN, SCRIPT_LOAD_TIMEOUT_MS } from './constants';
 import { DESTINATION_NOT_SUPPORTED_ERROR, DESTINATION_SDK_LOAD_ERROR } from './logMessages';
-import { destinationUtils } from '../shared-chunks/deviceModeDestinations';
+import {
+  destDisplayNamesToFileNamesMap,
+  filterDestinations,
+} from '../shared-chunks/deviceModeDestinations';
 
 const pluginName: PluginName = 'DeviceModeDestinations';
 
@@ -47,7 +49,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
         });
 
       // Filter destinations that are disabled through load or consent API options
-      const destinationsToLoad = destinationUtils.filterDestinations(
+      const destinationsToLoad = filterDestinations(
         state.consents.postConsent.value?.integrations ??
           state.nativeDestinations.loadOnlyIntegrations.value,
         configSupportedDestinations,

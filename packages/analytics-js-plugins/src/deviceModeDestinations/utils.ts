@@ -16,8 +16,6 @@ import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { IdentifyTraits } from '@rudderstack/analytics-js-common/types/traits';
 import type { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { checks, time } from '../shared-chunks/common';
-import { eventMethodOverloads, destinations } from '../shared-chunks/deviceModeDestinations';
 import type { DeviceModeDestinationsAnalyticsInstance } from './types';
 import {
   DEVICE_MODE_DESTINATIONS_PLUGIN,
@@ -29,6 +27,15 @@ import {
   DESTINATION_INTEGRATIONS_DATA_ERROR,
   DESTINATION_READY_TIMEOUT_ERROR,
 } from './logMessages';
+import {
+  aliasArgumentsToCallOptions,
+  groupArgumentsToCallOptions,
+  identifyArgumentsToCallOptions,
+  isHybridModeDestination,
+  pageArgumentsToCallOptions,
+  trackArgumentsToCallOptions,
+} from '../shared-chunks/deviceModeDestinations';
+import { getSanitizedValue, isFunction, wait } from '../shared-chunks/common';
 
 /**
  * Determines if the destination SDK code is evaluated
@@ -66,12 +73,12 @@ const createDestinationInstance = (
       callback?: ApiCallback,
     ) =>
       analytics.page(
-        eventMethodOverloads.pageArgumentsToCallOptions(
-          category,
-          name,
-          properties,
-          options,
-          callback,
+        pageArgumentsToCallOptions(
+          getSanitizedValue(category),
+          getSanitizedValue(name),
+          getSanitizedValue(properties),
+          getSanitizedValue(options),
+          getSanitizedValue(callback),
         ),
       ),
     track: (
@@ -81,7 +88,12 @@ const createDestinationInstance = (
       callback?: ApiCallback,
     ) =>
       analytics.track(
-        eventMethodOverloads.trackArgumentsToCallOptions(event, properties, options, callback),
+        trackArgumentsToCallOptions(
+          getSanitizedValue(event),
+          getSanitizedValue(properties),
+          getSanitizedValue(options),
+          getSanitizedValue(callback),
+        ),
       ),
     identify: (
       userId: string | number | Nullable<IdentifyTraits>,
@@ -90,7 +102,12 @@ const createDestinationInstance = (
       callback?: ApiCallback,
     ) =>
       analytics.identify(
-        eventMethodOverloads.identifyArgumentsToCallOptions(userId, traits, options, callback),
+        identifyArgumentsToCallOptions(
+          getSanitizedValue(userId),
+          getSanitizedValue(traits),
+          getSanitizedValue(options),
+          getSanitizedValue(callback),
+        ),
       ),
     alias: (
       to: string,
@@ -99,7 +116,12 @@ const createDestinationInstance = (
       callback?: ApiCallback,
     ) =>
       analytics.alias(
-        eventMethodOverloads.aliasArgumentsToCallOptions(to, from, options, callback),
+        aliasArgumentsToCallOptions(
+          getSanitizedValue(to),
+          getSanitizedValue(from),
+          getSanitizedValue(options),
+          getSanitizedValue(callback),
+        ),
       ),
     group: (
       groupId: string | number | Nullable<ApiObject>,
@@ -108,9 +130,15 @@ const createDestinationInstance = (
       callback?: ApiCallback,
     ) =>
       analytics.group(
-        eventMethodOverloads.groupArgumentsToCallOptions(groupId, traits, options, callback),
+        groupArgumentsToCallOptions(
+          getSanitizedValue(groupId),
+          getSanitizedValue(traits),
+          getSanitizedValue(options),
+          getSanitizedValue(callback),
+        ),
       ),
-    getAnonymousId: (options?: AnonymousIdOptions) => analytics.getAnonymousId(options),
+    getAnonymousId: (options?: AnonymousIdOptions) =>
+      analytics.getAnonymousId(getSanitizedValue(options)),
     getUserId: () => analytics.getUserId(),
     getUserTraits: () => analytics.getUserTraits(),
     getGroupId: () => analytics.getGroupId(),
@@ -140,7 +168,7 @@ const isDestinationReady = (dest: Destination, delay = 0) =>
       );
     } else {
       const curTime = Date.now();
-      time.wait(READY_CHECK_INTERVAL_MS).then(() => {
+      wait(READY_CHECK_INTERVAL_MS).then(() => {
         const elapsedTime = Date.now() - curTime;
         isDestinationReady(dest, delay + elapsedTime)
           .then(resolve)
@@ -168,7 +196,7 @@ const getCumulativeIntegrationsConfig = (
   // We have reached this point after destination instance is created
   // So, we can safely cast the instance to DeviceModeDestination
   const destInstance = instance as DeviceModeDestination;
-  if (checks.isFunction(destInstance.getDataForIntegrationsObject)) {
+  if (isFunction(destInstance.getDataForIntegrationsObject)) {
     try {
       integrationsConfig = mergeDeepRight(
         curDestIntgConfig,
@@ -203,7 +231,7 @@ const initializeDestination = (
     isDestinationReady(initializedDestination)
       .then(() => {
         // Collect the integrations data for the hybrid mode destinations
-        if (destinations.isHybridModeDestination(initializedDestination)) {
+        if (isHybridModeDestination(initializedDestination)) {
           state.nativeDestinations.integrationsConfig.value = getCumulativeIntegrationsConfig(
             initializedDestination,
             state.nativeDestinations.integrationsConfig.value,

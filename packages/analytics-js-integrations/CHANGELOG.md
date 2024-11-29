@@ -2,6 +2,100 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.11.11](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.11.10...@rudderstack/analytics-js-integrations@3.11.11) (2024-11-22)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.12`
+## [3.11.10](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.11.9...@rudderstack/analytics-js-integrations@3.11.10) (2024-11-22)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.11`
+## [3.11.9](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.11.8...@rudderstack/analytics-js-integrations@3.11.9) (2024-11-22)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.10`
+## [3.11.8](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.11.7...@rudderstack/analytics-js-integrations@3.11.8) (2024-11-22)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.9`
+## [3.11.7](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.11.6...@rudderstack/analytics-js-integrations@3.11.7) (2024-11-22)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.8`
+## [3.11.6](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.11.5...@rudderstack/analytics-js-integrations@3.11.6) (2024-11-21)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.7`
+## [3.11.5](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.11.4...@rudderstack/analytics-js-integrations@3.11.5) (2024-11-21)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.6`
+## [3.11.4](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.11.3...@rudderstack/analytics-js-integrations@3.11.4) (2024-11-21)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.5`
+## [3.11.3](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.11.2...@rudderstack/analytics-js-integrations@3.11.3) (2024-11-21)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.4`
+## [3.11.2](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.11.1...@rudderstack/analytics-js-integrations@3.11.2) (2024-11-21)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.3`
+## [3.11.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.11.0...@rudderstack/analytics-js-integrations@3.11.1) (2024-11-21)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.2`
+
+### Bug Fixes
+
+* age format snapPixel ([#1933](https://github.com/rudderlabs/rudder-sdk-js/issues/1933)) ([c9248cb](https://github.com/rudderlabs/rudder-sdk-js/commit/c9248cb2d33eb9bf1aabe70271e966c81674d3c4))
+
+## [3.11.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.10.6...@rudderstack/analytics-js-integrations@3.11.0) (2024-11-21)
+
+
+### Features
+
+* snap extra parametrs pass ([#1921](https://github.com/rudderlabs/rudder-sdk-js/issues/1921)) ([0998d08](https://github.com/rudderlabs/rudder-sdk-js/commit/0998d081da3cfaaf0e999335384969ab77565230))
+
+
+### Bug Fixes
+
+* adroll bugsnag issue ([#1929](https://github.com/rudderlabs/rudder-sdk-js/issues/1929)) ([18589f2](https://github.com/rudderlabs/rudder-sdk-js/commit/18589f2367038cc8c144d07f7dc38abbf10c5a08))
+* ga4 allow zero ([#1915](https://github.com/rudderlabs/rudder-sdk-js/issues/1915)) ([9ebbab9](https://github.com/rudderlabs/rudder-sdk-js/commit/9ebbab92cfdaf12067138e065d726da312c507a5))
+* googleAds bugsnag issue ([#1930](https://github.com/rudderlabs/rudder-sdk-js/issues/1930)) ([4c8a652](https://github.com/rudderlabs/rudder-sdk-js/commit/4c8a652276882ab3dd982976763bff8c58e5db3d))
+
+## [3.10.6](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.10.5...@rudderstack/analytics-js-integrations@3.10.6) (2024-11-19)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.1`
+## [3.10.5](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.10.4...@rudderstack/analytics-js-integrations@3.10.5) (2024-11-18)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.0`
+## [3.10.4](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.10.3...@rudderstack/analytics-js-integrations@3.10.4) (2024-11-18)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.13.0`
+## [3.10.3](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.10.2...@rudderstack/analytics-js-integrations@3.10.3) (2024-11-12)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.12.1`
 ## [3.10.2](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.10.1...@rudderstack/analytics-js-integrations@3.10.2) (2024-11-08)
 
 ### Dependency Updates

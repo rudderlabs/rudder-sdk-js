@@ -75,6 +75,7 @@ describe('RetryQueue', () => {
           attemptNumber: 0,
           time: expect.any(Number),
           id: expect.any(String),
+          type: 'Single',
         },
       ]);
     });
@@ -95,6 +96,7 @@ describe('RetryQueue', () => {
           attemptNumber: 0,
           time: expect.any(Number),
           id: expect.any(String),
+          type: 'Single',
         },
       ]);
 
@@ -120,6 +122,7 @@ describe('RetryQueue', () => {
           attemptNumber: 0,
           time: expect.any(Number),
           id: expect.any(String),
+          type: 'Batch',
         },
       ]);
     });
@@ -146,6 +149,7 @@ describe('RetryQueue', () => {
           attemptNumber: 0,
           time: expect.any(Number),
           id: expect.any(String),
+          type: 'Batch',
         },
       ]);
     });
@@ -181,6 +185,7 @@ describe('RetryQueue', () => {
           attemptNumber: 0,
           time: expect.any(Number),
           id: expect.any(String),
+          type: 'Batch',
         },
       ]);
 
@@ -190,6 +195,7 @@ describe('RetryQueue', () => {
           attemptNumber: 0,
           time: expect.any(Number),
           id: expect.any(String),
+          type: 'Single',
         },
       ]);
     });
@@ -270,6 +276,7 @@ describe('RetryQueue', () => {
           attemptNumber: 0,
           time: expect.any(Number),
           id: expect.any(String),
+          type: 'Single',
         },
       ]);
 
@@ -308,6 +315,7 @@ describe('RetryQueue', () => {
           attemptNumber: 0,
           time: expect.any(Number),
           id: expect.any(String),
+          type: 'Batch',
         },
       ]);
 
@@ -519,6 +527,7 @@ describe('RetryQueue', () => {
           attemptNumber: 0,
           time: expect.any(Number),
           id: expect.any(String),
+          type: 'Batch',
         },
       ]);
 
@@ -558,6 +567,7 @@ describe('RetryQueue', () => {
           attemptNumber: 0,
           time: expect.any(Number),
           id: expect.any(String),
+          type: 'Single',
         },
       ]);
 
@@ -567,6 +577,7 @@ describe('RetryQueue', () => {
           attemptNumber: 0,
           time: expect.any(Number),
           id: expect.any(String),
+          type: 'Batch',
         },
       ]);
 
@@ -652,6 +663,23 @@ describe('RetryQueue', () => {
           item: 'a',
           time: 0,
           attemptNumber: 0,
+          type: 'Single',
+        },
+        {
+          item: ['b', 'c'],
+          time: 0,
+          attemptNumber: 0,
+          type: 'Batch',
+        },
+        {
+          item: ['d', 'e'],
+          time: 0,
+          attemptNumber: 0,
+        },
+        {
+          item: 'f',
+          time: 0,
+          attemptNumber: 0,
         },
       ]);
 
@@ -663,9 +691,37 @@ describe('RetryQueue', () => {
       // wait long enough for the other queue to expire and be reclaimed
       jest.advanceTimersByTime(DEFAULT_RECLAIM_TIMER_MS + DEFAULT_RECLAIM_WAIT_MS * 2);
 
-      expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
-      expect(queue.processQueueCb).toHaveBeenCalledWith(
+      expect(queue.processQueueCb).toHaveBeenCalledTimes(4);
+      expect(queue.processQueueCb).toHaveBeenNthCalledWith(
+        1,
         'a',
+        expect.any(Function),
+        0,
+        2,
+        true,
+        true,
+      );
+      expect(queue.processQueueCb).toHaveBeenNthCalledWith(
+        2,
+        ['b', 'c'],
+        expect.any(Function),
+        0,
+        2,
+        true,
+        true,
+      );
+      expect(queue.processQueueCb).toHaveBeenNthCalledWith(
+        3,
+        ['d', 'e'],
+        expect.any(Function),
+        0,
+        2,
+        true,
+        true,
+      );
+      expect(queue.processQueueCb).toHaveBeenNthCalledWith(
+        4,
+        'f',
         expect.any(Function),
         0,
         2,
@@ -687,6 +743,23 @@ describe('RetryQueue', () => {
           item: 'a',
           time: 0,
           attemptNumber: 0,
+          type: 'Single',
+        },
+        {
+          item: ['b', 'c'],
+          time: 0,
+          attemptNumber: 0,
+          type: 'Batch',
+        },
+        {
+          item: ['d', 'e'],
+          time: 0,
+          attemptNumber: 0,
+        },
+        {
+          item: 'f',
+          time: 0,
+          attemptNumber: 0,
         },
       ]);
 
@@ -698,9 +771,37 @@ describe('RetryQueue', () => {
       // wait long enough for the other queue to expire and be reclaimed
       jest.advanceTimersByTime(DEFAULT_RECLAIM_TIMER_MS + DEFAULT_RECLAIM_WAIT_MS * 2);
 
-      expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
-      expect(queue.processQueueCb).toHaveBeenCalledWith(
+      expect(queue.processQueueCb).toHaveBeenCalledTimes(4);
+      expect(queue.processQueueCb).toHaveBeenNthCalledWith(
+        1,
         'a',
+        expect.any(Function),
+        1,
+        2,
+        true,
+        true,
+      );
+      expect(queue.processQueueCb).toHaveBeenNthCalledWith(
+        2,
+        ['b', 'c'],
+        expect.any(Function),
+        1,
+        2,
+        true,
+        true,
+      );
+      expect(queue.processQueueCb).toHaveBeenNthCalledWith(
+        3,
+        ['d', 'e'],
+        expect.any(Function),
+        1,
+        2,
+        true,
+        true,
+      );
+      expect(queue.processQueueCb).toHaveBeenNthCalledWith(
+        4,
+        'f',
         expect.any(Function),
         1,
         2,
@@ -943,6 +1044,7 @@ describe('RetryQueue', () => {
           item: 'a',
           time: 0,
           attemptNumber: 0,
+          type: 'Single',
         },
       ]);
 
@@ -985,6 +1087,7 @@ describe('RetryQueue', () => {
           item: 'a',
           time: 0,
           attemptNumber: 0,
+          type: 'Single',
         },
         {
           item: 'b',
@@ -1025,6 +1128,7 @@ describe('RetryQueue', () => {
           item: 'a',
           time: 0,
           attemptNumber: 0,
+          type: 'Single',
         },
         {
           item: 'b',
@@ -1075,18 +1179,21 @@ describe('RetryQueue', () => {
           time: 0,
           attemptNumber: 0,
           id: '123',
+          type: 'Single',
         },
         {
           item: 'b',
           time: 0,
           attemptNumber: 0,
           id: '123',
+          type: 'Single',
         },
         {
           item: 'c',
           time: 0,
           attemptNumber: 0,
           id: '1234',
+          type: 'Single',
         },
       ]);
       foundQueue.set('inProgress', [
@@ -1095,18 +1202,21 @@ describe('RetryQueue', () => {
           item: 'd',
           time: 0,
           attemptNumber: 0,
+          type: 'Single',
         },
         {
           id: '123',
           item: 'e',
           time: 0,
           attemptNumber: 0,
+          type: 'Single',
         },
         {
           id: '123',
           item: 'f',
           time: 0,
           attemptNumber: 0,
+          type: 'Single',
         },
       ]);
       foundQueue.set('batchQueue', [
@@ -1115,18 +1225,21 @@ describe('RetryQueue', () => {
           time: 0,
           attemptNumber: 0,
           id: '123',
+          type: 'Single',
         },
         {
           item: 'h',
           time: 0,
           attemptNumber: 0,
           id: '123',
+          type: 'Single',
         },
         {
           item: 'i',
           time: 0,
           attemptNumber: 0,
           id: '123456',
+          type: 'Single',
         },
       ]);
 
@@ -1190,16 +1303,19 @@ describe('RetryQueue', () => {
           item: 'a',
           time: 0,
           attemptNumber: 0,
+          type: 'Single',
         },
         {
           item: 'a',
           time: 0,
           attemptNumber: 0,
+          type: 'Single',
         },
         {
           item: 'a',
           time: 0,
           attemptNumber: 0,
+          type: 'Single',
         },
       ]);
       foundQueue.set('inProgress', [
@@ -1207,16 +1323,19 @@ describe('RetryQueue', () => {
           item: 'a',
           time: 0,
           attemptNumber: 0,
+          type: 'Single',
         },
         {
           item: 'a',
           time: 0,
           attemptNumber: 0,
+          type: 'Single',
         },
         {
           item: 'a',
           time: 0,
           attemptNumber: 0,
+          type: 'Single',
         },
       ]);
       foundQueue.set('batchQueue', [
@@ -1224,16 +1343,19 @@ describe('RetryQueue', () => {
           item: 'a',
           time: 0,
           attemptNumber: 0,
+          type: 'Single',
         },
         {
           item: 'a',
           time: 0,
           attemptNumber: 0,
+          type: 'Single',
         },
         {
           item: 'a',
           time: 0,
           attemptNumber: 0,
+          type: 'Single',
         },
       ]);
 
@@ -1345,6 +1467,7 @@ describe('RetryQueue', () => {
           item: 'a',
           time: 0,
           attemptNumber: 0,
+          type: 'Single',
         },
       ]);
       foundQueue.set('inProgress', [
@@ -1352,6 +1475,7 @@ describe('RetryQueue', () => {
           item: 'b',
           time: 1,
           attemptNumber: 0,
+          type: 'Single',
         },
       ]);
       foundQueue.set('batchQueue', [
@@ -1359,6 +1483,7 @@ describe('RetryQueue', () => {
           item: 'c',
           time: 1,
           attemptNumber: 0,
+          type: 'Single',
         },
       ]);
 
@@ -1423,6 +1548,7 @@ describe('RetryQueue', () => {
           item: 'a',
           time: 0,
           attemptNumber: 0,
+          type: 'Single',
         },
       ]);
 
@@ -1466,6 +1592,7 @@ describe('RetryQueue', () => {
           item: 'b',
           time: 0,
           attemptNumber: 0,
+          type: 'Single',
         },
       ]);
 
@@ -1513,18 +1640,21 @@ describe('RetryQueue', () => {
           attemptNumber: 0,
           time: expect.any(Number),
           id: expect.any(String),
+          type: 'Single',
         },
         {
           item: 'b',
           attemptNumber: 0,
           time: expect.any(Number),
           id: expect.any(String),
+          type: 'Single',
         },
         {
           item: 'c',
           attemptNumber: 0,
           time: expect.any(Number),
           id: expect.any(String),
+          type: 'Single',
         },
       ]);
 

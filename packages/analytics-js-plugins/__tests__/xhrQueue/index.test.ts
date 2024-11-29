@@ -217,6 +217,7 @@ describe.skip('XhrQueue', () => {
         attemptNumber: 1,
         id: 'sample_uuid',
         time: 1 + 1000 * 2 ** 1, // this is the delay calculation in RetryQueue
+        type: 'Single',
       },
     ]);
   });
