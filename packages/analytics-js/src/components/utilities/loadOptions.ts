@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/deprecation */
 import { clone } from 'ramda';
 import {
   isNonEmptyObject,
@@ -102,9 +103,9 @@ const normalizeLoadOptions = (
     normalizedLoadOpts.queueOptions = removeUndefinedAndNullValues(normalizedLoadOpts.queueOptions);
   }
 
-  normalizedLoadOpts.lockIntegrationsVersion = normalizedLoadOpts.lockIntegrationsVersion === true;
+  normalizedLoadOpts.lockIntegrationsVersion = normalizedLoadOpts.lockIntegrationsVersion !== false;
 
-  normalizedLoadOpts.lockPluginsVersion = normalizedLoadOpts.lockPluginsVersion === true;
+  normalizedLoadOpts.lockPluginsVersion = normalizedLoadOpts.lockPluginsVersion !== false;
 
   if (!isNumber(normalizedLoadOpts.dataPlaneEventsBufferTimeout)) {
     delete normalizedLoadOpts.dataPlaneEventsBufferTimeout;
