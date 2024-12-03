@@ -153,11 +153,11 @@ jobs:
 
           # Upload all the files to S3
           aws s3 cp $core_sdk_path_prefix/legacy/iife/ $s3_path_prefix/legacy/ $copy_args
-          aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/legacy/js-integrations/ $copy_args
+          # aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/legacy/js-integrations/ $copy_args
 
-          aws s3 cp $core_sdk_path_prefix/modern/iife/ $s3_path_prefix/modern/ $copy_args
-          aws s3 cp $plugins_path_prefix/modern/plugins/ $s3_path_prefix/modern/plugins/ $copy_args
-          aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
+          # aws s3 cp $core_sdk_path_prefix/modern/iife/ $s3_path_prefix/modern/ $copy_args
+          # aws s3 cp $plugins_path_prefix/modern/plugins/ $s3_path_prefix/modern/plugins/ $copy_args
+          # aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
 
           # Generate the HTML file to list all the integrations
           ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} ${{ inputs.s3_dir_path }}/legacy/js-integrations $integration_sdks_html_file $integration_sdks_path_prefix/legacy/js-integrations "Device Mode Integrations" $integration_sdks_zip_file
