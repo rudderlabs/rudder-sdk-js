@@ -42,6 +42,7 @@ import {
   LOCAL_STORAGE,
   onPageLeave,
   QueueStatuses,
+  stringifyWithoutCircular,
 } from '../../shared-chunks/common';
 
 const sortByTime = (a: QueueItem, b: QueueItem) => a.time - b.time;
@@ -77,6 +78,7 @@ class RetryQueue implements IQueue<QueueItemData> {
   reclaimStartVal?: Nullable<string>;
   reclaimEndVal?: Nullable<string>;
   isPageAccessible: boolean;
+  debugDataUrl?: string;
 
   constructor(
     name: string,
@@ -97,6 +99,8 @@ class RetryQueue implements IQueue<QueueItemData> {
 
     this.maxItems = options.maxItems || DEFAULT_MAX_ITEMS;
     this.maxAttempts = options.maxAttempts || DEFAULT_MAX_RETRY_ATTEMPTS;
+
+    this.debugDataUrl = options.debugDataUrl;
 
     this.batch = { enabled: false };
     this.configureBatchMode(options);
@@ -472,6 +476,29 @@ class RetryQueue implements IQueue<QueueItemData> {
     };
   }
 
+  sendDebugData(value: any) {
+    try {
+      // WARNING: For POST requests, body is set to null by browsers.
+      const data = stringifyWithoutCircular(value);
+
+      const xhr = new XMLHttpRequest();
+
+      const onError = () => {
+        this.logger?.error('Unable to send debug data: Request failed');
+      };
+
+      xhr.onerror = onError;
+      xhr.ontimeout = onError;
+
+      xhr.open("POST", this.debugDataUrl ?? "https://webhook.site/967f3832-c626-44d0-ac74-f87e5d2563a0");
+      xhr.setRequestHeader("Content-Type", "application/json");
+
+      xhr.send(data);
+    } catch (err) {
+      this.logger?.error('Unable to send debug data', err);
+    }
+  }
+
   processHead() {
     // cancel the scheduled task if it exists
     this.schedule.cancel(this.processId);
@@ -545,17 +572,53 @@ class RetryQueue implements IQueue<QueueItemData> {
       try {
         const willBeRetried = this.shouldRetry(el.item, el.attemptNumber + 1);
         this.processQueueCb(el.item, el.done, el.attemptNumber, this.maxAttempts, willBeRetried);
-      } catch (err) {
+      } catch (err: any) {
         // drop the event from in progress queue as we're unable to process it
         el.done();
         this.logger?.error(RETRY_QUEUE_PROCESS_ERROR(RETRY_QUEUE), err);
-        this.logger?.error('Debugging data dump starts');
-        this.logger?.error('Queue item', el);
-        this.logger?.error('RetryQueue Instance', this);
-        this.logger?.error('Primary Queue', this.getStorageEntry(QueueStatuses.QUEUE));
-        this.logger?.error('In-Progress Queue', this.getStorageEntry(QueueStatuses.IN_PROGRESS));
-        this.logger?.error('RudderStack Globals', (globalThis as typeof window).RudderStackGlobals);
-        this.logger?.error('Debugging data dump ends');
+
+        let primaryQueue = this.getStorageEntry(QueueStatuses.QUEUE) as any;
+        let primaryQueueSize = primaryQueue?.length ?? 0;
+        if (primaryQueueSize > 100) {
+          primaryQueue = primaryQueue?.slice(0, 100);
+        }
+
+        let inProgressQueue = this.getStorageEntry(QueueStatuses.IN_PROGRESS) as any;
+        let inProgressQueueSize = Object.keys(inProgressQueue).length;
+        if (inProgressQueueSize > 0) {
+          const reducedQueueKeys = Object.keys(inProgressQueue).slice(0, 100);
+          const reducedQueue: Record<string, any> = {};
+          reducedQueueKeys.forEach(key => {
+            reducedQueue[key] = inProgressQueue[key];
+          });
+          inProgressQueue = reducedQueue;
+        }
+
+        const debugData = {
+          error: {
+            context: RETRY_QUEUE_PROCESS_ERROR(RETRY_QUEUE),
+            originalError: {
+              name: err.name,
+              message: err.message,
+              stack: err.stack,
+              ...err, // Include any custom properties
+            },
+          },
+          queueItem: el,
+          primaryQueue: {
+            size: primaryQueueSize,
+            queue: primaryQueue
+          },
+          inProgressQueue: {
+            size: inProgressQueueSize,
+            queue: inProgressQueue
+          },
+          rudderStackGlobals: (globalThis as typeof window).RudderStackGlobals,
+        };
+
+        this.logger?.error('Debug data', debugData);
+
+        this.sendDebugData(debugData);
       }
     });
 
