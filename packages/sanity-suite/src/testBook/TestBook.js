@@ -319,10 +319,6 @@ class TestBook {
         const statusElement = document.getElementById(`test-case-status-${testCaseId}`);
         statusElement.textContent = assertionResult;
         statusElement.className = `badge badge-${assertionResult} testCaseStatus`;
-        statusElement.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center',
-        });
 
         const viewDiffElement = document.getElementById(`view-diff-${testCaseId}`);
         if (assertionResult === 'success') {
@@ -360,16 +356,6 @@ class TestBook {
     const resultStatusElement = document.getElementById('resultStatus');
     resultStatusElement.innerHTML = finalStatus;
     resultStatusElement.className = `badge badge-${finalStatus}`;
-
-    // We need to use a timeout to ensure the scrollIntoView is called after the
-    // last test case result scrolling has been completed
-    // Otherwise the scrollIntoView will not work as expected
-    setTimeout(() => {
-      resultStatusElement.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      });
-    }, 1000);
   }
 
   executeNextTestCase() {
