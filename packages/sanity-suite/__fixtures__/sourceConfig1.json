@@ -358,7 +358,7 @@
               "piiProperty": ""
             }
           ],
-          "overrideClientAndSessionId": true,
+          "overrideClientAndSessionId": false,
           "oneTrustCookieCategories": [
             {
               "oneTrustCookieCategory": ""

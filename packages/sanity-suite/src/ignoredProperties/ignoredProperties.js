@@ -150,10 +150,12 @@ const ignoredProperties = [
   {
     key: `message.integrations.Google Analytics 4 (GA4).sessionId`,
     type: 'number',
+    optional: true,
   },
   {
     key: `message.integrations.Google Analytics 4 (GA4).clientId`,
     type: 'string',
+    optional: true,
   },
   {
     key: `message.integrations.Google Analytics 4 (GA4).sessionNumber`,
