@@ -54,7 +54,6 @@
     "bump-version:monorepo": "npm version minor --git-tag-version false",
     "release": "nx affected --base=origin/main --target=version --parallel=1 --skipCommitTypes=docs,ci,chore,test --baseBranch=$BASE_BRANCH",
     "release:nx": "nx release --skip-publish --verbose --dry-run",
-    "view:nx:logs": "nx view-logs",
     "release:github": "nx affected --target=github --parallel=1 --skipCommitTypes=docs,ci,chore,test",
     "deploy:npm": "nx affected --target=deploy --parallel=1 --skipCommitTypes=docs,ci,chore,test"
   },
