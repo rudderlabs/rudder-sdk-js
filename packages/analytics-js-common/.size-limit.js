@@ -6,6 +6,6 @@ module.exports = [
   {
     name: 'Common - No bundling',
     path: 'dist/npm/**/*.js',
-    limit: '17.2 KiB',
+    limit: '18.3 KiB',
   },
 ];

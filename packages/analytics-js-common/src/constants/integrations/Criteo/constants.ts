@@ -1,6 +1,6 @@
+import { CRITEO_NAME as NAME, CRITEO_DISPLAY_NAME as DISPLAY_NAME } from '../../Destinations';
+
 const DIR_NAME = 'Criteo';
-const NAME = 'CRITEO';
-const DISPLAY_NAME = 'Criteo';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 
@@ -18,11 +18,6 @@ const supportedEvents = [
   'product added',
 ];
 
-export {
-  NAME,
-  CNameMapping,
-  supportedEvents,
-  DISPLAY_NAME_TO_DIR_NAME_MAP,
-  DISPLAY_NAME,
-  DIR_NAME,
-};
+export { CNameMapping, supportedEvents, DISPLAY_NAME_TO_DIR_NAME_MAP, DIR_NAME };
+
+export { CRITEO_NAME as NAME, CRITEO_DISPLAY_NAME as DISPLAY_NAME } from '../../Destinations';

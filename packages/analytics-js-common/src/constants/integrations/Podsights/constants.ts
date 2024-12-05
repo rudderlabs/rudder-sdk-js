@@ -1,6 +1,6 @@
+import { PODSIGHTS_NAME as NAME, PODSIGHTS_DISPLAY_NAME as DISPLAY_NAME } from '../../Destinations';
+
 const DIR_NAME = 'Podsights';
-const NAME = 'PODSIGHTS';
-const DISPLAY_NAME = 'Podsights';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
@@ -14,11 +14,6 @@ const CNameMapping = {
   'Pod sights': NAME,
 };
 
+export { CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DIR_NAME };
 
-export {
-  NAME,
-  CNameMapping,
-  DISPLAY_NAME_TO_DIR_NAME_MAP,
-  DISPLAY_NAME,
-  DIR_NAME,
-};
+export { PODSIGHTS_NAME as NAME, PODSIGHTS_DISPLAY_NAME as DISPLAY_NAME } from '../../Destinations';

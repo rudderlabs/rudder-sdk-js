@@ -1,6 +1,9 @@
+import {
+  POST_AFFILIATE_PRO_NAME as NAME,
+  POST_AFFILIATE_PRO_DISPLAY_NAME as DISPLAY_NAME,
+} from '../../Destinations';
+
 const DIR_NAME = 'PostAffiliatePro';
-const NAME = 'POST_AFFILIATE_PRO';
-const DISPLAY_NAME = 'Post Affiliate Pro';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
@@ -14,4 +17,9 @@ const CNameMapping = {
   POSTAFFILIATEPRO: NAME,
 };
 
-export { NAME, CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DISPLAY_NAME, DIR_NAME };
+export { CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DIR_NAME };
+
+export {
+  POST_AFFILIATE_PRO_NAME as NAME,
+  POST_AFFILIATE_PRO_DISPLAY_NAME as DISPLAY_NAME,
+} from '../../Destinations';

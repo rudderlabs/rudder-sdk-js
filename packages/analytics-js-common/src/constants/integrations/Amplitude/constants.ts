@@ -1,6 +1,6 @@
+import { AM_NAME as NAME, AM_DISPLAY_NAME as DISPLAY_NAME } from '../../Destinations';
+
 const DIR_NAME = 'Amplitude';
-const NAME = 'AM';
-const DISPLAY_NAME = 'Amplitude';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
@@ -10,4 +10,6 @@ const CNameMapping = {
   am: NAME,
 };
 
-export { NAME, CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DISPLAY_NAME, DIR_NAME };
+export { CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DIR_NAME };
+
+export { AM_NAME as NAME, AM_DISPLAY_NAME as DISPLAY_NAME } from '../../Destinations';

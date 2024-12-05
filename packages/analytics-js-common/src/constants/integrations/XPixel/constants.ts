@@ -1,6 +1,6 @@
+import { XPIXEL_NAME as NAME, XPIXEL_DISPLAY_NAME as DISPLAY_NAME } from '../../Destinations';
+
 const DIR_NAME = 'XPixel';
-const NAME = 'XPIXEL';
-const DISPLAY_NAME = 'XPixel';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
@@ -50,11 +50,6 @@ const trackPropertyMapping = [
   },
 ];
 
-export {
-  NAME,
-  CNameMapping,
-  DISPLAY_NAME_TO_DIR_NAME_MAP,
-  DISPLAY_NAME,
-  DIR_NAME,
-  trackPropertyMapping,
-};
+export { CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DIR_NAME, trackPropertyMapping };
+
+export { XPIXEL_NAME as NAME, XPIXEL_DISPLAY_NAME as DISPLAY_NAME } from '../../Destinations';
