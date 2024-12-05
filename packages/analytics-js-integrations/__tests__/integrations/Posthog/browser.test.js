@@ -18,7 +18,20 @@ jest.mock('../../../src/utils/logger', () => {
 afterAll(() => {
   jest.restoreAllMocks();
 });
+
+let config = {
+  teamApiKey: 'YOUR_TEAM_API_KEY',
+  yourInstance: 'https://app.posthog.com',
+  autocapture: true,
+  capturePageView: true,
+  disableSessionRecording: false,
+  disableCookie: false,
+  propertyBlackList: ['name'],
+  personProfiles: 'always',
+};
+
 let posthogInstance;
+
 beforeEach(() => {
   // Reset the logger method mocks
   errMock = jest.fn();
@@ -41,17 +54,6 @@ beforeEach(() => {
 const destinationInfo = {
   areTransformationsConnected: false,
   destinationId: 'sample-destination-id',
-};
-
-const config = {
-  teamApiKey: 'YOUR_TEAM_API_KEY',
-  yourInstance: 'https://app.posthog.com',
-  autocapture: true,
-  capturePageView: true,
-  disableSessionRecording: false,
-  disableCookie: false,
-  propertyBlackList: ['name'],
-  personProfiles: 'always'
 };
 
 const analytics = {
@@ -92,6 +94,67 @@ describe('Posthog Test', () => {
       const isLoaded = posthogInstance.isLoaded();
 
       expect(isLoaded).toBe(true);
+    });
+
+    it('should include featureFlags in bootstrap when featureFlags is non-empty', () => {
+      const testConfig = {
+        ...config,
+        flags: [
+          { flag: 'flag-1', value: 'true' },
+          { flag: 'flag-2', value: 'false' },
+          { flag: 'flag-3', value: 'abcd' },
+        ],
+      };
+      posthogInstance = new Posthog(testConfig, analytics, destinationInfo);
+      posthogInstance.init();
+      expect(posthogInstance.name).toBe('POSTHOG');
+      expect(posthogInstance.analytics).toBe(analytics);
+      expect(window.posthog._i[0][1].bootstrap).toStrictEqual({
+        featureFlags: { 'flag-1': true, 'flag-2': false, 'flag-3': 'abcd' },
+      });
+    });
+
+    it('should not include featureFlags in bootstrap when featureFlags is empty', () => {
+      const testConfig = {
+        ...config,
+        flags: [],
+      };
+
+      posthogInstance = new Posthog(testConfig, analytics, destinationInfo);
+      posthogInstance.init();
+
+      expect(posthogInstance.name).toBe('POSTHOG');
+      expect(posthogInstance.analytics).toBe(analytics);
+
+      // Validate no featureFlags are included
+      expect(window.posthog._i[0][1].bootstrap).toStrictEqual(undefined);
+    });
+
+    it('should exclude invalid featureFlags values', () => {
+      const testConfig = {
+        ...config,
+        flags: [
+          { flag: 'flag-1', value: 'true' },
+          { flag: 'flag-2', value: undefined },
+          { flag: 'flag-3' },
+          { value: 'val' },
+          { flag: 'flag-5', value: 'control' },
+        ],
+      };
+
+      posthogInstance = new Posthog(testConfig, analytics, destinationInfo);
+      posthogInstance.init();
+
+      expect(posthogInstance.name).toBe('POSTHOG');
+      expect(posthogInstance.analytics).toBe(analytics);
+
+      // Validate only valid flags are included
+      expect(window.posthog._i[0][1].bootstrap).toStrictEqual({
+        featureFlags: {
+          'flag-1': true,
+          'flag-5': 'control',
+        },
+      });
     });
   });
   describe('processSuperProperties', () => {
