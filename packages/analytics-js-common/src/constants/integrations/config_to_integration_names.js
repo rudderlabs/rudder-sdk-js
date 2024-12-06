@@ -12,7 +12,6 @@ const configToIntNames = {
   KISSMETRICS: 'Kissmetrics',
   CUSTOMERIO: 'CustomerIO',
   CHARTBEAT: 'Chartbeat',
-  COMSCORE: 'Comscore',
   FACEBOOK_PIXEL: 'FacebookPixel',
   LOTAME: 'Lotame',
   OPTIMIZELY: 'Optimizely',

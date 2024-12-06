@@ -1,6 +1,6 @@
+import { POSTHOG_NAME as NAME, POSTHOG_DISPLAY_NAME as DISPLAY_NAME } from '../Destinations';
+
 const DIR_NAME = 'Posthog';
-const NAME = 'POSTHOG';
-const DISPLAY_NAME = 'PostHog';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {

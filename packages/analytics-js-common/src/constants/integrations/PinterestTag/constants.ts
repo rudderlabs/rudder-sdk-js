@@ -1,6 +1,9 @@
+import {
+  PINTEREST_TAG_NAME as NAME,
+  PINTEREST_TAG_DISPLAY_NAME as DISPLAY_NAME,
+} from '../Destinations';
+
 const DIR_NAME = 'PinterestTag';
-const NAME = 'PINTEREST_TAG';
-const DISPLAY_NAME = 'Pinterest Tag';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {

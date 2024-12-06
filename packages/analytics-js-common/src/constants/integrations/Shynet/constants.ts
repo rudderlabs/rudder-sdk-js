@@ -1,6 +1,6 @@
+import { SHYNET_NAME as NAME, SHYNET_DISPLAY_NAME as DISPLAY_NAME } from '../Destinations';
+
 const DIR_NAME = 'Shynet';
-const NAME = 'SHYNET';
-const DISPLAY_NAME = 'Shynet';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {

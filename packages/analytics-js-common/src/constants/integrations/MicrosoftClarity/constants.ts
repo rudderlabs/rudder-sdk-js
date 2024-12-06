@@ -1,6 +1,9 @@
+import {
+  MICROSOFT_CLARITY_NAME as NAME,
+  MICROSOFT_CLARITY_DISPLAY_NAME as DISPLAY_NAME,
+} from '../Destinations';
+
 const DIR_NAME = 'MicrosoftClarity';
-const NAME = 'MICROSOFT_CLARITY';
-const DISPLAY_NAME = 'Microsoft Clarity';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {

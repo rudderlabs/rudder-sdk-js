@@ -1,6 +1,6 @@
+import { TIKTOK_ADS_NAME as NAME, TIKTOK_ADS_DISPLAY_NAME as DISPLAY_NAME } from '../Destinations';
+
 const DIR_NAME = 'TiktokAds';
-const NAME = 'TIKTOK_ADS';
-const DISPLAY_NAME = 'TikTok Ads';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {

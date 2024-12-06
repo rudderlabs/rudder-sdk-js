@@ -6,7 +6,6 @@ const clientToServerNames = {
   GOOGLEADS: 'Google Ads',
   BRAZE: 'Braze',
   CHARTBEAT: 'Chartbeat',
-  COMSCORE: 'Comscore',
   CUSTOMERIO: 'Customer IO',
   DCM_Floodlight: 'DCM Floodlight',
   FACEBOOK_PIXEL: 'Facebook Pixel',

@@ -1,6 +1,6 @@
+import { ENGAGE_NAME as NAME, ENGAGE_DISPLAY_NAME as DISPLAY_NAME } from '../Destinations';
+
 const DIR_NAME = 'Engage';
-const NAME = 'ENGAGE';
-const DISPLAY_NAME = 'Engage';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {

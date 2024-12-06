@@ -55,6 +55,7 @@
     "release": "nx affected --base=origin/main --target=version --parallel=1 --skipCommitTypes=docs,ci,chore,test --baseBranch=$BASE_BRANCH",
     "release:nx": "nx release --skip-publish --verbose --dry-run",
     "release:github": "nx affected --target=github --parallel=1 --skipCommitTypes=docs,ci,chore,test",
+    "reset:nx": "nx reset",
     "deploy:npm": "nx affected --target=deploy --parallel=1 --skipCommitTypes=docs,ci,chore,test"
   },
   "author": "RudderStack",

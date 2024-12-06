@@ -1,6 +1,6 @@
+import { CLEVERTAP_NAME as NAME, CLEVERTAP_DISPLAY_NAME as DISPLAY_NAME } from '../Destinations';
+
 const DIR_NAME = 'Clevertap';
-const NAME = 'CLEVERTAP';
-const DISPLAY_NAME = 'CleverTap';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
