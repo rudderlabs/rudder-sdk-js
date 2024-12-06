@@ -1,6 +1,6 @@
+import { MATOMO_NAME as NAME, MATOMO_DISPLAY_NAME as DISPLAY_NAME } from '../Destinations';
+
 const DIR_NAME = 'Matomo';
-const NAME = 'MATOMO';
-const DISPLAY_NAME = 'Matomo';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {

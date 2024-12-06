@@ -1,23 +1,24 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { readFileSync, writeFileSync, readdirSync, statSync } from 'fs';
-import { join } from 'path';
+const { readdirSync, readFileSync, writeFileSync, statSync } = require('fs');
+const { join } = require('path');
 
 // Paths
-const destinationsPath = join(
-  __dirname,
-  '../packages/analytics-js-common/src/constants/Destinations.ts',
-);
 const integrationsDir = join(
   __dirname,
   '../packages/analytics-js-common/src/constants/integrations',
 );
+
+const destinationsPath = join(integrationsDir, 'Destinations.ts');
+
+// Error collection
+const errors = [];
 
 // Step 1: Parse Destinations.ts
 const destinationsContent = readFileSync(destinationsPath, 'utf-8');
 
 const DESTINATIONS = {};
 const regex = /export const (\w+)_NAME = '(\w+)';\nexport const \1_DISPLAY_NAME = '(.*?)';/g;
-const allMatches = destinationsContent.matchAll(regex);
+const allMatches = [...destinationsContent.matchAll(regex)];
 allMatches.forEach(match => {
   const [, key, name, displayName] = match;
   DESTINATIONS[name] = { name, displayName, key };
@@ -27,6 +28,7 @@ allMatches.forEach(match => {
 // Step 2: Find all constants.ts files in constants/integrations
 function findConstantsFiles(dir) {
   const files = [];
+
   readdirSync(dir).forEach(file => {
     const fullPath = join(dir, file);
     if (statSync(fullPath).isDirectory()) {
@@ -36,23 +38,6 @@ function findConstantsFiles(dir) {
     }
   });
   return files;
-}
-
-function replaceExports(exports) {
-  return exports.replace(
-    // eslint-disable-next-line sonarjs/slow-regex
-    /export {\s*([\S\s]*?)\s*};/,
-    (match, exports) => {
-      const updatedExportList = exports
-        .split(',')
-        .map(e => e.trim())
-        .filter(e => e !== 'NAME' && e !== 'DISPLAY_NAME')
-        .filter(Boolean) // Removes any empty strings from the list
-        .join(', ');
-
-      return `export { ${updatedExportList} };`;
-    },
-  );
 }
 
 const integrationFiles = findConstantsFiles(integrationsDir);
@@ -71,25 +56,29 @@ integrationFiles.forEach(filePath => {
 
   const destination = DESTINATIONS[name] || DESTINATIONS[displayName];
   if (!destination) {
-    console.log(`No match found for ${filePath}`);
+    errors.push(`No match found for ${filePath}`);
     return;
   }
 
   // Generate import lines
-  const nameImports = `import { ${destination.key}_NAME as NAME, ${destination.key}_DISPLAY_NAME as DISPLAY_NAME } from '../../Destinations';\n`;
-  const nameExports = `export { ${destination.key}_NAME as NAME, ${destination.key}_DISPLAY_NAME as DISPLAY_NAME } from '../../Destinations';\n`;
+  const nameImports = `import { ${destination.key}_NAME as NAME, ${destination.key}_DISPLAY_NAME as DISPLAY_NAME } from '../Destinations';\n`;
 
   // Remove existing NAME and DISPLAY_NAME declarations
   const withoutNameAndDisplayName = content
     .replace(/const NAME = '.*?';\n/, '')
     .replace(/const DISPLAY_NAME = '.*?';\n/, '');
 
-  // Update export statement to exclude NAME and DISPLAY_NAME
-  const updatedExports = replaceExports(withoutNameAndDisplayName);
-
   // Ensure imports are at the top of the file
-  const updatedContent = `${nameImports}\n${updatedExports}\n${nameExports}\n`;
+  const updatedContent = `${nameImports}\n${withoutNameAndDisplayName}`;
 
   writeFileSync(filePath, updatedContent, 'utf-8');
   console.log(`Updated ${filePath}`);
 });
+
+// Step 4: Log errors after processing all files
+if (errors.length > 0) {
+  console.error('\nErrors encountered:');
+  errors.forEach(error => console.error(`- ${error}`));
+} else {
+  console.log('\nNo errors encountered.');
+}
