@@ -102,6 +102,7 @@ jobs:
           REMOTE_MODULES_BASE_PATH: 'https://cdn.rudderlabs.com/${{ inputs.s3_dir_path }}/modern/plugins'
           BUGSNAG_API_KEY: ${{ secrets.BUGSNAG_API_KEY }}
           BUGSNAG_RELEASE_STAGE: ${{ inputs.bugsnag_release_stage }}
+          LOCK_DEPS_VERSION: ${{ inputs.environment == 'production' && true || false }}
         run: |
           npm run setup:ci
 
@@ -109,6 +110,7 @@ jobs:
         env:
           BUGSNAG_API_KEY: ${{ secrets.BUGSNAG_API_KEY }}
           BUGSNAG_RELEASE_STAGE: ${{ inputs.bugsnag_release_stage }}
+          LOCK_DEPS_VERSION: ${{ inputs.environment == 'production' && true || false }}
         run: |
           npm run build:browser
           npm run build:browser:modern
