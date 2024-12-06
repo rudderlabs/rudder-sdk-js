@@ -103,9 +103,9 @@ const normalizeLoadOptions = (
     normalizedLoadOpts.queueOptions = removeUndefinedAndNullValues(normalizedLoadOpts.queueOptions);
   }
 
-  normalizedLoadOpts.lockIntegrationsVersion = normalizedLoadOpts.lockIntegrationsVersion !== false;
+  normalizedLoadOpts.lockIntegrationsVersion = normalizedLoadOpts.lockIntegrationsVersion === true;
 
-  normalizedLoadOpts.lockPluginsVersion = normalizedLoadOpts.lockPluginsVersion !== false;
+  normalizedLoadOpts.lockPluginsVersion = normalizedLoadOpts.lockPluginsVersion === true;
 
   if (!isNumber(normalizedLoadOpts.dataPlaneEventsBufferTimeout)) {
     delete normalizedLoadOpts.dataPlaneEventsBufferTimeout;

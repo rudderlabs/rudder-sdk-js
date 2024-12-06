@@ -70,21 +70,14 @@ describe('Config Manager Common Utilities', () => {
         ['https://www.dummy.url/fromScript/v3/rsa.min.js'],
       ],
       [undefined, ['https://www.dummy.url/fromScript/v3/other.min.js']],
-      [
-        'https://www.dummy.url/fromScript/v3/rsa.js',
-        ['https://www.dummy.url/fromScript/v3/rsa.js'],
-      ],
+      [undefined, ['https://www.dummy.url/fromScript/v3/rsa.js']],
       [undefined, ['https://www.dummy.url/fromScript/v3/rudder.min.js']],
       [undefined, ['https://www.dummy.url/fromScript/v3/analytics.min.js']],
       [undefined, ['https://www.dummy.url/fromScript/v3/rsa.min']],
-      [
-        'https://www.dummy.url/fromScript/v3/rsa.js',
-        ['https://www.dummy.url/fromScript/v3/rsa.js'],
-      ],
       [undefined, ['https://www.dummy.url/fromScript/v3/rsa']],
       [undefined, ['https://www.dummy.url/fromScript/v3rsa.min.js']],
       ['/rsa.min.js', ['/rsa.min.js']],
-      ['/rsa.js', ['/rsa.js']],
+      [undefined, ['/rsa.js']],
       [undefined, ['https://www.dummy.url/fromScript/v3/rs.min.js']],
       [
         'https://www.dummy.url/fromScript/v3/rs.min.js',
@@ -93,7 +86,7 @@ describe('Config Manager Common Utilities', () => {
       [undefined, ['https://www.dummy.url/fromScript/v3/rs.min.js', 'writeKey-1']],
       [undefined, ['https://www.dummy.url/fromScript/v3/rsamin.js']],
       ['rsa.min.js', ['rsa.min.js']],
-      ['rsa.js', ['rsa.js']],
+      [undefined, ['rsa.js']],
       [undefined, ['https://www.dummy.url/fromScript/v3/rsa.min.jsx']],
       [undefined, [null]],
     ];

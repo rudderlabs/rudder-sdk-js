@@ -32,8 +32,11 @@ const isModuleFederatedBuild = !isDynamicCustomBuild && !isLegacyBuild;
 const sourceMapType =
   process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
 const cdnPath = isDynamicCustomBuild ? `dynamicCdnBundle` : `cdn`;
-const remotePluginsBasePath =
-  process.env.REMOTE_MODULES_BASE_PATH || `http://localhost:3002/${cdnPath}/`;
+let remotePluginsBasePath =
+  process.env.REMOTE_MODULES_BASE_PATH;
+remotePluginsBasePath = remotePluginsBasePath?.endsWith('/') ? remotePluginsBasePath.substring(0, remotePluginsBasePath.length - 1) : remotePluginsBasePath;
+let destSDKBaseURL = process.env.DEST_SDK_BASE_URL;
+destSDKBaseURL = destSDKBaseURL?.endsWith('/') ? destSDKBaseURL.substring(0, destSDKBaseURL.length - 1) : destSDKBaseURL;
 const outDirNpmRoot = `dist/npm`;
 const outDirCDNRoot = isDynamicCustomBuild ? `dist/${cdnPath}` : `dist/${cdnPath}`;
 let outDirNpm = `${outDirNpmRoot}${variantSubfolder}`;
@@ -43,6 +46,7 @@ const modName = 'rudderanalytics';
 const remotePluginsExportsFilename = `rsa-plugins`;
 const remotePluginsHostPromise = `Promise.resolve(window.RudderStackGlobals && window.RudderStackGlobals.app && window.RudderStackGlobals.app.pluginsCDNPath ? \`\${window.RudderStackGlobals.app.pluginsCDNPath}/${remotePluginsExportsFilename}.js\` : \`${remotePluginsBasePath}/${remotePluginsExportsFilename}.js\`)`;
 const moduleType = process.env.MODULE_TYPE || 'cdn';
+const lockDepsVersion = process.env.LOCK_DEPS_VERSION || 'false';
 const isCDNPackageBuild = moduleType === 'cdn';
 let bugsnagSDKUrl = 'https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js';
 let polyfillIoUrl = 'https://polyfill-fastly.io/v3/polyfill.min.js';
@@ -190,6 +194,7 @@ export function getDefaultConfig(distName) {
         __IS_LEGACY_BUILD__: isLegacyBuild,
         __PACKAGE_VERSION__: version,
         __MODULE_TYPE__: moduleType,
+        __LOCK_DEPS_VERSION__: lockDepsVersion,
         __SDK_BUNDLE_FILENAME__: distName,
         __RS_POLYFILLIO_SDK_URL__: polyfillIoUrl,
         __RS_BUGSNAG_API_KEY__: process.env.BUGSNAG_API_KEY || '{{__RS_BUGSNAG_API_KEY__}}',
@@ -262,8 +267,8 @@ export function getDefaultConfig(distName) {
           replaceVars: {
             __WRITE_KEY__: process.env.WRITE_KEY,
             __DATAPLANE_URL__: process.env.DATAPLANE_URL,
-            __CONFIG_SERVER_HOST__: process.env.CONFIG_SERVER_HOST || '',
-            __DEST_SDK_BASE_URL__: process.env.DEST_SDK_BASE_URL,
+            __CONFIG_SERVER_HOST__: process.env.CONFIG_SERVER_HOST,
+            __DEST_SDK_BASE_URL__: destSDKBaseURL,
             __PLUGINS_BASE_URL__: remotePluginsBasePath,
             __SDK_BUNDLE_FILENAME__: distName,
           },
