@@ -22,7 +22,7 @@ const getSDKComponentBaseURL = (
 
   if (customURL) {
     if (!isValidURL(customURL)) {
-      throw new Error(COMPONENT_BASE_URL_ERROR(componentType));
+      throw new Error(COMPONENT_BASE_URL_ERROR(componentType, customURL));
     }
 
     return removeTrailingSlashes(customURL) as string;
