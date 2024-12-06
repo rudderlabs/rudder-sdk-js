@@ -1,6 +1,6 @@
-import { APPCUES_NAME as NAME, APPCUES_DISPLAY_NAME as DISPLAY_NAME } from '../../Destinations';
-
 const DIR_NAME = 'Appcues';
+const NAME = 'APPCUES';
+const DISPLAY_NAME = 'Appcues';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
@@ -10,6 +10,4 @@ const CNameMapping = {
   appcues: NAME,
 };
 
-export { CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DIR_NAME };
-
-export { APPCUES_NAME as NAME, APPCUES_DISPLAY_NAME as DISPLAY_NAME } from '../../Destinations';
+export { NAME, CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DISPLAY_NAME, DIR_NAME };

@@ -1,9 +1,6 @@
-import {
-  SENDINBLUE_NAME as NAME,
-  SENDINBLUE_DISPLAY_NAME as DISPLAY_NAME,
-} from '../../Destinations';
-
 const DIR_NAME = 'Sendinblue';
+const NAME = 'SENDINBLUE';
+const DISPLAY_NAME = 'Sendinblue';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
@@ -30,14 +27,11 @@ const excludeReservedTraits = [
 const excludePageProperties = ['url', 'title', 'path', 'referrer'];
 
 export {
+  NAME,
   CNameMapping,
   excludeReservedTraits,
   excludePageProperties,
   DISPLAY_NAME_TO_DIR_NAME_MAP,
+  DISPLAY_NAME,
   DIR_NAME,
 };
-
-export {
-  SENDINBLUE_NAME as NAME,
-  SENDINBLUE_DISPLAY_NAME as DISPLAY_NAME,
-} from '../../Destinations';

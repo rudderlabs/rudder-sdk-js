@@ -1,6 +1,6 @@
-import { HEAP_NAME as NAME, HEAP_DISPLAY_NAME as DISPLAY_NAME } from '../../Destinations';
-
 const DIR_NAME = 'Heap';
+const NAME = 'HEAP';
+const DISPLAY_NAME = 'Heap.io';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
@@ -10,6 +10,4 @@ const CNameMapping = {
   'Heap.io': NAME,
 };
 
-export { CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DIR_NAME };
-
-export { HEAP_NAME as NAME, HEAP_DISPLAY_NAME as DISPLAY_NAME } from '../../Destinations';
+export { NAME, CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DISPLAY_NAME, DIR_NAME };

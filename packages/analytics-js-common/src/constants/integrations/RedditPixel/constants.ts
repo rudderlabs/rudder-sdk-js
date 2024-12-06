@@ -1,9 +1,6 @@
-import {
-  REDDIT_PIXEL_NAME as NAME,
-  REDDIT_PIXEL_DISPLAY_NAME as DISPLAY_NAME,
-} from '../../Destinations';
-
 const DIR_NAME = 'RedditPixel';
+const NAME = 'REDDIT_PIXEL';
+const DISPLAY_NAME = 'Reddit Pixel';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
@@ -17,9 +14,4 @@ const CNameMapping = {
   'reddit pixel': NAME,
 };
 
-export { CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DIR_NAME };
-
-export {
-  REDDIT_PIXEL_NAME as NAME,
-  REDDIT_PIXEL_DISPLAY_NAME as DISPLAY_NAME,
-} from '../../Destinations';
+export { NAME, CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DISPLAY_NAME, DIR_NAME };

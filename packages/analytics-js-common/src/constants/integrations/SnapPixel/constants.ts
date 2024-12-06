@@ -1,9 +1,6 @@
-import {
-  SNAP_PIXEL_NAME as NAME,
-  SNAP_PIXEL_DISPLAY_NAME as DISPLAY_NAME,
-} from '../../Destinations';
-
 const DIR_NAME = 'SnapPixel';
+const NAME = 'SNAP_PIXEL';
+const DISPLAY_NAME = 'Snap Pixel';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
@@ -17,9 +14,4 @@ const CNameMapping = {
   'snap pixel': NAME,
 };
 
-export { CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DIR_NAME };
-
-export {
-  SNAP_PIXEL_NAME as NAME,
-  SNAP_PIXEL_DISPLAY_NAME as DISPLAY_NAME,
-} from '../../Destinations';
+export { NAME, CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DISPLAY_NAME, DIR_NAME };

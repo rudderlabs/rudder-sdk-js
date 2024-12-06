@@ -1,9 +1,6 @@
-import {
-  GOOGLE_OPTIMIZE_NAME as NAME,
-  GOOGLE_OPTIMIZE_DISPLAY_NAME as DISPLAY_NAME,
-} from '../../Destinations';
-
 const DIR_NAME = 'GoogleOptimize';
+const NAME = 'GOOGLE_OPTIMIZE';
+const DISPLAY_NAME = 'Google Optimize';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
@@ -17,9 +14,4 @@ const CNameMapping = {
   'GOOGLE OPTIMIZE': NAME,
 };
 
-export { CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DIR_NAME };
-
-export {
-  GOOGLE_OPTIMIZE_NAME as NAME,
-  GOOGLE_OPTIMIZE_DISPLAY_NAME as DISPLAY_NAME,
-} from '../../Destinations';
+export { NAME, CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DISPLAY_NAME, DIR_NAME };

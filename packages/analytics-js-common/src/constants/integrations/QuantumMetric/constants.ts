@@ -1,9 +1,6 @@
-import {
-  QUANTUMMETRIC_NAME as NAME,
-  QUANTUMMETRIC_DISPLAY_NAME as DISPLAY_NAME,
-} from '../../Destinations';
-
 const DIR_NAME = 'QuantumMetric';
+const NAME = 'QUANTUMMETRIC';
+const DISPLAY_NAME = 'Quantum Metric';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
@@ -17,9 +14,4 @@ const CNameMapping = {
   Quantum_Metric: NAME,
 };
 
-export { CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DIR_NAME };
-
-export {
-  QUANTUMMETRIC_NAME as NAME,
-  QUANTUMMETRIC_DISPLAY_NAME as DISPLAY_NAME,
-} from '../../Destinations';
+export { NAME, CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DISPLAY_NAME, DIR_NAME };

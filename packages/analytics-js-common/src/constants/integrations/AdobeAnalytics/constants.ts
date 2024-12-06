@@ -1,9 +1,6 @@
-import {
-  ADOBE_ANALYTICS_NAME as NAME,
-  ADOBE_ANALYTICS_DISPLAY_NAME as DISPLAY_NAME,
-} from '../../Destinations';
-
 const DIR_NAME = 'AdobeAnalytics';
+const NAME = 'ADOBE_ANALYTICS';
+const DISPLAY_NAME = 'Adobe Analytics';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
@@ -18,9 +15,4 @@ const CNameMapping = {
   'adobe Analytics': NAME,
 };
 
-export { CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DIR_NAME };
-
-export {
-  ADOBE_ANALYTICS_NAME as NAME,
-  ADOBE_ANALYTICS_DISPLAY_NAME as DISPLAY_NAME,
-} from '../../Destinations';
+export { NAME, CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DISPLAY_NAME, DIR_NAME };

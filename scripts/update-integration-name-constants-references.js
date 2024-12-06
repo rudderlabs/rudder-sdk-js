@@ -1,34 +1,35 @@
-const fs = require('fs');
-const path = require('path');
+/* eslint-disable @typescript-eslint/no-var-requires */
+import { readFileSync, writeFileSync, readdirSync, statSync } from 'fs';
+import { join } from 'path';
 
 // Paths
-const destinationsPath = path.join(
+const destinationsPath = join(
   __dirname,
   '../packages/analytics-js-common/src/constants/Destinations.ts',
 );
-const integrationsDir = path.join(
+const integrationsDir = join(
   __dirname,
   '../packages/analytics-js-common/src/constants/integrations',
 );
 
 // Step 1: Parse Destinations.ts
-const destinationsContent = fs.readFileSync(destinationsPath, 'utf-8');
+const destinationsContent = readFileSync(destinationsPath, 'utf-8');
 
 const DESTINATIONS = {};
 const regex = /export const (\w+)_NAME = '(\w+)';\nexport const \1_DISPLAY_NAME = '(.*?)';/g;
-let match;
-while ((match = regex.exec(destinationsContent)) !== null) {
+const allMatches = destinationsContent.matchAll(regex);
+allMatches.forEach(match => {
   const [, key, name, displayName] = match;
   DESTINATIONS[name] = { name, displayName, key };
   DESTINATIONS[displayName.toLowerCase().replace(/\s+/g, '')] = { name, displayName, key }; // Normalize
-}
+});
 
 // Step 2: Find all constants.ts files in constants/integrations
 function findConstantsFiles(dir) {
   const files = [];
-  fs.readdirSync(dir).forEach(file => {
-    const fullPath = path.join(dir, file);
-    if (fs.statSync(fullPath).isDirectory()) {
+  readdirSync(dir).forEach(file => {
+    const fullPath = join(dir, file);
+    if (statSync(fullPath).isDirectory()) {
       files.push(...findConstantsFiles(fullPath));
     } else if (file === 'constants.ts') {
       files.push(fullPath);
@@ -58,7 +59,7 @@ const integrationFiles = findConstantsFiles(integrationsDir);
 
 // Step 3: Update each file
 integrationFiles.forEach(filePath => {
-  const content = fs.readFileSync(filePath, 'utf-8');
+  const content = readFileSync(filePath, 'utf-8');
 
   // Extract NAME and DISPLAY_NAME to match with Destinations.ts
   const nameMatch = /const NAME = '(.*?)';/.exec(content);
@@ -89,6 +90,6 @@ integrationFiles.forEach(filePath => {
   // Ensure imports are at the top of the file
   const updatedContent = `${nameImports}\n${updatedExports}\n${nameExports}\n`;
 
-  fs.writeFileSync(filePath, updatedContent, 'utf-8');
+  writeFileSync(filePath, updatedContent, 'utf-8');
   console.log(`Updated ${filePath}`);
 });

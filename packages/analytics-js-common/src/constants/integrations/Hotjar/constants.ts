@@ -1,6 +1,6 @@
-import { HOTJAR_NAME as NAME, HOTJAR_DISPLAY_NAME as DISPLAY_NAME } from '../../Destinations';
-
 const DIR_NAME = 'Hotjar';
+const NAME = 'HOTJAR';
+const DISPLAY_NAME = 'Hotjar';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
@@ -11,6 +11,4 @@ const CNameMapping = {
   'hot jar': NAME,
 };
 
-export { CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DIR_NAME };
-
-export { HOTJAR_NAME as NAME, HOTJAR_DISPLAY_NAME as DISPLAY_NAME } from '../../Destinations';
+export { NAME, CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DISPLAY_NAME, DIR_NAME };

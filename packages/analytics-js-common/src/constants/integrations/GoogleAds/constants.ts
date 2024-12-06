@@ -1,6 +1,6 @@
-import { GOOGLEADS_NAME as NAME, GOOGLEADS_DISPLAY_NAME as DISPLAY_NAME } from '../../Destinations';
-
 const DIR_NAME = 'GoogleAds';
+const NAME = 'GOOGLEADS';
+const DISPLAY_NAME = 'Google Ads';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
@@ -12,6 +12,4 @@ const CNameMapping = {
   googleads: NAME,
 };
 
-export { CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DIR_NAME };
-
-export { GOOGLEADS_NAME as NAME, GOOGLEADS_DISPLAY_NAME as DISPLAY_NAME } from '../../Destinations';
+export { NAME, CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DISPLAY_NAME, DIR_NAME };

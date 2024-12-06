@@ -1,9 +1,6 @@
-import {
-  GAINSIGHT_PX_NAME as NAME,
-  GAINSIGHT_PX_DISPLAY_NAME as DISPLAY_NAME,
-} from '../../Destinations';
-
 const DIR_NAME = 'Gainsight_PX';
+const NAME = 'GAINSIGHT_PX';
+const DISPLAY_NAME = 'Gainsight PX';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
@@ -11,9 +8,4 @@ const CNameMapping = {
   Gainsight_PX: NAME,
 };
 
-export { CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DIR_NAME };
-
-export {
-  GAINSIGHT_PX_NAME as NAME,
-  GAINSIGHT_PX_DISPLAY_NAME as DISPLAY_NAME,
-} from '../../Destinations';
+export { NAME, CNameMapping, DISPLAY_NAME_TO_DIR_NAME_MAP, DISPLAY_NAME, DIR_NAME };
