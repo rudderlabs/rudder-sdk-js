@@ -883,7 +883,9 @@
     const DIR_NAME$17='Chartbeat';const DISPLAY_NAME$17='Chartbeat';
     
     const DIR_NAME$16='Clevertap';const DISPLAY_NAME$16='CleverTap';
-        
+    
+    const DIR_NAME$15='Comscore';const DISPLAY_NAME$15='Comscore';
+    
     const DIR_NAME$14='Criteo';const DISPLAY_NAME$14='Criteo';
     
     const DIR_NAME$13='CustomerIO';const DISPLAY_NAME$13='Customer IO';

@@ -72,6 +72,7 @@ integrationFiles.forEach(filePath => {
   const updatedContent = `${nameImports}\n${withoutNameAndDisplayName}`;
 
   writeFileSync(filePath, updatedContent, 'utf-8');
+
   console.log(`Updated ${filePath}`);
 });
 
