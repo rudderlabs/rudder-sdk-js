@@ -5,7 +5,6 @@ const DISPLAY_NAME = 'XPixel';
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
   [NAME]: NAME,
-  XPIXEL: NAME,
   XPixel: NAME,
   Xpixel: NAME,
   xpixel: NAME,
