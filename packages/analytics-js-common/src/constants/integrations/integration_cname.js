@@ -6,7 +6,6 @@ import { CNameMapping as Braze } from './Braze/constants';
 import { CNameMapping as Bugsnag } from './Bugsnag/constants';
 import { CNameMapping as Chartbeat } from './Chartbeat/constants';
 import { CNameMapping as Clevertap } from './Clevertap/constants';
-import { CNameMapping as Comscore } from './Comscore/constants';
 import { CNameMapping as Criteo } from './Criteo/constants';
 import { CNameMapping as CustomerIO } from './CustomerIO/constants';
 import { CNameMapping as Drip } from './Drip/constants';
@@ -92,7 +91,6 @@ const commonNames = {
   ...CommandBar,
   ...Chartbeat,
   ...Clevertap,
-  ...Comscore,
   ...Criteo,
   ...CustomerIO,
   ...Drip,
@@ -163,7 +161,7 @@ const commonNames = {
   ...Sprig,
   ...SpotifyPixel,
   ...XPixel,
-  ...Gainsight_PX
+  ...Gainsight_PX,
 };
 
 export { commonNames };

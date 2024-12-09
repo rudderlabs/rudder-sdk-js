@@ -6,7 +6,6 @@ import * as Braze from './Braze';
 import * as Bugsnag from './Bugsnag';
 import * as Chartbeat from './Chartbeat';
 import * as Clevertap from './Clevertap';
-import * as Comscore from './Comscore';
 import * as Criteo from './Criteo';
 import * as CustomerIO from './CustomerIO';
 import * as Drip from './Drip';
@@ -90,7 +89,6 @@ const integrations = {
   BUGSNAG: Bugsnag.default,
   CHARTBEAT: Chartbeat.default,
   CLEVERTAP: Clevertap.default,
-  COMSCORE: Comscore.default,
   CRITEO: Criteo.default,
   COMMANDBAR: CommandBar.default,
   CUSTOMERIO: CustomerIO.default,

@@ -1,6 +1,9 @@
+import {
+  DCM_FLOODLIGHT_NAME as NAME,
+  DCM_FLOODLIGHT_DISPLAY_NAME as DISPLAY_NAME,
+} from '../Destinations';
+
 const DIR_NAME = 'DCMFloodlight';
-const NAME = 'DCM_FLOODLIGHT';
-const DISPLAY_NAME = 'DCM Floodlight';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
