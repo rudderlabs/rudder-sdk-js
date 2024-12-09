@@ -46,7 +46,7 @@ const modName = 'rudderanalytics';
 const remotePluginsExportsFilename = `rsa-plugins`;
 const remotePluginsHostPromise = `Promise.resolve(window.RudderStackGlobals && window.RudderStackGlobals.app && window.RudderStackGlobals.app.pluginsCDNPath ? \`\${window.RudderStackGlobals.app.pluginsCDNPath}/${remotePluginsExportsFilename}.js\` : \`${remotePluginsBasePath}/${remotePluginsExportsFilename}.js\`)`;
 const moduleType = process.env.MODULE_TYPE || 'cdn';
-const lockDepsVersion = process.env.LOCK_DEPS_VERSION || 'false';
+const lockDepsVersion = process.env.LOCK_DEPS_VERSION ?? false;
 const isCDNPackageBuild = moduleType === 'cdn';
 let bugsnagSDKUrl = 'https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js';
 let polyfillIoUrl = 'https://polyfill-fastly.io/v3/polyfill.min.js';

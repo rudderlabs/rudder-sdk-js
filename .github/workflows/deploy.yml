@@ -102,7 +102,7 @@ jobs:
           REMOTE_MODULES_BASE_PATH: 'https://cdn.rudderlabs.com/${{ inputs.s3_dir_path }}/modern/plugins'
           BUGSNAG_API_KEY: ${{ secrets.BUGSNAG_API_KEY }}
           BUGSNAG_RELEASE_STAGE: ${{ inputs.bugsnag_release_stage }}
-          LOCK_DEPS_VERSION: ${{ inputs.environment == 'production' && true || false }}
+          LOCK_DEPS_VERSION: ${{ inputs.environment == 'production' && 'true' || 'false' }}
         run: |
           npm run setup:ci
 
@@ -110,7 +110,7 @@ jobs:
         env:
           BUGSNAG_API_KEY: ${{ secrets.BUGSNAG_API_KEY }}
           BUGSNAG_RELEASE_STAGE: ${{ inputs.bugsnag_release_stage }}
-          LOCK_DEPS_VERSION: ${{ inputs.environment == 'production' && true || false }}
+          LOCK_DEPS_VERSION: ${{ inputs.environment == 'production' && 'true' || 'false' }}
         run: |
           npm run build:browser
           npm run build:browser:modern
@@ -126,6 +126,7 @@ jobs:
           aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/adobe-analytics-js*"
 
       - name: Copy SDK dependencies to S3
+        # IMPORTANT: Don't remove the if condition. This is required to avoid copying the dependencies to the common path.
         if: false
         run: |
           integration_sdks_path_prefix="packages/analytics-js-integrations/dist/cdn"
