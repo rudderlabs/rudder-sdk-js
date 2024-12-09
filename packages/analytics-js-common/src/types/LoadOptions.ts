@@ -79,6 +79,7 @@ export type QueueOpts = {
   batch?: BatchOpts;
   // The scale factor applied to the default timer values
   timerScaleFactor?: number;
+  debugDataUrl?: string;
 };
 
 /**
