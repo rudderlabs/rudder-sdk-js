@@ -1,6 +1,6 @@
-## [3.6.17](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.6.16...@rudderstack/analytics-js-plugins@3.6.17) (2024-11-30)
+## [3.6.18](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.6.17...@rudderstack/analytics-js-plugins@3.6.18) (2024-12-06)
 
 ### Dependency Updates
 
-* `@rudderstack/analytics-js` updated to version `3.11.13`
-* `@rudderstack/analytics-js-cookies` updated to version `0.4.15`
+* `@rudderstack/analytics-js-common` updated to version `3.14.13`
+* `@rudderstack/analytics-js` updated to version `3.11.14`
