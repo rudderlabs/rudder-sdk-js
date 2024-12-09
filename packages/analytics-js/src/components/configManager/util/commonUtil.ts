@@ -69,7 +69,7 @@ const getSDKUrl = (): string | undefined => {
   // TODO: We need to remove this once all the customers upgrade to the
   // latest SDK loading snippet
   const scripts = document.getElementsByTagName('script');
-  const sdkFileNameRegex = /(?:^|\/)rsa\.min\.js$/;
+  const sdkFileNameRegex = /(?:^|\/)rsa(\.min)?\.js$/;
 
   // eslint-disable-next-line no-restricted-syntax
   for (const script of scripts) {

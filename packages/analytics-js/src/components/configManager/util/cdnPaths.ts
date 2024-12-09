@@ -18,8 +18,6 @@ const getSDKComponentBaseURL = (
   lockVersion: boolean,
   customURL?: string,
 ) => {
-  let sdkComponentURL = '';
-
   if (customURL) {
     if (!isValidURL(customURL)) {
       throw new Error(COMPONENT_BASE_URL_ERROR(componentType, customURL));
@@ -29,11 +27,13 @@ const getSDKComponentBaseURL = (
   }
 
   const sdkURL = getSDKUrl();
-  sdkComponentURL = sdkURL ? sdkURL.split('/').slice(0, -1).concat(pathSuffix).join('/') : baseURL;
+  let sdkComponentURL = sdkURL
+    ? sdkURL.split('/').slice(0, -1).concat(pathSuffix).join('/')
+    : baseURL;
 
   if (lockVersion) {
     sdkComponentURL = sdkComponentURL.replace(
-      `/${CDN_ARCH_VERSION_DIR}/${BUILD_TYPE}/${pathSuffix}`,
+      new RegExp(`/${CDN_ARCH_VERSION_DIR}/${BUILD_TYPE}/${pathSuffix}$`),
       `/${currentVersion}/${BUILD_TYPE}/${pathSuffix}`,
     );
   }

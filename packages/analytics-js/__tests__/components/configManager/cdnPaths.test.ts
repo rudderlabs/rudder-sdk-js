@@ -83,6 +83,18 @@ describe('CDN path utilities', () => {
         `https://www.dummy.url/fromScript/v3/custom/js-integrations`,
       );
     });
+
+    it('should return the url that is not version locked when the script source is slightly off from the convention', () => {
+      // /v3/modern/js-integrations matches but it is in the middle of the path
+      getSDKUrlMock.mockImplementation(
+        () => 'https://www.dummy.url/fromScript/v3/modern/js-integrations/custom/rsa.min.js',
+      );
+
+      const integrationsCDNPath = getIntegrationsCDNPath(dummyVersion, true);
+      expect(integrationsCDNPath).toBe(
+        `https://www.dummy.url/fromScript/v3/modern/js-integrations/custom/js-integrations`,
+      );
+    });
   });
 
   describe('getPluginsCDNPath', () => {
@@ -141,6 +153,18 @@ describe('CDN path utilities', () => {
 
       const pluginsCDNPath = getPluginsCDNPath(dummyVersion, true);
       expect(pluginsCDNPath).toBe(`https://www.dummy.url/fromScript/v3/custom/plugins`);
+    });
+
+    it('should return the url that is not version locked when the script source is slightly off from the convention', () => {
+      // /v3/modern/plugins matches but it is in the middle of the path
+      getSDKUrlMock.mockImplementation(
+        () => 'https://www.dummy.url/fromScript/v3/modern/plugins/custom/rsa.min.js',
+      );
+
+      const pluginsCDNPath = getPluginsCDNPath(dummyVersion, true);
+      expect(pluginsCDNPath).toBe(
+        `https://www.dummy.url/fromScript/v3/modern/plugins/custom/plugins`,
+      );
     });
   });
 });
