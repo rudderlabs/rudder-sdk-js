@@ -49,4 +49,34 @@ const getPropertyBlackList = config => {
   return propertyBlackList;
 };
 
-export { getXhrHeaders, getPropertyBlackList, getDestinationOptions };
+/**
+ * Returns bootstrap flags object
+ * @param {*} config
+ * @returns
+ */
+const getFlags = config => {
+  const flags = {};
+  if (config.flags && config.flags.length > 0) {
+    config.flags.forEach(bootstrapFlag => {
+      if (
+        bootstrapFlag?.flag?.trim() &&
+        bootstrapFlag?.value?.trim()
+      ) {
+        // parsing value to boolean if it's "true" or "false", otherwise keep as is
+        let parsedValue =
+          bootstrapFlag.value.toLowerCase() === "true"
+            ? true
+            : bootstrapFlag.value.toLowerCase() === "false"
+              ? false
+              : bootstrapFlag.value;
+
+        flags[bootstrapFlag.flag] = parsedValue;
+      }
+    });
+  }
+
+  return flags;
+};
+
+export { getXhrHeaders, getPropertyBlackList, getDestinationOptions, getFlags };
+

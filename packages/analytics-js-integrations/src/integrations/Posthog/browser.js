@@ -8,7 +8,7 @@ import {
 } from '@rudderstack/analytics-js-common/constants/integrations/Posthog/constants';
 import Logger from '../../utils/logger';
 import { isDefinedAndNotNull, removeTrailingSlashes } from '../../utils/utils';
-import { getXhrHeaders, getPropertyBlackList, getDestinationOptions } from './utils';
+import { getXhrHeaders, getPropertyBlackList, getDestinationOptions, getFlags } from './utils';
 import { loadNativeSdk } from './nativeSdkLoader';
 
 const logger = new Logger(DISPLAY_NAME);
@@ -22,6 +22,7 @@ class Posthog {
     this.analytics = analytics;
     this.teamApiKey = config.teamApiKey;
     this.yourInstance = removeTrailingSlashes(config.yourInstance) || 'https://app.posthog.com';
+    this.flags = getFlags(config);
     this.autocapture = config.autocapture || false;
     this.capturePageView = config.capturePageView || false;
     this.disableSessionRecording = config.disableSessionRecording || false;
@@ -29,7 +30,7 @@ class Posthog {
     this.propertyBlackList = getPropertyBlackList(config);
     this.xhrHeaders = getXhrHeaders(config);
     this.enableLocalStoragePersistence = config.enableLocalStoragePersistence;
-    if(isDefinedAndNotNull(config.personProfiles))  {
+    if (isDefinedAndNotNull(config.personProfiles)) {
       this.personProfiles = config.personProfiles;
     }
     ({
@@ -55,7 +56,7 @@ class Posthog {
       disable_cookie: this.disableCookie,
     };
 
-    if(this.personProfiles) {
+    if (this.personProfiles) {
       configObject.person_profiles = this.personProfiles;
     }
 
@@ -67,6 +68,10 @@ class Posthog {
     }
     if (this.enableLocalStoragePersistence) {
       configObject.persistence = 'localStorage+cookie';
+    }
+
+    if (this.flags && Object.keys(this.flags).length > 0) {
+      configObject.bootstrap = { featureFlags: this.flags };
     }
 
     posthog.init(this.teamApiKey, configObject);
