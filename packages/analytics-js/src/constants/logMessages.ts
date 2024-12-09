@@ -19,8 +19,8 @@ const EVENT_OBJECT_GENERATION_ERROR = `Failed to generate the event object.`;
 const PLUGIN_EXT_POINT_MISSING_ERROR = `Failed to invoke plugin because the extension point name is missing.`;
 const PLUGIN_EXT_POINT_INVALID_ERROR = `Failed to invoke plugin because the extension point name is invalid.`;
 
-const COMPONENT_BASE_URL_ERROR = (component: string): string =>
-  `Failed to load the SDK as the base URL for ${component} is not valid.`;
+const COMPONENT_BASE_URL_ERROR = (component: string, url: string): string =>
+  `Failed to load the SDK as the base URL "${url}" for ${component} is not valid.`;
 
 // ERROR
 const UNSUPPORTED_CONSENT_MANAGER_ERROR = (
