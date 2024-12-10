@@ -16,26 +16,27 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@emotion/react": "11.13.3",
-    "gatsby": "5.13.7",
+    "@emotion/react": "11.14.0",
+    "gatsby": "5.14.0",
     "gatsby-plugin-rudderstack": "*",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   },
   "devDependencies": {
-    "@types/node": "22.7.3",
+    "@types/node": "22.10.1",
     "@types/react": "18.3.9",
     "@types/react-dom": "18.3.0",
-    "typescript": "5.6.2"
+    "typescript": "5.7.2"
   },
   "overrides": {
     "micromatch": "4.0.8",
     "webpack-dev-middleware": "7.2.1",
     "body-parser": "1.20.3",
-    "axios": "1.7.7",
-    "path-to-regexp": "0.1.10",
+    "axios": "1.7.9",
+    "path-to-regexp": "0.1.12",
     "serialize-javascript": "6.0.2",
     "@swc/helpers": "0.5.13",
+    "cookie": "0.7.2",
     "gatsby": {
       "gatsby-cli": {
         "pretty-error": {
