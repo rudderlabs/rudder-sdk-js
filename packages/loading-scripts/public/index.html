@@ -1,8 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
-    <link rel="icon" href="https://www.rudderstack.com/favicon.ico" type="image/x-icon" sizes="48x48">
+    <link
+      rel="icon"
+      href="https://www.rudderstack.com/favicon.ico"
+      type="image/x-icon"
+      sizes="48x48" />
     <script>
+      // prettier-ignore
       rudderanalytics.identify(
         'customUserID',
         {
@@ -20,9 +25,10 @@
         },
         function (message) {
           console.log('in identify call', message);
-        },
+        }
       );
 
+      // prettier-ignore
       rudderanalytics.page(
         'Home',
         'Cart Viewed',
@@ -35,9 +41,10 @@
         },
         function (message) {
           console.log('in page call', message);
-        },
+        }
       );
 
+      // prettier-ignore
       rudderanalytics.track(
         'test track event 1',
         {
@@ -47,9 +54,10 @@
         },
         function (message) {
           console.log('in track call 1', message);
-        },
+        }
       );
 
+      // prettier-ignore
       rudderanalytics.track(
         'test track event 2',
         {
@@ -59,9 +67,10 @@
         },
         function (message) {
           console.log('in track call 2', message);
-        },
+        }
       );
 
+      // prettier-ignore
       rudderanalytics.track(
         'test track event 3',
         {
@@ -71,9 +80,10 @@
         },
         function (message) {
           console.log('in track call 3', message);
-        },
+        }
       );
 
+      // prettier-ignore
       rudderanalytics.ready(function () {
         console.log('All ready!!!');
       });
@@ -101,6 +111,7 @@
     <p data-testid="payload" id="rudderElement"></p>
 
     <script>
+      // prettier-ignore
       function page() {
         rudderanalytics.page(
           'Home',
@@ -116,10 +127,11 @@
             console.log('in page call');
             document.getElementById('action').innerHTML = 'Page called';
             document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-          },
+          }
         );
       }
 
+      // prettier-ignore
       function identify() {
         rudderanalytics.identify(
           'customUserID',
@@ -141,10 +153,11 @@
             console.log('in identify call');
             document.getElementById('action').innerHTML = 'Identify called';
             document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-          },
+          }
         );
       }
 
+      // prettier-ignore
       function track() {
         rudderanalytics.track(
           'test track event 1',
@@ -157,10 +170,11 @@
             console.log('in track call');
             document.getElementById('action').innerHTML = 'Track called';
             document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-          },
+          }
         );
       }
 
+      // prettier-ignore
       function alias() {
         rudderanalytics.alias('alias-user-id', function (rudderElement) {
           console.log('alias call');
@@ -169,6 +183,7 @@
         });
       }
 
+      // prettier-ignore
       function group() {
         rudderanalytics.group(
           'sample_group_id',
@@ -180,7 +195,7 @@
             console.log('group call');
             document.getElementById('action').innerHTML = 'Group called';
             document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-          },
+          }
         );
       }
     </script>

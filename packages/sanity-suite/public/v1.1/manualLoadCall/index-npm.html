@@ -1,12 +1,17 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <link rel="icon" href="https://www.rudderstack.com/favicon.ico" type="image/x-icon" sizes="48x48" />
+    <link
+      rel="icon"
+      href="https://www.rudderstack.com/favicon.ico"
+      type="image/x-icon"
+      sizes="48x48" />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>RudderStack JS SDK Sanity Suite</title>
 
     <script>
+      // prettier-ignore
       window.OneTrust = {
         GetDomainData: function () {
           return {
@@ -78,13 +83,14 @@
       }
     </style>
     <script>
+      // prettier-ignore
       $(document).ready(function () {
         $('#manualLoadForm').submit(function (event) {
           event.preventDefault();
           window.manualLoad(
             $('#writeKey').val(),
             $('#dataplaneURL').val(),
-            JSON.parse($('#loadOptions').val() ? $('#loadOptions').val() : {}),
+            JSON.parse($('#loadOptions').val() ? $('#loadOptions').val() : {})
           );
         });
       });
