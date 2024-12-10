@@ -14,6 +14,7 @@
   },
   "overrides": {
     "nth-check": "2.1.1",
+    "serialize-javascript": "6.0.2",
     "postcss": "8.4.47"
   },
   "scripts": {
