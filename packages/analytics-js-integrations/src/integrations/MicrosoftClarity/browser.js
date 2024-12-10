@@ -33,7 +33,8 @@ class MicrosoftClarity {
   }
 
   isLoaded() {
-    return !!window.clarity && window.clarity('identify') instanceof Promise;
+    // queue would be undefined if the Clarity script is loaded
+    return !!window.clarity && !window.clarity.q;
   }
 
   isReady() {
