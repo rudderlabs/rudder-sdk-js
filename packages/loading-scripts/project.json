@@ -44,8 +44,7 @@
       "executor": "@jscutlery/semver:version",
       "options": {
         "preset": "conventionalcommits",
-        "tagPrefix": "{projectName}@",
-        "trackDeps": true
+        "tagPrefix": "{projectName}@"
       }
     },
     "github": {
