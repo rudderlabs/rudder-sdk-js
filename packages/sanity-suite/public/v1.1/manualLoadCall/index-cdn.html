@@ -11,6 +11,7 @@
     <title>RudderStack JS SDK Sanity Suite</title>
 
     <script>
+      // prettier-ignore
       window.OneTrust = {
         GetDomainData: function () {
           return {
@@ -109,13 +110,14 @@
       async
       src="https://cdn.rudderlabs.com/__CDN_VERSION_PATH__/rudder-analytics.min.js"></script>
     <script>
+      // prettier-ignore
       $(document).ready(function () {
         $('#manualLoadForm').submit(function (event) {
           event.preventDefault();
           window.manualLoad(
             $('#writeKey').val(),
             $('#dataplaneURL').val(),
-            JSON.parse($('#loadOptions').val() ? $('#loadOptions').val() : {}),
+            JSON.parse($('#loadOptions').val() ? $('#loadOptions').val() : {})
           );
         });
       });

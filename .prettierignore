@@ -2,7 +2,6 @@
 # .gitignore
 
 # Additional Prettier-specific ignore patterns
-**/public/index.html
 assets/
 CHANGELOG.md
 CHANGELOG_LATEST.md

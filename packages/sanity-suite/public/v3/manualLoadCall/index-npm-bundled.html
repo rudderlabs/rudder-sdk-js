@@ -32,7 +32,7 @@
       // prettier-ignore
       (function() {
         "use strict";
-        window.RudderSnippetVersion = "3.0.39";
+        window.RudderSnippetVersion = "3.0.58";
         var identifier = "rudderanalytics";
         if (!window[identifier]) {
           window[identifier] = [];
@@ -116,13 +116,14 @@
       }
     </style>
     <script>
+      // prettier-ignore
       $(document).ready(function () {
         $('#manualLoadForm').submit(function (event) {
           event.preventDefault();
           window.manualLoad(
             $('#writeKey').val(),
             $('#dataplaneURL').val(),
-            JSON.parse($('#loadOptions').val() ? $('#loadOptions').val() : {}),
+            JSON.parse($('#loadOptions').val() ? $('#loadOptions').val() : {})
           );
         });
       });

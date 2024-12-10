@@ -1,11 +1,16 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
-    <link rel="icon" href="https://www.rudderstack.com/favicon.ico" type="image/x-icon" sizes="48x48">
+    <link
+      rel="icon"
+      href="https://www.rudderstack.com/favicon.ico"
+      type="image/x-icon"
+      sizes="48x48" />
     <script>
+      // prettier-ignore
       (function() {
         "use strict";
-        window.RudderSnippetVersion = "3.0.39";
+        window.RudderSnippetVersion = "3.0.58";
         var identifier = "rudderanalytics";
         if (!window[identifier]) {
           window[identifier] = [];
@@ -170,6 +175,7 @@
 
       const localRudderAnalyticsRef = window.rudderanalytics;
 
+      // prettier-ignore
       rudderanalytics.identify(
         'customUserID',
         {
@@ -190,6 +196,7 @@
         }
       );
 
+      // prettier-ignore
       rudderanalytics.page(
         'Home',
         'Cart Viewed',
@@ -205,6 +212,7 @@
         }
       );
 
+      // prettier-ignore
       rudderanalytics.track(
         'test track event 1',
         {
@@ -217,6 +225,7 @@
         }
       );
 
+      // prettier-ignore
       rudderanalytics.track(
         'test track event 2',
         {
@@ -229,6 +238,7 @@
         }
       );
 
+      // prettier-ignore
       rudderanalytics.track(
         'test track event 3',
         {
@@ -241,10 +251,11 @@
         }
       );
 
+      // prettier-ignore
       rudderanalytics.ready(function () {
         console.log('All ready!!!');
 
-        // Once the SDK is ready, fire an event from a cached reference to 
+        // Once the SDK is ready, fire an event from a cached reference to
         // window.rudderanalytics
         localRudderAnalyticsRef.track(
           'Test track event with cached RS reference',
@@ -277,13 +288,15 @@
     <button data-testid="track-btn" onclick="track()">Track</button>
     <button data-testid="alias-btn" onclick="alias()">Alias</button>
     <button data-testid="group-btn" onclick="group()">Group</button>
-    <button data-testid="reload-page-btn" onclick="reloadPageWithEvents()">Reload Page With Events</button>
-
+    <button data-testid="reload-page-btn" onclick="reloadPageWithEvents()">
+      Reload Page With Events
+    </button>
 
     <p data-testid="action" id="action"></p>
     <p data-testid="payload" id="rudderElement"></p>
 
     <script>
+      // prettier-ignore
       function page() {
         rudderanalytics.page(
           'Home',
@@ -303,6 +316,7 @@
         );
       }
 
+      // prettier-ignore
       function identify() {
         rudderanalytics.identify(
           'customUserID',
@@ -328,6 +342,7 @@
         );
       }
 
+      // prettier-ignore
       function track() {
         rudderanalytics.track(
           'test track event 1',
@@ -344,6 +359,7 @@
         );
       }
 
+      // prettier-ignore
       function alias() {
         rudderanalytics.alias('alias-user-id', function (rudderElement) {
           console.log('alias call');
@@ -352,6 +368,7 @@
         });
       }
 
+      // prettier-ignore
       function group() {
         rudderanalytics.group(
           'sample_group_id',
@@ -367,6 +384,7 @@
         );
       }
 
+      // prettier-ignore
       function reloadPageWithEvents() {
         rudderanalytics.track('Event 1 before reload', function (rudderElement) {
           console.log('Event 1 before reload');
