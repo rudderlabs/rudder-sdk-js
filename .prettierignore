@@ -1,18 +1,16 @@
-dist/
-node_modules/
-reports/
-stats/
+# Include patterns from .gitignore
+# .gitignore
+
+# Additional Prettier-specific ignore patterns
+**/public/index.html
 assets/
-cdnSDK.js
-cdnSDKv3.js
 CHANGELOG.md
 CHANGELOG_LATEST.md
 CONTRIBUTING.md
-
 examples/chrome-extension/**/rudderAnalytics.js
 examples/chrome-extension/**/foreground.js
 examples/**/index.html
-**/public/index.html
-
-/.nx/cache
-/.nx/workspace-data
+examples/gatsby/sample-gatsby-site/public/
+examples/gatsby/sample-gatsby-plugin-usage/public/
+**/nativeSdkLoader.js
+composer.lock
