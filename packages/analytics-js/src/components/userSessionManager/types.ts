@@ -5,7 +5,7 @@ import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject
 import type { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
 
 export interface IUserSessionManager {
-  private_storeManager?: IStoreManager;
+  storeManager?: IStoreManager;
   init(): void;
   setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string): void;
   getAnonymousId(options?: AnonymousIdOptions): string;

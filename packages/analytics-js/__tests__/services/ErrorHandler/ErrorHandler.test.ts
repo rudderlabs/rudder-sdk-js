@@ -227,7 +227,7 @@ describe('ErrorHandler', () => {
 
   it('should log error on notifyError if invoking plugin results in an exception', () => {
     // Hard code the presence of the error reporting client
-    errorHandlerInstance.private_errReportingClient = {};
+    errorHandlerInstance.errReportingClient = {};
 
     defaultPluginEngine.invokeSingle = jest.fn(() => {
       throw new Error('dummy error');
@@ -283,7 +283,7 @@ describe('ErrorHandler', () => {
       errorHandlerInstance = new ErrorHandler(defaultLogger);
       errorHandlerInstance.init(defaultHttpClient, extSrcLoader);
 
-      expect(errorHandlerInstance.private_errReportingClient).toBeUndefined();
+      expect(errorHandlerInstance.errReportingClient).toBeUndefined();
     });
   });
 
@@ -295,7 +295,7 @@ describe('ErrorHandler', () => {
     errorHandlerInstance.init(defaultHttpClient, extSrcLoader);
 
     setTimeout(() => {
-      expect(errorHandlerInstance.private_errReportingClient).toStrictEqual({});
+      expect(errorHandlerInstance.errReportingClient).toStrictEqual({});
       done();
     }, 1);
   });
@@ -310,7 +310,7 @@ describe('ErrorHandler', () => {
     errorHandlerInstance.init(defaultHttpClient, extSrcLoader);
 
     setTimeout(() => {
-      expect(errorHandlerInstance.private_errReportingClient).toBeUndefined();
+      expect(errorHandlerInstance.errReportingClient).toBeUndefined();
 
       expect(defaultLogger.error).toHaveBeenCalledWith(
         'ErrorHandler:: Failed to initialize the error reporting plugin.',
@@ -323,7 +323,7 @@ describe('ErrorHandler', () => {
 
   it('should notify buffered errors once Error reporting plugin is loaded', () => {
     errorHandlerInstance.notifyError = jest.fn();
-    errorHandlerInstance.private_errorBuffer.enqueue({
+    errorHandlerInstance.errorBuffer.enqueue({
       error: new Error('dummy error'),
       errorState: {
         severity: 'error',
@@ -333,8 +333,8 @@ describe('ErrorHandler', () => {
     });
     state.reporting.isErrorReportingPluginLoaded.value = true;
     setTimeout(() => {
-      expect(errorHandlerInstance.private_attachEffects).toHaveBeenCalledTimes(1);
-      expect(errorHandlerInstance.private_errorBuffer.size()).toBe(0);
+      expect(errorHandlerInstance.attachEffects).toHaveBeenCalledTimes(1);
+      expect(errorHandlerInstance.errorBuffer.size()).toBe(0);
       expect(errorHandlerInstance.notifyError).toHaveBeenCalledTimes(1);
     }, 1);
   });
@@ -343,9 +343,9 @@ describe('ErrorHandler', () => {
     state.reporting.isErrorReportingEnabled.value = true;
     state.reporting.isErrorReportingPluginLoaded.value = false;
 
-    errorHandlerInstance.private_errorBuffer.enqueue = jest.fn();
+    errorHandlerInstance.errorBuffer.enqueue = jest.fn();
     errorHandlerInstance.onError(new Error('dummy error'));
-    expect(errorHandlerInstance.private_errorBuffer.enqueue).toHaveBeenCalledTimes(1);
+    expect(errorHandlerInstance.errorBuffer.enqueue).toHaveBeenCalledTimes(1);
   });
 
   it('should log error in case unhandled error occurs during processing or notifying the error', () => {
@@ -377,7 +377,7 @@ describe('ErrorHandler', () => {
     errorHandlerInstance = new ErrorHandler(defaultLogger, defaultPluginEngine);
 
     errorHandlerInstance.notifyError = jest.fn();
-    errorHandlerInstance.private_errorBuffer.enqueue({
+    errorHandlerInstance.errorBuffer.enqueue({
       error: new Error('dummy error'),
       errorState: {
         severity: 'error',
@@ -389,7 +389,7 @@ describe('ErrorHandler', () => {
     state.reporting.isErrorReportingPluginLoaded.value = true;
 
     setTimeout(() => {
-      expect(errorHandlerInstance.private_errorBuffer.size()).toBe(0);
+      expect(errorHandlerInstance.errorBuffer.size()).toBe(0);
       expect(errorHandlerInstance.notifyError).toHaveBeenCalledTimes(1);
     }, 1);
   });

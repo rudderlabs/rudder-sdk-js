@@ -16,10 +16,10 @@ export interface IStoreConfig {
 }
 
 export interface IStoreManager {
-  private_stores?: Record<string, IStore>;
-  private_isInitialized?: boolean;
-  private_errorHandler?: IErrorHandler;
-  private_logger?: ILogger;
+  stores?: Record<string, IStore>;
+  isInitialized?: boolean;
+  errorHandler?: IErrorHandler;
+  logger?: ILogger;
   init(): void;
   initializeStorageState(): void;
   setStore(storeConfig: IStoreConfig): IStore;
@@ -27,27 +27,27 @@ export interface IStoreManager {
 }
 
 export interface IStore {
-  private_id: string;
-  private_name: string;
-  private_isEncrypted: boolean;
-  private_validKeys: string[];
-  private_engine: IStorage;
-  private_originalEngine: IStorage;
-  private_noKeyValidation?: boolean;
-  private_noCompoundKey?: boolean;
-  private_errorHandler?: IErrorHandler;
-  private_logger?: ILogger;
-  private_pluginsManager?: IPluginsManager;
-  private_createValidKey(key: string): string | undefined;
-  private_swapQueueStoreToInMemoryEngine(): void;
+  id: string;
+  name: string;
+  isEncrypted: boolean;
+  validKeys: string[];
+  engine: IStorage;
+  originalEngine: IStorage;
+  noKeyValidation?: boolean;
+  noCompoundKey?: boolean;
+  errorHandler?: IErrorHandler;
+  logger?: ILogger;
+  pluginsManager?: IPluginsManager;
+  createValidKey(key: string): string | undefined;
+  swapQueueStoreToInMemoryEngine(): void;
   set(key: string, value: any): void;
   get<T = any>(key: string): Nullable<T>;
   remove(key: string): void;
   getOriginalEngine(): IStorage;
-  private_decrypt(value?: Nullable<string>): Nullable<string>;
-  private_encrypt(value: any): string;
-  private_crypto(value: string, mode: 'encrypt' | 'decrypt'): string;
-  private_onError(error: any): void;
+  decrypt(value?: Nullable<string>): Nullable<string>;
+  encrypt(value: any): string;
+  crypto(value: string, mode: 'encrypt' | 'decrypt'): string;
+  onError(error: any): void;
 }
 
 export interface IStorage extends Storage {

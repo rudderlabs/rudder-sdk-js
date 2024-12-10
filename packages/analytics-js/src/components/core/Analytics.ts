@@ -73,34 +73,34 @@ import { dispatchSDKEvent, isDataPlaneUrlValid, isWriteKeyValid } from './utilit
  * Analytics class with lifecycle based on state ad user triggered events
  */
 class Analytics implements IAnalytics {
-  private_preloadBuffer: BufferQueue<PreloadedEventCall>;
-  private_initialized: boolean;
-  private_logger: ILogger;
-  private_errorHandler: IErrorHandler;
-  private_httpClient: IHttpClient;
-  private_externalSrcLoader: IExternalSrcLoader;
-  private_capabilitiesManager: ICapabilitiesManager;
-  private_pluginsManager?: IPluginsManager;
-  private_storeManager?: IStoreManager;
-  private_configManager?: IConfigManager;
-  private_eventRepository?: IEventRepository;
-  private_eventManager?: IEventManager;
-  private_userSessionManager?: IUserSessionManager;
+  preloadBuffer: BufferQueue<PreloadedEventCall>;
+  initialized: boolean;
+  logger: ILogger;
+  errorHandler: IErrorHandler;
+  httpClient: IHttpClient;
+  externalSrcLoader: IExternalSrcLoader;
+  capabilitiesManager: ICapabilitiesManager;
+  pluginsManager?: IPluginsManager;
+  storeManager?: IStoreManager;
+  configManager?: IConfigManager;
+  eventRepository?: IEventRepository;
+  eventManager?: IEventManager;
+  userSessionManager?: IUserSessionManager;
 
   /**
    * Initialize services and components or use default ones if singletons
    */
   constructor() {
-    this.private_logger = defaultLogger;
-    this.private_httpClient = new HttpClient(this.private_logger);
-    this.private_preloadBuffer = new BufferQueue();
-    this.private_initialized = false;
-    this.private_errorHandler = defaultErrorHandler;
-    this.private_externalSrcLoader = new ExternalSrcLoader();
-    this.private_capabilitiesManager = new CapabilitiesManager(
-      this.private_httpClient,
-      this.private_errorHandler,
-      this.private_logger,
+    this.logger = defaultLogger;
+    this.httpClient = new HttpClient(this.logger);
+    this.preloadBuffer = new BufferQueue();
+    this.initialized = false;
+    this.errorHandler = defaultErrorHandler;
+    this.externalSrcLoader = new ExternalSrcLoader();
+    this.capabilitiesManager = new CapabilitiesManager(
+      this.httpClient,
+      this.errorHandler,
+      this.logger,
     );
   }
 
@@ -113,12 +113,12 @@ class Analytics implements IAnalytics {
     }
 
     if (!isWriteKeyValid(writeKey)) {
-      this.private_logger.error(WRITE_KEY_VALIDATION_ERROR(ANALYTICS_CORE, writeKey));
+      this.logger.error(WRITE_KEY_VALIDATION_ERROR(ANALYTICS_CORE, writeKey));
       return;
     }
 
     if (!isDataPlaneUrlValid(dataPlaneUrl)) {
-      this.private_logger.error(DATA_PLANE_URL_VALIDATION_ERROR(ANALYTICS_CORE, dataPlaneUrl));
+      this.logger.error(DATA_PLANE_URL_VALIDATION_ERROR(ANALYTICS_CORE, dataPlaneUrl));
       return;
     }
 
@@ -131,7 +131,7 @@ class Analytics implements IAnalytics {
     });
 
     // set log level as early as possible
-    this.private_logger?.setMinLogLevel(state.loadOptions.value.logLevel ?? POST_LOAD_LOG_LEVEL);
+    this.logger?.setMinLogLevel(state.loadOptions.value.logLevel ?? POST_LOAD_LOG_LEVEL);
 
     // Expose state to global objects
     setExposedGlobal('state', state, writeKey);
@@ -139,44 +139,44 @@ class Analytics implements IAnalytics {
     // Configure initial config of any services or components here
 
     // State application lifecycle
-    this.private_startLifecycle();
+    this.startLifecycle();
   }
 
   // Start lifecycle methods
   /**
    * Orchestrate the lifecycle of the application phases/status
    */
-  private_startLifecycle() {
+  startLifecycle() {
     effect(() => {
       try {
         switch (state.lifecycle.status.value) {
           case 'mounted':
-            this.private_onMounted();
+            this.onMounted();
             break;
           case 'browserCapabilitiesReady':
-            this.private_onBrowserCapabilitiesReady();
+            this.onBrowserCapabilitiesReady();
             break;
           case 'configured':
-            this.private_onConfigured();
+            this.onConfigured();
             break;
           case 'pluginsLoading':
             break;
           case 'pluginsReady':
-            this.private_onPluginsReady();
+            this.onPluginsReady();
             break;
           case 'initialized':
-            this.private_onInitialized();
+            this.onInitialized();
             break;
           case 'loaded':
-            this.private_onLoaded();
+            this.onLoaded();
             break;
           case 'destinationsLoading':
             break;
           case 'destinationsReady':
-            this.private_onDestinationsReady();
+            this.onDestinationsReady();
             break;
           case 'ready':
-            this.private_onReady();
+            this.onReady();
             break;
           case 'readyExecuted':
           default:
@@ -184,37 +184,37 @@ class Analytics implements IAnalytics {
         }
       } catch (err) {
         const issue = 'Failed to load the SDK';
-        this.private_errorHandler.onError(getMutatedError(err, issue), ANALYTICS_CORE);
+        this.errorHandler.onError(getMutatedError(err, issue), ANALYTICS_CORE);
       }
     });
   }
 
-  private_onBrowserCapabilitiesReady() {
+  onBrowserCapabilitiesReady() {
     // initialize the preloaded events enqueuing
     retrievePreloadBufferEvents(this);
-    this.private_prepareInternalServices();
-    this.private_loadConfig();
+    this.prepareInternalServices();
+    this.loadConfig();
   }
 
-  private_onLoaded() {
-    this.private_processBufferedEvents();
+  onLoaded() {
+    this.processBufferedEvents();
     // Short-circuit the life cycle and move to the ready state if pre-consent behavior is enabled
     if (state.consents.preConsent.value.enabled === true) {
       state.lifecycle.status.value = 'ready';
     } else {
-      this.private_loadDestinations();
+      this.loadDestinations();
     }
   }
 
   /**
    * Load browser polyfill if required
    */
-  private_onMounted() {
+  onMounted() {
     if (state.lifecycle.writeKey.value) {
-      this.private_httpClient.setAuthHeader(state.lifecycle.writeKey.value);
+      this.httpClient.setAuthHeader(state.lifecycle.writeKey.value);
     }
 
-    this.private_capabilitiesManager.init();
+    this.capabilitiesManager.init();
   }
 
   /**
@@ -222,18 +222,16 @@ class Analytics implements IAnalytics {
    */
   enqueuePreloadBufferEvents(bufferedEvents: PreloadedEventCall[]) {
     if (Array.isArray(bufferedEvents)) {
-      bufferedEvents.forEach(bufferedEvent =>
-        this.private_preloadBuffer.enqueue(clone(bufferedEvent)),
-      );
+      bufferedEvents.forEach(bufferedEvent => this.preloadBuffer.enqueue(clone(bufferedEvent)));
     }
   }
 
   /**
    * Process the buffer preloaded events by passing their arguments to the respective facade methods
    */
-  private_processDataInPreloadBuffer() {
-    while (this.private_preloadBuffer.size() > 0) {
-      const eventToProcess = this.private_preloadBuffer.dequeue();
+  processDataInPreloadBuffer() {
+    while (this.preloadBuffer.size() > 0) {
+      const eventToProcess = this.preloadBuffer.dequeue();
 
       if (eventToProcess) {
         consumePreloadBufferedEvent([...eventToProcess], this);
@@ -241,76 +239,64 @@ class Analytics implements IAnalytics {
     }
   }
 
-  private_prepareInternalServices() {
-    this.private_pluginsManager = new PluginsManager(
-      defaultPluginEngine,
-      this.private_errorHandler,
-      this.private_logger,
+  prepareInternalServices() {
+    this.pluginsManager = new PluginsManager(defaultPluginEngine, this.errorHandler, this.logger);
+    this.storeManager = new StoreManager(this.pluginsManager, this.errorHandler, this.logger);
+    this.configManager = new ConfigManager(this.httpClient, this.errorHandler, this.logger);
+    this.userSessionManager = new UserSessionManager(
+      this.errorHandler,
+      this.logger,
+      this.pluginsManager,
+      this.storeManager,
+      this.httpClient,
     );
-    this.private_storeManager = new StoreManager(
-      this.private_pluginsManager,
-      this.private_errorHandler,
-      this.private_logger,
+    this.eventRepository = new EventRepository(
+      this.httpClient,
+      this.pluginsManager,
+      this.storeManager,
+      this.errorHandler,
+      this.logger,
     );
-    this.private_configManager = new ConfigManager(
-      this.private_httpClient,
-      this.private_errorHandler,
-      this.private_logger,
-    );
-    this.private_userSessionManager = new UserSessionManager(
-      this.private_errorHandler,
-      this.private_logger,
-      this.private_pluginsManager,
-      this.private_storeManager,
-      this.private_httpClient,
-    );
-    this.private_eventRepository = new EventRepository(
-      this.private_httpClient,
-      this.private_pluginsManager,
-      this.private_storeManager,
-      this.private_errorHandler,
-      this.private_logger,
-    );
-    this.private_eventManager = new EventManager(
-      this.private_eventRepository,
-      this.private_userSessionManager,
-      this.private_errorHandler,
-      this.private_logger,
+    this.eventManager = new EventManager(
+      this.eventRepository,
+      this.userSessionManager,
+      this.errorHandler,
+      this.logger,
     );
   }
 
   /**
    * Load configuration
    */
-  private_loadConfig() {
-    this.private_configManager?.init();
+  loadConfig() {
+    this.configManager?.init();
   }
 
   /**
    * Initialize the storage and event queue
    */
-  private_onPluginsReady() {
-    this.private_errorHandler.init(this.private_httpClient, this.private_externalSrcLoader);
+  onPluginsReady() {
+    this.errorHandler.init(this.httpClient, this.externalSrcLoader);
     // Initialize storage
-    this.private_storeManager?.init();
-    this.private_userSessionManager?.init();
+    this.storeManager?.init();
+    this.userSessionManager?.init();
 
     // Initialize the appropriate consent manager plugin
     if (state.consents.enabled.value && !state.consents.initialized.value) {
-      this.private_pluginsManager?.invokeSingle(`consentManager.init`, state, this.private_logger);
+      this.pluginsManager?.invokeSingle(`consentManager.init`, state, this.logger);
 
       if (state.consents.preConsent.value.enabled === false) {
-        this.private_pluginsManager?.invokeSingle(
+        this.pluginsManager?.invokeSingle(
           `consentManager.updateConsentsInfo`,
           state,
-          this.private_storeManager,
-          this.private_logger,
+          this.storeManager,
+          this.logger,
         );
       }
     }
 
     // Initialize event manager
-    this.private_eventManager?.init();
+    this.eventManager?.init();
 
     // Mark the SDK as initialized
     state.lifecycle.status.value = 'initialized';
@@ -319,8 +305,8 @@ class Analytics implements IAnalytics {
   /**
    * Load plugins
    */
-  private_onConfigured() {
-    this.private_pluginsManager?.init();
+  onConfigured() {
+    this.pluginsManager?.init();
     // TODO: are we going to enable custom plugins to be passed as load options?
     // registerCustomPlugins(state.loadOptions.value.customPlugins);
   }
@@ -328,9 +314,9 @@ class Analytics implements IAnalytics {
   /**
    * Trigger onLoaded callback if any is provided in config & emit initialised event
    */
-  private_onInitialized() {
+  onInitialized() {
     // Process any preloaded events
-    this.private_processDataInPreloadBuffer();
+    this.processDataInPreloadBuffer();
 
     // TODO: we need to avoid passing the window object to the callback function
     // as this will prevent us from supporting multiple SDK instances in the same page
@@ -345,7 +331,7 @@ class Analytics implements IAnalytics {
       state.lifecycle.status.value = 'loaded';
     });
 
-    this.private_initialized = true;
+    this.initialized = true;
 
     // Emit an event to use as substitute to the onLoaded callback
     dispatchSDKEvent('RSA_Initialised');
@@ -355,13 +341,13 @@ class Analytics implements IAnalytics {
    * Emit ready event
    */
   // eslint-disable-next-line class-methods-use-this
-  private_onReady() {
+  onReady() {
     state.lifecycle.status.value = 'readyExecuted';
     state.eventBuffer.readyCallbacksArray.value.forEach((callback: ApiCallback) => {
       try {
         callback();
       } catch (err: any) {
-        this.private_errorHandler.onError(err, ANALYTICS_CORE, READY_CALLBACK_INVOKE_ERROR);
+        this.errorHandler.onError(err, ANALYTICS_CORE, READY_CALLBACK_INVOKE_ERROR);
       }
     });
 
@@ -372,7 +358,7 @@ class Analytics implements IAnalytics {
   /**
    * Consume preloaded events buffer
    */
-  private_processBufferedEvents() {
+  processBufferedEvents() {
     // This logic has been intentionally implemented without a simple
     // for-loop as the individual events that are processed may
     // add more events to the buffer (this is needed for the consent API)
@@ -396,18 +382,18 @@ class Analytics implements IAnalytics {
   /**
    * Load device mode destinations
    */
-  private_loadDestinations() {
+  loadDestinations() {
     if (state.nativeDestinations.clientDestinationsReady.value) {
       return;
     }
 
     // Set in state the desired activeDestinations to inject in DOM
-    this.private_pluginsManager?.invokeSingle(
+    this.pluginsManager?.invokeSingle(
       'nativeDestinations.setActiveDestinations',
       state,
-      this.private_pluginsManager,
-      this.private_errorHandler,
-      this.private_logger,
+      this.pluginsManager,
+      this.errorHandler,
+      this.logger,
     );
 
     const totalDestinationsToLoad = state.nativeDestinations.activeDestinations.value.length;
@@ -418,12 +404,12 @@ class Analytics implements IAnalytics {
 
     // Start loading native integration scripts and create instances
     state.lifecycle.status.value = 'destinationsLoading';
-    this.private_pluginsManager?.invokeSingle(
+    this.pluginsManager?.invokeSingle(
       'nativeDestinations.load',
       state,
-      this.private_externalSrcLoader,
-      this.private_errorHandler,
-      this.private_logger,
+      this.externalSrcLoader,
+      this.errorHandler,
+      this.logger,
     );
 
     // Progress to next lifecycle phase if all native destinations are initialized or failed
@@ -447,7 +433,7 @@ class Analytics implements IAnalytics {
    * Move to the ready state
    */
   // eslint-disable-next-line class-methods-use-this
-  private_onDestinationsReady() {
+  onDestinationsReady() {
     // May be do any destination specific actions here
 
     // Mark the ready status if not already done
@@ -469,10 +455,10 @@ class Analytics implements IAnalytics {
       return;
     }
 
-    this.private_errorHandler.leaveBreadcrumb(`New ${type} invocation`);
+    this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
 
     if (!isFunction(callback)) {
-      this.private_logger.error(READY_API_CALLBACK_ERROR(READY_API));
+      this.logger.error(READY_API_CALLBACK_ERROR(READY_API));
       return;
     }
 
@@ -485,7 +471,7 @@ class Analytics implements IAnalytics {
       try {
         callback();
       } catch (err: any) {
-        this.private_errorHandler.onError(err, ANALYTICS_CORE, READY_CALLBACK_INVOKE_ERROR);
+        this.errorHandler.onError(err, ANALYTICS_CORE, READY_CALLBACK_INVOKE_ERROR);
       }
     } else {
       state.eventBuffer.readyCallbacksArray.value = [
@@ -506,10 +492,10 @@ class Analytics implements IAnalytics {
       return;
     }
 
-    this.private_errorHandler.leaveBreadcrumb(`New ${type} event`);
+    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
     state.metrics.triggered.value += 1;
 
-    this.private_eventManager?.addEvent({
+    this.eventManager?.addEvent({
       type: 'page',
       category: payload.category,
       name: payload.name,
@@ -552,10 +538,10 @@ class Analytics implements IAnalytics {
       return;
     }
 
-    this.private_errorHandler.leaveBreadcrumb(`New ${type} event - ${payload.name}`);
+    this.errorHandler.leaveBreadcrumb(`New ${type} event - ${payload.name}`);
     state.metrics.triggered.value += 1;
 
-    this.private_eventManager?.addEvent({
+    this.eventManager?.addEvent({
       type,
       name: payload.name || undefined,
       properties: payload.properties,
@@ -575,7 +561,7 @@ class Analytics implements IAnalytics {
       return;
     }
 
-    this.private_errorHandler.leaveBreadcrumb(`New ${type} event`);
+    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
     state.metrics.triggered.value += 1;
 
     const shouldResetSession = Boolean(
@@ -588,11 +574,11 @@ class Analytics implements IAnalytics {
 
     // `null` value indicates that previous user ID needs to be retained
     if (!isNull(payload.userId)) {
-      this.private_userSessionManager?.setUserId(payload.userId);
+      this.userSessionManager?.setUserId(payload.userId);
     }
-    this.private_userSessionManager?.setUserTraits(payload.traits);
+    this.userSessionManager?.setUserTraits(payload.traits);
 
-    this.private_eventManager?.addEvent({
+    this.eventManager?.addEvent({
       type,
       userId: payload.userId,
       traits: payload.traits,
@@ -612,15 +598,15 @@ class Analytics implements IAnalytics {
       return;
     }
 
-    this.private_errorHandler.leaveBreadcrumb(`New ${type} event`);
+    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
     state.metrics.triggered.value += 1;
 
     const previousId =
       payload.from ??
-      this.private_userSessionManager?.getUserId() ??
-      this.private_userSessionManager?.getAnonymousId();
+      this.userSessionManager?.getUserId() ??
+      this.userSessionManager?.getAnonymousId();
 
-    this.private_eventManager?.addEvent({
+    this.eventManager?.addEvent({
       type,
       to: payload.to,
       from: previousId,
@@ -640,17 +626,17 @@ class Analytics implements IAnalytics {
       return;
     }
 
-    this.private_errorHandler.leaveBreadcrumb(`New ${type} event`);
+    this.errorHandler.leaveBreadcrumb(`New ${type} event`);
     state.metrics.triggered.value += 1;
 
     // `null` value indicates that previous group ID needs to be retained
     if (!isNull(payload.groupId)) {
-      this.private_userSessionManager?.setGroupId(payload.groupId);
+      this.userSessionManager?.setGroupId(payload.groupId);
     }
 
-    this.private_userSessionManager?.setGroupTraits(payload.traits);
+    this.userSessionManager?.setGroupTraits(payload.traits);
 
-    this.private_eventManager?.addEvent({
+    this.eventManager?.addEvent({
       type,
       groupId: payload.groupId,
       traits: payload.traits,
@@ -670,14 +656,14 @@ class Analytics implements IAnalytics {
       return;
     }
 
-    this.private_errorHandler.leaveBreadcrumb(
+    this.errorHandler.leaveBreadcrumb(
       `New ${type} invocation, resetAnonymousId: ${resetAnonymousId}`,
     );
-    this.private_userSessionManager?.reset(resetAnonymousId);
+    this.userSessionManager?.reset(resetAnonymousId);
   }
 
   getAnonymousId(options?: AnonymousIdOptions): string | undefined {
-    return this.private_userSessionManager?.getAnonymousId(options);
+    return this.userSessionManager?.getAnonymousId(options);
   }
 
   setAnonymousId(
@@ -695,8 +681,8 @@ class Analytics implements IAnalytics {
       return;
     }
 
-    this.private_errorHandler.leaveBreadcrumb(`New ${type} invocation`);
-    this.private_userSessionManager?.setAnonymousId(anonymousId, rudderAmpLinkerParam);
+    this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
+    this.userSessionManager?.setAnonymousId(anonymousId, rudderAmpLinkerParam);
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -730,8 +716,8 @@ class Analytics implements IAnalytics {
       return;
     }
 
-    this.private_errorHandler.leaveBreadcrumb(`New ${type} invocation`);
-    this.private_userSessionManager?.start(sessionId);
+    this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
+    this.userSessionManager?.start(sessionId);
   }
 
   endSession(isBufferedInvocation = false): void {
@@ -745,13 +731,13 @@ class Analytics implements IAnalytics {
       return;
     }
 
-    this.private_errorHandler.leaveBreadcrumb(`New ${type} invocation`);
-    this.private_userSessionManager?.end();
+    this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
+    this.userSessionManager?.end();
   }
 
   // eslint-disable-next-line class-methods-use-this
   getSessionId(): Nullable<number> {
-    const sessionId = this.private_userSessionManager?.getSessionId();
+    const sessionId = this.userSessionManager?.getSessionId();
     return sessionId ?? null;
   }
 
@@ -766,7 +752,7 @@ class Analytics implements IAnalytics {
       return;
     }
 
-    this.private_errorHandler.leaveBreadcrumb(`New consent invocation`);
+    this.errorHandler.leaveBreadcrumb(`New consent invocation`);
 
     batch(() => {
       state.consents.preConsent.value = { ...state.consents.preConsent.value, enabled: false };
@@ -774,7 +760,7 @@ class Analytics implements IAnalytics {
 
       const { initialized, consentsData } = getConsentManagementData(
         state.consents.postConsent.value.consentManagement,
-        this.private_logger,
+        this.logger,
       );
 
       state.consents.initialized.value = initialized || state.consents.initialized.value;
@@ -783,29 +769,29 @@ class Analytics implements IAnalytics {
 
     // Update consents data in state
     if (state.consents.enabled.value && !state.consents.initialized.value) {
-      this.private_pluginsManager?.invokeSingle(
+      this.pluginsManager?.invokeSingle(
         `consentManager.updateConsentsInfo`,
         state,
-        this.private_storeManager,
-        this.private_logger,
+        this.storeManager,
+        this.logger,
       );
     }
 
     // Re-init store manager
-    this.private_storeManager?.initializeStorageState();
+    this.storeManager?.initializeStorageState();
 
     // Re-init user session manager
-    this.private_userSessionManager?.syncStorageDataToState();
+    this.userSessionManager?.syncStorageDataToState();
 
     // Resume event manager to process the events to destinations
-    this.private_eventManager?.resume();
+    this.eventManager?.resume();
 
-    this.private_loadDestinations();
+    this.loadDestinations();
 
-    this.private_sendTrackingEvents(isBufferedInvocation);
+    this.sendTrackingEvents(isBufferedInvocation);
   }
 
-  private_sendTrackingEvents(isBufferedInvocation: boolean) {
+  sendTrackingEvents(isBufferedInvocation: boolean) {
     // If isBufferedInvocation is true, then the tracking events will be added to the end of the
     // events buffer array so that any other preload events (mainly from query string API) will be processed first.
     if (state.consents.postConsent.value.trackConsent) {
@@ -834,7 +820,7 @@ class Analytics implements IAnalytics {
   }
 
   setAuthToken(token: string): void {
-    this.private_userSessionManager?.setAuthToken(token);
+    this.userSessionManager?.setAuthToken(token);
   }
   // End consumer exposed methods
 }

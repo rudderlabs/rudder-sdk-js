@@ -53,7 +53,7 @@ describe('DataPlaneEventsQueue', () => {
     it('should not start the event processing if it is already running', () => {
       dataPlaneEventsQueue.start();
 
-      const startSpy = jest.spyOn(dataPlaneEventsQueue.private_eventsQueue, 'start');
+      const startSpy = jest.spyOn(dataPlaneEventsQueue.eventsQueue, 'start');
       dataPlaneEventsQueue.start();
       expect(dataPlaneEventsQueue.isRunning()).toBe(true);
 
@@ -74,7 +74,7 @@ describe('DataPlaneEventsQueue', () => {
     });
 
     it('should not stop the event processing if it is already stopped', () => {
-      const stopSpy = jest.spyOn(dataPlaneEventsQueue.private_eventsQueue, 'stop');
+      const stopSpy = jest.spyOn(dataPlaneEventsQueue.eventsQueue, 'stop');
       dataPlaneEventsQueue.stop();
       expect(dataPlaneEventsQueue.isRunning()).toBe(false);
 
@@ -86,7 +86,7 @@ describe('DataPlaneEventsQueue', () => {
 
   describe('enqueue', () => {
     it('should add the event to the event queue', () => {
-      const addItemSpy = jest.spyOn(dataPlaneEventsQueue.private_eventsQueue, 'addItem');
+      const addItemSpy = jest.spyOn(dataPlaneEventsQueue.eventsQueue, 'addItem');
 
       dataPlaneEventsQueue.enqueue(testEvent);
 
@@ -129,9 +129,8 @@ describe('DataPlaneEventsQueue', () => {
 
       dataPlaneEventsQueue.start();
 
-      const queueEntry = dataPlaneEventsQueue.private_eventsQueue.getStorageEntry('queue');
-      const batchQueueEntry =
-        dataPlaneEventsQueue.private_eventsQueue.getStorageEntry('batchQueue');
+      const queueEntry = dataPlaneEventsQueue.eventsQueue.getStorageEntry('queue');
+      const batchQueueEntry = dataPlaneEventsQueue.eventsQueue.getStorageEntry('batchQueue');
 
       expect(queueEntry).toBeNull();
       expect(batchQueueEntry).toBeNull();
@@ -239,9 +238,8 @@ describe('DataPlaneEventsQueue', () => {
         callback: expect.any(Function),
       });
 
-      const queueEntry = tmpDataPlaneEventsQueue.private_eventsQueue.getStorageEntry('queue');
-      const batchQueueEntry =
-        tmpDataPlaneEventsQueue.private_eventsQueue.getStorageEntry('batchQueue');
+      const queueEntry = tmpDataPlaneEventsQueue.eventsQueue.getStorageEntry('queue');
+      const batchQueueEntry = tmpDataPlaneEventsQueue.eventsQueue.getStorageEntry('batchQueue');
 
       expect(queueEntry).toBeNull();
       expect(batchQueueEntry).toBeNull();
@@ -262,9 +260,8 @@ describe('DataPlaneEventsQueue', () => {
 
       jest.runAllTimers();
 
-      const queueEntry = dataPlaneEventsQueue.private_eventsQueue.getStorageEntry('queue');
-      const batchQueueEntry =
-        dataPlaneEventsQueue.private_eventsQueue.getStorageEntry('batchQueue');
+      const queueEntry = dataPlaneEventsQueue.eventsQueue.getStorageEntry('queue');
+      const batchQueueEntry = dataPlaneEventsQueue.eventsQueue.getStorageEntry('batchQueue');
 
       expect(queueEntry).toBeNull();
       expect(batchQueueEntry).toBeNull();

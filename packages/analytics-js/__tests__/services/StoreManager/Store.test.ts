@@ -89,7 +89,7 @@ describe('Store', () => {
           },
           getStorageEngine('localStorage'),
         );
-        expect(store.private_createValidKey('test')).toStrictEqual('name.id.test');
+        expect(store.createValidKey('test')).toStrictEqual('name.id.test');
       });
     });
 
@@ -103,7 +103,7 @@ describe('Store', () => {
           },
           getStorageEngine('localStorage'),
         );
-        expect(store.private_createValidKey('test')).toBeUndefined();
+        expect(store.createValidKey('test')).toBeUndefined();
       });
     });
 
@@ -115,20 +115,20 @@ describe('Store', () => {
         },
         getStorageEngine('localStorage'),
       );
-      expect(store.private_createValidKey('queue')).toStrictEqual('name.id.queue');
+      expect(store.createValidKey('queue')).toStrictEqual('name.id.queue');
     });
   });
 
   describe('.swapEngine', () => {
     it('should switch the underlying storage mechanism', () => {
-      expect(store.private_engine).toStrictEqual(getStorageEngine('localStorage'));
-      store.private_swapQueueStoreToInMemoryEngine();
-      expect(store.private_engine).toStrictEqual(getStorageEngine('memoryStorage'));
+      expect(store.engine).toStrictEqual(getStorageEngine('localStorage'));
+      store.swapQueueStoreToInMemoryEngine();
+      expect(store.engine).toStrictEqual(getStorageEngine('memoryStorage'));
     });
 
     it('should not switch the original storage mechanism', () => {
       expect(store.getOriginalEngine()).toStrictEqual(getStorageEngine('localStorage'));
-      store.private_swapQueueStoreToInMemoryEngine();
+      store.swapQueueStoreToInMemoryEngine();
       expect(store.getOriginalEngine()).toStrictEqual(getStorageEngine('localStorage'));
     });
 

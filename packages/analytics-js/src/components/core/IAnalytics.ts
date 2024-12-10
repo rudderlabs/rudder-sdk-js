@@ -27,18 +27,18 @@ import type { ICapabilitiesManager } from '../capabilitiesManager/types';
 import type { PreloadedEventCall } from '../preloadBuffer/types';
 
 export interface IAnalytics {
-  private_preloadBuffer: BufferQueue<PreloadedEventCall>;
-  private_initialized: boolean;
-  private_httpClient: IHttpClient;
-  private_logger: ILogger;
-  private_errorHandler: IErrorHandler;
-  private_externalSrcLoader: IExternalSrcLoader;
-  private_capabilitiesManager: ICapabilitiesManager;
-  private_storeManager?: IStoreManager;
-  private_configManager?: IConfigManager;
-  private_eventManager?: IEventManager;
-  private_userSessionManager?: IUserSessionManager;
-  private_pluginsManager?: IPluginsManager;
+  preloadBuffer: BufferQueue<PreloadedEventCall>;
+  initialized: boolean;
+  httpClient: IHttpClient;
+  logger: ILogger;
+  errorHandler: IErrorHandler;
+  externalSrcLoader: IExternalSrcLoader;
+  capabilitiesManager: ICapabilitiesManager;
+  storeManager?: IStoreManager;
+  configManager?: IConfigManager;
+  eventManager?: IEventManager;
+  userSessionManager?: IUserSessionManager;
+  pluginsManager?: IPluginsManager;
 
   /**
    * Start application lifecycle if not already started
@@ -52,17 +52,17 @@ export interface IAnalytics {
   /**
    * Orchestrate the lifecycle of the application phases/status
    */
-  private_startLifecycle(): void;
+  startLifecycle(): void;
 
   /**
    * Load browser polyfill if required
    */
-  private_onMounted(): void;
+  onMounted(): void;
 
   /**
    * Prepare internal services and load configuration
    */
-  private_onBrowserCapabilitiesReady(): void;
+  onBrowserCapabilitiesReady(): void;
 
   /**
    * Enqueue in buffer the events that were triggered pre SDK initialization
@@ -72,52 +72,52 @@ export interface IAnalytics {
   /**
    * Start the process of consuming the buffered events that were triggered pre SDK initialization
    */
-  private_processDataInPreloadBuffer(): void;
+  processDataInPreloadBuffer(): void;
 
   /**
    * Assign instances for the internal services
    */
-  private_prepareInternalServices(): void;
+  prepareInternalServices(): void;
 
   /**
    * Load configuration
    */
-  private_loadConfig(): void;
+  loadConfig(): void;
 
   /**
    * Initialize the storage and event queue
    */
-  private_onPluginsReady(): void;
+  onPluginsReady(): void;
 
   /**
    * Load plugins
    */
-  private_onConfigured(): void;
+  onConfigured(): void;
 
   /**
    * Trigger onLoaded callback if any is provided in config & emit initialised event
    */
-  private_onInitialized(): void;
+  onInitialized(): void;
 
   /**
    * Emit ready event
    */
-  private_onReady(): void;
+  onReady(): void;
 
   /**
    * Consume preloaded events buffer
    */
-  private_processBufferedEvents(): void;
+  processBufferedEvents(): void;
 
   /**
    * Load device mode destinations
    */
-  private_loadDestinations(): void;
+  loadDestinations(): void;
 
   /**
    * Invoke the ready callbacks if any exist
    */
-  private_onDestinationsReady(): void;
+  onDestinationsReady(): void;
 
   /**
    * To register a callback for SDK ready state

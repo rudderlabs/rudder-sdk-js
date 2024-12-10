@@ -27,19 +27,15 @@ export type PluginEngineConfig = {
 };
 
 export interface IPluginEngine {
-  private_plugins: ExtensionPlugin[];
-  private_byName: Record<string, ExtensionPlugin>;
-  private_cache: Record<string, ExtensionPlugin[]>;
-  private_config: PluginEngineConfig;
+  plugins: ExtensionPlugin[];
+  byName: Record<string, ExtensionPlugin>;
+  cache: Record<string, ExtensionPlugin[]>;
+  config: PluginEngineConfig;
   register: (plugin: ExtensionPlugin, state?: Record<string, any>) => void;
   unregister: (name: string) => void;
   getPlugin: (name: string) => ExtensionPlugin | undefined;
   getPlugins: (extPoint?: string) => ExtensionPlugin[];
-  private_invoke: <T = any>(
-    extPoint?: string,
-    allowMultiple?: boolean,
-    ...args: any[]
-  ) => Nullable<T>[];
+  invoke: <T = any>(extPoint?: string, allowMultiple?: boolean, ...args: any[]) => Nullable<T>[];
   invokeSingle: <T = any>(extPoint?: string, ...args: any[]) => Nullable<T>;
   invokeMultiple: <T = any>(extPoint?: string, ...args: any[]) => Nullable<T>[];
 }

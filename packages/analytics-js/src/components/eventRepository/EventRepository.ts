@@ -28,14 +28,14 @@ import { DataPlaneEventsQueue } from '../dataPlaneEventsQueue/DataPlaneEventsQue
  * Event repository class responsible for queuing events for further processing and delivery
  */
 class EventRepository implements IEventRepository {
-  private_errorHandler?: IErrorHandler;
-  private_logger?: ILogger;
-  private_pluginsManager: IPluginsManager;
-  private_httpClient: IHttpClient;
-  private_storeManager: IStoreManager;
-  private_dataplaneEventsQueue: IDataPlaneEventsQueue;
-  private_destinationsEventsQueue: any;
-  private_dmtEventsQueue: any;
+  errorHandler?: IErrorHandler;
+  logger?: ILogger;
+  pluginsManager: IPluginsManager;
+  httpClient: IHttpClient;
+  storeManager: IStoreManager;
+  dataplaneEventsQueue: IDataPlaneEventsQueue;
+  destinationsEventsQueue: any;
+  dmtEventsQueue: any;
 
   /**
    * Constructor for EventRepository
@@ -52,16 +52,16 @@ class EventRepository implements IEventRepository {
     errorHandler?: IErrorHandler,
     logger?: ILogger,
   ) {
-    this.private_pluginsManager = pluginsManager;
-    this.private_errorHandler = errorHandler;
-    this.private_logger = logger;
-    this.private_httpClient = httpClient;
-    this.private_storeManager = storeManager;
-    this.private_onError = this.private_onError.bind(this);
-    this.private_dataplaneEventsQueue = new DataPlaneEventsQueue(
-      this.private_httpClient,
-      this.private_storeManager,
-      this.private_logger,
+    this.pluginsManager = pluginsManager;
+    this.errorHandler = errorHandler;
+    this.logger = logger;
+    this.httpClient = httpClient;
+    this.storeManager = storeManager;
+    this.onError = this.onError.bind(this);
+    this.dataplaneEventsQueue = new DataPlaneEventsQueue(
+      this.httpClient,
+      this.storeManager,
+      this.logger,
     );
   }
 
@@ -70,38 +70,38 @@ class EventRepository implements IEventRepository {
    */
   init(): void {
     try {
-      this.private_dmtEventsQueue = this.private_pluginsManager.invokeSingle(
+      this.dmtEventsQueue = this.pluginsManager.invokeSingle(
         `${DMT_EXT_POINT_PREFIX}.init`,
         state,
-        this.private_pluginsManager,
-        this.private_httpClient,
-        this.private_storeManager,
-        this.private_errorHandler,
-        this.private_logger,
+        this.pluginsManager,
+        this.httpClient,
+        this.storeManager,
+        this.errorHandler,
+        this.logger,
       );
     } catch (e) {
-      this.private_onError(e, DMT_PLUGIN_INITIALIZE_ERROR);
+      this.onError(e, DMT_PLUGIN_INITIALIZE_ERROR);
     }
 
     try {
-      this.private_destinationsEventsQueue = this.private_pluginsManager.invokeSingle(
+      this.destinationsEventsQueue = this.pluginsManager.invokeSingle(
         `${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.init`,
         state,
-        this.private_pluginsManager,
-        this.private_storeManager,
-        this.private_dmtEventsQueue,
-        this.private_errorHandler,
-        this.private_logger,
+        this.pluginsManager,
+        this.storeManager,
+        this.dmtEventsQueue,
+        this.errorHandler,
+        this.logger,
       );
     } catch (e) {
-      this.private_onError(e, NATIVE_DEST_PLUGIN_INITIALIZE_ERROR);
+      this.onError(e, NATIVE_DEST_PLUGIN_INITIALIZE_ERROR);
     }
 
     // Start the queue once the client destinations are ready
     effect(() => {
       if (state.nativeDestinations.clientDestinationsReady.value === true) {
-        this.private_destinationsEventsQueue?.start();
-        this.private_dmtEventsQueue?.start();
+        this.destinationsEventsQueue?.start();
+        this.dmtEventsQueue?.start();
       }
     });
 
@@ -126,26 +126,26 @@ class EventRepository implements IEventRepository {
         !bufferEventsBeforeConsent
       ) {
         (globalThis as typeof window).clearTimeout(timeoutId);
-        this.private_dataplaneEventsQueue.start();
+        this.dataplaneEventsQueue.start();
       }
     });
 
     // Force start the data plane events queue processing after a timeout
     if (state.loadOptions.value.bufferDataPlaneEventsUntilReady === true) {
       timeoutId = (globalThis as typeof window).setTimeout(() => {
-        this.private_dataplaneEventsQueue.start();
+        this.dataplaneEventsQueue.start();
       }, state.loadOptions.value.dataPlaneEventsBufferTimeout);
     }
   }
 
   resume() {
-    if (this.private_dataplaneEventsQueue.isRunning() !== true) {
+    if (this.dataplaneEventsQueue.isRunning() !== true) {
       if (state.consents.postConsent.value.discardPreConsentEvents) {
-        this.private_dataplaneEventsQueue.clear();
-        this.private_destinationsEventsQueue?.clear();
+        this.dataplaneEventsQueue.clear();
+        this.destinationsEventsQueue?.clear();
       }
 
-      this.private_dataplaneEventsQueue.start();
+      this.dataplaneEventsQueue.start();
     }
   }
 
@@ -157,23 +157,23 @@ class EventRepository implements IEventRepository {
   enqueue(event: RudderEvent, callback?: ApiCallback): void {
     const finalEvent = getFinalEvent(event, state);
     try {
-      this.private_dataplaneEventsQueue.enqueue(finalEvent);
+      this.dataplaneEventsQueue.enqueue(finalEvent);
     } catch (e) {
-      this.private_onError(e, DATAPLANE_EVENTS_ENQUEUE_ERROR);
+      this.onError(e, DATAPLANE_EVENTS_ENQUEUE_ERROR);
     }
 
     try {
       const dQEvent = clone(finalEvent);
-      this.private_pluginsManager.invokeSingle(
+      this.pluginsManager.invokeSingle(
         `${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.enqueue`,
         state,
-        this.private_destinationsEventsQueue,
+        this.destinationsEventsQueue,
         dQEvent,
-        this.private_errorHandler,
-        this.private_logger,
+        this.errorHandler,
+        this.logger,
       );
     } catch (e) {
-      this.private_onError(e, NATIVE_DEST_PLUGIN_ENQUEUE_ERROR);
+      this.onError(e, NATIVE_DEST_PLUGIN_ENQUEUE_ERROR);
     }
 
     // Invoke the callback if it exists
@@ -182,7 +182,7 @@ class EventRepository implements IEventRepository {
       // to ensure the mutated (if any) event is sent to the callback
       callback?.(finalEvent);
     } catch (error) {
-      this.private_onError(error, API_CALLBACK_INVOKE_ERROR);
+      this.onError(error, API_CALLBACK_INVOKE_ERROR);
     }
   }
 
@@ -192,9 +192,9 @@ class EventRepository implements IEventRepository {
    * @param customMessage a message
    * @param shouldAlwaysThrow if it should throw or use logger
    */
-  private_onError(error: any, customMessage?: string, shouldAlwaysThrow?: boolean): void {
-    if (this.private_errorHandler) {
-      this.private_errorHandler.onError(error, EVENT_REPOSITORY, customMessage, shouldAlwaysThrow);
+  onError(error: any, customMessage?: string, shouldAlwaysThrow?: boolean): void {
+    if (this.errorHandler) {
+      this.errorHandler.onError(error, EVENT_REPOSITORY, customMessage, shouldAlwaysThrow);
     } else {
       throw error;
     }

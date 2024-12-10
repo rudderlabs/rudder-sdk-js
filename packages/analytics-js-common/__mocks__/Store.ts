@@ -5,50 +5,50 @@ import { defaultInMemoryStorage, defaultLocalStorage } from './Storage';
 
 class Store implements IStore {
   constructor(config: IStoreConfig, engine?: any) {
-    this.private_id = config.id;
-    this.private_name = config.name;
-    this.private_isEncrypted = config.isEncrypted ?? false;
-    this.private_validKeys = config.validKeys ?? [];
-    this.private_engine = engine ?? defaultLocalStorage;
-    this.private_originalEngine = this.private_engine;
+    this.id = config.id;
+    this.name = config.name;
+    this.isEncrypted = config.isEncrypted ?? false;
+    this.validKeys = config.validKeys ?? [];
+    this.engine = engine ?? defaultLocalStorage;
+    this.originalEngine = this.engine;
   }
-  private_id = 'test';
-  private_name = 'test';
-  private_isEncrypted = false;
-  private_validKeys: string[];
-  private_engine = defaultLocalStorage;
-  private_originalEngine = defaultLocalStorage;
-  private_createValidKey = (key: string) => {
-    return [this.private_name, this.private_id, key].join('.');
+  id = 'test';
+  name = 'test';
+  isEncrypted = false;
+  validKeys: string[];
+  engine = defaultLocalStorage;
+  originalEngine = defaultLocalStorage;
+  createValidKey = (key: string) => {
+    return [this.name, this.id, key].join('.');
   };
-  private_swapQueueStoreToInMemoryEngine = () => {
-    this.private_engine.keys().forEach(key => {
-      const value = this.private_engine.getItem(key);
+  swapQueueStoreToInMemoryEngine = () => {
+    this.engine.keys().forEach(key => {
+      const value = this.engine.getItem(key);
       defaultInMemoryStorage.setItem(key, value);
     });
 
-    this.private_engine = defaultInMemoryStorage;
+    this.engine = defaultInMemoryStorage;
   };
   set = (key: string, value: any) => {
-    const validKey = this.private_createValidKey(key);
-    this.private_engine.setItem(validKey, value);
+    const validKey = this.createValidKey(key);
+    this.engine.setItem(validKey, value);
   };
   get = (key: string) => {
-    const validKey = this.private_createValidKey(key);
-    return this.private_engine.getItem(validKey);
+    const validKey = this.createValidKey(key);
+    return this.engine.getItem(validKey);
   };
   remove = (key: string) => {
-    const validKey = this.private_createValidKey(key);
-    this.private_engine.removeItem(validKey);
+    const validKey = this.createValidKey(key);
+    this.engine.removeItem(validKey);
   };
   clear = () => {
-    this.private_engine.clear();
+    this.engine.clear();
   };
-  private_onError = jest.fn();
-  private_crypto = jest.fn();
-  private_encrypt = jest.fn();
-  private_decrypt = jest.fn();
-  getOriginalEngine = () => this.private_originalEngine;
+  onError = jest.fn();
+  crypto = jest.fn();
+  encrypt = jest.fn();
+  decrypt = jest.fn();
+  getOriginalEngine = () => this.originalEngine;
 }
 
 const defaultStore = new Store({ id: 'test', name: 'test' });

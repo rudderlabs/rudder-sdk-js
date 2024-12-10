@@ -45,8 +45,8 @@ export type IRequestOptions = IFetchRequestOptions;
 export type HTTPClientMethod = 'GET' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH';
 
 export interface IHttpClient {
-  private_logger?: ILogger;
-  private_basicAuthHeader?: string;
+  logger?: ILogger;
+  basicAuthHeader?: string;
   /**
    * Makes an async request to the given URL
    * @param config Request configuration

@@ -73,9 +73,9 @@ export type AnalyticsAliasMethod = {
 };
 
 export interface IRudderAnalytics<T = any> {
-  private_analyticsInstances: Record<string, T>;
-  private_defaultAnalyticsKey: string;
-  private_logger: ILogger;
+  analyticsInstances: Record<string, T>;
+  defaultAnalyticsKey: string;
+  logger: ILogger;
 
   /**
    * Set the writeKey of the analytics instance that should be default
@@ -90,7 +90,7 @@ export interface IRudderAnalytics<T = any> {
   /**
    * Trigger load event in buffer queue if exists
    */
-  private_triggerBufferedLoadEvent(): void;
+  triggerBufferedLoadEvent(): void;
 
   /**
    * Call control pane to get client configs

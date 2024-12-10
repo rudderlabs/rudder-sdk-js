@@ -36,46 +36,46 @@ import { debounce } from '../utilities/globals';
 
 // TODO: replace direct calls to detection methods with state values when possible
 class CapabilitiesManager implements ICapabilitiesManager {
-  private_logger?: ILogger;
-  private_errorHandler?: IErrorHandler;
-  private_externalSrcLoader: IExternalSrcLoader;
-  private_httpClient: IHttpClient;
+  logger?: ILogger;
+  errorHandler?: IErrorHandler;
+  externalSrcLoader: IExternalSrcLoader;
+  httpClient: IHttpClient;
 
   constructor(httpClient: IHttpClient, errorHandler?: IErrorHandler, logger?: ILogger) {
-    this.private_logger = logger;
-    this.private_errorHandler = errorHandler;
-    this.private_externalSrcLoader = new ExternalSrcLoader();
-    this.private_httpClient = httpClient;
-    this.private_onError = this.private_onError.bind(this);
-    this.private_onReady = this.private_onReady.bind(this);
+    this.logger = logger;
+    this.errorHandler = errorHandler;
+    this.externalSrcLoader = new ExternalSrcLoader();
+    this.httpClient = httpClient;
+    this.onError = this.onError.bind(this);
+    this.onReady = this.onReady.bind(this);
   }
 
   init() {
-    this.private_prepareBrowserCapabilities();
-    this.private_attachWindowListeners();
+    this.prepareBrowserCapabilities();
+    this.attachWindowListeners();
   }
 
   /**
    * Detect supported capabilities and set values in state
    */
   // eslint-disable-next-line class-methods-use-this
-  private_detectBrowserCapabilities() {
+  detectBrowserCapabilities() {
     batch(() => {
       // Storage related details
       state.capabilities.storage.isCookieStorageAvailable.value = isStorageAvailable(
         COOKIE_STORAGE,
         getStorageEngine(COOKIE_STORAGE),
-        this.private_logger,
+        this.logger,
       );
       state.capabilities.storage.isLocalStorageAvailable.value = isStorageAvailable(
         LOCAL_STORAGE,
         undefined,
-        this.private_logger,
+        this.logger,
       );
       state.capabilities.storage.isSessionStorageAvailable.value = isStorageAvailable(
         SESSION_STORAGE,
         undefined,
-        this.private_logger,
+        this.logger,
       );
 
       // Browser feature detection details
@@ -103,7 +103,7 @@ class CapabilitiesManager implements ICapabilitiesManager {
         state.loadOptions.value.sendAdblockPage === true &&
         state.lifecycle.sourceConfigUrl.value !== undefined
       ) {
-        detectAdBlockers(this.private_httpClient);
+        detectAdBlockers(this.httpClient);
       }
     });
   }
@@ -111,7 +111,7 @@ class CapabilitiesManager implements ICapabilitiesManager {
   /**
    * Detect if polyfills are required and then load script from polyfill URL
    */
-  private_prepareBrowserCapabilities() {
+  prepareBrowserCapabilities() {
     state.capabilities.isLegacyDOM.value = isLegacyJSEngine();
     const customPolyfillUrl = state.loadOptions.value.polyfillURL;
     let polyfillUrl = POLYFILL_URL;
@@ -119,9 +119,7 @@ class CapabilitiesManager implements ICapabilitiesManager {
       if (isValidURL(customPolyfillUrl)) {
         polyfillUrl = customPolyfillUrl;
       } else {
-        this.private_logger?.warn(
-          INVALID_POLYFILL_URL_WARNING(CAPABILITIES_MANAGER, customPolyfillUrl),
-        );
+        this.logger?.warn(INVALID_POLYFILL_URL_WARNING(CAPABILITIES_MANAGER, customPolyfillUrl));
       }
     }
 
@@ -138,7 +136,7 @@ class CapabilitiesManager implements ICapabilitiesManager {
         const polyfillCallbackName = `RS_polyfillCallback_${state.lifecycle.writeKey.value}`;
 
         const polyfillCallback = (): void => {
-          this.private_onReady();
+          this.onReady();
 
           // Remove the entry from window so we don't leave room for calling it again
           delete (globalThis as any)[polyfillCallbackName];
@@ -149,32 +147,32 @@ class CapabilitiesManager implements ICapabilitiesManager {
         polyfillUrl = `${polyfillUrl}&callback=${polyfillCallbackName}`;
       }
 
-      this.private_externalSrcLoader.loadJSFile({
+      this.externalSrcLoader.loadJSFile({
         url: polyfillUrl,
         id: POLYFILL_SCRIPT_ID,
         async: true,
         timeout: POLYFILL_LOAD_TIMEOUT,
         callback: (scriptId?: string, error?: Error) => {
           if (error) {
-            this.private_onError(
+            this.onError(
               new Error(POLYFILL_SCRIPT_LOAD_ERROR(CAPABILITIES_MANAGER, error.message)),
             );
             // The default polyfill service would automatically invoke the callback
             // which will invoke the onReady method
           } else if (!isDefaultPolyfillService) {
-            this.private_onReady();
+            this.onReady();
           }
         },
       });
     } else {
-      this.private_onReady();
+      this.onReady();
     }
   }
 
   /**
    * Attach listeners to window to observe event that update capabilities state values
    */
-  private_attachWindowListeners() {
+  attachWindowListeners() {
     globalThis.addEventListener('offline', () => {
       state.capabilities.isOnline.value = false;
     });
@@ -195,8 +193,8 @@ class CapabilitiesManager implements ICapabilitiesManager {
    * Set the lifecycle status to next phase
    */
   // eslint-disable-next-line class-methods-use-this
-  private_onReady() {
-    this.private_detectBrowserCapabilities();
+  onReady() {
+    this.detectBrowserCapabilities();
     state.lifecycle.status.value = 'browserCapabilitiesReady';
   }
 
@@ -204,9 +202,9 @@ class CapabilitiesManager implements ICapabilitiesManager {
    * Handles error
    * @param error The error object
    */
-  private_onError(error: any): void {
-    if (this.private_errorHandler) {
-      this.private_errorHandler.onError(error, CAPABILITIES_MANAGER);
+  onError(error: any): void {
+    if (this.errorHandler) {
+      this.errorHandler.onError(error, CAPABILITIES_MANAGER);
     } else {
       throw error;
     }

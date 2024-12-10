@@ -21,11 +21,11 @@ const DEFAULT_REQUEST_OPTIONS: Partial<IRequestOptions> = {
  * Service to handle data communication with APIs
  */
 class HttpClient implements IHttpClient {
-  private_logger?: ILogger;
-  private_basicAuthHeader?: string;
+  logger?: ILogger;
+  basicAuthHeader?: string;
 
   constructor(logger?: ILogger) {
-    this.private_logger = logger;
+    this.logger = logger;
   }
 
   /**
@@ -37,10 +37,10 @@ class HttpClient implements IHttpClient {
 
     const finalOptions = mergeDeepRight<IRequestOptions>(DEFAULT_REQUEST_OPTIONS, options || {});
 
-    if (finalOptions.useAuth && this.private_basicAuthHeader) {
+    if (finalOptions.useAuth && this.basicAuthHeader) {
       finalOptions.headers = mergeDeepRight(
         {
-          Authorization: this.private_basicAuthHeader,
+          Authorization: this.basicAuthHeader,
         },
         finalOptions.headers ?? {},
       );
@@ -98,14 +98,14 @@ class HttpClient implements IHttpClient {
    */
   setAuthHeader(value: string, noBtoa = false) {
     const authVal = noBtoa ? value : toBase64(`${value}:`);
-    this.private_basicAuthHeader = `Basic ${authVal}`;
+    this.basicAuthHeader = `Basic ${authVal}`;
   }
 
   /**
    * Clear basic authentication header
    */
   resetAuthHeader() {
-    this.private_basicAuthHeader = undefined;
+    this.basicAuthHeader = undefined;
   }
 }
 

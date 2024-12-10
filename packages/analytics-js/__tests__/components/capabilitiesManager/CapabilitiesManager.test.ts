@@ -58,13 +58,13 @@ describe('CapabilitiesManager', () => {
       state.loadOptions.value.polyfillIfRequired = true;
 
       isLegacyJSEngine.mockReturnValue(true);
-      capabilitiesManager.private_externalSrcLoader = {
+      capabilitiesManager.externalSrcLoader = {
         loadJSFile: jest.fn(),
       } as any;
 
       capabilitiesManager.init();
 
-      expect(capabilitiesManager.private_externalSrcLoader.loadJSFile).toHaveBeenCalledWith({
+      expect(capabilitiesManager.externalSrcLoader.loadJSFile).toHaveBeenCalledWith({
         url: 'https://www.dummy.url',
         id: 'rudderstackPolyfill',
         async: true,
@@ -79,13 +79,13 @@ describe('CapabilitiesManager', () => {
       state.loadOptions.value.polyfillIfRequired = true;
 
       isLegacyJSEngine.mockReturnValue(true);
-      capabilitiesManager.private_externalSrcLoader = {
+      capabilitiesManager.externalSrcLoader = {
         loadJSFile: jest.fn(),
       } as any;
 
       capabilitiesManager.init();
 
-      expect(capabilitiesManager.private_externalSrcLoader.loadJSFile).toHaveBeenCalledWith({
+      expect(capabilitiesManager.externalSrcLoader.loadJSFile).toHaveBeenCalledWith({
         url: 'https://somevalid.polyfill.url&callback=RS_polyfillCallback_sample-write-key',
         id: 'rudderstackPolyfill',
         async: true,
@@ -110,13 +110,13 @@ describe('CapabilitiesManager', () => {
 
       isLegacyJSEngine.mockReturnValue(true);
 
-      tempCapabilitiesManager.private_externalSrcLoader = {
+      tempCapabilitiesManager.externalSrcLoader = {
         loadJSFile: jest.fn(),
       } as any;
 
       tempCapabilitiesManager.init();
 
-      expect(tempCapabilitiesManager.private_externalSrcLoader.loadJSFile).toHaveBeenCalledWith({
+      expect(tempCapabilitiesManager.externalSrcLoader.loadJSFile).toHaveBeenCalledWith({
         url: 'https://somevalid.polyfill.url&callback=RS_polyfillCallback_sample-write-key',
         id: 'rudderstackPolyfill',
         async: true,
@@ -138,15 +138,15 @@ describe('CapabilitiesManager', () => {
       POLYFILL_URL = 'invalid-url';
 
       isLegacyJSEngine.mockReturnValue(true);
-      capabilitiesManager.private_externalSrcLoader = {
+      capabilitiesManager.externalSrcLoader = {
         loadJSFile: jest.fn(),
       } as any;
-      capabilitiesManager.private_onReady = jest.fn();
+      capabilitiesManager.onReady = jest.fn();
 
       capabilitiesManager.init();
 
-      expect(capabilitiesManager.private_externalSrcLoader.loadJSFile).not.toHaveBeenCalled();
-      expect(capabilitiesManager.private_onReady).toHaveBeenCalled();
+      expect(capabilitiesManager.externalSrcLoader.loadJSFile).not.toHaveBeenCalled();
+      expect(capabilitiesManager.onReady).toHaveBeenCalled();
     });
 
     it('should log an error if polyfill script fails to load', () => {
@@ -156,13 +156,13 @@ describe('CapabilitiesManager', () => {
 
       isLegacyJSEngine.mockReturnValue(true);
 
-      capabilitiesManager.private_externalSrcLoader = {
+      capabilitiesManager.externalSrcLoader = {
         loadJSFile: (options: any) => {
           options.callback(undefined, new Error('Failed to load polyfill script'));
         },
       } as any;
 
-      const onErrorSpy = jest.spyOn(capabilitiesManager, 'private_onError');
+      const onErrorSpy = jest.spyOn(capabilitiesManager, 'onError');
 
       capabilitiesManager.init();
 
@@ -178,13 +178,13 @@ describe('CapabilitiesManager', () => {
 
       isLegacyJSEngine.mockReturnValue(true);
 
-      capabilitiesManager.private_externalSrcLoader = {
+      capabilitiesManager.externalSrcLoader = {
         loadJSFile: (options: any) => {
           options.callback('rudderstackPolyfill');
         },
       } as any;
 
-      const onReadySpy = jest.spyOn(capabilitiesManager, 'private_onReady');
+      const onReadySpy = jest.spyOn(capabilitiesManager, 'onReady');
 
       capabilitiesManager.init();
 

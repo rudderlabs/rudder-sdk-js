@@ -49,15 +49,12 @@ class Schedule {
   run(task: () => any, timeout: number, mode?: number): string {
     const id = this.nextId.toString();
 
-    this.tasks[id] = this.clock.setTimeout(
-      this.private_handle(id, task, timeout, mode ?? ASAP),
-      timeout,
-    );
+    this.tasks[id] = this.clock.setTimeout(this.handle(id, task, timeout, mode ?? ASAP), timeout);
     this.nextId += 1;
     return id;
   }
 
-  private_handle(id: string, callback: () => any, timeout: number, mode: number): () => any {
+  handle(id: string, callback: () => any, timeout: number, mode: number): () => any {
     const start = this.now();
 
     return () => {

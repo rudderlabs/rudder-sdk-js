@@ -83,7 +83,7 @@ describe('StoreManager', () => {
         { enabled: true },
       );
 
-      expect(storeManager.private_stores).toHaveProperty('clientDataInCookie');
+      expect(storeManager.stores).toHaveProperty('clientDataInCookie');
     });
 
     it('should not initialize if already initialized', () => {

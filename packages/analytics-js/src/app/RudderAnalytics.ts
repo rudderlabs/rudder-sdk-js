@@ -48,18 +48,18 @@ import { state } from '../state';
  */
 class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   // eslint-disable-next-line sonarjs/public-static-readonly
-  static private_globalSingleton: Nullable<RudderAnalytics>;
-  private_analyticsInstances: Record<string, IAnalytics> = {};
-  private_defaultAnalyticsKey = '';
-  private_logger = defaultLogger;
+  static globalSingleton: Nullable<RudderAnalytics>;
+  analyticsInstances: Record<string, IAnalytics> = {};
+  defaultAnalyticsKey = '';
+  logger = defaultLogger;
 
   // Singleton with constructor bind methods
   constructor() {
     try {
-      if (RudderAnalytics.private_globalSingleton) {
+      if (RudderAnalytics.globalSingleton) {
         // START-NO-SONAR-SCAN
         // eslint-disable-next-line no-constructor-return
-        return RudderAnalytics.private_globalSingleton;
+        return RudderAnalytics.globalSingleton;
         // END-NO-SONAR-SCAN
       }
 
@@ -67,7 +67,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
       this.getAnalyticsInstance = this.getAnalyticsInstance.bind(this);
       this.load = this.load.bind(this);
       this.ready = this.ready.bind(this);
-      this.private_triggerBufferedLoadEvent = this.private_triggerBufferedLoadEvent.bind(this);
+      this.triggerBufferedLoadEvent = this.triggerBufferedLoadEvent.bind(this);
       this.page = this.page.bind(this);
       this.track = this.track.bind(this);
       this.identify = this.identify.bind(this);
@@ -86,13 +86,13 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
       this.setAuthToken = this.setAuthToken.bind(this);
       this.consent = this.consent.bind(this);
 
-      RudderAnalytics.private_globalSingleton = this;
+      RudderAnalytics.globalSingleton = this;
 
       state.autoTrack.pageLifecycle.visitId.value = generateUUID();
       state.autoTrack.pageLifecycle.pageLoadedTimestamp.value = Date.now();
 
       // start loading if a load event was buffered or wait for explicit load call
-      this.private_triggerBufferedLoadEvent();
+      this.triggerBufferedLoadEvent();
 
       // Assign to global "rudderanalytics" object after processing the preload buffer (if any exists)
       // for CDN bundling IIFE exports covers this but for npm ESM and CJS bundling has to be done explicitly
@@ -113,7 +113,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     // if the implementation of this method goes beyond
     // this simple implementation
     if (isString(writeKey) && writeKey) {
-      this.private_defaultAnalyticsKey = writeKey;
+      this.defaultAnalyticsKey = writeKey;
     }
   }
 
@@ -124,16 +124,16 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     try {
       let instanceId = writeKey;
       if (!isString(instanceId) || !instanceId) {
-        instanceId = this.private_defaultAnalyticsKey;
+        instanceId = this.defaultAnalyticsKey;
       }
 
-      const analyticsInstanceExists = Boolean(this.private_analyticsInstances[instanceId]);
+      const analyticsInstanceExists = Boolean(this.analyticsInstances[instanceId]);
 
       if (!analyticsInstanceExists) {
-        this.private_analyticsInstances[instanceId] = new Analytics();
+        this.analyticsInstances[instanceId] = new Analytics();
       }
 
-      return this.private_analyticsInstances[instanceId] as IAnalytics;
+      return this.analyticsInstances[instanceId] as IAnalytics;
     } catch (error: any) {
       dispatchErrorEvent(error);
       return undefined;
@@ -149,7 +149,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    */
   load(writeKey: string, dataPlaneUrl: string, loadOptions?: Partial<LoadOptions>): void {
     try {
-      if (this.private_analyticsInstances[writeKey]) {
+      if (this.analyticsInstances[writeKey]) {
         return;
       }
 
@@ -159,14 +159,14 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
       const preloadedEventsArray = getExposedGlobal(GLOBAL_PRELOAD_BUFFER) as PreloadedEventCall[];
 
       // Track page loaded lifecycle event if enabled
-      this.private_trackPageLifecycleEvents(preloadedEventsArray, loadOptions);
+      this.trackPageLifecycleEvents(preloadedEventsArray, loadOptions);
 
       // The array will be mutated in the below method
       promotePreloadedConsentEventsToTop(preloadedEventsArray);
 
       setExposedGlobal(GLOBAL_PRELOAD_BUFFER, clone(preloadedEventsArray));
 
-      this.private_analyticsInstances[writeKey] = new Analytics();
+      this.analyticsInstances[writeKey] = new Analytics();
       this.getAnalyticsInstance(writeKey)?.load(
         writeKey,
         dataPlaneUrl,
@@ -183,7 +183,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    * @param loadOptions
    * @returns
    */
-  private_trackPageLifecycleEvents(
+  trackPageLifecycleEvents(
     preloadedEventsArray: PreloadedEventCall[],
     loadOptions?: Partial<LoadOptions>,
   ) {
@@ -211,8 +211,8 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     if (!pageLifecycleEnabled) {
       return;
     }
-    this.private_trackPageLoadedEvent(events, options, preloadedEventsArray);
-    this.private_setupPageUnloadTracking(events, useBeacon, options);
+    this.trackPageLoadedEvent(events, options, preloadedEventsArray);
+    this.setupPageUnloadTracking(events, useBeacon, options);
   }
 
   /**
@@ -222,7 +222,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    * @param preloadedEventsArray
    */
   // eslint-disable-next-line class-methods-use-this
-  private_trackPageLoadedEvent(
+  trackPageLoadedEvent(
     events: PageLifecycleEvents[],
     options: ApiOptions,
     preloadedEventsArray: PreloadedEventCall[],
@@ -248,7 +248,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    * @param useBeacon
    * @param options
    */
-  private_setupPageUnloadTracking(
+  setupPageUnloadTracking(
     events: PageLifecycleEvents[],
     useBeacon: boolean | undefined,
     options: ApiOptions,
@@ -276,7 +276,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
         });
       } else {
         // throw warning if beacon is disabled
-        this.private_logger.warn(PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING(RSA));
+        this.logger.warn(PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING(RSA));
       }
     }
   }
@@ -285,7 +285,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
    * Trigger load event in buffer queue if exists and stores the
    * remaining preloaded events array in global object
    */
-  private_triggerBufferedLoadEvent() {
+  triggerBufferedLoadEvent() {
     const preloadedEventsArray = Array.isArray((globalThis as typeof window).rudderanalytics)
       ? ((globalThis as typeof window).rudderanalytics as unknown as PreloadedEventCall[])
       : ([] as PreloadedEventCall[]);

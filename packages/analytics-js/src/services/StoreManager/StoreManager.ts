@@ -34,23 +34,23 @@ import { getStorageTypeFromPreConsentIfApplicable } from './utils';
  * A service to manage stores & available storage client configurations
  */
 class StoreManager implements IStoreManager {
-  private_stores: Record<string, Store> = {};
-  private_isInitialized = false;
-  private_errorHandler?: IErrorHandler;
-  private_logger?: ILogger;
-  private_pluginsManager: IPluginsManager;
+  stores: Record<string, Store> = {};
+  isInitialized = false;
+  errorHandler?: IErrorHandler;
+  logger?: ILogger;
+  pluginsManager: IPluginsManager;
 
   constructor(pluginsManager: IPluginsManager, errorHandler?: IErrorHandler, logger?: ILogger) {
-    this.private_errorHandler = errorHandler;
-    this.private_logger = logger;
-    this.private_pluginsManager = pluginsManager;
+    this.errorHandler = errorHandler;
+    this.logger = logger;
+    this.pluginsManager = pluginsManager;
   }
 
   /**
    * Configure available storage client instances
    */
   init() {
-    if (this.private_isInitialized) {
+    if (this.isInitialized) {
       return;
     }
 
@@ -80,7 +80,7 @@ class StoreManager implements IStoreManager {
     );
 
     this.initClientDataStores();
-    this.private_isInitialized = true;
+    this.isInitialized = true;
   }
 
   /**
@@ -133,7 +133,7 @@ class StoreManager implements IStoreManager {
       const storageType =
         preConsentStorageType ?? configuredStorageType ?? globalStorageType ?? DEFAULT_STORAGE_TYPE;
 
-      const finalStorageType = this.private_getResolvedStorageTypeForEntry(storageType, sessionKey);
+      const finalStorageType = this.getResolvedStorageTypeForEntry(storageType, sessionKey);
 
       if (finalStorageType !== NO_STORAGE) {
         trulyAnonymousTracking = false;
@@ -155,7 +155,7 @@ class StoreManager implements IStoreManager {
     });
   }
 
-  private_getResolvedStorageTypeForEntry(storageType: StorageType, sessionKey: UserSessionKey) {
+  getResolvedStorageTypeForEntry(storageType: StorageType, sessionKey: UserSessionKey) {
     let finalStorageType = storageType;
     switch (storageType) {
       case LOCAL_STORAGE:
@@ -187,7 +187,7 @@ class StoreManager implements IStoreManager {
     }
 
     if (finalStorageType !== storageType) {
-      this.private_logger?.warn(
+      this.logger?.warn(
         STORAGE_UNAVAILABLE_WARNING(STORE_MANAGER, sessionKey, storageType, finalStorageType),
       );
     }
@@ -200,19 +200,15 @@ class StoreManager implements IStoreManager {
    */
   setStore(storeConfig: IStoreConfig): Store {
     const storageEngine = getStorageEngine(storeConfig.type);
-    this.private_stores[storeConfig.id] = new Store(
-      storeConfig,
-      storageEngine,
-      this.private_pluginsManager,
-    );
-    return this.private_stores[storeConfig.id] as Store;
+    this.stores[storeConfig.id] = new Store(storeConfig, storageEngine, this.pluginsManager);
+    return this.stores[storeConfig.id] as Store;
   }
 
   /**
    * Retrieve a store
    */
   getStore(id: string): Store | undefined {
-    return this.private_stores[id];
+    return this.stores[id];
   }
 }
 

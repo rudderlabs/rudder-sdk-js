@@ -64,8 +64,8 @@ describe('utilities', () => {
         'test',
         '3',
       );
-      expect(otherQueues[0].private_id).toBe('1');
-      expect(otherQueues[1].private_id).toBe('2');
+      expect(otherQueues[0].id).toBe('1');
+      expect(otherQueues[1].id).toBe('2');
     });
 
     it('should not find the other queues if the name does not match', () => {

@@ -29,26 +29,26 @@ import { getNormalizedErrorForUnhandledError, processError } from './processErro
  * A service to handle errors
  */
 class ErrorHandler implements IErrorHandler {
-  private_logger?: ILogger;
-  private_pluginEngine?: IPluginEngine;
-  private_httpClient?: IHttpClient;
-  private_errReportingClient?: any;
-  private_errorBuffer: BufferQueue<PreLoadErrorData>;
+  logger?: ILogger;
+  pluginEngine?: IPluginEngine;
+  httpClient?: IHttpClient;
+  errReportingClient?: any;
+  errorBuffer: BufferQueue<PreLoadErrorData>;
 
   // If no logger is passed errors will be thrown as unhandled error
   constructor(logger?: ILogger, pluginEngine?: IPluginEngine) {
-    this.private_logger = logger;
-    this.private_pluginEngine = pluginEngine;
-    this.private_errorBuffer = new BufferQueue();
-    this.private_attachEffects();
-    this.private_attachErrorListeners();
+    this.logger = logger;
+    this.pluginEngine = pluginEngine;
+    this.errorBuffer = new BufferQueue();
+    this.attachEffects();
+    this.attachErrorListeners();
   }
 
-  private_attachEffects() {
+  attachEffects() {
     effect(() => {
       if (state.reporting.isErrorReportingPluginLoaded.value === true) {
-        while (this.private_errorBuffer.size() > 0) {
-          const errorToProcess = this.private_errorBuffer.dequeue();
+        while (this.errorBuffer.size() > 0) {
+          const errorToProcess = this.errorBuffer.dequeue();
 
           if (errorToProcess) {
             // send it to the plugin
@@ -59,45 +59,45 @@ class ErrorHandler implements IErrorHandler {
     });
   }
 
-  private_attachErrorListeners() {
+  attachErrorListeners() {
     (globalThis as typeof window).addEventListener('error', (event: ErrorEvent | Event) => {
-      this.private_onErrorInternal(event, ErrorType.UNHANDLEDEXCEPTION);
+      this.onErrorInternal(event, ErrorType.UNHANDLEDEXCEPTION);
     });
 
     (globalThis as typeof window).addEventListener(
       'unhandledrejection',
       (event: PromiseRejectionEvent) => {
-        this.private_onErrorInternal(event, ErrorType.UNHANDLEDREJECTION);
+        this.onErrorInternal(event, ErrorType.UNHANDLEDREJECTION);
       },
     );
   }
 
   init(httpClient: IHttpClient, externalSrcLoader: IExternalSrcLoader) {
-    this.private_httpClient = httpClient;
+    this.httpClient = httpClient;
     // Below lines are only kept for backward compatibility
     // TODO: Remove this in the next major release
-    if (!this.private_pluginEngine) {
+    if (!this.pluginEngine) {
       return;
     }
 
     try {
       const extPoint = 'errorReporting.init';
-      const errReportingInitVal = this.private_pluginEngine.invokeSingle(
+      const errReportingInitVal = this.pluginEngine.invokeSingle(
         extPoint,
         state,
-        this.private_pluginEngine,
+        this.pluginEngine,
         externalSrcLoader,
-        this.private_logger,
+        this.logger,
         true,
       );
 
       if (errReportingInitVal instanceof Promise) {
         errReportingInitVal
           .then((client: any) => {
-            this.private_errReportingClient = client;
+            this.errReportingClient = client;
           })
           .catch(err => {
-            this.private_logger?.error(REPORTING_PLUGIN_INIT_FAILURE_ERROR(ERROR_HANDLER), err);
+            this.logger?.error(REPORTING_PLUGIN_INIT_FAILURE_ERROR(ERROR_HANDLER), err);
           });
       }
     } catch (err: any) {
@@ -105,7 +105,7 @@ class ErrorHandler implements IErrorHandler {
     }
   }
 
-  private_onErrorInternal(error: SDKError, errorType: ErrorType) {
+  onErrorInternal(error: SDKError, errorType: ErrorType) {
     this.onError(error, undefined, undefined, undefined, errorType);
   }
 
@@ -152,7 +152,7 @@ class ErrorHandler implements IErrorHandler {
 
         if (!isErrorReportingPluginLoaded) {
           // buffer the error
-          this.private_errorBuffer.enqueue({
+          this.errorBuffer.enqueue({
             error: normalizedError,
             errorState,
           });
@@ -161,12 +161,12 @@ class ErrorHandler implements IErrorHandler {
         }
       }
     } catch (e) {
-      this.private_logger?.error(NOTIFY_FAILURE_ERROR(ERROR_HANDLER), e);
+      this.logger?.error(NOTIFY_FAILURE_ERROR(ERROR_HANDLER), e);
     }
 
     if (errorType === ErrorType.HANDLEDEXCEPTION) {
-      if (this.private_logger) {
-        this.private_logger.error(errorMessage);
+      if (this.logger) {
+        this.logger.error(errorMessage);
 
         if (shouldAlwaysThrow) {
           throw normalizedError;
@@ -175,10 +175,7 @@ class ErrorHandler implements IErrorHandler {
         throw normalizedError;
       }
     } else if ((error as any).error?.stack?.includes(MANUAL_ERROR_IDENTIFIER)) {
-      this.private_logger?.error(
-        'An unknown error occurred:',
-        (error as ErrorEvent).error?.message,
-      );
+      this.logger?.error('An unknown error occurred:', (error as ErrorEvent).error?.message);
     }
   }
 
@@ -189,14 +186,14 @@ class ErrorHandler implements IErrorHandler {
    * @param {string} breadcrumb breadcrumbs message
    */
   leaveBreadcrumb(breadcrumb: string) {
-    if (this.private_pluginEngine) {
+    if (this.pluginEngine) {
       try {
-        this.private_pluginEngine.invokeSingle(
+        this.pluginEngine.invokeSingle(
           'errorReporting.breadcrumb',
-          this.private_pluginEngine, // deprecated parameter
-          this.private_errReportingClient, // deprecated parameter
+          this.pluginEngine, // deprecated parameter
+          this.errReportingClient, // deprecated parameter
           breadcrumb,
-          this.private_logger,
+          this.logger,
           state,
         );
       } catch (err: any) {
@@ -211,21 +208,21 @@ class ErrorHandler implements IErrorHandler {
    * @param {Error} error Error instance from handled error
    */
   notifyError(error: SDKError, errorState: ErrorState) {
-    if (this.private_pluginEngine && this.private_httpClient) {
+    if (this.pluginEngine && this.httpClient) {
       try {
-        this.private_pluginEngine.invokeSingle(
+        this.pluginEngine.invokeSingle(
           'errorReporting.notify',
-          this.private_pluginEngine, // deprecated parameter
-          this.private_errReportingClient, // deprecated parameter
+          this.pluginEngine, // deprecated parameter
+          this.errReportingClient, // deprecated parameter
           error,
           state,
-          this.private_logger,
-          this.private_httpClient,
+          this.logger,
+          this.httpClient,
           errorState,
         );
       } catch (err) {
         // Not calling onError here as we don't want to go into infinite loop
-        this.private_logger?.error(NOTIFY_FAILURE_ERROR(ERROR_HANDLER), err);
+        this.logger?.error(NOTIFY_FAILURE_ERROR(ERROR_HANDLER), err);
       }
     }
   }
