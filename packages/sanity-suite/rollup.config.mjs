@@ -73,7 +73,9 @@ const getDestinationSDKBaseURL = () => {
     case 'cdn':
       return ''; // This is automatically determined in the HTML page
     case 'npm':
-      return isLegacySdk ? `${BASE_CDN_URL}/${cdnVersionPath}/js-integrations/` : `${BASE_CDN_URL}/${cdnVersionPath}/${buildType}/js-integrations/`;
+      return isLegacySdk
+        ? `${BASE_CDN_URL}/${cdnVersionPath}/js-integrations/`
+        : `${BASE_CDN_URL}/${cdnVersionPath}/${buildType}/js-integrations/`;
     case 'npm_bundled':
       return `${BASE_CDN_URL}/${cdnVersionPath}/${buildType}/js-integrations/`;
     default:
@@ -108,41 +110,41 @@ const getCopyTargets = () => {
     default:
       return isLegacySdk
         ? [
-          {
-            src: `../analytics-v1.1/dist/cdn/${buildType}/rudder-analytics.min.js`,
-            dest: getDistPath(),
-            rename: 'rudder-analytics.min.js',
-          },
-          {
-            src: `../analytics-v1.1/dist/cdn/${buildType}/rudder-analytics.min.js.map`,
-            dest: getDistPath(),
-            rename: 'rudder-analytics.min.js.map',
-          },
-          {
-            src: `../analytics-js-integrations/dist/cdn/${buildType}/js-integrations/*`,
-            dest: `${getDistPath()}/js-integrations`,
-          },
-        ]
+            {
+              src: `../analytics-v1.1/dist/cdn/${buildType}/rudder-analytics.min.js`,
+              dest: getDistPath(),
+              rename: 'rudder-analytics.min.js',
+            },
+            {
+              src: `../analytics-v1.1/dist/cdn/${buildType}/rudder-analytics.min.js.map`,
+              dest: getDistPath(),
+              rename: 'rudder-analytics.min.js.map',
+            },
+            {
+              src: `../analytics-js-integrations/dist/cdn/${buildType}/js-integrations/*`,
+              dest: `${getDistPath()}/js-integrations`,
+            },
+          ]
         : [
-          {
-            src: `../analytics-js/dist/cdn/${buildType}/iife/rsa.min.js`,
-            dest: getDistPath(),
-            rename: 'rsa.min.js',
-          },
-          {
-            src: `../analytics-js/dist/cdn/${buildType}/iife/rsa.min.js.map`,
-            dest: getDistPath(),
-            rename: 'rsa.min.js.map',
-          },
-          {
-            src: `../analytics-js-integrations/dist/cdn/${buildType}/js-integrations/*`,
-            dest: `${getDistPath()}/js-integrations`,
-          },
-          {
-            src: `../analytics-js-plugins/dist/cdn/${buildType}/plugins/*`,
-            dest: `${getDistPath()}/plugins`,
-          },
-        ];
+            {
+              src: `../analytics-js/dist/cdn/${buildType}/iife/rsa.min.js`,
+              dest: getDistPath(),
+              rename: 'rsa.min.js',
+            },
+            {
+              src: `../analytics-js/dist/cdn/${buildType}/iife/rsa.min.js.map`,
+              dest: getDistPath(),
+              rename: 'rsa.min.js.map',
+            },
+            {
+              src: `../analytics-js-integrations/dist/cdn/${buildType}/js-integrations/*`,
+              dest: `${getDistPath()}/js-integrations`,
+            },
+            {
+              src: `../analytics-js-plugins/dist/cdn/${buildType}/plugins/*`,
+              dest: `${getDistPath()}/plugins`,
+            },
+          ];
   }
 };
 
@@ -172,7 +174,7 @@ const getBuildConfig = featureName => ({
       APP_PLUGINS_SDK_BASE_URL: getPluginsBaseURL(),
       FEATURE: featureName,
       IS_DEV_TESTBOOK: isDevEnvTestBook,
-      IS_DMT: isDMT
+      IS_DMT: isDMT,
     }),
     resolve({
       jsnext: true,
@@ -214,10 +216,10 @@ const getBuildConfig = featureName => ({
         __CONFIG_SERVER_HOST__: process.env.CONFIG_SERVER_HOST || '',
         __DEST_SDK_BASE_URL__: getDestinationSDKBaseURL(),
         __PLUGINS_SDK_BASE_URL__: getPluginsBaseURL(),
-        __CDN_VERSION_PATH__:`${cdnVersionPath}` || '',
+        __CDN_VERSION_PATH__: `${cdnVersionPath}` || '',
         __FEATURE__: featureName,
         __IS_DEV_TESTBOOK__: isDevEnvTestBook,
-        __IS_DMT__: isDMT
+        __IS_DMT__: isDMT,
       },
     }),
     !featureName &&

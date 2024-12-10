@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <link rel="icon" href="https://rudderstack.com/favicon.ico" type="image/x-icon" sizes="48x48">
+    <link rel="icon" href="https://rudderstack.com/favicon.ico" type="image/x-icon" sizes="48x48" />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>RudderStack JS SDK Sanity Suite</title>
@@ -23,7 +23,7 @@
       };
       window.OnetrustActiveGroups = ',C0001,C0003,';
     </script>
-    
+
     <script>
       (function() {
         "use strict";
@@ -114,10 +114,8 @@
             var loadOptions = {
               logLevel: 'DEBUG',
               configUrl: '__CONFIG_SERVER_HOST__',
-              destSDKBaseURL:
-                '__DEST_SDK_BASE_URL__',
-              pluginsSDKBaseURL:
-                '__PLUGINS_SDK_BASE_URL__',
+              destSDKBaseURL: '__DEST_SDK_BASE_URL__',
+              pluginsSDKBaseURL: '__PLUGINS_SDK_BASE_URL__',
               lockIntegrationsVersion: true,
               consentManagement: {
                 enabled: true,
@@ -179,7 +177,7 @@
           window.manualLoad(
             $('#writeKey').val(),
             $('#dataplaneURL').val(),
-            JSON.parse($('#loadOptions').val() ? $('#loadOptions').val() : {})
+            JSON.parse($('#loadOptions').val() ? $('#loadOptions').val() : {}),
           );
         });
       });

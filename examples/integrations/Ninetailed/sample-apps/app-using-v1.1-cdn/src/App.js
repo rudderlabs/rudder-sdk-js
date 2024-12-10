@@ -50,7 +50,7 @@ function App() {
       let r = document.createElement('script');
       r.type = 'text/javascript';
       r.async = true;
-      r.src = "https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js";
+      r.src = 'https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js';
       let a = document.getElementsByTagName('script')[0];
       a.parentNode.insertBefore(r, a);
     };

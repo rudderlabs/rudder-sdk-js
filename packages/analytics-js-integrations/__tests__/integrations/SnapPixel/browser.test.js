@@ -143,7 +143,7 @@ describe('SnapPixel', () => {
               email: 'test@example.com',
               firstName: 'John',
               city: 'San Francisco',
-              age: '16'
+              age: '16',
             },
           },
         },
@@ -161,7 +161,7 @@ describe('SnapPixel', () => {
           user_email: 'test@example.com',
           firstname: 'John',
           geo_city: 'San Francisco',
-          age: '16'
+          age: '16',
         },
       ]);
     });

@@ -7,7 +7,7 @@ import {
   getConsentData,
   getIubendaConsentData,
 } from '../../src/iubendaConsentManager/utils';
-import { IUBENDA_CONSENT_EXAMPLE_COOKIE_NAME} from '../../src/iubendaConsentManager/constants';
+import { IUBENDA_CONSENT_EXAMPLE_COOKIE_NAME } from '../../src/iubendaConsentManager/constants';
 
 describe('IubendaConsentManager - Utils', () => {
   const mockLogger = {
@@ -82,19 +82,19 @@ describe('IubendaConsentManager - Utils', () => {
     it('should get the iubenda consent data from cookies', () => {
       // Mock the iubenda data in the cookies
       const iubendaRawConsentData = {
-        timestamp: "2024-10-1T01:57:25.825Z",
-        version: "1.67.1",
+        timestamp: '2024-10-1T01:57:25.825Z',
+        version: '1.67.1',
         purposes: {
           '1': true,
           '2': false,
           '3': true,
           '4': false,
-          '5': true
+          '5': true,
         },
         id: 252372,
         cons: {
-          rand: "92f72a"
-        }
+          rand: '92f72a',
+        },
       };
       const iubendaConsentString = JSON.stringify(iubendaRawConsentData);
 
@@ -130,7 +130,6 @@ describe('IubendaConsentManager - Utils', () => {
 
       expect(iubendaConsentData).toBeUndefined();
     });
-
 
     it('should return undefined if iubenda consent data inside the cookie is null', () => {
       // Mock the iubenda cookie
