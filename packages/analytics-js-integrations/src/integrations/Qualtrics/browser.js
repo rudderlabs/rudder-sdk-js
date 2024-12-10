@@ -44,7 +44,7 @@ class Qualtrics {
   }
 
   isLoaded() {
-    return !!(window._qsie && window.QSI && window.QSI.API);
+    return !!(window._qsie && window.QSI?.API);
   }
 
   isReady() {

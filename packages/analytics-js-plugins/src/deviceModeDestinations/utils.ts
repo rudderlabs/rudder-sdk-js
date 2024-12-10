@@ -50,9 +50,7 @@ const isDestinationSDKMounted = (
   logger?: ILogger,
 ): boolean =>
   Boolean(
-    (globalThis as any)[destSDKIdentifier] &&
-      (globalThis as any)[destSDKIdentifier][sdkTypeName] &&
-      (globalThis as any)[destSDKIdentifier][sdkTypeName].prototype &&
+    (globalThis as any)[destSDKIdentifier]?.[sdkTypeName]?.prototype &&
       typeof (globalThis as any)[destSDKIdentifier][sdkTypeName].prototype.constructor !==
         'undefined',
   );

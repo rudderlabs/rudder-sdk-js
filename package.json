@@ -41,7 +41,7 @@
     "check:pub": "nx run-many -t check:pub --verbose",
     "check:pub:ci": "nx affected -t check:pub --verbose --base=$BASE_REF",
     "format": "prettier --write .",
-    "lint:fix": "eslint . --fix",
+    "lint:fix": "nx run-many -t check:lint --fix",
     "prepare": "husky",
     "pre-commit": "npm run test:pre-commit:affected && npm run check:size:build:pre-commit:affected && npm run check:size:json:pre-commit:affected && npx lint-staged",
     "commit-msg": "commitlint --edit",
