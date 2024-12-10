@@ -41,25 +41,20 @@ class Sprig {
     const { message } = rudderElement;
     const { userId, context } = message;
     if (userId) {
-      // eslint-disable-next-line sonarjs/new-cap
       window.Sprig('setUserId', userId);
     }
 
-    const ctxEmail = get(message, 'context.traits.email');
-    if (ctxEmail) {
-      // eslint-disable-next-line sonarjs/new-cap
-      window.Sprig('setEmail', ctxEmail);
+    const email = get(message, 'context.traits.email');
+    if (email) {
+      window.Sprig('setEmail', email);
     }
 
     const { traits } = context;
-    const { email, ...otherTraits } = traits;
-    let finalTraits = traits;
-    if (email) {
-      finalTraits = { ...otherTraits };
+    if (traits.email) {
+      delete traits.email;
     }
-    if (Object.keys(finalTraits).length > 0) {
-      // eslint-disable-next-line sonarjs/new-cap
-      window.Sprig('setAttributes', finalTraits);
+    if (Object.keys(traits).length > 0) {
+      window.Sprig('setAttributes', traits);
     }
   }
 

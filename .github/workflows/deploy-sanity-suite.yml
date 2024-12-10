@@ -50,7 +50,7 @@ permissions:
 
 env:
   NODE_OPTIONS: '--no-warnings'
-  CACHE_CONTROL: "\"max-age=3600\""
+  CACHE_CONTROL: '"max-age=3600"'
 
 jobs:
   deploy:

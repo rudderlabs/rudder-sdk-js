@@ -1,6 +1,6 @@
+import { MOUSEFLOW_NAME as NAME, MOUSEFLOW_DISPLAY_NAME as DISPLAY_NAME } from '../Destinations';
+
 const DIR_NAME = 'Mouseflow';
-const NAME = 'MOUSEFLOW';
-const DISPLAY_NAME = 'Mouseflow';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {

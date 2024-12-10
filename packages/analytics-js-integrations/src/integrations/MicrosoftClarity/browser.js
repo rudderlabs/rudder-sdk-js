@@ -55,20 +55,14 @@ class MicrosoftClarity {
     if (context?.traits?.customPageId) {
       customPageId = context.traits.customPageId;
     }
-    window
-      .clarity('identify', userId, sessionId, customPageId)
-      .then(() => {
-        if (context?.traits) {
-          const { traits } = context;
-          const keys = Object.keys(traits);
-          keys.forEach(key => {
-            window.clarity('set', key, traits[key]);
-          });
-        }
-      })
-      .catch(error => {
-        logger.error('Error in identify call', error);
+    window.clarity('identify', userId, sessionId, customPageId);
+    if (context?.traits) {
+      const { traits } = context;
+      const keys = Object.keys(traits);
+      keys.forEach(key => {
+        window.clarity('set', key, traits[key]);
       });
+    }
   }
 }
 

@@ -2,6 +2,23 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.11.15](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.11.14...@rudderstack/analytics-js@3.11.15) (2024-12-06)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-cookies` updated to version `0.4.16`
+* `@rudderstack/analytics-js-common` updated to version `3.14.13`
+* `@rudderstack/analytics-js-plugins` updated to version `3.6.18`
+## [3.11.14](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.11.13...@rudderstack/analytics-js@3.11.14) (2024-11-30)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-plugins` updated to version `3.6.17`
+
+### Bug Fixes
+
+* preload events not processed with detached load call ([#1953](https://github.com/rudderlabs/rudder-sdk-js/issues/1953)) ([6b0f66f](https://github.com/rudderlabs/rudder-sdk-js/commit/6b0f66f61745542f2b01c02c99b7514fd468db80))
+
 ## [3.11.13](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.11.12...@rudderstack/analytics-js@3.11.13) (2024-11-22)
 
 ### Dependency Updates

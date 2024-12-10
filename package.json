@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-monorepo",
-  "version": "3.65.0",
+  "version": "3.68.0",
   "private": true,
   "description": "Monorepo for RudderStack Analytics JS SDK",
   "workspaces": [
@@ -55,6 +55,7 @@
     "release": "nx affected --base=origin/main --target=version --parallel=1 --skipCommitTypes=docs,ci,chore,test --baseBranch=$BASE_BRANCH",
     "release:nx": "nx release --skip-publish --verbose --dry-run",
     "release:github": "nx affected --target=github --parallel=1 --skipCommitTypes=docs,ci,chore,test",
+    "reset:nx": "nx reset",
     "deploy:npm": "nx affected --target=deploy --parallel=1 --skipCommitTypes=docs,ci,chore,test"
   },
   "author": "RudderStack",
@@ -77,7 +78,7 @@
     "@segment/top-domain": "3.0.1",
     "@vespaiach/axios-fetch-adapter": "0.3.1",
     "assert": "2.1.0",
-    "axios": "1.7.7",
+    "axios": "1.7.9",
     "axios-retry": "4.5.0",
     "component-each": "0.2.6",
     "component-emitter": "2.0.0",

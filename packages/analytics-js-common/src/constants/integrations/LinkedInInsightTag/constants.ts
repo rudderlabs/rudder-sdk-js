@@ -1,6 +1,9 @@
+import {
+  LINKEDIN_INSIGHT_TAG_NAME as NAME,
+  LINKEDIN_INSIGHT_TAG_DISPLAY_NAME as DISPLAY_NAME,
+} from '../Destinations';
+
 const DIR_NAME = 'LinkedInInsightTag';
-const NAME = 'LINKEDIN_INSIGHT_TAG';
-const DISPLAY_NAME = 'Linkedin Insight Tag';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {

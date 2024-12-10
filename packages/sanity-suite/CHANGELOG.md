@@ -2,6 +2,21 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.1.49](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.1.48...@rudderstack/analytics-js-sanity-suite@3.1.49) (2024-12-06)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.11.15`
+## [3.1.48](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.1.47...@rudderstack/analytics-js-sanity-suite@3.1.48) (2024-11-30)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.11.14`
+
+### Bug Fixes
+
+* preload events not processed with detached load call ([#1953](https://github.com/rudderlabs/rudder-sdk-js/issues/1953)) ([6b0f66f](https://github.com/rudderlabs/rudder-sdk-js/commit/6b0f66f61745542f2b01c02c99b7514fd468db80))
+
 ## [3.1.47](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.1.46...@rudderstack/analytics-js-sanity-suite@3.1.47) (2024-11-22)
 
 ### Dependency Updates

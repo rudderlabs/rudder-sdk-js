@@ -31,10 +31,6 @@ export {
   DIR_NAME as CleverTapDirectoryName,
 } from './Clevertap/constants';
 export {
-  DISPLAY_NAME as ComscoreDisplayName,
-  DIR_NAME as ComscoreDirectoryName,
-} from './Comscore/constants';
-export {
   DISPLAY_NAME as CriteoDisplayName,
   DIR_NAME as CriteoDirectoryName,
 } from './Criteo/constants';

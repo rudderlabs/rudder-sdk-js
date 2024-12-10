@@ -48,8 +48,8 @@ permissions:
   contents: read # This is required for actions/checkout
 
 env:
-  NODE_OPTIONS: "--no-warnings"
-  CACHE_CONTROL: "\"no-store\"" # "\"max-age=3600\""
+  NODE_OPTIONS: '--no-warnings'
+  CACHE_CONTROL: '"no-store"' # '"max-age=3600"'
 
 jobs:
   deploy:
