@@ -19,5 +19,11 @@
   },
   "dependencies": {
     "@rudderstack/analytics-js": "*"
+  },
+  "overrides": {
+    "path-to-regexp": "0.1.12",
+    "cookie": "0.7.2",
+    "cross-spawn": "7.0.6",
+    "http-proxy-middleware": "2.0.7"
   }
 }
