@@ -2,13 +2,22 @@
 /* eslint-disable no-param-reassign */
 import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import type {
+  IHttpClient,
+  ResponseDetails,
+} from '@rudderstack/analytics-js-common/types/HttpClient';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import type { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type {
+  IQueue,
+  QueueItemData,
+  DoneCallback,
+} from '@rudderstack/analytics-js-common/utilities/retryQueue/types';
+import { toBase64 } from '@rudderstack/analytics-js-common/utilities/string';
+import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js-common/constants/errors';
 import {
   getNormalizedQueueOptions,
   getDeliveryUrl,
@@ -16,19 +25,18 @@ import {
   getRequestInfo,
   getBatchDeliveryPayload,
 } from './utilities';
-import type { DoneCallback, IQueue, QueueItemData } from '../types/plugins';
-import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import { QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
-import type { XHRRetryQueueItemData, XHRQueueItemData } from './types';
+import type { XHRRetryQueueItemData, XHRQueueItemData, XHRQueueBatchItemData } from './types';
+import { RetryQueue } from '../shared-chunks/retryQueue';
+import { DELIVERY_ERROR, REQUEST_ERROR } from './logMessages';
 import {
   getCurrentTimeFormatted,
   isErrRetryable,
   LOCAL_STORAGE,
-  toBase64,
   validateEventPayloadSize,
 } from '../shared-chunks/common';
 
-const pluginName: PluginName = 'XhrQueue';
+const pluginName = 'XhrQueue';
 
 const XhrQueue = (): ExtensionPlugin => ({
   name: pluginName,
@@ -77,39 +85,99 @@ const XhrQueue = (): ExtensionPlugin => ({
             logger,
           );
 
-          httpClient.getAsyncData({
-            url,
-            options: {
-              method: 'POST',
-              headers,
-              data: data as string,
-              sendRawData: true,
-            },
-            isRawResponse: true,
-            timeout: REQUEST_TIMEOUT_MS,
-            callback: (result, details) => {
-              // null means item will not be requeued
-              const queueErrResp = isErrRetryable(details) ? details : null;
+          const handleResponse = (
+            err?: any,
+            status?: number,
+            statusText?: string,
+            ev?: ProgressEvent,
+          ) => {
+            let errMsg;
+            if (err) {
+              errMsg = REQUEST_ERROR(
+                FAILED_REQUEST_ERR_MSG_PREFIX,
+                url,
+                REQUEST_TIMEOUT_MS,
+                err,
+                ev,
+              );
+            } else if (status && (status < 200 || status > 300)) {
+              errMsg = DELIVERY_ERROR(FAILED_REQUEST_ERR_MSG_PREFIX, status, url, statusText, ev);
+            }
+
+            const details = {
+              error: {
+                status,
+              },
+            } as ResponseDetails;
+
+            // null means item will not be requeued
+            let queueErrResp = null;
+            if (errMsg) {
+              const isRetryableFailure = isErrRetryable(details);
+              if (isRetryableFailure) {
+                queueErrResp = details;
+              }
 
               logErrorOnFailure(
-                details,
+                isRetryableFailure,
                 url,
+                errMsg,
                 willBeRetried,
                 attemptNumber,
                 maxRetryAttempts,
                 logger,
               );
+            }
+            done(queueErrResp);
+          };
 
-              done(queueErrResp, result);
-            },
-          });
+          const xhr = new XMLHttpRequest();
+          try {
+            xhr.open('POST', url, true);
+          } catch (err: any) {
+            handleResponse(err);
+            return;
+          }
+
+          // The timeout property may be set only in the time interval between a call to the open method
+          // and the first call to the send method in legacy browsers
+          xhr.timeout = REQUEST_TIMEOUT_MS;
+
+          if (headers) {
+            Object.entries(headers).forEach(([headerName, headerValue]) => {
+              xhr.setRequestHeader(headerName, headerValue);
+            });
+          }
+
+          xhr.onload = () => {
+            // This is same as fetch API
+            if (xhr.status >= 200 && xhr.status < 300) {
+              handleResponse(null, xhr.status, xhr.statusText);
+            }
+          };
+
+          const xhrCallback = (ev: ProgressEvent) => {
+            handleResponse(undefined, xhr.status, xhr.statusText, ev);
+          };
+
+          xhr.ontimeout = xhrCallback;
+          xhr.onerror = xhrCallback;
+          xhr.onabort = xhrCallback;
+
+          try {
+            xhr.send(data);
+          } catch (err: any) {
+            handleResponse(err, xhr.status, xhr.statusText);
+          }
         },
         storeManager,
         LOCAL_STORAGE,
         logger,
-        (itemData: XHRQueueItemData[]): number => {
+        (itemData: QueueItemData[]): number => {
           const currentTime = getCurrentTimeFormatted();
-          const events = itemData.map((queueItemData: XHRQueueItemData) => queueItemData.event);
+          const events = (itemData as XHRQueueBatchItemData).map(
+            (queueItemData: XHRQueueItemData) => queueItemData.event,
+          );
           // type casting to string as we know that the event has already been validated prior to enqueue
           return (getBatchDeliveryPayload(events, currentTime, logger) as string)?.length;
         },
@@ -143,7 +211,11 @@ const XhrQueue = (): ExtensionPlugin => ({
       const url = getDeliveryUrl(dataplaneUrl, event.type);
       // Other default headers are added by the HttpClient
       // Auth header is added during initialization
+      const credsStr = toBase64(`${state.lifecycle.writeKey.value as string}:`);
       const headers = {
+        Accept: 'application/json',
+        'Content-Type': 'application/json;charset=UTF-8',
+        Authorization: `Basic ${credsStr}`,
         // To maintain event ordering while using the HTTP API as per is documentation,
         // make sure to include anonymousId as a header
         AnonymousId: toBase64(event.anonymousId),

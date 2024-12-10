@@ -129,13 +129,6 @@ class PluginEngine implements IPluginEngine {
     return this.cache[lifeCycleName] as ExtensionPlugin[];
   }
 
-  // This method allows to process this.plugins so that it could
-  // do some unified pre-process before application starts.
-  processRawPlugins(callback: (plugins: ExtensionPlugin[]) => any) {
-    callback(this.plugins);
-    this.cache = {};
-  }
-
   invoke<T = any>(extPoint?: string, allowMultiple = true, ...args: any[]): Nullable<T>[] {
     let extensionPointName = extPoint;
 

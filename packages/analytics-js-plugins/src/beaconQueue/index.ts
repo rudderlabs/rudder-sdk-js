@@ -10,8 +10,11 @@ import type {
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
-import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import type { DoneCallback, IQueue } from '../types/plugins';
+import type {
+  DoneCallback,
+  IQueue,
+  QueueItemData,
+} from '@rudderstack/analytics-js-common/utilities/retryQueue/types';
 import {
   getNormalizedBeaconQueueOptions,
   getDeliveryUrl,
@@ -24,7 +27,7 @@ import {
   BEACON_QUEUE_SEND_ERROR,
   BEACON_QUEUE_DELIVERY_ERROR,
 } from './logMessages';
-import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
+import { RetryQueue } from '../shared-chunks/retryQueue';
 import {
   getCurrentTimeFormatted,
   getFinalEventForDeliveryMutator,
@@ -32,7 +35,7 @@ import {
   validateEventPayloadSize,
 } from '../shared-chunks/common';
 
-const pluginName: PluginName = 'BeaconQueue';
+const pluginName = 'BeaconQueue';
 
 const BeaconQueue = (): ExtensionPlugin => ({
   name: pluginName,
@@ -62,14 +65,16 @@ const BeaconQueue = (): ExtensionPlugin => ({
       const url = getDeliveryUrl(dataplaneUrl, writeKey);
 
       const finalQOpts: BeaconQueueOpts = getNormalizedBeaconQueueOptions(
+        // eslint-disable-next-line sonarjs/deprecation
         state.loadOptions.value.beaconQueueOptions ?? {},
       );
 
-      const queueProcessCallback = (itemData: BeaconQueueBatchItemData, done: DoneCallback) => {
+      const queueProcessCallback = (itemData: QueueItemData, done: DoneCallback) => {
         logger?.debug(BEACON_PLUGIN_EVENTS_QUEUE_DEBUG(BEACON_QUEUE_PLUGIN));
         const currentTime = getCurrentTimeFormatted();
-        const finalEvents = itemData.map((queueItemData: BeaconQueueItemData) =>
-          getFinalEventForDeliveryMutator(queueItemData.event, currentTime),
+        const finalEvents = (itemData as BeaconQueueBatchItemData).map(
+          (queueItemData: BeaconQueueItemData) =>
+            getFinalEventForDeliveryMutator(queueItemData.event, currentTime),
         );
         const data = getBatchDeliveryPayload(finalEvents, currentTime, logger);
 
@@ -81,7 +86,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
             }
 
             done(null, isEnqueuedInBeacon);
-          } catch (err) {
+          } catch (err: any) {
             errorHandler?.onError(err, BEACON_QUEUE_PLUGIN, BEACON_QUEUE_DELIVERY_ERROR(url));
             // Remove the item from queue
             done(null);
@@ -106,9 +111,11 @@ const BeaconQueue = (): ExtensionPlugin => ({
         storeManager,
         LOCAL_STORAGE,
         logger,
-        (itemData: BeaconQueueItemData[]): number => {
+        (itemData: QueueItemData[]): number => {
           const currentTime = getCurrentTimeFormatted();
-          const events = itemData.map((queueItemData: BeaconQueueItemData) => queueItemData.event);
+          const events = (itemData as BeaconQueueBatchItemData).map(
+            (queueItemData: BeaconQueueItemData) => queueItemData.event,
+          );
           // type casting to Blob as we know that the event has already been validated prior to enqueue
           return (getBatchDeliveryPayload(events, currentTime, logger) as Blob).size;
         },

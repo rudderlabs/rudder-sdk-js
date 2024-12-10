@@ -1,5 +1,4 @@
 import type { QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import type { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
@@ -12,8 +11,6 @@ import {
   getCurrentTimeFormatted,
   getDeliveryPayload,
   getFinalEventForDeliveryMutator,
-  isErrRetryable,
-  isUndefined,
   mergeDeepRight,
   removeDuplicateSlashes,
   stringifyWithoutCircular,
@@ -42,19 +39,15 @@ const getDeliveryUrl = (dataplaneUrl: string, endpoint: string): string => {
 const getBatchDeliveryUrl = (dataplaneUrl: string): string => getDeliveryUrl(dataplaneUrl, 'batch');
 
 const logErrorOnFailure = (
-  details: ResponseDetails | undefined,
+  isRetryableFailure: boolean,
   url: string,
+  err: string,
   willBeRetried?: boolean,
   attemptNumber?: number,
   maxRetryAttempts?: number,
   logger?: ILogger,
 ) => {
-  if (isUndefined(details?.error) || isUndefined(logger)) {
-    return;
-  }
-
-  const isRetryableFailure = isErrRetryable(details);
-  let errMsg = EVENT_DELIVERY_FAILURE_ERROR_PREFIX(XHR_QUEUE_PLUGIN, url);
+  let errMsg = EVENT_DELIVERY_FAILURE_ERROR_PREFIX(XHR_QUEUE_PLUGIN, err, url);
   const dropMsg = `The event(s) will be dropped.`;
   if (isRetryableFailure) {
     if (willBeRetried) {

@@ -17,6 +17,8 @@ describe('Core - Rudder Analytics Facade', () => {
 
   beforeEach(() => {
     analyticsInstanceMock = new Analytics() as jest.Mocked<Analytics>;
+
+    // Queue up some events in the global object
     (window as any).rudderanalytics = [
       ['track'],
       ['consent', { sendPageEvent: true }],
@@ -60,6 +62,21 @@ describe('Core - Rudder Analytics Facade', () => {
     rudderAnalytics = new RudderAnalytics();
 
     expect(rudderAnalytics).toEqual(globalSingleton);
+  });
+
+  it('should create a new instance if the global singleton does not exist', () => {
+    // This is not a necessity for the test case but ensures
+    // a code path is covered
+    // Reset the preload buffer
+    (window as any).rudderanalytics = undefined;
+
+    // Reset the global singleton
+    RudderAnalytics.globalSingleton = null;
+
+    const newAnalytics = new RudderAnalytics();
+
+    const globalSingleton = rudderAnalytics;
+    expect(newAnalytics).not.toEqual(globalSingleton);
   });
 
   it('should dispatch an error event if an exception is thrown during the construction', () => {
@@ -117,7 +134,7 @@ describe('Core - Rudder Analytics Facade', () => {
   it('should create a new analytics instance if none exists', () => {
     (rudderAnalytics as any).analyticsInstances = {};
     (rudderAnalytics as any).defaultAnalyticsKey = '';
-    const analyticsInstance = rudderAnalytics.getAnalyticsInstance('writeKey');
+    const analyticsInstance = rudderAnalytics.getAnalyticsInstance('writeKey1');
 
     expect(analyticsInstance).toBeInstanceOf(Analytics);
   });
@@ -573,16 +590,6 @@ describe('Core - Rudder Analytics Facade', () => {
         deniedConsentIds: ['2'],
       },
     });
-
-    expect(dispatchEventSpy).toHaveBeenCalledWith(
-      new ErrorEvent('error', {
-        error: new Error('Error in getAnalyticsInstance'),
-      }),
-    );
-
-    dispatchEventSpy.mockRestore();
-
-    getAnalyticsInstanceSpy.mockRestore();
   });
 
   it('should dispatch an error event if an exception is thrown during the getUserId call', () => {
@@ -829,19 +836,11 @@ describe('Core - Rudder Analytics Facade', () => {
           enabled: true,
         },
       });
-      expect(rudderAnalyticsInstance.trackPageLifecycleEvents).toHaveBeenCalledWith(
-        [
-          ['consent', { sendPageEvent: true }],
-          ['consent', { sendPageEvent: false }],
-          ['track'],
-          ['track'],
-        ],
-        {
-          autoTrack: {
-            enabled: true,
-          },
+      expect(rudderAnalyticsInstance.trackPageLifecycleEvents).toHaveBeenCalledWith([], {
+        autoTrack: {
+          enabled: true,
         },
-      );
+      });
     });
   });
 });

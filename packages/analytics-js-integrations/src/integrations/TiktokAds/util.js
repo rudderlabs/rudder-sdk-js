@@ -8,7 +8,7 @@ import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
 const getContents = message => {
   let contents = [];
   const { properties } = message;
-  // eslint-disable-next-line camelcase
+  // eslint-disable-next-line camelcase, @typescript-eslint/naming-convention
   const { products, content_type, contentType } = properties;
   if (Array.isArray(products)) {
     contents = products.map(product => {

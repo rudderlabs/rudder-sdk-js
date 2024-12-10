@@ -49,6 +49,9 @@ class SpotifyPixel {
     window.spdt =
       window.spdt ||
       function () {
+        // Third-party snippet. Hence, disabling the eslint rule.
+        // Ideally, this should be moved to the nativeSdkLoader.js file.
+        // eslint-disable-next-line sonarjs/no-nested-assignment
         (window.spdt.q = window.spdt.q || []).push(arguments);
       };
     ScriptLoader('spdt-capture', 'https://pixel.byspotify.com/ping.min.js');

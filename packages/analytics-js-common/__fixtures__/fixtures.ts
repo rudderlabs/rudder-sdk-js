@@ -1,5 +1,7 @@
 const dummyDataplaneHost = 'https://dummy.dataplane.host.com';
 
+const dummyScriptSourceBase = 'https://cdn.dummy123.com';
+
 const dummySourceConfigResponse = {
   isHosted: true,
   source: {
@@ -19,9 +21,6 @@ const dummySourceConfigResponse = {
     enabled: true,
     workspaceId: 'dummyWorkspaceId',
     updatedAt: '2023-02-03T13:53:35.731Z',
-    dataplanes: {
-      US: '',
-    },
     destinations: [
       {
         config: {
@@ -158,4 +157,4 @@ const dummySourceConfigResponse = {
   },
 };
 
-export { dummyDataplaneHost, dummySourceConfigResponse };
+export { dummyDataplaneHost, dummySourceConfigResponse, dummyScriptSourceBase };

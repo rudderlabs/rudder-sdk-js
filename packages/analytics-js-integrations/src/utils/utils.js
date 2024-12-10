@@ -5,14 +5,6 @@ import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 
 /**
- * Utility method to remove '/' at the end of URL
- * @param {*} inURL
- */
-function removeTrailingSlashes(inURL) {
-  return inURL?.endsWith('/') ? inURL.replace(/\/+$/, '') : inURL;
-}
-
-/**
  *
  * Utility function for UUID generation
  * @returns
@@ -114,8 +106,7 @@ const rejectObject = (obj, fn) =>
  * @param  {} obj
  * @param  {} fn
  */
-function rejectArr(obj, fn) {
-  fn = fn || compact;
+function rejectArr(obj, fn = compact) {
   return type(obj) === 'array' ? rejectArray(obj, fn) : rejectObject(obj, fn);
 }
 
@@ -209,7 +200,7 @@ function extractCustomFields(message, dest, keys, exclusionFields) {
           if (!exclusionFields.includes(k)) mappingKeys.push(k);
         });
         mappingKeys.forEach(mappingKey => {
-          if (!(typeof messageContext[mappingKey] === 'undefined')) {
+          if (typeof messageContext[mappingKey] !== 'undefined') {
             destination[mappingKey] = get(messageContext, mappingKey);
           }
         });
@@ -220,7 +211,7 @@ function extractCustomFields(message, dest, keys, exclusionFields) {
       if (!exclusionFields.includes(k)) mappingKeys.push(k);
     });
     mappingKeys.forEach(mappingKey => {
-      if (!(typeof message[mappingKey] === 'undefined')) {
+      if (typeof message[mappingKey] !== 'undefined') {
         destination[mappingKey] = get(message, mappingKey);
       }
     });
@@ -315,6 +306,7 @@ const isDefinedAndNotNull = x => isDefined(x) && isNotNull(x);
 const getDataFromSource = (src, dest, properties) => {
   const data = {};
   if (isArray(src)) {
+    // eslint-disable-next-line no-restricted-syntax
     for (const element of src) {
       if (properties[element]) {
         data[dest] = properties[element];
@@ -447,7 +439,7 @@ const formatValues = (formattedVal, formattingType) => {
     },
     IsBoolean: () => {
       curFormattedVal = true;
-      if (!(typeof formattedVal === 'boolean')) {
+      if (typeof formattedVal !== 'boolean') {
         logger.debug('Boolean value missing, so dropping it');
         curFormattedVal = false;
       }
@@ -586,7 +578,6 @@ export {
   isArray,
   isDefinedAndNotNull,
   getDataFromSource,
-  removeTrailingSlashes,
   constructPayload,
   isEmptyObject,
 };

@@ -1,8 +1,4 @@
-import type {
-  IStoreConfig,
-  IStoreManager,
-  StoreId,
-} from '@rudderstack/analytics-js-common/types/Store';
+import type { IStoreConfig, IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
@@ -38,19 +34,16 @@ import { getStorageTypeFromPreConsentIfApplicable } from './utils';
  * A service to manage stores & available storage client configurations
  */
 class StoreManager implements IStoreManager {
-  stores: Record<StoreId, Store> = {};
+  stores: Record<string, Store> = {};
   isInitialized = false;
   errorHandler?: IErrorHandler;
   logger?: ILogger;
-  pluginsManager?: IPluginsManager;
-  hasErrorHandler = false;
+  pluginsManager: IPluginsManager;
 
-  constructor(pluginsManager?: IPluginsManager, errorHandler?: IErrorHandler, logger?: ILogger) {
+  constructor(pluginsManager: IPluginsManager, errorHandler?: IErrorHandler, logger?: ILogger) {
     this.errorHandler = errorHandler;
     this.logger = logger;
-    this.hasErrorHandler = Boolean(this.errorHandler);
     this.pluginsManager = pluginsManager;
-    this.onError = this.onError.bind(this);
   }
 
   /**
@@ -64,8 +57,10 @@ class StoreManager implements IStoreManager {
     const loadOptions = state.loadOptions.value;
     const config: StoreManagerOptions = {
       cookieStorageOptions: {
+        // eslint-disable-next-line sonarjs/deprecation
         samesite: loadOptions.sameSiteCookie,
         secure: loadOptions.secureCookie,
+        // eslint-disable-next-line sonarjs/deprecation
         domain: loadOptions.setCookieDomain,
         sameDomainCookiesOnly: loadOptions.sameDomainCookiesOnly,
         enabled: true,
@@ -160,7 +155,7 @@ class StoreManager implements IStoreManager {
     });
   }
 
-  private getResolvedStorageTypeForEntry(storageType: StorageType, sessionKey: UserSessionKey) {
+  getResolvedStorageTypeForEntry(storageType: StorageType, sessionKey: UserSessionKey) {
     let finalStorageType = storageType;
     switch (storageType) {
       case LOCAL_STORAGE:
@@ -212,19 +207,8 @@ class StoreManager implements IStoreManager {
   /**
    * Retrieve a store
    */
-  getStore(id: StoreId): Store | undefined {
+  getStore(id: string): Store | undefined {
     return this.stores[id];
-  }
-
-  /**
-   * Handle errors
-   */
-  onError(error: unknown) {
-    if (this.hasErrorHandler) {
-      this.errorHandler?.onError(error, STORE_MANAGER);
-    } else {
-      throw error;
-    }
   }
 }
 

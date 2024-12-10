@@ -14,6 +14,7 @@ import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constant
 import { BufferQueue } from '@rudderstack/analytics-js-common/services/BufferQueue/BufferQueue';
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
+import { effect } from '@preact/signals-core';
 import { MANUAL_ERROR_IDENTIFIER } from '@rudderstack/analytics-js-common/utilities/errors';
 import {
   NOTIFY_FAILURE_ERROR,
@@ -39,37 +40,36 @@ class ErrorHandler implements IErrorHandler {
     this.logger = logger;
     this.pluginEngine = pluginEngine;
     this.errorBuffer = new BufferQueue();
-    this.attachEffect();
+    this.attachEffects();
+    this.attachErrorListeners();
   }
 
-  attachEffect() {
-    if (state.reporting.isErrorReportingPluginLoaded.value === true) {
-      while (this.errorBuffer.size() > 0) {
-        const errorToProcess = this.errorBuffer.dequeue();
+  attachEffects() {
+    effect(() => {
+      if (state.reporting.isErrorReportingPluginLoaded.value === true) {
+        while (this.errorBuffer.size() > 0) {
+          const errorToProcess = this.errorBuffer.dequeue();
 
-        if (errorToProcess) {
-          // send it to the plugin
-          this.notifyError(errorToProcess.error, errorToProcess.errorState);
+          if (errorToProcess) {
+            // send it to the plugin
+            this.notifyError(errorToProcess.error, errorToProcess.errorState);
+          }
         }
       }
-    }
+    });
   }
 
   attachErrorListeners() {
-    if ('addEventListener' in (globalThis as typeof window)) {
-      (globalThis as typeof window).addEventListener('error', (event: ErrorEvent | Event) => {
-        this.onError(event, undefined, undefined, undefined, ErrorType.UNHANDLEDEXCEPTION);
-      });
+    (globalThis as typeof window).addEventListener('error', (event: ErrorEvent | Event) => {
+      this.onErrorInternal(event, ErrorType.UNHANDLEDEXCEPTION);
+    });
 
-      (globalThis as typeof window).addEventListener(
-        'unhandledrejection',
-        (event: PromiseRejectionEvent) => {
-          this.onError(event, undefined, undefined, undefined, ErrorType.UNHANDLEDREJECTION);
-        },
-      );
-    } else {
-      this.logger?.debug(`Failed to attach global error listeners.`);
-    }
+    (globalThis as typeof window).addEventListener(
+      'unhandledrejection',
+      (event: PromiseRejectionEvent) => {
+        this.onErrorInternal(event, ErrorType.UNHANDLEDREJECTION);
+      },
+    );
   }
 
   init(httpClient: IHttpClient, externalSrcLoader: IExternalSrcLoader) {
@@ -90,6 +90,7 @@ class ErrorHandler implements IErrorHandler {
         this.logger,
         true,
       );
+
       if (errReportingInitVal instanceof Promise) {
         errReportingInitVal
           .then((client: any) => {
@@ -99,9 +100,13 @@ class ErrorHandler implements IErrorHandler {
             this.logger?.error(REPORTING_PLUGIN_INIT_FAILURE_ERROR(ERROR_HANDLER), err);
           });
       }
-    } catch (err) {
+    } catch (err: any) {
       this.onError(err, ERROR_HANDLER);
     }
+  }
+
+  onErrorInternal(error: SDKError, errorType: ErrorType) {
+    this.onError(error, undefined, undefined, undefined, errorType);
   }
 
   onError(
@@ -191,7 +196,7 @@ class ErrorHandler implements IErrorHandler {
           this.logger,
           state,
         );
-      } catch (err) {
+      } catch (err: any) {
         this.onError(err, ERROR_HANDLER, 'errorReporting.breadcrumb');
       }
     }

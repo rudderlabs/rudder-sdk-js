@@ -27,10 +27,7 @@ const isObjectAndNotNull = (value: any): value is object =>
 const isObjectLiteralAndNotNull = <T>(value?: T): value is T =>
   !isNull(value) && Object.prototype.toString.call(value) === '[object Object]';
 
-const mergeDeepRightObjectArrays = (
-  leftValue: any | any[],
-  rightValue: any | any[],
-): any | any[] => {
+const mergeDeepRightObjectArrays = (leftValue: any, rightValue: any): any => {
   if (!Array.isArray(leftValue) || !Array.isArray(rightValue)) {
     return clone(rightValue);
   }
@@ -94,17 +91,28 @@ const removeUndefinedAndNullValues = <T = Record<string, any>>(obj: T): T => {
 };
 
 /**
- * A utility to get all the values from an object
- * @param obj Input object
- * @returns an array of values from the input object
+ * Normalizes an object by removing undefined and null values.
+ * @param val - The value to normalize
+ * @returns The normalized object, or undefined if input is not a non-empty object
+ * @example
+ * getNormalizedObjectValue({ a: 1, b: null, c: undefined }) // returns { a: 1 }
+ * getNormalizedObjectValue({}) // returns undefined
+ * getNormalizedObjectValue(null) // returns undefined
  */
-const getObjectValues = <T = Record<string, any>>(obj: T): any[] => {
-  const result: any[] = [];
-  Object.keys(obj as Record<string, any>).forEach(key => {
-    result.push((obj as Record<string, any>)[key]);
-  });
+const getNormalizedObjectValue = (val: any): any => {
+  if (!isNonEmptyObject(val)) {
+    return undefined;
+  }
 
-  return result;
+  return removeUndefinedAndNullValues(val);
+};
+
+const getNormalizedBooleanValue = (val: any, defVal: boolean | undefined): boolean | undefined => {
+  if (isDefined(defVal)) {
+    return isDefined(val) ? val === true : undefined;
+  }
+
+  return val === true;
 };
 
 export {
@@ -117,6 +125,7 @@ export {
   isObjectLiteralAndNotNull,
   removeUndefinedValues,
   removeUndefinedAndNullValues,
-  getObjectValues,
+  getNormalizedObjectValue,
   isObject,
+  getNormalizedBooleanValue,
 };

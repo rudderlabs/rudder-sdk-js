@@ -40,7 +40,9 @@ class Chartbeat {
     } = destinationInfo ?? {});
   }
 
-  init() {}
+  init() {
+    /* TODO document why this method 'init' is empty */
+  }
 
   isLoaded() {
     if (!this.isFirstPageCallMade) {

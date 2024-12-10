@@ -12,11 +12,12 @@
     "target": "es6"
   },
   "include": [
-    "jest.config.mjs",
-    "__tests__/**/*.ts",
-    "__mocks__/**/*.ts",
-    "__fixtures__/**/*.ts",
-    "src/**/*.ts",
-    "src/**/*.d.ts"
+    "./package.json",
+    "./jest.config.mjs",
+    "./__tests__/**/*",
+    "./__mocks__/**/*",
+    "./__fixtures__/**/*",
+    "../../types/**/*",
+    "./src/**/*"
   ]
 }

@@ -13,10 +13,10 @@ import {
 } from '@rudderstack/analytics-js-common/utilities/object';
 import { EVENT_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
-import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import { NO_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { DEFAULT_INTEGRATIONS_CONFIG } from '@rudderstack/analytics-js-common/constants/integrationsConfig';
 import type { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
+import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/time';
 import { state } from '../../state';
 import {
   INVALID_CONTEXT_OBJECT_WARNING,
@@ -97,7 +97,7 @@ const getUpdatedPageProperties = (
 const checkForReservedElementsInObject = (
   obj: Nullable<ApiObject> | RudderContext | undefined,
   parentKeyPath: string,
-  logger?: ILogger,
+  logger: ILogger,
 ): void => {
   if (isObjectLiteralAndNotNull(obj)) {
     Object.keys(obj as object).forEach(property => {
@@ -105,7 +105,7 @@ const checkForReservedElementsInObject = (
         RESERVED_ELEMENTS.includes(property) ||
         RESERVED_ELEMENTS.includes(property.toLowerCase())
       ) {
-        logger?.warn(
+        logger.warn(
           RESERVED_KEYWORD_WARNING(EVENT_MANAGER, property, parentKeyPath, RESERVED_ELEMENTS),
         );
       }
@@ -118,7 +118,7 @@ const checkForReservedElementsInObject = (
  * @param rudderEvent Generated rudder event
  * @param logger Logger instance
  */
-const checkForReservedElements = (rudderEvent: RudderEvent, logger?: ILogger): void => {
+const checkForReservedElements = (rudderEvent: RudderEvent, logger: ILogger): void => {
   //  properties, traits, contextualTraits are either undefined or object
   const { properties, traits, context } = rudderEvent;
   const { traits: contextualTraits } = context;
@@ -238,7 +238,7 @@ const getEnrichedEvent = (
     channel: CHANNEL,
     context: {
       traits: clone(state.session.userTraits.value),
-      sessionId: state.session.sessionInfo.value.id || undefined,
+      sessionId: state.session.sessionInfo.value.id,
       sessionStart: state.session.sessionInfo.value.sessionStart || undefined,
       // Add 'consentManagement' only if consent management is enabled
       ...(state.consents.enabled.value && {
@@ -272,17 +272,17 @@ const getEnrichedEvent = (
     },
     originalTimestamp: getCurrentTimeFormatted(),
     messageId: generateUUID(),
-    userId: rudderEvent.userId || state.session.userId.value,
+    userId: rudderEvent.userId ?? state.session.userId.value,
   } as Partial<RudderEvent>;
 
   if (
-    !isStorageTypeValidForStoringData(state.storage.entries.value.anonymousId?.type as StorageType)
+    isStorageTypeValidForStoringData(state.storage.entries.value.anonymousId?.type as StorageType)
   ) {
-    // Generate new anonymous id for each request
-    commonEventData.anonymousId = generateAnonymousId();
-  } else {
     // Type casting to string as the user session manager will take care of initializing the value
     commonEventData.anonymousId = state.session.anonymousId.value as string;
+  } else {
+    // Generate new anonymous id for each request
+    commonEventData.anonymousId = generateAnonymousId();
   }
 
   // set truly anonymous tracking flag
@@ -298,8 +298,9 @@ const getEnrichedEvent = (
   }
 
   if (rudderEvent.type === 'group') {
-    if (rudderEvent.groupId || state.session.groupId.value) {
-      commonEventData.groupId = rudderEvent.groupId || state.session.groupId.value;
+    const groupId = rudderEvent.groupId ?? state.session.groupId.value;
+    if (groupId) {
+      commonEventData.groupId = groupId;
     }
 
     if (rudderEvent.traits || state.session.groupTraits.value) {
@@ -313,6 +314,7 @@ const getEnrichedEvent = (
   const processedEvent = mergeDeepRight(rudderEvent, commonEventData) as RudderEvent;
   // Set the default values for the event properties
   // matching with v1.1 payload
+  // eslint-disable-next-line sonarjs/different-types-comparison
   if (processedEvent.event === undefined) {
     processedEvent.event = null;
   }
@@ -322,7 +324,10 @@ const getEnrichedEvent = (
   }
 
   processOptions(processedEvent, options);
-  checkForReservedElements(processedEvent, logger);
+
+  if (logger) {
+    checkForReservedElements(processedEvent, logger);
+  }
 
   // Update the integrations config for the event
   processedEvent.integrations = getEventIntegrationsConfig(processedEvent.integrations);
@@ -334,7 +339,7 @@ export {
   getUpdatedPageProperties,
   getEnrichedEvent,
   checkForReservedElements,
-  checkForReservedElementsInObject,
+  checkForReservedElementsInObject, // For testing
   updateTopLevelEventElements,
   getContextPageProperties,
   getMergedContext,

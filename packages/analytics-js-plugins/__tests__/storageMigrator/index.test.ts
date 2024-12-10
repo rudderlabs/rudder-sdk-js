@@ -1,6 +1,7 @@
 import { signal } from '@preact/signals-core';
 import { clone } from 'ramda';
 import { StorageMigrator } from '../../src/storageMigrator';
+import { defaultLogger } from '../../__mocks__/Logger';
 
 describe('Plugin - Storage Migrator', () => {
   const originalState = {
@@ -19,10 +20,6 @@ describe('Plugin - Storage Migrator', () => {
 
   const storageEngine = {
     getItem: (key: string) => storedVal,
-  };
-
-  const mockLogger = {
-    error: jest.fn(),
   };
 
   const mockErrorHandler = {
@@ -44,7 +41,7 @@ describe('Plugin - Storage Migrator', () => {
       null,
       storageEngine,
       mockErrorHandler,
-      mockLogger,
+      defaultLogger,
     );
     expect(migratedVal).toBe('1wefk7M3Y1D6EDX4ZpIE00LpKAE');
   });
@@ -55,7 +52,7 @@ describe('Plugin - Storage Migrator', () => {
       null,
       storageEngine,
       mockErrorHandler,
-      mockLogger,
+      defaultLogger,
     );
     expect(migratedVal).toBe('test-data');
   });
@@ -66,7 +63,7 @@ describe('Plugin - Storage Migrator', () => {
       null,
       storageEngine,
       mockErrorHandler,
-      mockLogger,
+      defaultLogger,
     );
     expect(migratedVal).toBe(null);
   });
@@ -77,7 +74,7 @@ describe('Plugin - Storage Migrator', () => {
       null,
       storageEngine,
       mockErrorHandler,
-      mockLogger,
+      defaultLogger,
     );
     expect(migratedVal).toBe(null);
   });
@@ -88,7 +85,7 @@ describe('Plugin - Storage Migrator', () => {
       null,
       storageEngine,
       mockErrorHandler,
-      mockLogger,
+      defaultLogger,
     );
     expect(migratedVal).toBe(null);
   });
@@ -99,7 +96,7 @@ describe('Plugin - Storage Migrator', () => {
       null,
       storageEngine,
       mockErrorHandler,
-      mockLogger,
+      defaultLogger,
     );
     expect(migratedVal).toBe(null);
   });
@@ -110,7 +107,7 @@ describe('Plugin - Storage Migrator', () => {
       null,
       storageEngine,
       mockErrorHandler,
-      mockLogger,
+      defaultLogger,
     );
     expect(migratedVal).toBe(null);
   });
@@ -121,7 +118,7 @@ describe('Plugin - Storage Migrator', () => {
       null,
       storageEngine,
       mockErrorHandler,
-      mockLogger,
+      defaultLogger,
     );
     expect(migratedVal).toBe(null);
   });
@@ -132,7 +129,7 @@ describe('Plugin - Storage Migrator', () => {
       'someKey',
       storageEngine,
       mockErrorHandler,
-      mockLogger,
+      defaultLogger,
     );
     expect(migratedVal).toBe(null);
     expect(mockErrorHandler.onError).toHaveBeenCalledWith(

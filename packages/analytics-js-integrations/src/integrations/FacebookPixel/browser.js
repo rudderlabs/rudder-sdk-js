@@ -60,6 +60,7 @@ class FacebookPixel {
   init() {
     window._fbq = function () {
       if (window.fbq.callMethod) {
+        // eslint-disable-next-line sonarjs/prefer-spread
         window.fbq.callMethod.apply(window.fbq, arguments);
       } else {
         window.fbq.queue.push(arguments);

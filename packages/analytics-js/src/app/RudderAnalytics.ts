@@ -22,9 +22,9 @@ import type { IdentifyTraits } from '@rudderstack/analytics-js-common/types/trai
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { onPageLeave } from '@rudderstack/analytics-js-common/utilities/page';
 import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
-import { getFormattedTimestamp } from '@rudderstack/analytics-js-common/utilities/timestamp';
-import { dispatchErrorEvent } from '@rudderstack/analytics-js-common/utilities/errors';
+import { getFormattedTimestamp } from '@rudderstack/analytics-js-common/utilities/time';
 import { getSanitizedValue } from '@rudderstack/analytics-js-common/utilities/json';
+import { dispatchErrorEvent } from '@rudderstack/analytics-js-common/utilities/errors';
 import { GLOBAL_PRELOAD_BUFFER } from '../constants/app';
 import {
   getPreloadedLoadEvent,
@@ -36,7 +36,6 @@ import type { IAnalytics } from '../components/core/IAnalytics';
 import { Analytics } from '../components/core/Analytics';
 import { defaultLogger } from '../services/Logger/Logger';
 import { PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING } from '../constants/logMessages';
-import { defaultErrorHandler } from '../services/ErrorHandler';
 import { state } from '../state';
 
 // TODO: add analytics restart/reset mechanism
@@ -48,10 +47,8 @@ import { state } from '../state';
  * consume SDK preload event buffer
  */
 class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
-  // START-NO-SONAR-SCAN
   // eslint-disable-next-line sonarjs/public-static-readonly
-  static globalSingleton: Nullable<RudderAnalytics> = null;
-  // END-NO-SONAR-SCAN
+  static globalSingleton: Nullable<RudderAnalytics>;
   analyticsInstances: Record<string, IAnalytics> = {};
   defaultAnalyticsKey = '';
   logger = defaultLogger;
@@ -65,7 +62,6 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
         return RudderAnalytics.globalSingleton;
         // END-NO-SONAR-SCAN
       }
-      defaultErrorHandler.attachErrorListeners();
 
       this.setDefaultInstanceKey = this.setDefaultInstanceKey.bind(this);
       this.getAnalyticsInstance = this.getAnalyticsInstance.bind(this);
@@ -191,6 +187,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     preloadedEventsArray: PreloadedEventCall[],
     loadOptions?: Partial<LoadOptions>,
   ) {
+    // eslint-disable-next-line sonarjs/deprecation
     const { autoTrack, useBeacon } = loadOptions ?? {};
     const {
       enabled: autoTrackEnabled = false,

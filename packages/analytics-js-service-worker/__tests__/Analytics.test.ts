@@ -70,12 +70,24 @@ describe('JS SDK Service Worker', () => {
   it('should initialise with correct values', () => {
     expect(rudderAnalyticsClient.writeKey).toBe(dummyWriteKey);
     expect(rudderAnalyticsClient.host).toBe('https://dummy.dataplane.host.com/v1/batch');
-    expect(rudderAnalyticsClient.timeout).toBe(undefined);
+    expect(rudderAnalyticsClient.timeout).toBe(0);
     expect(rudderAnalyticsClient.flushAt).toBe(dummyInitOptions.flushAt);
     expect(rudderAnalyticsClient.flushInterval).toBe(dummyInitOptions.flushInterval);
     expect(rudderAnalyticsClient.maxInternalQueueSize).toBe(dummyInitOptions.maxInternalQueueSize);
     expect(rudderAnalyticsClient.logLevel).toBe(dummyInitOptions.logLevel);
     expect(rudderAnalyticsClient.enable).toBe(dummyInitOptions.enable);
+  });
+
+  it('should initialize with default values', () => {
+    const analytics = new Analytics(dummyWriteKey, dummyDataplaneHost, {});
+    expect(analytics.writeKey).toBe(dummyWriteKey);
+    expect(analytics.host).toBe('https://dummy.dataplane.host.com/v1/batch');
+    expect(analytics.timeout).toBeUndefined();
+    expect(analytics.flushAt).toBe(20);
+    expect(analytics.flushInterval).toBe(20000);
+    expect(analytics.maxInternalQueueSize).toBe(20000);
+    expect(analytics.logLevel).toBe('info');
+    expect(analytics.enable).toBe(true);
   });
 
   it('should record identify', done => {

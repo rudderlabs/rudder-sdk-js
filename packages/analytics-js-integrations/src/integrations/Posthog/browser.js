@@ -6,8 +6,9 @@ import {
   NAME,
   DISPLAY_NAME,
 } from '@rudderstack/analytics-js-common/constants/integrations/Posthog/constants';
+import { removeTrailingSlashes } from '@rudderstack/analytics-js-common/utilities/url';
 import Logger from '../../utils/logger';
-import { isDefinedAndNotNull, removeTrailingSlashes } from '../../utils/utils';
+import { isDefinedAndNotNull } from '../../utils/utils';
 import { getXhrHeaders, getPropertyBlackList, getDestinationOptions } from './utils';
 import { loadNativeSdk } from './nativeSdkLoader';
 
@@ -21,7 +22,7 @@ class Posthog {
     this.name = NAME;
     this.analytics = analytics;
     this.teamApiKey = config.teamApiKey;
-    this.yourInstance = removeTrailingSlashes(config.yourInstance) || 'https://app.posthog.com';
+    this.yourInstance = removeTrailingSlashes(config.yourInstance) ?? 'https://app.posthog.com';
     this.autocapture = config.autocapture || false;
     this.capturePageView = config.capturePageView || false;
     this.disableSessionRecording = config.disableSessionRecording || false;

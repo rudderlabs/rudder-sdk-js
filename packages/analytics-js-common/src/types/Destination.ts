@@ -5,6 +5,7 @@ import type {
   IubendaConsentPurpose,
   ConsentManagementProvider,
 } from './Consent';
+import type { IntegrationOpts } from './Integration';
 
 export type DestinationConnectionMode = 'hybrid' | 'cloud' | 'device';
 
@@ -21,6 +22,7 @@ export type DeviceModeDestination = {
   [index: string]: any;
   isLoaded: () => boolean;
   isReady?: () => boolean;
+  getDataForIntegrationsObject?: () => IntegrationOpts;
 };
 
 export type ConsentsConfig = {

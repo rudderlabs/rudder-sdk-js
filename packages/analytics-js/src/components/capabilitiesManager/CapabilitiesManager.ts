@@ -9,9 +9,10 @@ import {
   SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
 import { CAPABILITIES_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { getTimezone } from '@rudderstack/analytics-js-common/utilities/timezone';
 import { isValidURL } from '@rudderstack/analytics-js-common/utilities/url';
 import { isDefinedAndNotNull } from '@rudderstack/analytics-js-common/utilities/checks';
+import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import { getTimezone } from '@rudderstack/analytics-js-common/utilities/time';
 import {
   INVALID_POLYFILL_URL_WARNING,
   POLYFILL_SCRIPT_LOAD_ERROR,
@@ -24,7 +25,6 @@ import type { ICapabilitiesManager } from './types';
 import { POLYFILL_LOAD_TIMEOUT, POLYFILL_SCRIPT_ID, POLYFILL_URL } from './polyfill';
 import {
   getScreenDetails,
-  hasBeacon,
   hasCrypto,
   hasUAClientHints,
   isIE11,
@@ -39,22 +39,20 @@ class CapabilitiesManager implements ICapabilitiesManager {
   logger?: ILogger;
   errorHandler?: IErrorHandler;
   externalSrcLoader: IExternalSrcLoader;
+  httpClient: IHttpClient;
 
-  constructor(errorHandler?: IErrorHandler, logger?: ILogger) {
+  constructor(httpClient: IHttpClient, errorHandler?: IErrorHandler, logger?: ILogger) {
     this.logger = logger;
     this.errorHandler = errorHandler;
-    this.externalSrcLoader = new ExternalSrcLoader(this.errorHandler, this.logger);
+    this.externalSrcLoader = new ExternalSrcLoader();
+    this.httpClient = httpClient;
     this.onError = this.onError.bind(this);
     this.onReady = this.onReady.bind(this);
   }
 
   init() {
-    try {
-      this.prepareBrowserCapabilities();
-      this.attachWindowListeners();
-    } catch (err) {
-      this.onError(err);
-    }
+    this.prepareBrowserCapabilities();
+    this.attachWindowListeners();
   }
 
   /**
@@ -81,7 +79,6 @@ class CapabilitiesManager implements ICapabilitiesManager {
       );
 
       // Browser feature detection details
-      state.capabilities.isBeaconAvailable.value = hasBeacon();
       state.capabilities.isUaCHAvailable.value = hasUAClientHints();
       state.capabilities.isCryptoAvailable.value = hasCrypto();
       state.capabilities.isIE11.value = isIE11();
@@ -106,7 +103,7 @@ class CapabilitiesManager implements ICapabilitiesManager {
         state.loadOptions.value.sendAdblockPage === true &&
         state.lifecycle.sourceConfigUrl.value !== undefined
       ) {
-        detectAdBlockers(this.errorHandler, this.logger);
+        detectAdBlockers(this.httpClient);
       }
     });
   }
@@ -155,9 +152,13 @@ class CapabilitiesManager implements ICapabilitiesManager {
         id: POLYFILL_SCRIPT_ID,
         async: true,
         timeout: POLYFILL_LOAD_TIMEOUT,
-        callback: (scriptId?: string) => {
-          if (!scriptId) {
-            this.onError(new Error(POLYFILL_SCRIPT_LOAD_ERROR(POLYFILL_SCRIPT_ID, polyfillUrl)));
+        callback: (scriptId?: string, error?: Error) => {
+          if (error) {
+            this.onError(
+              new Error(POLYFILL_SCRIPT_LOAD_ERROR(CAPABILITIES_MANAGER, error.message)),
+            );
+            // The default polyfill service would automatically invoke the callback
+            // which will invoke the onReady method
           } else if (!isDefaultPolyfillService) {
             this.onReady();
           }
@@ -201,7 +202,7 @@ class CapabilitiesManager implements ICapabilitiesManager {
    * Handles error
    * @param error The error object
    */
-  onError(error: unknown): void {
+  onError(error: any): void {
     if (this.errorHandler) {
       this.errorHandler.onError(error, CAPABILITIES_MANAGER);
     } else {
