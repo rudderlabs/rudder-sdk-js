@@ -1,0 +1,49 @@
+name: Update cache control policy
+
+on:
+  workflow_dispatch:
+    inputs:
+      policy_type:
+        type: choice
+        description: Select the cache control policy type
+        required: true
+        options:
+          - no-store
+          - max-age=3600
+  workflow_call:
+    inputs:
+      policy_type:
+        type: string
+        required: true
+
+jobs:
+  update-cache-policy:
+    name: Update cache control policy for SDK artifacts
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+      - name: Install AWS CLI
+        uses: unfor19/install-aws-cli-action@master
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_S3_SYNC_ROLE }}
+          aws-region: us-east-1
+
+      - name: Determine the cache control policy
+        id: determine_policy
+        run: |
+          echo "cache_control_policy=${{ github.event.inputs.policy_type || inputs.policy_type }}" >> $GITHUB_ENV
+
+      - name: Update cache control policy
+        run: |
+          aws s3api list-objects --bucket ${{ secrets.AWS_S3_BUCKET_NAME }} --prefix adobe-analytics-js --query "Contents[].Key" --output text | while read key; do
+              aws s3api copy-object \
+                  --bucket ${{ secrets.AWS_S3_BUCKET_NAME }} \
+                  --copy-source ${{ secrets.AWS_S3_BUCKET_NAME }}/$key \
+                  --key $key \
+                  --metadata-directive REPLACE \
+                  --cache-control "${{ env.cache_control_policy }}"
+          done
+
