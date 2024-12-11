@@ -16,14 +16,11 @@ on:
         type: string
         required: true
     secrets:
-      AWS_ACCOUNT_ID:
-        description: AWS Account ID
+      AWS_PROD_ACCOUNT_ID:
         required: true
-      AWS_S3_BUCKET_NAME:
-        description: AWS S3 Bucket Name
+      AWS_PROD_S3_BUCKET_NAME:
         required: true
-      AWS_S3_SYNC_ROLE:
-        description: AWS S3 Sync Role
+      AWS_PROD_S3_SYNC_ROLE:
         required: true
 
 permissions:
@@ -42,7 +39,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_S3_SYNC_ROLE }}
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_PROD_ACCOUNT_ID }}:role/${{ secrets.AWS_PROD_S3_SYNC_ROLE }}
           aws-region: us-east-1
 
       - name: Determine the cache control policy
@@ -52,10 +49,10 @@ jobs:
 
       - name: Update cache control policy
         run: |
-          aws s3api list-objects --bucket ${{ secrets.AWS_S3_BUCKET_NAME }} --prefix adobe-analytics-js --query "Contents[].Key" --output text | while read key; do
+          aws s3api list-objects --bucket ${{ secrets.AWS_PROD_S3_BUCKET_NAME }} --prefix adobe-analytics-js --query "Contents[].Key" --output text | while read key; do
               aws s3api copy-object \
-                  --bucket ${{ secrets.AWS_S3_BUCKET_NAME }} \
-                  --copy-source ${{ secrets.AWS_S3_BUCKET_NAME }}/$key \
+                  --bucket ${{ secrets.AWS_PROD_S3_BUCKET_NAME }} \
+                  --copy-source ${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/$key \
                   --key $key \
                   --metadata-directive REPLACE \
                   --cache-control "${{ env.cache_control_policy }}"
