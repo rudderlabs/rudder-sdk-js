@@ -10,30 +10,16 @@ on:
         options:
           - no-store
           - max-age=3600
-  workflow_call:
-    inputs:
-      policy_type:
-        type: string
-        required: true
-    secrets:
-      AWS_PROD_ACCOUNT_ID:
-        required: true
-      AWS_PROD_S3_BUCKET_NAME:
-        required: true
-      AWS_PROD_S3_SYNC_ROLE:
-        required: true
-      PAT:
-        required: true
 
 permissions:
   id-token: write # allows the JWT to be requested from GitHub's OIDC provider
   contents: read # This is required for actions/checkout
 
 jobs:
-  check-actor:
+  validate-actor:
     runs-on: ubuntu-latest
     steps:
-      - name: Check if valid actor
+      - name: Validate if actor is allowed to trigger the workflow
         env:
           ORG_NAME: rudderlabs
           TEAM_NAME: js-sdk
@@ -45,17 +31,15 @@ jobs:
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/orgs/${{ env.ORG_NAME }}/teams/${{ env.TEAM_NAME }}/memberships/$actor)
           
-          echo "Response: $response"
-          
           if echo "$response" | grep -q '"state": "active"'; then
-            echo "$actor is a member of $TEAM_NAME"
+            echo "$actor is a member of $TEAM_NAME team"
           else
-            echo "$actor is NOT a member of $TEAM_NAME"
+            echo "$actor is NOT a member of $TEAM_NAME team"
             exit 1
           fi
 
   update-cache-policy:
-    needs: check-actor
+    needs: validate-actor
     name: Update cache control policy for SDK artifacts
     runs-on: [self-hosted, Linux, X64]
 
@@ -82,7 +66,7 @@ jobs:
           parallel_jobs=$((num_cores * 2))
           echo "Detected $num_cores cores. Using $parallel_jobs parallel jobs."
 
-          prefixes=("adobe-analytics-js")
+          prefixes=("adobe-analytics-js" "v3" "v1.1")
           
           for prefix in "${prefixes[@]}"; do
             echo "Processing prefix: $prefix"

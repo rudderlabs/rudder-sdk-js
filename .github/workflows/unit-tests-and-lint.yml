@@ -67,13 +67,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-  temp:
-    uses: ./.github/workflows/update-cache-policy.yml
-    with:
-      policy_type: 'max-age=3600'
-    secrets:
-      AWS_PROD_ACCOUNT_ID: ${{ secrets.AWS_PROD_ACCOUNT_ID }}
-      AWS_PROD_S3_BUCKET_NAME: ${{ secrets.AWS_PROD_S3_BUCKET_NAME }}
-      AWS_PROD_S3_SYNC_ROLE: ${{ secrets.AWS_PROD_S3_SYNC_ROLE }}
-      PAT: ${{ secrets.PAT }}
