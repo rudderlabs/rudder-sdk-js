@@ -22,13 +22,35 @@ on:
         required: true
       AWS_PROD_S3_SYNC_ROLE:
         required: true
+      PAT:
+        required: true
 
 permissions:
   id-token: write # allows the JWT to be requested from GitHub's OIDC provider
   contents: read # This is required for actions/checkout
 
 jobs:
+  check-actor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if valid actor
+        env:
+          ORG_NAME: rudderlabs
+          TEAM_NAME: js-sdk
+        run: |
+          actor=${{ github.actor || github.triggering_actor }}
+          response=$(curl -s -H "Authorization: Bearer ${{ secrets.PAT }}" \
+            "https://api.github.com/orgs/$ORG_NAME/teams/$TEAM_NAME/members/$actor")
+          
+          if echo "$response" | grep -q '"state": "active"'; then
+            echo "$actor is a member of $TEAM_NAME"
+          else
+            echo "$actor is NOT a member of $TEAM_NAME"
+            exit 1
+          fi
+
   update-cache-policy:
+    needs: check-actor
     name: Update cache control policy for SDK artifacts
     runs-on: [self-hosted, Linux, X64]
 
@@ -55,7 +77,7 @@ jobs:
           parallel_jobs=$((num_cores * 2))
           echo "Detected $num_cores cores. Using $parallel_jobs parallel jobs."
 
-          prefixes=("adobe-analytics-js" "latest")
+          prefixes=("adobe-analytics-js")
           
           for prefix in "${prefixes[@]}"; do
             echo "Processing prefix: $prefix"
