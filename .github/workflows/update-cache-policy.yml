@@ -61,7 +61,7 @@ jobs:
             echo "Processing prefix: $prefix"
             
             aws s3api list-objects --bucket ${{ secrets.AWS_PROD_S3_BUCKET_NAME }} --prefix "$prefix" --query "Contents[].Key" --output text | tr '\t' '\n' | \
-            --retries 3 parallel -j "$parallel_jobs" "aws s3api copy-object \
+            parallel --retries 10 -j "$parallel_jobs" "aws s3api copy-object \
                 --bucket ${{ secrets.AWS_PROD_S3_BUCKET_NAME }} \
                 --copy-source ${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/{} \
                 --key {} \
