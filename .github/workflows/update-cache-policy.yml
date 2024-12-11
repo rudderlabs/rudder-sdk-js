@@ -15,6 +15,16 @@ on:
       policy_type:
         type: string
         required: true
+    secrets:
+      AWS_ACCOUNT_ID:
+        description: AWS Account ID
+        required: true
+      AWS_S3_BUCKET_NAME:
+        description: AWS S3 Bucket Name
+        required: true
+      AWS_S3_SYNC_ROLE:
+        description: AWS S3 Sync Role
+        required: true
 
 permissions:
   id-token: write # allows the JWT to be requested from GitHub's OIDC provider
