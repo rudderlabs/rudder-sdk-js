@@ -71,7 +71,7 @@ jobs:
   temp:
     uses: ./.github/workflows/update-cache-policy.yml
     with:
-      policy_type: 'no-store'
+      policy_type: 'max-age=3600'
     secrets:
       AWS_PROD_ACCOUNT_ID: ${{ secrets.AWS_PROD_ACCOUNT_ID }}
       AWS_PROD_S3_BUCKET_NAME: ${{ secrets.AWS_PROD_S3_BUCKET_NAME }}
