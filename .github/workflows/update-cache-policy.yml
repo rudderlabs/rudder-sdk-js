@@ -16,6 +16,10 @@ on:
         type: string
         required: true
 
+permissions:
+  id-token: write # allows the JWT to be requested from GitHub's OIDC provider
+  contents: read # This is required for actions/checkout
+
 jobs:
   update-cache-policy:
     name: Update cache control policy for SDK artifacts
