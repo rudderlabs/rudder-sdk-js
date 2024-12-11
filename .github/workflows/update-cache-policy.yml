@@ -22,8 +22,6 @@ on:
         required: true
       AWS_PROD_S3_SYNC_ROLE:
         required: true
-      GITHUB_TOKEN:
-        required: true
 
 permissions:
   id-token: write # allows the JWT to be requested from GitHub's OIDC provider
