@@ -49,12 +49,13 @@ jobs:
 
       - name: Update cache control policy
         run: |
-          aws s3api list-objects --bucket ${{ secrets.AWS_PROD_S3_BUCKET_NAME }} --prefix adobe-analytics-js --query "Contents[].Key" --output text | while read key; do
+          aws s3api list-objects --bucket ${{ secrets.AWS_PROD_S3_BUCKET_NAME }} --prefix adobe-analytics-js --query "Contents[].Key" --output text | tr '\t' '\n' | while read key; do
               aws s3api copy-object \
                   --bucket ${{ secrets.AWS_PROD_S3_BUCKET_NAME }} \
-                  --copy-source ${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/$key \
-                  --key $key \
+                  --copy-source "${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/$key" \
+                  --key "$key" \
                   --metadata-directive REPLACE \
                   --cache-control "${{ env.cache_control_policy }}"
           done
+
 
