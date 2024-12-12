@@ -56,10 +56,10 @@ class MicrosoftClarity {
     if (context?.traits?.customPageId) {
       customPageId = context.traits.customPageId;
     }
-    try {
-      window.clarity('identify', userId, sessionId, customPageId);
-    } catch (error) {
-      logger.error('[MicrosoftClarity] Error in identify call: ', error);
+
+    const identifyPromise = window.clarity('identify', userId, sessionId, customPageId);
+    if (!!identifyPromise) { // Clarity SDK is ready
+      identifyPromise.catch(logger.error);
     }
     if (context?.traits) {
       const { traits } = context;
