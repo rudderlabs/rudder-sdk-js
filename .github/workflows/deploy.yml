@@ -142,7 +142,8 @@ jobs:
           plugins_path_prefix="packages/analytics-js-plugins/dist/cdn"
           s3_relative_path_prefix="${{ inputs.s3_dir_path }}"
           s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/$s3_relative_path_prefix"
-          copy_args="--recursive --cache-control ${{ env.CACHE_CONTROL }}"
+          copy_recursive_args="--recursive --cache-control ${{ env.CACHE_CONTROL }}"
+          copy_args="--cache-control ${{ env.CACHE_CONTROL }}"
 
           integration_sdks_zip_file="all_integration_sdks.tar.gz"
           plugins_zip_file="all_plugins.tar.gz"
@@ -165,12 +166,12 @@ jobs:
           mv "$tmp_file" "$plugins_path_prefix/modern/plugins/$plugins_zip_file"
 
           # Upload all the files to S3
-          aws s3 cp $core_sdk_path_prefix/legacy/iife/ $s3_path_prefix/legacy/ $copy_args
-          aws s3 cp $core_sdk_path_prefix/modern/iife/ $s3_path_prefix/modern/ $copy_args
+          aws s3 cp $core_sdk_path_prefix/legacy/iife/ $s3_path_prefix/legacy/ $copy_recursive_args
+          aws s3 cp $core_sdk_path_prefix/modern/iife/ $s3_path_prefix/modern/ $copy_recursive_args
 
-          aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/legacy/js-integrations/ $copy_args
-          aws s3 cp $plugins_path_prefix/modern/plugins/ $s3_path_prefix/modern/plugins/ $copy_args
-          aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
+          aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/legacy/js-integrations/ $copy_recursive_args
+          aws s3 cp $plugins_path_prefix/modern/plugins/ $s3_path_prefix/modern/plugins/ $copy_recursive_args
+          aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_recursive_args
 
           # Generate the HTML file to list all the integrations
           ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/legacy/js-integrations $integration_sdks_html_file $integration_sdks_path_prefix/legacy/js-integrations "Device Mode Integrations (Legacy)" $integration_sdks_zip_file
@@ -199,7 +200,8 @@ jobs:
           plugins_path_prefix="packages/analytics-js-plugins/dist/cdn"
           s3_relative_path_prefix="${{ env.CURRENT_VERSION_VALUE }}"
           s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/$s3_relative_path_prefix"
-          copy_args="--recursive --cache-control ${{ env.CACHE_CONTROL_MAX_AGE }}"
+          copy_recursive_args="--recursive --cache-control ${{ env.CACHE_CONTROL_MAX_AGE }}"
+          copy_args="--cache-control ${{ env.CACHE_CONTROL_MAX_AGE }}"
 
           integration_sdks_zip_file="all_integration_sdks.tar.gz"
           plugins_zip_file="all_plugins.tar.gz"
@@ -208,12 +210,12 @@ jobs:
           plugins_html_file="list.html"
 
           # Copy all the files to S3
-          aws s3 cp $core_sdk_path_prefix/legacy/iife/ $s3_path_prefix/legacy/ $copy_args
-          aws s3 cp $core_sdk_path_prefix/modern/iife/ $s3_path_prefix/modern/ $copy_args
+          aws s3 cp $core_sdk_path_prefix/legacy/iife/ $s3_path_prefix/legacy/ $copy_recursive_args
+          aws s3 cp $core_sdk_path_prefix/modern/iife/ $s3_path_prefix/modern/ $copy_recursive_args
 
-          aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/legacy/js-integrations/ $copy_args
-          aws s3 cp $plugins_path_prefix/modern/plugins/ $s3_path_prefix/modern/plugins/ $copy_args
-          aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
+          aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/legacy/js-integrations/ $copy_recursive_args
+          aws s3 cp $plugins_path_prefix/modern/plugins/ $s3_path_prefix/modern/plugins/ $copy_recursive_args
+          aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_recursive_args
 
           # Generate the HTML file to list all the integrations
           ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/legacy/js-integrations $integration_sdks_html_file $integration_sdks_path_prefix/legacy/js-integrations "Device Mode Integrations (Legacy)" $integration_sdks_zip_file
