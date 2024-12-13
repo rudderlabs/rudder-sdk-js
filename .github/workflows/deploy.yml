@@ -126,6 +126,15 @@ jobs:
 
           aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --id "$invalidation_id"
 
+      - name: Determine cache policy based on environment
+        id: cache_policy
+        run: |
+          if [ "${{ inputs.environment }}" == "production" ]; then
+            echo "CACHE_CONTROL=${{ env.CACHE_CONTROL_NO_STORE }}" >> $GITHUB_ENV
+          else
+            echo "CACHE_CONTROL=${{ env.CACHE_CONTROL_MAX_AGE }}" >> $GITHUB_ENV
+          fi
+
       - name: Copy SDK artifacts to S3
         run: |
           core_sdk_path_prefix="packages/analytics-js/dist/cdn"
@@ -133,7 +142,7 @@ jobs:
           plugins_path_prefix="packages/analytics-js-plugins/dist/cdn"
           s3_relative_path_prefix="${{ inputs.s3_dir_path }}"
           s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/$s3_relative_path_prefix"
-          copy_args="--recursive --cache-control ${{ env.CACHE_CONTROL_NO_STORE }}"
+          copy_args="--recursive --cache-control ${{ env.CACHE_CONTROL }}"
 
           integration_sdks_zip_file="all_integration_sdks.tar.gz"
           plugins_zip_file="all_plugins.tar.gz"
@@ -275,7 +284,7 @@ jobs:
           core_sdk_path_prefix="packages/analytics-v1.1/dist/cdn"
           integration_sdks_path_prefix="packages/analytics-js-integrations/dist/cdn"
           s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/${{ inputs.s3_dir_path_legacy }}"
-          copy_args="--recursive --cache-control ${{ env.CACHE_CONTROL_NO_STORE }}"
+          copy_args="--recursive --cache-control ${{ env.CACHE_CONTROL }}"
 
           aws s3 cp $core_sdk_path_prefix/legacy/ $s3_path_prefix/ $copy_args
           aws s3 cp $core_sdk_path_prefix/modern/ $s3_path_prefix/modern/ $copy_args
