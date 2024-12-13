@@ -1,18 +1,15 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { batch } from '@preact/signals-core';
-import { HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
-import { state } from '@rudderstack/analytics-js/state';
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
-import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
-import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
+import { defaultStoreManager } from '@rudderstack/analytics-js-common/__mocks__/StoreManager';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
+import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
+import { resetState, state } from '../../__mocks__/state';
 import { XhrQueue } from '../../src/xhrQueue';
 import { Schedule } from '../../src/utilities/retryQueue/Schedule';
+import { defaultHttpClient } from '../../__mocks__/HttpClient';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/timestamp', () => ({
   ...jest.requireActual('@rudderstack/analytics-js-common/utilities/timestamp'),
@@ -25,19 +22,8 @@ jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
 }));
 
 describe('XhrQueue', () => {
-  const defaultPluginsManager = new PluginsManager(
-    defaultPluginEngine,
-    defaultErrorHandler,
-    defaultLogger,
-  );
-
-  const defaultStoreManager = new StoreManager(defaultPluginsManager);
-
-  const mockLogger = {
-    error: jest.fn(),
-  } as unknown as ILogger;
-
   beforeAll(() => {
+    resetState();
     batch(() => {
       state.lifecycle.writeKey.value = 'sampleWriteKey';
       state.lifecycle.activeDataplaneUrl.value = 'https://sampleurl.com';
@@ -51,8 +37,6 @@ describe('XhrQueue', () => {
     });
   });
 
-  const httpClient = new HttpClient();
-
   it('should add itself to the loaded plugins list on initialized', () => {
     XhrQueue().initialize(state);
 
@@ -62,7 +46,7 @@ describe('XhrQueue', () => {
   it('should return a queue object on init', () => {
     const queue = XhrQueue().dataplaneEventsQueue?.init(
       state,
-      httpClient,
+      defaultHttpClient,
       defaultStoreManager,
       defaultErrorHandler,
       defaultLogger,
@@ -73,7 +57,11 @@ describe('XhrQueue', () => {
   });
 
   it('should add item in queue on enqueue', () => {
-    const queue = XhrQueue().dataplaneEventsQueue?.init(state, httpClient, defaultStoreManager);
+    const queue = XhrQueue().dataplaneEventsQueue?.init(
+      state,
+      defaultHttpClient,
+      defaultStoreManager,
+    );
 
     const addItemSpy = jest.spyOn(queue, 'addItem');
 
@@ -164,7 +152,7 @@ describe('XhrQueue', () => {
       mockHttpClient,
       defaultStoreManager,
       undefined,
-      mockLogger,
+      defaultLogger,
     );
 
     const schedule = new Schedule();
@@ -191,7 +179,7 @@ describe('XhrQueue', () => {
     // In actual implementation, this is done based on the state signals
     queue.start();
 
-    expect(mockLogger.error).toBeCalledWith(
+    expect(defaultLogger.error).toBeCalledWith(
       'XhrQueuePlugin:: Failed to deliver event(s) to https://sampleurl.com/v1/track. It/they will be retried.',
     );
 
@@ -239,7 +227,7 @@ describe('XhrQueue', () => {
       mockHttpClient,
       defaultStoreManager,
       undefined,
-      mockLogger,
+      defaultLogger,
     );
     const queueProcessCbSpy = jest.spyOn(queue, 'processQueueCb');
 

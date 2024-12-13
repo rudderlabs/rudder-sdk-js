@@ -1,5 +1,7 @@
 import { signal } from '@preact/signals-core';
 import { clone } from 'ramda';
+import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
+import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
 import { StorageMigrator } from '../../src/storageMigrator';
 
 describe('Plugin - Storage Migrator', () => {
@@ -21,14 +23,6 @@ describe('Plugin - Storage Migrator', () => {
     getItem: (key: string) => storedVal,
   };
 
-  const mockLogger = {
-    error: jest.fn(),
-  };
-
-  const mockErrorHandler = {
-    onError: jest.fn(),
-  };
-
   beforeEach(() => {
     storedVal = undefined;
   });
@@ -43,8 +37,8 @@ describe('Plugin - Storage Migrator', () => {
     const migratedVal = storageMigrator.storage?.migrate(
       null,
       storageEngine,
-      mockErrorHandler,
-      mockLogger,
+      defaultErrorHandler,
+      defaultLogger,
     );
     expect(migratedVal).toBe('1wefk7M3Y1D6EDX4ZpIE00LpKAE');
   });
@@ -54,8 +48,8 @@ describe('Plugin - Storage Migrator', () => {
     const migratedVal = storageMigrator.storage?.migrate(
       null,
       storageEngine,
-      mockErrorHandler,
-      mockLogger,
+      defaultErrorHandler,
+      defaultLogger,
     );
     expect(migratedVal).toBe('test-data');
   });
@@ -65,8 +59,8 @@ describe('Plugin - Storage Migrator', () => {
     const migratedVal = storageMigrator.storage?.migrate(
       null,
       storageEngine,
-      mockErrorHandler,
-      mockLogger,
+      defaultErrorHandler,
+      defaultLogger,
     );
     expect(migratedVal).toBe(null);
   });
@@ -76,8 +70,8 @@ describe('Plugin - Storage Migrator', () => {
     const migratedVal = storageMigrator.storage?.migrate(
       null,
       storageEngine,
-      mockErrorHandler,
-      mockLogger,
+      defaultErrorHandler,
+      defaultLogger,
     );
     expect(migratedVal).toBe(null);
   });
@@ -87,8 +81,8 @@ describe('Plugin - Storage Migrator', () => {
     const migratedVal = storageMigrator.storage?.migrate(
       null,
       storageEngine,
-      mockErrorHandler,
-      mockLogger,
+      defaultErrorHandler,
+      defaultLogger,
     );
     expect(migratedVal).toBe(null);
   });
@@ -98,8 +92,8 @@ describe('Plugin - Storage Migrator', () => {
     const migratedVal = storageMigrator.storage?.migrate(
       null,
       storageEngine,
-      mockErrorHandler,
-      mockLogger,
+      defaultErrorHandler,
+      defaultLogger,
     );
     expect(migratedVal).toBe(null);
   });
@@ -109,8 +103,8 @@ describe('Plugin - Storage Migrator', () => {
     const migratedVal = storageMigrator.storage?.migrate(
       null,
       storageEngine,
-      mockErrorHandler,
-      mockLogger,
+      defaultErrorHandler,
+      defaultLogger,
     );
     expect(migratedVal).toBe(null);
   });
@@ -120,8 +114,8 @@ describe('Plugin - Storage Migrator', () => {
     const migratedVal = storageMigrator.storage?.migrate(
       null,
       storageEngine,
-      mockErrorHandler,
-      mockLogger,
+      defaultErrorHandler,
+      defaultLogger,
     );
     expect(migratedVal).toBe(null);
   });
@@ -131,11 +125,11 @@ describe('Plugin - Storage Migrator', () => {
     const migratedVal = storageMigrator.storage?.migrate(
       'someKey',
       storageEngine,
-      mockErrorHandler,
-      mockLogger,
+      defaultErrorHandler,
+      defaultLogger,
     );
     expect(migratedVal).toBe(null);
-    expect(mockErrorHandler.onError).toHaveBeenCalledWith(
+    expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
       new SyntaxError('Unexpected token \'h\', "hello" is not valid JSON'),
       'StorageMigratorPlugin',
       'Failed to retrieve or parse data for someKey from storage.',

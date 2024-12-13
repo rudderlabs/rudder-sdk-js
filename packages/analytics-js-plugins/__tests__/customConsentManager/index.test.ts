@@ -1,20 +1,12 @@
-import { state, resetState } from '@rudderstack/analytics-js/state';
+import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
+import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
+import { resetState, state } from '../../__mocks__/state';
 import { CustomConsentManager } from '../../src/customConsentManager';
 
 describe('Plugin - CustomConsentManager', () => {
   beforeEach(() => {
     resetState();
   });
-
-  const mockLogger = {
-    error: jest.fn(),
-    warn: jest.fn(),
-    log: jest.fn(),
-  };
-
-  const mockErrorHandler = {
-    onError: jest.fn(),
-  };
 
   it('should add CustomConsentManager plugin in the loaded plugin list', () => {
     CustomConsentManager().initialize(state);
@@ -31,8 +23,8 @@ describe('Plugin - CustomConsentManager', () => {
       CustomConsentManager().consentManager.isDestinationConsented(
         state,
         undefined,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -45,8 +37,8 @@ describe('Plugin - CustomConsentManager', () => {
       CustomConsentManager().consentManager.isDestinationConsented(
         state,
         destConfig,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -78,8 +70,8 @@ describe('Plugin - CustomConsentManager', () => {
       CustomConsentManager().consentManager.isDestinationConsented(
         state,
         destConfig,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -96,8 +88,8 @@ describe('Plugin - CustomConsentManager', () => {
       CustomConsentManager().consentManager.isDestinationConsented(
         state,
         destConfig,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -114,8 +106,8 @@ describe('Plugin - CustomConsentManager', () => {
       CustomConsentManager().consentManager.isDestinationConsented(
         state,
         destConfig,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -148,8 +140,8 @@ describe('Plugin - CustomConsentManager', () => {
       CustomConsentManager().consentManager.isDestinationConsented(
         state,
         destConfig,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -182,8 +174,8 @@ describe('Plugin - CustomConsentManager', () => {
       CustomConsentManager().consentManager.isDestinationConsented(
         state,
         destConfig,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -216,8 +208,8 @@ describe('Plugin - CustomConsentManager', () => {
       CustomConsentManager().consentManager.isDestinationConsented(
         state,
         destConfig,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(false);
   });
@@ -250,12 +242,12 @@ describe('Plugin - CustomConsentManager', () => {
       CustomConsentManager().consentManager.isDestinationConsented(
         state,
         destConfig,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(true);
 
-    expect(mockErrorHandler.onError).toBeCalledWith(
+    expect(defaultErrorHandler.onError).toBeCalledWith(
       new TypeError("Cannot read properties of null (reading 'includes')"),
       'CustomConsentManagerPlugin',
       'Failed to determine the consent status for the destination. Please check the destination configuration and try again.',

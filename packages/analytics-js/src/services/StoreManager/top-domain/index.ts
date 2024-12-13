@@ -1,4 +1,4 @@
-import { cookie } from '@rudderstack/analytics-js-cookies/component-cookie';
+import { cookie } from '@rudderstack/analytics-js-common/src/component-cookie';
 import { STORAGE_TEST_TOP_LEVEL_DOMAIN } from '../../../constants/storage';
 
 const legacyGetHostname = (href: string): string => {

@@ -1,11 +1,8 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { QueueStatuses } from '@rudderstack/analytics-js-common/constants/QueueStatuses';
-import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages';
-import { Store, StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
-import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
-import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
+import { defaultStoreManager } from '@rudderstack/analytics-js-common/__mocks__/StoreManager';
+import { defaultLocalStorage } from '@rudderstack/analytics-js-common/__mocks__/Storage';
+import { Store } from '@rudderstack/analytics-js-common/__mocks__/Store';
 import { Schedule } from '../../../src/utilities/retryQueue/Schedule';
 import { RetryQueue } from '../../../src/utilities/retryQueue/RetryQueue';
 
@@ -16,23 +13,14 @@ const size = (queue: RetryQueue): { queue: number; inProgress: number } => ({
 
 describe('Queue', () => {
   let queue: RetryQueue;
-  // let clock: InstalledClock;
   let schedule: Schedule;
-  const engine = getStorageEngine('localStorage');
-  const defaultPluginsManager = new PluginsManager(
-    defaultPluginEngine,
-    defaultErrorHandler,
-    defaultLogger,
-  );
-
-  const defaultStoreManager = new StoreManager(defaultPluginsManager);
 
   beforeAll(() => {
     jest.useFakeTimers();
   });
 
   beforeEach(() => {
-    engine.clear();
+    defaultLocalStorage.clear();
     schedule = new Schedule();
     schedule.now = () => +new window.Date();
 
@@ -305,7 +293,7 @@ describe('Queue', () => {
         id: 'fake-id',
         validKeys: QueueStatuses,
       },
-      getStorageEngine('localStorage'),
+      defaultLocalStorage,
     );
     foundQueue.set(foundQueue.validKeys.ACK, 0); // fake timers starts at time 0
     foundQueue.set(foundQueue.validKeys.QUEUE, [
@@ -384,7 +372,7 @@ describe('Queue', () => {
         id: 'fake-id',
         validKeys: QueueStatuses,
       },
-      getStorageEngine('localStorage'),
+      defaultLocalStorage,
     );
     foundQueue.set(foundQueue.validKeys.ACK, -15000);
     foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
@@ -470,7 +458,7 @@ describe('Queue', () => {
         id: 'fake-id',
         validKeys: QueueStatuses,
       },
-      getStorageEngine('localStorage'),
+      defaultLocalStorage,
     );
     foundQueue.set(foundQueue.validKeys.ACK, 0); // fake timers starts at time 0
     foundQueue.set(foundQueue.validKeys.BATCH_QUEUE, [
@@ -514,7 +502,7 @@ describe('Queue', () => {
         id: 'fake-id',
         validKeys: QueueStatuses,
       },
-      getStorageEngine('localStorage'),
+      defaultLocalStorage,
     );
     foundQueue.set(foundQueue.validKeys.ACK, 0); // fake timers starts at time 0
     foundQueue.set(foundQueue.validKeys.BATCH_QUEUE, [
@@ -565,7 +553,7 @@ describe('Queue', () => {
         id: 'fake-id',
         validKeys: QueueStatuses,
       },
-      getStorageEngine('localStorage'),
+      defaultLocalStorage,
     );
     foundQueue.set(foundQueue.validKeys.ACK, -15000);
     foundQueue.set(foundQueue.validKeys.QUEUE, [
@@ -603,7 +591,7 @@ describe('Queue', () => {
         id: 'fake-id',
         validKeys: QueueStatuses,
       },
-      getStorageEngine('localStorage'),
+      defaultLocalStorage,
     );
     foundQueue.set(foundQueue.validKeys.ACK, -15000);
     foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
@@ -641,7 +629,7 @@ describe('Queue', () => {
         id: 'fake-id',
         validKeys: QueueStatuses,
       },
-      getStorageEngine('localStorage'),
+      defaultLocalStorage,
     );
     foundQueue.set(foundQueue.validKeys.ACK, -15000);
     foundQueue.set(foundQueue.validKeys.BATCH_QUEUE, [
@@ -679,7 +667,7 @@ describe('Queue', () => {
         id: 'fake-id',
         validKeys: QueueStatuses,
       },
-      getStorageEngine('localStorage'),
+      defaultLocalStorage,
     );
     foundQueue.set(foundQueue.validKeys.ACK, -15000);
     foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
@@ -749,7 +737,7 @@ describe('Queue', () => {
         id: 'fake-id',
         validKeys: QueueStatuses,
       },
-      getStorageEngine('localStorage'),
+      defaultLocalStorage,
     );
     foundQueue.set(foundQueue.validKeys.ACK, -15000);
     foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
@@ -798,7 +786,7 @@ describe('Queue', () => {
         id: 'fake-id',
         validKeys: QueueStatuses,
       },
-      getStorageEngine('localStorage'),
+      defaultLocalStorage,
     );
     foundQueue.set(foundQueue.validKeys.ACK, -15000);
     foundQueue.set(foundQueue.validKeys.QUEUE, [
@@ -850,7 +838,7 @@ describe('Queue', () => {
           id: 'fake-id',
           validKeys: QueueStatuses,
         },
-        getStorageEngine('localStorage'),
+        defaultLocalStorage,
       );
       foundQueue.set(foundQueue.validKeys.ACK, 0); // fake timers starts at time 0
       foundQueue.set(foundQueue.validKeys.QUEUE, [
@@ -887,7 +875,7 @@ describe('Queue', () => {
           id: 'fake-id',
           validKeys: QueueStatuses,
         },
-        getStorageEngine('localStorage'),
+        defaultLocalStorage,
       );
       foundQueue.set(foundQueue.validKeys.ACK, -15000);
       foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
@@ -924,7 +912,7 @@ describe('Queue', () => {
           id: 'fake-id',
           validKeys: QueueStatuses,
         },
-        getStorageEngine('localStorage'),
+        defaultLocalStorage,
       );
       foundQueue.set(foundQueue.validKeys.ACK, -15000);
       foundQueue.set(foundQueue.validKeys.QUEUE, [
@@ -1205,14 +1193,6 @@ describe('Queue', () => {
 
 describe('end-to-end', () => {
   let queue: RetryQueue;
-  const defaultPluginsManager = new PluginsManager(
-    defaultPluginEngine,
-    defaultErrorHandler,
-    defaultLogger,
-  );
-
-  const defaultStoreManager = new StoreManager(defaultPluginsManager);
-
   beforeEach(() => {
     queue = new RetryQueue(
       'e2e_test',

@@ -1,7 +1,7 @@
-import { state, resetState } from '@rudderstack/analytics-js/state';
-import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
-import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
-import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager/StoreManager';
+import { defaultStoreManager } from '@rudderstack/analytics-js-common/__mocks__/StoreManager';
+import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
+import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
+import { resetState, state } from '../../__mocks__/state';
 import { IubendaConsentManager } from '../../src/iubendaConsentManager';
 import { IUBENDA_CONSENT_EXAMPLE_COOKIE_NAME } from '../../src/iubendaConsentManager/constants';
 
@@ -19,16 +19,6 @@ describe('Plugin - IubendaConsentManager', () => {
     });
   });
 
-  const mockLogger = {
-    error: jest.fn(),
-    warn: jest.fn(),
-    log: jest.fn(),
-  };
-
-  const mockErrorHandler = {
-    onError: jest.fn(),
-  };
-
   it('should add IubendaConsentManager plugin in the loaded plugin list', () => {
     IubendaConsentManager().initialize(state);
     expect(state.plugins.loadedPlugins.value.includes('IubendaConsentManager')).toBe(true);
@@ -36,7 +26,7 @@ describe('Plugin - IubendaConsentManager', () => {
 
   it('should initialize the plugin if iubenda consent data is already available on the window object', () => {
     // Initialize the plugin
-    IubendaConsentManager().consentManager.init(state, mockLogger);
+    IubendaConsentManager().consentManager.init(state, defaultLogger);
 
     expect((window as any).getIubendaUserConsentedPurposes).toEqual(expect.any(Function));
     expect((window as any).getIubendaUserDeniedPurposes).toEqual(expect.any(Function));
@@ -46,26 +36,26 @@ describe('Plugin - IubendaConsentManager', () => {
   it('should update state with consents data from iubenda window resources', () => {
     // Mock the iubenda data on the window object
     (window as any)._iub.cs.consent = {
-      timestamp: "2024-10-1T01:57:25.825Z",
-      version: "1.67.1",
+      timestamp: '2024-10-1T01:57:25.825Z',
+      version: '1.67.1',
       purposes: {
         '1': true,
         '2': false,
         '3': false,
         '4': true,
-        '5': true
+        '5': true,
       },
       id: 252372,
       cons: {
-        rand: "92f72a"
-      }
+        rand: '92f72a',
+      },
     };
 
     // Initialize the plugin
-    IubendaConsentManager().consentManager.init(state, mockLogger);
+    IubendaConsentManager().consentManager.init(state, defaultLogger);
 
     // Update the state with the consent data
-    IubendaConsentManager().consentManager.updateConsentsInfo(state, undefined, mockLogger);
+    IubendaConsentManager().consentManager.updateConsentsInfo(state, undefined, defaultLogger);
 
     expect(state.consents.initialized.value).toBe(true);
     expect(state.consents.data.value).toStrictEqual({
@@ -73,17 +63,13 @@ describe('Plugin - IubendaConsentManager', () => {
       deniedConsentIds: ['2', '3'],
     });
 
-    expect((window as any).getIubendaUserConsentedPurposes()).toStrictEqual([
-      '1',
-      '4',
-      '5',
-    ]);
+    expect((window as any).getIubendaUserConsentedPurposes()).toStrictEqual(['1', '4', '5']);
     expect((window as any).getIubendaUserDeniedPurposes()).toStrictEqual(['2', '3']);
   });
 
   it('should return undefined values when the window callbacks are invoked and there is no data in the state', () => {
     // Initialize the plugin
-    IubendaConsentManager().consentManager.init(state, mockLogger);
+    IubendaConsentManager().consentManager.init(state, defaultLogger);
 
     expect((window as any).getIubendaUserConsentedPurposes()).toStrictEqual(undefined);
     expect((window as any).getIubendaUserDeniedPurposes()).toStrictEqual(undefined);
@@ -92,23 +78,23 @@ describe('Plugin - IubendaConsentManager', () => {
   it('should define a callback function on window to update consent data', () => {
     // Mock the iubenda data on the window object
     (window as any)._iub.cs.consent = {
-      timestamp: "2024-10-1T01:57:25.825Z",
-      version: "1.67.1",
+      timestamp: '2024-10-1T01:57:25.825Z',
+      version: '1.67.1',
       purposes: {
         '1': true,
         '2': false,
         '3': false,
         '4': true,
-        '5': true
+        '5': true,
       },
       id: 252372,
       cons: {
-        rand: "92f72a"
-      }
+        rand: '92f72a',
+      },
     };
 
     // Initialize the plugin
-    IubendaConsentManager().consentManager.init(state, mockLogger);
+    IubendaConsentManager().consentManager.init(state, defaultLogger);
 
     // Call the callback function
     (window as any).updateIubendaConsent({
@@ -116,7 +102,7 @@ describe('Plugin - IubendaConsentManager', () => {
       '2': true,
       '3': false,
       '4': true,
-      '5': false
+      '5': false,
     });
 
     expect(state.consents.data.value).toStrictEqual({
@@ -130,33 +116,34 @@ describe('Plugin - IubendaConsentManager', () => {
 
   it('should get consent data from iubenda cookies if iubenda consent data is not available on the window object', () => {
     const iubendaRawConsentData = {
-      timestamp: "2024-10-1T01:57:25.825Z",
-      version: "1.67.1",
+      timestamp: '2024-10-1T01:57:25.825Z',
+      version: '1.67.1',
       purposes: {
         '1': true,
         '2': false,
         '3': false,
         '4': true,
-        '5': true
+        '5': true,
       },
       id: 252372,
       cons: {
-        rand: "92f72a"
-      }
+        rand: '92f72a',
+      },
     };
     const iubendaConsentString = JSON.stringify(iubendaRawConsentData);
 
     // Mock the iubenda cookies
     document.cookie = `${IUBENDA_CONSENT_EXAMPLE_COOKIE_NAME}=${encodeURIComponent(iubendaConsentString)};`;
 
-    const pluginsManager = new PluginsManager(defaultPluginEngine, undefined, mockLogger);
-    const storeManager = new StoreManager(pluginsManager, undefined, mockLogger);
-
     // Initialize the plugin
-    IubendaConsentManager().consentManager.init(state, mockLogger);
+    IubendaConsentManager().consentManager.init(state, defaultLogger);
 
     // Update the state with the consent data
-    IubendaConsentManager().consentManager.updateConsentsInfo(state, storeManager, mockLogger);
+    IubendaConsentManager().consentManager.updateConsentsInfo(
+      state,
+      defaultStoreManager,
+      defaultLogger,
+    );
 
     expect(state.consents.initialized.value).toBe(true);
     expect(state.consents.data.value).toStrictEqual({
@@ -164,11 +151,7 @@ describe('Plugin - IubendaConsentManager', () => {
       deniedConsentIds: ['2', '3'],
     });
 
-    expect((window as any).getIubendaUserConsentedPurposes()).toStrictEqual([
-      '1',
-      '4',
-      '5',
-    ]);
+    expect((window as any).getIubendaUserConsentedPurposes()).toStrictEqual(['1', '4', '5']);
     expect((window as any).getIubendaUserDeniedPurposes()).toStrictEqual(['2', '3']);
   });
 
@@ -177,8 +160,8 @@ describe('Plugin - IubendaConsentManager', () => {
       IubendaConsentManager().consentManager.isDestinationConsented(
         state,
         undefined,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -200,8 +183,8 @@ describe('Plugin - IubendaConsentManager', () => {
       IubendaConsentManager().consentManager.isDestinationConsented(
         state,
         destConfig,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -218,18 +201,19 @@ describe('Plugin - IubendaConsentManager', () => {
       blacklistedEvents: [],
       whitelistedEvents: [],
       eventFilteringOption: 'disable',
-      consentManagement: [{
-        provider: 'iubenda',
-      }],
-
+      consentManagement: [
+        {
+          provider: 'iubenda',
+        },
+      ],
     };
 
     expect(
       IubendaConsentManager().consentManager.isDestinationConsented(
         state,
         destConfig,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -246,12 +230,12 @@ describe('Plugin - IubendaConsentManager', () => {
       blacklistedEvents: [],
       whitelistedEvents: [],
       eventFilteringOption: 'disable',
-      consentManagement:[
+      consentManagement: [
         {
           provider: 'iubenda',
           consents: [{ consent: '1' }, { consent: '2' }],
-          resolutionStrategy: 'or'
-        }
+          resolutionStrategy: 'or',
+        },
       ],
     };
 
@@ -259,8 +243,8 @@ describe('Plugin - IubendaConsentManager', () => {
       IubendaConsentManager().consentManager.isDestinationConsented(
         state,
         destConfig,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -277,12 +261,12 @@ describe('Plugin - IubendaConsentManager', () => {
       blacklistedEvents: [],
       whitelistedEvents: [],
       eventFilteringOption: 'disable',
-      consentManagement:[
+      consentManagement: [
         {
           provider: 'iubenda',
           consents: [{ consent: '2' }, { consent: '4' }],
-          resolutionStrategy: 'and'
-        }
+          resolutionStrategy: 'and',
+        },
       ],
     };
 
@@ -290,8 +274,8 @@ describe('Plugin - IubendaConsentManager', () => {
       IubendaConsentManager().consentManager.isDestinationConsented(
         state,
         destConfig,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(false);
   });
@@ -308,24 +292,23 @@ describe('Plugin - IubendaConsentManager', () => {
       blacklistedEvents: [],
       whitelistedEvents: [],
       eventFilteringOption: 'disable',
-      consentManagement:[
+      consentManagement: [
         {
           provider: 'iubenda',
           consents: [{ consent: '2' }, { consent: '4' }],
-          resolutionStrategy: 'and'
-        }
+          resolutionStrategy: 'and',
+        },
       ],
     };
     expect(
       IubendaConsentManager().consentManager.isDestinationConsented(
         state,
         destConfig,
-        mockErrorHandler,
-        mockLogger,
-        
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(true);
-    expect(mockErrorHandler.onError).toHaveBeenCalledWith(
+    expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
       new TypeError("Cannot read properties of null (reading 'includes')"),
       'IubendaConsentManagerPlugin',
       'Failed to determine the consent status for the destination. Please check the destination configuration and try again.',
@@ -368,8 +351,8 @@ describe('Plugin - IubendaConsentManager', () => {
     const isDestinationConsented = IubendaConsentManager().consentManager.isDestinationConsented(
       state,
       destConfig,
-      mockErrorHandler,
-      mockLogger,
+      defaultErrorHandler,
+      defaultLogger,
     );
     expect(isDestinationConsented).toBe(false);
   });
@@ -399,8 +382,8 @@ describe('Plugin - IubendaConsentManager', () => {
     const isDestinationConsented = IubendaConsentManager().consentManager.isDestinationConsented(
       state,
       destConfig,
-      mockErrorHandler,
-      mockLogger,
+      defaultErrorHandler,
+      defaultLogger,
     );
     expect(isDestinationConsented).toBe(true);
   });
@@ -441,8 +424,8 @@ describe('Plugin - IubendaConsentManager', () => {
     const isDestinationConsented = IubendaConsentManager().consentManager.isDestinationConsented(
       state,
       destConfig,
-      mockErrorHandler,
-      mockLogger,
+      defaultErrorHandler,
+      defaultLogger,
     );
     expect(isDestinationConsented).toBe(true);
   });
@@ -473,8 +456,8 @@ describe('Plugin - IubendaConsentManager', () => {
       IubendaConsentManager().consentManager.isDestinationConsented(
         state,
         destConfig,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -505,8 +488,8 @@ describe('Plugin - IubendaConsentManager', () => {
       IubendaConsentManager().consentManager.isDestinationConsented(
         state,
         destConfig,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(true);
   });

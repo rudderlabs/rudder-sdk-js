@@ -235,21 +235,6 @@ describe('deviceModeDestinations utils', () => {
       delete (window as any)[destSDKIdentifier];
     });
 
-    class MockLogger implements ILogger {
-      warn = jest.fn();
-      log = jest.fn();
-      error = jest.fn();
-      info = jest.fn();
-      debug = jest.fn();
-      minLogLevel = 0;
-      scope = 'test scope';
-      setMinLogLevel = jest.fn();
-      setScope = jest.fn();
-      logProvider = console;
-    }
-
-    const mockLogger = new MockLogger();
-
     it('should return false if the destination SDK is not evaluated', () => {
       expect(isDestinationSDKMounted(destSDKIdentifier, sdkTypeName)).toEqual(false);
     });

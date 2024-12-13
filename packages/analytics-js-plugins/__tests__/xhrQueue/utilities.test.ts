@@ -1,8 +1,7 @@
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
-import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { state, resetState } from '@rudderstack/analytics-js/state';
 import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
+import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
 import {
   getNormalizedQueueOptions,
   getDeliveryUrl,
@@ -10,18 +9,14 @@ import {
   logErrorOnFailure,
   getRequestInfo,
   getBatchDeliveryPayload,
-} from '@rudderstack/analytics-js-plugins/xhrQueue/utilities';
+} from '../../src/xhrQueue/utilities';
+import { resetState, state } from '../../__mocks__/state';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/timestamp', () => ({
   getCurrentTimeFormatted: () => '2021-01-01T00:00:00.000Z',
 }));
 
 describe('xhrQueue Plugin Utilities', () => {
-  const mockLogger = {
-    error: jest.fn(),
-    warn: jest.fn(),
-  } as unknown as ILogger;
-
   describe('getNormalizedQueueOptions', () => {
     it('should return default queue options if input queue options is empty object', () => {
       const queueOptions = getNormalizedQueueOptions({});
@@ -122,9 +117,9 @@ describe('xhrQueue Plugin Utilities', () => {
         response: {},
       } as ResponseDetails;
 
-      logErrorOnFailure(details, 'https://test.com/v1/page', false, 1, 10, mockLogger);
+      logErrorOnFailure(details, 'https://test.com/v1/page', false, 1, 10, defaultLogger);
 
-      expect(mockLogger.error).not.toBeCalled();
+      expect(defaultLogger.error).not.toBeCalled();
     });
 
     it('should log an error for delivery failure', () => {
@@ -132,9 +127,9 @@ describe('xhrQueue Plugin Utilities', () => {
         error: {},
       } as ResponseDetails;
 
-      logErrorOnFailure(details, 'https://test.com/v1/page', false, 1, 10, mockLogger);
+      logErrorOnFailure(details, 'https://test.com/v1/page', false, 1, 10, defaultLogger);
 
-      expect(mockLogger.error).toBeCalledWith(
+      expect(defaultLogger.error).toBeCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. The event(s) will be dropped.',
       );
     });
@@ -147,54 +142,54 @@ describe('xhrQueue Plugin Utilities', () => {
         },
       } as ResponseDetails;
 
-      logErrorOnFailure(details, 'https://test.com/v1/page', true, 1, 10, mockLogger);
+      logErrorOnFailure(details, 'https://test.com/v1/page', true, 1, 10, defaultLogger);
 
-      expect(mockLogger.error).toBeCalledWith(
+      expect(defaultLogger.error).toBeCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. It/they will be retried. Retry attempt 1 of 10.',
       );
 
       // Retryable error but it's the first attempt
       details.xhr.status = 429;
 
-      logErrorOnFailure(details, 'https://test.com/v1/page', true, 0, 10, mockLogger);
+      logErrorOnFailure(details, 'https://test.com/v1/page', true, 0, 10, defaultLogger);
 
-      expect(mockLogger.error).toBeCalledWith(
+      expect(defaultLogger.error).toBeCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. It/they will be retried.',
       );
 
       // 500 error
       details.xhr.status = 500;
 
-      logErrorOnFailure(details, 'https://test.com/v1/page', true, 1, 10, mockLogger);
+      logErrorOnFailure(details, 'https://test.com/v1/page', true, 1, 10, defaultLogger);
 
-      expect(mockLogger.error).toBeCalledWith(
+      expect(defaultLogger.error).toBeCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. It/they will be retried. Retry attempt 1 of 10.',
       );
 
       // 5xx error
       details.xhr.status = 501;
 
-      logErrorOnFailure(details, 'https://test.com/v1/page', true, 1, 10, mockLogger);
+      logErrorOnFailure(details, 'https://test.com/v1/page', true, 1, 10, defaultLogger);
 
-      expect(mockLogger.error).toBeCalledWith(
+      expect(defaultLogger.error).toBeCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. It/they will be retried. Retry attempt 1 of 10.',
       );
 
       // 600 error
       details.xhr.status = 600;
 
-      logErrorOnFailure(details, 'https://test.com/v1/page', true, 1, 10, mockLogger);
+      logErrorOnFailure(details, 'https://test.com/v1/page', true, 1, 10, defaultLogger);
 
-      expect(mockLogger.error).toBeCalledWith(
+      expect(defaultLogger.error).toBeCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. The event(s) will be dropped.',
       );
 
       // Retryable error but exhausted all tries
       details.xhr.status = 520;
 
-      logErrorOnFailure(details, 'https://test.com/v1/page', false, 10, 10, mockLogger);
+      logErrorOnFailure(details, 'https://test.com/v1/page', false, 10, 10, defaultLogger);
 
-      expect(mockLogger.error).toBeCalledWith(
+      expect(defaultLogger.error).toBeCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. Retries exhausted (10). The event(s) will be dropped.',
       );
     });
@@ -219,7 +214,7 @@ describe('xhrQueue Plugin Utilities', () => {
         },
       };
 
-      const requestInfo = getRequestInfo(queueItemData, state, mockLogger);
+      const requestInfo = getRequestInfo(queueItemData, state, defaultLogger);
 
       expect(requestInfo).toEqual({
         url: 'https://test.com/v1/track',
@@ -260,7 +255,7 @@ describe('xhrQueue Plugin Utilities', () => {
 
       state.lifecycle.activeDataplaneUrl.value = 'https://test.dataplaneurl.com/';
 
-      const requestInfo = getRequestInfo(queueItemData, state, mockLogger);
+      const requestInfo = getRequestInfo(queueItemData, state, defaultLogger);
 
       expect(requestInfo).toEqual({
         url: 'https://test.dataplaneurl.com/v1/batch',
@@ -294,7 +289,7 @@ describe('xhrQueue Plugin Utilities', () => {
         } as unknown as RudderEvent,
       ];
 
-      expect(getBatchDeliveryPayload(events, currentTime, mockLogger)).toBe(
+      expect(getBatchDeliveryPayload(events, currentTime, defaultLogger)).toBe(
         '{"batch":[{"channel":"test","type":"track","anonymousId":"test","properties":{"test":"test"}},{"channel":"test","type":"track","anonymousId":"test","properties":{"test1":"test1"}}],"sentAt":"2021-01-01T00:00:00.000Z"}',
       );
     });
@@ -324,7 +319,7 @@ describe('xhrQueue Plugin Utilities', () => {
           },
         } as unknown as RudderEvent,
       ];
-      expect(getBatchDeliveryPayload(events, currentTime, mockLogger)).toBe(
+      expect(getBatchDeliveryPayload(events, currentTime, defaultLogger)).toBe(
         '{"batch":[{"channel":"test","type":"track","anonymousId":"test","properties":{"test":"test"}},{"channel":"test","type":"track","anonymousId":"test","properties":{"test1":"test1","test3":{}}}],"sentAt":"2021-01-01T00:00:00.000Z"}',
       );
     });
@@ -357,7 +352,7 @@ describe('xhrQueue Plugin Utilities', () => {
 
       events[1].properties.test5 = events[1];
 
-      expect(getBatchDeliveryPayload(events, currentTime, mockLogger)).toContain(
+      expect(getBatchDeliveryPayload(events, currentTime, defaultLogger)).toContain(
         '[Circular Reference]',
       );
     });
@@ -382,7 +377,7 @@ describe('xhrQueue Plugin Utilities', () => {
         } as unknown as RudderEvent,
       ];
 
-      expect(getBatchDeliveryPayload(events, currentTime, mockLogger)).toBeNull();
+      expect(getBatchDeliveryPayload(events, currentTime, defaultLogger)).toBeNull();
     });
   });
 });

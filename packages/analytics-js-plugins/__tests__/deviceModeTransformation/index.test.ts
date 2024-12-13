@@ -1,14 +1,12 @@
 /* eslint-disable no-plusplus */
 import { batch } from '@preact/signals-core';
-import { HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
-import { state } from '@rudderstack/analytics-js/state';
-import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
-import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
+import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
+import { defaultStoreManager } from '@rudderstack/analytics-js-common/__mocks__/StoreManager';
+import * as utils from '../../src/deviceModeTransformation/utilities';
+import { DeviceModeTransformation } from '../../src/deviceModeTransformation';
 import {
   dummyDataplaneHost,
   dummyWriteKey,
@@ -16,8 +14,9 @@ import {
   dmtSuccessResponse,
 } from '../../__fixtures__/fixtures';
 import { server } from '../../__fixtures__/msw.server';
-import * as utils from '@rudderstack/analytics-js-plugins/deviceModeTransformation/utilities';
-import { DeviceModeTransformation } from '@rudderstack/analytics-js-plugins/deviceModeTransformation';
+import { resetState, state } from '../../__mocks__/state';
+import { defaultHttpClient } from '../../__mocks__/HttpClient';
+import { defaultPluginsManager } from '../../__mocks__/PluginsManager';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
   ...jest.requireActual('@rudderstack/analytics-js-common/utilities/uuId'),
@@ -25,24 +24,15 @@ jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
 }));
 
 describe('Device mode transformation plugin', () => {
-  const defaultPluginsManager = new PluginsManager(
-    defaultPluginEngine,
-    defaultErrorHandler,
-    defaultLogger,
-  );
-
-  const defaultStoreManager = new StoreManager(defaultPluginsManager);
-
   beforeAll(() => {
     server.listen();
+    resetState();
     batch(() => {
       state.lifecycle.writeKey.value = dummyWriteKey;
       state.lifecycle.activeDataplaneUrl.value = dummyDataplaneHost;
       state.session.authToken.value = authToken;
     });
   });
-
-  const httpClient = new HttpClient();
 
   afterAll(() => {
     server.close();
@@ -85,7 +75,7 @@ describe('Device mode transformation plugin', () => {
     const queue = DeviceModeTransformation().transformEvent?.init(
       state,
       defaultPluginsManager,
-      httpClient,
+      defaultHttpClient,
       defaultStoreManager,
       defaultErrorHandler,
       defaultLogger,
@@ -99,7 +89,7 @@ describe('Device mode transformation plugin', () => {
     const queue = DeviceModeTransformation().transformEvent?.init(
       state,
       defaultPluginsManager,
-      httpClient,
+      defaultHttpClient,
       defaultStoreManager,
       defaultErrorHandler,
       defaultLogger,

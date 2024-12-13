@@ -1,8 +1,9 @@
-import { state, resetState } from '@rudderstack/analytics-js/state';
-import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
-import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
-import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager/StoreManager';
+import { defaultStoreManager } from '@rudderstack/analytics-js-common/__mocks__/StoreManager';
+import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
+import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
+import { resetState, state } from '../../__mocks__/state';
 import { KetchConsentManager } from '../../src/ketchConsentManager';
+import { defaultPluginsManager } from '../../__mocks__/PluginsManager';
 
 describe('Plugin - KetchConsentManager', () => {
   beforeEach(() => {
@@ -18,16 +19,6 @@ describe('Plugin - KetchConsentManager', () => {
     });
   });
 
-  const mockLogger = {
-    error: jest.fn(),
-    warn: jest.fn(),
-    log: jest.fn(),
-  };
-
-  const mockErrorHandler = {
-    onError: jest.fn(),
-  };
-
   it('should add KetchConsentManager plugin in the loaded plugin list', () => {
     KetchConsentManager().initialize(state);
     expect(state.plugins.loadedPlugins.value.includes('KetchConsentManager')).toBe(true);
@@ -35,7 +26,7 @@ describe('Plugin - KetchConsentManager', () => {
 
   it('should initialize the plugin if ketch consent data is already available on the window object', () => {
     // Initialize the plugin
-    KetchConsentManager().consentManager.init(state, mockLogger);
+    KetchConsentManager().consentManager.init(state, defaultLogger);
 
     expect((window as any).getKetchUserConsentedPurposes).toEqual(expect.any(Function));
     expect((window as any).getKetchUserDeniedPurposes).toEqual(expect.any(Function));
@@ -53,10 +44,10 @@ describe('Plugin - KetchConsentManager', () => {
     };
 
     // Initialize the plugin
-    KetchConsentManager().consentManager.init(state, mockLogger);
+    KetchConsentManager().consentManager.init(state, defaultLogger);
 
     // Update the state with the consent data
-    KetchConsentManager().consentManager.updateConsentsInfo(state, undefined, mockLogger);
+    KetchConsentManager().consentManager.updateConsentsInfo(state, undefined, defaultLogger);
 
     expect(state.consents.initialized.value).toBe(true);
     expect(state.consents.data.value).toStrictEqual({
@@ -74,7 +65,7 @@ describe('Plugin - KetchConsentManager', () => {
 
   it('should return undefined values when the window callbacks are invoked and there is no data in the state', () => {
     // Initialize the plugin
-    KetchConsentManager().consentManager.init(state, mockLogger);
+    KetchConsentManager().consentManager.init(state, defaultLogger);
 
     expect((window as any).getKetchUserConsentedPurposes()).toStrictEqual(undefined);
     expect((window as any).getKetchUserDeniedPurposes()).toStrictEqual(undefined);
@@ -91,7 +82,7 @@ describe('Plugin - KetchConsentManager', () => {
     };
 
     // Initialize the plugin
-    KetchConsentManager().consentManager.init(state, mockLogger);
+    KetchConsentManager().consentManager.init(state, defaultLogger);
 
     // Call the callback function
     (window as any).updateKetchConsent({
@@ -138,14 +129,15 @@ describe('Plugin - KetchConsentManager', () => {
     // Mock the ketch cookies
     document.cookie = `_ketch_consent_v1_=${window.btoa(ketchConsentString)};`;
 
-    const pluginsManager = new PluginsManager(defaultPluginEngine, undefined, mockLogger);
-    const storeManager = new StoreManager(pluginsManager, undefined, mockLogger);
-
     // Initialize the plugin
-    KetchConsentManager().consentManager.init(state, mockLogger);
+    KetchConsentManager().consentManager.init(state, defaultLogger);
 
     // Update the state with the consent data
-    KetchConsentManager().consentManager.updateConsentsInfo(state, storeManager, mockLogger);
+    KetchConsentManager().consentManager.updateConsentsInfo(
+      state,
+      defaultStoreManager,
+      defaultLogger,
+    );
 
     expect(state.consents.initialized.value).toBe(true);
     expect(state.consents.data.value).toStrictEqual({
@@ -166,8 +158,8 @@ describe('Plugin - KetchConsentManager', () => {
       KetchConsentManager().consentManager.isDestinationConsented(
         state,
         undefined,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -189,8 +181,8 @@ describe('Plugin - KetchConsentManager', () => {
       KetchConsentManager().consentManager.isDestinationConsented(
         state,
         destConfig,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -213,8 +205,8 @@ describe('Plugin - KetchConsentManager', () => {
       KetchConsentManager().consentManager.isDestinationConsented(
         state,
         destConfig,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -244,8 +236,8 @@ describe('Plugin - KetchConsentManager', () => {
       KetchConsentManager().consentManager.isDestinationConsented(
         state,
         destConfig,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -275,8 +267,8 @@ describe('Plugin - KetchConsentManager', () => {
       KetchConsentManager().consentManager.isDestinationConsented(
         state,
         destConfig,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(false);
   });
@@ -306,11 +298,11 @@ describe('Plugin - KetchConsentManager', () => {
       KetchConsentManager().consentManager.isDestinationConsented(
         state,
         destConfig,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(true);
-    expect(mockErrorHandler.onError).toHaveBeenCalledWith(
+    expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
       new TypeError("Cannot read properties of null (reading 'includes')"),
       'KetchConsentManagerPlugin',
       'Failed to determine the consent status for the destination. Please check the destination configuration and try again.',
@@ -353,8 +345,8 @@ describe('Plugin - KetchConsentManager', () => {
     const isDestinationConsented = KetchConsentManager().consentManager.isDestinationConsented(
       state,
       destConfig,
-      mockErrorHandler,
-      mockLogger,
+      defaultErrorHandler,
+      defaultLogger,
     );
     expect(isDestinationConsented).toBe(false);
   });
@@ -384,8 +376,8 @@ describe('Plugin - KetchConsentManager', () => {
     const isDestinationConsented = KetchConsentManager().consentManager.isDestinationConsented(
       state,
       destConfig,
-      mockErrorHandler,
-      mockLogger,
+      defaultErrorHandler,
+      defaultLogger,
     );
     expect(isDestinationConsented).toBe(true);
   });
@@ -426,8 +418,8 @@ describe('Plugin - KetchConsentManager', () => {
     const isDestinationConsented = KetchConsentManager().consentManager.isDestinationConsented(
       state,
       destConfig,
-      mockErrorHandler,
-      mockLogger,
+      defaultErrorHandler,
+      defaultLogger,
     );
     expect(isDestinationConsented).toBe(true);
   });
@@ -458,8 +450,8 @@ describe('Plugin - KetchConsentManager', () => {
       KetchConsentManager().consentManager.isDestinationConsented(
         state,
         destConfig,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -490,8 +482,8 @@ describe('Plugin - KetchConsentManager', () => {
       KetchConsentManager().consentManager.isDestinationConsented(
         state,
         destConfig,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(true);
   });
