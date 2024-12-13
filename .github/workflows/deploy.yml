@@ -301,6 +301,7 @@ jobs:
           aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --id "$invalidation_id"
 
       - name: Copy legacy SDK artifacts to S3 (versioned directory)
+        if: ${{ inputs.environment == 'production' }}
         run: |
           core_sdk_path_prefix="packages/analytics-v1.1/dist/cdn"
           integration_sdks_path_prefix="packages/analytics-js-integrations/dist/cdn"
@@ -314,6 +315,7 @@ jobs:
           aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
 
       - name: Invalidate CloudFront cache for all the legacy SDK artifacts (versioned directory)
+        if: ${{ inputs.environment == 'production' }}
         run: |
           invalidation_id=$(AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/${{ env.CURRENT_VERSION_V1_VALUE }}/*" --query "Invalidation.Id" --output text)
 
