@@ -126,8 +126,9 @@ jobs:
 
           aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --id "$invalidation_id"
 
-      - name: Sync files to S3
+      - name: Copy SDK artifacts to S3
         run: |
+          core_sdk_path_prefix="packages/analytics-js/dist/cdn"
           integration_sdks_path_prefix="packages/analytics-js-integrations/dist/cdn"
           plugins_path_prefix="packages/analytics-js-plugins/dist/cdn"
           s3_relative_path_prefix="${{ inputs.s3_dir_path }}"
@@ -155,8 +156,10 @@ jobs:
           mv "$tmp_file" "$plugins_path_prefix/modern/plugins/$plugins_zip_file"
 
           # Upload all the files to S3
-          aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/legacy/js-integrations/ $copy_args
+          aws s3 cp $core_sdk_path_prefix/legacy/iife/ $s3_path_prefix/legacy/ $copy_args
+          aws s3 cp $core_sdk_path_prefix/modern/iife/ $s3_path_prefix/modern/ $copy_args
 
+          aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/legacy/js-integrations/ $copy_args
           aws s3 cp $plugins_path_prefix/modern/plugins/ $s3_path_prefix/modern/plugins/ $copy_args
           aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
 
@@ -173,26 +176,16 @@ jobs:
           aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/$integration_sdks_html_file $s3_path_prefix/modern/js-integrations/$integration_sdks_html_file $copy_args
           aws s3 cp $plugins_path_prefix/modern/plugins/$plugins_html_file $s3_path_prefix/modern/plugins/$plugins_html_file $copy_args
 
-      - name: Copy core SDK artifacts to S3
-        run: |
-          core_sdk_path_prefix="packages/analytics-js/dist/cdn"
-          s3_relative_path_prefix="${{ inputs.s3_dir_path }}"
-          s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/$s3_relative_path_prefix"
-          copy_args="--recursive --cache-control ${{ env.CACHE_CONTROL_NO_STORE }}"
-
-          # Upload all the files to S3
-          aws s3 cp $core_sdk_path_prefix/legacy/iife/ $s3_path_prefix/legacy/ $copy_args
-          aws s3 cp $core_sdk_path_prefix/modern/iife/ $s3_path_prefix/modern/ $copy_args
-
       - name: Invalidate CloudFront cache for all the SDK artifacts
         run: |
           invalidation_id=$(AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/${{ inputs.s3_dir_path }}/*" --query "Invalidation.Id" --output text)
 
           aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --id "$invalidation_id"
 
-      - name: Copy SDK dependencies to S3 (versioned directory)
+      - name: Copy SDK artifacts to S3 (versioned directory)
         if: ${{ inputs.environment == 'production' }}
         run: |
+          core_sdk_path_prefix="packages/analytics-js/dist/cdn"
           integration_sdks_path_prefix="packages/analytics-js-integrations/dist/cdn"
           plugins_path_prefix="packages/analytics-js-plugins/dist/cdn"
           s3_relative_path_prefix="${{ env.CURRENT_VERSION_VALUE }}"
@@ -206,8 +199,10 @@ jobs:
           plugins_html_file="list.html"
 
           # Copy all the files to S3
-          aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/legacy/js-integrations/ $copy_args
+          aws s3 cp $core_sdk_path_prefix/legacy/iife/ $s3_path_prefix/legacy/ $copy_args
+          aws s3 cp $core_sdk_path_prefix/modern/iife/ $s3_path_prefix/modern/ $copy_args
 
+          aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/legacy/js-integrations/ $copy_args
           aws s3 cp $plugins_path_prefix/modern/plugins/ $s3_path_prefix/modern/plugins/ $copy_args
           aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
 
@@ -223,18 +218,6 @@ jobs:
           aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/$integration_sdks_html_file $s3_path_prefix/legacy/js-integrations/$integration_sdks_html_file $copy_args
           aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/$integration_sdks_html_file $s3_path_prefix/modern/js-integrations/$integration_sdks_html_file $copy_args
           aws s3 cp $plugins_path_prefix/modern/plugins/$plugins_html_file $s3_path_prefix/modern/plugins/$plugins_html_file $copy_args
-
-      - name: Copy core SDK artifacts to S3 (versioned directory)
-        if: ${{ inputs.environment == 'production' }}
-        run: |
-          core_sdk_path_prefix="packages/analytics-js/dist/cdn"
-          s3_relative_path_prefix="${{ env.CURRENT_VERSION_VALUE }}"
-          s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/$s3_relative_path_prefix"
-          copy_args="--recursive --cache-control ${{ env.CACHE_CONTROL_MAX_AGE }}"
-
-          # Copy all the files to S3
-          aws s3 cp $core_sdk_path_prefix/legacy/iife/ $s3_path_prefix/legacy/ $copy_args
-          aws s3 cp $core_sdk_path_prefix/modern/iife/ $s3_path_prefix/modern/ $copy_args
 
       - name: Invalidate CloudFront cache for all the SDK artifacts (versioned directory)
         if: ${{ inputs.environment == 'production' }}
@@ -287,23 +270,18 @@ jobs:
 
       # Below steps are for v1.1 SDK (legacy)
 
-      - name: Copy legacy SDK dependencies to S3
-        run: |
-          integration_sdks_path_prefix="packages/analytics-js-integrations/dist/cdn"
-          s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/${{ inputs.s3_dir_path_legacy }}"
-          copy_args="--recursive --cache-control ${{ env.CACHE_CONTROL_NO_STORE }}"
-
-          aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/js-integrations/ $copy_args
-          aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
-
-      - name: Copy core legacy SDK artifacts to S3
+      - name: Copy legacy SDK artifacts to S3
         run: |
           core_sdk_path_prefix="packages/analytics-v1.1/dist/cdn"
+          integration_sdks_path_prefix="packages/analytics-js-integrations/dist/cdn"
           s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/${{ inputs.s3_dir_path_legacy }}"
           copy_args="--recursive --cache-control ${{ env.CACHE_CONTROL_NO_STORE }}"
 
           aws s3 cp $core_sdk_path_prefix/legacy/ $s3_path_prefix/ $copy_args
           aws s3 cp $core_sdk_path_prefix/modern/ $s3_path_prefix/modern/ $copy_args
+          
+          aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/js-integrations/ $copy_args
+          aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
 
       - name: Invalidate CloudFront cache for all the legacy SDK artifacts
         run: |
@@ -311,23 +289,18 @@ jobs:
 
           aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --id "$invalidation_id"
 
-      - name: Copy legacy SDK dependencies to S3 (versioned directory)
-        run: |
-          integration_sdks_path_prefix="packages/analytics-js-integrations/dist/cdn"
-          s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/${{ env.CURRENT_VERSION_V1_VALUE }}"
-          copy_args="--recursive --cache-control ${{ env.CACHE_CONTROL_MAX_AGE }}"
-
-          aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/js-integrations/ $copy_args
-          aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
-
-      - name: Copy core legacy SDK artifacts to S3 (versioned directory)
+      - name: Copy legacy SDK artifacts to S3 (versioned directory)
         run: |
           core_sdk_path_prefix="packages/analytics-v1.1/dist/cdn"
+          integration_sdks_path_prefix="packages/analytics-js-integrations/dist/cdn"
           s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/${{ env.CURRENT_VERSION_V1_VALUE }}"
           copy_args="--recursive --cache-control ${{ env.CACHE_CONTROL_MAX_AGE }}"
 
           aws s3 cp $core_sdk_path_prefix/legacy/ $s3_path_prefix/ $copy_args
           aws s3 cp $core_sdk_path_prefix/modern/ $s3_path_prefix/modern/ $copy_args
+          
+          aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/js-integrations/ $copy_args
+          aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
 
       - name: Invalidate CloudFront cache for all the legacy SDK artifacts (versioned directory)
         run: |
