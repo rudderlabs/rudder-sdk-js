@@ -4,9 +4,16 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
-    name: Rollback production deployment
+  validate-actor:
+    # Only allow to be deployed from tags and main branch
     if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/validate-actor.yml
+    secrets:
+      PAT: ${{ secrets.PAT }}
+
+  deploy:
+    needs: validate-actor
+    name: Rollback production deployment
     uses: ./.github/workflows/deploy.yml
     with:
       environment: 'production'
