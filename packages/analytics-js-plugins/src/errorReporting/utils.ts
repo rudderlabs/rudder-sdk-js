@@ -132,7 +132,8 @@ const getBugsnagErrorEvent = (
         },
       },
       user: {
-        id: state.source.value?.id ?? (state.lifecycle.writeKey.value as string),
+        // Combination of source, session and visit ids
+        id: `${state.source.value?.id ?? (state.lifecycle.writeKey.value as string)} - ${state.session.sessionInfo.value?.id ?? 'NA'} - ${state.autoTrack.pageLifecycle.visitId.value ?? 'NA'}`,
       },
     },
   ],

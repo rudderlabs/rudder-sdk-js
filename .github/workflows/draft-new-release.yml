@@ -11,10 +11,17 @@ env:
   NODE_OPTIONS: '--no-warnings'
 
 jobs:
+  validate-actor:
+    # Only allow to draft a new release from develop and hotfix branches
+    if: github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/hotfix/')
+    uses: ./.github/workflows/validate-actor.yml
+    secrets:
+      PAT: ${{ secrets.PAT }}
+
   draft-new-release:
+    needs: validate-actor
     name: Draft a new release
     runs-on: [self-hosted, Linux, X64]
-    if: github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/hotfix/')
     steps:
       - name: Checkout
         uses: actions/checkout@v4

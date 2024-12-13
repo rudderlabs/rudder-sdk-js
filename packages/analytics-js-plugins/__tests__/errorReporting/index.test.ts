@@ -24,6 +24,14 @@ describe('Plugin - ErrorReporting', () => {
       id: 'test-source-id',
       config: {},
     }),
+    session: {
+      sessionInfo: signal({ id: 'test-session-id' }),
+    },
+    autoTrack: {
+      pageLifecycle: {
+        visitId: signal('test-visit-id'),
+      },
+    },
   };
 
   let state: any;
