@@ -40,6 +40,14 @@ beforeEach(() => {
     lifecycle: {
       writeKey: signal('dummy-write-key'),
     },
+    session: {
+      sessionInfo: signal({ id: 'test-session-id' }),
+    },
+    autoTrack: {
+      pageLifecycle: {
+        visitId: signal('test-visit-id'),
+      },
+    },
   };
 });
 
@@ -235,6 +243,14 @@ describe('Bugsnag utilities', () => {
               installType: 'npm',
             },
           },
+          session: {
+            sessionInfo: { id: 'test-session-id' },
+          },
+          autoTrack: {
+            pageLifecycle: {
+              visitId: 'test-visit-id',
+            },
+          },
         },
       });
 
@@ -275,6 +291,14 @@ describe('Bugsnag utilities', () => {
               namespace: 'test-namespace',
               version: '1.0.0',
               installType: 'npm',
+            },
+          },
+          session: {
+            sessionInfo: { id: 'test-session-id' },
+          },
+          autoTrack: {
+            pageLifecycle: {
+              visitId: 'test-visit-id',
             },
           },
         },
@@ -338,7 +362,7 @@ describe('Bugsnag utilities', () => {
         maxBreadcrumbs: 40,
         releaseStage: 'development',
         user: {
-          id: 'dummy-source-id',
+          id: 'dummy-source-id..test-session-id..test-visit-id',
         },
         networkBreadcrumbsEnabled: false,
         beforeSend: expect.any(Function),
@@ -377,7 +401,7 @@ describe('Bugsnag utilities', () => {
         maxBreadcrumbs: 40,
         releaseStage: 'development',
         user: {
-          id: 'dummy-write-key',
+          id: 'dummy-write-key..test-session-id..test-visit-id',
         },
         networkBreadcrumbsEnabled: false,
         beforeSend: expect.any(Function),
@@ -525,6 +549,14 @@ describe('Bugsnag utilities', () => {
             namespace: 'test-namespace',
             version: '1.0.0',
             installType: 'npm',
+          },
+        },
+        session: {
+          sessionInfo: { id: 'test-session-id' },
+        },
+        autoTrack: {
+          pageLifecycle: {
+            visitId: 'test-visit-id',
           },
         },
       });

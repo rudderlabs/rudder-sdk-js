@@ -416,7 +416,7 @@ describe('Error Reporting utilities', () => {
               },
             },
             user: {
-              id: 'sample_source_id - test-session-id - test-visit-id',
+              id: 'sample_source_id..test-session-id..test-visit-id',
             },
           },
         ],
