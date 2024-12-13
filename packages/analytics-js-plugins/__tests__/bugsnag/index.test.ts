@@ -22,6 +22,14 @@ describe('Plugin - Bugsnag', () => {
         installType: 'npm',
       }),
     },
+    session: {
+      sessionInfo: signal({ id: 'test-session-id' }),
+    },
+    autoTrack: {
+      pageLifecycle: {
+        visitId: signal('test-visit-id'),
+      },
+    },
   };
 
   let state: any;
