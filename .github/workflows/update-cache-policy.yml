@@ -1,0 +1,68 @@
+name: Update cache control policy
+
+on:
+  workflow_dispatch:
+    inputs:
+      policy_type:
+        type: choice
+        description: Select the cache control policy type
+        required: true
+        options:
+          - no-store
+          - max-age=3600
+
+permissions:
+  id-token: write # allows the JWT to be requested from GitHub's OIDC provider
+  contents: read # This is required for actions/checkout
+
+jobs:
+  validate-actor:
+    # Only allow to be deployed from tags and main branch
+    if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/validate-actor.yml
+    secrets:
+      PAT: ${{ secrets.PAT }}
+
+  update-cache-policy:
+    needs: validate-actor
+    name: Update cache control policy for SDK artifacts
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+      - name: Install AWS CLI
+        uses: unfor19/install-aws-cli-action@master
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_PROD_ACCOUNT_ID }}:role/${{ secrets.AWS_PROD_S3_SYNC_ROLE }}
+          aws-region: us-east-1
+
+      - name: Determine the cache control policy
+        id: determine_policy
+        run: |
+          echo "cache_control_policy=${{ github.event.inputs.policy_type || inputs.policy_type }}" >> $GITHUB_ENV
+
+      - name: Update cache control policy
+        run: |
+          # Get the number of CPU cores in the runner and leave one core free
+          num_cores=$(nproc --ignore=1 || echo 1) # Default to 1 if nproc is unavailable
+          # Use a factor to set the parallel jobs (e.g., number of cores or slightly lower)
+          parallel_jobs=$((num_cores * 2))
+          echo "Detected $num_cores cores. Using $parallel_jobs parallel jobs."
+
+          prefixes=("adobe-analytics-js" "v3" "v1.1")
+          
+          for prefix in "${prefixes[@]}"; do
+            echo "Processing prefix: $prefix"
+            
+            aws s3api list-objects --bucket ${{ secrets.AWS_PROD_S3_BUCKET_NAME }} --prefix "$prefix" --query "Contents[].Key" --output text | tr '\t' '\n' | \
+            parallel --retries 10 -j "$parallel_jobs" "aws s3api copy-object \
+                --bucket ${{ secrets.AWS_PROD_S3_BUCKET_NAME }} \
+                --copy-source ${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/{} \
+                --key {} \
+                --metadata-directive REPLACE \
+                --cache-control '${{ env.cache_control_policy }}'"
+          done
+
+

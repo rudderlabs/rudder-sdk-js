@@ -319,6 +319,14 @@ describe('Error Reporting utilities', () => {
           breadcrumbs: signal([]),
         },
         source: signal({ id: 'sample_source_id' }),
+        session: {
+          sessionInfo: signal({ id: 'test-session-id' }),
+        },
+        autoTrack: {
+          pageLifecycle: {
+            visitId: signal('test-visit-id'),
+          },
+        },
       };
       (window as any).RudderSnippetVersion = 'sample_snippet_version';
       const enhancedError = getBugsnagErrorEvent(errorPayload, errorState, appState);
@@ -392,13 +400,23 @@ describe('Error Reporting utilities', () => {
                 source: {
                   id: 'sample_source_id',
                 },
+                session: {
+                  sessionInfo: {
+                    id: 'test-session-id',
+                  },
+                },
+                autoTrack: {
+                  pageLifecycle: {
+                    visitId: 'test-visit-id',
+                  },
+                },
               },
               source: {
                 snippetVersion: 'sample_snippet_version',
               },
             },
             user: {
-              id: 'sample_source_id',
+              id: 'sample_source_id..test-session-id..test-visit-id',
             },
           },
         ],
