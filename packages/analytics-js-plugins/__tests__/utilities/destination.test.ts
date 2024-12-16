@@ -1,16 +1,18 @@
+import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
+import type { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
 import { filterDestinations } from '../../src/utilities/destination';
 
 describe('Destination Utilities', () => {
   describe('filterDestinations', () => {
-    const destinations = [
+    const destinations: Destination[] = [
       {
         name: 'GA4',
         displayName: 'Google Analytics 4 (GA4)',
-      },
+      } as unknown as Destination,
       {
         name: 'BRAZE',
         displayName: 'Braze',
-      },
+      } as unknown as Destination,
     ];
 
     it('return value should not contain destinations that are specified as false in the load options', () => {
@@ -71,8 +73,9 @@ describe('Destination Utilities', () => {
         'Google Analytics 4 (GA4)': {
           customKey: 'customValue',
         },
+        // Intentionally, set a truthy value for Braze
         Braze: [1, 2, 3],
-      };
+      } as unknown as IntegrationOpts;
 
       const filteredDestinations = filterDestinations(loadOptions, destinations);
 
@@ -80,26 +83,27 @@ describe('Destination Utilities', () => {
     });
 
     it('should not return destinations whose values are specified as falsy in the load options', () => {
-      const configDestinations = [
+      const configDestinations: Destination[] = [
         {
           name: 'GA4',
           displayName: 'Google Analytics 4 (GA4)',
-        },
+        } as unknown as Destination,
         {
           name: 'BRAZE',
           displayName: 'Braze',
-        },
+        } as unknown as Destination,
         {
           name: 'AM',
           displayName: 'Amplitude',
-        },
+        } as unknown as Destination,
       ];
 
       const loadOptions = {
         All: true,
         'Google Analytics 4 (GA4)': '',
+        // Intentionally, set a falsy value for Braze
         Braze: 0,
-      };
+      } as unknown as IntegrationOpts;
 
       const filteredDestinations = filterDestinations(loadOptions, configDestinations);
 

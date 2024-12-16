@@ -1,9 +1,9 @@
 import { defaultStoreManager } from '@rudderstack/analytics-js-common/__mocks__/StoreManager';
 import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
 import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
+import type { ExtensionPoint } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { resetState, state } from '../../__mocks__/state';
 import { KetchConsentManager } from '../../src/ketchConsentManager';
-import { defaultPluginsManager } from '../../__mocks__/PluginsManager';
 
 describe('Plugin - KetchConsentManager', () => {
   beforeEach(() => {
@@ -20,13 +20,13 @@ describe('Plugin - KetchConsentManager', () => {
   });
 
   it('should add KetchConsentManager plugin in the loaded plugin list', () => {
-    KetchConsentManager().initialize(state);
+    KetchConsentManager()?.initialize?.(state);
     expect(state.plugins.loadedPlugins.value.includes('KetchConsentManager')).toBe(true);
   });
 
   it('should initialize the plugin if ketch consent data is already available on the window object', () => {
     // Initialize the plugin
-    KetchConsentManager().consentManager.init(state, defaultLogger);
+    (KetchConsentManager()?.consentManager as ExtensionPoint).init?.(state, defaultLogger);
 
     expect((window as any).getKetchUserConsentedPurposes).toEqual(expect.any(Function));
     expect((window as any).getKetchUserDeniedPurposes).toEqual(expect.any(Function));
@@ -44,10 +44,14 @@ describe('Plugin - KetchConsentManager', () => {
     };
 
     // Initialize the plugin
-    KetchConsentManager().consentManager.init(state, defaultLogger);
+    (KetchConsentManager()?.consentManager as ExtensionPoint).init?.(state, defaultLogger);
 
     // Update the state with the consent data
-    KetchConsentManager().consentManager.updateConsentsInfo(state, undefined, defaultLogger);
+    (KetchConsentManager()?.consentManager as ExtensionPoint).updateConsentsInfo?.(
+      state,
+      undefined,
+      defaultLogger,
+    );
 
     expect(state.consents.initialized.value).toBe(true);
     expect(state.consents.data.value).toStrictEqual({
@@ -65,7 +69,7 @@ describe('Plugin - KetchConsentManager', () => {
 
   it('should return undefined values when the window callbacks are invoked and there is no data in the state', () => {
     // Initialize the plugin
-    KetchConsentManager().consentManager.init(state, defaultLogger);
+    (KetchConsentManager()?.consentManager as ExtensionPoint).init?.(state, defaultLogger);
 
     expect((window as any).getKetchUserConsentedPurposes()).toStrictEqual(undefined);
     expect((window as any).getKetchUserDeniedPurposes()).toStrictEqual(undefined);
@@ -82,7 +86,7 @@ describe('Plugin - KetchConsentManager', () => {
     };
 
     // Initialize the plugin
-    KetchConsentManager().consentManager.init(state, defaultLogger);
+    (KetchConsentManager()?.consentManager as ExtensionPoint).init?.(state, defaultLogger);
 
     // Call the callback function
     (window as any).updateKetchConsent({
@@ -130,10 +134,10 @@ describe('Plugin - KetchConsentManager', () => {
     document.cookie = `_ketch_consent_v1_=${window.btoa(ketchConsentString)};`;
 
     // Initialize the plugin
-    KetchConsentManager().consentManager.init(state, defaultLogger);
+    (KetchConsentManager()?.consentManager as ExtensionPoint).init?.(state, defaultLogger);
 
     // Update the state with the consent data
-    KetchConsentManager().consentManager.updateConsentsInfo(
+    (KetchConsentManager()?.consentManager as ExtensionPoint).updateConsentsInfo?.(
       state,
       defaultStoreManager,
       defaultLogger,
@@ -155,7 +159,7 @@ describe('Plugin - KetchConsentManager', () => {
 
   it('should return true if the consent manager is not initialized', () => {
     expect(
-      KetchConsentManager().consentManager.isDestinationConsented(
+      (KetchConsentManager()?.consentManager as ExtensionPoint).isDestinationConsented?.(
         state,
         undefined,
         defaultErrorHandler,
@@ -178,7 +182,7 @@ describe('Plugin - KetchConsentManager', () => {
     };
 
     expect(
-      KetchConsentManager().consentManager.isDestinationConsented(
+      (KetchConsentManager()?.consentManager as ExtensionPoint).isDestinationConsented?.(
         state,
         destConfig,
         defaultErrorHandler,
@@ -202,7 +206,7 @@ describe('Plugin - KetchConsentManager', () => {
     };
 
     expect(
-      KetchConsentManager().consentManager.isDestinationConsented(
+      (KetchConsentManager()?.consentManager as ExtensionPoint).isDestinationConsented?.(
         state,
         destConfig,
         defaultErrorHandler,
@@ -233,7 +237,7 @@ describe('Plugin - KetchConsentManager', () => {
     };
 
     expect(
-      KetchConsentManager().consentManager.isDestinationConsented(
+      (KetchConsentManager()?.consentManager as ExtensionPoint).isDestinationConsented?.(
         state,
         destConfig,
         defaultErrorHandler,
@@ -264,7 +268,7 @@ describe('Plugin - KetchConsentManager', () => {
     };
 
     expect(
-      KetchConsentManager().consentManager.isDestinationConsented(
+      (KetchConsentManager()?.consentManager as ExtensionPoint).isDestinationConsented?.(
         state,
         destConfig,
         defaultErrorHandler,
@@ -276,6 +280,7 @@ describe('Plugin - KetchConsentManager', () => {
   it('should return true and log an error if any exception is thrown while checking if the destination is consented', () => {
     state.consents.initialized.value = true;
     state.consents.data.value = {
+      // @ts-expect-error Intentionally set to null to throw an exception
       allowedConsentIds: null, // This will throw an exception
       deniedConsentIds: ['purpose2', 'purpose4'],
     };
@@ -295,7 +300,7 @@ describe('Plugin - KetchConsentManager', () => {
     };
 
     expect(
-      KetchConsentManager().consentManager.isDestinationConsented(
+      (KetchConsentManager()?.consentManager as ExtensionPoint).isDestinationConsented?.(
         state,
         destConfig,
         defaultErrorHandler,
@@ -342,12 +347,9 @@ describe('Plugin - KetchConsentManager', () => {
         },
       ],
     };
-    const isDestinationConsented = KetchConsentManager().consentManager.isDestinationConsented(
-      state,
-      destConfig,
-      defaultErrorHandler,
-      defaultLogger,
-    );
+    const isDestinationConsented = (
+      KetchConsentManager()?.consentManager as ExtensionPoint
+    ).isDestinationConsented?.(state, destConfig, defaultErrorHandler, defaultLogger);
     expect(isDestinationConsented).toBe(false);
   });
 
@@ -373,12 +375,9 @@ describe('Plugin - KetchConsentManager', () => {
         },
       ],
     };
-    const isDestinationConsented = KetchConsentManager().consentManager.isDestinationConsented(
-      state,
-      destConfig,
-      defaultErrorHandler,
-      defaultLogger,
-    );
+    const isDestinationConsented = (
+      KetchConsentManager()?.consentManager as ExtensionPoint
+    ).isDestinationConsented?.(state, destConfig, defaultErrorHandler, defaultLogger);
     expect(isDestinationConsented).toBe(true);
   });
 
@@ -415,12 +414,9 @@ describe('Plugin - KetchConsentManager', () => {
         },
       ],
     };
-    const isDestinationConsented = KetchConsentManager().consentManager.isDestinationConsented(
-      state,
-      destConfig,
-      defaultErrorHandler,
-      defaultLogger,
-    );
+    const isDestinationConsented = (
+      KetchConsentManager()?.consentManager as ExtensionPoint
+    ).isDestinationConsented?.(state, destConfig, defaultErrorHandler, defaultLogger);
     expect(isDestinationConsented).toBe(true);
   });
 
@@ -447,7 +443,7 @@ describe('Plugin - KetchConsentManager', () => {
       ],
     };
     expect(
-      KetchConsentManager().consentManager.isDestinationConsented(
+      (KetchConsentManager()?.consentManager as ExtensionPoint).isDestinationConsented?.(
         state,
         destConfig,
         defaultErrorHandler,
@@ -459,7 +455,7 @@ describe('Plugin - KetchConsentManager', () => {
   it('should return appropriate value when the resolution strategy not set', () => {
     state.consents.initialized.value = true;
     state.consents.provider.value = 'ketch';
-    state.consents.resolutionStrategy.value = null;
+    state.consents.resolutionStrategy.value = undefined;
     state.consents.data.value = {
       allowedConsentIds: ['C0001', 'C0002', 'C0003'],
     };
@@ -479,7 +475,7 @@ describe('Plugin - KetchConsentManager', () => {
       ],
     };
     expect(
-      KetchConsentManager().consentManager.isDestinationConsented(
+      (KetchConsentManager()?.consentManager as ExtensionPoint).isDestinationConsented?.(
         state,
         destConfig,
         defaultErrorHandler,

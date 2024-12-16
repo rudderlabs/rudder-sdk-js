@@ -2,6 +2,7 @@ import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
+import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import {
   getNormalizedQueueOptions,
   getDeliveryUrl,
@@ -31,6 +32,7 @@ describe('xhrQueue Plugin Utilities', () => {
     });
 
     it('should return default queue options if input queue options is null', () => {
+      // @ts-expect-error Testing for null
       const queueOptions = getNormalizedQueueOptions(null);
 
       expect(queueOptions).toEqual({
@@ -43,6 +45,7 @@ describe('xhrQueue Plugin Utilities', () => {
     });
 
     it('should return default queue options if input queue options is undefined', () => {
+      // @ts-expect-error Testing for undefined
       const queueOptions = getNormalizedQueueOptions(undefined);
 
       expect(queueOptions).toEqual({
@@ -119,7 +122,7 @@ describe('xhrQueue Plugin Utilities', () => {
 
       logErrorOnFailure(details, 'https://test.com/v1/page', false, 1, 10, defaultLogger);
 
-      expect(defaultLogger.error).not.toBeCalled();
+      expect(defaultLogger.error).not.toHaveBeenCalled();
     });
 
     it('should log an error for delivery failure', () => {
@@ -129,7 +132,7 @@ describe('xhrQueue Plugin Utilities', () => {
 
       logErrorOnFailure(details, 'https://test.com/v1/page', false, 1, 10, defaultLogger);
 
-      expect(defaultLogger.error).toBeCalledWith(
+      expect(defaultLogger.error).toHaveBeenCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. The event(s) will be dropped.',
       );
     });
@@ -144,52 +147,57 @@ describe('xhrQueue Plugin Utilities', () => {
 
       logErrorOnFailure(details, 'https://test.com/v1/page', true, 1, 10, defaultLogger);
 
-      expect(defaultLogger.error).toBeCalledWith(
+      expect(defaultLogger.error).toHaveBeenCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. It/they will be retried. Retry attempt 1 of 10.',
       );
 
       // Retryable error but it's the first attempt
-      details.xhr.status = 429;
+      // @ts-expect-error Needed to set the status for testing
+      (details.xhr as XMLHttpRequest).status = 429;
 
       logErrorOnFailure(details, 'https://test.com/v1/page', true, 0, 10, defaultLogger);
 
-      expect(defaultLogger.error).toBeCalledWith(
+      expect(defaultLogger.error).toHaveBeenCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. It/they will be retried.',
       );
 
       // 500 error
-      details.xhr.status = 500;
+      // @ts-expect-error Needed to set the status for testing
+      (details.xhr as XMLHttpRequest).status = 500;
 
       logErrorOnFailure(details, 'https://test.com/v1/page', true, 1, 10, defaultLogger);
 
-      expect(defaultLogger.error).toBeCalledWith(
+      expect(defaultLogger.error).toHaveBeenCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. It/they will be retried. Retry attempt 1 of 10.',
       );
 
       // 5xx error
-      details.xhr.status = 501;
+      // @ts-expect-error Needed to set the status for testing
+      (details.xhr as XMLHttpRequest).status = 501;
 
       logErrorOnFailure(details, 'https://test.com/v1/page', true, 1, 10, defaultLogger);
 
-      expect(defaultLogger.error).toBeCalledWith(
+      expect(defaultLogger.error).toHaveBeenCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. It/they will be retried. Retry attempt 1 of 10.',
       );
 
       // 600 error
-      details.xhr.status = 600;
+      // @ts-expect-error Needed to set the status for testing
+      (details.xhr as XMLHttpRequest).status = 600;
 
       logErrorOnFailure(details, 'https://test.com/v1/page', true, 1, 10, defaultLogger);
 
-      expect(defaultLogger.error).toBeCalledWith(
+      expect(defaultLogger.error).toHaveBeenCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. The event(s) will be dropped.',
       );
 
       // Retryable error but exhausted all tries
-      details.xhr.status = 520;
+      // @ts-expect-error Needed to set the status for testing
+      (details.xhr as XMLHttpRequest).status = 520;
 
       logErrorOnFailure(details, 'https://test.com/v1/page', false, 10, 10, defaultLogger);
 
-      expect(defaultLogger.error).toBeCalledWith(
+      expect(defaultLogger.error).toHaveBeenCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. Retries exhausted (10). The event(s) will be dropped.',
       );
     });
@@ -325,7 +333,7 @@ describe('xhrQueue Plugin Utilities', () => {
     });
 
     it('should return string with circular dependencies replaced with static string', () => {
-      const events = [
+      const events: RudderEvent[] = [
         {
           channel: 'test',
           type: 'track',
@@ -349,8 +357,11 @@ describe('xhrQueue Plugin Utilities', () => {
           },
         } as unknown as RudderEvent,
       ];
+      const event2 = events[1] as RudderEvent;
 
-      events[1].properties.test5 = events[1];
+      // Create a circular reference
+      // @ts-expect-error Testing for circular reference
+      (event2.properties as ApiObject).test5 = event2;
 
       expect(getBatchDeliveryPayload(events, currentTime, defaultLogger)).toContain(
         '[Circular Reference]',

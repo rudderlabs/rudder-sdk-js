@@ -3,9 +3,11 @@ import { batch } from '@preact/signals-core';
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import { defaultStoreManager } from '@rudderstack/analytics-js-common/__mocks__/StoreManager';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
 import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
+import type { ExtensionPoint } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import type { RetryQueue } from '../../src/utilities/retryQueue/RetryQueue';
+import type { QueueItem, QueueItemData } from '../../src/types/plugins';
 import { resetState, state } from '../../__mocks__/state';
 import { XhrQueue } from '../../src/xhrQueue';
 import { Schedule } from '../../src/utilities/retryQueue/Schedule';
@@ -38,34 +40,34 @@ describe('XhrQueue', () => {
   });
 
   it('should add itself to the loaded plugins list on initialized', () => {
-    XhrQueue().initialize(state);
+    XhrQueue()?.initialize?.(state);
 
     expect(state.plugins.loadedPlugins.value).toContain('XhrQueue');
   });
 
   it('should return a queue object on init', () => {
-    const queue = XhrQueue().dataplaneEventsQueue?.init(
+    const queue = (XhrQueue()?.dataplaneEventsQueue as ExtensionPoint).init?.(
       state,
       defaultHttpClient,
       defaultStoreManager,
       defaultErrorHandler,
       defaultLogger,
-    );
+    ) as RetryQueue;
 
     expect(queue).toBeDefined();
     expect(queue.name).toBe('rudder_sampleWriteKey');
   });
 
   it('should add item in queue on enqueue', () => {
-    const queue = XhrQueue().dataplaneEventsQueue?.init(
+    const queue = (XhrQueue()?.dataplaneEventsQueue as ExtensionPoint).init?.(
       state,
       defaultHttpClient,
       defaultStoreManager,
-    );
+    ) as RetryQueue;
 
     const addItemSpy = jest.spyOn(queue, 'addItem');
 
-    const event: RudderEvent = {
+    const event = {
       type: 'track',
       event: 'test',
       userId: 'test',
@@ -75,11 +77,11 @@ describe('XhrQueue', () => {
       anonymousId: 'sampleAnonId',
       messageId: 'test',
       originalTimestamp: 'test',
-    };
+    } as unknown as RudderEvent;
 
-    XhrQueue().dataplaneEventsQueue?.enqueue(state, queue, event);
+    (XhrQueue()?.dataplaneEventsQueue as ExtensionPoint).enqueue?.(state, queue, event);
 
-    expect(addItemSpy).toBeCalledWith({
+    expect(addItemSpy).toHaveBeenCalledWith({
       url: 'https://sampleurl.com/v1/track',
       headers: {
         AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
@@ -91,15 +93,18 @@ describe('XhrQueue', () => {
   });
 
   it('should process queue item on start', () => {
-    const mockHttpClient = {
-      getAsyncData: ({ callback }) => {
-        callback(true);
-      },
-      setAuthHeader: jest.fn(),
-    };
-    const queue = XhrQueue().dataplaneEventsQueue?.init(state, mockHttpClient, defaultStoreManager);
+    // Mock getAsyncData to return a successful response
 
-    const event: RudderEvent = {
+    defaultHttpClient.getAsyncData.mockImplementation(({ callback }) => {
+      callback?.(true);
+    });
+    const queue = (XhrQueue()?.dataplaneEventsQueue as ExtensionPoint).init?.(
+      state,
+      defaultHttpClient,
+      defaultStoreManager,
+    ) as RetryQueue;
+
+    const event = {
       type: 'track',
       event: 'test',
       userId: 'test',
@@ -109,17 +114,17 @@ describe('XhrQueue', () => {
       anonymousId: 'sampleAnonId',
       messageId: 'test',
       originalTimestamp: 'test',
-    };
+    } as unknown as RudderEvent;
 
     const queueProcessCbSpy = jest.spyOn(queue, 'processQueueCb');
 
-    XhrQueue().dataplaneEventsQueue?.enqueue(state, queue, event);
+    (XhrQueue()?.dataplaneEventsQueue as ExtensionPoint).enqueue?.(state, queue, event);
 
     // Explicitly start the queue to process the item
     // In actual implementation, this is done based on the state signals
     queue.start();
 
-    expect(queueProcessCbSpy).toBeCalledWith(
+    expect(queueProcessCbSpy).toHaveBeenCalledWith(
       {
         url: 'https://sampleurl.com/v1/track',
         headers: {
@@ -134,26 +139,24 @@ describe('XhrQueue', () => {
     );
 
     // Item is successfully processed and removed from queue
-    expect(queue.getStorageEntry('queue').length).toBe(0);
+    expect((queue.getStorageEntry('queue') as QueueItem<QueueItemData>[]).length).toBe(0);
 
     queueProcessCbSpy.mockRestore();
   });
 
   it('should log error on retryable failure and requeue the item', () => {
-    const mockHttpClient = {
-      getAsyncData: ({ callback }) => {
-        callback(false, { error: 'some error', xhr: { status: 429 } });
-      },
-      setAuthHeader: jest.fn(),
-    } as unknown as IHttpClient;
+    // Mock getAsyncData to return a retryable failure
 
-    const queue = XhrQueue().dataplaneEventsQueue?.init(
+    defaultHttpClient.getAsyncData.mockImplementation(({ callback }) => {
+      callback?.(false, { error: 'some error', xhr: { status: 429 } });
+    });
+    const queue = (XhrQueue()?.dataplaneEventsQueue as ExtensionPoint).init?.(
       state,
-      mockHttpClient,
+      defaultHttpClient,
       defaultStoreManager,
       undefined,
       defaultLogger,
-    );
+    ) as RetryQueue;
 
     const schedule = new Schedule();
     // Override the timestamp generation function to return a fixed value
@@ -161,7 +164,7 @@ describe('XhrQueue', () => {
 
     queue.schedule = schedule;
 
-    const event: RudderEvent = {
+    const event = {
       type: 'track',
       event: 'test',
       userId: 'test',
@@ -171,15 +174,15 @@ describe('XhrQueue', () => {
       anonymousId: 'sampleAnonId',
       messageId: 'test',
       originalTimestamp: 'test',
-    };
+    } as unknown as RudderEvent;
 
-    XhrQueue().dataplaneEventsQueue?.enqueue(state, queue, event);
+    (XhrQueue()?.dataplaneEventsQueue as ExtensionPoint).enqueue?.(state, queue, event);
 
     // Explicitly start the queue to process the item
     // In actual implementation, this is done based on the state signals
     queue.start();
 
-    expect(defaultLogger.error).toBeCalledWith(
+    expect(defaultLogger.error).toHaveBeenCalledWith(
       'XhrQueuePlugin:: Failed to deliver event(s) to https://sampleurl.com/v1/track. It/they will be retried.',
     );
 
@@ -217,18 +220,13 @@ describe('XhrQueue', () => {
       };
     });
 
-    const mockHttpClient = {
-      getAsyncData: jest.fn(),
-      setAuthHeader: jest.fn(),
-    } as unknown as IHttpClient;
-
-    const queue = XhrQueue().dataplaneEventsQueue?.init(
+    const queue = (XhrQueue()?.dataplaneEventsQueue as ExtensionPoint).init?.(
       state,
-      mockHttpClient,
+      defaultHttpClient,
       defaultStoreManager,
       undefined,
       defaultLogger,
-    );
+    ) as RetryQueue;
     const queueProcessCbSpy = jest.spyOn(queue, 'processQueueCb');
 
     const schedule = new Schedule();
@@ -237,7 +235,7 @@ describe('XhrQueue', () => {
 
     queue.schedule = schedule;
 
-    const event: RudderEvent = {
+    const event = {
       type: 'track',
       event: 'test',
       userId: 'test',
@@ -247,9 +245,9 @@ describe('XhrQueue', () => {
       anonymousId: 'sampleAnonId',
       messageId: 'test',
       originalTimestamp: 'test',
-    };
+    } as unknown as RudderEvent;
 
-    const event2: RudderEvent = {
+    const event2 = {
       type: 'track',
       event: 'test2',
       userId: 'test2',
@@ -259,16 +257,16 @@ describe('XhrQueue', () => {
       anonymousId: 'sampleAnonId',
       messageId: 'test2',
       originalTimestamp: 'test2',
-    };
+    } as unknown as RudderEvent;
 
-    XhrQueue().dataplaneEventsQueue?.enqueue(state, queue, event);
-    XhrQueue().dataplaneEventsQueue?.enqueue(state, queue, event2);
+    (XhrQueue()?.dataplaneEventsQueue as ExtensionPoint).enqueue?.(state, queue, event);
+    (XhrQueue()?.dataplaneEventsQueue as ExtensionPoint).enqueue?.(state, queue, event2);
 
     // Explicitly start the queue to process the item
     // In actual implementation, this is done based on the state signals
     queue.start();
 
-    expect(queueProcessCbSpy).toBeCalledWith(
+    expect(queueProcessCbSpy).toHaveBeenCalledWith(
       [
         {
           url: 'https://sampleurl.com/v1/track',
@@ -291,7 +289,7 @@ describe('XhrQueue', () => {
       true,
     );
 
-    expect(mockHttpClient.getAsyncData).toBeCalledWith({
+    expect(defaultHttpClient.getAsyncData).toHaveBeenCalledWith({
       url: 'https://sampleurl.com/v1/batch',
       options: {
         method: 'POST',

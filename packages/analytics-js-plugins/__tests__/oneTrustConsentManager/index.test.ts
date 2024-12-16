@@ -1,5 +1,6 @@
 import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
 import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
+import type { ExtensionPoint } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { resetState, state } from '../../__mocks__/state';
 import { OneTrustConsentManager } from '../../src/oneTrustConsentManager';
 
@@ -11,7 +12,7 @@ describe('Plugin - OneTrustConsentManager', () => {
   });
 
   it('should add OneTrustConsentManager plugin in the loaded plugin list', () => {
-    OneTrustConsentManager().initialize(state);
+    OneTrustConsentManager()?.initialize?.(state);
     expect(state.plugins.loadedPlugins.value.includes('OneTrustConsentManager')).toBe(true);
   });
 
@@ -32,10 +33,14 @@ describe('Plugin - OneTrustConsentManager', () => {
     (window as any).OnetrustActiveGroups = ',C0001,C0003,';
 
     // Initialize the plugin
-    OneTrustConsentManager().consentManager.init(state, defaultLogger);
+    (OneTrustConsentManager()?.consentManager as ExtensionPoint).init?.(state, defaultLogger);
 
     // Update the consent info from state
-    OneTrustConsentManager().consentManager.updateConsentsInfo(state, undefined, defaultLogger);
+    (OneTrustConsentManager()?.consentManager as ExtensionPoint).updateConsentsInfo?.(
+      state,
+      undefined,
+      defaultLogger,
+    );
 
     expect(state.consents.initialized.value).toBe(true);
     expect(state.consents.data.value).toStrictEqual({
@@ -46,10 +51,14 @@ describe('Plugin - OneTrustConsentManager', () => {
 
   it('should not successfully update consents data the plugin if OneTrust SDK is not loaded', () => {
     // Initialize the plugin
-    OneTrustConsentManager().consentManager.init(state, defaultLogger);
+    (OneTrustConsentManager()?.consentManager as ExtensionPoint).init?.(state, defaultLogger);
 
     // Update the consent info from state
-    OneTrustConsentManager().consentManager.updateConsentsInfo(state, undefined, defaultLogger);
+    (OneTrustConsentManager()?.consentManager as ExtensionPoint).updateConsentsInfo?.(
+      state,
+      undefined,
+      defaultLogger,
+    );
 
     expect(state.consents.initialized.value).toStrictEqual(false);
     expect(defaultLogger.error).toHaveBeenCalledWith(
@@ -81,12 +90,9 @@ describe('Plugin - OneTrustConsentManager', () => {
       key: 'value',
     };
 
-    const isDestinationConsented = OneTrustConsentManager().consentManager.isDestinationConsented(
-      state,
-      destConfig,
-      defaultErrorHandler,
-      defaultLogger,
-    );
+    const isDestinationConsented = (
+      OneTrustConsentManager()?.consentManager as ExtensionPoint
+    ).isDestinationConsented?.(state, destConfig, defaultErrorHandler, defaultLogger);
     expect(isDestinationConsented).toBe(true);
   });
 
@@ -108,12 +114,9 @@ describe('Plugin - OneTrustConsentManager', () => {
       key: 'value',
     };
 
-    const isDestinationConsented = OneTrustConsentManager().consentManager.isDestinationConsented(
-      state,
-      destConfig,
-      defaultErrorHandler,
-      defaultLogger,
-    );
+    const isDestinationConsented = (
+      OneTrustConsentManager()?.consentManager as ExtensionPoint
+    ).isDestinationConsented?.(state, destConfig, defaultErrorHandler, defaultLogger);
     expect(isDestinationConsented).toBe(true);
   });
 
@@ -129,12 +132,9 @@ describe('Plugin - OneTrustConsentManager', () => {
       key: 'value',
     };
 
-    const isDestinationConsented = OneTrustConsentManager().consentManager.isDestinationConsented(
-      state,
-      destConfig,
-      defaultErrorHandler,
-      defaultLogger,
-    );
+    const isDestinationConsented = (
+      OneTrustConsentManager()?.consentManager as ExtensionPoint
+    ).isDestinationConsented?.(state, destConfig, defaultErrorHandler, defaultLogger);
     expect(isDestinationConsented).toBe(true);
   });
 
@@ -157,12 +157,9 @@ describe('Plugin - OneTrustConsentManager', () => {
       ],
       key: 'value',
     };
-    const isDestinationConsented = OneTrustConsentManager().consentManager.isDestinationConsented(
-      state,
-      destConfig,
-      defaultErrorHandler,
-      defaultLogger,
-    );
+    const isDestinationConsented = (
+      OneTrustConsentManager()?.consentManager as ExtensionPoint
+    ).isDestinationConsented?.(state, destConfig, defaultErrorHandler, defaultLogger);
     expect(isDestinationConsented).toBe(false);
   });
 
@@ -179,12 +176,9 @@ describe('Plugin - OneTrustConsentManager', () => {
       key: 'value',
     };
 
-    const isDestinationConsented = OneTrustConsentManager().consentManager.isDestinationConsented(
-      state,
-      destConfig,
-      defaultErrorHandler,
-      defaultLogger,
-    );
+    const isDestinationConsented = (
+      OneTrustConsentManager()?.consentManager as ExtensionPoint
+    ).isDestinationConsented?.(state, destConfig, defaultErrorHandler, defaultLogger);
     expect(isDestinationConsented).toBe(true);
     expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
       new TypeError('oneTrustCookieCategories.map is not a function'),
@@ -226,12 +220,9 @@ describe('Plugin - OneTrustConsentManager', () => {
         },
       ],
     };
-    const isDestinationConsented = OneTrustConsentManager().consentManager.isDestinationConsented(
-      state,
-      destConfig,
-      defaultErrorHandler,
-      defaultLogger,
-    );
+    const isDestinationConsented = (
+      OneTrustConsentManager()?.consentManager as ExtensionPoint
+    ).isDestinationConsented?.(state, destConfig, defaultErrorHandler, defaultLogger);
     expect(isDestinationConsented).toBe(false);
   });
 
@@ -257,12 +248,9 @@ describe('Plugin - OneTrustConsentManager', () => {
         },
       ],
     };
-    const isDestinationConsented = OneTrustConsentManager().consentManager.isDestinationConsented(
-      state,
-      destConfig,
-      defaultErrorHandler,
-      defaultLogger,
-    );
+    const isDestinationConsented = (
+      OneTrustConsentManager()?.consentManager as ExtensionPoint
+    ).isDestinationConsented?.(state, destConfig, defaultErrorHandler, defaultLogger);
     expect(isDestinationConsented).toBe(true);
   });
 
@@ -299,12 +287,9 @@ describe('Plugin - OneTrustConsentManager', () => {
         },
       ],
     };
-    const isDestinationConsented = OneTrustConsentManager().consentManager.isDestinationConsented(
-      state,
-      destConfig,
-      defaultErrorHandler,
-      defaultLogger,
-    );
+    const isDestinationConsented = (
+      OneTrustConsentManager()?.consentManager as ExtensionPoint
+    ).isDestinationConsented?.(state, destConfig, defaultErrorHandler, defaultLogger);
     expect(isDestinationConsented).toBe(true);
   });
 
@@ -341,12 +326,9 @@ describe('Plugin - OneTrustConsentManager', () => {
         },
       ],
     };
-    const isDestinationConsented = OneTrustConsentManager().consentManager.isDestinationConsented(
-      state,
-      destConfig,
-      defaultErrorHandler,
-      defaultLogger,
-    );
+    const isDestinationConsented = (
+      OneTrustConsentManager()?.consentManager as ExtensionPoint
+    ).isDestinationConsented?.(state, destConfig, defaultErrorHandler, defaultLogger);
     expect(isDestinationConsented).toBe(true);
   });
 
@@ -376,12 +358,9 @@ describe('Plugin - OneTrustConsentManager', () => {
         },
       ],
     };
-    const isDestinationConsented = OneTrustConsentManager().consentManager.isDestinationConsented(
-      state,
-      destConfig,
-      defaultErrorHandler,
-      defaultLogger,
-    );
+    const isDestinationConsented = (
+      OneTrustConsentManager()?.consentManager as ExtensionPoint
+    ).isDestinationConsented?.(state, destConfig, defaultErrorHandler, defaultLogger);
     expect(isDestinationConsented).toBe(true);
   });
 });

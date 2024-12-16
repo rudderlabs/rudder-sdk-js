@@ -1,6 +1,7 @@
 import { defaultStoreManager } from '@rudderstack/analytics-js-common/__mocks__/StoreManager';
 import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
 import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
+import type { ExtensionPoint } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { resetState, state } from '../../__mocks__/state';
 import { IubendaConsentManager } from '../../src/iubendaConsentManager';
 import { IUBENDA_CONSENT_EXAMPLE_COOKIE_NAME } from '../../src/iubendaConsentManager/constants';
@@ -8,6 +9,7 @@ import { IUBENDA_CONSENT_EXAMPLE_COOKIE_NAME } from '../../src/iubendaConsentMan
 describe('Plugin - IubendaConsentManager', () => {
   beforeEach(() => {
     resetState();
+    // eslint-disable-next-line no-underscore-dangle
     (window as any)._iub = { cs: { consent: {} } };
     (window as any).getIubendaUserConsentedPurposes = undefined;
     (window as any).getIubendaUserDeniedPurposes = undefined;
@@ -20,13 +22,13 @@ describe('Plugin - IubendaConsentManager', () => {
   });
 
   it('should add IubendaConsentManager plugin in the loaded plugin list', () => {
-    IubendaConsentManager().initialize(state);
+    IubendaConsentManager()?.initialize?.(state);
     expect(state.plugins.loadedPlugins.value.includes('IubendaConsentManager')).toBe(true);
   });
 
   it('should initialize the plugin if iubenda consent data is already available on the window object', () => {
     // Initialize the plugin
-    IubendaConsentManager().consentManager.init(state, defaultLogger);
+    (IubendaConsentManager()?.consentManager as ExtensionPoint).init?.(state, defaultLogger);
 
     expect((window as any).getIubendaUserConsentedPurposes).toEqual(expect.any(Function));
     expect((window as any).getIubendaUserDeniedPurposes).toEqual(expect.any(Function));
@@ -35,6 +37,7 @@ describe('Plugin - IubendaConsentManager', () => {
 
   it('should update state with consents data from iubenda window resources', () => {
     // Mock the iubenda data on the window object
+    // eslint-disable-next-line no-underscore-dangle
     (window as any)._iub.cs.consent = {
       timestamp: '2024-10-1T01:57:25.825Z',
       version: '1.67.1',
@@ -52,10 +55,14 @@ describe('Plugin - IubendaConsentManager', () => {
     };
 
     // Initialize the plugin
-    IubendaConsentManager().consentManager.init(state, defaultLogger);
+    (IubendaConsentManager()?.consentManager as ExtensionPoint).init?.(state, defaultLogger);
 
     // Update the state with the consent data
-    IubendaConsentManager().consentManager.updateConsentsInfo(state, undefined, defaultLogger);
+    (IubendaConsentManager()?.consentManager as ExtensionPoint).updateConsentsInfo?.(
+      state,
+      undefined,
+      defaultLogger,
+    );
 
     expect(state.consents.initialized.value).toBe(true);
     expect(state.consents.data.value).toStrictEqual({
@@ -69,7 +76,7 @@ describe('Plugin - IubendaConsentManager', () => {
 
   it('should return undefined values when the window callbacks are invoked and there is no data in the state', () => {
     // Initialize the plugin
-    IubendaConsentManager().consentManager.init(state, defaultLogger);
+    (IubendaConsentManager()?.consentManager as ExtensionPoint).init?.(state, defaultLogger);
 
     expect((window as any).getIubendaUserConsentedPurposes()).toStrictEqual(undefined);
     expect((window as any).getIubendaUserDeniedPurposes()).toStrictEqual(undefined);
@@ -77,6 +84,7 @@ describe('Plugin - IubendaConsentManager', () => {
 
   it('should define a callback function on window to update consent data', () => {
     // Mock the iubenda data on the window object
+    // eslint-disable-next-line no-underscore-dangle
     (window as any)._iub.cs.consent = {
       timestamp: '2024-10-1T01:57:25.825Z',
       version: '1.67.1',
@@ -94,7 +102,7 @@ describe('Plugin - IubendaConsentManager', () => {
     };
 
     // Initialize the plugin
-    IubendaConsentManager().consentManager.init(state, defaultLogger);
+    (IubendaConsentManager()?.consentManager as ExtensionPoint).init?.(state, defaultLogger);
 
     // Call the callback function
     (window as any).updateIubendaConsent({
@@ -136,10 +144,10 @@ describe('Plugin - IubendaConsentManager', () => {
     document.cookie = `${IUBENDA_CONSENT_EXAMPLE_COOKIE_NAME}=${encodeURIComponent(iubendaConsentString)};`;
 
     // Initialize the plugin
-    IubendaConsentManager().consentManager.init(state, defaultLogger);
+    (IubendaConsentManager()?.consentManager as ExtensionPoint).init?.(state, defaultLogger);
 
     // Update the state with the consent data
-    IubendaConsentManager().consentManager.updateConsentsInfo(
+    (IubendaConsentManager()?.consentManager as ExtensionPoint).updateConsentsInfo?.(
       state,
       defaultStoreManager,
       defaultLogger,
@@ -157,7 +165,7 @@ describe('Plugin - IubendaConsentManager', () => {
 
   it('should return true if the consent manager is not initialized', () => {
     expect(
-      IubendaConsentManager().consentManager.isDestinationConsented(
+      (IubendaConsentManager()?.consentManager as ExtensionPoint).isDestinationConsented?.(
         state,
         undefined,
         defaultErrorHandler,
@@ -180,7 +188,7 @@ describe('Plugin - IubendaConsentManager', () => {
     };
 
     expect(
-      IubendaConsentManager().consentManager.isDestinationConsented(
+      (IubendaConsentManager()?.consentManager as ExtensionPoint).isDestinationConsented?.(
         state,
         destConfig,
         defaultErrorHandler,
@@ -209,7 +217,7 @@ describe('Plugin - IubendaConsentManager', () => {
     };
 
     expect(
-      IubendaConsentManager().consentManager.isDestinationConsented(
+      (IubendaConsentManager()?.consentManager as ExtensionPoint).isDestinationConsented?.(
         state,
         destConfig,
         defaultErrorHandler,
@@ -240,7 +248,7 @@ describe('Plugin - IubendaConsentManager', () => {
     };
 
     expect(
-      IubendaConsentManager().consentManager.isDestinationConsented(
+      (IubendaConsentManager()?.consentManager as ExtensionPoint).isDestinationConsented?.(
         state,
         destConfig,
         defaultErrorHandler,
@@ -271,7 +279,7 @@ describe('Plugin - IubendaConsentManager', () => {
     };
 
     expect(
-      IubendaConsentManager().consentManager.isDestinationConsented(
+      (IubendaConsentManager()?.consentManager as ExtensionPoint).isDestinationConsented?.(
         state,
         destConfig,
         defaultErrorHandler,
@@ -283,6 +291,7 @@ describe('Plugin - IubendaConsentManager', () => {
   it('should return true and log an error if any exception is thrown while checking if the destination is consented', () => {
     state.consents.initialized.value = true;
     state.consents.data.value = {
+      // @ts-expect-error Intentionally setting null to test the error handling
       allowedConsentIds: null, // This will throw an exception
       deniedConsentIds: ['2', '4'],
     };
@@ -301,7 +310,7 @@ describe('Plugin - IubendaConsentManager', () => {
       ],
     };
     expect(
-      IubendaConsentManager().consentManager.isDestinationConsented(
+      (IubendaConsentManager()?.consentManager as ExtensionPoint).isDestinationConsented?.(
         state,
         destConfig,
         defaultErrorHandler,
@@ -348,12 +357,9 @@ describe('Plugin - IubendaConsentManager', () => {
         },
       ],
     };
-    const isDestinationConsented = IubendaConsentManager().consentManager.isDestinationConsented(
-      state,
-      destConfig,
-      defaultErrorHandler,
-      defaultLogger,
-    );
+    const isDestinationConsented = (
+      IubendaConsentManager()?.consentManager as ExtensionPoint
+    ).isDestinationConsented?.(state, destConfig, defaultErrorHandler, defaultLogger);
     expect(isDestinationConsented).toBe(false);
   });
 
@@ -379,12 +385,9 @@ describe('Plugin - IubendaConsentManager', () => {
         },
       ],
     };
-    const isDestinationConsented = IubendaConsentManager().consentManager.isDestinationConsented(
-      state,
-      destConfig,
-      defaultErrorHandler,
-      defaultLogger,
-    );
+    const isDestinationConsented = (
+      IubendaConsentManager()?.consentManager as ExtensionPoint
+    ).isDestinationConsented?.(state, destConfig, defaultErrorHandler, defaultLogger);
     expect(isDestinationConsented).toBe(true);
   });
 
@@ -421,12 +424,9 @@ describe('Plugin - IubendaConsentManager', () => {
         },
       ],
     };
-    const isDestinationConsented = IubendaConsentManager().consentManager.isDestinationConsented(
-      state,
-      destConfig,
-      defaultErrorHandler,
-      defaultLogger,
-    );
+    const isDestinationConsented = (
+      IubendaConsentManager()?.consentManager as ExtensionPoint
+    ).isDestinationConsented?.(state, destConfig, defaultErrorHandler, defaultLogger);
     expect(isDestinationConsented).toBe(true);
   });
 
@@ -453,7 +453,7 @@ describe('Plugin - IubendaConsentManager', () => {
       ],
     };
     expect(
-      IubendaConsentManager().consentManager.isDestinationConsented(
+      (IubendaConsentManager()?.consentManager as ExtensionPoint).isDestinationConsented?.(
         state,
         destConfig,
         defaultErrorHandler,
@@ -465,7 +465,7 @@ describe('Plugin - IubendaConsentManager', () => {
   it('should return appropriate value when the resolution strategy not set', () => {
     state.consents.initialized.value = true;
     state.consents.provider.value = 'iubenda';
-    state.consents.resolutionStrategy.value = null;
+    state.consents.resolutionStrategy.value = undefined;
     state.consents.data.value = {
       allowedConsentIds: ['C0001', 'C0002', 'C0003'],
     };
@@ -485,7 +485,7 @@ describe('Plugin - IubendaConsentManager', () => {
       ],
     };
     expect(
-      IubendaConsentManager().consentManager.isDestinationConsented(
+      (IubendaConsentManager()?.consentManager as ExtensionPoint).isDestinationConsented?.(
         state,
         destConfig,
         defaultErrorHandler,
