@@ -1,3 +1,4 @@
+import type { ExtensionPoint } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
 import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
 import { resetState, state } from '../../__mocks__/state';
@@ -9,18 +10,20 @@ describe('Plugin - CustomConsentManager', () => {
   });
 
   it('should add CustomConsentManager plugin in the loaded plugin list', () => {
-    CustomConsentManager().initialize(state);
+    CustomConsentManager().initialize?.(state);
     expect(state.plugins.loadedPlugins.value.includes('CustomConsentManager')).toBe(true);
   });
 
   it('ensure default extension points are defined', () => {
-    expect(CustomConsentManager().consentManager.init()).toBeUndefined();
-    expect(CustomConsentManager().consentManager.updateConsentsInfo()).toBeUndefined();
+    expect((CustomConsentManager().consentManager as ExtensionPoint)?.init?.()).toBeUndefined();
+    expect(
+      (CustomConsentManager().consentManager as ExtensionPoint)?.updateConsentsInfo?.(),
+    ).toBeUndefined();
   });
 
   it('should return true if the consent manager is not initialized', () => {
     expect(
-      CustomConsentManager().consentManager.isDestinationConsented(
+      (CustomConsentManager().consentManager as ExtensionPoint)?.isDestinationConsented?.(
         state,
         undefined,
         defaultErrorHandler,
@@ -34,7 +37,7 @@ describe('Plugin - CustomConsentManager', () => {
     state.consents.provider.value = 'custom';
     const destConfig = {};
     expect(
-      CustomConsentManager().consentManager.isDestinationConsented(
+      (CustomConsentManager().consentManager as ExtensionPoint)?.isDestinationConsented?.(
         state,
         destConfig,
         defaultErrorHandler,
@@ -67,7 +70,7 @@ describe('Plugin - CustomConsentManager', () => {
     };
 
     expect(
-      CustomConsentManager().consentManager.isDestinationConsented(
+      (CustomConsentManager().consentManager as ExtensionPoint)?.isDestinationConsented?.(
         state,
         destConfig,
         defaultErrorHandler,
@@ -85,7 +88,7 @@ describe('Plugin - CustomConsentManager', () => {
     };
 
     expect(
-      CustomConsentManager().consentManager.isDestinationConsented(
+      (CustomConsentManager().consentManager as ExtensionPoint)?.isDestinationConsented?.(
         state,
         destConfig,
         defaultErrorHandler,
@@ -103,7 +106,7 @@ describe('Plugin - CustomConsentManager', () => {
     };
 
     expect(
-      CustomConsentManager().consentManager.isDestinationConsented(
+      (CustomConsentManager().consentManager as ExtensionPoint)?.isDestinationConsented?.(
         state,
         destConfig,
         defaultErrorHandler,
@@ -137,7 +140,7 @@ describe('Plugin - CustomConsentManager', () => {
     };
 
     expect(
-      CustomConsentManager().consentManager.isDestinationConsented(
+      (CustomConsentManager().consentManager as ExtensionPoint)?.isDestinationConsented?.(
         state,
         destConfig,
         defaultErrorHandler,
@@ -171,7 +174,7 @@ describe('Plugin - CustomConsentManager', () => {
     };
 
     expect(
-      CustomConsentManager().consentManager.isDestinationConsented(
+      (CustomConsentManager().consentManager as ExtensionPoint)?.isDestinationConsented?.(
         state,
         destConfig,
         defaultErrorHandler,
@@ -205,7 +208,7 @@ describe('Plugin - CustomConsentManager', () => {
     };
 
     expect(
-      CustomConsentManager().consentManager.isDestinationConsented(
+      (CustomConsentManager().consentManager as ExtensionPoint)?.isDestinationConsented?.(
         state,
         destConfig,
         defaultErrorHandler,
@@ -218,7 +221,8 @@ describe('Plugin - CustomConsentManager', () => {
     state.consents.initialized.value = true;
     state.consents.provider.value = 'custom';
     state.consents.data.value = {
-      allowedConsentIds: null, // This will throw an exception
+      // @ts-expect-error Intentionally setting to null to throw an exception
+      allowedConsentIds: null,
     };
 
     const destConfig = {
@@ -239,7 +243,7 @@ describe('Plugin - CustomConsentManager', () => {
     };
 
     expect(
-      CustomConsentManager().consentManager.isDestinationConsented(
+      (CustomConsentManager().consentManager as ExtensionPoint)?.isDestinationConsented?.(
         state,
         destConfig,
         defaultErrorHandler,
@@ -247,7 +251,7 @@ describe('Plugin - CustomConsentManager', () => {
       ),
     ).toBe(true);
 
-    expect(defaultErrorHandler.onError).toBeCalledWith(
+    expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
       new TypeError("Cannot read properties of null (reading 'includes')"),
       'CustomConsentManagerPlugin',
       'Failed to determine the consent status for the destination. Please check the destination configuration and try again.',
