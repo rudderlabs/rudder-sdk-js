@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/deprecation */
 import { effect, signal } from '@preact/signals-core';
 import { http, HttpResponse } from 'msw';
 import { defaultHttpClient } from '../../../src/services/HttpClient';
@@ -8,7 +9,7 @@ import { state, resetState } from '../../../src/state';
 import { getSDKUrl } from '../../../src/components/configManager/util/commonUtil';
 import { server } from '../../../__fixtures__/msw.server';
 import { dummySourceConfigResponse } from '../../../__fixtures__/fixtures';
-import {
+import type {
   ConfigResponseDestinationItem,
   SourceConfigResponse,
 } from '../../../src/components/configManager/types';

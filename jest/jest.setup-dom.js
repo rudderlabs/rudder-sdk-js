@@ -6,6 +6,7 @@ global.window.document.body.innerHTML = documentHTML;
 global.window.innerWidth = 1680;
 global.window.innerHeight = 1024;
 global.window.__BUNDLE_ALL_PLUGINS__ = false;
+global.window.__LOCK_DEPS_VERSION__ = false;
 global.window.__IS_LEGACY_BUILD__ = false;
 global.window.__IS_DYNAMIC_CUSTOM_BUNDLE__ = false;
 global.PromiseRejectionEvent = function (reason) {
