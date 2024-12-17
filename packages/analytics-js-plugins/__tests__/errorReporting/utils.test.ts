@@ -1,5 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import { signal } from '@preact/signals-core';
+import type { ErrorEventPayload } from '@rudderstack/analytics-js-common/types/Metrics';
+import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import { ErrorFormat } from '../../src/errorReporting/event/event';
 import * as errorReportingConstants from '../../src/errorReporting/constants';
 import {
@@ -14,10 +16,161 @@ import {
   getConfigForPayloadCreation,
   isAllowedToBeNotified,
 } from '../../src/errorReporting/utils';
+import { state } from '../../__mocks__/state';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
   generateUUID: jest.fn().mockReturnValue('test_uuid'),
 }));
+
+const DEFAULT_STATE_DATA = {
+  autoTrack: {
+    enabled: false,
+    pageLifecycle: {
+      enabled: false,
+    },
+  },
+  capabilities: {
+    isAdBlocked: false,
+    isBeaconAvailable: false,
+    isCryptoAvailable: false,
+    isIE11: false,
+    isLegacyDOM: false,
+    isOnline: true,
+    isUaCHAvailable: false,
+    storage: {
+      isCookieStorageAvailable: false,
+      isLocalStorageAvailable: false,
+      isSessionStorageAvailable: false,
+    },
+  },
+  consents: {
+    data: {},
+    enabled: false,
+    initialized: false,
+    postConsent: {},
+    preConsent: {
+      enabled: false,
+    },
+    resolutionStrategy: 'and',
+  },
+  context: {
+    app: {
+      installType: 'cdn',
+      name: 'RudderLabs JavaScript SDK',
+      namespace: 'com.rudderlabs.javascript',
+      version: 'dev-snapshot',
+    },
+    device: null,
+    library: {
+      name: 'RudderLabs JavaScript SDK',
+      version: 'dev-snapshot',
+    },
+    locale: null,
+    network: null,
+    os: {
+      name: '',
+      version: '',
+    },
+    screen: {
+      density: 0,
+      height: 0,
+      innerHeight: 0,
+      innerWidth: 0,
+      width: 0,
+    },
+    userAgent: '',
+  },
+  dataPlaneEvents: {
+    deliveryEnabled: true,
+  },
+  lifecycle: {
+    initialized: false,
+    loaded: false,
+    logLevel: 'ERROR',
+    readyCallbacks: [],
+  },
+  loadOptions: {
+    beaconQueueOptions: {},
+    bufferDataPlaneEventsUntilReady: false,
+    configUrl: 'https://api.rudderstack.com',
+    dataPlaneEventsBufferTimeout: 1000,
+    destinationsQueueOptions: {},
+    integrations: {
+      All: true,
+    },
+    loadIntegration: true,
+    lockIntegrationsVersion: false,
+    lockPluginsVersion: false,
+    logLevel: 'ERROR',
+    plugins: [],
+    polyfillIfRequired: true,
+    queueOptions: {},
+    sameSiteCookie: 'Lax',
+    sendAdblockPageOptions: {},
+    sessions: {
+      autoTrack: true,
+      timeout: 1800000,
+    },
+    storage: {
+      cookie: {},
+      encryption: {
+        version: 'v3',
+      },
+      migrate: true,
+    },
+    uaChTrackLevel: 'none',
+    useBeacon: false,
+    useGlobalIntegrationsConfigInEvents: false,
+    useServerSideCookies: false,
+  },
+  metrics: {
+    dropped: 0,
+    queued: 0,
+    retries: 0,
+    sent: 0,
+    triggered: 0,
+  },
+  nativeDestinations: {
+    activeDestinations: [],
+    clientDestinationsReady: false,
+    configuredDestinations: [],
+    failedDestinations: [],
+    initializedDestinations: [],
+    integrationsConfig: {},
+    loadIntegration: true,
+    loadOnlyIntegrations: {},
+  },
+  plugins: {
+    activePlugins: [],
+    failedPlugins: [],
+    loadedPlugins: [],
+    pluginsToLoadFromConfig: [],
+    ready: false,
+    totalPluginsToLoad: 0,
+  },
+  reporting: {
+    breadcrumbs: [],
+    isErrorReportingEnabled: false,
+    isErrorReportingPluginLoaded: false,
+    isMetricsReportingEnabled: false,
+  },
+  serverCookies: {
+    isEnabledServerSideCookies: false,
+  },
+  session: {
+    initialReferrer: '',
+    initialReferringDomain: '',
+  },
+  source: {
+    id: 'dummy-source-id',
+    workspaceId: 'dummy-workspace-id',
+  },
+  storage: {
+    entries: {},
+    migrate: false,
+    trulyAnonymousTracking: false,
+  },
+};
 
 describe('Error Reporting utilities', () => {
   describe('createNewBreadcrumb', () => {
@@ -84,7 +237,7 @@ describe('Error Reporting utilities', () => {
   });
 
   describe('isRudderSDKError', () => {
-    const testCaseData = [
+    const testCaseData: any[] = [
       ['https://invalid-domain.com/rsa.min.js', true],
       ['https://invalid-domain.com/rss.min.js', false],
       ['https://invalid-domain.com/rsa-plugins-Beacon.min.js', true],
@@ -103,7 +256,7 @@ describe('Error Reporting utilities', () => {
 
     it.each(testCaseData)(
       'if script src is "%s" then it should return the value as "%s" ',
-      (scriptSrc, expectedValue) => {
+      (scriptSrc: string, expectedValue: boolean) => {
         // Bugsnag error event object structure
         const event = {
           stacktrace: [
@@ -155,13 +308,16 @@ describe('Error Reporting utilities', () => {
   describe('getAppStateForMetadata', () => {
     const origAppStateExcludes = errorReportingConstants.APP_STATE_EXCLUDE_KEYS;
 
-    beforeEach(() => {
-      errorReportingConstants.APP_STATE_EXCLUDE_KEYS = origAppStateExcludes;
+    afterEach(() => {
+      Object.defineProperty(errorReportingConstants, 'APP_STATE_EXCLUDE_KEYS', {
+        value: origAppStateExcludes,
+        writable: true,
+      });
     });
 
     // Here we are just exploring different combinations of data where
     // the signals could be buried inside objects, arrays, nested objects, etc.
-    const tcData = [
+    const tcData: any[][] = [
       [
         {
           name: 'test',
@@ -277,6 +433,7 @@ describe('Error Reporting utilities', () => {
       ],
       [
         {
+          // eslint-disable-next-line compat/compat
           someKey: BigInt(123),
         },
         {},
@@ -285,13 +442,20 @@ describe('Error Reporting utilities', () => {
     ];
 
     it.each(tcData)('should convert signals to JSON %#', (input, expected, excludes) => {
-      errorReportingConstants.APP_STATE_EXCLUDE_KEYS = excludes;
+      Object.defineProperty(errorReportingConstants, 'APP_STATE_EXCLUDE_KEYS', {
+        value: excludes,
+        writable: true,
+      });
+
       expect(getAppStateForMetadata(input)).toEqual(expected);
     });
   });
 
   describe('getBugsnagErrorEvent', () => {
     it('should return enhanced error event payload', () => {
+      state.session.sessionInfo.value = { id: 123 };
+      state.autoTrack.pageLifecycle.visitId.value = 'test-visit-id';
+
       const newError = new Error();
       const normalizedError = Object.create(newError, {
         message: { value: 'ReferenceError: testUndefinedFn is not defined' },
@@ -304,37 +468,15 @@ describe('Error Reporting utilities', () => {
         unhandled: false,
         severityReason: { type: 'handledException' },
       };
-      const errorPayload = ErrorFormat.create(normalizedError, 'notify()');
+      const errorPayload = ErrorFormat.create(normalizedError, 'notify()') as ErrorFormat;
 
-      const appState = {
-        context: {
-          locale: signal('en-GB'),
-          userAgent: signal('sample user agent'),
-          app: signal({ version: 'sample_version', installType: 'sample_installType' }),
-        },
-        lifecycle: {
-          writeKey: signal('sample-write-key'),
-        },
-        reporting: {
-          breadcrumbs: signal([]),
-        },
-        source: signal({ id: 'sample_source_id' }),
-        session: {
-          sessionInfo: signal({ id: 'test-session-id' }),
-        },
-        autoTrack: {
-          pageLifecycle: {
-            visitId: signal('test-visit-id'),
-          },
-        },
-      };
       (window as any).RudderSnippetVersion = 'sample_snippet_version';
-      const enhancedError = getBugsnagErrorEvent(errorPayload, errorState, appState);
+      const enhancedError = getBugsnagErrorEvent(errorPayload, errorState, state);
       console.log(JSON.stringify(enhancedError));
       const expectedOutcome = {
         notifier: {
           name: 'RudderStack JavaScript SDK Error Notifier',
-          version: 'sample_version',
+          version: 'dev-snapshot',
           url: 'https://github.com/rudderlabs/rudder-sdk-js',
         },
         events: [
@@ -363,12 +505,11 @@ describe('Error Reporting utilities', () => {
               type: 'handledException',
             },
             app: {
-              version: 'sample_version',
+              version: 'dev-snapshot',
               releaseStage: 'development',
             },
             device: {
-              locale: 'en-GB',
-              userAgent: 'sample user agent',
+              userAgent: '',
               time: expect.any(Date),
             },
             request: {
@@ -380,43 +521,24 @@ describe('Error Reporting utilities', () => {
             metaData: {
               sdk: {
                 name: 'JS',
-                installType: 'sample_installType',
+                installType: 'cdn',
               },
-              state: {
-                context: {
-                  userAgent: 'sample user agent',
-                  locale: 'en-GB',
-                  app: {
-                    version: 'sample_version',
-                    installType: 'sample_installType',
-                  },
-                },
-                lifecycle: {
-                  writeKey: 'sample-write-key',
-                },
-                reporting: {
-                  breadcrumbs: [],
-                },
-                source: {
-                  id: 'sample_source_id',
-                },
-                session: {
-                  sessionInfo: {
-                    id: 'test-session-id',
-                  },
-                },
+              state: mergeDeepRight(DEFAULT_STATE_DATA, {
                 autoTrack: {
                   pageLifecycle: {
                     visitId: 'test-visit-id',
                   },
                 },
-              },
+                session: {
+                  sessionInfo: { id: 123 },
+                },
+              }),
               source: {
                 snippetVersion: 'sample_snippet_version',
               },
             },
             user: {
-              id: 'sample_source_id..test-session-id..test-visit-id',
+              id: 'dummy-source-id..123..test-visit-id',
             },
           },
         ],
@@ -427,14 +549,6 @@ describe('Error Reporting utilities', () => {
 
   describe('getErrorDeliveryPayload', () => {
     it('should return error delivery payload', () => {
-      const appState = {
-        lifecycle: {
-          writeKey: signal('sample-write-key'),
-        },
-        context: {
-          app: signal({ version: 'sample_version', installType: 'sample_installType' }),
-        },
-      };
       const enhancedErrorPayload = {
         notifier: {
           name: 'Rudderstack JavaScript SDK Error Notifier',
@@ -467,12 +581,11 @@ describe('Error Reporting utilities', () => {
               type: 'handledException',
             },
             app: {
-              version: 'sample_version',
+              version: 'dev-snapshot',
               releaseStage: 'development',
             },
             device: {
-              locale: 'en-GB',
-              userAgent: 'sample user agent',
+              userAgent: '',
               time: expect.any(Date),
             },
             request: {
@@ -484,18 +597,11 @@ describe('Error Reporting utilities', () => {
             metaData: {
               sdk: {
                 name: 'JS',
-                installType: 'sample_installType',
+                installType: 'cdn',
               },
-              state: {
-                context: {
-                  userAgent: 'sample user agent',
-                  locale: 'en-GB',
-                  app: 'sample_version',
-                },
-                lifecycle: {
-                  writeKey: 'sample-write-key',
-                },
-                breadcrumbs: [],
+              state: DEFAULT_STATE_DATA,
+              source: {
+                snippetVersion: 'sample_snippet_version',
               },
             },
             user: {
@@ -503,18 +609,17 @@ describe('Error Reporting utilities', () => {
             },
           },
         ],
-      };
+      } as unknown as ErrorEventPayload;
 
-      const deliveryPayload = getErrorDeliveryPayload(enhancedErrorPayload, appState);
+      const deliveryPayload = getErrorDeliveryPayload(enhancedErrorPayload, state);
       expect(deliveryPayload).toEqual(
         JSON.stringify({
           version: '1',
           message_id: 'test_uuid',
           source: {
             name: 'js',
-            sdk_version: 'sample_version',
-            write_key: 'sample-write-key',
-            install_type: 'sample_installType',
+            sdk_version: 'dev-snapshot',
+            install_type: 'cdn',
           },
           errors: enhancedErrorPayload,
         }),
@@ -533,7 +638,11 @@ describe('Error Reporting utilities', () => {
     });
 
     it('should return the config for payload creation in case of unhandledPromiseRejection', () => {
-      const error = new PromiseRejectionEvent('test error');
+      // eslint-disable-next-line compat/compat
+      const error = new PromiseRejectionEvent('test error', {
+        promise: Promise.resolve(),
+        reason: 'test error',
+      });
       const config = getConfigForPayloadCreation(error, 'unhandledPromiseRejection');
       expect(config).toEqual({
         component: 'unhandledrejection handler',

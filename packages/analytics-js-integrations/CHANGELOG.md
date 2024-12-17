@@ -2,6 +2,16 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.11.14](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.11.13...@rudderstack/analytics-js-integrations@3.11.14) (2024-12-17)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.14`
+
+### Bug Fixes
+
+* remove circular dependency in packages ([#1973](https://github.com/rudderlabs/rudder-sdk-js/issues/1973)) ([e525496](https://github.com/rudderlabs/rudder-sdk-js/commit/e5254964310c2c73baaf4d0655c3e4025c5e7d2b))
+
 ## [3.11.13](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.11.12...@rudderstack/analytics-js-integrations@3.11.13) (2024-12-09)
 
 
