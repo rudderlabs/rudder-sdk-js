@@ -1,20 +1,14 @@
-import { state, resetState } from '@rudderstack/analytics-js/state';
-import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
-import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
-import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager/StoreManager';
+import { defaultStoreManager } from '@rudderstack/analytics-js-common/__mocks__/StoreManager';
+import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
+import { resetState, state } from '../../__mocks__/state';
 import {
   updateConsentStateFromData,
   getConsentData,
   getKetchConsentData,
 } from '../../src/ketchConsentManager/utils';
+import { defaultPluginsManager } from '../../__mocks__/PluginsManager';
 
 describe('KetchConsentManager - Utils', () => {
-  const mockLogger = {
-    error: jest.fn(),
-    warn: jest.fn(),
-    log: jest.fn(),
-  };
-
   beforeEach(() => {
     resetState();
 
@@ -75,9 +69,6 @@ describe('KetchConsentManager - Utils', () => {
   });
 
   describe('getKetchConsentData', () => {
-    const pluginsManager = new PluginsManager(defaultPluginEngine, undefined, mockLogger);
-    const storeManager = new StoreManager(pluginsManager, undefined, mockLogger);
-
     it('should get the ketch consent data from cookies', () => {
       // Mock the ketch data in the cookies
       const ketchRawConsentData = {
@@ -102,7 +93,7 @@ describe('KetchConsentManager - Utils', () => {
       // Mock the ketch cookies
       document.cookie = `_ketch_consent_v1_=${window.btoa(ketchConsentString)};`;
 
-      const ketchConsentData = getKetchConsentData(storeManager, mockLogger);
+      const ketchConsentData = getKetchConsentData(defaultStoreManager, defaultLogger);
 
       expect(ketchConsentData).toStrictEqual({
         purpose1: true,
@@ -121,17 +112,17 @@ describe('KetchConsentManager - Utils', () => {
         }),
       };
 
-      const ketchConsentData = getKetchConsentData(mockStoreManager, mockLogger);
+      const ketchConsentData = getKetchConsentData(mockStoreManager, defaultLogger);
 
       expect(ketchConsentData).toBeUndefined();
-      expect(mockLogger.error).toHaveBeenCalledWith(
+      expect(defaultLogger.error).toHaveBeenCalledWith(
         'KetchConsentManagerPlugin:: Failed to read the consent cookie.',
         new TypeError("Cannot read properties of null (reading 'getItem')"),
       );
     });
 
     it('should return undefined if ketch consent cookie is not present', () => {
-      const ketchConsentData = getKetchConsentData(storeManager, mockLogger);
+      const ketchConsentData = getKetchConsentData(defaultStoreManager, defaultLogger);
 
       expect(ketchConsentData).toBeUndefined();
     });
@@ -141,10 +132,10 @@ describe('KetchConsentManager - Utils', () => {
       // The value is not Base64 encoded
       document.cookie = `_ketch_consent_v1_=abc;`;
 
-      const ketchConsentData = getKetchConsentData(storeManager, mockLogger);
+      const ketchConsentData = getKetchConsentData(defaultStoreManager, defaultLogger);
 
       expect(ketchConsentData).toBeUndefined();
-      expect(mockLogger.error).toHaveBeenCalledWith(
+      expect(defaultLogger.error).toHaveBeenCalledWith(
         'KetchConsentManagerPlugin:: Failed to parse the consent cookie.',
         new SyntaxError('Unexpected token \'i\', "i�" is not valid JSON'),
       );
@@ -155,10 +146,10 @@ describe('KetchConsentManager - Utils', () => {
       // The value is not JSON stringified
       document.cookie = `_ketch_consent_v1_=YWJjZGU=;`;
 
-      const ketchConsentData = getKetchConsentData(storeManager, mockLogger);
+      const ketchConsentData = getKetchConsentData(defaultStoreManager, defaultLogger);
 
       expect(ketchConsentData).toBeUndefined();
-      expect(mockLogger.error).toHaveBeenCalledWith(
+      expect(defaultLogger.error).toHaveBeenCalledWith(
         'KetchConsentManagerPlugin:: Failed to parse the consent cookie.',
         new SyntaxError('Unexpected token \'a\', "abcde" is not valid JSON'),
       );
@@ -169,7 +160,7 @@ describe('KetchConsentManager - Utils', () => {
       // The value is inside is null
       document.cookie = `_ketch_consent_v1_=bnVsbA==;`;
 
-      const ketchConsentData = getKetchConsentData(storeManager, mockLogger);
+      const ketchConsentData = getKetchConsentData(defaultStoreManager, defaultLogger);
 
       expect(ketchConsentData).toBeUndefined();
     });
@@ -179,7 +170,7 @@ describe('KetchConsentManager - Utils', () => {
       // The value is inside is empty string
       document.cookie = `_ketch_consent_v1_=IiI=;`;
 
-      const ketchConsentData = getKetchConsentData(storeManager, mockLogger);
+      const ketchConsentData = getKetchConsentData(defaultStoreManager, defaultLogger);
 
       expect(ketchConsentData).toBeUndefined();
     });
