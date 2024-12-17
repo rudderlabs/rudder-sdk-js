@@ -3,7 +3,7 @@ import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { isNull, isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
-import { cookie } from '@rudderstack/analytics-js-common/src/component-cookie';
+import { cookie } from '@rudderstack/analytics-js-common/component-cookie';
 import { COOKIE_KEYS, ENCRYPTION_PREFIX_V3 } from './constants/cookies';
 
 const getEncryptedValueInternal = (
