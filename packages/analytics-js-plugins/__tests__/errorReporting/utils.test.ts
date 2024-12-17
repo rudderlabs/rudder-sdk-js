@@ -1,6 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import { signal } from '@preact/signals-core';
 import type { ErrorEventPayload } from '@rudderstack/analytics-js-common/types/Metrics';
+import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import { ErrorFormat } from '../../src/errorReporting/event/event';
 import * as errorReportingConstants from '../../src/errorReporting/constants';
 import {
@@ -53,7 +54,6 @@ const DEFAULT_STATE_DATA = {
     resolutionStrategy: 'and',
   },
   context: {
-    traits: null,
     app: {
       installType: 'cdn',
       name: 'RudderLabs JavaScript SDK',
@@ -160,13 +160,6 @@ const DEFAULT_STATE_DATA = {
   session: {
     initialReferrer: '',
     initialReferringDomain: '',
-    sessionInfo: {},
-    anonymousId: '',
-    authToken: '',
-    groupId: '',
-    groupTraits: {},
-    userId: '',
-    userTraits: {},
   },
   source: {
     id: 'dummy-source-id',
@@ -176,10 +169,6 @@ const DEFAULT_STATE_DATA = {
     entries: {},
     migrate: false,
     trulyAnonymousTracking: false,
-  },
-  eventBuffer: {
-    readyCallbacksArray: [],
-    toBeProcessedArray: [],
   },
 };
 
@@ -319,7 +308,7 @@ describe('Error Reporting utilities', () => {
   describe('getAppStateForMetadata', () => {
     const origAppStateExcludes = errorReportingConstants.APP_STATE_EXCLUDE_KEYS;
 
-    beforeEach(() => {
+    afterEach(() => {
       Object.defineProperty(errorReportingConstants, 'APP_STATE_EXCLUDE_KEYS', {
         value: origAppStateExcludes,
         writable: true,
@@ -464,6 +453,9 @@ describe('Error Reporting utilities', () => {
 
   describe('getBugsnagErrorEvent', () => {
     it('should return enhanced error event payload', () => {
+      state.session.sessionInfo.value = { id: 123 };
+      state.autoTrack.pageLifecycle.visitId.value = 'test-visit-id';
+
       const newError = new Error();
       const normalizedError = Object.create(newError, {
         message: { value: 'ReferenceError: testUndefinedFn is not defined' },
@@ -531,13 +523,22 @@ describe('Error Reporting utilities', () => {
                 name: 'JS',
                 installType: 'cdn',
               },
-              state: DEFAULT_STATE_DATA,
+              state: mergeDeepRight(DEFAULT_STATE_DATA, {
+                autoTrack: {
+                  pageLifecycle: {
+                    visitId: 'test-visit-id',
+                  },
+                },
+                session: {
+                  sessionInfo: { id: 123 },
+                },
+              }),
               source: {
                 snippetVersion: 'sample_snippet_version',
               },
             },
             user: {
-              id: 'dummy-source-id',
+              id: 'dummy-source-id..123..test-visit-id',
             },
           },
         ],

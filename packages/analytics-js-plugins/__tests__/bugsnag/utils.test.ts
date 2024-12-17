@@ -401,6 +401,9 @@ describe('Bugsnag utilities', () => {
         initBugsnagClient(state, resolve, reject);
       });
 
+      state.session.sessionInfo.value = { id: 123 };
+      state.autoTrack.pageLifecycle.visitId.value = 'test-visit-id';
+
       // Advance time and mount the Bugsnag SDK
       jest.advanceTimersByTime(1);
       mountBugsnagSDK();
@@ -429,7 +432,7 @@ describe('Bugsnag utilities', () => {
         maxBreadcrumbs: 40,
         releaseStage: 'development',
         user: {
-          id: 'dummy-source-id',
+          id: 'dummy-source-id..123..test-visit-id',
         },
         networkBreadcrumbsEnabled: false,
         beforeSend: expect.any(Function),
@@ -441,6 +444,8 @@ describe('Bugsnag utilities', () => {
       // @ts-expect-error source id is not defined for the test case
       state.source.value = { id: undefined };
       state.lifecycle.writeKey = signal('dummy-write-key');
+      state.session.sessionInfo.value = { id: 123 };
+      state.autoTrack.pageLifecycle.visitId.value = 'test-visit-id';
 
       const bsClientPromise: Promise<BugsnagLib.Client> = new Promise((resolve, reject) => {
         initBugsnagClient(state, resolve, reject);
@@ -472,7 +477,7 @@ describe('Bugsnag utilities', () => {
         maxBreadcrumbs: 40,
         releaseStage: 'development',
         user: {
-          id: 'dummy-write-key',
+          id: 'dummy-write-key..123..test-visit-id',
         },
         networkBreadcrumbsEnabled: false,
         beforeSend: expect.any(Function),
