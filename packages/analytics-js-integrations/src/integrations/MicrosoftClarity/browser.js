@@ -33,7 +33,8 @@ class MicrosoftClarity {
   }
 
   isLoaded() {
-    return !!window.clarity;
+    // queue would be undefined if the Clarity script is loaded
+    return !!window.clarity && !window.clarity.q;
   }
 
   isReady() {
@@ -55,7 +56,11 @@ class MicrosoftClarity {
     if (context?.traits?.customPageId) {
       customPageId = context.traits.customPageId;
     }
-    window.clarity('identify', userId, sessionId, customPageId);
+
+    const identifyPromise = window.clarity('identify', userId, sessionId, customPageId);
+    if (!!identifyPromise) { // Clarity SDK is ready
+      identifyPromise.catch(logger.error);
+    }
     if (context?.traits) {
       const { traits } = context;
       const keys = Object.keys(traits);
