@@ -19,6 +19,7 @@
     "build:modern:ci": "nx affected -t build:modern --base=$BASE_REF",
     "build:browser": "nx run-many -t build:browser",
     "build:browser:modern": "nx run-many -t build:browser:modern",
+    "build:npm:modern": "nx run-many -t build:npm:modern",
     "build:package": "nx run-many -t build:package",
     "build:package:modern": "nx run-many -t build:package:modern",
     "package": "nx run-many -t package",
