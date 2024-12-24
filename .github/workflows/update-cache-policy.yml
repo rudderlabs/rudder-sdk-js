@@ -15,9 +15,9 @@ on:
         description: The environment to update the cache control policy
         required: false
         options:
+          - development
           - production
           - staging
-          - development
       path_pattern:
         description: The path pattern to update the cache control policy
         required: false
