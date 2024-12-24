@@ -82,9 +82,9 @@ In this guide, we'll focus specifically on developing a destination integration 
 * Makes it hard to collect **first-party** data
 * Prone to ad blockers
 
-If _device mode_ integration does not seem suitable, go ahead with the _cloud mode_ inregration development instead and follow [this guide](https://github.com/rudderlabs/rudder-transformer/blob/docs-contrib-guide/CONTRIBUTING.md#building-your-first-custom-rudderStack-destination-integration)).
+If _device mode_ integration does not seem suitable, go ahead with the _cloud mode_ inregration development instead and follow [this guide](https://github.com/rudderlabs/rudder-transformer/blob/docs-contrib-guide/CONTRIBUTING.md#building-your-first-custom-rudderStack-destination-integration).
 
-### Setting up the development environment
+### 1. Setting up the development environment
 
 ```bash
 # Clone the repository
@@ -97,7 +97,7 @@ npm run setup
 npm run clean && npm cache clean --force && npm run setup
 ```
 
-#### Understanding the code structure
+### 2. Understanding the code structure
 
 The repository is a monorepo, with different packages under the `packages` directory.
 
@@ -115,10 +115,14 @@ The repository is a monorepo, with different packages under the `packages` direc
 * NX: Manages the monorepo and CI/CD
 * Size Limit: Checks the sizes of final bundles
 
-### Essential components
+### 3. Coding the essential components of the integration
+
+> Before proceeding with the next steps, we recommend drafting a document outlining the requirements of your integration and relevant resources
+
 Your integration will require several key files:
 
-1. **Constants definition** (`/packages/analytics-js-common/src/constants/integrations`)
+**Constants definition**
+> `/packages/analytics-js-common/src/constants/integrations/<integration-name>/constants.ts`
 
 Start by creating a new folder in `analytics-js-common` package, under `/packages/analytics-js-common/src/constants/integrations` for the new integration (e.g., test-integration-1). 
 We will define few basic constants mandatorily required for all the integrations.
@@ -132,7 +136,9 @@ The integration and display names should be referred from the auto-generated fil
 
 The directory name is the name of the integration directory in the `packages/analytics-js-integrations/src/integrations` directory. It should not contain any special characters or spaces.
 
-2. **Main integration code** (`packages/analytics-js-integrations/src/integrations`)
+**Main integration code**
+> `packages/analytics-js-integrations/src/integrations/<integration-name>/browser.js`
+
    ```javascript
    // browser.js structure
    class TestIntegrationOne {
@@ -168,7 +174,7 @@ The directory name is the name of the integration directory in the `packages/ana
    }
    ```
 
-### 3. Building and testing
+### 4. Building and testing
 
 #### Build process
 ```bash
@@ -180,13 +186,14 @@ npm run build:integration:modern --environment INTG_NAME:TestIntegrationOne
 ```
 
 #### Testing setup
-1. Serve the bundle:
+
+a. Serve the bundle:
    ```bash
    npx serve dist/cdn/js-integrations
    ```
    The bundle will be served at `http://localhost:3000`.
 
-2. Configure test environment:
+b. Configure test environment:
    - Modify `packages/analytics-js/public/index.html` to mock source configuration data and point to the local integrations bundle.
       ```javascript
       rudderanalytics.load(writeKey, dataPlaneUrl, {
@@ -233,7 +240,7 @@ npm run build:integration:modern --environment INTG_NAME:TestIntegrationOne
    - Set environment variables (WRITE_KEY, DATAPLANE_URL) in `.env` file.
    - Run `npm run start`
 
-### 4. Automated testing
+### 5. Automated testing
 Implement automated tests for your integration:
 
 ```bash
@@ -241,27 +248,39 @@ Implement automated tests for your integration:
 npm run test -- TestIntegrationOne/
 ```
 
-### Configurations for the integration
-In order to allow user to configure your integration via the RudderStack UI (control plane), you'll to contribute to [`rudder-integrations-config`](https://github.com/rudderlabs/rudder-integrations-config) repository as well.
+### 6. Configurations for the integration (in `rudder-integrations-config` repository)
 
-- Navigate to [`src/configurations/destinations`](./src/configurations/destinations)
-- Add necessary configuration files for dashboard setup
-- Prepare integration documentation or planning documents
+In order to allow user to configure your integration via the RudderStack UI (control plane), you'll need to contribute to [`rudder-integrations-config`](https://github.com/rudderlabs/rudder-integrations-config) repository.
 
-#### UI configuration
-Two approaches for adding UI configurations:
+Create a new folder for your integration under [`src/configurations/destinations`](https://github.com/rudderlabs/rudder-integrations-config/tree/develop/src/configurations/destinations) and then add the necessary configuration files as following.
 
-1. **Manual configuration**
-   - Add config files in `src/configurations/destinations`
-   - Use existing templates as reference
+**Two approaches for adding UI configurations:**
 
-2. **Automated generation**
+A. **Automated generation:**
+   Create a placeholder file by changing the values in the template available at [`src/test/configData/inputData.json`](https://github.com/rudderlabs/rudder-integrations-config/blob/develop/test/configData/inputData.json) and then run following command
    ```bash
    python3 scripts/configGenerator.py <path-to-placeholder-file>
    ```
+B. **Manual configuration:**
+   Add config files in `src/configurations/destinations` using the [existing templates](https://github.com/rudderlabs/rudder-integrations-config/blob/develop/test/configData/inputData.json) as reference.
+* Define the necessary configuration fields, such as API keys or customer IDs
+* `db-config.json`: Define the fields needed for the web source in this file. Field names are immutable and should be intuitive
+    * Include the integration's name, display name, supported sources, connection modes, and configuration fields
+    * Specify secret keys for secure storage
+* `ui-config.json`: Specify how the fields should be presented in the RudderStack dashboard, such as text boxes or dropdowns
+* `schema.json`: Define validation rules for the data, using JSON schema specification. Test data should be created for schema validation
+
+**Best practices of configuration management:**
+
+Decide which configurations should be set via the UI/dashboard and which can be passed in code to an event integration property object at the client side, following key points will help in making the decision:
+
+  * Configurations in the UI/dashboard are meant for authentication and customizing integration behavior
+  * Avoid over-complicating configurations in the UI, as this can be confusing.
+  * Using the config via UI allows changes without needing to update app instrumentation
+  * Config options in the UI are generic, whereas the integration object can also customize the behavior per event
 
 
-## Deployment and support
+### 7. Deployment and support
 Once development is complete:
 1. The RudderStack team will handle production deployment
 2. An announcement will be made in the [Release Notes](https://www.rudderstack.com/docs/releases/) and Slack `#product-releases` channel
@@ -269,7 +288,7 @@ Once development is complete:
    - GitHub PR feedback
    - [RudderStack Slack community](https://rudderstack.com/join-rudderstack-slack-community/) `#contributing-to-rudderstack` channel
 
-## Best practices
+### 8. Best practices
 - Draft the integration plan document before coding
 - Be judicious in choosing where you want to allow integration users to configure settings (in the control plane vs the sdk instrumentation code)
 - Follow existing integration examples
@@ -288,7 +307,7 @@ Building a RudderStack integration requires attention to detail and thorough tes
 
 ----
 
-### We look forward to your feedback on improving this project!
+We look forward to your feedback on improving this project!
 
 <!----variables---->
 
