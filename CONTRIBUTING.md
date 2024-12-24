@@ -13,8 +13,7 @@ Thanks for taking the time and for your help in improving this project!
 
 ## RudderStack Contributor Agreement
 
-To contribute to this project, we need you to sign the [**Contributor License Agreement (“CLA”)**][CLA] for the first commit you make. By agreeing to the [**CLA**][CLA]
-we can add you to list of approved contributors and review the changes proposed by you.
+To contribute to this project, we need you to sign the [**Contributor License Agreement (“CLA”)**][CLA] for the first commit you make. By agreeing to the [**CLA**][CLA] we can add you to list of approved contributors and review the changes proposed by you.
 
 ## Contribute to this project
 
