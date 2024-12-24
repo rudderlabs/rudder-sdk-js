@@ -3,13 +3,24 @@ name: Update cache control policy
 on:
   workflow_dispatch:
     inputs:
-      policy_type:
+      cache_type:
         type: choice
         description: Select the cache control policy type
         required: true
         options:
-          - no-store
-          - max-age=3600
+          - none
+          - cache
+      environment:
+        type: choice
+        description: The environment to update the cache control policy
+        required: false
+        options:
+          - production
+          - staging
+          - development
+      path_pattern:
+        description: The path pattern to update the cache control policy
+        required: false
 
 permissions:
   id-token: write # allows the JWT to be requested from GitHub's OIDC provider
@@ -18,7 +29,8 @@ permissions:
 jobs:
   validate-actor:
     # Only allow to be deployed from tags and main branch
-    if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main'
+    # if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/chore.update-cache-policy-workflow-sdk-2711'
     uses: ./.github/workflows/validate-actor.yml
     secrets:
       PAT: ${{ secrets.PAT }}
@@ -38,31 +50,67 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_PROD_ACCOUNT_ID }}:role/${{ secrets.AWS_PROD_S3_SYNC_ROLE }}
           aws-region: us-east-1
 
-      - name: Determine the cache control policy
-        id: determine_policy
+      - name: Set `cache_type` and response headers policy ID
         run: |
-          echo "cache_control_policy=${{ github.event.inputs.policy_type || inputs.policy_type }}" >> $GITHUB_ENV
+          echo "cache_type=${{ github.event.inputs.cache_type }}" >> $GITHUB_ENV
+          echo "RESPONSE_HEADERS_POLICY_ID=${{ secrets.AWS_PROD_CF_RESPONSE_HEADERS_POLICY_ID }}" >> $GITHUB_ENV
 
-      - name: Update cache control policy
+      - name: Determine the path patterns
+        id: determine-path-patterns
         run: |
-          # Get the number of CPU cores in the runner and leave one core free
-          num_cores=$(nproc --ignore=1 || echo 1) # Default to 1 if nproc is unavailable
-          # Use a factor to set the parallel jobs (e.g., number of cores or slightly lower)
-          parallel_jobs=$((num_cores * 2))
-          echo "Detected $num_cores cores. Using $parallel_jobs parallel jobs."
+          # if the path pattern is provided, use it
+          # Otherwise, determine the path patterns in an array based on the environment
+          if [ -n "${{ github.event.inputs.path_pattern }}" ]; then
+            echo "path_patterns=${{ github.event.inputs.path_pattern }}" >> $GITHUB_ENV
+          else
+            case ${{ github.event.inputs.environment }} in
+              production)
+                echo "path_patterns=adobe-analytics-js v3 v1.1" >> $GITHUB_ENV
+                ;;
+              staging)
+                echo "path_patterns=staging" >> $GITHUB_ENV
+                ;;
+              development)
+                echo "path_patterns=dev" >> $GITHUB_ENV
+                ;;
+              *)
+                echo "Invalid environment provided: ${{ github.event.inputs.environment }}"
+                exit 1
+                ;;
+            esac
+          fi
 
-          prefixes=("adobe-analytics-js" "v3" "v1.1")
-          
-          for prefix in "${prefixes[@]}"; do
-            echo "Processing prefix: $prefix"
-            
-            aws s3api list-objects --bucket ${{ secrets.AWS_PROD_S3_BUCKET_NAME }} --prefix "$prefix" --query "Contents[].Key" --output text | tr '\t' '\n' | \
-            parallel --retries 10 -j "$parallel_jobs" "aws s3api copy-object \
-                --bucket ${{ secrets.AWS_PROD_S3_BUCKET_NAME }} \
-                --copy-source ${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/{} \
-                --key {} \
-                --metadata-directive REPLACE \
-                --cache-control '${{ env.cache_control_policy }}'"
+      - name: Get CloudFront Distribution Config
+        run: |
+          aws cloudfront get-distribution-config --id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --output yaml > dist-config.yaml
+
+      - name: Modify Distribution Config for Response Headers Policy
+        run: |
+          yq -i "
+            .IfMatch = .ETag |
+            del(.ETag)
+          " dist-config.yaml
+
+          # Load the path patterns into an array
+          IFS=' ' read -r -a path_patterns <<< "${{ env.path_patterns }}"
+
+          # Loop through each path pattern and modify the config
+          for path_pattern in "${path_patterns[@]}"; do
+            yq -i "
+              .DistributionConfig.CacheBehaviors.Items[] |=
+              (if .PathPattern == \"${path_pattern}\" then
+                if \"${{ env.cache_type }}\" == \"cache\" then
+                  .ResponseHeadersPolicyId = \"${{ env.RESPONSE_HEADERS_POLICY_ID }}\"
+                else
+                  del(.ResponseHeadersPolicyId)
+                end
+              else .
+              end)
+            " dist-config.yaml
           done
 
-
+      - name: Update CloudFront Distribution
+        run: |
+          aws cloudfront update-distribution \
+            --id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} \
+            --cli-input-yaml file://dist-config.yaml
