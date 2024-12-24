@@ -10,6 +10,7 @@ Thanks for taking the time and for your help in improving this project!
 - [**Committing**](#committing)
 - [**Installing and setting up RudderStack**](#installing-and-setting-up-rudderstack)
 - [**Getting help**](#getting-help)
+- [**Guide to develop your first RudderStack integration**](#guide-to-develop-your-first-rudderstack-integration)
 
 ## RudderStack Contributor Agreement
 
@@ -51,39 +52,40 @@ For any questions, concerns, or queries, you can start by asking a question on o
 <br><br>
 
 ----
-# Guide to develop your first device mode RudderStack integration
 
-Before diving into RudderStack integration development, it's essential to understand the [RudderStack Event Specification](https://www.rudderstack.com/docs/event-spec/standard-events/). This specification serves as the foundation for collecting data in a consistent format and then transforming data for the target destinations. In this guide, we'll focus specifically on developing a destination integration in device mode integration type.
+# Guide to develop your first RudderStack integration
 
-## Understanding integration types
-RudderStack supports two primary integration modes:
+Before diving into RudderStack integration development, it's essential to understand the [RudderStack Event Specification](https://www.rudderstack.com/docs/event-spec/standard-events/). This specification serves as the foundation for collecting data in a consistent format and then transforming data for the target destinations. 
 
-1. **Cloud Mode Integration**: Events are routed through the RudderStack data plane in this mode
-2. **Device Mode Integration**: Events are sent directly from the client to the destination in this mode
+## Understanding connection modes - Cloud vs Device mode
+RudderStack primarily supports two [connection modes](https://www.rudderstack.com/docs/destinations/rudderstack-connection-modes) - Cloud and Device mode. The development plan is different for both modes.
 
-## Device mode integration development journey
+1. **Cloud Mode Integration**: Events are routed through the [RudderStack data plane](https://github.com/rudderlabs/rudder-server) in this mode. The [`rudder-transformer`](https://github.com/rudderlabs/rudder-transformer) is responsible to transform events data in this mode.
+2. **Device Mode Integration**: Events are sent directly from the client to the destination in this mode. Depending upon the client where you are collecting events from, the respective RudderStack client SDK (e.g. `rudder-sdk-js` for the web client) is responsible to transform and deliver these events (using the destination SDK).
 
-### 1. Initial setup and configuration
-First, you'll need to configure the RudderStack UI in the [`rudder-integrations-config`](https://github.com/rudderlabs/rudder-integrations-config) repository:
-- Navigate to [`src/configurations/destinations`](./src/configurations/destinations)
-- Add necessary configuration files for dashboard setup
-- Prepare integration documentation or planning documents
+## Developing _cloud mode_ RudderStack integration
+Follow the guide in [Contributing.md of the `rudder-transfomer` repo](https://github.com/rudderlabs/rudder-transformer/blob/docs-contrib-guide/CONTRIBUTING.md#building-your-first-custom-rudderStack-destination-integration) as
+the `rudder-transformer` is responsible for the **cloud mode** transformation.
 
-#### UI configuration
-Two approaches for adding UI configurations:
+## Developing _device mode_ RudderStack integration
 
-1. **Manual configuration**
-   - Add config files in `src/configurations/destinations`
-   - Use existing templates as reference
+In this guide, we'll focus specifically on developing a destination integration in device mode integration type. Should you choose device mode integration over cloud mode integration? Following information should help you make the decision.
 
-2. **Automated generation**
-   ```bash
-   python3 scripts/configGenerator.py <path-to-placeholder-file>
-   ```
+**Benefits of _device mode_ integrations**
 
-### 2. Core development steps
+* Device mode is useful when you need capabilities that can only be accessed natively via a destination's SDK, such as push notifications.
+* It can also be faster and cheaper because events are delivered directly, without going through RudderStack servers.
 
-#### Setting up the development environment
+**Disadvantages of _device mode_ integrations**
+
+* Device mode integrations impact website performance negatively by adding third-party SDKs
+* Makes it hard to collect **first-party** data
+* Prone to ad blockers
+
+If _device mode_ integration does not seem suitable, go ahead with the _cloud mode_ inregration development instead and follow [this guide](https://github.com/rudderlabs/rudder-transformer/blob/docs-contrib-guide/CONTRIBUTING.md#building-your-first-custom-rudderStack-destination-integration)).
+
+### Setting up the development environment
+
 ```bash
 # Clone the repository
 git clone https://github.com/rudderlabs/rudder-sdk-js
@@ -95,13 +97,36 @@ npm run setup
 npm run clean && npm cache clean --force && npm run setup
 ```
 
-#### Essential components
+#### Understanding the code structure
+
+The repository is a monorepo, with different packages under the `packages` directory.
+
+* `analytics-js`: The main JavaScript SDK
+* `analytics-js-integrations`: Hosts device mode integrations
+* `analytics-js-plugins`: Optional features for the SDK
+* `analytics-js-common`: Common code used by other packages
+
+**Tooling:**
+
+* Rollup: Bundles JavaScript code
+* Babel: Transpiles code
+* ESLint: Catches lint issues
+* Jest: Unit test framework
+* NX: Manages the monorepo and CI/CD
+* Size Limit: Checks the sizes of final bundles
+
+### Essential components
 Your integration will require several key files:
 
 1. **Constants definition** (`/packages/analytics-js-common/src/constants/integrations`)
+
+Start by creating a new folder in `analytics-js-common` package, under `/packages/analytics-js-common/src/constants/integrations` for the new integration (e.g., test-integration-1). 
+We will define few basic constants mandatorily required for all the integrations.
    - Integration name
    - Display name
    - Directory name
+
+This can be done by creating a `constants.ts` with `NAME`, `DISPLAY_NAME`, and `DIR_NAME` at minimum.
 
 The integration and display names should be referred from the auto-generated file in `/packages/analytics-js-common/src/constants/integrations/Destinations.ts`. See the existing integrations for reference.
 
@@ -215,6 +240,26 @@ Implement automated tests for your integration:
 # Run tests for specific integration at packages/analytics-js-integrations/
 npm run test -- TestIntegrationOne/
 ```
+
+### Configurations for the integration
+In order to allow user to configure your integration via the RudderStack UI (control plane), you'll to contribute to [`rudder-integrations-config`](https://github.com/rudderlabs/rudder-integrations-config) repository as well.
+
+- Navigate to [`src/configurations/destinations`](./src/configurations/destinations)
+- Add necessary configuration files for dashboard setup
+- Prepare integration documentation or planning documents
+
+#### UI configuration
+Two approaches for adding UI configurations:
+
+1. **Manual configuration**
+   - Add config files in `src/configurations/destinations`
+   - Use existing templates as reference
+
+2. **Automated generation**
+   ```bash
+   python3 scripts/configGenerator.py <path-to-placeholder-file>
+   ```
+
 
 ## Deployment and support
 Once development is complete:
