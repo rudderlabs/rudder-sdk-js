@@ -27,19 +27,19 @@ One way you can contribute to this project is by adding integrations of your cho
 
 ### How to build the SDK
 
-- Look for run scripts in the `package.json` file for getting the browser minified and non-minified builds. The builds are updated in the `dist` folder of the directory. Among the others, some of the important ones are:
+- Look for run scripts in the `package.json` file for getting the builds. The builds are updated in the `dist` directory of corresponding package directories. Among the others, some of the important ones are:
 
-  - `npm run build:browser`: This outputs **rudder-analytics.min.js**.
-  - `npm run build:npm`: This outputs **rudder-sdk-js** folder that contains the npm package contents.
-  - `npm run build:integration:all`: This outputs **integrations** folder that contains the integrations.
+  - `npm run build:browser:modern`: This outputs **dist/cdn/modern** folder that contains the CDN package contents.
+  - `npm run build:npm:modern`: This outputs **dist/npm/modern** folder that contains the NPM package contents.
+  - `npm run build:integrations`: This outputs **dist/cdn/legacy** and **dist/cdn/modern** folders that contains the integration SDKs.
 
-> We use **rollup** to build our SDKs. The configurations for them are present in `rollup-configs` folder.
-
-- For adding or removing integrations, modify the imports in `index.js` under the `src/integrations` folder.
+> We use **rollup** to build our SDKs. Each package directory contains the configuration for it in `rollup.config.mjs`.
 
 ## Committing
 
-We prefer squash or rebase commits so that all changes from a branch are committed to master as a single commit. All pull requests are squashed when merged, but rebasing prior to merge gives you better control over the commit message.
+Please raise a pull request from your forked repository to the `develop` branch of the main repository.
+
+We prefer squash commits so that all changes from a branch are committed to `develop` branch as a single commit. All pull requests are squashed when merged, but rebasing prior to merge gives you better control over the commit message.
 
 ## Installing and setting up RudderStack
 
@@ -61,7 +61,7 @@ RudderStack supports two primary integration modes:
 1. **Cloud Mode Integration**: Events are routed through the RudderStack data plane in this mode
 2. **Device Mode Integration**: Events are sent directly from the client to the destination in this mode
 
-## Integration development journey
+## Device mode integration development journey
 
 ### 1. Initial setup and configuration
 First, you'll need to configure the RudderStack UI in the [`rudder-integrations-config`](https://github.com/rudderlabs/rudder-integrations-config) repository:
@@ -69,14 +69,30 @@ First, you'll need to configure the RudderStack UI in the [`rudder-integrations-
 - Add necessary configuration files for dashboard setup
 - Prepare integration documentation or planning documents
 
+#### UI configuration
+Two approaches for adding UI configurations:
+
+1. **Manual configuration**
+   - Add config files in `src/configurations/destinations`
+   - Use existing templates as reference
+
+2. **Automated generation**
+   ```bash
+   python3 scripts/configGenerator.py <path-to-placeholder-file>
+   ```
+
 ### 2. Core development steps
 
 #### Setting up the development environment
 ```bash
 # Clone the repository
 git clone https://github.com/rudderlabs/rudder-sdk-js
+
 # Setup the project
 npm run setup
+
+# To reset the project setup
+npm run clean && npm cache clean --force && npm run setup
 ```
 
 #### Essential components
@@ -87,9 +103,13 @@ Your integration will require several key files:
    - Display name
    - Directory name
 
+The integration and display names should be referred from the auto-generated file in `/packages/analytics-js-common/src/constants/integrations/Destinations.ts`. See the existing integrations for reference.
+
+The directory name is the name of the integration directory in the `packages/analytics-js-integrations/src/integrations` directory. It should not contain any special characters or spaces.
+
 2. **Main integration code** (`packages/analytics-js-integrations/src/integrations`)
    ```javascript
-   // index.js and browser.js structure
+   // browser.js structure
    class TestIntegrationOne {
      constructor(config, analytics, destinationInfo) {
        // initialization code
@@ -112,6 +132,17 @@ Your integration will require several key files:
    }
    ```
 
+- `config` object contains the destination configuration settings.
+   - You can refer to individual configuration settings using `config.<setting_name>`.
+- `analytics` object is the RudderStack SDK instance. 
+   - It supports all the standard methods like `track`, `identify`, `page`, etc. along with getter methods like `getAnonymousId`, `getUserId`, etc.
+- `rudderElement` object is a wrapper around the actual standard RudderStack event object.
+   ```json
+   {
+      "message": <Event payload>
+   }
+   ```
+
 ### 3. Building and testing
 
 #### Build process
@@ -128,29 +159,62 @@ npm run build:integration:modern --environment INTG_NAME:TestIntegrationOne
    ```bash
    npx serve dist/cdn/js-integrations
    ```
+   The bundle will be served at `http://localhost:3000`.
+
 2. Configure test environment:
-   - Modify `public/index.html` for mock source config
-   - Set environment variables (WRITE_KEY, DATAPLANE_URL)
+   - Modify `packages/analytics-js/public/index.html` to mock source configuration data and point to the local integrations bundle.
+      ```javascript
+      rudderanalytics.load(writeKey, dataPlaneUrl, {
+         destSDKBaseURL: 'http://localhost:3000',
+         getSourceConfig: () => ({
+            updatedAt: new Date().toISOString(),
+            source: {
+               // Use valid values from RS dashboard
+               name: SOURCE_NAME,
+               id: SOURCE_ID,
+               workspaceId: WORKSPACE_ID,
+               writeKey: WRITE_KEY,
+               updatedAt: new Date().toISOString(),
+               config: { 
+                  statsCollection: {
+                     errors: {
+                        enabled: false
+                     },
+                     metrics: {
+                        enabled: false
+                     },
+                  }
+               },
+               enabled: true,
+               destinations: [
+                  {
+                     config: {
+                           id: 'someId',
+                           ... add other properties as needed
+                     },
+                     id: 'dummyDestinationId',
+                     enabled: true,
+                     deleted: false,
+                     destinationDefinition: {
+                           name: 'TestIntegrationOne',
+                           displayName: 'Test Integration One',
+                     }
+                  }
+               ]
+            }
+         })
+      });
+      ```
+   - Set environment variables (WRITE_KEY, DATAPLANE_URL) in `.env` file.
    - Run `npm run start`
 
 ### 4. Automated testing
 Implement automated tests for your integration:
+
 ```bash
-# Run tests for specific destination
-npm run test:ts -- component --destination=my_destination
+# Run tests for specific integration at packages/analytics-js-integrations/
+npm run test -- TestIntegrationOne/
 ```
-
-### 5. UI configuration
-Two approaches for adding UI configurations:
-
-1. **Manual configuration**
-   - Add config files in `src/configurations/destinations`
-   - Use existing templates as reference
-
-2. **Automated generation**
-   ```bash
-   python3 scripts/configGenerator.py <path-to-placeholder-file>
-   ```
 
 ## Deployment and support
 Once development is complete:
