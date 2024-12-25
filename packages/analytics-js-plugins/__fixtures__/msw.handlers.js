@@ -40,7 +40,7 @@ const handlers = [
       status: 500,
     });
   }),
-  http.get(`https://asdf.com/bugsnag.min.js`, () => {
+  http.get(`__RS_BUGSNAG_SDK_URL__`, () => {
     return new HttpResponse(errorMessage, {
       status: 404,
     });

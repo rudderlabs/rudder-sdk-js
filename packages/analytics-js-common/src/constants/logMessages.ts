@@ -17,6 +17,8 @@ const JSON_STRINGIFY_WARNING = `Failed to convert the value to a JSON string.`;
 const BAD_DATA_WARNING = (context: string, key: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}A bad data (like circular reference, BigInt) has been detected in the object and the property "${key}" has been dropped from the output.`;
 
+const COOKIE_DATA_ENCODING_ERROR = `Failed to encode the cookie data.`;
+
 export {
   LOG_CONTEXT_SEPARATOR,
   SCRIPT_ALREADY_EXISTS_ERROR,
@@ -25,4 +27,5 @@ export {
   CIRCULAR_REFERENCE_WARNING,
   JSON_STRINGIFY_WARNING,
   BAD_DATA_WARNING,
+  COOKIE_DATA_ENCODING_ERROR,
 };

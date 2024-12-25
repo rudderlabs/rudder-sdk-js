@@ -1,4 +1,4 @@
-import { LINE_ITEMS_CONFIG } from '@rudderstack/analytics-js-common/src/constants/integrations/CommonIntegrationsConstant/constants';
+import { LINE_ITEMS_CONFIG } from '@rudderstack/analytics-js-common/constants/integrations/CommonIntegrationsConstant/constants';
 import { payloadBuilder, payloadBuilderInList } from '../../../src/integrations/Podsights/utils';
 
 describe('payloadBuilder', () => {
