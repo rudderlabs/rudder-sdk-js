@@ -1,7 +1,7 @@
-import { isNull } from '@rudderstack/analytics-js-common/utilities/checks';
-import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import type { CookieOptions } from '@rudderstack/analytics-js-common/types/Storage';
-import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { isNull } from '../utilities/checks';
+import type { Nullable } from '../types/Nullable';
+import type { CookieOptions } from '../types/Storage';
+import type { ILogger } from '../types/Logger';
 import { COOKIE_DATA_ENCODING_ERROR } from '../constants/logMessages';
 
 /**
@@ -119,7 +119,7 @@ const cookie = function (
   value?: Nullable<string | number>,
   options?: CookieOptions,
   logger?: ILogger,
-): void | any {
+): any {
   switch (arguments.length) {
     case 4:
     case 3:

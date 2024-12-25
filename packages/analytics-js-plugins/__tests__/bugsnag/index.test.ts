@@ -1,33 +1,10 @@
-import { signal } from '@preact/signals-core';
-import { clone } from 'ramda';
+import type { ExtensionPoint } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { Bugsnag } from '../../src/bugsnag';
 import * as bugsnagConstants from '../../src/bugsnag/constants';
+import { resetState, state } from '../../__mocks__/state';
 
 describe('Plugin - Bugsnag', () => {
-  const originalState = {
-    plugins: {
-      loadedPlugins: signal([]),
-    },
-    lifecycle: {
-      writeKey: signal('dummy-write-key'),
-    },
-    source: signal({
-      id: 'test-source-id',
-    }),
-    context: {
-      app: signal({
-        name: 'test-app',
-        namespace: 'test-namespace',
-        version: '1.0.0',
-        installType: 'npm',
-      }),
-    },
-  };
-
-  let state: any;
-
   const origApiKey = bugsnagConstants.API_KEY;
-  const origMaxSDKWait = bugsnagConstants.MAX_WAIT_FOR_SDK_LOAD_MS;
 
   const mountBugsnagSDK = () => {
     (window as any).bugsnag = jest.fn(() => ({
@@ -39,21 +16,28 @@ describe('Plugin - Bugsnag', () => {
   };
 
   beforeEach(() => {
-    state = clone(originalState);
+    resetState();
     delete (window as any).bugsnag;
-    bugsnagConstants.API_KEY = origApiKey;
-    bugsnagConstants.MAX_WAIT_FOR_SDK_LOAD_MS = origMaxSDKWait;
+
+    Object.defineProperty(bugsnagConstants, 'API_KEY', {
+      value: origApiKey,
+      writable: true,
+    });
   });
 
   it('should add Bugsnag plugin in the loaded plugin list', () => {
-    Bugsnag().initialize(state);
+    Bugsnag().initialize?.(state);
     expect(state.plugins.loadedPlugins.value.includes('Bugsnag')).toBe(true);
   });
 
   it('should reject the promise if the Api Key is not valid', async () => {
-    bugsnagConstants.API_KEY = '{{ dummy api key }}';
+    Object.defineProperty(bugsnagConstants, 'API_KEY', {
+      value: '{{ dummy api key }}',
+      writable: true,
+    });
 
-    const pluginInitPromise = Bugsnag().errorReportingProvider.init();
+    // eslint-disable-next-line @typescript-eslint/dot-notation
+    const pluginInitPromise = (Bugsnag().errorReportingProvider as ExtensionPoint)?.init?.();
 
     await expect(pluginInitPromise).rejects.toThrow(
       'The Bugsnag API key ({{ dummy api key }}) is invalid or not provided.',
@@ -61,29 +45,45 @@ describe('Plugin - Bugsnag', () => {
   });
 
   it('should reject the promise if the Bugsnag client could not be initialized', async () => {
-    bugsnagConstants.MAX_WAIT_FOR_SDK_LOAD_MS = 1000;
+    jest.useFakeTimers();
+    jest.setSystemTime(0);
 
     const mockExtSrcLoader = {
       loadJSFile: jest.fn(() => Promise.resolve()),
     };
 
-    const pluginInitPromise = Bugsnag().errorReportingProvider.init(state, mockExtSrcLoader);
+    const pluginInitPromise = (Bugsnag().errorReportingProvider as ExtensionPoint)?.init?.(
+      state,
+      mockExtSrcLoader,
+    );
+
+    // Advance timers to trigger the timeout
+    jest.advanceTimersByTime(10000);
 
     await expect(pluginInitPromise).rejects.toThrow(
-      'A timeout 1000 ms occurred while trying to load the Bugsnag SDK.',
+      'A timeout 10000 ms occurred while trying to load the Bugsnag SDK.',
     );
+
+    jest.useRealTimers();
   });
 
   it('should initialize the Bugsnag SDK and return the client instance', async () => {
-    setTimeout(() => {
-      mountBugsnagSDK();
-    }, 500);
+    jest.useFakeTimers();
+    jest.setSystemTime(0);
 
     const mockExtSrcLoader = {
       loadJSFile: jest.fn(() => Promise.resolve()),
     };
 
-    const pluginInitPromise = Bugsnag().errorReportingProvider.init(state, mockExtSrcLoader);
+    const pluginInitPromise = (Bugsnag().errorReportingProvider as ExtensionPoint)?.init?.(
+      state,
+      mockExtSrcLoader,
+    );
+
+    jest.advanceTimersByTime(1);
+    mountBugsnagSDK();
+
+    jest.runAllTimers();
 
     await expect(pluginInitPromise).resolves.toBeDefined();
   });
@@ -93,7 +93,7 @@ describe('Plugin - Bugsnag', () => {
 
     const mockError = new Error('Test Error');
 
-    Bugsnag().errorReportingProvider.notify(bsClient, mockError);
+    (Bugsnag().errorReportingProvider as ExtensionPoint)?.notify?.(bsClient, mockError);
 
     expect(bsClient.notify).toHaveBeenCalledWith(mockError);
   });
@@ -103,7 +103,7 @@ describe('Plugin - Bugsnag', () => {
 
     const mockMessage = 'Test Breadcrumb';
 
-    Bugsnag().errorReportingProvider.breadcrumb(bsClient, mockMessage);
+    (Bugsnag().errorReportingProvider as ExtensionPoint)?.breadcrumb?.(bsClient, mockMessage);
 
     expect(bsClient.leaveBreadcrumb).toHaveBeenCalledWith(mockMessage);
   });

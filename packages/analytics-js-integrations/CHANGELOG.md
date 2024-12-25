@@ -2,6 +2,33 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.11.14](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.11.13...@rudderstack/analytics-js-integrations@3.11.14) (2024-12-17)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.14`
+
+### Bug Fixes
+
+* remove circular dependency in packages ([#1973](https://github.com/rudderlabs/rudder-sdk-js/issues/1973)) ([e525496](https://github.com/rudderlabs/rudder-sdk-js/commit/e5254964310c2c73baaf4d0655c3e4025c5e7d2b))
+
+## [3.11.13](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.11.12...@rudderstack/analytics-js-integrations@3.11.13) (2024-12-09)
+
+
+### Bug Fixes
+
+* revert ms-clarity identify promise handling ([aa92760](https://github.com/rudderlabs/rudder-sdk-js/commit/aa92760087c22c61c4b6e703a2759cfc46f5576b))
+
+## [3.11.12](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.11.11...@rudderstack/analytics-js-integrations@3.11.12) (2024-12-06)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.13`
+
+### Bug Fixes
+
+* microsoft clarity identify error handling ([#1948](https://github.com/rudderlabs/rudder-sdk-js/issues/1948)) ([33ac767](https://github.com/rudderlabs/rudder-sdk-js/commit/33ac7677c8717ac3ce45d34b7efae720b95b1432))
+
 ## [3.11.11](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.11.10...@rudderstack/analytics-js-integrations@3.11.11) (2024-11-22)
 
 ### Dependency Updates
