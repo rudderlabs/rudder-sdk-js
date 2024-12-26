@@ -84,7 +84,7 @@ const identifyEvents = [
             phone: '123456',
             userInterest: 'high',
             source: 'RudderStack',
-            card_number: '4312 4312 4312 4312'
+            card_number: '4312 4312 4312 4312',
           },
         },
         integrations: {},
@@ -1430,7 +1430,7 @@ const pageEvents = [
         extendPageViewParams: false,
         capturePageView: 'rs',
         piiPropertiesToIgnore: [{ piiProperty: '' }],
-      }
+      },
     },
     output: {
       event: 'page_view',

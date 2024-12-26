@@ -24,7 +24,11 @@
     "braces": "3.0.3",
     "micromatch": "4.0.8",
     "serialize-javascript": "6.0.2",
-    "resolve-url-loader": "5.0.0"
+    "resolve-url-loader": "5.0.0",
+    "path-to-regexp": "0.1.12",
+    "cookie": "0.7.2",
+    "cross-spawn": "7.0.6",
+    "http-proxy-middleware": "2.0.7"
   },
   "scripts": {
     "start": "react-scripts start",

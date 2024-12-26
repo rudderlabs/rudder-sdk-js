@@ -26,7 +26,7 @@ class EventRepository {
   initialize(writeKey, url, options) {
     let queueOptions = {};
     let targetUrl = removeTrailingSlashes(url);
-    if (options && options.useBeacon && navigator.sendBeacon) {
+    if (options?.useBeacon && navigator.sendBeacon) {
       if (
         options.beaconQueueOptions &&
         options.beaconQueueOptions != null &&
@@ -37,14 +37,13 @@ class EventRepository {
       targetUrl = `${targetUrl}/beacon/v1/batch`;
       this.queue = new BeaconQueue();
     } else {
-      if (options && options.useBeacon) {
+      if (options?.useBeacon) {
         logger.info(
           '[EventRepository] sendBeacon feature not available in this browser :: fallback to XHR',
         );
       }
       if (
-        options &&
-        options.queueOptions &&
+        options?.queueOptions &&
         options.queueOptions != null &&
         typeof options.queueOptions === 'object'
       ) {

@@ -1,144 +1,144 @@
-import { signal } from '@preact/signals-core';
-import { clone } from 'ramda';
+import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
+import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
+import type { ExtensionPoint } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import { defaultLocalStorage } from '@rudderstack/analytics-js-common/__mocks__/Storage';
 import { StorageMigrator } from '../../src/storageMigrator';
+import { resetState, state } from '../../__mocks__/state';
 
 describe('Plugin - Storage Migrator', () => {
-  const originalState = {
-    plugins: {
-      loadedPlugins: signal([]),
-    },
-  };
   const storageMigrator = StorageMigrator();
-  let state: any;
 
   beforeEach(() => {
-    state = clone(originalState);
-  });
-
-  let storedVal;
-
-  const storageEngine = {
-    getItem: (key: string) => storedVal,
-  };
-
-  const mockLogger = {
-    error: jest.fn(),
-  };
-
-  const mockErrorHandler = {
-    onError: jest.fn(),
-  };
-
-  beforeEach(() => {
-    storedVal = undefined;
+    resetState();
   });
 
   it('should add plugin in the loaded plugin list', () => {
-    storageMigrator.initialize(state);
+    storageMigrator?.initialize?.(state);
     expect(state.plugins.loadedPlugins.value.includes('StorageMigrator')).toBe(true);
   });
 
   it('should migrate legacy encrypted data', () => {
-    storedVal = 'RudderEncrypt:U2FsdGVkX1+5q5jikppUASe8AdIH6O2iORyF41sYXgxzIGiX9whSeVxxww0OK5h/';
-    const migratedVal = storageMigrator.storage?.migrate(
-      null,
-      storageEngine,
-      mockErrorHandler,
-      mockLogger,
+    defaultLocalStorage.setItem(
+      'key',
+      'RudderEncrypt:U2FsdGVkX1+5q5jikppUASe8AdIH6O2iORyF41sYXgxzIGiX9whSeVxxww0OK5h/',
+    );
+
+    const migratedVal = (storageMigrator.storage as ExtensionPoint).migrate?.(
+      'key',
+      defaultLocalStorage,
+      defaultErrorHandler,
+      defaultLogger,
     );
     expect(migratedVal).toBe('1wefk7M3Y1D6EDX4ZpIE00LpKAE');
   });
 
   it('should migrate v3 encrypted data', () => {
-    storedVal = 'RS_ENC_v3_InRlc3QtZGF0YSI=';
-    const migratedVal = storageMigrator.storage?.migrate(
-      null,
-      storageEngine,
-      mockErrorHandler,
-      mockLogger,
+    defaultLocalStorage.setItem('key', 'RS_ENC_v3_InRlc3QtZGF0YSI=');
+
+    const migratedVal = (storageMigrator.storage as ExtensionPoint).migrate?.(
+      'key',
+      defaultLocalStorage,
+      defaultErrorHandler,
+      defaultLogger,
     );
     expect(migratedVal).toBe('test-data');
   });
 
   it('should return null if the stored value is undefined', () => {
-    storedVal = undefined;
-    const migratedVal = storageMigrator.storage?.migrate(
-      null,
-      storageEngine,
-      mockErrorHandler,
-      mockLogger,
+    defaultLocalStorage.setItem('key', undefined);
+
+    const migratedVal = (storageMigrator.storage as ExtensionPoint).migrate?.(
+      'key',
+      defaultLocalStorage,
+      defaultErrorHandler,
+      defaultLogger,
     );
     expect(migratedVal).toBe(null);
   });
 
   it('should return null if the stored value is null', () => {
-    storedVal = null;
-    const migratedVal = storageMigrator.storage?.migrate(
-      null,
-      storageEngine,
-      mockErrorHandler,
-      mockLogger,
+    defaultLocalStorage.setItem('key', null);
+
+    const migratedVal = (storageMigrator.storage as ExtensionPoint).migrate?.(
+      'key',
+      defaultLocalStorage,
+      defaultErrorHandler,
+      defaultLogger,
     );
     expect(migratedVal).toBe(null);
   });
 
   it('should return null if the legacy decrypted value is undefined', () => {
-    storedVal = 'RudderEncrypt:U2FsdGVkX195kUN9L968e0E/eu8CtnDHWt6ALf6bm8E=';
-    const migratedVal = storageMigrator.storage?.migrate(
-      null,
-      storageEngine,
-      mockErrorHandler,
-      mockLogger,
+    defaultLocalStorage.setItem(
+      'key',
+      'RudderEncrypt:U2FsdGVkX195kUN9L968e0E/eu8CtnDHWt6ALf6bm8E=',
+    );
+
+    const migratedVal = (storageMigrator.storage as ExtensionPoint).migrate?.(
+      'key',
+      defaultLocalStorage,
+      defaultErrorHandler,
+      defaultLogger,
     );
     expect(migratedVal).toBe(null);
   });
 
   it('should return null if the legacy decrypted value is null', () => {
-    storedVal = 'RudderEncrypt:U2FsdGVkX1+SMQ+LKcuk7w/nQ9DEjgU9EUmmBgb/Pfo=';
-    const migratedVal = storageMigrator.storage?.migrate(
+    defaultLocalStorage.setItem(
+      'key',
+      'RudderEncrypt:U2FsdGVkX1+SMQ+LKcuk7w/nQ9DEjgU9EUmmBgb/Pfo=',
+    );
+
+    const migratedVal = (storageMigrator.storage as ExtensionPoint).migrate?.(
       null,
-      storageEngine,
-      mockErrorHandler,
-      mockLogger,
+      defaultLocalStorage,
+      defaultErrorHandler,
+      defaultLogger,
     );
     expect(migratedVal).toBe(null);
   });
 
   it('should return null if the v3 decrypted value is undefined', () => {
-    storedVal = 'RS_ENC_v3_dW5kZWZpbmVk';
-    const migratedVal = storageMigrator.storage?.migrate(
-      null,
-      storageEngine,
-      mockErrorHandler,
-      mockLogger,
+    defaultLocalStorage.setItem('key', 'RS_ENC_v3_dW5kZWZpbmVk');
+
+    const migratedVal = (storageMigrator.storage as ExtensionPoint).migrate?.(
+      'key',
+      defaultLocalStorage,
+      defaultErrorHandler,
+      defaultLogger,
     );
     expect(migratedVal).toBe(null);
   });
 
   it('should return null if the v3 decrypted value is null', () => {
-    storedVal = 'RS_ENC_v3_bnVsbA==';
-    const migratedVal = storageMigrator.storage?.migrate(
+    defaultLocalStorage.setItem('key', 'RS_ENC_v3_bnVsbA==');
+
+    const migratedVal = (storageMigrator.storage as ExtensionPoint).migrate?.(
       null,
-      storageEngine,
-      mockErrorHandler,
-      mockLogger,
+      defaultLocalStorage,
+      defaultErrorHandler,
+      defaultLogger,
     );
     expect(migratedVal).toBe(null);
   });
 
   it('should return null and log error if the stored actual value is not JSON parsable', () => {
-    storedVal = 'RudderEncrypt:U2FsdGVkX1+leaJ/SuyfirUYffyQelWPnCTB93FBo4Y=';
-    const migratedVal = storageMigrator.storage?.migrate(
-      'someKey',
-      storageEngine,
-      mockErrorHandler,
-      mockLogger,
+    defaultLocalStorage.setItem(
+      'key',
+      'RudderEncrypt:U2FsdGVkX1+leaJ/SuyfirUYffyQelWPnCTB93FBo4Y=',
+    );
+
+    const migratedVal = (storageMigrator.storage as ExtensionPoint).migrate?.(
+      'key',
+      defaultLocalStorage,
+      defaultErrorHandler,
+      defaultLogger,
     );
     expect(migratedVal).toBe(null);
-    expect(mockErrorHandler.onError).toHaveBeenCalledWith(
+    expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
       new SyntaxError('Unexpected token \'h\', "hello" is not valid JSON'),
       'StorageMigratorPlugin',
-      'Failed to retrieve or parse data for someKey from storage.',
+      'Failed to retrieve or parse data for key from storage.',
     );
   });
 });

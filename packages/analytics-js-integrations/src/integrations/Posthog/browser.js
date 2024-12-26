@@ -29,7 +29,7 @@ class Posthog {
     this.propertyBlackList = getPropertyBlackList(config);
     this.xhrHeaders = getXhrHeaders(config);
     this.enableLocalStoragePersistence = config.enableLocalStoragePersistence;
-    if(isDefinedAndNotNull(config.personProfiles))  {
+    if (isDefinedAndNotNull(config.personProfiles)) {
       this.personProfiles = config.personProfiles;
     }
     ({
@@ -55,7 +55,7 @@ class Posthog {
       disable_cookie: this.disableCookie,
     };
 
-    if(this.personProfiles) {
+    if (this.personProfiles) {
       configObject.person_profiles = this.personProfiles;
     }
 

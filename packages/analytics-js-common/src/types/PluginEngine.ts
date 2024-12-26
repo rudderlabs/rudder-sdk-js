@@ -17,7 +17,7 @@ export interface ExtensionPlugin {
     | string
     | (() => void)
     | ExtensionPoint
-    | ((...args: any[]) => unknown | void)
+    | ((...args: any[]) => unknown)
     | string[]
     | undefined;
 }

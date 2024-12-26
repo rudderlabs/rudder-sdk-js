@@ -210,9 +210,7 @@ class Analytics {
    */
   integrationSDKLoaded(pluginName, modName) {
     return (
-      window[pluginName] &&
-      window[pluginName][modName] &&
-      window[pluginName][modName].prototype &&
+      window[pluginName]?.[modName]?.prototype &&
       typeof window[pluginName][modName].prototype.constructor !== 'undefined'
     );
   }
@@ -295,7 +293,7 @@ class Analytics {
         try {
           const cookieConsent = CookieConsentFactory.initialize(this.cookieConsentOptions);
           // Fetch denied consent group Ids and pass it to cloud mode
-          this.deniedConsentIds = cookieConsent && cookieConsent.getDeniedList();
+          this.deniedConsentIds = cookieConsent?.getDeniedList();
           // If cookie consent object is return we filter according to consents given by user
           // else we do not consider any filtering for cookie consent.
           this.clientIntegrations = this.clientIntegrations.filter(
@@ -1114,7 +1112,7 @@ class Analytics {
 
   getPageProperties(properties, options) {
     const defaultPageProperties = getDefaultPageProperties();
-    const optionPageProperties = (options && options.page) || {};
+    const optionPageProperties = options?.page || {};
     for (const key in defaultPageProperties) {
       if (properties[key] === undefined) {
         properties[key] = optionPageProperties[key] || defaultPageProperties[key];
@@ -1128,8 +1126,7 @@ class Analytics {
     const defaultPageProperties = getDefaultPageProperties();
     const contextPageProperties = {};
     for (const key in defaultPageProperties) {
-      contextPageProperties[key] =
-        properties && properties[key] ? properties[key] : defaultPageProperties[key];
+      contextPageProperties[key] = properties?.[key] ? properties[key] : defaultPageProperties[key];
     }
     return contextPageProperties;
   }
@@ -1229,7 +1226,7 @@ class Analytics {
       options = serverUrl;
       serverUrl = null;
     }
-    if (options && options.logLevel) {
+    if (options?.logLevel) {
       this.logLevel = options.logLevel;
       logger.setLogLevel(options.logLevel);
     }
@@ -1239,8 +1236,7 @@ class Analytics {
     if (!this.storage || Object.keys(this.storage).length === 0) {
       throw Error('Cannot proceed as no storage is available');
     }
-    if (options && options.cookieConsentManager)
-      this.cookieConsentOptions = options.cookieConsentManager;
+    if (options?.cookieConsentManager) this.cookieConsentOptions = options.cookieConsentManager;
 
     this.writeKey = writeKey;
     this.serverUrl = serverUrl;
@@ -1248,7 +1244,7 @@ class Analytics {
 
     let storageOptions = {};
 
-    if (options && options.setCookieDomain) {
+    if (options?.setCookieDomain) {
       storageOptions = { ...storageOptions, domain: options.setCookieDomain };
     }
 
@@ -1280,7 +1276,7 @@ class Analytics {
       }, this.uaChTrackLevel);
     }
 
-    if (options && options.integrations) {
+    if (options?.integrations) {
       Object.assign(this.loadOnlyIntegrations, options.integrations);
       transformToRudderNames(this.loadOnlyIntegrations);
     }
@@ -1288,20 +1284,16 @@ class Analytics {
     this.useGlobalIntegrationsConfigInEvents =
       options && options.useGlobalIntegrationsConfigInEvents === true;
 
-    if (options && options.sendAdblockPage) {
+    if (options?.sendAdblockPage) {
       this.sendAdblockPage = true;
     }
-    if (
-      options &&
-      options.sendAdblockPageOptions &&
-      typeof options.sendAdblockPageOptions === 'object'
-    ) {
+    if (options?.sendAdblockPageOptions && typeof options.sendAdblockPageOptions === 'object') {
       this.sendAdblockPageOptions = options.sendAdblockPageOptions;
     }
     // Session initialization
     this.uSession.initialize(options);
 
-    if (options && options.clientSuppliedCallbacks) {
+    if (options?.clientSuppliedCallbacks) {
       // convert to rudder recognized method names
       const transformedCallbackMapping = {};
       Object.keys(this.methodToCallbackMapping).forEach(methodName => {
@@ -1317,7 +1309,7 @@ class Analytics {
       this.registerCallbacks(true);
     }
 
-    if (options && options.loadIntegration != undefined) {
+    if (options?.loadIntegration != undefined) {
       this.loadIntegration = !!options.loadIntegration;
     }
 
@@ -1342,10 +1334,10 @@ class Analytics {
     this.destSDKBaseURL = getIntegrationsCDNPath(
       this.version,
       this.lockIntegrationsVersion,
-      options && options.destSDKBaseURL,
+      options?.destSDKBaseURL,
     );
 
-    if (options && options.getSourceConfig) {
+    if (options?.getSourceConfig) {
       if (typeof options.getSourceConfig !== 'function') {
         handleError(new Error('option "getSourceConfig" must be a function'));
       } else {
@@ -1361,7 +1353,7 @@ class Analytics {
     }
 
     let configUrl = getConfigUrl(writeKey, this.lockIntegrationsVersion);
-    if (options && options.configUrl) {
+    if (options?.configUrl) {
       configUrl = getUserProvidedConfigUrl(options.configUrl, configUrl);
     }
 

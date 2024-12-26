@@ -829,16 +829,19 @@ describe('Core - Rudder Analytics Facade', () => {
           enabled: true,
         },
       });
-      expect(rudderAnalyticsInstance.trackPageLifecycleEvents).toHaveBeenCalledWith([
-        ['consent', { sendPageEvent: true }],
-        ['consent', { sendPageEvent: false }],
-        ['track'],
-        ['track'],
-      ], {
-        autoTrack: {
-          enabled: true,
+      expect(rudderAnalyticsInstance.trackPageLifecycleEvents).toHaveBeenCalledWith(
+        [
+          ['consent', { sendPageEvent: true }],
+          ['consent', { sendPageEvent: false }],
+          ['track'],
+          ['track'],
+        ],
+        {
+          autoTrack: {
+            enabled: true,
+          },
         },
-      });
+      );
     });
   });
 });

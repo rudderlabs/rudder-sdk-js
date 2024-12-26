@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-monorepo",
-  "version": "3.68.0",
+  "version": "3.70.0",
   "private": true,
   "description": "Monorepo for RudderStack Analytics JS SDK",
   "workspaces": [
@@ -41,7 +41,7 @@
     "check:pub": "nx run-many -t check:pub --verbose",
     "check:pub:ci": "nx affected -t check:pub --verbose --base=$BASE_REF",
     "format": "prettier --write .",
-    "lint:fix": "eslint . --fix",
+    "lint:fix": "nx run-many -t check:lint --fix",
     "prepare": "husky",
     "pre-commit": "npm run test:pre-commit:affected && npm run check:size:build:pre-commit:affected && npm run check:size:json:pre-commit:affected && npx lint-staged",
     "commit-msg": "commitlint --edit",
@@ -78,7 +78,7 @@
     "@segment/top-domain": "3.0.1",
     "@vespaiach/axios-fetch-adapter": "0.3.1",
     "assert": "2.1.0",
-    "axios": "1.7.7",
+    "axios": "1.7.9",
     "axios-retry": "4.5.0",
     "component-each": "0.2.6",
     "component-emitter": "2.0.0",

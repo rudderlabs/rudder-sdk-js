@@ -73,12 +73,12 @@ describe('Google Analytics 4 utilities tests', () => {
   });
 
   describe('extractLastKey function tests', () => {
-    test('Should extract last key from a string with dot', () => {
+    test('should extract last key from a string with dot', () => {
       const lastKey = extractLastKey('properties.product_id');
       expect(lastKey).toEqual('product_id');
     });
 
-    test('Should return the input string when there is no dot', () => {
+    test('should return the input string when there is no dot', () => {
       const lastKey = extractLastKey('currency');
       expect(lastKey).toEqual('currency');
     });
@@ -314,7 +314,7 @@ describe('Google Analytics 4 utilities tests', () => {
   });
 
   describe('removeInvalidValues function tests', () => {
-    it('Should remove empty values except for "items"', () => {
+    it('should remove empty values except for "items"', () => {
       const params = {
         name: 'John',
         age: 30,
@@ -338,7 +338,7 @@ describe('Google Analytics 4 utilities tests', () => {
   });
 
   describe('filterUserTraits function tests', () => {
-    it('Should update mentioned PII keys value to null', () => {
+    it('should update mentioned PII keys value to null', () => {
       const piiPropertiesToIgnore = [
         { piiProperty: 'email' },
         { piiProperty: 'phone' },
@@ -365,7 +365,7 @@ describe('Google Analytics 4 utilities tests', () => {
       expect(result).toEqual(filteredUserTraits);
     });
 
-    it('Should override values of pii fields to null', () => {
+    it('should override values of pii fields to null', () => {
       const piiPropertiesToIgnore = [
         { piiProperty: 'email' },
         { piiProperty: 'name' },
@@ -391,7 +391,7 @@ describe('Google Analytics 4 utilities tests', () => {
 });
 
 describe('prepareStandardEventParams function tests', () => {
-  it('Should not fail when values are 0', () => {
+  it('should not fail when values are 0', () => {
     const eventConfig = {
       event: 'UserSignup',
       mapping: [
@@ -419,7 +419,7 @@ describe('prepareStandardEventParams function tests', () => {
     });
   });
 
-  it('Should handle mixed types (string, number, array, boolean) in the same payload', () => {
+  it('should handle mixed types (string, number, array, boolean) in the same payload', () => {
     const eventConfig = {
       event: 'UserSignup',
       mapping: [
@@ -489,7 +489,7 @@ describe('prepareStandardEventParams function tests', () => {
     });
   });
 
-  it('Should correctly handle a mix of data types (string, number, array, boolean) and metadata', () => {
+  it('should correctly handle a mix of data types (string, number, array, boolean) and metadata', () => {
     const eventConfig = {
       event: 'UserSignup',
       mapping: [
@@ -541,14 +541,14 @@ describe('prepareStandardEventParams function tests', () => {
       event: 'Purchase',
       mapping: [
         { sourceKeys: ['properties.total'], destKey: 'order_total', required: true },
-        { sourceKeys: ['properties.currency'], destKey: 'currency', required: true }
+        { sourceKeys: ['properties.currency'], destKey: 'currency', required: true },
       ],
     };
 
     const message = {
       properties: {
         // total is missing
-        currency: 'USD'
+        currency: 'USD',
       },
       event: 'Purchase',
     };

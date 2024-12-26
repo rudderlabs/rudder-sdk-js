@@ -1,5 +1,5 @@
+/* eslint-disable class-methods-use-this */
 // eslint-disable-next-line max-classes-per-file
-import { signal } from '@preact/signals-core';
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import {
   wait,
@@ -7,15 +7,31 @@ import {
   createDestinationInstance,
   isDestinationSDKMounted,
 } from '../../src/deviceModeDestinations/utils';
-import * as dmdConstants from '../../src/deviceModeDestinations/constants';
+import type { DeviceModeDestinationsAnalyticsInstance } from '../../src/deviceModeDestinations/types';
+import type { LogLevel } from '../../src/types/plugins';
+import { resetState, state } from '../../__mocks__/state';
 
 describe('deviceModeDestinations utils', () => {
   describe('wait', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+      jest.setSystemTime(0);
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
     it('should return a promise that resolves after the specified time', async () => {
       const time = 1000;
       const startTime = Date.now();
 
-      await wait(time);
+      const waitPromise = wait(time);
+
+      // Advance the timers by the specified time
+      jest.runAllTimers();
+
+      await waitPromise;
 
       const endTime = Date.now();
 
@@ -26,7 +42,12 @@ describe('deviceModeDestinations utils', () => {
       const time = 0;
       const startTime = Date.now();
 
-      await wait(time);
+      const waitPromise = wait(time);
+
+      // Advance the timers by the specified time
+      jest.runAllTimers();
+
+      await waitPromise;
 
       const endTime = Date.now();
 
@@ -37,7 +58,12 @@ describe('deviceModeDestinations utils', () => {
       const time = -1000;
       const startTime = Date.now();
 
-      await wait(time);
+      const waitPromise = wait(time);
+
+      // Advance the timers by the next tick
+      jest.runAllTimers();
+
+      await waitPromise;
 
       const endTime = Date.now();
 
@@ -48,7 +74,13 @@ describe('deviceModeDestinations utils', () => {
       const time = '2 seconds';
       const startTime = Date.now();
 
-      await wait(time);
+      // @ts-expect-error intentionally passing a string
+      const waitPromise = wait(time);
+
+      // Advance the timers by the next tick
+      jest.runAllTimers();
+
+      await waitPromise;
 
       const endTime = Date.now();
 
@@ -57,40 +89,44 @@ describe('deviceModeDestinations utils', () => {
   });
 
   describe('isDestinationReady', () => {
-    const originalInitializedCheckTimeout = dmdConstants.READY_CHECK_TIMEOUT_MS;
-    const originalInitializedPollInterval = dmdConstants.LOAD_CHECK_POLL_INTERVAL;
+    let isLoadedResponse = false;
     const destination = {
       instance: {
-        isLoaded: () => false,
+        isLoaded: () => isLoadedResponse,
       },
       userFriendlyId: 'GA4___1234567890',
     };
 
     beforeEach(() => {
-      // temporarily manipulate the timeout and interval constants to speed up the test
-      dmdConstants.READY_CHECK_TIMEOUT_MS = 200;
-      dmdConstants.LOAD_CHECK_POLL_INTERVAL = 100;
+      jest.useFakeTimers();
+      jest.setSystemTime(0);
     });
 
     afterEach(() => {
-      dmdConstants.READY_CHECK_TIMEOUT_MS = originalInitializedCheckTimeout;
-      dmdConstants.LOAD_CHECK_POLL_INTERVAL = originalInitializedPollInterval;
-      destination.instance.isLoaded = () => false;
+      jest.useRealTimers();
+      isLoadedResponse = false;
     });
 
     it('should return a promise that gets resolved when the destination is ready immediately', async () => {
-      destination.instance.isLoaded = () => true;
+      isLoadedResponse = true;
 
       const isReadyPromise = isDestinationReady(destination as Destination);
+
+      // Fast-forward the timers
+      jest.runAllTimers();
+
       await expect(isReadyPromise).resolves.toEqual(true);
     });
 
     it('should return a promise that gets resolved when the destination is ready after some time', async () => {
+      setTimeout(() => {
+        isLoadedResponse = true;
+      }, 1000);
+
       const isReadyPromise = isDestinationReady(destination as Destination);
 
-      await wait(100);
-
-      destination.instance.isLoaded = () => true;
+      // Fast-forward the timers
+      jest.advanceTimersByTime(1000);
 
       await expect(isReadyPromise).resolves.toEqual(true);
     });
@@ -98,16 +134,19 @@ describe('deviceModeDestinations utils', () => {
     it('should return a promise that gets rejected when the destination is not ready after the timeout', async () => {
       const isReadyPromise = isDestinationReady(destination as Destination);
 
+      // Fast-forward the timers to cause a timeout
+      jest.advanceTimersByTime(11000);
+
       await expect(isReadyPromise).rejects.toThrow(
         new Error(
-          `A timeout of 200 ms occurred while trying to check the ready status for "${destination.userFriendlyId}" destination.`,
+          `A timeout of 11000 ms occurred while trying to check the ready status for "${destination.userFriendlyId}" destination.`,
         ),
       );
     });
   });
 
   describe('createDestinationInstance', () => {
-    class mockAnalytics {
+    class MockAnalytics implements DeviceModeDestinationsAnalyticsInstance {
       page = () => {};
       track = () => {};
       identify = () => {};
@@ -118,24 +157,27 @@ describe('deviceModeDestinations utils', () => {
       getUserTraits = () => ({ trait1: 'value1' });
       getGroupId = () => 'groupId';
       getGroupTraits = () => ({ trait2: 'value2' });
-      getSessionId = () => 'sessionId';
+      getSessionId = () => 123;
+      loadIntegration = true;
+      logLevel = 'DEBUG' as LogLevel;
+      loadOnlyIntegrations = { All: true };
     }
 
     // create two mock instances to later choose based on the write key
-    const mockAnalyticsInstance_writeKey1 = new mockAnalytics();
-    const mockAnalyticsInstance_writeKey2 = new mockAnalytics();
+    const mockAnalyticsInstanceWriteKey1 = new MockAnalytics();
+    const mockAnalyticsInstanceWriteKey2 = new MockAnalytics();
 
-    class mockRudderAnalytics {
-      getAnalyticsInstance = writeKey => {
-        const instancesMap = {
-          '1234567890': mockAnalyticsInstance_writeKey1,
-          '12345678910': mockAnalyticsInstance_writeKey2,
+    class MockRudderAnalytics {
+      getAnalyticsInstance = (writeKey: string) => {
+        const instancesMap: Record<string, MockAnalytics> = {
+          '1234567890': mockAnalyticsInstanceWriteKey1,
+          '12345678910': mockAnalyticsInstanceWriteKey2,
         };
         return instancesMap[writeKey];
       };
     }
 
-    const mockRudderAnalyticsInstance = new mockRudderAnalytics();
+    const mockRudderAnalyticsInstance = new MockRudderAnalytics();
 
     // put destination SDK code on the window object
     const destSDKIdentifier = 'GA4_RS';
@@ -148,7 +190,7 @@ describe('deviceModeDestinations utils', () => {
         [sdkTypeName]: class {
           config: any;
           analytics: any;
-          constructor(config, analytics) {
+          constructor(config: any, analytics: any) {
             this.config = config;
             this.analytics = analytics;
           }
@@ -162,19 +204,7 @@ describe('deviceModeDestinations utils', () => {
     });
 
     it('should return an instance of the destination', () => {
-      const state = {
-        nativeDestinations: {
-          loadIntegration: signal(true),
-          loadOnlyIntegrations: signal({ All: true }),
-        },
-        lifecycle: {
-          logLevel: signal('DEBUG'),
-          writeKey: signal('12345678910'), // mockAnalyticsInstance_writeKey2
-        },
-        consents: {
-          postConsent: signal({}),
-        },
-      };
+      state.lifecycle.writeKey.value = '12345678910'; // write key 2
 
       const destination = {
         config: {
@@ -182,7 +212,7 @@ describe('deviceModeDestinations utils', () => {
         },
         areTransformationsConnected: false,
         id: 'GA4___5678',
-      };
+      } as unknown as Destination;
 
       const destinationInstance = createDestinationInstance(
         destSDKIdentifier,
@@ -195,8 +225,8 @@ describe('deviceModeDestinations utils', () => {
       expect(destinationInstance.config).toEqual(destination.config);
       expect(destinationInstance.analytics).toEqual({
         loadIntegration: true,
-        loadOnlyIntegrations: { All: true },
-        logLevel: 'DEBUG',
+        loadOnlyIntegrations: {},
+        logLevel: 'ERROR',
         alias: expect.any(Function),
         group: expect.any(Function),
         identify: expect.any(Function),
@@ -215,13 +245,15 @@ describe('deviceModeDestinations utils', () => {
       expect(destinationInstance.analytics.getUserTraits()).toEqual({ trait1: 'value1' });
       expect(destinationInstance.analytics.getGroupId()).toEqual('groupId');
       expect(destinationInstance.analytics.getGroupTraits()).toEqual({ trait2: 'value2' });
-      expect(destinationInstance.analytics.getSessionId()).toEqual('sessionId');
+      expect(destinationInstance.analytics.getSessionId()).toEqual(123);
 
       // Making sure that the call gets forwarded to the correct instance
-      const pageCallSpy = jest.spyOn(mockAnalyticsInstance_writeKey2, 'page');
+      const pageCallSpy = jest.spyOn(mockAnalyticsInstanceWriteKey2, 'page');
       destinationInstance.analytics.page();
-      expect(mockAnalyticsInstance_writeKey2.page).toHaveBeenCalled();
+      expect(mockAnalyticsInstanceWriteKey2.page).toHaveBeenCalled();
       pageCallSpy.mockRestore();
+
+      resetState();
     });
   });
 
@@ -234,21 +266,6 @@ describe('deviceModeDestinations utils', () => {
     afterEach(() => {
       delete (window as any)[destSDKIdentifier];
     });
-
-    class MockLogger implements ILogger {
-      warn = jest.fn();
-      log = jest.fn();
-      error = jest.fn();
-      info = jest.fn();
-      debug = jest.fn();
-      minLogLevel = 0;
-      scope = 'test scope';
-      setMinLogLevel = jest.fn();
-      setScope = jest.fn();
-      logProvider = console;
-    }
-
-    const mockLogger = new MockLogger();
 
     it('should return false if the destination SDK is not evaluated', () => {
       expect(isDestinationSDKMounted(destSDKIdentifier, sdkTypeName)).toEqual(false);
@@ -265,6 +282,7 @@ describe('deviceModeDestinations utils', () => {
     it('should return true if the destination SDK is a constructable type', () => {
       (window as any)[destSDKIdentifier] = {
         [sdkTypeName]: class {
+          // eslint-disable-next-line @typescript-eslint/no-useless-constructor, sonarjs/no-useless-constructor, sonarjs/no-empty-function, @typescript-eslint/no-empty-function
           constructor() {}
         },
       };

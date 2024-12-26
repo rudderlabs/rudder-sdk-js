@@ -6,7 +6,7 @@ on:
     types: ['opened', 'reopened', 'synchronize']
 
 env:
-  NODE_OPTIONS: "--no-warnings"
+  NODE_OPTIONS: '--no-warnings'
   BASE_REF: ${{ github.event.pull_request.base.sha || 'HEAD' }}
 
 jobs:
