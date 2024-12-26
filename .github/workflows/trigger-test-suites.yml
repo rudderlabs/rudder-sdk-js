@@ -1,17 +1,6 @@
-name: Run sanity suite on BrowserStack
+name: Trigger Sanity Test Suites
 
 on:
-  workflow_dispatch:
-    inputs:
-      environment:
-        type: choice
-        description: Select specific environment to run the tests
-        options:
-          - staging
-          - production
-      monorepoVersion:
-        description: Version of the Monorepo
-        required: true
   workflow_call:
     inputs:
       environment:
@@ -25,7 +14,7 @@ on:
 jobs:
   extract-monorepo-version:
     name: Extract Monorepo Version
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
 
     outputs:
       version: ${{ steps.determine_version.outputs.current_version }}
@@ -34,7 +23,7 @@ jobs:
       - name: Determine checkout SHA
         id: getSHA
         run: |
-          if [ "${{ github.event.inputs.environment || inputs.environment }}" = 'staging' ]; then
+          if [ "${{ inputs.environment }}" = 'staging' ]; then
             sha=${{ github.event.pull_request.head.sha }}
           else
             sha=${{ github.sha }}
@@ -50,22 +39,31 @@ jobs:
       - name: Determine the Monorepo version
         id: determine_version
         run: |
-          if [ -n "${{ github.event.inputs.monorepoVersion }}" ]; then
-            current_version="${{ github.event.inputs.monorepoVersion }}"
-          else
-            current_version=$(jq -r .version package.json)
-          fi
+          current_version=$(jq -r .version package.json)
           echo "current_version=$current_version" >> $GITHUB_OUTPUT
 
-  trigger:
+  trigger-sanity-test-suite:
     runs-on: [self-hosted, Linux, X64]
     needs: extract-monorepo-version
 
     steps:
-      - name: Trigger sanity suite test workflow on rudder-client-side-test
+      - name: Trigger sanity test suite workflow
         run: |
           curl -X POST \
           -H "Authorization: Bearer ${{ secrets.PAT }}" \
           -H "Accept: application/vnd.github.v3+json" \
-          https://api.github.com/repos/rudderlabs/rudder-client-side-test/dispatches \
-          -d '{"event_type":"triggered_by_source_repo", "client_payload": {"environment": "${{ github.event.inputs.environment || inputs.environment }}", "monorepoVersion": "${{ needs.extract-monorepo-version.outputs.version }}"}}'
+          https://api.github.com/repos/rudderlabs/rudder-client-side-test/actions/workflows/sdk-team-js-sanity-suite.yaml/dispatches \
+          -d '{"inputs": {"environment": "${{ inputs.environment }}", "monorepoVersion": "${{ needs.extract-monorepo-version.outputs.version }}"}}'
+
+  trigger-e2e-test-suite:
+    runs-on: [self-hosted, Linux, X64]
+    needs: extract-monorepo-version
+
+    steps:
+      - name: Trigger E2E test suite workflow
+        run: |
+          curl -X POST \
+          -H "Authorization: Bearer ${{ secrets.PAT }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/rudderlabs/rudder-client-side-test/actions/workflows/sdk-team-js-regression.yaml/dispatches \
+          -d '{"inputs": {"environment": "${{ inputs.environment }}", "monorepoVersion": "${{ needs.extract-monorepo-version.outputs.version }}"}}'

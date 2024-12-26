@@ -26,3 +26,30 @@ jobs:
       BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
+
+  deploy-sanity-suite:
+    name: Deploy sanity suite
+    needs: deploy
+    uses: ./.github/workflows/deploy-sanity-suite.yml
+    with:
+      environment: 'development'
+    secrets:
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_DEV_ACCOUNT_ID }}
+      AWS_S3_BUCKET_NAME: ${{ secrets.AWS_DEV_S3_BUCKET_NAME }}
+      AWS_S3_SYNC_ROLE: ${{ secrets.AWS_DEV_S3_SYNC_ROLE }}
+      AWS_CF_DISTRIBUTION_ID: ${{ secrets.AWS_DEV_CF_DISTRIBUTION_ID }}
+      SANITY_SUITE_WRITE_KEY: ${{ secrets.SANITY_SUITE_DEV_WRITE_KEY }}
+      SANITY_SUITE_DATAPLANE_URL: ${{ secrets.SANITY_SUITE_DEV_DATAPLANE_URL }}
+      SANITY_SUITE_CONFIG_SERVER_HOST: ${{ secrets.SANITY_SUITE_DEV_CONFIG_SERVER_HOST }}
+      BUGSNAG_API_KEY: ${{ secrets.RS_DEV_BUGSNAG_API_KEY }}
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
+
+  trigger-test-suites:
+    uses: ./.github/workflows/trigger-test-suites.yml
+    name: Trigger test suites
+    needs: deploy-sanity-suite
+    with:
+      environment: development
+    secrets:
+      PAT: ${{ secrets.PAT }}

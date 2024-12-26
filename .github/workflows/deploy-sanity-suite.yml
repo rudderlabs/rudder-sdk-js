@@ -7,38 +7,22 @@ on:
         type: string
         required: true
     secrets:
-      AWS_STAGING_ACCOUNT_ID:
-        required: false
-      AWS_PROD_ACCOUNT_ID:
-        required: false
-      AWS_STAGING_S3_BUCKET_NAME:
-        required: false
-      AWS_PROD_S3_BUCKET_NAME:
-        required: false
-      AWS_STAGING_S3_SYNC_ROLE:
-        required: false
-      AWS_PROD_S3_SYNC_ROLE:
-        required: false
-      AWS_STAGING_CF_DISTRIBUTION_ID:
-        required: false
-      AWS_PROD_CF_DISTRIBUTION_ID:
-        required: false
-      SANITY_SUITE_STAGING_WRITE_KEY:
-        required: false
-      SANITY_SUITE_PROD_WRITE_KEY:
-        required: false
-      SANITY_SUITE_STAGING_DATAPLANE_URL:
-        required: false
-      SANITY_SUITE_PROD_DATAPLANE_URL:
-        required: false
-      SANITY_SUITE_STAGING_CONFIG_SERVER_HOST:
-        required: false
-      SANITY_SUITE_PROD_CONFIG_SERVER_HOST:
-        required: false
-      RS_STAGING_BUGSNAG_API_KEY:
-        required: false
-      RS_PROD_BUGSNAG_API_KEY:
-        required: false
+      AWS_ACCOUNT_ID:
+        required: true
+      AWS_S3_BUCKET_NAME:
+        required: true
+      AWS_S3_SYNC_ROLE:
+        required: true
+      AWS_CF_DISTRIBUTION_ID:
+        required: true
+      SANITY_SUITE_WRITE_KEY:
+        required: true
+      SANITY_SUITE_DATAPLANE_URL:
+        required: true
+      SANITY_SUITE_CONFIG_SERVER_HOST:
+        required: true
+      BUGSNAG_API_KEY:
+        required: true
       SLACK_BOT_TOKEN:
         required: true
       SLACK_RELEASE_CHANNEL_ID:
@@ -69,35 +53,17 @@ jobs:
           current_version=$(jq -r .version packages/sanity-suite/package.json)
           echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
           echo "DATE=$(date)" >> $GITHUB_ENV
-
+          echo "BUGSNAG_RELEASE_STAGE=${{ inputs.environment }}" >> $GITHUB_ENV
+          
           if [ "${{ inputs.environment }}" == "staging" ]; then
-            echo "AWS_ACCOUNT_ID=${{ secrets.AWS_STAGING_ACCOUNT_ID }}" >> $GITHUB_ENV
-            echo "AWS_S3_SYNC_ROLE=${{ secrets.AWS_STAGING_S3_SYNC_ROLE }}" >> $GITHUB_ENV
-            echo "AWS_S3_BUCKET_NAME=${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}" >> $GITHUB_ENV
-            echo "AWS_CF_DISTRIBUTION_ID=${{ secrets.AWS_STAGING_CF_DISTRIBUTION_ID }}" >> $GITHUB_ENV
-
-            echo "WRITE_KEY=${{ secrets.SANITY_SUITE_STAGING_WRITE_KEY }}" >> $GITHUB_ENV
-            echo "DATAPLANE_URL=${{ secrets.SANITY_SUITE_STAGING_DATAPLANE_URL }}" >> $GITHUB_ENV
-            echo "CONFIG_SERVER_HOST=${{ secrets.SANITY_SUITE_STAGING_CONFIG_SERVER_HOST }}" >> $GITHUB_ENV
-            echo "BUGSNAG_API_KEY=${{ secrets.RS_STAGING_BUGSNAG_API_KEY }}" >> $GITHUB_ENV
-            echo "BUGSNAG_RELEASE_STAGE=staging" >> $GITHUB_ENV
-
             echo "SDK_CDN_VERSION_PATH_PREFIX=staging/latest/" >> $GITHUB_ENV
             echo "SUITE_CDN_PATH=/staging/" >> $GITHUB_ENV
           elif [ "${{ inputs.environment }}" == "production" ]; then
-            echo "AWS_ACCOUNT_ID=${{ secrets.AWS_PROD_ACCOUNT_ID }}" >> $GITHUB_ENV
-            echo "AWS_S3_SYNC_ROLE=${{ secrets.AWS_PROD_S3_SYNC_ROLE }}" >> $GITHUB_ENV
-            echo "AWS_S3_BUCKET_NAME=${{ secrets.AWS_PROD_S3_BUCKET_NAME }}" >> $GITHUB_ENV
-            echo "AWS_CF_DISTRIBUTION_ID=${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }}" >> $GITHUB_ENV
-
-            echo "WRITE_KEY=${{ secrets.SANITY_SUITE_PROD_WRITE_KEY }}" >> $GITHUB_ENV
-            echo "DATAPLANE_URL=${{ secrets.SANITY_SUITE_PROD_DATAPLANE_URL }}" >> $GITHUB_ENV
-            echo "CONFIG_SERVER_HOST=${{ secrets.SANITY_SUITE_PROD_CONFIG_SERVER_HOST }}" >> $GITHUB_ENV
-            echo "BUGSNAG_API_KEY=${{ secrets.RS_PROD_BUGSNAG_API_KEY }}" >> $GITHUB_ENV
-            echo "BUGSNAG_RELEASE_STAGE=production" >> $GITHUB_ENV
-
             echo "SDK_CDN_VERSION_PATH_PREFIX=" >> $GITHUB_ENV
             echo "SUITE_CDN_PATH=/" >> $GITHUB_ENV
+          else
+            echo "SDK_CDN_VERSION_PATH_PREFIX=dev/latest/" >> $GITHUB_ENV
+            echo "SUITE_CDN_PATH=/dev/" >> $GITHUB_ENV
           fi
 
       - name: Install AWS CLI
@@ -106,7 +72,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/${{ env.AWS_S3_SYNC_ROLE }}
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_S3_SYNC_ROLE }}
           aws-region: us-east-1
 
       - name: Setup Node
@@ -123,10 +89,10 @@ jobs:
 
       - name: Build artifacts
         env:
-          WRITE_KEY: ${{ env.WRITE_KEY }}
-          DATAPLANE_URL: ${{ env.DATAPLANE_URL }}
-          CONFIG_SERVER_HOST: ${{ env.CONFIG_SERVER_HOST }}
-          BUGSNAG_API_KEY: ${{ env.BUGSNAG_API_KEY }}
+          WRITE_KEY: ${{ secrets.SANITY_SUITE_WRITE_KEY }}
+          DATAPLANE_URL: ${{ secrets.SANITY_SUITE_DATAPLANE_URL }}
+          CONFIG_SERVER_HOST: ${{ secrets.SANITY_SUITE_CONFIG_SERVER_HOST }}
+          BUGSNAG_API_KEY: ${{ secrets.BUGSNAG_API_KEY }}
           BUGSNAG_RELEASE_STAGE: ${{ env.BUGSNAG_RELEASE_STAGE }}
           SDK_CDN_VERSION_PATH_PREFIX: ${{ env.SDK_CDN_VERSION_PATH_PREFIX }}
           HUSKY: 0
@@ -135,11 +101,11 @@ jobs:
 
       - name: Sync files to S3
         run: |
-          aws s3 cp packages/sanity-suite/dist/ s3://${{ env.AWS_S3_BUCKET_NAME }}/sanity-suite${{ env.SUITE_CDN_PATH }} --recursive --cache-control ${{ env.CACHE_CONTROL }}
+          aws s3 cp packages/sanity-suite/dist/ s3://${{ secrets.AWS_S3_BUCKET_NAME }}/sanity-suite${{ env.SUITE_CDN_PATH }} --recursive --cache-control ${{ env.CACHE_CONTROL }}
 
       - name: Create Cloudfront invalidation
         run: |
-          AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ env.AWS_CF_DISTRIBUTION_ID }} --paths "/sanity-suite${{ env.SUITE_CDN_PATH }}*"
+          AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/sanity-suite${{ env.SUITE_CDN_PATH }}*"
 
       - name: Send message to Slack channel
         id: slack
@@ -149,7 +115,7 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           PROJECT_NAME: 'Sanity suite - ${{ inputs.environment }}'
           CDN_URL: 'https://cdn.rudderlabs.com/sanity-suite${{ env.SUITE_CDN_PATH }}v3/cdn/index.html'
-          LINK_TEXT: ${{ ((inputs.environment == 'staging' && format('v{0} - Staging', env.CURRENT_VERSION_VALUE)) || format('v{0}', env.CURRENT_VERSION_VALUE)) }}
+          LINK_TEXT: ${{ ((inputs.environment == 'development' && format('v{0} - Development', env.CURRENT_VERSION_VALUE)) || (inputs.environment == 'staging' && format('v{0} - Staging', env.CURRENT_VERSION_VALUE)) || format('v{0}', env.CURRENT_VERSION_VALUE)) }}
         with:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
           payload: |
