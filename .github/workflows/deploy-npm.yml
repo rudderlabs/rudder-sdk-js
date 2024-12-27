@@ -40,13 +40,10 @@ jobs:
     # Deploy if validate-actor was successful or skipped
     # or if the workflow was invoked by another workflow
     if: >
-      (needs.validate-actor.result == 'success' || needs.validate-actor.result == 'skipped') &&
+      inputs.is_called == 'true' ||
       (
-        inputs.is_called == 'true' ||
-        (
-          github.event_name == 'workflow_dispatch' &&
-          startsWith(github.ref, 'refs/tags/v')
-        )
+        github.event_name == 'workflow_dispatch' &&
+        startsWith(github.ref, 'refs/tags/v')
       )
 
     steps:
