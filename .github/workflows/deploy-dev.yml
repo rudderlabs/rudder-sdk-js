@@ -8,9 +8,21 @@ on:
       - closed
 
 jobs:
+  validate-actor:
+    # Run only for workflow_dispatch events with a merged pull request
+    if: >
+      github.event_name == 'workflow_dispatch' &&
+      github.event.pull_request.merged == true
+    uses: ./.github/workflows/validate-actor.yml
+    secrets:
+      PAT: ${{ secrets.PAT }}
+
   deploy:
-    name: Deploy to development environment
-    if: github.event.pull_request.merged == true
+    needs: [validate-actor]
+    name: Deploy to Development Environment
+    if: >
+      (needs.validate-actor.result == 'success' || needs.validate-actor.result == 'skipped') &&
+      github.event.pull_request.merged == true
     uses: ./.github/workflows/deploy.yml
     with:
       environment: 'development'
