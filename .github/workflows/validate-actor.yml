@@ -27,6 +27,8 @@ jobs:
             exit 1
           fi
 
+          echo "Response: $response"
+
           # Extract the state of the membership
           if echo "$response" | grep -q '"state": "active"'; then
             echo "'$actor' is a member of '@${ORG_NAME}/${TEAM_NAME}' team"
