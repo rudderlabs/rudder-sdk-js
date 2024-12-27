@@ -48,12 +48,15 @@ jobs:
 
     steps:
       - name: Trigger sanity test suite workflow
+        env:
+          GH_TOKEN: ${{ secrets.PAT }}
         run: |
-          curl -X POST \
-          -H "Authorization: Bearer ${{ secrets.PAT }}" \
-          -H "Accept: application/vnd.github.v3+json" \
-          https://api.github.com/repos/rudderlabs/rudder-client-side-test/actions/workflows/sdk-team-js-sanity-suite.yaml/dispatches \
-          -d '{"inputs": {"environment": "${{ inputs.environment }}", "monorepoVersion": "${{ needs.extract-monorepo-version.outputs.version }}"}}'
+          gh api \
+            -X POST \
+            "/repos/rudderlabs/rudder-client-side-test/actions/workflows/sdk-team-js-sanity-suite.yaml/dispatches" \
+            -f ref=main \
+            -F inputs.environment=${{ inputs.environment }} \
+            -F inputs.monorepo_version=${{ needs.extract-monorepo-version.outputs.version }}
 
   trigger-e2e-test-suite:
     runs-on: [self-hosted, Linux, X64]
@@ -61,9 +64,12 @@ jobs:
 
     steps:
       - name: Trigger E2E test suite workflow
+        env:
+          GH_TOKEN: ${{ secrets.PAT }}
         run: |
-          curl -X POST \
-          -H "Authorization: Bearer ${{ secrets.PAT }}" \
-          -H "Accept: application/vnd.github.v3+json" \
-          https://api.github.com/repos/rudderlabs/rudder-client-side-test/actions/workflows/sdk-team-js-regression.yaml/dispatches \
-          -d '{"inputs": {"environment": "${{ inputs.environment }}", "monorepoVersion": "${{ needs.extract-monorepo-version.outputs.version }}"}}'
+          gh api \
+            -X POST \
+            "/repos/rudderlabs/rudder-client-side-test/actions/workflows/sdk-team-js-regression.yaml/dispatches" \
+            -f ref=main \
+            -F inputs.environment=${{ inputs.environment }} \
+            -F inputs.monorepo_version=${{ needs.extract-monorepo-version.outputs.version }}
