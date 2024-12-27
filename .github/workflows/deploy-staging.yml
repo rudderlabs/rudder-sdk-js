@@ -10,22 +10,11 @@ on:
       - reopened
 
 jobs:
-  validate-actor:
-    if: github.event_name == 'workflow_dispatch'
-    uses: ./.github/workflows/validate-actor.yml
-    secrets:
-      PAT: ${{ secrets.PAT }}
-
   deploy:
-    needs: [validate-actor]
     name: Deploy to staging environment
-    if: >
-      (needs.validate-actor.result == 'success' || needs.validate-actor.result == 'skipped') &&
-      (
-        startsWith(github.ref, 'refs/tags/v') ||
-        startsWith(github.head_ref, 'hotfix-release/') ||
-        startsWith(github.head_ref, 'release/')
-      )
+    # Only manually run the workflow for tags
+    # and PRs raised from release branches to main
+    if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.head_ref, 'hotfix-release/') || startsWith(github.head_ref, 'release/')
     uses: ./.github/workflows/deploy.yml
     with:
       environment: 'staging'
