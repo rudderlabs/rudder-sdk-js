@@ -10,11 +10,28 @@ on:
       - reopened
 
 jobs:
+  validate-actor:
+    if: >
+      github.event_name == 'workflow_dispatch' &&
+      (
+        startsWith(github.ref, 'refs/tags/v') ||
+        startsWith(github.head_ref, 'hotfix-release/') ||
+        startsWith(github.head_ref, 'release/')
+      )
+    uses: ./.github/workflows/validate-actor.yml
+    secrets:
+      PAT: ${{ secrets.PAT }}
+
   deploy:
+    needs: [validate-actor]
     name: Deploy to staging environment
-    # Only manually run the workflow for tags
-    # and PRs raised from release branches to main
-    if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.head_ref, 'hotfix-release/') || startsWith(github.head_ref, 'release/')
+    if: >
+      (needs.validate-actor.result == 'success' || needs.validate-actor.result == 'skipped') &&
+      (
+        startsWith(github.ref, 'refs/tags/v') ||
+        startsWith(github.head_ref, 'hotfix-release/') ||
+        startsWith(github.head_ref, 'release/')
+      )
     uses: ./.github/workflows/deploy.yml
     with:
       environment: 'staging'
@@ -38,21 +55,21 @@ jobs:
     with:
       environment: 'staging'
     secrets:
-      AWS_STAGING_ACCOUNT_ID: ${{ secrets.AWS_STAGING_ACCOUNT_ID }}
-      AWS_STAGING_S3_BUCKET_NAME: ${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}
-      AWS_STAGING_S3_SYNC_ROLE: ${{ secrets.AWS_STAGING_S3_SYNC_ROLE }}
-      AWS_STAGING_CF_DISTRIBUTION_ID: ${{ secrets.AWS_STAGING_CF_DISTRIBUTION_ID }}
-      SANITY_SUITE_STAGING_WRITE_KEY: ${{ secrets.SANITY_SUITE_STAGING_WRITE_KEY }}
-      SANITY_SUITE_STAGING_DATAPLANE_URL: ${{ secrets.SANITY_SUITE_STAGING_DATAPLANE_URL }}
-      SANITY_SUITE_STAGING_CONFIG_SERVER_HOST: ${{ secrets.SANITY_SUITE_STAGING_CONFIG_SERVER_HOST }}
-      RS_STAGING_BUGSNAG_API_KEY: ${{ secrets.RS_STAGING_BUGSNAG_API_KEY }}
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_STAGING_ACCOUNT_ID }}
+      AWS_S3_BUCKET_NAME: ${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}
+      AWS_S3_SYNC_ROLE: ${{ secrets.AWS_STAGING_S3_SYNC_ROLE }}
+      AWS_CF_DISTRIBUTION_ID: ${{ secrets.AWS_STAGING_CF_DISTRIBUTION_ID }}
+      SANITY_SUITE_WRITE_KEY: ${{ secrets.SANITY_SUITE_STAGING_WRITE_KEY }}
+      SANITY_SUITE_DATAPLANE_URL: ${{ secrets.SANITY_SUITE_STAGING_DATAPLANE_URL }}
+      SANITY_SUITE_CONFIG_SERVER_HOST: ${{ secrets.SANITY_SUITE_STAGING_CONFIG_SERVER_HOST }}
+      BUGSNAG_API_KEY: ${{ secrets.RS_STAGING_BUGSNAG_API_KEY }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
 
   trigger-sanity-suite:
-    uses: ./.github/workflows/trigger-sanity-suite.yml
+    uses: ./.github/workflows/trigger-test-suites.yml
     needs: deploy-sanity-suite
-    name: Trigger Sanity Suite
+    name: Trigger test suites
     with:
       environment: staging
     secrets:
