@@ -9,7 +9,7 @@ on:
 
 jobs:
   validate-actor:
-    # Run only for workflow_dispatch events with a merged pull request
+    # Run only for workflow_dispatch events
     if: github.event_name == 'workflow_dispatch'
     uses: ./.github/workflows/validate-actor.yml
     secrets:

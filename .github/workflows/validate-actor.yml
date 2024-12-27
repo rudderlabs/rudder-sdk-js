@@ -28,7 +28,7 @@ jobs:
           fi
 
           # Extract the state of the membership
-          if echo "$response" | grep -q '"state": "active"'; then
+          if echo "$response" | grep -q '"state":"active"'; then
             echo "'$actor' is a member of '@${ORG_NAME}/${TEAM_NAME}' team"
           else
             echo "Error: '$actor' is NOT a member of '@${ORG_NAME}/${TEAM_NAME}' team. Access denied."
