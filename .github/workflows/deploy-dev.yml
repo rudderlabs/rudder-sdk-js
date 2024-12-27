@@ -19,16 +19,16 @@ jobs:
     needs: [validate-actor]
     name: Deploy to Development Environment
     if: >
-      (needs.validate-actor.result == 'success' || needs.validate-actor.result == 'skipped') &&
       (
-        github.event.pull_request.merged == true ||
+        github.event_name == 'pull_request' &&
+        github.event.pull_request.merged == true
+      ) ||
+      (
+        github.event_name == 'workflow_dispatch' &&
         (
-          github.event_name == 'workflow_dispatch' &&
-          (
-            startsWith(github.ref, 'refs/tags/v') ||
-            github.ref == 'refs/heads/develop' ||
-            github.ref == 'refs/heads/main'
-          )
+          startsWith(github.ref, 'refs/tags/v') ||
+          github.ref == 'refs/heads/develop' ||
+          github.ref == 'refs/heads/main'
         )
       )
     uses: ./.github/workflows/deploy.yml
