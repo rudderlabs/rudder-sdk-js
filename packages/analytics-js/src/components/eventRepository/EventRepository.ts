@@ -18,7 +18,6 @@ import {
   NATIVE_DEST_PLUGIN_ENQUEUE_ERROR,
   NATIVE_DEST_PLUGIN_INITIALIZE_ERROR,
 } from '../../constants/logMessages';
-import { HttpClient } from '../../services/HttpClient';
 import { state } from '../../state';
 import type { IEventRepository } from './types';
 import {
@@ -51,13 +50,14 @@ class EventRepository implements IEventRepository {
   constructor(
     pluginsManager: IPluginsManager,
     storeManager: IStoreManager,
+    httpClient: IHttpClient,
     errorHandler?: IErrorHandler,
     logger?: ILogger,
   ) {
     this.pluginsManager = pluginsManager;
     this.errorHandler = errorHandler;
+    this.httpClient = httpClient;
     this.logger = logger;
-    this.httpClient = new HttpClient(errorHandler, logger);
     this.storeManager = storeManager;
     this.onError = this.onError.bind(this);
   }
@@ -213,9 +213,9 @@ class EventRepository implements IEventRepository {
    * @param customMessage a message
    * @param shouldAlwaysThrow if it should throw or use logger
    */
-  onError(error: unknown, customMessage?: string, shouldAlwaysThrow?: boolean): void {
+  onError(error: unknown, customMessage?: string): void {
     if (this.errorHandler) {
-      this.errorHandler.onError(error, EVENT_REPOSITORY, customMessage, shouldAlwaysThrow);
+      this.errorHandler.onError(error, EVENT_REPOSITORY, customMessage);
     } else {
       throw error;
     }

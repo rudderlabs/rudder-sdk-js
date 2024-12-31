@@ -37,11 +37,9 @@ const isNpmPackageBuild = moduleType === 'npm';
 const isCDNPackageBuild = moduleType === 'cdn';
 const pluginsMap = {
   './BeaconQueue': './src/beaconQueue/index.ts',
-  './Bugsnag': './src/bugsnag/index.ts',
   './CustomConsentManager': './src/customConsentManager/index.ts',
   './DeviceModeDestinations': './src/deviceModeDestinations/index.ts',
   './DeviceModeTransformation': './src/deviceModeTransformation/index.ts',
-  './ErrorReporting': './src/errorReporting/index.ts',
   './ExternalAnonymousId': './src/externalAnonymousId/index.ts',
   './GoogleLinker': './src/googleLinker/index.ts',
   './IubendaConsentManager': './src/iubendaConsentManager/index.ts',

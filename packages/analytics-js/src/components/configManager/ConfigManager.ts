@@ -120,9 +120,9 @@ class ConfigManager implements IConfigManager {
   /**
    * Handle errors
    */
-  onError(error: unknown, customMessage?: string, shouldAlwaysThrow?: boolean) {
+  onError(error: unknown, customMessage?: string) {
     if (this.hasErrorHandler) {
-      this.errorHandler?.onError(error, CONFIG_MANAGER, customMessage, shouldAlwaysThrow);
+      this.errorHandler?.onError(error, CONFIG_MANAGER, customMessage);
     } else {
       throw error;
     }
@@ -148,12 +148,12 @@ class ConfigManager implements IConfigManager {
         res = response;
       }
     } catch (err) {
-      this.onError(err, SOURCE_CONFIG_RESOLUTION_ERROR, true);
+      this.onError(err, SOURCE_CONFIG_RESOLUTION_ERROR);
       return;
     }
 
     if (!isValidSourceConfig(res)) {
-      this.onError(new Error(SOURCE_CONFIG_RESOLUTION_ERROR), undefined, true);
+      this.onError(new Error(SOURCE_CONFIG_RESOLUTION_ERROR));
       return;
     }
 
@@ -174,6 +174,7 @@ class ConfigManager implements IConfigManager {
       // set source related information in state
       state.source.value = {
         config: res.source.config,
+        name: res.source.name,
         id: res.source.id,
         workspaceId: res.source.workspaceId,
       };

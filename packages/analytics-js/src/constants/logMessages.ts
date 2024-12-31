@@ -8,6 +8,7 @@ import type {
   DeliveryType,
   StorageStrategy,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 
 // CONSTANT
 const SOURCE_CONFIG_OPTION_ERROR = `"getSourceConfig" must be a function. Please make sure that it is defined and returns a valid source configuration object.`;
@@ -32,11 +33,17 @@ const UNSUPPORTED_CONSENT_MANAGER_ERROR = (
     consentManagersToPluginNameMap,
   )}".`;
 
-const REPORTING_PLUGIN_INIT_FAILURE_ERROR = (context: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}Failed to initialize the error reporting plugin.`;
+const NON_ERROR_WARNING = (context: string, errStr: Nullable<string>): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}Received a non-error: ${errStr}.`;
 
-const NOTIFY_FAILURE_ERROR = (context: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}Failed to notify the error.`;
+const FAILED_ATTACH_LISTENERS_ERROR = (context: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}Failed to attach global error listeners.`;
+
+const BREADCRUMB_ERROR = (context: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}Failed to log breadcrumb.`;
+
+const HANDLE_ERROR_FAILURE = (context: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}Failed to handle the error.`;
 
 const PLUGIN_NAME_MISSING_ERROR = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}Plugin name is missing.`;
@@ -267,8 +274,7 @@ export {
   TIMEOUT_NOT_RECOMMENDED_WARNING,
   INVALID_SESSION_ID_WARNING,
   DEPRECATED_PLUGIN_WARNING,
-  REPORTING_PLUGIN_INIT_FAILURE_ERROR,
-  NOTIFY_FAILURE_ERROR,
+  HANDLE_ERROR_FAILURE,
   PLUGIN_NAME_MISSING_ERROR,
   PLUGIN_ALREADY_EXISTS_ERROR,
   PLUGIN_NOT_FOUND_ERROR,
@@ -317,4 +323,7 @@ export {
   SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING,
   BAD_COOKIES_WARNING,
   PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING,
+  BREADCRUMB_ERROR,
+  NON_ERROR_WARNING,
+  FAILED_ATTACH_LISTENERS_ERROR,
 };

@@ -65,4 +65,5 @@ export interface IHttpClient {
   getAsyncData<T = any>(config: IAsyncRequestConfig<T>): void;
   setAuthHeader(value: string, noBto?: boolean): void;
   resetAuthHeader(): void;
+  init(errorHandler: IErrorHandler): void;
 }

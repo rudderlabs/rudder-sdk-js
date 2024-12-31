@@ -114,11 +114,6 @@ class PluginsManager implements IPluginsManager {
         shouldAddMissingPlugins: true,
       },
       {
-        configurationStatus: () => state.reporting.isErrorReportingEnabled.value,
-        configurationStatusStr: 'Error reporting is enabled',
-        supportedPlugins: ['ErrorReporting', 'Bugsnag'] as PluginName[], // TODO: Remove deprecated plugin- Bugsnag
-      },
-      {
         configurationStatus: () =>
           getNonCloudDestinations(state.nativeDestinations.configuredDestinations.value).length > 0,
         configurationStatusStr: 'Device mode destinations are connected to the source',

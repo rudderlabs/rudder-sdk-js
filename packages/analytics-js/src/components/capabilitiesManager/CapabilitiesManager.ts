@@ -37,10 +37,10 @@ import { debounce } from '../utilities/globals';
 // TODO: replace direct calls to detection methods with state values when possible
 class CapabilitiesManager implements ICapabilitiesManager {
   logger?: ILogger;
-  errorHandler?: IErrorHandler;
+  errorHandler: IErrorHandler;
   externalSrcLoader: IExternalSrcLoader;
 
-  constructor(errorHandler?: IErrorHandler, logger?: ILogger) {
+  constructor(errorHandler: IErrorHandler, logger?: ILogger) {
     this.logger = logger;
     this.errorHandler = errorHandler;
     this.externalSrcLoader = new ExternalSrcLoader(this.errorHandler, this.logger);

@@ -99,6 +99,7 @@ class Analytics implements IAnalytics {
     this.externalSrcLoader = new ExternalSrcLoader(this.errorHandler, this.logger);
     this.capabilitiesManager = new CapabilitiesManager(this.errorHandler, this.logger);
     this.httpClient = defaultHttpClient;
+    this.httpClient.init(this.errorHandler);
   }
 
   /**
@@ -246,6 +247,7 @@ class Analytics implements IAnalytics {
     this.eventRepository = new EventRepository(
       this.pluginsManager,
       this.storeManager,
+      this.httpClient,
       this.errorHandler,
       this.logger,
     );
@@ -272,7 +274,6 @@ class Analytics implements IAnalytics {
    * Initialize the storage and event queue
    */
   onPluginsReady() {
-    this.errorHandler.init(this.httpClient, this.externalSrcLoader);
     // Initialize storage
     this.storeManager?.init();
     this.userSessionManager?.init();

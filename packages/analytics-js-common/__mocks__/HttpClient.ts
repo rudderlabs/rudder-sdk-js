@@ -10,6 +10,7 @@ class HttpClient implements IHttpClient {
   getAsyncData = jest.fn();
   setAuthHeader = jest.fn();
   resetAuthHeader = jest.fn();
+  init = jest.fn();
 }
 
 const defaultHttpClient = new HttpClient();

@@ -13,16 +13,16 @@ export type MetricServicePayload = {
 };
 
 export type ErrorEventPayload = {
+  payloadVersion: string;
   notifier: {
     name: string;
     version: string;
     url: string;
   };
-  events: ErrorEventType[];
+  events: ErrorEvent[];
 };
 
-export type ErrorEventType = {
-  payloadVersion: string;
+export type ErrorEvent = {
   exceptions: Exception[];
   severity: string;
   unhandled: boolean;
@@ -30,6 +30,7 @@ export type ErrorEventType = {
   app: {
     version: string;
     releaseStage: string;
+    type: string;
   };
   device: {
     locale?: string;
@@ -41,12 +42,12 @@ export type ErrorEventType = {
     clientIp: string;
   };
   breadcrumbs: Breadcrumb[] | [];
-  context: string;
   metaData: {
     [index: string]: any;
   };
   user: {
     id: string;
+    name: string;
   };
 };
 
@@ -54,12 +55,6 @@ export type GeneratedEventType = {
   errors: Exception[];
 };
 
-export interface Exception {
-  message: string;
-  errorClass: string;
-  type: string;
-  stacktrace: Stackframe[];
-}
 export interface Stackframe {
   file: string;
   method?: string;
@@ -67,4 +62,11 @@ export interface Stackframe {
   columnNumber?: number;
   code?: Record<string, string>;
   inProject?: boolean;
+}
+
+export interface Exception {
+  message: string;
+  errorClass: string;
+  type: string;
+  stacktrace: Stackframe[];
 }
