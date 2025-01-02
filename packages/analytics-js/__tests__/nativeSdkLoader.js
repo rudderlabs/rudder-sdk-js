@@ -1,4 +1,4 @@
-function loadingSnippet(loadOptions) {
+function loadingSnippet(writeKey, dpUrl, loadOptions) {
   (function () {
     'use strict';
     window.RudderSnippetVersion = '3.0.10';
@@ -56,7 +56,7 @@ function loadingSnippet(loadOptions) {
           }
         };
         window.rudderAnalyticsMount();
-        window.rudderanalytics.load('WRITE_KEY', 'https://some.reallookingdataplane.url', loadOptions ?? {});
+        window.rudderanalytics.load(writeKey, dpUrl, loadOptions ?? {});
       }
     }
   })();
