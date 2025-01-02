@@ -435,7 +435,6 @@ describe('Error Reporting utilities', () => {
 
       (window as any).RudderSnippetVersion = 'sample_snippet_version';
       const enhancedError = getBugsnagErrorEvent(errorPayload, errorState, state);
-      console.log(JSON.stringify(enhancedError));
       const expectedOutcome = {
         notifier: {
           name: 'RudderStack JavaScript SDK Error Notifier',
