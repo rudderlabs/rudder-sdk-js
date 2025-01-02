@@ -3,13 +3,14 @@ import ErrorStackParser from 'error-stack-parser';
 import type { Exception, Stackframe } from '@rudderstack/analytics-js-common/types/Metrics';
 import { ERROR_HANDLER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
-import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isString, isTypeOfError } from '@rudderstack/analytics-js-common/utilities/checks';
+import { hasStack } from '@rudderstack/analytics-js-common/utilities/errors';
 import { NON_ERROR_WARNING } from '../../../constants/logMessages';
 import type { FrameType } from './types';
 
 const GLOBAL_CODE = 'global code';
 
-const normaliseFunctionName = (name: string) => (/^global code$/i.test(name) ? GLOBAL_CODE : name);
+const normalizeFunctionName = (name: string) => (/^global code$/i.test(name) ? GLOBAL_CODE : name);
 
 /**
  * Takes a stacktrace.js style stackframe (https://github.com/stacktracejs/stackframe)
@@ -20,7 +21,7 @@ const normaliseFunctionName = (name: string) => (/^global code$/i.test(name) ? G
 const formatStackframe = (frame: FrameType): Stackframe => {
   const f = {
     file: frame.fileName,
-    method: normaliseFunctionName(frame.functionName),
+    method: normalizeFunctionName(frame.functionName),
     lineNumber: frame.lineNumber,
     columnNumber: frame.columnNumber,
   };
@@ -59,30 +60,13 @@ function createException(
   };
 }
 
-const hasStack = (err: any) =>
-  !!err &&
-  (!!err.stack || !!err.stacktrace || !!err['opera#sourceloc']) &&
-  typeof (err.stack || err.stacktrace || err['opera#sourceloc']) === 'string' &&
-  err.stack !== `${err.name}: ${err.message}`;
-
-const isError = (value: any) => {
-  switch (Object.prototype.toString.call(value)) {
-    case '[object Error]':
-    case '[object Exception]':
-    case '[object DOMException]':
-      return true;
-    default:
-      return value instanceof Error;
-  }
-};
-
 const normalizeError = (maybeError: any, logger?: ILogger): any | undefined => {
   let error;
 
-  if (isError(maybeError) && hasStack(maybeError)) {
+  if (isTypeOfError(maybeError) && hasStack(maybeError)) {
     error = maybeError;
   } else {
-    logger?.warn(NON_ERROR_WARNING(ERROR_HANDLER, stringifyWithoutCircular(error)));
+    logger?.warn(NON_ERROR_WARNING(ERROR_HANDLER, stringifyWithoutCircular(maybeError)));
     error = undefined;
   }
 
