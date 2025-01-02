@@ -97,9 +97,13 @@ class Analytics implements IAnalytics {
     this.errorHandler = defaultErrorHandler;
     this.logger = defaultLogger;
     this.externalSrcLoader = new ExternalSrcLoader(this.errorHandler, this.logger);
-    this.capabilitiesManager = new CapabilitiesManager(this.errorHandler, this.logger);
     this.httpClient = defaultHttpClient;
     this.httpClient.init(this.errorHandler);
+    this.capabilitiesManager = new CapabilitiesManager(
+      this.httpClient,
+      this.errorHandler,
+      this.logger,
+    );
   }
 
   /**

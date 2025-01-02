@@ -12,6 +12,7 @@ import { CAPABILITIES_MANAGER } from '@rudderstack/analytics-js-common/constants
 import { getTimezone } from '@rudderstack/analytics-js-common/utilities/timezone';
 import { isValidURL } from '@rudderstack/analytics-js-common/utilities/url';
 import { isDefinedAndNotNull } from '@rudderstack/analytics-js-common/utilities/checks';
+import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import {
   INVALID_POLYFILL_URL_WARNING,
   POLYFILL_SCRIPT_LOAD_ERROR,
@@ -36,13 +37,15 @@ import { debounce } from '../utilities/globals';
 
 // TODO: replace direct calls to detection methods with state values when possible
 class CapabilitiesManager implements ICapabilitiesManager {
-  logger?: ILogger;
+  httpClient: IHttpClient;
   errorHandler: IErrorHandler;
+  logger?: ILogger;
   externalSrcLoader: IExternalSrcLoader;
 
-  constructor(errorHandler: IErrorHandler, logger?: ILogger) {
-    this.logger = logger;
+  constructor(httpClient: IHttpClient, errorHandler: IErrorHandler, logger?: ILogger) {
+    this.httpClient = httpClient;
     this.errorHandler = errorHandler;
+    this.logger = logger;
     this.externalSrcLoader = new ExternalSrcLoader(this.errorHandler, this.logger);
     this.onError = this.onError.bind(this);
     this.onReady = this.onReady.bind(this);
@@ -106,7 +109,7 @@ class CapabilitiesManager implements ICapabilitiesManager {
         state.loadOptions.value.sendAdblockPage === true &&
         state.lifecycle.sourceConfigUrl.value !== undefined
       ) {
-        detectAdBlockers(this.errorHandler, this.logger);
+        detectAdBlockers(this.httpClient);
       }
     });
   }

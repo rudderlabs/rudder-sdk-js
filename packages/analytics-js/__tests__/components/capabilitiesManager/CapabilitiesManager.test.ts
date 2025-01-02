@@ -1,4 +1,5 @@
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { defaultHttpClient } from '../../../src/services/HttpClient';
 import { isLegacyJSEngine } from '../../../src/components/capabilitiesManager/detection';
 import type { ICapabilitiesManager } from '../../../src/components/capabilitiesManager/types';
 import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
@@ -39,7 +40,11 @@ describe('CapabilitiesManager', () => {
 
   describe('prepareBrowserCapabilities', () => {
     beforeEach(() => {
-      capabilitiesManager = new CapabilitiesManager(defaultErrorHandler, mockLogger);
+      capabilitiesManager = new CapabilitiesManager(
+        defaultHttpClient,
+        defaultErrorHandler,
+        mockLogger,
+      );
     });
 
     afterEach(() => {
@@ -98,7 +103,10 @@ describe('CapabilitiesManager', () => {
       state.lifecycle.writeKey.value = 'sample-write-key';
       state.loadOptions.value.polyfillIfRequired = true;
 
-      const tempCapabilitiesManager = new CapabilitiesManager(defaultErrorHandler);
+      const tempCapabilitiesManager = new CapabilitiesManager(
+        defaultHttpClient,
+        defaultErrorHandler,
+      );
 
       isLegacyJSEngine.mockReturnValue(true);
       tempCapabilitiesManager.externalSrcLoader = {
