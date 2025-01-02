@@ -1,13 +1,14 @@
+/* eslint-disable compat/compat */
 /* eslint-disable max-classes-per-file */
 import { signal } from '@preact/signals-core';
 import type { ErrorEventPayload, Exception } from '@rudderstack/analytics-js-common/types/Metrics';
-import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
-import { state } from '../../../src/state';
+import { state, resetState } from '../../../src/state';
 import * as errorReportingConstants from '../../../src/services/ErrorHandler/constants';
 import {
   createNewBreadcrumb,
   getAppStateForMetadata,
   getBugsnagErrorEvent,
+  getErrInstance,
   getErrorDeliveryPayload,
   getReleaseStage,
   getURLWithoutQueryString,
@@ -19,157 +20,11 @@ jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
   generateUUID: jest.fn().mockReturnValue('test_uuid'),
 }));
 
-const DEFAULT_STATE_DATA = {
-  autoTrack: {
-    enabled: false,
-    pageLifecycle: {
-      enabled: false,
-    },
-  },
-  capabilities: {
-    isAdBlocked: false,
-    isBeaconAvailable: false,
-    isCryptoAvailable: false,
-    isIE11: false,
-    isLegacyDOM: false,
-    isOnline: true,
-    isUaCHAvailable: false,
-    storage: {
-      isCookieStorageAvailable: false,
-      isLocalStorageAvailable: false,
-      isSessionStorageAvailable: false,
-    },
-  },
-  consents: {
-    data: {},
-    enabled: false,
-    initialized: false,
-    postConsent: {},
-    preConsent: {
-      enabled: false,
-    },
-    resolutionStrategy: 'and',
-  },
-  context: {
-    app: {
-      installType: '__MODULE_TYPE__',
-      name: 'RudderLabs JavaScript SDK',
-      namespace: 'com.rudderlabs.javascript',
-      version: '__PACKAGE_VERSION__',
-    },
-    device: null,
-    library: {
-      name: 'RudderLabs JavaScript SDK',
-      version: '__PACKAGE_VERSION__',
-    },
-    locale: null,
-    network: null,
-    os: {
-      name: '',
-      version: '',
-    },
-    screen: {
-      density: 0,
-      height: 0,
-      innerHeight: 0,
-      innerWidth: 0,
-      width: 0,
-    },
-    userAgent: '',
-  },
-  dataPlaneEvents: {
-    deliveryEnabled: true,
-  },
-  lifecycle: {
-    initialized: false,
-    loaded: false,
-    logLevel: 'ERROR',
-    readyCallbacks: [],
-  },
-  loadOptions: {
-    beaconQueueOptions: {},
-    bufferDataPlaneEventsUntilReady: false,
-    configUrl: 'https://api.rudderstack.com',
-    dataPlaneEventsBufferTimeout: 1000,
-    destinationsQueueOptions: {},
-    integrations: {
-      All: true,
-    },
-    loadIntegration: true,
-    lockIntegrationsVersion: false,
-    lockPluginsVersion: false,
-    logLevel: 'ERROR',
-    plugins: [],
-    polyfillIfRequired: true,
-    queueOptions: {},
-    sameSiteCookie: 'Lax',
-    sendAdblockPageOptions: {},
-    sessions: {
-      autoTrack: true,
-      timeout: 1800000,
-    },
-    storage: {
-      cookie: {},
-      encryption: {
-        version: 'v3',
-      },
-      migrate: true,
-    },
-    uaChTrackLevel: 'none',
-    useBeacon: false,
-    useGlobalIntegrationsConfigInEvents: false,
-    useServerSideCookies: false,
-  },
-  metrics: {
-    dropped: 0,
-    queued: 0,
-    retries: 0,
-    sent: 0,
-    triggered: 0,
-  },
-  nativeDestinations: {
-    activeDestinations: [],
-    clientDestinationsReady: false,
-    configuredDestinations: [],
-    failedDestinations: [],
-    initializedDestinations: [],
-    integrationsConfig: {},
-    loadIntegration: true,
-    loadOnlyIntegrations: {},
-  },
-  plugins: {
-    activePlugins: [],
-    failedPlugins: [],
-    loadedPlugins: [],
-    pluginsToLoadFromConfig: [],
-    ready: false,
-    totalPluginsToLoad: 0,
-  },
-  reporting: {
-    breadcrumbs: [],
-    isErrorReportingEnabled: false,
-    isErrorReportingPluginLoaded: false,
-    isMetricsReportingEnabled: false,
-  },
-  serverCookies: {
-    isEnabledServerSideCookies: false,
-  },
-  session: {
-    initialReferrer: '',
-    initialReferringDomain: '',
-  },
-  source: {
-    id: 'dummy-source-id',
-    workspaceId: 'dummy-workspace-id',
-  },
-  storage: {
-    entries: {},
-    migrate: false,
-    trulyAnonymousTracking: false,
-  },
-};
-
 describe('Error Reporting utilities', () => {
+  beforeEach(() => {
+    resetState();
+  });
+
   describe('createNewBreadcrumb', () => {
     it('should create and return a breadcrumb', () => {
       const msg = 'sample message';
@@ -182,13 +37,6 @@ describe('Error Reporting utilities', () => {
         name: msg,
       });
     });
-
-    it('should create and return a breadcrumb with empty meta data if not provided', () => {
-      const msg = 'sample message';
-      const breadcrumb = createNewBreadcrumb(msg);
-
-      expect(breadcrumb.metaData).toStrictEqual({});
-    });
   });
 
   describe('getURLWithoutQueryString', () => {
@@ -198,6 +46,7 @@ describe('Error Reporting utilities', () => {
       expect(urlWithoutSearchParam).toEqual('https://www.test-host.com/');
     });
   });
+
   describe('getReleaseStage', () => {
     let windowSpy: any;
     let locationSpy: any;
@@ -252,18 +101,18 @@ describe('Error Reporting utilities', () => {
     ];
 
     it.each(testCaseData)(
-      'if script src is "%s" then it should return the value as "%s" ',
-      (scriptSrc: string, expectedValue: boolean) => {
+      'if file path is "%s" then it should return the value as "%s" ',
+      (filePath: string, expectedValue: boolean) => {
         // Bugsnag error event object structure
         const event = {
           stacktrace: [
             {
-              file: scriptSrc,
+              file: filePath,
             },
           ],
         };
 
-        expect(isSDKError(event)).toBe(expectedValue);
+        expect(isSDKError(event as unknown as Exception)).toBe(expectedValue);
       },
     );
   });
@@ -415,48 +264,86 @@ describe('Error Reporting utilities', () => {
   });
 
   describe('getBugsnagErrorEvent', () => {
-    it.skip('should return enhanced error event payload', () => {
+    it('should return the error event payload', () => {
       state.session.sessionInfo.value = { id: 123 };
+      // @ts-expect-error setting the value for testing
+      state.context.app.value.installType = 'cdn';
       state.autoTrack.pageLifecycle.visitId.value = 'test-visit-id';
-
-      const newError = new Error();
-      const normalizedError = Object.create(newError, {
-        message: { value: 'ReferenceError: testUndefinedFn is not defined' },
-        stack: {
-          value: `ReferenceError: testUndefinedFn is not defined at Analytics.page (http://localhost:3001/cdn/modern/iife/rsa.js:1610:3) at RudderAnalytics.page (http://localhost:3001/cdn/modern/iife/rsa.js:1666:84)`,
+      // @ts-expect-error setting the value for testing
+      state.context.library.value.snippetVersion = 'sample_snippet_version';
+      state.context.locale.value = 'en-US';
+      state.context.userAgent.value =
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3';
+      state.source.value = {
+        id: 'dummy-source-id',
+        name: 'dummy-source-name',
+        workspaceId: 'dummy-workspace-id',
+      };
+      state.reporting.breadcrumbs.value = [
+        {
+          metaData: {},
+          name: 'sample breadcrumb message',
+          timestamp: new Date(),
+          type: 'manual',
         },
-      });
+        {
+          metaData: {},
+          name: 'sample breadcrumb message 2',
+          timestamp: new Date(),
+          type: 'manual',
+        },
+      ];
+
+      state.context.screen.value = {
+        density: 1,
+        width: 2,
+        height: 3,
+        innerWidth: 4,
+        innerHeight: 5,
+      };
+
       const errorState = {
         severity: 'error',
         unhandled: false,
         severityReason: { type: 'handledException' },
       };
-      const errorPayload = ErrorFormat.create(normalizedError, 'notify()') as ErrorFormat;
 
-      (window as any).RudderSnippetVersion = 'sample_snippet_version';
-      const enhancedError = getBugsnagErrorEvent(errorPayload, errorState, state);
+      const exception = {
+        errorClass: 'Error',
+        message: 'dummy message',
+        type: 'browserjs',
+        stacktrace: [
+          {
+            file: 'https://example.com/sample.js',
+            method: 'Object.<anonymous>',
+            lineNumber: 1,
+            columnNumber: 1,
+          },
+        ],
+      };
+
+      const bsErrorEvent = getBugsnagErrorEvent(exception, errorState, state);
+
       const expectedOutcome = {
+        payloadVersion: '5',
         notifier: {
-          name: 'RudderStack JavaScript SDK Error Notifier',
-          version: 'dev-snapshot',
-          url: 'https://github.com/rudderlabs/rudder-sdk-js',
+          name: 'RudderStack JavaScript SDK',
+          version: '__PACKAGE_VERSION__',
+          url: '__REPOSITORY_URL__',
         },
         events: [
           {
-            payloadVersion: '5',
             exceptions: [
               {
                 errorClass: 'Error',
-                message: 'ReferenceError: testUndefinedFn is not defined',
+                message: 'dummy message',
                 type: 'browserjs',
                 stacktrace: [
                   {
-                    file: 'ReferenceError: testUndefinedFn is not defined at Analytics.page http://localhost:3001/cdn/modern/iife/rsa.js:1610:3 at RudderAnalytics.page http://localhost:3001/cdn/modern/iife/rsa.js',
-                    lineNumber: 1666,
-                    columnNumber: 84,
-                    code: undefined,
-                    inProject: undefined,
-                    method: undefined,
+                    file: 'https://example.com/sample.js',
+                    method: 'Object.<anonymous>',
+                    lineNumber: 1,
+                    columnNumber: 1,
                   },
                 ],
               },
@@ -467,113 +354,231 @@ describe('Error Reporting utilities', () => {
               type: 'handledException',
             },
             app: {
-              version: 'dev-snapshot',
+              version: '__PACKAGE_VERSION__',
               releaseStage: 'development',
+              type: 'cdn',
             },
             device: {
-              userAgent: '',
+              locale: 'en-US',
+              userAgent:
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
               time: expect.any(Date),
             },
             request: {
               url: 'https://www.test-host.com/',
               clientIp: '[NOT COLLECTED]',
             },
-            breadcrumbs: [],
-            context: 'ReferenceError: testUndefinedFn is not defined',
-            metaData: {
-              sdk: {
-                name: 'JS',
-                installType: 'cdn',
+            breadcrumbs: [
+              {
+                metaData: {},
+                name: 'sample breadcrumb message',
+                timestamp: expect.any(Date),
+                type: 'manual',
               },
-              state: mergeDeepRight(DEFAULT_STATE_DATA, {
-                autoTrack: {
-                  pageLifecycle: {
-                    visitId: 'test-visit-id',
-                  },
-                },
-                session: {
-                  sessionInfo: { id: 123 },
-                },
-              }),
-              source: {
+              {
+                metaData: {},
+                name: 'sample breadcrumb message 2',
+                timestamp: expect.any(Date),
+                type: 'manual',
+              },
+            ],
+            metaData: {
+              app: {
                 snippetVersion: 'sample_snippet_version',
+              },
+              device: {
+                density: 1,
+                width: 2,
+                height: 3,
+                innerWidth: 4,
+                innerHeight: 5,
+              },
+              autoTrack: {
+                enabled: false,
+                pageLifecycle: {
+                  enabled: false,
+                  visitId: 'test-visit-id',
+                },
+              },
+              capabilities: {
+                isAdBlocked: false,
+                isBeaconAvailable: false,
+                isCryptoAvailable: false,
+                isIE11: false,
+                isLegacyDOM: false,
+                isOnline: true,
+                isUaCHAvailable: false,
+                storage: {
+                  isCookieStorageAvailable: false,
+                  isLocalStorageAvailable: false,
+                  isSessionStorageAvailable: false,
+                },
+              },
+              consents: {
+                data: {},
+                enabled: false,
+                initialized: false,
+                postConsent: {},
+                preConsent: {
+                  enabled: false,
+                },
+                resolutionStrategy: 'and',
+              },
+              context: {
+                app: {
+                  installType: 'cdn',
+                  name: 'RudderLabs JavaScript SDK',
+                  namespace: 'com.rudderlabs.javascript',
+                  version: '__PACKAGE_VERSION__',
+                },
+                device: null,
+                library: {
+                  name: 'RudderLabs JavaScript SDK',
+                  snippetVersion: 'sample_snippet_version',
+                  version: '__PACKAGE_VERSION__',
+                },
+                locale: 'en-US',
+                network: null,
+                os: {
+                  name: '',
+                  version: '',
+                },
+                screen: {
+                  density: 1,
+                  height: 3,
+                  innerHeight: 5,
+                  innerWidth: 4,
+                  width: 2,
+                },
+                userAgent:
+                  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
+              },
+              dataPlaneEvents: {
+                deliveryEnabled: true,
+              },
+              lifecycle: {
+                initialized: false,
+                integrationsCDNPath: 'https://cdn.rudderlabs.com/v3/modern/js-integrations',
+                pluginsCDNPath: 'https://cdn.rudderlabs.com/v3/modern/plugins',
+                loaded: false,
+                logLevel: 'ERROR',
+                readyCallbacks: [],
+              },
+              loadOptions: {
+                beaconQueueOptions: {},
+                bufferDataPlaneEventsUntilReady: false,
+                configUrl: 'https://api.rudderstack.com',
+                dataPlaneEventsBufferTimeout: 10000,
+                destinationsQueueOptions: {},
+                integrations: {
+                  All: true,
+                },
+                loadIntegration: true,
+                lockIntegrationsVersion: false,
+                lockPluginsVersion: false,
+                logLevel: 'ERROR',
+                plugins: [],
+                polyfillIfRequired: true,
+                queueOptions: {},
+                sameSiteCookie: 'Lax',
+                sendAdblockPageOptions: {},
+                sessions: {
+                  autoTrack: true,
+                  timeout: 1800000,
+                },
+                storage: {
+                  cookie: {},
+                  encryption: {
+                    version: 'v3',
+                  },
+                  migrate: true,
+                },
+                uaChTrackLevel: 'none',
+                useBeacon: false,
+                useGlobalIntegrationsConfigInEvents: false,
+                useServerSideCookies: false,
+              },
+              metrics: {
+                dropped: 0,
+                queued: 0,
+                retries: 0,
+                sent: 0,
+                triggered: 0,
+              },
+              nativeDestinations: {
+                activeDestinations: [],
+                clientDestinationsReady: false,
+                configuredDestinations: [],
+                failedDestinations: [],
+                initializedDestinations: [],
+                integrationsConfig: {},
+                loadIntegration: true,
+                loadOnlyIntegrations: {},
+              },
+              plugins: {
+                activePlugins: [],
+                failedPlugins: [],
+                loadedPlugins: [],
+                pluginsToLoadFromConfig: [],
+                ready: false,
+                totalPluginsToLoad: 0,
+              },
+              reporting: {
+                breadcrumbs: [
+                  {
+                    metaData: {},
+                    name: 'sample breadcrumb message',
+                    timestamp: expect.any(String),
+                    type: 'manual',
+                  },
+                  {
+                    metaData: {},
+                    name: 'sample breadcrumb message 2',
+                    timestamp: expect.any(String),
+                    type: 'manual',
+                  },
+                ],
+                isErrorReportingEnabled: false,
+                isMetricsReportingEnabled: false,
+              },
+              serverCookies: {
+                isEnabledServerSideCookies: false,
+              },
+              session: {
+                initialReferrer: '',
+                initialReferringDomain: '',
+                sessionInfo: {
+                  id: 123,
+                },
+              },
+              source: {
+                id: 'dummy-source-id',
+                name: 'dummy-source-name',
+                workspaceId: 'dummy-workspace-id',
+              },
+              storage: {
+                entries: {},
+                migrate: false,
+                trulyAnonymousTracking: false,
               },
             },
             user: {
               id: 'dummy-source-id..123..test-visit-id',
+              name: 'dummy-source-name',
             },
           },
         ],
       };
-      expect(enhancedError).toEqual(expectedOutcome);
+
+      expect(bsErrorEvent).toEqual(expectedOutcome);
     });
   });
 
   describe('getErrorDeliveryPayload', () => {
     it('should return error delivery payload', () => {
-      const enhancedErrorPayload = {
-        notifier: {
-          name: 'Rudderstack JavaScript SDK Error Notifier',
-          version: 'sample_version',
-          url: 'https://github.com/rudderlabs/rudder-sdk-js',
-        },
-        events: [
-          {
-            payloadVersion: '5',
-            exceptions: [
-              {
-                errorClass: 'Error',
-                errorMessage: 'ReferenceError: testUndefinedFn is not defined',
-                type: 'browserjs',
-                stacktrace: [
-                  {
-                    file: 'ReferenceError: testUndefinedFn is not defined at Analytics.page http://localhost:3001/cdn/modern/iife/rsa.js:1610:3 at RudderAnalytics.page http://localhost:3001/cdn/modern/iife/rsa.js',
-                    lineNumber: 1666,
-                    columnNumber: 84,
-                    code: undefined,
-                    inProject: undefined,
-                    method: undefined,
-                  },
-                ],
-              },
-            ],
-            severity: 'error',
-            unhandled: false,
-            severityReason: {
-              type: 'handledException',
-            },
-            app: {
-              version: 'dev-snapshot',
-              releaseStage: 'development',
-            },
-            device: {
-              userAgent: '',
-              time: expect.any(Date),
-            },
-            request: {
-              url: 'https://www.test-host.com/',
-              clientIp: '[NOT COLLECTED]',
-            },
-            breadcrumbs: [],
-            context: 'ReferenceError: testUndefinedFn is not defined',
-            metaData: {
-              sdk: {
-                name: 'JS',
-                installType: 'cdn',
-              },
-              state: DEFAULT_STATE_DATA,
-              source: {
-                snippetVersion: 'sample_snippet_version',
-              },
-            },
-            user: {
-              id: 'sample-write-key',
-            },
-          },
-        ],
-      } as unknown as ErrorEventPayload;
+      const errorEventPayload = {} as unknown as ErrorEventPayload;
 
-      const deliveryPayload = getErrorDeliveryPayload(enhancedErrorPayload, state);
+      const deliveryPayload = getErrorDeliveryPayload(errorEventPayload, state);
       expect(deliveryPayload).toEqual(
         JSON.stringify({
           version: '1',
@@ -583,7 +588,7 @@ describe('Error Reporting utilities', () => {
             sdk_version: '__PACKAGE_VERSION__',
             install_type: '__MODULE_TYPE__',
           },
-          errors: enhancedErrorPayload,
+          errors: errorEventPayload,
         }),
       );
     });
@@ -600,6 +605,39 @@ describe('Error Reporting utilities', () => {
         message: 'The request failed',
       } as unknown as Exception);
       expect(result).toBeFalsy();
+    });
+  });
+
+  describe('getErrInstance', () => {
+    it('should return the same error instance for handled errors', () => {
+      const error = new Error('dummy error');
+      const errorType = 'handledException';
+      const result = getErrInstance(error, errorType);
+      expect(result).toEqual(error);
+    });
+
+    it('should return the internal error instance for unhandled errors', () => {
+      const errorEvent = new ErrorEvent('error', { error: new Error('dummy error') });
+      const errorType = 'unhandledException';
+      const result = getErrInstance(errorEvent, errorType);
+      expect(result).toEqual(errorEvent.error);
+    });
+
+    it('should return the same error event instance if the internal error is not present', () => {
+      const errorEvent = new ErrorEvent('error');
+      const errorType = 'unhandledException';
+      const result = getErrInstance(errorEvent, errorType);
+      expect(result).toEqual(errorEvent);
+    });
+
+    it('should return the internal reason instance for unhandled promise rejections', () => {
+      const errorEvent = new PromiseRejectionEvent('error', {
+        reason: new Error('dummy error'),
+        promise: Promise.resolve(),
+      });
+      const errorType = 'unhandledPromiseRejection';
+      const result = getErrInstance(errorEvent, errorType);
+      expect(result).toEqual(errorEvent.reason);
     });
   });
 });
