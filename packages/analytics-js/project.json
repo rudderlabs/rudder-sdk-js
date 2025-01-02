@@ -20,7 +20,8 @@
           "ci": true,
           "codeCoverage": true
         }
-      }
+      },
+      "dependsOn": ["build:browser:dev"]
     },
     "lint": {
       "executor": "@nx/eslint:lint",
