@@ -38,7 +38,8 @@ describe('HttpClient', () => {
   });
 
   beforeEach(() => {
-    clientInstance = new HttpClient(defaultErrorHandler, defaultLogger);
+    clientInstance = new HttpClient(defaultLogger);
+    clientInstance.init(defaultErrorHandler);
   });
 
   afterEach(() => {
@@ -88,8 +89,8 @@ describe('HttpClient', () => {
     });
   });
 
-  it('should fire and forget getAsyncData', async () => {
-    const response = await clientInstance.getAsyncData({
+  it('should fire and forget getAsyncData', () => {
+    const response = clientInstance.getAsyncData({
       url: `${dummyDataplaneHost}/jsonSample`,
     });
     expect(response).toBeUndefined();

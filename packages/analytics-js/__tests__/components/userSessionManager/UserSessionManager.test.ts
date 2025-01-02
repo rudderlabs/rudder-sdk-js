@@ -84,6 +84,8 @@ describe('User session manager', () => {
     clientDataStoreLS = defaultStoreManager.getStore('clientDataInLocalStorage') as Store;
     clientDataStoreSession = defaultStoreManager.getStore('clientDataInSessionStorage') as Store;
 
+    defaultHttpClient.init(defaultErrorHandler);
+
     clearStorage();
     resetState();
 

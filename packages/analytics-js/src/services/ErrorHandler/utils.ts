@@ -132,7 +132,7 @@ const isAllowedToBeNotified = (exception: Exception) =>
  * @param {Error} exception
  * @returns
  */
-const isRudderSDKError = (exception: Exception) => {
+const isSDKError = (exception: Exception) => {
   const errorOrigin = exception.stacktrace?.[0]?.file;
 
   if (!errorOrigin || typeof errorOrigin !== 'string') {
@@ -175,7 +175,7 @@ export {
   getAppStateForMetadata,
   getBugsnagErrorEvent,
   getURLWithoutQueryString,
-  isRudderSDKError,
+  isSDKError,
   getErrorDeliveryPayload,
   isAllowedToBeNotified,
 };

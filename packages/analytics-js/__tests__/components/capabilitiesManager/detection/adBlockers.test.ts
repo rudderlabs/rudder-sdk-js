@@ -1,4 +1,5 @@
 import { effect } from '@preact/signals-core';
+import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
 import { detectAdBlockers } from '../../../../src/components/capabilitiesManager/detection/adBlockers';
 import { state, resetState } from '../../../../src/state';
 
@@ -12,6 +13,7 @@ jest.mock('../../../../src/services/HttpClient/HttpClient', () => {
     __esModule: true,
     ...originalModule,
     HttpClient: jest.fn().mockImplementation(() => ({
+      init: jest.fn(),
       setAuthHeader: jest.fn(),
       getAsyncData: jest.fn().mockImplementation(({ url, callback }) => {
         callback(undefined, {
@@ -36,7 +38,7 @@ describe('detectAdBlockers', () => {
       responseURL: 'https://example.com/some/path/?view=ad',
     };
 
-    detectAdBlockers();
+    detectAdBlockers(defaultErrorHandler);
 
     effect(() => {
       expect(state.capabilities.isAdBlocked.value).toBe(true);
@@ -52,7 +54,7 @@ describe('detectAdBlockers', () => {
       responseURL: 'data:text/css;charset=UTF-8;base64,dGVtcA==',
     };
 
-    detectAdBlockers();
+    detectAdBlockers(defaultErrorHandler);
 
     effect(() => {
       expect(state.capabilities.isAdBlocked.value).toBe(true);
@@ -68,7 +70,7 @@ describe('detectAdBlockers', () => {
       responseURL: 'https://example.com/some/path/?view=ad',
     };
 
-    detectAdBlockers();
+    detectAdBlockers(defaultErrorHandler);
 
     effect(() => {
       expect(state.capabilities.isAdBlocked.value).toBe(false);

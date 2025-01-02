@@ -9,7 +9,10 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { ERROR_HANDLER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constants/logMessages';
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
-import { MANUAL_ERROR_IDENTIFIER } from '@rudderstack/analytics-js-common/utilities/errors';
+import {
+  getStacktrace,
+  MANUAL_ERROR_IDENTIFIER,
+} from '@rudderstack/analytics-js-common/utilities/errors';
 import {
   BREADCRUMB_ERROR,
   FAILED_ATTACH_LISTENERS_ERROR,
@@ -23,7 +26,7 @@ import {
   getErrInstance,
   getErrorDeliveryPayload,
   isAllowedToBeNotified,
-  isRudderSDKError,
+  isSDKError,
 } from './utils';
 import { createBugsnagException, normalizeError } from './event/event';
 import { defaultHttpClient } from '../HttpClient';
@@ -45,13 +48,13 @@ class ErrorHandler implements IErrorHandler {
   attachErrorListeners() {
     if ('addEventListener' in (globalThis as typeof window)) {
       (globalThis as typeof window).addEventListener('error', (event: ErrorEvent | Event) => {
-        this.onError(event, undefined, undefined, ErrorType.UNHANDLEDEXCEPTION);
+        this.onError(event, ERROR_HANDLER, undefined, ErrorType.UNHANDLEDEXCEPTION);
       });
 
       (globalThis as typeof window).addEventListener(
         'unhandledrejection',
         (event: PromiseRejectionEvent) => {
-          this.onError(event, undefined, undefined, ErrorType.UNHANDLEDREJECTION);
+          this.onError(event, ERROR_HANDLER, undefined, ErrorType.UNHANDLEDREJECTION);
         },
       );
     } else {
@@ -72,11 +75,19 @@ class ErrorHandler implements IErrorHandler {
         return;
       }
 
-      const errorMsgPrefix = `${context}${LOG_CONTEXT_SEPARATOR}${customMessage} `;
+      const errorMsgPrefix = `${context}${LOG_CONTEXT_SEPARATOR}${customMessage}`;
       const bsException = createBugsnagException(normalizedError, errorMsgPrefix);
 
-      // filter errors
-      if (!isRudderSDKError(bsException)) {
+      const stacktrace = getStacktrace(normalizedError);
+      const isSdkDispatched = stacktrace?.includes(MANUAL_ERROR_IDENTIFIER);
+
+      // Filter errors that are not originated in the SDK.
+      // However, in case of NPM installations, since we cannot differentiate between SDK and application errors, we should report all errors.
+      if (
+        !isSDKError(bsException) &&
+        state.context.app.value.installType !== 'npm' &&
+        !isSdkDispatched
+      ) {
         return;
       }
 
@@ -102,17 +113,13 @@ class ErrorHandler implements IErrorHandler {
         });
       }
 
-      // Log only the handled exceptions to the console
-      // Unhandled exceptions are already logged by the browser
-      if (errorType === ErrorType.HANDLEDEXCEPTION) {
+      // Log handled errors and errors dispatched by the SDK
+      if (errorType === ErrorType.HANDLEDEXCEPTION || isSdkDispatched) {
         this.logger?.error(
           Object.create(normalizedError, {
             message: { value: bsException.message },
           }),
         );
-        // Log special errors thrown by the SDK
-      } else if ((error as any).error?.stack?.includes(MANUAL_ERROR_IDENTIFIER)) {
-        this.logger?.error('An unknown error occurred:', (error as ErrorEvent).error?.message);
       }
     } catch (err) {
       // If an error occurs while handling an error, log it

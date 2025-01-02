@@ -4,7 +4,7 @@ import type { Exception, Stackframe } from '@rudderstack/analytics-js-common/typ
 import { ERROR_HANDLER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { isString, isTypeOfError } from '@rudderstack/analytics-js-common/utilities/checks';
-import { hasStack } from '@rudderstack/analytics-js-common/utilities/errors';
+import { getStacktrace } from '@rudderstack/analytics-js-common/utilities/errors';
 import { NON_ERROR_WARNING } from '../../../constants/logMessages';
 import type { FrameType } from './types';
 
@@ -63,7 +63,7 @@ function createException(
 const normalizeError = (maybeError: any, logger?: ILogger): any | undefined => {
   let error;
 
-  if (isTypeOfError(maybeError) && hasStack(maybeError)) {
+  if (isTypeOfError(maybeError) && !!getStacktrace(maybeError)) {
     error = maybeError;
   } else {
     logger?.warn(NON_ERROR_WARNING(ERROR_HANDLER, stringifyWithoutCircular(maybeError)));

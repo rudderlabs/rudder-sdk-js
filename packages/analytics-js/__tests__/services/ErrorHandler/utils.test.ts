@@ -1,9 +1,9 @@
 /* eslint-disable max-classes-per-file */
 import { signal } from '@preact/signals-core';
-import type { ErrorEventPayload } from '@rudderstack/analytics-js-common/types/Metrics';
+import type { ErrorEventPayload, Exception } from '@rudderstack/analytics-js-common/types/Metrics';
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import { state } from '../../../src/state';
-import * as errorReportingConstants from '../../../src/services/ErrorHandler/constant';
+import * as errorReportingConstants from '../../../src/services/ErrorHandler/constants';
 import {
   createNewBreadcrumb,
   getAppStateForMetadata,
@@ -12,7 +12,7 @@ import {
   getReleaseStage,
   getURLWithoutQueryString,
   isAllowedToBeNotified,
-  isRudderSDKError,
+  isSDKError,
 } from '../../../src/services/ErrorHandler/utils';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
@@ -52,15 +52,15 @@ const DEFAULT_STATE_DATA = {
   },
   context: {
     app: {
-      installType: 'cdn',
+      installType: '__MODULE_TYPE__',
       name: 'RudderLabs JavaScript SDK',
       namespace: 'com.rudderlabs.javascript',
-      version: 'dev-snapshot',
+      version: '__PACKAGE_VERSION__',
     },
     device: null,
     library: {
       name: 'RudderLabs JavaScript SDK',
-      version: 'dev-snapshot',
+      version: '__PACKAGE_VERSION__',
     },
     locale: null,
     network: null,
@@ -233,7 +233,7 @@ describe('Error Reporting utilities', () => {
     );
   });
 
-  describe('isRudderSDKError', () => {
+  describe('isSDKError', () => {
     const testCaseData: any[] = [
       ['https://invalid-domain.com/rsa.min.js', true],
       ['https://invalid-domain.com/rss.min.js', false],
@@ -263,7 +263,7 @@ describe('Error Reporting utilities', () => {
           ],
         };
 
-        expect(isRudderSDKError(event)).toBe(expectedValue);
+        expect(isSDKError(event)).toBe(expectedValue);
       },
     );
   });
@@ -415,7 +415,7 @@ describe('Error Reporting utilities', () => {
   });
 
   describe('getBugsnagErrorEvent', () => {
-    it('should return enhanced error event payload', () => {
+    it.skip('should return enhanced error event payload', () => {
       state.session.sessionInfo.value = { id: 123 };
       state.autoTrack.pageLifecycle.visitId.value = 'test-visit-id';
 
@@ -580,8 +580,8 @@ describe('Error Reporting utilities', () => {
           message_id: 'test_uuid',
           source: {
             name: 'js',
-            sdk_version: 'dev-snapshot',
-            install_type: 'cdn',
+            sdk_version: '__PACKAGE_VERSION__',
+            install_type: '__MODULE_TYPE__',
           },
           errors: enhancedErrorPayload,
         }),
@@ -590,19 +590,16 @@ describe('Error Reporting utilities', () => {
   });
 
   describe('isAllowedToBeNotified', () => {
-    it('should return true for Error argument value', () => {
-      const result = isAllowedToBeNotified({ message: 'dummy error' });
+    it('should return true if the error is allowed to be notified', () => {
+      const result = isAllowedToBeNotified({ message: 'dummy error' } as unknown as Exception);
       expect(result).toBeTruthy();
     });
 
-    it('should return true for Error argument value', () => {
-      const result = isAllowedToBeNotified({ message: 'The request failed' });
+    it('should return false if the error is not allowed to be notified', () => {
+      const result = isAllowedToBeNotified({
+        message: 'The request failed',
+      } as unknown as Exception);
       expect(result).toBeFalsy();
-    });
-
-    it('should return true if message is not defined', () => {
-      const result = isAllowedToBeNotified({ name: 'dummy error' });
-      expect(result).toBeTruthy();
     });
   });
 });

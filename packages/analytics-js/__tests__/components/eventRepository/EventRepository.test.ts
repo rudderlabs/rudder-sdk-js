@@ -6,6 +6,7 @@ import type {
 } from '@rudderstack/analytics-js-common/types/Destination';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { defaultHttpClient } from '../../../src/services/HttpClient';
 import { EventRepository } from '../../../src/components/eventRepository';
 import { state, resetState } from '../../../src/state';
 import { PluginsManager } from '../../../src/components/pluginsManager';
@@ -90,7 +91,11 @@ describe('EventRepository', () => {
   });
 
   it('should invoke appropriate plugins start on init', () => {
-    const eventRepository = new EventRepository(defaultPluginsManager, defaultStoreManager);
+    const eventRepository = new EventRepository(
+      defaultPluginsManager,
+      defaultStoreManager,
+      defaultHttpClient,
+    );
     const spy = jest.spyOn(defaultPluginsManager, 'invokeSingle');
     eventRepository.init();
 
@@ -127,7 +132,11 @@ describe('EventRepository', () => {
   });
 
   it('should start the destinations events queue when the client destinations are ready', () => {
-    const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+    const eventRepository = new EventRepository(
+      mockPluginsManager,
+      defaultStoreManager,
+      defaultHttpClient,
+    );
 
     eventRepository.init();
 
@@ -137,7 +146,11 @@ describe('EventRepository', () => {
   });
 
   it('should start the dataplane events queue when no hybrid destinations are present', () => {
-    const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+    const eventRepository = new EventRepository(
+      mockPluginsManager,
+      defaultStoreManager,
+      defaultHttpClient,
+    );
 
     state.nativeDestinations.activeDestinations.value = [
       {
@@ -164,7 +177,11 @@ describe('EventRepository', () => {
   });
 
   it('should start the dataplane events queue when hybrid destinations are present and bufferDataPlaneEventsUntilReady is false', () => {
-    const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+    const eventRepository = new EventRepository(
+      mockPluginsManager,
+      defaultStoreManager,
+      defaultHttpClient,
+    );
 
     state.nativeDestinations.activeDestinations.value = activeDestinationsWithHybridMode;
 
@@ -176,7 +193,11 @@ describe('EventRepository', () => {
   });
 
   it('should start the dataplane events queue when hybrid destinations are present and bufferDataPlaneEventsUntilReady is true and client destinations are ready after some time', done => {
-    const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+    const eventRepository = new EventRepository(
+      mockPluginsManager,
+      defaultStoreManager,
+      defaultHttpClient,
+    );
 
     state.nativeDestinations.activeDestinations.value = activeDestinationsWithHybridMode;
 
@@ -195,7 +216,11 @@ describe('EventRepository', () => {
   });
 
   it('should start the dataplane events queue when hybrid destinations are present and bufferDataPlaneEventsUntilReady is true and client destinations are not ready until buffer timeout expires', done => {
-    const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+    const eventRepository = new EventRepository(
+      mockPluginsManager,
+      defaultStoreManager,
+      defaultHttpClient,
+    );
 
     state.nativeDestinations.activeDestinations.value = activeDestinationsWithHybridMode;
 
@@ -213,7 +238,11 @@ describe('EventRepository', () => {
   });
 
   it('should pass the enqueued event to both dataplane and destinations events queues', () => {
-    const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+    const eventRepository = new EventRepository(
+      mockPluginsManager,
+      defaultStoreManager,
+      defaultHttpClient,
+    );
 
     eventRepository.init();
 
@@ -246,7 +275,11 @@ describe('EventRepository', () => {
   });
 
   it('should invoke event callback function if provided', () => {
-    const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+    const eventRepository = new EventRepository(
+      mockPluginsManager,
+      defaultStoreManager,
+      defaultHttpClient,
+    );
 
     eventRepository.init();
 
@@ -268,6 +301,7 @@ describe('EventRepository', () => {
     const eventRepository = new EventRepository(
       mockPluginsManager,
       defaultStoreManager,
+      defaultHttpClient,
       mockErrorHandler,
     );
 
@@ -283,12 +317,15 @@ describe('EventRepository', () => {
       new Error('test error'),
       'EventRepository',
       'API Callback Invocation Failed',
-      undefined,
     );
   });
 
   it('should buffer the data plane events if the pre-consent event delivery strategy is set to buffer', () => {
-    const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+    const eventRepository = new EventRepository(
+      mockPluginsManager,
+      defaultStoreManager,
+      defaultHttpClient,
+    );
 
     state.consents.preConsent.value = {
       enabled: true,
@@ -307,7 +344,11 @@ describe('EventRepository', () => {
 
   describe('resume', () => {
     it('should resume events processing on resume', () => {
-      const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+      const eventRepository = new EventRepository(
+        mockPluginsManager,
+        defaultStoreManager,
+        defaultHttpClient,
+      );
       eventRepository.init();
 
       eventRepository.resume();
@@ -315,7 +356,11 @@ describe('EventRepository', () => {
     });
 
     it('should clear the events queue if discardPreConsentEvents is set to true', () => {
-      const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+      const eventRepository = new EventRepository(
+        mockPluginsManager,
+        defaultStoreManager,
+        defaultHttpClient,
+      );
 
       state.consents.postConsent.value.discardPreConsentEvents = true;
 

@@ -43,10 +43,9 @@ describe('EventManager', () => {
         },
       });
 
-      expect(mockErrorHandler.onError).toBeCalledWith(
+      expect(mockErrorHandler.onError).toHaveBeenCalledWith(
         new Error('Failed to generate the event object.'),
         'EventManager',
-        undefined,
         undefined,
       );
     });
