@@ -13,11 +13,7 @@ import {
   getStacktrace,
   MANUAL_ERROR_IDENTIFIER,
 } from '@rudderstack/analytics-js-common/utilities/errors';
-import {
-  BREADCRUMB_ERROR,
-  FAILED_ATTACH_LISTENERS_ERROR,
-  HANDLE_ERROR_FAILURE,
-} from '../../constants/logMessages';
+import { BREADCRUMB_ERROR, HANDLE_ERROR_FAILURE } from '../../constants/logMessages';
 import { state } from '../../state';
 import { defaultLogger } from '../Logger';
 import {
@@ -46,20 +42,16 @@ class ErrorHandler implements IErrorHandler {
   }
 
   attachErrorListeners() {
-    if ('addEventListener' in (globalThis as typeof window)) {
-      (globalThis as typeof window).addEventListener('error', (event: ErrorEvent | Event) => {
-        this.onError(event, ERROR_HANDLER, undefined, ErrorType.UNHANDLEDEXCEPTION);
-      });
+    (globalThis as typeof window).addEventListener('error', (event: ErrorEvent | Event) => {
+      this.onError(event, ERROR_HANDLER, undefined, ErrorType.UNHANDLEDEXCEPTION);
+    });
 
-      (globalThis as typeof window).addEventListener(
-        'unhandledrejection',
-        (event: PromiseRejectionEvent) => {
-          this.onError(event, ERROR_HANDLER, undefined, ErrorType.UNHANDLEDREJECTION);
-        },
-      );
-    } else {
-      this.logger?.error(FAILED_ATTACH_LISTENERS_ERROR(ERROR_HANDLER));
-    }
+    (globalThis as typeof window).addEventListener(
+      'unhandledrejection',
+      (event: PromiseRejectionEvent) => {
+        this.onError(event, ERROR_HANDLER, undefined, ErrorType.UNHANDLEDREJECTION);
+      },
+    );
   }
 
   onError(

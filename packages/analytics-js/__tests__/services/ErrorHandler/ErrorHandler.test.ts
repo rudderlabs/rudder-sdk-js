@@ -1,3 +1,4 @@
+/* eslint-disable compat/compat */
 import { defaultHttpClient } from '@rudderstack/analytics-js-common/__mocks__/HttpClient';
 import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
 import { resetState, state } from '../../../src/state';
@@ -9,6 +10,39 @@ describe('ErrorHandler', () => {
   beforeEach(() => {
     resetState();
     errorHandlerInstance = new ErrorHandler(defaultHttpClient, defaultLogger);
+  });
+
+  it('should attach error listeners for unhandled errors', () => {
+    const onErrorSpy = jest.spyOn(errorHandlerInstance, 'onError');
+
+    // Dispatch an unhandled error
+    const errorEvent = new ErrorEvent('error', { error: new Error('dummy error') });
+    (globalThis as typeof window).dispatchEvent(errorEvent);
+
+    expect(onErrorSpy).toHaveBeenCalledTimes(1);
+    expect(onErrorSpy).toHaveBeenCalledWith(
+      errorEvent,
+      'ErrorHandler',
+      undefined,
+      'unhandledException',
+    );
+
+    onErrorSpy.mockReset();
+
+    // Dispatch an unhandled rejection
+    const promiseRejectionEvent = new PromiseRejectionEvent('unhandledrejection', {
+      reason: new Error('dummy error'),
+      promise: Promise.resolve(),
+    });
+    (globalThis as typeof window).dispatchEvent(promiseRejectionEvent);
+
+    expect(onErrorSpy).toHaveBeenCalledTimes(1);
+    expect(onErrorSpy).toHaveBeenCalledWith(
+      promiseRejectionEvent,
+      'ErrorHandler',
+      undefined,
+      'unhandledPromiseRejection',
+    );
   });
 
   describe('leaveBreadcrumb', () => {
@@ -94,11 +128,11 @@ describe('ErrorHandler', () => {
     });
 
     it('should not log unhandled errors to the console', () => {
-      // @ts-expect-error not using the enum value for testing
       errorHandlerInstance.onError(
         new Error('dummy error'),
         'Test',
         undefined,
+        // @ts-expect-error not using the enum value for testing
         'unhandledException',
       );
 
@@ -133,91 +167,47 @@ describe('ErrorHandler', () => {
       expect(defaultHttpClient.getAsyncData).toHaveBeenCalledTimes(0);
     });
 
-    it.skip('should notify errors if error reporting is enabled and the error message is allowed to be notified', () => {
+    it('should notify errors if error reporting is enabled and the error message is allowed to be notified', () => {
       state.reporting.isErrorReportingEnabled.value = true;
+      state.lifecycle.writeKey.value = 'dummy-write-key';
       state.metrics.metricsServiceUrl.value = 'https://dummy.dataplane.com/rsaMetrics';
 
       // @ts-expect-error Ensure that error is notified. Force set the install type to NPM
       state.context.app.value.installType = 'npm';
 
-      errorHandlerInstance.onError(new Error('dummy error'));
-
-      const notifyPayload = {
-        version: '1',
-        message_id: expect.any(String),
-        source: {
-          name: 'js',
-          sdk_version: '1.0.0',
-          write_key: '',
-          install_type: 'npm',
-        },
-        errors: {
-          payloadVersion: '5',
-          notifier: {
-            name: 'RudderStack JavaScript SDK',
-            version: '1.0.0',
-            url: 'https://',
-          },
-          events: [
-            {
-              exceptions: [
-                {
-                  message: 'dummy error',
-                  errorClass: 'Error',
-                  type: 'browserjs',
-                  stacktrace: expect.any(String),
-                },
-              ],
-              severity: 'error',
-              unhandled: false,
-              severityReason: { type: 'handledException' },
-              app: {
-                version: '1.0.0',
-                releaseStage: 'production',
-                type: 'npm',
-              },
-              device: {
-                locale: undefined,
-                userAgent: undefined,
-                time: expect.any(Date),
-              },
-              request: {
-                url: '',
-                clientIp: '[NOT COLLECTED]',
-              },
-              breadcrumbs: [],
-              metaData: {
-                app: {
-                  snippetVersion: undefined,
-                },
-                device: {
-                  density: 0,
-                  width: 0,
-                  height: 0,
-                  innerWidth: 0,
-                  innerHeight: 0,
-                  timezone: undefined,
-                },
-              },
-              user: {
-                id: '',
-                name: '',
-              },
-            },
-          ],
-        },
-      };
+      const error = new Error('dummy error');
+      error.stack =
+        'Error: Test:: dummy error\n    at Object.<anonymous> (https://example.com/sample.js:1:1)';
+      errorHandlerInstance.onError(error, 'Test');
 
       expect(defaultHttpClient.getAsyncData).toHaveBeenCalledTimes(1);
       expect(defaultHttpClient.getAsyncData).toHaveBeenCalledWith({
         url: 'https://dummy.dataplane.com/rsaMetrics',
         options: {
           method: 'POST',
-          data: JSON.stringify(notifyPayload),
+          data: expect.any(String),
           sendRawData: true,
         },
         isRawResponse: true,
       });
+    });
+
+    it('should log error if an error occurs while handling an error', () => {
+      // @ts-expect-error Ensure that error is notified
+      state.context.app.value.installType = 'npm';
+      state.reporting.isErrorReportingEnabled.value = true;
+
+      defaultHttpClient.getAsyncData.mockImplementationOnce(() => {
+        throw new Error('Failed to notify error');
+      });
+
+      errorHandlerInstance.onError(new Error('dummy error'), 'Test');
+
+      expect(defaultLogger.error).toHaveBeenCalledTimes(1);
+      expect(defaultLogger.error).toHaveBeenCalledWith(
+        'ErrorHandler:: Failed to handle the error.',
+        new Error('Failed to notify error'),
+      );
     });
   });
 });

@@ -36,9 +36,6 @@ const UNSUPPORTED_CONSENT_MANAGER_ERROR = (
 const NON_ERROR_WARNING = (context: string, errStr: Nullable<string>): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}Ignoring a non-error: ${errStr}.`;
 
-const FAILED_ATTACH_LISTENERS_ERROR = (context: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}Failed to attach global error listeners.`;
-
 const BREADCRUMB_ERROR = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}Failed to log breadcrumb.`;
 
@@ -325,5 +322,4 @@ export {
   PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING,
   BREADCRUMB_ERROR,
   NON_ERROR_WARNING,
-  FAILED_ATTACH_LISTENERS_ERROR,
 };
