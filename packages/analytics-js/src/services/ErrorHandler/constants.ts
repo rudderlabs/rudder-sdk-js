@@ -24,8 +24,6 @@ const NOTIFIER_NAME = 'RudderStack JavaScript SDK';
 const SDK_GITHUB_URL = '__REPOSITORY_URL__';
 const SOURCE_NAME = 'js';
 
-const ERROR_MESSAGES_TO_BE_FILTERED: string[] = [];
-
 export {
   SDK_FILE_NAME_PREFIXES,
   DEV_HOSTS,
@@ -34,5 +32,4 @@ export {
   NOTIFIER_NAME,
   SDK_GITHUB_URL,
   SOURCE_NAME,
-  ERROR_MESSAGES_TO_BE_FILTERED,
 };

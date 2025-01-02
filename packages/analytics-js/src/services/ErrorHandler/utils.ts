@@ -17,10 +17,10 @@ import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utili
 import { CDN_INT_DIR } from '@rudderstack/analytics-js-common/constants/urls';
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { METRICS_PAYLOAD_VERSION } from '@rudderstack/analytics-js-common/constants/metrics';
+import { ERROR_MESSAGES_TO_BE_FILTERED } from '@rudderstack/analytics-js-common/constants/errors';
 import {
   APP_STATE_EXCLUDE_KEYS,
   DEV_HOSTS,
-  ERROR_MESSAGES_TO_BE_FILTERED,
   NOTIFIER_NAME,
   SDK_FILE_NAME_PREFIXES,
   SDK_GITHUB_URL,
