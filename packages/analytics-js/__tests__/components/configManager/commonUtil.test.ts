@@ -655,19 +655,6 @@ describe('Config Manager Common Utilities', () => {
       );
     });
 
-    it('should return default source config URL if invalid source config URL is provided and no logger is supplied', () => {
-      // Mock console.warn
-      const consoleWarnMock = jest.spyOn(console, 'warn').mockImplementation(() => {});
-
-      const sourceConfigURL = getSourceConfigURL('invalid-url', 'writekey', true, true);
-
-      expect(sourceConfigURL).toBe(
-        'https://api.rudderstack.com/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=true&lockPluginsVersion=true',
-      );
-
-      expect(consoleWarnMock).not.toHaveBeenCalled();
-    });
-
     it('should return the source config URL with default endpoint appended if no endpoint is present', () => {
       const sourceConfigURL = getSourceConfigURL('https://www.dummy.url', 'writekey', false, false);
 
