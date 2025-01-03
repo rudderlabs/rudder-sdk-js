@@ -211,7 +211,6 @@ class EventRepository implements IEventRepository {
    * Handles error
    * @param error The error object
    * @param customMessage a message
-   * @param shouldAlwaysThrow if it should throw or use logger
    */
   onError(error: unknown, customMessage?: string): void {
     if (this.errorHandler) {

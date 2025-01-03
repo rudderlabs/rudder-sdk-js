@@ -205,11 +205,7 @@ class CapabilitiesManager implements ICapabilitiesManager {
    * @param error The error object
    */
   onError(error: unknown): void {
-    if (this.errorHandler) {
-      this.errorHandler.onError(error, CAPABILITIES_MANAGER);
-    } else {
-      throw error;
-    }
+    this.errorHandler.onError(error, CAPABILITIES_MANAGER);
   }
 }
 
