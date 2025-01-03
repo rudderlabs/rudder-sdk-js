@@ -68,6 +68,7 @@ describe('Test suite for the SDK', () => {
 
   afterEach(() => {
     jest.resetModules();
+    jest.clearAllMocks();
 
     window.rudderanalytics = undefined;
 
