@@ -59,7 +59,7 @@ describe('Config Manager Common Utilities', () => {
       removeScriptElement();
     });
 
-    const testCases = [
+    const testCases: any[][] = [
       // expected, input
       [
         'https://www.dummy.url/fromScript/v3/rsa.min.js',
@@ -83,12 +83,15 @@ describe('Config Manager Common Utilities', () => {
       [undefined, null],
     ];
 
-    test.each(testCases)('should return %s when the script src is %s', (expected, input) => {
-      createScriptElement(input as string);
+    test.each(testCases)(
+      'should return %s when the script src is %s',
+      (expected: any, input: any) => {
+        createScriptElement(input as string);
 
-      const sdkURL = getSDKUrl();
-      expect(sdkURL).toBe(expected);
-    });
+        const sdkURL = getSDKUrl();
+        expect(sdkURL).toBe(expected);
+      },
+    );
   });
 
   describe('updateReportingState', () => {
@@ -108,11 +111,10 @@ describe('Config Manager Common Utilities', () => {
         },
       } as SourceConfigResponse;
 
-      updateReportingState(mockSourceConfig, mockLogger);
+      updateReportingState(mockSourceConfig);
 
       expect(state.reporting.isErrorReportingEnabled.value).toBe(true);
       expect(state.reporting.isMetricsReportingEnabled.value).toBe(true);
-      expect(mockLogger.warn).not.toHaveBeenCalled();
     });
 
     it('should update reporting state with the data from source config even if error reporting provider is not specified', () => {
@@ -131,11 +133,10 @@ describe('Config Manager Common Utilities', () => {
         },
       } as SourceConfigResponse;
 
-      updateReportingState(mockSourceConfig, mockLogger);
+      updateReportingState(mockSourceConfig);
 
       expect(state.reporting.isErrorReportingEnabled.value).toBe(true);
       expect(state.reporting.isMetricsReportingEnabled.value).toBe(true);
-      expect(mockLogger.warn).not.toHaveBeenCalled();
     });
   });
 
@@ -151,7 +152,7 @@ describe('Config Manager Common Utilities', () => {
         },
       };
 
-      updateStorageStateFromLoadOptions();
+      updateStorageStateFromLoadOptions(mockLogger);
 
       expect(state.storage.encryptionPluginName.value).toBe('StorageEncryption');
       expect(state.storage.migrate.value).toBe(true);
@@ -168,6 +169,7 @@ describe('Config Manager Common Utilities', () => {
 
     it('should log a warning if the specified storage type is not valid', () => {
       state.loadOptions.value.storage = {
+        // @ts-expect-error testing invalid value
         type: 'random-type',
       };
 
@@ -182,6 +184,7 @@ describe('Config Manager Common Utilities', () => {
     it('should log a warning if the encryption version is not supported', () => {
       state.loadOptions.value.storage = {
         encryption: {
+          // @ts-expect-error testing invalid value
           version: 'v2',
         },
       };
@@ -332,7 +335,7 @@ describe('Config Manager Common Utilities', () => {
         },
       };
 
-      updateConsentsStateFromLoadOptions();
+      updateConsentsStateFromLoadOptions(mockLogger);
 
       expect(state.consents.activeConsentManagerPluginName.value).toBe('OneTrustConsentManager');
       expect(state.consents.preConsent.value).toStrictEqual({
@@ -354,6 +357,7 @@ describe('Config Manager Common Utilities', () => {
     it('should log an error if the specified consent manager is not supported', () => {
       state.loadOptions.value.consentManagement = {
         enabled: true,
+        // @ts-expect-error testing invalid value
         provider: 'randomManager',
       };
 
@@ -374,6 +378,7 @@ describe('Config Manager Common Utilities', () => {
       state.loadOptions.value.preConsent = {
         enabled: true,
         storage: {
+          // @ts-expect-error testing invalid value
           strategy: 'random-strategy',
         },
         events: {
@@ -409,6 +414,7 @@ describe('Config Manager Common Utilities', () => {
           strategy: 'none',
         },
         events: {
+          // @ts-expect-error testing invalid value
           delivery: 'random-delivery',
         },
       };
@@ -447,7 +453,7 @@ describe('Config Manager Common Utilities', () => {
         deniedConsentIds: ['consent2'],
       };
 
-      updateConsentsStateFromLoadOptions();
+      updateConsentsStateFromLoadOptions(mockLogger);
 
       expect(state.consents.preConsent.value).toStrictEqual({
         enabled: false,
@@ -475,7 +481,7 @@ describe('Config Manager Common Utilities', () => {
         enabled: false,
       };
 
-      updateConsentsStateFromLoadOptions();
+      updateConsentsStateFromLoadOptions(mockLogger);
 
       expect(state.consents.preConsent.value).toStrictEqual({
         enabled: false,
@@ -544,7 +550,7 @@ describe('Config Manager Common Utilities', () => {
       state.consents.provider.value = 'ketch';
       const mockSourceConfig = {
         consentManagementMetadata: 'random-metadata',
-      } as SourceConfigResponse;
+      } as unknown as SourceConfigResponse;
 
       updateConsentsState(mockSourceConfig);
 
@@ -575,6 +581,7 @@ describe('Config Manager Common Utilities', () => {
     });
 
     it('should not update the resolution strategy to state if the provider is not supported', () => {
+      // @ts-expect-error testing invalid value
       state.consents.provider.value = 'random-provider';
       const mockSourceConfig = {
         consentManagementMetadata: {
@@ -656,7 +663,13 @@ describe('Config Manager Common Utilities', () => {
     });
 
     it('should return the source config URL with default endpoint appended if no endpoint is present', () => {
-      const sourceConfigURL = getSourceConfigURL('https://www.dummy.url', 'writekey', false, false);
+      const sourceConfigURL = getSourceConfigURL(
+        'https://www.dummy.url',
+        'writekey',
+        false,
+        false,
+        mockLogger,
+      );
 
       expect(sourceConfigURL).toBe(
         'https://www.dummy.url/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=false&lockPluginsVersion=false',
@@ -669,6 +682,7 @@ describe('Config Manager Common Utilities', () => {
         'writekey',
         false,
         false,
+        mockLogger,
       );
 
       expect(sourceConfigURL).toBe(
@@ -682,6 +696,7 @@ describe('Config Manager Common Utilities', () => {
         'writekey',
         false,
         false,
+        mockLogger,
       );
 
       expect(sourceConfigURL).toBe(
@@ -695,6 +710,7 @@ describe('Config Manager Common Utilities', () => {
         'writekey',
         false,
         false,
+        mockLogger,
       );
 
       expect(sourceConfigURL).toBe(
@@ -708,6 +724,7 @@ describe('Config Manager Common Utilities', () => {
         'writekey',
         false,
         false,
+        mockLogger,
       );
 
       expect(sourceConfigURL).toBe(

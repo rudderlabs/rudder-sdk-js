@@ -1,4 +1,5 @@
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { defaultLogger } from '../../../src/services/Logger';
 import { defaultHttpClient } from '../../../src/services/HttpClient';
 import { isLegacyJSEngine } from '../../../src/components/capabilitiesManager/detection';
 import type { ICapabilitiesManager } from '../../../src/components/capabilitiesManager/types';
@@ -96,37 +97,6 @@ describe('CapabilitiesManager', () => {
       expect(mockLogger.warn).toHaveBeenCalledWith(
         'CapabilitiesManager:: The provided polyfill URL "invalid-url" is invalid. The default polyfill URL will be used instead.',
       );
-    });
-
-    it('should use default polyfill URL but not log any warning if custom URL and logger are not provided', () => {
-      state.loadOptions.value.polyfillURL = 'invalid-url';
-      state.lifecycle.writeKey.value = 'sample-write-key';
-      state.loadOptions.value.polyfillIfRequired = true;
-
-      const tempCapabilitiesManager = new CapabilitiesManager(
-        defaultHttpClient,
-        defaultErrorHandler,
-      );
-
-      isLegacyJSEngine.mockReturnValue(true);
-      tempCapabilitiesManager.externalSrcLoader = {
-        loadJSFile: jest.fn(),
-      } as any;
-
-      tempCapabilitiesManager.prepareBrowserCapabilities();
-
-      expect(tempCapabilitiesManager.externalSrcLoader.loadJSFile).toHaveBeenCalledWith({
-        url: 'https://somevalid.polyfill.url&callback=RS_polyfillCallback_sample-write-key',
-        id: 'rudderstackPolyfill',
-        async: true,
-        timeout: 10000,
-        callback: expect.any(Function),
-      });
-
-      // mock console.warn
-      const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
-
-      expect(consoleWarn).not.toHaveBeenCalled();
     });
 
     it('should not load polyfills if default polyfill URL is invalid', () => {
