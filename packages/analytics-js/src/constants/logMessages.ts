@@ -20,7 +20,7 @@ const PLUGIN_EXT_POINT_MISSING_ERROR = `Failed to invoke plugin because the exte
 const PLUGIN_EXT_POINT_INVALID_ERROR = `Failed to invoke plugin because the extension point name is invalid.`;
 
 const SOURCE_CONFIG_OPTION_ERROR = (context: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The "getSourceConfig" load API option must be a function return a valid source configuration object.`;
+  `${context}${LOG_CONTEXT_SEPARATOR}The "getSourceConfig" load API option must be a function that returns valid source configuration data.`;
 
 const COMPONENT_BASE_URL_ERROR = (context: string, component: string, url?: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The base URL "${url}" for ${component} is not valid.`;

@@ -146,6 +146,19 @@ describe('ConfigManager', () => {
     expect(configManagerInstance.processConfig).toHaveBeenCalled();
   });
 
+  it('should log an error if getSourceConfig load option is not a function', () => {
+    // @ts-expect-error Testing invalid input
+    state.loadOptions.value.getSourceConfig = dummySourceConfigResponse;
+    configManagerInstance.processConfig = jest.fn();
+
+    configManagerInstance.getConfig();
+
+    expect(defaultLogger.error).toHaveBeenCalledTimes(1);
+    expect(defaultLogger.error).toHaveBeenCalledWith(
+      'ConfigManager:: The "getSourceConfig" load API option must be a function that returns valid source configuration data.',
+    );
+  });
+
   it('should update source, destination, lifecycle and reporting state with proper values', () => {
     const expectedSourceState = {
       id: dummySourceConfigResponse.source.id,
