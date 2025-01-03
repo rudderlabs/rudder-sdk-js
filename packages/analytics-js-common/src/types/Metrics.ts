@@ -42,12 +42,12 @@ export type ErrorEvent = {
     clientIp: string;
   };
   breadcrumbs: Breadcrumb[] | [];
+  context: string;
   metaData: {
     [index: string]: any;
   };
   user: {
     id: string;
-    name: string;
   };
 };
 

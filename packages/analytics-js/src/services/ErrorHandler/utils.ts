@@ -100,19 +100,21 @@ const getBugsnagErrorEvent = (
           clientIp: '[NOT COLLECTED]',
         },
         breadcrumbs: clone(reporting.breadcrumbs.value),
+        context: exception.message,
         metaData: {
           app: {
             snippetVersion: library.value.snippetVersion,
           },
           device: { ...screen.value, timezone: timezone.value },
+          user: {
+            name: source.value?.name ?? 'NA',
+          },
           // Add rest of the state groups as metadata
           // so that they show up as separate tabs in the dashboard
           ...getAppStateForMetadata(state),
         },
         user: {
-          // Combination of source, session and visit ids
           id: `${source.value?.id ?? (lifecycle.writeKey.value as string)}..${session.sessionInfo.value?.id ?? 'NA'}..${autoTrack?.pageLifecycle?.visitId?.value ?? 'NA'}`,
-          name: source.value?.name ?? 'NA',
         },
       },
     ],

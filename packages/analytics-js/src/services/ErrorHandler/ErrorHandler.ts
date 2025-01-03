@@ -107,11 +107,7 @@ class ErrorHandler implements IErrorHandler {
 
       // Log handled errors and errors dispatched by the SDK
       if (errorType === ErrorType.HANDLEDEXCEPTION || isSdkDispatched) {
-        this.logger.error(
-          Object.create(normalizedError, {
-            message: { value: bsException.message },
-          }),
-        );
+        this.logger.error(bsException.message);
       }
     } catch (err) {
       // If an error occurs while handling an error, log it

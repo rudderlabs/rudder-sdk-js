@@ -124,7 +124,7 @@ describe('ErrorHandler', () => {
       errorHandlerInstance.onError(new Error('dummy error'), 'Test');
 
       expect(defaultLogger.error).toHaveBeenCalledTimes(1);
-      expect(defaultLogger.error).toHaveBeenCalledWith(new Error('Test:: dummy error'));
+      expect(defaultLogger.error).toHaveBeenCalledWith('Test:: dummy error');
     });
 
     it('should not log unhandled errors to the console', () => {
@@ -149,7 +149,7 @@ describe('ErrorHandler', () => {
       errorHandlerInstance.onError(errorEvent, 'Test', undefined, 'unhandledException');
 
       expect(defaultLogger.error).toHaveBeenCalledTimes(1);
-      expect(defaultLogger.error).toHaveBeenCalledWith(new Error('Test:: dummy error'));
+      expect(defaultLogger.error).toHaveBeenCalledWith('Test:: dummy error');
     });
 
     it('should not notify errors if error reporting is disabled', () => {
