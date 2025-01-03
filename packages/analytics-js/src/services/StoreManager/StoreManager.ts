@@ -192,7 +192,7 @@ class StoreManager implements IStoreManager {
     }
 
     if (finalStorageType !== storageType) {
-      this.logger?.warn(
+      this.logger.warn(
         STORAGE_UNAVAILABLE_WARNING(STORE_MANAGER, sessionKey, storageType, finalStorageType),
       );
     }

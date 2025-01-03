@@ -14,8 +14,6 @@ describe('EventManager', () => {
   class MockErrorHandler implements IErrorHandler {
     onError = jest.fn();
     leaveBreadcrumb = jest.fn();
-    notifyError = jest.fn();
-    init = jest.fn();
     httpClient: IHttpClient = defaultHttpClient;
     logger: ILogger = defaultLogger;
   }

@@ -133,7 +133,7 @@ class Analytics implements IAnalytics {
     });
 
     // set log level as early as possible
-    this.logger?.setMinLogLevel(state.loadOptions.value.logLevel ?? POST_LOAD_LOG_LEVEL);
+    this.logger.setMinLogLevel(state.loadOptions.value.logLevel ?? POST_LOAD_LOG_LEVEL);
 
     // Expose state to global objects
     setExposedGlobal('state', state, writeKey);

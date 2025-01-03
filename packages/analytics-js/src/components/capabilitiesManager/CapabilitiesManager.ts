@@ -125,7 +125,7 @@ class CapabilitiesManager implements ICapabilitiesManager {
       if (isValidURL(customPolyfillUrl)) {
         polyfillUrl = customPolyfillUrl;
       } else {
-        this.logger?.warn(INVALID_POLYFILL_URL_WARNING(CAPABILITIES_MANAGER, customPolyfillUrl));
+        this.logger.warn(INVALID_POLYFILL_URL_WARNING(CAPABILITIES_MANAGER, customPolyfillUrl));
       }
     }
 

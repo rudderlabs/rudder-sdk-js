@@ -13,7 +13,10 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { PLUGINS_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { isDefined, isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
-import { generateMisconfiguredPluginsWarning } from '../../constants/logMessages';
+import {
+  DEPRECATED_PLUGIN_WARNING,
+  generateMisconfiguredPluginsWarning,
+} from '../../constants/logMessages';
 import { setExposedGlobal } from '../utilities/globals';
 import { state } from '../../state';
 import {
@@ -21,7 +24,7 @@ import {
   StorageEncryptionVersionsToPluginNameMap,
   DataPlaneEventsTransportToPluginNameMap,
 } from '../configManager/constants';
-import { pluginNamesList } from './pluginNames';
+import { deprecatedPluginsList, pluginNamesList } from './pluginNames';
 import {
   getMandatoryPluginsMap,
   pluginsInventory,
@@ -95,15 +98,14 @@ class PluginsManager implements IPluginsManager {
       return [];
     }
 
-    // TODO: Uncomment below lines after removing deprecated plugin
     // Filter deprecated plugins
-    // pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(pluginName => {
-    //   if (deprecatedPluginsList.includes(pluginName)) {
-    //     this.logger?.warn(DEPRECATED_PLUGIN_WARNING(PLUGINS_MANAGER, pluginName));
-    //     return false;
-    //   }
-    //   return true;
-    // });
+    pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(pluginName => {
+      if (deprecatedPluginsList.includes(pluginName)) {
+        this.logger.warn(DEPRECATED_PLUGIN_WARNING(PLUGINS_MANAGER, pluginName));
+        return false;
+      }
+      return true;
+    });
 
     const pluginGroupsToProcess: PluginsGroup[] = [
       {
@@ -198,7 +200,7 @@ class PluginsManager implements IPluginsManager {
         pluginsToLoadFromConfig.push(...missingPlugins);
       }
 
-      this.logger?.warn(
+      this.logger.warn(
         generateMisconfiguredPluginsWarning(
           PLUGINS_MANAGER,
           group.configurationStatusStr,

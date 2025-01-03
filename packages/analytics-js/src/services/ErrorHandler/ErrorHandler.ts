@@ -107,7 +107,7 @@ class ErrorHandler implements IErrorHandler {
 
       // Log handled errors and errors dispatched by the SDK
       if (errorType === ErrorType.HANDLEDEXCEPTION || isSdkDispatched) {
-        this.logger?.error(
+        this.logger.error(
           Object.create(normalizedError, {
             message: { value: bsException.message },
           }),
@@ -115,7 +115,7 @@ class ErrorHandler implements IErrorHandler {
       }
     } catch (err) {
       // If an error occurs while handling an error, log it
-      this.logger?.error(HANDLE_ERROR_FAILURE(ERROR_HANDLER), err);
+      this.logger.error(HANDLE_ERROR_FAILURE(ERROR_HANDLER), err);
     }
   }
 

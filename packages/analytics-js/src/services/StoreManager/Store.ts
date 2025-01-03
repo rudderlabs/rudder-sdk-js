@@ -211,7 +211,7 @@ class Store implements IStore {
    * Handle errors
    */
   onError(error: unknown) {
-    this.errorHandler?.onError(error, `Store ${this.id}`);
+    this.errorHandler.onError(error, `Store ${this.id}`);
   }
 }
 
