@@ -6,9 +6,9 @@ import type { RudderContext, RudderEvent } from '@rudderstack/analytics-js-commo
 import { getEnrichedEvent, getUpdatedPageProperties } from './utilities';
 
 class RudderEventFactory {
-  logger?: ILogger;
+  logger: ILogger;
 
-  constructor(logger?: ILogger) {
+  constructor(logger: ILogger) {
     this.logger = logger;
   }
 

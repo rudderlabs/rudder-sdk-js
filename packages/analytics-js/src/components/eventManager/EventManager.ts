@@ -14,8 +14,8 @@ import type { IUserSessionManager } from '../userSessionManager/types';
 class EventManager implements IEventManager {
   eventRepository: IEventRepository;
   userSessionManager: IUserSessionManager;
-  errorHandler?: IErrorHandler;
-  logger?: ILogger;
+  errorHandler: IErrorHandler;
+  logger: ILogger;
   eventFactory: RudderEventFactory;
 
   /**
@@ -28,8 +28,8 @@ class EventManager implements IEventManager {
   constructor(
     eventRepository: IEventRepository,
     userSessionManager: IUserSessionManager,
-    errorHandler?: IErrorHandler,
-    logger?: ILogger,
+    errorHandler: IErrorHandler,
+    logger: ILogger,
   ) {
     this.eventRepository = eventRepository;
     this.userSessionManager = userSessionManager;
@@ -69,11 +69,7 @@ class EventManager implements IEventManager {
    * @param error The error object
    */
   onError(error: unknown, customMessage?: string): void {
-    if (this.errorHandler) {
-      this.errorHandler.onError(error, EVENT_MANAGER, customMessage);
-    } else {
-      throw error;
-    }
+    this.errorHandler.onError(error, EVENT_MANAGER, customMessage);
   }
 }
 

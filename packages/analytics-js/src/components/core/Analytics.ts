@@ -242,11 +242,11 @@ class Analytics implements IAnalytics {
     this.storeManager = new StoreManager(this.pluginsManager, this.errorHandler, this.logger);
     this.configManager = new ConfigManager(this.httpClient, this.errorHandler, this.logger);
     this.userSessionManager = new UserSessionManager(
-      this.errorHandler,
-      this.logger,
       this.pluginsManager,
       this.storeManager,
       this.httpClient,
+      this.errorHandler,
+      this.logger,
     );
     this.eventRepository = new EventRepository(
       this.pluginsManager,

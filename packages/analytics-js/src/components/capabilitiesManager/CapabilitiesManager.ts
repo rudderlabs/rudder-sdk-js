@@ -39,10 +39,10 @@ import { debounce } from '../utilities/globals';
 class CapabilitiesManager implements ICapabilitiesManager {
   httpClient: IHttpClient;
   errorHandler: IErrorHandler;
-  logger?: ILogger;
+  logger: ILogger;
   externalSrcLoader: IExternalSrcLoader;
 
-  constructor(httpClient: IHttpClient, errorHandler: IErrorHandler, logger?: ILogger) {
+  constructor(httpClient: IHttpClient, errorHandler: IErrorHandler, logger: ILogger) {
     this.httpClient = httpClient;
     this.errorHandler = errorHandler;
     this.logger = logger;

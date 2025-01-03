@@ -6,6 +6,7 @@ import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger
 import { defaultStoreManager } from '@rudderstack/analytics-js-common/__mocks__/StoreManager';
 import type { ExtensionPoint } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { defaultHttpClient } from '@rudderstack/analytics-js-common/__mocks__/HttpClient';
+import { defaultPluginsManager } from '@rudderstack/analytics-js-common/__mocks__/PluginsManager';
 import * as utils from '../../src/deviceModeTransformation/utilities';
 import { DeviceModeTransformation } from '../../src/deviceModeTransformation';
 import {
@@ -16,7 +17,6 @@ import {
 } from '../../__fixtures__/fixtures';
 import { server } from '../../__fixtures__/msw.server';
 import { resetState, state } from '../../__mocks__/state';
-import { defaultPluginsManager } from '../../__mocks__/PluginsManager';
 import type { RetryQueue } from '../../src/utilities/retryQueue/RetryQueue';
 import type { QueueItem, QueueItemData } from '../../src/types/plugins';
 

@@ -1,6 +1,10 @@
 import { QueueStatuses } from '@rudderstack/analytics-js-common/constants/QueueStatuses';
 import { Store } from '../../../src/services/StoreManager/Store';
 import { getStorageEngine } from '../../../src/services/StoreManager/storages/storageEngine';
+import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
+import { defaultLogger } from '../../../src/services/Logger';
+import { PluginsManager } from '../../../src/components/pluginsManager';
+import { PluginEngine } from '../../../src/services/PluginEngine';
 
 describe('Store', () => {
   let store: Store;
@@ -22,6 +26,9 @@ describe('Store', () => {
     },
   };
 
+  const pluginEngine = new PluginEngine(defaultLogger);
+  const pluginsManager = new PluginsManager(pluginEngine, defaultErrorHandler, defaultLogger);
+
   beforeEach(() => {
     engine.clear();
     store = new Store(
@@ -29,8 +36,11 @@ describe('Store', () => {
         name: 'name',
         id: 'id',
         validKeys: QueueStatuses,
+        errorHandler: defaultErrorHandler,
+        logger: defaultLogger,
       },
       getStorageEngine('localStorage'),
+      pluginsManager,
     );
   });
 
@@ -81,8 +91,11 @@ describe('Store', () => {
           {
             name: 'name',
             id: 'id',
+            errorHandler: defaultErrorHandler,
+            logger: defaultLogger,
           },
           getStorageEngine('localStorage'),
+          pluginsManager,
         );
         expect(store.createValidKey('test')).toStrictEqual('name.id.test');
       });
@@ -95,8 +108,11 @@ describe('Store', () => {
             name: 'name',
             id: 'id',
             validKeys: { nope: 'wrongKey' },
+            errorHandler: defaultErrorHandler,
+            logger: defaultLogger,
           },
           getStorageEngine('localStorage'),
+          pluginsManager,
         );
         expect(store.createValidKey('test')).toBeUndefined();
       });
@@ -107,8 +123,11 @@ describe('Store', () => {
         {
           name: 'name',
           id: 'id',
+          errorHandler: defaultErrorHandler,
+          logger: defaultLogger,
         },
         getStorageEngine('localStorage'),
+        pluginsManager,
       );
       expect(store.createValidKey('queue')).toStrictEqual('name.id.queue');
     });
@@ -133,8 +152,11 @@ describe('Store', () => {
           name: 'name',
           id: 'id',
           validKeys: QueueStatuses,
+          errorHandler: defaultErrorHandler,
+          logger: defaultLogger,
         },
         lsProxy,
+        pluginsManager,
       );
 
       Object.keys(QueueStatuses).forEach(keyValue => {

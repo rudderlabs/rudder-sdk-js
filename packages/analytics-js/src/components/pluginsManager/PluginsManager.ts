@@ -34,10 +34,10 @@ import type { PluginsGroup } from './types';
 // TODO: add timeout error mechanism for marking remote plugins that failed to load as failed in state
 class PluginsManager implements IPluginsManager {
   engine: IPluginEngine;
-  errorHandler?: IErrorHandler;
-  logger?: ILogger;
+  errorHandler: IErrorHandler;
+  logger: ILogger;
 
-  constructor(engine: IPluginEngine, errorHandler?: IErrorHandler, logger?: ILogger) {
+  constructor(engine: IPluginEngine, errorHandler: IErrorHandler, logger: ILogger) {
     this.engine = engine;
 
     this.errorHandler = errorHandler;
@@ -339,11 +339,7 @@ class PluginsManager implements IPluginsManager {
    * Handle errors
    */
   onError(error: unknown, customMessage?: string): void {
-    if (this.errorHandler) {
-      this.errorHandler.onError(error, PLUGINS_MANAGER, customMessage);
-    } else {
-      throw error;
-    }
+    this.errorHandler.onError(error, PLUGINS_MANAGER, customMessage);
   }
 }
 

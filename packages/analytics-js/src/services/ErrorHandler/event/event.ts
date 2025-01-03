@@ -60,13 +60,13 @@ function createException(
   };
 }
 
-const normalizeError = (maybeError: any, logger?: ILogger): any | undefined => {
+const normalizeError = (maybeError: any, logger: ILogger): any => {
   let error;
 
   if (isTypeOfError(maybeError) && !!getStacktrace(maybeError)) {
     error = maybeError;
   } else {
-    logger?.warn(NON_ERROR_WARNING(ERROR_HANDLER, stringifyWithoutCircular(maybeError)));
+    logger.warn(NON_ERROR_WARNING(ERROR_HANDLER, stringifyWithoutCircular(maybeError)));
     error = undefined;
   }
 

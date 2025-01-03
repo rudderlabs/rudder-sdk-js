@@ -77,8 +77,8 @@ export type SourceConfigResponse = {
 
 export interface IConfigManager {
   httpClient: IHttpClient;
-  errorHandler?: IErrorHandler;
-  logger?: ILogger;
+  errorHandler: IErrorHandler;
+  logger: ILogger;
   init: () => void;
   getConfig: () => void;
   processConfig: () => void;

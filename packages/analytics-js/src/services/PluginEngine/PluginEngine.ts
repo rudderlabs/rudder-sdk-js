@@ -29,9 +29,9 @@ class PluginEngine implements IPluginEngine {
   byName: Record<string, ExtensionPlugin> = {};
   cache: Record<string, ExtensionPlugin[]> = {};
   config: PluginEngineConfig = { throws: true };
-  logger?: ILogger;
+  logger: ILogger;
 
-  constructor(options: PluginEngineConfig = {}, logger?: ILogger) {
+  constructor(logger: ILogger, options: PluginEngineConfig = {}) {
     this.config = {
       throws: true,
       ...options,
@@ -46,7 +46,7 @@ class PluginEngine implements IPluginEngine {
       if (this.config.throws) {
         throw new Error(errorMessage);
       } else {
-        this.logger?.error(errorMessage, plugin);
+        this.logger.error(errorMessage, plugin);
       }
     }
 
@@ -55,7 +55,7 @@ class PluginEngine implements IPluginEngine {
       if (this.config.throws) {
         throw new Error(errorMessage);
       } else {
-        this.logger?.error(errorMessage);
+        this.logger.error(errorMessage);
       }
     }
 
@@ -86,7 +86,7 @@ class PluginEngine implements IPluginEngine {
       if (this.config.throws) {
         throw new Error(errorMessage);
       } else {
-        this.logger?.error(errorMessage);
+        this.logger.error(errorMessage);
       }
     }
 
@@ -97,7 +97,7 @@ class PluginEngine implements IPluginEngine {
       if (this.config.throws) {
         throw new Error(errorMessage);
       } else {
-        this.logger?.error(errorMessage);
+        this.logger.error(errorMessage);
       }
     }
 
@@ -119,7 +119,7 @@ class PluginEngine implements IPluginEngine {
         if (plugin.deps?.some(dependency => !this.byName[dependency])) {
           // If deps not exist, then not load it.
           const notExistDeps = plugin.deps.filter(dependency => !this.byName[dependency]);
-          this.logger?.error(PLUGIN_DEPS_ERROR(PLUGIN_ENGINE, plugin.name, notExistDeps));
+          this.logger.error(PLUGIN_DEPS_ERROR(PLUGIN_ENGINE, plugin.name, notExistDeps));
           return false;
         }
         return lifeCycleName === '.' ? true : hasValueByPath(plugin, lifeCycleName);
@@ -175,7 +175,7 @@ class PluginEngine implements IPluginEngine {
         if (throws) {
           throw err;
         } else {
-          this.logger?.error(
+          this.logger.error(
             PLUGIN_INVOCATION_ERROR(PLUGIN_ENGINE, extensionPointName, plugin.name),
             err,
           );
@@ -195,6 +195,6 @@ class PluginEngine implements IPluginEngine {
   }
 }
 
-const defaultPluginEngine = new PluginEngine({ throws: true }, defaultLogger);
+const defaultPluginEngine = new PluginEngine(defaultLogger, { throws: true });
 
 export { PluginEngine, defaultPluginEngine };

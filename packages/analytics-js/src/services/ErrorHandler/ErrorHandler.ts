@@ -32,10 +32,10 @@ import { defaultHttpClient } from '../HttpClient';
  */
 class ErrorHandler implements IErrorHandler {
   httpClient: IHttpClient;
-  logger?: ILogger;
+  logger: ILogger;
 
   // If no logger is passed errors will be thrown as unhandled error
-  constructor(httpClient: IHttpClient, logger?: ILogger) {
+  constructor(httpClient: IHttpClient, logger: ILogger) {
     this.httpClient = httpClient;
     this.logger = logger;
     this.attachErrorListeners();

@@ -20,18 +20,16 @@ import { createXhrRequestOptions, xhrRequest } from './xhr/xhrRequestHandler';
  */
 class HttpClient implements IHttpClient {
   errorHandler?: IErrorHandler;
-  logger?: ILogger;
+  logger: ILogger;
   basicAuthHeader?: string;
-  hasErrorHandler = false;
 
-  constructor(logger?: ILogger) {
+  constructor(logger: ILogger) {
     this.logger = logger;
     this.onError = this.onError.bind(this);
   }
 
   init(errorHandler: IErrorHandler) {
     this.errorHandler = errorHandler;
-    this.hasErrorHandler = true;
   }
 
   /**
@@ -86,11 +84,7 @@ class HttpClient implements IHttpClient {
    * Handle errors
    */
   onError(error: unknown) {
-    if (this.hasErrorHandler) {
-      this.errorHandler?.onError(error, HTTP_CLIENT);
-    } else {
-      throw error;
-    }
+    this.errorHandler?.onError(error, HTTP_CLIENT);
   }
 
   /**

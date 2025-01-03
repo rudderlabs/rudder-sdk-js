@@ -40,15 +40,13 @@ import { getStorageTypeFromPreConsentIfApplicable } from './utils';
 class StoreManager implements IStoreManager {
   stores: Record<StoreId, Store> = {};
   isInitialized = false;
-  errorHandler?: IErrorHandler;
-  logger?: ILogger;
-  pluginsManager?: IPluginsManager;
-  hasErrorHandler = false;
+  errorHandler: IErrorHandler;
+  logger: ILogger;
+  pluginsManager: IPluginsManager;
 
-  constructor(pluginsManager?: IPluginsManager, errorHandler?: IErrorHandler, logger?: ILogger) {
+  constructor(pluginsManager: IPluginsManager, errorHandler: IErrorHandler, logger: ILogger) {
     this.errorHandler = errorHandler;
     this.logger = logger;
-    this.hasErrorHandler = Boolean(this.errorHandler);
     this.pluginsManager = pluginsManager;
     this.onError = this.onError.bind(this);
   }
@@ -109,6 +107,8 @@ class StoreManager implements IStoreManager {
           isEncrypted: true,
           noCompoundKey: true,
           type: storageType,
+          errorHandler: this.errorHandler,
+          logger: this.logger,
         });
       }
     });
@@ -220,11 +220,7 @@ class StoreManager implements IStoreManager {
    * Handle errors
    */
   onError(error: unknown) {
-    if (this.hasErrorHandler) {
-      this.errorHandler?.onError(error, STORE_MANAGER);
-    } else {
-      throw error;
-    }
+    this.errorHandler?.onError(error, STORE_MANAGER);
   }
 }
 

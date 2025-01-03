@@ -6,7 +6,7 @@ import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpCli
 export interface ICapabilitiesManager {
   httpClient: IHttpClient;
   errorHandler: IErrorHandler;
-  logger?: ILogger;
+  logger: ILogger;
   externalSrcLoader: IExternalSrcLoader;
   init(): void;
   detectBrowserCapabilities(): void;

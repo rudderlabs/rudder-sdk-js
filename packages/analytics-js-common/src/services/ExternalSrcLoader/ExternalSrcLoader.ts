@@ -10,20 +10,18 @@ import { jsFileLoader } from './jsFileLoader';
  * Service to load external resources/files
  */
 class ExternalSrcLoader implements IExternalSrcLoader {
-  errorHandler?: IErrorHandler;
-  logger?: ILogger;
-  hasErrorHandler = false;
+  errorHandler: IErrorHandler;
+  logger: ILogger;
   timeout: number;
 
   constructor(
-    errorHandler?: IErrorHandler,
-    logger?: ILogger,
+    errorHandler: IErrorHandler,
+    logger: ILogger,
     timeout = DEFAULT_EXT_SRC_LOAD_TIMEOUT_MS,
   ) {
     this.errorHandler = errorHandler;
     this.logger = logger;
     this.timeout = timeout;
-    this.hasErrorHandler = Boolean(this.errorHandler);
     this.onError = this.onError.bind(this);
   }
 
@@ -52,11 +50,7 @@ class ExternalSrcLoader implements IExternalSrcLoader {
    * Handle errors
    */
   onError(error: unknown) {
-    if (this.hasErrorHandler) {
-      this.errorHandler?.onError(error, EXTERNAL_SRC_LOADER);
-    } else {
-      throw error;
-    }
+    this.errorHandler?.onError(error, EXTERNAL_SRC_LOADER);
   }
 }
 

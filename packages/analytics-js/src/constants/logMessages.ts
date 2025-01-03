@@ -11,7 +11,6 @@ import type {
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 
 // CONSTANT
-const SOURCE_CONFIG_OPTION_ERROR = `"getSourceConfig" must be a function. Please make sure that it is defined and returns a valid source configuration object.`;
 const DATA_PLANE_URL_ERROR = `Failed to load the SDK as the data plane URL could not be determined. Please check that the data plane URL is set correctly and try again.`;
 const SOURCE_CONFIG_RESOLUTION_ERROR = `Unable to process/parse source configuration response.`;
 const SOURCE_DISABLED_ERROR = `The source is disabled. Please enable the source in the dashboard to send events.`;
@@ -20,8 +19,11 @@ const EVENT_OBJECT_GENERATION_ERROR = `Failed to generate the event object.`;
 const PLUGIN_EXT_POINT_MISSING_ERROR = `Failed to invoke plugin because the extension point name is missing.`;
 const PLUGIN_EXT_POINT_INVALID_ERROR = `Failed to invoke plugin because the extension point name is invalid.`;
 
-const COMPONENT_BASE_URL_ERROR = (component: string): string =>
-  `Failed to load the SDK as the base URL for ${component} is not valid.`;
+const SOURCE_CONFIG_OPTION_ERROR = (context: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The "getSourceConfig" load API option must be a function return a valid source configuration object.`;
+
+const COMPONENT_BASE_URL_ERROR = (context: string, component: string, url?: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The base URL "${url}" for ${component} is not valid.`;
 
 // ERROR
 const UNSUPPORTED_CONSENT_MANAGER_ERROR = (

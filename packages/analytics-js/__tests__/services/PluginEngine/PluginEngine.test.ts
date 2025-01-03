@@ -1,5 +1,6 @@
 import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { PluginEngine } from '../../../src/services/PluginEngine/PluginEngine';
+import { defaultLogger } from '../../../src/services/Logger';
 
 const mockPlugin1: ExtensionPlugin = {
   name: 'p1',
@@ -34,7 +35,7 @@ describe('PluginEngine', () => {
   let pluginEngineTestInstance: PluginEngine;
 
   beforeEach(() => {
-    pluginEngineTestInstance = new PluginEngine();
+    pluginEngineTestInstance = new PluginEngine(defaultLogger);
     pluginEngineTestInstance.register(mockPlugin1);
     pluginEngineTestInstance.register(mockPlugin2);
     pluginEngineTestInstance.register(mockPlugin3);

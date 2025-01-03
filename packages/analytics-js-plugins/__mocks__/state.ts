@@ -154,6 +154,7 @@ const defaultStateValues: ApplicationState = {
   source: signal({
     id: 'dummy-source-id',
     workspaceId: 'dummy-workspace-id',
+    name: 'dummy-source-name',
   }),
   storage: {
     encryptionPluginName: signal(undefined),

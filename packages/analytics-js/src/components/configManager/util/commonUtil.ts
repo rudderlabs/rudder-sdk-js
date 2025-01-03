@@ -81,7 +81,7 @@ const updateReportingState = (res: SourceConfigResponse): void => {
   state.reporting.isMetricsReportingEnabled.value = isMetricsReportingEnabled(res.source.config);
 };
 
-const getServerSideCookiesStateData = (logger?: ILogger) => {
+const getServerSideCookiesStateData = (logger: ILogger) => {
   const {
     useServerSideCookies,
     dataServiceEndpoint,
@@ -160,7 +160,7 @@ const getServerSideCookiesStateData = (logger?: ILogger) => {
   };
 };
 
-const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
+const updateStorageStateFromLoadOptions = (logger: ILogger): void => {
   const { storage: storageOptsFromLoad } = state.loadOptions.value;
   let storageType = storageOptsFromLoad?.type;
   if (isDefined(storageType) && !isValidStorageType(storageType)) {
@@ -222,7 +222,7 @@ const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
   });
 };
 
-const updateConsentsStateFromLoadOptions = (logger?: ILogger): void => {
+const updateConsentsStateFromLoadOptions = (logger: ILogger): void => {
   const { provider, consentManagerPluginName, initialized, enabled, consentsData } =
     getConsentManagementData(state.loadOptions.value.consentManagement, logger);
 
@@ -316,7 +316,7 @@ const updateConsentsState = (resp: SourceConfigResponse): void => {
   });
 };
 
-const updateDataPlaneEventsStateFromLoadOptions = (logger?: ILogger) => {
+const updateDataPlaneEventsStateFromLoadOptions = (logger: ILogger) => {
   if (state.dataPlaneEvents.deliveryEnabled.value) {
     const defaultEventsQueuePluginName: PluginName = 'XhrQueue';
     let eventsQueuePluginName: PluginName = defaultEventsQueuePluginName;
@@ -342,7 +342,7 @@ const getSourceConfigURL = (
   writeKey: string,
   lockIntegrationsVersion: boolean,
   lockPluginsVersion: boolean,
-  logger?: ILogger,
+  logger: ILogger,
 ): string => {
   const defSearchParams = new URLSearchParams({
     p: MODULE_TYPE,

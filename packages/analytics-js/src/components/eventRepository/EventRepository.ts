@@ -31,8 +31,8 @@ import { getFinalEvent, shouldBufferEventsForPreConsent } from './utils';
  * Event repository class responsible for queuing events for further processing and delivery
  */
 class EventRepository implements IEventRepository {
-  errorHandler?: IErrorHandler;
-  logger?: ILogger;
+  errorHandler: IErrorHandler;
+  logger: ILogger;
   pluginsManager: IPluginsManager;
   httpClient: IHttpClient;
   storeManager: IStoreManager;
@@ -51,8 +51,8 @@ class EventRepository implements IEventRepository {
     pluginsManager: IPluginsManager,
     storeManager: IStoreManager,
     httpClient: IHttpClient,
-    errorHandler?: IErrorHandler,
-    logger?: ILogger,
+    errorHandler: IErrorHandler,
+    logger: ILogger,
   ) {
     this.pluginsManager = pluginsManager;
     this.errorHandler = errorHandler;
@@ -213,11 +213,7 @@ class EventRepository implements IEventRepository {
    * @param customMessage a message
    */
   onError(error: unknown, customMessage?: string): void {
-    if (this.errorHandler) {
-      this.errorHandler.onError(error, EVENT_REPOSITORY, customMessage);
-    } else {
-      throw error;
-    }
+    this.errorHandler.onError(error, EVENT_REPOSITORY, customMessage);
   }
 }
 
