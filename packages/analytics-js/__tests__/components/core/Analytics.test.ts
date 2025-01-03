@@ -245,7 +245,7 @@ describe('Core - Analytics', () => {
       const onReadySpy = jest.spyOn(analytics, 'onReady');
       state.lifecycle.status.value = 'ready';
       analytics.onDestinationsReady();
-      expect(onReadySpy).not.toBeCalled();
+      expect(onReadySpy).not.toHaveBeenCalled();
 
       onReadySpy.mockRestore();
     });

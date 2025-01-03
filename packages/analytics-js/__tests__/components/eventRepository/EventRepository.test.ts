@@ -142,7 +142,7 @@ describe('EventRepository', () => {
 
     state.nativeDestinations.clientDestinationsReady.value = true;
 
-    expect(mockDestinationsEventsQueue.start).toBeCalledTimes(1);
+    expect(mockDestinationsEventsQueue.start).toHaveBeenCalledTimes(1);
   });
 
   it('should start the dataplane events queue when no hybrid destinations are present', () => {
@@ -173,7 +173,7 @@ describe('EventRepository', () => {
 
     eventRepository.init();
 
-    expect(mockDataplaneEventsQueue.start).toBeCalledTimes(1);
+    expect(mockDataplaneEventsQueue.start).toHaveBeenCalledTimes(1);
   });
 
   it('should start the dataplane events queue when hybrid destinations are present and bufferDataPlaneEventsUntilReady is false', () => {
@@ -189,7 +189,7 @@ describe('EventRepository', () => {
 
     eventRepository.init();
 
-    expect(mockDataplaneEventsQueue.start).toBeCalledTimes(1);
+    expect(mockDataplaneEventsQueue.start).toHaveBeenCalledTimes(1);
   });
 
   it('should start the dataplane events queue when hybrid destinations are present and bufferDataPlaneEventsUntilReady is true and client destinations are ready after some time', done => {
@@ -206,11 +206,11 @@ describe('EventRepository', () => {
 
     eventRepository.init();
 
-    expect(mockDataplaneEventsQueue.start).not.toBeCalled();
+    expect(mockDataplaneEventsQueue.start).not.toHaveBeenCalled();
 
     setTimeout(() => {
       state.nativeDestinations.clientDestinationsReady.value = true;
-      expect(mockDataplaneEventsQueue.start).toBeCalledTimes(1);
+      expect(mockDataplaneEventsQueue.start).toHaveBeenCalledTimes(1);
       done();
     }, 500);
   });
@@ -229,10 +229,10 @@ describe('EventRepository', () => {
 
     eventRepository.init();
 
-    expect(mockDataplaneEventsQueue.start).not.toBeCalled();
+    expect(mockDataplaneEventsQueue.start).not.toHaveBeenCalled();
 
     setTimeout(() => {
-      expect(mockDataplaneEventsQueue.start).toBeCalledTimes(1);
+      expect(mockDataplaneEventsQueue.start).toHaveBeenCalledTimes(1);
       done();
     }, state.loadOptions.value.dataPlaneEventsBufferTimeout + 50);
   });
@@ -286,8 +286,8 @@ describe('EventRepository', () => {
     const mockEventCallback = jest.fn();
     eventRepository.enqueue(testEvent, mockEventCallback);
 
-    expect(mockEventCallback).toBeCalledTimes(1);
-    expect(mockEventCallback).toBeCalledWith({
+    expect(mockEventCallback).toHaveBeenCalledTimes(1);
+    expect(mockEventCallback).toHaveBeenCalledWith({
       ...testEvent,
       integrations: { All: true },
     });
@@ -312,8 +312,8 @@ describe('EventRepository', () => {
     });
     eventRepository.enqueue(testEvent, mockEventCallback);
 
-    expect(mockErrorHandler.onError).toBeCalledTimes(1);
-    expect(mockErrorHandler.onError).toBeCalledWith(
+    expect(mockErrorHandler.onError).toHaveBeenCalledTimes(1);
+    expect(mockErrorHandler.onError).toHaveBeenCalledWith(
       new Error('test error'),
       'EventRepository',
       'API Callback Invocation Failed',
@@ -339,7 +339,7 @@ describe('EventRepository', () => {
 
     eventRepository.init();
 
-    expect(mockDataplaneEventsQueue.start).not.toBeCalled();
+    expect(mockDataplaneEventsQueue.start).not.toHaveBeenCalled();
   });
 
   describe('resume', () => {
@@ -352,7 +352,7 @@ describe('EventRepository', () => {
       eventRepository.init();
 
       eventRepository.resume();
-      expect(mockDataplaneEventsQueue.start).toBeCalled();
+      expect(mockDataplaneEventsQueue.start).toHaveBeenCalled();
     });
 
     it('should clear the events queue if discardPreConsentEvents is set to true', () => {
@@ -368,8 +368,8 @@ describe('EventRepository', () => {
 
       eventRepository.resume();
 
-      expect(mockDataplaneEventsQueue.clear).toBeCalled();
-      expect(mockDestinationsEventsQueue.clear).toBeCalled();
+      expect(mockDataplaneEventsQueue.clear).toHaveBeenCalled();
+      expect(mockDestinationsEventsQueue.clear).toHaveBeenCalled();
     });
   });
 });
