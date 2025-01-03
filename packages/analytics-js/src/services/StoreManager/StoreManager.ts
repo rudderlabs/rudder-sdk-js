@@ -220,7 +220,7 @@ class StoreManager implements IStoreManager {
    * Handle errors
    */
   onError(error: unknown) {
-    this.errorHandler?.onError(error, STORE_MANAGER);
+    this.errorHandler.onError(error, STORE_MANAGER);
   }
 }
 

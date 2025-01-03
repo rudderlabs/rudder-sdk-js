@@ -50,7 +50,7 @@ class ExternalSrcLoader implements IExternalSrcLoader {
    * Handle errors
    */
   onError(error: unknown) {
-    this.errorHandler?.onError(error, EXTERNAL_SRC_LOADER);
+    this.errorHandler.onError(error, EXTERNAL_SRC_LOADER);
   }
 }
 
