@@ -562,12 +562,10 @@ describe('Error Reporting utilities', () => {
                 migrate: false,
                 trulyAnonymousTracking: false,
               },
-              user: {
-                name: 'dummy-source-name',
-              },
             },
             user: {
               id: 'dummy-source-id..123..test-visit-id',
+              name: 'dummy-source-name',
             },
           },
         ],

@@ -48,6 +48,7 @@ export type ErrorEvent = {
   };
   user: {
     id: string;
+    name: string;
   };
 };
 
