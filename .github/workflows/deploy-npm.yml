@@ -18,8 +18,8 @@ on:
         required: true
 
 permissions:
-  id-token: write # allows the JWT to be requested from GitHub's OIDC provider
-  contents: read # This is required for actions/checkout
+  id-token: write # Allows the JWT to be requested from GitHub's OIDC provider
+  contents: read # Required for actions/checkout
 
 env:
   NODE_OPTIONS: '--no-warnings'
@@ -27,7 +27,7 @@ env:
 jobs:
   deploy:
     name: Deploy to NPM
-    # As we publish the NPM package with provenance, we need to only use the GitHub hosted runners
+    # As we publish the NPM package with provenance, we must use GitHub-hosted runners
     runs-on: ubuntu-latest
     if: ${{ inputs.is_called == 'true' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/tags/v')) }}
 

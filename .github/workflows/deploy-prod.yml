@@ -27,26 +27,26 @@ jobs:
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
 
   deploy-sanity-suite:
-    name: Deploy Sanity Suite
+    name: Deploy sanity suite
     needs: deploy
     uses: ./.github/workflows/deploy-sanity-suite.yml
     with:
       environment: 'production'
     secrets:
-      AWS_PROD_ACCOUNT_ID: ${{ secrets.AWS_PROD_ACCOUNT_ID }}
-      AWS_PROD_S3_BUCKET_NAME: ${{ secrets.AWS_PROD_S3_BUCKET_NAME }}
-      AWS_PROD_S3_SYNC_ROLE: ${{ secrets.AWS_PROD_S3_SYNC_ROLE }}
-      AWS_PROD_CF_DISTRIBUTION_ID: ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }}
-      SANITY_SUITE_PROD_WRITE_KEY: ${{ secrets.SANITY_SUITE_PROD_WRITE_KEY }}
-      SANITY_SUITE_PROD_DATAPLANE_URL: ${{ secrets.SANITY_SUITE_PROD_DATAPLANE_URL }}
-      SANITY_SUITE_PROD_CONFIG_SERVER_HOST: ${{ secrets.SANITY_SUITE_PROD_CONFIG_SERVER_HOST }}
-      RS_PROD_BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_PROD_ACCOUNT_ID }}
+      AWS_S3_BUCKET_NAME: ${{ secrets.AWS_PROD_S3_BUCKET_NAME }}
+      AWS_S3_SYNC_ROLE: ${{ secrets.AWS_PROD_S3_SYNC_ROLE }}
+      AWS_CF_DISTRIBUTION_ID: ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }}
+      SANITY_SUITE_WRITE_KEY: ${{ secrets.SANITY_SUITE_PROD_WRITE_KEY }}
+      SANITY_SUITE_DATAPLANE_URL: ${{ secrets.SANITY_SUITE_PROD_DATAPLANE_URL }}
+      SANITY_SUITE_CONFIG_SERVER_HOST: ${{ secrets.SANITY_SUITE_PROD_CONFIG_SERVER_HOST }}
+      BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
 
-  trigger-sanity-suite:
-    uses: ./.github/workflows/trigger-sanity-suite.yml
-    name: Trigger Sanity Suite
+  trigger-test-suites:
+    uses: ./.github/workflows/trigger-test-suites.yml
+    name: Trigger test suites
     needs: deploy-sanity-suite
     with:
       environment: production
