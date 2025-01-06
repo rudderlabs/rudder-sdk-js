@@ -337,11 +337,11 @@ class Mixpanel {
    */
   group(rudderElement) {
     const { userId, groupId, traits } = rudderElement.message;
-    if (!userId) {
+    if (!isDefinedAndNotNull(userId)) {
       logger.error('valid userId is required for group');
       return;
     }
-    if (!groupId) {
+    if (!isDefinedAndNotNull(groupId)) {
       logger.error('valid groupId is required for group');
       return;
     }
@@ -373,11 +373,11 @@ class Mixpanel {
 
     const { previousId, userId } = rudderElement.message;
     const newId = userId;
-    if (!previousId) {
+    if (!isDefinedAndNotNull(previousId)) {
       logger.error('previousId is required for alias call');
       return;
     }
-    if (!newId) {
+    if (!isDefinedAndNotNull(newId)) {
       logger.error('userId is required for alias call');
       return;
     }

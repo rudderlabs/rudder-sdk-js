@@ -6,6 +6,12 @@ import {
   NAME,
   DISPLAY_NAME,
 } from '@rudderstack/analytics-js-common/constants/integrations/Fullstory/constants';
+import {
+  isDefined,
+  isDefinedAndNotNull,
+  isFunction,
+  isString,
+} from '@rudderstack/analytics-js-common/utilities/checks';
 import Logger from '../../utils/logger';
 import camelcase from '../../utils/camelcase';
 import { getDestinationOptions } from './utils';
@@ -88,7 +94,7 @@ class Fullstory {
 
       (function () {
         function fs(api) {
-          if (!window._fs_namespace) {
+          if (!isDefined(window._fs_namespace)) {
             logger.error(`FullStory unavailable, window["_fs_namespace"] must be defined`);
             return undefined;
           }
@@ -115,9 +121,9 @@ class Fullstory {
         const timeout = fullstoryIntgConfig.timeout || 2000;
 
         function identify() {
-          if (typeof window._fs_identity === 'function') {
+          if (isFunction(window._fs_identity)) {
             const userVars = window._fs_identity();
-            if (typeof userVars === 'object' && typeof userVars.uid === 'string') {
+            if (typeof userVars === 'object' && isString(userVars.uid)) {
               fs('setUserVars')(userVars);
               fs('restart')();
             } else {
@@ -157,7 +163,7 @@ class Fullstory {
     const { context, anonymousId } = rudderElement.message;
     const { traits } = context;
 
-    if (!userId) userId = anonymousId;
+    if (!isDefinedAndNotNull(userId)) userId = anonymousId;
     if (Object.keys(traits).length === 0 && traits.constructor === Object)
       window.FS.identify(userId);
     else window.FS.identify(userId, Fullstory.getFSProperties(traits));

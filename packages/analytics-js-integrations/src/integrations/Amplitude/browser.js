@@ -4,7 +4,7 @@ import {
   NAME,
   DISPLAY_NAME,
 } from '@rudderstack/analytics-js-common/constants/integrations/Amplitude/constants';
-import { isDefinedAndNotNullAndNotEmpty } from '../../utils/commonUtils';
+import { isDefinedAndNotNull, isDefinedAndNotNullAndNotEmpty } from '../../utils/commonUtils';
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
 import {
@@ -328,16 +328,16 @@ class Amplitude {
     // else send price and quantity from properties to amplitude
     // If price not present set price as revenue's value and force quantity to be 1.
     // Ultimately set quantity to 1 if not already present from above logic.
-    if (!revenue && !price) {
+    if (!isDefinedAndNotNull(revenue) && !isDefinedAndNotNull(price)) {
       logger.error('Neither "revenue" nor "price" is available. Hence, aborting');
       return;
     }
 
-    if (!price) {
+    if (!isDefinedAndNotNull(price)) {
       price = revenue;
       quantity = 1;
     }
-    if (!quantity) {
+    if (!isDefinedAndNotNull(quantity)) {
       quantity = 1;
     }
     const amplitudeRevenue = new window.amplitude.Revenue()
