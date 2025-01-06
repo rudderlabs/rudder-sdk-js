@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Ninetailed } from '@ninetailed/experience.js';
 import logo from './logo.svg';
 import './App.css';
-import { CONFIG_URL, DATAPLANE_URL, WRITE_KEY } from './config';
+import { DATAPLANE_URL, WRITE_KEY } from './config';
 
 export const ninetailed = new Ninetailed({
   // REQUIRED. An API key uniquely identifying your Ninetailed account.
@@ -13,7 +13,7 @@ export const ninetailed = new Ninetailed({
 
 function App() {
   useEffect(() => {
-    window.rudderanalytics.load(WRITE_KEY, DATAPLANE_URL, { configUrl: CONFIG_URL });
+    window.rudderanalytics.load(WRITE_KEY, DATAPLANE_URL);
   }, []);
   const page = () => {
     window.rudderanalytics.page(

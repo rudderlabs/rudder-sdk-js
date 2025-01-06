@@ -120,7 +120,7 @@ function getConversionData(eventTypeConversions, eventName, defaultPageConversio
 
 function newCustomerAcquisitionReporting(properties) {
   const updatedProperties = { ...properties }; // create a copy of properties object
-  if (updatedProperties && updatedProperties.newCustomer) {
+  if (updatedProperties?.newCustomer) {
     updatedProperties.new_customer = updatedProperties.newCustomer;
     delete updatedProperties.newCustomer;
   }

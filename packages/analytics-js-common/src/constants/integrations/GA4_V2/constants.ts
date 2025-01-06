@@ -1,6 +1,6 @@
+import { GA4_V2_NAME as NAME, GA4_V2_DISPLAY_NAME as DISPLAY_NAME } from '../Destinations';
+
 const DIR_NAME = 'GA4_V2';
-const NAME = 'GA4_V2';
-const DISPLAY_NAME = 'Google Analytics 4 (GA4) V2';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {

@@ -113,9 +113,9 @@ jobs:
           pr_title: 'chore(release): pull ${{ steps.create-release.outputs.branch_name }} into main'
           pr_body: |
             :crown: *An automated PR*
-            
+
             This PR is created automatically by the GitHub Actions workflow to merge the release branch into the main branch.
-            
+
             Linear Ticket: 
             https://linear.app/rudderstack/issue/${{ github.event.inputs.release_ticket_id }}
 
@@ -141,4 +141,3 @@ jobs:
               console.error(`Error deleting branch ${branchToDelete}:`, error);
               process.exit(1); // Fail the workflow if branch deletion fails
             }
-

@@ -1,41 +1,45 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Smoke test</title>
+  <head>
+    <link
+      rel="icon"
+      href="https://www.rudderstack.com/favicon.ico"
+      type="image/x-icon"
+      sizes="48x48" />
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smoke test</title>
 
-  <script>
-    rudderanalytics = window.rudderanalytics = [];
-    var methods = [
-      'load',
-      'page',
-      'track',
-      'identify',
-      'alias',
-      'group',
-      'ready',
-      'reset',
-      'getAnonymousId',
-      'setAnonymousId',
-      'endSession',
-      'startSession',
-    ];
+    <script>
+      // prettier-ignore
+      rudderanalytics = window.rudderanalytics = [];
+      var methods = [
+        'load',
+        'page',
+        'track',
+        'identify',
+        'alias',
+        'group',
+        'ready',
+        'reset',
+        'getAnonymousId',
+        'setAnonymousId',
+        'endSession',
+        'startSession',
+      ];
 
-    for (var i = 0; i < methods.length; i++) {
-      var method = methods[i];
-      rudderanalytics[method] = (function (methodName) {
-        return function () {
-          rudderanalytics.push([methodName].concat(Array.prototype.slice.call(arguments)));
-        };
-      })(method);
-    }
+      for (var i = 0; i < methods.length; i++) {
+        var method = methods[i];
+        rudderanalytics[method] = (function (methodName) {
+          return function () {
+            rudderanalytics.push([methodName].concat(Array.prototype.slice.call(arguments)));
+          };
+        })(method);
+      }
 
-    rudderanalytics.load(
-      '__WRITE_KEY__',
-      '__DATAPLANE_URL__',
-      {
+      // prettier-ignore
+      rudderanalytics.load('__WRITE_KEY__', '__DATAPLANE_URL__', {
         logLevel: 'DEBUG',
         configUrl: '__CONFIG_SERVER_HOST__',
         destSDKBaseURL: '__DEST_SDK_BASE_URL__',
@@ -43,95 +47,98 @@
         // beaconQueueOptions: {
         //   flushQueueInterval: 60 * 1000,
         // }
+      });
+
+      rudderanalytics.page();
+    </script>
+  </head>
+
+  <body>
+    <h1>Test HTML file</h1>
+    <br />
+
+    <button data-testid="page-btn" onclick="page()">Page</button>
+    <button data-testid="identify-btn" onclick="identify()">identify</button>
+    <button data-testid="track-btn" onclick="track()">Track</button>
+    <button data-testid="alias-btn" onclick="alias()">Alias</button>
+    <button data-testid="group-btn" onclick="group()">Group</button>
+
+    <p data-testid="action" id="action"></p>
+    <p data-testid="payload" id="rudderElement"></p>
+
+    <script>
+      // prettier-ignore
+      function page() {
+        rudderanalytics.page('Cart viewed', function (rudderElement) {
+          console.log('in page call');
+          document.getElementById('action').innerHTML = 'Page called';
+          document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
+        });
       }
-    );
 
-    rudderanalytics.page();
-  </script>
-</head>
+      // prettier-ignore
+      function identify() {
+        rudderanalytics.identify(
+          'Sample-User-id',
+          {
+            firstName: 'Tintin',
+            city: 'Brussels',
+            country: 'Belgium',
+            phone: '1234567890',
+            email: 'tintin@twentiethcentury.com',
+            custom_flavor: 'chocolate',
+            custom_date: Date.now(),
+          },
+          {},
+          function (rudderElement) {
+            console.log('in identify call');
+            document.getElementById('action').innerHTML = 'Identify called';
+            document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
+          }
+        );
+      }
 
-<body>
-<h1>Test HTML file</h1>
-<br />
+      // prettier-ignore
+      function track() {
+        rudderanalytics.track(
+          'Sample Track event',
+          {
+            revenue: 30,
+            currency: 'USD',
+            user_actual_id: 12345,
+          },
+          function (rudderElement) {
+            console.log('in track call');
+            document.getElementById('action').innerHTML = 'Track called';
+            document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
+          }
+        );
+      }
 
-<button data-testid="page-btn" onclick="page()">Page</button>
-<button data-testid="identify-btn" onclick="identify()">identify</button>
-<button data-testid="track-btn" onclick="track()">Track</button>
-<button data-testid="alias-btn" onclick="alias()">Alias</button>
-<button data-testid="group-btn" onclick="group()">Group</button>
+      // prettier-ignore
+      function alias() {
+        rudderanalytics.alias('alias-user-id', function (rudderElement) {
+          console.log('alias call');
+          document.getElementById('action').innerHTML = 'Alias called';
+          document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
+        });
+      }
 
-<p data-testid="action" id="action"></p>
-<p data-testid="payload" id="rudderElement"></p>
-
-<script>
-  function page() {
-    rudderanalytics.page(
-      'Cart viewed',
-      function (rudderElement) {
-        console.log('in page call');
-        document.getElementById('action').innerHTML = 'Page called';
-        document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-      });
-  }
-
-  function identify() {
-    rudderanalytics.identify(
-      'Sample-User-id',
-      {
-        firstName: 'Tintin',
-        city: 'Brussels',
-        country: 'Belgium',
-        phone: '1234567890',
-        email: 'tintin@twentiethcentury.com',
-        custom_flavor: 'chocolate',
-        custom_date: Date.now(),
-      },
-      {},
-      function (rudderElement) {
-        console.log('in identify call');
-        document.getElementById('action').innerHTML = 'Identify called';
-        document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-      });
-  }
-
-  function track() {
-    rudderanalytics.track(
-      'Sample Track event',
-      {
-        revenue: 30,
-        currency: 'USD',
-        user_actual_id: 12345,
-      },
-      function (rudderElement) {
-        console.log('in track call');
-        document.getElementById('action').innerHTML = 'Track called';
-        document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-      });
-  }
-
-  function alias() {
-    rudderanalytics.alias(
-      'alias-user-id',
-      function (rudderElement) {
-        console.log('alias call');
-        document.getElementById('action').innerHTML = 'Alias called';
-        document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-    });
-  }
-
-  function group() {
-    rudderanalytics.group(
-      'sample_group_id',
-      {
-        name: 'Apple Inc.',
-        location: 'USA',
-      },
-      function (rudderElement) {
-        console.log('group call');
-        document.getElementById('action').innerHTML = 'Group called';
-        document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-    });
-  }
-</script>
-</body>
+      // prettier-ignore
+      function group() {
+        rudderanalytics.group(
+          'sample_group_id',
+          {
+            name: 'Apple Inc.',
+            location: 'USA',
+          },
+          function (rudderElement) {
+            console.log('group call');
+            document.getElementById('action').innerHTML = 'Group called';
+            document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
+          }
+        );
+      }
+    </script>
+  </body>
 </html>

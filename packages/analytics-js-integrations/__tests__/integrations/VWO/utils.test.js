@@ -2,7 +2,7 @@ import { sanitizeName, sanitizeAttributes } from '../../../src/integrations/VWO/
 
 describe('VWO utilities tests', () => {
   describe('Sanitize Names', () => {
-    it('Should trim and add the rudder prefix to the event name', () => {
+    it('should trim and add the rudder prefix to the event name', () => {
       const name1 = 'abcd';
       const name2 = ' abcd ';
 
@@ -17,7 +17,7 @@ describe('VWO utilities tests', () => {
   });
 
   describe('Sanitize Attributes', () => {
-    it('Should sanitize all the keys of the traits object', () => {
+    it('should sanitize all the keys of the traits object', () => {
       const attributes = {
         companySize: 100,
         companyName: 'RudderStack',

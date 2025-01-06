@@ -9,7 +9,7 @@ import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
  * @param {*} inURL
  */
 function removeTrailingSlashes(inURL) {
-  return inURL && inURL.endsWith('/') ? inURL.replace(/\/+$/, '') : inURL;
+  return inURL?.endsWith('/') ? inURL.replace(/\/+$/, '') : inURL;
 }
 
 /**
@@ -51,7 +51,7 @@ function getRevenue(properties, eventName) {
   const orderCompletedRegExp = /^[ _]?completed[ _]?order[ _]?|^[ _]?order[ _]?completed[ _]?$/i;
 
   // it's always revenue, unless it's called during an order completion.
-  if (!revenue && eventName && eventName.match(orderCompletedRegExp)) {
+  if (!revenue && eventName?.match(orderCompletedRegExp)) {
     revenue = total;
   }
 
