@@ -2,6 +2,43 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.11.17](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.11.16...@rudderstack/analytics-js@3.11.17) (2025-01-03)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-cookies` updated to version `0.4.18`
+* `@rudderstack/analytics-js-common` updated to version `3.14.15`
+* `@rudderstack/analytics-js-plugins` updated to version `3.6.21`
+## [3.11.16](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.11.15...@rudderstack/analytics-js@3.11.16) (2024-12-17)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-cookies` updated to version `0.4.17`
+* `@rudderstack/analytics-js-common` updated to version `3.14.14`
+* `@rudderstack/analytics-js-plugins` updated to version `3.6.20`
+
+### Bug Fixes
+
+* remove circular dependency in packages ([#1973](https://github.com/rudderlabs/rudder-sdk-js/issues/1973)) ([e525496](https://github.com/rudderlabs/rudder-sdk-js/commit/e5254964310c2c73baaf4d0655c3e4025c5e7d2b))
+* separator and make changes in bugsnag plugin ([b69347c](https://github.com/rudderlabs/rudder-sdk-js/commit/b69347cd9bbf3a395b2f557f8219287900ceca5a))
+
+## [3.11.15](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.11.14...@rudderstack/analytics-js@3.11.15) (2024-12-06)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-cookies` updated to version `0.4.16`
+* `@rudderstack/analytics-js-common` updated to version `3.14.13`
+* `@rudderstack/analytics-js-plugins` updated to version `3.6.18`
+## [3.11.14](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.11.13...@rudderstack/analytics-js@3.11.14) (2024-11-30)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-plugins` updated to version `3.6.17`
+
+### Bug Fixes
+
+* preload events not processed with detached load call ([#1953](https://github.com/rudderlabs/rudder-sdk-js/issues/1953)) ([6b0f66f](https://github.com/rudderlabs/rudder-sdk-js/commit/6b0f66f61745542f2b01c02c99b7514fd468db80))
+
 ## [3.11.13](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.11.12...@rudderstack/analytics-js@3.11.13) (2024-11-22)
 
 ### Dependency Updates

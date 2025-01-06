@@ -208,7 +208,7 @@ class Store implements IStore {
       ? this.pluginsManager.invokeSingle<string>(extensionPointName, value)
       : value;
 
-    return typeof formattedValue === 'undefined' ? value : formattedValue ?? '';
+    return typeof formattedValue === 'undefined' ? value : (formattedValue ?? '');
   }
 
   /**

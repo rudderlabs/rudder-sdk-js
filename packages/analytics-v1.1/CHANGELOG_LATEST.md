@@ -1,5 +1,5 @@
-## [2.48.40](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.39...rudder-sdk-js@2.48.40) (2024-11-22)
+## [2.48.43](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.48.42...rudder-sdk-js@2.48.43) (2025-01-03)
 
 ### Dependency Updates
 
-* `@rudderstack/analytics-js-common` updated to version `3.14.12`
+* `@rudderstack/analytics-js-common` updated to version `3.14.15`

@@ -1,13 +1,11 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { QueueStatuses } from '@rudderstack/analytics-js-common/constants/QueueStatuses';
-import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages';
-import { Store, StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
-import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
-import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
+import { defaultStoreManager } from '@rudderstack/analytics-js-common/__mocks__/StoreManager';
+import { defaultLocalStorage } from '@rudderstack/analytics-js-common/__mocks__/Storage';
+import { Store } from '@rudderstack/analytics-js-common/__mocks__/Store';
 import { Schedule } from '../../../src/utilities/retryQueue/Schedule';
 import { RetryQueue } from '../../../src/utilities/retryQueue/RetryQueue';
+import type { QueueItem, QueueItemData } from '../../../src/types/plugins';
 
 const size = (queue: RetryQueue): { queue: number; inProgress: number } => ({
   queue: queue.store.get(QueueStatuses.QUEUE).length,
@@ -16,23 +14,14 @@ const size = (queue: RetryQueue): { queue: number; inProgress: number } => ({
 
 describe('Queue', () => {
   let queue: RetryQueue;
-  // let clock: InstalledClock;
   let schedule: Schedule;
-  const engine = getStorageEngine('localStorage');
-  const defaultPluginsManager = new PluginsManager(
-    defaultPluginEngine,
-    defaultErrorHandler,
-    defaultLogger,
-  );
-
-  const defaultStoreManager = new StoreManager(defaultPluginsManager);
 
   beforeAll(() => {
     jest.useFakeTimers();
   });
 
   beforeEach(() => {
-    engine.clear();
+    defaultLocalStorage.clear();
     schedule = new Schedule();
     schedule.now = () => +new window.Date();
 
@@ -241,7 +230,11 @@ describe('Queue', () => {
     queue.processQueueCb = mockProcessItemCb;
     queue.start();
 
-    queue.requeue({ item: 'b', attemptNumber: 0, type: 'Single' });
+    queue.requeue({
+      item: 'b',
+      attemptNumber: 0,
+      type: 'Single',
+    } as unknown as QueueItem<QueueItemData>);
     queue.addItem('a');
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
@@ -257,7 +250,7 @@ describe('Queue', () => {
   });
 
   it('should respect shouldRetry', () => {
-    queue.shouldRetry = (_, attemptNumber) => !(attemptNumber > 2);
+    queue.shouldRetry = (_, attemptNumber) => attemptNumber <= 2;
 
     const mockProcessItemCb = jest.fn((_, cb) => cb(new Error('no')));
 
@@ -266,17 +259,29 @@ describe('Queue', () => {
     queue.start();
 
     // over maxattempts
-    queue.requeue({ item: 'b', attemptNumber: 2, type: 'Single' });
+    queue.requeue({
+      item: 'b',
+      attemptNumber: 2,
+      type: 'Single',
+    } as unknown as QueueItem<QueueItemData>);
     jest.advanceTimersByTime(queue.getDelay(3));
     expect(queue.processQueueCb).toHaveBeenCalledTimes(0);
 
     mockProcessItemCb.mockReset();
-    queue.requeue({ item: ['a', 'b'], attemptNumber: 1, type: 'Batch' });
+    queue.requeue({
+      item: ['a', 'b'],
+      attemptNumber: 1,
+      type: 'Batch',
+    } as unknown as QueueItem<QueueItemData>);
     jest.advanceTimersByTime(queue.getDelay(2));
     expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
 
     mockProcessItemCb.mockReset();
-    queue.requeue({ item: 'b', attemptNumber: 2, type: 'Single' });
+    queue.requeue({
+      item: 'b',
+      attemptNumber: 2,
+      type: 'Single',
+    } as unknown as QueueItem<QueueItemData>);
     jest.advanceTimersByTime(queue.getDelay(1));
     expect(queue.processQueueCb).toHaveBeenCalledTimes(0);
   });
@@ -305,10 +310,10 @@ describe('Queue', () => {
         id: 'fake-id',
         validKeys: QueueStatuses,
       },
-      getStorageEngine('localStorage'),
+      defaultLocalStorage,
     );
-    foundQueue.set(foundQueue.validKeys.ACK, 0); // fake timers starts at time 0
-    foundQueue.set(foundQueue.validKeys.QUEUE, [
+    foundQueue.set(foundQueue.validKeys.ACK as string, 0); // fake timers starts at time 0
+    foundQueue.set(foundQueue.validKeys.QUEUE as string, [
       {
         item: 'a',
         time: 0,
@@ -384,10 +389,10 @@ describe('Queue', () => {
         id: 'fake-id',
         validKeys: QueueStatuses,
       },
-      getStorageEngine('localStorage'),
+      defaultLocalStorage,
     );
-    foundQueue.set(foundQueue.validKeys.ACK, -15000);
-    foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
+    foundQueue.set(foundQueue.validKeys.ACK as string, -15000);
+    foundQueue.set(foundQueue.validKeys.IN_PROGRESS as string, {
       'task-id-1': {
         item: 'a',
         time: 0,
@@ -470,10 +475,10 @@ describe('Queue', () => {
         id: 'fake-id',
         validKeys: QueueStatuses,
       },
-      getStorageEngine('localStorage'),
+      defaultLocalStorage,
     );
-    foundQueue.set(foundQueue.validKeys.ACK, 0); // fake timers starts at time 0
-    foundQueue.set(foundQueue.validKeys.BATCH_QUEUE, [
+    foundQueue.set(foundQueue.validKeys.ACK as string, 0); // fake timers starts at time 0
+    foundQueue.set(foundQueue.validKeys.BATCH_QUEUE as string, [
       {
         item: 'a',
         time: 0,
@@ -514,10 +519,10 @@ describe('Queue', () => {
         id: 'fake-id',
         validKeys: QueueStatuses,
       },
-      getStorageEngine('localStorage'),
+      defaultLocalStorage,
     );
-    foundQueue.set(foundQueue.validKeys.ACK, 0); // fake timers starts at time 0
-    foundQueue.set(foundQueue.validKeys.BATCH_QUEUE, [
+    foundQueue.set(foundQueue.validKeys.ACK as string, 0); // fake timers starts at time 0
+    foundQueue.set(foundQueue.validKeys.BATCH_QUEUE as string, [
       {
         item: 'a',
         time: 0,
@@ -565,10 +570,10 @@ describe('Queue', () => {
         id: 'fake-id',
         validKeys: QueueStatuses,
       },
-      getStorageEngine('localStorage'),
+      defaultLocalStorage,
     );
-    foundQueue.set(foundQueue.validKeys.ACK, -15000);
-    foundQueue.set(foundQueue.validKeys.QUEUE, [
+    foundQueue.set(foundQueue.validKeys.ACK as string, -15000);
+    foundQueue.set(foundQueue.validKeys.QUEUE as string, [
       {
         item: 'a',
         time: 0,
@@ -603,10 +608,10 @@ describe('Queue', () => {
         id: 'fake-id',
         validKeys: QueueStatuses,
       },
-      getStorageEngine('localStorage'),
+      defaultLocalStorage,
     );
-    foundQueue.set(foundQueue.validKeys.ACK, -15000);
-    foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
+    foundQueue.set(foundQueue.validKeys.ACK as string, -15000);
+    foundQueue.set(foundQueue.validKeys.IN_PROGRESS as string, {
       'task-id-0': {
         item: 'a',
         time: 0,
@@ -641,10 +646,10 @@ describe('Queue', () => {
         id: 'fake-id',
         validKeys: QueueStatuses,
       },
-      getStorageEngine('localStorage'),
+      defaultLocalStorage,
     );
-    foundQueue.set(foundQueue.validKeys.ACK, -15000);
-    foundQueue.set(foundQueue.validKeys.BATCH_QUEUE, [
+    foundQueue.set(foundQueue.validKeys.ACK as string, -15000);
+    foundQueue.set(foundQueue.validKeys.BATCH_QUEUE as string, [
       {
         item: 'a',
         time: 0,
@@ -679,10 +684,10 @@ describe('Queue', () => {
         id: 'fake-id',
         validKeys: QueueStatuses,
       },
-      getStorageEngine('localStorage'),
+      defaultLocalStorage,
     );
-    foundQueue.set(foundQueue.validKeys.ACK, -15000);
-    foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
+    foundQueue.set(foundQueue.validKeys.ACK as string, -15000);
+    foundQueue.set(foundQueue.validKeys.IN_PROGRESS as string, {
       'task-id-0': {
         item: 'a',
         time: 0,
@@ -697,7 +702,7 @@ describe('Queue', () => {
       },
     });
 
-    foundQueue.set(foundQueue.validKeys.QUEUE, [
+    foundQueue.set(foundQueue.validKeys.QUEUE as string, [
       {
         item: 'a',
         time: 0,
@@ -712,7 +717,7 @@ describe('Queue', () => {
       },
     ]);
 
-    foundQueue.set(foundQueue.validKeys.BATCH_QUEUE, [
+    foundQueue.set(foundQueue.validKeys.BATCH_QUEUE as string, [
       {
         item: 'c',
         time: 0,
@@ -749,10 +754,10 @@ describe('Queue', () => {
         id: 'fake-id',
         validKeys: QueueStatuses,
       },
-      getStorageEngine('localStorage'),
+      defaultLocalStorage,
     );
-    foundQueue.set(foundQueue.validKeys.ACK, -15000);
-    foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
+    foundQueue.set(foundQueue.validKeys.ACK as string, -15000);
+    foundQueue.set(foundQueue.validKeys.IN_PROGRESS as string, {
       'task-id-0': {
         item: 'a',
         time: 0,
@@ -765,7 +770,7 @@ describe('Queue', () => {
       },
     });
 
-    foundQueue.set(foundQueue.validKeys.QUEUE, [
+    foundQueue.set(foundQueue.validKeys.QUEUE as string, [
       {
         item: 'a',
         time: 0,
@@ -798,24 +803,24 @@ describe('Queue', () => {
         id: 'fake-id',
         validKeys: QueueStatuses,
       },
-      getStorageEngine('localStorage'),
+      defaultLocalStorage,
     );
-    foundQueue.set(foundQueue.validKeys.ACK, -15000);
-    foundQueue.set(foundQueue.validKeys.QUEUE, [
+    foundQueue.set(foundQueue.validKeys.ACK as string, -15000);
+    foundQueue.set(foundQueue.validKeys.QUEUE as string, [
       {
         item: 'a',
         time: 0,
         attemptNumber: 0,
       },
     ]);
-    foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
+    foundQueue.set(foundQueue.validKeys.IN_PROGRESS as string, {
       'task-id': {
         item: 'b',
         time: 1,
         attemptNumber: 0,
       },
     });
-    foundQueue.set(foundQueue.validKeys.BATCH_QUEUE, {
+    foundQueue.set(foundQueue.validKeys.BATCH_QUEUE as string, {
       'task-id2': {
         item: 'c',
         time: 1,
@@ -850,10 +855,10 @@ describe('Queue', () => {
           id: 'fake-id',
           validKeys: QueueStatuses,
         },
-        getStorageEngine('localStorage'),
+        defaultLocalStorage,
       );
-      foundQueue.set(foundQueue.validKeys.ACK, 0); // fake timers starts at time 0
-      foundQueue.set(foundQueue.validKeys.QUEUE, [
+      foundQueue.set(foundQueue.validKeys.ACK as string, 0); // fake timers starts at time 0
+      foundQueue.set(foundQueue.validKeys.QUEUE as string, [
         {
           item: 'a',
           time: 0,
@@ -887,10 +892,10 @@ describe('Queue', () => {
           id: 'fake-id',
           validKeys: QueueStatuses,
         },
-        getStorageEngine('localStorage'),
+        defaultLocalStorage,
       );
-      foundQueue.set(foundQueue.validKeys.ACK, -15000);
-      foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
+      foundQueue.set(foundQueue.validKeys.ACK as string, -15000);
+      foundQueue.set(foundQueue.validKeys.IN_PROGRESS as string, {
         'task-id': {
           item: 'a',
           time: 0,
@@ -924,17 +929,17 @@ describe('Queue', () => {
           id: 'fake-id',
           validKeys: QueueStatuses,
         },
-        getStorageEngine('localStorage'),
+        defaultLocalStorage,
       );
-      foundQueue.set(foundQueue.validKeys.ACK, -15000);
-      foundQueue.set(foundQueue.validKeys.QUEUE, [
+      foundQueue.set(foundQueue.validKeys.ACK as string, -15000);
+      foundQueue.set(foundQueue.validKeys.QUEUE as string, [
         {
           item: 'a',
           time: 0,
           attemptNumber: 0,
         },
       ]);
-      foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
+      foundQueue.set(foundQueue.validKeys.IN_PROGRESS as string, {
         'task-id': {
           item: 'b',
           time: 1,
@@ -975,10 +980,10 @@ describe('Queue', () => {
     queue.maxAttempts = 2;
 
     queue.processQueueCb = (item, done) => {
-      if (!calls[item.index]) {
-        calls[item.index] = 1;
+      if (!calls[(item as Record<string, any>).index]) {
+        calls[(item as Record<string, any>).index] = 1;
       } else {
-        calls[item.index]++;
+        calls[(item as Record<string, any>).index]++;
       }
 
       done(new Error());
@@ -997,7 +1002,7 @@ describe('Queue', () => {
   });
 
   it('should limit inProgress using maxItems', () => {
-    const waiting: Function[] = [];
+    const waiting: (() => void)[] = [];
     let i;
 
     queue.maxItems = 100;
@@ -1031,7 +1036,7 @@ describe('Queue', () => {
 
     // resolved all waiting items
     while (waiting.length > 0) {
-      waiting.pop()();
+      waiting.pop()?.();
     }
 
     // inProgress should now be empty
@@ -1050,6 +1055,7 @@ describe('Queue', () => {
     let batchQueue = new RetryQueue(
       'batchQueue',
       {
+        // @ts-expect-error testing invalid options
         batch: {},
       },
       () => {},
@@ -1064,6 +1070,7 @@ describe('Queue', () => {
         batch: {
           enabled: true,
           maxSize: 1024,
+          // @ts-expect-error testing invalid options
           maxItems: '1',
         },
       },
@@ -1083,6 +1090,7 @@ describe('Queue', () => {
       {
         batch: {
           enabled: true,
+          // @ts-expect-error testing invalid options
           maxSize: '3',
           maxItems: 20,
         },
@@ -1205,14 +1213,6 @@ describe('Queue', () => {
 
 describe('end-to-end', () => {
   let queue: RetryQueue;
-  const defaultPluginsManager = new PluginsManager(
-    defaultPluginEngine,
-    defaultErrorHandler,
-    defaultLogger,
-  );
-
-  const defaultStoreManager = new StoreManager(defaultPluginsManager);
-
   beforeEach(() => {
     queue = new RetryQueue(
       'e2e_test',

@@ -175,7 +175,7 @@ describe('Matomo Track event', () => {
         },
       },
     });
-  expect(window._paq[2]).toEqual([
+    expect(window._paq[2]).toEqual([
       'trackEvent',
       'property-level-category',
       'property-level-action',

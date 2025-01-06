@@ -14,14 +14,14 @@ describe('Navigator Utilities', () => {
     global.navigator.language = undefined;
   });
 
-  it('Should get User Agent when navigator is defined', () => {
+  it('should get User Agent when navigator is defined', () => {
     global.navigator.userAgent = chromeUserAgentString;
     const userAgent = getUserAgent();
 
     expect(userAgent).toBe(chromeUserAgentString);
   });
 
-  it('Should get User Agent with Braze info for braze browsers', () => {
+  it('should get User Agent with Braze info for braze browsers', () => {
     global.navigator.userAgent = chromeUserAgentString;
     global.navigator.brave = new BraveBrowser();
     const userAgent = getUserAgent();
@@ -29,7 +29,7 @@ describe('Navigator Utilities', () => {
     expect(userAgent).toBe(`${chromeUserAgentString} Brave/${chromeVersion}`);
   });
 
-  it('Should get language when navigator is defined', () => {
+  it('should get language when navigator is defined', () => {
     global.navigator.language = mockLanguage;
     const language = getLanguage();
 

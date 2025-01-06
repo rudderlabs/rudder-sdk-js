@@ -1,11 +1,10 @@
+import { XPIXEL_NAME as NAME, XPIXEL_DISPLAY_NAME as DISPLAY_NAME } from '../Destinations';
+
 const DIR_NAME = 'XPixel';
-const NAME = 'XPIXEL';
-const DISPLAY_NAME = 'XPixel';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {
   [NAME]: NAME,
-  XPIXEL: NAME,
   XPixel: NAME,
   Xpixel: NAME,
   xpixel: NAME,

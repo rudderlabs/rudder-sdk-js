@@ -55,27 +55,6 @@ describe('Core - Rudder Analytics Facade', () => {
     ]);
   });
 
-  it('should return an empty array when globalThis.rudderanalytics is not an array', () => {
-    const rudderAnalyticsInstance = new RudderAnalytics();
-    (globalThis as typeof window).rudderanalytics = undefined;
-    const result = rudderAnalyticsInstance.getPreloadedEvents();
-    expect(result).toEqual([]);
-  });
-
-  it('should return buffered events array when globalThis.rudderanalytics is an array', () => {
-    const bufferedEvents = [
-      ['track'],
-      ['consent', { sendPageEvent: true }],
-      ['load', 'dummyWriteKey', 'dummyDataPlaneUrl', { option1: true }],
-      ['consent', { sendPageEvent: false }],
-      ['track'],
-    ];
-    (window as any).rudderanalytics = bufferedEvents;
-    const rudderAnalyticsInstance = new RudderAnalytics();
-    const result = rudderAnalyticsInstance.getPreloadedEvents();
-    expect(result).toEqual(bufferedEvents);
-  });
-
   it('should return the global singleton if it exists', () => {
     const globalSingleton = rudderAnalytics;
     rudderAnalytics = new RudderAnalytics();
@@ -850,11 +829,19 @@ describe('Core - Rudder Analytics Facade', () => {
           enabled: true,
         },
       });
-      expect(rudderAnalyticsInstance.trackPageLifecycleEvents).toHaveBeenCalledWith([], {
-        autoTrack: {
-          enabled: true,
+      expect(rudderAnalyticsInstance.trackPageLifecycleEvents).toHaveBeenCalledWith(
+        [
+          ['consent', { sendPageEvent: true }],
+          ['consent', { sendPageEvent: false }],
+          ['track'],
+          ['track'],
+        ],
+        {
+          autoTrack: {
+            enabled: true,
+          },
         },
-      });
+      );
     });
   });
 });

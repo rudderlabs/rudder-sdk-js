@@ -2,6 +2,27 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.14.15](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.14.14...@rudderstack/analytics-js-common@3.14.15) (2025-01-03)
+
+
+### Bug Fixes
+
+* update destination constants ([#1968](https://github.com/rudderlabs/rudder-sdk-js/issues/1968)) ([fbd3b3f](https://github.com/rudderlabs/rudder-sdk-js/commit/fbd3b3fd82441f50092326765c58bfdacd314876))
+
+## [3.14.14](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.14.13...@rudderstack/analytics-js-common@3.14.14) (2024-12-17)
+
+
+### Bug Fixes
+
+* remove circular dependency in packages ([#1973](https://github.com/rudderlabs/rudder-sdk-js/issues/1973)) ([e525496](https://github.com/rudderlabs/rudder-sdk-js/commit/e5254964310c2c73baaf4d0655c3e4025c5e7d2b))
+
+## [3.14.13](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.14.12...@rudderstack/analytics-js-common@3.14.13) (2024-12-06)
+
+
+### Bug Fixes
+
+* integration constants file type ([#1958](https://github.com/rudderlabs/rudder-sdk-js/issues/1958)) ([e0f6ff2](https://github.com/rudderlabs/rudder-sdk-js/commit/e0f6ff28f3b02d56e862e01d308653e2178eec43))
+
 ## [3.14.12](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.14.11...@rudderstack/analytics-js-common@3.14.12) (2024-11-22)
 
 

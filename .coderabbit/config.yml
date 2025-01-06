@@ -1,0 +1,7 @@
+# .coderabbit/config.yml
+reviews:
+  instructions:
+    - pattern: '**/*'
+      instruction: |
+        # Ignore code coverage issues
+        Do not mention code coverage warnings or code coverage reports in the review.

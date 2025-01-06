@@ -1,0 +1,77 @@
+name: Trigger Sanity Test Suites
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        default: production
+    secrets:
+      PAT:
+        description: Personal Access Token
+        required: true
+
+jobs:
+  extract-monorepo-version:
+    name: Extract Monorepo Version
+    runs-on: [self-hosted, Linux, X64]
+
+    outputs:
+      version: ${{ steps.determine_version.outputs.current_version }}
+
+    steps:
+      - name: Determine checkout SHA
+        id: getSHA
+        run: |
+          if [ "${{ inputs.environment }}" = 'staging' ]; then
+            sha=${{ github.event.pull_request.head.sha }}
+          else
+            sha=${{ github.sha }}
+          fi
+          echo "Checkout SHA: $sha"
+          echo "SHA=$sha" >> $GITHUB_OUTPUT
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.getSHA.outputs.SHA }}
+
+      - name: Determine the Monorepo version
+        id: determine_version
+        run: |
+          current_version=$(jq -r .version package.json)
+          echo "current_version=$current_version" >> $GITHUB_OUTPUT
+
+  trigger-sanity-test-suite:
+    runs-on: [self-hosted, Linux, X64]
+    needs: extract-monorepo-version
+
+    steps:
+      - name: Trigger sanity test suite workflow
+        env:
+          GH_TOKEN: ${{ secrets.PAT }}
+        run: |
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "/repos/rudderlabs/rudder-client-side-test/actions/workflows/sdk-team-js-sanity-suite.yaml/dispatches" \
+            -f "ref=main" \
+            -f "inputs[environment]=${{ inputs.environment }}" -f "inputs[monorepo_version]=${{ needs.extract-monorepo-version.outputs.version }}"
+
+  trigger-e2e-test-suite:
+    runs-on: [self-hosted, Linux, X64]
+    needs: extract-monorepo-version
+
+    steps:
+      - name: Trigger E2E test suite workflow
+        env:
+          GH_TOKEN: ${{ secrets.PAT }}
+        run: |
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "/repos/rudderlabs/rudder-client-side-test/actions/workflows/sdk-team-js-regression.yaml/dispatches" \
+            -f "ref=main" \
+            -f "inputs[environment]=${{ inputs.environment }}" -f "inputs[monorepo_version]=${{ needs.extract-monorepo-version.outputs.version }}"

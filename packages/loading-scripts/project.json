@@ -44,16 +44,15 @@
       "executor": "@jscutlery/semver:version",
       "options": {
         "preset": "conventionalcommits",
-        "tagPrefix": "{projectName}@",
-        "trackDeps": true
+        "tagPrefix": "{projectName}@"
       }
     },
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-loading-scripts@3.0.56",
-        "title": "@rudderstack/analytics-js-loading-scripts@3.0.56",
-        "discussion-category": "@rudderstack/analytics-js-loading-scripts@3.0.56",
+        "tag": "@rudderstack/analytics-js-loading-scripts@3.0.59",
+        "title": "@rudderstack/analytics-js-loading-scripts@3.0.59",
+        "discussion-category": "@rudderstack/analytics-js-loading-scripts@3.0.59",
         "notesFile": "./packages/loading-scripts/CHANGELOG_LATEST.md"
       }
     }

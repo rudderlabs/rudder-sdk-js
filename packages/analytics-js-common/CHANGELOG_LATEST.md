@@ -1,7 +1,7 @@
-## [3.14.12](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.14.11...@rudderstack/analytics-js-common@3.14.12) (2024-11-22)
+## [3.14.15](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.14.14...@rudderstack/analytics-js-common@3.14.15) (2025-01-03)
 
 
 ### Bug Fixes
 
-* revert temp utility ([2f60cae](https://github.com/rudderlabs/rudder-sdk-js/commit/2f60caeea0dc9944bf9434d5981952c8e85eef38))
+* update destination constants ([#1968](https://github.com/rudderlabs/rudder-sdk-js/issues/1968)) ([fbd3b3f](https://github.com/rudderlabs/rudder-sdk-js/commit/fbd3b3fd82441f50092326765c58bfdacd314876))
 

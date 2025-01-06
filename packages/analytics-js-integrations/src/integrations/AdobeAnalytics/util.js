@@ -129,7 +129,7 @@ const updateWindowSKeys = (value, key) => {
 const updateCommonWindowSKeys = (rudderElement, pageName) => {
   const { properties, type, context } = rudderElement.message;
   let campaign;
-  if (context && context.campaign) {
+  if (context?.campaign) {
     campaign = context.campaign.name;
   } else {
     campaign = properties.campaign;

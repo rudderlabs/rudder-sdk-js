@@ -34,7 +34,7 @@ class Lotame {
   }
 
   init() {
-    window.LOTAME_SYNCH_CALLBACK = () => { };
+    window.LOTAME_SYNCH_CALLBACK = () => {};
   }
 
   isLoaded() {

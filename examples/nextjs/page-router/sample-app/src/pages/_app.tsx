@@ -1,7 +1,7 @@
-import '@/styles/globals.css'
-import type { AppProps } from 'next/app'
-import { useEffect } from 'react'
-import { useRouter } from 'next/router'
+import '@/styles/globals.css';
+import type { AppProps } from 'next/app';
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
 import useRudderStackAnalytics from '../useRudderAnalytics';
 
 export default function App({ Component, pageProps }: AppProps) {
@@ -10,26 +10,23 @@ export default function App({ Component, pageProps }: AppProps) {
 
   useEffect(() => {
     const trackPageChange = () => {
-      analytics?.page(
-        'PageView',
-        {
-          path: router.pathname,
-          search: router.query
-        }
-      );
-    }
+      analytics?.page('PageView', {
+        path: router.pathname,
+        search: router.query,
+      });
+    };
 
     const completeHandler = () => {
       trackPageChange();
     };
 
     router.events.on('routeChangeComplete', completeHandler);
-    trackPageChange()
+    trackPageChange();
 
     return () => {
       router.events.off('routeChangeComplete', completeHandler);
     };
   }, [router, analytics]);
 
-  return <Component {...pageProps} />
+  return <Component {...pageProps} />;
 }

@@ -136,7 +136,8 @@ const getNewClient = (state: ApplicationState, logger?: ILogger): BugsnagLib.Cli
     maxBreadcrumbs: 40,
     releaseStage: getReleaseStage(),
     user: {
-      id: state.source.value?.id || state.lifecycle.writeKey.value,
+      // Combination of source, session and visit ids
+      id: `${state.source.value?.id ?? (state.lifecycle.writeKey.value as string)}..${state.session.sessionInfo.value?.id ?? 'NA'}..${state.autoTrack?.pageLifecycle?.visitId?.value ?? 'NA'}`,
     },
     logger,
     networkBreadcrumbsEnabled: false,

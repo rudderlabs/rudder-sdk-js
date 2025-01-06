@@ -1,3 +1,5 @@
+import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+
 const sdkName = 'RudderLabs JavaScript SDK';
 const rudderEventPage = {
   properties: {
@@ -77,7 +79,7 @@ const rudderEventPage = {
   userId: 'customUserID',
   anonymousId: '1901c08d-d505-41cd-81a6-060457fad648',
   event: null,
-};
+} as unknown as RudderEvent;
 
 const errorMessage = 'Invalid request payload';
 

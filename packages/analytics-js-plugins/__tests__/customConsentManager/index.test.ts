@@ -1,4 +1,7 @@
-import { state, resetState } from '@rudderstack/analytics-js/state';
+import type { ExtensionPoint } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
+import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
+import { resetState, state } from '../../__mocks__/state';
 import { CustomConsentManager } from '../../src/customConsentManager';
 
 describe('Plugin - CustomConsentManager', () => {
@@ -6,33 +9,25 @@ describe('Plugin - CustomConsentManager', () => {
     resetState();
   });
 
-  const mockLogger = {
-    error: jest.fn(),
-    warn: jest.fn(),
-    log: jest.fn(),
-  };
-
-  const mockErrorHandler = {
-    onError: jest.fn(),
-  };
-
   it('should add CustomConsentManager plugin in the loaded plugin list', () => {
-    CustomConsentManager().initialize(state);
+    CustomConsentManager().initialize?.(state);
     expect(state.plugins.loadedPlugins.value.includes('CustomConsentManager')).toBe(true);
   });
 
   it('ensure default extension points are defined', () => {
-    expect(CustomConsentManager().consentManager.init()).toBeUndefined();
-    expect(CustomConsentManager().consentManager.updateConsentsInfo()).toBeUndefined();
+    expect((CustomConsentManager().consentManager as ExtensionPoint)?.init?.()).toBeUndefined();
+    expect(
+      (CustomConsentManager().consentManager as ExtensionPoint)?.updateConsentsInfo?.(),
+    ).toBeUndefined();
   });
 
   it('should return true if the consent manager is not initialized', () => {
     expect(
-      CustomConsentManager().consentManager.isDestinationConsented(
+      (CustomConsentManager().consentManager as ExtensionPoint)?.isDestinationConsented?.(
         state,
         undefined,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -42,11 +37,11 @@ describe('Plugin - CustomConsentManager', () => {
     state.consents.provider.value = 'custom';
     const destConfig = {};
     expect(
-      CustomConsentManager().consentManager.isDestinationConsented(
+      (CustomConsentManager().consentManager as ExtensionPoint)?.isDestinationConsented?.(
         state,
         destConfig,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -75,11 +70,11 @@ describe('Plugin - CustomConsentManager', () => {
     };
 
     expect(
-      CustomConsentManager().consentManager.isDestinationConsented(
+      (CustomConsentManager().consentManager as ExtensionPoint)?.isDestinationConsented?.(
         state,
         destConfig,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -93,11 +88,11 @@ describe('Plugin - CustomConsentManager', () => {
     };
 
     expect(
-      CustomConsentManager().consentManager.isDestinationConsented(
+      (CustomConsentManager().consentManager as ExtensionPoint)?.isDestinationConsented?.(
         state,
         destConfig,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -111,11 +106,11 @@ describe('Plugin - CustomConsentManager', () => {
     };
 
     expect(
-      CustomConsentManager().consentManager.isDestinationConsented(
+      (CustomConsentManager().consentManager as ExtensionPoint)?.isDestinationConsented?.(
         state,
         destConfig,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -145,11 +140,11 @@ describe('Plugin - CustomConsentManager', () => {
     };
 
     expect(
-      CustomConsentManager().consentManager.isDestinationConsented(
+      (CustomConsentManager().consentManager as ExtensionPoint)?.isDestinationConsented?.(
         state,
         destConfig,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -179,11 +174,11 @@ describe('Plugin - CustomConsentManager', () => {
     };
 
     expect(
-      CustomConsentManager().consentManager.isDestinationConsented(
+      (CustomConsentManager().consentManager as ExtensionPoint)?.isDestinationConsented?.(
         state,
         destConfig,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(true);
   });
@@ -213,11 +208,11 @@ describe('Plugin - CustomConsentManager', () => {
     };
 
     expect(
-      CustomConsentManager().consentManager.isDestinationConsented(
+      (CustomConsentManager().consentManager as ExtensionPoint)?.isDestinationConsented?.(
         state,
         destConfig,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(false);
   });
@@ -226,7 +221,8 @@ describe('Plugin - CustomConsentManager', () => {
     state.consents.initialized.value = true;
     state.consents.provider.value = 'custom';
     state.consents.data.value = {
-      allowedConsentIds: null, // This will throw an exception
+      // @ts-expect-error Intentionally setting to null to throw an exception
+      allowedConsentIds: null,
     };
 
     const destConfig = {
@@ -247,15 +243,15 @@ describe('Plugin - CustomConsentManager', () => {
     };
 
     expect(
-      CustomConsentManager().consentManager.isDestinationConsented(
+      (CustomConsentManager().consentManager as ExtensionPoint)?.isDestinationConsented?.(
         state,
         destConfig,
-        mockErrorHandler,
-        mockLogger,
+        defaultErrorHandler,
+        defaultLogger,
       ),
     ).toBe(true);
 
-    expect(mockErrorHandler.onError).toBeCalledWith(
+    expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
       new TypeError("Cannot read properties of null (reading 'includes')"),
       'CustomConsentManagerPlugin',
       'Failed to determine the consent status for the destination. Please check the destination configuration and try again.',
