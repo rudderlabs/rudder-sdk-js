@@ -58,7 +58,6 @@ jobs:
           npm run check:lint:ci
 
       - name: Fix filesystem paths in generated reports
-        if: false
         run: |
           ./scripts/fix-reports-path-in-github-runner.sh
 

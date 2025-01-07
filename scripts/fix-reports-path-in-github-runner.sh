@@ -1,8 +1,8 @@
 #!/bin/bash
 # Path variables
 defaultPrefixToReplace=""
-defaultAbsolutePathPrefix="home/runner/work/rudder-sdk-js/rudder-sdk-js"
-selfHostedAbsolutePathPrefix="runner/_work/rudder-sdk-js/rudder-sdk-js"
+defaultAbsolutePathPrefix="home/runner/work/rudder-sdk-js/rudder-sdk-js/"
+selfHostedAbsolutePathPrefix="runner/_work/rudder-sdk-js/rudder-sdk-js/"
 absolutePathPrefix="$selfHostedAbsolutePathPrefix"
 # List of package folders
 projectFolderNames=("analytics-js" "analytics-js-common" "analytics-js-integrations" "analytics-js-plugins" "analytics-js-service-worker" "analytics-v1.1" "analytics-js-cookies")
