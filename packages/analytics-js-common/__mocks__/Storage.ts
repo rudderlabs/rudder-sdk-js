@@ -1,6 +1,7 @@
 import store from 'storejs';
-import type { IInMemoryStorageOptions, IStorage } from '../src/types/Store';
-import { Nullable } from '../src/types/Nullable';
+import { cookie } from '../src/component-cookie';
+import type { Nullable } from '../src/types/Nullable';
+import type { IStorage } from '../src/types/Store';
 
 class LocalStorage implements IStorage {
   keys = () => {
@@ -66,6 +67,45 @@ class InMemoryStorage implements IStorage {
     return Object.keys(this.data);
   }
 }
+
+class CookieStorage implements IStorage {
+  keys = () => {
+    return Object.keys(cookie());
+  };
+
+  isEnabled = true;
+
+  getItem = (key: string) => {
+    const value = cookie(key);
+    return value ?? null;
+  };
+
+  setItem = (key: string, value: any) => {
+    cookie(key, value);
+    this.length = Object.keys(cookie()).length;
+  };
+
+  removeItem = (key: string) => {
+    const result = this.setItem(key, null);
+    this.length = Object.keys(cookie()).length;
+    return result;
+  };
+
+  clear = () => {
+    // Not implemented
+  };
+
+  length = Object.keys(cookie()).length;
+
+  key = (idx: number): Nullable<string> => {
+    const curKeys = this.keys();
+    return curKeys[idx] ?? null;
+  };
+}
+
+const defaultCookieStorage = new CookieStorage();
+
+export { CookieStorage, defaultCookieStorage };
 
 const defaultInMemoryStorage = new InMemoryStorage();
 

@@ -57,6 +57,7 @@ class Braze {
       baseUrl: this.endPoint,
       allowUserSuppliedJavascript: this.allowUserSuppliedJavascript,
     });
+    window.braze.addSdkMetadata([window.braze.BrazeSdkMetadata.CDN, 'rud']);
     window.braze.automaticallyShowInAppMessages();
     const { userId } = this.analytics;
     // send userId if you have it https://js.appboycdn.com/web-sdk/latest/doc/module-appboy.html#.changeUser

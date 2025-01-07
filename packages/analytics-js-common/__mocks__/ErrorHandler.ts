@@ -1,4 +1,4 @@
-import { PreLoadErrorData, type IErrorHandler } from '../src/types/ErrorHandler';
+import type { IErrorHandler, PreLoadErrorData } from '../src/types/ErrorHandler';
 import { BufferQueue } from './BufferQueue';
 
 // Mock all the methods of the ErrorHandler class

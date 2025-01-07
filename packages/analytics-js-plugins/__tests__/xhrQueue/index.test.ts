@@ -1,21 +1,22 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { batch } from '@preact/signals-core';
-import { HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
-import { state } from '@rudderstack/analytics-js/state';
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
-import { Schedule } from '@rudderstack/analytics-js-common/utilities/retryQueue/Schedule';
-import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
-import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
+import { defaultStoreManager } from '@rudderstack/analytics-js-common/__mocks__/StoreManager';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
+import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
+import type { ExtensionPoint } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import type { RetryQueue } from '@rudderstack/analytics-js-common/utilities/retryQueue/RetryQueue';
 import type {
-  IHttpClient,
-  ResponseDetails,
-} from '@rudderstack/analytics-js-common/types/HttpClient';
-import { HttpClientError } from '@rudderstack/analytics-js/services/HttpClient/HttpClientError';
+  QueueItem,
+  QueueItemData,
+} from '@rudderstack/analytics-js-common/utilities/retryQueue/types';
+import { Schedule } from '@rudderstack/analytics-js-common/utilities/retryQueue/Schedule';
+import { resetState, state } from '../../__mocks__/state';
 import { XhrQueue } from '../../src/xhrQueue';
-import { defaultLogger } from '../../__mocks__/Logger';
+import { defaultHttpClient } from '../../__mocks__/HttpClient';
+import { HttpClientError } from '@rudderstack/analytics-js/services/HttpClient/HttpClientError';
+import type { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/time', () => ({
   ...jest.requireActual('@rudderstack/analytics-js-common/utilities/time'),
@@ -27,16 +28,9 @@ jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
   generateUUID: jest.fn(() => 'sample_uuid'),
 }));
 
-describe.skip('XhrQueue', () => {
-  const defaultPluginsManager = new PluginsManager(
-    defaultPluginEngine,
-    defaultErrorHandler,
-    defaultLogger,
-  );
-
-  const defaultStoreManager = new StoreManager(defaultPluginsManager);
-
+describe('XhrQueue', () => {
   beforeAll(() => {
+    resetState();
     batch(() => {
       state.lifecycle.writeKey.value = 'sampleWriteKey';
       state.lifecycle.activeDataplaneUrl.value = 'https://sampleurl.com';
@@ -50,33 +44,39 @@ describe.skip('XhrQueue', () => {
     });
   });
 
-  const httpClient = new HttpClient('xhr');
+  beforeEach(() => {
+    defaultStoreManager.getStore().clear();
+  });
 
   it('should add itself to the loaded plugins list on initialized', () => {
-    XhrQueue().initialize(state);
+    XhrQueue()?.initialize?.(state);
 
     expect(state.plugins.loadedPlugins.value).toContain('XhrQueue');
   });
 
   it('should return a queue object on init', () => {
-    const queue = XhrQueue().dataplaneEventsQueue?.init(
+    const queue = (XhrQueue()?.dataplaneEventsQueue as ExtensionPoint).init?.(
       state,
-      httpClient,
+      defaultHttpClient,
       defaultStoreManager,
       defaultErrorHandler,
       defaultLogger,
-    );
+    ) as RetryQueue;
 
     expect(queue).toBeDefined();
     expect(queue.name).toBe('rudder_sampleWriteKey');
   });
 
   it('should add item in queue on enqueue', () => {
-    const queue = XhrQueue().dataplaneEventsQueue?.init(state, httpClient, defaultStoreManager);
+    const queue = (XhrQueue()?.dataplaneEventsQueue as ExtensionPoint).init?.(
+      state,
+      defaultHttpClient,
+      defaultStoreManager,
+    ) as RetryQueue;
 
     const addItemSpy = jest.spyOn(queue, 'addItem');
 
-    const event: RudderEvent = {
+    const event = {
       type: 'track',
       event: 'test',
       userId: 'test',
@@ -86,9 +86,9 @@ describe.skip('XhrQueue', () => {
       anonymousId: 'sampleAnonId',
       messageId: 'test',
       originalTimestamp: 'test',
-    };
+    } as unknown as RudderEvent;
 
-    XhrQueue().dataplaneEventsQueue?.enqueue(state, queue, event);
+    (XhrQueue()?.dataplaneEventsQueue as ExtensionPoint).enqueue?.(state, queue, event);
 
     expect(addItemSpy).toHaveBeenCalledWith({
       url: 'https://sampleurl.com/v1/track',
@@ -96,6 +96,7 @@ describe.skip('XhrQueue', () => {
         AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
         Accept: 'application/json',
         'Content-Type': 'application/json;charset=UTF-8',
+        Authorization: 'Basic c2FtcGxlV3JpdGVLZXk6',
       },
       event: mergeDeepRight(event, { sentAt: 'sample_timestamp' }),
     });
@@ -104,15 +105,18 @@ describe.skip('XhrQueue', () => {
   });
 
   it('should process queue item on start', () => {
-    const mockHttpClient = {
-      request: ({ callback }) => {
-        callback(true);
-      },
-      setAuthHeader: jest.fn(),
-    };
-    const queue = XhrQueue().dataplaneEventsQueue?.init(state, mockHttpClient, defaultStoreManager);
+    // Mock request to return a successful response
 
-    const event: RudderEvent = {
+    defaultHttpClient.request.mockImplementationOnce(({ callback }) => {
+      callback?.(true);
+    });
+    const queue = (XhrQueue()?.dataplaneEventsQueue as ExtensionPoint).init?.(
+      state,
+      defaultHttpClient,
+      defaultStoreManager,
+    ) as RetryQueue;
+
+    const event = {
       type: 'track',
       event: 'test',
       userId: 'test',
@@ -122,11 +126,11 @@ describe.skip('XhrQueue', () => {
       anonymousId: 'sampleAnonId',
       messageId: 'test',
       originalTimestamp: 'test',
-    };
+    } as unknown as RudderEvent;
 
     const queueProcessCbSpy = jest.spyOn(queue, 'processQueueCb');
 
-    XhrQueue().dataplaneEventsQueue?.enqueue(state, queue, event);
+    (XhrQueue()?.dataplaneEventsQueue as ExtensionPoint).enqueue?.(state, queue, event);
 
     // Explicitly start the queue to process the item
     // In actual implementation, this is done based on the state signals
@@ -139,6 +143,7 @@ describe.skip('XhrQueue', () => {
           AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
           Accept: 'application/json',
           'Content-Type': 'application/json;charset=UTF-8',
+          Authorization: 'Basic c2FtcGxlV3JpdGVLZXk6',
         },
         event: mergeDeepRight(event, { sentAt: 'sample_timestamp' }),
       },
@@ -146,33 +151,32 @@ describe.skip('XhrQueue', () => {
       0,
       10,
       true,
+      true,
     );
 
     // Item is successfully processed and removed from queue
-    expect(queue.getStorageEntry('queue').length).toBe(0);
+    expect(queue.getStorageEntry('queue') as QueueItem<QueueItemData>[]).toBeNull();
 
     queueProcessCbSpy.mockRestore();
   });
 
   it('should log error on retryable failure and requeue the item', () => {
-    const mockHttpClient = {
-      request: ({ callback }) => {
-        callback(null, {
-          error: new HttpClientError('some error', {
-            status: 429,
-          }),
-        } as ResponseDetails);
-      },
-      setAuthHeader: jest.fn(),
-    } as unknown as IHttpClient;
+    // Mock request to return a retryable failure
 
-    const queue = XhrQueue().dataplaneEventsQueue?.init(
+    defaultHttpClient.request.mockImplementationOnce(({ callback }) => {
+      callback(null, {
+        error: new HttpClientError('some error', {
+          status: 429,
+        }),
+      } as ResponseDetails);
+    });
+    const queue = (XhrQueue()?.dataplaneEventsQueue as ExtensionPoint).init?.(
       state,
-      mockHttpClient,
+      defaultHttpClient,
       defaultStoreManager,
       undefined,
       defaultLogger,
-    );
+    ) as RetryQueue;
 
     const schedule = new Schedule();
     // Override the timestamp generation function to return a fixed value
@@ -180,7 +184,7 @@ describe.skip('XhrQueue', () => {
 
     queue.schedule = schedule;
 
-    const event: RudderEvent = {
+    const event = {
       type: 'track',
       event: 'test',
       userId: 'test',
@@ -190,9 +194,9 @@ describe.skip('XhrQueue', () => {
       anonymousId: 'sampleAnonId',
       messageId: 'test',
       originalTimestamp: 'test',
-    };
+    } as unknown as RudderEvent;
 
-    XhrQueue().dataplaneEventsQueue?.enqueue(state, queue, event);
+    (XhrQueue()?.dataplaneEventsQueue as ExtensionPoint).enqueue?.(state, queue, event);
 
     // Explicitly start the queue to process the item
     // In actual implementation, this is done based on the state signals
@@ -238,18 +242,13 @@ describe.skip('XhrQueue', () => {
       };
     });
 
-    const mockHttpClient = {
-      request: jest.fn(),
-      setAuthHeader: jest.fn(),
-    } as unknown as IHttpClient;
-
-    const queue = XhrQueue().dataplaneEventsQueue?.init(
+    const queue = (XhrQueue()?.dataplaneEventsQueue as ExtensionPoint).init?.(
       state,
-      mockHttpClient,
+      defaultHttpClient,
       defaultStoreManager,
       undefined,
       defaultLogger,
-    );
+    ) as RetryQueue;
     const queueProcessCbSpy = jest.spyOn(queue, 'processQueueCb');
 
     const schedule = new Schedule();
@@ -258,7 +257,7 @@ describe.skip('XhrQueue', () => {
 
     queue.schedule = schedule;
 
-    const event: RudderEvent = {
+    const event = {
       type: 'track',
       event: 'test',
       userId: 'test',
@@ -268,9 +267,9 @@ describe.skip('XhrQueue', () => {
       anonymousId: 'sampleAnonId',
       messageId: 'test',
       originalTimestamp: 'test',
-    };
+    } as unknown as RudderEvent;
 
-    const event2: RudderEvent = {
+    const event2 = {
       type: 'track',
       event: 'test2',
       userId: 'test2',
@@ -280,10 +279,10 @@ describe.skip('XhrQueue', () => {
       anonymousId: 'sampleAnonId',
       messageId: 'test2',
       originalTimestamp: 'test2',
-    };
+    } as unknown as RudderEvent;
 
-    XhrQueue().dataplaneEventsQueue?.enqueue(state, queue, event);
-    XhrQueue().dataplaneEventsQueue?.enqueue(state, queue, event2);
+    (XhrQueue()?.dataplaneEventsQueue as ExtensionPoint).enqueue?.(state, queue, event);
+    (XhrQueue()?.dataplaneEventsQueue as ExtensionPoint).enqueue?.(state, queue, event2);
 
     // Explicitly start the queue to process the item
     // In actual implementation, this is done based on the state signals
@@ -297,6 +296,7 @@ describe.skip('XhrQueue', () => {
             AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
             Accept: 'application/json',
             'Content-Type': 'application/json;charset=UTF-8',
+            Authorization: 'Basic c2FtcGxlV3JpdGVLZXk6',
           },
           event: mergeDeepRight(event, { sentAt: 'sample_timestamp' }),
         },
@@ -306,6 +306,7 @@ describe.skip('XhrQueue', () => {
             AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
             Accept: 'application/json',
             'Content-Type': 'application/json;charset=UTF-8',
+            Authorization: 'Basic c2FtcGxlV3JpdGVLZXk6',
           },
           event: mergeDeepRight(event2, { sentAt: 'sample_timestamp' }),
         },
@@ -314,9 +315,10 @@ describe.skip('XhrQueue', () => {
       0,
       10,
       true,
+      true,
     );
 
-    expect(mockHttpClient.request).toHaveBeenCalledWith({
+    expect(defaultHttpClient.request).toHaveBeenCalledWith({
       url: 'https://sampleurl.com/v1/batch',
       options: {
         method: 'POST',

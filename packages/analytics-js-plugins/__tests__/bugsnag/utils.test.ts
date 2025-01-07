@@ -1,9 +1,7 @@
-/* eslint-disable max-classes-per-file */
 import { signal } from '@preact/signals-core';
 import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader';
-import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import * as timeouts from '@rudderstack/analytics-js-common/src/constants/timeouts';
-import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
+import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
 import * as bugsnagConstants from '../../src/bugsnag/constants';
 import {
   isApiKeyValid,
@@ -19,42 +17,171 @@ import {
 } from '../../src/bugsnag/utils';
 import { server } from '../../__fixtures__/msw.server';
 import type { BugsnagLib } from '../../src/types/plugins';
-import { defaultLogger } from '../../__mocks__/Logger';
-
-let state: ApplicationState;
+import { resetState, state } from '../../__mocks__/state';
 
 beforeEach(() => {
   window.RudderSnippetVersion = '3.0.0';
-  state = {
-    context: {
-      app: signal({
-        name: 'test-app',
-        namespace: 'test-namespace',
-        version: '1.0.0',
-        installType: 'npm',
-      }),
-    },
-    source: signal({
-      id: 'dummy-source-id',
-    }),
-    lifecycle: {
-      writeKey: signal('dummy-write-key'),
-    },
-  };
+  resetState();
+  state.lifecycle.writeKey.value = 'dummy-write-key';
 });
 
 afterEach(() => {
   window.RudderSnippetVersion = undefined;
 });
 
-describe('Bugsnag utilities', () => {
-  class MockErrorHandler implements IErrorHandler {
-    init = jest.fn();
-    onError = jest.fn();
-    leaveBreadcrumb = jest.fn();
-    notifyError = jest.fn();
-  }
+const DEFAULT_STATE_DATA = {
+  autoTrack: {
+    enabled: false,
+    pageLifecycle: {
+      enabled: false,
+    },
+  },
+  capabilities: {
+    isAdBlocked: false,
+    isBeaconAvailable: false,
+    isCryptoAvailable: false,
+    isIE11: false,
+    isLegacyDOM: false,
+    isOnline: true,
+    isUaCHAvailable: false,
+    storage: {
+      isCookieStorageAvailable: false,
+      isLocalStorageAvailable: false,
+      isSessionStorageAvailable: false,
+    },
+  },
+  consents: {
+    data: {},
+    enabled: false,
+    initialized: false,
+    postConsent: {},
+    preConsent: {
+      enabled: false,
+    },
+    resolutionStrategy: 'and',
+  },
+  context: {
+    app: {
+      installType: 'cdn',
+      name: 'RudderLabs JavaScript SDK',
+      namespace: 'com.rudderlabs.javascript',
+      version: 'dev-snapshot',
+    },
+    device: null,
+    library: {
+      name: 'RudderLabs JavaScript SDK',
+      version: 'dev-snapshot',
+    },
+    locale: null,
+    network: null,
+    os: {
+      name: '',
+      version: '',
+    },
+    screen: {
+      density: 0,
+      height: 0,
+      innerHeight: 0,
+      innerWidth: 0,
+      width: 0,
+    },
+    userAgent: '',
+  },
+  dataPlaneEvents: {
+    deliveryEnabled: true,
+  },
+  lifecycle: {
+    initialized: false,
+    loaded: false,
+    logLevel: 'ERROR',
+    readyCallbacks: [],
+    writeKey: 'dummy-write-key',
+  },
+  loadOptions: {
+    beaconQueueOptions: {},
+    bufferDataPlaneEventsUntilReady: false,
+    configUrl: 'https://api.rudderstack.com',
+    dataPlaneEventsBufferTimeout: 1000,
+    destinationsQueueOptions: {},
+    integrations: {
+      All: true,
+    },
+    loadIntegration: true,
+    lockIntegrationsVersion: false,
+    lockPluginsVersion: false,
+    logLevel: 'ERROR',
+    plugins: [],
+    polyfillIfRequired: true,
+    queueOptions: {},
+    sameSiteCookie: 'Lax',
+    sendAdblockPageOptions: {},
+    sessions: {
+      autoTrack: true,
+      timeout: 1800000,
+    },
+    storage: {
+      cookie: {},
+      encryption: {
+        version: 'v3',
+      },
+      migrate: true,
+    },
+    uaChTrackLevel: 'none',
+    useBeacon: false,
+    useGlobalIntegrationsConfigInEvents: false,
+    useServerSideCookies: false,
+  },
+  metrics: {
+    dropped: 0,
+    queued: 0,
+    retries: 0,
+    sent: 0,
+    triggered: 0,
+  },
+  nativeDestinations: {
+    activeDestinations: [],
+    clientDestinationsReady: false,
+    configuredDestinations: [],
+    failedDestinations: [],
+    initializedDestinations: [],
+    integrationsConfig: {},
+    loadIntegration: true,
+    loadOnlyIntegrations: {},
+  },
+  plugins: {
+    activePlugins: [],
+    failedPlugins: [],
+    loadedPlugins: [],
+    pluginsToLoadFromConfig: [],
+    ready: false,
+    totalPluginsToLoad: 0,
+  },
+  reporting: {
+    breadcrumbs: [],
+    isErrorReportingEnabled: false,
+    isErrorReportingPluginLoaded: false,
+    isMetricsReportingEnabled: false,
+  },
+  serverCookies: {
+    isEnabledServerSideCookies: false,
+  },
+  session: {
+    initialReferrer: '',
+    initialReferringDomain: '',
+    sessionInfo: {},
+  },
+  source: {
+    id: 'dummy-source-id',
+    workspaceId: 'dummy-workspace-id',
+  },
+  storage: {
+    entries: {},
+    migrate: false,
+    trulyAnonymousTracking: false,
+  },
+};
 
+describe('Bugsnag utilities', () => {
   describe('isApiKeyValid', () => {
     it('should return true for a valid API key', () => {
       const apiKey = '1234567890abcdef';
@@ -91,8 +218,6 @@ describe('Bugsnag utilities', () => {
 
   describe('getReleaseStage', () => {
     let windowSpy: any;
-    let documentSpy: any;
-    let navigatorSpy: any;
     let locationSpy: any;
 
     beforeEach(() => {
@@ -153,7 +278,7 @@ describe('Bugsnag utilities', () => {
   });
 
   describe('isRudderSDKError', () => {
-    const testCaseData = [
+    const testCaseData: any[][] = [
       ['https://invalid-domain.com/rsa.min.js', true],
       ['https://invalid-domain.com/rss.min.js', false],
       ['https://invalid-domain.com/rsa-plugins-Beacon.min.js', true],
@@ -171,7 +296,7 @@ describe('Bugsnag utilities', () => {
 
     it.each(testCaseData)(
       'if script src is "%s" then it should return the value as "%s" ',
-      (scriptSrc, expectedValue) => {
+      (scriptSrc: any, expectedValue: boolean) => {
         // Bugsnag error event object structure
         const event = {
           stacktrace: [
@@ -179,7 +304,7 @@ describe('Bugsnag utilities', () => {
               file: scriptSrc,
             },
           ],
-        };
+        } as unknown as BugsnagLib.Report;
 
         expect(isRudderSDKError(event)).toBe(expectedValue);
       },
@@ -189,40 +314,26 @@ describe('Bugsnag utilities', () => {
   describe('enhanceErrorEventMutator', () => {
     it('should return the enhanced error event object', () => {
       const event = {
-        metadata: {},
+        metaData: {},
         stacktrace: [
           {
             file: 'https://invalid-domain.com/rsa.min.js',
           },
         ],
-        updateMetaData(key, value) {
-          this.metadata[key] = value;
+        updateMetaData(key: string, value: any) {
+          // @ts-expect-error ignore for testing
+          this.metaData[key] = value;
         },
         errorMessage: 'test error message',
-      };
+      } as unknown as BugsnagLib.Report;
 
       enhanceErrorEventMutator(state, event);
 
-      expect(event.metadata).toEqual({
+      expect(event.metaData).toEqual({
         source: {
           snippetVersion: '3.0.0',
         },
-        state: {
-          source: {
-            id: 'dummy-source-id',
-          },
-          lifecycle: {
-            writeKey: 'dummy-write-key',
-          },
-          context: {
-            app: {
-              name: 'test-app',
-              namespace: 'test-namespace',
-              version: '1.0.0',
-              installType: 'npm',
-            },
-          },
-        },
+        state: DEFAULT_STATE_DATA,
       });
 
       expect(event.context).toBe('test error message');
@@ -231,40 +342,26 @@ describe('Bugsnag utilities', () => {
 
     it('should return the enhanced error event object if the error is for script loads', () => {
       const event = {
-        metadata: {},
+        metaData: {},
         stacktrace: [
           {
             file: 'https://invalid-domain.com/rsa.min.js',
           },
         ],
-        updateMetaData(key, value) {
-          this.metadata[key] = value;
+        updateMetaData(key: string, value: any) {
+          // @ts-expect-error ignore for testing
+          this.metaData[key] = value;
         },
         errorMessage: 'error in script loading "https://invalid-domain.com/rsa.min.js"',
-      };
+      } as unknown as BugsnagLib.Report;
 
-      enhanceErrorEventMutator(state, event, 'dummyMetadataVal');
+      enhanceErrorEventMutator(state, event);
 
-      expect(event.metadata).toEqual({
+      expect(event.metaData).toEqual({
         source: {
           snippetVersion: '3.0.0',
         },
-        state: {
-          source: {
-            id: 'dummy-source-id',
-          },
-          lifecycle: {
-            writeKey: 'dummy-write-key',
-          },
-          context: {
-            app: {
-              name: 'test-app',
-              namespace: 'test-namespace',
-              version: '1.0.0',
-              installType: 'npm',
-            },
-          },
-        },
+        state: DEFAULT_STATE_DATA,
       });
 
       expect(event.context).toBe('Script load failures');
@@ -273,16 +370,20 @@ describe('Bugsnag utilities', () => {
   });
 
   describe('initBugsnagClient', () => {
-    const origSdkMaxWait = bugsnagConstants.MAX_WAIT_FOR_SDK_LOAD_MS;
-
     const mountBugsnagSDK = () => {
       (window as any).bugsnag = jest.fn(() => ({ notifier: { version: '6.0.0' } }));
     };
 
+    beforeEach(() => {
+      jest.useFakeTimers();
+      jest.setSystemTime(0);
+    });
+
     afterEach(() => {
       delete (window as any).bugsnag;
-      bugsnagConstants.MAX_WAIT_FOR_SDK_LOAD_MS = origSdkMaxWait;
-      state = undefined;
+      resetState();
+
+      jest.useRealTimers();
     });
 
     it('should resolve the promise immediately if the bugsnag SDK is already loaded', async () => {
@@ -296,13 +397,19 @@ describe('Bugsnag utilities', () => {
     });
 
     it('should resolve the promise after some time when the bugsnag SDK is loaded', async () => {
-      setTimeout(() => {
-        mountBugsnagSDK();
-      }, 1000);
-
       const bsClientPromise: Promise<BugsnagLib.Client> = new Promise((resolve, reject) => {
         initBugsnagClient(state, resolve, reject);
       });
+
+      state.session.sessionInfo.value = { id: 123 };
+      state.autoTrack.pageLifecycle.visitId.value = 'test-visit-id';
+
+      // Advance time and mount the Bugsnag SDK
+      jest.advanceTimersByTime(1);
+      mountBugsnagSDK();
+
+      // Run all timers to trigger the promise resolution
+      jest.runAllTimers();
 
       const bsClient: BugsnagLib.Client = await bsClientPromise;
 
@@ -312,11 +419,11 @@ describe('Bugsnag utilities', () => {
       expect((window as any).bugsnag).toHaveBeenCalledTimes(2);
       expect((window as any).bugsnag).toHaveBeenNthCalledWith(2, {
         apiKey: '__RS_BUGSNAG_API_KEY__',
-        appVersion: '1.0.0',
+        appVersion: 'dev-snapshot',
         metaData: {
           SDK: {
             name: 'JS',
-            installType: 'npm',
+            installType: 'cdn',
           },
         },
         autoCaptureSessions: false,
@@ -325,7 +432,7 @@ describe('Bugsnag utilities', () => {
         maxBreadcrumbs: 40,
         releaseStage: 'development',
         user: {
-          id: 'dummy-source-id',
+          id: 'dummy-source-id..123..test-visit-id',
         },
         networkBreadcrumbsEnabled: false,
         beforeSend: expect.any(Function),
@@ -334,16 +441,22 @@ describe('Bugsnag utilities', () => {
     });
 
     it('should return bugsnag client with write key as user id if source id is not available', async () => {
+      // @ts-expect-error source id is not defined for the test case
       state.source.value = { id: undefined };
       state.lifecycle.writeKey = signal('dummy-write-key');
-
-      setTimeout(() => {
-        mountBugsnagSDK();
-      }, 1000);
+      state.session.sessionInfo.value = { id: 123 };
+      state.autoTrack.pageLifecycle.visitId.value = 'test-visit-id';
 
       const bsClientPromise: Promise<BugsnagLib.Client> = new Promise((resolve, reject) => {
         initBugsnagClient(state, resolve, reject);
       });
+
+      // Advance time and mount the Bugsnag SDK
+      jest.advanceTimersByTime(1);
+      mountBugsnagSDK();
+
+      // Run all timers to trigger the promise resolution
+      jest.runAllTimers();
 
       await bsClientPromise;
 
@@ -351,11 +464,11 @@ describe('Bugsnag utilities', () => {
       expect((window as any).bugsnag).toHaveBeenCalledTimes(2);
       expect((window as any).bugsnag).toHaveBeenNthCalledWith(2, {
         apiKey: '__RS_BUGSNAG_API_KEY__',
-        appVersion: '1.0.0',
+        appVersion: 'dev-snapshot',
         metaData: {
           SDK: {
             name: 'JS',
-            installType: 'npm',
+            installType: 'cdn',
           },
         },
         autoCaptureSessions: false,
@@ -364,7 +477,7 @@ describe('Bugsnag utilities', () => {
         maxBreadcrumbs: 40,
         releaseStage: 'development',
         user: {
-          id: 'dummy-write-key',
+          id: 'dummy-write-key..123..test-visit-id',
         },
         networkBreadcrumbsEnabled: false,
         beforeSend: expect.any(Function),
@@ -373,19 +486,24 @@ describe('Bugsnag utilities', () => {
     });
 
     it('should reject the promise if the Bugsnag SDK is not loaded', async () => {
-      bugsnagConstants.MAX_WAIT_FOR_SDK_LOAD_MS = 1000;
-
       const bsClientPromise = new Promise((resolve, reject) => {
         initBugsnagClient(state, resolve, reject);
       });
 
+      // Advance time to trigger timeout
+      jest.advanceTimersByTime(10000); // 10 seconds
+
       await expect(bsClientPromise).rejects.toThrow(
-        'A timeout 1000 ms occurred while trying to load the Bugsnag SDK.',
+        'A timeout 10000 ms occurred while trying to load the Bugsnag SDK.',
       );
     });
   });
 
   describe('loadBugsnagSDK', () => {
+    let insertBeforeSpy: any;
+
+    const extSrcLoader = new ExternalSrcLoader();
+
     beforeAll(() => {
       server.listen();
     });
@@ -393,16 +511,12 @@ describe('Bugsnag utilities', () => {
     afterAll(() => {
       server.close();
     });
-    let insertBeforeSpy: any;
-
-    const mockErrorHandler = new MockErrorHandler();
-    const extSrcLoader = new ExternalSrcLoader(mockErrorHandler, defaultLogger);
-
-    const origBugsnagUrl = bugsnagConstants.BUGSNAG_CDN_URL;
-    const origExtSrcLoadTimeout = timeouts.DEFAULT_EXT_SRC_LOAD_TIMEOUT_MS;
 
     beforeEach(() => {
       insertBeforeSpy = jest.spyOn(document.head, 'insertBefore');
+
+      jest.useFakeTimers();
+      jest.setSystemTime(0);
     });
 
     afterEach(() => {
@@ -412,14 +526,14 @@ describe('Bugsnag utilities', () => {
       }
       delete (window as any).Bugsnag;
       delete (window as any).bugsnag;
-      bugsnagConstants.BUGSNAG_CDN_URL = origBugsnagUrl;
-      timeouts.DEFAULT_EXT_SRC_LOAD_TIMEOUT_MS = origExtSrcLoadTimeout;
+
+      jest.useRealTimers();
     });
 
     it('should not load Bugsnag SDK if it (<=v6) is already loaded', () => {
       (window as any).bugsnag = jest.fn(() => ({ notifier: { version: '6.0.0' } }));
 
-      loadBugsnagSDK();
+      loadBugsnagSDK(extSrcLoader, defaultLogger);
 
       expect(insertBeforeSpy).not.toHaveBeenCalled();
     });
@@ -427,31 +541,30 @@ describe('Bugsnag utilities', () => {
     it('should not load Bugsnag SDK if it (>v6) is already loaded', () => {
       (window as any).Bugsnag = { _client: { _notifier: { version: '7.0.0' } } };
 
-      loadBugsnagSDK();
+      loadBugsnagSDK(extSrcLoader, defaultLogger);
 
       expect(insertBeforeSpy).not.toHaveBeenCalled();
     });
 
-    it('should attempt to load Bugsnag SDK if not already loaded', done => {
-      loadBugsnagSDK(extSrcLoader, undefined);
+    it('should attempt to load Bugsnag SDK if not already loaded', () => {
+      loadBugsnagSDK(extSrcLoader);
 
-      setTimeout(() => {
-        expect(insertBeforeSpy).toHaveBeenCalled();
-        done();
-      }, 500);
+      // Run all timers to trigger the script load
+      jest.runAllTimers();
+
+      expect(insertBeforeSpy).toHaveBeenCalled();
     });
 
     it('should invoke error handler and log error if Bugsnag SDK could not be loaded', done => {
-      timeouts.DEFAULT_EXT_SRC_LOAD_TIMEOUT_MS = 1000; // 1 second
-      bugsnagConstants.BUGSNAG_CDN_URL = 'https://asdf.com/bugsnag.min.js';
       loadBugsnagSDK(extSrcLoader, defaultLogger);
 
-      setTimeout(() => {
+      // Advance the timer to trigger the script load and result in error
+      jest.advanceTimersByTimeAsync(1).then(() => {
         expect(defaultLogger.error).toHaveBeenCalledWith(
-          `BugsnagPlugin:: Bugsnag script: Failed to load the script with the id "rs-bugsnag" from URL "https://asdf.com/bugsnag.min.js": "no information".`,
+          `BugsnagPlugin:: Bugsnag script: Failed to load the script with the id "rs-bugsnag" from URL "__RS_BUGSNAG_SDK_URL__": "no information".`,
         );
         done();
-      }, 2000);
+      });
     });
   });
 
@@ -467,7 +580,7 @@ describe('Bugsnag utilities', () => {
             file: 'https://invalid-domain.com/not-rsa.min.js',
           },
         ],
-      };
+      } as unknown as BugsnagLib.Report;
 
       const onErrorFn = onError(state);
 
@@ -492,22 +605,7 @@ describe('Bugsnag utilities', () => {
       expect(error.updateMetaData).toHaveBeenNthCalledWith(1, 'source', {
         snippetVersion: '3.0.0',
       });
-      expect(error.updateMetaData).toHaveBeenNthCalledWith(2, 'state', {
-        source: {
-          id: 'dummy-source-id',
-        },
-        lifecycle: {
-          writeKey: 'dummy-write-key',
-        },
-        context: {
-          app: {
-            name: 'test-app',
-            namespace: 'test-namespace',
-            version: '1.0.0',
-            installType: 'npm',
-          },
-        },
-      });
+      expect(error.updateMetaData).toHaveBeenNthCalledWith(2, 'state', DEFAULT_STATE_DATA);
       expect(error.severity).toBe('error');
       expect(error.context).toBe('Script load failures');
     });
@@ -556,12 +654,15 @@ describe('Bugsnag utilities', () => {
     const origAppStateExcludes = bugsnagConstants.APP_STATE_EXCLUDE_KEYS;
 
     beforeEach(() => {
-      bugsnagConstants.APP_STATE_EXCLUDE_KEYS = origAppStateExcludes;
+      Object.defineProperty(bugsnagConstants, 'APP_STATE_EXCLUDE_KEYS', {
+        value: origAppStateExcludes,
+        writable: true,
+      });
     });
 
     // Here we are just exploring different combinations of data where
     // the signals could be buried inside objects, arrays, nested objects, etc.
-    const tcData = [
+    const tcData: any[][] = [
       [
         {
           name: 'test',
@@ -677,6 +778,9 @@ describe('Bugsnag utilities', () => {
       ],
       [
         {
+          // We're intentionally adding BigInt values
+          // here to test if they are converted to strings
+          // eslint-disable-next-line compat/compat
           someKey: BigInt(123),
         },
         undefined,
@@ -685,7 +789,11 @@ describe('Bugsnag utilities', () => {
     ];
 
     it.each(tcData)('should convert signals to JSON %#', (input, expected, excludes) => {
-      bugsnagConstants.APP_STATE_EXCLUDE_KEYS = excludes;
+      Object.defineProperty(bugsnagConstants, 'APP_STATE_EXCLUDE_KEYS', {
+        value: excludes,
+        writable: true,
+      });
+
       expect(getAppStateForMetadata(input)).toEqual(expected);
     });
   });

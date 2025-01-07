@@ -1,10 +1,7 @@
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import {
-  getDeliveryPayload,
-  validateEventPayloadSize,
-} from '@rudderstack/analytics-js-plugins/utilities/eventsDelivery';
-import * as utilConstants from '@rudderstack/analytics-js-plugins/utilities/constants';
-import { defaultLogger } from '../../__mocks__/Logger';
+import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
+import { getDeliveryPayload, validateEventPayloadSize } from '../../src/utilities/eventsDelivery';
+import * as utilConstants from '../../src/utilities/constants';
 
 describe('Queue Plugins Utilities', () => {
   describe('getDeliveryPayload', () => {
@@ -74,7 +71,7 @@ describe('Queue Plugins Utilities', () => {
         properties: {
           test: 'test',
         },
-      };
+      } as unknown as RudderEvent;
 
       expect(getDeliveryPayload(event)).toEqual(
         '{"channel":"test","type":"track","anonymousId":"test","context":{"traits":{"trait_1":"trait_1","trait_2":"trait_2"},"sessionId":1,"sessionStart":true,"consentManagement":{"deniedConsentIds":["1","2","3"]},"ua-ch":{"test":"test"},"app":{"name":"test","version":"test","namespace":"test"},"library":{"name":"test","version":"test"},"userAgent":"test","os":{"name":"test","version":"test"},"locale":"test","screen":{"width":1,"height":1,"density":1,"innerWidth":1,"innerHeight":1},"campaign":{"source":"test","medium":"test","name":"test","term":"test","content":"test"}},"originalTimestamp":"test","integrations":{"All":true},"messageId":"test","previousId":"test","sentAt":"test","category":"test","traits":{"trait_1":"trait_11","trait_2":"trait_12"},"groupId":"test","event":"test","userId":"test","properties":{"test":"test"}}',
@@ -137,7 +134,7 @@ describe('Queue Plugins Utilities', () => {
           test: 'test',
           test2: null,
         },
-      };
+      } as unknown as RudderEvent;
 
       expect(getDeliveryPayload(event)).toEqual(
         '{"channel":"test","type":"track","anonymousId":"test","context":{"traits":{"trait_1":"trait_1","trait_2":"trait_2"},"sessionId":1,"sessionStart":true,"ua-ch":{"test":"test"},"app":{"name":"test","version":"test","namespace":"test"},"library":{"name":"test","version":"test"},"userAgent":"test","os":{"name":"test","version":"test"},"locale":"test","screen":{"width":1,"height":1,"density":1,"innerWidth":1,"innerHeight":1}},"originalTimestamp":"test","integrations":{"All":true},"messageId":"test","previousId":"test","sentAt":"test","category":"test","groupId":"test","event":"test","userId":"test","properties":{"test":"test"}}',
@@ -149,11 +146,17 @@ describe('Queue Plugins Utilities', () => {
     const originalMaxEventPayloadSize = utilConstants.EVENT_PAYLOAD_SIZE_BYTES_LIMIT;
 
     beforeEach(() => {
-      utilConstants.EVENT_PAYLOAD_SIZE_BYTES_LIMIT = 50;
+      Object.defineProperty(utilConstants, 'EVENT_PAYLOAD_SIZE_BYTES_LIMIT', {
+        value: 50,
+        writable: true,
+      });
     });
 
     afterEach(() => {
-      utilConstants.EVENT_PAYLOAD_SIZE_BYTES_LIMIT = originalMaxEventPayloadSize;
+      Object.defineProperty(utilConstants, 'EVENT_PAYLOAD_SIZE_BYTES_LIMIT', {
+        value: originalMaxEventPayloadSize,
+        writable: false,
+      });
     });
 
     it('should log a warning if the payload size is greater than the max limit', () => {
@@ -168,7 +171,7 @@ describe('Queue Plugins Utilities', () => {
         properties: {
           test: 'test',
         },
-      };
+      } as unknown as RudderEvent;
       validateEventPayloadSize(event, defaultLogger);
 
       expect(defaultLogger.warn).toHaveBeenCalledWith(
@@ -180,7 +183,7 @@ describe('Queue Plugins Utilities', () => {
       const event = {
         channel: 'test',
         type: 'track',
-      };
+      } as unknown as RudderEvent;
 
       validateEventPayloadSize(event, defaultLogger);
 
@@ -194,7 +197,7 @@ describe('Queue Plugins Utilities', () => {
         type: 'track',
         ab: 'd',
         g: 'j',
-      };
+      } as unknown as RudderEvent;
 
       validateEventPayloadSize(event, defaultLogger);
 

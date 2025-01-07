@@ -1,19 +1,17 @@
 /* eslint-disable no-plusplus */
 import { batch } from '@preact/signals-core';
-import { HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
-import { state } from '@rudderstack/analytics-js/state';
-import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
-import { defaultPluginEngine } from '@rudderstack/analytics-js/services/PluginEngine';
-import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
+import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
+import { defaultStoreManager } from '@rudderstack/analytics-js-common/__mocks__/StoreManager';
+import type { ExtensionPoint } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import type { RetryQueue } from '@rudderstack/analytics-js-common/utilities/retryQueue/RetryQueue';
 import type {
-  IHttpClient,
-  ResponseDetails,
-} from '@rudderstack/analytics-js-common/types/HttpClient';
-import * as utils from '@rudderstack/analytics-js-plugins/deviceModeTransformation/utilities';
-import { DeviceModeTransformation } from '@rudderstack/analytics-js-plugins/deviceModeTransformation';
-import { HttpClientError } from '@rudderstack/analytics-js/services/HttpClient/HttpClientError';
+  QueueItem,
+  QueueItemData,
+} from '@rudderstack/analytics-js-common/utilities/retryQueue/types';
+import * as utils from '../../src/deviceModeTransformation/utilities';
+import { DeviceModeTransformation } from '../../src/deviceModeTransformation';
 import {
   dummyDataplaneHost,
   dummyWriteKey,
@@ -21,7 +19,11 @@ import {
   dmtSuccessResponse,
 } from '../../__fixtures__/fixtures';
 import { server } from '../../__fixtures__/msw.server';
-import { defaultLogger } from '../../__mocks__/Logger';
+import { resetState, state } from '../../__mocks__/state';
+import { defaultHttpClient } from '../../__mocks__/HttpClient';
+import { defaultPluginsManager } from '../../__mocks__/PluginsManager';
+import { HttpClientError } from '@rudderstack/analytics-js/services/HttpClient/HttpClientError';
+import type { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
   ...jest.requireActual('@rudderstack/analytics-js-common/utilities/uuId'),
@@ -29,24 +31,15 @@ jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
 }));
 
 describe('Device mode transformation plugin', () => {
-  const defaultPluginsManager = new PluginsManager(
-    defaultPluginEngine,
-    defaultErrorHandler,
-    defaultLogger,
-  );
-
-  const defaultStoreManager = new StoreManager(defaultPluginsManager);
-
   beforeAll(() => {
     server.listen();
+    resetState();
     batch(() => {
       state.lifecycle.writeKey.value = dummyWriteKey;
       state.lifecycle.activeDataplaneUrl.value = dummyDataplaneHost;
       state.session.authToken.value = authToken;
     });
   });
-
-  const httpClient = new HttpClient(defaultLogger);
 
   afterAll(() => {
     server.close();
@@ -86,32 +79,32 @@ describe('Device mode transformation plugin', () => {
   });
 
   it('should return a queue object on init', () => {
-    const queue = DeviceModeTransformation().transformEvent?.init(
+    const queue = (DeviceModeTransformation()?.transformEvent as ExtensionPoint)?.init?.(
       state,
       defaultPluginsManager,
-      httpClient,
+      defaultHttpClient,
       defaultStoreManager,
       defaultErrorHandler,
       defaultLogger,
-    );
+    ) as RetryQueue;
 
     expect(queue).toBeDefined();
     expect(queue.name).toBe('rudder_dummy-write-key');
   });
 
   it('should add item in queue on enqueue', () => {
-    const queue = DeviceModeTransformation().transformEvent?.init(
+    const queue = (DeviceModeTransformation()?.transformEvent as ExtensionPoint)?.init?.(
       state,
       defaultPluginsManager,
-      httpClient,
+      defaultHttpClient,
       defaultStoreManager,
       defaultErrorHandler,
       defaultLogger,
-    );
+    ) as RetryQueue;
 
     const addItemSpy = jest.spyOn(queue, 'addItem');
 
-    const event: RudderEvent = {
+    const event = {
       type: 'track',
       event: 'test',
       userId: 'test',
@@ -121,9 +114,14 @@ describe('Device mode transformation plugin', () => {
       anonymousId: 'sampleAnonId',
       messageId: 'test',
       originalTimestamp: 'test',
-    };
+    } as unknown as RudderEvent;
 
-    DeviceModeTransformation().transformEvent?.enqueue(state, queue, event, destinations);
+    (DeviceModeTransformation()?.transformEvent as ExtensionPoint)?.enqueue?.(
+      state,
+      queue,
+      event,
+      destinations,
+    );
 
     expect(addItemSpy).toHaveBeenCalledWith({
       token: authToken,
@@ -135,20 +133,19 @@ describe('Device mode transformation plugin', () => {
   });
 
   it('should process queue item on start', () => {
-    const mockHttpClient = {
-      request: ({ callback }) => {
-        callback(true);
-      },
-      setAuthHeader: jest.fn(),
-    };
-    const queue = DeviceModeTransformation().transformEvent?.init(
+    // Mock the implementation of request to return a successful response
+    defaultHttpClient.request.mockImplementation(({ callback }) => {
+      callback(true);
+    });
+
+    const queue = (DeviceModeTransformation()?.transformEvent as ExtensionPoint)?.init?.(
       state,
       defaultPluginsManager,
-      mockHttpClient,
+      defaultHttpClient,
       defaultStoreManager,
-    );
+    ) as RetryQueue;
 
-    const event: RudderEvent = {
+    const event = {
       type: 'track',
       event: 'test',
       userId: 'test',
@@ -158,11 +155,16 @@ describe('Device mode transformation plugin', () => {
       anonymousId: 'sampleAnonId',
       messageId: 'test',
       originalTimestamp: 'test',
-    };
+    } as unknown as RudderEvent;
 
     const queueProcessCbSpy = jest.spyOn(queue, 'processQueueCb');
 
-    DeviceModeTransformation().transformEvent?.enqueue(state, queue, event, destinations);
+    (DeviceModeTransformation()?.transformEvent as ExtensionPoint)?.enqueue?.(
+      state,
+      queue,
+      event,
+      destinations,
+    );
 
     // Explicitly start the queue to process the item
     // In actual implementation, this is done based on the state signals
@@ -182,35 +184,34 @@ describe('Device mode transformation plugin', () => {
     );
 
     // Item is successfully processed and removed from queue
-    expect((queue.getStorageEntry('queue') ?? []).length).toBe(0);
+    expect(queue.getStorageEntry('queue') as QueueItem<QueueItemData>[]).toBeNull();
 
     queueProcessCbSpy.mockRestore();
+    defaultHttpClient.request.mockRestore();
   });
 
-  it('SendTransformedEventToDestinations function is called in case of successful transformation', () => {
-    const mockHttpClient: IHttpClient = {
-      request: ({ callback }) => {
-        callback?.(JSON.stringify(dmtSuccessResponse), {
-          response: { status: 200 } as Response,
-        } as ResponseDetails);
-      },
-      setAuthHeader: jest.fn(),
-    };
+  it('should process transformed events in case of successful transformation', () => {
+    // Mock the implementation of request to return a successful response
+    defaultHttpClient.request.mockImplementation(({ callback }) => {
+      callback?.(JSON.stringify(dmtSuccessResponse), {
+        response: { status: 200 } as Response,
+      } as ResponseDetails);
+    });
     const mockSendTransformedEventToDestinations = jest.spyOn(
       utils,
       'sendTransformedEventToDestinations',
     );
 
-    const queue = DeviceModeTransformation().transformEvent?.init(
+    const queue = (DeviceModeTransformation()?.transformEvent as ExtensionPoint)?.init?.(
       state,
       defaultPluginsManager,
-      mockHttpClient,
+      defaultHttpClient,
       defaultStoreManager,
       defaultErrorHandler,
       defaultLogger,
-    );
+    ) as RetryQueue;
 
-    const event: RudderEvent = {
+    const event = {
       type: 'track',
       event: 'test',
       userId: 'test',
@@ -220,10 +221,15 @@ describe('Device mode transformation plugin', () => {
       anonymousId: 'sampleAnonId',
       messageId: 'test',
       originalTimestamp: 'test',
-    };
+    } as unknown as RudderEvent;
 
     queue.start();
-    DeviceModeTransformation().transformEvent?.enqueue(state, queue, event, destinations);
+    (DeviceModeTransformation()?.transformEvent as ExtensionPoint)?.enqueue?.(
+      state,
+      queue,
+      event,
+      destinations,
+    );
 
     expect(mockSendTransformedEventToDestinations).toHaveBeenCalledTimes(1);
     expect(mockSendTransformedEventToDestinations).toHaveBeenCalledWith(
@@ -238,34 +244,35 @@ describe('Device mode transformation plugin', () => {
       defaultErrorHandler,
       defaultLogger,
     );
+
     mockSendTransformedEventToDestinations.mockRestore();
+    defaultHttpClient.request.mockRestore();
   });
-  it('SendTransformedEventToDestinations function should not be called in case of unsuccessful transformation', () => {
-    const mockHttpClient: IHttpClient = {
-      request: ({ callback }) => {
-        callback?.(null, {
-          error: new HttpClientError('some error', {
-            status: 502,
-          }),
-        } as ResponseDetails);
-      },
-      setAuthHeader: jest.fn(),
-    };
+  it('should not process transformed events in case of unsuccessful transformation', () => {
+    // Mock the implementation of request to return a retryable error response
+    defaultHttpClient.request.mockImplementation(({ callback }) => {
+      callback?.(null, {
+        error: new HttpClientError('some error', {
+          status: 502,
+        }),
+      } as ResponseDetails);
+    });
+
     const mockSendTransformedEventToDestinations = jest.spyOn(
       utils,
       'sendTransformedEventToDestinations',
     );
 
-    const queue = DeviceModeTransformation().transformEvent?.init(
+    const queue = (DeviceModeTransformation()?.transformEvent as ExtensionPoint)?.init?.(
       state,
       defaultPluginsManager,
-      mockHttpClient,
+      defaultHttpClient,
       defaultStoreManager,
       defaultErrorHandler,
       defaultLogger,
-    );
+    ) as RetryQueue;
 
-    const event: RudderEvent = {
+    const event = {
       type: 'track',
       event: 'test',
       userId: 'test',
@@ -275,10 +282,15 @@ describe('Device mode transformation plugin', () => {
       anonymousId: 'sampleAnonId',
       messageId: 'test',
       originalTimestamp: 'test',
-    };
+    } as unknown as RudderEvent;
 
     queue.start();
-    DeviceModeTransformation().transformEvent?.enqueue(state, queue, event, destinations);
+    (DeviceModeTransformation()?.transformEvent as ExtensionPoint)?.enqueue?.(
+      state,
+      queue,
+      event,
+      destinations,
+    );
 
     expect(mockSendTransformedEventToDestinations).not.toHaveBeenCalled();
     // The element is requeued

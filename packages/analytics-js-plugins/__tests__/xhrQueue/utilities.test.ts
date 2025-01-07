@@ -1,5 +1,5 @@
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import { state, resetState } from '@rudderstack/analytics-js/state';
+import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
 import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/time';
 import {
   getNormalizedQueueOptions,
@@ -9,7 +9,7 @@ import {
   getRequestInfo,
   getBatchDeliveryPayload,
 } from '../../src/xhrQueue/utilities';
-import { defaultLogger } from '../../__mocks__/Logger';
+import { resetState, state } from '../../__mocks__/state';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/time', () => ({
   getCurrentTimeFormatted: () => '2021-01-01T00:00:00.000Z',
@@ -30,6 +30,7 @@ describe('xhrQueue Plugin Utilities', () => {
     });
 
     it('should return default queue options if input queue options is null', () => {
+      // @ts-expect-error Testing for null
       const queueOptions = getNormalizedQueueOptions(null);
 
       expect(queueOptions).toEqual({
@@ -42,6 +43,7 @@ describe('xhrQueue Plugin Utilities', () => {
     });
 
     it('should return default queue options if input queue options is undefined', () => {
+      // @ts-expect-error Testing for undefined
       const queueOptions = getNormalizedQueueOptions(undefined);
 
       expect(queueOptions).toEqual({

@@ -1,5 +1,5 @@
-import { defaultLogger } from '../../__mocks__/Logger';
 import { cookie } from '../../src/component-cookie';
+import { defaultLogger } from '../../__mocks__/Logger';
 
 beforeEach(() => {
   const allCookies = cookie();
@@ -96,6 +96,7 @@ describe('cookie()', () => {
   it('should return all cookies if the first argument is not a valid string', () => {
     cookie('name', 'loki');
     cookie('species', 'ferret');
+    // @ts-expect-error testing invalid input
     const obj = cookie(false);
 
     expect(2).toEqual(Object.keys(obj).length);

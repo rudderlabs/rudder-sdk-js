@@ -1,5 +1,5 @@
 class BufferQueue<T> {
-  items: T[];
+  items: T[] = [];
   enqueue = jest.fn();
   dequeue = jest.fn();
   isEmpty = jest.fn();

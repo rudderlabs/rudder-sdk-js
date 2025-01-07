@@ -22,7 +22,7 @@ class Store implements IStore {
     return [this.name, this.id, key].join('.');
   };
   swapQueueStoreToInMemoryEngine = () => {
-    this.engine.keys().forEach(key => {
+    this.engine.keys().forEach((key: string) => {
       const value = this.engine.getItem(key);
       defaultInMemoryStorage.setItem(key, value);
     });
