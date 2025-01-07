@@ -1,6 +1,6 @@
 #!/bin/bash
 # Path variables
-defaultPrefixToReplace="/github/workspace"
+defaultPrefixToReplace=""
 defaultAbsolutePathPrefix="home/runner/work/rudder-sdk-js/rudder-sdk-js"
 selfHostedAbsolutePathPrefix="runner/_work/rudder-sdk-js/rudder-sdk-js"
 absolutePathPrefix="$selfHostedAbsolutePathPrefix"
