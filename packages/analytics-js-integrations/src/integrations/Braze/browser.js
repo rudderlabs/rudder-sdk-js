@@ -75,7 +75,12 @@ class Braze {
   }
 
   isReady() {
-    return this.isLoaded();
+    if (this.isLoaded()) {
+      const anonymousId = this.analytics.getAnonymousId();
+      window.braze.getUser().addAlias(anonymousId, 'rudder_id');
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -258,16 +263,7 @@ class Braze {
     const { userId } = rudderElement.message;
     const eventName = rudderElement.message.event;
     let { properties } = rudderElement.message;
-    const { anonymousId } = rudderElement.message;
-    let canSendCustomEvent = false;
-    if (userId) {
-      window.braze.changeUser(userId);
-      canSendCustomEvent = true;
-    } else if (this.trackAnonymousUser) {
-      window.braze.changeUser(anonymousId);
-      canSendCustomEvent = true;
-    }
-    if (eventName && canSendCustomEvent) {
+    if (eventName) {
       if (eventName.toLowerCase() === 'order completed') {
         handlePurchase(properties, userId);
       } else {
@@ -281,15 +277,8 @@ class Braze {
     if (this.isHybridModeEnabled) {
       return;
     }
-    const { userId } = rudderElement.message;
     const eventName = rudderElement.message.name;
     let { properties } = rudderElement.message;
-    const { anonymousId } = rudderElement.message;
-    if (userId) {
-      window.braze.changeUser(userId);
-    } else if (this.trackAnonymousUser) {
-      window.braze.changeUser(anonymousId);
-    }
     properties = handleReservedProperties(properties);
     if (eventName) {
       window.braze.logCustomEvent(eventName, properties);
