@@ -1,8 +1,12 @@
 diff --git a/node_modules/nx/src/command-line/yargs-utils/shared-options.js b/node_modules/nx/src/command-line/yargs-utils/shared-options.js
+<<<<<<<< HEAD:patches/nx+20.0.9.patch
 index 3058712..c7f00b5 100644
+========
+index 1026157..c80b607 100644
+>>>>>>>> origin/develop:patches/nx+20.3.1.patch
 --- a/node_modules/nx/src/command-line/yargs-utils/shared-options.js
 +++ b/node_modules/nx/src/command-line/yargs-utils/shared-options.js
-@@ -97,6 +97,10 @@ function withRunOptions(yargs) {
+@@ -98,6 +98,10 @@ function withRunOptions(yargs) {
          type: 'boolean',
          hidden: true,
          alias: 'agents',
@@ -14,7 +18,11 @@ index 3058712..c7f00b5 100644
  }
  function withTargetAndConfigurationOption(yargs, demandOption = true) {
 diff --git a/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js b/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
+<<<<<<<< HEAD:patches/nx+20.0.9.patch
 index f58f821..5660e84 100644
+========
+index f58f821..407202f 100644
+>>>>>>>> origin/develop:patches/nx+20.3.1.patch
 --- a/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
 +++ b/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
 @@ -23,6 +23,10 @@ class StaticRunManyTerminalOutputLifeCycle {
@@ -35,7 +43,7 @@ index f58f821..5660e84 100644
 +        if (this.args.silent) {
 +            return;
 +        }
-+
++        
          output_1.output.addNewline();
          if (this.tasks.length === 0) {
              output_1.output.logSingleLine(`No tasks were run`);
