@@ -1,8 +1,6 @@
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import type { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
-import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
-import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/time';
 import {
   getNormalizedQueueOptions,
   getDeliveryUrl,
@@ -13,7 +11,7 @@ import {
 } from '../../src/xhrQueue/utilities';
 import { resetState, state } from '../../__mocks__/state';
 
-jest.mock('@rudderstack/analytics-js-common/utilities/timestamp', () => ({
+jest.mock('@rudderstack/analytics-js-common/utilities/time', () => ({
   getCurrentTimeFormatted: () => '2021-01-01T00:00:00.000Z',
 }));
 
@@ -115,90 +113,65 @@ describe('xhrQueue Plugin Utilities', () => {
   });
 
   describe('logErrorOnFailure', () => {
-    it('should not log error if there is no error', () => {
-      const details = {
-        response: {},
-      } as ResponseDetails;
-
-      logErrorOnFailure(details, 'https://test.com/v1/page', false, 1, 10, defaultLogger);
-
-      expect(defaultLogger.error).not.toHaveBeenCalled();
-    });
-
     it('should log an error for delivery failure', () => {
-      const details = {
-        error: {},
-      } as ResponseDetails;
-
-      logErrorOnFailure(details, 'https://test.com/v1/page', false, 1, 10, defaultLogger);
+      logErrorOnFailure(
+        false,
+        'https://test.com/v1/page',
+        'Something bad happened',
+        false,
+        1,
+        10,
+        defaultLogger,
+      );
 
       expect(defaultLogger.error).toHaveBeenCalledWith(
-        'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. The event(s) will be dropped.',
+        'XhrQueuePlugin:: Failed to deliver event(s) to URL "https://test.com/v1/page": Something bad happened. The event(s) will be dropped.',
       );
     });
 
     it('should log an error for retryable network failure', () => {
-      const details = {
-        error: {},
-        xhr: {
-          status: 429,
-        },
-      } as ResponseDetails;
-
-      logErrorOnFailure(details, 'https://test.com/v1/page', true, 1, 10, defaultLogger);
+      logErrorOnFailure(
+        true,
+        'https://test.com/v1/page',
+        'Something bad happened',
+        true,
+        1,
+        10,
+        defaultLogger,
+      );
 
       expect(defaultLogger.error).toHaveBeenCalledWith(
-        'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. It/they will be retried. Retry attempt 1 of 10.',
+        'XhrQueuePlugin:: Failed to deliver event(s) to URL "https://test.com/v1/page": Something bad happened. It/they will be retried. Retry attempt 1 of 10.',
       );
 
       // Retryable error but it's the first attempt
-      // @ts-expect-error Needed to set the status for testing
-      (details.xhr as XMLHttpRequest).status = 429;
-
-      logErrorOnFailure(details, 'https://test.com/v1/page', true, 0, 10, defaultLogger);
-
-      expect(defaultLogger.error).toHaveBeenCalledWith(
-        'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. It/they will be retried.',
+      logErrorOnFailure(
+        true,
+        'https://test.com/v1/page',
+        'Something bad happened',
+        true,
+        0,
+        10,
+        defaultLogger,
       );
 
-      // 500 error
-      // @ts-expect-error Needed to set the status for testing
-      (details.xhr as XMLHttpRequest).status = 500;
-
-      logErrorOnFailure(details, 'https://test.com/v1/page', true, 1, 10, defaultLogger);
-
       expect(defaultLogger.error).toHaveBeenCalledWith(
-        'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. It/they will be retried. Retry attempt 1 of 10.',
-      );
-
-      // 5xx error
-      // @ts-expect-error Needed to set the status for testing
-      (details.xhr as XMLHttpRequest).status = 501;
-
-      logErrorOnFailure(details, 'https://test.com/v1/page', true, 1, 10, defaultLogger);
-
-      expect(defaultLogger.error).toHaveBeenCalledWith(
-        'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. It/they will be retried. Retry attempt 1 of 10.',
-      );
-
-      // 600 error
-      // @ts-expect-error Needed to set the status for testing
-      (details.xhr as XMLHttpRequest).status = 600;
-
-      logErrorOnFailure(details, 'https://test.com/v1/page', true, 1, 10, defaultLogger);
-
-      expect(defaultLogger.error).toHaveBeenCalledWith(
-        'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. The event(s) will be dropped.',
+        'XhrQueuePlugin:: Failed to deliver event(s) to URL "https://test.com/v1/page": Something bad happened. It/they will be retried.',
       );
 
       // Retryable error but exhausted all tries
-      // @ts-expect-error Needed to set the status for testing
-      (details.xhr as XMLHttpRequest).status = 520;
-
-      logErrorOnFailure(details, 'https://test.com/v1/page', false, 10, 10, defaultLogger);
+      logErrorOnFailure(
+        true,
+        'https://test.com/v1/page',
+        'Something bad happened',
+        false,
+        10,
+        10,
+        defaultLogger,
+      );
 
       expect(defaultLogger.error).toHaveBeenCalledWith(
-        'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. Retries exhausted (10). The event(s) will be dropped.',
+        'XhrQueuePlugin:: Failed to deliver event(s) to URL "https://test.com/v1/page": Something bad happened. Retries exhausted (10). The event(s) will be dropped.',
       );
     });
   });
@@ -330,65 +303,6 @@ describe('xhrQueue Plugin Utilities', () => {
       expect(getBatchDeliveryPayload(events, currentTime, defaultLogger)).toBe(
         '{"batch":[{"channel":"test","type":"track","anonymousId":"test","properties":{"test":"test"}},{"channel":"test","type":"track","anonymousId":"test","properties":{"test1":"test1","test3":{}}}],"sentAt":"2021-01-01T00:00:00.000Z"}',
       );
-    });
-
-    it('should return string with circular dependencies replaced with static string', () => {
-      const events: RudderEvent[] = [
-        {
-          channel: 'test',
-          type: 'track',
-          anonymousId: 'test',
-          userId: null,
-          properties: {
-            test: 'test',
-            test2: null,
-          },
-        } as unknown as RudderEvent,
-        {
-          channel: 'test',
-          type: 'track',
-          anonymousId: 'test',
-          groupId: null,
-          properties: {
-            test1: 'test1',
-            test3: {
-              test4: null,
-            },
-          },
-        } as unknown as RudderEvent,
-      ];
-      const event2 = events[1] as RudderEvent;
-
-      // Create a circular reference
-      // @ts-expect-error Testing for circular reference
-      (event2.properties as ApiObject).test5 = event2;
-
-      expect(getBatchDeliveryPayload(events, currentTime, defaultLogger)).toContain(
-        '[Circular Reference]',
-      );
-    });
-
-    it('should return null if the payload cannot be stringified', () => {
-      const events = [
-        {
-          channel: 'test',
-          type: 'track',
-          anonymousId: 'test',
-          properties: {
-            someBigInt: BigInt(9007199254740991),
-          },
-        } as unknown as RudderEvent,
-        {
-          channel: 'test',
-          type: 'track',
-          anonymousId: 'test',
-          properties: {
-            test1: 'test1',
-          },
-        } as unknown as RudderEvent,
-      ];
-
-      expect(getBatchDeliveryPayload(events, currentTime, defaultLogger)).toBeNull();
     });
   });
 });

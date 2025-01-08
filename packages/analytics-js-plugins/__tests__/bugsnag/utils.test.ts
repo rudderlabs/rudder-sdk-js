@@ -502,7 +502,7 @@ describe('Bugsnag utilities', () => {
   describe('loadBugsnagSDK', () => {
     let insertBeforeSpy: any;
 
-    const extSrcLoader = new ExternalSrcLoader(defaultErrorHandler, defaultLogger);
+    const extSrcLoader = new ExternalSrcLoader();
 
     beforeAll(() => {
       server.listen();
@@ -560,14 +560,8 @@ describe('Bugsnag utilities', () => {
 
       // Advance the timer to trigger the script load and result in error
       jest.advanceTimersByTimeAsync(1).then(() => {
-        expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
-          new Error(
-            `Failed to load the script with the id "rs-bugsnag" from URL "__RS_BUGSNAG_SDK_URL__".`,
-          ),
-          'ExternalSrcLoader',
-        );
         expect(defaultLogger.error).toHaveBeenCalledWith(
-          `BugsnagPlugin:: Failed to load the Bugsnag SDK.`,
+          `BugsnagPlugin:: Bugsnag script: Failed to load the script with the id "rs-bugsnag" from URL "__RS_BUGSNAG_SDK_URL__": "no information".`,
         );
         done();
       });

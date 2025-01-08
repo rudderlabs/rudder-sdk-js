@@ -323,6 +323,7 @@ const handleLists = rudderElement => {
         const delimiter = listDelimiterHashmap[key];
         const listValue = `list${listMappingHashmap[key]}`;
         if (typeof value === 'string') {
+          // eslint-disable-next-line sonarjs/slow-regex
           value = value.replace(/\s*,+\s*/g, delimiter);
         } else {
           value = value.join(delimiter);
@@ -369,6 +370,7 @@ const handleCustomProps = rudderElement => {
         const delimiter = propsDelimiterHashmap[key] ? propsDelimiterHashmap[key] : '|';
         const propValue = `prop${customPropsMappingHashmap[key]}`;
         if (typeof value === 'string') {
+          // eslint-disable-next-line sonarjs/slow-regex
           value = value.replace(/\s*,+\s*/g, delimiter);
         } else {
           value = value.join(delimiter);

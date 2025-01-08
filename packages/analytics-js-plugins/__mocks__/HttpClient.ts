@@ -6,7 +6,7 @@ class HttpClient implements IHttpClient {
   errorHandler?: IErrorHandler;
   logger?: ILogger;
   hasErrorHandler = false;
-  getData = jest.fn();
+  request = jest.fn();
   getAsyncData = jest.fn();
   setAuthHeader = jest.fn();
   resetAuthHeader = jest.fn();

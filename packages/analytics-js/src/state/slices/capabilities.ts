@@ -8,7 +8,6 @@ const capabilitiesState: CapabilitiesState = {
     isCookieStorageAvailable: signal(false),
     isSessionStorageAvailable: signal(false),
   },
-  isBeaconAvailable: signal(false),
   isLegacyDOM: signal(false),
   isUaCHAvailable: signal(false),
   isCryptoAvailable: signal(false),

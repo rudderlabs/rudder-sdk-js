@@ -4,12 +4,15 @@ import type {
   ResponseDetails,
 } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { batch, effect } from '@preact/signals-core';
-import { isFunction, isString } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import type { SourceConfigResponse } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { removeTrailingSlashes } from '@rudderstack/analytics-js-common/utilities/url';
 import type { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
+import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { isValidSourceConfig } from './util/validate';
 import {
   SOURCE_CONFIG_FETCH_ERROR,
@@ -18,16 +21,14 @@ import {
   SOURCE_DISABLED_ERROR,
 } from '../../constants/logMessages';
 import { filterEnabledDestination } from '../utilities/destinations';
-import { removeTrailingSlashes } from '../utilities/url';
 import { APP_VERSION } from '../../constants/app';
 import { state } from '../../state';
 import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
-import type { IConfigManager, SourceConfigResponse } from './types';
+import type { IConfigManager } from './types';
 import {
   getSourceConfigURL,
   updateConsentsState,
   updateConsentsStateFromLoadOptions,
-  updateDataPlaneEventsStateFromLoadOptions,
   updateReportingState,
   updateStorageStateFromLoadOptions,
 } from './util/commonUtil';
@@ -37,13 +38,11 @@ class ConfigManager implements IConfigManager {
   httpClient: IHttpClient;
   errorHandler?: IErrorHandler;
   logger?: ILogger;
-  hasErrorHandler = false;
 
   constructor(httpClient: IHttpClient, errorHandler?: IErrorHandler, logger?: ILogger) {
     this.errorHandler = errorHandler;
     this.logger = logger;
     this.httpClient = httpClient;
-    this.hasErrorHandler = Boolean(this.errorHandler);
 
     this.onError = this.onError.bind(this);
     this.processConfig = this.processConfig.bind(this);
@@ -91,7 +90,6 @@ class ConfigManager implements IConfigManager {
 
     updateStorageStateFromLoadOptions(this.logger);
     updateConsentsStateFromLoadOptions(this.logger);
-    updateDataPlaneEventsStateFromLoadOptions(this.logger);
 
     // set application lifecycle state in global state
     batch(() => {
@@ -120,9 +118,9 @@ class ConfigManager implements IConfigManager {
   /**
    * Handle errors
    */
-  onError(error: unknown, customMessage?: string, shouldAlwaysThrow?: boolean) {
-    if (this.hasErrorHandler) {
-      this.errorHandler?.onError(error, CONFIG_MANAGER, customMessage, shouldAlwaysThrow);
+  onError(error: any, customMessage?: string, shouldAlwaysThrow?: boolean) {
+    if (this.errorHandler) {
+      this.errorHandler.onError(error, CONFIG_MANAGER, customMessage, shouldAlwaysThrow);
     } else {
       throw error;
     }
@@ -132,59 +130,48 @@ class ConfigManager implements IConfigManager {
    * A callback function that is executed once we fetch the source config response.
    * Use to construct and store information that are dependent on the sourceConfig.
    */
-  processConfig(response?: SourceConfigResponse | string, details?: ResponseDetails) {
-    // TODO: add retry logic with backoff based on rejectionDetails.xhr.status
+  processConfig(response: SourceConfigResponse | undefined | null, details?: ResponseDetails) {
+    // TODO: add retry logic with backoff based on details
     // We can use isErrRetryable utility method
     if (!response) {
-      this.onError(SOURCE_CONFIG_FETCH_ERROR(details?.error));
+      this.logger?.error(SOURCE_CONFIG_FETCH_ERROR(details?.error?.message));
       return;
     }
 
-    let res: SourceConfigResponse;
-    try {
-      if (isString(response)) {
-        res = JSON.parse(response);
-      } else {
-        res = response;
-      }
-    } catch (err) {
-      this.onError(err, SOURCE_CONFIG_RESOLUTION_ERROR, true);
-      return;
-    }
-
-    if (!isValidSourceConfig(res)) {
-      this.onError(new Error(SOURCE_CONFIG_RESOLUTION_ERROR), undefined, true);
+    if (!isValidSourceConfig(response)) {
+      this.onError(SOURCE_CONFIG_RESOLUTION_ERROR);
       return;
     }
 
     // Log error and abort if source is disabled
-    if (res.source.enabled === false) {
+    if (response.source.enabled === false) {
       this.logger?.error(SOURCE_DISABLED_ERROR);
       return;
     }
 
     // set the values in state for reporting slice
-    updateReportingState(res);
+    updateReportingState(response);
 
-    const nativeDestinations: Destination[] =
-      res.source.destinations.length > 0 ? filterEnabledDestination(res.source.destinations) : [];
+    const nativeDestinations: Destination[] = filterEnabledDestination(
+      response.source.destinations,
+    );
 
     // set in the state --> source, destination, lifecycle, reporting
     batch(() => {
       // set source related information in state
       state.source.value = {
-        config: res.source.config,
-        id: res.source.id,
-        workspaceId: res.source.workspaceId,
+        config: response.source.config,
+        id: response.source.id,
+        workspaceId: response.source.workspaceId,
       };
 
       // set device mode destination related information in state
       state.nativeDestinations.configuredDestinations.value = nativeDestinations;
 
       // set the desired optional plugins
-      state.plugins.pluginsToLoadFromConfig.value = state.loadOptions.value.plugins ?? [];
+      state.plugins.pluginsToLoadFromConfig.value = state.loadOptions.value.plugins as PluginName[];
 
-      updateConsentsState(res);
+      updateConsentsState(response);
 
       // set application lifecycle state
       state.lifecycle.status.value = 'configured';
@@ -204,24 +191,22 @@ class ConfigManager implements IConfigManager {
       }
       // Fetch source config from the function
       const res = sourceConfigFunc();
-
       if (res instanceof Promise) {
         res
-          .then(pRes => this.processConfig(pRes as SourceConfigResponse))
+          .then(pRes => this.processConfig(pRes))
           .catch(err => {
-            this.onError(err, 'SourceConfig');
+            this.onError(err, 'SourceConfig', true);
           });
       } else {
-        this.processConfig(res as SourceConfigResponse);
+        this.processConfig(res);
       }
     } else {
       // Fetch source configuration from the configured URL
-      this.httpClient.getAsyncData({
+      this.httpClient.request<SourceConfigResponse>({
         url: state.lifecycle.sourceConfigUrl.value as string,
         options: {
-          headers: {
-            'Content-Type': undefined,
-          },
+          method: 'GET',
+          useAuth: true,
         },
         callback: this.processConfig,
       });

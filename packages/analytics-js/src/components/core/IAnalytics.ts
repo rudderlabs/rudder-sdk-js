@@ -20,7 +20,6 @@ import type {
   TrackCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
 import type { BufferQueue } from '@rudderstack/analytics-js-common/services/BufferQueue/BufferQueue';
-import type { Store } from '../../services/StoreManager';
 import type { IUserSessionManager } from '../userSessionManager/types';
 import type { IConfigManager } from '../configManager/types';
 import type { IEventManager } from '../eventManager/types';
@@ -40,7 +39,6 @@ export interface IAnalytics {
   eventManager?: IEventManager;
   userSessionManager?: IUserSessionManager;
   pluginsManager?: IPluginsManager;
-  clientDataStore?: Store;
 
   /**
    * Start application lifecycle if not already started

@@ -126,7 +126,7 @@ class Optimizely {
           sendCampaignData(campaignState);
         }
       } catch (e) {
-        logger.error('Page loaded without Optimizely.');
+        logger.error('Page loaded without Optimizely.', e);
       }
     };
 
@@ -134,7 +134,7 @@ class Optimizely {
       let state;
       try {
         state = window?.optimizely?.get('state');
-      } catch (e) {
+      } catch {
         state = undefined;
       }
       if (!state) {
@@ -167,7 +167,7 @@ class Optimizely {
       let state;
       try {
         state = window?.optimizely?.get('state');
-      } catch (e) {
+      } catch {
         state = undefined;
       }
       if (state) {

@@ -165,6 +165,7 @@ class UserSessionManager implements IUserSessionManager {
       this.setInitialReferrer(persistedInitialReferrer);
       this.setInitialReferringDomain(persistedInitialReferringDomain);
     } else {
+      // eslint-disable-next-line sonarjs/prefer-nullish-coalescing
       const initialReferrer = persistedInitialReferrer || getReferrer();
       this.setInitialReferrer(initialReferrer);
       this.setInitialReferringDomain(getReferringDomain(initialReferrer));
@@ -229,7 +230,7 @@ class UserSessionManager implements IUserSessionManager {
         const migratedVal = this.pluginsManager?.invokeSingle(
           'storage.migrate',
           storageEntry,
-          store.engine,
+          store.getOriginalEngine(),
           this.errorHandler,
           this.logger,
         );
@@ -287,7 +288,7 @@ class UserSessionManager implements IUserSessionManager {
    * Handles error
    * @param error The error object
    */
-  onError(error: unknown, customMessage?: string): void {
+  onError(error: any, customMessage?: string): void {
     if (this.errorHandler) {
       this.errorHandler.onError(error, USER_SESSION_MANAGER, customMessage);
     } else {
@@ -326,11 +327,11 @@ class UserSessionManager implements IUserSessionManager {
     encryptedCookieData: EncryptedCookieData[],
     callback: AsyncRequestCallback<any>,
   ) {
-    this.httpClient?.getAsyncData({
+    this.httpClient?.request({
       url: state.serverCookies.dataServiceUrl.value as string,
       options: {
         method: 'POST',
-        data: stringifyWithoutCircular({
+        body: stringifyWithoutCircular({
           reqType: 'setCookies',
           workspaceId: state.source.value?.workspaceId,
           data: {
@@ -344,9 +345,12 @@ class UserSessionManager implements IUserSessionManager {
             },
             cookies: encryptedCookieData,
           },
-        }) as string,
-        sendRawData: true,
-        withCredentials: true,
+        }),
+        useAuth: true,
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8',
+        },
       },
       isRawResponse: true,
       callback,
@@ -365,7 +369,14 @@ class UserSessionManager implements IUserSessionManager {
       if (encryptedCookieData.length > 0) {
         // make request to data service to set the cookie from server side
         this.makeRequestToSetCookie(encryptedCookieData, (res, details) => {
-          if (details?.xhr?.status === 200) {
+          if (details.error) {
+            this.logger?.error(DATA_SERVER_REQUEST_FAIL_ERROR(details.error.status));
+            cookiesData.forEach(each => {
+              if (cb) {
+                cb(each.name, each.value);
+              }
+            });
+          } else {
             cookiesData.forEach(cData => {
               const cookieValue = store?.get(cData.name);
               const before = stringifyWithoutCircular(cData.value, false, []);
@@ -375,13 +386,6 @@ class UserSessionManager implements IUserSessionManager {
                 if (cb) {
                   cb(cData.name, cData.value);
                 }
-              }
-            });
-          } else {
-            this.logger?.error(DATA_SERVER_REQUEST_FAIL_ERROR(details?.xhr?.status));
-            cookiesData.forEach(each => {
-              if (cb) {
-                cb(each.name, each.value);
               }
             });
           }
@@ -481,6 +485,8 @@ class UserSessionManager implements IUserSessionManager {
         );
         finalAnonymousId = linkerPluginsResult;
       }
+      // finalAnonymousId can also be an empty string
+      // eslint-disable-next-line sonarjs/prefer-nullish-coalescing
       finalAnonymousId = finalAnonymousId || generateAnonymousId();
     } else {
       finalAnonymousId = DEFAULT_USER_SESSION_VALUES.anonymousId;

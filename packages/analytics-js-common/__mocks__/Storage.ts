@@ -1,7 +1,7 @@
+import store from 'storejs';
 import { cookie } from '../src/component-cookie';
 import type { Nullable } from '../src/types/Nullable';
 import type { IStorage } from '../src/types/Store';
-import store from 'storejs';
 
 class LocalStorage implements IStorage {
   keys = () => {

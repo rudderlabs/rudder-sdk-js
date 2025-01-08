@@ -1,5 +1,5 @@
 import { isTypeOfError } from './checks';
-import { stringifyWithoutCircular } from './json';
+import { stringifyData } from './json';
 
 const MANUAL_ERROR_IDENTIFIER = '[MANUAL ERROR]';
 
@@ -11,16 +11,17 @@ const MANUAL_ERROR_IDENTIFIER = '[MANUAL ERROR]';
  */
 const getMutatedError = (err: any, issue: string): Error => {
   let finalError = err;
-  if (!isTypeOfError(err)) {
-    finalError = new Error(`${issue}: ${stringifyWithoutCircular(err as Record<string, any>)}`);
-  } else {
+  if (isTypeOfError(err)) {
     (finalError as Error).message = `${issue}: ${err.message}`;
+  } else {
+    finalError = new Error(`${issue}: ${stringifyData(err as Record<string, any>)}`);
   }
   return finalError;
 };
 
 const dispatchErrorEvent = (error: any) => {
   if (isTypeOfError(error)) {
+    // eslint-disable-next-line no-param-reassign
     error.stack = `${error.stack ?? ''}\n${MANUAL_ERROR_IDENTIFIER}`;
   }
   (globalThis as typeof window).dispatchEvent(new ErrorEvent('error', { error }));

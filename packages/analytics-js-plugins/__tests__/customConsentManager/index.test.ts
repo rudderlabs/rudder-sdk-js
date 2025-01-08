@@ -3,6 +3,7 @@ import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger
 import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
 import { resetState, state } from '../../__mocks__/state';
 import { CustomConsentManager } from '../../src/customConsentManager';
+import { defaultLogger } from '../../__mocks__/Logger';
 
 describe('Plugin - CustomConsentManager', () => {
   beforeEach(() => {

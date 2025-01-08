@@ -72,6 +72,7 @@ class Sprig {
     }
 
     if (event.toLowerCase() === 'signed out') {
+      // eslint-disable-next-line sonarjs/new-cap
       window.Sprig('logoutUser');
     } else {
       const payload = { eventName: event };
@@ -81,6 +82,7 @@ class Sprig {
       if (typeof properties === 'object' && Object.keys(properties).length > 0) {
         payload.properties = properties;
       }
+      // eslint-disable-next-line sonarjs/new-cap
       window.Sprig('identifyAndTrack', payload);
     }
   }

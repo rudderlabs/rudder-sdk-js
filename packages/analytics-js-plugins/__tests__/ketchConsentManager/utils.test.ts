@@ -1,12 +1,12 @@
 import { defaultStoreManager } from '@rudderstack/analytics-js-common/__mocks__/StoreManager';
 import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
+import type { Store } from '@rudderstack/analytics-js-common/__mocks__/Store';
 import { resetState, state } from '../../__mocks__/state';
 import {
   updateConsentStateFromData,
   getConsentData,
   getKetchConsentData,
 } from '../../src/ketchConsentManager/utils';
-import { defaultPluginsManager } from '../../__mocks__/PluginsManager';
 
 describe('KetchConsentManager - Utils', () => {
   beforeEach(() => {
@@ -105,20 +105,26 @@ describe('KetchConsentManager - Utils', () => {
     });
 
     it('should return undefined if ketch consent cookie could not be read', () => {
+      const setStoreSpy = jest.spyOn(defaultStoreManager, 'setStore');
       // mock store manager to intentionally throw error
-      const mockStoreManager = {
-        setStore: () => ({
-          engine: null,
-        }),
-      };
+      setStoreSpy.mockImplementationOnce(
+        () =>
+          ({
+            engine: null,
+            // eslint-disable-next-line sonarjs/no-nested-functions
+            getOriginalEngine: () => null,
+          }) as unknown as Store,
+      );
 
-      const ketchConsentData = getKetchConsentData(mockStoreManager, defaultLogger);
+      const ketchConsentData = getKetchConsentData(defaultStoreManager, defaultLogger);
 
       expect(ketchConsentData).toBeUndefined();
       expect(defaultLogger.error).toHaveBeenCalledWith(
         'KetchConsentManagerPlugin:: Failed to read the consent cookie.',
         new TypeError("Cannot read properties of null (reading 'getItem')"),
       );
+
+      setStoreSpy.mockRestore();
     });
 
     it('should return undefined if ketch consent cookie is not present', () => {

@@ -3,6 +3,7 @@ import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger
 import type { ExtensionPoint } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { resetState, state } from '../../__mocks__/state';
 import { OneTrustConsentManager } from '../../src/oneTrustConsentManager';
+import { defaultLogger } from '../../__mocks__/Logger';
 
 describe('Plugin - OneTrustConsentManager', () => {
   beforeEach(() => {

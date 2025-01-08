@@ -47,7 +47,7 @@ function createBugsnagError(
       try {
         if (JSON.stringify(f) === '{}') return accum;
         return accum.concat(f);
-      } catch (e) {
+      } catch {
         return accum;
       }
     }, []),
@@ -95,7 +95,7 @@ class ErrorFormat implements IErrorFormat {
     try {
       const stacktrace = getStacktrace(error);
       event = new ErrorFormat(error.name, error.message, stacktrace);
-    } catch (e) {
+    } catch {
       event = new ErrorFormat(error.name, error.message, []);
     }
 

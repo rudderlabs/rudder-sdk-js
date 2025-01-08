@@ -1,11 +1,12 @@
 import { v4 as uuid } from '@lukeed/uuid';
 import { v4 as uuidSecure } from '@lukeed/uuid/secure';
-import { commonNames } from '@rudderstack/analytics-js-common/constants/integrations/integration_cname';
-import { clientToServerNames } from '@rudderstack/analytics-js-common/constants/integrations/client_server_name';
+import { commonNames } from '@rudderstack/analytics-js-common/constants/integrations/integrationsCnames';
+import { clientToServerNames } from '@rudderstack/analytics-js-common/constants/integrations/clientToServerIntgNames';
 import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
 import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 import { handleError } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
 import { stringifyWithoutCircularV1 } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
+import { removeTrailingSlashes } from '@rudderstack/analytics-js-common/utilities/url';
 import {
   CONFIG_URL,
   RESERVED_KEYS,
@@ -13,14 +14,6 @@ import {
   RESIDENCY_SERVERS,
   SUPPORTED_CONSENT_MANAGERS,
 } from './constants';
-
-/**
- * Utility method to remove '/' at the end of URL
- * @param {*} inURL
- */
-function removeTrailingSlashes(inURL) {
-  return inURL?.endsWith('/') ? inURL.replace(/\/+$/, '') : inURL;
-}
 
 /**
  *
@@ -62,7 +55,6 @@ function getJSON(url, wrappers, isLoaded, callback) {
   xhr.onload = function () {
     const { status, responseText } = xhr;
     if (status === 200) {
-      // logger.debug("status 200");
       callback(null, responseText, wrappers, isLoaded);
     } else {
       callback(status);
@@ -95,7 +87,6 @@ function getJSONTrimmed(context, url, writeKey, callback) {
   xhr.onload = function () {
     const { status, responseText } = xhr;
     if (status === 200) {
-      // logger.debug("status 200 " + "calling callback");
       cb(200, responseText);
     } else {
       handleError(new Error(`${FAILED_REQUEST_ERR_MSG_PREFIX} ${status} for url: ${url}`));
@@ -110,6 +101,7 @@ function transformNamesCore(integrationObject, namesObj) {
     // eslint-disable-next-line no-prototype-builtins
     if (integrationObject.hasOwnProperty(key)) {
       if (namesObj[key]) {
+        // eslint-disable-next-line no-param-reassign
         integrationObject[namesObj[key]] = integrationObject[key];
       }
       if (
@@ -117,6 +109,7 @@ function transformNamesCore(integrationObject, namesObj) {
         namesObj[key] !== undefined &&
         namesObj[key] !== key
       ) {
+        // eslint-disable-next-line no-param-reassign
         delete integrationObject[key];
       }
     }
@@ -273,11 +266,11 @@ const getConfigUrl = (writeKey, lockIntegrationsVersion) => {
 const getSDKUrlInfo = () => {
   const scripts = document.getElementsByTagName('script');
   let sdkURL;
-  // eslint-disable-next-line unicorn/no-for-loop
+  // eslint-disable-next-line unicorn/no-for-loop, sonarjs/prefer-for-of
   for (let i = 0; i < scripts.length; i += 1) {
     const curScriptSrc = removeTrailingSlashes(scripts[i].getAttribute('src'));
     if (curScriptSrc) {
-      const urlMatches = curScriptSrc.match(/^.*rudder-analytics?(\.min)?\.js$/);
+      const urlMatches = /^.*rudder-analytics?(\.min)?\.js$/.exec(curScriptSrc);
       if (urlMatches) {
         sdkURL = curScriptSrc;
         break;
@@ -395,7 +388,7 @@ const parseQueryString = url => {
     urlObj.searchParams.forEach((value, qParam) => {
       result[qParam] = value;
     });
-  } catch (error) {
+  } catch {
     // Do nothing
   }
   return result;
@@ -412,7 +405,6 @@ export {
   transformToServerNames,
   checkReservedKeywords,
   isDefinedAndNotNull,
-  removeTrailingSlashes,
   getConfigUrl,
   getSDKUrlInfo,
   countDigits,

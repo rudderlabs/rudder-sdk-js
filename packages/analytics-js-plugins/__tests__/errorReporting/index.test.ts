@@ -127,7 +127,7 @@ describe('Plugin - ErrorReporting', () => {
       metricsServiceUrl: signal('https://test.com'),
     };
     const mockHttpClient = {
-      getAsyncData: jest.fn(),
+      request: jest.fn(),
       setAuthHeader: jest.fn(),
     } as unknown as IHttpClient;
     const newError = new Error();
@@ -151,7 +151,7 @@ describe('Plugin - ErrorReporting', () => {
       },
     );
 
-    expect(mockHttpClient.getAsyncData).not.toHaveBeenCalled();
+    expect(mockHttpClient.request).not.toHaveBeenCalled();
   });
 
   it('should send data to metrics service on notify when httpClient is provided', () => {
@@ -162,7 +162,7 @@ describe('Plugin - ErrorReporting', () => {
       metricsServiceUrl: signal('https://test.com'),
     };
     const mockHttpClient = {
-      getAsyncData: jest.fn(),
+      request: jest.fn(),
       setAuthHeader: jest.fn(),
     } as unknown as IHttpClient;
     const newError = new Error();
@@ -186,12 +186,12 @@ describe('Plugin - ErrorReporting', () => {
       },
     );
 
-    expect(mockHttpClient.getAsyncData).toHaveBeenCalled();
+    expect(mockHttpClient.request).toHaveBeenCalled();
   });
 
   it('should not notify if the error is not an SDK error', () => {
     const mockHttpClient = {
-      getAsyncData: jest.fn(),
+      request: jest.fn(),
       setAuthHeader: jest.fn(),
     } as unknown as IHttpClient;
     const newError = new Error();
@@ -215,7 +215,7 @@ describe('Plugin - ErrorReporting', () => {
       },
     );
 
-    expect(mockHttpClient.getAsyncData).not.toHaveBeenCalled();
+    expect(mockHttpClient.request).not.toHaveBeenCalled();
   });
 
   it('should add a new breadcrumb', () => {

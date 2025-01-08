@@ -6,15 +6,20 @@ import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
 import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
 import type { ExtensionPoint } from '@rudderstack/analytics-js-common/types/PluginEngine';
-import type { RetryQueue } from '../../src/utilities/retryQueue/RetryQueue';
-import type { QueueItem, QueueItemData } from '../../src/types/plugins';
+import type { RetryQueue } from '@rudderstack/analytics-js-common/utilities/retryQueue/RetryQueue';
+import type {
+  QueueItem,
+  QueueItemData,
+} from '@rudderstack/analytics-js-common/utilities/retryQueue/types';
+import { Schedule } from '@rudderstack/analytics-js-common/utilities/retryQueue/Schedule';
 import { resetState, state } from '../../__mocks__/state';
 import { XhrQueue } from '../../src/xhrQueue';
-import { Schedule } from '../../src/utilities/retryQueue/Schedule';
 import { defaultHttpClient } from '../../__mocks__/HttpClient';
+import { HttpClientError } from '@rudderstack/analytics-js/services/HttpClient/HttpClientError';
+import type { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 
-jest.mock('@rudderstack/analytics-js-common/utilities/timestamp', () => ({
-  ...jest.requireActual('@rudderstack/analytics-js-common/utilities/timestamp'),
+jest.mock('@rudderstack/analytics-js-common/utilities/time', () => ({
+  ...jest.requireActual('@rudderstack/analytics-js-common/utilities/time'),
   getCurrentTimeFormatted: jest.fn(() => 'sample_timestamp'),
 }));
 
@@ -37,6 +42,10 @@ describe('XhrQueue', () => {
         maxItems: 100,
       };
     });
+  });
+
+  beforeEach(() => {
+    defaultStoreManager.getStore().clear();
   });
 
   it('should add itself to the loaded plugins list on initialized', () => {
@@ -85,6 +94,9 @@ describe('XhrQueue', () => {
       url: 'https://sampleurl.com/v1/track',
       headers: {
         AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
+        Accept: 'application/json',
+        'Content-Type': 'application/json;charset=UTF-8',
+        Authorization: 'Basic c2FtcGxlV3JpdGVLZXk6',
       },
       event: mergeDeepRight(event, { sentAt: 'sample_timestamp' }),
     });
@@ -93,9 +105,9 @@ describe('XhrQueue', () => {
   });
 
   it('should process queue item on start', () => {
-    // Mock getAsyncData to return a successful response
+    // Mock request to return a successful response
 
-    defaultHttpClient.getAsyncData.mockImplementation(({ callback }) => {
+    defaultHttpClient.request.mockImplementationOnce(({ callback }) => {
       callback?.(true);
     });
     const queue = (XhrQueue()?.dataplaneEventsQueue as ExtensionPoint).init?.(
@@ -129,6 +141,9 @@ describe('XhrQueue', () => {
         url: 'https://sampleurl.com/v1/track',
         headers: {
           AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
+          Accept: 'application/json',
+          'Content-Type': 'application/json;charset=UTF-8',
+          Authorization: 'Basic c2FtcGxlV3JpdGVLZXk6',
         },
         event: mergeDeepRight(event, { sentAt: 'sample_timestamp' }),
       },
@@ -136,19 +151,24 @@ describe('XhrQueue', () => {
       0,
       10,
       true,
+      true,
     );
 
     // Item is successfully processed and removed from queue
-    expect((queue.getStorageEntry('queue') as QueueItem<QueueItemData>[]).length).toBe(0);
+    expect(queue.getStorageEntry('queue') as QueueItem<QueueItemData>[]).toBeNull();
 
     queueProcessCbSpy.mockRestore();
   });
 
   it('should log error on retryable failure and requeue the item', () => {
-    // Mock getAsyncData to return a retryable failure
+    // Mock request to return a retryable failure
 
-    defaultHttpClient.getAsyncData.mockImplementation(({ callback }) => {
-      callback?.(false, { error: 'some error', xhr: { status: 429 } });
+    defaultHttpClient.request.mockImplementationOnce(({ callback }) => {
+      callback(null, {
+        error: new HttpClientError('some error', {
+          status: 429,
+        }),
+      } as ResponseDetails);
     });
     const queue = (XhrQueue()?.dataplaneEventsQueue as ExtensionPoint).init?.(
       state,
@@ -193,6 +213,8 @@ describe('XhrQueue', () => {
           url: 'https://sampleurl.com/v1/track',
           headers: {
             AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
+            Accept: 'application/json',
+            'Content-Type': 'application/json;charset=UTF-8',
           },
           event: mergeDeepRight(event, { sentAt: 'sample_timestamp' }),
         },
@@ -272,6 +294,9 @@ describe('XhrQueue', () => {
           url: 'https://sampleurl.com/v1/track',
           headers: {
             AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
+            Accept: 'application/json',
+            'Content-Type': 'application/json;charset=UTF-8',
+            Authorization: 'Basic c2FtcGxlV3JpdGVLZXk6',
           },
           event: mergeDeepRight(event, { sentAt: 'sample_timestamp' }),
         },
@@ -279,6 +304,9 @@ describe('XhrQueue', () => {
           url: 'https://sampleurl.com/v1/track',
           headers: {
             AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
+            Accept: 'application/json',
+            'Content-Type': 'application/json;charset=UTF-8',
+            Authorization: 'Basic c2FtcGxlV3JpdGVLZXk6',
           },
           event: mergeDeepRight(event2, { sentAt: 'sample_timestamp' }),
         },
@@ -287,17 +315,20 @@ describe('XhrQueue', () => {
       0,
       10,
       true,
+      true,
     );
 
-    expect(defaultHttpClient.getAsyncData).toHaveBeenCalledWith({
+    expect(defaultHttpClient.request).toHaveBeenCalledWith({
       url: 'https://sampleurl.com/v1/batch',
       options: {
         method: 'POST',
         headers: {
           AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
+          Accept: 'application/json',
+          'Content-Type': 'application/json;charset=UTF-8',
         },
-        sendRawData: true,
-        data: '{"batch":[{"type":"track","event":"test","userId":"test","properties":{"test":"test"},"anonymousId":"sampleAnonId","messageId":"test","originalTimestamp":"test","sentAt":"sample_timestamp"},{"type":"track","event":"test2","userId":"test2","properties":{"test2":"test2"},"anonymousId":"sampleAnonId","messageId":"test2","originalTimestamp":"test2","sentAt":"sample_timestamp"}],"sentAt":"sample_timestamp"}',
+        useAuth: true,
+        body: '{"batch":[{"type":"track","event":"test","userId":"test","properties":{"test":"test"},"anonymousId":"sampleAnonId","messageId":"test","originalTimestamp":"test","sentAt":"sample_timestamp"},{"type":"track","event":"test2","userId":"test2","properties":{"test2":"test2"},"anonymousId":"sampleAnonId","messageId":"test2","originalTimestamp":"test2","sentAt":"sample_timestamp"}],"sentAt":"sample_timestamp"}',
       },
       isRawResponse: true,
       timeout: 30000,

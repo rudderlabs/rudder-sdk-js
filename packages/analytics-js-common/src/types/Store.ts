@@ -4,13 +4,11 @@ import type { IPluginsManager } from './PluginsManager';
 import type { Nullable } from './Nullable';
 import type { StorageType, CookieOptions, CookieSameSite } from './Storage';
 
-export type StoreId = string;
-
 export interface IStoreConfig {
   name: string;
-  id: StoreId;
+  id: string;
   isEncrypted?: boolean;
-  validKeys?: Record<string, string>;
+  validKeys?: string[];
   noCompoundKey?: boolean;
   errorHandler?: IErrorHandler;
   logger?: ILogger;
@@ -18,21 +16,21 @@ export interface IStoreConfig {
 }
 
 export interface IStoreManager {
-  stores?: Record<StoreId, IStore>;
+  stores?: Record<string, IStore>;
   isInitialized?: boolean;
   errorHandler?: IErrorHandler;
   logger?: ILogger;
   init(): void;
   initializeStorageState(): void;
   setStore(storeConfig: IStoreConfig): IStore;
-  getStore(id: StoreId): IStore | undefined;
+  getStore(id: string): IStore | undefined;
 }
 
 export interface IStore {
   id: string;
   name: string;
   isEncrypted: boolean;
-  validKeys: Record<string, string>;
+  validKeys: string[];
   engine: IStorage;
   originalEngine: IStorage;
   noKeyValidation?: boolean;
@@ -49,7 +47,7 @@ export interface IStore {
   decrypt(value?: Nullable<string>): Nullable<string>;
   encrypt(value: any): string;
   crypto(value: string, mode: 'encrypt' | 'decrypt'): string;
-  onError(error: unknown): void;
+  onError(error: any): void;
 }
 
 export interface IStorage extends Storage {

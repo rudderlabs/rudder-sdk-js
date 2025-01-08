@@ -6,7 +6,7 @@
 import { handleError } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
 import { stringifyWithoutCircularV1 } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
 import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { removeTrailingSlashes } from '../../../utils/utils';
+import { removeTrailingSlashes } from '@rudderstack/analytics-js-common/utilities/url';
 import { createPayload } from './util';
 
 const timeout = 10 * 1000;
@@ -109,10 +109,11 @@ class TransformationsHandler {
                   if (retryAttempt > 0) {
                     const newRetryAttempt = retryAttempt - 1;
                     setTimeout(
-                      () =>
+                      () => {
                         this.sendEventForTransformation(payload, newRetryAttempt)
                           .then(resolve)
-                          .catch(reject),
+                          .catch(reject);
+                      },
                       RETRY_INTERVAL * backoffFactor ** (this.retryAttempt - newRetryAttempt),
                     );
                   } else {

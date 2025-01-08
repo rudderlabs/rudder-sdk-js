@@ -9,6 +9,7 @@ import {
 } from '@rudderstack/analytics-js-common/types/Storage';
 import type {
   DeliveryType,
+  SourceConfigResponse,
   StorageStrategy,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import {
@@ -21,8 +22,11 @@ import type {
   ConsentResolutionStrategy,
 } from '@rudderstack/analytics-js-common/types/Consent';
 import { clone } from 'ramda';
-import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { isValidURL, removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utilities/url';
+import {
+  isValidURL,
+  removeDuplicateSlashes,
+  removeTrailingSlashes,
+} from '@rudderstack/analytics-js-common/utilities/url';
 import { removeLeadingPeriod } from '@rudderstack/analytics-js-common/utilities/string';
 import { MODULE_TYPE, APP_VERSION } from '../../../constants/app';
 import { BUILD_TYPE, DEFAULT_CONFIG_BE_URL } from '../../../constants/urls';
@@ -31,7 +35,6 @@ import {
   INVALID_CONFIG_URL_WARNING,
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
   STORAGE_TYPE_VALIDATION_WARNING,
-  UNSUPPORTED_BEACON_API_WARNING,
   UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
   UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY,
   UNSUPPORTED_STORAGE_ENCRYPTION_VERSION_WARNING,
@@ -41,8 +44,7 @@ import {
   isErrorReportingEnabled,
   isMetricsReportingEnabled,
 } from '../../utilities/statsCollection';
-import { getDomain, removeTrailingSlashes } from '../../utilities/url';
-import type { SourceConfigResponse } from '../types';
+import { getDomain } from '../../utilities/url';
 import {
   DEFAULT_DATA_SERVICE_ENDPOINT,
   DEFAULT_STORAGE_ENCRYPTION_VERSION,
@@ -86,6 +88,7 @@ const getServerSideCookiesStateData = (logger?: ILogger) => {
     useServerSideCookies,
     dataServiceEndpoint,
     storage: storageOptsFromLoad,
+    // eslint-disable-next-line sonarjs/deprecation
     setCookieDomain,
     sameDomainCookiesOnly,
   } = state.loadOptions.value;
@@ -316,27 +319,6 @@ const updateConsentsState = (resp: SourceConfigResponse): void => {
   });
 };
 
-const updateDataPlaneEventsStateFromLoadOptions = (logger?: ILogger) => {
-  if (state.dataPlaneEvents.deliveryEnabled.value) {
-    const defaultEventsQueuePluginName: PluginName = 'XhrQueue';
-    let eventsQueuePluginName: PluginName = defaultEventsQueuePluginName;
-
-    if (state.loadOptions.value.useBeacon) {
-      if (state.capabilities.isBeaconAvailable.value) {
-        eventsQueuePluginName = 'BeaconQueue';
-      } else {
-        eventsQueuePluginName = defaultEventsQueuePluginName;
-
-        logger?.warn(UNSUPPORTED_BEACON_API_WARNING(CONFIG_MANAGER));
-      }
-    }
-
-    batch(() => {
-      state.dataPlaneEvents.eventsQueuePluginName.value = eventsQueuePluginName;
-    });
-  }
-};
-
 const getSourceConfigURL = (
   configUrl: string | undefined,
   writeKey: string,
@@ -389,6 +371,5 @@ export {
   updateStorageStateFromLoadOptions,
   updateConsentsStateFromLoadOptions,
   updateConsentsState,
-  updateDataPlaneEventsStateFromLoadOptions,
   getSourceConfigURL,
 };

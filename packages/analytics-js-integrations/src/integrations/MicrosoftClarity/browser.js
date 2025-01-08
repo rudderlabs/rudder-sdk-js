@@ -58,7 +58,8 @@ class MicrosoftClarity {
     }
 
     const identifyPromise = window.clarity('identify', userId, sessionId, customPageId);
-    if (typeof identifyPromise?.then === 'function') { // Clarity SDK is ready
+    if (typeof identifyPromise?.then === 'function') {
+      // Clarity SDK is ready
       identifyPromise.catch(error => {
         logger.error('The "identify" promise was rejected', error);
       });

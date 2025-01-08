@@ -22,7 +22,7 @@ const encode = (value: any, logger?: ILogger): string | undefined => {
 const decode = (value: string): string | undefined => {
   try {
     return decodeURIComponent(value);
-  } catch (err) {
+  } catch {
     // Do nothing as non-RS SDK cookies may not be URI encoded
     return undefined;
   }
@@ -33,7 +33,7 @@ const decode = (value: string): string | undefined => {
  */
 const parse = (str: string): Record<string, string | undefined> => {
   const obj: Record<string, any> = {};
-  const pairs = str.split(/\s*;\s*/);
+  const pairs = str.split(';').map(pairItem => pairItem.trim());
   let pair;
 
   if (!pairs[0]) {

@@ -2,7 +2,7 @@ export type ScheduleTaskHandler = (
   id: string,
   callback: () => any,
   timeout: number,
-  mode: ScheduleModes,
+  mode: number,
 ) => any;
 
 export type ScheduleClock = {
@@ -12,11 +12,11 @@ export type ScheduleClock = {
   clockLateFactor: number;
 };
 
-export const enum ScheduleModes {
-  ASAP = 1,
-  RESCHEDULE = 2,
-  ABANDON = 3,
-}
+export const ASAP = 1;
+export const RESCHEDULE = 2;
+export const ABANDON = 3;
+
+export type ScheduleModes = 1 | 2 | 3;
 
 const DEFAULT_CLOCK_LATE_FACTOR = 2;
 
@@ -27,7 +27,7 @@ const DEFAULT_CLOCK: ScheduleClock = {
   clearTimeout(id: number) {
     return (globalThis as typeof window).clearTimeout(id);
   },
-  Date: globalThis.Date,
+  Date: (globalThis as typeof window).Date,
   clockLateFactor: DEFAULT_CLOCK_LATE_FACTOR,
 };
 
@@ -46,48 +46,38 @@ class Schedule {
     return +new this.clock.Date();
   }
 
-  run(task: () => any, timeout: number, mode?: ScheduleModes): string {
-    const id = (this.nextId + 1).toString();
+  run(task: () => any, timeout: number, mode?: number): string {
+    const id = this.nextId.toString();
 
-    this.tasks[id] = this.clock.setTimeout(
-      this.handle(id, task, timeout, mode || ScheduleModes.ASAP),
-      timeout,
-    );
-
+    this.tasks[id] = this.clock.setTimeout(this.handle(id, task, timeout, mode ?? ASAP), timeout);
+    this.nextId += 1;
     return id;
   }
 
-  handle(
-    id: string,
-    callback: () => any,
-    timeout: number,
-    mode: ScheduleModes,
-  ): () => any | undefined {
+  handle(id: string, callback: () => any, timeout: number, mode: number): () => any {
     const start = this.now();
 
     return () => {
       delete this.tasks[id];
-      const elapsedTimeoutTime =
-        start + timeout * (this.clock.clockLateFactor || DEFAULT_CLOCK_LATE_FACTOR);
+      const elapsedTimeoutTime = start + timeout * this.clock.clockLateFactor;
       const currentTime = this.now();
-      const notCompletedOrTimedOut =
-        mode >= ScheduleModes.RESCHEDULE && elapsedTimeoutTime < currentTime;
+      const notCompletedOrTimedOut = mode >= RESCHEDULE && elapsedTimeoutTime < currentTime;
 
       if (notCompletedOrTimedOut) {
-        if (mode === ScheduleModes.RESCHEDULE) {
+        if (mode === RESCHEDULE) {
           this.run(callback, timeout, mode);
         }
 
-        return undefined;
+        return;
       }
 
-      return callback();
+      callback();
     };
   }
 
   cancel(id: string) {
     if (this.tasks[id]) {
-      this.clock.clearTimeout(this.tasks[id] as number);
+      this.clock.clearTimeout(this.tasks[id]);
       delete this.tasks[id];
     }
   }

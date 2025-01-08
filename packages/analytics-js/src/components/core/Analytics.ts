@@ -32,12 +32,12 @@ import {
   trackArgumentsToCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
 import { BufferQueue } from '@rudderstack/analytics-js-common/services/BufferQueue/BufferQueue';
+import { HttpClient } from '../../services/HttpClient';
 import { POST_LOAD_LOG_LEVEL, defaultLogger } from '../../services/Logger';
 import { defaultErrorHandler } from '../../services/ErrorHandler';
 import { defaultPluginEngine } from '../../services/PluginEngine';
 import { PluginsManager } from '../pluginsManager';
-import { defaultHttpClient } from '../../services/HttpClient';
-import { type Store, StoreManager } from '../../services/StoreManager';
+import { StoreManager } from '../../services/StoreManager';
 import { state } from '../../state';
 import { ConfigManager } from '../configManager/ConfigManager';
 import type { ICapabilitiesManager } from '../capabilitiesManager/types';
@@ -86,19 +86,22 @@ class Analytics implements IAnalytics {
   eventRepository?: IEventRepository;
   eventManager?: IEventManager;
   userSessionManager?: IUserSessionManager;
-  clientDataStore?: Store;
 
   /**
    * Initialize services and components or use default ones if singletons
    */
   constructor() {
+    this.logger = defaultLogger;
+    this.httpClient = new HttpClient(this.logger);
     this.preloadBuffer = new BufferQueue();
     this.initialized = false;
     this.errorHandler = defaultErrorHandler;
-    this.logger = defaultLogger;
-    this.externalSrcLoader = new ExternalSrcLoader(this.errorHandler, this.logger);
-    this.capabilitiesManager = new CapabilitiesManager(this.errorHandler, this.logger);
-    this.httpClient = defaultHttpClient;
+    this.externalSrcLoader = new ExternalSrcLoader();
+    this.capabilitiesManager = new CapabilitiesManager(
+      this.httpClient,
+      this.errorHandler,
+      this.logger,
+    );
   }
 
   /**
@@ -207,6 +210,10 @@ class Analytics implements IAnalytics {
    * Load browser polyfill if required
    */
   onMounted() {
+    if (state.lifecycle.writeKey.value) {
+      this.httpClient.setAuthHeader(state.lifecycle.writeKey.value);
+    }
+
     this.capabilitiesManager.init();
   }
 
@@ -244,6 +251,7 @@ class Analytics implements IAnalytics {
       this.httpClient,
     );
     this.eventRepository = new EventRepository(
+      this.httpClient,
       this.pluginsManager,
       this.storeManager,
       this.errorHandler,
@@ -261,10 +269,6 @@ class Analytics implements IAnalytics {
    * Load configuration
    */
   loadConfig() {
-    if (state.lifecycle.writeKey.value) {
-      this.httpClient.setAuthHeader(state.lifecycle.writeKey.value);
-    }
-
     this.configManager?.init();
   }
 
@@ -342,7 +346,7 @@ class Analytics implements IAnalytics {
     state.eventBuffer.readyCallbacksArray.value.forEach((callback: ApiCallback) => {
       try {
         callback();
-      } catch (err) {
+      } catch (err: any) {
         this.errorHandler.onError(err, ANALYTICS_CORE, READY_CALLBACK_INVOKE_ERROR);
       }
     });
@@ -466,7 +470,7 @@ class Analytics implements IAnalytics {
     if (state.lifecycle.status.value === 'readyExecuted') {
       try {
         callback();
-      } catch (err) {
+      } catch (err: any) {
         this.errorHandler.onError(err, ANALYTICS_CORE, READY_CALLBACK_INVOKE_ERROR);
       }
     } else {
