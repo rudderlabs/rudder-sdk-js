@@ -52,7 +52,7 @@ jobs:
           echo "Detected $num_cores cores. Using $parallel_jobs parallel jobs."
 
           prefixes=("adobe-analytics-js" "v3" "v1.1")
-          
+
           for prefix in "${prefixes[@]}"; do
             echo "Processing prefix: $prefix"
             
@@ -64,5 +64,3 @@ jobs:
                 --metadata-directive REPLACE \
                 --cache-control '${{ env.cache_control_policy }}'"
           done
-
-

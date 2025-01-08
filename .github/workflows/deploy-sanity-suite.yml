@@ -54,7 +54,7 @@ jobs:
           echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
           echo "DATE=$(date)" >> $GITHUB_ENV
           echo "BUGSNAG_RELEASE_STAGE=${{ inputs.environment }}" >> $GITHUB_ENV
-          
+
           if [ "${{ inputs.environment }}" == "staging" ]; then
             echo "SDK_CDN_VERSION_PATH_PREFIX=staging/latest/" >> $GITHUB_ENV
             echo "SUITE_CDN_PATH=/staging/" >> $GITHUB_ENV
