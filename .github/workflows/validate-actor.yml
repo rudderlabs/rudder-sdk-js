@@ -17,10 +17,10 @@ jobs:
           GH_TOKEN: ${{ secrets.PAT }}
         run: |
           actor=${{ github.actor || github.triggering_actor }}
-          
+
           # Use gh api to fetch the membership details
           response=$(gh api "/orgs/$ORG_NAME/teams/$TEAM_NAME/memberships/$actor" -H "X-GitHub-Api-Version: 2022-11-28" 2>/dev/null || echo "error")
-          
+
           # Check if API request failed
           if [ "$response" = "error" ]; then
             echo "Error: Unable to fetch membership details for '$actor'."
@@ -34,4 +34,3 @@ jobs:
             echo "Error: '$actor' is NOT a member of '@${ORG_NAME}/${TEAM_NAME}' team. Access denied."
             exit 1
           fi
-
