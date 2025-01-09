@@ -4,12 +4,12 @@ import { stringifyWithoutCircular } from './json';
 const MANUAL_ERROR_IDENTIFIER = '[SDK DISPATCHED ERROR]';
 
 const getStacktrace = (err: any): string | undefined => {
-  const { stack, stacktrace, name, message } = err;
+  const { stack, stacktrace } = err;
   const operaSourceloc = err['opera#sourceloc'];
 
   const stackString = stack ?? stacktrace ?? operaSourceloc;
 
-  if (!!stackString && typeof stackString === 'string' && stack !== `${name}: ${message}`) {
+  if (!!stackString && typeof stackString === 'string') {
     return stackString;
   }
   return undefined;

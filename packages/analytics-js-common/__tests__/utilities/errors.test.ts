@@ -79,12 +79,5 @@ describe('Errors - utilities', () => {
 
       expect(getStacktrace(error)).toBeUndefined();
     });
-
-    it('should return undefined if stack is the same as name and message', () => {
-      const error = new Error('Test error');
-      error.stack = `${error.name}: ${error.message}`;
-
-      expect(getStacktrace(error)).toBeUndefined();
-    });
   });
 });
