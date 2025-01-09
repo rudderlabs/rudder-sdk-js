@@ -1,18 +1,13 @@
+import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
+import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
+import { defaultPluginEngine } from '@rudderstack/analytics-js-common/__mocks__/PluginEngine';
 import { PluginsManager } from '../../../src/components/pluginsManager';
-import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
-import { defaultLogger } from '../../../src/services/Logger';
-import { defaultPluginEngine } from '../../../src/services/PluginEngine';
 import { state, resetState } from '../../../src/state';
 import { defaultOptionalPluginsList } from '../../../src/components/pluginsManager/defaultPluginsList';
 
 let pluginsManager: PluginsManager;
 
 describe('PluginsManager', () => {
-  beforeAll(() => {
-    defaultLogger.warn = jest.fn();
-    defaultLogger.error = jest.fn();
-  });
-
   afterAll(() => {
     jest.clearAllMocks();
   });
@@ -235,6 +230,41 @@ describe('PluginsManager', () => {
       expect(defaultLogger.warn).toHaveBeenCalledTimes(1);
       expect(defaultLogger.warn).toHaveBeenCalledWith(
         "PluginsManager:: Storage migration is enabled, but 'StorageMigrator' plugin was not configured to load. Ignore if this was intentional. Otherwise, consider adding it to the 'plugins' load API option.",
+      );
+    });
+
+    it('should log a warning if deprecated plugins are configured', () => {
+      state.plugins.pluginsToLoadFromConfig.value = [
+        'ErrorReporting',
+        'Bugsnag',
+        'StorageMigrator',
+      ];
+
+      expect(pluginsManager.getPluginsToLoadBasedOnConfig().sort(alphabeticalCompare)).toEqual([]);
+
+      // Expect a warning for user not explicitly configuring it
+      expect(defaultLogger.warn).toHaveBeenCalledTimes(2);
+      expect(defaultLogger.warn).toHaveBeenCalledWith(
+        'PluginsManager:: ErrorReporting plugin is deprecated. Please exclude it from the load API options.',
+      );
+      expect(defaultLogger.warn).toHaveBeenCalledWith(
+        'PluginsManager:: Bugsnag plugin is deprecated. Please exclude it from the load API options.',
+      );
+    });
+
+    it('should log a warning if unknown plugins are configured', () => {
+      state.plugins.pluginsToLoadFromConfig.value = [
+        'UnknownPlugin1',
+        'GoogleLinker',
+        'UnknownPlugin2',
+      ];
+
+      pluginsManager.setActivePlugins();
+
+      // Expect a warning for user not explicitly configuring it
+      expect(defaultLogger.warn).toHaveBeenCalledTimes(1);
+      expect(defaultLogger.warn).toHaveBeenCalledWith(
+        'PluginsManager:: Ignoring unknown plugins: UnknownPlugin1, UnknownPlugin2.',
       );
     });
   });
