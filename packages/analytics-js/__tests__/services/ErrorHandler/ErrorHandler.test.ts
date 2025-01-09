@@ -108,9 +108,10 @@ describe('ErrorHandler', () => {
       expect(defaultLogger.error).toHaveBeenCalledTimes(0);
     });
 
-    it('should skip errors if they are not originated from the sdk', () => {
+    it('should skip unhandled errors if they are not originated from the sdk', () => {
       // For this error, the stacktrace would not contain the sdk file names
-      errorHandlerInstance.onError(new Error('dummy error'));
+      // @ts-expect-error not using the enum value for testing
+      errorHandlerInstance.onError(new Error('dummy error'), '', '', 'unhandledException');
 
       // It should not be logged to the console
       expect(defaultLogger.error).toHaveBeenCalledTimes(0);
