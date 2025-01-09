@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader';
 import { batch, effect } from '@preact/signals-core';
-import { isFunction, isNull } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isDefined, isFunction, isNull } from '@rudderstack/analytics-js-common/utilities/checks';
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { clone } from 'ramda';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
@@ -16,10 +16,12 @@ import type {
   AnonymousIdOptions,
   ConsentOptions,
   LoadOptions,
+  OnLoadedCallback,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { ApiCallback } from '@rudderstack/analytics-js-common/types/EventApi';
 import {
   ANALYTICS_CORE,
+  LOAD_API,
   READY_API,
 } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import {
@@ -61,9 +63,9 @@ import {
 } from '../../constants/app';
 import {
   DATA_PLANE_URL_VALIDATION_ERROR,
-  READY_API_CALLBACK_ERROR,
-  READY_CALLBACK_INVOKE_ERROR,
+  INVALID_CALLBACK_FN_ERROR,
   WRITE_KEY_VALIDATION_ERROR,
+  CALLBACK_INVOKE_ERROR,
 } from '../../constants/logMessages';
 import type { IAnalytics } from './IAnalytics';
 import { getConsentManagementData, getValidPostConsentOptions } from '../utilities/consent';
@@ -319,11 +321,20 @@ class Analytics implements IAnalytics {
     // Process any preloaded events
     this.processDataInPreloadBuffer();
 
-    // TODO: we need to avoid passing the window object to the callback function
-    // as this will prevent us from supporting multiple SDK instances in the same page
     // Execute onLoaded callback if provided in load options
-    if (isFunction(state.loadOptions.value.onLoaded)) {
-      state.loadOptions.value.onLoaded((globalThis as typeof window).rudderanalytics);
+    const onLoadedCallbackFn = state.loadOptions.value.onLoaded;
+    if (isDefined(onLoadedCallbackFn)) {
+      if (isFunction(onLoadedCallbackFn)) {
+        // TODO: we need to avoid passing the window object to the callback function
+        // as this will prevent us from supporting multiple SDK instances in the same page
+        try {
+          (onLoadedCallbackFn as OnLoadedCallback)((globalThis as typeof window).rudderanalytics);
+        } catch (err) {
+          this.logger.error(CALLBACK_INVOKE_ERROR(LOAD_API), err);
+        }
+      } else {
+        this.logger.error(INVALID_CALLBACK_FN_ERROR(LOAD_API));
+      }
     }
 
     // Set lifecycle state
@@ -348,7 +359,7 @@ class Analytics implements IAnalytics {
       try {
         callback();
       } catch (err) {
-        this.errorHandler.onError(err, ANALYTICS_CORE, READY_CALLBACK_INVOKE_ERROR);
+        this.logger.error(CALLBACK_INVOKE_ERROR(READY_API), err);
       }
     });
 
@@ -459,7 +470,7 @@ class Analytics implements IAnalytics {
     this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
 
     if (!isFunction(callback)) {
-      this.logger.error(READY_API_CALLBACK_ERROR(READY_API));
+      this.logger.error(INVALID_CALLBACK_FN_ERROR(READY_API));
       return;
     }
 
@@ -472,7 +483,7 @@ class Analytics implements IAnalytics {
       try {
         callback();
       } catch (err) {
-        this.errorHandler.onError(err, ANALYTICS_CORE, READY_CALLBACK_INVOKE_ERROR);
+        this.logger.error(CALLBACK_INVOKE_ERROR(READY_API), err);
       }
     } else {
       state.eventBuffer.readyCallbacksArray.value = [

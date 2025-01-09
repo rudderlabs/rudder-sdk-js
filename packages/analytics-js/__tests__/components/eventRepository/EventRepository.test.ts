@@ -5,14 +5,13 @@ import type {
   DestinationConfig,
 } from '@rudderstack/analytics-js-common/types/Destination';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
-import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
+import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
 import { defaultHttpClient } from '../../../src/services/HttpClient';
 import { EventRepository } from '../../../src/components/eventRepository';
 import { state, resetState } from '../../../src/state';
 import { PluginsManager } from '../../../src/components/pluginsManager';
 import { defaultPluginEngine } from '../../../src/services/PluginEngine';
-import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
-import { defaultLogger } from '../../../src/services/Logger';
 import { StoreManager } from '../../../src/services/StoreManager';
 
 describe('EventRepository', () => {
@@ -22,7 +21,11 @@ describe('EventRepository', () => {
     defaultLogger,
   );
 
-  const defaultStoreManager = new StoreManager(defaultPluginsManager);
+  const defaultStoreManager = new StoreManager(
+    defaultPluginsManager,
+    defaultErrorHandler,
+    defaultLogger,
+  );
 
   const mockDestinationsEventsQueue = {
     scheduleTimeoutActive: false,
@@ -95,38 +98,40 @@ describe('EventRepository', () => {
       defaultPluginsManager,
       defaultStoreManager,
       defaultHttpClient,
+      defaultErrorHandler,
+      defaultLogger,
     );
     const spy = jest.spyOn(defaultPluginsManager, 'invokeSingle');
     eventRepository.init();
 
-    expect(spy).nthCalledWith(
+    expect(spy).toHaveBeenNthCalledWith(
       1,
       'dataplaneEventsQueue.init',
       state,
       expect.objectContaining({}),
       defaultStoreManager,
-      undefined,
-      undefined,
+      defaultErrorHandler,
+      defaultLogger,
     );
-    expect(spy).nthCalledWith(
+    expect(spy).toHaveBeenNthCalledWith(
       2,
       'transformEvent.init',
       state,
       defaultPluginsManager,
       expect.objectContaining({}),
       defaultStoreManager,
-      undefined,
-      undefined,
+      defaultErrorHandler,
+      defaultLogger,
     );
-    expect(spy).nthCalledWith(
+    expect(spy).toHaveBeenNthCalledWith(
       3,
       'destinationsEventsQueue.init',
       state,
       defaultPluginsManager,
       defaultStoreManager,
       undefined,
-      undefined,
-      undefined,
+      defaultErrorHandler,
+      defaultLogger,
     );
     spy.mockRestore();
   });
@@ -136,6 +141,8 @@ describe('EventRepository', () => {
       mockPluginsManager,
       defaultStoreManager,
       defaultHttpClient,
+      defaultErrorHandler,
+      defaultLogger,
     );
 
     eventRepository.init();
@@ -150,6 +157,8 @@ describe('EventRepository', () => {
       mockPluginsManager,
       defaultStoreManager,
       defaultHttpClient,
+      defaultErrorHandler,
+      defaultLogger,
     );
 
     state.nativeDestinations.activeDestinations.value = [
@@ -181,6 +190,8 @@ describe('EventRepository', () => {
       mockPluginsManager,
       defaultStoreManager,
       defaultHttpClient,
+      defaultErrorHandler,
+      defaultLogger,
     );
 
     state.nativeDestinations.activeDestinations.value = activeDestinationsWithHybridMode;
@@ -197,6 +208,8 @@ describe('EventRepository', () => {
       mockPluginsManager,
       defaultStoreManager,
       defaultHttpClient,
+      defaultErrorHandler,
+      defaultLogger,
     );
 
     state.nativeDestinations.activeDestinations.value = activeDestinationsWithHybridMode;
@@ -220,6 +233,8 @@ describe('EventRepository', () => {
       mockPluginsManager,
       defaultStoreManager,
       defaultHttpClient,
+      defaultErrorHandler,
+      defaultLogger,
     );
 
     state.nativeDestinations.activeDestinations.value = activeDestinationsWithHybridMode;
@@ -242,6 +257,8 @@ describe('EventRepository', () => {
       mockPluginsManager,
       defaultStoreManager,
       defaultHttpClient,
+      defaultErrorHandler,
+      defaultLogger,
     );
 
     eventRepository.init();
@@ -249,7 +266,7 @@ describe('EventRepository', () => {
     const invokeSingleSpy = jest.spyOn(mockPluginsManager, 'invokeSingle');
     eventRepository.enqueue(testEvent);
 
-    expect(invokeSingleSpy).nthCalledWith(
+    expect(invokeSingleSpy).toHaveBeenNthCalledWith(
       1,
       'dataplaneEventsQueue.enqueue',
       state,
@@ -258,17 +275,17 @@ describe('EventRepository', () => {
         ...testEvent,
         integrations: { All: true },
       },
-      undefined,
-      undefined,
+      defaultErrorHandler,
+      defaultLogger,
     );
-    expect(invokeSingleSpy).nthCalledWith(
+    expect(invokeSingleSpy).toHaveBeenNthCalledWith(
       2,
       'destinationsEventsQueue.enqueue',
       state,
       mockDestinationsEventsQueue,
       testEvent,
-      undefined,
-      undefined,
+      defaultErrorHandler,
+      defaultLogger,
     );
 
     invokeSingleSpy.mockRestore();
@@ -279,6 +296,8 @@ describe('EventRepository', () => {
       mockPluginsManager,
       defaultStoreManager,
       defaultHttpClient,
+      defaultErrorHandler,
+      defaultLogger,
     );
 
     eventRepository.init();
@@ -294,15 +313,12 @@ describe('EventRepository', () => {
   });
 
   it('should handle error if event callback function throws', () => {
-    const mockErrorHandler = {
-      onError: jest.fn(),
-    } as unknown as IErrorHandler;
-
     const eventRepository = new EventRepository(
       mockPluginsManager,
       defaultStoreManager,
       defaultHttpClient,
-      mockErrorHandler,
+      defaultErrorHandler,
+      defaultLogger,
     );
 
     eventRepository.init();
@@ -312,11 +328,10 @@ describe('EventRepository', () => {
     });
     eventRepository.enqueue(testEvent, mockEventCallback);
 
-    expect(mockErrorHandler.onError).toHaveBeenCalledTimes(1);
-    expect(mockErrorHandler.onError).toHaveBeenCalledWith(
+    expect(defaultLogger.error).toHaveBeenCalledTimes(1);
+    expect(defaultLogger.error).toHaveBeenCalledWith(
+      'TrackAPI:: The callback threw an exception',
       new Error('test error'),
-      'EventRepository',
-      'API Callback Invocation Failed',
     );
   });
 
@@ -325,6 +340,8 @@ describe('EventRepository', () => {
       mockPluginsManager,
       defaultStoreManager,
       defaultHttpClient,
+      defaultErrorHandler,
+      defaultLogger,
     );
 
     state.consents.preConsent.value = {
@@ -348,6 +365,8 @@ describe('EventRepository', () => {
         mockPluginsManager,
         defaultStoreManager,
         defaultHttpClient,
+        defaultErrorHandler,
+        defaultLogger,
       );
       eventRepository.init();
 
@@ -360,6 +379,8 @@ describe('EventRepository', () => {
         mockPluginsManager,
         defaultStoreManager,
         defaultHttpClient,
+        defaultErrorHandler,
+        defaultLogger,
       );
 
       state.consents.postConsent.value.discardPreConsentEvents = true;

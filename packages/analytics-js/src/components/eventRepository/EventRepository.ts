@@ -8,13 +8,18 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { ApiCallback } from '@rudderstack/analytics-js-common/types/EventApi';
 import { isHybridModeDestination } from '@rudderstack/analytics-js-common/utilities/destinations';
-import { EVENT_REPOSITORY } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import {
-  API_CALLBACK_INVOKE_ERROR,
+  API_SUFFIX,
+  EVENT_REPOSITORY,
+} from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
+import { isDefined, isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
+import {
+  CALLBACK_INVOKE_ERROR,
   DATAPLANE_PLUGIN_ENQUEUE_ERROR,
   DATAPLANE_PLUGIN_INITIALIZE_ERROR,
   DMT_PLUGIN_INITIALIZE_ERROR,
+  INVALID_CALLBACK_FN_ERROR,
   NATIVE_DEST_PLUGIN_ENQUEUE_ERROR,
   NATIVE_DEST_PLUGIN_INITIALIZE_ERROR,
 } from '../../constants/logMessages';
@@ -198,12 +203,19 @@ class EventRepository implements IEventRepository {
     }
 
     // Invoke the callback if it exists
-    try {
-      // Using the event sent to the data plane queue here
-      // to ensure the mutated (if any) event is sent to the callback
-      callback?.(dpQEvent);
-    } catch (error) {
-      this.onError(error, API_CALLBACK_INVOKE_ERROR);
+    if (isDefined(callback)) {
+      const apiName = `${event.type.charAt(0).toUpperCase()}${event.type.slice(1)}${API_SUFFIX}`;
+      if (isFunction(callback)) {
+        try {
+          // Using the event sent to the data plane queue here
+          // to ensure the mutated (if any) event is sent to the callback
+          callback?.(dpQEvent);
+        } catch (error) {
+          this.logger.error(CALLBACK_INVOKE_ERROR(apiName), error);
+        }
+      } else {
+        this.logger.error(INVALID_CALLBACK_FN_ERROR(apiName));
+      }
     }
   }
 
