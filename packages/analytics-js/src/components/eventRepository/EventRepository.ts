@@ -116,24 +116,25 @@ class EventRepository implements IEventRepository {
     });
 
     const bufferEventsBeforeConsent = shouldBufferEventsForPreConsent(state);
+    if (!bufferEventsBeforeConsent) {
+      this.startDpEventsQueue();
+    }
+  }
 
-    // Start the queue processing only when the destinations are ready or hybrid mode destinations exist
-    // However, events will be enqueued for now.
-    // At the time of processing the events, the integrations config data from destinations
-    // is merged into the event object
+  private startDpEventsQueue() {
+    const bufferEventsUntilReady = state.loadOptions.value
+      .bufferDataPlaneEventsUntilReady as boolean;
+    const hybridDestExist = state.nativeDestinations.activeDestinations.value.some(
+      (dest: Destination) => isHybridModeDestination(dest),
+    );
+    const shouldBufferDpEvents = bufferEventsUntilReady && hybridDestExist;
+
     let timeoutId: number;
+    // Start the queue when no event buffering is required
+    // or when the client destinations are ready
     effect(() => {
-      const shouldBufferDpEvents =
-        state.loadOptions.value.bufferDataPlaneEventsUntilReady === true &&
-        state.nativeDestinations.clientDestinationsReady.value === false;
-
-      const hybridDestExist = state.nativeDestinations.activeDestinations.value.some(
-        (dest: Destination) => isHybridModeDestination(dest),
-      );
-
       if (
-        (hybridDestExist === false || shouldBufferDpEvents === false) &&
-        !bufferEventsBeforeConsent &&
+        (!shouldBufferDpEvents || state.nativeDestinations.clientDestinationsReady.value) &&
         this.dataplaneEventsQueue?.scheduleTimeoutActive !== true
       ) {
         (globalThis as typeof window).clearTimeout(timeoutId);
@@ -142,7 +143,7 @@ class EventRepository implements IEventRepository {
     });
 
     // Force start the data plane events queue processing after a timeout
-    if (state.loadOptions.value.bufferDataPlaneEventsUntilReady === true) {
+    if (shouldBufferDpEvents) {
       timeoutId = (globalThis as typeof window).setTimeout(() => {
         if (this.dataplaneEventsQueue?.scheduleTimeoutActive !== true) {
           this.dataplaneEventsQueue?.start();
@@ -152,14 +153,15 @@ class EventRepository implements IEventRepository {
   }
 
   resume() {
-    if (this.dataplaneEventsQueue?.scheduleTimeoutActive !== true) {
-      if (state.consents.postConsent.value.discardPreConsentEvents) {
-        this.dataplaneEventsQueue?.clear();
-        this.destinationsEventsQueue?.clear();
-      }
-
-      this.dataplaneEventsQueue?.start();
+    if (
+      this.dataplaneEventsQueue?.scheduleTimeoutActive !== true &&
+      state.consents.postConsent.value.discardPreConsentEvents
+    ) {
+      this.dataplaneEventsQueue?.clear();
+      this.destinationsEventsQueue?.clear();
     }
+
+    this.startDpEventsQueue();
   }
 
   /**
