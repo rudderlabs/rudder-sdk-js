@@ -8,10 +8,12 @@ import {
   createNewBreadcrumb,
   getAppStateForMetadata,
   getBugsnagErrorEvent,
+  getDeviceDetails,
   getErrInstance,
   getErrorDeliveryPayload,
   getReleaseStage,
   getURLWithoutQueryString,
+  getUserDetails,
   isAllowedToBeNotified,
   isSDKError,
 } from '../../../src/services/ErrorHandler/utils';
@@ -115,6 +117,13 @@ describe('Error Reporting utilities', () => {
         expect(isSDKError(event as unknown as Exception)).toBe(expectedValue);
       },
     );
+
+    // Test when stacktrace is empty array
+    const exception = {
+      stacktrace: [],
+    };
+
+    expect(isSDKError(exception as unknown as Exception)).toBe(false);
   });
 
   describe('getAppStateForMetadata', () => {
@@ -639,6 +648,69 @@ describe('Error Reporting utilities', () => {
       const errorType = 'unhandledPromiseRejection';
       const result = getErrInstance(errorEvent, errorType);
       expect(result).toEqual(errorEvent.reason);
+    });
+  });
+
+  describe('getUserDetails', () => {
+    it('should return user details for the given source, session, lifecycle, and autoTrack', () => {
+      state.source.value = {
+        id: 'dummy-source-id',
+        name: 'dummy-source-name',
+        workspaceId: 'dummy-workspace-id',
+      };
+      state.session.sessionInfo.value = { id: 123 };
+      state.autoTrack.pageLifecycle.visitId.value = 'test-visit-id';
+
+      const userDetails = getUserDetails(
+        state.source,
+        state.session,
+        state.lifecycle,
+        state.autoTrack,
+      );
+      expect(userDetails).toEqual({
+        id: 'dummy-source-id..123..test-visit-id',
+        name: 'dummy-source-name',
+      });
+    });
+
+    it('should use fallback values if the required values are not present', () => {
+      state.lifecycle.writeKey.value = 'dummy-write-key';
+
+      const userDetails = getUserDetails(
+        state.source,
+        state.session,
+        state.lifecycle,
+        state.autoTrack,
+      );
+      expect(userDetails).toEqual({
+        id: 'dummy-write-key..NA..NA',
+        name: 'NA',
+      });
+    });
+  });
+
+  describe('getDeviceDetails', () => {
+    it('should return device details for the given locale and userAgent', () => {
+      state.context.locale.value = 'en-US';
+      state.context.userAgent.value =
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3';
+
+      const deviceDetails = getDeviceDetails(state.context.locale, state.context.userAgent);
+      expect(deviceDetails).toEqual({
+        locale: 'en-US',
+        userAgent:
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
+        time: expect.any(Date),
+      });
+    });
+
+    it('should use fallback values if the required values are not present', () => {
+      const deviceDetails = getDeviceDetails(state.context.locale, state.context.userAgent);
+      expect(deviceDetails).toEqual({
+        locale: 'NA',
+        userAgent: 'NA',
+        time: expect.any(Date),
+      });
     });
   });
 });

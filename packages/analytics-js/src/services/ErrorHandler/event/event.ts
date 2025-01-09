@@ -63,7 +63,7 @@ function createException(
 const normalizeError = (maybeError: any, logger: ILogger): any => {
   let error;
 
-  if (isTypeOfError(maybeError) && !!getStacktrace(maybeError)) {
+  if (isTypeOfError(maybeError) && isString(getStacktrace(maybeError))) {
     error = maybeError;
   } else {
     logger.warn(NON_ERROR_WARNING(ERROR_HANDLER, stringifyWithoutCircular(maybeError)));

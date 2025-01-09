@@ -67,11 +67,12 @@ class ErrorHandler implements IErrorHandler {
         return;
       }
 
-      const errorMsgPrefix = `${context}${LOG_CONTEXT_SEPARATOR}${customMessage ? `${customMessage} - ` : ''}`;
+      const customMsgVal = customMessage ? `${customMessage} - ` : '';
+      const errorMsgPrefix = `${context}${LOG_CONTEXT_SEPARATOR}${customMsgVal}`;
       const bsException = createBugsnagException(normalizedError, errorMsgPrefix);
 
-      const stacktrace = getStacktrace(normalizedError);
-      const isSdkDispatched = stacktrace?.includes(MANUAL_ERROR_IDENTIFIER);
+      const stacktrace = getStacktrace(normalizedError) as string;
+      const isSdkDispatched = stacktrace.includes(MANUAL_ERROR_IDENTIFIER);
 
       // Filter unhandled errors that are not originated in the SDK.
       // However, in case of NPM installations, since we cannot differentiate between SDK and application errors, we should report all errors.
@@ -95,7 +96,7 @@ class ErrorHandler implements IErrorHandler {
         const bugsnagPayload = getBugsnagErrorEvent(bsException, errorState, state);
 
         // send it to metrics service
-        this.httpClient?.getAsyncData({
+        this.httpClient.getAsyncData({
           url: state.metrics.metricsServiceUrl.value as string,
           options: {
             method: 'POST',

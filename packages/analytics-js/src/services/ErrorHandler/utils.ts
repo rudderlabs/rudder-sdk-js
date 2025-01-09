@@ -64,6 +64,25 @@ const getURLWithoutQueryString = () => {
   return url[0];
 };
 
+const getUserDetails = (
+  source: ApplicationState['source'],
+  session: ApplicationState['session'],
+  lifecycle: ApplicationState['lifecycle'],
+  autoTrack: ApplicationState['autoTrack'],
+) => ({
+  id: `${source.value?.id ?? (lifecycle.writeKey.value as string)}..${session.sessionInfo.value.id ?? 'NA'}..${autoTrack.pageLifecycle.visitId.value ?? 'NA'}`,
+  name: source.value?.name ?? 'NA',
+});
+
+const getDeviceDetails = (
+  locale: ApplicationState['context']['locale'],
+  userAgent: ApplicationState['context']['userAgent'],
+) => ({
+  locale: locale.value ?? 'NA',
+  userAgent: userAgent.value ?? 'NA',
+  time: new Date(),
+});
+
 const getBugsnagErrorEvent = (
   exception: Exception,
   errorState: ErrorState,
@@ -90,11 +109,7 @@ const getBugsnagErrorEvent = (
           releaseStage: getReleaseStage(),
           type: app.value.installType,
         },
-        device: {
-          locale: locale.value ?? undefined,
-          userAgent: userAgent.value ?? undefined,
-          time: new Date(),
-        },
+        device: getDeviceDetails(locale, userAgent),
         request: {
           url: getURLWithoutQueryString() as string,
           clientIp: '[NOT COLLECTED]',
@@ -110,10 +125,7 @@ const getBugsnagErrorEvent = (
           // so that they show up as separate tabs in the dashboard
           ...getAppStateForMetadata(state),
         },
-        user: {
-          id: `${source.value?.id ?? (lifecycle.writeKey.value as string)}..${session.sessionInfo.value?.id ?? 'NA'}..${autoTrack?.pageLifecycle?.visitId?.value ?? 'NA'}`,
-          name: source.value?.name ?? 'NA',
-        },
+        user: getUserDetails(source, session, lifecycle, autoTrack),
       },
     ],
   };
@@ -133,7 +145,7 @@ const isAllowedToBeNotified = (exception: Exception) =>
  * @returns
  */
 const isSDKError = (exception: Exception) => {
-  const errorOrigin = exception.stacktrace?.[0]?.file;
+  const errorOrigin = exception.stacktrace[0]?.file;
 
   if (!errorOrigin || typeof errorOrigin !== 'string') {
     return false;
@@ -178,4 +190,6 @@ export {
   isSDKError,
   getErrorDeliveryPayload,
   isAllowedToBeNotified,
+  getUserDetails, // for testing
+  getDeviceDetails, // for testing
 };
