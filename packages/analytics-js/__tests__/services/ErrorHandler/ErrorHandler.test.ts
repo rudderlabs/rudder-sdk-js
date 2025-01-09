@@ -124,7 +124,7 @@ describe('ErrorHandler', () => {
       errorHandlerInstance.onError(new Error('dummy error'), 'Test', 'Custom Message');
 
       expect(defaultLogger.error).toHaveBeenCalledTimes(1);
-      expect(defaultLogger.error).toHaveBeenCalledWith('Test:: Custom Message dummy error');
+      expect(defaultLogger.error).toHaveBeenCalledWith('Test:: Custom Message - dummy error');
     });
 
     it('should not log unhandled errors to the console', () => {

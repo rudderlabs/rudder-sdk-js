@@ -67,7 +67,7 @@ class ErrorHandler implements IErrorHandler {
         return;
       }
 
-      const errorMsgPrefix = `${context}${LOG_CONTEXT_SEPARATOR}${customMessage ? `${customMessage} ` : ''}`;
+      const errorMsgPrefix = `${context}${LOG_CONTEXT_SEPARATOR}${customMessage ? `${customMessage} - ` : ''}`;
       const bsException = createBugsnagException(normalizedError, errorMsgPrefix);
 
       const stacktrace = getStacktrace(normalizedError);
