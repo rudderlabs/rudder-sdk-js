@@ -328,7 +328,7 @@ class Analytics implements IAnalytics {
         // TODO: we need to avoid passing the window object to the callback function
         // as this will prevent us from supporting multiple SDK instances in the same page
         try {
-          (onLoadedCallbackFn as OnLoadedCallback)((globalThis as typeof window).rudderanalytics);
+          onLoadedCallbackFn((globalThis as typeof window).rudderanalytics);
         } catch (err) {
           this.logger.error(CALLBACK_INVOKE_ERROR(LOAD_API), err);
         }
