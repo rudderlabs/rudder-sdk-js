@@ -16,6 +16,7 @@ import { isDefined, isFunction } from '@rudderstack/analytics-js-common/utilitie
 import {
   DEPRECATED_PLUGIN_WARNING,
   generateMisconfiguredPluginsWarning,
+  UNKNOWN_PLUGINS_WARNING,
 } from '../../constants/logMessages';
 import { setExposedGlobal } from '../utilities/globals';
 import { state } from '../../state';
@@ -230,15 +231,7 @@ class PluginsManager implements IPluginsManager {
     });
 
     if (failedPlugins.length > 0) {
-      this.onError(
-        new Error(
-          `Ignoring loading of unknown plugins: ${failedPlugins.join(
-            ',',
-          )}. Mandatory plugins: ${Object.keys(getMandatoryPluginsMap()).join(
-            ',',
-          )}. Load option plugins: ${state.plugins.pluginsToLoadFromConfig.value.join(',')}`,
-        ),
-      );
+      this.logger.warn(UNKNOWN_PLUGINS_WARNING(PLUGINS_MANAGER, failedPlugins));
     }
 
     batch(() => {

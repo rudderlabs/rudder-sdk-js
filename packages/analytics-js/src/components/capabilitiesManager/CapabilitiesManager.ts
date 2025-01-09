@@ -52,12 +52,8 @@ class CapabilitiesManager implements ICapabilitiesManager {
   }
 
   init() {
-    try {
-      this.prepareBrowserCapabilities();
-      this.attachWindowListeners();
-    } catch (err) {
-      this.onError(err);
-    }
+    this.prepareBrowserCapabilities();
+    this.attachWindowListeners();
   }
 
   /**

@@ -48,7 +48,6 @@ class StoreManager implements IStoreManager {
     this.errorHandler = errorHandler;
     this.logger = logger;
     this.pluginsManager = pluginsManager;
-    this.onError = this.onError.bind(this);
   }
 
   /**
@@ -214,13 +213,6 @@ class StoreManager implements IStoreManager {
    */
   getStore(id: StoreId): Store | undefined {
     return this.stores[id];
-  }
-
-  /**
-   * Handle errors
-   */
-  onError(error: unknown) {
-    this.errorHandler.onError(error, STORE_MANAGER);
   }
 }
 

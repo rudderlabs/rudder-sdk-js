@@ -51,7 +51,6 @@ class HttpClient implements IHttpClient {
         details: data,
       };
     } catch (reason) {
-      this.onError((reason as ResponseDetails).error ?? reason);
       return { data: undefined, details: reason as ResponseDetails };
     }
   }
@@ -73,7 +72,6 @@ class HttpClient implements IHttpClient {
         }
       })
       .catch((data: ResponseDetails) => {
-        this.onError(data.error ?? data);
         if (!isFireAndForget) {
           callback(undefined, data);
         }

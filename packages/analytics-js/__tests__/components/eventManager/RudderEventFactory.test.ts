@@ -503,14 +503,4 @@ describe('RudderEventFactory', () => {
       event: null,
     });
   });
-
-  it('should not generate any event if the event type is not supported', () => {
-    const apiEvent = {
-      type: 'test',
-    } as unknown as APIEvent;
-
-    const testEvent = rudderEventFactory.create(apiEvent);
-
-    expect(testEvent).toBeUndefined();
-  });
 });

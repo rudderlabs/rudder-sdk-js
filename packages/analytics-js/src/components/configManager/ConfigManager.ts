@@ -4,7 +4,7 @@ import type {
   ResponseDetails,
 } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { batch, effect } from '@preact/signals-core';
-import { isFunction, isString } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isFunction, isNull, isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
@@ -77,7 +77,7 @@ class ConfigManager implements IConfigManager {
       this.logger,
     );
 
-    if (intgCdnUrl === null) {
+    if (isNull(intgCdnUrl)) {
       return;
     }
 

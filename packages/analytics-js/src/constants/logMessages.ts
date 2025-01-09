@@ -15,7 +15,6 @@ const DATA_PLANE_URL_ERROR = `Failed to load the SDK as the data plane URL could
 const SOURCE_CONFIG_RESOLUTION_ERROR = `Unable to process/parse source configuration response.`;
 const SOURCE_DISABLED_ERROR = `The source is disabled. Please enable the source in the dashboard to send events.`;
 const XHR_PAYLOAD_PREP_ERROR = `Failed to prepare data for the request.`;
-const EVENT_OBJECT_GENERATION_ERROR = `Failed to generate the event object.`;
 const PLUGIN_EXT_POINT_MISSING_ERROR = `Failed to invoke plugin because the extension point name is missing.`;
 const PLUGIN_EXT_POINT_INVALID_ERROR = `Failed to invoke plugin because the extension point name is invalid.`;
 
@@ -202,13 +201,6 @@ const STORAGE_UNAVAILABLE_WARNING = (
 const CALLBACK_INVOKE_ERROR = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The callback threw an exception`;
 
-const NATIVE_DEST_PLUGIN_INITIALIZE_ERROR = `NativeDestinationQueuePlugin initialization failed`;
-const DATAPLANE_PLUGIN_INITIALIZE_ERROR = `XhrQueuePlugin initialization failed`;
-const DMT_PLUGIN_INITIALIZE_ERROR = `DeviceModeTransformationPlugin initialization failed`;
-
-const NATIVE_DEST_PLUGIN_ENQUEUE_ERROR = `NativeDestinationQueuePlugin event enqueue failed`;
-const DATAPLANE_PLUGIN_ENQUEUE_ERROR = `XhrQueuePlugin event enqueue failed`;
-
 const INVALID_CONFIG_URL_WARNING = (context: string, configUrl: string | undefined): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The provided source config URL "${configUrl}" is invalid. Using the default source config URL instead.`;
 
@@ -260,6 +252,9 @@ const BAD_COOKIES_WARNING = (key: string) =>
 const PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING = (context: string) =>
   `${context}${LOG_CONTEXT_SEPARATOR}Page Unloaded event can only be tracked when the Beacon transport is active. Please enable "useBeacon" load API option.`;
 
+const UNKNOWN_PLUGINS_WARNING = (context: string, unknownPlugins: string[]) =>
+  `${context}${LOG_CONTEXT_SEPARATOR}Ignoring unknown plugins: ${unknownPlugins.join(', ')}.`;
+
 export {
   UNSUPPORTED_CONSENT_MANAGER_ERROR,
   UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING,
@@ -295,7 +290,6 @@ export {
   XHR_PAYLOAD_PREP_ERROR,
   STORE_DATA_SAVE_ERROR,
   STORE_DATA_FETCH_ERROR,
-  EVENT_OBJECT_GENERATION_ERROR,
   PLUGIN_EXT_POINT_MISSING_ERROR,
   PLUGIN_EXT_POINT_INVALID_ERROR,
   STORAGE_TYPE_VALIDATION_WARNING,
@@ -304,11 +298,6 @@ export {
   UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY,
   UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
   SOURCE_CONFIG_RESOLUTION_ERROR,
-  NATIVE_DEST_PLUGIN_INITIALIZE_ERROR,
-  DATAPLANE_PLUGIN_INITIALIZE_ERROR,
-  DMT_PLUGIN_INITIALIZE_ERROR,
-  NATIVE_DEST_PLUGIN_ENQUEUE_ERROR,
-  DATAPLANE_PLUGIN_ENQUEUE_ERROR,
   DATA_SERVER_URL_INVALID_ERROR,
   DATA_SERVER_REQUEST_FAIL_ERROR,
   FAILED_SETTING_COOKIE_FROM_SERVER_ERROR,
@@ -323,4 +312,5 @@ export {
   BREADCRUMB_ERROR,
   NON_ERROR_WARNING,
   CALLBACK_INVOKE_ERROR,
+  UNKNOWN_PLUGINS_WARNING,
 };

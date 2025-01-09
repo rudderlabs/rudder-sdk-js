@@ -1,8 +1,6 @@
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { APIEvent } from '@rudderstack/analytics-js-common/types/EventApi';
-import { EVENT_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { EVENT_OBJECT_GENERATION_ERROR } from '../../constants/logMessages';
 import type { IEventManager } from './types';
 import { RudderEventFactory } from './RudderEventFactory';
 import type { IEventRepository } from '../eventRepository/types';
@@ -36,7 +34,6 @@ class EventManager implements IEventManager {
     this.errorHandler = errorHandler;
     this.logger = logger;
     this.eventFactory = new RudderEventFactory(this.logger);
-    this.onError = this.onError.bind(this);
   }
 
   /**
@@ -57,19 +54,7 @@ class EventManager implements IEventManager {
   addEvent(event: APIEvent) {
     this.userSessionManager.refreshSession();
     const rudderEvent = this.eventFactory.create(event);
-    if (rudderEvent) {
-      this.eventRepository.enqueue(rudderEvent, event.callback);
-    } else {
-      this.onError(new Error(EVENT_OBJECT_GENERATION_ERROR));
-    }
-  }
-
-  /**
-   * Handles error
-   * @param error The error object
-   */
-  onError(error: unknown, customMessage?: string): void {
-    this.errorHandler.onError(error, EVENT_MANAGER, customMessage);
+    this.eventRepository.enqueue(rudderEvent, event.callback);
   }
 }
 

@@ -53,25 +53,6 @@ describe('EventManager', () => {
     });
   });
 
-  describe('addEvent', () => {
-    it('should raise error if the event data is invalid', () => {
-      eventManager.addEvent({
-        // @ts-ignore
-        type: 'test',
-        event: 'test',
-        properties: {
-          test: 'test',
-        },
-      });
-
-      expect(mockErrorHandler.onError).toHaveBeenCalledWith(
-        new Error('Failed to generate the event object.'),
-        'EventManager',
-        undefined,
-      );
-    });
-  });
-
   describe('resume', () => {
     it('should resume on resume', () => {
       const eventRepositoryResumeSpy = jest.spyOn(eventRepository, 'resume');
