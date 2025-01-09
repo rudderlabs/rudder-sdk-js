@@ -121,10 +121,10 @@ describe('ErrorHandler', () => {
       // @ts-expect-error need to set the value for testing
       state.context.app.value.installType = 'npm';
 
-      errorHandlerInstance.onError(new Error('dummy error'), 'Test');
+      errorHandlerInstance.onError(new Error('dummy error'), 'Test', 'Custom Message');
 
       expect(defaultLogger.error).toHaveBeenCalledTimes(1);
-      expect(defaultLogger.error).toHaveBeenCalledWith('Test:: dummy error');
+      expect(defaultLogger.error).toHaveBeenCalledWith('Test:: Custom Message dummy error');
     });
 
     it('should not log unhandled errors to the console', () => {
