@@ -38,24 +38,19 @@
       "cache": true
     },
     "build:modern": {
-      "inputs": ["default", "^production"],
-      "cache": true
+      "extends": "build"
     },
     "build:browser": {
-      "inputs": ["default", "^production"],
-      "cache": true
+      "extends": "build"
     },
     "build:browser:modern": {
-      "inputs": ["default", "^production"],
-      "cache": true
+      "extends": "build"
     },
     "build:package": {
-      "inputs": ["default", "^production"],
-      "cache": true
+      "extends": "build"
     },
     "build:package:modern": {
-      "inputs": ["default", "^production"],
-      "cache": true
+      "extends": "build"
     },
     "check:size:build": {
       "inputs": ["default", "^production"],
@@ -99,9 +94,7 @@
   },
   "namedInputs": {
     "sharedGlobals": [
-      {
-        "runtime": "node --version"
-      }
+      "{workspaceRoot}/.nvmrc"
     ],
     "default": [
       "sharedGlobals",
@@ -115,6 +108,9 @@
       "!{projectRoot}/.size-limit.js",
       "!{projectRoot}/.size-limit.mjs",
       "!{projectRoot}/.jscpd.json",
+      "!{projectRoot}/.prettierignore",
+      "!{projectRoot}/.eslintignore",
+      "!{projectRoot}/.eslintrc",
       "{workspaceRoot}/tsconfig.build.json",
       "{workspaceRoot}/tsconfig.json",
       "{workspaceRoot}/tsconfig.paths.json",
