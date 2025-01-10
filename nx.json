@@ -33,16 +33,10 @@
         "projects": "dependencies"
       }
     ],
-    "build": {
-      "inputs": ["default", "^production"],
-      "cache": true
-    },
-    "build:*": {
-      "inputs": ["default", "^production"],
+    "build*": {
       "cache": true
     },
     "check:size:build": {
-      "inputs": ["default", "^production"],
       "cache": true
     },
     "check:size:json": {
@@ -63,7 +57,6 @@
       "cache": true
     },
     "check:size:build:pre-commit:affected": {
-      "inputs": ["default", "^production"],
       "cache": true
     },
     "check:size:json:pre-commit:affected": {
@@ -83,7 +76,10 @@
   },
   "namedInputs": {
     "sharedGlobals": [
-      "{workspaceRoot}/.nvmrc"
+      "{workspaceRoot}/.nvmrc",
+      {
+        "runtime": "node --version"
+      }
     ],
     "default": [
       "sharedGlobals",
@@ -100,6 +96,11 @@
       "!{projectRoot}/.prettierignore",
       "!{projectRoot}/.eslintignore",
       "!{projectRoot}/.eslintrc",
+      "!{projectRoot}/src/**/*.(spec|test).(j|t)s?(x)",
+      "!{projectRoot}/__tests__/**/*",
+      "!{projectRoot}/__fixtures__/**/*",
+      "!{projectRoot}/__mocks__/**/*",
+      "!{projectRoot}/jest.config.mjs",
       "{workspaceRoot}/tsconfig.build.json",
       "{workspaceRoot}/tsconfig.json",
       "{workspaceRoot}/tsconfig.paths.json",
@@ -109,24 +110,14 @@
       "{workspaceRoot}/types/**/*",
       "{workspaceRoot}/nx.json"
     ],
-    "production": [
-      "{projectRoot}/src/**/*",
-      "!{projectRoot}/src/**/*.(spec|test).(j|t)s?(x)",
-      "!{projectRoot}/__tests__/**/*",
-      "!{projectRoot}/__fixtures__/**/*",
-      "!{projectRoot}/__mocks__/**/*",
-      "!{projectRoot}/jest.config.mjs"
-    ],
     "test": [
-      "{projectRoot}/src/**/*",
       "{projectRoot}/src/**/*.(spec|test).(j|t)s?(x)",
       "{projectRoot}/__tests__/**/*",
       "{projectRoot}/__fixtures__/**/*",
       "{projectRoot}/__mocks__/**/*",
       "{projectRoot}/jest.config.mjs",
       "{workspaceRoot}/jest/**/*",
-      "{workspaceRoot}/jest.preset.js",
-      "{workspaceRoot}/jest.config.js"
+      "{workspaceRoot}/jest.preset.js"
     ]
   }
 }
