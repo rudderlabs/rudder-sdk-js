@@ -4,7 +4,12 @@ import type {
   ResponseDetails,
 } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { batch, effect } from '@preact/signals-core';
-import { isFunction, isNull, isString } from '@rudderstack/analytics-js-common/utilities/checks';
+import {
+  isDefined,
+  isFunction,
+  isNull,
+  isString,
+} from '@rudderstack/analytics-js-common/utilities/checks';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
@@ -141,11 +146,15 @@ class ConfigManager implements IConfigManager {
    * A callback function that is executed once we fetch the source config response.
    * Use to construct and store information that are dependent on the sourceConfig.
    */
-  processConfig(response?: SourceConfigResponse | string, details?: ResponseDetails) {
+  processConfig(response: SourceConfigResponse | string | undefined, details?: ResponseDetails) {
     // TODO: add retry logic with backoff based on rejectionDetails.xhr.status
     // We can use isErrRetryable utility method
-    if (!response) {
-      this.onError(new Error(SOURCE_CONFIG_FETCH_ERROR));
+    if (!isDefined(response)) {
+      if (isDefined(details)) {
+        this.onError((details as ResponseDetails).error, SOURCE_CONFIG_FETCH_ERROR);
+      } else {
+        this.onError(new Error(SOURCE_CONFIG_FETCH_ERROR));
+      }
       return;
     }
 
@@ -154,7 +163,7 @@ class ConfigManager implements IConfigManager {
       if (isString(response)) {
         res = JSON.parse(response);
       } else {
-        res = response;
+        res = response as SourceConfigResponse;
       }
     } catch (err) {
       this.onError(err, SOURCE_CONFIG_RESOLUTION_ERROR);

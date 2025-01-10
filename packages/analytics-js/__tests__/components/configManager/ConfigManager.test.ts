@@ -1,5 +1,6 @@
 import { effect, signal } from '@preact/signals-core';
 import { http, HttpResponse } from 'msw';
+import type { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { defaultHttpClient } from '../../../src/services/HttpClient';
 import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
 import { defaultLogger } from '../../../src/services/Logger';
@@ -178,14 +179,27 @@ describe('ConfigManager', () => {
     );
   });
 
-  it('should call the onError method of errorHandler for undefined sourceConfig response', () => {
-    configManagerInstance.processConfig();
+  it('should handle error for undefined source config response', () => {
+    configManagerInstance.processConfig(undefined);
 
     expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
     expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
       new Error('Failed to fetch the source config'),
       'ConfigManager',
       undefined,
+    );
+  });
+
+  it('should handle error for source config request failures', () => {
+    configManagerInstance.processConfig(undefined, {
+      error: new Error('Request failed'),
+    } as unknown as ResponseDetails);
+
+    expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
+    expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
+      new Error('Request failed'),
+      'ConfigManager',
+      'Failed to fetch the source config',
     );
   });
 
@@ -201,6 +215,7 @@ describe('ConfigManager', () => {
   });
 
   it('should handle error if the source config response is not valid', () => {
+    // @ts-expect-error Testing invalid input
     configManagerInstance.processConfig({ key: 'value' });
 
     expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
