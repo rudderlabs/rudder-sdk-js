@@ -24,7 +24,7 @@
   },
   "targetDefaults": {
     "test": {
-      "inputs": ["default", "test"],
+      "inputs": ["test"],
       "cache": true
     },
     "version": [
@@ -54,7 +54,7 @@
       "cache": true
     },
     "test:pre-commit:affected": {
-      "inputs": ["default", "test"],
+      "inputs": ["test"],
       "cache": true
     },
     "check:size:build:pre-commit:affected": {
@@ -111,6 +111,28 @@
       "{workspaceRoot}/nx.json"
     ],
     "test": [
+      "sharedGlobals",
+      "{projectRoot}/**/*",
+      "!{projectRoot}/.env.example",
+      "!{projectRoot}/public/**/*",
+      "!{projectRoot}/LICENSE.md",
+      "!{projectRoot}/**/*.md",
+      "!{projectRoot}/**/*.txt",
+      "!{projectRoot}/serve.json",
+      "!{projectRoot}/.size-limit.js",
+      "!{projectRoot}/.size-limit.mjs",
+      "!{projectRoot}/.jscpd.json",
+      "!{projectRoot}/.prettierignore",
+      "!{projectRoot}/.eslintignore",
+      "!{projectRoot}/.eslintrc",
+      "{workspaceRoot}/tsconfig.build.json",
+      "{workspaceRoot}/tsconfig.json",
+      "{workspaceRoot}/tsconfig.paths.json",
+      "{workspaceRoot}/package.json",
+      "{workspaceRoot}/package-lock.json",
+      "{workspaceRoot}/babel.config.json",
+      "{workspaceRoot}/types/**/*",
+      "{workspaceRoot}/nx.json",
       "{projectRoot}/src/**/*.(spec|test).(j|t)s?(x)",
       "{projectRoot}/__tests__/**/*",
       "{projectRoot}/__fixtures__/**/*",
