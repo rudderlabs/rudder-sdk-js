@@ -47,6 +47,7 @@ class PluginEngine implements IPluginEngine {
         throw new Error(errorMessage);
       } else {
         this.logger.error(errorMessage, plugin);
+        return;
       }
     }
 
@@ -56,6 +57,7 @@ class PluginEngine implements IPluginEngine {
         throw new Error(errorMessage);
       } else {
         this.logger.error(errorMessage);
+        return;
       }
     }
 
@@ -87,6 +89,7 @@ class PluginEngine implements IPluginEngine {
         throw new Error(errorMessage);
       } else {
         this.logger.error(errorMessage);
+        return;
       }
     }
 
@@ -98,6 +101,7 @@ class PluginEngine implements IPluginEngine {
         throw new Error(errorMessage);
       } else {
         this.logger.error(errorMessage);
+        return;
       }
     }
 

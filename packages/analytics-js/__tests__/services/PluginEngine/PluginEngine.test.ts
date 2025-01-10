@@ -1,10 +1,11 @@
 import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
 import { PluginEngine } from '../../../src/services/PluginEngine/PluginEngine';
-import { defaultLogger } from '../../../src/services/Logger';
 
 const mockPlugin1: ExtensionPlugin = {
   name: 'p1',
   foo: 'bar1',
+  initialize: jest.fn(),
   ext: {
     form: {
       processMeta(meta: string[]) {
@@ -41,8 +42,6 @@ describe('PluginEngine', () => {
     pluginEngineTestInstance.register(mockPlugin3);
   });
 
-  afterEach(() => {});
-
   it('should retrieve all registered plugins', () => {
     expect(pluginEngineTestInstance.getPlugins().length).toEqual(3);
   });
@@ -54,6 +53,40 @@ describe('PluginEngine', () => {
   it('should register plugins', () => {
     pluginEngineTestInstance.register({ name: 'p4' });
     expect(pluginEngineTestInstance.getPlugins().length).toEqual(4);
+  });
+
+  it('should throw error for missing plugin name if configured', () => {
+    // @ts-expect-error Testing for missing name
+    expect(() => {
+      pluginEngineTestInstance.register({});
+    }).toThrow(new Error('PluginEngine:: Plugin name is missing.'));
+  });
+
+  it('should log an error for missing plugin name', () => {
+    // Temporarily mutate the config
+    pluginEngineTestInstance.config.throws = false;
+
+    // @ts-expect-error Testing for missing name
+    pluginEngineTestInstance.register({});
+
+    expect(defaultLogger.error).toHaveBeenCalledTimes(1);
+    expect(defaultLogger.error).toHaveBeenCalledWith('PluginEngine:: Plugin name is missing.', {});
+  });
+
+  it('should throw error for already registered plugin name if configured', () => {
+    expect(() => {
+      pluginEngineTestInstance.register({ name: 'p1' });
+    }).toThrow(new Error('PluginEngine:: Plugin "p1" already exists.'));
+  });
+
+  it('should log an error for already registered plugin name', () => {
+    // Temporarily mutate the config
+    pluginEngineTestInstance.config.throws = false;
+
+    pluginEngineTestInstance.register({ name: 'p1' });
+
+    expect(defaultLogger.error).toHaveBeenCalledTimes(1);
+    expect(defaultLogger.error).toHaveBeenCalledWith('PluginEngine:: Plugin "p1" already exists.');
   });
 
   it('should invoke multiple plugins on functions', () => {
@@ -88,6 +121,50 @@ describe('PluginEngine', () => {
     pluginEngineTestInstance.unregister('p2');
     expect(pluginEngineTestInstance.getPlugins().map(p => p.name)).toStrictEqual(['p1', 'p3']);
     expect(pluginEngineTestInstance.getPlugin('p2')).toBeUndefined();
+  });
+
+  it('should throw an error if the plugin to unregister does not exist', () => {
+    expect(() => {
+      pluginEngineTestInstance.unregister('p0');
+    }).toThrow(new Error('PluginEngine:: Plugin "p0" not found.'));
+  });
+
+  it('should log an error if the plugin to unregister does not exist', () => {
+    // Temporarily mutate the config
+    pluginEngineTestInstance.config.throws = false;
+
+    pluginEngineTestInstance.unregister('p0');
+
+    expect(defaultLogger.error).toHaveBeenCalledTimes(1);
+    expect(defaultLogger.error).toHaveBeenCalledWith('PluginEngine:: Plugin "p0" not found.');
+  });
+
+  it('should throw an error if the plugin to unregister is found in byName but already registered', () => {
+    // Temporarily mutate the plugins array
+    pluginEngineTestInstance.plugins = [mockPlugin2, mockPlugin3];
+
+    expect(() => {
+      pluginEngineTestInstance.unregister('p1');
+    }).toThrow(
+      new Error(
+        'PluginEngine:: Plugin "p1" not found in plugins but found in byName. This indicates a bug in the plugin engine. Please report this issue to the development team.',
+      ),
+    );
+  });
+
+  it('should log an error if the plugin to unregister is found in byName but already registered', () => {
+    // Temporarily mutate the plugins array
+    pluginEngineTestInstance.plugins = [mockPlugin2, mockPlugin3];
+
+    // Temporarily mutate the config
+    pluginEngineTestInstance.config.throws = false;
+
+    pluginEngineTestInstance.unregister('p1');
+
+    expect(defaultLogger.error).toHaveBeenCalledTimes(1);
+    expect(defaultLogger.error).toHaveBeenCalledWith(
+      'PluginEngine:: Plugin "p1" not found in plugins but found in byName. This indicates a bug in the plugin engine. Please report this issue to the development team.',
+    );
   });
 
   it('should not load if deps do not exist', () => {
@@ -193,6 +270,21 @@ describe('PluginEngine', () => {
     // Not failed because throw is false
     pluginEngineTestInstance.config.throws = false;
     pluginEngineTestInstance.invokeMultiple('fail');
+  });
+
+  it('should throw an error if extension point is not provided', () => {
+    expect(() => {
+      pluginEngineTestInstance.invoke();
+    }).toThrow(new Error('Failed to invoke plugin because the extension point name is missing.'));
+  });
+
+  it('should throw an error if extension point is invalid', () => {
+    // Temporarily mutate the config
+    pluginEngineTestInstance.config.throws = undefined;
+
+    expect(() => {
+      pluginEngineTestInstance.invoke('!');
+    }).toThrow(new Error('Failed to invoke plugin because the extension point name is invalid.'));
   });
 
   it('should register 1000 plugins in less than 200ms', () => {
