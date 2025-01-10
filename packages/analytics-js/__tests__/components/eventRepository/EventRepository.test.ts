@@ -312,6 +312,25 @@ describe('EventRepository', () => {
     });
   });
 
+  it('should log an error if the event callback function is not a function', () => {
+    const eventRepository = new EventRepository(
+      mockPluginsManager,
+      defaultStoreManager,
+      defaultHttpClient,
+      defaultErrorHandler,
+      defaultLogger,
+    );
+
+    eventRepository.init();
+
+    eventRepository.enqueue(testEvent, 'invalid-callback' as any);
+
+    expect(defaultLogger.error).toHaveBeenCalledTimes(1);
+    expect(defaultLogger.error).toHaveBeenCalledWith(
+      'TrackAPI:: The provided callback is not invokable.',
+    );
+  });
+
   it('should handle error if event callback function throws', () => {
     const eventRepository = new EventRepository(
       mockPluginsManager,

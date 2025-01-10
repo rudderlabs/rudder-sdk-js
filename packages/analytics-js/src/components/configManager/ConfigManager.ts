@@ -145,7 +145,7 @@ class ConfigManager implements IConfigManager {
     // TODO: add retry logic with backoff based on rejectionDetails.xhr.status
     // We can use isErrRetryable utility method
     if (!response) {
-      this.onError(SOURCE_CONFIG_FETCH_ERROR(details?.error));
+      this.onError(new Error(SOURCE_CONFIG_FETCH_ERROR));
       return;
     }
 

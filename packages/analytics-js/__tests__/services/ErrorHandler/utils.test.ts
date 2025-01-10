@@ -486,7 +486,6 @@ describe('Error Reporting utilities', () => {
                 loadIntegration: true,
                 lockIntegrationsVersion: false,
                 lockPluginsVersion: false,
-                logLevel: 'ERROR',
                 plugins: [],
                 polyfillIfRequired: true,
                 queueOptions: {},

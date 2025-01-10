@@ -176,7 +176,7 @@ class EventRepository implements IEventRepository {
         try {
           // Using the event sent to the data plane queue here
           // to ensure the mutated (if any) event is sent to the callback
-          callback?.(dpQEvent);
+          callback(dpQEvent);
         } catch (error) {
           this.logger.error(CALLBACK_INVOKE_ERROR(apiName), error);
         }

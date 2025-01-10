@@ -1,5 +1,4 @@
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { defaultLogger } from '../../../src/services/Logger';
 import { defaultHttpClient } from '../../../src/services/HttpClient';
 import { isLegacyJSEngine } from '../../../src/components/capabilitiesManager/detection';
 import type { ICapabilitiesManager } from '../../../src/components/capabilitiesManager/types';
@@ -116,6 +115,23 @@ describe('CapabilitiesManager', () => {
 
       expect(capabilitiesManager.externalSrcLoader.loadJSFile).not.toHaveBeenCalled();
       expect(capabilitiesManager.onReady).toHaveBeenCalled();
+    });
+
+    it('should initiate adblockers detection if configured', () => {
+      state.loadOptions.value.sendAdblockPage = true;
+      state.lifecycle.sourceConfigUrl.value = 'https://www.dummy.url';
+
+      const getAsyncDataSpy = jest.spyOn(defaultHttpClient, 'getAsyncData');
+
+      capabilitiesManager.init();
+
+      expect(getAsyncDataSpy).toHaveBeenCalledTimes(1);
+      expect(getAsyncDataSpy).toHaveBeenCalledWith({
+        url: 'https://www.dummy.url/?view=ad',
+        options: expect.any(Object),
+        callback: expect.any(Function),
+        isRawResponse: true,
+      });
     });
   });
 });

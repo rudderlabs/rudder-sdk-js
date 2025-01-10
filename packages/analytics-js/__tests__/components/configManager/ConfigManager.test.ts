@@ -8,7 +8,7 @@ import { state, resetState } from '../../../src/state';
 import { getSDKUrl } from '../../../src/components/configManager/util/commonUtil';
 import { server } from '../../../__fixtures__/msw.server';
 import { dummySourceConfigResponse } from '../../../__fixtures__/fixtures';
-import {
+import type {
   ConfigResponseDestinationItem,
   SourceConfigResponse,
 } from '../../../src/components/configManager/types';
@@ -53,8 +53,6 @@ jest.mock('../../../src/components/configManager/util/commonUtil.ts', () => {
 
 describe('ConfigManager', () => {
   let configManagerInstance: ConfigManager;
-  const errorMsg =
-    'The write key " " is invalid. It must be a non-empty string. Please check that the write key is correct and try again.';
   const sampleWriteKey = '2LoR1TbVG2bcISXvy7DamldfkgO';
   const sampleDataPlaneUrl = 'https://www.dummy.url';
   const sampleDestSDKUrl = 'https://www.sample.url/integrations';
@@ -181,9 +179,36 @@ describe('ConfigManager', () => {
   });
 
   it('should call the onError method of errorHandler for undefined sourceConfig response', () => {
-    configManagerInstance.processConfig(undefined);
+    configManagerInstance.processConfig();
 
-    expect(defaultErrorHandler.onError).toHaveBeenCalled();
+    expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
+    expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
+      new Error('Failed to fetch the source config'),
+      'ConfigManager',
+      undefined,
+    );
+  });
+
+  it('should handle error if the source config response is not parsable', () => {
+    configManagerInstance.processConfig('{"key": "value"');
+
+    expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
+    expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
+      new SyntaxError("Expected ',' or '}' after property value in JSON at position 15"),
+      'ConfigManager',
+      'Unable to process/parse source configuration response',
+    );
+  });
+
+  it('should handle error if the source config response is not valid', () => {
+    configManagerInstance.processConfig({ key: 'value' });
+
+    expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
+    expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
+      new Error('Unable to process/parse source configuration response'),
+      'ConfigManager',
+      undefined,
+    );
   });
 
   it('should log error and abort if source is disabled', () => {
@@ -273,5 +298,83 @@ describe('ConfigManager', () => {
 
     expect(state.serverCookies.dataServiceUrl.value).toBeUndefined();
     expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(false);
+  });
+
+  it('should log an error and exit if the provided integrations CDN URL is invalid', () => {
+    state.loadOptions.value.destSDKBaseURL = 'invalid-url';
+    const getConfigSpy = jest.spyOn(configManagerInstance, 'getConfig');
+
+    configManagerInstance.init();
+
+    expect(defaultLogger.error).toHaveBeenCalledWith(
+      'ConfigManager:: The base URL "invalid-url" for integrations is not valid.',
+    );
+    expect(getConfigSpy).not.toHaveBeenCalled();
+  });
+
+  it('should not determine plugins CDN path if __BUNDLE_ALL_PLUGINS__ is true', () => {
+    state.loadOptions.value.destSDKBaseURL = sampleDestSDKUrl;
+
+    // @ts-expect-error Testing global variable
+    // eslint-disable-next-line no-underscore-dangle
+    global.window.__BUNDLE_ALL_PLUGINS__ = true;
+
+    configManagerInstance.init();
+
+    expect(state.lifecycle.pluginsCDNPath.value).toBeUndefined();
+
+    // @ts-expect-error Testing global variable
+    // eslint-disable-next-line no-underscore-dangle
+    global.window.__BUNDLE_ALL_PLUGINS__ = false;
+  });
+
+  it('should log an error and exit if the provided plugins CDN URL is invalid', () => {
+    state.loadOptions.value.destSDKBaseURL = sampleDestSDKUrl;
+    state.loadOptions.value.pluginsSDKBaseURL = 'invalid-url';
+    const getConfigSpy = jest.spyOn(configManagerInstance, 'getConfig');
+
+    configManagerInstance.init();
+
+    expect(defaultLogger.error).toHaveBeenCalledWith(
+      'ConfigManager:: The base URL "invalid-url" for plugins is not valid.',
+    );
+    expect(getConfigSpy).not.toHaveBeenCalled();
+  });
+
+  it('should log an error if getSourceConfig load option is not a function', () => {
+    // @ts-expect-error Testing for invalid input
+    state.loadOptions.value.getSourceConfig = 'dummySourceConfigResponse';
+
+    configManagerInstance.getConfig();
+
+    expect(defaultLogger.error).toHaveBeenCalledWith(
+      'ConfigManager:: The "getSourceConfig" load API option must be a function that returns valid source configuration data.',
+    );
+  });
+
+  it('should fetch configuration from getSourceConfig load option even when it returns a promise', done => {
+    state.loadOptions.value.getSourceConfig = () => Promise.resolve(dummySourceConfigResponse);
+
+    configManagerInstance.getConfig();
+
+    effect(() => {
+      if (state.lifecycle.status.value === 'configured') {
+        done();
+      }
+    });
+  });
+
+  it('should handle promise rejection errors from getSourceConfig function', done => {
+    // @ts-expect-error Testing invalid input
+    state.loadOptions.value.getSourceConfig = () => Promise.reject(new Error('Some error'));
+
+    configManagerInstance.onError = jest.fn();
+
+    configManagerInstance.getConfig();
+
+    setTimeout(() => {
+      expect(configManagerInstance.onError).toHaveBeenCalled();
+      done();
+    }, 1);
   });
 });
