@@ -56,7 +56,9 @@ const dispatchErrorEvent = (error: any) => {
     }
   }
 
-  (globalThis as typeof window).dispatchEvent(new ErrorEvent('error', { error }));
+  (globalThis as typeof window).dispatchEvent(
+    new ErrorEvent('error', { error, bubbles: true, cancelable: true, composed: true }),
+  );
 };
 
 export { getMutatedError, dispatchErrorEvent, MANUAL_ERROR_IDENTIFIER, getStacktrace };
