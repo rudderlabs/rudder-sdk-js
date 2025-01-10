@@ -37,20 +37,9 @@
       "inputs": ["default", "^production"],
       "cache": true
     },
-    "build:modern": {
-      "extends": "build"
-    },
-    "build:browser": {
-      "extends": "build"
-    },
-    "build:browser:modern": {
-      "extends": "build"
-    },
-    "build:package": {
-      "extends": "build"
-    },
-    "build:package:modern": {
-      "extends": "build"
+    "build:*": {
+      "inputs": ["default", "^production"],
+      "cache": true
     },
     "check:size:build": {
       "inputs": ["default", "^production"],
