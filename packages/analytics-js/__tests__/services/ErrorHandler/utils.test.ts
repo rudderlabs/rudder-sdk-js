@@ -604,16 +604,16 @@ describe('Error Reporting utilities', () => {
   });
 
   describe('isAllowedToBeNotified', () => {
-    it('should return true if the error is allowed to be notified', () => {
-      const result = isAllowedToBeNotified({ message: 'dummy error' } as unknown as Exception);
-      expect(result).toBeTruthy();
-    });
+    const testCases = [
+      ['dummy error', true, 'should allow generic errors'],
+      ['The request failed', false, 'should not allow request failures'],
+      ['', true, 'should allow empty messages'],
+      ['Network request failed', true, 'should allow network errors'],
+    ];
 
-    it('should return false if the error is not allowed to be notified', () => {
-      const result = isAllowedToBeNotified({
-        message: 'The request failed',
-      } as unknown as Exception);
-      expect(result).toBeFalsy();
+    test.each(testCases)('%s -> %s (%s)', (message, expected, testName) => {
+      const result = isAllowedToBeNotified({ message } as unknown as Exception);
+      expect(result).toBe(expected);
     });
   });
 

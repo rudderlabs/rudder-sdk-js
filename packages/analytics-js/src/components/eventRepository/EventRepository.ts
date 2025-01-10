@@ -10,8 +10,6 @@ import type { ApiCallback } from '@rudderstack/analytics-js-common/types/EventAp
 import { isHybridModeDestination } from '@rudderstack/analytics-js-common/utilities/destinations';
 import { API_SUFFIX } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
-import { isDefined, isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
-import { CALLBACK_INVOKE_ERROR, INVALID_CALLBACK_FN_ERROR } from '../../constants/logMessages';
 import { state } from '../../state';
 import type { IEventRepository } from './types';
 import {
@@ -20,6 +18,7 @@ import {
   DMT_EXT_POINT_PREFIX,
 } from './constants';
 import { getFinalEvent, shouldBufferEventsForPreConsent } from './utils';
+import { safelyInvokeCallback } from '../utilities/callbacks';
 
 /**
  * Event repository class responsible for queuing events for further processing and delivery
@@ -170,20 +169,8 @@ class EventRepository implements IEventRepository {
     );
 
     // Invoke the callback if it exists
-    if (isDefined(callback)) {
-      const apiName = `${event.type.charAt(0).toUpperCase()}${event.type.slice(1)}${API_SUFFIX}`;
-      if (isFunction(callback)) {
-        try {
-          // Using the event sent to the data plane queue here
-          // to ensure the mutated (if any) event is sent to the callback
-          callback(dpQEvent);
-        } catch (error) {
-          this.logger.error(CALLBACK_INVOKE_ERROR(apiName), error);
-        }
-      } else {
-        this.logger.error(INVALID_CALLBACK_FN_ERROR(apiName));
-      }
-    }
+    const apiName = `${event.type.charAt(0).toUpperCase()}${event.type.slice(1)}${API_SUFFIX}`;
+    safelyInvokeCallback(callback, [dpQEvent], apiName, this.logger);
   }
 }
 

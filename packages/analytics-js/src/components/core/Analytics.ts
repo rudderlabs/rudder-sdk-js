@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader';
 import { batch, effect } from '@preact/signals-core';
-import { isDefined, isFunction, isNull } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isFunction, isNull } from '@rudderstack/analytics-js-common/utilities/checks';
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { clone } from 'ramda';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
@@ -69,6 +69,7 @@ import {
 import type { IAnalytics } from './IAnalytics';
 import { getConsentManagementData, getValidPostConsentOptions } from '../utilities/consent';
 import { dispatchSDKEvent, isDataPlaneUrlValid, isWriteKeyValid } from './utilities';
+import { safelyInvokeCallback } from '../utilities/callbacks';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events
@@ -322,19 +323,14 @@ class Analytics implements IAnalytics {
 
     // Execute onLoaded callback if provided in load options
     const onLoadedCallbackFn = state.loadOptions.value.onLoaded;
-    if (isDefined(onLoadedCallbackFn)) {
-      if (isFunction(onLoadedCallbackFn)) {
-        // TODO: we need to avoid passing the window object to the callback function
-        // as this will prevent us from supporting multiple SDK instances in the same page
-        try {
-          onLoadedCallbackFn((globalThis as typeof window).rudderanalytics);
-        } catch (err) {
-          this.logger.error(CALLBACK_INVOKE_ERROR(LOAD_API), err);
-        }
-      } else {
-        this.logger.error(INVALID_CALLBACK_FN_ERROR(LOAD_API));
-      }
-    }
+    // TODO: we need to avoid passing the window object to the callback function
+    // as this will prevent us from supporting multiple SDK instances in the same page
+    safelyInvokeCallback(
+      onLoadedCallbackFn,
+      [(globalThis as typeof window).rudderanalytics],
+      LOAD_API,
+      this.logger,
+    );
 
     // Set lifecycle state
     batch(() => {
