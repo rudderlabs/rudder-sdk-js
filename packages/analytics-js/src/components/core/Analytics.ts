@@ -16,7 +16,6 @@ import type {
   AnonymousIdOptions,
   ConsentOptions,
   LoadOptions,
-  OnLoadedCallback,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { ApiCallback } from '@rudderstack/analytics-js-common/types/EventApi';
 import {

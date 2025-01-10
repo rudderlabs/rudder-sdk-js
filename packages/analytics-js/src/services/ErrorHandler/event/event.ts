@@ -26,7 +26,6 @@ const formatStackframe = (frame: FrameType): Stackframe => {
     columnNumber: frame.columnNumber,
   };
   // Some instances result in no file:
-  // - calling notify() from chrome's terminal results in no file/method.
   // - non-error exception thrown from global code in FF
   // This adds one.
   if (f.lineNumber > -1 && !f.file && !f.method) {
@@ -82,4 +81,11 @@ const createBugsnagException = (error: any, msgPrefix: string): Exception => {
   }
 };
 
-export { normalizeError, createBugsnagException };
+export {
+  normalizeError,
+  createBugsnagException,
+  formatStackframe, // for testing
+  ensureString, // for testing
+  createException, // for testing
+  normalizeFunctionName, // for testing
+};
