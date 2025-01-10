@@ -24,7 +24,7 @@
   },
   "targetDefaults": {
     "test": {
-      "inputs": ["default", "^test"],
+      "inputs": ["default", "test"],
       "cache": true
     },
     "version": [
@@ -54,7 +54,7 @@
       "cache": true
     },
     "test:pre-commit:affected": {
-      "inputs": ["default", "^test"],
+      "inputs": ["default", "test"],
       "cache": true
     },
     "check:size:build:pre-commit:affected": {
