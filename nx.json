@@ -42,7 +42,6 @@
     "check:size:json": {
       "inputs": [
         "default",
-        "^production",
         "{projectRoot}/.size-limit.js",
         "{projectRoot}/.size-limit.mjs"
       ],
@@ -62,7 +61,6 @@
     "check:size:json:pre-commit:affected": {
       "inputs": [
         "default",
-        "^production",
         "{projectRoot}/.size-limit.js",
         "{projectRoot}/.size-limit.mjs"
       ],
@@ -84,6 +82,10 @@
     "default": [
       "sharedGlobals",
       "{projectRoot}/**/*",
+      "!{projectRoot}/src/**/*.(spec|test).(j|t)s?(x)",
+      "!{projectRoot}/__tests__/**/*",
+      "!{projectRoot}/__fixtures__/**/*",
+      "!{projectRoot}/__mocks__/**/*",
       "!{projectRoot}/.env.example",
       "!{projectRoot}/public/**/*",
       "!{projectRoot}/LICENSE.md",
@@ -96,11 +98,6 @@
       "!{projectRoot}/.prettierignore",
       "!{projectRoot}/.eslintignore",
       "!{projectRoot}/.eslintrc",
-      "!{projectRoot}/src/**/*.(spec|test).(j|t)s?(x)",
-      "!{projectRoot}/__tests__/**/*",
-      "!{projectRoot}/__fixtures__/**/*",
-      "!{projectRoot}/__mocks__/**/*",
-      "!{projectRoot}/jest.config.mjs",
       "{workspaceRoot}/tsconfig.build.json",
       "{workspaceRoot}/tsconfig.json",
       "{workspaceRoot}/tsconfig.paths.json",
