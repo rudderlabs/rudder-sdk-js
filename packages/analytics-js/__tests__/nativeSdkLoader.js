@@ -1,3 +1,24 @@
+/**
+ * Initializes the RudderStack JavaScript SDK with the provided configuration.
+ * 
+ * @param {string} writeKey - The write key for the RudderStack project.
+ * @param {string} dpUrl - The data plane URL for sending analytics data.
+ * @param {Object} [loadOptions={}] - Optional configuration options for loading the SDK.
+ * 
+ * @description
+ * This function sets up the RudderStack analytics library by:
+ * - Ensuring the SDK is only initialized once
+ * - Defining global analytics methods for tracking events
+ * - Setting up a global context for the SDK
+ * - Loading the SDK with the provided configuration
+ * 
+ * @throws {Error} Logs an error if the SDK snippet is included multiple times.
+ * 
+ * @example
+ * loadingSnippet('your_write_key', 'https://your-dataplane-url.com', { 
+ *   integrations: { All: true } 
+ * });
+ */
 function loadingSnippet(writeKey, dpUrl, loadOptions) {
   (function () {
     'use strict';
