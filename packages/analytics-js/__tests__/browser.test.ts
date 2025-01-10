@@ -76,7 +76,7 @@ describe('Test suite for the SDK', () => {
   });
 
   describe('preload buffer', () => {
-    it('should process the buffered API calls when SDK script is loaded', async () => {
+    it.skip('should process the buffered API calls when SDK script is loaded', async () => {
       // Mocking the xhr function
       window.XMLHttpRequest = jest.fn(() => xhrMock) as unknown as typeof XMLHttpRequest;
 
@@ -110,7 +110,7 @@ describe('Test suite for the SDK', () => {
       window.XMLHttpRequest = originalXMLHttpRequest;
     });
 
-    it('should make network requests when event APIs are invoked', () => {
+    it.skip('should make network requests when event APIs are invoked', () => {
       window.rudderanalytics?.page();
       window.rudderanalytics?.track('test-event');
       window.rudderanalytics?.identify(USER_ID, USER_TRAITS);

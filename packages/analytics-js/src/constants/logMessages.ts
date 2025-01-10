@@ -160,9 +160,6 @@ const RESERVED_KEYWORD_WARNING = (
 const INVALID_CONTEXT_OBJECT_WARNING = (logContext: string): string =>
   `${logContext}${LOG_CONTEXT_SEPARATOR}Please make sure that the "context" property in the event API's "options" argument is a valid object literal with key-value pairs.`;
 
-const UNSUPPORTED_BEACON_API_WARNING = (context: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The Beacon API is not supported by your browser. The events will be sent using XHR instead.`;
-
 const TIMEOUT_NOT_NUMBER_WARNING = (
   context: string,
   timeout: number | undefined,
@@ -249,9 +246,6 @@ const INVALID_POLYFILL_URL_WARNING = (
 const BAD_COOKIES_WARNING = (key: string) =>
   `The cookie data for ${key} seems to be encrypted using SDK versions < v3. The data is dropped. This can potentially stem from using SDK versions < v3 on other sites or web pages that can share cookies with this webpage. We recommend using the same SDK (v3) version everywhere or avoid disabling the storage data migration.`;
 
-const PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING = (context: string) =>
-  `${context}${LOG_CONTEXT_SEPARATOR}Page Unloaded event can only be tracked when the Beacon transport is active. Please enable "useBeacon" load API option.`;
-
 const UNKNOWN_PLUGINS_WARNING = (context: string, unknownPlugins: string[]) =>
   `${context}${LOG_CONTEXT_SEPARATOR}Ignoring unknown plugins: ${unknownPlugins.join(', ')}.`;
 
@@ -262,7 +256,6 @@ export {
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
   RESERVED_KEYWORD_WARNING,
   INVALID_CONTEXT_OBJECT_WARNING,
-  UNSUPPORTED_BEACON_API_WARNING,
   TIMEOUT_NOT_NUMBER_WARNING,
   TIMEOUT_ZERO_WARNING,
   TIMEOUT_NOT_RECOMMENDED_WARNING,
@@ -308,7 +301,6 @@ export {
   COMPONENT_BASE_URL_ERROR,
   SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING,
   BAD_COOKIES_WARNING,
-  PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING,
   BREADCRUMB_ERROR,
   NON_ERROR_WARNING,
   CALLBACK_INVOKE_ERROR,

@@ -23,7 +23,6 @@ import { state } from '../../state';
 import {
   ConsentManagersToPluginNameMap,
   StorageEncryptionVersionsToPluginNameMap,
-  DataPlaneEventsTransportToPluginNameMap,
 } from '../configManager/constants';
 import { deprecatedPluginsList, pluginNamesList } from './pluginNames';
 import {
@@ -109,13 +108,6 @@ class PluginsManager implements IPluginsManager {
     });
 
     const pluginGroupsToProcess: PluginsGroup[] = [
-      {
-        configurationStatus: () => isDefined(state.dataPlaneEvents.eventsQueuePluginName.value),
-        configurationStatusStr: 'Data plane events delivery is enabled',
-        activePluginName: state.dataPlaneEvents.eventsQueuePluginName.value,
-        supportedPlugins: Object.values(DataPlaneEventsTransportToPluginNameMap),
-        shouldAddMissingPlugins: true,
-      },
       {
         configurationStatus: () =>
           getNonCloudDestinations(state.nativeDestinations.configuredDestinations.value).length > 0,

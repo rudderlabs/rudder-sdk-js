@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/deprecation */
 import { clone } from 'ramda';
 import {
   isNonEmptyObject,

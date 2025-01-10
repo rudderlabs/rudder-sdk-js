@@ -27,7 +27,6 @@
       "CustomEvent",
       "requestAnimationFrame",
       "cancelAnimationFrame",
-      "navigator.sendBeacon",
       "Uint8Array",
       "Set",
       "atob"

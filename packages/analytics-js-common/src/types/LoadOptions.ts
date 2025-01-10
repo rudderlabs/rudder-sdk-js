@@ -46,8 +46,6 @@ export type BeaconQueueOpts = {
   flushQueueInterval?: number;
 };
 
-export type EventsTransportMode = 'xhr' | 'beacon';
-
 export type BatchOpts = {
   // Whether to enable batching
   enabled: boolean;
@@ -138,7 +136,13 @@ export type LoadOptions = {
   secureCookie?: boolean; // defaults to false.
   destSDKBaseURL?: string; // defaults to https://cdn.rudderlabs.com/latest/v3/modern/js-integrations
   pluginsSDKBaseURL?: string; // defaults to https://cdn.rudderlabs.com/latest/v3/modern/plugins
+  /**
+   * @deprecated
+   */
   useBeacon?: boolean; // defaults to false.
+  /**
+   * @deprecated Use queueOptions instead
+   */
   beaconQueueOptions?: BeaconQueueOpts;
   destinationsQueueOptions?: DestinationsQueueOpts;
   anonymousIdOptions?: AnonymousIdOptions;
@@ -161,7 +165,6 @@ export type LoadOptions = {
   storage?: StorageOpts;
   preConsent?: PreConsentOptions;
   // transport mechanism to be used for sending batched requests
-  transportMode?: EventsTransportMode; // Unused for now. This will deprecate the useBeacon and beaconQueueOptions
   consentManagement?: ConsentManagementOptions;
   sameDomainCookiesOnly?: boolean;
   externalAnonymousIdCookieName?: string;

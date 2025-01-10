@@ -20,8 +20,6 @@ const defaultLoadOptions: LoadOptions = {
   sameSiteCookie: 'Lax',
   polyfillIfRequired: true,
   integrations: DEFAULT_INTEGRATIONS_CONFIG,
-  useBeacon: false,
-  beaconQueueOptions: {},
   destinationsQueueOptions: {},
   queueOptions: {},
   lockIntegrationsVersion: false,

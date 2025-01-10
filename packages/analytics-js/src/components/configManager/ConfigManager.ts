@@ -33,7 +33,6 @@ import {
   getSourceConfigURL,
   updateConsentsState,
   updateConsentsStateFromLoadOptions,
-  updateDataPlaneEventsStateFromLoadOptions,
   updateReportingState,
   updateStorageStateFromLoadOptions,
 } from './util/commonUtil';
@@ -109,7 +108,6 @@ class ConfigManager implements IConfigManager {
 
     updateStorageStateFromLoadOptions(this.logger);
     updateConsentsStateFromLoadOptions(this.logger);
-    updateDataPlaneEventsStateFromLoadOptions(this.logger);
 
     // set application lifecycle state in global state
     batch(() => {

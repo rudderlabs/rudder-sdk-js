@@ -35,7 +35,6 @@ import { getExposedGlobal, setExposedGlobal } from '../components/utilities/glob
 import type { IAnalytics } from '../components/core/IAnalytics';
 import { Analytics } from '../components/core/Analytics';
 import { defaultLogger } from '../services/Logger/Logger';
-import { PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING } from '../constants/logMessages';
 import { state } from '../state';
 
 // TODO: add analytics restart/reset mechanism
@@ -189,7 +188,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     preloadedEventsArray: PreloadedEventCall[],
     loadOptions?: Partial<LoadOptions>,
   ) {
-    const { autoTrack, useBeacon } = loadOptions ?? {};
+    const { autoTrack } = loadOptions ?? {};
     const {
       enabled: autoTrackEnabled = false,
       options: autoTrackOptions = {},
@@ -213,7 +212,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
       return;
     }
     this.trackPageLoadedEvent(events, options, preloadedEventsArray);
-    this.setupPageUnloadTracking(events, useBeacon, options);
+    this.setupPageUnloadTracking(events, options);
   }
 
   /**
@@ -246,39 +245,29 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   /**
    * Setup page unload tracking if enabled
    * @param events
-   * @param useBeacon
    * @param options
    */
-  setupPageUnloadTracking(
-    events: PageLifecycleEvents[],
-    useBeacon: boolean | undefined,
-    options: ApiOptions,
-  ) {
+  setupPageUnloadTracking(events: PageLifecycleEvents[], options: ApiOptions) {
     if (events.length === 0 || events.includes(PageLifecycleEvents.UNLOADED)) {
-      if (useBeacon === true) {
-        onPageLeave((isAccessible: boolean) => {
-          if (isAccessible === false && state.lifecycle.loaded.value) {
-            const pageUnloadedTimestamp = Date.now();
-            const visitDuration =
-              pageUnloadedTimestamp -
-              (state.autoTrack.pageLifecycle.pageLoadedTimestamp.value as number);
+      onPageLeave((isAccessible: boolean) => {
+        if (isAccessible === false && state.lifecycle.loaded.value) {
+          const pageUnloadedTimestamp = Date.now();
+          const visitDuration =
+            pageUnloadedTimestamp -
+            (state.autoTrack.pageLifecycle.pageLoadedTimestamp.value as number);
 
-            this.track(
-              PageLifecycleEvents.UNLOADED,
-              {
-                visitDuration,
-              },
-              {
-                ...options,
-                originalTimestamp: getFormattedTimestamp(new Date(pageUnloadedTimestamp)),
-              },
-            );
-          }
-        });
-      } else {
-        // log warning if beacon is disabled
-        this.logger.warn(PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING(RSA));
-      }
+          this.track(
+            PageLifecycleEvents.UNLOADED,
+            {
+              visitDuration,
+            },
+            {
+              ...options,
+              originalTimestamp: getFormattedTimestamp(new Date(pageUnloadedTimestamp)),
+            },
+          );
+        }
+      });
     }
   }
 

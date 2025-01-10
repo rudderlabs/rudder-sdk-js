@@ -88,7 +88,7 @@ describe('Error Reporting utilities', () => {
     const testCaseData: any[] = [
       ['https://invalid-domain.com/rsa.min.js', true],
       ['https://invalid-domain.com/rss.min.js', false],
-      ['https://invalid-domain.com/rsa-plugins-Beacon.min.js', true],
+      ['https://invalid-domain.com/rsa-plugins-StorageMigrator.min.js', true],
       ['https://invalid-domain.com/Amplitude.min.js', false],
       ['https://invalid-domain.com/js-integrations/Amplitude.min.js', true],
       ['https://invalid-domain.com/js-integrations/Qualaroo.min.js', true],
@@ -412,7 +412,6 @@ describe('Error Reporting utilities', () => {
               },
               capabilities: {
                 isAdBlocked: false,
-                isBeaconAvailable: false,
                 isCryptoAvailable: false,
                 isIE11: false,
                 isLegacyDOM: false,
@@ -475,7 +474,6 @@ describe('Error Reporting utilities', () => {
                 readyCallbacks: [],
               },
               loadOptions: {
-                beaconQueueOptions: {},
                 bufferDataPlaneEventsUntilReady: false,
                 configUrl: 'https://api.rudderstack.com',
                 dataPlaneEventsBufferTimeout: 10000,
@@ -503,7 +501,6 @@ describe('Error Reporting utilities', () => {
                   migrate: true,
                 },
                 uaChTrackLevel: 'none',
-                useBeacon: false,
                 useGlobalIntegrationsConfigInEvents: false,
                 useServerSideCookies: false,
               },
