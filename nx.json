@@ -34,9 +34,11 @@
       }
     ],
     "build*": {
+      "inputs": ["default"],
       "cache": true
     },
     "check:size:build": {
+      "inputs": ["default"],
       "cache": true
     },
     "check:size:json": {
@@ -56,6 +58,7 @@
       "cache": true
     },
     "check:size:build:pre-commit:affected": {
+      "inputs": ["default"],
       "cache": true
     },
     "check:size:json:pre-commit:affected": {
