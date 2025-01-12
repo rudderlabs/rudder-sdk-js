@@ -60,6 +60,11 @@ const dummyWriteKey = 'dummyWriteKey';
 
 const dummyDataplaneHost = 'https://dummy.dataplane.host.com';
 
+const dummyCDNHost = 'https://cdn.dummyhost123.com';
+
+const SDK_FILE_BASE_PATH = '../dist/cdn/legacy/iife';
+const SDK_FILE_NAME = 'rsa.js';
+
 const dummyInitOptions = {
   timeout: false,
   flushAt: 1,
@@ -762,4 +767,7 @@ export {
   entriesWithoutCookieStorage,
   entriesWithoutCookieAndLocalStorage,
   entriesWithMixStorageButWithoutNone,
+  dummyCDNHost,
+  SDK_FILE_BASE_PATH,
+  SDK_FILE_NAME,
 };
