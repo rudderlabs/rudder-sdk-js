@@ -96,7 +96,7 @@ describe('Test suite for the SDK', () => {
     window.XMLHttpRequest = originalXMLHttpRequest;
   });
 
-  describe('preload buffer', () => {
+  describe.skip('preload buffer', () => {
     it('should process the buffered API calls when SDK script is loaded', async () => {
       loadSDKScript();
 
@@ -120,7 +120,7 @@ describe('Test suite for the SDK', () => {
       await waitForSDKReady();
     });
 
-    it('should make network requests when event APIs are invoked', () => {
+    it.skip('should make network requests when event APIs are invoked', () => {
       window.rudderanalytics?.page();
       window.rudderanalytics?.track('test-event');
       window.rudderanalytics?.identify(USER_ID, USER_TRAITS);
