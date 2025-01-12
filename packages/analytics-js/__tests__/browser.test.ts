@@ -1,10 +1,21 @@
-/* eslint-disable import/no-dynamic-require */
-/* eslint-disable global-require */
+import { dummyCDNHost, SDK_FILE_NAME } from '../__fixtures__/fixtures';
 import { loadingSnippet } from './nativeSdkLoader';
+import { server } from '../__fixtures__/msw.server';
 
 describe('Test suite for the SDK', () => {
+  beforeAll(() => {
+    // Start the server before running the tests
+    // This is necessary to serve the local SDK script on the dummy CDN host
+    server.listen();
+  });
+
+  afterAll(() => {
+    server.close();
+  });
+
   const WRITE_KEY = 'write-key';
   const DATA_PLANE_URL = 'https://example.dataplane.com';
+  const SDK_READY_TIMEOUT = 5000; // 5 seconds
 
   const MOCK_SOURCE_CONFIGURATION = {
     updatedAt: new Date().toISOString(),
@@ -51,20 +62,30 @@ describe('Test suite for the SDK', () => {
     'group-trait-key-2': 'group-trait-value-2',
   };
 
-  const SDK_PATH = '../dist/cdn/legacy/iife/rsa.js';
+  const loadSDKScript = () => {
+    loadingSnippet(dummyCDNHost, SDK_FILE_NAME, WRITE_KEY, DATA_PLANE_URL);
+  };
 
-  const loadAndWaitForSDK = async () => {
-    const readyPromise = new Promise(resolve => {
+  const waitForSDKReady = async () => {
+    const readyPromise = new Promise((resolve, reject) => {
       // eslint-disable-next-line sonarjs/no-nested-functions
       window.rudderanalytics?.ready(() => resolve(true));
-    });
 
-    require(SDK_PATH);
+      setTimeout(
+        () => reject(new Error('The SDK did not become ready within the timeout')),
+        SDK_READY_TIMEOUT,
+      );
+    });
 
     await readyPromise;
   };
 
   const originalXMLHttpRequest = window.XMLHttpRequest;
+
+  beforeEach(() => {
+    // Mocking the xhr function
+    window.XMLHttpRequest = jest.fn(() => xhrMock) as unknown as typeof XMLHttpRequest;
+  });
 
   afterEach(() => {
     jest.resetModules();
@@ -76,16 +97,14 @@ describe('Test suite for the SDK', () => {
   });
 
   describe('preload buffer', () => {
-    it.skip('should process the buffered API calls when SDK script is loaded', async () => {
-      // Mocking the xhr function
-      window.XMLHttpRequest = jest.fn(() => xhrMock) as unknown as typeof XMLHttpRequest;
+    it('should process the buffered API calls when SDK script is loaded', async () => {
+      loadSDKScript();
 
-      loadingSnippet(WRITE_KEY, DATA_PLANE_URL);
-
+      // Queue up some API calls before the SDK script is loaded
       window.rudderanalytics?.page();
       window.rudderanalytics?.track('test-event');
 
-      await loadAndWaitForSDK();
+      await waitForSDKReady();
 
       expect((window.rudderanalytics as any).push).not.toBe(Array.prototype.push);
 
@@ -96,21 +115,12 @@ describe('Test suite for the SDK', () => {
 
   describe('api', () => {
     beforeEach(async () => {
-      // Mocking the xhr function
-      window.XMLHttpRequest = jest.fn(() => xhrMock) as unknown as typeof XMLHttpRequest;
+      loadSDKScript();
 
-      loadingSnippet(WRITE_KEY, DATA_PLANE_URL);
-
-      await loadAndWaitForSDK();
-
-      window.rudderanalytics?.reset();
+      await waitForSDKReady();
     });
 
-    afterEach(() => {
-      window.XMLHttpRequest = originalXMLHttpRequest;
-    });
-
-    it.skip('should make network requests when event APIs are invoked', () => {
+    it('should make network requests when event APIs are invoked', () => {
       window.rudderanalytics?.page();
       window.rudderanalytics?.track('test-event');
       window.rudderanalytics?.identify(USER_ID, USER_TRAITS);
