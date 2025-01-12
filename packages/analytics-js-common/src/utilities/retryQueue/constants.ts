@@ -20,6 +20,18 @@ const DEFAULT_BATCH_FLUSH_INTERVAL_MS = 60 * 1000; // 1 minutes
 const BATCH_QUEUE_ITEM_TYPE = 'Batch';
 const SINGLE_QUEUE_ITEM_TYPE = 'Single';
 
+// Queue entries
+const IN_PROGRESS = 'inProgress';
+const QUEUE = 'queue';
+const RECLAIM_START = 'reclaimStart';
+const RECLAIM_END = 'reclaimEnd';
+const ACK = 'ack';
+const BATCH_QUEUE = 'batchQueue';
+
+// The ACK entry is intentionally kept as the last item in the array
+// to ensure that it is the last one to be processed (deleted) during the cleanup
+const QueueStatuses = [IN_PROGRESS, QUEUE, BATCH_QUEUE, RECLAIM_START, RECLAIM_END, ACK];
+
 export {
   DEFAULT_MIN_RETRY_DELAY_MS,
   DEFAULT_MAX_RETRY_DELAY_MS,
@@ -38,4 +50,11 @@ export {
   MAX_TIMER_SCALE_FACTOR,
   BATCH_QUEUE_ITEM_TYPE,
   SINGLE_QUEUE_ITEM_TYPE,
+  IN_PROGRESS,
+  QUEUE,
+  RECLAIM_START,
+  RECLAIM_END,
+  ACK,
+  BATCH_QUEUE,
+  QueueStatuses,
 };

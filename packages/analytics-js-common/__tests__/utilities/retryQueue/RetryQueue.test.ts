@@ -1,15 +1,18 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { QueueStatuses } from '@rudderstack/analytics-js-common/constants/QueueStatuses';
-import { defaultStoreManager } from '@rudderstack/analytics-js-common/__mocks__/StoreManager';
-import { defaultLocalStorage } from '@rudderstack/analytics-js-common/__mocks__/Storage';
-import { Store } from '@rudderstack/analytics-js-common/__mocks__/Store';
+import { QueueStatuses } from '../../../src/utilities/retryQueue/constants';
+import { defaultStoreManager } from '../../../__mocks__/StoreManager';
+import { defaultLocalStorage } from '../../../__mocks__/Storage';
+import { Store } from '../../../__mocks__/Store';
 import { Schedule } from '../../../src/utilities/retryQueue/Schedule';
 import { RetryQueue } from '../../../src/utilities/retryQueue/RetryQueue';
-import type { QueueItem, QueueItemData } from '../../../src/types/plugins';
+import type { QueueItem, QueueItemData } from '../../../src/utilities/retryQueue/types';
+import { defaultPluginsManager } from '../../../__mocks__/PluginsManager';
+import { defaultErrorHandler } from '../../../__mocks__/ErrorHandler';
+import { defaultLogger } from '../../../__mocks__/Logger';
 
 const size = (queue: RetryQueue): { queue: number; inProgress: number } => ({
-  queue: queue.store.get(QueueStatuses.QUEUE).length,
-  inProgress: Object.keys(queue.store.get(QueueStatuses.IN_PROGRESS) || {}).length,
+  queue: queue.store.get('queue').length,
+  inProgress: Object.keys(queue.store.get('inProgress') || {}).length,
 });
 
 describe('Queue', () => {
@@ -296,7 +299,7 @@ describe('Queue', () => {
       queue.addItem(i);
     }
 
-    const storedQueue = queue.store.get(QueueStatuses.QUEUE);
+    const storedQueue = queue.store.get('queue');
     expect(storedQueue.length).toEqual(100);
     expect(storedQueue[0].item).toEqual(5);
     expect(storedQueue[99].item).toEqual(104);
@@ -309,11 +312,14 @@ describe('Queue', () => {
         name: 'test',
         id: 'fake-id',
         validKeys: QueueStatuses,
+        errorHandler: defaultErrorHandler,
+        logger: defaultLogger,
       },
       defaultLocalStorage,
+      defaultPluginsManager,
     );
-    foundQueue.set(foundQueue.validKeys.ACK as string, 0); // fake timers starts at time 0
-    foundQueue.set(foundQueue.validKeys.QUEUE as string, [
+    foundQueue.set('ack' as string, 0); // fake timers starts at time 0
+    foundQueue.set('queue' as string, [
       {
         item: 'a',
         time: 0,
@@ -388,11 +394,14 @@ describe('Queue', () => {
         name: 'test',
         id: 'fake-id',
         validKeys: QueueStatuses,
+        errorHandler: defaultErrorHandler,
+        logger: defaultLogger,
       },
       defaultLocalStorage,
+      defaultPluginsManager,
     );
-    foundQueue.set(foundQueue.validKeys.ACK as string, -15000);
-    foundQueue.set(foundQueue.validKeys.IN_PROGRESS as string, {
+    foundQueue.set('ack' as string, -15000);
+    foundQueue.set('inProgress' as string, {
       'task-id-1': {
         item: 'a',
         time: 0,
@@ -474,11 +483,14 @@ describe('Queue', () => {
         name: 'test',
         id: 'fake-id',
         validKeys: QueueStatuses,
+        errorHandler: defaultErrorHandler,
+        logger: defaultLogger,
       },
       defaultLocalStorage,
+      defaultPluginsManager,
     );
-    foundQueue.set(foundQueue.validKeys.ACK as string, 0); // fake timers starts at time 0
-    foundQueue.set(foundQueue.validKeys.BATCH_QUEUE as string, [
+    foundQueue.set('ack' as string, 0); // fake timers starts at time 0
+    foundQueue.set('batchQueue' as string, [
       {
         item: 'a',
         time: 0,
@@ -518,11 +530,14 @@ describe('Queue', () => {
         name: 'test',
         id: 'fake-id',
         validKeys: QueueStatuses,
+        errorHandler: defaultErrorHandler,
+        logger: defaultLogger,
       },
       defaultLocalStorage,
+      defaultPluginsManager,
     );
-    foundQueue.set(foundQueue.validKeys.ACK as string, 0); // fake timers starts at time 0
-    foundQueue.set(foundQueue.validKeys.BATCH_QUEUE as string, [
+    foundQueue.set('ack' as string, 0); // fake timers starts at time 0
+    foundQueue.set('batchQueue' as string, [
       {
         item: 'a',
         time: 0,
@@ -569,11 +584,14 @@ describe('Queue', () => {
         name: 'test',
         id: 'fake-id',
         validKeys: QueueStatuses,
+        errorHandler: defaultErrorHandler,
+        logger: defaultLogger,
       },
       defaultLocalStorage,
+      defaultPluginsManager,
     );
-    foundQueue.set(foundQueue.validKeys.ACK as string, -15000);
-    foundQueue.set(foundQueue.validKeys.QUEUE as string, [
+    foundQueue.set('ack' as string, -15000);
+    foundQueue.set('queue' as string, [
       {
         item: 'a',
         time: 0,
@@ -607,11 +625,14 @@ describe('Queue', () => {
         name: 'test',
         id: 'fake-id',
         validKeys: QueueStatuses,
+        errorHandler: defaultErrorHandler,
+        logger: defaultLogger,
       },
       defaultLocalStorage,
+      defaultPluginsManager,
     );
-    foundQueue.set(foundQueue.validKeys.ACK as string, -15000);
-    foundQueue.set(foundQueue.validKeys.IN_PROGRESS as string, {
+    foundQueue.set('ack' as string, -15000);
+    foundQueue.set('inProgress' as string, {
       'task-id-0': {
         item: 'a',
         time: 0,
@@ -645,11 +666,14 @@ describe('Queue', () => {
         name: 'test',
         id: 'fake-id',
         validKeys: QueueStatuses,
+        errorHandler: defaultErrorHandler,
+        logger: defaultLogger,
       },
       defaultLocalStorage,
+      defaultPluginsManager,
     );
-    foundQueue.set(foundQueue.validKeys.ACK as string, -15000);
-    foundQueue.set(foundQueue.validKeys.BATCH_QUEUE as string, [
+    foundQueue.set('ack' as string, -15000);
+    foundQueue.set('batchQueue' as string, [
       {
         item: 'a',
         time: 0,
@@ -683,11 +707,14 @@ describe('Queue', () => {
         name: 'test',
         id: 'fake-id',
         validKeys: QueueStatuses,
+        errorHandler: defaultErrorHandler,
+        logger: defaultLogger,
       },
       defaultLocalStorage,
+      defaultPluginsManager,
     );
-    foundQueue.set(foundQueue.validKeys.ACK as string, -15000);
-    foundQueue.set(foundQueue.validKeys.IN_PROGRESS as string, {
+    foundQueue.set('ack' as string, -15000);
+    foundQueue.set('inProgress' as string, {
       'task-id-0': {
         item: 'a',
         time: 0,
@@ -702,7 +729,7 @@ describe('Queue', () => {
       },
     });
 
-    foundQueue.set(foundQueue.validKeys.QUEUE as string, [
+    foundQueue.set('queue' as string, [
       {
         item: 'a',
         time: 0,
@@ -717,7 +744,7 @@ describe('Queue', () => {
       },
     ]);
 
-    foundQueue.set(foundQueue.validKeys.BATCH_QUEUE as string, [
+    foundQueue.set('batchQueue' as string, [
       {
         item: 'c',
         time: 0,
@@ -753,11 +780,14 @@ describe('Queue', () => {
         name: 'test',
         id: 'fake-id',
         validKeys: QueueStatuses,
+        errorHandler: defaultErrorHandler,
+        logger: defaultLogger,
       },
       defaultLocalStorage,
+      defaultPluginsManager,
     );
-    foundQueue.set(foundQueue.validKeys.ACK as string, -15000);
-    foundQueue.set(foundQueue.validKeys.IN_PROGRESS as string, {
+    foundQueue.set('ack' as string, -15000);
+    foundQueue.set('inProgress' as string, {
       'task-id-0': {
         item: 'a',
         time: 0,
@@ -770,7 +800,7 @@ describe('Queue', () => {
       },
     });
 
-    foundQueue.set(foundQueue.validKeys.QUEUE as string, [
+    foundQueue.set('queue' as string, [
       {
         item: 'a',
         time: 0,
@@ -802,25 +832,28 @@ describe('Queue', () => {
         name: 'test',
         id: 'fake-id',
         validKeys: QueueStatuses,
+        errorHandler: defaultErrorHandler,
+        logger: defaultLogger,
       },
       defaultLocalStorage,
+      defaultPluginsManager,
     );
-    foundQueue.set(foundQueue.validKeys.ACK as string, -15000);
-    foundQueue.set(foundQueue.validKeys.QUEUE as string, [
+    foundQueue.set('ack' as string, -15000);
+    foundQueue.set('queue' as string, [
       {
         item: 'a',
         time: 0,
         attemptNumber: 0,
       },
     ]);
-    foundQueue.set(foundQueue.validKeys.IN_PROGRESS as string, {
+    foundQueue.set('inProgress' as string, {
       'task-id': {
         item: 'b',
         time: 1,
         attemptNumber: 0,
       },
     });
-    foundQueue.set(foundQueue.validKeys.BATCH_QUEUE as string, {
+    foundQueue.set('batchQueue' as string, {
       'task-id2': {
         item: 'c',
         time: 1,
@@ -854,11 +887,14 @@ describe('Queue', () => {
           name: 'test',
           id: 'fake-id',
           validKeys: QueueStatuses,
+          errorHandler: defaultErrorHandler,
+          logger: defaultLogger,
         },
         defaultLocalStorage,
+        defaultPluginsManager,
       );
-      foundQueue.set(foundQueue.validKeys.ACK as string, 0); // fake timers starts at time 0
-      foundQueue.set(foundQueue.validKeys.QUEUE as string, [
+      foundQueue.set('ack' as string, 0); // fake timers starts at time 0
+      foundQueue.set('queue' as string, [
         {
           item: 'a',
           time: 0,
@@ -891,11 +927,14 @@ describe('Queue', () => {
           name: 'test',
           id: 'fake-id',
           validKeys: QueueStatuses,
+          errorHandler: defaultErrorHandler,
+          logger: defaultLogger,
         },
         defaultLocalStorage,
+        defaultPluginsManager,
       );
-      foundQueue.set(foundQueue.validKeys.ACK as string, -15000);
-      foundQueue.set(foundQueue.validKeys.IN_PROGRESS as string, {
+      foundQueue.set('ack' as string, -15000);
+      foundQueue.set('inProgress' as string, {
         'task-id': {
           item: 'a',
           time: 0,
@@ -928,18 +967,21 @@ describe('Queue', () => {
           name: 'test',
           id: 'fake-id',
           validKeys: QueueStatuses,
+          errorHandler: defaultErrorHandler,
+          logger: defaultLogger,
         },
         defaultLocalStorage,
+        defaultPluginsManager,
       );
-      foundQueue.set(foundQueue.validKeys.ACK as string, -15000);
-      foundQueue.set(foundQueue.validKeys.QUEUE as string, [
+      foundQueue.set('ack' as string, -15000);
+      foundQueue.set('queue' as string, [
         {
           item: 'a',
           time: 0,
           attemptNumber: 0,
         },
       ]);
-      foundQueue.set(foundQueue.validKeys.IN_PROGRESS as string, {
+      foundQueue.set('inProgress' as string, {
         'task-id': {
           item: 'b',
           time: 1,

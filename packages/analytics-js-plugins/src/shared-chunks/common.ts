@@ -37,4 +37,4 @@ export {
 export { CDN_INT_DIR } from '@rudderstack/analytics-js-common/constants/urls';
 export { METRICS_PAYLOAD_VERSION } from '@rudderstack/analytics-js-common/constants/metrics';
 export { onPageLeave } from '@rudderstack/analytics-js-common/utilities/page';
-export { QueueStatuses } from '@rudderstack/analytics-js-common/constants/QueueStatuses';
+export { RetryQueue } from '@rudderstack/analytics-js-common/utilities/retryQueue/RetryQueue';

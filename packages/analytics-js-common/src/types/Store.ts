@@ -10,7 +10,7 @@ export interface IStoreConfig {
   name: string;
   id: StoreId;
   isEncrypted?: boolean;
-  validKeys?: Record<string, string>;
+  validKeys?: string[];
   noCompoundKey?: boolean;
   errorHandler: IErrorHandler;
   logger: ILogger;
@@ -32,7 +32,7 @@ export interface IStore {
   id: string;
   name: string;
   isEncrypted: boolean;
-  validKeys: Record<string, string>;
+  validKeys: string[];
   engine: IStorage;
   originalEngine: IStorage;
   noKeyValidation?: boolean;
