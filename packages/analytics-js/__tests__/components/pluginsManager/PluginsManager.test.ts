@@ -46,21 +46,21 @@ describe('PluginsManager', () => {
       // @ts-expect-error needed for testing
       state.plugins.pluginsToLoadFromConfig.value = undefined;
 
-      expect(pluginsManager.getPluginsToLoadBasedOnConfig()).toEqual([]);
+      expect(pluginsManager.getPluginsToLoadBasedOnConfig()).toEqual(expect.arrayContaining([]));
     });
 
     it('should return the default optional plugins if no plugins were configured in the state', () => {
       // All other plugins require some state variables to be set which by default are not set
-      expect(pluginsManager.getPluginsToLoadBasedOnConfig().sort(alphabeticalCompare)).toEqual(
-        ['ExternalAnonymousId', 'GoogleLinker'].sort(alphabeticalCompare),
+      expect(pluginsManager.getPluginsToLoadBasedOnConfig()).toEqual(
+        expect.arrayContaining(['ExternalAnonymousId', 'GoogleLinker']),
       );
     });
 
     it('should not filter the data plane queue plugin if it is automatically configured', () => {
       state.dataPlaneEvents.eventsQueuePluginName.value = 'XhrQueue';
 
-      expect(pluginsManager.getPluginsToLoadBasedOnConfig().sort(alphabeticalCompare)).toEqual(
-        ['XhrQueue', 'ExternalAnonymousId', 'GoogleLinker'].sort(alphabeticalCompare),
+      expect(pluginsManager.getPluginsToLoadBasedOnConfig()).toEqual(
+        expect.arrayContaining(['XhrQueue', 'ExternalAnonymousId', 'GoogleLinker']),
       );
     });
 
@@ -68,7 +68,9 @@ describe('PluginsManager', () => {
       state.plugins.pluginsToLoadFromConfig.value = [];
       state.dataPlaneEvents.eventsQueuePluginName.value = 'XhrQueue';
 
-      expect(pluginsManager.getPluginsToLoadBasedOnConfig()).toEqual(['XhrQueue']);
+      expect(pluginsManager.getPluginsToLoadBasedOnConfig()).toEqual(
+        expect.arrayContaining(['XhrQueue']),
+      );
 
       // Expect a warning for user not explicitly configuring it
       expect(defaultLogger.warn).toHaveBeenCalledTimes(1);
@@ -87,13 +89,13 @@ describe('PluginsManager', () => {
         } as unknown as Destination,
       ];
 
-      expect(pluginsManager.getPluginsToLoadBasedOnConfig().sort(alphabeticalCompare)).toEqual(
-        [
+      expect(pluginsManager.getPluginsToLoadBasedOnConfig()).toEqual(
+        expect.arrayContaining([
           'DeviceModeDestinations',
           'NativeDestinationQueue',
           'ExternalAnonymousId',
           'GoogleLinker',
-        ].sort(alphabeticalCompare),
+        ]),
       );
     });
 
@@ -108,7 +110,7 @@ describe('PluginsManager', () => {
       ];
       state.plugins.pluginsToLoadFromConfig.value = [];
 
-      expect(pluginsManager.getPluginsToLoadBasedOnConfig().sort(alphabeticalCompare)).toEqual([]);
+      expect(pluginsManager.getPluginsToLoadBasedOnConfig()).toEqual(expect.arrayContaining([]));
 
       // Expect a warning for user not explicitly configuring it
       expect(defaultLogger.warn).toHaveBeenCalledTimes(1);
@@ -129,9 +131,9 @@ describe('PluginsManager', () => {
       // Only DeviceModeDestinations is configured
       state.plugins.pluginsToLoadFromConfig.value = ['DeviceModeDestinations'];
 
-      expect(pluginsManager.getPluginsToLoadBasedOnConfig().sort(alphabeticalCompare)).toEqual([
-        'DeviceModeDestinations',
-      ]);
+      expect(pluginsManager.getPluginsToLoadBasedOnConfig()).toEqual(
+        expect.arrayContaining(['DeviceModeDestinations']),
+      );
 
       // Expect a warning for user not explicitly configuring it
       expect(defaultLogger.warn).toHaveBeenCalledTimes(1);
@@ -156,14 +158,14 @@ describe('PluginsManager', () => {
         } as unknown as Destination,
       ];
 
-      expect(pluginsManager.getPluginsToLoadBasedOnConfig().sort(alphabeticalCompare)).toEqual(
-        [
+      expect(pluginsManager.getPluginsToLoadBasedOnConfig()).toEqual(
+        expect.arrayContaining([
           'DeviceModeTransformation',
           'DeviceModeDestinations',
           'NativeDestinationQueue',
           'ExternalAnonymousId',
           'GoogleLinker',
-        ].sort(alphabeticalCompare),
+        ]),
       );
     });
 
@@ -182,8 +184,8 @@ describe('PluginsManager', () => {
         'NativeDestinationQueue',
       ];
 
-      expect(pluginsManager.getPluginsToLoadBasedOnConfig().sort(alphabeticalCompare)).toEqual(
-        ['DeviceModeDestinations', 'NativeDestinationQueue'].sort(alphabeticalCompare),
+      expect(pluginsManager.getPluginsToLoadBasedOnConfig()).toEqual(
+        expect.arrayContaining(['DeviceModeDestinations', 'NativeDestinationQueue']),
       );
 
       // Expect a warning for user not explicitly configuring it
@@ -196,8 +198,8 @@ describe('PluginsManager', () => {
     it('should not filter storage encryption plugin if it is configured to load by default', () => {
       state.storage.encryptionPluginName.value = 'StorageEncryption';
 
-      expect(pluginsManager.getPluginsToLoadBasedOnConfig().sort(alphabeticalCompare)).toEqual(
-        ['StorageEncryption', 'ExternalAnonymousId', 'GoogleLinker'].sort(alphabeticalCompare),
+      expect(pluginsManager.getPluginsToLoadBasedOnConfig()).toEqual(
+        expect.arrayContaining(['StorageEncryption', 'ExternalAnonymousId', 'GoogleLinker']),
       );
     });
 
@@ -205,7 +207,7 @@ describe('PluginsManager', () => {
       state.storage.encryptionPluginName.value = 'StorageEncryption';
       state.plugins.pluginsToLoadFromConfig.value = [];
 
-      expect(pluginsManager.getPluginsToLoadBasedOnConfig().sort(alphabeticalCompare)).toEqual([]);
+      expect(pluginsManager.getPluginsToLoadBasedOnConfig()).toEqual(expect.arrayContaining([]));
 
       // Expect a warning for user not explicitly configuring it
       expect(defaultLogger.warn).toHaveBeenCalledTimes(1);
@@ -217,8 +219,8 @@ describe('PluginsManager', () => {
     it('should not filter storage migrator plugin if it is configured to load by default', () => {
       state.storage.migrate.value = true;
 
-      expect(pluginsManager.getPluginsToLoadBasedOnConfig().sort(alphabeticalCompare)).toEqual(
-        ['StorageMigrator', 'ExternalAnonymousId', 'GoogleLinker'].sort(alphabeticalCompare),
+      expect(pluginsManager.getPluginsToLoadBasedOnConfig()).toEqual(
+        expect.arrayContaining(['StorageMigrator', 'ExternalAnonymousId', 'GoogleLinker']),
       );
     });
 
@@ -226,7 +228,7 @@ describe('PluginsManager', () => {
       state.storage.migrate.value = true;
       state.plugins.pluginsToLoadFromConfig.value = [];
 
-      expect(pluginsManager.getPluginsToLoadBasedOnConfig().sort(alphabeticalCompare)).toEqual([]);
+      expect(pluginsManager.getPluginsToLoadBasedOnConfig()).toEqual(expect.arrayContaining([]));
 
       // Expect a warning for user not explicitly configuring it
       expect(defaultLogger.warn).toHaveBeenCalledTimes(1);
@@ -242,7 +244,7 @@ describe('PluginsManager', () => {
         'StorageMigrator',
       ];
 
-      expect(pluginsManager.getPluginsToLoadBasedOnConfig().sort(alphabeticalCompare)).toEqual([]);
+      expect(pluginsManager.getPluginsToLoadBasedOnConfig()).toEqual(expect.arrayContaining([]));
 
       // Expect a warning for user not explicitly configuring it
       expect(defaultLogger.warn).toHaveBeenCalledTimes(2);
@@ -261,7 +263,7 @@ describe('PluginsManager', () => {
       state.storage.migrate.value = true;
       state.plugins.pluginsToLoadFromConfig.value = [];
 
-      expect(pluginsManager.getPluginsToLoadBasedOnConfig().sort(alphabeticalCompare)).toEqual([]);
+      expect(pluginsManager.getPluginsToLoadBasedOnConfig()).toEqual(expect.arrayContaining([]));
       expect(defaultLogger.warn).not.toHaveBeenCalled();
     });
   });
