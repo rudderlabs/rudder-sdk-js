@@ -8,9 +8,22 @@ global.window.innerHeight = 1024;
 global.window.__BUNDLE_ALL_PLUGINS__ = false;
 global.window.__IS_LEGACY_BUILD__ = false;
 global.window.__IS_DYNAMIC_CUSTOM_BUNDLE__ = false;
-global.PromiseRejectionEvent = function (reason) {
-  this.reason = reason;
-};
+// Only define the mock if it's not already defined (e.g., in a real browser)
+if (typeof PromiseRejectionEvent === 'undefined') {
+  // Mock class (very minimal)
+  class PromiseRejectionEvent extends Event {
+    constructor(type, eventInitDict) {
+      super(type, eventInitDict);
+      this.promise = eventInitDict?.promise;
+      this.reason = eventInitDict?.reason;
+    }
+  }
+
+  // Attach it to the global object so tests can use it.
+  global.PromiseRejectionEvent = PromiseRejectionEvent;
+  // If you rely on "window" instead:
+  // global.window.PromiseRejectionEvent = PromiseRejectionEvent;
+}
 
 // TODO: remove once we use globalThis in analytics v1.1 too
 // Setup mocking for window.navigator

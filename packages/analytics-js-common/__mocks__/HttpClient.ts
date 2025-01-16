@@ -1,6 +1,6 @@
-import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
-import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { IErrorHandler } from '../src/types/ErrorHandler';
+import type { IHttpClient } from '../src/types/HttpClient';
+import type { ILogger } from '../src/types/Logger';
 
 class HttpClient implements IHttpClient {
   errorHandler?: IErrorHandler;

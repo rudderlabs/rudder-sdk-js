@@ -215,7 +215,7 @@ class EventRepository implements IEventRepository {
    */
   onError(error: unknown, customMessage?: string, shouldAlwaysThrow?: boolean): void {
     if (this.errorHandler) {
-      this.errorHandler.onError(error, EVENT_REPOSITORY, customMessage, shouldAlwaysThrow);
+      this.errorHandler.onError(error, EVENT_REPOSITORY, customMessage);
     } else {
       throw error;
     }

@@ -11,7 +11,7 @@ import type { QueueItem, QueueItemData } from '../../src/types/plugins';
 import { resetState, state } from '../../__mocks__/state';
 import { XhrQueue } from '../../src/xhrQueue';
 import { Schedule } from '../../src/utilities/retryQueue/Schedule';
-import { defaultHttpClient } from '../../__mocks__/HttpClient';
+import { defaultHttpClient } from '@rudderstack/analytics-js-common/__mocks__/HttpClient';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/timestamp', () => ({
   ...jest.requireActual('@rudderstack/analytics-js-common/utilities/timestamp'),

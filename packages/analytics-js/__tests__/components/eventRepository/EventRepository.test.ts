@@ -283,7 +283,6 @@ describe('EventRepository', () => {
       new Error('test error'),
       'EventRepository',
       'API Callback Invocation Failed',
-      undefined,
     );
   });
 

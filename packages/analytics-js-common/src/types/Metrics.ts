@@ -18,10 +18,10 @@ export type ErrorEventPayload = {
     version: string;
     url: string;
   };
-  events: ErrorEventType[];
+  events: ErrorEvent[];
 };
 
-export type ErrorEventType = {
+export type ErrorEvent = {
   payloadVersion: string;
   exceptions: Exception[];
   severity: string;

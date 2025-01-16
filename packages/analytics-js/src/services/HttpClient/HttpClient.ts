@@ -107,6 +107,6 @@ class HttpClient implements IHttpClient {
   }
 }
 
-const defaultHttpClient = new HttpClient(defaultErrorHandler, defaultLogger);
+const defaultHttpClient: HttpClient = new HttpClient(defaultErrorHandler, defaultLogger);
 
 export { HttpClient, defaultHttpClient };

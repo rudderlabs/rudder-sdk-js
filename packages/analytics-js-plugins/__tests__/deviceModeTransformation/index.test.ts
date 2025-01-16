@@ -15,8 +15,8 @@ import {
 } from '../../__fixtures__/fixtures';
 import { server } from '../../__fixtures__/msw.server';
 import { resetState, state } from '../../__mocks__/state';
-import { defaultHttpClient } from '../../__mocks__/HttpClient';
-import { defaultPluginsManager } from '../../__mocks__/PluginsManager';
+import { defaultHttpClient } from '@rudderstack/analytics-js-common/__mocks__/HttpClient';
+import { defaultPluginsManager } from '@rudderstack/analytics-js-common/__mocks__/PluginsManager';
 import type { RetryQueue } from '../../src/utilities/retryQueue/RetryQueue';
 import type { QueueItem, QueueItemData } from '../../src/types/plugins';
 

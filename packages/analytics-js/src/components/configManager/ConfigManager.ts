@@ -122,7 +122,7 @@ class ConfigManager implements IConfigManager {
    */
   onError(error: unknown, customMessage?: string, shouldAlwaysThrow?: boolean) {
     if (this.hasErrorHandler) {
-      this.errorHandler?.onError(error, CONFIG_MANAGER, customMessage, shouldAlwaysThrow);
+      this.errorHandler?.onError(error, CONFIG_MANAGER, customMessage);
     } else {
       throw error;
     }

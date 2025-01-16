@@ -138,7 +138,6 @@ const defaultStateValues: ApplicationState = {
   reporting: {
     isErrorReportingEnabled: signal(false),
     isMetricsReportingEnabled: signal(false),
-    isErrorReportingPluginLoaded: signal(false),
     breadcrumbs: signal([]),
   },
   session: {

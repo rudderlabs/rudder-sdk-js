@@ -26,4 +26,16 @@ const dispatchErrorEvent = (error: any) => {
   (globalThis as typeof window).dispatchEvent(new ErrorEvent('error', { error }));
 };
 
-export { getMutatedError, dispatchErrorEvent, MANUAL_ERROR_IDENTIFIER };
+const getStacktrace = (err: any): string | undefined => {
+  const { stack, stacktrace } = err;
+  const operaSourceloc = err['opera#sourceloc'];
+
+  const stackString = stack ?? stacktrace ?? operaSourceloc;
+
+  if (!!stackString && typeof stackString === 'string') {
+    return stackString;
+  }
+  return undefined;
+};
+
+export { getMutatedError, dispatchErrorEvent, MANUAL_ERROR_IDENTIFIER, getStacktrace };

@@ -70,7 +70,7 @@ class EventManager implements IEventManager {
    */
   onError(error: unknown, customMessage?: string, shouldAlwaysThrow?: boolean): void {
     if (this.errorHandler) {
-      this.errorHandler.onError(error, EVENT_MANAGER, customMessage, shouldAlwaysThrow);
+      this.errorHandler.onError(error, EVENT_MANAGER, customMessage);
     } else {
       throw error;
     }

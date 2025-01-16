@@ -47,7 +47,6 @@ describe('EventManager', () => {
         new Error('Failed to generate the event object.'),
         'EventManager',
         undefined,
-        undefined,
       );
     });
 
