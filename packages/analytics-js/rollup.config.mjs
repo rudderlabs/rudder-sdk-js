@@ -81,10 +81,6 @@ const getExternalsConfig = () => {
       externalGlobalsConfig['@rudderstack/analytics-js-plugins/beaconQueue'] = '{}';
     }
 
-    if (!bundledPluginsList.includes('Bugsnag')) {
-      externalGlobalsConfig['@rudderstack/analytics-js-plugins/bugsnag'] = '{}';
-    }
-
     if (!bundledPluginsList.includes('CustomConsentManager')) {
       externalGlobalsConfig['@rudderstack/analytics-js-plugins/customConsentManager'] = '{}';
     }
@@ -95,10 +91,6 @@ const getExternalsConfig = () => {
 
     if (!bundledPluginsList.includes('DeviceModeTransformation')) {
       externalGlobalsConfig['@rudderstack/analytics-js-plugins/deviceModeTransformation'] = '{}';
-    }
-
-    if (!bundledPluginsList.includes('ErrorReporting')) {
-      externalGlobalsConfig['@rudderstack/analytics-js-plugins/errorReporting'] = '{}';
     }
 
     if (!bundledPluginsList.includes('ExternalAnonymousId')) {
