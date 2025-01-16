@@ -12,16 +12,12 @@ const getFederatedModuleImport = (
   switch (pluginName) {
     case 'BeaconQueue':
       return () => import('rudderAnalyticsRemotePlugins/BeaconQueue');
-    case 'Bugsnag':
-      return () => import('rudderAnalyticsRemotePlugins/Bugsnag');
     case 'CustomConsentManager':
       return () => import('rudderAnalyticsRemotePlugins/CustomConsentManager');
     case 'DeviceModeDestinations':
       return () => import('rudderAnalyticsRemotePlugins/DeviceModeDestinations');
     case 'DeviceModeTransformation':
       return () => import('rudderAnalyticsRemotePlugins/DeviceModeTransformation');
-    case 'ErrorReporting':
-      return () => import('rudderAnalyticsRemotePlugins/ErrorReporting');
     case 'ExternalAnonymousId':
       return () => import('rudderAnalyticsRemotePlugins/ExternalAnonymousId');
     case 'GoogleLinker':

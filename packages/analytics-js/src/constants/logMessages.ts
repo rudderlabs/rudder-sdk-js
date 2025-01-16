@@ -110,16 +110,6 @@ const STORAGE_TYPE_VALIDATION_WARNING = (
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The storage type "${storageType}" is not supported. Please choose one of the following supported types: "${SUPPORTED_STORAGE_TYPES}". The default type "${defaultStorageType}" will be used instead.`;
 
-const UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING = (
-  context: string,
-  selectedErrorReportingProvider: string | undefined,
-  errorReportingProvidersToPluginNameMap: Record<string, PluginName>,
-  defaultProvider: string,
-): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The error reporting provider "${selectedErrorReportingProvider}" is not supported. Please choose one of the following supported providers: "${Object.keys(
-    errorReportingProvidersToPluginNameMap,
-  )}". The default provider "${defaultProvider}" will be used instead.`;
-
 const UNSUPPORTED_STORAGE_ENCRYPTION_VERSION_WARNING = (
   context: string,
   selectedStorageEncryptionVersion: string | undefined,
@@ -256,7 +246,6 @@ const PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING = (context: string) =>
 
 export {
   UNSUPPORTED_CONSENT_MANAGER_ERROR,
-  UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING,
   UNSUPPORTED_STORAGE_ENCRYPTION_VERSION_WARNING,
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
   RESERVED_KEYWORD_WARNING,
