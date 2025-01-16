@@ -22,18 +22,6 @@ describe('PluginsManager', () => {
   });
 
   describe('getPluginsToLoadBasedOnConfig', () => {
-    /**
-     * Compare function to sort strings alphabetically using localeCompare.
-     *
-     * @param {string} a
-     * @param {string} b
-     * @returns {number} Negative if a < b, positive if a > b, zero if equal
-     */
-    const alphabeticalCompare = (a: string, b: string) =>
-      // Using "undefined" locale so that JavaScript decides the best locale.
-      // The { sensitivity: 'base' } option makes it case-insensitive
-      a.localeCompare(b);
-
     beforeEach(() => {
       resetState();
 
