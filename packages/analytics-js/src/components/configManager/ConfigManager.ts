@@ -4,18 +4,14 @@ import type {
   ResponseDetails,
 } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { batch, effect } from '@preact/signals-core';
-import {
-  isDefined,
-  isFunction,
-  isNull,
-  isString,
-} from '@rudderstack/analytics-js-common/utilities/checks';
+import { isDefined, isFunction, isNull } from '@rudderstack/analytics-js-common/utilities/checks';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import type { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import type { SourceConfigResponse } from '@rudderstack/analytics-js-common/types/Source';
 import { isValidSourceConfig } from './util/validate';
 import {
   SOURCE_CONFIG_FETCH_ERROR,
@@ -28,7 +24,7 @@ import { removeTrailingSlashes } from '../utilities/url';
 import { APP_VERSION } from '../../constants/app';
 import { state } from '../../state';
 import { getIntegrationsCDNPath, getPluginsCDNPath } from './util/cdnPaths';
-import type { IConfigManager, SourceConfigResponse } from './types';
+import type { IConfigManager } from './types';
 import {
   getSourceConfigURL,
   updateConsentsState,
@@ -144,7 +140,7 @@ class ConfigManager implements IConfigManager {
    * A callback function that is executed once we fetch the source config response.
    * Use to construct and store information that are dependent on the sourceConfig.
    */
-  processConfig(response: SourceConfigResponse | string | undefined, details?: ResponseDetails) {
+  processConfig(response: SourceConfigResponse | undefined | null, details?: ResponseDetails) {
     // TODO: add retry logic with backoff based on rejectionDetails.xhr.status
     // We can use isErrRetryable utility method
     if (!isDefined(response)) {
@@ -156,43 +152,33 @@ class ConfigManager implements IConfigManager {
       return;
     }
 
-    let res: SourceConfigResponse;
-    try {
-      if (isString(response)) {
-        res = JSON.parse(response);
-      } else {
-        res = response as SourceConfigResponse;
-      }
-    } catch (err) {
-      this.onError(err, SOURCE_CONFIG_RESOLUTION_ERROR);
-      return;
-    }
-
-    if (!isValidSourceConfig(res)) {
+    if (!isValidSourceConfig(response)) {
       this.onError(new Error(SOURCE_CONFIG_RESOLUTION_ERROR));
       return;
     }
 
     // Log error and abort if source is disabled
-    if (res.source.enabled === false) {
+    if (response.source.enabled === false) {
       this.logger.error(SOURCE_DISABLED_ERROR);
       return;
     }
 
     // set the values in state for reporting slice
-    updateReportingState(res);
+    updateReportingState(response);
 
     const nativeDestinations: Destination[] =
-      res.source.destinations.length > 0 ? filterEnabledDestination(res.source.destinations) : [];
+      response.source.destinations.length > 0
+        ? filterEnabledDestination(response.source.destinations)
+        : [];
 
     // set in the state --> source, destination, lifecycle, reporting
     batch(() => {
       // set source related information in state
       state.source.value = {
-        config: res.source.config,
-        name: res.source.name,
-        id: res.source.id,
-        workspaceId: res.source.workspaceId,
+        config: response.source.config,
+        name: response.source.name,
+        id: response.source.id,
+        workspaceId: response.source.workspaceId,
       };
 
       // set device mode destination related information in state
@@ -201,7 +187,7 @@ class ConfigManager implements IConfigManager {
       // set the desired optional plugins
       state.plugins.pluginsToLoadFromConfig.value = state.loadOptions.value.plugins ?? [];
 
-      updateConsentsState(res);
+      updateConsentsState(response);
 
       // set application lifecycle state
       state.lifecycle.status.value = 'configured';
@@ -226,21 +212,20 @@ class ConfigManager implements IConfigManager {
 
       if (res instanceof Promise) {
         res
-          .then(pRes => this.processConfig(pRes as SourceConfigResponse))
+          .then(pRes => this.processConfig(pRes))
           .catch(err => {
             this.onError(err, 'SourceConfig');
           });
       } else {
-        this.processConfig(res as SourceConfigResponse);
+        this.processConfig(res);
       }
     } else {
       // Fetch source configuration from the configured URL
-      this.httpClient.getAsyncData({
+      this.httpClient.request<SourceConfigResponse>({
         url: state.lifecycle.sourceConfigUrl.value as string,
         options: {
-          headers: {
-            'Content-Type': undefined,
-          },
+          method: 'GET',
+          useAuth: true,
         },
         callback: this.processConfig,
       });

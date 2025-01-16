@@ -9,6 +9,7 @@ import type {
   StorageStrategy,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js-common/constants/errors';
 
 // CONSTANT
 const DATA_PLANE_URL_ERROR =
@@ -80,17 +81,14 @@ const DATA_PLANE_URL_VALIDATION_ERROR = (context: string, dataPlaneUrl: string):
 const INVALID_CALLBACK_FN_ERROR = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The provided callback is not invokable.`;
 
-const XHR_DELIVERY_ERROR = (
-  prefix: string,
-  status: number,
-  statusText: string,
-  url: string,
-): string => `${prefix} with status: ${status}, ${statusText} for URL: ${url}.`;
+const DELIVERY_ERROR = (status: number, statusText: string, url: string | URL): string =>
+  `${FAILED_REQUEST_ERR_MSG_PREFIX} with status ${status} (${statusText}) for URL "${url}"`;
 
-const XHR_REQUEST_ERROR = (prefix: string, e: ProgressEvent | undefined, url: string): string =>
-  `${prefix} due to timeout or no connection (${e ? e.type : ''}) for URL: ${url}.`;
+const REQUEST_ERROR = (url: string | URL, timeout: number): string =>
+  `${FAILED_REQUEST_ERR_MSG_PREFIX} due to timeout after ${timeout}ms or no connection or aborted for URL "${url}"`;
 
-const XHR_SEND_ERROR = (prefix: string, url: string): string => `${prefix} for URL: ${url}`;
+const RESPONSE_PARSE_ERROR = (url: string | URL): string =>
+  `Failed to parse response data for URL "${url}"`;
 
 const STORE_DATA_SAVE_ERROR = (key: string): string =>
   `Failed to save the value for "${key}" to storage`;
@@ -277,9 +275,9 @@ export {
   WRITE_KEY_VALIDATION_ERROR,
   DATA_PLANE_URL_VALIDATION_ERROR,
   INVALID_CALLBACK_FN_ERROR,
-  XHR_DELIVERY_ERROR,
-  XHR_REQUEST_ERROR,
-  XHR_SEND_ERROR,
+  DELIVERY_ERROR,
+  REQUEST_ERROR,
+  RESPONSE_PARSE_ERROR,
   XHR_PAYLOAD_PREP_ERROR,
   STORE_DATA_SAVE_ERROR,
   STORE_DATA_FETCH_ERROR,

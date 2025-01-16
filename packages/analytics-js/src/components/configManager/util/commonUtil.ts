@@ -23,6 +23,7 @@ import type {
 import { clone } from 'ramda';
 import { isValidURL, removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utilities/url';
 import { removeLeadingPeriod } from '@rudderstack/analytics-js-common/utilities/string';
+import type { SourceConfigResponse } from '@rudderstack/analytics-js-common/types/Source';
 import { MODULE_TYPE, APP_VERSION } from '../../../constants/app';
 import { BUILD_TYPE, DEFAULT_CONFIG_BE_URL } from '../../../constants/urls';
 import { state } from '../../../state';
@@ -40,7 +41,6 @@ import {
   isMetricsReportingEnabled,
 } from '../../utilities/statsCollection';
 import { getDomain, removeTrailingSlashes } from '../../utilities/url';
-import type { SourceConfigResponse } from '../types';
 import {
   DEFAULT_DATA_SERVICE_ENDPOINT,
   DEFAULT_STORAGE_ENCRYPTION_VERSION,

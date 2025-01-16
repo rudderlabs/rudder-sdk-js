@@ -1,68 +1,64 @@
-import type { IErrorHandler } from './ErrorHandler';
 import type { ILogger } from './Logger';
 
-export interface IRequestConfig {
-  url: string;
-  options?: Partial<IXHRRequestOptions>;
-  isRawResponse?: boolean;
-  timeout?: number;
+export type HttpClientErrorProperties = {
+  status?: number;
+  statusText?: string;
+  responseBody?: string | null;
+  /**
+   * Original underlying error instance
+   */
+  originalError?: Error;
+};
+
+export interface IHttpClientError extends Error {
+  status?: number;
+  statusText?: string;
+  responseBody?: string | null;
 }
 
 export type ResponseDetails = {
-  response: string;
-  error?: Error;
-  xhr?: XMLHttpRequest;
-  options: IXHRRequestOptions;
-};
+  response?: Response;
+  error?: IHttpClientError;
+  url: string | URL;
+  options: IRequestOptions;
+} & ({ response: Response } | { error: IHttpClientError });
 
 export type AsyncRequestCallback<T> = (
-  data?: T | string | undefined,
-  details?: ResponseDetails,
+  data: T | undefined | null,
+  details: ResponseDetails,
 ) => void;
-export interface IAsyncRequestConfig<T> extends IRequestConfig {
+
+export interface IAsyncRequestConfig<T> {
+  url: string | URL;
+  options?: IRequestOptions;
+  isRawResponse?: boolean;
+  timeout?: number;
   callback?: AsyncRequestCallback<T>;
 }
 
-export interface IXHRRequestOptions {
-  method: HTTPClientMethod;
-  url: string;
-  headers: Record<string, string | undefined>;
-  data?: XMLHttpRequestBodyInit;
-  sendRawData?: boolean;
-  withCredentials?: boolean;
+export interface IBaseRequestOptions {
+  useAuth?: boolean;
 }
 
-export type HTTPClientMethod =
-  | 'get'
-  | 'GET'
-  | 'delete'
-  | 'DELETE'
-  | 'head'
-  | 'HEAD'
-  | 'options'
-  | 'OPTIONS'
-  | 'post'
-  | 'POST'
-  | 'put'
-  | 'PUT'
-  | 'patch'
-  | 'PATCH'
-  | 'purge'
-  | 'PURGE'
-  | 'link'
-  | 'LINK'
-  | 'unlink'
-  | 'UNLINK';
+export type IRequestOptions = IFetchRequestOptions;
+
+export type HTTPClientMethod = 'GET' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH';
 
 export interface IHttpClient {
-  errorHandler?: IErrorHandler;
-  logger: ILogger;
+  logger?: ILogger;
   basicAuthHeader?: string;
-  getData<T = any>(
-    config: IRequestConfig,
-  ): Promise<{ data: T | string | undefined; details?: ResponseDetails }>;
+  /**
+   * Makes an async request to the given URL
+   * @param config Request configuration
+   * @deprecated Use `request` instead
+   */
   getAsyncData<T = any>(config: IAsyncRequestConfig<T>): void;
+  request<T = any>(config: IAsyncRequestConfig<T>): void;
   setAuthHeader(value: string, noBto?: boolean): void;
   resetAuthHeader(): void;
-  init(errorHandler: IErrorHandler): void;
+}
+
+export interface IFetchRequestOptions extends Omit<RequestInit, 'method'>, IBaseRequestOptions {
+  timeout?: number; // timeout in milliseconds
+  method: HTTPClientMethod;
 }

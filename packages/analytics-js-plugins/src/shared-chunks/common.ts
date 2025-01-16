@@ -8,6 +8,7 @@ export {
   isUndefined,
   isNullOrUndefined,
   isDefined,
+  isDefinedAndNotNull,
 } from '@rudderstack/analytics-js-common/utilities/checks';
 export { removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utilities/url';
 export { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';

@@ -223,13 +223,10 @@ describe('Core - Analytics', () => {
   describe('loadConfig', () => {
     it('should set authentication request header', () => {
       analytics.prepareInternalServices();
-      const setAuthHeaderSpy = jest.spyOn(analytics.httpClient, 'setAuthHeader');
       const initSpy = jest.spyOn(analytics.configManager, 'init');
       state.lifecycle.writeKey.value = dummyWriteKey;
       state.lifecycle.dataPlaneUrl.value = dummyDataplaneURL;
       analytics.loadConfig();
-      expect(setAuthHeaderSpy).toHaveBeenCalledTimes(1);
-      expect(setAuthHeaderSpy).toHaveBeenCalledWith(dummyWriteKey);
       expect(initSpy).toHaveBeenCalledTimes(1);
     });
   });

@@ -4,8 +4,8 @@ import type { PluginName } from './PluginsManager';
 import type { IntegrationOpts } from './Integration';
 import type { ApiOptions } from './EventApi';
 import type { ConsentManagementOptions } from './Consent';
-import type { ApiObject } from './ApiObject';
 import type { StorageOpts, CookieSameSite } from './Storage';
+import type { SourceConfigResponse } from './Source';
 
 export type UaChTrackLevel = 'none' | 'default' | 'full';
 
@@ -153,8 +153,7 @@ export type LoadOptions = {
   polyfillIfRequired?: boolean; // defaults to true. Controls whether the SDK should polyfill unsupported browser API's if they are detected as missing
   onLoaded?: OnLoadedCallback;
   uaChTrackLevel?: UaChTrackLevel;
-  // TODO: define type for sourceConfig once the trimmed response is implemented
-  getSourceConfig?: () => string | ApiObject | Promise<ApiObject> | Promise<string>;
+  getSourceConfig?: () => SourceConfigResponse | Promise<SourceConfigResponse>;
   sendAdblockPage?: boolean;
   sendAdblockPageOptions?: ApiOptions;
   plugins?: Nullable<PluginName[]>;

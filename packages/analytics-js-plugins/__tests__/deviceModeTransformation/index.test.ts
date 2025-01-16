@@ -5,8 +5,15 @@ import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/
 import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
 import { defaultStoreManager } from '@rudderstack/analytics-js-common/__mocks__/StoreManager';
 import type { ExtensionPoint } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import type { RetryQueue } from '@rudderstack/analytics-js-common/utilities/retryQueue/RetryQueue';
+import type {
+  QueueItem,
+  QueueItemData,
+} from '@rudderstack/analytics-js-common/utilities/retryQueue/types';
+import type { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { defaultHttpClient } from '@rudderstack/analytics-js-common/__mocks__/HttpClient';
 import { defaultPluginsManager } from '@rudderstack/analytics-js-common/__mocks__/PluginsManager';
+import { HttpClientError } from '@rudderstack/analytics-js-common/services/HttpClientError';
 import * as utils from '../../src/deviceModeTransformation/utilities';
 import { DeviceModeTransformation } from '../../src/deviceModeTransformation';
 import {
@@ -17,8 +24,6 @@ import {
 } from '../../__fixtures__/fixtures';
 import { server } from '../../__fixtures__/msw.server';
 import { resetState, state } from '../../__mocks__/state';
-import type { RetryQueue } from '../../src/utilities/retryQueue/RetryQueue';
-import type { QueueItem, QueueItemData } from '../../src/types/plugins';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
   ...jest.requireActual('@rudderstack/analytics-js-common/utilities/uuId'),
@@ -128,8 +133,8 @@ describe('Device mode transformation plugin', () => {
   });
 
   it('should process queue item on start', () => {
-    // Mock the implementation of getAsyncData to return a successful response
-    defaultHttpClient.getAsyncData.mockImplementation(({ callback }) => {
+    // Mock the implementation of request to return a successful response
+    defaultHttpClient.request.mockImplementation(({ callback }) => {
       callback(true);
     });
 
@@ -181,15 +186,16 @@ describe('Device mode transformation plugin', () => {
     expect((queue.getStorageEntry('queue') as QueueItem<QueueItemData>[]).length).toBe(0);
 
     queueProcessCbSpy.mockRestore();
-    defaultHttpClient.getAsyncData.mockRestore();
+    defaultHttpClient.request.mockRestore();
   });
 
   it('should process transformed events in case of successful transformation', () => {
-    // Mock the implementation of getAsyncData to return a successful response
-    defaultHttpClient.getAsyncData.mockImplementation(({ callback }) => {
-      callback(JSON.stringify(dmtSuccessResponse), { xhr: { status: 200 } });
+    // Mock the implementation of request to return a successful response
+    defaultHttpClient.request.mockImplementation(({ callback }) => {
+      callback?.(JSON.stringify(dmtSuccessResponse), {
+        response: { status: 200 } as Response,
+      } as ResponseDetails);
     });
-
     const mockSendTransformedEventToDestinations = jest.spyOn(
       utils,
       'sendTransformedEventToDestinations',
@@ -230,19 +236,25 @@ describe('Device mode transformation plugin', () => {
       defaultPluginsManager,
       destinationIds,
       JSON.stringify(dmtSuccessResponse),
-      200,
+      {
+        response: { status: 200 } as Response,
+      },
       event,
       defaultErrorHandler,
       defaultLogger,
     );
 
     mockSendTransformedEventToDestinations.mockRestore();
-    defaultHttpClient.getAsyncData.mockRestore();
+    defaultHttpClient.request.mockRestore();
   });
   it('should not process transformed events in case of unsuccessful transformation', () => {
-    // Mock the implementation of getAsyncData to return a retryable error response
-    defaultHttpClient.getAsyncData.mockImplementation(({ callback }) => {
-      callback(false, { error: 'some error', xhr: { status: 502 } });
+    // Mock the implementation of request to return a retryable error response
+    defaultHttpClient.request.mockImplementation(({ callback }) => {
+      callback?.(null, {
+        error: new HttpClientError('some error', {
+          status: 502,
+        }),
+      } as ResponseDetails);
     });
 
     const mockSendTransformedEventToDestinations = jest.spyOn(
