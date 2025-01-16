@@ -1,10 +1,11 @@
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import ErrorStackParser from 'error-stack-parser';
-import type { Exception, Stackframe } from '@rudderstack/analytics-js-common/types/Metrics';
+import type { Exception } from '@rudderstack/analytics-js-common/types/Metrics';
 import { ERROR_HANDLER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { isString, isTypeOfError } from '@rudderstack/analytics-js-common/utilities/checks';
 import { getStacktrace } from '@rudderstack/analytics-js-common/utilities/errors';
+import type { Stackframe } from '@bugsnag/js';
 import { NON_ERROR_WARNING } from '../../../constants/logMessages';
 import type { FrameType } from './types';
 

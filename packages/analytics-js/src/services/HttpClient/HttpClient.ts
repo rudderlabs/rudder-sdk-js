@@ -9,7 +9,6 @@ import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/Error
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { toBase64 } from '@rudderstack/analytics-js-common/utilities/string';
 import { HTTP_CLIENT } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { defaultErrorHandler } from '../ErrorHandler';
 import { defaultLogger } from '../Logger';
 import { responseTextToJson } from './xhr/xhrResponseHandler';
 import { createXhrRequestOptions, xhrRequest } from './xhr/xhrRequestHandler';
@@ -25,11 +24,15 @@ class HttpClient implements IHttpClient {
   basicAuthHeader?: string;
   hasErrorHandler = false;
 
-  constructor(errorHandler?: IErrorHandler, logger?: ILogger) {
-    this.errorHandler = errorHandler;
+  constructor(logger?: ILogger) {
     this.logger = logger;
     this.hasErrorHandler = Boolean(this.errorHandler);
     this.onError = this.onError.bind(this);
+  }
+
+  init(errorHandler: IErrorHandler) {
+    this.errorHandler = errorHandler;
+    this.hasErrorHandler = true;
   }
 
   /**
@@ -107,6 +110,6 @@ class HttpClient implements IHttpClient {
   }
 }
 
-const defaultHttpClient: HttpClient = new HttpClient(defaultErrorHandler, defaultLogger);
+const defaultHttpClient: HttpClient = new HttpClient(defaultLogger);
 
 export { HttpClient, defaultHttpClient };

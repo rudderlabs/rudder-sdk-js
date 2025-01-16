@@ -87,6 +87,8 @@ describe('User session manager', () => {
     clearStorage();
     resetState();
 
+    defaultHttpClient.init(defaultErrorHandler);
+
     state.storage.entries.value = entriesWithOnlyCookieStorage;
     userSessionManager = new UserSessionManager(
       defaultErrorHandler,

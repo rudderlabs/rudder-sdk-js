@@ -90,7 +90,11 @@ describe('EventRepository', () => {
   });
 
   it('should invoke appropriate plugins start on init', () => {
-    const eventRepository = new EventRepository(defaultPluginsManager, defaultStoreManager);
+    const eventRepository = new EventRepository(
+      defaultPluginsManager,
+      defaultStoreManager,
+      defaultErrorHandler,
+    );
     const spy = jest.spyOn(defaultPluginsManager, 'invokeSingle');
     eventRepository.init();
 
@@ -100,7 +104,7 @@ describe('EventRepository', () => {
       state,
       expect.objectContaining({}),
       defaultStoreManager,
-      undefined,
+      defaultErrorHandler,
       undefined,
     );
     expect(spy).nthCalledWith(
@@ -110,7 +114,7 @@ describe('EventRepository', () => {
       defaultPluginsManager,
       expect.objectContaining({}),
       defaultStoreManager,
-      undefined,
+      defaultErrorHandler,
       undefined,
     );
     expect(spy).nthCalledWith(
@@ -120,14 +124,18 @@ describe('EventRepository', () => {
       defaultPluginsManager,
       defaultStoreManager,
       undefined,
-      undefined,
+      defaultErrorHandler,
       undefined,
     );
     spy.mockRestore();
   });
 
   it('should start the destinations events queue when the client destinations are ready', () => {
-    const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+    const eventRepository = new EventRepository(
+      mockPluginsManager,
+      defaultStoreManager,
+      defaultErrorHandler,
+    );
 
     eventRepository.init();
 
@@ -137,7 +145,11 @@ describe('EventRepository', () => {
   });
 
   it('should start the dataplane events queue when no hybrid destinations are present', () => {
-    const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+    const eventRepository = new EventRepository(
+      mockPluginsManager,
+      defaultStoreManager,
+      defaultErrorHandler,
+    );
 
     state.nativeDestinations.activeDestinations.value = [
       {
@@ -164,7 +176,11 @@ describe('EventRepository', () => {
   });
 
   it('should start the dataplane events queue when hybrid destinations are present and bufferDataPlaneEventsUntilReady is false', () => {
-    const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+    const eventRepository = new EventRepository(
+      mockPluginsManager,
+      defaultStoreManager,
+      defaultErrorHandler,
+    );
 
     state.nativeDestinations.activeDestinations.value = activeDestinationsWithHybridMode;
 
@@ -176,7 +192,11 @@ describe('EventRepository', () => {
   });
 
   it('should start the dataplane events queue when hybrid destinations are present and bufferDataPlaneEventsUntilReady is true and client destinations are ready after some time', done => {
-    const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+    const eventRepository = new EventRepository(
+      mockPluginsManager,
+      defaultStoreManager,
+      defaultErrorHandler,
+    );
 
     state.nativeDestinations.activeDestinations.value = activeDestinationsWithHybridMode;
 
@@ -195,7 +215,11 @@ describe('EventRepository', () => {
   });
 
   it('should start the dataplane events queue when hybrid destinations are present and bufferDataPlaneEventsUntilReady is true and client destinations are not ready until buffer timeout expires', done => {
-    const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+    const eventRepository = new EventRepository(
+      mockPluginsManager,
+      defaultStoreManager,
+      defaultErrorHandler,
+    );
 
     state.nativeDestinations.activeDestinations.value = activeDestinationsWithHybridMode;
 
@@ -213,7 +237,11 @@ describe('EventRepository', () => {
   });
 
   it('should pass the enqueued event to both dataplane and destinations events queues', () => {
-    const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+    const eventRepository = new EventRepository(
+      mockPluginsManager,
+      defaultStoreManager,
+      defaultErrorHandler,
+    );
 
     eventRepository.init();
 
@@ -229,7 +257,7 @@ describe('EventRepository', () => {
         ...testEvent,
         integrations: { All: true },
       },
-      undefined,
+      defaultErrorHandler,
       undefined,
     );
     expect(invokeSingleSpy).nthCalledWith(
@@ -238,7 +266,7 @@ describe('EventRepository', () => {
       state,
       mockDestinationsEventsQueue,
       testEvent,
-      undefined,
+      defaultErrorHandler,
       undefined,
     );
 
@@ -246,7 +274,11 @@ describe('EventRepository', () => {
   });
 
   it('should invoke event callback function if provided', () => {
-    const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+    const eventRepository = new EventRepository(
+      mockPluginsManager,
+      defaultStoreManager,
+      defaultErrorHandler,
+    );
 
     eventRepository.init();
 
@@ -287,7 +319,11 @@ describe('EventRepository', () => {
   });
 
   it('should buffer the data plane events if the pre-consent event delivery strategy is set to buffer', () => {
-    const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+    const eventRepository = new EventRepository(
+      mockPluginsManager,
+      defaultStoreManager,
+      defaultErrorHandler,
+    );
 
     state.consents.preConsent.value = {
       enabled: true,
@@ -306,7 +342,11 @@ describe('EventRepository', () => {
 
   describe('resume', () => {
     it('should resume events processing on resume', () => {
-      const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+      const eventRepository = new EventRepository(
+        mockPluginsManager,
+        defaultStoreManager,
+        defaultErrorHandler,
+      );
       eventRepository.init();
 
       eventRepository.resume();
@@ -314,7 +354,11 @@ describe('EventRepository', () => {
     });
 
     it('should clear the events queue if discardPreConsentEvents is set to true', () => {
-      const eventRepository = new EventRepository(mockPluginsManager, defaultStoreManager);
+      const eventRepository = new EventRepository(
+        mockPluginsManager,
+        defaultStoreManager,
+        defaultErrorHandler,
+      );
 
       state.consents.postConsent.value.discardPreConsentEvents = true;
 

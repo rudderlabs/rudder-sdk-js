@@ -38,7 +38,8 @@ describe('HttpClient', () => {
   });
 
   beforeEach(() => {
-    clientInstance = new HttpClient(defaultErrorHandler, defaultLogger);
+    clientInstance = new HttpClient(defaultLogger);
+    clientInstance.init(defaultErrorHandler);
   });
 
   afterEach(() => {

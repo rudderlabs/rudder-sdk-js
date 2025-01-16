@@ -8,7 +8,7 @@ import { state, resetState } from '../../../src/state';
 import { getSDKUrl } from '../../../src/components/configManager/util/commonUtil';
 import { server } from '../../../__fixtures__/msw.server';
 import { dummySourceConfigResponse } from '../../../__fixtures__/fixtures';
-import {
+import type {
   ConfigResponseDestinationItem,
   SourceConfigResponse,
 } from '../../../src/components/configManager/types';
@@ -68,6 +68,7 @@ describe('ConfigManager', () => {
   });
 
   beforeEach(() => {
+    defaultHttpClient.init(defaultErrorHandler);
     configManagerInstance = new ConfigManager(
       defaultHttpClient,
       defaultErrorHandler,

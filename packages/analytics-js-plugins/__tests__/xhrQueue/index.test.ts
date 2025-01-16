@@ -6,12 +6,12 @@ import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
 import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
 import type { ExtensionPoint } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import { defaultHttpClient } from '@rudderstack/analytics-js-common/__mocks__/HttpClient';
 import type { RetryQueue } from '../../src/utilities/retryQueue/RetryQueue';
 import type { QueueItem, QueueItemData } from '../../src/types/plugins';
 import { resetState, state } from '../../__mocks__/state';
 import { XhrQueue } from '../../src/xhrQueue';
 import { Schedule } from '../../src/utilities/retryQueue/Schedule';
-import { defaultHttpClient } from '@rudderstack/analytics-js-common/__mocks__/HttpClient';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/timestamp', () => ({
   ...jest.requireActual('@rudderstack/analytics-js-common/utilities/timestamp'),

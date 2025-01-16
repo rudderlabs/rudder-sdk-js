@@ -32,7 +32,7 @@ import { getFinalEvent, shouldBufferEventsForPreConsent } from './utils';
  * Event repository class responsible for queuing events for further processing and delivery
  */
 class EventRepository implements IEventRepository {
-  errorHandler?: IErrorHandler;
+  errorHandler: IErrorHandler;
   logger?: ILogger;
   pluginsManager: IPluginsManager;
   httpClient: IHttpClient;
@@ -51,13 +51,14 @@ class EventRepository implements IEventRepository {
   constructor(
     pluginsManager: IPluginsManager,
     storeManager: IStoreManager,
-    errorHandler?: IErrorHandler,
+    errorHandler: IErrorHandler,
     logger?: ILogger,
   ) {
     this.pluginsManager = pluginsManager;
     this.errorHandler = errorHandler;
     this.logger = logger;
-    this.httpClient = new HttpClient(errorHandler, logger);
+    this.httpClient = new HttpClient(logger);
+    this.httpClient.init(errorHandler);
     this.storeManager = storeManager;
     this.onError = this.onError.bind(this);
   }
