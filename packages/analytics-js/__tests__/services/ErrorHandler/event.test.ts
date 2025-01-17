@@ -1,4 +1,5 @@
 import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
+import type ErrorStackParser from 'error-stack-parser';
 import {
   createBugsnagException,
   createException,
@@ -20,6 +21,7 @@ describe('event', () => {
       ['globalcode', 'globalcode'],
       ['global code with something extra', 'global code with something extra'],
       ['', ''],
+      [undefined, undefined],
     ];
 
     it.each(testCases)('if function name is %p then return %p', (input, output) => {
@@ -123,7 +125,7 @@ describe('event', () => {
           lineNumber: 3,
           columnNumber: 4,
         },
-      ];
+      ] as unknown as ErrorStackParser.StackFrame[];
 
       // create circular reference
       (stacktrace[2] as any).fileName = stacktrace;
