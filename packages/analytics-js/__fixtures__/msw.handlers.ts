@@ -1,5 +1,13 @@
 import { http, HttpResponse } from 'msw';
-import { dummyDataplaneHost, dummySourceConfigResponse } from './fixtures';
+import {
+  dummyCDNHost,
+  dummyDataplaneHost,
+  dummySourceConfigResponse,
+  SDK_FILE_BASE_PATH,
+  SDK_FILE_NAME,
+} from './fixtures';
+import fs from 'fs';
+import path from 'path';
 
 const handlers = [
   http.get(`${dummyDataplaneHost}/rawSample`, () => {
@@ -100,6 +108,18 @@ const handlers = [
       status: 404,
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
+      },
+    });
+  }),
+  http.get(`${dummyCDNHost}/modern/${SDK_FILE_NAME}`, () => {
+    const scriptContent = fs.readFileSync(
+      path.join(path.resolve(__dirname, SDK_FILE_BASE_PATH), SDK_FILE_NAME),
+      'utf-8',
+    );
+    return new HttpResponse(scriptContent, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/javascript',
       },
     });
   }),

@@ -23,8 +23,8 @@
     }
   },
   "targetDefaults": {
-    "test": {
-      "inputs": ["default", "^test"],
+    "test*": {
+      "inputs": ["test"],
       "cache": true
     },
     "version": [
@@ -33,62 +33,28 @@
         "projects": "dependencies"
       }
     ],
-    "build": {
-      "inputs": ["default", "^production"],
+    "*build*": {
+      "inputs": ["default"],
       "cache": true
     },
-    "build:modern": {
-      "inputs": ["default", "^production"],
-      "cache": true
-    },
-    "build:browser": {
-      "inputs": ["default", "^production"],
-      "cache": true
-    },
-    "build:browser:modern": {
-      "inputs": ["default", "^production"],
-      "cache": true
-    },
-    "build:package": {
-      "inputs": ["default", "^production"],
-      "cache": true
-    },
-    "build:package:modern": {
-      "inputs": ["default", "^production"],
-      "cache": true
-    },
-    "check:size:build": {
-      "inputs": ["default", "^production"],
-      "cache": true
-    },
-    "check:size:json": {
-      "inputs": [
-        "default",
-        "^production",
-        "{projectRoot}/.size-limit.js",
-        "{projectRoot}/.size-limit.mjs"
-      ],
+    "check:size:json*": {
+      "inputs": ["default", "{projectRoot}/.size-limit.js", "{projectRoot}/.size-limit.mjs"],
       "cache": true
     },
     "check:pub": {
       "inputs": ["{projectRoot}/package.json"],
       "cache": true
     },
-    "test:pre-commit:affected": {
-      "inputs": ["default", "^test"],
+    "check:circular": {
+      "inputs": ["default"],
       "cache": true
     },
-    "check:size:build:pre-commit:affected": {
-      "inputs": ["default", "^production"],
+    "check:duplicates": {
+      "inputs": ["default", "{projectRoot}/.jscpd.json", "{workspaceRoot}/.jscpd.json"],
       "cache": true
     },
-    "check:size:json:pre-commit:affected": {
-      "inputs": [
-        "default",
-        "^production",
-        "{projectRoot}/.size-limit.js",
-        "{projectRoot}/.size-limit.mjs"
-      ],
+    "check:lint*": {
+      "inputs": ["default", "{workspaceRoot}/.eslintrc.json", "{workspaceRoot}/.eslintignore"],
       "cache": true
     }
   },
@@ -99,41 +65,38 @@
   },
   "namedInputs": {
     "sharedGlobals": [
+      "{workspaceRoot}/.nvmrc",
       {
         "runtime": "node --version"
-      }
+      },
+      "{workspaceRoot}/package.json",
+      "{workspaceRoot}/package-lock.json",
+      "{workspaceRoot}/nx.json",
+      "{workspaceRoot}/tsconfig.build.json",
+      "{workspaceRoot}/tsconfig.json",
+      "{workspaceRoot}/tsconfig.paths.json"
     ],
     "default": [
       "sharedGlobals",
-      "{projectRoot}/**/*",
-      "!{projectRoot}/.env.example",
-      "!{projectRoot}/public/**/*",
-      "!{projectRoot}/LICENSE.md",
+      "{projectRoot}/src/**/*",
+      "{projectRoot}/package.json",
+      "{projectRoot}/project.json",
+      "{projectRoot}/rollup.config.mjs",
+      "{projectRoot}/babel.config.json",
+      "{projectRoot}/tsconfig.json",
+      "!{projectRoot}/src/**/*.(spec|test).(j|t)s?(x)",
       "!{projectRoot}/**/*.md",
       "!{projectRoot}/**/*.txt",
-      "!{projectRoot}/serve.json",
-      "!{projectRoot}/.size-limit.js",
-      "!{projectRoot}/.size-limit.mjs",
-      "!{projectRoot}/.jscpd.json",
-      "{workspaceRoot}/tsconfig.build.json",
-      "{workspaceRoot}/tsconfig.json",
-      "{workspaceRoot}/tsconfig.paths.json",
-      "{workspaceRoot}/package.json",
-      "{workspaceRoot}/package-lock.json",
-      "{workspaceRoot}/babel.config.json",
       "{workspaceRoot}/types/**/*",
-      "{workspaceRoot}/nx.json"
-    ],
-    "production": [
-      "{projectRoot}/src/**/*",
-      "!{projectRoot}/src/**/*.(spec|test).(j|t)s?(x)",
-      "!{projectRoot}/__tests__/**/*",
-      "!{projectRoot}/__fixtures__/**/*",
-      "!{projectRoot}/__mocks__/**/*",
-      "!{projectRoot}/jest.config.mjs"
+      "{workspaceRoot}/babel.config.json"
     ],
     "test": [
+      "sharedGlobals",
       "{projectRoot}/src/**/*",
+      "{projectRoot}/package.json",
+      "{projectRoot}/project.json",
+      "!{projectRoot}/**/*.md",
+      "!{projectRoot}/**/*.txt",
       "{projectRoot}/src/**/*.(spec|test).(j|t)s?(x)",
       "{projectRoot}/__tests__/**/*",
       "{projectRoot}/__fixtures__/**/*",
@@ -141,7 +104,7 @@
       "{projectRoot}/jest.config.mjs",
       "{workspaceRoot}/jest/**/*",
       "{workspaceRoot}/jest.preset.js",
-      "{workspaceRoot}/jest.config.js"
+      "{projectRoot}/tsconfig.spec.json"
     ]
   }
 }
