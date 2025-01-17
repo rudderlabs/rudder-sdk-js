@@ -6,7 +6,7 @@ import {
   getConsentData,
   getKetchConsentData,
 } from '../../src/ketchConsentManager/utils';
-import { defaultPluginsManager } from '../../__mocks__/PluginsManager';
+import { defaultPluginsManager } from '@rudderstack/analytics-js-common/__mocks__/PluginsManager';
 
 describe('KetchConsentManager - Utils', () => {
   beforeEach(() => {

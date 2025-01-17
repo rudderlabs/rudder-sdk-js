@@ -1,6 +1,6 @@
-import type { IPluginEngine } from '@rudderstack/analytics-js-common/types/PluginEngine';
-import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { defaultPluginEngine } from './PluginEngine';
+import type { IPluginEngine } from '../src/types/PluginEngine';
+import type { IPluginsManager } from '../src/types/PluginsManager';
+import { defaultPluginEngine } from '../__mocks__/PluginEngine';
 
 class PluginsManager implements IPluginsManager {
   // mock all the properties and methods of the PluginsManager class

@@ -3,7 +3,7 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { HttpClient } from '../../../services/HttpClient/HttpClient';
 import { state } from '../../../state';
 
-const detectAdBlockers = (errorHandler?: IErrorHandler, logger?: ILogger): void => {
+const detectAdBlockers = (errorHandler: IErrorHandler, logger?: ILogger): void => {
   // Apparently, '?view=ad' is a query param that is blocked by majority of adblockers
 
   // Use source config URL here as it is very unlikely to be blocked by adblockers
@@ -13,7 +13,8 @@ const detectAdBlockers = (errorHandler?: IErrorHandler, logger?: ILogger): void 
   const baseUrl = new URL(state.lifecycle.sourceConfigUrl.value as string);
   const url = `${baseUrl.origin}${baseUrl.pathname}?view=ad`;
 
-  const httpClient = new HttpClient(errorHandler, logger);
+  const httpClient = new HttpClient(logger);
+  httpClient.init(errorHandler);
   httpClient.setAuthHeader(state.lifecycle.writeKey.value as string);
 
   httpClient.getAsyncData({

@@ -59,6 +59,7 @@ export interface IHttpClient {
   logger?: ILogger;
   basicAuthHeader?: string;
   hasErrorHandler: boolean;
+  init: (errorHandler: IErrorHandler) => void;
   getData<T = any>(
     config: IRequestConfig,
   ): Promise<{ data: T | string | undefined; details?: ResponseDetails }>;
