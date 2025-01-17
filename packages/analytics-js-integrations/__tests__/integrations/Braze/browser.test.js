@@ -28,6 +28,7 @@ const mockBrazeSDK = () => {
         throw new Error('Braze SDK Error: changeUser requires a non-empty userId. (v4.2.1)');
       }
     }),
+    addAlias: jest.fn(),
     openSession: jest.fn(),
     getUser: jest.fn().mockReturnThis(),
     setCountry: jest.fn(),
@@ -150,6 +151,30 @@ describe('isLoaded', () => {
     const braze = new Braze(config, analytics, destinationInfo);
     const isLoaded = braze.isReady();
     expect(isLoaded).toBe(false);
+  });
+
+  it('should call the add alias method', () => {
+    const config = {
+      appKey: 'APP_KEY',
+    };
+    const analytics = {
+      getAnonymousId: jest.fn().mockReturnValue('anon123'),
+    };
+    const destinationInfo = {};
+
+    const braze = new Braze(config, analytics, destinationInfo);
+    braze.init();
+    // mock the window.braze
+    mockBrazeSDK();
+    
+    // mock true for isLoaded
+    jest.spyOn(braze, 'isLoaded').mockReturnValue(true);
+
+    jest.spyOn(window.braze, 'addAlias');
+
+    const isReady = braze.isReady();
+    expect(window.braze.addAlias).toHaveBeenCalledWith('anon123', 'rudder_id');
+    expect(isReady).toBe(true);
   });
 });
 
@@ -561,11 +586,9 @@ describe('track', () => {
       },
     };
 
-    jest.spyOn(window.braze, 'changeUser');
     braze.track(rudderElement);
 
     // Expect the necessary Braze methods to be called with the correct values
-    expect(window.braze.changeUser).toHaveBeenCalledWith('user123');
     expect(window.braze.logCustomEvent).toHaveBeenCalledWith('Product Reviewed', {
       rating: 3,
       review_body: 'Good product.',
@@ -622,11 +645,9 @@ describe('track', () => {
       },
     };
 
-    jest.spyOn(window.braze, 'changeUser');
     braze.track(rudderElement);
 
     // Expect the necessary Braze methods to be called with the correct values
-    expect(window.braze.changeUser).toHaveBeenCalledWith('user123');
     expect(window.braze.logPurchase).toHaveBeenCalledWith('123454387', 15.99, 'USD', 1, {});
   });
 
@@ -680,11 +701,9 @@ describe('track', () => {
       },
     };
 
-    jest.spyOn(window.braze, 'changeUser');
     braze.track(rudderElement);
 
     // Expect the necessary Braze methods to be called with the correct values
-    expect(window.braze.changeUser).toHaveBeenCalledWith('user123');
     expect(window.braze.logPurchase).toHaveBeenCalledWith('123454387', 15.99, 'USD', 1, {
       rating: 5,
     });
@@ -734,11 +753,14 @@ describe('track', () => {
       },
     };
 
-    jest.spyOn(window.braze, 'changeUser');
     braze.track(rudderElement);
 
     // Expect the necessary Braze methods to be called with the correct values
-    expect(window.braze.changeUser).toHaveBeenCalledWith('anon123');
+    expect(window.braze.logCustomEvent).toHaveBeenCalledWith('Product Reviewed', {
+      rating: 3,
+      review_body: 'Good product.',
+      review_id: '12345',
+    });
   });
 
   it('should call the necessary Braze methods for order completed event wit hreserved properties', () => {
@@ -791,11 +813,9 @@ describe('track', () => {
       },
     };
 
-    jest.spyOn(window.braze, 'changeUser');
     braze.track(rudderElement);
 
     // Expect the necessary Braze methods to be called with the correct values
-    expect(window.braze.changeUser).toHaveBeenCalledWith('user123');
     expect(window.braze.logCustomEvent).toHaveBeenCalledWith('Product Reviewed', {
       products: [{ name: 'Game', price: 15.99, product_id: '123454387', quantity: 1 }],
     });
@@ -827,19 +847,17 @@ describe('page', () => {
         name: 'Home',
         properties: {
           title: 'Home | RudderStack',
-          url: 'http://www.rudderstack.com',
+          url: 'https://www.rudderstack.com',
         },
       },
     };
 
-    jest.spyOn(window.braze, 'changeUser');
     braze.page(rudderElement);
 
     // Expect the necessary Braze methods to be called with the correct values
-    expect(window.braze.changeUser).toHaveBeenCalledWith('user123');
     expect(window.braze.logCustomEvent).toHaveBeenCalledWith('Home', {
       title: 'Home | RudderStack',
-      url: 'http://www.rudderstack.com',
+      url: 'https://www.rudderstack.com',
     });
   });
 
@@ -866,19 +884,17 @@ describe('page', () => {
         type: 'page',
         properties: {
           title: 'Home | RudderStack',
-          url: 'http://www.rudderstack.com',
+          url: 'https://www.rudderstack.com',
         },
       },
     };
 
-    jest.spyOn(window.braze, 'changeUser');
     braze.page(rudderElement);
 
     // Expect the necessary Braze methods to be called with the correct values
-    expect(window.braze.changeUser).toHaveBeenCalledWith('user123');
     expect(window.braze.logCustomEvent).toHaveBeenCalledWith('Page View', {
       title: 'Home | RudderStack',
-      url: 'http://www.rudderstack.com',
+      url: 'https://www.rudderstack.com',
     });
   });
 
@@ -905,19 +921,17 @@ describe('page', () => {
         type: 'page',
         properties: {
           title: 'Home | RudderStack',
-          url: 'http://www.rudderstack.com',
+          url: 'https://www.rudderstack.com',
         },
       },
     };
 
-    jest.spyOn(window.braze, 'changeUser');
     braze.page(rudderElement);
 
     // Expect the necessary Braze methods to be called with the correct values
-    expect(window.braze.changeUser).toBeCalledTimes(0);
     expect(window.braze.logCustomEvent).toHaveBeenCalledWith('Page View', {
       title: 'Home | RudderStack',
-      url: 'http://www.rudderstack.com',
+      url: 'https://www.rudderstack.com',
     });
   });
 
@@ -944,20 +958,17 @@ describe('page', () => {
         type: 'page',
         properties: {
           title: 'Home | RudderStack',
-          url: 'http://www.rudderstack.com',
+          url: 'https://www.rudderstack.com',
         },
       },
     };
 
-    jest.spyOn(window.braze, 'changeUser');
     braze.page(rudderElement);
 
     // Expect the necessary Braze methods to be called with the correct values
-    expect(window.braze.changeUser).toBeCalledTimes(1);
-    expect(window.braze.changeUser).toHaveBeenCalledWith('anon123');
     expect(window.braze.logCustomEvent).toHaveBeenCalledWith('Page View', {
       title: 'Home | RudderStack',
-      url: 'http://www.rudderstack.com',
+      url: 'https://www.rudderstack.com',
     });
   });
 
@@ -984,7 +995,7 @@ describe('page', () => {
         type: 'page',
         properties: {
           title: 'Home | RudderStack',
-          url: 'http://www.rudderstack.com',
+          url: 'https://www.rudderstack.com',
           event_name: 'ABC',
           referer: 'index',
           currency: 'usd',
@@ -992,15 +1003,12 @@ describe('page', () => {
       },
     };
 
-    jest.spyOn(window.braze, 'changeUser');
     braze.page(rudderElement);
 
     // Expect the necessary Braze methods to be called with the correct values
-    expect(window.braze.changeUser).toBeCalledTimes(1);
-    expect(window.braze.changeUser).toHaveBeenCalledWith('anon123');
     expect(window.braze.logCustomEvent).toHaveBeenCalledWith('Page View', {
       title: 'Home | RudderStack',
-      url: 'http://www.rudderstack.com',
+      url: 'https://www.rudderstack.com',
       referer: 'index',
     });
   });
@@ -1033,7 +1041,7 @@ describe('hybrid mode', () => {
         name: 'Home',
         properties: {
           title: 'Home | RudderStack',
-          url: 'http://www.rudderstack.com',
+          url: 'https://www.rudderstack.com',
         },
       },
     };
@@ -1042,7 +1050,7 @@ describe('hybrid mode', () => {
     braze.page(rudderElement);
 
     // Expect the necessary Braze methods to be called with the correct values
-    expect(window.braze.changeUser).toBeCalledTimes(0);
+    expect(window.braze.changeUser).toHaveBeenCalledTimes(0);
   });
 
   it('should not call the necessary Braze methods for track call', () => {
@@ -1071,7 +1079,7 @@ describe('hybrid mode', () => {
         name: 'Home',
         properties: {
           title: 'Home | RudderStack',
-          url: 'http://www.rudderstack.com',
+          url: 'https://www.rudderstack.com',
         },
       },
     };
@@ -1080,7 +1088,7 @@ describe('hybrid mode', () => {
     braze.track(rudderElement);
 
     // Expect the necessary Braze methods to be called with the correct values
-    expect(window.braze.changeUser).toBeCalledTimes(0);
+    expect(window.braze.changeUser).toHaveBeenCalledTimes(0);
   });
 
   it('should call the necessary Braze methods for identify call', () => {
@@ -1109,7 +1117,7 @@ describe('hybrid mode', () => {
         name: 'Home',
         properties: {
           title: 'Home | RudderStack',
-          url: 'http://www.rudderstack.com',
+          url: 'https://www.rudderstack.com',
         },
       },
     };
@@ -1118,6 +1126,6 @@ describe('hybrid mode', () => {
     braze.identify(rudderElement);
 
     // Expect the necessary Braze methods to be called with the correct values
-    expect(window.braze.changeUser).toBeCalledTimes(1);
+    expect(window.braze.changeUser).toHaveBeenCalledTimes(1);
   });
 });

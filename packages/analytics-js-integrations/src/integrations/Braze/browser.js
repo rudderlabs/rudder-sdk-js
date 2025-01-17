@@ -76,9 +76,14 @@ class Braze {
 
   isReady() {
     if (this.isLoaded()) {
-      const anonymousId = this.analytics.getAnonymousId();
-      window.braze.getUser().addAlias(anonymousId, 'rudder_id');
-      return true;
+      try {
+        const anonymousId = this.analytics.getAnonymousId();
+        window.braze.getUser().addAlias(anonymousId, 'rudder_id');
+        return true;
+      } catch (error) {
+        logger.error(`Error in isReady - ${stringifyWithoutCircularV1(error, true)}`);
+        return false;
+      }
     }
     return false;
   }
@@ -260,12 +265,11 @@ class Braze {
     if (this.isHybridModeEnabled) {
       return;
     }
-    const { userId } = rudderElement.message;
     const eventName = rudderElement.message.event;
     let { properties } = rudderElement.message;
     if (eventName) {
       if (eventName.toLowerCase() === 'order completed') {
-        handlePurchase(properties, userId);
+        handlePurchase(properties);
       } else {
         properties = handleReservedProperties(properties);
         window.braze.logCustomEvent(eventName, properties);
