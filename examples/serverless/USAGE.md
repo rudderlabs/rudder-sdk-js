@@ -77,7 +77,7 @@ You can then utilise the RudderStack JS SDK within the fetch methods as usual:
       }
     });
 
-See relevant [example](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/serverless/vencel-edge)
+See relevant [example](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/serverless/vercel-edge)
 
 ## External resources
 
