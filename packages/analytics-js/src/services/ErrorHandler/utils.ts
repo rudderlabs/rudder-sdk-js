@@ -71,6 +71,7 @@ const getUserDetails = (
   autoTrack: ApplicationState['autoTrack'],
 ) => ({
   id: `${source.value?.id ?? (lifecycle.writeKey.value as string)}..${session.sessionInfo.value.id ?? 'NA'}..${autoTrack.pageLifecycle.visitId.value ?? 'NA'}`,
+  name: source.value?.name ?? 'NA',
 });
 
 const getDeviceDetails = (
@@ -88,9 +89,10 @@ const getBugsnagErrorEvent = (
   state: ApplicationState,
 ): ErrorEventPayload => {
   const { context, lifecycle, session, source, reporting, autoTrack } = state;
-  const { app, locale, userAgent } = context;
+  const { app, locale, userAgent, timezone, screen, library } = context;
 
   return {
+    payloadVersion: '5',
     notifier: {
       name: NOTIFIER_NAME,
       version: app.value.version,
@@ -98,7 +100,6 @@ const getBugsnagErrorEvent = (
     },
     events: [
       {
-        payloadVersion: '5',
         exceptions: [clone(exception)],
         severity: errorState.severity,
         unhandled: errorState.unhandled,
@@ -106,6 +107,7 @@ const getBugsnagErrorEvent = (
         app: {
           version: app.value.version,
           releaseStage: getReleaseStage(),
+          type: app.value.installType,
         },
         device: getDeviceDetails(locale, userAgent),
         request: {
@@ -115,14 +117,13 @@ const getBugsnagErrorEvent = (
         breadcrumbs: clone(reporting.breadcrumbs.value),
         context: exception.message,
         metaData: {
-          sdk: {
-            name: 'JS',
-            installType: app.value.installType,
+          app: {
+            snippetVersion: library.value.snippetVersion,
           },
-          state: getAppStateForMetadata(state) ?? {},
-          source: {
-            snippetVersion: (globalThis as typeof window).RudderSnippetVersion,
-          },
+          device: { ...screen.value, timezone: timezone.value },
+          // Add rest of the state groups as metadata
+          // so that they show up as separate tabs in the dashboard
+          ...getAppStateForMetadata(state),
         },
         user: getUserDetails(source, session, lifecycle, autoTrack),
       },

@@ -151,6 +151,7 @@ describe('ConfigManager', () => {
     const expectedSourceState = {
       id: dummySourceConfigResponse.source.id,
       config: dummySourceConfigResponse.source.config,
+      name: dummySourceConfigResponse.source.name,
       workspaceId: dummySourceConfigResponse.source.workspaceId,
     };
     state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;

@@ -174,6 +174,7 @@ class ConfigManager implements IConfigManager {
       // set source related information in state
       state.source.value = {
         config: res.source.config,
+        name: res.source.name,
         id: res.source.id,
         workspaceId: res.source.workspaceId,
       };
