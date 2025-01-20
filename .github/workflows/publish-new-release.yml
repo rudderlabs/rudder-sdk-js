@@ -122,7 +122,7 @@ jobs:
             - **Related Ticket**: [${{ steps.extract-version.outputs.release_ticket_id }}](https://linear.app/rudderstack/issue/${{ steps.extract-version.outputs.release_ticket_id }})
 
             ---
-            Please review and merge it before closing the release ticket :rocket:
+            Please review and merge it before closing the release ticket. :rocket:
 
       - name: Send message to Slack channel
         id: slack
