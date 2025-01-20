@@ -80,7 +80,7 @@ const DATA_PLANE_URL_VALIDATION_ERROR = (context: string, dataPlaneUrl: string):
   `${context}${LOG_CONTEXT_SEPARATOR}The data plane URL "${dataPlaneUrl}" is invalid. It must be a valid URL string. Please check that the data plane URL is correct and try again.`;
 
 const INVALID_CALLBACK_FN_ERROR = (context: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The provided callback is not invokable.`;
+  `${context}${LOG_CONTEXT_SEPARATOR}The provided callback parameter is not a function.`;
 
 const XHR_DELIVERY_ERROR = (
   prefix: string,

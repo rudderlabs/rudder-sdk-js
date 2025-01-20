@@ -260,7 +260,7 @@ describe('Core - Analytics', () => {
       analytics.onInitialized();
 
       expect(errorSpy).toHaveBeenCalledTimes(1);
-      expect(errorSpy).toHaveBeenCalledWith('LoadAPI:: The provided callback is not invokable.');
+      expect(errorSpy).toHaveBeenCalledWith('LoadAPI:: The provided callback parameter is not a function.');
     });
 
     it('should log an error if the onLoaded callback throws an error', () => {
@@ -378,7 +378,7 @@ describe('Core - Analytics', () => {
       analytics.ready(true);
 
       expect(errorSpy).toHaveBeenCalledTimes(1);
-      expect(errorSpy).toHaveBeenCalledWith('ReadyAPI:: The provided callback is not invokable.');
+      expect(errorSpy).toHaveBeenCalledWith('ReadyAPI:: The provided callback parameter is not a function.');
     });
 
     it('should log an error if the provided callback throws an error', () => {
