@@ -31,6 +31,11 @@ jobs:
           VERSION=${BRANCH_NAME#hotfix-}
           VERSION=${VERSION#release/}
 
+          # Extract the ticket ID (case-insensitive match for -SDK-<ticket_number>)
+          RELEASE_TICKET_ID=$(echo "$BRANCH_NAME" | grep -oE '[sS][dD][kK]-[0-9]+')
+
+          echo "release_ticket_id=$RELEASE_TICKET_ID" >> $GITHUB_OUTPUT
+
           # Remove the -SDK-<ticket_number> suffix case insensitively
           VERSION=$(echo "$VERSION" | awk '{sub(/-[sS][dD][kK]-[0-9]+$/, ""); print}')
 
@@ -104,8 +109,20 @@ jobs:
           source_branch: 'main'
           destination_branch: 'develop'
           github_token: ${{ secrets.PAT }}
-          pr_title: 'chore(release): pull main into develop post release v${{ steps.extract-version.outputs.release_version }}'
-          pr_body: ':crown: *An automated PR*'
+          pr_title: 'chore(release): merge main into develop after release v${{ steps.extract-version.outputs.release_version }} [${{ steps.extract-version.outputs.release_ticket_id }}]'
+          pr_body: |
+            :crown: **Automated Post-Release PR**
+
+            This pull request was created automatically by the GitHub Actions workflow. It merges changes from the `main` branch into the `develop` branch after a release has been completed.
+
+            This ensures that the `develop` branch stays up to date with all release-related changes from the `main` branch.
+
+            ### Details
+            - **Release Version**: v${{ steps.extract-version.outputs.release_version }}
+            - **Related Ticket**: [${{ steps.extract-version.outputs.release_ticket_id }}](https://linear.app/rudderstack/issue/${{ steps.extract-version.outputs.release_ticket_id }})
+
+            ---
+            Please review and merge it before closing the release ticket :rocket:
 
       - name: Send message to Slack channel
         id: slack
