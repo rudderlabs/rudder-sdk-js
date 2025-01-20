@@ -134,6 +134,8 @@ class RetryQueue implements IQueue<QueueItemData> {
       name: this.name,
       validKeys: QueueStatuses,
       type: storageType,
+      errorHandler: this.storeManager.errorHandler,
+      logger: this.storeManager.logger,
     });
     this.setDefaultQueueEntries();
 
@@ -583,6 +585,8 @@ class RetryQueue implements IQueue<QueueItemData> {
       name: this.name,
       validKeys: QueueStatuses,
       type: LOCAL_STORAGE,
+      errorHandler: this.storeManager.errorHandler,
+      logger: this.storeManager.logger,
     });
     const our = {
       queue: (this.getStorageEntry(QueueStatuses.QUEUE) ?? []) as QueueItem[],
@@ -770,6 +774,8 @@ class RetryQueue implements IQueue<QueueItemData> {
               name,
               validKeys: QueueStatuses,
               type: LOCAL_STORAGE,
+              errorHandler: this.storeManager.errorHandler,
+              logger: this.storeManager.logger,
             }),
           );
         }

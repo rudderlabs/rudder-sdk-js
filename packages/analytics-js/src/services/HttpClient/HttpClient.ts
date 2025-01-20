@@ -20,19 +20,16 @@ import { createXhrRequestOptions, xhrRequest } from './xhr/xhrRequestHandler';
  */
 class HttpClient implements IHttpClient {
   errorHandler?: IErrorHandler;
-  logger?: ILogger;
+  logger: ILogger;
   basicAuthHeader?: string;
-  hasErrorHandler = false;
 
-  constructor(logger?: ILogger) {
+  constructor(logger: ILogger) {
     this.logger = logger;
-    this.hasErrorHandler = Boolean(this.errorHandler);
     this.onError = this.onError.bind(this);
   }
 
   init(errorHandler: IErrorHandler) {
     this.errorHandler = errorHandler;
-    this.hasErrorHandler = true;
   }
 
   /**
@@ -54,7 +51,6 @@ class HttpClient implements IHttpClient {
         details: data,
       };
     } catch (reason) {
-      this.onError((reason as ResponseDetails).error ?? reason);
       return { data: undefined, details: reason as ResponseDetails };
     }
   }
@@ -76,7 +72,6 @@ class HttpClient implements IHttpClient {
         }
       })
       .catch((data: ResponseDetails) => {
-        this.onError(data.error ?? data);
         if (!isFireAndForget) {
           callback(undefined, data);
         }
@@ -87,11 +82,7 @@ class HttpClient implements IHttpClient {
    * Handle errors
    */
   onError(error: unknown) {
-    if (this.hasErrorHandler) {
-      this.errorHandler?.onError(error, HTTP_CLIENT);
-    } else {
-      throw error;
-    }
+    this.errorHandler?.onError(error, HTTP_CLIENT);
   }
 
   /**
@@ -110,6 +101,6 @@ class HttpClient implements IHttpClient {
   }
 }
 
-const defaultHttpClient: HttpClient = new HttpClient(defaultLogger);
+const defaultHttpClient = new HttpClient(defaultLogger);
 
 export { HttpClient, defaultHttpClient };

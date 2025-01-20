@@ -1,8 +1,6 @@
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { APIEvent } from '@rudderstack/analytics-js-common/types/EventApi';
-import { EVENT_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { EVENT_OBJECT_GENERATION_ERROR } from '../../constants/logMessages';
 import type { IEventManager } from './types';
 import { RudderEventFactory } from './RudderEventFactory';
 import type { IEventRepository } from '../eventRepository/types';
@@ -14,8 +12,8 @@ import type { IUserSessionManager } from '../userSessionManager/types';
 class EventManager implements IEventManager {
   eventRepository: IEventRepository;
   userSessionManager: IUserSessionManager;
-  errorHandler?: IErrorHandler;
-  logger?: ILogger;
+  errorHandler: IErrorHandler;
+  logger: ILogger;
   eventFactory: RudderEventFactory;
 
   /**
@@ -28,15 +26,14 @@ class EventManager implements IEventManager {
   constructor(
     eventRepository: IEventRepository,
     userSessionManager: IUserSessionManager,
-    errorHandler?: IErrorHandler,
-    logger?: ILogger,
+    errorHandler: IErrorHandler,
+    logger: ILogger,
   ) {
     this.eventRepository = eventRepository;
     this.userSessionManager = userSessionManager;
     this.errorHandler = errorHandler;
     this.logger = logger;
     this.eventFactory = new RudderEventFactory(this.logger);
-    this.onError = this.onError.bind(this);
   }
 
   /**
@@ -57,23 +54,7 @@ class EventManager implements IEventManager {
   addEvent(event: APIEvent) {
     this.userSessionManager.refreshSession();
     const rudderEvent = this.eventFactory.create(event);
-    if (rudderEvent) {
-      this.eventRepository.enqueue(rudderEvent, event.callback);
-    } else {
-      this.onError(new Error(EVENT_OBJECT_GENERATION_ERROR));
-    }
-  }
-
-  /**
-   * Handles error
-   * @param error The error object
-   */
-  onError(error: unknown, customMessage?: string, shouldAlwaysThrow?: boolean): void {
-    if (this.errorHandler) {
-      this.errorHandler.onError(error, EVENT_MANAGER, customMessage);
-    } else {
-      throw error;
-    }
+    this.eventRepository.enqueue(rudderEvent, event.callback);
   }
 }
 

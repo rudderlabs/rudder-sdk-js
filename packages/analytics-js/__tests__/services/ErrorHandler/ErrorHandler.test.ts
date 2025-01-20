@@ -143,7 +143,7 @@ describe('ErrorHandler', () => {
     it('should log unhandled errors that are explicitly dispatched by the SDK', () => {
       const error = new Error('dummy error');
       // Explicitly mark the error as dispatched by the SDK
-      error.stack += '[MANUAL ERROR]';
+      error.stack += '[SDK DISPATCHED ERROR]';
       const errorEvent = new ErrorEvent('error', { error });
 
       // @ts-expect-error not using the enum value for testing
