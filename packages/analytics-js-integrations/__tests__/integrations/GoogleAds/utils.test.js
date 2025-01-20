@@ -98,6 +98,11 @@ describe('GoogleAds utilities getConversionData function tests', () => {
     expect(conversionData.conversionLabel).toEqual('15klCKLCs4gYETIBi58p');
   });
 
+  test('Event name is not a string', () => {
+    const conversionData = getConversionData(mockEventTypeConversions, 342, '');
+    expect(conversionData).toEqual({});
+  });
+
   test('No event name is present', () => {
     const conversionData = getConversionData(mockEventTypeConversions, '', 'KhF2CKvCs4gYETIBi58p');
     expect(conversionData.eventName).toEqual('Viewed a Page');

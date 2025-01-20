@@ -48,9 +48,9 @@ permissions:
   contents: read # This is required for actions/checkout
 
 env:
-  NODE_OPTIONS: "--no-warnings"
-  CACHE_CONTROL_NO_STORE: "\"no-store\""
-  CACHE_CONTROL_MAX_AGE: "\"max-age=3600\""
+  NODE_OPTIONS: '--no-warnings'
+  CACHE_CONTROL_NO_STORE: '"no-store"'
+  CACHE_CONTROL_MAX_AGE: '"max-age=3600"'
 
 jobs:
   deploy:
@@ -290,7 +290,7 @@ jobs:
 
           aws s3 cp $core_sdk_path_prefix/legacy/ $s3_path_prefix/ $copy_args
           aws s3 cp $core_sdk_path_prefix/modern/ $s3_path_prefix/modern/ $copy_args
-          
+
           aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/js-integrations/ $copy_args
           aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
 
@@ -310,7 +310,7 @@ jobs:
 
           aws s3 cp $core_sdk_path_prefix/legacy/ $s3_path_prefix/ $copy_args
           aws s3 cp $core_sdk_path_prefix/modern/ $s3_path_prefix/modern/ $copy_args
-          
+
           aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/js-integrations/ $copy_args
           aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
 

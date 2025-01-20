@@ -17,12 +17,12 @@
   },
   "dependencies": {
     "@rudderstack/analytics-js": "*",
-    "gatsby": "5.14.0",
+    "gatsby": "5.14.1",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   },
   "devDependencies": {
-    "@types/node": "22.10.1",
+    "@types/node": "22.10.5",
     "@types/react": "18.3.9",
     "@types/react-dom": "18.3.0",
     "typescript": "5.7.2"
