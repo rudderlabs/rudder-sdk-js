@@ -15,6 +15,7 @@ export type MetricServicePayload = {
 
 // https://bugsnagerrorreportingapi.docs.apiary.io/#reference/0/notify/send-error-reports
 export type ErrorEventPayload = {
+  payloadVersion: string;
   notifier: {
     name: string;
     version: string;
@@ -24,7 +25,6 @@ export type ErrorEventPayload = {
 };
 
 export type ErrorEvent = Pick<Event, 'severity' | 'app' | 'device' | 'request' | 'context'> & {
-  payloadVersion: string;
   exceptions: Exception[];
   unhandled: boolean;
   severityReason: { type: string };

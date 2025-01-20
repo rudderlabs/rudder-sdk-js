@@ -327,7 +327,7 @@ describe('EventRepository', () => {
 
     expect(defaultLogger.error).toHaveBeenCalledTimes(1);
     expect(defaultLogger.error).toHaveBeenCalledWith(
-      'TrackAPI:: The provided callback is not invokable.',
+      'TrackAPI:: The provided callback parameter is not a function.',
     );
   });
 
@@ -341,7 +341,7 @@ describe('EventRepository', () => {
     );
 
     eventRepository.init();
-
+    
     const mockEventCallback = jest.fn(() => {
       throw new Error('test error');
     });
