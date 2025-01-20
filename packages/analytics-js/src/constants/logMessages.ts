@@ -79,8 +79,8 @@ const WRITE_KEY_VALIDATION_ERROR = (context: string, writeKey: string): string =
 const DATA_PLANE_URL_VALIDATION_ERROR = (context: string, dataPlaneUrl: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The data plane URL "${dataPlaneUrl}" is invalid. It must be a valid URL string. Please check that the data plane URL is correct and try again.`;
 
-const READY_API_CALLBACK_ERROR = (context: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The provided callback is not a function.`;
+const INVALID_CALLBACK_FN_ERROR = (context: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The provided callback is not invokable.`;
 
 const XHR_DELIVERY_ERROR = (
   prefix: string,
@@ -190,9 +190,9 @@ const STORAGE_UNAVAILABLE_WARNING = (
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The storage type "${selectedStorageType}" is not available for entry "${entry}". The SDK will initialize the entry with "${finalStorageType}" storage type instead.`;
 
-const READY_CALLBACK_INVOKE_ERROR = `Failed to invoke the ready callback`;
+const CALLBACK_INVOKE_ERROR = (context: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The callback threw an exception`;
 
-const API_CALLBACK_INVOKE_ERROR = `API Callback Invocation Failed`;
 const NATIVE_DEST_PLUGIN_INITIALIZE_ERROR = `NativeDestinationQueuePlugin initialization failed`;
 const DATAPLANE_PLUGIN_INITIALIZE_ERROR = `XhrQueuePlugin initialization failed`;
 const DMT_PLUGIN_INITIALIZE_ERROR = `DeviceModeTransformationPlugin initialization failed`;
@@ -278,7 +278,6 @@ export {
   DATA_PLANE_URL_ERROR,
   WRITE_KEY_VALIDATION_ERROR,
   DATA_PLANE_URL_VALIDATION_ERROR,
-  READY_API_CALLBACK_ERROR,
   XHR_DELIVERY_ERROR,
   XHR_REQUEST_ERROR,
   XHR_SEND_ERROR,
@@ -289,8 +288,6 @@ export {
   PLUGIN_EXT_POINT_MISSING_ERROR,
   PLUGIN_EXT_POINT_INVALID_ERROR,
   STORAGE_TYPE_VALIDATION_WARNING,
-  READY_CALLBACK_INVOKE_ERROR,
-  API_CALLBACK_INVOKE_ERROR,
   INVALID_CONFIG_URL_WARNING,
   POLYFILL_SCRIPT_LOAD_ERROR,
   UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY,
@@ -315,4 +312,6 @@ export {
   NON_ERROR_WARNING,
   BREADCRUMB_ERROR,
   HANDLE_ERROR_FAILURE,
+  CALLBACK_INVOKE_ERROR,
+  INVALID_CALLBACK_FN_ERROR,
 };
