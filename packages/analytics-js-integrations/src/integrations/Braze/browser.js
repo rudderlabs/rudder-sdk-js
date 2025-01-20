@@ -267,7 +267,13 @@ class Braze {
     }
     const eventName = rudderElement.message.event;
     let { properties } = rudderElement.message;
-    if (eventName && this.trackAnonymousUser) {
+
+    const { userId } = rudderElement.message;
+    let canSendCustomEvent = false;
+    if (userId || this.trackAnonymousUser) {
+      canSendCustomEvent = true;
+    }
+    if (eventName && canSendCustomEvent) {
       if (eventName.toLowerCase() === 'order completed') {
         handlePurchase(properties);
       } else {
