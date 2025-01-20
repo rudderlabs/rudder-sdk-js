@@ -8,10 +8,12 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { ApiCallback } from '@rudderstack/analytics-js-common/types/EventApi';
 import { isHybridModeDestination } from '@rudderstack/analytics-js-common/utilities/destinations';
-import { EVENT_REPOSITORY } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import {
+  API_SUFFIX,
+  EVENT_REPOSITORY,
+} from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import {
-  API_CALLBACK_INVOKE_ERROR,
   DATAPLANE_PLUGIN_ENQUEUE_ERROR,
   DATAPLANE_PLUGIN_INITIALIZE_ERROR,
   DMT_PLUGIN_INITIALIZE_ERROR,
@@ -27,13 +29,14 @@ import {
   DMT_EXT_POINT_PREFIX,
 } from './constants';
 import { getFinalEvent, shouldBufferEventsForPreConsent } from './utils';
+import { safelyInvokeCallback } from '../utilities/callbacks';
 
 /**
  * Event repository class responsible for queuing events for further processing and delivery
  */
 class EventRepository implements IEventRepository {
   errorHandler: IErrorHandler;
-  logger?: ILogger;
+  logger: ILogger;
   pluginsManager: IPluginsManager;
   httpClient: IHttpClient;
   storeManager: IStoreManager;
@@ -52,7 +55,7 @@ class EventRepository implements IEventRepository {
     pluginsManager: IPluginsManager,
     storeManager: IStoreManager,
     errorHandler: IErrorHandler,
-    logger?: ILogger,
+    logger: ILogger,
   ) {
     this.pluginsManager = pluginsManager;
     this.errorHandler = errorHandler;
@@ -199,13 +202,8 @@ class EventRepository implements IEventRepository {
     }
 
     // Invoke the callback if it exists
-    try {
-      // Using the event sent to the data plane queue here
-      // to ensure the mutated (if any) event is sent to the callback
-      callback?.(dpQEvent);
-    } catch (error) {
-      this.onError(error, API_CALLBACK_INVOKE_ERROR);
-    }
+    const apiName = `${event.type.charAt(0).toUpperCase()}${event.type.slice(1)}${API_SUFFIX}`;
+    safelyInvokeCallback(callback, [dpQEvent], apiName, this.logger);
   }
 
   /**
