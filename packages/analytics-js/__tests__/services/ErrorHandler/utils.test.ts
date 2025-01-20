@@ -2,6 +2,7 @@
 /* eslint-disable max-classes-per-file */
 import { signal } from '@preact/signals-core';
 import type { ErrorEventPayload, Exception } from '@rudderstack/analytics-js-common/types/Metrics';
+import type { Event } from '@bugsnag/js';
 import { state, resetState } from '../../../src/state';
 import * as errorReportingConstants from '../../../src/services/ErrorHandler/constants';
 import {
@@ -312,7 +313,7 @@ describe('Error Reporting utilities', () => {
       };
 
       const errorState = {
-        severity: 'error',
+        severity: 'error' as Event['severity'],
         unhandled: false,
         severityReason: { type: 'handledException' },
       };
@@ -334,6 +335,7 @@ describe('Error Reporting utilities', () => {
       const bsErrorEvent = getBugsnagErrorEvent(exception, errorState, state);
 
       const expectedOutcome = {
+        payloadVersion: '5',
         notifier: {
           name: 'RudderStack JavaScript SDK',
           version: '__PACKAGE_VERSION__',
@@ -358,13 +360,13 @@ describe('Error Reporting utilities', () => {
             ],
             severity: 'error',
             unhandled: false,
-            payloadVersion: '5',
             severityReason: {
               type: 'handledException',
             },
             app: {
               version: '__PACKAGE_VERSION__',
               releaseStage: 'development',
+              type: 'cdn',
             },
             device: {
               locale: 'en-US',
@@ -392,186 +394,187 @@ describe('Error Reporting utilities', () => {
             ],
             context: 'dummy message',
             metaData: {
-              sdk: {
-                name: 'JS',
-                installType: 'cdn',
+              app: {
+                snippetVersion: 'sample_snippet_version',
               },
-              source: {
-                snippetVersion: undefined,
+              device: {
+                density: 1,
+                width: 2,
+                height: 3,
+                innerWidth: 4,
+                innerHeight: 5,
               },
-              state: {
-                autoTrack: {
+              autoTrack: {
+                enabled: false,
+                pageLifecycle: {
                   enabled: false,
-                  pageLifecycle: {
-                    enabled: false,
-                    visitId: 'test-visit-id',
-                  },
+                  visitId: 'test-visit-id',
                 },
-                capabilities: {
-                  isAdBlocked: false,
-                  isBeaconAvailable: false,
-                  isCryptoAvailable: false,
-                  isIE11: false,
-                  isLegacyDOM: false,
-                  isOnline: true,
-                  isUaCHAvailable: false,
-                  storage: {
-                    isCookieStorageAvailable: false,
-                    isLocalStorageAvailable: false,
-                    isSessionStorageAvailable: false,
-                  },
+              },
+              capabilities: {
+                isAdBlocked: false,
+                isBeaconAvailable: false,
+                isCryptoAvailable: false,
+                isIE11: false,
+                isLegacyDOM: false,
+                isOnline: true,
+                isUaCHAvailable: false,
+                storage: {
+                  isCookieStorageAvailable: false,
+                  isLocalStorageAvailable: false,
+                  isSessionStorageAvailable: false,
                 },
-                consents: {
-                  data: {},
+              },
+              consents: {
+                data: {},
+                enabled: false,
+                initialized: false,
+                postConsent: {},
+                preConsent: {
                   enabled: false,
-                  initialized: false,
-                  postConsent: {},
-                  preConsent: {
-                    enabled: false,
-                  },
-                  resolutionStrategy: 'and',
                 },
-                context: {
-                  app: {
-                    installType: 'cdn',
-                    name: 'RudderLabs JavaScript SDK',
-                    namespace: 'com.rudderlabs.javascript',
-                    version: '__PACKAGE_VERSION__',
-                  },
-                  device: null,
-                  library: {
-                    name: 'RudderLabs JavaScript SDK',
-                    snippetVersion: 'sample_snippet_version',
-                    version: '__PACKAGE_VERSION__',
-                  },
-                  locale: 'en-US',
-                  network: null,
-                  os: {
-                    name: '',
-                    version: '',
-                  },
-                  screen: {
-                    density: 1,
-                    height: 3,
-                    innerHeight: 5,
-                    innerWidth: 4,
-                    width: 2,
-                  },
-                  userAgent:
-                    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
+                resolutionStrategy: 'and',
+              },
+              context: {
+                app: {
+                  installType: 'cdn',
+                  name: 'RudderLabs JavaScript SDK',
+                  namespace: 'com.rudderlabs.javascript',
+                  version: '__PACKAGE_VERSION__',
                 },
-                dataPlaneEvents: {
-                  deliveryEnabled: true,
+                device: null,
+                library: {
+                  name: 'RudderLabs JavaScript SDK',
+                  snippetVersion: 'sample_snippet_version',
+                  version: '__PACKAGE_VERSION__',
                 },
-                lifecycle: {
-                  initialized: false,
-                  integrationsCDNPath: 'https://cdn.rudderlabs.com/v3/modern/js-integrations',
-                  pluginsCDNPath: 'https://cdn.rudderlabs.com/v3/modern/plugins',
-                  loaded: false,
-                  logLevel: 'ERROR',
-                  readyCallbacks: [],
+                locale: 'en-US',
+                network: null,
+                os: {
+                  name: '',
+                  version: '',
                 },
-                loadOptions: {
-                  beaconQueueOptions: {},
-                  bufferDataPlaneEventsUntilReady: false,
-                  configUrl: 'https://api.rudderstack.com',
-                  dataPlaneEventsBufferTimeout: 10000,
-                  destinationsQueueOptions: {},
-                  integrations: {
-                    All: true,
-                  },
-                  loadIntegration: true,
-                  lockIntegrationsVersion: false,
-                  lockPluginsVersion: false,
-                  logLevel: 'ERROR',
-                  plugins: [],
-                  polyfillIfRequired: true,
-                  queueOptions: {},
-                  sameSiteCookie: 'Lax',
-                  sendAdblockPageOptions: {},
-                  sessions: {
-                    autoTrack: true,
-                    timeout: 1800000,
-                  },
-                  storage: {
-                    cookie: {},
-                    encryption: {
-                      version: 'v3',
-                    },
-                    migrate: true,
-                  },
-                  uaChTrackLevel: 'none',
-                  useBeacon: false,
-                  useGlobalIntegrationsConfigInEvents: false,
-                  useServerSideCookies: false,
+                screen: {
+                  density: 1,
+                  height: 3,
+                  innerHeight: 5,
+                  innerWidth: 4,
+                  width: 2,
                 },
-                metrics: {
-                  dropped: 0,
-                  queued: 0,
-                  retries: 0,
-                  sent: 0,
-                  triggered: 0,
+                userAgent:
+                  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
+              },
+              dataPlaneEvents: {
+                deliveryEnabled: true,
+              },
+              lifecycle: {
+                initialized: false,
+                integrationsCDNPath: 'https://cdn.rudderlabs.com/v3/modern/js-integrations',
+                pluginsCDNPath: 'https://cdn.rudderlabs.com/v3/modern/plugins',
+                loaded: false,
+                logLevel: 'ERROR',
+                readyCallbacks: [],
+              },
+              loadOptions: {
+                beaconQueueOptions: {},
+                bufferDataPlaneEventsUntilReady: false,
+                configUrl: 'https://api.rudderstack.com',
+                dataPlaneEventsBufferTimeout: 10000,
+                destinationsQueueOptions: {},
+                integrations: {
+                  All: true,
                 },
-                nativeDestinations: {
-                  activeDestinations: [],
-                  clientDestinationsReady: false,
-                  configuredDestinations: [],
-                  failedDestinations: [],
-                  initializedDestinations: [],
-                  integrationsConfig: {},
-                  loadIntegration: true,
-                  loadOnlyIntegrations: {},
-                },
-                plugins: {
-                  activePlugins: [],
-                  failedPlugins: [],
-                  loadedPlugins: [],
-                  pluginsToLoadFromConfig: [],
-                  ready: false,
-                  totalPluginsToLoad: 0,
-                },
-                reporting: {
-                  breadcrumbs: [
-                    {
-                      metaData: {},
-                      name: 'sample breadcrumb message',
-                      timestamp: expect.any(String),
-                      type: 'manual',
-                    },
-                    {
-                      metaData: {},
-                      name: 'sample breadcrumb message 2',
-                      timestamp: expect.any(String),
-                      type: 'manual',
-                    },
-                  ],
-                  isErrorReportingEnabled: false,
-                  isMetricsReportingEnabled: false,
-                },
-                serverCookies: {
-                  isEnabledServerSideCookies: false,
-                },
-                session: {
-                  initialReferrer: '',
-                  initialReferringDomain: '',
-                  sessionInfo: {
-                    id: 123,
-                  },
-                },
-                source: {
-                  id: 'dummy-source-id',
-                  name: 'dummy-source-name',
-                  workspaceId: 'dummy-workspace-id',
+                loadIntegration: true,
+                lockIntegrationsVersion: false,
+                lockPluginsVersion: false,
+                plugins: [],
+                polyfillIfRequired: true,
+                queueOptions: {},
+                sameSiteCookie: 'Lax',
+                sendAdblockPageOptions: {},
+                sessions: {
+                  autoTrack: true,
+                  timeout: 1800000,
                 },
                 storage: {
-                  entries: {},
-                  migrate: false,
-                  trulyAnonymousTracking: false,
+                  cookie: {},
+                  encryption: {
+                    version: 'v3',
+                  },
+                  migrate: true,
                 },
+                uaChTrackLevel: 'none',
+                useBeacon: false,
+                useGlobalIntegrationsConfigInEvents: false,
+                useServerSideCookies: false,
+              },
+              metrics: {
+                dropped: 0,
+                queued: 0,
+                retries: 0,
+                sent: 0,
+                triggered: 0,
+              },
+              nativeDestinations: {
+                activeDestinations: [],
+                clientDestinationsReady: false,
+                configuredDestinations: [],
+                failedDestinations: [],
+                initializedDestinations: [],
+                integrationsConfig: {},
+                loadIntegration: true,
+                loadOnlyIntegrations: {},
+              },
+              plugins: {
+                activePlugins: [],
+                failedPlugins: [],
+                loadedPlugins: [],
+                pluginsToLoadFromConfig: [],
+                ready: false,
+                totalPluginsToLoad: 0,
+              },
+              reporting: {
+                breadcrumbs: [
+                  {
+                    metaData: {},
+                    name: 'sample breadcrumb message',
+                    timestamp: expect.any(String),
+                    type: 'manual',
+                  },
+                  {
+                    metaData: {},
+                    name: 'sample breadcrumb message 2',
+                    timestamp: expect.any(String),
+                    type: 'manual',
+                  },
+                ],
+                isErrorReportingEnabled: false,
+                isMetricsReportingEnabled: false,
+              },
+              serverCookies: {
+                isEnabledServerSideCookies: false,
+              },
+              session: {
+                initialReferrer: '',
+                initialReferringDomain: '',
+                sessionInfo: {
+                  id: 123,
+                },
+              },
+              source: {
+                id: 'dummy-source-id',
+                name: 'dummy-source-name',
+                workspaceId: 'dummy-workspace-id',
+              },
+              storage: {
+                entries: {},
+                migrate: false,
+                trulyAnonymousTracking: false,
               },
             },
             user: {
               id: 'dummy-source-id..123..test-visit-id',
+              name: 'dummy-source-name',
             },
           },
         ],
@@ -666,6 +669,7 @@ describe('Error Reporting utilities', () => {
       );
       expect(userDetails).toEqual({
         id: 'dummy-source-id..123..test-visit-id',
+        name: 'dummy-source-name',
       });
     });
 
@@ -680,6 +684,7 @@ describe('Error Reporting utilities', () => {
       );
       expect(userDetails).toEqual({
         id: 'dummy-write-key..NA..NA',
+        name: 'NA',
       });
     });
   });
@@ -703,7 +708,7 @@ describe('Error Reporting utilities', () => {
       const deviceDetails = getDeviceDetails(state.context.locale, state.context.userAgent);
       expect(deviceDetails).toEqual({
         locale: 'NA',
-        userAgent: '',
+        userAgent: 'NA',
         time: expect.any(Date),
       });
     });
