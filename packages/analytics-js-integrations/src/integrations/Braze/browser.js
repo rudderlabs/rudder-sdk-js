@@ -267,7 +267,7 @@ class Braze {
     }
     const eventName = rudderElement.message.event;
     let { properties } = rudderElement.message;
-    if (eventName) {
+    if (eventName && this.trackAnonymousUser) {
       if (eventName.toLowerCase() === 'order completed') {
         handlePurchase(properties);
       } else {
