@@ -79,6 +79,7 @@ jobs:
 
       - name: Create GitHub releases
         id: create_release
+        continue-on-error: true
         env:
           HUSKY: 0
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -96,6 +97,8 @@ jobs:
           git checkout -- .nxignore
 
       - name: Create pull request into develop
+        if: always()
+        continue-on-error: true
         uses: repo-sync/pull-request@v2
         with:
           source_branch: 'main'
@@ -106,6 +109,7 @@ jobs:
 
       - name: Send message to Slack channel
         id: slack
+        if: always()
         continue-on-error: true
         uses: slackapi/slack-github-action@v1.27.0
         env:
