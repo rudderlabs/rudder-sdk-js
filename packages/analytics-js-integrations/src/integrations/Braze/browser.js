@@ -31,6 +31,10 @@ class Braze {
     if (!config.appKey) this.appKey = '';
     this.endPoint = '';
     this.isHybridModeEnabled = config.connectionMode === 'hybrid';
+    this.isReadyStatus = {
+      hasLoggedErrorForAlias: false,
+    };
+
     if (config.dataCenter) {
       // ref: https://www.braze.com/docs/user_guide/administrative/access_braze/braze_instances
       const dataCenterArr = config.dataCenter.trim().split('-');
@@ -48,6 +52,13 @@ class Braze {
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
       destinationId: this.destinationId,
     } = destinationInfo ?? {});
+  }
+
+  logAliasError(message) {
+    if (!this.isReadyStatus.hasLoggedErrorForAlias) {
+      logger.error(message);
+      this.isReadyStatus.hasLoggedErrorForAlias = true;
+    }
   }
 
   init() {
@@ -74,18 +85,38 @@ class Braze {
     return window.brazeQueue === null;
   }
 
-  isReady() {
-    if (this.isLoaded()) {
-      try {
-        const anonymousId = this.analytics.getAnonymousId();
-        window.braze.getUser().addAlias(anonymousId, 'rudder_id');
-        return true;
-      } catch (error) {
-        logger.error(`Error in isReady - ${stringifyWithoutCircularV1(error, true)}`);
+  setUserAlias() {
+    try {
+      const anonymousId = this.analytics.getAnonymousId();
+      if (!anonymousId) {
+        this.logAliasError('Anonymous ID is not available');
         return false;
       }
+
+      const user = window.braze.getUser();
+      if (!user) {
+        this.logAliasError('Braze user object is not available');
+        return false;
+      }
+
+      const aliasSet = user.addAlias(anonymousId, 'rudder_id');
+      if (!aliasSet) {
+        this.logAliasError('Failed to set alias for braze');
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      this.logAliasError(`Error setting alias: ${stringifyWithoutCircularV1(error, true)}`);
+      return false;
     }
-    return false;
+  }
+
+  isReady() {
+    if (!this.isLoaded()) {
+      return false;
+    }
+    return this.setUserAlias();
   }
 
   /**
