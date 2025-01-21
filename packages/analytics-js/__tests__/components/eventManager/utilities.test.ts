@@ -388,18 +388,6 @@ describe('Event Manager - Utilities', () => {
       expect(mockLogger.warn).not.toHaveBeenCalled();
     });
 
-    it('should not log a warn message if the logger is not provided', () => {
-      const obj = {
-        anonymousId: sampleAnonId,
-        originalTimestamp: sampleOriginalTimestamp,
-        nonReservedKey: 123,
-      } as ApiObject;
-
-      checkForReservedElementsInObject(obj, defaultParentKeyPath);
-
-      expect(mockLogger.warn).not.toHaveBeenCalled();
-    });
-
     it('should not log a warn message if the object is not provided', () => {
       checkForReservedElementsInObject(undefined, defaultParentKeyPath, mockLogger);
 

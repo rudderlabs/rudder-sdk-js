@@ -81,7 +81,7 @@ const updateReportingState = (res: SourceConfigResponse): void => {
   state.reporting.isMetricsReportingEnabled.value = isMetricsReportingEnabled(res.source.config);
 };
 
-const getServerSideCookiesStateData = (logger?: ILogger) => {
+const getServerSideCookiesStateData = (logger: ILogger) => {
   const {
     useServerSideCookies,
     dataServiceEndpoint,
@@ -140,7 +140,7 @@ const getServerSideCookiesStateData = (logger?: ILogger) => {
         dataServiceHost !== removeLeadingPeriod(providedCookieDomain as string)
       ) {
         sscEnabled = false;
-        logger?.warn(
+        logger.warn(
           SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING(
             CONFIG_MANAGER,
             providedCookieDomain,
@@ -160,13 +160,11 @@ const getServerSideCookiesStateData = (logger?: ILogger) => {
   };
 };
 
-const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
+const updateStorageStateFromLoadOptions = (logger: ILogger): void => {
   const { storage: storageOptsFromLoad } = state.loadOptions.value;
   let storageType = storageOptsFromLoad?.type;
   if (isDefined(storageType) && !isValidStorageType(storageType)) {
-    logger?.warn(
-      STORAGE_TYPE_VALIDATION_WARNING(CONFIG_MANAGER, storageType, DEFAULT_STORAGE_TYPE),
-    );
+    logger.warn(STORAGE_TYPE_VALIDATION_WARNING(CONFIG_MANAGER, storageType, DEFAULT_STORAGE_TYPE));
     storageType = DEFAULT_STORAGE_TYPE;
   }
 
@@ -176,7 +174,7 @@ const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
 
   if (!isUndefined(storageEncryptionVersion) && isUndefined(encryptionPluginName)) {
     // set the default encryption plugin
-    logger?.warn(
+    logger.warn(
       UNSUPPORTED_STORAGE_ENCRYPTION_VERSION_WARNING(
         CONFIG_MANAGER,
         storageEncryptionVersion,
@@ -196,7 +194,7 @@ const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
     storageEncryptionVersion === DEFAULT_STORAGE_ENCRYPTION_VERSION;
 
   if (configuredMigrationValue === true && finalMigrationVal !== configuredMigrationValue) {
-    logger?.warn(
+    logger.warn(
       STORAGE_DATA_MIGRATION_OVERRIDE_WARNING(
         CONFIG_MANAGER,
         storageEncryptionVersion,
@@ -222,7 +220,7 @@ const updateStorageStateFromLoadOptions = (logger?: ILogger): void => {
   });
 };
 
-const updateConsentsStateFromLoadOptions = (logger?: ILogger): void => {
+const updateConsentsStateFromLoadOptions = (logger: ILogger): void => {
   const { provider, consentManagerPluginName, initialized, enabled, consentsData } =
     getConsentManagementData(state.loadOptions.value.consentManagement, logger);
 
@@ -235,7 +233,7 @@ const updateConsentsStateFromLoadOptions = (logger?: ILogger): void => {
   if (isDefined(storageStrategy) && !StorageStrategies.includes(storageStrategy)) {
     storageStrategy = DEFAULT_PRE_CONSENT_STORAGE_STRATEGY;
 
-    logger?.warn(
+    logger.warn(
       UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY(
         CONFIG_MANAGER,
         preConsentOpts?.storage?.strategy,
@@ -250,7 +248,7 @@ const updateConsentsStateFromLoadOptions = (logger?: ILogger): void => {
   if (isDefined(eventsDeliveryType) && !deliveryTypes.includes(eventsDeliveryType)) {
     eventsDeliveryType = DEFAULT_PRE_CONSENT_EVENTS_DELIVERY_TYPE;
 
-    logger?.warn(
+    logger.warn(
       UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE(
         CONFIG_MANAGER,
         preConsentOpts?.events?.delivery,
@@ -316,7 +314,7 @@ const updateConsentsState = (resp: SourceConfigResponse): void => {
   });
 };
 
-const updateDataPlaneEventsStateFromLoadOptions = (logger?: ILogger) => {
+const updateDataPlaneEventsStateFromLoadOptions = (logger: ILogger) => {
   if (state.dataPlaneEvents.deliveryEnabled.value) {
     const defaultEventsQueuePluginName: PluginName = 'XhrQueue';
     let eventsQueuePluginName: PluginName = defaultEventsQueuePluginName;
@@ -327,7 +325,7 @@ const updateDataPlaneEventsStateFromLoadOptions = (logger?: ILogger) => {
       } else {
         eventsQueuePluginName = defaultEventsQueuePluginName;
 
-        logger?.warn(UNSUPPORTED_BEACON_API_WARNING(CONFIG_MANAGER));
+        logger.warn(UNSUPPORTED_BEACON_API_WARNING(CONFIG_MANAGER));
       }
     }
 
@@ -342,7 +340,7 @@ const getSourceConfigURL = (
   writeKey: string,
   lockIntegrationsVersion: boolean,
   lockPluginsVersion: boolean,
-  logger?: ILogger,
+  logger: ILogger,
 ): string => {
   const defSearchParams = new URLSearchParams({
     p: MODULE_TYPE,
@@ -377,7 +375,7 @@ const getSourceConfigURL = (
     searchParams = configUrlInstance.searchParams;
     hash = configUrlInstance.hash;
   } else {
-    logger?.warn(INVALID_CONFIG_URL_WARNING(CONFIG_MANAGER, configUrl));
+    logger.warn(INVALID_CONFIG_URL_WARNING(CONFIG_MANAGER, configUrl));
   }
 
   return `${origin}${pathname}?${searchParams}${hash}`;

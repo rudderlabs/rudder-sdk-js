@@ -11,8 +11,8 @@ export interface IExternalSourceLoadConfig {
 }
 
 export interface IExternalSrcLoader {
-  errorHandler?: IErrorHandler;
-  logger?: ILogger;
+  errorHandler: IErrorHandler;
+  logger: ILogger;
   timeout: number;
   loadJSFile(config: IExternalSourceLoadConfig): void;
 }

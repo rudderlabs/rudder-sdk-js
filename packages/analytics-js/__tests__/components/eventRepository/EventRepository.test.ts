@@ -7,6 +7,7 @@ import type {
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
 import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
+import { defaultHttpClient } from '../../../src/services/HttpClient';
 import { EventRepository } from '../../../src/components/eventRepository';
 import { state, resetState } from '../../../src/state';
 import { PluginsManager } from '../../../src/components/pluginsManager';
@@ -20,7 +21,11 @@ describe('EventRepository', () => {
     defaultLogger,
   );
 
-  const defaultStoreManager = new StoreManager(defaultPluginsManager);
+  const defaultStoreManager = new StoreManager(
+    defaultPluginsManager,
+    defaultErrorHandler,
+    defaultLogger,
+  );
 
   const mockDestinationsEventsQueue = {
     scheduleTimeoutActive: false,
@@ -92,13 +97,14 @@ describe('EventRepository', () => {
     const eventRepository = new EventRepository(
       defaultPluginsManager,
       defaultStoreManager,
+      defaultHttpClient,
       defaultErrorHandler,
       defaultLogger,
     );
     const spy = jest.spyOn(defaultPluginsManager, 'invokeSingle');
     eventRepository.init();
 
-    expect(spy).nthCalledWith(
+    expect(spy).toHaveBeenNthCalledWith(
       1,
       'dataplaneEventsQueue.init',
       state,
@@ -107,7 +113,7 @@ describe('EventRepository', () => {
       defaultErrorHandler,
       defaultLogger,
     );
-    expect(spy).nthCalledWith(
+    expect(spy).toHaveBeenNthCalledWith(
       2,
       'transformEvent.init',
       state,
@@ -117,7 +123,7 @@ describe('EventRepository', () => {
       defaultErrorHandler,
       defaultLogger,
     );
-    expect(spy).nthCalledWith(
+    expect(spy).toHaveBeenNthCalledWith(
       3,
       'destinationsEventsQueue.init',
       state,
@@ -134,6 +140,7 @@ describe('EventRepository', () => {
     const eventRepository = new EventRepository(
       mockPluginsManager,
       defaultStoreManager,
+      defaultHttpClient,
       defaultErrorHandler,
       defaultLogger,
     );
@@ -142,13 +149,14 @@ describe('EventRepository', () => {
 
     state.nativeDestinations.clientDestinationsReady.value = true;
 
-    expect(mockDestinationsEventsQueue.start).toBeCalledTimes(1);
+    expect(mockDestinationsEventsQueue.start).toHaveBeenCalledTimes(1);
   });
 
   it('should start the dataplane events queue when no hybrid destinations are present', () => {
     const eventRepository = new EventRepository(
       mockPluginsManager,
       defaultStoreManager,
+      defaultHttpClient,
       defaultErrorHandler,
       defaultLogger,
     );
@@ -174,13 +182,14 @@ describe('EventRepository', () => {
 
     eventRepository.init();
 
-    expect(mockDataplaneEventsQueue.start).toBeCalledTimes(1);
+    expect(mockDataplaneEventsQueue.start).toHaveBeenCalledTimes(1);
   });
 
   it('should start the dataplane events queue when hybrid destinations are present and bufferDataPlaneEventsUntilReady is false', () => {
     const eventRepository = new EventRepository(
       mockPluginsManager,
       defaultStoreManager,
+      defaultHttpClient,
       defaultErrorHandler,
       defaultLogger,
     );
@@ -191,13 +200,14 @@ describe('EventRepository', () => {
 
     eventRepository.init();
 
-    expect(mockDataplaneEventsQueue.start).toBeCalledTimes(1);
+    expect(mockDataplaneEventsQueue.start).toHaveBeenCalledTimes(1);
   });
 
   it('should start the dataplane events queue when hybrid destinations are present and bufferDataPlaneEventsUntilReady is true and client destinations are ready after some time', done => {
     const eventRepository = new EventRepository(
       mockPluginsManager,
       defaultStoreManager,
+      defaultHttpClient,
       defaultErrorHandler,
       defaultLogger,
     );
@@ -209,11 +219,11 @@ describe('EventRepository', () => {
 
     eventRepository.init();
 
-    expect(mockDataplaneEventsQueue.start).not.toBeCalled();
+    expect(mockDataplaneEventsQueue.start).not.toHaveBeenCalled();
 
     setTimeout(() => {
       state.nativeDestinations.clientDestinationsReady.value = true;
-      expect(mockDataplaneEventsQueue.start).toBeCalledTimes(1);
+      expect(mockDataplaneEventsQueue.start).toHaveBeenCalledTimes(1);
       done();
     }, 500);
   });
@@ -222,6 +232,7 @@ describe('EventRepository', () => {
     const eventRepository = new EventRepository(
       mockPluginsManager,
       defaultStoreManager,
+      defaultHttpClient,
       defaultErrorHandler,
       defaultLogger,
     );
@@ -233,10 +244,10 @@ describe('EventRepository', () => {
 
     eventRepository.init();
 
-    expect(mockDataplaneEventsQueue.start).not.toBeCalled();
+    expect(mockDataplaneEventsQueue.start).not.toHaveBeenCalled();
 
     setTimeout(() => {
-      expect(mockDataplaneEventsQueue.start).toBeCalledTimes(1);
+      expect(mockDataplaneEventsQueue.start).toHaveBeenCalledTimes(1);
       done();
     }, state.loadOptions.value.dataPlaneEventsBufferTimeout + 50);
   });
@@ -245,6 +256,7 @@ describe('EventRepository', () => {
     const eventRepository = new EventRepository(
       mockPluginsManager,
       defaultStoreManager,
+      defaultHttpClient,
       defaultErrorHandler,
       defaultLogger,
     );
@@ -254,7 +266,7 @@ describe('EventRepository', () => {
     const invokeSingleSpy = jest.spyOn(mockPluginsManager, 'invokeSingle');
     eventRepository.enqueue(testEvent);
 
-    expect(invokeSingleSpy).nthCalledWith(
+    expect(invokeSingleSpy).toHaveBeenNthCalledWith(
       1,
       'dataplaneEventsQueue.enqueue',
       state,
@@ -266,7 +278,7 @@ describe('EventRepository', () => {
       defaultErrorHandler,
       defaultLogger,
     );
-    expect(invokeSingleSpy).nthCalledWith(
+    expect(invokeSingleSpy).toHaveBeenNthCalledWith(
       2,
       'destinationsEventsQueue.enqueue',
       state,
@@ -283,6 +295,7 @@ describe('EventRepository', () => {
     const eventRepository = new EventRepository(
       mockPluginsManager,
       defaultStoreManager,
+      defaultHttpClient,
       defaultErrorHandler,
       defaultLogger,
     );
@@ -292,8 +305,8 @@ describe('EventRepository', () => {
     const mockEventCallback = jest.fn();
     eventRepository.enqueue(testEvent, mockEventCallback);
 
-    expect(mockEventCallback).toBeCalledTimes(1);
-    expect(mockEventCallback).toBeCalledWith({
+    expect(mockEventCallback).toHaveBeenCalledTimes(1);
+    expect(mockEventCallback).toHaveBeenCalledWith({
       ...testEvent,
       integrations: { All: true },
     });
@@ -303,6 +316,7 @@ describe('EventRepository', () => {
     const eventRepository = new EventRepository(
       mockPluginsManager,
       defaultStoreManager,
+      defaultHttpClient,
       defaultErrorHandler,
       defaultLogger,
     );
@@ -321,11 +335,13 @@ describe('EventRepository', () => {
     const eventRepository = new EventRepository(
       mockPluginsManager,
       defaultStoreManager,
+      defaultHttpClient,
       defaultErrorHandler,
       defaultLogger,
     );
 
     eventRepository.init();
+    
     const mockEventCallback = jest.fn(() => {
       throw new Error('test error');
     });
@@ -342,6 +358,7 @@ describe('EventRepository', () => {
     const eventRepository = new EventRepository(
       mockPluginsManager,
       defaultStoreManager,
+      defaultHttpClient,
       defaultErrorHandler,
       defaultLogger,
     );
@@ -358,7 +375,7 @@ describe('EventRepository', () => {
 
     eventRepository.init();
 
-    expect(mockDataplaneEventsQueue.start).not.toBeCalled();
+    expect(mockDataplaneEventsQueue.start).not.toHaveBeenCalled();
   });
 
   describe('resume', () => {
@@ -366,19 +383,21 @@ describe('EventRepository', () => {
       const eventRepository = new EventRepository(
         mockPluginsManager,
         defaultStoreManager,
+        defaultHttpClient,
         defaultErrorHandler,
         defaultLogger,
       );
       eventRepository.init();
 
       eventRepository.resume();
-      expect(mockDataplaneEventsQueue.start).toBeCalled();
+      expect(mockDataplaneEventsQueue.start).toHaveBeenCalled();
     });
 
     it('should clear the events queue if discardPreConsentEvents is set to true', () => {
       const eventRepository = new EventRepository(
         mockPluginsManager,
         defaultStoreManager,
+        defaultHttpClient,
         defaultErrorHandler,
         defaultLogger,
       );
@@ -389,8 +408,8 @@ describe('EventRepository', () => {
 
       eventRepository.resume();
 
-      expect(mockDataplaneEventsQueue.clear).toBeCalled();
-      expect(mockDestinationsEventsQueue.clear).toBeCalled();
+      expect(mockDataplaneEventsQueue.clear).toHaveBeenCalled();
+      expect(mockDestinationsEventsQueue.clear).toHaveBeenCalled();
     });
   });
 });

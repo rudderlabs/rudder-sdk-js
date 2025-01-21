@@ -98,9 +98,13 @@ class Analytics implements IAnalytics {
     this.errorHandler = defaultErrorHandler;
     this.logger = defaultLogger;
     this.externalSrcLoader = new ExternalSrcLoader(this.errorHandler, this.logger);
-    this.capabilitiesManager = new CapabilitiesManager(this.errorHandler, this.logger);
     this.httpClient = defaultHttpClient;
     this.httpClient.init(this.errorHandler);
+    this.capabilitiesManager = new CapabilitiesManager(
+      this.httpClient,
+      this.errorHandler,
+      this.logger,
+    );
   }
 
   /**
@@ -130,7 +134,7 @@ class Analytics implements IAnalytics {
     });
 
     // set log level as early as possible
-    this.logger?.setMinLogLevel(state.loadOptions.value.logLevel ?? POST_LOAD_LOG_LEVEL);
+    this.logger.setMinLogLevel(state.loadOptions.value.logLevel ?? POST_LOAD_LOG_LEVEL);
 
     // Expose state to global objects
     setExposedGlobal('state', state, writeKey);
@@ -239,15 +243,16 @@ class Analytics implements IAnalytics {
     this.storeManager = new StoreManager(this.pluginsManager, this.errorHandler, this.logger);
     this.configManager = new ConfigManager(this.httpClient, this.errorHandler, this.logger);
     this.userSessionManager = new UserSessionManager(
-      this.errorHandler,
-      this.logger,
       this.pluginsManager,
       this.storeManager,
       this.httpClient,
+      this.errorHandler,
+      this.logger,
     );
     this.eventRepository = new EventRepository(
       this.pluginsManager,
       this.storeManager,
+      this.httpClient,
       this.errorHandler,
       this.logger,
     );
