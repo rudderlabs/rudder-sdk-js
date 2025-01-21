@@ -33,7 +33,7 @@ jobs:
         env:
           HUSKY: 0
         run: |
-          npm run setup:ci
+          npm run setup:deps
 
       - name: Check for affected projects
         id: check_affected
@@ -61,8 +61,8 @@ jobs:
         run: |
           ./scripts/fix-reports-path-in-github-runner.sh
 
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

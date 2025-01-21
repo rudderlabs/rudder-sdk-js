@@ -15,6 +15,8 @@ jobs:
     # Only allow to draft a new release from develop and hotfix branches
     if: github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/hotfix/')
     uses: ./.github/workflows/validate-actor.yml
+    with:
+      team_names: 'js-sdk,integrations'
     secrets:
       PAT: ${{ secrets.PAT }}
 
@@ -110,14 +112,22 @@ jobs:
           source_branch: ${{ steps.create-release.outputs.branch_name }}
           destination_branch: 'main'
           github_token: ${{ secrets.PAT }}
-          pr_title: 'chore(release): pull ${{ steps.create-release.outputs.branch_name }} into main'
+          pr_title: 'chore(release): merge ${{ steps.create-release.outputs.branch_name }} into main [${{ github.event.inputs.release_ticket_id }}]'
           pr_body: |
-            :crown: *An automated PR*
+            :crown: **Automated Release PR**
 
-            This PR is created automatically by the GitHub Actions workflow to merge the release branch into the main branch.
+            This pull request was created automatically by the GitHub Actions workflow. It merges the release branch (`${{ steps.create-release.outputs.branch_name }}`) into the `main` branch.
 
-            Linear Ticket: 
-            https://linear.app/rudderstack/issue/${{ github.event.inputs.release_ticket_id }}
+            This ensures that the latest release branch changes are incorporated into the `main` branch for production.
+
+            ### Details
+            - **Release Version**: v$NEW_VERSION_VALUE
+            - **Release Branch**: `${{ steps.create-release.outputs.branch_name }}`
+            - **Related Ticket**: [${{ github.event.inputs.release_ticket_id }}](https://linear.app/rudderstack/issue/${{ github.event.inputs.release_ticket_id }})
+
+            ---
+            Please review and merge when ready. :rocket:
+
 
       - name: Delete hotfix release base branch
         continue-on-error: true

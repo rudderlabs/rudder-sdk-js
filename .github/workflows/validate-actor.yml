@@ -5,6 +5,11 @@ on:
     secrets:
       PAT:
         required: true
+    inputs:
+      team_names:
+        description: 'Comma-separated list of team names'
+        type: string
+        default: 'js-sdk'
 
 jobs:
   validate-actor:
@@ -13,25 +18,39 @@ jobs:
       - name: Validate if actor is allowed to trigger the workflow
         env:
           ORG_NAME: rudderlabs
-          TEAM_NAME: js-sdk
+          TEAM_NAMES: ${{ inputs.team_names }}
           GH_TOKEN: ${{ secrets.PAT }}
         run: |
           actor=${{ github.actor || github.triggering_actor }}
-          
-          # Use gh api to fetch the membership details
-          response=$(gh api "/orgs/$ORG_NAME/teams/$TEAM_NAME/memberships/$actor" -H "X-GitHub-Api-Version: 2022-11-28" 2>/dev/null || echo "error")
-          
-          # Check if API request failed
-          if [ "$response" = "error" ]; then
-            echo "Error: Unable to fetch membership details for '$actor'."
-            exit 1
-          fi
+          allowed=false
 
-          # Extract the state of the membership
-          if echo "$response" | grep -q '"state":"active"'; then
-            echo "'$actor' is a member of '@${ORG_NAME}/${TEAM_NAME}' team"
+          # Split TEAM_NAMES into an array and loop through each team
+          IFS=',' read -ra TEAMS <<< "$TEAM_NAMES"
+
+          for TEAM_NAME in "${TEAMS[@]}"; do
+            echo "Checking membership for actor '$actor' in team '@${ORG_NAME}/${TEAM_NAME}'..."
+
+            # Use gh api to fetch the membership details
+            response=$(gh api "/orgs/$ORG_NAME/teams/$TEAM_NAME/memberships/$actor" -H "X-GitHub-Api-Version: 2022-11-28" 2>/dev/null || echo "error")
+
+            # Check if API request failed
+            if [ "$response" = "error" ]; then
+              echo "Warning: Unable to fetch membership details for '$actor' in team '$TEAM_NAME'."
+              continue
+            fi
+
+            # Check if the actor is an active member
+            if echo "$response" | grep -q '"state":"active"'; then
+              echo "'$actor' is an active member of '@${ORG_NAME}/${TEAM_NAME}' team."
+              allowed=true
+              break
+            fi
+          done
+
+          # Final validation result
+          if [ "$allowed" = true ]; then
+            echo "'$actor' is allowed to trigger the workflow."
           else
-            echo "Error: '$actor' is NOT a member of '@${ORG_NAME}/${TEAM_NAME}' team. Access denied."
+            echo "Error: '$actor' is NOT a member of any of the specified teams '${TEAM_NAMES}'. Access denied."
             exit 1
           fi
-

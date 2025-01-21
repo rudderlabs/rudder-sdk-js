@@ -102,7 +102,7 @@ function shouldSendDynamicRemarketingEvent(
 function getConversionData(eventTypeConversions, eventName, defaultPageConversion) {
   const conversionData = {};
   if (eventTypeConversions) {
-    if (eventName) {
+    if (eventName && typeof eventName === 'string') {
       eventTypeConversions.forEach(eventTypeConversion => {
         if (eventTypeConversion.name.toLowerCase() === eventName.toLowerCase()) {
           // rudderElement["message"]["name"]
