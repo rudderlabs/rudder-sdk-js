@@ -1,3 +1,4 @@
+import { resetState, state } from '../../../src/state';
 import {
   getIntegrationsCDNPath,
   getPluginsCDNPath,
@@ -18,18 +19,24 @@ jest.mock('../../../src/components/configManager/util/commonUtil.ts', () => {
 });
 
 describe('CDN path utilities', () => {
+  const dummyScriptURL = 'https://www.dummy.url/fromScript/v3/modern/rsa.min.js';
+  const dummyVersion = '3.x.x';
+
+  beforeEach(() => {
+    getSDKUrlMock.mockImplementation(() => dummyScriptURL);
+
+    // @ts-expect-error needed for testing
+    state.context.app.value.installType = 'cdn';
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
+
+    resetState();
+  });
+
   describe('getIntegrationsCDNPath', () => {
     const dummyCustomURL = 'https://www.dummy.url/integrations/';
-    const dummyScriptURL = 'https://www.dummy.url/fromScript/v3/modern/rsa.min.js';
-    const dummyVersion = '3.x.x';
-
-    beforeEach(() => {
-      getSDKUrlMock.mockImplementation(() => dummyScriptURL);
-    });
-
-    afterEach(() => {
-      jest.resetAllMocks();
-    });
 
     it('should return custom URL if it is valid', () => {
       const integrationsCDNPath = getIntegrationsCDNPath(dummyVersion, false, dummyCustomURL);
@@ -95,20 +102,40 @@ describe('CDN path utilities', () => {
         `https://www.dummy.url/fromScript/v3/modern/js-integrations/custom/js-integrations`,
       );
     });
+
+    it('should lock the version on custom URL if it follows the convention', () => {
+      const integrationsCDNPath = getIntegrationsCDNPath(
+        dummyVersion,
+        true,
+        'https://www.dummy.url/v3/modern/js-integrations',
+      );
+      expect(integrationsCDNPath).toBe('https://www.dummy.url/3.x.x/modern/js-integrations');
+    });
+
+    it('should not lock the version on custom URL if it does not follow the convention', () => {
+      const integrationsCDNPath = getIntegrationsCDNPath(dummyVersion, true, dummyCustomURL);
+      expect(integrationsCDNPath).toBe('https://www.dummy.url/integrations');
+    });
+
+    it('should return the default component url in case of npm installation', () => {
+      // @ts-expect-error needed for testing
+      state.context.app.value.installType = 'npm';
+
+      const integrationsCDNPath = getIntegrationsCDNPath(dummyVersion, false);
+      expect(integrationsCDNPath).toBe('https://cdn.rudderlabs.com/v3/modern/js-integrations');
+    });
+
+    it('should lock version on default component url in case of npm installation', () => {
+      // @ts-expect-error needed for testing
+      state.context.app.value.installType = 'npm';
+
+      const integrationsCDNPath = getIntegrationsCDNPath(dummyVersion, true);
+      expect(integrationsCDNPath).toBe('https://cdn.rudderlabs.com/3.x.x/modern/js-integrations');
+    });
   });
 
   describe('getPluginsCDNPath', () => {
     const dummyCustomURL = 'https://www.dummy.url/plugins/';
-    const dummyScriptURL = 'https://www.dummy.url/fromScript/v3/modern/rsa.min.js';
-    const dummyVersion = '3.x.x';
-
-    beforeEach(() => {
-      getSDKUrlMock.mockImplementation(() => dummyScriptURL);
-    });
-
-    afterEach(() => {
-      jest.resetAllMocks();
-    });
 
     it('should return plugins CDN URL if a valid custom URL is provided', () => {
       const pluginsCDNPath = getPluginsCDNPath(dummyVersion, false, dummyCustomURL);
@@ -165,6 +192,36 @@ describe('CDN path utilities', () => {
       expect(pluginsCDNPath).toBe(
         `https://www.dummy.url/fromScript/v3/modern/plugins/custom/plugins`,
       );
+    });
+
+    it('should lock the version on custom URL if it follows the convention', () => {
+      const pluginsCDNPath = getPluginsCDNPath(
+        dummyVersion,
+        true,
+        'https://www.dummy.url/v3/modern/plugins',
+      );
+      expect(pluginsCDNPath).toBe('https://www.dummy.url/3.x.x/modern/plugins');
+    });
+
+    it('should not lock the version on custom URL if it does not follow the convention', () => {
+      const pluginsCDNPath = getPluginsCDNPath(dummyVersion, true, dummyCustomURL);
+      expect(pluginsCDNPath).toBe('https://www.dummy.url/plugins');
+    });
+
+    it('should return the default component url in case of npm installation', () => {
+      // @ts-expect-error needed for testing
+      state.context.app.value.installType = 'npm';
+
+      const pluginsCDNPath = getPluginsCDNPath(dummyVersion, false);
+      expect(pluginsCDNPath).toBe('https://cdn.rudderlabs.com/v3/modern/plugins');
+    });
+
+    it('should lock version on default component url in case of npm installation', () => {
+      // @ts-expect-error needed for testing
+      state.context.app.value.installType = 'npm';
+
+      const pluginsCDNPath = getPluginsCDNPath(dummyVersion, true);
+      expect(pluginsCDNPath).toBe('https://cdn.rudderlabs.com/3.x.x/modern/plugins');
     });
   });
 });

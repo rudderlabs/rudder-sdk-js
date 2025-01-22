@@ -9,6 +9,7 @@ import {
 import { COMPONENT_BASE_URL_ERROR } from '../../../constants/logMessages';
 import { removeTrailingSlashes } from '../../utilities/url';
 import { getSDKUrl } from './commonUtil';
+import { state } from '../../../state';
 
 const getSDKComponentBaseURL = (
   componentType: string,
@@ -18,27 +19,39 @@ const getSDKComponentBaseURL = (
   lockVersion: boolean,
   customURL?: string,
 ) => {
+  let sdkComponentBaseURL;
+  // If the user has provided a custom URL, then validate, clean up and use it
   if (customURL) {
     if (!isValidURL(customURL)) {
       throw new Error(COMPONENT_BASE_URL_ERROR(componentType, customURL));
     }
 
-    return removeTrailingSlashes(customURL) as string;
+    sdkComponentBaseURL = removeTrailingSlashes(customURL) as string;
+  } else {
+    sdkComponentBaseURL = baseURL;
+
+    // We can automatically determine the base URL only for CDN installations
+    if (state.context.app.value.installType === 'cdn') {
+      const sdkURL = getSDKUrl();
+
+      if (sdkURL) {
+        // Extract the base URL from the core SDK file URL
+        // and append the path suffix to it
+        sdkComponentBaseURL = sdkURL.split('/').slice(0, -1).concat(pathSuffix).join('/');
+      }
+    }
   }
 
-  const sdkURL = getSDKUrl();
-  let sdkComponentURL = sdkURL
-    ? sdkURL.split('/').slice(0, -1).concat(pathSuffix).join('/')
-    : baseURL;
-
+  // If the version needs to be locked, then replace the major version in the URL
+  // with the current version of the SDK
   if (lockVersion) {
-    sdkComponentURL = sdkComponentURL.replace(
+    sdkComponentBaseURL = sdkComponentBaseURL.replace(
       new RegExp(`/${CDN_ARCH_VERSION_DIR}/${BUILD_TYPE}/${pathSuffix}$`),
       `/${currentVersion}/${BUILD_TYPE}/${pathSuffix}`,
     );
   }
 
-  return sdkComponentURL;
+  return sdkComponentBaseURL;
 };
 
 /**

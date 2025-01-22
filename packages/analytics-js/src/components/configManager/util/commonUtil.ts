@@ -61,7 +61,7 @@ const getSDKUrl = (): string | undefined => {
   const scriptTag = document.querySelector(
     'script[data-rsa-write-key]',
   ) as HTMLScriptElement | null;
-  if (scriptTag && scriptTag.dataset?.rsaWriteKey === state.lifecycle.writeKey.value) {
+  if (scriptTag && scriptTag.dataset.rsaWriteKey === state.lifecycle.writeKey.value) {
     return scriptTag.src;
   }
 
