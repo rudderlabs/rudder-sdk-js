@@ -201,7 +201,8 @@ jobs:
           aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --id "$invalidation_id"
 
       - name: Copy SDK plugins and integrations artifacts to S3
-        # IMPORTANT: We're deliberately avoid copying latest artifacts to the common production paths
+        # IMPORTANT: We're deliberately avoiding copying these artifacts for the production environment
+        # as they are already copied to versioned directory and expected to be loaded from there
         if: ${{ inputs.environment != 'production' }}
         run: |
           s3_relative_path_prefix="${{ inputs.s3_dir_path }}"

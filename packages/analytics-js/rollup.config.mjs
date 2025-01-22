@@ -34,9 +34,9 @@ const sourceMapType =
 const cdnPath = isDynamicCustomBuild ? `dynamicCdnBundle` : `cdn`;
 let remotePluginsBasePath =
   process.env.REMOTE_MODULES_BASE_PATH;
-remotePluginsBasePath = remotePluginsBasePath?.endsWith('/') ? remotePluginsBasePath.substring(0, remotePluginsBasePath.length - 1) : remotePluginsBasePath;
+remotePluginsBasePath = remotePluginsBasePath?.endsWith('/') ? remotePluginsBasePath : `${remotePluginsBasePath}/`;
 let destSDKBaseURL = process.env.DEST_SDK_BASE_URL;
-destSDKBaseURL = destSDKBaseURL?.endsWith('/') ? destSDKBaseURL.substring(0, destSDKBaseURL.length - 1) : destSDKBaseURL;
+destSDKBaseURL = destSDKBaseURL?.endsWith('/') ? destSDKBaseURL : `${destSDKBaseURL}/`;
 const outDirNpmRoot = `dist/npm`;
 const outDirCDNRoot = isDynamicCustomBuild ? `dist/${cdnPath}` : `dist/${cdnPath}`;
 let outDirNpm = `${outDirNpmRoot}${variantSubfolder}`;
