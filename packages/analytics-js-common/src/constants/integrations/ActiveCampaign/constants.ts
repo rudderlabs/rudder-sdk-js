@@ -1,6 +1,9 @@
+import {
+  ACTIVE_CAMPAIGN_NAME as NAME,
+  ACTIVE_CAMPAIGN_DISPLAY_NAME as DISPLAY_NAME,
+} from '../Destinations';
+
 const DIR_NAME = 'ActiveCampaign';
-const NAME = 'ACTIVE_CAMPAIGN';
-const DISPLAY_NAME = 'ActiveCampaign';
 
 const DISPLAY_NAME_TO_DIR_NAME_MAP = { [DISPLAY_NAME]: DIR_NAME };
 const CNameMapping = {

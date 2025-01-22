@@ -1,7 +1,6 @@
 name: Unit Tests and Lint
 
 on:
-  workflow_dispatch:
   push:
     branches: ['main', 'develop']
   pull_request:
@@ -9,7 +8,7 @@ on:
     types: ['opened', 'reopened', 'synchronize']
 
 env:
-  NODE_OPTIONS: "--no-warnings"
+  NODE_OPTIONS: '--no-warnings'
   BASE_REF: ${{ github.event.pull_request.base.sha || 'HEAD' }}
 
 jobs:
@@ -34,7 +33,7 @@ jobs:
         env:
           HUSKY: 0
         run: |
-          npm run setup:ci
+          npm run setup:deps
 
       - name: Check for affected projects
         id: check_affected
@@ -62,8 +61,8 @@ jobs:
         run: |
           ./scripts/fix-reports-path-in-github-runner.sh
 
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

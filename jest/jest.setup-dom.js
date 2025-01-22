@@ -56,3 +56,16 @@ Object.defineProperty(
     },
   }))(window.navigator.language),
 );
+
+class MockBroadcastChannel {
+  constructor() {
+    this.onmessage = null;
+  }
+  postMessage() {}
+  close() {}
+}
+global.BroadcastChannel = MockBroadcastChannel;
+
+global.TransformStream = class {
+  constructor() {}
+};

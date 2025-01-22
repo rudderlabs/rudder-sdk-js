@@ -2,6 +2,35 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.12.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.12.0...@rudderstack/analytics-js-integrations@3.12.1) (2025-01-22)
+
+
+### Bug Fixes
+
+* braze anonymousId tracking with alias details ([#1994](https://github.com/rudderlabs/rudder-sdk-js/issues/1994)) ([7215304](https://github.com/rudderlabs/rudder-sdk-js/commit/721530493d559ba89d2bfe1156a916a8885bb34c))
+
+## [3.12.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.11.15...@rudderstack/analytics-js-integrations@3.12.0) (2025-01-17)
+
+
+### Features
+
+* braze sdk metadata ([#1949](https://github.com/rudderlabs/rudder-sdk-js/issues/1949)) ([81fe85a](https://github.com/rudderlabs/rudder-sdk-js/commit/81fe85a0eeb9405c0ec820dfe73a0ef5c0cc014b))
+
+
+### Bug Fixes
+
+* resolved minor bugsnag issue in googleAds ([#1993](https://github.com/rudderlabs/rudder-sdk-js/issues/1993)) ([0dfb893](https://github.com/rudderlabs/rudder-sdk-js/commit/0dfb893a78894d6d04b8fc0b4a0a3c8595f69e01))
+
+## [3.11.15](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.11.14...@rudderstack/analytics-js-integrations@3.11.15) (2025-01-03)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.14.15`
+
+### Bug Fixes
+
+* microsoft clarity load and handle promise for identify ([#1964](https://github.com/rudderlabs/rudder-sdk-js/issues/1964)) ([11e890e](https://github.com/rudderlabs/rudder-sdk-js/commit/11e890ecff15b6206e197c32f3ab611b338ddfec))
+
 ## [3.11.14](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.11.13...@rudderstack/analytics-js-integrations@3.11.14) (2024-12-17)
 
 ### Dependency Updates

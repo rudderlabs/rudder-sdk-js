@@ -106,7 +106,7 @@ class FacebookPixel {
   }
 
   isLoaded() {
-    return !!(window.fbq && window.fbq.callMethod);
+    return !!window.fbq?.callMethod;
   }
 
   isReady() {
@@ -266,7 +266,7 @@ class FacebookPixel {
     } else if (event === 'Checkout Started') {
       let contentCategory = category;
       const { contents, contentIds } = getProductsContentsAndContentIds(products, quantity, price);
-      if (Array.isArray(products) && !contentCategory && products[0] && products[0].category) {
+      if (Array.isArray(products) && !contentCategory && products[0]?.category) {
         contentCategory = products[0].category;
       }
 

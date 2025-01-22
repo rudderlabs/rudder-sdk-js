@@ -8,7 +8,7 @@ import crc32 from './crc32';
 import USER_INTERFACE from './userLib';
 import decode from './base64decoder';
 
-const KEY_VALIDATOR = /^[a-zA-Z0-9\-_.]+$/;
+const KEY_VALIDATOR = /^[\w.-]+$/;
 const CHECKSUM_OFFSET_MAX_MIN = 1;
 const VALID_VERSION = 1;
 const DELIMITER = '*';

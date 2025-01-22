@@ -3,7 +3,7 @@ import { RudderAnalytics } from '@rudderstack/analytics-js';
 import { Ninetailed } from '@ninetailed/experience.js';
 import './App.css';
 import logo from './logo.svg';
-import { DATAPLANE_URL, WRITE_KEY, CONFIG_URL } from './config';
+import { DATAPLANE_URL, WRITE_KEY } from './config';
 
 export const ninetailed = new Ninetailed({
   // REQUIRED. An API key uniquely identifying your Ninetailed account.
@@ -20,7 +20,7 @@ function App() {
 
     window.rudderanalytics = new RudderAnalytics();
 
-    window.rudderanalytics.load(WRITE_KEY, DATAPLANE_URL, { configUrl: CONFIG_URL });
+    window.rudderanalytics.load(WRITE_KEY, DATAPLANE_URL);
 
     window.rudderanalytics.ready(() => {
       console.log('We are all set!!!');

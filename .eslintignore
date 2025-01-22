@@ -16,3 +16,4 @@ tsconfig.build.tsbuildinfo
 nativeSdkLoader.js
 nativeSdkLoader.ts
 assets/
+package.json

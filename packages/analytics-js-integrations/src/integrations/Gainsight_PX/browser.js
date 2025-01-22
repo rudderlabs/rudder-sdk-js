@@ -49,7 +49,7 @@ class Gainsight_PX {
   }
 
   isLoaded() {
-    return !!(window.aptrinsic && window.aptrinsic.init);
+    return !!window.aptrinsic?.init;
   }
 
   isReady() {
@@ -101,7 +101,7 @@ class Gainsight_PX {
       };
     }
 
-    window.aptrinsic('identify',visitorObj, accountObj);
+    window.aptrinsic('identify', visitorObj, accountObj);
   }
 
   // Custom Events

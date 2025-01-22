@@ -17,7 +17,7 @@ export default function RootLayout({ children }) {
           {`
             (function() {
               "use strict";
-              window.RudderSnippetVersion = "3.0.30";
+              window.RudderSnippetVersion = "3.0.58";
               var identifier = "rudderanalytics";
               if (!window[identifier]) {
                 window[identifier] = [];

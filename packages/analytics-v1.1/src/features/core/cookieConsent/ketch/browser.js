@@ -103,7 +103,7 @@ class Ketch {
     Object.entries(consentObj).forEach(e => {
       const purposeCode = e[0];
       const purposeValue = e[1];
-      if (purposeValue && purposeValue.status) {
+      if (purposeValue?.status) {
         consent[purposeCode] = purposeValue.status === 'granted';
       }
     });

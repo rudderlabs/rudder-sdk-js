@@ -102,7 +102,7 @@ function shouldSendDynamicRemarketingEvent(
 function getConversionData(eventTypeConversions, eventName, defaultPageConversion) {
   const conversionData = {};
   if (eventTypeConversions) {
-    if (eventName) {
+    if (eventName && typeof eventName === 'string') {
       eventTypeConversions.forEach(eventTypeConversion => {
         if (eventTypeConversion.name.toLowerCase() === eventName.toLowerCase()) {
           // rudderElement["message"]["name"]
@@ -120,7 +120,7 @@ function getConversionData(eventTypeConversions, eventName, defaultPageConversio
 
 function newCustomerAcquisitionReporting(properties) {
   const updatedProperties = { ...properties }; // create a copy of properties object
-  if (updatedProperties && updatedProperties.newCustomer) {
+  if (updatedProperties?.newCustomer) {
     updatedProperties.new_customer = updatedProperties.newCustomer;
     delete updatedProperties.newCustomer;
   }
