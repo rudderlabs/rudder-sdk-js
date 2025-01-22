@@ -58,9 +58,7 @@ import { getConsentManagementData } from '../../utilities/consent';
 const getSDKUrl = (): string | undefined => {
   // First try the new method of getting the SDK URL
   // from the script tag
-  const scriptTag = document.querySelector(
-    'script[data-rsa-write-key]',
-  ) as HTMLScriptElement | null;
+  const scriptTag = document.querySelector<HTMLScriptElement>('script[data-rsa-write-key]');
   if (scriptTag && scriptTag.dataset.rsaWriteKey === state.lifecycle.writeKey.value) {
     return scriptTag.src;
   }
