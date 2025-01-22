@@ -26,7 +26,7 @@ const handleReservedProperties = props => {
   return props;
 };
 
-const handlePurchase = properties => {
+const handlePurchase = (properties) => {
   const { products, currency } = properties;
   const currencyCode = currency;
 

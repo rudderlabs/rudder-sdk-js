@@ -201,6 +201,7 @@ describe('setUserAlias', () => {
   });
 });
 
+
 describe('isReady', () => {
   let braze;
   let config;
