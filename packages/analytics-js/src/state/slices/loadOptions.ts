@@ -39,6 +39,9 @@ const defaultLoadOptions: LoadOptions = {
     migrate: true,
     cookie: {},
   },
+  sendAdblockPage: false,
+  sameDomainCookiesOnly: false,
+  secureCookie: false,
   sendAdblockPageOptions: {},
   useServerSideCookies: false,
 };

@@ -49,7 +49,9 @@ const normalizeLoadOptions = (
 
   normalizedLoadOpts.integrations = getNormalizedObjectValue(normalizedLoadOpts.integrations);
 
-  normalizedLoadOpts.plugins = normalizedLoadOpts.plugins ?? defaultOptionalPluginsList;
+  if (!Array.isArray(normalizedLoadOpts.plugins)) {
+    normalizedLoadOpts.plugins = defaultOptionalPluginsList;
+  }
 
   normalizedLoadOpts.useGlobalIntegrationsConfigInEvents = getNormalizedBooleanValue(
     normalizedLoadOpts.useGlobalIntegrationsConfigInEvents,
@@ -87,11 +89,16 @@ const normalizeLoadOptions = (
   if (!isNonEmptyObject(normalizedLoadOpts.storage)) {
     normalizedLoadOpts.storage = undefined;
   } else {
-    normalizedLoadOpts.storage = removeUndefinedAndNullValues(normalizedLoadOpts.storage);
-    (normalizedLoadOpts.storage as StorageOpts).migrate =
-      normalizedLoadOpts.storage?.migrate === true;
+    (normalizedLoadOpts.storage as StorageOpts).migrate = getNormalizedBooleanValue(
+      normalizedLoadOpts.storage.migrate,
+      loadOptionsFromState.storage?.migrate,
+    );
 
     normalizedLoadOpts.storage.cookie = getNormalizedObjectValue(normalizedLoadOpts.storage.cookie);
+    normalizedLoadOpts.storage.encryption = getNormalizedObjectValue(
+      normalizedLoadOpts.storage.encryption,
+    );
+    normalizedLoadOpts.storage = removeUndefinedAndNullValues(normalizedLoadOpts.storage);
   }
 
   normalizedLoadOpts.destinationsQueueOptions = getNormalizedObjectValue(
