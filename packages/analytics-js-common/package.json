@@ -65,7 +65,9 @@
     "ramda": "0.30.1",
     "storejs": "2.1.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@bugsnag/js": "8.1.2"
+  },
   "overrides": {},
   "browserslist": {
     "production": [

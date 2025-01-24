@@ -1,5 +1,8 @@
 import { CDN_INT_DIR, CDN_PLUGINS_DIR } from '@rudderstack/analytics-js-common/constants/urls';
 import { isValidURL } from '@rudderstack/analytics-js-common/utilities/url';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import {
   BUILD_TYPE,
   CDN_ARCH_VERSION_DIR,
@@ -16,13 +19,15 @@ const getSDKComponentBaseURL = (
   baseURL: string,
   currentVersion: string,
   lockVersion: boolean,
-  customURL?: string,
-) => {
+  customURL: string | undefined,
+  logger: ILogger,
+): Nullable<string> => {
   let sdkComponentURL = '';
 
   if (customURL) {
     if (!isValidURL(customURL)) {
-      throw new Error(COMPONENT_BASE_URL_ERROR(componentType));
+      logger.error(COMPONENT_BASE_URL_ERROR(CONFIG_MANAGER, componentType, customURL));
+      return null;
     }
 
     return removeTrailingSlashes(customURL) as string;
@@ -46,13 +51,15 @@ const getSDKComponentBaseURL = (
  * @param currentVersion
  * @param lockIntegrationsVersion
  * @param customIntegrationsCDNPath
+ * @param logger Logger instance
  * @returns
  */
 const getIntegrationsCDNPath = (
   currentVersion: string,
   lockIntegrationsVersion: boolean,
-  customIntegrationsCDNPath?: string,
-): string =>
+  customIntegrationsCDNPath: string | undefined,
+  logger: ILogger,
+): Nullable<string> =>
   getSDKComponentBaseURL(
     'integrations',
     CDN_INT_DIR,
@@ -60,6 +67,7 @@ const getIntegrationsCDNPath = (
     currentVersion,
     lockIntegrationsVersion,
     customIntegrationsCDNPath,
+    logger,
   );
 
 /**
@@ -67,13 +75,15 @@ const getIntegrationsCDNPath = (
  * @param currentVersion Current SDK version
  * @param lockPluginsVersion Flag to lock the plugins version
  * @param customPluginsCDNPath URL to load the plugins from
+ * @param logger Logger instance
  * @returns Final plugins CDN path
  */
 const getPluginsCDNPath = (
   currentVersion: string,
   lockPluginsVersion: boolean,
-  customPluginsCDNPath?: string,
-): string =>
+  customPluginsCDNPath: string | undefined,
+  logger: ILogger,
+): Nullable<string> =>
   getSDKComponentBaseURL(
     'plugins',
     CDN_PLUGINS_DIR,
@@ -81,6 +91,7 @@ const getPluginsCDNPath = (
     currentVersion,
     lockPluginsVersion,
     customPluginsCDNPath,
+    logger,
   );
 
 export { getIntegrationsCDNPath, getPluginsCDNPath };

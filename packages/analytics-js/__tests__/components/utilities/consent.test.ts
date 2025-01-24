@@ -1,11 +1,12 @@
-import { resetState, state } from '@rudderstack/analytics-js/state';
+import { resetState, state } from '../../../src/state';
 import {
   getUserSelectedConsentManager,
   getValidPostConsentOptions,
   getConsentManagementData,
 } from '../../../src/components/utilities/consent';
+import { defaultLogger } from '../../../src/services/Logger';
 
-describe('consent utilties', () => {
+describe('consent utilities', () => {
   beforeEach(() => {
     resetState();
   });
@@ -139,7 +140,7 @@ describe('consent utilties', () => {
           deniedConsentIds: [],
         },
       };
-      const validOptions = getConsentManagementData();
+      const validOptions = getConsentManagementData(undefined, defaultLogger);
       expect(validOptions).toEqual(expectedOutcome);
     });
 
@@ -162,7 +163,7 @@ describe('consent utilties', () => {
         provider: 'oneTrust',
       };
 
-      const validOptions = getConsentManagementData(consentOptions);
+      const validOptions = getConsentManagementData(consentOptions, defaultLogger);
       expect(validOptions).toEqual(expectedOutcome);
     });
 
@@ -182,7 +183,7 @@ describe('consent utilties', () => {
         },
       };
 
-      const validOptions = getConsentManagementData(consentOptions);
+      const validOptions = getConsentManagementData(consentOptions, defaultLogger);
       expect(validOptions).toEqual(expectedOutcome);
     });
   });

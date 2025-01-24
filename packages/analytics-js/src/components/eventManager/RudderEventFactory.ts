@@ -6,9 +6,9 @@ import type { RudderContext, RudderEvent } from '@rudderstack/analytics-js-commo
 import { getEnrichedEvent, getUpdatedPageProperties } from './utilities';
 
 class RudderEventFactory {
-  logger?: ILogger;
+  logger: ILogger;
 
-  constructor(logger?: ILogger) {
+  constructor(logger: ILogger) {
     this.logger = logger;
   }
 
@@ -129,7 +129,7 @@ class RudderEventFactory {
    * @param event API event parameters object
    * @returns A RudderEvent object
    */
-  create(event: APIEvent): RudderEvent | undefined {
+  create(event: APIEvent): RudderEvent {
     let eventObj: RudderEvent | undefined;
     switch (event.type) {
       case 'page':
@@ -150,10 +150,8 @@ class RudderEventFactory {
         eventObj = this.generateAliasEvent(event.to as string, event.from, event.options);
         break;
       case 'group':
-        eventObj = this.generateGroupEvent(event.groupId, event.traits, event.options);
-        break;
       default:
-        // Do nothing
+        eventObj = this.generateGroupEvent(event.groupId, event.traits, event.options);
         break;
     }
     return eventObj;

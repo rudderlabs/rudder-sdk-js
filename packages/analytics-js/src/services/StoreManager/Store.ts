@@ -8,8 +8,6 @@ import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/Plu
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { LOCAL_STORAGE, MEMORY_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
-import { defaultLogger } from '../Logger';
-import { defaultErrorHandler } from '../ErrorHandler';
 import { isStorageQuotaExceeded } from '../../components/capabilitiesManager/detection';
 import {
   BAD_COOKIES_WARNING,
@@ -31,12 +29,11 @@ class Store implements IStore {
   originalEngine: IStorage;
   noKeyValidation?: boolean;
   noCompoundKey?: boolean;
-  errorHandler?: IErrorHandler;
-  hasErrorHandler = false;
-  logger?: ILogger;
-  pluginsManager?: IPluginsManager;
+  errorHandler: IErrorHandler;
+  logger: ILogger;
+  pluginsManager: IPluginsManager;
 
-  constructor(config: IStoreConfig, engine?: IStorage, pluginsManager?: IPluginsManager) {
+  constructor(config: IStoreConfig, engine: IStorage, pluginsManager: IPluginsManager) {
     this.id = config.id;
     this.name = config.name;
     this.isEncrypted = config.isEncrypted ?? false;
@@ -45,9 +42,8 @@ class Store implements IStore {
     this.noKeyValidation = Object.keys(this.validKeys).length === 0;
     this.noCompoundKey = config.noCompoundKey;
     this.originalEngine = this.engine;
-    this.errorHandler = config.errorHandler ?? defaultErrorHandler;
-    this.hasErrorHandler = Boolean(this.errorHandler);
-    this.logger = config.logger ?? defaultLogger;
+    this.errorHandler = config.errorHandler;
+    this.logger = config.logger;
     this.pluginsManager = pluginsManager;
   }
 
@@ -113,7 +109,7 @@ class Store implements IStore {
       );
     } catch (err) {
       if (isStorageQuotaExceeded(err)) {
-        this.logger?.warn(STORAGE_QUOTA_EXCEEDED_WARNING(`Store ${this.id}`));
+        this.logger.warn(STORAGE_QUOTA_EXCEEDED_WARNING(`Store ${this.id}`));
         // switch to inMemory engine
         this.swapQueueStoreToInMemoryEngine();
         // and save it there
@@ -149,7 +145,7 @@ class Store implements IStore {
 
       // A hack for warning the users of potential partial SDK version migrations
       if (isString(decryptedValue) && decryptedValue.startsWith('RudderEncrypt:')) {
-        this.logger?.warn(BAD_COOKIES_WARNING(key));
+        this.logger.warn(BAD_COOKIES_WARNING(key));
       }
 
       return null;
@@ -215,11 +211,7 @@ class Store implements IStore {
    * Handle errors
    */
   onError(error: unknown) {
-    if (this.hasErrorHandler) {
-      this.errorHandler?.onError(error, `Store ${this.id}`);
-    } else {
-      throw error;
-    }
+    this.errorHandler.onError(error, `Store ${this.id}`);
   }
 }
 
