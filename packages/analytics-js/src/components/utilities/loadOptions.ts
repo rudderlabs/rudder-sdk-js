@@ -1,7 +1,9 @@
+/* eslint-disable sonarjs/deprecation */
 import { clone } from 'ramda';
 import {
+  getNormalizedBooleanValue,
+  getNormalizedObjectValue,
   isNonEmptyObject,
-  isObjectLiteralAndNotNull,
   mergeDeepRight,
   removeUndefinedAndNullValues,
 } from '@rudderstack/analytics-js-common/utilities/object';
@@ -10,7 +12,7 @@ import type {
   UaChTrackLevel,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { StorageOpts, CookieSameSite } from '@rudderstack/analytics-js-common/types/Storage';
-import { isDefined, isString } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { defaultOptionalPluginsList } from '../pluginsManager/defaultPluginsList';
 import { isNumber } from './number';
 
@@ -22,109 +24,113 @@ const normalizeLoadOptions = (
   const normalizedLoadOpts = clone(loadOptions);
 
   if (!isString(normalizedLoadOpts.setCookieDomain)) {
-    delete normalizedLoadOpts.setCookieDomain;
+    normalizedLoadOpts.setCookieDomain = undefined;
   }
 
   const cookieSameSiteValues = ['Strict', 'Lax', 'None'];
   if (!cookieSameSiteValues.includes(normalizedLoadOpts.sameSiteCookie as CookieSameSite)) {
-    delete normalizedLoadOpts.sameSiteCookie;
+    normalizedLoadOpts.sameSiteCookie = undefined;
   }
 
-  normalizedLoadOpts.secureCookie = normalizedLoadOpts.secureCookie === true;
+  normalizedLoadOpts.secureCookie = getNormalizedBooleanValue(
+    normalizedLoadOpts.secureCookie,
+    loadOptionsFromState.secureCookie,
+  );
 
-  normalizedLoadOpts.sameDomainCookiesOnly = normalizedLoadOpts.sameDomainCookiesOnly === true;
+  normalizedLoadOpts.sameDomainCookiesOnly = getNormalizedBooleanValue(
+    normalizedLoadOpts.sameDomainCookiesOnly,
+    loadOptionsFromState.sameDomainCookiesOnly,
+  );
 
   const uaChTrackLevels = ['none', 'default', 'full'];
   if (!uaChTrackLevels.includes(normalizedLoadOpts.uaChTrackLevel as UaChTrackLevel)) {
-    delete normalizedLoadOpts.uaChTrackLevel;
+    normalizedLoadOpts.uaChTrackLevel = undefined;
   }
 
-  if (!isNonEmptyObject(normalizedLoadOpts.integrations)) {
-    delete normalizedLoadOpts.integrations;
+  normalizedLoadOpts.integrations = getNormalizedObjectValue(normalizedLoadOpts.integrations);
+
+  if (!Array.isArray(normalizedLoadOpts.plugins)) {
+    normalizedLoadOpts.plugins = defaultOptionalPluginsList;
   }
 
-  normalizedLoadOpts.plugins = normalizedLoadOpts.plugins ?? defaultOptionalPluginsList;
+  normalizedLoadOpts.useGlobalIntegrationsConfigInEvents = getNormalizedBooleanValue(
+    normalizedLoadOpts.useGlobalIntegrationsConfigInEvents,
+    loadOptionsFromState.useGlobalIntegrationsConfigInEvents,
+  );
 
-  normalizedLoadOpts.useGlobalIntegrationsConfigInEvents =
-    normalizedLoadOpts.useGlobalIntegrationsConfigInEvents === true;
+  normalizedLoadOpts.bufferDataPlaneEventsUntilReady = getNormalizedBooleanValue(
+    normalizedLoadOpts.bufferDataPlaneEventsUntilReady,
+    loadOptionsFromState.bufferDataPlaneEventsUntilReady,
+  );
 
-  normalizedLoadOpts.bufferDataPlaneEventsUntilReady =
-    normalizedLoadOpts.bufferDataPlaneEventsUntilReady === true;
+  normalizedLoadOpts.sendAdblockPage = getNormalizedBooleanValue(
+    normalizedLoadOpts.sendAdblockPage,
+    loadOptionsFromState.sendAdblockPage,
+  );
 
-  normalizedLoadOpts.sendAdblockPage = normalizedLoadOpts.sendAdblockPage === true;
+  normalizedLoadOpts.useServerSideCookies = getNormalizedBooleanValue(
+    normalizedLoadOpts.useServerSideCookies,
+    loadOptionsFromState.useServerSideCookies,
+  );
 
-  normalizedLoadOpts.useServerSideCookies = normalizedLoadOpts.useServerSideCookies === true;
-
-  if (
-    normalizedLoadOpts.dataServiceEndpoint &&
-    typeof normalizedLoadOpts.dataServiceEndpoint !== 'string'
-  ) {
-    delete normalizedLoadOpts.dataServiceEndpoint;
+  if (!isString(normalizedLoadOpts.dataServiceEndpoint)) {
+    normalizedLoadOpts.dataServiceEndpoint = undefined;
   }
 
-  if (!isObjectLiteralAndNotNull(normalizedLoadOpts.sendAdblockPageOptions)) {
-    delete normalizedLoadOpts.sendAdblockPageOptions;
-  }
+  normalizedLoadOpts.sendAdblockPageOptions = getNormalizedObjectValue(
+    normalizedLoadOpts.sendAdblockPageOptions,
+  );
 
-  if (!isDefined(normalizedLoadOpts.loadIntegration)) {
-    delete normalizedLoadOpts.loadIntegration;
+  normalizedLoadOpts.loadIntegration = getNormalizedBooleanValue(
+    normalizedLoadOpts.loadIntegration,
+    loadOptionsFromState.loadIntegration,
+  );
+
+  if (!isNonEmptyObject(normalizedLoadOpts.storage)) {
+    normalizedLoadOpts.storage = undefined;
   } else {
-    normalizedLoadOpts.loadIntegration = normalizedLoadOpts.loadIntegration === true;
-  }
+    normalizedLoadOpts.storage.migrate = getNormalizedBooleanValue(
+      normalizedLoadOpts.storage.migrate,
+      loadOptionsFromState.storage?.migrate,
+    );
 
-  if (!isObjectLiteralAndNotNull(normalizedLoadOpts.storage)) {
-    delete normalizedLoadOpts.storage;
-  } else {
+    normalizedLoadOpts.storage.cookie = getNormalizedObjectValue(normalizedLoadOpts.storage.cookie);
+    normalizedLoadOpts.storage.encryption = getNormalizedObjectValue(
+      normalizedLoadOpts.storage.encryption,
+    );
     normalizedLoadOpts.storage = removeUndefinedAndNullValues(normalizedLoadOpts.storage);
-    (normalizedLoadOpts.storage as StorageOpts).migrate =
-      normalizedLoadOpts.storage?.migrate === true;
   }
 
-  if (!isObjectLiteralAndNotNull(normalizedLoadOpts.beaconQueueOptions)) {
-    delete normalizedLoadOpts.beaconQueueOptions;
-  } else {
-    normalizedLoadOpts.beaconQueueOptions = removeUndefinedAndNullValues(
-      normalizedLoadOpts.beaconQueueOptions,
-    );
-  }
+  normalizedLoadOpts.destinationsQueueOptions = getNormalizedObjectValue(
+    normalizedLoadOpts.destinationsQueueOptions,
+  );
 
-  if (!isObjectLiteralAndNotNull(normalizedLoadOpts.destinationsQueueOptions)) {
-    delete normalizedLoadOpts.destinationsQueueOptions;
-  } else {
-    normalizedLoadOpts.destinationsQueueOptions = removeUndefinedAndNullValues(
-      normalizedLoadOpts.destinationsQueueOptions,
-    );
-  }
+  normalizedLoadOpts.queueOptions = getNormalizedObjectValue(normalizedLoadOpts.queueOptions);
 
-  if (!isObjectLiteralAndNotNull(normalizedLoadOpts.queueOptions)) {
-    delete normalizedLoadOpts.queueOptions;
-  } else {
-    normalizedLoadOpts.queueOptions = removeUndefinedAndNullValues(normalizedLoadOpts.queueOptions);
-  }
+  normalizedLoadOpts.lockIntegrationsVersion = getNormalizedBooleanValue(
+    normalizedLoadOpts.lockIntegrationsVersion,
+    loadOptionsFromState.lockIntegrationsVersion,
+  );
 
-  normalizedLoadOpts.lockIntegrationsVersion = normalizedLoadOpts.lockIntegrationsVersion === true;
-
-  normalizedLoadOpts.lockPluginsVersion = normalizedLoadOpts.lockPluginsVersion === true;
+  normalizedLoadOpts.lockPluginsVersion = getNormalizedBooleanValue(
+    normalizedLoadOpts.lockPluginsVersion,
+    loadOptionsFromState.lockPluginsVersion,
+  );
 
   if (!isNumber(normalizedLoadOpts.dataPlaneEventsBufferTimeout)) {
-    delete normalizedLoadOpts.dataPlaneEventsBufferTimeout;
+    normalizedLoadOpts.dataPlaneEventsBufferTimeout = undefined;
   }
 
-  if (!isObjectLiteralAndNotNull(normalizedLoadOpts.storage?.cookie)) {
-    delete normalizedLoadOpts.storage?.cookie;
-  } else {
-    (normalizedLoadOpts.storage as StorageOpts).cookie = removeUndefinedAndNullValues(
-      normalizedLoadOpts.storage?.cookie,
-    );
-  }
+  normalizedLoadOpts.beaconQueueOptions = getNormalizedObjectValue(
+    normalizedLoadOpts.beaconQueueOptions,
+  );
 
-  if (!isObjectLiteralAndNotNull(normalizedLoadOpts.preConsent)) {
-    delete normalizedLoadOpts.preConsent;
-  } else {
-    normalizedLoadOpts.preConsent = removeUndefinedAndNullValues(normalizedLoadOpts.preConsent);
-  }
+  normalizedLoadOpts.preConsent = getNormalizedObjectValue(normalizedLoadOpts.preConsent);
 
-  const mergedLoadOptions: LoadOptions = mergeDeepRight(loadOptionsFromState, normalizedLoadOpts);
+  const mergedLoadOptions: LoadOptions = mergeDeepRight(
+    loadOptionsFromState,
+    removeUndefinedAndNullValues(normalizedLoadOpts),
+  );
 
   return mergedLoadOptions;
 };
