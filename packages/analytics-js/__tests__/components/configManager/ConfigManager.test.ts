@@ -146,6 +146,7 @@ describe('ConfigManager', () => {
   });
 
   it('should log an error if getSourceConfig load option is not a function', () => {
+    // @ts-expect-error Testing invalid input
     state.loadOptions.value.getSourceConfig = dummySourceConfigResponse;
     configManagerInstance.processConfig = jest.fn();
 
@@ -161,6 +162,7 @@ describe('ConfigManager', () => {
     const expectedSourceState = {
       id: dummySourceConfigResponse.source.id,
       config: dummySourceConfigResponse.source.config,
+      name: dummySourceConfigResponse.source.name,
       workspaceId: dummySourceConfigResponse.source.workspaceId,
       name: dummySourceConfigResponse.source.name,
     };

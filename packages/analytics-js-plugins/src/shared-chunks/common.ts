@@ -35,7 +35,5 @@ export {
   isNonEmptyObject,
   isObjectLiteralAndNotNull,
 } from '@rudderstack/analytics-js-common/utilities/object';
-export { CDN_INT_DIR } from '@rudderstack/analytics-js-common/constants/urls';
-export { METRICS_PAYLOAD_VERSION } from '@rudderstack/analytics-js-common/constants/metrics';
 export { onPageLeave } from '@rudderstack/analytics-js-common/utilities/page';
 export { RetryQueue } from '@rudderstack/analytics-js-common/utilities/retryQueue/RetryQueue';

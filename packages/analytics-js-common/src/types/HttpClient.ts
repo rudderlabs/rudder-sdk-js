@@ -45,7 +45,7 @@ export type IRequestOptions = IFetchRequestOptions;
 export type HTTPClientMethod = 'GET' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH';
 
 export interface IHttpClient {
-  logger?: ILogger;
+  logger: ILogger;
   basicAuthHeader?: string;
   /**
    * Makes an async request to the given URL

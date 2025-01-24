@@ -14,7 +14,6 @@ const EXTERNAL_SRC_LOADER = 'ExternalSrcLoader';
 const HTTP_CLIENT = 'HttpClient';
 const RSA = 'RudderStackAnalytics';
 const ANALYTICS_CORE = 'AnalyticsCore';
-
 export {
   CAPABILITIES_MANAGER,
   CONFIG_MANAGER,

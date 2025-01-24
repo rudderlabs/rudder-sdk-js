@@ -1,3 +1,4 @@
+import type { Event } from '@bugsnag/js';
 import type { ILogger } from './Logger';
 import type { IHttpClient } from './HttpClient';
 
@@ -11,7 +12,7 @@ export interface IErrorHandler {
 }
 
 export type ErrorState = {
-  severity: string;
+  severity: Event['severity'];
   unhandled: boolean;
   severityReason: { type: string };
 };

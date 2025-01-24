@@ -6,7 +6,7 @@ import {
 } from '../../../src/components/utilities/consent';
 import { defaultLogger } from '../../../src/services/Logger';
 
-describe('consent utilties', () => {
+describe('consent utilities', () => {
   beforeEach(() => {
     resetState();
   });

@@ -64,7 +64,6 @@ import {
   DATA_PLANE_URL_VALIDATION_ERROR,
   INVALID_CALLBACK_FN_ERROR,
   WRITE_KEY_VALIDATION_ERROR,
-  CALLBACK_INVOKE_ERROR,
 } from '../../constants/logMessages';
 import type { IAnalytics } from './IAnalytics';
 import { getConsentManagementData, getValidPostConsentOptions } from '../utilities/consent';
@@ -350,11 +349,7 @@ class Analytics implements IAnalytics {
   onReady() {
     state.lifecycle.status.value = 'readyExecuted';
     state.eventBuffer.readyCallbacksArray.value.forEach((callback: ApiCallback) => {
-      try {
-        callback();
-      } catch (err) {
-        this.logger.error(CALLBACK_INVOKE_ERROR(READY_API), err);
-      }
+      safelyInvokeCallback(callback, [], READY_API, this.logger);
     });
 
     // Emit an event to use as substitute to the ready callback
@@ -474,11 +469,7 @@ class Analytics implements IAnalytics {
      * will be executed after loading completes
      */
     if (state.lifecycle.status.value === 'readyExecuted') {
-      try {
-        callback();
-      } catch (err) {
-        this.logger.error(CALLBACK_INVOKE_ERROR(READY_API), err);
-      }
+      safelyInvokeCallback(callback, [], READY_API, this.logger);
     } else {
       state.eventBuffer.readyCallbacksArray.value = [
         ...state.eventBuffer.readyCallbacksArray.value,

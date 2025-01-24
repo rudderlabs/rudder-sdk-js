@@ -16,6 +16,8 @@ import {
 import { BREADCRUMB_ERROR, HANDLE_ERROR_FAILURE } from '../../constants/logMessages';
 import { state } from '../../state';
 import { defaultLogger } from '../Logger';
+import { createBugsnagException, normalizeError } from './ErrorEvent/event';
+import { defaultHttpClient } from '../HttpClient';
 import {
   createNewBreadcrumb,
   getBugsnagErrorEvent,
@@ -24,8 +26,6 @@ import {
   isAllowedToBeNotified,
   isSDKError,
 } from './utils';
-import { createBugsnagException, normalizeError } from './event/event';
-import { defaultHttpClient } from '../HttpClient';
 
 /**
  * A service to handle errors

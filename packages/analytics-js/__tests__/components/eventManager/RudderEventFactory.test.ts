@@ -7,8 +7,9 @@ import type {
   OSInfo,
   ScreenInfo,
 } from '@rudderstack/analytics-js-common/types/EventContext';
-import { state } from '@rudderstack/analytics-js/state';
-import { RudderEventFactory } from '@rudderstack/analytics-js/components/eventManager/RudderEventFactory';
+import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
+import { state } from '../../../src/state';
+import { RudderEventFactory } from '../../../src/components/eventManager/RudderEventFactory';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/timestamp', () => ({
   getCurrentTimeFormatted: jest.fn().mockReturnValue('2020-01-01T00:00:00.000Z'),
@@ -19,7 +20,7 @@ jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
 }));
 
 describe('RudderEventFactory', () => {
-  const rudderEventFactory = new RudderEventFactory();
+  const rudderEventFactory = new RudderEventFactory(defaultLogger);
 
   beforeEach(() => {
     batch(() => {

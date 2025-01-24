@@ -8,6 +8,8 @@ jobs:
     # Only allow to be deployed from tags and main branch
     if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main'
     uses: ./.github/workflows/validate-actor.yml
+    with:
+      team_names: 'js-sdk,integrations'
     secrets:
       PAT: ${{ secrets.PAT }}
 

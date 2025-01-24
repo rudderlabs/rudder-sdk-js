@@ -1,3 +1,4 @@
+import type { Event, Stackframe, User } from '@bugsnag/js';
 import type { Breadcrumb } from './ApplicationState';
 
 export type MetricServicePayload = {
@@ -12,6 +13,7 @@ export type MetricServicePayload = {
   errors?: ErrorEventPayload;
 };
 
+// https://bugsnagerrorreportingapi.docs.apiary.io/#reference/0/notify/send-error-reports
 export type ErrorEventPayload = {
   payloadVersion: string;
   notifier: {
@@ -22,48 +24,16 @@ export type ErrorEventPayload = {
   events: ErrorEvent[];
 };
 
-export type ErrorEvent = {
+export type ErrorEvent = Pick<Event, 'severity' | 'app' | 'device' | 'request' | 'context'> & {
   exceptions: Exception[];
-  severity: string;
   unhandled: boolean;
   severityReason: { type: string };
-  app: {
-    version: string;
-    releaseStage: string;
-    type: string;
-  };
-  device: {
-    locale?: string;
-    userAgent?: string;
-    time?: Date;
-  };
-  request: {
-    url: string;
-    clientIp: string;
-  };
-  breadcrumbs: Breadcrumb[] | [];
-  context: string;
+  breadcrumbs: Breadcrumb[];
   metaData: {
     [index: string]: any;
   };
-  user: {
-    id: string;
-    name: string;
-  };
+  user: User;
 };
-
-export type GeneratedEventType = {
-  errors: Exception[];
-};
-
-export interface Stackframe {
-  file: string;
-  method?: string;
-  lineNumber?: number;
-  columnNumber?: number;
-  code?: Record<string, string>;
-  inProject?: boolean;
-}
 
 export interface Exception {
   message: string;

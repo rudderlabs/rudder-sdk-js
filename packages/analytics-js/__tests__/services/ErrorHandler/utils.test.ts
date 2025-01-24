@@ -2,6 +2,7 @@
 /* eslint-disable max-classes-per-file */
 import { signal } from '@preact/signals-core';
 import type { ErrorEventPayload, Exception } from '@rudderstack/analytics-js-common/types/Metrics';
+import type { Event } from '@bugsnag/js';
 import { state, resetState } from '../../../src/state';
 import * as errorReportingConstants from '../../../src/services/ErrorHandler/constants';
 import {
@@ -312,7 +313,7 @@ describe('Error Reporting utilities', () => {
       };
 
       const errorState = {
-        severity: 'error',
+        severity: 'error' as Event['severity'],
         unhandled: false,
         severityReason: { type: 'handledException' },
       };

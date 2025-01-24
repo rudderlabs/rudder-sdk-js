@@ -26,11 +26,9 @@ const handleReservedProperties = props => {
   return props;
 };
 
-const handlePurchase = (properties, userId) => {
+const handlePurchase = properties => {
   const { products, currency } = properties;
   const currencyCode = currency;
-
-  window.braze.changeUser(userId);
 
   // del used properties
   del(properties, 'products');

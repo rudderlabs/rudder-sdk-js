@@ -22,10 +22,10 @@ const DEFAULT_REQUEST_OPTIONS: Partial<IRequestOptions> = {
  * Service to handle data communication with APIs
  */
 class HttpClient implements IHttpClient {
-  logger?: ILogger;
+  logger: ILogger;
   basicAuthHeader?: string;
 
-  constructor(logger?: ILogger) {
+  constructor(logger: ILogger) {
     this.logger = logger;
   }
 
