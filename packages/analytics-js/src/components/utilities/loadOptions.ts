@@ -89,7 +89,7 @@ const normalizeLoadOptions = (
   if (!isNonEmptyObject(normalizedLoadOpts.storage)) {
     normalizedLoadOpts.storage = undefined;
   } else {
-    (normalizedLoadOpts.storage as StorageOpts).migrate = getNormalizedBooleanValue(
+    normalizedLoadOpts.storage.migrate = getNormalizedBooleanValue(
       normalizedLoadOpts.storage.migrate,
       loadOptionsFromState.storage?.migrate,
     );
