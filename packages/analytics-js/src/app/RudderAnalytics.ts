@@ -17,7 +17,6 @@ import {
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
-import { RSA } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import type { IdentifyTraits } from '@rudderstack/analytics-js-common/types/traits';
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { onPageLeave } from '@rudderstack/analytics-js-common/utilities/page';
