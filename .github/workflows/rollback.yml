@@ -29,3 +29,44 @@ jobs:
       BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
+  
+  # As we rollback to a previous version, we need to invalidate the CDN cache for the previous version's directory
+  # The above deploy action will invalidate the cache for the core SDK artifacts, so this step is needed for dependencies (plugins and integrations)
+  invalidate-cdn-cache:
+    needs: deploy
+    name: Invalidate CDN cache
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+      - name: Install AWS CLI
+        uses: unfor19/install-aws-cli-action@master
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_PROD_ACCOUNT_ID }}:role/${{ secrets.AWS_PROD_S3_SYNC_ROLE }}
+          aws-region: us-east-1
+
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Get new versions
+        run: |
+          current_version_v1=$(jq -r .version packages/analytics-v1.1/package.json)
+          current_version=$(jq -r .version packages/analytics-js/package.json)
+          echo "CURRENT_VERSION_V1_VALUE=$current_version_v1" >> $GITHUB_ENV
+          echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
+
+      - name: Invalidate CloudFront cache for all the SDK artifacts (versioned directory)
+        run: |
+          invalidation_id=$(AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/${{ env.CURRENT_VERSION_VALUE }}/*" --query "Invalidation.Id" --output text)
+
+          aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --id "$invalidation_id"
+
+      - name: Invalidate CloudFront cache for all the legacy SDK artifacts (versioned directory)
+        run: |
+          invalidation_id=$(AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/${{ env.CURRENT_VERSION_V1_VALUE }}/*" --query "Invalidation.Id" --output text)
+
+          aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --id "$invalidation_id"

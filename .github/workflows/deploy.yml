@@ -193,13 +193,6 @@ jobs:
           aws s3 cp ${{ env.CORE_ARTIFACTS_BASE_PATH }}/legacy/iife/ $s3_path_prefix/legacy/ $copy_args
           aws s3 cp ${{ env.CORE_ARTIFACTS_BASE_PATH }}/modern/iife/ $s3_path_prefix/modern/ $copy_args
 
-      - name: Invalidate CloudFront cache for all the SDK artifacts (versioned directory)
-        if: ${{ inputs.environment == 'production' }}
-        run: |
-          invalidation_id=$(AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/${{ env.CURRENT_VERSION_VALUE }}/*" --query "Invalidation.Id" --output text)
-
-          aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --id "$invalidation_id"
-
       - name: Copy SDK plugins and integrations artifacts to S3
         # IMPORTANT: We're deliberately avoiding copying these artifacts for the production environment
         # as they are already copied to versioned directory and expected to be loaded from there
@@ -313,10 +306,3 @@ jobs:
 
           aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/js-integrations/ $copy_args
           aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
-
-      - name: Invalidate CloudFront cache for all the legacy SDK artifacts (versioned directory)
-        if: ${{ inputs.environment == 'production' }}
-        run: |
-          invalidation_id=$(AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/${{ env.CURRENT_VERSION_V1_VALUE }}/*" --query "Invalidation.Id" --output text)
-
-          aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --id "$invalidation_id"
