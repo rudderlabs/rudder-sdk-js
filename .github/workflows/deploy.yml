@@ -169,6 +169,11 @@ jobs:
           s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/$s3_relative_path_prefix"
           copy_args="--recursive --cache-control ${{ env.CACHE_CONTROL_MAX_AGE }}"
 
+          # Copy all the files to S3
+          aws s3 cp ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/legacy/js-integrations/ $s3_path_prefix/legacy/js-integrations/ $copy_args
+          aws s3 cp ${{ env.PLUGINS_ARTIFACTS_BASE_PATH }}/modern/plugins/ $s3_path_prefix/modern/plugins/ $copy_args
+          aws s3 cp ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
+
           # Generate the HTML file to list all the integrations
           ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/legacy/js-integrations ${{ env.INTEGRATIONS_HTML_FILE }} ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/legacy/js-integrations "Device Mode Integrations (Legacy)" ${{ env.INTEGRATIONS_ZIP_FILE }}
 
@@ -177,10 +182,10 @@ jobs:
           # Generate the HTML file to list all the plugins
           ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/modern/plugins ${{ env.PLUGINS_HTML_FILE }} ${{ env.PLUGINS_ARTIFACTS_BASE_PATH }}/modern/plugins "Plugins" ${{ env.PLUGINS_ZIP_FILE }}
 
-          # Copy all the files to S3
-          aws s3 cp ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/legacy/js-integrations/ $s3_path_prefix/legacy/js-integrations/ $copy_args
-          aws s3 cp ${{ env.PLUGINS_ARTIFACTS_BASE_PATH }}/modern/plugins/ $s3_path_prefix/modern/plugins/ $copy_args
-          aws s3 cp ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
+          # Copy the HTML files to S3
+          aws s3 cp ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/legacy/js-integrations/${{ env.INTEGRATIONS_HTML_FILE }} $s3_path_prefix/legacy/js-integrations/${{ env.INTEGRATIONS_HTML_FILE }} --cache-control ${{ env.CACHE_CONTROL_MAX_AGE }}
+          aws s3 cp ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/modern/js-integrations/${{ env.INTEGRATIONS_HTML_FILE }} $s3_path_prefix/modern/js-integrations/${{ env.INTEGRATIONS_HTML_FILE }} --cache-control ${{ env.CACHE_CONTROL_MAX_AGE }}
+          aws s3 cp ${{ env.PLUGINS_ARTIFACTS_BASE_PATH }}/modern/plugins/${{ env.PLUGINS_HTML_FILE }} $s3_path_prefix/modern/plugins/${{ env.PLUGINS_HTML_FILE }} --cache-control ${{ env.CACHE_CONTROL_MAX_AGE }}
 
       - name: Copy SDK core artifacts to S3 (versioned directory)
         if: ${{ inputs.environment == 'production' }}
@@ -201,7 +206,12 @@ jobs:
           s3_relative_path_prefix="${{ inputs.s3_dir_path }}"
           s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/$s3_relative_path_prefix"
           copy_args="--recursive --cache-control ${{ env.CACHE_CONTROL }}"
-          
+
+          # Copy all the files to S3
+          aws s3 cp ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/legacy/js-integrations/ $s3_path_prefix/legacy/js-integrations/ $copy_args
+          aws s3 cp ${{ env.PLUGINS_ARTIFACTS_BASE_PATH }}/modern/plugins/ $s3_path_prefix/modern/plugins/ $copy_args
+          aws s3 cp ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
+
           # Generate the HTML file to list all the integrations
           ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/legacy/js-integrations ${{ env.INTEGRATIONS_HTML_FILE }} ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/legacy/js-integrations "Device Mode Integrations (Legacy)" ${{ env.INTEGRATIONS_ZIP_FILE }}
 
@@ -210,10 +220,10 @@ jobs:
           # Generate the HTML file to list all the plugins
           ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/modern/plugins ${{ env.PLUGINS_HTML_FILE }} ${{ env.PLUGINS_ARTIFACTS_BASE_PATH }}/modern/plugins "Plugins" ${{ env.PLUGINS_ZIP_FILE }}
 
-          # Copy all the files to S3
-          aws s3 cp ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/legacy/js-integrations/ $s3_path_prefix/legacy/js-integrations/ $copy_args
-          aws s3 cp ${{ env.PLUGINS_ARTIFACTS_BASE_PATH }}/modern/plugins/ $s3_path_prefix/modern/plugins/ $copy_args
-          aws s3 cp ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
+          # Copy the HTML files to S3
+          aws s3 cp ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/legacy/js-integrations/${{ env.INTEGRATIONS_HTML_FILE }} $s3_path_prefix/legacy/js-integrations/${{ env.INTEGRATIONS_HTML_FILE }} --cache-control ${{ env.CACHE_CONTROL_MAX_AGE }}
+          aws s3 cp ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/modern/js-integrations/${{ env.INTEGRATIONS_HTML_FILE }} $s3_path_prefix/modern/js-integrations/${{ env.INTEGRATIONS_HTML_FILE }} --cache-control ${{ env.CACHE_CONTROL_MAX_AGE }}
+          aws s3 cp ${{ env.PLUGINS_ARTIFACTS_BASE_PATH }}/modern/plugins/${{ env.PLUGINS_HTML_FILE }} $s3_path_prefix/modern/plugins/${{ env.PLUGINS_HTML_FILE }} --cache-control ${{ env.CACHE_CONTROL_MAX_AGE }}
       
       - name: Copy SDK core artifacts to S3
         run: |
