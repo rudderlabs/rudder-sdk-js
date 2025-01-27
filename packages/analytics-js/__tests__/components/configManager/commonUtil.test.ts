@@ -17,11 +17,14 @@ import { state, resetState } from '../../../src/state';
 
 jest.mock('../../../src/components/configManager/util/validate');
 
-const createScriptElement = (url: string) => {
+const createScriptElement = (url: string, writeKey?: string) => {
   const script = document.createElement('script');
   script.type = 'text/javascript';
   script.src = url;
   script.id = 'SOME_ID';
+  if (writeKey) {
+    script.setAttribute('data-rsa-write-key', writeKey);
+  }
   document.head.appendChild(script);
 };
 
@@ -51,6 +54,7 @@ describe('Config Manager Common Utilities', () => {
 
   beforeEach(() => {
     resetState();
+    state.lifecycle.writeKey.value = 'writeKey';
     (getDataServiceUrl as jest.Mock).mockRestore();
   });
 
@@ -63,30 +67,37 @@ describe('Config Manager Common Utilities', () => {
       // expected, input
       [
         'https://www.dummy.url/fromScript/v3/rsa.min.js',
-        'https://www.dummy.url/fromScript/v3/rsa.min.js',
+        ['https://www.dummy.url/fromScript/v3/rsa.min.js'],
       ],
-      [undefined, 'https://www.dummy.url/fromScript/v3/other.min.js'],
-      ['https://www.dummy.url/fromScript/v3/rsa.js', 'https://www.dummy.url/fromScript/v3/rsa.js'],
-      [undefined, 'https://www.dummy.url/fromScript/v3/rudder.min.js'],
-      [undefined, 'https://www.dummy.url/fromScript/v3/analytics.min.js'],
-      [undefined, 'https://www.dummy.url/fromScript/v3/rsa.min'],
-      ['https://www.dummy.url/fromScript/v3/rsa.js', 'https://www.dummy.url/fromScript/v3/rsa.js'],
-      [undefined, 'https://www.dummy.url/fromScript/v3/rsa'],
-      [undefined, 'https://www.dummy.url/fromScript/v3rsa.min.js'],
-      ['/rsa.min.js', '/rsa.min.js'],
-      ['/rsa.js', '/rsa.js'],
-      [undefined, 'https://www.dummy.url/fromScript/v3/rs.min.js'],
-      [undefined, 'https://www.dummy.url/fromScript/v3/rsamin.js'],
-      ['rsa.min.js', 'rsa.min.js'],
-      ['rsa.js', 'rsa.js'],
-      [undefined, 'https://www.dummy.url/fromScript/v3/rsa.min.jsx'],
-      [undefined, null],
+      [undefined, ['https://www.dummy.url/fromScript/v3/other.min.js']],
+      [
+        'https://www.dummy.url/fromScript/v3/rsa.js',
+        ['https://www.dummy.url/fromScript/v3/rsa.js'],
+      ],
+      [undefined, ['https://www.dummy.url/fromScript/v3/rudder.min.js']],
+      [undefined, ['https://www.dummy.url/fromScript/v3/analytics.min.js']],
+      [undefined, ['https://www.dummy.url/fromScript/v3/rsa.min']],
+      [undefined, ['https://www.dummy.url/fromScript/v3/rsa']],
+      [undefined, ['https://www.dummy.url/fromScript/v3rsa.min.js']],
+      ['/rsa.min.js', ['/rsa.min.js']],
+      ['/rsa.js', ['/rsa.js']],
+      [undefined, ['https://www.dummy.url/fromScript/v3/rs.min.js']],
+      [
+        'https://www.dummy.url/fromScript/v3/rs.min.js',
+        ['https://www.dummy.url/fromScript/v3/rs.min.js', 'writeKey'],
+      ],
+      [undefined, ['https://www.dummy.url/fromScript/v3/rs.min.js', 'writeKey-1']],
+      [undefined, ['https://www.dummy.url/fromScript/v3/rsamin.js']],
+      ['rsa.min.js', ['rsa.min.js']],
+      ['rsa.js', ['rsa.js']],
+      [undefined, ['https://www.dummy.url/fromScript/v3/rsa.min.jsx']],
+      [undefined, [null]],
     ];
 
     test.each(testCases)(
       'should return %s when the script src is %s',
       (expected: any, input: any) => {
-        createScriptElement(input as string);
+        createScriptElement((input as any[])[0], (input as any[])[1]);
 
         const sdkURL = getSDKUrl();
         expect(sdkURL).toBe(expected);
