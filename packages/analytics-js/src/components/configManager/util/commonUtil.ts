@@ -56,6 +56,16 @@ import { getConsentManagementData } from '../../utilities/consent';
  * @returns sdkURL
  */
 const getSDKUrl = (): string | undefined => {
+  // First try the new method of getting the SDK URL
+  // from the script tag
+  const scriptTag = document.querySelector<HTMLScriptElement>('script[data-rsa-write-key]');
+  if (scriptTag && scriptTag.dataset.rsaWriteKey === state.lifecycle.writeKey.value) {
+    return scriptTag.src;
+  }
+
+  // If the new method fails, try the old method
+  // TODO: We need to remove this once all the customers upgrade to the
+  // latest SDK loading snippet
   const scripts = document.getElementsByTagName('script');
   const sdkFileNameRegex = /(?:^|\/)rsa(\.min)?\.js$/;
 
