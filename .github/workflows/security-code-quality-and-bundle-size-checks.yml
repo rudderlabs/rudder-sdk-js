@@ -31,7 +31,7 @@ jobs:
           HUSKY: 0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          install_script: setup:ci
+          install_script: setup:deps
           build_script: check:size:build
           clean_script: clean
           script: npm run check:size:json:ci --silent -- --output-style=static --silent=true --exclude=@rudderstack/analytics-js-sanity-suite
@@ -54,7 +54,7 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
-      - name: Install dependencies
+      - name: Setup workspace
         env:
           HUSKY: 0
         run: |
