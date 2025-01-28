@@ -141,6 +141,16 @@ jobs:
           echo "CURRENT_NPM_VERSION_COOKIE_UTILS=${{ env.CURRENT_NPM_VERSION_COOKIE_UTILS }}"
           echo "NEW_NPM_VERSION_COOKIE_UTILS=${{ env.NEW_NPM_VERSION_COOKIE_UTILS }}"
 
+      - name: Deprecate the legacy SDK NPM package
+        continue-on-error: true
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+        run: |
+          npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
+
+          npm deprecate rudder-sdk-js "This package is deprecated and no longer maintained. Please migrate to the latest package, @rudderstack/analytics-js (https://www.npmjs.com/package/@rudderstack/analytics-js), for the latest features, security updates, and improved performance. For more details, visit: https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/migration-guide/."
+
       - name: Send message to Slack channel
         if: env.CURRENT_NPM_VERSION != env.NEW_NPM_VERSION && env.NEW_NPM_VERSION != 'not found'
         id: slack

@@ -1658,6 +1658,12 @@ const startSession = instance.startSession.bind(instance);
 const endSession = instance.endSession.bind(instance);
 const setAuthToken = instance.setAuthToken.bind(instance);
 
+if ('__MODULE_TYPE__' === 'npm') {
+  logger.error('This package is deprecated and no longer maintained. Please migrate to the latest [@rudderstack/analytics-js](https://www.npmjs.com/package/@rudderstack/analytics-js) package for enhanced features, security updates, and ongoing support. For more details, visit the official documentation: https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/.');
+} else {
+  logger.error('This version of the RudderStack JavaScript SDK is deprecated and no longer maintained. Please migrate to the latest version (v3) for enhanced features, security updates, and ongoing support. For more details, visit the official documentation: https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/.');
+}
+
 export {
   initialized,
   ready,
