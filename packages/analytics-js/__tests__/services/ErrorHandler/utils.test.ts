@@ -490,6 +490,9 @@ describe('Error Reporting utilities', () => {
                 queueOptions: {},
                 sameSiteCookie: 'Lax',
                 sendAdblockPageOptions: {},
+                secureCookie: false,
+                sameDomainCookiesOnly: false,
+                sendAdblockPage: false,
                 sessions: {
                   autoTrack: true,
                   timeout: 1800000,

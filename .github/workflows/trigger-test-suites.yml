@@ -68,6 +68,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PAT }}
         run: |
+          # Sleep for 15 minutes to allow the sanity test suite to complete first
+          sleep 15m
+
           gh api \
             --method POST \
             -H "Accept: application/vnd.github+json" \

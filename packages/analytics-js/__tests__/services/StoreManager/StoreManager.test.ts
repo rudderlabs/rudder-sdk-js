@@ -76,6 +76,7 @@ describe('StoreManager', () => {
           samesite: state.loadOptions.value.sameSiteCookie,
           secure: state.loadOptions.value.secureCookie,
           domain: state.loadOptions.value.setCookieDomain,
+          sameDomainCookiesOnly: state.loadOptions.value.sameDomainCookiesOnly,
           enabled: true,
         },
         { enabled: true },

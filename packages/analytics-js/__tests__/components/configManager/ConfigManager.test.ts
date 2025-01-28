@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/deprecation */
 import { effect, signal } from '@preact/signals-core';
 import { http, HttpResponse } from 'msw';
 import type { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';

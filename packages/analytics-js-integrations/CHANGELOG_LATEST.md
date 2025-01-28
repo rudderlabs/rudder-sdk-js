@@ -1,7 +1,5 @@
-## [3.12.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.12.0...@rudderstack/analytics-js-integrations@3.12.1) (2025-01-22)
+## [3.12.2](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.12.1...@rudderstack/analytics-js-integrations@3.12.2) (2025-01-24)
 
+### Dependency Updates
 
-### Bug Fixes
-
-* braze anonymousId tracking with alias details ([#1994](https://github.com/rudderlabs/rudder-sdk-js/issues/1994)) ([7215304](https://github.com/rudderlabs/rudder-sdk-js/commit/721530493d559ba89d2bfe1156a916a8885bb34c))
-
+* `@rudderstack/analytics-js-common` updated to version `3.15.0`

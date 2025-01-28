@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/deprecation */
 /* eslint-disable class-methods-use-this */
 import type {
   IHttpClient,

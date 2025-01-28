@@ -98,10 +98,6 @@
             }
             var loadOptions = {
               logLevel: 'DEBUG',
-              configUrl: '__CONFIG_SERVER_HOST__',
-              destSDKBaseURL:
-            '__DEST_SDK_BASE_URL__' + window.rudderAnalyticsBuildType + '/js-integrations',
-              pluginsSDKBaseURL: '__PLUGINS_BASE_URL__' + window.rudderAnalyticsBuildType + '/plugins',
               // integrations: {
               //   All: false
               // },
@@ -168,6 +164,18 @@
               // }
             };
 
+            const envDestSDKBaseURL = '__DEST_SDK_BASE_URL__';
+            if (envDestSDKBaseURL !== 'undefined') {
+              loadOptions.destSDKBaseURL = envDestSDKBaseURL + window.rudderAnalyticsBuildType + '/js-integrations';
+            }
+            const envPluginsSDKBaseURL = '__PLUGINS_BASE_URL__';
+            if (envPluginsSDKBaseURL !== 'undefined') {
+              loadOptions.pluginsSDKBaseURL = envPluginsSDKBaseURL + window.rudderAnalyticsBuildType + '/plugins';
+            }
+            const envConfigUrl = '__CONFIG_SERVER_HOST__';
+            if (envConfigUrl !== 'undefined') {
+              loadOptions.configUrl = envConfigUrl;
+            }
             rudderanalytics.load('__WRITE_KEY__', '__DATAPLANE_URL__', loadOptions);
           }
         }
