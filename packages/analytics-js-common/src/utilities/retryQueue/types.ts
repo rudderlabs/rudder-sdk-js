@@ -19,6 +19,8 @@ export type QueueItemData =
   | string[]
   | number[];
 
+export type QueueData<T> = QueueItem<T>[];
+
 /**
  * @callback QueueProcessCallback
  * @param {any} item The item added to the queue to process
@@ -33,6 +35,7 @@ export type QueueProcessCallback<T = any> = (
   retryAttemptNumber?: number,
   maxRetryAttempts?: number,
   willBeRetried?: boolean,
+  isPageAccessible?: boolean,
 ) => void;
 
 export type QueueBatchItemsSizeCalculatorCallback<T = any> = (item: T) => number;

@@ -201,7 +201,14 @@ describe('Queue', () => {
 
     queue.addItem('a');
 
-    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledWith(
+      'a',
+      expect.any(Function),
+      0,
+      Infinity,
+      true,
+      true,
+    );
   });
 
   it('should retry a task if it fails', () => {
@@ -217,7 +224,14 @@ describe('Queue', () => {
     queue.addItem('a');
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
-    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledWith(
+      'a',
+      expect.any(Function),
+      0,
+      Infinity,
+      true,
+      true,
+    );
 
     // Delay for the first retry
     mockProcessItemCb.mockReset();
@@ -225,7 +239,14 @@ describe('Queue', () => {
     jest.advanceTimersByTime(nextTickDelay);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
-    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 1, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledWith(
+      'a',
+      expect.any(Function),
+      1,
+      Infinity,
+      true,
+      true,
+    );
   });
 
   it('should delay retries', () => {
@@ -241,7 +262,14 @@ describe('Queue', () => {
     queue.addItem('a');
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
-    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledWith(
+      'a',
+      expect.any(Function),
+      0,
+      Infinity,
+      true,
+      true,
+    );
 
     // Delay for the retry
     mockProcessItemCb.mockReset();
@@ -249,7 +277,14 @@ describe('Queue', () => {
     jest.advanceTimersByTime(nextTickDelay);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
-    expect(queue.processQueueCb).toHaveBeenCalledWith('b', expect.any(Function), 1, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledWith(
+      'b',
+      expect.any(Function),
+      1,
+      Infinity,
+      true,
+      true,
+    );
   });
 
   it('should respect shouldRetry', () => {
@@ -360,6 +395,7 @@ describe('Queue', () => {
       0,
       Infinity,
       true,
+      true,
     );
     expect(queue.processQueueCb).toHaveBeenNthCalledWith(
       2,
@@ -367,6 +403,7 @@ describe('Queue', () => {
       expect.any(Function),
       0,
       Infinity,
+      true,
       true,
     );
     expect(queue.processQueueCb).toHaveBeenNthCalledWith(
@@ -376,6 +413,7 @@ describe('Queue', () => {
       0,
       Infinity,
       true,
+      true,
     );
     expect(queue.processQueueCb).toHaveBeenNthCalledWith(
       4,
@@ -383,6 +421,7 @@ describe('Queue', () => {
       expect.any(Function),
       0,
       Infinity,
+      true,
       true,
     );
   });
@@ -442,6 +481,7 @@ describe('Queue', () => {
       1,
       Infinity,
       true,
+      true,
     );
     expect(queue.processQueueCb).toHaveBeenNthCalledWith(
       2,
@@ -449,6 +489,7 @@ describe('Queue', () => {
       expect.any(Function),
       1,
       Infinity,
+      true,
       true,
     );
     expect(queue.processQueueCb).toHaveBeenNthCalledWith(
@@ -458,6 +499,7 @@ describe('Queue', () => {
       1,
       Infinity,
       true,
+      true,
     );
     expect(queue.processQueueCb).toHaveBeenNthCalledWith(
       4,
@@ -465,6 +507,7 @@ describe('Queue', () => {
       expect.any(Function),
       1,
       Infinity,
+      true,
       true,
     );
   });
@@ -520,6 +563,7 @@ describe('Queue', () => {
       0,
       Infinity,
       true,
+      true,
     );
   });
 
@@ -566,6 +610,7 @@ describe('Queue', () => {
       0,
       Infinity,
       true,
+      true,
     );
     expect(queue.processQueueCb).toHaveBeenNthCalledWith(
       2,
@@ -573,6 +618,7 @@ describe('Queue', () => {
       expect.any(Function),
       0,
       Infinity,
+      true,
       true,
     );
   });
@@ -615,7 +661,14 @@ describe('Queue', () => {
     jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
-    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledWith(
+      'a',
+      expect.any(Function),
+      0,
+      Infinity,
+      true,
+      true,
+    );
   });
 
   it('should deduplicate ids when reclaiming abandoned in-progress tasks', () => {
@@ -656,7 +709,14 @@ describe('Queue', () => {
     jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
-    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 1, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledWith(
+      'a',
+      expect.any(Function),
+      1,
+      Infinity,
+      true,
+      true,
+    );
   });
 
   it('should deduplicate ids when reclaiming abandoned batch queue tasks', () => {
@@ -697,7 +757,14 @@ describe('Queue', () => {
     jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
-    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledWith(
+      'a',
+      expect.any(Function),
+      0,
+      Infinity,
+      true,
+      true,
+    );
   });
 
   it('should deduplicate ids when reclaiming abandoned batch, in-progress and queue tasks', () => {
@@ -768,9 +835,30 @@ describe('Queue', () => {
     jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(3);
-    expect(queue.processQueueCb).toHaveBeenCalledWith('c', expect.any(Function), 0, Infinity, true);
-    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
-    expect(queue.processQueueCb).toHaveBeenCalledWith('b', expect.any(Function), 0, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledWith(
+      'c',
+      expect.any(Function),
+      0,
+      Infinity,
+      true,
+      true,
+    );
+    expect(queue.processQueueCb).toHaveBeenCalledWith(
+      'a',
+      expect.any(Function),
+      0,
+      Infinity,
+      true,
+      true,
+    );
+    expect(queue.processQueueCb).toHaveBeenCalledWith(
+      'b',
+      expect.any(Function),
+      0,
+      Infinity,
+      true,
+      true,
+    );
   });
 
   it('should not deduplicate tasks when ids are not set during reclaim', () => {
@@ -822,7 +910,14 @@ describe('Queue', () => {
     jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(4);
-    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledWith(
+      'a',
+      expect.any(Function),
+      0,
+      Infinity,
+      true,
+      true,
+    );
   });
 
   it('should take over multiple tasks if a queue is abandoned', () => {
@@ -870,9 +965,30 @@ describe('Queue', () => {
     jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(3);
-    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
-    expect(queue.processQueueCb).toHaveBeenCalledWith('b', expect.any(Function), 1, Infinity, true);
-    expect(queue.processQueueCb).toHaveBeenCalledWith('c', expect.any(Function), 0, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledWith(
+      'a',
+      expect.any(Function),
+      0,
+      Infinity,
+      true,
+      true,
+    );
+    expect(queue.processQueueCb).toHaveBeenCalledWith(
+      'b',
+      expect.any(Function),
+      1,
+      Infinity,
+      true,
+      true,
+    );
+    expect(queue.processQueueCb).toHaveBeenCalledWith(
+      'c',
+      expect.any(Function),
+      0,
+      Infinity,
+      true,
+      true,
+    );
   });
 
   describe('while using in memory engine', () => {
@@ -917,6 +1033,7 @@ describe('Queue', () => {
         0,
         Infinity,
         true,
+        true,
       );
     });
 
@@ -956,6 +1073,7 @@ describe('Queue', () => {
         expect.any(Function),
         1,
         Infinity,
+        true,
         true,
       );
     });
@@ -1004,12 +1122,14 @@ describe('Queue', () => {
         0,
         Infinity,
         true,
+        true,
       );
       expect(queue.processQueueCb).toHaveBeenCalledWith(
         'b',
         expect.any(Function),
         1,
         Infinity,
+        true,
         true,
       );
     });

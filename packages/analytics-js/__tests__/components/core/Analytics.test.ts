@@ -32,6 +32,7 @@ describe('Core - Analytics', () => {
   const dummyDataplaneURL = 'https://dummy.dataplane.url';
 
   beforeEach(() => {
+    state.lifecycle.activeDataplaneUrl.value = 'https://example.com/dataplane';
     analytics = new Analytics();
   });
 
@@ -715,7 +716,7 @@ describe('Core - Analytics', () => {
       });
 
       expect(leaveBreadcrumbSpy).toHaveBeenCalledWith('New consent invocation');
-      expect(invokeSingleSpy).toHaveBeenCalledTimes(6); // 1 for consents data fetch and other for setting active destinations, 2 x 2 for queueing consent track and page events to event queue plugins
+      expect(invokeSingleSpy).toHaveBeenCalledTimes(4); // 1 for consents data fetch and other for setting active destinations, 2 x 2 for queueing consent track and page events to event queue plugins
       expect(initializeStorageStateSpy).toHaveBeenCalledTimes(1);
       expect(syncStorageDataToStateSpy).toHaveBeenCalledTimes(1);
       expect(resumeSpy).toHaveBeenCalledTimes(1);

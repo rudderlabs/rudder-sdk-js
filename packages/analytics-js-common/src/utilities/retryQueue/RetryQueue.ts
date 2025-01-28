@@ -15,6 +15,7 @@ import type {
   QueueItemData,
   QueueItemType,
   QueueProcessCallback,
+  QueueData,
 } from './types';
 import {
   DEFAULT_MAX_ITEMS,
@@ -41,6 +42,7 @@ import {
   QueueStatuses,
   RECLAIM_END,
   RECLAIM_START,
+  MAX_PAGE_UNLOAD_BATCH_SIZE_BYTES,
 } from './constants';
 import { LOCAL_STORAGE } from '../../constants/storages';
 import { isDefined, isFunction, isNullOrUndefined } from '../checks';
@@ -185,14 +187,15 @@ class RetryQueue implements IQueue<QueueItemData> {
   }
 
   flushBatchOnPageLeave() {
-    if (this.batch.enabled) {
-      onPageLeave(this.flushBatch);
+    if (isDefined(this.batchSizeCalcCb)) {
+      onPageLeave(isAccessible => {
+        this.isPageAccessible = isAccessible;
+        this.flushForPageLeave();
+      });
     }
   }
 
-  getStorageEntry(
-    name: string,
-  ): Nullable<QueueItem<QueueItemData>[] | Record<string, any> | number> {
+  getStorageEntry(name: string): Nullable<QueueData<QueueItemData>> {
     return this.store.get(name);
   }
 
@@ -273,6 +276,47 @@ class RetryQueue implements IQueue<QueueItemData> {
       // Re-schedule the flush task
       this.scheduleFlushBatch();
     }
+  }
+
+  /**
+   * Flushes the batch queue
+   */
+  flushForPageLeave() {
+    let dataSource: string;
+    if (this.batch.enabled) {
+      dataSource = BATCH_QUEUE;
+    } else {
+      dataSource = QUEUE;
+    }
+
+    const dataSourceQueue = this.getStorageEntry(dataSource) ?? [];
+    if (dataSourceQueue.length === 0) {
+      return;
+    }
+
+    const batchItems: QueueItem<QueueItemData>[] = [];
+    // Try to send as many items as possible
+    // eslint-disable-next-line no-restricted-syntax
+    for (const queueItem of dataSourceQueue) {
+      if (
+        (this.batchSizeCalcCb as QueueBatchItemsSizeCalculatorCallback<QueueItemData>)(
+          [...batchItems, queueItem].map(queueItem => queueItem.item),
+        ) > MAX_PAGE_UNLOAD_BATCH_SIZE_BYTES
+      ) {
+        break;
+      }
+
+      batchItems.push(queueItem);
+    }
+
+    const batchEntry = this.genQueueItem(
+      batchItems.map(queueItem => queueItem.item),
+      BATCH_QUEUE_ITEM_TYPE,
+    );
+
+    this.setStorageEntry(dataSource, dataSourceQueue.slice(batchItems.length));
+
+    this.pushToMainQueue(batchEntry);
   }
 
   /**
@@ -498,12 +542,7 @@ class RetryQueue implements IQueue<QueueItemData> {
       });
     };
 
-    let inProgress = (this.getStorageEntry(IN_PROGRESS) as Nullable<Record<string, any>>) ?? {};
-    // If the page is unloading, clear the previous in progress queue also to avoid any stale data
-    // Otherwise, the next page load will retry the items which were in progress previously
-    if (!this.isPageAccessible) {
-      inProgress = {};
-    }
+    const inProgress = (this.getStorageEntry(IN_PROGRESS) as Nullable<Record<string, any>>) ?? {};
     let inProgressSize = Object.keys(inProgress).length;
 
     // eslint-disable-next-line no-plusplus
@@ -516,16 +555,13 @@ class RetryQueue implements IQueue<QueueItemData> {
       if (el) {
         const id = generateUUID();
 
-        // If the page is unloading, don't add items to the in progress queue
-        if (this.isPageAccessible) {
-          // Save this to the in progress map
-          inProgress[id] = {
-            item: el.item,
-            attemptNumber: el.attemptNumber,
-            time: this.schedule.now(),
-            type: el.type,
-          };
-        }
+        // Save this to the in progress map
+        inProgress[id] = {
+          item: el.item,
+          attemptNumber: el.attemptNumber,
+          time: this.schedule.now(),
+          type: el.type,
+        };
 
         enqueueItem(el, id);
       }
@@ -538,7 +574,14 @@ class RetryQueue implements IQueue<QueueItemData> {
       // TODO: handle processQueueCb timeout
       try {
         const willBeRetried = this.shouldRetry(el.item, el.attemptNumber + 1);
-        this.processQueueCb(el.item, el.done, el.attemptNumber, this.maxAttempts, willBeRetried);
+        this.processQueueCb(
+          el.item,
+          el.done,
+          el.attemptNumber,
+          this.maxAttempts,
+          willBeRetried,
+          this.isPageAccessible,
+        );
       } catch (err) {
         this.logger?.error(RETRY_QUEUE_PROCESS_ERROR(RETRY_QUEUE), err);
       }

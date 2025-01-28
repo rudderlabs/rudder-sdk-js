@@ -20,6 +20,8 @@ const DEFAULT_BATCH_FLUSH_INTERVAL_MS = 60 * 1000; // 1 minutes
 const BATCH_QUEUE_ITEM_TYPE = 'Batch';
 const SINGLE_QUEUE_ITEM_TYPE = 'Single';
 
+const MAX_PAGE_UNLOAD_BATCH_SIZE_BYTES = 64 * 1024; // 64 KB
+
 // Queue entries
 const IN_PROGRESS = 'inProgress';
 const QUEUE = 'queue';
@@ -57,4 +59,5 @@ export {
   ACK,
   BATCH_QUEUE,
   QueueStatuses,
+  MAX_PAGE_UNLOAD_BATCH_SIZE_BYTES,
 };
