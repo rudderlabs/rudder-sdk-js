@@ -18,4 +18,11 @@ for package in "$PACKAGES_DIR"/*; do
   fi
 done
 
+# Add postinstall script to the legacy SDK package.json
+legacy_sdk_package="$PACKAGES_DIR/analytics-v1.1"
+package_json="$legacy_sdk_package/package.json"
+
+echo "Adding postinstall script to $package_json..."
+jq '.scripts = (.scripts // {}) | .scripts.postinstall = "echo '\''This package is deprecated and no longer maintained. Please migrate to the latest @rudderstack/analytics-js (https://www.npmjs.com/package/@rudderstack/analytics-js) package for enhanced features, security updates, and ongoing support. For more details, visit the official documentation: https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/'\''"' "$package_json" > "$legacy_sdk_package/package_cleaned.json" && mv "$legacy_sdk_package/package_cleaned.json" "$package_json"
+
 echo "Cleaning completed for all packages."
