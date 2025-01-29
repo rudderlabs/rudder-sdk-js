@@ -11,7 +11,7 @@ import type {
   LoadOptions,
   UaChTrackLevel,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import type { StorageOpts, CookieSameSite } from '@rudderstack/analytics-js-common/types/Storage';
+import type { CookieSameSite } from '@rudderstack/analytics-js-common/types/Storage';
 import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { defaultOptionalPluginsList } from '../pluginsManager/defaultPluginsList';
 import { isNumber } from './number';
