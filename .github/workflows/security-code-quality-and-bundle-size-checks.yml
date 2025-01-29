@@ -54,7 +54,7 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
-      - name: Install dependencies
+      - name: Setup workspace
         env:
           HUSKY: 0
         run: |

@@ -66,11 +66,12 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
-      - name: Install dependencies
+      - name: Setup workspace
         env:
           HUSKY: 0
           REMOTE_MODULES_BASE_PATH: 'https://cdn.rudderlabs.com/v3/modern/plugins'
           BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
+          LOCK_DEPS_VERSION: 'true'
           BUGSNAG_RELEASE_STAGE: 'production'
         run: |
           npm run setup:ci
@@ -79,6 +80,7 @@ jobs:
         env:
           BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
           BUGSNAG_RELEASE_STAGE: 'production'
+          LOCK_DEPS_VERSION: 'true'
         run: |
           npm run build:package
           npm run build:package:modern
