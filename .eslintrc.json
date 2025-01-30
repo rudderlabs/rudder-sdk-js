@@ -29,7 +29,10 @@
       "cancelAnimationFrame",
       "Uint8Array",
       "Set",
-      "atob"
+      "atob",
+      "AbortController",
+      "fetch",
+      "Response"
     ]
   },
   "env": {

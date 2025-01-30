@@ -21,6 +21,7 @@ const legacyJSEngineRequiredPolyfills: Record<string, () => boolean> = {
   'String.prototype.includes': () => !isFunction(globalThis.String.prototype.includes),
   'String.prototype.replaceAll': () => !isFunction(globalThis.String.prototype.replaceAll),
   'String.fromCodePoint': () => !isFunction(globalThis.String.fromCodePoint),
+  'String.prototype.trim': () => !isFunction(globalThis.String.prototype.trim),
   'Object.entries': () => !isFunction(globalThis.Object.entries),
   'Object.values': () => !isFunction(globalThis.Object.values),
   'Object.assign': () => !isFunction(globalThis.Object.assign),
@@ -36,24 +37,13 @@ const legacyJSEngineRequiredPolyfills: Record<string, () => boolean> = {
   ArrayBuffer: () => !isFunction(globalThis.Uint8Array),
   Set: () => !isFunction(globalThis.Set),
   atob: () => !isFunction(globalThis.atob),
+  AbortController: () => !isFunction(globalThis.AbortController),
+  fetch: () => !isFunction(globalThis.fetch),
 };
 
-const isLegacyJSEngine = (): boolean => {
-  const requiredCapabilitiesList = Object.keys(legacyJSEngineRequiredPolyfills);
-  let needsPolyfill = false;
-
-  /* eslint-disable-next-line unicorn/no-for-loop */
-  for (let i = 0; i < requiredCapabilitiesList.length; i++) {
-    const isCapabilityMissing =
-      legacyJSEngineRequiredPolyfills[requiredCapabilitiesList[i] as string];
-
-    if (isFunction(isCapabilityMissing) && isCapabilityMissing()) {
-      needsPolyfill = true;
-      break;
-    }
-  }
-
-  return needsPolyfill;
-};
+const isLegacyJSEngine = (): boolean =>
+  Object.values(legacyJSEngineRequiredPolyfills).some(
+    detectionFn => isFunction(detectionFn) && detectionFn(),
+  );
 
 export { isDatasetAvailable, legacyJSEngineRequiredPolyfills, isLegacyJSEngine };
