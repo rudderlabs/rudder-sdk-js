@@ -66,11 +66,11 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
-      - name: Install dependencies
+      - name: Setup workspace
         env:
           HUSKY: 0
         run: |
-          npm run setup:ci
+          npm run setup:deps
 
       - name: Get the two latest versions
         run: |

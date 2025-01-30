@@ -66,11 +66,12 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
-      - name: Install dependencies
+      - name: Setup workspace
         env:
           HUSKY: 0
           REMOTE_MODULES_BASE_PATH: 'https://cdn.rudderlabs.com/v3/modern/plugins'
           BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
+          LOCK_DEPS_VERSION: 'true'
           BUGSNAG_RELEASE_STAGE: 'production'
         run: |
           npm run setup:ci
@@ -79,6 +80,7 @@ jobs:
         env:
           BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
           BUGSNAG_RELEASE_STAGE: 'production'
+          LOCK_DEPS_VERSION: 'true'
         run: |
           npm run build:package
           npm run build:package:modern
@@ -140,6 +142,16 @@ jobs:
 
           echo "CURRENT_NPM_VERSION_COOKIE_UTILS=${{ env.CURRENT_NPM_VERSION_COOKIE_UTILS }}"
           echo "NEW_NPM_VERSION_COOKIE_UTILS=${{ env.NEW_NPM_VERSION_COOKIE_UTILS }}"
+
+      - name: Deprecate the legacy SDK NPM package
+        continue-on-error: true
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+        run: |
+          npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
+
+          npm deprecate rudder-sdk-js "This package is deprecated and no longer maintained. While your events are still being tracked and delivered, we strongly recommend you to migrate to the latest package, @rudderstack/analytics-js (https://www.npmjs.com/package/@rudderstack/analytics-js), for the latest features, security updates, and improved performance. For more details, visit the migration guide: https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/migration-guide/."
 
       - name: Send message to Slack channel
         if: env.CURRENT_NPM_VERSION != env.NEW_NPM_VERSION && env.NEW_NPM_VERSION != 'not found'
