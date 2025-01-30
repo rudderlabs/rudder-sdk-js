@@ -36,15 +36,13 @@ const generateSessionId = (): number => Date.now();
  * @param logger logger
  * @returns
  */
-const isManualSessionIdValid = (sessionId?: number, logger?: ILogger): boolean => {
+const isManualSessionIdValid = (sessionId: number | undefined, logger: ILogger): boolean => {
   if (
     !sessionId ||
     !isPositiveInteger(sessionId) ||
     !hasMinLength(MIN_SESSION_ID_LENGTH, sessionId)
   ) {
-    logger?.warn(
-      INVALID_SESSION_ID_WARNING(USER_SESSION_MANAGER, sessionId, MIN_SESSION_ID_LENGTH),
-    );
+    logger.warn(INVALID_SESSION_ID_WARNING(USER_SESSION_MANAGER, sessionId, MIN_SESSION_ID_LENGTH));
     return false;
   }
   return true;
@@ -73,7 +71,7 @@ const generateAutoTrackingSession = (sessionTimeout?: number): SessionInfo => {
  * @param logger Logger module
  * @returns SessionInfo
  */
-const generateManualTrackingSession = (id?: number, logger?: ILogger): SessionInfo => {
+const generateManualTrackingSession = (id: number | undefined, logger: ILogger): SessionInfo => {
   const sessionId: number = isManualSessionIdValid(id, logger)
     ? (id as number)
     : generateSessionId();

@@ -1,4 +1,4 @@
-import type { IPluginEngine } from '@rudderstack/analytics-js-common/types/PluginEngine';
+import type { IPluginEngine } from '../src/types/PluginEngine';
 
 class PluginEngine implements IPluginEngine {
   // mock all the properties and methods of the PluginEngine class

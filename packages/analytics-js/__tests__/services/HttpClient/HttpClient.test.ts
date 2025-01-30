@@ -1,34 +1,9 @@
 import type { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
+import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
+import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
 import { HttpClient } from '../../../src/services/HttpClient';
-import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
-import { defaultLogger } from '../../../src/services/Logger';
 import { server } from '../../../__fixtures__/msw.server';
 import { dummyDataplaneHost } from '../../../__fixtures__/fixtures';
-
-jest.mock('../../../src/services/Logger', () => {
-  const originalModule = jest.requireActual('../../../src/services/Logger');
-
-  return {
-    __esModule: true,
-    ...originalModule,
-    defaultLogger: {
-      error: jest.fn((): void => {}),
-      warn: jest.fn((): void => {}),
-    },
-  };
-});
-
-jest.mock('../../../src/services/ErrorHandler', () => {
-  const originalModule = jest.requireActual('../../../src/services/ErrorHandler');
-
-  return {
-    __esModule: true,
-    ...originalModule,
-    defaultErrorHandler: {
-      onError: jest.fn((): void => {}),
-    },
-  };
-});
 
 describe('HttpClient', () => {
   let clientInstance: HttpClient;
@@ -38,7 +13,8 @@ describe('HttpClient', () => {
   });
 
   beforeEach(() => {
-    clientInstance = new HttpClient(defaultErrorHandler, defaultLogger);
+    clientInstance = new HttpClient(defaultLogger);
+    clientInstance.init(defaultErrorHandler);
   });
 
   afterEach(() => {
@@ -88,8 +64,8 @@ describe('HttpClient', () => {
     });
   });
 
-  it('should fire and forget getAsyncData', async () => {
-    const response = await clientInstance.getAsyncData({
+  it('should fire and forget getAsyncData', () => {
+    const response = clientInstance.getAsyncData({
       url: `${dummyDataplaneHost}/jsonSample`,
     });
     expect(response).toBeUndefined();
@@ -124,13 +100,11 @@ describe('HttpClient', () => {
   });
 
   it('should handle 400 range errors in getAsyncData requests', done => {
-    const callback = (response: any, reject: ResponseDetails) => {
+    const callback = (data: any, details: ResponseDetails) => {
       const errResult = new Error(
         'The request failed with status: 404, Not Found for URL: https://dummy.dataplane.host.com/404ErrorSample.',
       );
-      expect(reject.error).toEqual(errResult);
-      expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
-      expect(defaultErrorHandler.onError).toHaveBeenCalledWith(errResult, 'HttpClient');
+      expect(details.error).toEqual(errResult);
       done();
     };
     clientInstance.getAsyncData({
@@ -144,12 +118,10 @@ describe('HttpClient', () => {
       url: `${dummyDataplaneHost}/404ErrorSample`,
     });
     expect(response.data).toBeUndefined();
-    expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
-    expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
+    expect(response.details?.error).toEqual(
       new Error(
         'The request failed with status: 404, Not Found for URL: https://dummy.dataplane.host.com/404ErrorSample.',
       ),
-      'HttpClient',
     );
   });
 
@@ -159,8 +131,6 @@ describe('HttpClient', () => {
         'The request failed with status: 500, Internal Server Error for URL: https://dummy.dataplane.host.com/500ErrorSample.',
       );
       expect(reject.error).toEqual(errResult);
-      expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
-      expect(defaultErrorHandler.onError).toHaveBeenCalledWith(errResult, 'HttpClient');
       done();
     };
     clientInstance.getAsyncData({
@@ -174,12 +144,10 @@ describe('HttpClient', () => {
       url: `${dummyDataplaneHost}/500ErrorSample`,
     });
     expect(response.data).toBeUndefined();
-    expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
-    expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
+    expect(response.details?.error).toEqual(
       new Error(
         'The request failed with status: 500, Internal Server Error for URL: https://dummy.dataplane.host.com/500ErrorSample.',
       ),
-      'HttpClient',
     );
   });
 
@@ -188,12 +156,10 @@ describe('HttpClient', () => {
       url: `${dummyDataplaneHost}/noConnectionSample`,
     });
     expect(response.data).toBeUndefined();
-    expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
-    expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
+    expect(response.details?.error).toEqual(
       new Error(
         'The request failed due to timeout or no connection (error) for URL: https://dummy.dataplane.host.com/noConnectionSample.',
       ),
-      'HttpClient',
     );
   });
 
@@ -232,13 +198,9 @@ describe('HttpClient', () => {
   });
 
   it('should handle if input data contains non-stringifiable values', done => {
-    const callback = (response: any) => {
+    const callback = (response: any, details: ResponseDetails) => {
       expect(response).toBeUndefined();
-      expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
-      expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
-        new Error('Failed to prepare data for the request.'),
-        'HttpClient',
-      );
+      expect(details.error).toEqual(new Error('Failed to prepare data for the request.'));
       done();
     };
     clientInstance.getAsyncData({

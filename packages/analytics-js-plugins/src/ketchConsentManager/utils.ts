@@ -25,6 +25,8 @@ const getKetchConsentData = (
       id: KETCH_CONSENT_MANAGER_PLUGIN,
       name: KETCH_CONSENT_MANAGER_PLUGIN,
       type: COOKIE_STORAGE,
+      errorHandler: storeManager?.errorHandler,
+      logger: storeManager?.logger,
     });
     rawConsentCookieData = dataStore?.engine.getItem(KETCH_CONSENT_COOKIE_NAME_V1);
   } catch (err) {

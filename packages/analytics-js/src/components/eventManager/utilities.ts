@@ -97,7 +97,7 @@ const getUpdatedPageProperties = (
 const checkForReservedElementsInObject = (
   obj: Nullable<ApiObject> | RudderContext | undefined,
   parentKeyPath: string,
-  logger?: ILogger,
+  logger: ILogger,
 ): void => {
   if (isObjectLiteralAndNotNull(obj)) {
     Object.keys(obj as object).forEach(property => {
@@ -105,7 +105,7 @@ const checkForReservedElementsInObject = (
         RESERVED_ELEMENTS.includes(property) ||
         RESERVED_ELEMENTS.includes(property.toLowerCase())
       ) {
-        logger?.warn(
+        logger.warn(
           RESERVED_KEYWORD_WARNING(EVENT_MANAGER, property, parentKeyPath, RESERVED_ELEMENTS),
         );
       }
@@ -118,7 +118,7 @@ const checkForReservedElementsInObject = (
  * @param rudderEvent Generated rudder event
  * @param logger Logger instance
  */
-const checkForReservedElements = (rudderEvent: RudderEvent, logger?: ILogger): void => {
+const checkForReservedElements = (rudderEvent: RudderEvent, logger: ILogger): void => {
   //  properties, traits, contextualTraits are either undefined or object
   const { properties, traits, context } = rudderEvent;
   const { traits: contextualTraits } = context;
@@ -159,7 +159,7 @@ const updateTopLevelEventElements = (rudderEvent: RudderEvent, options: ApiOptio
 const getMergedContext = (
   rudderContext: RudderContext,
   options: ApiOptions,
-  logger?: ILogger,
+  logger: ILogger,
 ): RudderContext => {
   let context = rudderContext;
   Object.keys(options).forEach(key => {
@@ -179,7 +179,7 @@ const getMergedContext = (
           ...tempContext,
         });
       } else {
-        logger?.warn(INVALID_CONTEXT_OBJECT_WARNING(EVENT_MANAGER));
+        logger.warn(INVALID_CONTEXT_OBJECT_WARNING(EVENT_MANAGER));
       }
     }
   });
@@ -191,12 +191,16 @@ const getMergedContext = (
  * @param rudderEvent Generated rudder event
  * @param options API options
  */
-const processOptions = (rudderEvent: RudderEvent, options?: Nullable<ApiOptions>): void => {
+const processOptions = (
+  rudderEvent: RudderEvent,
+  options: Nullable<ApiOptions> | undefined,
+  logger: ILogger,
+): void => {
   // Only allow object type for options
   if (isObjectLiteralAndNotNull(options)) {
     updateTopLevelEventElements(rudderEvent, options as ApiOptions);
     // eslint-disable-next-line no-param-reassign
-    rudderEvent.context = getMergedContext(rudderEvent.context, options as ApiOptions);
+    rudderEvent.context = getMergedContext(rudderEvent.context, options as ApiOptions, logger);
   }
 };
 
@@ -230,9 +234,9 @@ const getEventIntegrationsConfig = (integrationsConfig?: IntegrationOpts) => {
  */
 const getEnrichedEvent = (
   rudderEvent: Partial<RudderEvent>,
-  options?: Nullable<ApiOptions>,
-  pageProps?: ApiObject,
-  logger?: ILogger,
+  options: Nullable<ApiOptions> | undefined,
+  pageProps: ApiObject | undefined,
+  logger: ILogger,
 ): RudderEvent => {
   const commonEventData = {
     channel: CHANNEL,
@@ -321,7 +325,7 @@ const getEnrichedEvent = (
     processedEvent.properties = null;
   }
 
-  processOptions(processedEvent, options);
+  processOptions(processedEvent, options, logger);
   checkForReservedElements(processedEvent, logger);
 
   // Update the integrations config for the event

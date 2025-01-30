@@ -40,17 +40,14 @@ import { getStorageTypeFromPreConsentIfApplicable } from './utils';
 class StoreManager implements IStoreManager {
   stores: Record<StoreId, Store> = {};
   isInitialized = false;
-  errorHandler?: IErrorHandler;
-  logger?: ILogger;
-  pluginsManager?: IPluginsManager;
-  hasErrorHandler = false;
+  errorHandler: IErrorHandler;
+  logger: ILogger;
+  pluginsManager: IPluginsManager;
 
-  constructor(pluginsManager?: IPluginsManager, errorHandler?: IErrorHandler, logger?: ILogger) {
+  constructor(pluginsManager: IPluginsManager, errorHandler: IErrorHandler, logger: ILogger) {
     this.errorHandler = errorHandler;
     this.logger = logger;
-    this.hasErrorHandler = Boolean(this.errorHandler);
     this.pluginsManager = pluginsManager;
-    this.onError = this.onError.bind(this);
   }
 
   /**
@@ -109,6 +106,8 @@ class StoreManager implements IStoreManager {
           isEncrypted: true,
           noCompoundKey: true,
           type: storageType,
+          errorHandler: this.errorHandler,
+          logger: this.logger,
         });
       }
     });
@@ -192,7 +191,7 @@ class StoreManager implements IStoreManager {
     }
 
     if (finalStorageType !== storageType) {
-      this.logger?.warn(
+      this.logger.warn(
         STORAGE_UNAVAILABLE_WARNING(STORE_MANAGER, sessionKey, storageType, finalStorageType),
       );
     }
@@ -214,17 +213,6 @@ class StoreManager implements IStoreManager {
    */
   getStore(id: StoreId): Store | undefined {
     return this.stores[id];
-  }
-
-  /**
-   * Handle errors
-   */
-  onError(error: unknown) {
-    if (this.hasErrorHandler) {
-      this.errorHandler?.onError(error, STORE_MANAGER);
-    } else {
-      throw error;
-    }
   }
 }
 

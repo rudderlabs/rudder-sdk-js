@@ -4,7 +4,6 @@ import type { ReportingState } from '@rudderstack/analytics-js-common/types/Appl
 const reportingState: ReportingState = {
   isErrorReportingEnabled: signal(false),
   isMetricsReportingEnabled: signal(false),
-  isErrorReportingPluginLoaded: signal(false),
   breadcrumbs: signal([]),
 };
 

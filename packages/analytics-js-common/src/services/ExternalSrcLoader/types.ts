@@ -1,4 +1,4 @@
-import type { ErrorState } from '../../types/ErrorHandler';
+import type { IErrorHandler } from '../../types/ErrorHandler';
 import type { ILogger } from '../../types/Logger';
 
 export interface IExternalSourceLoadConfig {
@@ -11,17 +11,8 @@ export interface IExternalSourceLoadConfig {
 }
 
 export interface IExternalSrcLoader {
-  errorHandler?: {
-    onError(
-      error: unknown,
-      context?: string,
-      customMessage?: string,
-      shouldAlwaysThrow?: boolean,
-    ): void;
-    leaveBreadcrumb(breadcrumb: string): void;
-    notifyError(error: Error, errorState: ErrorState): void;
-  };
-  logger?: ILogger;
+  errorHandler: IErrorHandler;
+  logger: ILogger;
   timeout: number;
   loadJSFile(config: IExternalSourceLoadConfig): void;
 }

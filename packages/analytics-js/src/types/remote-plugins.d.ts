@@ -1,9 +1,7 @@
 declare module 'rudderAnalyticsRemotePlugins/BeaconQueue';
-declare module 'rudderAnalyticsRemotePlugins/Bugsnag';
 declare module 'rudderAnalyticsRemotePlugins/CustomConsentManager';
 declare module 'rudderAnalyticsRemotePlugins/DeviceModeDestinations';
 declare module 'rudderAnalyticsRemotePlugins/DeviceModeTransformation';
-declare module 'rudderAnalyticsRemotePlugins/ErrorReporting';
 declare module 'rudderAnalyticsRemotePlugins/ExternalAnonymousId';
 declare module 'rudderAnalyticsRemotePlugins/GoogleLinker';
 declare module 'rudderAnalyticsRemotePlugins/IubendaConsentManager';

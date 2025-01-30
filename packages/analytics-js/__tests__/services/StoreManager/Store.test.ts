@@ -1,6 +1,10 @@
 import { QueueStatuses } from '@rudderstack/analytics-js-common/constants/QueueStatuses';
 import { Store } from '../../../src/services/StoreManager/Store';
 import { getStorageEngine } from '../../../src/services/StoreManager/storages/storageEngine';
+import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
+import { defaultLogger } from '../../../src/services/Logger';
+import { PluginsManager } from '../../../src/components/pluginsManager';
+import { PluginEngine } from '../../../src/services/PluginEngine';
 
 describe('Store', () => {
   let store: Store;
@@ -22,6 +26,9 @@ describe('Store', () => {
     },
   };
 
+  const pluginEngine = new PluginEngine(defaultLogger);
+  const pluginsManager = new PluginsManager(pluginEngine, defaultErrorHandler, defaultLogger);
+
   beforeEach(() => {
     engine.clear();
     store = new Store(
@@ -29,8 +36,11 @@ describe('Store', () => {
         name: 'name',
         id: 'id',
         validKeys: QueueStatuses,
+        errorHandler: defaultErrorHandler,
+        logger: defaultLogger,
       },
       getStorageEngine('localStorage'),
+      pluginsManager,
     );
   });
 
@@ -52,6 +62,17 @@ describe('Store', () => {
     it('should return null if value is not valid json', () => {
       engine.setItem('name.id.queue', '[{]}');
       expect(store.get(QueueStatuses.QUEUE)).toBeNull();
+    });
+
+    it('should log a warning if the underlying cookie value is a legacy encrypted value', () => {
+      const spy = jest.spyOn(defaultLogger, 'warn');
+      engine.setItem('name.id.queue', '"RudderEncrypt:encryptedValue"');
+
+      store.get('queue');
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(
+        'The cookie data for queue seems to be encrypted using SDK versions < v3. The data is dropped. This can potentially stem from using SDK versions < v3 on other sites or web pages that can share cookies with this webpage. We recommend using the same SDK (v3) version everywhere or avoid disabling the storage data migration.',
+      );
     });
   });
 
@@ -81,8 +102,11 @@ describe('Store', () => {
           {
             name: 'name',
             id: 'id',
+            errorHandler: defaultErrorHandler,
+            logger: defaultLogger,
           },
           getStorageEngine('localStorage'),
+          pluginsManager,
         );
         expect(store.createValidKey('test')).toStrictEqual('name.id.test');
       });
@@ -95,8 +119,11 @@ describe('Store', () => {
             name: 'name',
             id: 'id',
             validKeys: { nope: 'wrongKey' },
+            errorHandler: defaultErrorHandler,
+            logger: defaultLogger,
           },
           getStorageEngine('localStorage'),
+          pluginsManager,
         );
         expect(store.createValidKey('test')).toBeUndefined();
       });
@@ -107,8 +134,11 @@ describe('Store', () => {
         {
           name: 'name',
           id: 'id',
+          errorHandler: defaultErrorHandler,
+          logger: defaultLogger,
         },
         getStorageEngine('localStorage'),
+        pluginsManager,
       );
       expect(store.createValidKey('queue')).toStrictEqual('name.id.queue');
     });
@@ -133,8 +163,11 @@ describe('Store', () => {
           name: 'name',
           id: 'id',
           validKeys: QueueStatuses,
+          errorHandler: defaultErrorHandler,
+          logger: defaultLogger,
         },
         lsProxy,
+        pluginsManager,
       );
 
       Object.keys(QueueStatuses).forEach(keyValue => {

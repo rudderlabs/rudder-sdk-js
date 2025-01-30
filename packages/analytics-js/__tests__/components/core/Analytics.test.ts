@@ -120,13 +120,31 @@ describe('Core - Analytics', () => {
   describe('load', () => {
     const sampleDataPlaneUrl = 'https://www.dummy.url';
     it('should load the analytics script with the given options', () => {
+      state.loadOptions.value.logLevel = 'WARN';
+
       const startLifecycleSpy = jest.spyOn(analytics, 'startLifecycle');
       const setMinLogLevelSpy = jest.spyOn(analytics.logger, 'setMinLogLevel');
+
       analytics.load(dummyWriteKey, sampleDataPlaneUrl, { logLevel: 'ERROR' });
+
       expect(state.lifecycle.status.value).toBe('browserCapabilitiesReady');
       expect(startLifecycleSpy).toHaveBeenCalledTimes(1);
-      expect(setMinLogLevelSpy).toHaveBeenCalledWith('ERROR');
+      // Once in load API and then in config manager
+      expect(setMinLogLevelSpy).toHaveBeenCalledTimes(2);
+      expect(setMinLogLevelSpy).toHaveBeenNthCalledWith(1, 'ERROR');
       expect(setExposedGlobal).toHaveBeenCalledWith('state', state, dummyWriteKey);
+    });
+
+    it('should set the log level if it is not configured', () => {
+      state.loadOptions.value.logLevel = undefined;
+      const setMinLogLevelSpy = jest.spyOn(analytics.logger, 'setMinLogLevel');
+
+      analytics.load(dummyWriteKey, sampleDataPlaneUrl);
+
+      expect(state.lifecycle.status.value).toBe('browserCapabilitiesReady');
+      // Once in load API and then in config manager
+      expect(setMinLogLevelSpy).toHaveBeenCalledTimes(2);
+      expect(setMinLogLevelSpy).toHaveBeenNthCalledWith(1, 'ERROR');
     });
 
     it('should not load if the write key is invalid', () => {
@@ -233,6 +251,32 @@ describe('Core - Analytics', () => {
         analyticsInstance: undefined,
       });
     });
+
+    it('should log an error if the onLoaded callback is not a function', () => {
+      const errorSpy = jest.spyOn(analytics.logger, 'error');
+      // @ts-expect-error testing invalid callback
+      state.loadOptions.value.onLoaded = true;
+
+      analytics.onInitialized();
+
+      expect(errorSpy).toHaveBeenCalledTimes(1);
+      expect(errorSpy).toHaveBeenCalledWith('LoadAPI:: The provided callback parameter is not a function.');
+    });
+
+    it('should log an error if the onLoaded callback throws an error', () => {
+      const errorSpy = jest.spyOn(analytics.logger, 'error');
+      state.loadOptions.value.onLoaded = () => {
+        throw new Error('Test error');
+      };
+
+      analytics.onInitialized();
+
+      expect(errorSpy).toHaveBeenCalledTimes(1);
+      expect(errorSpy).toHaveBeenCalledWith(
+        'LoadAPI:: The callback threw an exception',
+        new Error('Test error'),
+      );
+    });
   });
 
   describe('onDestinationsReady', () => {
@@ -257,6 +301,22 @@ describe('Core - Analytics', () => {
       state.eventBuffer.readyCallbacksArray.value = [callback, callback];
       analytics.onReady();
       expect(callback).toHaveBeenCalledTimes(2);
+    });
+
+    it('should log an error if a ready callback throws an error', () => {
+      const errorSpy = jest.spyOn(analytics.logger, 'error');
+      const callback = () => {
+        throw new Error('Test error');
+      };
+      state.eventBuffer.readyCallbacksArray.value = [callback, jest.fn()];
+
+      analytics.onReady();
+
+      expect(errorSpy).toHaveBeenCalledTimes(1);
+      expect(errorSpy).toHaveBeenCalledWith(
+        'ReadyAPI:: The callback threw an exception',
+        new Error('Test error'),
+      );
     });
 
     it('should ignore calls with no function callback', () => {
@@ -308,6 +368,35 @@ describe('Core - Analytics', () => {
       expect(dispatchEventSpy.mock.calls[0][0].detail).toStrictEqual({
         analyticsInstance: undefined,
       });
+    });
+
+    it('should log an error if the provided callback is not a function', () => {
+      state.lifecycle.loaded.value = true;
+
+      const errorSpy = jest.spyOn(analytics.logger, 'error');
+      // @ts-expect-error testing invalid callback
+      analytics.ready(true);
+
+      expect(errorSpy).toHaveBeenCalledTimes(1);
+      expect(errorSpy).toHaveBeenCalledWith('ReadyAPI:: The provided callback parameter is not a function.');
+    });
+
+    it('should log an error if the provided callback throws an error', () => {
+      state.lifecycle.loaded.value = true;
+      state.lifecycle.status.value = 'readyExecuted';
+
+      const errorSpy = jest.spyOn(analytics.logger, 'error');
+      const callback = () => {
+        throw new Error('Test error');
+      };
+
+      analytics.ready(callback);
+
+      expect(errorSpy).toHaveBeenCalledTimes(1);
+      expect(errorSpy).toHaveBeenCalledWith(
+        'ReadyAPI:: The callback threw an exception',
+        new Error('Test error'),
+      );
     });
   });
 

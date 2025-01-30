@@ -31,6 +31,10 @@ class Braze {
     if (!config.appKey) this.appKey = '';
     this.endPoint = '';
     this.isHybridModeEnabled = config.connectionMode === 'hybrid';
+    this.isReadyStatus = {
+      hasLoggedErrorForAlias: false,
+    };
+
     if (config.dataCenter) {
       // ref: https://www.braze.com/docs/user_guide/administrative/access_braze/braze_instances
       const dataCenterArr = config.dataCenter.trim().split('-');
@@ -48,6 +52,13 @@ class Braze {
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
       destinationId: this.destinationId,
     } = destinationInfo ?? {});
+  }
+
+  logAliasError(message) {
+    if (!this.isReadyStatus.hasLoggedErrorForAlias) {
+      logger.error(message);
+      this.isReadyStatus.hasLoggedErrorForAlias = true;
+    }
   }
 
   init() {
@@ -74,8 +85,38 @@ class Braze {
     return window.brazeQueue === null;
   }
 
+  setUserAlias() {
+    try {
+      const anonymousId = this.analytics.getAnonymousId();
+      if (!anonymousId) {
+        this.logAliasError('Anonymous ID is not available');
+        return false;
+      }
+
+      const user = window.braze.getUser();
+      if (!user) {
+        this.logAliasError('Braze user object is not available');
+        return false;
+      }
+
+      const aliasSet = user.addAlias(anonymousId, 'rudder_id');
+      if (!aliasSet) {
+        this.logAliasError('Failed to set alias for braze');
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      this.logAliasError(`Error setting alias: ${stringifyWithoutCircularV1(error, true)}`);
+      return false;
+    }
+  }
+
   isReady() {
-    return this.isLoaded();
+    if (!this.isLoaded()) {
+      return false;
+    }
+    return this.setUserAlias();
   }
 
   /**
@@ -255,21 +296,17 @@ class Braze {
     if (this.isHybridModeEnabled) {
       return;
     }
-    const { userId } = rudderElement.message;
     const eventName = rudderElement.message.event;
     let { properties } = rudderElement.message;
-    const { anonymousId } = rudderElement.message;
+
+    const { userId } = rudderElement.message;
     let canSendCustomEvent = false;
-    if (userId) {
-      window.braze.changeUser(userId);
-      canSendCustomEvent = true;
-    } else if (this.trackAnonymousUser) {
-      window.braze.changeUser(anonymousId);
+    if (userId || this.trackAnonymousUser) {
       canSendCustomEvent = true;
     }
     if (eventName && canSendCustomEvent) {
       if (eventName.toLowerCase() === 'order completed') {
-        handlePurchase(properties, userId);
+        handlePurchase(properties);
       } else {
         properties = handleReservedProperties(properties);
         window.braze.logCustomEvent(eventName, properties);
@@ -281,15 +318,8 @@ class Braze {
     if (this.isHybridModeEnabled) {
       return;
     }
-    const { userId } = rudderElement.message;
     const eventName = rudderElement.message.name;
     let { properties } = rudderElement.message;
-    const { anonymousId } = rudderElement.message;
-    if (userId) {
-      window.braze.changeUser(userId);
-    } else if (this.trackAnonymousUser) {
-      window.braze.changeUser(anonymousId);
-    }
     properties = handleReservedProperties(properties);
     if (eventName) {
       window.braze.logCustomEvent(eventName, properties);

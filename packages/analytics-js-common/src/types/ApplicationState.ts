@@ -145,7 +145,6 @@ export type Breadcrumb = {
 export type ReportingState = {
   isErrorReportingEnabled: Signal<boolean>;
   isMetricsReportingEnabled: Signal<boolean>;
-  isErrorReportingPluginLoaded: Signal<boolean>;
   breadcrumbs: Signal<Breadcrumb[]>;
 };
 

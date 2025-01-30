@@ -51,6 +51,8 @@ const getIubendaConsentData = (
       id: IUBENDA_CONSENT_MANAGER_PLUGIN,
       name: IUBENDA_CONSENT_MANAGER_PLUGIN,
       type: COOKIE_STORAGE,
+      errorHandler: storeManager?.errorHandler,
+      logger: storeManager?.logger,
     });
     rawConsentCookieData = dataStore?.engine.getItem(getIubendaCookieName(logger));
   } catch (err) {

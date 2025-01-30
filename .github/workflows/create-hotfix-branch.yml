@@ -8,10 +8,19 @@ on:
         required: true
 
 jobs:
+  validate-actor:
+    # Only allow creating hotfix branches from the main branch
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/validate-actor.yml
+    with:
+      team_names: 'js-sdk,integrations'
+    secrets:
+      PAT: ${{ secrets.PAT }}
+
   create-branch:
     name: Create a new hotfix branch
     runs-on: [self-hosted, Linux, X64]
-    if: github.ref == 'refs/heads/main'
+    needs: validate-actor
     steps:
       - name: Create branch
         uses: peterjgrainger/action-create-branch@v3.0.0

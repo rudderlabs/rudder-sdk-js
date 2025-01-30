@@ -84,16 +84,18 @@ describe('User session manager', () => {
     clientDataStoreLS = defaultStoreManager.getStore('clientDataInLocalStorage') as Store;
     clientDataStoreSession = defaultStoreManager.getStore('clientDataInSessionStorage') as Store;
 
+    defaultHttpClient.init(defaultErrorHandler);
+
     clearStorage();
     resetState();
 
     state.storage.entries.value = entriesWithOnlyCookieStorage;
     userSessionManager = new UserSessionManager(
-      defaultErrorHandler,
-      defaultLogger,
       defaultPluginsManager,
       defaultStoreManager,
       defaultHttpClient,
+      defaultErrorHandler,
+      defaultLogger,
     );
   });
 
@@ -296,10 +298,11 @@ describe('User session manager', () => {
       storeManager.init();
 
       userSessionManager = new UserSessionManager(
-        defaultErrorHandler,
-        defaultLogger,
         mockPluginsManager,
         storeManager,
+        defaultHttpClient,
+        defaultErrorHandler,
+        defaultLogger,
       );
 
       setDataInCookieStorageEngine(customData);

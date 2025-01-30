@@ -15,7 +15,7 @@ const contextState: ContextState = {
     version: APP_VERSION,
     snippetVersion: (globalThis as typeof window).RudderSnippetVersion,
   }),
-  userAgent: signal(''),
+  userAgent: signal(null),
   device: signal(null),
   network: signal(null),
   os: signal({

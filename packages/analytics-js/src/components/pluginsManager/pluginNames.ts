@@ -10,11 +10,9 @@ const localPluginNames: PluginName[] = [];
  */
 const pluginNamesList: PluginName[] = [
   'BeaconQueue',
-  'Bugsnag', // deprecated
   'CustomConsentManager',
   'DeviceModeDestinations',
   'DeviceModeTransformation',
-  'ErrorReporting',
   'ExternalAnonymousId',
   'GoogleLinker',
   'IubendaConsentManager',
@@ -27,6 +25,6 @@ const pluginNamesList: PluginName[] = [
   'XhrQueue',
 ];
 
-const deprecatedPluginsList = ['Bugsnag'];
+const deprecatedPluginsList = ['Bugsnag', 'ErrorReporting'];
 
 export { localPluginNames, pluginNamesList, deprecatedPluginsList };

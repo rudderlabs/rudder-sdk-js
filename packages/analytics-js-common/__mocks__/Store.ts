@@ -1,23 +1,33 @@
-import type { IStore, IStoreConfig } from '../src/types/Store';
+import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import type { IStorage, IStore, IStoreConfig } from '../src/types/Store';
 import { defaultInMemoryStorage, defaultLocalStorage } from './Storage';
+import { defaultPluginsManager } from './PluginsManager';
+import { defaultLogger } from './Logger';
+import { defaultErrorHandler } from './ErrorHandler';
 
 // Mock all the methods of the Store class
 
 class Store implements IStore {
-  constructor(config: IStoreConfig, engine?: any) {
+  constructor(config: IStoreConfig, engine: IStorage, pluginsManager: IPluginsManager) {
     this.id = config.id;
     this.name = config.name;
     this.isEncrypted = config.isEncrypted ?? false;
     this.validKeys = config.validKeys ?? {};
     this.engine = engine ?? defaultLocalStorage;
     this.originalEngine = this.engine;
+    this.errorHandler = config.errorHandler;
+    this.logger = config.logger;
+    this.pluginsManager = pluginsManager;
   }
   id = 'test';
   name = 'test';
   isEncrypted = false;
   validKeys: Record<string, string>;
-  engine = defaultLocalStorage;
-  originalEngine = defaultLocalStorage;
+  engine: IStorage = defaultLocalStorage;
+  originalEngine: IStorage = defaultLocalStorage;
+  errorHandler;
+  logger;
+  pluginsManager;
   createValidKey = (key: string) => {
     return [this.name, this.id, key].join('.');
   };
@@ -51,6 +61,10 @@ class Store implements IStore {
   getOriginalEngine = () => this.originalEngine;
 }
 
-const defaultStore = new Store({ id: 'test', name: 'test' });
+const defaultStore = new Store(
+  { id: 'test', name: 'test', errorHandler: defaultErrorHandler, logger: defaultLogger },
+  defaultLocalStorage,
+  defaultPluginsManager,
+);
 
 export { Store, defaultStore };

@@ -12,16 +12,16 @@ export interface IStoreConfig {
   isEncrypted?: boolean;
   validKeys?: Record<string, string>;
   noCompoundKey?: boolean;
-  errorHandler?: IErrorHandler;
-  logger?: ILogger;
+  errorHandler: IErrorHandler;
+  logger: ILogger;
   type?: StorageType;
 }
 
 export interface IStoreManager {
   stores?: Record<StoreId, IStore>;
   isInitialized?: boolean;
-  errorHandler?: IErrorHandler;
-  logger?: ILogger;
+  errorHandler: IErrorHandler;
+  logger: ILogger;
   init(): void;
   initializeStorageState(): void;
   setStore(storeConfig: IStoreConfig): IStore;
@@ -37,9 +37,9 @@ export interface IStore {
   originalEngine: IStorage;
   noKeyValidation?: boolean;
   noCompoundKey?: boolean;
-  errorHandler?: IErrorHandler;
-  logger?: ILogger;
-  pluginsManager?: IPluginsManager;
+  errorHandler: IErrorHandler;
+  logger: ILogger;
+  pluginsManager: IPluginsManager;
   createValidKey(key: string): string | undefined;
   swapQueueStoreToInMemoryEngine(): void;
   set(key: string, value: any): void;

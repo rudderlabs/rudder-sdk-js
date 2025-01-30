@@ -15,5 +15,6 @@ export type SourceConfig = {
 export type Source = {
   id: string;
   config?: SourceConfig;
+  name: string;
   workspaceId: string;
 };

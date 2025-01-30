@@ -56,13 +56,13 @@ export type HTTPClientMethod =
 
 export interface IHttpClient {
   errorHandler?: IErrorHandler;
-  logger?: ILogger;
+  logger: ILogger;
   basicAuthHeader?: string;
-  hasErrorHandler: boolean;
   getData<T = any>(
     config: IRequestConfig,
   ): Promise<{ data: T | string | undefined; details?: ResponseDetails }>;
   getAsyncData<T = any>(config: IAsyncRequestConfig<T>): void;
   setAuthHeader(value: string, noBto?: boolean): void;
   resetAuthHeader(): void;
+  init(errorHandler: IErrorHandler): void;
 }

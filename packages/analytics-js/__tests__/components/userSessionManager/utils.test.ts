@@ -44,7 +44,7 @@ describe('Utility: User session manager', () => {
   describe('generateManualTrackingSession:', () => {
     it('should return newly generated manual session', () => {
       const sessionId = 1234567890;
-      const outcome = generateManualTrackingSession(sessionId);
+      const outcome = generateManualTrackingSession(sessionId, defaultLogger);
       expect(outcome).toEqual({
         manualTrack: true,
         id: sessionId,
@@ -52,7 +52,7 @@ describe('Utility: User session manager', () => {
       });
     });
     it('should return newly generated manual session if session id is not provided', () => {
-      const outcome = generateManualTrackingSession();
+      const outcome = generateManualTrackingSession(undefined, defaultLogger);
       expect(outcome).toEqual({
         manualTrack: true,
         id: expect.any(Number),
@@ -62,6 +62,7 @@ describe('Utility: User session manager', () => {
     it('should print a error message if the provided session id is not a number', () => {
       const sessionId = '1234567890';
       defaultLogger.warn = jest.fn();
+      // @ts-expect-error testing invalid input
       generateManualTrackingSession(sessionId, defaultLogger);
       expect(defaultLogger.warn).toHaveBeenCalledWith(
         `UserSessionManager:: The provided session ID (${sessionId}) is either invalid, not a positive integer, or not at least "${MIN_SESSION_ID_LENGTH}" digits long. A new session ID will be auto-generated instead.`,
@@ -91,6 +92,7 @@ describe('Utility: User session manager', () => {
       const outcome3 = isStorageTypeValidForStoringData('memoryStorage');
       const outcome4 = isStorageTypeValidForStoringData('sessionStorage');
       const outcome5 = isStorageTypeValidForStoringData('none');
+      // @ts-expect-error testing invalid input
       const outcome6 = isStorageTypeValidForStoringData('random');
       expect(outcome1).toEqual(true);
       expect(outcome2).toEqual(true);

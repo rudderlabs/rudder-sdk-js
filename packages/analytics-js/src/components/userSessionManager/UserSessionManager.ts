@@ -73,19 +73,19 @@ import type {
 import { isPositiveInteger } from '../utilities/number';
 
 class UserSessionManager implements IUserSessionManager {
-  storeManager?: IStoreManager;
-  pluginsManager?: IPluginsManager;
-  errorHandler?: IErrorHandler;
-  httpClient?: IHttpClient;
-  logger?: ILogger;
+  storeManager: IStoreManager;
+  pluginsManager: IPluginsManager;
+  errorHandler: IErrorHandler;
+  httpClient: IHttpClient;
+  logger: ILogger;
   serverSideCookieDebounceFuncs: Record<UserSessionKey, number>;
 
   constructor(
-    errorHandler?: IErrorHandler,
-    logger?: ILogger,
-    pluginsManager?: IPluginsManager,
-    storeManager?: IStoreManager,
-    httpClient?: IHttpClient,
+    pluginsManager: IPluginsManager,
+    storeManager: IStoreManager,
+    httpClient: IHttpClient,
+    errorHandler: IErrorHandler,
+    logger: ILogger,
   ) {
     this.storeManager = storeManager;
     this.pluginsManager = pluginsManager;
@@ -257,7 +257,7 @@ class UserSessionManager implements IUserSessionManager {
     let timeout: number;
     const configuredSessionTimeout = state.loadOptions.value.sessions?.timeout;
     if (!isPositiveInteger(configuredSessionTimeout)) {
-      this.logger?.warn(
+      this.logger.warn(
         TIMEOUT_NOT_NUMBER_WARNING(
           USER_SESSION_MANAGER,
           configuredSessionTimeout,
@@ -270,13 +270,13 @@ class UserSessionManager implements IUserSessionManager {
     }
 
     if (timeout === 0) {
-      this.logger?.warn(TIMEOUT_ZERO_WARNING(USER_SESSION_MANAGER));
+      this.logger.warn(TIMEOUT_ZERO_WARNING(USER_SESSION_MANAGER));
       autoTrack = false;
     }
     // In case user provides a timeout value greater than 0 but less than 10 seconds SDK will show a warning
     // and will proceed with it
     if (timeout > 0 && timeout < MIN_SESSION_TIMEOUT_MS) {
-      this.logger?.warn(
+      this.logger.warn(
         TIMEOUT_NOT_RECOMMENDED_WARNING(USER_SESSION_MANAGER, timeout, MIN_SESSION_TIMEOUT_MS),
       );
     }
@@ -288,11 +288,7 @@ class UserSessionManager implements IUserSessionManager {
    * @param error The error object
    */
   onError(error: unknown, customMessage?: string): void {
-    if (this.errorHandler) {
-      this.errorHandler.onError(error, USER_SESSION_MANAGER, customMessage);
-    } else {
-      throw error;
-    }
+    this.errorHandler.onError(error, USER_SESSION_MANAGER, customMessage);
   }
 
   /**
@@ -371,14 +367,14 @@ class UserSessionManager implements IUserSessionManager {
               const before = stringifyWithoutCircular(cData.value, false, []);
               const after = stringifyWithoutCircular(cookieValue, false, []);
               if (after !== before) {
-                this.logger?.error(FAILED_SETTING_COOKIE_FROM_SERVER_ERROR(cData.name));
+                this.logger.error(FAILED_SETTING_COOKIE_FROM_SERVER_ERROR(cData.name));
                 if (cb) {
                   cb(cData.name, cData.value);
                 }
               }
             });
           } else {
-            this.logger?.error(DATA_SERVER_REQUEST_FAIL_ERROR(details?.xhr?.status));
+            this.logger.error(DATA_SERVER_REQUEST_FAIL_ERROR(details?.xhr?.status));
             cookiesData.forEach(each => {
               if (cb) {
                 cb(each.name, each.value);

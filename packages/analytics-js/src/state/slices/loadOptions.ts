@@ -11,7 +11,6 @@ import { DEFAULT_CONFIG_BE_URL } from '../../constants/urls';
 import { DEFAULT_STORAGE_ENCRYPTION_VERSION } from '../../components/configManager/constants';
 
 const defaultLoadOptions: LoadOptions = {
-  logLevel: 'ERROR',
   configUrl: DEFAULT_CONFIG_BE_URL,
   loadIntegration: true,
   sessions: {
@@ -25,8 +24,8 @@ const defaultLoadOptions: LoadOptions = {
   beaconQueueOptions: {},
   destinationsQueueOptions: {},
   queueOptions: {},
-  lockIntegrationsVersion: false,
-  lockPluginsVersion: false,
+  lockIntegrationsVersion: __LOCK_DEPS_VERSION__,
+  lockPluginsVersion: __LOCK_DEPS_VERSION__,
   uaChTrackLevel: 'none',
   plugins: [],
   useGlobalIntegrationsConfigInEvents: false,
@@ -39,6 +38,9 @@ const defaultLoadOptions: LoadOptions = {
     migrate: true,
     cookie: {},
   },
+  sendAdblockPage: false,
+  sameDomainCookiesOnly: false,
+  secureCookie: false,
   sendAdblockPageOptions: {},
   useServerSideCookies: false,
 };

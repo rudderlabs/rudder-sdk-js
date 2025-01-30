@@ -1,4 +1,5 @@
 import type { IStoreConfig, IStoreManager } from '../src/types/Store';
+import { defaultPluginsManager } from './PluginsManager';
 import { defaultCookieStorage, defaultInMemoryStorage, defaultLocalStorage } from './Storage';
 import { defaultStore, Store } from './Store';
 
@@ -21,7 +22,7 @@ class StoreManager implements IStoreManager {
         break;
     }
 
-    return new Store(config, storageEngine);
+    return new Store(config, storageEngine, defaultPluginsManager);
   };
   getStore = jest.fn(() => defaultStore);
   initializeStorageState = jest.fn();

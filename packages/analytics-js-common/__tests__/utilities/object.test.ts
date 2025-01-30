@@ -7,6 +7,8 @@ import {
   isObjectLiteralAndNotNull,
   removeUndefinedValues,
   removeUndefinedAndNullValues,
+  getNormalizedBooleanValue,
+  getNormalizedObjectValue,
 } from '../../src/utilities/object';
 
 const identifyTraitsPayloadMock = {
@@ -283,5 +285,181 @@ describe('Common Utils - Object', () => {
         key10: {},
       });
     });
+  });
+
+  describe('getNormalizedObjectValue', () => {
+    describe('should return undefined if input value is not an object', () => {
+      it('should return undefined for non-object values', () => {
+        const outcome1 = getNormalizedObjectValue(undefined);
+        const outcome2 = getNormalizedObjectValue(null);
+        const outcome3 = getNormalizedObjectValue('string');
+        const outcome4 = getNormalizedObjectValue(123456);
+        const outcome5 = getNormalizedObjectValue([]);
+        expect(outcome1).toEqual(undefined);
+        expect(outcome2).toEqual(undefined);
+        expect(outcome3).toEqual(undefined);
+        expect(outcome4).toEqual(undefined);
+        expect(outcome5).toEqual(undefined);
+      });
+
+      it('should return undefined for empty object', () => {
+        const outcome = getNormalizedObjectValue({});
+        expect(outcome).toEqual(undefined);
+      });
+
+      it('should return normalized object for valid object', () => {
+        const nestedObj = {
+          someKey: 'someValue',
+          nested: {
+            key1: 'value1',
+            key2: undefined,
+            key3: null,
+          },
+        };
+
+        const outcome = getNormalizedObjectValue(nestedObj);
+
+        expect(outcome).toStrictEqual({
+          someKey: 'someValue',
+          nested: {
+            key1: 'value1',
+          },
+        });
+      });
+
+      it('should return normalized object for object with undefined and null values recursively', () => {
+        const nestedObj = {
+          key1: 'value',
+          key2: undefined,
+          key3: {
+            key4: 'value',
+            key5: undefined,
+            key6: {
+              key7: 'value',
+              key8: undefined,
+            },
+            key9: null,
+          },
+          key10: null,
+          key11: {
+            key12: null,
+          },
+        };
+
+        const outcome = getNormalizedObjectValue(nestedObj);
+
+        expect(outcome).toStrictEqual({
+          key1: 'value',
+          key3: {
+            key4: 'value',
+            key6: {
+              key7: 'value',
+            },
+          },
+          key11: {},
+        });
+      });
+    });
+  });
+
+  describe('getNormalizedBooleanValue', () => {
+    const tcData = [
+      {
+        input: [true, undefined],
+        output: true,
+      },
+      {
+        input: [false, undefined],
+        output: false,
+      },
+      {
+        input: [undefined, true],
+        output: true,
+      },
+      {
+        input: [undefined, false],
+        output: false,
+      },
+      {
+        input: [true, false],
+        output: true,
+      },
+      {
+        input: [false, true],
+        output: false,
+      },
+      {
+        input: [undefined, undefined],
+        output: false,
+      },
+      {
+        input: [{}, false],
+        output: false,
+      },
+      {
+        input: [{}, true],
+        output: false,
+      },
+      {
+        input: [{}, undefined],
+        output: false,
+      },
+      {
+        input: [[], false],
+        output: false,
+      },
+      {
+        input: [[], true],
+        output: false,
+      },
+      {
+        input: [[], undefined],
+        output: false,
+      },
+      {
+        input: ['string', false],
+        output: false,
+      },
+      {
+        input: ['string', true],
+        output: false,
+      },
+      {
+        input: ['string', undefined],
+        output: false,
+      },
+      {
+        input: [123456, false],
+        output: false,
+      },
+      {
+        input: [123456, true],
+        output: false,
+      },
+      {
+        input: [123456, undefined],
+        output: false,
+      },
+      {
+        input: [new Date(), false],
+        output: false,
+      },
+      {
+        input: [new Date(), true],
+        output: false,
+      },
+      {
+        input: [new Date(), undefined],
+        output: false,
+      },
+    ];
+
+    it.each(tcData)(
+      'should return $output for input $input',
+      ({ input, output }: { input: any; output: any }) => {
+        const outcome = getNormalizedBooleanValue(input[0], input[1]);
+        expect(outcome).toEqual(output);
+      },
+    );
   });
 });

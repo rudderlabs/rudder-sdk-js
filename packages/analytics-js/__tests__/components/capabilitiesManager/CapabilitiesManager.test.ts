@@ -1,4 +1,5 @@
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { defaultHttpClient } from '../../../src/services/HttpClient';
 import { isLegacyJSEngine } from '../../../src/components/capabilitiesManager/detection';
 import type { ICapabilitiesManager } from '../../../src/components/capabilitiesManager/types';
 import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
@@ -39,7 +40,11 @@ describe('CapabilitiesManager', () => {
 
   describe('prepareBrowserCapabilities', () => {
     beforeEach(() => {
-      capabilitiesManager = new CapabilitiesManager(defaultErrorHandler, mockLogger);
+      capabilitiesManager = new CapabilitiesManager(
+        defaultHttpClient,
+        defaultErrorHandler,
+        mockLogger,
+      );
     });
 
     afterEach(() => {
@@ -93,34 +98,6 @@ describe('CapabilitiesManager', () => {
       );
     });
 
-    it('should use default polyfill URL but not log any warning if custom URL and logger are not provided', () => {
-      state.loadOptions.value.polyfillURL = 'invalid-url';
-      state.lifecycle.writeKey.value = 'sample-write-key';
-      state.loadOptions.value.polyfillIfRequired = true;
-
-      const tempCapabilitiesManager = new CapabilitiesManager(defaultErrorHandler);
-
-      isLegacyJSEngine.mockReturnValue(true);
-      tempCapabilitiesManager.externalSrcLoader = {
-        loadJSFile: jest.fn(),
-      } as any;
-
-      tempCapabilitiesManager.prepareBrowserCapabilities();
-
-      expect(tempCapabilitiesManager.externalSrcLoader.loadJSFile).toHaveBeenCalledWith({
-        url: 'https://somevalid.polyfill.url&callback=RS_polyfillCallback_sample-write-key',
-        id: 'rudderstackPolyfill',
-        async: true,
-        timeout: 10000,
-        callback: expect.any(Function),
-      });
-
-      // mock console.warn
-      const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
-
-      expect(consoleWarn).not.toHaveBeenCalled();
-    });
-
     it('should not load polyfills if default polyfill URL is invalid', () => {
       state.loadOptions.value.polyfillURL = 'invalid-url';
       state.lifecycle.writeKey.value = 'sample-write-key';
@@ -138,6 +115,23 @@ describe('CapabilitiesManager', () => {
 
       expect(capabilitiesManager.externalSrcLoader.loadJSFile).not.toHaveBeenCalled();
       expect(capabilitiesManager.onReady).toHaveBeenCalled();
+    });
+
+    it('should initiate adblockers detection if configured', () => {
+      state.loadOptions.value.sendAdblockPage = true;
+      state.lifecycle.sourceConfigUrl.value = 'https://www.dummy.url';
+
+      const getAsyncDataSpy = jest.spyOn(defaultHttpClient, 'getAsyncData');
+
+      capabilitiesManager.init();
+
+      expect(getAsyncDataSpy).toHaveBeenCalledTimes(1);
+      expect(getAsyncDataSpy).toHaveBeenCalledWith({
+        url: 'https://www.dummy.url/?view=ad',
+        options: expect.any(Object),
+        callback: expect.any(Function),
+        isRawResponse: true,
+      });
     });
   });
 });

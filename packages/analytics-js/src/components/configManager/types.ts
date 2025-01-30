@@ -1,7 +1,10 @@
 import type { DestinationConfig } from '@rudderstack/analytics-js-common/types/Destination';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { StatsCollection } from '@rudderstack/analytics-js-common/types/Source';
-import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import type {
+  IHttpClient,
+  ResponseDetails,
+} from '@rudderstack/analytics-js-common/types/HttpClient';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { ConsentManagementMetadata } from '@rudderstack/analytics-js-common/types/Consent';
@@ -77,9 +80,12 @@ export type SourceConfigResponse = {
 
 export interface IConfigManager {
   httpClient: IHttpClient;
-  errorHandler?: IErrorHandler;
-  logger?: ILogger;
+  errorHandler: IErrorHandler;
+  logger: ILogger;
   init: () => void;
   getConfig: () => void;
-  processConfig: () => void;
+  processConfig: (
+    response: SourceConfigResponse | string | undefined,
+    details?: ResponseDetails,
+  ) => void;
 }

@@ -1,6 +1,5 @@
 import {
   isErrorReportingEnabled,
-  getErrorReportingProviderNameFromConfig,
   isMetricsReportingEnabled,
 } from '../../../src/components/utilities/statsCollection';
 

@@ -1,152 +1,198 @@
-/* eslint-disable global-require */
+import { dummyCDNHost, SDK_FILE_NAME } from '../__fixtures__/fixtures';
 import { loadingSnippet } from './nativeSdkLoader';
-
-const pathToSdk = '../dist/cdn/legacy/iife/rsa.min.js';
-
-function wait(time: number) {
-  return new Promise(resolve => {
-    setTimeout(resolve, time);
-  });
-}
+import { server } from '../__fixtures__/msw.server';
 
 describe('Test suite for the SDK', () => {
+  beforeAll(() => {
+    // Start the server before running the tests
+    // This is necessary to serve the local SDK script on the dummy CDN host
+    server.listen();
+  });
+
+  afterAll(() => {
+    server.close();
+  });
+
+  const WRITE_KEY = 'write-key';
+  const DATA_PLANE_URL = 'https://example.dataplane.com';
+  const SDK_READY_TIMEOUT = 5000; // 5 seconds
+
+  const MOCK_SOURCE_CONFIGURATION = {
+    updatedAt: new Date().toISOString(),
+    source: {
+      name: 'source-name',
+      id: 'source-id',
+      workspaceId: 'workspace-id',
+      writeKey: WRITE_KEY,
+      updatedAt: new Date().toISOString(),
+      config: {
+        statsCollection: {
+          errors: {
+            enabled: false,
+          },
+          metrics: {
+            enabled: false,
+          },
+        },
+      },
+      enabled: true,
+      destinations: [],
+    },
+  };
+
   const xhrMock: any = {
     open: jest.fn(),
     setRequestHeader: jest.fn(),
     onload: jest.fn(),
     onreadystatechange: jest.fn(),
-    responseText: JSON.stringify({
-      source: {
-        config: {},
-        id: 'id',
-        destinations: [],
-      },
-    }),
+    responseText: JSON.stringify(MOCK_SOURCE_CONFIGURATION),
     status: 200,
+    send: jest.fn(() => xhrMock.onload()),
   };
 
-  xhrMock.send = jest.fn(() => xhrMock.onload());
-
-  const userId = 'jest-user-id';
-  const userTraits = {
-    'jest-user-trait-key-1': 'jest-user-trait-value-1',
-    'jest-user-trait-key-2': 'jest-user-trait-value-2',
+  const USER_ID = 'user-id';
+  const USER_TRAITS = {
+    'user-trait-key-1': 'user-trait-value-1',
+    'user-trait-key-2': 'user-trait-value-2',
   };
 
-  const groupUserId = 'jest-group-id';
-  const groupTraits = {
-    'jest-group-trait-key-1': 'jest-group-trait-value-1',
-    'jest-group-trait-key-2': 'jest-group-trait-value-2',
+  const USER_GROUP_ID = 'group-id';
+  const USER_GROUP_TRAITS = {
+    'group-trait-key-1': 'group-trait-value-1',
+    'group-trait-key-2': 'group-trait-value-2',
+  };
+
+  const loadSDKScript = () => {
+    loadingSnippet(dummyCDNHost, SDK_FILE_NAME, WRITE_KEY, DATA_PLANE_URL);
+  };
+
+  const waitForSDKReady = async () => {
+    const readyPromise = new Promise((resolve, reject) => {
+      // eslint-disable-next-line sonarjs/no-nested-functions
+      window.rudderanalytics?.ready(() => resolve(true));
+
+      setTimeout(
+        () => reject(new Error('The SDK did not become ready within the timeout')),
+        SDK_READY_TIMEOUT,
+      );
+    });
+
+    await readyPromise;
   };
 
   const originalXMLHttpRequest = window.XMLHttpRequest;
 
-  beforeEach(async () => {
-    window.XMLHttpRequest = jest.fn(() => xhrMock);
-
-    loadingSnippet();
-
-    require(pathToSdk);
-    await wait(500);
+  beforeEach(() => {
+    // Mocking the xhr function
+    window.XMLHttpRequest = jest.fn(() => xhrMock) as unknown as typeof XMLHttpRequest;
   });
 
   afterEach(() => {
     jest.resetModules();
     jest.clearAllMocks();
-    jest.restoreAllMocks();
 
     window.rudderanalytics = undefined;
 
     window.XMLHttpRequest = originalXMLHttpRequest;
   });
 
-  it('should process the buffered API calls when SDK script is loaded', async () => {
-    // Only done for this case to test the
-    // API calls queuing functionality
-    jest.resetModules();
-    rudderanalytics.page();
-    require(pathToSdk);
-    await wait(500);
+  describe('preload buffer', () => {
+    it('should process the buffered API calls when SDK script is loaded', async () => {
+      loadSDKScript();
 
-    expect(window.rudderanalytics.push).not.toBe(Array.prototype.push);
+      // Queue up some API calls before the SDK script is loaded
+      window.rudderanalytics?.page();
+      window.rudderanalytics?.track('test-event');
 
-    // one source config endpoint call and one implicit page call
-    // Refer to above 'beforeEach'
-    expect(xhrMock.send).toHaveBeenCalledTimes(2);
-  });
+      await waitForSDKReady();
 
-  it('should make network requests when event APIs are invoked', () => {
-    rudderanalytics.page();
-    rudderanalytics.track('test-event');
-    rudderanalytics.identify('jest-user');
-    rudderanalytics.group('jest-group');
-    rudderanalytics.alias('new-jest-user', 'jest-user');
+      expect((window.rudderanalytics as any).push).not.toBe(Array.prototype.push);
 
-    // one source config endpoint call and above API requests
-    expect(xhrMock.send).toHaveBeenCalledTimes(6);
-  });
-
-  describe('getAnonymousId', () => {
-    it('should return a new UUID when no prior persisted dat is present', () => {
-      const anonId = rudderanalytics.getAnonymousId();
-
-      const uuidRegEx = /^[a-z0-9]{8}-[a-z0-9]{4}-4[a-z0-9]{3}-[a-z0-9]{4}-[a-z0-9]{12}$/;
-      expect(anonId).toMatch(uuidRegEx);
-    });
-
-    it('should persist the anonymous ID generated by the SDK', () => {
-      const anonIdRes1 = rudderanalytics.getAnonymousId();
-
-      // SDK remembers the previously generated anonymous ID and returns the same value
-      const anonIdRes2 = rudderanalytics.getAnonymousId();
-
-      expect(anonIdRes1).toEqual(anonIdRes2);
+      // one source configuration request, one page request, and one track request
+      expect(xhrMock.send).toHaveBeenCalledTimes(3);
     });
   });
 
-  describe('reset', () => {
-    it('should clear al the persisted data expect for anonymous ID when the flag is not set', () => {
-      // Make identify and group API calls to let the SDK persist
-      // user (ID and traits) and group data (ID and traits)
-      rudderanalytics.identify(userId, userTraits);
-      rudderanalytics.group(groupUserId, groupTraits);
+  describe('api', () => {
+    beforeEach(async () => {
+      loadSDKScript();
 
-      const anonId = 'jest-anon-ID';
-      rudderanalytics.setAnonymousId(anonId);
-
-      // SDK clears all the persisted data except for anonymous ID
-      rudderanalytics.reset();
-
-      // SDK remembers the previously generated anonymous ID and returns the same value
-      const anonIdRes = rudderanalytics.getAnonymousId();
-
-      expect(anonId).toEqual(anonIdRes);
-      expect(rudderanalytics.getUserId()).toEqual('');
-      expect(rudderanalytics.getUserTraits()).toEqual({});
-      expect(rudderanalytics.getGroupId()).toEqual('');
-      expect(rudderanalytics.getGroupTraits()).toEqual({});
+      await waitForSDKReady();
     });
 
-    it('should clear all the persisted data include anonymous ID when the flag is set', () => {
-      // Make identify and group API calls to let the SDK persist
-      // user (ID and traits) and group data (ID and traits)
-      rudderanalytics.identify(userId, userTraits);
-      rudderanalytics.group(groupUserId, groupTraits);
+    it('should make network requests when event APIs are invoked', () => {
+      window.rudderanalytics?.page();
+      window.rudderanalytics?.track('test-event');
+      window.rudderanalytics?.identify(USER_ID, USER_TRAITS);
+      window.rudderanalytics?.group(USER_GROUP_ID, USER_GROUP_TRAITS);
+      window.rudderanalytics?.alias('new-user-id', USER_ID);
 
-      const anonId = 'jest-anon-ID';
-      rudderanalytics.setAnonymousId(anonId);
+      // one source config endpoint call and individual event requests
+      expect(xhrMock.send).toHaveBeenCalledTimes(6);
+    });
 
-      // SDK clears all the persisted data
-      rudderanalytics.reset(true);
+    describe('getAnonymousId', () => {
+      it('should return a new UUID when no prior persisted data is present', () => {
+        const anonId = window.rudderanalytics?.getAnonymousId();
 
-      // SDK remembers the previously generated anonymous ID and returns the same value
-      const anonIdRes = rudderanalytics.getAnonymousId();
+        const uuidRegEx = /^[\da-f]{8}-[\da-f]{4}-4[\da-f]{3}-[\da-f]{4}-[\da-f]{12}$/i;
+        expect(anonId).toMatch(uuidRegEx);
+      });
 
-      expect(anonId).not.toEqual(anonIdRes);
-      expect(rudderanalytics.getUserId()).toEqual('');
-      expect(rudderanalytics.getUserTraits()).toEqual({});
-      expect(rudderanalytics.getGroupId()).toEqual('');
-      expect(rudderanalytics.getGroupTraits()).toEqual({});
+      it('should persist the anonymous ID generated by the SDK', () => {
+        const anonIdRes1 = window.rudderanalytics?.getAnonymousId();
+
+        // SDK remembers the previously generated anonymous ID and returns the same value
+        const anonIdRes2 = window.rudderanalytics?.getAnonymousId();
+
+        expect(anonIdRes1).toEqual(anonIdRes2);
+      });
+    });
+
+    describe('reset', () => {
+      it('should clear all the persisted data except for anonymous ID when the flag is not set', () => {
+        // Make identify and group API calls to let the SDK persist
+        // user (ID and traits) and group data (ID and traits)
+        window.rudderanalytics?.identify(USER_ID, USER_TRAITS);
+        window.rudderanalytics?.group(USER_GROUP_ID, USER_GROUP_TRAITS);
+
+        const anonId = 'anon-ID';
+        window.rudderanalytics?.setAnonymousId(anonId);
+
+        // SDK clears all the persisted data except for anonymous ID
+        window.rudderanalytics?.reset();
+
+        // SDK remembers the previously generated anonymous ID and returns the same value
+        const anonIdRes = window.rudderanalytics?.getAnonymousId();
+
+        expect(anonId).toEqual(anonIdRes);
+        expect(window.rudderanalytics?.getUserId()).toEqual('');
+        expect(window.rudderanalytics?.getUserTraits()).toEqual({});
+        expect(window.rudderanalytics?.getGroupId()).toEqual('');
+        expect(window.rudderanalytics?.getGroupTraits()).toEqual({});
+      });
+
+      it('should clear all the persisted data include anonymous ID when the flag is set', () => {
+        // Make identify and group API calls to let the SDK persist
+        // user (ID and traits) and group data (ID and traits)
+        window.rudderanalytics?.identify(USER_ID, USER_TRAITS);
+        window.rudderanalytics?.group(USER_GROUP_ID, USER_GROUP_TRAITS);
+
+        const anonId = 'anon-ID';
+        window.rudderanalytics?.setAnonymousId(anonId);
+
+        // SDK clears all the persisted data
+        window.rudderanalytics?.reset(true);
+
+        // SDK remembers the previously generated anonymous ID and returns the same value
+        const anonIdRes = window.rudderanalytics?.getAnonymousId();
+
+        expect(anonId).not.toEqual(anonIdRes);
+        expect(window.rudderanalytics?.getUserId()).toEqual('');
+        expect(window.rudderanalytics?.getUserTraits()).toEqual({});
+        expect(window.rudderanalytics?.getGroupId()).toEqual('');
+        expect(window.rudderanalytics?.getGroupTraits()).toEqual({});
+      });
     });
   });
 });
