@@ -8,19 +8,22 @@ import type {
   DeliveryType,
   StorageStrategy,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 
 // CONSTANT
-const SOURCE_CONFIG_OPTION_ERROR = `"getSourceConfig" must be a function. Please make sure that it is defined and returns a valid source configuration object.`;
-const DATA_PLANE_URL_ERROR = `Failed to load the SDK as the data plane URL could not be determined. Please check that the data plane URL is set correctly and try again.`;
-const SOURCE_CONFIG_RESOLUTION_ERROR = `Unable to process/parse source configuration response.`;
+const DATA_PLANE_URL_ERROR =
+  'Failed to load the SDK as the data plane URL could not be determined. Please check that the data plane URL is set correctly and try again.';
+const SOURCE_CONFIG_RESOLUTION_ERROR = `Unable to process/parse source configuration response`;
 const SOURCE_DISABLED_ERROR = `The source is disabled. Please enable the source in the dashboard to send events.`;
 const XHR_PAYLOAD_PREP_ERROR = `Failed to prepare data for the request.`;
-const EVENT_OBJECT_GENERATION_ERROR = `Failed to generate the event object.`;
 const PLUGIN_EXT_POINT_MISSING_ERROR = `Failed to invoke plugin because the extension point name is missing.`;
 const PLUGIN_EXT_POINT_INVALID_ERROR = `Failed to invoke plugin because the extension point name is invalid.`;
 
-const COMPONENT_BASE_URL_ERROR = (component: string, url: string): string =>
-  `Failed to load the SDK as the base URL "${url}" for ${component} is not valid.`;
+const SOURCE_CONFIG_OPTION_ERROR = (context: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The "getSourceConfig" load API option must be a function that returns valid source configuration data.`;
+
+const COMPONENT_BASE_URL_ERROR = (context: string, component: string, url?: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The base URL "${url}" for ${component} is not valid.`;
 
 // ERROR
 const UNSUPPORTED_CONSENT_MANAGER_ERROR = (
@@ -32,11 +35,14 @@ const UNSUPPORTED_CONSENT_MANAGER_ERROR = (
     consentManagersToPluginNameMap,
   )}".`;
 
-const REPORTING_PLUGIN_INIT_FAILURE_ERROR = (context: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}Failed to initialize the error reporting plugin.`;
+const NON_ERROR_WARNING = (context: string, errStr: Nullable<string>): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}Ignoring a non-error: ${errStr}.`;
 
-const NOTIFY_FAILURE_ERROR = (context: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}Failed to notify the error.`;
+const BREADCRUMB_ERROR = (context: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}Failed to log breadcrumb.`;
+
+const HANDLE_ERROR_FAILURE = (context: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}Failed to handle the error.`;
 
 const PLUGIN_NAME_MISSING_ERROR = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}Plugin name is missing.`;
@@ -63,8 +69,7 @@ const PLUGIN_INVOCATION_ERROR = (
 const STORAGE_UNAVAILABILITY_ERROR_PREFIX = (context: string, storageType: StorageType): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The "${storageType}" storage type is `;
 
-const SOURCE_CONFIG_FETCH_ERROR = (reason: Error | undefined): string =>
-  `Failed to fetch the source config. Reason: ${reason}`;
+const SOURCE_CONFIG_FETCH_ERROR = 'Failed to fetch the source config';
 
 const WRITE_KEY_VALIDATION_ERROR = (context: string, writeKey: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The write key "${writeKey}" is invalid. It must be a non-empty string. Please check that the write key is correct and try again.`;
@@ -72,8 +77,8 @@ const WRITE_KEY_VALIDATION_ERROR = (context: string, writeKey: string): string =
 const DATA_PLANE_URL_VALIDATION_ERROR = (context: string, dataPlaneUrl: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The data plane URL "${dataPlaneUrl}" is invalid. It must be a valid URL string. Please check that the data plane URL is correct and try again.`;
 
-const READY_API_CALLBACK_ERROR = (context: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The provided callback is not a function.`;
+const INVALID_CALLBACK_FN_ERROR = (context: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The provided callback parameter is not a function.`;
 
 const XHR_DELIVERY_ERROR = (
   prefix: string,
@@ -193,15 +198,8 @@ const STORAGE_UNAVAILABLE_WARNING = (
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The storage type "${selectedStorageType}" is not available for entry "${entry}". The SDK will initialize the entry with "${finalStorageType}" storage type instead.`;
 
-const READY_CALLBACK_INVOKE_ERROR = `Failed to invoke the ready callback`;
-
-const API_CALLBACK_INVOKE_ERROR = `API Callback Invocation Failed`;
-const NATIVE_DEST_PLUGIN_INITIALIZE_ERROR = `NativeDestinationQueuePlugin initialization failed`;
-const DATAPLANE_PLUGIN_INITIALIZE_ERROR = `XhrQueuePlugin initialization failed`;
-const DMT_PLUGIN_INITIALIZE_ERROR = `DeviceModeTransformationPlugin initialization failed`;
-
-const NATIVE_DEST_PLUGIN_ENQUEUE_ERROR = `NativeDestinationQueuePlugin event enqueue failed`;
-const DATAPLANE_PLUGIN_ENQUEUE_ERROR = `XhrQueuePlugin event enqueue failed`;
+const CALLBACK_INVOKE_ERROR = (context: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The callback threw an exception`;
 
 const INVALID_CONFIG_URL_WARNING = (context: string, configUrl: string | undefined): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The provided source config URL "${configUrl}" is invalid. Using the default source config URL instead.`;
@@ -254,6 +252,9 @@ const BAD_COOKIES_WARNING = (key: string) =>
 const PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING = (context: string) =>
   `${context}${LOG_CONTEXT_SEPARATOR}Page Unloaded event can only be tracked when the Beacon transport is active. Please enable "useBeacon" load API option.`;
 
+const UNKNOWN_PLUGINS_WARNING = (context: string, unknownPlugins: string[]) =>
+  `${context}${LOG_CONTEXT_SEPARATOR}Ignoring unknown plugins: ${unknownPlugins.join(', ')}.`;
+
 export {
   UNSUPPORTED_CONSENT_MANAGER_ERROR,
   UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING,
@@ -267,8 +268,7 @@ export {
   TIMEOUT_NOT_RECOMMENDED_WARNING,
   INVALID_SESSION_ID_WARNING,
   DEPRECATED_PLUGIN_WARNING,
-  REPORTING_PLUGIN_INIT_FAILURE_ERROR,
-  NOTIFY_FAILURE_ERROR,
+  HANDLE_ERROR_FAILURE,
   PLUGIN_NAME_MISSING_ERROR,
   PLUGIN_ALREADY_EXISTS_ERROR,
   PLUGIN_NOT_FOUND_ERROR,
@@ -283,29 +283,20 @@ export {
   DATA_PLANE_URL_ERROR,
   WRITE_KEY_VALIDATION_ERROR,
   DATA_PLANE_URL_VALIDATION_ERROR,
-  READY_API_CALLBACK_ERROR,
   XHR_DELIVERY_ERROR,
   XHR_REQUEST_ERROR,
   XHR_SEND_ERROR,
   XHR_PAYLOAD_PREP_ERROR,
   STORE_DATA_SAVE_ERROR,
   STORE_DATA_FETCH_ERROR,
-  EVENT_OBJECT_GENERATION_ERROR,
   PLUGIN_EXT_POINT_MISSING_ERROR,
   PLUGIN_EXT_POINT_INVALID_ERROR,
   STORAGE_TYPE_VALIDATION_WARNING,
-  READY_CALLBACK_INVOKE_ERROR,
-  API_CALLBACK_INVOKE_ERROR,
   INVALID_CONFIG_URL_WARNING,
   POLYFILL_SCRIPT_LOAD_ERROR,
   UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY,
   UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
   SOURCE_CONFIG_RESOLUTION_ERROR,
-  NATIVE_DEST_PLUGIN_INITIALIZE_ERROR,
-  DATAPLANE_PLUGIN_INITIALIZE_ERROR,
-  DMT_PLUGIN_INITIALIZE_ERROR,
-  NATIVE_DEST_PLUGIN_ENQUEUE_ERROR,
-  DATAPLANE_PLUGIN_ENQUEUE_ERROR,
   DATA_SERVER_URL_INVALID_ERROR,
   DATA_SERVER_REQUEST_FAIL_ERROR,
   FAILED_SETTING_COOKIE_FROM_SERVER_ERROR,
@@ -317,4 +308,9 @@ export {
   SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING,
   BAD_COOKIES_WARNING,
   PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING,
+  BREADCRUMB_ERROR,
+  NON_ERROR_WARNING,
+  CALLBACK_INVOKE_ERROR,
+  UNKNOWN_PLUGINS_WARNING,
+  INVALID_CALLBACK_FN_ERROR,
 };

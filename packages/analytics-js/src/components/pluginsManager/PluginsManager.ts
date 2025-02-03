@@ -13,7 +13,11 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { PLUGINS_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { isDefined, isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
-import { generateMisconfiguredPluginsWarning } from '../../constants/logMessages';
+import {
+  DEPRECATED_PLUGIN_WARNING,
+  generateMisconfiguredPluginsWarning,
+  UNKNOWN_PLUGINS_WARNING,
+} from '../../constants/logMessages';
 import { setExposedGlobal } from '../utilities/globals';
 import { state } from '../../state';
 import {
@@ -21,7 +25,7 @@ import {
   StorageEncryptionVersionsToPluginNameMap,
   DataPlaneEventsTransportToPluginNameMap,
 } from '../configManager/constants';
-import { pluginNamesList } from './pluginNames';
+import { deprecatedPluginsList, pluginNamesList } from './pluginNames';
 import {
   getMandatoryPluginsMap,
   pluginsInventory,
@@ -34,10 +38,10 @@ import type { PluginsGroup } from './types';
 // TODO: add timeout error mechanism for marking remote plugins that failed to load as failed in state
 class PluginsManager implements IPluginsManager {
   engine: IPluginEngine;
-  errorHandler?: IErrorHandler;
-  logger?: ILogger;
+  errorHandler: IErrorHandler;
+  logger: ILogger;
 
-  constructor(engine: IPluginEngine, errorHandler?: IErrorHandler, logger?: ILogger) {
+  constructor(engine: IPluginEngine, errorHandler: IErrorHandler, logger: ILogger) {
     this.engine = engine;
 
     this.errorHandler = errorHandler;
@@ -95,15 +99,14 @@ class PluginsManager implements IPluginsManager {
       return [];
     }
 
-    // TODO: Uncomment below lines after removing deprecated plugin
     // Filter deprecated plugins
-    // pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(pluginName => {
-    //   if (deprecatedPluginsList.includes(pluginName)) {
-    //     this.logger?.warn(DEPRECATED_PLUGIN_WARNING(PLUGINS_MANAGER, pluginName));
-    //     return false;
-    //   }
-    //   return true;
-    // });
+    pluginsToLoadFromConfig = pluginsToLoadFromConfig.filter(pluginName => {
+      if (deprecatedPluginsList.includes(pluginName)) {
+        this.logger.warn(DEPRECATED_PLUGIN_WARNING(PLUGINS_MANAGER, pluginName));
+        return false;
+      }
+      return true;
+    });
 
     const pluginGroupsToProcess: PluginsGroup[] = [
       {
@@ -112,11 +115,6 @@ class PluginsManager implements IPluginsManager {
         activePluginName: state.dataPlaneEvents.eventsQueuePluginName.value,
         supportedPlugins: Object.values(DataPlaneEventsTransportToPluginNameMap),
         shouldAddMissingPlugins: true,
-      },
-      {
-        configurationStatus: () => state.reporting.isErrorReportingEnabled.value,
-        configurationStatusStr: 'Error reporting is enabled',
-        supportedPlugins: ['ErrorReporting', 'Bugsnag'] as PluginName[], // TODO: Remove deprecated plugin- Bugsnag
       },
       {
         configurationStatus: () =>
@@ -203,7 +201,7 @@ class PluginsManager implements IPluginsManager {
         pluginsToLoadFromConfig.push(...missingPlugins);
       }
 
-      this.logger?.warn(
+      this.logger.warn(
         generateMisconfiguredPluginsWarning(
           PLUGINS_MANAGER,
           group.configurationStatusStr,
@@ -233,15 +231,7 @@ class PluginsManager implements IPluginsManager {
     });
 
     if (failedPlugins.length > 0) {
-      this.onError(
-        new Error(
-          `Ignoring loading of unknown plugins: ${failedPlugins.join(
-            ',',
-          )}. Mandatory plugins: ${Object.keys(getMandatoryPluginsMap()).join(
-            ',',
-          )}. Load option plugins: ${state.plugins.pluginsToLoadFromConfig.value.join(',')}`,
-        ),
-      );
+      this.logger.warn(UNKNOWN_PLUGINS_WARNING(PLUGINS_MANAGER, failedPlugins));
     }
 
     batch(() => {
@@ -344,11 +334,7 @@ class PluginsManager implements IPluginsManager {
    * Handle errors
    */
   onError(error: unknown, customMessage?: string): void {
-    if (this.errorHandler) {
-      this.errorHandler.onError(error, PLUGINS_MANAGER, customMessage);
-    } else {
-      throw error;
-    }
+    this.errorHandler.onError(error, PLUGINS_MANAGER, customMessage);
   }
 }
 

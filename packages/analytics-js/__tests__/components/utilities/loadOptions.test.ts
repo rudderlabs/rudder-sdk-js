@@ -44,11 +44,9 @@ describe('load API options', () => {
 
   const defaultOptionalPluginsList: PluginName[] = [
     'BeaconQueue',
-    'Bugsnag',
     'CustomConsentManager',
     'DeviceModeDestinations',
     'DeviceModeTransformation',
-    'ErrorReporting',
     'ExternalAnonymousId',
     'GoogleLinker',
     'IubendaConsentManager',

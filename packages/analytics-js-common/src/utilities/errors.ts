@@ -1,7 +1,19 @@
 import { isTypeOfError } from './checks';
 import { stringifyWithoutCircular } from './json';
 
-const MANUAL_ERROR_IDENTIFIER = '[MANUAL ERROR]';
+const MANUAL_ERROR_IDENTIFIER = '[SDK DISPATCHED ERROR]';
+
+const getStacktrace = (err: any): string | undefined => {
+  const { stack, stacktrace } = err;
+  const operaSourceloc = err['opera#sourceloc'];
+
+  const stackString = stack ?? stacktrace ?? operaSourceloc;
+
+  if (!!stackString && typeof stackString === 'string') {
+    return stackString;
+  }
+  return undefined;
+};
 
 /**
  * Get mutated error with issue prepended to error message
@@ -21,9 +33,32 @@ const getMutatedError = (err: any, issue: string): Error => {
 
 const dispatchErrorEvent = (error: any) => {
   if (isTypeOfError(error)) {
-    error.stack = `${error.stack ?? ''}\n${MANUAL_ERROR_IDENTIFIER}`;
+    const errStack = getStacktrace(error);
+    if (errStack) {
+      const { stack, stacktrace } = error;
+      const operaSourceloc = error['opera#sourceloc'];
+
+      switch (errStack) {
+        case stack:
+          // eslint-disable-next-line no-param-reassign
+          error.stack = `${stack}\n${MANUAL_ERROR_IDENTIFIER}`;
+          break;
+        case stacktrace:
+          // eslint-disable-next-line no-param-reassign
+          error.stacktrace = `${stacktrace}\n${MANUAL_ERROR_IDENTIFIER}`;
+          break;
+        case operaSourceloc:
+        default:
+          // eslint-disable-next-line no-param-reassign
+          error['opera#sourceloc'] = `${operaSourceloc}\n${MANUAL_ERROR_IDENTIFIER}`;
+          break;
+      }
+    }
   }
-  (globalThis as typeof window).dispatchEvent(new ErrorEvent('error', { error }));
+
+  (globalThis as typeof window).dispatchEvent(
+    new ErrorEvent('error', { error, bubbles: true, cancelable: true, composed: true }),
+  );
 };
 
-export { getMutatedError, dispatchErrorEvent, MANUAL_ERROR_IDENTIFIER };
+export { getMutatedError, dispatchErrorEvent, MANUAL_ERROR_IDENTIFIER, getStacktrace };

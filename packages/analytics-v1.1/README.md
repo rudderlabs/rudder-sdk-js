@@ -19,8 +19,8 @@
 
 ---
 
-| :warning: This package is deprecated. Please switch to the latest [@rudderstack/analytics-js](https://www.npmjs.com/package/@rudderstack/analytics-js) package for improved features and support. <br>For more details, visit [link](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/). |
-| :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| :warning: **This package is deprecated and no longer maintained.** While your events are still being tracked and delivered, we strongly recommend you to migrate to the latest [@rudderstack/analytics-js](https://www.npmjs.com/package/@rudderstack/analytics-js) package for enhanced features, security updates, and ongoing support. <br/><br/>For more details, visit the [migration guide](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/migration-guide/). |
+| :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
 # RudderStack JavaScript SDK
 

@@ -9,7 +9,6 @@ import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/Error
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { toBase64 } from '@rudderstack/analytics-js-common/utilities/string';
 import { HTTP_CLIENT } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { defaultErrorHandler } from '../ErrorHandler';
 import { defaultLogger } from '../Logger';
 import { responseTextToJson } from './xhr/xhrResponseHandler';
 import { createXhrRequestOptions, xhrRequest } from './xhr/xhrRequestHandler';
@@ -21,15 +20,16 @@ import { createXhrRequestOptions, xhrRequest } from './xhr/xhrRequestHandler';
  */
 class HttpClient implements IHttpClient {
   errorHandler?: IErrorHandler;
-  logger?: ILogger;
+  logger: ILogger;
   basicAuthHeader?: string;
-  hasErrorHandler = false;
 
-  constructor(errorHandler?: IErrorHandler, logger?: ILogger) {
-    this.errorHandler = errorHandler;
+  constructor(logger: ILogger) {
     this.logger = logger;
-    this.hasErrorHandler = Boolean(this.errorHandler);
     this.onError = this.onError.bind(this);
+  }
+
+  init(errorHandler: IErrorHandler) {
+    this.errorHandler = errorHandler;
   }
 
   /**
@@ -51,7 +51,6 @@ class HttpClient implements IHttpClient {
         details: data,
       };
     } catch (reason) {
-      this.onError((reason as ResponseDetails).error ?? reason);
       return { data: undefined, details: reason as ResponseDetails };
     }
   }
@@ -73,7 +72,6 @@ class HttpClient implements IHttpClient {
         }
       })
       .catch((data: ResponseDetails) => {
-        this.onError(data.error ?? data);
         if (!isFireAndForget) {
           callback(undefined, data);
         }
@@ -84,11 +82,7 @@ class HttpClient implements IHttpClient {
    * Handle errors
    */
   onError(error: unknown) {
-    if (this.hasErrorHandler) {
-      this.errorHandler?.onError(error, HTTP_CLIENT);
-    } else {
-      throw error;
-    }
+    this.errorHandler?.onError(error, HTTP_CLIENT);
   }
 
   /**
@@ -107,6 +101,6 @@ class HttpClient implements IHttpClient {
   }
 }
 
-const defaultHttpClient = new HttpClient(defaultErrorHandler, defaultLogger);
+const defaultHttpClient = new HttpClient(defaultLogger);
 
 export { HttpClient, defaultHttpClient };

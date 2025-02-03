@@ -11,7 +11,6 @@ import { DEFAULT_CONFIG_BE_URL } from '../../constants/urls';
 import { DEFAULT_STORAGE_ENCRYPTION_VERSION } from '../../components/configManager/constants';
 
 const defaultLoadOptions: LoadOptions = {
-  logLevel: 'ERROR',
   configUrl: DEFAULT_CONFIG_BE_URL,
   loadIntegration: true,
   sessions: {

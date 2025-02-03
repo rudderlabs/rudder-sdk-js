@@ -20,6 +20,7 @@ import type {
 import type { ApiCallback } from '@rudderstack/analytics-js-common/types/EventApi';
 import {
   ANALYTICS_CORE,
+  LOAD_API,
   READY_API,
 } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import {
@@ -61,13 +62,13 @@ import {
 } from '../../constants/app';
 import {
   DATA_PLANE_URL_VALIDATION_ERROR,
-  READY_API_CALLBACK_ERROR,
-  READY_CALLBACK_INVOKE_ERROR,
+  INVALID_CALLBACK_FN_ERROR,
   WRITE_KEY_VALIDATION_ERROR,
 } from '../../constants/logMessages';
 import type { IAnalytics } from './IAnalytics';
 import { getConsentManagementData, getValidPostConsentOptions } from '../utilities/consent';
 import { dispatchSDKEvent, isDataPlaneUrlValid, isWriteKeyValid } from './utilities';
+import { safelyInvokeCallback } from '../utilities/callbacks';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events
@@ -97,8 +98,13 @@ class Analytics implements IAnalytics {
     this.errorHandler = defaultErrorHandler;
     this.logger = defaultLogger;
     this.externalSrcLoader = new ExternalSrcLoader(this.errorHandler, this.logger);
-    this.capabilitiesManager = new CapabilitiesManager(this.errorHandler, this.logger);
     this.httpClient = defaultHttpClient;
+    this.httpClient.init(this.errorHandler);
+    this.capabilitiesManager = new CapabilitiesManager(
+      this.httpClient,
+      this.errorHandler,
+      this.logger,
+    );
   }
 
   /**
@@ -128,7 +134,7 @@ class Analytics implements IAnalytics {
     });
 
     // set log level as early as possible
-    this.logger?.setMinLogLevel(state.loadOptions.value.logLevel ?? POST_LOAD_LOG_LEVEL);
+    this.logger.setMinLogLevel(state.loadOptions.value.logLevel ?? POST_LOAD_LOG_LEVEL);
 
     // Expose state to global objects
     setExposedGlobal('state', state, writeKey);
@@ -237,15 +243,16 @@ class Analytics implements IAnalytics {
     this.storeManager = new StoreManager(this.pluginsManager, this.errorHandler, this.logger);
     this.configManager = new ConfigManager(this.httpClient, this.errorHandler, this.logger);
     this.userSessionManager = new UserSessionManager(
-      this.errorHandler,
-      this.logger,
       this.pluginsManager,
       this.storeManager,
       this.httpClient,
+      this.errorHandler,
+      this.logger,
     );
     this.eventRepository = new EventRepository(
       this.pluginsManager,
       this.storeManager,
+      this.httpClient,
       this.errorHandler,
       this.logger,
     );
@@ -272,7 +279,6 @@ class Analytics implements IAnalytics {
    * Initialize the storage and event queue
    */
   onPluginsReady() {
-    this.errorHandler.init(this.httpClient, this.externalSrcLoader);
     // Initialize storage
     this.storeManager?.init();
     this.userSessionManager?.init();
@@ -314,12 +320,16 @@ class Analytics implements IAnalytics {
     // Process any preloaded events
     this.processDataInPreloadBuffer();
 
+    // Execute onLoaded callback if provided in load options
+    const onLoadedCallbackFn = state.loadOptions.value.onLoaded;
     // TODO: we need to avoid passing the window object to the callback function
     // as this will prevent us from supporting multiple SDK instances in the same page
-    // Execute onLoaded callback if provided in load options
-    if (isFunction(state.loadOptions.value.onLoaded)) {
-      state.loadOptions.value.onLoaded((globalThis as typeof window).rudderanalytics);
-    }
+    safelyInvokeCallback(
+      onLoadedCallbackFn,
+      [(globalThis as typeof window).rudderanalytics],
+      LOAD_API,
+      this.logger,
+    );
 
     // Set lifecycle state
     batch(() => {
@@ -340,11 +350,7 @@ class Analytics implements IAnalytics {
   onReady() {
     state.lifecycle.status.value = 'readyExecuted';
     state.eventBuffer.readyCallbacksArray.value.forEach((callback: ApiCallback) => {
-      try {
-        callback();
-      } catch (err) {
-        this.errorHandler.onError(err, ANALYTICS_CORE, READY_CALLBACK_INVOKE_ERROR);
-      }
+      safelyInvokeCallback(callback, [], READY_API, this.logger);
     });
 
     // Emit an event to use as substitute to the ready callback
@@ -454,7 +460,7 @@ class Analytics implements IAnalytics {
     this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
 
     if (!isFunction(callback)) {
-      this.logger.error(READY_API_CALLBACK_ERROR(READY_API));
+      this.logger.error(INVALID_CALLBACK_FN_ERROR(READY_API));
       return;
     }
 
@@ -464,11 +470,7 @@ class Analytics implements IAnalytics {
      * will be executed after loading completes
      */
     if (state.lifecycle.status.value === 'readyExecuted') {
-      try {
-        callback();
-      } catch (err) {
-        this.errorHandler.onError(err, ANALYTICS_CORE, READY_CALLBACK_INVOKE_ERROR);
-      }
+      safelyInvokeCallback(callback, [], READY_API, this.logger);
     } else {
       state.eventBuffer.readyCallbacksArray.value = [
         ...state.eventBuffer.readyCallbacksArray.value,
