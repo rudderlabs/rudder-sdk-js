@@ -297,11 +297,24 @@ class Analytics implements IAnalytics {
       }
     }
 
+    // Set in state the desired activeDestinations to inject in DOM
+    this.setActiveDestinations();
+
     // Initialize event manager
     this.eventManager?.init();
 
     // Mark the SDK as initialized
     state.lifecycle.status.value = 'initialized';
+  }
+
+  private setActiveDestinations() {
+    this.pluginsManager?.invokeSingle(
+      'nativeDestinations.setActiveDestinations',
+      state,
+      this.pluginsManager,
+      this.errorHandler,
+      this.logger,
+    );
   }
 
   /**
@@ -389,14 +402,7 @@ class Analytics implements IAnalytics {
       return;
     }
 
-    // Set in state the desired activeDestinations to inject in DOM
-    this.pluginsManager?.invokeSingle(
-      'nativeDestinations.setActiveDestinations',
-      state,
-      this.pluginsManager,
-      this.errorHandler,
-      this.logger,
-    );
+    this.setActiveDestinations();
 
     const totalDestinationsToLoad = state.nativeDestinations.activeDestinations.value.length;
     if (totalDestinationsToLoad === 0) {
