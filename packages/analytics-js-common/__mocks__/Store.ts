@@ -4,6 +4,7 @@ import { defaultInMemoryStorage, defaultLocalStorage } from './Storage';
 import { defaultPluginsManager } from './PluginsManager';
 import { defaultLogger } from './Logger';
 import { defaultErrorHandler } from './ErrorHandler';
+import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 
 // Mock all the methods of the Store class
 
@@ -12,7 +13,7 @@ class Store implements IStore {
     this.id = config.id;
     this.name = config.name;
     this.isEncrypted = config.isEncrypted ?? false;
-    this.validKeys = config.validKeys ?? {};
+    this.validKeys = config.validKeys ?? [];
     this.engine = engine ?? defaultLocalStorage;
     this.originalEngine = this.engine;
     this.errorHandler = config.errorHandler;
@@ -22,7 +23,7 @@ class Store implements IStore {
   id = 'test';
   name = 'test';
   isEncrypted = false;
-  validKeys: Record<string, string>;
+  validKeys: string[];
   engine: IStorage = defaultLocalStorage;
   originalEngine: IStorage = defaultLocalStorage;
   errorHandler;
@@ -43,7 +44,7 @@ class Store implements IStore {
     const validKey = this.createValidKey(key);
     this.engine.setItem(validKey, value);
   };
-  get = (key: string) => {
+  get = <T = string>(key: string): Nullable<T> => {
     const validKey = this.createValidKey(key);
     return this.engine.getItem(validKey);
   };

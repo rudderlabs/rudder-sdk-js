@@ -4,8 +4,8 @@ import type { PluginName } from './PluginsManager';
 import type { IntegrationOpts } from './Integration';
 import type { ApiOptions } from './EventApi';
 import type { ConsentManagementOptions } from './Consent';
-import type { ApiObject } from './ApiObject';
 import type { StorageOpts, CookieSameSite } from './Storage';
+import type { SourceConfigResponse } from './Source';
 
 export type UaChTrackLevel = 'none' | 'default' | 'full';
 
@@ -45,8 +45,6 @@ export type BeaconQueueOpts = {
   // Time in milliseconds to flush the queue automatically
   flushQueueInterval?: number;
 };
-
-export type EventsTransportMode = 'xhr' | 'beacon';
 
 export type BatchOpts = {
   // Whether to enable batching
@@ -138,7 +136,13 @@ export type LoadOptions = {
   secureCookie?: boolean; // defaults to false.
   destSDKBaseURL?: string; // defaults to https://cdn.rudderlabs.com/latest/v3/modern/js-integrations
   pluginsSDKBaseURL?: string; // defaults to https://cdn.rudderlabs.com/latest/v3/modern/plugins
+  /**
+   * @deprecated
+   */
   useBeacon?: boolean; // defaults to false.
+  /**
+   * @deprecated Use queueOptions instead
+   */
   beaconQueueOptions?: BeaconQueueOpts;
   destinationsQueueOptions?: DestinationsQueueOpts;
   anonymousIdOptions?: AnonymousIdOptions;
@@ -155,8 +159,7 @@ export type LoadOptions = {
   polyfillIfRequired?: boolean; // defaults to true. Controls whether the SDK should polyfill unsupported browser API's if they are detected as missing
   onLoaded?: OnLoadedCallback;
   uaChTrackLevel?: UaChTrackLevel;
-  // TODO: define type for sourceConfig once the trimmed response is implemented
-  getSourceConfig?: () => string | ApiObject | Promise<ApiObject> | Promise<string>;
+  getSourceConfig?: () => SourceConfigResponse | Promise<SourceConfigResponse>;
   sendAdblockPage?: boolean;
   sendAdblockPageOptions?: ApiOptions;
   plugins?: Nullable<PluginName[]>;
@@ -167,7 +170,6 @@ export type LoadOptions = {
   storage?: StorageOpts;
   preConsent?: PreConsentOptions;
   // transport mechanism to be used for sending batched requests
-  transportMode?: EventsTransportMode; // Unused for now. This will deprecate the useBeacon and beaconQueueOptions
   consentManagement?: ConsentManagementOptions;
   sameDomainCookiesOnly?: boolean;
   externalAnonymousIdCookieName?: string;

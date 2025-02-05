@@ -96,12 +96,14 @@ class ErrorHandler implements IErrorHandler {
         const bugsnagPayload = getBugsnagErrorEvent(bsException, errorState, state);
 
         // send it to metrics service
-        this.httpClient.getAsyncData({
+        this.httpClient.request({
           url: state.metrics.metricsServiceUrl.value as string,
           options: {
             method: 'POST',
-            data: getErrorDeliveryPayload(bugsnagPayload, state),
-            sendRawData: true,
+            body: getErrorDeliveryPayload(bugsnagPayload, state),
+            headers: {
+              'Content-Type': 'application/json;charset=UTF-8',
+            },
           },
           isRawResponse: true,
         });

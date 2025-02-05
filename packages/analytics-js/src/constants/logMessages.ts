@@ -9,6 +9,7 @@ import type {
   StorageStrategy,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js-common/constants/errors';
 
 // CONSTANT
 const DATA_PLANE_URL_ERROR =
@@ -80,17 +81,14 @@ const DATA_PLANE_URL_VALIDATION_ERROR = (context: string, dataPlaneUrl: string):
 const INVALID_CALLBACK_FN_ERROR = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The provided callback parameter is not a function.`;
 
-const XHR_DELIVERY_ERROR = (
-  prefix: string,
-  status: number,
-  statusText: string,
-  url: string,
-): string => `${prefix} with status: ${status}, ${statusText} for URL: ${url}.`;
+const DELIVERY_ERROR = (status: number, statusText: string, url: string | URL): string =>
+  `${FAILED_REQUEST_ERR_MSG_PREFIX} with status ${status} (${statusText}) for URL "${url}"`;
 
-const XHR_REQUEST_ERROR = (prefix: string, e: ProgressEvent | undefined, url: string): string =>
-  `${prefix} due to timeout or no connection (${e ? e.type : ''}) for URL: ${url}.`;
+const REQUEST_ERROR = (url: string | URL, timeout: number): string =>
+  `${FAILED_REQUEST_ERR_MSG_PREFIX} due to timeout after ${timeout}ms or no connection or aborted for URL "${url}"`;
 
-const XHR_SEND_ERROR = (prefix: string, url: string): string => `${prefix} for URL: ${url}`;
+const RESPONSE_PARSE_ERROR = (url: string | URL): string =>
+  `Failed to parse response data for URL "${url}"`;
 
 const STORE_DATA_SAVE_ERROR = (key: string): string =>
   `Failed to save the value for "${key}" to storage`;
@@ -159,9 +157,6 @@ const RESERVED_KEYWORD_WARNING = (
 
 const INVALID_CONTEXT_OBJECT_WARNING = (logContext: string): string =>
   `${logContext}${LOG_CONTEXT_SEPARATOR}Please make sure that the "context" property in the event API's "options" argument is a valid object literal with key-value pairs.`;
-
-const UNSUPPORTED_BEACON_API_WARNING = (context: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The Beacon API is not supported by your browser. The events will be sent using XHR instead.`;
 
 const TIMEOUT_NOT_NUMBER_WARNING = (
   context: string,
@@ -249,9 +244,6 @@ const INVALID_POLYFILL_URL_WARNING = (
 const BAD_COOKIES_WARNING = (key: string) =>
   `The cookie data for ${key} seems to be encrypted using SDK versions < v3. The data is dropped. This can potentially stem from using SDK versions < v3 on other sites or web pages that can share cookies with this webpage. We recommend using the same SDK (v3) version everywhere or avoid disabling the storage data migration.`;
 
-const PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING = (context: string) =>
-  `${context}${LOG_CONTEXT_SEPARATOR}Page Unloaded event can only be tracked when the Beacon transport is active. Please enable "useBeacon" load API option.`;
-
 const UNKNOWN_PLUGINS_WARNING = (context: string, unknownPlugins: string[]) =>
   `${context}${LOG_CONTEXT_SEPARATOR}Ignoring unknown plugins: ${unknownPlugins.join(', ')}.`;
 
@@ -262,7 +254,6 @@ export {
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
   RESERVED_KEYWORD_WARNING,
   INVALID_CONTEXT_OBJECT_WARNING,
-  UNSUPPORTED_BEACON_API_WARNING,
   TIMEOUT_NOT_NUMBER_WARNING,
   TIMEOUT_ZERO_WARNING,
   TIMEOUT_NOT_RECOMMENDED_WARNING,
@@ -283,9 +274,10 @@ export {
   DATA_PLANE_URL_ERROR,
   WRITE_KEY_VALIDATION_ERROR,
   DATA_PLANE_URL_VALIDATION_ERROR,
-  XHR_DELIVERY_ERROR,
-  XHR_REQUEST_ERROR,
-  XHR_SEND_ERROR,
+  INVALID_CALLBACK_FN_ERROR,
+  DELIVERY_ERROR,
+  REQUEST_ERROR,
+  RESPONSE_PARSE_ERROR,
   XHR_PAYLOAD_PREP_ERROR,
   STORE_DATA_SAVE_ERROR,
   STORE_DATA_FETCH_ERROR,
@@ -307,10 +299,8 @@ export {
   COMPONENT_BASE_URL_ERROR,
   SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING,
   BAD_COOKIES_WARNING,
-  PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING,
   BREADCRUMB_ERROR,
   NON_ERROR_WARNING,
   CALLBACK_INVOKE_ERROR,
   UNKNOWN_PLUGINS_WARNING,
-  INVALID_CALLBACK_FN_ERROR,
 };

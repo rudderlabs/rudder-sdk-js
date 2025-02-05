@@ -10,6 +10,38 @@ import fs from 'fs';
 import path from 'path';
 
 const handlers = [
+  http.get(`${dummyDataplaneHost}/testAuthHeader`, ctx => {
+    const authHeader = ctx.request.headers.get('Authorization');
+
+    if (authHeader === 'Basic ZHVtbXlXcml0ZUtleTo=') {
+      return new HttpResponse('{"success": true}', {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+        },
+      });
+    } else {
+      return new HttpResponse(null, {
+        status: 401,
+      });
+    }
+  }),
+  http.get(`${dummyDataplaneHost}/testRawAuthHeader`, ctx => {
+    const authHeader = ctx.request.headers.get('Authorization');
+
+    if (authHeader === 'Basic rawHeaderValue') {
+      return new HttpResponse('{"success": true}', {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+        },
+      });
+    } else {
+      return new HttpResponse(null, {
+        status: 401,
+      });
+    }
+  }),
   http.get(`${dummyDataplaneHost}/rawSample`, () => {
     return new HttpResponse('{"raw": "sample"}', {
       status: 200,
@@ -25,14 +57,6 @@ const handlers = [
   }),
   http.get(`${dummyDataplaneHost}/emptyJsonSample`, () => {
     return new HttpResponse('', {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-      },
-    });
-  }),
-  http.get(`${dummyDataplaneHost}/jsonSample`, () => {
-    return new HttpResponse(JSON.stringify({ json: 'sample' }), {
       status: 200,
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
@@ -56,6 +80,13 @@ const handlers = [
   }),
   http.get(`${dummyDataplaneHost}/noConnectionSample`, () => {
     return HttpResponse.error();
+  }),
+  http.get(`${dummyDataplaneHost}/delayedResponse`, () => {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve(HttpResponse.json({ message: 'This response is delayed' }));
+      }, 11000); // 1 second more than the default timeout value
+    });
   }),
   http.get(`${dummyDataplaneHost}/jsFileSample`, () => {
     const fileContents = 'console.log("jsFileSample script executed")';
