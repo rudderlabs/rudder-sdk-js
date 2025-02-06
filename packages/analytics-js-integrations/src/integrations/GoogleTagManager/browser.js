@@ -15,6 +15,14 @@ class GoogleTagManager {
     }
     this.analytics = analytics;
     this.containerID = config.containerID;
+    this.containerID = config.containerID;
+    // Validate environment configuration
+    if (config.environmentID && typeof config.environmentID !== 'string') {
+      logger.error('GTM environmentID must be a string');
+    }
+    if (config.authorizationToken && typeof config.authorizationToken !== 'string') {
+      logger.error('GTM authorizationToken must be a string');
+    }
     this.environmentID = config.environmentID;
     this.authorizationToken = config.authorizationToken;
     this.name = NAME;
