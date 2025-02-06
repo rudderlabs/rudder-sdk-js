@@ -15,6 +15,8 @@ class GoogleTagManager {
     }
     this.analytics = analytics;
     this.containerID = config.containerID;
+    this.environmentID = config.environmentID;
+    this.authorizationToken = config.authorizationToken;
     this.name = NAME;
     this.serverUrl = config.serverUrl;
     ({
@@ -25,7 +27,7 @@ class GoogleTagManager {
   }
 
   init() {
-    loadNativeSdk(this.containerID, this.serverUrl);
+    loadNativeSdk(this.containerID, this.serverUrl, this.environmentID, this.authorizationToken);
   }
 
   isLoaded() {
