@@ -11,8 +11,8 @@ function loadNativeSdk(containerID, serverUrl, environmentID, authorizationToken
     const f = d.getElementsByTagName(s)[0];
     const j = d.createElement(s);
     const dl = l !== 'dataLayer' ? `&l=${l}` : '';
-    const gtmEnv = environmentID ? `&gtm_preview=env-${environmentID}` : '';
-    const gtmAuth = authorizationToken ? `&gtm_auth=${authorizationToken}` : '';
+    const gtmEnv = environmentID ? `&gtm_preview=env-${encodeURIComponent(environmentID)}` : '';
+    const gtmAuth = authorizationToken ? `&gtm_auth=${encodeURIComponent(authorizationToken)}` : '';
     const gtmCookies = '&gtm_cookies_win=x';
     j.setAttribute('data-loader', LOAD_ORIGIN);
     j.async = true;
