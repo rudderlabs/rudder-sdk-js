@@ -15,7 +15,6 @@ class GoogleTagManager {
     }
     this.analytics = analytics;
     this.containerID = config.containerID;
-    this.containerID = config.containerID;
     // Validate environment configuration
     if (config.environmentID && typeof config.environmentID !== 'string') {
       logger.error('GTM environmentID must be a string');
