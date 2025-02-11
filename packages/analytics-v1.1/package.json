@@ -1,6 +1,6 @@
 {
   "name": "rudder-sdk-js",
-  "version": "2.48.44",
+  "version": "2.49.0",
   "description": "RudderStack JavaScript SDK",
   "main": "dist/npm/index.js",
   "module": "dist/npm/index.es.js",

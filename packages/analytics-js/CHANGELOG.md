@@ -2,12 +2,27 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.14.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.13.0...@rudderstack/analytics-js@3.14.0) (2025-01-31)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-cookies` updated to version `0.4.20`
+* `@rudderstack/analytics-js-common` updated to version `3.16.0`
+* `@rudderstack/analytics-js-plugins` updated to version `3.7.0`
+
+### Features
+
+* move error reporting functionality to the core module ([#2011](https://github.com/rudderlabs/rudder-sdk-js/issues/2011)) ([78c50c7](https://github.com/rudderlabs/rudder-sdk-js/commit/78c50c7a6e4169560f3182be93148f4512d313ca)), closes [#2001](https://github.com/rudderlabs/rudder-sdk-js/issues/2001) [#2002](https://github.com/rudderlabs/rudder-sdk-js/issues/2002) [#2005](https://github.com/rudderlabs/rudder-sdk-js/issues/2005) [#2006](https://github.com/rudderlabs/rudder-sdk-js/issues/2006) [#2007](https://github.com/rudderlabs/rudder-sdk-js/issues/2007)
+
 ## [3.13.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.12.0...@rudderstack/analytics-js@3.13.0) (2025-01-28)
 
 
 ### Features
 
 * lock plugins and integrations versions for npm package ([#2020](https://github.com/rudderlabs/rudder-sdk-js/issues/2020)) ([447e524](https://github.com/rudderlabs/rudder-sdk-js/commit/447e524dd1ee5782e6d7a8e834c03c57ebf3c196))
+  * Plugins and integration SDKs will now be loaded from a versioned directory (`/3.x.y/`) on the CDN instead of the common `/v3/` path.
+  * This ensures that SDK updates do not unexpectedly break existing integrations due to changes in dependencies.
+  * If you are using a CDN proxy, ensure that it does not block requests to versioned paths like `/3.13.0/`, otherwise the SDK will not load correctly.
 
 ## [3.12.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.11.17...@rudderstack/analytics-js@3.12.0) (2025-01-24)
 
@@ -20,6 +35,9 @@ This file was generated using [@jscutlery/semver](https://github.com/jscutlery/s
 ### Features
 
 * lock plugins and integrations version by default ([#1956](https://github.com/rudderlabs/rudder-sdk-js/issues/1956)) ([45e716e](https://github.com/rudderlabs/rudder-sdk-js/commit/45e716e6df3d6e665c25aa907531adb746961d50))
+  * Plugins and integration SDKs will now be loaded from a versioned directory (`/3.x.y/`) on the CDN instead of the common `/v3/` path.
+  * This ensures that SDK updates do not unexpectedly break existing integrations due to changes in dependencies.
+  * If you are using a CDN proxy, ensure that it does not block requests to versioned paths like `/3.13.0/`, otherwise the SDK will not load correctly.
 
 ## [3.11.17](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.11.16...@rudderstack/analytics-js@3.11.17) (2025-01-03)
 
