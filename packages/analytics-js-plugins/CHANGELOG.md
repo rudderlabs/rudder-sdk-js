@@ -2,6 +2,12 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.7.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.7.0...@rudderstack/analytics-js-plugins@3.7.1) (2025-02-17)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.17.0`
+* `@rudderstack/analytics-js-cookies` updated to version `0.4.21`
 ## [3.7.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.6.21...@rudderstack/analytics-js-plugins@3.7.0) (2025-01-31)
 
 ### Dependency Updates
