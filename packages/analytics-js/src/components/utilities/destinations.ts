@@ -1,5 +1,5 @@
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
-import type { ConfigResponseDestinationItem } from '../configManager/types';
+import type { ConfigResponseDestinationItem } from '@rudderstack/analytics-js-common/types/Source';
 
 /**
  * A function to filter enabled destinations and map to required properties only

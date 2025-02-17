@@ -4,8 +4,9 @@ import {
   SUPPORTED_STORAGE_TYPES,
   type StorageType,
 } from '@rudderstack/analytics-js-common/types/Storage';
+import type { SourceConfigResponse } from '@rudderstack/analytics-js-common/types/Source';
 
-const isValidSourceConfig = (res: any): boolean =>
+const isValidSourceConfig = (res: any): res is SourceConfigResponse =>
   isObjectLiteralAndNotNull(res) &&
   isObjectLiteralAndNotNull(res.source) &&
   !isNullOrUndefined(res.source.id) &&

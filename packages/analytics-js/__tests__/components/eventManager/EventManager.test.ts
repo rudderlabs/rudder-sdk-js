@@ -1,6 +1,7 @@
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { defaultHttpClient } from '@rudderstack/analytics-js-common/__mocks__/HttpClient';
 import { EventManager } from '../../../src/components/eventManager/EventManager';
 import { EventRepository } from '../../../src/components/eventRepository/EventRepository';
 import { UserSessionManager } from '../../../src/components/userSessionManager/UserSessionManager';
@@ -8,7 +9,6 @@ import { PluginEngine } from '../../../src/services/PluginEngine/PluginEngine';
 import { StoreManager } from '../../../src/services/StoreManager/StoreManager';
 import { PluginsManager } from '../../../src/components/pluginsManager/PluginsManager';
 import { defaultLogger } from '../../../src/services/Logger';
-import { defaultHttpClient } from '../../../src/services/HttpClient';
 
 describe('EventManager', () => {
   class MockErrorHandler implements IErrorHandler {

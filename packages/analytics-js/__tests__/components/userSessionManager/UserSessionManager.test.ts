@@ -49,9 +49,9 @@ describe('User session manager', () => {
   let userSessionManager: UserSessionManager;
 
   defaultStoreManager.init();
-  let clientDataStoreCookie;
-  let clientDataStoreLS;
-  let clientDataStoreSession;
+  let clientDataStoreCookie: any;
+  let clientDataStoreLS: any;
+  let clientDataStoreSession: any;
 
   const setDataInLocalStorage = (data: any) => {
     Object.entries(data).forEach(([key, value]) => {
@@ -83,8 +83,6 @@ describe('User session manager', () => {
     clientDataStoreCookie = defaultStoreManager.getStore('clientDataInCookie') as Store;
     clientDataStoreLS = defaultStoreManager.getStore('clientDataInLocalStorage') as Store;
     clientDataStoreSession = defaultStoreManager.getStore('clientDataInSessionStorage') as Store;
-
-    defaultHttpClient.init(defaultErrorHandler);
 
     clearStorage();
     resetState();
@@ -1170,10 +1168,15 @@ describe('User session manager', () => {
     it('should set the provided initial referring domain', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       const newReferrer = 'new-dummy-referrer-2';
+
+      const setSpy = jest.spyOn(clientDataStoreCookie, 'set');
+
       userSessionManager.init();
       userSessionManager.setInitialReferringDomain(newReferrer);
       expect(state.session.initialReferringDomain.value).toBe(newReferrer);
-      expect(clientDataStoreCookie.set).toHaveBeenCalled();
+      expect(setSpy).toHaveBeenCalled();
+
+      setSpy.mockRestore();
     });
 
     it('should reset the value to default value if persistence is not enabled for initial referring domain', () => {
@@ -1839,16 +1842,16 @@ describe('User session manager', () => {
           domain: 'dummy.dataplane.host.com',
           samesite: 'Lax',
         };
-        const getAsyncDataSpy = jest.spyOn(defaultHttpClient, 'getAsyncData');
+        const requestSpy = jest.spyOn(defaultHttpClient, 'request');
         userSessionManager.makeRequestToSetCookie(
           [{ name: 'key', value: 'encrypted_sample_cookie_value_1234' }],
           () => {},
         );
-        expect(getAsyncDataSpy).toHaveBeenCalledWith({
+        expect(requestSpy).toHaveBeenCalledWith({
           url: `https://dummy.dataplane.host.com/rsaRequest`,
           options: {
             method: 'POST',
-            data: JSON.stringify({
+            body: JSON.stringify({
               reqType: 'setCookies',
               workspaceId: 'sample_workspaceId',
               data: {
@@ -1867,8 +1870,11 @@ describe('User session manager', () => {
                 ],
               },
             }),
-            sendRawData: true,
-            withCredentials: true,
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json;charset=UTF-8',
+            },
+            useAuth: true,
           },
           isRawResponse: true,
           callback: expect.any(Function),

@@ -1,4 +1,5 @@
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { state } from '../../../state';
 
 const detectAdBlockers = (httpClient: IHttpClient): void => {
@@ -11,21 +12,19 @@ const detectAdBlockers = (httpClient: IHttpClient): void => {
   const baseUrl = new URL(state.lifecycle.sourceConfigUrl.value as string);
   const url = `${baseUrl.origin}${baseUrl.pathname}?view=ad`;
 
-  httpClient.getAsyncData({
+  httpClient.request({
     url,
     options: {
       // We actually don't need the response from the request, so we are using HEAD
       method: 'HEAD',
-      headers: {
-        'Content-Type': undefined,
-      },
+      useAuth: true,
     },
     isRawResponse: true,
     callback: (result, details) => {
       // not ad blocked if the request is successful or it is not internally redirected on the client side
       // Often adblockers instead of blocking the request, they redirect it to an internal URL
       state.capabilities.isAdBlocked.value =
-        details?.error !== undefined || details?.xhr?.responseURL !== url;
+        isDefined(details.error) || (details.response as Response).redirected === true;
     },
   });
 };

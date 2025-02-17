@@ -1,5 +1,6 @@
-import type { SourceConfigResponse } from '@rudderstack/analytics-js/components/configManager/types';
 import { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
+import type { StorageEntries } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type { SourceConfigResponse } from '@rudderstack/analytics-js-common/types/Source';
 
 const identifyRequestPayload = {
   userId: '123456',
@@ -93,9 +94,6 @@ const dummySourceConfigResponse: SourceConfigResponse = {
     enabled: true,
     workspaceId: 'dummyWorkspaceId',
     updatedAt: '2023-02-03T13:53:35.731Z',
-    dataplanes: {
-      US: '',
-    },
     destinations: [
       {
         config: {
@@ -269,7 +267,7 @@ const entriesWithOnlyCookieStorage = {
     type: 'cookieStorage',
     key: COOKIE_KEYS.authToken,
   },
-};
+} satisfies StorageEntries;
 
 const entriesWithOnlyLocalStorage = {
   userId: {
@@ -308,7 +306,7 @@ const entriesWithOnlyLocalStorage = {
     type: 'localStorage',
     key: COOKIE_KEYS.authToken,
   },
-};
+} satisfies StorageEntries;
 
 const entriesWithoutCookieStorage = {
   userId: {
@@ -347,7 +345,7 @@ const entriesWithoutCookieStorage = {
     type: 'localStorage',
     key: COOKIE_KEYS.authToken,
   },
-};
+} satisfies StorageEntries;
 
 const entriesWithoutCookieAndLocalStorage = {
   userId: {
@@ -386,7 +384,7 @@ const entriesWithoutCookieAndLocalStorage = {
     type: 'sessionStorage',
     key: COOKIE_KEYS.authToken,
   },
-};
+} satisfies StorageEntries;
 
 const entriesWithOnlyNoStorage = {
   userId: {
@@ -425,7 +423,7 @@ const entriesWithOnlyNoStorage = {
     type: 'none',
     key: COOKIE_KEYS.authToken,
   },
-};
+} satisfies StorageEntries;
 
 const entriesWithOnlySessionStorage = {
   userId: {
@@ -464,7 +462,7 @@ const entriesWithOnlySessionStorage = {
     type: 'sessionStorage',
     key: COOKIE_KEYS.authToken,
   },
-};
+} satisfies StorageEntries;
 
 const entriesWithMixStorage = {
   userId: {
@@ -503,7 +501,7 @@ const entriesWithMixStorage = {
     type: 'memoryStorage',
     key: COOKIE_KEYS.authToken,
   },
-};
+} satisfies StorageEntries;
 
 const entriesWithMixStorageButWithoutNone = {
   userId: {
@@ -542,7 +540,7 @@ const entriesWithMixStorageButWithoutNone = {
     type: 'memoryStorage',
     key: COOKIE_KEYS.authToken,
   },
-};
+} satisfies StorageEntries;
 
 const loadOptionWithEntry = {
   userId: {
@@ -611,7 +609,7 @@ const entriesWithInMemoryFallback = {
     type: 'memoryStorage',
     key: COOKIE_KEYS.authToken,
   },
-};
+} satisfies StorageEntries;
 
 const loadOptionWithInvalidEntry = {
   userId: {
@@ -662,7 +660,7 @@ const entriesWithStorageOnlyForSession = {
     type: 'none',
     key: COOKIE_KEYS.authToken,
   },
-};
+} satisfies StorageEntries;
 
 const anonymousIdWithNoStorageEntries = {
   userId: {
@@ -701,7 +699,7 @@ const anonymousIdWithNoStorageEntries = {
     type: 'cookieStorage',
     key: COOKIE_KEYS.authToken,
   },
-};
+} satisfies StorageEntries;
 
 const entriesWithStorageOnlyForAnonymousId = {
   userId: {
@@ -740,7 +738,7 @@ const entriesWithStorageOnlyForAnonymousId = {
     type: 'none',
     key: COOKIE_KEYS.authToken,
   },
-};
+} satisfies StorageEntries;
 
 export {
   identifyRequestPayload,

@@ -28,7 +28,6 @@ export type CapabilitiesState = {
     isCookieStorageAvailable: Signal<boolean>;
     isSessionStorageAvailable: Signal<boolean>;
   };
-  isBeaconAvailable: Signal<boolean>;
   isLegacyDOM: Signal<boolean>;
   isUaCHAvailable: Signal<boolean>;
   isCryptoAvailable: Signal<boolean>;
@@ -107,7 +106,6 @@ export type MetricsState = {
 };
 
 export type DataPlaneEventsState = {
-  eventsQueuePluginName: Signal<PluginName | undefined>;
   readonly deliveryEnabled: Signal<boolean>;
 };
 
