@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-cookies",
-  "version": "0.4.20",
+  "version": "0.4.21",
   "description": "RudderStack JavaScript SDK Cookies Utilities",
   "main": "dist/npm/modern/cjs/index.cjs",
   "module": "dist/npm/modern/esm/index.mjs",

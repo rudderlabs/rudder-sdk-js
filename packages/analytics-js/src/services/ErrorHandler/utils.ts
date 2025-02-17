@@ -17,7 +17,12 @@ import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utili
 import { CDN_INT_DIR } from '@rudderstack/analytics-js-common/constants/urls';
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { METRICS_PAYLOAD_VERSION } from '@rudderstack/analytics-js-common/constants/metrics';
-import { ERROR_MESSAGES_TO_BE_FILTERED } from '@rudderstack/analytics-js-common/constants/errors';
+import {
+  ERROR_MESSAGES_TO_BE_FILTERED,
+  INTEGRATIONS_LOAD_FAILURE_MESSAGES,
+  PLUGINS_LOAD_FAILURE_MESSAGES,
+} from '@rudderstack/analytics-js-common/constants/errors';
+import { SDK_CDN_BASE_URL } from '../../constants/urls';
 import {
   APP_STATE_EXCLUDE_KEYS,
   DEV_HOSTS,
@@ -136,8 +141,21 @@ const getBugsnagErrorEvent = (
  * @param {Error} exception
  * @returns
  */
-const isAllowedToBeNotified = (exception: Exception) =>
-  !ERROR_MESSAGES_TO_BE_FILTERED.some(e => exception.message.includes(e));
+const isAllowedToBeNotified = (exception: Exception) => {
+  const errMsg = exception.message;
+
+  // Filter out plugin load errors from non-RudderStack CDN URLs
+  if (PLUGINS_LOAD_FAILURE_MESSAGES.some((regex: RegExp) => regex.test(errMsg))) {
+    return errMsg.includes(SDK_CDN_BASE_URL);
+  }
+
+  // Filter out integration load errors from non-RudderStack CDN URLs
+  if (INTEGRATIONS_LOAD_FAILURE_MESSAGES.some((regex: RegExp) => regex.test(errMsg))) {
+    return errMsg.includes(SDK_CDN_BASE_URL);
+  }
+
+  return !ERROR_MESSAGES_TO_BE_FILTERED.some((e: RegExp) => e.test(errMsg));
+};
 
 /**
  * A function to determine if the error is from Rudder SDK
