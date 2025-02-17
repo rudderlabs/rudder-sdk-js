@@ -117,15 +117,12 @@ describe('ErrorHandler', () => {
       expect(defaultLogger.error).toHaveBeenCalledTimes(0);
     });
 
-    it('should handle errors even if they are not originated from the sdk but installation type is NPM', () => {
-      // Set the installation type to NPM
-      // @ts-expect-error need to set the value for testing
-      state.context.app.value.installType = 'npm';
+    it('should skip handled errors if they are not originated from the sdk', () => {
+      // For this error, the stacktrace would not contain the sdk file names
+      errorHandlerInstance.onError(new Error('dummy error'));
 
-      errorHandlerInstance.onError(new Error('dummy error'), 'Test', 'Custom Message');
-
-      expect(defaultLogger.error).toHaveBeenCalledTimes(1);
-      expect(defaultLogger.error).toHaveBeenCalledWith('Test:: Custom Message - dummy error');
+      // It should not be logged to the console
+      expect(defaultLogger.error).toHaveBeenCalledTimes(0);
     });
 
     it('should not log unhandled errors to the console', () => {
@@ -173,12 +170,9 @@ describe('ErrorHandler', () => {
       state.lifecycle.writeKey.value = 'dummy-write-key';
       state.metrics.metricsServiceUrl.value = 'https://dummy.dataplane.com/rsaMetrics';
 
-      // @ts-expect-error Ensure that error is notified. Force set the install type to NPM
-      state.context.app.value.installType = 'npm';
-
       const error = new Error('dummy error');
       error.stack =
-        'Error: Test:: dummy error\n    at Object.<anonymous> (https://example.com/sample.js:1:1)';
+        'Error: Test:: dummy error\n    at Object.<anonymous> (https://cdn.rudderlabs.com/v3/modern/rsa.min.js:1:1)';
       errorHandlerInstance.onError(error, 'Test');
 
       expect(defaultHttpClient.getAsyncData).toHaveBeenCalledTimes(1);
@@ -194,15 +188,16 @@ describe('ErrorHandler', () => {
     });
 
     it('should log error if an error occurs while handling an error', () => {
-      // @ts-expect-error Ensure that error is notified
-      state.context.app.value.installType = 'npm';
       state.reporting.isErrorReportingEnabled.value = true;
 
       defaultHttpClient.getAsyncData.mockImplementationOnce(() => {
         throw new Error('Failed to notify error');
       });
 
-      errorHandlerInstance.onError(new Error('dummy error'), 'Test');
+      const error = new Error('dummy error');
+      error.stack =
+        'Error: Test:: dummy error\n    at Object.<anonymous> (https://cdn.rudderlabs.com/v3/modern/rsa.min.js:1:1)';
+      errorHandlerInstance.onError(error, 'Test');
 
       expect(defaultLogger.error).toHaveBeenCalledTimes(1);
       expect(defaultLogger.error).toHaveBeenCalledWith(
