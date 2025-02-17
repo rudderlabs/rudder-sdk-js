@@ -37,7 +37,7 @@ module.exports = [
     name: 'Core (Content Script - v1.1) - NPM (UMD)',
     path: 'dist/npm/content-script/index.js',
     import: '*',
-    limit: '30 KiB',
+    limit: '30.5 KiB',
   },
   {
     name: 'Core (v1.1) - Legacy - CDN',

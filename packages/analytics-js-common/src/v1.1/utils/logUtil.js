@@ -2,7 +2,7 @@ const LOG_LEVEL_INFO = 1;
 const LOG_LEVEL_DEBUG = 2;
 const LOG_LEVEL_WARN = 3;
 const LOG_LEVEL_ERROR = 4;
-const DEF_LOG_LEVEL = LOG_LEVEL_ERROR;
+const DEF_LOG_LEVEL = LOG_LEVEL_WARN;
 let LOG_LEVEL = DEF_LOG_LEVEL;
 
 const logger = {
