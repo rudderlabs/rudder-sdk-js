@@ -141,7 +141,7 @@ class Posthog {
       groupType = get(traits, 'groupType');
       delete traits.groupType;
     }
-    if (!groupType || !groupKey) {
+    if (!isDefinedAndNotNull(groupType) || !isDefinedAndNotNull(groupKey)) {
       logger.error('groupType and groupKey is required for group call');
       return;
     }
