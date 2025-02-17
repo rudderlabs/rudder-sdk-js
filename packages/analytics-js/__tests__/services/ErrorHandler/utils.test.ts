@@ -609,10 +609,46 @@ describe('Error Reporting utilities', () => {
 
   describe('isAllowedToBeNotified', () => {
     const testCases = [
-      ['dummy error', true, 'should allow generic errors'],
       ['The request failed', false, 'should not allow request failures'],
+      [
+        'A script with the id "Google-Analytics-4-(GA4)-V2___1234" is already loaded.',
+        false,
+        'should not allow already loaded script failures',
+      ],
+      [
+        'Failed to fetch dynamically imported module: https://cdn.non-rudderstack.com/3.14.0/modern/plugins/rsa-plugins.js',
+        false,
+        'should not allow plugins load failures from non-RudderStack CDN',
+      ],
+      [
+        'Failed to load the script with the id "Google-Analytics-4-(GA4)-V2___1234" from URL "https://cdn.non-rudderstack.com/3.14.0/modern/js-integrations/GA4_V2.min.js"',
+        false,
+        'should not allow integrations load failures from non-RudderStack CDN',
+      ],
+      [
+        'A timeout of 10000 ms occurred while trying to load the script with id "Google-Analytics-4-(GA4)-V2___1234" from URL "https://cdn.non-rudderstack.com/3.14.0/modern/js-integrations/GA4_V2.min.js"',
+        false,
+        'should not allow integrations load failures from non-RudderStack CDN',
+      ],
+
+      [
+        'Failed to fetch dynamically imported module: https://cdn.rudderlabs.com/v3/modern/plugins/rsa-plugins.js',
+        true,
+        'should allow plugins load failures from RudderStack CDN',
+      ],
+      [
+        'Failed to load the script with the id "Google-Analytics-4-(GA4)-V2___1234" from URL "https://cdn.rudderlabs.com/3.14.0/modern/js-integrations/GA4_V2.min.js"',
+        true,
+        'should allow integrations load failures from RudderStack CDN',
+      ],
+      [
+        'A timeout of 10000 ms occurred while trying to load the script with id "Google-Analytics-4-(GA4)-V2___1234" from URL "https://cdn.rudderlabs.com/3.14.0/modern/js-integrations/GA4_V2.min.js"',
+        true,
+        'should allow integrations load failures from RudderStack CDN',
+      ],
+
+      ['dummy error', true, 'should allow generic errors'],
       ['', true, 'should allow empty messages'],
-      ['Network request failed', true, 'should allow network errors'],
     ];
 
     test.each(testCases)('%s -> %s (%s)', (message, expected, testName) => {
