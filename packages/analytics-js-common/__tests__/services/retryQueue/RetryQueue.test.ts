@@ -1,11 +1,11 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { QueueStatuses } from '@rudderstack/analytics-js-common/constants/QueueStatuses';
-import { defaultStoreManager } from '@rudderstack/analytics-js-common/__mocks__/StoreManager';
-import { defaultLocalStorage } from '@rudderstack/analytics-js-common/__mocks__/Storage';
-import { Store } from '@rudderstack/analytics-js-common/__mocks__/Store';
-import { Schedule } from '../../../src/utilities/retryQueue/Schedule';
-import { RetryQueue } from '../../../src/utilities/retryQueue/RetryQueue';
-import type { QueueItem, QueueItemData } from '../../../src/types/plugins';
+import { RetryQueue } from '../../../src/services/retryQueue/RetryQueue';
+import type { QueueItem, QueueItemData } from '../../../src/services/retryQueue/types';
+import { QueueStatuses } from '../../../src/constants/QueueStatuses';
+import { defaultStoreManager } from '../../../__mocks__/StoreManager';
+import { defaultLocalStorage } from '../../../__mocks__/Storage';
+import { Store } from '../../../__mocks__/Store';
+import { Schedule } from '../../../src/services/retryQueue/Schedule';
 
 const size = (queue: RetryQueue): { queue: number; inProgress: number } => ({
   queue: queue.store.get(QueueStatuses.QUEUE).length,

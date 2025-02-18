@@ -25,3 +25,4 @@ export {
 } from '@rudderstack/analytics-js-common/utilities/object';
 export { onPageLeave } from '@rudderstack/analytics-js-common/utilities/page';
 export { QueueStatuses } from '@rudderstack/analytics-js-common/constants/QueueStatuses';
+export { RetryQueue } from '@rudderstack/analytics-js-common/services/retryQueue/RetryQueue';
