@@ -78,7 +78,8 @@ export function getDefaultConfig(distName) {
               unused: false,
               top_retain: [
                 'sdkBaseUrl',
-                'sdkName',
+                'sdkVersion',
+                'sdkFileName',
                 'loadOptions',
                 'scriptLoadingMode',
                 'rudderanalytics',
@@ -92,7 +93,8 @@ export function getDefaultConfig(distName) {
               keep_fnames: true,
               reserved: [
                 'sdkBaseUrl',
-                'sdkName',
+                'sdkVersion',
+                'sdkFileName',
                 'loadOptions',
                 'scriptLoadingMode',
                 'rudderanalytics',
