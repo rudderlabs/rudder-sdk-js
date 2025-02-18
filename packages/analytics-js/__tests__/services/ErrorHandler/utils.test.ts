@@ -89,7 +89,7 @@ describe('Error Reporting utilities', () => {
     const testCaseData: any[] = [
       ['https://invalid-domain.com/rsa.min.js', true],
       ['https://invalid-domain.com/rss.min.js', false],
-      ['https://invalid-domain.com/rsa-plugins-Beacon.min.js', true],
+      ['https://invalid-domain.com/rsa-plugins-remote-StorageMigrator.min.js', true],
       ['https://invalid-domain.com/Amplitude.min.js', false],
       ['https://invalid-domain.com/js-integrations/Amplitude.min.js', true],
       ['https://invalid-domain.com/js-integrations/Qualaroo.min.js', true],

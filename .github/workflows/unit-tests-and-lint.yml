@@ -4,7 +4,7 @@ on:
   push:
     branches: ['main', 'develop']
   pull_request:
-    branches: ['main', 'develop', 'hotfix/*']
+    branches: ['main', 'develop', 'hotfix/*', 'feat.move-event-handling-to-core-sdk-2823-final']
     types: ['opened', 'reopened', 'synchronize']
 
 env:
