@@ -43,7 +43,6 @@ describe('load API options', () => {
   };
 
   const defaultOptionalPluginsList: PluginName[] = [
-    'BeaconQueue',
     'CustomConsentManager',
     'DeviceModeDestinations',
     'DeviceModeTransformation',
@@ -56,7 +55,6 @@ describe('load API options', () => {
     'StorageEncryption',
     'StorageEncryptionLegacy',
     'StorageMigrator',
-    'XhrQueue',
   ];
 
   describe('normalizeLoadOptions', () => {

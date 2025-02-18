@@ -36,7 +36,6 @@ const moduleType = process.env.MODULE_TYPE || 'cdn';
 const isNpmPackageBuild = moduleType === 'npm';
 const isCDNPackageBuild = moduleType === 'cdn';
 const pluginsMap = {
-  './BeaconQueue': './src/beaconQueue/index.ts',
   './CustomConsentManager': './src/customConsentManager/index.ts',
   './DeviceModeDestinations': './src/deviceModeDestinations/index.ts',
   './DeviceModeTransformation': './src/deviceModeTransformation/index.ts',
@@ -49,7 +48,6 @@ const pluginsMap = {
   './StorageEncryption': './src/storageEncryption/index.ts',
   './StorageEncryptionLegacy': './src/storageEncryptionLegacy/index.ts',
   './StorageMigrator': './src/storageMigrator/index.ts',
-  './XhrQueue': './src/xhrQueue/index.ts',
 };
 
 const bugsnagSDKUrl = 'https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js';

@@ -9,7 +9,6 @@
     "./src/**/*",
     "../../types/**/*",
     "../analytics-js-common/src/**/*",
-    "../analytics-js-cookies/src/**/*",
-    "../analytics-js/src/**/*"
+    "../analytics-js-cookies/src/**/*"
   ]
 }

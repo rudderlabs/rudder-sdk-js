@@ -15,11 +15,6 @@ export const StorageEncryptionVersionsToPluginNameMap: Record<string, PluginName
   legacy: 'StorageEncryptionLegacy',
 };
 
-export const DataPlaneEventsTransportToPluginNameMap: Record<string, PluginName> = {
-  [DEFAULT_DATA_PLANE_EVENTS_TRANSPORT]: 'XhrQueue',
-  beacon: 'BeaconQueue',
-};
-
 const DEFAULT_DATA_SERVICE_ENDPOINT = 'rsaRequest';
 const METRICS_SERVICE_ENDPOINT = 'rsaMetrics';
 
