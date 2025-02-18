@@ -50,19 +50,14 @@ class Schedule {
     const id = (this.nextId + 1).toString();
 
     this.tasks[id] = this.clock.setTimeout(
-      this.handle(id, task, timeout, mode || ScheduleModes.ASAP),
+      this.handle(id, task, timeout, mode ?? ScheduleModes.ASAP),
       timeout,
     );
 
     return id;
   }
 
-  handle(
-    id: string,
-    callback: () => any,
-    timeout: number,
-    mode: ScheduleModes,
-  ): () => any | undefined {
+  handle(id: string, callback: () => any, timeout: number, mode: ScheduleModes): () => any {
     const start = this.now();
 
     return () => {
@@ -87,7 +82,7 @@ class Schedule {
 
   cancel(id: string) {
     if (this.tasks[id]) {
-      this.clock.clearTimeout(this.tasks[id] as number);
+      this.clock.clearTimeout(this.tasks[id]);
       delete this.tasks[id];
     }
   }
