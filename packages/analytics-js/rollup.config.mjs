@@ -81,10 +81,6 @@ const getExternalsConfig = () => {
   }
 
   if (isDynamicCustomBuild) {
-    if (!bundledPluginsList.includes('BeaconQueue')) {
-      externalGlobalsConfig['@rudderstack/analytics-js-plugins/beaconQueue'] = '{}';
-    }
-
     if (!bundledPluginsList.includes('CustomConsentManager')) {
       externalGlobalsConfig['@rudderstack/analytics-js-plugins/customConsentManager'] = '{}';
     }
@@ -131,10 +127,6 @@ const getExternalsConfig = () => {
 
     if (!bundledPluginsList.includes('StorageMigrator')) {
       externalGlobalsConfig['@rudderstack/analytics-js-plugins/storageMigrator'] = '{}';
-    }
-
-    if (!bundledPluginsList.includes('XhrQueue') && bundledPluginsList.includes('BeaconQueue')) {
-      externalGlobalsConfig['@rudderstack/analytics-js-plugins/xhrQueue'] = '{}';
     }
   }
 
@@ -357,10 +349,6 @@ const buildEntries = () => {
       plugins: [
         alias({
           entries: [
-            {
-              find: '@rudderstack/analytics-js',
-              replacement: path.resolve('./dist/dts/packages/analytics-js/src'),
-            },
             {
               find: '@rudderstack/analytics-js-plugins',
               replacement: path.resolve('./dist/dts/packages/analytics-js-plugins/src'),
