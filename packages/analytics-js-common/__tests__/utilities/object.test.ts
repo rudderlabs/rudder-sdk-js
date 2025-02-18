@@ -1,3 +1,4 @@
+/* eslint-disable compat/compat */
 // eslint-disable-next-line max-classes-per-file
 import {
   mergeDeepRight,
@@ -130,6 +131,98 @@ const expectedMergedTraitsPayload = {
 
 describe('Common Utils - Object', () => {
   describe('mergeDeepRight', () => {
+    it.each([
+      ['merges flat objects', { a: 1, b: 2 }, { b: 3, c: 4 }, { a: 1, b: 3, c: 4 }],
+      [
+        'merges nested objects',
+        { a: { x: 1, y: 2 }, b: 1 },
+        { a: { y: 3, z: 4 }, c: 2 },
+        { a: { x: 1, y: 3, z: 4 }, b: 1, c: 2 },
+      ],
+      ['replaces arrays at same index', { arr: [1, 2, 3] }, { arr: [4, 5] }, { arr: [4, 5, 3] }],
+      [
+        'deep merges objects within arrays',
+        { arr: [{ x: 1 }, { y: 2 }] },
+        { arr: [{ z: 3 }, { w: 4 }] },
+        {
+          arr: [
+            { x: 1, z: 3 },
+            { y: 2, w: 4 },
+          ],
+        },
+      ],
+      [
+        'handles mixed data types',
+        { a: 1, b: { x: [1, { y: 2 }] } },
+        { a: 2, b: { x: [3, { z: 4 }] } },
+        { a: 2, b: { x: [3, { y: 2, z: 4 }] } },
+      ],
+      [
+        'preserves null values from right object',
+        { a: 1, b: { x: 2 } },
+        { a: null, b: { x: null } },
+        { a: null, b: { x: null } },
+      ],
+      ['handles empty objects', { a: 1 }, {}, { a: 1 }],
+      [
+        'handles deeply nested arrays',
+        { a: [1, [2, { x: 3 }]] },
+        { a: [4, [5, { y: 6 }]] },
+        { a: [4, { 0: 5, 1: { x: 3, y: 6 } }] },
+      ],
+      [
+        'handles arrays of different lengths',
+        { arr: [1, 2, 3, 4] },
+        { arr: [5, 6] },
+        { arr: [5, 6, 3, 4] },
+      ],
+      [
+        'preserves array type when merging with non-array',
+        { arr: [1, 2, 3] },
+        { arr: 'not-array' },
+        { arr: 'not-array' },
+      ],
+      [
+        'handles undefined values',
+        { a: 1, b: undefined },
+        { b: 2, c: undefined },
+        { a: 1, b: 2, c: undefined },
+      ],
+      [
+        'handles Date objects',
+        { date: new Date('2024-01-01'), data: { x: 1 } },
+        { data: { y: 2 } },
+        { date: new Date('2024-01-01'), data: { x: 1, y: 2 } },
+      ],
+      [
+        'handles RegExp objects',
+        { regex: /test/, data: { x: 1 } },
+        { data: { y: 2 } },
+        { regex: /test/, data: { x: 1, y: 2 } },
+      ],
+      [
+        'handles nested arrays with sparse elements',
+        // eslint-disable-next-line no-sparse-arrays
+        { arr: [1, , 3] }, // sparse array
+        { arr: [4, 5] },
+        { arr: [4, 5, 3] },
+      ],
+      [
+        'merges objects with Symbol properties',
+        { [Symbol.for('test')]: 1, a: 2 },
+        { [Symbol.for('test')]: 3, b: 4 },
+        { a: 2, b: 4 },
+      ],
+      [
+        'handles circular references gracefully',
+        { a: 1, b: { x: 2 } },
+        { b: { x: 3, y: { ref: 'circular' } } },
+        { a: 1, b: { x: 3, y: { ref: 'circular' } } },
+      ],
+    ])('%s', (_, left, right, expected) => {
+      expect(mergeDeepRight(left, right)).toStrictEqual(expected);
+    });
+
     it('should merge right object array items', () => {
       const mergedArray = mergeDeepRightObjectArrays(
         identifyTraitsPayloadMock.address,
@@ -154,6 +247,13 @@ describe('Common Utils - Object', () => {
     it('should merge right nested object properties', () => {
       const mergedArray = mergeDeepRight(identifyTraitsPayloadMock, trackTraitsOverridePayloadMock);
       expect(mergedArray).toEqual(expectedMergedTraitsPayload);
+    });
+
+    // Separate test for function equality since it can't be easily compared in .each
+    it('preserves function references when merging', () => {
+      const fn = () => 'test';
+      const result = mergeDeepRight({ fn, data: { x: 1 } }, { data: { y: 2 } });
+      expect(result.fn).toBe(fn);
     });
   });
 

@@ -27,6 +27,14 @@ const isObjectAndNotNull = (value: any): value is object =>
 const isObjectLiteralAndNotNull = <T>(value?: T): value is T =>
   !isNull(value) && Object.prototype.toString.call(value) === '[object Object]';
 
+/**
+ * Merges two arrays deeply, right-to-left
+ * In the case of conflicts, the right array's values replace the left array's values in the
+ * same index position
+ * @param leftValue - The left array
+ * @param rightValue - The right array
+ * @returns The merged array
+ */
 const mergeDeepRightObjectArrays = (
   leftValue: any | any[],
   rightValue: any | any[],
@@ -46,6 +54,15 @@ const mergeDeepRightObjectArrays = (
   return mergedArray;
 };
 
+/**
+ * Merges two objects deeply, right-to-left.
+ * In the case of conflicts, the right object's values take precedence.
+ * For arrays, the right array's values replace the left array's values in the
+ * same index position keeping the remaining left array's values in the resultant array.
+ * @param leftObject - The left object
+ * @param rightObject - The right object
+ * @returns The merged object
+ */
 const mergeDeepRight = <T = Record<string, any>>(
   leftObject: Record<string, any>,
   rightObject: Record<string, any>,
