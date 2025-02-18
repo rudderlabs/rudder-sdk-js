@@ -409,9 +409,8 @@ class RetryQueue implements IQueue<QueueItemData> {
    * Adds an item to the retry queue
    *
    * @param {Object} qItem The item to process
-   * @param {Error} [error] The error that occurred during processing
    */
-  requeue(qItem: QueueItem<QueueItemData>, error?: Error) {
+  requeue(qItem: QueueItem<QueueItemData>) {
     const { attemptNumber, item, type, id } = qItem;
     // Increment the attempt number as we're about to retry
     const attemptNumberToUse = attemptNumber + 1;
@@ -486,7 +485,7 @@ class RetryQueue implements IQueue<QueueItemData> {
       this.setStorageEntry(QueueStatuses.IN_PROGRESS, inProgress);
 
       if (err) {
-        this.requeue(el, err);
+        this.requeue(el);
       }
     };
 
