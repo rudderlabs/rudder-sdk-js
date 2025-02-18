@@ -17,7 +17,7 @@ export default function RootLayout({ children }) {
           {`
             (function() {
               "use strict";
-              window.RudderSnippetVersion = "3.0.58";
+              window.RudderSnippetVersion = "3.0.59";
               var identifier = "rudderanalytics";
               if (!window[identifier]) {
                 window[identifier] = [];
@@ -28,7 +28,11 @@ export default function RootLayout({ children }) {
                   console.error("RudderStack JavaScript SDK snippet included more than once.");
                 } else {
                   rudderanalytics.snippetExecuted = true;
-
+                  window.rudderAnalyticsBuildType = "legacy";
+                  var sdkBaseUrl = "https://cdn.rudderlabs.com";
+                  var sdkVersion = "v3";
+                  var sdkFileName = "rsa.min.js";
+                  var scriptLoadingMode = "async";
                   var methods = [ "setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "setAnonymousId", "startSession", "endSession", "consent" ];
                   for (var i = 0; i < methods.length; i++) {
                     var method = methods[i];
@@ -38,7 +42,7 @@ export default function RootLayout({ children }) {
                           rudderanalytics.push([ methodName ].concat(Array.prototype.slice.call(arguments)));
                         } else {
                           var _methodName;
-                          (_methodName = window[identifier][methodName]) === null || _methodName === void 0 || _methodName.apply(window[identifier], arguments);
+                          (_methodName = window[identifier][methodName]) === null || _methodName === undefined || _methodName.apply(window[identifier], arguments);
                         }
                       };
                     }(method);

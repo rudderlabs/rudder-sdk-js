@@ -10,7 +10,7 @@
       // prettier-ignore
       (function() {
         "use strict";
-        window.RudderSnippetVersion = "3.0.58";
+        window.RudderSnippetVersion = "3.0.59";
         var identifier = "rudderanalytics";
         if (!window[identifier]) {
           window[identifier] = [];
@@ -22,8 +22,9 @@
           } else {
             rudderanalytics.snippetExecuted = true;
             window.rudderAnalyticsBuildType = "legacy";
-            var sdkBaseUrl = "https://cdn.rudderlabs.com/v3";
-            var sdkName = "rsa.min.js";
+            var sdkBaseUrl = "https://cdn.rudderlabs.com";
+            var sdkVersion = "v3";
+            var sdkFileName = "rsa.min.js";
             var scriptLoadingMode = "async";
             var methods = [ "setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "setAnonymousId", "startSession", "endSession", "consent" ];
             for (var i = 0; i < methods.length; i++) {
@@ -34,7 +35,7 @@
                     rudderanalytics.push([ methodName ].concat(Array.prototype.slice.call(arguments)));
                   } else {
                     var _methodName;
-                    (_methodName = window[identifier][methodName]) === null || _methodName === void 0 || _methodName.apply(window[identifier], arguments);
+                    (_methodName = window[identifier][methodName]) === null || _methodName === undefined || _methodName.apply(window[identifier], arguments);
                   }
                 };
               }(method);
@@ -66,20 +67,18 @@
             window.rudderAnalyticsMount = function() {
               (function() {
                 if (typeof globalThis === "undefined") {
-                  var getGlobal = function() {
-                    if (typeof self !== "undefined") { 
-                      return self; 
+                  var getGlobal = function getGlobal() {
+                    if (typeof self !== "undefined") {
+                      return self;
                     }
-                    if (typeof window !== "undefined") { 
-                      return window; 
+                    if (typeof window !== "undefined") {
+                      return window;
                     }
                     return null;
                   };
-                  
                   var global = getGlobal();
-                  
                   if (global) {
-                    Object.defineProperty(global, 'globalThis', {
+                    Object.defineProperty(global, "globalThis", {
                       value: global,
                       configurable: true
                     });
@@ -89,7 +88,7 @@
 
               // Commented out SDK script addition
               // as the build process automatically adds the script
-              // window.rudderAnalyticsAddScript("".concat(sdkBaseUrl, "/").concat(window.rudderAnalyticsBuildType, "/").concat(sdkName), "data-rsa-write-key", "__WRITE_KEY__");
+              // window.rudderAnalyticsAddScript("".concat(sdkBaseUrl, "/").concat(sdkVersion, "/").concat(window.rudderAnalyticsBuildType, "/").concat(sdkFileName), "data-rsa-write-key", "__WRITE_KEY__");
             };
             if (typeof Promise === "undefined" || typeof globalThis === "undefined") {
               window.rudderAnalyticsAddScript("https://polyfill-fastly.io/v3/polyfill.min.js?version=3.111.0&features=Symbol%2CPromise&callback=rudderAnalyticsMount");
