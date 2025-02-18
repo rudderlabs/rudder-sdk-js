@@ -164,7 +164,7 @@ class RetryQueue implements IQueue<QueueItemData> {
       return;
     }
 
-    const batchOptions = options.batch as BatchOpts;
+    const batchOptions = options.batch;
 
     this.batch.enabled = batchOptions.enabled === true;
     if (this.batch.enabled) {
@@ -591,7 +591,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     const their = {
       inProgress: other.get(QueueStatuses.IN_PROGRESS) ?? {},
       batchQueue: other.get(QueueStatuses.BATCH_QUEUE) ?? [],
-      queue: (other.get(QueueStatuses.QUEUE) ?? []) as QueueItem[],
+      queue: other.get(QueueStatuses.QUEUE) ?? [],
     };
     const trackMessageIds: string[] = [];
 
@@ -653,7 +653,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     // if the queue is abandoned, all the in-progress are failed. retry them immediately and increment the attempt#
     addConcatQueue(their.inProgress, 1);
 
-    our.queue = our.queue.sort(sortByTime);
+    our.queue.sort(sortByTime);
 
     this.setStorageEntry(QueueStatuses.QUEUE, our.queue);
 
