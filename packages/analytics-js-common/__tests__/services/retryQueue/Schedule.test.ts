@@ -2,7 +2,7 @@ import {
   DEFAULT_CLOCK_LATE_FACTOR,
   Schedule,
   ScheduleModes,
-} from '../../../src/utilities/retryQueue/Schedule';
+} from '../../../src/services/retryQueue/Schedule';
 
 describe('Schedule', () => {
   const clockTick = 500; // in ms

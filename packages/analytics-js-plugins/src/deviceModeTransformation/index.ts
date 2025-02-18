@@ -15,10 +15,12 @@ import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store
 import { createPayload, sendTransformedEventToDestinations } from './utilities';
 import { getDMTDeliveryPayload } from '../utilities/eventsDelivery';
 import { DEFAULT_TRANSFORMATION_QUEUE_OPTIONS, QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
-import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
-import type { DoneCallback, IQueue } from '../types/plugins';
+import type {
+  DoneCallback,
+  IQueue,
+} from '@rudderstack/analytics-js-common/services/retryQueue/types';
 import type { TransformationQueueItemData } from './types';
-import { isErrRetryable, MEMORY_STORAGE } from '../shared-chunks/common';
+import { isErrRetryable, MEMORY_STORAGE, RetryQueue } from '../shared-chunks/common';
 
 const pluginName: PluginName = 'DeviceModeTransformation';
 
