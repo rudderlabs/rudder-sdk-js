@@ -1,7 +1,7 @@
 function loadingSnippet(basePath, fileName, writeKey, dpUrl, options = {}) {
   (function() {
     "use strict";
-    window.RudderSnippetVersion = "3.0.32";
+    window.RudderSnippetVersion = "3.0.60";
     var identifier = "rudderanalytics";
     if (!window[identifier]) {
       window[identifier] = [];
@@ -14,7 +14,8 @@ function loadingSnippet(basePath, fileName, writeKey, dpUrl, options = {}) {
         rudderanalytics.snippetExecuted = true;
         window.rudderAnalyticsBuildType = "legacy";
         var sdkBaseUrl = basePath;
-        var sdkName = fileName;
+        var sdkVersion = "v3";
+        var sdkFileName = fileName;
         var scriptLoadingMode = "async";
         var methods = [ "setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "setAnonymousId", "startSession", "endSession", "consent" ];
         for (var i = 0; i < methods.length; i++) {
@@ -25,7 +26,7 @@ function loadingSnippet(basePath, fileName, writeKey, dpUrl, options = {}) {
                 rudderanalytics.push([ methodName ].concat(Array.prototype.slice.call(arguments)));
               } else {
                 var _methodName;
-                (_methodName = window[identifier][methodName]) === null || _methodName === void 0 || _methodName.apply(window[identifier], arguments);
+                (_methodName = window[identifier][methodName]) === null || _methodName === undefined || _methodName.apply(window[identifier], arguments);
               }
             };
           }(method);
@@ -75,7 +76,7 @@ function loadingSnippet(basePath, fileName, writeKey, dpUrl, options = {}) {
               }
             }
           })();
-            window.rudderAnalyticsAddScript("".concat(sdkBaseUrl, "/").concat(window.rudderAnalyticsBuildType, "/").concat(sdkName), "data-rsa-write-key", writeKey);
+          window.rudderAnalyticsAddScript("".concat(sdkBaseUrl, "/").concat(sdkVersion, "/").concat(window.rudderAnalyticsBuildType, "/").concat(sdkFileName), "data-rsa-write-key", writeKey);
         };
         if (typeof Promise === "undefined" || typeof globalThis === "undefined") {
           window.rudderAnalyticsAddScript("https://polyfill-fastly.io/v3/polyfill.min.js?version=3.111.0&features=Symbol%2CPromise&callback=rudderAnalyticsMount");

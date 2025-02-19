@@ -1660,11 +1660,11 @@ const setAuthToken = instance.setAuthToken.bind(instance);
 
 // eslint-disable-next-line no-constant-condition
 if ('__MODULE_TYPE__' === 'npm') {
-  logger.warn(
+  logger.error(
     'This RudderStack JavaScript SDK package is deprecated and no longer maintained. While your events are still being tracked and delivered, we strongly recommend you to migrate to the latest [@rudderstack/analytics-js](https://www.npmjs.com/package/@rudderstack/analytics-js) package for enhanced features, security updates, and ongoing support. For more details, visit the migration guide: https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/migration-guide/.',
   );
 } else {
-  logger.warn(
+  logger.error(
     'This version of the RudderStack JavaScript SDK is deprecated and no longer maintained. While your events are still being tracked and delivered, we strongly recommend you to migrate to the latest version (v3) for enhanced features, security updates, and ongoing support. For more details, visit the migration guide: https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/migration-guide/.',
   );
 }

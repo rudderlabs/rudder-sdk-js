@@ -111,7 +111,7 @@ const handlers = [
       },
     });
   }),
-  http.get(`${dummyCDNHost}/modern/${SDK_FILE_NAME}`, () => {
+  http.get(`${dummyCDNHost}/v3/modern/${SDK_FILE_NAME}`, () => {
     const scriptContent = fs.readFileSync(
       path.join(path.resolve(__dirname, SDK_FILE_BASE_PATH), SDK_FILE_NAME),
       'utf-8',
