@@ -93,8 +93,8 @@
             var loadOptions = {
               logLevel: 'DEBUG',
               configUrl: 'https://api.rudderstack.com',
-              destSDKBaseURL: sdkBaseUrl + '/' + window.rudderAnalyticsBuildType + '/js-integrations',
-              pluginsSDKBaseURL: sdkBaseUrl + '/' + window.rudderAnalyticsBuildType + '/plugins',
+              destSDKBaseURL: sdkBaseUrl + '/' + sdkVersion + '/' + window.rudderAnalyticsBuildType + '/js-integrations',
+              pluginsSDKBaseURL: sdkBaseUrl + '/' + sdkVersion + '/' + window.rudderAnalyticsBuildType + '/plugins',
               useBeacon: true,
               beaconQueueOptions: {
                 flushQueueInterval: 60 * 1000,
