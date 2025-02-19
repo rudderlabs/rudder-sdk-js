@@ -121,8 +121,8 @@
       var loadOptions = {
         logLevel: 'DEBUG',
         configUrl: '__CONFIG_SERVER_HOST__',
-        destSDKBaseURL: sdkBaseUrl + '/' + window.rudderAnalyticsBuildType + '/js-integrations',
-        pluginsSDKBaseURL: sdkBaseUrl + '/' + window.rudderAnalyticsBuildType + '/plugins',
+        destSDKBaseURL: sdkBaseUrl + '/' + sdkVersion + '/' + window.rudderAnalyticsBuildType + '/js-integrations',
+        pluginsSDKBaseURL: sdkBaseUrl + '/' + sdkVersion + '/' + window.rudderAnalyticsBuildType + '/plugins',
         consentManagement: {
           enabled: true,
           provider: 'oneTrust',

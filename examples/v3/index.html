@@ -93,10 +93,10 @@
             var loadOptions = {
               logLevel: 'DEBUG',
               configUrl: 'https://api.rudderstack.com',
-              destSDKBaseURL: sdkBaseUrl + '/' + window.rudderAnalyticsBuildType + '/js-integrations',
-              pluginsSDKBaseURL: sdkBaseUrl + '/' + window.rudderAnalyticsBuildType + '/plugins'
+              destSDKBaseURL: sdkBaseUrl + '/' + sdkVersion + '/' + window.rudderAnalyticsBuildType + '/js-integrations',
+              pluginsSDKBaseURL: sdkBaseUrl + '/' + sdkVersion + '/' + window.rudderAnalyticsBuildType + '/plugins'
             };
-            rudderanalytics.load('__WRITE_KEY__', '__DATAPLANE_URL__', loadOptions);
+            rudderanalytics.load('2L8Fl7ryPss3Zku133Pj5ox7NeP', 'https://rudderstacpn.dataplane.rudderstack.com', loadOptions);
           }
         }
       })();
