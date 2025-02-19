@@ -1,7 +1,7 @@
 import cookie from 'rudder-component-cookie';
-import defaults from '@ndhoule/defaults';
 import topDomain from '@segment/top-domain';
 import { clone } from 'ramda';
+import { mergeDeepRight } from '../../../utilities/object';
 import { logger } from '../logUtil';
 
 /**
@@ -24,13 +24,17 @@ class CookieLocal {
     let domain = `.${topDomain(window.location.href)}`;
     if (domain === '.') domain = null;
 
-    // the default maxage and path
-    this.cOpts = defaults(inOpts, {
-      maxage: 31536000000,
-      path: '/',
-      domain,
-      samesite: 'Lax',
-    });
+    // Override the default options with the provided options
+    this.cOpts = mergeDeepRight(
+      {
+        maxage: 31536000000,
+        path: '/',
+        domain,
+        samesite: 'Lax',
+      },
+      inOpts,
+    );
+
     // configure cookies for exactly same domain
     if (inOpts.sameDomainCookiesOnly) {
       delete this.cOpts.domain;
