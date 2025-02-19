@@ -12,8 +12,6 @@ import {
   getCurrentTimeFormatted,
   getDeliveryPayload,
   getFinalEventForDeliveryMutator,
-  isErrRetryable,
-  isUndefined,
   mergeDeepRight,
   removeDuplicateSlashes,
   stringifyWithoutCircular,
@@ -43,22 +41,20 @@ const getBatchDeliveryUrl = (dataplaneUrl: string): string => getDeliveryUrl(dat
 
 const logErrorOnFailure = (
   details: ResponseDetails | undefined,
-  url: string,
+  isRetryable: boolean,
   willBeRetried?: boolean,
   attemptNumber?: number,
   maxRetryAttempts?: number,
   logger?: ILogger,
 ) => {
-  if (isUndefined(details?.error) || isUndefined(logger)) {
-    return;
-  }
-
-  const isRetryableFailure = isErrRetryable(details);
-  let errMsg = EVENT_DELIVERY_FAILURE_ERROR_PREFIX(XHR_QUEUE_PLUGIN, url);
+  let errMsg = EVENT_DELIVERY_FAILURE_ERROR_PREFIX(
+    XHR_QUEUE_PLUGIN,
+    details?.error?.message ?? 'Unknown',
+  );
   const dropMsg = `The event(s) will be dropped.`;
-  if (isRetryableFailure) {
+  if (isRetryable) {
     if (willBeRetried) {
-      errMsg = `${errMsg} It/they will be retried.`;
+      errMsg = `${errMsg} The event(s) will be retried.`;
       if ((attemptNumber as number) > 0) {
         errMsg = `${errMsg} Retry attempt ${attemptNumber} of ${maxRetryAttempts}.`;
       }
@@ -68,6 +64,7 @@ const logErrorOnFailure = (
   } else {
     errMsg = `${errMsg} ${dropMsg}`;
   }
+
   logger?.error(errMsg);
 };
 
