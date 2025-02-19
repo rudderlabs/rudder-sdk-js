@@ -62,11 +62,14 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
             isRawResponse: true,
             timeout: REQUEST_TIMEOUT_MS,
             callback: (result, details) => {
-              const isSuccess = isUndefined(details?.error);
               const isRetryable = isErrRetryable(details?.xhr?.status ?? 0);
 
               // If there is no error, or the error is not retryable, or the attempt number is the max retry attempts, then attempt send the event to the destinations
-              if (isSuccess || !isRetryable || attemptNumber === maxRetryAttempts) {
+              if (
+                isUndefined(details?.error) ||
+                !isRetryable ||
+                attemptNumber === maxRetryAttempts
+              ) {
                 sendTransformedEventToDestinations(
                   state,
                   pluginsManager,
@@ -77,11 +80,12 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
                   errorHandler,
                   logger,
                 );
-              }
 
-              // null means item will not be processed further and will be removed from the queue (even from the storage)
-              const queueErrResp = !isSuccess && isRetryable ? details : null;
-              done(queueErrResp);
+                done(null);
+              } else {
+                // Requeue the item as the error is retryable.
+                done(details);
+              }
             },
           });
         },
