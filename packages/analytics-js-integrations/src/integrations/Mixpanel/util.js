@@ -124,7 +124,7 @@ const formatTraits = (message, setOnceProperties) => {
 };
 
 const parseConfigArray = (arr, key) => {
-  if (!arr) {
+  if (!isDefinedAndNotNull(arr)) {
     logger.error('arr is undefined or null');
     return;
   }

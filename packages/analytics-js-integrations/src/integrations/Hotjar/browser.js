@@ -4,6 +4,7 @@ import {
   NAME,
   DISPLAY_NAME,
 } from '@rudderstack/analytics-js-common/constants/integrations/Hotjar/constants';
+import { isDefinedAndNotNull } from '@rudderstack/analytics-js-common/utilities/checks';
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
 
@@ -40,7 +41,7 @@ class Hotjar {
 
   identify(rudderElement) {
     const userId = rudderElement.message.userId || rudderElement.message.anonymousId;
-    if (!userId) {
+    if (!isDefinedAndNotNull(userId)) {
       logger.error('user id is required for an identify call');
       return;
     }
