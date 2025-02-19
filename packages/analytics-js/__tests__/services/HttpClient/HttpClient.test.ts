@@ -1,6 +1,7 @@
+/* eslint-disable sonarjs/no-identical-functions */
 import type { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
-import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
+import { HttpClientError } from '@rudderstack/analytics-js-common/services/HttpClientError';
 import { HttpClient } from '../../../src/services/HttpClient';
 import { server } from '../../../__fixtures__/msw.server';
 import { dummyDataplaneHost } from '../../../__fixtures__/fixtures';
@@ -14,7 +15,7 @@ describe('HttpClient', () => {
 
   beforeEach(() => {
     clientInstance = new HttpClient(defaultLogger);
-    clientInstance.init(defaultErrorHandler);
+    clientInstance.setAuthHeader('dummyWriteKey');
   });
 
   afterEach(() => {
@@ -26,192 +27,259 @@ describe('HttpClient', () => {
     server.close();
   });
 
-  it('should getData expecting raw response', async () => {
-    const data = await clientInstance.getData({
-      url: `${dummyDataplaneHost}/rawSample`,
-      isRawResponse: true,
+  it('should send requests without authorization header if not set', done => {
+    const callback = (response: any, details: ResponseDetails) => {
+      expect(response).toBeUndefined();
+      expect(details?.error?.status).toBe(401);
+      done();
+    };
+
+    // `useAuth` option is not explicitly set here
+    clientInstance.request({
+      callback,
+      url: `${dummyDataplaneHost}/testAuthHeader`,
     });
-    expect(data.data).toStrictEqual('{"raw": "sample"}');
   });
 
-  it('should getData expecting json response', async () => {
-    const data = await clientInstance.getData({
-      url: `${dummyDataplaneHost}/jsonSample`,
+  it('should send requests with authorization header if set', done => {
+    const callback = (response: any, details: ResponseDetails) => {
+      expect(response).toEqual({ success: true });
+      expect(details.error).toBeUndefined();
+      done();
+    };
+
+    clientInstance.request({
+      callback,
+      url: `${dummyDataplaneHost}/testAuthHeader`,
+      options: {
+        method: 'GET',
+        useAuth: true,
+        headers: {
+          'Dummy-Header': 'dummyValue',
+        },
+      },
     });
-    expect(data.data).toStrictEqual({ json: 'sample' });
   });
 
-  it('should getAsyncData expecting raw response', done => {
+  it('should send requests with raw authorization header if set', done => {
+    clientInstance.setAuthHeader('rawHeaderValue', true);
+
+    const callback = (response: any, details: ResponseDetails) => {
+      expect(response).toEqual({ success: true });
+      expect(details.error).toBeUndefined();
+      done();
+    };
+
+    clientInstance.request({
+      callback,
+      url: `${dummyDataplaneHost}/testRawAuthHeader`,
+      options: {
+        method: 'GET',
+        useAuth: true,
+        timeout: undefined, // explicitly set to undefined to not configure any timeout
+      },
+    });
+  });
+
+  it('should send requests without authorization header if not reset', done => {
+    // Reset the auth header which is set in the `beforeEach` block
+    clientInstance.resetAuthHeader();
+
+    const callback = (response: any, details: ResponseDetails) => {
+      expect(response).toBeUndefined();
+      expect(details?.error?.status).toBe(401);
+      done();
+    };
+
+    clientInstance.request({
+      callback,
+      url: `${dummyDataplaneHost}/testAuthHeader`,
+      options: {
+        method: 'GET',
+        useAuth: true,
+      },
+    });
+  });
+
+  it('should request expecting raw response', done => {
     const callback = (response: any) => {
       expect(response).toStrictEqual('{"raw": "sample"}');
       done();
     };
-    clientInstance.getAsyncData({
+    clientInstance.request({
       callback,
       url: `${dummyDataplaneHost}/rawSample`,
       isRawResponse: true,
+      options: {
+        method: 'GET',
+      },
     });
   });
 
-  it('should getAsyncData expecting json response', done => {
-    const callback = (response: any) => {
-      expect(response).toStrictEqual({ json: 'sample' });
+  it('should request expecting json response', done => {
+    const callback = (response: any, details: ResponseDetails) => {
+      expect(response).toEqual({ raw: 'sample' });
+      expect(details.error).toBeUndefined();
       done();
     };
-    clientInstance.getAsyncData({
+
+    // `isRawResponse` option is not explicitly set here
+    clientInstance.request({
       callback,
-      url: `${dummyDataplaneHost}/jsonSample`,
+      url: `${dummyDataplaneHost}/rawSample`,
+      options: {
+        method: 'GET',
+      },
     });
   });
 
-  it('should fire and forget getAsyncData', () => {
-    const response = clientInstance.getAsyncData({
-      url: `${dummyDataplaneHost}/jsonSample`,
-    });
-    expect(response).toBeUndefined();
-  });
+  it('should handle 400 range errors in request requests', done => {
+    const callback = (response: any, details: ResponseDetails) => {
+      expect(response).toBeUndefined();
 
-  it('should set auth header', () => {
-    clientInstance.setAuthHeader('dummyWriteKey');
-    expect(clientInstance.basicAuthHeader).toStrictEqual('Basic ZHVtbXlXcml0ZUtleTo=');
-  });
-
-  it('should set raw auth header', () => {
-    clientInstance.setAuthHeader('dummyWriteKey', true);
-    expect(clientInstance.basicAuthHeader).toStrictEqual('Basic dummyWriteKey');
-  });
-
-  it('should set auth header', () => {
-    clientInstance.setAuthHeader('dummyWriteKey', true);
-    clientInstance.resetAuthHeader();
-    expect(clientInstance.basicAuthHeader).toBeUndefined();
-  });
-
-  it('should getAsyncData with auth header expecting json response', done => {
-    const callback = (response: any) => {
-      expect(response).toStrictEqual({ json: 'sample' });
-      done();
-    };
-    clientInstance.setAuthHeader('dummyWriteKey');
-    clientInstance.getAsyncData({
-      callback,
-      url: `${dummyDataplaneHost}/jsonSample`,
-    });
-  });
-
-  it('should handle 400 range errors in getAsyncData requests', done => {
-    const callback = (data: any, details: ResponseDetails) => {
-      const errResult = new Error(
-        'The request failed with status: 404, Not Found for URL: https://dummy.dataplane.host.com/404ErrorSample.',
+      const errResult = new HttpClientError(
+        'The request failed with status 404 (Not Found) for URL "https://dummy.dataplane.host.com/404ErrorSample"',
+        {
+          status: 404,
+          statusText: 'Not Found',
+        },
       );
       expect(details.error).toEqual(errResult);
       done();
     };
-    clientInstance.getAsyncData({
+
+    clientInstance.request({
       callback,
       url: `${dummyDataplaneHost}/404ErrorSample`,
+      options: {
+        method: 'GET',
+      },
     });
   });
 
-  it('should handle 400 range errors in getData requests', async () => {
-    const response = await clientInstance.getData({
-      url: `${dummyDataplaneHost}/404ErrorSample`,
-    });
-    expect(response.data).toBeUndefined();
-    expect(response.details?.error).toEqual(
-      new Error(
-        'The request failed with status: 404, Not Found for URL: https://dummy.dataplane.host.com/404ErrorSample.',
-      ),
-    );
-  });
+  it('should handle 500 range errors in request requests', done => {
+    const callback = (response: any, details: ResponseDetails) => {
+      expect(response).toBeUndefined();
 
-  it('should handle 500 range errors in getAsyncData requests', done => {
-    const callback = (response: any, reject: ResponseDetails) => {
-      const errResult = new Error(
-        'The request failed with status: 500, Internal Server Error for URL: https://dummy.dataplane.host.com/500ErrorSample.',
+      const errResult = new HttpClientError(
+        'The request failed with status 500 (Internal Server Error) for URL "https://dummy.dataplane.host.com/500ErrorSample"',
+        {
+          status: 500,
+          statusText: 'Internal Server Error',
+        },
       );
-      expect(reject.error).toEqual(errResult);
+      expect(details.error).toEqual(errResult);
       done();
     };
-    clientInstance.getAsyncData({
+    clientInstance.request({
       callback,
       url: `${dummyDataplaneHost}/500ErrorSample`,
+      options: {
+        method: 'GET',
+      },
     });
-  });
-
-  it('should handle 500 range errors in getData requests', async () => {
-    const response = await clientInstance.getData({
-      url: `${dummyDataplaneHost}/500ErrorSample`,
-    });
-    expect(response.data).toBeUndefined();
-    expect(response.details?.error).toEqual(
-      new Error(
-        'The request failed with status: 500, Internal Server Error for URL: https://dummy.dataplane.host.com/500ErrorSample.',
-      ),
-    );
-  });
-
-  it('should handle connection errors in getData requests', async () => {
-    const response = await clientInstance.getData({
-      url: `${dummyDataplaneHost}/noConnectionSample`,
-    });
-    expect(response.data).toBeUndefined();
-    expect(response.details?.error).toEqual(
-      new Error(
-        'The request failed due to timeout or no connection (error) for URL: https://dummy.dataplane.host.com/noConnectionSample.',
-      ),
-    );
   });
 
   it('should handle malformed json response when expecting json response', done => {
-    const callback = (response: any) => {
+    const callback = (response: any, details: ResponseDetails) => {
       expect(response).toBeUndefined();
-      expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
-      expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
-        new SyntaxError(
-          "Failed to parse response data: Expected property name or '}' in JSON at position 1",
-        ),
-        'HttpClient',
+
+      const errResult = new HttpClientError(
+        'Failed to parse response data for URL "https://dummy.dataplane.host.com/brokenJsonSample": Expected property name or \'}\' in JSON at position 1',
+        {
+          status: 200,
+          statusText: 'OK',
+          responseBody: '{raw: sample}',
+        },
       );
+
+      expect(details.error).toEqual(errResult);
       done();
     };
-    clientInstance.getAsyncData({
+
+    clientInstance.request({
       callback,
       url: `${dummyDataplaneHost}/brokenJsonSample`,
+      options: {
+        method: 'GET',
+      },
     });
   });
 
   it('should handle empty response when expecting json response', done => {
-    const callback = (response: any) => {
+    const callback = (response: any, details: ResponseDetails) => {
       expect(response).toBeUndefined();
-      expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
-      expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
-        new Error('Failed to parse response data: Unexpected end of JSON input'),
-        'HttpClient',
+
+      const errResult = new HttpClientError(
+        'Failed to parse response data for URL "https://dummy.dataplane.host.com/emptyJsonSample": Unexpected end of JSON input',
+        {
+          status: 200,
+          statusText: 'OK',
+          responseBody: '',
+        },
       );
+
+      expect(details.error).toEqual(errResult);
+
       done();
     };
+
+    // We're using the `getAsyncData` method here for code coverage
+    // It is identical to the `request` method
+    // eslint-disable-next-line sonarjs/deprecation
     clientInstance.getAsyncData({
       callback,
       url: `${dummyDataplaneHost}/emptyJsonSample`,
+      options: {
+        method: 'GET',
+      },
     });
   });
 
-  it('should handle if input data contains non-stringifiable values', done => {
+  it('should handle no connection error', done => {
     const callback = (response: any, details: ResponseDetails) => {
       expect(response).toBeUndefined();
-      expect(details.error).toEqual(new Error('Failed to prepare data for the request.'));
+
+      const errResult = new HttpClientError(
+        'The request failed due to timeout after 10000ms or no connection or aborted for URL "https://dummy.dataplane.host.com/noConnectionSample": Failed to fetch',
+      );
+
+      expect(details.error).toEqual(errResult);
       done();
     };
-    clientInstance.getAsyncData({
+
+    clientInstance.request({
       callback,
-      url: `${dummyDataplaneHost}/nonStringifiableDataSample`,
+      url: `${dummyDataplaneHost}/noConnectionSample`,
       options: {
-        data: {
-          a: 1,
-          b: BigInt(1),
-        },
+        method: 'GET',
       },
     });
+  });
+
+  it('should handle request timeout error', done => {
+    jest.useFakeTimers();
+
+    const callback = (response: any, details: ResponseDetails) => {
+      expect(response).toBeUndefined();
+
+      const errResult = new HttpClientError(
+        'The request failed due to timeout after 10000ms or no connection or aborted for URL "https://dummy.dataplane.host.com/delayedResponse": The operation was aborted.',
+      );
+
+      expect(details.error).toEqual(errResult);
+      done();
+    };
+
+    clientInstance.request({
+      callback,
+      url: `${dummyDataplaneHost}/delayedResponse`,
+      options: {
+        method: 'GET',
+      },
+    });
+
+    jest.advanceTimersByTime(10000);
+    jest.useRealTimers();
   });
 });

@@ -12,7 +12,6 @@ export interface IPluginsManager {
 }
 
 export type PluginName =
-  | 'BeaconQueue'
   | 'CustomConsentManager'
   | 'DeviceModeDestinations'
   | 'DeviceModeTransformation'
@@ -24,5 +23,4 @@ export type PluginName =
   | 'OneTrustConsentManager'
   | 'StorageEncryption'
   | 'StorageEncryptionLegacy'
-  | 'StorageMigrator'
-  | 'XhrQueue';
+  | 'StorageMigrator';

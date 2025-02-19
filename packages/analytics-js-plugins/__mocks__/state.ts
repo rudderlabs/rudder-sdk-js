@@ -11,7 +11,6 @@ const defaultStateValues: ApplicationState = {
       isCookieStorageAvailable: signal(false),
       isSessionStorageAvailable: signal(false),
     },
-    isBeaconAvailable: signal(false),
     isLegacyDOM: signal(false),
     isUaCHAvailable: signal(false),
     isCryptoAvailable: signal(false),
@@ -88,8 +87,6 @@ const defaultStateValues: ApplicationState = {
     sameSiteCookie: 'Lax',
     polyfillIfRequired: true,
     integrations: { All: true },
-    useBeacon: false,
-    beaconQueueOptions: {},
     destinationsQueueOptions: {},
     queueOptions: {},
     lockIntegrationsVersion: false,
@@ -154,6 +151,7 @@ const defaultStateValues: ApplicationState = {
   source: signal({
     id: 'dummy-source-id',
     workspaceId: 'dummy-workspace-id',
+    name: 'dummy-source-name',
   }),
   storage: {
     encryptionPluginName: signal(undefined),

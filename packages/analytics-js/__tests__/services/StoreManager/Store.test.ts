@@ -1,4 +1,4 @@
-import { QueueStatuses } from '@rudderstack/analytics-js-common/constants/QueueStatuses';
+import { QueueStatuses } from '@rudderstack/analytics-js-common/utilities/retryQueue/constants';
 import { Store } from '../../../src/services/StoreManager/Store';
 import { getStorageEngine } from '../../../src/services/StoreManager/storages/storageEngine';
 import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
@@ -61,7 +61,18 @@ describe('Store', () => {
     // TODO: fix, caused by Difference is the storejs and retry-queue localstorage implementation
     it('should return null if value is not valid json', () => {
       engine.setItem('name.id.queue', '[{]}');
-      expect(store.get(QueueStatuses.QUEUE)).toBeNull();
+      expect(store.get('queue')).toBeNull();
+    });
+
+    it('should log a warning if the underlying cookie value is a legacy encrypted value', () => {
+      const spy = jest.spyOn(defaultLogger, 'warn');
+      engine.setItem('name.id.queue', '"RudderEncrypt:encryptedValue"');
+
+      store.get('queue');
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(
+        'The cookie data for queue seems to be encrypted using SDK versions < v3. The data is dropped. This can potentially stem from using SDK versions < v3 on other sites or web pages that can share cookies with this webpage. We recommend using the same SDK (v3) version everywhere or avoid disabling the storage data migration.',
+      );
     });
 
     it('should log a warning if the underlying cookie value is a legacy encrypted value', () => {
@@ -118,7 +129,7 @@ describe('Store', () => {
           {
             name: 'name',
             id: 'id',
-            validKeys: { nope: 'wrongKey' },
+            validKeys: ['wrongKey'],
             errorHandler: defaultErrorHandler,
             logger: defaultLogger,
           },
@@ -178,8 +189,8 @@ describe('Store', () => {
         throw new DOMException('error', 'QuotaExceededError');
       };
 
-      store.set(QueueStatuses.QUEUE, 'other');
-      expect(store.get(QueueStatuses.QUEUE)).toStrictEqual('other');
+      store.set('queue', 'other');
+      expect(store.get('queue')).toStrictEqual('other');
     });
   });
 });

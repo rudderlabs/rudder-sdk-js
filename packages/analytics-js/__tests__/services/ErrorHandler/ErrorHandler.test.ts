@@ -154,7 +154,7 @@ describe('ErrorHandler', () => {
       state.reporting.isErrorReportingEnabled.value = false;
       errorHandlerInstance.onError(new Error('dummy error'));
 
-      expect(defaultHttpClient.getAsyncData).toHaveBeenCalledTimes(0);
+      expect(defaultHttpClient.request).toHaveBeenCalledTimes(0);
     });
 
     it('should not notify errors if the error message is not allowed to be notified', () => {
@@ -162,7 +162,7 @@ describe('ErrorHandler', () => {
       // "The request failed" is one of the messages that should not be notified
       errorHandlerInstance.onError(new Error('The request failed due to some issue'));
 
-      expect(defaultHttpClient.getAsyncData).toHaveBeenCalledTimes(0);
+      expect(defaultHttpClient.request).toHaveBeenCalledTimes(0);
     });
 
     it('should notify errors if error reporting is enabled and the error message is allowed to be notified', () => {
@@ -175,13 +175,15 @@ describe('ErrorHandler', () => {
         'Error: Test:: dummy error\n    at Object.<anonymous> (https://cdn.rudderlabs.com/v3/modern/rsa.min.js:1:1)';
       errorHandlerInstance.onError(error, 'Test');
 
-      expect(defaultHttpClient.getAsyncData).toHaveBeenCalledTimes(1);
-      expect(defaultHttpClient.getAsyncData).toHaveBeenCalledWith({
+      expect(defaultHttpClient.request).toHaveBeenCalledTimes(1);
+      expect(defaultHttpClient.request).toHaveBeenCalledWith({
         url: 'https://dummy.dataplane.com/rsaMetrics',
         options: {
           method: 'POST',
-          data: expect.any(String),
-          sendRawData: true,
+          body: expect.any(String),
+          headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+          },
         },
         isRawResponse: true,
       });
@@ -190,7 +192,7 @@ describe('ErrorHandler', () => {
     it('should log error if an error occurs while handling an error', () => {
       state.reporting.isErrorReportingEnabled.value = true;
 
-      defaultHttpClient.getAsyncData.mockImplementationOnce(() => {
+      defaultHttpClient.request.mockImplementationOnce(() => {
         throw new Error('Failed to notify error');
       });
 

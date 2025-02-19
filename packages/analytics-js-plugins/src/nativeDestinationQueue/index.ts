@@ -13,12 +13,14 @@ import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { clone } from 'ramda';
-import type { DoneCallback, IQueue } from '../types/plugins';
-import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
+import type {
+  DoneCallback,
+  IQueue,
+} from '@rudderstack/analytics-js-common/utilities/retryQueue/types';
 import { getNormalizedQueueOptions, isEventDenyListed, sendEventToDestination } from './utilities';
 import { NATIVE_DESTINATION_QUEUE_PLUGIN, QUEUE_NAME } from './constants';
 import { DESTINATION_EVENT_FILTERING_WARNING } from './logMessages';
-import { MEMORY_STORAGE } from '../shared-chunks/common';
+import { MEMORY_STORAGE, RetryQueue } from '../shared-chunks/common';
 import { filterDestinations } from '../shared-chunks/deviceModeDestinations';
 
 const pluginName: PluginName = 'NativeDestinationQueue';

@@ -32,6 +32,7 @@ describe('Core - Analytics', () => {
   const dummyDataplaneURL = 'https://dummy.dataplane.url';
 
   beforeEach(() => {
+    state.lifecycle.activeDataplaneUrl.value = 'https://example.com/dataplane';
     analytics = new Analytics();
   });
 
@@ -77,30 +78,30 @@ describe('Core - Analytics', () => {
 
       state.lifecycle.status.value = 'configured';
       expect(onConfiguredSpy).toHaveBeenCalledTimes(1);
-      expect(state.lifecycle.status.value).toBe('pluginsLoading');
+      expect(state.lifecycle.status.value).toBe('readyExecuted');
 
       state.lifecycle.status.value = 'pluginsLoading';
       expect(onConfiguredSpy).toHaveBeenCalledTimes(1);
       expect(state.lifecycle.status.value).toBe('pluginsLoading');
 
       state.lifecycle.status.value = 'pluginsReady';
-      expect(onPluginsReadySpy).toHaveBeenCalledTimes(1);
+      expect(onPluginsReadySpy).toHaveBeenCalledTimes(2);
       expect(state.lifecycle.status.value).toBe('readyExecuted');
 
       state.lifecycle.status.value = 'initialized';
-      expect(onInitializedSpy).toHaveBeenCalledTimes(2);
+      expect(onInitializedSpy).toHaveBeenCalledTimes(3);
       expect(state.lifecycle.status.value).toBe('readyExecuted');
 
       state.lifecycle.status.value = 'loaded';
-      expect(loadDestinationsSpy).toHaveBeenCalledTimes(3);
+      expect(loadDestinationsSpy).toHaveBeenCalledTimes(4);
       expect(state.lifecycle.status.value).toBe('readyExecuted');
 
       state.lifecycle.status.value = 'destinationsReady';
-      expect(onDestinationsReadySpy).toHaveBeenCalledTimes(4);
+      expect(onDestinationsReadySpy).toHaveBeenCalledTimes(5);
       expect(state.lifecycle.status.value).toBe('readyExecuted');
 
       state.lifecycle.status.value = 'ready';
-      expect(onReadySpy).toHaveBeenCalledTimes(5);
+      expect(onReadySpy).toHaveBeenCalledTimes(6);
       expect(state.lifecycle.status.value).toBe('readyExecuted');
     });
 
@@ -223,13 +224,10 @@ describe('Core - Analytics', () => {
   describe('loadConfig', () => {
     it('should set authentication request header', () => {
       analytics.prepareInternalServices();
-      const setAuthHeaderSpy = jest.spyOn(analytics.httpClient, 'setAuthHeader');
       const initSpy = jest.spyOn(analytics.configManager, 'init');
       state.lifecycle.writeKey.value = dummyWriteKey;
       state.lifecycle.dataPlaneUrl.value = dummyDataplaneURL;
       analytics.loadConfig();
-      expect(setAuthHeaderSpy).toHaveBeenCalledTimes(1);
-      expect(setAuthHeaderSpy).toHaveBeenCalledWith(dummyWriteKey);
       expect(initSpy).toHaveBeenCalledTimes(1);
     });
   });
@@ -242,6 +240,7 @@ describe('Core - Analytics', () => {
       expect(state.lifecycle.loaded.value).toBeTruthy();
       expect(state.lifecycle.status.value).toBe('loaded');
     });
+
     it('should dispatch RSA initialised event', () => {
       const dispatchEventSpy = jest.spyOn(window.document, 'dispatchEvent');
       state.loadOptions.value.onLoaded = jest.fn();
@@ -291,7 +290,7 @@ describe('Core - Analytics', () => {
       const onReadySpy = jest.spyOn(analytics, 'onReady');
       state.lifecycle.status.value = 'ready';
       analytics.onDestinationsReady();
-      expect(onReadySpy).not.toBeCalled();
+      expect(onReadySpy).not.toHaveBeenCalled();
 
       onReadySpy.mockRestore();
     });
@@ -717,7 +716,7 @@ describe('Core - Analytics', () => {
       });
 
       expect(leaveBreadcrumbSpy).toHaveBeenCalledWith('New consent invocation');
-      expect(invokeSingleSpy).toHaveBeenCalledTimes(6); // 1 for consents data fetch and other for setting active destinations, 2 x 2 for queueing consent track and page events to event queue plugins
+      expect(invokeSingleSpy).toHaveBeenCalledTimes(4); // 1 for consents data fetch and other for setting active destinations, 2 x 2 for queueing consent track and page events to event queue plugins
       expect(initializeStorageStateSpy).toHaveBeenCalledTimes(1);
       expect(syncStorageDataToStateSpy).toHaveBeenCalledTimes(1);
       expect(resumeSpy).toHaveBeenCalledTimes(1);

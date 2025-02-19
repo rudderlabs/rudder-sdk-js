@@ -24,7 +24,7 @@ class Store implements IStore {
   id: string;
   name: string;
   isEncrypted: boolean;
-  validKeys: Record<string, string>;
+  validKeys: string[];
   engine: IStorage;
   originalEngine: IStorage;
   noKeyValidation?: boolean;
@@ -37,7 +37,7 @@ class Store implements IStore {
     this.id = config.id;
     this.name = config.name;
     this.isEncrypted = config.isEncrypted ?? false;
-    this.validKeys = config.validKeys ?? {};
+    this.validKeys = config.validKeys ?? [];
     this.engine = engine ?? getStorageEngine(LOCAL_STORAGE);
     this.noKeyValidation = Object.keys(this.validKeys).length === 0;
     this.noCompoundKey = config.noCompoundKey;
@@ -47,47 +47,54 @@ class Store implements IStore {
     this.pluginsManager = pluginsManager;
   }
 
+  getCompoundKey(key: string): string {
+    const { name, id, noCompoundKey } = this;
+
+    return noCompoundKey ? key : [name, id, key].join('.');
+  }
+
   /**
    * Ensure the key is valid and with correct format
    */
   createValidKey(key: string): string | undefined {
-    const { name, id, validKeys, noKeyValidation, noCompoundKey } = this;
+    const { validKeys, noKeyValidation } = this;
+
+    const compoundKey = this.getCompoundKey(key);
 
     if (noKeyValidation) {
-      return noCompoundKey ? key : [name, id, key].join('.');
+      return compoundKey;
     }
 
     // validate and return undefined if invalid key
-    let compoundKey;
-    Object.values(validKeys).forEach(validKeyName => {
+    let finalKey;
+    validKeys.forEach(validKeyName => {
       if (validKeyName === key) {
-        compoundKey = noCompoundKey ? key : [name, id, key].join('.');
+        finalKey = compoundKey;
       }
     });
 
-    return compoundKey;
+    return finalKey;
   }
 
   /**
    * Switch to inMemoryEngine, bringing any existing data with.
    */
   swapQueueStoreToInMemoryEngine() {
-    const { name, id, validKeys, noCompoundKey } = this;
+    const { validKeys } = this;
     const inMemoryStorage = getStorageEngine(MEMORY_STORAGE);
 
     // grab existing data, but only for this page's queue instance, not all
     // better to keep other queues in localstorage to be flushed later
     // than to pull them into memory and remove them from durable storage
-    Object.keys(validKeys).forEach(key => {
-      const value = this.get(validKeys[key] as string);
-      const validKey = noCompoundKey ? key : [name, id, key].join('.');
+    validKeys.forEach(key => {
+      const value = this.get(key);
+      const validKey = this.getCompoundKey(key);
 
-      inMemoryStorage.setItem(validKey, value);
+      inMemoryStorage.setItem(validKey, this.encrypt(stringifyWithoutCircular(value, false)));
       // TODO: are we sure we want to drop clientData
       //  if cookies are not available and localstorage is full?
       this.remove(key);
     });
-
     this.engine = inMemoryStorage;
   }
 

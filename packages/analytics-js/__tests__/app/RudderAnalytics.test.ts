@@ -783,27 +783,10 @@ describe('Core - Rudder Analytics Facade', () => {
       expect(bufferedEvents).toEqual([]);
     });
 
-    it('should track Page Loaded event irrespective of useBeacon load option', () => {
-      const bufferedEvents: PreloadedEventCall[] = [];
-      rudderAnalyticsInstance.trackPageLifecycleEvents(bufferedEvents, {
-        useBeacon: false,
-        autoTrack: {
-          pageLifecycle: {
-            enabled: true,
-          },
-        },
-      });
-
-      expect(bufferedEvents).toEqual([
-        ['track', 'Page Loaded', {}, { originalTimestamp: expect.any(String) }],
-      ]);
-    });
-
-    it('should track Page Unloaded event if useBeacon is set to true and trackPageLifecycle feature is enabled', () => {
+    it('should track Page Unloaded event if trackPageLifecycle feature is enabled', () => {
       const bufferedEvents: PreloadedEventCall[] = [];
       rudderAnalyticsInstance.track = jest.fn();
       rudderAnalyticsInstance.trackPageLifecycleEvents(bufferedEvents, {
-        useBeacon: true,
         autoTrack: {
           pageLifecycle: {
             enabled: true,

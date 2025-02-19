@@ -2,91 +2,100 @@ import { isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
 import type {
   IAsyncRequestConfig,
   IHttpClient,
-  IRequestConfig,
-  ResponseDetails,
+  IHttpClientError,
+  IRequestOptions,
 } from '@rudderstack/analytics-js-common/types/HttpClient';
-import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { toBase64 } from '@rudderstack/analytics-js-common/utilities/string';
-import { HTTP_CLIENT } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
+import { HttpClientError } from '@rudderstack/analytics-js-common/services/HttpClientError';
+import { DEFAULT_REQ_TIMEOUT_MS } from '../../constants/timeouts';
+import { RESPONSE_PARSE_ERROR } from '../../constants/logMessages';
+import { makeFetchRequest } from './fetch';
 import { defaultLogger } from '../Logger';
-import { responseTextToJson } from './xhr/xhrResponseHandler';
-import { createXhrRequestOptions, xhrRequest } from './xhr/xhrRequestHandler';
 
-// TODO: should we add any debug level loggers?
+const DEFAULT_REQUEST_OPTIONS: Partial<IRequestOptions> = {
+  timeout: DEFAULT_REQ_TIMEOUT_MS,
+};
 
 /**
  * Service to handle data communication with APIs
  */
 class HttpClient implements IHttpClient {
-  errorHandler?: IErrorHandler;
   logger: ILogger;
   basicAuthHeader?: string;
 
   constructor(logger: ILogger) {
     this.logger = logger;
-    this.onError = this.onError.bind(this);
-  }
-
-  init(errorHandler: IErrorHandler) {
-    this.errorHandler = errorHandler;
-  }
-
-  /**
-   * Implement requests in a blocking way
-   */
-  async getData<T = any>(
-    config: IRequestConfig,
-  ): Promise<{ data: T | string | undefined; details?: ResponseDetails }> {
-    const { url, options, timeout, isRawResponse } = config;
-
-    try {
-      const data = await xhrRequest(
-        createXhrRequestOptions(url, options, this.basicAuthHeader),
-        timeout,
-        this.logger,
-      );
-      return {
-        data: isRawResponse ? data.response : responseTextToJson<T>(data.response, this.onError),
-        details: data,
-      };
-    } catch (reason) {
-      return { data: undefined, details: reason as ResponseDetails };
-    }
   }
 
   /**
    * Implement requests in a non-blocking way
    */
-  getAsyncData<T = any>(config: IAsyncRequestConfig<T>) {
-    const { callback, url, options, timeout, isRawResponse } = config;
+  request<T>(config: IAsyncRequestConfig<T>) {
+    const { callback, url, options, isRawResponse } = config;
     const isFireAndForget = !isFunction(callback);
 
-    xhrRequest(createXhrRequestOptions(url, options, this.basicAuthHeader), timeout, this.logger)
-      .then((data: ResponseDetails) => {
+    const finalOptions = mergeDeepRight<IRequestOptions>(DEFAULT_REQUEST_OPTIONS, options || {});
+
+    if (finalOptions.useAuth && this.basicAuthHeader) {
+      finalOptions.headers = mergeDeepRight(
+        {
+          Authorization: this.basicAuthHeader,
+        },
+        finalOptions.headers ?? {},
+      );
+    }
+
+    makeFetchRequest(url, finalOptions)
+      .then((response: Response) => {
         if (!isFireAndForget) {
-          callback(
-            isRawResponse ? data.response : responseTextToJson<T>(data.response, this.onError),
-            data,
-          );
+          const finalDataPromise = isRawResponse ? response.text() : response.json();
+          finalDataPromise
+            .then(data => {
+              callback(data, {
+                response,
+                url,
+                options: finalOptions,
+              });
+            })
+            .catch((err: Error) => {
+              const finalError = new HttpClientError(RESPONSE_PARSE_ERROR(url), {
+                originalError: err,
+                status: response.status,
+                statusText: response.statusText,
+              });
+              callback(undefined, {
+                response,
+                error: finalError,
+                url,
+                options: finalOptions,
+              });
+            });
         }
       })
-      .catch((data: ResponseDetails) => {
+      .catch((error: IHttpClientError) => {
         if (!isFireAndForget) {
-          callback(undefined, data);
+          callback(undefined, {
+            error,
+            url,
+            options: finalOptions,
+          });
         }
       });
   }
 
   /**
-   * Handle errors
+   * Makes an async request to the given URL
+   * @param config Request configuration
+   * @deprecated Use `request` instead
    */
-  onError(error: unknown) {
-    this.errorHandler?.onError(error, HTTP_CLIENT);
+  getAsyncData<T>(config: IAsyncRequestConfig<T>) {
+    this.request(config);
   }
 
   /**
-   * Set basic authentication header (eg writekey)
+   * Set basic authentication header
    */
   setAuthHeader(value: string, noBtoa = false) {
     const authVal = noBtoa ? value : toBase64(`${value}:`);
@@ -102,5 +111,4 @@ class HttpClient implements IHttpClient {
 }
 
 const defaultHttpClient = new HttpClient(defaultLogger);
-
 export { HttpClient, defaultHttpClient };

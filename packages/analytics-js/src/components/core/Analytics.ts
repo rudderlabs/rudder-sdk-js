@@ -99,7 +99,6 @@ class Analytics implements IAnalytics {
     this.logger = defaultLogger;
     this.externalSrcLoader = new ExternalSrcLoader(this.errorHandler, this.logger);
     this.httpClient = defaultHttpClient;
-    this.httpClient.init(this.errorHandler);
     this.capabilitiesManager = new CapabilitiesManager(
       this.httpClient,
       this.errorHandler,
@@ -213,6 +212,10 @@ class Analytics implements IAnalytics {
    * Load browser polyfill if required
    */
   onMounted() {
+    if (state.lifecycle.writeKey.value) {
+      this.httpClient.setAuthHeader(state.lifecycle.writeKey.value);
+    }
+
     this.capabilitiesManager.init();
   }
 
@@ -268,10 +271,6 @@ class Analytics implements IAnalytics {
    * Load configuration
    */
   loadConfig() {
-    if (state.lifecycle.writeKey.value) {
-      this.httpClient.setAuthHeader(state.lifecycle.writeKey.value);
-    }
-
     this.configManager?.init();
   }
 

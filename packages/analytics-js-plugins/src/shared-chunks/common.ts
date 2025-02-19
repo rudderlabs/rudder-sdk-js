@@ -8,6 +8,7 @@ export {
   isUndefined,
   isNullOrUndefined,
   isDefined,
+  isDefinedAndNotNull,
 } from '@rudderstack/analytics-js-common/utilities/checks';
 export { removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utilities/url';
 export { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
@@ -34,6 +35,5 @@ export {
   isNonEmptyObject,
   isObjectLiteralAndNotNull,
 } from '@rudderstack/analytics-js-common/utilities/object';
-export { CDN_INT_DIR } from '@rudderstack/analytics-js-common/constants/urls';
 export { onPageLeave } from '@rudderstack/analytics-js-common/utilities/page';
-export { QueueStatuses } from '@rudderstack/analytics-js-common/constants/QueueStatuses';
+export { RetryQueue } from '@rudderstack/analytics-js-common/utilities/retryQueue/RetryQueue';

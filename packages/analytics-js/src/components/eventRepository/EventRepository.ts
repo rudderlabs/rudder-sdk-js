@@ -12,13 +12,11 @@ import { API_SUFFIX } from '@rudderstack/analytics-js-common/constants/loggerCon
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 import { state } from '../../state';
 import type { IEventRepository } from './types';
-import {
-  DATA_PLANE_QUEUE_EXT_POINT_PREFIX,
-  DESTINATIONS_QUEUE_EXT_POINT_PREFIX,
-  DMT_EXT_POINT_PREFIX,
-} from './constants';
+import { DESTINATIONS_QUEUE_EXT_POINT_PREFIX, DMT_EXT_POINT_PREFIX } from './constants';
 import { getFinalEvent, shouldBufferEventsForPreConsent } from './utils';
 import { safelyInvokeCallback } from '../utilities/callbacks';
+import type { IDataPlaneEventsQueue } from '../dataPlaneEventsQueue/types';
+import { DataPlaneEventsQueue } from '../dataPlaneEventsQueue/DataPlaneEventsQueue';
 
 /**
  * Event repository class responsible for queuing events for further processing and delivery
@@ -29,7 +27,7 @@ class EventRepository implements IEventRepository {
   pluginsManager: IPluginsManager;
   httpClient: IHttpClient;
   storeManager: IStoreManager;
-  dataplaneEventsQueue: any;
+  dataplaneEventsQueue: IDataPlaneEventsQueue;
   destinationsEventsQueue: any;
   dmtEventsQueue: any;
 
@@ -52,21 +50,17 @@ class EventRepository implements IEventRepository {
     this.httpClient = httpClient;
     this.logger = logger;
     this.storeManager = storeManager;
+    this.dataplaneEventsQueue = new DataPlaneEventsQueue(
+      this.httpClient,
+      this.storeManager,
+      this.logger,
+    );
   }
 
   /**
    * Initializes the event repository
    */
   init(): void {
-    this.dataplaneEventsQueue = this.pluginsManager.invokeSingle(
-      `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.init`,
-      state,
-      this.httpClient,
-      this.storeManager,
-      this.errorHandler,
-      this.logger,
-    );
-
     this.dmtEventsQueue = this.pluginsManager.invokeSingle(
       `${DMT_EXT_POINT_PREFIX}.init`,
       state,
@@ -113,32 +107,29 @@ class EventRepository implements IEventRepository {
 
       if (
         (hybridDestExist === false || shouldBufferDpEvents === false) &&
-        !bufferEventsBeforeConsent &&
-        this.dataplaneEventsQueue?.scheduleTimeoutActive !== true
+        !bufferEventsBeforeConsent
       ) {
         (globalThis as typeof window).clearTimeout(timeoutId);
-        this.dataplaneEventsQueue?.start();
+        this.dataplaneEventsQueue.start();
       }
     });
 
     // Force start the data plane events queue processing after a timeout
     if (state.loadOptions.value.bufferDataPlaneEventsUntilReady === true) {
       timeoutId = (globalThis as typeof window).setTimeout(() => {
-        if (this.dataplaneEventsQueue?.scheduleTimeoutActive !== true) {
-          this.dataplaneEventsQueue?.start();
-        }
+        this.dataplaneEventsQueue.start();
       }, state.loadOptions.value.dataPlaneEventsBufferTimeout);
     }
   }
 
   resume() {
-    if (this.dataplaneEventsQueue?.scheduleTimeoutActive !== true) {
+    if (this.dataplaneEventsQueue.isRunning() !== true) {
       if (state.consents.postConsent.value.discardPreConsentEvents) {
-        this.dataplaneEventsQueue?.clear();
+        this.dataplaneEventsQueue.clear();
         this.destinationsEventsQueue?.clear();
       }
 
-      this.dataplaneEventsQueue?.start();
+      this.dataplaneEventsQueue.start();
     }
   }
 
@@ -148,17 +139,10 @@ class EventRepository implements IEventRepository {
    * @param callback API callback function
    */
   enqueue(event: RudderEvent, callback?: ApiCallback): void {
-    const dpQEvent = getFinalEvent(event, state);
-    this.pluginsManager.invokeSingle(
-      `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.enqueue`,
-      state,
-      this.dataplaneEventsQueue,
-      dpQEvent,
-      this.errorHandler,
-      this.logger,
-    );
+    const finalEvent = getFinalEvent(event, state);
+    this.dataplaneEventsQueue.enqueue(finalEvent);
 
-    const dQEvent = clone(event);
+    const dQEvent = clone(finalEvent);
     this.pluginsManager.invokeSingle(
       `${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.enqueue`,
       state,
@@ -170,7 +154,7 @@ class EventRepository implements IEventRepository {
 
     // Invoke the callback if it exists
     const apiName = `${event.type.charAt(0).toUpperCase()}${event.type.slice(1)}${API_SUFFIX}`;
-    safelyInvokeCallback(callback, [dpQEvent], apiName, this.logger);
+    safelyInvokeCallback(callback, [finalEvent], apiName, this.logger);
   }
 }
 

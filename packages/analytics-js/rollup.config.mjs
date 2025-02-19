@@ -81,10 +81,6 @@ const getExternalsConfig = () => {
   }
 
   if (isDynamicCustomBuild) {
-    if (!bundledPluginsList.includes('BeaconQueue')) {
-      externalGlobalsConfig['@rudderstack/analytics-js-plugins/beaconQueue'] = '{}';
-    }
-
     if (!bundledPluginsList.includes('CustomConsentManager')) {
       externalGlobalsConfig['@rudderstack/analytics-js-plugins/customConsentManager'] = '{}';
     }
@@ -131,10 +127,6 @@ const getExternalsConfig = () => {
 
     if (!bundledPluginsList.includes('StorageMigrator')) {
       externalGlobalsConfig['@rudderstack/analytics-js-plugins/storageMigrator'] = '{}';
-    }
-
-    if (!bundledPluginsList.includes('XhrQueue') && bundledPluginsList.includes('BeaconQueue')) {
-      externalGlobalsConfig['@rudderstack/analytics-js-plugins/xhrQueue'] = '{}';
     }
   }
 
@@ -192,6 +184,7 @@ export function getDefaultConfig(distName) {
         __RS_BUGSNAG_API_KEY__: process.env.BUGSNAG_API_KEY || '{{__RS_BUGSNAG_API_KEY__}}',
         __RS_BUGSNAG_RELEASE_STAGE__: process.env.BUGSNAG_RELEASE_STAGE || 'production',
         __RS_BUGSNAG_SDK_URL__: bugsnagSDKUrl,
+        __REPOSITORY_URL__: pkg.repository.url,
       }),
       resolve({
         jsnext: true,

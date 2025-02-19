@@ -121,12 +121,12 @@ describe('CapabilitiesManager', () => {
       state.loadOptions.value.sendAdblockPage = true;
       state.lifecycle.sourceConfigUrl.value = 'https://www.dummy.url';
 
-      const getAsyncDataSpy = jest.spyOn(defaultHttpClient, 'getAsyncData');
+      const requestSpy = jest.spyOn(defaultHttpClient, 'request');
 
       capabilitiesManager.init();
 
-      expect(getAsyncDataSpy).toHaveBeenCalledTimes(1);
-      expect(getAsyncDataSpy).toHaveBeenCalledWith({
+      expect(requestSpy).toHaveBeenCalledTimes(1);
+      expect(requestSpy).toHaveBeenCalledWith({
         url: 'https://www.dummy.url/?view=ad',
         options: expect.any(Object),
         callback: expect.any(Function),

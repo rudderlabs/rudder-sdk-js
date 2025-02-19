@@ -2,6 +2,10 @@
 import { effect, signal } from '@preact/signals-core';
 import { http, HttpResponse } from 'msw';
 import type { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
+import type {
+  ConfigResponseDestinationItem,
+  SourceConfigResponse,
+} from '@rudderstack/analytics-js-common/types/Source';
 import { defaultHttpClient } from '../../../src/services/HttpClient';
 import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
 import { defaultLogger } from '../../../src/services/Logger';
@@ -10,10 +14,6 @@ import { state, resetState } from '../../../src/state';
 import { getSDKUrl } from '../../../src/components/configManager/util/commonUtil';
 import { server } from '../../../__fixtures__/msw.server';
 import { dummySourceConfigResponse } from '../../../__fixtures__/fixtures';
-import type {
-  ConfigResponseDestinationItem,
-  SourceConfigResponse,
-} from '../../../src/components/configManager/types';
 
 jest.mock('../../../src/services/Logger', () => {
   const originalModule = jest.requireActual('../../../src/services/Logger');
@@ -204,17 +204,6 @@ describe('ConfigManager', () => {
     );
   });
 
-  it('should handle error if the source config response is not parsable', () => {
-    configManagerInstance.processConfig('{"key": "value"');
-
-    expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
-    expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
-      new SyntaxError("Expected ',' or '}' after property value in JSON at position 15"),
-      'ConfigManager',
-      'Unable to process/parse source configuration response',
-    );
-  });
-
   it('should handle error if the source config response is not valid', () => {
     // @ts-expect-error Testing invalid input
     configManagerInstance.processConfig({ key: 'value' });
@@ -237,7 +226,7 @@ describe('ConfigManager', () => {
         destinations: [] as ConfigResponseDestinationItem[],
         enabled: false,
       },
-    } as SourceConfigResponse;
+    } as unknown as SourceConfigResponse;
     configManagerInstance.processConfig(sourceConfigResponse);
 
     expect(defaultLogger.error).toHaveBeenCalledTimes(1);
@@ -249,15 +238,9 @@ describe('ConfigManager', () => {
     expect(state.lifecycle.status.value).toBe('browserCapabilitiesReady');
   });
 
-  it('should not call the onError method of errorHandler for correct sourceConfig response in string format', () => {
-    state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
-    configManagerInstance.processConfig(JSON.stringify(dummySourceConfigResponse));
-
-    expect(defaultErrorHandler.onError).not.toHaveBeenCalled();
-  });
-
   it('should call the onError method of errorHandler for wrong sourceConfig response in string format', () => {
     state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
+    // @ts-expect-error Testing invalid input
     configManagerInstance.processConfig(JSON.stringify({ key: 'value' }));
 
     expect(defaultErrorHandler.onError).toHaveBeenCalled();
@@ -381,7 +364,6 @@ describe('ConfigManager', () => {
   });
 
   it('should handle promise rejection errors from getSourceConfig function', done => {
-    // @ts-expect-error Testing invalid input
     state.loadOptions.value.getSourceConfig = () => Promise.reject(new Error('Some error'));
 
     configManagerInstance.onError = jest.fn();
