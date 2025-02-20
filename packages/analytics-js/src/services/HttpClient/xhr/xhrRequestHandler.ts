@@ -86,6 +86,7 @@ const xhrRequest = (
             xhr.status,
             xhr.statusText,
             options.url,
+            xhr.responseText,
           ),
         ),
         xhr,

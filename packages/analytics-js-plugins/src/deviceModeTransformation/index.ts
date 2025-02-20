@@ -18,7 +18,7 @@ import { DEFAULT_TRANSFORMATION_QUEUE_OPTIONS, QUEUE_NAME, REQUEST_TIMEOUT_MS } 
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import type { DoneCallback, IQueue } from '../types/plugins';
 import type { TransformationQueueItemData } from './types';
-import { isErrRetryable, MEMORY_STORAGE } from '../shared-chunks/common';
+import { isErrRetryable, isUndefined, MEMORY_STORAGE } from '../shared-chunks/common';
 
 const pluginName: PluginName = 'DeviceModeTransformation';
 
@@ -62,10 +62,14 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
             isRawResponse: true,
             timeout: REQUEST_TIMEOUT_MS,
             callback: (result, details) => {
-              // null means item will not be requeued
-              const queueErrResp = isErrRetryable(details) ? details : null;
+              const isRetryable = isErrRetryable(details?.xhr?.status ?? 0);
 
-              if (!queueErrResp || attemptNumber === maxRetryAttempts) {
+              // If there is no error, or the error is not retryable, or the attempt number is the max retry attempts, then attempt send the event to the destinations
+              if (
+                isUndefined(details?.error) ||
+                !isRetryable ||
+                attemptNumber === maxRetryAttempts
+              ) {
                 sendTransformedEventToDestinations(
                   state,
                   pluginsManager,
@@ -76,9 +80,12 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
                   errorHandler,
                   logger,
                 );
-              }
 
-              done(queueErrResp, result);
+                done(null);
+              } else {
+                // Requeue the item as the error is retryable.
+                done(details);
+              }
             },
           });
         },

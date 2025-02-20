@@ -85,10 +85,12 @@ const XHR_DELIVERY_ERROR = (
   status: number,
   statusText: string,
   url: string,
-): string => `${prefix} with status: ${status}, ${statusText} for URL: ${url}.`;
+  response: string,
+): string =>
+  `${prefix} with status ${status} (${statusText}) for URL: ${url}. Response: ${response.trim()}`;
 
 const XHR_REQUEST_ERROR = (prefix: string, e: ProgressEvent | undefined, url: string): string =>
-  `${prefix} due to timeout or no connection (${e ? e.type : ''}) for URL: ${url}.`;
+  `${prefix} due to timeout or no connection (${e ? e.type : ''}) at the client side for URL: ${url}`;
 
 const XHR_SEND_ERROR = (prefix: string, url: string): string => `${prefix} for URL: ${url}`;
 

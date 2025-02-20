@@ -102,7 +102,7 @@ describe('HttpClient', () => {
   it('should handle 400 range errors in getAsyncData requests', done => {
     const callback = (data: any, details: ResponseDetails) => {
       const errResult = new Error(
-        'The request failed with status: 404, Not Found for URL: https://dummy.dataplane.host.com/404ErrorSample.',
+        'The request failed with status 404 (Not Found) for URL: https://dummy.dataplane.host.com/404ErrorSample. Response: Not Found',
       );
       expect(details.error).toEqual(errResult);
       done();
@@ -120,7 +120,7 @@ describe('HttpClient', () => {
     expect(response.data).toBeUndefined();
     expect(response.details?.error).toEqual(
       new Error(
-        'The request failed with status: 404, Not Found for URL: https://dummy.dataplane.host.com/404ErrorSample.',
+        'The request failed with status 404 (Not Found) for URL: https://dummy.dataplane.host.com/404ErrorSample. Response: Not Found',
       ),
     );
   });
@@ -128,7 +128,7 @@ describe('HttpClient', () => {
   it('should handle 500 range errors in getAsyncData requests', done => {
     const callback = (response: any, reject: ResponseDetails) => {
       const errResult = new Error(
-        'The request failed with status: 500, Internal Server Error for URL: https://dummy.dataplane.host.com/500ErrorSample.',
+        'The request failed with status 500 (Internal Server Error) for URL: https://dummy.dataplane.host.com/500ErrorSample. Response: Internal Server Error',
       );
       expect(reject.error).toEqual(errResult);
       done();
@@ -146,7 +146,7 @@ describe('HttpClient', () => {
     expect(response.data).toBeUndefined();
     expect(response.details?.error).toEqual(
       new Error(
-        'The request failed with status: 500, Internal Server Error for URL: https://dummy.dataplane.host.com/500ErrorSample.',
+        'The request failed with status 500 (Internal Server Error) for URL: https://dummy.dataplane.host.com/500ErrorSample. Response: Internal Server Error',
       ),
     );
   });
@@ -158,7 +158,7 @@ describe('HttpClient', () => {
     expect(response.data).toBeUndefined();
     expect(response.details?.error).toEqual(
       new Error(
-        'The request failed due to timeout or no connection (error) for URL: https://dummy.dataplane.host.com/noConnectionSample.',
+        'The request failed due to timeout or no connection (error) at the client side for URL: https://dummy.dataplane.host.com/noConnectionSample',
       ),
     );
   });
