@@ -761,7 +761,7 @@ class Analytics implements IAnalytics {
         this.logger,
       );
 
-      state.consents.initialized.value = initialized || state.consents.initialized.value;
+      state.consents.initialized.value = initialized;
       state.consents.data.value = consentsData;
     });
 

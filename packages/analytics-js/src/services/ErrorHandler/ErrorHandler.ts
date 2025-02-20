@@ -74,14 +74,10 @@ class ErrorHandler implements IErrorHandler {
       const stacktrace = getStacktrace(normalizedError) as string;
       const isSdkDispatched = stacktrace.includes(MANUAL_ERROR_IDENTIFIER);
 
-      // Filter unhandled errors that are not originated in the SDK.
-      // However, in case of NPM installations, since we cannot differentiate between SDK and application errors, we should report all errors.
-      if (
-        !isSDKError(bsException) &&
-        state.context.app.value.installType !== 'npm' &&
-        !isSdkDispatched &&
-        errorType !== ErrorType.HANDLEDEXCEPTION
-      ) {
+      // Filter errors that are not originated in the SDK.
+      // In case of NPM installations, the errors from the SDK cannot be identified
+      // and will NOT be reported unless they occur in plugins or integrations.
+      if (!isSdkDispatched && !isSDKError(bsException)) {
         return;
       }
 

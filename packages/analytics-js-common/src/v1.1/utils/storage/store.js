@@ -1,5 +1,5 @@
-import defaults from '@ndhoule/defaults';
 import store from 'storejs';
+import { mergeDeepRight } from '../../../utilities/object';
 
 /**
  * An object utility to persist user and other values in localstorage
@@ -18,10 +18,15 @@ class StoreLocal {
   options(options = {}) {
     if (arguments.length === 0) return this.sOpts;
 
-    defaults(options, { enabled: true });
+    // Override the default options with the provided options
+    this.sOpts = mergeDeepRight(
+      {
+        enabled: true,
+      },
+      options,
+    );
 
-    this.enabled = options.enabled && this.enabled;
-    this.sOpts = options;
+    this.enabled = this.sOpts.enabled && this.enabled;
     return this.sOpts;
   }
 

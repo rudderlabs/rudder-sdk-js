@@ -21,8 +21,9 @@ if (Array.isArray(rudderanalytics)) {
     (rudderanalytics as any).snippetExecuted = true;
     window.rudderAnalyticsBuildType = 'legacy';
 
-    const sdkBaseUrl = 'https://cdn.rudderlabs.com/v3';
-    const sdkName = 'rsa.min.js';
+    const sdkBaseUrl = 'https://cdn.rudderlabs.com';
+    const sdkVersion = 'v3';
+    const sdkFileName = 'rsa.min.js';
     const scriptLoadingMode = 'async'; // Options: 'async', 'defer', 'none'/'' (empty string)
 
     const methods: string[] = [
@@ -126,7 +127,7 @@ if (Array.isArray(rudderanalytics)) {
       /* eslint-enable */
 
       window.rudderAnalyticsAddScript(
-        `${sdkBaseUrl}/${window.rudderAnalyticsBuildType}/${sdkName}`,
+        `${sdkBaseUrl}/${sdkVersion}/${window.rudderAnalyticsBuildType}/${sdkFileName}`,
         'data-rsa-write-key',
         '__WRITE_KEY__',
       );

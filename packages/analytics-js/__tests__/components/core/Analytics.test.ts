@@ -260,7 +260,9 @@ describe('Core - Analytics', () => {
       analytics.onInitialized();
 
       expect(errorSpy).toHaveBeenCalledTimes(1);
-      expect(errorSpy).toHaveBeenCalledWith('LoadAPI:: The provided callback parameter is not a function.');
+      expect(errorSpy).toHaveBeenCalledWith(
+        'LoadAPI:: The provided callback parameter is not a function.',
+      );
     });
 
     it('should log an error if the onLoaded callback throws an error', () => {
@@ -378,7 +380,9 @@ describe('Core - Analytics', () => {
       analytics.ready(true);
 
       expect(errorSpy).toHaveBeenCalledTimes(1);
-      expect(errorSpy).toHaveBeenCalledWith('ReadyAPI:: The provided callback parameter is not a function.');
+      expect(errorSpy).toHaveBeenCalledWith(
+        'ReadyAPI:: The provided callback parameter is not a function.',
+      );
     });
 
     it('should log an error if the provided callback throws an error', () => {
@@ -802,6 +806,42 @@ describe('Core - Analytics', () => {
           },
         ],
       ]);
+    });
+
+    it('should refresh consents data when the API is invoked multiple times', () => {
+      analytics.prepareInternalServices();
+
+      state.consents.enabled.value = true;
+      state.lifecycle.loaded.value = true;
+      state.consents.initialized.value = false;
+      state.storage.type.value = 'localStorage';
+      state.storage.entries.value = entriesWithMixStorage;
+
+      const invokeSingleSpy = jest.spyOn(
+        analytics.pluginsManager as IPluginsManager,
+        'invokeSingle',
+      );
+
+      analytics.consent();
+
+      expect(invokeSingleSpy).toHaveBeenCalledTimes(2);
+
+      // Update consents data to simulate the plugin populating the data
+      state.consents.data.value = {
+        allowedConsentIds: ['allowed_consent_id'],
+        deniedConsentIds: ['denied_consent_id'],
+      };
+      state.consents.initialized.value = true;
+
+      // Set the state to simulate destinations being ready
+      state.nativeDestinations.clientDestinationsReady.value = true;
+
+      invokeSingleSpy.mockClear();
+
+      // Invoke the API again to refresh the consents data
+      analytics.consent();
+
+      expect(invokeSingleSpy).toHaveBeenCalledTimes(1);
     });
   });
 });
