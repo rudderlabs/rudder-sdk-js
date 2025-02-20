@@ -10,8 +10,6 @@ const getFederatedModuleImport = (
   pluginName: PluginName,
 ): (() => Promise<ExtensionPlugin>) | undefined => {
   switch (pluginName) {
-    case 'BeaconQueue':
-      return () => import('rudderAnalyticsRemotePlugins/BeaconQueue');
     case 'CustomConsentManager':
       return () => import('rudderAnalyticsRemotePlugins/CustomConsentManager');
     case 'DeviceModeDestinations':
@@ -36,8 +34,6 @@ const getFederatedModuleImport = (
       return () => import('rudderAnalyticsRemotePlugins/StorageEncryptionLegacy');
     case 'StorageMigrator':
       return () => import('rudderAnalyticsRemotePlugins/StorageMigrator');
-    case 'XhrQueue':
-      return () => import('rudderAnalyticsRemotePlugins/XhrQueue');
     default:
       return undefined;
   }

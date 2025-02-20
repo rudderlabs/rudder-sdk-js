@@ -1,4 +1,4 @@
-import { LOG_CONTEXT_SEPARATOR } from '../../shared-chunks/common';
+import { LOG_CONTEXT_SEPARATOR } from '../../constants/logMessages';
 
 const RETRY_QUEUE_PROCESS_ERROR = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}Process function threw an error.`;

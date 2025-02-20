@@ -1,8 +1,14 @@
-import type { IStore, IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
-import type { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
-import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import type { BatchOpts, QueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import type { IStore, IStoreManager } from '../../types/Store';
+import type { StorageType } from '../../types/Storage';
+import { QueueStatuses } from '../../constants/QueueStatuses';
+import { LOCAL_STORAGE } from '../../constants/storages';
+import { isDefined, isFunction, isNullOrUndefined } from '../../utilities/checks';
+import { isObjectLiteralAndNotNull } from '../../utilities/object';
+import { onPageLeave } from '../../utilities/page';
+import { generateUUID } from '../../utilities/uuId';
+import type { Nullable } from '../../types/Nullable';
+import type { ILogger } from '../../types/Logger';
+import type { BatchOpts, QueueOpts } from '../../types/LoadOptions';
 import type {
   IQueue,
   QueueItem,
@@ -10,10 +16,12 @@ import type {
   QueueBatchItemsSizeCalculatorCallback,
   QueueProcessCallback,
   QueueItemType,
-} from '../../types/plugins';
+  QueueTimeouts,
+  QueueBackoff,
+  InProgressQueueItem,
+} from './types';
 import { Schedule, ScheduleModes } from './Schedule';
 import { RETRY_QUEUE_ENTRY_REMOVE_ERROR, RETRY_QUEUE_PROCESS_ERROR } from './logMessages';
-import type { QueueTimeouts, QueueBackoff, InProgressQueueItem } from './types';
 import {
   DEFAULT_MAX_ITEMS,
   DEFAULT_MAX_RETRY_ATTEMPTS,
@@ -33,16 +41,6 @@ import {
   SINGLE_QUEUE_ITEM_TYPE,
   BATCH_QUEUE_ITEM_TYPE,
 } from './constants';
-import {
-  generateUUID,
-  isDefined,
-  isFunction,
-  isNullOrUndefined,
-  isObjectLiteralAndNotNull,
-  LOCAL_STORAGE,
-  onPageLeave,
-  QueueStatuses,
-} from '../../shared-chunks/common';
 
 const sortByTime = (a: QueueItem, b: QueueItem) => a.time - b.time;
 
@@ -166,7 +164,7 @@ class RetryQueue implements IQueue<QueueItemData> {
       return;
     }
 
-    const batchOptions = options.batch as BatchOpts;
+    const batchOptions = options.batch;
 
     this.batch.enabled = batchOptions.enabled === true;
     if (this.batch.enabled) {
@@ -411,9 +409,8 @@ class RetryQueue implements IQueue<QueueItemData> {
    * Adds an item to the retry queue
    *
    * @param {Object} qItem The item to process
-   * @param {Error} [error] The error that occurred during processing
    */
-  requeue(qItem: QueueItem<QueueItemData>, error?: Error) {
+  requeue(qItem: QueueItem<QueueItemData>) {
     const { attemptNumber, item, type, id } = qItem;
     // Increment the attempt number as we're about to retry
     const attemptNumberToUse = attemptNumber + 1;
@@ -488,7 +485,7 @@ class RetryQueue implements IQueue<QueueItemData> {
       this.setStorageEntry(QueueStatuses.IN_PROGRESS, inProgress);
 
       if (err) {
-        this.requeue(el, err);
+        this.requeue(el);
       }
     };
 
@@ -594,7 +591,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     const their = {
       inProgress: other.get(QueueStatuses.IN_PROGRESS) ?? {},
       batchQueue: other.get(QueueStatuses.BATCH_QUEUE) ?? [],
-      queue: (other.get(QueueStatuses.QUEUE) ?? []) as QueueItem[],
+      queue: other.get(QueueStatuses.QUEUE) ?? [],
     };
     const trackMessageIds: string[] = [];
 
@@ -656,7 +653,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     // if the queue is abandoned, all the in-progress are failed. retry them immediately and increment the attempt#
     addConcatQueue(their.inProgress, 1);
 
-    our.queue = our.queue.sort(sortByTime);
+    our.queue.sort(sortByTime);
 
     this.setStorageEntry(QueueStatuses.QUEUE, our.queue);
 

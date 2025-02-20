@@ -77,30 +77,30 @@ describe('Core - Analytics', () => {
 
       state.lifecycle.status.value = 'configured';
       expect(onConfiguredSpy).toHaveBeenCalledTimes(1);
-      expect(state.lifecycle.status.value).toBe('pluginsLoading');
+      expect(state.lifecycle.status.value).toBe('readyExecuted');
 
       state.lifecycle.status.value = 'pluginsLoading';
       expect(onConfiguredSpy).toHaveBeenCalledTimes(1);
       expect(state.lifecycle.status.value).toBe('pluginsLoading');
 
       state.lifecycle.status.value = 'pluginsReady';
-      expect(onPluginsReadySpy).toHaveBeenCalledTimes(1);
+      expect(onPluginsReadySpy).toHaveBeenCalledTimes(2);
       expect(state.lifecycle.status.value).toBe('readyExecuted');
 
       state.lifecycle.status.value = 'initialized';
-      expect(onInitializedSpy).toHaveBeenCalledTimes(2);
+      expect(onInitializedSpy).toHaveBeenCalledTimes(3);
       expect(state.lifecycle.status.value).toBe('readyExecuted');
 
       state.lifecycle.status.value = 'loaded';
-      expect(loadDestinationsSpy).toHaveBeenCalledTimes(3);
+      expect(loadDestinationsSpy).toHaveBeenCalledTimes(4);
       expect(state.lifecycle.status.value).toBe('readyExecuted');
 
       state.lifecycle.status.value = 'destinationsReady';
-      expect(onDestinationsReadySpy).toHaveBeenCalledTimes(4);
+      expect(onDestinationsReadySpy).toHaveBeenCalledTimes(5);
       expect(state.lifecycle.status.value).toBe('readyExecuted');
 
       state.lifecycle.status.value = 'ready';
-      expect(onReadySpy).toHaveBeenCalledTimes(5);
+      expect(onReadySpy).toHaveBeenCalledTimes(6);
       expect(state.lifecycle.status.value).toBe('readyExecuted');
     });
 

@@ -2,7 +2,7 @@ name: Security, Code Quality and Bundle Size Checks
 
 on:
   pull_request:
-    branches: ['develop', 'main', 'hotfix/*']
+    branches: ['develop', 'main', 'hotfix/*', 'feat.move-event-handling-to-core-sdk-2823-final']
     types: ['opened', 'reopened', 'synchronize']
 
 env:
