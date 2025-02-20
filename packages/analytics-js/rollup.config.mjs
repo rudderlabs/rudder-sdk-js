@@ -24,6 +24,7 @@ import pkg from './package.json' assert { type: 'json' };
 
 dotenv.config();
 const isLegacyBuild = process.env.BROWSERSLIST_ENV !== 'modern';
+const additionalWatchPaths = isLegacyBuild ? ['../analytics-js-plugins/src/**', '../analytics-js-common/src/**'] : [];
 const variantSubfolder = isLegacyBuild ? '/legacy' : '/modern';
 const bundledPluginsList = process.env.BUNDLED_PLUGINS;
 const isDynamicCustomBuild = Boolean(bundledPluginsList);
@@ -165,7 +166,7 @@ export function getDefaultConfig(distName) {
 
   return {
     watch: {
-      include: ['src/**'],
+      include: ['src/**', ...additionalWatchPaths],
     },
     external: [/rudderAnalyticsRemotePlugins\/.*/, ...Object.keys(pkg.peerDependencies || {})],
     onwarn(warning, warn) {

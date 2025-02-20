@@ -1,13 +1,14 @@
-import type { ResponseDetails } from '../types/HttpClient';
-
-const isErrRetryable = (details?: ResponseDetails) => {
-  let isRetryableNWFailure = false;
-  if (details?.error && details?.xhr) {
-    const xhrStatus = details.xhr.status;
-    // same as in v1.1
-    isRetryableNWFailure = xhrStatus === 429 || (xhrStatus >= 500 && xhrStatus < 600);
+/**
+ * This function is used to determine if the input status code is retryable.
+ * @param status - The status code.
+ * @returns True if the status code is not 4xx (except 429), false otherwise.
+ */
+const isErrRetryable = (status: number) => {
+  if (status === 429) {
+    return true;
   }
-  return isRetryableNWFailure;
+
+  return !(status >= 400 && status < 500);
 };
 
 export { isErrRetryable };
