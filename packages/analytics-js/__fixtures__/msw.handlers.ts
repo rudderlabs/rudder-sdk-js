@@ -40,17 +40,17 @@ const handlers = [
     });
   }),
   http.get(`${dummyDataplaneHost}/404ErrorSample`, () => {
-    return new HttpResponse(null, {
+    return new HttpResponse('Not Found', {
       status: 404,
     });
   }),
   http.get(`${dummyDataplaneHost}/429ErrorSample`, () => {
-    return new HttpResponse(null, {
+    return new HttpResponse('Too Many Requests', {
       status: 429,
     });
   }),
   http.get(`${dummyDataplaneHost}/500ErrorSample`, () => {
-    return new HttpResponse(null, {
+    return new HttpResponse('Internal Server Error', {
       status: 500,
     });
   }),

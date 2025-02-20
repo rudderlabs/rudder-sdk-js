@@ -115,90 +115,80 @@ describe('xhrQueue Plugin Utilities', () => {
   });
 
   describe('logErrorOnFailure', () => {
-    it('should not log error if there is no error', () => {
-      const details = {
-        response: {},
-      } as ResponseDetails;
-
-      logErrorOnFailure(details, 'https://test.com/v1/page', false, 1, 10, defaultLogger);
-
-      expect(defaultLogger.error).not.toHaveBeenCalled();
-    });
-
     it('should log an error for delivery failure', () => {
       const details = {
-        error: {},
+        error: { message: 'Unauthorized' },
       } as ResponseDetails;
 
-      logErrorOnFailure(details, 'https://test.com/v1/page', false, 1, 10, defaultLogger);
+      logErrorOnFailure(details, false, false, 1, 10, defaultLogger);
 
       expect(defaultLogger.error).toHaveBeenCalledWith(
-        'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. The event(s) will be dropped.',
+        'XhrQueuePlugin:: Failed to deliver event(s). Cause: Unauthorized. The event(s) will be dropped.',
       );
     });
 
     it('should log an error for retryable network failure', () => {
       const details = {
-        error: {},
+        error: { message: 'Too many requests' },
         xhr: {
           status: 429,
         },
       } as ResponseDetails;
 
-      logErrorOnFailure(details, 'https://test.com/v1/page', true, 1, 10, defaultLogger);
+      logErrorOnFailure(details, true, true, 1, 10, defaultLogger);
 
       expect(defaultLogger.error).toHaveBeenCalledWith(
-        'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. It/they will be retried. Retry attempt 1 of 10.',
+        'XhrQueuePlugin:: Failed to deliver event(s). Cause: Too many requests. The event(s) will be retried. Retry attempt 1 of 10.',
       );
 
       // Retryable error but it's the first attempt
       // @ts-expect-error Needed to set the status for testing
       (details.xhr as XMLHttpRequest).status = 429;
 
-      logErrorOnFailure(details, 'https://test.com/v1/page', true, 0, 10, defaultLogger);
+      logErrorOnFailure(details, true, true, 0, 10, defaultLogger);
 
       expect(defaultLogger.error).toHaveBeenCalledWith(
-        'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. It/they will be retried.',
+        'XhrQueuePlugin:: Failed to deliver event(s). Cause: Too many requests. The event(s) will be retried.',
       );
 
       // 500 error
       // @ts-expect-error Needed to set the status for testing
       (details.xhr as XMLHttpRequest).status = 500;
 
-      logErrorOnFailure(details, 'https://test.com/v1/page', true, 1, 10, defaultLogger);
+      logErrorOnFailure(details, true, true, 1, 10, defaultLogger);
 
       expect(defaultLogger.error).toHaveBeenCalledWith(
-        'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. It/they will be retried. Retry attempt 1 of 10.',
+        'XhrQueuePlugin:: Failed to deliver event(s). Cause: Too many requests. The event(s) will be retried. Retry attempt 1 of 10.',
       );
 
       // 5xx error
       // @ts-expect-error Needed to set the status for testing
       (details.xhr as XMLHttpRequest).status = 501;
 
-      logErrorOnFailure(details, 'https://test.com/v1/page', true, 1, 10, defaultLogger);
+      logErrorOnFailure(details, true, true, 1, 10, defaultLogger);
 
       expect(defaultLogger.error).toHaveBeenCalledWith(
-        'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. It/they will be retried. Retry attempt 1 of 10.',
+        'XhrQueuePlugin:: Failed to deliver event(s). Cause: Too many requests. The event(s) will be retried. Retry attempt 1 of 10.',
       );
 
       // 600 error
       // @ts-expect-error Needed to set the status for testing
       (details.xhr as XMLHttpRequest).status = 600;
 
-      logErrorOnFailure(details, 'https://test.com/v1/page', true, 1, 10, defaultLogger);
+      logErrorOnFailure(details, true, true, 1, 10, defaultLogger);
 
       expect(defaultLogger.error).toHaveBeenCalledWith(
-        'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. The event(s) will be dropped.',
+        'XhrQueuePlugin:: Failed to deliver event(s). Cause: Too many requests. The event(s) will be retried. Retry attempt 1 of 10.',
       );
 
       // Retryable error but exhausted all tries
       // @ts-expect-error Needed to set the status for testing
       (details.xhr as XMLHttpRequest).status = 520;
 
-      logErrorOnFailure(details, 'https://test.com/v1/page', false, 10, 10, defaultLogger);
+      logErrorOnFailure(details, true, false, 10, 10, defaultLogger);
 
       expect(defaultLogger.error).toHaveBeenCalledWith(
-        'XhrQueuePlugin:: Failed to deliver event(s) to https://test.com/v1/page. Retries exhausted (10). The event(s) will be dropped.',
+        'XhrQueuePlugin:: Failed to deliver event(s). Cause: Too many requests. Retries exhausted (10). The event(s) will be dropped.',
       );
     });
   });

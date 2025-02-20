@@ -148,7 +148,7 @@ describe('XhrQueue', () => {
     // Mock getAsyncData to return a retryable failure
 
     defaultHttpClient.getAsyncData.mockImplementation(({ callback }) => {
-      callback?.(false, { error: 'some error', xhr: { status: 429 } });
+      callback?.(false, { error: { message: 'Too many requests' }, xhr: { status: 429 } });
     });
     const queue = (XhrQueue()?.dataplaneEventsQueue as ExtensionPoint).init?.(
       state,
@@ -183,7 +183,7 @@ describe('XhrQueue', () => {
     queue.start();
 
     expect(defaultLogger.error).toHaveBeenCalledWith(
-      'XhrQueuePlugin:: Failed to deliver event(s) to https://sampleurl.com/v1/track. It/they will be retried.',
+      'XhrQueuePlugin:: Failed to deliver event(s). Cause: Too many requests. The event(s) will be retried.',
     );
 
     // The element is requeued
