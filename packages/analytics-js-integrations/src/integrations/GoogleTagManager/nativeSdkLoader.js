@@ -1,6 +1,6 @@
 import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 
-function loadNativeSdk(containerID, serverUrl) {
+function loadNativeSdk(containerID, serverUrl, environmentID, authorizationToken) {
   const defaultUrl = `https://www.googletagmanager.com`;
   // ref: https://developers.google.com/tag-platform/tag-manager/server-side/send-data#update_the_gtmjs_source_domain
 
@@ -11,9 +11,12 @@ function loadNativeSdk(containerID, serverUrl) {
     const f = d.getElementsByTagName(s)[0];
     const j = d.createElement(s);
     const dl = l !== 'dataLayer' ? `&l=${l}` : '';
+    const gtmEnv = environmentID ? `&gtm_preview=env-${encodeURIComponent(environmentID)}` : '';
+    const gtmAuth = authorizationToken ? `&gtm_auth=${encodeURIComponent(authorizationToken)}` : '';
+    const gtmCookies = '&gtm_cookies_win=x';
     j.setAttribute('data-loader', LOAD_ORIGIN);
     j.async = true;
-    j.src = `${window.finalUrl}/gtm.js?id=${i}${dl}`;
+    j.src = `${window.finalUrl}/gtm.js?id=${i}${dl}${gtmAuth}${gtmEnv}${gtmCookies}`;
     f.parentNode.insertBefore(j, f);
   })(window, document, 'script', 'dataLayer', containerID);
 }
