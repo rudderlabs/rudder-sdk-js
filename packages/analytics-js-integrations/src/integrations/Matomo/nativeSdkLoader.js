@@ -3,7 +3,6 @@ import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constan
 function loadNativeSdk(matomoVersion, premiseUrl, serverUrl, siteId) {
   window._paq = window._paq || [];
   (function (matomoVersion, premiseUrl, serverUrl, siteId) {
-    // let u = matomoVersion === 'premise' ? premiseUrl.replace('matomo.js', '') : serverUrl || '';
     let u = '';
     if (matomoVersion === 'premise') {
       if (!premiseUrl || typeof premiseUrl !== 'string') {
