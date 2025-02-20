@@ -23,6 +23,7 @@ import type { XHRRetryQueueItemData, XHRQueueItemData } from './types';
 import {
   getCurrentTimeFormatted,
   isErrRetryable,
+  isUndefined,
   LOCAL_STORAGE,
   toBase64,
   validateEventPayloadSize,
@@ -88,19 +89,28 @@ const XhrQueue = (): ExtensionPlugin => ({
             isRawResponse: true,
             timeout: REQUEST_TIMEOUT_MS,
             callback: (result, details) => {
-              // null means item will not be requeued
-              const queueErrResp = isErrRetryable(details) ? details : null;
+              // If there is no error, we can consider the item as delivered
+              if (isUndefined(details?.error)) {
+                // null means item will not be processed further and will be removed from the queue (even from the storage)
+                done(null);
+
+                return;
+              }
+
+              const isRetryable = isErrRetryable(details?.xhr?.status ?? 0);
 
               logErrorOnFailure(
                 details,
-                url,
+                isRetryable,
                 willBeRetried,
                 attemptNumber,
                 maxRetryAttempts,
                 logger,
               );
 
-              done(queueErrResp, result);
+              // null means item will not be processed further and will be removed from the queue (even from the storage)
+              const queueErrResp = isRetryable ? details : null;
+              done(queueErrResp);
             },
           });
         },
