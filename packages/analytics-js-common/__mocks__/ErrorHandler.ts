@@ -6,6 +6,7 @@ import { defaultLogger } from './Logger';
 class ErrorHandler implements IErrorHandler {
   onError = jest.fn();
   leaveBreadcrumb = jest.fn();
+  init = jest.fn();
   httpClient = defaultHttpClient;
   logger = defaultLogger;
 }

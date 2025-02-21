@@ -10,6 +10,7 @@ describe('ErrorHandler', () => {
   beforeEach(() => {
     resetState();
     errorHandlerInstance = new ErrorHandler(defaultHttpClient, defaultLogger);
+    errorHandlerInstance.init();
   });
 
   it('should attach error listeners for unhandled errors', () => {

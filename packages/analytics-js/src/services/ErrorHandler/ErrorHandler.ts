@@ -38,6 +38,9 @@ class ErrorHandler implements IErrorHandler {
   constructor(httpClient: IHttpClient, logger: ILogger) {
     this.httpClient = httpClient;
     this.logger = logger;
+  }
+
+  init() {
     this.attachErrorListeners();
   }
 
