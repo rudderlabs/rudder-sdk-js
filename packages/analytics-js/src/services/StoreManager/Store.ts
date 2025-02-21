@@ -6,7 +6,7 @@ import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/Error
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { LOCAL_STORAGE, MEMORY_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
+import { MEMORY_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
 import { isStorageQuotaExceeded } from '../../components/capabilitiesManager/detection';
 import {
