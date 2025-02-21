@@ -7,6 +7,21 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.sha }}
   cancel-in-progress: true
 
+permissions:
+  id-token: write # allows the JWT to be requested from GitHub's OIDC provider
+  contents: read # This is required for actions/checkout
+
+env:
+  NODE_OPTIONS: "--no-warnings"
+  CACHE_CONTROL_NO_STORE: "\"no-store\""
+  CACHE_CONTROL_MAX_AGE: "\"max-age=3600\""
+  LEGACY_DIR_NAME: "legacy"
+  MODERN_DIR_NAME: "modern"
+  INTEGRATIONS_DIR_NAME: "js-integrations"
+  PLUGINS_DIR_NAME: "plugins"
+  MAJOR_VERSION_DIR_NAME: "v3"
+  LEGACY_MAJOR_VERSION_DIR_NAME: "v1.1"
+
 jobs:
   validate-actor:
     # Only allow to be deployed from tags and main branch
@@ -17,21 +32,62 @@ jobs:
     secrets:
       PAT: ${{ secrets.PAT }}
 
-  deploy:
-    needs: validate-actor
+  rollback:
     name: Rollback production deployment
-    uses: ./.github/workflows/deploy.yml
-    with:
-      environment: 'production'
-      bugsnag_release_stage: 'production'
-      s3_dir_path: 'v3'
-      s3_dir_path_legacy: 'v1.1'
-      action_type: ' Rollback'
-    secrets:
-      AWS_ACCOUNT_ID: ${{ secrets.AWS_PROD_ACCOUNT_ID }}
-      AWS_S3_BUCKET_NAME: ${{ secrets.AWS_PROD_S3_BUCKET_NAME }}
-      AWS_S3_SYNC_ROLE: ${{ secrets.AWS_PROD_S3_SYNC_ROLE }}
-      AWS_CF_DISTRIBUTION_ID: ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }}
-      BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
-      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-      SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+      - name: Install AWS CLI
+        uses: unfor19/install-aws-cli-action@master
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_PROD_ACCOUNT_ID }}:role/${{ secrets.AWS_PROD_S3_SYNC_ROLE }}
+          aws-region: us-east-1
+
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Get new versions
+        run: |
+          current_version_v1=$(jq -r .version packages/analytics-v1.1/package.json)
+          current_version=$(jq -r .version packages/analytics-js/package.json)
+          echo "CURRENT_VERSION_V1_VALUE=$current_version_v1" >> $GITHUB_ENV
+          echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
+
+      - name: Copy the core SDK artifacts from the previous version to the latest version directory
+        run: |
+          integrations_modern_path_prefix="${{ env.CURRENT_VERSION_VALUE }}/${{ env.MODERN_DIR_NAME }}/${{ env.INTEGRATIONS_DIR_NAME }}"
+          integrations_legacy_path_prefix="${{ env.CURRENT_VERSION_VALUE }}/${{ env.LEGACY_DIR_NAME }}/${{ env.INTEGRATIONS_DIR_NAME }}"
+          plugins_modern_path_prefix="${{ env.CURRENT_VERSION_VALUE }}/${{ env.MODERN_DIR_NAME }}/${{ env.PLUGINS_DIR_NAME }}"
+          s3_path_prefix="s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}"
+
+          # Copy from S3 bucket versioned directory to the same S3 bucket in the latest version directory
+          # Exclude the plugins and js-integrations directories
+
+          aws s3 cp $s3_path_prefix/${{ env.CURRENT_VERSION_VALUE }}/${{ env.LEGACY_DIR_NAME }}/ $s3_path_prefix/${{ env.MAJOR_VERSION_DIR_NAME }}/${{ env.LEGACY_DIR_NAME }}/ --recursive --exclude "$integrations_legacy_path_prefix/*" --exclude "$integrations_legacy_path_prefix/**" --cache-control ${{ env.CACHE_CONTROL_NO_STORE }}"
+
+          aws s3 cp $s3_path_prefix/${{ env.CURRENT_VERSION_VALUE }}/${{ env.MODERN_DIR_NAME }}/ $s3_path_prefix/${{ env.MAJOR_VERSION_DIR_NAME }}/${{ env.MODERN_DIR_NAME }}/ --recursive --exclude "$plugins_modern_path_prefix/*" --exclude "$plugins_modern_path_prefix/**" --exclude "$integrations_modern_path_prefix/*" --exclude "$integrations_modern_path_prefix/**" --cache-control ${{ env.CACHE_CONTROL_NO_STORE }}"
+
+      - name: Invalidate CloudFront cache for the latest version directory
+        run: |
+          invalidation_id=$(AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/${{ env.MAJOR_VERSION_DIR_NAME }}*" --query "Invalidation.Id" --output text)
+
+          aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --id "$invalidation_id"
+
+      # Repeat the above steps for the legacy SDK artifacts
+      - name: Copy the legacy core SDK artifacts from the previous version to the latest version directory
+        run: |
+          s3_path_prefix="s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}"
+
+          # Copy from S3 bucket versioned directory to the same S3 bucket in the latest version directory
+          aws s3 cp $s3_path_prefix/${{ env.CURRENT_VERSION_V1_VALUE }}/ $s3_path_prefix/${{ env.LEGACY_MAJOR_VERSION_DIR_NAME }}/ --recursive --cache-control ${{ env.CACHE_CONTROL_NO_STORE }}
+
+      - name: Invalidate CloudFront cache for the latest version directory (legacy SDK artifacts)
+        run: |
+          invalidation_id=$(AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/${{ env.LEGACY_MAJOR_VERSION_DIR_NAME }}*" --query "Invalidation.Id" --output text)
+
+          aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --id "$invalidation_id"
