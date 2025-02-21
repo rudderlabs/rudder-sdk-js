@@ -6,6 +6,7 @@ describe('Localstorage', () => {
 
   beforeEach(() => {
     engine = getStorageEngine('localStorage');
+    engine.configure?.();
     engine.clear();
   });
 

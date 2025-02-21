@@ -9,6 +9,7 @@ describe('CookieStorage', () => {
 
   beforeEach(() => {
     engine = getStorageEngine('cookieStorage');
+    engine.configure?.();
     engine.clear();
   });
 

@@ -38,6 +38,10 @@ import { defaultLogger } from '../services/Logger/Logger';
 import { PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING } from '../constants/logMessages';
 import { state } from '../state';
 import { defaultErrorHandler } from '../services/ErrorHandler';
+import { defaultCookieStorage } from '../services/StoreManager/storages/CookieStorage';
+import { defaultLocalStorage } from '../services/StoreManager/storages/LocalStorage';
+import { defaultSessionStorage } from '../services/StoreManager/storages/sessionStorage';
+import { defaultInMemoryStorage } from '../services/StoreManager/storages/InMemoryStorage';
 
 // TODO: add analytics restart/reset mechanism
 
@@ -110,6 +114,12 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   static initializeGlobalResources() {
     // We need to initialize the error handler first to catch any unhandled errors occurring in this module as well
     defaultErrorHandler.init();
+
+    // Initialize the storage engines with default options
+    defaultCookieStorage.configure();
+    defaultLocalStorage.configure();
+    defaultSessionStorage.configure();
+    defaultInMemoryStorage.configure();
   }
 
   /**
