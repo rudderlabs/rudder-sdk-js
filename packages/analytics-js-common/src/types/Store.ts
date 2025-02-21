@@ -53,7 +53,7 @@ export interface IStore {
 }
 
 export interface IStorage extends Storage {
-  configure?(options: StorageOptions): void;
+  configure?(options?: StorageOptions): void;
   keys(): string[];
   isEnabled?: boolean;
 }
