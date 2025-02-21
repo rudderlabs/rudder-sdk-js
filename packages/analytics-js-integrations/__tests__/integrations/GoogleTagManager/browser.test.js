@@ -15,6 +15,8 @@ describe('GoogleTagManager', () => {
   const config = {
     containerID: 'DUMMY_CONTAINER_ID',
     serverUrl: 'DUMMY_SERVER_URL',
+    environmentID: 'env-2',
+    authorizationToken: 'random',
   };
   const analytics = {
     logLevel: 'debug',
@@ -44,7 +46,12 @@ describe('GoogleTagManager', () => {
   describe('init', () => {
     it('should call loadNativeSdk with containerID and serverUrl', () => {
       googleTagManager.init();
-      expect(loadNativeSdk).toHaveBeenCalledWith(config.containerID, config.serverUrl);
+      expect(loadNativeSdk).toHaveBeenCalledWith(
+        config.containerID,
+        config.serverUrl,
+        config.environmentID,
+        config.authorizationToken,
+      );
     });
   });
 
