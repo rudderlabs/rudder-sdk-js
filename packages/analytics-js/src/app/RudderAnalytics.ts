@@ -168,7 +168,6 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
 
       setExposedGlobal(GLOBAL_PRELOAD_BUFFER, clone(preloadedEventsArray));
 
-      this.analyticsInstances[writeKey] = new Analytics();
       this.getAnalyticsInstance(writeKey)?.load(
         writeKey,
         dataPlaneUrl,
