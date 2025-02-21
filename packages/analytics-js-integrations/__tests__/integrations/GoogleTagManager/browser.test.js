@@ -37,6 +37,8 @@ describe('GoogleTagManager', () => {
       expect(googleTagManager.analytics).toEqual(analytics);
       expect(googleTagManager.containerID).toEqual(config.containerID);
       expect(googleTagManager.serverUrl).toEqual(config.serverUrl);
+      expect(googleTagManager.environmentID).toEqual(config.environmentID);
+      expect(googleTagManager.authorizationToken).toEqual(config.authorizationToken);
       expect(googleTagManager.shouldApplyDeviceModeTransformation).toEqual(true);
       expect(googleTagManager.propagateEventsUntransformedOnError).toEqual(false);
       expect(googleTagManager.destinationId).toEqual(destinationInfo.destinationId);
