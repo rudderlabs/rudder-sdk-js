@@ -73,4 +73,26 @@ describe('loadNativeSdk', () => {
 
     expect(insertedScript.src).toBe(expectedSrc);
   });
+
+  test('should set window.finalUrl and insert a script without environmentId and authorizationToken parameters', () => {
+    const containerID = 'GTM-TEST';
+    const serverUrl = 'https://custom-server.com';
+    // Call the function with undefined environmentID and authorizationToken.
+    loadNativeSdk(containerID, serverUrl, undefined, undefined);
+
+    // Verify that window.finalUrl is set to the provided serverUrl.
+    expect(window.finalUrl).toBe(serverUrl);
+
+    // Retrieve the inserted script element. The function inserts the new script before the dummy script.
+    const insertedScript = document.getElementsByTagName('script')[0];
+
+    // Since dataLayer is 'dataLayer', dl is an empty string.
+    // environmentID and authorizationToken are undefined, so their query parts are empty.
+    // The final src should be: serverUrl/gtm.js?id=containerID + '&gtm_cookies_win=x'
+    const expectedSrc = `${serverUrl}/gtm.js?id=${containerID}&gtm_cookies_win=x`;
+
+    expect(insertedScript.getAttribute('data-loader')).toBe(LOAD_ORIGIN);
+    expect(insertedScript.async).toBe(true);
+    expect(insertedScript.src).toBe(expectedSrc);
+  });
 });
