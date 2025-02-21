@@ -1,23 +1,29 @@
 import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
 
 function loadNativeSdk(containerID, serverUrl, environmentID, authorizationToken) {
-  const defaultUrl = `https://www.googletagmanager.com`;
-  // ref: https://developers.google.com/tag-platform/tag-manager/server-side/send-data#update_the_gtmjs_source_domain
+  const defaultUrl = 'https://www.googletagmanager.com';
+  window.finalUrl = serverUrl || defaultUrl;
 
-  window.finalUrl = serverUrl ? serverUrl : defaultUrl;
-  (function (w, d, s, l, i) {
-    w[l] = w[l] || [];
-    w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
-    const f = d.getElementsByTagName(s)[0];
-    const j = d.createElement(s);
-    const dl = l !== 'dataLayer' ? `&l=${l}` : '';
-    const gtmEnv = environmentID ? `&gtm_preview=${encodeURIComponent(environmentID)}` : '';
-    const gtmAuth = authorizationToken ? `&gtm_auth=${encodeURIComponent(authorizationToken)}` : '';
-    const gtmCookies = '&gtm_cookies_win=x';
-    j.setAttribute('data-loader', LOAD_ORIGIN);
-    j.async = true;
-    j.src = `${window.finalUrl}/gtm.js?id=${i}${dl}${gtmAuth}${gtmEnv}${gtmCookies}`;
-    f.parentNode.insertBefore(j, f);
+  // Reference: https://developers.google.com/tag-platform/tag-manager/server-side/send-data#update_the_gtmjs_source_domain
+  (function (window, document, tag, dataLayerName, containerID) {
+    window[dataLayerName] = window[dataLayerName] || [];
+    window[dataLayerName].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+
+    const firstScript = document.getElementsByTagName(tag)[0];
+    const gtmScript = document.createElement(tag);
+
+    // Construct query parameters using URLSearchParams
+    const queryParams = new URLSearchParams({ id: containerID, gtm_cookies_win: 'x' });
+
+    if (dataLayerName !== 'dataLayer') queryParams.append('l', dataLayerName);
+    if (environmentID) queryParams.append('gtm_preview', environmentID);
+    if (authorizationToken) queryParams.append('gtm_auth', authorizationToken);
+
+    gtmScript.setAttribute('data-loader', LOAD_ORIGIN);
+    gtmScript.async = true;
+    gtmScript.src = `${window.finalUrl}/gtm.js?${queryParams.toString()}`;
+
+    firstScript.parentNode.insertBefore(gtmScript, firstScript);
   })(window, document, 'script', 'dataLayer', containerID);
 }
 
