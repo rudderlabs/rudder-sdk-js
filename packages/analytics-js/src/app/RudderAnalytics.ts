@@ -37,6 +37,7 @@ import { Analytics } from '../components/core/Analytics';
 import { defaultLogger } from '../services/Logger/Logger';
 import { PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING } from '../constants/logMessages';
 import { state } from '../state';
+import { defaultErrorHandler } from '../services/ErrorHandler';
 
 // TODO: add analytics restart/reset mechanism
 
@@ -64,6 +65,8 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
         return RudderAnalytics.globalSingleton;
         // END-NO-SONAR-SCAN
       }
+
+      RudderAnalytics.initializeGlobalResources();
 
       this.setDefaultInstanceKey = this.setDefaultInstanceKey.bind(this);
       this.getAnalyticsInstance = this.getAnalyticsInstance.bind(this);
@@ -102,6 +105,11 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     } catch (error: any) {
       dispatchErrorEvent(error);
     }
+  }
+
+  static initializeGlobalResources() {
+    // We need to initialize the error handler first to catch any unhandled errors occurring in this module as well
+    defaultErrorHandler.init();
   }
 
   /**
