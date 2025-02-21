@@ -7,6 +7,7 @@ export type SDKError = unknown | Error | ErrorEvent | Event | PromiseRejectionEv
 export interface IErrorHandler {
   httpClient: IHttpClient;
   logger: ILogger;
+  init(): void;
   onError(error: SDKError, context?: string, customMessage?: string, errorType?: string): void;
   leaveBreadcrumb(breadcrumb: string): void;
 }

@@ -6,6 +6,7 @@ describe('SessionStorage', () => {
 
   beforeEach(() => {
     engine = getStorageEngine('sessionStorage');
+    engine.configure?.();
     engine.clear();
   });
 
