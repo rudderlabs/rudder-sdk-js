@@ -4,6 +4,7 @@ import { getDefaultCookieOptions } from '../../../../src/services/StoreManager/s
 jest.mock('../../../../src/services/StoreManager/top-domain', () => ({
   domain: jest.fn().mockReturnValue('example.com'),
 }));
+
 describe('getDefaultCookieOptions', () => {
   it('should return default cookie options with a valid top domain', () => {
     const result = getDefaultCookieOptions();

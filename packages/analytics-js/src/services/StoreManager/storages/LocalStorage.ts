@@ -23,14 +23,13 @@ class LocalStorage implements IStorage {
   isEnabled = true;
   length = 0;
 
-  constructor(options: ILocalStorageOptions = {}, logger?: ILogger) {
+  constructor(logger?: ILogger) {
     this.options = getDefaultLocalStorageOptions();
     this.logger = logger;
-    this.configure(options);
   }
 
-  configure(options: Partial<ILocalStorageOptions>): ILocalStorageOptions {
-    this.options = mergeDeepRight(this.options, options);
+  configure(options?: Partial<ILocalStorageOptions>): ILocalStorageOptions {
+    this.options = mergeDeepRight(this.options, options ?? {});
     this.isSupportAvailable = isStorageAvailable(LOCAL_STORAGE);
     this.isEnabled = Boolean(this.options.enabled && this.isSupportAvailable);
     return this.options;
@@ -68,6 +67,6 @@ class LocalStorage implements IStorage {
   }
 }
 
-const defaultLocalStorage = new LocalStorage({}, defaultLogger);
+const defaultLocalStorage = new LocalStorage(defaultLogger);
 
 export { LocalStorage, defaultLocalStorage };
