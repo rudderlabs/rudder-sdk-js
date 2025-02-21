@@ -31,6 +31,7 @@ describe('CookieStorage', () => {
     // engine.clear();
     // expect(engine.length).toStrictEqual(0);
   });
+
   it('should not set domain if sameDomainCookiesOnly is set to true', () => {
     expect(typeof engine.options.domain).toBe('string');
     configureCookieStorageEngine({
@@ -42,5 +43,19 @@ describe('CookieStorage', () => {
     });
     const newEngine = getStorageEngine('cookieStorage');
     expect(newEngine.options.domain).toBe(undefined);
+  });
+
+  it('should properly configure cookie attributes', () => {
+    configureCookieStorageEngine({
+      samesite: 'Strict',
+      secure: true,
+      path: '/app',
+      maxage: 3600000,
+    });
+    const newEngine = getStorageEngine('cookieStorage');
+    expect(newEngine.options.samesite).toBe('Strict');
+    expect(newEngine.options.secure).toBe(true);
+    expect(newEngine.options.path).toBe('/app');
+    expect(newEngine.options.maxage).toBe(3600000);
   });
 });
