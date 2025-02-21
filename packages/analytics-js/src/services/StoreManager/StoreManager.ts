@@ -65,11 +65,10 @@ class StoreManager implements IStoreManager {
         secure: loadOptions.secureCookie,
         domain: loadOptions.setCookieDomain,
         sameDomainCookiesOnly: loadOptions.sameDomainCookiesOnly,
-        enabled: true,
       },
-      localStorageOptions: { enabled: true },
-      inMemoryStorageOptions: { enabled: true },
-      sessionStorageOptions: { enabled: true },
+      localStorageOptions: {},
+      inMemoryStorageOptions: {},
+      sessionStorageOptions: {},
     };
 
     configureStorageEngines(
