@@ -45,7 +45,7 @@ class ErrorHandler implements IErrorHandler {
    * Initializes the error handler by attaching global error listeners.
    * This method should be called once after construction.
    */
-  init() {
+  public init() {
     if (this.initialized) {
       return;
     }
@@ -158,6 +158,7 @@ class ErrorHandler implements IErrorHandler {
   }
 }
 
+// Note: Remember to call defaultErrorHandler.init() before using it
 const defaultErrorHandler = new ErrorHandler(defaultHttpClient, defaultLogger);
 
 export { ErrorHandler, defaultErrorHandler };
