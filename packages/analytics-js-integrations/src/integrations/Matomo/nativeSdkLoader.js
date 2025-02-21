@@ -3,7 +3,18 @@ import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constan
 function loadNativeSdk(matomoVersion, premiseUrl, serverUrl, siteId) {
   window._paq = window._paq || [];
   (function (matomoVersion, premiseUrl, serverUrl, siteId) {
-    let u = serverUrl || '';
+    let u = '';
+    if (matomoVersion === 'premise') {
+      if (!premiseUrl || typeof premiseUrl !== 'string') {
+        throw new Error('premiseUrl is required for premise deployments and must be a string');
+      }
+      const suffix = 'matomo.js';
+      u = premiseUrl.endsWith(suffix)
+        ? premiseUrl.slice(0, -suffix.length)
+        : premiseUrl;
+    } else {
+      u = serverUrl || '';
+    }
     window._paq.push(['setTrackerUrl', `${u}matomo.php`]);
     window._paq.push(['setSiteId', siteId]);
     const d = document;
