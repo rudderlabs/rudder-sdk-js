@@ -8,7 +8,6 @@ global.window.innerHeight = 1024;
 global.window.__BUNDLE_ALL_PLUGINS__ = false;
 global.window.__LOCK_DEPS_VERSION__ = false;
 global.window.__IS_LEGACY_BUILD__ = false;
-global.window.__IS_DYNAMIC_CUSTOM_BUNDLE__ = false;
 // Only define the mock if it's not already defined (e.g., in a real browser)
 if (typeof PromiseRejectionEvent === 'undefined') {
   // Mock class (very minimal)

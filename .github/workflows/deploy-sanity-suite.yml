@@ -57,13 +57,13 @@ jobs:
 
           if [ "${{ inputs.environment }}" == "staging" ]; then
             echo "SDK_CDN_VERSION_PATH_PREFIX=staging/latest/" >> $GITHUB_ENV
-            echo "SUITE_CDN_PATH=/staging/" >> $GITHUB_ENV
+            echo "SUITE_CDN_PATH=/staging" >> $GITHUB_ENV
           elif [ "${{ inputs.environment }}" == "production" ]; then
             echo "SDK_CDN_VERSION_PATH_PREFIX=" >> $GITHUB_ENV
-            echo "SUITE_CDN_PATH=/" >> $GITHUB_ENV
+            echo "SUITE_CDN_PATH=" >> $GITHUB_ENV
           else
             echo "SDK_CDN_VERSION_PATH_PREFIX=dev/latest/" >> $GITHUB_ENV
-            echo "SUITE_CDN_PATH=/dev/" >> $GITHUB_ENV
+            echo "SUITE_CDN_PATH=/dev" >> $GITHUB_ENV
           fi
 
       - name: Install AWS CLI
@@ -84,6 +84,10 @@ jobs:
       - name: Setup workspace
         env:
           HUSKY: 0
+          REMOTE_MODULES_BASE_PATH: 'https://cdn.rudderlabs.com/${{ env.SDK_CDN_VERSION_PATH_PREFIX }}v3/modern/plugins'
+          BUGSNAG_RELEASE_STAGE: ${{ env.BUGSNAG_RELEASE_STAGE }}
+          BUGSNAG_API_KEY: ${{ secrets.BUGSNAG_API_KEY }}
+          LOCK_DEPS_VERSION: ${{ inputs.environment == 'production' && 'true' || 'false' }}
         run: |
           npm run setup:ci
 
@@ -92,8 +96,6 @@ jobs:
           WRITE_KEY: ${{ secrets.SANITY_SUITE_WRITE_KEY }}
           DATAPLANE_URL: ${{ secrets.SANITY_SUITE_DATAPLANE_URL }}
           CONFIG_SERVER_HOST: ${{ secrets.SANITY_SUITE_CONFIG_SERVER_HOST }}
-          BUGSNAG_API_KEY: ${{ secrets.BUGSNAG_API_KEY }}
-          BUGSNAG_RELEASE_STAGE: ${{ env.BUGSNAG_RELEASE_STAGE }}
           SDK_CDN_VERSION_PATH_PREFIX: ${{ env.SDK_CDN_VERSION_PATH_PREFIX }}
           HUSKY: 0
         run: |
@@ -101,7 +103,7 @@ jobs:
 
       - name: Sync files to S3
         run: |
-          aws s3 cp packages/sanity-suite/dist/ s3://${{ secrets.AWS_S3_BUCKET_NAME }}/sanity-suite${{ env.SUITE_CDN_PATH }} --recursive --cache-control ${{ env.CACHE_CONTROL }}
+          aws s3 cp packages/sanity-suite/dist/ s3://${{ secrets.AWS_S3_BUCKET_NAME }}/sanity-suite${{ env.SUITE_CDN_PATH }}/ --recursive --cache-control ${{ env.CACHE_CONTROL }}
 
       - name: Create Cloudfront invalidation
         run: |
@@ -114,7 +116,7 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           PROJECT_NAME: 'Sanity suite - ${{ inputs.environment }}'
-          CDN_URL: 'https://cdn.rudderlabs.com/sanity-suite${{ env.SUITE_CDN_PATH }}v3/cdn/index.html'
+          CDN_URL: 'https://cdn.rudderlabs.com/sanity-suite${{ env.SUITE_CDN_PATH }}/v3/cdn/index.html'
           LINK_TEXT: ${{ ((inputs.environment == 'development' && format('v{0} - Development', env.CURRENT_VERSION_VALUE)) || (inputs.environment == 'staging' && format('v{0} - Staging', env.CURRENT_VERSION_VALUE)) || format('v{0}', env.CURRENT_VERSION_VALUE)) }}
         with:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
