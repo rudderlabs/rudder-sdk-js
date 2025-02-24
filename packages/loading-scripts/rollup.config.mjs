@@ -9,7 +9,6 @@ import serve from 'rollup-plugin-serve';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
-const remotePluginsBasePath = process.env.REMOTE_MODULES_BASE_PATH || 'http://localhost:3002/cdn/';
 const outDirRoot = `dist`;
 const distName = 'loading-script';
 const modName = 'script';
@@ -36,12 +35,8 @@ export function getDefaultConfig(distName) {
     plugins: [
       replace({
         preventAssignment: true,
-        __SDK_BUNDLE_FILENAME__: distName,
         __WRITE_KEY__: process.env.WRITE_KEY,
         __DATAPLANE_URL__: process.env.DATAPLANE_URL,
-        __CONFIG_SERVER_HOST__: process.env.CONFIG_SERVER_HOST || '',
-        __DEST_SDK_BASE_URL__: process.env.DEST_SDK_BASE_URL,
-        __PLUGINS_BASE_URL__: remotePluginsBasePath,
         __PACKAGE_VERSION__: version,
       }),
       typescript({

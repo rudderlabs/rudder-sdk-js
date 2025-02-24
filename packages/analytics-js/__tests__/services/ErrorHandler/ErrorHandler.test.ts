@@ -117,12 +117,18 @@ describe('ErrorHandler', () => {
       expect(defaultLogger.error).toHaveBeenCalledTimes(0);
     });
 
-    it('should skip handled errors if they are not originated from the sdk', () => {
+    it('should not skip handled errors even if they are not originated from the sdk', () => {
+      // Enable error reporting
+      state.reporting.isErrorReportingEnabled.value = true;
+
       // For this error, the stacktrace would not contain the sdk file names
       errorHandlerInstance.onError(new Error('dummy error'));
 
-      // It should not be logged to the console
-      expect(defaultLogger.error).toHaveBeenCalledTimes(0);
+      // It should be reported to the metrics service
+      expect(defaultHttpClient.getAsyncData).toHaveBeenCalledTimes(1);
+
+      // It should be logged to the console
+      expect(defaultLogger.error).toHaveBeenCalledTimes(1);
     });
 
     it('should not log unhandled errors to the console', () => {

@@ -28,6 +28,7 @@ const additionalWatchPaths = isLegacyBuild ? ['../analytics-js-plugins/src/**', 
 const variantSubfolder = isLegacyBuild ? '/legacy' : '/modern';
 const bundledPluginsList = process.env.BUNDLED_PLUGINS;
 const isDynamicCustomBuild = Boolean(bundledPluginsList);
+const bundleAllPlugins = isLegacyBuild || bundledPluginsList === 'all';
 const isContentScriptBuild = process.env.NO_EXTERNAL_HOST;
 const isModuleFederatedBuild = !isDynamicCustomBuild && !isLegacyBuild;
 const sourceMapType =
@@ -39,7 +40,7 @@ remotePluginsBasePath = remotePluginsBasePath?.endsWith('/') ? remotePluginsBase
 let destSDKBaseURL = process.env.DEST_SDK_BASE_URL;
 destSDKBaseURL = destSDKBaseURL?.endsWith('/') ? destSDKBaseURL : `${destSDKBaseURL}/`;
 const outDirNpmRoot = `dist/npm`;
-const outDirCDNRoot = isDynamicCustomBuild ? `dist/${cdnPath}` : `dist/${cdnPath}`;
+const outDirCDNRoot = `dist/${cdnPath}`;
 let outDirNpm = `${outDirNpmRoot}${variantSubfolder}`;
 const outDirCDN = `${outDirCDNRoot}${variantSubfolder}`;
 const distName = 'rsa';
@@ -49,13 +50,11 @@ const remotePluginsHostPromise = `Promise.resolve(window.RudderStackGlobals && w
 const moduleType = process.env.MODULE_TYPE || 'cdn';
 const lockDepsVersion = process.env.LOCK_DEPS_VERSION ?? false;
 const isCDNPackageBuild = moduleType === 'cdn';
-let bugsnagSDKUrl = 'https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js';
 let polyfillIoUrl = 'https://polyfill-fastly.io/v3/polyfill.min.js';
 
 // For Chrome extension as content script any references in code to third party URLs
 // throw violations at approval phase even if relevant code is not used
 if (isContentScriptBuild) {
-  bugsnagSDKUrl = '';
   polyfillIoUrl = '';
 }
 
@@ -181,18 +180,13 @@ export function getDefaultConfig(distName) {
     plugins: [
       replace({
         preventAssignment: true,
-        __BUNDLE_ALL_PLUGINS__: isLegacyBuild || isDynamicCustomBuild,
-        __IS_DYNAMIC_CUSTOM_BUNDLE__: isDynamicCustomBuild,
-        __BUNDLED_PLUGINS_LIST__: bundledPluginsList ?? '',
+        __BUNDLE_ALL_PLUGINS__: bundleAllPlugins,
         __IS_LEGACY_BUILD__: isLegacyBuild,
         __PACKAGE_VERSION__: version,
         __MODULE_TYPE__: moduleType,
         __LOCK_DEPS_VERSION__: lockDepsVersion,
-        __SDK_BUNDLE_FILENAME__: distName,
         __RS_POLYFILLIO_SDK_URL__: polyfillIoUrl,
-        __RS_BUGSNAG_API_KEY__: process.env.BUGSNAG_API_KEY || '{{__RS_BUGSNAG_API_KEY__}}',
         __RS_BUGSNAG_RELEASE_STAGE__: process.env.BUGSNAG_RELEASE_STAGE || 'production',
-        __RS_BUGSNAG_SDK_URL__: bugsnagSDKUrl,
       }),
       resolve({
         jsnext: true,
