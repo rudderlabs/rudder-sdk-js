@@ -33,14 +33,30 @@ import {
 class ErrorHandler implements IErrorHandler {
   httpClient: IHttpClient;
   logger: ILogger;
+  private initialized = false;
 
   // If no logger is passed errors will be thrown as unhandled error
   constructor(httpClient: IHttpClient, logger: ILogger) {
     this.httpClient = httpClient;
     this.logger = logger;
-    this.attachErrorListeners();
   }
 
+  /**
+   * Initializes the error handler by attaching global error listeners.
+   * This method should be called once after construction.
+   */
+  public init() {
+    if (this.initialized) {
+      return;
+    }
+
+    this.attachErrorListeners();
+    this.initialized = true;
+  }
+
+  /**
+   * Attach error listeners to the global window object
+   */
   attachErrorListeners() {
     (globalThis as typeof window).addEventListener('error', (event: ErrorEvent | Event) => {
       this.onError(event, ERROR_HANDLER, undefined, ErrorType.UNHANDLEDEXCEPTION);
@@ -54,6 +70,13 @@ class ErrorHandler implements IErrorHandler {
     );
   }
 
+  /**
+   * Handle errors
+   * @param error - The error to handle
+   * @param context - The context of where the error occurred
+   * @param customMessage - The custom message of the error
+   * @param errorType - The type of the error (handled or unhandled)
+   */
   onError(
     error: SDKError,
     context = '',
@@ -135,6 +158,7 @@ class ErrorHandler implements IErrorHandler {
   }
 }
 
+// Note: Remember to call defaultErrorHandler.init() before using it
 const defaultErrorHandler = new ErrorHandler(defaultHttpClient, defaultLogger);
 
 export { ErrorHandler, defaultErrorHandler };

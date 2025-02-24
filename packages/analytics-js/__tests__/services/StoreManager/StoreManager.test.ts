@@ -77,11 +77,10 @@ describe('StoreManager', () => {
           secure: state.loadOptions.value.secureCookie,
           domain: state.loadOptions.value.setCookieDomain,
           sameDomainCookiesOnly: state.loadOptions.value.sameDomainCookiesOnly,
-          enabled: true,
         },
-        { enabled: true },
-        { enabled: true },
-        { enabled: true },
+        {},
+        {},
+        {},
       );
 
       expect(storeManager.stores).toHaveProperty('clientDataInCookie');

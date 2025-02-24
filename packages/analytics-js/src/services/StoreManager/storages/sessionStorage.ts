@@ -22,14 +22,13 @@ class SessionStorage implements IStorage {
   length = 0;
   store?: Storage;
 
-  constructor(options: ISessionStorageOptions = {}, logger?: ILogger) {
+  constructor(logger?: ILogger) {
     this.options = getDefaultSessionStorageOptions();
     this.logger = logger;
-    this.configure(options);
   }
 
-  configure(options: Partial<ISessionStorageOptions>): ISessionStorageOptions {
-    this.options = mergeDeepRight(this.options, options);
+  configure(options?: Partial<ISessionStorageOptions>): ISessionStorageOptions {
+    this.options = mergeDeepRight(this.options, options ?? {});
     this.isSupportAvailable = isStorageAvailable(SESSION_STORAGE);
     // when storage is blocked by the user, even accessing the property throws an error
     if (this.isSupportAvailable) {
@@ -88,6 +87,6 @@ class SessionStorage implements IStorage {
   }
 }
 
-const defaultSessionStorage = new SessionStorage({}, defaultLogger);
+const defaultSessionStorage = new SessionStorage(defaultLogger);
 
 export { SessionStorage, defaultSessionStorage };
