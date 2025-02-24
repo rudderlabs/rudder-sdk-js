@@ -84,6 +84,10 @@ jobs:
       - name: Setup workspace
         env:
           HUSKY: 0
+          REMOTE_MODULES_BASE_PATH: 'https://cdn.rudderlabs.com/${{ env.SDK_CDN_VERSION_PATH_PREFIX }}v3/modern/plugins'
+          BUGSNAG_RELEASE_STAGE: ${{ env.BUGSNAG_RELEASE_STAGE }}
+          BUGSNAG_API_KEY: ${{ secrets.BUGSNAG_API_KEY }}
+          LOCK_DEPS_VERSION: ${{ inputs.environment == 'production' && 'true' || 'false' }}
         run: |
           npm run setup:ci
 
@@ -92,8 +96,6 @@ jobs:
           WRITE_KEY: ${{ secrets.SANITY_SUITE_WRITE_KEY }}
           DATAPLANE_URL: ${{ secrets.SANITY_SUITE_DATAPLANE_URL }}
           CONFIG_SERVER_HOST: ${{ secrets.SANITY_SUITE_CONFIG_SERVER_HOST }}
-          BUGSNAG_API_KEY: ${{ secrets.BUGSNAG_API_KEY }}
-          BUGSNAG_RELEASE_STAGE: ${{ env.BUGSNAG_RELEASE_STAGE }}
           SDK_CDN_VERSION_PATH_PREFIX: ${{ env.SDK_CDN_VERSION_PATH_PREFIX }}
           HUSKY: 0
         run: |
