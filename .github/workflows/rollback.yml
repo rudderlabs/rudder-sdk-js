@@ -91,6 +91,7 @@ jobs:
 
       - name: Get rollback sdk versions
         run: |
+          cd rudder-sdk-js
           rollback_version=$(jq -r .version packages/analytics-js/package.json)
           echo "ROLLBACK_VERSION_VALUE=$rollback_version" >> $GITHUB_ENV
           echo "Rollback version: $rollback_version"
