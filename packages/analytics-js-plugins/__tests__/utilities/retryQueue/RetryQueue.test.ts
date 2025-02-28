@@ -198,7 +198,14 @@ describe('Queue', () => {
 
     queue.addItem('a');
 
-    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), {
+      retryAttemptNumber: 0,
+      maxRetryAttempts: Infinity,
+      willBeRetried: true,
+      timeSinceFirstAttempt: expect.any(Number),
+      timeSinceLastAttempt: expect.any(Number),
+      reclaimed: false,
+    });
   });
 
   it('should retry a task if it fails', () => {
@@ -214,7 +221,14 @@ describe('Queue', () => {
     queue.addItem('a');
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
-    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), {
+      retryAttemptNumber: 0,
+      maxRetryAttempts: Infinity,
+      willBeRetried: true,
+      timeSinceFirstAttempt: expect.any(Number),
+      timeSinceLastAttempt: expect.any(Number),
+      reclaimed: false,
+    });
 
     // Delay for the first retry
     mockProcessItemCb.mockReset();
@@ -222,7 +236,14 @@ describe('Queue', () => {
     jest.advanceTimersByTime(nextTickDelay);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
-    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 1, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), {
+      retryAttemptNumber: 1,
+      maxRetryAttempts: Infinity,
+      willBeRetried: true,
+      timeSinceFirstAttempt: expect.any(Number),
+      timeSinceLastAttempt: expect.any(Number),
+      reclaimed: false,
+    });
   });
 
   it('should delay retries', () => {
@@ -238,7 +259,14 @@ describe('Queue', () => {
     queue.addItem('a');
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
-    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), {
+      retryAttemptNumber: 0,
+      maxRetryAttempts: Infinity,
+      willBeRetried: true,
+      timeSinceFirstAttempt: expect.any(Number),
+      timeSinceLastAttempt: expect.any(Number),
+      reclaimed: false,
+    });
 
     // Delay for the retry
     mockProcessItemCb.mockReset();
@@ -246,7 +274,14 @@ describe('Queue', () => {
     jest.advanceTimersByTime(nextTickDelay);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
-    expect(queue.processQueueCb).toHaveBeenCalledWith('b', expect.any(Function), 1, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledWith('b', expect.any(Function), {
+      retryAttemptNumber: 1,
+      maxRetryAttempts: Infinity,
+      willBeRetried: true,
+      timeSinceFirstAttempt: expect.any(Number),
+      timeSinceLastAttempt: expect.any(Number),
+      reclaimed: false,
+    });
   });
 
   it('should respect shouldRetry', () => {
@@ -347,38 +382,38 @@ describe('Queue', () => {
     jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(4);
-    expect(queue.processQueueCb).toHaveBeenNthCalledWith(
-      1,
-      'a',
-      expect.any(Function),
-      0,
-      Infinity,
-      true,
-    );
-    expect(queue.processQueueCb).toHaveBeenNthCalledWith(
-      2,
-      ['b', 'c'],
-      expect.any(Function),
-      0,
-      Infinity,
-      true,
-    );
-    expect(queue.processQueueCb).toHaveBeenNthCalledWith(
-      3,
-      ['d', 'e'],
-      expect.any(Function),
-      0,
-      Infinity,
-      true,
-    );
-    expect(queue.processQueueCb).toHaveBeenNthCalledWith(
-      4,
-      'f',
-      expect.any(Function),
-      0,
-      Infinity,
-      true,
-    );
+    expect(queue.processQueueCb).toHaveBeenNthCalledWith(1, 'a', expect.any(Function), {
+      retryAttemptNumber: 0,
+      maxRetryAttempts: Infinity,
+      willBeRetried: true,
+      timeSinceFirstAttempt: expect.any(Number),
+      timeSinceLastAttempt: expect.any(Number),
+      reclaimed: true,
+    });
+    expect(queue.processQueueCb).toHaveBeenNthCalledWith(2, ['b', 'c'], expect.any(Function), {
+      retryAttemptNumber: 0,
+      maxRetryAttempts: Infinity,
+      willBeRetried: true,
+      timeSinceFirstAttempt: expect.any(Number),
+      timeSinceLastAttempt: expect.any(Number),
+      reclaimed: true,
+    });
+    expect(queue.processQueueCb).toHaveBeenNthCalledWith(3, ['d', 'e'], expect.any(Function), {
+      retryAttemptNumber: 0,
+      maxRetryAttempts: Infinity,
+      willBeRetried: true,
+      timeSinceFirstAttempt: expect.any(Number),
+      timeSinceLastAttempt: expect.any(Number),
+      reclaimed: true,
+    });
+    expect(queue.processQueueCb).toHaveBeenNthCalledWith(4, 'f', expect.any(Function), {
+      retryAttemptNumber: 0,
+      maxRetryAttempts: Infinity,
+      willBeRetried: true,
+      timeSinceFirstAttempt: expect.any(Number),
+      timeSinceLastAttempt: expect.any(Number),
+      reclaimed: true,
+    });
   });
 
   it('should take over an in-progress task if a queue is abandoned', () => {
@@ -426,38 +461,38 @@ describe('Queue', () => {
     jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(4);
-    expect(queue.processQueueCb).toHaveBeenNthCalledWith(
-      1,
-      'a',
-      expect.any(Function),
-      1,
-      Infinity,
-      true,
-    );
-    expect(queue.processQueueCb).toHaveBeenNthCalledWith(
-      2,
-      ['b', 'c'],
-      expect.any(Function),
-      1,
-      Infinity,
-      true,
-    );
-    expect(queue.processQueueCb).toHaveBeenNthCalledWith(
-      3,
-      ['d', 'e'],
-      expect.any(Function),
-      1,
-      Infinity,
-      true,
-    );
-    expect(queue.processQueueCb).toHaveBeenNthCalledWith(
-      4,
-      'f',
-      expect.any(Function),
-      1,
-      Infinity,
-      true,
-    );
+    expect(queue.processQueueCb).toHaveBeenNthCalledWith(1, 'a', expect.any(Function), {
+      retryAttemptNumber: 1,
+      maxRetryAttempts: Infinity,
+      willBeRetried: true,
+      timeSinceFirstAttempt: expect.any(Number),
+      timeSinceLastAttempt: expect.any(Number),
+      reclaimed: true,
+    });
+    expect(queue.processQueueCb).toHaveBeenNthCalledWith(2, ['b', 'c'], expect.any(Function), {
+      retryAttemptNumber: 1,
+      maxRetryAttempts: Infinity,
+      willBeRetried: true,
+      timeSinceFirstAttempt: expect.any(Number),
+      timeSinceLastAttempt: expect.any(Number),
+      reclaimed: true,
+    });
+    expect(queue.processQueueCb).toHaveBeenNthCalledWith(3, ['d', 'e'], expect.any(Function), {
+      retryAttemptNumber: 1,
+      maxRetryAttempts: Infinity,
+      willBeRetried: true,
+      timeSinceFirstAttempt: expect.any(Number),
+      timeSinceLastAttempt: expect.any(Number),
+      reclaimed: true,
+    });
+    expect(queue.processQueueCb).toHaveBeenNthCalledWith(4, 'f', expect.any(Function), {
+      retryAttemptNumber: 1,
+      maxRetryAttempts: Infinity,
+      willBeRetried: true,
+      timeSinceFirstAttempt: expect.any(Number),
+      timeSinceLastAttempt: expect.any(Number),
+      reclaimed: true,
+    });
   });
 
   it('should take over a batch queued task if a queue is abandoned', () => {
@@ -502,13 +537,14 @@ describe('Queue', () => {
       batchQueue.timeouts.reclaimTimer + batchQueue.timeouts.reclaimWait * 2,
     );
 
-    expect(batchQueue.processQueueCb).toHaveBeenCalledWith(
-      ['a', 'b'],
-      expect.any(Function),
-      0,
-      Infinity,
-      true,
-    );
+    expect(batchQueue.processQueueCb).toHaveBeenCalledWith(['a', 'b'], expect.any(Function), {
+      retryAttemptNumber: 0,
+      maxRetryAttempts: Infinity,
+      willBeRetried: true,
+      timeSinceFirstAttempt: expect.any(Number),
+      timeSinceLastAttempt: expect.any(Number),
+      reclaimed: true,
+    });
   });
 
   it('should take over a batch queued task to main queue if a queue is abandoned', () => {
@@ -544,22 +580,22 @@ describe('Queue', () => {
     // wait long enough for the other queue to expire and be reclaimed
     jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
-    expect(queue.processQueueCb).toHaveBeenNthCalledWith(
-      1,
-      'a',
-      expect.any(Function),
-      0,
-      Infinity,
-      true,
-    );
-    expect(queue.processQueueCb).toHaveBeenNthCalledWith(
-      2,
-      'b',
-      expect.any(Function),
-      0,
-      Infinity,
-      true,
-    );
+    expect(queue.processQueueCb).toHaveBeenNthCalledWith(1, 'a', expect.any(Function), {
+      retryAttemptNumber: 0,
+      maxRetryAttempts: Infinity,
+      willBeRetried: true,
+      timeSinceFirstAttempt: expect.any(Number),
+      timeSinceLastAttempt: expect.any(Number),
+      reclaimed: true,
+    });
+    expect(queue.processQueueCb).toHaveBeenNthCalledWith(2, 'b', expect.any(Function), {
+      retryAttemptNumber: 0,
+      maxRetryAttempts: Infinity,
+      willBeRetried: true,
+      timeSinceFirstAttempt: expect.any(Number),
+      timeSinceLastAttempt: expect.any(Number),
+      reclaimed: true,
+    });
   });
 
   it('should deduplicate ids when reclaiming abandoned queue tasks', () => {
@@ -597,7 +633,14 @@ describe('Queue', () => {
     jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
-    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), {
+      retryAttemptNumber: 0,
+      maxRetryAttempts: Infinity,
+      willBeRetried: true,
+      timeSinceFirstAttempt: expect.any(Number),
+      timeSinceLastAttempt: expect.any(Number),
+      reclaimed: true,
+    });
   });
 
   it('should deduplicate ids when reclaiming abandoned in-progress tasks', () => {
@@ -635,7 +678,14 @@ describe('Queue', () => {
     jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
-    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 1, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), {
+      retryAttemptNumber: 1,
+      maxRetryAttempts: Infinity,
+      willBeRetried: true,
+      timeSinceFirstAttempt: expect.any(Number),
+      timeSinceLastAttempt: expect.any(Number),
+      reclaimed: true,
+    });
   });
 
   it('should deduplicate ids when reclaiming abandoned batch queue tasks', () => {
@@ -673,7 +723,14 @@ describe('Queue', () => {
     jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
-    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), {
+      retryAttemptNumber: 0,
+      maxRetryAttempts: Infinity,
+      willBeRetried: true,
+      timeSinceFirstAttempt: expect.any(Number),
+      timeSinceLastAttempt: expect.any(Number),
+      reclaimed: true,
+    });
   });
 
   it('should deduplicate ids when reclaiming abandoned batch, in-progress and queue tasks', () => {
@@ -741,9 +798,30 @@ describe('Queue', () => {
     jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(3);
-    expect(queue.processQueueCb).toHaveBeenCalledWith('c', expect.any(Function), 0, Infinity, true);
-    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
-    expect(queue.processQueueCb).toHaveBeenCalledWith('b', expect.any(Function), 0, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledWith('c', expect.any(Function), {
+      retryAttemptNumber: 0,
+      maxRetryAttempts: Infinity,
+      willBeRetried: true,
+      timeSinceFirstAttempt: expect.any(Number),
+      timeSinceLastAttempt: expect.any(Number),
+      reclaimed: true,
+    });
+    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), {
+      retryAttemptNumber: 0,
+      maxRetryAttempts: Infinity,
+      willBeRetried: true,
+      timeSinceFirstAttempt: expect.any(Number),
+      timeSinceLastAttempt: expect.any(Number),
+      reclaimed: true,
+    });
+    expect(queue.processQueueCb).toHaveBeenCalledWith('b', expect.any(Function), {
+      retryAttemptNumber: 0,
+      maxRetryAttempts: Infinity,
+      willBeRetried: true,
+      timeSinceFirstAttempt: expect.any(Number),
+      timeSinceLastAttempt: expect.any(Number),
+      reclaimed: true,
+    });
   });
 
   it('should not deduplicate tasks when ids are not set during reclaim', () => {
@@ -792,7 +870,14 @@ describe('Queue', () => {
     jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(4);
-    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), {
+      retryAttemptNumber: 0,
+      maxRetryAttempts: Infinity,
+      willBeRetried: true,
+      timeSinceFirstAttempt: expect.any(Number),
+      timeSinceLastAttempt: expect.any(Number),
+      reclaimed: true,
+    });
   });
 
   it('should take over multiple tasks if a queue is abandoned', () => {
@@ -837,9 +922,30 @@ describe('Queue', () => {
     jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(3);
-    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), 0, Infinity, true);
-    expect(queue.processQueueCb).toHaveBeenCalledWith('b', expect.any(Function), 1, Infinity, true);
-    expect(queue.processQueueCb).toHaveBeenCalledWith('c', expect.any(Function), 0, Infinity, true);
+    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), {
+      retryAttemptNumber: 0,
+      maxRetryAttempts: Infinity,
+      willBeRetried: true,
+      timeSinceFirstAttempt: expect.any(Number),
+      timeSinceLastAttempt: expect.any(Number),
+      reclaimed: true,
+    });
+    expect(queue.processQueueCb).toHaveBeenCalledWith('b', expect.any(Function), {
+      retryAttemptNumber: 1,
+      maxRetryAttempts: Infinity,
+      willBeRetried: true,
+      timeSinceFirstAttempt: expect.any(Number),
+      timeSinceLastAttempt: expect.any(Number),
+      reclaimed: true,
+    });
+    expect(queue.processQueueCb).toHaveBeenCalledWith('c', expect.any(Function), {
+      retryAttemptNumber: 0,
+      maxRetryAttempts: Infinity,
+      willBeRetried: true,
+      timeSinceFirstAttempt: expect.any(Number),
+      timeSinceLastAttempt: expect.any(Number),
+      reclaimed: true,
+    });
   });
 
   describe('while using in memory engine', () => {
@@ -875,13 +981,14 @@ describe('Queue', () => {
       jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
       expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
-      expect(queue.processQueueCb).toHaveBeenCalledWith(
-        'a',
-        expect.any(Function),
-        0,
-        Infinity,
-        true,
-      );
+      expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), {
+        retryAttemptNumber: 0,
+        maxRetryAttempts: Infinity,
+        willBeRetried: true,
+        timeSinceFirstAttempt: expect.any(Number),
+        timeSinceLastAttempt: expect.any(Number),
+        reclaimed: true,
+      });
     });
 
     it('should take over an in-progress task if a queue is abandoned', () => {
@@ -912,13 +1019,14 @@ describe('Queue', () => {
       jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
       expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
-      expect(queue.processQueueCb).toHaveBeenCalledWith(
-        'a',
-        expect.any(Function),
-        1,
-        Infinity,
-        true,
-      );
+      expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), {
+        retryAttemptNumber: 1,
+        maxRetryAttempts: Infinity,
+        willBeRetried: true,
+        timeSinceFirstAttempt: expect.any(Number),
+        timeSinceLastAttempt: expect.any(Number),
+        reclaimed: true,
+      });
     });
 
     it('should take over multiple tasks if a queue is abandoned', () => {
@@ -956,20 +1064,22 @@ describe('Queue', () => {
       jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
 
       expect(queue.processQueueCb).toHaveBeenCalledTimes(2);
-      expect(queue.processQueueCb).toHaveBeenCalledWith(
-        'a',
-        expect.any(Function),
-        0,
-        Infinity,
-        true,
-      );
-      expect(queue.processQueueCb).toHaveBeenCalledWith(
-        'b',
-        expect.any(Function),
-        1,
-        Infinity,
-        true,
-      );
+      expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), {
+        retryAttemptNumber: 0,
+        maxRetryAttempts: Infinity,
+        willBeRetried: true,
+        timeSinceFirstAttempt: expect.any(Number),
+        timeSinceLastAttempt: expect.any(Number),
+        reclaimed: true,
+      });
+      expect(queue.processQueueCb).toHaveBeenCalledWith('b', expect.any(Function), {
+        retryAttemptNumber: 1,
+        maxRetryAttempts: Infinity,
+        willBeRetried: true,
+        timeSinceFirstAttempt: expect.any(Number),
+        timeSinceLastAttempt: expect.any(Number),
+        reclaimed: true,
+      });
     });
   });
 

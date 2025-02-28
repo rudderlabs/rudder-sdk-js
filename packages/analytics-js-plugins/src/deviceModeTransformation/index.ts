@@ -16,7 +16,7 @@ import { createPayload, sendTransformedEventToDestinations } from './utilities';
 import { getDMTDeliveryPayload } from '../utilities/eventsDelivery';
 import { DEFAULT_TRANSFORMATION_QUEUE_OPTIONS, QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
-import type { DoneCallback, IQueue } from '../types/plugins';
+import type { DoneCallback, IQueue, QueueProcessCallbackInfo } from '../types/plugins';
 import type { TransformationQueueItemData } from './types';
 import { isErrRetryable, isUndefined, MEMORY_STORAGE } from '../shared-chunks/common';
 
@@ -47,8 +47,7 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
         (
           item: TransformationQueueItemData,
           done: DoneCallback,
-          attemptNumber?: number,
-          maxRetryAttempts?: number,
+          qItemProcessInfo: QueueProcessCallbackInfo,
         ) => {
           const payload = createPayload(item.event, item.destinationIds, item.token);
 
@@ -68,7 +67,7 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
               if (
                 isUndefined(details?.error) ||
                 !isRetryable ||
-                attemptNumber === maxRetryAttempts
+                qItemProcessInfo.retryAttemptNumber === qItemProcessInfo.maxRetryAttempts
               ) {
                 sendTransformedEventToDestinations(
                   state,

@@ -16,6 +16,7 @@ import {
   removeDuplicateSlashes,
   stringifyWithoutCircular,
 } from '../shared-chunks/common';
+import type { QueueProcessCallbackInfo } from '../types/plugins';
 
 const getBatchDeliveryPayload = (
   events: RudderEvent[],
@@ -42,9 +43,7 @@ const getBatchDeliveryUrl = (dataplaneUrl: string): string => getDeliveryUrl(dat
 const logErrorOnFailure = (
   details: ResponseDetails | undefined,
   isRetryable: boolean,
-  willBeRetried?: boolean,
-  attemptNumber?: number,
-  maxRetryAttempts?: number,
+  qItemProcessInfo: QueueProcessCallbackInfo,
   logger?: ILogger,
 ) => {
   let errMsg = EVENT_DELIVERY_FAILURE_ERROR_PREFIX(
@@ -53,13 +52,13 @@ const logErrorOnFailure = (
   );
   const dropMsg = `The event(s) will be dropped.`;
   if (isRetryable) {
-    if (willBeRetried) {
+    if (qItemProcessInfo.willBeRetried) {
       errMsg = `${errMsg} The event(s) will be retried.`;
-      if ((attemptNumber as number) > 0) {
-        errMsg = `${errMsg} Retry attempt ${attemptNumber} of ${maxRetryAttempts}.`;
+      if (qItemProcessInfo.retryAttemptNumber > 0) {
+        errMsg = `${errMsg} Retry attempt ${qItemProcessInfo.retryAttemptNumber} of ${qItemProcessInfo.maxRetryAttempts}.`;
       }
     } else {
-      errMsg = `${errMsg} Retries exhausted (${maxRetryAttempts}). ${dropMsg}`;
+      errMsg = `${errMsg} Retries exhausted (${qItemProcessInfo.maxRetryAttempts}). ${dropMsg}`;
     }
   } else {
     errMsg = `${errMsg} ${dropMsg}`;
@@ -71,6 +70,7 @@ const logErrorOnFailure = (
 const getRequestInfo = (
   itemData: XHRRetryQueueItemData,
   state: ApplicationState,
+  qItemProcessInfo: QueueProcessCallbackInfo,
   logger?: ILogger,
 ) => {
   let data;
@@ -92,6 +92,20 @@ const getRequestInfo = (
     headers = clone(eventHeaders);
     url = eventUrl;
   }
+
+  // Add sentAt header
+  headers.SentAt = currentTime;
+  if (qItemProcessInfo.reclaimed) {
+    headers.Reclaimed = qItemProcessInfo.reclaimed.toString();
+  }
+
+  // Add retry headers if the item is being retried
+  if (qItemProcessInfo.retryAttemptNumber > 0) {
+    headers['Retry-Attempt'] = qItemProcessInfo.retryAttemptNumber.toString();
+    headers['Retried-After'] = qItemProcessInfo.timeSinceLastAttempt.toString();
+    headers['Retried-After-First'] = qItemProcessInfo.timeSinceFirstAttempt.toString();
+  }
+
   return { data, headers, url };
 };
 
