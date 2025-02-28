@@ -432,9 +432,9 @@ class RetryQueue implements IQueue<QueueItemData> {
         time: this.schedule.now() + this.getDelay(attemptNumberToUse),
         id: id ?? generateUUID(),
         type,
-        firstAttemptedAt: firstAttemptedAt,
-        lastAttemptedAt: lastAttemptedAt,
-        reclaimed: reclaimed,
+        firstAttemptedAt,
+        lastAttemptedAt,
+        reclaimed,
       });
     } else {
       // Discard item
