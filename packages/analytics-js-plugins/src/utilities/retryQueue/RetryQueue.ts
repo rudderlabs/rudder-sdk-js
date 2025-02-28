@@ -422,7 +422,7 @@ class RetryQueue implements IQueue<QueueItemData> {
    * @param {Error} [error] The error that occurred during processing
    */
   requeue(qItem: QueueItem<QueueItemData>, error?: Error) {
-    const { attemptNumber, item, type, id } = qItem;
+    const { attemptNumber, item, type, id, firstAttemptedAt, lastAttemptedAt, reclaimed } = qItem;
     // Increment the attempt number as we're about to retry
     const attemptNumberToUse = attemptNumber + 1;
     if (this.shouldRetry(item, attemptNumberToUse)) {
@@ -432,9 +432,9 @@ class RetryQueue implements IQueue<QueueItemData> {
         time: this.schedule.now() + this.getDelay(attemptNumberToUse),
         id: id ?? generateUUID(),
         type,
-        firstAttemptedAt: qItem.firstAttemptedAt,
-        lastAttemptedAt: qItem.lastAttemptedAt,
-        reclaimed: qItem.reclaimed,
+        firstAttemptedAt: firstAttemptedAt,
+        lastAttemptedAt: lastAttemptedAt,
+        reclaimed: reclaimed,
       });
     } else {
       // Discard item
@@ -504,9 +504,7 @@ class RetryQueue implements IQueue<QueueItemData> {
       this.setStorageEntry(QueueStatuses.IN_PROGRESS, inProgress);
 
       if (err) {
-        el.firstAttemptedAt = firstAttemptedAt;
-        el.lastAttemptedAt = lastAttemptedAt;
-        this.requeue(el, err);
+        this.requeue({ ...el, firstAttemptedAt, lastAttemptedAt }, err);
       }
     };
 
@@ -691,13 +689,16 @@ class RetryQueue implements IQueue<QueueItemData> {
     if (this.batch.enabled) {
       their.batchQueue.forEach((el: QueueItem) => {
         const id = el.id ?? generateUUID();
-        el.type = el.type ?? SINGLE_QUEUE_ITEM_TYPE;
-        el.time = this.schedule.now();
-        el.reclaimed = true;
         if (trackMessageIds.includes(id)) {
           // duplicated event
         } else {
-          this.enqueue(el);
+          this.enqueue({
+            ...el,
+            id,
+            reclaimed: true,
+            type: el.type ?? SINGLE_QUEUE_ITEM_TYPE,
+            time: this.schedule.now(),
+          });
           trackMessageIds.push(id);
         }
       });

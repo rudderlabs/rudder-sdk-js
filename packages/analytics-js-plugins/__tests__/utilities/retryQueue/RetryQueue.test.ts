@@ -135,6 +135,42 @@ describe('Queue', () => {
     ]);
   });
 
+  it('should dispatch batch items to the main queue when size criteria is exceeded', () => {
+    const batchQueue = new RetryQueue(
+      'test',
+      { batch: { enabled: true, maxSize: 5 } },
+      jest.fn(),
+      defaultStoreManager,
+      undefined,
+      undefined,
+      (items: []) => items.length * 2,
+    );
+
+    batchQueue.addItem('a');
+    batchQueue.addItem('b');
+    batchQueue.addItem('c');
+
+    expect(batchQueue.getStorageEntry('batchQueue')).toEqual([
+      {
+        item: 'c',
+        attemptNumber: 0,
+        time: expect.any(Number),
+        id: expect.any(String),
+        type: 'Single',
+      },
+    ]);
+
+    expect(batchQueue.getStorageEntry('queue')).toEqual([
+      {
+        item: ['a', 'b'],
+        attemptNumber: 0,
+        time: expect.any(Number),
+        id: expect.any(String),
+        type: 'Batch',
+      },
+    ]);
+  });
+
   it('should flush queued batch events', () => {
     const batchQueue = new RetryQueue(
       'test',
@@ -215,6 +251,7 @@ describe('Queue', () => {
     const mockProcessItemCb = jest
       .fn()
       .mockImplementationOnce((_, cb) => cb(new Error('no')))
+      .mockImplementationOnce((_, cb) => cb(new Error('no')))
       .mockImplementationOnce((_, cb) => cb());
     queue.processQueueCb = mockProcessItemCb;
 
@@ -225,14 +262,14 @@ describe('Queue', () => {
       retryAttemptNumber: 0,
       maxRetryAttempts: Infinity,
       willBeRetried: true,
-      timeSinceFirstAttempt: expect.any(Number),
-      timeSinceLastAttempt: expect.any(Number),
+      timeSinceFirstAttempt: 0,
+      timeSinceLastAttempt: 0,
       reclaimed: false,
     });
 
     // Delay for the first retry
-    mockProcessItemCb.mockReset();
-    const nextTickDelay = queue.getDelay(1);
+    mockProcessItemCb.mockClear();
+    let nextTickDelay = queue.getDelay(1);
     jest.advanceTimersByTime(nextTickDelay);
 
     expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
@@ -240,8 +277,23 @@ describe('Queue', () => {
       retryAttemptNumber: 1,
       maxRetryAttempts: Infinity,
       willBeRetried: true,
-      timeSinceFirstAttempt: expect.any(Number),
-      timeSinceLastAttempt: expect.any(Number),
+      timeSinceFirstAttempt: 2,
+      timeSinceLastAttempt: 2,
+      reclaimed: false,
+    });
+
+    // Delay for the second retry
+    mockProcessItemCb.mockClear();
+    nextTickDelay = queue.getDelay(2);
+    jest.advanceTimersByTime(nextTickDelay);
+
+    expect(queue.processQueueCb).toHaveBeenCalledTimes(1);
+    expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), {
+      retryAttemptNumber: 2,
+      maxRetryAttempts: Infinity,
+      willBeRetried: true,
+      timeSinceFirstAttempt: 6,
+      timeSinceLastAttempt: 4,
       reclaimed: false,
     });
   });

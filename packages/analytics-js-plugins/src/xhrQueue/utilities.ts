@@ -96,7 +96,7 @@ const getRequestInfo = (
   // Add sentAt header
   headers.SentAt = currentTime;
   if (qItemProcessInfo.reclaimed) {
-    headers.Reclaimed = qItemProcessInfo.reclaimed.toString();
+    headers.Reclaimed = 'true';
   }
 
   // Add retry headers if the item is being retried

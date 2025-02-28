@@ -319,6 +319,45 @@ describe('xhrQueue Plugin Utilities', () => {
       });
     });
 
+    it('should return request info for single event queue item that is reclaimed and retried', () => {
+      const queueItemData = {
+        event: {
+          type: 'track',
+        } as unknown as RudderEvent,
+        url: 'https://test.com/v1/track',
+        headers: {
+          AnonymousId: 'anonymous-id',
+        },
+      };
+
+      const requestInfo = getRequestInfo(
+        queueItemData,
+        state,
+        {
+          retryAttemptNumber: 2,
+          maxRetryAttempts: 10,
+          willBeRetried: true,
+          timeSinceFirstAttempt: 4,
+          timeSinceLastAttempt: 2,
+          reclaimed: true,
+        },
+        defaultLogger,
+      );
+
+      expect(requestInfo).toEqual({
+        url: 'https://test.com/v1/track',
+        headers: {
+          AnonymousId: 'anonymous-id',
+          SentAt: '2021-01-01T00:00:00.000Z',
+          'Retry-Attempt': '2',
+          'Retried-After': '2',
+          'Retried-After-First': '4',
+          Reclaimed: 'true',
+        },
+        data: '{"type":"track","sentAt":"2021-01-01T00:00:00.000Z"}',
+      });
+    });
+
     it('should return request info for batch queue item', () => {
       const queueItemData = [
         {
