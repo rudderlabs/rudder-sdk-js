@@ -33,6 +33,7 @@ jobs:
       PAT: ${{ secrets.PAT }}
 
   rollback:
+    needs: validate-actor
     name: Rollback production deployment
     runs-on: [self-hosted, Linux, X64]
 
