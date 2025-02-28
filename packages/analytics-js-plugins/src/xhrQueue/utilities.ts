@@ -93,16 +93,25 @@ const getRequestInfo = (
     url = eventUrl;
   }
 
-  // Add sentAt header
+  // Add current timestamp as sentAt header
+  // The same value is added in the event payload as well
   headers.SentAt = currentTime;
+
+  // Add a header to indicate if the item has been reclaimed from
+  // local storage
   if (qItemProcessInfo.reclaimed) {
     headers.Reclaimed = 'true';
   }
 
-  // Add retry headers if the item is being retried
+  // Add retry headers if the item is being retried for delivery
   if (qItemProcessInfo.retryAttemptNumber > 0) {
+    // The number of times this item has been attempted to retry
     headers['Retry-Attempt'] = qItemProcessInfo.retryAttemptNumber.toString();
+
+    // The number of seconds since the last attempt
     headers['Retried-After'] = qItemProcessInfo.timeSinceLastAttempt.toString();
+
+    // The number of seconds since the first attempt
     headers['Retried-After-First'] = qItemProcessInfo.timeSinceFirstAttempt.toString();
   }
 

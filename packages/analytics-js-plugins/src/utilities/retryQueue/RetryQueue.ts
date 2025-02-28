@@ -569,13 +569,18 @@ class RetryQueue implements IQueue<QueueItemData> {
         const firstAttemptedAt = inProgressItem?.firstAttemptedAt ?? now;
         const lastAttemptedAt = inProgressItem?.lastAttemptedAt ?? now;
 
-        // A decimal integer representing the seconds since the last attempt
+        // A decimal integer representing the seconds since the first attempt
         const timeSinceFirstAttempt = Math.round((now - firstAttemptedAt) / 1000);
+
+        // A decimal integer representing the seconds since the last attempt
         const timeSinceLastAttempt = Math.round((now - lastAttemptedAt) / 1000);
+
+        // Indicates if the item has been reclaimed from local storage
         const reclaimed = inProgressItem?.reclaimed ?? false;
 
-        // Update the last attempted at timestamp for the in progress item
+        // Update the first attempted at timestamp for the in progress item
         inProgressItem.firstAttemptedAt = firstAttemptedAt;
+        // Update the last attempted at to current timestamp for the in progress item
         inProgressItem.lastAttemptedAt = now;
 
         inProgress[el.id] = inProgressItem;
@@ -669,6 +674,7 @@ class RetryQueue implements IQueue<QueueItemData> {
             type: el.type ?? type,
             firstAttemptedAt: el.firstAttemptedAt,
             lastAttemptedAt: el.lastAttemptedAt,
+            // Mark the item as reclaimed from local storage
             reclaimed: true,
           });
           trackMessageIds.push(id);
@@ -695,6 +701,7 @@ class RetryQueue implements IQueue<QueueItemData> {
           this.enqueue({
             ...el,
             id,
+            // Mark the item as reclaimed from local storage
             reclaimed: true,
             type: el.type ?? SINGLE_QUEUE_ITEM_TYPE,
             time: this.schedule.now(),
