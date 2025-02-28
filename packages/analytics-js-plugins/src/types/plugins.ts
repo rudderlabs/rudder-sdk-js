@@ -52,8 +52,9 @@ export type QueueProcessCallbackInfo = {
  *   - retryAttemptNumber: The number of times this item has been attempted to retry
  *   - maxRetryAttempts: The maximum number of times this item should be attempted to retry
  *   - willBeRetried: A boolean indicating if the item will be retried later
- *   - lastAttemptedAt: The timestamp of the last attempt
  *   - timeSinceLastAttempt: The number of seconds since the last attempt
+ *   - timeSinceFirstAttempt: The number of seconds since the first attempt
+ *   - reclaimed: A boolean indicating if the item has been reclaimed
  */
 export type QueueProcessCallback<T = any> = (
   item: T,
