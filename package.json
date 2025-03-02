@@ -153,7 +153,7 @@
     "eslint-config-airbnb": "19.0.4",
     "eslint-config-airbnb-base": "15.0.0",
     "eslint-config-airbnb-typescript": "18.0.0",
-    "eslint-config-prettier": "9.1.0",
+    "eslint-config-prettier": "10.0.2",
     "eslint-import-resolver-node": "0.3.9",
     "eslint-import-resolver-typescript": "3.7.0",
     "eslint-plugin-compat": "6.0.2",
