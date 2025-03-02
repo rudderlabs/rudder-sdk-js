@@ -4,6 +4,10 @@ on:
   schedule:
     - cron: '1 0 * * *' # every day at 00:01
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.sha }}
+  cancel-in-progress: true
+
 jobs:
   prs:
     name: Clean up stale PRs

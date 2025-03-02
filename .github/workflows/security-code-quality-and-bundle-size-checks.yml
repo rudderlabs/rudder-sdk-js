@@ -5,6 +5,10 @@ on:
     branches: ['develop', 'main', 'hotfix/*']
     types: ['opened', 'reopened', 'synchronize']
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.sha }}
+  cancel-in-progress: true
+
 env:
   NODE_OPTIONS: '--no-warnings'
   BASE_REF: ${{ github.event.pull_request.base.sha || 'HEAD' }}

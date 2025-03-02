@@ -7,6 +7,10 @@ on:
     types:
       - closed
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.sha }}
+  cancel-in-progress: true
+
 jobs:
   deploy:
     name: Deploy to Development Environment

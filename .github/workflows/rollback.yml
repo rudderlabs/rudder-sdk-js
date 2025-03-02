@@ -3,6 +3,10 @@ name: Rollback Production Deployment
 on:
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.sha }}
+  cancel-in-progress: true
+
 jobs:
   validate-actor:
     # Only allow to be deployed from tags and main branch

@@ -6,7 +6,11 @@ on:
       release_ticket_id:
         description: Release ticket ID (Ex:- SDK-1234)
         required: true
-
+        
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.sha }}
+  cancel-in-progress: true       
+        
 env:
   NODE_OPTIONS: '--no-warnings'
 
