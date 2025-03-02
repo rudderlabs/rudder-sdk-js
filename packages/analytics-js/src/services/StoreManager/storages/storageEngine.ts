@@ -13,11 +13,10 @@ import {
 } from '@rudderstack/analytics-js-common/constants/storages';
 import type { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
 import { state } from '../../../state';
-import { defaultLogger } from '../../Logger';
-import { CookieStorage } from './CookieStorage';
 import { defaultInMemoryStorage } from './InMemoryStorage';
 import { defaultLocalStorage } from './LocalStorage';
 import { defaultSessionStorage } from './sessionStorage';
+import { defaultCookieStorage } from './CookieStorage';
 
 /**
  * A utility to retrieve the storage singleton instance by type
@@ -31,7 +30,7 @@ const getStorageEngine = (type?: StorageType): IStorage => {
     case MEMORY_STORAGE:
       return defaultInMemoryStorage;
     case COOKIE_STORAGE:
-      return new CookieStorage({}, defaultLogger);
+      return defaultCookieStorage;
     default:
       return defaultInMemoryStorage;
   }
@@ -41,7 +40,9 @@ const getStorageEngine = (type?: StorageType): IStorage => {
  * Configure cookie storage singleton
  */
 const configureCookieStorageEngine = (options: Partial<ICookieStorageOptions>) => {
-  const cookieStorageOptions = new CookieStorage({}, defaultLogger).configure(options);
+  const cookieStorageOptions = defaultCookieStorage.configure(options);
+
+  // Update the state with the final cookie storage options
   state.storage.cookie.value = {
     maxage: cookieStorageOptions.maxage,
     path: cookieStorageOptions.path,

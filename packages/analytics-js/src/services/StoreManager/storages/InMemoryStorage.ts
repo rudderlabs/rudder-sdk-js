@@ -18,14 +18,13 @@ class InMemoryStorage implements IStorage {
   length = 0;
   data: Record<string, any> = {};
 
-  constructor(options?: IInMemoryStorageOptions, logger?: ILogger) {
+  constructor(logger?: ILogger) {
     this.options = getDefaultInMemoryStorageOptions();
     this.logger = logger;
-    this.configure(options ?? {});
   }
 
-  configure(options: Partial<IInMemoryStorageOptions>): IInMemoryStorageOptions {
-    this.options = mergeDeepRight(this.options, options);
+  configure(options?: Partial<IInMemoryStorageOptions>): IInMemoryStorageOptions {
+    this.options = mergeDeepRight(this.options, options ?? {});
     this.isEnabled = Boolean(this.options.enabled);
     return this.options;
   }
@@ -66,6 +65,6 @@ class InMemoryStorage implements IStorage {
   }
 }
 
-const defaultInMemoryStorage = new InMemoryStorage({}, defaultLogger);
+const defaultInMemoryStorage = new InMemoryStorage(defaultLogger);
 
 export { InMemoryStorage, defaultInMemoryStorage };

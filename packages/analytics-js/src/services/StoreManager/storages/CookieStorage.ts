@@ -7,34 +7,26 @@ import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/objec
 import { cookie } from '@rudderstack/analytics-js-common/component-cookie';
 import { isStorageAvailable } from '../../../components/capabilitiesManager/detection';
 import { getDefaultCookieOptions } from './defaultOptions';
+import { defaultLogger } from '../../Logger';
 
 /**
  * A storage utility to persist values in cookies via Storage interface
  */
 class CookieStorage implements IStorage {
-  static globalSingleton: Nullable<CookieStorage> = null;
   logger?: ILogger;
-  options?: ICookieStorageOptions;
+  options: ICookieStorageOptions;
   isSupportAvailable = true;
   isEnabled = true;
   length = 0;
 
-  constructor(options: Partial<ICookieStorageOptions> = {}, logger?: ILogger) {
-    if (CookieStorage.globalSingleton) {
-      // eslint-disable-next-line no-constructor-return
-      return CookieStorage.globalSingleton;
-    }
-
+  constructor(logger?: ILogger) {
     this.options = getDefaultCookieOptions();
     this.logger = logger;
-    this.configure(options);
-
-    CookieStorage.globalSingleton = this;
   }
 
-  configure(options: Partial<ICookieStorageOptions>): ICookieStorageOptions {
-    this.options = mergeDeepRight(this.options ?? {}, options);
-    if (options.sameDomainCookiesOnly) {
+  configure(options?: Partial<ICookieStorageOptions>): ICookieStorageOptions {
+    this.options = mergeDeepRight(this.options, options ?? {});
+    if (this.options.sameDomainCookiesOnly) {
       delete this.options.domain;
     }
     this.isSupportAvailable = isStorageAvailable(COOKIE_STORAGE, this);
@@ -79,4 +71,6 @@ class CookieStorage implements IStorage {
   }
 }
 
-export { CookieStorage };
+const defaultCookieStorage = new CookieStorage(defaultLogger);
+
+export { CookieStorage, defaultCookieStorage };

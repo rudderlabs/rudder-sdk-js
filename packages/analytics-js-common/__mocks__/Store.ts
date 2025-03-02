@@ -13,7 +13,7 @@ class Store implements IStore {
     this.name = config.name;
     this.isEncrypted = config.isEncrypted ?? false;
     this.validKeys = config.validKeys ?? {};
-    this.engine = engine ?? defaultLocalStorage;
+    this.engine = engine;
     this.originalEngine = this.engine;
     this.errorHandler = config.errorHandler;
     this.logger = config.logger;

@@ -37,6 +37,11 @@ import { Analytics } from '../components/core/Analytics';
 import { defaultLogger } from '../services/Logger/Logger';
 import { PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING } from '../constants/logMessages';
 import { state } from '../state';
+import { defaultErrorHandler } from '../services/ErrorHandler';
+import { defaultCookieStorage } from '../services/StoreManager/storages/CookieStorage';
+import { defaultLocalStorage } from '../services/StoreManager/storages/LocalStorage';
+import { defaultSessionStorage } from '../services/StoreManager/storages/sessionStorage';
+import { defaultInMemoryStorage } from '../services/StoreManager/storages/InMemoryStorage';
 
 // TODO: add analytics restart/reset mechanism
 
@@ -64,6 +69,8 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
         return RudderAnalytics.globalSingleton;
         // END-NO-SONAR-SCAN
       }
+
+      RudderAnalytics.initializeGlobalResources();
 
       this.setDefaultInstanceKey = this.setDefaultInstanceKey.bind(this);
       this.getAnalyticsInstance = this.getAnalyticsInstance.bind(this);
@@ -102,6 +109,17 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     } catch (error: any) {
       dispatchErrorEvent(error);
     }
+  }
+
+  static initializeGlobalResources() {
+    // We need to initialize the error handler first to catch any unhandled errors occurring in this module as well
+    defaultErrorHandler.init();
+
+    // Initialize the storage engines with default options
+    defaultCookieStorage.configure();
+    defaultLocalStorage.configure();
+    defaultSessionStorage.configure();
+    defaultInMemoryStorage.configure();
   }
 
   /**
@@ -168,7 +186,6 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
 
       setExposedGlobal(GLOBAL_PRELOAD_BUFFER, clone(preloadedEventsArray));
 
-      this.analyticsInstances[writeKey] = new Analytics();
       this.getAnalyticsInstance(writeKey)?.load(
         writeKey,
         dataPlaneUrl,

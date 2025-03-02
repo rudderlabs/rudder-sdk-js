@@ -6,6 +6,7 @@ describe('InMemoryStorage', () => {
 
   beforeEach(() => {
     engine = getStorageEngine('memoryStorage');
+    engine.configure?.();
     engine.clear();
   });
 
