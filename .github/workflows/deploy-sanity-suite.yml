@@ -31,10 +31,6 @@ on:
       SLACK_RELEASE_CHANNEL_ID:
         required: true
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.sha }}
-  cancel-in-progress: true
-
 permissions:
   id-token: write # allows the JWT to be requested from GitHub's OIDC provider
   contents: read # This is required for actions/checkout
