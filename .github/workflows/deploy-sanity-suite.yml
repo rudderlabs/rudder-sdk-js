@@ -6,6 +6,9 @@ on:
       environment:
         type: string
         required: true
+      use_pr_head_sha:
+        type: string
+        default: 'false'
     secrets:
       AWS_ACCOUNT_ID:
         required: true
@@ -46,10 +49,21 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
 
     steps:
-      - name: Checkout
+      - name: Determine checkout SHA
+        id: getSHA
+        run: |
+          if ${{ inputs.use_pr_head_sha }} == 'true'; then
+            sha=$(echo ${{ github.event.pull_request.head.sha }})
+          else
+            sha=$(echo ${{ github.sha }})
+          fi
+          echo "Checkout SHA: $sha"
+          echo "SHA=$sha" >> $GITHUB_OUTPUT
+
+      - name: Checkout source code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ steps.getSHA.outputs.SHA }}
 
       - name: Configure deployment options
         id: deployment-options

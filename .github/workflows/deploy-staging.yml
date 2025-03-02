@@ -26,6 +26,7 @@ jobs:
       s3_dir_path: 'staging/latest/v3'
       s3_dir_path_legacy: 'staging/latest/v1.1'
       action_type: ''
+      use_pr_head_sha: 'true'
     secrets:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_STAGING_ACCOUNT_ID }}
       AWS_S3_BUCKET_NAME: ${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}
@@ -41,6 +42,7 @@ jobs:
     uses: ./.github/workflows/deploy-sanity-suite.yml
     with:
       environment: 'staging'
+      use_pr_head_sha: 'true'
     secrets:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_STAGING_ACCOUNT_ID }}
       AWS_S3_BUCKET_NAME: ${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}
@@ -59,5 +61,6 @@ jobs:
     name: Trigger test suites
     with:
       environment: staging
+      use_pr_head_sha: 'true'
     secrets:
       PAT: ${{ secrets.PAT }}

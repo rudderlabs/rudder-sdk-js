@@ -6,6 +6,9 @@ on:
       environment:
         type: string
         default: production
+      use_pr_head_sha:
+        type: string
+        default: 'false'
     secrets:
       PAT:
         description: Personal Access Token
@@ -23,7 +26,7 @@ jobs:
       - name: Determine checkout SHA
         id: getSHA
         run: |
-          if [ "${{ inputs.environment }}" = 'staging' ]; then
+          if ${{ inputs.use_pr_head_sha }} == 'true'; then
             sha=${{ github.event.pull_request.head.sha }}
           else
             sha=${{ github.sha }}
