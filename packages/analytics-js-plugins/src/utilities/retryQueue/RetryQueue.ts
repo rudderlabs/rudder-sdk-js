@@ -338,18 +338,24 @@ class RetryQueue implements IQueue<QueueItemData> {
       const batchDispatchInfo = this.getBatchDispatchInfo(batchQueue);
       // if batch criteria is met, queue the batch events to the main queue and clear batch queue
       if (batchDispatchInfo.criteriaMet || batchDispatchInfo.criteriaExceeded) {
-        let batchItems;
+        let batchEntries;
         if (batchDispatchInfo.criteriaExceeded) {
-          batchItems = batchQueue.slice(0, batchQueue.length - 1).map(queueItem => queueItem.item);
+          batchEntries = batchQueue.slice(0, batchQueue.length - 1);
           batchQueue = [entry];
         } else {
-          batchItems = batchQueue.map(queueItem => queueItem.item);
+          batchEntries = batchQueue;
           batchQueue = [];
         }
 
         // Don't make any batch request if there are no items
-        if (batchItems.length > 0) {
-          curEntry = this.genQueueItem(batchItems, BATCH_QUEUE_ITEM_TYPE);
+        if (batchEntries.length > 0) {
+          const isReclaimed = batchEntries.every(queueItem => queueItem.reclaimed);
+          const batchItems = batchEntries.map(queueItem => queueItem.item);
+          if (isReclaimed) {
+            curEntry = this.genQueueItem(batchItems, BATCH_QUEUE_ITEM_TYPE, true);
+          } else {
+            curEntry = this.genQueueItem(batchItems, BATCH_QUEUE_ITEM_TYPE);
+          }
         }
 
         // re-attach the timeout handler
@@ -397,6 +403,7 @@ class RetryQueue implements IQueue<QueueItemData> {
   genQueueItem(
     itemData: QueueItemData,
     type: QueueItemType = SINGLE_QUEUE_ITEM_TYPE,
+    reclaimed?: boolean,
   ): QueueItem<QueueItemData> {
     return {
       item: itemData,
@@ -404,6 +411,7 @@ class RetryQueue implements IQueue<QueueItemData> {
       time: this.schedule.now(),
       id: generateUUID(),
       type,
+      ...(isDefined(reclaimed) ? { reclaimed } : {}),
     };
   }
 
@@ -414,7 +422,7 @@ class RetryQueue implements IQueue<QueueItemData> {
    * @param {Error} [error] The error that occurred during processing
    */
   requeue(qItem: QueueItem<QueueItemData>, error?: Error) {
-    const { attemptNumber, item, type, id } = qItem;
+    const { attemptNumber, item, type, id, firstAttemptedAt, lastAttemptedAt, reclaimed } = qItem;
     // Increment the attempt number as we're about to retry
     const attemptNumberToUse = attemptNumber + 1;
     if (this.shouldRetry(item, attemptNumberToUse)) {
@@ -424,6 +432,9 @@ class RetryQueue implements IQueue<QueueItemData> {
         time: this.schedule.now() + this.getDelay(attemptNumberToUse),
         id: id ?? generateUUID(),
         type,
+        firstAttemptedAt,
+        lastAttemptedAt,
+        reclaimed,
       });
     } else {
       // Discard item
@@ -483,17 +494,23 @@ class RetryQueue implements IQueue<QueueItemData> {
     const processItemCallback = (el: QueueItem, id: string) => (err?: Error, res?: any) => {
       const inProgress =
         (this.getStorageEntry(QueueStatuses.IN_PROGRESS) as Nullable<Record<string, any>>) ?? {};
+      const inProgressItem = inProgress[id];
+
+      const firstAttemptedAt = inProgressItem?.firstAttemptedAt;
+      const lastAttemptedAt = inProgressItem?.lastAttemptedAt;
+
       delete inProgress[id];
 
       this.setStorageEntry(QueueStatuses.IN_PROGRESS, inProgress);
 
       if (err) {
-        this.requeue(el, err);
+        this.requeue({ ...el, firstAttemptedAt, lastAttemptedAt }, err);
       }
     };
 
     const enqueueItem = (el: QueueItem, id: string) => {
       toRun.push({
+        id,
         item: el.item,
         done: processItemCallback(el, id),
         attemptNumber: el.attemptNumber,
@@ -527,6 +544,9 @@ class RetryQueue implements IQueue<QueueItemData> {
             attemptNumber: el.attemptNumber,
             time: this.schedule.now(),
             type: el.type,
+            firstAttemptedAt: el.firstAttemptedAt,
+            lastAttemptedAt: el.lastAttemptedAt,
+            reclaimed: el.reclaimed,
           };
         }
 
@@ -540,8 +560,41 @@ class RetryQueue implements IQueue<QueueItemData> {
     toRun.forEach(el => {
       // TODO: handle processQueueCb timeout
       try {
+        const now = this.schedule.now();
+
+        const inProgress =
+          (this.getStorageEntry(QueueStatuses.IN_PROGRESS) as Nullable<Record<string, any>>) ?? {};
+        const inProgressItem = inProgress[el.id];
+
+        const firstAttemptedAt = inProgressItem?.firstAttemptedAt ?? now;
+        const lastAttemptedAt = inProgressItem?.lastAttemptedAt ?? now;
+
+        // A decimal integer representing the seconds since the first attempt
+        const timeSinceFirstAttempt = Math.round((now - firstAttemptedAt) / 1000);
+
+        // A decimal integer representing the seconds since the last attempt
+        const timeSinceLastAttempt = Math.round((now - lastAttemptedAt) / 1000);
+
+        // Indicates if the item has been reclaimed from local storage
+        const reclaimed = inProgressItem?.reclaimed ?? false;
+
+        // Update the first attempted at timestamp for the in progress item
+        inProgressItem.firstAttemptedAt = firstAttemptedAt;
+        // Update the last attempted at to current timestamp for the in progress item
+        inProgressItem.lastAttemptedAt = now;
+
+        inProgress[el.id] = inProgressItem;
+        this.setStorageEntry(QueueStatuses.IN_PROGRESS, inProgress);
+
         const willBeRetried = this.shouldRetry(el.item, el.attemptNumber + 1);
-        this.processQueueCb(el.item, el.done, el.attemptNumber, this.maxAttempts, willBeRetried);
+        this.processQueueCb(el.item, el.done, {
+          retryAttemptNumber: el.attemptNumber,
+          maxRetryAttempts: this.maxAttempts,
+          willBeRetried,
+          timeSinceFirstAttempt,
+          timeSinceLastAttempt,
+          reclaimed,
+        });
       } catch (err) {
         this.logger?.error(RETRY_QUEUE_PROCESS_ERROR(RETRY_QUEUE), err);
       }
@@ -619,6 +672,10 @@ class RetryQueue implements IQueue<QueueItemData> {
             time: this.schedule.now(),
             id,
             type: el.type ?? type,
+            firstAttemptedAt: el.firstAttemptedAt,
+            lastAttemptedAt: el.lastAttemptedAt,
+            // Mark the item as reclaimed from local storage
+            reclaimed: true,
           });
           trackMessageIds.push(id);
         }
@@ -638,13 +695,17 @@ class RetryQueue implements IQueue<QueueItemData> {
     if (this.batch.enabled) {
       their.batchQueue.forEach((el: QueueItem) => {
         const id = el.id ?? generateUUID();
-        el.type = el.type ?? SINGLE_QUEUE_ITEM_TYPE;
-        el.time = this.schedule.now();
-
         if (trackMessageIds.includes(id)) {
           // duplicated event
         } else {
-          this.enqueue(el);
+          this.enqueue({
+            ...el,
+            id,
+            // Mark the item as reclaimed from local storage
+            reclaimed: true,
+            type: el.type ?? SINGLE_QUEUE_ITEM_TYPE,
+            time: this.schedule.now(),
+          });
           trackMessageIds.push(id);
         }
       });

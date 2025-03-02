@@ -120,7 +120,19 @@ describe('xhrQueue Plugin Utilities', () => {
         error: { message: 'Unauthorized' },
       } as ResponseDetails;
 
-      logErrorOnFailure(details, false, false, 1, 10, defaultLogger);
+      logErrorOnFailure(
+        details,
+        false,
+        {
+          retryAttemptNumber: 1,
+          maxRetryAttempts: 10,
+          willBeRetried: false,
+          timeSinceFirstAttempt: 1,
+          timeSinceLastAttempt: 1,
+          reclaimed: false,
+        },
+        defaultLogger,
+      );
 
       expect(defaultLogger.error).toHaveBeenCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s). Cause: Unauthorized. The event(s) will be dropped.',
@@ -135,7 +147,19 @@ describe('xhrQueue Plugin Utilities', () => {
         },
       } as ResponseDetails;
 
-      logErrorOnFailure(details, true, true, 1, 10, defaultLogger);
+      logErrorOnFailure(
+        details,
+        true,
+        {
+          retryAttemptNumber: 1,
+          maxRetryAttempts: 10,
+          willBeRetried: true,
+          timeSinceFirstAttempt: 1,
+          timeSinceLastAttempt: 1,
+          reclaimed: false,
+        },
+        defaultLogger,
+      );
 
       expect(defaultLogger.error).toHaveBeenCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s). Cause: Too many requests. The event(s) will be retried. Retry attempt 1 of 10.',
@@ -145,8 +169,19 @@ describe('xhrQueue Plugin Utilities', () => {
       // @ts-expect-error Needed to set the status for testing
       (details.xhr as XMLHttpRequest).status = 429;
 
-      logErrorOnFailure(details, true, true, 0, 10, defaultLogger);
-
+      logErrorOnFailure(
+        details,
+        true,
+        {
+          retryAttemptNumber: 0,
+          maxRetryAttempts: 10,
+          willBeRetried: true,
+          timeSinceFirstAttempt: 10,
+          timeSinceLastAttempt: 10,
+          reclaimed: false,
+        },
+        defaultLogger,
+      );
       expect(defaultLogger.error).toHaveBeenCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s). Cause: Too many requests. The event(s) will be retried.',
       );
@@ -155,7 +190,19 @@ describe('xhrQueue Plugin Utilities', () => {
       // @ts-expect-error Needed to set the status for testing
       (details.xhr as XMLHttpRequest).status = 500;
 
-      logErrorOnFailure(details, true, true, 1, 10, defaultLogger);
+      logErrorOnFailure(
+        details,
+        true,
+        {
+          retryAttemptNumber: 1,
+          maxRetryAttempts: 10,
+          willBeRetried: true,
+          timeSinceFirstAttempt: 1,
+          timeSinceLastAttempt: 1,
+          reclaimed: false,
+        },
+        defaultLogger,
+      );
 
       expect(defaultLogger.error).toHaveBeenCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s). Cause: Too many requests. The event(s) will be retried. Retry attempt 1 of 10.',
@@ -165,7 +212,19 @@ describe('xhrQueue Plugin Utilities', () => {
       // @ts-expect-error Needed to set the status for testing
       (details.xhr as XMLHttpRequest).status = 501;
 
-      logErrorOnFailure(details, true, true, 1, 10, defaultLogger);
+      logErrorOnFailure(
+        details,
+        true,
+        {
+          retryAttemptNumber: 1,
+          maxRetryAttempts: 10,
+          willBeRetried: true,
+          timeSinceFirstAttempt: 1,
+          timeSinceLastAttempt: 1,
+          reclaimed: false,
+        },
+        defaultLogger,
+      );
 
       expect(defaultLogger.error).toHaveBeenCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s). Cause: Too many requests. The event(s) will be retried. Retry attempt 1 of 10.',
@@ -175,7 +234,19 @@ describe('xhrQueue Plugin Utilities', () => {
       // @ts-expect-error Needed to set the status for testing
       (details.xhr as XMLHttpRequest).status = 600;
 
-      logErrorOnFailure(details, true, true, 1, 10, defaultLogger);
+      logErrorOnFailure(
+        details,
+        true,
+        {
+          retryAttemptNumber: 1,
+          maxRetryAttempts: 10,
+          willBeRetried: true,
+          timeSinceFirstAttempt: 1,
+          timeSinceLastAttempt: 1,
+          reclaimed: false,
+        },
+        defaultLogger,
+      );
 
       expect(defaultLogger.error).toHaveBeenCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s). Cause: Too many requests. The event(s) will be retried. Retry attempt 1 of 10.',
@@ -185,7 +256,19 @@ describe('xhrQueue Plugin Utilities', () => {
       // @ts-expect-error Needed to set the status for testing
       (details.xhr as XMLHttpRequest).status = 520;
 
-      logErrorOnFailure(details, true, false, 10, 10, defaultLogger);
+      logErrorOnFailure(
+        details,
+        true,
+        {
+          retryAttemptNumber: 10,
+          maxRetryAttempts: 10,
+          willBeRetried: false,
+          timeSinceFirstAttempt: 1,
+          timeSinceLastAttempt: 1,
+          reclaimed: false,
+        },
+        defaultLogger,
+      );
 
       expect(defaultLogger.error).toHaveBeenCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s). Cause: Too many requests. Retries exhausted (10). The event(s) will be dropped.',
@@ -212,14 +295,66 @@ describe('xhrQueue Plugin Utilities', () => {
         },
       };
 
-      const requestInfo = getRequestInfo(queueItemData, state, defaultLogger);
+      const requestInfo = getRequestInfo(
+        queueItemData,
+        state,
+        {
+          retryAttemptNumber: 0,
+          maxRetryAttempts: 10,
+          willBeRetried: true,
+          timeSinceFirstAttempt: 1,
+          timeSinceLastAttempt: 1,
+          reclaimed: false,
+        },
+        defaultLogger,
+      );
 
       expect(requestInfo).toEqual({
         url: 'https://test.com/v1/track',
         headers: {
           AnonymousId: 'anonymous-id',
+          SentAt: '2021-01-01T00:00:00.000Z',
         },
         data: '{"type":"track","properties":{"prop1":"value1"},"sentAt":"2021-01-01T00:00:00.000Z"}',
+      });
+    });
+
+    it('should return request info for single event queue item that is reclaimed and retried', () => {
+      const queueItemData = {
+        event: {
+          type: 'track',
+        } as unknown as RudderEvent,
+        url: 'https://test.com/v1/track',
+        headers: {
+          AnonymousId: 'anonymous-id',
+        },
+      };
+
+      const requestInfo = getRequestInfo(
+        queueItemData,
+        state,
+        {
+          retryAttemptNumber: 2,
+          maxRetryAttempts: 10,
+          willBeRetried: true,
+          timeSinceFirstAttempt: 4,
+          timeSinceLastAttempt: 2,
+          reclaimed: true,
+        },
+        defaultLogger,
+      );
+
+      expect(requestInfo).toEqual({
+        url: 'https://test.com/v1/track',
+        headers: {
+          AnonymousId: 'anonymous-id',
+          SentAt: '2021-01-01T00:00:00.000Z',
+          'Retry-Attempt': '2',
+          'Retried-After': '2',
+          'Retried-After-First': '4',
+          Reclaimed: 'true',
+        },
+        data: '{"type":"track","sentAt":"2021-01-01T00:00:00.000Z"}',
       });
     });
 
@@ -253,12 +388,25 @@ describe('xhrQueue Plugin Utilities', () => {
 
       state.lifecycle.activeDataplaneUrl.value = 'https://test.dataplaneurl.com/';
 
-      const requestInfo = getRequestInfo(queueItemData, state, defaultLogger);
+      const requestInfo = getRequestInfo(
+        queueItemData,
+        state,
+        {
+          retryAttemptNumber: 0,
+          maxRetryAttempts: 10,
+          willBeRetried: true,
+          timeSinceFirstAttempt: 1,
+          timeSinceLastAttempt: 1,
+          reclaimed: false,
+        },
+        defaultLogger,
+      );
 
       expect(requestInfo).toEqual({
         url: 'https://test.dataplaneurl.com/v1/batch',
         headers: {
           AnonymousId: 'anonymous-id1',
+          SentAt: '2021-01-01T00:00:00.000Z',
         },
         data: '{"batch":[{"type":"track","properties":{"prop1":"value1"},"sentAt":"2021-01-01T00:00:00.000Z"},{"type":"track","properties":{"prop2":"value2"},"sentAt":"2021-01-01T00:00:00.000Z"}],"sentAt":"2021-01-01T00:00:00.000Z"}',
       });

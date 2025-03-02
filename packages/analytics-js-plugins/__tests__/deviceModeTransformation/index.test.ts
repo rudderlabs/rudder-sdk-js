@@ -172,9 +172,14 @@ describe('Device mode transformation plugin', () => {
         event,
       },
       expect.any(Function),
-      0,
-      3,
-      true,
+      {
+        willBeRetried: true,
+        retryAttemptNumber: 0,
+        maxRetryAttempts: 3,
+        reclaimed: false,
+        timeSinceFirstAttempt: expect.any(Number),
+        timeSinceLastAttempt: expect.any(Number),
+      },
     );
 
     // Item is successfully processed and removed from queue
@@ -289,6 +294,9 @@ describe('Device mode transformation plugin', () => {
           event,
         },
         attemptNumber: 1,
+        firstAttemptedAt: expect.any(Number),
+        lastAttemptedAt: expect.any(Number),
+        reclaimed: undefined,
         id: 'sample_uuid',
         time: expect.any(Number),
         // time: 1 + 500 * 2 ** 1, // this is the delay calculation in RetryQueue

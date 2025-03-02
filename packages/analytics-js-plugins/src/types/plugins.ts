@@ -13,6 +13,9 @@ export type QueueItem<T = QueueItemData> = {
   time: number;
   id: string;
   type: QueueItemType;
+  lastAttemptedAt?: number;
+  firstAttemptedAt?: number;
+  reclaimed?: boolean;
 };
 
 export type QueueItemData =
@@ -24,19 +27,39 @@ export type QueueItemData =
   | number[];
 
 /**
+ * @typedef {Object} QueueProcessCallbackInfo
+ * @property {number} retryAttemptNumber The number of times this item has been attempted to retry
+ * @property {number} maxRetryAttempts The maximum number of times this item should be attempted to retry
+ * @property {boolean} willBeRetried A boolean indicating if the item will be retried later
+ * @property {number} timeSinceFirstAttempt The number of seconds since the first attempt
+ * @property {number} timeSinceLastAttempt The number of seconds since the last attempt
+ * @property {boolean} reclaimed A boolean indicating if the item has been reclaimed
+ */
+export type QueueProcessCallbackInfo = {
+  retryAttemptNumber: number;
+  maxRetryAttempts: number;
+  willBeRetried: boolean;
+  timeSinceLastAttempt: number;
+  timeSinceFirstAttempt: number;
+  reclaimed: boolean;
+};
+
+/**
  * @callback QueueProcessCallback
  * @param {any} item The item added to the queue to process
  * @param {Function} done A function to call when processing is completed.
- * @param {Number} retryAttemptNumber The number of times this item has been attempted to retry
- * @param {Number} maxRetryAttempts The maximum number of times this item should be attempted to retry
- * @param {Number} willBeRetried A boolean indicating if the item will be retried later
+ * @param {Object} info An object containing the following properties:
+ *   - retryAttemptNumber: The number of times this item has been attempted to retry
+ *   - maxRetryAttempts: The maximum number of times this item should be attempted to retry
+ *   - willBeRetried: A boolean indicating if the item will be retried later
+ *   - timeSinceLastAttempt: The number of seconds since the last attempt
+ *   - timeSinceFirstAttempt: The number of seconds since the first attempt
+ *   - reclaimed: A boolean indicating if the item has been reclaimed
  */
 export type QueueProcessCallback<T = any> = (
   item: T,
   done: DoneCallback,
-  retryAttemptNumber?: number,
-  maxRetryAttempts?: number,
-  willBeRetried?: boolean,
+  info: QueueProcessCallbackInfo,
 ) => void;
 
 export type QueueBatchItemsSizeCalculatorCallback<T = any> = (item: T) => number;

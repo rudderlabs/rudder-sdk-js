@@ -16,7 +16,12 @@ import {
   getRequestInfo,
   getBatchDeliveryPayload,
 } from './utilities';
-import type { DoneCallback, IQueue, QueueItemData } from '../types/plugins';
+import type {
+  DoneCallback,
+  IQueue,
+  QueueItemData,
+  QueueProcessCallbackInfo,
+} from '../types/plugins';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import { QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
 import type { XHRRetryQueueItemData, XHRQueueItemData } from './types';
@@ -68,13 +73,12 @@ const XhrQueue = (): ExtensionPlugin => ({
         (
           itemData: QueueItemData,
           done: DoneCallback,
-          attemptNumber?: number,
-          maxRetryAttempts?: number,
-          willBeRetried?: boolean,
+          qItemProcessInfo: QueueProcessCallbackInfo,
         ) => {
           const { data, url, headers } = getRequestInfo(
             itemData as XHRRetryQueueItemData,
             state,
+            qItemProcessInfo,
             logger,
           );
 
@@ -99,14 +103,7 @@ const XhrQueue = (): ExtensionPlugin => ({
 
               const isRetryable = isErrRetryable(details?.xhr?.status ?? 0);
 
-              logErrorOnFailure(
-                details,
-                isRetryable,
-                willBeRetried,
-                attemptNumber,
-                maxRetryAttempts,
-                logger,
-              );
+              logErrorOnFailure(details, isRetryable, qItemProcessInfo, logger);
 
               // null means item will not be processed further and will be removed from the queue (even from the storage)
               const queueErrResp = isRetryable ? details : null;
