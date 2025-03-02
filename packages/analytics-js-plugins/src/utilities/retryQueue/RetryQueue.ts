@@ -601,7 +601,24 @@ class RetryQueue implements IQueue<QueueItemData> {
           reclaimed,
         });
       } catch (err) {
-        this.logger?.error(RETRY_QUEUE_PROCESS_ERROR(RETRY_QUEUE), err);
+        let errMsg = '';
+        if (el.attemptNumber < this.maxAttempts) {
+          errMsg = 'The item will be requeued.';
+          if (el.attemptNumber > 0) {
+            errMsg = `${errMsg} Retry attempt ${el.attemptNumber} of ${this.maxAttempts}.`;
+          }
+
+          // requeue the item to be retried
+          el.done(err);
+        } else {
+          errMsg = `Retries exhausted (${this.maxAttempts}). The item will be dropped.`;
+
+          // drop the event as we're unable to process it
+          // after the max attempts are exhausted
+          el.done();
+        }
+
+        this.logger?.error(RETRY_QUEUE_PROCESS_ERROR(RETRY_QUEUE, errMsg), err);
       }
     });
 
