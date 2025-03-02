@@ -375,7 +375,12 @@ class RetryQueue implements IQueue<QueueItemData> {
     let queue =
       (this.getStorageEntry(QueueStatuses.QUEUE) as Nullable<QueueItem<QueueItemData>[]>) ?? [];
 
+    if (this.maxItems > 1) {
     queue = queue.slice(-(this.maxItems - 1));
+    } else {
+      queue = [];
+    }
+
     queue.push(curEntry);
     queue = queue.sort(sortByTime);
 
