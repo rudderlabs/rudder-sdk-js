@@ -209,12 +209,7 @@
   },
   "overrides": {
     "debug": "4.3.4",
-    "ws": "7.5.10",
-    "path-to-regexp": "6.3.0",
-    "eslint-config-prettier": "10.0.2",
-    "@size-limit/webpack": {
-      "nanoid": "5.0.9"
-    }
+    "eslint-config-prettier": "10.0.2"
   },
   "lint-staged": {
     "*.{json,js,md,ts}": "prettier --write"
