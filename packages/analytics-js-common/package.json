@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-common",
-  "version": "3.17.1",
+  "version": "3.17.2",
   "private": true,
   "description": "RudderStack JavaScript SDK common code",
   "module": "dist/npm/index.js",
@@ -65,7 +65,7 @@
     "storejs": "2.1.0"
   },
   "devDependencies": {
-    "@bugsnag/js": "8.1.2"
+    "@bugsnag/js": "8.2.0"
   },
   "overrides": {},
   "browserslist": {

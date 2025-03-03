@@ -16,7 +16,7 @@ export default [
   {
     name: 'Plugins - Legacy - CDN',
     path: 'dist/cdn/legacy/plugins/rsa-plugins-*.min.js',
-    limit: '14 KiB',
+    limit: '14.5 KiB',
   },
   {
     name: 'Plugins - Modern - CDN',

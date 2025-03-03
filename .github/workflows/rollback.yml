@@ -3,6 +3,25 @@ name: Rollback Production Deployment
 on:
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.sha }}
+  cancel-in-progress: true
+
+permissions:
+  id-token: write # allows the JWT to be requested from GitHub's OIDC provider
+  contents: read # This is required for actions/checkout
+
+env:
+  NODE_OPTIONS: "--no-warnings"
+  CACHE_CONTROL_NO_STORE: "\"no-store\""
+  CACHE_CONTROL_MAX_AGE: "\"max-age=3600\""
+  LEGACY_DIR_NAME: "legacy"
+  MODERN_DIR_NAME: "modern"
+  INTEGRATIONS_DIR_NAME: "js-integrations"
+  PLUGINS_DIR_NAME: "plugins"
+  LATEST_VERSION_DIR_NAME: "v3"
+  LEGACY_SDK_LATEST_VERSION_DIR_NAME: "v1.1"
+
 jobs:
   validate-actor:
     # Only allow to be deployed from tags and main branch
@@ -13,30 +32,9 @@ jobs:
     secrets:
       PAT: ${{ secrets.PAT }}
 
-  deploy:
+  rollback:
     needs: validate-actor
     name: Rollback production deployment
-    uses: ./.github/workflows/deploy.yml
-    with:
-      environment: 'production'
-      bugsnag_release_stage: 'production'
-      s3_dir_path: 'v3'
-      s3_dir_path_legacy: 'v1.1'
-      action_type: ' Rollback'
-    secrets:
-      AWS_ACCOUNT_ID: ${{ secrets.AWS_PROD_ACCOUNT_ID }}
-      AWS_S3_BUCKET_NAME: ${{ secrets.AWS_PROD_S3_BUCKET_NAME }}
-      AWS_S3_SYNC_ROLE: ${{ secrets.AWS_PROD_S3_SYNC_ROLE }}
-      AWS_CF_DISTRIBUTION_ID: ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }}
-      BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
-      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-      SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
-  
-  # As we rollback to a previous version, we need to invalidate the CDN cache for the previous version's directory
-  # The above deploy action will invalidate the cache for the core SDK artifacts, so this step is needed for dependencies (plugins and integrations)
-  invalidate-cdn-cache:
-    needs: deploy
-    name: Invalidate CDN cache
     runs-on: [self-hosted, Linux, X64]
 
     steps:
@@ -54,21 +52,88 @@ jobs:
         with:
           ref: ${{ github.sha }}
 
-      - name: Get new versions
+      - name: Get rollback sdk versions
         run: |
-          current_version_v1=$(jq -r .version packages/analytics-v1.1/package.json)
-          current_version=$(jq -r .version packages/analytics-js/package.json)
-          echo "CURRENT_VERSION_V1_VALUE=$current_version_v1" >> $GITHUB_ENV
-          echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
+          rollback_version=$(jq -r .version packages/analytics-js/package.json)
+          echo "ROLLBACK_VERSION_VALUE=$rollback_version" >> $GITHUB_ENV
+          echo "SDK rollback version: $rollback_version"
 
-      - name: Invalidate CloudFront cache for all the SDK artifacts (versioned directory)
+          legacy_sdk_rollback_version=$(jq -r .version packages/analytics-v1.1/package.json)
+          echo "LEGACY_SDK_ROLLBACK_VERSION_VALUE=$legacy_sdk_rollback_version" >> $GITHUB_ENV
+          echo "Legacy SDK rollback version: $legacy_sdk_rollback_version"
+
+          echo "DATE=$(date)" >> $GITHUB_ENV
+
+      - name: Copy the core SDK artifacts from the previous version to the latest version directory
         run: |
-          invalidation_id=$(AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/${{ env.CURRENT_VERSION_VALUE }}/*" --query "Invalidation.Id" --output text)
+          s3_path_prefix="s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}"
+
+          # Copy from S3 bucket versioned directory to the same S3 bucket in the latest version directory
+          # excluding the plugins and js-integrations directories
+          # as the core SDK automatically refers to the plugins and js-integrations files from the versioned directory
+
+          aws s3 cp $s3_path_prefix/${{ env.ROLLBACK_VERSION_VALUE }}/${{ env.LEGACY_DIR_NAME }}/ $s3_path_prefix/${{ env.LATEST_VERSION_DIR_NAME }}/${{ env.LEGACY_DIR_NAME }}/ --recursive --exclude "${{ env.INTEGRATIONS_DIR_NAME }}/*" --exclude "${{ env.INTEGRATIONS_DIR_NAME }}/**" --cache-control ${{ env.CACHE_CONTROL_NO_STORE }}
+
+          aws s3 cp $s3_path_prefix/${{ env.ROLLBACK_VERSION_VALUE }}/${{ env.MODERN_DIR_NAME }}/ $s3_path_prefix/${{ env.LATEST_VERSION_DIR_NAME }}/${{ env.MODERN_DIR_NAME }}/ --recursive --exclude "${{ env.PLUGINS_DIR_NAME }}/*" --exclude "${{ env.PLUGINS_DIR_NAME }}/**" --exclude "${{ env.INTEGRATIONS_DIR_NAME }}/*" --exclude "${{ env.INTEGRATIONS_DIR_NAME }}/**" --cache-control ${{ env.CACHE_CONTROL_NO_STORE }}
+
+      - name: Invalidate CloudFront cache for the latest version directory
+        run: |
+          invalidation_id=$(AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/${{ env.LATEST_VERSION_DIR_NAME }}*" --query "Invalidation.Id" --output text)
 
           aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --id "$invalidation_id"
 
-      - name: Invalidate CloudFront cache for all the legacy SDK artifacts (versioned directory)
+      # Repeat the above steps for the legacy SDK artifacts
+      - name: Copy the legacy SDK artifacts from the previous version to the latest version directory
         run: |
-          invalidation_id=$(AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/${{ env.CURRENT_VERSION_V1_VALUE }}/*" --query "Invalidation.Id" --output text)
+          s3_path_prefix="s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}"
+
+          # Copy from S3 bucket versioned directory to the same S3 bucket in the latest version directory
+          aws s3 cp $s3_path_prefix/${{ env.LEGACY_SDK_ROLLBACK_VERSION_VALUE }}/ $s3_path_prefix/${{ env.LEGACY_SDK_LATEST_VERSION_DIR_NAME }}/ --recursive --cache-control ${{ env.CACHE_CONTROL_NO_STORE }}
+
+      - name: Invalidate CloudFront cache for the latest version directory (legacy SDK artifacts)
+        run: |
+          invalidation_id=$(AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/${{ env.LEGACY_SDK_LATEST_VERSION_DIR_NAME }}*" --query "Invalidation.Id" --output text)
 
           aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --id "$invalidation_id"
+
+      - name: Send message to Slack channel
+        id: slack
+        continue-on-error: true
+        uses: slackapi/slack-github-action@v1.27.0
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          PROJECT_NAME: 'JS SDK Browser Package - Rollback - Production'
+          CDN_URL: ${{ format('https://cdn.rudderlabs.com/{0}/modern/rsa.min.js', env.LATEST_VERSION_DIR_NAME) }}
+          RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js@'
+          LINK_TEXT: ${{ format('v{0}', env.ROLLBACK_VERSION_VALUE) }}
+        with:
+          channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
+          payload: |
+            {
+              "text": "*New Release: ${{ env.PROJECT_NAME }} - <${{ env.CDN_URL }}|${{ env.LINK_TEXT }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D> <!subteam^S03SW7DM8P3> <!subteam^S03SHJ20350>",
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "New release: ${{ env.PROJECT_NAME }}"
+                  }
+                },
+                {
+                  "type": "divider"
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*<${{ env.CDN_URL }}|${{ env.LINK_TEXT }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D> <!subteam^S03SW7DM8P3> <!subteam^S03SHJ20350>"
+                  },
+                  "accessory": {
+                    "type": "image",
+                    "image_url": "https://cdn.jsdelivr.net/npm/programming-languages-logos/src/javascript/javascript.png",
+                    "alt_text": "JavaScript Icon"
+                  }
+                }
+                ${{ format(',{{"type": "context", "elements": [{{"type": "mrkdwn", "text": "For more details, check the full release notes <{0}{1}|here>."}}]}}', env.RELEASES_URL, env.ROLLBACK_VERSION_VALUE) || ''  }}
+              ]
+            }

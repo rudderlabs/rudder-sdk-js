@@ -6,6 +6,10 @@ on:
       release_ticket_id:
         description: Release ticket ID (Ex:- SDK-1234)
         required: true
+        
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.sha }}
+  cancel-in-progress: true
 
 env:
   NODE_OPTIONS: '--no-warnings'
@@ -121,7 +125,7 @@ jobs:
             This ensures that the latest release branch changes are incorporated into the `main` branch for production.
 
             ### Details
-            - **Release Version**: v$NEW_VERSION_VALUE
+            - **Release Version**: v${{ env.NEW_VERSION_VALUE }}
             - **Release Branch**: `${{ steps.create-release.outputs.branch_name }}`
             - **Related Ticket**: [${{ github.event.inputs.release_ticket_id }}](https://linear.app/rudderstack/issue/${{ github.event.inputs.release_ticket_id }})
 

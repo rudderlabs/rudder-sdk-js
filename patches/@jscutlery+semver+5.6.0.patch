@@ -1,5 +1,5 @@
 diff --git a/node_modules/@jscutlery/semver/src/executors/version/utils/try-bump.js b/node_modules/@jscutlery/semver/src/executors/version/utils/try-bump.js
-index 2430e89..40958ac 100644
+index 2430e89..658040d 100644
 --- a/node_modules/@jscutlery/semver/src/executors/version/utils/try-bump.js
 +++ b/node_modules/@jscutlery/semver/src/executors/version/utils/try-bump.js
 @@ -169,7 +169,7 @@ function _getDependencyVersions({ commitParserOptions, preset, dependencyRoots,

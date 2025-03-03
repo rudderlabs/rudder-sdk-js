@@ -133,9 +133,14 @@ describe('XhrQueue', () => {
         event: mergeDeepRight(event, { sentAt: 'sample_timestamp' }),
       },
       expect.any(Function),
-      0,
-      10,
-      true,
+      {
+        retryAttemptNumber: 0,
+        maxRetryAttempts: 10,
+        willBeRetried: true,
+        timeSinceFirstAttempt: expect.any(Number),
+        timeSinceLastAttempt: expect.any(Number),
+        reclaimed: false,
+      },
     );
 
     // Item is successfully processed and removed from queue
@@ -197,6 +202,8 @@ describe('XhrQueue', () => {
           event: mergeDeepRight(event, { sentAt: 'sample_timestamp' }),
         },
         attemptNumber: 1,
+        lastAttemptedAt: expect.any(Number),
+        firstAttemptedAt: expect.any(Number),
         id: 'sample_uuid',
         time: 1 + 1000 * 2 ** 1, // this is the delay calculation in RetryQueue
         type: 'Single',
@@ -284,9 +291,14 @@ describe('XhrQueue', () => {
         },
       ],
       expect.any(Function),
-      0,
-      10,
-      true,
+      {
+        retryAttemptNumber: 0,
+        maxRetryAttempts: 10,
+        willBeRetried: true,
+        timeSinceFirstAttempt: expect.any(Number),
+        timeSinceLastAttempt: expect.any(Number),
+        reclaimed: false,
+      },
     );
 
     expect(defaultHttpClient.getAsyncData).toHaveBeenCalledWith({
@@ -295,6 +307,7 @@ describe('XhrQueue', () => {
         method: 'POST',
         headers: {
           AnonymousId: 'c2FtcGxlQW5vbklk', // Base64 encoded anonymousId
+          SentAt: 'sample_timestamp',
         },
         sendRawData: true,
         data: '{"batch":[{"type":"track","event":"test","userId":"test","properties":{"test":"test"},"anonymousId":"sampleAnonId","messageId":"test","originalTimestamp":"test","sentAt":"sample_timestamp"},{"type":"track","event":"test2","userId":"test2","properties":{"test2":"test2"},"anonymousId":"sampleAnonId","messageId":"test2","originalTimestamp":"test2","sentAt":"sample_timestamp"}],"sentAt":"sample_timestamp"}',
