@@ -159,7 +159,7 @@
     "eslint-plugin-compat": "6.0.2",
     "eslint-plugin-import": "2.31.0",
     "eslint-plugin-sonarjs": "3.0.2",
-    "eslint-plugin-unicorn": "56.0.1",
+    "eslint-plugin-unicorn": "57.0.0",
     "esm": "3.2.25",
     "http-server": "14.1.1",
     "husky": "9.1.7",
