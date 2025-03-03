@@ -3,6 +3,7 @@ import { QueueStatuses } from '@rudderstack/analytics-js-common/constants/QueueS
 import { defaultStoreManager } from '@rudderstack/analytics-js-common/__mocks__/StoreManager';
 import { defaultLocalStorage } from '@rudderstack/analytics-js-common/__mocks__/Storage';
 import { Store } from '@rudderstack/analytics-js-common/__mocks__/Store';
+import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
 import { Schedule } from '../../../src/utilities/retryQueue/Schedule';
 import { RetryQueue } from '../../../src/utilities/retryQueue/RetryQueue';
 import type { QueueItem, QueueItemData } from '../../../src/types/plugins';
@@ -33,6 +34,8 @@ describe('Queue', () => {
       },
       jest.fn(),
       defaultStoreManager,
+      undefined,
+      defaultLogger,
     );
     queue.schedule = schedule;
   });
@@ -247,7 +250,7 @@ describe('Queue', () => {
   it('should retry a task if it fails', () => {
     queue.start();
 
-    // Fail the first time, Succeed the second time
+    // Fail the first time, succeed the last time
     const mockProcessItemCb = jest
       .fn()
       .mockImplementationOnce((_, cb) => cb(new Error('no')))
@@ -296,6 +299,86 @@ describe('Queue', () => {
       timeSinceLastAttempt: 4,
       reclaimed: false,
     });
+  });
+
+  it('should retry queue item if process function throws an error', () => {
+    queue.start();
+
+    const mockProcessItemCb = jest
+      .fn()
+      .mockImplementationOnce(() => {
+        throw new Error('error 1');
+      })
+      .mockImplementationOnce(() => {
+        throw new Error('error 2');
+      })
+      .mockImplementationOnce(() => {
+        throw new Error('error 3');
+      });
+    queue.processQueueCb = mockProcessItemCb;
+    queue.maxAttempts = 2;
+
+    queue.addItem('a');
+
+    expect(mockProcessItemCb).toHaveBeenCalledTimes(1);
+    expect(mockProcessItemCb).toHaveBeenCalledWith('a', expect.any(Function), {
+      retryAttemptNumber: 0,
+      maxRetryAttempts: 2,
+      willBeRetried: true,
+      timeSinceFirstAttempt: expect.any(Number),
+      timeSinceLastAttempt: expect.any(Number),
+      reclaimed: false,
+    });
+    expect(defaultLogger.error).toHaveBeenCalledTimes(1);
+    expect(defaultLogger.error).toHaveBeenCalledWith(
+      'RetryQueue:: An unknown error occurred while processing the queue item. The item will be requeued.',
+      new Error('error 1'),
+    );
+
+    // Delay for the first retry
+    mockProcessItemCb.mockClear();
+    defaultLogger.error.mockClear();
+    jest.advanceTimersByTime(queue.getDelay(1));
+
+    expect(mockProcessItemCb).toHaveBeenCalledTimes(1);
+    expect(mockProcessItemCb).toHaveBeenCalledWith('a', expect.any(Function), {
+      retryAttemptNumber: 1,
+      maxRetryAttempts: 2,
+      willBeRetried: true,
+      timeSinceFirstAttempt: expect.any(Number),
+      timeSinceLastAttempt: expect.any(Number),
+      reclaimed: false,
+    });
+    expect(defaultLogger.error).toHaveBeenCalledTimes(1);
+    expect(defaultLogger.error).toHaveBeenCalledWith(
+      'RetryQueue:: An unknown error occurred while processing the queue item. The item will be requeued. Retry attempt 1 of 2.',
+      new Error('error 2'),
+    );
+
+    // Delay for the second retry
+    mockProcessItemCb.mockClear();
+    defaultLogger.error.mockClear();
+    jest.advanceTimersByTime(queue.getDelay(2));
+
+    expect(mockProcessItemCb).toHaveBeenCalledTimes(1);
+    expect(mockProcessItemCb).toHaveBeenCalledWith('a', expect.any(Function), {
+      retryAttemptNumber: 2,
+      maxRetryAttempts: 2,
+      willBeRetried: false, // because maxAttempts is 2
+      timeSinceFirstAttempt: expect.any(Number),
+      timeSinceLastAttempt: expect.any(Number),
+      reclaimed: false,
+    });
+    expect(defaultLogger.error).toHaveBeenCalledTimes(1);
+    expect(defaultLogger.error).toHaveBeenCalledWith(
+      'RetryQueue:: An unknown error occurred while processing the queue item. Retries exhausted (2). The item will be dropped.',
+      new Error('error 3'),
+    );
+
+    // No retries left as all attempts have been made
+    expect(queue.getStorageEntry('queue')).toEqual([]);
+    expect(queue.getStorageEntry('batchQueue')).toEqual([]);
+    expect(queue.getStorageEntry('inProgress')).toEqual({});
   });
 
   it('should delay retries', () => {
@@ -387,6 +470,19 @@ describe('Queue', () => {
     expect(storedQueue.length).toEqual(100);
     expect(storedQueue[0].item).toEqual(5);
     expect(storedQueue[99].item).toEqual(104);
+  });
+
+  it('should respect maxItems configuration value 1', () => {
+    queue.maxItems = 1;
+
+    for (let i = 0; i < 105; i += 1) {
+      jest.advanceTimersByTime(1);
+      queue.addItem(i);
+    }
+
+    const storedQueue = queue.store.get(QueueStatuses.QUEUE);
+    expect(storedQueue.length).toEqual(1);
+    expect(storedQueue[0].item).toEqual(104);
   });
 
   it('should take over a queued task if a queue is abandoned', () => {

@@ -48,14 +48,6 @@ const sortByTime = (a: QueueItem, b: QueueItem) => a.time - b.time;
 
 const RETRY_QUEUE = 'RetryQueue';
 
-/**
- * Constructs a RetryQueue backed by localStorage
- *
- * @constructor
- * @param {String} name The name of the queue. Will be used to find abandoned queues and retry their items
- * @param {Object} [opts] Optional argument to override `maxItems`, `maxAttempts`, `minRetryDelay, `maxRetryDelay`, `backoffFactor` and `backoffJitter`.
- * @param {QueueProcessCallback} fn The function to call in order to process an item added to the queue
- */
 class RetryQueue implements IQueue<QueueItemData> {
   name: string;
   id: string;
@@ -78,6 +70,17 @@ class RetryQueue implements IQueue<QueueItemData> {
   reclaimEndVal?: Nullable<string>;
   isPageAccessible: boolean;
 
+  /**
+   * Constructs a RetryQueue backed by localStorage
+   *
+   * @param {String} name The name of the queue. Will be used to find abandoned queues and retry their items
+   * @param {QueueOpts} [options] Optional argument to override `maxItems`, `maxAttempts`, `minRetryDelay, `maxRetryDelay`, `backoffFactor` and `backoffJitter`.
+   * @param {QueueProcessCallback} queueProcessCb The function to call in order to process an item added to the queue
+   * @param {IStoreManager} storeManager The store manager instance to use
+   * @param {StorageType} [storageType] The storage type to use. Defaults to LOCAL_STORAGE
+   * @param {ILogger} [logger] The logger to use
+   * @param {QueueBatchItemsSizeCalculatorCallback} [queueBatchItemsSizeCalculatorCb] The callback to use to calculate the size of items in the batch queue
+   */
   constructor(
     name: string,
     options: QueueOpts,
@@ -375,7 +378,12 @@ class RetryQueue implements IQueue<QueueItemData> {
     let queue =
       (this.getStorageEntry(QueueStatuses.QUEUE) as Nullable<QueueItem<QueueItemData>[]>) ?? [];
 
-    queue = queue.slice(-(this.maxItems - 1));
+    if (this.maxItems > 1) {
+      queue = queue.slice(-(this.maxItems - 1));
+    } else {
+      queue = [];
+    }
+
     queue.push(curEntry);
     queue = queue.sort(sortByTime);
 
@@ -419,9 +427,8 @@ class RetryQueue implements IQueue<QueueItemData> {
    * Adds an item to the retry queue
    *
    * @param {Object} qItem The item to process
-   * @param {Error} [error] The error that occurred during processing
    */
-  requeue(qItem: QueueItem<QueueItemData>, error?: Error) {
+  requeue(qItem: QueueItem<QueueItemData>) {
     const { attemptNumber, item, type, id, firstAttemptedAt, lastAttemptedAt, reclaimed } = qItem;
     // Increment the attempt number as we're about to retry
     const attemptNumberToUse = attemptNumber + 1;
@@ -504,7 +511,7 @@ class RetryQueue implements IQueue<QueueItemData> {
       this.setStorageEntry(QueueStatuses.IN_PROGRESS, inProgress);
 
       if (err) {
-        this.requeue({ ...el, firstAttemptedAt, lastAttemptedAt }, err);
+        this.requeue({ ...el, firstAttemptedAt, lastAttemptedAt });
       }
     };
 
@@ -596,7 +603,24 @@ class RetryQueue implements IQueue<QueueItemData> {
           reclaimed,
         });
       } catch (err) {
-        this.logger?.error(RETRY_QUEUE_PROCESS_ERROR(RETRY_QUEUE), err);
+        let errMsg = '';
+        if (el.attemptNumber < this.maxAttempts) {
+          errMsg = 'The item will be requeued.';
+          if (el.attemptNumber > 0) {
+            errMsg = `${errMsg} Retry attempt ${el.attemptNumber} of ${this.maxAttempts}.`;
+          }
+
+          // requeue the item to be retried
+          el.done(err);
+        } else {
+          errMsg = `Retries exhausted (${this.maxAttempts}). The item will be dropped.`;
+
+          // drop the event as we're unable to process it
+          // after the max attempts are exhausted
+          el.done();
+        }
+
+        this.logger?.error(RETRY_QUEUE_PROCESS_ERROR(RETRY_QUEUE, errMsg), err);
       }
     });
 
@@ -717,7 +741,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     // if the queue is abandoned, all the in-progress are failed. retry them immediately and increment the attempt#
     addConcatQueue(their.inProgress, 1);
 
-    our.queue = our.queue.sort(sortByTime);
+    our.queue.sort(sortByTime);
 
     this.setStorageEntry(QueueStatuses.QUEUE, our.queue);
 
@@ -728,7 +752,6 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.processHead();
   }
 
-  // eslint-disable-next-line class-methods-use-this
   clearQueueEntries(other: IStore, localStorageBackoff: number) {
     this.removeStorageEntry(other, 0, localStorageBackoff);
   }
