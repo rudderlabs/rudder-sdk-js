@@ -60,7 +60,7 @@
     "@segment/top-domain": "3.0.1",
     "crypto-js": "4.2.0",
     "@lukeed/uuid": "2.0.1",
-    "get-value": "3.0.1",
+    "get-value": "4.0.1",
     "ramda": "0.30.1",
     "storejs": "2.1.0"
   },

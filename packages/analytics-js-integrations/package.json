@@ -95,7 +95,7 @@
     "component-each": "0.2.6",
     "@ndhoule/extend": "2.0.0",
     "@lukeed/uuid": "2.0.1",
-    "get-value": "3.0.1",
+    "get-value": "4.0.1",
     "ramda": "0.30.1"
   },
   "devDependencies": {},

@@ -6,7 +6,7 @@ module.exports = [
   {
     name: 'All Integrations - Legacy - CDN',
     path: 'dist/cdn/legacy/js-integrations/*.min.js',
-    limit: '95.3 KiB',
+    limit: '96 KiB',
   },
   {
     name: 'All Integrations - Modern - CDN',
