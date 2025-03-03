@@ -14,17 +14,20 @@ import { defaultLogger } from '../../Logger';
  */
 class CookieStorage implements IStorage {
   logger?: ILogger;
-  options: ICookieStorageOptions;
+  options?: ICookieStorageOptions;
   isSupportAvailable = true;
   isEnabled = true;
   length = 0;
 
   constructor(logger?: ILogger) {
-    this.options = getDefaultCookieOptions();
     this.logger = logger;
   }
 
   configure(options?: Partial<ICookieStorageOptions>): ICookieStorageOptions {
+    if (!this.options) {
+      this.options = getDefaultCookieOptions();
+    }
+
     this.options = mergeDeepRight(this.options, options ?? {});
     if (this.options.sameDomainCookiesOnly) {
       delete this.options.domain;
