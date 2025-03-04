@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/filename-case */
 // map b/w the names of integrations comming from config plane to integration module names
 const configToIntNames = {
   HS: 'HubSpot',

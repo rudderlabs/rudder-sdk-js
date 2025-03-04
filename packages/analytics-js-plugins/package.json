@@ -88,8 +88,7 @@
     "release": "npm publish"
   },
   "dependencies": {
-    "crypto-es": "2.1.0",
-    "error-stack-parser": "2.1.4",
+    "@rudderstack/analytics-js-cookies": "*",
     "@rudderstack/analytics-js-common": "*",
     "ramda": "0.30.1"
   },

@@ -5,15 +5,11 @@ import {
 } from '../../../src/services/ExternalSrcLoader/jsFileLoader';
 import { server } from '../../../__fixtures__/msw.server';
 import { dummyDataplaneHost } from '../../../__fixtures__/fixtures';
+import { defaultErrorHandler } from '../../../__mocks__/ErrorHandler';
+import { defaultLogger } from '../../../__mocks__/Logger';
 
 describe('External Source Loader', () => {
   let externalSrcLoaderInstance: ExternalSrcLoader;
-  const defaultErrorHandler = {
-    onError: jest.fn((): void => {}),
-  };
-  const defaultLogger = {
-    error: jest.fn((): void => {}),
-  };
 
   beforeAll(() => {
     server.listen();
@@ -123,12 +119,12 @@ describe('External Source Loader', () => {
     document.getElementById('dummyScript')?.remove();
 
     // If no head exists should be placed as first script if another script exists
-    document.getElementsByTagName('head')[0].remove();
+    document.getElementsByTagName('head')[0]?.remove();
     const scriptElement1 = document.createElement('script');
     scriptElement1.type = 'text/javascript';
     scriptElement1.src = `${dummyDataplaneHost}/jsFileEmpty.js`;
     scriptElement1.id = 'dummyScript1';
-    document.getElementsByTagName('body')[0].append(scriptElement1);
+    document.getElementsByTagName('body')[0]?.append(scriptElement1);
     insertScript(dummyElement);
     scriptElement = document.getElementById('dummyScript') as HTMLScriptElement;
     expect(scriptElement).toBeDefined();
@@ -136,10 +132,10 @@ describe('External Source Loader', () => {
     expect(scriptElement.nextElementSibling?.id).toStrictEqual('dummyScript1');
     document.getElementById('dummyScript1')?.remove();
     document.getElementById('dummyScript')?.remove();
-    document.getElementsByTagName('html')[0].append(document.createElement('head'));
+    document.getElementsByTagName('html')[0]?.append(document.createElement('head'));
 
     // If no head and no other script create head and add there
-    document.getElementsByTagName('head')[0].remove();
+    document.getElementsByTagName('head')[0]?.remove();
     insertScript(dummyElement);
     scriptElement = document.getElementById('dummyScript') as HTMLScriptElement;
     expect(scriptElement).toBeDefined();
