@@ -375,3 +375,99 @@ describe('Page tests', () => {
     }
   });
 });
+
+describe('Group tests', () => {
+  beforeEach(() => {
+    window.mixpanel = [];
+  });
+  let mixpanel;
+  test('should log an error when userId is not defined for group call', () => {
+    mixpanel = new Mixpanel(
+      {
+        groupKeySettings: true,
+      },
+      { logLevel: 'debug' },
+    );
+    mixpanel.init();
+    try {
+      mixpanel.group({
+        message: {
+          name: 'Doc',
+          userId: null,
+          properties: { category: 'Integration' },
+        },
+      });
+    } catch (error) {
+      expect(error).toEqual('valid userId is required for group');
+    }
+  });
+
+  test('should log an error when groupId is not defined for group call', () => {
+    mixpanel = new Mixpanel(
+      {
+        groupKeySettings: true,
+      },
+      { logLevel: 'debug' },
+    );
+    mixpanel.init();
+    try {
+      mixpanel.group({
+        message: {
+          name: 'Doc',
+          groupId: null,
+          properties: { category: 'Integration' },
+        },
+      });
+    } catch (error) {
+      expect(error).toEqual('valid groupId is required for group');
+    }
+  });
+});
+
+describe('Alias tests', () => {
+  beforeEach(() => {
+    window.mixpanel = [];
+  });
+  let mixpanel;
+  test('should log an error when previousId is not defined for alias call', () => {
+    mixpanel = new Mixpanel(
+      {
+        identityMergeApi: 'original',
+      },
+      { logLevel: 'debug' },
+    );
+    mixpanel.init();
+    try {
+      mixpanel.alias({
+        message: {
+          name: 'Doc',
+          previousId: null,
+          properties: { category: 'Integration' },
+        },
+      });
+    } catch (error) {
+      expect(error).toEqual('valid previousId is required for group');
+    }
+  });
+
+  test('should log an error when userId is not defined for alias call', () => {
+    mixpanel = new Mixpanel(
+      {
+        identityMergeApi: 'original',
+      },
+      { logLevel: 'debug' },
+    );
+    mixpanel.init();
+    try {
+      mixpanel.alias({
+        message: {
+          name: 'Doc',
+          userId: null,
+          properties: { category: 'Integration' },
+        },
+      });
+    } catch (error) {
+      expect(error).toEqual('valid userId is required for group');
+    }
+  });
+});
