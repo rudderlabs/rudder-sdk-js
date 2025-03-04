@@ -70,15 +70,15 @@ class Lytics {
   }
 
   page(rudderElement) {
-    const { properties } = rudderElement.message;
-    let payload = { event: rudderElement.message.name, ...properties };
+    const { properties, name } = rudderElement.message;
+    let payload = { event: name, ...properties };
     payload = this.handleName(payload);
     window.jstag.pageView(this.stream, payload);
   }
 
   track(rudderElement) {
-    const { properties } = rudderElement.message;
-    let payload = { _e: rudderElement.message.event, ...properties };
+    const { properties, event } = rudderElement.message;
+    let payload = { _e: event, ...properties };
     payload = this.handleName(payload);
     window.jstag.send(this.stream, payload);
   }

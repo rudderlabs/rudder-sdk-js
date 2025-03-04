@@ -63,7 +63,8 @@
     "@rudderstack/analytics-js": "*",
     "rudder-sdk-js": "*",
     "deep-object-diff": "1.1.9",
-    "object-path": "0.11.8"
+    "object-path": "0.11.8",
+    "ramda": "0.30.1"
   },
   "devDependencies": {},
   "overrides": {},

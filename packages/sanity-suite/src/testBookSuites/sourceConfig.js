@@ -17,9 +17,9 @@ const getJSONTrimmed = (context, url, writeKey, callback) => {
   xhr.setRequestHeader('Authorization', `Basic ${btoa(`${writeKey}:`)}`);
 
   xhr.onload = function () {
-    const { status } = xhr;
+    const { status, responseText } = xhr;
     if (status == 200) {
-      cb_(200, xhr.responseText);
+      cb_(200, responseText);
     } else {
       cb_(status);
     }

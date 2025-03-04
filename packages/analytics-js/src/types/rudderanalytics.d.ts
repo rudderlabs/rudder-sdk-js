@@ -1,9 +1,4 @@
-import type {
-  IRudderStackGlobals,
-  RudderAnalytics,
-  PreloadedEventCall,
-  RudderAnalyticsPreloader,
-} from '../index';
+import type { IRudderStackGlobals, RudderAnalytics, RudderAnalyticsPreloader } from '../index';
 
 declare global {
   interface Window {

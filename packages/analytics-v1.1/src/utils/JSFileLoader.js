@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/filename-case */
 const DEFAULT_TIMEOUT = 10 * 1000; // 10 seconds
 
 /**
