@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/filename-case */
 // from client native integration name to server identified display name
 // add a mapping from Rudder identified key names to Rudder server recognizable names
 const clientToServerNames = {
