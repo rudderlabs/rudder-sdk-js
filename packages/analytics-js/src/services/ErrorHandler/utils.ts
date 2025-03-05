@@ -75,7 +75,7 @@ const getUserDetails = (
   lifecycle: ApplicationState['lifecycle'],
   autoTrack: ApplicationState['autoTrack'],
 ) => ({
-  id: `${source.value?.id ?? (lifecycle.writeKey.value as string)}..${session.sessionInfo.value.id ?? 'NA'}..${autoTrack.pageLifecycle.visitId.value ?? 'NA'}`,
+  id: `${source.value?.id ?? (lifecycle.writeKey.value as string)}..${session.sessionInfo.value.id ?? 'NA'}..${autoTrack.pageLifecycle.pageViewId.value ?? 'NA'}`,
   name: source.value?.name ?? 'NA',
 });
 

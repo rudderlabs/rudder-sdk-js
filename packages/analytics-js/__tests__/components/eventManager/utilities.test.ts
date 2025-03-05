@@ -250,7 +250,7 @@ describe('Event Manager - Utilities', () => {
 
         state.autoTrack.enabled.value = true;
         state.autoTrack.pageLifecycle.enabled.value = true;
-        state.autoTrack.pageLifecycle.visitId.value = 'visit_id';
+        state.autoTrack.pageLifecycle.pageViewId.value = 'view_id';
       });
 
       // @ts-expect-error Omitted other fields for brevity
@@ -329,7 +329,7 @@ describe('Event Manager - Utilities', () => {
           userId: 'overridden_user_id',
           autoTrack: {
             page: {
-              visitId: 'visit_id',
+              pageViewId: 'view_id',
             },
           },
         },

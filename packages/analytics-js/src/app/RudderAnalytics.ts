@@ -97,7 +97,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
 
       RudderAnalytics.globalSingleton = this;
 
-      state.autoTrack.pageLifecycle.visitId.value = generateUUID();
+      state.autoTrack.pageLifecycle.pageViewId.value = generateUUID();
       state.autoTrack.pageLifecycle.pageLoadedTimestamp.value = Date.now();
 
       // start loading if a load event was buffered or wait for explicit load call
