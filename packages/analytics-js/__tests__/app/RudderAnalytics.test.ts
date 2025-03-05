@@ -1,6 +1,5 @@
 import type { LoadOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import type { PreloadedEventCall } from '../../src/components/preloadBuffer/types';
-import { state } from '../../src/state';
+import { resetState, state } from '../../src/state';
 import { RudderAnalytics } from '../../src/app/RudderAnalytics';
 import { Analytics } from '../../src/components/core/Analytics';
 
@@ -163,6 +162,8 @@ describe('Core - Rudder Analytics Facade', () => {
   });
 
   it('should create a new analytics instance with the write key on load and trigger its load method', () => {
+    const trackPageLifecycleEventsSpy = jest.spyOn(rudderAnalytics, 'trackPageLifecycleEvents');
+
     rudderAnalytics.analyticsInstances = {};
     rudderAnalytics.defaultAnalyticsKey = '';
     rudderAnalytics.load('writeKey', 'data-plane-url', mockLoadOptions);
@@ -171,6 +172,10 @@ describe('Core - Rudder Analytics Facade', () => {
 
     expect(rudderAnalytics.analyticsInstances).toHaveProperty('writeKey', analyticsInstance);
     expect(loadSpy).toHaveBeenCalledWith('writeKey', 'data-plane-url', mockLoadOptions);
+    expect(trackPageLifecycleEventsSpy).toHaveBeenCalledWith(mockLoadOptions);
+
+    trackPageLifecycleEventsSpy.mockRestore();
+    loadSpy.mockRestore();
   });
 
   it('should dispatch an error event if an exception is thrown during the load', () => {
@@ -743,105 +748,160 @@ describe('Core - Rudder Analytics Facade', () => {
     });
 
     afterEach(() => {
+      resetState();
       (rudderAnalyticsInstance as any).globalSingleton = null;
       jest.resetAllMocks();
     });
 
-    it('should not add pageLifecycleEvents in the buffer when the tracking is not enabled through load options', () => {
-      const bufferedEvents: PreloadedEventCall[] = [];
-      rudderAnalyticsInstance.trackPageLifecycleEvents(bufferedEvents, {});
+    const simulatePageBeingUnloadedAfterSDKLoad = (sdkLoaded = true) => {
+      // Simulate page being unloaded
+      state.lifecycle.loaded.value = sdkLoaded;
+      const event = new Event('beforeunload');
+      window.dispatchEvent(event);
+    };
 
-      expect(bufferedEvents).toEqual([]);
-    });
-
-    it('should inherit enabled and options properties from autoTrack load option', () => {
-      const bufferedEvents: PreloadedEventCall[] = [];
-      rudderAnalyticsInstance.trackPageLifecycleEvents(bufferedEvents, {
-        autoTrack: {
-          enabled: true,
-          options: { key: 'value' },
-        },
-      });
-
-      expect(bufferedEvents).toEqual([
-        ['track', 'Page Loaded', {}, { key: 'value', originalTimestamp: expect.any(String) }],
-      ]);
-    });
-
-    it('should override enabled and options properties of autoTrack if provided in load option', () => {
-      const bufferedEvents: PreloadedEventCall[] = [];
-      rudderAnalyticsInstance.trackPageLifecycleEvents(bufferedEvents, {
-        autoTrack: {
-          enabled: true,
-          options: { key: 'value' },
-          pageLifecycle: {
-            enabled: false,
-          },
-        },
-      });
-
-      expect(bufferedEvents).toEqual([]);
-    });
-
-    it('should track Page Loaded event irrespective of useBeacon load option', () => {
-      const bufferedEvents: PreloadedEventCall[] = [];
-      rudderAnalyticsInstance.trackPageLifecycleEvents(bufferedEvents, {
-        useBeacon: false,
-        autoTrack: {
-          pageLifecycle: {
-            enabled: true,
-          },
-        },
-      });
-
-      expect(bufferedEvents).toEqual([
-        ['track', 'Page Loaded', {}, { originalTimestamp: expect.any(String) }],
-      ]);
-    });
-
-    it('should track Page Unloaded event if useBeacon is set to true and trackPageLifecycle feature is enabled', () => {
-      const bufferedEvents: PreloadedEventCall[] = [];
+    it('should inherit properties of autoTrack for page lifecycle events', () => {
       rudderAnalyticsInstance.track = jest.fn();
-      rudderAnalyticsInstance.trackPageLifecycleEvents(bufferedEvents, {
+      rudderAnalyticsInstance.trackPageLifecycleEvents({
         useBeacon: true,
         autoTrack: {
-          pageLifecycle: {
-            enabled: true,
-          },
+          enabled: true,
+          options: { key: 'value' },
         },
       });
-      state.lifecycle.loaded.value = true;
-      const event = new Event('beforeunload');
-      // Simulate the event
-      window.dispatchEvent(event);
+
+      simulatePageBeingUnloadedAfterSDKLoad();
 
       expect(rudderAnalyticsInstance.track).toHaveBeenCalledWith(
         'Page Unloaded',
         { timeOnPage: expect.any(Number) },
-        { originalTimestamp: expect.any(String) },
+        { originalTimestamp: expect.any(String), key: 'value' },
       );
+
+      expect(state.autoTrack.enabled.value).toBe(true);
+      expect(state.autoTrack.pageLifecycle.enabled.value).toBe(true);
     });
 
-    it('should invoke trackPageLifecycleEvents method when load API is called', () => {
-      rudderAnalyticsInstance.trackPageLifecycleEvents = jest.fn();
-      rudderAnalyticsInstance.load('writeKey', 'data-plane-url', {
+    it('should override properties of autoTrack for page lifecycle events', () => {
+      rudderAnalyticsInstance.track = jest.fn();
+      rudderAnalyticsInstance.trackPageLifecycleEvents({
+        useBeacon: true,
         autoTrack: {
-          enabled: true,
+          enabled: false,
+          options: { key: 'value' },
+          pageLifecycle: {
+            enabled: true,
+            options: { key: 'value2' },
+          },
         },
       });
-      expect(rudderAnalyticsInstance.trackPageLifecycleEvents).toHaveBeenCalledWith(
-        [
-          ['consent', { sendPageEvent: true }],
-          ['consent', { sendPageEvent: false }],
-          ['track'],
-          ['track'],
-        ],
-        {
-          autoTrack: {
+
+      simulatePageBeingUnloadedAfterSDKLoad();
+
+      expect(rudderAnalyticsInstance.track).toHaveBeenCalledWith(
+        'Page Unloaded',
+        { visitDuration: expect.any(Number) },
+        { originalTimestamp: expect.any(String), key: 'value2' },
+      );
+
+      expect(state.autoTrack.enabled.value).toBe(true);
+      expect(state.autoTrack.pageLifecycle.enabled.value).toBe(true);
+    });
+
+    it('should track Page Unloaded event if useBeacon is set to true and trackPageLifecycle feature is enabled', () => {
+      jest.useFakeTimers();
+      jest.setSystemTime(0);
+
+      state.autoTrack.pageLifecycle.pageLoadedTimestamp.value = 0;
+
+      rudderAnalyticsInstance.track = jest.fn();
+      rudderAnalyticsInstance.trackPageLifecycleEvents({
+        useBeacon: true,
+        autoTrack: {
+          options: { key: 'value' },
+          pageLifecycle: {
             enabled: true,
           },
         },
+      });
+
+      // Advance the timer to get the visit duration
+      jest.advanceTimersByTime(1500);
+
+      simulatePageBeingUnloadedAfterSDKLoad();
+
+      expect(rudderAnalyticsInstance.track).toHaveBeenCalledWith(
+        'Page Unloaded',
+        { visitDuration: 1500 },
+        { originalTimestamp: '1970-01-01T00:00:01.500Z', key: 'value' },
       );
+
+      jest.useRealTimers();
+    });
+
+    it('should log a warning and not track Page Unloaded event if useBeacon is set to false and trackPageLifecycle feature is enabled', () => {
+      const warnSpy = jest.spyOn(rudderAnalyticsInstance.logger, 'warn');
+      rudderAnalyticsInstance.track = jest.fn();
+
+      rudderAnalyticsInstance.trackPageLifecycleEvents({
+        useBeacon: false,
+        autoTrack: {
+          enabled: true,
+          options: { key: 'value' },
+          pageLifecycle: {
+            enabled: true,
+          },
+        },
+      });
+
+      simulatePageBeingUnloadedAfterSDKLoad();
+
+      expect(rudderAnalyticsInstance.track).not.toHaveBeenCalled();
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        'RudderStackAnalytics:: Page Unloaded event can only be tracked when the Beacon transport is active. Please enable "useBeacon" load API option.',
+      );
+    });
+
+    it('should not track Page Unloaded event if the page is not actually unloaded', () => {
+      rudderAnalyticsInstance.track = jest.fn();
+      rudderAnalyticsInstance.trackPageLifecycleEvents({
+        useBeacon: true,
+        autoTrack: {
+          enabled: true,
+          options: { key: 'value' },
+          pageLifecycle: {
+            enabled: true,
+          },
+        },
+      });
+
+      // Simulate tab switch
+      Object.defineProperty(document, 'visibilityState', {
+        value: 'hidden',
+        writable: true,
+      });
+      document.dispatchEvent(new Event('visibilitychange'));
+
+      expect(rudderAnalyticsInstance.track).not.toHaveBeenCalled();
+    });
+
+    it('should not track Page Unloaded event on page unload but the SDK is not loaded', () => {
+      rudderAnalyticsInstance.track = jest.fn();
+      rudderAnalyticsInstance.trackPageLifecycleEvents({
+        useBeacon: true,
+        autoTrack: {
+          enabled: true,
+          options: { key: 'value' },
+          pageLifecycle: {
+            enabled: true,
+          },
+        },
+      });
+
+      simulatePageBeingUnloadedAfterSDKLoad(false);
+
+      expect(rudderAnalyticsInstance.track).not.toHaveBeenCalled();
     });
   });
 });
