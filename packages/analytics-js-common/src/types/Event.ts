@@ -9,7 +9,7 @@ import type { ApiObject } from './ApiObject';
 export type BufferedEvent = any[];
 
 export type PageLifecycle = {
-  visitId: string; // UUID
+  pageViewId: string; // UUID
 };
 
 export type AutoTrack = {
