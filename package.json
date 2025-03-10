@@ -205,7 +205,7 @@
     "@nx/nx-darwin-x64": "20.5.0",
     "@nx/nx-linux-x64-gnu": "20.5.0",
     "@nx/nx-win32-x64-msvc": "20.5.0",
-    "@rollup/rollup-linux-x64-gnu": "4.34.9"
+    "@rollup/rollup-linux-x64-gnu": "4.35.0"
   },
   "overrides": {
     "debug": "4.3.4",
