@@ -800,7 +800,7 @@ describe('Core - Rudder Analytics Facade', () => {
 
       expect(rudderAnalyticsInstance.track).toHaveBeenCalledWith(
         'Page Unloaded',
-        { visitDuration: expect.any(Number) },
+        { timeOnPage: expect.any(Number) },
         { originalTimestamp: expect.any(String), key: 'value2' },
       );
 
@@ -832,7 +832,7 @@ describe('Core - Rudder Analytics Facade', () => {
 
       expect(rudderAnalyticsInstance.track).toHaveBeenCalledWith(
         'Page Unloaded',
-        { visitDuration: 1500 },
+        { timeOnPage: 1500 },
         { originalTimestamp: '1970-01-01T00:00:01.500Z', key: 'value' },
       );
 
