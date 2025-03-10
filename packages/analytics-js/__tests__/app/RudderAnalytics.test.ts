@@ -817,7 +817,7 @@ describe('Core - Rudder Analytics Facade', () => {
 
       expect(rudderAnalyticsInstance.track).toHaveBeenCalledWith(
         'Page Unloaded',
-        { visitDuration: expect.any(Number) },
+        { timeOnPage: expect.any(Number) },
         { originalTimestamp: expect.any(String) },
       );
     });
