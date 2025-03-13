@@ -17,6 +17,11 @@ function loadNativeSdk(config) {
     script.src = 'https://js.userpilot.io/sdk/latest.js';
 
     document.head.appendChild(script);
+
+    return new Promise((resolve, reject) => {
+        script.onload = () => resolve();
+        script.onerror = (error) => reject(error);
+    });
 }
 
 export { loadNativeSdk }; 

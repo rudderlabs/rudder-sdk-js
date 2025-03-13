@@ -38,7 +38,7 @@ class Userpilot {
    * Initializes the Userpilot SDK
    */
   init() {
-    loadNativeSdk({ token: this.token, endpoint: this.endpoint })
+    return loadNativeSdk({ token: this.token, endpoint: this.endpoint })
   }
 
   /**
