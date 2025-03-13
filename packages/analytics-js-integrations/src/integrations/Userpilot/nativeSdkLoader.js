@@ -1,0 +1,22 @@
+/**
+ * Loads the Userpilot SDK using the recommended loading pattern
+ * @param {Object} config - Configuration for Userpilot
+ * @param {string} config.token - The Userpilot token
+ * @param {string} [config.endpoint] - Optional custom endpoint
+ * @returns {Promise} A promise that resolves when the SDK is loaded
+ */
+function loadNativeSdk(config) {
+    window.userpilotSettings = {
+        token: config.token,
+        endpoint: config.endpoint ? config.endpoint : undefined
+    };
+
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.async = true;
+    script.src = 'https://js.userpilot.io/sdk/latest.js';
+
+    document.head.appendChild(script);
+}
+
+export { loadNativeSdk }; 
