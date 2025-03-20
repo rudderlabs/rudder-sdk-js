@@ -37,11 +37,24 @@ class Braze {
 
     if (config.dataCenter) {
       // ref: https://www.braze.com/docs/user_guide/administrative/access_braze/braze_instances
-      const dataCenterArr = config.dataCenter.trim().split('-');
-      if (dataCenterArr[0].toLowerCase() === 'eu') {
-        this.endPoint = `sdk.fra-${dataCenterArr[1]}.braze.eu`;
-      } else {
-        this.endPoint = `sdk.iad-${dataCenterArr[1]}.braze.com`;
+      const [dataCenterRegion, dataCenterNumber] = config.dataCenter
+        .trim()
+        .toLowerCase()
+        .split('-');
+
+      switch (dataCenterRegion) {
+        case 'eu':
+          this.endPoint = `sdk.fra-${dataCenterNumber}.braze.eu`;
+          break;
+        case 'us':
+          this.endPoint = `sdk.iad-${dataCenterNumber}.braze.com`;
+          break;
+        case 'au':
+          this.endPoint = `sdk.au-${dataCenterNumber}.braze.com`;
+          break;
+        default:
+          this.endPoint = `sdk.iad-${dataCenterNumber}.braze.com`;
+          break;
       }
     }
 
