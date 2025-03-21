@@ -5,7 +5,7 @@ on:
     - cron: '1 0 * * *' # every day at 00:01
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.sha }}
+  group: ${{ github.workflow }}-${{ github.sha }}
   cancel-in-progress: true
 
 jobs:
@@ -26,6 +26,7 @@ jobs:
           days-before-pr-stale: 20
           days-before-pr-close: 10
           stale-pr-label: 'Stale'
+          ascending: true
 
   branches:
     name: Clean up stale branches
@@ -33,13 +34,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Run delete-old-branches-action
-        uses: beatlabs/delete-old-branches-action@v0.0.11
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          date: '2 months ago'
-          dry_run: false
-          delete_tags: false
-          extra_protected_branch_regex: ^(main|develop|production|production-staging|v1-staging|v1-production)$
-          exclude_open_pr_branches: true
+          fetch-depth: 0
+
+      - name: Run branch cleanup script
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          chmod +x ./scripts/cleanup-old-branches.sh
+          ./scripts/cleanup-old-branches.sh \
+            --months 2 \
+            --protected-branches "^(main|develop)$"
