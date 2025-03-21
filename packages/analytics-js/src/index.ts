@@ -1,4 +1,4 @@
-import { RudderAnalytics } from './app/RudderAnalytics';
+import type { RudderAnalytics } from './app/RudderAnalytics';
 import type { RudderAnalyticsPreloader } from './components/preloadBuffer/types';
 
 export {
@@ -22,8 +22,7 @@ export {
   type RudderAnalyticsPreloader,
   type PreloadedEventCall,
 } from './components/preloadBuffer/types';
-
-export { RudderAnalytics };
+export { RudderAnalytics } from './app/RudderAnalytics';
 
 declare global {
   interface Window {
