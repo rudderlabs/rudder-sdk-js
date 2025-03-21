@@ -57,7 +57,7 @@ for BRANCH in $BRANCHES; do
   LAST_COMMIT_DATE=$(git log -1 --format=%cd --date=short origin/$BRANCH)
 
   # Skip if branch has open PRs
-  if gh pr list --base "$BRANCH" --state open --json number | grep -q "number"; then
+  if gh pr list --head "$BRANCH" --state open --json number | grep -q "number"; then
     echo "Skipping branch with open PR: $BRANCH"
     continue
   fi
