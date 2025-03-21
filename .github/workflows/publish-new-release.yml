@@ -104,40 +104,51 @@ jobs:
       - name: Create pull request into develop
         if: always()
         continue-on-error: true
-        uses: repo-sync/pull-request@v2
-        with:
-          source_branch: 'main'
-          destination_branch: 'develop'
-          github_token: ${{ secrets.PAT }}
-          pr_title: 'chore(release): merge main into develop after release v${{ steps.extract-version.outputs.release_version }} [${{ steps.extract-version.outputs.release_ticket_id }}]'
-          pr_body: |
-            :crown: **Automated Post-Release PR**
+        env:
+          GH_TOKEN: ${{ secrets.PAT }}
+        run: |
+          pr_title="chore(release): merge main into develop after release v${{ steps.extract-version.outputs.release_version }} [${{ steps.extract-version.outputs.release_ticket_id }}]"
+          
+          # Create PR body with proper formatting
+          cat > pr_body.md << EOF
+          :crown: **Automated Post-Release PR**
 
-            This pull request was created automatically by the GitHub Actions workflow. It merges changes from the `main` branch into the `develop` branch after a release has been completed.
+          This pull request was created automatically by the GitHub Actions workflow. It merges changes from the \`main\` branch into the \`develop\` branch after a release has been completed.
 
-            This ensures that the `develop` branch stays up to date with all release-related changes from the `main` branch.
+          This ensures that the \`develop\` branch stays up to date with all release-related changes from the \`main\` branch.
 
-            ### Details
-            - **Release Version**: v${{ steps.extract-version.outputs.release_version }}
-            - **Related Ticket**: [${{ steps.extract-version.outputs.release_ticket_id }}](https://linear.app/rudderstack/issue/${{ steps.extract-version.outputs.release_ticket_id }})
+          ### Details
+          - **Release Version**: v${{ steps.extract-version.outputs.release_version }}
+          - **Related Ticket**: [${{ steps.extract-version.outputs.release_ticket_id }}](https://linear.app/rudderstack/issue/${{ steps.extract-version.outputs.release_ticket_id }})
 
-            ---
-            Please review and merge it before closing the release ticket. :rocket:
+          ---
+          Please review and merge it before closing the release ticket. :rocket:
+          EOF
+          
+          # Create the PR using GitHub CLI
+          gh pr create \
+            --base develop \
+            --head main \
+            --title "$pr_title" \
+            --body-file pr_body.md
 
       - name: Send message to Slack channel
         id: slack
         if: always()
         continue-on-error: true
-        uses: slackapi/slack-github-action@v1.27.0
+        uses: slackapi/slack-github-action@485a9d42d3a73031f12ec201c457e2162c45d02d  # v2.0.0
         env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           PROJECT_NAME: 'JS SDK Monorepo'
           TAG_COMPARE_URL: 'https://github.com/rudderlabs/rudder-sdk-js/compare/'
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/'
         with:
-          channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
+          method: chat.postMessage
+          payload-templated: true
+          retries: rapid
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
           payload: |
             {
+              "channel": "${{ secrets.SLACK_RELEASE_CHANNEL_ID }}",
               "text": "*New Release: ${{ env.PROJECT_NAME }} - <${{ env.TAG_COMPARE_URL }}${{ env.last_monorepo_version }}...v${{ steps.extract-version.outputs.release_version }}|v${{ steps.extract-version.outputs.release_version }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D> <!subteam^S03SHJ20350>",
               "blocks": [
                 {
