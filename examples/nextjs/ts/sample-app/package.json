@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@rudderstack/analytics-js": "*",
-    "next": "15.1.4",
+    "next": "15.2.3",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   },
