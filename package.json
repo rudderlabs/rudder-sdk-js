@@ -20,7 +20,6 @@
     "build:modern:ci": "nx affected -t build:modern --base=$BASE_REF",
     "build:browser": "nx run-many -t build:browser",
     "build:browser:modern": "nx run-many -t build:browser:modern",
-    "build:npm:modern": "nx run-many -t build:npm:modern",
     "build:package": "nx run-many -t build:package",
     "build:package:modern": "nx run-many -t build:package:modern",
     "package": "nx run-many -t package",
@@ -159,7 +158,7 @@
     "eslint-plugin-compat": "6.0.2",
     "eslint-plugin-import": "2.31.0",
     "eslint-plugin-sonarjs": "3.0.2",
-    "eslint-plugin-unicorn": "57.0.0",
+    "eslint-plugin-unicorn": "58.0.0",
     "esm": "3.2.25",
     "http-server": "14.1.1",
     "husky": "9.1.7",
@@ -201,11 +200,11 @@
     "user-agent-data-types": "0.4.2"
   },
   "optionalDependencies": {
-    "@nx/nx-darwin-arm64": "20.6.2",
-    "@nx/nx-darwin-x64": "20.6.2",
-    "@nx/nx-linux-x64-gnu": "20.6.2",
-    "@nx/nx-win32-x64-msvc": "20.6.2",
-    "@rollup/rollup-linux-x64-gnu": "4.36.0"
+    "@nx/nx-darwin-arm64": "20.6.4",
+    "@nx/nx-darwin-x64": "20.6.4",
+    "@nx/nx-linux-x64-gnu": "20.6.4",
+    "@nx/nx-win32-x64-msvc": "20.6.4",
+    "@rollup/rollup-linux-x64-gnu": "4.37.0"
   },
   "overrides": {
     "debug": "4.3.4",
