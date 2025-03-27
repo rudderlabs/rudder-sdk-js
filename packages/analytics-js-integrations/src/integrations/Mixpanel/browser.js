@@ -119,6 +119,8 @@ class Mixpanel {
             record_mask_text_selector: mixpanelIntgConfig.recordMaskTextSelector,
             record_max_ms: mixpanelIntgConfig.recordMaxMs,
             record_min_ms: mixpanelIntgConfig.recordMinMs,
+            record_block_selector: mixpanelIntgConfig.recordBlockSelector,
+            record_canvas: mixpanelIntgConfig.recordCanvas,
           });
           options = { ...options, ...sessionReplayConfig };
         }
