@@ -207,8 +207,7 @@
     "@rollup/rollup-linux-x64-gnu": "4.38.0"
   },
   "overrides": {
-    "debug": "4.3.4",
-    "eslint-config-prettier": "10.0.2"
+    "debug": "4.3.4"
   },
   "lint-staged": {
     "*.{json,js,md,ts}": "prettier --write"
