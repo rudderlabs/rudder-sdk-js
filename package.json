@@ -200,10 +200,10 @@
     "user-agent-data-types": "0.4.2"
   },
   "optionalDependencies": {
-    "@nx/nx-darwin-arm64": "20.7.0",
-    "@nx/nx-darwin-x64": "20.7.0",
-    "@nx/nx-linux-x64-gnu": "20.7.0",
-    "@nx/nx-win32-x64-msvc": "20.7.0",
+    "@nx/nx-darwin-arm64": "20.7.1",
+    "@nx/nx-darwin-x64": "20.7.1",
+    "@nx/nx-linux-x64-gnu": "20.7.1",
+    "@nx/nx-win32-x64-msvc": "20.7.1",
     "@rollup/rollup-linux-x64-gnu": "4.39.0"
   },
   "overrides": {
