@@ -207,7 +207,8 @@
     "@rollup/rollup-linux-x64-gnu": "4.39.0"
   },
   "overrides": {
-    "debug": "4.3.4"
+    "debug": "4.3.4",
+    "@babel/runtime": "7.26.10"
   },
   "lint-staged": {
     "*.{json,js,md,ts}": "prettier --write"
