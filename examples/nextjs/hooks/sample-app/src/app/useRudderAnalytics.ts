@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import type { RudderAnalytics } from '@rudderstack/analytics-js';
+import type { RudderAnalytics, RudderAnalyticsPreloader } from '@rudderstack/analytics-js';
 
-const useRudderStackAnalytics = (): RudderAnalytics | undefined => {
-  const [analytics, setAnalytics] = useState<RudderAnalytics>();
+const useRudderStackAnalytics = (): RudderAnalytics | RudderAnalyticsPreloader | undefined => {
+  const [analytics, setAnalytics] = useState<RudderAnalytics | RudderAnalyticsPreloader>();
 
   useEffect(() => {
     if (!analytics) {
@@ -23,7 +23,12 @@ const useRudderStackAnalytics = (): RudderAnalytics | undefined => {
     }
   }, [analytics]);
 
-  return analytics;
+  // Return initialized instance if available, otherwise fallback to window.rudderanalytics
+  if (analytics) {
+    return analytics;
+  }
+
+  return typeof window !== 'undefined' ? window.rudderanalytics : undefined;
 };
 
 export default useRudderStackAnalytics;
