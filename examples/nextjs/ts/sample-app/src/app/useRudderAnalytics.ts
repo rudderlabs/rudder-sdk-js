@@ -66,4 +66,4 @@ const useRudderStackAnalytics = (): RudderAnalytics | RudderAnalyticsPreloader |
   return typeof window !== 'undefined' ? window.rudderanalytics : undefined;
 };
 
-export default useRudderStackAnalytics;
+export default useRudderStackAnalytics; 

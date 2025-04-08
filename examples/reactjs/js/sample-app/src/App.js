@@ -1,25 +1,12 @@
 import logo from './logo.svg';
 import './App.css';
-import { useEffect } from 'react';
-import { RudderAnalytics } from '@rudderstack/analytics-js';
+import useRudderAnalytics from './useRudderAnalytics';
 
 function App() {
-  useEffect(() => {
-    if (window.rudderanalytics && !Array.isArray(window.rudderanalytics)) {
-      return;
-    }
-
-    const analytics = new RudderAnalytics();
-
-    analytics.load('<writeKey>', '<dataplaneUrl>');
-
-    analytics.ready(() => {
-      console.log('We are all set!!!');
-    });
-  }, []);
+  const analytics = useRudderAnalytics();
 
   const page = () => {
-    window.rudderanalytics?.page(
+    analytics?.page(
       'Cart',
       'Cart Viewed',
       {
@@ -35,7 +22,7 @@ function App() {
     );
   };
   const identify = () => {
-    window.rudderanalytics?.identify(
+    analytics?.identify(
       'sample-user-123',
       {
         firstName: 'Alex',
@@ -49,7 +36,7 @@ function App() {
     );
   };
   const track = () => {
-    window.rudderanalytics?.track(
+    analytics?.track(
       'Order Completed',
       {
         revenue: 30,
@@ -62,12 +49,12 @@ function App() {
     );
   };
   const alias = () => {
-    window.rudderanalytics?.alias('alias-user-id', () => {
+    analytics?.alias('alias-user-id', () => {
       console.log('alias call');
     });
   };
   const group = () => {
-    window.rudderanalytics?.group(
+    analytics?.group(
       'sample_group_id',
       {
         name: 'Apple Inc.',

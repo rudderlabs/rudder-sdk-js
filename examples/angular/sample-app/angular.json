@@ -18,7 +18,7 @@
             "main": "src/main.ts",
             "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
-            "assets": ["src/favicon.ico", "src/assets"],
+            "assets": ["src/favicon.ico", "src/assets", "src/env-config.js"],
             "styles": ["src/styles.css"],
             "scripts": []
           },
@@ -51,12 +51,15 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "buildTarget": "sample-app:build"
+          },
           "configurations": {
             "production": {
-              "browserTarget": "sample-app:build:production"
+              "buildTarget": "sample-app:build:production"
             },
             "development": {
-              "browserTarget": "sample-app:build:development"
+              "buildTarget": "sample-app:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -64,7 +67,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "sample-app:build"
+            "buildTarget": "sample-app:build"
           }
         },
         "test": {
