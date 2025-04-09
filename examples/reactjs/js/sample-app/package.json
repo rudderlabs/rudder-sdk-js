@@ -16,12 +16,12 @@
     "@types/jest": "29.5.14",
     "@types/node": "22.14.0",
     "@types/react": "19.1.0",
-    "@types/react-dom": "19.1.1",
+    "@types/react-dom": "19.1.2",
     "react-scripts": "5.0.1"
   },
   "overrides": {
     "nth-check": "2.1.1",
-    "postcss": "8.4.31"
+    "postcss": "8.4.35"
   },
   "scripts": {
     "start": "react-scripts start",
