@@ -1,4 +1,8 @@
 import type { GatsbyConfig } from 'gatsby';
+import dotenv from 'dotenv';
+
+// Load environment variables from .env
+dotenv.config();
 
 const config: GatsbyConfig = {
   siteMetadata: {
@@ -13,9 +17,9 @@ const config: GatsbyConfig = {
     {
       resolve: `gatsby-plugin-rudderstack`,
       options: {
-        prodKey: '<writeKey>',
-        devKey: '<writeKey>',
-        dataPlaneUrl: '<dataplaneUrl>',
+        prodKey: process.env.GATSBY_RUDDERSTACK_WRITE_KEY,
+        devKey: process.env.GATSBY_RUDDERSTACK_WRITE_KEY,
+        dataPlaneUrl: process.env.GATSBY_RUDDERSTACK_DATAPLANE_URL,
         trackPage: true,
         loadOptions: {},
       },

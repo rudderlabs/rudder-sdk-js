@@ -30,8 +30,8 @@ const useRudderAnalytics = (): RudderAnalytics | RudderAnalyticsPreloader | unde
             console.error(`
 RudderStack configuration is missing. Please follow these steps:
 1. Create a .env file in the root directory with valid values:
-   VITE_RUDDERSTACK_WRITE_KEY=your_write_key
-   VITE_RUDDERSTACK_DATAPLANE_URL=your_dataplane_url
+   WRITE_KEY=your_write_key
+   DATAPLANE_URL=your_dataplane_url
 2. Run the setup script to configure all examples:
    ./scripts/setup-examples-env.sh
 3. Restart your development server after updating environment variables

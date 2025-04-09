@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import { RudderAnalytics } from '@rudderstack/analytics-js';
 
 // Shared initialization promise
-let initializationPromise = null;
+let initializationPromise: Promise<RudderAnalytics | undefined> | null = null;
 
-const useRudderAnalytics = () => {
-  const [analytics, setAnalytics] = useState();
+const useRudderAnalytics = (): RudderAnalytics | undefined => {
+  const [analytics, setAnalytics] = useState<RudderAnalytics>();
 
   useEffect(() => {
     if (!analytics) {
@@ -23,8 +23,8 @@ const useRudderAnalytics = () => {
         initializationPromise = (async () => {
           const analyticsInstance = new RudderAnalytics();
 
-          const writeKey = process.env.REACT_APP_RUDDERSTACK_WRITE_KEY;
-          const dataplaneUrl = process.env.REACT_APP_RUDDERSTACK_DATAPLANE_URL;
+          const writeKey = process.env.GATSBY_RUDDERSTACK_WRITE_KEY;
+          const dataplaneUrl = process.env.GATSBY_RUDDERSTACK_DATAPLANE_URL;
 
           if (!writeKey || !dataplaneUrl) {
             console.error(`
@@ -65,7 +65,7 @@ RudderStack configuration is missing. Please follow these steps:
     return analytics;
   }
 
-  return typeof window !== 'undefined' ? window.rudderanalytics : undefined;
+  return typeof window !== 'undefined' ? (window as any).rudderanalytics : undefined;
 };
 
 export default useRudderAnalytics; 

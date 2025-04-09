@@ -1,9 +1,12 @@
+'use client';
+
 import { useEffect, useState } from 'react';
 import { RudderAnalytics } from '@rudderstack/analytics-js';
 
 // Shared initialization promise
 let initializationPromise = null;
 
+// Default export
 const useRudderAnalytics = () => {
   const [analytics, setAnalytics] = useState();
 
@@ -23,8 +26,8 @@ const useRudderAnalytics = () => {
         initializationPromise = (async () => {
           const analyticsInstance = new RudderAnalytics();
 
-          const writeKey = process.env.REACT_APP_RUDDERSTACK_WRITE_KEY;
-          const dataplaneUrl = process.env.REACT_APP_RUDDERSTACK_DATAPLANE_URL;
+          const writeKey = process.env.NEXT_PUBLIC_RUDDERSTACK_WRITE_KEY;
+          const dataplaneUrl = process.env.NEXT_PUBLIC_RUDDERSTACK_DATAPLANE_URL;
 
           if (!writeKey || !dataplaneUrl) {
             console.error(`
