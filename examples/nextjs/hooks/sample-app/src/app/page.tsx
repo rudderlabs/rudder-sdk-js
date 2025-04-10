@@ -69,7 +69,10 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (analytics) {
+    // Instrument a page event when RudderStack analytics is available to accept events.
+    // It is first available as an array and then as an object when the SDK is instantiated.
+    // So, enqueue the event as early as possible.
+    if (analytics && Array.isArray(analytics)) {
       analytics.page('Auto track');
     }
   }, [analytics]);

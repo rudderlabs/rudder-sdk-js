@@ -341,7 +341,7 @@ describe('EventRepository', () => {
     );
 
     eventRepository.init();
-    
+
     const mockEventCallback = jest.fn(() => {
       throw new Error('test error');
     });
@@ -354,29 +354,32 @@ describe('EventRepository', () => {
     );
   });
 
-  it('should buffer the data plane events if the pre-consent event delivery strategy is set to buffer', () => {
-    const eventRepository = new EventRepository(
-      mockPluginsManager,
-      defaultStoreManager,
-      defaultHttpClient,
-      defaultErrorHandler,
-      defaultLogger,
-    );
+  it.each(['session', 'anonymousId', 'none'] as const)(
+    'should buffer the data plane events if the pre-consent event delivery strategy is set to buffer with storage strategy "%s"',
+    strategy => {
+      const eventRepository = new EventRepository(
+        mockPluginsManager,
+        defaultStoreManager,
+        defaultHttpClient,
+        defaultErrorHandler,
+        defaultLogger,
+      );
 
-    state.consents.preConsent.value = {
-      enabled: true,
-      events: {
-        delivery: 'buffer',
-      },
-      storage: {
-        strategy: 'session', // the value should be either 'session' or 'anonymousId'
-      },
-    };
+      state.consents.preConsent.value = {
+        enabled: true,
+        events: {
+          delivery: 'buffer',
+        },
+        storage: {
+          strategy,
+        },
+      };
 
-    eventRepository.init();
+      eventRepository.init();
 
-    expect(mockDataplaneEventsQueue.start).not.toHaveBeenCalled();
-  });
+      expect(mockDataplaneEventsQueue.start).not.toHaveBeenCalled();
+    },
+  );
 
   describe('resume', () => {
     it('should resume events processing on resume', () => {

@@ -157,16 +157,19 @@ jobs:
         if: env.CURRENT_NPM_VERSION != env.NEW_NPM_VERSION && env.NEW_NPM_VERSION != 'not found'
         id: slack
         continue-on-error: true
-        uses: slackapi/slack-github-action@v1.27.0
+        uses: slackapi/slack-github-action@485a9d42d3a73031f12ec201c457e2162c45d02d  # v2.0.0
         env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           PROJECT_NAME: 'JS SDK NPM Package'
           NPM_PACKAGE_URL: 'https://www.npmjs.com/package/@rudderstack/analytics-js'
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js@'
         with:
-          channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload-templated: true
+          retries: rapid
           payload: |
             {
+              "channel": "${{ secrets.SLACK_RELEASE_CHANNEL_ID }}",
               "text": "*New Release: ${{ env.PROJECT_NAME }} - <${{ env.NPM_PACKAGE_URL }}|${{ env.CURRENT_VERSION_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D> <!subteam^S03SHJ20350>",
               "blocks": [
                 {
@@ -207,16 +210,19 @@ jobs:
         if: env.CURRENT_NPM_VERSION_SW != env.NEW_NPM_VERSION_SW && env.NEW_NPM_VERSION_SW != 'not found'
         id: slackSw
         continue-on-error: true
-        uses: slackapi/slack-github-action@v1.27.0
+        uses: slackapi/slack-github-action@485a9d42d3a73031f12ec201c457e2162c45d02d  # v2.0.0
         env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           PROJECT_NAME: 'JS SDK Service Worker NPM Package'
           NPM_PACKAGE_URL: 'https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker'
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js-service-worker@'
         with:
-          channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload-templated: true
+          retries: rapid
           payload: |
             {
+              "channel": "${{ secrets.SLACK_RELEASE_CHANNEL_ID }}",
               "text": "*New Release: ${{ env.PROJECT_NAME }} - <${{ env.NPM_PACKAGE_URL }}|${{ env.CURRENT_VERSION_SW_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D> <!subteam^S03SHJ20350>",
               "blocks": [
                 {
@@ -257,16 +263,19 @@ jobs:
         if: env.CURRENT_NPM_VERSION_COOKIE_UTILS != env.NEW_NPM_VERSION_COOKIE_UTILS && env.NEW_NPM_VERSION_COOKIE_UTILS != 'not found'
         id: slack-cookie-utils
         continue-on-error: true
-        uses: slackapi/slack-github-action@v1.27.0
+        uses: slackapi/slack-github-action@485a9d42d3a73031f12ec201c457e2162c45d02d  # v2.0.0
         env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           PROJECT_NAME: 'JS SDK Cookies Utilities'
           NPM_PACKAGE_URL: 'https://www.npmjs.com/package/@rudderstack/analytics-js-cookies'
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js-cookies@'
         with:
-          channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload-templated: true
+          retries: rapid
           payload: |
             {
+              "channel": "${{ secrets.SLACK_RELEASE_CHANNEL_ID }}",
               "text": "*New Release: ${{ env.PROJECT_NAME }} - <${{ env.NPM_PACKAGE_URL }}|${{ env.CURRENT_VERSION_COOKIE_UTILS_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D> <!subteam^S03SHJ20350>",
               "blocks": [
                 {

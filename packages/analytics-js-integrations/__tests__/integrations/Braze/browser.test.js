@@ -98,6 +98,80 @@ describe('constructor', () => {
     expect(braze.appKey).toEqual('');
   });
   // Add more tests for the constructor if needed
+
+  describe('dataCenter configuration', () => {
+    it('should set EU endpoint correctly', () => {
+      const config = {
+        appKey: 'APP_KEY',
+        dataCenter: 'EU-01',
+      };
+      const analytics = {};
+      const destinationInfo = {};
+
+      const braze = new Braze(config, analytics, destinationInfo);
+      expect(braze.endPoint).toBe('sdk.fra-01.braze.eu');
+    });
+
+    it('should set US endpoint correctly', () => {
+      const config = {
+        appKey: 'APP_KEY',
+        dataCenter: 'US-02',
+      };
+      const analytics = {};
+      const destinationInfo = {};
+
+      const braze = new Braze(config, analytics, destinationInfo);
+      expect(braze.endPoint).toBe('sdk.iad-02.braze.com');
+    });
+
+    it('should set AU endpoint correctly', () => {
+      const config = {
+        appKey: 'APP_KEY',
+        dataCenter: 'AU-01',
+      };
+      const analytics = {};
+      const destinationInfo = {};
+
+      const braze = new Braze(config, analytics, destinationInfo);
+      expect(braze.endPoint).toBe('sdk.au-01.braze.com');
+    });
+
+    it('should default to US endpoint for unknown regions', () => {
+      const config = {
+        appKey: 'APP_KEY',
+        dataCenter: 'UNKNOWN-01',
+      };
+      const analytics = {};
+      const destinationInfo = {};
+
+      const braze = new Braze(config, analytics, destinationInfo);
+      expect(braze.endPoint).toBe('sdk.iad-01.braze.com');
+    });
+
+    it('should handle lowercase datacenter values', () => {
+      const config = {
+        appKey: 'APP_KEY',
+        dataCenter: 'eu-01',
+      };
+      const analytics = {};
+      const destinationInfo = {};
+
+      const braze = new Braze(config, analytics, destinationInfo);
+      expect(braze.endPoint).toBe('sdk.fra-01.braze.eu');
+    });
+
+    it('should handle whitespace in datacenter values', () => {
+      const config = {
+        appKey: 'APP_KEY',
+        dataCenter: ' EU-01 ',
+      };
+      const analytics = {};
+      const destinationInfo = {};
+
+      const braze = new Braze(config, analytics, destinationInfo);
+      expect(braze.endPoint).toBe('sdk.fra-01.braze.eu');
+    });
+  });
 });
 
 describe('init', () => {
@@ -200,7 +274,6 @@ describe('setUserAlias', () => {
     expect(result).toBe(false);
   });
 });
-
 
 describe('isReady', () => {
   let braze;

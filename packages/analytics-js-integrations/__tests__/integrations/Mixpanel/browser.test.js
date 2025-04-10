@@ -88,6 +88,8 @@ describe('Init tests', () => {
           recordMaskTextSelector: '.sensitive',
           recordMaxMs: 30000,
           recordMinMs: 1000,
+          recordBlockSelector: 'block-selector',
+          recordCanvas: 'canvas',
         },
       },
       logLevel: 'debug',
@@ -116,6 +118,8 @@ describe('Init tests', () => {
       record_mask_text_selector: '.sensitive',
       record_max_ms: 30000,
       record_min_ms: 1000,
+      record_block_selector: 'block-selector',
+      record_canvas: 'canvas',
       record_sessions_percent: 50,
       loaded: expect.any(Function),
     });
