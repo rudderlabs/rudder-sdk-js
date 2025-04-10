@@ -13,7 +13,7 @@ class Userpilot {
    * Creates an instance of Userpilot integration
    * @param {Object} config - The integration configuration
    * @param {string} config.token - App token
-   * @param {string} config.endpoint - API endpoint
+   * @param {string} config.sdkEndpoint - SDK API endpoint
    * @param {Object} analytics - The RudderStack analytics instance
    * @param {Object} destinationInfo - Additional destination information
    */
@@ -23,7 +23,7 @@ class Userpilot {
     }
     this.analytics = analytics;
     this.token = config.token;
-    this.endpoint = config.endpoint;
+    this.sdkEndpoint = config.sdkEndpoint;
 
     this.name = NAME;
 
@@ -38,7 +38,7 @@ class Userpilot {
    * Initializes the Userpilot SDK
    */
   init() {
-    return loadNativeSdk({ token: this.token, endpoint: this.endpoint })
+    return loadNativeSdk({ token: this.token, sdkEndpoint: this.sdkEndpoint })
   }
 
   /**
