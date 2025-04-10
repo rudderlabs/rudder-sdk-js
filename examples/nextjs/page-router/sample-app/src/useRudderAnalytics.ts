@@ -21,15 +21,13 @@ const useRudderStackAnalytics = (): RudderAnalytics | RudderAnalyticsPreloader |
 
         // Start new initialization
         initializationPromise = (async () => {
-          const { RudderAnalytics } = await import('@rudderstack/analytics-js');
-
           const writeKey = process.env.NEXT_PUBLIC_RUDDERSTACK_WRITE_KEY;
           const dataplaneUrl = process.env.NEXT_PUBLIC_RUDDERSTACK_DATAPLANE_URL;
 
           if (!writeKey || !dataplaneUrl) {
             console.error(`
   RudderStack configuration is missing. Please follow these steps:
-  1. Create a .env file in the root directory with valid values:
+  1. Create a .env file in the repository root directory with valid values:
      WRITE_KEY=your_write_key
      DATAPLANE_URL=your_dataplane_url
   2. Run the setup script to configure all examples:
@@ -37,13 +35,19 @@ const useRudderStackAnalytics = (): RudderAnalytics | RudderAnalyticsPreloader |
   `);
             return undefined;
           }
-          
+
+          const { RudderAnalytics } = await import('@rudderstack/analytics-js');
+
           const analyticsInstance = new RudderAnalytics();
 
-          analyticsInstance.load(writeKey, dataplaneUrl);
+          analyticsInstance.load(writeKey, dataplaneUrl, {
+            onLoaded: () => {
+              console.log('RudderStack Analytics is loaded!!!');
+            },
+          });
 
           analyticsInstance.ready(() => {
-            console.log('We are all set!!!');
+            console.log('RudderStack Analytics is ready!!!');
           });
 
           return analyticsInstance;
@@ -55,7 +59,7 @@ const useRudderStackAnalytics = (): RudderAnalytics | RudderAnalyticsPreloader |
         }
       };
 
-      initialize().catch(e => console.log(e));
+      initialize().catch(e => console.error('Error initializing RudderStack Analytics:', e));
     }
   }, [analytics]);
 
@@ -67,4 +71,4 @@ const useRudderStackAnalytics = (): RudderAnalytics | RudderAnalyticsPreloader |
   return typeof window !== 'undefined' ? window.rudderanalytics : undefined;
 };
 
-export default useRudderStackAnalytics; 
+export default useRudderStackAnalytics;

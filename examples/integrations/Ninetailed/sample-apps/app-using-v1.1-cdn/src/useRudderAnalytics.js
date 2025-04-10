@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react';
-import { RudderAnalytics, type RudderAnalyticsPreloader } from '@rudderstack/analytics-js';
 
 // Shared initialization promise
-let initializationPromise: Promise<RudderAnalytics | RudderAnalyticsPreloader | undefined> | null =
-  null;
+let initializationPromise = null;
 
-const useRudderAnalytics = (): RudderAnalytics | RudderAnalyticsPreloader | undefined => {
-  const [analytics, setAnalytics] = useState<RudderAnalytics | RudderAnalyticsPreloader>();
+const useRudderAnalytics = () => {
+  const [analytics, setAnalytics] = useState();
 
   useEffect(() => {
     if (!analytics) {
@@ -22,10 +20,8 @@ const useRudderAnalytics = (): RudderAnalytics | RudderAnalyticsPreloader | unde
 
         // Start new initialization
         initializationPromise = (async () => {
-          const analyticsInstance = new RudderAnalytics();
-
-          const writeKey = import.meta.env.VITE_RUDDERSTACK_WRITE_KEY;
-          const dataplaneUrl = import.meta.env.VITE_RUDDERSTACK_DATAPLANE_URL;
+          const writeKey = process.env.REACT_APP_RUDDERSTACK_WRITE_KEY;
+          const dataplaneUrl = process.env.REACT_APP_RUDDERSTACK_DATAPLANE_URL;
 
           if (!writeKey || !dataplaneUrl) {
             console.error(`
@@ -41,18 +37,18 @@ RudderStack configuration is missing. Please follow these steps:
           }
 
           // Load the SDK with the configuration
-          analyticsInstance.load(writeKey, dataplaneUrl, {
+          window.rudderanalytics.load(writeKey, dataplaneUrl, {
             onLoaded: () => {
               console.log('RudderStack Analytics loaded!!!');
             },
           });
 
           // Register a callback that will run when the SDK is ready
-          analyticsInstance.ready(() => {
+          window.rudderanalytics.ready(() => {
             console.log('RudderStack Analytics ready!!!');
           });
 
-          return analyticsInstance;
+          return window.rudderanalytics;
         })();
 
         const instance = await initializationPromise;
@@ -65,13 +61,7 @@ RudderStack configuration is missing. Please follow these steps:
     }
   }, [analytics]);
 
-  // Return initialized instance if available, otherwise fallback to window.rudderanalytics
-  if (analytics) {
-    return analytics;
-  }
-
-  // Make sure we only return an instance that's an actual RudderAnalytics instance
-  return typeof window !== 'undefined' ? window.rudderanalytics : undefined;
+  return analytics;
 };
 
 export default useRudderAnalytics;

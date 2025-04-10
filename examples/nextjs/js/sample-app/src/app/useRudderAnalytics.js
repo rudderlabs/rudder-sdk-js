@@ -24,15 +24,13 @@ const useRudderAnalytics = () => {
 
         // Start new initialization
         initializationPromise = (async () => {
-          const analyticsInstance = new RudderAnalytics();
-
           const writeKey = process.env.NEXT_PUBLIC_RUDDERSTACK_WRITE_KEY;
           const dataplaneUrl = process.env.NEXT_PUBLIC_RUDDERSTACK_DATAPLANE_URL;
 
           if (!writeKey || !dataplaneUrl) {
             console.error(`
 RudderStack configuration is missing. Please follow these steps:
-1. Create a .env file in the root directory with valid values:
+1. Create a .env file in the repository root directory with valid values:
    WRITE_KEY=your_write_key
    DATAPLANE_URL=your_dataplane_url
 2. Run the setup script to configure all examples:
@@ -42,14 +40,20 @@ RudderStack configuration is missing. Please follow these steps:
             return undefined;
           }
 
+          const analyticsInstance = new RudderAnalytics();
+
           // Load the SDK with the configuration
-          analyticsInstance.load(writeKey, dataplaneUrl);
-          
+          analyticsInstance.load(writeKey, dataplaneUrl, {
+            onLoaded: () => {
+              console.log('RudderStack Analytics is loaded!!!');
+            },
+          });
+
           // Register a callback that will run when the SDK is ready
           analyticsInstance.ready(() => {
-            console.log('We are all set!!!');
+            console.log('RudderStack Analytics is ready!!!');
           });
-          
+
           return analyticsInstance;
         })();
 
@@ -71,4 +75,4 @@ RudderStack configuration is missing. Please follow these steps:
   return typeof window !== 'undefined' ? window.rudderanalytics : undefined;
 };
 
-export default useRudderAnalytics; 
+export default useRudderAnalytics;

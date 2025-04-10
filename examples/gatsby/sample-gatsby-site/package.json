@@ -12,7 +12,8 @@
     "start": "gatsby develop",
     "build": "gatsby build",
     "serve": "gatsby serve",
-    "clean": "gatsby clean",
+    "clean": "gatsby clean && rm -rf node_modules package-lock.json",
+    "setup": "npm install",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

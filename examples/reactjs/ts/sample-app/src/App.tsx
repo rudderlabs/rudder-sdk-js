@@ -1,40 +1,12 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { useEffect } from 'react';
-import { RudderAnalytics } from '@rudderstack/analytics-js';
-
+import useRudderStackAnalytics from './useRudderAnalytics';
 function App() {
-  useEffect(() => {
-    if ((window.rudderanalytics as RudderAnalytics) && !Array.isArray(window.rudderanalytics)) {
-      return;
-    }
-    const analytics = new RudderAnalytics();
-
-    const writeKey = process.env.REACT_APP_RUDDERSTACK_WRITE_KEY;
-    const dataplaneUrl = process.env.REACT_APP_RUDDERSTACK_DATAPLANE_URL;
-
-    if (!writeKey || !dataplaneUrl) {
-      console.error(`
-RudderStack configuration is missing. Please follow these steps:
-1. Create a .env file in the root directory with valid values:
-   WRITE_KEY=your_write_key
-   DATAPLANE_URL=your_dataplane_url
-2. Run the setup script to configure all examples:
-   ./scripts/setup-examples-env.sh
-`);
-      return;
-    }
-
-    analytics.load(writeKey, dataplaneUrl);
-
-    analytics.ready(() => {
-      console.log('We are all set!!!');
-    });
-  }, []);
+  const analytics = useRudderStackAnalytics();
 
   const page = () => {
-    window.rudderanalytics?.page(
+    analytics?.page(
       'Cart',
       'Cart Viewed',
       {
@@ -50,7 +22,7 @@ RudderStack configuration is missing. Please follow these steps:
     );
   };
   const identify = () => {
-    window.rudderanalytics?.identify(
+    analytics?.identify(
       'sample-user-123',
       {
         firstName: 'Alex',
@@ -64,7 +36,7 @@ RudderStack configuration is missing. Please follow these steps:
     );
   };
   const track = () => {
-    window.rudderanalytics?.track(
+    analytics?.track(
       'Order Completed',
       {
         revenue: 30,
@@ -77,12 +49,12 @@ RudderStack configuration is missing. Please follow these steps:
     );
   };
   const alias = () => {
-    window.rudderanalytics?.alias('alias-user-id', () => {
+    analytics?.alias('alias-user-id', () => {
       console.log('alias call');
     });
   };
   const group = () => {
-    window.rudderanalytics?.group(
+    analytics?.group(
       'sample_group_id',
       {
         name: 'Apple Inc.',

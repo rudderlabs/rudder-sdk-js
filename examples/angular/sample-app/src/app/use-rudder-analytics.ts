@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { RudderAnalytics, type RudderAnalyticsPreloader } from '@rudderstack/analytics-js';
-import { environment } from '../../environments/environment';
+import { environment } from 'src/environments/environment';
 
 // Shared initialization promise
-let initializationPromise: Promise<RudderAnalytics | RudderAnalyticsPreloader | undefined> | null = null;
+let initializationPromise: Promise<RudderAnalytics | RudderAnalyticsPreloader | undefined> | null =
+  null;
 
 @Injectable({
   providedIn: 'root',
@@ -35,7 +36,7 @@ export class RudderAnalyticsService {
       if (!writeKey || !dataplaneUrl) {
         console.error(`
 RudderStack configuration is missing. Please follow these steps:
-1. Create a .env file in the root directory with valid values:
+1. Create a .env file in the repository root directory with valid values:
    WRITE_KEY=your_write_key
    DATAPLANE_URL=your_dataplane_url
 2. Run the setup script to configure all examples:
@@ -48,13 +49,17 @@ RudderStack configuration is missing. Please follow these steps:
       const analyticsInstance = new RudderAnalytics();
 
       // Load the SDK with the configuration
-      analyticsInstance.load(writeKey, dataplaneUrl);
-      
+      analyticsInstance.load(writeKey, dataplaneUrl, {
+        onLoaded: () => {
+          console.log('RudderStack Analytics is loaded!!!');
+        },
+      });
+
       // Register a callback that will run when the SDK is ready
       analyticsInstance.ready(() => {
-        console.log('We are all set!!!');
+        console.log('RudderStack Analytics is ready!!!');
       });
-      
+
       this.analytics = analyticsInstance;
       return analyticsInstance;
     })();
@@ -68,8 +73,10 @@ RudderStack configuration is missing. Please follow these steps:
       return this.analytics;
     }
 
-    return typeof window !== 'undefined' && window.rudderanalytics && 
-           !Array.isArray(window.rudderanalytics) ? 
-           window.rudderanalytics : undefined;
+    return typeof window !== 'undefined' &&
+      window.rudderanalytics &&
+      !Array.isArray(window.rudderanalytics)
+      ? window.rudderanalytics
+      : undefined;
   }
-} 
+}

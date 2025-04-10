@@ -5,19 +5,19 @@ import { Analytics } from '@rudderstack/analytics-js-service-worker';
 const writeKey = process.env.NEXT_PUBLIC_RUDDERSTACK_WRITE_KEY;
 const dataplaneUrl = process.env.NEXT_PUBLIC_RUDDERSTACK_DATAPLANE_URL;
 
-// Validate configuration
-if (!writeKey || !dataplaneUrl) {
+let rudderClient: Analytics | undefined;
+if (writeKey && dataplaneUrl) {
+  rudderClient = new Analytics(writeKey, `${dataplaneUrl}/v1/batch`, {
+    flushAt: 1,
+  });
+} else {
   console.error('RudderStack configuration missing. Please check environment variables.');
 }
-
-const rudderClient = new Analytics(writeKey, `${dataplaneUrl}/v1/batch`, {
-  flushAt: 1,
-});
 
 export const runtime = 'edge'; // 'nodejs' is the default
 
 export function GET(request: NextRequest) {
-  rudderClient.track({
+  rudderClient?.track({
     userId: '123456',
     event: 'test vercel edge worker',
     properties: {

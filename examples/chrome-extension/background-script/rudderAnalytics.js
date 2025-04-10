@@ -1,4 +1,4 @@
-var global$1 = (typeof global !== "undefined" ? global :
+const global$1 = (typeof global !== "undefined" ? global :
   typeof self !== "undefined" ? self :
   typeof window !== "undefined" ? window : {});
 
@@ -135,119 +135,38 @@ function Item(fun, array) {
 Item.prototype.run = function () {
     this.fun.apply(null, this.array);
 };
-var title = 'browser';
-var platform$2 = 'browser';
-var browser = true;
-var env = {};
-var argv = [];
-var version$1 = ''; // empty string to avoid regexp issues
-var versions = {};
-var release = {};
-var config = {};
-
-function noop$2() {}
-
-var on = noop$2;
-var addListener = noop$2;
-var once = noop$2;
-var off = noop$2;
-var removeListener = noop$2;
-var removeAllListeners = noop$2;
-var emit = noop$2;
-
-function binding(name) {
-    throw new Error('process.binding is not supported');
-}
-
-function cwd () { return '/' }
-function chdir (dir) {
-    throw new Error('process.chdir is not supported');
-}function umask() { return 0; }
 
 // from https://github.com/kumavis/browser-process-hrtime/blob/master/index.js
 var performance = global$1.performance || {};
-var performanceNow =
-  performance.now        ||
+performance.now        ||
   performance.mozNow     ||
   performance.msNow      ||
   performance.oNow       ||
   performance.webkitNow  ||
   function(){ return (new Date()).getTime() };
 
-// generate timestamp or delta
-// see http://nodejs.org/api/process.html#process_process_hrtime
-function hrtime(previousTimestamp){
-  var clocktime = performanceNow.call(performance)*1e-3;
-  var seconds = Math.floor(clocktime);
-  var nanoseconds = Math.floor((clocktime%1)*1e9);
-  if (previousTimestamp) {
-    seconds = seconds - previousTimestamp[0];
-    nanoseconds = nanoseconds - previousTimestamp[1];
-    if (nanoseconds<0) {
-      seconds--;
-      nanoseconds += 1e9;
-    }
-  }
-  return [seconds,nanoseconds]
-}
-
-var startTime = new Date();
-function uptime() {
-  var currentTime = new Date();
-  var dif = currentTime - startTime;
-  return dif / 1000;
-}
-
 var browser$1 = {
-  nextTick: nextTick,
-  title: title,
-  browser: browser,
-  env: env,
-  argv: argv,
-  version: version$1,
-  versions: versions,
-  on: on,
-  addListener: addListener,
-  once: once,
-  off: off,
-  removeListener: removeListener,
-  removeAllListeners: removeAllListeners,
-  emit: emit,
-  binding: binding,
-  cwd: cwd,
-  chdir: chdir,
-  umask: umask,
-  hrtime: hrtime,
-  platform: platform$2,
-  release: release,
-  config: config,
-  uptime: uptime
-};
+  nextTick: nextTick};
 
 function _extends() {
-  _extends = Object.assign ? Object.assign.bind() : function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
+  return _extends = Object.assign ? Object.assign.bind() : function (n) {
+    for (var e = 1; e < arguments.length; e++) {
+      var t = arguments[e];
+      for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]);
     }
-    return target;
-  };
-  return _extends.apply(this, arguments);
+    return n;
+  }, _extends.apply(null, arguments);
 }
 
 function bind(fn,thisArg){return function wrap(){return fn.apply(thisArg,arguments);};}
 
-const{toString: toString$2}=Object.prototype;const{getPrototypeOf}=Object;const kindOf=(cache=>thing=>{const str=toString$2.call(thing);return cache[str]||(cache[str]=str.slice(8,-1).toLowerCase());})(Object.create(null));const kindOfTest=type=>{type=type.toLowerCase();return thing=>kindOf(thing)===type;};const typeOfTest=type=>thing=>typeof thing===type;/**
+const{toString: toString$1}=Object.prototype;const{getPrototypeOf}=Object;const kindOf=(cache=>thing=>{const str=toString$1.call(thing);return cache[str]||(cache[str]=str.slice(8,-1).toLowerCase());})(Object.create(null));const kindOfTest=type=>{type=type.toLowerCase();return thing=>kindOf(thing)===type;};const typeOfTest=type=>thing=>typeof thing===type;/**
  * Determine if a value is an Array
  *
  * @param {Object} val The value to test
  *
  * @returns {boolean} True if value is an Array, otherwise false
- */const{isArray: isArray$3}=Array;/**
+ */const{isArray: isArray$2}=Array;/**
  * Determine if a value is undefined
  *
  * @param {*} val The value to test
@@ -259,7 +178,7 @@ const{toString: toString$2}=Object.prototype;const{getPrototypeOf}=Object;const 
  * @param {*} val The value to test
  *
  * @returns {boolean} True if value is a Buffer, otherwise false
- */function isBuffer$1(val){return val!==null&&!isUndefined$1(val)&&val.constructor!==null&&!isUndefined$1(val.constructor)&&isFunction$2(val.constructor.isBuffer)&&val.constructor.isBuffer(val);}/**
+ */function isBuffer$1(val){return val!==null&&!isUndefined$1(val)&&val.constructor!==null&&!isUndefined$1(val.constructor)&&isFunction$3(val.constructor.isBuffer)&&val.constructor.isBuffer(val);}/**
  * Determine if a value is an ArrayBuffer
  *
  * @param {*} val The value to test
@@ -277,12 +196,12 @@ const{toString: toString$2}=Object.prototype;const{getPrototypeOf}=Object;const 
  * @param {*} val The value to test
  *
  * @returns {boolean} True if value is a String, otherwise false
- */const isString$3=typeOfTest('string');/**
+ */const isString$2=typeOfTest('string');/**
  * Determine if a value is a Function
  *
  * @param {*} val The value to test
  * @returns {boolean} True if value is a Function, otherwise false
- */const isFunction$2=typeOfTest('function');/**
+ */const isFunction$3=typeOfTest('function');/**
  * Determine if a value is a Number
  *
  * @param {*} val The value to test
@@ -294,7 +213,7 @@ const{toString: toString$2}=Object.prototype;const{getPrototypeOf}=Object;const 
  * @param {*} thing The value to test
  *
  * @returns {boolean} True if value is an Object, otherwise false
- */const isObject$2=thing=>thing!==null&&typeof thing==='object';/**
+ */const isObject$1=thing=>thing!==null&&typeof thing==='object';/**
  * Determine if a value is a Boolean
  *
  * @param {*} thing The value to test
@@ -335,20 +254,20 @@ const{toString: toString$2}=Object.prototype;const{getPrototypeOf}=Object;const 
  * @param {*} val The value to test
  *
  * @returns {boolean} True if value is a Stream, otherwise false
- */const isStream=val=>isObject$2(val)&&isFunction$2(val.pipe);/**
+ */const isStream=val=>isObject$1(val)&&isFunction$3(val.pipe);/**
  * Determine if a value is a FormData
  *
  * @param {*} thing The value to test
  *
  * @returns {boolean} True if value is an FormData, otherwise false
- */const isFormData=thing=>{let kind;return thing&&(typeof FormData==='function'&&thing instanceof FormData||isFunction$2(thing.append)&&((kind=kindOf(thing))==='formdata'||// detect form-data instance
-kind==='object'&&isFunction$2(thing.toString)&&thing.toString()==='[object FormData]'));};/**
+ */const isFormData=thing=>{let kind;return thing&&(typeof FormData==='function'&&thing instanceof FormData||isFunction$3(thing.append)&&((kind=kindOf(thing))==='formdata'||// detect form-data instance
+kind==='object'&&isFunction$3(thing.toString)&&thing.toString()==='[object FormData]'));};/**
  * Determine if a value is a URLSearchParams object
  *
  * @param {*} val The value to test
  *
  * @returns {boolean} True if value is a URLSearchParams object, otherwise false
- */const isURLSearchParams=kindOfTest('URLSearchParams');/**
+ */const isURLSearchParams=kindOfTest('URLSearchParams');const[isReadableStream,isRequest,isResponse,isHeaders]=['ReadableStream','Request','Response','Headers'].map(kindOfTest);/**
  * Trim excess whitespace off the beginning and end of a string
  *
  * @param {String} str The String to trim
@@ -370,7 +289,7 @@ kind==='object'&&isFunction$2(thing.toString)&&thing.toString()==='[object FormD
  * @returns {any}
  */function forEach(obj,fn,{allOwnKeys=false}={}){// Don't bother if no value provided
 if(obj===null||typeof obj==='undefined'){return;}let i;let l;// Force an array if not already something iterable
-if(typeof obj!=='object'){/*eslint no-param-reassign:0*/obj=[obj];}if(isArray$3(obj)){// Iterate over array values
+if(typeof obj!=='object'){/*eslint no-param-reassign:0*/obj=[obj];}if(isArray$2(obj)){// Iterate over array values
 for(i=0,l=obj.length;i<l;i++){fn.call(null,obj[i],i,obj);}}else {// Iterate over object keys
 const keys=allOwnKeys?Object.getOwnPropertyNames(obj):Object.keys(obj);const len=keys.length;let key;for(i=0;i<len;i++){key=keys[i];fn.call(null,obj[key],key,obj);}}}function findKey(obj,key){key=key.toLowerCase();const keys=Object.keys(obj);let i=keys.length;let _key;while(i-->0){_key=keys[i];if(key===_key.toLowerCase()){return _key;}}return null;}const _global=(()=>{/*eslint no-undef:0*/if(typeof globalThis!=="undefined")return globalThis;return typeof self!=="undefined"?self:typeof window!=='undefined'?window:global$1;})();const isContextDefined=context=>!isUndefined$1(context)&&context!==_global;/**
  * Accepts varargs expecting each argument to be an object, then
@@ -389,7 +308,7 @@ const keys=allOwnKeys?Object.getOwnPropertyNames(obj):Object.keys(obj);const len
  * @param {Object} obj1 Object to merge
  *
  * @returns {Object} Result of all merge properties
- */function merge(/* obj1, obj2, obj3, ... */){const{caseless}=isContextDefined(this)&&this||{};const result={};const assignValue=(val,key)=>{const targetKey=caseless&&findKey(result,key)||key;if(isPlainObject(result[targetKey])&&isPlainObject(val)){result[targetKey]=merge(result[targetKey],val);}else if(isPlainObject(val)){result[targetKey]=merge({},val);}else if(isArray$3(val)){result[targetKey]=val.slice();}else {result[targetKey]=val;}};for(let i=0,l=arguments.length;i<l;i++){arguments[i]&&forEach(arguments[i],assignValue);}return result;}/**
+ */function merge(/* obj1, obj2, obj3, ... */){const{caseless}=isContextDefined(this)&&this||{};const result={};const assignValue=(val,key)=>{const targetKey=caseless&&findKey(result,key)||key;if(isPlainObject(result[targetKey])&&isPlainObject(val)){result[targetKey]=merge(result[targetKey],val);}else if(isPlainObject(val)){result[targetKey]=merge({},val);}else if(isArray$2(val)){result[targetKey]=val.slice();}else {result[targetKey]=val;}};for(let i=0,l=arguments.length;i<l;i++){arguments[i]&&forEach(arguments[i],assignValue);}return result;}/**
  * Extends object a by mutably adding to it the properties of object b.
  *
  * @param {Object} a The object to be extended
@@ -398,7 +317,7 @@ const keys=allOwnKeys?Object.getOwnPropertyNames(obj):Object.keys(obj);const len
  *
  * @param {Boolean} [allOwnKeys]
  * @returns {Object} The resulting value of object a
- */const extend=(a,b,thisArg,{allOwnKeys}={})=>{forEach(b,(val,key)=>{if(thisArg&&isFunction$2(val)){a[key]=bind(val,thisArg);}else {a[key]=val;}},{allOwnKeys});return a;};/**
+ */const extend=(a,b,thisArg,{allOwnKeys}={})=>{forEach(b,(val,key)=>{if(thisArg&&isFunction$3(val)){a[key]=bind(val,thisArg);}else {a[key]=val;}},{allOwnKeys});return a;};/**
  * Remove byte order marker. This catches EF BB BF (the UTF-8 BOM)
  *
  * @param {string} content with BOM
@@ -412,7 +331,7 @@ const keys=allOwnKeys?Object.getOwnPropertyNames(obj):Object.keys(obj);const len
  * @param {object} [descriptors]
  *
  * @returns {void}
- */const inherits$2=(constructor,superConstructor,props,descriptors)=>{constructor.prototype=Object.create(superConstructor.prototype,descriptors);constructor.prototype.constructor=constructor;Object.defineProperty(constructor,'super',{value:superConstructor.prototype});props&&_extends(constructor.prototype,props);};/**
+ */const inherits$1=(constructor,superConstructor,props,descriptors)=>{constructor.prototype=Object.create(superConstructor.prototype,descriptors);constructor.prototype.constructor=constructor;Object.defineProperty(constructor,'super',{value:superConstructor.prototype});props&&_extends(constructor.prototype,props);};/**
  * Resolve object with deep prototype chain to a flat object
  * @param {Object} sourceObj source object
  * @param {Object} [destObj]
@@ -435,14 +354,14 @@ if(sourceObj==null)return destObj;do{props=Object.getOwnPropertyNames(sourceObj)
  * @param {*} [thing]
  *
  * @returns {?Array}
- */const toArray=thing=>{if(!thing)return null;if(isArray$3(thing))return thing;let i=thing.length;if(!isNumber$1(i))return null;const arr=new Array(i);while(i-->0){arr[i]=thing[i];}return arr;};/**
+ */const toArray=thing=>{if(!thing)return null;if(isArray$2(thing))return thing;let i=thing.length;if(!isNumber$1(i))return null;const arr=new Array(i);while(i-->0){arr[i]=thing[i];}return arr;};/**
  * Checking if the Uint8Array exists and if it does, it returns a function that checks if the
  * thing passed in is an instance of Uint8Array
  *
  * @param {TypedArray}
  *
  * @returns {Array}
- */ // eslint-disable-next-line func-names
+ */// eslint-disable-next-line func-names
 const isTypedArray=(TypedArray=>{// eslint-disable-next-line func-names
 return thing=>{return TypedArray&&thing instanceof TypedArray;};})(typeof Uint8Array!=='undefined'&&getPrototypeOf(Uint8Array));/**
  * For each entry in the object, call the function with the key and value.
@@ -468,14 +387,17 @@ return thing=>{return TypedArray&&thing instanceof TypedArray;};})(typeof Uint8A
  * Makes all methods read-only
  * @param {Object} obj
  */const freezeMethods=obj=>{reduceDescriptors(obj,(descriptor,name)=>{// skip restricted props in strict mode
-if(isFunction$2(obj)&&['arguments','caller','callee'].indexOf(name)!==-1){return false;}const value=obj[name];if(!isFunction$2(value))return;descriptor.enumerable=false;if('writable'in descriptor){descriptor.writable=false;return;}if(!descriptor.set){descriptor.set=()=>{throw Error('Can not rewrite read-only method \''+name+'\'');};}});};const toObjectSet=(arrayOrString,delimiter)=>{const obj={};const define=arr=>{arr.forEach(value=>{obj[value]=true;});};isArray$3(arrayOrString)?define(arrayOrString):define(String(arrayOrString).split(delimiter));return obj;};const noop$1=()=>{};const toFiniteNumber=(value,defaultValue)=>{value=+value;return Number.isFinite(value)?value:defaultValue;};const ALPHA='abcdefghijklmnopqrstuvwxyz';const DIGIT='0123456789';const ALPHABET={DIGIT,ALPHA,ALPHA_DIGIT:ALPHA+ALPHA.toUpperCase()+DIGIT};const generateString=(size=16,alphabet=ALPHABET.ALPHA_DIGIT)=>{let str='';const{length}=alphabet;while(size--){str+=alphabet[Math.random()*length|0];}return str;};/**
+if(isFunction$3(obj)&&['arguments','caller','callee'].indexOf(name)!==-1){return false;}const value=obj[name];if(!isFunction$3(value))return;descriptor.enumerable=false;if('writable'in descriptor){descriptor.writable=false;return;}if(!descriptor.set){descriptor.set=()=>{throw Error('Can not rewrite read-only method \''+name+'\'');};}});};const toObjectSet=(arrayOrString,delimiter)=>{const obj={};const define=arr=>{arr.forEach(value=>{obj[value]=true;});};isArray$2(arrayOrString)?define(arrayOrString):define(String(arrayOrString).split(delimiter));return obj;};const noop$1=()=>{};const toFiniteNumber=(value,defaultValue)=>{return value!=null&&Number.isFinite(value=+value)?value:defaultValue;};/**
  * If the thing is a FormData object, return true, otherwise return false.
  *
  * @param {unknown} thing - The thing to check.
  *
  * @returns {boolean}
- */function isSpecCompliantForm(thing){return !!(thing&&isFunction$2(thing.append)&&thing[Symbol.toStringTag]==='FormData'&&thing[Symbol.iterator]);}const toJSONObject=obj=>{const stack=new Array(10);const visit=(source,i)=>{if(isObject$2(source)){if(stack.indexOf(source)>=0){return;}if(!('toJSON'in source)){stack[i]=source;const target=isArray$3(source)?[]:{};forEach(source,(value,key)=>{const reducedValue=visit(value,i+1);!isUndefined$1(reducedValue)&&(target[key]=reducedValue);});stack[i]=undefined;return target;}}return source;};return visit(obj,0);};const isAsyncFn=kindOfTest('AsyncFunction');const isThenable=thing=>thing&&(isObject$2(thing)||isFunction$2(thing))&&isFunction$2(thing.then)&&isFunction$2(thing.catch);var utils$1 = {isArray: isArray$3,isArrayBuffer,isBuffer: isBuffer$1,isFormData,isArrayBufferView,isString: isString$3,isNumber: isNumber$1,isBoolean: isBoolean$1,isObject: isObject$2,isPlainObject,isUndefined: isUndefined$1,isDate: isDate$1,isFile,isBlob,isRegExp: isRegExp$1,isFunction: isFunction$2,isStream,isURLSearchParams,isTypedArray,isFileList,forEach,merge,extend,trim,stripBOM,inherits: inherits$2,toFlatObject,kindOf,kindOfTest,endsWith,toArray,forEachEntry,matchAll,isHTMLForm,hasOwnProperty: hasOwnProperty$1,hasOwnProp:hasOwnProperty$1,// an alias to avoid ESLint no-prototype-builtins detection
-reduceDescriptors,freezeMethods,toObjectSet,toCamelCase,noop: noop$1,toFiniteNumber,findKey,global:_global,isContextDefined,ALPHABET,generateString,isSpecCompliantForm,toJSONObject,isAsyncFn,isThenable};
+ */function isSpecCompliantForm(thing){return !!(thing&&isFunction$3(thing.append)&&thing[Symbol.toStringTag]==='FormData'&&thing[Symbol.iterator]);}const toJSONObject=obj=>{const stack=new Array(10);const visit=(source,i)=>{if(isObject$1(source)){if(stack.indexOf(source)>=0){return;}if(!('toJSON'in source)){stack[i]=source;const target=isArray$2(source)?[]:{};forEach(source,(value,key)=>{const reducedValue=visit(value,i+1);!isUndefined$1(reducedValue)&&(target[key]=reducedValue);});stack[i]=undefined;return target;}}return source;};return visit(obj,0);};const isAsyncFn=kindOfTest('AsyncFunction');const isThenable=thing=>thing&&(isObject$1(thing)||isFunction$3(thing))&&isFunction$3(thing.then)&&isFunction$3(thing.catch);// original code
+// https://github.com/DigitalBrainJS/AxiosPromise/blob/16deab13710ec09779922131f3fa5954320f83ab/lib/utils.js#L11-L34
+const _setImmediate=((setImmediateSupported,postMessageSupported)=>{if(setImmediateSupported){return setImmediate;}return postMessageSupported?((token,callbacks)=>{_global.addEventListener("message",({source,data})=>{if(source===_global&&data===token){callbacks.length&&callbacks.shift()();}},false);return cb=>{callbacks.push(cb);_global.postMessage(token,"*");};})(`axios@${Math.random()}`,[]):cb=>setTimeout(cb);})(typeof setImmediate==='function',isFunction$3(_global.postMessage));const asap=typeof queueMicrotask!=='undefined'?queueMicrotask.bind(_global):typeof browser$1!=='undefined'&&browser$1.nextTick||_setImmediate;// *********************
+const utils$1 = {isArray: isArray$2,isArrayBuffer,isBuffer: isBuffer$1,isFormData,isArrayBufferView,isString: isString$2,isNumber: isNumber$1,isBoolean: isBoolean$1,isObject: isObject$1,isPlainObject,isReadableStream,isRequest,isResponse,isHeaders,isUndefined: isUndefined$1,isDate: isDate$1,isFile,isBlob,isRegExp: isRegExp$1,isFunction: isFunction$3,isStream,isURLSearchParams,isTypedArray,isFileList,forEach,merge,extend,trim,stripBOM,inherits: inherits$1,toFlatObject,kindOf,kindOfTest,endsWith,toArray,forEachEntry,matchAll,isHTMLForm,hasOwnProperty: hasOwnProperty$1,hasOwnProp:hasOwnProperty$1,// an alias to avoid ESLint no-prototype-builtins detection
+reduceDescriptors,freezeMethods,toObjectSet,toCamelCase,noop: noop$1,toFiniteNumber,findKey,global:_global,isContextDefined,isSpecCompliantForm,toJSONObject,isAsyncFn,isThenable,setImmediate:_setImmediate,asap};
 
 var lookup = [];
 var revLookup = [];
@@ -672,10 +594,10 @@ function write (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128;
 }
 
-var toString$1 = {}.toString;
+var toString = {}.toString;
 
-var isArray$2 = Array.isArray || function (arr) {
-  return toString$1.call(arr) == '[object Array]';
+var isArray$1 = Array.isArray || function (arr) {
+  return toString.call(arr) == '[object Array]';
 };
 
 /*!
@@ -958,7 +880,7 @@ function fromObject (that, obj) {
       return fromArrayLike(that, obj)
     }
 
-    if (obj.type === 'Buffer' && isArray$2(obj.data)) {
+    if (obj.type === 'Buffer' && isArray$1(obj.data)) {
       return fromArrayLike(that, obj.data)
     }
   }
@@ -1023,7 +945,7 @@ Buffer.isEncoding = function isEncoding (encoding) {
 };
 
 Buffer.concat = function concat (list, length) {
-  if (!isArray$2(list)) {
+  if (!isArray$1(list)) {
     throw new TypeError('"list" argument must be an Array of Buffers')
   }
 
@@ -1315,8 +1237,8 @@ function bidirectionalIndexOf (buffer, val, byteOffset, encoding, dir) {
     byteOffset = 0;
   } else if (byteOffset > 0x7fffffff) {
     byteOffset = 0x7fffffff;
-  } else if (byteOffset < -0x80000000) {
-    byteOffset = -0x80000000;
+  } else if (byteOffset < -2147483648) {
+    byteOffset = -2147483648;
   }
   byteOffset = +byteOffset;  // Coerce to Number.
   if (isNaN(byteOffset)) {
@@ -2075,7 +1997,7 @@ Buffer.prototype.writeIntBE = function writeIntBE (value, offset, byteLength, no
 Buffer.prototype.writeInt8 = function writeInt8 (value, offset, noAssert) {
   value = +value;
   offset = offset | 0;
-  if (!noAssert) checkInt(this, value, offset, 1, 0x7f, -0x80);
+  if (!noAssert) checkInt(this, value, offset, 1, 0x7f, -128);
   if (!Buffer.TYPED_ARRAY_SUPPORT) value = Math.floor(value);
   if (value < 0) value = 0xff + value + 1;
   this[offset] = (value & 0xff);
@@ -2085,7 +2007,7 @@ Buffer.prototype.writeInt8 = function writeInt8 (value, offset, noAssert) {
 Buffer.prototype.writeInt16LE = function writeInt16LE (value, offset, noAssert) {
   value = +value;
   offset = offset | 0;
-  if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000);
+  if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -32768);
   if (Buffer.TYPED_ARRAY_SUPPORT) {
     this[offset] = (value & 0xff);
     this[offset + 1] = (value >>> 8);
@@ -2098,7 +2020,7 @@ Buffer.prototype.writeInt16LE = function writeInt16LE (value, offset, noAssert) 
 Buffer.prototype.writeInt16BE = function writeInt16BE (value, offset, noAssert) {
   value = +value;
   offset = offset | 0;
-  if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000);
+  if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -32768);
   if (Buffer.TYPED_ARRAY_SUPPORT) {
     this[offset] = (value >>> 8);
     this[offset + 1] = (value & 0xff);
@@ -2111,7 +2033,7 @@ Buffer.prototype.writeInt16BE = function writeInt16BE (value, offset, noAssert) 
 Buffer.prototype.writeInt32LE = function writeInt32LE (value, offset, noAssert) {
   value = +value;
   offset = offset | 0;
-  if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000);
+  if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -2147483648);
   if (Buffer.TYPED_ARRAY_SUPPORT) {
     this[offset] = (value & 0xff);
     this[offset + 1] = (value >>> 8);
@@ -2126,7 +2048,7 @@ Buffer.prototype.writeInt32LE = function writeInt32LE (value, offset, noAssert) 
 Buffer.prototype.writeInt32BE = function writeInt32BE (value, offset, noAssert) {
   value = +value;
   offset = offset | 0;
-  if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000);
+  if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -2147483648);
   if (value < 0) value = 0xffffffff + value + 1;
   if (Buffer.TYPED_ARRAY_SUPPORT) {
     this[offset] = (value >>> 24);
@@ -2464,16 +2386,16 @@ function isSlowBuffer (obj) {
  * @param {Object} [response] The response.
  *
  * @returns {Error} The created error.
- */function AxiosError(message,code,config,request,response){Error.call(this);if(Error.captureStackTrace){Error.captureStackTrace(this,this.constructor);}else {this.stack=new Error().stack;}this.message=message;this.name='AxiosError';code&&(this.code=code);config&&(this.config=config);request&&(this.request=request);response&&(this.response=response);}utils$1.inherits(AxiosError,Error,{toJSON:function toJSON(){return {// Standard
+ */function AxiosError$1(message,code,config,request,response){Error.call(this);if(Error.captureStackTrace){Error.captureStackTrace(this,this.constructor);}else {this.stack=new Error().stack;}this.message=message;this.name='AxiosError';code&&(this.code=code);config&&(this.config=config);request&&(this.request=request);if(response){this.response=response;this.status=response.status?response.status:null;}}utils$1.inherits(AxiosError$1,Error,{toJSON:function toJSON(){return {// Standard
 message:this.message,name:this.name,// Microsoft
 description:this.description,number:this.number,// Mozilla
 fileName:this.fileName,lineNumber:this.lineNumber,columnNumber:this.columnNumber,stack:this.stack,// Axios
-config:utils$1.toJSONObject(this.config),code:this.code,status:this.response&&this.response.status?this.response.status:null};}});const prototype$1=AxiosError.prototype;const descriptors={};['ERR_BAD_OPTION_VALUE','ERR_BAD_OPTION','ECONNABORTED','ETIMEDOUT','ERR_NETWORK','ERR_FR_TOO_MANY_REDIRECTS','ERR_DEPRECATED','ERR_BAD_RESPONSE','ERR_BAD_REQUEST','ERR_CANCELED','ERR_NOT_SUPPORT','ERR_INVALID_URL'// eslint-disable-next-line func-names
-].forEach(code=>{descriptors[code]={value:code};});Object.defineProperties(AxiosError,descriptors);Object.defineProperty(prototype$1,'isAxiosError',{value:true});// eslint-disable-next-line func-names
-AxiosError.from=(error,code,config,request,response,customProps)=>{const axiosError=Object.create(prototype$1);utils$1.toFlatObject(error,axiosError,function filter(obj){return obj!==Error.prototype;},prop=>{return prop!=='isAxiosError';});AxiosError.call(axiosError,error.message,code,config,request,response);axiosError.cause=error;axiosError.name=error.name;customProps&&_extends(axiosError,customProps);return axiosError;};
+config:utils$1.toJSONObject(this.config),code:this.code,status:this.status};}});const prototype$1=AxiosError$1.prototype;const descriptors={};['ERR_BAD_OPTION_VALUE','ERR_BAD_OPTION','ECONNABORTED','ETIMEDOUT','ERR_NETWORK','ERR_FR_TOO_MANY_REDIRECTS','ERR_DEPRECATED','ERR_BAD_RESPONSE','ERR_BAD_REQUEST','ERR_CANCELED','ERR_NOT_SUPPORT','ERR_INVALID_URL'// eslint-disable-next-line func-names
+].forEach(code=>{descriptors[code]={value:code};});Object.defineProperties(AxiosError$1,descriptors);Object.defineProperty(prototype$1,'isAxiosError',{value:true});// eslint-disable-next-line func-names
+AxiosError$1.from=(error,code,config,request,response,customProps)=>{const axiosError=Object.create(prototype$1);utils$1.toFlatObject(error,axiosError,function filter(obj){return obj!==Error.prototype;},prop=>{return prop!=='isAxiosError';});AxiosError$1.call(axiosError,error.message,code,config,request,response);axiosError.cause=error;axiosError.name=error.name;customProps&&_extends(axiosError,customProps);return axiosError;};
 
 // eslint-disable-next-line strict
-var httpAdapter = null;
+const httpAdapter = null;
 
 /**
  * Determines if the given thing is a array or js object.
@@ -2514,7 +2436,7 @@ token=removeBrackets(token);return !dots&&i?'['+token+']':token;}).join(dots?'.'
  * @param {?Boolean} [options.indexes = false]
  *
  * @returns {Object}
- **/ /**
+ **//**
  * It converts an object into a FormData object
  *
  * @param {Object<any, any>} obj - The object to convert to form data.
@@ -2522,11 +2444,11 @@ token=removeBrackets(token);return !dots&&i?'['+token+']':token;}).join(dots?'.'
  * @param {Object<string, any>} options
  *
  * @returns
- */function toFormData(obj,formData,options){if(!utils$1.isObject(obj)){throw new TypeError('target must be an object');}// eslint-disable-next-line no-param-reassign
+ */function toFormData$1(obj,formData,options){if(!utils$1.isObject(obj)){throw new TypeError('target must be an object');}// eslint-disable-next-line no-param-reassign
 formData=formData||new(FormData)();// eslint-disable-next-line no-param-reassign
 options=utils$1.toFlatObject(options,{metaTokens:true,dots:false,indexes:false},false,function defined(option,source){// eslint-disable-next-line no-eq-null,eqeqeq
 return !utils$1.isUndefined(source[option]);});const metaTokens=options.metaTokens;// eslint-disable-next-line no-use-before-define
-const visitor=options.visitor||defaultVisitor;const dots=options.dots;const indexes=options.indexes;const _Blob=options.Blob||typeof Blob!=='undefined'&&Blob;const useBlob=_Blob&&utils$1.isSpecCompliantForm(formData);if(!utils$1.isFunction(visitor)){throw new TypeError('visitor must be a function');}function convertValue(value){if(value===null)return '';if(utils$1.isDate(value)){return value.toISOString();}if(!useBlob&&utils$1.isBlob(value)){throw new AxiosError('Blob is not supported. Use a Buffer instead.');}if(utils$1.isArrayBuffer(value)||utils$1.isTypedArray(value)){return useBlob&&typeof Blob==='function'?new Blob([value]):Buffer.from(value);}return value;}/**
+const visitor=options.visitor||defaultVisitor;const dots=options.dots;const indexes=options.indexes;const _Blob=options.Blob||typeof Blob!=='undefined'&&Blob;const useBlob=_Blob&&utils$1.isSpecCompliantForm(formData);if(!utils$1.isFunction(visitor)){throw new TypeError('visitor must be a function');}function convertValue(value){if(value===null)return '';if(utils$1.isDate(value)){return value.toISOString();}if(!useBlob&&utils$1.isBlob(value)){throw new AxiosError$1('Blob is not supported. Use a Buffer instead.');}if(utils$1.isArrayBuffer(value)||utils$1.isTypedArray(value)){return useBlob&&typeof Blob==='function'?new Blob([value]):Buffer.from(value);}return value;}/**
    * Default visitor.
    *
    * @param {*} value
@@ -2555,7 +2477,7 @@ indexes===true?renderKey([key],index,dots):indexes===null?key:key+'[]',convertVa
  * @param {Object<string, any>} options - The options object passed to the Axios constructor.
  *
  * @returns {void}
- */function AxiosURLSearchParams(params,options){this._pairs=[];params&&toFormData(params,this,options);}const prototype=AxiosURLSearchParams.prototype;prototype.append=function append(name,value){this._pairs.push([name,value]);};prototype.toString=function toString(encoder){const _encode=encoder?function(value){return encoder.call(this,value,encode$1);}:encode$1;return this._pairs.map(function each(pair){return _encode(pair[0])+'='+_encode(pair[1]);},'').join('&');};
+ */function AxiosURLSearchParams(params,options){this._pairs=[];params&&toFormData$1(params,this,options);}const prototype=AxiosURLSearchParams.prototype;prototype.append=function append(name,value){this._pairs.push([name,value]);};prototype.toString=function toString(encoder){const _encode=encoder?function(value){return encoder.call(this,value,encode$1);}:encode$1;return this._pairs.map(function each(pair){return _encode(pair[0])+'='+_encode(pair[1]);},'').join('&');};
 
 /**
  * It replaces all instances of the characters `:`, `$`, `,`, `+`, `[`, and `]` with their
@@ -2569,10 +2491,10 @@ indexes===true?renderKey([key],index,dots):indexes===null?key:key+'[]',convertVa
  *
  * @param {string} url The base of the url (e.g., http://www.google.com)
  * @param {object} [params] The params to be appended
- * @param {?object} options
+ * @param {?(object|Function)} options
  *
  * @returns {string} The formatted url
- */function buildURL(url,params,options){/*eslint no-param-reassign:0*/if(!params){return url;}const _encode=options&&options.encode||encode;const serializeFn=options&&options.serialize;let serializedParams;if(serializeFn){serializedParams=serializeFn(params,options);}else {serializedParams=utils$1.isURLSearchParams(params)?params.toString():new AxiosURLSearchParams(params,options).toString(_encode);}if(serializedParams){const hashmarkIndex=url.indexOf("#");if(hashmarkIndex!==-1){url=url.slice(0,hashmarkIndex);}url+=(url.indexOf('?')===-1?'?':'&')+serializedParams;}return url;}
+ */function buildURL(url,params,options){/*eslint no-param-reassign:0*/if(!params){return url;}const _encode=options&&options.encode||encode;if(utils$1.isFunction(options)){options={serialize:options};}const serializeFn=options&&options.serialize;let serializedParams;if(serializeFn){serializedParams=serializeFn(params,options);}else {serializedParams=utils$1.isURLSearchParams(params)?params.toString():new AxiosURLSearchParams(params,options).toString(_encode);}if(serializedParams){const hashmarkIndex=url.indexOf("#");if(hashmarkIndex!==-1){url=url.slice(0,hashmarkIndex);}url+=(url.indexOf('?')===-1?'?':'&')+serializedParams;}return url;}
 
 class InterceptorManager{constructor(){this.handlers=[];}/**
    * Add a new interceptor to the stack
@@ -2602,17 +2524,17 @@ class InterceptorManager{constructor(){this.handlers=[];}/**
    * @returns {void}
    */forEach(fn){utils$1.forEach(this.handlers,function forEachHandler(h){if(h!==null){fn(h);}});}}
 
-var transitionalDefaults = {silentJSONParsing:true,forcedJSONParsing:true,clarifyTimeoutError:false};
+const transitionalDefaults = {silentJSONParsing:true,forcedJSONParsing:true,clarifyTimeoutError:false};
 
-var URLSearchParams$1 = typeof URLSearchParams!=='undefined'?URLSearchParams:AxiosURLSearchParams;
+const URLSearchParams$1 = typeof URLSearchParams!=='undefined'?URLSearchParams:AxiosURLSearchParams;
 
-var FormData$1 = typeof FormData!=='undefined'?FormData:null;
+const FormData$1 = typeof FormData!=='undefined'?FormData:null;
 
-var Blob$1 = typeof Blob!=='undefined'?Blob:null;
+const Blob$1 = typeof Blob!=='undefined'?Blob:null;
 
-var platform$1 = {isBrowser:true,classes:{URLSearchParams: URLSearchParams$1,FormData: FormData$1,Blob: Blob$1},protocols:['http','https','file','blob','url','data']};
+const platform$1 = {isBrowser:true,classes:{URLSearchParams: URLSearchParams$1,FormData: FormData$1,Blob: Blob$1},protocols:['http','https','file','blob','url','data']};
 
-const hasBrowserEnv=typeof window!=='undefined'&&typeof document!=='undefined';/**
+const hasBrowserEnv=typeof window!=='undefined'&&typeof document!=='undefined';const _navigator=typeof navigator==='object'&&navigator||undefined;/**
  * Determine if we're running in a standard browser environment
  *
  * This allows axios to run in a web worker, and react-native.
@@ -2628,7 +2550,7 @@ const hasBrowserEnv=typeof window!=='undefined'&&typeof document!=='undefined';/
  *  navigator.product -> 'NativeScript' or 'NS'
  *
  * @returns {boolean}
- */const hasStandardBrowserEnv=(product=>{return hasBrowserEnv&&['ReactNative','NativeScript','NS'].indexOf(product)<0;})(typeof navigator!=='undefined'&&navigator.product);/**
+ */const hasStandardBrowserEnv=hasBrowserEnv&&(!_navigator||['ReactNative','NativeScript','NS'].indexOf(_navigator.product)<0);/**
  * Determine if we're running in a standard browser webWorker environment
  *
  * Although the `isStandardBrowserEnv` method indicates that
@@ -2637,18 +2559,20 @@ const hasBrowserEnv=typeof window!=='undefined'&&typeof document!=='undefined';/
  * `typeof window !== 'undefined' && typeof document !== 'undefined'`.
  * This leads to a problem when axios post `FormData` in webWorker
  */const hasStandardBrowserWebWorkerEnv=(()=>{return typeof WorkerGlobalScope!=='undefined'&&// eslint-disable-next-line no-undef
-self instanceof WorkerGlobalScope&&typeof self.importScripts==='function';})();
+self instanceof WorkerGlobalScope&&typeof self.importScripts==='function';})();const origin=hasBrowserEnv&&window.location.href||'http://localhost';
 
-var utils = /*#__PURE__*/Object.freeze({
+const utils = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
   __proto__: null,
-  hasBrowserEnv: hasBrowserEnv,
-  hasStandardBrowserEnv: hasStandardBrowserEnv,
-  hasStandardBrowserWebWorkerEnv: hasStandardBrowserWebWorkerEnv
-});
+  hasBrowserEnv,
+  hasStandardBrowserEnv,
+  hasStandardBrowserWebWorkerEnv,
+  navigator: _navigator,
+  origin
+}, Symbol.toStringTag, { value: 'Module' }));
 
-var platform = {...utils,...platform$1};
+const platform = {...utils,...platform$1};
 
-function toURLEncodedForm(data,options){return toFormData(data,new platform.classes.URLSearchParams(),_extends({visitor:function(value,key,path,helpers){if(platform.isNode&&utils$1.isBuffer(value)){this.append(key,value.toString('base64'));return false;}return helpers.defaultVisitor.apply(this,arguments);}},options));}
+function toURLEncodedForm(data,options){return toFormData$1(data,new platform.classes.URLSearchParams(),_extends({visitor:function(value,key,path,helpers){if(platform.isNode&&utils$1.isBuffer(value)){this.append(key,value.toString('base64'));return false;}return helpers.defaultVisitor.apply(this,arguments);}},options));}
 
 /**
  * It takes a string like `foo[x][y][z]` and returns an array like `['foo', 'x', 'y', 'z']
@@ -2683,10 +2607,10 @@ return utils$1.matchAll(/\w+|\[(\w*)]/g,name).map(match=>{return match[0]==='[]'
  * @param {Function} encoder - A function that takes a value and returns a string.
  *
  * @returns {string} A stringified version of the rawValue.
- */function stringifySafely(rawValue,parser,encoder){if(utils$1.isString(rawValue)){try{(parser||JSON.parse)(rawValue);return utils$1.trim(rawValue);}catch(e){if(e.name!=='SyntaxError'){throw e;}}}return (encoder||JSON.stringify)(rawValue);}const defaults={transitional:transitionalDefaults,adapter:['xhr','http'],transformRequest:[function transformRequest(data,headers){const contentType=headers.getContentType()||'';const hasJSONContentType=contentType.indexOf('application/json')>-1;const isObjectPayload=utils$1.isObject(data);if(isObjectPayload&&utils$1.isHTMLForm(data)){data=new FormData(data);}const isFormData=utils$1.isFormData(data);if(isFormData){return hasJSONContentType?JSON.stringify(formDataToJSON(data)):data;}if(utils$1.isArrayBuffer(data)||utils$1.isBuffer(data)||utils$1.isStream(data)||utils$1.isFile(data)||utils$1.isBlob(data)){return data;}if(utils$1.isArrayBufferView(data)){return data.buffer;}if(utils$1.isURLSearchParams(data)){headers.setContentType('application/x-www-form-urlencoded;charset=utf-8',false);return data.toString();}let isFileList;if(isObjectPayload){if(contentType.indexOf('application/x-www-form-urlencoded')>-1){return toURLEncodedForm(data,this.formSerializer).toString();}if((isFileList=utils$1.isFileList(data))||contentType.indexOf('multipart/form-data')>-1){const _FormData=this.env&&this.env.FormData;return toFormData(isFileList?{'files[]':data}:data,_FormData&&new _FormData(),this.formSerializer);}}if(isObjectPayload||hasJSONContentType){headers.setContentType('application/json',false);return stringifySafely(data);}return data;}],transformResponse:[function transformResponse(data){const transitional=this.transitional||defaults.transitional;const forcedJSONParsing=transitional&&transitional.forcedJSONParsing;const JSONRequested=this.responseType==='json';if(data&&utils$1.isString(data)&&(forcedJSONParsing&&!this.responseType||JSONRequested)){const silentJSONParsing=transitional&&transitional.silentJSONParsing;const strictJSONParsing=!silentJSONParsing&&JSONRequested;try{return JSON.parse(data);}catch(e){if(strictJSONParsing){if(e.name==='SyntaxError'){throw AxiosError.from(e,AxiosError.ERR_BAD_RESPONSE,this,null,this.response);}throw e;}}}return data;}],/**
+ */function stringifySafely(rawValue,parser,encoder){if(utils$1.isString(rawValue)){try{(parser||JSON.parse)(rawValue);return utils$1.trim(rawValue);}catch(e){if(e.name!=='SyntaxError'){throw e;}}}return (encoder||JSON.stringify)(rawValue);}const defaults={transitional:transitionalDefaults,adapter:['xhr','http','fetch'],transformRequest:[function transformRequest(data,headers){const contentType=headers.getContentType()||'';const hasJSONContentType=contentType.indexOf('application/json')>-1;const isObjectPayload=utils$1.isObject(data);if(isObjectPayload&&utils$1.isHTMLForm(data)){data=new FormData(data);}const isFormData=utils$1.isFormData(data);if(isFormData){return hasJSONContentType?JSON.stringify(formDataToJSON(data)):data;}if(utils$1.isArrayBuffer(data)||utils$1.isBuffer(data)||utils$1.isStream(data)||utils$1.isFile(data)||utils$1.isBlob(data)||utils$1.isReadableStream(data)){return data;}if(utils$1.isArrayBufferView(data)){return data.buffer;}if(utils$1.isURLSearchParams(data)){headers.setContentType('application/x-www-form-urlencoded;charset=utf-8',false);return data.toString();}let isFileList;if(isObjectPayload){if(contentType.indexOf('application/x-www-form-urlencoded')>-1){return toURLEncodedForm(data,this.formSerializer).toString();}if((isFileList=utils$1.isFileList(data))||contentType.indexOf('multipart/form-data')>-1){const _FormData=this.env&&this.env.FormData;return toFormData$1(isFileList?{'files[]':data}:data,_FormData&&new _FormData(),this.formSerializer);}}if(isObjectPayload||hasJSONContentType){headers.setContentType('application/json',false);return stringifySafely(data);}return data;}],transformResponse:[function transformResponse(data){const transitional=this.transitional||defaults.transitional;const forcedJSONParsing=transitional&&transitional.forcedJSONParsing;const JSONRequested=this.responseType==='json';if(utils$1.isResponse(data)||utils$1.isReadableStream(data)){return data;}if(data&&utils$1.isString(data)&&(forcedJSONParsing&&!this.responseType||JSONRequested)){const silentJSONParsing=transitional&&transitional.silentJSONParsing;const strictJSONParsing=!silentJSONParsing&&JSONRequested;try{return JSON.parse(data);}catch(e){if(strictJSONParsing){if(e.name==='SyntaxError'){throw AxiosError$1.from(e,AxiosError$1.ERR_BAD_RESPONSE,this,null,this.response);}throw e;}}}return data;}],/**
    * A timeout in milliseconds to abort a request. If set to 0 (default) a
    * timeout is not created.
-   */timeout:0,xsrfCookieName:'XSRF-TOKEN',xsrfHeaderName:'X-XSRF-TOKEN',maxContentLength:-1,maxBodyLength:-1,env:{FormData:platform.classes.FormData,Blob:platform.classes.Blob},validateStatus:function validateStatus(status){return status>=200&&status<300;},headers:{common:{'Accept':'application/json, text/plain, */*','Content-Type':undefined}}};utils$1.forEach(['delete','get','head','post','put','patch'],method=>{defaults.headers[method]={};});var defaults$1 = defaults;
+   */timeout:0,xsrfCookieName:'XSRF-TOKEN',xsrfHeaderName:'X-XSRF-TOKEN',maxContentLength:-1,maxBodyLength:-1,env:{FormData:platform.classes.FormData,Blob:platform.classes.Blob},validateStatus:function validateStatus(status){return status>=200&&status<300;},headers:{common:{'Accept':'application/json, text/plain, */*','Content-Type':undefined}}};utils$1.forEach(['delete','get','head','post','put','patch'],method=>{defaults.headers[method]={};});
 
 // c.f. https://nodejs.org/api/http.html#http_message_headers
 const ignoreDuplicateOf=utils$1.toObjectSet(['age','authorization','content-length','content-type','etag','expires','from','host','if-modified-since','if-unmodified-since','last-modified','location','max-forwards','proxy-authorization','referer','retry-after','user-agent']);/**
@@ -2702,11 +2626,11 @@ const ignoreDuplicateOf=utils$1.toObjectSet(['age','authorization','content-leng
  * @param {String} rawHeaders Headers needing to be parsed
  *
  * @returns {Object} Headers parsed into an object
- */var parseHeaders = (rawHeaders=>{const parsed={};let key;let val;let i;rawHeaders&&rawHeaders.split('\n').forEach(function parser(line){i=line.indexOf(':');key=line.substring(0,i).trim().toLowerCase();val=line.substring(i+1).trim();if(!key||parsed[key]&&ignoreDuplicateOf[key]){return;}if(key==='set-cookie'){if(parsed[key]){parsed[key].push(val);}else {parsed[key]=[val];}}else {parsed[key]=parsed[key]?parsed[key]+', '+val:val;}});return parsed;});
+ */const parseHeaders = rawHeaders=>{const parsed={};let key;let val;let i;rawHeaders&&rawHeaders.split('\n').forEach(function parser(line){i=line.indexOf(':');key=line.substring(0,i).trim().toLowerCase();val=line.substring(i+1).trim();if(!key||parsed[key]&&ignoreDuplicateOf[key]){return;}if(key==='set-cookie'){if(parsed[key]){parsed[key].push(val);}else {parsed[key]=[val];}}else {parsed[key]=parsed[key]?parsed[key]+', '+val:val;}});return parsed;};
 
-const $internals=Symbol('internals');function normalizeHeader(header){return header&&String(header).trim().toLowerCase();}function normalizeValue(value){if(value===false||value==null){return value;}return utils$1.isArray(value)?value.map(normalizeValue):String(value);}function parseTokens(str){const tokens=Object.create(null);const tokensRE=/([^\s,;=]+)\s*(?:=\s*([^,;]+))?/g;let match;while(match=tokensRE.exec(str)){tokens[match[1]]=match[2];}return tokens;}const isValidHeaderName=str=>/^[-_a-zA-Z0-9^`|~,!#$%&'*+.]+$/.test(str.trim());function matchHeaderValue(context,value,header,filter,isHeaderNameFilter){if(utils$1.isFunction(filter)){return filter.call(this,value,header);}if(isHeaderNameFilter){value=header;}if(!utils$1.isString(value))return;if(utils$1.isString(filter)){return value.indexOf(filter)!==-1;}if(utils$1.isRegExp(filter)){return filter.test(value);}}function formatHeader(header){return header.trim().toLowerCase().replace(/([a-z\d])(\w*)/g,(w,char,str)=>{return char.toUpperCase()+str;});}function buildAccessors(obj,header){const accessorName=utils$1.toCamelCase(' '+header);['get','set','has'].forEach(methodName=>{Object.defineProperty(obj,methodName+accessorName,{value:function(arg1,arg2,arg3){return this[methodName].call(this,header,arg1,arg2,arg3);},configurable:true});});}class AxiosHeaders{constructor(headers){headers&&this.set(headers);}set(header,valueOrRewrite,rewrite){const self=this;function setHeader(_value,_header,_rewrite){const lHeader=normalizeHeader(_header);if(!lHeader){throw new Error('header name must be a non-empty string');}const key=utils$1.findKey(self,lHeader);if(!key||self[key]===undefined||_rewrite===true||_rewrite===undefined&&self[key]!==false){self[key||_header]=normalizeValue(_value);}}const setHeaders=(headers,_rewrite)=>utils$1.forEach(headers,(_value,_header)=>setHeader(_value,_header,_rewrite));if(utils$1.isPlainObject(header)||header instanceof this.constructor){setHeaders(header,valueOrRewrite);}else if(utils$1.isString(header)&&(header=header.trim())&&!isValidHeaderName(header)){setHeaders(parseHeaders(header),valueOrRewrite);}else {header!=null&&setHeader(valueOrRewrite,header,rewrite);}return this;}get(header,parser){header=normalizeHeader(header);if(header){const key=utils$1.findKey(this,header);if(key){const value=this[key];if(!parser){return value;}if(parser===true){return parseTokens(value);}if(utils$1.isFunction(parser)){return parser.call(this,value,key);}if(utils$1.isRegExp(parser)){return parser.exec(value);}throw new TypeError('parser must be boolean|regexp|function');}}}has(header,matcher){header=normalizeHeader(header);if(header){const key=utils$1.findKey(this,header);return !!(key&&this[key]!==undefined&&(!matcher||matchHeaderValue(this,this[key],key,matcher)));}return false;}delete(header,matcher){const self=this;let deleted=false;function deleteHeader(_header){_header=normalizeHeader(_header);if(_header){const key=utils$1.findKey(self,_header);if(key&&(!matcher||matchHeaderValue(self,self[key],key,matcher))){delete self[key];deleted=true;}}}if(utils$1.isArray(header)){header.forEach(deleteHeader);}else {deleteHeader(header);}return deleted;}clear(matcher){const keys=Object.keys(this);let i=keys.length;let deleted=false;while(i--){const key=keys[i];if(!matcher||matchHeaderValue(this,this[key],key,matcher,true)){delete this[key];deleted=true;}}return deleted;}normalize(format){const self=this;const headers={};utils$1.forEach(this,(value,header)=>{const key=utils$1.findKey(headers,header);if(key){self[key]=normalizeValue(value);delete self[header];return;}const normalized=format?formatHeader(header):String(header).trim();if(normalized!==header){delete self[header];}self[normalized]=normalizeValue(value);headers[normalized]=true;});return this;}concat(...targets){return this.constructor.concat(this,...targets);}toJSON(asStrings){const obj=Object.create(null);utils$1.forEach(this,(value,header)=>{value!=null&&value!==false&&(obj[header]=asStrings&&utils$1.isArray(value)?value.join(', '):value);});return obj;}[Symbol.iterator](){return Object.entries(this.toJSON())[Symbol.iterator]();}toString(){return Object.entries(this.toJSON()).map(([header,value])=>header+': '+value).join('\n');}get[Symbol.toStringTag](){return 'AxiosHeaders';}static from(thing){return thing instanceof this?thing:new this(thing);}static concat(first,...targets){const computed=new this(first);targets.forEach(target=>computed.set(target));return computed;}static accessor(header){const internals=this[$internals]=this[$internals]={accessors:{}};const accessors=internals.accessors;const prototype=this.prototype;function defineAccessor(_header){const lHeader=normalizeHeader(_header);if(!accessors[lHeader]){buildAccessors(prototype,_header);accessors[lHeader]=true;}}utils$1.isArray(header)?header.forEach(defineAccessor):defineAccessor(header);return this;}}AxiosHeaders.accessor(['Content-Type','Content-Length','Accept','Accept-Encoding','User-Agent','Authorization']);// reserved names hotfix
-utils$1.reduceDescriptors(AxiosHeaders.prototype,({value},key)=>{let mapped=key[0].toUpperCase()+key.slice(1);// map `set` => `Set`
-return {get:()=>value,set(headerValue){this[mapped]=headerValue;}};});utils$1.freezeMethods(AxiosHeaders);var AxiosHeaders$1 = AxiosHeaders;
+const $internals=Symbol('internals');function normalizeHeader(header){return header&&String(header).trim().toLowerCase();}function normalizeValue(value){if(value===false||value==null){return value;}return utils$1.isArray(value)?value.map(normalizeValue):String(value);}function parseTokens(str){const tokens=Object.create(null);const tokensRE=/([^\s,;=]+)\s*(?:=\s*([^,;]+))?/g;let match;while(match=tokensRE.exec(str)){tokens[match[1]]=match[2];}return tokens;}const isValidHeaderName=str=>/^[-_a-zA-Z0-9^`|~,!#$%&'*+.]+$/.test(str.trim());function matchHeaderValue(context,value,header,filter,isHeaderNameFilter){if(utils$1.isFunction(filter)){return filter.call(this,value,header);}if(isHeaderNameFilter){value=header;}if(!utils$1.isString(value))return;if(utils$1.isString(filter)){return value.indexOf(filter)!==-1;}if(utils$1.isRegExp(filter)){return filter.test(value);}}function formatHeader(header){return header.trim().toLowerCase().replace(/([a-z\d])(\w*)/g,(w,char,str)=>{return char.toUpperCase()+str;});}function buildAccessors(obj,header){const accessorName=utils$1.toCamelCase(' '+header);['get','set','has'].forEach(methodName=>{Object.defineProperty(obj,methodName+accessorName,{value:function(arg1,arg2,arg3){return this[methodName].call(this,header,arg1,arg2,arg3);},configurable:true});});}let AxiosHeaders$1 = class AxiosHeaders{constructor(headers){headers&&this.set(headers);}set(header,valueOrRewrite,rewrite){const self=this;function setHeader(_value,_header,_rewrite){const lHeader=normalizeHeader(_header);if(!lHeader){throw new Error('header name must be a non-empty string');}const key=utils$1.findKey(self,lHeader);if(!key||self[key]===undefined||_rewrite===true||_rewrite===undefined&&self[key]!==false){self[key||_header]=normalizeValue(_value);}}const setHeaders=(headers,_rewrite)=>utils$1.forEach(headers,(_value,_header)=>setHeader(_value,_header,_rewrite));if(utils$1.isPlainObject(header)||header instanceof this.constructor){setHeaders(header,valueOrRewrite);}else if(utils$1.isString(header)&&(header=header.trim())&&!isValidHeaderName(header)){setHeaders(parseHeaders(header),valueOrRewrite);}else if(utils$1.isHeaders(header)){for(const[key,value]of header.entries()){setHeader(value,key,rewrite);}}else {header!=null&&setHeader(valueOrRewrite,header,rewrite);}return this;}get(header,parser){header=normalizeHeader(header);if(header){const key=utils$1.findKey(this,header);if(key){const value=this[key];if(!parser){return value;}if(parser===true){return parseTokens(value);}if(utils$1.isFunction(parser)){return parser.call(this,value,key);}if(utils$1.isRegExp(parser)){return parser.exec(value);}throw new TypeError('parser must be boolean|regexp|function');}}}has(header,matcher){header=normalizeHeader(header);if(header){const key=utils$1.findKey(this,header);return !!(key&&this[key]!==undefined&&(!matcher||matchHeaderValue(this,this[key],key,matcher)));}return false;}delete(header,matcher){const self=this;let deleted=false;function deleteHeader(_header){_header=normalizeHeader(_header);if(_header){const key=utils$1.findKey(self,_header);if(key&&(!matcher||matchHeaderValue(self,self[key],key,matcher))){delete self[key];deleted=true;}}}if(utils$1.isArray(header)){header.forEach(deleteHeader);}else {deleteHeader(header);}return deleted;}clear(matcher){const keys=Object.keys(this);let i=keys.length;let deleted=false;while(i--){const key=keys[i];if(!matcher||matchHeaderValue(this,this[key],key,matcher,true)){delete this[key];deleted=true;}}return deleted;}normalize(format){const self=this;const headers={};utils$1.forEach(this,(value,header)=>{const key=utils$1.findKey(headers,header);if(key){self[key]=normalizeValue(value);delete self[header];return;}const normalized=format?formatHeader(header):String(header).trim();if(normalized!==header){delete self[header];}self[normalized]=normalizeValue(value);headers[normalized]=true;});return this;}concat(...targets){return this.constructor.concat(this,...targets);}toJSON(asStrings){const obj=Object.create(null);utils$1.forEach(this,(value,header)=>{value!=null&&value!==false&&(obj[header]=asStrings&&utils$1.isArray(value)?value.join(', '):value);});return obj;}[Symbol.iterator](){return Object.entries(this.toJSON())[Symbol.iterator]();}toString(){return Object.entries(this.toJSON()).map(([header,value])=>header+': '+value).join('\n');}get[Symbol.toStringTag](){return 'AxiosHeaders';}static from(thing){return thing instanceof this?thing:new this(thing);}static concat(first,...targets){const computed=new this(first);targets.forEach(target=>computed.set(target));return computed;}static accessor(header){const internals=this[$internals]=this[$internals]={accessors:{}};const accessors=internals.accessors;const prototype=this.prototype;function defineAccessor(_header){const lHeader=normalizeHeader(_header);if(!accessors[lHeader]){buildAccessors(prototype,_header);accessors[lHeader]=true;}}utils$1.isArray(header)?header.forEach(defineAccessor):defineAccessor(header);return this;}};AxiosHeaders$1.accessor(['Content-Type','Content-Length','Accept','Accept-Encoding','User-Agent','Authorization']);// reserved names hotfix
+utils$1.reduceDescriptors(AxiosHeaders$1.prototype,({value},key)=>{let mapped=key[0].toUpperCase()+key.slice(1);// map `set` => `Set`
+return {get:()=>value,set(headerValue){this[mapped]=headerValue;}};});utils$1.freezeMethods(AxiosHeaders$1);
 
 /**
  * Transform the data for a request or a response
@@ -2715,9 +2639,9 @@ return {get:()=>value,set(headerValue){this[mapped]=headerValue;}};});utils$1.fr
  * @param {?Object} response The response object
  *
  * @returns {*} The resulting transformed data
- */function transformData(fns,response){const config=this||defaults$1;const context=response||config;const headers=AxiosHeaders$1.from(context.headers);let data=context.data;utils$1.forEach(fns,function transform(fn){data=fn.call(config,data,headers.normalize(),response?response.status:undefined);});headers.normalize();return data;}
+ */function transformData(fns,response){const config=this||defaults;const context=response||config;const headers=AxiosHeaders$1.from(context.headers);let data=context.data;utils$1.forEach(fns,function transform(fn){data=fn.call(config,data,headers.normalize(),response?response.status:undefined);});headers.normalize();return data;}
 
-function isCancel(value){return !!(value&&value.__CANCEL__);}
+function isCancel$1(value){return !!(value&&value.__CANCEL__);}
 
 /**
  * A `CanceledError` is an object that is thrown when an operation is canceled.
@@ -2727,8 +2651,8 @@ function isCancel(value){return !!(value&&value.__CANCEL__);}
  * @param {Object=} request The request.
  *
  * @returns {CanceledError} The created error.
- */function CanceledError(message,config,request){// eslint-disable-next-line no-eq-null,eqeqeq
-AxiosError.call(this,message==null?'canceled':message,AxiosError.ERR_CANCELED,config,request);this.name='CanceledError';}utils$1.inherits(CanceledError,AxiosError,{__CANCEL__:true});
+ */function CanceledError$1(message,config,request){// eslint-disable-next-line no-eq-null,eqeqeq
+AxiosError$1.call(this,message==null?'canceled':message,AxiosError$1.ERR_CANCELED,config,request);this.name='CanceledError';}utils$1.inherits(CanceledError$1,AxiosError$1,{__CANCEL__:true});
 
 /**
  * Resolve or reject a Promise based on response status.
@@ -2738,9 +2662,29 @@ AxiosError.call(this,message==null?'canceled':message,AxiosError.ERR_CANCELED,co
  * @param {object} response The response.
  *
  * @returns {object} The response.
- */function settle(resolve,reject,response){const validateStatus=response.config.validateStatus;if(!response.status||!validateStatus||validateStatus(response.status)){resolve(response);}else {reject(new AxiosError('Request failed with status code '+response.status,[AxiosError.ERR_BAD_REQUEST,AxiosError.ERR_BAD_RESPONSE][Math.floor(response.status/100)-4],response.config,response.request,response));}}
+ */function settle(resolve,reject,response){const validateStatus=response.config.validateStatus;if(!response.status||!validateStatus||validateStatus(response.status)){resolve(response);}else {reject(new AxiosError$1('Request failed with status code '+response.status,[AxiosError$1.ERR_BAD_REQUEST,AxiosError$1.ERR_BAD_RESPONSE][Math.floor(response.status/100)-4],response.config,response.request,response));}}
 
-var cookies = platform.hasStandardBrowserEnv?// Standard browser envs support document.cookie
+function parseProtocol(url){const match=/^([-+\w]{1,25})(:?\/\/|:)/.exec(url);return match&&match[1]||'';}
+
+/**
+ * Calculate data maxRate
+ * @param {Number} [samplesCount= 10]
+ * @param {Number} [min= 1000]
+ * @returns {Function}
+ */function speedometer(samplesCount,min){samplesCount=samplesCount||10;const bytes=new Array(samplesCount);const timestamps=new Array(samplesCount);let head=0;let tail=0;let firstSampleTS;min=min!==undefined?min:1000;return function push(chunkLength){const now=Date.now();const startedAt=timestamps[tail];if(!firstSampleTS){firstSampleTS=now;}bytes[head]=chunkLength;timestamps[head]=now;let i=tail;let bytesCount=0;while(i!==head){bytesCount+=bytes[i++];i=i%samplesCount;}head=(head+1)%samplesCount;if(head===tail){tail=(tail+1)%samplesCount;}if(now-firstSampleTS<min){return;}const passed=startedAt&&now-startedAt;return passed?Math.round(bytesCount*1000/passed):undefined;};}
+
+/**
+ * Throttle decorator
+ * @param {Function} fn
+ * @param {Number} freq
+ * @return {Function}
+ */function throttle(fn,freq){let timestamp=0;let threshold=1000/freq;let lastArgs;let timer;const invoke=(args,now=Date.now())=>{timestamp=now;lastArgs=null;if(timer){clearTimeout(timer);timer=null;}fn.apply(null,args);};const throttled=(...args)=>{const now=Date.now();const passed=now-timestamp;if(passed>=threshold){invoke(args,now);}else {lastArgs=args;if(!timer){timer=setTimeout(()=>{timer=null;invoke(lastArgs);},threshold-passed);}}};const flush=()=>lastArgs&&invoke(lastArgs);return [throttled,flush];}
+
+const progressEventReducer=(listener,isDownloadStream,freq=3)=>{let bytesNotified=0;const _speedometer=speedometer(50,250);return throttle(e=>{const loaded=e.loaded;const total=e.lengthComputable?e.total:undefined;const progressBytes=loaded-bytesNotified;const rate=_speedometer(progressBytes);const inRange=loaded<=total;bytesNotified=loaded;const data={loaded,total,progress:total?loaded/total:undefined,bytes:progressBytes,rate:rate?rate:undefined,estimated:rate&&total&&inRange?(total-loaded)/rate:undefined,event:e,lengthComputable:total!=null,[isDownloadStream?'download':'upload']:true};listener(data);},freq);};const progressEventDecorator=(total,throttled)=>{const lengthComputable=total!=null;return [loaded=>throttled[0]({lengthComputable,total,loaded}),throttled[1]];};const asyncDecorator=fn=>(...args)=>utils$1.asap(()=>fn(...args));
+
+const isURLSameOrigin = platform.hasStandardBrowserEnv?((origin,isMSIE)=>url=>{url=new URL(url,platform.origin);return origin.protocol===url.protocol&&origin.host===url.host&&(isMSIE||origin.port===url.port);})(new URL(platform.origin),platform.navigator&&/(msie|trident)/i.test(platform.navigator.userAgent)):()=>true;
+
+const cookies = platform.hasStandardBrowserEnv?// Standard browser envs support document.cookie
 {write(name,value,expires,path,domain,secure){const cookie=[name+'='+encodeURIComponent(value)];utils$1.isNumber(expires)&&cookie.push('expires='+new Date(expires).toGMTString());utils$1.isString(path)&&cookie.push('path='+path);utils$1.isString(domain)&&cookie.push('domain='+domain);secure===true&&cookie.push('secure');document.cookie=cookie.join('; ');},read(name){const match=document.cookie.match(new RegExp('(^|;\\s*)('+name+')=([^;]*)'));return match?decodeURIComponent(match[3]):null;},remove(name){this.write(name,'',Date.now()-86400000);}}:// Non-standard browser env (web workers, react-native) lack needed support.
 {write(){},read(){return null;},remove(){}};
 
@@ -2773,39 +2717,36 @@ return /^([a-z][a-z\d+\-.]*:)?\/\//i.test(url);}
  * @param {string} requestedURL Absolute or relative URL to combine
  *
  * @returns {string} The combined full path
- */function buildFullPath(baseURL,requestedURL){if(baseURL&&!isAbsoluteURL(requestedURL)){return combineURLs(baseURL,requestedURL);}return requestedURL;}
+ */function buildFullPath(baseURL,requestedURL,allowAbsoluteUrls){let isRelativeUrl=!isAbsoluteURL(requestedURL);if(baseURL&&isRelativeUrl||allowAbsoluteUrls==false){return combineURLs(baseURL,requestedURL);}return requestedURL;}
 
-var isURLSameOrigin = platform.hasStandardBrowserEnv?// Standard browser envs have full support of the APIs needed to test
-// whether the request URL is of the same origin as current location.
-function standardBrowserEnv(){const msie=/(msie|trident)/i.test(navigator.userAgent);const urlParsingNode=document.createElement('a');let originURL;/**
-    * Parse a URL to discover its components
-    *
-    * @param {String} url The URL to be parsed
-    * @returns {Object}
-    */function resolveURL(url){let href=url;if(msie){// IE needs attribute set twice to normalize properties
-urlParsingNode.setAttribute('href',href);href=urlParsingNode.href;}urlParsingNode.setAttribute('href',href);// urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
-return {href:urlParsingNode.href,protocol:urlParsingNode.protocol?urlParsingNode.protocol.replace(/:$/,''):'',host:urlParsingNode.host,search:urlParsingNode.search?urlParsingNode.search.replace(/^\?/,''):'',hash:urlParsingNode.hash?urlParsingNode.hash.replace(/^#/,''):'',hostname:urlParsingNode.hostname,port:urlParsingNode.port,pathname:urlParsingNode.pathname.charAt(0)==='/'?urlParsingNode.pathname:'/'+urlParsingNode.pathname};}originURL=resolveURL(window.location.href);/**
-    * Determine if a URL shares the same origin as the current location
-    *
-    * @param {String} requestURL The URL to test
-    * @returns {boolean} True if URL shares the same origin, otherwise false
-    */return function isURLSameOrigin(requestURL){const parsed=utils$1.isString(requestURL)?resolveURL(requestURL):requestURL;return parsed.protocol===originURL.protocol&&parsed.host===originURL.host;};}():// Non standard browser envs (web workers, react-native) lack needed support.
-function nonStandardBrowserEnv(){return function isURLSameOrigin(){return true;};}();
+const headersToObject=thing=>thing instanceof AxiosHeaders$1?{...thing}:thing;/**
+ * Config-specific merge-function which creates a new config-object
+ * by merging two configuration objects together.
+ *
+ * @param {Object} config1
+ * @param {Object} config2
+ *
+ * @returns {Object} New object resulting from merging config2 to config1
+ */function mergeConfig$1(config1,config2){// eslint-disable-next-line no-param-reassign
+config2=config2||{};const config={};function getMergedValue(target,source,prop,caseless){if(utils$1.isPlainObject(target)&&utils$1.isPlainObject(source)){return utils$1.merge.call({caseless},target,source);}else if(utils$1.isPlainObject(source)){return utils$1.merge({},source);}else if(utils$1.isArray(source)){return source.slice();}return source;}// eslint-disable-next-line consistent-return
+function mergeDeepProperties(a,b,prop,caseless){if(!utils$1.isUndefined(b)){return getMergedValue(a,b,prop,caseless);}else if(!utils$1.isUndefined(a)){return getMergedValue(undefined,a,prop,caseless);}}// eslint-disable-next-line consistent-return
+function valueFromConfig2(a,b){if(!utils$1.isUndefined(b)){return getMergedValue(undefined,b);}}// eslint-disable-next-line consistent-return
+function defaultToConfig2(a,b){if(!utils$1.isUndefined(b)){return getMergedValue(undefined,b);}else if(!utils$1.isUndefined(a)){return getMergedValue(undefined,a);}}// eslint-disable-next-line consistent-return
+function mergeDirectKeys(a,b,prop){if(prop in config2){return getMergedValue(a,b);}else if(prop in config1){return getMergedValue(undefined,a);}}const mergeMap={url:valueFromConfig2,method:valueFromConfig2,data:valueFromConfig2,baseURL:defaultToConfig2,transformRequest:defaultToConfig2,transformResponse:defaultToConfig2,paramsSerializer:defaultToConfig2,timeout:defaultToConfig2,timeoutMessage:defaultToConfig2,withCredentials:defaultToConfig2,withXSRFToken:defaultToConfig2,adapter:defaultToConfig2,responseType:defaultToConfig2,xsrfCookieName:defaultToConfig2,xsrfHeaderName:defaultToConfig2,onUploadProgress:defaultToConfig2,onDownloadProgress:defaultToConfig2,decompress:defaultToConfig2,maxContentLength:defaultToConfig2,maxBodyLength:defaultToConfig2,beforeRedirect:defaultToConfig2,transport:defaultToConfig2,httpAgent:defaultToConfig2,httpsAgent:defaultToConfig2,cancelToken:defaultToConfig2,socketPath:defaultToConfig2,responseEncoding:defaultToConfig2,validateStatus:mergeDirectKeys,headers:(a,b,prop)=>mergeDeepProperties(headersToObject(a),headersToObject(b),prop,true)};utils$1.forEach(Object.keys(_extends({},config1,config2)),function computeConfigValue(prop){const merge=mergeMap[prop]||mergeDeepProperties;const configValue=merge(config1[prop],config2[prop],prop);utils$1.isUndefined(configValue)&&merge!==mergeDirectKeys||(config[prop]=configValue);});return config;}
 
-function parseProtocol(url){const match=/^([-+\w]{1,25})(:?\/\/|:)/.exec(url);return match&&match[1]||'';}
+const resolveConfig = config=>{const newConfig=mergeConfig$1({},config);let{data,withXSRFToken,xsrfHeaderName,xsrfCookieName,headers,auth}=newConfig;newConfig.headers=headers=AxiosHeaders$1.from(headers);newConfig.url=buildURL(buildFullPath(newConfig.baseURL,newConfig.url),config.params,config.paramsSerializer);// HTTP basic authentication
+if(auth){headers.set('Authorization','Basic '+btoa((auth.username||'')+':'+(auth.password?unescape(encodeURIComponent(auth.password)):'')));}let contentType;if(utils$1.isFormData(data)){if(platform.hasStandardBrowserEnv||platform.hasStandardBrowserWebWorkerEnv){headers.setContentType(undefined);// Let the browser set it
+}else if((contentType=headers.getContentType())!==false){// fix semicolon duplication issue for ReactNative FormData implementation
+const[type,...tokens]=contentType?contentType.split(';').map(token=>token.trim()).filter(Boolean):[];headers.setContentType([type||'multipart/form-data',...tokens].join('; '));}}// Add xsrf header
+// This is only done if running in a standard browser environment.
+// Specifically not if we're in a web worker, or react-native.
+if(platform.hasStandardBrowserEnv){withXSRFToken&&utils$1.isFunction(withXSRFToken)&&(withXSRFToken=withXSRFToken(newConfig));if(withXSRFToken||withXSRFToken!==false&&isURLSameOrigin(newConfig.url)){// Add xsrf header
+const xsrfValue=xsrfHeaderName&&xsrfCookieName&&cookies.read(xsrfCookieName);if(xsrfValue){headers.set(xsrfHeaderName,xsrfValue);}}}return newConfig;};
 
-/**
- * Calculate data maxRate
- * @param {Number} [samplesCount= 10]
- * @param {Number} [min= 1000]
- * @returns {Function}
- */function speedometer(samplesCount,min){samplesCount=samplesCount||10;const bytes=new Array(samplesCount);const timestamps=new Array(samplesCount);let head=0;let tail=0;let firstSampleTS;min=min!==undefined?min:1000;return function push(chunkLength){const now=Date.now();const startedAt=timestamps[tail];if(!firstSampleTS){firstSampleTS=now;}bytes[head]=chunkLength;timestamps[head]=now;let i=tail;let bytesCount=0;while(i!==head){bytesCount+=bytes[i++];i=i%samplesCount;}head=(head+1)%samplesCount;if(head===tail){tail=(tail+1)%samplesCount;}if(now-firstSampleTS<min){return;}const passed=startedAt&&now-startedAt;return passed?Math.round(bytesCount*1000/passed):undefined;};}
-
-function progressEventReducer(listener,isDownloadStream){let bytesNotified=0;const _speedometer=speedometer(50,250);return e=>{const loaded=e.loaded;const total=e.lengthComputable?e.total:undefined;const progressBytes=loaded-bytesNotified;const rate=_speedometer(progressBytes);const inRange=loaded<=total;bytesNotified=loaded;const data={loaded,total,progress:total?loaded/total:undefined,bytes:progressBytes,rate:rate?rate:undefined,estimated:rate&&total&&inRange?(total-loaded)/rate:undefined,event:e};data[isDownloadStream?'download':'upload']=true;listener(data);};}const isXHRAdapterSupported=typeof XMLHttpRequest!=='undefined';var xhrAdapter = isXHRAdapterSupported&&function(config){return new Promise(function dispatchXhrRequest(resolve,reject){let requestData=config.data;const requestHeaders=AxiosHeaders$1.from(config.headers).normalize();let{responseType,withXSRFToken}=config;let onCanceled;function done(){if(config.cancelToken){config.cancelToken.unsubscribe(onCanceled);}if(config.signal){config.signal.removeEventListener('abort',onCanceled);}}let contentType;if(utils$1.isFormData(requestData)){if(platform.hasStandardBrowserEnv||platform.hasStandardBrowserWebWorkerEnv){requestHeaders.setContentType(false);// Let the browser set it
-}else if((contentType=requestHeaders.getContentType())!==false){// fix semicolon duplication issue for ReactNative FormData implementation
-const[type,...tokens]=contentType?contentType.split(';').map(token=>token.trim()).filter(Boolean):[];requestHeaders.setContentType([type||'multipart/form-data',...tokens].join('; '));}}let request=new XMLHttpRequest();// HTTP basic authentication
-if(config.auth){const username=config.auth.username||'';const password=config.auth.password?unescape(encodeURIComponent(config.auth.password)):'';requestHeaders.set('Authorization','Basic '+btoa(username+':'+password));}const fullPath=buildFullPath(config.baseURL,config.url);request.open(config.method.toUpperCase(),buildURL(fullPath,config.params,config.paramsSerializer),true);// Set the request timeout in MS
-request.timeout=config.timeout;function onloadend(){if(!request){return;}// Prepare the response
+const isXHRAdapterSupported=typeof XMLHttpRequest!=='undefined';const xhrAdapter = isXHRAdapterSupported&&function(config){return new Promise(function dispatchXhrRequest(resolve,reject){const _config=resolveConfig(config);let requestData=_config.data;const requestHeaders=AxiosHeaders$1.from(_config.headers).normalize();let{responseType,onUploadProgress,onDownloadProgress}=_config;let onCanceled;let uploadThrottled,downloadThrottled;let flushUpload,flushDownload;function done(){flushUpload&&flushUpload();// flush events
+flushDownload&&flushDownload();// flush events
+_config.cancelToken&&_config.cancelToken.unsubscribe(onCanceled);_config.signal&&_config.signal.removeEventListener('abort',onCanceled);}let request=new XMLHttpRequest();request.open(_config.method.toUpperCase(),_config.url,true);// Set the request timeout in MS
+request.timeout=_config.timeout;function onloadend(){if(!request){return;}// Prepare the response
 const responseHeaders=AxiosHeaders$1.from('getAllResponseHeaders'in request&&request.getAllResponseHeaders());const responseData=!responseType||responseType==='text'||responseType==='json'?request.responseText:request.response;const response={data:responseData,status:request.status,statusText:request.statusText,headers:responseHeaders,config,request};settle(function _resolve(value){resolve(value);done();},function _reject(err){reject(err);done();},response);// Clean up request
 request=null;}if('onloadend'in request){// Use onloadend if available
 request.onloadend=onloadend;}else {// Listen for ready state to emulate onloadend
@@ -2816,30 +2757,35 @@ request.onreadystatechange=function handleLoad(){if(!request||request.readyState
 if(request.status===0&&!(request.responseURL&&request.responseURL.indexOf('file:')===0)){return;}// readystate handler is calling before onerror or ontimeout handlers,
 // so we should call onloadend on the next 'tick'
 setTimeout(onloadend);};}// Handle browser request cancellation (as opposed to a manual cancellation)
-request.onabort=function handleAbort(){if(!request){return;}reject(new AxiosError('Request aborted',AxiosError.ECONNABORTED,config,request));// Clean up request
+request.onabort=function handleAbort(){if(!request){return;}reject(new AxiosError$1('Request aborted',AxiosError$1.ECONNABORTED,config,request));// Clean up request
 request=null;};// Handle low level network errors
 request.onerror=function handleError(){// Real errors are hidden from us by the browser
 // onerror should only fire if it's a network error
-reject(new AxiosError('Network Error',AxiosError.ERR_NETWORK,config,request));// Clean up request
+reject(new AxiosError$1('Network Error',AxiosError$1.ERR_NETWORK,config,request));// Clean up request
 request=null;};// Handle timeout
-request.ontimeout=function handleTimeout(){let timeoutErrorMessage=config.timeout?'timeout of '+config.timeout+'ms exceeded':'timeout exceeded';const transitional=config.transitional||transitionalDefaults;if(config.timeoutErrorMessage){timeoutErrorMessage=config.timeoutErrorMessage;}reject(new AxiosError(timeoutErrorMessage,transitional.clarifyTimeoutError?AxiosError.ETIMEDOUT:AxiosError.ECONNABORTED,config,request));// Clean up request
-request=null;};// Add xsrf header
-// This is only done if running in a standard browser environment.
-// Specifically not if we're in a web worker, or react-native.
-if(platform.hasStandardBrowserEnv){withXSRFToken&&utils$1.isFunction(withXSRFToken)&&(withXSRFToken=withXSRFToken(config));if(withXSRFToken||withXSRFToken!==false&&isURLSameOrigin(fullPath)){// Add xsrf header
-const xsrfValue=config.xsrfHeaderName&&config.xsrfCookieName&&cookies.read(config.xsrfCookieName);if(xsrfValue){requestHeaders.set(config.xsrfHeaderName,xsrfValue);}}}// Remove Content-Type if data is undefined
+request.ontimeout=function handleTimeout(){let timeoutErrorMessage=_config.timeout?'timeout of '+_config.timeout+'ms exceeded':'timeout exceeded';const transitional=_config.transitional||transitionalDefaults;if(_config.timeoutErrorMessage){timeoutErrorMessage=_config.timeoutErrorMessage;}reject(new AxiosError$1(timeoutErrorMessage,transitional.clarifyTimeoutError?AxiosError$1.ETIMEDOUT:AxiosError$1.ECONNABORTED,config,request));// Clean up request
+request=null;};// Remove Content-Type if data is undefined
 requestData===undefined&&requestHeaders.setContentType(null);// Add headers to the request
 if('setRequestHeader'in request){utils$1.forEach(requestHeaders.toJSON(),function setRequestHeader(val,key){request.setRequestHeader(key,val);});}// Add withCredentials to request if needed
-if(!utils$1.isUndefined(config.withCredentials)){request.withCredentials=!!config.withCredentials;}// Add responseType to request if needed
-if(responseType&&responseType!=='json'){request.responseType=config.responseType;}// Handle progress if needed
-if(typeof config.onDownloadProgress==='function'){request.addEventListener('progress',progressEventReducer(config.onDownloadProgress,true));}// Not all browsers support upload events
-if(typeof config.onUploadProgress==='function'&&request.upload){request.upload.addEventListener('progress',progressEventReducer(config.onUploadProgress));}if(config.cancelToken||config.signal){// Handle cancellation
+if(!utils$1.isUndefined(_config.withCredentials)){request.withCredentials=!!_config.withCredentials;}// Add responseType to request if needed
+if(responseType&&responseType!=='json'){request.responseType=_config.responseType;}// Handle progress if needed
+if(onDownloadProgress){[downloadThrottled,flushDownload]=progressEventReducer(onDownloadProgress,true);request.addEventListener('progress',downloadThrottled);}// Not all browsers support upload events
+if(onUploadProgress&&request.upload){[uploadThrottled,flushUpload]=progressEventReducer(onUploadProgress);request.upload.addEventListener('progress',uploadThrottled);request.upload.addEventListener('loadend',flushUpload);}if(_config.cancelToken||_config.signal){// Handle cancellation
 // eslint-disable-next-line func-names
-onCanceled=cancel=>{if(!request){return;}reject(!cancel||cancel.type?new CanceledError(null,config,request):cancel);request.abort();request=null;};config.cancelToken&&config.cancelToken.subscribe(onCanceled);if(config.signal){config.signal.aborted?onCanceled():config.signal.addEventListener('abort',onCanceled);}}const protocol=parseProtocol(fullPath);if(protocol&&platform.protocols.indexOf(protocol)===-1){reject(new AxiosError('Unsupported protocol '+protocol+':',AxiosError.ERR_BAD_REQUEST,config));return;}// Send the request
+onCanceled=cancel=>{if(!request){return;}reject(!cancel||cancel.type?new CanceledError$1(null,config,request):cancel);request.abort();request=null;};_config.cancelToken&&_config.cancelToken.subscribe(onCanceled);if(_config.signal){_config.signal.aborted?onCanceled():_config.signal.addEventListener('abort',onCanceled);}}const protocol=parseProtocol(_config.url);if(protocol&&platform.protocols.indexOf(protocol)===-1){reject(new AxiosError$1('Unsupported protocol '+protocol+':',AxiosError$1.ERR_BAD_REQUEST,config));return;}// Send the request
 request.send(requestData||null);});};
 
-const knownAdapters={http:httpAdapter,xhr:xhrAdapter};utils$1.forEach(knownAdapters,(fn,value)=>{if(fn){try{Object.defineProperty(fn,'name',{value});}catch(e){// eslint-disable-next-line no-empty
-}Object.defineProperty(fn,'adapterName',{value});}});const renderReason=reason=>`- ${reason}`;const isResolvedHandle=adapter=>utils$1.isFunction(adapter)||adapter===null||adapter===false;var adapters = {getAdapter:adapters=>{adapters=utils$1.isArray(adapters)?adapters:[adapters];const{length}=adapters;let nameOrAdapter;let adapter;const rejectedReasons={};for(let i=0;i<length;i++){nameOrAdapter=adapters[i];let id;adapter=nameOrAdapter;if(!isResolvedHandle(nameOrAdapter)){adapter=knownAdapters[(id=String(nameOrAdapter)).toLowerCase()];if(adapter===undefined){throw new AxiosError(`Unknown adapter '${id}'`);}}if(adapter){break;}rejectedReasons[id||'#'+i]=adapter;}if(!adapter){const reasons=Object.entries(rejectedReasons).map(([id,state])=>`adapter ${id} `+(state===false?'is not supported by the environment':'is not available in the build'));let s=length?reasons.length>1?'since :\n'+reasons.map(renderReason).join('\n'):' '+renderReason(reasons[0]):'as no adapter specified';throw new AxiosError(`There is no suitable adapter to dispatch the request `+s,'ERR_NOT_SUPPORT');}return adapter;},adapters:knownAdapters};
+const composeSignals=(signals,timeout)=>{const{length}=signals=signals?signals.filter(Boolean):[];if(timeout||length){let controller=new AbortController();let aborted;const onabort=function(reason){if(!aborted){aborted=true;unsubscribe();const err=reason instanceof Error?reason:this.reason;controller.abort(err instanceof AxiosError$1?err:new CanceledError$1(err instanceof Error?err.message:err));}};let timer=timeout&&setTimeout(()=>{timer=null;onabort(new AxiosError$1(`timeout ${timeout} of ms exceeded`,AxiosError$1.ETIMEDOUT));},timeout);const unsubscribe=()=>{if(signals){timer&&clearTimeout(timer);timer=null;signals.forEach(signal=>{signal.unsubscribe?signal.unsubscribe(onabort):signal.removeEventListener('abort',onabort);});signals=null;}};signals.forEach(signal=>signal.addEventListener('abort',onabort));const{signal}=controller;signal.unsubscribe=()=>utils$1.asap(unsubscribe);return signal;}};
+
+const streamChunk=function*(chunk,chunkSize){let len=chunk.byteLength;if(len<chunkSize){yield chunk;return;}let pos=0;let end;while(pos<len){end=pos+chunkSize;yield chunk.slice(pos,end);pos=end;}};const readBytes=async function*(iterable,chunkSize){for await(const chunk of readStream(iterable)){yield*streamChunk(chunk,chunkSize);}};const readStream=async function*(stream){if(stream[Symbol.asyncIterator]){yield*stream;return;}const reader=stream.getReader();try{for(;;){const{done,value}=await reader.read();if(done){break;}yield value;}}finally{await reader.cancel();}};const trackStream=(stream,chunkSize,onProgress,onFinish)=>{const iterator=readBytes(stream,chunkSize);let bytes=0;let done;let _onFinish=e=>{if(!done){done=true;onFinish&&onFinish(e);}};return new ReadableStream({async pull(controller){try{const{done,value}=await iterator.next();if(done){_onFinish();controller.close();return;}let len=value.byteLength;if(onProgress){let loadedBytes=bytes+=len;onProgress(loadedBytes);}controller.enqueue(new Uint8Array(value));}catch(err){_onFinish(err);throw err;}},cancel(reason){_onFinish(reason);return iterator.return();}},{highWaterMark:2});};
+
+const isFetchSupported=typeof fetch==='function'&&typeof Request==='function'&&typeof Response==='function';const isReadableStreamSupported=isFetchSupported&&typeof ReadableStream==='function';// used only inside the fetch adapter
+const encodeText=isFetchSupported&&(typeof TextEncoder==='function'?(encoder=>str=>encoder.encode(str))(new TextEncoder()):async str=>new Uint8Array(await new Response(str).arrayBuffer()));const test=(fn,...args)=>{try{return !!fn(...args);}catch(e){return false;}};const supportsRequestStream=isReadableStreamSupported&&test(()=>{let duplexAccessed=false;const hasContentType=new Request(platform.origin,{body:new ReadableStream(),method:'POST',get duplex(){duplexAccessed=true;return 'half';}}).headers.has('Content-Type');return duplexAccessed&&!hasContentType;});const DEFAULT_CHUNK_SIZE=64*1024;const supportsResponseStream=isReadableStreamSupported&&test(()=>utils$1.isReadableStream(new Response('').body));const resolvers={stream:supportsResponseStream&&(res=>res.body)};isFetchSupported&&(res=>{['text','arrayBuffer','blob','formData','stream'].forEach(type=>{!resolvers[type]&&(resolvers[type]=utils$1.isFunction(res[type])?res=>res[type]():(_,config)=>{throw new AxiosError$1(`Response type '${type}' is not supported`,AxiosError$1.ERR_NOT_SUPPORT,config);});});})(new Response());const getBodyLength=async body=>{if(body==null){return 0;}if(utils$1.isBlob(body)){return body.size;}if(utils$1.isSpecCompliantForm(body)){const _request=new Request(platform.origin,{method:'POST',body});return (await _request.arrayBuffer()).byteLength;}if(utils$1.isArrayBufferView(body)||utils$1.isArrayBuffer(body)){return body.byteLength;}if(utils$1.isURLSearchParams(body)){body=body+'';}if(utils$1.isString(body)){return (await encodeText(body)).byteLength;}};const resolveBodyLength=async(headers,body)=>{const length=utils$1.toFiniteNumber(headers.getContentLength());return length==null?getBodyLength(body):length;};const fetchAdapter$1 = isFetchSupported&&(async config=>{let{url,method,data,signal,cancelToken,timeout,onDownloadProgress,onUploadProgress,responseType,headers,withCredentials='same-origin',fetchOptions}=resolveConfig(config);responseType=responseType?(responseType+'').toLowerCase():'text';let composedSignal=composeSignals([signal,cancelToken&&cancelToken.toAbortSignal()],timeout);let request;const unsubscribe=composedSignal&&composedSignal.unsubscribe&&(()=>{composedSignal.unsubscribe();});let requestContentLength;try{if(onUploadProgress&&supportsRequestStream&&method!=='get'&&method!=='head'&&(requestContentLength=await resolveBodyLength(headers,data))!==0){let _request=new Request(url,{method:'POST',body:data,duplex:"half"});let contentTypeHeader;if(utils$1.isFormData(data)&&(contentTypeHeader=_request.headers.get('content-type'))){headers.setContentType(contentTypeHeader);}if(_request.body){const[onProgress,flush]=progressEventDecorator(requestContentLength,progressEventReducer(asyncDecorator(onUploadProgress)));data=trackStream(_request.body,DEFAULT_CHUNK_SIZE,onProgress,flush);}}if(!utils$1.isString(withCredentials)){withCredentials=withCredentials?'include':'omit';}// Cloudflare Workers throws when credentials are defined
+// see https://github.com/cloudflare/workerd/issues/902
+const isCredentialsSupported="credentials"in Request.prototype;request=new Request(url,{...fetchOptions,signal:composedSignal,method:method.toUpperCase(),headers:headers.normalize().toJSON(),body:data,duplex:"half",credentials:isCredentialsSupported?withCredentials:undefined});let response=await fetch(request);const isStreamResponse=supportsResponseStream&&(responseType==='stream'||responseType==='response');if(supportsResponseStream&&(onDownloadProgress||isStreamResponse&&unsubscribe)){const options={};['status','statusText','headers'].forEach(prop=>{options[prop]=response[prop];});const responseContentLength=utils$1.toFiniteNumber(response.headers.get('content-length'));const[onProgress,flush]=onDownloadProgress&&progressEventDecorator(responseContentLength,progressEventReducer(asyncDecorator(onDownloadProgress),true))||[];response=new Response(trackStream(response.body,DEFAULT_CHUNK_SIZE,onProgress,()=>{flush&&flush();unsubscribe&&unsubscribe();}),options);}responseType=responseType||'text';let responseData=await resolvers[utils$1.findKey(resolvers,responseType)||'text'](response,config);!isStreamResponse&&unsubscribe&&unsubscribe();return await new Promise((resolve,reject)=>{settle(resolve,reject,{data:responseData,headers:AxiosHeaders$1.from(response.headers),status:response.status,statusText:response.statusText,config,request});});}catch(err){unsubscribe&&unsubscribe();if(err&&err.name==='TypeError'&&/fetch/i.test(err.message)){throw _extends(new AxiosError$1('Network Error',AxiosError$1.ERR_NETWORK,config,request),{cause:err.cause||err});}throw AxiosError$1.from(err,err&&err.code,config,request);}});
+
+const knownAdapters={http:httpAdapter,xhr:xhrAdapter,fetch:fetchAdapter$1};utils$1.forEach(knownAdapters,(fn,value)=>{if(fn){try{Object.defineProperty(fn,'name',{value});}catch(e){// eslint-disable-next-line no-empty
+}Object.defineProperty(fn,'adapterName',{value});}});const renderReason=reason=>`- ${reason}`;const isResolvedHandle=adapter=>utils$1.isFunction(adapter)||adapter===null||adapter===false;const adapters = {getAdapter:adapters=>{adapters=utils$1.isArray(adapters)?adapters:[adapters];const{length}=adapters;let nameOrAdapter;let adapter;const rejectedReasons={};for(let i=0;i<length;i++){nameOrAdapter=adapters[i];let id;adapter=nameOrAdapter;if(!isResolvedHandle(nameOrAdapter)){adapter=knownAdapters[(id=String(nameOrAdapter)).toLowerCase()];if(adapter===undefined){throw new AxiosError$1(`Unknown adapter '${id}'`);}}if(adapter){break;}rejectedReasons[id||'#'+i]=adapter;}if(!adapter){const reasons=Object.entries(rejectedReasons).map(([id,state])=>`adapter ${id} `+(state===false?'is not supported by the environment':'is not available in the build'));let s=length?reasons.length>1?'since :\n'+reasons.map(renderReason).join('\n'):' '+renderReason(reasons[0]):'as no adapter specified';throw new AxiosError$1(`There is no suitable adapter to dispatch the request `+s,'ERR_NOT_SUPPORT');}return adapter;},adapters:knownAdapters};
 
 /**
  * Throws a `CanceledError` if cancellation has been requested.
@@ -2847,33 +2793,18 @@ const knownAdapters={http:httpAdapter,xhr:xhrAdapter};utils$1.forEach(knownAdapt
  * @param {Object} config The config that is to be used for the request
  *
  * @returns {void}
- */function throwIfCancellationRequested(config){if(config.cancelToken){config.cancelToken.throwIfRequested();}if(config.signal&&config.signal.aborted){throw new CanceledError(null,config);}}/**
+ */function throwIfCancellationRequested(config){if(config.cancelToken){config.cancelToken.throwIfRequested();}if(config.signal&&config.signal.aborted){throw new CanceledError$1(null,config);}}/**
  * Dispatch a request to the server using the configured adapter.
  *
  * @param {object} config The config that is to be used for the request
  *
  * @returns {Promise} The Promise to be fulfilled
  */function dispatchRequest(config){throwIfCancellationRequested(config);config.headers=AxiosHeaders$1.from(config.headers);// Transform request data
-config.data=transformData.call(config,config.transformRequest);if(['post','put','patch'].indexOf(config.method)!==-1){config.headers.setContentType('application/x-www-form-urlencoded',false);}const adapter=adapters.getAdapter(config.adapter||defaults$1.adapter);return adapter(config).then(function onAdapterResolution(response){throwIfCancellationRequested(config);// Transform response data
-response.data=transformData.call(config,config.transformResponse,response);response.headers=AxiosHeaders$1.from(response.headers);return response;},function onAdapterRejection(reason){if(!isCancel(reason)){throwIfCancellationRequested(config);// Transform response data
+config.data=transformData.call(config,config.transformRequest);if(['post','put','patch'].indexOf(config.method)!==-1){config.headers.setContentType('application/x-www-form-urlencoded',false);}const adapter=adapters.getAdapter(config.adapter||defaults.adapter);return adapter(config).then(function onAdapterResolution(response){throwIfCancellationRequested(config);// Transform response data
+response.data=transformData.call(config,config.transformResponse,response);response.headers=AxiosHeaders$1.from(response.headers);return response;},function onAdapterRejection(reason){if(!isCancel$1(reason)){throwIfCancellationRequested(config);// Transform response data
 if(reason&&reason.response){reason.response.data=transformData.call(config,config.transformResponse,reason.response);reason.response.headers=AxiosHeaders$1.from(reason.response.headers);}}return Promise.reject(reason);});}
 
-const headersToObject=thing=>thing instanceof AxiosHeaders$1?thing.toJSON():thing;/**
- * Config-specific merge-function which creates a new config-object
- * by merging two configuration objects together.
- *
- * @param {Object} config1
- * @param {Object} config2
- *
- * @returns {Object} New object resulting from merging config2 to config1
- */function mergeConfig(config1,config2){// eslint-disable-next-line no-param-reassign
-config2=config2||{};const config={};function getMergedValue(target,source,caseless){if(utils$1.isPlainObject(target)&&utils$1.isPlainObject(source)){return utils$1.merge.call({caseless},target,source);}else if(utils$1.isPlainObject(source)){return utils$1.merge({},source);}else if(utils$1.isArray(source)){return source.slice();}return source;}// eslint-disable-next-line consistent-return
-function mergeDeepProperties(a,b,caseless){if(!utils$1.isUndefined(b)){return getMergedValue(a,b,caseless);}else if(!utils$1.isUndefined(a)){return getMergedValue(undefined,a,caseless);}}// eslint-disable-next-line consistent-return
-function valueFromConfig2(a,b){if(!utils$1.isUndefined(b)){return getMergedValue(undefined,b);}}// eslint-disable-next-line consistent-return
-function defaultToConfig2(a,b){if(!utils$1.isUndefined(b)){return getMergedValue(undefined,b);}else if(!utils$1.isUndefined(a)){return getMergedValue(undefined,a);}}// eslint-disable-next-line consistent-return
-function mergeDirectKeys(a,b,prop){if(prop in config2){return getMergedValue(a,b);}else if(prop in config1){return getMergedValue(undefined,a);}}const mergeMap={url:valueFromConfig2,method:valueFromConfig2,data:valueFromConfig2,baseURL:defaultToConfig2,transformRequest:defaultToConfig2,transformResponse:defaultToConfig2,paramsSerializer:defaultToConfig2,timeout:defaultToConfig2,timeoutMessage:defaultToConfig2,withCredentials:defaultToConfig2,withXSRFToken:defaultToConfig2,adapter:defaultToConfig2,responseType:defaultToConfig2,xsrfCookieName:defaultToConfig2,xsrfHeaderName:defaultToConfig2,onUploadProgress:defaultToConfig2,onDownloadProgress:defaultToConfig2,decompress:defaultToConfig2,maxContentLength:defaultToConfig2,maxBodyLength:defaultToConfig2,beforeRedirect:defaultToConfig2,transport:defaultToConfig2,httpAgent:defaultToConfig2,httpsAgent:defaultToConfig2,cancelToken:defaultToConfig2,socketPath:defaultToConfig2,responseEncoding:defaultToConfig2,validateStatus:mergeDirectKeys,headers:(a,b)=>mergeDeepProperties(headersToObject(a),headersToObject(b),true)};utils$1.forEach(Object.keys(_extends({},config1,config2)),function computeConfigValue(prop){const merge=mergeMap[prop]||mergeDeepProperties;const configValue=merge(config1[prop],config2[prop],prop);utils$1.isUndefined(configValue)&&merge!==mergeDirectKeys||(config[prop]=configValue);});return config;}
-
-const VERSION="1.6.7";
+const VERSION$1="1.8.1";
 
 const validators$1={};// eslint-disable-next-line func-names
 ['object','boolean','number','function','string','symbol'].forEach((type,i)=>{validators$1[type]=function validator(thing){return typeof thing===type||'a'+(i<1?'n ':' ')+type;};});const deprecatedWarnings={};/**
@@ -2884,9 +2815,10 @@ const validators$1={};// eslint-disable-next-line func-names
  * @param {string?} message - some message with additional info
  *
  * @returns {function}
- */validators$1.transitional=function transitional(validator,version,message){function formatMessage(opt,desc){return '[Axios v'+VERSION+'] Transitional option \''+opt+'\''+desc+(message?'. '+message:'');}// eslint-disable-next-line func-names
-return (value,opt,opts)=>{if(validator===false){throw new AxiosError(formatMessage(opt,' has been removed'+(version?' in '+version:'')),AxiosError.ERR_DEPRECATED);}if(version&&!deprecatedWarnings[opt]){deprecatedWarnings[opt]=true;// eslint-disable-next-line no-console
-console.warn(formatMessage(opt,' has been deprecated since v'+version+' and will be removed in the near future'));}return validator?validator(value,opt,opts):true;};};/**
+ */validators$1.transitional=function transitional(validator,version,message){function formatMessage(opt,desc){return '[Axios v'+VERSION$1+'] Transitional option \''+opt+'\''+desc+(message?'. '+message:'');}// eslint-disable-next-line func-names
+return (value,opt,opts)=>{if(validator===false){throw new AxiosError$1(formatMessage(opt,' has been removed'+(version?' in '+version:'')),AxiosError$1.ERR_DEPRECATED);}if(version&&!deprecatedWarnings[opt]){deprecatedWarnings[opt]=true;// eslint-disable-next-line no-console
+console.warn(formatMessage(opt,' has been deprecated since v'+version+' and will be removed in the near future'));}return validator?validator(value,opt,opts):true;};};validators$1.spelling=function spelling(correctSpelling){return (value,opt)=>{// eslint-disable-next-line no-console
+console.warn(`${opt} is likely a misspelling of ${correctSpelling}`);return true;};};/**
  * Assert object's properties type
  *
  * @param {object} options
@@ -2894,7 +2826,7 @@ console.warn(formatMessage(opt,' has been deprecated since v'+version+' and will
  * @param {boolean?} allowUnknown
  *
  * @returns {object}
- */function assertOptions(options,schema,allowUnknown){if(typeof options!=='object'){throw new AxiosError('options must be an object',AxiosError.ERR_BAD_OPTION_VALUE);}const keys=Object.keys(options);let i=keys.length;while(i-->0){const opt=keys[i];const validator=schema[opt];if(validator){const value=options[opt];const result=value===undefined||validator(value,opt,options);if(result!==true){throw new AxiosError('option '+opt+' must be '+result,AxiosError.ERR_BAD_OPTION_VALUE);}continue;}if(allowUnknown!==true){throw new AxiosError('Unknown option '+opt,AxiosError.ERR_BAD_OPTION);}}}var validator = {assertOptions,validators: validators$1};
+ */function assertOptions(options,schema,allowUnknown){if(typeof options!=='object'){throw new AxiosError$1('options must be an object',AxiosError$1.ERR_BAD_OPTION_VALUE);}const keys=Object.keys(options);let i=keys.length;while(i-->0){const opt=keys[i];const validator=schema[opt];if(validator){const value=options[opt];const result=value===undefined||validator(value,opt,options);if(result!==true){throw new AxiosError$1('option '+opt+' must be '+result,AxiosError$1.ERR_BAD_OPTION_VALUE);}continue;}if(allowUnknown!==true){throw new AxiosError$1('Unknown option '+opt,AxiosError$1.ERR_BAD_OPTION);}}}const validator = {assertOptions,validators: validators$1};
 
 const validators=validator.validators;/**
  * Create a new instance of Axios
@@ -2902,21 +2834,23 @@ const validators=validator.validators;/**
  * @param {Object} instanceConfig The default config for the instance
  *
  * @return {Axios} A new instance of Axios
- */class Axios{constructor(instanceConfig){this.defaults=instanceConfig;this.interceptors={request:new InterceptorManager(),response:new InterceptorManager()};}/**
+ */let Axios$1 = class Axios{constructor(instanceConfig){this.defaults=instanceConfig;this.interceptors={request:new InterceptorManager(),response:new InterceptorManager()};}/**
    * Dispatch a request
    *
    * @param {String|Object} configOrUrl The config specific for this request (merged with this.defaults)
    * @param {?Object} config
    *
    * @returns {Promise} The Promise to be fulfilled
-   */async request(configOrUrl,config){try{return await this._request(configOrUrl,config);}catch(err){if(err instanceof Error){let dummy;Error.captureStackTrace?Error.captureStackTrace(dummy={}):dummy=new Error();// slice off the Error: ... line
-const stack=dummy.stack?dummy.stack.replace(/^.+\n/,''):'';if(!err.stack){err.stack=stack;// match without the 2 top stack lines
-}else if(stack&&!String(err.stack).endsWith(stack.replace(/^.+\n.+\n/,''))){err.stack+='\n'+stack;}}throw err;}}_request(configOrUrl,config){/*eslint no-param-reassign:0*/ // Allow for axios('example/url'[, config]) a la fetch API
-if(typeof configOrUrl==='string'){config=config||{};config.url=configOrUrl;}else {config=configOrUrl||{};}config=mergeConfig(this.defaults,config);const{transitional,paramsSerializer,headers}=config;if(transitional!==undefined){validator.assertOptions(transitional,{silentJSONParsing:validators.transitional(validators.boolean),forcedJSONParsing:validators.transitional(validators.boolean),clarifyTimeoutError:validators.transitional(validators.boolean)},false);}if(paramsSerializer!=null){if(utils$1.isFunction(paramsSerializer)){config.paramsSerializer={serialize:paramsSerializer};}else {validator.assertOptions(paramsSerializer,{encode:validators.function,serialize:validators.function},true);}}// Set config.method
+   */async request(configOrUrl,config){try{return await this._request(configOrUrl,config);}catch(err){if(err instanceof Error){let dummy={};Error.captureStackTrace?Error.captureStackTrace(dummy):dummy=new Error();// slice off the Error: ... line
+const stack=dummy.stack?dummy.stack.replace(/^.+\n/,''):'';try{if(!err.stack){err.stack=stack;// match without the 2 top stack lines
+}else if(stack&&!String(err.stack).endsWith(stack.replace(/^.+\n.+\n/,''))){err.stack+='\n'+stack;}}catch(e){// ignore the case where "stack" is an un-writable property
+}}throw err;}}_request(configOrUrl,config){/*eslint no-param-reassign:0*/// Allow for axios('example/url'[, config]) a la fetch API
+if(typeof configOrUrl==='string'){config=config||{};config.url=configOrUrl;}else {config=configOrUrl||{};}config=mergeConfig$1(this.defaults,config);const{transitional,paramsSerializer,headers}=config;if(transitional!==undefined){validator.assertOptions(transitional,{silentJSONParsing:validators.transitional(validators.boolean),forcedJSONParsing:validators.transitional(validators.boolean),clarifyTimeoutError:validators.transitional(validators.boolean)},false);}if(paramsSerializer!=null){if(utils$1.isFunction(paramsSerializer)){config.paramsSerializer={serialize:paramsSerializer};}else {validator.assertOptions(paramsSerializer,{encode:validators.function,serialize:validators.function},true);}}// Set config.allowAbsoluteUrls
+if(config.allowAbsoluteUrls!==undefined);else if(this.defaults.allowAbsoluteUrls!==undefined){config.allowAbsoluteUrls=this.defaults.allowAbsoluteUrls;}else {config.allowAbsoluteUrls=true;}validator.assertOptions(config,{baseUrl:validators.spelling('baseURL'),withXsrfToken:validators.spelling('withXSRFToken')},true);// Set config.method
 config.method=(config.method||this.defaults.method||'get').toLowerCase();// Flatten headers
 let contextHeaders=headers&&utils$1.merge(headers.common,headers[config.method]);headers&&utils$1.forEach(['delete','get','head','post','put','patch','common'],method=>{delete headers[method];});config.headers=AxiosHeaders$1.concat(contextHeaders,headers);// filter out skipped interceptors
-const requestInterceptorChain=[];let synchronousRequestInterceptors=true;this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor){if(typeof interceptor.runWhen==='function'&&interceptor.runWhen(config)===false){return;}synchronousRequestInterceptors=synchronousRequestInterceptors&&interceptor.synchronous;requestInterceptorChain.unshift(interceptor.fulfilled,interceptor.rejected);});const responseInterceptorChain=[];this.interceptors.response.forEach(function pushResponseInterceptors(interceptor){responseInterceptorChain.push(interceptor.fulfilled,interceptor.rejected);});let promise;let i=0;let len;if(!synchronousRequestInterceptors){const chain=[dispatchRequest.bind(this),undefined];chain.unshift.apply(chain,requestInterceptorChain);chain.push.apply(chain,responseInterceptorChain);len=chain.length;promise=Promise.resolve(config);while(i<len){promise=promise.then(chain[i++],chain[i++]);}return promise;}len=requestInterceptorChain.length;let newConfig=config;i=0;while(i<len){const onFulfilled=requestInterceptorChain[i++];const onRejected=requestInterceptorChain[i++];try{newConfig=onFulfilled(newConfig);}catch(error){onRejected.call(this,error);break;}}try{promise=dispatchRequest.call(this,newConfig);}catch(error){return Promise.reject(error);}i=0;len=responseInterceptorChain.length;while(i<len){promise=promise.then(responseInterceptorChain[i++],responseInterceptorChain[i++]);}return promise;}getUri(config){config=mergeConfig(this.defaults,config);const fullPath=buildFullPath(config.baseURL,config.url);return buildURL(fullPath,config.params,config.paramsSerializer);}}// Provide aliases for supported request methods
-utils$1.forEach(['delete','get','head','options'],function forEachMethodNoData(method){/*eslint func-names:0*/Axios.prototype[method]=function(url,config){return this.request(mergeConfig(config||{},{method,url,data:(config||{}).data}));};});utils$1.forEach(['post','put','patch'],function forEachMethodWithData(method){/*eslint func-names:0*/function generateHTTPMethod(isForm){return function httpMethod(url,data,config){return this.request(mergeConfig(config||{},{method,headers:isForm?{'Content-Type':'multipart/form-data'}:{},url,data}));};}Axios.prototype[method]=generateHTTPMethod();Axios.prototype[method+'Form']=generateHTTPMethod(true);});var Axios$1 = Axios;
+const requestInterceptorChain=[];let synchronousRequestInterceptors=true;this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor){if(typeof interceptor.runWhen==='function'&&interceptor.runWhen(config)===false){return;}synchronousRequestInterceptors=synchronousRequestInterceptors&&interceptor.synchronous;requestInterceptorChain.unshift(interceptor.fulfilled,interceptor.rejected);});const responseInterceptorChain=[];this.interceptors.response.forEach(function pushResponseInterceptors(interceptor){responseInterceptorChain.push(interceptor.fulfilled,interceptor.rejected);});let promise;let i=0;let len;if(!synchronousRequestInterceptors){const chain=[dispatchRequest.bind(this),undefined];chain.unshift.apply(chain,requestInterceptorChain);chain.push.apply(chain,responseInterceptorChain);len=chain.length;promise=Promise.resolve(config);while(i<len){promise=promise.then(chain[i++],chain[i++]);}return promise;}len=requestInterceptorChain.length;let newConfig=config;i=0;while(i<len){const onFulfilled=requestInterceptorChain[i++];const onRejected=requestInterceptorChain[i++];try{newConfig=onFulfilled(newConfig);}catch(error){onRejected.call(this,error);break;}}try{promise=dispatchRequest.call(this,newConfig);}catch(error){return Promise.reject(error);}i=0;len=responseInterceptorChain.length;while(i<len){promise=promise.then(responseInterceptorChain[i++],responseInterceptorChain[i++]);}return promise;}getUri(config){config=mergeConfig$1(this.defaults,config);const fullPath=buildFullPath(config.baseURL,config.url,config.allowAbsoluteUrls);return buildURL(fullPath,config.params,config.paramsSerializer);}};// Provide aliases for supported request methods
+utils$1.forEach(['delete','get','head','options'],function forEachMethodNoData(method){/*eslint func-names:0*/Axios$1.prototype[method]=function(url,config){return this.request(mergeConfig$1(config||{},{method,url,data:(config||{}).data}));};});utils$1.forEach(['post','put','patch'],function forEachMethodWithData(method){/*eslint func-names:0*/function generateHTTPMethod(isForm){return function httpMethod(url,data,config){return this.request(mergeConfig$1(config||{},{method,headers:isForm?{'Content-Type':'multipart/form-data'}:{},url,data}));};}Axios$1.prototype[method]=generateHTTPMethod();Axios$1.prototype[method+'Form']=generateHTTPMethod(true);});
 
 /**
  * A `CancelToken` is an object that can be used to request cancellation of an operation.
@@ -2924,20 +2858,20 @@ utils$1.forEach(['delete','get','head','options'],function forEachMethodNoData(m
  * @param {Function} executor The executor function.
  *
  * @returns {CancelToken}
- */class CancelToken{constructor(executor){if(typeof executor!=='function'){throw new TypeError('executor must be a function.');}let resolvePromise;this.promise=new Promise(function promiseExecutor(resolve){resolvePromise=resolve;});const token=this;// eslint-disable-next-line func-names
+ */let CancelToken$1 = class CancelToken{constructor(executor){if(typeof executor!=='function'){throw new TypeError('executor must be a function.');}let resolvePromise;this.promise=new Promise(function promiseExecutor(resolve){resolvePromise=resolve;});const token=this;// eslint-disable-next-line func-names
 this.promise.then(cancel=>{if(!token._listeners)return;let i=token._listeners.length;while(i-->0){token._listeners[i](cancel);}token._listeners=null;});// eslint-disable-next-line func-names
 this.promise.then=onfulfilled=>{let _resolve;// eslint-disable-next-line func-names
 const promise=new Promise(resolve=>{token.subscribe(resolve);_resolve=resolve;}).then(onfulfilled);promise.cancel=function reject(){token.unsubscribe(_resolve);};return promise;};executor(function cancel(message,config,request){if(token.reason){// Cancellation has already been requested
-return;}token.reason=new CanceledError(message,config,request);resolvePromise(token.reason);});}/**
+return;}token.reason=new CanceledError$1(message,config,request);resolvePromise(token.reason);});}/**
    * Throws a `CanceledError` if cancellation has been requested.
    */throwIfRequested(){if(this.reason){throw this.reason;}}/**
    * Subscribe to the cancel signal
    */subscribe(listener){if(this.reason){listener(this.reason);return;}if(this._listeners){this._listeners.push(listener);}else {this._listeners=[listener];}}/**
    * Unsubscribe from the cancel signal
-   */unsubscribe(listener){if(!this._listeners){return;}const index=this._listeners.indexOf(listener);if(index!==-1){this._listeners.splice(index,1);}}/**
+   */unsubscribe(listener){if(!this._listeners){return;}const index=this._listeners.indexOf(listener);if(index!==-1){this._listeners.splice(index,1);}}toAbortSignal(){const controller=new AbortController();const abort=err=>{controller.abort(err);};this.subscribe(abort);controller.signal.unsubscribe=()=>this.unsubscribe(abort);return controller.signal;}/**
    * Returns an object that contains a new `CancelToken` and a function that, when called,
    * cancels the `CancelToken`.
-   */static source(){let cancel;const token=new CancelToken(function executor(c){cancel=c;});return {token,cancel};}}var CancelToken$1 = CancelToken;
+   */static source(){let cancel;const token=new CancelToken(function executor(c){cancel=c;});return {token,cancel};}};
 
 /**
  * Syntactic sugar for invoking a function and expanding an array for arguments.
@@ -2959,7 +2893,7 @@ return;}token.reason=new CanceledError(message,config,request);resolvePromise(to
  * @param {Function} callback
  *
  * @returns {Function}
- */function spread(callback){return function wrap(arr){return callback.apply(null,arr);};}
+ */function spread$1(callback){return function wrap(arr){return callback.apply(null,arr);};}
 
 /**
  * Determines whether the payload is an error thrown by Axios
@@ -2967,9 +2901,9 @@ return;}token.reason=new CanceledError(message,config,request);resolvePromise(to
  * @param {*} payload The value to test
  *
  * @returns {boolean} True if the payload is an error thrown by Axios, otherwise false
- */function isAxiosError(payload){return utils$1.isObject(payload)&&payload.isAxiosError===true;}
+ */function isAxiosError$1(payload){return utils$1.isObject(payload)&&payload.isAxiosError===true;}
 
-const HttpStatusCode={Continue:100,SwitchingProtocols:101,Processing:102,EarlyHints:103,Ok:200,Created:201,Accepted:202,NonAuthoritativeInformation:203,NoContent:204,ResetContent:205,PartialContent:206,MultiStatus:207,AlreadyReported:208,ImUsed:226,MultipleChoices:300,MovedPermanently:301,Found:302,SeeOther:303,NotModified:304,UseProxy:305,Unused:306,TemporaryRedirect:307,PermanentRedirect:308,BadRequest:400,Unauthorized:401,PaymentRequired:402,Forbidden:403,NotFound:404,MethodNotAllowed:405,NotAcceptable:406,ProxyAuthenticationRequired:407,RequestTimeout:408,Conflict:409,Gone:410,LengthRequired:411,PreconditionFailed:412,PayloadTooLarge:413,UriTooLong:414,UnsupportedMediaType:415,RangeNotSatisfiable:416,ExpectationFailed:417,ImATeapot:418,MisdirectedRequest:421,UnprocessableEntity:422,Locked:423,FailedDependency:424,TooEarly:425,UpgradeRequired:426,PreconditionRequired:428,TooManyRequests:429,RequestHeaderFieldsTooLarge:431,UnavailableForLegalReasons:451,InternalServerError:500,NotImplemented:501,BadGateway:502,ServiceUnavailable:503,GatewayTimeout:504,HttpVersionNotSupported:505,VariantAlsoNegotiates:506,InsufficientStorage:507,LoopDetected:508,NotExtended:510,NetworkAuthenticationRequired:511};Object.entries(HttpStatusCode).forEach(([key,value])=>{HttpStatusCode[value]=key;});var HttpStatusCode$1 = HttpStatusCode;
+const HttpStatusCode$1={Continue:100,SwitchingProtocols:101,Processing:102,EarlyHints:103,Ok:200,Created:201,Accepted:202,NonAuthoritativeInformation:203,NoContent:204,ResetContent:205,PartialContent:206,MultiStatus:207,AlreadyReported:208,ImUsed:226,MultipleChoices:300,MovedPermanently:301,Found:302,SeeOther:303,NotModified:304,UseProxy:305,Unused:306,TemporaryRedirect:307,PermanentRedirect:308,BadRequest:400,Unauthorized:401,PaymentRequired:402,Forbidden:403,NotFound:404,MethodNotAllowed:405,NotAcceptable:406,ProxyAuthenticationRequired:407,RequestTimeout:408,Conflict:409,Gone:410,LengthRequired:411,PreconditionFailed:412,PayloadTooLarge:413,UriTooLong:414,UnsupportedMediaType:415,RangeNotSatisfiable:416,ExpectationFailed:417,ImATeapot:418,MisdirectedRequest:421,UnprocessableEntity:422,Locked:423,FailedDependency:424,TooEarly:425,UpgradeRequired:426,PreconditionRequired:428,TooManyRequests:429,RequestHeaderFieldsTooLarge:431,UnavailableForLegalReasons:451,InternalServerError:500,NotImplemented:501,BadGateway:502,ServiceUnavailable:503,GatewayTimeout:504,HttpVersionNotSupported:505,VariantAlsoNegotiates:506,InsufficientStorage:507,LoopDetected:508,NotExtended:510,NetworkAuthenticationRequired:511};Object.entries(HttpStatusCode$1).forEach(([key,value])=>{HttpStatusCode$1[value]=key;});
 
 /**
  * Create an instance of Axios
@@ -2980,1066 +2914,209 @@ const HttpStatusCode={Continue:100,SwitchingProtocols:101,Processing:102,EarlyHi
  */function createInstance(defaultConfig){const context=new Axios$1(defaultConfig);const instance=bind(Axios$1.prototype.request,context);// Copy axios.prototype to instance
 utils$1.extend(instance,Axios$1.prototype,context,{allOwnKeys:true});// Copy context to instance
 utils$1.extend(instance,context,null,{allOwnKeys:true});// Factory for creating new instances
-instance.create=function create(instanceConfig){return createInstance(mergeConfig(defaultConfig,instanceConfig));};return instance;}// Create the default instance to be exported
-const axios=createInstance(defaults$1);// Expose Axios class to allow class inheritance
+instance.create=function create(instanceConfig){return createInstance(mergeConfig$1(defaultConfig,instanceConfig));};return instance;}// Create the default instance to be exported
+const axios=createInstance(defaults);// Expose Axios class to allow class inheritance
 axios.Axios=Axios$1;// Expose Cancel & CancelToken
-axios.CanceledError=CanceledError;axios.CancelToken=CancelToken$1;axios.isCancel=isCancel;axios.VERSION=VERSION;axios.toFormData=toFormData;// Expose AxiosError class
-axios.AxiosError=AxiosError;// alias for CanceledError for backward compatibility
+axios.CanceledError=CanceledError$1;axios.CancelToken=CancelToken$1;axios.isCancel=isCancel$1;axios.VERSION=VERSION$1;axios.toFormData=toFormData$1;// Expose AxiosError class
+axios.AxiosError=AxiosError$1;// alias for CanceledError for backward compatibility
 axios.Cancel=axios.CanceledError;// Expose all/spread
-axios.all=function all(promises){return Promise.all(promises);};axios.spread=spread;// Expose isAxiosError
-axios.isAxiosError=isAxiosError;// Expose mergeConfig
-axios.mergeConfig=mergeConfig;axios.AxiosHeaders=AxiosHeaders$1;axios.formToJSON=thing=>formDataToJSON(utils$1.isHTMLForm(thing)?new FormData(thing):thing);axios.getAdapter=adapters.getAdapter;axios.HttpStatusCode=HttpStatusCode$1;axios.default=axios;// this module should only have a default export
+axios.all=function all(promises){return Promise.all(promises);};axios.spread=spread$1;// Expose isAxiosError
+axios.isAxiosError=isAxiosError$1;// Expose mergeConfig
+axios.mergeConfig=mergeConfig$1;axios.AxiosHeaders=AxiosHeaders$1;axios.formToJSON=thing=>formDataToJSON(utils$1.isHTMLForm(thing)?new FormData(thing):thing);axios.getAdapter=adapters.getAdapter;axios.HttpStatusCode=HttpStatusCode$1;axios.default=axios;// this module should only have a default export
 
-var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+// Keep top-level export same with static properties
+// so that it can keep same with es module or cjs
+const{Axios,AxiosError,CanceledError,isCancel,CancelToken,VERSION,all,Cancel,isAxiosError,spread,toFormData,AxiosHeaders,HttpStatusCode,formToJSON,getAdapter,mergeConfig}=axios;
 
 function getDefaultExportFromCjs (x) {
 	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
 }
 
-const denyList=new Set(['ENOTFOUND','ENETUNREACH',// SSL errors from https://github.com/nodejs/node/blob/fc8e3e2cdc521978351de257030db0076d79e0ab/src/crypto/crypto_common.cc#L301-L328
+var isRetryAllowed$1;var hasRequiredIsRetryAllowed;function requireIsRetryAllowed(){if(hasRequiredIsRetryAllowed)return isRetryAllowed$1;hasRequiredIsRetryAllowed=1;const denyList=new Set(['ENOTFOUND','ENETUNREACH',// SSL errors from https://github.com/nodejs/node/blob/fc8e3e2cdc521978351de257030db0076d79e0ab/src/crypto/crypto_common.cc#L301-L328
 'UNABLE_TO_GET_ISSUER_CERT','UNABLE_TO_GET_CRL','UNABLE_TO_DECRYPT_CERT_SIGNATURE','UNABLE_TO_DECRYPT_CRL_SIGNATURE','UNABLE_TO_DECODE_ISSUER_PUBLIC_KEY','CERT_SIGNATURE_FAILURE','CRL_SIGNATURE_FAILURE','CERT_NOT_YET_VALID','CERT_HAS_EXPIRED','CRL_NOT_YET_VALID','CRL_HAS_EXPIRED','ERROR_IN_CERT_NOT_BEFORE_FIELD','ERROR_IN_CERT_NOT_AFTER_FIELD','ERROR_IN_CRL_LAST_UPDATE_FIELD','ERROR_IN_CRL_NEXT_UPDATE_FIELD','OUT_OF_MEM','DEPTH_ZERO_SELF_SIGNED_CERT','SELF_SIGNED_CERT_IN_CHAIN','UNABLE_TO_GET_ISSUER_CERT_LOCALLY','UNABLE_TO_VERIFY_LEAF_SIGNATURE','CERT_CHAIN_TOO_LONG','CERT_REVOKED','INVALID_CA','PATH_LENGTH_EXCEEDED','INVALID_PURPOSE','CERT_UNTRUSTED','CERT_REJECTED','HOSTNAME_MISMATCH']);// TODO: Use `error?.code` when targeting Node.js 14
-var isRetryAllowed=error=>!denyList.has(error&&error.code);var isRetryAllowed$1 = /*@__PURE__*/getDefaultExportFromCjs(isRetryAllowed);
+isRetryAllowed$1=error=>!denyList.has(error&&error.code);return isRetryAllowed$1;}
 
-function asyncGeneratorStep(gen,resolve,reject,_next,_throw,key,arg){try{var info=gen[key](arg);var value=info.value;}catch(error){reject(error);return;}if(info.done){resolve(value);}else {Promise.resolve(value).then(_next,_throw);}}function _asyncToGenerator(fn){return function(){var self=this,args=arguments;return new Promise(function(resolve,reject){var gen=fn.apply(self,args);function _next(value){asyncGeneratorStep(gen,resolve,reject,_next,_throw,"next",value);}function _throw(err){asyncGeneratorStep(gen,resolve,reject,_next,_throw,"throw",err);}_next(undefined);});};}function ownKeys(object,enumerableOnly){var keys=Object.keys(object);if(Object.getOwnPropertySymbols){var symbols=Object.getOwnPropertySymbols(object);if(enumerableOnly){symbols=symbols.filter(function(sym){return Object.getOwnPropertyDescriptor(object,sym).enumerable;});}keys.push.apply(keys,symbols);}return keys;}function _objectSpread(target){for(var i=1;i<arguments.length;i++){var source=arguments[i]!=null?arguments[i]:{};if(i%2){ownKeys(Object(source),true).forEach(function(key){_defineProperty(target,key,source[key]);});}else if(Object.getOwnPropertyDescriptors){Object.defineProperties(target,Object.getOwnPropertyDescriptors(source));}else {ownKeys(Object(source)).forEach(function(key){Object.defineProperty(target,key,Object.getOwnPropertyDescriptor(source,key));});}}return target;}function _defineProperty(obj,key,value){if(key in obj){Object.defineProperty(obj,key,{value:value,enumerable:true,configurable:true,writable:true});}else {obj[key]=value;}return obj;}var namespace='axios-retry';/**
- * @param  {Error}  error
- * @return {boolean}
- */function isNetworkError(error){var CODE_EXCLUDE_LIST=['ERR_CANCELED','ECONNABORTED'];return !error.response&&Boolean(error.code)&&// Prevents retrying cancelled requests
-!CODE_EXCLUDE_LIST.includes(error.code)&&// Prevents retrying timed out & cancelled requests
-isRetryAllowed$1(error)// Prevents retrying unsafe errors
-;}var SAFE_HTTP_METHODS=['get','head','options'];var IDEMPOTENT_HTTP_METHODS=SAFE_HTTP_METHODS.concat(['put','delete']);/**
- * @param  {Error}  error
- * @return {boolean}
- */function isRetryableError(error){return error.code!=='ECONNABORTED'&&(!error.response||error.response.status>=500&&error.response.status<=599);}/**
- * @param  {Error}  error
- * @return {boolean}
- */function isSafeRequestError(error){if(!error.config){// Cannot determine if the request can be retried
-return false;}return isRetryableError(error)&&SAFE_HTTP_METHODS.indexOf(error.config.method)!==-1;}/**
- * @param  {Error}  error
- * @return {boolean}
- */function isIdempotentRequestError(error){if(!error.config){// Cannot determine if the request can be retried
-return false;}return isRetryableError(error)&&IDEMPOTENT_HTTP_METHODS.indexOf(error.config.method)!==-1;}/**
- * @param  {Error}  error
- * @return {boolean}
- */function isNetworkOrIdempotentRequestError(error){return isNetworkError(error)||isIdempotentRequestError(error);}/**
- * @return {number} - delay in milliseconds, always 0
- */function noDelay(){return 0;}/**
- * Set delayFactor 1000 for an exponential delay to occur on the order
- * of seconds
- * @param  {number} [retryNumber=0]
- * @param  {Error}  error - unused; for existing API of retryDelay callback
- * @param  {number} [delayFactor=100] milliseconds
- * @return {number} - delay in milliseconds
- */function exponentialDelay(){var retryNumber=arguments.length>0&&arguments[0]!==undefined?arguments[0]:0;var delayFactor=arguments.length>2&&arguments[2]!==undefined?arguments[2]:100;var delay=Math.pow(2,retryNumber)*delayFactor;var randomSum=delay*0.2*Math.random();// 0-20% of the delay
-return delay+randomSum;}/** @type {IAxiosRetryConfig} */var DEFAULT_OPTIONS={retries:3,retryCondition:isNetworkOrIdempotentRequestError,retryDelay:noDelay,shouldResetTimeout:false,onRetry:()=>{}};/**
- * Returns the axios-retry options for the current request
- * @param  {AxiosRequestConfig} config
- * @param  {IAxiosRetryConfig} defaultOptions
- * @return {IAxiosRetryConfigExtended}
- */function getRequestOptions(config,defaultOptions){return _objectSpread(_objectSpread(_objectSpread({},DEFAULT_OPTIONS),defaultOptions),config[namespace]);}/**
- * Initializes and returns the retry state for the given request/config
- * @param  {AxiosRequestConfig} config
- * @param  {IAxiosRetryConfig} defaultOptions
- * @return {IAxiosRetryConfigExtended}
- */function getCurrentState(config,defaultOptions){var currentState=getRequestOptions(config,defaultOptions);currentState.retryCount=currentState.retryCount||0;config[namespace]=currentState;return currentState;}/**
- * @param  {Axios} axios
- * @param  {AxiosRequestConfig} config
- */function fixConfig(axios,config){if(axios.defaults.agent===config.agent){delete config.agent;}if(axios.defaults.httpAgent===config.httpAgent){delete config.httpAgent;}if(axios.defaults.httpsAgent===config.httpsAgent){delete config.httpsAgent;}}/**
- * Checks retryCondition if request can be retried. Handles it's returning value or Promise.
- * @param  {IAxiosRetryConfigExtended} currentState
- * @param  {Error} error
- * @return {Promise<boolean>}
- */function shouldRetry(_x,_x2){return _shouldRetry.apply(this,arguments);}/**
- * Adds response interceptors to an axios instance to retry requests failed due to network issues
- *
- * @example
- *
- * import axios from 'axios';
- *
- * axiosRetry(axios, { retries: 3 });
- *
- * axios.get('http://example.com/test') // The first request fails and the second returns 'ok'
- *   .then(result => {
- *     result.data; // 'ok'
- *   });
- *
- * // Exponential back-off retry delay between requests
- * axiosRetry(axios, { retryDelay : axiosRetry.exponentialDelay});
- *
- * // Custom retry delay
- * axiosRetry(axios, { retryDelay : (retryCount) => {
- *   return retryCount * 1000;
- * }});
- *
- * // Also works with custom axios instances
- * const client = axios.create({ baseURL: 'http://example.com' });
- * axiosRetry(client, { retries: 3 });
- *
- * client.get('/test') // The first request fails and the second returns 'ok'
- *   .then(result => {
- *     result.data; // 'ok'
- *   });
- *
- * // Allows request-specific configuration
- * client
- *   .get('/test', {
- *     'axios-retry': {
- *       retries: 0
- *     }
- *   })
- *   .catch(error => { // The first request fails
- *     error !== undefined
- *   });
- *
- * @param {Axios} axios An axios instance (the axios object or one created from axios.create)
- * @param {Object} [defaultOptions]
- * @param {number} [defaultOptions.retries=3] Number of retries
- * @param {boolean} [defaultOptions.shouldResetTimeout=false]
- *        Defines if the timeout should be reset between retries
- * @param {Function} [defaultOptions.retryCondition=isNetworkOrIdempotentRequestError]
- *        A function to determine if the error can be retried
- * @param {Function} [defaultOptions.retryDelay=noDelay]
- *        A function to determine the delay between retry requests
- * @param {Function} [defaultOptions.onRetry=()=>{}]
- *        A function to get notified when a retry occurs
- * @return {{ requestInterceptorId: number, responseInterceptorId: number }}
- *        The ids of the interceptors added to the request and to the response (so they can be ejected at a later time)
- */function _shouldRetry(){_shouldRetry=_asyncToGenerator(function*(currentState,error){var{retries,retryCondition}=currentState;var shouldRetryOrPromise=currentState.retryCount<retries&&retryCondition(error);// This could be a promise
-if(typeof shouldRetryOrPromise==='object'){try{var shouldRetryPromiseResult=yield shouldRetryOrPromise;// keep return true unless shouldRetryPromiseResult return false for compatibility
-return shouldRetryPromiseResult!==false;}catch(_err){return false;}}return shouldRetryOrPromise;});return _shouldRetry.apply(this,arguments);}function axiosRetry(axios,defaultOptions){var requestInterceptorId=axios.interceptors.request.use(config=>{var currentState=getCurrentState(config,defaultOptions);currentState.lastRequestTime=Date.now();return config;});var responseInterceptorId=axios.interceptors.response.use(null,/*#__PURE__*/function(){var _ref=_asyncToGenerator(function*(error){var{config}=error;// If we have no information to retry the request
-if(!config){return Promise.reject(error);}var currentState=getCurrentState(config,defaultOptions);if(yield shouldRetry(currentState,error)){currentState.retryCount+=1;var{retryDelay,shouldResetTimeout,onRetry}=currentState;var delay=retryDelay(currentState.retryCount,error);// Axios fails merging this configuration to the default configuration because it has an issue
+var isRetryAllowedExports = requireIsRetryAllowed();
+const isRetryAllowed = /*@__PURE__*/getDefaultExportFromCjs(isRetryAllowedExports);
+
+const namespace='axios-retry';function isNetworkError(error){const CODE_EXCLUDE_LIST=['ERR_CANCELED','ECONNABORTED'];if(error.response){return false;}if(!error.code){return false;}// Prevents retrying timed out & cancelled requests
+if(CODE_EXCLUDE_LIST.includes(error.code)){return false;}// Prevents retrying unsafe errors
+return isRetryAllowed(error);}const SAFE_HTTP_METHODS=['get','head','options'];const IDEMPOTENT_HTTP_METHODS=SAFE_HTTP_METHODS.concat(['put','delete']);function isRetryableError(error){return error.code!=='ECONNABORTED'&&(!error.response||error.response.status===429||error.response.status>=500&&error.response.status<=599);}function isSafeRequestError(error){if(!error.config?.method){// Cannot determine if the request can be retried
+return false;}return isRetryableError(error)&&SAFE_HTTP_METHODS.indexOf(error.config.method)!==-1;}function isIdempotentRequestError(error){if(!error.config?.method){// Cannot determine if the request can be retried
+return false;}return isRetryableError(error)&&IDEMPOTENT_HTTP_METHODS.indexOf(error.config.method)!==-1;}function isNetworkOrIdempotentRequestError(error){return isNetworkError(error)||isIdempotentRequestError(error);}function retryAfter(error=undefined){const retryAfterHeader=error?.response?.headers['retry-after'];if(!retryAfterHeader){return 0;}// if the retry after header is a number, convert it to milliseconds
+let retryAfterMs=(Number(retryAfterHeader)||0)*1000;// If the retry after header is a date, get the number of milliseconds until that date
+if(retryAfterMs===0){retryAfterMs=(new Date(retryAfterHeader).valueOf()||0)-Date.now();}return Math.max(0,retryAfterMs);}function noDelay(_retryNumber=0,error=undefined){return Math.max(0,retryAfter(error));}function exponentialDelay(retryNumber=0,error=undefined,delayFactor=100){const calculatedDelay=2**retryNumber*delayFactor;const delay=Math.max(calculatedDelay,retryAfter(error));const randomSum=delay*0.2*Math.random();// 0-20% of the delay
+return delay+randomSum;}/**
+ * Linear delay
+ * @param {number | undefined} delayFactor - delay factor in milliseconds (default: 100)
+ * @returns {function} (retryNumber: number, error: AxiosError | undefined) => number
+ */function linearDelay(delayFactor=100){return (retryNumber=0,error=undefined)=>{const delay=retryNumber*delayFactor;return Math.max(delay,retryAfter(error));};}const DEFAULT_OPTIONS={retries:3,retryCondition:isNetworkOrIdempotentRequestError,retryDelay:noDelay,shouldResetTimeout:false,onRetry:()=>{},onMaxRetryTimesExceeded:()=>{},validateResponse:null};function getRequestOptions(config,defaultOptions){return {...DEFAULT_OPTIONS,...defaultOptions,...config[namespace]};}function setCurrentState(config,defaultOptions,resetLastRequestTime=false){const currentState=getRequestOptions(config,defaultOptions||{});currentState.retryCount=currentState.retryCount||0;if(!currentState.lastRequestTime||resetLastRequestTime){currentState.lastRequestTime=Date.now();}config[namespace]=currentState;return currentState;}function fixConfig(axiosInstance,config){// @ts-ignore
+if(axiosInstance.defaults.agent===config.agent){// @ts-ignore
+delete config.agent;}if(axiosInstance.defaults.httpAgent===config.httpAgent){delete config.httpAgent;}if(axiosInstance.defaults.httpsAgent===config.httpsAgent){delete config.httpsAgent;}}async function shouldRetry(currentState,error){const{retries,retryCondition}=currentState;const shouldRetryOrPromise=(currentState.retryCount||0)<retries&&retryCondition(error);// This could be a promise
+if(typeof shouldRetryOrPromise==='object'){try{const shouldRetryPromiseResult=await shouldRetryOrPromise;// keep return true unless shouldRetryPromiseResult return false for compatibility
+return shouldRetryPromiseResult!==false;}catch(_err){return false;}}return shouldRetryOrPromise;}async function handleRetry(axiosInstance,currentState,error,config){currentState.retryCount+=1;const{retryDelay,shouldResetTimeout,onRetry}=currentState;const delay=retryDelay(currentState.retryCount,error);// Axios fails merging this configuration to the default configuration because it has an issue
 // with circular structures: https://github.com/mzabriskie/axios/issues/370
-fixConfig(axios,config);if(!shouldResetTimeout&&config.timeout&&currentState.lastRequestTime){var lastRequestDuration=Date.now()-currentState.lastRequestTime;var timeout=config.timeout-lastRequestDuration-delay;if(timeout<=0){return Promise.reject(error);}config.timeout=timeout;}config.transformRequest=[data=>data];yield onRetry(currentState.retryCount,error,config);return new Promise(resolve=>setTimeout(()=>resolve(axios(config)),delay));}return Promise.reject(error);});return function(_x3){return _ref.apply(this,arguments);};}());return {requestInterceptorId,responseInterceptorId};}// Compatibility with CommonJS
-axiosRetry.isNetworkError=isNetworkError;axiosRetry.isSafeRequestError=isSafeRequestError;axiosRetry.isIdempotentRequestError=isIdempotentRequestError;axiosRetry.isNetworkOrIdempotentRequestError=isNetworkOrIdempotentRequestError;axiosRetry.exponentialDelay=exponentialDelay;axiosRetry.isRetryableError=isRetryableError;
+fixConfig(axiosInstance,config);if(!shouldResetTimeout&&config.timeout&&currentState.lastRequestTime){const lastRequestDuration=Date.now()-currentState.lastRequestTime;const timeout=config.timeout-lastRequestDuration-delay;if(timeout<=0){return Promise.reject(error);}config.timeout=timeout;}config.transformRequest=[data=>data];await onRetry(currentState.retryCount,error,config);if(config.signal?.aborted){return Promise.resolve(axiosInstance(config));}return new Promise(resolve=>{const abortListener=()=>{clearTimeout(timeout);resolve(axiosInstance(config));};const timeout=setTimeout(()=>{resolve(axiosInstance(config));if(config.signal?.removeEventListener){config.signal.removeEventListener('abort',abortListener);}},delay);if(config.signal?.addEventListener){config.signal.addEventListener('abort',abortListener,{once:true});}});}async function handleMaxRetryTimesExceeded(currentState,error){if(currentState.retryCount>=currentState.retries)await currentState.onMaxRetryTimesExceeded(error,currentState.retryCount);}const axiosRetry=(axiosInstance,defaultOptions)=>{const requestInterceptorId=axiosInstance.interceptors.request.use(config=>{setCurrentState(config,defaultOptions,true);if(config[namespace]?.validateResponse){// by setting this, all HTTP responses will be go through the error interceptor first
+config.validateStatus=()=>false;}return config;});const responseInterceptorId=axiosInstance.interceptors.response.use(null,async error=>{const{config}=error;// If we have no information to retry the request
+if(!config){return Promise.reject(error);}const currentState=setCurrentState(config,defaultOptions);if(error.response&&currentState.validateResponse?.(error.response)){// no issue with response
+return error.response;}if(await shouldRetry(currentState,error)){return handleRetry(axiosInstance,currentState,error,config);}await handleMaxRetryTimesExceeded(currentState,error);return Promise.reject(error);});return {requestInterceptorId,responseInterceptorId};};// Compatibility with CommonJS
+axiosRetry.isNetworkError=isNetworkError;axiosRetry.isSafeRequestError=isSafeRequestError;axiosRetry.isIdempotentRequestError=isIdempotentRequestError;axiosRetry.isNetworkOrIdempotentRequestError=isNetworkOrIdempotentRequestError;axiosRetry.exponentialDelay=exponentialDelay;axiosRetry.linearDelay=linearDelay;axiosRetry.isRetryableError=isRetryableError;
 
-var s=1000;var m=s*60;var h=m*60;var d=h*24;var w=d*7;var y=d*365.25;/**
- * Parse or format the given `val`.
- *
- * Options:
- *
- *  - `long` verbose formatting [false]
- *
- * @param {String|Number} val
- * @param {Object} [options]
- * @throws {Error} throw an error if val is not a non-empty string or a number
- * @return {String|Number}
- * @api public
- */var ms=function(val,options){options=options||{};var type=typeof val;if(type==='string'&&val.length>0){return parse(val);}else if(type==='number'&&isFinite(val)){return options.long?fmtLong(val):fmtShort(val);}throw new Error('val is not a non-empty string or a valid number. val='+JSON.stringify(val));};/**
- * Parse the given `str` and return milliseconds.
- *
- * @param {String} str
- * @return {Number}
- * @api private
- */function parse(str){str=String(str);if(str.length>100){return;}var match=/^(-?(?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$/i.exec(str);if(!match){return;}var n=parseFloat(match[1]);var type=(match[2]||'ms').toLowerCase();switch(type){case'years':case'year':case'yrs':case'yr':case'y':return n*y;case'weeks':case'week':case'w':return n*w;case'days':case'day':case'd':return n*d;case'hours':case'hour':case'hrs':case'hr':case'h':return n*h;case'minutes':case'minute':case'mins':case'min':case'm':return n*m;case'seconds':case'second':case'secs':case'sec':case's':return n*s;case'milliseconds':case'millisecond':case'msecs':case'msec':case'ms':return n;default:return undefined;}}/**
- * Short format for `ms`.
- *
- * @param {Number} ms
- * @return {String}
- * @api private
- */function fmtShort(ms){var msAbs=Math.abs(ms);if(msAbs>=d){return Math.round(ms/d)+'d';}if(msAbs>=h){return Math.round(ms/h)+'h';}if(msAbs>=m){return Math.round(ms/m)+'m';}if(msAbs>=s){return Math.round(ms/s)+'s';}return ms+'ms';}/**
- * Long format for `ms`.
- *
- * @param {Number} ms
- * @return {String}
- * @api private
- */function fmtLong(ms){var msAbs=Math.abs(ms);if(msAbs>=d){return plural(ms,msAbs,d,'day');}if(msAbs>=h){return plural(ms,msAbs,h,'hour');}if(msAbs>=m){return plural(ms,msAbs,m,'minute');}if(msAbs>=s){return plural(ms,msAbs,s,'second');}return ms+' ms';}/**
- * Pluralization helper.
- */function plural(ms,msAbs,n,name){var isPlural=msAbs>=n*1.5;return Math.round(ms/n)+' '+name+(isPlural?'s':'');}var ms$1 = /*@__PURE__*/getDefaultExportFromCjs(ms);
+var ms$1;var hasRequiredMs;function requireMs(){if(hasRequiredMs)return ms$1;hasRequiredMs=1;var s=1000;var m=s*60;var h=m*60;var d=h*24;var w=d*7;var y=d*365.25;/**
+	 * Parse or format the given `val`.
+	 *
+	 * Options:
+	 *
+	 *  - `long` verbose formatting [false]
+	 *
+	 * @param {String|Number} val
+	 * @param {Object} [options]
+	 * @throws {Error} throw an error if val is not a non-empty string or a number
+	 * @return {String|Number}
+	 * @api public
+	 */ms$1=function(val,options){options=options||{};var type=typeof val;if(type==='string'&&val.length>0){return parse(val);}else if(type==='number'&&isFinite(val)){return options.long?fmtLong(val):fmtShort(val);}throw new Error('val is not a non-empty string or a valid number. val='+JSON.stringify(val));};/**
+	 * Parse the given `str` and return milliseconds.
+	 *
+	 * @param {String} str
+	 * @return {Number}
+	 * @api private
+	 */function parse(str){str=String(str);if(str.length>100){return;}var match=/^(-?(?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$/i.exec(str);if(!match){return;}var n=parseFloat(match[1]);var type=(match[2]||'ms').toLowerCase();switch(type){case 'years':case 'year':case 'yrs':case 'yr':case 'y':return n*y;case 'weeks':case 'week':case 'w':return n*w;case 'days':case 'day':case 'd':return n*d;case 'hours':case 'hour':case 'hrs':case 'hr':case 'h':return n*h;case 'minutes':case 'minute':case 'mins':case 'min':case 'm':return n*m;case 'seconds':case 'second':case 'secs':case 'sec':case 's':return n*s;case 'milliseconds':case 'millisecond':case 'msecs':case 'msec':case 'ms':return n;default:return undefined;}}/**
+	 * Short format for `ms`.
+	 *
+	 * @param {Number} ms
+	 * @return {String}
+	 * @api private
+	 */function fmtShort(ms){var msAbs=Math.abs(ms);if(msAbs>=d){return Math.round(ms/d)+'d';}if(msAbs>=h){return Math.round(ms/h)+'h';}if(msAbs>=m){return Math.round(ms/m)+'m';}if(msAbs>=s){return Math.round(ms/s)+'s';}return ms+'ms';}/**
+	 * Long format for `ms`.
+	 *
+	 * @param {Number} ms
+	 * @return {String}
+	 * @api private
+	 */function fmtLong(ms){var msAbs=Math.abs(ms);if(msAbs>=d){return plural(ms,msAbs,d,'day');}if(msAbs>=h){return plural(ms,msAbs,h,'hour');}if(msAbs>=m){return plural(ms,msAbs,m,'minute');}if(msAbs>=s){return plural(ms,msAbs,s,'second');}return ms+' ms';}/**
+	 * Pluralization helper.
+	 */function plural(ms,msAbs,n,name){var isPlural=msAbs>=n*1.5;return Math.round(ms/n)+' '+name+(isPlural?'s':'');}return ms$1;}
+
+var msExports = requireMs();
+const ms = /*@__PURE__*/getDefaultExportFromCjs(msExports);
 
 var IDX=256,HEX=[],BUFFER;while(IDX--)HEX[IDX]=(IDX+256).toString(16).substring(1);function v4(){var i=0,num,out='';if(!BUFFER||IDX+16>256){BUFFER=Array(i=256);while(i--)BUFFER[i]=256*Math.random()|0;i=IDX=0;}for(;i<16;i++){num=BUFFER[IDX+i];if(i==6)out+=HEX[num&15|64];else if(i==8)out+=HEX[num&63|128];else out+=HEX[num];if(i&1&&i>1&&i<11)out+='-';}IDX++;return out;}
 
-/** `Object#toString` result references. */var stringTag='[object String]';/** Used for built-in method references. */var objectProto=Object.prototype;/**
- * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
- * of values.
- */var objectToString$1=objectProto.toString;/**
- * Checks if `value` is classified as an `Array` object.
- *
- * @static
- * @memberOf _
- * @type Function
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
- * @example
- *
- * _.isArray([1, 2, 3]);
- * // => true
- *
- * _.isArray(document.body.children);
- * // => false
- *
- * _.isArray('abc');
- * // => false
- *
- * _.isArray(_.noop);
- * // => false
- */var isArray$1=Array.isArray;/**
- * Checks if `value` is object-like. A value is object-like if it's not `null`
- * and has a `typeof` result of "object".
- *
- * @static
- * @memberOf _
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
- * @example
- *
- * _.isObjectLike({});
- * // => true
- *
- * _.isObjectLike([1, 2, 3]);
- * // => true
- *
- * _.isObjectLike(_.noop);
- * // => false
- *
- * _.isObjectLike(null);
- * // => false
- */function isObjectLike(value){return !!value&&typeof value=='object';}/**
- * Checks if `value` is classified as a `String` primitive or object.
- *
- * @static
- * @memberOf _
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
- * @example
- *
- * _.isString('abc');
- * // => true
- *
- * _.isString(1);
- * // => false
- */function isString$1(value){return typeof value=='string'||!isArray$1(value)&&isObjectLike(value)&&objectToString$1.call(value)==stringTag;}var lodash_isstring=isString$1;var isString$2 = /*@__PURE__*/getDefaultExportFromCjs(lodash_isstring);
+function _isPlaceholder(a){return a!=null&&typeof a==='object'&&a['@@functional/placeholder']===true;}
 
-var lodash_clonedeep = {exports: {}};
+/**
+ * Optimized internal one-arity curry function.
+ *
+ * @private
+ * @category Function
+ * @param {Function} fn The function to curry.
+ * @return {Function} The curried function.
+ */function _curry1(fn){return function f1(a){if(arguments.length===0||_isPlaceholder(a)){return f1;}else {return fn.apply(this,arguments);}};}
 
-lodash_clonedeep.exports;(function(module,exports){/** Used as the size to enable large array optimizations. */var LARGE_ARRAY_SIZE=200;/** Used to stand-in for `undefined` hash values. */var HASH_UNDEFINED='__lodash_hash_undefined__';/** Used as references for various `Number` constants. */var MAX_SAFE_INTEGER=9007199254740991;/** `Object#toString` result references. */var argsTag='[object Arguments]',arrayTag='[object Array]',boolTag='[object Boolean]',dateTag='[object Date]',errorTag='[object Error]',funcTag='[object Function]',genTag='[object GeneratorFunction]',mapTag='[object Map]',numberTag='[object Number]',objectTag='[object Object]',promiseTag='[object Promise]',regexpTag='[object RegExp]',setTag='[object Set]',stringTag='[object String]',symbolTag='[object Symbol]',weakMapTag='[object WeakMap]';var arrayBufferTag='[object ArrayBuffer]',dataViewTag='[object DataView]',float32Tag='[object Float32Array]',float64Tag='[object Float64Array]',int8Tag='[object Int8Array]',int16Tag='[object Int16Array]',int32Tag='[object Int32Array]',uint8Tag='[object Uint8Array]',uint8ClampedTag='[object Uint8ClampedArray]',uint16Tag='[object Uint16Array]',uint32Tag='[object Uint32Array]';/**
-	 * Used to match `RegExp`
-	 * [syntax characters](http://ecma-international.org/ecma-262/7.0/#sec-patterns).
-	 */var reRegExpChar=/[\\^$.*+?()[\]{}|]/g;/** Used to match `RegExp` flags from their coerced string values. */var reFlags=/\w*$/;/** Used to detect host constructors (Safari). */var reIsHostCtor=/^\[object .+?Constructor\]$/;/** Used to detect unsigned integer values. */var reIsUint=/^(?:0|[1-9]\d*)$/;/** Used to identify `toStringTag` values supported by `_.clone`. */var cloneableTags={};cloneableTags[argsTag]=cloneableTags[arrayTag]=cloneableTags[arrayBufferTag]=cloneableTags[dataViewTag]=cloneableTags[boolTag]=cloneableTags[dateTag]=cloneableTags[float32Tag]=cloneableTags[float64Tag]=cloneableTags[int8Tag]=cloneableTags[int16Tag]=cloneableTags[int32Tag]=cloneableTags[mapTag]=cloneableTags[numberTag]=cloneableTags[objectTag]=cloneableTags[regexpTag]=cloneableTags[setTag]=cloneableTags[stringTag]=cloneableTags[symbolTag]=cloneableTags[uint8Tag]=cloneableTags[uint8ClampedTag]=cloneableTags[uint16Tag]=cloneableTags[uint32Tag]=true;cloneableTags[errorTag]=cloneableTags[funcTag]=cloneableTags[weakMapTag]=false;/** Detect free variable `global` from Node.js. */var freeGlobal=typeof commonjsGlobal=='object'&&commonjsGlobal&&commonjsGlobal.Object===Object&&commonjsGlobal;/** Detect free variable `self`. */var freeSelf=typeof self=='object'&&self&&self.Object===Object&&self;/** Used as a reference to the global object. */var root=freeGlobal||freeSelf||Function('return this')();/** Detect free variable `exports`. */var freeExports=exports&&!exports.nodeType&&exports;/** Detect free variable `module`. */var freeModule=freeExports&&'object'=='object'&&module&&!module.nodeType&&module;/** Detect the popular CommonJS extension `module.exports`. */var moduleExports=freeModule&&freeModule.exports===freeExports;/**
-	 * Adds the key-value `pair` to `map`.
-	 *
-	 * @private
-	 * @param {Object} map The map to modify.
-	 * @param {Array} pair The key-value pair to add.
-	 * @returns {Object} Returns `map`.
-	 */function addMapEntry(map,pair){// Don't return `map.set` because it's not chainable in IE 11.
-map.set(pair[0],pair[1]);return map;}/**
-	 * Adds `value` to `set`.
-	 *
-	 * @private
-	 * @param {Object} set The set to modify.
-	 * @param {*} value The value to add.
-	 * @returns {Object} Returns `set`.
-	 */function addSetEntry(set,value){// Don't return `set.add` because it's not chainable in IE 11.
-set.add(value);return set;}/**
-	 * A specialized version of `_.forEach` for arrays without support for
-	 * iteratee shorthands.
-	 *
-	 * @private
-	 * @param {Array} [array] The array to iterate over.
-	 * @param {Function} iteratee The function invoked per iteration.
-	 * @returns {Array} Returns `array`.
-	 */function arrayEach(array,iteratee){var index=-1,length=array?array.length:0;while(++index<length){if(iteratee(array[index],index,array)===false){break;}}return array;}/**
-	 * Appends the elements of `values` to `array`.
-	 *
-	 * @private
-	 * @param {Array} array The array to modify.
-	 * @param {Array} values The values to append.
-	 * @returns {Array} Returns `array`.
-	 */function arrayPush(array,values){var index=-1,length=values.length,offset=array.length;while(++index<length){array[offset+index]=values[index];}return array;}/**
-	 * A specialized version of `_.reduce` for arrays without support for
-	 * iteratee shorthands.
-	 *
-	 * @private
-	 * @param {Array} [array] The array to iterate over.
-	 * @param {Function} iteratee The function invoked per iteration.
-	 * @param {*} [accumulator] The initial value.
-	 * @param {boolean} [initAccum] Specify using the first element of `array` as
-	 *  the initial value.
-	 * @returns {*} Returns the accumulated value.
-	 */function arrayReduce(array,iteratee,accumulator,initAccum){var index=-1,length=array?array.length:0;if(initAccum&&length){accumulator=array[++index];}while(++index<length){accumulator=iteratee(accumulator,array[index],index,array);}return accumulator;}/**
-	 * The base implementation of `_.times` without support for iteratee shorthands
-	 * or max array length checks.
-	 *
-	 * @private
-	 * @param {number} n The number of times to invoke `iteratee`.
-	 * @param {Function} iteratee The function invoked per iteration.
-	 * @returns {Array} Returns the array of results.
-	 */function baseTimes(n,iteratee){var index=-1,result=Array(n);while(++index<n){result[index]=iteratee(index);}return result;}/**
-	 * Gets the value at `key` of `object`.
-	 *
-	 * @private
-	 * @param {Object} [object] The object to query.
-	 * @param {string} key The key of the property to get.
-	 * @returns {*} Returns the property value.
-	 */function getValue(object,key){return object==null?undefined:object[key];}/**
-	 * Checks if `value` is a host object in IE < 9.
-	 *
-	 * @private
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a host object, else `false`.
-	 */function isHostObject(value){// Many host objects are `Object` objects that can coerce to strings
-// despite having improperly defined `toString` methods.
-var result=false;if(value!=null&&typeof value.toString!='function'){try{result=!!(value+'');}catch(e){}}return result;}/**
-	 * Converts `map` to its key-value pairs.
-	 *
-	 * @private
-	 * @param {Object} map The map to convert.
-	 * @returns {Array} Returns the key-value pairs.
-	 */function mapToArray(map){var index=-1,result=Array(map.size);map.forEach(function(value,key){result[++index]=[key,value];});return result;}/**
-	 * Creates a unary function that invokes `func` with its argument transformed.
-	 *
-	 * @private
-	 * @param {Function} func The function to wrap.
-	 * @param {Function} transform The argument transform.
-	 * @returns {Function} Returns the new function.
-	 */function overArg(func,transform){return function(arg){return func(transform(arg));};}/**
-	 * Converts `set` to an array of its values.
-	 *
-	 * @private
-	 * @param {Object} set The set to convert.
-	 * @returns {Array} Returns the values.
-	 */function setToArray(set){var index=-1,result=Array(set.size);set.forEach(function(value){result[++index]=value;});return result;}/** Used for built-in method references. */var arrayProto=Array.prototype,funcProto=Function.prototype,objectProto=Object.prototype;/** Used to detect overreaching core-js shims. */var coreJsData=root['__core-js_shared__'];/** Used to detect methods masquerading as native. */var maskSrcKey=function(){var uid=/[^.]+$/.exec(coreJsData&&coreJsData.keys&&coreJsData.keys.IE_PROTO||'');return uid?'Symbol(src)_1.'+uid:'';}();/** Used to resolve the decompiled source of functions. */var funcToString=funcProto.toString;/** Used to check objects for own properties. */var hasOwnProperty=objectProto.hasOwnProperty;/**
-	 * Used to resolve the
-	 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
-	 * of values.
-	 */var objectToString=objectProto.toString;/** Used to detect if a method is native. */var reIsNative=RegExp('^'+funcToString.call(hasOwnProperty).replace(reRegExpChar,'\\$&').replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g,'$1.*?')+'$');/** Built-in value references. */var Buffer=moduleExports?root.Buffer:undefined,Symbol=root.Symbol,Uint8Array=root.Uint8Array,getPrototype=overArg(Object.getPrototypeOf,Object),objectCreate=Object.create,propertyIsEnumerable=objectProto.propertyIsEnumerable,splice=arrayProto.splice;/* Built-in method references for those with the same name as other `lodash` methods. */var nativeGetSymbols=Object.getOwnPropertySymbols,nativeIsBuffer=Buffer?Buffer.isBuffer:undefined,nativeKeys=overArg(Object.keys,Object);/* Built-in method references that are verified to be native. */var DataView=getNative(root,'DataView'),Map=getNative(root,'Map'),Promise=getNative(root,'Promise'),Set=getNative(root,'Set'),WeakMap=getNative(root,'WeakMap'),nativeCreate=getNative(Object,'create');/** Used to detect maps, sets, and weakmaps. */var dataViewCtorString=toSource(DataView),mapCtorString=toSource(Map),promiseCtorString=toSource(Promise),setCtorString=toSource(Set),weakMapCtorString=toSource(WeakMap);/** Used to convert symbols to primitives and strings. */var symbolProto=Symbol?Symbol.prototype:undefined,symbolValueOf=symbolProto?symbolProto.valueOf:undefined;/**
-	 * Creates a hash object.
-	 *
-	 * @private
-	 * @constructor
-	 * @param {Array} [entries] The key-value pairs to cache.
-	 */function Hash(entries){var index=-1,length=entries?entries.length:0;this.clear();while(++index<length){var entry=entries[index];this.set(entry[0],entry[1]);}}/**
-	 * Removes all key-value entries from the hash.
-	 *
-	 * @private
-	 * @name clear
-	 * @memberOf Hash
-	 */function hashClear(){this.__data__=nativeCreate?nativeCreate(null):{};}/**
-	 * Removes `key` and its value from the hash.
-	 *
-	 * @private
-	 * @name delete
-	 * @memberOf Hash
-	 * @param {Object} hash The hash to modify.
-	 * @param {string} key The key of the value to remove.
-	 * @returns {boolean} Returns `true` if the entry was removed, else `false`.
-	 */function hashDelete(key){return this.has(key)&&delete this.__data__[key];}/**
-	 * Gets the hash value for `key`.
-	 *
-	 * @private
-	 * @name get
-	 * @memberOf Hash
-	 * @param {string} key The key of the value to get.
-	 * @returns {*} Returns the entry value.
-	 */function hashGet(key){var data=this.__data__;if(nativeCreate){var result=data[key];return result===HASH_UNDEFINED?undefined:result;}return hasOwnProperty.call(data,key)?data[key]:undefined;}/**
-	 * Checks if a hash value for `key` exists.
-	 *
-	 * @private
-	 * @name has
-	 * @memberOf Hash
-	 * @param {string} key The key of the entry to check.
-	 * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
-	 */function hashHas(key){var data=this.__data__;return nativeCreate?data[key]!==undefined:hasOwnProperty.call(data,key);}/**
-	 * Sets the hash `key` to `value`.
-	 *
-	 * @private
-	 * @name set
-	 * @memberOf Hash
-	 * @param {string} key The key of the value to set.
-	 * @param {*} value The value to set.
-	 * @returns {Object} Returns the hash instance.
-	 */function hashSet(key,value){var data=this.__data__;data[key]=nativeCreate&&value===undefined?HASH_UNDEFINED:value;return this;}// Add methods to `Hash`.
-Hash.prototype.clear=hashClear;Hash.prototype['delete']=hashDelete;Hash.prototype.get=hashGet;Hash.prototype.has=hashHas;Hash.prototype.set=hashSet;/**
-	 * Creates an list cache object.
-	 *
-	 * @private
-	 * @constructor
-	 * @param {Array} [entries] The key-value pairs to cache.
-	 */function ListCache(entries){var index=-1,length=entries?entries.length:0;this.clear();while(++index<length){var entry=entries[index];this.set(entry[0],entry[1]);}}/**
-	 * Removes all key-value entries from the list cache.
-	 *
-	 * @private
-	 * @name clear
-	 * @memberOf ListCache
-	 */function listCacheClear(){this.__data__=[];}/**
-	 * Removes `key` and its value from the list cache.
-	 *
-	 * @private
-	 * @name delete
-	 * @memberOf ListCache
-	 * @param {string} key The key of the value to remove.
-	 * @returns {boolean} Returns `true` if the entry was removed, else `false`.
-	 */function listCacheDelete(key){var data=this.__data__,index=assocIndexOf(data,key);if(index<0){return false;}var lastIndex=data.length-1;if(index==lastIndex){data.pop();}else {splice.call(data,index,1);}return true;}/**
-	 * Gets the list cache value for `key`.
-	 *
-	 * @private
-	 * @name get
-	 * @memberOf ListCache
-	 * @param {string} key The key of the value to get.
-	 * @returns {*} Returns the entry value.
-	 */function listCacheGet(key){var data=this.__data__,index=assocIndexOf(data,key);return index<0?undefined:data[index][1];}/**
-	 * Checks if a list cache value for `key` exists.
-	 *
-	 * @private
-	 * @name has
-	 * @memberOf ListCache
-	 * @param {string} key The key of the entry to check.
-	 * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
-	 */function listCacheHas(key){return assocIndexOf(this.__data__,key)>-1;}/**
-	 * Sets the list cache `key` to `value`.
-	 *
-	 * @private
-	 * @name set
-	 * @memberOf ListCache
-	 * @param {string} key The key of the value to set.
-	 * @param {*} value The value to set.
-	 * @returns {Object} Returns the list cache instance.
-	 */function listCacheSet(key,value){var data=this.__data__,index=assocIndexOf(data,key);if(index<0){data.push([key,value]);}else {data[index][1]=value;}return this;}// Add methods to `ListCache`.
-ListCache.prototype.clear=listCacheClear;ListCache.prototype['delete']=listCacheDelete;ListCache.prototype.get=listCacheGet;ListCache.prototype.has=listCacheHas;ListCache.prototype.set=listCacheSet;/**
-	 * Creates a map cache object to store key-value pairs.
-	 *
-	 * @private
-	 * @constructor
-	 * @param {Array} [entries] The key-value pairs to cache.
-	 */function MapCache(entries){var index=-1,length=entries?entries.length:0;this.clear();while(++index<length){var entry=entries[index];this.set(entry[0],entry[1]);}}/**
-	 * Removes all key-value entries from the map.
-	 *
-	 * @private
-	 * @name clear
-	 * @memberOf MapCache
-	 */function mapCacheClear(){this.__data__={'hash':new Hash(),'map':new(Map||ListCache)(),'string':new Hash()};}/**
-	 * Removes `key` and its value from the map.
-	 *
-	 * @private
-	 * @name delete
-	 * @memberOf MapCache
-	 * @param {string} key The key of the value to remove.
-	 * @returns {boolean} Returns `true` if the entry was removed, else `false`.
-	 */function mapCacheDelete(key){return getMapData(this,key)['delete'](key);}/**
-	 * Gets the map value for `key`.
-	 *
-	 * @private
-	 * @name get
-	 * @memberOf MapCache
-	 * @param {string} key The key of the value to get.
-	 * @returns {*} Returns the entry value.
-	 */function mapCacheGet(key){return getMapData(this,key).get(key);}/**
-	 * Checks if a map value for `key` exists.
-	 *
-	 * @private
-	 * @name has
-	 * @memberOf MapCache
-	 * @param {string} key The key of the entry to check.
-	 * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
-	 */function mapCacheHas(key){return getMapData(this,key).has(key);}/**
-	 * Sets the map `key` to `value`.
-	 *
-	 * @private
-	 * @name set
-	 * @memberOf MapCache
-	 * @param {string} key The key of the value to set.
-	 * @param {*} value The value to set.
-	 * @returns {Object} Returns the map cache instance.
-	 */function mapCacheSet(key,value){getMapData(this,key).set(key,value);return this;}// Add methods to `MapCache`.
-MapCache.prototype.clear=mapCacheClear;MapCache.prototype['delete']=mapCacheDelete;MapCache.prototype.get=mapCacheGet;MapCache.prototype.has=mapCacheHas;MapCache.prototype.set=mapCacheSet;/**
-	 * Creates a stack cache object to store key-value pairs.
-	 *
-	 * @private
-	 * @constructor
-	 * @param {Array} [entries] The key-value pairs to cache.
-	 */function Stack(entries){this.__data__=new ListCache(entries);}/**
-	 * Removes all key-value entries from the stack.
-	 *
-	 * @private
-	 * @name clear
-	 * @memberOf Stack
-	 */function stackClear(){this.__data__=new ListCache();}/**
-	 * Removes `key` and its value from the stack.
-	 *
-	 * @private
-	 * @name delete
-	 * @memberOf Stack
-	 * @param {string} key The key of the value to remove.
-	 * @returns {boolean} Returns `true` if the entry was removed, else `false`.
-	 */function stackDelete(key){return this.__data__['delete'](key);}/**
-	 * Gets the stack value for `key`.
-	 *
-	 * @private
-	 * @name get
-	 * @memberOf Stack
-	 * @param {string} key The key of the value to get.
-	 * @returns {*} Returns the entry value.
-	 */function stackGet(key){return this.__data__.get(key);}/**
-	 * Checks if a stack value for `key` exists.
-	 *
-	 * @private
-	 * @name has
-	 * @memberOf Stack
-	 * @param {string} key The key of the entry to check.
-	 * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
-	 */function stackHas(key){return this.__data__.has(key);}/**
-	 * Sets the stack `key` to `value`.
-	 *
-	 * @private
-	 * @name set
-	 * @memberOf Stack
-	 * @param {string} key The key of the value to set.
-	 * @param {*} value The value to set.
-	 * @returns {Object} Returns the stack cache instance.
-	 */function stackSet(key,value){var cache=this.__data__;if(cache instanceof ListCache){var pairs=cache.__data__;if(!Map||pairs.length<LARGE_ARRAY_SIZE-1){pairs.push([key,value]);return this;}cache=this.__data__=new MapCache(pairs);}cache.set(key,value);return this;}// Add methods to `Stack`.
-Stack.prototype.clear=stackClear;Stack.prototype['delete']=stackDelete;Stack.prototype.get=stackGet;Stack.prototype.has=stackHas;Stack.prototype.set=stackSet;/**
-	 * Creates an array of the enumerable property names of the array-like `value`.
-	 *
-	 * @private
-	 * @param {*} value The value to query.
-	 * @param {boolean} inherited Specify returning inherited property names.
-	 * @returns {Array} Returns the array of property names.
-	 */function arrayLikeKeys(value,inherited){// Safari 8.1 makes `arguments.callee` enumerable in strict mode.
-// Safari 9 makes `arguments.length` enumerable in strict mode.
-var result=isArray(value)||isArguments(value)?baseTimes(value.length,String):[];var length=result.length,skipIndexes=!!length;for(var key in value){if((inherited||hasOwnProperty.call(value,key))&&!(skipIndexes&&(key=='length'||isIndex(key,length)))){result.push(key);}}return result;}/**
-	 * Assigns `value` to `key` of `object` if the existing value is not equivalent
-	 * using [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
-	 * for equality comparisons.
-	 *
-	 * @private
-	 * @param {Object} object The object to modify.
-	 * @param {string} key The key of the property to assign.
-	 * @param {*} value The value to assign.
-	 */function assignValue(object,key,value){var objValue=object[key];if(!(hasOwnProperty.call(object,key)&&eq(objValue,value))||value===undefined&&!(key in object)){object[key]=value;}}/**
-	 * Gets the index at which the `key` is found in `array` of key-value pairs.
-	 *
-	 * @private
-	 * @param {Array} array The array to inspect.
-	 * @param {*} key The key to search for.
-	 * @returns {number} Returns the index of the matched value, else `-1`.
-	 */function assocIndexOf(array,key){var length=array.length;while(length--){if(eq(array[length][0],key)){return length;}}return -1;}/**
-	 * The base implementation of `_.assign` without support for multiple sources
-	 * or `customizer` functions.
-	 *
-	 * @private
-	 * @param {Object} object The destination object.
-	 * @param {Object} source The source object.
-	 * @returns {Object} Returns `object`.
-	 */function baseAssign(object,source){return object&&copyObject(source,keys(source),object);}/**
-	 * The base implementation of `_.clone` and `_.cloneDeep` which tracks
-	 * traversed objects.
-	 *
-	 * @private
-	 * @param {*} value The value to clone.
-	 * @param {boolean} [isDeep] Specify a deep clone.
-	 * @param {boolean} [isFull] Specify a clone including symbols.
-	 * @param {Function} [customizer] The function to customize cloning.
-	 * @param {string} [key] The key of `value`.
-	 * @param {Object} [object] The parent object of `value`.
-	 * @param {Object} [stack] Tracks traversed objects and their clone counterparts.
-	 * @returns {*} Returns the cloned value.
-	 */function baseClone(value,isDeep,isFull,customizer,key,object,stack){var result;if(customizer){result=object?customizer(value,key,object,stack):customizer(value);}if(result!==undefined){return result;}if(!isObject(value)){return value;}var isArr=isArray(value);if(isArr){result=initCloneArray(value);if(!isDeep){return copyArray(value,result);}}else {var tag=getTag(value),isFunc=tag==funcTag||tag==genTag;if(isBuffer(value)){return cloneBuffer(value,isDeep);}if(tag==objectTag||tag==argsTag||isFunc&&!object){if(isHostObject(value)){return object?value:{};}result=initCloneObject(isFunc?{}:value);if(!isDeep){return copySymbols(value,baseAssign(result,value));}}else {if(!cloneableTags[tag]){return object?value:{};}result=initCloneByTag(value,tag,baseClone,isDeep);}}// Check for circular references and return its corresponding clone.
-stack||(stack=new Stack());var stacked=stack.get(value);if(stacked){return stacked;}stack.set(value,result);if(!isArr){var props=isFull?getAllKeys(value):keys(value);}arrayEach(props||value,function(subValue,key){if(props){key=subValue;subValue=value[key];}// Recursively populate clone (susceptible to call stack limits).
-assignValue(result,key,baseClone(subValue,isDeep,isFull,customizer,key,value,stack));});return result;}/**
-	 * The base implementation of `_.create` without support for assigning
-	 * properties to the created object.
-	 *
-	 * @private
-	 * @param {Object} prototype The object to inherit from.
-	 * @returns {Object} Returns the new object.
-	 */function baseCreate(proto){return isObject(proto)?objectCreate(proto):{};}/**
-	 * The base implementation of `getAllKeys` and `getAllKeysIn` which uses
-	 * `keysFunc` and `symbolsFunc` to get the enumerable property names and
-	 * symbols of `object`.
-	 *
-	 * @private
-	 * @param {Object} object The object to query.
-	 * @param {Function} keysFunc The function to get the keys of `object`.
-	 * @param {Function} symbolsFunc The function to get the symbols of `object`.
-	 * @returns {Array} Returns the array of property names and symbols.
-	 */function baseGetAllKeys(object,keysFunc,symbolsFunc){var result=keysFunc(object);return isArray(object)?result:arrayPush(result,symbolsFunc(object));}/**
-	 * The base implementation of `getTag`.
-	 *
-	 * @private
-	 * @param {*} value The value to query.
-	 * @returns {string} Returns the `toStringTag`.
-	 */function baseGetTag(value){return objectToString.call(value);}/**
-	 * The base implementation of `_.isNative` without bad shim checks.
-	 *
-	 * @private
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a native function,
-	 *  else `false`.
-	 */function baseIsNative(value){if(!isObject(value)||isMasked(value)){return false;}var pattern=isFunction(value)||isHostObject(value)?reIsNative:reIsHostCtor;return pattern.test(toSource(value));}/**
-	 * The base implementation of `_.keys` which doesn't treat sparse arrays as dense.
-	 *
-	 * @private
-	 * @param {Object} object The object to query.
-	 * @returns {Array} Returns the array of property names.
-	 */function baseKeys(object){if(!isPrototype(object)){return nativeKeys(object);}var result=[];for(var key in Object(object)){if(hasOwnProperty.call(object,key)&&key!='constructor'){result.push(key);}}return result;}/**
-	 * Creates a clone of  `buffer`.
-	 *
-	 * @private
-	 * @param {Buffer} buffer The buffer to clone.
-	 * @param {boolean} [isDeep] Specify a deep clone.
-	 * @returns {Buffer} Returns the cloned buffer.
-	 */function cloneBuffer(buffer,isDeep){if(isDeep){return buffer.slice();}var result=new buffer.constructor(buffer.length);buffer.copy(result);return result;}/**
-	 * Creates a clone of `arrayBuffer`.
-	 *
-	 * @private
-	 * @param {ArrayBuffer} arrayBuffer The array buffer to clone.
-	 * @returns {ArrayBuffer} Returns the cloned array buffer.
-	 */function cloneArrayBuffer(arrayBuffer){var result=new arrayBuffer.constructor(arrayBuffer.byteLength);new Uint8Array(result).set(new Uint8Array(arrayBuffer));return result;}/**
-	 * Creates a clone of `dataView`.
-	 *
-	 * @private
-	 * @param {Object} dataView The data view to clone.
-	 * @param {boolean} [isDeep] Specify a deep clone.
-	 * @returns {Object} Returns the cloned data view.
-	 */function cloneDataView(dataView,isDeep){var buffer=isDeep?cloneArrayBuffer(dataView.buffer):dataView.buffer;return new dataView.constructor(buffer,dataView.byteOffset,dataView.byteLength);}/**
-	 * Creates a clone of `map`.
-	 *
-	 * @private
-	 * @param {Object} map The map to clone.
-	 * @param {Function} cloneFunc The function to clone values.
-	 * @param {boolean} [isDeep] Specify a deep clone.
-	 * @returns {Object} Returns the cloned map.
-	 */function cloneMap(map,isDeep,cloneFunc){var array=isDeep?cloneFunc(mapToArray(map),true):mapToArray(map);return arrayReduce(array,addMapEntry,new map.constructor());}/**
-	 * Creates a clone of `regexp`.
-	 *
-	 * @private
-	 * @param {Object} regexp The regexp to clone.
-	 * @returns {Object} Returns the cloned regexp.
-	 */function cloneRegExp(regexp){var result=new regexp.constructor(regexp.source,reFlags.exec(regexp));result.lastIndex=regexp.lastIndex;return result;}/**
-	 * Creates a clone of `set`.
-	 *
-	 * @private
-	 * @param {Object} set The set to clone.
-	 * @param {Function} cloneFunc The function to clone values.
-	 * @param {boolean} [isDeep] Specify a deep clone.
-	 * @returns {Object} Returns the cloned set.
-	 */function cloneSet(set,isDeep,cloneFunc){var array=isDeep?cloneFunc(setToArray(set),true):setToArray(set);return arrayReduce(array,addSetEntry,new set.constructor());}/**
-	 * Creates a clone of the `symbol` object.
-	 *
-	 * @private
-	 * @param {Object} symbol The symbol object to clone.
-	 * @returns {Object} Returns the cloned symbol object.
-	 */function cloneSymbol(symbol){return symbolValueOf?Object(symbolValueOf.call(symbol)):{};}/**
-	 * Creates a clone of `typedArray`.
-	 *
-	 * @private
-	 * @param {Object} typedArray The typed array to clone.
-	 * @param {boolean} [isDeep] Specify a deep clone.
-	 * @returns {Object} Returns the cloned typed array.
-	 */function cloneTypedArray(typedArray,isDeep){var buffer=isDeep?cloneArrayBuffer(typedArray.buffer):typedArray.buffer;return new typedArray.constructor(buffer,typedArray.byteOffset,typedArray.length);}/**
-	 * Copies the values of `source` to `array`.
-	 *
-	 * @private
-	 * @param {Array} source The array to copy values from.
-	 * @param {Array} [array=[]] The array to copy values to.
-	 * @returns {Array} Returns `array`.
-	 */function copyArray(source,array){var index=-1,length=source.length;array||(array=Array(length));while(++index<length){array[index]=source[index];}return array;}/**
-	 * Copies properties of `source` to `object`.
-	 *
-	 * @private
-	 * @param {Object} source The object to copy properties from.
-	 * @param {Array} props The property identifiers to copy.
-	 * @param {Object} [object={}] The object to copy properties to.
-	 * @param {Function} [customizer] The function to customize copied values.
-	 * @returns {Object} Returns `object`.
-	 */function copyObject(source,props,object,customizer){object||(object={});var index=-1,length=props.length;while(++index<length){var key=props[index];var newValue=customizer?customizer(object[key],source[key],key,object,source):undefined;assignValue(object,key,newValue===undefined?source[key]:newValue);}return object;}/**
-	 * Copies own symbol properties of `source` to `object`.
-	 *
-	 * @private
-	 * @param {Object} source The object to copy symbols from.
-	 * @param {Object} [object={}] The object to copy symbols to.
-	 * @returns {Object} Returns `object`.
-	 */function copySymbols(source,object){return copyObject(source,getSymbols(source),object);}/**
-	 * Creates an array of own enumerable property names and symbols of `object`.
-	 *
-	 * @private
-	 * @param {Object} object The object to query.
-	 * @returns {Array} Returns the array of property names and symbols.
-	 */function getAllKeys(object){return baseGetAllKeys(object,keys,getSymbols);}/**
-	 * Gets the data for `map`.
-	 *
-	 * @private
-	 * @param {Object} map The map to query.
-	 * @param {string} key The reference key.
-	 * @returns {*} Returns the map data.
-	 */function getMapData(map,key){var data=map.__data__;return isKeyable(key)?data[typeof key=='string'?'string':'hash']:data.map;}/**
-	 * Gets the native function at `key` of `object`.
-	 *
-	 * @private
-	 * @param {Object} object The object to query.
-	 * @param {string} key The key of the method to get.
-	 * @returns {*} Returns the function if it's native, else `undefined`.
-	 */function getNative(object,key){var value=getValue(object,key);return baseIsNative(value)?value:undefined;}/**
-	 * Creates an array of the own enumerable symbol properties of `object`.
-	 *
-	 * @private
-	 * @param {Object} object The object to query.
-	 * @returns {Array} Returns the array of symbols.
-	 */var getSymbols=nativeGetSymbols?overArg(nativeGetSymbols,Object):stubArray;/**
-	 * Gets the `toStringTag` of `value`.
-	 *
-	 * @private
-	 * @param {*} value The value to query.
-	 * @returns {string} Returns the `toStringTag`.
-	 */var getTag=baseGetTag;// Fallback for data views, maps, sets, and weak maps in IE 11,
-// for data views in Edge < 14, and promises in Node.js.
-if(DataView&&getTag(new DataView(new ArrayBuffer(1)))!=dataViewTag||Map&&getTag(new Map())!=mapTag||Promise&&getTag(Promise.resolve())!=promiseTag||Set&&getTag(new Set())!=setTag||WeakMap&&getTag(new WeakMap())!=weakMapTag){getTag=function(value){var result=objectToString.call(value),Ctor=result==objectTag?value.constructor:undefined,ctorString=Ctor?toSource(Ctor):undefined;if(ctorString){switch(ctorString){case dataViewCtorString:return dataViewTag;case mapCtorString:return mapTag;case promiseCtorString:return promiseTag;case setCtorString:return setTag;case weakMapCtorString:return weakMapTag;}}return result;};}/**
-	 * Initializes an array clone.
-	 *
-	 * @private
-	 * @param {Array} array The array to clone.
-	 * @returns {Array} Returns the initialized clone.
-	 */function initCloneArray(array){var length=array.length,result=array.constructor(length);// Add properties assigned by `RegExp#exec`.
-if(length&&typeof array[0]=='string'&&hasOwnProperty.call(array,'index')){result.index=array.index;result.input=array.input;}return result;}/**
-	 * Initializes an object clone.
-	 *
-	 * @private
-	 * @param {Object} object The object to clone.
-	 * @returns {Object} Returns the initialized clone.
-	 */function initCloneObject(object){return typeof object.constructor=='function'&&!isPrototype(object)?baseCreate(getPrototype(object)):{};}/**
-	 * Initializes an object clone based on its `toStringTag`.
-	 *
-	 * **Note:** This function only supports cloning values with tags of
-	 * `Boolean`, `Date`, `Error`, `Number`, `RegExp`, or `String`.
-	 *
-	 * @private
-	 * @param {Object} object The object to clone.
-	 * @param {string} tag The `toStringTag` of the object to clone.
-	 * @param {Function} cloneFunc The function to clone values.
-	 * @param {boolean} [isDeep] Specify a deep clone.
-	 * @returns {Object} Returns the initialized clone.
-	 */function initCloneByTag(object,tag,cloneFunc,isDeep){var Ctor=object.constructor;switch(tag){case arrayBufferTag:return cloneArrayBuffer(object);case boolTag:case dateTag:return new Ctor(+object);case dataViewTag:return cloneDataView(object,isDeep);case float32Tag:case float64Tag:case int8Tag:case int16Tag:case int32Tag:case uint8Tag:case uint8ClampedTag:case uint16Tag:case uint32Tag:return cloneTypedArray(object,isDeep);case mapTag:return cloneMap(object,isDeep,cloneFunc);case numberTag:case stringTag:return new Ctor(object);case regexpTag:return cloneRegExp(object);case setTag:return cloneSet(object,isDeep,cloneFunc);case symbolTag:return cloneSymbol(object);}}/**
-	 * Checks if `value` is a valid array-like index.
-	 *
-	 * @private
-	 * @param {*} value The value to check.
-	 * @param {number} [length=MAX_SAFE_INTEGER] The upper bounds of a valid index.
-	 * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
-	 */function isIndex(value,length){length=length==null?MAX_SAFE_INTEGER:length;return !!length&&(typeof value=='number'||reIsUint.test(value))&&value>-1&&value%1==0&&value<length;}/**
-	 * Checks if `value` is suitable for use as unique object key.
-	 *
-	 * @private
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is suitable, else `false`.
-	 */function isKeyable(value){var type=typeof value;return type=='string'||type=='number'||type=='symbol'||type=='boolean'?value!=='__proto__':value===null;}/**
-	 * Checks if `func` has its source masked.
-	 *
-	 * @private
-	 * @param {Function} func The function to check.
-	 * @returns {boolean} Returns `true` if `func` is masked, else `false`.
-	 */function isMasked(func){return !!maskSrcKey&&maskSrcKey in func;}/**
-	 * Checks if `value` is likely a prototype object.
-	 *
-	 * @private
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a prototype, else `false`.
-	 */function isPrototype(value){var Ctor=value&&value.constructor,proto=typeof Ctor=='function'&&Ctor.prototype||objectProto;return value===proto;}/**
-	 * Converts `func` to its source code.
-	 *
-	 * @private
-	 * @param {Function} func The function to process.
-	 * @returns {string} Returns the source code.
-	 */function toSource(func){if(func!=null){try{return funcToString.call(func);}catch(e){}try{return func+'';}catch(e){}}return '';}/**
-	 * This method is like `_.clone` except that it recursively clones `value`.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 1.0.0
-	 * @category Lang
-	 * @param {*} value The value to recursively clone.
-	 * @returns {*} Returns the deep cloned value.
-	 * @see _.clone
-	 * @example
-	 *
-	 * var objects = [{ 'a': 1 }, { 'b': 2 }];
-	 *
-	 * var deep = _.cloneDeep(objects);
-	 * console.log(deep[0] === objects[0]);
-	 * // => false
-	 */function cloneDeep(value){return baseClone(value,true,true);}/**
-	 * Performs a
-	 * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
-	 * comparison between two values to determine if they are equivalent.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to compare.
-	 * @param {*} other The other value to compare.
-	 * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
-	 * @example
-	 *
-	 * var object = { 'a': 1 };
-	 * var other = { 'a': 1 };
-	 *
-	 * _.eq(object, object);
-	 * // => true
-	 *
-	 * _.eq(object, other);
-	 * // => false
-	 *
-	 * _.eq('a', 'a');
-	 * // => true
-	 *
-	 * _.eq('a', Object('a'));
-	 * // => false
-	 *
-	 * _.eq(NaN, NaN);
-	 * // => true
-	 */function eq(value,other){return value===other||value!==value&&other!==other;}/**
-	 * Checks if `value` is likely an `arguments` object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is an `arguments` object,
-	 *  else `false`.
-	 * @example
-	 *
-	 * _.isArguments(function() { return arguments; }());
-	 * // => true
-	 *
-	 * _.isArguments([1, 2, 3]);
-	 * // => false
-	 */function isArguments(value){// Safari 8.1 makes `arguments.callee` enumerable in strict mode.
-return isArrayLikeObject(value)&&hasOwnProperty.call(value,'callee')&&(!propertyIsEnumerable.call(value,'callee')||objectToString.call(value)==argsTag);}/**
-	 * Checks if `value` is classified as an `Array` object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is an array, else `false`.
-	 * @example
-	 *
-	 * _.isArray([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isArray(document.body.children);
-	 * // => false
-	 *
-	 * _.isArray('abc');
-	 * // => false
-	 *
-	 * _.isArray(_.noop);
-	 * // => false
-	 */var isArray=Array.isArray;/**
-	 * Checks if `value` is array-like. A value is considered array-like if it's
-	 * not a function and has a `value.length` that's an integer greater than or
-	 * equal to `0` and less than or equal to `Number.MAX_SAFE_INTEGER`.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
-	 * @example
-	 *
-	 * _.isArrayLike([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isArrayLike(document.body.children);
-	 * // => true
-	 *
-	 * _.isArrayLike('abc');
-	 * // => true
-	 *
-	 * _.isArrayLike(_.noop);
-	 * // => false
-	 */function isArrayLike(value){return value!=null&&isLength(value.length)&&!isFunction(value);}/**
-	 * This method is like `_.isArrayLike` except that it also checks if `value`
-	 * is an object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is an array-like object,
-	 *  else `false`.
-	 * @example
-	 *
-	 * _.isArrayLikeObject([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isArrayLikeObject(document.body.children);
-	 * // => true
-	 *
-	 * _.isArrayLikeObject('abc');
-	 * // => false
-	 *
-	 * _.isArrayLikeObject(_.noop);
-	 * // => false
-	 */function isArrayLikeObject(value){return isObjectLike(value)&&isArrayLike(value);}/**
-	 * Checks if `value` is a buffer.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.3.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a buffer, else `false`.
-	 * @example
-	 *
-	 * _.isBuffer(new Buffer(2));
-	 * // => true
-	 *
-	 * _.isBuffer(new Uint8Array(2));
-	 * // => false
-	 */var isBuffer=nativeIsBuffer||stubFalse;/**
-	 * Checks if `value` is classified as a `Function` object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a function, else `false`.
-	 * @example
-	 *
-	 * _.isFunction(_);
-	 * // => true
-	 *
-	 * _.isFunction(/abc/);
-	 * // => false
-	 */function isFunction(value){// The use of `Object#toString` avoids issues with the `typeof` operator
-// in Safari 8-9 which returns 'object' for typed array and other constructors.
-var tag=isObject(value)?objectToString.call(value):'';return tag==funcTag||tag==genTag;}/**
-	 * Checks if `value` is a valid array-like length.
-	 *
-	 * **Note:** This method is loosely based on
-	 * [`ToLength`](http://ecma-international.org/ecma-262/7.0/#sec-tolength).
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
-	 * @example
-	 *
-	 * _.isLength(3);
-	 * // => true
-	 *
-	 * _.isLength(Number.MIN_VALUE);
-	 * // => false
-	 *
-	 * _.isLength(Infinity);
-	 * // => false
-	 *
-	 * _.isLength('3');
-	 * // => false
-	 */function isLength(value){return typeof value=='number'&&value>-1&&value%1==0&&value<=MAX_SAFE_INTEGER;}/**
-	 * Checks if `value` is the
-	 * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
-	 * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is an object, else `false`.
-	 * @example
-	 *
-	 * _.isObject({});
-	 * // => true
-	 *
-	 * _.isObject([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isObject(_.noop);
-	 * // => true
-	 *
-	 * _.isObject(null);
-	 * // => false
-	 */function isObject(value){var type=typeof value;return !!value&&(type=='object'||type=='function');}/**
-	 * Checks if `value` is object-like. A value is object-like if it's not `null`
-	 * and has a `typeof` result of "object".
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
-	 * @example
-	 *
-	 * _.isObjectLike({});
-	 * // => true
-	 *
-	 * _.isObjectLike([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isObjectLike(_.noop);
-	 * // => false
-	 *
-	 * _.isObjectLike(null);
-	 * // => false
-	 */function isObjectLike(value){return !!value&&typeof value=='object';}/**
-	 * Creates an array of the own enumerable property names of `object`.
-	 *
-	 * **Note:** Non-object values are coerced to objects. See the
-	 * [ES spec](http://ecma-international.org/ecma-262/7.0/#sec-object.keys)
-	 * for more details.
-	 *
-	 * @static
-	 * @since 0.1.0
-	 * @memberOf _
-	 * @category Object
-	 * @param {Object} object The object to query.
-	 * @returns {Array} Returns the array of property names.
-	 * @example
-	 *
-	 * function Foo() {
-	 *   this.a = 1;
-	 *   this.b = 2;
-	 * }
-	 *
-	 * Foo.prototype.c = 3;
-	 *
-	 * _.keys(new Foo);
-	 * // => ['a', 'b'] (iteration order is not guaranteed)
-	 *
-	 * _.keys('hi');
-	 * // => ['0', '1']
-	 */function keys(object){return isArrayLike(object)?arrayLikeKeys(object):baseKeys(object);}/**
-	 * This method returns a new empty array.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.13.0
-	 * @category Util
-	 * @returns {Array} Returns the new empty array.
-	 * @example
-	 *
-	 * var arrays = _.times(2, _.stubArray);
-	 *
-	 * console.log(arrays);
-	 * // => [[], []]
-	 *
-	 * console.log(arrays[0] === arrays[1]);
-	 * // => false
-	 */function stubArray(){return [];}/**
-	 * This method returns `false`.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.13.0
-	 * @category Util
-	 * @returns {boolean} Returns `false`.
-	 * @example
-	 *
-	 * _.times(2, _.stubFalse);
-	 * // => [false, false]
-	 */function stubFalse(){return false;}module.exports=cloneDeep;})(lodash_clonedeep,lodash_clonedeep.exports);var lodash_clonedeepExports=lodash_clonedeep.exports;var cloneDeep = /*@__PURE__*/getDefaultExportFromCjs(lodash_clonedeepExports);
+/**
+ * Optimized internal two-arity curry function.
+ *
+ * @private
+ * @category Function
+ * @param {Function} fn The function to curry.
+ * @return {Function} The curried function.
+ */function _curry2(fn){return function f2(a,b){switch(arguments.length){case 0:return f2;case 1:return _isPlaceholder(a)?f2:_curry1(function(_b){return fn(a,_b);});default:return _isPlaceholder(a)&&_isPlaceholder(b)?f2:_isPlaceholder(a)?_curry1(function(_a){return fn(_a,b);}):_isPlaceholder(b)?_curry1(function(_b){return fn(a,_b);}):fn(a,b);}};}
+
+/**
+ * Gives a single-word string description of the (native) type of a value,
+ * returning such answers as 'Object', 'Number', 'Array', or 'Null'. Does not
+ * attempt to distinguish user Object types any further, reporting them all as
+ * 'Object'.
+ *
+ * @func
+ * @memberOf R
+ * @since v0.8.0
+ * @category Type
+ * @sig * -> String
+ * @param {*} val The value to test
+ * @return {String}
+ * @example
+ *
+ *      R.type({}); //=> "Object"
+ *      R.type(1); //=> "Number"
+ *      R.type(false); //=> "Boolean"
+ *      R.type('s'); //=> "String"
+ *      R.type(null); //=> "Null"
+ *      R.type([]); //=> "Array"
+ *      R.type(/[A-z]/); //=> "RegExp"
+ *      R.type(() => {}); //=> "Function"
+ *      R.type(async () => {}); //=> "AsyncFunction"
+ *      R.type(undefined); //=> "Undefined"
+ *      R.type(BigInt(123)); //=> "BigInt"
+ */var type$1=/*#__PURE__*/_curry1(function type(val){return val===null?'Null':val===undefined?'Undefined':Object.prototype.toString.call(val).slice(8,-1);});
+
+function _cloneRegExp(pattern){return new RegExp(pattern.source,pattern.flags?pattern.flags:(pattern.global?'g':'')+(pattern.ignoreCase?'i':'')+(pattern.multiline?'m':'')+(pattern.sticky?'y':'')+(pattern.unicode?'u':'')+(pattern.dotAll?'s':''));}
+
+/**
+ * Copies an object.
+ *
+ * @private
+ * @param {*} value The value to be copied
+ * @param {Boolean} deep Whether or not to perform deep cloning.
+ * @return {*} The copied value.
+ */function _clone(value,deep,map){map||(map=new _ObjectMap());// this avoids the slower switch with a quick if decision removing some milliseconds in each run.
+if(_isPrimitive(value)){return value;}var copy=function copy(copiedValue){// Check for circular and same references on the object graph and return its corresponding clone.
+var cachedCopy=map.get(value);if(cachedCopy){return cachedCopy;}map.set(value,copiedValue);for(var key in value){if(Object.prototype.hasOwnProperty.call(value,key)){copiedValue[key]=_clone(value[key],true,map);}}return copiedValue;};switch(type$1(value)){case 'Object':return copy(Object.create(Object.getPrototypeOf(value)));case 'Array':return copy(Array(value.length));case 'Date':return new Date(value.valueOf());case 'RegExp':return _cloneRegExp(value);case 'Int8Array':case 'Uint8Array':case 'Uint8ClampedArray':case 'Int16Array':case 'Uint16Array':case 'Int32Array':case 'Uint32Array':case 'Float32Array':case 'Float64Array':case 'BigInt64Array':case 'BigUint64Array':return value.slice();default:return value;}}function _isPrimitive(param){var type=typeof param;return param==null||type!='object'&&type!='function';}var _ObjectMap=/*#__PURE__*/function(){function _ObjectMap(){this.map={};this.length=0;}_ObjectMap.prototype.set=function(key,value){var hashedKey=this.hash(key);var bucket=this.map[hashedKey];if(!bucket){this.map[hashedKey]=bucket=[];}bucket.push([key,value]);this.length+=1;};_ObjectMap.prototype.hash=function(key){var hashedKey=[];for(var value in key){hashedKey.push(Object.prototype.toString.call(key[value]));}return hashedKey.join();};_ObjectMap.prototype.get=function(key){/**
+     * depending on the number of objects to be cloned is faster to just iterate over the items in the map just because the hash function is so costly,
+     * on my tests this number is 180, anything above that using the hash function is faster.
+     */if(this.length<=180){for(var p in this.map){var bucket=this.map[p];for(var i=0;i<bucket.length;i+=1){var element=bucket[i];if(element[0]===key){return element[1];}}}return;}var hashedKey=this.hash(key);var bucket=this.map[hashedKey];if(!bucket){return;}for(var i=0;i<bucket.length;i+=1){var element=bucket[i];if(element[0]===key){return element[1];}}};return _ObjectMap;}();
+
+/**
+ * Creates a deep copy of the source that can be used in place of the source
+ * object without retaining any references to it.
+ * The source object may contain (nested) `Array`s and `Object`s,
+ * `Number`s, `String`s, `Boolean`s and `Date`s.
+ * `Function`s are assigned by reference rather than copied.
+ *
+ * Dispatches to a `clone` method if present.
+ *
+ * Note that if the source object has multiple nodes that share a reference,
+ * the returned object will have the same structure, but the references will
+ * be pointed to the location within the cloned value.
+ *
+ * @func
+ * @memberOf R
+ * @since v0.1.0
+ * @category Object
+ * @sig {*} -> {*}
+ * @param {*} value The object or array to clone
+ * @return {*} A deeply cloned copy of `val`
+ * @example
+ *
+ *      const objects = [{}, {}, {}];
+ *      const objectsClone = R.clone(objects);
+ *      objects === objectsClone; //=> false
+ *      objects[0] === objectsClone[0]; //=> false
+ */var clone=/*#__PURE__*/_curry1(function clone(value){return value!=null&&typeof value.clone==='function'?value.clone():_clone(value);});
+
+/**
+ * See if an object (i.e. `val`) is an instance of the supplied constructor. This
+ * function will check up the inheritance chain, if any.
+ * If `val` was created using `Object.create`, `R.is(Object, val) === true`.
+ *
+ * @func
+ * @memberOf R
+ * @since v0.3.0
+ * @category Type
+ * @sig (* -> {*}) -> a -> Boolean
+ * @param {Object} ctor A constructor
+ * @param {*} val The value to test
+ * @return {Boolean}
+ * @example
+ *
+ *      R.is(Object, {}); //=> true
+ *      R.is(Number, 1); //=> true
+ *      R.is(Object, 1); //=> false
+ *      R.is(String, 's'); //=> true
+ *      R.is(String, new String('')); //=> true
+ *      R.is(Object, new String('')); //=> true
+ *      R.is(Object, 's'); //=> false
+ *      R.is(Number, {}); //=> false
+ */var is=/*#__PURE__*/_curry2(function is(Ctor,val){return val instanceof Ctor||val!=null&&(val.constructor===Ctor||Ctor.name==='Object'&&typeof val==='object');});
 
 /**
  * - Create a request object
@@ -4049,7 +3126,7 @@ var tag=isObject(value)?objectToString.call(value):'';return tag==funcTag||tag==
  * Fetch API stage two is to get response body. This funtion tries to retrieve
  * response body based on response's type
  */async function getResponse(request,config){let stageOne;try{stageOne=await fetch(request);}catch(e){return createError('Network Error',config,'ERR_NETWORK',request);}const response={ok:stageOne.ok,status:stageOne.status,statusText:stageOne.statusText,headers:new Headers(stageOne.headers),// Make a copy of headers
-config:config,request};if(stageOne.status>=200&&stageOne.status!==204){switch(config.responseType){case'arraybuffer':response.data=await stageOne.arrayBuffer();break;case'blob':response.data=await stageOne.blob();break;case'json':response.data=await stageOne.json();break;case'formData':response.data=await stageOne.formData();break;default:response.data=await stageOne.text();break;}}return response;}/**
+config:config,request};if(stageOne.status>=200&&stageOne.status!==204){switch(config.responseType){case 'arraybuffer':response.data=await stageOne.arrayBuffer();break;case 'blob':response.data=await stageOne.blob();break;case 'json':response.data=await stageOne.json();break;case 'formData':response.data=await stageOne.formData();break;default:response.data=await stageOne.text();break;}}return response;}/**
  * This function will create a Request object based on configuration's axios
  */function createRequest(config){const headers=new Headers(config.headers);// HTTP basic authentication
 if(config.auth){const username=config.auth.username||'';const password=config.auth.password?decodeURI(encodeURIComponent(config.auth.password)):'';headers.set('Authorization',`Basic ${btoa(username+':'+password)}`);}const method=config.method.toUpperCase();const options={headers:headers,method};if(method!=='GET'&&method!=='HEAD'){options.body=config.data;// In these cases the browser will automatically set the correct Content-Type,
@@ -4094,19 +3171,56 @@ description:this.description,number:this.number,// Mozilla
 fileName:this.fileName,lineNumber:this.lineNumber,columnNumber:this.columnNumber,stack:this.stack,// Axios
 config:this.config,code:this.code,status:this.response&&this.response.status?this.response.status:null};};return error;}
 
-const{toString}=Object.prototype;const NODE_TYPE_ELEMENT=1;const DOM_PROPERTIES_TO_CHECK=['innerHTML','ownerDocument','style','attributes','nodeValue'];function isObject$1(value){return value!==null&&typeof value==='object';}function isHtmlElement(value){return isObject$1(value)&&value.nodeType===NODE_TYPE_ELEMENT&&typeof value.nodeName==='string'&&DOM_PROPERTIES_TO_CHECK.every(property=>property in value);}var componentType=function(value){if(value===undefined){return 'undefined';}if(value===null){return 'null';}if(Number.isNaN(value)){return 'nan';}if(Array.isArray(value)){return 'array';}switch(toString.call(value)){case'[object Date]':{return 'date';}case'[object RegExp]':{return 'regexp';}case'[object Arguments]':{return 'arguments';}case'[object Error]':{return 'error';}// No default
-}if(value&&isHtmlElement(value)){return 'element';}if(value&&value instanceof Uint8Array&&value.constructor.name==='Buffer'){return 'buffer';}if(typeof value.valueOf==='function'){value=value.valueOf?.()??Object.prototype.valueOf.apply(value);}return typeof value;};var type = /*@__PURE__*/getDefaultExportFromCjs(componentType);
+const URL_PATTERN=new RegExp('^(https?:\\/\\/)'+// protocol
+'('+'((([a-zA-Z\\d]([a-zA-Z\\d-]*[a-zA-Z\\d])*)\\.)+[a-zA-Z]{2,}|'+// domain name
+'localhost|'+// localhost
+'((25[0-5]|2[0-4][0-9]|[0-1]?[0-9]?[0-9]?)\\.){3}'+// OR IP (v4) address first 3 octets
+'(25[0-5]|2[0-4][0-9]|[0-1]?[0-9]?[0-9]?))'+// last octet of IP address
+')'+'(\\:\\d+)?'+// port
+'(\\/[-a-zA-Z\\d%_.~+]*)*'+// path
+'(\\?[;&a-zA-Z\\d%_.~+=-]*)?'+// query string
+'(\\#[-a-zA-Z\\d_]*)?$')// fragment locator
+;
 
 /**
- * Join `arr` with the trailing `str` defaulting to "and",
- * and `sep` string defaulting to ", ".
- *
- * @param {Array} arr
- * @param {String} str
- * @param {String} sep
- * @return {String}
- * @api public
- */var joinComponent=function(arr,str,sep){str=str||'and';sep=sep||', ';if(arr.length<2)return arr[0]||'';var oxford=str.slice(0,2)===sep;if(!oxford){str=' '+str;}else if(arr.length==2){str=str.slice(1);}return arr.slice(0,-1).join(sep)+str+' '+arr[arr.length-1];};var join = /*@__PURE__*/getDefaultExportFromCjs(joinComponent);
+ * A function to check given value is a function
+ * @param value input value
+ * @returns boolean
+ */// eslint-disable-next-line @typescript-eslint/ban-types
+const isFunction$2=value=>typeof value==='function'&&Boolean(value.constructor&&value.call&&value.apply);/**
+ * A function to check given value is a string
+ * @param value input value
+ * @returns boolean
+ */const isString$1=value=>typeof value==='string';
+
+/**
+ * Checks if provided url is valid or not
+ * @param url
+ * @returns true if `url` is valid and false otherwise
+ */const isValidURL=url=>{if(!isString$1(url)){return false;}try{// If URL is supported by the browser, we can use it to validate the URL
+// Otherwise, we can at least check if the URL matches the pattern
+if(isFunction$2(globalThis.URL)){// eslint-disable-next-line no-new
+new URL(url);}return URL_PATTERN.test(url);}catch(e){return false;}};
+
+var componentType;var hasRequiredComponentType;function requireComponentType(){if(hasRequiredComponentType)return componentType;hasRequiredComponentType=1;const{toString}=Object.prototype;const NODE_TYPE_ELEMENT=1;const DOM_PROPERTIES_TO_CHECK=['innerHTML','ownerDocument','style','attributes','nodeValue'];function isObject(value){return value!==null&&typeof value==='object';}function isHtmlElement(value){return isObject(value)&&value.nodeType===NODE_TYPE_ELEMENT&&typeof value.nodeName==='string'&&DOM_PROPERTIES_TO_CHECK.every(property=>property in value);}componentType=function(value){if(value===undefined){return 'undefined';}if(value===null){return 'null';}if(Number.isNaN(value)){return 'nan';}if(Array.isArray(value)){return 'array';}switch(toString.call(value)){case '[object Date]':{return 'date';}case '[object RegExp]':{return 'regexp';}case '[object Arguments]':{return 'arguments';}case '[object Error]':{return 'error';}// No default
+}if(value&&isHtmlElement(value)){return 'element';}if(value&&value instanceof Uint8Array&&value.constructor.name==='Buffer'){return 'buffer';}if(typeof value.valueOf==='function'){value=value.valueOf?.()??Object.prototype.valueOf.apply(value);}return typeof value;};return componentType;}
+
+var componentTypeExports = /*@__PURE__*/ requireComponentType();
+const type = /*@__PURE__*/getDefaultExportFromCjs(componentTypeExports);
+
+var joinComponent;var hasRequiredJoinComponent;function requireJoinComponent(){if(hasRequiredJoinComponent)return joinComponent;hasRequiredJoinComponent=1;/**
+	 * Join `arr` with the trailing `str` defaulting to "and",
+	 * and `sep` string defaulting to ", ".
+	 *
+	 * @param {Array} arr
+	 * @param {String} str
+	 * @param {String} sep
+	 * @return {String}
+	 * @api public
+	 */joinComponent=function(arr,str,sep){str=str||'and';sep=sep||', ';if(arr.length<2)return arr[0]||'';var oxford=str.slice(0,2)===sep;if(!oxford){str=' '+str;}else if(arr.length==2){str=str.slice(1);}return arr.slice(0,-1).join(sep)+str+' '+arr[arr.length-1];};return joinComponent;}
+
+var joinComponentExports = requireJoinComponent();
+const join = /*@__PURE__*/getDefaultExportFromCjs(joinComponentExports);
 
 var inherits;
 if (typeof Object.create === 'function'){
@@ -4131,7 +3245,6 @@ if (typeof Object.create === 'function'){
     ctor.prototype.constructor = ctor;
   };
 }
-var inherits$1 = inherits;
 
 /**
  * Echos the value of a value. Trys to print the value out
@@ -4666,7 +3779,7 @@ function AssertionError(options) {
 }
 
 // assert.AssertionError instanceof Error
-inherits$1(AssertionError, Error);
+inherits(AssertionError, Error);
 
 function truncate(s, n) {
   if (typeof s === 'string') {
@@ -5017,9 +4130,17 @@ for(const key in genericValidationRules){const val=event[key];if(!val){// eslint
 continue;}let rule=genericValidationRules[key];if(type(rule)!=='array'){rule=[rule];}const a=rule[0]==='object'?'an':'a';assert(rule.some(e=>type(val)===e),`"${key}" must be ${a} ${join(rule,'or')}.`);}};/**
  * Validate an event.
  */const looselyValidateEvent=(event,type)=>{validateGenericEvent(event);// eslint-disable-next-line no-param-reassign
-type=type||event.type;assert(type,'You must pass an event type.');switch(type){case'track':return validateTrackEvent(event);case'group':return validateGroupEvent(event);case'identify':return validateIdentifyEvent(event);case'page':return validatePageEvent(event);case'screen':return validateScreenEvent(event);case'alias':return validateAliasEvent(event);default:return assert(0,`Invalid event type: "${type}"`);}};
+type=type||event.type;assert(type,'You must pass an event type.');switch(type){case 'track':return validateTrackEvent(event);case 'group':return validateGroupEvent(event);case 'identify':return validateIdentifyEvent(event);case 'page':return validatePageEvent(event);case 'screen':return validateScreenEvent(event);case 'alias':return validateAliasEvent(event);default:return assert(0,`Invalid event type: "${type}"`);}};
 
-const version='3.0.6';const removeTrailingSlashes=inURL=>inURL&&inURL.endsWith('/')?inURL.replace(/\/+$/,''):inURL;const isFunction=value=>typeof value==='function'&&Boolean(value.constructor&&value.call&&value.apply);const setImmediate=browser$1.nextTick.bind(browser$1);const noop=()=>{};class Analytics{/**
+const BATCH_ENDPOINT='v1/batch';const removeTrailingSlashes=inURL=>// Disabling the rule because the optimized regex may cause
+// super-linear runtime issue due to backtracking
+// eslint-disable-next-line unicorn/better-regex
+inURL&&inURL.endsWith('/')?inURL.replace(/(?:\/+)$/,''):inURL;const isFunction=value=>typeof value==='function'&&Boolean(value.constructor&&value.call&&value.apply);const noop=()=>{};const getDataPlaneUrl=dataPlaneUrl=>{// Remove trailing slashes from dataPlaneUrl
+const cleanedDataPlaneUrl=removeTrailingSlashes(dataPlaneUrl);// check if the URL ends with /v1/batch endpoint
+// if it's not present, append it to the URL and return the string
+if(cleanedDataPlaneUrl.endsWith(BATCH_ENDPOINT)){return cleanedDataPlaneUrl;}return `${cleanedDataPlaneUrl}/${BATCH_ENDPOINT}`;};
+
+const version='3.2.23';class Analytics{/**
    * Initialize a new `Analytics` with your RudderStack source's `writeKey` and an
    * optional dictionary of `options`.
    *
@@ -5033,7 +4154,7 @@ const version='3.0.6';const removeTrailingSlashes=inURL=>inURL&&inURL.endsWith('
    * @param {Number} options.timeout (default: false)
    * @param {String=info} options.logLevel (default: info)
    * @param {Function} options.flushOverride (optional)
-   */constructor(writeKey,dataPlaneURL,options){options=options||{};if(!writeKey){throw new Error("You must pass your project's write key.");}if(!dataPlaneURL){throw new Error('You must pass our data plane url.');}this.queue=[];this.writeKey=writeKey;this.host=removeTrailingSlashes(dataPlaneURL);this.timeout=options.timeout||undefined;this.flushAt=options.flushAt?Math.max(options.flushAt,1):20;this.flushInterval=options.flushInterval||20000;this.maxInternalQueueSize=options.maxInternalQueueSize||20000;this.logLevel=options.logLevel||'info';this.flushOverride=options.flushOverride&&isFunction(options.flushOverride)?options.flushOverride:undefined;this.flushed=false;this.axiosInstance=axios.create({adapter:fetchAdapter});Object.defineProperty(this,'enable',{configurable:false,writable:false,enumerable:true,value:typeof options.enable==='boolean'?options.enable:true});this.logger={error(message,...args){if(this.logLevel!=='off'){console.error(`${new Date().toISOString()} ["Rudder"] error: ${message}`,...args);}},info(message,...args){if(['silly','debug','info'].includes(this.logLevel)){console.log(`${new Date().toISOString()} ["Rudder"] info: ${message}`,...args);}},debug(message,...args){if(['silly','debug'].includes(this.logLevel)){console.debug(`${new Date().toISOString()} ["Rudder"] debug: ${message}`,...args);}},silly(message,...args){if(['silly'].includes(this.logLevel)){console.info(`${new Date().toISOString()} ["Rudder"] silly: ${message}`,...args);}}};axiosRetry(this.axiosInstance,{retries:0});}_validate(message,type){try{looselyValidateEvent(message,type);}catch(e){if(e.message==='Your message must be < 32kb.'){this.logger.info('Your message must be < 32kb. This is currently surfaced as a warning. Please update your code',message);return;}throw e;}}/**
+   */constructor(writeKey,dataPlaneURL,options){options=options||{};if(!writeKey){throw new Error('You must pass the source write key.');}if(!isValidURL(dataPlaneURL)){throw new Error(`The provided data plane URL "${dataPlaneURL}" is invalid.`);}this.queue=[];this.writeKey=writeKey;this.host=getDataPlaneUrl(dataPlaneURL);this.timeout=options.timeout||undefined;this.flushAt=options.flushAt?Math.max(options.flushAt,1):20;this.flushInterval=options.flushInterval||20000;this.maxInternalQueueSize=options.maxInternalQueueSize||20000;this.logLevel=options.logLevel||'info';this.flushOverride=options.flushOverride&&isFunction(options.flushOverride)?options.flushOverride:undefined;this.flushed=false;this.axiosInstance=axios.create({adapter:fetchAdapter});Object.defineProperty(this,'enable',{configurable:false,writable:false,enumerable:true,value:typeof options.enable==='boolean'?options.enable:true});this.logger={error(message,...args){if(this.logLevel!=='off'){console.error(`${new Date().toISOString()} ["Rudder"] error: ${message}`,...args);}},info(message,...args){if(['silly','debug','info'].includes(this.logLevel)){console.log(`${new Date().toISOString()} ["Rudder"] info: ${message}`,...args);}},debug(message,...args){if(['silly','debug'].includes(this.logLevel)){console.debug(`${new Date().toISOString()} ["Rudder"] debug: ${message}`,...args);}},silly(message,...args){if(['silly'].includes(this.logLevel)){console.info(`${new Date().toISOString()} ["Rudder"] silly: ${message}`,...args);}}};axiosRetry(this.axiosInstance,{retries:0});}_validate(message,type){try{looselyValidateEvent(message,type);}catch(e){if(e.message==='Your message must be < 32kb.'){this.logger.info('Your message must be < 32kb. This is currently surfaced as a warning. Please update your code',message);return;}throw e;}}/**
    * Send an identify `message`.
    *
    * @param {Object} message
@@ -5113,10 +4234,10 @@ const version='3.0.6';const removeTrailingSlashes=inURL=>inURL&&inURL.endsWith('
    * @api private
    */enqueue(type,message,callback){if(this.queue.length>=this.maxInternalQueueSize){this.logger.error(`not adding events for processing as queue size ${this.queue.length} >= than max configuration ${this.maxInternalQueueSize}`);return;}// Clone the incoming message object
 // before altering the data
-let lMessage=cloneDeep(message);callback=callback||noop;if(!this.enable){return setImmediate(callback);}if(type==='identify'&&lMessage.traits){if(!lMessage.context){lMessage.context={};}lMessage.context.traits=lMessage.traits;}lMessage={...lMessage};lMessage.type=type;lMessage.context={library:{name:'analytics-service-worker',version},...lMessage.context};lMessage.channel='service-worker';lMessage._metadata={serviceWorkerVersion:version,...lMessage._metadata};if(!lMessage.originalTimestamp){lMessage.originalTimestamp=new Date();}if(!lMessage.messageId){lMessage.messageId=v4();}// Historically this library has accepted strings and numbers as IDs.
+let lMessage=clone(message);callback=callback||noop;if(!this.enable){return setImmediate(callback);}if(type==='identify'&&lMessage.traits){if(!lMessage.context){lMessage.context={};}lMessage.context.traits=lMessage.traits;}lMessage={...lMessage};lMessage.type=type;lMessage.context={library:{name:'analytics-service-worker',version},...lMessage.context};lMessage.channel='service-worker';lMessage._metadata={serviceWorkerVersion:version,...lMessage._metadata};if(!lMessage.originalTimestamp){lMessage.originalTimestamp=new Date();}if(!lMessage.messageId){lMessage.messageId=v4();}// Historically this library has accepted strings and numbers as IDs.
 // However, our spec only allows strings. To avoid breaking compatibility,
 // we'll coerce these to strings if they aren't already.
-if(lMessage.anonymousId&&!isString$2(lMessage.anonymousId)){lMessage.anonymousId=JSON.stringify(lMessage.anonymousId);}if(lMessage.userId&&!isString$2(lMessage.userId)){lMessage.userId=JSON.stringify(lMessage.userId);}this.queue.push({message:lMessage,callback});if(!this.flushed){this.flushed=true;this.flush();return;}if(this.queue.length>=this.flushAt){this.logger.debug('flushAt reached, trying flush...');this.flush();}if(this.flushInterval&&!this.flushTimer){this.logger.debug('no existing flush timer, creating new one');this.flushTimer=setTimeout(this.flush.bind(this),this.flushInterval);}}/**
+if(lMessage.anonymousId&&!is(String,lMessage.anonymousId)){lMessage.anonymousId=JSON.stringify(lMessage.anonymousId);}if(lMessage.userId&&!is(String,lMessage.userId)){lMessage.userId=JSON.stringify(lMessage.userId);}this.queue.push({message:lMessage,callback});if(!this.flushed){this.flushed=true;this.flush();return;}if(this.queue.length>=this.flushAt){this.logger.debug('flushAt reached, trying flush...');this.flush();}if(this.flushInterval&&!this.flushTimer){this.logger.debug('no existing flush timer, creating new one');this.flushTimer=setTimeout(this.flush.bind(this),this.flushInterval);}}/**
    * Flush the current queue
    *
    * @param {Function} [callback] (optional)
@@ -5127,7 +4248,7 @@ if(typeof item.message==='object'){item.message.sentAt=new Date();}return item.m
 // the User-Agent header (see https://fetch.spec.whatwg.org/#terminology-headers
 // and https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/setRequestHeader),
 // but browsers such as Chrome and Safari have not caught up.
-const headers={};if(typeof window==='undefined'){headers['user-agent']=`analytics-service-worker/${version}`;headers['Content-Type']=`application/json`;}const reqTimeout=typeof this.timeout==='string'?parseInt(ms$1(this.timeout),10):this.timeout;if(data.batch.length===0){this.logger.debug('batch is empty, nothing to flush');return setImmediate(callback);}if(this.flushOverride){this.flushOverride({host:`${this.host}`,writeKey:this.writeKey,data,headers,reqTimeout,flush:this.flush.bind(this),done,isErrorRetryable:this._isErrorRetryable.bind(this)});}else {const req={method:'POST',url:`${this.host}`,auth:{username:this.writeKey},data,headers};if(reqTimeout){req.timeout=reqTimeout;}this.axiosInstance({...req,'axios-retry':{retries:3,retryCondition:this._isErrorRetryable.bind(this),retryDelay:axiosRetry.exponentialDelay}})// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const headers={};if(typeof window==='undefined'){headers['user-agent']=`analytics-service-worker/${version}`;headers['Content-Type']=`application/json`;}const reqTimeout=typeof this.timeout==='string'?parseInt(ms(this.timeout),10):this.timeout;if(data.batch.length===0){this.logger.debug('batch is empty, nothing to flush');return setImmediate(callback);}if(this.flushOverride){this.flushOverride({host:`${this.host}`,writeKey:this.writeKey,data,headers,reqTimeout,flush:this.flush.bind(this),done,isErrorRetryable:this._isErrorRetryable.bind(this)});}else {const req={method:'POST',url:`${this.host}`,auth:{username:this.writeKey},data,headers};if(reqTimeout){req.timeout=reqTimeout;}this.axiosInstance({...req,'axios-retry':{retries:3,retryCondition:this._isErrorRetryable.bind(this),retryDelay:axiosRetry.exponentialDelay}})// eslint-disable-next-line @typescript-eslint/no-unused-vars
 .then(response=>{this.timer=setTimeout(this.flush.bind(this),this.flushInterval);done();}).catch(err=>{this.logger.error(err);this.logger.error(`got error while attempting send for 3 times, dropping ${items.length} events`);this.timer=setTimeout(this.flush.bind(this),this.flushInterval);if(err.response){const error=new Error(err.response.statusText);return done(error);}done(err);});}}_isErrorRetryable(error){// Retry Network Errors.
 if(axiosRetry.isNetworkError(error)){return true;}if(!error.response){// Cannot determine if the request can be retried
 return false;}this.logger.error(`error status: ${error.response.status}`);// Retry Server Errors (5xx).

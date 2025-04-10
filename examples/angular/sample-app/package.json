@@ -8,7 +8,9 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "clean": "rm -rf node_modules package-lock.json dist .angular",
+    "setup": "npm install"
   },
   "private": true,
   "dependencies": {
