@@ -2,8 +2,13 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { Analytics } from '@rudderstack/analytics-js-service-worker';
 
-const writeKey = process.env.NEXT_PUBLIC_RUDDERSTACK_WRITE_KEY || '';
-const dataplaneUrl = process.env.NEXT_PUBLIC_RUDDERSTACK_DATAPLANE_URL || '';
+const writeKey = process.env.NEXT_PUBLIC_RUDDERSTACK_WRITE_KEY;
+const dataplaneUrl = process.env.NEXT_PUBLIC_RUDDERSTACK_DATAPLANE_URL;
+
+// Validate configuration
+if (!writeKey || !dataplaneUrl) {
+  console.error('RudderStack configuration missing. Please check environment variables.');
+}
 
 const rudderClient = new Analytics(writeKey, `${dataplaneUrl}/v1/batch`, {
   flushAt: 1,
