@@ -16,7 +16,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   constructor(private _router: Router, private rudderAnalyticsService: RudderAnalyticsService) {}
   
-  async ngOnInit() {
+  ngOnInit() {
     this.routerEventSubscription = this._router.events.subscribe(event => {
       if (event instanceof NavigationStart) {
         this.rudderAnalyticsService.getAnalytics()?.page(event.url);

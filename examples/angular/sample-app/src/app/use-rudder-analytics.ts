@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { RudderAnalytics, type RudderAnalyticsPreloader } from '@rudderstack/analytics-js';
+import { environment } from '../../environments/environment';
 
 // Shared initialization promise
 let initializationPromise: Promise<RudderAnalytics | RudderAnalyticsPreloader | undefined> | null = null;
@@ -27,11 +28,9 @@ export class RudderAnalyticsService {
         return this.analytics;
       }
 
-      // Read env variables
-      // Note: In Angular, environment variables need to be set up differently
-      // and can be accessed via ngEnvironment or window properties
-      const writeKey = (window as any).NG_APP_RUDDERSTACK_WRITE_KEY;
-      const dataplaneUrl = (window as any).NG_APP_RUDDERSTACK_DATAPLANE_URL;
+      // Get configuration from environment
+      const writeKey = environment.RUDDERSTACK_WRITE_KEY;
+      const dataplaneUrl = environment.RUDDERSTACK_DATAPLANE_URL;
 
       if (!writeKey || !dataplaneUrl) {
         console.error(`

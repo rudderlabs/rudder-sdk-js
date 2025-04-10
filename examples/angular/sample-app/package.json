@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "prebuild": "node scripts/replace-env-placeholders.js",
-    "prestart": "node scripts/replace-env-placeholders.js",
+    "prebuild": "node scripts/setup-env.js",
+    "prestart": "node scripts/setup-env.js",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
