@@ -26,8 +26,16 @@ find examples -name ".env.example" | while read -r example_file; do
     cp "$example_file" "$dir/.env"
     
     # Replace placeholder values with actual values from root .env
-    sed -i '' "s|\${WRITE_KEY}|$WRITE_KEY|g" "$dir/.env"
-    sed -i '' "s|\${DATAPLANE_URL}|$DATAPLANE_URL|g" "$dir/.env"
+    # Handle both macOS and Linux sed syntax
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS
+        sed -i '' "s|\${WRITE_KEY}|$WRITE_KEY|g" "$dir/.env"
+        sed -i '' "s|\${DATAPLANE_URL}|$DATAPLANE_URL|g" "$dir/.env"
+    else
+        # Linux and others
+        sed -i "s|\${WRITE_KEY}|$WRITE_KEY|g" "$dir/.env"
+        sed -i "s|\${DATAPLANE_URL}|$DATAPLANE_URL|g" "$dir/.env"
+    fi
 done
 
 echo "Environment setup complete!" 
