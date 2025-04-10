@@ -1,6 +1,6 @@
-# Rudderstack Cloudflare Worker Example
+# RudderStack Cloudflare Worker Example
 
-This example demonstrates how to integrate Rudderstack with a Cloudflare Worker.
+This example demonstrates how to integrate RudderStack with a Cloudflare Worker.
 
 ## Setup
 
@@ -9,7 +9,7 @@ This example demonstrates how to integrate Rudderstack with a Cloudflare Worker.
    cp .env.example .env
    ```
 
-2. Update the `.env` file with your Rudderstack credentials:
+2. Update the `.env` file with your RudderStack credentials:
    ```
    RUDDERSTACK_WRITE_KEY=your_write_key_here
    RUDDERSTACK_DATAPLANE_URL=your_dataplane_url_here
@@ -55,5 +55,5 @@ This will start a local development server that simulates the Cloudflare Workers
 
 ## Learn More
 
-- [Rudderstack Documentation](https://rudderstack.com/docs/)
+- [RudderStack Documentation](https://rudderstack.com/docs/)
 - [Cloudflare Workers Documentation](https://developers.cloudflare.com/workers/) 

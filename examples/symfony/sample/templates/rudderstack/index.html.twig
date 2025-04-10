@@ -1,0 +1,134 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}RudderStack Integration Example{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        // Add event handlers for the buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            // Track event button
+            document.getElementById('track-btn').addEventListener('click', function() {
+                window.rudderanalytics.track('Button Clicked', {
+                    buttonName: 'Track Event Button',
+                    page: 'Home'
+                });
+                updateEventLog('Track', 'Button Clicked event sent');
+            });
+            
+            // Page event button
+            document.getElementById('page-btn').addEventListener('click', function() {
+                window.rudderanalytics.page('Product Page', {
+                    path: '/products',
+                    referrer: 'Home Page'
+                });
+                updateEventLog('Page', 'Page view event sent');
+            });
+            
+            // Identify event button
+            document.getElementById('identify-btn').addEventListener('click', function() {
+                window.rudderanalytics.identify('user-' + Date.now(), {
+                    name: 'Test User',
+                    email: 'user@example.com',
+                    plan: 'Premium'
+                });
+                updateEventLog('Identify', 'User identification event sent');
+            });
+            
+            // Group event button
+            document.getElementById('group-btn').addEventListener('click', function() {
+                window.rudderanalytics.group('group-' + Date.now(), {
+                    name: 'Test Company',
+                    industry: 'Technology',
+                    employees: 100
+                });
+                updateEventLog('Group', 'Group identification event sent');
+            });
+            
+            // Alias event button
+            document.getElementById('alias-btn').addEventListener('click', function() {
+                const previousId = 'prev-user-' + Math.floor(Math.random() * 1000);
+                const userId = 'user-' + Date.now();
+                
+                // First identify with the previous ID
+                window.rudderanalytics.identify(previousId);
+                updateEventLog('Identify', `Identified with previous ID: ${previousId}`);
+                
+                // Then create the alias
+                setTimeout(() => {
+                    window.rudderanalytics.alias({
+                        previousId: previousId,
+                        userId: userId
+                    });
+                    updateEventLog('Alias', `Created alias from ${previousId} to ${userId}`);
+                }, 500);
+            });
+            
+            // Helper to update the event log
+            function updateEventLog(type, message) {
+                const logContainer = document.getElementById('event-log');
+                const timestamp = new Date().toLocaleTimeString();
+                const logEntry = document.createElement('div');
+                logEntry.className = 'alert alert-info mt-2';
+                logEntry.textContent = `[${timestamp}] ${type}: ${message}`;
+                logContainer.prepend(logEntry);
+                
+                // Only keep the last 5 log entries
+                const entries = logContainer.querySelectorAll('div');
+                if (entries.length > 5) {
+                    for (let i = 5; i < entries.length; i++) {
+                        entries[i].remove();
+                    }
+                }
+            }
+        });
+    </script>
+{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h1 class="h3 mb-0">RudderStack Integration with Symfony</h1>
+                    </div>
+                    <div class="card-body">
+                        <p class="lead">This is an example of integrating RudderStack with a Symfony application.</p>
+                        
+                        <div class="bg-light p-3 my-4 rounded">
+                            <h4>Current Configuration</h4>
+                            <div class="mb-2">
+                                <strong>Write Key:</strong> {{ rudderstack_write_key }}
+                            </div>
+                            <div>
+                                <strong>Dataplane URL:</strong> {{ rudderstack_dataplane_url }}
+                            </div>
+                        </div>
+                        
+                        <h4>Test RudderStack Events</h4>
+                        <p>Click on a button to send a test event to RudderStack:</p>
+                        
+                        <div class="d-flex mb-4 flex-wrap gap-2">
+                            <button id="track-btn" class="btn btn-success">Track Event</button>
+                            <button id="page-btn" class="btn btn-info">Page Event</button>
+                            <button id="identify-btn" class="btn btn-warning">Identify Event</button>
+                            <button id="group-btn" class="btn btn-danger">Group Event</button>
+                            <button id="alias-btn" class="btn btn-primary">Alias Event</button>
+                        </div>
+                        
+                        <h4>Event Log</h4>
+                        <div id="event-log" class="p-3 border rounded bg-light">
+                            <div class="text-muted">No events yet. Click a button above to send an event.</div>
+                        </div>
+                        
+                        <div class="alert alert-info mt-4">
+                            <p class="mb-0">Check your browser console to see detailed information about the events.</p>
+                            <p class="mb-0">A page view event should have been tracked when this page loaded.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %} 
