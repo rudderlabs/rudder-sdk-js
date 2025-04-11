@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@rudderstack/analytics-js-service-worker": "*",
-    "autoprefixer": "10.4.20",
+    "autoprefixer": "10.4.21",
     "next": "15.2.4",
     "postcss": "8.4.49",
     "react": "19.0.0",
