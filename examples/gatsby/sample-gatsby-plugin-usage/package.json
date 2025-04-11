@@ -20,7 +20,7 @@
     "gatsby": "5.14.1",
     "gatsby-plugin-rudderstack": "*",
     "react": "18.3.1",
-    "react-dom": "18.3.1"
+    "react-dom": "19.0.0"
   },
   "devDependencies": {
     "@types/node": "22.10.5",
