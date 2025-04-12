@@ -58,7 +58,7 @@ class Clevertap {
     const sourceUrl =
       document.location.protocol === 'https:'
         ? 'https://d2r1yp2w7bby2u.cloudfront.net/js/clevertap.min.js'
-        : 'http://static.clevertap.com/js/clevertap.min.js';
+        : 'https://static.clevertap.com/js/clevertap.min.js';
 
     window.clevertap = {
       event: [],
