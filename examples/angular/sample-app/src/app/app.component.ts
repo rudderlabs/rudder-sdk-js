@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/consistent-type-imports */
 import { Subscription } from 'rxjs';
 import { NavigationStart, Router } from '@angular/router';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { RudderAnalytics } from '@rudderstack/analytics-js';
+import { RudderAnalyticsService } from './use-rudder-analytics';
 
 @Component({
   selector: 'app-root',
@@ -11,35 +12,20 @@ import { RudderAnalytics } from '@rudderstack/analytics-js';
 })
 export class AppComponent implements OnInit, OnDestroy {
   title = 'sample-app';
-  analytics: RudderAnalytics | undefined;
   routerEventSubscription: Subscription | undefined;
 
-  constructor(private _router: Router) {}
+  constructor(private _router: Router, private rudderAnalyticsService: RudderAnalyticsService) {}
+  
   ngOnInit() {
-    this.initialize();
-
     this.routerEventSubscription = this._router.events.subscribe(event => {
       if (event instanceof NavigationStart) {
-        this.analytics?.page(event.url);
+        this.rudderAnalyticsService.getAnalytics()?.page(event.url);
       }
     });
   }
 
-  initialize() {
-    if ((window.rudderanalytics as RudderAnalytics) && !Array.isArray(window.rudderanalytics)) {
-      return;
-    }
-    this.analytics = new RudderAnalytics();
-
-    this.analytics.load('<writeKey>', '<dataplaneUrl>');
-
-    this.analytics.ready(() => {
-      console.log('We are all set!!!');
-    });
-  }
-
   page() {
-    this.analytics?.page(
+    this.rudderAnalyticsService.getAnalytics()?.page(
       'Cart',
       'Cart Viewed',
       {
@@ -55,7 +41,7 @@ export class AppComponent implements OnInit, OnDestroy {
     );
   }
   identify() {
-    this.analytics?.identify(
+    this.rudderAnalyticsService.getAnalytics()?.identify(
       'sample-user-123',
       {
         firstName: 'Alex',
@@ -69,7 +55,7 @@ export class AppComponent implements OnInit, OnDestroy {
     );
   }
   track() {
-    this.analytics?.track(
+    this.rudderAnalyticsService.getAnalytics()?.track(
       'Order Completed',
       {
         revenue: 30,
@@ -82,7 +68,7 @@ export class AppComponent implements OnInit, OnDestroy {
     );
   }
   group() {
-    this.analytics?.group(
+    this.rudderAnalyticsService.getAnalytics()?.group(
       'sample_group_id',
       {
         name: 'Apple Inc.',
@@ -94,7 +80,7 @@ export class AppComponent implements OnInit, OnDestroy {
     );
   }
   alias() {
-    this.analytics?.alias('alias-user-id', () => {
+    this.rudderAnalyticsService.getAnalytics()?.alias('alias-user-id', () => {
       console.log('alias call');
     });
   }

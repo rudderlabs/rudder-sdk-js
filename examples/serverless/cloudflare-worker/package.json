@@ -4,18 +4,17 @@
 	"private": true,
 	"scripts": {
 		"deploy": "wrangler deploy",
-		"start": "wrangler dev"
+		"start": "wrangler dev",
+		"config": "node scripts/update-wrangler-config.js"
 	},
 	"devDependencies": {
-		"wrangler": "3.78.10"
+		"dotenv": "16.4.5",
+		"wrangler": "3.82.0"
 	},
 	"dependencies": {
 		"@rudderstack/analytics-js-service-worker": "*",
 		"@vespaiach/axios-fetch-adapter": "0.3.1",
 		"host-proxy": "1.0.2",
 		"http-forward": "0.1.3"
-	},
-	"overrides": {
-		"cookie": "0.7.2"
 	}
 }

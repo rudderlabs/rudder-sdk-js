@@ -1,16 +1,9 @@
 import logo from './logo.svg';
 import './App.css';
-import { useEffect } from 'react';
 import useRudderStackAnalytics from './useRudderAnalytics';
 
 function App() {
   const analytics = useRudderStackAnalytics();
-
-  useEffect(() => {
-    if (analytics) {
-      analytics.page('Auto track');
-    }
-  }, [analytics]);
 
   const page = () => {
     analytics?.page(

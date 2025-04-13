@@ -1,7 +1,6 @@
 import * as React from 'react';
 import type { HeadFC, PageProps } from 'gatsby';
-import { useEffect } from 'react';
-import { RudderAnalytics } from '@rudderstack/analytics-js';
+import useRudderAnalytics from '../utils/useRudderAnalytics';
 
 const pageStyles = {
   color: '#232129',
@@ -79,108 +78,101 @@ const badgeStyle = {
   lineHeight: 1,
 };
 
-const page = () => {
-  (window.rudderanalytics as RudderAnalytics).page(
-    'Cart',
-    'Cart Viewed',
-    {
-      path: '/best-seller/1',
-      referrer: 'https://www.google.com/search?q=estore+bestseller',
-      search: 'estore bestseller',
-      title: 'The best sellers offered by EStore',
-      url: 'https://www.estore.com/best-seller/1',
-    },
-    () => {
-      console.log('page call');
-    },
-  );
-};
-const identify = () => {
-  (window.rudderanalytics as RudderAnalytics).identify(
-    'sample-user-123',
-    {
-      firstName: 'Alex',
-      lastName: 'Keener',
-      email: 'alex@example.com',
-      phone: '+1-202-555-0146',
-    },
-    () => {
-      console.log('identify call');
-    },
-  );
-};
-const track = () => {
-  (window.rudderanalytics as RudderAnalytics).track(
-    'Order Completed',
-    {
-      revenue: 30,
-      currency: 'USD',
-      user_actual_id: 12345,
-    },
-    () => {
-      console.log('track call');
-    },
-  );
-};
-const alias = () => {
-  (window.rudderanalytics as RudderAnalytics).alias('alias-user-id', () => {
-    console.log('alias call');
-  });
-};
-const group = () => {
-  (window.rudderanalytics as RudderAnalytics).group(
-    'sample_group_id',
-    {
-      name: 'Apple Inc.',
-      location: 'USA',
-    },
-    () => {
-      console.log('group call');
-    },
-  );
-};
-
-const buttons = [
-  {
-    text: 'Page',
-    color: '#E95800',
-    action: page,
-  },
-  {
-    text: 'Identify',
-    color: '#1099A8',
-    action: identify,
-  },
-  {
-    text: 'Track',
-    color: '#BC027F',
-    action: track,
-  },
-  {
-    text: 'Group',
-    color: '#0D96F2',
-    action: group,
-  },
-  {
-    text: 'Alias',
-    color: '#8EB814',
-    action: alias,
-  },
-];
-
 const IndexPage: React.FC<PageProps> = () => {
-  useEffect(() => {
-    if (window.rudderanalytics as RudderAnalytics) {
-      return;
-    }
-    const analytics = new RudderAnalytics();
+  const rudderAnalytics = useRudderAnalytics();
 
-    analytics.load('<writeKey>', '<dataplaneUrl>');
-
-    analytics.ready(() => {
-      console.log('We are all set!!!');
+  const page = () => {
+    rudderAnalytics?.page(
+      'Cart',
+      'Cart Viewed',
+      {
+        path: '/best-seller/1',
+        referrer: 'https://www.google.com/search?q=estore+bestseller',
+        search: 'estore bestseller',
+        title: 'The best sellers offered by EStore',
+        url: 'https://www.estore.com/best-seller/1',
+      },
+      () => {
+        console.log('page call');
+      },
+    );
+  };
+  
+  const identify = () => {
+    rudderAnalytics?.identify(
+      'sample-user-123',
+      {
+        firstName: 'Alex',
+        lastName: 'Keener',
+        email: 'alex@example.com',
+        phone: '+1-202-555-0146',
+      },
+      () => {
+        console.log('identify call');
+      },
+    );
+  };
+  
+  const track = () => {
+    rudderAnalytics?.track(
+      'Order Completed',
+      {
+        revenue: 30,
+        currency: 'USD',
+        user_actual_id: 12345,
+      },
+      () => {
+        console.log('track call');
+      },
+    );
+  };
+  
+  const alias = () => {
+    rudderAnalytics?.alias('alias-user-id', () => {
+      console.log('alias call');
     });
-  }, []);
+  };
+  
+  const group = () => {
+    rudderAnalytics?.group(
+      'sample_group_id',
+      {
+        name: 'Apple Inc.',
+        location: 'USA',
+      },
+      () => {
+        console.log('group call');
+      },
+    );
+  };
+
+  const buttons = [
+    {
+      text: 'Page',
+      color: '#E95800',
+      action: page,
+    },
+    {
+      text: 'Identify',
+      color: '#1099A8',
+      action: identify,
+    },
+    {
+      text: 'Track',
+      color: '#BC027F',
+      action: track,
+    },
+    {
+      text: 'Group',
+      color: '#0D96F2',
+      action: group,
+    },
+    {
+      text: 'Alias',
+      color: '#8EB814',
+      action: alias,
+    },
+  ];
 
   return (
     <main style={pageStyles}>
@@ -193,12 +185,15 @@ const IndexPage: React.FC<PageProps> = () => {
       </p>
 
       <ul style={listStyles}>
-        {buttons.map(btn => (
-          <button onClick={btn.action} style={{ ...listItemStyles, color: btn.color }}>
+        {buttons.map((btn, index) => (
+          <button 
+            key={index}
+            onClick={btn.action} 
+            style={{ ...listItemStyles, color: btn.color }}
+          >
             {btn.text}
           </button>
         ))}
-        <span></span>
       </ul>
     </main>
   );

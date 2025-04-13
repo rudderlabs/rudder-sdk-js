@@ -17,7 +17,7 @@ implementation.
 
 ### Sample Symfony project setup
 
-- symfony new sample --version=5.4 --webapp
+- symfony new sample --version=7.2 --webapp
 - cd sample
 - composer require symfony/webpack-encore-bundle
 - composer require twig

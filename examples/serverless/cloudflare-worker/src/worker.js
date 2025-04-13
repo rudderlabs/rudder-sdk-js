@@ -10,10 +10,18 @@
 
 import { Analytics } from '@rudderstack/analytics-js-service-worker';
 
-const rudderClient = new Analytics('<writeKey>', '<dataplaneUrl>/v1/batch');
+// Global RudderStack client instance
+let rudderClient = null;
 
 export default {
 	async fetch(request, env, ctx) {
+		// Initialize RudderStack client only once
+		if (!rudderClient) {
+			const writeKey = env.RUDDERSTACK_WRITE_KEY || '';
+			const dataplaneUrl = env.RUDDERSTACK_DATAPLANE_URL || '';
+			rudderClient = new Analytics(writeKey, `${dataplaneUrl}/v1/batch`);
+		}
+		
 		const corsHeaders = {
 			'Access-Control-Allow-Origin': '*',
 			'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',

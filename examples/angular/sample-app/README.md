@@ -1,27 +1,52 @@
-# SampleApp
+# Angular Sample App with RudderStack
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.2.9.
+This is a sample Angular application that demonstrates how to integrate the RudderStack SDK.
 
-## Development server
+## Setup
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+1. Make sure you have Node.js and npm installed
+2. Clone this repository
+3. Navigate to the sample app directory:
+   ```
+   cd examples/angular/sample-app
+   ```
+4. Install dependencies:
+   ```
+   npm install
+   ```
+5. Set up environment variables:
+   - Create a `.env` file in the root directory based on `.env.example`
+   - Or run the setup script from the repository root:
+     ```
+     cd /path/to/rudder-sdk-js
+     ./scripts/setup-examples-env.sh
+     ```
 
-## Code scaffolding
+## Development Server
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+Run `npm start` to start the development server. This will:
+1. Replace environment variable placeholders in the env-config.js file with values from your .env file
+2. Start Angular's development server
+3. Navigate to `http://localhost:4200/` in your browser
 
-## Build
+The application will automatically reload if you change any of the source files.
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+## How Environment Variables Work
 
-## Running unit tests
+This sample app uses a combination of approaches to handle environment variables:
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+1. Environment variables are defined in `.env` and `.env.example` files.
+2. Before the build/start, a script (`scripts/replace-env-placeholders.js`) processes the `env-config.js` file, replacing placeholders with values from the `.env` file.
+3. The Angular app reads these values from the `window` object.
 
-## Running end-to-end tests
+## Available Scripts
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+- `npm start` - Runs the app in development mode
+- `npm run build` - Builds the app for production
+- `npm test` - Runs tests
 
-## Further help
+## Important Files
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+- `src/app/use-rudder-analytics.ts` - Contains the RudderStack SDK initialization logic
+- `src/env-config.js` - Loads environment variables into the window object
+- `scripts/replace-env-placeholders.js` - Script to process environment variables
