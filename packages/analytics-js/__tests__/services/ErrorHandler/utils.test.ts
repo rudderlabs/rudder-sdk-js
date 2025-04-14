@@ -69,12 +69,15 @@ describe('Error Reporting utilities', () => {
       ['127.0.0.1', 'development'],
       ['www.test-host.com', 'development'],
       ['[::1]', 'development'],
-      ['', '__RS_BUGSNAG_RELEASE_STAGE__'],
+      ['', 'development'], // for file:// protocol
       ['www.validhost.com', '__RS_BUGSNAG_RELEASE_STAGE__'],
+      [undefined, 'development'],
+      [null, 'development'],
     ];
 
     it.each(testCaseData)(
       'if window host name is "%s" then it should return the release stage as "%s" ',
+      // @ts-expect-error - test case data is not typed
       (hostName, expectedReleaseStage) => {
         locationSpy.mockImplementation(() => ({
           hostname: hostName,
