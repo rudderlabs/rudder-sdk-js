@@ -54,9 +54,15 @@ const createNewBreadcrumb = (message: string): Breadcrumb => ({
   metaData: {},
 });
 
+/**
+ * A function to get the Bugsnag release stage for the current environment
+ * @returns 'development' if the host is empty (for file:// protocol etc.) or a dev host (localhost, 127.0.0.1, etc.), otherwise '__RS_BUGSNAG_RELEASE_STAGE__' (it'll be replaced with the actual release stage during the build)
+ */
 const getReleaseStage = () => {
   const host = globalThis.location.hostname;
-  return host && DEV_HOSTS.includes(host) ? 'development' : '__RS_BUGSNAG_RELEASE_STAGE__';
+  return !host || (host && DEV_HOSTS.includes(host))
+    ? 'development'
+    : '__RS_BUGSNAG_RELEASE_STAGE__';
 };
 
 const getAppStateForMetadata = (state: ApplicationState): Record<string, any> => {
