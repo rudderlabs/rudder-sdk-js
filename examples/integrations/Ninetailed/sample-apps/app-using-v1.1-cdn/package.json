@@ -14,7 +14,10 @@
   },
   "overrides": {
     "nth-check": "2.1.1",
-    "postcss": "8.4.47"
+    "postcss": "8.4.47",
+    "react-scripts": {
+      "workbox-webpack-plugin": "7.3.0"
+    }
   },
   "scripts": {
     "start": "react-scripts start",

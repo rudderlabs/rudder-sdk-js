@@ -33,6 +33,12 @@
   "overrides": {
     "axios": "1.8.4",
     "cookie": "0.7.0",
-    "path-to-regexp": "0.1.12"
+    "path-to-regexp": "0.1.12",
+    "gatsby-cli": {
+      "pretty-error": "4.0.0"
+    },
+    "gatsby": {
+      "css-minimizer-webpack-plugin": "4.2.2"
+    }
   }
 }
