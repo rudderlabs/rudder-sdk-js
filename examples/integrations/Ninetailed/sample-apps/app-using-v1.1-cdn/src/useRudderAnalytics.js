@@ -61,7 +61,12 @@ RudderStack configuration is missing. Please follow these steps:
     }
   }, [analytics]);
 
-  return analytics;
+  // Return initialized instance if available, otherwise fallback to window.rudderanalytics
+  if (analytics) {
+    return analytics;
+  }
+
+  return typeof window !== 'undefined' ? window.rudderanalytics : undefined;
 };
 
 export default useRudderAnalytics;
