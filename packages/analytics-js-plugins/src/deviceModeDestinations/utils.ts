@@ -178,14 +178,12 @@ const isDestinationReady = (dest: Destination, time = 0) =>
       );
     } else {
       const curTime = Date.now();
-      wait(READY_CHECK_INTERVAL_MS)
-        .then(() => {
-          const elapsedTime = Date.now() - curTime;
-          isDestinationReady(dest, time + elapsedTime)
-            .then(resolve)
-            .catch(err => reject(err));
-        })
-        .catch(err => reject(err));
+      wait(READY_CHECK_INTERVAL_MS).then(() => {
+        const elapsedTime = Date.now() - curTime;
+        isDestinationReady(dest, time + elapsedTime)
+          .then(resolve)
+          .catch((err: Error) => reject(err));
+      });
     }
   });
 
