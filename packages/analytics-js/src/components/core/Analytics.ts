@@ -385,7 +385,11 @@ class Analytics implements IAnalytics {
    * Load device mode destinations
    */
   loadDestinations() {
-    if (state.nativeDestinations.clientDestinationsReady.value) {
+    if (
+      state.nativeDestinations.clientDestinationsReady.value ||
+      state.lifecycle.status.value === 'destinationsLoading' ||
+      state.lifecycle.status.value === 'destinationsReady'
+    ) {
       return;
     }
 
