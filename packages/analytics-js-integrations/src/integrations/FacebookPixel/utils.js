@@ -285,8 +285,10 @@ const getProductContentAndId = (prodId, quantity, price) => {
  * @returns
  */
 const getProductListViewedEventParams = properties => {
-  const { products, category, quantity, price } = properties;
-
+  let { products, category, quantity, price } = properties;
+  if (!Array.isArray(products)) {
+    products = [products];
+  }
   const { contents, contentIds } = getProductsContentsAndContentIds(products, quantity, price);
 
   let contentType;
