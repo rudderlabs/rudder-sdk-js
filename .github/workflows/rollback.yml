@@ -123,27 +123,36 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const markAsLatest = require('./scripts/mark-github-release-as-latest.js');
-            await markAsLatest({
-              github,
-              context,
-              packageName: '@rudderstack/analytics-js',
-              version: process.env.ROLLBACK_VERSION_VALUE
+            const rollbackVersion = process.env.ROLLBACK_VERSION_VALUE;
+            const releaseTag = `@rudderstack/analytics-js@${rollbackVersion}`;
+            
+            console.log(`Marking ${releaseTag} as the latest release on GitHub`);
+            
+            // Find the release for the rollback version
+            const releases = await github.rest.repos.listReleases({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
             });
-
-      - name: Mark the rollback version as the latest GitHub release for the legacy SDK
-        uses: actions/github-script@v7
-        continue-on-error: true
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const markAsLatest = require('./scripts/mark-github-release-as-latest.js');
-            await markAsLatest({
-              github,
-              context,
-              packageName: 'rudder-sdk-js',
-              version: process.env.LEGACY_SDK_ROLLBACK_VERSION_VALUE
+            
+            const rollbackRelease = releases.data.find(release => 
+              release.tag_name === releaseTag || 
+              release.name === releaseTag
+            );
+            
+            if (!rollbackRelease) {
+              console.log(`Release with tag ${releaseTag} not found`);
+              return;
+            }
+            
+            // Update the release to set it as the latest
+            await github.rest.repos.updateRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: rollbackRelease.id,
+              make_latest: true
             });
+            
+            console.log(`Successfully marked ${releaseTag} as the latest release`);
 
       - name: Deprecate the rolled back NPM version
         continue-on-error: true
@@ -201,7 +210,7 @@ jobs:
                     "image_url": "https://cdn.jsdelivr.net/npm/programming-languages-logos/src/javascript/javascript.png",
                     "alt_text": "JavaScript Icon"
                   }
-                },
+                }
                 ${{ format(',{{"type": "context", "elements": [{{"type": "mrkdwn", "text": "For more details, check the full release notes <{0}{1}|here>."}}]}}', env.RELEASES_URL, env.ROLLBACK_VERSION_VALUE) || ''  }}
               ]
             }
