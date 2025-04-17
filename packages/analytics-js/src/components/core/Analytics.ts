@@ -385,7 +385,7 @@ class Analytics implements IAnalytics {
    * Load device mode destinations
    */
   loadDestinations() {
-    // If the destinations load is already triggered or completed, do not anything
+    // If the integrations load is already triggered or completed, skip the rest of the logic
     if (
       state.lifecycle.status.value === 'destinationsLoading' ||
       state.lifecycle.status.value === 'destinationsReady'
