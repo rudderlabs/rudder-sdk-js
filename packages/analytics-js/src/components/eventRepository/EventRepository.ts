@@ -104,6 +104,7 @@ class EventRepository implements IEventRepository {
   private startDpEventsQueue() {
     const bufferEventsUntilReady = state.loadOptions.value
       .bufferDataPlaneEventsUntilReady as boolean;
+
     const hybridDestExist = state.nativeDestinations.activeDestinations.value.some(
       (dest: Destination) => isHybridModeDestination(dest),
     );
@@ -111,7 +112,7 @@ class EventRepository implements IEventRepository {
 
     let timeoutId: number;
     // Start the queue when no event buffering is required
-    // or when the client destinations are ready
+    // or when buffering is required and the client destinations are ready
     effect(() => {
       if (
         (!shouldBufferDpEvents || state.nativeDestinations.clientDestinationsReady.value) &&
