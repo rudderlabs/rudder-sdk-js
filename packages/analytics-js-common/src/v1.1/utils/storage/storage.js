@@ -30,9 +30,6 @@ const anonymousIdKeyMap = {
 const CORRUPTED_COOKIES_WARNING = key =>
   `Unable to retrieve the cookie data for ${key}. The data is dropped. This can potentially stem from using SDK v3 on other sites or web pages that can share cookies with this webpage. Please use the same SDK (v3) version everywhere as soon as possible.`;
 
-const BAD_COOKIES_WARNING = key =>
-  `The cookie data for ${key} seems to be corrupted where the underlying unencrypted data seems to be a cookie created by SDK v3. The decryption of the data was attempted again. This can potentially stem from using SDK v3 on other sites or web pages that can share cookies with this webpage. We recommend using the same SDK (v3) version everywhere.`;
-
 /**
  * trim using regex for browser polyfill
  * @param {*} value
@@ -200,18 +197,28 @@ class Storage {
    */
   getItem(key) {
     try {
-      let decryptedValue = decryptValue(this.storage.get(key));
-      let finalValue = decryptedValue ? JSON.parse(decryptedValue) : null;
+      let currentValue = this.storage.get(key);
 
-      // check if the final decrypted value is actually a v3 encrypted value
-      // if so, warn the users and try to decrypt it again
-      if (typeof finalValue === 'string' && finalValue.startsWith(defaults.prefixV3)) {
-        logger.warn(BAD_COOKIES_WARNING(key));
+      // Recursively decrypt the value until we reach a point where the value
+      // is not encrypted anymore
+      while (true) {
+        const decryptedValue = decryptValue(currentValue);
 
-        decryptedValue = decryptValue(finalValue);
-        finalValue = decryptedValue ? JSON.parse(decryptedValue) : null;
+        // If the decrypted value is the same as the current value,
+        // we have reached the end of the migration
+        if (decryptedValue === currentValue) {
+          break;
+        }
+
+        currentValue = JSON.parse(decryptedValue);
+
+        // If the parsed value is not a string, we have reached the end of the migration
+        if (typeof currentValue !== 'string') {
+          break;
+        }
       }
-      return finalValue;
+
+      return currentValue;
     } catch (err) {
       // Log the error and drop the value
       logger.error(CORRUPTED_COOKIES_WARNING(key), err);
