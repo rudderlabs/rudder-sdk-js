@@ -55,6 +55,7 @@ export default [
       'tsconfig.build.tsbuildinfo',
       '**/nativeSdkLoader.js',
       'assets/**',
+      '**/project.json'
     ],
     plugins: {
       '@typescript-eslint': tseslint,
