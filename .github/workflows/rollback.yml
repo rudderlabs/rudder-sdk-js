@@ -9,7 +9,7 @@ concurrency:
 
 permissions:
   id-token: write # allows the JWT to be requested from GitHub's OIDC provider
-  contents: read # This is required for actions/checkout
+  contents: write # Changed to write to allow creating/updating releases
 
 env:
   NODE_OPTIONS: "--no-warnings"
@@ -47,10 +47,31 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_PROD_ACCOUNT_ID }}:role/${{ secrets.AWS_PROD_S3_SYNC_ROLE }}
           aws-region: us-east-1
 
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main # Production branch
+
+      - name: Get current sdk versions
+        run: |
+          current_version=$(jq -r .version packages/analytics-js/package.json)
+          echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
+          echo "SDK current version: $current_version"
+
+          legacy_sdk_current_version=$(jq -r .version packages/analytics-v1.1/package.json)
+          echo "LEGACY_SDK_CURRENT_VERSION_VALUE=$legacy_sdk_current_version" >> $GITHUB_ENV
+          echo "Legacy SDK current version: $legacy_sdk_current_version"
+
       - name: Checkout source code
         uses: actions/checkout@v4
         with:
           ref: ${{ github.sha }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
 
       - name: Get rollback sdk versions
         run: |
@@ -95,6 +116,59 @@ jobs:
           invalidation_id=$(AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/${{ env.LEGACY_SDK_LATEST_VERSION_DIR_NAME }}*" --query "Invalidation.Id" --output text)
 
           aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --id "$invalidation_id"
+
+      - name: Mark the rollback version as the latest GitHub release
+        uses: actions/github-script@v7
+        continue-on-error: true
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const rollbackVersion = ${{ env.LEGACY_SDK_ROLLBACK_VERSION_VALUE }};
+            const releaseTag = `@rudderstack/analytics-js@${rollbackVersion}`;
+            
+            console.log(`Marking ${releaseTag} as the latest release on GitHub`);
+            
+            // Find the release for the rollback version
+            const releases = await github.rest.repos.listReleases({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            
+            const rollbackRelease = releases.data.find(release => 
+              release.tag_name === releaseTag || 
+              release.name === releaseTag
+            );
+            
+            if (!rollbackRelease) {
+              console.log(`Release with tag ${releaseTag} not found`);
+              return;
+            }
+            
+            // Update the release to set it as the latest
+            await github.rest.repos.updateRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: rollbackRelease.id,
+              make_latest: true
+            });
+            
+            console.log(`Successfully marked ${releaseTag} as the latest release`);
+
+      - name: Deprecate the rolled back NPM version
+        continue-on-error: true
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+        run: |
+          VERSION_TO_DEPRECATE="${{ env.CURRENT_VERSION_VALUE }}"
+          echo "Deprecating NPM version: $VERSION_TO_DEPRECATE"
+          
+          # Deprecate the specified version with a message
+          npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
+          npm deprecate "@rudderstack/analytics-js@$VERSION_TO_DEPRECATE" "We've identified issues with this version of the package. Please use the latest version instead."
+
+          # Note: The legacy SDK is not deprecated as it is deprecated by default with every release.
+          # Refer to deploy-npm.yml for more details.
 
       - name: Send message to Slack channel
         id: slack
