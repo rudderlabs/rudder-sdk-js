@@ -123,7 +123,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const rollbackVersion = process.env.ROLLBACK_VERSION_VALUE;
+            const rollbackVersion = ${{ env.LEGACY_SDK_ROLLBACK_VERSION_VALUE }};
             const releaseTag = `@rudderstack/analytics-js@${rollbackVersion}`;
             
             console.log(`Marking ${releaseTag} as the latest release on GitHub`);
