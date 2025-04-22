@@ -44,7 +44,7 @@ describe('Plugin - Storage Migrator', () => {
     expect(migratedVal).toBe('test-data');
   });
 
-  it('should return null if the stored value is undefined', () => {
+  it('should return "undefined" if the stored value is undefined', () => {
     defaultLocalStorage.setItem('key', undefined);
 
     const migratedVal = (storageMigrator.storage as ExtensionPoint).migrate?.(
@@ -53,7 +53,7 @@ describe('Plugin - Storage Migrator', () => {
       defaultErrorHandler,
       defaultLogger,
     );
-    expect(migratedVal).toBe(null);
+    expect(migratedVal).toEqual('undefined');
   });
 
   it('should return null if the stored value is null', () => {

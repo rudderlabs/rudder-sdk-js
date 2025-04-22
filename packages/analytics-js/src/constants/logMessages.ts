@@ -248,9 +248,6 @@ const INVALID_POLYFILL_URL_WARNING = (
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The provided polyfill URL "${customPolyfillUrl}" is invalid. The default polyfill URL will be used instead.`;
 
-const BAD_COOKIES_WARNING = (key: string) =>
-  `The cookie data for ${key} seems to be encrypted using SDK versions < v3. The data is dropped. This can potentially stem from using SDK versions < v3 on other sites or web pages that can share cookies with this webpage. We recommend using the same SDK (v3) version everywhere or avoid disabling the storage data migration.`;
-
 const PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING = (context: string) =>
   `${context}${LOG_CONTEXT_SEPARATOR}Page Unloaded event can only be tracked when the Beacon transport is active. Please enable "useBeacon" load API option.`;
 
@@ -308,7 +305,6 @@ export {
   SOURCE_DISABLED_ERROR,
   COMPONENT_BASE_URL_ERROR,
   SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING,
-  BAD_COOKIES_WARNING,
   PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING,
   BREADCRUMB_ERROR,
   NON_ERROR_WARNING,

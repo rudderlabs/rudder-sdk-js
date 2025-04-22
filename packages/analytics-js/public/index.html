@@ -169,15 +169,15 @@
             };
 
             const envDestSDKBaseURL = '__DEST_SDK_BASE_URL__';
-            if (envDestSDKBaseURL !== 'undefined') {
+            if (!envDestSDKBaseURL.startsWith('undefined')) {
               loadOptions.destSDKBaseURL = envDestSDKBaseURL + window.rudderAnalyticsBuildType + '/js-integrations';
             }
             const envPluginsSDKBaseURL = '__PLUGINS_BASE_URL__';
-            if (envPluginsSDKBaseURL !== 'undefined') {
+            if (!envPluginsSDKBaseURL.startsWith('undefined')) {
               loadOptions.pluginsSDKBaseURL = envPluginsSDKBaseURL + window.rudderAnalyticsBuildType + '/plugins';
             }
             const envConfigUrl = '__CONFIG_SERVER_HOST__';
-            if (envConfigUrl !== 'undefined') {
+            if (!envConfigUrl.startsWith('undefined')) {
               loadOptions.configUrl = envConfigUrl;
             }
             rudderanalytics.load('__WRITE_KEY__', '__DATAPLANE_URL__', loadOptions);

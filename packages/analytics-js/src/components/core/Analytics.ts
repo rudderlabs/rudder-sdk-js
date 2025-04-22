@@ -604,9 +604,7 @@ class Analytics implements IAnalytics {
     state.metrics.triggered.value += 1;
 
     const previousId =
-      payload.from ??
-      this.userSessionManager?.getUserId() ??
-      this.userSessionManager?.getAnonymousId();
+      payload.from ?? this.getUserId() ?? this.userSessionManager?.getAnonymousId();
 
     this.eventManager?.addEvent({
       type,

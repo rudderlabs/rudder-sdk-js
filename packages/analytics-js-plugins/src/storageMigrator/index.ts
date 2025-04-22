@@ -11,6 +11,7 @@ import { decrypt, isNullOrUndefined } from '../shared-chunks/common';
 import { decrypt as decryptLegacy } from '../storageEncryptionLegacy/legacyEncryptionUtils';
 import { STORAGE_MIGRATION_ERROR } from './logMessages';
 import { STORAGE_MIGRATOR_PLUGIN } from './constants';
+import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 
 const pluginName: PluginName = 'StorageMigrator';
 
@@ -25,27 +26,40 @@ const StorageMigrator = (): ExtensionPlugin => ({
       storageEngine: IStorage,
       errorHandler?: IErrorHandler,
       logger?: ILogger,
-    ): Nullable<string> {
+    ): Nullable<any> {
       try {
         const storedVal = storageEngine.getItem(key);
         if (isNullOrUndefined(storedVal)) {
           return null;
         }
 
-        let decryptedVal: string | undefined = decryptLegacy(storedVal as string);
+        // Recursively decrypt the value until we reach a point where the value
+        // is not encrypted anymore
+        let currentVal: any = storedVal;
+        while (true) {
+          let decryptedVal = decryptLegacy(currentVal as string);
 
-        // The value is not encrypted using legacy encryption
-        // Try latest
-        if (decryptedVal === storedVal) {
-          decryptedVal = decrypt(storedVal);
+          // The value is not encrypted using legacy encryption
+          // Try the latest encryption method
+          if (decryptedVal === currentVal) {
+            decryptedVal = decrypt(currentVal) as string;
+          }
+
+          // If the decrypted value is the same as the current value, we have reached the end of the migration
+          if (decryptedVal === currentVal) {
+            break;
+          }
+
+          // storejs that is used in localstorage engine already deserializes json strings but swallows errors
+          currentVal = JSON.parse(decryptedVal as string);
+
+          // If the parsed value is not a string, we have reached the end of the migration
+          if (!isString(currentVal)) {
+            break;
+          }
         }
 
-        if (isNullOrUndefined(decryptedVal)) {
-          return null;
-        }
-
-        // storejs that is used in localstorage engine already deserializes json strings but swallows errors
-        return JSON.parse(decryptedVal as string);
+        return currentVal;
       } catch (err) {
         errorHandler?.onError(err, STORAGE_MIGRATOR_PLUGIN, STORAGE_MIGRATION_ERROR(key));
         return null;

@@ -513,6 +513,9 @@ describe('Core - Analytics', () => {
       const addEventSpy = jest.spyOn(analytics.eventManager, 'addEvent');
 
       state.lifecycle.loaded.value = true;
+      // Set the user ID to null so that it falls back to the anonymous ID
+      state.session.userId.value = null;
+
       analytics.alias({ to: 'to' });
       expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([]);
