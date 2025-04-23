@@ -137,7 +137,7 @@
     "@size-limit/file": "11.2.0",
     "@size-limit/webpack": "11.2.0",
     "@swc-node/register": "1.10.10",
-    "@swc/core": "1.11.21",
+    "@swc/core": "1.11.22",
     "@types/component-emitter": "1.2.14",
     "@types/jest": "29.5.14",
     "@types/node": "22.14.1",
