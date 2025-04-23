@@ -45,7 +45,7 @@ const StorageMigrator = (): ExtensionPlugin => ({
         // Recursively decrypt the value until we reach a point where the value
         // is not encrypted anymore
         while (isString(currentVal)) {
-          decryptedVal = decryptLegacy(currentVal as string);
+          decryptedVal = decryptLegacy(currentVal);
 
           // Decrypt using the latest encryption method as well
           decryptedVal = decrypt(decryptedVal) as string;
