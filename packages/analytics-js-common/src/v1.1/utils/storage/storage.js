@@ -199,23 +199,21 @@ class Storage {
     try {
       let currentValue = this.storage.get(key);
 
+      let decryptedValue = decryptValue(currentValue);
+      currentValue = decryptedValue ? JSON.parse(decryptedValue) : null;
+
       // Recursively decrypt the value until we reach a point where the value
       // is not encrypted anymore
-      while (true) {
-        const decryptedValue = decryptValue(currentValue);
+      while (typeof currentValue === 'string') {
+        decryptedValue = decryptValue(currentValue);
 
         // If the decrypted value is the same as the current value,
-        // we have reached the end of the migration
+        // then it's not encrypted anymore
         if (decryptedValue === currentValue) {
           break;
         }
 
         currentValue = JSON.parse(decryptedValue);
-
-        // If the parsed value is not a string, we have reached the end of the migration
-        if (typeof currentValue !== 'string') {
-          break;
-        }
       }
 
       return currentValue;

@@ -33,30 +33,31 @@ const StorageMigrator = (): ExtensionPlugin => ({
           return null;
         }
 
+        let currentVal: any = storedVal;
+        let decryptedVal = decryptLegacy(currentVal as string);
+
+        // Decrypt using the latest encryption method as well
+        decryptedVal = decrypt(decryptedVal) as string;
+
+        // storejs that is used in localstorage engine already deserializes json strings but swallows errors
+        currentVal = JSON.parse(decryptedVal);
+
         // Recursively decrypt the value until we reach a point where the value
         // is not encrypted anymore
-        let currentVal: any = storedVal;
-        while (true) {
-          let decryptedVal = decryptLegacy(currentVal as string);
+        while (isString(currentVal)) {
+          decryptedVal = decryptLegacy(currentVal as string);
 
-          // The value is not encrypted using legacy encryption
-          // Try the latest encryption method
-          if (decryptedVal === currentVal) {
-            decryptedVal = decrypt(currentVal) as string;
-          }
+          // Decrypt using the latest encryption method as well
+          decryptedVal = decrypt(decryptedVal) as string;
 
-          // If the decrypted value is the same as the current value, we have reached the end of the migration
+          // If the decrypted value is the same as the current value,
+          // then it's not encrypted anymore
           if (decryptedVal === currentVal) {
             break;
           }
 
           // storejs that is used in localstorage engine already deserializes json strings but swallows errors
-          currentVal = JSON.parse(decryptedVal as string);
-
-          // If the parsed value is not a string, we have reached the end of the migration
-          if (!isString(currentVal)) {
-            break;
-          }
+          currentVal = JSON.parse(decryptedVal);
         }
 
         return currentVal;

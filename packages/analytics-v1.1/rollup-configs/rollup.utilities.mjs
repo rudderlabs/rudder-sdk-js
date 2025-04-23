@@ -54,7 +54,7 @@ export function getDefaultConfig(distName) {
 
   return {
     watch: {
-      include: ['src/**'],
+      include: ['src/**', '../analytics-js-common/src/**'],
     },
     external: [],
     onwarn(warning, warn) {
