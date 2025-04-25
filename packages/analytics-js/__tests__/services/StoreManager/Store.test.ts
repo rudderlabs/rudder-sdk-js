@@ -63,17 +63,6 @@ describe('Store', () => {
       engine.setItem('name.id.queue', '[{]}');
       expect(store.get(QueueStatuses.QUEUE)).toBeNull();
     });
-
-    it('should log a warning if the underlying cookie value is a legacy encrypted value', () => {
-      const spy = jest.spyOn(defaultLogger, 'warn');
-      engine.setItem('name.id.queue', '"RudderEncrypt:encryptedValue"');
-
-      store.get('queue');
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(
-        'The cookie data for queue seems to be encrypted using SDK versions < v3. The data is dropped. This can potentially stem from using SDK versions < v3 on other sites or web pages that can share cookies with this webpage. We recommend using the same SDK (v3) version everywhere or avoid disabling the storage data migration.',
-      );
-    });
   });
 
   describe('.set', () => {

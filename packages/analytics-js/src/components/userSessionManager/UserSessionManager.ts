@@ -204,28 +204,30 @@ class UserSessionManager implements IUserSessionManager {
     });
   }
 
-  migrateStorageIfNeeded() {
+  migrateStorageIfNeeded(stores?: IStore[]) {
     if (!state.storage.migrate.value) {
       return;
     }
 
-    const persistentStoreNames = [
-      CLIENT_DATA_STORE_COOKIE,
-      CLIENT_DATA_STORE_LS,
-      CLIENT_DATA_STORE_SESSION,
-    ];
+    let storesToMigrate: IStore[] = stores ?? [];
+    if (storesToMigrate.length === 0) {
+      const persistentStoreNames = [
+        CLIENT_DATA_STORE_COOKIE,
+        CLIENT_DATA_STORE_LS,
+        CLIENT_DATA_STORE_SESSION,
+      ];
 
-    const stores: IStore[] = [];
-    persistentStoreNames.forEach(storeName => {
-      const store = this.storeManager?.getStore(storeName);
-      if (store) {
-        stores.push(store);
-      }
-    });
+      persistentStoreNames.forEach(storeName => {
+        const store = this.storeManager?.getStore(storeName);
+        if (store) {
+          storesToMigrate.push(store);
+        }
+      });
+    }
 
     Object.keys(COOKIE_KEYS).forEach(storageKey => {
       const storageEntry = COOKIE_KEYS[storageKey as UserSessionStorageKeysType];
-      stores.forEach(store => {
+      storesToMigrate.forEach(store => {
         const migratedVal = this.pluginsManager?.invokeSingle(
           'storage.migrate',
           storageEntry,
@@ -492,9 +494,15 @@ class UserSessionManager implements IUserSessionManager {
    */
   getAnonymousId(options?: AnonymousIdOptions): string {
     const storage: StorageType = state.storage.entries.value.anonymousId?.type as StorageType;
-    // fetch the anonymousId from storage
     if (isStorageTypeValidForStoringData(storage)) {
-      let persistedAnonymousId = this.getEntryValue('anonymousId');
+      let persistedAnonymousId: Nullable<string | undefined> = state.session.anonymousId.value;
+      // If the anonymous ID is the default value, fetch it from storage
+      if (
+        !persistedAnonymousId ||
+        persistedAnonymousId === DEFAULT_USER_SESSION_VALUES.anonymousId
+      ) {
+        persistedAnonymousId = this.getEntryValue('anonymousId');
+      }
       if (!persistedAnonymousId && options) {
         // fetch anonymousId from external source
         const autoCapturedAnonymousId = this.pluginsManager?.invokeSingle<string | undefined>(
@@ -516,6 +524,12 @@ class UserSessionManager implements IUserSessionManager {
       const store = this.storeManager?.getStore(
         storageClientDataStoreNameMap[storageType] as string,
       );
+
+      // Migrate the storage data before fetching the value
+      // This is needed for entries that are fetched from the storage
+      // during the current session (for example, session info)
+      this.migrateStorageIfNeeded([store as IStore]);
+
       const storageKey = entries[sessionKey]?.key as string;
       return store?.get(storageKey) ?? null;
     }
