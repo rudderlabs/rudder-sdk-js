@@ -93,7 +93,7 @@ class Klaviyo {
   }
 
   isLoaded() {
-    return !!(window._learnq && window._learnq.push !== Array.prototype.push);
+    return !!(window.klaviyo && window.klaviyo.push !== Array.prototype.push);
   }
 
   isReady() {
@@ -138,7 +138,7 @@ class Klaviyo {
     } catch (err) {
       logger.error(`Error occured at extractCustomFields ${err}`);
     }
-    window._learnq.push(['identify', payload]);
+    window.klaviyo.push(['identify', payload]);
   }
 
   track(rudderElement) {
@@ -159,7 +159,7 @@ class Klaviyo {
         payload = { ...payload, ...customProperties };
       }
       if (isNotEmpty(payload)) {
-        window._learnq.push(['track', eventName, payload]);
+        window.klaviyo.push(['track', eventName, payload]);
       }
     } else {
       const propsPayload = properties;
@@ -167,7 +167,7 @@ class Klaviyo {
         propsPayload.$value = propsPayload.revenue;
         delete propsPayload.revenue;
       }
-      window._learnq.push(['track', event, propsPayload]);
+      window.klaviyo.push(['track', event, propsPayload]);
     }
   }
 
@@ -184,9 +184,9 @@ class Klaviyo {
         eventName = 'Viewed a Page';
       }
       if (this.additionalPageInfo && message.properties) {
-        window._learnq.push(['track', `${eventName}`, message.properties]);
+        window.klaviyo.push(['track', `${eventName}`, message.properties]);
       } else {
-        window._learnq.push(['track', `${eventName}`]);
+        window.klaviyo.push(['track', `${eventName}`]);
       }
     } else {
       window._learnq.push(['track']);
