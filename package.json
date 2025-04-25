@@ -78,7 +78,7 @@
     "@segment/top-domain": "3.0.1",
     "@vespaiach/axios-fetch-adapter": "0.3.1",
     "assert": "2.1.0",
-    "axios": "1.8.4",
+    "axios": "1.9.0",
     "axios-retry": "4.5.0",
     "component-each": "0.2.6",
     "component-emitter": "2.0.0",
@@ -200,10 +200,10 @@
     "user-agent-data-types": "0.4.2"
   },
   "optionalDependencies": {
-    "@nx/nx-darwin-arm64": "20.8.0",
-    "@nx/nx-darwin-x64": "20.8.0",
-    "@nx/nx-linux-x64-gnu": "20.8.0",
-    "@nx/nx-win32-x64-msvc": "20.8.0",
+    "@nx/nx-darwin-arm64": "20.8.1",
+    "@nx/nx-darwin-x64": "20.8.1",
+    "@nx/nx-linux-x64-gnu": "20.8.1",
+    "@nx/nx-win32-x64-msvc": "20.8.1",
     "@rollup/rollup-linux-x64-gnu": "4.40.0"
   },
   "overrides": {
