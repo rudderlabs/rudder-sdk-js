@@ -189,7 +189,7 @@ class Klaviyo {
         window.klaviyo.push(['track', `${eventName}`]);
       }
     } else {
-      window._learnq.push(['track']);
+      window.klaviyo.push(['track']);
     }
   }
 }
