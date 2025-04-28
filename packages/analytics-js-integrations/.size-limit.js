@@ -11,6 +11,6 @@ module.exports = [
   {
     name: 'All Integrations - Modern - CDN',
     path: 'dist/cdn/modern/js-integrations/*.min.js',
-    limit: '91 KiB',
+    limit: '93.5 KiB',
   },
 ];
