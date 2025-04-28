@@ -175,7 +175,7 @@ const defaultStateValues: ApplicationState = {
     enabled: signal(false),
     pageLifecycle: {
       enabled: signal(false),
-      visitId: signal(undefined),
+      pageViewId: signal(undefined),
       pageLoadedTimestamp: signal(undefined),
     },
   },

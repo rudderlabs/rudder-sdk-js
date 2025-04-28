@@ -1,30 +1,13 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect } from 'react';
-import type { RudderAnalytics } from '@rudderstack/analytics-js';
+import useRudderStackAnalytics from './useRudderAnalytics';
 
 export default function Home() {
-  useEffect(() => {
-    if ((window.rudderanalytics as RudderAnalytics) && !Array.isArray(window.rudderanalytics)) {
-      return;
-    }
-    const initialize = async () => {
-      const { RudderAnalytics } = await import('@rudderstack/analytics-js');
-      const analytics = new RudderAnalytics();
-
-      analytics.load('<writeKey>', '<dataplaneUrl>');
-
-      analytics.ready(() => {
-        console.log('We are all set!!!');
-      });
-    };
-
-    initialize();
-  }, []);
+  const analytics = useRudderStackAnalytics();
 
   const page = () => {
-    window.rudderanalytics?.page(
+    analytics?.page(
       'Cart',
       'Cart Viewed',
       {
@@ -39,8 +22,9 @@ export default function Home() {
       },
     );
   };
+
   const identify = () => {
-    window.rudderanalytics?.identify(
+    analytics?.identify(
       'sample-user-123',
       {
         firstName: 'Alex',
@@ -53,8 +37,9 @@ export default function Home() {
       },
     );
   };
+
   const track = () => {
-    window.rudderanalytics?.track(
+    analytics?.track(
       'Order Completed',
       {
         revenue: 30,
@@ -66,13 +51,15 @@ export default function Home() {
       },
     );
   };
+
   const alias = () => {
-    window.rudderanalytics?.alias('alias-user-id', () => {
+    analytics?.alias('alias-user-id', () => {
       console.log('alias call');
     });
   };
+
   const group = () => {
-    window.rudderanalytics?.group(
+    analytics?.group(
       'sample_group_id',
       {
         name: 'Apple Inc.',

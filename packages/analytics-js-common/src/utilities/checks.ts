@@ -3,7 +3,6 @@
  * @param value input value
  * @returns boolean
  */
-// eslint-disable-next-line @typescript-eslint/ban-types
 const isFunction = (value: any): value is Function =>
   typeof value === 'function' && Boolean(value.constructor && value.call && value.apply);
 

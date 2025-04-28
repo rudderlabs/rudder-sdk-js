@@ -14,7 +14,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang='en'>
       <head>
-        <Script id='bufferEvents'>
+        <Script 
+          id='bufferEvents'
+          strategy="beforeInteractive"
+        >
           {`
             (function() {
               "use strict";

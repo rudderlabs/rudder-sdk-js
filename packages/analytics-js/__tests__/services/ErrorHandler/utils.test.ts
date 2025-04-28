@@ -69,12 +69,15 @@ describe('Error Reporting utilities', () => {
       ['127.0.0.1', 'development'],
       ['www.test-host.com', 'development'],
       ['[::1]', 'development'],
-      ['', '__RS_BUGSNAG_RELEASE_STAGE__'],
+      ['', 'development'], // for file:// protocol
       ['www.validhost.com', '__RS_BUGSNAG_RELEASE_STAGE__'],
+      [undefined, 'development'],
+      [null, 'development'],
     ];
 
     it.each(testCaseData)(
       'if window host name is "%s" then it should return the release stage as "%s" ',
+      // @ts-expect-error - test case data is not typed
       (hostName, expectedReleaseStage) => {
         locationSpy.mockImplementation(() => ({
           hostname: hostName,
@@ -278,7 +281,7 @@ describe('Error Reporting utilities', () => {
       state.session.sessionInfo.value = { id: 123 };
       // @ts-expect-error setting the value for testing
       state.context.app.value.installType = 'cdn';
-      state.autoTrack.pageLifecycle.visitId.value = 'test-visit-id';
+      state.autoTrack.pageLifecycle.pageViewId.value = 'test-view-id';
       // @ts-expect-error setting the value for testing
       state.context.library.value.snippetVersion = 'sample_snippet_version';
       state.context.locale.value = 'en-US';
@@ -408,7 +411,7 @@ describe('Error Reporting utilities', () => {
                 enabled: false,
                 pageLifecycle: {
                   enabled: false,
-                  visitId: 'test-visit-id',
+                  pageViewId: 'test-view-id',
                 },
               },
               capabilities: {
@@ -576,7 +579,7 @@ describe('Error Reporting utilities', () => {
               },
             },
             user: {
-              id: 'dummy-source-id..123..test-visit-id',
+              id: 'dummy-source-id..123..test-view-id',
               name: 'dummy-source-name',
             },
           },
@@ -698,7 +701,7 @@ describe('Error Reporting utilities', () => {
         workspaceId: 'dummy-workspace-id',
       };
       state.session.sessionInfo.value = { id: 123 };
-      state.autoTrack.pageLifecycle.visitId.value = 'test-visit-id';
+      state.autoTrack.pageLifecycle.pageViewId.value = 'test-view-id';
 
       const userDetails = getUserDetails(
         state.source,
@@ -707,7 +710,7 @@ describe('Error Reporting utilities', () => {
         state.autoTrack,
       );
       expect(userDetails).toEqual({
-        id: 'dummy-source-id..123..test-visit-id',
+        id: 'dummy-source-id..123..test-view-id',
         name: 'dummy-source-name',
       });
     });

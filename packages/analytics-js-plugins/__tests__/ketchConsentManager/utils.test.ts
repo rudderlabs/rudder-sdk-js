@@ -128,15 +128,15 @@ describe('KetchConsentManager - Utils', () => {
 
     it('should return undefined if ketch consent cookie data is not properly encoded', () => {
       // Mock the ketch cookie
-      // The value is not Base64 encoded
-      document.cookie = `_ketch_consent_v1_=abc;`;
+      // The value is incorrect Base64 encoded string of "xyz"
+      document.cookie = `_ketch_consent_v1_=eHl;`;
 
       const ketchConsentData = getKetchConsentData(defaultStoreManager, defaultLogger);
 
       expect(ketchConsentData).toBeUndefined();
       expect(defaultLogger.error).toHaveBeenCalledWith(
         'KetchConsentManagerPlugin:: Failed to parse the consent cookie.',
-        new SyntaxError('Unexpected token \'i\', "i�" is not valid JSON'),
+        new SyntaxError('Unexpected token \'x\', "xy" is not valid JSON'),
       );
     });
 

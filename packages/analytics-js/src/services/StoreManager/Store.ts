@@ -1,5 +1,5 @@
 import { trim } from '@rudderstack/analytics-js-common/utilities/string';
-import { isNullOrUndefined, isString } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import type { IStorage, IStore, IStoreConfig } from '@rudderstack/analytics-js-common/types/Store';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
@@ -10,7 +10,6 @@ import { MEMORY_STORAGE } from '@rudderstack/analytics-js-common/constants/stora
 import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
 import { isStorageQuotaExceeded } from '../../components/capabilitiesManager/detection';
 import {
-  BAD_COOKIES_WARNING,
   STORAGE_QUOTA_EXCEEDED_WARNING,
   STORE_DATA_FETCH_ERROR,
   STORE_DATA_SAVE_ERROR,
@@ -142,11 +141,6 @@ class Store implements IStore {
       return JSON.parse(decryptedValue as string);
     } catch (err) {
       this.onError(new Error(`${STORE_DATA_FETCH_ERROR(key)}: ${(err as Error).message}`));
-
-      // A hack for warning the users of potential partial SDK version migrations
-      if (isString(decryptedValue) && decryptedValue.startsWith('RudderEncrypt:')) {
-        this.logger.warn(BAD_COOKIES_WARNING(key));
-      }
 
       return null;
     }

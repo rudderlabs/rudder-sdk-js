@@ -385,7 +385,11 @@ class Analytics implements IAnalytics {
    * Load device mode destinations
    */
   loadDestinations() {
-    if (state.nativeDestinations.clientDestinationsReady.value) {
+    // If the integrations load is already triggered or completed, skip the rest of the logic
+    if (
+      state.lifecycle.status.value === 'destinationsLoading' ||
+      state.lifecycle.status.value === 'destinationsReady'
+    ) {
       return;
     }
 
@@ -600,9 +604,7 @@ class Analytics implements IAnalytics {
     state.metrics.triggered.value += 1;
 
     const previousId =
-      payload.from ??
-      this.userSessionManager?.getUserId() ??
-      this.userSessionManager?.getAnonymousId();
+      payload.from ?? (this.getUserId() || this.userSessionManager?.getAnonymousId());
 
     this.eventManager?.addEvent({
       type,

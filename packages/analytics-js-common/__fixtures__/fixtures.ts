@@ -1,3 +1,5 @@
+import type { DestinationConfig } from '../src/types/Destination';
+
 const dummyDataplaneHost = 'https://dummy.dataplane.host.com';
 
 const dummySourceConfigResponse = {
@@ -158,4 +160,39 @@ const dummySourceConfigResponse = {
   },
 };
 
-export { dummyDataplaneHost, dummySourceConfigResponse };
+const destinations = [
+  {
+    id: 'dummyDestinationId',
+    displayName: 'GA4 for JS SDK Hybrid',
+    userFriendlyId: 'dummyDestinationId',
+    shouldApplyDeviceModeTransformation: false,
+    propagateEventsUntransformedOnError: false,
+    config: dummySourceConfigResponse.source.destinations[0]?.config as DestinationConfig,
+  },
+  {
+    id: 'dummyDestinationId2',
+    displayName: 'GA4 for JS SDK Device',
+    userFriendlyId: 'dummyDestinationId2',
+    shouldApplyDeviceModeTransformation: false,
+    propagateEventsUntransformedOnError: false,
+    config: dummySourceConfigResponse.source.destinations[1]?.config as DestinationConfig,
+  },
+  {
+    id: 'dummyDestinationId3',
+    displayName: 'GA4 for JS SDK Cloud',
+    userFriendlyId: 'dummyDestinationId3',
+    shouldApplyDeviceModeTransformation: false,
+    propagateEventsUntransformedOnError: false,
+    config: dummySourceConfigResponse.source.destinations[2]?.config as DestinationConfig,
+  },
+  {
+    id: 'dummyDestinationId4',
+    displayName: 'GA4 for JS SDK Cloud',
+    userFriendlyId: 'dummyDestinationId4',
+    shouldApplyDeviceModeTransformation: false,
+    propagateEventsUntransformedOnError: false,
+    config: dummySourceConfigResponse.source.destinations[3]?.config as DestinationConfig,
+  },
+];
+
+export { dummyDataplaneHost, dummySourceConfigResponse, destinations };

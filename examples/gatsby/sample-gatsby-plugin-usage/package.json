@@ -12,41 +12,33 @@
     "start": "gatsby develop",
     "build": "gatsby build",
     "serve": "gatsby serve",
-    "clean": "gatsby clean",
+    "clean": "gatsby clean && rm -rf node_modules package-lock.json",
+    "setup": "npm install",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@emotion/react": "11.14.0",
-    "gatsby": "5.14.1",
+    "dotenv": "16.4.7",
+    "gatsby": "5.14.3",
     "gatsby-plugin-rudderstack": "*",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   },
   "devDependencies": {
-    "@types/node": "22.10.5",
+    "@types/node": "22.14.0",
     "@types/react": "18.3.9",
     "@types/react-dom": "18.3.0",
-    "typescript": "5.7.2"
+    "typescript": "5.8.3"
   },
   "overrides": {
-    "micromatch": "4.0.8",
-    "webpack-dev-middleware": "7.2.1",
-    "body-parser": "1.20.3",
-    "axios": "1.7.9",
+    "axios": "1.8.4",
+    "cookie": "0.7.0",
     "path-to-regexp": "0.1.12",
-    "serialize-javascript": "6.0.2",
-    "@swc/helpers": "0.5.13",
-    "cookie": "0.7.2",
+    "gatsby-cli": {
+      "pretty-error": "4.0.0"
+    },
     "gatsby": {
-      "gatsby-cli": {
-        "pretty-error": {
-          "renderkid": {
-            "strip-ansi": {
-              "ansi-regex": "3.0.1"
-            }
-          }
-        }
-      }
+      "css-minimizer-webpack-plugin": "4.2.2"
     }
   }
 }

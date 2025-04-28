@@ -513,13 +513,46 @@ describe('Core - Analytics', () => {
       const addEventSpy = jest.spyOn(analytics.eventManager, 'addEvent');
 
       state.lifecycle.loaded.value = true;
-      analytics.alias({ to: 'to' });
+
+      analytics.alias({ to: 'to', from: 'x' });
       expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([]);
       expect(addEventSpy).toHaveBeenCalledWith({
         type: 'alias',
         to: 'to',
-        from: 'test_uuid', // this is the mocked value from UUID generation
+        from: 'x',
+      });
+    });
+
+    it('should use the user ID if from is not provided', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      analytics.prepareInternalServices();
+      state.session.userId.value = 'userId';
+      const addEventSpy = jest.spyOn(analytics.eventManager, 'addEvent');
+      state.lifecycle.loaded.value = true;
+
+      analytics.alias({ to: 'to' });
+
+      expect(addEventSpy).toHaveBeenCalledWith({
+        type: 'alias',
+        to: 'to',
+        from: 'userId',
+      });
+    });
+
+    it('should use the anonymous ID if user ID is not set', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      analytics.prepareInternalServices();
+      state.session.userId.value = null;
+      const addEventSpy = jest.spyOn(analytics.eventManager, 'addEvent');
+      state.lifecycle.loaded.value = true;
+
+      analytics.alias({ to: 'to' });
+
+      expect(addEventSpy).toHaveBeenCalledWith({
+        type: 'alias',
+        to: 'to',
+        from: 'test_uuid',
       });
     });
   });

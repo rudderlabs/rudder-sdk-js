@@ -97,7 +97,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
 
       RudderAnalytics.globalSingleton = this;
 
-      state.autoTrack.pageLifecycle.visitId.value = generateUUID();
+      state.autoTrack.pageLifecycle.pageViewId.value = generateUUID();
       state.autoTrack.pageLifecycle.pageLoadedTimestamp.value = Date.now();
 
       // start loading if a load event was buffered or wait for explicit load call
@@ -174,12 +174,13 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
       }
 
       this.setDefaultInstanceKey(writeKey);
+
+      // Track page loaded lifecycle event if enabled
+      this.trackPageLifecycleEvents(loadOptions);
+
       // Get the preloaded events array from global buffer instead of window.rudderanalytics
       // as the constructor must have already pushed the events to the global buffer
       const preloadedEventsArray = getExposedGlobal(GLOBAL_PRELOAD_BUFFER) as PreloadedEventCall[];
-
-      // Track page loaded lifecycle event if enabled
-      this.trackPageLifecycleEvents(preloadedEventsArray, loadOptions);
 
       // The array will be mutated in the below method
       promotePreloadedConsentEventsToTop(preloadedEventsArray);
@@ -198,14 +199,10 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
 
   /**
    * A function to track page lifecycle events like page loaded and page unloaded
-   * @param preloadedEventsArray
    * @param loadOptions
    * @returns
    */
-  trackPageLifecycleEvents(
-    preloadedEventsArray: PreloadedEventCall[],
-    loadOptions?: Partial<LoadOptions>,
-  ) {
+  trackPageLifecycleEvents(loadOptions?: Partial<LoadOptions>) {
     const { autoTrack, useBeacon } = loadOptions ?? {};
     const {
       enabled: autoTrackEnabled = false,
@@ -214,7 +211,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     } = autoTrack ?? {};
 
     const {
-      events = [PageLifecycleEvents.LOADED, PageLifecycleEvents.UNLOADED],
+      events = [PageLifecycleEvents.UNLOADED],
       enabled: pageLifecycleEnabled = autoTrackEnabled,
       options = autoTrackOptions,
     } = pageLifecycle ?? {};
@@ -229,35 +226,8 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     if (!pageLifecycleEnabled) {
       return;
     }
-    this.trackPageLoadedEvent(events, options, preloadedEventsArray);
-    this.setupPageUnloadTracking(events, useBeacon, options);
-  }
 
-  /**
-   * Buffer the page loaded event in the preloaded events array
-   * @param events
-   * @param options
-   * @param preloadedEventsArray
-   */
-  // eslint-disable-next-line class-methods-use-this
-  trackPageLoadedEvent(
-    events: PageLifecycleEvents[],
-    options: ApiOptions,
-    preloadedEventsArray: PreloadedEventCall[],
-  ) {
-    if (events.length === 0 || events.includes(PageLifecycleEvents.LOADED)) {
-      preloadedEventsArray.unshift([
-        'track',
-        PageLifecycleEvents.LOADED,
-        {},
-        {
-          ...options,
-          originalTimestamp: getFormattedTimestamp(
-            new Date(state.autoTrack.pageLifecycle.pageLoadedTimestamp.value as number),
-          ),
-        },
-      ]);
-    }
+    this.setupPageUnloadTracking(events, useBeacon, options);
   }
 
   /**
@@ -276,14 +246,14 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
         onPageLeave((isAccessible: boolean) => {
           if (isAccessible === false && state.lifecycle.loaded.value) {
             const pageUnloadedTimestamp = Date.now();
-            const visitDuration =
+            const timeOnPage =
               pageUnloadedTimestamp -
               (state.autoTrack.pageLifecycle.pageLoadedTimestamp.value as number);
 
             this.track(
               PageLifecycleEvents.UNLOADED,
               {
-                visitDuration,
+                timeOnPage,
               },
               {
                 ...options,

@@ -1,9 +1,7 @@
-import { useEffect } from 'react';
-import { RudderAnalytics } from '@rudderstack/analytics-js';
 import { Ninetailed } from '@ninetailed/experience.js';
 import './App.css';
 import logo from './logo.svg';
-import { DATAPLANE_URL, WRITE_KEY } from './config';
+import useRudderAnalytics from './useRudderAnalytics';
 
 export const ninetailed = new Ninetailed({
   // REQUIRED. An API key uniquely identifying your Ninetailed account.
@@ -13,21 +11,10 @@ export const ninetailed = new Ninetailed({
 });
 
 function App() {
-  useEffect(() => {
-    if (window.rudderanalytics) {
-      return;
-    }
+  const analytics = useRudderAnalytics();
 
-    window.rudderanalytics = new RudderAnalytics();
-
-    window.rudderanalytics.load(WRITE_KEY, DATAPLANE_URL);
-
-    window.rudderanalytics.ready(() => {
-      console.log('We are all set!!!');
-    });
-  }, []);
   const page = () => {
-    window.rudderanalytics.page(
+    analytics?.page(
       'Cart',
       'Cart Viewed',
       {
@@ -43,7 +30,7 @@ function App() {
     );
   };
   const identify = () => {
-    window.rudderanalytics.identify(
+    analytics?.identify(
       'sample-user-123',
       {
         firstName: 'Alex',
@@ -57,7 +44,7 @@ function App() {
     );
   };
   const track = () => {
-    window.rudderanalytics.track(
+    analytics?.track(
       'Order Completed',
       {
         revenue: 30,
@@ -70,12 +57,12 @@ function App() {
     );
   };
   const alias = () => {
-    window.rudderanalytics.alias('alias-user-id', () => {
+    analytics?.alias('alias-user-id', () => {
       console.log('alias call');
     });
   };
   const group = () => {
-    window.rudderanalytics.group(
+    analytics?.group(
       'sample_group_id',
       {
         name: 'Apple Inc.',

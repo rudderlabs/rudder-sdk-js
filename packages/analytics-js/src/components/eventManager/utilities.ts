@@ -268,7 +268,7 @@ const getEnrichedEvent = (
         autoTrack: {
           ...(state.autoTrack.pageLifecycle.enabled.value && {
             page: {
-              visitId: state.autoTrack.pageLifecycle.visitId.value,
+              pageViewId: state.autoTrack.pageLifecycle.pageViewId.value,
             },
           }),
         },

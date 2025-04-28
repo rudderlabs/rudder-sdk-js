@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-integrations",
-  "version": "3.13.1",
+  "version": "3.13.2",
   "private": true,
   "description": "RudderStack JavaScript SDK device mode integrations",
   "main": "dist/npm/modern/cjs/index.js",
@@ -95,7 +95,7 @@
     "component-each": "0.2.6",
     "@ndhoule/extend": "2.0.0",
     "@lukeed/uuid": "2.0.1",
-    "get-value": "3.0.1",
+    "get-value": "4.0.1",
     "ramda": "0.30.1"
   },
   "devDependencies": {},

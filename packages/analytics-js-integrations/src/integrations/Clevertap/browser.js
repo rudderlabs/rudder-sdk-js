@@ -1,4 +1,3 @@
-/* eslint-disable class-methods-use-this */
 import get from 'get-value';
 import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
 import {
@@ -55,10 +54,7 @@ class Clevertap {
   }
 
   init() {
-    const sourceUrl =
-      document.location.protocol === 'https:'
-        ? 'https://d2r1yp2w7bby2u.cloudfront.net/js/clevertap.min.js'
-        : 'http://static.clevertap.com/js/clevertap.min.js';
+    const sourceUrl = 'https://static.clevertap.com/js/clevertap.min.js';
 
     window.clevertap = {
       event: [],

@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/filename-case */
 import { CNameMapping as AdobeAnalytics } from './AdobeAnalytics/constants';
 import { CNameMapping as Amplitude } from './Amplitude/constants';
 import { CNameMapping as Appcues } from './Appcues/constants';

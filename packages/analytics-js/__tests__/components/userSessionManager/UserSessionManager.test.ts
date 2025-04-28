@@ -49,9 +49,9 @@ describe('User session manager', () => {
   let userSessionManager: UserSessionManager;
 
   defaultStoreManager.init();
-  let clientDataStoreCookie;
-  let clientDataStoreLS;
-  let clientDataStoreSession;
+  let clientDataStoreCookie: Store;
+  let clientDataStoreLS: Store;
+  let clientDataStoreSession: Store;
 
   const setDataInLocalStorage = (data: any) => {
     Object.entries(data).forEach(([key, value]) => {
@@ -634,11 +634,33 @@ describe('User session manager', () => {
   });
 
   describe('getAnonymousId', () => {
+    it('should return the anonymous ID from the state if available', () => {
+      state.session.anonymousId.value = dummyAnonymousId;
+
+      userSessionManager.init();
+      expect(userSessionManager.getAnonymousId()).toBe(dummyAnonymousId);
+    });
+
     it('should return the persisted anonymous ID', () => {
       const customData = {
         rl_anonymous_id: dummyAnonymousId,
       };
       setDataInCookieStorage(customData);
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+
+      userSessionManager.init();
+
+      const actualAnonymousId = userSessionManager.getAnonymousId();
+      expect(actualAnonymousId).toBe(customData.rl_anonymous_id);
+    });
+
+    it('should return the persisted anonymous ID if the value in the state is the default value', () => {
+      const customData = {
+        rl_anonymous_id: dummyAnonymousId,
+      };
+      setDataInCookieStorage(customData);
+
+      state.session.anonymousId.value = '';
       state.storage.entries.value = entriesWithOnlyCookieStorage;
 
       userSessionManager.init();
@@ -929,9 +951,17 @@ describe('User session manager', () => {
       };
       setDataInCookieStorage(customData);
       state.storage.entries.value = entriesWithOnlyCookieStorage;
+      // Enable migration
+      state.storage.migrate.value = true;
+
+      const migrateStorageIfNeededSpy = jest.spyOn(userSessionManager, 'migrateStorageIfNeeded');
+
       // Not calling init here
       const actualSessionInfo = userSessionManager.getSessionInfo();
+
       expect(actualSessionInfo).toStrictEqual(customData.rl_session);
+      expect(migrateStorageIfNeededSpy).toHaveBeenCalledTimes(1);
+      expect(migrateStorageIfNeededSpy).toHaveBeenCalledWith([clientDataStoreCookie]);
     });
 
     it('should return null if persisted session info is not available', () => {

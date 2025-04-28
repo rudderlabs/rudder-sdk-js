@@ -38,16 +38,29 @@
         })(method);
       }
 
-      // prettier-ignore
-      rudderanalytics.load('__WRITE_KEY__', '__DATAPLANE_URL__', {
+      const loadOptions = {
         logLevel: 'DEBUG',
-        configUrl: '__CONFIG_SERVER_HOST__',
-        destSDKBaseURL: '__DEST_SDK_BASE_URL__',
+        // integrations: {
+        //   All: false
+        // },
         // useBeacon: true,
         // beaconQueueOptions: {
         //   flushQueueInterval: 60 * 1000,
         // }
-      });
+      };
+
+      const envDestSDKBaseURL = '__DEST_SDK_BASE_URL__';
+      if (!envDestSDKBaseURL.startsWith('undefined')) {
+        loadOptions.destSDKBaseURL = envDestSDKBaseURL;
+      }
+
+      const envConfigUrl = '__CONFIG_SERVER_HOST__';
+      if (!envConfigUrl.startsWith('undefined')) {
+        loadOptions.configUrl = envConfigUrl;
+      }
+
+      // prettier-ignore
+      rudderanalytics.load('__WRITE_KEY__', '__DATAPLANE_URL__', loadOptions);
 
       rudderanalytics.page();
     </script>

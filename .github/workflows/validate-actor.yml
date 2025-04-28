@@ -35,7 +35,10 @@ jobs:
 
             # Check if API request failed
             if [ "$response" = "error" ]; then
-              echo "Warning: Unable to fetch membership details for '$actor' in team '$TEAM_NAME'."
+              echo "Error: Failed to fetch membership details for '$actor' in team '$TEAM_NAME'. Please check if:"
+              echo "1. The team name '$TEAM_NAME' exists in the organization"
+              echo "2. The GitHub token has sufficient permissions"
+              echo "3. The GitHub API is accessible"
               continue
             fi
 

@@ -18,11 +18,11 @@ export { type IntegrationOpts } from '@rudderstack/analytics-js-common/types/Int
 export { type LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
 export { type PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 export { type IdentifyTraits } from '@rudderstack/analytics-js-common/types/traits';
-export { RudderAnalytics } from './app/RudderAnalytics';
 export {
   type RudderAnalyticsPreloader,
   type PreloadedEventCall,
 } from './components/preloadBuffer/types';
+export { RudderAnalytics } from './app/RudderAnalytics';
 
 declare global {
   interface Window {

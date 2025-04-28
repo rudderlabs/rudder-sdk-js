@@ -2,6 +2,6 @@
 #    path: /
 #    controller: App\Controller\DefaultController::index
 
-app_lucky_number:
-  path: /lucky/number
-  controller: App\Controller\LuckyController::number
+rudderstack_home:
+    path: /
+    controller: App\Controller\RudderstackController::index

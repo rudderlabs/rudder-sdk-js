@@ -1,8 +1,7 @@
-import { useEffect } from 'react';
 import { Ninetailed } from '@ninetailed/experience.js';
 import logo from './logo.svg';
 import './App.css';
-import { DATAPLANE_URL, WRITE_KEY } from './config';
+import useRudderAnalytics from './useRudderAnalytics';
 
 export const ninetailed = new Ninetailed({
   // REQUIRED. An API key uniquely identifying your Ninetailed account.
@@ -12,54 +11,10 @@ export const ninetailed = new Ninetailed({
 });
 
 function App() {
-  useEffect(() => {
-    /* eslint-disable */
+  const analytics = useRudderAnalytics();
 
-    if (window.rudderanalytics) {
-      return;
-    }
-    let e = (window.rudderanalytics = window.rudderanalytics || []);
-    e.methods = [
-      'load',
-      'page',
-      'track',
-      'identify',
-      'alias',
-      'group',
-      'ready',
-      'reset',
-      'getAnonymousId',
-      'setAnonymousId',
-      'getUserId',
-      'getUserTraits',
-      'getGroupId',
-      'getGroupTraits',
-      'startSession',
-      'endSession',
-    ];
-    e.factory = function (t) {
-      return function () {
-        e.push([t].concat(Array.prototype.slice.call(arguments)));
-      };
-    };
-    for (let t = 0; t < e.methods.length; t++) {
-      let r = e.methods[t];
-      e[r] = e.factory(r);
-    }
-    e.loadJS = function (_e, t) {
-      let r = document.createElement('script');
-      r.type = 'text/javascript';
-      r.async = true;
-      r.src = 'https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js';
-      let a = document.getElementsByTagName('script')[0];
-      a.parentNode.insertBefore(r, a);
-    };
-    e.loadJS();
-    e.load(WRITE_KEY, DATAPLANE_URL);
-    /* eslint-disable */
-  }, []);
   const page = () => {
-    window.rudderanalytics.page(
+    analytics?.page(
       'Cart',
       'Cart Viewed',
       {
@@ -75,7 +30,7 @@ function App() {
     );
   };
   const identify = () => {
-    window.rudderanalytics.identify(
+    analytics?.identify(
       'sample-user-123',
       {
         firstName: 'Alex',
@@ -89,7 +44,7 @@ function App() {
     );
   };
   const track = () => {
-    window.rudderanalytics.track(
+    analytics?.track(
       'Order Completed',
       {
         revenue: 30,
@@ -102,12 +57,12 @@ function App() {
     );
   };
   const alias = () => {
-    window.rudderanalytics.alias('alias-user-id', () => {
+    analytics?.alias('alias-user-id', () => {
       console.log('alias call');
     });
   };
   const group = () => {
-    window.rudderanalytics.group(
+    analytics?.group(
       'sample_group_id',
       {
         name: 'Apple Inc.',

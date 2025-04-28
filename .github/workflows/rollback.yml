@@ -9,7 +9,7 @@ concurrency:
 
 permissions:
   id-token: write # allows the JWT to be requested from GitHub's OIDC provider
-  contents: read # This is required for actions/checkout
+  contents: write # Changed to write to allow creating/updating releases
 
 env:
   NODE_OPTIONS: "--no-warnings"
@@ -39,18 +39,39 @@ jobs:
 
     steps:
       - name: Install AWS CLI
-        uses: unfor19/install-aws-cli-action@master
+        uses: unfor19/install-aws-cli-action@2ff7a6968c81b173eaaef188869215870f44902b  # master
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@ececac1a45f3b08a01d2dd070d28d111c5fe6722  # v4.1.0
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_PROD_ACCOUNT_ID }}:role/${{ secrets.AWS_PROD_S3_SYNC_ROLE }}
           aws-region: us-east-1
+
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main # Production branch
+
+      - name: Get current sdk versions
+        run: |
+          current_version=$(jq -r .version packages/analytics-js/package.json)
+          echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
+          echo "SDK current version: $current_version"
+
+          legacy_sdk_current_version=$(jq -r .version packages/analytics-v1.1/package.json)
+          echo "LEGACY_SDK_CURRENT_VERSION_VALUE=$legacy_sdk_current_version" >> $GITHUB_ENV
+          echo "Legacy SDK current version: $legacy_sdk_current_version"
 
       - name: Checkout source code
         uses: actions/checkout@v4
         with:
           ref: ${{ github.sha }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
 
       - name: Get rollback sdk versions
         run: |
@@ -96,20 +117,76 @@ jobs:
 
           aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --id "$invalidation_id"
 
+      - name: Mark the rollback version as the latest GitHub release
+        uses: actions/github-script@v7
+        continue-on-error: true
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const rollbackVersion = ${{ env.LEGACY_SDK_ROLLBACK_VERSION_VALUE }};
+            const releaseTag = `@rudderstack/analytics-js@${rollbackVersion}`;
+            
+            console.log(`Marking ${releaseTag} as the latest release on GitHub`);
+            
+            // Find the release for the rollback version
+            const releases = await github.rest.repos.listReleases({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            
+            const rollbackRelease = releases.data.find(release => 
+              release.tag_name === releaseTag || 
+              release.name === releaseTag
+            );
+            
+            if (!rollbackRelease) {
+              console.log(`Release with tag ${releaseTag} not found`);
+              return;
+            }
+            
+            // Update the release to set it as the latest
+            await github.rest.repos.updateRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: rollbackRelease.id,
+              make_latest: true
+            });
+            
+            console.log(`Successfully marked ${releaseTag} as the latest release`);
+
+      - name: Deprecate the rolled back NPM version
+        continue-on-error: true
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+        run: |
+          VERSION_TO_DEPRECATE="${{ env.CURRENT_VERSION_VALUE }}"
+          echo "Deprecating NPM version: $VERSION_TO_DEPRECATE"
+          
+          # Deprecate the specified version with a message
+          npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
+          npm deprecate "@rudderstack/analytics-js@$VERSION_TO_DEPRECATE" "We've identified issues with this version of the package. Please use the latest version instead."
+
+          # Note: The legacy SDK is not deprecated as it is deprecated by default with every release.
+          # Refer to deploy-npm.yml for more details.
+
       - name: Send message to Slack channel
         id: slack
         continue-on-error: true
-        uses: slackapi/slack-github-action@v1.27.0
+        uses: slackapi/slack-github-action@485a9d42d3a73031f12ec201c457e2162c45d02d  # v2.0.0
         env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           PROJECT_NAME: 'JS SDK Browser Package - Rollback - Production'
           CDN_URL: ${{ format('https://cdn.rudderlabs.com/{0}/modern/rsa.min.js', env.LATEST_VERSION_DIR_NAME) }}
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js@'
           LINK_TEXT: ${{ format('v{0}', env.ROLLBACK_VERSION_VALUE) }}
         with:
-          channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
+          method: 'chat.postMessage'
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          retries: rapid
+          payload-templated: true
           payload: |
             {
+              "channel": "${{ secrets.SLACK_RELEASE_CHANNEL_ID }}",
               "text": "*New Release: ${{ env.PROJECT_NAME }} - <${{ env.CDN_URL }}|${{ env.LINK_TEXT }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D> <!subteam^S03SW7DM8P3> <!subteam^S03SHJ20350>",
               "blocks": [
                 {

@@ -109,7 +109,6 @@ export type PreConsentOptions = {
 };
 
 export enum PageLifecycleEvents {
-  LOADED = 'Page Loaded',
   UNLOADED = 'Page Unloaded',
 }
 

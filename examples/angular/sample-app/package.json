@@ -3,40 +3,46 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
+    "prebuild": "node scripts/setup-env.js",
+    "prestart": "node scripts/setup-env.js",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "clean": "rm -rf node_modules package-lock.json dist .angular",
+    "setup": "npm install"
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "19.0.5",
-    "@angular/common": "19.0.5",
-    "@angular/compiler": "19.0.5",
-    "@angular/core": "19.0.5",
-    "@angular/forms": "19.0.5",
-    "@angular/platform-browser": "19.0.5",
-    "@angular/platform-browser-dynamic": "19.0.5",
-    "@angular/router": "19.0.5",
+    "@angular/animations": "19.2.5",
+    "@angular/common": "19.2.5",
+    "@angular/compiler": "19.2.5",
+    "@angular/core": "19.2.5",
+    "@angular/forms": "19.2.5",
+    "@angular/platform-browser": "19.2.5",
+    "@angular/platform-browser-dynamic": "19.2.5",
+    "@angular/router": "19.2.5",
     "@rudderstack/analytics-js": "*",
-    "rxjs": "7.8.1",
+    "rxjs": "7.8.2",
     "tslib": "2.8.1",
     "zone.js": "0.15.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "19.0.6",
-    "@angular/cli": "19.0.6",
-    "@angular/compiler-cli": "19.0.5",
-    "@types/jasmine": "5.1.5",
-    "jasmine-core": "5.5.0",
+    "@angular-devkit/build-angular": "19.2.6",
+    "@angular/cli": "19.2.6",
+    "@angular/compiler-cli": "19.2.5",
+    "@types/jasmine": "5.1.7",
+    "dotenv": "16.4.5",
+    "jasmine-core": "5.6.0",
     "karma": "6.4.4",
     "karma-chrome-launcher": "3.2.0",
     "karma-coverage": "2.2.1",
     "karma-jasmine": "5.1.0",
     "karma-jasmine-html-reporter": "2.1.0",
-    "typescript": "5.5.4"
+    "typescript": "5.8.3"
   },
   "overrides": {
+    "vite": "6.2.5",
     "http-proxy-middleware": "2.0.7"
   }
 }

@@ -90,7 +90,7 @@ export type AutoTrackState = {
 
 export type PageLifecycleState = {
   enabled: Signal<boolean>;
-  visitId: Signal<string | undefined>;
+  pageViewId: Signal<string | undefined>;
   pageLoadedTimestamp: Signal<number | undefined>;
 };
 

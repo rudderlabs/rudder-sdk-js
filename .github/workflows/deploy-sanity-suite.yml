@@ -81,10 +81,10 @@ jobs:
           fi
 
       - name: Install AWS CLI
-        uses: unfor19/install-aws-cli-action@master
+        uses: unfor19/install-aws-cli-action@2ff7a6968c81b173eaaef188869215870f44902b  # master
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@ececac1a45f3b08a01d2dd070d28d111c5fe6722  # v4.1.0
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_S3_SYNC_ROLE }}
           aws-region: us-east-1
@@ -125,17 +125,20 @@ jobs:
 
       - name: Send message to Slack channel
         id: slack
-        uses: slackapi/slack-github-action@v1.27.0
+        uses: slackapi/slack-github-action@485a9d42d3a73031f12ec201c457e2162c45d02d  # v2.0.0
         continue-on-error: true
         env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           PROJECT_NAME: 'Sanity suite - ${{ inputs.environment }}'
           CDN_URL: 'https://cdn.rudderlabs.com/sanity-suite${{ env.SUITE_CDN_PATH }}/v3/cdn/index.html'
           LINK_TEXT: ${{ ((inputs.environment == 'development' && format('v{0} - Development', env.CURRENT_VERSION_VALUE)) || (inputs.environment == 'staging' && format('v{0} - Staging', env.CURRENT_VERSION_VALUE)) || format('v{0}', env.CURRENT_VERSION_VALUE)) }}
         with:
-          channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          retries: rapid
+          payload-templated: true
           payload: |
             {
+              "channel": "${{ secrets.SLACK_RELEASE_CHANNEL_ID }}",
               "text": "*New Deployment: ${{ env.PROJECT_NAME }} - <${{ env.CDN_URL }}|${{ env.LINK_TEXT }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D> <!subteam^S03SHJ20350>",
               "blocks": [
                 {
