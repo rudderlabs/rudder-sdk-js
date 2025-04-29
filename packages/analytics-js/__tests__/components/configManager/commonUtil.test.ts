@@ -566,7 +566,7 @@ describe('Config Manager Common Utilities', () => {
       updateConsentsState(mockSourceConfig);
 
       expect(state.consents.metadata.value).toBe(undefined);
-      expect(state.consents.resolutionStrategy.value).toBe('and'); // default value
+      expect(state.consents.resolutionStrategy.value).toBe('all'); // default value
     });
 
     it('should not update the resolution strategy to state if the provider is not set', () => {
@@ -588,7 +588,7 @@ describe('Config Manager Common Utilities', () => {
 
       updateConsentsState(mockSourceConfig);
 
-      expect(state.consents.resolutionStrategy.value).toBe('and'); // default value
+      expect(state.consents.resolutionStrategy.value).toBe('all'); // default value
     });
 
     it('should not update the resolution strategy to state if the provider is not supported', () => {
@@ -611,7 +611,7 @@ describe('Config Manager Common Utilities', () => {
 
       updateConsentsState(mockSourceConfig);
 
-      expect(state.consents.resolutionStrategy.value).toBe('and'); // default value
+      expect(state.consents.resolutionStrategy.value).toBe('all'); // default value
     });
   });
 

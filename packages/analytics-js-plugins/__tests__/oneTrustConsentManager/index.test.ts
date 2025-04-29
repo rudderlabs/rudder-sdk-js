@@ -140,6 +140,7 @@ describe('Plugin - OneTrustConsentManager', () => {
 
   it('should return false if destination categories are not consented', () => {
     state.consents.initialized.value = true;
+    state.consents.provider.value = 'oneTrust';
     state.consents.data.value = {
       allowedConsentIds: ['C0001', 'C0003'],
     };
@@ -147,12 +148,17 @@ describe('Plugin - OneTrustConsentManager', () => {
       blacklistedEvents: [],
       whitelistedEvents: [],
       eventFilteringOption: 'disable',
-      oneTrustCookieCategories: [
+      consentManagement: [
         {
-          oneTrustCookieCategory: 'C0001',
-        },
-        {
-          oneTrustCookieCategory: 'C0004',
+          provider: 'oneTrust',
+          consents: [
+            {
+              consent: 'C0001',
+            },
+            {
+              consent: 'C0004',
+            },
+          ],
         },
       ],
       key: 'value',
@@ -165,14 +171,28 @@ describe('Plugin - OneTrustConsentManager', () => {
 
   it('should return true and log error if an exception occurs during destination consent status check', () => {
     state.consents.initialized.value = true;
+    state.consents.provider.value = 'oneTrust';
     state.consents.data.value = {
-      allowedConsentIds: ['C0001', 'C0003'],
+      // @ts-expect-error Intentionally set to null to throw an exception
+      allowedConsentIds: null, // This will throw an exception
     };
     const destConfig = {
       blacklistedEvents: [],
       whitelistedEvents: [],
       eventFilteringOption: 'disable',
-      oneTrustCookieCategories: {}, // Invalid config
+      consentManagement: [
+        {
+          provider: 'oneTrust',
+          consents: [
+            {
+              consent: 'C0001',
+            },
+            {
+              consent: 'C0004',
+            },
+          ],
+        },
+      ],
       key: 'value',
     };
 
@@ -181,7 +201,7 @@ describe('Plugin - OneTrustConsentManager', () => {
     ).isDestinationConsented?.(state, destConfig, defaultErrorHandler, defaultLogger);
     expect(isDestinationConsented).toBe(true);
     expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
-      new TypeError('oneTrustCookieCategories.map is not a function'),
+      new TypeError("Cannot read properties of null (reading 'includes')"),
       'OneTrustConsentManagerPlugin',
       'Failed to determine the consent status for the destination. Please check the destination configuration and try again.',
     );

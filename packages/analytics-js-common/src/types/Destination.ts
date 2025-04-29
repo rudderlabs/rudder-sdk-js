@@ -4,6 +4,7 @@ import type {
   KetchConsentPurpose,
   IubendaConsentPurpose,
   ConsentManagementProvider,
+  ConsentResolutionStrategy,
 } from './Consent';
 
 export type DestinationConnectionMode = 'hybrid' | 'cloud' | 'device';
@@ -30,7 +31,7 @@ export type ConsentsConfig = {
 export type ConsentManagementProviderConfig = {
   provider: ConsentManagementProvider;
   consents: ConsentsConfig[];
-  resolutionStrategy: string | undefined;
+  resolutionStrategy: ConsentResolutionStrategy | undefined;
 };
 
 export type DestinationConfig = {

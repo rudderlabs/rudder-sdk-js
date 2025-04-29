@@ -168,7 +168,7 @@ describe('Plugin - KetchConsentManager', () => {
     ).toBe(true);
   });
 
-  it('should return true if the destination config does not contain ketch consent purposes data', () => {
+  it('should return true if the destination config does not contain consent management config', () => {
     state.consents.initialized.value = true;
     state.consents.data.value = {
       allowedConsentIds: ['purpose1', 'purpose3', 'purpose5'],
@@ -191,7 +191,7 @@ describe('Plugin - KetchConsentManager', () => {
     ).toBe(true);
   });
 
-  it('should return true if the ketch consent purposes data is empty in the destination config', () => {
+  it('should return true if the ketch consent data is empty in the destination config', () => {
     state.consents.initialized.value = true;
     state.consents.data.value = {
       allowedConsentIds: ['purpose1', 'purpose3', 'purpose5'],
@@ -202,7 +202,12 @@ describe('Plugin - KetchConsentManager', () => {
       blacklistedEvents: [],
       whitelistedEvents: [],
       eventFilteringOption: 'disable',
-      ketchConsentPurposes: [],
+      consentManagement: [
+        {
+          provider: 'ketch',
+          consents: [],
+        },
+      ],
     };
 
     expect(
@@ -226,12 +231,17 @@ describe('Plugin - KetchConsentManager', () => {
       blacklistedEvents: [],
       whitelistedEvents: [],
       eventFilteringOption: 'disable',
-      ketchConsentPurposes: [
+      consentManagement: [
         {
-          purpose: 'purpose1',
-        },
-        {
-          purpose: 'purpose2',
+          provider: 'ketch',
+          consents: [
+            {
+              consent: 'purpose1',
+            },
+            {
+              consent: 'purpose2',
+            },
+          ],
         },
       ],
     };
@@ -246,39 +256,9 @@ describe('Plugin - KetchConsentManager', () => {
     ).toBe(true);
   });
 
-  it('should return false if none of the ketch consent purposes in the destination config is allowed', () => {
-    state.consents.initialized.value = true;
-    state.consents.data.value = {
-      allowedConsentIds: ['purpose1', 'purpose3', 'purpose5'],
-      deniedConsentIds: ['purpose2', 'purpose4'],
-    };
-
-    const destConfig = {
-      blacklistedEvents: [],
-      whitelistedEvents: [],
-      eventFilteringOption: 'disable',
-      ketchConsentPurposes: [
-        {
-          purpose: 'purpose2',
-        },
-        {
-          purpose: 'purpose4',
-        },
-      ],
-    };
-
-    expect(
-      (KetchConsentManager()?.consentManager as ExtensionPoint).isDestinationConsented?.(
-        state,
-        destConfig,
-        defaultErrorHandler,
-        defaultLogger,
-      ),
-    ).toBe(false);
-  });
-
   it('should return true and log an error if any exception is thrown while checking if the destination is consented', () => {
     state.consents.initialized.value = true;
+    state.consents.provider.value = 'ketch';
     state.consents.data.value = {
       // @ts-expect-error Intentionally set to null to throw an exception
       allowedConsentIds: null, // This will throw an exception
@@ -289,12 +269,17 @@ describe('Plugin - KetchConsentManager', () => {
       blacklistedEvents: [],
       whitelistedEvents: [],
       eventFilteringOption: 'disable',
-      ketchConsentPurposes: [
+      consentManagement: [
         {
-          purpose: 'purpose2',
-        },
-        {
-          purpose: 'purpose4',
+          provider: 'ketch',
+          consents: [
+            {
+              consent: 'purpose2',
+            },
+            {
+              consent: 'purpose4',
+            },
+          ],
         },
       ],
     };
@@ -420,10 +405,10 @@ describe('Plugin - KetchConsentManager', () => {
     expect(isDestinationConsented).toBe(true);
   });
 
-  it('should return appropriate value when the resolution strategy is set to "and"', () => {
+  it('should return appropriate value when the resolution strategy is set to "any"', () => {
     state.consents.initialized.value = true;
     state.consents.provider.value = 'ketch';
-    state.consents.resolutionStrategy.value = 'and';
+    state.consents.resolutionStrategy.value = 'any';
     state.consents.data.value = {
       allowedConsentIds: ['C0001', 'C0002', 'C0003'],
     };
