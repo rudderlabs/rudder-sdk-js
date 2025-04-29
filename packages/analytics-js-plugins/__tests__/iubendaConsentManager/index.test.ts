@@ -326,7 +326,7 @@ describe('Plugin - IubendaConsentManager', () => {
 
   it('should return false if the destination categories are not consented in generic consent management config', () => {
     state.consents.initialized.value = true;
-    state.consents.resolutionStrategy.value = 'or';
+    state.consents.resolutionStrategy.value = 'any';
     state.consents.provider.value = 'iubenda';
     state.consents.data.value = {
       allowedConsentIds: ['C0001', 'C0003'],
@@ -365,7 +365,7 @@ describe('Plugin - IubendaConsentManager', () => {
 
   it("should return true if the active consent provider's configuration data is not present in the destination config", () => {
     state.consents.initialized.value = true;
-    state.consents.resolutionStrategy.value = 'or';
+    state.consents.resolutionStrategy.value = 'any';
     state.consents.provider.value = 'iubenda';
     state.consents.data.value = {
       allowedConsentIds: ['C0001', 'C0003'],
@@ -394,7 +394,7 @@ describe('Plugin - IubendaConsentManager', () => {
   it('should return true if at least one of the configured consents in generic consent management are consented', () => {
     state.consents.initialized.value = true;
     state.consents.provider.value = 'iubenda';
-    state.consents.resolutionStrategy.value = 'or';
+    state.consents.resolutionStrategy.value = 'any';
     state.consents.data.value = {
       allowedConsentIds: ['C0001', 'C0003'],
     };
@@ -430,10 +430,10 @@ describe('Plugin - IubendaConsentManager', () => {
     expect(isDestinationConsented).toBe(true);
   });
 
-  it('should return appropriate value when the resolution strategy is set to "and"', () => {
+  it('should return appropriate value when the resolution strategy is set to "all"', () => {
     state.consents.initialized.value = true;
     state.consents.provider.value = 'iubenda';
-    state.consents.resolutionStrategy.value = 'and';
+    state.consents.resolutionStrategy.value = 'all';
     state.consents.data.value = {
       allowedConsentIds: ['C0001', 'C0002', 'C0003'],
     };
