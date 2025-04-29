@@ -7,9 +7,10 @@ import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/Plu
 import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { DESTINATION_CONSENT_STATUS_ERROR, ONETRUST_ACCESS_ERROR } from './logMessages';
+import { ONETRUST_ACCESS_ERROR } from './logMessages';
 import { ONETRUST_CONSENT_MANAGER_PLUGIN } from './constants';
 import type { OneTrustGroup } from './types';
+import { isDestinationConsented } from '../utilities/consentManagement';
 
 const pluginName: PluginName = 'OneTrustConsentManager';
 
@@ -64,64 +65,13 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
       errorHandler?: IErrorHandler,
       logger?: ILogger,
     ): boolean {
-      if (!state.consents.initialized.value) {
-        return true;
-      }
-      const allowedConsentIds = state.consents.data.value.allowedConsentIds as string[];
-
-      try {
-        // mapping of the destination with the consent group name
-        const { oneTrustCookieCategories, consentManagement } = destConfig;
-
-        const matchPredicate = (consent: string) => allowedConsentIds.includes(consent);
-
-        // Generic consent management
-        if (consentManagement) {
-          // Get the corresponding consents for the destination
-          const cmpConsents = consentManagement.find(
-            c => c.provider === state.consents.provider.value,
-          )?.consents;
-
-          // If there are no consents configured for the destination for the current provider, events should be sent.
-          if (!cmpConsents) {
-            return true;
-          }
-
-          const configuredConsents = cmpConsents.map(c => c.consent.trim()).filter(n => n);
-
-          // match the configured consents with user provided consents as per
-          // the configured resolution strategy
-          switch (state.consents.resolutionStrategy.value) {
-            case 'or':
-              return configuredConsents.some(matchPredicate) || configuredConsents.length === 0;
-            case 'and':
-            default:
-              return configuredConsents.every(matchPredicate);
-          }
-          // Legacy cookie consent management
-          // TODO: To be removed once the source config API is updated to support generic consent management
-        } else if (oneTrustCookieCategories) {
-          // Change the structure of oneTrustConsentGroup as an array and filter values if empty string
-          // Eg:
-          // ["Performance Cookies", "Functional Cookies"]
-          const configuredConsents = oneTrustCookieCategories
-            .map(c => c.oneTrustCookieCategory.trim())
-            .filter(n => n);
-
-          // Check if all the destination's mapped cookie categories are consented by the user in the browser.
-          return configuredConsents.every(matchPredicate);
-        }
-
-        // If there are no consents configured for the destination for the current provider, events should be sent.
-        return true;
-      } catch (err) {
-        errorHandler?.onError(
-          err,
-          ONETRUST_CONSENT_MANAGER_PLUGIN,
-          DESTINATION_CONSENT_STATUS_ERROR,
-        );
-        return true;
-      }
+      return isDestinationConsented(
+        state,
+        destConfig,
+        ONETRUST_CONSENT_MANAGER_PLUGIN,
+        errorHandler,
+        logger,
+      );
     },
   },
 });

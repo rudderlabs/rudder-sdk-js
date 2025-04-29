@@ -29,7 +29,7 @@ export type ConsentManagementProviderMetadata = {
 
 export type ConsentManagementProvider = 'iubenda' | 'oneTrust' | 'ketch' | 'custom';
 
-export type ConsentResolutionStrategy = 'and' | 'or';
+export type ConsentResolutionStrategy = 'and' | 'or' | 'any' | 'all';
 
 export type Consents = string[];
 

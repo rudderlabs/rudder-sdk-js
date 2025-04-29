@@ -7,11 +7,11 @@ import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/Plu
 import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { DESTINATION_CONSENT_STATUS_ERROR } from './logMessages';
 import { IUBENDA_CONSENT_MANAGER_PLUGIN } from './constants';
 import type { IubendaConsentData } from './types';
 import { updateConsentStateFromData, getIubendaConsentData } from './utils';
 import { isUndefined } from '../shared-chunks/common';
+import { isDestinationConsented } from '../utilities/consentManagement';
 
 const pluginName: PluginName = 'IubendaConsentManager';
 
@@ -62,49 +62,13 @@ const IubendaConsentManager = (): ExtensionPlugin => ({
       errorHandler?: IErrorHandler,
       logger?: ILogger,
     ): boolean {
-      if (!state.consents.initialized.value) {
-        return true;
-      }
-      const allowedConsentIds = state.consents.data.value.allowedConsentIds as string[];
-      const matchPredicate = (consent: string) => allowedConsentIds.includes(consent);
-
-      try {
-        const { consentManagement } = destConfig;
-        // If the destination does not have consent management config, events should be sent.
-        if (consentManagement) {
-          // Get the corresponding consents for the destination
-          const cmpConfig = consentManagement.find(
-            c => c.provider === state.consents.provider.value,
-          );
-
-          // If there are no consents configured for the destination for the current provider, events should be sent.
-          if (!cmpConfig?.consents) {
-            return true;
-          }
-
-          const configuredConsents = cmpConfig.consents.map(c => c.consent.trim()).filter(n => n);
-          const resolutionStrategy =
-            cmpConfig.resolutionStrategy ?? state.consents.resolutionStrategy.value;
-
-          // match the configured consents with user provided consents as per
-          // the configured resolution strategy
-          switch (resolutionStrategy) {
-            case 'or':
-              return configuredConsents.some(matchPredicate) || configuredConsents.length === 0;
-            case 'and':
-            default:
-              return configuredConsents.every(matchPredicate);
-          }
-        }
-        return true;
-      } catch (err) {
-        errorHandler?.onError(
-          err,
-          IUBENDA_CONSENT_MANAGER_PLUGIN,
-          DESTINATION_CONSENT_STATUS_ERROR,
-        );
-        return true;
-      }
+      return isDestinationConsented(
+        state,
+        destConfig,
+        IUBENDA_CONSENT_MANAGER_PLUGIN,
+        errorHandler,
+        logger,
+      );
     },
   },
 });
