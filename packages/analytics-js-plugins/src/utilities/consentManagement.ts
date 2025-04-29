@@ -26,7 +26,7 @@ const isDestinationConsented = (
     }
 
     // Get the corresponding consents configured for the provider
-    const cmpConfig = consentManagement?.find(c => c.provider === state.consents.provider.value);
+    const cmpConfig = consentManagement.find(c => c.provider === state.consents.provider.value);
 
     // If there are no consents configured for the destination for the current provider, events should be sent.
     if (!cmpConfig?.consents) {
@@ -34,9 +34,7 @@ const isDestinationConsented = (
     }
 
     // sanitize the configured consents
-    const configuredConsents = cmpConfig.consents
-      .map((c: ConsentsConfig) => c.consent.trim())
-      .filter((n: string) => n);
+    const configuredConsents = cmpConfig.consents.map(c => c.consent?.trim()).filter(Boolean);
 
     const allowedConsentIds = state.consents.data.value.allowedConsentIds as string[];
     const matchPredicate = (consent: string) => allowedConsentIds.includes(consent);

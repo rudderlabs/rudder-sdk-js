@@ -118,7 +118,7 @@ describe('Plugin - CustomConsentManager', () => {
   it('should use the global resolution strategy if it is missing in the destination config', () => {
     state.consents.initialized.value = true;
     state.consents.provider.value = 'custom';
-    state.consents.resolutionStrategy.value = 'and';
+    state.consents.resolutionStrategy.value = 'all';
     state.consents.data.value = {
       allowedConsentIds: ['C0001', 'C0002', 'C0003'],
     };

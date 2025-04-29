@@ -31,7 +31,7 @@ export type ConsentsConfig = {
 export type ConsentManagementProviderConfig = {
   provider: ConsentManagementProvider;
   consents: ConsentsConfig[];
-  resolutionStrategy: ConsentResolutionStrategy | undefined;
+  resolutionStrategy?: ConsentResolutionStrategy;
 };
 
 export type DestinationConfig = {

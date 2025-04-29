@@ -436,7 +436,6 @@ describe('RudderEventFactory', () => {
 
     batch(() => {
       state.session.groupId.value = 'overridden_group_id';
-      state.consents.resolutionStrategy.value = 'or';
       state.session.groupTraits.value = {
         key4: 'value4',
         key5: 'value5',
