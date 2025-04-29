@@ -1,6 +1,5 @@
 import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import type {
-  ConsentsConfig,
   DestinationConfig,
 } from '@rudderstack/analytics-js-common/types/Destination';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
