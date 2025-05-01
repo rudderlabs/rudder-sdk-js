@@ -233,6 +233,7 @@ describe('Plugin - IubendaConsentManager', () => {
       deniedConsentIds: ['2', '3'],
     };
     state.consents.provider.value = 'iubenda';
+    state.consents.resolutionStrategy.value = 'or';
 
     const destConfig = {
       blacklistedEvents: [],
@@ -242,7 +243,6 @@ describe('Plugin - IubendaConsentManager', () => {
         {
           provider: 'iubenda',
           consents: [{ consent: '1' }, { consent: '2' }],
-          resolutionStrategy: 'or',
         },
       ],
     };
@@ -273,7 +273,6 @@ describe('Plugin - IubendaConsentManager', () => {
         {
           provider: 'iubenda',
           consents: [{ consent: '2' }, { consent: '4' }],
-          resolutionStrategy: 'and',
         },
       ],
     };
@@ -305,7 +304,6 @@ describe('Plugin - IubendaConsentManager', () => {
         {
           provider: 'iubenda',
           consents: [{ consent: '2' }, { consent: '4' }],
-          resolutionStrategy: 'and',
         },
       ],
     };
