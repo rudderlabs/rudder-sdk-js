@@ -1,10 +1,9 @@
 import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import type {
-  DestinationConfig,
-} from '@rudderstack/analytics-js-common/types/Destination';
+import type { DestinationConfig } from '@rudderstack/analytics-js-common/types/Destination';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { DESTINATION_CONSENT_STATUS_ERROR } from './constants';
+import type { ConsentResolutionStrategy } from '@rudderstack/analytics-js-common/types/Consent';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const isDestinationConsented = (
@@ -40,8 +39,11 @@ const isDestinationConsented = (
 
     // match the configured consents with user provided consents as per
     // the configured resolution strategy
-    const resolutionStrategy =
-      cmpConfig.resolutionStrategy ?? state.consents.resolutionStrategy.value;
+    let resolutionStrategy = state.consents.resolutionStrategy.value;
+    if (state.consents.provider.value === 'custom') {
+      resolutionStrategy = cmpConfig.resolutionStrategy as ConsentResolutionStrategy;
+    }
+
     switch (resolutionStrategy) {
       case 'any':
       case 'or': // Deprecated
