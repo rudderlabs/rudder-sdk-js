@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import path from 'path';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
@@ -20,7 +19,7 @@ import alias from '@rollup/plugin-alias';
 import federation from '@originjs/vite-plugin-federation';
 import externalGlobals from 'rollup-plugin-external-globals';
 import * as dotenv from 'dotenv';
-import pkg from './package.json' assert { type: 'json' };
+import pkg from './package.json' with { type: 'json' };
 
 dotenv.config();
 const isLegacyBuild = process.env.BROWSERSLIST_ENV !== 'modern';
