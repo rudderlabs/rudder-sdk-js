@@ -294,3 +294,7 @@ export {
   DISPLAY_NAME as XPixelDisplayName,
   DIR_NAME as XPixelDirectoryName,
 } from './XPixel/constants';
+export {
+  DISPLAY_NAME as UserpilotDisplayName,
+  DIR_NAME as UserpilotDirectoryName,
+} from './Userpilot/constants';
