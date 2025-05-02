@@ -9,19 +9,25 @@ import {
   SESSION_STORAGE,
 } from '@rudderstack/analytics-js-common/constants/storages';
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
-import { DEFAULT_SESSION_TIMEOUT_MS } from '../../constants/timeouts';
 import { INVALID_SESSION_ID_WARNING } from '../../constants/logMessages';
 import { hasMinLength, isPositiveInteger } from '../utilities/number';
 
 const MIN_SESSION_ID_LENGTH = 10;
 
 /**
- * A function to validate current session and return true/false depending on that
+ * A function to validate whether the current session has expired or not.
+ * It checks for the current session expiry and the cut off time expiry.
+ * @param sessionInfo session info
  * @returns boolean
  */
-const hasSessionExpired = (expiresAt?: number): boolean => {
+const hasSessionExpired = (sessionInfo: SessionInfo): boolean => {
+  const { expiresAt, cutOff } = sessionInfo;
   const timestamp = Date.now();
-  return Boolean(!expiresAt || timestamp > expiresAt);
+  const isCurrentSessionExpired = Boolean(!expiresAt || timestamp > expiresAt);
+  const isCutOffTimeExceeded = Boolean(
+    cutOff?.enabled && cutOff?.expiresAt && timestamp > (cutOff?.expiresAt as number),
+  );
+  return isCurrentSessionExpired || isCutOffTimeExceeded;
 };
 
 /**
@@ -50,18 +56,26 @@ const isManualSessionIdValid = (sessionId: number | undefined, logger: ILogger):
 
 /**
  * A function to generate new auto tracking session
- * @param sessionTimeout current timestamp
+ * @param sessionInfo session info
  * @returns SessionInfo
  */
-const generateAutoTrackingSession = (sessionTimeout?: number): SessionInfo => {
+const generateAutoTrackingSession = (sessionInfo: SessionInfo): SessionInfo => {
+  const { timeout, cutOff } = sessionInfo;
   const timestamp = Date.now();
-  const timeout: number = sessionTimeout || DEFAULT_SESSION_TIMEOUT_MS;
+  const cutOffExpiresAt = cutOff?.enabled
+    ? (cutOff?.expiresAt ?? timestamp + (cutOff?.duration as number))
+    : undefined;
+
   return {
     id: timestamp, // set the current timestamp
-    expiresAt: timestamp + timeout, // set the expiry time of the session
+    expiresAt: timestamp + (timeout as number), // set the expiry time of the session
     timeout,
     sessionStart: undefined,
     autoTrack: true,
+    cutOff: {
+      ...cutOff,
+      ...(cutOffExpiresAt && { expiresAt: cutOffExpiresAt }),
+    },
   };
 };
 

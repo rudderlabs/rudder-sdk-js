@@ -1,3 +1,4 @@
+import type { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
 import {
   hasSessionExpired,
   generateSessionId,
@@ -8,40 +9,71 @@ import {
 } from '../../../src/components/userSessionManager/utils';
 import { defaultLogger } from '../../../src/services/Logger';
 
-describe('Utility: User session manager', () => {
-  describe('hasSessionExpired:', () => {
+describe('Utilities: User session manager', () => {
+  describe('hasSessionExpired', () => {
     it('should return true for valid session', () => {
-      const outcome = hasSessionExpired(Date.now() + 1000);
+      const sessionInfo: SessionInfo = {
+        autoTrack: true,
+        timeout: 10 * 60 * 1000,
+        expiresAt: Date.now() + 1000,
+        id: 1234567890,
+        sessionStart: undefined,
+      };
+
+      const outcome = hasSessionExpired(sessionInfo);
       expect(outcome).toEqual(false);
     });
-    it('hasSessionExpired: should return false for valid session', () => {
-      const outcome = hasSessionExpired(Date.now() - 1000);
+    it('should return false for valid session', () => {
+      const sessionInfo: SessionInfo = {
+        autoTrack: true,
+        timeout: 10 * 60 * 1000,
+        expiresAt: Date.now() - 1000,
+        id: 1234567890,
+        sessionStart: undefined,
+      };
+
+      const outcome = hasSessionExpired(sessionInfo);
       expect(outcome).toEqual(true);
     });
   });
 
-  describe('generateSessionId:', () => {
+  describe('generateSessionId', () => {
     it('should return newly generated session id', () => {
       const outcome = generateSessionId();
       expect(typeof outcome).toBe('number');
       expect(outcome.toString().length).toEqual(13);
     });
   });
-  describe('generateAutoTrackingSession:', () => {
+  describe('generateAutoTrackingSession', () => {
     it('should return newly generated auto tracking session', () => {
-      const timeout = 10 * 60 * 1000;
-      const outcome = generateAutoTrackingSession(timeout);
+      const curSessionInfo: SessionInfo = {
+        autoTrack: true,
+        timeout: 10 * 60 * 1000,
+        expiresAt: Date.now() + 1000,
+        id: 1234567890,
+        sessionStart: undefined,
+        cutOff: {
+          enabled: false,
+          duration: 12 * 60 * 1000,
+        },
+      };
+
+      const outcome = generateAutoTrackingSession(curSessionInfo);
       expect(outcome).toEqual({
         autoTrack: true,
-        timeout,
+        timeout: 10 * 60 * 1000,
         expiresAt: expect.any(Number),
         id: expect.any(Number),
         sessionStart: undefined,
+        cutOff: {
+          enabled: false,
+          duration: 12 * 60 * 1000,
+        },
       });
     });
   });
 
-  describe('generateManualTrackingSession:', () => {
+  describe('generateManualTrackingSession', () => {
     it('should return newly generated manual session', () => {
       const sessionId = 1234567890;
       const outcome = generateManualTrackingSession(sessionId, defaultLogger);

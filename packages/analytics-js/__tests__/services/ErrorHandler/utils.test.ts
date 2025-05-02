@@ -501,6 +501,9 @@ describe('Error Reporting utilities', () => {
                 sessions: {
                   autoTrack: true,
                   timeout: 1800000,
+                  cutOff: {
+                    enabled: false,
+                  },
                 },
                 storage: {
                   cookie: {},
@@ -654,6 +657,7 @@ describe('Error Reporting utilities', () => {
       ['', true, 'should allow empty messages'],
     ];
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     test.each(testCases)('%s -> %s (%s)', (message, expected, testName) => {
       const result = isAllowedToBeNotified({ message } as unknown as Exception);
       expect(result).toBe(expected);

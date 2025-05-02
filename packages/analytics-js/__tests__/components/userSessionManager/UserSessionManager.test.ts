@@ -113,6 +113,10 @@ describe('User session manager', () => {
       state.loadOptions.value.sessions = {
         autoTrack: true,
         timeout: 10000,
+        cutOff: {
+          enabled: false,
+          duration: 12 * 60 * 60 * 1000,
+        },
       };
       state.storage.entries.value = entriesWithStorageOnlyForAnonymousId;
       userSessionManager.init();
@@ -136,6 +140,10 @@ describe('User session manager', () => {
         id: expect.any(Number),
         sessionStart: undefined,
         timeout: 10000, // TODO: fix this after this entry is removed from state
+        cutOff: {
+          enabled: false,
+          duration: 12 * 60 * 60 * 1000,
+        },
       });
       // This also covers the data migration from previous storage to current
       expect(state.session.anonymousId.value).toBe(customData.rl_anonymous_id);
@@ -257,12 +265,15 @@ describe('User session manager', () => {
       setDataInCookieStorage(customData);
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.syncStorageDataToState();
-      expect(state.session.sessionInfo.value).toStrictEqual({
+      expect(state.session.sessionInfo.value).toEqual({
         id: 1726655503445,
         expiresAt: expect.any(Number),
         timeout: 1800000,
         autoTrack: true,
         sessionStart: false,
+        cutOff: {
+          enabled: false,
+        },
       });
     });
   });
@@ -527,9 +538,12 @@ describe('User session manager', () => {
       expect(state.session.initialReferringDomain.value).toBe(
         customData.rl_page_init_referring_domain,
       );
-      expect(state.session.sessionInfo.value).toStrictEqual({
+      expect(state.session.sessionInfo.value).toEqual({
         ...customData.rl_session,
         timeout: expect.any(Number), // TODO: fix this after this entry is removed from state
+        cutOff: {
+          enabled: false,
+        },
       });
       expect(state.session.authToken.value).toBe(customData.rl_auth_token);
     });
@@ -583,12 +597,15 @@ describe('User session manager', () => {
       );
       expect(state.session.initialReferrer.value).toBe('$direct'); // referrer is recomputed
       expect(state.session.initialReferringDomain.value).toBe('');
-      expect(state.session.sessionInfo.value).toStrictEqual({
+      expect(state.session.sessionInfo.value).toEqual({
         autoTrack: true,
         expiresAt: expect.any(Number),
         id: expect.any(Number),
         sessionStart: undefined,
         timeout: expect.any(Number), // TODO: fix this after this entry is removed from state
+        cutOff: {
+          enabled: false,
+        },
       });
       expect(state.session.authToken.value).toBe(DEFAULT_USER_SESSION_VALUES.authToken);
     });
@@ -1315,6 +1332,10 @@ describe('User session manager', () => {
         expiresAt: pastTimestamp,
         id: 1683613729115,
         sessionStart: false,
+        cutOff: {
+          enabled: false,
+          duration: 12 * 60 * 1000,
+        },
       };
       userSessionManager.refreshSession();
       expect(state.session.sessionInfo.value).toEqual({
@@ -1323,6 +1344,10 @@ describe('User session manager', () => {
         id: expect.any(Number),
         expiresAt: expect.any(Number),
         sessionStart: true,
+        cutOff: {
+          enabled: false,
+          duration: 12 * 60 * 1000,
+        },
       });
     });
 
@@ -1382,6 +1407,9 @@ describe('User session manager', () => {
         timeout: 1800000,
         expiresAt: expect.any(Number),
         id: expect.any(Number),
+        cutOff: {
+          enabled: false,
+        },
       });
       expect(syncValueToStorageSpy).toHaveBeenNthCalledWith(2, 'sessionInfo', {
         autoTrack: true,
@@ -1389,6 +1417,9 @@ describe('User session manager', () => {
         expiresAt: expect.any(Number),
         id: expect.any(Number),
         sessionStart: true,
+        cutOff: {
+          enabled: false,
+        },
       });
       expect(syncValueToStorageSpy).toHaveBeenNthCalledWith(3, 'sessionInfo', {
         autoTrack: true,
@@ -1396,6 +1427,9 @@ describe('User session manager', () => {
         expiresAt: expect.any(Number),
         id: expect.any(Number),
         sessionStart: true,
+        cutOff: {
+          enabled: false,
+        },
       });
     });
   });
@@ -1484,6 +1518,10 @@ describe('User session manager', () => {
         expiresAt: Date.now() - 1000,
         id: 1683613729115,
         sessionStart: false,
+        cutOff: {
+          enabled: false,
+          duration: 12 * 60 * 60 * 1000,
+        },
       };
       userSessionManager.startOrRenewAutoTracking(state.session.sessionInfo.value);
       expect(state.session.sessionInfo.value).toEqual({
@@ -1492,6 +1530,10 @@ describe('User session manager', () => {
         expiresAt: expect.any(Number),
         id: expect.any(Number),
         sessionStart: undefined,
+        cutOff: {
+          enabled: false,
+          duration: 12 * 60 * 60 * 1000,
+        },
       });
     });
 
@@ -1547,22 +1589,31 @@ describe('User session manager', () => {
 
   describe('reset', () => {
     it('should reset user session to the initial value except anonymousId', () => {
+      jest.useFakeTimers();
+      jest.setSystemTime(0);
+
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.init();
       userSessionManager.setAnonymousId(dummyAnonymousId);
       const sessionInfoBeforeReset = JSON.parse(JSON.stringify(state.session.sessionInfo.value));
+
+      jest.advanceTimersByTime(1000);
       userSessionManager.reset();
+
       expect(state.session.userId.value).toEqual('');
       expect(state.session.userTraits.value).toEqual({});
       expect(state.session.groupId.value).toEqual('');
       expect(state.session.groupTraits.value).toEqual({});
       expect(state.session.anonymousId.value).toEqual(dummyAnonymousId);
+
       // new session will be generated
       expect(state.session.sessionInfo.value.autoTrack).toBe(sessionInfoBeforeReset.autoTrack);
       expect(state.session.sessionInfo.value.timeout).toBe(sessionInfoBeforeReset.timeout);
       expect(state.session.sessionInfo.value.expiresAt).not.toBe(sessionInfoBeforeReset.expiresAt);
       expect(state.session.sessionInfo.value.id).not.toBe(sessionInfoBeforeReset.id);
       expect(state.session.sessionInfo.value.sessionStart).toBe(undefined);
+
+      jest.useRealTimers();
     });
 
     it('should clear the existing anonymousId and set a new anonymousId with first parameter set to true', () => {
@@ -1583,6 +1634,14 @@ describe('User session manager', () => {
 
     it('should not start a new session with second parameter set to true', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
+      state.loadOptions.value.sessions = {
+        autoTrack: true,
+        timeout: 10 * 60 * 1000,
+        cutOff: {
+          enabled: false,
+        },
+      };
+
       userSessionManager.init();
       const sessionInfoBeforeReset = JSON.parse(JSON.stringify(state.session.sessionInfo.value));
       userSessionManager.reset(true, true);

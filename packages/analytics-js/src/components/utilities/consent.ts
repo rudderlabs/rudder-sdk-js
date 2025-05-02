@@ -5,7 +5,7 @@ import type {
   Consents,
   CookieConsentOptions,
 } from '@rudderstack/analytics-js-common/types/Consent';
-import type { ConsentOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import type { ConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import {

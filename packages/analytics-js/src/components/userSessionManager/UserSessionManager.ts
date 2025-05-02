@@ -41,11 +41,17 @@ import {
   USER_SESSION_KEYS,
 } from '../../constants/storage';
 import { storageClientDataStoreNameMap } from '../../services/StoreManager/types';
-import { DEFAULT_SESSION_TIMEOUT_MS, MIN_SESSION_TIMEOUT_MS } from '../../constants/timeouts';
+import {
+  DEFAULT_SESSION_CUT_OFF_DURATION_MS,
+  DEFAULT_SESSION_TIMEOUT_MS,
+  MIN_SESSION_TIMEOUT_MS,
+} from '../../constants/timeouts';
 import { defaultSessionConfiguration } from '../../state/slices/session';
 import { state } from '../../state';
 import { getStorageEngine } from '../../services/StoreManager/storages';
 import {
+  CUT_OFF_DURATION_LESS_THAN_TIMEOUT_WARNING,
+  CUT_OFF_DURATION_NOT_NUMBER_WARNING,
   DATA_SERVER_REQUEST_FAIL_ERROR,
   FAILED_SETTING_COOKIE_FROM_SERVER_ERROR,
   FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR,
@@ -141,9 +147,17 @@ class UserSessionManager implements IUserSessionManager {
         autoTrack:
           configuredSessionTrackingInfo.autoTrack && initialSessionInfo.manualTrack !== true,
       };
+
       // If both autoTrack and manualTrack are disabled, reset the session info to default values
       if (!sessionInfo.autoTrack && sessionInfo.manualTrack !== true) {
         sessionInfo = DEFAULT_USER_SESSION_VALUES.sessionInfo;
+      }
+      // If cut off is disabled in the configuration, but enabled in the storage, reset the cut off expiry time
+      else if (
+        configuredSessionTrackingInfo.cutOff?.enabled === false &&
+        sessionInfo.cutOff?.enabled === true
+      ) {
+        sessionInfo.cutOff.expiresAt = undefined;
       }
     } else {
       sessionInfo = DEFAULT_USER_SESSION_VALUES.sessionInfo;
@@ -282,7 +296,30 @@ class UserSessionManager implements IUserSessionManager {
         TIMEOUT_NOT_RECOMMENDED_WARNING(USER_SESSION_MANAGER, timeout, MIN_SESSION_TIMEOUT_MS),
       );
     }
-    return { timeout, autoTrack };
+
+    const cutOff = state.loadOptions.value.sessions?.cutOff;
+    let cutOffDuration = cutOff?.duration;
+    let cutOffEnabled = false;
+    if (cutOff?.enabled === true) {
+      cutOffEnabled = true;
+      if (!isPositiveInteger(cutOffDuration)) {
+        cutOffDuration = DEFAULT_SESSION_CUT_OFF_DURATION_MS;
+        this.logger.warn(
+          CUT_OFF_DURATION_NOT_NUMBER_WARNING(
+            USER_SESSION_MANAGER,
+            cutOffDuration,
+            DEFAULT_SESSION_CUT_OFF_DURATION_MS,
+          ),
+        );
+      } else if (cutOffDuration < timeout) {
+        this.logger.warn(
+          CUT_OFF_DURATION_LESS_THAN_TIMEOUT_WARNING(USER_SESSION_MANAGER, cutOffDuration, timeout),
+        );
+        cutOffEnabled = false;
+      }
+    }
+
+    return { timeout, autoTrack, cutOff: { enabled: cutOffEnabled, duration: cutOffDuration } };
   }
 
   /**
@@ -614,10 +651,7 @@ class UserSessionManager implements IUserSessionManager {
    */
   getSessionId(): Nullable<number> {
     const sessionInfo = this.getSessionInfo() ?? DEFAULT_USER_SESSION_VALUES.sessionInfo;
-    if (
-      (sessionInfo.autoTrack && !hasSessionExpired(sessionInfo.expiresAt)) ||
-      sessionInfo.manualTrack
-    ) {
+    if ((sessionInfo.autoTrack && !hasSessionExpired(sessionInfo)) || sessionInfo.manualTrack) {
       return sessionInfo.id ?? null;
     }
     return null;
@@ -673,7 +707,7 @@ class UserSessionManager implements IUserSessionManager {
    */
   reset(resetAnonymousId?: boolean, noNewSessionStart?: boolean) {
     const { session } = state;
-    const { manualTrack, autoTrack } = session.sessionInfo.value;
+    const { manualTrack, autoTrack, timeout, cutOff } = session.sessionInfo.value;
 
     batch(() => {
       session.userId.value = DEFAULT_USER_SESSION_VALUES.userId;
@@ -692,7 +726,14 @@ class UserSessionManager implements IUserSessionManager {
       }
 
       if (autoTrack) {
-        session.sessionInfo.value = DEFAULT_USER_SESSION_VALUES.sessionInfo;
+        session.sessionInfo.value = {
+          ...DEFAULT_USER_SESSION_VALUES.sessionInfo,
+          timeout,
+          cutOff: {
+            enabled: cutOff?.enabled,
+            duration: cutOff?.duration,
+          },
+        };
         this.startOrRenewAutoTracking(session.sessionInfo.value);
       } else if (manualTrack) {
         this.startManualTrackingInternal();
@@ -776,8 +817,8 @@ class UserSessionManager implements IUserSessionManager {
    * A function to check for existing session details and depending on that create a new session
    */
   startOrRenewAutoTracking(sessionInfo: SessionInfo) {
-    if (hasSessionExpired(sessionInfo.expiresAt)) {
-      state.session.sessionInfo.value = generateAutoTrackingSession(sessionInfo.timeout);
+    if (hasSessionExpired(sessionInfo)) {
+      state.session.sessionInfo.value = generateAutoTrackingSession(sessionInfo);
     } else {
       const timestamp = Date.now();
       const timeout = sessionInfo.timeout as number;
