@@ -151,13 +151,22 @@ class UserSessionManager implements IUserSessionManager {
       // If both autoTrack and manualTrack are disabled, reset the session info to default values
       if (!sessionInfo.autoTrack && sessionInfo.manualTrack !== true) {
         sessionInfo = DEFAULT_USER_SESSION_VALUES.sessionInfo;
-      }
-      // If cut off is disabled in the configuration, but enabled in the storage, reset the cut off expiry time
-      else if (
-        configuredSessionTrackingInfo.cutOff?.enabled === false &&
-        sessionInfo.cutOff?.enabled === true
-      ) {
-        sessionInfo.cutOff.expiresAt = undefined;
+      } else {
+        // If cut off is disabled in the configuration, but enabled in the storage, reset the cut off expiry time
+        if (
+          configuredSessionTrackingInfo.cutOff?.enabled === false &&
+          initialSessionInfo.cutOff?.enabled === true
+        ) {
+          sessionInfo.cutOff!.expiresAt = undefined;
+        }
+
+        // If the cut off duration is changed in the configuration, reset the cut off expiry time
+        if (
+          sessionInfo.cutOff?.enabled === true &&
+          configuredSessionTrackingInfo.cutOff?.duration !== initialSessionInfo.cutOff?.duration
+        ) {
+          sessionInfo.cutOff!.expiresAt = undefined;
+        }
       }
     } else {
       sessionInfo = DEFAULT_USER_SESSION_VALUES.sessionInfo;
