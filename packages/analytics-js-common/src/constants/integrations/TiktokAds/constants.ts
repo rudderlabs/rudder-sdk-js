@@ -68,6 +68,11 @@ const trackMapping = [
     sourceKeys: ['context.traits.phone', 'traits.phone', 'properties.phone'],
   },
 ];
+
+// We need to remove 'checkout step completed' and 'submitform' from the list of events as per tiktok docs
+// tiktok changed the mapping for 'checkout step completed => purchase' and 'submitform => lead'
+// once all customer migrate to new event we can remove old mapping
+// https://ads.tiktok.com/help/article/standard-events-parameters?lang=en
 const eventNameMapping = {
   'product added to wishlist': 'AddToWishlist',
   'product added': 'AddToCart',
@@ -83,8 +88,8 @@ const eventNameMapping = {
   submitform: 'SubmitForm',
   completeregistration: 'CompleteRegistration',
   subscribe: 'Subscribe',
-  lead: 'Lead',
   purchase: 'Purchase',
+  lead: 'Lead',
 };
 
 export {
