@@ -137,14 +137,11 @@ class UserSessionManager implements IUserSessionManager {
   }
 
   configureSessionTracking() {
-    let sessionInfo = this.getSessionInfo();
+    let sessionInfo;
     if (this.isPersistenceEnabledForStorageEntry('sessionInfo')) {
       const configuredSessionTrackingInfo = this.getConfiguredSessionTrackingInfo();
-      const initialSessionInfo = sessionInfo ?? defaultSessionConfiguration;
-      sessionInfo = mergeDeepRight(
-        initialSessionInfo,
-        configuredSessionTrackingInfo,
-      ) as SessionInfo;
+      const initialSessionInfo = this.getSessionInfo() ?? defaultSessionConfiguration;
+      sessionInfo = mergeDeepRight(initialSessionInfo, configuredSessionTrackingInfo);
 
       // A special case for autoTrack
       // If manualTrack is set to true in the storage, then autoTrack should be false
