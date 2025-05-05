@@ -83,6 +83,8 @@ const eventNameMapping = {
   submitform: 'SubmitForm',
   completeregistration: 'CompleteRegistration',
   subscribe: 'Subscribe',
+  lead: 'Lead',
+  purchase: 'Purchase',
 };
 
 export {
