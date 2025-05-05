@@ -15,7 +15,7 @@ import { hasMinLength, isPositiveInteger } from '../utilities/number';
 const MIN_SESSION_ID_LENGTH = 10;
 
 /**
- * A function to validate whether the current session has expired or not.
+ * A function to validate whether the current auto tracking session has expired or not.
  * It checks for the current session expiry and the cut off time expiry.
  * @param sessionInfo session info
  * @returns boolean
@@ -63,7 +63,8 @@ const generateAutoTrackingSession = (sessionInfo: SessionInfo): SessionInfo => {
   const { timeout, cutOff } = sessionInfo;
   const timestamp = Date.now();
   const cutOffExpiresAt = cutOff?.enabled
-    ? (cutOff?.expiresAt ?? timestamp + (cutOff?.duration as number))
+    ? (cutOff?.expiresAt ??
+      (isPositiveInteger(cutOff?.duration) ? timestamp + cutOff!.duration! : undefined))
     : undefined;
 
   return {
