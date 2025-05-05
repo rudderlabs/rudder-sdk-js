@@ -13,7 +13,7 @@ export default [
     name: 'Core - Legacy - NPM (CJS)',
     path: 'dist/npm/legacy/cjs/index.cjs',
     import: '*',
-    limit: '48.2 KiB',
+    limit: '48.5 KiB',
   },
   {
     name: 'Core - Legacy - NPM (UMD)',
@@ -107,7 +107,7 @@ export default [
     name: 'Core (Content Script) - Modern - NPM (ESM)',
     path: 'dist/npm/modern/content-script/esm/index.mjs',
     import: '*',
-    limit: '39 KiB',
+    limit: '39.5 KiB',
   },
   {
     name: 'Core (Content Script) - Modern - NPM (CJS)',
@@ -119,6 +119,6 @@ export default [
     name: 'Core (Content Script) - Modern - NPM (UMD)',
     path: 'dist/npm/modern/content-script/umd/index.js',
     import: '*',
-    limit: '39 KiB',
+    limit: '39.5 KiB',
   },
 ];

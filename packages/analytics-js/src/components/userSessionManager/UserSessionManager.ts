@@ -64,6 +64,7 @@ import {
   generateAutoTrackingSession,
   generateManualTrackingSession,
   hasSessionExpired,
+  isCutOffTimeExceeded,
   isStorageTypeValidForStoringData,
 } from './utils';
 import { getReferringDomain } from '../utilities/url';
@@ -165,7 +166,7 @@ class UserSessionManager implements IUserSessionManager {
           sessionInfo.cutOff?.enabled === true &&
           configuredSessionTrackingInfo.cutOff?.duration !== initialSessionInfo.cutOff?.duration
         ) {
-          sessionInfo.cutOff!.expiresAt = undefined;
+          sessionInfo.cutOff.expiresAt = undefined;
         }
       }
     } else {
@@ -291,7 +292,7 @@ class UserSessionManager implements IUserSessionManager {
       );
       timeout = DEFAULT_SESSION_TIMEOUT_MS;
     } else {
-      timeout = configuredSessionTimeout as number;
+      timeout = configuredSessionTimeout;
     }
 
     if (timeout === 0) {
@@ -827,6 +828,11 @@ class UserSessionManager implements IUserSessionManager {
    */
   startOrRenewAutoTracking(sessionInfo: SessionInfo) {
     if (hasSessionExpired(sessionInfo)) {
+      // Reset cut off expiry timestamp if it is exceeded
+      if (isCutOffTimeExceeded(sessionInfo)) {
+        sessionInfo.cutOff!.expiresAt = undefined;
+      }
+
       state.session.sessionInfo.value = generateAutoTrackingSession(sessionInfo);
     } else {
       const timestamp = Date.now();

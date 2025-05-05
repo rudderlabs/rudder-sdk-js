@@ -14,6 +14,12 @@ import { hasMinLength, isPositiveInteger } from '../utilities/number';
 
 const MIN_SESSION_ID_LENGTH = 10;
 
+const isCutOffTimeExceeded = (sessionInfo: SessionInfo): boolean => {
+  const { cutOff } = sessionInfo;
+  const timestamp = Date.now();
+  return Boolean(cutOff?.enabled && cutOff.expiresAt && timestamp > cutOff.expiresAt);
+};
+
 /**
  * A function to validate whether the current auto tracking session has expired or not.
  * It checks for the current session expiry and the cut off time expiry.
@@ -21,13 +27,10 @@ const MIN_SESSION_ID_LENGTH = 10;
  * @returns boolean
  */
 const hasSessionExpired = (sessionInfo: SessionInfo): boolean => {
-  const { expiresAt, cutOff } = sessionInfo;
-  const timestamp = Date.now();
-  const isCurrentSessionExpired = Boolean(!expiresAt || timestamp > expiresAt);
-  const isCutOffTimeExceeded = Boolean(
-    cutOff?.enabled && cutOff?.expiresAt && timestamp > (cutOff?.expiresAt as number),
+  const isCurrentSessionExpired = Boolean(
+    !sessionInfo.expiresAt || Date.now() > sessionInfo.expiresAt,
   );
-  return isCurrentSessionExpired || isCutOffTimeExceeded;
+  return isCurrentSessionExpired || isCutOffTimeExceeded(sessionInfo);
 };
 
 /**
@@ -54,6 +57,17 @@ const isManualSessionIdValid = (sessionId: number | undefined, logger: ILogger):
   return true;
 };
 
+const getCutOffExpirationTimestamp = (cutOff: SessionInfo['cutOff']): number | undefined => {
+  if (!cutOff?.enabled) {
+    return undefined;
+  }
+
+  return (
+    cutOff.expiresAt ??
+    (isPositiveInteger(cutOff.duration) ? Date.now() + cutOff.duration : undefined)
+  );
+};
+
 /**
  * A function to generate new auto tracking session
  * @param sessionInfo session info
@@ -62,16 +76,12 @@ const isManualSessionIdValid = (sessionId: number | undefined, logger: ILogger):
 const generateAutoTrackingSession = (sessionInfo: SessionInfo): SessionInfo => {
   const { timeout, cutOff } = sessionInfo;
   const timestamp = Date.now();
-  const cutOffExpiresAt = cutOff?.enabled
-    ? (cutOff?.expiresAt ??
-      (isPositiveInteger(cutOff?.duration) ? timestamp + cutOff!.duration! : undefined))
-    : undefined;
+  const cutOffExpiresAt = getCutOffExpirationTimestamp(cutOff);
 
   return {
     id: timestamp, // set the current timestamp
     expiresAt: timestamp + (timeout as number), // set the expiry time of the session
     timeout,
-    sessionStart: undefined,
     autoTrack: true,
     cutOff: {
       ...cutOff,
@@ -119,4 +129,5 @@ export {
   MIN_SESSION_ID_LENGTH,
   isStorageTypeValidForStoringData,
   generateAnonymousId,
+  isCutOffTimeExceeded,
 };

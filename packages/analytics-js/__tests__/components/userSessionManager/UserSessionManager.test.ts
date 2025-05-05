@@ -138,8 +138,7 @@ describe('User session manager', () => {
         autoTrack: true,
         expiresAt: expect.any(Number),
         id: expect.any(Number),
-        sessionStart: undefined,
-        timeout: 10000, // TODO: fix this after this entry is removed from state
+        timeout: 10000,
         cutOff: {
           enabled: false,
           duration: 12 * 60 * 60 * 1000,
