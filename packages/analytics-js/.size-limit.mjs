@@ -19,7 +19,7 @@ export default [
     name: 'Core - Legacy - NPM (UMD)',
     path: 'dist/npm/legacy/umd/index.js',
     import: '*',
-    limit: '48 KiB',
+    limit: '48.5 KiB',
   },
   {
     name: 'Core - Legacy - CDN',
@@ -59,13 +59,13 @@ export default [
     name: 'Core (Bundled) - Legacy - NPM (CJS)',
     path: 'dist/npm/legacy/bundled/cjs/index.cjs',
     import: '*',
-    limit: '48.2 KiB',
+    limit: '48.5 KiB',
   },
   {
     name: 'Core (Bundled) - Legacy - NPM (UMD)',
     path: 'dist/npm/legacy/bundled/umd/index.js',
     import: '*',
-    limit: '48 KiB',
+    limit: '48.5 KiB',
   },
   {
     name: 'Core (Bundled) - Modern - NPM (ESM)',

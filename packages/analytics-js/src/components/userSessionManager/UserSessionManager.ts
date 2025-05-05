@@ -141,13 +141,15 @@ class UserSessionManager implements IUserSessionManager {
     if (this.isPersistenceEnabledForStorageEntry('sessionInfo')) {
       const configuredSessionTrackingInfo = this.getConfiguredSessionTrackingInfo();
       const initialSessionInfo = sessionInfo ?? defaultSessionConfiguration;
-      sessionInfo = {
-        ...initialSessionInfo,
-        ...configuredSessionTrackingInfo,
-        // If manualTrack is set to true in the storage, then autoTrack should be false
-        autoTrack:
-          configuredSessionTrackingInfo.autoTrack && initialSessionInfo.manualTrack !== true,
-      };
+      sessionInfo = mergeDeepRight(
+        initialSessionInfo,
+        configuredSessionTrackingInfo,
+      ) as SessionInfo;
+
+      // A special case for autoTrack
+      // If manualTrack is set to true in the storage, then autoTrack should be false
+      sessionInfo.autoTrack =
+        configuredSessionTrackingInfo.autoTrack && initialSessionInfo.manualTrack !== true;
 
       // If both autoTrack and manualTrack are disabled, reset the session info to default values
       if (!sessionInfo.autoTrack && sessionInfo.manualTrack !== true) {
@@ -307,13 +309,19 @@ class UserSessionManager implements IUserSessionManager {
       );
     }
 
-    const cutOff = state.loadOptions.value.sessions?.cutOff;
-    let cutOffDuration = cutOff?.duration;
+    const cutOff = this.getCutOffInfo(timeout);
+
+    return { timeout, autoTrack, cutOff };
+  }
+
+  private getCutOffInfo(sessionTimeout: number): SessionInfo['cutOff'] {
+    const cutOff = state.loadOptions.value.sessions!.cutOff;
+    let cutOffDuration;
     let cutOffEnabled = false;
     if (cutOff?.enabled === true) {
+      cutOffDuration = cutOff.duration;
       cutOffEnabled = true;
       if (!isPositiveInteger(cutOffDuration)) {
-        cutOffDuration = DEFAULT_SESSION_CUT_OFF_DURATION_MS;
         this.logger.warn(
           CUT_OFF_DURATION_NOT_NUMBER_WARNING(
             USER_SESSION_MANAGER,
@@ -321,15 +329,21 @@ class UserSessionManager implements IUserSessionManager {
             DEFAULT_SESSION_CUT_OFF_DURATION_MS,
           ),
         );
-      } else if (cutOffDuration < timeout) {
+
+        // Use the default value for cut off duration
+        cutOffDuration = DEFAULT_SESSION_CUT_OFF_DURATION_MS;
+      } else if (cutOffDuration < sessionTimeout) {
         this.logger.warn(
-          CUT_OFF_DURATION_LESS_THAN_TIMEOUT_WARNING(USER_SESSION_MANAGER, cutOffDuration, timeout),
+          CUT_OFF_DURATION_LESS_THAN_TIMEOUT_WARNING(
+            USER_SESSION_MANAGER,
+            cutOffDuration,
+            sessionTimeout,
+          ),
         );
         cutOffEnabled = false;
       }
     }
-
-    return { timeout, autoTrack, cutOff: { enabled: cutOffEnabled, duration: cutOffDuration } };
+    return { enabled: cutOffEnabled, duration: cutOffDuration };
   }
 
   /**

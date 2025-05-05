@@ -67,7 +67,7 @@ describe('User session manager', () => {
 
   const setDataInCookieStorageEngine = (data: any) => {
     Object.entries(data).forEach(([key, value]) => {
-      clientDataStoreCookie.engine.setItem(key, value);
+      clientDataStoreCookie.engine.setItem(key, value as string);
     });
   };
 
@@ -141,7 +141,7 @@ describe('User session manager', () => {
         timeout: 10000,
         cutOff: {
           enabled: false,
-          duration: 12 * 60 * 60 * 1000,
+          duration: undefined,
         },
       });
       // This also covers the data migration from previous storage to current
@@ -159,11 +159,12 @@ describe('User session manager', () => {
       userSessionManager.syncStorageDataToState();
       expect(spy).toHaveBeenCalledWith('anonId');
     });
-    it('should set anonymousId with existing logic if external name is not string', () => {
+    it('should set anonymousId with existing logic if external anonymous ID cookie name is not string', () => {
       const customData = {
         rl_anonymous_id: 'dummy-anonymousId',
       };
       setDataInCookieStorage(customData);
+      // @ts-expect-error - need to test this case
       state.loadOptions.value.externalAnonymousIdCookieName = 12345;
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       const spy = jest.spyOn(userSessionManager, 'getExternalAnonymousIdByCookieName');
@@ -178,6 +179,7 @@ describe('User session manager', () => {
         rl_anonymous_id: 'dummy-anonymousId',
       };
       setDataInCookieStorage(customData);
+      // @ts-expect-error - need to test this case
       state.loadOptions.value.externalAnonymousIdCookieName = null;
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       const spy = jest.spyOn(userSessionManager, 'getExternalAnonymousIdByCookieName');
@@ -223,7 +225,7 @@ describe('User session manager', () => {
         },
       };
       setDataInCookieStorage(customData);
-      state.loadOptions.value.sessions.autoTrack = false;
+      state.loadOptions.value.sessions!.autoTrack = false;
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.syncStorageDataToState();
       expect(state.session.sessionInfo.value).toStrictEqual({});
@@ -239,7 +241,7 @@ describe('User session manager', () => {
         },
       };
       setDataInCookieStorage(customData);
-      state.loadOptions.value.sessions.autoTrack = false;
+      state.loadOptions.value.sessions!.autoTrack = false;
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.syncStorageDataToState();
       expect(state.session.sessionInfo.value).toStrictEqual({
@@ -562,7 +564,7 @@ describe('User session manager', () => {
       state.session.sessionInfo.value = {
         autoTrack: true,
         manualTrack: false,
-        id: 'new-session-id',
+        id: 1234567890,
       };
       state.session.authToken.value = 'new-auth-token';
 
@@ -578,7 +580,7 @@ describe('User session manager', () => {
       expect(clientDataStoreCookie.get('rl_session')).toStrictEqual({
         autoTrack: true,
         manualTrack: false,
-        id: 'new-session-id',
+        id: 1234567890,
       });
       expect(clientDataStoreCookie.get('rl_auth_token')).toBe('new-auth-token');
     });
@@ -619,8 +621,91 @@ describe('User session manager', () => {
       expect(state.session.sessionInfo.value).toStrictEqual({});
     });
 
+    it('should reset the session info to default value if no session tracking is configured', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      state.loadOptions.value.sessions = {
+        autoTrack: false,
+      };
+      userSessionManager.init();
+
+      expect(state.session.sessionInfo.value).toStrictEqual({});
+    });
+
+    it('should reset the cut off expiry timestamp (retrieved from storage) if cut off is disabled in the configuration', () => {
+      const customData = {
+        rl_session: {
+          autoTrack: true,
+          manualTrack: false,
+          id: 1234567890,
+          timeout: 10000,
+          expiresAt: Date.now() + 1000,
+          cutOff: {
+            enabled: true,
+            duration: 12 * 60 * 60 * 1000,
+            expiresAt: Date.now() + 10000,
+          },
+        },
+      };
+      setDataInCookieStorage(customData);
+
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      state.loadOptions.value.sessions = {
+        autoTrack: true,
+        cutOff: {
+          enabled: false,
+        },
+      };
+
+      userSessionManager.init();
+
+      expect(state.session.sessionInfo.value.cutOff).toStrictEqual({
+        enabled: false,
+        expiresAt: undefined,
+        duration: undefined,
+      });
+    });
+
+    it('should reset the cut off expiry timestamp (retrieved from storage) if cut off duration is changed in the configuration', () => {
+      const customData = {
+        rl_session: {
+          autoTrack: true,
+          manualTrack: false,
+          id: 1234567890,
+          timeout: 10000,
+          cutOff: {
+            enabled: true,
+            duration: 12 * 60 * 60 * 1000,
+            expiresAt: Date.now() + 10000,
+          },
+        },
+      };
+      setDataInCookieStorage(customData);
+
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      state.loadOptions.value.sessions = {
+        autoTrack: true,
+        cutOff: {
+          enabled: true,
+          duration: 24 * 60 * 60 * 1000,
+        },
+      };
+
+      userSessionManager.init();
+
+      expect(state.session.sessionInfo.value.cutOff).toStrictEqual({
+        enabled: true,
+        duration: 24 * 60 * 60 * 1000,
+        expiresAt: expect.any(Number),
+      });
+
+      expect(state.session.sessionInfo.value.cutOff!.expiresAt).not.toBe(
+        customData.rl_session.cutOff.expiresAt,
+      );
+    });
+
     it('should log a warning and use default timeout if provided timeout is not in number format', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
+      // @ts-expect-error need to test this case
       state.loadOptions.value.sessions.timeout = '100000';
       userSessionManager.init();
       expect(defaultLogger.warn).toHaveBeenCalledWith(
@@ -631,7 +716,7 @@ describe('User session manager', () => {
 
     it('should log a warning and disable auto tracking if provided timeout is 0', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
-      state.loadOptions.value.sessions.timeout = 0;
+      state.loadOptions.value.sessions!.timeout = 0;
       userSessionManager.init();
       expect(defaultLogger.warn).toHaveBeenCalledWith(
         'UserSessionManager:: The session timeout value is 0, which disables the automatic session tracking feature. If you want to enable session tracking, please provide a positive integer value for the timeout.',
@@ -641,11 +726,54 @@ describe('User session manager', () => {
 
     it('should log a warning if provided timeout is less than 10 seconds', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
-      state.loadOptions.value.sessions.timeout = 5000; // provided timeout as 5 second
+      state.loadOptions.value.sessions!.timeout = 5000; // provided timeout as 5 second
       userSessionManager.init();
       expect(defaultLogger.warn).toHaveBeenCalledWith(
         `UserSessionManager:: The session timeout value 5000 ms is less than the recommended minimum of 10000 ms. Please consider increasing the timeout value to ensure optimal performance and reliability.`,
       );
+    });
+
+    it('should log a warning and use default value if the provided cut off duration is not a positive integer', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      state.loadOptions.value.sessions!.cutOff = {
+        enabled: true,
+        // @ts-expect-error - need to test this case
+        duration: '100000',
+      };
+
+      userSessionManager.init();
+
+      expect(defaultLogger.warn).toHaveBeenCalledWith(
+        'UserSessionManager:: The session cut off duration value "100000" is not a number. The default cut off duration of 43200000 ms will be used instead.',
+      );
+
+      expect(state.session.sessionInfo.value.cutOff).toStrictEqual({
+        enabled: true,
+        duration: 12 * 60 * 60 * 1000,
+        expiresAt: expect.any(Number),
+      });
+    });
+
+    it('should disable cut off and log a warning if the provided cut off duration is less than the session timeout', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      state.loadOptions.value.sessions = {
+        autoTrack: true,
+        timeout: 60 * 60 * 1000,
+        cutOff: {
+          enabled: true,
+          duration: 10 * 60 * 1000, // less than the session timeout
+        },
+      };
+
+      userSessionManager.init();
+
+      expect(defaultLogger.warn).toHaveBeenCalledWith(
+        'UserSessionManager:: The session cut off duration value "600000" ms is less than the session timeout value "3600000" ms. The cut off functionality will be disabled.',
+      );
+      expect(state.session.sessionInfo.value.cutOff).toStrictEqual({
+        enabled: false,
+        duration: 10 * 60 * 1000,
+      });
     });
   });
 
@@ -1100,6 +1228,7 @@ describe('User session manager', () => {
     it('should reset the value to default value if the value is not an object', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.init();
+      // @ts-expect-error - need to test this case
       userSessionManager.setUserTraits('dummy-user-traits');
       expect(state.session.userTraits.value).toStrictEqual(DEFAULT_USER_SESSION_VALUES.userTraits);
     });
@@ -1175,6 +1304,7 @@ describe('User session manager', () => {
     it('should reset the value to default value if the value is not an object', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.init();
+      // @ts-expect-error - need to test this case
       userSessionManager.setGroupTraits('dummy-group-traits');
       expect(state.session.groupTraits.value).toStrictEqual(
         DEFAULT_USER_SESSION_VALUES.groupTraits,
@@ -1272,6 +1402,7 @@ describe('User session manager', () => {
     it('should reset the value to default value if the value is not provided', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.init();
+      // @ts-expect-error - need to test this case
       userSessionManager.setAuthToken();
       expect(state.session.authToken.value).toBe(DEFAULT_USER_SESSION_VALUES.authToken);
     });
@@ -1448,7 +1579,7 @@ describe('User session manager', () => {
       };
       const sessionId = userSessionManager.getSessionId();
       expect(typeof sessionId).toBe('number');
-      expect(sessionId.toString().length).toBeGreaterThan(0);
+      expect(sessionId!.toString().length).toBeGreaterThan(0);
     });
 
     it('should return null for expired session', () => {
@@ -1775,7 +1906,11 @@ describe('User session manager', () => {
     });
     describe('Network request to Data service is successful', () => {
       it('should validate cookies are set from the server side', done => {
-        state.source.value = { workspaceId: 'sample_workspaceId' };
+        state.source.value = {
+          workspaceId: 'sample_workspaceId',
+          id: 'sample_source_id',
+          name: 'sample_source_name',
+        };
         state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
         state.storage.cookie.value = {
           maxage: 10 * 60 * 1000, // 10 min
@@ -1813,7 +1948,11 @@ describe('User session manager', () => {
         }, 1000);
       });
       it('should set cookies from client side if not successfully set from the server side', done => {
-        state.source.value = { workspaceId: 'sample_workspaceId' };
+        state.source.value = {
+          workspaceId: 'sample_workspaceId',
+          id: 'sample_source_id',
+          name: 'sample_source_name',
+        };
         state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
         state.storage.cookie.value = {
           maxage: 10 * 60 * 1000, // 10 min
@@ -1841,7 +1980,11 @@ describe('User session manager', () => {
     });
 
     it('should set cookie from client side if data service is down', done => {
-      state.source.value = { workspaceId: 'sample_workspaceId' };
+      state.source.value = {
+        workspaceId: 'sample_workspaceId',
+        id: 'sample_source_id',
+        name: 'sample_source_name',
+      };
       state.serverCookies.dataServiceUrl.value =
         'https://dummy.dataplane.host.com/serverDown/rsaRequest';
       state.storage.cookie.value = {
@@ -1861,7 +2004,11 @@ describe('User session manager', () => {
       }, 1000);
     });
     it('should set cookie from client side if dataServerUrl is invalid', done => {
-      state.source.value = { workspaceId: 'sample_workspaceId' };
+      state.source.value = {
+        workspaceId: 'sample_workspaceId',
+        id: 'sample_source_id',
+        name: 'sample_source_name',
+      };
       state.serverCookies.dataServiceUrl.value =
         'https://dummy.dataplane.host.com/invalidUrl/rsaRequest';
       state.storage.cookie.value = {
@@ -1881,7 +2028,11 @@ describe('User session manager', () => {
       }, 1000);
     });
     it('should set cookie from client side if any unhandled error ocurred in serServerSideCookie function', () => {
-      state.source.value = { workspaceId: 'sample_workspaceId' };
+      state.source.value = {
+        workspaceId: 'sample_workspaceId',
+        id: 'sample_source_id',
+        name: 'sample_source_name',
+      };
       state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
       userSessionManager.getEncryptedCookieData = jest.fn(() => {
         throw new Error('test error');
@@ -1920,7 +2071,11 @@ describe('User session manager', () => {
     describe('makeRequestToSetCookie', () => {
       it('should make external request to exposed endpoint', done => {
         state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
-        state.source.value = { workspaceId: 'sample_workspaceId' };
+        state.source.value = {
+          workspaceId: 'sample_workspaceId',
+          id: 'sample_source_id',
+          name: 'sample_source_name',
+        };
         state.storage.cookie.value = {
           maxage: 10 * 60 * 1000, // 10 min
           path: '/',

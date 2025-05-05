@@ -184,7 +184,7 @@ const CUT_OFF_DURATION_LESS_THAN_TIMEOUT_WARNING = (
   cutOffDuration: number,
   timeout: number,
 ): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The session cut off duration value "${cutOffDuration}" is less than the session timeout value "${timeout}". The cut off will be disabled.`;
+  `${context}${LOG_CONTEXT_SEPARATOR}The session cut off duration value "${cutOffDuration}" ms is less than the session timeout value "${timeout}" ms. The cut off functionality will be disabled.`;
 
 const TIMEOUT_ZERO_WARNING = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The session timeout value is 0, which disables the automatic session tracking feature. If you want to enable session tracking, please provide a positive integer value for the timeout.`;
