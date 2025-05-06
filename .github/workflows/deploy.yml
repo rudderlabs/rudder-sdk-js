@@ -27,6 +27,9 @@ on:
       use_pr_head_sha:
         type: string
         default: 'false'
+      version_suffix:
+        type: string
+        default: ''
     secrets:
       AWS_ACCOUNT_ID:
         required: true
@@ -89,6 +92,27 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ steps.getSHA.outputs.SHA }}
+
+      - name: Modify package versions
+        run: |
+          # Append the version suffix to the package versions
+          if [ -n "${{ inputs.version_suffix }}" ]; then
+            # Extract the current versions using jq
+            CURRENT_VERSION_JS=$(jq -r .version packages/analytics-js/package.json)
+            CURRENT_VERSION_V1=$(jq -r .version packages/analytics-v1.1/package.json)
+            
+            # Append the suffix to create new versions
+            NEW_VERSION_JS="${CURRENT_VERSION_JS}-${{ inputs.version_suffix }}"
+            NEW_VERSION_V1="${CURRENT_VERSION_V1}-${{ inputs.version_suffix }}"
+            
+            echo "Updating versions:"
+            echo "analytics-js: $CURRENT_VERSION_JS -> $NEW_VERSION_JS"
+            echo "analytics-v1.1: $CURRENT_VERSION_V1 -> $NEW_VERSION_V1"
+            
+            # Update all package.json files using jq
+            jq ".version = \"$NEW_VERSION_JS\"" packages/analytics-js/package.json > tmp && mv tmp packages/analytics-js/package.json
+            jq ".version = \"$NEW_VERSION_V1\"" packages/analytics-v1.1/package.json > tmp && mv tmp packages/analytics-v1.1/package.json
+          fi
 
       - name: Get new versions
         run: |

@@ -112,6 +112,7 @@ jobs:
       bugsnag_release_stage: beta
       s3_dir_path: beta/${{ needs.get-deploy-inputs.outputs.beta_identifier }}
       s3_dir_path_legacy: beta/${{ needs.get-deploy-inputs.outputs.beta_identifier }}/v1.1
+      version_suffix: ${{ needs.get-deploy-inputs.outputs.version_suffix }}
       action_type: ''
     secrets:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_PROD_ACCOUNT_ID }}
