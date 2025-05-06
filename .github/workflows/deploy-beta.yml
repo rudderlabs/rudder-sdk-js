@@ -28,6 +28,8 @@ jobs:
   get-deploy-inputs:
     name: Get Deploy Inputs
     runs-on: [self-hosted, Linux, X64]
+    # Allow only to run from branches and not tags
+    if: ${{ startsWith(github.ref, 'refs/heads/') }}
     outputs:
       version_suffix: ${{ steps.deploy-inputs.outputs.version_suffix }}
       beta_identifier: ${{ steps.deploy-inputs.outputs.beta_identifier }}
