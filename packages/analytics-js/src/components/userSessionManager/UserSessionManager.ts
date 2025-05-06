@@ -161,7 +161,7 @@ class UserSessionManager implements IUserSessionManager {
       } else if (configuredSessionTrackingInfo.cutOff?.enabled === true) {
         sessionInfo.cutOff = {
           enabled: true,
-          duration: configuredSessionTrackingInfo.cutOff!.duration,
+          duration: configuredSessionTrackingInfo.cutOff.duration,
           expiresAt: initialSessionInfo.cutOff?.expiresAt,
         };
       }

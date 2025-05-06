@@ -1803,6 +1803,30 @@ describe('User session manager', () => {
       userSessionManager.reset(true, true);
       expect(state.session.sessionInfo.value).toEqual(sessionInfoBeforeReset);
     });
+
+    it('should retain previous session timeout and cut off information when auto tracking is enabled', () => {
+      state.loadOptions.value.sessions = {
+        autoTrack: true,
+        timeout: 10 * 60 * 1000,
+        cutOff: { enabled: true, duration: 15 * 60 * 60 * 1000 },
+      };
+
+      userSessionManager.init();
+
+      userSessionManager.reset();
+
+      expect(state.session.sessionInfo.value).toEqual({
+        autoTrack: true,
+        timeout: 10 * 60 * 1000,
+        expiresAt: expect.any(Number),
+        id: expect.any(Number),
+        cutOff: {
+          enabled: true,
+          duration: 15 * 60 * 60 * 1000,
+          expiresAt: expect.any(Number),
+        },
+      });
+    });
   });
 
   describe('getExternalAnonymousIdByCookieName', () => {
