@@ -3,14 +3,10 @@ name: Deploy Beta to Production Environment
 on:
   workflow_dispatch:
     inputs:
-      deployment_type:
-        description: "The type of deployment to perform"
-        required: true
-        type: choice
-        options:
-          - cdn
-          - npm
-          - both
+      deploy_to_npm:
+        description: "Deploy to NPM"
+        type: boolean
+        default: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.sha }}
@@ -120,7 +116,6 @@ jobs:
     name: Deploy to CDN
     uses: ./.github/workflows/deploy.yml
     needs: get-deploy-inputs
-    if: ${{ inputs.deployment_type == 'cdn' || inputs.deployment_type == 'both' }}
     with:
       environment: beta
       bugsnag_release_stage: beta
@@ -141,7 +136,7 @@ jobs:
     name: Deploy to NPM
     uses: ./.github/workflows/deploy-npm.yml
     needs: get-deploy-inputs
-    if: ${{ inputs.deployment_type == 'npm' || inputs.deployment_type == 'both' }}
+    if: ${{ inputs.deploy_to_npm }}
     with:
       is_called: true
       environment: beta

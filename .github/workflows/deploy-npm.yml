@@ -22,7 +22,8 @@ on:
         required: false
       environment:
         type: string
-        required: true
+        required: false
+        default: 'production'
     secrets:
       RS_PROD_BUGSNAG_API_KEY:
         required: true
@@ -85,13 +86,14 @@ jobs:
 
       - name: Get versions in NPM
         run: |
-          current_npm_version=$(npm show @rudderstack/analytics-js version 2>/dev/null || echo "not found")
+          # Get latest version across all tags (most recently published)
+          current_npm_version=$(npm view @rudderstack/analytics-js time --json 2>/dev/null | jq -r 'to_entries | map(select(.key != "modified" and .key != "created")) | sort_by(.value) | last.key' || echo "not found")
           echo "CURRENT_NPM_VERSION=$current_npm_version" >> $GITHUB_ENV
 
-          current_npm_version_sw=$(npm show @rudderstack/analytics-js-service-worker version 2>/dev/null || echo "not found")
+          current_npm_version_sw=$(npm view @rudderstack/analytics-js-service-worker time --json 2>/dev/null | jq -r 'to_entries | map(select(.key != "modified" and .key != "created")) | sort_by(.value) | last.key' || echo "not found")
           echo "CURRENT_NPM_VERSION_SW=$current_npm_version_sw" >> $GITHUB_ENV
-
-          current_npm_version_cookie_utils=$(npm show @rudderstack/analytics-js-cookies version 2>/dev/null || echo "not found")
+          
+          current_npm_version_cookie_utils=$(npm view @rudderstack/analytics-js-cookies time --json 2>/dev/null | jq -r 'to_entries | map(select(.key != "modified" and .key != "created")) | sort_by(.value) | last.key' || echo "not found")
           echo "CURRENT_NPM_VERSION_COOKIE_UTILS=$current_npm_version_cookie_utils" >> $GITHUB_ENV
 
       - name: Setup Node
@@ -163,13 +165,15 @@ jobs:
       - name: Get versions in NPM after publish
         run: |
           npm cache clean --force
-          new_npm_version=$(npm show @rudderstack/analytics-js version 2>/dev/null || echo "not found")
+          
+          # Get latest version across all tags (most recently published)
+          new_npm_version=$(npm view @rudderstack/analytics-js time --json 2>/dev/null | jq -r 'to_entries | map(select(.key != "modified" and .key != "created")) | sort_by(.value) | last.key' || echo "not found")
           echo "NEW_NPM_VERSION=$new_npm_version" >> $GITHUB_ENV
 
-          new_npm_version_sw=$(npm show @rudderstack/analytics-js-service-worker version 2>/dev/null || echo "not found")
+          new_npm_version_sw=$(npm view @rudderstack/analytics-js-service-worker time --json 2>/dev/null | jq -r 'to_entries | map(select(.key != "modified" and .key != "created")) | sort_by(.value) | last.key' || echo "not found")
           echo "NEW_NPM_VERSION_SW=$new_npm_version_sw" >> $GITHUB_ENV
 
-          new_npm_version_cookie_utils=$(npm show @rudderstack/analytics-js-cookies version 2>/dev/null || echo "not found")
+          new_npm_version_cookie_utils=$(npm view @rudderstack/analytics-js-cookies time --json 2>/dev/null | jq -r 'to_entries | map(select(.key != "modified" and .key != "created")) | sort_by(.value) | last.key' || echo "not found")
           echo "NEW_NPM_VERSION_COOKIE_UTILS=$new_npm_version_cookie_utils" >> $GITHUB_ENV
 
       - name: Debug environment variables
