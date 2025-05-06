@@ -55,92 +55,41 @@ jobs:
                 return;
               }
               
-              // Get PR reviews
-              const { data: reviews } = await github.rest.pulls.listReviews({
+              // Get detailed PR information including mergeable state
+              const { data: prDetails } = await github.rest.pulls.get({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 pull_number: prNumber
               });
               
-              // Check for approvals
-              const approvals = reviews.filter(review => {
-                const username = review.user.login;
-                // Exclude bot users and GitHub Copilot related accounts
-                const isBotUser = review.user.type === 'Bot' ||
-                                  /\[bot\]$/.test(username) ||
-                                  /copilot/i.test(username) ||
-                                  /code.*rabbit/i.test(username) ||
-                                  ['github-actions', 'github-code-scanning'].includes(username);
+              // Check if PR is mergeable and all requirements are satisfied
+              if (prDetails.mergeable === false) {
+                core.setFailed(`PR #${prNumber} is not in a mergeable state. Please resolve conflicts before deploying.`);
+                return;
+              }
+              
+              // The mergeable_state can be one of: clean, dirty, blocked, unstable, or unknown
+              // Only 'clean' means all requirements are met (checks passed, approvals received, no conflicts)
+              if (prDetails.mergeable_state !== 'clean') {
+                // Get more details about why it's not clean
+                let reason = '';
                 
-                return review.state === 'APPROVED' && 
-                       !isBotUser &&
-                       // Check if this is the latest review from this user
-                       !reviews.some(r => 
-                         r.user.login === username && 
-                         r.id > review.id && 
-                         r.state !== 'APPROVED'
-                       );
-              });
-              
-              if (approvals.length === 0) {
-                core.setFailed(`PR #${prNumber} requires at least one approval from a human reviewer before deploying.`);
+                if (prDetails.mergeable_state === 'blocked') {
+                  reason = 'required checks or approvals are missing';
+                } else if (prDetails.mergeable_state === 'dirty') {
+                  reason = 'there are merge conflicts';
+                } else if (prDetails.mergeable_state === 'unstable') {
+                  reason = 'required checks are failing';
+                } else {
+                  reason = `the mergeable state is "${prDetails.mergeable_state}"`;
+                }
+                
+                core.setFailed(`PR #${prNumber} is not ready to merge: ${reason}. Please resolve all issues before deploying.`);
                 return;
               }
               
-              console.log(`PR #${prNumber} has ${approvals.length} approval(s). Proceeding with beta deployment.`);
-              console.log(`Approvals from: ${approvals.map(a => a.user.login).join(', ')}`);
-
-              // Check if all required checks have passed
-              const { data: checkRuns } = await github.rest.checks.listForRef({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                ref: pr.head.sha,
-                filter: 'latest'
-              });
+              console.log(`PR #${prNumber} is in a clean mergeable state. All requirements satisfied. Proceeding with beta deployment.`);
               
-              // Get status checks from the commit status API as well (some CI systems use this instead of checks API)
-              const { data: commitStatus } = await github.rest.repos.getCombinedStatusForRef({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                ref: pr.head.sha
-              });
-              
-              // Get required status checks for the base branch
-              const { data: branchProtection } = await github.rest.repos.getBranchProtection({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                branch: pr.base.ref
-              }).catch(e => {
-                console.log(`No branch protection found for ${pr.base.ref}: ${e.message}`);
-                return { data: { required_status_checks: { contexts: [] } } };
-              });
-              
-              const requiredChecks = branchProtection.required_status_checks?.contexts || [];
-              
-              // Check if any required checks have failed
-              let failedChecks = [];
-              
-              // Check status API results
-              if (commitStatus.state !== 'success') {
-                failedChecks = commitStatus.statuses
-                  .filter(status => status.state !== 'success')
-                  .filter(status => requiredChecks.length === 0 || requiredChecks.includes(status.context))
-                  .map(status => status.context);
-              }
-              
-              // Check check runs API results
-              const failedCheckRuns = checkRuns.check_runs
-                .filter(check => check.conclusion !== 'success' && check.conclusion !== 'neutral')
-                .filter(check => requiredChecks.length === 0 || requiredChecks.includes(check.name))
-                .map(check => check.name);
-              
-              failedChecks = [...failedChecks, ...failedCheckRuns];
-              
-              if (failedChecks.length > 0) {
-                core.setFailed(`PR #${prNumber} has failed checks: ${failedChecks.join(', ')}. All checks must pass before deploying.`);
-                return;
-              }
-
               core.setOutput('pr_number', prNumber);
             } else {
               core.setFailed(`No open PR found for branch ${branch} targeting develop branch`);
