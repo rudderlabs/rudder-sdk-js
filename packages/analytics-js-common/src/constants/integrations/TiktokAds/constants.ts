@@ -90,6 +90,9 @@ const eventNameMapping = {
   subscribe: 'Subscribe',
   purchase: 'Purchase',
   lead: 'Lead',
+  customizeproduct: 'CustomizeProduct',
+  findlocation: 'FindLocation',
+  schedule: 'Schedule',
 };
 
 export {
