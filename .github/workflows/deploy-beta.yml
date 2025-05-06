@@ -63,17 +63,27 @@ jobs:
               });
               
               // Check for approvals
-              const approvals = reviews.filter(review => 
-                review.state === 'APPROVED' && 
-                !reviews.some(r => 
-                  r.user.login === review.user.login && 
-                  r.id > review.id && 
-                  r.state !== 'APPROVED'
-                )
-              );
+              const approvals = reviews.filter(review => {
+                const username = review.user.login;
+                // Exclude bot users and GitHub Copilot related accounts
+                const isBotUser = review.user.type === 'Bot' ||
+                                  /\[bot\]$/.test(username) ||
+                                  /copilot/i.test(username) ||
+                                  /code.*rabbit/i.test(username) ||
+                                  ['github-actions', 'github-code-scanning'].includes(username);
+                
+                return review.state === 'APPROVED' && 
+                       !isBotUser &&
+                       // Check if this is the latest review from this user
+                       !reviews.some(r => 
+                         r.user.login === username && 
+                         r.id > review.id && 
+                         r.state !== 'APPROVED'
+                       );
+              });
               
               if (approvals.length === 0) {
-                core.setFailed(`PR #${prNumber} requires at least one approval before deploying.`);
+                core.setFailed(`PR #${prNumber} requires at least one approval from a human reviewer before deploying.`);
                 return;
               }
               
