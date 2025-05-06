@@ -50,7 +50,7 @@ jobs:
               core.setOutput('pr_number', prNumber);
             } else {
               console.log(`No open PR found for branch ${branch} targeting develop branch. Aborting beta deployment.`);
-              core.setFailed('No open PR found for branch ${branch} targeting develop branch');
+              core.setFailed(`No open PR found for branch ${branch} targeting develop branch`);
               core.setOutput('pr_number', '');
             }
 
