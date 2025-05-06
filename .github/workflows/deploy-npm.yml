@@ -7,6 +7,22 @@ on:
       is_called:
         type: string
         required: true
+      base_version:
+        type: string
+        required: false
+      head_version:
+        type: string
+        required: false
+      version_suffix:
+        type: string
+        required: false
+      bugsnag_release_stage:
+        description: 'Bugsnag release stage'
+        type: string
+        required: false
+      environment:
+        type: string
+        required: true
     secrets:
       RS_PROD_BUGSNAG_API_KEY:
         required: true
@@ -37,6 +53,24 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.sha }}
+
+      - name: Modify package versions
+        if: ${{ inputs.version_suffix != '' }}
+        run: |
+          CURRENT_VERSION_JS=$(jq -r .version packages/analytics-js/package.json)
+          CURRENT_VERSION_V1=$(jq -r .version packages/analytics-v1.1/package.json)
+          
+          # Append the suffix to create new versions
+          NEW_VERSION_JS="${CURRENT_VERSION_JS}-${{ inputs.version_suffix }}"
+          NEW_VERSION_V1="${CURRENT_VERSION_V1}-${{ inputs.version_suffix }}"
+          
+          echo "Updating versions:"
+          echo "analytics-js: $CURRENT_VERSION_JS -> $NEW_VERSION_JS"
+          echo "analytics-v1.1: $CURRENT_VERSION_V1 -> $NEW_VERSION_V1"
+          
+          # Update all package.json files using jq
+          jq ".version = \"$NEW_VERSION_JS\"" packages/analytics-js/package.json > tmp && mv tmp packages/analytics-js/package.json
+          jq ".version = \"$NEW_VERSION_V1\"" packages/analytics-v1.1/package.json > tmp && mv tmp packages/analytics-v1.1/package.json
 
       - name: Get new version number
         run: |
@@ -71,24 +105,31 @@ jobs:
           HUSKY: 0
           REMOTE_MODULES_BASE_PATH: 'https://cdn.rudderlabs.com/v3/modern/plugins'
           BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
-          LOCK_DEPS_VERSION: 'true'
-          BUGSNAG_RELEASE_STAGE: 'production'
+          LOCK_DEPS_VERSION: ${{ inputs.environment == 'production' && 'true' || 'false' }}
+          BUGSNAG_RELEASE_STAGE: ${{ inputs.bugsnag_release_stage || 'production' }}
         run: |
           npm run setup:ci
 
       - name: Build release artifacts
         env:
           BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
-          BUGSNAG_RELEASE_STAGE: 'production'
-          LOCK_DEPS_VERSION: 'true'
+          BUGSNAG_RELEASE_STAGE: ${{ inputs.bugsnag_release_stage || 'production' }}
+          LOCK_DEPS_VERSION: ${{ inputs.environment == 'production' && 'true' || 'false' }}
         run: |
           npm run build:package
           npm run build:package:modern
 
-      - name: Get the two latest monorepo versions
+      - name: Get the monorepo versions for the base and head versions
         run: |
-          CURRENT_VERSION=$(git tag -l "v3*" --sort=-version:refname | head -n 1)
-          LAST_VERSION=$(git tag -l "v3*" --sort=-version:refname | head -n 2 | awk 'NR == 2 { print $1 }')
+          # If both base and head versions are provided, use them
+          if [ -n "${{ inputs.base_version }}" ] && [ -n "${{ inputs.head_version }}" ]; then
+            CURRENT_VERSION=${{ inputs.base_version }}
+            LAST_VERSION=${{ inputs.head_version }}
+          else
+            # Otherwise, get the two latest monorepo versions
+            CURRENT_VERSION=$(git tag -l "v3*" --sort=-version:refname | head -n 1)
+            LAST_VERSION=$(git tag -l "v3*" --sort=-version:refname | head -n 2 | awk 'NR == 2 { print $1 }')
+          fi
 
           echo "Current version: $CURRENT_VERSION"
           echo "Previous version: $LAST_VERSION"
@@ -107,7 +148,7 @@ jobs:
           ./scripts/make-package-json-publish-ready.sh
 
           npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
-          npx nx release publish --base=${{ env.last_monorepo_version }} --head=${{ env.current_monorepo_version }}
+          npx nx release publish --base=${{ env.last_monorepo_version }} --head=${{ env.current_monorepo_version }} ${{ inputs.environment == 'beta' && '--tag=beta' || '' }}
 
           # Reset the changes made to package.json
           git reset --hard
@@ -159,7 +200,7 @@ jobs:
         continue-on-error: true
         uses: slackapi/slack-github-action@485a9d42d3a73031f12ec201c457e2162c45d02d  # v2.0.0
         env:
-          PROJECT_NAME: 'JS SDK NPM Package'
+          PROJECT_NAME: ${{ inputs.environment == 'beta' && 'JS SDK NPM Package - beta' || 'JS SDK NPM Package' }}
           NPM_PACKAGE_URL: 'https://www.npmjs.com/package/@rudderstack/analytics-js'
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js@'
         with:
@@ -193,16 +234,8 @@ jobs:
                     "image_url": "https://img.icons8.com/color/452/npm.png",
                     "alt_text": "NPM Icon"
                   }
-                },
-                {
-                  "type": "context",
-                  "elements": [
-                    {
-                      "type": "mrkdwn",
-                      "text": "For more details, check the full release notes <${{env.RELEASES_URL}}${{ env.CURRENT_VERSION_VALUE }}|here>."
-                    }
-                  ]
                 }
+                ${{ inputs.environment == 'production' && format(',{{"type": "context", "elements": [{{"type": "mrkdwn", "text": "For more details, check the full release notes <{0}{1}|here>."}}]}}', env.RELEASES_URL, env.CURRENT_VERSION_VALUE) || ''  }}
               ]
             }
 
@@ -212,7 +245,7 @@ jobs:
         continue-on-error: true
         uses: slackapi/slack-github-action@485a9d42d3a73031f12ec201c457e2162c45d02d  # v2.0.0
         env:
-          PROJECT_NAME: 'JS SDK Service Worker NPM Package'
+          PROJECT_NAME: ${{ inputs.environment == 'beta' && 'JS SDK Service Worker NPM Package - beta' || 'JS SDK Service Worker NPM Package' }}
           NPM_PACKAGE_URL: 'https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker'
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js-service-worker@'
         with:
@@ -246,16 +279,8 @@ jobs:
                     "image_url": "https://img.icons8.com/color/452/npm.png",
                     "alt_text": "NPM Icon"
                   }
-                },
-                {
-                  "type": "context",
-                  "elements": [
-                    {
-                      "type": "mrkdwn",
-                      "text": "For more details, check the full release notes <${{ env.RELEASES_URL }}${{ env.CURRENT_VERSION_SW_VALUE }}|here>."
-                    }
-                  ]
                 }
+                ${{ inputs.environment == 'production' && format(',{{"type": "context", "elements": [{{"type": "mrkdwn", "text": "For more details, check the full release notes <{0}{1}|here>."}}]}}', env.RELEASES_URL, env.CURRENT_VERSION_SW_VALUE) || ''  }}
               ]
             }
 
@@ -265,7 +290,7 @@ jobs:
         continue-on-error: true
         uses: slackapi/slack-github-action@485a9d42d3a73031f12ec201c457e2162c45d02d  # v2.0.0
         env:
-          PROJECT_NAME: 'JS SDK Cookies Utilities'
+          PROJECT_NAME: ${{ inputs.environment == 'beta' && 'JS SDK Cookies Utilities - beta' || 'JS SDK Cookies Utilities' }}
           NPM_PACKAGE_URL: 'https://www.npmjs.com/package/@rudderstack/analytics-js-cookies'
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js-cookies@'
         with:
@@ -299,15 +324,7 @@ jobs:
                     "image_url": "https://img.icons8.com/color/452/npm.png",
                     "alt_text": "NPM Icon"
                   }
-                },
-                {
-                  "type": "context",
-                  "elements": [
-                    {
-                      "type": "mrkdwn",
-                      "text": "For more details, check the full release notes <${{ env.RELEASES_URL }}${{ env.CURRENT_VERSION_COOKIE_UTILS_VALUE }}|here>."
-                    }
-                  ]
                 }
+                ${{ inputs.environment == 'production' && format(',{{"type": "context", "elements": [{{"type": "mrkdwn", "text": "For more details, check the full release notes <{0}{1}|here>."}}]}}', env.RELEASES_URL, env.CURRENT_VERSION_COOKIE_UTILS_VALUE) || ''  }}
               ]
             }

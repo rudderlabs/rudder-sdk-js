@@ -1,4 +1,4 @@
-name: Deploy BETA/BugBash Feature
+name: Deploy Beta to Production Environment
 
 on:
   workflow_dispatch:
@@ -115,7 +115,7 @@ jobs:
           echo "beta_identifier=PR-${{ steps.pr-info.outputs.pr_number }}/$SHA_SHORT" >> $GITHUB_OUTPUT
 
   deploy:
-    name: Deploy BETA/BugBash Feature
+    name: Deploy to CDN
     uses: ./.github/workflows/deploy.yml
     needs: get-deploy-inputs
     if: ${{ inputs.deployment_type == 'cdn' || inputs.deployment_type == 'both' }}
@@ -132,5 +132,23 @@ jobs:
       AWS_S3_SYNC_ROLE: ${{ secrets.AWS_PROD_S3_SYNC_ROLE }}
       AWS_CF_DISTRIBUTION_ID: ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }}
       BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
+
+  deploy-npm:
+    name: Deploy to NPM
+    uses: ./.github/workflows/deploy-npm.yml
+    needs: get-deploy-inputs
+    if: ${{ inputs.deployment_type == 'npm' || inputs.deployment_type == 'both' }}
+    with:
+      is_called: true
+      environment: beta
+      bugsnag_release_stage: beta
+      version_suffix: ${{ needs.get-deploy-inputs.outputs.version_suffix }}
+      base_version: develop
+      head_version: ${{ github.ref_name }}
+    secrets:
+      RS_PROD_BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
