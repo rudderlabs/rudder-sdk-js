@@ -89,9 +89,59 @@ jobs:
               
               console.log(`PR #${prNumber} has ${approvals.length} approval(s). Proceeding with beta deployment.`);
               console.log(`Approvals from: ${approvals.map(a => a.user.login).join(', ')}`);
+
+              // Check if all required checks have passed
+              const { data: checkRuns } = await github.rest.checks.listForRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: pr.head.sha,
+                filter: 'latest'
+              });
               
+              // Get status checks from the commit status API as well (some CI systems use this instead of checks API)
+              const { data: commitStatus } = await github.rest.repos.getCombinedStatusForRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: pr.head.sha
+              });
+              
+              // Get required status checks for the base branch
+              const { data: branchProtection } = await github.rest.repos.getBranchProtection({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                branch: pr.base.ref
+              }).catch(e => {
+                console.log(`No branch protection found for ${pr.base.ref}: ${e.message}`);
+                return { data: { required_status_checks: { contexts: [] } } };
+              });
+              
+              const requiredChecks = branchProtection.required_status_checks?.contexts || [];
+              
+              // Check if any required checks have failed
+              let failedChecks = [];
+              
+              // Check status API results
+              if (commitStatus.state !== 'success') {
+                failedChecks = commitStatus.statuses
+                  .filter(status => status.state !== 'success')
+                  .filter(status => requiredChecks.length === 0 || requiredChecks.includes(status.context))
+                  .map(status => status.context);
+              }
+              
+              // Check check runs API results
+              const failedCheckRuns = checkRuns.check_runs
+                .filter(check => check.conclusion !== 'success' && check.conclusion !== 'neutral')
+                .filter(check => requiredChecks.length === 0 || requiredChecks.includes(check.name))
+                .map(check => check.name);
+              
+              failedChecks = [...failedChecks, ...failedCheckRuns];
+              
+              if (failedChecks.length > 0) {
+                core.setFailed(`PR #${prNumber} has failed checks: ${failedChecks.join(', ')}. All checks must pass before deploying.`);
+                return;
+              }
+
               core.setOutput('pr_number', prNumber);
-              core.setOutput('pr_approvals', approvals.length);
             } else {
               core.setFailed(`No open PR found for branch ${branch} targeting develop branch`);
               core.setOutput('pr_number', '');
