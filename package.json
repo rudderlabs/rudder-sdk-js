@@ -125,7 +125,7 @@
     "@nx/eslint-plugin": "20.8.1",
     "@nx/jest": "20.8.1",
     "@nx/js": "20.8.1",
-    "@nx/workspace": "20.8.1",
+    "@nx/workspace": "21.0.0",
     "@originjs/vite-plugin-federation": "1.4.1",
     "@rollup/plugin-alias": "5.1.1",
     "@rollup/plugin-babel": "6.0.4",
