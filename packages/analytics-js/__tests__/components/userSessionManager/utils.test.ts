@@ -8,6 +8,7 @@ import {
   isStorageTypeValidForStoringData,
   isCutOffTimeExceeded,
   generateAnonymousId,
+  getCutOffExpirationTimestamp,
 } from '../../../src/components/userSessionManager/utils';
 import { defaultLogger } from '../../../src/services/Logger';
 
@@ -218,67 +219,6 @@ describe('Utilities: User session manager', () => {
         timeout: 10 * 60 * 1000,
         expiresAt: Date.now() + 10 * 60 * 1000,
         id: Date.now(),
-        cutOff: {},
-      });
-    });
-
-    it('should return auto tracking session information with cut off timestamp set if cut off is enabled', () => {
-      const outcome = generateAutoTrackingSession({
-        autoTrack: true,
-        timeout: 10 * 60 * 1000,
-        cutOff: { enabled: true, duration: 12 * 60 * 60 * 1000 },
-      });
-
-      expect(outcome).toEqual({
-        autoTrack: true,
-        timeout: 10 * 60 * 1000,
-        expiresAt: expect.any(Number),
-        id: expect.any(Number),
-        cutOff: {
-          enabled: true,
-          duration: 12 * 60 * 60 * 1000,
-          expiresAt: Date.now() + 12 * 60 * 60 * 1000,
-        },
-      });
-    });
-
-    it('should return auto tracking session information with cut off timestamp unchanged if it is already set', () => {
-      const outcome = generateAutoTrackingSession({
-        autoTrack: true,
-        timeout: 10 * 60 * 1000,
-        cutOff: {
-          enabled: true,
-          duration: 12 * 60 * 60 * 1000,
-          expiresAt: Date.now() + 60000, // some time in the future
-        },
-      });
-
-      expect(outcome).toEqual({
-        autoTrack: true,
-        timeout: 10 * 60 * 1000,
-        expiresAt: expect.any(Number),
-        id: expect.any(Number),
-        cutOff: {
-          enabled: true,
-          duration: 12 * 60 * 60 * 1000,
-          expiresAt: Date.now() + 60000, // some time in the future
-        },
-      });
-    });
-
-    it('should not set cut off expiry timestamp if the cut off duration is not a valid number', () => {
-      const outcome = generateAutoTrackingSession({
-        autoTrack: true,
-        timeout: 10 * 60 * 1000,
-        cutOff: { enabled: true },
-      });
-
-      expect(outcome).toEqual({
-        id: expect.any(Number),
-        expiresAt: expect.any(Number),
-        autoTrack: true,
-        timeout: 10 * 60 * 1000,
-        cutOff: { enabled: true },
       });
     });
   });
@@ -328,7 +268,7 @@ describe('Utilities: User session manager', () => {
     });
   });
 
-  describe('isStorageTypeValidForStoringData:', () => {
+  describe('isStorageTypeValidForStoringData', () => {
     it('should return true only for storage type cookie/LS/memory', () => {
       const outcome1 = isStorageTypeValidForStoringData('cookieStorage');
       const outcome2 = isStorageTypeValidForStoringData('localStorage');
@@ -413,6 +353,46 @@ describe('Utilities: User session manager', () => {
       });
 
       expect(outcome).toEqual(false);
+    });
+  });
+
+  describe('getCutOffExpirationTimestamp', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+      jest.setSystemTime(0);
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('should return undefined if cut off is not defined', () => {
+      const outcome = getCutOffExpirationTimestamp(undefined);
+      expect(outcome).toEqual(undefined);
+    });
+
+    it('should return undefined if cut off is not enabled', () => {
+      const outcome = getCutOffExpirationTimestamp({ enabled: false });
+      expect(outcome).toEqual(undefined);
+    });
+
+    it('should return the cut off expiry timestamp if it is set', () => {
+      const outcome = getCutOffExpirationTimestamp({
+        enabled: true,
+        duration: 1000,
+        expiresAt: 1234567890,
+      });
+      expect(outcome).toEqual(1234567890);
+    });
+
+    it('should calculate and return the cut off expiry timestamp based on the duration', () => {
+      const outcome = getCutOffExpirationTimestamp({ enabled: true, duration: 1000 });
+      expect(outcome).toEqual(Date.now() + 1000);
+    });
+
+    it('should return undefined if the cut off duration is not a valid number', () => {
+      const outcome = getCutOffExpirationTimestamp({ enabled: true });
+      expect(outcome).toEqual(undefined);
     });
   });
 

@@ -139,10 +139,6 @@ describe('User session manager', () => {
         expiresAt: expect.any(Number),
         id: expect.any(Number),
         timeout: 10000,
-        cutOff: {
-          enabled: false,
-          duration: undefined,
-        },
       });
       // This also covers the data migration from previous storage to current
       expect(state.session.anonymousId.value).toBe(customData.rl_anonymous_id);
@@ -247,10 +243,10 @@ describe('User session manager', () => {
       expect(state.session.sessionInfo.value).toStrictEqual({
         id: 1726655503445,
         expiresAt: expect.any(Number),
-        timeout: 60000,
         manualTrack: true,
         autoTrack: false,
         sessionStart: false,
+        timeout: undefined,
       });
     });
     it('should set sessionInfo if sessionInfo exists in storage with autoTrack enabled', () => {
@@ -272,9 +268,6 @@ describe('User session manager', () => {
         timeout: 1800000,
         autoTrack: true,
         sessionStart: false,
-        cutOff: {
-          enabled: false,
-        },
       });
     });
   });
@@ -541,10 +534,7 @@ describe('User session manager', () => {
       );
       expect(state.session.sessionInfo.value).toEqual({
         ...customData.rl_session,
-        timeout: expect.any(Number), // TODO: fix this after this entry is removed from state
-        cutOff: {
-          enabled: false,
-        },
+        timeout: expect.any(Number),
       });
       expect(state.session.authToken.value).toBe(customData.rl_auth_token);
     });
@@ -602,11 +592,7 @@ describe('User session manager', () => {
         autoTrack: true,
         expiresAt: expect.any(Number),
         id: expect.any(Number),
-        sessionStart: undefined,
-        timeout: expect.any(Number), // TODO: fix this after this entry is removed from state
-        cutOff: {
-          enabled: false,
-        },
+        timeout: expect.any(Number),
       });
       expect(state.session.authToken.value).toBe(DEFAULT_USER_SESSION_VALUES.authToken);
     });
@@ -658,11 +644,7 @@ describe('User session manager', () => {
 
       userSessionManager.init();
 
-      expect(state.session.sessionInfo.value.cutOff).toStrictEqual({
-        enabled: false,
-        expiresAt: undefined,
-        duration: undefined,
-      });
+      expect(state.session.sessionInfo.value.cutOff).toBeUndefined();
     });
 
     it('should reset the cut off expiry timestamp (retrieved from storage) if cut off duration is changed in the configuration', () => {
@@ -770,10 +752,101 @@ describe('User session manager', () => {
       expect(defaultLogger.warn).toHaveBeenCalledWith(
         'UserSessionManager:: The session cut off duration value "600000" ms is less than the session timeout value "3600000" ms. The cut off functionality will be disabled.',
       );
-      expect(state.session.sessionInfo.value.cutOff).toStrictEqual({
-        enabled: false,
-        duration: 10 * 60 * 1000,
+
+      expect(state.session.sessionInfo.value.cutOff).toBeUndefined();
+    });
+
+    it('should reset the session and cut off expiry timestamp if it is exceeded', () => {
+      const currentCutOffExpiryTimestamp = 99; // expired cut off
+
+      const customData = {
+        rl_session: {
+          autoTrack: true,
+          manualTrack: false,
+          id: 98,
+          timeout: 10000,
+          expiresAt: 105, // still not expired
+          cutOff: {
+            enabled: true,
+            duration: 12 * 60 * 60 * 1000,
+            expiresAt: currentCutOffExpiryTimestamp,
+          },
+        },
+      };
+      setDataInCookieStorage(customData);
+
+      state.loadOptions.value.sessions = {
+        autoTrack: true,
+        timeout: 60 * 60 * 1000,
+        cutOff: {
+          enabled: true,
+          duration: 12 * 60 * 60 * 1000,
+        },
+      };
+
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+
+      jest.useFakeTimers();
+      jest.setSystemTime(100);
+
+      userSessionManager.init();
+
+      expect(state.session.sessionInfo.value).toStrictEqual({
+        autoTrack: true,
+        id: Date.now(),
+        timeout: 3600000,
+        expiresAt: Date.now() + 3600000,
+        cutOff: {
+          enabled: true,
+          duration: 12 * 60 * 60 * 1000,
+          expiresAt: Date.now() + 12 * 60 * 60 * 1000,
+        },
       });
+
+      jest.useRealTimers();
+    });
+
+    it('should not reset the cut off expiry timestamp if it is not exceeded', () => {
+      const currentCutOffExpiryTimestamp = 10000; // not expired cut off
+
+      const customData = {
+        rl_session: {
+          autoTrack: true,
+          manualTrack: false,
+          id: 1234567890,
+          timeout: 10000,
+          cutOff: {
+            enabled: true,
+            duration: 12 * 60 * 60 * 1000,
+            expiresAt: currentCutOffExpiryTimestamp,
+          },
+        },
+      };
+      setDataInCookieStorage(customData);
+
+      state.loadOptions.value.sessions = {
+        autoTrack: true,
+        timeout: 60 * 60 * 1000,
+        cutOff: {
+          enabled: true,
+          duration: 12 * 60 * 60 * 1000,
+        },
+      };
+
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+
+      jest.useFakeTimers();
+      jest.setSystemTime(100);
+
+      userSessionManager.init();
+
+      expect(state.session.sessionInfo.value.cutOff).toStrictEqual({
+        enabled: true,
+        duration: 12 * 60 * 60 * 1000,
+        expiresAt: currentCutOffExpiryTimestamp,
+      });
+
+      jest.useRealTimers();
     });
   });
 
@@ -1537,9 +1610,6 @@ describe('User session manager', () => {
         timeout: 1800000,
         expiresAt: expect.any(Number),
         id: expect.any(Number),
-        cutOff: {
-          enabled: false,
-        },
       });
       expect(syncValueToStorageSpy).toHaveBeenNthCalledWith(2, 'sessionInfo', {
         autoTrack: true,
@@ -1547,9 +1617,6 @@ describe('User session manager', () => {
         expiresAt: expect.any(Number),
         id: expect.any(Number),
         sessionStart: true,
-        cutOff: {
-          enabled: false,
-        },
       });
       expect(syncValueToStorageSpy).toHaveBeenNthCalledWith(3, 'sessionInfo', {
         autoTrack: true,
@@ -1557,9 +1624,6 @@ describe('User session manager', () => {
         expiresAt: expect.any(Number),
         id: expect.any(Number),
         sessionStart: true,
-        cutOff: {
-          enabled: false,
-        },
       });
     });
   });

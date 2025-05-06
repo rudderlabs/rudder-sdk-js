@@ -46,7 +46,6 @@ import {
   DEFAULT_SESSION_TIMEOUT_MS,
   MIN_SESSION_TIMEOUT_MS,
 } from '../../constants/timeouts';
-import { defaultSessionConfiguration } from '../../state/slices/session';
 import { state } from '../../state';
 import { getStorageEngine } from '../../services/StoreManager/storages';
 import {
@@ -63,6 +62,7 @@ import {
   generateAnonymousId,
   generateAutoTrackingSession,
   generateManualTrackingSession,
+  getCutOffExpirationTimestamp,
   hasSessionExpired,
   isCutOffTimeExceeded,
   isStorageTypeValidForStoringData,
@@ -140,29 +140,34 @@ class UserSessionManager implements IUserSessionManager {
     let sessionInfo;
     if (this.isPersistenceEnabledForStorageEntry('sessionInfo')) {
       const configuredSessionTrackingInfo = this.getConfiguredSessionTrackingInfo();
-      const initialSessionInfo = this.getSessionInfo() ?? defaultSessionConfiguration;
-      sessionInfo = mergeDeepRight(initialSessionInfo, configuredSessionTrackingInfo);
+      const initialSessionInfo = this.getSessionInfo() ?? DEFAULT_USER_SESSION_VALUES.sessionInfo;
 
-      // A special case for autoTrack
-      // If manualTrack is set to true in the storage, then autoTrack should be false
-      sessionInfo.autoTrack =
-        configuredSessionTrackingInfo.autoTrack && initialSessionInfo.manualTrack !== true;
+      // Merge the session info from the storage and the configuration
+      sessionInfo = {
+        // If manualTrack is set to true in the storage, then do not enable auto tracking even if configured.
+        // Once manual tracking ends (endSession is called), auto tracking will be enabled in the next SDK run.
+        autoTrack:
+          configuredSessionTrackingInfo.autoTrack && initialSessionInfo.manualTrack !== true,
+        timeout: configuredSessionTrackingInfo.timeout,
+        manualTrack: initialSessionInfo.manualTrack,
+        expiresAt: initialSessionInfo.expiresAt,
+        id: initialSessionInfo.id,
+        sessionStart: initialSessionInfo.sessionStart,
+      } as SessionInfo;
 
       // If both autoTrack and manualTrack are disabled, reset the session info to default values
       if (!sessionInfo.autoTrack && sessionInfo.manualTrack !== true) {
         sessionInfo = DEFAULT_USER_SESSION_VALUES.sessionInfo;
-      } else {
-        // If cut off is disabled in the configuration, but enabled in the storage, reset the cut off expiry time
-        if (
-          configuredSessionTrackingInfo.cutOff?.enabled === false &&
-          initialSessionInfo.cutOff?.enabled === true
-        ) {
-          sessionInfo.cutOff!.expiresAt = undefined;
-        }
+      } else if (configuredSessionTrackingInfo.cutOff?.enabled === true) {
+        sessionInfo.cutOff = {
+          enabled: true,
+          duration: configuredSessionTrackingInfo.cutOff?.duration,
+          expiresAt: initialSessionInfo.cutOff?.expiresAt,
+        };
 
-        // If the cut off duration is changed in the configuration, reset the cut off expiry time
+        // If the cut off duration is updated in the new configuration,
+        // reset the cut off expiry time
         if (
-          sessionInfo.cutOff?.enabled === true &&
           configuredSessionTrackingInfo.cutOff?.duration !== initialSessionInfo.cutOff?.duration
         ) {
           sessionInfo.cutOff.expiresAt = undefined;
@@ -838,20 +843,30 @@ class UserSessionManager implements IUserSessionManager {
    * A function to check for existing session details and depending on that create a new session
    */
   startOrRenewAutoTracking(sessionInfo: SessionInfo) {
+    let finalSessionInfo = sessionInfo;
     if (hasSessionExpired(sessionInfo)) {
-      // Reset cut off expiry timestamp if it is exceeded
-      if (isCutOffTimeExceeded(sessionInfo)) {
-        sessionInfo.cutOff!.expiresAt = undefined;
-      }
-
-      state.session.sessionInfo.value = generateAutoTrackingSession(sessionInfo);
+      finalSessionInfo = generateAutoTrackingSession(sessionInfo);
     } else {
       const timestamp = Date.now();
       const timeout = sessionInfo.timeout as number;
-      state.session.sessionInfo.value = mergeDeepRight(sessionInfo, {
-        expiresAt: timestamp + timeout, // set the expiry time of the session
-      });
+
+      // Set the expiry time of the session
+      finalSessionInfo.expiresAt = timestamp + timeout;
     }
+
+    // Reset cut off expiry timestamp if it is exceeded
+    if (isCutOffTimeExceeded(finalSessionInfo)) {
+      finalSessionInfo.cutOff!.expiresAt = undefined;
+    }
+
+    // If cut off is active, set or retain the expiry time
+    if (finalSessionInfo.cutOff) {
+      const cutOffExpiresAt = getCutOffExpirationTimestamp(finalSessionInfo.cutOff);
+      finalSessionInfo.cutOff.expiresAt = cutOffExpiresAt;
+    }
+
+    // Update the session info in the state
+    state.session.sessionInfo.value = finalSessionInfo;
   }
 
   /**

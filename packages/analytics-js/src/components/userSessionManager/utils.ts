@@ -76,17 +76,13 @@ const getCutOffExpirationTimestamp = (cutOff: SessionInfo['cutOff']): number | u
 const generateAutoTrackingSession = (sessionInfo: SessionInfo): SessionInfo => {
   const { timeout, cutOff } = sessionInfo;
   const timestamp = Date.now();
-  const cutOffExpiresAt = getCutOffExpirationTimestamp(cutOff);
 
   return {
     id: timestamp, // set the current timestamp
     expiresAt: timestamp + (timeout as number), // set the expiry time of the session
     timeout,
     autoTrack: true,
-    cutOff: {
-      ...cutOff,
-      ...(cutOffExpiresAt && { expiresAt: cutOffExpiresAt }),
-    },
+    ...(cutOff && { cutOff }),
   };
 };
 
@@ -130,4 +126,5 @@ export {
   isStorageTypeValidForStoringData,
   generateAnonymousId,
   isCutOffTimeExceeded,
+  getCutOffExpirationTimestamp,
 };
