@@ -23,7 +23,7 @@ describe('Utilities: User session manager', () => {
       jest.useRealTimers();
     });
 
-    it('should return true if the current timestamp is greater than the session expiry time', () => {
+    it('should return true if the current timestamp is less than the session expiry time', () => {
       const sessionInfo: SessionInfo = {
         autoTrack: true,
         timeout: 10 * 60 * 1000,
@@ -40,7 +40,7 @@ describe('Utilities: User session manager', () => {
       expect(outcome).toEqual(false);
     });
 
-    it('should return false if the current timestamp is less than the session expiry time', () => {
+    it('should return true if the current timestamp is greater than the session expiry time', () => {
       const sessionInfo: SessionInfo = {
         autoTrack: true,
         timeout: 10 * 60 * 1000,
