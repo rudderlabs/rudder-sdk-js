@@ -148,7 +148,7 @@ jobs:
           ./scripts/make-package-json-publish-ready.sh
 
           npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
-          npx nx release publish --base=${{ env.last_monorepo_version }} --head=${{ env.current_monorepo_version }} ${{ inputs.environment == 'beta' && '--tag=beta' || '' }}
+          npx nx release publish --base=${{ env.last_monorepo_version }} --head=${{ env.current_monorepo_version }} ${{ inputs.environment == 'beta' && '--tag=beta' || '' }} --dry-run
 
           # Reset the changes made to package.json
           git reset --hard
