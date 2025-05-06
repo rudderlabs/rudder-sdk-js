@@ -10,6 +10,7 @@ concurrency:
 permissions:
   id-token: write # allows the JWT to be requested from GitHub's OIDC provider
   contents: read # This is required for actions/checkout
+  pull-requests: read # This is required to get PR information
 
 env:
   NODE_OPTIONS: '--no-warnings'
@@ -17,37 +18,59 @@ env:
 jobs:
   get-deploy-inputs:
     name: Get Deploy Inputs
-    if: startsWith(github.ref, 'refs/heads/beta/') || startsWith(github.ref, 'refs/tags/bugbash/')
     runs-on: [self-hosted, Linux, X64]
     outputs:
-      release_type: ${{ steps.deploy-inputs.outputs.release_type }}
-      feature_name: ${{ steps.deploy-inputs.outputs.feature_name }}
-
+      version_suffix: ${{ steps.deploy-inputs.outputs.version_suffix }}
+      beta_identifier: ${{ steps.deploy-inputs.outputs.beta_identifier }}
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Find PR for current branch
+        id: pr-info
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const branch = context.ref.replace('refs/heads/', '');
+            console.log(`Finding PRs for branch: ${branch}`);
+            
+            const { data: pullRequests } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: `${context.repo.owner}:${branch}`,
+              base: 'develop',
+              state: 'open'
+            });
+            
+            if (pullRequests.length > 0) {
+              const prNumber = pullRequests[0].number.toString();
+              console.log(`Found PR #${prNumber} for branch ${branch}: https://github.com/${context.repo.owner}/${context.repo.repo}/pull/${prNumber}`);
+              core.setOutput('pr_number', prNumber);
+            } else {
+              console.log(`No open PR found for branch ${branch} targeting develop branch. Aborting beta deployment.`);
+              core.setFailed('No open PR found for branch ${branch} targeting develop branch');
+              core.setOutput('pr_number', '');
+            }
+
       - name: Extract deploy inputs
         id: deploy-inputs
         shell: bash
         run: |
-          source_branch_name=${GITHUB_REF##*/}
-          RELEASE_TYPE=beta
-          grep -q "bugbash/" <<< "${GITHUB_REF}" && RELEASE_TYPE=bugbash
-          FEATURE_NAME=${source_branch_name#bugbash/}
-          FEATURE_NAME=${FEATURE_NAME#beta/}
-          FEATURE_NAME=${FEATURE_NAME#refs/heads/}
-          FEATURE_NAME=${FEATURE_NAME#refs/tags/}
-
-          echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
-          echo "feature_name=$FEATURE_NAME" >> $GITHUB_OUTPUT
+          echo "version_suffix=beta.pr.${{ steps.pr-info.outputs.pr_number }}" >> $GITHUB_OUTPUT
+          echo "beta_identifier=PR-${{ steps.pr-info.outputs.pr_number }}" >> $GITHUB_OUTPUT
 
   deploy:
+    if: false
     name: Deploy BETA/BugBash Feature
     uses: ./.github/workflows/deploy.yml
     needs: get-deploy-inputs
     with:
-      environment: ${{ needs.get-deploy-inputs.outputs.release_type }}
-      bugsnag_release_stage: ${{ needs.get-deploy-inputs.outputs.release_type }}
-      s3_dir_path: ${{ needs.get-deploy-inputs.outputs.release_type }}/${{ needs.get-deploy-inputs.outputs.feature_name }}
-      s3_dir_path_legacy: ${{ needs.get-deploy-inputs.outputs.release_type }}/${{ needs.get-deploy-inputs.outputs.feature_name }}/v1.1
+      environment: beta
+      bugsnag_release_stage: beta
+      s3_dir_path: beta/${{ needs.get-deploy-inputs.outputs.beta_identifier }}/v3
+      s3_dir_path_legacy: beta/${{ needs.get-deploy-inputs.outputs.beta_identifier }}/v1.1
       action_type: ''
     secrets:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_PROD_ACCOUNT_ID }}
