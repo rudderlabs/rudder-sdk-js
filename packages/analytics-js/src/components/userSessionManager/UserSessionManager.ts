@@ -161,7 +161,7 @@ class UserSessionManager implements IUserSessionManager {
       } else if (configuredSessionTrackingInfo.cutOff?.enabled === true) {
         sessionInfo.cutOff = {
           enabled: true,
-          duration: configuredSessionTrackingInfo.cutOff?.duration,
+          duration: configuredSessionTrackingInfo.cutOff!.duration,
           expiresAt: initialSessionInfo.cutOff?.expiresAt,
         };
       }
@@ -267,7 +267,7 @@ class UserSessionManager implements IUserSessionManager {
   }
 
   getConfiguredSessionTrackingInfo(): SessionInfo {
-    let autoTrack = state.loadOptions.value.sessions?.autoTrack !== false;
+    let autoTrack = state.loadOptions.value.sessions!.autoTrack !== false;
 
     // Do not validate any further if autoTrack is disabled
     if (!autoTrack) {
@@ -309,10 +309,10 @@ class UserSessionManager implements IUserSessionManager {
   }
 
   private getCutOffInfo(sessionTimeout: number): SessionInfo['cutOff'] {
-    const cutOff = state.loadOptions.value.sessions!.cutOff;
+    const cutOff = state.loadOptions.value.sessions!.cutOff!;
     let cutOffDuration;
     let cutOffEnabled = false;
-    if (cutOff?.enabled === true) {
+    if (cutOff.enabled === true) {
       cutOffDuration = cutOff.duration;
       cutOffEnabled = true;
       if (!isPositiveInteger(cutOffDuration)) {
