@@ -744,14 +744,20 @@ class UserSessionManager implements IUserSessionManager {
       }
 
       if (autoTrack) {
-        session.sessionInfo.value = {
+        const sessionInfo = {
           ...DEFAULT_USER_SESSION_VALUES.sessionInfo,
           timeout,
-          cutOff: {
-            enabled: cutOff?.enabled,
-            duration: cutOff?.duration,
-          },
         };
+
+        if (cutOff) {
+          sessionInfo.cutOff = {
+            enabled: cutOff.enabled,
+            duration: cutOff.duration,
+          };
+        }
+
+        session.sessionInfo.value = sessionInfo;
+
         this.startOrRenewAutoTracking(session.sessionInfo.value);
       } else if (manualTrack) {
         this.startManualTrackingInternal();

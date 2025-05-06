@@ -95,7 +95,7 @@ export default [
     name: 'Core (Content Script) - Legacy - NPM (CJS)',
     path: 'dist/npm/legacy/content-script/cjs/index.cjs',
     import: '*',
-    limit: '48.2 KiB',
+    limit: '48.5 KiB',
   },
   {
     name: 'Core (Content Script) - Legacy - NPM (UMD)',
