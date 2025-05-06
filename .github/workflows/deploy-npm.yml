@@ -123,8 +123,8 @@ jobs:
         run: |
           # If both base and head versions are provided, use them
           if [ -n "${{ inputs.base_version }}" ] && [ -n "${{ inputs.head_version }}" ]; then
-            CURRENT_VERSION=${{ inputs.base_version }}
-            LAST_VERSION=${{ inputs.head_version }}
+            LAST_VERSION=${{ inputs.base_version }}
+            CURRENT_VERSION=${{ inputs.head_version }}
           else
             # Otherwise, get the two latest monorepo versions
             CURRENT_VERSION=$(git tag -l "v3*" --sort=-version:refname | head -n 1)
@@ -148,7 +148,7 @@ jobs:
           ./scripts/make-package-json-publish-ready.sh
 
           npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
-          npx nx release publish --base=${{ env.last_monorepo_version }} --head=${{ env.current_monorepo_version }} ${{ inputs.environment == 'beta' && '--tag=beta' || '' }} --dry-run
+          npx nx release publish --base=${{ env.last_monorepo_version }} --head=${{ env.current_monorepo_version }} ${{ inputs.environment == 'beta' && '--tag=beta' || '' }}
 
           # Reset the changes made to package.json
           git reset --hard
