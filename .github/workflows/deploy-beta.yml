@@ -2,6 +2,15 @@ name: Deploy BETA/BugBash Feature
 
 on:
   workflow_dispatch:
+    inputs:
+      deployment_type:
+        description: "The type of deployment to perform"
+        required: true
+        type: choice
+        options:
+          - cdn
+          - npm
+          - both
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.sha }}
@@ -100,13 +109,16 @@ jobs:
         id: deploy-inputs
         shell: bash
         run: |
-          echo "version_suffix=beta.pr.${{ steps.pr-info.outputs.pr_number }}" >> $GITHUB_OUTPUT
-          echo "beta_identifier=PR-${{ steps.pr-info.outputs.pr_number }}" >> $GITHUB_OUTPUT
+          # Suffix the short commit hash with the PR number
+          SHA_SHORT=$(echo ${{ github.sha }} | cut -c1-7)
+          echo "version_suffix=beta.pr.${{ steps.pr-info.outputs.pr_number }}.$SHA_SHORT" >> $GITHUB_OUTPUT
+          echo "beta_identifier=PR-${{ steps.pr-info.outputs.pr_number }}/$SHA_SHORT" >> $GITHUB_OUTPUT
 
   deploy:
     name: Deploy BETA/BugBash Feature
     uses: ./.github/workflows/deploy.yml
     needs: get-deploy-inputs
+    if: ${{ inputs.deployment_type == 'cdn' || inputs.deployment_type == 'both' }}
     with:
       environment: beta
       bugsnag_release_stage: beta
