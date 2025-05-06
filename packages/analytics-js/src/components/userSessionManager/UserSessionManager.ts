@@ -164,14 +164,6 @@ class UserSessionManager implements IUserSessionManager {
           duration: configuredSessionTrackingInfo.cutOff?.duration,
           expiresAt: initialSessionInfo.cutOff?.expiresAt,
         };
-
-        // If the cut off duration is updated in the new configuration,
-        // reset the cut off expiry time
-        if (
-          configuredSessionTrackingInfo.cutOff?.duration !== initialSessionInfo.cutOff?.duration
-        ) {
-          sessionInfo.cutOff.expiresAt = undefined;
-        }
       }
     } else {
       sessionInfo = DEFAULT_USER_SESSION_VALUES.sessionInfo;

@@ -647,44 +647,6 @@ describe('User session manager', () => {
       expect(state.session.sessionInfo.value.cutOff).toBeUndefined();
     });
 
-    it('should reset the cut off expiry timestamp (retrieved from storage) if cut off duration is changed in the configuration', () => {
-      const customData = {
-        rl_session: {
-          autoTrack: true,
-          manualTrack: false,
-          id: 1234567890,
-          timeout: 10000,
-          cutOff: {
-            enabled: true,
-            duration: 12 * 60 * 60 * 1000,
-            expiresAt: Date.now() + 10000,
-          },
-        },
-      };
-      setDataInCookieStorage(customData);
-
-      state.storage.entries.value = entriesWithOnlyCookieStorage;
-      state.loadOptions.value.sessions = {
-        autoTrack: true,
-        cutOff: {
-          enabled: true,
-          duration: 24 * 60 * 60 * 1000,
-        },
-      };
-
-      userSessionManager.init();
-
-      expect(state.session.sessionInfo.value.cutOff).toStrictEqual({
-        enabled: true,
-        duration: 24 * 60 * 60 * 1000,
-        expiresAt: expect.any(Number),
-      });
-
-      expect(state.session.sessionInfo.value.cutOff!.expiresAt).not.toBe(
-        customData.rl_session.cutOff.expiresAt,
-      );
-    });
-
     it('should log a warning and use default timeout if provided timeout is not in number format', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       // @ts-expect-error need to test this case
