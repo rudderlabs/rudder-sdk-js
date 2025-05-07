@@ -173,7 +173,7 @@
     "lint-staged": "15.5.2",
     "madge": "8.0.0",
     "msw": "2.7.6",
-    "nx": "20.8.1",
+    "nx": "21.0.0",
     "patch-package": "8.0.0",
     "prettier": "3.5.3",
     "publint": "0.3.12",
