@@ -123,7 +123,7 @@
     "@jscutlery/semver": "5.6.0",
     "@nx/eslint": "20.8.1",
     "@nx/eslint-plugin": "21.0.0",
-    "@nx/jest": "20.8.1",
+    "@nx/jest": "21.0.0",
     "@nx/js": "20.8.1",
     "@nx/workspace": "21.0.0",
     "@originjs/vite-plugin-federation": "1.4.1",
