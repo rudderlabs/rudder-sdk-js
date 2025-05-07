@@ -1,4 +1,4 @@
-name: Deploy Beta to Production Environment
+name: Deploy to Beta Environment
 
 on:
   workflow_dispatch:
