@@ -199,7 +199,7 @@
     "user-agent-data-types": "0.4.2"
   },
   "optionalDependencies": {
-    "@nx/nx-darwin-arm64": "20.8.1",
+    "@nx/nx-darwin-arm64": "21.0.0",
     "@nx/nx-darwin-x64": "20.8.1",
     "@nx/nx-linux-x64-gnu": "20.8.1",
     "@nx/nx-win32-x64-msvc": "20.8.1",
