@@ -118,6 +118,10 @@ jobs:
         run: |
           # Suffix the short commit hash with the PR number
           SHA_SHORT=$(echo ${{ github.sha }} | cut -c1-7)
+          # The version_suffix is structured as "beta.pr.<PR_NUMBER>.<SHORT_COMMIT_HASH>".
+          # - "beta.pr." is a fixed prefix indicating a beta release for a pull request.
+          # - <PR_NUMBER> is the number of the pull request associated with the branch.
+          # - <SHORT_COMMIT_HASH> is the first 7 characters of the commit hash for traceability.
           echo "version_suffix=beta.pr.${{ steps.pr-info.outputs.pr_number }}.$SHA_SHORT" >> $GITHUB_OUTPUT
           echo "beta_identifier=PR-${{ steps.pr-info.outputs.pr_number }}/$SHA_SHORT" >> $GITHUB_OUTPUT
           echo "beta_identifier_for_automation_tests=pr-${{ steps.pr-info.outputs.pr_number }}-$SHA_SHORT" >> $GITHUB_OUTPUT
