@@ -140,7 +140,7 @@
     "@swc/core": "1.11.24",
     "@types/component-emitter": "1.2.14",
     "@types/jest": "29.5.14",
-    "@types/node": "22.15.14",
+    "@types/node": "22.15.15",
     "@types/ramda": "0.30.2",
     "@typescript-eslint/eslint-plugin": "8.32.0",
     "@typescript-eslint/parser": "8.32.0",
