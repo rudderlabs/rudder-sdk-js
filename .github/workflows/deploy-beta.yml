@@ -21,14 +21,23 @@ env:
   NODE_OPTIONS: '--no-warnings'
 
 jobs:
-  get-deploy-inputs:
-    name: Get Deploy Inputs
-    runs-on: [self-hosted, Linux, X64]
+  validate-actor:
     # Allow only to run from branches and not tags
     if: ${{ startsWith(github.ref, 'refs/heads/') }}
+    uses: ./.github/workflows/validate-actor.yml
+    with:
+      team_names: 'js-sdk,integrations'
+    secrets:
+      PAT: ${{ secrets.PAT }}
+
+  get-deploy-inputs:
+    name: Get Deploy Inputs
+    needs: validate-actor
+    runs-on: [self-hosted, Linux, X64]
     outputs:
       version_suffix: ${{ steps.deploy-inputs.outputs.version_suffix }}
       beta_identifier: ${{ steps.deploy-inputs.outputs.beta_identifier }}
+      beta_identifier_for_automation_tests: ${{ steps.deploy-inputs.outputs.beta_identifier_for_automation_tests }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -111,8 +120,9 @@ jobs:
           SHA_SHORT=$(echo ${{ github.sha }} | cut -c1-7)
           echo "version_suffix=beta.pr.${{ steps.pr-info.outputs.pr_number }}.$SHA_SHORT" >> $GITHUB_OUTPUT
           echo "beta_identifier=PR-${{ steps.pr-info.outputs.pr_number }}/$SHA_SHORT" >> $GITHUB_OUTPUT
+          echo "beta_identifier_for_automation_tests=pr-${{ steps.pr-info.outputs.pr_number }}-${{ github.sha }}" >> $GITHUB_OUTPUT
 
-  deploy:
+  deploy-cdn:
     name: Deploy to CDN
     uses: ./.github/workflows/deploy.yml
     needs: get-deploy-inputs
@@ -152,7 +162,7 @@ jobs:
 
   deploy-sanity-suite:
     name: Deploy sanity suite
-    needs: get-deploy-inputs
+    needs: [get-deploy-inputs, deploy-cdn]
     uses: ./.github/workflows/deploy-sanity-suite.yml
     with:
       environment: 'beta'
@@ -168,3 +178,14 @@ jobs:
       BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
+
+  trigger-test-suites:
+    uses: ./.github/workflows/trigger-test-suites.yml
+    name: Trigger test suites
+    needs: [get-deploy-inputs, deploy-sanity-suite]
+    with:
+      environment: beta
+      sanity_test_suite_url: https://cdn.rudderlabs.com/sanity-suite/beta/${{ needs.get-deploy-inputs.outputs.beta_identifier }}/
+      build_source_id: ${{ needs.get-deploy-inputs.outputs.beta_identifier_for_automation_tests }}
+    secrets:
+      PAT: ${{ secrets.PAT }}
