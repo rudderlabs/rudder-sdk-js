@@ -9,6 +9,9 @@ on:
       use_pr_head_sha:
         type: string
         default: 'false'
+      beta_identifier:
+        type: string
+        required: false
     secrets:
       AWS_ACCOUNT_ID:
         required: true
@@ -75,6 +78,9 @@ jobs:
           elif [ "${{ inputs.environment }}" == "production" ]; then
             echo "SDK_CDN_VERSION_PATH_PREFIX=" >> $GITHUB_ENV
             echo "SUITE_CDN_PATH=" >> $GITHUB_ENV
+          elif [ "${{ inputs.environment }}" == "beta" ]; then
+            echo "SDK_CDN_VERSION_PATH_PREFIX=beta/${{ inputs.beta_identifier }}/" >> $GITHUB_ENV
+            echo "SUITE_CDN_PATH=/beta/${{ inputs.beta_identifier }}" >> $GITHUB_ENV
           else
             echo "SDK_CDN_VERSION_PATH_PREFIX=dev/latest/" >> $GITHUB_ENV
             echo "SUITE_CDN_PATH=/dev" >> $GITHUB_ENV
