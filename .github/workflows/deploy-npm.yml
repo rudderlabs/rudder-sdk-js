@@ -70,8 +70,10 @@ jobs:
           echo "analytics-v1.1: $CURRENT_VERSION_V1 -> $NEW_VERSION_V1"
           
           # Update all package.json files using jq
-          jq ".version = \"$NEW_VERSION_JS\"" packages/analytics-js/package.json > tmp && mv tmp packages/analytics-js/package.json
-          jq ".version = \"$NEW_VERSION_V1\"" packages/analytics-v1.1/package.json > tmp && mv tmp packages/analytics-v1.1/package.json
+          TMP_FILE_JS=$(mktemp)
+          jq ".version = \"$NEW_VERSION_JS\"" packages/analytics-js/package.json > "$TMP_FILE_JS" && mv "$TMP_FILE_JS" packages/analytics-js/package.json
+          TMP_FILE_V1=$(mktemp)
+          jq ".version = \"$NEW_VERSION_V1\"" packages/analytics-v1.1/package.json > "$TMP_FILE_V1" && mv "$TMP_FILE_V1" packages/analytics-v1.1/package.json
 
       - name: Get new version number
         run: |
