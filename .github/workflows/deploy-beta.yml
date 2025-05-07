@@ -43,7 +43,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
+
       - name: Find PR for current branch
         id: pr-info
         uses: actions/github-script@v6
@@ -71,38 +71,38 @@ jobs:
                 return;
               }
               
-              // // Get detailed PR information including mergeable state
-              // const { data: prDetails } = await github.rest.pulls.get({
-              //   owner: context.repo.owner,
-              //   repo: context.repo.repo,
-              //   pull_number: prNumber
-              // });
+              // Get detailed PR information including mergeable state
+              const { data: prDetails } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber
+              });
               
-              // // Check if PR is mergeable and all requirements are satisfied
-              // if (prDetails.mergeable === false) {
-              //   core.setFailed(`PR #${prNumber} is not in a mergeable state. Please resolve conflicts before deploying.`);
-              //   return;
-              // }
+              // Check if PR is mergeable and all requirements are satisfied
+              if (prDetails.mergeable === false) {
+                core.setFailed(`PR #${prNumber} is not in a mergeable state. Please resolve conflicts before deploying.`);
+                return;
+              }
               
-              // // The mergeable_state can be one of: clean, dirty, blocked, unstable, or unknown
-              // // Only 'clean' means all requirements are met (checks passed, approvals received, no conflicts)
-              // if (prDetails.mergeable_state !== 'clean') {
-              //   // Get more details about why it's not clean
-              //   let reason = '';
+              // The mergeable_state can be one of: clean, dirty, blocked, unstable, or unknown
+              // Only 'clean' means all requirements are met (checks passed, approvals received, no conflicts)
+              if (prDetails.mergeable_state !== 'clean') {
+                // Get more details about why it's not clean
+                let reason = '';
                 
-              //   if (prDetails.mergeable_state === 'blocked') {
-              //     reason = 'required checks or approvals are missing';
-              //   } else if (prDetails.mergeable_state === 'dirty') {
-              //     reason = 'there are merge conflicts';
-              //   } else if (prDetails.mergeable_state === 'unstable') {
-              //     reason = 'required checks are failing';
-              //   } else {
-              //     reason = `the mergeable state is "${prDetails.mergeable_state}"`;
-              //   }
+                if (prDetails.mergeable_state === 'blocked') {
+                  reason = 'required checks or approvals are missing';
+                } else if (prDetails.mergeable_state === 'dirty') {
+                  reason = 'there are merge conflicts';
+                } else if (prDetails.mergeable_state === 'unstable') {
+                  reason = 'required checks are failing';
+                } else {
+                  reason = `the mergeable state is "${prDetails.mergeable_state}"`;
+                }
                 
-              //   core.setFailed(`PR #${prNumber} is not ready to merge: ${reason}. Please resolve all issues before deploying.`);
-              //   return;
-              // }
+                core.setFailed(`PR #${prNumber} is not ready to merge: ${reason}. Please resolve all issues before deploying.`);
+                return;
+              }
               
               console.log(`PR #${prNumber} is in a clean mergeable state. All requirements satisfied. Proceeding with beta deployment.`);
               
@@ -120,7 +120,7 @@ jobs:
           SHA_SHORT=$(echo ${{ github.sha }} | cut -c1-7)
           echo "version_suffix=beta.pr.${{ steps.pr-info.outputs.pr_number }}.$SHA_SHORT" >> $GITHUB_OUTPUT
           echo "beta_identifier=PR-${{ steps.pr-info.outputs.pr_number }}/$SHA_SHORT" >> $GITHUB_OUTPUT
-          echo "beta_identifier_for_automation_tests=pr-${{ steps.pr-info.outputs.pr_number }}-${{ github.sha }}" >> $GITHUB_OUTPUT
+          echo "beta_identifier_for_automation_tests=pr-${{ steps.pr-info.outputs.pr_number }}-$SHA_SHORT" >> $GITHUB_OUTPUT
 
   deploy-cdn:
     name: Deploy to CDN
@@ -185,7 +185,7 @@ jobs:
     needs: [get-deploy-inputs, deploy-sanity-suite]
     with:
       environment: beta
-      sanity_test_suite_url: https://cdn.rudderlabs.com/sanity-suite/beta/${{ needs.get-deploy-inputs.outputs.beta_identifier }}/
+      sanity_test_suite_url: https://cdn.rudderlabs.com/sanity-suite/beta/${{ needs.get-deploy-inputs.outputs.beta_identifier }}
       build_source_id: ${{ needs.get-deploy-inputs.outputs.beta_identifier_for_automation_tests }}
     secrets:
       PAT: ${{ secrets.PAT }}
