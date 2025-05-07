@@ -209,7 +209,9 @@ describe('ConfigManager', () => {
 
     expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
     expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
-      new SyntaxError("Expected ',' or '}' after property value in JSON at position 15"),
+      new SyntaxError(
+        "Expected ',' or '}' after property value in JSON at position 15 (line 1 column 16)",
+      ),
       'ConfigManager',
       'Unable to process/parse source configuration response',
     );

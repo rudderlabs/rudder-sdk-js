@@ -13,7 +13,7 @@ import nodePolyfills from 'rollup-plugin-polyfill-node';
 import { DEFAULT_EXTENSIONS } from '@babel/core';
 import alias from '@rollup/plugin-alias';
 import * as dotenv from 'dotenv';
-import pkg from './package.json' assert { type: 'json' };
+import pkg from './package.json' with { type: 'json' };
 
 dotenv.config();
 
