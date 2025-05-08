@@ -115,8 +115,12 @@ class ErrorHandler implements IErrorHandler {
           severityReason: { type: errorType },
         };
 
-        // enrich error payload
-        const bugsnagPayload = getBugsnagErrorEvent(bsException, errorState, state);
+        // Set grouping hash only for CDN installations (as an experiment)
+        const groupingHash =
+          state.context.app.value.installType === 'cdn' ? bsException.message : undefined;
+
+        // Get the final payload to be sent to the metrics service
+        const bugsnagPayload = getBugsnagErrorEvent(bsException, errorState, state, groupingHash);
 
         // send it to metrics service
         this.httpClient.getAsyncData({
