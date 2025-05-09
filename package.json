@@ -172,7 +172,7 @@
     "jscpd": "4.0.5",
     "lint-staged": "15.5.2",
     "madge": "8.0.0",
-    "msw": "2.8.0",
+    "msw": "2.8.2",
     "nx": "21.0.3",
     "patch-package": "8.0.0",
     "prettier": "3.5.3",
