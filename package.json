@@ -121,7 +121,7 @@
     "@digitalroute/cz-conventional-changelog-for-jira": "8.0.1",
     "@eslint/js": "9.26.0",
     "@jscutlery/semver": "5.6.0",
-    "@nx/eslint": "20.8.1",
+    "@nx/eslint": "21.0.2",
     "@nx/eslint-plugin": "21.0.0",
     "@nx/jest": "21.0.0",
     "@nx/js": "20.8.1",
