@@ -104,6 +104,9 @@ describe('IubendaConsentManager - Utils', () => {
     });
 
     it('should return undefined if iubenda consent cookie could not be read', () => {
+      // Mock the iubenda cookie
+      document.cookie = `${IUBENDA_CONSENT_EXAMPLE_COOKIE_NAME}={};`;
+
       // mock store manager to intentionally throw error
       const mockStoreManager = {
         setStore: () => ({
@@ -132,10 +135,9 @@ describe('IubendaConsentManager - Utils', () => {
       expect(iubendaConsentData).toBeUndefined();
     });
 
-    it('should return undefined if iubenda consent data inside the cookie is an empty string', () => {
+    it('should return undefined if iubenda consent data inside the cookie is not parseable', () => {
       // Mock the iubenda cookie
-      // The value is inside is empty string
-      document.cookie = `${IUBENDA_CONSENT_EXAMPLE_COOKIE_NAME}=%22%22;`;
+      document.cookie = `${IUBENDA_CONSENT_EXAMPLE_COOKIE_NAME}={""};`;
 
       const iubendaConsentData = getIubendaConsentData(defaultStoreManager, defaultLogger);
 

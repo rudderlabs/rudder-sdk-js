@@ -76,15 +76,17 @@ describe('Plugin - OneTrustConsentManager', () => {
       blacklistedEvents: [],
       whitelistedEvents: [],
       eventFilteringOption: 'disable',
-      oneTrustCookieCategories: [
+      consentManagement: [
         {
-          oneTrustCookieCategory: 'C0001',
-        },
-        {
-          oneTrustCookieCategory: 'C0003',
-        },
-        {
-          oneTrustCookieCategory: '',
+          provider: 'oneTrust',
+          consents: [
+            {
+              consent: 'C0001',
+            },
+            {
+              consent: 'C0003',
+            },
+          ],
         },
       ],
       key: 'value',
@@ -103,12 +105,14 @@ describe('Plugin - OneTrustConsentManager', () => {
       blacklistedEvents: [],
       whitelistedEvents: [],
       eventFilteringOption: 'disable',
-      oneTrustCookieCategories: [
+      consentManagement: [
         {
-          oneTrustCookieCategory: 'C0001',
-        },
-        {
-          oneTrustCookieCategory: '',
+          provider: 'oneTrust',
+          consents: [
+            {
+              consent: 'C0001',
+            },
+          ],
         },
       ],
       key: 'value',
@@ -140,6 +144,7 @@ describe('Plugin - OneTrustConsentManager', () => {
 
   it('should return false if destination categories are not consented', () => {
     state.consents.initialized.value = true;
+    state.consents.provider.value = 'oneTrust';
     state.consents.data.value = {
       allowedConsentIds: ['C0001', 'C0003'],
     };
@@ -147,12 +152,17 @@ describe('Plugin - OneTrustConsentManager', () => {
       blacklistedEvents: [],
       whitelistedEvents: [],
       eventFilteringOption: 'disable',
-      oneTrustCookieCategories: [
+      consentManagement: [
         {
-          oneTrustCookieCategory: 'C0001',
-        },
-        {
-          oneTrustCookieCategory: 'C0004',
+          provider: 'oneTrust',
+          consents: [
+            {
+              consent: 'C0001',
+            },
+            {
+              consent: 'C0004',
+            },
+          ],
         },
       ],
       key: 'value',
@@ -165,14 +175,28 @@ describe('Plugin - OneTrustConsentManager', () => {
 
   it('should return true and log error if an exception occurs during destination consent status check', () => {
     state.consents.initialized.value = true;
+    state.consents.provider.value = 'oneTrust';
     state.consents.data.value = {
-      allowedConsentIds: ['C0001', 'C0003'],
+      // @ts-expect-error Intentionally set to null to throw an exception
+      allowedConsentIds: null, // This will throw an exception
     };
     const destConfig = {
       blacklistedEvents: [],
       whitelistedEvents: [],
       eventFilteringOption: 'disable',
-      oneTrustCookieCategories: {}, // Invalid config
+      consentManagement: [
+        {
+          provider: 'oneTrust',
+          consents: [
+            {
+              consent: 'C0001',
+            },
+            {
+              consent: 'C0004',
+            },
+          ],
+        },
+      ],
       key: 'value',
     };
 
@@ -181,7 +205,7 @@ describe('Plugin - OneTrustConsentManager', () => {
     ).isDestinationConsented?.(state, destConfig, defaultErrorHandler, defaultLogger);
     expect(isDestinationConsented).toBe(true);
     expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
-      new TypeError('oneTrustCookieCategories.map is not a function'),
+      new TypeError("Cannot read properties of null (reading 'includes')"),
       'OneTrustConsentManagerPlugin',
       'Failed to determine the consent status for the destination. Please check the destination configuration and try again.',
     );
@@ -189,7 +213,7 @@ describe('Plugin - OneTrustConsentManager', () => {
 
   it('should return false if the destination categories are not consented in generic consent management config', () => {
     state.consents.initialized.value = true;
-    state.consents.resolutionStrategy.value = 'and';
+    state.consents.resolutionStrategy.value = 'all';
     state.consents.provider.value = 'oneTrust';
     state.consents.data.value = {
       allowedConsentIds: ['C0001', 'C0003'],
@@ -228,7 +252,7 @@ describe('Plugin - OneTrustConsentManager', () => {
 
   it("should return true if the active consent provider's configuration data is not present in the destination config", () => {
     state.consents.initialized.value = true;
-    state.consents.resolutionStrategy.value = 'and';
+    state.consents.resolutionStrategy.value = 'all';
     state.consents.provider.value = 'oneTrust';
     state.consents.data.value = {
       allowedConsentIds: ['C0001', 'C0003'],
@@ -257,7 +281,7 @@ describe('Plugin - OneTrustConsentManager', () => {
   it('should return true if all the configured consents in generic consent management are consented', () => {
     state.consents.initialized.value = true;
     state.consents.provider.value = 'oneTrust';
-    state.consents.resolutionStrategy.value = 'and';
+    state.consents.resolutionStrategy.value = 'all';
     state.consents.data.value = {
       allowedConsentIds: ['C0001', 'C0003'],
     };
@@ -293,10 +317,10 @@ describe('Plugin - OneTrustConsentManager', () => {
     expect(isDestinationConsented).toBe(true);
   });
 
-  it('should return appropriate consent status if the resolution strategy is "or"', () => {
+  it('should return appropriate consent status if the resolution strategy is "any"', () => {
     state.consents.initialized.value = true;
     state.consents.provider.value = 'oneTrust';
-    state.consents.resolutionStrategy.value = 'or';
+    state.consents.resolutionStrategy.value = 'any';
     state.consents.data.value = {
       allowedConsentIds: ['C0001', 'C0003'],
     };
@@ -332,10 +356,10 @@ describe('Plugin - OneTrustConsentManager', () => {
     expect(isDestinationConsented).toBe(true);
   });
 
-  it('should return true when the consent values are empty in the generic consent management config and resolution strategy is "or"', () => {
+  it('should return true when the consent values are empty in the generic consent management config and resolution strategy is "any"', () => {
     state.consents.initialized.value = true;
     state.consents.provider.value = 'oneTrust';
-    state.consents.resolutionStrategy.value = 'or';
+    state.consents.resolutionStrategy.value = 'any';
     state.consents.data.value = {
       allowedConsentIds: ['C0001', 'C0003'],
     };

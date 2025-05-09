@@ -8,12 +8,14 @@ import {
   updateConsentsState,
   updateDataPlaneEventsStateFromLoadOptions,
   getSourceConfigURL,
+  convertResolutionStrategyToLatestFormat,
 } from '../../../src/components/configManager/util/commonUtil';
 import {
   getDataServiceUrl,
   isWebpageTopLevelDomain,
 } from '../../../src/components/configManager/util/validate';
 import { state, resetState } from '../../../src/state';
+import type { ConsentResolutionStrategy } from '@rudderstack/analytics-js-common/types/Consent';
 
 jest.mock('../../../src/components/configManager/util/validate');
 
@@ -529,7 +531,7 @@ describe('Config Manager Common Utilities', () => {
       expect(state.consents.metadata.value).toStrictEqual(
         mockSourceConfig.consentManagementMetadata,
       );
-      expect(state.consents.resolutionStrategy.value).toBe('or');
+      expect(state.consents.resolutionStrategy.value).toBe('any');
     });
 
     it('should set the resolution strategy as undefined if the provider is set to "custom"', () => {
@@ -566,7 +568,7 @@ describe('Config Manager Common Utilities', () => {
       updateConsentsState(mockSourceConfig);
 
       expect(state.consents.metadata.value).toBe(undefined);
-      expect(state.consents.resolutionStrategy.value).toBe('and'); // default value
+      expect(state.consents.resolutionStrategy.value).toBe('all'); // default value
     });
 
     it('should not update the resolution strategy to state if the provider is not set', () => {
@@ -588,7 +590,7 @@ describe('Config Manager Common Utilities', () => {
 
       updateConsentsState(mockSourceConfig);
 
-      expect(state.consents.resolutionStrategy.value).toBe('and'); // default value
+      expect(state.consents.resolutionStrategy.value).toBe('all'); // default value
     });
 
     it('should not update the resolution strategy to state if the provider is not supported', () => {
@@ -611,7 +613,7 @@ describe('Config Manager Common Utilities', () => {
 
       updateConsentsState(mockSourceConfig);
 
-      expect(state.consents.resolutionStrategy.value).toBe('and'); // default value
+      expect(state.consents.resolutionStrategy.value).toBe('all'); // default value
     });
   });
 
@@ -741,6 +743,24 @@ describe('Config Manager Common Utilities', () => {
       expect(sourceConfigURL).toBe(
         'https://www.dummy.url/some/path/sourceConfig/?abc=def&p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=false&lockPluginsVersion=false#blog',
       );
+    });
+  });
+
+  describe('convertResolutionStrategyToLatestFormat', () => {
+    const testCases: [
+      ConsentResolutionStrategy | undefined,
+      ConsentResolutionStrategy | undefined,
+    ][] = [
+      ['all', 'all'],
+      ['any', 'any'],
+      ['or', 'any'],
+      ['and', 'all'],
+      [undefined, undefined],
+    ];
+
+    it.each(testCases)('should return %s when the resolution strategy is %s', (input, expected) => {
+      const resolutionStrategy = convertResolutionStrategyToLatestFormat(input);
+      expect(resolutionStrategy).toBe(expected);
     });
   });
 });

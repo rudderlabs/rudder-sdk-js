@@ -7,11 +7,11 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { DestinationConfig } from '@rudderstack/analytics-js-common/types/Destination';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { DESTINATION_CONSENT_STATUS_ERROR } from './logMessages';
 import { KETCH_CONSENT_MANAGER_PLUGIN } from './constants';
 import type { KetchConsentData } from './types';
 import { getKetchConsentData, updateConsentStateFromData } from './utils';
 import { isUndefined } from '../shared-chunks/common';
+import { isDestinationConsented } from '../utilities/consentManagement';
 
 const pluginName: PluginName = 'KetchConsentManager';
 
@@ -62,55 +62,13 @@ const KetchConsentManager = (): ExtensionPlugin => ({
       errorHandler?: IErrorHandler,
       logger?: ILogger,
     ): boolean {
-      if (!state.consents.initialized.value) {
-        return true;
-      }
-
-      const allowedConsentIds = state.consents.data.value.allowedConsentIds as string[];
-
-      try {
-        const { ketchConsentPurposes, consentManagement } = destConfig;
-        const matchPredicate = (consent: string) => allowedConsentIds.includes(consent);
-
-        // Generic consent management
-        if (consentManagement) {
-          // Get the corresponding consents for the destination
-          const cmpConsents = consentManagement.find(
-            c => c.provider === state.consents.provider.value,
-          )?.consents;
-
-          // If there are no consents configured for the destination for the current provider, events should be sent.
-          if (!cmpConsents) {
-            return true;
-          }
-
-          const configuredConsents = cmpConsents.map(c => c.consent.trim()).filter(n => n);
-
-          // match the configured consents with user provided consents as per
-          // the configured resolution strategy
-          switch (state.consents.resolutionStrategy.value) {
-            case 'or':
-              return configuredConsents.some(matchPredicate) || configuredConsents.length === 0;
-            case 'and':
-            default:
-              return configuredConsents.every(matchPredicate);
-          }
-
-          // Legacy cookie consent management
-          // TODO: To be removed once the source config API is updated to support generic consent management
-        } else if (ketchConsentPurposes) {
-          const configuredConsents = ketchConsentPurposes.map(p => p.purpose.trim()).filter(n => n);
-
-          // Check if any of the destination's mapped ketch purposes are consented by the user in the browser.
-          return configuredConsents.some(matchPredicate) || configuredConsents.length === 0;
-        }
-
-        // If there are no consents configured for the destination for the current provider, events should be sent.
-        return true;
-      } catch (err) {
-        errorHandler?.onError(err, KETCH_CONSENT_MANAGER_PLUGIN, DESTINATION_CONSENT_STATUS_ERROR);
-        return true;
-      }
+      return isDestinationConsented(
+        state,
+        destConfig,
+        KETCH_CONSENT_MANAGER_PLUGIN,
+        errorHandler,
+        logger,
+      );
     },
   },
 });
