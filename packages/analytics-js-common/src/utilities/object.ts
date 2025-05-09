@@ -131,17 +131,12 @@ const getNormalizedObjectValue = (val: any): any => {
  * Normalizes a value to a boolean, with support for a default value
  * @param val Input value
  * @param defVal Default value
- * @returns Returns the normalized boolean value
+ * @returns Returns the input value if it is a boolean, otherwise returns the default value
  * @example
  * getNormalizedBooleanValue(true, false) // returns true
  */
-const getNormalizedBooleanValue = (val: any, defVal: boolean | undefined): boolean | undefined => {
-  if (isDefined(defVal)) {
-    return isDefined(val) ? val === true : defVal;
-  }
-
-  return val === true;
-};
+const getNormalizedBooleanValue = (val: any, defVal: boolean): boolean =>
+  typeof val === 'boolean' ? val : defVal;
 
 export {
   getValueByPath,
