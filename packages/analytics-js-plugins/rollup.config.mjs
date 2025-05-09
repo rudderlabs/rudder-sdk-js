@@ -18,7 +18,7 @@ import dts from 'rollup-plugin-dts';
 import alias from '@rollup/plugin-alias';
 import federation from '@originjs/vite-plugin-federation';
 import * as dotenv from 'dotenv';
-import pkg from './package.json' assert { type: 'json' };
+import pkg from './package.json' with { type: 'json' };
 
 dotenv.config();
 const isLegacyBuild = process.env.BROWSERSLIST_ENV !== 'modern';
