@@ -1,3 +1,6 @@
+import type { IntegrationOpts } from './Integration';
+import type { StorageOpts } from './Storage';
+
 export type OneTrustCookieCategory = {
   oneTrustCookieCategory: string;
 };
@@ -48,4 +51,13 @@ export type KetchConsentPurpose = {
 
 export type IubendaConsentPurpose = {
   purpose: string;
+};
+
+export type ConsentOptions = {
+  storage?: StorageOpts;
+  consentManagement?: ConsentManagementOptions;
+  integrations?: IntegrationOpts;
+  discardPreConsentEvents?: boolean;
+  sendPageEvent?: boolean;
+  trackConsent?: boolean;
 };

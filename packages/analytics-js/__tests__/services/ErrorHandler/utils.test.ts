@@ -502,6 +502,9 @@ describe('Error Reporting utilities', () => {
                 sessions: {
                   autoTrack: true,
                   timeout: 1800000,
+                  cutOff: {
+                    enabled: false,
+                  },
                 },
                 storage: {
                   cookie: {},

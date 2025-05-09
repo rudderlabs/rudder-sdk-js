@@ -1,13 +1,6 @@
 import { signal } from '@preact/signals-core';
 import type { SessionState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import type { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
 import { DEFAULT_USER_SESSION_VALUES } from '../../components/userSessionManager/constants';
-import { DEFAULT_SESSION_TIMEOUT_MS } from '../../constants/timeouts';
-
-const defaultSessionConfiguration: SessionInfo = {
-  autoTrack: true,
-  timeout: DEFAULT_SESSION_TIMEOUT_MS,
-};
 
 const sessionState: SessionState = {
   userId: signal(DEFAULT_USER_SESSION_VALUES.userId),
@@ -21,4 +14,4 @@ const sessionState: SessionState = {
   authToken: signal(DEFAULT_USER_SESSION_VALUES.authToken),
 };
 
-export { sessionState, defaultSessionConfiguration };
+export { sessionState };

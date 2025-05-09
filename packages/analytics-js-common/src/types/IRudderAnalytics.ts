@@ -1,9 +1,10 @@
 import type { Nullable } from './Nullable';
 import type { ApiCallback, ApiOptions } from './EventApi';
-import type { AnonymousIdOptions, ConsentOptions, LoadOptions } from './LoadOptions';
+import type { AnonymousIdOptions, LoadOptions } from './LoadOptions';
 import type { ApiObject } from './ApiObject';
 import type { ILogger } from './Logger';
 import type { IdentifyTraits } from './traits';
+import type { ConsentOptions } from './Consent';
 
 export type AnalyticsIdentifyMethod = {
   (
