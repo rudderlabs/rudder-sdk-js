@@ -4,7 +4,6 @@ import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/Error
 import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import type {
   AnonymousIdOptions,
-  ConsentOptions,
   LoadOptions,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { ApiCallback } from '@rudderstack/analytics-js-common/types/EventApi';
@@ -26,6 +25,7 @@ import type { IConfigManager } from '../configManager/types';
 import type { IEventManager } from '../eventManager/types';
 import type { ICapabilitiesManager } from '../capabilitiesManager/types';
 import type { PreloadedEventCall } from '../preloadBuffer/types';
+import type { ConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
 
 export interface IAnalytics {
   preloadBuffer: BufferQueue<PreloadedEventCall>;

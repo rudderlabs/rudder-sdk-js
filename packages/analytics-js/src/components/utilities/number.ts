@@ -18,6 +18,7 @@ const hasMinLength = (minimumLength: number, num: number) => num.toString().leng
  * @param num input value
  * @returns boolean
  */
-const isPositiveInteger = (num: any) => isNumber(num) && num >= 0 && Number.isInteger(num);
+const isPositiveInteger = (num: any): num is number =>
+  isNumber(num) && num >= 0 && Number.isInteger(num);
 
 export { isNumber, hasMinLength, isPositiveInteger };

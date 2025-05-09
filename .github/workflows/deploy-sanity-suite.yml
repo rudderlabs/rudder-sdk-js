@@ -9,6 +9,9 @@ on:
       use_pr_head_sha:
         type: string
         default: 'false'
+      beta_identifier:
+        type: string
+        required: false
     secrets:
       AWS_ACCOUNT_ID:
         required: true
@@ -75,6 +78,9 @@ jobs:
           elif [ "${{ inputs.environment }}" == "production" ]; then
             echo "SDK_CDN_VERSION_PATH_PREFIX=" >> $GITHUB_ENV
             echo "SUITE_CDN_PATH=" >> $GITHUB_ENV
+          elif [ "${{ inputs.environment }}" == "beta" ]; then
+            echo "SDK_CDN_VERSION_PATH_PREFIX=beta/${{ inputs.beta_identifier }}/" >> $GITHUB_ENV
+            echo "SUITE_CDN_PATH=/beta/${{ inputs.beta_identifier }}" >> $GITHUB_ENV
           else
             echo "SDK_CDN_VERSION_PATH_PREFIX=dev/latest/" >> $GITHUB_ENV
             echo "SUITE_CDN_PATH=/dev" >> $GITHUB_ENV
@@ -84,7 +90,7 @@ jobs:
         uses: unfor19/install-aws-cli-action@2ff7a6968c81b173eaaef188869215870f44902b  # master
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@ececac1a45f3b08a01d2dd070d28d111c5fe6722  # v4.1.0
+        uses: aws-actions/configure-aws-credentials@f24d7193d98baebaeacc7e2227925dd47cc267f5  # v4.2.0
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_S3_SYNC_ROLE }}
           aws-region: us-east-1
@@ -125,12 +131,12 @@ jobs:
 
       - name: Send message to Slack channel
         id: slack
-        uses: slackapi/slack-github-action@485a9d42d3a73031f12ec201c457e2162c45d02d  # v2.0.0
+        uses: slackapi/slack-github-action@b0fa283ad8fea605de13dc3f449259339835fc52  # v2.1.0
         continue-on-error: true
         env:
           PROJECT_NAME: 'Sanity suite - ${{ inputs.environment }}'
           CDN_URL: 'https://cdn.rudderlabs.com/sanity-suite${{ env.SUITE_CDN_PATH }}/v3/cdn/index.html'
-          LINK_TEXT: ${{ ((inputs.environment == 'development' && format('v{0} - Development', env.CURRENT_VERSION_VALUE)) || (inputs.environment == 'staging' && format('v{0} - Staging', env.CURRENT_VERSION_VALUE)) || format('v{0}', env.CURRENT_VERSION_VALUE)) }}
+          LINK_TEXT: ${{ ((inputs.environment == 'development' && format('v{0} - Development', env.CURRENT_VERSION_VALUE)) || (inputs.environment == 'staging' && format('v{0} - Staging', env.CURRENT_VERSION_VALUE)) || (inputs.environment == 'beta' && format('v{0} - Beta', env.CURRENT_VERSION_VALUE)) || format('v{0}', env.CURRENT_VERSION_VALUE)) }}
         with:
           method: chat.postMessage
           token: ${{ secrets.SLACK_BOT_TOKEN }}

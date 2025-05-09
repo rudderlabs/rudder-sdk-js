@@ -77,6 +77,7 @@ import * as CommandBar from './CommandBar';
 import * as Ninetailed from './Ninetailed';
 import * as XPixel from './XPixel';
 import * as Gainsight_PX from './Gainsight_PX';
+import * as Userpilot from './Userpilot';
 // the key names should match the destination.name value to keep parity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
 
@@ -160,6 +161,7 @@ const integrations = {
   NINETAILED: Ninetailed.default,
   XPIXEL: XPixel.default,
   GAINSIGHT_PX: Gainsight_PX.default,
+  USERPILOT: Userpilot.default,
 };
 
 export { integrations };

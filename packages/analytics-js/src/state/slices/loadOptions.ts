@@ -16,6 +16,9 @@ const defaultLoadOptions: LoadOptions = {
   sessions: {
     autoTrack: true,
     timeout: DEFAULT_SESSION_TIMEOUT_MS,
+    cutOff: {
+      enabled: false,
+    },
   },
   sameSiteCookie: 'Lax',
   polyfillIfRequired: true,

@@ -165,3 +165,5 @@ export const XPIXEL_NAME = 'XPIXEL';
 export const XPIXEL_DISPLAY_NAME = 'XPixel';
 export const YANDEX_METRICA_NAME = 'YANDEX_METRICA';
 export const YANDEX_METRICA_DISPLAY_NAME = 'Yandex.Metrica';
+export const USERPILOT_NAME = 'USERPILOT';
+export const USERPILOT_DISPLAY_NAME = 'Userpilot';

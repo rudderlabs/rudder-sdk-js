@@ -335,7 +335,7 @@ describe('Error Reporting utilities', () => {
         ],
       };
 
-      const bsErrorEvent = getBugsnagErrorEvent(exception, errorState, state);
+      const bsErrorEvent = getBugsnagErrorEvent(exception, errorState, state, 'dummy message');
 
       const expectedOutcome = {
         payloadVersion: '5',
@@ -396,6 +396,7 @@ describe('Error Reporting utilities', () => {
               },
             ],
             context: 'dummy message',
+            groupingHash: 'dummy message',
             metaData: {
               app: {
                 snippetVersion: 'sample_snippet_version',
@@ -501,6 +502,9 @@ describe('Error Reporting utilities', () => {
                 sessions: {
                   autoTrack: true,
                   timeout: 1800000,
+                  cutOff: {
+                    enabled: false,
+                  },
                 },
                 storage: {
                   cookie: {},
@@ -654,6 +658,7 @@ describe('Error Reporting utilities', () => {
       ['', true, 'should allow empty messages'],
     ];
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     test.each(testCases)('%s -> %s (%s)', (message, expected, testName) => {
       const result = isAllowedToBeNotified({ message } as unknown as Exception);
       expect(result).toBe(expected);

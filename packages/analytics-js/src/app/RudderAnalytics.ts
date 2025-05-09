@@ -12,7 +12,6 @@ import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import {
   PageLifecycleEvents,
   type AnonymousIdOptions,
-  type ConsentOptions,
   type LoadOptions,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
@@ -42,6 +41,7 @@ import { defaultCookieStorage } from '../services/StoreManager/storages/CookieSt
 import { defaultLocalStorage } from '../services/StoreManager/storages/LocalStorage';
 import { defaultSessionStorage } from '../services/StoreManager/storages/sessionStorage';
 import { defaultInMemoryStorage } from '../services/StoreManager/storages/InMemoryStorage';
+import type { ConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
 
 // TODO: add analytics restart/reset mechanism
 

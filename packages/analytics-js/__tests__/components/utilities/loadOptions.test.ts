@@ -561,39 +561,39 @@ describe('load API options', () => {
     describe('useGlobalIntegrationsConfigInEvents', () => {
       const testCaseData: any[] = [
         {
-          name: 'should consider false useGlobalIntegrationsConfigInEvents if it is a string',
+          name: 'should consider default value for useGlobalIntegrationsConfigInEvents if it is a string',
           input: { useGlobalIntegrationsConfigInEvents: 'Invalid' },
-          expected: { ...defaultLoadOptions, useGlobalIntegrationsConfigInEvents: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false useGlobalIntegrationsConfigInEvents if it is a number',
+          name: 'should consider default value for useGlobalIntegrationsConfigInEvents if it is a number',
           input: { useGlobalIntegrationsConfigInEvents: 123 },
-          expected: { ...defaultLoadOptions, useGlobalIntegrationsConfigInEvents: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false useGlobalIntegrationsConfigInEvents if it is an object',
+          name: 'should consider default value for useGlobalIntegrationsConfigInEvents if it is an object',
           input: { useGlobalIntegrationsConfigInEvents: { domain: 'rudderstack.com' } },
-          expected: { ...defaultLoadOptions, useGlobalIntegrationsConfigInEvents: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false useGlobalIntegrationsConfigInEvents if it is an array',
+          name: 'should consider default value for useGlobalIntegrationsConfigInEvents if it is an array',
           input: { useGlobalIntegrationsConfigInEvents: ['rudderstack.com'] },
-          expected: { ...defaultLoadOptions, useGlobalIntegrationsConfigInEvents: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false useGlobalIntegrationsConfigInEvents if it is a function',
+          name: 'should consider default value for useGlobalIntegrationsConfigInEvents if it is a function',
           input: { useGlobalIntegrationsConfigInEvents: () => {} },
-          expected: { ...defaultLoadOptions, useGlobalIntegrationsConfigInEvents: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false useGlobalIntegrationsConfigInEvents if it is a symbol',
+          name: 'should consider default value for useGlobalIntegrationsConfigInEvents if it is a symbol',
           input: { useGlobalIntegrationsConfigInEvents: Symbol('rudderstack.com') },
-          expected: { ...defaultLoadOptions, useGlobalIntegrationsConfigInEvents: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false useGlobalIntegrationsConfigInEvents if it is null',
+          name: 'should consider default value for useGlobalIntegrationsConfigInEvents if it is null',
           input: { useGlobalIntegrationsConfigInEvents: null },
-          expected: { ...defaultLoadOptions, useGlobalIntegrationsConfigInEvents: false },
+          expected: defaultLoadOptions,
         },
         {
           name: 'should ignore useGlobalIntegrationsConfigInEvents if it is undefined',
@@ -629,39 +629,39 @@ describe('load API options', () => {
     describe('bufferDataPlaneEventsUntilReady', () => {
       const testCaseData: any[] = [
         {
-          name: 'should consider false bufferDataPlaneEventsUntilReady if it is a string',
+          name: 'should consider default value for bufferDataPlaneEventsUntilReady if it is a string',
           input: { bufferDataPlaneEventsUntilReady: 'Invalid' },
-          expected: { ...defaultLoadOptions, bufferDataPlaneEventsUntilReady: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false bufferDataPlaneEventsUntilReady if it is a number',
+          name: 'should consider default value for bufferDataPlaneEventsUntilReady if it is a number',
           input: { bufferDataPlaneEventsUntilReady: 123 },
-          expected: { ...defaultLoadOptions, bufferDataPlaneEventsUntilReady: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false bufferDataPlaneEventsUntilReady if it is an object',
+          name: 'should consider default value for bufferDataPlaneEventsUntilReady if it is an object',
           input: { bufferDataPlaneEventsUntilReady: { domain: 'rudderstack.com' } },
-          expected: { ...defaultLoadOptions, bufferDataPlaneEventsUntilReady: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false bufferDataPlaneEventsUntilReady if it is an array',
+          name: 'should consider default value for bufferDataPlaneEventsUntilReady if it is an array',
           input: { bufferDataPlaneEventsUntilReady: ['rudderstack.com'] },
-          expected: { ...defaultLoadOptions, bufferDataPlaneEventsUntilReady: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false bufferDataPlaneEventsUntilReady if it is a function',
+          name: 'should consider default value for bufferDataPlaneEventsUntilReady if it is a function',
           input: { bufferDataPlaneEventsUntilReady: () => {} },
-          expected: { ...defaultLoadOptions, bufferDataPlaneEventsUntilReady: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false bufferDataPlaneEventsUntilReady if it is a symbol',
+          name: 'should consider default value for bufferDataPlaneEventsUntilReady if it is a symbol',
           input: { bufferDataPlaneEventsUntilReady: Symbol('rudderstack.com') },
-          expected: { ...defaultLoadOptions, bufferDataPlaneEventsUntilReady: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false bufferDataPlaneEventsUntilReady if it is null',
+          name: 'should consider default value for bufferDataPlaneEventsUntilReady if it is null',
           input: { bufferDataPlaneEventsUntilReady: null },
-          expected: { ...defaultLoadOptions, bufferDataPlaneEventsUntilReady: false },
+          expected: defaultLoadOptions,
         },
         {
           name: 'should ignore bufferDataPlaneEventsUntilReady if it is undefined',
@@ -697,39 +697,39 @@ describe('load API options', () => {
     describe('sendAdblockPage', () => {
       const testCaseData: any[] = [
         {
-          name: 'should consider false sendAdblockPage if it is a string',
+          name: 'should consider default value for sendAdblockPage if it is a string',
           input: { sendAdblockPage: 'Invalid' },
-          expected: { ...defaultLoadOptions, sendAdblockPage: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false sendAdblockPage if it is a number',
+          name: 'should consider default value for sendAdblockPage if it is a number',
           input: { sendAdblockPage: 123 },
-          expected: { ...defaultLoadOptions, sendAdblockPage: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false sendAdblockPage if it is an object',
+          name: 'should consider default value for sendAdblockPage if it is an object',
           input: { sendAdblockPage: { domain: 'rudderstack.com' } },
-          expected: { ...defaultLoadOptions, sendAdblockPage: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false sendAdblockPage if it is an array',
+          name: 'should consider default value for sendAdblockPage if it is an array',
           input: { sendAdblockPage: ['rudderstack.com'] },
-          expected: { ...defaultLoadOptions, sendAdblockPage: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false sendAdblockPage if it is a function',
+          name: 'should consider default value for sendAdblockPage if it is a function',
           input: { sendAdblockPage: () => {} },
-          expected: { ...defaultLoadOptions, sendAdblockPage: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false sendAdblockPage if it is a symbol',
+          name: 'should consider default value for sendAdblockPage if it is a symbol',
           input: { sendAdblockPage: Symbol('rudderstack.com') },
-          expected: { ...defaultLoadOptions, sendAdblockPage: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false sendAdblockPage if it is null',
+          name: 'should consider default value for sendAdblockPage if it is null',
           input: { sendAdblockPage: null },
-          expected: { ...defaultLoadOptions, sendAdblockPage: false },
+          expected: defaultLoadOptions,
         },
         {
           name: 'should ignore sendAdblockPage if it is undefined',
@@ -831,39 +831,39 @@ describe('load API options', () => {
     describe('useServerSideCookies', () => {
       const testCaseData: any[] = [
         {
-          name: 'should consider false useServerSideCookies if it is a string',
+          name: 'should consider default value for useServerSideCookies if it is a string',
           input: { useServerSideCookies: 'Invalid' },
-          expected: { ...defaultLoadOptions, useServerSideCookies: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false useServerSideCookies if it is a number',
+          name: 'should consider default value for useServerSideCookies if it is a number',
           input: { useServerSideCookies: 123 },
-          expected: { ...defaultLoadOptions, useServerSideCookies: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false useServerSideCookies if it is an object',
+          name: 'should consider default value for useServerSideCookies if it is an object',
           input: { useServerSideCookies: { domain: 'rudderstack.com' } },
-          expected: { ...defaultLoadOptions, useServerSideCookies: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false useServerSideCookies if it is an array',
+          name: 'should consider default value for useServerSideCookies if it is an array',
           input: { useServerSideCookies: ['rudderstack.com'] },
-          expected: { ...defaultLoadOptions, useServerSideCookies: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false useServerSideCookies if it is a function',
+          name: 'should consider default value for useServerSideCookies if it is a function',
           input: { useServerSideCookies: () => {} },
-          expected: { ...defaultLoadOptions, useServerSideCookies: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false useServerSideCookies if it is a symbol',
+          name: 'should consider default value for useServerSideCookies if it is a symbol',
           input: { useServerSideCookies: Symbol('rudderstack.com') },
-          expected: { ...defaultLoadOptions, useServerSideCookies: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false useServerSideCookies if it is null',
+          name: 'should consider default value for useServerSideCookies if it is null',
           input: { useServerSideCookies: null },
-          expected: { ...defaultLoadOptions, useServerSideCookies: false },
+          expected: defaultLoadOptions,
         },
         {
           name: 'should ignore useServerSideCookies if it is undefined',
@@ -959,39 +959,39 @@ describe('load API options', () => {
     describe('loadIntegration', () => {
       const testCaseData: any[] = [
         {
-          name: 'should consider false loadIntegration if it is a string',
+          name: 'should consider default value for loadIntegration if it is a string',
           input: { loadIntegration: 'Invalid' },
-          expected: { ...defaultLoadOptions, loadIntegration: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false loadIntegration if it is a number',
+          name: 'should consider default value for loadIntegration if it is a number',
           input: { loadIntegration: 123 },
-          expected: { ...defaultLoadOptions, loadIntegration: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false loadIntegration if it is an object',
+          name: 'should consider default value for loadIntegration if it is an object',
           input: { loadIntegration: { domain: 'rudderstack.com' } },
-          expected: { ...defaultLoadOptions, loadIntegration: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false loadIntegration if it is an array',
+          name: 'should consider default value for loadIntegration if it is an array',
           input: { loadIntegration: ['rudderstack.com'] },
-          expected: { ...defaultLoadOptions, loadIntegration: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false loadIntegration if it is a function',
+          name: 'should consider default value for loadIntegration if it is a function',
           input: { loadIntegration: () => {} },
-          expected: { ...defaultLoadOptions, loadIntegration: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false loadIntegration if it is a symbol',
+          name: 'should consider default value for loadIntegration if it is a symbol',
           input: { loadIntegration: Symbol('rudderstack.com') },
-          expected: { ...defaultLoadOptions, loadIntegration: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false loadIntegration if it is null',
+          name: 'should consider default value for loadIntegration if it is null',
           input: { loadIntegration: null },
-          expected: { ...defaultLoadOptions, loadIntegration: false },
+          expected: defaultLoadOptions,
         },
         {
           name: 'should ignore loadIntegration if it is undefined',
@@ -1228,34 +1228,34 @@ describe('load API options', () => {
     describe('lockIntegrationsVersion', () => {
       const testCaseData: any[] = [
         {
-          name: 'should consider false lockIntegrationsVersion if it is a number',
+          name: 'should consider default value for lockIntegrationsVersion if it is a number',
           input: { lockIntegrationsVersion: 123 },
-          expected: { ...defaultLoadOptions, lockIntegrationsVersion: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false lockIntegrationsVersion if it is a string',
+          name: 'should consider default value for lockIntegrationsVersion if it is a string',
           input: { lockIntegrationsVersion: 'Invalid' },
-          expected: { ...defaultLoadOptions, lockIntegrationsVersion: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false lockIntegrationsVersion if it is an array',
+          name: 'should consider default value for lockIntegrationsVersion if it is an array',
           input: { lockIntegrationsVersion: ['rudderstack.com'] },
-          expected: { ...defaultLoadOptions, lockIntegrationsVersion: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false lockIntegrationsVersion if it is a function',
+          name: 'should consider default value for lockIntegrationsVersion if it is a function',
           input: { lockIntegrationsVersion: () => {} },
-          expected: { ...defaultLoadOptions, lockIntegrationsVersion: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false lockIntegrationsVersion if it is a symbol',
+          name: 'should consider default value for lockIntegrationsVersion if it is a symbol',
           input: { lockIntegrationsVersion: Symbol('rudderstack.com') },
-          expected: { ...defaultLoadOptions, lockIntegrationsVersion: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false lockIntegrationsVersion if it is null',
+          name: 'should consider default value for lockIntegrationsVersion if it is null',
           input: { lockIntegrationsVersion: null },
-          expected: { ...defaultLoadOptions, lockIntegrationsVersion: false },
+          expected: defaultLoadOptions,
         },
         {
           name: 'should ignore lockIntegrationsVersion if it is undefined',
@@ -1291,34 +1291,34 @@ describe('load API options', () => {
     describe('lockPluginsVersion', () => {
       const testCaseData: any[] = [
         {
-          name: 'should consider false lockPluginsVersion if it is a number',
+          name: 'should consider default value for lockPluginsVersion if it is a number',
           input: { lockPluginsVersion: 123 },
-          expected: { ...defaultLoadOptions, lockPluginsVersion: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false lockPluginsVersion if it is a string',
+          name: 'should consider default value for lockPluginsVersion if it is a string',
           input: { lockPluginsVersion: 'Invalid' },
-          expected: { ...defaultLoadOptions, lockPluginsVersion: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false lockPluginsVersion if it is an array',
+          name: 'should consider default value for lockPluginsVersion if it is an array',
           input: { lockPluginsVersion: ['rudderstack.com'] },
-          expected: { ...defaultLoadOptions, lockPluginsVersion: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false lockPluginsVersion if it is a function',
+          name: 'should consider default value for lockPluginsVersion if it is a function',
           input: { lockPluginsVersion: () => {} },
-          expected: { ...defaultLoadOptions, lockPluginsVersion: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false lockPluginsVersion if it is a symbol',
+          name: 'should consider default value for lockPluginsVersion if it is a symbol',
           input: { lockPluginsVersion: Symbol('rudderstack.com') },
-          expected: { ...defaultLoadOptions, lockPluginsVersion: false },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false lockPluginsVersion if it is null',
+          name: 'should consider default value for lockPluginsVersion if it is null',
           input: { lockPluginsVersion: null },
-          expected: { ...defaultLoadOptions, lockPluginsVersion: false },
+          expected: defaultLoadOptions,
         },
         {
           name: 'should ignore lockPluginsVersion if it is undefined',
@@ -1524,100 +1524,56 @@ describe('load API options', () => {
           },
         },
         {
-          name: 'should consider false for storage.migrate if it is a string',
+          name: 'should consider default value for storage.migrate if it is a string',
           input: { storage: { migrate: 'Invalid' } },
-          expected: {
-            ...defaultLoadOptions,
-            storage: {
-              cookie: defaultLoadOptions.storage?.cookie,
-              migrate: false,
-              encryption: defaultLoadOptions.storage?.encryption,
-            },
-          },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false for storage.migrate if it is a number',
+          name: 'should consider default value for storage.migrate if it is a number',
           input: { storage: { migrate: 123 } },
-          expected: {
-            ...defaultLoadOptions,
-            storage: {
-              cookie: defaultLoadOptions.storage?.cookie,
-              migrate: false,
-              encryption: defaultLoadOptions.storage?.encryption,
-            },
-          },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false for storage.migrate if it is a boolean',
+          name: 'should consider the value for storage.migrate if it is a boolean',
           input: { storage: { migrate: true } },
+          expected: defaultLoadOptions,
+        },
+        {
+          name: 'should consider the value for storage.migrate if it is a boolean (false)',
+          input: { storage: { migrate: false } },
           expected: {
             ...defaultLoadOptions,
             storage: {
               cookie: defaultLoadOptions.storage?.cookie,
-              migrate: true,
+              migrate: false,
               encryption: defaultLoadOptions.storage?.encryption,
             },
           },
         },
         {
-          name: 'should consider false for storage.migrate if it is an object',
+          name: 'should consider default value for storage.migrate if it is an object',
           input: { storage: { migrate: { domain: 'rudderstack.com' } } },
-          expected: {
-            ...defaultLoadOptions,
-            storage: {
-              cookie: defaultLoadOptions.storage?.cookie,
-              migrate: false,
-              encryption: defaultLoadOptions.storage?.encryption,
-            },
-          },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false for storage.migrate if it is an array',
+          name: 'should consider default value for storage.migrate if it is an array',
           input: { storage: { migrate: ['rudderstack.com'] } },
-          expected: {
-            ...defaultLoadOptions,
-            storage: {
-              cookie: defaultLoadOptions.storage?.cookie,
-              migrate: false,
-              encryption: defaultLoadOptions.storage?.encryption,
-            },
-          },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false for storage.migrate if it is a function',
+          name: 'should consider default value for storage.migrate if it is a function',
           input: { storage: { migrate: () => {} } },
-          expected: {
-            ...defaultLoadOptions,
-            storage: {
-              cookie: defaultLoadOptions.storage?.cookie,
-              migrate: false,
-              encryption: defaultLoadOptions.storage?.encryption,
-            },
-          },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false for storage.migrate if it is a symbol',
+          name: 'should consider default value for storage.migrate if it is a symbol',
           input: { storage: { migrate: Symbol('rudderstack.com') } },
-          expected: {
-            ...defaultLoadOptions,
-            storage: {
-              cookie: defaultLoadOptions.storage?.cookie,
-              migrate: false,
-              encryption: defaultLoadOptions.storage?.encryption,
-            },
-          },
+          expected: defaultLoadOptions,
         },
         {
-          name: 'should consider false for storage.migrate if it is null',
+          name: 'should consider default value for storage.migrate if it is null',
           input: { storage: { migrate: null } },
-          expected: {
-            ...defaultLoadOptions,
-            storage: {
-              cookie: defaultLoadOptions.storage?.cookie,
-              migrate: false,
-              encryption: defaultLoadOptions.storage?.encryption,
-            },
-          },
+          expected: defaultLoadOptions,
         },
         {
           name: 'should ignore storage.migrate if it is undefined',

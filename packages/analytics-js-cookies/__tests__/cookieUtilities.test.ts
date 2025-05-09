@@ -223,7 +223,9 @@ describe('Cookie Utilities', () => {
       expect(consoleErrorSpy).toHaveBeenNthCalledWith(
         1,
         'Error occurred during decryption: ',
-        new SyntaxError('Unexpected non-whitespace character after JSON at position 11'),
+        new SyntaxError(
+          'Unexpected non-whitespace character after JSON at position 11 (line 1 column 12)',
+        ),
       );
 
       consoleErrorSpy.mockRestore();

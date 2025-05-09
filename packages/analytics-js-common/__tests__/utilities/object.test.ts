@@ -465,14 +465,6 @@ describe('Common Utils - Object', () => {
   describe('getNormalizedBooleanValue', () => {
     const tcData = [
       {
-        input: [true, undefined],
-        output: true,
-      },
-      {
-        input: [false, undefined],
-        output: false,
-      },
-      {
         input: [undefined, true],
         output: true,
       },
@@ -485,11 +477,15 @@ describe('Common Utils - Object', () => {
         output: true,
       },
       {
-        input: [false, true],
+        input: [true, true],
+        output: true,
+      },
+      {
+        input: [false, false],
         output: false,
       },
       {
-        input: [undefined, undefined],
+        input: [false, true],
         output: false,
       },
       {
@@ -498,11 +494,7 @@ describe('Common Utils - Object', () => {
       },
       {
         input: [{}, true],
-        output: false,
-      },
-      {
-        input: [{}, undefined],
-        output: false,
+        output: true,
       },
       {
         input: [[], false],
@@ -510,11 +502,7 @@ describe('Common Utils - Object', () => {
       },
       {
         input: [[], true],
-        output: false,
-      },
-      {
-        input: [[], undefined],
-        output: false,
+        output: true,
       },
       {
         input: ['string', false],
@@ -522,11 +510,7 @@ describe('Common Utils - Object', () => {
       },
       {
         input: ['string', true],
-        output: false,
-      },
-      {
-        input: ['string', undefined],
-        output: false,
+        output: true,
       },
       {
         input: [123456, false],
@@ -534,11 +518,7 @@ describe('Common Utils - Object', () => {
       },
       {
         input: [123456, true],
-        output: false,
-      },
-      {
-        input: [123456, undefined],
-        output: false,
+        output: true,
       },
       {
         input: [new Date(), false],
@@ -546,11 +526,7 @@ describe('Common Utils - Object', () => {
       },
       {
         input: [new Date(), true],
-        output: false,
-      },
-      {
-        input: [new Date(), undefined],
-        output: false,
+        output: true,
       },
     ];
 

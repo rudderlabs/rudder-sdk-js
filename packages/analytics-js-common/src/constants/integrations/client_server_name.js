@@ -80,6 +80,7 @@ const clientToServerNames = {
   NINETAILED: 'Ninetailed',
   XPIXEL: 'XPixel',
   GAINSIGHT_PX: 'Gainsight PX',
+  USERPILOT: 'Userpilot',
 };
 
 export { clientToServerNames };

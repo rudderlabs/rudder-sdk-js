@@ -172,6 +172,20 @@ const TIMEOUT_NOT_NUMBER_WARNING = (
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The session timeout value "${timeout}" is not a number. The default timeout of ${defaultValue} ms will be used instead.`;
 
+const CUT_OFF_DURATION_NOT_NUMBER_WARNING = (
+  context: string,
+  cutOffDuration: number | undefined,
+  defaultValue: number,
+): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The session cut off duration value "${cutOffDuration}" is not a number. The default cut off duration of ${defaultValue} ms will be used instead.`;
+
+const CUT_OFF_DURATION_LESS_THAN_TIMEOUT_WARNING = (
+  context: string,
+  cutOffDuration: number,
+  timeout: number,
+): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The session cut off duration value "${cutOffDuration}" ms is less than the session timeout value "${timeout}" ms. The cut off functionality will be disabled.`;
+
 const TIMEOUT_ZERO_WARNING = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The session timeout value is 0, which disables the automatic session tracking feature. If you want to enable session tracking, please provide a positive integer value for the timeout.`;
 
@@ -311,4 +325,6 @@ export {
   CALLBACK_INVOKE_ERROR,
   UNKNOWN_PLUGINS_WARNING,
   INVALID_CALLBACK_FN_ERROR,
+  CUT_OFF_DURATION_NOT_NUMBER_WARNING,
+  CUT_OFF_DURATION_LESS_THAN_TIMEOUT_WARNING,
 };

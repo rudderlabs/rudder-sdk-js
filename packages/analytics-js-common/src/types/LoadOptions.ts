@@ -19,9 +19,15 @@ export type AnonymousIdOptions = {
   };
 };
 
+export type SessionCutOffOptions = {
+  enabled: boolean;
+  duration?: number;
+};
+
 export type SessionOpts = {
   autoTrack?: boolean; // Defaults to true
   timeout?: number; // Defaults to 30 minutes
+  cutOff?: SessionCutOffOptions; // Disabled by default
 };
 
 export type EventMapping = {
@@ -173,13 +179,4 @@ export type LoadOptions = {
   useServerSideCookies?: boolean;
   dataServiceEndpoint?: string;
   autoTrack?: AutoTrackOptions;
-};
-
-export type ConsentOptions = {
-  storage?: StorageOpts;
-  consentManagement?: ConsentManagementOptions;
-  integrations?: IntegrationOpts;
-  discardPreConsentEvents?: boolean;
-  sendPageEvent?: boolean;
-  trackConsent?: boolean;
 };

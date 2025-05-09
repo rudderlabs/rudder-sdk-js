@@ -34,12 +34,12 @@ const normalizeLoadOptions = (
 
   normalizedLoadOpts.secureCookie = getNormalizedBooleanValue(
     normalizedLoadOpts.secureCookie,
-    loadOptionsFromState.secureCookie,
+    loadOptionsFromState.secureCookie!,
   );
 
   normalizedLoadOpts.sameDomainCookiesOnly = getNormalizedBooleanValue(
     normalizedLoadOpts.sameDomainCookiesOnly,
-    loadOptionsFromState.sameDomainCookiesOnly,
+    loadOptionsFromState.sameDomainCookiesOnly!,
   );
 
   const uaChTrackLevels = ['none', 'default', 'full'];
@@ -55,22 +55,22 @@ const normalizeLoadOptions = (
 
   normalizedLoadOpts.useGlobalIntegrationsConfigInEvents = getNormalizedBooleanValue(
     normalizedLoadOpts.useGlobalIntegrationsConfigInEvents,
-    loadOptionsFromState.useGlobalIntegrationsConfigInEvents,
+    loadOptionsFromState.useGlobalIntegrationsConfigInEvents!,
   );
 
   normalizedLoadOpts.bufferDataPlaneEventsUntilReady = getNormalizedBooleanValue(
     normalizedLoadOpts.bufferDataPlaneEventsUntilReady,
-    loadOptionsFromState.bufferDataPlaneEventsUntilReady,
+    loadOptionsFromState.bufferDataPlaneEventsUntilReady!,
   );
 
   normalizedLoadOpts.sendAdblockPage = getNormalizedBooleanValue(
     normalizedLoadOpts.sendAdblockPage,
-    loadOptionsFromState.sendAdblockPage,
+    loadOptionsFromState.sendAdblockPage!,
   );
 
   normalizedLoadOpts.useServerSideCookies = getNormalizedBooleanValue(
     normalizedLoadOpts.useServerSideCookies,
-    loadOptionsFromState.useServerSideCookies,
+    loadOptionsFromState.useServerSideCookies!,
   );
 
   if (!isString(normalizedLoadOpts.dataServiceEndpoint)) {
@@ -83,7 +83,7 @@ const normalizeLoadOptions = (
 
   normalizedLoadOpts.loadIntegration = getNormalizedBooleanValue(
     normalizedLoadOpts.loadIntegration,
-    loadOptionsFromState.loadIntegration,
+    loadOptionsFromState.loadIntegration!,
   );
 
   if (!isNonEmptyObject(normalizedLoadOpts.storage)) {
@@ -91,7 +91,7 @@ const normalizeLoadOptions = (
   } else {
     normalizedLoadOpts.storage.migrate = getNormalizedBooleanValue(
       normalizedLoadOpts.storage.migrate,
-      loadOptionsFromState.storage?.migrate,
+      loadOptionsFromState.storage?.migrate!,
     );
 
     normalizedLoadOpts.storage.cookie = getNormalizedObjectValue(normalizedLoadOpts.storage.cookie);
@@ -109,12 +109,12 @@ const normalizeLoadOptions = (
 
   normalizedLoadOpts.lockIntegrationsVersion = getNormalizedBooleanValue(
     normalizedLoadOpts.lockIntegrationsVersion,
-    loadOptionsFromState.lockIntegrationsVersion,
+    loadOptionsFromState.lockIntegrationsVersion!,
   );
 
   normalizedLoadOpts.lockPluginsVersion = getNormalizedBooleanValue(
     normalizedLoadOpts.lockPluginsVersion,
-    loadOptionsFromState.lockPluginsVersion,
+    loadOptionsFromState.lockPluginsVersion!,
   );
 
   if (!isNumber(normalizedLoadOpts.dataPlaneEventsBufferTimeout)) {

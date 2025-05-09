@@ -34,7 +34,6 @@ module.exports = {
       'ts-jest',
       {
         diagnostics: false,
-        isolatedModules: true,
         sourceMap: true,
         inlineSourceMap: true,
         tsconfig: '<rootDir>/tsconfig.spec.json',

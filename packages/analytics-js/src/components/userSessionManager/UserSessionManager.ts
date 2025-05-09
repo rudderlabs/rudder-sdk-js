@@ -41,11 +41,16 @@ import {
   USER_SESSION_KEYS,
 } from '../../constants/storage';
 import { storageClientDataStoreNameMap } from '../../services/StoreManager/types';
-import { DEFAULT_SESSION_TIMEOUT_MS, MIN_SESSION_TIMEOUT_MS } from '../../constants/timeouts';
-import { defaultSessionConfiguration } from '../../state/slices/session';
+import {
+  DEFAULT_SESSION_CUT_OFF_DURATION_MS,
+  DEFAULT_SESSION_TIMEOUT_MS,
+  MIN_SESSION_TIMEOUT_MS,
+} from '../../constants/timeouts';
 import { state } from '../../state';
 import { getStorageEngine } from '../../services/StoreManager/storages';
 import {
+  CUT_OFF_DURATION_LESS_THAN_TIMEOUT_WARNING,
+  CUT_OFF_DURATION_NOT_NUMBER_WARNING,
   DATA_SERVER_REQUEST_FAIL_ERROR,
   FAILED_SETTING_COOKIE_FROM_SERVER_ERROR,
   FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR,
@@ -57,7 +62,9 @@ import {
   generateAnonymousId,
   generateAutoTrackingSession,
   generateManualTrackingSession,
+  getCutOffExpirationTimestamp,
   hasSessionExpired,
+  isCutOffTimeExceeded,
   isStorageTypeValidForStoringData,
 } from './utils';
 import { getReferringDomain } from '../utilities/url';
@@ -130,20 +137,33 @@ class UserSessionManager implements IUserSessionManager {
   }
 
   configureSessionTracking() {
-    let sessionInfo = this.getSessionInfo();
+    let sessionInfo;
     if (this.isPersistenceEnabledForStorageEntry('sessionInfo')) {
       const configuredSessionTrackingInfo = this.getConfiguredSessionTrackingInfo();
-      const initialSessionInfo = sessionInfo ?? defaultSessionConfiguration;
+      const initialSessionInfo = this.getSessionInfo() ?? DEFAULT_USER_SESSION_VALUES.sessionInfo;
+
+      // Merge the session info from the storage and the configuration
       sessionInfo = {
-        ...initialSessionInfo,
-        ...configuredSessionTrackingInfo,
-        // If manualTrack is set to true in the storage, then autoTrack should be false
+        // If manualTrack is set to true in the storage, then do not enable auto tracking even if configured.
+        // Once manual tracking ends (endSession is called), auto tracking will be enabled in the next SDK run.
         autoTrack:
           configuredSessionTrackingInfo.autoTrack && initialSessionInfo.manualTrack !== true,
-      };
+        timeout: configuredSessionTrackingInfo.timeout,
+        manualTrack: initialSessionInfo.manualTrack,
+        expiresAt: initialSessionInfo.expiresAt,
+        id: initialSessionInfo.id,
+        sessionStart: initialSessionInfo.sessionStart,
+      } as SessionInfo;
+
       // If both autoTrack and manualTrack are disabled, reset the session info to default values
       if (!sessionInfo.autoTrack && sessionInfo.manualTrack !== true) {
         sessionInfo = DEFAULT_USER_SESSION_VALUES.sessionInfo;
+      } else if (configuredSessionTrackingInfo.cutOff?.enabled === true) {
+        sessionInfo.cutOff = {
+          enabled: true,
+          duration: configuredSessionTrackingInfo.cutOff.duration,
+          expiresAt: initialSessionInfo.cutOff?.expiresAt,
+        };
       }
     } else {
       sessionInfo = DEFAULT_USER_SESSION_VALUES.sessionInfo;
@@ -247,7 +267,7 @@ class UserSessionManager implements IUserSessionManager {
   }
 
   getConfiguredSessionTrackingInfo(): SessionInfo {
-    let autoTrack = state.loadOptions.value.sessions?.autoTrack !== false;
+    let autoTrack = state.loadOptions.value.sessions!.autoTrack !== false;
 
     // Do not validate any further if autoTrack is disabled
     if (!autoTrack) {
@@ -268,7 +288,7 @@ class UserSessionManager implements IUserSessionManager {
       );
       timeout = DEFAULT_SESSION_TIMEOUT_MS;
     } else {
-      timeout = configuredSessionTimeout as number;
+      timeout = configuredSessionTimeout;
     }
 
     if (timeout === 0) {
@@ -282,7 +302,42 @@ class UserSessionManager implements IUserSessionManager {
         TIMEOUT_NOT_RECOMMENDED_WARNING(USER_SESSION_MANAGER, timeout, MIN_SESSION_TIMEOUT_MS),
       );
     }
-    return { timeout, autoTrack };
+
+    const cutOff = this.getCutOffInfo(timeout);
+
+    return { timeout, autoTrack, cutOff };
+  }
+
+  private getCutOffInfo(sessionTimeout: number): SessionInfo['cutOff'] {
+    const cutOff = state.loadOptions.value.sessions!.cutOff!;
+    let cutOffDuration;
+    let cutOffEnabled = false;
+    if (cutOff.enabled === true) {
+      cutOffDuration = cutOff.duration;
+      cutOffEnabled = true;
+      if (!isPositiveInteger(cutOffDuration)) {
+        this.logger.warn(
+          CUT_OFF_DURATION_NOT_NUMBER_WARNING(
+            USER_SESSION_MANAGER,
+            cutOffDuration,
+            DEFAULT_SESSION_CUT_OFF_DURATION_MS,
+          ),
+        );
+
+        // Use the default value for cut off duration
+        cutOffDuration = DEFAULT_SESSION_CUT_OFF_DURATION_MS;
+      } else if (cutOffDuration < sessionTimeout) {
+        this.logger.warn(
+          CUT_OFF_DURATION_LESS_THAN_TIMEOUT_WARNING(
+            USER_SESSION_MANAGER,
+            cutOffDuration,
+            sessionTimeout,
+          ),
+        );
+        cutOffEnabled = false;
+      }
+    }
+    return { enabled: cutOffEnabled, duration: cutOffDuration };
   }
 
   /**
@@ -614,10 +669,7 @@ class UserSessionManager implements IUserSessionManager {
    */
   getSessionId(): Nullable<number> {
     const sessionInfo = this.getSessionInfo() ?? DEFAULT_USER_SESSION_VALUES.sessionInfo;
-    if (
-      (sessionInfo.autoTrack && !hasSessionExpired(sessionInfo.expiresAt)) ||
-      sessionInfo.manualTrack
-    ) {
+    if ((sessionInfo.autoTrack && !hasSessionExpired(sessionInfo)) || sessionInfo.manualTrack) {
       return sessionInfo.id ?? null;
     }
     return null;
@@ -673,7 +725,7 @@ class UserSessionManager implements IUserSessionManager {
    */
   reset(resetAnonymousId?: boolean, noNewSessionStart?: boolean) {
     const { session } = state;
-    const { manualTrack, autoTrack } = session.sessionInfo.value;
+    const { manualTrack, autoTrack, timeout, cutOff } = session.sessionInfo.value;
 
     batch(() => {
       session.userId.value = DEFAULT_USER_SESSION_VALUES.userId;
@@ -692,7 +744,20 @@ class UserSessionManager implements IUserSessionManager {
       }
 
       if (autoTrack) {
-        session.sessionInfo.value = DEFAULT_USER_SESSION_VALUES.sessionInfo;
+        const sessionInfo = {
+          ...DEFAULT_USER_SESSION_VALUES.sessionInfo,
+          timeout,
+        };
+
+        if (cutOff) {
+          sessionInfo.cutOff = {
+            enabled: cutOff.enabled,
+            duration: cutOff.duration,
+          };
+        }
+
+        session.sessionInfo.value = sessionInfo;
+
         this.startOrRenewAutoTracking(session.sessionInfo.value);
       } else if (manualTrack) {
         this.startManualTrackingInternal();
@@ -776,15 +841,30 @@ class UserSessionManager implements IUserSessionManager {
    * A function to check for existing session details and depending on that create a new session
    */
   startOrRenewAutoTracking(sessionInfo: SessionInfo) {
-    if (hasSessionExpired(sessionInfo.expiresAt)) {
-      state.session.sessionInfo.value = generateAutoTrackingSession(sessionInfo.timeout);
+    let finalSessionInfo = sessionInfo;
+    if (hasSessionExpired(sessionInfo)) {
+      finalSessionInfo = generateAutoTrackingSession(sessionInfo);
     } else {
       const timestamp = Date.now();
       const timeout = sessionInfo.timeout as number;
-      state.session.sessionInfo.value = mergeDeepRight(sessionInfo, {
-        expiresAt: timestamp + timeout, // set the expiry time of the session
-      });
+
+      // Set the expiry time of the session
+      finalSessionInfo.expiresAt = timestamp + timeout;
     }
+
+    // Reset cut off expiry timestamp if it is exceeded
+    if (isCutOffTimeExceeded(finalSessionInfo)) {
+      finalSessionInfo.cutOff!.expiresAt = undefined;
+    }
+
+    // If cut off is active, set or retain the expiry time
+    if (finalSessionInfo.cutOff) {
+      const cutOffExpiresAt = getCutOffExpirationTimestamp(finalSessionInfo.cutOff);
+      finalSessionInfo.cutOff.expiresAt = cutOffExpiresAt;
+    }
+
+    // Update the session info in the state
+    state.session.sessionInfo.value = finalSessionInfo;
   }
 
   /**

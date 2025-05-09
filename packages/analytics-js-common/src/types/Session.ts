@@ -5,4 +5,9 @@ export type SessionInfo = {
   expiresAt?: number;
   id?: number;
   sessionStart?: boolean;
+  cutOff?: {
+    enabled?: boolean;
+    duration?: number;
+    expiresAt?: number;
+  };
 };

@@ -98,6 +98,7 @@ const getBugsnagErrorEvent = (
   exception: Exception,
   errorState: ErrorState,
   state: ApplicationState,
+  groupingHash?: string,
 ): ErrorEventPayload => {
   const { context, lifecycle, session, source, reporting, autoTrack } = state;
   const { app, locale, userAgent, timezone, screen, library } = context;
@@ -127,6 +128,7 @@ const getBugsnagErrorEvent = (
         },
         breadcrumbs: clone(reporting.breadcrumbs.value),
         context: exception.message,
+        groupingHash,
         metaData: {
           app: {
             snippetVersion: library.value.snippetVersion,
