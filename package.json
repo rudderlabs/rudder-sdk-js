@@ -170,7 +170,7 @@
     "jest-watch-typeahead": "2.2.2",
     "join-component": "1.1.0",
     "jscpd": "4.0.5",
-    "lint-staged": "15.5.2",
+    "lint-staged": "16.0.0",
     "madge": "8.0.0",
     "msw": "2.8.2",
     "nx": "21.0.3",
