@@ -6,7 +6,7 @@ import type { ApiCallback, ReadyCallback, Traits } from './EventApi';
 import type { BufferedEvent } from './Event';
 import type { LifecycleStatus } from './ApplicationLifecycle';
 import type { LogLevel } from './Logger';
-import type { ConsentOptions, LoadOptions, PreConsentOptions } from './LoadOptions';
+import type { LoadOptions, PreConsentOptions } from './LoadOptions';
 import type { Destination } from './Destination';
 import type { IntegrationOpts } from './Integration';
 import type { SessionInfo } from './Session';
@@ -15,6 +15,7 @@ import type { ApiObject } from './ApiObject';
 import type {
   ConsentManagementMetadata,
   ConsentManagementProvider,
+  ConsentOptions,
   ConsentResolutionStrategy,
   ConsentsInfo,
 } from './Consent';

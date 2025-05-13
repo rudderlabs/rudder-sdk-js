@@ -27,6 +27,9 @@ on:
       use_pr_head_sha:
         type: string
         default: 'false'
+      version_suffix:
+        type: string
+        default: ''
     secrets:
       AWS_ACCOUNT_ID:
         required: true
@@ -69,7 +72,7 @@ jobs:
         uses: unfor19/install-aws-cli-action@2ff7a6968c81b173eaaef188869215870f44902b  # master
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@ececac1a45f3b08a01d2dd070d28d111c5fe6722  # v4.1.0
+        uses: aws-actions/configure-aws-credentials@f24d7193d98baebaeacc7e2227925dd47cc267f5  # v4.2.0
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_S3_SYNC_ROLE }}
           aws-region: us-east-1
@@ -89,6 +92,24 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ steps.getSHA.outputs.SHA }}
+
+      - name: Modify package versions
+        if: ${{ inputs.version_suffix != '' }}
+        run: |
+          CURRENT_VERSION_JS=$(jq -r .version packages/analytics-js/package.json)
+          CURRENT_VERSION_V1=$(jq -r .version packages/analytics-v1.1/package.json)
+          
+          # Append the suffix to create new versions
+          NEW_VERSION_JS="${CURRENT_VERSION_JS}-${{ inputs.version_suffix }}"
+          NEW_VERSION_V1="${CURRENT_VERSION_V1}-${{ inputs.version_suffix }}"
+          
+          echo "Updating versions:"
+          echo "analytics-js: $CURRENT_VERSION_JS -> $NEW_VERSION_JS"
+          echo "analytics-v1.1: $CURRENT_VERSION_V1 -> $NEW_VERSION_V1"
+          
+          # Update all package.json files using jq
+          jq ".version = \"$NEW_VERSION_JS\"" packages/analytics-js/package.json > tmp && mv tmp packages/analytics-js/package.json
+          jq ".version = \"$NEW_VERSION_V1\"" packages/analytics-v1.1/package.json > tmp && mv tmp packages/analytics-v1.1/package.json
 
       - name: Get new versions
         run: |
@@ -255,7 +276,7 @@ jobs:
       - name: Send message to Slack channel
         id: slack
         continue-on-error: true
-        uses: slackapi/slack-github-action@485a9d42d3a73031f12ec201c457e2162c45d02d  # v2.0.0
+        uses: slackapi/slack-github-action@b0fa283ad8fea605de13dc3f449259339835fc52  # v2.1.0
         env:
           PROJECT_NAME: ${{ format('JS SDK Browser Package {0} - {1}', inputs.action_type, inputs.environment) }}
           CDN_URL: ${{ format('https://cdn.rudderlabs.com/{0}/modern/rsa.min.js', inputs.s3_dir_path) }}

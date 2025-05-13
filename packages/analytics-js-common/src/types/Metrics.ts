@@ -24,7 +24,10 @@ export type ErrorEventPayload = {
   events: ErrorEvent[];
 };
 
-export type ErrorEvent = Pick<Event, 'severity' | 'app' | 'device' | 'request' | 'context'> & {
+export type ErrorEvent = Pick<
+  Event,
+  'severity' | 'app' | 'device' | 'request' | 'context' | 'groupingHash'
+> & {
   exceptions: Exception[];
   unhandled: boolean;
   severityReason: { type: string };

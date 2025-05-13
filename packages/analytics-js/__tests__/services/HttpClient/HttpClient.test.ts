@@ -169,7 +169,7 @@ describe('HttpClient', () => {
       expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
       expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
         new SyntaxError(
-          "Failed to parse response data: Expected property name or '}' in JSON at position 1",
+          "Failed to parse response data: Expected property name or '}' in JSON at position 1 (line 1 column 2)",
         ),
         'HttpClient',
       );

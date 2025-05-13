@@ -9,7 +9,6 @@ export {
   type BeaconQueueOpts,
   type DestinationsQueueOpts,
   type UaChTrackLevel,
-  type ConsentOptions,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 export { type CookieSameSite } from '@rudderstack/analytics-js-common/types/Storage';
 export { type ApiCallback, type ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
@@ -23,7 +22,7 @@ export {
   type PreloadedEventCall,
 } from './components/preloadBuffer/types';
 export { RudderAnalytics } from './app/RudderAnalytics';
-
+export { type ConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
 declare global {
   interface Window {
     rudderanalytics: RudderAnalytics | RudderAnalyticsPreloader | undefined;

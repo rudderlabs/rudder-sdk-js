@@ -81,6 +81,7 @@ const configToIntNames = {
   NINETAILED: 'Ninetailed',
   XPIXEL: 'XPixel',
   GAINSIGHT_PX: 'Gainsight_PX',
+  USERPILOT: 'Userpilot',
 };
 
 export { configToIntNames };

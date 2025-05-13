@@ -212,5 +212,55 @@ describe('ErrorHandler', () => {
         new Error('Failed to notify error'),
       );
     });
+
+    it('should generate grouping hash for CDN installations', () => {
+      // @ts-expect-error for testing
+      state.context.app.value.installType = 'cdn';
+      state.reporting.isErrorReportingEnabled.value = true;
+
+      const getBugsnagErrorEventSpy = jest.spyOn(
+        require('../../../src/services/ErrorHandler/utils'),
+        'getBugsnagErrorEvent',
+      );
+
+      const error = new Error('dummy error');
+      error.stack =
+        'Error: Test:: dummy error\n    at Object.<anonymous> (https://cdn.rudderlabs.com/v3/modern/rsa.min.js:1:1)';
+
+      errorHandlerInstance.onError(error, 'Test', 'Sample custom message');
+
+      expect(getBugsnagErrorEventSpy).toHaveBeenCalledTimes(1);
+      expect(getBugsnagErrorEventSpy).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+        'Test:: Sample custom message - dummy error',
+      );
+    });
+
+    it('should not generate grouping hash for non-CDN installations', () => {
+      // @ts-expect-error for testing
+      state.context.app.value.installType = 'npm';
+      state.reporting.isErrorReportingEnabled.value = true;
+
+      const getBugsnagErrorEventSpy = jest.spyOn(
+        require('../../../src/services/ErrorHandler/utils'),
+        'getBugsnagErrorEvent',
+      );
+
+      const error = new Error('dummy error');
+      error.stack =
+        'Error: Test:: dummy error\n    at Object.<anonymous> (https://cdn.rudderlabs.com/v3/modern/rsa.min.js:1:1)';
+
+      errorHandlerInstance.onError(error, 'Test', 'Sample custom message');
+
+      expect(getBugsnagErrorEventSpy).toHaveBeenCalledTimes(1);
+      expect(getBugsnagErrorEventSpy).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+        undefined,
+      );
+    });
   });
 });
