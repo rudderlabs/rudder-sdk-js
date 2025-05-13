@@ -201,7 +201,7 @@
   "optionalDependencies": {
     "@nx/nx-darwin-arm64": "21.0.3",
     "@nx/nx-darwin-x64": "21.0.3",
-    "@nx/nx-linux-x64-gnu": "20.8.1",
+    "@nx/nx-linux-x64-gnu": "21.0.3",
     "@nx/nx-win32-x64-msvc": "20.8.1",
     "@rollup/rollup-linux-x64-gnu": "4.40.2"
   },
