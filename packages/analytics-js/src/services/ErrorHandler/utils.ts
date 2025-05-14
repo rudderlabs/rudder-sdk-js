@@ -31,6 +31,9 @@ import {
   SDK_GITHUB_URL,
   SOURCE_NAME,
 } from './constants';
+import { isDefined, isString } from '@rudderstack/analytics-js-common/utilities/checks';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { normalizeError } from './ErrorEvent/event';
 
 const getErrInstance = (err: SDKError, errorType: string) => {
   switch (errorType) {
@@ -206,6 +209,32 @@ const getErrorDeliveryPayload = (payload: ErrorEventPayload, state: ApplicationS
   return stringifyWithoutCircular<MetricServicePayload>(data) as string;
 };
 
+const getErrorGroupingHash = (
+  groupingHash: undefined | string | SDKError,
+  defaultGroupingHash: string,
+  state: ApplicationState,
+  logger: ILogger,
+) => {
+  let normalizedGroupingHash: string | undefined;
+  if (state.context.app.value.installType !== 'cdn') {
+    return normalizedGroupingHash;
+  }
+
+  if (!isString(groupingHash)) {
+    const normalizedErrorInstance = normalizeError(groupingHash, logger);
+    if (isDefined(normalizedErrorInstance)) {
+      normalizedGroupingHash = normalizedErrorInstance.message;
+    } else {
+      normalizedGroupingHash = defaultGroupingHash;
+    }
+  } else if (groupingHash === '') {
+    normalizedGroupingHash = defaultGroupingHash;
+  } else {
+    normalizedGroupingHash = groupingHash;
+  }
+  return normalizedGroupingHash;
+};
+
 export {
   getErrInstance,
   createNewBreadcrumb,
@@ -218,4 +247,5 @@ export {
   isAllowedToBeNotified,
   getUserDetails, // for testing
   getDeviceDetails, // for testing
+  getErrorGroupingHash,
 };

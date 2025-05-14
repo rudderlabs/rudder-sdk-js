@@ -23,9 +23,10 @@ import {
   READY_CHECK_TIMEOUT_MS,
 } from './constants';
 import {
-  DESTINATION_INIT_ERROR,
+  INTEGRATION_INIT_ERROR,
   DESTINATION_INTEGRATIONS_DATA_ERROR,
-  DESTINATION_READY_TIMEOUT_ERROR,
+  INTEGRATION_READY_TIMEOUT_ERROR,
+  INTEGRATION_READY_CHECK_ERROR,
 } from './logMessages';
 import {
   aliasArgumentsToCallOptions,
@@ -173,9 +174,7 @@ const isDestinationReady = (dest: Destination, time = 0) =>
     if (instance.isLoaded() && (!instance.isReady || instance.isReady())) {
       resolve(true);
     } else if (time >= READY_CHECK_TIMEOUT_MS) {
-      reject(
-        new Error(DESTINATION_READY_TIMEOUT_ERROR(READY_CHECK_TIMEOUT_MS, dest.userFriendlyId)),
-      );
+      reject(new Error(INTEGRATION_READY_TIMEOUT_ERROR(READY_CHECK_TIMEOUT_MS)));
     } else {
       const curTime = Date.now();
       wait(READY_CHECK_INTERVAL_MS).then(() => {
@@ -208,11 +207,12 @@ const getCumulativeIntegrationsConfig = (
         getSanitizedValue(dest.instance?.getDataForIntegrationsObject()),
       );
     } catch (err) {
-      errorHandler?.onError(
-        err,
-        DEVICE_MODE_DESTINATIONS_PLUGIN,
-        DESTINATION_INTEGRATIONS_DATA_ERROR(dest.userFriendlyId),
-      );
+      errorHandler?.onError({
+        error: err,
+        context: DEVICE_MODE_DESTINATIONS_PLUGIN,
+        customMessage: DESTINATION_INTEGRATIONS_DATA_ERROR(dest.userFriendlyId),
+        groupingHash: DESTINATION_INTEGRATIONS_DATA_ERROR(dest.displayName),
+      });
     }
   }
   return integrationsConfig;
@@ -255,8 +255,12 @@ const initializeDestination = (
           dest,
         ];
 
-        // The error message is already formatted in the isDestinationReady function
-        logger?.error(err);
+        errorHandler?.onError({
+          error: err,
+          context: DEVICE_MODE_DESTINATIONS_PLUGIN,
+          customMessage: INTEGRATION_READY_CHECK_ERROR(dest.userFriendlyId),
+          groupingHash: INTEGRATION_READY_CHECK_ERROR(dest.displayName),
+        });
       });
   } catch (err) {
     state.nativeDestinations.failedDestinations.value = [
@@ -264,11 +268,12 @@ const initializeDestination = (
       dest,
     ];
 
-    errorHandler?.onError(
-      err,
-      DEVICE_MODE_DESTINATIONS_PLUGIN,
-      DESTINATION_INIT_ERROR(dest.userFriendlyId),
-    );
+    errorHandler?.onError({
+      error: err,
+      context: DEVICE_MODE_DESTINATIONS_PLUGIN,
+      customMessage: INTEGRATION_INIT_ERROR(dest.userFriendlyId),
+      groupingHash: INTEGRATION_INIT_ERROR(dest.displayName),
+    });
   }
 };
 
