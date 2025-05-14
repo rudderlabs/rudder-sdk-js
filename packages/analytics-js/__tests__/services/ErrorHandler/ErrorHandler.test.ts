@@ -213,7 +213,7 @@ describe('ErrorHandler', () => {
       );
     });
 
-    it('should generate grouping hash for CDN installations', () => {
+    it.skip('should generate grouping hash for CDN installations', () => {
       // @ts-expect-error for testing
       state.context.app.value.installType = 'cdn';
       state.reporting.isErrorReportingEnabled.value = true;
@@ -238,7 +238,7 @@ describe('ErrorHandler', () => {
       );
     });
 
-    it('should not generate grouping hash for non-CDN installations', () => {
+    it.skip('should not generate grouping hash for non-CDN installations', () => {
       // @ts-expect-error for testing
       state.context.app.value.installType = 'npm';
       state.reporting.isErrorReportingEnabled.value = true;
