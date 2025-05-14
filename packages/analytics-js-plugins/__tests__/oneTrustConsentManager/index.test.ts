@@ -180,11 +180,12 @@ describe('Plugin - OneTrustConsentManager', () => {
       OneTrustConsentManager()?.consentManager as ExtensionPoint
     ).isDestinationConsented?.(state, destConfig, defaultErrorHandler, defaultLogger);
     expect(isDestinationConsented).toBe(true);
-    expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
-      new TypeError('oneTrustCookieCategories.map is not a function'),
-      'OneTrustConsentManagerPlugin',
-      'Failed to determine the consent status for the destination. Please check the destination configuration and try again.',
-    );
+    expect(defaultErrorHandler.onError).toHaveBeenCalledWith({
+      error: new TypeError('oneTrustCookieCategories.map is not a function'),
+      context: 'OneTrustConsentManagerPlugin',
+      customMessage:
+        'Failed to determine the consent status for the destination. Please check the destination configuration and try again.',
+    });
   });
 
   it('should return false if the destination categories are not consented in generic consent management config', () => {

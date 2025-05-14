@@ -7,7 +7,6 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { MEMORY_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
-import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
 import { isStorageQuotaExceeded } from '../../components/capabilitiesManager/detection';
 import {
   STORAGE_QUOTA_EXCEEDED_WARNING,
@@ -114,7 +113,8 @@ class Store implements IStore {
         // and save it there
         this.set(key, value);
       } else {
-        this.onError(getMutatedError(err, STORE_DATA_SAVE_ERROR(key)));
+        const customMessage = STORE_DATA_SAVE_ERROR(key);
+        this.onError(err, customMessage, customMessage);
       }
     }
   }
@@ -140,7 +140,8 @@ class Store implements IStore {
       // storejs that is used in localstorage engine already deserializes json strings but swallows errors
       return JSON.parse(decryptedValue as string);
     } catch (err) {
-      this.onError(new Error(`${STORE_DATA_FETCH_ERROR(key)}: ${(err as Error).message}`));
+      const customMessage = STORE_DATA_FETCH_ERROR(key);
+      this.onError(err, customMessage, customMessage);
 
       return null;
     }
@@ -204,8 +205,13 @@ class Store implements IStore {
   /**
    * Handle errors
    */
-  onError(error: unknown) {
-    this.errorHandler.onError(error, `Store ${this.id}`);
+  onError(error: unknown, customMessage?: string, groupingHash?: string) {
+    this.errorHandler.onError({
+      error,
+      context: `Store ${this.id}`,
+      customMessage,
+      groupingHash,
+    });
   }
 }
 

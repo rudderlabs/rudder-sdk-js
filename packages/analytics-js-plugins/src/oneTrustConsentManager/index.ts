@@ -115,11 +115,11 @@ const OneTrustConsentManager = (): ExtensionPlugin => ({
         // If there are no consents configured for the destination for the current provider, events should be sent.
         return true;
       } catch (err) {
-        errorHandler?.onError(
-          err,
-          ONETRUST_CONSENT_MANAGER_PLUGIN,
-          DESTINATION_CONSENT_STATUS_ERROR,
-        );
+        errorHandler?.onError({
+          error: err,
+          context: ONETRUST_CONSENT_MANAGER_PLUGIN,
+          customMessage: DESTINATION_CONSENT_STATUS_ERROR,
+        });
         return true;
       }
     },

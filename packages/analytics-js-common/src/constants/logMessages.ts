@@ -1,10 +1,12 @@
+import { isString } from '../utilities/checks';
+
 const LOG_CONTEXT_SEPARATOR = ':: ';
 
 const SCRIPT_ALREADY_EXISTS_ERROR = (id: string): string =>
   `A script with the id "${id}" is already loaded. Skipping the loading of this script to prevent conflicts.`;
 
-const SCRIPT_LOAD_ERROR = (id: string, url: string): string =>
-  `Failed to load the script with the id "${id}" from URL "${url}".`;
+const SCRIPT_LOAD_ERROR = (id: string, url: string, ev: Event | string): string =>
+  `Unable to load (${isString(ev) ? ev : ev.type}) the script with the id "${id}" from URL "${url}".`;
 
 const SCRIPT_LOAD_TIMEOUT_ERROR = (id: string, url: string, timeout: number): string =>
   `A timeout of ${timeout} ms occurred while trying to load the script with id "${id}" from URL "${url}".`;

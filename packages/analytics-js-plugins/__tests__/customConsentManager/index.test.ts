@@ -251,10 +251,11 @@ describe('Plugin - CustomConsentManager', () => {
       ),
     ).toBe(true);
 
-    expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
-      new TypeError("Cannot read properties of null (reading 'includes')"),
-      'CustomConsentManagerPlugin',
-      'Failed to determine the consent status for the destination. Please check the destination configuration and try again.',
-    );
+    expect(defaultErrorHandler.onError).toHaveBeenCalledWith({
+      error: new TypeError("Cannot read properties of null (reading 'includes')"),
+      context: 'CustomConsentManagerPlugin',
+      customMessage:
+        'Failed to determine the consent status for the destination. Please check the destination configuration and try again.',
+    });
   });
 });

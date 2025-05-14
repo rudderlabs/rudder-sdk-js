@@ -146,8 +146,12 @@ const sendTransformedEventToDestinations = (
           );
         }
       });
-    } catch (e) {
-      errorHandler?.onError(e, DMT_PLUGIN, DMT_EXCEPTION(dest.displayName));
+    } catch (err) {
+      errorHandler?.onError({
+        error: err,
+        context: DMT_PLUGIN,
+        customMessage: DMT_EXCEPTION(dest.displayName),
+      });
     }
   });
 };
