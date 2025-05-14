@@ -5,8 +5,8 @@ import {
 } from '../../../src/services/ExternalSrcLoader/jsFileLoader';
 import { server } from '../../../__fixtures__/msw.server';
 import { dummyDataplaneHost } from '../../../__fixtures__/fixtures';
-import { defaultErrorHandler } from '../../../__mocks__/ErrorHandler';
 import { defaultLogger } from '../../../__mocks__/Logger';
+import type { SDKError } from '../../../src/types/ErrorHandler';
 
 describe('External Source Loader', () => {
   let externalSrcLoaderInstance: ExternalSrcLoader;
@@ -16,7 +16,7 @@ describe('External Source Loader', () => {
   });
 
   beforeEach(() => {
-    externalSrcLoaderInstance = new ExternalSrcLoader(defaultErrorHandler, defaultLogger);
+    externalSrcLoaderInstance = new ExternalSrcLoader(defaultLogger);
   });
 
   afterEach(() => {
@@ -46,18 +46,18 @@ describe('External Source Loader', () => {
     });
   });
 
-  it(`should handle error in remote script retrieval & trigger the callback with no value`, done => {
-    const cb = (loadedScript?: string) => {
-      expect(loadedScript).toBeUndefined();
+  it(`should handle error in remote script retrieval & trigger the callback with appropriate error`, done => {
+    const cb = (loadedScript: string, err: SDKError) => {
+      expect(loadedScript).toEqual('dummyScript');
+
       const newScriptElement = document.getElementById('dummyScript') as HTMLScriptElement;
       expect(newScriptElement).toBeDefined();
       expect(newScriptElement.src).toStrictEqual(`${dummyDataplaneHost}/noConnectionSample`);
-      expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
-      expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
+
+      expect(err).toEqual(
         new Error(
-          'Failed to load the script with the id "dummyScript" from URL "https://dummy.dataplane.host.com/noConnectionSample".',
+          'Unable to load (error) the script with the id "dummyScript" from URL "https://dummy.dataplane.host.com/noConnectionSample".',
         ),
-        'ExternalSrcLoader',
       );
       done();
     };
@@ -70,19 +70,21 @@ describe('External Source Loader', () => {
   });
 
   it(`should handle error if script with same id already exists`, done => {
-    const cb = (loadedScript?: string) => {
-      expect(loadedScript).toBeUndefined();
+    const cb = (loadedScript: string, err: SDKError) => {
+      expect(loadedScript).toEqual('dummyScript');
+
       const newScriptElement = document.getElementById('dummyScript') as HTMLScriptElement;
       expect(newScriptElement).toBeDefined();
       expect(newScriptElement.src).toStrictEqual(`${dummyDataplaneHost}/jsFileSample.js`);
-      expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
-      expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
+
+      expect(err).toEqual(
         new Error(
           'A script with the id "dummyScript" is already loaded. Skipping the loading of this script to prevent conflicts.',
         ),
-        'ExternalSrcLoader',
       );
+
       document.getElementById('dummyScript')?.remove();
+
       done();
     };
 

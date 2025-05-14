@@ -141,11 +141,7 @@ describe('deviceModeDestinations utils', () => {
       // Fast-forward the timers to cause a timeout
       jest.advanceTimersByTime(11000);
 
-      await expect(isReadyPromise).rejects.toThrow(
-        new Error(
-          `A timeout of 11000 ms occurred while trying to check the ready status for "${destination.userFriendlyId}" destination.`,
-        ),
-      );
+      await expect(isReadyPromise).rejects.toThrow(new Error(`A timeout of 11000 ms occurred`));
     });
   });
 

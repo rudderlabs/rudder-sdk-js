@@ -90,7 +90,7 @@ const jsFileLoader = (
   timeout: number,
   async = true,
   extraAttributes?: Record<string, string>,
-): Promise<string | undefined> =>
+): Promise<string> =>
   new Promise((resolve, reject) => {
     const scriptExists = document.getElementById(id);
     if (scriptExists) {
@@ -105,9 +105,9 @@ const jsFileLoader = (
         resolve(id);
       };
 
-      const onerror = () => {
+      const onerror = (ev: Event | string) => {
         (globalThis as typeof window).clearTimeout(timeoutID);
-        reject(new Error(SCRIPT_LOAD_ERROR(id, url)));
+        reject(new Error(SCRIPT_LOAD_ERROR(id, url, ev)));
       };
 
       // Create the DOM element to load the script and add it to the DOM
@@ -118,7 +118,7 @@ const jsFileLoader = (
         reject(new Error(SCRIPT_LOAD_TIMEOUT_ERROR(id, url, timeout)));
       }, timeout);
     } catch (err) {
-      reject(getMutatedError(err, SCRIPT_LOAD_ERROR(id, url)));
+      reject(getMutatedError(err, SCRIPT_LOAD_ERROR(id, url, 'unknown')));
     }
   });
 

@@ -88,7 +88,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
           if (!navigator.sendBeacon(url, data)) {
             if (isPageAccessible) {
               logger?.error(
-                `${BEACON_QUEUE_SEND_ERROR(BEACON_QUEUE_PLUGIN)} The event(s) will be dropped.`,
+                `${BEACON_QUEUE_SEND_ERROR(BEACON_QUEUE_PLUGIN, url)} The event(s) will be dropped.`,
               );
 
               // Remove the item from queue
@@ -96,7 +96,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
             } else {
               // Note: We're not removing the item from the queue as we want to retry the request
               logger?.warn(
-                `${BEACON_QUEUE_SEND_ERROR(BEACON_QUEUE_PLUGIN)} The event(s) will be retried as the current page is being unloaded.`,
+                `${BEACON_QUEUE_SEND_ERROR(BEACON_QUEUE_PLUGIN, url)} The event(s) will be retried as the current page is being unloaded.`,
               );
             }
           } else {
@@ -104,7 +104,11 @@ const BeaconQueue = (): ExtensionPlugin => ({
             done(null);
           }
         } catch (err) {
-          errorHandler?.onError(err, BEACON_QUEUE_PLUGIN, BEACON_QUEUE_DELIVERY_ERROR(url));
+          errorHandler?.onError({
+            error: err,
+            context: BEACON_QUEUE_PLUGIN,
+            customMessage: BEACON_QUEUE_DELIVERY_ERROR(url),
+          });
           // Remove the item from queue
           done(null);
         }

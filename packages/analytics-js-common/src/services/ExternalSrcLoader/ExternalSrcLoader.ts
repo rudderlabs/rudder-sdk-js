@@ -1,7 +1,6 @@
-import { EXTERNAL_SRC_LOADER } from '../../constants/loggerContexts';
 import { DEFAULT_EXT_SRC_LOAD_TIMEOUT_MS } from '../../constants/timeouts';
 import { isFunction } from '../../utilities/checks';
-import type { IErrorHandler } from '../../types/ErrorHandler';
+import type { SDKError } from '../../types/ErrorHandler';
 import type { ILogger } from '../../types/Logger';
 import type { IExternalSourceLoadConfig, IExternalSrcLoader } from './types';
 import { jsFileLoader } from './jsFileLoader';
@@ -10,19 +9,12 @@ import { jsFileLoader } from './jsFileLoader';
  * Service to load external resources/files
  */
 class ExternalSrcLoader implements IExternalSrcLoader {
-  errorHandler: IErrorHandler;
   logger: ILogger;
   timeout: number;
 
-  constructor(
-    errorHandler: IErrorHandler,
-    logger: ILogger,
-    timeout = DEFAULT_EXT_SRC_LOAD_TIMEOUT_MS,
-  ) {
-    this.errorHandler = errorHandler;
+  constructor(logger: ILogger, timeout = DEFAULT_EXT_SRC_LOAD_TIMEOUT_MS) {
     this.logger = logger;
     this.timeout = timeout;
-    this.onError = this.onError.bind(this);
   }
 
   /**
@@ -33,24 +25,16 @@ class ExternalSrcLoader implements IExternalSrcLoader {
     const isFireAndForget = !isFunction(callback);
 
     jsFileLoader(url, id, timeout || this.timeout, async, extraAttributes)
-      .then((id?: string) => {
+      .then((id: string) => {
         if (!isFireAndForget) {
           callback(id);
         }
       })
-      .catch(err => {
-        this.onError(err);
+      .catch((err: SDKError) => {
         if (!isFireAndForget) {
-          callback();
+          callback(id, err);
         }
       });
-  }
-
-  /**
-   * Handle errors
-   */
-  onError(error: unknown) {
-    this.errorHandler.onError(error, EXTERNAL_SRC_LOADER);
   }
 }
 

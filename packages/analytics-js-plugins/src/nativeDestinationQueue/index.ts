@@ -95,7 +95,10 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
                 sendEventToDestination(clonedRudderEvent, dest, errorHandler, logger);
               }
             } catch (e) {
-              errorHandler?.onError(e, NATIVE_DESTINATION_QUEUE_PLUGIN);
+              errorHandler?.onError({
+                error: e,
+                context: NATIVE_DESTINATION_QUEUE_PLUGIN,
+              });
             }
           });
           if (destWithTransformationEnabled.length > 0) {

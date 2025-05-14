@@ -167,12 +167,12 @@ describe('HttpClient', () => {
     const callback = (response: any) => {
       expect(response).toBeUndefined();
       expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
-      expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
-        new SyntaxError(
+      expect(defaultErrorHandler.onError).toHaveBeenCalledWith({
+        error: new SyntaxError(
           "Failed to parse response data: Expected property name or '}' in JSON at position 1 (line 1 column 2)",
         ),
-        'HttpClient',
-      );
+        context: 'HttpClient',
+      });
       done();
     };
     clientInstance.getAsyncData({
@@ -185,10 +185,10 @@ describe('HttpClient', () => {
     const callback = (response: any) => {
       expect(response).toBeUndefined();
       expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
-      expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
-        new Error('Failed to parse response data: Unexpected end of JSON input'),
-        'HttpClient',
-      );
+      expect(defaultErrorHandler.onError).toHaveBeenCalledWith({
+        error: new Error('Failed to parse response data: Unexpected end of JSON input'),
+        context: 'HttpClient',
+      });
       done();
     };
     clientInstance.getAsyncData({

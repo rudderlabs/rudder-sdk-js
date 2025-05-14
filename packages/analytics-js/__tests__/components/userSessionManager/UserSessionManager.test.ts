@@ -2103,6 +2103,7 @@ describe('User session manager', () => {
       expect(userSessionManager.onError).toHaveBeenCalledWith(
         new Error('test error'),
         'Failed to set/remove cookies via server. As a fallback, the cookies will be managed client side.',
+        'Failed to set/remove cookies via server. As a fallback, the cookies will be managed client side.',
       );
       expect(mockCallback).toHaveBeenCalledWith('key', 'sample_cookie_value_1234');
     });

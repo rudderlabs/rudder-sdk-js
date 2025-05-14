@@ -139,8 +139,13 @@ class ConfigManager implements IConfigManager {
   /**
    * Handle errors
    */
-  onError(error: unknown, customMessage?: string) {
-    this.errorHandler.onError(error, CONFIG_MANAGER, customMessage);
+  onError(error: unknown, customMessage?: string, groupingHash?: string) {
+    this.errorHandler.onError({
+      error,
+      context: CONFIG_MANAGER,
+      customMessage,
+      groupingHash,
+    });
   }
 
   /**
