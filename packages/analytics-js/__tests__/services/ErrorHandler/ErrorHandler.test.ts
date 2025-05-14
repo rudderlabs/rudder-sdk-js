@@ -21,12 +21,12 @@ describe('ErrorHandler', () => {
     (globalThis as typeof window).dispatchEvent(errorEvent);
 
     expect(onErrorSpy).toHaveBeenCalledTimes(1);
-    expect(onErrorSpy).toHaveBeenCalledWith(
-      errorEvent,
-      'ErrorHandler',
-      undefined,
-      'unhandledException',
-    );
+    expect(onErrorSpy).toHaveBeenCalledWith({
+      error: errorEvent,
+      context: 'ErrorHandler',
+      customMessage: undefined,
+      errorType: 'unhandledException',
+    });
 
     onErrorSpy.mockReset();
 
@@ -38,12 +38,12 @@ describe('ErrorHandler', () => {
     (globalThis as typeof window).dispatchEvent(promiseRejectionEvent);
 
     expect(onErrorSpy).toHaveBeenCalledTimes(1);
-    expect(onErrorSpy).toHaveBeenCalledWith(
-      promiseRejectionEvent,
-      'ErrorHandler',
-      undefined,
-      'unhandledPromiseRejection',
-    );
+    expect(onErrorSpy).toHaveBeenCalledWith({
+      error: promiseRejectionEvent,
+      context: 'ErrorHandler',
+      customMessage: undefined,
+      errorType: 'unhandledPromiseRejection',
+    });
   });
 
   describe('leaveBreadcrumb', () => {
@@ -89,10 +89,12 @@ describe('ErrorHandler', () => {
       errorHandlerInstance.leaveBreadcrumb('sample breadcrumb message');
 
       expect(onErrorSpy).toHaveBeenCalledTimes(1);
-      expect(onErrorSpy).toHaveBeenCalledWith(
-        expect.any(Error),
-        'ErrorHandler:: Failed to log breadcrumb.',
-      );
+      expect(onErrorSpy).toHaveBeenCalledWith({
+        error: expect.any(Error),
+        context: 'ErrorHandler',
+        customMessage: 'Failed to log breadcrumb',
+        groupingHash: 'Failed to log breadcrumb',
+      });
 
       onErrorSpy.mockRestore();
     });
@@ -100,7 +102,9 @@ describe('ErrorHandler', () => {
 
   describe('onError', () => {
     it('should skip processing if error is not a valid error', () => {
-      errorHandlerInstance.onError({});
+      errorHandlerInstance.onError({
+        error: {},
+      });
 
       expect(defaultLogger.warn).toHaveBeenCalledTimes(1);
       expect(defaultLogger.warn).toHaveBeenCalledWith('ErrorHandler:: Ignoring a non-error: {}.');
@@ -111,8 +115,13 @@ describe('ErrorHandler', () => {
 
     it('should skip unhandled errors if they are not originated from the sdk', () => {
       // For this error, the stacktrace would not contain the sdk file names
-      // @ts-expect-error not using the enum value for testing
-      errorHandlerInstance.onError(new Error('dummy error'), '', '', 'unhandledException');
+      errorHandlerInstance.onError({
+        error: new Error('dummy error'),
+        context: 'Test',
+        customMessage: undefined,
+        // @ts-expect-error not using the enum value for testing
+        errorType: 'unhandledException',
+      });
 
       // It should not be logged to the console
       expect(defaultLogger.error).toHaveBeenCalledTimes(0);
@@ -123,7 +132,9 @@ describe('ErrorHandler', () => {
       state.reporting.isErrorReportingEnabled.value = true;
 
       // For this error, the stacktrace would not contain the sdk file names
-      errorHandlerInstance.onError(new Error('dummy error'));
+      errorHandlerInstance.onError({
+        error: new Error('dummy error'),
+      });
 
       // It should be reported to the metrics service
       expect(defaultHttpClient.getAsyncData).toHaveBeenCalledTimes(1);
@@ -133,13 +144,13 @@ describe('ErrorHandler', () => {
     });
 
     it('should not log unhandled errors to the console', () => {
-      errorHandlerInstance.onError(
-        new Error('dummy error'),
-        'Test',
-        undefined,
+      errorHandlerInstance.onError({
+        error: new Error('dummy error'),
+        context: 'Test',
+        customMessage: undefined,
         // @ts-expect-error not using the enum value for testing
-        'unhandledException',
-      );
+        errorType: 'unhandledException',
+      });
 
       expect(defaultLogger.error).toHaveBeenCalledTimes(0);
     });
@@ -150,8 +161,13 @@ describe('ErrorHandler', () => {
       error.stack += '[SDK DISPATCHED ERROR]';
       const errorEvent = new ErrorEvent('error', { error });
 
-      // @ts-expect-error not using the enum value for testing
-      errorHandlerInstance.onError(errorEvent, 'Test', undefined, 'unhandledException');
+      errorHandlerInstance.onError({
+        error: errorEvent,
+        // @ts-expect-error not using the enum value for testing
+        errorType: 'unhandledException',
+        context: 'Test',
+        customMessage: undefined,
+      });
 
       expect(defaultLogger.error).toHaveBeenCalledTimes(1);
       expect(defaultLogger.error).toHaveBeenCalledWith('Test:: dummy error');
@@ -159,7 +175,7 @@ describe('ErrorHandler', () => {
 
     it('should not notify errors if error reporting is disabled', () => {
       state.reporting.isErrorReportingEnabled.value = false;
-      errorHandlerInstance.onError(new Error('dummy error'));
+      errorHandlerInstance.onError({ error: new Error('dummy error') });
 
       expect(defaultHttpClient.getAsyncData).toHaveBeenCalledTimes(0);
     });
@@ -167,7 +183,7 @@ describe('ErrorHandler', () => {
     it('should not notify errors if the error message is not allowed to be notified', () => {
       state.reporting.isErrorReportingEnabled.value = true;
       // "The request failed" is one of the messages that should not be notified
-      errorHandlerInstance.onError(new Error('The request failed due to some issue'));
+      errorHandlerInstance.onError({ error: new Error('The request failed due to some issue') });
 
       expect(defaultHttpClient.getAsyncData).toHaveBeenCalledTimes(0);
     });
@@ -180,7 +196,10 @@ describe('ErrorHandler', () => {
       const error = new Error('dummy error');
       error.stack =
         'Error: Test:: dummy error\n    at Object.<anonymous> (https://cdn.rudderlabs.com/v3/modern/rsa.min.js:1:1)';
-      errorHandlerInstance.onError(error, 'Test');
+      errorHandlerInstance.onError({
+        error,
+        context: 'Test',
+      });
 
       expect(defaultHttpClient.getAsyncData).toHaveBeenCalledTimes(1);
       expect(defaultHttpClient.getAsyncData).toHaveBeenCalledWith({
@@ -204,7 +223,10 @@ describe('ErrorHandler', () => {
       const error = new Error('dummy error');
       error.stack =
         'Error: Test:: dummy error\n    at Object.<anonymous> (https://cdn.rudderlabs.com/v3/modern/rsa.min.js:1:1)';
-      errorHandlerInstance.onError(error, 'Test');
+      errorHandlerInstance.onError({
+        error,
+        context: 'Test',
+      });
 
       expect(defaultLogger.error).toHaveBeenCalledTimes(1);
       expect(defaultLogger.error).toHaveBeenCalledWith(
@@ -227,7 +249,11 @@ describe('ErrorHandler', () => {
       error.stack =
         'Error: Test:: dummy error\n    at Object.<anonymous> (https://cdn.rudderlabs.com/v3/modern/rsa.min.js:1:1)';
 
-      errorHandlerInstance.onError(error, 'Test', 'Sample custom message');
+      errorHandlerInstance.onError({
+        error,
+        context: 'Test',
+        customMessage: 'Sample custom message',
+      });
 
       expect(getBugsnagErrorEventSpy).toHaveBeenCalledTimes(1);
       expect(getBugsnagErrorEventSpy).toHaveBeenCalledWith(
@@ -252,7 +278,11 @@ describe('ErrorHandler', () => {
       error.stack =
         'Error: Test:: dummy error\n    at Object.<anonymous> (https://cdn.rudderlabs.com/v3/modern/rsa.min.js:1:1)';
 
-      errorHandlerInstance.onError(error, 'Test', 'Sample custom message');
+      errorHandlerInstance.onError({
+        error,
+        context: 'Test',
+        customMessage: 'Sample custom message',
+      });
 
       expect(getBugsnagErrorEventSpy).toHaveBeenCalledTimes(1);
       expect(getBugsnagErrorEventSpy).toHaveBeenCalledWith(

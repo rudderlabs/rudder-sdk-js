@@ -184,11 +184,12 @@ describe('ConfigManager', () => {
     configManagerInstance.processConfig(undefined);
 
     expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
-    expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
-      new Error('Failed to fetch the source config'),
-      'ConfigManager',
-      undefined,
-    );
+    expect(defaultErrorHandler.onError).toHaveBeenCalledWith({
+      error: new Error('Failed to fetch the source config'),
+      context: 'ConfigManager',
+      customMessage: undefined,
+      groupingHash: undefined,
+    });
   });
 
   it('should handle error for source config request failures', () => {
@@ -197,24 +198,24 @@ describe('ConfigManager', () => {
     } as unknown as ResponseDetails);
 
     expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
-    expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
-      new Error('Request failed'),
-      'ConfigManager',
-      'Failed to fetch the source config',
-    );
+    expect(defaultErrorHandler.onError).toHaveBeenCalledWith({
+      error: new Error('Request failed'),
+      context: 'ConfigManager',
+      customMessage: 'Failed to fetch the source config',
+    });
   });
 
   it('should handle error if the source config response is not parsable', () => {
     configManagerInstance.processConfig('{"key": "value"');
 
     expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
-    expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
-      new SyntaxError(
+    expect(defaultErrorHandler.onError).toHaveBeenCalledWith({
+      error: new SyntaxError(
         "Expected ',' or '}' after property value in JSON at position 15 (line 1 column 16)",
       ),
-      'ConfigManager',
-      'Unable to process/parse source configuration response',
-    );
+      context: 'ConfigManager',
+      customMessage: 'Unable to process/parse source configuration response',
+    });
   });
 
   it('should handle error if the source config response is not valid', () => {
@@ -222,11 +223,12 @@ describe('ConfigManager', () => {
     configManagerInstance.processConfig({ key: 'value' });
 
     expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
-    expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
-      new Error('Unable to process/parse source configuration response'),
-      'ConfigManager',
-      undefined,
-    );
+    expect(defaultErrorHandler.onError).toHaveBeenCalledWith({
+      error: new Error('Unable to process/parse source configuration response'),
+      context: 'ConfigManager',
+      customMessage: undefined,
+      groupingHash: undefined,
+    });
   });
 
   it('should log error and abort if source is disabled', () => {

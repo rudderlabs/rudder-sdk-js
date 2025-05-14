@@ -75,16 +75,17 @@ const BeaconQueue = (): ExtensionPlugin => ({
 
         if (data) {
           try {
-            const isEnqueuedInBeacon = navigator.sendBeacon(url, data);
-            if (!isEnqueuedInBeacon) {
-              logger?.error(BEACON_QUEUE_SEND_ERROR(BEACON_QUEUE_PLUGIN));
+            if (navigator.sendBeacon(url, data)) {
+              done(null, true);
+            } else {
+              logger?.error(BEACON_QUEUE_SEND_ERROR(BEACON_QUEUE_PLUGIN, url));
             }
-
-            done(null, isEnqueuedInBeacon);
           } catch (err) {
-            errorHandler?.onError(err, BEACON_QUEUE_PLUGIN, BEACON_QUEUE_DELIVERY_ERROR(url));
-            // Remove the item from queue
-            done(null);
+            errorHandler?.onError({
+              error: err,
+              context: BEACON_QUEUE_PLUGIN,
+              customMessage: BEACON_QUEUE_DELIVERY_ERROR(url),
+            });
           }
         } else {
           // Mark the item as done so that it can be removed from the queue

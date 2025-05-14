@@ -4,11 +4,19 @@ import type { IHttpClient } from './HttpClient';
 
 export type SDKError = unknown | Error | ErrorEvent | Event | PromiseRejectionEvent;
 
+export type ErrorInfo = {
+  error: SDKError;
+  context?: string;
+  customMessage?: string;
+  errorType?: ErrorType;
+  groupingHash?: string | SDKError;
+};
+
 export interface IErrorHandler {
   httpClient: IHttpClient;
   logger: ILogger;
   init(): void;
-  onError(error: SDKError, context?: string, customMessage?: string, errorType?: string): void;
+  onError(errorInfo: ErrorInfo): void;
   leaveBreadcrumb(breadcrumb: string): void;
 }
 
