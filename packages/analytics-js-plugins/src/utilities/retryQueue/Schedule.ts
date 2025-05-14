@@ -47,7 +47,11 @@ class Schedule {
   }
 
   run(task: () => any, timeout: number, mode?: ScheduleModes): string {
-    const id = (this.nextId + 1).toString();
+    if (this.nextId === Number.MAX_SAFE_INTEGER) {
+      this.nextId = 1;
+    }
+
+    const id = (this.nextId++).toString();
 
     this.tasks[id] = this.clock.setTimeout(
       this.handle(id, task, timeout, mode || ScheduleModes.ASAP),
