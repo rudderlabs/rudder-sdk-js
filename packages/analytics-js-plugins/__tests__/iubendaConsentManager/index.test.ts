@@ -317,11 +317,12 @@ describe('Plugin - IubendaConsentManager', () => {
         defaultLogger,
       ),
     ).toBe(true);
-    expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
-      new TypeError("Cannot read properties of null (reading 'includes')"),
-      'IubendaConsentManagerPlugin',
-      'Failed to determine the consent status for the destination. Please check the destination configuration and try again.',
-    );
+    expect(defaultErrorHandler.onError).toHaveBeenCalledWith({
+      error: new TypeError("Cannot read properties of null (reading 'includes')"),
+      context: 'IubendaConsentManagerPlugin',
+      customMessage:
+        'Failed to determine the consent status for the destination. Please check the destination configuration and try again.',
+    });
   });
 
   it('should return false if the destination categories are not consented in generic consent management config', () => {

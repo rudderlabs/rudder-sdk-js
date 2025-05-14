@@ -344,8 +344,13 @@ class UserSessionManager implements IUserSessionManager {
    * Handles error
    * @param error The error object
    */
-  onError(error: unknown, customMessage?: string): void {
-    this.errorHandler.onError(error, USER_SESSION_MANAGER, customMessage);
+  onError(error: unknown, customMessage?: string, groupingHash?: string): void {
+    this.errorHandler.onError({
+      error,
+      context: USER_SESSION_MANAGER,
+      customMessage,
+      groupingHash,
+    });
   }
 
   /**
@@ -441,7 +446,11 @@ class UserSessionManager implements IUserSessionManager {
         });
       }
     } catch (e) {
-      this.onError(e, FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR);
+      this.onError(
+        e,
+        FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR,
+        FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR,
+      );
       cookiesData.forEach(each => {
         if (cb) {
           cb(each.name, each.value);
