@@ -335,7 +335,7 @@ describe('Error Reporting utilities', () => {
         ],
       };
 
-      const bsErrorEvent = getBugsnagErrorEvent(exception, errorState, state, 'dummy message');
+      const bsErrorEvent = getBugsnagErrorEvent(exception, errorState, state);
 
       const expectedOutcome = {
         payloadVersion: '5',
@@ -396,7 +396,6 @@ describe('Error Reporting utilities', () => {
               },
             ],
             context: 'dummy message',
-            groupingHash: 'dummy message',
             metaData: {
               app: {
                 snippetVersion: 'sample_snippet_version',
