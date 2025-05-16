@@ -121,11 +121,11 @@ class ErrorHandler implements IErrorHandler {
         // References:
         // https://docs.bugsnag.com/platforms/javascript/customizing-error-reports/#groupinghash
         // https://docs.bugsnag.com/product/error-grouping/#user_defined
-        const groupingHash =
-          state.context.app.value.installType === 'cdn' ? bsException.message : undefined;
+        // const groupingHash =
+        //   state.context.app.value.installType === 'cdn' ? bsException.message : undefined;
 
         // Get the final payload to be sent to the metrics service
-        const bugsnagPayload = getBugsnagErrorEvent(bsException, errorState, state, groupingHash);
+        const bugsnagPayload = getBugsnagErrorEvent(bsException, errorState, state);
 
         // send it to metrics service
         this.httpClient.getAsyncData({
