@@ -292,6 +292,19 @@ const updateConsentsStateFromLoadOptions = (logger: ILogger): void => {
   });
 };
 
+const convertResolutionStrategyToLatestFormat = (
+  resolutionStrategy: ConsentResolutionStrategy | undefined,
+): ConsentResolutionStrategy | undefined => {
+  switch (resolutionStrategy) {
+    case 'and':
+      return 'all';
+    case 'or':
+      return 'any';
+    default:
+      return resolutionStrategy;
+  }
+};
+
 /**
  * Determines the consent management state variables from the source config data
  * @param resp Source config response
@@ -308,6 +321,8 @@ const updateConsentsState = (resp: SourceConfigResponse): void => {
         resp.consentManagementMetadata.providers.find(
           p => p.provider === state.consents.provider.value,
         )?.resolutionStrategy ?? state.consents.resolutionStrategy.value;
+
+      resolutionStrategy = convertResolutionStrategyToLatestFormat(resolutionStrategy);
     }
 
     cmpMetadata = resp.consentManagementMetadata;
@@ -399,4 +414,5 @@ export {
   updateConsentsState,
   updateDataPlaneEventsStateFromLoadOptions,
   getSourceConfigURL,
+  convertResolutionStrategyToLatestFormat,
 };

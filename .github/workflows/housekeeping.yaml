@@ -5,7 +5,7 @@ on:
     - cron: '1 0 * * *' # every day at 00:01
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.sha }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
