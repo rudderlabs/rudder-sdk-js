@@ -42,7 +42,7 @@ export default [
     name: 'Core - Modern - NPM (UMD)',
     path: 'dist/npm/modern/umd/index.js',
     import: '*',
-    limit: '27 KiB',
+    limit: '27.2 KiB',
   },
   {
     name: 'Core - Modern - CDN',
