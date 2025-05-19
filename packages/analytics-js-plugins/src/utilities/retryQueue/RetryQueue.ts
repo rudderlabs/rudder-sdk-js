@@ -524,13 +524,8 @@ class RetryQueue implements IQueue<QueueItemData> {
       });
     };
 
-    let inProgress =
+    const inProgress =
       (this.getStorageEntry(QueueStatuses.IN_PROGRESS) as Nullable<Record<string, any>>) ?? {};
-    // If the page is unloading, clear the previous in progress queue also to avoid any stale data
-    // Otherwise, the next page load will retry the items which were in progress previously
-    if (!this.isPageAccessible) {
-      inProgress = {};
-    }
     let inProgressSize = Object.keys(inProgress).length;
 
     // eslint-disable-next-line no-plusplus
@@ -543,19 +538,16 @@ class RetryQueue implements IQueue<QueueItemData> {
       if (el) {
         const id = generateUUID();
 
-        // If the page is unloading, don't add items to the in progress queue
-        if (this.isPageAccessible) {
-          // Save this to the in progress map
-          inProgress[id] = {
-            item: el.item,
-            attemptNumber: el.attemptNumber,
-            time: this.schedule.now(),
-            type: el.type,
-            firstAttemptedAt: el.firstAttemptedAt,
-            lastAttemptedAt: el.lastAttemptedAt,
-            reclaimed: el.reclaimed,
-          };
-        }
+        // Save this to the in progress map
+        inProgress[id] = {
+          item: el.item,
+          attemptNumber: el.attemptNumber,
+          time: this.schedule.now(),
+          type: el.type,
+          firstAttemptedAt: el.firstAttemptedAt,
+          lastAttemptedAt: el.lastAttemptedAt,
+          reclaimed: el.reclaimed,
+        };
 
         enqueueItem(el, id);
       }
@@ -572,26 +564,31 @@ class RetryQueue implements IQueue<QueueItemData> {
         const inProgress =
           (this.getStorageEntry(QueueStatuses.IN_PROGRESS) as Nullable<Record<string, any>>) ?? {};
         const inProgressItem = inProgress[el.id];
+        let firstAttemptedAt = now;
+        let lastAttemptedAt = now;
+        let reclaimed = false;
 
-        const firstAttemptedAt = inProgressItem?.firstAttemptedAt ?? now;
-        const lastAttemptedAt = inProgressItem?.lastAttemptedAt ?? now;
+        if (inProgressItem) {
+          firstAttemptedAt = inProgressItem.firstAttemptedAt ?? firstAttemptedAt;
+          lastAttemptedAt = inProgressItem.lastAttemptedAt ?? lastAttemptedAt;
+
+          // Indicates if the item has been reclaimed from local storage
+          reclaimed = inProgressItem.reclaimed ?? reclaimed;
+
+          // Update the first attempted at timestamp for the in progress item
+          inProgressItem.firstAttemptedAt = firstAttemptedAt;
+          // Update the last attempted at to current timestamp for the in progress item
+          inProgressItem.lastAttemptedAt = now;
+
+          inProgress[el.id] = inProgressItem;
+          this.setStorageEntry(QueueStatuses.IN_PROGRESS, inProgress);
+        }
 
         // A decimal integer representing the seconds since the first attempt
         const timeSinceFirstAttempt = Math.round((now - firstAttemptedAt) / 1000);
 
         // A decimal integer representing the seconds since the last attempt
         const timeSinceLastAttempt = Math.round((now - lastAttemptedAt) / 1000);
-
-        // Indicates if the item has been reclaimed from local storage
-        const reclaimed = inProgressItem?.reclaimed ?? false;
-
-        // Update the first attempted at timestamp for the in progress item
-        inProgressItem.firstAttemptedAt = firstAttemptedAt;
-        // Update the last attempted at to current timestamp for the in progress item
-        inProgressItem.lastAttemptedAt = now;
-
-        inProgress[el.id] = inProgressItem;
-        this.setStorageEntry(QueueStatuses.IN_PROGRESS, inProgress);
 
         const willBeRetried = this.shouldRetry(el.item, el.attemptNumber + 1);
         this.processQueueCb(el.item, el.done, {
