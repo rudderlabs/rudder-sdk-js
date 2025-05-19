@@ -1,14 +1,13 @@
 name: Deploy to Development Environment
 
 on:
-  workflow_dispatch:
   pull_request:
     branches: ['develop']
     types:
       - closed
 
 concurrency:
-  group: ${{ github.workflow }}-develop
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
