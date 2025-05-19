@@ -203,7 +203,7 @@
     "@nx/nx-darwin-x64": "21.0.3",
     "@nx/nx-linux-x64-gnu": "21.0.3",
     "@nx/nx-win32-x64-msvc": "21.0.3",
-    "@rollup/rollup-linux-x64-gnu": "4.40.2"
+    "@rollup/rollup-linux-x64-gnu": "4.41.0"
   },
   "overrides": {
     "rudder-component-cookie": {
