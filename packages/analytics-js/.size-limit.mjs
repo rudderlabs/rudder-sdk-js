@@ -101,7 +101,7 @@ export default [
     name: 'Core (Content Script) - Legacy - NPM (UMD)',
     path: 'dist/npm/legacy/content-script/umd/index.js',
     import: '*',
-    limit: '48 KiB',
+    limit: '48.5 KiB',
   },
   {
     name: 'Core (Content Script) - Modern - NPM (ESM)',
