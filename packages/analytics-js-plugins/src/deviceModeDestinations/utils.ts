@@ -31,7 +31,7 @@ import {
 } from './constants';
 import {
   INTEGRATION_INIT_ERROR,
-  DESTINATION_INTEGRATIONS_DATA_ERROR,
+  INTEGRATIONS_DATA_ERROR,
   INTEGRATION_READY_TIMEOUT_ERROR,
   INTEGRATION_READY_CHECK_ERROR,
 } from './logMessages';
@@ -218,8 +218,8 @@ const getCumulativeIntegrationsConfig = (
       errorHandler?.onError({
         error: err,
         context: DEVICE_MODE_DESTINATIONS_PLUGIN,
-        customMessage: DESTINATION_INTEGRATIONS_DATA_ERROR(dest.userFriendlyId),
-        groupingHash: DESTINATION_INTEGRATIONS_DATA_ERROR(dest.displayName),
+        customMessage: INTEGRATIONS_DATA_ERROR(dest.userFriendlyId),
+        groupingHash: INTEGRATIONS_DATA_ERROR(dest.displayName),
       });
     }
   }
