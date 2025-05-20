@@ -436,7 +436,7 @@ describe('Error Reporting utilities', () => {
                 preConsent: {
                   enabled: false,
                 },
-                resolutionStrategy: 'and',
+                resolutionStrategy: 'all',
               },
               context: {
                 app: {

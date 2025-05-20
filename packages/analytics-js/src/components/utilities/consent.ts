@@ -82,7 +82,7 @@ const getValidPostConsentOptions = (options?: ConsentOptions) => {
  * @returns true if the input is a valid consents data else false
  */
 const isValidConsentsData = (value: Consents | undefined): value is Consents =>
-  isNonEmptyObject(value) || Array.isArray(value);
+  Array.isArray(value) && value.length > 0;
 
 /**
  * Retrieves the corresponding provider and plugin name of the selected consent manager from the supported consent managers
@@ -107,6 +107,9 @@ const getConsentManagerInfo = (
   return { provider, consentManagerPluginName };
 };
 
+const sanitizeConsents = (consents?: Consents): Consents | undefined =>
+  consents?.map(c => c.trim()).filter(Boolean);
+
 /**
  * Validates and converts the consent management options into a normalized format
  * @param consentManagementOpts Consent management options provided by the user
@@ -128,13 +131,15 @@ const getConsentManagementData = (
     // Get the corresponding plugin name of the selected consent manager from the supported consent managers
     ({ provider, consentManagerPluginName } = getConsentManagerInfo(consentManagementOpts, logger));
 
-    if (isValidConsentsData(consentManagementOpts.allowedConsentIds)) {
-      allowedConsentIds = consentManagementOpts.allowedConsentIds;
+    const sanitizedAllowedConsentIds = sanitizeConsents(consentManagementOpts.allowedConsentIds);
+    if (isValidConsentsData(sanitizedAllowedConsentIds)) {
+      allowedConsentIds = sanitizedAllowedConsentIds;
       initialized = true;
     }
 
-    if (isValidConsentsData(consentManagementOpts.deniedConsentIds)) {
-      deniedConsentIds = consentManagementOpts.deniedConsentIds;
+    const sanitizedDeniedConsentIds = sanitizeConsents(consentManagementOpts.deniedConsentIds);
+    if (isValidConsentsData(sanitizedDeniedConsentIds)) {
+      deniedConsentIds = sanitizedDeniedConsentIds;
       initialized = true;
     }
   }

@@ -54,7 +54,10 @@ const getIubendaConsentData = (
       errorHandler: storeManager?.errorHandler,
       logger: storeManager?.logger,
     });
-    rawConsentCookieData = dataStore?.engine.getItem(getIubendaCookieName(logger));
+    const cookieName = getIubendaCookieName(logger);
+    if (cookieName) {
+      rawConsentCookieData = dataStore?.engine.getItem(cookieName);
+    }
   } catch (err) {
     logger?.error(IUBENDA_CONSENT_COOKIE_READ_ERROR(IUBENDA_CONSENT_MANAGER_PLUGIN), err);
     return undefined;
