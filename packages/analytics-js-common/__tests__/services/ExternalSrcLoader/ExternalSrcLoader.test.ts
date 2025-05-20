@@ -30,6 +30,28 @@ describe('External Source Loader', () => {
     server.close();
   });
 
+  it('should handle error if an exception occurs during script loading', done => {
+    const originalSetTimeout = globalThis.setTimeout;
+    globalThis.setTimeout = undefined as unknown as typeof globalThis.setTimeout;
+
+    const cb = (loadedScript: string, err: SDKError) => {
+      expect(err).toEqual(
+        new Error(
+          'Unable to load (unknown) the script with the id "dummyScript" from URL "https://dummy.dataplane.host.com/jsFileSample.js": globalThis.setTimeout is not a function',
+        ),
+      );
+      done();
+    };
+
+    externalSrcLoaderInstance.loadJSFile({
+      url: `${dummyDataplaneHost}/jsFileSample.js`,
+      id: 'dummyScript',
+      callback: cb,
+    });
+
+    globalThis.setTimeout = originalSetTimeout;
+  });
+
   it(`should retrieve remote script & trigger the callback with value`, done => {
     const cb = (loadedScript?: string) => {
       expect(loadedScript).toStrictEqual('dummyScript');
@@ -56,7 +78,7 @@ describe('External Source Loader', () => {
 
       expect(err).toEqual(
         new Error(
-          'Unable to load (error) the script with the id "dummyScript" from URL "https://dummy.dataplane.host.com/noConnectionSample".',
+          'Unable to load (error) the script with the id "dummyScript" from URL "https://dummy.dataplane.host.com/noConnectionSample"',
         ),
       );
       done();
@@ -79,7 +101,7 @@ describe('External Source Loader', () => {
 
       expect(err).toEqual(
         new Error(
-          'A script with the id "dummyScript" is already loaded. Skipping the loading of this script to prevent conflicts.',
+          'A script with the id "dummyScript" is already loaded. Skipping the loading of this script to prevent conflicts',
         ),
       );
 
@@ -164,5 +186,30 @@ describe('External Source Loader', () => {
         integrity: 'filehash',
       },
     });
+  });
+
+  it('should handle timeout error if script loading takes more than 10 seconds', done => {
+    jest.useFakeTimers();
+    jest.setSystemTime(0);
+
+    const cb = (loadedScript: string, err: SDKError) => {
+      expect(loadedScript).toEqual('dummyScript');
+      expect(err).toEqual(
+        new Error(
+          'A timeout of 10000 ms occurred while trying to load the script with id "dummyScript" from URL "https://dummy.dataplane.host.com/timeoutSample.js"',
+        ),
+      );
+
+      jest.useRealTimers();
+      done();
+    };
+
+    externalSrcLoaderInstance.loadJSFile({
+      url: `${dummyDataplaneHost}/timeoutSample.js`,
+      id: 'dummyScript',
+      callback: cb,
+    });
+
+    jest.advanceTimersByTime(11000);
   });
 });

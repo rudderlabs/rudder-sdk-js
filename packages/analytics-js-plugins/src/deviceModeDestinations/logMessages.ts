@@ -7,7 +7,7 @@ const INTEGRATION_SDK_LOAD_ERROR = (destDisplayName: string): string =>
 const INTEGRATION_INIT_ERROR = (destUserFriendlyId: string): string =>
   `Failed to initialize integration for destination "${destUserFriendlyId}".`;
 
-const DESTINATION_INTEGRATIONS_DATA_ERROR = (destUserFriendlyId: string): string =>
+const INTEGRATIONS_DATA_ERROR = (destUserFriendlyId: string): string =>
   `Failed to get integrations data for destination "${destUserFriendlyId}".`;
 
 const INTEGRATION_READY_TIMEOUT_ERROR = (timeout: number): string =>
@@ -20,7 +20,7 @@ export {
   INTEGRATION_NOT_SUPPORTED_ERROR,
   INTEGRATION_SDK_LOAD_ERROR,
   INTEGRATION_INIT_ERROR,
-  DESTINATION_INTEGRATIONS_DATA_ERROR,
+  INTEGRATIONS_DATA_ERROR,
   INTEGRATION_READY_TIMEOUT_ERROR,
   INTEGRATION_READY_CHECK_ERROR,
 };
