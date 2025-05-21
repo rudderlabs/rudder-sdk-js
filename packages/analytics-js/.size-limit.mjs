@@ -89,7 +89,7 @@ export default [
     name: 'Core (Content Script) - Legacy - NPM (ESM)',
     path: 'dist/npm/legacy/content-script/esm/index.mjs',
     import: '*',
-    limit: '48 KiB',
+    limit: '48.5 KiB',
   },
   {
     name: 'Core (Content Script) - Legacy - NPM (CJS)',

@@ -1,7 +1,6 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { clone } from 'ramda';
-import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import type {
   Destination,
   DeviceModeDestination,
@@ -202,10 +201,10 @@ const getCumulativeIntegrationsConfig = (
   let integrationsConfig: IntegrationOpts = curDestIntgConfig;
   if (isFunction(dest.instance?.getDataForIntegrationsObject)) {
     try {
-      integrationsConfig = mergeDeepRight(
-        curDestIntgConfig,
-        getSanitizedValue(dest.instance?.getDataForIntegrationsObject()),
-      );
+      integrationsConfig = {
+        ...curDestIntgConfig,
+        ...getSanitizedValue(dest.instance.getDataForIntegrationsObject()),
+      };
     } catch (err) {
       errorHandler?.onError({
         error: err,
