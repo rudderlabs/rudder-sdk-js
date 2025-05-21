@@ -8,7 +8,7 @@ import type {
   IPluginsManager,
   PluginName,
 } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { IErrorHandler, SDKError } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { PLUGINS_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
@@ -273,7 +273,7 @@ class PluginsManager implements IPluginsManager {
               ...state.plugins.failedPlugins.value,
               remotePluginKey,
             ];
-            this.onError(err, remotePluginKey);
+            this.onError(err, `Failed to load plugin "${remotePluginKey}"`, err);
           });
       }),
     ).catch(err => {
@@ -314,7 +314,7 @@ class PluginsManager implements IPluginsManager {
         this.engine.register(plugin, state);
       } catch (e) {
         state.plugins.failedPlugins.value = [...state.plugins.failedPlugins.value, plugin.name];
-        this.onError(e);
+        this.onError(e, `Failed to register plugin "${plugin.name}"`);
       }
     });
   }
@@ -325,7 +325,7 @@ class PluginsManager implements IPluginsManager {
       try {
         this.engine.unregister(localPlugin().name);
       } catch (e) {
-        this.onError(e);
+        this.onError(e, `Failed to unregister plugin "${localPlugin().name}"`);
       }
     });
   }
@@ -333,8 +333,13 @@ class PluginsManager implements IPluginsManager {
   /**
    * Handle errors
    */
-  onError(error: unknown, customMessage?: string): void {
-    this.errorHandler.onError(error, PLUGINS_MANAGER, customMessage);
+  onError(error: unknown, customMessage?: string, groupingHash?: string | SDKError): void {
+    this.errorHandler.onError({
+      error,
+      context: PLUGINS_MANAGER,
+      customMessage,
+      groupingHash,
+    });
   }
 }
 
