@@ -1,6 +1,7 @@
 /* eslint-disable class-methods-use-this */
 // eslint-disable-next-line max-classes-per-file
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
+import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
 import {
   wait,
   isDestinationReady,
@@ -9,6 +10,8 @@ import {
   applySourceConfigurationOverrides,
   applyOverrideToDestination,
   filterDisabledDestination,
+  getCumulativeIntegrationsConfig,
+  initializeDestination,
 } from '../../src/deviceModeDestinations/utils';
 import type { DeviceModeDestinationsAnalyticsInstance } from '../../src/deviceModeDestinations/types';
 import type { LogLevel } from '../../src/types/plugins';
@@ -282,7 +285,7 @@ describe('deviceModeDestinations utils', () => {
     it('should return true if the destination SDK is a constructable type', () => {
       (window as any)[destSDKIdentifier] = {
         [sdkTypeName]: class {
-          // eslint-disable-next-line @typescript-eslint/no-useless-constructor, sonarjs/no-useless-constructor, sonarjs/no-empty-function, @typescript-eslint/no-empty-function
+          // eslint-disable-next-line @typescript-eslint/no-useless-constructor
           constructor() {}
         },
       };
@@ -939,6 +942,223 @@ describe('deviceModeDestinations utils', () => {
       const result = filterDisabledDestination([]);
 
       expect(result).toEqual([]);
+    });
+  });
+  describe('getCumulativeIntegrationsConfig', () => {
+    it('should return the cumulative integrations config', () => {
+      const destination = {
+        instance: {
+          getDataForIntegrationsObject: () => ({
+            GA4: {
+              client_id: '1234567890',
+            },
+          }),
+        },
+        userFriendlyId: 'GA4___1234567890',
+      } as unknown as Destination;
+
+      const currentIntegrationsConfig = {
+        Amplitude: {
+          someKey: 'someValue',
+        },
+      };
+
+      const integrationsConfig = getCumulativeIntegrationsConfig(
+        destination,
+        currentIntegrationsConfig,
+      );
+      expect(integrationsConfig).toEqual({
+        GA4: {
+          client_id: '1234567890',
+        },
+        Amplitude: {
+          someKey: 'someValue',
+        },
+      });
+    });
+
+    it('should return the current integrations config if the destination does not have a getDataForIntegrationsObject method', () => {
+      const destination = {
+        instance: {},
+        userFriendlyId: 'GA4___1234567890',
+      } as unknown as Destination;
+
+      const currentIntegrationsConfig = {
+        Amplitude: {
+          someKey: 'someValue',
+        },
+      };
+
+      const integrationsConfig = getCumulativeIntegrationsConfig(
+        destination,
+        currentIntegrationsConfig,
+      );
+      expect(integrationsConfig).toEqual(currentIntegrationsConfig);
+    });
+
+    it('should handle errors thrown by the getDataForIntegrationsObject method', () => {
+      const destination = {
+        instance: {
+          getDataForIntegrationsObject: () => {
+            throw new Error('Error');
+          },
+        },
+        userFriendlyId: 'GA4___1234567890',
+        displayName: 'Google Analytics 4 (GA4)',
+      } as unknown as Destination;
+
+      const currentIntegrationsConfig = {
+        Amplitude: {
+          someKey: 'someValue',
+        },
+      };
+
+      const integrationsConfig = getCumulativeIntegrationsConfig(
+        destination,
+        currentIntegrationsConfig,
+        defaultErrorHandler,
+      );
+      expect(integrationsConfig).toEqual(currentIntegrationsConfig);
+
+      expect(defaultErrorHandler.onError).toHaveBeenCalledWith({
+        error: new Error('Error'),
+        context: 'DeviceModeDestinationsPlugin',
+        customMessage: 'Failed to get integrations data for destination "GA4___1234567890".',
+        groupingHash: 'Failed to get integrations data for destination "Google Analytics 4 (GA4)".',
+      });
+    });
+  });
+
+  describe('initializeDestination', () => {
+    const destSDKIdentifier = 'GA4_RS';
+    const sdkTypeName = 'GA4';
+    const initMock = jest.fn();
+
+    beforeEach(() => {
+      // Mock the SDK instance
+      (window as any).rudderanalytics = {
+        getAnalyticsInstance: () => {
+          return {};
+        },
+      };
+
+      // Mock the destination SDK
+      (window as any)[destSDKIdentifier] = {
+        [sdkTypeName]: class {
+          // eslint-disable-next-line @typescript-eslint/no-useless-constructor
+          constructor() {}
+          init = initMock;
+        },
+      };
+    });
+
+    afterEach(() => {
+      initMock.mockClear();
+
+      delete (window as any)[destSDKIdentifier];
+      delete (window as any).rudderanalytics;
+    });
+
+    it('should initialize the destination', () => {
+      const destination = {
+        userFriendlyId: 'GA4___1234567890',
+        displayName: 'Google Analytics 4 (GA4)',
+      } as unknown as Destination;
+
+      initializeDestination(
+        destination,
+        state,
+        destSDKIdentifier,
+        sdkTypeName,
+        defaultErrorHandler,
+      );
+
+      expect(initMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('should handle errors thrown by the integration during initialization', () => {
+      // Mock the destination SDK
+      (window as any)[destSDKIdentifier] = {
+        [sdkTypeName]: class {
+          // eslint-disable-next-line @typescript-eslint/no-useless-constructor
+          constructor() {}
+          init = () => {
+            throw new Error('Error');
+          };
+        },
+      };
+
+      const destination = {
+        userFriendlyId: 'GA4___1234567890',
+        displayName: 'Google Analytics 4 (GA4)',
+      } as unknown as Destination;
+
+      initializeDestination(
+        destination,
+        state,
+        destSDKIdentifier,
+        sdkTypeName,
+        defaultErrorHandler,
+      );
+
+      expect(defaultErrorHandler.onError).toHaveBeenCalledWith({
+        error: new Error('Error'),
+        context: 'DeviceModeDestinationsPlugin',
+        customMessage: 'Failed to initialize integration for destination "GA4___1234567890".',
+        groupingHash:
+          'Failed to initialize integration for destination "Google Analytics 4 (GA4)".',
+      });
+    });
+
+    it('should handle when the integration does not get ready on time', done => {
+      jest.useFakeTimers();
+      jest.setSystemTime(0);
+
+      // Mock the destination SDK
+      (window as any)[destSDKIdentifier] = {
+        [sdkTypeName]: class {
+          // eslint-disable-next-line @typescript-eslint/no-useless-constructor
+          constructor() {}
+          init = () => initMock();
+          isLoaded = () => false;
+        },
+      };
+
+      const destination = {
+        userFriendlyId: 'GA4___1234567890',
+        displayName: 'Google Analytics 4 (GA4)',
+      } as unknown as Destination;
+
+      initializeDestination(
+        destination,
+        state,
+        destSDKIdentifier,
+        sdkTypeName,
+        defaultErrorHandler,
+      );
+
+      // Fast-forward the timers to cause a timeout
+      jest.advanceTimersByTime(11000);
+
+      // Just asynchronously wait for the next tick to ensure that the error handler is called
+      setTimeout(() => {
+        expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
+        expect(defaultErrorHandler.onError).toHaveBeenCalledWith({
+          error: new Error('A timeout of 11000 ms occurred'),
+          context: 'DeviceModeDestinationsPlugin',
+          customMessage:
+            'Failed to get the ready status from integration for destination "GA4___1234567890"',
+          groupingHash:
+            'Failed to get the ready status from integration for destination "Google Analytics 4 (GA4)"',
+        });
+
+        done();
+
+        jest.useRealTimers();
+      }, 1);
+
+      // Fast-forward the timers to the next tick asynchronously
+      jest.advanceTimersByTimeAsync(1);
     });
   });
 });

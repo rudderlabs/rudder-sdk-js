@@ -2,7 +2,6 @@
 import { clone } from 'ramda';
 import {
   isNonEmptyObject,
-  mergeDeepRight,
   removeUndefinedAndNullValues,
 } from '@rudderstack/analytics-js-common/utilities/object';
 import type {
@@ -210,10 +209,10 @@ const getCumulativeIntegrationsConfig = (
   let integrationsConfig: IntegrationOpts = curDestIntgConfig;
   if (isFunction(dest.instance?.getDataForIntegrationsObject)) {
     try {
-      integrationsConfig = mergeDeepRight(
-        curDestIntgConfig,
-        getSanitizedValue(dest.instance?.getDataForIntegrationsObject()),
-      );
+      integrationsConfig = {
+        ...curDestIntgConfig,
+        ...getSanitizedValue(dest.instance.getDataForIntegrationsObject()),
+      };
     } catch (err) {
       errorHandler?.onError({
         error: err,
