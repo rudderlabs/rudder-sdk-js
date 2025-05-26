@@ -28,7 +28,7 @@ print_version_row() {
     local name version prev_version
     name=$(jq -r .name "$file_path")
     version=$(jq -r .version "$file_path")
-    prev_version=$(git show origin/main:"$file_path" 2>/dev/null | jq -r .version)
+    prev_version=$(git show origin/main:"$file_path" 2>/dev/null || echo '{}') | jq -r .version)
     if [ "$version" == "$prev_version" ]; then
       version="N/A"
     fi
