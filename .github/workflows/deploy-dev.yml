@@ -1,7 +1,6 @@
 name: Deploy to Development Environment
 
 on:
-  workflow_dispatch:
   pull_request:
     branches: ['develop']
     types:
