@@ -28,11 +28,15 @@ print_version_row() {
     local name version prev_version
     name=$(jq -r .name "$file_path")
     version=$(jq -r .version "$file_path")
-    prev_version=$(git show origin/main:"$file_path" 2>/dev/null || echo '{}') | jq -r .version)
-    if [ "$version" == "$prev_version" ]; then
-      version="N/A"
+    prev_version=$(git show origin/main:"$file_path" 2>/dev/null | jq -r .version 2>/dev/null || echo "")
+    if [ -z "$prev_version" ]; then
+      # New package or file not present on origin/main
+      echo "| $name | $version |"
+    elif [ "$version" == "$prev_version" ]; then
+      echo "| $name | N/A |"
+    else
+      echo "| $name | $version |"
     fi
-    echo "| $name | $version |"
   fi
 }
 
