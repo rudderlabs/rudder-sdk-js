@@ -1,10 +1,7 @@
-## [3.14.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.13.2...@rudderstack/analytics-js-integrations@3.14.0) (2025-05-09)
+## [3.14.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.14.0...@rudderstack/analytics-js-integrations@3.14.1) (2025-05-26)
 
-### Dependency Updates
 
-* `@rudderstack/analytics-js-common` updated to version `3.19.0`
+### Bug Fixes
 
-### Features
-
-* onboarding userpilot integration ([#2103](https://github.com/rudderlabs/rudder-sdk-js/issues/2103)) ([9065069](https://github.com/rudderlabs/rudder-sdk-js/commit/90650693cd477ff3987174f8f6ec5972b034f2cb))
+* use klaviyo push function to send events ([#2190](https://github.com/rudderlabs/rudder-sdk-js/issues/2190)) ([7691d9d](https://github.com/rudderlabs/rudder-sdk-js/commit/7691d9d3ecdf7f35b0719291518e57535d1151e4))
 
