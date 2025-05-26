@@ -189,7 +189,7 @@
     "rollup-plugin-polyfill-node": "0.13.0",
     "rollup-plugin-serve": "3.0.0",
     "rollup-plugin-typescript2": "0.36.0",
-    "rollup-plugin-visualizer": "5.14.0",
+    "rollup-plugin-visualizer": "6.0.0",
     "serve": "14.2.4",
     "size-limit": "11.2.0",
     "ts-jest": "29.3.4",
