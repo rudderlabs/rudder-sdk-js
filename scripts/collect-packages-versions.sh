@@ -42,4 +42,4 @@ print_version_row "package.json"
 # All packages in packages/
 find packages -name package.json | while read -r pkg; do
   print_version_row "$pkg"
-done 
+done
