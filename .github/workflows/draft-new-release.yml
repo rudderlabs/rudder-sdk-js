@@ -106,6 +106,12 @@ jobs:
           git add .
           git commit -m "chore(monorepo): sync versions and generate release logs" -n
 
+      - name: Generate packages versions table
+        id: packages-versions
+        run: |
+          chmod +x ./scripts/collect-packages-versions.sh
+          ./scripts/collect-packages-versions.sh > packages_versions.md
+
       - name: Push new version in release branch
         run: |
           git push --follow-tags
@@ -128,6 +134,10 @@ jobs:
           - **Release Version**: v${{ env.NEW_VERSION_VALUE }}
           - **Release Branch**: \`${{ steps.create-release.outputs.branch_name }}\`
           - **Related Ticket**: [${{ github.event.inputs.release_ticket_id }}](https://linear.app/rudderstack/issue/${{ github.event.inputs.release_ticket_id }})
+
+          ### Version updates
+
+          $(cat packages_versions.md)
 
           ---
           Please review and merge when ready. :rocket:
