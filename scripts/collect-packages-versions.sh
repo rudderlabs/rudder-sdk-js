@@ -40,6 +40,6 @@ print_version_row() {
 print_version_row "package.json"
 
 # All packages in packages/
-find packages -name package.json | while read pkg; do
+find packages -name package.json | while read -r pkg; do
   print_version_row "$pkg"
 done 
