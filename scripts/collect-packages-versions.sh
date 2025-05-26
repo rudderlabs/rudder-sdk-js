@@ -9,7 +9,7 @@
 #   - Output is a Markdown table suitable for pasting into PR descriptions or tickets.
 #
 # Usage:
-#   ./scripts/collect-packages-versions.sh > package_versions.md
+#   ./scripts/collect-packages-versions.sh > packages_versions.md
 #
 # Output format:
 #   | Package | New version |
