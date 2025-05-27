@@ -2,6 +2,7 @@
 /* eslint-disable max-classes-per-file */
 import { signal } from '@preact/signals-core';
 import type { ErrorEventPayload, Exception } from '@rudderstack/analytics-js-common/types/Metrics';
+import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
 import type { Event } from '@bugsnag/js';
 import { state, resetState } from '../../../src/state';
 import * as errorReportingConstants from '../../../src/services/ErrorHandler/constants';
@@ -17,6 +18,7 @@ import {
   getUserDetails,
   isAllowedToBeNotified,
   isSDKError,
+  getErrorGroupingHash,
 } from '../../../src/services/ErrorHandler/utils';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
@@ -757,6 +759,62 @@ describe('Error Reporting utilities', () => {
         userAgent: 'NA',
         time: expect.any(Date),
       });
+    });
+  });
+
+  describe('getErrorGroupingHash', () => {
+    const getState = (installType = 'cdn') =>
+      ({
+        context: {
+          app: { value: { installType } },
+        },
+      }) as any;
+
+    it('should return undefined if installType is not cdn', () => {
+      const result = getErrorGroupingHash(
+        'some-hash',
+        'default-hash',
+        getState('npm'),
+        defaultLogger,
+      );
+      expect(result).toBeUndefined();
+    });
+
+    it('should return groupingHash if it is a non-empty string', () => {
+      const result = getErrorGroupingHash(
+        'some-hash',
+        'default-hash',
+        getState('cdn'),
+        defaultLogger,
+      );
+      expect(result).toBe('some-hash');
+    });
+
+    it('should return defaultGroupingHash if groupingHash is an empty string', () => {
+      const result = getErrorGroupingHash('', 'default-hash', getState('cdn'), defaultLogger);
+      expect(result).toBe('default-hash');
+    });
+
+    it('should return defaultGroupingHash if groupingHash is undefined', () => {
+      const result = getErrorGroupingHash(
+        undefined,
+        'default-hash',
+        getState('cdn'),
+        defaultLogger,
+      );
+      expect(result).toBe('default-hash');
+    });
+
+    it('should return error.message if groupingHash is an Error object', () => {
+      const error = new Error('error-message');
+      const result = getErrorGroupingHash(error, 'default-hash', getState('cdn'), defaultLogger);
+      expect(result).toBe('error-message');
+    });
+
+    it('should return defaultGroupingHash if groupingHash is an object that is not an Error', () => {
+      const notError = { foo: 'bar' };
+      const result = getErrorGroupingHash(notError, 'default-hash', getState('cdn'), defaultLogger);
+      expect(result).toBe('default-hash');
     });
   });
 });
