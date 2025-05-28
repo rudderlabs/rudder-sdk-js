@@ -10,7 +10,7 @@ This repository contains the RudderStack JavaScript SDK and related packages, ma
 
 ## Key Features of the RudderStack JavaScript SDK
 
-- **Event Tracking**: `page`, `track`, `identify`, `group`, `alias`, `screen` calls.
+- **Event Tracking APIs**: `page`, `track`, `identify`, `group`, `alias`, `screen` calls.
 - **Device Mode Integrations**: Load third-party destination SDKs directly on the client-side.
 - **Cloud Mode Integrations**: Send data to RudderStack's backend, which then forwards it to destinations.
 - **Data Persistence**: Manages user identity and session information using cookies and local storage.
