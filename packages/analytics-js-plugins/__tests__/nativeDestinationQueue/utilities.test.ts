@@ -209,5 +209,63 @@ describe('nativeDestinationQueue Plugin - utilities', () => {
           'Failed to forward event to integration for destination "Destination Display Name".',
       });
     });
+
+    it('should handle errors without crashing when no error handler is provided', () => {
+      const destination = {
+        instance: {
+          track: jest.fn(() => {
+            throw new Error('Error');
+          }),
+        },
+        userFriendlyId: 'ID_sample-destination-id',
+        displayName: 'Destination Display Name',
+      } as unknown as Destination;
+
+      expect(() => sendEventToDestination(sampleTrackEvent, destination)).not.toThrow();
+    });
+
+    it('should handle errors when destination has no displayName property', () => {
+      const destination = {
+        instance: {
+          track: jest.fn(() => {
+            throw new Error('Test error');
+          }),
+        },
+        userFriendlyId: 'ID_sample-destination-id',
+        // No displayName property
+      } as unknown as Destination;
+
+      sendEventToDestination(sampleTrackEvent, destination, defaultErrorHandler);
+
+      expect(defaultErrorHandler.onError).toHaveBeenCalledWith({
+        error: new Error('Test error'),
+        context: 'NativeDestinationQueuePlugin',
+        customMessage:
+          'Failed to forward event to integration for destination "ID_sample-destination-id".',
+        groupingHash: 'Failed to forward event to integration for destination "undefined".',
+      });
+    });
+
+    it('should handle errors when destination has no userFriendlyId property', () => {
+      const destination = {
+        instance: {
+          track: jest.fn(() => {
+            throw new Error('Test error');
+          }),
+        },
+        // No userFriendlyId property
+        displayName: 'Destination Display Name',
+      } as unknown as Destination;
+
+      sendEventToDestination(sampleTrackEvent, destination, defaultErrorHandler);
+
+      expect(defaultErrorHandler.onError).toHaveBeenCalledWith({
+        error: new Error('Test error'),
+        context: 'NativeDestinationQueuePlugin',
+        customMessage: 'Failed to forward event to integration for destination "undefined".',
+        groupingHash:
+          'Failed to forward event to integration for destination "Destination Display Name".',
+      });
+    });
   });
 });

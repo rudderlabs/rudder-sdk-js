@@ -212,4 +212,36 @@ describe('External Source Loader', () => {
 
     jest.advanceTimersByTime(11000);
   });
+
+  it('should handle fire-and-forget mode when no callback is provided and script loads successfully', () => {
+    // Test fire-and-forget mode - no callback provided
+    externalSrcLoaderInstance.loadJSFile({
+      url: `${dummyDataplaneHost}/jsFileSample.js`,
+      id: 'dummyScript',
+      // No callback provided - should be fire-and-forget
+    });
+
+    // Script should still be loaded to DOM
+    setTimeout(() => {
+      const newScriptElement = document.getElementById('dummyScript') as HTMLScriptElement;
+      expect(newScriptElement).toBeDefined();
+      expect(newScriptElement.src).toStrictEqual(`${dummyDataplaneHost}/jsFileSample.js`);
+    }, 100);
+  });
+
+  it('should handle fire-and-forget mode when no callback is provided and script fails to load', () => {
+    // Test fire-and-forget mode with script load error
+    externalSrcLoaderInstance.loadJSFile({
+      url: `${dummyDataplaneHost}/noConnectionSample`,
+      id: 'dummyScript',
+      // No callback provided - should be fire-and-forget
+    });
+
+    // Script should still be added to DOM even if it fails
+    setTimeout(() => {
+      const newScriptElement = document.getElementById('dummyScript') as HTMLScriptElement;
+      expect(newScriptElement).toBeDefined();
+      expect(newScriptElement.src).toStrictEqual(`${dummyDataplaneHost}/noConnectionSample`);
+    }, 100);
+  });
 });
