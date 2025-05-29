@@ -9,7 +9,11 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
-import { isDestinationSDKMounted, initializeDestination } from './utils';
+import {
+  isDestinationSDKMounted,
+  initializeDestination,
+  applySourceConfigurationOverrides,
+} from './utils';
 import { DEVICE_MODE_DESTINATIONS_PLUGIN, SCRIPT_LOAD_TIMEOUT_MS } from './constants';
 import { DESTINATION_NOT_SUPPORTED_ERROR, DESTINATION_SDK_LOAD_ERROR } from './logMessages';
 import {
@@ -48,11 +52,23 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
           return false;
         });
 
+      // Apply source configuration overrides if provided
+      const destinationsWithOverrides = state.loadOptions.value.sourceConfigurationOverride
+        ? applySourceConfigurationOverrides(
+            configSupportedDestinations,
+            state.loadOptions.value.sourceConfigurationOverride,
+            logger,
+          )
+        : configSupportedDestinations;
+
+      // Filter destinations that are disabled (enabled: false)
+      const enabledDestinations = destinationsWithOverrides.filter(dest => dest.enabled);
+
       // Filter destinations that are disabled through load or consent API options
       const destinationsToLoad = filterDestinations(
         state.consents.postConsent.value?.integrations ??
           state.nativeDestinations.loadOnlyIntegrations.value,
-        configSupportedDestinations,
+        enabledDestinations,
       );
 
       const consentedDestinations = destinationsToLoad.filter(

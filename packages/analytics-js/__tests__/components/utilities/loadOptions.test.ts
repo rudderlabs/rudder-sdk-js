@@ -1729,5 +1729,146 @@ describe('load API options', () => {
         });
       });
     });
+
+    describe('sourceConfigurationOverride', () => {
+      const testCaseData: any[] = [
+        {
+          name: 'should ignore sourceConfigurationOverride if it is a string',
+          input: { sourceConfigurationOverride: 'invalid' },
+          expected: defaultLoadOptions,
+        },
+        {
+          name: 'should ignore sourceConfigurationOverride if it is a number',
+          input: { sourceConfigurationOverride: 123 },
+          expected: defaultLoadOptions,
+        },
+        {
+          name: 'should ignore sourceConfigurationOverride if it is a boolean',
+          input: { sourceConfigurationOverride: true },
+          expected: defaultLoadOptions,
+        },
+        {
+          name: 'should ignore sourceConfigurationOverride if it is an array',
+          input: { sourceConfigurationOverride: ['dest1'] },
+          expected: defaultLoadOptions,
+        },
+        {
+          name: 'should ignore sourceConfigurationOverride if it is a function',
+          input: { sourceConfigurationOverride: () => {} },
+          expected: defaultLoadOptions,
+        },
+        {
+          name: 'should ignore sourceConfigurationOverride if it is a symbol',
+          input: { sourceConfigurationOverride: Symbol('override') },
+          expected: defaultLoadOptions,
+        },
+        {
+          name: 'should ignore sourceConfigurationOverride if it is null',
+          input: { sourceConfigurationOverride: null },
+          expected: defaultLoadOptions,
+        },
+        {
+          name: 'should ignore sourceConfigurationOverride if it is undefined',
+          input: { sourceConfigurationOverride: undefined },
+          expected: defaultLoadOptions,
+        },
+        {
+          name: 'should ignore sourceConfigurationOverride if it is an empty object',
+          input: { sourceConfigurationOverride: {} },
+          expected: defaultLoadOptions,
+        },
+        {
+          name: 'should set sourceConfigurationOverride to the input value when valid',
+          input: {
+            sourceConfigurationOverride: {
+              destinations: [
+                { id: 'dest1', enabled: false },
+                { id: 'dest2', enabled: true, config: { apiKey: 'new-key' } },
+              ],
+            },
+          },
+          expected: {
+            ...defaultLoadOptions,
+            sourceConfigurationOverride: {
+              destinations: [
+                { id: 'dest1', enabled: false },
+                { id: 'dest2', enabled: true, config: { apiKey: 'new-key' } },
+              ],
+            },
+          },
+        },
+        {
+          name: 'should set sourceConfigurationOverride with empty destinations array',
+          input: {
+            sourceConfigurationOverride: {
+              destinations: [],
+            },
+          },
+          expected: {
+            ...defaultLoadOptions,
+            sourceConfigurationOverride: {
+              destinations: [],
+            },
+          },
+        },
+        {
+          name: 'should set sourceConfigurationOverride with destinations containing invalid items',
+          input: {
+            sourceConfigurationOverride: {
+              destinations: ['invalid', { id: 'dest1', enabled: false }],
+            },
+          },
+          expected: {
+            ...defaultLoadOptions,
+            sourceConfigurationOverride: {
+              destinations: ['invalid', { id: 'dest1', enabled: false }],
+            },
+          },
+        },
+        {
+          name: 'should set sourceConfigurationOverride with destinations as non-array value',
+          input: {
+            sourceConfigurationOverride: {
+              destinations: 'invalid',
+            },
+          },
+          expected: {
+            ...defaultLoadOptions,
+            sourceConfigurationOverride: {
+              destinations: 'invalid',
+            },
+          },
+        },
+        {
+          name: 'should remove null and undefined values from sourceConfigurationOverride',
+          input: {
+            sourceConfigurationOverride: {
+              destinations: [
+                { id: 'dest1', enabled: false, config: null },
+                { id: 'dest2', enabled: true, undefinedProp: undefined },
+              ],
+              nullProp: null,
+              undefinedProp: undefined,
+            },
+          },
+          expected: {
+            ...defaultLoadOptions,
+            sourceConfigurationOverride: {
+              destinations: [
+                { id: 'dest1', enabled: false, config: null },
+                { id: 'dest2', enabled: true, undefinedProp: undefined },
+              ],
+            },
+          },
+        },
+      ];
+
+      it.each(testCaseData)('$name', ({ input, expected }) => {
+        expect(normalizeLoadOptions(defaultLoadOptions, input as Partial<LoadOptions>)).toEqual({
+          ...expected,
+          plugins: defaultOptionalPluginsList,
+        });
+      });
+    });
   });
 });

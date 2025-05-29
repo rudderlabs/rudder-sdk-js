@@ -50,6 +50,8 @@ import {
 } from '../constants';
 import { getDataServiceUrl, isValidStorageType, isWebpageTopLevelDomain } from './validate';
 import { getConsentManagementData } from '../../utilities/consent';
+import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
+import type { ConfigResponseDestinationItem } from '../types';
 
 /**
  * Determines the SDK URL
@@ -391,6 +393,24 @@ const getSourceConfigURL = (
   return `${origin}${pathname}?${searchParams}${hash}`;
 };
 
+/**
+ * Transforms destinations config from source config response to Destination format
+ * @param destinations Array of destination items from config response
+ * @returns Array of transformed Destination objects
+ */
+const getDestinationsFromConfig = (destinations: ConfigResponseDestinationItem[]): Destination[] =>
+  destinations.map((destination: ConfigResponseDestinationItem) => ({
+    id: destination.id,
+    displayName: destination.destinationDefinition.displayName,
+    enabled: destination.enabled,
+    config: destination.config,
+    shouldApplyDeviceModeTransformation: destination.shouldApplyDeviceModeTransformation ?? false,
+    propagateEventsUntransformedOnError: destination.propagateEventsUntransformedOnError ?? false,
+    userFriendlyId: `${destination.destinationDefinition.displayName.replaceAll(' ', '-')}___${
+      destination.id
+    }`,
+  }));
+
 export {
   getSDKUrl,
   updateReportingState,
@@ -399,4 +419,5 @@ export {
   updateConsentsState,
   updateDataPlaneEventsStateFromLoadOptions,
   getSourceConfigURL,
+  getDestinationsFromConfig,
 };

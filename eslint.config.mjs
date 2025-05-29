@@ -102,7 +102,7 @@ export default [
     rules: {
       'compat/compat': [
         'warn',
-        'defaults,Edge >= 80,Firefox >= 47,IE >= 11,Chrome >= 54,Safari >= 7,Opera >= 43'
+        'browserslist'
       ],
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': [

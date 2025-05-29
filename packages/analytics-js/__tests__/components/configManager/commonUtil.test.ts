@@ -1,5 +1,8 @@
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import type { SourceConfigResponse } from '../../../src/components/configManager/types';
+import type {
+  SourceConfigResponse,
+  ConfigResponseDestinationItem,
+} from '../../../src/components/configManager/types';
 import {
   getSDKUrl,
   updateReportingState,
@@ -8,6 +11,7 @@ import {
   updateConsentsState,
   updateDataPlaneEventsStateFromLoadOptions,
   getSourceConfigURL,
+  getDestinationsFromConfig,
 } from '../../../src/components/configManager/util/commonUtil';
 import {
   getDataServiceUrl,
@@ -742,5 +746,259 @@ describe('Config Manager Common Utilities', () => {
         'https://www.dummy.url/some/path/sourceConfig/?abc=def&p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=false&lockPluginsVersion=false#blog',
       );
     });
+  });
+});
+
+describe('getDestinationsFromConfig', () => {
+  const sampleDestinationResponse1: ConfigResponseDestinationItem[] = [
+    {
+      config: {
+        measurementId: 'G-SC6JGSYH6H',
+        capturePageView: 'rs',
+        whitelistedEvents: [
+          {
+            eventName: '',
+          },
+        ],
+        blacklistedEvents: [
+          {
+            eventName: '',
+          },
+        ],
+        useNativeSDKToSend: false,
+        eventFilteringOption: 'disable',
+        extendPageViewParams: false,
+        oneTrustCookieCategories: [],
+      },
+      id: '2LoR1TbVG2bcISXvy7DamldfkgO',
+      name: 'GA4 for JS SDK',
+      updatedAt: '2023-03-14T11:34:29.216Z',
+      enabled: true,
+      destinationDefinition: {
+        name: 'GA4',
+        displayName: 'Google Analytics 4 (GA4)',
+        updatedAt: '2023-03-14T11:21:29.656Z',
+      },
+      shouldApplyDeviceModeTransformation: true,
+      propagateEventsUntransformedOnError: false,
+    },
+    {
+      config: {
+        measurementId: 'G-SC6JGSYH6H',
+        capturePageView: 'rs',
+        whitelistedEvents: [
+          {
+            eventName: '',
+          },
+        ],
+        blacklistedEvents: [
+          {
+            eventName: '',
+          },
+        ],
+        useNativeSDKToSend: false,
+        eventFilteringOption: 'disable',
+        extendPageViewParams: false,
+        oneTrustCookieCategories: [],
+      },
+      id: '2LoR1TbVG2bcISXvy7Damldfkg1',
+      name: 'Braze for JS SDK',
+      updatedAt: '2023-03-14T11:34:29.216Z',
+      enabled: true,
+      destinationDefinition: {
+        name: 'BRAZE',
+        displayName: 'Braze',
+        updatedAt: '2023-03-14T11:21:29.656Z',
+      },
+      shouldApplyDeviceModeTransformation: false,
+      propagateEventsUntransformedOnError: false,
+    },
+  ];
+
+  it('should transform destinations config to Destination format', () => {
+    const actualOutcome = getDestinationsFromConfig(sampleDestinationResponse1);
+
+    expect(actualOutcome).toHaveLength(2);
+    expect(actualOutcome[0]).toEqual({
+      id: '2LoR1TbVG2bcISXvy7DamldfkgO',
+      displayName: 'Google Analytics 4 (GA4)',
+      enabled: true,
+      config: sampleDestinationResponse1[0]!.config,
+      shouldApplyDeviceModeTransformation: true,
+      propagateEventsUntransformedOnError: false,
+      userFriendlyId: 'Google-Analytics-4-(GA4)___2LoR1TbVG2bcISXvy7DamldfkgO',
+    });
+    expect(actualOutcome[1]).toEqual({
+      id: '2LoR1TbVG2bcISXvy7Damldfkg1',
+      displayName: 'Braze',
+      enabled: true,
+      config: sampleDestinationResponse1[1]!.config,
+      shouldApplyDeviceModeTransformation: false,
+      propagateEventsUntransformedOnError: false,
+      userFriendlyId: 'Braze___2LoR1TbVG2bcISXvy7Damldfkg1',
+    });
+  });
+
+  it('should generate correct userFriendlyId with spaces replaced by hyphens', () => {
+    const destinationWithSpaces: ConfigResponseDestinationItem[] = [
+      {
+        config: {
+          measurementId: 'G-SC6JGSYH6H',
+          capturePageView: 'rs',
+          whitelistedEvents: [],
+          blacklistedEvents: [],
+          useNativeSDKToSend: false,
+          eventFilteringOption: 'disable',
+          extendPageViewParams: false,
+          oneTrustCookieCategories: [],
+        },
+        id: 'test-id',
+        name: 'Test Destination',
+        updatedAt: '2023-03-14T11:34:29.216Z',
+        enabled: true,
+        destinationDefinition: {
+          name: 'TEST',
+          displayName: 'Test Destination With Spaces',
+          updatedAt: '2023-03-14T11:21:29.656Z',
+        },
+        shouldApplyDeviceModeTransformation: true,
+        propagateEventsUntransformedOnError: false,
+      },
+    ];
+
+    const actualOutcome = getDestinationsFromConfig(destinationWithSpaces);
+
+    expect(actualOutcome[0]!.userFriendlyId).toBe('Test-Destination-With-Spaces___test-id');
+  });
+
+  it('should handle empty destinations array', () => {
+    const actualOutcome = getDestinationsFromConfig([]);
+
+    expect(actualOutcome).toEqual([]);
+  });
+
+  it('should preserve all config properties', () => {
+    const actualOutcome = getDestinationsFromConfig(sampleDestinationResponse1);
+
+    expect(actualOutcome[0]!.config).toEqual(sampleDestinationResponse1[0]!.config);
+    expect(actualOutcome[1]!.config).toEqual(sampleDestinationResponse1[1]!.config);
+  });
+
+  it('should handle destinations with enabled false', () => {
+    const disabledDestination: ConfigResponseDestinationItem[] = [
+      {
+        config: {
+          measurementId: 'G-SC6JGSYH6H',
+          capturePageView: 'rs',
+          whitelistedEvents: [
+            {
+              eventName: '',
+            },
+          ],
+          blacklistedEvents: [
+            {
+              eventName: '',
+            },
+          ],
+          useNativeSDKToSend: false,
+          eventFilteringOption: 'disable',
+          extendPageViewParams: false,
+          oneTrustCookieCategories: [],
+        },
+        id: 'disabled-id',
+        name: 'Disabled Destination',
+        updatedAt: '2023-03-14T11:34:29.216Z',
+        enabled: false,
+        destinationDefinition: {
+          name: 'DISABLED',
+          displayName: 'Disabled Destination',
+          updatedAt: '2023-03-14T11:21:29.656Z',
+        },
+        shouldApplyDeviceModeTransformation: false,
+        propagateEventsUntransformedOnError: false,
+      },
+    ];
+
+    const actualOutcome = getDestinationsFromConfig(disabledDestination);
+
+    expect(actualOutcome[0]!.enabled).toBe(false);
+  });
+
+  it('should default shouldApplyDeviceModeTransformation to false when undefined', () => {
+    // Create a destination with undefined shouldApplyDeviceModeTransformation
+    // @ts-expect-error - shouldApplyDeviceModeTransformation is intentionally omitted
+    const destinationWithUndefinedTransformation = {
+      config: {
+        measurementId: 'G-SC6JGSYH6H',
+        capturePageView: 'rs',
+        whitelistedEvents: [
+          {
+            eventName: '',
+          },
+        ],
+        blacklistedEvents: [
+          {
+            eventName: '',
+          },
+        ],
+        useNativeSDKToSend: false,
+        eventFilteringOption: 'disable',
+        extendPageViewParams: false,
+        oneTrustCookieCategories: [],
+      },
+      id: 'test-id',
+      name: 'Test Destination',
+      updatedAt: '2023-03-14T11:34:29.216Z',
+      enabled: true,
+      destinationDefinition: {
+        name: 'TEST',
+        displayName: 'Test Destination',
+        updatedAt: '2023-03-14T11:21:29.656Z',
+      },
+      propagateEventsUntransformedOnError: false,
+    } as ConfigResponseDestinationItem;
+
+    const actualOutcome = getDestinationsFromConfig([destinationWithUndefinedTransformation]);
+
+    expect(actualOutcome[0]!.shouldApplyDeviceModeTransformation).toBe(false);
+  });
+
+  it('should default propagateEventsUntransformedOnError to false when undefined', () => {
+    // Create a destination with undefined propagateEventsUntransformedOnError
+    // @ts-expect-error - propagateEventsUntransformedOnError is intentionally omitted
+    const destinationWithUndefinedPropagation = {
+      config: {
+        measurementId: 'G-SC6JGSYH6H',
+        capturePageView: 'rs',
+        whitelistedEvents: [
+          {
+            eventName: '',
+          },
+        ],
+        blacklistedEvents: [
+          {
+            eventName: '',
+          },
+        ],
+        useNativeSDKToSend: false,
+        eventFilteringOption: 'disable',
+        extendPageViewParams: false,
+        oneTrustCookieCategories: [],
+      },
+      id: 'test-id',
+      name: 'Test Destination',
+      updatedAt: '2023-03-14T11:34:29.216Z',
+      enabled: true,
+      destinationDefinition: {
+        name: 'TEST',
+        displayName: 'Test Destination',
+        updatedAt: '2023-03-14T11:21:29.656Z',
+      },
+      shouldApplyDeviceModeTransformation: false,
+    } as ConfigResponseDestinationItem;
+
+    const actualOutcome = getDestinationsFromConfig([destinationWithUndefinedPropagation]);
+
+    expect(actualOutcome[0]!.propagateEventsUntransformedOnError).toBe(false);
   });
 });
