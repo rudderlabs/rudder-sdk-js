@@ -407,7 +407,7 @@ describe('deviceModeDestinations utils', () => {
       applySourceConfigurationOverrides(mockDestinations, override, defaultLogger);
 
       expect(defaultLogger.warn).toHaveBeenCalledWith(
-        'DeviceModeDestinationsPlugin:: Source configuration override - Unable to identify destinations with IDs "nonexistent1, nonexistent2"',
+        'DeviceModeDestinationsPlugin:: Source configuration override - Unable to identify the destinations with the following IDs: "nonexistent1, nonexistent2"',
       );
     });
 

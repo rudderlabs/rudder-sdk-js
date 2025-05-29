@@ -311,7 +311,7 @@ const applySourceConfigurationOverrides = (
 
   if (unmatchedIds.length > 0) {
     logger?.warn(
-      `${DEVICE_MODE_DESTINATIONS_PLUGIN}:: Source configuration override - Unable to identify destinations with IDs "${unmatchedIds.join(', ')}"`,
+      `${DEVICE_MODE_DESTINATIONS_PLUGIN}:: Source configuration override - Unable to identify the destinations with the following IDs: "${unmatchedIds.join(', ')}"`,
     );
   }
 
