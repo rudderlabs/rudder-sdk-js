@@ -100,10 +100,7 @@ export default [
       ]
     },
     rules: {
-      'compat/compat': [
-        'warn',
-        'browserslist'
-      ],
+      'compat/compat': 'warn',
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',
