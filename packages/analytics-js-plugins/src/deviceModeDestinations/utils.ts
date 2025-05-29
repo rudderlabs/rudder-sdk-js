@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { clone } from 'ramda';
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
@@ -293,19 +292,22 @@ const applySourceConfigurationOverrides = (
     return destinations;
   }
 
-  const destinationMap = new Map(destinations.map(dest => [dest.id, dest]));
+  const destIds = destinations.reduce((acc: string[], dest) => {
+    acc.push(dest.id);
+    return acc;
+  }, []);
 
   // Group overrides by destination ID to support future cloning
   // When cloning is implemented, multiple overrides with same ID will create multiple destination instances
-  const overridesByDestId = new Map<string, SourceConfigurationOverrideDestination[]>();
+  const overridesByDestId: Record<string, SourceConfigurationOverrideDestination[]> = {};
   sourceConfigOverride.destinations.forEach((override: SourceConfigurationOverrideDestination) => {
-    const existing = overridesByDestId.get(override.id) || [];
+    const existing = overridesByDestId[override.id] || [];
     existing.push(override);
-    overridesByDestId.set(override.id, existing);
+    overridesByDestId[override.id] = existing;
   });
 
   // Find unmatched destination IDs and log warning
-  const unmatchedIds = Array.from(overridesByDestId.keys()).filter(id => !destinationMap.has(id));
+  const unmatchedIds = Object.keys(overridesByDestId).filter(id => !destIds.includes(id));
 
   if (unmatchedIds.length > 0) {
     logger?.warn(
@@ -317,7 +319,7 @@ const applySourceConfigurationOverrides = (
   const processedDestinations: Destination[] = [];
 
   destinations.forEach(dest => {
-    const overrides = overridesByDestId.get(dest.id);
+    const overrides = overridesByDestId[dest.id];
     if (!overrides || overrides.length === 0) {
       // No override for this destination, keep original
       processedDestinations.push(dest);

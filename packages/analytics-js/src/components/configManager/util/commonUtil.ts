@@ -42,7 +42,7 @@ import {
   isMetricsReportingEnabled,
 } from '../../utilities/statsCollection';
 import { getDomain, removeTrailingSlashes } from '../../utilities/url';
-import type { SourceConfigResponse } from '../types';
+import type { ConfigResponseDestinationItem, SourceConfigResponse } from '../types';
 import {
   DEFAULT_DATA_SERVICE_ENDPOINT,
   DEFAULT_STORAGE_ENCRYPTION_VERSION,
@@ -51,7 +51,6 @@ import {
 import { getDataServiceUrl, isValidStorageType, isWebpageTopLevelDomain } from './validate';
 import { getConsentManagementData } from '../../utilities/consent';
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
-import type { ConfigResponseDestinationItem } from '../types';
 
 /**
  * Determines the SDK URL

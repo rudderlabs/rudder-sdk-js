@@ -24,7 +24,7 @@ export default [
   {
     name: 'Core - Legacy - CDN',
     path: 'dist/cdn/legacy/iife/rsa.min.js',
-    limit: '48.2 KiB',
+    limit: '48.5 KiB',
   },
   {
     name: 'Core - Modern - NPM (ESM)',
