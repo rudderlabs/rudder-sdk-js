@@ -69,6 +69,17 @@ const handlers = [
       },
     });
   }),
+  http.get(`${dummyDataplaneHost}/timeoutSample.js`, () => {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve(
+          new HttpResponse(null, {
+            status: 200,
+          }),
+        );
+      }, 11000); // 11 seconds, a little more than the default timeout
+    });
+  }),
   http.get(`${dummyDataplaneHost}/sourceConfig`, () => {
     return new HttpResponse(JSON.stringify(dummySourceConfigResponse), {
       status: 200,
