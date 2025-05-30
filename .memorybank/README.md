@@ -19,12 +19,14 @@ This directory contains structured information about the RudderStack JavaScript 
 
 ### Overview
 
+- [00_memory_bank_maintenance.md](00_memory_bank_maintenance.md): Memory Bank Maintenance Instructions
 - [01_project_overview.md](01_project_overview.md): Project Overview
 - [01a_common_terminology.md](01a_common_terminology.md): Common Terminology
 - [02_technical_stack.md](02_technical_stack.md): Technical Stack
 - [03_system_architecture.md](03_system_architecture.md): System Architecture
 - [04_git_workflow_cicd.md](04_git_workflow_cicd.md): Git Workflow and CI/CD
 - [05_code_structure.md](05_code_structure.md): Code Structure
+- [06_task_implementation_workflow.md](06_task_implementation_workflow.md): Task Implementation Workflow
 
 ### Updates
 
