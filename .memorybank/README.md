@@ -1,36 +1,33 @@
-# RudderStack JavaScript SDK
+# RudderStack JavaScript SDK - Memory Bank
 
-This is the memory bank for the RudderStack JavaScript SDK project.
+This memory bank contains structured knowledge about the RudderStack JavaScript SDK project for AI agent reference.
 
-RudderStack JavaScript SDK is a library that allows you to track events and send them to the third-party tools/SDKs and RudderStack backend.
+## 📚 Quick Navigation
 
-## Key Features
+### **Core Information**
 
-- Cross-browser compatibility.
-- Supports both device mode and cloud mode destinations.
-- Load specific SDK features on demand using plugins.
-- Fast, reliable, and less vulnerable to ad blockers.
-- Complete control over the persistent data storage strategy.
-- ITP (Intelligent Tracking Prevention) compliant as it implements server-side cookies.
+- [01_project_overview.md](01_project_overview.md) - Project purpose, features, monorepo structure
+- [01a_common_terminology.md](01a_common_terminology.md) - RudderStack and SDK terminology
 
-## Memory Bank
+### **Technical Details**
 
-This directory contains structured information about the RudderStack JavaScript SDK project, organized in markdown files. This memory bank follows best practices for AI agent knowledge management, using a hierarchical structure with clear, well-organized information.
+- [02_technical_stack.md](02_technical_stack.md) - Technologies, tools, and dependencies
+- [03_system_architecture.md](03_system_architecture.md) - Architecture and data flow
+- [05_code_structure.md](05_code_structure.md) - Monorepo layout and package details
 
-### Overview
+### **Processes & Workflows**
 
-- [00_memory_bank_maintenance.md](00_memory_bank_maintenance.md): Memory Bank Maintenance Instructions
-- [01_project_overview.md](01_project_overview.md): Project Overview
-- [01a_common_terminology.md](01a_common_terminology.md): Common Terminology
-- [02_technical_stack.md](02_technical_stack.md): Technical Stack
-- [03_system_architecture.md](03_system_architecture.md): System Architecture
-- [04_git_workflow_cicd.md](04_git_workflow_cicd.md): Git Workflow and CI/CD
-- [05_code_structure.md](05_code_structure.md): Code Structure
-- [06_task_implementation_workflow.md](06_task_implementation_workflow.md): Task Implementation Workflow
+- [04_git_workflow_cicd.md](04_git_workflow_cicd.md) - Git workflow and CI/CD
+- [06_task_implementation_workflow.md](06_task_implementation_workflow.md) - Task implementation guide
 
-### Updates
+### **Meta Information**
 
-When significant changes are made to the project, update the relevant memory bank files to keep the memory bank current and useful.
+- [00_memory_bank_maintenance.md](00_memory_bank_maintenance.md) - How to maintain this memory bank
 
-> **Note:**
-> Each file is designed to be explicit, unambiguous, and easy to parse and reference. Update these files as the project evolves to keep the memory bank current and useful.
+## 🎯 Purpose
+
+Enable AI agents to quickly understand and work with the RudderStack JavaScript SDK codebase across memory resets. While primarily designed for AI agent context, this knowledge base can also provide some onboarding value for new engineers.
+
+---
+
+**Note**: Files are designed for quick scanning and reference. Update as the project evolves.

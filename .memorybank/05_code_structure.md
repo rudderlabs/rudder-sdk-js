@@ -1,5 +1,30 @@
 # Code Structure
 
+## ⚡ Quick Reference
+
+### **Most Used Packages**
+
+- **`analytics-js-common`** - Shared utilities and types
+- **`analytics-js-plugins`** - Plugin implementations
+- **`analytics-js`** - Main SDK for browsers
+
+### **Common Utilities** (from `analytics-js-common`)
+
+- `removeUndefinedAndNullValues()` - Clean objects
+- `isNonEmptyObject()` - Object validation
+- `mergeDeepRight()` - Deep merge objects (Ramda)
+- `clone()` - Deep clone objects (Ramda)
+
+### **Key Directories**
+
+```
+packages/analytics-js-plugins/src/        # Plugin source code
+packages/analytics-js-common/src/types/   # Shared TypeScript types
+packages/analytics-js-common/src/utilities/ # Helper functions
+```
+
+---
+
 This monorepo contains multiple packages, each serving a distinct role in the RudderStack JavaScript SDK ecosystem. Below is an overview of the main packages and their responsibilities.
 
 ---
