@@ -1,6 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { clone } from 'ramda';
-import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
+import {
+  isNonEmptyObject,
+  mergeDeepRight,
+  removeUndefinedAndNullValues,
+} from '@rudderstack/analytics-js-common/utilities/object';
 import type {
   Destination,
   DeviceModeDestination,
@@ -336,11 +340,14 @@ const applySourceConfigurationOverrides = (
     // 5. The destination is marked as overridden if the enabled status or config or both have changed
     // 6. The destination is added to the processedDestinations array
     // if (overrides.length > 1) {
-    //   overrides.forEach((override: SourceConfigurationOverrideDestination) => {
-    //     const overriddenDestination = applyOverrideToDestination(dest, override, cloneId);
+    //   overrides.forEach((override: SourceConfigurationOverrideDestination, index: number) => {
+    //     const overriddenDestination = applyOverrideToDestination(dest, override, `${index + 1}`);
     //     overriddenDestination.cloned = true;
     //     processedDestinations.push(overriddenDestination);
     //   });
+    // } else {
+    //   const overriddenDestination = applyOverrideToDestination(dest, overrides[0]!);
+    //   processedDestinations.push(overriddenDestination);
     // }
   });
 
@@ -364,11 +371,11 @@ const applyOverrideToDestination = (
   const isEnabledStatusChanged =
     isBoolean(override.enabled) && override.enabled !== destination.enabled;
 
-  // TODO: Check if config is provided
-  // const isConfigChanged = override.config && Object.keys(override.config).length > 0;
+  // Check if config is provided
+  const isConfigChanged = isNonEmptyObject(override.config);
 
   // If no changes needed and no cloneId, return original destination
-  if (!isEnabledStatusChanged && !cloneId) {
+  if (!isEnabledStatusChanged && !isConfigChanged && !cloneId) {
     return destination;
   }
 
@@ -387,12 +394,12 @@ const applyOverrideToDestination = (
     clonedDest.overridden = true;
   }
 
-  // TODO: Apply config overrides if provided
-  // This will be implemented when config override support is added
-  // if (isConfigChanged) {
-  //   clonedDest.config = { ...clonedDest.config, ...override.config };
-  //   clonedDest.overridden = true;
-  // }
+  // Apply config overrides if provided
+  if (isConfigChanged) {
+    // Override the config with the new config and remove undefined and null values
+    clonedDest.config = removeUndefinedAndNullValues({ ...clonedDest.config, ...override.config });
+    clonedDest.overridden = true;
+  }
 
   return clonedDest;
 };

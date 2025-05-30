@@ -430,11 +430,10 @@ describe('deviceModeDestinations utils', () => {
 
       const result = applySourceConfigurationOverrides(mockDestinations, override);
 
-      expect(result[0]).toBe(mockDestinations[0]); // Same reference since no changes
+      expect(result[0]).not.toBe(mockDestinations[0]); // Different reference due to config override
       expect(result[0]?.enabled).toBe(true); // Original value preserved
-      expect(result[0]?.overridden).toBeUndefined();
-      // Config overrides are not yet implemented
-      expect((result[0]?.config as any).newProperty).toBeUndefined(); // Not applied yet
+      expect(result[0]?.overridden).toBe(true); // Marked as overridden due to config changes
+      expect((result[0]?.config as any).newProperty).toBe('value'); // Config override applied
     });
 
     it('should handle non-boolean enabled values in override', () => {
@@ -509,10 +508,10 @@ describe('deviceModeDestinations utils', () => {
       };
       const result = applyOverrideToDestination(mockDestination, override);
 
-      expect(result).toBe(mockDestination); // Same reference since config override not implemented yet
+      expect(result).not.toBe(mockDestination); // Different reference due to config override
       expect(result.enabled).toBe(true);
-      expect(result.overridden).toBeUndefined();
-      // Note: config override is not yet implemented, so newProperty won't be applied
+      expect(result.overridden).toBe(true); // Marked as overridden due to config changes
+      expect((result.config as any).newProperty).toBe('value'); // Config override applied
     });
 
     it('should return original destination when no changes needed', () => {
@@ -593,6 +592,90 @@ describe('deviceModeDestinations utils', () => {
       );
       expect(result.config).toEqual(mockDestination.config);
       expect(result.config).not.toBe(mockDestination.config); // Deep cloned
+    });
+
+    // Config override specific tests
+    it('should apply config overrides correctly', () => {
+      const override = {
+        id: 'dest1',
+        config: {
+          newProperty: 'newValue',
+          apiKey: 'overriddenKey', // Override existing property
+        },
+      };
+      const result = applyOverrideToDestination(mockDestination, override);
+
+      expect(result).not.toBe(mockDestination);
+      expect(result.overridden).toBe(true);
+      expect((result.config as any).newProperty).toBe('newValue');
+      expect(result.config.apiKey).toBe('overriddenKey');
+      expect(result.config.eventFilteringOption).toBe('disable'); // Inherited property
+    });
+
+    it('should remove properties when config value is null', () => {
+      const override = {
+        id: 'dest1',
+        config: {
+          apiKey: null, // Remove this property
+          newProperty: 'value',
+        },
+      };
+      const result = applyOverrideToDestination(mockDestination, override);
+
+      expect(result).not.toBe(mockDestination);
+      expect(result.overridden).toBe(true);
+      expect(result.config.apiKey).toBeUndefined(); // Property removed
+      expect((result.config as any).newProperty).toBe('value');
+      expect(result.config.eventFilteringOption).toBe('disable'); // Inherited property
+    });
+
+    it('should remove properties when config value is undefined', () => {
+      const override = {
+        id: 'dest1',
+        config: {
+          apiKey: undefined, // Remove this property
+          newProperty: 'value',
+        },
+      };
+      const result = applyOverrideToDestination(mockDestination, override);
+
+      expect(result).not.toBe(mockDestination);
+      expect(result.overridden).toBe(true);
+      expect(result.config.apiKey).toBeUndefined(); // Property removed
+      expect((result.config as any).newProperty).toBe('value');
+      expect(result.config.eventFilteringOption).toBe('disable'); // Inherited property
+    });
+
+    it('should handle data type changes in config override', () => {
+      const override = {
+        id: 'dest1',
+        config: {
+          apiKey: { nested: 'object' }, // String to object
+          blacklistedEvents: 'stringValue', // Array to string
+        },
+      };
+      const result = applyOverrideToDestination(mockDestination, override);
+
+      expect(result).not.toBe(mockDestination);
+      expect(result.overridden).toBe(true);
+      expect(result.config.apiKey).toEqual({ nested: 'object' });
+      expect(result.config.blacklistedEvents).toBe('stringValue');
+    });
+
+    it('should combine enabled and config overrides', () => {
+      const override = {
+        id: 'dest1',
+        enabled: false,
+        config: {
+          newProperty: 'value',
+        },
+      };
+      const result = applyOverrideToDestination(mockDestination, override);
+
+      expect(result).not.toBe(mockDestination);
+      expect(result.enabled).toBe(false);
+      expect(result.overridden).toBe(true);
+      expect((result.config as any).newProperty).toBe('value');
     });
   });
 });
