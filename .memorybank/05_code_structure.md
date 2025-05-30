@@ -21,6 +21,22 @@ packages/
 
 ---
 
+## Implementation Patterns & Best Practices
+
+### Utility Reuse
+
+- **Preference for Existing Utilities**: Always leverage existing utilities from `analytics-js-common/utilities` instead of creating custom implementations
+- **Example**: Use `removeUndefinedAndNullValues()` for object cleanup rather than manual property deletion loops
+- **Common Utilities**: `isNonEmptyObject()`, `removeUndefinedAndNullValues()`, `mergeDeepRight()`, `clone()` from Ramda
+
+### Code Style
+
+- **Concise Solutions**: Favor readable, concise implementations over verbose custom helper functions
+- **Single Responsibility**: Each function should have a clear, single purpose
+- **Minimal Code Changes**: Only modify sections related to the task at hand, avoid unnecessary refactoring
+
+---
+
 ## Package Descriptions
 
 ### `analytics-js`
