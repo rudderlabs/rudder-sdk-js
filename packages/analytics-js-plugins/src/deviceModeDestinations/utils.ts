@@ -292,10 +292,7 @@ const applySourceConfigurationOverrides = (
     return destinations;
   }
 
-  const destIds = destinations.reduce((acc: string[], dest) => {
-    acc.push(dest.id);
-    return acc;
-  }, []);
+  const destIds = destinations.map(dest => dest.id);
 
   // Group overrides by destination ID to support future cloning
   // When cloning is implemented, multiple overrides with same ID will create multiple destination instances
