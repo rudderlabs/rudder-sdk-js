@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { clone } from 'ramda';
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
@@ -15,7 +14,11 @@ import type { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Int
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { IdentifyTraits } from '@rudderstack/analytics-js-common/types/traits';
-import type { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import type {
+  AnonymousIdOptions,
+  SourceConfigurationOverride,
+  SourceConfigurationOverrideDestination,
+} from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { DeviceModeDestinationsAnalyticsInstance } from './types';
 import {
   DEVICE_MODE_DESTINATIONS_PLUGIN,
@@ -36,6 +39,7 @@ import {
   trackArgumentsToCallOptions,
 } from '../shared-chunks/deviceModeDestinations';
 import { getSanitizedValue, isFunction } from '../shared-chunks/common';
+import { isBoolean } from '@rudderstack/analytics-js-common/utilities/checks';
 
 /**
  * Determines if the destination SDK code is evaluated
@@ -272,6 +276,127 @@ const initializeDestination = (
   }
 };
 
+/**
+ * Applies source configuration overrides to destinations
+ * @param destinations Array of destinations to process
+ * @param sourceConfigOverride Source configuration override options
+ * @param logger Logger instance for warnings
+ * @returns Array of destinations with overrides applied
+ */
+const applySourceConfigurationOverrides = (
+  destinations: Destination[],
+  sourceConfigOverride: SourceConfigurationOverride,
+  logger?: ILogger,
+): Destination[] => {
+  if (!sourceConfigOverride?.destinations?.length) {
+    return destinations;
+  }
+
+  const destIds = destinations.map(dest => dest.id);
+
+  // Group overrides by destination ID to support future cloning
+  // When cloning is implemented, multiple overrides with same ID will create multiple destination instances
+  const overridesByDestId: Record<string, SourceConfigurationOverrideDestination[]> = {};
+  sourceConfigOverride.destinations.forEach((override: SourceConfigurationOverrideDestination) => {
+    const existing = overridesByDestId[override.id] || [];
+    existing.push(override);
+    overridesByDestId[override.id] = existing;
+  });
+
+  // Find unmatched destination IDs and log warning
+  const unmatchedIds = Object.keys(overridesByDestId).filter(id => !destIds.includes(id));
+
+  if (unmatchedIds.length > 0) {
+    logger?.warn(
+      `${DEVICE_MODE_DESTINATIONS_PLUGIN}:: Source configuration override - Unable to identify the destinations with the following IDs: "${unmatchedIds.join(', ')}"`,
+    );
+  }
+
+  // Process overrides and apply them to destinations
+  const processedDestinations: Destination[] = [];
+
+  destinations.forEach(dest => {
+    const overrides = overridesByDestId[dest.id];
+    if (!overrides || overrides.length === 0) {
+      // No override for this destination, keep original
+      processedDestinations.push(dest);
+      return;
+    }
+
+    // For now, we assume there will be only one entry in the overrides array
+    const overriddenDestination = applyOverrideToDestination(dest, overrides[0]!);
+    processedDestinations.push(overriddenDestination);
+
+    // TODO: Future enhancement - Support for cloning destinations
+    // When cloning is implemented, this is where we would:
+    // 1. Process each override in the overrides array, if there is more than one entry in the overrides array, then it's a clone scenario
+    // 2. Each entry in the overrides array is treated as a clone of the destination
+    // 3. Each clone is applied to the destination
+    // 4. The destination is marked as cloned
+    // 5. The destination is marked as overridden if the enabled status or config or both have changed
+    // 6. The destination is added to the processedDestinations array
+    // if (overrides.length > 1) {
+    //   overrides.forEach((override: SourceConfigurationOverrideDestination) => {
+    //     const overriddenDestination = applyOverrideToDestination(dest, override, cloneId);
+    //     overriddenDestination.cloned = true;
+    //     processedDestinations.push(overriddenDestination);
+    //   });
+    // }
+  });
+
+  return processedDestinations;
+};
+
+/**
+ * Applies a single override configuration to a destination
+ * @param destination Original destination
+ * @param override Override configuration
+ * @param cloneId Unique identifier for the clone,
+ * if provided, the value is appended to the id and userFriendlyId of the destination
+ * @returns Modified destination with override applied
+ */
+const applyOverrideToDestination = (
+  destination: Destination,
+  override: SourceConfigurationOverrideDestination,
+  cloneId?: string,
+): Destination => {
+  // Check if any changes are needed
+  const isEnabledStatusChanged =
+    isBoolean(override.enabled) && override.enabled !== destination.enabled;
+
+  // TODO: Check if config is provided
+  // const isConfigChanged = override.config && Object.keys(override.config).length > 0;
+
+  // If no changes needed and no cloneId, return original destination
+  if (!isEnabledStatusChanged && !cloneId) {
+    return destination;
+  }
+
+  // Clone destination and apply overrides
+  const clonedDest = clone(destination);
+  if (cloneId) {
+    clonedDest.id = `${destination.id}_${cloneId}`;
+    clonedDest.userFriendlyId = `${destination.userFriendlyId}_${cloneId}`;
+  }
+
+  // Apply enabled status override if provided and different
+  if (isEnabledStatusChanged) {
+    clonedDest.enabled = override.enabled!;
+
+    // Mark as overridden
+    clonedDest.overridden = true;
+  }
+
+  // TODO: Apply config overrides if provided
+  // This will be implemented when config override support is added
+  // if (isConfigChanged) {
+  //   clonedDest.config = { ...clonedDest.config, ...override.config };
+  //   clonedDest.overridden = true;
+  // }
+
+  return clonedDest;
+};
+
 export {
   isDestinationSDKMounted,
   wait,
@@ -279,4 +404,6 @@ export {
   isDestinationReady,
   getCumulativeIntegrationsConfig,
   initializeDestination,
+  applySourceConfigurationOverrides,
+  applyOverrideToDestination,
 };

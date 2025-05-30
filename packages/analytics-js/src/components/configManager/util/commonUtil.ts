@@ -42,7 +42,7 @@ import {
   isMetricsReportingEnabled,
 } from '../../utilities/statsCollection';
 import { getDomain, removeTrailingSlashes } from '../../utilities/url';
-import type { SourceConfigResponse } from '../types';
+import type { ConfigResponseDestinationItem, SourceConfigResponse } from '../types';
 import {
   DEFAULT_DATA_SERVICE_ENDPOINT,
   DEFAULT_STORAGE_ENCRYPTION_VERSION,
@@ -50,6 +50,7 @@ import {
 } from '../constants';
 import { getDataServiceUrl, isValidStorageType, isWebpageTopLevelDomain } from './validate';
 import { getConsentManagementData } from '../../utilities/consent';
+import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 
 /**
  * Determines the SDK URL
@@ -391,6 +392,24 @@ const getSourceConfigURL = (
   return `${origin}${pathname}?${searchParams}${hash}`;
 };
 
+/**
+ * Transforms destinations config from source config response to Destination format
+ * @param destinations Array of destination items from config response
+ * @returns Array of transformed Destination objects
+ */
+const getDestinationsFromConfig = (destinations: ConfigResponseDestinationItem[]): Destination[] =>
+  destinations.map((destination: ConfigResponseDestinationItem) => ({
+    id: destination.id,
+    displayName: destination.destinationDefinition.displayName,
+    enabled: destination.enabled,
+    config: destination.config,
+    shouldApplyDeviceModeTransformation: destination.shouldApplyDeviceModeTransformation ?? false,
+    propagateEventsUntransformedOnError: destination.propagateEventsUntransformedOnError ?? false,
+    userFriendlyId: `${destination.destinationDefinition.displayName.replaceAll(' ', '-')}___${
+      destination.id
+    }`,
+  }));
+
 export {
   getSDKUrl,
   updateReportingState,
@@ -399,4 +418,5 @@ export {
   updateConsentsState,
   updateDataPlaneEventsStateFromLoadOptions,
   getSourceConfigURL,
+  getDestinationsFromConfig,
 };

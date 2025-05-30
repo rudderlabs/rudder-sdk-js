@@ -220,5 +220,14 @@
     "commitizen": {
       "path": "./scripts/commitizen"
     }
+  },
+  "browserslist": {
+    "production": [
+      "> 0.1%",
+      "IE >= 11"
+    ],
+    "modern": [
+      "defaults and supports es6-module-dynamic-import and not dead"
+    ]
   }
 }

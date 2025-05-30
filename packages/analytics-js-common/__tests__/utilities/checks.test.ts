@@ -7,6 +7,7 @@ import {
   isTypeOfError,
   isDefined,
   isDefinedAndNotNull,
+  isBoolean,
 } from '../../src/utilities/checks';
 
 describe('Common Utils - Checks', () => {
@@ -90,6 +91,20 @@ describe('Common Utils - Checks', () => {
       expect(isDefinedAndNotNull([])).toBeTruthy();
       expect(isDefinedAndNotNull(null)).toBeFalsy();
       expect(isDefinedAndNotNull(undefined)).toBeFalsy();
+    });
+  });
+
+  describe('isBoolean', () => {
+    it('should check if value is boolean', () => {
+      expect(isBoolean(true)).toBeTruthy();
+      expect(isBoolean(false)).toBeTruthy();
+      expect(isBoolean('')).toBeFalsy();
+      expect(isBoolean(0)).toBeFalsy();
+      expect(isBoolean(1)).toBeFalsy();
+      expect(isBoolean({})).toBeFalsy();
+      expect(isBoolean([])).toBeFalsy();
+      expect(isBoolean(null)).toBeFalsy();
+      expect(isBoolean(undefined)).toBeFalsy();
     });
   });
 });

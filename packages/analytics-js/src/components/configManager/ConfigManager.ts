@@ -24,7 +24,6 @@ import {
   SOURCE_CONFIG_RESOLUTION_ERROR,
   SOURCE_DISABLED_ERROR,
 } from '../../constants/logMessages';
-import { filterEnabledDestination } from '../utilities/destinations';
 import { removeTrailingSlashes } from '../utilities/url';
 import { APP_VERSION } from '../../constants/app';
 import { state } from '../../state';
@@ -37,6 +36,7 @@ import {
   updateDataPlaneEventsStateFromLoadOptions,
   updateReportingState,
   updateStorageStateFromLoadOptions,
+  getDestinationsFromConfig,
 } from './util/commonUtil';
 import { METRICS_SERVICE_ENDPOINT } from './constants';
 
@@ -186,7 +186,7 @@ class ConfigManager implements IConfigManager {
     updateReportingState(res);
 
     const nativeDestinations: Destination[] =
-      res.source.destinations.length > 0 ? filterEnabledDestination(res.source.destinations) : [];
+      res.source.destinations.length > 0 ? getDestinationsFromConfig(res.source.destinations) : [];
 
     // set in the state --> source, destination, lifecycle, reporting
     batch(() => {

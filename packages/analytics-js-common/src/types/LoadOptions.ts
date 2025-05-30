@@ -131,6 +131,19 @@ export type AutoTrackOptions = {
 };
 
 /**
+ * Represents the source configuration override options for destinations
+ */
+export type SourceConfigurationOverrideDestination = {
+  id: string;
+  enabled?: boolean;
+  config?: Record<string, any>;
+};
+
+export type SourceConfigurationOverride = {
+  destinations: SourceConfigurationOverrideDestination[];
+};
+
+/**
  * Represents the options parameter in the load API
  */
 export type LoadOptions = {
@@ -179,4 +192,5 @@ export type LoadOptions = {
   useServerSideCookies?: boolean;
   dataServiceEndpoint?: string;
   autoTrack?: AutoTrackOptions;
+  sourceConfigurationOverride?: SourceConfigurationOverride;
 };

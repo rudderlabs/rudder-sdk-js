@@ -167,6 +167,7 @@ const destinations = [
     userFriendlyId: 'dummyDestinationId',
     shouldApplyDeviceModeTransformation: false,
     propagateEventsUntransformedOnError: false,
+    enabled: true,
     config: dummySourceConfigResponse.source.destinations[0]?.config as DestinationConfig,
   },
   {
@@ -175,6 +176,7 @@ const destinations = [
     userFriendlyId: 'dummyDestinationId2',
     shouldApplyDeviceModeTransformation: false,
     propagateEventsUntransformedOnError: false,
+    enabled: true,
     config: dummySourceConfigResponse.source.destinations[1]?.config as DestinationConfig,
   },
   {
@@ -183,6 +185,7 @@ const destinations = [
     userFriendlyId: 'dummyDestinationId3',
     shouldApplyDeviceModeTransformation: false,
     propagateEventsUntransformedOnError: false,
+    enabled: true,
     config: dummySourceConfigResponse.source.destinations[2]?.config as DestinationConfig,
   },
   {
@@ -191,6 +194,7 @@ const destinations = [
     userFriendlyId: 'dummyDestinationId4',
     shouldApplyDeviceModeTransformation: false,
     propagateEventsUntransformedOnError: false,
+    enabled: true,
     config: dummySourceConfigResponse.source.destinations[3]?.config as DestinationConfig,
   },
 ];

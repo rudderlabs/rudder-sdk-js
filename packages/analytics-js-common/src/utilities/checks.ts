@@ -79,6 +79,13 @@ const isTypeOfError = (value: any): boolean => {
   }
 };
 
+/**
+ * A function to check given value is a boolean
+ * @param value input value
+ * @returns boolean
+ */
+const isBoolean = (value: any): value is boolean => typeof value === 'boolean';
+
 export {
   isFunction,
   isString,
@@ -90,4 +97,5 @@ export {
   isDefinedAndNotNull,
   isDefinedNotNullAndNotEmptyString,
   isBigInt,
+  isBoolean,
 };
