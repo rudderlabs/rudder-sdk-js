@@ -86,5 +86,4 @@ export type Destination = {
   instance?: DeviceModeDestination;
   overridden?: boolean;
   enabled: boolean;
-  cloned?: boolean;
 };
