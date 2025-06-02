@@ -187,7 +187,7 @@ describe('XhrQueue', () => {
     // In actual implementation, this is done based on the state signals
     queue.start();
 
-    expect(defaultLogger.error).toHaveBeenCalledWith(
+    expect(defaultLogger.warn).toHaveBeenCalledWith(
       'XhrQueuePlugin:: Failed to deliver event(s). Cause: Too many requests. The event(s) will be retried.',
     );
 

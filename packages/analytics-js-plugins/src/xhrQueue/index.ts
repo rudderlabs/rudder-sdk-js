@@ -12,7 +12,7 @@ import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsM
 import {
   getNormalizedQueueOptions,
   getDeliveryUrl,
-  logErrorOnFailure,
+  logMessageOnFailure,
   getRequestInfo,
   getBatchDeliveryPayload,
 } from './utilities';
@@ -103,7 +103,7 @@ const XhrQueue = (): ExtensionPlugin => ({
 
               const isRetryable = isErrRetryable(details?.xhr?.status ?? 0);
 
-              logErrorOnFailure(details, isRetryable, qItemProcessInfo, logger);
+              logMessageOnFailure(details, isRetryable, qItemProcessInfo, logger);
 
               // null means item will not be processed further and will be removed from the queue (even from the storage)
               const queueErrResp = isRetryable ? details : null;
