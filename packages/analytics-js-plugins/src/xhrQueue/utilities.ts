@@ -40,31 +40,34 @@ const getDeliveryUrl = (dataplaneUrl: string, endpoint: string): string => {
 
 const getBatchDeliveryUrl = (dataplaneUrl: string): string => getDeliveryUrl(dataplaneUrl, 'batch');
 
-const logErrorOnFailure = (
+const logMessageOnFailure = (
   details: ResponseDetails | undefined,
   isRetryable: boolean,
   qItemProcessInfo: QueueProcessCallbackInfo,
   logger?: ILogger,
 ) => {
-  let errMsg = EVENT_DELIVERY_FAILURE_ERROR_PREFIX(
+  let logMsg = EVENT_DELIVERY_FAILURE_ERROR_PREFIX(
     XHR_QUEUE_PLUGIN,
     details?.error?.message ?? 'Unknown',
   );
   const dropMsg = `The event(s) will be dropped.`;
   if (isRetryable) {
     if (qItemProcessInfo.willBeRetried) {
-      errMsg = `${errMsg} The event(s) will be retried.`;
+      logMsg = `${logMsg} The event(s) will be retried.`;
       if (qItemProcessInfo.retryAttemptNumber > 0) {
-        errMsg = `${errMsg} Retry attempt ${qItemProcessInfo.retryAttemptNumber} of ${qItemProcessInfo.maxRetryAttempts}.`;
+        logMsg = `${logMsg} Retry attempt ${qItemProcessInfo.retryAttemptNumber} of ${qItemProcessInfo.maxRetryAttempts}.`;
       }
+      // Use warning for retryable failures that will be retried
+      logger?.warn(logMsg);
     } else {
-      errMsg = `${errMsg} Retries exhausted (${qItemProcessInfo.maxRetryAttempts}). ${dropMsg}`;
+      logger?.error(
+        `${logMsg} Retries exhausted (${qItemProcessInfo.maxRetryAttempts}). ${dropMsg}`,
+      );
     }
   } else {
-    errMsg = `${errMsg} ${dropMsg}`;
+    // Use error for non-retryable failures
+    logger?.error(`${logMsg} ${dropMsg}`);
   }
-
-  logger?.error(errMsg);
 };
 
 const getRequestInfo = (
@@ -121,7 +124,7 @@ const getRequestInfo = (
 export {
   getNormalizedQueueOptions,
   getDeliveryUrl,
-  logErrorOnFailure,
+  logMessageOnFailure,
   getBatchDeliveryUrl,
   getRequestInfo,
   getBatchDeliveryPayload,

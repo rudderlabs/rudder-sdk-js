@@ -7,7 +7,7 @@ import {
   getNormalizedQueueOptions,
   getDeliveryUrl,
   getBatchDeliveryUrl,
-  logErrorOnFailure,
+  logMessageOnFailure,
   getRequestInfo,
   getBatchDeliveryPayload,
 } from '../../src/xhrQueue/utilities';
@@ -114,13 +114,13 @@ describe('xhrQueue Plugin Utilities', () => {
     });
   });
 
-  describe('logErrorOnFailure', () => {
+  describe('logMessageOnFailure', () => {
     it('should log an error for delivery failure', () => {
       const details = {
         error: { message: 'Unauthorized' },
       } as ResponseDetails;
 
-      logErrorOnFailure(
+      logMessageOnFailure(
         details,
         false,
         {
@@ -139,7 +139,7 @@ describe('xhrQueue Plugin Utilities', () => {
       );
     });
 
-    it('should log an error for retryable network failure', () => {
+    it('should log a warning for retryable network failure', () => {
       const details = {
         error: { message: 'Too many requests' },
         xhr: {
@@ -147,7 +147,7 @@ describe('xhrQueue Plugin Utilities', () => {
         },
       } as ResponseDetails;
 
-      logErrorOnFailure(
+      logMessageOnFailure(
         details,
         true,
         {
@@ -161,7 +161,7 @@ describe('xhrQueue Plugin Utilities', () => {
         defaultLogger,
       );
 
-      expect(defaultLogger.error).toHaveBeenCalledWith(
+      expect(defaultLogger.warn).toHaveBeenCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s). Cause: Too many requests. The event(s) will be retried. Retry attempt 1 of 10.',
       );
 
@@ -169,7 +169,7 @@ describe('xhrQueue Plugin Utilities', () => {
       // @ts-expect-error Needed to set the status for testing
       (details.xhr as XMLHttpRequest).status = 429;
 
-      logErrorOnFailure(
+      logMessageOnFailure(
         details,
         true,
         {
@@ -182,7 +182,7 @@ describe('xhrQueue Plugin Utilities', () => {
         },
         defaultLogger,
       );
-      expect(defaultLogger.error).toHaveBeenCalledWith(
+      expect(defaultLogger.warn).toHaveBeenCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s). Cause: Too many requests. The event(s) will be retried.',
       );
 
@@ -190,7 +190,7 @@ describe('xhrQueue Plugin Utilities', () => {
       // @ts-expect-error Needed to set the status for testing
       (details.xhr as XMLHttpRequest).status = 500;
 
-      logErrorOnFailure(
+      logMessageOnFailure(
         details,
         true,
         {
@@ -204,7 +204,7 @@ describe('xhrQueue Plugin Utilities', () => {
         defaultLogger,
       );
 
-      expect(defaultLogger.error).toHaveBeenCalledWith(
+      expect(defaultLogger.warn).toHaveBeenCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s). Cause: Too many requests. The event(s) will be retried. Retry attempt 1 of 10.',
       );
 
@@ -212,7 +212,7 @@ describe('xhrQueue Plugin Utilities', () => {
       // @ts-expect-error Needed to set the status for testing
       (details.xhr as XMLHttpRequest).status = 501;
 
-      logErrorOnFailure(
+      logMessageOnFailure(
         details,
         true,
         {
@@ -226,7 +226,7 @@ describe('xhrQueue Plugin Utilities', () => {
         defaultLogger,
       );
 
-      expect(defaultLogger.error).toHaveBeenCalledWith(
+      expect(defaultLogger.warn).toHaveBeenCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s). Cause: Too many requests. The event(s) will be retried. Retry attempt 1 of 10.',
       );
 
@@ -234,7 +234,7 @@ describe('xhrQueue Plugin Utilities', () => {
       // @ts-expect-error Needed to set the status for testing
       (details.xhr as XMLHttpRequest).status = 600;
 
-      logErrorOnFailure(
+      logMessageOnFailure(
         details,
         true,
         {
@@ -248,7 +248,7 @@ describe('xhrQueue Plugin Utilities', () => {
         defaultLogger,
       );
 
-      expect(defaultLogger.error).toHaveBeenCalledWith(
+      expect(defaultLogger.warn).toHaveBeenCalledWith(
         'XhrQueuePlugin:: Failed to deliver event(s). Cause: Too many requests. The event(s) will be retried. Retry attempt 1 of 10.',
       );
 
@@ -256,7 +256,7 @@ describe('xhrQueue Plugin Utilities', () => {
       // @ts-expect-error Needed to set the status for testing
       (details.xhr as XMLHttpRequest).status = 520;
 
-      logErrorOnFailure(
+      logMessageOnFailure(
         details,
         true,
         {
