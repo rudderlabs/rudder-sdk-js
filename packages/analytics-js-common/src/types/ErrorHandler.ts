@@ -6,7 +6,7 @@ export type SDKError = unknown | Error | ErrorEvent | Event | PromiseRejectionEv
 
 export type ErrorInfo = {
   error: SDKError;
-  context?: string;
+  context: string;
   customMessage?: string;
   errorType?: ErrorType;
   groupingHash?: string | SDKError;
