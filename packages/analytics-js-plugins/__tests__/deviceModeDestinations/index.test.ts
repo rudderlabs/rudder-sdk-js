@@ -140,16 +140,10 @@ describe('DeviceModeDestinations Plugin', () => {
         mockLogger,
       );
 
-      expect(mockErrorHandler.onError).toHaveBeenCalledWith(
-        expect.any(Error),
-        'DeviceModeDestinationsPlugin',
-      );
-      expect(mockErrorHandler.onError).toHaveBeenCalledWith(
-        expect.objectContaining({
-          message: expect.stringContaining('Unsupported-Destination___dest3'),
-        }),
-        'DeviceModeDestinationsPlugin',
-      );
+      expect(mockErrorHandler.onError).toHaveBeenCalledWith({
+        context: 'DeviceModeDestinationsPlugin',
+        error: new Error('Integration for destination "Unsupported Destination" is not supported.'),
+      });
     });
 
     it('should set loadIntegration from loadOptions', () => {
