@@ -374,8 +374,14 @@ const applyOverrideToDestination = (
   // Check if config is provided
   const isConfigChanged = isNonEmptyObject(override.config);
 
+  // Determine the final enabled status after applying overrides
+  const finalEnabledStatus = isBoolean(override.enabled) ? override.enabled : destination.enabled;
+
+  // Check if config will actually be applied (only for enabled destinations)
+  const willApplyConfig = isConfigChanged && finalEnabledStatus;
+
   // If no changes needed and no cloneId, return original destination
-  if (!isEnabledStatusChanged && !isConfigChanged && !cloneId) {
+  if (!isEnabledStatusChanged && !willApplyConfig && !cloneId) {
     return destination;
   }
 
@@ -394,8 +400,8 @@ const applyOverrideToDestination = (
     clonedDest.overridden = true;
   }
 
-  // Apply config overrides if provided
-  if (isConfigChanged) {
+  // Apply config overrides if provided for enabled destination
+  if (willApplyConfig) {
     // Override the config with the new config and remove undefined and null values
     clonedDest.config = removeUndefinedAndNullValues({ ...clonedDest.config, ...override.config });
     clonedDest.overridden = true;
