@@ -46,6 +46,10 @@ const logMessageOnFailure = (
   qItemProcessInfo: QueueProcessCallbackInfo,
   logger?: ILogger,
 ) => {
+  if (!logger) {
+    return;
+  }
+
   let logMsg = EVENT_DELIVERY_FAILURE_ERROR_PREFIX(
     XHR_QUEUE_PLUGIN,
     details?.error?.message ?? 'Unknown',
@@ -58,15 +62,15 @@ const logMessageOnFailure = (
         logMsg = `${logMsg} Retry attempt ${qItemProcessInfo.retryAttemptNumber} of ${qItemProcessInfo.maxRetryAttempts}.`;
       }
       // Use warning for retryable failures that will be retried
-      logger?.warn(logMsg);
+      logger.warn(logMsg);
     } else {
-      logger?.error(
+      logger.error(
         `${logMsg} Retries exhausted (${qItemProcessInfo.maxRetryAttempts}). ${dropMsg}`,
       );
     }
   } else {
     // Use error for non-retryable failures
-    logger?.error(`${logMsg} ${dropMsg}`);
+    logger.error(`${logMsg} ${dropMsg}`);
   }
 };
 
