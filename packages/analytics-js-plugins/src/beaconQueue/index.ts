@@ -78,30 +78,34 @@ const BeaconQueue = (): ExtensionPlugin => ({
           getFinalEventForDeliveryMutator(queueItemData.event, currentTime),
         );
         const data = getBatchDeliveryPayload(finalEvents, currentTime, logger);
+        if (!data) {
+          // Mark the item as done so that it can be removed from the queue
+          done(null);
+          return;
+        }
 
-        if (data) {
-          try {
-            if (!navigator.sendBeacon(url, data)) {
-              if (isPageAccessible) {
-                logger?.error(
-                  `${BEACON_QUEUE_SEND_ERROR(BEACON_QUEUE_PLUGIN)} The event(s) will be dropped.`,
-                );
+        try {
+          if (!navigator.sendBeacon(url, data)) {
+            if (isPageAccessible) {
+              logger?.error(
+                `${BEACON_QUEUE_SEND_ERROR(BEACON_QUEUE_PLUGIN)} The event(s) will be dropped.`,
+              );
 
-                // Remove the item from queue
-                done(null);
-              } else {
-                logger?.warn(
-                  `${BEACON_QUEUE_SEND_ERROR(BEACON_QUEUE_PLUGIN)} The event(s) will be retried as the current page is being unloaded.`,
-                );
-              }
+              // Remove the item from queue
+              done(null);
+            } else {
+              // Note: We're not removing the item from the queue as we want to retry the request
+              logger?.warn(
+                `${BEACON_QUEUE_SEND_ERROR(BEACON_QUEUE_PLUGIN)} The event(s) will be retried as the current page is being unloaded.`,
+              );
             }
-          } catch (err) {
-            errorHandler?.onError(err, BEACON_QUEUE_PLUGIN, BEACON_QUEUE_DELIVERY_ERROR(url));
-            // Remove the item from queue
+          } else {
+            // Remove the item from queue as the request was successful
             done(null);
           }
-        } else {
-          // Mark the item as done so that it can be removed from the queue
+        } catch (err) {
+          errorHandler?.onError(err, BEACON_QUEUE_PLUGIN, BEACON_QUEUE_DELIVERY_ERROR(url));
+          // Remove the item from queue
           done(null);
         }
       };
