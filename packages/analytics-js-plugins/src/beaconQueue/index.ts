@@ -11,7 +11,7 @@ import type {
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import type { DoneCallback, IQueue } from '../types/plugins';
+import type { DoneCallback, IQueue, QueueProcessCallbackInfo } from '../types/plugins';
 import {
   getNormalizedBeaconQueueOptions,
   getDeliveryUrl,
@@ -65,7 +65,13 @@ const BeaconQueue = (): ExtensionPlugin => ({
         state.loadOptions.value.beaconQueueOptions ?? {},
       );
 
-      const queueProcessCallback = (itemData: BeaconQueueBatchItemData, done: DoneCallback) => {
+      const queueProcessCallback = (
+        itemData: BeaconQueueBatchItemData,
+        done: DoneCallback,
+        info: QueueProcessCallbackInfo,
+      ) => {
+        const { isPageAccessible } = info;
+
         logger?.debug(BEACON_PLUGIN_EVENTS_QUEUE_DEBUG(BEACON_QUEUE_PLUGIN));
         const currentTime = getCurrentTimeFormatted();
         const finalEvents = itemData.map((queueItemData: BeaconQueueItemData) =>
@@ -75,12 +81,20 @@ const BeaconQueue = (): ExtensionPlugin => ({
 
         if (data) {
           try {
-            const isEnqueuedInBeacon = navigator.sendBeacon(url, data);
-            if (!isEnqueuedInBeacon) {
-              logger?.error(BEACON_QUEUE_SEND_ERROR(BEACON_QUEUE_PLUGIN));
-            }
+            if (!navigator.sendBeacon(url, data)) {
+              if (isPageAccessible) {
+                logger?.error(
+                  `${BEACON_QUEUE_SEND_ERROR(BEACON_QUEUE_PLUGIN)} The event(s) will be dropped.`,
+                );
 
-            done(null, isEnqueuedInBeacon);
+                // Remove the item from queue
+                done(null);
+              } else {
+                logger?.warn(
+                  `${BEACON_QUEUE_SEND_ERROR(BEACON_QUEUE_PLUGIN)} The event(s) will be retried as the current page is being unloaded.`,
+                );
+              }
+            }
           } catch (err) {
             errorHandler?.onError(err, BEACON_QUEUE_PLUGIN, BEACON_QUEUE_DELIVERY_ERROR(url));
             // Remove the item from queue

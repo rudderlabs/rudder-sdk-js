@@ -140,6 +140,7 @@ describe('XhrQueue', () => {
         timeSinceFirstAttempt: expect.any(Number),
         timeSinceLastAttempt: expect.any(Number),
         reclaimed: false,
+        isPageAccessible: true,
       },
     );
 
@@ -298,6 +299,7 @@ describe('XhrQueue', () => {
         timeSinceFirstAttempt: expect.any(Number),
         timeSinceLastAttempt: expect.any(Number),
         reclaimed: false,
+        isPageAccessible: true,
       },
     );
 

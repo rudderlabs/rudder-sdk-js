@@ -4,6 +4,7 @@ import { defaultStoreManager } from '@rudderstack/analytics-js-common/__mocks__/
 import { defaultLocalStorage } from '@rudderstack/analytics-js-common/__mocks__/Storage';
 import { Store } from '@rudderstack/analytics-js-common/__mocks__/Store';
 import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
+import { defaultPluginsManager } from '@rudderstack/analytics-js-common/__mocks__/PluginsManager';
 import { Schedule } from '../../../src/utilities/retryQueue/Schedule';
 import { RetryQueue } from '../../../src/utilities/retryQueue/RetryQueue';
 import type { QueueItem, QueueItemData } from '../../../src/types/plugins';
@@ -32,7 +33,7 @@ describe('Queue', () => {
       {
         timerScaleFactor: 2, // scales the timers by 2x. Not a necessity, but added this option to test the timer scaling
       },
-      jest.fn(),
+      jest.fn().mockImplementation((item, done, info) => done()),
       defaultStoreManager,
       undefined,
       defaultLogger,
@@ -244,6 +245,7 @@ describe('Queue', () => {
       timeSinceFirstAttempt: expect.any(Number),
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: false,
+      isPageAccessible: true,
     });
   });
 
@@ -253,9 +255,9 @@ describe('Queue', () => {
     // Fail the first time, succeed the last time
     const mockProcessItemCb = jest
       .fn()
-      .mockImplementationOnce((_, cb) => cb(new Error('no')))
-      .mockImplementationOnce((_, cb) => cb(new Error('no')))
-      .mockImplementationOnce((_, cb) => cb());
+      .mockImplementationOnce((_, cb, info) => cb(new Error('no')))
+      .mockImplementationOnce((_, cb, info) => cb(new Error('no')))
+      .mockImplementationOnce((_, cb, info) => cb());
     queue.processQueueCb = mockProcessItemCb;
 
     queue.addItem('a');
@@ -268,6 +270,7 @@ describe('Queue', () => {
       timeSinceFirstAttempt: 0,
       timeSinceLastAttempt: 0,
       reclaimed: false,
+      isPageAccessible: true,
     });
 
     // Delay for the first retry
@@ -283,6 +286,7 @@ describe('Queue', () => {
       timeSinceFirstAttempt: 2,
       timeSinceLastAttempt: 2,
       reclaimed: false,
+      isPageAccessible: true,
     });
 
     // Delay for the second retry
@@ -298,6 +302,7 @@ describe('Queue', () => {
       timeSinceFirstAttempt: 6,
       timeSinceLastAttempt: 4,
       reclaimed: false,
+      isPageAccessible: true,
     });
   });
 
@@ -328,6 +333,7 @@ describe('Queue', () => {
       timeSinceFirstAttempt: expect.any(Number),
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: false,
+      isPageAccessible: true,
     });
     expect(defaultLogger.error).toHaveBeenCalledTimes(1);
     expect(defaultLogger.error).toHaveBeenCalledWith(
@@ -348,6 +354,7 @@ describe('Queue', () => {
       timeSinceFirstAttempt: expect.any(Number),
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: false,
+      isPageAccessible: true,
     });
     expect(defaultLogger.error).toHaveBeenCalledTimes(1);
     expect(defaultLogger.error).toHaveBeenCalledWith(
@@ -368,6 +375,7 @@ describe('Queue', () => {
       timeSinceFirstAttempt: expect.any(Number),
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: false,
+      isPageAccessible: true,
     });
     expect(defaultLogger.error).toHaveBeenCalledTimes(1);
     expect(defaultLogger.error).toHaveBeenCalledWith(
@@ -382,7 +390,7 @@ describe('Queue', () => {
   });
 
   it('should delay retries', () => {
-    const mockProcessItemCb = jest.fn((_, cb) => cb());
+    const mockProcessItemCb = jest.fn((_, cb, info) => cb());
     queue.processQueueCb = mockProcessItemCb;
     queue.start();
 
@@ -401,6 +409,7 @@ describe('Queue', () => {
       timeSinceFirstAttempt: expect.any(Number),
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: false,
+      isPageAccessible: true,
     });
 
     // Delay for the retry
@@ -416,13 +425,14 @@ describe('Queue', () => {
       timeSinceFirstAttempt: expect.any(Number),
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: false,
+      isPageAccessible: true,
     });
   });
 
   it('should respect shouldRetry', () => {
     queue.shouldRetry = (_, attemptNumber) => attemptNumber <= 2;
 
-    const mockProcessItemCb = jest.fn((_, cb) => cb(new Error('no')));
+    const mockProcessItemCb = jest.fn((_, cb, info) => cb(new Error('no')));
 
     // Fail
     queue.processQueueCb = mockProcessItemCb;
@@ -492,8 +502,11 @@ describe('Queue', () => {
         name: 'test',
         id: 'fake-id',
         validKeys: QueueStatuses,
+        errorHandler: defaultStoreManager.errorHandler,
+        logger: defaultStoreManager.logger,
       },
       defaultLocalStorage,
+      defaultPluginsManager,
     );
     foundQueue.set(foundQueue.validKeys.ACK as string, 0); // fake timers starts at time 0
     foundQueue.set(foundQueue.validKeys.QUEUE as string, [
@@ -537,6 +550,7 @@ describe('Queue', () => {
       timeSinceFirstAttempt: expect.any(Number),
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
+      isPageAccessible: true,
     });
     expect(queue.processQueueCb).toHaveBeenNthCalledWith(2, ['b', 'c'], expect.any(Function), {
       retryAttemptNumber: 0,
@@ -545,6 +559,7 @@ describe('Queue', () => {
       timeSinceFirstAttempt: expect.any(Number),
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
+      isPageAccessible: true,
     });
     expect(queue.processQueueCb).toHaveBeenNthCalledWith(3, ['d', 'e'], expect.any(Function), {
       retryAttemptNumber: 0,
@@ -553,6 +568,7 @@ describe('Queue', () => {
       timeSinceFirstAttempt: expect.any(Number),
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
+      isPageAccessible: true,
     });
     expect(queue.processQueueCb).toHaveBeenNthCalledWith(4, 'f', expect.any(Function), {
       retryAttemptNumber: 0,
@@ -561,6 +577,7 @@ describe('Queue', () => {
       timeSinceFirstAttempt: expect.any(Number),
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
+      isPageAccessible: true,
     });
   });
 
@@ -571,8 +588,11 @@ describe('Queue', () => {
         name: 'test',
         id: 'fake-id',
         validKeys: QueueStatuses,
+        errorHandler: defaultStoreManager.errorHandler,
+        logger: defaultStoreManager.logger,
       },
       defaultLocalStorage,
+      defaultPluginsManager,
     );
     foundQueue.set(foundQueue.validKeys.ACK as string, -15000);
     foundQueue.set(foundQueue.validKeys.IN_PROGRESS as string, {
@@ -616,6 +636,7 @@ describe('Queue', () => {
       timeSinceFirstAttempt: expect.any(Number),
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
+      isPageAccessible: true,
     });
     expect(queue.processQueueCb).toHaveBeenNthCalledWith(2, ['b', 'c'], expect.any(Function), {
       retryAttemptNumber: 1,
@@ -624,6 +645,7 @@ describe('Queue', () => {
       timeSinceFirstAttempt: expect.any(Number),
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
+      isPageAccessible: true,
     });
     expect(queue.processQueueCb).toHaveBeenNthCalledWith(3, ['d', 'e'], expect.any(Function), {
       retryAttemptNumber: 1,
@@ -632,6 +654,7 @@ describe('Queue', () => {
       timeSinceFirstAttempt: expect.any(Number),
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
+      isPageAccessible: true,
     });
     expect(queue.processQueueCb).toHaveBeenNthCalledWith(4, 'f', expect.any(Function), {
       retryAttemptNumber: 1,
@@ -640,6 +663,7 @@ describe('Queue', () => {
       timeSinceFirstAttempt: expect.any(Number),
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
+      isPageAccessible: true,
     });
   });
 
@@ -657,8 +681,11 @@ describe('Queue', () => {
         name: 'test',
         id: 'fake-id',
         validKeys: QueueStatuses,
+        errorHandler: defaultStoreManager.errorHandler,
+        logger: defaultStoreManager.logger,
       },
       defaultLocalStorage,
+      defaultPluginsManager,
     );
     foundQueue.set(foundQueue.validKeys.ACK as string, 0); // fake timers starts at time 0
     foundQueue.set(foundQueue.validKeys.BATCH_QUEUE as string, [
@@ -692,6 +719,7 @@ describe('Queue', () => {
       timeSinceFirstAttempt: expect.any(Number),
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
+      isPageAccessible: true,
     });
   });
 
@@ -702,8 +730,11 @@ describe('Queue', () => {
         name: 'test',
         id: 'fake-id',
         validKeys: QueueStatuses,
+        errorHandler: defaultStoreManager.errorHandler,
+        logger: defaultStoreManager.logger,
       },
       defaultLocalStorage,
+      defaultPluginsManager,
     );
     foundQueue.set(foundQueue.validKeys.ACK as string, 0); // fake timers starts at time 0
     foundQueue.set(foundQueue.validKeys.BATCH_QUEUE as string, [
@@ -735,6 +766,7 @@ describe('Queue', () => {
       timeSinceFirstAttempt: expect.any(Number),
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
+      isPageAccessible: true,
     });
     expect(queue.processQueueCb).toHaveBeenNthCalledWith(2, 'b', expect.any(Function), {
       retryAttemptNumber: 0,
@@ -743,6 +775,7 @@ describe('Queue', () => {
       timeSinceFirstAttempt: expect.any(Number),
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
+      isPageAccessible: true,
     });
   });
 
@@ -753,8 +786,11 @@ describe('Queue', () => {
         name: 'test',
         id: 'fake-id',
         validKeys: QueueStatuses,
+        errorHandler: defaultStoreManager.errorHandler,
+        logger: defaultStoreManager.logger,
       },
       defaultLocalStorage,
+      defaultPluginsManager,
     );
     foundQueue.set(foundQueue.validKeys.ACK as string, -15000);
     foundQueue.set(foundQueue.validKeys.QUEUE as string, [
@@ -788,6 +824,7 @@ describe('Queue', () => {
       timeSinceFirstAttempt: expect.any(Number),
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
+      isPageAccessible: true,
     });
   });
 
@@ -798,8 +835,11 @@ describe('Queue', () => {
         name: 'test',
         id: 'fake-id',
         validKeys: QueueStatuses,
+        errorHandler: defaultStoreManager.errorHandler,
+        logger: defaultStoreManager.logger,
       },
       defaultLocalStorage,
+      defaultPluginsManager,
     );
     foundQueue.set(foundQueue.validKeys.ACK as string, -15000);
     foundQueue.set(foundQueue.validKeys.IN_PROGRESS as string, {
@@ -833,6 +873,7 @@ describe('Queue', () => {
       timeSinceFirstAttempt: expect.any(Number),
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
+      isPageAccessible: true,
     });
   });
 
@@ -843,8 +884,11 @@ describe('Queue', () => {
         name: 'test',
         id: 'fake-id',
         validKeys: QueueStatuses,
+        errorHandler: defaultStoreManager.errorHandler,
+        logger: defaultStoreManager.logger,
       },
       defaultLocalStorage,
+      defaultPluginsManager,
     );
     foundQueue.set(foundQueue.validKeys.ACK as string, -15000);
     foundQueue.set(foundQueue.validKeys.BATCH_QUEUE as string, [
@@ -878,6 +922,7 @@ describe('Queue', () => {
       timeSinceFirstAttempt: expect.any(Number),
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
+      isPageAccessible: true,
     });
   });
 
@@ -888,8 +933,11 @@ describe('Queue', () => {
         name: 'test',
         id: 'fake-id',
         validKeys: QueueStatuses,
+        errorHandler: defaultStoreManager.errorHandler,
+        logger: defaultStoreManager.logger,
       },
       defaultLocalStorage,
+      defaultPluginsManager,
     );
     foundQueue.set(foundQueue.validKeys.ACK as string, -15000);
     foundQueue.set(foundQueue.validKeys.IN_PROGRESS as string, {
@@ -953,6 +1001,7 @@ describe('Queue', () => {
       timeSinceFirstAttempt: expect.any(Number),
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
+      isPageAccessible: true,
     });
     expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), {
       retryAttemptNumber: 0,
@@ -961,6 +1010,7 @@ describe('Queue', () => {
       timeSinceFirstAttempt: expect.any(Number),
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
+      isPageAccessible: true,
     });
     expect(queue.processQueueCb).toHaveBeenCalledWith('b', expect.any(Function), {
       retryAttemptNumber: 0,
@@ -969,6 +1019,7 @@ describe('Queue', () => {
       timeSinceFirstAttempt: expect.any(Number),
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
+      isPageAccessible: true,
     });
   });
 
@@ -979,8 +1030,11 @@ describe('Queue', () => {
         name: 'test',
         id: 'fake-id',
         validKeys: QueueStatuses,
+        errorHandler: defaultStoreManager.errorHandler,
+        logger: defaultStoreManager.logger,
       },
       defaultLocalStorage,
+      defaultPluginsManager,
     );
     foundQueue.set(foundQueue.validKeys.ACK as string, -15000);
     foundQueue.set(foundQueue.validKeys.IN_PROGRESS as string, {
@@ -1025,6 +1079,7 @@ describe('Queue', () => {
       timeSinceFirstAttempt: expect.any(Number),
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
+      isPageAccessible: true,
     });
   });
 
@@ -1035,8 +1090,11 @@ describe('Queue', () => {
         name: 'test',
         id: 'fake-id',
         validKeys: QueueStatuses,
+        errorHandler: defaultStoreManager.errorHandler,
+        logger: defaultStoreManager.logger,
       },
       defaultLocalStorage,
+      defaultPluginsManager,
     );
     foundQueue.set(foundQueue.validKeys.ACK as string, -15000);
     foundQueue.set(foundQueue.validKeys.QUEUE as string, [
@@ -1077,6 +1135,7 @@ describe('Queue', () => {
       timeSinceFirstAttempt: expect.any(Number),
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
+      isPageAccessible: true,
     });
     expect(queue.processQueueCb).toHaveBeenCalledWith('b', expect.any(Function), {
       retryAttemptNumber: 1,
@@ -1085,6 +1144,7 @@ describe('Queue', () => {
       timeSinceFirstAttempt: expect.any(Number),
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
+      isPageAccessible: true,
     });
     expect(queue.processQueueCb).toHaveBeenCalledWith('c', expect.any(Function), {
       retryAttemptNumber: 0,
@@ -1093,6 +1153,7 @@ describe('Queue', () => {
       timeSinceFirstAttempt: expect.any(Number),
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
+      isPageAccessible: true,
     });
   });
 
@@ -1108,8 +1169,11 @@ describe('Queue', () => {
           name: 'test',
           id: 'fake-id',
           validKeys: QueueStatuses,
+          errorHandler: defaultStoreManager.errorHandler,
+          logger: defaultStoreManager.logger,
         },
         defaultLocalStorage,
+        defaultPluginsManager,
       );
       foundQueue.set(foundQueue.validKeys.ACK as string, 0); // fake timers starts at time 0
       foundQueue.set(foundQueue.validKeys.QUEUE as string, [
@@ -1136,6 +1200,7 @@ describe('Queue', () => {
         timeSinceFirstAttempt: expect.any(Number),
         timeSinceLastAttempt: expect.any(Number),
         reclaimed: true,
+        isPageAccessible: true,
       });
     });
 
@@ -1146,8 +1211,11 @@ describe('Queue', () => {
           name: 'test',
           id: 'fake-id',
           validKeys: QueueStatuses,
+          errorHandler: defaultStoreManager.errorHandler,
+          logger: defaultStoreManager.logger,
         },
         defaultLocalStorage,
+        defaultPluginsManager,
       );
       foundQueue.set(foundQueue.validKeys.ACK as string, -15000);
       foundQueue.set(foundQueue.validKeys.IN_PROGRESS as string, {
@@ -1174,6 +1242,7 @@ describe('Queue', () => {
         timeSinceFirstAttempt: expect.any(Number),
         timeSinceLastAttempt: expect.any(Number),
         reclaimed: true,
+        isPageAccessible: true,
       });
     });
 
@@ -1184,8 +1253,11 @@ describe('Queue', () => {
           name: 'test',
           id: 'fake-id',
           validKeys: QueueStatuses,
+          errorHandler: defaultStoreManager.errorHandler,
+          logger: defaultStoreManager.logger,
         },
         defaultLocalStorage,
+        defaultPluginsManager,
       );
       foundQueue.set(foundQueue.validKeys.ACK as string, -15000);
       foundQueue.set(foundQueue.validKeys.QUEUE as string, [
@@ -1219,6 +1291,7 @@ describe('Queue', () => {
         timeSinceFirstAttempt: expect.any(Number),
         timeSinceLastAttempt: expect.any(Number),
         reclaimed: true,
+        isPageAccessible: true,
       });
       expect(queue.processQueueCb).toHaveBeenCalledWith('b', expect.any(Function), {
         retryAttemptNumber: 1,
@@ -1227,6 +1300,7 @@ describe('Queue', () => {
         timeSinceFirstAttempt: expect.any(Number),
         timeSinceLastAttempt: expect.any(Number),
         reclaimed: true,
+        isPageAccessible: true,
       });
     });
   });
