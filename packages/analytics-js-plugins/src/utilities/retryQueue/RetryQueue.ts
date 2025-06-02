@@ -598,6 +598,7 @@ class RetryQueue implements IQueue<QueueItemData> {
           timeSinceFirstAttempt,
           timeSinceLastAttempt,
           reclaimed,
+          isPageAccessible: this.isPageAccessible,
         });
       } catch (err) {
         let errMsg = '';
