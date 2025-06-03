@@ -430,11 +430,50 @@ describe('deviceModeDestinations utils', () => {
 
       const result = applySourceConfigurationOverrides(mockDestinations, override);
 
-      expect(result[0]).toBe(mockDestinations[0]); // Same reference since no changes
+      expect(result[0]).not.toBe(mockDestinations[0]); // Different reference due to config override
       expect(result[0]?.enabled).toBe(true); // Original value preserved
-      expect(result[0]?.overridden).toBeUndefined();
-      // Config overrides are not yet implemented
-      expect((result[0]?.config as any).newProperty).toBeUndefined(); // Not applied yet
+      expect(result[0]?.overridden).toBe(true); // Marked as overridden due to config changes
+      expect((result[0]?.config as any).newProperty).toBe('value'); // Config override applied
+    });
+
+    it('should not apply config override to disabled destination', () => {
+      const override = {
+        destinations: [{ id: 'dest2', config: { newProperty: 'value' } }], // dest2 is disabled
+      };
+
+      const result = applySourceConfigurationOverrides(mockDestinations, override);
+
+      expect(result[1]).toBe(mockDestinations[1]); // Same reference since config not applied to disabled destination
+      expect(result[1]?.enabled).toBe(false); // Original value preserved
+      expect(result[1]?.overridden).toBeUndefined(); // Not marked as overridden
+      expect((result[1]?.config as any).newProperty).toBeUndefined(); // Config override not applied
+    });
+
+    it('should apply config override when destination is enabled via override', () => {
+      const override = {
+        destinations: [{ id: 'dest2', enabled: true, config: { newProperty: 'value' } }], // dest2 enabled via override
+      };
+
+      const result = applySourceConfigurationOverrides(mockDestinations, override);
+
+      expect(result[1]).not.toBe(mockDestinations[1]); // Different reference due to override
+      expect(result[1]?.enabled).toBe(true); // Enabled via override
+      expect(result[1]?.overridden).toBe(true); // Marked as overridden
+      expect((result[1]?.config as any).newProperty).toBe('value'); // Config override applied
+    });
+
+    it('should not apply config override when destination is disabled via override', () => {
+      const override = {
+        destinations: [{ id: 'dest1', enabled: false, config: { newProperty: 'value' } }], // dest1 disabled via override
+      };
+
+      const result = applySourceConfigurationOverrides(mockDestinations, override);
+
+      expect(result[0]).not.toBe(mockDestinations[0]); // Different reference due to enabled override
+      expect(result[0]?.enabled).toBe(false); // Disabled via override
+      expect(result[0]?.overridden).toBe(true); // Marked as overridden due to enabled change
+      expect((result[0]?.config as any).newProperty).toBeUndefined(); // Config override not applied
+      expect(result[0]?.config).toEqual(mockDestinations[0]?.config); // Config unchanged
     });
 
     it('should handle non-boolean enabled values in override', () => {
@@ -509,10 +548,10 @@ describe('deviceModeDestinations utils', () => {
       };
       const result = applyOverrideToDestination(mockDestination, override);
 
-      expect(result).toBe(mockDestination); // Same reference since config override not implemented yet
+      expect(result).not.toBe(mockDestination); // Different reference due to config override
       expect(result.enabled).toBe(true);
-      expect(result.overridden).toBeUndefined();
-      // Note: config override is not yet implemented, so newProperty won't be applied
+      expect(result.overridden).toBe(true); // Marked as overridden due to config changes
+      expect((result.config as any).newProperty).toBe('value'); // Config override applied
     });
 
     it('should return original destination when no changes needed', () => {
@@ -593,6 +632,126 @@ describe('deviceModeDestinations utils', () => {
       );
       expect(result.config).toEqual(mockDestination.config);
       expect(result.config).not.toBe(mockDestination.config); // Deep cloned
+    });
+
+    // Config override specific tests
+    it('should apply config overrides correctly', () => {
+      const override = {
+        id: 'dest1',
+        config: {
+          newProperty: 'newValue',
+          apiKey: 'overriddenKey', // Override existing property
+        },
+      };
+      const result = applyOverrideToDestination(mockDestination, override);
+
+      expect(result).not.toBe(mockDestination);
+      expect(result.overridden).toBe(true);
+      expect((result.config as any).newProperty).toBe('newValue');
+      expect(result.config.apiKey).toBe('overriddenKey');
+      expect(result.config.eventFilteringOption).toBe('disable'); // Inherited property
+    });
+
+    it('should remove properties when config value is null', () => {
+      const override = {
+        id: 'dest1',
+        config: {
+          apiKey: null, // Remove this property
+          newProperty: 'value',
+        },
+      };
+      const result = applyOverrideToDestination(mockDestination, override);
+
+      expect(result).not.toBe(mockDestination);
+      expect(result.overridden).toBe(true);
+      expect(result.config.apiKey).toBeUndefined(); // Property removed
+      expect((result.config as any).newProperty).toBe('value');
+      expect(result.config.eventFilteringOption).toBe('disable'); // Inherited property
+    });
+
+    it('should remove properties when config value is undefined', () => {
+      const override = {
+        id: 'dest1',
+        config: {
+          apiKey: undefined, // Remove this property
+          newProperty: 'value',
+        },
+      };
+      const result = applyOverrideToDestination(mockDestination, override);
+
+      expect(result).not.toBe(mockDestination);
+      expect(result.overridden).toBe(true);
+      expect(result.config.apiKey).toBeUndefined(); // Property removed
+      expect((result.config as any).newProperty).toBe('value');
+      expect(result.config.eventFilteringOption).toBe('disable'); // Inherited property
+    });
+
+    it('should handle data type changes in config override', () => {
+      const override = {
+        id: 'dest1',
+        config: {
+          apiKey: { nested: 'object' }, // String to object
+          blacklistedEvents: 'stringValue', // Array to string
+        },
+      };
+      const result = applyOverrideToDestination(mockDestination, override);
+
+      expect(result).not.toBe(mockDestination);
+      expect(result.overridden).toBe(true);
+      expect(result.config.apiKey).toEqual({ nested: 'object' });
+      expect(result.config.blacklistedEvents).toBe('stringValue');
+    });
+
+    it('should combine enabled and config overrides when destination remains enabled', () => {
+      const override = {
+        id: 'dest1',
+        enabled: true,
+        config: {
+          newProperty: 'value',
+        },
+      };
+      const result = applyOverrideToDestination(mockDestination, override);
+
+      expect(result).not.toBe(mockDestination);
+      expect(result.enabled).toBe(true);
+      expect(result.overridden).toBe(true);
+      expect((result.config as any).newProperty).toBe('value');
+    });
+
+    it('should not apply config override when destination is disabled via enabled override', () => {
+      const override = {
+        id: 'dest1',
+        enabled: false,
+        config: {
+          newProperty: 'value',
+        },
+      };
+      const result = applyOverrideToDestination(mockDestination, override);
+
+      expect(result).not.toBe(mockDestination);
+      expect(result.enabled).toBe(false);
+      expect(result.overridden).toBe(true); // Marked as overridden due to enabled change
+      expect((result.config as any).newProperty).toBeUndefined(); // Config override not applied
+      expect(result.config).toEqual(mockDestination.config); // Config unchanged
+    });
+
+    it('should not apply config override to originally disabled destination', () => {
+      const disabledDestination: Destination = {
+        ...mockDestination,
+        enabled: false,
+      };
+      const override = {
+        id: 'dest1',
+        config: {
+          newProperty: 'value',
+        },
+      };
+      const result = applyOverrideToDestination(disabledDestination, override);
+
+      expect(result).toBe(disabledDestination); // Same reference since no changes applied
+      expect(result.enabled).toBe(false);
+      expect(result.overridden).toBeUndefined(); // Not marked as overridden
+      expect((result.config as any).newProperty).toBeUndefined(); // Config override not applied
     });
   });
 });
