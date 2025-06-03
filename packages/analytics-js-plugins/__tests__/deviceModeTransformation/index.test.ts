@@ -179,6 +179,7 @@ describe('Device mode transformation plugin', () => {
         reclaimed: false,
         timeSinceFirstAttempt: expect.any(Number),
         timeSinceLastAttempt: expect.any(Number),
+        isPageAccessible: true,
       },
     );
 

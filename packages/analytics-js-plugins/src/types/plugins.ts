@@ -42,6 +42,7 @@ export type QueueProcessCallbackInfo = {
   timeSinceLastAttempt: number;
   timeSinceFirstAttempt: number;
   reclaimed: boolean;
+  isPageAccessible: boolean;
 };
 
 /**
@@ -55,6 +56,7 @@ export type QueueProcessCallbackInfo = {
  *   - timeSinceLastAttempt: The number of seconds since the last attempt
  *   - timeSinceFirstAttempt: The number of seconds since the first attempt
  *   - reclaimed: A boolean indicating if the item has been reclaimed
+ *   - isPageAccessible: A boolean indicating if the page is accessible
  */
 export type QueueProcessCallback<T = any> = (
   item: T,
