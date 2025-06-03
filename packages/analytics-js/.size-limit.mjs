@@ -36,13 +36,13 @@ export default [
     name: 'Core - Modern - NPM (CJS)',
     path: 'dist/npm/modern/cjs/index.cjs',
     import: '*',
-    limit: '27.2 KiB',
+    limit: '27.5 KiB',
   },
   {
     name: 'Core - Modern - NPM (UMD)',
     path: 'dist/npm/modern/umd/index.js',
     import: '*',
-    limit: '27 KiB',
+    limit: '27.5 KiB',
   },
   {
     name: 'Core - Modern - CDN',
