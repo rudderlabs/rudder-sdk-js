@@ -504,6 +504,110 @@ describe('deviceModeDestinations utils', () => {
       expect(result).toBe(mockDestinations); // Same reference
       expect(result).toEqual(mockDestinations);
     });
+
+    // --- Cloning scenario ---
+    it('should clone destination when multiple overrides exist for the same destination id', () => {
+      const override = {
+        destinations: [
+          { id: 'dest1', enabled: false, config: { apiKey: 'clone1' } },
+          { id: 'dest1', enabled: true, config: { apiKey: 'clone2' } },
+        ],
+      };
+
+      const result = applySourceConfigurationOverrides(mockDestinations, override);
+
+      // Should have 4 destinations: 2 clones for dest1, dest2, dest3
+      expect(result).toHaveLength(4);
+
+      // Both clones should be marked as cloned and 2nd clones config should be updated
+      const dest1Clones = result.filter(d => d.id.startsWith('dest1'));
+      expect(dest1Clones).toHaveLength(2);
+      expect(dest1Clones[0]?.cloned).toBe(true);
+      expect(dest1Clones[1]?.cloned).toBe(true);
+      expect(dest1Clones[0]?.config.apiKey).toBe('key1');
+      expect(dest1Clones[1]?.config.apiKey).toBe('clone2');
+      // Enabled status should match override
+      expect(dest1Clones[0]?.enabled).toBe(false);
+      expect(dest1Clones[1]?.enabled).toBe(true);
+
+      // dest2 and dest3 should be unchanged
+      expect(result.find(d => d.id === 'dest2')).toBe(mockDestinations[1]);
+      expect(result.find(d => d.id === 'dest3')).toBe(mockDestinations[2]);
+    });
+
+    it('should clone destination and assign unique ids/userFriendlyIds for each clone', () => {
+      const override = {
+        destinations: [
+          { id: 'dest2', enabled: true, config: { apiKey: 'cloneA' } },
+          { id: 'dest2', enabled: false, config: { apiKey: 'cloneB' } },
+        ],
+      };
+
+      const result = applySourceConfigurationOverrides(mockDestinations, override);
+
+      // Should have 4 destinations: 2 clones for dest2, dest1, dest3
+      expect(result).toHaveLength(4);
+
+      const dest2Clones = result.filter(d => d.id.startsWith('dest2'));
+      expect(dest2Clones).toHaveLength(2);
+
+      // Each clone should have a unique id and userFriendlyId
+      expect(dest2Clones[0]).toBeDefined();
+      expect(dest2Clones[1]).toBeDefined();
+      expect(dest2Clones[0]?.id).toBe('dest2_1');
+      expect(dest2Clones[1]?.id).toBe('dest2_2');
+      expect(dest2Clones[0]?.id).not.toBe(dest2Clones[1]?.id);
+
+      expect(dest2Clones[0]?.userFriendlyId).toBe('dest2_friendly_1');
+      expect(dest2Clones[1]?.userFriendlyId).toBe('dest2_friendly_2');
+      expect(dest2Clones[0]?.userFriendlyId).not.toBe(dest2Clones[1]?.userFriendlyId);
+
+      // Config and enabled status should match each override
+      expect(dest2Clones[0]?.config.apiKey).toBe('cloneA');
+      expect(dest2Clones[1]?.config.apiKey).toBe('key2');
+      expect([true, false]).toContain(dest2Clones[0]?.enabled);
+      expect([true, false]).toContain(dest2Clones[1]?.enabled);
+
+      // dest1 and dest3 should be unchanged
+      expect(result.find(d => d.id === 'dest1')).toBe(mockDestinations[0]);
+      expect(result.find(d => d.id === 'dest3')).toBe(mockDestinations[2]);
+    });
+
+    it('should clone destination for each override and preserve other properties', () => {
+      const override = {
+        destinations: [
+          { id: 'dest3', enabled: true, config: { apiKey: 'A' } },
+          { id: 'dest3', enabled: true, config: { apiKey: 'B', extra: 123 } },
+        ],
+      };
+
+      const result = applySourceConfigurationOverrides(mockDestinations, override);
+
+      // Should have 4 destinations: 2 clones for dest3, dest1, dest2
+      expect(result).toHaveLength(4);
+
+      const dest3Clones = result.filter(d => d.id.startsWith('dest3'));
+      expect(dest3Clones).toHaveLength(2);
+
+      // Properties from original should be preserved
+      dest3Clones.forEach(clone => {
+        expect(clone.displayName).toBe('Destination 3');
+        expect(clone.shouldApplyDeviceModeTransformation).toBe(true);
+        expect(clone.propagateEventsUntransformedOnError).toBe(false);
+        expect(clone.cloned).toBe(true);
+      });
+
+      // Config and enabled status should match each override
+      expect(dest3Clones[0]?.config?.apiKey).toBe('A');
+      expect(dest3Clones[1]?.config?.apiKey).toBe('B');
+      expect(dest3Clones[1]?.config?.extra).toBe(123);
+      expect([true, false]).toContain(dest3Clones[0]?.enabled);
+      expect([true, false]).toContain(dest3Clones[1]?.enabled);
+
+      // dest1 and dest2 should be unchanged
+      expect(result.find(d => d.id === 'dest1')).toBe(mockDestinations[0]);
+      expect(result.find(d => d.id === 'dest2')).toBe(mockDestinations[1]);
+    });
   });
 
   describe('applyOverrideToDestination', () => {
