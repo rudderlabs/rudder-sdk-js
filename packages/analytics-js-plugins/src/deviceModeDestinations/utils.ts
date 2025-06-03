@@ -327,20 +327,8 @@ const applySourceConfigurationOverrides = (
       return;
     }
 
-    // For now, we assume there will be only one entry in the overrides array
-    // const overriddenDestination = applyOverrideToDestination(dest, overrides[0]!);
-    // processedDestinations.push(overriddenDestination);
-
-    // TODO: Future enhancement - Support for cloning destinations
-    // When cloning is implemented, this is where we would:
-    // 1. Process each override in the overrides array, if there is more than one entry in the overrides array, then it's a clone scenario
-    // 2. Each entry in the overrides array is treated as a clone of the destination
-    // 3. Each clone is applied to the destination
-    // 4. The destination is marked as cloned
-    // 5. The destination is marked as overridden if the enabled status or config or both have changed
-    // 6. The destination is added to the processedDestinations array
-
     if (overrides.length > 1) {
+      // Multiple overrides for the same destination, create clones
       overrides.forEach((override: SourceConfigurationOverrideDestination, index: number) => {
         const overriddenDestination = applyOverrideToDestination(dest, override, `${index + 1}`);
         overriddenDestination.cloned = true;
