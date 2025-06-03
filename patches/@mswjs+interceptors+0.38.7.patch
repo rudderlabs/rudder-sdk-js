@@ -1,0 +1,61 @@
+diff --git a/node_modules/@mswjs/interceptors/lib/node/chunk-GLGFOTGJ.mjs b/node_modules/@mswjs/interceptors/lib/node/chunk-GLGFOTGJ.mjs
+index 0beca9e..dbcea95 100644
+--- a/node_modules/@mswjs/interceptors/lib/node/chunk-GLGFOTGJ.mjs
++++ b/node_modules/@mswjs/interceptors/lib/node/chunk-GLGFOTGJ.mjs
+@@ -439,13 +439,6 @@ var MockHttpSocket = class extends MockSocket {
+     }
+     const socket = this.createConnection();
+     this.originalSocket = socket;
+-    if ("_handle" in socket) {
+-      Object.defineProperty(this, "_handle", {
+-        value: socket._handle,
+-        enumerable: true,
+-        writable: true
+-      });
+-    }
+     this.once("error", (error) => {
+       socket.destroy(error);
+     });
+diff --git a/node_modules/@mswjs/interceptors/lib/node/chunk-ZAIODWHA.js b/node_modules/@mswjs/interceptors/lib/node/chunk-ZAIODWHA.js
+index e1125f0..2cfc456 100644
+--- a/node_modules/@mswjs/interceptors/lib/node/chunk-ZAIODWHA.js
++++ b/node_modules/@mswjs/interceptors/lib/node/chunk-ZAIODWHA.js
+@@ -439,13 +439,6 @@ var MockHttpSocket = class extends MockSocket {
+     }
+     const socket = this.createConnection();
+     this.originalSocket = socket;
+-    if ("_handle" in socket) {
+-      Object.defineProperty(this, "_handle", {
+-        value: socket._handle,
+-        enumerable: true,
+-        writable: true
+-      });
+-    }
+     this.once("error", (error) => {
+       socket.destroy(error);
+     });
+diff --git a/node_modules/@mswjs/interceptors/src/interceptors/ClientRequest/MockHttpSocket.ts b/node_modules/@mswjs/interceptors/src/interceptors/ClientRequest/MockHttpSocket.ts
+index 88bc924..91e674d 100644
+--- a/node_modules/@mswjs/interceptors/src/interceptors/ClientRequest/MockHttpSocket.ts
++++ b/node_modules/@mswjs/interceptors/src/interceptors/ClientRequest/MockHttpSocket.ts
+@@ -181,20 +181,6 @@ export class MockHttpSocket extends MockSocket {
+     const socket = this.createConnection()
+     this.originalSocket = socket
+ 
+-    /**
+-     * @note Inherit the original socket's connection handle.
+-     * Without this, each push to the mock socket results in a
+-     * new "connection" listener being added (i.e. buffering pushes).
+-     * @see https://github.com/nodejs/node/blob/b18153598b25485ce4f54d0c5cb830a9457691ee/lib/net.js#L734
+-     */
+-    if ('_handle' in socket) {
+-      Object.defineProperty(this, '_handle', {
+-        value: socket._handle,
+-        enumerable: true,
+-        writable: true,
+-      })
+-    }
+-
+     // If the developer destroys the socket, destroy the original connection.
+     this.once('error', (error) => {
+       socket.destroy(error)
