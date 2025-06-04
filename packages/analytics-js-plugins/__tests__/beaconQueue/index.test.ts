@@ -4,6 +4,7 @@ import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import type { QueueProcessCallbackInfo } from '../../src/types/plugins';
 import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
 import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
 import { resetState, state } from '../../__mocks__/state';
@@ -84,6 +85,16 @@ const mockValidateEventPayloadSize = validateEventPayloadSize as jest.MockedFunc
   typeof validateEventPayloadSize
 >;
 const MockRetryQueue = RetryQueue as jest.MockedClass<typeof RetryQueue>;
+
+const queueProcessCallbackInfo: QueueProcessCallbackInfo = {
+  retryAttemptNumber: 0,
+  maxRetryAttempts: 3,
+  willBeRetried: false,
+  timeSinceLastAttempt: 0,
+  timeSinceFirstAttempt: 0,
+  reclaimed: false,
+  isPageAccessible: true,
+};
 
 describe('BeaconQueue Plugin', () => {
   let plugin: any;
@@ -242,7 +253,7 @@ describe('BeaconQueue Plugin', () => {
       );
 
       // Get the callback that was passed to RetryQueue
-      const retryQueueCall = MockRetryQueue.mock.calls[0];
+      const retryQueueCall = MockRetryQueue.mock.calls[MockRetryQueue.mock.calls.length - 1];
       if (retryQueueCall && retryQueueCall[2]) {
         queueProcessCallback = retryQueueCall[2];
       }
@@ -259,7 +270,7 @@ describe('BeaconQueue Plugin', () => {
       mockGetBatchDeliveryPayload.mockReturnValueOnce(mockPayload);
       mockSendBeacon.mockReturnValueOnce(true);
 
-      queueProcessCallback(itemData, mockDone);
+      queueProcessCallback(itemData, mockDone, queueProcessCallbackInfo);
 
       expect(mockGetCurrentTimeFormatted).toHaveBeenCalled();
       expect(mockGetFinalEventForDeliveryMutator).toHaveBeenCalledTimes(2);
@@ -272,7 +283,7 @@ describe('BeaconQueue Plugin', () => {
         'https://api.rudderstack.com/v1/batch',
         mockPayload,
       );
-      expect(mockDone).toHaveBeenCalledWith(null, true);
+      expect(mockDone).toHaveBeenCalledWith(null);
     });
 
     it('should handle beacon send failure', () => {
@@ -283,12 +294,12 @@ describe('BeaconQueue Plugin', () => {
       mockGetBatchDeliveryPayload.mockReturnValueOnce(mockPayload);
       mockSendBeacon.mockReturnValueOnce(false);
 
-      queueProcessCallback(itemData, mockDone);
+      queueProcessCallback(itemData, mockDone, queueProcessCallbackInfo);
 
       expect(mockLogger.error).toHaveBeenCalledWith(
-        "BeaconQueuePlugin:: Failed to send events batch data to the browser's beacon queue for URL https://api.rudderstack.com/v1/batch. The events will be dropped.",
+        "BeaconQueuePlugin:: Failed to send events batch data to the browser's beacon queue for URL https://api.rudderstack.com/v1/batch. The event(s) will be dropped.",
       );
-      expect(mockDone).toHaveBeenCalledWith(null, false);
+      expect(mockDone).toHaveBeenCalledWith(null);
     });
 
     it('should handle beacon send exception', () => {
@@ -302,13 +313,13 @@ describe('BeaconQueue Plugin', () => {
         throw sendError;
       });
 
-      queueProcessCallback(itemData, mockDone);
+      queueProcessCallback(itemData, mockDone, queueProcessCallbackInfo);
 
       expect(mockErrorHandler.onError).toHaveBeenCalledWith({
         error: sendError,
         context: 'BeaconQueuePlugin',
         customMessage:
-          "Failed to send events batch data to the browser's beacon queue for URL https://api.rudderstack.com/v1/batch. The events will be dropped.",
+          "Failed to send events batch data to the browser's beacon queue for URL https://api.rudderstack.com/v1/batch.",
       });
       expect(mockDone).toHaveBeenCalledWith(null);
     });
@@ -319,7 +330,7 @@ describe('BeaconQueue Plugin', () => {
 
       mockGetBatchDeliveryPayload.mockReturnValueOnce(undefined);
 
-      queueProcessCallback(itemData, mockDone);
+      queueProcessCallback(itemData, mockDone, queueProcessCallbackInfo);
 
       expect(mockSendBeacon).not.toHaveBeenCalled();
       expect(mockDone).toHaveBeenCalledWith(null);
@@ -397,13 +408,15 @@ describe('BeaconQueue Plugin', () => {
     });
 
     it('should calculate batch size correctly', () => {
-      const retryQueueCall = MockRetryQueue.mock.calls[0];
+      const retryQueueCall = MockRetryQueue.mock.calls[MockRetryQueue.mock.calls.length - 1];
       const sizeCalculator = retryQueueCall && retryQueueCall[6];
 
       if (sizeCalculator) {
         const itemData = [{ event: sampleEvent }, { event: { ...sampleEvent, event: 'Another' } }];
-        const mockBlob = new Blob(['payload'], { type: 'application/json' });
-        Object.defineProperty(mockBlob, 'size', { value: 100 });
+
+        // Create a custom blob that has the desired size
+        const mockBlobContent = 'x'.repeat(100); // 100 character string to get size 100
+        const mockBlob = new Blob([mockBlobContent], { type: 'application/json' });
 
         mockGetBatchDeliveryPayload.mockReturnValueOnce(mockBlob);
 

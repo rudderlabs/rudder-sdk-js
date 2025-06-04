@@ -250,6 +250,7 @@ describe('NativeDestinationQueue Plugin', () => {
       timeSinceLastAttempt: 0,
       timeSinceFirstAttempt: 0,
       reclaimed: false,
+      isPageAccessible: true,
     };
 
     beforeEach(() => {
@@ -263,7 +264,8 @@ describe('NativeDestinationQueue Plugin', () => {
       );
 
       // Get the callback that was passed to RetryQueue
-      const retryQueueCall = MockRetryQueue.mock.calls[0];
+      // Use the last call instead of assuming it's the first call
+      const retryQueueCall = MockRetryQueue.mock.calls[MockRetryQueue.mock.calls.length - 1];
       if (retryQueueCall && retryQueueCall[2]) {
         queueProcessCallback = retryQueueCall[2];
       }
