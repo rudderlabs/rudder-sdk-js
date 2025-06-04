@@ -209,6 +209,9 @@ jobs:
           PROJECT_NAME: ${{ inputs.environment == 'beta' && 'JS SDK NPM Package - beta' || 'JS SDK NPM Package' }}
           NPM_PACKAGE_URL: 'https://www.npmjs.com/package/@rudderstack/analytics-js'
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js@'
+          GITHUB_RUN_URL: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
+          ACTOR_URL: ${{ format('{0}/{1}', github.server_url, github.actor) }}
+          ACTOR: ${{ github.actor }}
         with:
           method: chat.postMessage
           token: ${{ secrets.SLACK_BOT_TOKEN }}
@@ -240,8 +243,20 @@ jobs:
                     "image_url": "https://img.icons8.com/color/452/npm.png",
                     "alt_text": "NPM Icon"
                   }
+                },
+                {
+                  "type": "context",
+                  "elements": [
+                    {
+                      "type": "mrkdwn",
+                      "text": ":package: Deployment triggered by <${{ env.ACTOR_URL }}|${{ env.ACTOR }}>"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": ":gear: <${{ env.GITHUB_RUN_URL }}|View workflow run details>"
+                    }${{ inputs.environment == 'production' && format(',{{"type": "mrkdwn", "text": ":book: <{0}{1}|View release notes>"}}', env.RELEASES_URL, env.CURRENT_VERSION_VALUE) || ''  }}
+                  ]
                 }
-                ${{ inputs.environment == 'production' && format(',{{"type": "context", "elements": [{{"type": "mrkdwn", "text": "For more details, check the full release notes <{0}{1}|here>."}}]}}', env.RELEASES_URL, env.CURRENT_VERSION_VALUE) || ''  }}
               ]
             }
 
@@ -254,6 +269,9 @@ jobs:
           PROJECT_NAME: ${{ inputs.environment == 'beta' && 'JS SDK Service Worker NPM Package - beta' || 'JS SDK Service Worker NPM Package' }}
           NPM_PACKAGE_URL: 'https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker'
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js-service-worker@'
+          GITHUB_RUN_URL: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
+          ACTOR_URL: ${{ format('{0}/{1}', github.server_url, github.actor) }}
+          ACTOR: ${{ github.actor }}
         with:
           method: chat.postMessage
           token: ${{ secrets.SLACK_BOT_TOKEN }}
@@ -285,8 +303,20 @@ jobs:
                     "image_url": "https://img.icons8.com/color/452/npm.png",
                     "alt_text": "NPM Icon"
                   }
+                },
+                {
+                  "type": "context",
+                  "elements": [
+                    {
+                      "type": "mrkdwn",
+                      "text": ":package: Deployment triggered by <${{ env.ACTOR_URL }}|${{ env.ACTOR }}>"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": ":gear: <${{ env.GITHUB_RUN_URL }}|View workflow run details>"
+                    }${{ inputs.environment == 'production' && format(',{{"type": "mrkdwn", "text": ":book: <{0}{1}|View release notes>"}}', env.RELEASES_URL, env.CURRENT_VERSION_SW_VALUE) || ''  }}
+                  ]
                 }
-                ${{ inputs.environment == 'production' && format(',{{"type": "context", "elements": [{{"type": "mrkdwn", "text": "For more details, check the full release notes <{0}{1}|here>."}}]}}', env.RELEASES_URL, env.CURRENT_VERSION_SW_VALUE) || ''  }}
               ]
             }
 
@@ -299,6 +329,9 @@ jobs:
           PROJECT_NAME: ${{ inputs.environment == 'beta' && 'JS SDK Cookies Utilities - beta' || 'JS SDK Cookies Utilities' }}
           NPM_PACKAGE_URL: 'https://www.npmjs.com/package/@rudderstack/analytics-js-cookies'
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js-cookies@'
+          GITHUB_RUN_URL: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
+          ACTOR_URL: ${{ format('{0}/{1}', github.server_url, github.actor) }}
+          ACTOR: ${{ github.actor }}
         with:
           method: chat.postMessage
           token: ${{ secrets.SLACK_BOT_TOKEN }}
@@ -330,7 +363,19 @@ jobs:
                     "image_url": "https://img.icons8.com/color/452/npm.png",
                     "alt_text": "NPM Icon"
                   }
+                },
+                {
+                  "type": "context",
+                  "elements": [
+                    {
+                      "type": "mrkdwn",
+                      "text": ":package: Deployment triggered by <${{ env.ACTOR_URL }}|${{ env.ACTOR }}>"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": ":gear: <${{ env.GITHUB_RUN_URL }}|View workflow run details>"
+                    }${{ inputs.environment == 'production' && format(',{{"type": "mrkdwn", "text": ":book: <{0}{1}|View release notes>"}}', env.RELEASES_URL, env.CURRENT_VERSION_COOKIE_UTILS_VALUE) || ''  }}
+                  ]
                 }
-                ${{ inputs.environment == 'production' && format(',{{"type": "context", "elements": [{{"type": "mrkdwn", "text": "For more details, check the full release notes <{0}{1}|here>."}}]}}', env.RELEASES_URL, env.CURRENT_VERSION_COOKIE_UTILS_VALUE) || ''  }}
               ]
             }
