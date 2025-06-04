@@ -141,6 +141,9 @@ jobs:
           PROJECT_NAME: 'JS SDK Monorepo'
           TAG_COMPARE_URL: 'https://github.com/rudderlabs/rudder-sdk-js/compare/'
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/'
+          GITHUB_RUN_URL: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
+          ACTOR_URL: ${{ format('{0}/{1}', github.server_url, github.actor) }}
+          ACTOR: ${{ github.actor }}
         with:
           method: chat.postMessage
           payload-templated: true
@@ -176,6 +179,14 @@ jobs:
                 {
                   "type": "context",
                   "elements": [
+                    {
+                      "type": "mrkdwn",
+                      "text": ":twisted_rightwards_arrows: PR #${{ github.event.pull_request.number }} merged by <${{ env.ACTOR_URL }}|${{ env.ACTOR }}>"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": ":gear: <${{ env.GITHUB_RUN_URL }}|View workflow run details>"
+                    },
                     {
                       "type": "mrkdwn",
                       "text": "For more details, check the full release notes <${{ env.RELEASES_URL }}v${{ steps.extract-version.outputs.release_version }}|here>."
