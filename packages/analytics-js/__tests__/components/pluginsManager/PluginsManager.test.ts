@@ -12,6 +12,331 @@ describe('PluginsManager', () => {
     jest.clearAllMocks();
   });
 
+  describe('register', () => {
+    beforeEach(() => {
+      resetState();
+      pluginsManager = new PluginsManager(defaultPluginEngine, defaultErrorHandler, defaultLogger);
+      jest.clearAllMocks();
+    });
+
+    it('should successfully register valid plugins', () => {
+      const mockPlugins = [
+        { name: 'TestPlugin1', init: jest.fn() },
+        { name: 'TestPlugin2', init: jest.fn() },
+      ];
+
+      pluginsManager.register(mockPlugins);
+
+      expect(defaultPluginEngine.register).toHaveBeenCalledTimes(2);
+      expect(defaultPluginEngine.register).toHaveBeenCalledWith(mockPlugins[0], state);
+      expect(defaultPluginEngine.register).toHaveBeenCalledWith(mockPlugins[1], state);
+    });
+
+    it('should handle plugin registration errors and add failed plugins to state', () => {
+      const mockPlugins = [
+        { name: 'ValidPlugin', init: jest.fn() },
+        { name: 'FailingPlugin', init: jest.fn() },
+      ];
+
+      // Mock the engine register to throw for the second plugin
+      defaultPluginEngine.register.mockImplementation(plugin => {
+        if (plugin.name === 'FailingPlugin') {
+          throw new Error('Plugin registration failed');
+        }
+      });
+
+      const errorHandlerSpy = jest.spyOn(defaultErrorHandler, 'onError');
+      const initialFailedPlugins = [...state.plugins.failedPlugins.value];
+
+      pluginsManager.register(mockPlugins);
+
+      // Verify the valid plugin was still registered
+      expect(defaultPluginEngine.register).toHaveBeenCalledTimes(2);
+
+      // Verify the failing plugin was added to failed plugins
+      expect(state.plugins.failedPlugins.value).toEqual([...initialFailedPlugins, 'FailingPlugin']);
+
+      // Verify error handler was called with correct parameters
+      expect(errorHandlerSpy).toHaveBeenCalledWith({
+        error: expect.any(Error),
+        context: 'PluginsManager',
+        customMessage: 'Failed to register plugin "FailingPlugin"',
+      });
+
+      errorHandlerSpy.mockRestore();
+    });
+
+    it('should handle multiple plugin registration failures', () => {
+      const mockPlugins = [
+        { name: 'FailingPlugin1', init: jest.fn() },
+        { name: 'FailingPlugin2', init: jest.fn() },
+        { name: 'ValidPlugin', init: jest.fn() },
+      ];
+
+      // Mock the engine register to throw for failing plugins
+      defaultPluginEngine.register.mockImplementation(plugin => {
+        if (plugin.name.includes('Failing')) {
+          throw new Error(`Registration failed for ${plugin.name}`);
+        }
+      });
+
+      const errorHandlerSpy = jest.spyOn(defaultErrorHandler, 'onError');
+      const initialFailedPlugins = [...state.plugins.failedPlugins.value];
+
+      pluginsManager.register(mockPlugins);
+
+      // Verify all plugins registration was attempted
+      expect(defaultPluginEngine.register).toHaveBeenCalledTimes(3);
+
+      // Verify both failing plugins were added to failed plugins
+      expect(state.plugins.failedPlugins.value).toEqual([
+        ...initialFailedPlugins,
+        'FailingPlugin1',
+        'FailingPlugin2',
+      ]);
+
+      // Verify error handler was called for each failing plugin
+      expect(errorHandlerSpy).toHaveBeenCalledTimes(2);
+      expect(errorHandlerSpy).toHaveBeenCalledWith({
+        error: expect.any(Error),
+        context: 'PluginsManager',
+        customMessage: 'Failed to register plugin "FailingPlugin1"',
+      });
+      expect(errorHandlerSpy).toHaveBeenCalledWith({
+        error: expect.any(Error),
+        context: 'PluginsManager',
+        customMessage: 'Failed to register plugin "FailingPlugin2"',
+      });
+
+      errorHandlerSpy.mockRestore();
+    });
+
+    it('should handle empty plugin array', () => {
+      const errorHandlerSpy = jest.spyOn(defaultErrorHandler, 'onError');
+
+      pluginsManager.register([]);
+
+      expect(defaultPluginEngine.register).not.toHaveBeenCalled();
+      expect(errorHandlerSpy).not.toHaveBeenCalled();
+
+      errorHandlerSpy.mockRestore();
+    });
+
+    it('should handle different types of errors during registration', () => {
+      const mockPlugins = [
+        { name: 'TypeErrorPlugin', init: jest.fn() },
+        { name: 'ReferenceErrorPlugin', init: jest.fn() },
+      ];
+
+      // Mock different types of errors
+      defaultPluginEngine.register.mockImplementation(plugin => {
+        if (plugin.name === 'TypeErrorPlugin') {
+          throw new TypeError('Invalid plugin type');
+        }
+        if (plugin.name === 'ReferenceErrorPlugin') {
+          throw new ReferenceError('Plugin reference not found');
+        }
+      });
+
+      const errorHandlerSpy = jest.spyOn(defaultErrorHandler, 'onError');
+
+      pluginsManager.register(mockPlugins);
+
+      expect(errorHandlerSpy).toHaveBeenCalledTimes(2);
+      expect(errorHandlerSpy).toHaveBeenCalledWith({
+        error: expect.any(TypeError),
+        context: 'PluginsManager',
+        customMessage: 'Failed to register plugin "TypeErrorPlugin"',
+      });
+      expect(errorHandlerSpy).toHaveBeenCalledWith({
+        error: expect.any(ReferenceError),
+        context: 'PluginsManager',
+        customMessage: 'Failed to register plugin "ReferenceErrorPlugin"',
+      });
+
+      errorHandlerSpy.mockRestore();
+    });
+  });
+
+  describe('unregisterLocalPlugins', () => {
+    beforeEach(() => {
+      resetState();
+      pluginsManager = new PluginsManager(defaultPluginEngine, defaultErrorHandler, defaultLogger);
+      jest.clearAllMocks();
+    });
+
+    it('should successfully unregister all local plugins', () => {
+      // Mock pluginsInventory to have some test plugins
+      const mockPluginsInventory = {
+        TestPlugin1: () => ({ name: 'TestPlugin1' }),
+        TestPlugin2: () => ({ name: 'TestPlugin2' }),
+      };
+
+      // Mock the pluginsInventory import
+      const pluginsInventoryModule = require('../../../src/components/pluginsManager/pluginsInventory');
+      const originalInventory = pluginsInventoryModule.pluginsInventory;
+      pluginsInventoryModule.pluginsInventory = mockPluginsInventory;
+
+      pluginsManager.unregisterLocalPlugins();
+
+      expect(defaultPluginEngine.unregister).toHaveBeenCalledTimes(2);
+      expect(defaultPluginEngine.unregister).toHaveBeenCalledWith('TestPlugin1');
+      expect(defaultPluginEngine.unregister).toHaveBeenCalledWith('TestPlugin2');
+
+      // Restore original inventory
+      pluginsInventoryModule.pluginsInventory = originalInventory;
+    });
+
+    it('should handle plugin unregistration errors and call error handler', () => {
+      // Mock pluginsInventory to have some test plugins
+      const mockPluginsInventory = {
+        ValidPlugin: () => ({ name: 'ValidPlugin' }),
+        FailingPlugin: () => ({ name: 'FailingPlugin' }),
+      };
+
+      // Mock the pluginsInventory import
+      const pluginsInventoryModule = require('../../../src/components/pluginsManager/pluginsInventory');
+      const originalInventory = pluginsInventoryModule.pluginsInventory;
+      pluginsInventoryModule.pluginsInventory = mockPluginsInventory;
+
+      // Mock the engine unregister to throw for the failing plugin
+      defaultPluginEngine.unregister.mockImplementation(pluginName => {
+        if (pluginName === 'FailingPlugin') {
+          throw new Error('Plugin unregistration failed');
+        }
+      });
+
+      const errorHandlerSpy = jest.spyOn(defaultErrorHandler, 'onError');
+
+      pluginsManager.unregisterLocalPlugins();
+
+      // Verify all plugins unregistration was attempted
+      expect(defaultPluginEngine.unregister).toHaveBeenCalledTimes(2);
+      expect(defaultPluginEngine.unregister).toHaveBeenCalledWith('ValidPlugin');
+      expect(defaultPluginEngine.unregister).toHaveBeenCalledWith('FailingPlugin');
+
+      // Verify error handler was called for the failing plugin
+      expect(errorHandlerSpy).toHaveBeenCalledWith({
+        error: expect.any(Error),
+        context: 'PluginsManager',
+        customMessage: 'Failed to unregister plugin "FailingPlugin"',
+      });
+
+      // Restore original inventory
+      pluginsInventoryModule.pluginsInventory = originalInventory;
+      errorHandlerSpy.mockRestore();
+    });
+
+    it('should handle multiple plugin unregistration failures', () => {
+      // Mock pluginsInventory to have failing plugins
+      const mockPluginsInventory = {
+        FailingPlugin1: () => ({ name: 'FailingPlugin1' }),
+        FailingPlugin2: () => ({ name: 'FailingPlugin2' }),
+        ValidPlugin: () => ({ name: 'ValidPlugin' }),
+      };
+
+      // Mock the pluginsInventory import
+      const pluginsInventoryModule = require('../../../src/components/pluginsManager/pluginsInventory');
+      const originalInventory = pluginsInventoryModule.pluginsInventory;
+      pluginsInventoryModule.pluginsInventory = mockPluginsInventory;
+
+      // Mock the engine unregister to throw for failing plugins
+      defaultPluginEngine.unregister.mockImplementation(pluginName => {
+        if (pluginName.includes('Failing')) {
+          throw new Error(`Unregistration failed for ${pluginName}`);
+        }
+      });
+
+      const errorHandlerSpy = jest.spyOn(defaultErrorHandler, 'onError');
+
+      pluginsManager.unregisterLocalPlugins();
+
+      // Verify all plugins unregistration was attempted
+      expect(defaultPluginEngine.unregister).toHaveBeenCalledTimes(3);
+
+      // Verify error handler was called for each failing plugin
+      expect(errorHandlerSpy).toHaveBeenCalledTimes(2);
+      expect(errorHandlerSpy).toHaveBeenCalledWith({
+        error: expect.any(Error),
+        context: 'PluginsManager',
+        customMessage: 'Failed to unregister plugin "FailingPlugin1"',
+      });
+      expect(errorHandlerSpy).toHaveBeenCalledWith({
+        error: expect.any(Error),
+        context: 'PluginsManager',
+        customMessage: 'Failed to unregister plugin "FailingPlugin2"',
+      });
+
+      // Restore original inventory
+      pluginsInventoryModule.pluginsInventory = originalInventory;
+      errorHandlerSpy.mockRestore();
+    });
+
+    it('should handle empty plugins inventory', () => {
+      // Mock empty pluginsInventory
+      const mockPluginsInventory = {};
+
+      // Mock the pluginsInventory import
+      const pluginsInventoryModule = require('../../../src/components/pluginsManager/pluginsInventory');
+      const originalInventory = pluginsInventoryModule.pluginsInventory;
+      pluginsInventoryModule.pluginsInventory = mockPluginsInventory;
+
+      const errorHandlerSpy = jest.spyOn(defaultErrorHandler, 'onError');
+
+      pluginsManager.unregisterLocalPlugins();
+
+      expect(defaultPluginEngine.unregister).not.toHaveBeenCalled();
+      expect(errorHandlerSpy).not.toHaveBeenCalled();
+
+      // Restore original inventory
+      pluginsInventoryModule.pluginsInventory = originalInventory;
+      errorHandlerSpy.mockRestore();
+    });
+
+    it('should handle different types of errors during unregistration', () => {
+      // Mock pluginsInventory to have plugins that cause different errors
+      const mockPluginsInventory = {
+        TypeErrorPlugin: () => ({ name: 'TypeErrorPlugin' }),
+        NetworkErrorPlugin: () => ({ name: 'NetworkErrorPlugin' }),
+      };
+
+      // Mock the pluginsInventory import
+      const pluginsInventoryModule = require('../../../src/components/pluginsManager/pluginsInventory');
+      const originalInventory = pluginsInventoryModule.pluginsInventory;
+      pluginsInventoryModule.pluginsInventory = mockPluginsInventory;
+
+      // Mock different types of errors
+      defaultPluginEngine.unregister.mockImplementation(pluginName => {
+        if (pluginName === 'TypeErrorPlugin') {
+          throw new TypeError('Invalid plugin type during unregistration');
+        }
+        if (pluginName === 'NetworkErrorPlugin') {
+          throw new Error('Network error during plugin cleanup');
+        }
+      });
+
+      const errorHandlerSpy = jest.spyOn(defaultErrorHandler, 'onError');
+
+      pluginsManager.unregisterLocalPlugins();
+
+      expect(errorHandlerSpy).toHaveBeenCalledTimes(2);
+      expect(errorHandlerSpy).toHaveBeenCalledWith({
+        error: expect.any(TypeError),
+        context: 'PluginsManager',
+        customMessage: 'Failed to unregister plugin "TypeErrorPlugin"',
+      });
+      expect(errorHandlerSpy).toHaveBeenCalledWith({
+        error: expect.any(Error),
+        context: 'PluginsManager',
+        customMessage: 'Failed to unregister plugin "NetworkErrorPlugin"',
+      });
+
+      // Restore original inventory
+      pluginsInventoryModule.pluginsInventory = originalInventory;
+      errorHandlerSpy.mockRestore();
+    });
+  });
+
   describe('getPluginsToLoadBasedOnConfig', () => {
     /**
      * Compare function to sort strings alphabetically using localeCompare.

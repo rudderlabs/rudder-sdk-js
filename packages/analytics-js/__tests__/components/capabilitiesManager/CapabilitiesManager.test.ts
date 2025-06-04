@@ -355,6 +355,42 @@ describe('CapabilitiesManager', () => {
         'CapabilitiesManager:: The provided polyfill URL "not-a-valid-url" is invalid. The default polyfill URL will be used instead.',
       );
     });
+
+    it('should handle polyfill script loading errors via onError', () => {
+      const onErrorSpy = jest.spyOn(capabilitiesManager as any, 'onError');
+      const errorHandlerSpy = jest.spyOn(mockErrorHandler, 'onError');
+
+      mockIsLegacyJSEngine.mockReturnValueOnce(true);
+      state.loadOptions.value.polyfillIfRequired = true;
+      state.loadOptions.value.polyfillURL = 'https://test.polyfill.url';
+
+      // Mock loadJSFile to simulate a script loading failure
+      const mockLoadJSFile = jest.fn((config: any) => {
+        // Simulate script loading failure by calling the callback with undefined scriptId
+        config.callback();
+      });
+      capabilitiesManager.externalSrcLoader.loadJSFile = mockLoadJSFile;
+
+      capabilitiesManager.prepareBrowserCapabilities();
+
+      // Verify onError was called with the correct error
+      expect(onErrorSpy).toHaveBeenCalledTimes(1);
+      expect(onErrorSpy).toHaveBeenCalledWith(
+        new Error(
+          'Failed to load the polyfill script with ID "rudderstackPolyfill" from URL https://test.polyfill.url.',
+        ),
+      );
+
+      // Verify the error was passed to the error handler with proper context
+      expect(errorHandlerSpy).toHaveBeenCalledTimes(1);
+      expect(errorHandlerSpy).toHaveBeenCalledWith({
+        error: new Error(
+          'Failed to load the polyfill script with ID "rudderstackPolyfill" from URL https://test.polyfill.url.',
+        ),
+        context: 'CapabilitiesManager',
+        groupingHash: undefined,
+      });
+    });
   });
 
   describe('Window Event Listeners', () => {
