@@ -65,7 +65,7 @@ TBA - Will be populated during implementation planning
 ## ⚡ Act Mode - Implementation Phase
 
 ### **Before Starting Implementation**
-- **Always suggest to commit the changes** after every small change. This will help in tracking the changes and will help in rolling back to a previous state if needed.
+- **Always commit changes** after every small change. This will help in tracking the changes and will help in rolling back to a previous state if needed.
 
 ### **Systematic Implementation**
 - **Reference memory bank** for coding standards and patterns

@@ -38,7 +38,6 @@ Write code that is simple, maintainable, and focused. Every line should serve a 
 
 ### **Code Quality**
 - **Correct and DRY Code:** Focus on writing correct, best practice, DRY (Don't Repeat Yourself) code
-- **Minimal Code Changes:** Only modify sections of the code related to the task at hand. Avoid modifying unrelated pieces of code
 
 ---
 
