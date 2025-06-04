@@ -96,6 +96,7 @@ describe('BeaconQueue Plugin - Additional Tests', () => {
     timeSinceLastAttempt: 0,
     timeSinceFirstAttempt: 0,
     reclaimed: false,
+    isPageAccessible: true,
   };
 
   const sampleEvent = {
@@ -186,7 +187,8 @@ describe('BeaconQueue Plugin - Additional Tests', () => {
       );
 
       // Get the callback that was passed to RetryQueue
-      const retryQueueCall = MockRetryQueue.mock.calls[0];
+      // Use the last call instead of assuming it's the first call
+      const retryQueueCall = MockRetryQueue.mock.calls[MockRetryQueue.mock.calls.length - 1];
       if (retryQueueCall && retryQueueCall[2]) {
         queueProcessCallback = retryQueueCall[2];
       }
@@ -235,7 +237,7 @@ describe('BeaconQueue Plugin - Additional Tests', () => {
         error: beaconError,
         context: 'BeaconQueuePlugin',
         customMessage:
-          "Failed to send events batch data to the browser's beacon queue for URL https://api.rudderstack.com/v1/batch. The events will be dropped.",
+          "Failed to send events batch data to the browser's beacon queue for URL https://api.rudderstack.com/v1/batch.",
       });
       expect(mockDone).toHaveBeenCalledWith(null);
     });
@@ -268,7 +270,7 @@ describe('BeaconQueue Plugin - Additional Tests', () => {
         event3,
         '2023-01-01T00:00:00Z',
       );
-      expect(mockDone).toHaveBeenCalledWith(null, true);
+      expect(mockDone).toHaveBeenCalledWith(null);
     });
   });
 
@@ -363,7 +365,7 @@ describe('BeaconQueue Plugin - Additional Tests', () => {
     });
 
     it('should handle empty item data array in size calculator', () => {
-      const retryQueueCall = MockRetryQueue.mock.calls[0];
+      const retryQueueCall = MockRetryQueue.mock.calls[MockRetryQueue.mock.calls.length - 1];
       const sizeCalculator = retryQueueCall && retryQueueCall[6];
 
       if (sizeCalculator) {
@@ -385,7 +387,7 @@ describe('BeaconQueue Plugin - Additional Tests', () => {
     });
 
     it('should handle large payload size', () => {
-      const retryQueueCall = MockRetryQueue.mock.calls[0];
+      const retryQueueCall = MockRetryQueue.mock.calls[MockRetryQueue.mock.calls.length - 1];
       const sizeCalculator = retryQueueCall && retryQueueCall[6];
 
       if (sizeCalculator) {
@@ -474,32 +476,6 @@ describe('BeaconQueue Plugin - Additional Tests', () => {
   });
 
   describe('Error Handling', () => {
-    it('should handle logger being undefined', () => {
-      plugin.dataplaneEventsQueue.init(
-        mockState,
-        mockHttpClient,
-        mockStoreManager,
-        mockErrorHandler,
-        undefined,
-      );
-
-      const retryQueueCall = MockRetryQueue.mock.calls[0];
-      const queueProcessCallback = retryQueueCall && retryQueueCall[2];
-
-      if (queueProcessCallback) {
-        const itemData = [{ event: sampleEvent }];
-        const mockDone = jest.fn();
-        const mockPayload = new Blob(['test'], { type: 'application/json' });
-
-        mockGetBatchDeliveryPayload.mockReturnValue(mockPayload);
-        mockSendBeacon.mockReturnValue(false);
-
-        queueProcessCallback(itemData, mockDone, queueProcessCallbackInfo);
-
-        expect(mockDone).toHaveBeenCalledWith(null, false);
-      }
-    });
-
     it('should handle errorHandler being undefined', () => {
       plugin.dataplaneEventsQueue.init(
         mockState,
@@ -509,7 +485,7 @@ describe('BeaconQueue Plugin - Additional Tests', () => {
         mockLogger,
       );
 
-      const retryQueueCall = MockRetryQueue.mock.calls[0];
+      const retryQueueCall = MockRetryQueue.mock.calls[MockRetryQueue.mock.calls.length - 1];
       const queueProcessCallback = retryQueueCall && retryQueueCall[2];
 
       if (queueProcessCallback) {

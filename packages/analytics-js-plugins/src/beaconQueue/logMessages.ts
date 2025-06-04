@@ -13,7 +13,7 @@ const BEACON_QUEUE_SEND_ERROR = (context: string, url: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}${BEACON_QUEUE_DELIVERY_ERROR(url)}`;
 
 const BEACON_QUEUE_DELIVERY_ERROR = (url: string): string =>
-  `Failed to send events batch data to the browser's beacon queue for URL ${url}. The events will be dropped.`;
+  `Failed to send events batch data to the browser's beacon queue for URL ${url}.`;
 
 export {
   BEACON_PLUGIN_EVENTS_QUEUE_DEBUG,
