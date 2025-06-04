@@ -140,6 +140,7 @@ describe('XhrQueue', () => {
         timeSinceFirstAttempt: expect.any(Number),
         timeSinceLastAttempt: expect.any(Number),
         reclaimed: false,
+        isPageAccessible: true,
       },
     );
 
@@ -187,7 +188,7 @@ describe('XhrQueue', () => {
     // In actual implementation, this is done based on the state signals
     queue.start();
 
-    expect(defaultLogger.error).toHaveBeenCalledWith(
+    expect(defaultLogger.warn).toHaveBeenCalledWith(
       'XhrQueuePlugin:: Failed to deliver event(s). Cause: Too many requests. The event(s) will be retried.',
     );
 
@@ -298,6 +299,7 @@ describe('XhrQueue', () => {
         timeSinceFirstAttempt: expect.any(Number),
         timeSinceLastAttempt: expect.any(Number),
         reclaimed: false,
+        isPageAccessible: true,
       },
     );
 
