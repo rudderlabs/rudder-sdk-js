@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# JavaScript & TypeScript Standards
+
+**Critical**: Code must work in browsers AND service workers (no Node.js APIs)
+
+**Complete Guidelines**: [.memorybank/07_development_guidelines.md](mdc:.memorybank/07_development_guidelines.md)
+**Project Structure**: [.memorybank/05_code_structure.md](mdc:.memorybank/05_code_structure.md)

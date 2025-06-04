@@ -15,6 +15,10 @@ This memory bank contains structured knowledge about the RudderStack JavaScript 
 - [03_system_architecture.md](03_system_architecture.md) - Architecture and data flow
 - [05_code_structure.md](05_code_structure.md) - Monorepo layout and package details
 
+### **Development Standards**
+
+- [07_development_guidelines.md](07_development_guidelines.md) - Code standards, best practices, and constraints
+
 ### **Processes & Workflows**
 
 - [04_git_workflow_cicd.md](04_git_workflow_cicd.md) - Git workflow and CI/CD

@@ -1,0 +1,27 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# RudderStack Git Standards
+
+**Critical**: Follow RudderStack git conventions across all repositories
+
+## Commit Standards
+- **Conventional Commits**: Use conventional commit format
+- **Clear Messages**: Descriptive commit messages with context
+- **Atomic Commits**: One logical change per commit
+- **Issue References**: Link commits to issues where applicable
+
+## PR Standards
+- **Descriptive Titles**: Clear, actionable PR titles
+- **Complete Description**: Use PR template fully
+- **Testing Evidence**: Include test results/screenshots
+- **Breaking Changes**: Clearly document any breaking changes
+
+## Branch Conventions
+- **Naming**: `feature/SDK-1234-description`, `fix/SDK-1234-description`
+- **Base Branches**: Follow established branching strategy
+- **Clean History**: Squash/rebase as needed before merge
+
+**Detailed Workflow**: [.memorybank/04_git_workflow_cicd.md](mdc:.memorybank/04_git_workflow_cicd.md)

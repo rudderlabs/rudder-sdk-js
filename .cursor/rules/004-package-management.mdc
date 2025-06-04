@@ -1,0 +1,11 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Package Management Standards
+
+**Critical**: Use npm workspaces for monorepo, follow NX conventions
+
+**Monorepo Structure**: [.memorybank/05_code_structure.md](mdc:.memorybank/05_code_structure.md)
+**Git Workflow**: [.memorybank/04_git_workflow_cicd.md](mdc:.memorybank/04_git_workflow_cicd.md)
