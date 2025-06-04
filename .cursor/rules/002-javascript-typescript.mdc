@@ -1,6 +1,10 @@
 ---
-description: 
-globs: 
+description: "JavaScript & TypeScript standards for browser and service worker compatibility"
+globs:
+  - "**/*.ts"
+  - "**/*.tsx"
+  - "**/*.js"
+  - "**/*.jsx"
 alwaysApply: false
 ---
 # JavaScript & TypeScript Standards

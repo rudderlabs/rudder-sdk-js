@@ -1,6 +1,8 @@
 ---
-description:
+description: "Testing standards for browser and service worker compatibility across the codebase"
 globs:
+  - "**/*.test.*"
+  - "**/*.spec.*"
 alwaysApply: false
 ---
 # Testing Standards
