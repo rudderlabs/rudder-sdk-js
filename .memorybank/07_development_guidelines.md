@@ -98,3 +98,55 @@ Code should be:
 - ✅ Compatible across target environments
 - ✅ Following established patterns
 - ✅ Minimally invasive to existing codebase 
+
+---
+
+## 🧪 Testing Guidelines
+
+### **Test Isolation Principles**
+**Critical:** Tests must be completely independent and work in any execution context:
+- ✅ Pass when run individually
+- ✅ Pass when run as part of full test suite
+- ✅ Pass regardless of execution order
+
+### **Jest Mock Best Practices**
+
+#### **Mock Object Completeness**
+- **Implement complete TypeScript interfaces** in mock objects
+- **Include all required properties** to avoid runtime errors
+- **Use proper typing** for mock objects with interface definitions
+
+#### **Mock State Management**
+```typescript
+beforeEach(() => {
+  jest.clearAllMocks(); // Clear call history
+  // Reset mock implementations as needed
+});
+```
+
+### **Test Structure Guidelines**
+
+#### **Organize Tests Logically**
+- Group related functionality in `describe` blocks
+- Use descriptive test names that explain the scenario
+- Keep test setup in appropriate `beforeEach` hooks
+
+#### **Test Assertions**
+- **Verify actual behavior** rather than assumed implementation details
+- **Test the contract** not the internal implementation
+- **Use specific matchers** for clearer test intent
+
+### **Common Testing Patterns**
+
+#### **Binary Data Testing**
+- Create actual content with desired properties rather than manually overriding object properties
+- Use realistic test data that matches production scenarios
+
+#### **Debugging Test Issues**
+When tests pass individually but fail in suites:
+1. Check for hardcoded mock array indices
+2. Verify all mock objects have complete interfaces
+3. Look for shared state between tests
+4. Ensure proper mock cleanup between tests
+
+---
