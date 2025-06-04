@@ -25,8 +25,7 @@ Write code that is simple, maintainable, and focused. Every line should serve a 
 ### **Control Flow & Structure**
 - **Utilize Early Returns:** Use early returns to avoid nested conditions and improve readability
 - **Functional and Immutable Style:** Prefer a functional, immutable style unless it becomes much more verbose
-- **Tree-shakable and Side-effect Free:** Write modules that are tree-shakable and avoid side effects where possible
-
+- **Tree-shakable and side-effect-free:** Write modules that are tree-shakable and avoid side effects where possible
 ### **Naming & Organization**
 - **Descriptive Names:** Use descriptive names for variables and functions
 - **Event Handler Naming:** Prefix event handler functions with `handle` (e.g., `handleClick`, `handleKeyDown`)
