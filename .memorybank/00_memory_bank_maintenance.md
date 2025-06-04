@@ -120,6 +120,7 @@ My Suggestion → User Correction → Analysis → Learning Question → Memory 
 - `04_` - Processes and workflows
 - `05_` - Code organization and patterns
 - `06_` - Task implementation workflow
+- `07_` - Development standards and guidelines
 
 ### **Content Standards:**
 - Use clear headings and bullet points
