@@ -1,5 +1,5 @@
 ---
-description: "RudderStack contribution standards and workflow patterns for consistent development across projects"
+description: RudderStack contribution standards and workflow patterns for consistent development across projects
 globs: 
 alwaysApply: false
 ---

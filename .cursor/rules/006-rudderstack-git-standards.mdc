@@ -1,5 +1,5 @@
 ---
-description: "RudderStack Git standards including commit conventions, PR standards, and branch naming patterns"
+description: RudderStack Git standards including commit conventions, PR standards, and branch naming patterns
 globs: 
 alwaysApply: false
 ---

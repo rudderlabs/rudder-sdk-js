@@ -1,6 +1,6 @@
 ---
-description: "Package management standards for npm workspaces and monorepo structure following NX conventions"
-globs:
+description: Package management standards for npm workspaces and monorepo structure following NX conventions
+globs: 
 alwaysApply: false
 ---
 # Package Management Standards
