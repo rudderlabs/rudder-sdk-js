@@ -2087,7 +2087,7 @@ describe('User session manager', () => {
       userSessionManager.getEncryptedCookieData = jest.fn(() => {
         throw new Error('test error');
       });
-      userSessionManager.onError = jest.fn();
+      const onErrorSpy = jest.spyOn(userSessionManager, 'onError');
       state.storage.cookie.value = {
         maxage: 10 * 60 * 1000, // 10 min
         path: '/',
@@ -2099,8 +2099,8 @@ describe('User session manager', () => {
         mockCallback,
         mockCookieStore,
       );
-      expect(userSessionManager.onError).toHaveBeenCalledTimes(1);
-      expect(userSessionManager.onError).toHaveBeenCalledWith(
+      expect(onErrorSpy).toHaveBeenCalledTimes(1);
+      expect(onErrorSpy).toHaveBeenCalledWith(
         new Error('test error'),
         'Failed to set/remove cookies via server. As a fallback, the cookies will be managed client side.',
         'Failed to set/remove cookies via server. As a fallback, the cookies will be managed client side.',
