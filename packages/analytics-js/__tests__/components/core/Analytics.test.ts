@@ -115,6 +115,33 @@ describe('Core - Analytics', () => {
       expect(loadDestinationsSpy).not.toHaveBeenCalled();
       expect(state.lifecycle.status.value).toBe('readyExecuted');
     });
+
+    it('should handle errors in lifecycle methods via errorHandler', () => {
+      const errorHandlerSpy = jest.spyOn(analytics.errorHandler, 'onError');
+
+      // Mock onPluginsReady to throw an error
+      const originalOnPluginsReady = analytics.onPluginsReady;
+      analytics.onPluginsReady = jest.fn(() => {
+        throw new Error('Plugins initialization failed');
+      });
+
+      analytics.startLifecycle();
+
+      // Trigger the error by setting lifecycle status to 'pluginsReady'
+      state.lifecycle.status.value = 'pluginsReady';
+
+      // Verify error handler was called with correct parameters
+      expect(errorHandlerSpy).toHaveBeenCalledTimes(1);
+      expect(errorHandlerSpy).toHaveBeenCalledWith({
+        error: new Error('Plugins initialization failed'),
+        context: 'AnalyticsCore',
+        customMessage: 'Failed to load the SDK',
+        groupingHash: 'Failed to load the SDK',
+      });
+
+      // Restore original method
+      analytics.onPluginsReady = originalOnPluginsReady;
+    });
   });
 
   describe('load', () => {
