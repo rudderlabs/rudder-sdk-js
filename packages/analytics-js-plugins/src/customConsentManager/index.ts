@@ -74,7 +74,11 @@ const CustomConsentManager = (): ExtensionPlugin => ({
             return configuredConsents.every(matchPredicate);
         }
       } catch (err) {
-        errorHandler?.onError(err, CUSTOM_CONSENT_MANAGER_PLUGIN, DESTINATION_CONSENT_STATUS_ERROR);
+        errorHandler?.onError({
+          error: err,
+          context: CUSTOM_CONSENT_MANAGER_PLUGIN,
+          customMessage: DESTINATION_CONSENT_STATUS_ERROR,
+        });
         return true;
       }
     },

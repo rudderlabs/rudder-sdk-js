@@ -5,8 +5,8 @@ import {
 } from '../../../src/services/ExternalSrcLoader/jsFileLoader';
 import { server } from '../../../__fixtures__/msw.server';
 import { dummyDataplaneHost } from '../../../__fixtures__/fixtures';
-import { defaultErrorHandler } from '../../../__mocks__/ErrorHandler';
 import { defaultLogger } from '../../../__mocks__/Logger';
+import type { SDKError } from '../../../src/types/ErrorHandler';
 
 describe('External Source Loader', () => {
   let externalSrcLoaderInstance: ExternalSrcLoader;
@@ -16,7 +16,7 @@ describe('External Source Loader', () => {
   });
 
   beforeEach(() => {
-    externalSrcLoaderInstance = new ExternalSrcLoader(defaultErrorHandler, defaultLogger);
+    externalSrcLoaderInstance = new ExternalSrcLoader(defaultLogger);
   });
 
   afterEach(() => {
@@ -28,6 +28,28 @@ describe('External Source Loader', () => {
 
   afterAll(() => {
     server.close();
+  });
+
+  it('should handle error if an exception occurs during script loading', done => {
+    const originalSetTimeout = globalThis.setTimeout;
+    globalThis.setTimeout = undefined as unknown as typeof globalThis.setTimeout;
+
+    const cb = (loadedScript: string, err: SDKError) => {
+      expect(err).toEqual(
+        new Error(
+          'Unable to load (unknown) the script with the id "dummyScript" from URL "https://dummy.dataplane.host.com/jsFileSample.js": globalThis.setTimeout is not a function',
+        ),
+      );
+      done();
+    };
+
+    externalSrcLoaderInstance.loadJSFile({
+      url: `${dummyDataplaneHost}/jsFileSample.js`,
+      id: 'dummyScript',
+      callback: cb,
+    });
+
+    globalThis.setTimeout = originalSetTimeout;
   });
 
   it(`should retrieve remote script & trigger the callback with value`, done => {
@@ -46,18 +68,18 @@ describe('External Source Loader', () => {
     });
   });
 
-  it(`should handle error in remote script retrieval & trigger the callback with no value`, done => {
-    const cb = (loadedScript?: string) => {
-      expect(loadedScript).toBeUndefined();
+  it(`should handle error in remote script retrieval & trigger the callback with appropriate error`, done => {
+    const cb = (loadedScript: string, err: SDKError) => {
+      expect(loadedScript).toEqual('dummyScript');
+
       const newScriptElement = document.getElementById('dummyScript') as HTMLScriptElement;
       expect(newScriptElement).toBeDefined();
       expect(newScriptElement.src).toStrictEqual(`${dummyDataplaneHost}/noConnectionSample`);
-      expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
-      expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
+
+      expect(err).toEqual(
         new Error(
-          'Failed to load the script with the id "dummyScript" from URL "https://dummy.dataplane.host.com/noConnectionSample".',
+          'Unable to load (error) the script with the id "dummyScript" from URL "https://dummy.dataplane.host.com/noConnectionSample"',
         ),
-        'ExternalSrcLoader',
       );
       done();
     };
@@ -70,19 +92,21 @@ describe('External Source Loader', () => {
   });
 
   it(`should handle error if script with same id already exists`, done => {
-    const cb = (loadedScript?: string) => {
-      expect(loadedScript).toBeUndefined();
+    const cb = (loadedScript: string, err: SDKError) => {
+      expect(loadedScript).toEqual('dummyScript');
+
       const newScriptElement = document.getElementById('dummyScript') as HTMLScriptElement;
       expect(newScriptElement).toBeDefined();
       expect(newScriptElement.src).toStrictEqual(`${dummyDataplaneHost}/jsFileSample.js`);
-      expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
-      expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
+
+      expect(err).toEqual(
         new Error(
-          'A script with the id "dummyScript" is already loaded. Skipping the loading of this script to prevent conflicts.',
+          'A script with the id "dummyScript" is already loaded. Skipping the loading of this script to prevent conflicts',
         ),
-        'ExternalSrcLoader',
       );
+
       document.getElementById('dummyScript')?.remove();
+
       done();
     };
 
@@ -162,5 +186,62 @@ describe('External Source Loader', () => {
         integrity: 'filehash',
       },
     });
+  });
+
+  it('should handle timeout error if script loading takes more than 10 seconds', done => {
+    jest.useFakeTimers();
+    jest.setSystemTime(0);
+
+    const cb = (loadedScript: string, err: SDKError) => {
+      expect(loadedScript).toEqual('dummyScript');
+      expect(err).toEqual(
+        new Error(
+          'A timeout of 10000 ms occurred while trying to load the script with id "dummyScript" from URL "https://dummy.dataplane.host.com/timeoutSample.js"',
+        ),
+      );
+
+      jest.useRealTimers();
+      done();
+    };
+
+    externalSrcLoaderInstance.loadJSFile({
+      url: `${dummyDataplaneHost}/timeoutSample.js`,
+      id: 'dummyScript',
+      callback: cb,
+    });
+
+    jest.advanceTimersByTime(11000);
+  });
+
+  it('should handle fire-and-forget mode when no callback is provided and script loads successfully', () => {
+    // Test fire-and-forget mode - no callback provided
+    externalSrcLoaderInstance.loadJSFile({
+      url: `${dummyDataplaneHost}/jsFileSample.js`,
+      id: 'dummyScript',
+      // No callback provided - should be fire-and-forget
+    });
+
+    // Script should still be loaded to DOM
+    setTimeout(() => {
+      const newScriptElement = document.getElementById('dummyScript') as HTMLScriptElement;
+      expect(newScriptElement).toBeDefined();
+      expect(newScriptElement.src).toStrictEqual(`${dummyDataplaneHost}/jsFileSample.js`);
+    }, 100);
+  });
+
+  it('should handle fire-and-forget mode when no callback is provided and script fails to load', () => {
+    // Test fire-and-forget mode with script load error
+    externalSrcLoaderInstance.loadJSFile({
+      url: `${dummyDataplaneHost}/noConnectionSample`,
+      id: 'dummyScript',
+      // No callback provided - should be fire-and-forget
+    });
+
+    // Script should still be added to DOM even if it fails
+    setTimeout(() => {
+      const newScriptElement = document.getElementById('dummyScript') as HTMLScriptElement;
+      expect(newScriptElement).toBeDefined();
+      expect(newScriptElement.src).toStrictEqual(`${dummyDataplaneHost}/noConnectionSample`);
+    }, 100);
   });
 });
