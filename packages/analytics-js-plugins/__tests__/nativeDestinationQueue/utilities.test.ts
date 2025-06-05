@@ -1,6 +1,9 @@
 import { clone } from 'ramda';
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
-import { isEventDenyListed } from '../../src/nativeDestinationQueue/utilities';
+import {
+  isEventDenyListed,
+  shouldApplyTransformation,
+} from '../../src/nativeDestinationQueue/utilities';
 
 describe('nativeDestinationQueue Plugin - utilities', () => {
   describe('isEventDenyListed', () => {
@@ -98,6 +101,47 @@ describe('nativeDestinationQueue Plugin - utilities', () => {
     it('should return true if allow list is selected and track event name is in different case than with with allowlist event name', () => {
       const outcome1 = isEventDenyListed('track', 'Sample track event 1', destination);
       expect(outcome1).toBeTruthy();
+    });
+  });
+
+  describe('shouldApplyTransformation', () => {
+    const destination: Destination = {
+      id: 'dest1',
+      displayName: 'Destination 1',
+      userFriendlyId: 'dest1_friendly',
+      enabled: true,
+      shouldApplyDeviceModeTransformation: true,
+      propagateEventsUntransformedOnError: false,
+      config: {
+        apiKey: 'key1',
+        blacklistedEvents: [],
+        whitelistedEvents: [],
+        eventFilteringOption: 'disable' as const,
+      },
+    };
+
+    it('should return false if cloned is undefined but shouldApplyDeviceModeTransformation is false', () => {
+      const dest = { ...destination, shouldApplyDeviceModeTransformation: false };
+      expect(shouldApplyTransformation(dest)).toBe(false);
+    });
+
+    it('should return true if shouldApplyDeviceModeTransformation is true and cloned is undefined', () => {
+      expect(shouldApplyTransformation(destination)).toBe(true);
+    });
+
+    it('should return true if shouldApplyDeviceModeTransformation is true and not cloned', () => {
+      const dest = { ...destination, cloned: false };
+      expect(shouldApplyTransformation(dest)).toBe(true);
+    });
+
+    it('should return false when shouldApplyDeviceModeTransformation and cloned both are true', () => {
+      const dest = { ...destination, cloned: true };
+      expect(shouldApplyTransformation(dest)).toBe(false);
+    });
+
+    it('should return false if both shouldApplyDeviceModeTransformation and cloned are false', () => {
+      const dest = { ...destination, shouldApplyDeviceModeTransformation: false, cloned: false };
+      expect(shouldApplyTransformation(dest)).toBe(false);
     });
   });
 });
