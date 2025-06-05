@@ -78,4 +78,18 @@ const sendEventToDestination = (
   }
 };
 
-export { getNormalizedQueueOptions, isEventDenyListed, sendEventToDestination };
+/**
+ * A function to check if device mode transformation should be applied for a destination.
+ * @param dest Destination object
+ * @returns Boolean indicating whether the transformation should be applied
+ */
+const shouldApplyTransformation = (dest: Destination): boolean => {
+  return dest.shouldApplyDeviceModeTransformation && !dest.cloned;
+};
+
+export {
+  getNormalizedQueueOptions,
+  isEventDenyListed,
+  sendEventToDestination,
+  shouldApplyTransformation,
+};
