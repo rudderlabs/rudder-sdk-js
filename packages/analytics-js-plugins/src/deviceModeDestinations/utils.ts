@@ -293,7 +293,7 @@ const applySourceConfigurationOverrides = (
   logger?: ILogger,
 ): Destination[] => {
   if (!sourceConfigOverride?.destinations?.length) {
-    return destinations;
+    return filterDisabledDestination(destinations);
   }
 
   const destIds = destinations.map(dest => dest.id);
@@ -340,8 +340,16 @@ const applySourceConfigurationOverrides = (
     }
   });
 
-  return processedDestinations;
+  return filterDisabledDestination(processedDestinations);
 };
+
+/**
+ * This function filters out disabled destinations from the provided array.
+ * @param destinations Array of destinations to filter
+ * @returns Filtered destinations to only include enabled ones
+ */
+const filterDisabledDestination = (destinations: Destination[]): Destination[] =>
+  destinations.filter(dest => dest.enabled);
 
 /**
  * Applies a single override configuration to a destination
@@ -408,4 +416,5 @@ export {
   initializeDestination,
   applySourceConfigurationOverrides,
   applyOverrideToDestination,
+  filterDisabledDestination,
 };
