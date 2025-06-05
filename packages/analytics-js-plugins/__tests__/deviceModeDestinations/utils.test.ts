@@ -1402,9 +1402,9 @@ describe('deviceModeDestinations utils', () => {
             'Failed to get the ready status from integration for destination "Google Analytics 4 (GA4)"',
         });
 
-        done();
-
         jest.useRealTimers();
+        
+        done();
       }, 1);
 
       // Fast-forward the timers to the next tick asynchronously
