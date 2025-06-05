@@ -8,6 +8,7 @@ import {
   isDestinationSDKMounted,
   applySourceConfigurationOverrides,
   applyOverrideToDestination,
+  filterDisabledDestination,
 } from '../../src/deviceModeDestinations/utils';
 import type { DeviceModeDestinationsAnalyticsInstance } from '../../src/deviceModeDestinations/types';
 import type { LogLevel } from '../../src/types/plugins';
@@ -342,19 +343,19 @@ describe('deviceModeDestinations utils', () => {
       jest.clearAllMocks();
     });
 
-    it('should return original destinations when no override is provided', () => {
+    it('should return original enabled destinations when no override is provided', () => {
       const result = applySourceConfigurationOverrides(mockDestinations, { destinations: [] });
-      expect(result).toEqual(mockDestinations);
+      expect(result).toEqual([mockDestinations[0], mockDestinations[2]]);
     });
 
-    it('should return original destinations when override is undefined', () => {
+    it('should return original enabled destinations when override is undefined', () => {
       const result = applySourceConfigurationOverrides(mockDestinations, undefined as any);
-      expect(result).toEqual(mockDestinations);
+      expect(result).toEqual([mockDestinations[0], mockDestinations[2]]);
     });
 
-    it('should return original destinations when override destinations is undefined', () => {
+    it('should return original enabled destinations when override destinations is undefined', () => {
       const result = applySourceConfigurationOverrides(mockDestinations, {} as any);
-      expect(result).toEqual(mockDestinations);
+      expect(result).toEqual([mockDestinations[0], mockDestinations[2]]);
     });
 
     it('should apply enabled status override correctly', () => {
@@ -367,13 +368,11 @@ describe('deviceModeDestinations utils', () => {
 
       const result = applySourceConfigurationOverrides(mockDestinations, override);
 
-      expect(result).toHaveLength(3);
-      expect(result[0]?.enabled).toBe(false);
+      expect(result).toHaveLength(2);
+      expect(result[0]?.enabled).toBe(true);
       expect(result[0]?.overridden).toBe(true);
       expect(result[1]?.enabled).toBe(true);
-      expect(result[1]?.overridden).toBe(true);
-      expect(result[2]?.enabled).toBe(true);
-      expect(result[2]?.overridden).toBeUndefined();
+      expect(result[1]?.overridden).toBeUndefined();
     });
 
     it('should not override when enabled status matches existing value', () => {
@@ -386,13 +385,11 @@ describe('deviceModeDestinations utils', () => {
 
       const result = applySourceConfigurationOverrides(mockDestinations, override);
 
-      expect(result).toHaveLength(3);
+      expect(result).toHaveLength(2);
       expect(result[0]).toBe(mockDestinations[0]); // Same reference
       expect(result[0]?.enabled).toBe(true);
       expect(result[0]?.overridden).toBeUndefined();
-      expect(result[1]).toBe(mockDestinations[1]); // Same reference
-      expect(result[1]?.enabled).toBe(false);
-      expect(result[1]?.overridden).toBeUndefined();
+      expect(result[1]).toBe(mockDestinations[2]); // Same reference
     });
 
     it('should log warning for unmatched destination IDs', () => {
@@ -436,19 +433,6 @@ describe('deviceModeDestinations utils', () => {
       expect((result[0]?.config as any).newProperty).toBe('value'); // Config override applied
     });
 
-    it('should not apply config override to disabled destination', () => {
-      const override = {
-        destinations: [{ id: 'dest2', config: { newProperty: 'value' } }], // dest2 is disabled
-      };
-
-      const result = applySourceConfigurationOverrides(mockDestinations, override);
-
-      expect(result[1]).toBe(mockDestinations[1]); // Same reference since config not applied to disabled destination
-      expect(result[1]?.enabled).toBe(false); // Original value preserved
-      expect(result[1]?.overridden).toBeUndefined(); // Not marked as overridden
-      expect((result[1]?.config as any).newProperty).toBeUndefined(); // Config override not applied
-    });
-
     it('should apply config override when destination is enabled via override', () => {
       const override = {
         destinations: [{ id: 'dest2', enabled: true, config: { newProperty: 'value' } }], // dest2 enabled via override
@@ -460,20 +444,6 @@ describe('deviceModeDestinations utils', () => {
       expect(result[1]?.enabled).toBe(true); // Enabled via override
       expect(result[1]?.overridden).toBe(true); // Marked as overridden
       expect((result[1]?.config as any).newProperty).toBe('value'); // Config override applied
-    });
-
-    it('should not apply config override when destination is disabled via override', () => {
-      const override = {
-        destinations: [{ id: 'dest1', enabled: false, config: { newProperty: 'value' } }], // dest1 disabled via override
-      };
-
-      const result = applySourceConfigurationOverrides(mockDestinations, override);
-
-      expect(result[0]).not.toBe(mockDestinations[0]); // Different reference due to enabled override
-      expect(result[0]?.enabled).toBe(false); // Disabled via override
-      expect(result[0]?.overridden).toBe(true); // Marked as overridden due to enabled change
-      expect((result[0]?.config as any).newProperty).toBeUndefined(); // Config override not applied
-      expect(result[0]?.config).toEqual(mockDestinations[0]?.config); // Config unchanged
     });
 
     it('should handle non-boolean enabled values in override', () => {
@@ -489,8 +459,8 @@ describe('deviceModeDestinations utils', () => {
       expect(result[0]).toBe(mockDestinations[0]); // Same reference since no valid changes
       expect(result[0]?.enabled).toBe(true); // Original value preserved
       expect(result[0]?.overridden).toBeUndefined();
-      expect(result[1]).toBe(mockDestinations[1]); // Same reference since no valid changes
-      expect(result[1]?.enabled).toBe(false); // Original value preserved
+      expect(result[1]).toBe(mockDestinations[2]); // Same reference since no valid changes
+      expect(result[1]?.enabled).toBe(true); // Original value preserved
       expect(result[1]?.overridden).toBeUndefined();
     });
 
@@ -501,8 +471,184 @@ describe('deviceModeDestinations utils', () => {
 
       const result = applySourceConfigurationOverrides(mockDestinations, override);
 
-      expect(result).toBe(mockDestinations); // Same reference
-      expect(result).toEqual(mockDestinations);
+      expect(result).toEqual([mockDestinations[0], mockDestinations[2]]);
+    });
+
+    //  --- Cloning scenario ---
+    it('should clone destination when multiple overrides exist for the same destination id', () => {
+      const override = {
+        destinations: [
+          { id: 'dest1', enabled: true, config: { apiKey: 'clone1' } },
+          { id: 'dest1', enabled: true, config: { apiKey: 'clone2' } },
+        ],
+      };
+
+      const result = applySourceConfigurationOverrides(mockDestinations, override);
+
+      // Should have 3 destinations: 2 clones for dest1, dest3
+      expect(result).toHaveLength(3);
+
+      // Both clones should be marked as cloned and 2nd clones config should be updated
+      const dest1Clones = result.filter(d => d.id.startsWith('dest1'));
+      expect(dest1Clones).toHaveLength(2);
+      expect(dest1Clones[0]?.cloned).toBe(true);
+      expect(dest1Clones[1]?.cloned).toBe(true);
+      expect(dest1Clones[0]?.config.apiKey).toBe('clone1');
+      expect(dest1Clones[1]?.config.apiKey).toBe('clone2');
+      // Enabled status should match override
+      expect(dest1Clones[0]?.enabled).toBe(true);
+      expect(dest1Clones[1]?.enabled).toBe(true);
+
+      // dest2 and dest3 should be unchanged
+      expect(result.find(d => d.id === 'dest3')).toBe(mockDestinations[2]);
+    });
+
+    it('should clone destination and assign unique ids/userFriendlyIds for each clone', () => {
+      const override = {
+        destinations: [
+          { id: 'dest2', enabled: true, config: { apiKey: 'cloneA' } },
+          { id: 'dest2', enabled: false, config: { apiKey: 'cloneB' } },
+        ],
+      };
+
+      const result = applySourceConfigurationOverrides(mockDestinations, override);
+
+      // Should have 3 destinations: 1 clones for dest2, dest1, dest3
+      expect(result).toHaveLength(3);
+
+      const dest2Clones = result.filter(d => d.id.startsWith('dest2'));
+      expect(dest2Clones).toHaveLength(1);
+
+      // Each clone should have a unique id and userFriendlyId
+      expect(dest2Clones[0]).toBeDefined();
+      expect(dest2Clones[0]?.id).toBe('dest2_1');
+      expect(dest2Clones[0]?.userFriendlyId).toBe('dest2_friendly_1');
+
+      // Config and enabled status should match each override
+      expect(dest2Clones[0]?.config.apiKey).toBe('cloneA');
+      expect([true, false]).toContain(dest2Clones[0]?.enabled);
+
+      // dest1 and dest3 should be unchanged
+      expect(result.find(d => d.id === 'dest1')).toBe(mockDestinations[0]);
+      expect(result.find(d => d.id === 'dest3')).toBe(mockDestinations[2]);
+    });
+
+    it('should clone destination for each override and preserve other properties', () => {
+      const override = {
+        destinations: [
+          { id: 'dest3', enabled: true, config: { apiKey: 'A' } },
+          { id: 'dest3', enabled: true, config: { apiKey: 'B', extra: 123 } },
+        ],
+      };
+
+      const result = applySourceConfigurationOverrides(mockDestinations, override);
+
+      // Should have 3 destinations: 2 clones for dest3, dest1
+      expect(result).toHaveLength(3);
+
+      const dest3Clones = result.filter(d => d.id.startsWith('dest3'));
+      expect(dest3Clones).toHaveLength(2);
+
+      // Properties from original should be preserved
+      dest3Clones.forEach(clone => {
+        expect(clone.displayName).toBe('Destination 3');
+        expect(clone.shouldApplyDeviceModeTransformation).toBe(true);
+        expect(clone.propagateEventsUntransformedOnError).toBe(false);
+        expect(clone.cloned).toBe(true);
+      });
+
+      // Config and enabled status should match each override
+      expect(dest3Clones[0]?.config?.apiKey).toBe('A');
+      expect(dest3Clones[1]?.config?.apiKey).toBe('B');
+      expect(dest3Clones[1]?.config?.extra).toBe(123);
+      expect(dest3Clones[0]?.enabled).toBe(true);
+      expect(dest3Clones[1]?.enabled).toBe(true);
+      // inherit other config properties
+      expect(dest3Clones[0]?.config?.eventFilteringOption).toBe('disable');
+      expect(dest3Clones[1]?.config?.eventFilteringOption).toBe('disable');
+      expect(dest3Clones[0]?.config?.blacklistedEvents).toEqual([]);
+      expect(dest3Clones[1]?.config?.blacklistedEvents).toEqual([]);
+      expect(dest3Clones[0]?.config?.whitelistedEvents).toEqual([]);
+      expect(dest3Clones[1]?.config?.whitelistedEvents).toEqual([]);
+
+      // dest1 should be unchanged
+      expect(result.find(d => d.id === 'dest1')).toBe(mockDestinations[0]);
+    });
+
+    //   ---- Filter destination ----
+    it('should filter out destinations that are not enabled', () => {
+      const override = {
+        destinations: [
+          { id: 'dest1', enabled: true },
+          { id: 'dest2', enabled: false }, // This should be filtered out
+          { id: 'dest3', enabled: true },
+        ],
+      };
+
+      const result = applySourceConfigurationOverrides(mockDestinations, override);
+
+      expect(result).toHaveLength(2);
+      expect(result[0]?.id).toBe('dest1');
+      expect(result[1]?.id).toBe('dest3');
+    });
+
+    it('should filter out destinations that are not enabled even if they have config overrides', () => {
+      const override = {
+        destinations: [
+          { id: 'dest2', enabled: true },
+          { id: 'dest1', enabled: false, config: { newProperty: 'value' } }, // This should be filtered out
+          { id: 'dest3', enabled: true },
+        ],
+      };
+
+      const result = applySourceConfigurationOverrides(mockDestinations, override);
+
+      expect(result).toHaveLength(2);
+      expect(result[0]?.id).toBe('dest2');
+      expect(result[1]?.id).toBe('dest3');
+    });
+
+    it('should not filter out destinations that are enabled', () => {
+      const override = {
+        destinations: [
+          { id: 'dest1', enabled: true },
+          { id: 'dest2', enabled: true }, // This should not be filtered out
+          { id: 'dest3', enabled: true },
+        ],
+      };
+
+      const result = applySourceConfigurationOverrides(mockDestinations, override);
+
+      expect(result).toHaveLength(3);
+      expect(result[0]?.id).toBe('dest1');
+      expect(result[1]?.id).toBe('dest2');
+      expect(result[2]?.id).toBe('dest3');
+    });
+
+    it('should filter out original destinations that are not enabled when override destination is provided', () => {
+      const override = {
+        destinations: [
+          { id: 'dest1', enabled: true, config: { newProperty: 'value' } }, // This should be included
+        ],
+      };
+
+      const result = applySourceConfigurationOverrides(mockDestinations, override);
+
+      expect(result).toHaveLength(2);
+      expect(result[0]?.id).toBe('dest1');
+      expect(result[1]?.id).toBe('dest3');
+    });
+
+    it('should filter out original destinations that are not enabled when override destination is empty', () => {
+      const override = {
+        destinations: [],
+      };
+
+      const result = applySourceConfigurationOverrides(mockDestinations, override);
+
+      expect(result).toHaveLength(2);
+      expect(result[0]?.id).toBe('dest1');
+      expect(result[1]?.id).toBe('dest3');
     });
   });
 
@@ -752,6 +898,51 @@ describe('deviceModeDestinations utils', () => {
       expect(result.enabled).toBe(false);
       expect(result.overridden).toBeUndefined(); // Not marked as overridden
       expect((result.config as any).newProperty).toBeUndefined(); // Config override not applied
+    });
+  });
+
+  describe('filterDisabledDestination', () => {
+    it('should return only enabled destinations', () => {
+      const destinations = [
+        { id: '1', enabled: true },
+        { id: '2', enabled: false },
+        { id: '3', enabled: true },
+      ] as any[];
+
+      const result = filterDisabledDestination(destinations);
+
+      expect(result).toHaveLength(2);
+      expect(result.every(dest => dest.enabled)).toBe(true);
+      expect(result.map(d => d.id)).toEqual(['1', '3']);
+    });
+
+    it('should return empty array if all destinations are disabled', () => {
+      const destinations = [
+        { id: '1', enabled: false },
+        { id: '2', enabled: false },
+      ] as any[];
+
+      const result = filterDisabledDestination(destinations);
+
+      expect(result).toEqual([]);
+    });
+
+    it('should return all destinations if all are enabled', () => {
+      const destinations = [
+        { id: '1', enabled: true },
+        { id: '2', enabled: true },
+      ] as any[];
+
+      const result = filterDisabledDestination(destinations);
+
+      expect(result).toHaveLength(2);
+      expect(result.map(d => d.id)).toEqual(['1', '2']);
+    });
+
+    it('should return empty array if input is empty', () => {
+      const result = filterDisabledDestination([]);
+
+      expect(result).toEqual([]);
     });
   });
 });

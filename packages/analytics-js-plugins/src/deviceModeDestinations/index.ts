@@ -61,14 +61,11 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
           )
         : configSupportedDestinations;
 
-      // Filter destinations that are disabled (enabled: false)
-      const enabledDestinations = destinationsWithOverrides.filter(dest => dest.enabled);
-
       // Filter destinations that are disabled through load or consent API options
       const destinationsToLoad = filterDestinations(
         state.consents.postConsent.value?.integrations ??
           state.nativeDestinations.loadOnlyIntegrations.value,
-        enabledDestinations,
+        destinationsWithOverrides,
       );
 
       const consentedDestinations = destinationsToLoad.filter(
