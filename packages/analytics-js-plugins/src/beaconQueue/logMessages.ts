@@ -10,7 +10,7 @@ const BEACON_QUEUE_BLOB_CONVERSION_FAILURE_ERROR = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}Failed to convert events batch object to Blob.`;
 
 const BEACON_QUEUE_SEND_ERROR = (context: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}Failed to send events batch data to the browser's beacon queue. The events will be dropped.`;
+  `${context}${LOG_CONTEXT_SEPARATOR}Failed to send events batch data to the browser's beacon queue.`;
 
 const BEACON_QUEUE_DELIVERY_ERROR = (url: string): string =>
   `Failed to send events batch data to the browser's beacon queue for URL ${url}.`;

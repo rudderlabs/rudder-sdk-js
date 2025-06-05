@@ -1,0 +1,11 @@
+---
+description: Testing standards for browser and service worker compatibility across the codebase
+globs: 
+alwaysApply: false
+---
+# Testing Standards
+
+**Critical**: Test compatibility across browsers AND service workers
+
+**Technical Stack**: [.memorybank/02_technical_stack.md](mdc:.memorybank/02_technical_stack.md)
+**Development Guidelines**: [.memorybank/07_development_guidelines.md](mdc:.memorybank/07_development_guidelines.md)

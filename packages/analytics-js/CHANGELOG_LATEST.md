@@ -1,10 +1,10 @@
-## [3.18.2](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.18.1...@rudderstack/analytics-js@3.18.2) (2025-05-26)
+## [3.19.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.18.2...@rudderstack/analytics-js@3.19.0) (2025-06-03)
 
 ### Dependency Updates
 
-* `@rudderstack/analytics-js-plugins` updated to version `3.8.4`
+* `@rudderstack/analytics-js-plugins` updated to version `3.9.0`
 
-### Bug Fixes
+### Features
 
-* store events in in-progress queue even when the page is unloaded ([#2245](https://github.com/rudderlabs/rudder-sdk-js/issues/2245)) ([8f978b5](https://github.com/rudderlabs/rudder-sdk-js/commit/8f978b5d58c63747dda04df75ed05a2709bec11a))
+* retry delivery failures in beacon plugin when page is unloaded ([#2269](https://github.com/rudderlabs/rudder-sdk-js/issues/2269)) ([cec81f3](https://github.com/rudderlabs/rudder-sdk-js/commit/cec81f3d2aca443f6d2c209941dd28fffd65888c))
 
