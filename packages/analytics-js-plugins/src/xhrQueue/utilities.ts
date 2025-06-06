@@ -107,19 +107,22 @@ const getRequestInfo = (
   // Add a header to indicate if the item has been reclaimed from
   // local storage
   if (qItemProcessInfo.reclaimed) {
-    headers.Reclaimed = 'true';
+    headers['Rsa-Recovered'] = 'true';
   }
 
   // Add retry headers if the item is being retried for delivery
   if (qItemProcessInfo.retryAttemptNumber > 0) {
     // The number of times this item has been attempted to retry
-    headers['Retry-Attempt'] = qItemProcessInfo.retryAttemptNumber.toString();
+    headers['Rsa-Retry-Attempt'] = qItemProcessInfo.retryAttemptNumber.toString();
 
-    // The number of seconds since the last attempt
-    headers['Retried-After'] = qItemProcessInfo.timeSinceLastAttempt.toString();
+    // The number of milliseconds since the last attempt
+    headers['Rsa-Since-Last-Attempt'] = qItemProcessInfo.timeSinceLastAttempt.toString();
 
-    // The number of seconds since the first attempt
-    headers['Retried-After-First'] = qItemProcessInfo.timeSinceFirstAttempt.toString();
+    // The number of milliseconds since the first attempt
+    headers['Rsa-Since-First-Attempt'] = qItemProcessInfo.timeSinceFirstAttempt.toString();
+
+    // The reason for the retry
+    headers['Rsa-Retry-Reason'] = qItemProcessInfo.retryReason;
   }
 
   return { data, headers, url };

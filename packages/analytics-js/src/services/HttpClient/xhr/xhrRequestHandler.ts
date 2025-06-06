@@ -98,6 +98,7 @@ const xhrRequest = (
         error: new Error(XHR_REQUEST_ERROR(FAILED_REQUEST_ERR_MSG_PREFIX, e, options.url)),
         xhr,
         options,
+        ...(e?.type === 'timeout' ? { timedOut: true } : {}),
       });
     };
 

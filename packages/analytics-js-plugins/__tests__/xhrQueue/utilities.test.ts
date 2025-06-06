@@ -130,6 +130,8 @@ describe('xhrQueue Plugin Utilities', () => {
           timeSinceFirstAttempt: 1,
           timeSinceLastAttempt: 1,
           reclaimed: false,
+          isPageAccessible: true,
+          retryReason: 'client-network',
         },
         defaultLogger,
       );
@@ -157,6 +159,8 @@ describe('xhrQueue Plugin Utilities', () => {
           timeSinceFirstAttempt: 1,
           timeSinceLastAttempt: 1,
           reclaimed: false,
+          isPageAccessible: true,
+          retryReason: 'client-network',
         },
         defaultLogger,
       );
@@ -179,6 +183,8 @@ describe('xhrQueue Plugin Utilities', () => {
           timeSinceFirstAttempt: 10,
           timeSinceLastAttempt: 10,
           reclaimed: false,
+          isPageAccessible: true,
+          retryReason: 'client-network',
         },
         defaultLogger,
       );
@@ -200,6 +206,8 @@ describe('xhrQueue Plugin Utilities', () => {
           timeSinceFirstAttempt: 1,
           timeSinceLastAttempt: 1,
           reclaimed: false,
+          isPageAccessible: true,
+          retryReason: 'client-network',
         },
         defaultLogger,
       );
@@ -222,6 +230,8 @@ describe('xhrQueue Plugin Utilities', () => {
           timeSinceFirstAttempt: 1,
           timeSinceLastAttempt: 1,
           reclaimed: false,
+          isPageAccessible: true,
+          retryReason: 'client-network',
         },
         defaultLogger,
       );
@@ -244,6 +254,8 @@ describe('xhrQueue Plugin Utilities', () => {
           timeSinceFirstAttempt: 1,
           timeSinceLastAttempt: 1,
           reclaimed: false,
+          isPageAccessible: true,
+          retryReason: 'client-network',
         },
         defaultLogger,
       );
@@ -266,6 +278,8 @@ describe('xhrQueue Plugin Utilities', () => {
           timeSinceFirstAttempt: 1,
           timeSinceLastAttempt: 1,
           reclaimed: false,
+          isPageAccessible: true,
+          retryReason: 'client-network',
         },
         defaultLogger,
       );
@@ -292,6 +306,8 @@ describe('xhrQueue Plugin Utilities', () => {
             timeSinceFirstAttempt: 1,
             timeSinceLastAttempt: 1,
             reclaimed: false,
+            isPageAccessible: true,
+            retryReason: 'client-network',
           },
           undefined, // No logger provided
         );
@@ -309,6 +325,8 @@ describe('xhrQueue Plugin Utilities', () => {
             timeSinceFirstAttempt: 1,
             timeSinceLastAttempt: 1,
             reclaimed: false,
+            isPageAccessible: true,
+            retryReason: 'client-network',
           },
           undefined, // No logger provided
         );
@@ -326,6 +344,8 @@ describe('xhrQueue Plugin Utilities', () => {
           timeSinceFirstAttempt: 1,
           timeSinceLastAttempt: 1,
           reclaimed: false,
+          isPageAccessible: true,
+          retryReason: 'client-network',
         },
         defaultLogger,
       );
@@ -365,6 +385,8 @@ describe('xhrQueue Plugin Utilities', () => {
           timeSinceFirstAttempt: 1,
           timeSinceLastAttempt: 1,
           reclaimed: false,
+          isPageAccessible: true,
+          retryReason: 'client-network',
         },
         defaultLogger,
       );
@@ -397,9 +419,11 @@ describe('xhrQueue Plugin Utilities', () => {
           retryAttemptNumber: 2,
           maxRetryAttempts: 10,
           willBeRetried: true,
-          timeSinceFirstAttempt: 4,
-          timeSinceLastAttempt: 2,
+          timeSinceFirstAttempt: 4000,
+          timeSinceLastAttempt: 2000,
           reclaimed: true,
+          isPageAccessible: true,
+          retryReason: 'server-429',
         },
         defaultLogger,
       );
@@ -409,13 +433,191 @@ describe('xhrQueue Plugin Utilities', () => {
         headers: {
           AnonymousId: 'anonymous-id',
           SentAt: '2021-01-01T00:00:00.000Z',
-          'Retry-Attempt': '2',
-          'Retried-After': '2',
-          'Retried-After-First': '4',
-          Reclaimed: 'true',
+          'Rsa-Retry-Attempt': '2',
+          'Rsa-Since-Last-Attempt': '2000',
+          'Rsa-Since-First-Attempt': '4000',
+          'Rsa-Retry-Reason': 'server-429',
+          'Rsa-Recovered': 'true',
         },
         data: '{"type":"track","sentAt":"2021-01-01T00:00:00.000Z"}',
       });
+    });
+
+    it('should add all retry headers for retried requests', () => {
+      const queueItemData = {
+        event: {
+          type: 'track',
+          event: 'test event',
+        } as unknown as RudderEvent,
+        url: 'https://test.com/v1/track',
+        headers: {
+          AnonymousId: 'anonymous-id',
+        },
+      };
+
+      const requestInfo = getRequestInfo(
+        queueItemData,
+        state,
+        {
+          retryAttemptNumber: 3,
+          maxRetryAttempts: 10,
+          willBeRetried: true,
+          timeSinceFirstAttempt: 15000, // 15 seconds in milliseconds
+          timeSinceLastAttempt: 5000, // 5 seconds in milliseconds
+          reclaimed: true,
+          isPageAccessible: true,
+          retryReason: 'server-429',
+        },
+        defaultLogger,
+      );
+
+      expect(requestInfo.headers).toEqual({
+        AnonymousId: 'anonymous-id',
+        SentAt: '2021-01-01T00:00:00.000Z',
+        'Rsa-Retry-Attempt': '3',
+        'Rsa-Since-Last-Attempt': '5000',
+        'Rsa-Since-First-Attempt': '15000',
+        'Rsa-Retry-Reason': 'server-429',
+        'Rsa-Recovered': 'true',
+      });
+    });
+
+    it('should not add retry headers for first attempt', () => {
+      const queueItemData = {
+        event: {
+          type: 'track',
+          event: 'test event',
+        } as unknown as RudderEvent,
+        url: 'https://test.com/v1/track',
+        headers: {
+          AnonymousId: 'anonymous-id',
+        },
+      };
+
+      const requestInfo = getRequestInfo(
+        queueItemData,
+        state,
+        {
+          retryAttemptNumber: 0,
+          maxRetryAttempts: 10,
+          willBeRetried: true,
+          timeSinceFirstAttempt: 0,
+          timeSinceLastAttempt: 0,
+          reclaimed: false,
+          isPageAccessible: true,
+          retryReason: 'client-network',
+        },
+        defaultLogger,
+      );
+
+      expect(requestInfo.headers).toEqual({
+        AnonymousId: 'anonymous-id',
+        SentAt: '2021-01-01T00:00:00.000Z',
+      });
+    });
+
+    it('should handle different retry reasons correctly', () => {
+      const queueItemData = {
+        event: {
+          type: 'track',
+          event: 'test event',
+        } as unknown as RudderEvent,
+        url: 'https://test.com/v1/track',
+        headers: {
+          AnonymousId: 'anonymous-id',
+        },
+      };
+
+      const retryReasons = ['client-network', 'client-timeout', 'server-500', 'server-429'];
+
+      retryReasons.forEach((retryReason) => {
+        const requestInfo = getRequestInfo(
+          queueItemData,
+          state,
+          {
+            retryAttemptNumber: 1,
+            maxRetryAttempts: 10,
+            willBeRetried: true,
+            timeSinceFirstAttempt: 2000,
+            timeSinceLastAttempt: 1000,
+            reclaimed: false,
+            isPageAccessible: true,
+            retryReason,
+          },
+          defaultLogger,
+        );
+
+        expect(requestInfo.headers['Rsa-Retry-Reason']).toBe(retryReason);
+      });
+    });
+
+    it('should include Rsa-Since-First-Attempt header for retry attempts', () => {
+      const queueItemData = {
+        event: {
+          type: 'track',
+          event: 'test event',
+        } as unknown as RudderEvent,
+        url: 'https://test.com/v1/track',
+        headers: {
+          AnonymousId: 'anonymous-id',
+        },
+      };
+
+      const requestInfo = getRequestInfo(
+        queueItemData,
+        state,
+        {
+          retryAttemptNumber: 3,
+          maxRetryAttempts: 10,
+          willBeRetried: true,
+          timeSinceFirstAttempt: 45000, // 45 seconds in milliseconds
+          timeSinceLastAttempt: 15000,  // 15 seconds in milliseconds
+          reclaimed: false,
+          isPageAccessible: true,
+          retryReason: 'server-503',
+        },
+        defaultLogger,
+      );
+
+      expect(requestInfo.headers['Rsa-Since-First-Attempt']).toBe('45000');
+      expect(requestInfo.headers['Rsa-Since-Last-Attempt']).toBe('15000');
+      expect(requestInfo.headers['Rsa-Retry-Attempt']).toBe('3');
+      expect(requestInfo.headers['Rsa-Retry-Reason']).toBe('server-503');
+    });
+
+    it('should include Rsa-Recovered header when item is reclaimed', () => {
+      const queueItemData = {
+        event: {
+          type: 'track',
+          event: 'test event',
+        } as unknown as RudderEvent,
+        url: 'https://test.com/v1/track',
+        headers: {
+          AnonymousId: 'anonymous-id',
+        },
+      };
+
+      const requestInfo = getRequestInfo(
+        queueItemData,
+        state,
+        {
+          retryAttemptNumber: 2,
+          maxRetryAttempts: 10,
+          willBeRetried: true,
+          timeSinceFirstAttempt: 30000,
+          timeSinceLastAttempt: 10000,
+          reclaimed: true, // Item was reclaimed from storage
+          isPageAccessible: true,
+          retryReason: 'client-timeout',
+        },
+        defaultLogger,
+      );
+
+      expect(requestInfo.headers['Rsa-Recovered']).toBe('true');
+      expect(requestInfo.headers['Rsa-Retry-Attempt']).toBe('2');
+      expect(requestInfo.headers['Rsa-Since-First-Attempt']).toBe('30000');
+      expect(requestInfo.headers['Rsa-Since-Last-Attempt']).toBe('10000');
+      expect(requestInfo.headers['Rsa-Retry-Reason']).toBe('client-timeout');
     });
 
     it('should return request info for batch queue item', () => {
@@ -458,6 +660,8 @@ describe('xhrQueue Plugin Utilities', () => {
           timeSinceFirstAttempt: 1,
           timeSinceLastAttempt: 1,
           reclaimed: false,
+          isPageAccessible: true,
+          retryReason: 'client-network',
         },
         defaultLogger,
       );

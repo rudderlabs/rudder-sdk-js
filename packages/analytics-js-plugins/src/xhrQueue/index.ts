@@ -27,6 +27,7 @@ import { QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
 import type { XHRRetryQueueItemData, XHRQueueItemData } from './types';
 import {
   getCurrentTimeFormatted,
+  isDefined,
   isErrRetryable,
   isUndefined,
   LOCAL_STORAGE,
@@ -105,9 +106,19 @@ const XhrQueue = (): ExtensionPlugin => ({
 
               logMessageOnFailure(details, isRetryable, qItemProcessInfo, logger);
 
-              // null means item will not be processed further and will be removed from the queue (even from the storage)
-              const queueErrResp = isRetryable ? details : null;
-              done(queueErrResp);
+              if (isRetryable) {
+                let retryReason = 'client-network';
+                if (details?.timedOut) {
+                  retryReason = 'client-timeout';
+                } else if (isDefined(details?.xhr?.status)) {
+                  retryReason = `server-${details!.xhr!.status}`;
+                }
+
+                done(details, { retryReason });
+              } else {
+                // null means item will not be processed further and will be removed from the queue (even from the storage)
+                done(null);
+              }
             },
           });
         },

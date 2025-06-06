@@ -65,6 +65,35 @@ describe('Queue', () => {
     ]);
   });
 
+  it('should preserve retry reason when requeueing items', () => {
+    // Create a queue that simulates retry with a specific reason
+    const retryQueue = new RetryQueue(
+      'test-retry-reason',
+      {},
+      jest.fn().mockImplementation((item, done) => {
+        // Simulate failure to test retry behavior  
+        done(new Error('Test error'), { retryReason: 'server-501' });
+      }),
+      defaultStoreManager,
+      undefined,
+      defaultLogger,
+    );
+    retryQueue.schedule = schedule;
+
+    retryQueue.addItem('test-item');
+    retryQueue.start();
+
+    // Check the requeued item has the retry reason
+    const requeuedItems = retryQueue.getStorageEntry('queue') as QueueItem<QueueItemData>[];
+    
+    expect(requeuedItems).toHaveLength(1);
+    expect(requeuedItems[0]).toMatchObject({
+      item: 'test-item',
+      attemptNumber: 1,
+      retryReason: 'server-501',
+    });
+  });
+
   it('should add an item to the batch queue in batch mode', () => {
     const batchQueue = new RetryQueue(
       'test',
@@ -246,6 +275,7 @@ describe('Queue', () => {
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: false,
       isPageAccessible: true,
+      retryReason: 'client-network',
     });
   });
 
@@ -271,6 +301,7 @@ describe('Queue', () => {
       timeSinceLastAttempt: 0,
       reclaimed: false,
       isPageAccessible: true,
+      retryReason: 'client-network',
     });
 
     // Delay for the first retry
@@ -283,8 +314,9 @@ describe('Queue', () => {
       retryAttemptNumber: 1,
       maxRetryAttempts: Infinity,
       willBeRetried: true,
-      timeSinceFirstAttempt: 2,
-      timeSinceLastAttempt: 2,
+      timeSinceFirstAttempt: 2000,
+      timeSinceLastAttempt: 2000,
+      retryReason: 'client-network',
       reclaimed: false,
       isPageAccessible: true,
     });
@@ -299,10 +331,11 @@ describe('Queue', () => {
       retryAttemptNumber: 2,
       maxRetryAttempts: Infinity,
       willBeRetried: true,
-      timeSinceFirstAttempt: 6,
-      timeSinceLastAttempt: 4,
+      timeSinceFirstAttempt: 6000,
+      timeSinceLastAttempt: 4000,
       reclaimed: false,
       isPageAccessible: true,
+      retryReason: 'client-network',
     });
   });
 
@@ -334,6 +367,7 @@ describe('Queue', () => {
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: false,
       isPageAccessible: true,
+      retryReason: 'client-network',
     });
     expect(defaultLogger.error).toHaveBeenCalledTimes(1);
     expect(defaultLogger.error).toHaveBeenCalledWith(
@@ -355,6 +389,7 @@ describe('Queue', () => {
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: false,
       isPageAccessible: true,
+      retryReason: 'client-network',
     });
     expect(defaultLogger.error).toHaveBeenCalledTimes(1);
     expect(defaultLogger.error).toHaveBeenCalledWith(
@@ -376,6 +411,7 @@ describe('Queue', () => {
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: false,
       isPageAccessible: true,
+      retryReason: 'client-network',
     });
     expect(defaultLogger.error).toHaveBeenCalledTimes(1);
     expect(defaultLogger.error).toHaveBeenCalledWith(
@@ -410,6 +446,7 @@ describe('Queue', () => {
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: false,
       isPageAccessible: true,
+      retryReason: 'client-network',
     });
 
     // Delay for the retry
@@ -426,6 +463,7 @@ describe('Queue', () => {
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: false,
       isPageAccessible: true,
+      retryReason: 'client-network',
     });
   });
 
@@ -551,6 +589,7 @@ describe('Queue', () => {
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
       isPageAccessible: true,
+      retryReason: 'client-network',
     });
     expect(queue.processQueueCb).toHaveBeenNthCalledWith(2, ['b', 'c'], expect.any(Function), {
       retryAttemptNumber: 0,
@@ -560,6 +599,7 @@ describe('Queue', () => {
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
       isPageAccessible: true,
+      retryReason: 'client-network',
     });
     expect(queue.processQueueCb).toHaveBeenNthCalledWith(3, ['d', 'e'], expect.any(Function), {
       retryAttemptNumber: 0,
@@ -569,6 +609,7 @@ describe('Queue', () => {
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
       isPageAccessible: true,
+      retryReason: 'client-network',
     });
     expect(queue.processQueueCb).toHaveBeenNthCalledWith(4, 'f', expect.any(Function), {
       retryAttemptNumber: 0,
@@ -578,6 +619,7 @@ describe('Queue', () => {
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
       isPageAccessible: true,
+      retryReason: 'client-network',
     });
   });
 
@@ -637,6 +679,7 @@ describe('Queue', () => {
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
       isPageAccessible: true,
+      retryReason: 'client-network',
     });
     expect(queue.processQueueCb).toHaveBeenNthCalledWith(2, ['b', 'c'], expect.any(Function), {
       retryAttemptNumber: 1,
@@ -646,6 +689,7 @@ describe('Queue', () => {
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
       isPageAccessible: true,
+      retryReason: 'client-network',
     });
     expect(queue.processQueueCb).toHaveBeenNthCalledWith(3, ['d', 'e'], expect.any(Function), {
       retryAttemptNumber: 1,
@@ -655,6 +699,7 @@ describe('Queue', () => {
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
       isPageAccessible: true,
+      retryReason: 'client-network',
     });
     expect(queue.processQueueCb).toHaveBeenNthCalledWith(4, 'f', expect.any(Function), {
       retryAttemptNumber: 1,
@@ -664,6 +709,7 @@ describe('Queue', () => {
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
       isPageAccessible: true,
+      retryReason: 'client-network',
     });
   });
 
@@ -720,6 +766,7 @@ describe('Queue', () => {
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
       isPageAccessible: true,
+      retryReason: 'client-network',
     });
   });
 
@@ -767,6 +814,7 @@ describe('Queue', () => {
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
       isPageAccessible: true,
+      retryReason: 'client-network',
     });
     expect(queue.processQueueCb).toHaveBeenNthCalledWith(2, 'b', expect.any(Function), {
       retryAttemptNumber: 0,
@@ -776,6 +824,7 @@ describe('Queue', () => {
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
       isPageAccessible: true,
+      retryReason: 'client-network',
     });
   });
 
@@ -825,6 +874,7 @@ describe('Queue', () => {
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
       isPageAccessible: true,
+      retryReason: 'client-network',
     });
   });
 
@@ -874,6 +924,7 @@ describe('Queue', () => {
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
       isPageAccessible: true,
+      retryReason: 'client-network',
     });
   });
 
@@ -923,6 +974,7 @@ describe('Queue', () => {
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
       isPageAccessible: true,
+      retryReason: 'client-network',
     });
   });
 
@@ -1002,6 +1054,7 @@ describe('Queue', () => {
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
       isPageAccessible: true,
+      retryReason: 'client-network',
     });
     expect(queue.processQueueCb).toHaveBeenCalledWith('a', expect.any(Function), {
       retryAttemptNumber: 0,
@@ -1011,6 +1064,7 @@ describe('Queue', () => {
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
       isPageAccessible: true,
+      retryReason: 'client-network',
     });
     expect(queue.processQueueCb).toHaveBeenCalledWith('b', expect.any(Function), {
       retryAttemptNumber: 0,
@@ -1020,6 +1074,7 @@ describe('Queue', () => {
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
       isPageAccessible: true,
+      retryReason: 'client-network',
     });
   });
 
@@ -1080,6 +1135,7 @@ describe('Queue', () => {
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
       isPageAccessible: true,
+      retryReason: 'client-network',
     });
   });
 
@@ -1136,6 +1192,7 @@ describe('Queue', () => {
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
       isPageAccessible: true,
+      retryReason: 'client-network',
     });
     expect(queue.processQueueCb).toHaveBeenCalledWith('b', expect.any(Function), {
       retryAttemptNumber: 1,
@@ -1145,6 +1202,7 @@ describe('Queue', () => {
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
       isPageAccessible: true,
+      retryReason: 'client-network',
     });
     expect(queue.processQueueCb).toHaveBeenCalledWith('c', expect.any(Function), {
       retryAttemptNumber: 0,
@@ -1154,6 +1212,7 @@ describe('Queue', () => {
       timeSinceLastAttempt: expect.any(Number),
       reclaimed: true,
       isPageAccessible: true,
+      retryReason: 'client-network',
     });
   });
 
@@ -1201,6 +1260,7 @@ describe('Queue', () => {
         timeSinceLastAttempt: expect.any(Number),
         reclaimed: true,
         isPageAccessible: true,
+        retryReason: 'client-network',
       });
     });
 
@@ -1243,6 +1303,7 @@ describe('Queue', () => {
         timeSinceLastAttempt: expect.any(Number),
         reclaimed: true,
         isPageAccessible: true,
+        retryReason: 'client-network',
       });
     });
 
@@ -1292,6 +1353,7 @@ describe('Queue', () => {
         timeSinceLastAttempt: expect.any(Number),
         reclaimed: true,
         isPageAccessible: true,
+        retryReason: 'client-network',
       });
       expect(queue.processQueueCb).toHaveBeenCalledWith('b', expect.any(Function), {
         retryAttemptNumber: 1,
@@ -1301,6 +1363,7 @@ describe('Queue', () => {
         timeSinceLastAttempt: expect.any(Number),
         reclaimed: true,
         isPageAccessible: true,
+        retryReason: 'client-network',
       });
     });
   });
