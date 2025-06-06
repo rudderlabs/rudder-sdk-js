@@ -139,6 +139,7 @@ describe('XhrQueue', () => {
         willBeRetried: true,
         timeSinceFirstAttempt: expect.any(Number),
         timeSinceLastAttempt: expect.any(Number),
+        retryReason: 'client-network',
         reclaimed: false,
         isPageAccessible: true,
       },
@@ -208,6 +209,7 @@ describe('XhrQueue', () => {
         id: 'sample_uuid',
         time: 1 + 1000 * 2 ** 1, // this is the delay calculation in RetryQueue
         type: 'Single',
+        retryReason: 'server-429', // Retry reason should be preserved
       },
     ]);
   });
@@ -298,6 +300,7 @@ describe('XhrQueue', () => {
         willBeRetried: true,
         timeSinceFirstAttempt: expect.any(Number),
         timeSinceLastAttempt: expect.any(Number),
+        retryReason: 'client-network',
         reclaimed: false,
         isPageAccessible: true,
       },
@@ -319,4 +322,8 @@ describe('XhrQueue', () => {
       callback: expect.any(Function),
     });
   });
+
+
+
+
 });
