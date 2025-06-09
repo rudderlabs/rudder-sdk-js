@@ -34,6 +34,7 @@ import {
   toBase64,
   validateEventPayloadSize,
 } from '../shared-chunks/common';
+import { DEFAULT_RETRY_REASON, RETRY_REASON_CLIENT_TIMEOUT } from '../utilities/constants';
 
 const pluginName: PluginName = 'XhrQueue';
 
@@ -107,9 +108,9 @@ const XhrQueue = (): ExtensionPlugin => ({
               logMessageOnFailure(details, isRetryable, qItemProcessInfo, logger);
 
               if (isRetryable) {
-                let retryReason = 'client-network';
+                let retryReason = DEFAULT_RETRY_REASON;
                 if (details?.timedOut) {
-                  retryReason = 'client-timeout';
+                  retryReason = RETRY_REASON_CLIENT_TIMEOUT;
                 } else if (isDefined(details?.xhr?.status)) {
                   retryReason = `server-${details!.xhr!.status}`;
                 }

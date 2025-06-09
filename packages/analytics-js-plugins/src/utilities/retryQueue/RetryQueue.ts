@@ -44,6 +44,7 @@ import {
   onPageLeave,
   QueueStatuses,
 } from '../../shared-chunks/common';
+import { DEFAULT_RETRY_REASON } from '../constants';
 
 const sortByTime = (a: QueueItem, b: QueueItem) => a.time - b.time;
 
@@ -430,7 +431,16 @@ class RetryQueue implements IQueue<QueueItemData> {
    * @param {Object} qItem The item to process
    */
   requeue(qItem: QueueItem<QueueItemData>) {
-    const { attemptNumber, item, type, id, firstAttemptedAt, lastAttemptedAt, reclaimed, retryReason } = qItem;
+    const {
+      attemptNumber,
+      item,
+      type,
+      id,
+      firstAttemptedAt,
+      lastAttemptedAt,
+      reclaimed,
+      retryReason,
+    } = qItem;
     // Increment the attempt number as we're about to retry
     const attemptNumberToUse = attemptNumber + 1;
     if (this.shouldRetry(item, attemptNumberToUse)) {
@@ -500,22 +510,28 @@ class RetryQueue implements IQueue<QueueItemData> {
     const toRun: InProgressQueueItem[] = [];
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const processItemCallback = (el: QueueItem, id: string) => (err?: Error, res?: QueueItemProcessResponse) => {
-      const inProgress =
-        (this.getStorageEntry(QueueStatuses.IN_PROGRESS) as Nullable<Record<string, any>>) ?? {};
-      const inProgressItem = inProgress[id];
+    const processItemCallback =
+      (el: QueueItem, id: string) => (err?: Error, res?: QueueItemProcessResponse) => {
+        const inProgress =
+          (this.getStorageEntry(QueueStatuses.IN_PROGRESS) as Nullable<Record<string, any>>) ?? {};
+        const inProgressItem = inProgress[id];
 
-      const firstAttemptedAt = inProgressItem?.firstAttemptedAt;
-      const lastAttemptedAt = inProgressItem?.lastAttemptedAt;
+        const firstAttemptedAt = inProgressItem?.firstAttemptedAt;
+        const lastAttemptedAt = inProgressItem?.lastAttemptedAt;
 
-      delete inProgress[id];
+        delete inProgress[id];
 
-      this.setStorageEntry(QueueStatuses.IN_PROGRESS, inProgress);
+        this.setStorageEntry(QueueStatuses.IN_PROGRESS, inProgress);
 
-      if (err) {
-        this.requeue({ ...el, firstAttemptedAt, lastAttemptedAt, retryReason: res?.retryReason ?? 'client-network' });
-      }
-    };
+        if (err) {
+          this.requeue({
+            ...el,
+            firstAttemptedAt,
+            lastAttemptedAt,
+            retryReason: res?.retryReason ?? DEFAULT_RETRY_REASON,
+          });
+        }
+      };
 
     const enqueueItem = (el: QueueItem, id: string) => {
       toRun.push({
@@ -569,7 +585,7 @@ class RetryQueue implements IQueue<QueueItemData> {
         let firstAttemptedAt = now;
         let lastAttemptedAt = now;
         let reclaimed = false;
-        let retryReason = 'client-network';
+        let retryReason = DEFAULT_RETRY_REASON;
 
         if (inProgressItem) {
           retryReason = inProgressItem.retryReason ?? retryReason;
