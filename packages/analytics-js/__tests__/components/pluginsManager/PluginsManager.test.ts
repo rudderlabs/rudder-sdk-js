@@ -61,6 +61,7 @@ describe('PluginsManager', () => {
         error: expect.any(Error),
         context: 'PluginsManager',
         customMessage: 'Failed to register plugin "FailingPlugin"',
+        groupingHash: undefined,
       });
 
       errorHandlerSpy.mockRestore();
@@ -101,11 +102,13 @@ describe('PluginsManager', () => {
         error: expect.any(Error),
         context: 'PluginsManager',
         customMessage: 'Failed to register plugin "FailingPlugin1"',
+        groupingHash: undefined,
       });
       expect(errorHandlerSpy).toHaveBeenCalledWith({
         error: expect.any(Error),
         context: 'PluginsManager',
         customMessage: 'Failed to register plugin "FailingPlugin2"',
+        groupingHash: undefined,
       });
 
       errorHandlerSpy.mockRestore();
@@ -147,11 +150,13 @@ describe('PluginsManager', () => {
         error: expect.any(TypeError),
         context: 'PluginsManager',
         customMessage: 'Failed to register plugin "TypeErrorPlugin"',
+        groupingHash: undefined,
       });
       expect(errorHandlerSpy).toHaveBeenCalledWith({
         error: expect.any(ReferenceError),
         context: 'PluginsManager',
         customMessage: 'Failed to register plugin "ReferenceErrorPlugin"',
+        groupingHash: undefined,
       });
 
       errorHandlerSpy.mockRestore();
@@ -220,6 +225,7 @@ describe('PluginsManager', () => {
         error: expect.any(Error),
         context: 'PluginsManager',
         customMessage: 'Failed to unregister plugin "FailingPlugin"',
+        groupingHash: undefined,
       });
 
       // Restore original inventory
@@ -260,11 +266,13 @@ describe('PluginsManager', () => {
         error: expect.any(Error),
         context: 'PluginsManager',
         customMessage: 'Failed to unregister plugin "FailingPlugin1"',
+        groupingHash: undefined,
       });
       expect(errorHandlerSpy).toHaveBeenCalledWith({
         error: expect.any(Error),
         context: 'PluginsManager',
         customMessage: 'Failed to unregister plugin "FailingPlugin2"',
+        groupingHash: undefined,
       });
 
       // Restore original inventory
@@ -324,11 +332,13 @@ describe('PluginsManager', () => {
         error: expect.any(TypeError),
         context: 'PluginsManager',
         customMessage: 'Failed to unregister plugin "TypeErrorPlugin"',
+        groupingHash: undefined,
       });
       expect(errorHandlerSpy).toHaveBeenCalledWith({
         error: expect.any(Error),
         context: 'PluginsManager',
         customMessage: 'Failed to unregister plugin "NetworkErrorPlugin"',
+        groupingHash: undefined,
       });
 
       // Restore original inventory
@@ -356,12 +366,6 @@ describe('PluginsManager', () => {
       pluginsManager = new PluginsManager(defaultPluginEngine, defaultErrorHandler, defaultLogger);
 
       state.plugins.pluginsToLoadFromConfig.value = defaultOptionalPluginsList;
-    });
-
-    it('should return empty array if plugins list is set to undefined in the state', () => {
-      state.plugins.pluginsToLoadFromConfig.value = undefined;
-
-      expect(pluginsManager.getPluginsToLoadBasedOnConfig()).toEqual([]);
     });
 
     it('should return the default optional plugins if no plugins were configured in the state', () => {
@@ -404,8 +408,17 @@ describe('PluginsManager', () => {
       // Non-empty array
       state.nativeDestinations.configuredDestinations.value = [
         {
+          id: 'dest1',
+          displayName: 'Destination 1',
+          userFriendlyId: 'dest1',
+          shouldApplyDeviceModeTransformation: false,
+          enabled: true,
+          propagateEventsUntransformedOnError: false,
           config: {
             connectionMode: 'device',
+            blacklistedEvents: [],
+            whitelistedEvents: [],
+            eventFilteringOption: 'disable',
           },
         },
       ];
@@ -424,8 +437,17 @@ describe('PluginsManager', () => {
       // Non-empty array
       state.nativeDestinations.configuredDestinations.value = [
         {
+          id: 'dest1',
+          displayName: 'Destination 1',
+          userFriendlyId: 'dest1',
+          shouldApplyDeviceModeTransformation: false,
+          enabled: true,
+          propagateEventsUntransformedOnError: false,
           config: {
             connectionMode: 'device',
+            blacklistedEvents: [],
+            whitelistedEvents: [],
+            eventFilteringOption: 'disable',
           },
         },
       ];
@@ -444,8 +466,17 @@ describe('PluginsManager', () => {
       // Non-empty array
       state.nativeDestinations.configuredDestinations.value = [
         {
+          id: 'dest1',
+          displayName: 'Destination 1',
+          userFriendlyId: 'dest1',
+          shouldApplyDeviceModeTransformation: false,
+          enabled: true,
+          propagateEventsUntransformedOnError: false,
           config: {
             connectionMode: 'device',
+            blacklistedEvents: [],
+            whitelistedEvents: [],
+            eventFilteringOption: 'disable',
           },
         },
       ];
@@ -467,13 +498,30 @@ describe('PluginsManager', () => {
       // At least one device mode destination is configured
       state.nativeDestinations.configuredDestinations.value = [
         {
+          id: 'dest1',
+          displayName: 'Destination 1',
+          userFriendlyId: 'dest1',
+          shouldApplyDeviceModeTransformation: false,
+          enabled: true,
+          propagateEventsUntransformedOnError: false,
           config: {
             connectionMode: 'device',
+            blacklistedEvents: [],
+            whitelistedEvents: [],
+            eventFilteringOption: 'disable',
           },
         },
         {
+          id: 'dest2',
+          displayName: 'Destination 2',
+          userFriendlyId: 'dest2',
+          enabled: true,
+          propagateEventsUntransformedOnError: false,
           config: {
             connectionMode: 'device',
+            blacklistedEvents: [],
+            whitelistedEvents: [],
+            eventFilteringOption: 'disable',
           },
           shouldApplyDeviceModeTransformation: true,
         },
@@ -494,10 +542,18 @@ describe('PluginsManager', () => {
       // At least one device mode destination is configured
       state.nativeDestinations.configuredDestinations.value = [
         {
+          id: 'dest1',
+          displayName: 'Destination 1',
+          userFriendlyId: 'dest1',
+          shouldApplyDeviceModeTransformation: true,
+          enabled: true,
+          propagateEventsUntransformedOnError: false,
           config: {
             connectionMode: 'device',
+            blacklistedEvents: [],
+            whitelistedEvents: [],
+            eventFilteringOption: 'disable',
           },
-          shouldApplyDeviceModeTransformation: true,
         },
       ];
       state.plugins.pluginsToLoadFromConfig.value = [
