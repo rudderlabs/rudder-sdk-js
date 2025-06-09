@@ -248,7 +248,7 @@ class UserSessionManager implements IUserSessionManager {
     let keysToMigrate = keys ?? (Object.keys(COOKIE_KEYS) as UserSessionStorageKeysType[]);
 
     keysToMigrate.forEach(storageKey => {
-      const storageEntry = COOKIE_KEYS[storageKey as UserSessionStorageKeysType];
+      const storageEntry = COOKIE_KEYS[storageKey];
       storesToMigrate.forEach(store => {
         const migratedVal = this.pluginsManager?.invokeSingle(
           'storage.migrate',
