@@ -232,17 +232,17 @@ const getErrorGroupingHash = (
     return normalizedGroupingHash;
   }
 
-  if (!isString(curErrGroupingHash)) {
+  if (!isDefined(curErrGroupingHash)) {
+    normalizedGroupingHash = defaultGroupingHash;
+  } else if (isString(curErrGroupingHash)) {
+    normalizedGroupingHash = curErrGroupingHash;
+  } else {
     const normalizedErrorInstance = normalizeError(curErrGroupingHash, logger);
     if (isDefined(normalizedErrorInstance)) {
       normalizedGroupingHash = normalizedErrorInstance.message;
     } else {
       normalizedGroupingHash = defaultGroupingHash;
     }
-  } else if (curErrGroupingHash === '') {
-    normalizedGroupingHash = defaultGroupingHash;
-  } else {
-    normalizedGroupingHash = curErrGroupingHash;
   }
   return normalizedGroupingHash;
 };

@@ -133,7 +133,7 @@ class Store implements IStore {
 
       decryptedValue = this.decrypt(this.engine.getItem(validKey));
 
-      if (isNullOrUndefined(decryptedValue)) {
+      if (isNullOrUndefined(decryptedValue) || decryptedValue === '') {
         return null;
       }
 

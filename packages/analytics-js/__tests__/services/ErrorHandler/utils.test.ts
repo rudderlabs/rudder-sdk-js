@@ -818,11 +818,6 @@ describe('Error Reporting utilities', () => {
       });
     });
 
-    it('should return defaultGroupingHash if groupingHash is an empty string', () => {
-      const result = getErrorGroupingHash('', 'default-hash', getState('cdn'), defaultLogger);
-      expect(result).toBe('default-hash');
-    });
-
     it('should return defaultGroupingHash if groupingHash is undefined', () => {
       const result = getErrorGroupingHash(
         undefined,

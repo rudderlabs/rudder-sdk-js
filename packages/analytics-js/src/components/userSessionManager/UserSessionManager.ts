@@ -224,7 +224,7 @@ class UserSessionManager implements IUserSessionManager {
     });
   }
 
-  migrateStorageIfNeeded(stores?: IStore[]) {
+  migrateStorageIfNeeded(stores?: IStore[], keys?: UserSessionStorageKeysType[]) {
     if (!state.storage.migrate.value) {
       return;
     }
@@ -245,7 +245,9 @@ class UserSessionManager implements IUserSessionManager {
       });
     }
 
-    Object.keys(COOKIE_KEYS).forEach(storageKey => {
+    let keysToMigrate = keys ?? (Object.keys(COOKIE_KEYS) as UserSessionStorageKeysType[]);
+
+    keysToMigrate.forEach(storageKey => {
       const storageEntry = COOKIE_KEYS[storageKey as UserSessionStorageKeysType];
       storesToMigrate.forEach(store => {
         const migratedVal = this.pluginsManager?.invokeSingle(
@@ -592,7 +594,7 @@ class UserSessionManager implements IUserSessionManager {
       // Migrate the storage data before fetching the value
       // This is needed for entries that are fetched from the storage
       // during the current session (for example, session info)
-      this.migrateStorageIfNeeded([store as IStore]);
+      this.migrateStorageIfNeeded([store as IStore], [sessionKey]);
 
       const storageKey = entries[sessionKey]?.key as string;
       return store?.get(storageKey) ?? null;

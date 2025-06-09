@@ -118,6 +118,25 @@ describe('Store', () => {
       });
     });
 
+    it('should return null when decrypted value is an empty string', () => {
+      // Mock the decrypt method to return an empty string
+      const decryptSpy = jest.spyOn(store, 'decrypt').mockReturnValue('');
+
+      // Mock the engine to return a non-null value so we can test the empty string check
+      const getItemSpy = jest
+        .spyOn(store.engine, 'getItem')
+        .mockReturnValue('some-encrypted-value');
+
+      const result = store.get(QueueStatuses.QUEUE);
+
+      expect(result).toBeNull();
+      expect(decryptSpy).toHaveBeenCalledWith('some-encrypted-value');
+
+      // Clean up spies
+      decryptSpy.mockRestore();
+      getItemSpy.mockRestore();
+    });
+
     it('should handle complex objects with circular references', () => {
       const complexObject: any = {
         name: 'test',

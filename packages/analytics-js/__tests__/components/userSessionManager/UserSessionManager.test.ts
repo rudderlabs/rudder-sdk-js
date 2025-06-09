@@ -1140,7 +1140,10 @@ describe('User session manager', () => {
 
       expect(actualSessionInfo).toStrictEqual(customData.rl_session);
       expect(migrateStorageIfNeededSpy).toHaveBeenCalledTimes(1);
-      expect(migrateStorageIfNeededSpy).toHaveBeenCalledWith([clientDataStoreCookie]);
+      expect(migrateStorageIfNeededSpy).toHaveBeenCalledWith(
+        [clientDataStoreCookie],
+        ['sessionInfo'],
+      );
     });
 
     it('should return null if persisted session info is not available', () => {
@@ -1166,6 +1169,31 @@ describe('User session manager', () => {
       userSessionManager.init();
       const actualSessionInfo = userSessionManager.getSessionInfo();
       expect(actualSessionInfo).toStrictEqual(null);
+    });
+
+    it('should call migrateStorageIfNeeded with specific keys when provided', () => {
+      const customData = {
+        rl_session: {
+          autoTrack: true,
+          expiresAt: Date.now() + 10000,
+          id: Date.now(),
+          timeout: 10000,
+        },
+      };
+      setDataInCookieStorage(customData);
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      // Enable migration
+      state.storage.migrate.value = true;
+
+      const migrateStorageIfNeededSpy = jest.spyOn(userSessionManager, 'migrateStorageIfNeeded');
+
+      // Call getEntryValue which internally calls migrateStorageIfNeeded with specific keys
+      userSessionManager.getEntryValue('sessionInfo');
+
+      expect(migrateStorageIfNeededSpy).toHaveBeenCalledWith(
+        [clientDataStoreCookie],
+        ['sessionInfo'],
+      );
     });
   });
 
@@ -2207,6 +2235,76 @@ describe('User session manager', () => {
         callback: expect.any(Function),
       });
       done();
+    });
+  });
+
+  describe('migrateStorageIfNeeded', () => {
+    it('should only migrate specified keys when keys parameter is provided', () => {
+      // Enable migration
+      state.storage.migrate.value = true;
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+
+      // Mock the plugins manager to track which keys are being migrated
+      const mockPluginsManager = {
+        invokeSingle: jest.fn().mockReturnValue('migrated-value'),
+      } as any;
+
+      const userSessionManagerWithMock = new UserSessionManager(
+        mockPluginsManager,
+        defaultStoreManager,
+        defaultHttpClient,
+        defaultErrorHandler,
+        defaultLogger,
+      );
+
+      // Call migrateStorageIfNeeded with specific keys
+      userSessionManagerWithMock.migrateStorageIfNeeded(
+        [clientDataStoreCookie],
+        ['userId', 'anonymousId'],
+      );
+
+      // Should only be called for the specified keys
+      expect(mockPluginsManager.invokeSingle).toHaveBeenCalledTimes(2);
+      expect(mockPluginsManager.invokeSingle).toHaveBeenCalledWith(
+        'storage.migrate',
+        COOKIE_KEYS.userId,
+        clientDataStoreCookie.engine,
+        defaultErrorHandler,
+        defaultLogger,
+      );
+      expect(mockPluginsManager.invokeSingle).toHaveBeenCalledWith(
+        'storage.migrate',
+        COOKIE_KEYS.anonymousId,
+        clientDataStoreCookie.engine,
+        defaultErrorHandler,
+        defaultLogger,
+      );
+    });
+
+    it('should migrate all keys when keys parameter is not provided', () => {
+      // Enable migration
+      state.storage.migrate.value = true;
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+
+      // Mock the plugins manager to track which keys are being migrated
+      const mockPluginsManager = {
+        invokeSingle: jest.fn().mockReturnValue('migrated-value'),
+      } as any;
+
+      const userSessionManagerWithMock = new UserSessionManager(
+        mockPluginsManager,
+        defaultStoreManager,
+        defaultHttpClient,
+        defaultErrorHandler,
+        defaultLogger,
+      );
+
+      // Call migrateStorageIfNeeded without keys parameter
+      userSessionManagerWithMock.migrateStorageIfNeeded([clientDataStoreCookie]);
+
+      // Should be called for all keys in COOKIE_KEYS
+      const expectedCallCount = Object.keys(COOKIE_KEYS).length;
+      expect(mockPluginsManager.invokeSingle).toHaveBeenCalledTimes(expectedCallCount);
     });
   });
 });
