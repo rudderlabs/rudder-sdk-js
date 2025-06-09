@@ -18,7 +18,7 @@ import { DEFAULT_TRANSFORMATION_QUEUE_OPTIONS, QUEUE_NAME, REQUEST_TIMEOUT_MS } 
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import type { DoneCallback, IQueue, QueueProcessCallbackInfo } from '../types/plugins';
 import type { TransformationQueueItemData } from './types';
-import { isErrRetryable, isUndefined, MEMORY_STORAGE } from '../shared-chunks/common';
+import { isDefined, isErrRetryable, isUndefined, MEMORY_STORAGE } from '../shared-chunks/common';
 
 const pluginName: PluginName = 'DeviceModeTransformation';
 
@@ -83,7 +83,17 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
                 done(null);
               } else {
                 // Requeue the item as the error is retryable.
-                done(details);
+                if (isRetryable) {
+                  let retryReason = 'client-network';
+                  if (details?.timedOut) {
+                    retryReason = 'client-timeout';
+                  } else if (isDefined(details?.xhr?.status)) {
+                    retryReason = `server-${details!.xhr!.status}`;
+                  }
+                  done(details, { retryReason });
+                } else {
+                  done(details);
+                }
               }
             },
           });
