@@ -250,46 +250,6 @@ describe('DeviceModeDestinations Plugin', () => {
       expect(mockApplySourceConfigurationOverrides).not.toHaveBeenCalled();
     });
 
-    it('should filter enabled destinations after applying overrides', () => {
-      const sourceConfigOverride: SourceConfigurationOverride = {
-        destinations: [
-          { id: 'dest1', enabled: false },
-          { id: 'dest2', enabled: true },
-        ],
-      };
-
-      mockState.loadOptions.value.sourceConfigurationOverride = sourceConfigOverride;
-
-      const overriddenDestinations = [
-        { ...mockDestinations[0]!, enabled: false, overridden: true },
-        { ...mockDestinations[1]!, enabled: true, overridden: true },
-      ];
-
-      mockApplySourceConfigurationOverrides.mockReturnValueOnce(overriddenDestinations);
-
-      // Mock filterDestinations to return only enabled destinations
-      mockFilterDestinations.mockImplementation((integrations, destinations) =>
-        destinations.filter(dest => dest.enabled),
-      );
-
-      plugin.nativeDestinations.setActiveDestinations(
-        mockState,
-        mockPluginsManager,
-        mockErrorHandler,
-        mockLogger,
-      );
-
-      expect(mockFilterDestinations).toHaveBeenCalledWith(
-        { All: true },
-        expect.arrayContaining([expect.objectContaining({ id: 'dest2', enabled: true })]),
-      );
-
-      expect(mockFilterDestinations).toHaveBeenCalledWith(
-        { All: true },
-        expect.not.arrayContaining([expect.objectContaining({ id: 'dest1', enabled: false })]),
-      );
-    });
-
     it('should apply consent filtering after overrides and enabled filtering', () => {
       const sourceConfigOverride: SourceConfigurationOverride = {
         destinations: [{ id: 'dest2', enabled: true }],

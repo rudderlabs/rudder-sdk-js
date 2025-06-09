@@ -706,11 +706,11 @@ describe('deviceModeDestinations utils', () => {
 
       const result = applySourceConfigurationOverrides(mockDestinations, override);
 
-      expect(result).toHaveLength(3);
-      expect(result[0]!.enabled).toBe(false);
+      expect(result).toHaveLength(2);
+      expect(result[0]!.enabled).toBe(true);
       expect(result[0]!.overridden).toBe(true);
       expect(result[1]!.enabled).toBe(true);
-      expect(result[1]!.overridden).toBe(true);
+      expect(result[1]!.overridden).toBeUndefined();
     });
 
     it('should not log warning when all destination IDs match', () => {
@@ -759,10 +759,8 @@ describe('deviceModeDestinations utils', () => {
       const mockLogger = { warn: jest.fn() } as any;
       const result = applySourceConfigurationOverrides(mockDestinations, override, mockLogger);
 
-      expect(result).toHaveLength(3);
-      expect(result[0]!.enabled).toBe(false);
-      expect(result[0]!.overridden).toBe(true);
-      expect(result[1]).toEqual(mockDestinations[1]); // unchanged
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual(mockDestinations[2]); // unchanged
 
       expect(mockLogger.warn).toHaveBeenCalledWith(expect.stringContaining('nonexistent'));
     });
@@ -1015,7 +1013,7 @@ describe('deviceModeDestinations utils', () => {
       expect(result.overridden).toBeUndefined(); // Not marked as overridden
       expect((result.config as any).newProperty).toBeUndefined(); // Config override not applied
     });
-    
+
     it('should clone destination when cloneId is provided', () => {
       const override: SourceConfigurationOverrideDestination = { id: 'dest1' };
       const cloneId = 'clone1';
@@ -1403,7 +1401,7 @@ describe('deviceModeDestinations utils', () => {
         });
 
         jest.useRealTimers();
-        
+
         done();
       }, 1);
 
