@@ -1,6 +1,11 @@
 /* eslint-disable class-methods-use-this */
 // eslint-disable-next-line max-classes-per-file
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
+import type {
+  SourceConfigurationOverride,
+  SourceConfigurationOverrideDestination,
+} from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
 import {
   wait,
   isDestinationReady,
@@ -9,6 +14,8 @@ import {
   applySourceConfigurationOverrides,
   applyOverrideToDestination,
   filterDisabledDestination,
+  getCumulativeIntegrationsConfig,
+  initializeDestination,
 } from '../../src/deviceModeDestinations/utils';
 import type { DeviceModeDestinationsAnalyticsInstance } from '../../src/deviceModeDestinations/types';
 import type { LogLevel } from '../../src/types/plugins';
@@ -141,11 +148,7 @@ describe('deviceModeDestinations utils', () => {
       // Fast-forward the timers to cause a timeout
       jest.advanceTimersByTime(11000);
 
-      await expect(isReadyPromise).rejects.toThrow(
-        new Error(
-          `A timeout of 11000 ms occurred while trying to check the ready status for "${destination.userFriendlyId}" destination.`,
-        ),
-      );
+      await expect(isReadyPromise).rejects.toThrow(new Error(`A timeout of 11000 ms occurred`));
     });
   });
 
@@ -259,6 +262,25 @@ describe('deviceModeDestinations utils', () => {
 
       resetState();
     });
+
+    it('should handle when rudderanalytics global is missing', () => {
+      const originalRudderAnalytics = (globalThis as any).rudderanalytics;
+      delete (globalThis as any).rudderanalytics;
+
+      const destination = {
+        config: {
+          apiKey: '1234',
+        },
+        areTransformationsConnected: false,
+        id: 'GA4___5678',
+      } as unknown as Destination;
+
+      expect(() => {
+        createDestinationInstance(destSDKIdentifier, sdkTypeName, destination, state);
+      }).toThrow();
+
+      (globalThis as any).rudderanalytics = originalRudderAnalytics;
+    });
   });
 
   describe('isDestinationSDKMounted', () => {
@@ -286,10 +308,33 @@ describe('deviceModeDestinations utils', () => {
     it('should return true if the destination SDK is a constructable type', () => {
       (window as any)[destSDKIdentifier] = {
         [sdkTypeName]: class {
-          // eslint-disable-next-line @typescript-eslint/no-useless-constructor, sonarjs/no-useless-constructor, sonarjs/no-empty-function, @typescript-eslint/no-empty-function
+          // eslint-disable-next-line @typescript-eslint/no-useless-constructor
           constructor() {}
         },
       };
+
+      expect(isDestinationSDKMounted(destSDKIdentifier, sdkTypeName)).toEqual(true);
+    });
+
+    it('should return false when SDK identifier exists but no SDK type', () => {
+      (window as any)[destSDKIdentifier] = {};
+
+      const result = isDestinationSDKMounted(destSDKIdentifier, sdkTypeName);
+      expect(result).toBe(false);
+    });
+
+    it('should return false when SDK type exists but no prototype', () => {
+      (window as any)[destSDKIdentifier] = {
+        [sdkTypeName]: {},
+      };
+
+      const result = isDestinationSDKMounted(destSDKIdentifier, sdkTypeName);
+      expect(result).toBe(false);
+    });
+
+    it('should work with logger parameter', () => {
+      const result = isDestinationSDKMounted(destSDKIdentifier, sdkTypeName, defaultLogger);
+      expect(result).toBe(false);
     });
   });
 
@@ -650,6 +695,75 @@ describe('deviceModeDestinations utils', () => {
       expect(result[0]?.id).toBe('dest1');
       expect(result[1]?.id).toBe('dest3');
     });
+
+    it('should apply multiple overrides to different destinations', () => {
+      const override: SourceConfigurationOverride = {
+        destinations: [
+          { id: 'dest1', enabled: false },
+          { id: 'dest2', enabled: true },
+        ],
+      };
+
+      const result = applySourceConfigurationOverrides(mockDestinations, override);
+
+      expect(result).toHaveLength(2);
+      expect(result[0]!.enabled).toBe(true);
+      expect(result[0]!.overridden).toBe(true);
+      expect(result[1]!.enabled).toBe(true);
+      expect(result[1]!.overridden).toBeUndefined();
+    });
+
+    it('should not log warning when all destination IDs match', () => {
+      const mockWarn = jest.fn();
+      const mockLogger = { warn: mockWarn } as any;
+
+      const override: SourceConfigurationOverride = {
+        destinations: [
+          { id: 'dest1', enabled: false },
+          { id: 'dest2', enabled: true },
+        ],
+      };
+
+      applySourceConfigurationOverrides(mockDestinations, override, mockLogger);
+
+      expect(mockWarn).not.toHaveBeenCalled();
+    });
+
+    it('should work without logger parameter', () => {
+      const override: SourceConfigurationOverride = {
+        destinations: [{ id: 'nonexistent', enabled: true }],
+      };
+
+      expect(() => {
+        applySourceConfigurationOverrides(mockDestinations, override);
+      }).not.toThrow();
+    });
+
+    it('should handle empty destinations array', () => {
+      const override: SourceConfigurationOverride = {
+        destinations: [{ id: 'dest1', enabled: false }],
+      };
+
+      const result = applySourceConfigurationOverrides([], override);
+      expect(result).toEqual([]);
+    });
+
+    it('should handle complex override scenarios', () => {
+      const override: SourceConfigurationOverride = {
+        destinations: [
+          { id: 'dest1', enabled: false },
+          { id: 'nonexistent', enabled: true },
+        ],
+      };
+
+      const mockLogger = { warn: jest.fn() } as any;
+      const result = applySourceConfigurationOverrides(mockDestinations, override, mockLogger);
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual(mockDestinations[2]); // unchanged
+
+      expect(mockLogger.warn).toHaveBeenCalledWith(expect.stringContaining('nonexistent'));
+    });
   });
 
   describe('applyOverrideToDestination', () => {
@@ -899,6 +1013,57 @@ describe('deviceModeDestinations utils', () => {
       expect(result.overridden).toBeUndefined(); // Not marked as overridden
       expect((result.config as any).newProperty).toBeUndefined(); // Config override not applied
     });
+
+    it('should clone destination when cloneId is provided', () => {
+      const override: SourceConfigurationOverrideDestination = { id: 'dest1' };
+      const cloneId = 'clone1';
+
+      const result = applyOverrideToDestination(mockDestination, override, cloneId);
+
+      expect(result).not.toBe(mockDestination); // Different reference
+      expect(result.id).toBe('dest1_clone1');
+      expect(result.userFriendlyId).toBe('dest1_friendly_clone1');
+      expect(result.enabled).toBe(mockDestination.enabled); // Same enabled status
+      expect(result.overridden).toBeUndefined(); // No override flag since only cloneId
+    });
+
+    it('should clone and override when both cloneId and enabled are provided', () => {
+      const override: SourceConfigurationOverrideDestination = {
+        id: 'dest1',
+        enabled: false,
+      };
+      const cloneId = 'clone1';
+
+      const result = applyOverrideToDestination(mockDestination, override, cloneId);
+
+      expect(result).not.toBe(mockDestination); // Different reference
+      expect(result.id).toBe('dest1_clone1');
+      expect(result.userFriendlyId).toBe('dest1_friendly_clone1');
+      expect(result.enabled).toBe(false);
+      expect(result.overridden).toBe(true);
+    });
+
+    it('should deep clone the destination config', () => {
+      const override: SourceConfigurationOverrideDestination = {
+        id: 'dest1',
+        enabled: false,
+      };
+
+      const result = applyOverrideToDestination(mockDestination, override);
+
+      expect(result.config).toEqual(mockDestination.config);
+      expect(result.config).not.toBe(mockDestination.config); // Different reference
+    });
+
+    it('should handle complex cloneId values', () => {
+      const override: SourceConfigurationOverrideDestination = { id: 'dest1' };
+      const cloneId = 'complex_clone-123';
+
+      const result = applyOverrideToDestination(mockDestination, override, cloneId);
+
+      expect(result.id).toBe('dest1_complex_clone-123');
+      expect(result.userFriendlyId).toBe('dest1_friendly_complex_clone-123');
+    });
   });
 
   describe('filterDisabledDestination', () => {
@@ -943,6 +1108,305 @@ describe('deviceModeDestinations utils', () => {
       const result = filterDisabledDestination([]);
 
       expect(result).toEqual([]);
+    });
+  });
+  describe('getCumulativeIntegrationsConfig', () => {
+    it('should return the cumulative integrations config', () => {
+      const destination = {
+        instance: {
+          getDataForIntegrationsObject: () => ({
+            GA4: {
+              client_id: '1234567890',
+            },
+          }),
+        },
+        userFriendlyId: 'GA4___1234567890',
+      } as unknown as Destination;
+
+      const currentIntegrationsConfig = {
+        Amplitude: {
+          someKey: 'someValue',
+        },
+      };
+
+      const integrationsConfig = getCumulativeIntegrationsConfig(
+        destination,
+        currentIntegrationsConfig,
+      );
+      expect(integrationsConfig).toEqual({
+        GA4: {
+          client_id: '1234567890',
+        },
+        Amplitude: {
+          someKey: 'someValue',
+        },
+      });
+    });
+
+    it('should return the current integrations config if the destination does not have a getDataForIntegrationsObject method', () => {
+      const destination = {
+        instance: {},
+        userFriendlyId: 'GA4___1234567890',
+      } as unknown as Destination;
+
+      const currentIntegrationsConfig = {
+        Amplitude: {
+          someKey: 'someValue',
+        },
+      };
+
+      const integrationsConfig = getCumulativeIntegrationsConfig(
+        destination,
+        currentIntegrationsConfig,
+      );
+      expect(integrationsConfig).toEqual(currentIntegrationsConfig);
+    });
+
+    it('should handle errors thrown by the getDataForIntegrationsObject method', () => {
+      const destination = {
+        instance: {
+          getDataForIntegrationsObject: () => {
+            throw new Error('Error');
+          },
+        },
+        userFriendlyId: 'GA4___1234567890',
+        displayName: 'Google Analytics 4 (GA4)',
+      } as unknown as Destination;
+
+      const currentIntegrationsConfig = {
+        Amplitude: {
+          someKey: 'someValue',
+        },
+      };
+
+      const integrationsConfig = getCumulativeIntegrationsConfig(
+        destination,
+        currentIntegrationsConfig,
+        defaultErrorHandler,
+      );
+      expect(integrationsConfig).toEqual(currentIntegrationsConfig);
+
+      expect(defaultErrorHandler.onError).toHaveBeenCalledWith({
+        error: new Error('Error'),
+        context: 'DeviceModeDestinationsPlugin',
+        customMessage: 'Failed to get integrations data for destination "GA4___1234567890".',
+        groupingHash: 'Failed to get integrations data for destination "Google Analytics 4 (GA4)".',
+      });
+    });
+
+    it('should handle null or undefined destination instance', () => {
+      const destination = {
+        instance: null,
+        userFriendlyId: 'GA4___1234567890',
+      } as unknown as Destination;
+
+      const currentConfig = { Amplitude: { key: 'value' } };
+
+      const result = getCumulativeIntegrationsConfig(destination, currentConfig);
+
+      expect(result).toEqual(currentConfig);
+    });
+
+    it('should handle destination instance without getDataForIntegrationsObject method', () => {
+      const destination = {
+        instance: { someOtherMethod: () => {} },
+        userFriendlyId: 'GA4___1234567890',
+      } as unknown as Destination;
+
+      const currentConfig = { Amplitude: { key: 'value' } };
+
+      const result = getCumulativeIntegrationsConfig(destination, currentConfig);
+
+      expect(result).toEqual(currentConfig);
+    });
+
+    it('should merge data from getDataForIntegrationsObject', () => {
+      const destination = {
+        instance: {
+          getDataForIntegrationsObject: () => ({
+            GA4: { client_id: '12345' },
+            NewIntegration: { data: 'test' },
+          }),
+        },
+        userFriendlyId: 'GA4___1234567890',
+      } as unknown as Destination;
+
+      const currentConfig = {
+        Amplitude: { key: 'value' },
+      };
+
+      const result = getCumulativeIntegrationsConfig(destination, currentConfig);
+
+      expect(result).toEqual({
+        Amplitude: { key: 'value' },
+        GA4: { client_id: '12345' },
+        NewIntegration: { data: 'test' },
+      });
+    });
+
+    it('should handle getDataForIntegrationsObject returning null/undefined', () => {
+      const destination = {
+        instance: {
+          getDataForIntegrationsObject: () => null,
+        },
+        userFriendlyId: 'GA4___1234567890',
+      } as unknown as Destination;
+
+      const currentConfig = { Amplitude: { key: 'value' } };
+
+      const result = getCumulativeIntegrationsConfig(destination, currentConfig);
+
+      expect(result).toEqual(currentConfig);
+    });
+
+    it('should work without error handler parameter', () => {
+      const destination = {
+        instance: {
+          getDataForIntegrationsObject: () => {
+            throw new Error('Test error');
+          },
+        },
+        userFriendlyId: 'GA4___1234567890',
+      } as unknown as Destination;
+
+      const currentConfig = { Amplitude: { key: 'value' } };
+
+      expect(() => {
+        getCumulativeIntegrationsConfig(destination, currentConfig);
+      }).not.toThrow();
+    });
+  });
+
+  describe('initializeDestination', () => {
+    const destSDKIdentifier = 'GA4_RS';
+    const sdkTypeName = 'GA4';
+    const initMock = jest.fn();
+
+    beforeEach(() => {
+      // Mock the SDK instance
+      (window as any).rudderanalytics = {
+        getAnalyticsInstance: () => {
+          return {};
+        },
+      };
+
+      // Mock the destination SDK
+      (window as any)[destSDKIdentifier] = {
+        [sdkTypeName]: class {
+          // eslint-disable-next-line @typescript-eslint/no-useless-constructor
+          constructor() {}
+          init = initMock;
+        },
+      };
+    });
+
+    afterEach(() => {
+      initMock.mockClear();
+
+      delete (window as any)[destSDKIdentifier];
+      delete (window as any).rudderanalytics;
+    });
+
+    it('should initialize the destination', () => {
+      const destination = {
+        userFriendlyId: 'GA4___1234567890',
+        displayName: 'Google Analytics 4 (GA4)',
+      } as unknown as Destination;
+
+      initializeDestination(
+        destination,
+        state,
+        destSDKIdentifier,
+        sdkTypeName,
+        defaultErrorHandler,
+      );
+
+      expect(initMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('should handle errors thrown by the integration during initialization', () => {
+      // Mock the destination SDK
+      (window as any)[destSDKIdentifier] = {
+        [sdkTypeName]: class {
+          // eslint-disable-next-line @typescript-eslint/no-useless-constructor
+          constructor() {}
+          init = () => {
+            throw new Error('Error');
+          };
+        },
+      };
+
+      const destination = {
+        userFriendlyId: 'GA4___1234567890',
+        displayName: 'Google Analytics 4 (GA4)',
+      } as unknown as Destination;
+
+      initializeDestination(
+        destination,
+        state,
+        destSDKIdentifier,
+        sdkTypeName,
+        defaultErrorHandler,
+      );
+
+      expect(defaultErrorHandler.onError).toHaveBeenCalledWith({
+        error: new Error('Error'),
+        context: 'DeviceModeDestinationsPlugin',
+        customMessage: 'Failed to initialize integration for destination "GA4___1234567890".',
+        groupingHash:
+          'Failed to initialize integration for destination "Google Analytics 4 (GA4)".',
+      });
+    });
+
+    it('should handle when the integration does not get ready on time', done => {
+      jest.useFakeTimers();
+      jest.setSystemTime(0);
+
+      // Mock the destination SDK
+      (window as any)[destSDKIdentifier] = {
+        [sdkTypeName]: class {
+          // eslint-disable-next-line @typescript-eslint/no-useless-constructor
+          constructor() {}
+          init = () => initMock();
+          isLoaded = () => false;
+        },
+      };
+
+      const destination = {
+        userFriendlyId: 'GA4___1234567890',
+        displayName: 'Google Analytics 4 (GA4)',
+      } as unknown as Destination;
+
+      initializeDestination(
+        destination,
+        state,
+        destSDKIdentifier,
+        sdkTypeName,
+        defaultErrorHandler,
+      );
+
+      // Fast-forward the timers to cause a timeout
+      jest.advanceTimersByTime(11000);
+
+      // Just asynchronously wait for the next tick to ensure that the error handler is called
+      setTimeout(() => {
+        expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
+        expect(defaultErrorHandler.onError).toHaveBeenCalledWith({
+          error: new Error('A timeout of 11000 ms occurred'),
+          context: 'DeviceModeDestinationsPlugin',
+          customMessage:
+            'Failed to get the ready status from integration for destination "GA4___1234567890"',
+          groupingHash:
+            'Failed to get the ready status from integration for destination "Google Analytics 4 (GA4)"',
+        });
+
+        jest.useRealTimers();
+
+        done();
+      }, 1);
+
+      // Fast-forward the timers to the next tick asynchronously
+      jest.advanceTimersByTimeAsync(1);
     });
   });
 });

@@ -2,6 +2,7 @@
 /* eslint-disable max-classes-per-file */
 import { signal } from '@preact/signals-core';
 import type { ErrorEventPayload, Exception } from '@rudderstack/analytics-js-common/types/Metrics';
+import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
 import type { Event } from '@bugsnag/js';
 import { state, resetState } from '../../../src/state';
 import * as errorReportingConstants from '../../../src/services/ErrorHandler/constants';
@@ -17,6 +18,7 @@ import {
   getUserDetails,
   isAllowedToBeNotified,
   isSDKError,
+  getErrorGroupingHash,
 } from '../../../src/services/ErrorHandler/utils';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
@@ -757,6 +759,155 @@ describe('Error Reporting utilities', () => {
         userAgent: 'NA',
         time: expect.any(Date),
       });
+    });
+  });
+
+  describe('getErrorGroupingHash', () => {
+    const getState = (installType = 'cdn') =>
+      ({
+        context: {
+          app: { value: { installType } },
+        },
+      }) as any;
+
+    it('should return undefined if installType is not cdn', () => {
+      const result = getErrorGroupingHash(
+        'some-hash',
+        'default-hash',
+        getState('npm'),
+        defaultLogger,
+      );
+      expect(result).toBeUndefined();
+    });
+
+    it('should return undefined if installType is not cdn (testing with different install types)', () => {
+      const installTypes = ['npm', 'module', 'bower'];
+      installTypes.forEach(installType => {
+        const result = getErrorGroupingHash(
+          'some-hash',
+          'default-hash',
+          getState(installType),
+          defaultLogger,
+        );
+        expect(result).toBeUndefined();
+      });
+    });
+
+    it('should return groupingHash if it is a non-empty string', () => {
+      const result = getErrorGroupingHash(
+        'some-hash',
+        'default-hash',
+        getState('cdn'),
+        defaultLogger,
+      );
+      expect(result).toBe('some-hash');
+    });
+
+    it('should return non-empty string groupingHash as-is for any string value', () => {
+      // Testing different string values to ensure they're returned as-is
+      const testStrings = ['custom-error-hash', 'not an error object', 'any string value'];
+
+      testStrings.forEach(testString => {
+        const result = getErrorGroupingHash(
+          testString,
+          'default-hash',
+          getState('cdn'),
+          defaultLogger,
+        );
+        expect(result).toBe(testString);
+      });
+    });
+
+    it('should return defaultGroupingHash if groupingHash is undefined', () => {
+      const result = getErrorGroupingHash(
+        undefined,
+        'default-hash',
+        getState('cdn'),
+        defaultLogger,
+      );
+      expect(result).toBe('default-hash');
+    });
+
+    it('should return error.message if groupingHash is an Error object', () => {
+      const error = new Error('error-message');
+      const result = getErrorGroupingHash(error, 'default-hash', getState('cdn'), defaultLogger);
+      expect(result).toBe('error-message');
+    });
+
+    it('should return defaultGroupingHash if groupingHash is an object that is not an Error', () => {
+      const notError = { foo: 'bar' };
+      const result = getErrorGroupingHash(notError, 'default-hash', getState('cdn'), defaultLogger);
+      expect(result).toBe('default-hash');
+    });
+
+    it('should return defaultGroupingHash when normalizeError returns undefined for invalid error objects', () => {
+      // Test case where normalizeError function returns undefined (when the error is not valid)
+      // Non-string inputs that are not valid Error objects should cause normalizeError to return undefined
+      const invalidError = { not: 'an error object' };
+      const result = getErrorGroupingHash(
+        invalidError,
+        'default-hash',
+        getState('cdn'),
+        defaultLogger,
+      );
+      expect(result).toBe('default-hash');
+    });
+
+    it('should return defaultGroupingHash when normalizeError returns undefined for null values', () => {
+      // Test case for null input
+      const result = getErrorGroupingHash(null, 'default-hash', getState('cdn'), defaultLogger);
+      expect(result).toBe('default-hash');
+    });
+
+    it('should return defaultGroupingHash when normalizeError returns undefined for other non-error types', () => {
+      // Test various non-error types that would cause normalizeError to return undefined
+      const nonErrorTypes = [123, true, [], {}, Symbol('test')];
+
+      nonErrorTypes.forEach(invalidType => {
+        const result = getErrorGroupingHash(
+          invalidType,
+          'default-hash',
+          getState('cdn'),
+          defaultLogger,
+        );
+        expect(result).toBe('default-hash');
+      });
+    });
+
+    it('should handle Error objects without stack trace properly', () => {
+      // Test case for Error object that might not have a proper stacktrace
+      const errorWithoutStack = new Error('error without stack');
+      errorWithoutStack.stack = undefined;
+
+      const result = getErrorGroupingHash(
+        errorWithoutStack,
+        'default-hash',
+        getState('cdn'),
+        defaultLogger,
+      );
+      // This should return default hash since normalizeError will return undefined for errors without stack
+      expect(result).toBe('default-hash');
+    });
+
+    it('should handle edge case with empty string vs undefined for non-CDN installs', () => {
+      // Test to ensure that even for non-CDN installs, function returns undefined consistently
+      const result1 = getErrorGroupingHash(
+        undefined,
+        'default-hash',
+        getState('npm'),
+        defaultLogger,
+      );
+      const result2 = getErrorGroupingHash('', 'default-hash', getState('npm'), defaultLogger);
+      const result3 = getErrorGroupingHash(
+        'some-hash',
+        'default-hash',
+        getState('npm'),
+        defaultLogger,
+      );
+
+      expect(result1).toBeUndefined();
+      expect(result2).toBeUndefined();
+      expect(result3).toBeUndefined();
     });
   });
 });

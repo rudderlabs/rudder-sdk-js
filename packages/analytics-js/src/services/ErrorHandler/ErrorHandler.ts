@@ -1,9 +1,9 @@
 import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import {
   ErrorType,
+  type ErrorInfo,
   type ErrorState,
   type IErrorHandler,
-  type SDKError,
 } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { ERROR_HANDLER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
@@ -23,6 +23,7 @@ import {
   getBugsnagErrorEvent,
   getErrInstance,
   getErrorDeliveryPayload,
+  getErrorGroupingHash,
   isAllowedToBeNotified,
   isSDKError,
 } from './utils';
@@ -59,31 +60,39 @@ class ErrorHandler implements IErrorHandler {
    */
   attachErrorListeners() {
     (globalThis as typeof window).addEventListener('error', (event: ErrorEvent | Event) => {
-      this.onError(event, ERROR_HANDLER, undefined, ErrorType.UNHANDLEDEXCEPTION);
+      this.onError({
+        error: event,
+        context: ERROR_HANDLER,
+        errorType: ErrorType.UNHANDLEDEXCEPTION,
+      });
     });
 
     (globalThis as typeof window).addEventListener(
       'unhandledrejection',
       (event: PromiseRejectionEvent) => {
-        this.onError(event, ERROR_HANDLER, undefined, ErrorType.UNHANDLEDREJECTION);
+        this.onError({
+          error: event,
+          context: ERROR_HANDLER,
+          errorType: ErrorType.UNHANDLEDREJECTION,
+        });
       },
     );
   }
 
   /**
    * Handle errors
-   * @param error - The error to handle
-   * @param context - The context of where the error occurred
-   * @param customMessage - The custom message of the error
-   * @param errorType - The type of the error (handled or unhandled)
+   * @param errorInfo - The error information
+   * @param errorInfo.error - The error to handle
+   * @param errorInfo.context - The context of where the error occurred
+   * @param errorInfo.customMessage - The custom message of the error
+   * @param errorInfo.errorType - The type of the error (handled or unhandled)
+   * @param errorInfo.groupingHash - The grouping hash of the error
    */
-  onError(
-    error: SDKError,
-    context = '',
-    customMessage = '',
-    errorType = ErrorType.HANDLEDEXCEPTION,
-  ) {
+  onError(errorInfo: ErrorInfo) {
     try {
+      const { error, context, customMessage, groupingHash } = errorInfo;
+      const errorType = errorInfo.errorType ?? ErrorType.HANDLEDEXCEPTION;
+
       const errInstance = getErrInstance(error, errorType);
       const normalizedError = normalizeError(errInstance, this.logger);
       if (isUndefined(normalizedError)) {
@@ -121,11 +130,20 @@ class ErrorHandler implements IErrorHandler {
         // References:
         // https://docs.bugsnag.com/platforms/javascript/customizing-error-reports/#groupinghash
         // https://docs.bugsnag.com/product/error-grouping/#user_defined
-        // const groupingHash =
-        //   state.context.app.value.installType === 'cdn' ? bsException.message : undefined;
+        const normalizedGroupingHash = getErrorGroupingHash(
+          groupingHash,
+          bsException.message,
+          state,
+          this.logger,
+        );
 
         // Get the final payload to be sent to the metrics service
-        const bugsnagPayload = getBugsnagErrorEvent(bsException, errorState, state);
+        const bugsnagPayload = getBugsnagErrorEvent(
+          bsException,
+          errorState,
+          state,
+          normalizedGroupingHash,
+        );
 
         // send it to metrics service
         this.httpClient.getAsyncData({
@@ -162,7 +180,12 @@ class ErrorHandler implements IErrorHandler {
         createNewBreadcrumb(breadcrumb),
       ];
     } catch (err) {
-      this.onError(err, BREADCRUMB_ERROR(ERROR_HANDLER));
+      this.onError({
+        error: err,
+        context: ERROR_HANDLER,
+        customMessage: BREADCRUMB_ERROR,
+        groupingHash: BREADCRUMB_ERROR,
+      });
     }
   }
 }

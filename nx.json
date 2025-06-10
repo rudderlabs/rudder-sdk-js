@@ -106,5 +106,8 @@
       "{workspaceRoot}/jest.preset.js",
       "{projectRoot}/tsconfig.spec.json"
     ]
+  },
+  "tui": {
+    "autoExit": true
   }
 }

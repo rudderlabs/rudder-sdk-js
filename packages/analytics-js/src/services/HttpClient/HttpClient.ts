@@ -81,8 +81,12 @@ class HttpClient implements IHttpClient {
   /**
    * Handle errors
    */
-  onError(error: unknown) {
-    this.errorHandler?.onError(error, HTTP_CLIENT);
+  onError(error: unknown, groupingHash?: string) {
+    this.errorHandler?.onError({
+      error,
+      context: HTTP_CLIENT,
+      groupingHash,
+    });
   }
 
   /**

@@ -3,7 +3,10 @@ import type { Destination } from '@rudderstack/analytics-js-common/types/Destina
 import {
   isEventDenyListed,
   shouldApplyTransformation,
+  sendEventToDestination,
 } from '../../src/nativeDestinationQueue/utilities';
+import type { RudderContext, RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
 
 describe('nativeDestinationQueue Plugin - utilities', () => {
   describe('isEventDenyListed', () => {
@@ -142,6 +145,127 @@ describe('nativeDestinationQueue Plugin - utilities', () => {
     it('should return false if both shouldApplyDeviceModeTransformation and cloned are false', () => {
       const dest = { ...destination, shouldApplyDeviceModeTransformation: false, cloned: false };
       expect(shouldApplyTransformation(dest)).toBe(false);
+    });
+  });
+  
+  describe('sendEventToDestination', () => {
+    const sampleTrackEvent = {
+      type: 'track',
+      event: 'sample event',
+      channel: 'web',
+      anonymousId: 'anonymousId',
+      originalTimestamp: new Date().toISOString(),
+      context: {} as RudderContext,
+      integrations: {},
+      messageId: 'messageId',
+    } satisfies RudderEvent;
+
+    it('should send the event to the destination', () => {
+      const destination = {
+        instance: {
+          track: jest.fn(),
+        },
+        userFriendlyId: 'ID_sample-destination-id',
+        displayName: 'Destination Display Name',
+      } as unknown as Destination;
+
+      sendEventToDestination(sampleTrackEvent, destination);
+
+      expect(destination.instance?.track).toHaveBeenCalledTimes(1);
+      expect(destination.instance?.track).toHaveBeenCalledWith({ message: sampleTrackEvent });
+    });
+
+    it('should skip sending the event if the event api is not supported by the integration', () => {
+      const destination = {
+        instance: {
+          page: jest.fn(),
+        },
+        userFriendlyId: 'ID_sample-destination-id',
+        displayName: 'Destination Display Name',
+      } as unknown as Destination;
+
+      expect(() => sendEventToDestination(sampleTrackEvent, destination)).not.toThrow();
+    });
+
+    it('should handle errors thrown by the integration', () => {
+      const destination = {
+        instance: {
+          track: jest.fn(() => {
+            throw new Error('Error');
+          }),
+        },
+        userFriendlyId: 'ID_sample-destination-id',
+        displayName: 'Destination Display Name',
+      } as unknown as Destination;
+
+      sendEventToDestination(sampleTrackEvent, destination, defaultErrorHandler);
+
+      expect(defaultErrorHandler.onError).toHaveBeenCalledWith({
+        error: new Error('Error'),
+        context: 'NativeDestinationQueuePlugin',
+        customMessage:
+          'Failed to forward event to integration for destination "ID_sample-destination-id".',
+        groupingHash:
+          'Failed to forward event to integration for destination "Destination Display Name".',
+      });
+    });
+
+    it('should handle errors without crashing when no error handler is provided', () => {
+      const destination = {
+        instance: {
+          track: jest.fn(() => {
+            throw new Error('Error');
+          }),
+        },
+        userFriendlyId: 'ID_sample-destination-id',
+        displayName: 'Destination Display Name',
+      } as unknown as Destination;
+
+      expect(() => sendEventToDestination(sampleTrackEvent, destination)).not.toThrow();
+    });
+
+    it('should handle errors when destination has no displayName property', () => {
+      const destination = {
+        instance: {
+          track: jest.fn(() => {
+            throw new Error('Test error');
+          }),
+        },
+        userFriendlyId: 'ID_sample-destination-id',
+        // No displayName property
+      } as unknown as Destination;
+
+      sendEventToDestination(sampleTrackEvent, destination, defaultErrorHandler);
+
+      expect(defaultErrorHandler.onError).toHaveBeenCalledWith({
+        error: new Error('Test error'),
+        context: 'NativeDestinationQueuePlugin',
+        customMessage:
+          'Failed to forward event to integration for destination "ID_sample-destination-id".',
+        groupingHash: 'Failed to forward event to integration for destination "undefined".',
+      });
+    });
+
+    it('should handle errors when destination has no userFriendlyId property', () => {
+      const destination = {
+        instance: {
+          track: jest.fn(() => {
+            throw new Error('Test error');
+          }),
+        },
+        // No userFriendlyId property
+        displayName: 'Destination Display Name',
+      } as unknown as Destination;
+
+      sendEventToDestination(sampleTrackEvent, destination, defaultErrorHandler);
+
+      expect(defaultErrorHandler.onError).toHaveBeenCalledWith({
+        error: new Error('Test error'),
+        context: 'NativeDestinationQueuePlugin',
+        customMessage: 'Failed to forward event to integration for destination "undefined".',
+        groupingHash:
+          'Failed to forward event to integration for destination "Destination Display Name".',
+      });
     });
   });
 });

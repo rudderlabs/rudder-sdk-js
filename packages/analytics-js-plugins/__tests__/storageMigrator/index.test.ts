@@ -120,11 +120,12 @@ describe('Plugin - Storage Migrator', () => {
       defaultLogger,
     );
     expect(migratedVal).toBe(null);
-    expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
-      new SyntaxError('Unexpected token \'h\', "hello" is not valid JSON'),
-      'StorageMigratorPlugin',
-      'Failed to retrieve or parse data for key from storage.',
-    );
+    expect(defaultErrorHandler.onError).toHaveBeenCalledWith({
+      error: new SyntaxError('Unexpected token \'h\', "hello" is not valid JSON'),
+      context: 'StorageMigratorPlugin',
+      customMessage: 'Failed to retrieve or parse data for "key" from storage.',
+      groupingHash: 'Failed to retrieve or parse data for "key" from storage.',
+    });
   });
 
   it('should recursively decrypt the value until it is not encrypted', () => {

@@ -46,7 +46,7 @@ class CapabilitiesManager implements ICapabilitiesManager {
     this.httpClient = httpClient;
     this.errorHandler = errorHandler;
     this.logger = logger;
-    this.externalSrcLoader = new ExternalSrcLoader(this.errorHandler, this.logger);
+    this.externalSrcLoader = new ExternalSrcLoader(this.logger);
     this.onError = this.onError.bind(this);
     this.onReady = this.onReady.bind(this);
   }
@@ -200,8 +200,12 @@ class CapabilitiesManager implements ICapabilitiesManager {
    * Handles error
    * @param error The error object
    */
-  onError(error: unknown): void {
-    this.errorHandler.onError(error, CAPABILITIES_MANAGER);
+  onError(error: unknown, groupingHash?: string): void {
+    this.errorHandler.onError({
+      error,
+      context: CAPABILITIES_MANAGER,
+      groupingHash,
+    });
   }
 }
 

@@ -9,7 +9,6 @@ import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/Error
 import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { getMutatedError } from '@rudderstack/analytics-js-common/utilities/errors';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import type {
@@ -97,7 +96,7 @@ class Analytics implements IAnalytics {
     this.initialized = false;
     this.errorHandler = defaultErrorHandler;
     this.logger = defaultLogger;
-    this.externalSrcLoader = new ExternalSrcLoader(this.errorHandler, this.logger);
+    this.externalSrcLoader = new ExternalSrcLoader(this.logger);
     this.httpClient = defaultHttpClient;
     this.httpClient.init(this.errorHandler);
     this.capabilitiesManager = new CapabilitiesManager(
@@ -187,7 +186,12 @@ class Analytics implements IAnalytics {
         }
       } catch (err) {
         const issue = 'Failed to load the SDK';
-        this.errorHandler.onError(getMutatedError(err, issue), ANALYTICS_CORE);
+        this.errorHandler.onError({
+          error: err,
+          context: ANALYTICS_CORE,
+          customMessage: issue,
+          groupingHash: issue,
+        });
       }
     });
   }
