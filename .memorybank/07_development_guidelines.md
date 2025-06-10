@@ -148,4 +148,17 @@ When tests pass individually but fail in suites:
 3. Look for shared state between tests
 4. Ensure proper mock cleanup between tests
 
+### **Testing Strategy Guidelines**
+
+#### **Focus on What Works**
+- ✅ **Unit tests for utilities** - Direct, reliable, fast
+- ✅ **Integrate into existing test suites** vs creating new files
+- ✅ **Test actual implementation** not simulated behavior
+- ❌ **Avoid complex integration tests** - brittle and hard to maintain
+- ❌ **Don't create poor quality tests** to meet coverage metrics
+
+#### **TypeScript Testing**
+- **Follow "3 attempts rule"** for linter fixes - then ask for guidance
+- **Be honest about coverage gaps** when architecture makes testing difficult
+
 ---

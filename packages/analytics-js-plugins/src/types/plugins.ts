@@ -16,6 +16,7 @@ export type QueueItem<T = QueueItemData> = {
   lastAttemptedAt?: number;
   firstAttemptedAt?: number;
   reclaimed?: boolean;
+  retryReason?: string;
 };
 
 export type QueueItemData =
@@ -31,8 +32,8 @@ export type QueueItemData =
  * @property {number} retryAttemptNumber The number of times this item has been attempted to retry
  * @property {number} maxRetryAttempts The maximum number of times this item should be attempted to retry
  * @property {boolean} willBeRetried A boolean indicating if the item will be retried later
- * @property {number} timeSinceFirstAttempt The number of seconds since the first attempt
- * @property {number} timeSinceLastAttempt The number of seconds since the last attempt
+ * @property {number} timeSinceFirstAttempt The number of milliseconds since the first attempt
+ * @property {number} timeSinceLastAttempt The number of milliseconds since the last attempt
  * @property {boolean} reclaimed A boolean indicating if the item has been reclaimed
  */
 export type QueueProcessCallbackInfo = {
@@ -43,6 +44,7 @@ export type QueueProcessCallbackInfo = {
   timeSinceFirstAttempt: number;
   reclaimed: boolean;
   isPageAccessible: boolean;
+  retryReason: string;
 };
 
 /**
@@ -53,8 +55,8 @@ export type QueueProcessCallbackInfo = {
  *   - retryAttemptNumber: The number of times this item has been attempted to retry
  *   - maxRetryAttempts: The maximum number of times this item should be attempted to retry
  *   - willBeRetried: A boolean indicating if the item will be retried later
- *   - timeSinceLastAttempt: The number of seconds since the last attempt
- *   - timeSinceFirstAttempt: The number of seconds since the first attempt
+ *   - timeSinceLastAttempt: The number of milliseconds since the last attempt
+ *   - timeSinceFirstAttempt: The number of milliseconds since the first attempt
  *   - reclaimed: A boolean indicating if the item has been reclaimed
  *   - isPageAccessible: A boolean indicating if the page is accessible
  */
@@ -66,12 +68,16 @@ export type QueueProcessCallback<T = any> = (
 
 export type QueueBatchItemsSizeCalculatorCallback<T = any> = (item: T) => number;
 
+export type QueueItemProcessResponse = {
+  retryReason: string;
+};
+
 /**
  * @callback DoneCallback
- * @param {Error} Optional error parameter if the processing failed
- * @param {Response} Optional response parameter to emit for async handling
+ * @param {any} Optional error parameter if the processing failed
+ * @param {QueueItemProcessResponse} Optional response parameter to emit for async handling
  */
-export type DoneCallback = (error?: any, response?: any) => void;
+export type DoneCallback = (error?: any, response?: QueueItemProcessResponse) => void;
 
 export interface IQueue<T = any> {
   name: string;

@@ -10,6 +10,7 @@ import type {
   QueueBatchItemsSizeCalculatorCallback,
   QueueProcessCallback,
   QueueItemType,
+  QueueItemProcessResponse,
 } from '../../types/plugins';
 import { Schedule, ScheduleModes } from './Schedule';
 import { RETRY_QUEUE_ENTRY_REMOVE_ERROR, RETRY_QUEUE_PROCESS_ERROR } from './logMessages';
@@ -43,6 +44,7 @@ import {
   onPageLeave,
   QueueStatuses,
 } from '../../shared-chunks/common';
+import { DEFAULT_RETRY_REASON } from '../constants';
 
 const sortByTime = (a: QueueItem, b: QueueItem) => a.time - b.time;
 
@@ -429,7 +431,16 @@ class RetryQueue implements IQueue<QueueItemData> {
    * @param {Object} qItem The item to process
    */
   requeue(qItem: QueueItem<QueueItemData>) {
-    const { attemptNumber, item, type, id, firstAttemptedAt, lastAttemptedAt, reclaimed } = qItem;
+    const {
+      attemptNumber,
+      item,
+      type,
+      id,
+      firstAttemptedAt,
+      lastAttemptedAt,
+      reclaimed,
+      retryReason,
+    } = qItem;
     // Increment the attempt number as we're about to retry
     const attemptNumberToUse = attemptNumber + 1;
     if (this.shouldRetry(item, attemptNumberToUse)) {
@@ -442,6 +453,7 @@ class RetryQueue implements IQueue<QueueItemData> {
         firstAttemptedAt,
         lastAttemptedAt,
         reclaimed,
+        retryReason,
       });
     } else {
       // Discard item
@@ -498,22 +510,28 @@ class RetryQueue implements IQueue<QueueItemData> {
     const toRun: InProgressQueueItem[] = [];
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const processItemCallback = (el: QueueItem, id: string) => (err?: Error, res?: any) => {
-      const inProgress =
-        (this.getStorageEntry(QueueStatuses.IN_PROGRESS) as Nullable<Record<string, any>>) ?? {};
-      const inProgressItem = inProgress[id];
+    const processItemCallback =
+      (el: QueueItem, id: string) => (err?: Error, res?: QueueItemProcessResponse) => {
+        const inProgress =
+          (this.getStorageEntry(QueueStatuses.IN_PROGRESS) as Nullable<Record<string, any>>) ?? {};
+        const inProgressItem = inProgress[id];
 
-      const firstAttemptedAt = inProgressItem?.firstAttemptedAt;
-      const lastAttemptedAt = inProgressItem?.lastAttemptedAt;
+        const firstAttemptedAt = inProgressItem?.firstAttemptedAt;
+        const lastAttemptedAt = inProgressItem?.lastAttemptedAt;
 
-      delete inProgress[id];
+        delete inProgress[id];
 
-      this.setStorageEntry(QueueStatuses.IN_PROGRESS, inProgress);
+        this.setStorageEntry(QueueStatuses.IN_PROGRESS, inProgress);
 
-      if (err) {
-        this.requeue({ ...el, firstAttemptedAt, lastAttemptedAt });
-      }
-    };
+        if (err) {
+          this.requeue({
+            ...el,
+            firstAttemptedAt,
+            lastAttemptedAt,
+            retryReason: res?.retryReason ?? DEFAULT_RETRY_REASON,
+          });
+        }
+      };
 
     const enqueueItem = (el: QueueItem, id: string) => {
       toRun.push({
@@ -567,8 +585,10 @@ class RetryQueue implements IQueue<QueueItemData> {
         let firstAttemptedAt = now;
         let lastAttemptedAt = now;
         let reclaimed = false;
+        let retryReason = DEFAULT_RETRY_REASON;
 
         if (inProgressItem) {
+          retryReason = inProgressItem.retryReason ?? retryReason;
           firstAttemptedAt = inProgressItem.firstAttemptedAt ?? firstAttemptedAt;
           lastAttemptedAt = inProgressItem.lastAttemptedAt ?? lastAttemptedAt;
 
@@ -584,11 +604,11 @@ class RetryQueue implements IQueue<QueueItemData> {
           this.setStorageEntry(QueueStatuses.IN_PROGRESS, inProgress);
         }
 
-        // A decimal integer representing the seconds since the first attempt
-        const timeSinceFirstAttempt = Math.round((now - firstAttemptedAt) / 1000);
+        // A decimal integer representing the milliseconds since the first attempt
+        const timeSinceFirstAttempt = now - firstAttemptedAt;
 
-        // A decimal integer representing the seconds since the last attempt
-        const timeSinceLastAttempt = Math.round((now - lastAttemptedAt) / 1000);
+        // A decimal integer representing the milliseconds since the last attempt
+        const timeSinceLastAttempt = now - lastAttemptedAt;
 
         const willBeRetried = this.shouldRetry(el.item, el.attemptNumber + 1);
         this.processQueueCb(el.item, el.done, {
@@ -599,6 +619,7 @@ class RetryQueue implements IQueue<QueueItemData> {
           timeSinceLastAttempt,
           reclaimed,
           isPageAccessible: this.isPageAccessible,
+          retryReason,
         });
       } catch (err) {
         let errMsg = '';
@@ -696,6 +717,7 @@ class RetryQueue implements IQueue<QueueItemData> {
             type: el.type ?? type,
             firstAttemptedAt: el.firstAttemptedAt,
             lastAttemptedAt: el.lastAttemptedAt,
+            retryReason: el.retryReason,
             // Mark the item as reclaimed from local storage
             reclaimed: true,
           });
@@ -723,6 +745,7 @@ class RetryQueue implements IQueue<QueueItemData> {
           this.enqueue({
             ...el,
             id,
+            retryReason: el.retryReason,
             // Mark the item as reclaimed from local storage
             reclaimed: true,
             type: el.type ?? SINGLE_QUEUE_ITEM_TYPE,

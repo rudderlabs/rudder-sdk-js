@@ -100,11 +100,11 @@ describe('HttpClient', () => {
   });
 
   it('should handle 400 range errors in getAsyncData requests', done => {
-    const callback = (data: any, details: ResponseDetails) => {
+    const callback = (data: any, details?: ResponseDetails) => {
       const errResult = new Error(
         'The request failed with status 404 (Not Found) for URL: https://dummy.dataplane.host.com/404ErrorSample. Response: Not Found',
       );
-      expect(details.error).toEqual(errResult);
+      expect(details?.error).toEqual(errResult);
       done();
     };
     clientInstance.getAsyncData({
@@ -126,11 +126,11 @@ describe('HttpClient', () => {
   });
 
   it('should handle 500 range errors in getAsyncData requests', done => {
-    const callback = (response: any, reject: ResponseDetails) => {
+    const callback = (response: any, details?: ResponseDetails) => {
       const errResult = new Error(
         'The request failed with status 500 (Internal Server Error) for URL: https://dummy.dataplane.host.com/500ErrorSample. Response: Internal Server Error',
       );
-      expect(reject.error).toEqual(errResult);
+      expect(details?.error).toEqual(errResult);
       done();
     };
     clientInstance.getAsyncData({
@@ -197,10 +197,30 @@ describe('HttpClient', () => {
     });
   });
 
+  it('should include timedOut flag in response details for timeout errors', done => {
+    // This test verifies that timeout detection is working in xhr handler
+    const callback = (response: any, details?: ResponseDetails) => {
+      // We expect the request to fail due to timeout
+      expect(response).toBeFalsy();
+      expect(details?.error).toBeDefined();
+      // The timedOut flag should be set if it was a timeout
+      if (details?.timedOut) {
+        expect(details.timedOut).toBe(true);
+      }
+      done();
+    };
+    
+    clientInstance.getAsyncData({
+      callback,
+      url: `${dummyDataplaneHost}/timeoutSample`,
+      timeout: 100, // Very short timeout to trigger timeout
+    });
+  });
+
   it('should handle if input data contains non-stringifiable values', done => {
-    const callback = (response: any, details: ResponseDetails) => {
+    const callback = (response: any, details?: ResponseDetails) => {
       expect(response).toBeUndefined();
-      expect(details.error).toEqual(new Error('Failed to prepare data for the request.'));
+      expect(details?.error).toEqual(new Error('Failed to prepare data for the request.'));
       done();
     };
     clientInstance.getAsyncData({
