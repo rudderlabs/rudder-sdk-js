@@ -1,7 +1,4 @@
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/Iterable/constants';
+import { NAME, DISPLAY_NAME } from './constants';
 import { getDataFromSource } from '../../utils/utils';
 import { isDefinedAndNotNull } from '../../utils/commonUtils';
 
