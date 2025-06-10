@@ -125,6 +125,13 @@ const mergeDeepRight = (leftObject, rightObject) =>
 const isString = value => typeof value === 'string';
 
 /**
+ * A function to check given value is null or undefined
+ * @param value input value
+ * @returns boolean
+ */
+const isNullOrUndefined = value => isNull(value) || isUndefined(value);
+
+/**
  * A function to check given value is defined and not null
  * @param value input value
  * @returns boolean
@@ -180,4 +187,5 @@ export {
   isObjectLiteralAndNotNull,
   isSDKRunningInChromeExtension,
   getTimezone,
+  isNullOrUndefined,
 };
