@@ -1,8 +1,8 @@
-import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
+import { ScriptLoader } from '@rudderstack/analytics-js-legacy-utilities/ScriptLoader';
 import SpotifyPixel from '../../../src/integrations/SpotifyPixel/browser';
 
 // Mock ScriptLoader
-jest.mock('@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader', () => ({
+jest.mock('@rudderstack/analytics-js-legacy-utilities/ScriptLoader', () => ({
   ScriptLoader: jest.fn(),
 }));
 
