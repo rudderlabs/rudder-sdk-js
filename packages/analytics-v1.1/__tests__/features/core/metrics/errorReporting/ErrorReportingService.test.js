@@ -1,4 +1,4 @@
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { logger } from '@rudderstack/analytics-js-legacy-utilities/logUtil';
 import { ErrorReportingService } from '../../../../../src/features/core/metrics/errorReporting/ErrorReportingService';
 
 const errorReportingService = new ErrorReportingService(logger);
