@@ -229,3 +229,12 @@ jobs:
                 }
               ]
             }
+
+  run-e2e-regression-test-suites:
+    uses: ./.github/workflows/run-e2e-regression-test-suites.yml
+    name: Run E2E Regression Test Suites
+    needs: rollback
+    with:
+      environment: production
+    secrets:
+      PAT: ${{ secrets.PAT }}

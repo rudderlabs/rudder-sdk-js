@@ -1,0 +1,181 @@
+name: 'External Workflow Trigger & Wait'
+description: 'Generic utility for triggering external workflows and waiting for their completion'
+
+inputs:
+  github_token:
+    description: 'GitHub token for API access'
+    required: true
+  target_repo:
+    description: 'Target repository (owner/repo) for external workflow'
+    required: true
+  workflow_file:
+    description: 'Workflow file to trigger (e.g., my-workflow.yml)'
+    required: true
+  workflow_ref:
+    description: 'Git ref to trigger the workflow on'
+    required: false
+    default: 'main'
+  workflow_name:
+    description: 'Descriptive name for this workflow (used in logging)'
+    required: false
+    default: 'External Workflow'
+  workflow_inputs:
+    description: 'JSON object containing inputs to pass to the target workflow'
+    required: false
+    default: '{}'
+  max_wait_time:
+    description: 'Maximum wait time in seconds'
+    required: true
+  check_interval:
+    description: 'Check interval in seconds'
+    required: true
+
+outputs:
+  status:
+    description: 'Final status of the workflow (completed, timeout)'
+    value: ${{ steps.wait_for_workflow.outputs.status }}
+  conclusion:
+    description: 'Final conclusion (success, failure, cancelled, etc.)'
+    value: ${{ steps.wait_for_workflow.outputs.conclusion }}
+  run_id:
+    description: 'The workflow run ID'
+    value: ${{ steps.trigger_workflow.outputs.run_id }}
+  run_url:
+    description: 'Direct URL to the workflow run'
+    value: ${{ steps.trigger_workflow.outputs.run_url }}
+
+env:
+  GITHUB_API_VERSION_HEADER: 'X-GitHub-Api-Version: 2022-11-28'
+  GITHUB_ACCEPT_HEADER: 'Accept: application/vnd.github+json'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Trigger external workflow
+      id: trigger_workflow
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github_token }}
+      run: |
+        echo "🚀 Triggering '${{ inputs.workflow_name }}' workflow..."
+        echo "📋 Target: ${{ inputs.target_repo }}/${{ inputs.workflow_file }}"
+        echo "🌿 Ref: ${{ inputs.workflow_ref }}"
+        
+        # Parse workflow inputs JSON
+        workflow_inputs='${{ inputs.workflow_inputs }}'
+        echo "📝 Workflow inputs: $workflow_inputs"
+        
+        # Create a temporary file for the API request body
+        request_body=$(mktemp)
+        
+        # Build the request body with or without inputs
+        if [ "$workflow_inputs" != "{}" ] && [ -n "$workflow_inputs" ]; then
+          echo "📤 Creating request body with custom inputs..."
+          
+          # Create body with both ref and inputs
+          jq -n \
+            --arg ref "${{ inputs.workflow_ref }}" \
+            --argjson inputs "$workflow_inputs" \
+            '{ref: $ref, inputs: $inputs}' > "$request_body"
+          
+          echo "  ✓ Request body with inputs created"
+        else
+          echo "📤 Creating request body without custom inputs..."
+          
+          # Create body with just ref
+          jq -n \
+            --arg ref "${{ inputs.workflow_ref }}" \
+            '{ref: $ref}' > "$request_body"
+          
+          echo "  ✓ Request body created"
+        fi
+        
+        # Trigger the workflow
+        gh api \
+          --method POST \
+          -H "$GITHUB_ACCEPT_HEADER" \
+          -H "$GITHUB_API_VERSION_HEADER" \
+          --input "$request_body" \
+          "/repos/${{ inputs.target_repo }}/actions/workflows/${{ inputs.workflow_file }}/dispatches"
+        
+        # Clean up
+        rm -f "$request_body"
+        
+        echo "✅ '${{ inputs.workflow_name }}' workflow dispatch triggered successfully"
+        
+        # Wait for workflow to be created
+        echo "⏳ Waiting for workflow to be created..."
+        sleep 30
+        
+        # Get the latest workflow run ID
+        run_id=$(gh api \
+          -H "$GITHUB_ACCEPT_HEADER" \
+          -H "$GITHUB_API_VERSION_HEADER" \
+          "/repos/${{ inputs.target_repo }}/actions/workflows/${{ inputs.workflow_file }}/runs?per_page=1" | \
+          jq -r '.workflow_runs[0].id')
+        
+        run_url="https://github.com/${{ inputs.target_repo }}/actions/runs/$run_id"
+        
+        echo "📋 Latest '${{ inputs.workflow_name }}' workflow run ID: $run_id"
+        echo "🔗 Direct URL: $run_url"
+        
+        echo "run_id=$run_id" >> $GITHUB_OUTPUT
+        echo "run_url=$run_url" >> $GITHUB_OUTPUT
+
+    - name: Wait for workflow completion
+      id: wait_for_workflow
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github_token }}
+      run: |
+        run_id="${{ steps.trigger_workflow.outputs.run_id }}"
+        run_url="${{ steps.trigger_workflow.outputs.run_url }}"
+        
+        echo "⏳ Waiting for '${{ inputs.workflow_name }}' workflow run $run_id to complete..."
+        echo "📊 Max wait time: ${{ inputs.max_wait_time }}s, Check interval: ${{ inputs.check_interval }}s"
+        echo "🔗 Monitor at: $run_url"
+        
+        elapsed_time=0
+        
+        while [ $elapsed_time -lt ${{ inputs.max_wait_time }} ]; do
+          # Get workflow run details
+          run_data=$(gh api \
+            -H "$GITHUB_ACCEPT_HEADER" \
+            -H "$GITHUB_API_VERSION_HEADER" \
+            "/repos/${{ inputs.target_repo }}/actions/runs/$run_id")
+          
+          run_status=$(echo "$run_data" | jq -r '.status')
+          run_conclusion=$(echo "$run_data" | jq -r '.conclusion')
+          
+          echo "📈 Status: $run_status | Conclusion: $run_conclusion | Elapsed: ${elapsed_time}s"
+          
+          # Check if workflow is completed
+          if [ "$run_status" = "completed" ]; then
+            echo "🏁 '${{ inputs.workflow_name }}' workflow completed with conclusion: $run_conclusion"
+            
+            # Output results for GitHub Actions
+            echo "status=$run_status" >> $GITHUB_OUTPUT
+            echo "conclusion=$run_conclusion" >> $GITHUB_OUTPUT
+            
+            # Exit with appropriate code based on conclusion
+            if [ "$run_conclusion" = "success" ]; then
+              echo "✅ '${{ inputs.workflow_name }}' workflow passed!"
+              exit 0
+            else
+              echo "❌ '${{ inputs.workflow_name }}' workflow failed with conclusion: $run_conclusion"
+              echo "🔗 Check details at: $run_url"
+              exit 1
+            fi
+          fi
+          
+          # Wait before next check
+          sleep ${{ inputs.check_interval }}
+          elapsed_time=$((elapsed_time + ${{ inputs.check_interval }}))
+        done
+        
+        # Timeout reached
+        echo "⏰ Timeout reached waiting for '${{ inputs.workflow_name }}' workflow completion"
+        echo "🔗 Check status at: $run_url"
+        echo "status=timeout" >> $GITHUB_OUTPUT
+        echo "conclusion=timeout" >> $GITHUB_OUTPUT
+        exit 1 

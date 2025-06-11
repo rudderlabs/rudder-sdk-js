@@ -1,0 +1,144 @@
+name: Run E2E Regression Test Suites
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        default: production
+      use_pr_head_sha:
+        type: string
+        default: 'false'
+      build_source_id:
+        type: string
+        required: false
+      sanity_test_suite_url:
+        type: string
+        required: false
+    secrets:
+      PAT:
+        description: Personal Access Token
+        required: true
+
+env:
+  MAX_WAIT_TIME_FOR_SANITY_TESTS: 18000  # 5 hours
+  CHECK_INTERVAL_FOR_SANITY_TESTS: 60   # 1 minute
+  MAX_WAIT_TIME_FOR_E2E_TESTS: 18000    # 5 hours
+  CHECK_INTERVAL_FOR_E2E_TESTS: 60      # 1 minute
+  TARGET_REPO: rudderlabs/rudder-client-side-test
+
+jobs:
+  extract-monorepo-version:
+    name: Extract Monorepo Version
+    runs-on: [self-hosted, Linux, X64]
+
+    outputs:
+      version: ${{ steps.determine_version.outputs.current_version }}
+
+    steps:
+      - name: Determine checkout SHA
+        id: getSHA
+        run: |
+          if ${{ inputs.use_pr_head_sha }} == 'true'; then
+            sha=${{ github.event.pull_request.head.sha }}
+          else
+            sha=${{ github.sha }}
+          fi
+          echo "Checkout SHA: $sha"
+          echo "SHA=$sha" >> $GITHUB_OUTPUT
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.getSHA.outputs.SHA }}
+
+      - name: Determine the Monorepo version
+        id: determine_version
+        run: |
+          current_version=$(jq -r .version package.json)
+          echo "current_version=$current_version" >> $GITHUB_OUTPUT
+
+  trigger-and-wait-sanity-test-suite:
+    name: Run Sanity E2E Regression Tests
+    runs-on: [self-hosted, Linux, X64]
+    needs: extract-monorepo-version
+    outputs:
+      sanity-status: ${{ steps.run_sanity_tests.outputs.status }}
+      sanity-conclusion: ${{ steps.run_sanity_tests.outputs.conclusion }}
+
+    steps:
+      - name: Checkout (for composite action)
+        uses: actions/checkout@v4
+
+      - name: Prepare sanity test inputs
+        id: prepare_inputs
+        run: |
+          # Create JSON object with all inputs for the sanity test workflow
+          inputs_json=$(jq -n \
+            --arg environment "${{ inputs.environment }}" \
+            --arg monorepo_version "${{ needs.extract-monorepo-version.outputs.version }}" \
+            --arg sanity_test_suite_url "${{ inputs.sanity_test_suite_url }}" \
+            --arg build_source_id "${{ inputs.build_source_id }}" \
+            '{
+              environment: $environment,
+              monorepo_version: $monorepo_version,
+              sanity_test_suite_url: $sanity_test_suite_url,
+              build_source_id: $build_source_id
+            }')
+          
+          echo "inputs_json=$inputs_json" >> $GITHUB_OUTPUT
+
+      - name: Run sanity test suite
+        id: run_sanity_tests
+        uses: ./.github/actions/workflow-utils
+        with:
+          github_token: ${{ secrets.PAT }}
+          target_repo: ${{ env.TARGET_REPO }}
+          workflow_file: sdk-team-js-sanity-suite.yaml
+          workflow_ref: main
+          workflow_name: Sanity E2E Regression Tests
+          workflow_inputs: ${{ steps.prepare_inputs.outputs.inputs_json }}
+          max_wait_time: ${{ env.MAX_WAIT_TIME_FOR_SANITY_TESTS }}
+          check_interval: ${{ env.CHECK_INTERVAL_FOR_SANITY_TESTS }}
+
+  trigger-and-wait-e2e-test-suite:
+    name: Run Full E2E Regression Tests
+    runs-on: [self-hosted, Linux, X64]
+    needs: [extract-monorepo-version, trigger-and-wait-sanity-test-suite]
+    # Only run if sanity tests passed
+    if: needs.trigger-and-wait-sanity-test-suite.outputs.sanity-conclusion == 'success'
+
+    steps:
+      - name: Checkout (for composite action)
+        uses: actions/checkout@v4
+
+      - name: Prepare E2E test inputs
+        id: prepare_inputs
+        run: |
+          # Create JSON object with all inputs for the E2E test workflow
+          inputs_json=$(jq -n \
+            --arg environment "${{ inputs.environment }}" \
+            --arg monorepo_version "${{ needs.extract-monorepo-version.outputs.version }}" \
+            --arg sanity_test_suite_url "${{ inputs.sanity_test_suite_url }}" \
+            --arg build_source_id "${{ inputs.build_source_id }}" \
+            '{
+              environment: $environment,
+              monorepo_version: $monorepo_version,
+              sanity_test_suite_url: $sanity_test_suite_url,
+              build_source_id: $build_source_id
+            }')
+          
+          echo "inputs_json=$inputs_json" >> $GITHUB_OUTPUT
+
+      - name: Run E2E test suite
+        id: run_e2e_tests
+        uses: ./.github/actions/workflow-utils
+        with:
+          github_token: ${{ secrets.PAT }}
+          target_repo: ${{ env.TARGET_REPO }}
+          workflow_file: sdk-team-js-regression.yaml
+          workflow_ref: main
+          workflow_name: Full E2E Regression Tests
+          workflow_inputs: ${{ steps.prepare_inputs.outputs.inputs_json }}
+          max_wait_time: ${{ env.MAX_WAIT_TIME_FOR_E2E_TESTS }}
+          check_interval: ${{ env.CHECK_INTERVAL_FOR_E2E_TESTS }}
