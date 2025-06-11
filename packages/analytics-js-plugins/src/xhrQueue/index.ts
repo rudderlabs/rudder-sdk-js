@@ -27,12 +27,14 @@ import { QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
 import type { XHRRetryQueueItemData, XHRQueueItemData } from './types';
 import {
   getCurrentTimeFormatted,
+  isDefined,
   isErrRetryable,
   isUndefined,
   LOCAL_STORAGE,
   toBase64,
   validateEventPayloadSize,
 } from '../shared-chunks/common';
+import { DEFAULT_RETRY_REASON, RETRY_REASON_CLIENT_TIMEOUT } from '../utilities/constants';
 
 const pluginName: PluginName = 'XhrQueue';
 
@@ -105,9 +107,19 @@ const XhrQueue = (): ExtensionPlugin => ({
 
               logMessageOnFailure(details, isRetryable, qItemProcessInfo, logger);
 
-              // null means item will not be processed further and will be removed from the queue (even from the storage)
-              const queueErrResp = isRetryable ? details : null;
-              done(queueErrResp);
+              if (isRetryable) {
+                let retryReason = DEFAULT_RETRY_REASON;
+                if (details?.timedOut) {
+                  retryReason = RETRY_REASON_CLIENT_TIMEOUT;
+                } else if (isDefined(details?.xhr?.status)) {
+                  retryReason = `server-${details!.xhr!.status}`;
+                }
+
+                done(details, { retryReason });
+              } else {
+                // null means item will not be processed further and will be removed from the queue (even from the storage)
+                done(null);
+              }
             },
           });
         },

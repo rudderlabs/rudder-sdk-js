@@ -8,7 +8,7 @@ const DESTINATION_EVENT_FILTERING_WARNING = (
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The "${eventName}" track event has been filtered for the "${destUserFriendlyId}" destination.`;
 
-const DESTINATION_EVENT_FORWARDING_ERROR = (destUserFriendlyId: string): string =>
-  `Failed to forward event to destination "${destUserFriendlyId}".`;
+const INTEGRATION_EVENT_FORWARDING_ERROR = (id: string): string =>
+  `Failed to forward event to integration for destination "${id}".`;
 
-export { DESTINATION_EVENT_FILTERING_WARNING, DESTINATION_EVENT_FORWARDING_ERROR };
+export { DESTINATION_EVENT_FILTERING_WARNING, INTEGRATION_EVENT_FORWARDING_ERROR };

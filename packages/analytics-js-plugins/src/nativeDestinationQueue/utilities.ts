@@ -7,7 +7,7 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { RudderEventType } from '../types/plugins';
 import { DEFAULT_QUEUE_OPTIONS, NATIVE_DESTINATION_QUEUE_PLUGIN } from './constants';
-import { DESTINATION_EVENT_FORWARDING_ERROR } from './logMessages';
+import { INTEGRATION_EVENT_FORWARDING_ERROR } from './logMessages';
 import { mergeDeepRight } from '../shared-chunks/common';
 
 const getNormalizedQueueOptions = (queueOpts: DestinationsQueueOpts): DestinationsQueueOpts =>
@@ -70,12 +70,27 @@ const sendEventToDestination = (
     // This will remain until we update the destinations to accept the event directly
     dest.instance?.[methodName]?.({ message: item });
   } catch (err) {
-    errorHandler?.onError(
-      err,
-      NATIVE_DESTINATION_QUEUE_PLUGIN,
-      DESTINATION_EVENT_FORWARDING_ERROR(dest.userFriendlyId),
-    );
+    errorHandler?.onError({
+      error: err,
+      context: NATIVE_DESTINATION_QUEUE_PLUGIN,
+      customMessage: INTEGRATION_EVENT_FORWARDING_ERROR(dest.userFriendlyId),
+      groupingHash: INTEGRATION_EVENT_FORWARDING_ERROR(dest.displayName),
+    });
   }
 };
 
-export { getNormalizedQueueOptions, isEventDenyListed, sendEventToDestination };
+/**
+ * A function to check if device mode transformation should be applied for a destination.
+ * @param dest Destination object
+ * @returns Boolean indicating whether the transformation should be applied
+ */
+const shouldApplyTransformation = (dest: Destination): boolean => {
+  return dest.shouldApplyDeviceModeTransformation && !dest.cloned;
+};
+
+export {
+  getNormalizedQueueOptions,
+  isEventDenyListed,
+  sendEventToDestination,
+  shouldApplyTransformation,
+};

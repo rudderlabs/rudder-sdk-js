@@ -11,6 +11,7 @@ export interface IRequestConfig {
 export type ResponseDetails = {
   response: string;
   error?: Error;
+  timedOut?: boolean;
   xhr?: XMLHttpRequest;
   options: IXHRRequestOptions;
 };

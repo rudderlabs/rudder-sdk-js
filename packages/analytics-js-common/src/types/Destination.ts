@@ -84,4 +84,7 @@ export type Destination = {
   propagateEventsUntransformedOnError: boolean;
   config: DestinationConfig;
   instance?: DeviceModeDestination;
+  overridden?: boolean;
+  enabled: boolean;
+  cloned?: boolean;
 };

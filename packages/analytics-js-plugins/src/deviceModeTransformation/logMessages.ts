@@ -16,7 +16,9 @@ const DMT_REQUEST_FAILED_ERROR = (
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}[Destination: ${displayName}].Transformation request failed with status: ${status}. Retries exhausted. ${action}.`;
 
-const DMT_EXCEPTION = (displayName: string): string => `[Destination:${displayName}].`;
+const DMT_EXCEPTION = (displayName: string): string =>
+  `Transformation failed for destination "${displayName}"`;
+
 const DMT_SERVER_ACCESS_DENIED_WARNING = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}Transformation server access is denied. The configuration data seems to be out of sync. Sending untransformed event to the destination.`;
 

@@ -179,6 +179,9 @@ jobs:
           CDN_URL: ${{ format('https://cdn.rudderlabs.com/{0}/modern/rsa.min.js', env.LATEST_VERSION_DIR_NAME) }}
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js@'
           LINK_TEXT: ${{ format('v{0}', env.ROLLBACK_VERSION_VALUE) }}
+          GITHUB_RUN_URL: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
+          ACTOR_URL: ${{ format('{0}/{1}', github.server_url, github.actor) }}
+          ACTOR: ${{ github.actor }}
         with:
           method: 'chat.postMessage'
           token: ${{ secrets.SLACK_BOT_TOKEN }}
@@ -210,7 +213,28 @@ jobs:
                     "image_url": "https://cdn.jsdelivr.net/npm/programming-languages-logos/src/javascript/javascript.png",
                     "alt_text": "JavaScript Icon"
                   }
+                },
+                {
+                  "type": "context",
+                  "elements": [
+                    {
+                      "type": "mrkdwn",
+                      "text": ":point_right: Manually triggered by <${{ env.ACTOR_URL }}|${{ env.ACTOR }}>"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": ":gear: <${{ env.GITHUB_RUN_URL }}|View workflow run details>"
+                    }${{ format(',{{"type": "mrkdwn", "text": ":book: <{0}{1}|View release notes>"}}', env.RELEASES_URL, env.ROLLBACK_VERSION_VALUE) || ''  }}
+                  ]
                 }
-                ${{ format(',{{"type": "context", "elements": [{{"type": "mrkdwn", "text": "For more details, check the full release notes <{0}{1}|here>."}}]}}', env.RELEASES_URL, env.ROLLBACK_VERSION_VALUE) || ''  }}
               ]
             }
+
+  run-e2e-regression-test-suites:
+    uses: ./.github/workflows/run-e2e-regression-test-suites.yml
+    name: Run E2E Regression Test Suites
+    needs: rollback
+    with:
+      environment: production
+    secrets:
+      PAT: ${{ secrets.PAT }}

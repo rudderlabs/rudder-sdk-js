@@ -55,10 +55,10 @@ jobs:
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
 
-  trigger-sanity-suite:
-    uses: ./.github/workflows/trigger-test-suites.yml
+  run-e2e-regression-test-suites:
+    uses: ./.github/workflows/run-e2e-regression-test-suites.yml
     needs: deploy-sanity-suite
-    name: Trigger test suites
+    name: Run E2E Regression Test Suites
     with:
       environment: staging
       use_pr_head_sha: 'true'

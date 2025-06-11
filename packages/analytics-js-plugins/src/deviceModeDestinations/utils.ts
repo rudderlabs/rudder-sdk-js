@@ -1,7 +1,9 @@
-/* eslint-disable no-param-reassign */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { clone } from 'ramda';
-import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
+import {
+  isNonEmptyObject,
+  removeUndefinedAndNullValues,
+} from '@rudderstack/analytics-js-common/utilities/object';
 import type {
   Destination,
   DeviceModeDestination,
@@ -15,7 +17,11 @@ import type { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Int
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { IdentifyTraits } from '@rudderstack/analytics-js-common/types/traits';
-import type { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import type {
+  AnonymousIdOptions,
+  SourceConfigurationOverride,
+  SourceConfigurationOverrideDestination,
+} from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { DeviceModeDestinationsAnalyticsInstance } from './types';
 import {
   DEVICE_MODE_DESTINATIONS_PLUGIN,
@@ -23,9 +29,10 @@ import {
   READY_CHECK_TIMEOUT_MS,
 } from './constants';
 import {
-  DESTINATION_INIT_ERROR,
-  DESTINATION_INTEGRATIONS_DATA_ERROR,
-  DESTINATION_READY_TIMEOUT_ERROR,
+  INTEGRATION_INIT_ERROR,
+  INTEGRATIONS_DATA_ERROR,
+  INTEGRATION_READY_TIMEOUT_ERROR,
+  INTEGRATION_READY_CHECK_ERROR,
 } from './logMessages';
 import {
   aliasArgumentsToCallOptions,
@@ -36,6 +43,7 @@ import {
   trackArgumentsToCallOptions,
 } from '../shared-chunks/deviceModeDestinations';
 import { getSanitizedValue, isFunction } from '../shared-chunks/common';
+import { isBoolean } from '@rudderstack/analytics-js-common/utilities/checks';
 
 /**
  * Determines if the destination SDK code is evaluated
@@ -173,9 +181,7 @@ const isDestinationReady = (dest: Destination, time = 0) =>
     if (instance.isLoaded() && (!instance.isReady || instance.isReady())) {
       resolve(true);
     } else if (time >= READY_CHECK_TIMEOUT_MS) {
-      reject(
-        new Error(DESTINATION_READY_TIMEOUT_ERROR(READY_CHECK_TIMEOUT_MS, dest.userFriendlyId)),
-      );
+      reject(new Error(INTEGRATION_READY_TIMEOUT_ERROR(READY_CHECK_TIMEOUT_MS)));
     } else {
       const curTime = Date.now();
       wait(READY_CHECK_INTERVAL_MS).then(() => {
@@ -203,16 +209,17 @@ const getCumulativeIntegrationsConfig = (
   let integrationsConfig: IntegrationOpts = curDestIntgConfig;
   if (isFunction(dest.instance?.getDataForIntegrationsObject)) {
     try {
-      integrationsConfig = mergeDeepRight(
-        curDestIntgConfig,
-        getSanitizedValue(dest.instance?.getDataForIntegrationsObject()),
-      );
+      integrationsConfig = {
+        ...curDestIntgConfig,
+        ...getSanitizedValue(dest.instance.getDataForIntegrationsObject()),
+      };
     } catch (err) {
-      errorHandler?.onError(
-        err,
-        DEVICE_MODE_DESTINATIONS_PLUGIN,
-        DESTINATION_INTEGRATIONS_DATA_ERROR(dest.userFriendlyId),
-      );
+      errorHandler?.onError({
+        error: err,
+        context: DEVICE_MODE_DESTINATIONS_PLUGIN,
+        customMessage: INTEGRATIONS_DATA_ERROR(dest.userFriendlyId),
+        groupingHash: INTEGRATIONS_DATA_ERROR(dest.displayName),
+      });
     }
   }
   return integrationsConfig;
@@ -255,8 +262,12 @@ const initializeDestination = (
           dest,
         ];
 
-        // The error message is already formatted in the isDestinationReady function
-        logger?.error(err);
+        errorHandler?.onError({
+          error: err,
+          context: DEVICE_MODE_DESTINATIONS_PLUGIN,
+          customMessage: INTEGRATION_READY_CHECK_ERROR(dest.userFriendlyId),
+          groupingHash: INTEGRATION_READY_CHECK_ERROR(dest.displayName),
+        });
       });
   } catch (err) {
     state.nativeDestinations.failedDestinations.value = [
@@ -264,12 +275,140 @@ const initializeDestination = (
       dest,
     ];
 
-    errorHandler?.onError(
-      err,
-      DEVICE_MODE_DESTINATIONS_PLUGIN,
-      DESTINATION_INIT_ERROR(dest.userFriendlyId),
+    errorHandler?.onError({
+      error: err,
+      context: DEVICE_MODE_DESTINATIONS_PLUGIN,
+      customMessage: INTEGRATION_INIT_ERROR(dest.userFriendlyId),
+      groupingHash: INTEGRATION_INIT_ERROR(dest.displayName),
+    });
+  }
+};
+
+/**
+ * Applies source configuration overrides to destinations
+ * @param destinations Array of destinations to process
+ * @param sourceConfigOverride Source configuration override options
+ * @param logger Logger instance for warnings
+ * @returns Array of destinations with overrides applied
+ */
+const applySourceConfigurationOverrides = (
+  destinations: Destination[],
+  sourceConfigOverride: SourceConfigurationOverride,
+  logger?: ILogger,
+): Destination[] => {
+  if (!sourceConfigOverride?.destinations?.length) {
+    return filterDisabledDestination(destinations);
+  }
+
+  const destIds = destinations.map(dest => dest.id);
+
+  // Group overrides by destination ID to support future cloning
+  // When cloning is implemented, multiple overrides with same ID will create multiple destination instances
+  const overridesByDestId: Record<string, SourceConfigurationOverrideDestination[]> = {};
+  sourceConfigOverride.destinations.forEach((override: SourceConfigurationOverrideDestination) => {
+    const existing = overridesByDestId[override.id] || [];
+    existing.push(override);
+    overridesByDestId[override.id] = existing;
+  });
+
+  // Find unmatched destination IDs and log warning
+  const unmatchedIds = Object.keys(overridesByDestId).filter(id => !destIds.includes(id));
+
+  if (unmatchedIds.length > 0) {
+    logger?.warn(
+      `${DEVICE_MODE_DESTINATIONS_PLUGIN}:: Source configuration override - Unable to identify the destinations with the following IDs: "${unmatchedIds.join(', ')}"`,
     );
   }
+
+  // Process overrides and apply them to destinations
+  const processedDestinations: Destination[] = [];
+
+  destinations.forEach(dest => {
+    const overrides = overridesByDestId[dest.id];
+    if (!overrides || overrides.length === 0) {
+      // No override for this destination, keep original
+      processedDestinations.push(dest);
+      return;
+    }
+
+    if (overrides.length > 1) {
+      // Multiple overrides for the same destination, create clones
+      overrides.forEach((override: SourceConfigurationOverrideDestination, index: number) => {
+        const overriddenDestination = applyOverrideToDestination(dest, override, `${index + 1}`);
+        overriddenDestination.cloned = true;
+        processedDestinations.push(overriddenDestination);
+      });
+    } else {
+      const overriddenDestination = applyOverrideToDestination(dest, overrides[0]!);
+      processedDestinations.push(overriddenDestination);
+    }
+  });
+
+  return filterDisabledDestination(processedDestinations);
+};
+
+/**
+ * This function filters out disabled destinations from the provided array.
+ * @param destinations Array of destinations to filter
+ * @returns Filtered destinations to only include enabled ones
+ */
+const filterDisabledDestination = (destinations: Destination[]): Destination[] =>
+  destinations.filter(dest => dest.enabled);
+
+/**
+ * Applies a single override configuration to a destination
+ * @param destination Original destination
+ * @param override Override configuration
+ * @param cloneId Unique identifier for the clone,
+ * if provided, the value is appended to the id and userFriendlyId of the destination
+ * @returns Modified destination with override applied
+ */
+const applyOverrideToDestination = (
+  destination: Destination,
+  override: SourceConfigurationOverrideDestination,
+  cloneId?: string,
+): Destination => {
+  // Check if any changes are needed
+  const isEnabledStatusChanged =
+    isBoolean(override.enabled) && override.enabled !== destination.enabled;
+
+  // Check if config is provided
+  const isConfigChanged = isNonEmptyObject(override.config);
+
+  // Determine the final enabled status after applying overrides
+  const finalEnabledStatus = isBoolean(override.enabled) ? override.enabled : destination.enabled;
+
+  // Check if config will actually be applied (only for enabled destinations)
+  const willApplyConfig = isConfigChanged && finalEnabledStatus;
+
+  // If no changes needed and no cloneId, return original destination
+  if (!isEnabledStatusChanged && !willApplyConfig && !cloneId) {
+    return destination;
+  }
+
+  // Clone destination and apply overrides
+  const clonedDest = clone(destination);
+  if (cloneId) {
+    clonedDest.id = `${destination.id}_${cloneId}`;
+    clonedDest.userFriendlyId = `${destination.userFriendlyId}_${cloneId}`;
+  }
+
+  // Apply enabled status override if provided and different
+  if (isEnabledStatusChanged) {
+    clonedDest.enabled = override.enabled!;
+
+    // Mark as overridden
+    clonedDest.overridden = true;
+  }
+
+  // Apply config overrides if provided for enabled destination
+  if (willApplyConfig) {
+    // Override the config with the new config and remove undefined and null values
+    clonedDest.config = removeUndefinedAndNullValues({ ...clonedDest.config, ...override.config });
+    clonedDest.overridden = true;
+  }
+
+  return clonedDest;
 };
 
 export {
@@ -279,4 +418,7 @@ export {
   isDestinationReady,
   getCumulativeIntegrationsConfig,
   initializeDestination,
+  applySourceConfigurationOverrides,
+  applyOverrideToDestination,
+  filterDisabledDestination,
 };

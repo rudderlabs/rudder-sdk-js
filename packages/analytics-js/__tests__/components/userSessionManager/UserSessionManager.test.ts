@@ -1140,7 +1140,10 @@ describe('User session manager', () => {
 
       expect(actualSessionInfo).toStrictEqual(customData.rl_session);
       expect(migrateStorageIfNeededSpy).toHaveBeenCalledTimes(1);
-      expect(migrateStorageIfNeededSpy).toHaveBeenCalledWith([clientDataStoreCookie]);
+      expect(migrateStorageIfNeededSpy).toHaveBeenCalledWith(
+        [clientDataStoreCookie],
+        ['sessionInfo'],
+      );
     });
 
     it('should return null if persisted session info is not available', () => {
@@ -1166,6 +1169,31 @@ describe('User session manager', () => {
       userSessionManager.init();
       const actualSessionInfo = userSessionManager.getSessionInfo();
       expect(actualSessionInfo).toStrictEqual(null);
+    });
+
+    it('should call migrateStorageIfNeeded with specific keys when provided', () => {
+      const customData = {
+        rl_session: {
+          autoTrack: true,
+          expiresAt: Date.now() + 10000,
+          id: Date.now(),
+          timeout: 10000,
+        },
+      };
+      setDataInCookieStorage(customData);
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      // Enable migration
+      state.storage.migrate.value = true;
+
+      const migrateStorageIfNeededSpy = jest.spyOn(userSessionManager, 'migrateStorageIfNeeded');
+
+      // Call getEntryValue which internally calls migrateStorageIfNeeded with specific keys
+      userSessionManager.getEntryValue('sessionInfo');
+
+      expect(migrateStorageIfNeededSpy).toHaveBeenCalledWith(
+        [clientDataStoreCookie],
+        ['sessionInfo'],
+      );
     });
   });
 
@@ -2077,7 +2105,7 @@ describe('User session manager', () => {
         done();
       }, 1000);
     });
-    it('should set cookie from client side if any unhandled error ocurred in serServerSideCookie function', () => {
+    it('should set cookie from client side if any unhandled error occurred in serServerSideCookie function', () => {
       state.source.value = {
         workspaceId: 'sample_workspaceId',
         id: 'sample_source_id',
@@ -2087,7 +2115,7 @@ describe('User session manager', () => {
       userSessionManager.getEncryptedCookieData = jest.fn(() => {
         throw new Error('test error');
       });
-      userSessionManager.onError = jest.fn();
+      const onErrorSpy = jest.spyOn(userSessionManager, 'onError');
       state.storage.cookie.value = {
         maxage: 10 * 60 * 1000, // 10 min
         path: '/',
@@ -2099,13 +2127,50 @@ describe('User session manager', () => {
         mockCallback,
         mockCookieStore,
       );
-      expect(userSessionManager.onError).toHaveBeenCalledTimes(1);
-      expect(userSessionManager.onError).toHaveBeenCalledWith(
+      expect(onErrorSpy).toHaveBeenCalledTimes(1);
+      expect(onErrorSpy).toHaveBeenCalledWith(
         new Error('test error'),
+        'Failed to set/remove cookies via server. As a fallback, the cookies will be managed client side.',
         'Failed to set/remove cookies via server. As a fallback, the cookies will be managed client side.',
       );
       expect(mockCallback).toHaveBeenCalledWith('key', 'sample_cookie_value_1234');
     });
+
+    it('should handle any error in setServerSideCookies and call onError with proper fallback behavior', () => {
+      state.source.value = {
+        workspaceId: 'sample_workspaceId',
+        id: 'sample_source_id',
+        name: 'sample_source_name',
+      };
+      state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
+
+      // Mock an error scenario in getEncryptedCookieData
+      userSessionManager.getEncryptedCookieData = jest.fn(() => {
+        throw new Error('Encryption service failure');
+      });
+      userSessionManager.onError = jest.fn();
+
+      const cookiesData = [
+        { name: 'cookie1', value: 'value1' },
+        { name: 'cookie2', value: { complex: 'object' } },
+      ];
+
+      userSessionManager.setServerSideCookies(cookiesData, mockCallback, mockCookieStore);
+
+      // Verify onError was called with the correct parameters
+      expect(userSessionManager.onError).toHaveBeenCalledTimes(1);
+      expect(userSessionManager.onError).toHaveBeenCalledWith(
+        new Error('Encryption service failure'),
+        'Failed to set/remove cookies via server. As a fallback, the cookies will be managed client side.',
+        'Failed to set/remove cookies via server. As a fallback, the cookies will be managed client side.',
+      );
+
+      // Verify fallback behavior: all cookies are processed via callback
+      expect(mockCallback).toHaveBeenCalledTimes(2);
+      expect(mockCallback).toHaveBeenNthCalledWith(1, 'cookie1', 'value1');
+      expect(mockCallback).toHaveBeenNthCalledWith(2, 'cookie2', { complex: 'object' });
+    });
+
     describe('getEncryptedCookieData', () => {
       it('cookie value exists', () => {
         const encryptedData = userSessionManager.getEncryptedCookieData(
@@ -2118,56 +2183,128 @@ describe('User session manager', () => {
         ]);
       });
     });
-    describe('makeRequestToSetCookie', () => {
-      it('should make external request to exposed endpoint', done => {
-        state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
-        state.source.value = {
-          workspaceId: 'sample_workspaceId',
-          id: 'sample_source_id',
-          name: 'sample_source_name',
-        };
-        state.storage.cookie.value = {
-          maxage: 10 * 60 * 1000, // 10 min
-          path: '/',
-          domain: 'dummy.dataplane.host.com',
-          samesite: 'Lax',
-        };
-        const getAsyncDataSpy = jest.spyOn(defaultHttpClient, 'getAsyncData');
-        userSessionManager.makeRequestToSetCookie(
-          [{ name: 'key', value: 'encrypted_sample_cookie_value_1234' }],
-          () => {},
-        );
-        expect(getAsyncDataSpy).toHaveBeenCalledWith({
-          url: `https://dummy.dataplane.host.com/rsaRequest`,
-          options: {
-            method: 'POST',
-            data: JSON.stringify({
-              reqType: 'setCookies',
-              workspaceId: 'sample_workspaceId',
-              data: {
-                options: {
-                  maxAge: 10 * 60 * 1000,
-                  path: '/',
-                  domain: 'dummy.dataplane.host.com',
-                  sameSite: 'Lax',
-                  secure: undefined,
-                },
-                cookies: [
-                  {
-                    name: 'key',
-                    value: 'encrypted_sample_cookie_value_1234',
-                  },
-                ],
+  });
+
+  describe('makeRequestToSetCookie', () => {
+    it('should make external request to exposed endpoint', done => {
+      state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
+      state.source.value = {
+        workspaceId: 'sample_workspaceId',
+        id: 'sample_source_id',
+        name: 'sample_source_name',
+      };
+      state.storage.cookie.value = {
+        maxage: 10 * 60 * 1000, // 10 min
+        path: '/',
+        domain: 'dummy.dataplane.host.com',
+        samesite: 'Lax',
+      };
+      const getAsyncDataSpy = jest.spyOn(defaultHttpClient, 'getAsyncData');
+      userSessionManager.makeRequestToSetCookie(
+        [{ name: 'key', value: 'encrypted_sample_cookie_value_1234' }],
+        () => {},
+      );
+      expect(getAsyncDataSpy).toHaveBeenCalledWith({
+        url: `https://dummy.dataplane.host.com/rsaRequest`,
+        options: {
+          method: 'POST',
+          data: JSON.stringify({
+            reqType: 'setCookies',
+            workspaceId: 'sample_workspaceId',
+            data: {
+              options: {
+                maxAge: 10 * 60 * 1000,
+                path: '/',
+                domain: 'dummy.dataplane.host.com',
+                sameSite: 'Lax',
+                secure: undefined,
+                expires: undefined,
               },
-            }),
-            sendRawData: true,
-            withCredentials: true,
-          },
-          isRawResponse: true,
-          callback: expect.any(Function),
-        });
-        done();
+              cookies: [
+                {
+                  name: 'key',
+                  value: 'encrypted_sample_cookie_value_1234',
+                },
+              ],
+            },
+          }),
+          sendRawData: true,
+          withCredentials: true,
+        },
+        isRawResponse: true,
+        callback: expect.any(Function),
       });
+      done();
+    });
+  });
+
+  describe('migrateStorageIfNeeded', () => {
+    it('should only migrate specified keys when keys parameter is provided', () => {
+      // Enable migration
+      state.storage.migrate.value = true;
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+
+      // Mock the plugins manager to track which keys are being migrated
+      const mockPluginsManager = {
+        invokeSingle: jest.fn().mockReturnValue('migrated-value'),
+      } as any;
+
+      const userSessionManagerWithMock = new UserSessionManager(
+        mockPluginsManager,
+        defaultStoreManager,
+        defaultHttpClient,
+        defaultErrorHandler,
+        defaultLogger,
+      );
+
+      // Call migrateStorageIfNeeded with specific keys
+      userSessionManagerWithMock.migrateStorageIfNeeded(
+        [clientDataStoreCookie],
+        ['userId', 'anonymousId'],
+      );
+
+      // Should only be called for the specified keys
+      expect(mockPluginsManager.invokeSingle).toHaveBeenCalledTimes(2);
+      expect(mockPluginsManager.invokeSingle).toHaveBeenCalledWith(
+        'storage.migrate',
+        COOKIE_KEYS.userId,
+        clientDataStoreCookie.engine,
+        defaultErrorHandler,
+        defaultLogger,
+      );
+      expect(mockPluginsManager.invokeSingle).toHaveBeenCalledWith(
+        'storage.migrate',
+        COOKIE_KEYS.anonymousId,
+        clientDataStoreCookie.engine,
+        defaultErrorHandler,
+        defaultLogger,
+      );
+    });
+
+    it('should migrate all keys when keys parameter is not provided', () => {
+      // Enable migration
+      state.storage.migrate.value = true;
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+
+      // Mock the plugins manager to track which keys are being migrated
+      const mockPluginsManager = {
+        invokeSingle: jest.fn().mockReturnValue('migrated-value'),
+      } as any;
+
+      const userSessionManagerWithMock = new UserSessionManager(
+        mockPluginsManager,
+        defaultStoreManager,
+        defaultHttpClient,
+        defaultErrorHandler,
+        defaultLogger,
+      );
+
+      // Call migrateStorageIfNeeded without keys parameter
+      userSessionManagerWithMock.migrateStorageIfNeeded([clientDataStoreCookie]);
+
+      // Should be called for all keys in COOKIE_KEYS
+      const expectedCallCount = Object.keys(COOKIE_KEYS).length;
+      expect(mockPluginsManager.invokeSingle).toHaveBeenCalledTimes(expectedCallCount);
     });
   });
 });

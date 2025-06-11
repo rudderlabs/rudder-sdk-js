@@ -20,7 +20,6 @@ export type ConfigResponseDestinationItem = {
   propagateEventsUntransformedOnError: boolean;
   config: DestinationConfig;
   updatedAt: string;
-  deleted: boolean;
   destinationDefinition: DestinationDefinition;
   enabled: boolean;
   id: string;

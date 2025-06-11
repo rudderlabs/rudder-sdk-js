@@ -180,6 +180,7 @@ describe('Device mode transformation plugin', () => {
         timeSinceFirstAttempt: expect.any(Number),
         timeSinceLastAttempt: expect.any(Number),
         isPageAccessible: true,
+        retryReason: 'client-network',
       },
     );
 
@@ -298,6 +299,7 @@ describe('Device mode transformation plugin', () => {
         firstAttemptedAt: expect.any(Number),
         lastAttemptedAt: expect.any(Number),
         reclaimed: undefined,
+        retryReason: expect.any(String),
         id: 'sample_uuid',
         time: expect.any(Number),
         // time: 1 + 500 * 2 ** 1, // this is the delay calculation in RetryQueue

@@ -7,11 +7,15 @@ import type {
 import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
-import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { IErrorHandler, SDKError } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
-import { isDestinationSDKMounted, initializeDestination } from './utils';
+import {
+  isDestinationSDKMounted,
+  initializeDestination,
+  applySourceConfigurationOverrides,
+} from './utils';
 import { DEVICE_MODE_DESTINATIONS_PLUGIN, SCRIPT_LOAD_TIMEOUT_MS } from './constants';
-import { DESTINATION_NOT_SUPPORTED_ERROR, DESTINATION_SDK_LOAD_ERROR } from './logMessages';
+import { INTEGRATION_NOT_SUPPORTED_ERROR, INTEGRATION_SDK_LOAD_ERROR } from './logMessages';
 import {
   destDisplayNamesToFileNamesMap,
   filterDestinations,
@@ -41,18 +45,28 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
             return true;
           }
 
-          errorHandler?.onError(
-            new Error(DESTINATION_NOT_SUPPORTED_ERROR(configDest.userFriendlyId)),
-            DEVICE_MODE_DESTINATIONS_PLUGIN,
-          );
+          const errMessage = INTEGRATION_NOT_SUPPORTED_ERROR(configDest.displayName);
+          errorHandler?.onError({
+            error: new Error(errMessage),
+            context: DEVICE_MODE_DESTINATIONS_PLUGIN,
+          });
           return false;
         });
+
+      // Apply source configuration overrides if provided
+      const destinationsWithOverrides = state.loadOptions.value.sourceConfigurationOverride
+        ? applySourceConfigurationOverrides(
+            configSupportedDestinations,
+            state.loadOptions.value.sourceConfigurationOverride,
+            logger,
+          )
+        : configSupportedDestinations;
 
       // Filter destinations that are disabled through load or consent API options
       const destinationsToLoad = filterDestinations(
         state.consents.postConsent.value?.integrations ??
           state.nativeDestinations.loadOnlyIntegrations.value,
-        configSupportedDestinations,
+        destinationsWithOverrides,
       );
 
       const consentedDestinations = destinationsToLoad.filter(
@@ -81,7 +95,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
       const activeDestinations = state.nativeDestinations.activeDestinations.value;
 
       activeDestinations.forEach((dest: Destination) => {
-        const sdkName = destDisplayNamesToFileNamesMap[dest.displayName];
+        const sdkName = destDisplayNamesToFileNamesMap[dest.displayName] as string;
         const destSDKIdentifier = `${sdkName}_RS`; // this is the name of the object loaded on the window
 
         const sdkTypeName = sdkName;
@@ -92,14 +106,16 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
             id: dest.userFriendlyId,
             callback:
               externalScriptOnLoad ??
-              ((id?: string) => {
-                if (!id) {
-                  logger?.error(
-                    DESTINATION_SDK_LOAD_ERROR(
-                      DEVICE_MODE_DESTINATIONS_PLUGIN,
-                      dest.userFriendlyId,
-                    ),
-                  );
+              ((id: string, err?: SDKError) => {
+                if (err) {
+                  const customMessage = INTEGRATION_SDK_LOAD_ERROR(dest.displayName);
+                  errorHandler?.onError({
+                    error: err,
+                    context: DEVICE_MODE_DESTINATIONS_PLUGIN,
+                    customMessage,
+                    groupingHash: customMessage,
+                  });
+
                   state.nativeDestinations.failedDestinations.value = [
                     ...state.nativeDestinations.failedDestinations.value,
                     dest,
@@ -117,12 +133,8 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
               }),
             timeout: SCRIPT_LOAD_TIMEOUT_MS,
           });
-        } else if (sdkTypeName) {
-          initializeDestination(dest, state, destSDKIdentifier, sdkTypeName, errorHandler, logger);
         } else {
-          logger?.error(
-            DESTINATION_SDK_LOAD_ERROR(DEVICE_MODE_DESTINATIONS_PLUGIN, dest.displayName),
-          );
+          initializeDestination(dest, state, destSDKIdentifier, sdkTypeName, errorHandler, logger);
         }
       });
     },

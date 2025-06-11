@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-service-worker",
-  "version": "3.2.25",
+  "version": "3.2.26",
   "description": "RudderStack JavaScript Service Worker SDK",
   "main": "dist/npm/modern/cjs/index.cjs",
   "module": "dist/npm/modern/esm/index.mjs",
@@ -102,7 +102,7 @@
   },
   "devDependencies": {
     "@types/ms": "2.1.0",
-    "@types/node": "22.15.19",
+    "@types/node": "22.15.30",
     "jest-date-mock": "1.0.10"
   },
   "overrides": {},

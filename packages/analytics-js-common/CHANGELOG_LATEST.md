@@ -1,15 +1,10 @@
-## [3.19.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.18.0...@rudderstack/analytics-js-common@3.19.0) (2025-05-09)
+## [3.20.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.19.0...@rudderstack/analytics-js-common@3.20.0) (2025-06-11)
 
 
 ### Features
 
-* add new event mapping for tik tok ([#2210](https://github.com/rudderlabs/rudder-sdk-js/issues/2210)) ([1a4bf9d](https://github.com/rudderlabs/rudder-sdk-js/commit/1a4bf9d488d54dc22b322b271e4a22ccb510bd12))
-* group errors by message ([#2229](https://github.com/rudderlabs/rudder-sdk-js/issues/2229)) ([b448874](https://github.com/rudderlabs/rudder-sdk-js/commit/b448874fc39972576ebaf4d30f0bbd4883f69b7e))
-* onboarding userpilot integration ([#2103](https://github.com/rudderlabs/rudder-sdk-js/issues/2103)) ([9065069](https://github.com/rudderlabs/rudder-sdk-js/commit/90650693cd477ff3987174f8f6ec5972b034f2cb))
-* user session cut off ([#2209](https://github.com/rudderlabs/rudder-sdk-js/issues/2209)) ([8b7bcfd](https://github.com/rudderlabs/rudder-sdk-js/commit/8b7bcfd70155beb6f162a3b8ceec5735b67cce10))
-
-
-### Bug Fixes
-
-* load api options boolean inputs normalization ([#2236](https://github.com/rudderlabs/rudder-sdk-js/issues/2236)) ([4c3532c](https://github.com/rudderlabs/rudder-sdk-js/commit/4c3532c9b9e34903c2f975d95cfa516324bbee04))
+* add support to dynamically override destinations status ([#2266](https://github.com/rudderlabs/rudder-sdk-js/issues/2266)) ([5af2f22](https://github.com/rudderlabs/rudder-sdk-js/commit/5af2f22ebdcac4eb04d57ecb51efa427607bc849))
+* dynamically clone destinations ([#2276](https://github.com/rudderlabs/rudder-sdk-js/issues/2276)) ([f136454](https://github.com/rudderlabs/rudder-sdk-js/commit/f1364541743b15d240ceed6d8f403c23b6984086))
+* enhance retry headers with RSA-prefixed naming ([#2279](https://github.com/rudderlabs/rudder-sdk-js/issues/2279)) ([c25b2bc](https://github.com/rudderlabs/rudder-sdk-js/commit/c25b2bc5bb4b5b41469065138eef88c2fa21a460))
+* set proper grouping hash for all errors ([#2246](https://github.com/rudderlabs/rudder-sdk-js/issues/2246)) ([430c497](https://github.com/rudderlabs/rudder-sdk-js/commit/430c49782b95bf3e8de1f6a62b442b363208a66b))
 

@@ -1,0 +1,45 @@
+---
+description: Plan-Act workflow methodology for systematic approach to development tasks and complex changes
+globs: 
+alwaysApply: false
+---
+# Plan-Act Workflow
+
+**Manual Rule**: Use @plan-act-workflow to invoke this systematic approach
+
+## 🔍 When to Use Plan Mode
+- **Significant changes** (>50 lines of code)
+- **New features** or components
+- **Architecture changes**
+- **Cross-cutting concerns**
+- **Breaking changes**
+- **Complex bug fixes**
+
+## ⚡ When to Use Quick Act
+- **Simple bug fixes** (<10 lines)
+- **Typo corrections**
+- **Documentation updates**
+- **Minor adjustments**
+- **Obvious fixes**
+
+## 🎯 Plan Mode Process
+1. **Analyze** → Understand request thoroughly
+2. **Memory Bank** → Check existing context and patterns
+3. **Context** → Gather all required files and information
+4. **Understand** → Identify problem and constraints
+5. **Options** → Generate multiple approaches
+6. **Evaluate** → Compare trade-offs
+7. **Plan** → Create detailed implementation plan
+8. **Present** → Ask for approval before acting
+
+## ⚡ Act Mode Process
+1. **Setup** → Prepare environment and context
+2. **Memory Bank** → Reference standards and guidelines
+3. **Implement** → Execute systematically
+4. **Test** → Verify changes work correctly
+5. **Debug** → Fix issues if found
+6. **Document** → Record changes and decisions
+7. **Review** → Ensure plan was followed
+8. **Complete** → Mark task finished
+
+**Detailed Workflow**: [.memorybank/06_task_implementation_workflow.md](mdc:.memorybank/06_task_implementation_workflow.md)

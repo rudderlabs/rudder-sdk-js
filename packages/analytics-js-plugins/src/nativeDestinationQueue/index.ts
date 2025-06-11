@@ -15,7 +15,12 @@ import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/Plu
 import { clone } from 'ramda';
 import type { DoneCallback, IQueue } from '../types/plugins';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
-import { getNormalizedQueueOptions, isEventDenyListed, sendEventToDestination } from './utilities';
+import {
+  getNormalizedQueueOptions,
+  isEventDenyListed,
+  sendEventToDestination,
+  shouldApplyTransformation,
+} from './utilities';
 import { NATIVE_DESTINATION_QUEUE_PLUGIN, QUEUE_NAME } from './constants';
 import { DESTINATION_EVENT_FILTERING_WARNING } from './logMessages';
 import { MEMORY_STORAGE } from '../shared-chunks/common';
@@ -84,13 +89,16 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
                 return;
               }
 
-              if (dest.shouldApplyDeviceModeTransformation) {
+              if (shouldApplyTransformation(dest)) {
                 destWithTransformationEnabled.push(dest);
               } else {
                 sendEventToDestination(clonedRudderEvent, dest, errorHandler, logger);
               }
             } catch (e) {
-              errorHandler?.onError(e, NATIVE_DESTINATION_QUEUE_PLUGIN);
+              errorHandler?.onError({
+                error: e,
+                context: NATIVE_DESTINATION_QUEUE_PLUGIN,
+              });
             }
           });
           if (destWithTransformationEnabled.length > 0) {

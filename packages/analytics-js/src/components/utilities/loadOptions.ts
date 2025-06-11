@@ -127,6 +127,10 @@ const normalizeLoadOptions = (
 
   normalizedLoadOpts.preConsent = getNormalizedObjectValue(normalizedLoadOpts.preConsent);
 
+  normalizedLoadOpts.sourceConfigurationOverride = getNormalizedObjectValue(
+    normalizedLoadOpts.sourceConfigurationOverride,
+  );
+
   const mergedLoadOptions: LoadOptions = mergeDeepRight(
     loadOptionsFromState,
     removeUndefinedAndNullValues(normalizedLoadOpts),

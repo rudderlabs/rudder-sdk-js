@@ -24,6 +24,17 @@ describe('Store', () => {
     key(i: number) {
       return window.localStorage.key(i);
     },
+    keys() {
+      const keys: string[] = [];
+      for (let i = 0; i < window.localStorage.length; i++) {
+        const key = window.localStorage.key(i);
+        if (key !== null) {
+          keys.push(key);
+        }
+      }
+      return keys;
+    },
+    isEnabled: true,
   };
 
   const pluginEngine = new PluginEngine(defaultLogger);
@@ -71,6 +82,126 @@ describe('Store', () => {
         store.set(keyValue, ['a', 'b', {}]);
         expect(engine.getItem(`name.id.${keyValue}`)).toStrictEqual('"[\\"a\\",\\"b\\",{}]"');
       });
+    });
+
+    it('should return early if invalid key is provided', () => {
+      const testStore = new Store(
+        {
+          name: 'name',
+          id: 'id',
+          validKeys: { validKey: 'validKey' },
+          errorHandler: defaultErrorHandler,
+          logger: defaultLogger,
+        },
+        getStorageEngine('localStorage'),
+        pluginsManager,
+      );
+
+      // Spy on the engine's setItem to ensure it's not called for invalid keys
+      const setItemSpy = jest.spyOn(testStore.engine, 'setItem');
+
+      testStore.set('invalidKey', 'value');
+
+      expect(setItemSpy).not.toHaveBeenCalled();
+
+      setItemSpy.mockRestore();
+    });
+
+    it('should handle undefined and null values correctly', () => {
+      const testValues = [undefined, null, '', 0, false];
+      const resultValues = [null, null, '', 0, false];
+
+      testValues.forEach((value, index) => {
+        store.set(QueueStatuses.QUEUE, value);
+        const storedValue = store.get(QueueStatuses.QUEUE);
+        expect(storedValue).toEqual(resultValues[index]);
+      });
+    });
+
+    it('should return null when decrypted value is an empty string', () => {
+      // Mock the decrypt method to return an empty string
+      const decryptSpy = jest.spyOn(store, 'decrypt').mockReturnValue('');
+
+      // Mock the engine to return a non-null value so we can test the empty string check
+      const getItemSpy = jest
+        .spyOn(store.engine, 'getItem')
+        .mockReturnValue('some-encrypted-value');
+
+      const result = store.get(QueueStatuses.QUEUE);
+
+      expect(result).toBeNull();
+      expect(decryptSpy).toHaveBeenCalledWith('some-encrypted-value');
+
+      // Clean up spies
+      decryptSpy.mockRestore();
+      getItemSpy.mockRestore();
+    });
+
+    it('should handle complex objects with circular references', () => {
+      const complexObject: any = {
+        name: 'test',
+        nested: {
+          value: 42,
+        },
+      };
+      // Create circular reference
+      complexObject.self = complexObject;
+
+      // Should not throw an error due to stringifyWithoutCircular usage
+      expect(() => store.set(QueueStatuses.QUEUE, complexObject)).not.toThrow();
+
+      const retrieved = store.get(QueueStatuses.QUEUE);
+      expect(retrieved.name).toBe('test');
+      expect(retrieved.nested.value).toBe(42);
+      // Circular reference should be handled (removed or replaced)
+    });
+
+    it('should handle storage errors by calling error handler when not quota exceeded', () => {
+      const errorHandlerSpy = jest.spyOn(defaultErrorHandler, 'onError').mockImplementation();
+      const loggerWarnSpy = jest.spyOn(defaultLogger, 'warn').mockImplementation();
+
+      // Mock setItem to throw a non-quota error
+      const setItemSpy = jest.spyOn(store.engine, 'setItem').mockImplementation(() => {
+        throw new Error('Generic storage error');
+      });
+
+      store.set(QueueStatuses.QUEUE, 'test-value');
+
+      expect(errorHandlerSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          error: expect.any(Error),
+          context: 'Store id',
+          customMessage: 'Failed to save the value for "queue" to storage',
+          groupingHash: 'Failed to save the value for "queue" to storage',
+        }),
+      );
+
+      // Clean up spies
+      errorHandlerSpy.mockRestore();
+      loggerWarnSpy.mockRestore();
+      setItemSpy.mockRestore();
+    });
+
+    it('should handle quota exceeded error and switch to in-memory storage', () => {
+      const loggerWarnSpy = jest.spyOn(defaultLogger, 'warn').mockImplementation();
+      const swapEngineSpy = jest.spyOn(store, 'swapQueueStoreToInMemoryEngine');
+
+      // Mock setItem to throw quota exceeded error
+      const setItemSpy = jest.spyOn(store.engine, 'setItem').mockImplementation(() => {
+        throw new DOMException('Storage quota exceeded', 'QuotaExceededError');
+      });
+
+      store.set(QueueStatuses.QUEUE, 'test-value');
+
+      expect(loggerWarnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('The storage is either full or unavailable'),
+      );
+      expect(swapEngineSpy).toHaveBeenCalled();
+
+      // Clean up spies
+      loggerWarnSpy.mockRestore();
+      swapEngineSpy.mockRestore();
+      setItemSpy.mockRestore();
     });
   });
 
