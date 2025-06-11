@@ -61,7 +61,9 @@ runs:
         echo "🌿 Ref: ${{ inputs.workflow_ref }}"
         
         # Generate unique correlation ID for this workflow run
-        correlation_id="wf-$(date +%s)-$(uuidgen | cut -d'-' -f1)"
+        # Use portable random generation since uuidgen isn't available on all runners
+        random_hex=$(openssl rand -hex 4 2>/dev/null || printf "%08x" $((RANDOM * 32768 + RANDOM)))
+        correlation_id="wf-$(date +%s)-${random_hex}"
         echo "🔗 Correlation ID: $correlation_id"
         
         # Parse workflow inputs JSON and add correlation ID
@@ -180,6 +182,33 @@ runs:
         echo "📊 Max wait time: ${{ inputs.max_wait_time }}s, Check interval: ${{ inputs.check_interval }}s"
         echo "🔗 Monitor at: $run_url"
         
+        # Setup signal handler to cancel external workflow on termination
+        cleanup_and_cancel() {
+          echo ""
+          echo "🚨 Cancellation detected! Attempting to cancel external workflow..."
+          echo "🔄 Cancelling workflow run $run_id..."
+          
+          cancel_result=$(gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "/repos/${{ inputs.target_repo }}/actions/runs/$run_id/cancel" 2>&1 || echo "CANCEL_FAILED")
+          
+          if [[ "$cancel_result" == *"CANCEL_FAILED"* ]]; then
+            echo "⚠️  Could not cancel external workflow (may already be completed)"
+            echo "🔗 Check status manually at: $run_url"
+          else
+            echo "✅ External workflow cancellation requested successfully"
+            echo "🔗 Verify cancellation at: $run_url"
+          fi
+          
+          echo "🏁 Cleanup completed. Exiting..."
+          exit 1
+        }
+        
+        # Register signal handlers (primary cancellation mechanism)
+        trap cleanup_and_cancel SIGTERM SIGINT
+        
         elapsed_time=0
         
         while [ $elapsed_time -lt ${{ inputs.max_wait_time }} ]; do
@@ -223,4 +252,34 @@ runs:
         echo "🔗 Check status at: $run_url"
         echo "status=timeout" >> $GITHUB_OUTPUT
         echo "conclusion=timeout" >> $GITHUB_OUTPUT
-        exit 1 
+        exit 1
+
+    - name: Cleanup on cancellation
+      if: cancelled()
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github_token }}
+      run: |
+        run_id="${{ steps.trigger_workflow.outputs.run_id }}"
+        run_url="${{ steps.trigger_workflow.outputs.run_url }}"
+        
+        if [ -n "$run_id" ] && [ "$run_id" != "null" ]; then
+          echo "🧹 Workflow was cancelled. Attempting to cancel external workflow..."
+          echo "🔄 Cancelling external workflow run $run_id..."
+          
+          cancel_result=$(gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "/repos/${{ inputs.target_repo }}/actions/runs/$run_id/cancel" 2>&1 || echo "CANCEL_FAILED")
+          
+          if [[ "$cancel_result" == *"CANCEL_FAILED"* ]]; then
+            echo "⚠️  Could not cancel external workflow (may already be completed or cancelled)"
+          else
+            echo "✅ External workflow cancellation requested"
+          fi
+          
+          echo "🔗 Check final status at: $run_url"
+        else
+          echo "ℹ️  No external workflow run ID available for cleanup"
+        fi 
