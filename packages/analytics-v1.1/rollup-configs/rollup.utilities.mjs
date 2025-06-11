@@ -54,7 +54,7 @@ export function getDefaultConfig(distName) {
 
   return {
     watch: {
-      include: ['src/**', '../analytics-js-common/src/**'],
+      include: ['src/**', '../analytics-js-legacy-utilities/src/**', '../analytics-js-integrations/src/**'],
     },
     external: [],
     onwarn(warning, warn) {
@@ -80,8 +80,12 @@ export function getDefaultConfig(distName) {
       alias({
         entries: [
           {
-            find: '@rudderstack/analytics-js-common',
-            replacement: path.resolve('../analytics-js-common/src'),
+            find: '@rudderstack/analytics-js-legacy-utilities',
+            replacement: path.resolve('../analytics-js-legacy-utilities/src'),
+          },
+          {
+            find: '@rudderstack/analytics-js-integrations',
+            replacement: path.resolve('../analytics-js-integrations/src'),
           },
         ],
       }),
