@@ -73,18 +73,13 @@ jobs:
       - name: Prepare sanity test inputs
         id: prepare_inputs
         run: |
-          # Create JSON object with all inputs for the sanity test workflow
-          inputs_json=$(jq -n \
+          # Create JSON object with all inputs for the sanity test workflow (compact format)
+          inputs_json=$(jq -nc \
             --arg environment "${{ inputs.environment }}" \
             --arg monorepo_version "${{ needs.extract-monorepo-version.outputs.version }}" \
             --arg sanity_test_suite_url "${{ inputs.sanity_test_suite_url }}" \
             --arg build_source_id "${{ inputs.build_source_id }}" \
-            '{
-              environment: $environment,
-              monorepo_version: $monorepo_version,
-              sanity_test_suite_url: $sanity_test_suite_url,
-              build_source_id: $build_source_id
-            }')
+            '{environment: $environment, monorepo_version: $monorepo_version, sanity_test_suite_url: $sanity_test_suite_url, build_source_id: $build_source_id}')
           
           echo "inputs_json=$inputs_json" >> $GITHUB_OUTPUT
 
@@ -115,18 +110,13 @@ jobs:
       - name: Prepare E2E test inputs
         id: prepare_inputs
         run: |
-          # Create JSON object with all inputs for the E2E test workflow
-          inputs_json=$(jq -n \
+          # Create JSON object with all inputs for the E2E test workflow (compact format)
+          inputs_json=$(jq -nc \
             --arg environment "${{ inputs.environment }}" \
             --arg monorepo_version "${{ needs.extract-monorepo-version.outputs.version }}" \
             --arg sanity_test_suite_url "${{ inputs.sanity_test_suite_url }}" \
             --arg build_source_id "${{ inputs.build_source_id }}" \
-            '{
-              environment: $environment,
-              monorepo_version: $monorepo_version,
-              sanity_test_suite_url: $sanity_test_suite_url,
-              build_source_id: $build_source_id
-            }')
+            '{environment: $environment, monorepo_version: $monorepo_version, sanity_test_suite_url: $sanity_test_suite_url, build_source_id: $build_source_id}')
           
           echo "inputs_json=$inputs_json" >> $GITHUB_OUTPUT
 
