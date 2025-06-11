@@ -51,9 +51,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-service-worker@3.2.25",
-        "title": "rudderstack/analytics-js-service-worker@3.2.25",
-        "discussion-category": "rudderstack/analytics-js-service-worker@3.2.25",
+        "tag": "@rudderstack/analytics-js-service-worker@3.2.26",
+        "title": "rudderstack/analytics-js-service-worker@3.2.26",
+        "discussion-category": "rudderstack/analytics-js-service-worker@3.2.26",
         "notesFile": "./packages/analytics-js-service-worker/CHANGELOG_LATEST.md"
       }
     }
