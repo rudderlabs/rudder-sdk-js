@@ -13,6 +13,7 @@ import {
   isDestinationSDKMounted,
   initializeDestination,
   applySourceConfigurationOverrides,
+  filterDisabledDestination,
 } from './utils';
 import { DEVICE_MODE_DESTINATIONS_PLUGIN, SCRIPT_LOAD_TIMEOUT_MS } from './constants';
 import { DESTINATION_NOT_SUPPORTED_ERROR, DESTINATION_SDK_LOAD_ERROR } from './logMessages';
@@ -59,7 +60,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
             state.loadOptions.value.sourceConfigurationOverride,
             logger,
           )
-        : configSupportedDestinations;
+        : filterDisabledDestination(configSupportedDestinations);
 
       // Filter destinations that are disabled through load or consent API options
       const destinationsToLoad = filterDestinations(
