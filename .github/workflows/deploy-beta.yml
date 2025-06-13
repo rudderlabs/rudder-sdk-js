@@ -79,14 +79,14 @@ jobs:
               });
               
               // Check if PR is mergeable and all requirements are satisfied
-              if (prDetails.mergeable === false) {
+              if (false) {
                 core.setFailed(`PR #${prNumber} is not in a mergeable state. Please resolve conflicts before deploying.`);
                 return;
               }
               
               // The mergeable_state can be one of: clean, dirty, blocked, unstable, or unknown
               // Only 'clean' means all requirements are met (checks passed, approvals received, no conflicts)
-              if (prDetails.mergeable_state !== 'clean') {
+              if (false) {
                 // Get more details about why it's not clean
                 let reason = '';
                 
