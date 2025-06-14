@@ -118,7 +118,7 @@ jobs:
           This ensures that the \`develop\` branch stays up to date with all release-related changes from the \`main\` branch.
 
           ### Details
-          - **Release Version**: v${{ steps.extract-version.outputs.release_version }}
+          - **Monorepo Release Version**: v${{ steps.extract-version.outputs.release_version }}
           - **Related Ticket**: [${{ steps.extract-version.outputs.release_ticket_id }}](https://linear.app/rudderstack/issue/${{ steps.extract-version.outputs.release_ticket_id }})
 
           ---
