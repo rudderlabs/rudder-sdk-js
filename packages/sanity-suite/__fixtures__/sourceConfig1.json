@@ -382,7 +382,9 @@
                 }
               ]
             }
-          ]
+          ],
+          "sdkBaseUrl": "https://www.googletagmanager.com",
+          "serverContainerUrl": ""
         },
         "destinationDefinitionId": "1mQ0yXGAQM08MTdVxws7ENIPjYS",
         "destinationDefinition": {
