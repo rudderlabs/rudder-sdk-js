@@ -131,7 +131,7 @@ jobs:
           This ensures that the latest release branch changes are incorporated into the \`main\` branch for production.
 
           ### Details
-          - **Release Version**: v${{ env.NEW_VERSION_VALUE }}
+          - **Monorepo Release Version**: v${{ env.NEW_VERSION_VALUE }}
           - **Release Branch**: \`${{ steps.create-release.outputs.branch_name }}\`
           - **Related Ticket**: [${{ github.event.inputs.release_ticket_id }}](https://linear.app/rudderstack/issue/${{ github.event.inputs.release_ticket_id }})
 
