@@ -13,7 +13,7 @@ This memory bank contains structured knowledge about the RudderStack JavaScript 
 
 - [02_technical_stack.md](02_technical_stack.md) - Technologies, tools, and dependencies
 - [03_system_architecture.md](03_system_architecture.md) - Architecture and data flow
-- [05_code_structure.md](05_code_structure.md) - Monorepo layout and package details
+- [05_code_structure.md](05_code_structure.md) - Monorepo layout, package details, and sanity suite patterns
 
 ### **Development Standards**
 
@@ -21,7 +21,7 @@ This memory bank contains structured knowledge about the RudderStack JavaScript 
 
 ### **Processes & Workflows**
 
-- [04_git_workflow_cicd.md](04_git_workflow_cicd.md) - Git workflow and CI/CD
+- [04_git_workflow_cicd.md](04_git_workflow_cicd.md) - Git workflow, CI/CD, and sanity suite deployment
 - [06_task_implementation_workflow.md](06_task_implementation_workflow.md) - Task implementation guide
 
 ### **Meta Information**
