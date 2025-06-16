@@ -20,11 +20,12 @@ alwaysApply: false
 - **Format**: `type(scope): description` - **SCOPE IS MANDATORY**
 - **Body**: Use body for additional details if needed, not the subject line
 - **Examples**:
-  - ✅ `feat(@rudderstack/analytics-js): add consent plugin`
-  - ✅ `fix(@rudderstack/analytics-js-cookies): resolve parsing error`
-  - ✅ `docs(@rudderstack/analytics-js-sanity-suite): update patterns`
+  - ✅ `feat(@rudderstack/analytics-js): add plugin` (43 chars)
+  - ✅ `fix(@rudderstack/analytics-js-cookies): fix bug` (47 chars)
+  - ✅ `docs(monorepo): update patterns` (32 chars)
+  - ✅ `chore(deps): update rollup` (26 chars)
   - ❌ `feat: add consent plugin` (missing scope)
-  - ❌ `docs: update memory bank with sanity suite aggregator patterns and deployment workflows` (too long)
+  - ❌ `feat(@rudderstack/analytics-js): add consent management plugin` (too long - 65 chars)
 
 ### **Scope Determination**
 **Nx-Based Scope Selection**: Use Nx project names and custom scopes as defined in `commitlint.config.js`:
@@ -52,12 +53,20 @@ alwaysApply: false
 - **Cross-Cutting**: Use custom scopes (`monorepo`, `deps`, `release`)
 - **Root Changes**: Use `rudder-sdk-js` or `monorepo`
 
+#### **Working with Long Nx Project Names**:
+Given the 50-character limit, be extremely concise with descriptions:
+- **Use Short Verbs**: `add`, `fix`, `update`, `remove` instead of longer alternatives
+- **Omit Articles**: Skip "a", "an", "the" in descriptions
+- **Use Abbreviations**: `config` instead of `configuration`, `auth` instead of `authentication`
+- **Leverage Commit Body**: Put detailed explanations in the commit body, not the subject
+
 **Examples**:
-- `feat(@rudderstack/analytics-js): add consent plugin`
-- `fix(@rudderstack/analytics-js-cookies): resolve parsing error`
-- `chore(deps): update rollup to v4`
-- `ci(monorepo): update deployment workflow`
-- `docs(@rudderstack/analytics-js-sanity-suite): update test guide`
+- `feat(@rudderstack/analytics-js): add plugin` (43 chars)
+- `fix(@rudderstack/analytics-js-cookies): fix bug` (47 chars)
+- `docs(monorepo): update patterns` (32 chars)
+- `chore(deps): update rollup` (26 chars)
+- `ci(monorepo): update deployment workflow` (40 chars)
+- `docs(@rudderstack/analytics-js-sanity-suite): update test guide` (63 chars - too long, use commit body instead)
 
 ### **Atomic Commit Strategy**
 **CRITICAL**: Always break down work into logical, atomic commits:
