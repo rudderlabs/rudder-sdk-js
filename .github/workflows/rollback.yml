@@ -123,7 +123,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const rollbackVersion = ${{ env.LEGACY_SDK_ROLLBACK_VERSION_VALUE }};
+            const rollbackVersion = process.env.LEGACY_SDK_ROLLBACK_VERSION_VALUE;
             const releaseTag = `@rudderstack/analytics-js@${rollbackVersion}`;
             
             console.log(`Marking ${releaseTag} as the latest release on GitHub`);
@@ -165,7 +165,7 @@ jobs:
           
           # Deprecate the specified version with a message
           npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
-          npm deprecate "@rudderstack/analytics-js@$VERSION_TO_DEPRECATE" "We've identified issues with this version of the package. Please use the latest version instead."
+          npm deprecate "@rudderstack/analytics-js@$VERSION_TO_DEPRECATE" "We've identified issues with this version of the package. Please switch to v${{ env.ROLLBACK_VERSION_VALUE }} or the latest version if available."
 
           # Note: The legacy SDK is not deprecated as it is deprecated by default with every release.
           # Refer to deploy-npm.yml for more details.
