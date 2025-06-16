@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link
+        rel="icon"
+        href="https://www.rudderstack.com/favicon.ico"
+        type="image/x-icon"
+        sizes="48x48" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RudderStack JS SDK - All Sanity Suites</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            margin: 0 0 10px 0;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            margin: 0;
+        }
+
+        .controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .execute-all-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .execute-all-btn:hover {
+            background: #2980b9;
+        }
+
+        .execute-all-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .execute-all-btn[style*="e67e22"]:hover {
+            background: #d35400 !important;
+        }
+
+        .status {
+            text-align: center;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status.info {
+            background: #cce7ff;
+            color: #004085;
+        }
+
+        .iframe-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .iframe-wrapper {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .iframe-header {
+            background: #34495e;
+            color: white;
+            padding: 10px 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .iframe-status {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 3px;
+            background: #2c3e50;
+        }
+
+        .iframe-status.loaded {
+            background: #f39c12;
+        }
+
+        .iframe-status.ready {
+            background: #27ae60;
+        }
+
+        .iframe-status.error {
+            background: #e74c3c;
+        }
+
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+            display: block;
+        }
+
+        .refresh-btn {
+            background: #95a5a6;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .refresh-btn:hover {
+            background: #7f8c8d;
+        }
+
+        @media (max-width: 768px) {
+            .iframe-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .instructions h3 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 RudderStack JS SDK - All Sanity Suites</h1>
+        <p>Unified testing interface for all sanity suites</p>
+    </div>
+
+    <div class="instructions">
+        <h3>📋 How to Use This</h3>
+        <ul>
+            <li><strong>🎯 Step 1:</strong> Wait for all iframes to load and SDKs to be ready (status will show "Ready")</li>
+            <li><strong>🚀 Step 2:</strong> Click "Execute All" below to attempt automatic triggering</li>
+            <li><strong>👆 Step 3:</strong> If automatic fails (likely due to CORS), manually click the "Execute All" button in each iframe</li>
+            <li><strong>🔄 Troubleshooting:</strong> Use individual refresh buttons if any suite fails to load or is not ready</li>
+        </ul>
+        <div style="margin-top: 10px; padding: 8px; background: #e8f4fd; border-radius: 4px; font-size: 14px;">
+            <strong>💡 Pro Tip:</strong> The automatic execution will likely be blocked by browser security. This is normal! 
+            Just manually click "Execute All" in each iframe after the attempt.
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="execute-all-btn" id="executeAllBtn" onclick="executeAll()">
+            🎯 Execute All Sanity Suites
+        </button>
+        <button class="execute-all-btn" id="reloadAllBtn" onclick="reloadAll()" style="background: #e67e22; margin-left: 15px;">
+            🔄 Reload All Sanity Suites
+        </button>
+        <div class="status" id="statusDiv" style="display: none;"></div>
+    </div>
+
+    <div class="iframe-container">
+        <div class="iframe-wrapper">
+            <div class="iframe-header">
+                <span>V3 CDN Suite</span>
+                <span>
+                    <span class="iframe-status" id="status-0">Loading...</span>
+                    <button class="refresh-btn" onclick="refreshIframe(0)">↻</button>
+                </span>
+            </div>
+            <iframe 
+                id="iframe-v3-cdn" 
+                src="https://cdn.rudderlabs.com/sanity-suite/__ENV_PATH__v3/cdn/index.html"
+                onload="markLoaded(0)"
+                onerror="markError(0)"
+            ></iframe>
+        </div>
+
+        <div class="iframe-wrapper">
+            <div class="iframe-header">
+                <span>V3 NPM Suite</span>
+                <span>
+                    <span class="iframe-status" id="status-1">Loading...</span>
+                    <button class="refresh-btn" onclick="refreshIframe(1)">↻</button>
+                </span>
+            </div>
+            <iframe 
+                id="iframe-v3-npm" 
+                src="https://cdn.rudderlabs.com/sanity-suite/__ENV_PATH__v3/npm/index.html"
+                onload="markLoaded(1)"
+                onerror="markError(1)"
+            ></iframe>
+        </div>
+
+        <div class="iframe-wrapper">
+            <div class="iframe-header">
+                <span>V1.1 CDN Suite</span>
+                <span>
+                    <span class="iframe-status" id="status-2">Loading...</span>
+                    <button class="refresh-btn" onclick="refreshIframe(2)">↻</button>
+                </span>
+            </div>
+            <iframe 
+                id="iframe-v1.1-cdn" 
+                src="https://cdn.rudderlabs.com/sanity-suite/__ENV_PATH__v1.1/cdn/index.html"
+                onload="markLoaded(2)"
+                onerror="markError(2)"
+            ></iframe>
+        </div>
+
+        <div class="iframe-wrapper">
+            <div class="iframe-header">
+                <span>V1.1 NPM Suite</span>
+                <span>
+                    <span class="iframe-status" id="status-3">Loading...</span>
+                    <button class="refresh-btn" onclick="refreshIframe(3)">↻</button>
+                </span>
+            </div>
+            <iframe 
+                id="iframe-v1.1-npm" 
+                src="https://cdn.rudderlabs.com/sanity-suite/__ENV_PATH__v1.1/npm/index.html"
+                onload="markLoaded(3)"
+                onerror="markError(3)"
+            ></iframe>
+        </div>
+    </div>
+
+    <script>
+        const iframes = document.querySelectorAll('iframe');
+        const statusDiv = document.getElementById('statusDiv');
+        const executeBtn = document.getElementById('executeAllBtn');
+        
+        let loadedCount = 0;
+        let readyCount = 0;
+        let totalFrames = iframes.length;
+
+        function markLoaded(index) {
+            const statusElement = document.getElementById(`status-${index}`);
+            statusElement.textContent = 'Loaded';
+            statusElement.classList.add('loaded');
+            
+            loadedCount++;
+            
+            // Give iframe a moment to fully initialize before checking readiness
+            setTimeout(() => checkIfReady(index), 500);
+            
+            updateMainStatus();
+        }
+
+        function checkIfReady(index) {
+            const iframe = iframes[index];
+            const statusElement = document.getElementById(`status-${index}`);
+            
+            // Check if iframe exists and has contentWindow
+            if (!iframe) {
+                console.error(`❌ Iframe ${index} not found`);
+                return;
+            }
+            
+            if (!iframe.contentWindow) {
+                console.log(`⏳ Iframe ${index} contentWindow not ready, retrying in 1 second...`);
+                setTimeout(() => checkIfReady(index), 1000);
+                return;
+            }
+            
+            try {
+                // Try to detect if Execute All button is available
+                const executeButton = iframe.contentWindow.document.querySelector('#execute-all-trigger');
+                if (executeButton && executeButton.offsetParent !== null) {
+                    // Button exists and is visible
+                    markReady(index);
+                } else {
+                    // Button not found or not visible, retry in 1 second
+                    setTimeout(() => checkIfReady(index), 1000);
+                }
+            } catch (crossOriginError) {
+                // Cross-origin blocked, assume ready since we can't check
+                // This is expected behavior for external domains
+                console.error(`🔒 Cannot check readiness for iframe ${index} due to CORS, assuming ready`, crossOriginError);
+                markReady(index);
+            }
+        }
+
+        function markReady(index) {
+            const statusElement = document.getElementById(`status-${index}`);
+            if (!statusElement.classList.contains('ready')) {
+                statusElement.textContent = 'Ready';
+                statusElement.classList.remove('loaded');
+                statusElement.classList.add('ready');
+                
+                readyCount++;
+                updateMainStatus();
+                
+                console.log(`✅ Iframe ${index} is ready for execution`);
+            }
+        }
+
+        function markError(index) {
+            const statusElement = document.getElementById(`status-${index}`);
+            statusElement.textContent = 'Error';
+            statusElement.classList.add('error');
+            
+            loadedCount++; // Count errors as "loaded" for button enabling
+            updateMainStatus();
+        }
+
+        function updateMainStatus() {
+            if (readyCount > 0) {
+                executeBtn.disabled = false;
+                if (readyCount === totalFrames) {
+                    showStatus('🎯 All sanity suites ready! Click Execute All to run all tests.', 'success');
+                } else {
+                    showStatus(`⚡ ${readyCount}/${totalFrames} suites ready. Execute All will run available tests.`, 'success');
+                }
+            } else if (loadedCount === totalFrames) {
+                showStatus('⏳ All sanity suites loaded. Checking readiness...', 'info');
+            }
+        }
+
+        function forceReloadIframe(iframe, index) {
+            console.log(`🔄 Force reloading iframe ${index}...`);
+            
+            try {
+                // Method 1: Try contentWindow.location.reload() (most reliable but often blocked by CORS)
+                if (iframe.contentWindow && iframe.contentWindow.location) {
+                    iframe.contentWindow.location.reload(true);
+                    console.log(`✅ Method 1 (contentWindow.reload) used for iframe ${index}`);
+                    return;
+                }
+            } catch (error) {
+                console.log(`🚫 Method 1 failed for iframe ${index}: ${error.message}`);
+            }
+            
+            // Method 2: Simple src reset (works but may not bypass cache)
+            iframe.src = iframe.src;
+            console.log(`🔄 Method 2 (src reset) used for iframe ${index}`);
+        }
+
+        function refreshIframe(index) {
+            const iframe = iframes[index];
+            const statusElement = document.getElementById(`status-${index}`);
+            
+            statusElement.textContent = 'Loading...';
+            statusElement.classList.remove('loaded', 'ready', 'error');
+            
+            // Update counters if this iframe was previously ready
+            if (statusElement.classList.contains('ready')) {
+                readyCount--;
+            }
+            if (statusElement.classList.contains('loaded')) {
+                loadedCount--;
+            }
+            
+            // Use the new force reload method
+            forceReloadIframe(iframe, index);
+            
+            updateMainStatus();
+        }
+
+        function reloadAll() {
+            const reloadBtn = document.getElementById('reloadAllBtn');
+            const executeBtn = document.getElementById('executeAllBtn');
+            
+            // Disable buttons during reload
+            reloadBtn.disabled = true;
+            executeBtn.disabled = true;
+            
+            // Reset counters
+            loadedCount = 0;
+            readyCount = 0;
+            
+            // Show loading status
+            showStatus('🔄 Reloading all sanity suites...', 'info');
+            
+            // Reload all iframes with staggered timing
+            iframes.forEach((iframe, index) => {
+                setTimeout(() => {
+                    const statusElement = document.getElementById(`status-${index}`);
+                    statusElement.textContent = 'Loading...';
+                    statusElement.classList.remove('loaded', 'ready', 'error');
+                    
+                    // Force reload without modifying URL - try multiple methods
+                    forceReloadIframe(iframe, index);
+                    
+                }, index * 100); // Stagger reloads by 100ms each
+            });
+            
+            // Re-enable reload button after all attempts
+            setTimeout(() => {
+                reloadBtn.disabled = false;
+                showStatus('🔄 All sanity suites reloading... Check individual status indicators.', 'info');
+            }, iframes.length * 300 + 1000);
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        async function executeAll() {
+            executeBtn.disabled = true;
+            showStatus('🚀 Attempting to execute all sanity suites...', 'info');
+            
+            let attemptCount = 0;
+            let crossOriginBlocked = 0;
+            
+            for (let i = 0; i < iframes.length; i++) {
+                attemptCount++;
+                
+                const iframe = iframes[i];
+                
+                // Method 1: Try to access iframe content directly (will likely fail due to CORS)
+                try {
+                    const executeButton = iframe.contentWindow.document.querySelector('#execute-all-trigger');
+                    if (executeButton) {
+                        executeButton.click();
+                        console.log(`✅ Successfully clicked execute button in iframe ${i}`);
+                        continue;
+                    } else {
+                        console.log(`⚠️ Execute button not found in iframe ${i}`);
+                    }
+                } catch (crossOriginError) {
+                    crossOriginBlocked++;
+                    console.error(`🚫 Cross-origin blocked for iframe ${i}:`, crossOriginError.message, crossOriginError);
+                }
+            }
+            
+            // Show realistic status based on what we know
+            if (crossOriginBlocked === attemptCount) {
+                showStatus(`🔒 All sanity suites blocked by browser security (expected). Please manually click "Execute All" in each iframe above.`, 'info');
+                highlightManualInstructions();
+            } else if (crossOriginBlocked > 0) {
+                showStatus(`⚠️ ${crossOriginBlocked}/${attemptCount} suites blocked by CORS. Check console and manually execute if needed.`, 'info');
+            } else {
+                showStatus(`🎯 Attempted to trigger all sanity suites. Check individual suite status for results.`, 'success');
+            }
+            
+            executeBtn.disabled = false;
+        }
+
+        function highlightManualInstructions() {
+            const instructions = document.querySelector('.instructions');
+            instructions.style.background = '#ffeaa7';
+            instructions.style.border = '2px solid #fdcb6e';
+            instructions.style.animation = 'pulse 2s infinite';
+            
+            // Add pulse animation
+            if (!document.querySelector('#pulse-animation')) {
+                const style = document.createElement('style');
+                style.id = 'pulse-animation';
+                style.textContent = `
+                    @keyframes pulse {
+                        0% { transform: scale(1); }
+                        50% { transform: scale(1.02); }
+                        100% { transform: scale(1); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            setTimeout(() => {
+                instructions.style.animation = '';
+                instructions.style.background = '#fff3cd';
+                instructions.style.border = '1px solid #ffeaa7';
+            }, 6000);
+        }
+
+        // Initially disable the execute button
+        executeBtn.disabled = true;
+        
+        // Set a timeout to enable the button even if some iframes fail to load
+        setTimeout(() => {
+            if (executeBtn.disabled) {
+                executeBtn.disabled = false;
+                showStatus('⏰ Timeout reached. You can now attempt to execute all sanity suites.', 'info');
+            }
+        }, 10000); // 10 second timeout
+    </script>
+</body>
+</html> 
