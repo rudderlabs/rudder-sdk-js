@@ -13,6 +13,82 @@ alwaysApply: false
 - **Atomic Commits**: One logical change per commit
 - **Issue References**: Link commits to issues where applicable
 
+### **Commit Message Length Limits**
+**CRITICAL**: Conventional commits have strict length limits that must be respected:
+
+- **Subject Line**: Maximum 50 characters (including type and scope)
+- **Format**: `type(scope): description` - **SCOPE IS MANDATORY**
+- **Body**: Use body for additional details if needed, not the subject line
+- **Examples**:
+  - ✅ `feat(@rudderstack/analytics-js): add consent plugin`
+  - ✅ `fix(@rudderstack/analytics-js-cookies): resolve parsing error`
+  - ✅ `docs(@rudderstack/analytics-js-sanity-suite): update patterns`
+  - ❌ `feat: add consent plugin` (missing scope)
+  - ❌ `docs: update memory bank with sanity suite aggregator patterns and deployment workflows` (too long)
+
+### **Scope Determination**
+**Nx-Based Scope Selection**: Use Nx project names and custom scopes as defined in `commitlint.config.js`:
+
+#### **Nx Project Scopes** (automatically detected):
+- `@rudderstack/analytics-js` - Main JavaScript SDK
+- `@rudderstack/analytics-js-service-worker` - Service worker SDK
+- `@rudderstack/analytics-js-plugins` - SDK plugins
+- `@rudderstack/analytics-js-integrations` - Device mode integrations
+- `@rudderstack/analytics-js-common` - Shared utilities and types
+- `@rudderstack/analytics-js-cookies` - Cookie utilities
+- `@rudderstack/analytics-js-loading-scripts` - Loading scripts
+- `@rudderstack/analytics-js-sanity-suite` - Testing suite
+- `rudder-sdk-js` - Legacy JavaScript SDK
+
+#### **Custom Scopes** (from commitlint config):
+- `release` - Release-related changes
+- `monorepo` - Monorepo-wide changes
+- `examples` - Example code changes
+- `deps` - Dependency updates
+
+#### **Scope Selection Strategy**:
+- **Single Package**: Use full Nx project name (e.g., `@rudderstack/analytics-js`)
+- **Multiple Packages**: Use most significant package affected
+- **Cross-Cutting**: Use custom scopes (`monorepo`, `deps`, `release`)
+- **Root Changes**: Use `rudder-sdk-js` or `monorepo`
+
+**Examples**:
+- `feat(@rudderstack/analytics-js): add consent plugin`
+- `fix(@rudderstack/analytics-js-cookies): resolve parsing error`
+- `chore(deps): update rollup to v4`
+- `ci(monorepo): update deployment workflow`
+- `docs(@rudderstack/analytics-js-sanity-suite): update test guide`
+
+### **Atomic Commit Strategy**
+**CRITICAL**: Always break down work into logical, atomic commits:
+
+#### **Commit Organization Principles**
+1. **One Logical Change Per Commit**: Each commit should represent a single, complete change
+2. **Sequential Logic**: Commits should build upon each other in logical order
+3. **Independent Commits**: Each commit should be functional on its own
+4. **Clear Progression**: Commit sequence should tell the story of the work
+
+#### **Common Atomic Patterns**
+- **Setup → Implementation → Integration → Documentation**
+- **Core Logic → Tests → Documentation**
+- **Infrastructure → Feature → Polish**
+- **Fix → Test → Documentation**
+
+#### **Multi-Package Changes**
+When changes span multiple packages, organize commits by:
+1. **Shared/Common Changes First**: Update shared utilities or types
+2. **Core Package Changes**: Main implementation changes
+3. **Dependent Package Updates**: Updates that depend on core changes
+4. **Integration/Build Changes**: Build system, CI/CD updates
+5. **Documentation**: Update docs reflecting all changes
+
+### **Commit Message Best Practices**
+- **MANDATORY SCOPE**: Every commit MUST include a scope - no exceptions
+- **Be Concise**: Focus on WHAT changed, not implementation details
+- **Use Imperative**: "add feature" not "added feature"
+- **Omit Periods**: Don't end subject line with period
+- **Use Body**: For complex changes, use commit body for details
+
 ## PR Standards
 - **Descriptive Titles**: Clear, actionable PR titles
 - **Complete Description**: Use PR template fully
