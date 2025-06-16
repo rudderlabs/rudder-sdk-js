@@ -385,16 +385,16 @@
             const iframe = iframes[index];
             const statusElement = document.getElementById(`status-${index}`);
             
-            statusElement.textContent = 'Loading...';
-            statusElement.classList.remove('loaded', 'ready', 'error');
-            
-            // Update counters if this iframe was previously ready
+            // Update counters if this iframe was previously ready (check BEFORE removing classes)
             if (statusElement.classList.contains('ready')) {
                 readyCount--;
             }
             if (statusElement.classList.contains('loaded')) {
                 loadedCount--;
             }
+            
+            statusElement.textContent = 'Loading...';
+            statusElement.classList.remove('loaded', 'ready', 'error');
             
             // Use the new force reload method
             forceReloadIframe(iframe, index);
