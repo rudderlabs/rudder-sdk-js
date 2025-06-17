@@ -17,3 +17,5 @@ export interface ILogger {
 }
 
 export type LogLevel = 'LOG' | 'INFO' | 'DEBUG' | 'WARN' | 'ERROR' | 'NONE';
+
+export type RsaLogger = Pick<ILogger, 'log' | 'info' | 'debug' | 'warn' | 'error'>;

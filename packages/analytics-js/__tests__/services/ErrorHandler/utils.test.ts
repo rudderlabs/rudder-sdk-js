@@ -536,6 +536,7 @@ describe('Error Reporting utilities', () => {
                 loadIntegration: true,
                 loadOnlyIntegrations: {},
               },
+              customIntegrations: [],
               plugins: {
                 activePlugins: [],
                 failedPlugins: [],

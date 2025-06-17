@@ -2,9 +2,10 @@ import type { Nullable } from './Nullable';
 import type { ApiCallback, ApiOptions } from './EventApi';
 import type { AnonymousIdOptions, LoadOptions } from './LoadOptions';
 import type { ApiObject } from './ApiObject';
-import type { ILogger } from './Logger';
+import type { ILogger, LogLevel } from './Logger';
 import type { IdentifyTraits } from './traits';
 import type { ConsentOptions } from './Consent';
+import type { IntegrationOpts } from './Integration';
 
 export type AnalyticsIdentifyMethod = {
   (
@@ -197,3 +198,22 @@ export interface IRudderAnalytics<T = any> {
    */
   consent(options?: ConsentOptions): void;
 }
+
+export type RsaAnalyticsInstance = Pick<
+  IRudderAnalytics,
+  | 'track'
+  | 'page'
+  | 'identify'
+  | 'group'
+  | 'alias'
+  | 'getAnonymousId'
+  | 'getUserId'
+  | 'getUserTraits'
+  | 'getGroupId'
+  | 'getGroupTraits'
+  | 'getSessionId'
+> & {
+  loadIntegration: boolean;
+  logLevel: LogLevel;
+  loadOnlyIntegrations: IntegrationOpts;
+};
