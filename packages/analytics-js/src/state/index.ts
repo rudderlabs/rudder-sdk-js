@@ -16,7 +16,6 @@ import { storageState } from './slices/storage';
 import { serverSideCookiesState } from './slices/serverCookies';
 import { dataPlaneEventsState } from './slices/dataPlaneEvents';
 import { autoTrackState } from './slices/autoTrack';
-import { customIntegrationsState } from './slices/customIntegrations';
 
 const defaultStateValues: ApplicationState = {
   capabilities: capabilitiesState,
@@ -27,7 +26,6 @@ const defaultStateValues: ApplicationState = {
   loadOptions: loadOptionsState,
   metrics: metricsState,
   nativeDestinations: nativeDestinationsState,
-  customIntegrations: customIntegrationsState,
   plugins: pluginsState,
   reporting: reportingState,
   session: sessionState,

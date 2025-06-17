@@ -14,12 +14,12 @@ export { type CookieSameSite } from '@rudderstack/analytics-js-common/types/Stor
 export { type ApiCallback, type ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 export { type ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 export { type IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
-export { type LogLevel, type RsaLogger } from '@rudderstack/analytics-js-common/types/Logger';
+export { type LogLevel, type RSALogger } from '@rudderstack/analytics-js-common/types/Logger';
 export { type PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 export { type IdentifyTraits } from '@rudderstack/analytics-js-common/types/traits';
-export { type RsaCustomIntegration } from '@rudderstack/analytics-js-common/types/CustomIntegration';
-export { type RsaAnalyticsInstance } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
-export { type RsaEvent } from '@rudderstack/analytics-js-common/types/Event';
+export { type RSACustomIntegration } from '@rudderstack/analytics-js-common/types/CustomIntegration';
+export { type RSAnalyticsInstance } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
+export { type RSAEvent } from '@rudderstack/analytics-js-common/types/Event';
 export {
   type RudderAnalyticsPreloader,
   type PreloadedEventCall,

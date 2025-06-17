@@ -20,7 +20,7 @@ import {
 import type { LogLevel } from '../../src/types/plugins';
 import { resetState, state } from '../../__mocks__/state';
 import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
-import type { RsaAnalyticsInstance } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
+import type { AnalyticsInstance } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
 
 describe('deviceModeDestinations utils', () => {
   describe('wait', () => {
@@ -153,7 +153,7 @@ describe('deviceModeDestinations utils', () => {
   });
 
   describe('createDestinationInstance', () => {
-    class MockAnalytics implements RsaAnalyticsInstance {
+    class MockAnalytics implements AnalyticsInstance {
       page = () => {};
       track = () => {};
       identify = () => {};

@@ -12,7 +12,7 @@ import type { ApplicationState } from '@rudderstack/analytics-js-common/types/Ap
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type {
   IRudderAnalytics,
-  RsaAnalyticsInstance,
+  AnalyticsInstance,
 } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
 import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import type { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
@@ -79,7 +79,7 @@ const createDestinationInstance = (
   const rAnalytics = (globalThis as any).rudderanalytics as IRudderAnalytics;
   const analytics = rAnalytics.getAnalyticsInstance(state.lifecycle.writeKey.value);
 
-  const analyticsInstance: RsaAnalyticsInstance = {
+  const analyticsInstance: AnalyticsInstance = {
     loadIntegration: state.nativeDestinations.loadIntegration.value,
     logLevel: state.lifecycle.logLevel.value,
     loadOnlyIntegrations:

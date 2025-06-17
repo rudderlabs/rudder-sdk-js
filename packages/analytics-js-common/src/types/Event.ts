@@ -62,6 +62,6 @@ export type RudderEvent = {
   groupId?: Nullable<string>; // group
 };
 
-export type RsaEvent = {
+export type RSAEvent = {
   message: RudderEvent;
 };

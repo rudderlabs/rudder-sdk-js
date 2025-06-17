@@ -199,7 +199,7 @@ export interface IRudderAnalytics<T = any> {
   consent(options?: ConsentOptions): void;
 }
 
-export type RsaAnalyticsInstance = Pick<
+export type AnalyticsInstance = Pick<
   IRudderAnalytics,
   | 'track'
   | 'page'
@@ -217,3 +217,18 @@ export type RsaAnalyticsInstance = Pick<
   logLevel: LogLevel;
   loadOnlyIntegrations: IntegrationOpts;
 };
+
+export type RSAnalyticsInstance = Pick<
+  IRudderAnalytics,
+  | 'track'
+  | 'page'
+  | 'identify'
+  | 'group'
+  | 'alias'
+  | 'getAnonymousId'
+  | 'getUserId'
+  | 'getUserTraits'
+  | 'getGroupId'
+  | 'getGroupTraits'
+  | 'getSessionId'
+>;

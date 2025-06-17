@@ -1,25 +1,19 @@
-import type { RsaEvent } from './Event';
-import type { RsaAnalyticsInstance } from './IRudderAnalytics';
-import type { RsaLogger } from './Logger';
+import type { RSAEvent } from './Event';
+import type { RSAnalyticsInstance } from './IRudderAnalytics';
+import type { RSALogger } from './Logger';
 
 /**
- * Core interface for custom device mode integrations
+ * Type for the custom integration to be used in addCustomIntegration API
  * Defines the contract that all custom integrations must implement
  */
-export interface CustomIntegration {
-  /**
-   * Unique name identifier for the integration
-   * @required
-   */
-  name: string;
-
+export interface RSACustomIntegration {
   /**
    * Initialize the integration
    * @param analytics - The RudderStack analytics instance
    * @param logger - The logger instance for this integration
    * @optional
    */
-  init?(analytics: RsaAnalyticsInstance, logger: RsaLogger): void;
+  init?(analytics: RSAnalyticsInstance, logger: RSALogger): void;
 
   /**
    * Check if the integration is ready to process events
@@ -28,7 +22,7 @@ export interface CustomIntegration {
    * @returns boolean indicating whether the integration is ready
    * @required
    */
-  isReady(analytics: RsaAnalyticsInstance, logger: RsaLogger): boolean;
+  isReady(analytics: RSAnalyticsInstance, logger: RSALogger): boolean;
 
   /**
    * Process track events
@@ -37,7 +31,7 @@ export interface CustomIntegration {
    * @param event - The track event payload to process
    * @optional
    */
-  track?(analytics: RsaAnalyticsInstance, logger: RsaLogger, event: RsaEvent): void;
+  track?(analytics: RSAnalyticsInstance, logger: RSALogger, event: RSAEvent): void;
 
   /**
    * Process page events
@@ -46,7 +40,7 @@ export interface CustomIntegration {
    * @param event - The page event payload to process
    * @optional
    */
-  page?(analytics: RsaAnalyticsInstance, logger: RsaLogger, event: RsaEvent): void;
+  page?(analytics: RSAnalyticsInstance, logger: RSALogger, event: RSAEvent): void;
 
   /**
    * Process identify events
@@ -55,7 +49,7 @@ export interface CustomIntegration {
    * @param event - The identify event payload to process
    * @optional
    */
-  identify?(analytics: RsaAnalyticsInstance, logger: RsaLogger, event: RsaEvent): void;
+  identify?(analytics: RSAnalyticsInstance, logger: RSALogger, event: RSAEvent): void;
 
   /**
    * Process group events
@@ -64,7 +58,7 @@ export interface CustomIntegration {
    * @param event - The group event payload to process
    * @optional
    */
-  group?(analytics: RsaAnalyticsInstance, logger: RsaLogger, event: RsaEvent): void;
+  group?(analytics: RSAnalyticsInstance, logger: RSALogger, event: RSAEvent): void;
 
   /**
    * Process alias events
@@ -73,13 +67,16 @@ export interface CustomIntegration {
    * @param event - The alias event payload to process
    * @optional
    */
-  alias?(analytics: RsaAnalyticsInstance, logger: RsaLogger, event: RsaEvent): void;
+  alias?(analytics: RSAnalyticsInstance, logger: RSALogger, event: RSAEvent): void;
 }
 
 /**
- * Type for the custom integration to be used in addCustomIntegration API
+ * Core interface for custom device mode integrations
  */
-export type RsaCustomIntegration = Pick<
-  CustomIntegration,
-  'init' | 'isReady' | 'track' | 'page' | 'identify' | 'group' | 'alias'
->;
+export interface CustomIntegration extends RSACustomIntegration {
+  /**
+   * Unique name identifier for the integration
+   * @required
+   */
+  name: string;
+}

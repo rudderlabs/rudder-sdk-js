@@ -187,8 +187,6 @@ export type ServerCookiesState = {
   dataServiceUrl: Signal<string | undefined>;
 };
 
-export type CustomIntegrationsState = Signal<CustomIntegration[]>;
-
 export interface ApplicationState {
   capabilities: CapabilitiesState;
   consents: ConsentsState;
@@ -198,7 +196,6 @@ export interface ApplicationState {
   loadOptions: LoadOptionsState;
   metrics: MetricsState;
   nativeDestinations: NativeDestinationsState;
-  customIntegrations: CustomIntegrationsState;
   plugins: PluginsState;
   reporting: ReportingState;
   session: SessionState;
