@@ -21,7 +21,6 @@ import type {
 } from './Consent';
 import type { StorageType, CookieOptions } from './Storage';
 import type { UserSessionKey } from './UserSessionStorage';
-import type { CustomIntegration } from './CustomIntegration';
 
 export type CapabilitiesState = {
   isOnline: Signal<boolean>;
