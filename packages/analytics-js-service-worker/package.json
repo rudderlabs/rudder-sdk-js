@@ -102,7 +102,7 @@
   },
   "devDependencies": {
     "@types/ms": "2.1.0",
-    "@types/node": "22.15.30",
+    "@types/node": "24.0.3",
     "jest-date-mock": "1.0.10"
   },
   "overrides": {},
