@@ -87,4 +87,5 @@ export type Destination = {
   overridden?: boolean;
   enabled: boolean;
   cloned?: boolean;
+  isCustomIntegration?: boolean;
 };

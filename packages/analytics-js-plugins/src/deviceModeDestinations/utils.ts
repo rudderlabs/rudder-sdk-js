@@ -10,7 +10,10 @@ import type {
 } from '@rudderstack/analytics-js-common/types/Destination';
 import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import type { IRudderAnalytics } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
+import type {
+  IRudderAnalytics,
+  AnalyticsInstance,
+} from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
 import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import type { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 import type { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
@@ -22,7 +25,6 @@ import type {
   SourceConfigurationOverride,
   SourceConfigurationOverrideDestination,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import type { DeviceModeDestinationsAnalyticsInstance } from './types';
 import {
   DEVICE_MODE_DESTINATIONS_PLUGIN,
   READY_CHECK_INTERVAL_MS,
@@ -77,7 +79,7 @@ const createDestinationInstance = (
   const rAnalytics = (globalThis as any).rudderanalytics as IRudderAnalytics;
   const analytics = rAnalytics.getAnalyticsInstance(state.lifecycle.writeKey.value);
 
-  const analyticsInstance: DeviceModeDestinationsAnalyticsInstance = {
+  const analyticsInstance: AnalyticsInstance = {
     loadIntegration: state.nativeDestinations.loadIntegration.value,
     logLevel: state.lifecycle.logLevel.value,
     loadOnlyIntegrations:
