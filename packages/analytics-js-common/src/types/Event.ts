@@ -61,3 +61,7 @@ export type RudderEvent = {
   traits?: Traits; // group
   groupId?: Nullable<string>; // group
 };
+
+export type RSAEvent = {
+  message: RudderEvent;
+};

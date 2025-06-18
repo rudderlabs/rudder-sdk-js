@@ -2,7 +2,7 @@ name: Check PR Title
 
 on:
   pull_request:
-    branches: ['main', 'develop', 'hotfix/*']
+    branches: ['main', 'develop', 'hotfix/*', 'feature/*']
     types: ['opened', 'reopened', 'edited', 'synchronize']
 
 concurrency:
