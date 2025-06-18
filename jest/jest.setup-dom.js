@@ -25,6 +25,25 @@ if (typeof PromiseRejectionEvent === 'undefined') {
   // global.window.PromiseRejectionEvent = PromiseRejectionEvent;
 }
 
+// Only define the mock if it's not already defined (e.g., in a real browser)
+if (typeof SecurityPolicyViolationEvent === 'undefined') {
+  // Mock class (very minimal)
+  class SecurityPolicyViolationEvent extends Event {
+    constructor(type, eventInitDict) {
+      super(type, eventInitDict);
+      this.disposition = eventInitDict?.disposition;
+      this.blockedURI = eventInitDict?.blockedURI;
+      this.violatedDirective = eventInitDict?.violatedDirective;
+      this.effectiveDirective = eventInitDict?.effectiveDirective;
+    }
+  }
+
+  // Attach it to the global object so tests can use it.
+  global.SecurityPolicyViolationEvent = SecurityPolicyViolationEvent;
+  // If you rely on "window" instead:
+  // global.window.SecurityPolicyViolationEvent = SecurityPolicyViolationEvent;
+}
+
 // TODO: remove once we use globalThis in analytics v1.1 too
 // Setup mocking for window.navigator
 const defaultUserAgent = window.navigator.userAgent;

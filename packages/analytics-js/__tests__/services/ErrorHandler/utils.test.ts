@@ -1,8 +1,9 @@
 /* eslint-disable compat/compat */
 /* eslint-disable max-classes-per-file */
 import { signal } from '@preact/signals-core';
-import type { ErrorEventPayload, Exception } from '@rudderstack/analytics-js-common/types/Metrics';
+import { defaultHttpClient } from '@rudderstack/analytics-js-common/__mocks__/HttpClient';
 import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
+import type { ErrorEventPayload, Exception } from '@rudderstack/analytics-js-common/types/Metrics';
 import type { Event } from '@bugsnag/js';
 import { state, resetState } from '../../../src/state';
 import * as errorReportingConstants from '../../../src/services/ErrorHandler/constants';
@@ -16,7 +17,7 @@ import {
   getReleaseStage,
   getURLWithoutQueryString,
   getUserDetails,
-  isAllowedToBeNotified,
+  checkIfAllowedToBeNotified,
   isSDKError,
   getErrorGroupingHash,
 } from '../../../src/services/ErrorHandler/utils';
@@ -28,6 +29,8 @@ jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
 describe('Error Reporting utilities', () => {
   beforeEach(() => {
     resetState();
+
+    state.lifecycle.sourceConfigUrl.value = 'https://api.rudderstack.com/sourceConfig';
   });
 
   describe('createNewBreadcrumb', () => {
@@ -417,7 +420,8 @@ describe('Error Reporting utilities', () => {
                 },
               },
               capabilities: {
-                isAdBlocked: false,
+                cspBlockedURLs: [],
+                isAdBlockerDetectionInProgress: false,
                 isBeaconAvailable: false,
                 isCryptoAvailable: false,
                 isIE11: false,
@@ -479,6 +483,7 @@ describe('Error Reporting utilities', () => {
                 loaded: false,
                 logLevel: 'ERROR',
                 readyCallbacks: [],
+                sourceConfigUrl: 'https://api.rudderstack.com/sourceConfig',
               },
               loadOptions: {
                 beaconQueueOptions: {},
@@ -615,42 +620,61 @@ describe('Error Reporting utilities', () => {
     });
   });
 
-  describe('isAllowedToBeNotified', () => {
+  describe('checkIfAllowedToBeNotified', () => {
+    beforeEach(() => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      defaultHttpClient.getAsyncData.mockImplementation(
+        ({ url, options, isRawResponse, callback }) => {
+          setTimeout(() => {
+            callback(null, {
+              xhr: {
+                responseURL: url,
+              },
+            });
+          }, 10);
+        },
+      );
+    });
+
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
     const testCases = [
       ['The request failed', false, 'should not allow request failures'],
       [
-        'A script with the id "Google-Analytics-4-(GA4)-V2___1234" is already loaded.',
+        'DeviceModeDestinationsPlugin:: Failed to load integration SDK for destination "Amplitude" - A script with the id "Amplitude___1234" is already loaded. Skipping the loading of this script to prevent conflicts',
         false,
         'should not allow already loaded script failures',
       ],
       [
-        'Failed to fetch dynamically imported module: https://cdn.non-rudderstack.com/3.14.0/modern/plugins/rsa-plugins.js',
+        'PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: https://cdn.non-rudderstack.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js',
         false,
         'should not allow plugins load failures from non-RudderStack CDN',
       ],
       [
-        'Failed to load the script with the id "Google-Analytics-4-(GA4)-V2___1234" from URL "https://cdn.non-rudderstack.com/3.14.0/modern/js-integrations/GA4_V2.min.js"',
+        'DeviceModeDestinationsPlugin:: Failed to load integration SDK for destination "Amplitude" - Unable to load (error) the script with the id "Amplitude___1234" from URL "https://cdn.non-rudderstack.com/3.20.1/modern/js-integrations/Amplitude.min.js"',
         false,
         'should not allow integrations load failures from non-RudderStack CDN',
       ],
       [
-        'A timeout of 10000 ms occurred while trying to load the script with id "Google-Analytics-4-(GA4)-V2___1234" from URL "https://cdn.non-rudderstack.com/3.14.0/modern/js-integrations/GA4_V2.min.js"',
+        'DeviceModeDestinationsPlugin:: Failed to load integration SDK for destination "Amplitude" - A timeout of 10000 ms occurred while trying to load the script with id "Amplitude___1234" from URL "https://cdn.non-rudderstack.com/3.20.1/modern/js-integrations/Amplitude.min.js"',
         false,
         'should not allow integrations load failures from non-RudderStack CDN',
       ],
 
       [
-        'Failed to fetch dynamically imported module: https://cdn.rudderlabs.com/v3/modern/plugins/rsa-plugins.js',
+        'PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js',
         true,
         'should allow plugins load failures from RudderStack CDN',
       ],
       [
-        'Failed to load the script with the id "Google-Analytics-4-(GA4)-V2___1234" from URL "https://cdn.rudderlabs.com/3.14.0/modern/js-integrations/GA4_V2.min.js"',
+        'DeviceModeDestinationsPlugin:: Failed to load integration SDK for destination "Amplitude" - Unable to load (error) the script with the id "Amplitude___1234" from URL "https://cdn.rudderlabs.com/3.20.1/modern/js-integrations/Amplitude.min.js"',
         true,
         'should allow integrations load failures from RudderStack CDN',
       ],
       [
-        'A timeout of 10000 ms occurred while trying to load the script with id "Google-Analytics-4-(GA4)-V2___1234" from URL "https://cdn.rudderlabs.com/3.14.0/modern/js-integrations/GA4_V2.min.js"',
+        'DeviceModeDestinationsPlugin:: Failed to load integration SDK for destination "Amplitude" - A timeout of 10000 ms occurred while trying to load the script with id "Amplitude___1234" from URL "https://cdn.rudderlabs.com/3.20.1/modern/js-integrations/Amplitude.min.js"',
         true,
         'should allow integrations load failures from RudderStack CDN',
       ],
@@ -660,9 +684,457 @@ describe('Error Reporting utilities', () => {
     ];
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    test.each(testCases)('%s -> %s (%s)', (message, expected, testName) => {
-      const result = isAllowedToBeNotified({ message } as unknown as Exception);
+    test.each(testCases)('%s -> %s (%s)', async (message, expected, testName) => {
+      const result = await checkIfAllowedToBeNotified(
+        { message } as unknown as Exception,
+        state,
+        defaultHttpClient,
+      );
       expect(result).toBe(expected);
+    });
+
+    describe('CSP blocked URLs filtering', () => {
+      beforeEach(() => {
+        // Mock successful HTTP request (no ad blocker)
+        defaultHttpClient.getAsyncData.mockImplementationOnce(({ callback }) => {
+          callback(null, {
+            xhr: {
+              responseURL: 'https://api.rudderstack.com/sourceConfig?view=ad',
+            },
+          });
+        });
+      });
+
+      it('should not notify if the script URL is blocked by CSP', async () => {
+        const blockedUrl =
+          'https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js';
+
+        // Add URL to CSP blocked list
+        state.capabilities.cspBlockedURLs.value = [blockedUrl];
+
+        const message = `PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: ${blockedUrl}`;
+
+        const result = await checkIfAllowedToBeNotified(
+          { message } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        expect(result).toBe(false);
+      });
+
+      it('should notify if the script URL is not in CSP blocked list', async () => {
+        const scriptUrl =
+          'https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js';
+        const differentBlockedUrl =
+          'https://cdn.rudderlabs.com/3.20.1/modern/plugins/different-plugin.min.js';
+
+        // Add different URL to CSP blocked list
+        state.capabilities.cspBlockedURLs.value = [differentBlockedUrl];
+
+        const message = `PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: ${scriptUrl}`;
+
+        const result = await checkIfAllowedToBeNotified(
+          { message } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        expect(result).toBe(true);
+      });
+
+      it('should handle messages without extractable URLs', async () => {
+        state.capabilities.cspBlockedURLs.value = ['https://cdn.rudderlabs.com/some-url.js'];
+
+        const message =
+          'PluginsManager:: Failed to load plugin - Failed to fetch dynamically imported module: invalid-url';
+
+        const result = await checkIfAllowedToBeNotified(
+          { message } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        expect(result).toBe(true);
+      });
+
+      it('should handle empty CSP blocked URLs list', async () => {
+        state.capabilities.cspBlockedURLs.value = [];
+
+        const message =
+          'PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js';
+
+        const result = await checkIfAllowedToBeNotified(
+          { message } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        expect(result).toBe(true);
+      });
+
+      it('should handle CSP blocked URL and continue to ad blocker check when URL is not CSP blocked', async () => {
+        const scriptUrl =
+          'https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js';
+        const differentBlockedUrl =
+          'https://cdn.rudderlabs.com/3.20.1/modern/plugins/different-plugin.min.js';
+
+        // Set different URL as CSP blocked, so our script URL should proceed to ad blocker check
+        state.capabilities.cspBlockedURLs.value = [differentBlockedUrl];
+        state.capabilities.isAdBlocked.value = false; // Mock ad blocker not detected
+
+        const message = `PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: ${scriptUrl}`;
+
+        const result = await checkIfAllowedToBeNotified(
+          { message } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        expect(result).toBe(true); // Should proceed to ad blocker check and return true since no ad blocker
+      });
+
+      it('should properly handle the logic flow when CSP check passes but ad blocker check fails', async () => {
+        const scriptUrl =
+          'https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js';
+
+        // Empty CSP blocked list, but ad blocker detected
+        state.capabilities.cspBlockedURLs.value = [];
+        state.capabilities.isAdBlocked.value = true;
+
+        const message = `PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: ${scriptUrl}`;
+
+        const result = await checkIfAllowedToBeNotified(
+          { message } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        expect(result).toBe(false);
+      });
+
+      it('should not notify for non-RudderStack CDN URLs even if not CSP blocked', async () => {
+        const nonRSUrl = 'https://cdn.example.com/3.20.1/modern/plugins/plugin.min.js';
+
+        // Empty CSP blocked list
+        state.capabilities.cspBlockedURLs.value = [];
+
+        const message = `PluginsManager:: Failed to load plugin "Test" - Failed to fetch dynamically imported module: ${nonRSUrl}`;
+
+        const result = await checkIfAllowedToBeNotified(
+          { message } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        expect(result).toBe(false); // Should not notify for non-RS CDN URLs
+      });
+    });
+
+    describe('Ad blocker detection integration', () => {
+      beforeEach(() => {
+        // Reset ad blocker state
+        state.capabilities.isAdBlocked.value = undefined;
+        state.capabilities.isAdBlockerDetectionInProgress.value = false;
+      });
+
+      it('should not notify if ad blocker is detected for RS CDN URLs', async () => {
+        // Mock ad blocker detected
+        state.capabilities.isAdBlocked.value = true;
+
+        const message =
+          'PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js';
+
+        const result = await checkIfAllowedToBeNotified(
+          { message } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        expect(result).toBe(false);
+      });
+
+      it('should notify if ad blocker is not detected for RS CDN URLs', async () => {
+        // Mock no ad blocker detected
+        state.capabilities.isAdBlocked.value = false;
+
+        const message =
+          'PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js';
+
+        const result = await checkIfAllowedToBeNotified(
+          { message } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        expect(result).toBe(true);
+      });
+
+      it('should trigger ad blocker detection if not done previously (adblockers are not detected)', async () => {
+        // Mock ad blocker detection not done yet
+        state.capabilities.isAdBlocked.value = undefined;
+        state.capabilities.isAdBlockerDetectionInProgress.value = false;
+
+        const message =
+          'PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js';
+
+        const result = await checkIfAllowedToBeNotified(
+          { message } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        expect(result).toBe(true);
+      });
+
+      it('should trigger ad blocker detection if not done previously (adblockers are detected)', async () => {
+        // Mock ad blocker detection not done yet
+        state.capabilities.isAdBlocked.value = undefined;
+        state.capabilities.isAdBlockerDetectionInProgress.value = false;
+
+        // Mock HTTP client for ad blocker detection
+        defaultHttpClient.getAsyncData.mockClear();
+        defaultHttpClient.getAsyncData.mockReset();
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        defaultHttpClient.getAsyncData.mockImplementation(({ callback, ...rest }) => {
+          // Simulate ad blocker detection request
+          setTimeout(() => {
+            callback(null, {
+              error: new Error('Request blocked'),
+            });
+          }, 10);
+        });
+
+        const message =
+          'PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js';
+
+        // The detectAdBlockers function will run and set isAdBlocked.value based on the mock
+        const result = await checkIfAllowedToBeNotified(
+          { message } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        expect(result).toBe(false); // Should not notify because ad blocker detected
+        expect(state.capabilities.isAdBlocked.value).toBe(true); // Verify ad blocker was detected
+      });
+
+      it('should not trigger duplicate ad blocker detection if already in progress', async () => {
+        // Mock ad blocker detection already in progress
+        state.capabilities.isAdBlocked.value = undefined;
+        state.capabilities.isAdBlockerDetectionInProgress.value = true;
+
+        const message =
+          'PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js';
+
+        // Start the checkIfAllowedToBeNotified function
+        const resultPromise = checkIfAllowedToBeNotified(
+          { message } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        // Use a Promise with immediate resolution to ensure effect is set up first
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        // Complete the ad blocker detection with no ad blocker detected
+        state.capabilities.isAdBlocked.value = false; // No ad blocker detected
+
+        const result = await resultPromise;
+
+        expect(result).toBe(true); // Should notify because no ad blocker detected
+      });
+
+      it('should handle complete workflow for RudderStack CDN URLs with proper validation', async () => {
+        const rsUrl = 'https://cdn.rudderlabs.com/v3/modern/plugins/test-plugin.min.js';
+
+        // Setup: URL not CSP blocked, no ad blocker detected
+        state.capabilities.cspBlockedURLs.value = [
+          'https://cdn.rudderlabs.com/different-plugin.min.js',
+        ]; // Different URL
+        state.capabilities.isAdBlocked.value = false;
+        state.capabilities.isAdBlockerDetectionInProgress.value = false;
+
+        const message = `PluginsManager:: Failed to load plugin "Test" - Failed to fetch dynamically imported module: ${rsUrl}`;
+
+        const result = await checkIfAllowedToBeNotified(
+          { message } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        // Should pass all checks:
+        // 1. Is script load failure message ✓
+        // 2. URL extracted successfully ✓
+        // 3. Is RudderStack CDN URL ✓
+        // 4. Not in CSP blocked list ✓
+        // 5. Ad blocker not detected ✓
+        expect(result).toBe(true);
+      });
+    });
+
+    describe('Combined CSP and ad blocker filtering', () => {
+      it('should not notify if URL is CSP blocked, regardless of ad blocker status', async () => {
+        const blockedUrl =
+          'https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js';
+
+        // Set CSP blocked and no ad blocker
+        state.capabilities.cspBlockedURLs.value = [blockedUrl];
+        state.capabilities.isAdBlocked.value = false;
+
+        const message = `PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: ${blockedUrl}`;
+
+        const result = await checkIfAllowedToBeNotified(
+          { message } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        expect(result).toBe(false);
+      });
+
+      it('should check ad blocker only if URL is not CSP blocked', async () => {
+        const scriptUrl =
+          'https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js';
+        const differentBlockedUrl =
+          'https://cdn.rudderlabs.com/3.20.1/modern/plugins/different-plugin.min.js';
+
+        // Set different URL as CSP blocked, and mock ad blocker detected
+        state.capabilities.cspBlockedURLs.value = [differentBlockedUrl];
+        state.capabilities.isAdBlocked.value = true;
+
+        const message = `PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: ${scriptUrl}`;
+
+        const result = await checkIfAllowedToBeNotified(
+          { message } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        expect(result).toBe(false); // Should not notify due to ad blocker
+      });
+    });
+
+    describe('URL extraction logic', () => {
+      it('should extract HTTPS URLs correctly', async () => {
+        const extractedUrl = 'https://cdn.rudderlabs.com/v3/modern/plugins/test.min.js';
+        state.capabilities.cspBlockedURLs.value = [extractedUrl];
+
+        const message = `Error: Failed to load - ${extractedUrl} - additional text`;
+
+        const result = await checkIfAllowedToBeNotified(
+          { message } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        expect(result).toBe(true); // Should proceed since error message doesn't match script failure patterns
+      });
+
+      it('should extract HTTP URLs correctly', async () => {
+        const extractedUrl = 'http://cdn.rudderlabs.com/v3/modern/plugins/test.min.js';
+        state.capabilities.cspBlockedURLs.value = [extractedUrl];
+
+        const message = `Error: Failed to load - ${extractedUrl} - additional text`;
+
+        const result = await checkIfAllowedToBeNotified(
+          { message } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        expect(result).toBe(true); // Should proceed since error message doesn't match script failure patterns
+      });
+
+      it('should handle multiple URLs in message and extract the first one', async () => {
+        const firstUrl = 'https://cdn.rudderlabs.com/v3/modern/plugins/first.min.js';
+        const secondUrl = 'https://cdn.rudderlabs.com/v3/modern/plugins/second.min.js';
+        state.capabilities.cspBlockedURLs.value = [firstUrl];
+
+        const message = `PluginsManager:: Failed to load plugin "Test" - Failed to fetch dynamically imported module: ${firstUrl} and also ${secondUrl}`;
+
+        const result = await checkIfAllowedToBeNotified(
+          { message } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        expect(result).toBe(false); // Should not notify because URL is CSP blocked
+      });
+
+      it('should handle URLs with query parameters and fragments', async () => {
+        const extractedUrl =
+          'https://cdn.rudderlabs.com/v3/modern/plugins/test.min.js?version=1.0&cache=false#section';
+        state.capabilities.cspBlockedURLs.value = [extractedUrl];
+
+        const message = `Error: Failed to load - ${extractedUrl} - additional text`;
+
+        const result = await checkIfAllowedToBeNotified(
+          { message } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        expect(result).toBe(true); // Should proceed since error message doesn't match script failure patterns
+      });
+
+      it('should handle null/undefined URL extraction results', async () => {
+        state.capabilities.cspBlockedURLs.value = [];
+
+        // Message that won't match the URL extraction regex
+        const message =
+          'PluginsManager:: Failed to load plugin "Test" - Failed to fetch dynamically imported module: not-a-url';
+
+        const result = await checkIfAllowedToBeNotified(
+          { message } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        expect(result).toBe(true); // Should allow notification when no valid URL extracted
+      });
+
+      it('should validate extracted URL is a string before processing', async () => {
+        state.capabilities.cspBlockedURLs.value = ['https://cdn.rudderlabs.com/test.js'];
+
+        // Message that produces a non-string match result
+        const message =
+          'PluginsManager:: Failed to load plugin "Test" - Failed to fetch dynamically imported module: ';
+
+        const result = await checkIfAllowedToBeNotified(
+          { message } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        expect(result).toBe(true); // Should allow notification when URL extraction fails validation
+      });
+
+      it('should differentiate RudderStack CDN vs non-RudderStack CDN URLs', async () => {
+        const rsUrl = 'https://cdn.rudderlabs.com/v3/modern/plugins/test.min.js';
+        const nonRsUrl = 'https://cdn.example.com/v3/modern/plugins/test.min.js';
+
+        // Test RudderStack CDN URL (should proceed to CSP/ad blocker checks)
+        state.capabilities.cspBlockedURLs.value = [];
+        state.capabilities.isAdBlocked.value = false;
+
+        const rsMessage = `PluginsManager:: Failed to load plugin "Test" - Failed to fetch dynamically imported module: ${rsUrl}`;
+        const rsResult = await checkIfAllowedToBeNotified(
+          { message: rsMessage } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+        expect(rsResult).toBe(true); // Should proceed through checks and allow since no blocks
+
+        // Test non-RudderStack CDN URL (should be filtered out immediately)
+        const nonRsMessage = `PluginsManager:: Failed to load plugin "Test" - Failed to fetch dynamically imported module: ${nonRsUrl}`;
+        const nonRsResult = await checkIfAllowedToBeNotified(
+          { message: nonRsMessage } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+        expect(nonRsResult).toBe(false); // Should be filtered out immediately
+      });
     });
   });
 

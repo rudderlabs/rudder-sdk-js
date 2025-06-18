@@ -34,7 +34,21 @@ export type CapabilitiesState = {
   isUaCHAvailable: Signal<boolean>;
   isCryptoAvailable: Signal<boolean>;
   isIE11: Signal<boolean>;
-  isAdBlocked: Signal<boolean>;
+  /**
+   * This is used to track if the ad blocker detection is in progress.
+   * It is used to avoid multiple ad blocker detection requests.
+   */
+  isAdBlockerDetectionInProgress: Signal<boolean>;
+  /**
+   * This is used to track if the ad blocker is detected.
+   * It is used to avoid multiple ad blocker detection requests.
+   */
+  isAdBlocked: Signal<boolean | undefined>;
+  /**
+   * This is used to track all the URLs SDK
+   * adds or imports onto the that are blocked due to CSP (Content Security Policy).
+   */
+  cspBlockedURLs: Signal<string[]>;
 };
 
 export type ConsentsState = {

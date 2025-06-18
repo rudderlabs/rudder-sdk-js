@@ -24,9 +24,10 @@ import {
   getErrInstance,
   getErrorDeliveryPayload,
   getErrorGroupingHash,
-  isAllowedToBeNotified,
+  checkIfAllowedToBeNotified,
   isSDKError,
 } from './utils';
+import { SDK_CDN_BASE_URL } from '../../constants/urls';
 
 /**
  * A service to handle errors
@@ -77,6 +78,21 @@ class ErrorHandler implements IErrorHandler {
         });
       },
     );
+
+    // Listen to CSP violations and add the blocked URL to the state
+    // if those URLs are from RS CDN.
+    document.addEventListener('securitypolicyviolation', (event: SecurityPolicyViolationEvent) => {
+      if (
+        event.disposition === 'enforce' &&
+        event.blockedURI.startsWith(SDK_CDN_BASE_URL) &&
+        !state.capabilities.cspBlockedURLs.value.includes(event.blockedURI)
+      ) {
+        state.capabilities.cspBlockedURLs.value = [
+          ...state.capabilities.cspBlockedURLs.value,
+          event.blockedURI,
+        ];
+      }
+    });
   }
 
   /**
@@ -88,7 +104,7 @@ class ErrorHandler implements IErrorHandler {
    * @param errorInfo.errorType - The type of the error (handled or unhandled)
    * @param errorInfo.groupingHash - The grouping hash of the error
    */
-  onError(errorInfo: ErrorInfo) {
+  async onError(errorInfo: ErrorInfo) {
     try {
       const { error, context, customMessage, groupingHash } = errorInfo;
       const errorType = errorInfo.errorType ?? ErrorType.HANDLEDEXCEPTION;
@@ -117,44 +133,47 @@ class ErrorHandler implements IErrorHandler {
         return;
       }
 
-      if (state.reporting.isErrorReportingEnabled.value && isAllowedToBeNotified(bsException)) {
-        const errorState: ErrorState = {
-          severity: 'error',
-          unhandled: errorType !== ErrorType.HANDLEDEXCEPTION,
-          severityReason: { type: errorType },
-        };
+      if (state.reporting.isErrorReportingEnabled.value) {
+        const isAllowed = await checkIfAllowedToBeNotified(bsException, state, this.httpClient);
+        if (isAllowed) {
+          const errorState: ErrorState = {
+            severity: 'error',
+            unhandled: errorType !== ErrorType.HANDLEDEXCEPTION,
+            severityReason: { type: errorType },
+          };
 
-        // Set grouping hash only for CDN installations (as an experiment)
-        // This will allow us to group errors by the message instead of the surrounding code.
-        // In case of NPM installations, the default grouping by surrounding code does not make sense as each user application is different.
-        // References:
-        // https://docs.bugsnag.com/platforms/javascript/customizing-error-reports/#groupinghash
-        // https://docs.bugsnag.com/product/error-grouping/#user_defined
-        const normalizedGroupingHash = getErrorGroupingHash(
-          groupingHash,
-          bsException.message,
-          state,
-          this.logger,
-        );
+          // Set grouping hash only for CDN installations (as an experiment)
+          // This will allow us to group errors by the message instead of the surrounding code.
+          // In case of NPM installations, the default grouping by surrounding code does not make sense as each user application is different.
+          // References:
+          // https://docs.bugsnag.com/platforms/javascript/customizing-error-reports/#groupinghash
+          // https://docs.bugsnag.com/product/error-grouping/#user_defined
+          const normalizedGroupingHash = getErrorGroupingHash(
+            groupingHash,
+            bsException.message,
+            state,
+            this.logger,
+          );
 
-        // Get the final payload to be sent to the metrics service
-        const bugsnagPayload = getBugsnagErrorEvent(
-          bsException,
-          errorState,
-          state,
-          normalizedGroupingHash,
-        );
+          // Get the final payload to be sent to the metrics service
+          const bugsnagPayload = getBugsnagErrorEvent(
+            bsException,
+            errorState,
+            state,
+            normalizedGroupingHash,
+          );
 
-        // send it to metrics service
-        this.httpClient.getAsyncData({
-          url: state.metrics.metricsServiceUrl.value as string,
-          options: {
-            method: 'POST',
-            data: getErrorDeliveryPayload(bugsnagPayload, state),
-            sendRawData: true,
-          },
-          isRawResponse: true,
-        });
+          // send it to metrics service
+          this.httpClient.getAsyncData({
+            url: state.metrics.metricsServiceUrl.value as string,
+            options: {
+              method: 'POST',
+              data: getErrorDeliveryPayload(bugsnagPayload, state),
+              sendRawData: true,
+            },
+            isRawResponse: true,
+          });
+        }
       }
 
       // Log handled errors and errors dispatched by the SDK

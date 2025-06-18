@@ -16,7 +16,7 @@ export interface IErrorHandler {
   httpClient: IHttpClient;
   logger: ILogger;
   init(): void;
-  onError(errorInfo: ErrorInfo): void;
+  onError(errorInfo: ErrorInfo): Promise<void>;
   leaveBreadcrumb(breadcrumb: string): void;
 }
 

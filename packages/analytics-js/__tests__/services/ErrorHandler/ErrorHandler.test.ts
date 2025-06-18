@@ -101,9 +101,10 @@ describe('ErrorHandler', () => {
   });
 
   describe('onError', () => {
-    it('should skip processing if error is not a valid error', () => {
-      errorHandlerInstance.onError({
+    it('should skip processing if error is not a valid error', async () => {
+      await errorHandlerInstance.onError({
         error: {},
+        context: 'Test',
       });
 
       expect(defaultLogger.warn).toHaveBeenCalledTimes(1);
@@ -113,9 +114,9 @@ describe('ErrorHandler', () => {
       expect(defaultLogger.error).toHaveBeenCalledTimes(0);
     });
 
-    it('should skip unhandled errors if they are not originated from the sdk', () => {
+    it('should skip unhandled errors if they are not originated from the sdk', async () => {
       // For this error, the stacktrace would not contain the sdk file names
-      errorHandlerInstance.onError({
+      await errorHandlerInstance.onError({
         error: new Error('dummy error'),
         context: 'Test',
         customMessage: undefined,
@@ -127,13 +128,14 @@ describe('ErrorHandler', () => {
       expect(defaultLogger.error).toHaveBeenCalledTimes(0);
     });
 
-    it('should not skip handled errors even if they are not originated from the sdk', () => {
+    it('should not skip handled errors even if they are not originated from the sdk', async () => {
       // Enable error reporting
       state.reporting.isErrorReportingEnabled.value = true;
 
       // For this error, the stacktrace would not contain the sdk file names
-      errorHandlerInstance.onError({
+      await errorHandlerInstance.onError({
         error: new Error('dummy error'),
+        context: 'Test',
       });
 
       // It should be reported to the metrics service
@@ -143,8 +145,8 @@ describe('ErrorHandler', () => {
       expect(defaultLogger.error).toHaveBeenCalledTimes(1);
     });
 
-    it('should not log unhandled errors to the console', () => {
-      errorHandlerInstance.onError({
+    it('should not log unhandled errors to the console', async () => {
+      await errorHandlerInstance.onError({
         error: new Error('dummy error'),
         context: 'Test',
         customMessage: undefined,
@@ -155,13 +157,13 @@ describe('ErrorHandler', () => {
       expect(defaultLogger.error).toHaveBeenCalledTimes(0);
     });
 
-    it('should log unhandled errors that are explicitly dispatched by the SDK', () => {
+    it('should log unhandled errors that are explicitly dispatched by the SDK', async () => {
       const error = new Error('dummy error');
       // Explicitly mark the error as dispatched by the SDK
       error.stack += '[SDK DISPATCHED ERROR]';
       const errorEvent = new ErrorEvent('error', { error });
 
-      errorHandlerInstance.onError({
+      await errorHandlerInstance.onError({
         error: errorEvent,
         // @ts-expect-error not using the enum value for testing
         errorType: 'unhandledException',
@@ -173,22 +175,31 @@ describe('ErrorHandler', () => {
       expect(defaultLogger.error).toHaveBeenCalledWith('Test:: dummy error');
     });
 
-    it('should not notify errors if error reporting is disabled', () => {
+    it('should not notify errors but log them if error reporting is disabled', async () => {
       state.reporting.isErrorReportingEnabled.value = false;
-      errorHandlerInstance.onError({ error: new Error('dummy error') });
+      await errorHandlerInstance.onError({ error: new Error('dummy error'), context: 'Test' });
 
       expect(defaultHttpClient.getAsyncData).toHaveBeenCalledTimes(0);
+      expect(defaultLogger.error).toHaveBeenCalledTimes(1);
+      expect(defaultLogger.error).toHaveBeenCalledWith('Test:: dummy error');
     });
 
-    it('should not notify errors if the error message is not allowed to be notified', () => {
+    it('should not notify errors but log them if the error message is not allowed to be notified', async () => {
       state.reporting.isErrorReportingEnabled.value = true;
       // "The request failed" is one of the messages that should not be notified
-      errorHandlerInstance.onError({ error: new Error('The request failed due to some issue') });
+      await errorHandlerInstance.onError({
+        error: new Error('The request failed due to some issue'),
+        context: 'Test',
+      });
 
       expect(defaultHttpClient.getAsyncData).toHaveBeenCalledTimes(0);
+      expect(defaultLogger.error).toHaveBeenCalledTimes(1);
+      expect(defaultLogger.error).toHaveBeenCalledWith(
+        'Test:: The request failed due to some issue',
+      );
     });
 
-    it('should notify errors if error reporting is enabled and the error message is allowed to be notified', () => {
+    it('should notify errors if error reporting is enabled and the error message is allowed to be notified', async () => {
       state.reporting.isErrorReportingEnabled.value = true;
       state.lifecycle.writeKey.value = 'dummy-write-key';
       state.metrics.metricsServiceUrl.value = 'https://dummy.dataplane.com/rsaMetrics';
@@ -196,7 +207,7 @@ describe('ErrorHandler', () => {
       const error = new Error('dummy error');
       error.stack =
         'Error: Test:: dummy error\n    at Object.<anonymous> (https://cdn.rudderlabs.com/v3/modern/rsa.min.js:1:1)';
-      errorHandlerInstance.onError({
+      await errorHandlerInstance.onError({
         error,
         context: 'Test',
       });
@@ -213,7 +224,7 @@ describe('ErrorHandler', () => {
       });
     });
 
-    it('should log error if an error occurs while handling an error', () => {
+    it('should log error if an error occurs while handling an error', async () => {
       state.reporting.isErrorReportingEnabled.value = true;
 
       defaultHttpClient.getAsyncData.mockImplementationOnce(() => {
@@ -223,7 +234,7 @@ describe('ErrorHandler', () => {
       const error = new Error('dummy error');
       error.stack =
         'Error: Test:: dummy error\n    at Object.<anonymous> (https://cdn.rudderlabs.com/v3/modern/rsa.min.js:1:1)';
-      errorHandlerInstance.onError({
+      await errorHandlerInstance.onError({
         error,
         context: 'Test',
       });
@@ -235,7 +246,7 @@ describe('ErrorHandler', () => {
       );
     });
 
-    it.skip('should generate grouping hash for CDN installations', () => {
+    it('should generate grouping hash for CDN installations', async () => {
       // @ts-expect-error for testing
       state.context.app.value.installType = 'cdn';
       state.reporting.isErrorReportingEnabled.value = true;
@@ -249,7 +260,7 @@ describe('ErrorHandler', () => {
       error.stack =
         'Error: Test:: dummy error\n    at Object.<anonymous> (https://cdn.rudderlabs.com/v3/modern/rsa.min.js:1:1)';
 
-      errorHandlerInstance.onError({
+      await errorHandlerInstance.onError({
         error,
         context: 'Test',
         customMessage: 'Sample custom message',
@@ -264,7 +275,7 @@ describe('ErrorHandler', () => {
       );
     });
 
-    it.skip('should not generate grouping hash for non-CDN installations', () => {
+    it('should not generate grouping hash for non-CDN installations', async () => {
       // @ts-expect-error for testing
       state.context.app.value.installType = 'npm';
       state.reporting.isErrorReportingEnabled.value = true;
@@ -278,7 +289,7 @@ describe('ErrorHandler', () => {
       error.stack =
         'Error: Test:: dummy error\n    at Object.<anonymous> (https://cdn.rudderlabs.com/v3/modern/rsa.min.js:1:1)';
 
-      errorHandlerInstance.onError({
+      await errorHandlerInstance.onError({
         error,
         context: 'Test',
         customMessage: 'Sample custom message',
@@ -291,6 +302,201 @@ describe('ErrorHandler', () => {
         expect.anything(),
         undefined,
       );
+    });
+  });
+
+  describe('CSP violation errors handling', () => {
+    beforeEach(() => {
+      resetState();
+      errorHandlerInstance = new ErrorHandler(defaultHttpClient, defaultLogger);
+      errorHandlerInstance.init();
+    });
+
+    it('should track CSP blocked URLs from RudderStack CDN', () => {
+      const blockedURL =
+        'https://cdn.rudderlabs.com/v3/modern/plugins/rsa-plugins-remote-Beacon.min.js';
+
+      // Create a CSP violation event
+      const cspEvent = new SecurityPolicyViolationEvent('securitypolicyviolation', {
+        disposition: 'enforce',
+        blockedURI: blockedURL,
+        violatedDirective: 'script-src',
+        effectiveDirective: 'script-src',
+        originalPolicy: "script-src 'self'",
+        documentURI: 'https://example.com',
+        referrer: '',
+        statusCode: 200,
+        lineNumber: 1,
+        columnNumber: 1,
+        sourceFile: 'https://example.com',
+      });
+
+      // Dispatch the CSP violation event
+      document.dispatchEvent(cspEvent);
+
+      // Verify the URL was added to the blocked list
+      expect(state.capabilities.cspBlockedURLs.value).toContain(blockedURL);
+      expect(state.capabilities.cspBlockedURLs.value).toHaveLength(1);
+    });
+
+    it('should not track CSP blocked URLs from non-RudderStack CDN', () => {
+      const blockedURL = 'https://cdn.example.com/some-script.js';
+
+      // Create a CSP violation event
+      const cspEvent = new SecurityPolicyViolationEvent('securitypolicyviolation', {
+        disposition: 'enforce',
+        blockedURI: blockedURL,
+        violatedDirective: 'script-src',
+        effectiveDirective: 'script-src',
+        originalPolicy: "script-src 'self'",
+        documentURI: 'https://example.com',
+        referrer: '',
+        statusCode: 200,
+        lineNumber: 1,
+        columnNumber: 1,
+        sourceFile: 'https://example.com',
+      });
+
+      // Dispatch the CSP violation event
+      document.dispatchEvent(cspEvent);
+
+      // Verify the URL was NOT added to the blocked list
+      expect(state.capabilities.cspBlockedURLs.value).not.toContain(blockedURL);
+      expect(state.capabilities.cspBlockedURLs.value).toEqual([]);
+    });
+
+    it('should ignore CSP violations with "report" disposition', () => {
+      const blockedURL =
+        'https://cdn.rudderlabs.com/v3/modern/plugins/rsa-plugins-remote-Beacon.min.js';
+
+      // Create a CSP violation event with "report" disposition
+      const cspEvent = new SecurityPolicyViolationEvent('securitypolicyviolation', {
+        disposition: 'report',
+        blockedURI: blockedURL,
+        violatedDirective: 'script-src',
+        effectiveDirective: 'script-src',
+        originalPolicy: "script-src 'self'",
+        documentURI: 'https://example.com',
+        referrer: '',
+        statusCode: 200,
+        lineNumber: 1,
+        columnNumber: 1,
+        sourceFile: 'https://example.com',
+      });
+
+      // Dispatch the CSP violation event
+      document.dispatchEvent(cspEvent);
+
+      // Verify the URL was NOT added to the blocked list (only "enforce" disposition is tracked)
+      expect(state.capabilities.cspBlockedURLs.value).not.toContain(blockedURL);
+      expect(state.capabilities.cspBlockedURLs.value).toEqual([]);
+    });
+
+    it('should track multiple CSP blocked URLs', () => {
+      const blockedURL1 = 'https://cdn.rudderlabs.com/v3/modern/plugins/plugin1.min.js';
+      const blockedURL2 =
+        'https://cdn.rudderlabs.com/v3/modern/js-integrations/integration1.min.js';
+
+      // Create first CSP violation event
+      const cspEvent1 = new SecurityPolicyViolationEvent('securitypolicyviolation', {
+        disposition: 'enforce',
+        blockedURI: blockedURL1,
+        violatedDirective: 'script-src',
+        effectiveDirective: 'script-src',
+        originalPolicy: "script-src 'self'",
+        documentURI: 'https://example.com',
+        referrer: '',
+        statusCode: 200,
+        lineNumber: 1,
+        columnNumber: 1,
+        sourceFile: 'https://example.com',
+      });
+
+      // Create second CSP violation event
+      const cspEvent2 = new SecurityPolicyViolationEvent('securitypolicyviolation', {
+        disposition: 'enforce',
+        blockedURI: blockedURL2,
+        violatedDirective: 'script-src',
+        effectiveDirective: 'script-src',
+        originalPolicy: "script-src 'self'",
+        documentURI: 'https://example.com',
+        referrer: '',
+        statusCode: 200,
+        lineNumber: 1,
+        columnNumber: 1,
+        sourceFile: 'https://example.com',
+      });
+
+      // Dispatch both CSP violation events
+      document.dispatchEvent(cspEvent1);
+      document.dispatchEvent(cspEvent2);
+
+      // Verify both URLs were added to the blocked list
+      expect(state.capabilities.cspBlockedURLs.value).toContain(blockedURL1);
+      expect(state.capabilities.cspBlockedURLs.value).toContain(blockedURL2);
+      expect(state.capabilities.cspBlockedURLs.value).toHaveLength(2);
+    });
+
+    it('should not duplicate CSP blocked URLs', () => {
+      const blockedURL = 'https://cdn.rudderlabs.com/v3/modern/plugins/plugin1.min.js';
+
+      // Create CSP violation event
+      const cspEvent = new SecurityPolicyViolationEvent('securitypolicyviolation', {
+        disposition: 'enforce',
+        blockedURI: blockedURL,
+        violatedDirective: 'script-src',
+        effectiveDirective: 'script-src',
+        originalPolicy: "script-src 'self'",
+        documentURI: 'https://example.com',
+        referrer: '',
+        statusCode: 200,
+        lineNumber: 1,
+        columnNumber: 1,
+        sourceFile: 'https://example.com',
+      });
+
+      // Dispatch the same CSP violation event twice
+      document.dispatchEvent(cspEvent);
+      document.dispatchEvent(cspEvent);
+
+      // Verify the URL appears only once in the blocked list
+      expect(
+        state.capabilities.cspBlockedURLs.value.filter(url => url === blockedURL),
+      ).toHaveLength(1);
+      // Note: The current implementation doesn't deduplicate, but we document this behavior
+      // If deduplication is needed, the implementation should be updated
+    });
+
+    it('should track CSP blocked URLs with different RudderStack CDN URLs', () => {
+      const testUrls = [
+        'https://cdn.rudderlabs.com/v3/modern/plugins/rsa-plugins-remote-Beacon.min.js',
+        'https://cdn.rudderlabs.com/v3/modern/js-integrations/GoogleAnalytics.min.js',
+        'https://cdn.rudderlabs.com/v3/modern/rsa.min.js',
+      ];
+
+      testUrls.forEach(blockedURL => {
+        const cspEvent = new SecurityPolicyViolationEvent('securitypolicyviolation', {
+          disposition: 'enforce',
+          blockedURI: blockedURL,
+          violatedDirective: 'script-src',
+          effectiveDirective: 'script-src',
+          originalPolicy: "script-src 'self'",
+          documentURI: 'https://example.com',
+          referrer: '',
+          statusCode: 200,
+          lineNumber: 1,
+          columnNumber: 1,
+          sourceFile: 'https://example.com',
+        });
+
+        document.dispatchEvent(cspEvent);
+      });
+
+      // Verify all RudderStack CDN URLs were tracked
+      testUrls.forEach(url => {
+        expect(state.capabilities.cspBlockedURLs.value).toContain(url);
+      });
+      expect(state.capabilities.cspBlockedURLs.value).toHaveLength(testUrls.length);
     });
   });
 });
