@@ -101,14 +101,21 @@ const getPluginsBaseURL = () => {
 };
 
 const getCopyTargets = () => {
+  // Always copy the all/index.html aggregator file
+  const allAggregatorCopy = {
+    src: 'public/all/index.html',
+    dest: 'dist/all',
+    rename: 'index.html'
+  };
+
   switch (distributionType) {
     case 'cdn':
-      return [];
+      return [allAggregatorCopy];
     case 'npm':
     case 'npm_bundled':
-      return [];
+      return [allAggregatorCopy];
     default:
-      return isLegacySdk
+      const baseCopyTargets = isLegacySdk
         ? [
             {
               src: `../analytics-v1.1/dist/cdn/${buildType}/rudder-analytics.min.js`,
@@ -145,6 +152,8 @@ const getCopyTargets = () => {
               dest: `${getDistPath()}/plugins`,
             },
           ];
+      
+      return [...baseCopyTargets, allAggregatorCopy];
   }
 };
 
