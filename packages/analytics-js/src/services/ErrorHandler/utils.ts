@@ -172,10 +172,13 @@ const checkIfAdBlockersAreActive = (
     }
 
     // Wait for the detection to complete.
-    effect(() => {
+    const detectionDisposer = effect(() => {
       if (isDefined(state.capabilities.isAdBlocked.value)) {
         // If ad blocker is not detected, notify.
         resolve(state.capabilities.isAdBlocked.value === false);
+
+        // Cleanup the effect.
+        detectionDisposer();
       }
     });
   } else {
