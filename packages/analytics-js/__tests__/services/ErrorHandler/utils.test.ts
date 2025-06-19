@@ -20,6 +20,7 @@ import {
   checkIfAllowedToBeNotified,
   isSDKError,
   getErrorGroupingHash,
+  checkIfAdBlockersAreActive,
 } from '../../../src/services/ErrorHandler/utils';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
@@ -622,8 +623,8 @@ describe('Error Reporting utilities', () => {
 
   describe('checkIfAllowedToBeNotified', () => {
     beforeEach(() => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       defaultHttpClient.getAsyncData.mockImplementation(
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         ({ url, options, isRawResponse, callback }) => {
           setTimeout(() => {
             callback(null, {
@@ -1135,6 +1136,117 @@ describe('Error Reporting utilities', () => {
         );
         expect(nonRsResult).toBe(false); // Should be filtered out immediately
       });
+
+      it('should extract URLs without trailing punctuation', async () => {
+        const baseUrl = 'https://cdn.rudderlabs.com/v3/modern/plugins/test.min.js';
+        state.capabilities.cspBlockedURLs.value = [baseUrl];
+        state.capabilities.isAdBlocked.value = false;
+
+        // Test various trailing punctuation scenarios
+        const testCases = [
+          {
+            description: 'URL with trailing quote',
+            message: `PluginsManager:: Failed to load plugin "Test" - Failed to fetch dynamically imported module: ${baseUrl}"`,
+            expectedExtracted: baseUrl,
+          },
+          {
+            description: 'URL with trailing semicolon',
+            message: `PluginsManager:: Failed to load plugin "Test" - Failed to fetch dynamically imported module: ${baseUrl};`,
+            expectedExtracted: baseUrl,
+          },
+          {
+            description: 'URL with trailing comma',
+            message: `PluginsManager:: Failed to load plugin "Test" - Failed to fetch dynamically imported module: ${baseUrl}, additional text`,
+            expectedExtracted: baseUrl,
+          },
+          {
+            description: 'URL with trailing single quote',
+            message: `PluginsManager:: Failed to load plugin "Test" - Failed to fetch dynamically imported module: ${baseUrl}'`,
+            expectedExtracted: baseUrl,
+          },
+          {
+            description: 'URL with trailing parenthesis',
+            message: `PluginsManager:: Failed to load plugin "Test" - Failed to fetch dynamically imported module: ${baseUrl})`,
+            expectedExtracted: baseUrl,
+          },
+          {
+            description: 'URL with trailing angle bracket',
+            message: `PluginsManager:: Failed to load plugin "Test" - Failed to fetch dynamically imported module: ${baseUrl}>`,
+            expectedExtracted: baseUrl,
+          },
+          {
+            description: 'URL with trailing square bracket',
+            message: `PluginsManager:: Failed to load plugin "Test" - Failed to fetch dynamically imported module: ${baseUrl}]`,
+            expectedExtracted: baseUrl,
+          },
+          {
+            description: 'URL with trailing curly brace',
+            message: `PluginsManager:: Failed to load plugin "Test" - Failed to fetch dynamically imported module: ${baseUrl}}`,
+            expectedExtracted: baseUrl,
+          },
+        ];
+
+        for (const testCase of testCases) {
+          const result = await checkIfAllowedToBeNotified(
+            { message: testCase.message } as unknown as Exception,
+            state,
+            defaultHttpClient,
+          );
+
+          // Since the URL matches the CSP blocked list (exact match), it should not notify
+          expect(result).toBe(false);
+        }
+      });
+
+      it('should extract URLs correctly without being affected by multiple trailing punctuation marks', async () => {
+        const baseUrl = 'https://cdn.rudderlabs.com/v3/modern/plugins/test.min.js';
+        state.capabilities.cspBlockedURLs.value = [baseUrl];
+
+        const message = `PluginsManager:: Failed to load plugin "Test" - Failed to fetch dynamically imported module: ${baseUrl}"';,)>]}`;
+
+        const result = await checkIfAllowedToBeNotified(
+          { message } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        // Should extract clean URL and match CSP blocked list
+        expect(result).toBe(false);
+      });
+
+      it('should preserve valid URL characters that are not trailing punctuation', async () => {
+        const urlWithValidChars =
+          'https://cdn.rudderlabs.com/v3/modern/plugins/test-plugin_v1.2.3.min.js';
+        state.capabilities.cspBlockedURLs.value = [urlWithValidChars];
+
+        const message = `PluginsManager:: Failed to load plugin "Test" - Failed to fetch dynamically imported module: ${urlWithValidChars}`;
+
+        const result = await checkIfAllowedToBeNotified(
+          { message } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        // Should extract URL with valid characters intact and match CSP blocked list
+        expect(result).toBe(false);
+      });
+
+      it('should handle URLs with query parameters followed by trailing punctuation', async () => {
+        const baseUrl =
+          'https://cdn.rudderlabs.com/v3/modern/plugins/test.min.js?version=1.0&cache=false';
+        state.capabilities.cspBlockedURLs.value = [baseUrl];
+
+        const message = `PluginsManager:: Failed to load plugin "Test" - Failed to fetch dynamically imported module: ${baseUrl}";`;
+
+        const result = await checkIfAllowedToBeNotified(
+          { message } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        // Should extract clean URL with query params and match CSP blocked list
+        expect(result).toBe(false);
+      });
     });
   });
 
@@ -1380,6 +1492,74 @@ describe('Error Reporting utilities', () => {
       expect(result1).toBeUndefined();
       expect(result2).toBeUndefined();
       expect(result3).toBeUndefined();
+    });
+  });
+
+  describe('checkIfAdBlockersAreActive', () => {
+    beforeEach(() => {
+      // Reset ad blocker state
+      state.capabilities.isAdBlocked.value = undefined;
+      state.capabilities.isAdBlockerDetectionInProgress.value = false;
+    });
+
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('should immediately resolve with true when ad blocker is not detected', () => {
+      state.capabilities.isAdBlocked.value = false;
+      const mockResolve = jest.fn();
+
+      checkIfAdBlockersAreActive(state, defaultHttpClient, mockResolve);
+
+      expect(mockResolve).toHaveBeenCalledWith(true);
+    });
+
+    it('should immediately resolve with false when ad blocker is detected', () => {
+      state.capabilities.isAdBlocked.value = true;
+      const mockResolve = jest.fn();
+
+      checkIfAdBlockersAreActive(state, defaultHttpClient, mockResolve);
+
+      expect(mockResolve).toHaveBeenCalledWith(false);
+    });
+
+    it('should set up effect listener when ad blocker status is undefined and not in progress', () => {
+      state.capabilities.isAdBlocked.value = undefined;
+      state.capabilities.isAdBlockerDetectionInProgress.value = false;
+      const mockResolve = jest.fn();
+
+      checkIfAdBlockersAreActive(state, defaultHttpClient, mockResolve);
+
+      // Should not resolve immediately but wait for effect
+      expect(mockResolve).not.toHaveBeenCalled();
+    });
+
+    it('should not trigger duplicate detection when already in progress', () => {
+      state.capabilities.isAdBlocked.value = undefined;
+      state.capabilities.isAdBlockerDetectionInProgress.value = true;
+      const mockResolve = jest.fn();
+
+      checkIfAdBlockersAreActive(state, defaultHttpClient, mockResolve);
+
+      // Should not resolve immediately but wait for effect
+      expect(mockResolve).not.toHaveBeenCalled();
+    });
+
+    it('should resolve when detection completes via effect', async () => {
+      state.capabilities.isAdBlocked.value = undefined;
+      state.capabilities.isAdBlockerDetectionInProgress.value = false;
+      const mockResolve = jest.fn();
+
+      checkIfAdBlockersAreActive(state, defaultHttpClient, mockResolve);
+
+      // Simulate detection completion
+      state.capabilities.isAdBlocked.value = false;
+
+      // Wait for effect to trigger
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      expect(mockResolve).toHaveBeenCalledWith(true);
     });
   });
 });

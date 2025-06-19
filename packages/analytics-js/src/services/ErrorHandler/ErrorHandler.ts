@@ -1,4 +1,4 @@
-import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isString, isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import {
   ErrorType,
   type ErrorInfo,
@@ -82,14 +82,15 @@ class ErrorHandler implements IErrorHandler {
     // Listen to CSP violations and add the blocked URL to the state
     // if those URLs are from RS CDN.
     document.addEventListener('securitypolicyviolation', (event: SecurityPolicyViolationEvent) => {
+      const blockedURL = isString(event.blockedURI) ? event.blockedURI : '';
       if (
         event.disposition === 'enforce' &&
-        event.blockedURI.startsWith(SDK_CDN_BASE_URL) &&
-        !state.capabilities.cspBlockedURLs.value.includes(event.blockedURI)
+        blockedURL.startsWith(SDK_CDN_BASE_URL) &&
+        !state.capabilities.cspBlockedURLs.value.includes(blockedURL)
       ) {
         state.capabilities.cspBlockedURLs.value = [
           ...state.capabilities.cspBlockedURLs.value,
-          event.blockedURI,
+          blockedURL,
         ];
       }
     });

@@ -498,5 +498,39 @@ describe('ErrorHandler', () => {
       });
       expect(state.capabilities.cspBlockedURLs.value).toHaveLength(testUrls.length);
     });
+
+    it('should handle non-string blockedURI values gracefully', () => {
+      const testCases = [
+        { value: null, description: 'null blockedURI' },
+        { value: undefined, description: 'undefined blockedURI' },
+        { value: 123, description: 'numeric blockedURI' },
+        { value: {}, description: 'object blockedURI' },
+        { value: [], description: 'array blockedURI' },
+      ];
+
+      testCases.forEach(({ value, description: _description }) => {
+        // Clear previous state
+        state.capabilities.cspBlockedURLs.value = [];
+
+        // Create CSP violation event with non-string blockedURI
+        const cspEvent = new SecurityPolicyViolationEvent('securitypolicyviolation', {
+          disposition: 'enforce',
+          blockedURI: value as any,
+          violatedDirective: 'script-src',
+          effectiveDirective: 'script-src',
+          originalPolicy: "script-src 'self'",
+          documentURI: 'https://example.com',
+          referrer: '',
+          statusCode: 200,
+          lineNumber: 1,
+          columnNumber: 1,
+          sourceFile: 'https://example.com',
+        });
+
+        // Should not throw an error and should not add anything to blocked list
+        expect(() => document.dispatchEvent(cspEvent)).not.toThrow();
+        expect(state.capabilities.cspBlockedURLs.value).toEqual([]);
+      });
+    });
   });
 });

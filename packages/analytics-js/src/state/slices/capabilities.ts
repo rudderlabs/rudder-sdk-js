@@ -13,9 +13,9 @@ const capabilitiesState: CapabilitiesState = {
   isUaCHAvailable: signal(false),
   isCryptoAvailable: signal(false),
   isIE11: signal(false),
-  isAdBlockerDetectionInProgress: signal(false),
-  isAdBlocked: signal(undefined),
-  cspBlockedURLs: signal([]),
+  isAdBlockerDetectionInProgress: signal<boolean>(false),
+  isAdBlocked: signal<boolean | undefined>(undefined),
+  cspBlockedURLs: signal<string[]>([]),
 };
 
 export { capabilitiesState };

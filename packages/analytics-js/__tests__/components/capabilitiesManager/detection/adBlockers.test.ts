@@ -21,6 +21,10 @@ describe('detectAdBlockers', () => {
     }, 10);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('should set detection in progress when starting detection', () => {
     state.lifecycle.sourceConfigUrl.value = 'https://example.com/some/path/';
 
@@ -191,6 +195,25 @@ describe('detectAdBlockers', () => {
           url: 'https://custom.dataplane.com/v1/sourceConfig?view=ad',
         }),
       );
+    });
+  });
+
+  describe('error handling', () => {
+    it('should reset detection flag and re-throw error when an exception occurs', () => {
+      state.lifecycle.sourceConfigUrl.value = 'https://api.rudderstack.com/sourceConfig';
+
+      // Mock httpClient to throw an error
+      const mockGetAsyncData = jest.fn().mockImplementation(() => {
+        throw new Error('HTTP client error');
+      });
+      const mockHttpClient = { getAsyncData: mockGetAsyncData };
+
+      // Verify initial state
+      expect(state.capabilities.isAdBlockerDetectionInProgress.value).toBe(false);
+
+      // Should throw an error and reset the flag
+      expect(() => detectAdBlockers(mockHttpClient as any)).toThrow('HTTP client error');
+      expect(state.capabilities.isAdBlockerDetectionInProgress.value).toBe(false);
     });
   });
 });

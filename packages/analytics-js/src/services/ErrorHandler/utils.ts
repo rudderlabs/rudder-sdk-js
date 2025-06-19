@@ -154,6 +154,37 @@ const getBugsnagErrorEvent = (
 };
 
 /**
+ * A function to check if adblockers are active. The promise's resolve function
+ * is invoked with true if adblockers are not detected and false otherwise.
+ * @param {ApplicationState} state The application state
+ * @param {IHttpClient} httpClient The HTTP client instance
+ * @param {Function} resolve The promise's resolve function
+ */
+const checkIfAdBlockersAreActive = (
+  state: ApplicationState,
+  httpClient: IHttpClient,
+  resolve: (value: boolean) => void,
+): void => {
+  // Initiate ad blocker detection if not done previously and not already in progress.
+  if (isUndefined(state.capabilities.isAdBlocked.value)) {
+    if (state.capabilities.isAdBlockerDetectionInProgress.value === false) {
+      detectAdBlockers(httpClient);
+    }
+
+    // Wait for the detection to complete.
+    effect(() => {
+      if (isDefined(state.capabilities.isAdBlocked.value)) {
+        // If ad blocker is not detected, notify.
+        resolve(state.capabilities.isAdBlocked.value === false);
+      }
+    });
+  } else {
+    // If ad blocker is not detected, notify.
+    resolve(state.capabilities.isAdBlocked.value === false);
+  }
+};
+
+/**
  * A function to determine whether the error should be promoted to notify or not.
  * For plugin and integration errors from RS CDN, if it is due to CSP blocked URLs or AdBlockers,
  * it will not be promoted to notify.
@@ -173,30 +204,15 @@ const checkIfAllowedToBeNotified = (
   return new Promise(resolve => {
     // Filter out script load failures that are not from the RS CDN.
     if (SCRIPT_LOAD_FAILURE_MESSAGES.some((regex: RegExp) => regex.test(errMsg))) {
-      const extractedURL = errMsg.match(/https?:\/\/\S+/)?.[0];
+      const extractedURL = /https?:\/\/[^\s"'(),;<>[\]{}]+/.exec(errMsg)?.[0];
       if (isString(extractedURL)) {
         if (extractedURL.startsWith(SDK_CDN_BASE_URL)) {
           // Filter out errors that are from CSP blocked URLs.
           if (state.capabilities.cspBlockedURLs.value.includes(extractedURL)) {
             resolve(false);
           } else {
-            // Filter out errors that are from AdBlockers.
-            // Initiate ad blocker detection if not done previously and not already in progress.
-            if (isUndefined(state.capabilities.isAdBlocked.value)) {
-              if (state.capabilities.isAdBlockerDetectionInProgress.value === false) {
-                detectAdBlockers(httpClient);
-              }
-
-              effect(() => {
-                if (isDefined(state.capabilities.isAdBlocked.value)) {
-                  // If ad blocker is not detected, notify.
-                  resolve(state.capabilities.isAdBlocked.value === false);
-                }
-              });
-            } else {
-              // If ad blocker is not detected, notify.
-              resolve(state.capabilities.isAdBlocked.value === false);
-            }
+            // Filter out errors if adblockers are detected.
+            checkIfAdBlockersAreActive(state, httpClient, resolve);
           }
         } else {
           // Filter out errors that are not from the RS CDN.
@@ -304,4 +320,5 @@ export {
   getUserDetails, // for testing
   getDeviceDetails, // for testing
   getErrorGroupingHash,
+  checkIfAdBlockersAreActive, // for testing
 };
