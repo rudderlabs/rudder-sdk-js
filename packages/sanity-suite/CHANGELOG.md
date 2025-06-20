@@ -2,6 +2,22 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.3.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.2.14...@rudderstack/analytics-js-sanity-suite@3.3.0) (2025-06-20)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.21.0`
+
+### Features
+
+* **@rudderstack/analytics-js-sanity-suite:** create html file to host all sanity suites ([2ca5280](https://github.com/rudderlabs/rudder-sdk-js/commit/2ca528099a86daa9bf6fd36df31f49db97a8df42))
+
+
+### Bug Fixes
+
+* **@rudderstack/analytics-js-sanity-suite:** templated urls ([9d73956](https://github.com/rudderlabs/rudder-sdk-js/commit/9d73956055f8a68239cb824341e3ed9f8e601d92))
+* address ai bot review comments ([0e73528](https://github.com/rudderlabs/rudder-sdk-js/commit/0e73528e5f9faed01a10a1d5597f248459f68811))
+
 ## [3.2.14](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.2.13...@rudderstack/analytics-js-sanity-suite@3.2.14) (2025-06-12)
 
 ### Dependency Updates
