@@ -947,4 +947,35 @@ describe('getProductListViewedEventParams_function', () => {
     expect(result.contentType).toEqual('product');
     expect(result.contents.length).toEqual(2);
   });
+
+  it('test_category_without_valid_products', () => {
+    const properties = {
+      products: [], // Empty products array
+      category: 'electronics',
+    };
+    const result = getProductListViewedEventParams(properties);
+    expect(result.contentIds).toEqual(['electronics']);
+    expect(result.contentType).toEqual('product_group');
+    expect(result.contents).toEqual([{
+      id: 'electronics',
+      quantity: 1,
+    }]);
+  });
+
+  it('test_category_with_invalid_products', () => {
+    const properties = {
+      products: [
+        { quantity: 2 }, // Missing product_id
+        { price: 10 },   // Missing product_id
+      ],
+      category: 'clothing',
+    };
+    const result = getProductListViewedEventParams(properties);
+    expect(result.contentIds).toEqual(['clothing']);
+    expect(result.contentType).toEqual('product_group');
+    expect(result.contents).toEqual([{
+      id: 'clothing',
+      quantity: 1,
+    }]);
+  });
 });
