@@ -56,3 +56,32 @@ User Event → SDK Core → Plugin Processing → Destination Routing → Extern
 - **User ID** - Set when user identifies
 - **Session ID** - Generated per session
 - **Traits** - User and group characteristics
+
+## 🚨 Error Handling & Monitoring Architecture
+
+### **Error Filtering System**
+
+The SDK implements intelligent error filtering to reduce noise from non-actionable errors:
+
+```
+Error Occurs → Error Classification → Filtering Logic → Notification Decision
+     ↓              ↓                    ↓                    ↓
+Raw Error    Script/Plugin/      CSP Check +         Allow/Suppress
+             Integration        Ad Blocker Check     Notification
+```
+
+### **Multi-Stage Filtering Process**
+
+1. **Error Classification** - Categorize error type (script load, integration, etc.)
+2. **URL Extraction** - Extract relevant URLs from error messages
+3. **CSP Violation Check** - Check if URL was blocked by Content Security Policy
+4. **Ad Blocker Detection** - Detect if ad blockers are interfering with requests
+5. **Notification Decision** - Suppress notifications for environmental issues
+
+### **Error Categories**
+
+#### **Suppressible Errors** (Environmental Issues)
+
+- Plugin/Integration script loading failures due to CSP
+- Plugin/Integration script loading failures due to ad blockers
+- Dynamic import failures for blocked resources

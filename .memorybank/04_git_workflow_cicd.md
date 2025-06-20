@@ -67,6 +67,46 @@ Use conventional commits format.
 - **Package Publishing** - NPM registry publication
 - **CDN Deployment** - Asset distribution
 
+### **Sanity Suite Deployment**
+
+The sanity suite has a specialized deployment pipeline that supports multiple environments:
+
+The base URL for the sanity suite is `https://cdn.rudderlabs.com/sanity-suite/`.
+
+#### **Environment specific paths**:
+
+- Production: `""` (empty, root path)
+- Staging: `"/staging"`
+- Beta: `"/beta/{identifier}"`
+- Development: `"/dev"`
+
+#### **Deployment URLs**
+
+- Production:
+  - `https://cdn.rudderlabs.com/sanity-suite/v3/cdn/index.html`
+  - `https://cdn.rudderlabs.com/sanity-suite/v3/npm/index.html`
+  - `https://cdn.rudderlabs.com/sanity-suite/v1.1/cdn/index.html`
+  - `https://cdn.rudderlabs.com/sanity-suite/v1.1/npm/index.html`
+  - All suites webpage: `https://cdn.rudderlabs.com/sanity-suite/all/index.html`
+- Staging:
+  - `https://cdn.rudderlabs.com/sanity-suite/staging/v3/cdn/index.html`
+  - `https://cdn.rudderlabs.com/sanity-suite/staging/v3/npm/index.html`
+  - `https://cdn.rudderlabs.com/sanity-suite/staging/v1.1/cdn/index.html`
+  - `https://cdn.rudderlabs.com/sanity-suite/staging/v1.1/npm/index.html`
+  - All suites webpage: `https://cdn.rudderlabs.com/sanity-suite/staging/all/index.html`
+- Beta:
+  - `https://cdn.rudderlabs.com/sanity-suite/beta/{identifier}/v3/cdn/index.html`
+  - `https://cdn.rudderlabs.com/sanity-suite/beta/{identifier}/v3/npm/index.html`
+  - `https://cdn.rudderlabs.com/sanity-suite/beta/{identifier}/v1.1/cdn/index.html`
+  - `https://cdn.rudderlabs.com/sanity-suite/beta/{identifier}/v1.1/npm/index.html`
+  - All suites webpage: `https://cdn.rudderlabs.com/sanity-suite/beta/{identifier}/all/index.html`
+- Development:
+  - `https://cdn.rudderlabs.com/sanity-suite/dev/v3/cdn/index.html`
+  - `https://cdn.rudderlabs.com/sanity-suite/dev/v3/npm/index.html`
+  - `https://cdn.rudderlabs.com/sanity-suite/dev/v1.1/cdn/index.html`
+  - `https://cdn.rudderlabs.com/sanity-suite/dev/v1.1/npm/index.html`
+  - All suites webpage: `https://cdn.rudderlabs.com/sanity-suite/dev/all/index.html`
+
 ## ⚙️ Development Commands
 
 ### **Common Tasks**

@@ -100,6 +100,10 @@ packages/
 
 - **Purpose:** Sanity suite for manual and automated testing of the SDK.
 - **Usage:** Used with the RudderStack client-side test framework.
+- **Structure:**
+  - `public/` - Static HTML files for different test scenarios
+  - `public/all/index.html` - **Aggregator page** that embeds all sanity suites in iframes
+  - Supports multiple SDK versions (V3, V1.1) and distribution types (CDN, NPM)
 
 ### `loading-scripts`
 

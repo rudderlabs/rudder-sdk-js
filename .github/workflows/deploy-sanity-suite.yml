@@ -121,6 +121,16 @@ jobs:
         run: |
           npm run build:sanity
 
+      - name: Update aggregator file with environment path
+        run: |
+          if [ -f "packages/sanity-suite/dist/all/index.html" ]; then
+            echo "Updating all/index.html with SUITE_CDN_PATH: ${{ env.SUITE_CDN_PATH }}"
+            sed -i 's|__ENV_PATH__|${{ env.SUITE_CDN_PATH }}|g' packages/sanity-suite/dist/all/index.html
+            echo "Updated aggregator file successfully"
+          else
+            echo "Warning: all/index.html not found in dist directory"
+          fi
+
       - name: Sync files to S3
         run: |
           aws s3 cp packages/sanity-suite/dist/ s3://${{ secrets.AWS_S3_BUCKET_NAME }}/sanity-suite${{ env.SUITE_CDN_PATH }}/ --recursive --cache-control ${{ env.CACHE_CONTROL }}
