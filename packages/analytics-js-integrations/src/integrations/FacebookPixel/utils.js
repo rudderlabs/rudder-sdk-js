@@ -122,7 +122,7 @@ const buildPayLoad = (
   const payload = Object.entries(properties).reduce((acc, [currPropName, currPropValue]) => {
     const isPropertyPii =
       defaultPiiProperties.includes(currPropName) ||
-      Object.prototype.hasOwnProperty.call(shouldPropBeHashedMap, currPropName);
+      Object.hasOwn(shouldPropBeHashedMap, currPropName);
 
     const isProperyWhiteListed = whitelistPiiPropertiesNames.includes(currPropName);
 
@@ -156,7 +156,7 @@ const merge = (obj1, obj2) => {
 
   // All properties of obj1
   Object.keys(safeObj1).forEach(propObj1 => {
-    if (Object.prototype.hasOwnProperty.call(safeObj1, propObj1)) {
+    if (Object.hasOwn(safeObj1, propObj1)) {
       res[propObj1] = safeObj1[propObj1];
     }
   });
@@ -164,8 +164,8 @@ const merge = (obj1, obj2) => {
   // Extra properties of obj2
   Object.keys(safeObj2).forEach(propObj2 => {
     if (
-      Object.prototype.hasOwnProperty.call(safeObj2, propObj2) &&
-      !Object.prototype.hasOwnProperty.call(res, propObj2)
+      Object.hasOwn(safeObj2, propObj2) &&
+      !Object.hasOwn(res, propObj2)
     ) {
       res[propObj2] = safeObj2[propObj2];
     }
