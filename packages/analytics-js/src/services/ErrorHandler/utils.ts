@@ -19,8 +19,7 @@ import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { METRICS_PAYLOAD_VERSION } from '@rudderstack/analytics-js-common/constants/metrics';
 import {
   ERROR_MESSAGES_TO_BE_FILTERED,
-  INTEGRATIONS_LOAD_FAILURE_MESSAGES,
-  PLUGINS_LOAD_FAILURE_MESSAGES,
+  SCRIPT_LOAD_FAILURE_MESSAGES,
 } from '@rudderstack/analytics-js-common/constants/errors';
 import { SDK_CDN_BASE_URL } from '../../constants/urls';
 import {
@@ -31,9 +30,16 @@ import {
   SDK_GITHUB_URL,
   SOURCE_NAME,
 } from './constants';
-import { isDefined, isString } from '@rudderstack/analytics-js-common/utilities/checks';
+import {
+  isDefined,
+  isString,
+  isUndefined,
+} from '@rudderstack/analytics-js-common/utilities/checks';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { normalizeError } from './ErrorEvent/event';
+import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import { detectAdBlockers } from '../../components/capabilitiesManager/detection/adBlockers';
+import { effect } from '@preact/signals-core';
 
 const getErrInstance = (err: SDKError, errorType: string) => {
   switch (errorType) {
@@ -148,24 +154,81 @@ const getBugsnagErrorEvent = (
 };
 
 /**
- * A function to determine whether the error should be promoted to notify or not
- * @param {Error} exception
- * @returns
+ * A function to check if adblockers are active. The promise's resolve function
+ * is invoked with true if adblockers are not detected and false otherwise.
+ * @param {ApplicationState} state The application state
+ * @param {IHttpClient} httpClient The HTTP client instance
+ * @param {Function} resolve The promise's resolve function
  */
-const isAllowedToBeNotified = (exception: Exception) => {
+const checkIfAdBlockersAreActive = (
+  state: ApplicationState,
+  httpClient: IHttpClient,
+  resolve: (value: boolean) => void,
+): void => {
+  // Initiate ad blocker detection if not done previously and not already in progress.
+  if (isUndefined(state.capabilities.isAdBlocked.value)) {
+    if (state.capabilities.isAdBlockerDetectionInProgress.value === false) {
+      detectAdBlockers(httpClient);
+    }
+
+    // Wait for the detection to complete.
+    const detectionDisposer = effect(() => {
+      if (isDefined(state.capabilities.isAdBlocked.value)) {
+        // If ad blocker is not detected, notify.
+        resolve(state.capabilities.isAdBlocked.value === false);
+
+        // Cleanup the effect.
+        detectionDisposer();
+      }
+    });
+  } else {
+    // If ad blocker is not detected, notify.
+    resolve(state.capabilities.isAdBlocked.value === false);
+  }
+};
+
+/**
+ * A function to determine whether the error should be promoted to notify or not.
+ * For plugin and integration errors from RS CDN, if it is due to CSP blocked URLs or AdBlockers,
+ * it will not be promoted to notify.
+ * If it is due to other reasons, it will be promoted to notify.
+ * @param {Error} exception The error object
+ * @param {ApplicationState} state The application state
+ * @param {IHttpClient} httpClient The HTTP client instance
+ * @returns A promise that resolves to a boolean indicating whether the error should be promoted to notify or not
+ */
+const checkIfAllowedToBeNotified = (
+  exception: Exception,
+  state: ApplicationState,
+  httpClient: IHttpClient,
+): Promise<boolean> => {
   const errMsg = exception.message;
 
-  // Filter out plugin load errors from non-RudderStack CDN URLs
-  if (PLUGINS_LOAD_FAILURE_MESSAGES.some((regex: RegExp) => regex.test(errMsg))) {
-    return errMsg.includes(SDK_CDN_BASE_URL);
-  }
-
-  // Filter out integration load errors from non-RudderStack CDN URLs
-  if (INTEGRATIONS_LOAD_FAILURE_MESSAGES.some((regex: RegExp) => regex.test(errMsg))) {
-    return errMsg.includes(SDK_CDN_BASE_URL);
-  }
-
-  return !ERROR_MESSAGES_TO_BE_FILTERED.some((e: RegExp) => e.test(errMsg));
+  return new Promise(resolve => {
+    // Filter out script load failures that are not from the RS CDN.
+    if (SCRIPT_LOAD_FAILURE_MESSAGES.some((regex: RegExp) => regex.test(errMsg))) {
+      const extractedURL = /https?:\/\/[^\s"'(),;<>[\]{}]+/.exec(errMsg)?.[0];
+      if (isString(extractedURL)) {
+        if (extractedURL.startsWith(SDK_CDN_BASE_URL)) {
+          // Filter out errors that are from CSP blocked URLs.
+          if (state.capabilities.cspBlockedURLs.value.includes(extractedURL)) {
+            resolve(false);
+          } else {
+            // Filter out errors if adblockers are detected.
+            checkIfAdBlockersAreActive(state, httpClient, resolve);
+          }
+        } else {
+          // Filter out errors that are not from the RS CDN.
+          resolve(false);
+        }
+      } else {
+        // Allow the error to be notified if no URL could be extracted from the error message
+        resolve(true);
+      }
+    } else {
+      resolve(!ERROR_MESSAGES_TO_BE_FILTERED.some((e: RegExp) => e.test(errMsg)));
+    }
+  });
 };
 
 /**
@@ -256,8 +319,9 @@ export {
   getURLWithoutQueryString,
   isSDKError,
   getErrorDeliveryPayload,
-  isAllowedToBeNotified,
+  checkIfAllowedToBeNotified,
   getUserDetails, // for testing
   getDeviceDetails, // for testing
   getErrorGroupingHash,
+  checkIfAdBlockersAreActive, // for testing
 };
