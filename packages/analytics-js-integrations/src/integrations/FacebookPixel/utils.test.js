@@ -39,6 +39,7 @@ describe('Facebook Pixel utils', () => {
 
       expect(result).toEqual({
         contentIds: [],
+        contentType: 'product',
         contents: [],
       });
     });
@@ -51,6 +52,7 @@ describe('Facebook Pixel utils', () => {
 
       expect(result).toEqual({
         contentIds: [],
+        contentType: 'product',
         contents: [],
       });
     });

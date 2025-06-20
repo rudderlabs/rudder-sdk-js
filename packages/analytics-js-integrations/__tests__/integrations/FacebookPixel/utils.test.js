@@ -2,6 +2,8 @@ import {
   buildPayLoad,
   getHashedStatus,
   getProductsContentsAndContentIds,
+  merge,
+  getProductListViewedEventParams,
 } from '../../../src/integrations/FacebookPixel/utils';
 
 const blacklistPiiPropertiesMock = [
@@ -742,6 +744,75 @@ describe('buildPayLoad_function', () => {
     });
   });
 
+  // Tests for null/undefined properties handling (fixes the "Cannot convert undefined or null to object" error)
+  it('test_null_properties', () => {
+    const rudderElement = {
+      message: {
+        properties: null,
+      },
+    };
+    const result = buildPayLoad(
+      rudderElement,
+      whitelistPiiPropertiesMock,
+      blacklistPiiPropertiesMock,
+    );
+    expect(result).toEqual({});
+  });
+
+  it('test_undefined_properties', () => {
+    const rudderElement = {
+      message: {
+        properties: undefined,
+      },
+    };
+    const result = buildPayLoad(
+      rudderElement,
+      whitelistPiiPropertiesMock,
+      blacklistPiiPropertiesMock,
+    );
+    expect(result).toEqual({});
+  });
+
+  it('test_non_object_properties', () => {
+    const rudderElement = {
+      message: {
+        properties: 'not an object',
+      },
+    };
+    const result = buildPayLoad(
+      rudderElement,
+      whitelistPiiPropertiesMock,
+      blacklistPiiPropertiesMock,
+    );
+    expect(result).toEqual({});
+  });
+
+  it('test_number_properties', () => {
+    const rudderElement = {
+      message: {
+        properties: 123,
+      },
+    };
+    const result = buildPayLoad(
+      rudderElement,
+      whitelistPiiPropertiesMock,
+      blacklistPiiPropertiesMock,
+    );
+    expect(result).toEqual({});
+  });
+
+  it('test_missing_properties_key', () => {
+    const rudderElement = {
+      message: {},
+    };
+    const result = buildPayLoad(
+      rudderElement,
+      whitelistPiiPropertiesMock,
+      blacklistPiiPropertiesMock,
+    );
+    expect(result).toEqual({});
+  });
+
   it('test getProductsContentsAndContentIds', () => {
     const products = [
       {
@@ -775,5 +846,105 @@ describe('buildPayLoad_function', () => {
       ],
       contentIds: ['prodid1', 'prodid2'],
     });
+  });
+});
+
+describe('merge_function', () => {
+  it('test_merge_normal_objects', () => {
+    const obj1 = { a: 1, b: 2 };
+    const obj2 = { c: 3, d: 4 };
+    const result = merge(obj1, obj2);
+    expect(result).toEqual({ a: 1, b: 2, c: 3, d: 4 });
+  });
+
+  it('test_merge_overlapping_objects', () => {
+    const obj1 = { a: 1, b: 2 };
+    const obj2 = { b: 3, c: 4 };
+    const result = merge(obj1, obj2);
+    expect(result).toEqual({ a: 1, b: 2, c: 4 }); // obj1 takes precedence for overlapping keys
+  });
+
+  it('test_merge_null_obj1', () => {
+    const obj1 = null;
+    const obj2 = { c: 3, d: 4 };
+    const result = merge(obj1, obj2);
+    expect(result).toEqual({ c: 3, d: 4 });
+  });
+
+  it('test_merge_null_obj2', () => {
+    const obj1 = { a: 1, b: 2 };
+    const obj2 = null;
+    const result = merge(obj1, obj2);
+    expect(result).toEqual({ a: 1, b: 2 });
+  });
+
+  it('test_merge_undefined_obj1', () => {
+    const obj1 = undefined;
+    const obj2 = { c: 3, d: 4 };
+    const result = merge(obj1, obj2);
+    expect(result).toEqual({ c: 3, d: 4 });
+  });
+
+  it('test_merge_undefined_obj2', () => {
+    const obj1 = { a: 1, b: 2 };
+    const obj2 = undefined;
+    const result = merge(obj1, obj2);
+    expect(result).toEqual({ a: 1, b: 2 });
+  });
+
+  it('test_merge_both_null', () => {
+    const obj1 = null;
+    const obj2 = null;
+    const result = merge(obj1, obj2);
+    expect(result).toEqual({});
+  });
+
+  it('test_merge_both_undefined', () => {
+    const obj1 = undefined;
+    const obj2 = undefined;
+    const result = merge(obj1, obj2);
+    expect(result).toEqual({});
+  });
+
+  it('test_merge_non_object_types', () => {
+    const obj1 = 'string';
+    const obj2 = 123;
+    const result = merge(obj1, obj2);
+    expect(result).toEqual({});
+  });
+});
+
+describe('getProductListViewedEventParams_function', () => {
+  it('test_null_properties', () => {
+    const result = getProductListViewedEventParams(null);
+    expect(result).toEqual({ contentIds: [], contentType: 'product', contents: [] });
+  });
+
+  it('test_undefined_properties', () => {
+    const result = getProductListViewedEventParams(undefined);
+    expect(result).toEqual({ contentIds: [], contentType: 'product', contents: [] });
+  });
+
+  it('test_non_object_properties', () => {
+    const result = getProductListViewedEventParams('not an object');
+    expect(result).toEqual({ contentIds: [], contentType: 'product', contents: [] });
+  });
+
+  it('test_empty_properties', () => {
+    const result = getProductListViewedEventParams({});
+    expect(result).toEqual({ contentIds: [], contentType: 'product', contents: [] });
+  });
+
+  it('test_normal_properties_with_products', () => {
+    const properties = {
+      products: [
+        { product_id: 'prod1', quantity: 2 },
+        { product_id: 'prod2', quantity: 1 },
+      ],
+    };
+    const result = getProductListViewedEventParams(properties);
+    expect(result.contentIds).toEqual(['prod1', 'prod2']);
+    expect(result.contentType).toEqual('product');
+    expect(result.contents.length).toEqual(2);
   });
 });
