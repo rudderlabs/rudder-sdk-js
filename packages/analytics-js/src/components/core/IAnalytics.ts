@@ -26,6 +26,7 @@ import type { IEventManager } from '../eventManager/types';
 import type { ICapabilitiesManager } from '../capabilitiesManager/types';
 import type { PreloadedEventCall } from '../preloadBuffer/types';
 import type { ConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
+import type { RSACustomIntegration } from '@rudderstack/analytics-js-common/types/CustomIntegration';
 
 export interface IAnalytics {
   preloadBuffer: BufferQueue<PreloadedEventCall>;
@@ -215,4 +216,16 @@ export interface IAnalytics {
    * To set auth token
    */
   setAuthToken(token: string): void;
+
+  /**
+   * Add a custom integration to the SDK
+   * @param name - Unique name for the custom integration
+   * @param integration - The custom integration instance implementing RSACustomIntegration
+   * @param isBufferedInvocation - Internal flag to indicate if this is a buffered call
+   */
+  addCustomIntegration(
+    name: string,
+    integration: RSACustomIntegration,
+    isBufferedInvocation?: boolean,
+  ): void;
 }

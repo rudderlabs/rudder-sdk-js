@@ -6,22 +6,17 @@ import {
 } from '@rudderstack/analytics-js-common/utilities/object';
 import type {
   Destination,
-  DeviceModeDestination,
+  DeviceModeIntegration,
 } from '@rudderstack/analytics-js-common/types/Destination';
 import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type {
-  IRudderAnalytics,
-  AnalyticsInstance,
+  IntegrationRSAnalytics,
+  RSAnalytics,
 } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
-import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
-import type { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 import type { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
-import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import type { IdentifyTraits } from '@rudderstack/analytics-js-common/types/traits';
 import type {
-  AnonymousIdOptions,
   SourceConfigurationOverride,
   SourceConfigurationOverrideDestination,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
@@ -36,16 +31,12 @@ import {
   INTEGRATION_READY_TIMEOUT_ERROR,
   INTEGRATION_READY_CHECK_ERROR,
 } from './logMessages';
-import {
-  aliasArgumentsToCallOptions,
-  groupArgumentsToCallOptions,
-  identifyArgumentsToCallOptions,
-  isHybridModeDestination,
-  pageArgumentsToCallOptions,
-  trackArgumentsToCallOptions,
-} from '../shared-chunks/deviceModeDestinations';
+import { isHybridModeDestination } from '../shared-chunks/deviceModeDestinations';
 import { getSanitizedValue, isFunction } from '../shared-chunks/common';
-import { isBoolean } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isBoolean, isString } from '@rudderstack/analytics-js-common/utilities/checks';
+import type { RSACustomIntegration } from '@rudderstack/analytics-js-common/types/CustomIntegration';
+import type { RSAEvent } from '@rudderstack/analytics-js-common/types/Event';
+import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 
 /**
  * Determines if the destination SDK code is evaluated
@@ -75,98 +66,17 @@ const createDestinationInstance = (
   sdkTypeName: string,
   dest: Destination,
   state: ApplicationState,
-): DeviceModeDestination => {
-  const rAnalytics = (globalThis as any).rudderanalytics as IRudderAnalytics;
-  const analytics = rAnalytics.getAnalyticsInstance(state.lifecycle.writeKey.value);
-
-  const analyticsInstance: AnalyticsInstance = {
+): DeviceModeIntegration => {
+  const analyticsInstance: IntegrationRSAnalytics = {
     loadIntegration: state.nativeDestinations.loadIntegration.value,
     logLevel: state.lifecycle.logLevel.value,
     loadOnlyIntegrations:
       state.consents.postConsent.value?.integrations ??
       state.nativeDestinations.loadOnlyIntegrations.value,
-    page: (
-      category?: string | Nullable<ApiObject> | ApiCallback,
-      name?: string | Nullable<ApiOptions> | Nullable<ApiObject> | ApiCallback,
-      properties?: Nullable<ApiOptions> | Nullable<ApiObject> | ApiCallback,
-      options?: Nullable<ApiOptions> | ApiCallback,
-      callback?: ApiCallback,
-    ) =>
-      analytics.page(
-        pageArgumentsToCallOptions(
-          getSanitizedValue(category),
-          getSanitizedValue(name),
-          getSanitizedValue(properties),
-          getSanitizedValue(options),
-          getSanitizedValue(callback),
-        ),
-      ),
-    track: (
-      event: string,
-      properties?: Nullable<ApiObject> | ApiCallback,
-      options?: Nullable<ApiOptions> | ApiCallback,
-      callback?: ApiCallback,
-    ) =>
-      analytics.track(
-        trackArgumentsToCallOptions(
-          getSanitizedValue(event),
-          getSanitizedValue(properties),
-          getSanitizedValue(options),
-          getSanitizedValue(callback),
-        ),
-      ),
-    identify: (
-      userId: string | number | Nullable<IdentifyTraits>,
-      traits?: Nullable<IdentifyTraits> | Nullable<ApiOptions> | ApiCallback,
-      options?: Nullable<ApiOptions> | ApiCallback,
-      callback?: ApiCallback,
-    ) =>
-      analytics.identify(
-        identifyArgumentsToCallOptions(
-          getSanitizedValue(userId),
-          getSanitizedValue(traits),
-          getSanitizedValue(options),
-          getSanitizedValue(callback),
-        ),
-      ),
-    alias: (
-      to: string,
-      from?: string | Nullable<ApiOptions> | ApiCallback,
-      options?: Nullable<ApiOptions> | ApiCallback,
-      callback?: ApiCallback,
-    ) =>
-      analytics.alias(
-        aliasArgumentsToCallOptions(
-          getSanitizedValue(to),
-          getSanitizedValue(from),
-          getSanitizedValue(options),
-          getSanitizedValue(callback),
-        ),
-      ),
-    group: (
-      groupId: string | number | Nullable<ApiObject>,
-      traits?: Nullable<ApiOptions> | Nullable<ApiObject> | ApiCallback,
-      options?: Nullable<ApiOptions> | ApiCallback,
-      callback?: ApiCallback,
-    ) =>
-      analytics.group(
-        groupArgumentsToCallOptions(
-          getSanitizedValue(groupId),
-          getSanitizedValue(traits),
-          getSanitizedValue(options),
-          getSanitizedValue(callback),
-        ),
-      ),
-    getAnonymousId: (options?: AnonymousIdOptions) =>
-      analytics.getAnonymousId(getSanitizedValue(options)),
-    getUserId: () => analytics.getUserId(),
-    getUserTraits: () => analytics.getUserTraits(),
-    getGroupId: () => analytics.getGroupId(),
-    getGroupTraits: () => analytics.getGroupTraits(),
-    getSessionId: () => analytics.getSessionId(),
+    ...(state.lifecycle.safeAnalyticsInstance.value as RSAnalytics),
   };
 
-  const deviceModeDestination: DeviceModeDestination = new (globalThis as any)[destSDKIdentifier][
+  const deviceModeDestination: DeviceModeIntegration = new (globalThis as any)[destSDKIdentifier][
     sdkTypeName
   ](clone(dest.config), analyticsInstance, {
     shouldApplyDeviceModeTransformation: dest.shouldApplyDeviceModeTransformation,
@@ -179,8 +89,8 @@ const createDestinationInstance = (
 
 const isDestinationReady = (dest: Destination, time = 0) =>
   new Promise((resolve, reject) => {
-    const instance = dest.instance as DeviceModeDestination;
-    if (instance.isLoaded() && (!instance.isReady || instance.isReady())) {
+    const instance = dest.instance as DeviceModeIntegration;
+    if (instance.isReady()) {
       resolve(true);
     } else if (time >= READY_CHECK_TIMEOUT_MS) {
       reject(new Error(INTEGRATION_READY_TIMEOUT_ERROR(READY_CHECK_TIMEOUT_MS)));
@@ -240,7 +150,7 @@ const initializeDestination = (
     const destInstance = createDestinationInstance(destSDKIdentifier, sdkTypeName, dest, state);
     initializedDestination.instance = destInstance;
 
-    destInstance.init();
+    destInstance.init?.();
 
     isDestinationReady(initializedDestination)
       .then(() => {
@@ -413,6 +323,93 @@ const applyOverrideToDestination = (
   return clonedDest;
 };
 
+/**
+ * Validates if a custom integration name is unique and not conflicting with existing destinations
+ * @param name - The integration name to validate
+ * @param state - Application state
+ * @param logger - Logger instance
+ * @returns boolean indicating if the name is valid
+ */
+const validateCustomIntegrationName = (
+  name: string,
+  state: ApplicationState,
+  logger: ILogger,
+): boolean => {
+  if (!isString(name) || name.trim().length === 0) {
+    logger.error('Custom integration name must be a non-empty string');
+    return false;
+  }
+
+  // Check against existing configured destinations
+  const configuredDestinations = state.nativeDestinations.configuredDestinations.value || [];
+  const initializedDestinations = state.nativeDestinations.initializedDestinations.value || [];
+
+  if (
+    configuredDestinations.some(dest => dest.displayName === name) ||
+    initializedDestinations.some(dest => dest.displayName === name)
+  ) {
+    logger.error(`Custom integration name "${name}" conflicts with an existing integration`);
+    return false;
+  }
+
+  return true;
+};
+
+/**
+ * Creates a Destination instance for a custom integration
+ * @param name - The name of the custom integration
+ * @param integration - The custom integration instance
+ * @returns Destination instance configured for the custom integration
+ */
+const createCustomIntegrationDestination = (
+  name: string,
+  integration: RSACustomIntegration,
+  state: ApplicationState,
+  logger: ILogger,
+): Destination => {
+  // Generate unique ID for the custom integration
+  const uniqueId = `custom_${generateUUID()}`;
+  const analyticsInstance = state.lifecycle.safeAnalyticsInstance.value as RSAnalytics;
+
+  const destination: Destination = {
+    id: uniqueId,
+    displayName: name,
+    userFriendlyId: `${name.replaceAll(' ', '-')}___${uniqueId}`,
+    shouldApplyDeviceModeTransformation: false,
+    propagateEventsUntransformedOnError: false,
+    config: {
+      blacklistedEvents: [],
+      whitelistedEvents: [],
+      eventFilteringOption: 'disable',
+      connectionMode: 'device',
+      useNativeSDKToSend: true,
+    },
+    enabled: true,
+    isCustomIntegration: true,
+    instance: {
+      ...(integration.init && { init: () => integration.init!(analyticsInstance, logger) }),
+      ...(integration.track && {
+        track: (event: RSAEvent) => integration.track!(analyticsInstance, logger, event),
+      }),
+      ...(integration.page && {
+        page: (event: RSAEvent) => integration.page!(analyticsInstance, logger, event),
+      }),
+      ...(integration.identify && {
+        identify: (event: RSAEvent) => integration.identify!(analyticsInstance, logger, event),
+      }),
+      ...(integration.group && {
+        group: (event: RSAEvent) => integration.group!(analyticsInstance, logger, event),
+      }),
+      ...(integration.alias && {
+        alias: (event: RSAEvent) => integration.alias!(analyticsInstance, logger, event),
+      }),
+      isReady: () => integration.isReady(analyticsInstance, logger),
+    },
+  };
+
+  return destination;
+};
+
 export {
   isDestinationSDKMounted,
   wait,
@@ -423,4 +420,6 @@ export {
   applySourceConfigurationOverrides,
   applyOverrideToDestination,
   filterDisabledDestination,
+  validateCustomIntegrationName,
+  createCustomIntegrationDestination,
 };

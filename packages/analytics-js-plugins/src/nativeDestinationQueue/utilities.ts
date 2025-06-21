@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import type { DestinationsQueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
-import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import type {
+  Destination,
+  DeviceModeIntegrationEventAPIs,
+} from '@rudderstack/analytics-js-common/types/Destination';
+import type { RSAEvent, RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
@@ -67,8 +70,11 @@ const sendEventToDestination = (
   const methodName = item.type.toString();
   try {
     // Destinations expect the event to be wrapped under the `message` key
-    // This will remain until we update the destinations to accept the event directly
-    dest.instance?.[methodName]?.({ message: item });
+    const integrationEvent: RSAEvent = {
+      message: item,
+    };
+
+    dest.instance?.[methodName as keyof DeviceModeIntegrationEventAPIs]?.(integrationEvent);
   } catch (err) {
     errorHandler?.onError({
       error: err,

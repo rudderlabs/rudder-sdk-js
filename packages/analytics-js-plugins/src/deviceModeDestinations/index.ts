@@ -14,6 +14,8 @@ import {
   initializeDestination,
   applySourceConfigurationOverrides,
   filterDisabledDestination,
+  createCustomIntegrationDestination,
+  validateCustomIntegrationName,
 } from './utils';
 import { DEVICE_MODE_DESTINATIONS_PLUGIN, SCRIPT_LOAD_TIMEOUT_MS } from './constants';
 import { INTEGRATION_NOT_SUPPORTED_ERROR, INTEGRATION_SDK_LOAD_ERROR } from './logMessages';
@@ -21,6 +23,7 @@ import {
   destDisplayNamesToFileNamesMap,
   filterDestinations,
 } from '../shared-chunks/deviceModeDestinations';
+import type { RSACustomIntegration } from '@rudderstack/analytics-js-common/types/CustomIntegration';
 
 const pluginName: PluginName = 'DeviceModeDestinations';
 
@@ -30,6 +33,25 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
     state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
   },
   nativeDestinations: {
+    addCustomIntegration(
+      name: string,
+      integration: RSACustomIntegration,
+      state: ApplicationState,
+      logger: ILogger,
+    ): void {
+      if (!validateCustomIntegrationName(name, state, logger)) {
+        return;
+      }
+
+      const destination = createCustomIntegrationDestination(name, integration, state, logger);
+
+      // Add them to the state
+      state.nativeDestinations.activeDestinations.value = [
+        ...state.nativeDestinations.activeDestinations.value,
+        destination,
+      ];
+    },
+
     setActiveDestinations(
       state: ApplicationState,
       pluginsManager: IPluginsManager,

@@ -5,6 +5,9 @@ import type {
   IubendaConsentPurpose,
   ConsentManagementProvider,
 } from './Consent';
+import type { RSAEvent } from './Event';
+import type { IntegrationRSAnalytics } from './IRudderAnalytics';
+import type { IntegrationOpts } from './Integration';
 
 export type DestinationConnectionMode = 'hybrid' | 'cloud' | 'device';
 
@@ -12,16 +15,74 @@ export type DestinationEvent = {
   eventName: string;
 };
 
-export type DeviceModeDestination = {
-  name: string; // this is same as the definition name
-  destinationId: string;
-  shouldApplyDeviceModeTransformation: boolean;
-  propagateEventsUntransformedOnError: boolean;
-  analytics: any;
-  [index: string]: any;
-  isLoaded: () => boolean;
-  isReady?: () => boolean;
+export type DeviceModeIntegration = {
+  name?: string;
+  destinationId?: string;
+  analytics?: IntegrationRSAnalytics;
+  config?: DestinationConfig;
+
+  /**
+   * Get the data for the integrations object to be included in the events
+   * Some integrations contribute data to the integrations object after they are loaded.
+   * An example of this is the GA4 integration.
+   * @returns IntegrationOpts
+   * @optional
+   */
+  getDataForIntegrationsObject?: () => IntegrationOpts;
+
+  /**
+   * Initialize the integration
+   * @optional
+   */
+  init?: () => void;
+
+  /**
+   * Check if the integration is ready to process events
+   * @returns boolean indicating whether the integration is ready
+   * @required
+   */
+  isReady: () => boolean;
+
+  /**
+   * Process track events
+   * @param event - The track event payload to process
+   * @optional
+   */
+  track?: (event: RSAEvent) => void;
+
+  /**
+   * Process page events
+   * @param event - The page event payload to process
+   * @optional
+   */
+  page?: (event: RSAEvent) => void;
+
+  /**
+   * Process identify events
+   * @param event - The identify event payload to process
+   * @optional
+   */
+  identify?: (event: RSAEvent) => void;
+
+  /**
+   * Process group events
+   * @param event - The group event payload to process
+   * @optional
+   */
+  group?: (event: RSAEvent) => void;
+
+  /**
+   * Process alias events
+   * @param event - The alias event payload to process
+   * @optional
+   */
+  alias?: (event: RSAEvent) => void;
 };
+
+export type DeviceModeIntegrationEventAPIs = Pick<
+  DeviceModeIntegration,
+  'track' | 'identify' | 'page' | 'alias' | 'group'
+>;
 
 export type ConsentsConfig = {
   consent: string;
@@ -83,7 +144,7 @@ export type Destination = {
   shouldApplyDeviceModeTransformation: boolean;
   propagateEventsUntransformedOnError: boolean;
   config: DestinationConfig;
-  instance?: DeviceModeDestination;
+  instance?: DeviceModeIntegration;
   overridden?: boolean;
   enabled: boolean;
   cloned?: boolean;
