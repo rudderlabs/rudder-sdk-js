@@ -31,6 +31,7 @@ import {
   trackArgumentsToCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
 import { BufferQueue } from '@rudderstack/analytics-js-common/services/BufferQueue/BufferQueue';
+import type { RSACustomIntegration } from '@rudderstack/analytics-js-common/types/CustomIntegration';
 import { POST_LOAD_LOG_LEVEL, defaultLogger } from '../../services/Logger';
 import { defaultErrorHandler } from '../../services/ErrorHandler';
 import { defaultPluginEngine } from '../../services/PluginEngine';
@@ -67,6 +68,7 @@ import type { IAnalytics } from './IAnalytics';
 import { getConsentManagementData, getValidPostConsentOptions } from '../utilities/consent';
 import { dispatchSDKEvent, isDataPlaneUrlValid, isWriteKeyValid } from './utilities';
 import { safelyInvokeCallback } from '../utilities/callbacks';
+import { canAddCustomIntegration } from './customIntegrations/utils';
 import type { ConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
 
 /*
@@ -825,6 +827,33 @@ class Analytics implements IAnalytics {
 
   setAuthToken(token: string): void {
     this.userSessionManager?.setAuthToken(token);
+  }
+
+  addCustomIntegration(
+    name: string,
+    integration: RSACustomIntegration,
+    isBufferedInvocation = false,
+  ): void {
+    const type = 'addCustomIntegration';
+    if (!state.lifecycle.loaded.value) {
+      state.eventBuffer.toBeProcessedArray.value = [
+        ...state.eventBuffer.toBeProcessedArray.value,
+        [type, name, integration],
+      ];
+      return;
+    }
+
+    if (!canAddCustomIntegration(isBufferedInvocation, state, this.logger)) {
+      return;
+    }
+
+    this.pluginsManager?.invokeSingle(
+      'nativeDestinations.addCustomIntegration',
+      name,
+      integration,
+      state,
+      this.logger,
+    );
   }
   // End consumer exposed methods
 }
