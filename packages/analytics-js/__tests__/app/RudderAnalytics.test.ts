@@ -1,4 +1,5 @@
 import type { LoadOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import type { RSACustomIntegration } from '@rudderstack/analytics-js-common/types/CustomIntegration';
 import { resetState, state } from '../../src/state';
 import { RudderAnalytics } from '../../src/app/RudderAnalytics';
 import { Analytics } from '../../src/components/core/Analytics';
@@ -16,6 +17,8 @@ describe('Core - Rudder Analytics Facade', () => {
 
   beforeEach(() => {
     analyticsInstanceMock = new Analytics() as jest.Mocked<Analytics>;
+    // Add the addCustomIntegration method to the mock
+    analyticsInstanceMock.addCustomIntegration = jest.fn();
     (window as any).rudderanalytics = [
       ['track'],
       ['consent', { sendPageEvent: true }],
@@ -735,6 +738,50 @@ describe('Core - Rudder Analytics Facade', () => {
 
     dispatchEventSpy.mockRestore();
 
+    getAnalyticsInstanceSpy.mockRestore();
+  });
+
+  it('should process addCustomIntegration arguments and forwards to addCustomIntegration call', () => {
+    const mockCustomIntegration: RSACustomIntegration = {
+      init: jest.fn(),
+      isReady: jest.fn(() => true),
+      track: jest.fn(),
+      page: jest.fn(),
+      identify: jest.fn(),
+      group: jest.fn(),
+      alias: jest.fn(),
+    };
+
+    rudderAnalytics.addCustomIntegration('TestIntegration', mockCustomIntegration);
+    expect(analyticsInstanceMock.addCustomIntegration).toHaveBeenCalledWith(
+      'TestIntegration',
+      mockCustomIntegration,
+    );
+  });
+
+  it('should dispatch an error event if an exception is thrown during the addCustomIntegration call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+
+    // Intentionally cause an error during the addCustomIntegration call
+    const getAnalyticsInstanceSpy = jest
+      .spyOn(rudderAnalytics, 'getAnalyticsInstance')
+      .mockImplementation(() => {
+        throw new Error('Error in getAnalyticsInstance');
+      });
+
+    const mockCustomIntegration: RSACustomIntegration = {
+      isReady: jest.fn(() => true),
+    };
+
+    rudderAnalytics.addCustomIntegration('TestIntegration', mockCustomIntegration);
+
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
+    );
+
+    dispatchEventSpy.mockRestore();
     getAnalyticsInstanceSpy.mockRestore();
   });
 

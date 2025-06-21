@@ -17,10 +17,8 @@ import {
   getCumulativeIntegrationsConfig,
   initializeDestination,
 } from '../../src/deviceModeDestinations/utils';
-import type { LogLevel } from '../../src/types/plugins';
 import { resetState, state } from '../../__mocks__/state';
 import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
-import type { AnalyticsInstance } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
 
 describe('deviceModeDestinations utils', () => {
   describe('wait', () => {
@@ -100,12 +98,22 @@ describe('deviceModeDestinations utils', () => {
   });
 
   describe('isDestinationReady', () => {
-    let isLoadedResponse = false;
+    let isReadyResponse = false;
     const destination = {
       instance: {
-        isLoaded: () => isLoadedResponse,
+        isReady: () => isReadyResponse,
       },
       userFriendlyId: 'GA4___1234567890',
+      id: 'GA4___1234567890',
+      displayName: 'Google Analytics 4 (GA4)',
+      enabled: true,
+      shouldApplyDeviceModeTransformation: true,
+      propagateEventsUntransformedOnError: false,
+      config: {
+        blacklistedEvents: [],
+        whitelistedEvents: [],
+        eventFilteringOption: 'disable',
+      },
     };
 
     beforeEach(() => {
@@ -115,11 +123,11 @@ describe('deviceModeDestinations utils', () => {
 
     afterEach(() => {
       jest.useRealTimers();
-      isLoadedResponse = false;
+      isReadyResponse = false;
     });
 
     it('should return a promise that gets resolved when the destination is ready immediately', async () => {
-      isLoadedResponse = true;
+      isReadyResponse = true;
 
       const isReadyPromise = isDestinationReady(destination as Destination);
 
@@ -131,7 +139,7 @@ describe('deviceModeDestinations utils', () => {
 
     it('should return a promise that gets resolved when the destination is ready after some time', async () => {
       setTimeout(() => {
-        isLoadedResponse = true;
+        isReadyResponse = true;
       }, 1000);
 
       const isReadyPromise = isDestinationReady(destination as Destination);
@@ -153,46 +161,11 @@ describe('deviceModeDestinations utils', () => {
   });
 
   describe('createDestinationInstance', () => {
-    class MockAnalytics implements AnalyticsInstance {
-      page = () => {};
-      track = () => {};
-      identify = () => {};
-      group = () => {};
-      alias = () => {};
-      getAnonymousId = () => 'anonymousId';
-      getUserId = () => 'userId';
-      getUserTraits = () => ({ trait1: 'value1' });
-      getGroupId = () => 'groupId';
-      getGroupTraits = () => ({ trait2: 'value2' });
-      getSessionId = () => 123;
-      loadIntegration = true;
-      logLevel = 'DEBUG' as LogLevel;
-      loadOnlyIntegrations = { All: true };
-    }
-
-    // create two mock instances to later choose based on the write key
-    const mockAnalyticsInstanceWriteKey1 = new MockAnalytics();
-    const mockAnalyticsInstanceWriteKey2 = new MockAnalytics();
-
-    class MockRudderAnalytics {
-      getAnalyticsInstance = (writeKey: string) => {
-        const instancesMap: Record<string, MockAnalytics> = {
-          '1234567890': mockAnalyticsInstanceWriteKey1,
-          '12345678910': mockAnalyticsInstanceWriteKey2,
-        };
-        return instancesMap[writeKey];
-      };
-    }
-
-    const mockRudderAnalyticsInstance = new MockRudderAnalytics();
-
     // put destination SDK code on the window object
     const destSDKIdentifier = 'GA4_RS';
     const sdkTypeName = 'GA4';
 
     beforeAll(() => {
-      (window as any).rudderanalytics = mockRudderAnalyticsInstance;
-
       (window as any)[destSDKIdentifier] = {
         [sdkTypeName]: class {
           config: any;
@@ -206,7 +179,6 @@ describe('deviceModeDestinations utils', () => {
     });
 
     afterAll(() => {
-      delete (window as any).rudderanalytics;
       delete (window as any).GA4_RS;
     });
 
@@ -247,39 +219,90 @@ describe('deviceModeDestinations utils', () => {
         getSessionId: expect.any(Function),
       });
 
-      expect(destinationInstance.analytics.getAnonymousId()).toEqual('anonymousId');
-      expect(destinationInstance.analytics.getUserId()).toEqual('userId');
-      expect(destinationInstance.analytics.getUserTraits()).toEqual({ trait1: 'value1' });
-      expect(destinationInstance.analytics.getGroupId()).toEqual('groupId');
-      expect(destinationInstance.analytics.getGroupTraits()).toEqual({ trait2: 'value2' });
-      expect(destinationInstance.analytics.getSessionId()).toEqual(123);
+      // Make sure all the calls are forwarded to the correct instance
+      destinationInstance.analytics?.page(
+        'test-category',
+        'test-name',
+        { test: 'test' },
+        { test: 'test' },
+        () => {},
+      );
+      expect(state.lifecycle.safeAnalyticsInstance.value?.page).toHaveBeenCalledTimes(1);
+      expect(state.lifecycle.safeAnalyticsInstance.value?.page).toHaveBeenCalledWith(
+        'test-category',
+        'test-name',
+        { test: 'test' },
+        { test: 'test' },
+        expect.any(Function),
+      );
 
-      // Making sure that the call gets forwarded to the correct instance
-      const pageCallSpy = jest.spyOn(mockAnalyticsInstanceWriteKey2, 'page');
-      destinationInstance.analytics.page();
-      expect(mockAnalyticsInstanceWriteKey2.page).toHaveBeenCalled();
-      pageCallSpy.mockRestore();
+      destinationInstance.analytics?.track(
+        'test-event',
+        { test: 'test' },
+        { test: 'test' },
+        () => {},
+      );
+      expect(state.lifecycle.safeAnalyticsInstance.value?.track).toHaveBeenCalledTimes(1);
+      expect(state.lifecycle.safeAnalyticsInstance.value?.track).toHaveBeenCalledWith(
+        'test-event',
+        { test: 'test' },
+        { test: 'test' },
+        expect.any(Function),
+      );
+
+      destinationInstance.analytics?.identify(
+        'test-user-id',
+        { test: 'test' },
+        { test: 'test' },
+        () => {},
+      );
+      expect(state.lifecycle.safeAnalyticsInstance.value?.identify).toHaveBeenCalledTimes(1);
+      expect(state.lifecycle.safeAnalyticsInstance.value?.identify).toHaveBeenCalledWith(
+        'test-user-id',
+        { test: 'test' },
+        { test: 'test' },
+        expect.any(Function),
+      );
+
+      destinationInstance.analytics?.group(
+        'test-group-id',
+        { test: 'test' },
+        { test: 'test' },
+        () => {},
+      );
+      expect(state.lifecycle.safeAnalyticsInstance.value?.group).toHaveBeenCalledTimes(1);
+      expect(state.lifecycle.safeAnalyticsInstance.value?.group).toHaveBeenCalledWith(
+        'test-group-id',
+        { test: 'test' },
+        { test: 'test' },
+        expect.any(Function),
+      );
+
+      destinationInstance.analytics?.alias('test-alias-id', 'old-id', { test: 'test' }, () => {});
+      expect(state.lifecycle.safeAnalyticsInstance.value?.alias).toHaveBeenCalledTimes(1);
+      expect(state.lifecycle.safeAnalyticsInstance.value?.alias).toHaveBeenCalledWith(
+        'test-alias-id',
+        'old-id',
+        { test: 'test' },
+        expect.any(Function),
+      );
+
+      destinationInstance.analytics?.getUserId();
+      expect(state.lifecycle.safeAnalyticsInstance.value?.getUserId).toHaveBeenCalledTimes(1);
+
+      destinationInstance.analytics?.getUserTraits();
+      expect(state.lifecycle.safeAnalyticsInstance.value?.getUserTraits).toHaveBeenCalledTimes(1);
+
+      destinationInstance.analytics?.getGroupId();
+      expect(state.lifecycle.safeAnalyticsInstance.value?.getGroupId).toHaveBeenCalledTimes(1);
+
+      destinationInstance.analytics?.getGroupTraits();
+      expect(state.lifecycle.safeAnalyticsInstance.value?.getGroupTraits).toHaveBeenCalledTimes(1);
+
+      destinationInstance.analytics?.getSessionId();
+      expect(state.lifecycle.safeAnalyticsInstance.value?.getSessionId).toHaveBeenCalledTimes(1);
 
       resetState();
-    });
-
-    it('should handle when rudderanalytics global is missing', () => {
-      const originalRudderAnalytics = (globalThis as any).rudderanalytics;
-      delete (globalThis as any).rudderanalytics;
-
-      const destination = {
-        config: {
-          apiKey: '1234',
-        },
-        areTransformationsConnected: false,
-        id: 'GA4___5678',
-      } as unknown as Destination;
-
-      expect(() => {
-        createDestinationInstance(destSDKIdentifier, sdkTypeName, destination, state);
-      }).toThrow();
-
-      (globalThis as any).rudderanalytics = originalRudderAnalytics;
     });
   });
 
@@ -1368,7 +1391,7 @@ describe('deviceModeDestinations utils', () => {
           // eslint-disable-next-line @typescript-eslint/no-useless-constructor
           constructor() {}
           init = () => initMock();
-          isLoaded = () => false;
+          isReady = () => false;
         },
       };
 

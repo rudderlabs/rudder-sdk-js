@@ -1,5 +1,6 @@
 import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
+import type { RSACustomIntegration } from '@rudderstack/analytics-js-common/types/CustomIntegration';
 import { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
 import { batch } from '@preact/signals-core';
 import type { IUserSessionManager } from '../../../src/components/userSessionManager/types';
@@ -902,6 +903,118 @@ describe('Core - Analytics', () => {
       analytics.consent();
 
       expect(invokeSingleSpy).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('addCustomIntegration', () => {
+    const mockCustomIntegration: RSACustomIntegration = {
+      init: jest.fn(),
+      isReady: jest.fn(() => true),
+      track: jest.fn(),
+      page: jest.fn(),
+      identify: jest.fn(),
+      group: jest.fn(),
+      alias: jest.fn(),
+    };
+
+    beforeEach(() => {
+      analytics.prepareInternalServices();
+    });
+
+    describe('when SDK is not loaded', () => {
+      beforeEach(() => {
+        state.lifecycle.loaded.value = false;
+        state.eventBuffer.toBeProcessedArray.value = [];
+      });
+
+      it('should buffer the addCustomIntegration call', () => {
+        const integrationName = 'TestIntegration';
+
+        analytics.addCustomIntegration(integrationName, mockCustomIntegration);
+
+        expect(state.eventBuffer.toBeProcessedArray.value).toEqual([
+          ['addCustomIntegration', integrationName, mockCustomIntegration],
+        ]);
+      });
+
+      it('should add to existing buffered events', () => {
+        const integrationName = 'TestIntegration';
+        state.eventBuffer.toBeProcessedArray.value = [['track', 'some_event']];
+
+        analytics.addCustomIntegration(integrationName, mockCustomIntegration);
+
+        expect(state.eventBuffer.toBeProcessedArray.value).toEqual([
+          ['track', 'some_event'],
+          ['addCustomIntegration', integrationName, mockCustomIntegration],
+        ]);
+      });
+    });
+
+    describe('when SDK is loaded', () => {
+      beforeEach(() => {
+        state.lifecycle.loaded.value = true;
+        state.eventBuffer.toBeProcessedArray.value = [];
+      });
+
+      it('should process addCustomIntegration immediately when allowed', () => {
+        const invokeSingleSpy = jest.spyOn(
+          analytics.pluginsManager as IPluginsManager,
+          'invokeSingle',
+        );
+
+        const integrationName = 'TestIntegration';
+
+        analytics.addCustomIntegration(integrationName, mockCustomIntegration);
+
+        expect(invokeSingleSpy).toHaveBeenCalledWith(
+          'nativeDestinations.addCustomIntegration',
+          integrationName,
+          mockCustomIntegration,
+          state,
+          analytics.logger,
+        );
+        expect(state.eventBuffer.toBeProcessedArray.value).toEqual([]);
+      });
+
+      it('should handle buffered invocation correctly', () => {
+        const invokeSingleSpy = jest.spyOn(
+          analytics.pluginsManager as IPluginsManager,
+          'invokeSingle',
+        );
+
+        const integrationName = 'TestIntegration';
+
+        analytics.addCustomIntegration(integrationName, mockCustomIntegration, true);
+
+        expect(invokeSingleSpy).toHaveBeenCalledWith(
+          'nativeDestinations.addCustomIntegration',
+          integrationName,
+          mockCustomIntegration,
+          state,
+          analytics.logger,
+        );
+      });
+
+      it('should handle custom integration with minimal methods', () => {
+        const invokeSingleSpy = jest.spyOn(
+          analytics.pluginsManager as IPluginsManager,
+          'invokeSingle',
+        );
+
+        const minimalIntegration: RSACustomIntegration = {
+          isReady: jest.fn(() => true),
+        };
+
+        analytics.addCustomIntegration('MinimalIntegration', minimalIntegration);
+
+        expect(invokeSingleSpy).toHaveBeenCalledWith(
+          'nativeDestinations.addCustomIntegration',
+          'MinimalIntegration',
+          minimalIntegration,
+          state,
+          analytics.logger,
+        );
+      });
     });
   });
 });
