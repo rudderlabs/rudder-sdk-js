@@ -12,6 +12,7 @@ import type { ApplicationState } from '@rudderstack/analytics-js-common/types/Ap
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type {
   IntegrationRSAnalytics,
+  RSACustomIntegration,
   RSAnalytics,
 } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
 import type { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
@@ -21,7 +22,6 @@ import type {
   SourceConfigurationOverrideDestination,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { isBoolean, isString } from '@rudderstack/analytics-js-common/utilities/checks';
-import type { RSACustomIntegration } from '@rudderstack/analytics-js-common/types/CustomIntegration';
 import type { RSAEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { getDestinationUserFriendlyId } from '@rudderstack/analytics-js-common/utilities/destinations';

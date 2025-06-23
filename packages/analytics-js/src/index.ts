@@ -17,8 +17,10 @@ export { type IntegrationOpts } from '@rudderstack/analytics-js-common/types/Int
 export { type LogLevel, type RSALogger } from '@rudderstack/analytics-js-common/types/Logger';
 export { type PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 export { type IdentifyTraits } from '@rudderstack/analytics-js-common/types/traits';
-export { type RSACustomIntegration } from '@rudderstack/analytics-js-common/types/CustomIntegration';
-export { type RSAnalytics } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
+export {
+  type RSAnalytics,
+  type RSACustomIntegration,
+} from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
 export { type RSAEvent } from '@rudderstack/analytics-js-common/types/Event';
 export {
   type RudderAnalyticsPreloader,

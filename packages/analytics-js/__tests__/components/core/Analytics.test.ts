@@ -1,7 +1,7 @@
 import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
-import type { RSACustomIntegration } from '@rudderstack/analytics-js-common/types/CustomIntegration';
 import { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
+import type { RSACustomIntegration } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
 import { batch } from '@preact/signals-core';
 import type { IUserSessionManager } from '../../../src/components/userSessionManager/types';
 import type { IEventManager } from '../../../src/components/eventManager/types';

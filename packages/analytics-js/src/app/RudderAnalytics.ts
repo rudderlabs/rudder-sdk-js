@@ -7,7 +7,10 @@ import {
   pageArgumentsToCallOptions,
   trackArgumentsToCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
-import type { IRudderAnalytics } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
+import type {
+  IRudderAnalytics,
+  RSACustomIntegration,
+} from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import {
   PageLifecycleEvents,
@@ -25,7 +28,6 @@ import { getFormattedTimestamp } from '@rudderstack/analytics-js-common/utilitie
 import { dispatchErrorEvent } from '@rudderstack/analytics-js-common/utilities/errors';
 import { getSanitizedValue } from '@rudderstack/analytics-js-common/utilities/json';
 import type { ConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
-import type { RSACustomIntegration } from '@rudderstack/analytics-js-common/types/CustomIntegration';
 import { GLOBAL_PRELOAD_BUFFER } from '../constants/app';
 import {
   getPreloadedLoadEvent,

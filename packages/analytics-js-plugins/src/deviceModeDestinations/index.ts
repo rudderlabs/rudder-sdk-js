@@ -9,6 +9,7 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import type { IErrorHandler, SDKError } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
+import type { RSACustomIntegration } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
 import {
   isDestinationSDKMounted,
   initializeDestination,
@@ -23,7 +24,6 @@ import {
   destDisplayNamesToFileNamesMap,
   filterDestinations,
 } from '../shared-chunks/deviceModeDestinations';
-import type { RSACustomIntegration } from '@rudderstack/analytics-js-common/types/CustomIntegration';
 
 const pluginName: PluginName = 'DeviceModeDestinations';
 
