@@ -65,7 +65,7 @@
     "storejs": "2.1.0"
   },
   "devDependencies": {
-    "@bugsnag/js": "8.2.0"
+    "@bugsnag/js": "8.4.0"
   },
   "overrides": {},
   "browserslist": {
