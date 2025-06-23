@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.21.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.20.0...@rudderstack/analytics-js-common@3.21.0) (2025-06-20)
+
+
+### Features
+
+* **analytics-js:** reduce error noise from CSP/adblocker ([#2296](https://github.com/rudderlabs/rudder-sdk-js/issues/2296)) ([c187816](https://github.com/rudderlabs/rudder-sdk-js/commit/c187816b2cfafb706670824001140e464e3d90d8))
+
 ## [3.20.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.19.0...@rudderstack/analytics-js-common@3.20.0) (2025-06-11)
 
 
