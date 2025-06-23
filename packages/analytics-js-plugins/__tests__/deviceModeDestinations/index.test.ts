@@ -1107,7 +1107,7 @@ describe('DeviceModeDestinations Plugin', () => {
       const addedDestination = mockState.nativeDestinations.activeDestinations.value[0]!;
       expect(addedDestination.displayName).toBe(integrationName);
       expect(addedDestination.isCustomIntegration).toBe(true);
-      expect(addedDestination.instance).toBeDefined();
+      expect(addedDestination.integration).toBeDefined();
     });
 
     it('should not add custom integration when validation fails for empty name', () => {
@@ -1120,7 +1120,7 @@ describe('DeviceModeDestinations Plugin', () => {
 
       expect(mockState.nativeDestinations.activeDestinations.value).toHaveLength(0);
       expect(mockLogger.error).toHaveBeenCalledWith(
-        'Custom integration name must be a non-empty string',
+        'DeviceModeDestinationsPlugin:: Custom integration name must be a non-empty string: "".',
       );
     });
 
@@ -1134,7 +1134,7 @@ describe('DeviceModeDestinations Plugin', () => {
 
       expect(mockState.nativeDestinations.activeDestinations.value).toHaveLength(0);
       expect(mockLogger.error).toHaveBeenCalledWith(
-        'Custom integration name must be a non-empty string',
+        'DeviceModeDestinationsPlugin:: Custom integration name must be a non-empty string: "   ".',
       );
     });
 
@@ -1153,7 +1153,7 @@ describe('DeviceModeDestinations Plugin', () => {
 
       expect(mockState.nativeDestinations.activeDestinations.value).toHaveLength(0);
       expect(mockLogger.error).toHaveBeenCalledWith(
-        `Custom integration name "${conflictingName}" conflicts with an existing integration`,
+        `DeviceModeDestinationsPlugin:: An integration with name "${conflictingName}" already exists.`,
       );
     });
 
@@ -1172,7 +1172,7 @@ describe('DeviceModeDestinations Plugin', () => {
 
       expect(mockState.nativeDestinations.activeDestinations.value).toHaveLength(0);
       expect(mockLogger.error).toHaveBeenCalledWith(
-        `Custom integration name "${conflictingName}" conflicts with an existing integration`,
+        `DeviceModeDestinationsPlugin:: An integration with name "${conflictingName}" already exists.`,
       );
     });
 
@@ -1218,9 +1218,9 @@ describe('DeviceModeDestinations Plugin', () => {
       );
 
       const destination = mockState.nativeDestinations.activeDestinations.value[0]!;
-      expect(destination.instance?.isReady).toBeDefined();
-      expect(destination.instance?.init).toBeUndefined();
-      expect(destination.instance?.track).toBeUndefined();
+      expect(destination.integration?.isReady).toBeDefined();
+      expect(destination.integration?.init).toBeUndefined();
+      expect(destination.integration?.track).toBeUndefined();
     });
 
     it('should create instance with all provided methods', () => {
@@ -1234,15 +1234,15 @@ describe('DeviceModeDestinations Plugin', () => {
       );
 
       const destination = mockState.nativeDestinations.activeDestinations.value[0]!;
-      const instance = destination.instance!;
+      const integration = destination.integration!;
 
-      expect(instance.init).toBeDefined();
-      expect(instance.track).toBeDefined();
-      expect(instance.page).toBeDefined();
-      expect(instance.identify).toBeDefined();
-      expect(instance.group).toBeDefined();
-      expect(instance.alias).toBeDefined();
-      expect(instance.isReady).toBeDefined();
+      expect(integration.init).toBeDefined();
+      expect(integration.track).toBeDefined();
+      expect(integration.page).toBeDefined();
+      expect(integration.identify).toBeDefined();
+      expect(integration.group).toBeDefined();
+      expect(integration.alias).toBeDefined();
+      expect(integration.isReady).toBeDefined();
     });
 
     it('should sanitize integration name in userFriendlyId', () => {
@@ -1279,16 +1279,16 @@ describe('DeviceModeDestinations Plugin', () => {
       );
 
       expect(mockState.nativeDestinations.activeDestinations.value).toHaveLength(2);
-      expect(mockState.nativeDestinations.activeDestinations.value[0].displayName).toBe(
+      expect(mockState.nativeDestinations.activeDestinations.value[0]!.displayName).toBe(
         'CustomIntegration1',
       );
-      expect(mockState.nativeDestinations.activeDestinations.value[1].displayName).toBe(
+      expect(mockState.nativeDestinations.activeDestinations.value[1]!.displayName).toBe(
         'CustomIntegration2',
       );
     });
 
     it('should preserve existing active destinations when adding custom integration', () => {
-      const existingDestination = mockDestinations[0];
+      const existingDestination = mockDestinations[0]!;
       mockState.nativeDestinations.activeDestinations.value = [existingDestination];
 
       plugin.nativeDestinations.addCustomIntegration(
@@ -1299,8 +1299,8 @@ describe('DeviceModeDestinations Plugin', () => {
       );
 
       expect(mockState.nativeDestinations.activeDestinations.value).toHaveLength(2);
-      expect(mockState.nativeDestinations.activeDestinations.value[0]).toBe(existingDestination);
-      expect(mockState.nativeDestinations.activeDestinations.value[1].displayName).toBe(
+      expect(mockState.nativeDestinations.activeDestinations.value[0]!).toBe(existingDestination);
+      expect(mockState.nativeDestinations.activeDestinations.value[1]!.displayName).toBe(
         'NewCustomIntegration',
       );
     });

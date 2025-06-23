@@ -21,7 +21,7 @@ describe('nativeDestinationQueue Plugin - utilities', () => {
         oneTrustCookieCategories: [{ oneTrustCookieCategory: '' }],
         eventFilteringOption: 'whitelistedEvents',
       },
-      instance: {
+      integration: {
         name: 'DEST_NAME', // this is same as the definition name
         destinationId: 'sample-destination-id',
         areTransformationsConnected: false,
@@ -147,7 +147,7 @@ describe('nativeDestinationQueue Plugin - utilities', () => {
       expect(shouldApplyTransformation(dest)).toBe(false);
     });
   });
-  
+
   describe('sendEventToDestination', () => {
     const sampleTrackEvent = {
       type: 'track',
@@ -162,7 +162,7 @@ describe('nativeDestinationQueue Plugin - utilities', () => {
 
     it('should send the event to the destination', () => {
       const destination = {
-        instance: {
+        integration: {
           track: jest.fn(),
         },
         userFriendlyId: 'ID_sample-destination-id',
@@ -171,13 +171,13 @@ describe('nativeDestinationQueue Plugin - utilities', () => {
 
       sendEventToDestination(sampleTrackEvent, destination);
 
-      expect(destination.instance?.track).toHaveBeenCalledTimes(1);
-      expect(destination.instance?.track).toHaveBeenCalledWith({ message: sampleTrackEvent });
+      expect(destination.integration?.track).toHaveBeenCalledTimes(1);
+      expect(destination.integration?.track).toHaveBeenCalledWith({ message: sampleTrackEvent });
     });
 
     it('should skip sending the event if the event api is not supported by the integration', () => {
       const destination = {
-        instance: {
+        integration: {
           page: jest.fn(),
         },
         userFriendlyId: 'ID_sample-destination-id',
@@ -189,7 +189,7 @@ describe('nativeDestinationQueue Plugin - utilities', () => {
 
     it('should handle errors thrown by the integration', () => {
       const destination = {
-        instance: {
+        integration: {
           track: jest.fn(() => {
             throw new Error('Error');
           }),
@@ -212,7 +212,7 @@ describe('nativeDestinationQueue Plugin - utilities', () => {
 
     it('should handle errors without crashing when no error handler is provided', () => {
       const destination = {
-        instance: {
+        integration: {
           track: jest.fn(() => {
             throw new Error('Error');
           }),
@@ -226,7 +226,7 @@ describe('nativeDestinationQueue Plugin - utilities', () => {
 
     it('should handle errors when destination has no displayName property', () => {
       const destination = {
-        instance: {
+        integration: {
           track: jest.fn(() => {
             throw new Error('Test error');
           }),
@@ -248,7 +248,7 @@ describe('nativeDestinationQueue Plugin - utilities', () => {
 
     it('should handle errors when destination has no userFriendlyId property', () => {
       const destination = {
-        instance: {
+        integration: {
           track: jest.fn(() => {
             throw new Error('Test error');
           }),

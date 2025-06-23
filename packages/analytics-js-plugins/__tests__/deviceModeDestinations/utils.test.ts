@@ -9,7 +9,7 @@ import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/
 import {
   wait,
   isDestinationReady,
-  createDestinationInstance,
+  createIntegrationInstance,
   isDestinationSDKMounted,
   applySourceConfigurationOverrides,
   applyOverrideToDestination,
@@ -109,7 +109,7 @@ describe('deviceModeDestinations utils', () => {
   describe('isDestinationReady', () => {
     let isReadyResponse = false;
     const destination = {
-      instance: {
+      integration: {
         isReady: () => isReadyResponse,
       },
       userFriendlyId: 'GA4___1234567890',
@@ -169,7 +169,7 @@ describe('deviceModeDestinations utils', () => {
     });
   });
 
-  describe('createDestinationInstance', () => {
+  describe('createIntegrationInstance', () => {
     // put destination SDK code on the window object
     const destSDKIdentifier = 'GA4_RS';
     const sdkTypeName = 'GA4';
@@ -202,7 +202,7 @@ describe('deviceModeDestinations utils', () => {
         id: 'GA4___5678',
       } as unknown as Destination;
 
-      const destinationInstance = createDestinationInstance(
+      const destinationInstance = createIntegrationInstance(
         destSDKIdentifier,
         sdkTypeName,
         destination,
@@ -1145,7 +1145,7 @@ describe('deviceModeDestinations utils', () => {
   describe('getCumulativeIntegrationsConfig', () => {
     it('should return the cumulative integrations config', () => {
       const destination = {
-        instance: {
+        integration: {
           getDataForIntegrationsObject: () => ({
             GA4: {
               client_id: '1234567890',
@@ -1177,7 +1177,7 @@ describe('deviceModeDestinations utils', () => {
 
     it('should return the current integrations config if the destination does not have a getDataForIntegrationsObject method', () => {
       const destination = {
-        instance: {},
+        integration: {},
         userFriendlyId: 'GA4___1234567890',
       } as unknown as Destination;
 
@@ -1196,7 +1196,7 @@ describe('deviceModeDestinations utils', () => {
 
     it('should handle errors thrown by the getDataForIntegrationsObject method', () => {
       const destination = {
-        instance: {
+        integration: {
           getDataForIntegrationsObject: () => {
             throw new Error('Error');
           },
@@ -1226,9 +1226,9 @@ describe('deviceModeDestinations utils', () => {
       });
     });
 
-    it('should handle null or undefined destination instance', () => {
+    it('should handle null or undefined destination integration', () => {
       const destination = {
-        instance: null,
+        integration: null,
         userFriendlyId: 'GA4___1234567890',
       } as unknown as Destination;
 
@@ -1239,9 +1239,9 @@ describe('deviceModeDestinations utils', () => {
       expect(result).toEqual(currentConfig);
     });
 
-    it('should handle destination instance without getDataForIntegrationsObject method', () => {
+    it('should handle destination integration without getDataForIntegrationsObject method', () => {
       const destination = {
-        instance: { someOtherMethod: () => {} },
+        integration: { someOtherMethod: () => {} },
         userFriendlyId: 'GA4___1234567890',
       } as unknown as Destination;
 
@@ -1254,7 +1254,7 @@ describe('deviceModeDestinations utils', () => {
 
     it('should merge data from getDataForIntegrationsObject', () => {
       const destination = {
-        instance: {
+        integration: {
           getDataForIntegrationsObject: () => ({
             GA4: { client_id: '12345' },
             NewIntegration: { data: 'test' },
@@ -1278,7 +1278,7 @@ describe('deviceModeDestinations utils', () => {
 
     it('should handle getDataForIntegrationsObject returning null/undefined', () => {
       const destination = {
-        instance: {
+        integration: {
           getDataForIntegrationsObject: () => null,
         },
         userFriendlyId: 'GA4___1234567890',
@@ -1293,7 +1293,7 @@ describe('deviceModeDestinations utils', () => {
 
     it('should work without error handler parameter', () => {
       const destination = {
-        instance: {
+        integration: {
           getDataForIntegrationsObject: () => {
             throw new Error('Test error');
           },
@@ -1461,7 +1461,7 @@ describe('deviceModeDestinations utils', () => {
 
       expect(result).toBe(false);
       expect(defaultLogger.error).toHaveBeenCalledWith(
-        'Custom integration name must be a non-empty string',
+        'DeviceModeDestinationsPlugin:: Custom integration name must be a non-empty string: "123".',
       );
     });
 
@@ -1471,7 +1471,7 @@ describe('deviceModeDestinations utils', () => {
 
       expect(result).toBe(false);
       expect(defaultLogger.error).toHaveBeenCalledWith(
-        'Custom integration name must be a non-empty string',
+        'DeviceModeDestinationsPlugin:: Custom integration name must be a non-empty string: "".',
       );
     });
 
@@ -1481,7 +1481,7 @@ describe('deviceModeDestinations utils', () => {
 
       expect(result).toBe(false);
       expect(defaultLogger.error).toHaveBeenCalledWith(
-        'Custom integration name must be a non-empty string',
+        'DeviceModeDestinationsPlugin:: Custom integration name must be a non-empty string: "   ".',
       );
     });
 
@@ -1491,7 +1491,7 @@ describe('deviceModeDestinations utils', () => {
 
       expect(result).toBe(false);
       expect(defaultLogger.error).toHaveBeenCalledWith(
-        'Custom integration name must be a non-empty string',
+        'DeviceModeDestinationsPlugin:: Custom integration name must be a non-empty string: "null".',
       );
     });
 
@@ -1501,7 +1501,7 @@ describe('deviceModeDestinations utils', () => {
 
       expect(result).toBe(false);
       expect(defaultLogger.error).toHaveBeenCalledWith(
-        'Custom integration name must be a non-empty string',
+        'DeviceModeDestinationsPlugin:: Custom integration name must be a non-empty string: "undefined".',
       );
     });
 
@@ -1522,7 +1522,7 @@ describe('deviceModeDestinations utils', () => {
 
       expect(result).toBe(false);
       expect(defaultLogger.error).toHaveBeenCalledWith(
-        'Custom integration name "ExistingDestination" conflicts with an existing integration',
+        'DeviceModeDestinationsPlugin:: An integration with name "ExistingDestination" already exists.',
       );
     });
 
@@ -1543,7 +1543,7 @@ describe('deviceModeDestinations utils', () => {
 
       expect(result).toBe(false);
       expect(defaultLogger.error).toHaveBeenCalledWith(
-        'Custom integration name "InitializedDestination" conflicts with an existing integration',
+        'DeviceModeDestinationsPlugin:: An integration with name "InitializedDestination" already exists.',
       );
     });
 
@@ -1671,7 +1671,7 @@ describe('deviceModeDestinations utils', () => {
 
       expect(destination.id).toEqual('custom_mocked-uuid-12345');
       expect(destination.userFriendlyId).toEqual('TestIntegration___custom_mocked-uuid-12345');
-      expect(destination.instance).toBeDefined();
+      expect(destination.integration).toBeDefined();
     });
 
     it('should create destination with only required isReady method', () => {
@@ -1689,13 +1689,13 @@ describe('deviceModeDestinations utils', () => {
         defaultLogger,
       );
 
-      expect(destination.instance?.isReady).toBeDefined();
-      expect(destination.instance?.init).toBeUndefined();
-      expect(destination.instance?.track).toBeUndefined();
-      expect(destination.instance?.page).toBeUndefined();
-      expect(destination.instance?.identify).toBeUndefined();
-      expect(destination.instance?.group).toBeUndefined();
-      expect(destination.instance?.alias).toBeUndefined();
+      expect(destination.integration?.isReady).toBeDefined();
+      expect(destination.integration?.init).toBeUndefined();
+      expect(destination.integration?.track).toBeUndefined();
+      expect(destination.integration?.page).toBeUndefined();
+      expect(destination.integration?.identify).toBeUndefined();
+      expect(destination.integration?.group).toBeUndefined();
+      expect(destination.integration?.alias).toBeUndefined();
     });
 
     it('should properly wrap integration methods with analytics instance and logger', () => {
@@ -1718,15 +1718,15 @@ describe('deviceModeDestinations utils', () => {
       );
 
       // Test init wrapper
-      destination.instance?.init!();
+      destination.integration?.init!();
       expect(mockInit).toHaveBeenCalledWith(mockAnalyticsInstance, defaultLogger);
 
       // Test track wrapper
-      destination.instance?.track!(mockEvent);
+      destination.integration?.track!(mockEvent);
       expect(mockTrack).toHaveBeenCalledWith(mockAnalyticsInstance, defaultLogger, mockEvent);
 
       // Test isReady wrapper
-      const isReady = destination.instance?.isReady();
+      const isReady = destination.integration?.isReady();
       expect(mockIsReady).toHaveBeenCalledWith(mockAnalyticsInstance, defaultLogger);
       expect(isReady).toBe(true);
     });
@@ -1814,12 +1814,12 @@ describe('deviceModeDestinations utils', () => {
       const mockAliasEvent = { message: { type: 'alias', previousId: 'old123' } } as any;
 
       // Test all method wrappers
-      destination.instance?.init!();
-      destination.instance?.track!(mockEvent);
-      destination.instance?.page!(mockPageEvent);
-      destination.instance?.identify!(mockIdentifyEvent);
-      destination.instance?.group!(mockGroupEvent);
-      destination.instance?.alias!(mockAliasEvent);
+      destination.integration?.init!();
+      destination.integration?.track!(mockEvent);
+      destination.integration?.page!(mockPageEvent);
+      destination.integration?.identify!(mockIdentifyEvent);
+      destination.integration?.group!(mockGroupEvent);
+      destination.integration?.alias!(mockAliasEvent);
 
       expect(mockInit).toHaveBeenCalledWith(mockAnalyticsInstance, defaultLogger);
       expect(mockTrack).toHaveBeenCalledWith(mockAnalyticsInstance, defaultLogger, mockEvent);
@@ -1851,7 +1851,7 @@ describe('deviceModeDestinations utils', () => {
         defaultLogger,
       );
 
-      destination.instance?.init!();
+      destination.integration?.init!();
       expect(mockInit).toHaveBeenCalledWith(customAnalyticsInstance, defaultLogger);
     });
 
@@ -1956,7 +1956,7 @@ describe('deviceModeDestinations utils', () => {
       );
 
       // Test initialization
-      destination.instance?.init!();
+      destination.integration?.init!();
 
       expect(defaultLogger.info).toHaveBeenCalledWith('Initializing CustomAnalytics integration');
       expect(defaultLogger.debug).toHaveBeenCalledWith(
@@ -1973,7 +1973,7 @@ describe('deviceModeDestinations utils', () => {
       });
 
       // Test isReady
-      const readyStatus = destination.instance?.isReady();
+      const readyStatus = destination.integration?.isReady();
       expect(readyStatus).toBe(true);
       expect(defaultLogger.debug).toHaveBeenCalledWith('CustomAnalytics: Checking ready status');
       expect(defaultLogger.debug).toHaveBeenCalledWith('CustomAnalytics: Ready status = true');
@@ -1987,7 +1987,7 @@ describe('deviceModeDestinations utils', () => {
         },
       };
 
-      destination.instance?.track!(trackEvent as any);
+      destination.integration?.track!(trackEvent as any);
 
       expect(defaultLogger.debug).toHaveBeenCalledWith(
         'CustomAnalytics: Processing track event',
@@ -2015,7 +2015,7 @@ describe('deviceModeDestinations utils', () => {
         },
       };
 
-      destination.instance?.page!(pageEvent as any);
+      destination.integration?.page!(pageEvent as any);
 
       expect(defaultLogger.debug).toHaveBeenCalledWith(
         'CustomAnalytics: Processing page event',
@@ -2041,7 +2041,7 @@ describe('deviceModeDestinations utils', () => {
         },
       };
 
-      destination.instance?.identify!(identifyEvent as any);
+      destination.integration?.identify!(identifyEvent as any);
 
       expect(defaultLogger.debug).toHaveBeenCalledWith(
         'CustomAnalytics: Processing identify event',

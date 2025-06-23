@@ -959,7 +959,7 @@ describe('Core - Analytics', () => {
         analytics.addCustomIntegration(integrationName, mockCustomIntegration);
 
         expect(loggerErrorSpy).toHaveBeenCalledWith(
-          'Custom integrations can only be added before the SDK is loaded.',
+          'AnalyticsCore:: Custom integrations can only be added before the SDK is loaded.',
         );
         expect(invokeSingleSpy).not.toHaveBeenCalled();
         expect(state.eventBuffer.toBeProcessedArray.value).toEqual([]);

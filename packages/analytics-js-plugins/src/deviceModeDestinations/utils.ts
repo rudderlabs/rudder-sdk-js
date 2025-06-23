@@ -20,6 +20,11 @@ import type {
   SourceConfigurationOverride,
   SourceConfigurationOverrideDestination,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import { isBoolean, isString } from '@rudderstack/analytics-js-common/utilities/checks';
+import type { RSACustomIntegration } from '@rudderstack/analytics-js-common/types/CustomIntegration';
+import type { RSAEvent } from '@rudderstack/analytics-js-common/types/Event';
+import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
+import { getDestinationUserFriendlyId } from '@rudderstack/analytics-js-common/utilities/destinations';
 import {
   DEVICE_MODE_DESTINATIONS_PLUGIN,
   READY_CHECK_INTERVAL_MS,
@@ -30,13 +35,11 @@ import {
   INTEGRATIONS_DATA_ERROR,
   INTEGRATION_READY_TIMEOUT_ERROR,
   INTEGRATION_READY_CHECK_ERROR,
+  CUSTOM_INTEGRATION_INVALID_NAME_ERROR,
+  CUSTOM_INTEGRATION_ALREADY_EXISTS_ERROR,
 } from './logMessages';
 import { isHybridModeDestination } from '../shared-chunks/deviceModeDestinations';
 import { getSanitizedValue, isFunction } from '../shared-chunks/common';
-import { isBoolean, isString } from '@rudderstack/analytics-js-common/utilities/checks';
-import type { RSACustomIntegration } from '@rudderstack/analytics-js-common/types/CustomIntegration';
-import type { RSAEvent } from '@rudderstack/analytics-js-common/types/Event';
-import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 
 /**
  * Determines if the destination SDK code is evaluated
@@ -61,7 +64,7 @@ const wait = (time: number) =>
     (globalThis as typeof window).setTimeout(resolve, time);
   });
 
-const createDestinationInstance = (
+const createIntegrationInstance = (
   destSDKIdentifier: string,
   sdkTypeName: string,
   dest: Destination,
@@ -76,7 +79,7 @@ const createDestinationInstance = (
     ...(state.lifecycle.safeAnalyticsInstance.value as RSAnalytics),
   };
 
-  const deviceModeDestination: DeviceModeIntegration = new (globalThis as any)[destSDKIdentifier][
+  const integration: DeviceModeIntegration = new (globalThis as any)[destSDKIdentifier][
     sdkTypeName
   ](clone(dest.config), analyticsInstance, {
     shouldApplyDeviceModeTransformation: dest.shouldApplyDeviceModeTransformation,
@@ -84,13 +87,12 @@ const createDestinationInstance = (
     destinationId: dest.id,
   });
 
-  return deviceModeDestination;
+  return integration;
 };
 
 const isDestinationReady = (dest: Destination, time = 0) =>
   new Promise((resolve, reject) => {
-    const instance = dest.instance as DeviceModeIntegration;
-    if (instance.isReady()) {
+    if (dest.integration?.isReady()) {
       resolve(true);
     } else if (time >= READY_CHECK_TIMEOUT_MS) {
       reject(new Error(INTEGRATION_READY_TIMEOUT_ERROR(READY_CHECK_TIMEOUT_MS)));
@@ -119,11 +121,11 @@ const getCumulativeIntegrationsConfig = (
   errorHandler?: IErrorHandler,
 ): IntegrationOpts => {
   let integrationsConfig: IntegrationOpts = curDestIntgConfig;
-  if (isFunction(dest.instance?.getDataForIntegrationsObject)) {
+  if (isFunction(dest.integration?.getDataForIntegrationsObject)) {
     try {
       integrationsConfig = {
         ...curDestIntgConfig,
-        ...getSanitizedValue(dest.instance.getDataForIntegrationsObject()),
+        ...getSanitizedValue(dest.integration.getDataForIntegrationsObject()),
       };
     } catch (err) {
       errorHandler?.onError({
@@ -147,10 +149,10 @@ const initializeDestination = (
 ) => {
   try {
     const initializedDestination = clone(dest);
-    const destInstance = createDestinationInstance(destSDKIdentifier, sdkTypeName, dest, state);
-    initializedDestination.instance = destInstance;
+    const integration = createIntegrationInstance(destSDKIdentifier, sdkTypeName, dest, state);
+    initializedDestination.integration = integration;
 
-    destInstance.init?.();
+    integration.init?.();
 
     isDestinationReady(initializedDestination)
       .then(() => {
@@ -336,7 +338,7 @@ const validateCustomIntegrationName = (
   logger: ILogger,
 ): boolean => {
   if (!isString(name) || name.trim().length === 0) {
-    logger.error('Custom integration name must be a non-empty string');
+    logger.error(CUSTOM_INTEGRATION_INVALID_NAME_ERROR(DEVICE_MODE_DESTINATIONS_PLUGIN, name));
     return false;
   }
 
@@ -348,7 +350,7 @@ const validateCustomIntegrationName = (
     configuredDestinations.some(dest => dest.displayName === name) ||
     initializedDestinations.some(dest => dest.displayName === name)
   ) {
-    logger.error(`Custom integration name "${name}" conflicts with an existing integration`);
+    logger.error(CUSTOM_INTEGRATION_ALREADY_EXISTS_ERROR(DEVICE_MODE_DESTINATIONS_PLUGIN, name));
     return false;
   }
 
@@ -371,10 +373,12 @@ const createCustomIntegrationDestination = (
   const uniqueId = `custom_${generateUUID()}`;
   const analyticsInstance = state.lifecycle.safeAnalyticsInstance.value as RSAnalytics;
 
+  // Create a destination object for the custom integration
+  // similar to the standard device mode integrations
   const destination: Destination = {
     id: uniqueId,
     displayName: name,
-    userFriendlyId: `${name.replaceAll(' ', '-')}___${uniqueId}`,
+    userFriendlyId: getDestinationUserFriendlyId(name, uniqueId),
     shouldApplyDeviceModeTransformation: false,
     propagateEventsUntransformedOnError: false,
     config: {
@@ -386,7 +390,9 @@ const createCustomIntegrationDestination = (
     },
     enabled: true,
     isCustomIntegration: true,
-    instance: {
+    // Create a wrapper around the custom integration APIs
+    // to make them consistent with the standard device mode integrations
+    integration: {
       ...(integration.init && { init: () => integration.init!(analyticsInstance, logger) }),
       ...(integration.track && {
         track: (event: RSAEvent) => integration.track!(analyticsInstance, logger, event),
@@ -413,7 +419,7 @@ const createCustomIntegrationDestination = (
 export {
   isDestinationSDKMounted,
   wait,
-  createDestinationInstance,
+  createIntegrationInstance,
   isDestinationReady,
   getCumulativeIntegrationsConfig,
   initializeDestination,

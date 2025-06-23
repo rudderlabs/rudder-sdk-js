@@ -144,7 +144,7 @@ export type Destination = {
   shouldApplyDeviceModeTransformation: boolean;
   propagateEventsUntransformedOnError: boolean;
   config: DestinationConfig;
-  instance?: DeviceModeIntegration;
+  integration?: DeviceModeIntegration;
   overridden?: boolean;
   enabled: boolean;
   cloned?: boolean;

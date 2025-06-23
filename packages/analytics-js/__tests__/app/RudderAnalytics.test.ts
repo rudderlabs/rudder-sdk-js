@@ -17,8 +17,6 @@ describe('Core - Rudder Analytics Facade', () => {
 
   beforeEach(() => {
     analyticsInstanceMock = new Analytics() as jest.Mocked<Analytics>;
-    // Add the addCustomIntegration method to the mock
-    analyticsInstanceMock.addCustomIntegration = jest.fn();
     (window as any).rudderanalytics = [
       ['track'],
       ['consent', { sendPageEvent: true }],

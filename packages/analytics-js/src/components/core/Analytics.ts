@@ -60,6 +60,7 @@ import {
   CONSENT_TRACK_EVENT_NAME,
 } from '../../constants/app';
 import {
+  CUSTOM_INTEGRATION_CANNOT_BE_ADDED_ERROR,
   DATA_PLANE_URL_VALIDATION_ERROR,
   INVALID_CALLBACK_FN_ERROR,
   WRITE_KEY_VALIDATION_ERROR,
@@ -852,7 +853,7 @@ class Analytics implements IAnalytics {
       );
     } else {
       if (state.lifecycle.loaded.value) {
-        this.logger.error('Custom integrations can only be added before the SDK is loaded.');
+        this.logger.error(CUSTOM_INTEGRATION_CANNOT_BE_ADDED_ERROR(ANALYTICS_CORE));
         return;
       }
 

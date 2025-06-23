@@ -6,6 +6,7 @@ import type { ILogger, LogLevel } from './Logger';
 import type { IdentifyTraits } from './traits';
 import type { ConsentOptions } from './Consent';
 import type { IntegrationOpts } from './Integration';
+import type { RSACustomIntegration } from './CustomIntegration';
 
 export type AnalyticsIdentifyMethod = {
   (
@@ -197,6 +198,13 @@ export interface IRudderAnalytics<T = any> {
    * @param options Consent API options
    */
   consent(options?: ConsentOptions): void;
+
+  /**
+   * To add a custom integration
+   * @param name The name of the custom integration
+   * @param integration The custom integration object
+   */
+  addCustomIntegration(name: string, integration: RSACustomIntegration): void;
 }
 
 export type RSAnalytics = Pick<
