@@ -1,7 +1,4 @@
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/LaunchDarkly/constants';
+import { NAME, DISPLAY_NAME } from './constants';
 
 /**
  * Get destination specific options from integrations options

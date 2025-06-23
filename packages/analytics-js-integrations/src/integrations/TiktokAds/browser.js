@@ -1,11 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-unused-vars */
 /* eslint-disable class-methods-use-this */
-import {
-  NAME,
-  DISPLAY_NAME,
-  eventNameMapping,
-} from '@rudderstack/analytics-js-common/constants/integrations/TiktokAds/constants';
+import { NAME, DISPLAY_NAME, eventNameMapping } from './constants';
 import Logger from '../../utils/logger';
 import {
   isDefinedAndNotNull,

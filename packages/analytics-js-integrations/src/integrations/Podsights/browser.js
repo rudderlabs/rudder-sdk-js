@@ -4,10 +4,7 @@
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
 import sha256 from 'crypto-js/sha256';
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/Podsights/constants';
+import { NAME, DISPLAY_NAME } from './constants';
 import {
   PRODUCT_EVENT,
   PURCHASE_EVENT,
@@ -16,8 +13,8 @@ import {
   ADD_TO_CART_EVENT,
   CHECK_OUT_EVENT,
   LEAD_EVENT,
-} from '@rudderstack/analytics-js-common/constants/integrations/CommonIntegrationsConstant/constants';
-import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
+} from '../../constants/common';
+import { ScriptLoader } from '@rudderstack/analytics-js-legacy-utilities/ScriptLoader';
 import Logger from '../../utils/logger';
 import {
   getHashFromArrayWithDuplicate,
