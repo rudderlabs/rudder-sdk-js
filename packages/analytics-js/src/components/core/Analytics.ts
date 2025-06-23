@@ -68,7 +68,6 @@ import type { IAnalytics } from './IAnalytics';
 import { getConsentManagementData, getValidPostConsentOptions } from '../utilities/consent';
 import { dispatchSDKEvent, isDataPlaneUrlValid, isWriteKeyValid } from './utilities';
 import { safelyInvokeCallback } from '../utilities/callbacks';
-import { canAddCustomIntegration } from './customIntegrations/utils';
 import type { ConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
 
 /*
@@ -829,31 +828,39 @@ class Analytics implements IAnalytics {
     this.userSessionManager?.setAuthToken(token);
   }
 
+  /**
+   * Add a custom integration to the SDK.
+   * @param name - The name of the custom integration.
+   * @param integration - The custom integration object.
+   * @param isBufferedInvocation - Whether the invocation is buffered.
+   */
   addCustomIntegration(
     name: string,
     integration: RSACustomIntegration,
     isBufferedInvocation = false,
   ): void {
     const type = 'addCustomIntegration';
-    if (!state.lifecycle.loaded.value) {
+    if (isBufferedInvocation) {
+      this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
+
+      this.pluginsManager?.invokeSingle(
+        'nativeDestinations.addCustomIntegration',
+        name,
+        integration,
+        state,
+        this.logger,
+      );
+    } else {
+      if (state.lifecycle.loaded.value) {
+        this.logger.error('Custom integrations can only be added before the SDK is loaded.');
+        return;
+      }
+
       state.eventBuffer.toBeProcessedArray.value = [
         ...state.eventBuffer.toBeProcessedArray.value,
         [type, name, integration],
       ];
-      return;
     }
-
-    if (!canAddCustomIntegration(isBufferedInvocation, state, this.logger)) {
-      return;
-    }
-
-    this.pluginsManager?.invokeSingle(
-      'nativeDestinations.addCustomIntegration',
-      name,
-      integration,
-      state,
-      this.logger,
-    );
   }
   // End consumer exposed methods
 }

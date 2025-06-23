@@ -16,9 +16,18 @@ import {
   filterDisabledDestination,
   getCumulativeIntegrationsConfig,
   initializeDestination,
+  validateCustomIntegrationName,
+  createCustomIntegrationDestination,
 } from '../../src/deviceModeDestinations/utils';
 import { resetState, state } from '../../__mocks__/state';
 import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
+
+// Mock the UUID generator
+jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
+  generateUUID: jest.fn(),
+}));
+
+import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 
 describe('deviceModeDestinations utils', () => {
   describe('wait', () => {
@@ -1430,6 +1439,627 @@ describe('deviceModeDestinations utils', () => {
 
       // Fast-forward the timers to the next tick asynchronously
       jest.advanceTimersByTimeAsync(1);
+    });
+  });
+
+  describe('validateCustomIntegrationName', () => {
+    beforeEach(() => {
+      resetState();
+    });
+
+    it('should return true for valid unique name', () => {
+      const validName = 'MyCustomIntegration';
+      const result = validateCustomIntegrationName(validName, state, defaultLogger);
+
+      expect(result).toBe(true);
+      expect(defaultLogger.error).not.toHaveBeenCalled();
+    });
+
+    it('should return false for non-string name', () => {
+      const invalidName = 123;
+      const result = validateCustomIntegrationName(invalidName as any, state, defaultLogger);
+
+      expect(result).toBe(false);
+      expect(defaultLogger.error).toHaveBeenCalledWith(
+        'Custom integration name must be a non-empty string',
+      );
+    });
+
+    it('should return false for empty string', () => {
+      const emptyName = '';
+      const result = validateCustomIntegrationName(emptyName, state, defaultLogger);
+
+      expect(result).toBe(false);
+      expect(defaultLogger.error).toHaveBeenCalledWith(
+        'Custom integration name must be a non-empty string',
+      );
+    });
+
+    it('should return false for string with only whitespace', () => {
+      const whitespaceName = '   ';
+      const result = validateCustomIntegrationName(whitespaceName, state, defaultLogger);
+
+      expect(result).toBe(false);
+      expect(defaultLogger.error).toHaveBeenCalledWith(
+        'Custom integration name must be a non-empty string',
+      );
+    });
+
+    it('should return false for null', () => {
+      const nullName = null;
+      const result = validateCustomIntegrationName(nullName as any, state, defaultLogger);
+
+      expect(result).toBe(false);
+      expect(defaultLogger.error).toHaveBeenCalledWith(
+        'Custom integration name must be a non-empty string',
+      );
+    });
+
+    it('should return false for undefined', () => {
+      const undefinedName = undefined;
+      const result = validateCustomIntegrationName(undefinedName as any, state, defaultLogger);
+
+      expect(result).toBe(false);
+      expect(defaultLogger.error).toHaveBeenCalledWith(
+        'Custom integration name must be a non-empty string',
+      );
+    });
+
+    it('should return false when name conflicts with configured destination', () => {
+      const conflictingName = 'ExistingDestination';
+
+      // Mock existing configured destination
+      state.nativeDestinations.configuredDestinations.value = [
+        {
+          displayName: 'ExistingDestination',
+          id: 'existing_123',
+          userFriendlyId: 'existing_123',
+          enabled: true,
+        } as any,
+      ];
+
+      const result = validateCustomIntegrationName(conflictingName, state, defaultLogger);
+
+      expect(result).toBe(false);
+      expect(defaultLogger.error).toHaveBeenCalledWith(
+        'Custom integration name "ExistingDestination" conflicts with an existing integration',
+      );
+    });
+
+    it('should return false when name conflicts with initialized destination', () => {
+      const conflictingName = 'InitializedDestination';
+
+      // Mock existing initialized destination
+      state.nativeDestinations.initializedDestinations.value = [
+        {
+          displayName: 'InitializedDestination',
+          id: 'initialized_123',
+          userFriendlyId: 'initialized_123',
+          enabled: true,
+        } as any,
+      ];
+
+      const result = validateCustomIntegrationName(conflictingName, state, defaultLogger);
+
+      expect(result).toBe(false);
+      expect(defaultLogger.error).toHaveBeenCalledWith(
+        'Custom integration name "InitializedDestination" conflicts with an existing integration',
+      );
+    });
+
+    it('should return true when name does not conflict with existing destinations', () => {
+      const uniqueName = 'UniqueCustomIntegration';
+
+      // Mock existing destinations with different names
+      state.nativeDestinations.configuredDestinations.value = [
+        { displayName: 'GA4', id: 'ga4_123', userFriendlyId: 'ga4_123', enabled: true } as any,
+      ];
+      state.nativeDestinations.initializedDestinations.value = [
+        {
+          displayName: 'Amplitude',
+          id: 'amp_123',
+          userFriendlyId: 'amp_123',
+          enabled: true,
+        } as any,
+      ];
+
+      const result = validateCustomIntegrationName(uniqueName, state, defaultLogger);
+
+      expect(result).toBe(true);
+      expect(defaultLogger.error).not.toHaveBeenCalled();
+    });
+
+    it('should handle empty destination arrays gracefully', () => {
+      const validName = 'CustomIntegration';
+
+      // Ensure arrays are empty
+      state.nativeDestinations.configuredDestinations.value = [];
+      state.nativeDestinations.initializedDestinations.value = [];
+
+      const result = validateCustomIntegrationName(validName, state, defaultLogger);
+
+      expect(result).toBe(true);
+      expect(defaultLogger.error).not.toHaveBeenCalled();
+    });
+
+    it('should handle null destination arrays gracefully', () => {
+      const validName = 'CustomIntegration';
+
+      // Set arrays to null
+      state.nativeDestinations.configuredDestinations.value = null as any;
+      state.nativeDestinations.initializedDestinations.value = null as any;
+
+      const result = validateCustomIntegrationName(validName, state, defaultLogger);
+
+      expect(result).toBe(true);
+      expect(defaultLogger.error).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('createCustomIntegrationDestination', () => {
+    const mockAnalyticsInstance = {
+      track: jest.fn(),
+      page: jest.fn(),
+      identify: jest.fn(),
+      group: jest.fn(),
+      alias: jest.fn(),
+      getAnonymousId: jest.fn(),
+      getUserId: jest.fn(),
+      getUserTraits: jest.fn(),
+      getGroupId: jest.fn(),
+      getGroupTraits: jest.fn(),
+      getSessionId: jest.fn(),
+    };
+
+    const mockEvent = {
+      message: {
+        type: 'track',
+        event: 'Test Event',
+        properties: { test: 'value' },
+      },
+    } as any;
+
+    beforeEach(() => {
+      resetState();
+      state.lifecycle.safeAnalyticsInstance.value = mockAnalyticsInstance;
+      jest.clearAllMocks();
+      // Setup UUID mock to return predictable values
+      (generateUUID as jest.Mock).mockReturnValue('mocked-uuid-12345');
+    });
+
+    it('should create destination with all integration methods', () => {
+      const integrationName = 'TestIntegration';
+      const mockInit = jest.fn();
+      const mockTrack = jest.fn();
+      const mockPage = jest.fn();
+      const mockIdentify = jest.fn();
+      const mockGroup = jest.fn();
+      const mockAlias = jest.fn();
+      const mockIsReady = jest.fn().mockReturnValue(true);
+
+      const mockIntegration = {
+        init: mockInit,
+        track: mockTrack,
+        page: mockPage,
+        identify: mockIdentify,
+        group: mockGroup,
+        alias: mockAlias,
+        isReady: mockIsReady,
+      };
+
+      const destination = createCustomIntegrationDestination(
+        integrationName,
+        mockIntegration,
+        state,
+        defaultLogger,
+      );
+
+      expect(destination).toMatchObject({
+        displayName: integrationName,
+        shouldApplyDeviceModeTransformation: false,
+        propagateEventsUntransformedOnError: false,
+        enabled: true,
+        isCustomIntegration: true,
+        config: {
+          blacklistedEvents: [],
+          whitelistedEvents: [],
+          eventFilteringOption: 'disable',
+          connectionMode: 'device',
+          useNativeSDKToSend: true,
+        },
+      });
+
+      expect(destination.id).toEqual('custom_mocked-uuid-12345');
+      expect(destination.userFriendlyId).toEqual('TestIntegration___custom_mocked-uuid-12345');
+      expect(destination.instance).toBeDefined();
+    });
+
+    it('should create destination with only required isReady method', () => {
+      const integrationName = 'MinimalIntegration';
+      const mockIsReady = jest.fn().mockReturnValue(true);
+
+      const mockIntegration = {
+        isReady: mockIsReady,
+      };
+
+      const destination = createCustomIntegrationDestination(
+        integrationName,
+        mockIntegration,
+        state,
+        defaultLogger,
+      );
+
+      expect(destination.instance?.isReady).toBeDefined();
+      expect(destination.instance?.init).toBeUndefined();
+      expect(destination.instance?.track).toBeUndefined();
+      expect(destination.instance?.page).toBeUndefined();
+      expect(destination.instance?.identify).toBeUndefined();
+      expect(destination.instance?.group).toBeUndefined();
+      expect(destination.instance?.alias).toBeUndefined();
+    });
+
+    it('should properly wrap integration methods with analytics instance and logger', () => {
+      const integrationName = 'WrapperTestIntegration';
+      const mockInit = jest.fn();
+      const mockTrack = jest.fn();
+      const mockIsReady = jest.fn().mockReturnValue(true);
+
+      const mockIntegration = {
+        init: mockInit,
+        track: mockTrack,
+        isReady: mockIsReady,
+      };
+
+      const destination = createCustomIntegrationDestination(
+        integrationName,
+        mockIntegration,
+        state,
+        defaultLogger,
+      );
+
+      // Test init wrapper
+      destination.instance?.init!();
+      expect(mockInit).toHaveBeenCalledWith(mockAnalyticsInstance, defaultLogger);
+
+      // Test track wrapper
+      destination.instance?.track!(mockEvent);
+      expect(mockTrack).toHaveBeenCalledWith(mockAnalyticsInstance, defaultLogger, mockEvent);
+
+      // Test isReady wrapper
+      const isReady = destination.instance?.isReady();
+      expect(mockIsReady).toHaveBeenCalledWith(mockAnalyticsInstance, defaultLogger);
+      expect(isReady).toBe(true);
+    });
+
+    it('should handle names with spaces in userFriendlyId', () => {
+      const integrationName = 'My Custom Integration';
+      const mockIntegration = {
+        isReady: jest.fn().mockReturnValue(true),
+      };
+
+      const destination = createCustomIntegrationDestination(
+        integrationName,
+        mockIntegration,
+        state,
+        defaultLogger,
+      );
+
+      expect(destination.displayName).toBe('My Custom Integration');
+      expect(destination.userFriendlyId).toEqual(
+        'My-Custom-Integration___custom_mocked-uuid-12345',
+      );
+    });
+
+    it('should generate unique IDs for multiple integrations', () => {
+      const integrationName = 'TestIntegration';
+      const mockIntegration = {
+        isReady: jest.fn().mockReturnValue(true),
+      };
+
+      // Mock different UUID values for each call
+      (generateUUID as jest.Mock)
+        .mockReturnValueOnce('mocked-uuid-first')
+        .mockReturnValueOnce('mocked-uuid-second');
+
+      const destination1 = createCustomIntegrationDestination(
+        integrationName,
+        mockIntegration,
+        state,
+        defaultLogger,
+      );
+
+      const destination2 = createCustomIntegrationDestination(
+        integrationName,
+        mockIntegration,
+        state,
+        defaultLogger,
+      );
+
+      expect(destination1.id).toEqual('custom_mocked-uuid-first');
+      expect(destination2.id).toEqual('custom_mocked-uuid-second');
+      expect(destination1.userFriendlyId).toEqual('TestIntegration___custom_mocked-uuid-first');
+      expect(destination2.userFriendlyId).toEqual('TestIntegration___custom_mocked-uuid-second');
+    });
+
+    it('should handle all event types correctly', () => {
+      const integrationName = 'AllMethodsIntegration';
+      const mockInit = jest.fn();
+      const mockTrack = jest.fn();
+      const mockPage = jest.fn();
+      const mockIdentify = jest.fn();
+      const mockGroup = jest.fn();
+      const mockAlias = jest.fn();
+      const mockIsReady = jest.fn().mockReturnValue(true);
+
+      const mockIntegration = {
+        init: mockInit,
+        track: mockTrack,
+        page: mockPage,
+        identify: mockIdentify,
+        group: mockGroup,
+        alias: mockAlias,
+        isReady: mockIsReady,
+      };
+
+      const destination = createCustomIntegrationDestination(
+        integrationName,
+        mockIntegration,
+        state,
+        defaultLogger,
+      );
+
+      const mockPageEvent = { message: { type: 'page', name: 'Test Page' } } as any;
+      const mockIdentifyEvent = { message: { type: 'identify', userId: 'user123' } } as any;
+      const mockGroupEvent = { message: { type: 'group', groupId: 'group123' } } as any;
+      const mockAliasEvent = { message: { type: 'alias', previousId: 'old123' } } as any;
+
+      // Test all method wrappers
+      destination.instance?.init!();
+      destination.instance?.track!(mockEvent);
+      destination.instance?.page!(mockPageEvent);
+      destination.instance?.identify!(mockIdentifyEvent);
+      destination.instance?.group!(mockGroupEvent);
+      destination.instance?.alias!(mockAliasEvent);
+
+      expect(mockInit).toHaveBeenCalledWith(mockAnalyticsInstance, defaultLogger);
+      expect(mockTrack).toHaveBeenCalledWith(mockAnalyticsInstance, defaultLogger, mockEvent);
+      expect(mockPage).toHaveBeenCalledWith(mockAnalyticsInstance, defaultLogger, mockPageEvent);
+      expect(mockIdentify).toHaveBeenCalledWith(
+        mockAnalyticsInstance,
+        defaultLogger,
+        mockIdentifyEvent,
+      );
+      expect(mockGroup).toHaveBeenCalledWith(mockAnalyticsInstance, defaultLogger, mockGroupEvent);
+      expect(mockAlias).toHaveBeenCalledWith(mockAnalyticsInstance, defaultLogger, mockAliasEvent);
+    });
+
+    it('should use the analytics instance from state', () => {
+      const integrationName = 'StateTestIntegration';
+      const customAnalyticsInstance = { customMethod: jest.fn() };
+      state.lifecycle.safeAnalyticsInstance.value = customAnalyticsInstance as any;
+
+      const mockInit = jest.fn();
+      const mockIntegration = {
+        init: mockInit,
+        isReady: jest.fn().mockReturnValue(true),
+      };
+
+      const destination = createCustomIntegrationDestination(
+        integrationName,
+        mockIntegration,
+        state,
+        defaultLogger,
+      );
+
+      destination.instance?.init!();
+      expect(mockInit).toHaveBeenCalledWith(customAnalyticsInstance, defaultLogger);
+    });
+
+    it('should work with realistic custom integration implementation that uses analytics and logger APIs', () => {
+      const integrationName = 'CustomAnalytics';
+      let isInitialized = false;
+      const trackedEvents: any[] = [];
+
+      // Mock a realistic custom integration
+      const realisticIntegration = {
+        init: (analytics: any, logger: any) => {
+          logger.info('Initializing CustomAnalytics integration');
+
+          // Use analytics API to get user information
+          const userId = analytics.getUserId();
+          const anonymousId = analytics.getAnonymousId();
+
+          logger.debug(
+            `CustomAnalytics: Found user ${userId || 'anonymous'} with ID ${anonymousId}`,
+          );
+
+          // Simulate API initialization
+          (global as any).customAnalytics = {
+            userId,
+            anonymousId,
+            ready: true,
+          };
+
+          isInitialized = true;
+          logger.info('CustomAnalytics integration initialized successfully');
+        },
+
+        track: (analytics: any, logger: any, event: any) => {
+          logger.debug('CustomAnalytics: Processing track event', event.message);
+
+          const userId = analytics.getUserId();
+          const sessionId = analytics.getSessionId();
+
+          const processedEvent = {
+            ...event.message,
+            userId,
+            sessionId,
+            timestamp: new Date().toISOString(),
+            processed: true,
+          };
+
+          trackedEvents.push(processedEvent);
+          logger.info(`CustomAnalytics: Successfully tracked event "${event.message.event}"`);
+        },
+
+        page: (analytics: any, logger: any, event: any) => {
+          logger.debug('CustomAnalytics: Processing page event', event.message);
+
+          const userTraits = analytics.getUserTraits();
+          const processedPageEvent = {
+            ...event.message,
+            userTraits,
+            type: 'page_view',
+            timestamp: new Date().toISOString(),
+          };
+
+          trackedEvents.push(processedPageEvent);
+          logger.info(
+            `CustomAnalytics: Successfully tracked page "${event.message.name || 'Unknown'}"`,
+          );
+        },
+
+        identify: (analytics: any, logger: any, event: any) => {
+          logger.debug('CustomAnalytics: Processing identify event', event.message);
+
+          // Simulate updating user profile
+          const { userId, traits } = event.message;
+          if (userId && traits) {
+            logger.info(`CustomAnalytics: Updating profile for user ${userId}`, traits);
+          } else {
+            logger.warn('CustomAnalytics: Identify event missing userId or traits');
+          }
+        },
+
+        isReady: (analytics: any, logger: any) => {
+          logger.debug('CustomAnalytics: Checking ready status');
+          const ready = isInitialized && (global as any).customAnalytics?.ready;
+          logger.debug(`CustomAnalytics: Ready status = ${ready}`);
+          return ready;
+        },
+      };
+
+      // Setup expected mock values
+      (mockAnalyticsInstance.getUserId as jest.Mock).mockReturnValue('user-123');
+      (mockAnalyticsInstance.getAnonymousId as jest.Mock).mockReturnValue('anon-456');
+      (mockAnalyticsInstance.getSessionId as jest.Mock).mockReturnValue(12345);
+      (mockAnalyticsInstance.getUserTraits as jest.Mock).mockReturnValue({
+        name: 'John Doe',
+        email: 'john@example.com',
+      });
+
+      const destination = createCustomIntegrationDestination(
+        integrationName,
+        realisticIntegration,
+        state,
+        defaultLogger,
+      );
+
+      // Test initialization
+      destination.instance?.init!();
+
+      expect(defaultLogger.info).toHaveBeenCalledWith('Initializing CustomAnalytics integration');
+      expect(defaultLogger.debug).toHaveBeenCalledWith(
+        'CustomAnalytics: Found user user-123 with ID anon-456',
+      );
+      expect(defaultLogger.info).toHaveBeenCalledWith(
+        'CustomAnalytics integration initialized successfully',
+      );
+      expect(isInitialized).toBe(true);
+      expect((global as any).customAnalytics).toEqual({
+        userId: 'user-123',
+        anonymousId: 'anon-456',
+        ready: true,
+      });
+
+      // Test isReady
+      const readyStatus = destination.instance?.isReady();
+      expect(readyStatus).toBe(true);
+      expect(defaultLogger.debug).toHaveBeenCalledWith('CustomAnalytics: Checking ready status');
+      expect(defaultLogger.debug).toHaveBeenCalledWith('CustomAnalytics: Ready status = true');
+
+      // Test track event
+      const trackEvent = {
+        message: {
+          type: 'track',
+          event: 'Purchase Completed',
+          properties: { value: 99.99, currency: 'USD' },
+        },
+      };
+
+      destination.instance?.track!(trackEvent as any);
+
+      expect(defaultLogger.debug).toHaveBeenCalledWith(
+        'CustomAnalytics: Processing track event',
+        trackEvent.message,
+      );
+      expect(defaultLogger.info).toHaveBeenCalledWith(
+        'CustomAnalytics: Successfully tracked event "Purchase Completed"',
+      );
+      expect(trackedEvents).toHaveLength(1);
+      expect(trackedEvents[0]).toMatchObject({
+        type: 'track',
+        event: 'Purchase Completed',
+        properties: { value: 99.99, currency: 'USD' },
+        userId: 'user-123',
+        sessionId: 12345,
+        processed: true,
+      });
+
+      // Test page event
+      const pageEvent = {
+        message: {
+          type: 'page',
+          name: 'Product Details',
+          properties: { product_id: 'prod-123' },
+        },
+      };
+
+      destination.instance?.page!(pageEvent as any);
+
+      expect(defaultLogger.debug).toHaveBeenCalledWith(
+        'CustomAnalytics: Processing page event',
+        pageEvent.message,
+      );
+      expect(defaultLogger.info).toHaveBeenCalledWith(
+        'CustomAnalytics: Successfully tracked page "Product Details"',
+      );
+      expect(trackedEvents).toHaveLength(2);
+      expect(trackedEvents[1]).toMatchObject({
+        type: 'page_view',
+        name: 'Product Details',
+        properties: { product_id: 'prod-123' },
+        userTraits: { name: 'John Doe', email: 'john@example.com' },
+      });
+
+      // Test identify event
+      const identifyEvent = {
+        message: {
+          type: 'identify',
+          userId: 'user-123',
+          traits: { name: 'John Doe', email: 'john@example.com', plan: 'premium' },
+        },
+      };
+
+      destination.instance?.identify!(identifyEvent as any);
+
+      expect(defaultLogger.debug).toHaveBeenCalledWith(
+        'CustomAnalytics: Processing identify event',
+        identifyEvent.message,
+      );
+      expect(defaultLogger.info).toHaveBeenCalledWith(
+        'CustomAnalytics: Updating profile for user user-123',
+        { name: 'John Doe', email: 'john@example.com', plan: 'premium' },
+      );
+
+      // Verify analytics API calls
+      expect(mockAnalyticsInstance.getUserId).toHaveBeenCalledTimes(2); // init, track
+      expect(mockAnalyticsInstance.getAnonymousId).toHaveBeenCalledTimes(1); // init
+      expect(mockAnalyticsInstance.getSessionId).toHaveBeenCalledTimes(1); // track
+      expect(mockAnalyticsInstance.getUserTraits).toHaveBeenCalledTimes(1); // track
+
+      // Cleanup
+      delete (global as any).customAnalytics;
     });
   });
 });

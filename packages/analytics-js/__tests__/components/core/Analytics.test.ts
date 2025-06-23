@@ -919,15 +919,12 @@ describe('Core - Analytics', () => {
 
     beforeEach(() => {
       analytics.prepareInternalServices();
+      state.lifecycle.loaded.value = false;
+      state.eventBuffer.toBeProcessedArray.value = [];
     });
 
-    describe('when SDK is not loaded', () => {
-      beforeEach(() => {
-        state.lifecycle.loaded.value = false;
-        state.eventBuffer.toBeProcessedArray.value = [];
-      });
-
-      it('should buffer the addCustomIntegration call', () => {
+    describe('when the call is not buffered', () => {
+      it('should buffer the addCustomIntegration call when SDK is not loaded', () => {
         const integrationName = 'TestIntegration';
 
         analytics.addCustomIntegration(integrationName, mockCustomIntegration);
@@ -937,7 +934,7 @@ describe('Core - Analytics', () => {
         ]);
       });
 
-      it('should add to existing buffered events', () => {
+      it('should add to existing buffered events when SDK is not loaded', () => {
         const integrationName = 'TestIntegration';
         state.eventBuffer.toBeProcessedArray.value = [['track', 'some_event']];
 
@@ -948,15 +945,10 @@ describe('Core - Analytics', () => {
           ['addCustomIntegration', integrationName, mockCustomIntegration],
         ]);
       });
-    });
 
-    describe('when SDK is loaded', () => {
-      beforeEach(() => {
+      it('should log error and return early when SDK is already loaded', () => {
         state.lifecycle.loaded.value = true;
-        state.eventBuffer.toBeProcessedArray.value = [];
-      });
-
-      it('should process addCustomIntegration immediately when allowed', () => {
+        const loggerErrorSpy = jest.spyOn(analytics.logger, 'error');
         const invokeSingleSpy = jest.spyOn(
           analytics.pluginsManager as IPluginsManager,
           'invokeSingle',
@@ -966,17 +958,36 @@ describe('Core - Analytics', () => {
 
         analytics.addCustomIntegration(integrationName, mockCustomIntegration);
 
-        expect(invokeSingleSpy).toHaveBeenCalledWith(
-          'nativeDestinations.addCustomIntegration',
-          integrationName,
-          mockCustomIntegration,
-          state,
-          analytics.logger,
+        expect(loggerErrorSpy).toHaveBeenCalledWith(
+          'Custom integrations can only be added before the SDK is loaded.',
         );
+        expect(invokeSingleSpy).not.toHaveBeenCalled();
         expect(state.eventBuffer.toBeProcessedArray.value).toEqual([]);
       });
 
-      it('should handle buffered invocation correctly', () => {
+      it('should not leave breadcrumb when isBufferedInvocation is false', () => {
+        const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
+
+        analytics.addCustomIntegration('TestIntegration', mockCustomIntegration);
+
+        expect(leaveBreadcrumbSpy).not.toHaveBeenCalled();
+      });
+
+      it('should not invoke plugin manager when isBufferedInvocation is false', () => {
+        const invokeSingleSpy = jest.spyOn(
+          analytics.pluginsManager as IPluginsManager,
+          'invokeSingle',
+        );
+
+        analytics.addCustomIntegration('TestIntegration', mockCustomIntegration);
+
+        expect(invokeSingleSpy).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when the call is buffered', () => {
+      it('should leave breadcrumb and invoke plugin manager', () => {
+        const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
         const invokeSingleSpy = jest.spyOn(
           analytics.pluginsManager as IPluginsManager,
           'invokeSingle',
@@ -986,6 +997,7 @@ describe('Core - Analytics', () => {
 
         analytics.addCustomIntegration(integrationName, mockCustomIntegration, true);
 
+        expect(leaveBreadcrumbSpy).toHaveBeenCalledWith('New addCustomIntegration invocation');
         expect(invokeSingleSpy).toHaveBeenCalledWith(
           'nativeDestinations.addCustomIntegration',
           integrationName,
@@ -995,25 +1007,16 @@ describe('Core - Analytics', () => {
         );
       });
 
-      it('should handle custom integration with minimal methods', () => {
-        const invokeSingleSpy = jest.spyOn(
-          analytics.pluginsManager as IPluginsManager,
-          'invokeSingle',
-        );
+      it('should handle undefined plugin manager gracefully', () => {
+        const originalPluginsManager = analytics.pluginsManager;
+        analytics.pluginsManager = undefined;
 
-        const minimalIntegration: RSACustomIntegration = {
-          isReady: jest.fn(() => true),
-        };
+        expect(() => {
+          analytics.addCustomIntegration('TestIntegration', mockCustomIntegration, true);
+        }).not.toThrow();
 
-        analytics.addCustomIntegration('MinimalIntegration', minimalIntegration);
-
-        expect(invokeSingleSpy).toHaveBeenCalledWith(
-          'nativeDestinations.addCustomIntegration',
-          'MinimalIntegration',
-          minimalIntegration,
-          state,
-          analytics.logger,
-        );
+        // Restore the original plugins manager
+        analytics.pluginsManager = originalPluginsManager;
       });
     });
   });

@@ -74,7 +74,7 @@ const sendEventToDestination = (
       message: item,
     };
 
-    dest.instance?.[methodName as keyof DeviceModeIntegrationEventAPIs]?.(integrationEvent);
+    dest.instance![methodName as keyof DeviceModeIntegrationEventAPIs]?.(integrationEvent);
   } catch (err) {
     errorHandler?.onError({
       error: err,

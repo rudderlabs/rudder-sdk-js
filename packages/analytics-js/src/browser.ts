@@ -25,6 +25,7 @@ const {
   getSessionId,
   consent,
   setAuthToken,
+  addCustomIntegration,
 } = new RudderAnalytics();
 
 /*
@@ -52,4 +53,5 @@ export {
   getSessionId,
   consent,
   setAuthToken,
+  addCustomIntegration,
 };
