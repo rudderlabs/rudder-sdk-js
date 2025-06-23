@@ -381,6 +381,287 @@ describe('DeviceModeDestinations Plugin', () => {
       // Should fallback to loadOnlyIntegrations
       expect(mockFilterDestinations).toHaveBeenCalledWith({ All: true }, expect.any(Array));
     });
+
+    // disabled destination filtering
+    describe('Disabled Destination Filtering', () => {
+      it('should only enabled destination be set to active destinations', () => {
+        const mixedDestinations: Destination[] = [
+          {
+            ...mockDestinations[0]!,
+            enabled: true, // Should be included
+          },
+          {
+            ...mockDestinations[1]!,
+            enabled: false, // Should be filtered out
+          },
+          {
+            id: 'dest4',
+            displayName: 'GA4',
+            userFriendlyId: 'GA4___dest4',
+            enabled: false, // Should be filtered out
+            shouldApplyDeviceModeTransformation: true,
+            propagateEventsUntransformedOnError: false,
+            config: {
+              apiKey: 'key4',
+              blacklistedEvents: [],
+              whitelistedEvents: [],
+              eventFilteringOption: 'disable' as const,
+            },
+          },
+        ];
+
+        mockState.nativeDestinations.configuredDestinations.value = mixedDestinations;
+
+        plugin.nativeDestinations.setActiveDestinations(
+          mockState,
+          mockPluginsManager,
+          mockErrorHandler,
+          mockLogger,
+        );
+
+        expect(state.nativeDestinations.activeDestinations.value?.every(dest => dest.enabled)).toBe(
+          true,
+        );
+      });
+
+      it('should always filter out disabled destinations when no load options are provided', () => {
+        // Set up destinations with mixed enabled states
+        const mixedDestinations: Destination[] = [
+          {
+            ...mockDestinations[0]!,
+            enabled: true, // Should be included
+          },
+          {
+            ...mockDestinations[1]!,
+            enabled: false, // Should be filtered out
+          },
+          {
+            id: 'dest4',
+            displayName: 'GA4',
+            userFriendlyId: 'GA4___dest4',
+            enabled: false, // Should be filtered out
+            shouldApplyDeviceModeTransformation: true,
+            propagateEventsUntransformedOnError: false,
+            config: {
+              apiKey: 'key4',
+              blacklistedEvents: [],
+              whitelistedEvents: [],
+              eventFilteringOption: 'disable' as const,
+            },
+          },
+        ];
+
+        mockState.nativeDestinations.configuredDestinations.value = mixedDestinations;
+        mockState.loadOptions.value = {};
+        mockState.nativeDestinations.loadOnlyIntegrations.value = { All: true };
+
+        // Mock filterDisabledDestination to actually filter (since we're testing the real behavior)
+        mockApplySourceConfigurationOverrides.mockImplementation(destinations =>
+          destinations.filter(dest => dest.enabled),
+        );
+
+        plugin.nativeDestinations.setActiveDestinations(
+          mockState,
+          mockPluginsManager,
+          mockErrorHandler,
+          mockLogger,
+        );
+
+        // Verify only enabled destinations are passed to filterDestinations
+        expect(mockFilterDestinations).toHaveBeenCalledWith(
+          { All: true },
+          expect.arrayContaining([expect.objectContaining({ id: 'dest1', enabled: true })]),
+        );
+
+        // Verify disabled destinations are not included
+        const passedDestinations = mockFilterDestinations.mock.calls[0]?.[1];
+        expect(passedDestinations).not.toContainEqual(expect.objectContaining({ enabled: false }));
+        expect(passedDestinations).toHaveLength(1);
+        expect(passedDestinations?.[0]).toEqual(
+          expect.objectContaining({ id: 'dest1', enabled: true }),
+        );
+      });
+
+      it('should filter disabled destinations even when load options explicitly include them', () => {
+        const mixedDestinations: Destination[] = [
+          {
+            ...mockDestinations[0]!,
+            displayName: 'GA4',
+            enabled: true,
+          },
+          {
+            ...mockDestinations[1]!,
+            displayName: 'Google Analytics',
+            enabled: false, // Disabled destination
+          },
+        ];
+
+        mockState.nativeDestinations.configuredDestinations.value = mixedDestinations;
+        mockState.loadOptions.value.sourceConfigurationOverride = undefined;
+
+        // Load options that would normally include both destinations
+        mockState.nativeDestinations.loadOnlyIntegrations.value = {
+          All: false,
+          GA4: true,
+          'Google Analytics': true, // Explicitly requested but should still be filtered if disabled
+        };
+
+        mockApplySourceConfigurationOverrides.mockImplementation(destinations =>
+          destinations.filter(dest => dest.enabled),
+        );
+
+        plugin.nativeDestinations.setActiveDestinations(
+          mockState,
+          mockPluginsManager,
+          mockErrorHandler,
+          mockLogger,
+        );
+
+        // Verify only enabled destinations make it through, regardless of load options
+        const passedDestinations = mockFilterDestinations.mock.calls[0]?.[1];
+        expect(passedDestinations).not.toContainEqual(expect.objectContaining({ enabled: false }));
+        expect(passedDestinations).toHaveLength(1);
+        expect(passedDestinations?.[0]).toEqual(
+          expect.objectContaining({
+            displayName: 'GA4',
+            enabled: true,
+          }),
+        );
+      });
+
+      it('should filter disabled destinations when using source configuration overrides', () => {
+        const sourceConfigOverride: SourceConfigurationOverride = {
+          destinations: [
+            { id: 'dest1', enabled: true }, // Enable dest1
+            { id: 'dest2', enabled: false }, // Explicitly disable dest2
+            { id: 'dest3', enabled: true }, // Enable dest3
+          ],
+        };
+
+        const testDestinations: Destination[] = [
+          { ...mockDestinations[0]!, id: 'dest1', enabled: false }, // Originally disabled, should be enabled by override
+          { ...mockDestinations[1]!, id: 'dest2', enabled: true }, // Originally enabled, should be disabled by override
+          {
+            id: 'dest3',
+            displayName: 'GA4',
+            userFriendlyId: 'GA4___dest3',
+            enabled: false, // Originally disabled, should be enabled by override
+            shouldApplyDeviceModeTransformation: true,
+            propagateEventsUntransformedOnError: false,
+            config: {
+              apiKey: 'key3',
+              blacklistedEvents: [],
+              whitelistedEvents: [],
+              eventFilteringOption: 'disable' as const,
+            },
+          },
+        ];
+
+        mockState.nativeDestinations.configuredDestinations.value = testDestinations;
+        mockState.loadOptions.value.sourceConfigurationOverride = sourceConfigOverride;
+
+        // Mock the actual filtering behavior
+        const expectedAfterOverrides = [
+          { ...testDestinations[0]!, enabled: true, overridden: true }, // dest1 - enabled by override
+          { ...testDestinations[2]!, enabled: true, overridden: true }, // dest3 - enabled by override
+          // dest2 should be filtered out as it's disabled by override
+        ];
+
+        mockApplySourceConfigurationOverrides.mockReturnValue(expectedAfterOverrides);
+
+        plugin.nativeDestinations.setActiveDestinations(
+          mockState,
+          mockPluginsManager,
+          mockErrorHandler,
+          mockLogger,
+        );
+
+        // Verify overrides were applied
+        expect(mockApplySourceConfigurationOverrides).toHaveBeenCalledWith(
+          expect.any(Array),
+          sourceConfigOverride,
+          mockLogger,
+        );
+
+        // Verify only enabled destinations after overrides are passed to filterDestinations
+        expect(mockFilterDestinations).toHaveBeenCalledWith({ All: true }, expectedAfterOverrides);
+
+        // Ensure no disabled destinations make it through
+        const passedDestinations = mockFilterDestinations.mock.calls[0]?.[1];
+        expect(passedDestinations?.every(dest => dest.enabled)).toBe(true);
+      });
+
+      it('should handle all destinations disabled scenario', () => {
+        const allDisabledDestinations: Destination[] = [
+          { ...mockDestinations[0]!, enabled: false },
+          { ...mockDestinations[1]!, enabled: false },
+        ];
+
+        mockState.nativeDestinations.configuredDestinations.value = allDisabledDestinations;
+
+        mockApplySourceConfigurationOverrides.mockImplementation(destinations =>
+          destinations.filter(dest => dest.enabled),
+        );
+
+        plugin.nativeDestinations.setActiveDestinations(
+          mockState,
+          mockPluginsManager,
+          mockErrorHandler,
+          mockLogger,
+        );
+
+        // Should result in empty array passed to filterDestinations
+        expect(mockFilterDestinations).toHaveBeenCalledWith({ All: true }, []);
+
+        // Final active destinations should be empty
+        expect(mockState.nativeDestinations.activeDestinations.value).toEqual([]);
+      });
+
+      it('should preserve enabled destinations filtering regardless of consent manager response', () => {
+        const mixedDestinations: Destination[] = [
+          { ...mockDestinations[0]!, enabled: true }, // Should pass filtering
+          { ...mockDestinations[1]!, enabled: false }, // Should be filtered out before consent check
+        ];
+
+        mockState.nativeDestinations.configuredDestinations.value = mixedDestinations;
+        mockState.loadOptions.value.sourceConfigurationOverride = undefined;
+
+        mockApplySourceConfigurationOverrides.mockImplementation(destinations =>
+          destinations.filter(dest => dest.enabled),
+        );
+
+        mockFilterDestinations.mockImplementation((integrations, destinations) => destinations);
+
+        // Mock consent manager to deny all destinations (this shouldn't matter for disabled ones)
+        mockPluginsManager.invokeSingle = jest.fn().mockReturnValue(false);
+
+        plugin.nativeDestinations.setActiveDestinations(
+          mockState,
+          mockPluginsManager,
+          mockErrorHandler,
+          mockLogger,
+        );
+
+        // Consent manager should only be called for enabled destinations
+        expect(mockPluginsManager.invokeSingle).toHaveBeenCalledTimes(1);
+        expect(mockPluginsManager.invokeSingle).toHaveBeenCalledWith(
+          'consentManager.isDestinationConsented',
+          mockState,
+          expect.objectContaining({ apiKey: 'key1' }), // Only the enabled destination
+          mockErrorHandler,
+          mockLogger,
+        );
+
+        // Disabled destinations should never reach consent manager
+        expect(mockPluginsManager.invokeSingle).not.toHaveBeenCalledWith(
+          'consentManager.isDestinationConsented',
+          mockState,
+          expect.objectContaining({ apiKey: 'key2' }), // The disabled destination
+          mockErrorHandler,
+          mockLogger,
+        );
+      });
+    });
   });
 
   describe('load method', () => {
