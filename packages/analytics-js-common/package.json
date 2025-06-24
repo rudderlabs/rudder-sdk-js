@@ -61,11 +61,11 @@
     "crypto-js": "4.2.0",
     "@lukeed/uuid": "2.0.1",
     "get-value": "4.0.1",
-    "ramda": "0.30.1",
+    "ramda": "0.31.3",
     "storejs": "2.1.0"
   },
   "devDependencies": {
-    "@bugsnag/js": "8.2.0"
+    "@bugsnag/js": "8.4.0"
   },
   "overrides": {},
   "browserslist": {

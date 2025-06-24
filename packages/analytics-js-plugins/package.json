@@ -90,7 +90,7 @@
   "dependencies": {
     "@rudderstack/analytics-js-cookies": "*",
     "@rudderstack/analytics-js-common": "*",
-    "ramda": "0.30.1"
+    "ramda": "0.31.3"
   },
   "devDependencies": {},
   "overrides": {},
