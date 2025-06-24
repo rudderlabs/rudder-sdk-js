@@ -434,8 +434,8 @@ describe('DeviceModeDestinations Plugin', () => {
           },
           {
             id: 'dest4',
-            displayName: 'GA4',
-            userFriendlyId: 'GA4___dest4',
+            displayName: 'Amplitude',
+            userFriendlyId: 'Amplitude___dest4',
             enabled: false, // Should be filtered out
             shouldApplyDeviceModeTransformation: true,
             propagateEventsUntransformedOnError: false,
@@ -538,8 +538,8 @@ describe('DeviceModeDestinations Plugin', () => {
           { ...mockDestinations[1]!, id: 'dest2', enabled: true }, // Originally enabled, should be disabled by override
           {
             id: 'dest3',
-            displayName: 'GA4',
-            userFriendlyId: 'GA4___dest3',
+            displayName: 'Amplitude',
+            userFriendlyId: 'Amplitude___dest3',
             enabled: false, // Originally disabled, should be enabled by override
             shouldApplyDeviceModeTransformation: true,
             propagateEventsUntransformedOnError: false,
