@@ -167,7 +167,7 @@
     "jest-environment-jsdom": "29.7.0",
     "jest-junit": "16.0.0",
     "jest-sonar": "0.2.16",
-    "jest-watch-typeahead": "2.2.2",
+    "jest-watch-typeahead": "3.0.1",
     "join-component": "1.1.0",
     "jscpd": "4.0.5",
     "lint-staged": "16.1.2",
