@@ -211,7 +211,7 @@ const applySourceConfigurationOverrides = (
   logger?: ILogger,
 ): Destination[] => {
   if (!sourceConfigOverride?.destinations?.length) {
-    return filterDisabledDestination(destinations);
+    return filterDisabledDestinations(destinations);
   }
 
   const destIds = destinations.map(dest => dest.id);
@@ -258,7 +258,7 @@ const applySourceConfigurationOverrides = (
     }
   });
 
-  return filterDisabledDestination(processedDestinations);
+  return filterDisabledDestinations(processedDestinations);
 };
 
 /**
@@ -266,7 +266,7 @@ const applySourceConfigurationOverrides = (
  * @param destinations Array of destinations to filter
  * @returns Filtered destinations to only include enabled ones
  */
-const filterDisabledDestination = (destinations: Destination[]): Destination[] =>
+const filterDisabledDestinations = (destinations: Destination[]): Destination[] =>
   destinations.filter(dest => dest.enabled);
 
 /**
@@ -425,7 +425,7 @@ export {
   initializeDestination,
   applySourceConfigurationOverrides,
   applyOverrideToDestination,
-  filterDisabledDestination,
+  filterDisabledDestinations,
   validateCustomIntegrationName,
   createCustomIntegrationDestination,
 };

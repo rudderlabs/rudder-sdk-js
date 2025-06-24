@@ -14,7 +14,7 @@ import {
   isDestinationSDKMounted,
   initializeDestination,
   applySourceConfigurationOverrides,
-  filterDisabledDestination,
+  filterDisabledDestinations,
   createCustomIntegrationDestination,
   validateCustomIntegrationName,
 } from './utils';
@@ -77,19 +77,19 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
         });
 
       // Apply source configuration overrides if provided
-      const destinationsWithOverrides = state.loadOptions.value.sourceConfigurationOverride
+      const configuredDestinations = state.loadOptions.value.sourceConfigurationOverride
         ? applySourceConfigurationOverrides(
             configSupportedDestinations,
             state.loadOptions.value.sourceConfigurationOverride,
             logger,
           )
-        : filterDisabledDestination(configSupportedDestinations);
+        : filterDisabledDestinations(configSupportedDestinations);
 
       // Filter destinations that are disabled through load or consent API options
       const destinationsToLoad = filterDestinations(
         state.consents.postConsent.value?.integrations ??
           state.nativeDestinations.loadOnlyIntegrations.value,
-        destinationsWithOverrides,
+        configuredDestinations,
       );
 
       const consentedDestinations = destinationsToLoad.filter(

@@ -13,7 +13,7 @@ import {
   isDestinationSDKMounted,
   applySourceConfigurationOverrides,
   applyOverrideToDestination,
-  filterDisabledDestination,
+  filterDisabledDestinations,
   getCumulativeIntegrationsConfig,
   initializeDestination,
   validateCustomIntegrationName,
@@ -1098,7 +1098,7 @@ describe('deviceModeDestinations utils', () => {
     });
   });
 
-  describe('filterDisabledDestination', () => {
+  describe('filterDisabledDestinations', () => {
     it('should return only enabled destinations', () => {
       const destinations = [
         { id: '1', enabled: true },
@@ -1106,7 +1106,7 @@ describe('deviceModeDestinations utils', () => {
         { id: '3', enabled: true },
       ] as any[];
 
-      const result = filterDisabledDestination(destinations);
+      const result = filterDisabledDestinations(destinations);
 
       expect(result).toHaveLength(2);
       expect(result.every(dest => dest.enabled)).toBe(true);
@@ -1119,7 +1119,7 @@ describe('deviceModeDestinations utils', () => {
         { id: '2', enabled: false },
       ] as any[];
 
-      const result = filterDisabledDestination(destinations);
+      const result = filterDisabledDestinations(destinations);
 
       expect(result).toEqual([]);
     });
@@ -1130,14 +1130,14 @@ describe('deviceModeDestinations utils', () => {
         { id: '2', enabled: true },
       ] as any[];
 
-      const result = filterDisabledDestination(destinations);
+      const result = filterDisabledDestinations(destinations);
 
       expect(result).toHaveLength(2);
       expect(result.map(d => d.id)).toEqual(['1', '2']);
     });
 
     it('should return empty array if input is empty', () => {
-      const result = filterDisabledDestination([]);
+      const result = filterDisabledDestinations([]);
 
       expect(result).toEqual([]);
     });
