@@ -8,11 +8,17 @@ import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger
 import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
 import { resetState, state } from '../../__mocks__/state';
 import DeviceModeDestinations from '../../src/deviceModeDestinations';
+import { filterDestinations } from '../../src/shared-chunks/deviceModeDestinations';
+import {
+  applySourceConfigurationOverrides,
+  isDestinationSDKMounted,
+  initializeDestination,
+} from '../../src/deviceModeDestinations/utils';
 
 // Mock the shared chunks
 jest.mock('../../src/shared-chunks/deviceModeDestinations', () => ({
   destDisplayNamesToFileNamesMap: {
-    GA4: 'GA4',
+    'Google Analytics 4 (GA4)': 'GA4',
     'Google Analytics': 'GoogleAnalytics',
     Amplitude: 'Amplitude',
   },
@@ -27,13 +33,6 @@ jest.mock('../../src/deviceModeDestinations/utils', () => ({
   isDestinationSDKMounted: jest.fn(),
   initializeDestination: jest.fn(),
 }));
-
-import { filterDestinations } from '../../src/shared-chunks/deviceModeDestinations';
-import {
-  applySourceConfigurationOverrides,
-  isDestinationSDKMounted,
-  initializeDestination,
-} from '../../src/deviceModeDestinations/utils';
 
 const mockFilterDestinations = filterDestinations as jest.MockedFunction<typeof filterDestinations>;
 const mockApplySourceConfigurationOverrides =
@@ -57,8 +56,8 @@ describe('DeviceModeDestinations Plugin', () => {
   const mockDestinations: Destination[] = [
     {
       id: 'dest1',
-      displayName: 'GA4',
-      userFriendlyId: 'GA4___dest1',
+      displayName: 'Google Analytics 4 (GA4)',
+      userFriendlyId: 'Google-Analytics-4-(GA4)___dest1',
       enabled: true,
       shouldApplyDeviceModeTransformation: true,
       propagateEventsUntransformedOnError: false,
@@ -229,7 +228,7 @@ describe('DeviceModeDestinations Plugin', () => {
 
       expect(mockApplySourceConfigurationOverrides).toHaveBeenCalledWith(
         expect.arrayContaining([
-          expect.objectContaining({ id: 'dest1', displayName: 'GA4' }),
+          expect.objectContaining({ id: 'dest1', displayName: 'Google Analytics 4 (GA4)' }),
           expect.objectContaining({ id: 'dest2', displayName: 'Google Analytics' }),
         ]),
         sourceConfigOverride,
@@ -384,7 +383,7 @@ describe('DeviceModeDestinations Plugin', () => {
 
     // disabled destination filtering
     describe('Disabled Destination Filtering', () => {
-      it('should only enabled destination be set to active destinations', () => {
+      it('should set only enabled destination to active destinations', () => {
         const mixedDestinations: Destination[] = [
           {
             ...mockDestinations[0]!,
@@ -396,8 +395,8 @@ describe('DeviceModeDestinations Plugin', () => {
           },
           {
             id: 'dest4',
-            displayName: 'GA4',
-            userFriendlyId: 'GA4___dest4',
+            displayName: 'Amplitude',
+            userFriendlyId: 'Amplitude___dest4',
             enabled: false, // Should be filtered out
             shouldApplyDeviceModeTransformation: true,
             propagateEventsUntransformedOnError: false,
@@ -419,9 +418,7 @@ describe('DeviceModeDestinations Plugin', () => {
           mockLogger,
         );
 
-        expect(state.nativeDestinations.activeDestinations.value?.every(dest => dest.enabled)).toBe(
-          true,
-        );
+        expect(state.nativeDestinations.activeDestinations.value).toEqual([mixedDestinations[0]]);
       });
 
       it('should always filter out disabled destinations when no load options are provided', () => {
@@ -486,12 +483,10 @@ describe('DeviceModeDestinations Plugin', () => {
         const mixedDestinations: Destination[] = [
           {
             ...mockDestinations[0]!,
-            displayName: 'GA4',
             enabled: true,
           },
           {
             ...mockDestinations[1]!,
-            displayName: 'Google Analytics',
             enabled: false, // Disabled destination
           },
         ];
@@ -523,7 +518,7 @@ describe('DeviceModeDestinations Plugin', () => {
         expect(passedDestinations).toHaveLength(1);
         expect(passedDestinations?.[0]).toEqual(
           expect.objectContaining({
-            displayName: 'GA4',
+            displayName: 'Google Analytics 4 (GA4)',
             enabled: true,
           }),
         );
@@ -588,7 +583,7 @@ describe('DeviceModeDestinations Plugin', () => {
 
         // Ensure no disabled destinations make it through
         const passedDestinations = mockFilterDestinations.mock.calls[0]?.[1];
-        expect(passedDestinations?.every(dest => dest.enabled)).toBe(true);
+        expect(passedDestinations).toEqual(expectedAfterOverrides);
       });
 
       it('should handle all destinations disabled scenario', () => {
@@ -661,6 +656,40 @@ describe('DeviceModeDestinations Plugin', () => {
           mockLogger,
         );
       });
+
+      it('should filter out disabled destination with post consent integration option', () => {
+        const mixedDestinations: Destination[] = [
+          { ...mockDestinations[0]!, enabled: true },
+          { ...mockDestinations[1]!, enabled: true },
+        ];
+
+        mockState.nativeDestinations.configuredDestinations.value = mixedDestinations;
+        mockState.consents.postConsent.value = {
+          integrations: {
+            All: true,
+            'Google Analytics 4 (GA4)': false,
+            'Google Analytics': true,
+          },
+        };
+
+        // Access real implementation at runtime
+        const { filterDestinations: realFilterDestinations } = jest.requireActual(
+          '../../src/shared-chunks/deviceModeDestinations',
+        );
+        // Use the real filterDestinations implementation for this test only
+        mockFilterDestinations.mockImplementationOnce(realFilterDestinations);
+
+        plugin.nativeDestinations.setActiveDestinations(
+          mockState,
+          mockPluginsManager,
+          mockErrorHandler,
+          mockLogger,
+        );
+
+        expect(mockState.nativeDestinations.activeDestinations.value).toEqual([
+          mixedDestinations[1]!,
+        ]);
+      });
     });
   });
 
@@ -692,7 +721,7 @@ describe('DeviceModeDestinations Plugin', () => {
 
       expect(mockExternalSrcLoader.loadJSFile).toHaveBeenCalledWith({
         url: 'https://cdn.rudderlabs.com/v3/GA4.min.js',
-        id: 'GA4___dest1',
+        id: 'Google-Analytics-4-(GA4)___dest1',
         callback: expect.any(Function),
         timeout: 10000,
       });
@@ -853,7 +882,7 @@ describe('DeviceModeDestinations Plugin', () => {
         const loadJSFileCall = mockExternalSrcLoader.loadJSFile.mock.calls[0];
         const callback = loadJSFileCall[0].callback;
 
-        callback('GA4___dest1');
+        callback('Google-Analytics-4-(GA4)___dest1');
 
         expect(mockInitializeDestination).toHaveBeenCalledWith(
           mockDestinations[0],
@@ -879,13 +908,14 @@ describe('DeviceModeDestinations Plugin', () => {
         const callback = loadJSFileCall[0].callback;
 
         const mockError = new Error('Script load failed');
-        callback('GA4___dest1', mockError);
+        callback('Google-Analytics-4-(GA4)___dest1', mockError);
 
         expect(mockErrorHandler.onError).toHaveBeenCalledWith({
           error: mockError,
           context: 'DeviceModeDestinationsPlugin',
-          customMessage: 'Failed to load integration SDK for destination "GA4"',
-          groupingHash: 'Failed to load integration SDK for destination "GA4"',
+          customMessage:
+            'Failed to load integration SDK for destination "Google Analytics 4 (GA4)"',
+          groupingHash: 'Failed to load integration SDK for destination "Google Analytics 4 (GA4)"',
         });
 
         expect(mockState.nativeDestinations.failedDestinations.value).toContain(
@@ -905,7 +935,7 @@ describe('DeviceModeDestinations Plugin', () => {
         const mockError = new Error('Script load failed');
 
         expect(() => {
-          callback('GA4___dest1', mockError);
+          callback('Google-Analytics-4-(GA4)___dest1', mockError);
         }).not.toThrow();
 
         expect(mockState.nativeDestinations.failedDestinations.value).toContain(
@@ -1027,13 +1057,14 @@ describe('DeviceModeDestinations Plugin', () => {
 
         // Simulate timeout error
         const timeoutError = new Error('Script load timeout');
-        callback('GA4___dest1', timeoutError);
+        callback('Google-Analytics-4-(GA4)___dest1', timeoutError);
 
         expect(mockErrorHandler.onError).toHaveBeenCalledWith({
           error: timeoutError,
           context: 'DeviceModeDestinationsPlugin',
-          customMessage: 'Failed to load integration SDK for destination "GA4"',
-          groupingHash: 'Failed to load integration SDK for destination "GA4"',
+          customMessage:
+            'Failed to load integration SDK for destination "Google Analytics 4 (GA4)"',
+          groupingHash: 'Failed to load integration SDK for destination "Google Analytics 4 (GA4)"',
         });
 
         expect(mockState.nativeDestinations.failedDestinations.value).toContain(
