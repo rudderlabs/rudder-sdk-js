@@ -6,14 +6,6 @@ import {
   get,
 } from '../../../src/integrations/AdobeAnalytics/util';
 
-let windowSpy;
-beforeEach(() => {
-  windowSpy = jest.spyOn(window, 'window', 'get');
-});
-
-afterEach(() => {
-  windowSpy.mockRestore();
-});
 describe('AdobeAnalytics Utility functions tests', () => {
   describe('getDataFromContext Tests', () => {
     it('should return an empty object when contextMap is empty', () => {
@@ -82,9 +74,9 @@ describe('AdobeAnalytics Utility functions tests', () => {
           },
         },
       };
-      windowSpy.mockImplementation(() => ({
-        s: { list1: 'value1', list2: 'value2' },
-      }));
+
+      window.s = { list1: 'value1', list2: 'value2' };
+
       const config = {
         listMapping: [
           { from: 'key1', to: 'list1', delimiter: ',' },
@@ -107,9 +99,8 @@ describe('AdobeAnalytics Utility functions tests', () => {
           },
         },
       };
-      windowSpy.mockImplementation(() => ({
-        s: { list1: 'value1', list2: undefined },
-      }));
+      window.s = { list1: 'value1', list2: undefined };
+
       const config = {
         listMapping: [
           { from: 'key1', to: 'list1', delimiter: ',' },

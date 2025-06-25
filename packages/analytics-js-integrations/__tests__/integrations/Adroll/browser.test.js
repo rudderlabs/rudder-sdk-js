@@ -204,14 +204,6 @@ describe('Page tests', () => {
     window.__adroll = {
       record_user: jest.fn(),
     };
-    // Mock window.location
-    Object.defineProperty(window, 'location', {
-      value: {
-        pathname: '/',
-        href: 'https://www.test-host.com/',
-      },
-      writable: true,
-    });
   });
 
   test('should track page view with category and name', () => {
@@ -228,7 +220,7 @@ describe('Page tests', () => {
       url: 'https://www.test-host.com/',
       adroll_segments: 'page123',
       referrer: '',
-      search: undefined,
+      search: '',
       title: '',
     });
   });

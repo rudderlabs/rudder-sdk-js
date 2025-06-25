@@ -7,24 +7,9 @@ import {
 } from '../../../src/components/utilities/page';
 
 describe('utilities - page', () => {
-  let windowSpy: any;
-  let documentSpy: any;
-  let navigatorSpy: any;
-  let locationSpy: any;
+  beforeEach(() => {});
 
-  beforeEach(() => {
-    windowSpy = jest.spyOn(window, 'window', 'get');
-    documentSpy = jest.spyOn(window, 'document', 'get');
-    navigatorSpy = jest.spyOn(globalThis, 'navigator', 'get');
-    locationSpy = jest.spyOn(globalThis, 'location', 'get');
-  });
-
-  afterEach(() => {
-    windowSpy.mockRestore();
-    documentSpy.mockRestore();
-    navigatorSpy.mockRestore();
-    locationSpy.mockRestore();
-  });
+  afterEach(() => {});
 
   describe('getUserAgent', () => {
     it('should get User Agent', () => {
@@ -32,20 +17,21 @@ describe('utilities - page', () => {
     });
 
     it('should not get user agent if window navigator is undefined', () => {
-      navigatorSpy.mockReturnValue(undefined);
-      expect(getUserAgent()).toBe(null);
+      // @ts-expect-error - needed for testing
+      expect(getUserAgent(() => undefined)).toBe(null);
     });
 
     it('should get Brave user agent for Brave browser', () => {
       const brave = {};
       Object.setPrototypeOf(brave, { isBrave: true });
-      navigatorSpy.mockReturnValue({
-        userAgent:
-          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36',
-        brave,
-      });
-
-      expect(getUserAgent()).toBe(
+      // @ts-expect-error - needed for testing
+      expect(
+        getUserAgent(() => ({
+          userAgent:
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36',
+          brave,
+        })),
+      ).toBe(
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36 Brave/103.0.5060.114',
       );
     });
@@ -53,25 +39,27 @@ describe('utilities - page', () => {
 
   describe('getLanguage', () => {
     it('should get browser language', () => {
-      navigatorSpy.mockReturnValue({
-        language: 'en-US',
-      });
-      expect(getLanguage()).toBe('en-US');
+      // @ts-expect-error - needed for testing
+      expect(
+        getLanguage(() => ({
+          language: 'en-US',
+        })),
+      ).toBe('en-US');
     });
 
     it('should not get browser language if window navigator is undefined', () => {
-      navigatorSpy.mockReturnValue(undefined);
-
-      expect(getLanguage()).toBe(null);
+      // @ts-expect-error - needed for testing
+      expect(getLanguage(() => undefined)).toBe(null);
     });
 
     it('should get browser language if navigator.language is undefined', () => {
-      navigatorSpy.mockImplementation(() => ({
-        language: undefined,
-        browserLanguage: 'en-US',
-      }));
-
-      expect(getLanguage()).toBe('en-US');
+      // @ts-expect-error - needed for testing
+      expect(
+        getLanguage(() => ({
+          language: undefined,
+          browserLanguage: 'en-US',
+        })),
+      ).toBe('en-US');
     });
   });
 
@@ -85,44 +73,53 @@ describe('utilities - page', () => {
       anotherLinkScript.rel = 'canonical';
       anotherLinkScript.href = 'https://rudderlabs.com/blog';
 
-      documentSpy.mockImplementation(() => ({
-        getElementsByTagName: () => [linkScript, anotherLinkScript],
-      }));
-
-      expect(getCanonicalUrl()).toBe('https://rudderlabs.com/');
+      // @ts-expect-error - needed for testing
+      expect(
+        getCanonicalUrl(() => ({
+          getElementsByTagName: () => [linkScript, anotherLinkScript],
+        })),
+      ).toBe('https://rudderlabs.com/');
     });
 
     it('should get empty string if canonical URL is not present in the DOM', () => {
-      expect(getCanonicalUrl()).toBe('');
+      // @ts-expect-error - needed for testing
+      expect(
+        getCanonicalUrl(() => ({
+          getElementsByTagName: () => [],
+        })),
+      ).toBe('');
     });
 
     it('should get empty canonical URL if no valid canonical tags are present in the DOM', () => {
       const linkScript = document.createElement('link');
       linkScript.href = 'https://rudderlabs.com/';
 
-      documentSpy.mockImplementation(() => ({
-        getElementsByTagName: () => [linkScript],
-      }));
-
-      expect(getCanonicalUrl()).toBe('');
+      // @ts-expect-error - needed for testing
+      expect(
+        getCanonicalUrl(() => ({
+          getElementsByTagName: () => [linkScript],
+        })),
+      ).toBe('');
     });
   });
 
   describe('getReferrer', () => {
     it('should get referrer if defined', () => {
-      documentSpy.mockImplementation(() => ({
-        referrer: 'https://rudderlabs.com/',
-      }));
-
-      expect(getReferrer()).toBe('https://rudderlabs.com/');
+      // @ts-expect-error - needed for testing
+      expect(
+        getReferrer(() => ({
+          referrer: 'https://rudderlabs.com/',
+        })),
+      ).toBe('https://rudderlabs.com/');
     });
 
     it('should get default referrer string if referrer is not defined', () => {
-      documentSpy.mockImplementation(() => ({
-        referrer: '',
-      }));
-
-      expect(getReferrer()).toBe('$direct');
+      // @ts-expect-error - needed for testing
+      expect(
+        getReferrer(() => ({
+          referrer: '',
+        })),
+      ).toBe('$direct');
     });
   });
 
@@ -133,57 +130,65 @@ describe('utilities - page', () => {
       linkScript.rel = 'canonical';
       linkScript.href = 'https://rudderlabs.com/docs/';
 
-      documentSpy.mockImplementation(() => ({
-        referrer: 'https://google.com/',
-        title: 'RudderStack',
-        getElementsByTagName: () => [linkScript],
-      }));
-
-      locationSpy.mockImplementation(() => ({
-        href: 'https://rudderlabs.com/docs/#some-page?someKey=someVal',
+      const locationMock: any = () => ({
+        href: 'https://rudderlabs.com/docs/?someKey=someVal#some-page',
         search: '?someKey=someVal',
         pathname: '/docs/',
         host: 'www.rudderstack.com',
         hostname: 'www.rudderstack.com',
         origin: 'https://www.rudderstack.com',
-      }));
+      });
 
-      expect(getDefaultPageProperties()).toEqual({
+      const documentMock: any = () => ({
+        getElementsByTagName: () => [linkScript],
+        title: 'RudderStack',
+        referrer: 'https://google.com/',
+      });
+
+      const actual = getDefaultPageProperties(locationMock, documentMock);
+
+      const expected = {
         url: 'https://rudderlabs.com/docs/?someKey=someVal',
         path: '/docs/',
         search: '?someKey=someVal',
         title: 'RudderStack',
         referrer: 'https://google.com/',
         referring_domain: 'google.com',
-        tab_url: 'https://rudderlabs.com/docs/#some-page?someKey=someVal',
-      });
+        tab_url: 'https://rudderlabs.com/docs/?someKey=someVal#some-page',
+      };
+
+      expect(actual).toEqual(expected);
     });
 
     it('should get default page properties without canonical url', () => {
-      documentSpy.mockImplementation(() => ({
-        referrer: 'https://google.com/',
-        title: 'RudderStack',
-        getElementsByTagName: () => [],
-      }));
-
-      locationSpy.mockImplementation(() => ({
-        href: 'https://rudderlabs.com/docs/#some-page?someKey=someVal',
+      const locationMock: any = () => ({
+        href: 'https://rudderlabs.com/docs/?someKey=someVal#some-page',
         search: '?someKey=someVal',
         pathname: '/docs/',
         host: 'www.rudderstack.com',
         hostname: 'www.rudderstack.com',
         origin: 'https://www.rudderstack.com',
-      }));
+      });
 
-      expect(getDefaultPageProperties()).toEqual({
-        url: 'https://rudderlabs.com/docs/',
+      const documentMock: any = () => ({
+        getElementsByTagName: () => [],
+        title: 'RudderStack',
+        referrer: 'https://google.com/',
+      });
+
+      const actual = getDefaultPageProperties(locationMock, documentMock);
+
+      const expected = {
+        url: 'https://rudderlabs.com/docs/?someKey=someVal',
         path: '/docs/',
         search: '?someKey=someVal',
         title: 'RudderStack',
         referrer: 'https://google.com/',
         referring_domain: 'google.com',
-        tab_url: 'https://rudderlabs.com/docs/#some-page?someKey=someVal',
-      });
+        tab_url: 'https://rudderlabs.com/docs/?someKey=someVal#some-page',
+      };
+
+      expect(actual).toEqual(expected);
     });
 
     it('should get default page properties with canonical url that has query params', () => {
@@ -192,35 +197,37 @@ describe('utilities - page', () => {
       linkScript.rel = 'canonical';
       linkScript.href = 'https://rudderlabs.com/docs/?canonicalQueryParam=test';
 
-      documentSpy.mockImplementation(() => ({
-        referrer: 'https://google.com/',
-        title: 'RudderStack',
-        getElementsByTagName: () => [linkScript],
-      }));
-
-      locationSpy.mockImplementation(() => ({
-        href: 'https://rudderlabs.com/docs/#some-page?someKey=someVal',
+      const locationMock: any = () => ({
+        href: 'https://rudderlabs.com/docs/?someKey=someVal#some-page',
         search: '?someKey=someVal',
         pathname: '/docs/',
         host: 'www.rudderstack.com',
         hostname: 'www.rudderstack.com',
         origin: 'https://www.rudderstack.com',
-      }));
+      });
 
-      expect(getDefaultPageProperties()).toEqual({
+      const documentMock: any = () => ({
+        getElementsByTagName: () => [linkScript],
+        title: 'RudderStack',
+        referrer: 'https://google.com/',
+      });
+
+      const actual = getDefaultPageProperties(locationMock, documentMock);
+
+      const expected = {
         url: 'https://rudderlabs.com/docs/?canonicalQueryParam=test',
         path: '/docs/',
         search: '?someKey=someVal',
         title: 'RudderStack',
         referrer: 'https://google.com/',
         referring_domain: 'google.com',
-        tab_url: 'https://rudderlabs.com/docs/#some-page?someKey=someVal',
-      });
+        tab_url: 'https://rudderlabs.com/docs/?someKey=someVal#some-page',
+      };
+
+      expect(actual).toEqual(expected);
     });
 
     it('should get current page details', () => {
-      documentSpy.mockRestore();
-
       expect(getDefaultPageProperties()).toEqual({
         url: 'https://www.test-host.com/',
         path: '/',

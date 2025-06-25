@@ -65,10 +65,11 @@ const createNewBreadcrumb = (message: string): Breadcrumb => ({
 
 /**
  * A function to get the Bugsnag release stage for the current environment
+ * @param getHostName Optional function to get the hostname (primarily for testing)
  * @returns 'development' if the host is empty (for file:// protocol etc.) or a dev host (localhost, 127.0.0.1, etc.), otherwise '__RS_BUGSNAG_RELEASE_STAGE__' (it'll be replaced with the actual release stage during the build)
  */
-const getReleaseStage = () => {
-  const host = globalThis.location.hostname;
+const getReleaseStage = (getHostName = () => window.location.hostname) => {
+  const host = getHostName();
   return !host || (host && DEV_HOSTS.includes(host))
     ? 'development'
     : '__RS_BUGSNAG_RELEASE_STAGE__';
