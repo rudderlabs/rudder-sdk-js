@@ -104,7 +104,11 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
           ) ?? true,
       );
 
-      state.nativeDestinations.activeDestinations.value = consentedDestinations;
+      // Add the distilled destinations to the active destinations list
+      state.nativeDestinations.activeDestinations.value = [
+        ...state.nativeDestinations.activeDestinations.value,
+        ...consentedDestinations,
+      ];
     },
 
     load(

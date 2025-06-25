@@ -9,7 +9,7 @@ import type {
   DeviceModeIntegration,
 } from '@rudderstack/analytics-js-common/types/Destination';
 import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { ILogger, RSALogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type {
   IntegrationRSAnalytics,
   RSACustomIntegration,
@@ -21,7 +21,11 @@ import type {
   SourceConfigurationOverride,
   SourceConfigurationOverrideDestination,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import { isBoolean, isString } from '@rudderstack/analytics-js-common/utilities/checks';
+import {
+  isBoolean,
+  isString,
+  isUndefined,
+} from '@rudderstack/analytics-js-common/utilities/checks';
 import type { RSAEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { getDestinationUserFriendlyId } from '@rudderstack/analytics-js-common/utilities/destinations';
@@ -149,8 +153,11 @@ const initializeDestination = (
 ) => {
   try {
     const initializedDestination = clone(dest);
-    const integration = createIntegrationInstance(destSDKIdentifier, sdkTypeName, dest, state);
-    initializedDestination.integration = integration;
+    let integration: DeviceModeIntegration | undefined = initializedDestination.integration;
+    if (isUndefined(integration)) {
+      integration = createIntegrationInstance(destSDKIdentifier, sdkTypeName, dest, state);
+      initializedDestination.integration = integration;
+    }
 
     integration.init?.();
 
@@ -373,6 +380,23 @@ const createCustomIntegrationDestination = (
   const uniqueId = `custom_${generateUUID()}`;
   const analyticsInstance = state.lifecycle.safeAnalyticsInstance.value as RSAnalytics;
 
+  // Create a new logger object for the custom integration
+  // to avoid conflicts with the main logger
+  const integrationLogger = clone(logger);
+  // Set the scope to the custom integration name
+  // for easy identification in the logs
+  integrationLogger.setScope(name);
+
+  // Bind only the necessary methods to the new logger object
+  const safeLogger: RSALogger = {
+    log: integrationLogger.log.bind(integrationLogger),
+    info: integrationLogger.info.bind(integrationLogger),
+    debug: integrationLogger.debug.bind(integrationLogger),
+    warn: integrationLogger.warn.bind(integrationLogger),
+    error: integrationLogger.error.bind(integrationLogger),
+    setMinLogLevel: integrationLogger.setMinLogLevel.bind(integrationLogger),
+  };
+
   // Create a destination object for the custom integration
   // similar to the standard device mode integrations
   const destination: Destination = {
@@ -393,23 +417,23 @@ const createCustomIntegrationDestination = (
     // Create a wrapper around the custom integration APIs
     // to make them consistent with the standard device mode integrations
     integration: {
-      ...(integration.init && { init: () => integration.init!(analyticsInstance, logger) }),
+      ...(integration.init && { init: () => integration.init!(analyticsInstance, safeLogger) }),
       ...(integration.track && {
-        track: (event: RSAEvent) => integration.track!(analyticsInstance, logger, event),
+        track: (event: RSAEvent) => integration.track!(analyticsInstance, safeLogger, event),
       }),
       ...(integration.page && {
-        page: (event: RSAEvent) => integration.page!(analyticsInstance, logger, event),
+        page: (event: RSAEvent) => integration.page!(analyticsInstance, safeLogger, event),
       }),
       ...(integration.identify && {
-        identify: (event: RSAEvent) => integration.identify!(analyticsInstance, logger, event),
+        identify: (event: RSAEvent) => integration.identify!(analyticsInstance, safeLogger, event),
       }),
       ...(integration.group && {
-        group: (event: RSAEvent) => integration.group!(analyticsInstance, logger, event),
+        group: (event: RSAEvent) => integration.group!(analyticsInstance, safeLogger, event),
       }),
       ...(integration.alias && {
-        alias: (event: RSAEvent) => integration.alias!(analyticsInstance, logger, event),
+        alias: (event: RSAEvent) => integration.alias!(analyticsInstance, safeLogger, event),
       }),
-      isReady: () => integration.isReady(analyticsInstance, logger),
+      isReady: () => integration.isReady(analyticsInstance, safeLogger),
     },
   };
 

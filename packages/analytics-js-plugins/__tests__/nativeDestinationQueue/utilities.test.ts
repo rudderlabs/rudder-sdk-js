@@ -204,9 +204,9 @@ describe('nativeDestinationQueue Plugin - utilities', () => {
         error: new Error('Error'),
         context: 'NativeDestinationQueuePlugin',
         customMessage:
-          'Failed to forward event to integration for destination "ID_sample-destination-id".',
+          'Failed to send "track" event "sample event" to integration for destination "ID_sample-destination-id".',
         groupingHash:
-          'Failed to forward event to integration for destination "Destination Display Name".',
+          'Failed to send "track" event "sample event" to integration for destination "Destination Display Name".',
       });
     });
 
@@ -241,8 +241,9 @@ describe('nativeDestinationQueue Plugin - utilities', () => {
         error: new Error('Test error'),
         context: 'NativeDestinationQueuePlugin',
         customMessage:
-          'Failed to forward event to integration for destination "ID_sample-destination-id".',
-        groupingHash: 'Failed to forward event to integration for destination "undefined".',
+          'Failed to send "track" event "sample event" to integration for destination "ID_sample-destination-id".',
+        groupingHash:
+          'Failed to send "track" event "sample event" to integration for destination "undefined".',
       });
     });
 
@@ -262,9 +263,10 @@ describe('nativeDestinationQueue Plugin - utilities', () => {
       expect(defaultErrorHandler.onError).toHaveBeenCalledWith({
         error: new Error('Test error'),
         context: 'NativeDestinationQueuePlugin',
-        customMessage: 'Failed to forward event to integration for destination "undefined".',
+        customMessage:
+          'Failed to send "track" event "sample event" to integration for destination "undefined".',
         groupingHash:
-          'Failed to forward event to integration for destination "Destination Display Name".',
+          'Failed to send "track" event "sample event" to integration for destination "Destination Display Name".',
       });
     });
   });

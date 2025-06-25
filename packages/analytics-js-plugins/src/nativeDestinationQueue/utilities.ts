@@ -79,8 +79,12 @@ const sendEventToDestination = (
     errorHandler?.onError({
       error: err,
       context: NATIVE_DESTINATION_QUEUE_PLUGIN,
-      customMessage: INTEGRATION_EVENT_FORWARDING_ERROR(dest.userFriendlyId),
-      groupingHash: INTEGRATION_EVENT_FORWARDING_ERROR(dest.displayName),
+      customMessage: INTEGRATION_EVENT_FORWARDING_ERROR(
+        methodName,
+        dest.userFriendlyId,
+        item.event,
+      ),
+      groupingHash: INTEGRATION_EVENT_FORWARDING_ERROR(methodName, dest.displayName, item.event),
     });
   }
 };

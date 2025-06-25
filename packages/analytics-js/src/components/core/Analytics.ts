@@ -853,7 +853,7 @@ class Analytics implements IAnalytics {
       );
     } else {
       if (state.lifecycle.loaded.value) {
-        this.logger.error(CUSTOM_INTEGRATION_CANNOT_BE_ADDED_ERROR(ANALYTICS_CORE));
+        this.logger.error(CUSTOM_INTEGRATION_CANNOT_BE_ADDED_ERROR(ANALYTICS_CORE, name));
         return;
       }
 

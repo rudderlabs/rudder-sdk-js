@@ -1719,15 +1719,46 @@ describe('deviceModeDestinations utils', () => {
 
       // Test init wrapper
       destination.integration?.init!();
-      expect(mockInit).toHaveBeenCalledWith(mockAnalyticsInstance, defaultLogger);
+      expect(mockInit).toHaveBeenCalledWith(
+        mockAnalyticsInstance,
+        expect.objectContaining({
+          log: expect.any(Function),
+          info: expect.any(Function),
+          debug: expect.any(Function),
+          warn: expect.any(Function),
+          error: expect.any(Function),
+          setMinLogLevel: expect.any(Function),
+        }),
+      );
 
       // Test track wrapper
       destination.integration?.track!(mockEvent);
-      expect(mockTrack).toHaveBeenCalledWith(mockAnalyticsInstance, defaultLogger, mockEvent);
+      expect(mockTrack).toHaveBeenCalledWith(
+        mockAnalyticsInstance,
+        expect.objectContaining({
+          log: expect.any(Function),
+          info: expect.any(Function),
+          debug: expect.any(Function),
+          warn: expect.any(Function),
+          error: expect.any(Function),
+          setMinLogLevel: expect.any(Function),
+        }),
+        mockEvent,
+      );
 
       // Test isReady wrapper
       const isReady = destination.integration?.isReady();
-      expect(mockIsReady).toHaveBeenCalledWith(mockAnalyticsInstance, defaultLogger);
+      expect(mockIsReady).toHaveBeenCalledWith(
+        mockAnalyticsInstance,
+        expect.objectContaining({
+          log: expect.any(Function),
+          info: expect.any(Function),
+          debug: expect.any(Function),
+          warn: expect.any(Function),
+          error: expect.any(Function),
+          setMinLogLevel: expect.any(Function),
+        }),
+      );
       expect(isReady).toBe(true);
     });
 
@@ -1821,16 +1852,25 @@ describe('deviceModeDestinations utils', () => {
       destination.integration?.group!(mockGroupEvent);
       destination.integration?.alias!(mockAliasEvent);
 
-      expect(mockInit).toHaveBeenCalledWith(mockAnalyticsInstance, defaultLogger);
-      expect(mockTrack).toHaveBeenCalledWith(mockAnalyticsInstance, defaultLogger, mockEvent);
-      expect(mockPage).toHaveBeenCalledWith(mockAnalyticsInstance, defaultLogger, mockPageEvent);
+      const expectedLogger = expect.objectContaining({
+        log: expect.any(Function),
+        info: expect.any(Function),
+        debug: expect.any(Function),
+        warn: expect.any(Function),
+        error: expect.any(Function),
+        setMinLogLevel: expect.any(Function),
+      });
+
+      expect(mockInit).toHaveBeenCalledWith(mockAnalyticsInstance, expectedLogger);
+      expect(mockTrack).toHaveBeenCalledWith(mockAnalyticsInstance, expectedLogger, mockEvent);
+      expect(mockPage).toHaveBeenCalledWith(mockAnalyticsInstance, expectedLogger, mockPageEvent);
       expect(mockIdentify).toHaveBeenCalledWith(
         mockAnalyticsInstance,
-        defaultLogger,
+        expectedLogger,
         mockIdentifyEvent,
       );
-      expect(mockGroup).toHaveBeenCalledWith(mockAnalyticsInstance, defaultLogger, mockGroupEvent);
-      expect(mockAlias).toHaveBeenCalledWith(mockAnalyticsInstance, defaultLogger, mockAliasEvent);
+      expect(mockGroup).toHaveBeenCalledWith(mockAnalyticsInstance, expectedLogger, mockGroupEvent);
+      expect(mockAlias).toHaveBeenCalledWith(mockAnalyticsInstance, expectedLogger, mockAliasEvent);
     });
 
     it('should use the analytics instance from state', () => {
@@ -1852,7 +1892,17 @@ describe('deviceModeDestinations utils', () => {
       );
 
       destination.integration?.init!();
-      expect(mockInit).toHaveBeenCalledWith(customAnalyticsInstance, defaultLogger);
+      expect(mockInit).toHaveBeenCalledWith(
+        customAnalyticsInstance,
+        expect.objectContaining({
+          log: expect.any(Function),
+          info: expect.any(Function),
+          debug: expect.any(Function),
+          warn: expect.any(Function),
+          error: expect.any(Function),
+          setMinLogLevel: expect.any(Function),
+        }),
+      );
     });
 
     it('should work with realistic custom integration implementation that uses analytics and logger APIs', () => {
@@ -2060,6 +2110,131 @@ describe('deviceModeDestinations utils', () => {
 
       // Cleanup
       delete (global as any).customAnalytics;
+    });
+
+    it('should clone logger to avoid conflicts with main logger', () => {
+      const integrationName = 'ClonedLoggerIntegration';
+      const mockInit = jest.fn();
+      const mockIntegration = {
+        init: mockInit,
+        isReady: jest.fn().mockReturnValue(true),
+      };
+
+      const destination = createCustomIntegrationDestination(
+        integrationName,
+        mockIntegration,
+        state,
+        defaultLogger,
+      );
+
+      // Call the integration init to get the logger
+      destination.integration?.init!();
+
+      // Get the logger argument from the init function call
+      const loggerArg = mockInit.mock.calls[0][1];
+      expect(loggerArg).not.toBe(defaultLogger);
+    });
+
+    it('should set logger scope to integration name for custom integration', () => {
+      const integrationName = 'ScopedIntegration';
+      const mockSetScope = jest.fn();
+      const mockLogger = {
+        ...defaultLogger,
+        setScope: mockSetScope,
+      };
+      const mockIntegration = {
+        isReady: jest.fn().mockReturnValue(true),
+      };
+
+      createCustomIntegrationDestination(integrationName, mockIntegration, state, mockLogger);
+
+      expect(mockSetScope).toHaveBeenCalledWith(integrationName);
+    });
+
+    it('should create RSALogger with bound methods', () => {
+      const integrationName = 'BoundMethodsIntegration';
+      const mockInit = jest.fn();
+      const mockTrack = jest.fn();
+      const mockPage = jest.fn();
+      const mockIdentify = jest.fn();
+      const mockGroup = jest.fn();
+      const mockAlias = jest.fn();
+      const mockIsReady = jest.fn();
+      const mockIntegration = {
+        init: mockInit,
+        isReady: mockIsReady,
+        track: mockTrack,
+        page: mockPage,
+        identify: mockIdentify,
+        group: mockGroup,
+        alias: mockAlias,
+      };
+
+      const destination = createCustomIntegrationDestination(
+        integrationName,
+        mockIntegration,
+        state,
+        defaultLogger,
+      );
+
+      // Call the integration init to get the logger
+      destination.integration?.init!();
+
+      // Verify that the logger methods are bound functions
+      const loggerArg = mockInit.mock.calls[0][1];
+
+      // Test that the logger methods are properly bound by verifying they're functions
+      // and that calling them invokes the original logger methods
+      expect(typeof loggerArg.log).toBe('function');
+      expect(typeof loggerArg.info).toBe('function');
+      expect(typeof loggerArg.debug).toBe('function');
+      expect(typeof loggerArg.warn).toBe('function');
+      expect(typeof loggerArg.error).toBe('function');
+      expect(typeof loggerArg.setMinLogLevel).toBe('function');
+
+      // Test that calling the bound methods actually calls the original logger methods
+      loggerArg.log('test message');
+      expect(defaultLogger.log).toHaveBeenCalledWith('test message');
+
+      loggerArg.info('test info');
+      expect(defaultLogger.info).toHaveBeenCalledWith('test info');
+
+      loggerArg.debug('test debug');
+      expect(defaultLogger.debug).toHaveBeenCalledWith('test debug');
+
+      loggerArg.warn('test warn');
+      expect(defaultLogger.warn).toHaveBeenCalledWith('test warn');
+
+      loggerArg.error('test error');
+      expect(defaultLogger.error).toHaveBeenCalledWith('test error');
+
+      // Verify that only the expected methods are present (no extra logger methods)
+      const loggerKeys = Object.keys(loggerArg);
+      expect(loggerKeys).toEqual(['log', 'info', 'debug', 'warn', 'error', 'setMinLogLevel']);
+
+      // Verify that all the remaining integration methods also get the same logger instance
+      destination.integration?.isReady!();
+      expect(mockIsReady.mock.calls[0][1]).toBe(loggerArg);
+
+      destination.integration?.track!({} as any);
+      expect(mockTrack.mock.calls[0][0]).toBe(mockAnalyticsInstance);
+      expect(mockTrack.mock.calls[0][1]).toBe(loggerArg);
+
+      destination.integration?.page!({} as any);
+      expect(mockPage.mock.calls[0][0]).toBe(mockAnalyticsInstance);
+      expect(mockPage.mock.calls[0][1]).toBe(loggerArg);
+
+      destination.integration?.identify!({} as any);
+      expect(mockIdentify.mock.calls[0][0]).toBe(mockAnalyticsInstance);
+      expect(mockIdentify.mock.calls[0][1]).toBe(loggerArg);
+
+      destination.integration?.group!({} as any);
+      expect(mockGroup.mock.calls[0][0]).toBe(mockAnalyticsInstance);
+      expect(mockGroup.mock.calls[0][1]).toBe(loggerArg);
+
+      destination.integration?.alias!({} as any);
+      expect(mockAlias.mock.calls[0][0]).toBe(mockAnalyticsInstance);
+      expect(mockAlias.mock.calls[0][1]).toBe(loggerArg);
     });
   });
 });
