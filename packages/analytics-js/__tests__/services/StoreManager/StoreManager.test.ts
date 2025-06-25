@@ -202,7 +202,7 @@ describe('StoreManager', () => {
       state.loadOptions.value.storage.entries = loadOptionWithEntry;
       storeManager.initClientDataStores();
       expect(state.storage.entries.value).toEqual(entriesWithInMemoryFallback);
-      expect(logger.warn).toBeCalledTimes(8);
+      expect(logger.warn).toHaveBeenCalledTimes(8);
     });
 
     it('should construct the appropriate storage entry state if the pre-consent storage strategy is set to none', () => {

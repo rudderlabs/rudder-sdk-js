@@ -57,17 +57,10 @@ describe('Error Reporting utilities', () => {
   });
 
   describe('getReleaseStage', () => {
-    let windowSpy: any;
-    let locationSpy: any;
-
-    beforeEach(() => {
-      windowSpy = jest.spyOn(window, 'window', 'get');
-      locationSpy = jest.spyOn(globalThis, 'location', 'get');
-    });
-
-    afterEach(() => {
-      windowSpy.mockRestore();
-      locationSpy.mockRestore();
+    it('should return development for test environment', () => {
+      // The current test environment uses www.test-host.com which is in DEV_HOSTS
+      // so getReleaseStage should return 'development'
+      expect(getReleaseStage()).toBe('development');
     });
 
     const testCaseData = [
@@ -77,19 +70,18 @@ describe('Error Reporting utilities', () => {
       ['[::1]', 'development'],
       ['', 'development'], // for file:// protocol
       ['www.validhost.com', '__RS_BUGSNAG_RELEASE_STAGE__'],
+      ['example.com', '__RS_BUGSNAG_RELEASE_STAGE__'],
+      ['production.myapp.com', '__RS_BUGSNAG_RELEASE_STAGE__'],
       [undefined, 'development'],
       [null, 'development'],
-    ];
+    ] as const;
 
     it.each(testCaseData)(
-      'if window host name is "%s" then it should return the release stage as "%s" ',
-      // @ts-expect-error - test case data is not typed
-      (hostName, expectedReleaseStage) => {
-        locationSpy.mockImplementation(() => ({
-          hostname: hostName,
-        }));
-
-        expect(getReleaseStage()).toBe(expectedReleaseStage);
+      'if hostname is "%s" then it should return the release stage as "%s"',
+      (hostname, expectedReleaseStage) => {
+        // @ts-expect-error - hostname is not typed
+        const actualReleaseStage = getReleaseStage(() => hostname);
+        expect(actualReleaseStage).toBe(expectedReleaseStage);
       },
     );
   });
