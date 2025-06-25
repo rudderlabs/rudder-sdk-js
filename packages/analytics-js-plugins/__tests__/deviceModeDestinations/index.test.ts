@@ -382,6 +382,91 @@ describe('DeviceModeDestinations Plugin', () => {
       expect(mockFilterDestinations).toHaveBeenCalledWith({ All: true }, expect.any(Array));
     });
 
+    it('should append configured destinations to active destinations (custom integrations)', () => {
+      state.nativeDestinations.activeDestinations.value = [
+        {
+          id: 'Custom-Integration-1___custom-xyz123',
+          displayName: 'Custom Integration 1',
+          userFriendlyId: 'Custom-Integration-1___custom-xyz123',
+          enabled: true,
+          shouldApplyDeviceModeTransformation: true,
+          propagateEventsUntransformedOnError: false,
+          config: {
+            apiKey: 'key1',
+            blacklistedEvents: [],
+            whitelistedEvents: [],
+            eventFilteringOption: 'disable' as const,
+          },
+        },
+        {
+          id: 'Custom-Integration-2___custom-xyz123',
+          displayName: 'Custom Integration 2',
+          userFriendlyId: 'Custom-Integration-2___custom-xyz123',
+          enabled: true,
+          shouldApplyDeviceModeTransformation: true,
+          propagateEventsUntransformedOnError: false,
+          config: {
+            apiKey: 'key2',
+            blacklistedEvents: [],
+            whitelistedEvents: [],
+            eventFilteringOption: 'disable' as const,
+          },
+        },
+      ];
+
+      plugin.nativeDestinations.setActiveDestinations(
+        mockState,
+        mockPluginsManager,
+        mockErrorHandler,
+        mockLogger,
+      );
+
+      expect(state.nativeDestinations.activeDestinations.value).toEqual([
+        {
+          id: 'Custom-Integration-1___custom-xyz123',
+          displayName: 'Custom Integration 1',
+          userFriendlyId: 'Custom-Integration-1___custom-xyz123',
+          enabled: true,
+          shouldApplyDeviceModeTransformation: true,
+          propagateEventsUntransformedOnError: false,
+          config: {
+            apiKey: 'key1',
+            blacklistedEvents: [],
+            whitelistedEvents: [],
+            eventFilteringOption: 'disable' as const,
+          },
+        },
+        {
+          id: 'Custom-Integration-2___custom-xyz123',
+          displayName: 'Custom Integration 2',
+          userFriendlyId: 'Custom-Integration-2___custom-xyz123',
+          enabled: true,
+          shouldApplyDeviceModeTransformation: true,
+          propagateEventsUntransformedOnError: false,
+          config: {
+            apiKey: 'key2',
+            blacklistedEvents: [],
+            whitelistedEvents: [],
+            eventFilteringOption: 'disable' as const,
+          },
+        },
+        {
+          id: 'dest1',
+          displayName: 'Google Analytics 4 (GA4)',
+          userFriendlyId: 'Google-Analytics-4-(GA4)___dest1',
+          enabled: true,
+          shouldApplyDeviceModeTransformation: true,
+          propagateEventsUntransformedOnError: false,
+          config: {
+            apiKey: 'key1',
+            blacklistedEvents: [],
+            whitelistedEvents: [],
+            eventFilteringOption: 'disable' as const,
+          },
+        },
+      ]);
+    });
+
     // disabled destination filtering
     describe('Disabled Destination Filtering', () => {
       it('should set only enabled destination to active destinations', () => {
