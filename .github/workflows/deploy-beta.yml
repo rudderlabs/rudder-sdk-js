@@ -38,7 +38,7 @@ jobs:
       version_suffix: ${{ steps.deploy-inputs.outputs.version_suffix }}
       beta_identifier: ${{ steps.deploy-inputs.outputs.beta_identifier }}
       beta_identifier_for_automation_tests: ${{ steps.deploy-inputs.outputs.beta_identifier_for_automation_tests }}
-      trigger_source: ${{ format('Triggered via PR <{0}|#{1}> by <{2}|{3}', steps.deploy-inputs.outputs.pr_url, steps.deploy-inputs.outputs.pr_number, format('{0}/{1}', github.server_url, github.actor), github.actor) }}
+      trigger_source: ${{ format('Triggered via PR <{0}|#{1}> by <{2}|{3}>', steps.pr-info.outputs.pr_url, steps.pr-info.outputs.pr_number, format('{0}/{1}', github.server_url, github.actor), github.actor) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -125,8 +125,6 @@ jobs:
           # - "beta.pr." is a fixed prefix indicating a beta release for a pull request.
           # - <PR_NUMBER> is the number of the pull request associated with the branch.
           # - <SHORT_COMMIT_HASH> is the first 7 characters of the commit hash for traceability.
-          echo "PR_NUMBER=${{ steps.pr-info.outputs.pr_number }}" >> $GITHUB_OUTPUT
-          echo "PR_URL=${{ steps.pr-info.outputs.pr_url }}" >> $GITHUB_OUTPUT
           echo "version_suffix=beta.pr.${{ steps.pr-info.outputs.pr_number }}.$SHA_SHORT" >> $GITHUB_OUTPUT
           echo "beta_identifier=PR-${{ steps.pr-info.outputs.pr_number }}/$SHA_SHORT" >> $GITHUB_OUTPUT
           echo "beta_identifier_for_automation_tests=pr-${{ steps.pr-info.outputs.pr_number }}-$SHA_SHORT" >> $GITHUB_OUTPUT
