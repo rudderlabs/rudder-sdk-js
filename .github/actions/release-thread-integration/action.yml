@@ -43,6 +43,32 @@ runs:
         name: release-info-v${{ inputs.monorepo_release_version }}-${{ inputs.release_ticket_id }}
         path: release-info/
 
+    - name: Ensure jq is installed
+      shell: bash
+      run: |
+        if ! command -v jq &> /dev/null; then
+          echo "jq not found, installing..."
+          if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+            # Linux - use apt-get (most common for GitHub runners)
+            sudo apt-get update && sudo apt-get install -y jq
+          elif [[ "$OSTYPE" == "darwin"* ]]; then
+            # macOS - use brew if available, otherwise install via curl
+            if command -v brew &> /dev/null; then
+              brew install jq
+            else
+              # Fallback: install jq binary directly
+              curl -L -o /usr/local/bin/jq https://github.com/stedolan/jq/releases/latest/download/jq-osx-amd64
+              chmod +x /usr/local/bin/jq
+            fi
+          else
+            echo "Unsupported OS type: $OSTYPE"
+            exit 1
+          fi
+        else
+          echo "jq is already installed"
+          jq --version
+        fi
+
     - name: Extract release info
       id: extract-info
       continue-on-error: true
@@ -93,7 +119,7 @@ runs:
           # Format: https://workspace.slack.com/archives/CHANNEL/pTIMESTAMP
           # Convert timestamp 1640995200.123456 to p1640995200123456
           ts_for_url=$(echo "$ts" | tr -d '.')
-          message_url="https://rudderstack.slack.com/archives/${channel}/p${ts_for_url}"
+          message_url="https://rudderlabs.slack.com/archives/${channel}/p${ts_for_url}"
           
           echo "Deployment message URL: $message_url"
           echo "message_url=$message_url" >> $GITHUB_OUTPUT
