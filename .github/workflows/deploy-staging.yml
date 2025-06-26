@@ -14,8 +14,38 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  get-deploy-inputs:
+    name: Get Deploy Inputs
+    runs-on: [self-hosted, Linux, X64]
+    outputs:
+      trigger_source: ${{ steps.set-outputs.outputs.trigger_source }}
+      release_version: ${{ steps.extract-release-info.outputs.version }}
+      release_ticket: ${{ steps.extract-release-info.outputs.ticket }}
+    steps:
+      - name: Set outputs
+        id: set-outputs
+        run: echo "trigger_source=${{ format('Triggered via PR <{0}|#{1}> by <{2}|{3}>', github.event.pull_request.html_url, github.event.pull_request.number, format('{0}/{1}', github.server_url, github.actor), github.actor) }}" >> $GITHUB_OUTPUT
+
+      - name: Extract release info from branch
+        id: extract-release-info
+        if: startsWith(github.head_ref, 'release/') || startsWith(github.head_ref, 'hotfix-release/')
+        run: |
+          branch_name="${{ github.head_ref }}"
+          echo "Branch name: $branch_name"
+          
+          # Extract version and ticket from branch name (format: release/3.2.1-SDK-1234 or hotfix-release/3.2.2-SDK-5678)
+          version=$(echo "$branch_name" | sed -n 's|.*\/\([0-9]\+\.[0-9]\+\.[0-9]\+\)-.*|\1|p')
+          ticket=$(echo "$branch_name" | sed -n 's|.*-\([^-]*\)$|\1|p')
+          
+          echo "Extracted version: $version"
+          echo "Extracted ticket: $ticket"
+          
+          echo "version=$version" >> $GITHUB_OUTPUT
+          echo "ticket=$ticket" >> $GITHUB_OUTPUT
+
   deploy:
     name: Deploy to staging environment
+    needs: [get-deploy-inputs]
     # Only manually run the workflow for tags
     # and PRs raised from release branches to main
     if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.head_ref, 'hotfix-release/') || startsWith(github.head_ref, 'release/')
@@ -25,8 +55,10 @@ jobs:
       bugsnag_release_stage: 'staging'
       s3_dir_path: 'staging/latest/v3'
       s3_dir_path_legacy: 'staging/latest/v1.1'
-      action_type: ''
       use_pr_head_sha: 'true'
+      trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
+      monorepo_release_version: ${{ needs.get-deploy-inputs.outputs.release_version }}
+      release_ticket: ${{ needs.get-deploy-inputs.outputs.release_ticket }}
     secrets:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_STAGING_ACCOUNT_ID }}
       AWS_S3_BUCKET_NAME: ${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}
@@ -38,11 +70,14 @@ jobs:
 
   deploy-sanity-suite:
     name: Deploy sanity suite
-    needs: deploy
+    needs: [get-deploy-inputs]
     uses: ./.github/workflows/deploy-sanity-suite.yml
     with:
       environment: 'staging'
       use_pr_head_sha: 'true'
+      trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
+      monorepo_release_version: ${{ needs.get-deploy-inputs.outputs.release_version }}
+      release_ticket: ${{ needs.get-deploy-inputs.outputs.release_ticket }}
     secrets:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_STAGING_ACCOUNT_ID }}
       AWS_S3_BUCKET_NAME: ${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}
@@ -57,10 +92,13 @@ jobs:
 
   run-e2e-regression-test-suites:
     uses: ./.github/workflows/run-e2e-regression-test-suites.yml
-    needs: deploy-sanity-suite
     name: Run E2E Regression Test Suites
+    needs: [get-deploy-inputs, deploy-sanity-suite, deploy]
     with:
       environment: staging
+      trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
       use_pr_head_sha: 'true'
+      monorepo_release_version: ${{ needs.get-deploy-inputs.outputs.release_version }}
+      release_ticket: ${{ needs.get-deploy-inputs.outputs.release_ticket }}
     secrets:
       PAT: ${{ secrets.PAT }}

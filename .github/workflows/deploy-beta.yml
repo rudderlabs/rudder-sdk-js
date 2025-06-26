@@ -38,6 +38,7 @@ jobs:
       version_suffix: ${{ steps.deploy-inputs.outputs.version_suffix }}
       beta_identifier: ${{ steps.deploy-inputs.outputs.beta_identifier }}
       beta_identifier_for_automation_tests: ${{ steps.deploy-inputs.outputs.beta_identifier_for_automation_tests }}
+      trigger_source: ${{ format('Triggered via PR <{0}|#{1}> by <{2}|{3}', steps.deploy-inputs.outputs.pr_url, steps.deploy-inputs.outputs.pr_number, format('{0}/{1}', github.server_url, github.actor), github.actor) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -63,6 +64,7 @@ jobs:
             if (pullRequests.length > 0) {
               const pr = pullRequests[0];
               const prNumber = pr.number.toString();
+              const prUrl = pr.html_url;
               console.log(`Found PR #${prNumber} for branch ${branch}: https://github.com/${context.repo.owner}/${context.repo.repo}/pull/${prNumber}`);
               
               // Check if PR is in draft state
@@ -107,6 +109,7 @@ jobs:
               console.log(`PR #${prNumber} is in a clean mergeable state. All requirements satisfied. Proceeding with beta deployment.`);
               
               core.setOutput('pr_number', prNumber);
+              core.setOutput('pr_url', prUrl);
             } else {
               core.setFailed(`No open PR found for branch ${branch} targeting develop branch`);
               core.setOutput('pr_number', '');
@@ -122,6 +125,8 @@ jobs:
           # - "beta.pr." is a fixed prefix indicating a beta release for a pull request.
           # - <PR_NUMBER> is the number of the pull request associated with the branch.
           # - <SHORT_COMMIT_HASH> is the first 7 characters of the commit hash for traceability.
+          echo "PR_NUMBER=${{ steps.pr-info.outputs.pr_number }}" >> $GITHUB_OUTPUT
+          echo "PR_URL=${{ steps.pr-info.outputs.pr_url }}" >> $GITHUB_OUTPUT
           echo "version_suffix=beta.pr.${{ steps.pr-info.outputs.pr_number }}.$SHA_SHORT" >> $GITHUB_OUTPUT
           echo "beta_identifier=PR-${{ steps.pr-info.outputs.pr_number }}/$SHA_SHORT" >> $GITHUB_OUTPUT
           echo "beta_identifier_for_automation_tests=pr-${{ steps.pr-info.outputs.pr_number }}-$SHA_SHORT" >> $GITHUB_OUTPUT
@@ -136,7 +141,7 @@ jobs:
       s3_dir_path: beta/${{ needs.get-deploy-inputs.outputs.beta_identifier }}/v3
       s3_dir_path_legacy: beta/${{ needs.get-deploy-inputs.outputs.beta_identifier }}/v1.1
       version_suffix: ${{ needs.get-deploy-inputs.outputs.version_suffix }}
-      action_type: ''
+      trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
     secrets:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_PROD_ACCOUNT_ID }}
       AWS_S3_BUCKET_NAME: ${{ secrets.AWS_PROD_S3_BUCKET_NAME }}
@@ -158,6 +163,7 @@ jobs:
       version_suffix: ${{ needs.get-deploy-inputs.outputs.version_suffix }}
       base_version: develop
       head_version: ${{ github.ref_name }}
+      trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
     secrets:
       RS_PROD_BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -166,11 +172,12 @@ jobs:
 
   deploy-sanity-suite:
     name: Deploy sanity suite
-    needs: [get-deploy-inputs, deploy-cdn]
+    needs: [get-deploy-inputs]
     uses: ./.github/workflows/deploy-sanity-suite.yml
     with:
       environment: 'beta'
       beta_identifier: ${{ needs.get-deploy-inputs.outputs.beta_identifier }}
+      trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
     secrets:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_PROD_ACCOUNT_ID }}
       AWS_S3_BUCKET_NAME: ${{ secrets.AWS_PROD_S3_BUCKET_NAME }}
@@ -186,10 +193,11 @@ jobs:
   run-e2e-regression-test-suites:
     uses: ./.github/workflows/run-e2e-regression-test-suites.yml
     name: Run E2E Regression Test Suites
-    needs: [get-deploy-inputs, deploy-sanity-suite]
+    needs: [get-deploy-inputs, deploy-sanity-suite, deploy-cdn]
     with:
       environment: beta
       sanity_test_suite_url: https://cdn.rudderlabs.com/sanity-suite/beta/${{ needs.get-deploy-inputs.outputs.beta_identifier }}
       build_source_id: ${{ needs.get-deploy-inputs.outputs.beta_identifier_for_automation_tests }}
+      trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
     secrets:
       PAT: ${{ secrets.PAT }}

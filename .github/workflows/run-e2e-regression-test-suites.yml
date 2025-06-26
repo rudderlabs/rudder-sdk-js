@@ -15,6 +15,16 @@ on:
       sanity_test_suite_url:
         type: string
         required: false
+      trigger_source:
+        type: string
+        required: true
+        description: 'Description of what/who triggered the workflow chain'
+      monorepo_release_version:
+        type: string
+        required: false
+      release_ticket:
+        type: string
+        required: false
     secrets:
       PAT:
         description: Personal Access Token
