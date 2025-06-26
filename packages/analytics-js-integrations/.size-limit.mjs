@@ -6,11 +6,13 @@ export default [
   {
     name: 'All Integrations - Legacy - CDN',
     path: 'dist/cdn/legacy/js-integrations/*.min.js',
+    import: '*',
     limit: '97 KiB',
   },
   {
     name: 'All Integrations - Modern - CDN',
     path: 'dist/cdn/modern/js-integrations/*.min.js',
+    import: '*',
     limit: '93.5 KiB',
   },
 ];
