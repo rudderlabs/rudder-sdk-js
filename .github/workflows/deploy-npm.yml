@@ -275,7 +275,7 @@ jobs:
 
       - name: Post NPM packages publish notification to release thread
         continue-on-error: true
-        if: ${{ inputs.monorepo_release_version != '' && inputs.release_ticket_id != '' }}
+        if: ${{ steps.slack.outcome == 'success' && inputs.monorepo_release_version != '' && inputs.release_ticket_id != '' }}
         uses: ./.github/actions/release-thread-integration
         with:
           monorepo_release_version: ${{ inputs.monorepo_release_version }}

@@ -76,8 +76,9 @@ runs:
 
     - name: Extract deployment message URL
       id: extract-message-url
-      if: ${{ steps.extract-info.outputs.has_thread_info == 'true' && inputs.slack_response != '' && inputs.skip_thread_post != 'true' }}
+      if: ${{ steps.extract-info.outputs.has_thread_info == 'true' && inputs.slack_response != '' }}
       shell: bash
+      continue-on-error: true
       run: |
         # Extract message details from Slack response
         slack_response='${{ inputs.slack_response }}'
@@ -102,7 +103,7 @@ runs:
         fi
 
     - name: Post deployment link to release thread
-      if: ${{ steps.extract-info.outputs.has_thread_info == 'true' && steps.extract-message-url.outputs.message_url != '' && inputs.skip_thread_post != 'true' }}
+      if: ${{ steps.extract-info.outputs.has_thread_info == 'true' && steps.extract-message-url.outputs.message_url != '' }}
       uses: slackapi/slack-github-action@b0fa283ad8fea605de13dc3f449259339835fc52  # v2.1.0
       continue-on-error: true
       with:

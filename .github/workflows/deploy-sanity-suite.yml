@@ -213,6 +213,7 @@ jobs:
       - name: Post deployment link to release thread
         continue-on-error: true
         uses: ./.github/actions/release-thread-integration
+        if: ${{ steps.slack.outcome == 'success' && inputs.monorepo_release_version != '' && inputs.release_ticket_id != '' }}
         with:
           monorepo_release_version: ${{ inputs.monorepo_release_version }}
           release_ticket_id: ${{ inputs.release_ticket_id }}

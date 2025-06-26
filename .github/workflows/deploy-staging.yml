@@ -1,7 +1,6 @@
 name: Deploy to Staging Environment
 
 on:
-  workflow_dispatch:
   pull_request:
     branches: ['main']
     types:
@@ -29,13 +28,14 @@ jobs:
       - name: Extract release info from branch
         id: extract-release-info
         if: startsWith(github.head_ref, 'release/') || startsWith(github.head_ref, 'hotfix-release/')
+        env:
+          HEAD_REF: ${{ github.head_ref }}
         run: |
-          branch_name="${{ github.head_ref }}"
-          echo "Branch name: $branch_name"
+          echo "Branch name: $HEAD_REF"
           
           # Extract version and ticket from branch name (format: release/3.2.1-SDK-1234 or hotfix-release/3.2.2-SDK-5678)
-          version=$(echo "$branch_name" | sed -n 's|.*\/\([0-9]\+\.[0-9]\+\.[0-9]\+\)-.*|\1|p')
-          ticket=$(echo "$branch_name" | sed -n 's|.*-\([^-]*\)$|\1|p')
+          version=$(echo "$HEAD_REF" | sed -n 's|.*\/\([0-9]\+\.[0-9]\+\.[0-9]\+\)-.*|\1|p')
+          ticket=$(echo "$HEAD_REF" | sed -n 's|.*-\([^-]*\)$|\1|p')
           
           echo "Extracted version: $version"
           echo "Extracted ticket: $ticket"
