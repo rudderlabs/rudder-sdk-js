@@ -16,8 +16,8 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
     outputs:
       trigger_source: ${{ steps.set-outputs.outputs.trigger_source }}
-      release_version: ${{ steps.extract-release-info.outputs.version }}
-      release_ticket: ${{ steps.extract-release-info.outputs.ticket }}
+      release_version: ${{ steps.extract-release-info.outputs.release_version }}
+      release_ticket_id: ${{ steps.extract-release-info.outputs.release_ticket_id }}
     steps:
       - name: Set outputs
         id: set-outputs
@@ -37,8 +37,8 @@ jobs:
           echo "Extracted version: $version"
           echo "Extracted ticket: $ticket"
           
-          echo "version=$version" >> $GITHUB_OUTPUT
-          echo "ticket=$ticket" >> $GITHUB_OUTPUT
+          echo "release_version=$version" >> $GITHUB_OUTPUT
+          echo "release_ticket_id=$ticket" >> $GITHUB_OUTPUT
 
   deploy:
     name: Deploy to production environment
@@ -52,7 +52,7 @@ jobs:
       s3_dir_path_legacy: 'v1.1'
       trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
       monorepo_release_version: ${{ needs.get-deploy-inputs.outputs.release_version }}
-      release_ticket: ${{ needs.get-deploy-inputs.outputs.release_ticket }}
+      release_ticket_id: ${{ needs.get-deploy-inputs.outputs.release_ticket_id }}
     secrets:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_PROD_ACCOUNT_ID }}
       AWS_S3_BUCKET_NAME: ${{ secrets.AWS_PROD_S3_BUCKET_NAME }}
@@ -70,7 +70,7 @@ jobs:
       environment: 'production'
       trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
       monorepo_release_version: ${{ needs.get-deploy-inputs.outputs.release_version }}
-      release_ticket: ${{ needs.get-deploy-inputs.outputs.release_ticket }}
+      release_ticket_id: ${{ needs.get-deploy-inputs.outputs.release_ticket_id }}
     secrets:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_PROD_ACCOUNT_ID }}
       AWS_S3_BUCKET_NAME: ${{ secrets.AWS_PROD_S3_BUCKET_NAME }}
@@ -91,6 +91,6 @@ jobs:
       trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
       environment: production
       monorepo_release_version: ${{ needs.get-deploy-inputs.outputs.release_version }}
-      release_ticket: ${{ needs.get-deploy-inputs.outputs.release_ticket }}
+      release_ticket_id: ${{ needs.get-deploy-inputs.outputs.release_ticket_id }}
     secrets:
       PAT: ${{ secrets.PAT }}

@@ -5,7 +5,7 @@ inputs:
   monorepo_release_version:
     description: 'Monorepo release version for artifact lookup'
     required: true
-  release_ticket:
+  release_ticket_id:
     description: 'Release ticket for artifact lookup'
     required: true
   slack_bot_token:
@@ -31,9 +31,6 @@ outputs:
   pr_url:
     description: 'PR URL from release artifact'
     value: ${{ steps.extract-info.outputs.pr_url }}
-  release_version:
-    description: 'Release version from artifact'
-    value: ${{ steps.extract-info.outputs.release_version }}
 
 runs:
   using: 'composite'
@@ -43,7 +40,7 @@ runs:
       continue-on-error: true
       uses: actions/download-artifact@v4
       with:
-        name: release-info-v${{ inputs.monorepo_release_version }}-${{ inputs.release_ticket }}
+        name: release-info-v${{ inputs.monorepo_release_version }}-${{ inputs.release_ticket_id }}
         path: release-info/
 
     - name: Extract release info

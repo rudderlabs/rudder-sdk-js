@@ -16,8 +16,8 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
     outputs:
       trigger_source: ${{ steps.set-outputs.outputs.trigger_source }}
-      release_version: ${{ steps.extract-release-info.outputs.version }}
-      release_ticket: ${{ steps.extract-release-info.outputs.ticket }}
+      release_version: ${{ steps.extract-release-info.outputs.release_version }}
+      release_ticket_id: ${{ steps.extract-release-info.outputs.release_ticket_id }}
     steps:
       - name: Set outputs
         id: set-outputs
@@ -234,7 +234,7 @@ jobs:
       is_called: 'true'
       trigger_source: ${{ needs.get-release-inputs.outputs.trigger_source }}
       monorepo_release_version: ${{ needs.get-release-inputs.outputs.release_version }}
-      release_ticket: ${{ needs.get-release-inputs.outputs.release_ticket }}
+      release_ticket_id: ${{ needs.get-release-inputs.outputs.release_ticket_id }}
     secrets:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       RS_PROD_BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}

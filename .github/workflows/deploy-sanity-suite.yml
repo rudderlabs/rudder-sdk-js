@@ -20,7 +20,7 @@ on:
         description: 'Monorepo release version for artifact lookup'
         type: string
         required: false
-      release_ticket:
+      release_ticket_id:
         description: 'Release ticket for artifact lookup'
         type: string
         required: false
@@ -215,7 +215,7 @@ jobs:
         uses: ./.github/actions/release-thread-integration
         with:
           monorepo_release_version: ${{ inputs.monorepo_release_version }}
-          release_ticket: ${{ inputs.release_ticket }}
+          release_ticket_id: ${{ inputs.release_ticket_id }}
           slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
           deployment_name: 'Sanity Suite'
           slack_response: ${{ steps.slack.outputs.response }}

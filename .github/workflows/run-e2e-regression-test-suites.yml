@@ -22,7 +22,7 @@ on:
       monorepo_release_version:
         type: string
         required: false
-      release_ticket:
+      release_ticket_id:
         type: string
         required: false
     secrets:

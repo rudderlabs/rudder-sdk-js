@@ -32,7 +32,7 @@ on:
         description: 'Monorepo release version for artifact lookup'
         type: string
         required: false
-      release_ticket:
+      release_ticket_id:
         description: 'Release ticket for artifact lookup'
         type: string
         required: false
@@ -275,11 +275,11 @@ jobs:
 
       - name: Post NPM packages publish notification to release thread
         continue-on-error: true
-        if: ${{ inputs.monorepo_release_version != '' && inputs.release_ticket != '' }}
+        if: ${{ inputs.monorepo_release_version != '' && inputs.release_ticket_id != '' }}
         uses: ./.github/actions/release-thread-integration
         with:
           monorepo_release_version: ${{ inputs.monorepo_release_version }}
-          release_ticket: ${{ inputs.release_ticket }}
+          release_ticket_id: ${{ inputs.release_ticket_id }}
           slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
           deployment_name: 'JS SDK NPM Package'
           slack_response: ${{ steps.slack.outputs.response }}
