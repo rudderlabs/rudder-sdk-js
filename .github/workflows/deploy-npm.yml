@@ -282,7 +282,7 @@ jobs:
           release_ticket_id: ${{ inputs.release_ticket_id }}
           slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
           deployment_name: 'JS SDK NPM Package'
-          slack_response: ${{ steps.slack.outputs.response }}
+          slack_api_response: ${{ steps.slack.outputs.response }}
 
       - name: Send message to Slack channel for Service Worker
         if: env.CURRENT_NPM_VERSION_SW != env.NEW_NPM_VERSION_SW && env.NEW_NPM_VERSION_SW != 'not found'

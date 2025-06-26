@@ -20,8 +20,8 @@ on:
         type: string
         required: true
       use_pr_head_sha:
-        type: string
-        default: 'false'
+        type: boolean
+        default: false
       version_suffix:
         type: string
         default: ''
@@ -87,7 +87,7 @@ jobs:
       - name: Determine checkout SHA
         id: getSHA
         run: |
-          if ${{ inputs.use_pr_head_sha }} == 'true'; then
+          if ${{ inputs.use_pr_head_sha }}; then
             sha=$(echo ${{ github.event.pull_request.head.sha }})
           else
             sha=$(echo ${{ github.sha }})
@@ -349,7 +349,7 @@ jobs:
           release_ticket_id: ${{ inputs.release_ticket_id }}
           slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
           deployment_name: 'JS SDK Browser Package'
-          slack_response: ${{ steps.slack.outputs.response }}
+          slack_api_response: ${{ steps.slack.outputs.response }}
 
       # All the below steps are for v1.1 SDK (legacy)
       - name: Copy legacy SDK artifacts to S3

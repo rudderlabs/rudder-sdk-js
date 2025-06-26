@@ -46,16 +46,15 @@ jobs:
   deploy:
     name: Deploy to staging environment
     needs: [get-deploy-inputs]
-    # Only manually run the workflow for tags
-    # and PRs raised from release branches to main
-    if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.head_ref, 'hotfix-release/') || startsWith(github.head_ref, 'release/')
+    # Only allow running this workflow for PRs raised from release branches to main
+    if: startsWith(github.head_ref, 'hotfix-release/') || startsWith(github.head_ref, 'release/')
     uses: ./.github/workflows/deploy.yml
     with:
       environment: 'staging'
       bugsnag_release_stage: 'staging'
       s3_dir_path: 'staging/latest/v3'
       s3_dir_path_legacy: 'staging/latest/v1.1'
-      use_pr_head_sha: 'true'
+      use_pr_head_sha: true
       trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
       monorepo_release_version: ${{ needs.get-deploy-inputs.outputs.release_version }}
       release_ticket_id: ${{ needs.get-deploy-inputs.outputs.release_ticket_id }}
@@ -74,7 +73,7 @@ jobs:
     uses: ./.github/workflows/deploy-sanity-suite.yml
     with:
       environment: 'staging'
-      use_pr_head_sha: 'true'
+      use_pr_head_sha: true
       trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
       monorepo_release_version: ${{ needs.get-deploy-inputs.outputs.release_version }}
       release_ticket_id: ${{ needs.get-deploy-inputs.outputs.release_ticket_id }}
@@ -97,7 +96,7 @@ jobs:
     with:
       environment: staging
       trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
-      use_pr_head_sha: 'true'
+      use_pr_head_sha: true
       monorepo_release_version: ${{ needs.get-deploy-inputs.outputs.release_version }}
       release_ticket_id: ${{ needs.get-deploy-inputs.outputs.release_ticket_id }}
     secrets:

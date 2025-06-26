@@ -14,7 +14,7 @@ inputs:
   deployment_name:
     description: 'Name of the deployment (e.g., "JS SDK", "Sanity Suite", "NPM Package")'
     required: true
-  slack_response:
+  slack_api_response:
     description: 'JSON response from Slack API containing message details'
     required: true
 
@@ -67,7 +67,6 @@ runs:
           echo "channel_id=$channel_id" >> $GITHUB_OUTPUT
           echo "thread_ts=$thread_ts" >> $GITHUB_OUTPUT
           echo "pr_url=$pr_url" >> $GITHUB_OUTPUT
-          echo "release_version=$release_version" >> $GITHUB_OUTPUT
           echo "has_thread_info=true" >> $GITHUB_OUTPUT
         else
           echo "No release info artifact found"
@@ -76,18 +75,19 @@ runs:
 
     - name: Extract deployment message URL
       id: extract-message-url
-      if: ${{ steps.extract-info.outputs.has_thread_info == 'true' && inputs.slack_response != '' }}
+      if: ${{ steps.extract-info.outputs.has_thread_info == 'true' && inputs.slack_api_response != '' }}
       shell: bash
       continue-on-error: true
+      env:
+        SLACK_API_RESPONSE: ${{ inputs.slack_api_response }}
       run: |
         # Extract message details from Slack response
-        slack_response='${{ inputs.slack_response }}'
         
         # Check if response is valid JSON and contains required fields
-        if echo "$slack_response" | jq -e '.ok and .channel and .ts' > /dev/null 2>&1; then
+        if echo "$SLACK_API_RESPONSE" | jq -e '.ok and .channel and .ts' > /dev/null 2>&1; then
           # Get channel and timestamp from response
-          channel=$(echo "$slack_response" | jq -r '.channel')
-          ts=$(echo "$slack_response" | jq -r '.ts')
+          channel=$(echo "$SLACK_API_RESPONSE" | jq -r '.channel')
+          ts=$(echo "$SLACK_API_RESPONSE" | jq -r '.ts')
           
           # Construct message URL
           # Format: https://workspace.slack.com/archives/CHANNEL/pTIMESTAMP
