@@ -24,6 +24,18 @@ on:
         type: string
         required: false
         default: 'production'
+      trigger_source:
+        description: 'Description of what/who triggered the workflow chain'
+        type: string
+        required: false
+      monorepo_release_version:
+        description: 'Monorepo release version for artifact lookup'
+        type: string
+        required: false
+      release_ticket_id:
+        description: 'Release ticket for artifact lookup'
+        type: string
+        required: false
     secrets:
       RS_PROD_BUGSNAG_API_KEY:
         required: true
@@ -200,13 +212,14 @@ jobs:
 
           npm deprecate rudder-sdk-js "This package is deprecated and no longer maintained. While your events are still being tracked and delivered, we strongly recommend you to migrate to the latest package, @rudderstack/analytics-js (https://www.npmjs.com/package/@rudderstack/analytics-js), for the latest features, security updates, and improved performance. For more details, visit the migration guide: https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/migration-guide/."
 
+
       - name: Send message to Slack channel
         if: env.CURRENT_NPM_VERSION != env.NEW_NPM_VERSION && env.NEW_NPM_VERSION != 'not found'
         id: slack
         continue-on-error: true
         uses: slackapi/slack-github-action@b0fa283ad8fea605de13dc3f449259339835fc52  # v2.1.0
         env:
-          PROJECT_NAME: ${{ inputs.environment == 'beta' && 'JS SDK NPM Package - beta' || 'JS SDK NPM Package' }}
+          PROJECT_NAME: ${{ format('JS SDK NPM Package{0}', (inputs.environment == 'staging' && ' - Staging') || (inputs.environment == 'development' && ' - Development') || (inputs.environment == 'beta' && ' - Beta') || '') }}
           NPM_PACKAGE_URL: 'https://www.npmjs.com/package/@rudderstack/analytics-js'
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js@'
           GITHUB_RUN_URL: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
@@ -220,13 +233,13 @@ jobs:
           payload: |
             {
               "channel": "${{ secrets.SLACK_RELEASE_CHANNEL_ID }}",
-              "text": "*New Release: ${{ env.PROJECT_NAME }} - <${{ env.NPM_PACKAGE_URL }}|${{ env.CURRENT_VERSION_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D> <!subteam^S03SHJ20350>",
+              "text": "*:rocket: Published - ${{ env.PROJECT_NAME }} - <${{ env.NPM_PACKAGE_URL }}|${{ env.CURRENT_VERSION_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D> <!subteam^S03SHJ20350>",
               "blocks": [
                 {
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "New Release: ${{ env.PROJECT_NAME }}"
+                    "text": ":rocket: Published - ${{ env.PROJECT_NAME }}"
                   }
                 },
                 {
@@ -249,7 +262,7 @@ jobs:
                   "elements": [
                     {
                       "type": "mrkdwn",
-                      "text": ":package: Deployment triggered by <${{ env.ACTOR_URL }}|${{ env.ACTOR }}>"
+                      "text": ":package: ${{ (github.event_name == 'workflow_dispatch' && format('Published by <{0}|{1}>', env.ACTOR_URL, env.ACTOR)) || (inputs.trigger_source && inputs.trigger_source) }}"
                     },
                     {
                       "type": "mrkdwn",
@@ -260,13 +273,24 @@ jobs:
               ]
             }
 
+      - name: Post NPM packages publish notification to release thread
+        continue-on-error: true
+        if: ${{ steps.slack.outcome == 'success' && inputs.monorepo_release_version != '' && inputs.release_ticket_id != '' }}
+        uses: ./.github/actions/release-thread-integration
+        with:
+          monorepo_release_version: ${{ inputs.monorepo_release_version }}
+          release_ticket_id: ${{ inputs.release_ticket_id }}
+          slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
+          deployment_name: 'JS SDK NPM Package'
+          slack_api_response: ${{ steps.slack.outputs.response }}
+
       - name: Send message to Slack channel for Service Worker
         if: env.CURRENT_NPM_VERSION_SW != env.NEW_NPM_VERSION_SW && env.NEW_NPM_VERSION_SW != 'not found'
         id: slackSw
         continue-on-error: true
         uses: slackapi/slack-github-action@b0fa283ad8fea605de13dc3f449259339835fc52  # v2.1.0
         env:
-          PROJECT_NAME: ${{ inputs.environment == 'beta' && 'JS SDK Service Worker NPM Package - beta' || 'JS SDK Service Worker NPM Package' }}
+          PROJECT_NAME: ${{ format('JS SDK Service Worker NPM Package{0}', (inputs.environment == 'staging' && ' - Staging') || (inputs.environment == 'development' && ' - Development') || (inputs.environment == 'beta' && ' - Beta') || '') }}
           NPM_PACKAGE_URL: 'https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker'
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js-service-worker@'
           GITHUB_RUN_URL: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
@@ -280,13 +304,13 @@ jobs:
           payload: |
             {
               "channel": "${{ secrets.SLACK_RELEASE_CHANNEL_ID }}",
-              "text": "*New Release: ${{ env.PROJECT_NAME }} - <${{ env.NPM_PACKAGE_URL }}|${{ env.CURRENT_VERSION_SW_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D> <!subteam^S03SHJ20350>",
+              "text": "*:rocket: Published - ${{ env.PROJECT_NAME }} - <${{ env.NPM_PACKAGE_URL }}|${{ env.CURRENT_VERSION_SW_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D> <!subteam^S03SHJ20350>",
               "blocks": [
                 {
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "New Release: ${{ env.PROJECT_NAME }}"
+                    "text": ":rocket: Published - ${{ env.PROJECT_NAME }}"
                   }
                 },
                 {
@@ -309,7 +333,7 @@ jobs:
                   "elements": [
                     {
                       "type": "mrkdwn",
-                      "text": ":package: Deployment triggered by <${{ env.ACTOR_URL }}|${{ env.ACTOR }}>"
+                      "text": ":package: ${{ (github.event_name == 'workflow_dispatch' && format('Published by <{0}|{1}>', env.ACTOR_URL, env.ACTOR)) || (inputs.trigger_source && inputs.trigger_source) }}"
                     },
                     {
                       "type": "mrkdwn",
@@ -326,7 +350,7 @@ jobs:
         continue-on-error: true
         uses: slackapi/slack-github-action@b0fa283ad8fea605de13dc3f449259339835fc52  # v2.1.0
         env:
-          PROJECT_NAME: ${{ inputs.environment == 'beta' && 'JS SDK Cookies Utilities - beta' || 'JS SDK Cookies Utilities' }}
+          PROJECT_NAME: ${{ format('JS SDK Cookies Utilities{0}', (inputs.environment == 'staging' && ' - Staging') || (inputs.environment == 'development' && ' - Development') || (inputs.environment == 'beta' && ' - Beta') || '') }}
           NPM_PACKAGE_URL: 'https://www.npmjs.com/package/@rudderstack/analytics-js-cookies'
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js-cookies@'
           GITHUB_RUN_URL: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
@@ -340,13 +364,13 @@ jobs:
           payload: |
             {
               "channel": "${{ secrets.SLACK_RELEASE_CHANNEL_ID }}",
-              "text": "*New Release: ${{ env.PROJECT_NAME }} - <${{ env.NPM_PACKAGE_URL }}|${{ env.CURRENT_VERSION_COOKIE_UTILS_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D> <!subteam^S03SHJ20350>",
+              "text": "*:rocket: Published - ${{ env.PROJECT_NAME }} - <${{ env.NPM_PACKAGE_URL }}|${{ env.CURRENT_VERSION_COOKIE_UTILS_VALUE }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D> <!subteam^S03SHJ20350>",
               "blocks": [
                 {
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "New Release: ${{ env.PROJECT_NAME }}"
+                    "text": ":rocket: Published - ${{ env.PROJECT_NAME }}"
                   }
                 },
                 {
@@ -369,7 +393,7 @@ jobs:
                   "elements": [
                     {
                       "type": "mrkdwn",
-                      "text": ":package: Deployment triggered by <${{ env.ACTOR_URL }}|${{ env.ACTOR }}>"
+                      "text": ":package: ${{ (github.event_name == 'workflow_dispatch' && format('Published by <{0}|{1}>', env.ACTOR_URL, env.ACTOR)) || (inputs.trigger_source && inputs.trigger_source) }}"
                     },
                     {
                       "type": "mrkdwn",

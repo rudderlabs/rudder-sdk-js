@@ -11,8 +11,38 @@ env:
   NODE_OPTIONS: '--no-warnings'
 
 jobs:
+  get-release-inputs:
+    name: Get Release Inputs
+    runs-on: [self-hosted, Linux, X64]
+    outputs:
+      trigger_source: ${{ steps.set-outputs.outputs.trigger_source }}
+      release_version: ${{ steps.extract-release-info.outputs.release_version }}
+      release_ticket_id: ${{ steps.extract-release-info.outputs.release_ticket_id }}
+    steps:
+      - name: Set outputs
+        id: set-outputs
+        run: echo "trigger_source=${{ format('PR <{0}|#{1}> merged by <{2}|{3}>', github.event.pull_request.html_url, github.event.pull_request.number, format('{0}/{1}', github.server_url, github.actor), github.actor) }}" >> $GITHUB_OUTPUT
+
+      - name: Extract release info from branch
+        id: extract-release-info
+        if: startsWith(github.event.pull_request.head.ref, 'release/') || startsWith(github.event.pull_request.head.ref, 'hotfix-release/')
+        run: |
+          branch_name="${{ github.event.pull_request.head.ref }}"
+          echo "Branch name: $branch_name"
+          
+          # Extract version and ticket from branch name (format: release/3.2.1-SDK-1234 or hotfix-release/3.2.2-SDK-5678)
+          version=$(echo "$branch_name" | sed -n 's|.*\/\([0-9]\+\.[0-9]\+\.[0-9]\+\)-.*|\1|p')
+          ticket=$(echo "$branch_name" | sed -n 's|.*-\([^-]*\)$|\1|p')
+          
+          echo "Extracted version: $version"
+          echo "Extracted ticket: $ticket"
+          
+          echo "release_version=$version" >> $GITHUB_OUTPUT
+          echo "release_ticket_id=$ticket" >> $GITHUB_OUTPUT
+
   release:
     name: Publish new release
+    needs: [get-release-inputs]
     # For publishing GitHub release, we need to only use the GitHub hosted runners
     runs-on: ubuntu-latest
     # only merged pull requests must trigger this job
@@ -152,13 +182,13 @@ jobs:
           payload: |
             {
               "channel": "${{ secrets.SLACK_RELEASE_CHANNEL_ID }}",
-              "text": "*New Release: ${{ env.PROJECT_NAME }} - <${{ env.TAG_COMPARE_URL }}${{ env.last_monorepo_version }}...v${{ steps.extract-version.outputs.release_version }}|v${{ steps.extract-version.outputs.release_version }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D> <!subteam^S03SHJ20350>",
+              "text": "*:rocket: New Release - ${{ env.PROJECT_NAME }} - <${{ env.TAG_COMPARE_URL }}${{ env.last_monorepo_version }}...v${{ steps.extract-version.outputs.release_version }}|v${{ steps.extract-version.outputs.release_version }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D> <!subteam^S03SHJ20350>",
               "blocks": [
                 {
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "New Release: ${{ env.PROJECT_NAME }}"
+                    "text": ":rocket: New Release - ${{ env.PROJECT_NAME }}"
                   }
                 },
                 {
@@ -181,7 +211,7 @@ jobs:
                   "elements": [
                     {
                       "type": "mrkdwn",
-                      "text": ":twisted_rightwards_arrows: PR #${{ github.event.pull_request.number }} merged by <${{ env.ACTOR_URL }}|${{ env.ACTOR }}>"
+                      "text": ":boom: ${{ needs.get-release-inputs.outputs.trigger_source }}"
                     },
                     {
                       "type": "mrkdwn",
@@ -197,11 +227,14 @@ jobs:
             }
 
   publish-npm-packages:
-    needs: release
+    needs: [get-release-inputs, release]
     name: Publish packages to NPM
     uses: ./.github/workflows/deploy-npm.yml
     with:
       is_called: 'true'
+      trigger_source: ${{ needs.get-release-inputs.outputs.trigger_source }}
+      monorepo_release_version: ${{ needs.get-release-inputs.outputs.release_version }}
+      release_ticket_id: ${{ needs.get-release-inputs.outputs.release_ticket_id }}
     secrets:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       RS_PROD_BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}

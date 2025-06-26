@@ -7,9 +7,21 @@ on:
         type: string
         required: true
       use_pr_head_sha:
-        type: string
-        default: 'false'
+        type: boolean
+        default: false
       beta_identifier:
+        type: string
+        required: false
+      trigger_source:
+        description: 'Description of what triggered this workflow'
+        type: string
+        required: true
+      monorepo_release_version:
+        description: 'Monorepo release version for artifact lookup'
+        type: string
+        required: false
+      release_ticket_id:
+        description: 'Release ticket for artifact lookup'
         type: string
         required: false
     secrets:
@@ -51,7 +63,7 @@ jobs:
       - name: Determine checkout SHA
         id: getSHA
         run: |
-          if ${{ inputs.use_pr_head_sha }} == 'true'; then
+          if ${{ inputs.use_pr_head_sha }}; then
             sha=$(echo ${{ github.event.pull_request.head.sha }})
           else
             sha=$(echo ${{ github.sha }})
@@ -144,7 +156,7 @@ jobs:
         uses: slackapi/slack-github-action@b0fa283ad8fea605de13dc3f449259339835fc52  # v2.1.0
         continue-on-error: true
         env:
-          PROJECT_NAME: 'Sanity suite - ${{ inputs.environment }}'
+          PROJECT_NAME: ${{ format('Sanity Suite - {0}', (inputs.environment == 'production' && 'Production') || (inputs.environment == 'staging' && 'Staging') || (inputs.environment == 'development' && 'Development') || 'Beta') }}
           CDN_URL: 'https://cdn.rudderlabs.com/sanity-suite${{ env.SUITE_CDN_PATH }}/v3/cdn/index.html'
           LINK_TEXT: ${{ ((inputs.environment == 'development' && format('v{0} - Development', env.CURRENT_VERSION_VALUE)) || (inputs.environment == 'staging' && format('v{0} - Staging', env.CURRENT_VERSION_VALUE)) || (inputs.environment == 'beta' && format('v{0} - Beta', env.CURRENT_VERSION_VALUE)) || format('v{0}', env.CURRENT_VERSION_VALUE)) }}
           GITHUB_RUN_URL: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
@@ -158,13 +170,13 @@ jobs:
           payload: |
             {
               "channel": "${{ secrets.SLACK_RELEASE_CHANNEL_ID }}",
-              "text": "*New Deployment: ${{ env.PROJECT_NAME }} - <${{ env.CDN_URL }}|${{ env.LINK_TEXT }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D> <!subteam^S03SHJ20350>",
+              "text": "*:test_tube: Deployment - ${{ env.PROJECT_NAME }} - <${{ env.CDN_URL }}|${{ env.LINK_TEXT }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D> <!subteam^S03SW7DM8P3> <!subteam^S03SHJ20350>",
               "blocks": [
                 {
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "New Deployment: ${{ env.PROJECT_NAME }}"
+                    "text": ":test_tube: Deployment - ${{ env.PROJECT_NAME }}"
                   }
                 },
                 {
@@ -174,7 +186,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*<${{ env.CDN_URL }}|${{ env.LINK_TEXT }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D> <!subteam^S03SHJ20350>"
+                    "text": "*<${{ env.CDN_URL }}|${{ env.LINK_TEXT }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D> <!subteam^S03SW7DM8P3> <!subteam^S03SHJ20350>"
                   },
                   "accessory": {
                     "type": "image",
@@ -187,7 +199,7 @@ jobs:
                   "elements": [
                     {
                       "type": "mrkdwn",
-                      "text": ":test_tube: Deployment triggered by <${{ env.ACTOR_URL }}|${{ env.ACTOR }}>"
+                      "text": ":boom: ${{ inputs.trigger_source }}"
                     },
                     {
                       "type": "mrkdwn",
@@ -197,3 +209,14 @@ jobs:
                 }
               ]
             }
+
+      - name: Post deployment link to release thread
+        continue-on-error: true
+        uses: ./.github/actions/release-thread-integration
+        if: ${{ steps.slack.outcome == 'success' && inputs.monorepo_release_version != '' && inputs.release_ticket_id != '' }}
+        with:
+          monorepo_release_version: ${{ inputs.monorepo_release_version }}
+          release_ticket_id: ${{ inputs.release_ticket_id }}
+          slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
+          deployment_name: 'Sanity Suite'
+          slack_api_response: ${{ steps.slack.outputs.response }}

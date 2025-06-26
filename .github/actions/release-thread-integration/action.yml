@@ -1,0 +1,154 @@
+name: 'Release Thread Integration'
+description: 'Downloads release info artifact and posts deployment messages to the original release thread'
+
+inputs:
+  monorepo_release_version:
+    description: 'Monorepo release version for artifact lookup'
+    required: true
+  release_ticket_id:
+    description: 'Release ticket for artifact lookup'
+    required: true
+  slack_bot_token:
+    description: 'Slack bot token for posting messages'
+    required: true
+  deployment_name:
+    description: 'Name of the deployment (e.g., "JS SDK", "Sanity Suite", "NPM Package")'
+    required: true
+  slack_api_response:
+    description: 'JSON response from Slack API containing message details'
+    required: true
+
+outputs:
+  has_thread_info:
+    description: 'Whether release thread info was found'
+    value: ${{ steps.extract-info.outputs.has_thread_info }}
+  channel_id:
+    description: 'Slack channel ID from release artifact'
+    value: ${{ steps.extract-info.outputs.channel_id }}
+  thread_ts:
+    description: 'Slack thread timestamp from release artifact'
+    value: ${{ steps.extract-info.outputs.thread_ts }}
+  pr_url:
+    description: 'PR URL from release artifact'
+    value: ${{ steps.extract-info.outputs.pr_url }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Download release info artifact
+      id: download-release-info
+      continue-on-error: true
+      uses: actions/download-artifact@v4
+      with:
+        name: release-info-v${{ inputs.monorepo_release_version }}-${{ inputs.release_ticket_id }}
+        path: release-info/
+
+    - name: Ensure jq is installed
+      shell: bash
+      run: |
+        if ! command -v jq &> /dev/null; then
+          echo "jq not found, installing..."
+          if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+            # Linux - use apt-get (most common for GitHub runners)
+            sudo apt-get update && sudo apt-get install -y jq
+          elif [[ "$OSTYPE" == "darwin"* ]]; then
+            # macOS - use brew if available, otherwise install via curl
+            if command -v brew &> /dev/null; then
+              brew install jq
+            else
+              # Fallback: install jq binary directly
+              curl -L -o /usr/local/bin/jq https://github.com/stedolan/jq/releases/latest/download/jq-osx-amd64
+              chmod +x /usr/local/bin/jq
+            fi
+          else
+            echo "Unsupported OS type: $OSTYPE"
+            exit 1
+          fi
+        else
+          echo "jq is already installed"
+          jq --version
+        fi
+
+    - name: Extract release info
+      id: extract-info
+      continue-on-error: true
+      shell: bash
+      run: |
+        if [ -f "release-info/release-info.json" ]; then
+          echo "Found release info artifact"
+          
+          # Extract values from JSON
+          channel_id=$(jq -r '.channel_id' release-info/release-info.json)
+          thread_ts=$(jq -r '.thread_ts' release-info/release-info.json)
+          pr_url=$(jq -r '.pr_url' release-info/release-info.json)
+          release_version=$(jq -r '.release_version' release-info/release-info.json)
+          
+          echo "Extracted thread info:"
+          echo "  Channel ID: $channel_id"
+          echo "  Thread TS: $thread_ts"
+          echo "  PR URL: $pr_url"
+          echo "  Release Version: $release_version"
+          
+          # Set outputs for use in subsequent steps
+          echo "channel_id=$channel_id" >> $GITHUB_OUTPUT
+          echo "thread_ts=$thread_ts" >> $GITHUB_OUTPUT
+          echo "pr_url=$pr_url" >> $GITHUB_OUTPUT
+          echo "has_thread_info=true" >> $GITHUB_OUTPUT
+        else
+          echo "No release info artifact found"
+          echo "has_thread_info=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Extract deployment message URL
+      id: extract-message-url
+      if: ${{ steps.extract-info.outputs.has_thread_info == 'true' && inputs.slack_api_response != '' }}
+      shell: bash
+      continue-on-error: true
+      env:
+        SLACK_API_RESPONSE: ${{ inputs.slack_api_response }}
+      run: |
+        # Extract message details from Slack response
+        
+        # Check if response is valid JSON and contains required fields
+        if echo "$SLACK_API_RESPONSE" | jq -e '.ok and .channel and .ts' > /dev/null 2>&1; then
+          # Get channel and timestamp from response
+          channel=$(echo "$SLACK_API_RESPONSE" | jq -r '.channel')
+          ts=$(echo "$SLACK_API_RESPONSE" | jq -r '.ts')
+          
+          # Construct message URL
+          # Format: https://workspace.slack.com/archives/CHANNEL/pTIMESTAMP
+          # Convert timestamp 1640995200.123456 to p1640995200123456
+          ts_for_url=$(echo "$ts" | tr -d '.')
+          message_url="https://rudderlabs.slack.com/archives/${channel}/p${ts_for_url}"
+          
+          echo "Deployment message URL: $message_url"
+          echo "message_url=$message_url" >> $GITHUB_OUTPUT
+        else
+          echo "Invalid or missing Slack response"
+          echo "message_url=" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Post deployment link to release thread
+      if: ${{ steps.extract-info.outputs.has_thread_info == 'true' && steps.extract-message-url.outputs.message_url != '' }}
+      uses: slackapi/slack-github-action@b0fa283ad8fea605de13dc3f449259339835fc52  # v2.1.0
+      continue-on-error: true
+      with:
+        method: chat.postMessage
+        token: ${{ inputs.slack_bot_token }}
+        retries: rapid
+        payload-templated: true
+        payload: |
+          {
+            "channel": "${{ steps.extract-info.outputs.channel_id }}",
+            "thread_ts": "${{ steps.extract-info.outputs.thread_ts }}",
+            "text": ":white_check_mark: ${{ inputs.deployment_name }} deployment completed: <${{ steps.extract-message-url.outputs.message_url }}|View deployment details>\n\nCC: <!subteam^S0555JBV36D> <!subteam^S03SW7DM8P3> <!subteam^S03SHJ20350>",
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": ":white_check_mark: *${{ inputs.deployment_name }} deployment completed*\n<${{ steps.extract-message-url.outputs.message_url }}|View deployment details>\n\nCC: <!subteam^S0555JBV36D> <!subteam^S03SW7DM8P3> <!subteam^S03SHJ20350>"
+                }
+              }
+            ]
+          } 

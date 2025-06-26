@@ -19,17 +19,24 @@ on:
         description: 'S3 directory path for legacy'
         type: string
         required: true
-      action_type:
-        description: 'Type of action'
-        type: string
-        required: false
-        default: ''
       use_pr_head_sha:
-        type: string
-        default: 'false'
+        type: boolean
+        default: false
       version_suffix:
         type: string
         default: ''
+      trigger_source:
+        description: 'Description of what/who triggered the workflow chain'
+        type: string
+        required: true
+      monorepo_release_version:
+        description: 'Monorepo release version for artifact lookup'
+        type: string
+        required: false
+      release_ticket_id:
+        description: 'Release ticket for artifact lookup'
+        type: string
+        required: false
     secrets:
       AWS_ACCOUNT_ID:
         required: true
@@ -80,7 +87,7 @@ jobs:
       - name: Determine checkout SHA
         id: getSHA
         run: |
-          if ${{ inputs.use_pr_head_sha }} == 'true'; then
+          if ${{ inputs.use_pr_head_sha }}; then
             sha=$(echo ${{ github.event.pull_request.head.sha }})
           else
             sha=$(echo ${{ github.sha }})
@@ -278,7 +285,7 @@ jobs:
         continue-on-error: true
         uses: slackapi/slack-github-action@b0fa283ad8fea605de13dc3f449259339835fc52  # v2.1.0
         env:
-          PROJECT_NAME: ${{ format('JS SDK Browser Package {0} - {1}', inputs.action_type, inputs.environment) }}
+          PROJECT_NAME: ${{ format('JS SDK Browser Package{0}', (inputs.environment == 'staging' && ' - Staging') || (inputs.environment == 'development' && ' - Development') || (inputs.environment == 'beta' && ' - Beta') || '') }}
           CDN_URL: ${{ format('https://cdn.rudderlabs.com/{0}/modern/rsa.min.js', inputs.s3_dir_path) }}
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js@'
           LINK_TEXT: ${{ (inputs.environment == 'development' && 'Development') || (inputs.environment == 'staging' && format('v{0} - Staging', env.CURRENT_VERSION_VALUE)) || format('v{0}', env.CURRENT_VERSION_VALUE) }}
@@ -293,13 +300,13 @@ jobs:
           payload: |
             {
               "channel": "${{ secrets.SLACK_RELEASE_CHANNEL_ID }}",
-              "text": "*New Release: ${{ env.PROJECT_NAME }} - <${{ env.CDN_URL }}|${{ env.LINK_TEXT }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D> <!subteam^S03SHJ20350>",
+              "text": "*:rocket: Deployment - ${{ env.PROJECT_NAME }} - <${{ env.CDN_URL }}|${{ env.LINK_TEXT }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D> <!subteam^S03SW7DM8P3> <!subteam^S03SHJ20350>",
               "blocks": [
                 {
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "New release: ${{ env.PROJECT_NAME }}"
+                    "text": ":rocket: Deployment - ${{ env.PROJECT_NAME }}"
                   }
                 },
                 {
@@ -322,7 +329,7 @@ jobs:
                   "elements": [
                     {
                       "type": "mrkdwn",
-                      "text": ":rocket: ${{ inputs.environment }} deployment by <${{ env.ACTOR_URL }}|${{ env.ACTOR }}>"
+                      "text": ":boom: ${{ inputs.trigger_source }}"
                     },
                     {
                       "type": "mrkdwn",
@@ -332,6 +339,17 @@ jobs:
                 }
               ]
             }
+
+      - name: Post NPM packages publish notification to release thread
+        continue-on-error: true
+        if: ${{ steps.slack.outcome == 'success' && inputs.monorepo_release_version != '' && inputs.release_ticket_id != '' }}
+        uses: ./.github/actions/release-thread-integration
+        with:
+          monorepo_release_version: ${{ inputs.monorepo_release_version }}
+          release_ticket_id: ${{ inputs.release_ticket_id }}
+          slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
+          deployment_name: 'JS SDK Browser Package'
+          slack_api_response: ${{ steps.slack.outputs.response }}
 
       # All the below steps are for v1.1 SDK (legacy)
       - name: Copy legacy SDK artifacts to S3
