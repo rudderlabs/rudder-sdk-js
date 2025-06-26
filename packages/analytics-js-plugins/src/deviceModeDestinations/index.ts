@@ -9,11 +9,14 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import type { IErrorHandler, SDKError } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
+import type { RSACustomIntegration } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
 import {
   isDestinationSDKMounted,
   initializeDestination,
   applySourceConfigurationOverrides,
-  filterDisabledDestination,
+  filterDisabledDestinations,
+  createCustomIntegrationDestination,
+  validateCustomIntegrationName,
 } from './utils';
 import { DEVICE_MODE_DESTINATIONS_PLUGIN, SCRIPT_LOAD_TIMEOUT_MS } from './constants';
 import { INTEGRATION_NOT_SUPPORTED_ERROR, INTEGRATION_SDK_LOAD_ERROR } from './logMessages';
@@ -30,6 +33,25 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
     state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
   },
   nativeDestinations: {
+    addCustomIntegration(
+      name: string,
+      integration: RSACustomIntegration,
+      state: ApplicationState,
+      logger: ILogger,
+    ): void {
+      if (!validateCustomIntegrationName(name, state, logger)) {
+        return;
+      }
+
+      const destination = createCustomIntegrationDestination(name, integration, state, logger);
+
+      // Add them to the state
+      state.nativeDestinations.activeDestinations.value = [
+        ...state.nativeDestinations.activeDestinations.value,
+        destination,
+      ];
+    },
+
     setActiveDestinations(
       state: ApplicationState,
       pluginsManager: IPluginsManager,
@@ -55,19 +77,19 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
         });
 
       // Apply source configuration overrides if provided
-      const destinationsWithOverrides = state.loadOptions.value.sourceConfigurationOverride
+      const configuredDestinations = state.loadOptions.value.sourceConfigurationOverride
         ? applySourceConfigurationOverrides(
             configSupportedDestinations,
             state.loadOptions.value.sourceConfigurationOverride,
             logger,
           )
-        : filterDisabledDestination(configSupportedDestinations);
+        : filterDisabledDestinations(configSupportedDestinations);
 
       // Filter destinations that are disabled through load or consent API options
       const destinationsToLoad = filterDestinations(
         state.consents.postConsent.value?.integrations ??
           state.nativeDestinations.loadOnlyIntegrations.value,
-        destinationsWithOverrides,
+        configuredDestinations,
       );
 
       const consentedDestinations = destinationsToLoad.filter(
@@ -82,7 +104,11 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
           ) ?? true,
       );
 
-      state.nativeDestinations.activeDestinations.value = consentedDestinations;
+      // Add the distilled destinations to the active destinations list
+      state.nativeDestinations.activeDestinations.value = [
+        ...state.nativeDestinations.activeDestinations.value,
+        ...consentedDestinations,
+      ];
     },
 
     load(

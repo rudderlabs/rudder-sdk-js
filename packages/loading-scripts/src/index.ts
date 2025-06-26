@@ -40,6 +40,7 @@ if (Array.isArray(rudderanalytics)) {
       'startSession',
       'endSession',
       'consent',
+      'addCustomIntegration',
     ];
 
     // eslint-disable-next-line unicorn/no-for-loop
