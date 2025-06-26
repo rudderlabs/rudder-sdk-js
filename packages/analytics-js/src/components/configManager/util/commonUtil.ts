@@ -24,6 +24,8 @@ import { clone } from 'ramda';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { isValidURL, removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utilities/url';
 import { removeLeadingPeriod } from '@rudderstack/analytics-js-common/utilities/string';
+import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
+import { getDestinationUserFriendlyId } from '@rudderstack/analytics-js-common/utilities/destinations';
 import { MODULE_TYPE, APP_VERSION } from '../../../constants/app';
 import { BUILD_TYPE, DEFAULT_CONFIG_BE_URL } from '../../../constants/urls';
 import { state } from '../../../state';
@@ -50,7 +52,6 @@ import {
 } from '../constants';
 import { getDataServiceUrl, isValidStorageType, isWebpageTopLevelDomain } from './validate';
 import { getConsentManagementData } from '../../utilities/consent';
-import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
 
 /**
  * Determines the SDK URL
@@ -405,9 +406,10 @@ const getDestinationsFromConfig = (destinations: ConfigResponseDestinationItem[]
     config: destination.config,
     shouldApplyDeviceModeTransformation: destination.shouldApplyDeviceModeTransformation ?? false,
     propagateEventsUntransformedOnError: destination.propagateEventsUntransformedOnError ?? false,
-    userFriendlyId: `${destination.destinationDefinition.displayName.replaceAll(' ', '-')}___${
-      destination.id
-    }`,
+    userFriendlyId: getDestinationUserFriendlyId(
+      destination.destinationDefinition.displayName,
+      destination.id,
+    ),
   }));
 
 export {
