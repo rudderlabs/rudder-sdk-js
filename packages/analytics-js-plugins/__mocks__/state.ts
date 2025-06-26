@@ -76,6 +76,19 @@ const defaultStateValues: ApplicationState = {
     readyCallbacks: signal([]),
     writeKey: signal(undefined),
     dataPlaneUrl: signal(undefined),
+    safeAnalyticsInstance: signal({
+      track: jest.fn(),
+      page: jest.fn(),
+      identify: jest.fn(),
+      group: jest.fn(),
+      alias: jest.fn(),
+      getAnonymousId: jest.fn(),
+      getUserId: jest.fn(),
+      getUserTraits: jest.fn(),
+      getGroupId: jest.fn(),
+      getGroupTraits: jest.fn(),
+      getSessionId: jest.fn(),
+    }),
   },
   loadOptions: signal({
     logLevel: 'ERROR',
@@ -154,6 +167,7 @@ const defaultStateValues: ApplicationState = {
   source: signal({
     id: 'dummy-source-id',
     workspaceId: 'dummy-workspace-id',
+    name: 'dummy-source-name',
   }),
   storage: {
     encryptionPluginName: signal(undefined),
