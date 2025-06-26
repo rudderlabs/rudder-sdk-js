@@ -6,6 +6,7 @@ import type { Destination } from '@rudderstack/analytics-js-common/types/Destina
 import type { SourceConfigurationOverride } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
 import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
+import type { RSACustomIntegration } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
 import { resetState, state } from '../../__mocks__/state';
 import DeviceModeDestinations from '../../src/deviceModeDestinations';
 import { filterDestinations } from '../../src/shared-chunks/deviceModeDestinations';
@@ -379,6 +380,91 @@ describe('DeviceModeDestinations Plugin', () => {
 
       // Should fallback to loadOnlyIntegrations
       expect(mockFilterDestinations).toHaveBeenCalledWith({ All: true }, expect.any(Array));
+    });
+
+    it('should append configured destinations to active destinations (custom integrations)', () => {
+      state.nativeDestinations.activeDestinations.value = [
+        {
+          id: 'Custom-Integration-1___custom-xyz123',
+          displayName: 'Custom Integration 1',
+          userFriendlyId: 'Custom-Integration-1___custom-xyz123',
+          enabled: true,
+          shouldApplyDeviceModeTransformation: true,
+          propagateEventsUntransformedOnError: false,
+          config: {
+            apiKey: 'key1',
+            blacklistedEvents: [],
+            whitelistedEvents: [],
+            eventFilteringOption: 'disable' as const,
+          },
+        },
+        {
+          id: 'Custom-Integration-2___custom-xyz123',
+          displayName: 'Custom Integration 2',
+          userFriendlyId: 'Custom-Integration-2___custom-xyz123',
+          enabled: true,
+          shouldApplyDeviceModeTransformation: true,
+          propagateEventsUntransformedOnError: false,
+          config: {
+            apiKey: 'key2',
+            blacklistedEvents: [],
+            whitelistedEvents: [],
+            eventFilteringOption: 'disable' as const,
+          },
+        },
+      ];
+
+      plugin.nativeDestinations.setActiveDestinations(
+        mockState,
+        mockPluginsManager,
+        mockErrorHandler,
+        mockLogger,
+      );
+
+      expect(state.nativeDestinations.activeDestinations.value).toEqual([
+        {
+          id: 'Custom-Integration-1___custom-xyz123',
+          displayName: 'Custom Integration 1',
+          userFriendlyId: 'Custom-Integration-1___custom-xyz123',
+          enabled: true,
+          shouldApplyDeviceModeTransformation: true,
+          propagateEventsUntransformedOnError: false,
+          config: {
+            apiKey: 'key1',
+            blacklistedEvents: [],
+            whitelistedEvents: [],
+            eventFilteringOption: 'disable' as const,
+          },
+        },
+        {
+          id: 'Custom-Integration-2___custom-xyz123',
+          displayName: 'Custom Integration 2',
+          userFriendlyId: 'Custom-Integration-2___custom-xyz123',
+          enabled: true,
+          shouldApplyDeviceModeTransformation: true,
+          propagateEventsUntransformedOnError: false,
+          config: {
+            apiKey: 'key2',
+            blacklistedEvents: [],
+            whitelistedEvents: [],
+            eventFilteringOption: 'disable' as const,
+          },
+        },
+        {
+          id: 'dest1',
+          displayName: 'Google Analytics 4 (GA4)',
+          userFriendlyId: 'Google-Analytics-4-(GA4)___dest1',
+          enabled: true,
+          shouldApplyDeviceModeTransformation: true,
+          propagateEventsUntransformedOnError: false,
+          config: {
+            apiKey: 'key1',
+            blacklistedEvents: [],
+            whitelistedEvents: [],
+            eventFilteringOption: 'disable' as const,
+          },
+        },
+      ]);
     });
 
     // disabled destination filtering
@@ -1071,6 +1157,267 @@ describe('DeviceModeDestinations Plugin', () => {
           mockDestinations[0],
         );
       });
+    });
+  });
+
+  describe('addCustomIntegration', () => {
+    const mockCustomIntegration: RSACustomIntegration = {
+      init: jest.fn(),
+      isReady: jest.fn(() => true),
+      track: jest.fn(),
+      page: jest.fn(),
+      identify: jest.fn(),
+      group: jest.fn(),
+      alias: jest.fn(),
+    };
+
+    beforeEach(() => {
+      mockState.nativeDestinations.activeDestinations.value = [];
+      mockState.nativeDestinations.configuredDestinations.value = [];
+      mockState.nativeDestinations.initializedDestinations.value = [];
+    });
+
+    it('should add custom integration to active destinations when validation passes', () => {
+      const integrationName = 'TestCustomIntegration';
+
+      plugin.nativeDestinations.addCustomIntegration(
+        integrationName,
+        mockCustomIntegration,
+        mockState,
+        mockLogger,
+      );
+
+      expect(mockState.nativeDestinations.activeDestinations.value).toHaveLength(1);
+
+      const addedDestination = mockState.nativeDestinations.activeDestinations.value[0]!;
+      expect(addedDestination.displayName).toBe(integrationName);
+      expect(addedDestination.isCustomIntegration).toBe(true);
+      expect(addedDestination.integration).toBeDefined();
+    });
+
+    it('should not add custom integration when validation fails for empty name', () => {
+      plugin.nativeDestinations.addCustomIntegration(
+        '',
+        mockCustomIntegration,
+        mockState,
+        mockLogger,
+      );
+
+      expect(mockState.nativeDestinations.activeDestinations.value).toHaveLength(0);
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'DeviceModeDestinationsPlugin:: Custom integration name must be a non-empty string: "".',
+      );
+    });
+
+    it('should not add custom integration when validation fails for whitespace-only name', () => {
+      plugin.nativeDestinations.addCustomIntegration(
+        '   ',
+        mockCustomIntegration,
+        mockState,
+        mockLogger,
+      );
+
+      expect(mockState.nativeDestinations.activeDestinations.value).toHaveLength(0);
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'DeviceModeDestinationsPlugin:: Custom integration name must be a non-empty string: "   ".',
+      );
+    });
+
+    it('should not add custom integration when name conflicts with configured destination', () => {
+      const conflictingName = 'GA4';
+      mockState.nativeDestinations.configuredDestinations.value = [
+        { displayName: conflictingName } as Destination,
+      ];
+
+      plugin.nativeDestinations.addCustomIntegration(
+        conflictingName,
+        mockCustomIntegration,
+        mockState,
+        mockLogger,
+      );
+
+      expect(mockState.nativeDestinations.activeDestinations.value).toHaveLength(0);
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        `DeviceModeDestinationsPlugin:: An integration with name "${conflictingName}" already exists.`,
+      );
+    });
+
+    it('should not add custom integration when name conflicts with initialized destination', () => {
+      const conflictingName = 'GoogleAnalytics';
+      mockState.nativeDestinations.initializedDestinations.value = [
+        { displayName: conflictingName } as Destination,
+      ];
+
+      plugin.nativeDestinations.addCustomIntegration(
+        conflictingName,
+        mockCustomIntegration,
+        mockState,
+        mockLogger,
+      );
+
+      expect(mockState.nativeDestinations.activeDestinations.value).toHaveLength(0);
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        `DeviceModeDestinationsPlugin:: An integration with name "${conflictingName}" already exists.`,
+      );
+    });
+
+    it('should create destination with correct properties', () => {
+      const integrationName = 'TestIntegration';
+
+      plugin.nativeDestinations.addCustomIntegration(
+        integrationName,
+        mockCustomIntegration,
+        mockState,
+        mockLogger,
+      );
+
+      const destination = mockState.nativeDestinations.activeDestinations.value[0]!;
+
+      expect(destination.displayName).toBe(integrationName);
+      expect(destination.userFriendlyId).toMatch(
+        new RegExp(`^${integrationName.replaceAll(' ', '-')}___custom_`),
+      );
+      expect(destination.shouldApplyDeviceModeTransformation).toBe(false);
+      expect(destination.propagateEventsUntransformedOnError).toBe(false);
+      expect(destination.isCustomIntegration).toBe(true);
+      expect(destination.enabled).toBe(true);
+      expect(destination.config).toEqual({
+        blacklistedEvents: [],
+        whitelistedEvents: [],
+        eventFilteringOption: 'disable',
+        connectionMode: 'device',
+        useNativeSDKToSend: true,
+      });
+    });
+
+    it('should handle custom integration with minimal methods', () => {
+      const minimalIntegration: RSACustomIntegration = {
+        isReady: jest.fn(() => true),
+      };
+
+      plugin.nativeDestinations.addCustomIntegration(
+        'MinimalIntegration',
+        minimalIntegration,
+        mockState,
+        mockLogger,
+      );
+
+      const destination = mockState.nativeDestinations.activeDestinations.value[0]!;
+      expect(destination.integration?.isReady).toBeDefined();
+      expect(destination.integration?.init).toBeUndefined();
+      expect(destination.integration?.track).toBeUndefined();
+    });
+
+    it('should create instance with all provided methods', () => {
+      const integrationName = 'FullIntegration';
+
+      plugin.nativeDestinations.addCustomIntegration(
+        integrationName,
+        mockCustomIntegration,
+        mockState,
+        mockLogger,
+      );
+
+      const destination = mockState.nativeDestinations.activeDestinations.value[0]!;
+      const integration = destination.integration!;
+
+      expect(integration.init).toBeDefined();
+      expect(integration.track).toBeDefined();
+      expect(integration.page).toBeDefined();
+      expect(integration.identify).toBeDefined();
+      expect(integration.group).toBeDefined();
+      expect(integration.alias).toBeDefined();
+      expect(integration.isReady).toBeDefined();
+    });
+
+    it('should sanitize integration name in userFriendlyId', () => {
+      const integrationName = 'Test Integration!@#$%';
+
+      plugin.nativeDestinations.addCustomIntegration(
+        integrationName,
+        mockCustomIntegration,
+        mockState,
+        mockLogger,
+      );
+
+      const destination = mockState.nativeDestinations.activeDestinations.value[0]!;
+      expect(destination.displayName).toBe(integrationName);
+      expect(destination.userFriendlyId).toMatch(/^Test-Integration!@#\$%___custom_/);
+    });
+
+    it('should handle multiple custom integrations', () => {
+      const integration1 = { isReady: jest.fn(() => true) };
+      const integration2 = { isReady: jest.fn(() => true) };
+
+      plugin.nativeDestinations.addCustomIntegration(
+        'CustomIntegration1',
+        integration1,
+        mockState,
+        mockLogger,
+      );
+
+      plugin.nativeDestinations.addCustomIntegration(
+        'CustomIntegration2',
+        integration2,
+        mockState,
+        mockLogger,
+      );
+
+      expect(mockState.nativeDestinations.activeDestinations.value).toHaveLength(2);
+      expect(mockState.nativeDestinations.activeDestinations.value[0]!.displayName).toBe(
+        'CustomIntegration1',
+      );
+      expect(mockState.nativeDestinations.activeDestinations.value[1]!.displayName).toBe(
+        'CustomIntegration2',
+      );
+    });
+
+    it('should preserve existing active destinations when adding custom integration', () => {
+      const existingDestination = mockDestinations[0]!;
+      mockState.nativeDestinations.activeDestinations.value = [existingDestination];
+
+      plugin.nativeDestinations.addCustomIntegration(
+        'NewCustomIntegration',
+        mockCustomIntegration,
+        mockState,
+        mockLogger,
+      );
+
+      expect(mockState.nativeDestinations.activeDestinations.value).toHaveLength(2);
+      expect(mockState.nativeDestinations.activeDestinations.value[0]!).toBe(existingDestination);
+      expect(mockState.nativeDestinations.activeDestinations.value[1]!.displayName).toBe(
+        'NewCustomIntegration',
+      );
+    });
+
+    it('should handle null state values gracefully', () => {
+      mockState.nativeDestinations.configuredDestinations.value = null as any;
+      mockState.nativeDestinations.initializedDestinations.value = null as any;
+
+      plugin.nativeDestinations.addCustomIntegration(
+        'TestIntegration',
+        mockCustomIntegration,
+        mockState,
+        mockLogger,
+      );
+
+      expect(mockState.nativeDestinations.activeDestinations.value).toHaveLength(1);
+      expect(mockLogger.error).not.toHaveBeenCalled();
+    });
+
+    it('should handle undefined state values gracefully', () => {
+      mockState.nativeDestinations.configuredDestinations.value = undefined as any;
+      mockState.nativeDestinations.initializedDestinations.value = undefined as any;
+
+      plugin.nativeDestinations.addCustomIntegration(
+        'TestIntegration',
+        mockCustomIntegration,
+        mockState,
+        mockLogger,
+      );
+
+      expect(mockState.nativeDestinations.activeDestinations.value).toHaveLength(1);
+      expect(mockLogger.error).not.toHaveBeenCalled();
     });
   });
 });
