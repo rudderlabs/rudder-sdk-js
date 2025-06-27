@@ -6,7 +6,6 @@ export default [
   {
     name: 'Load Snippet',
     path: 'dist/loading-script.min.js',
-    import: '*',
     limit: '1 KiB',
   },
 ];
