@@ -1336,6 +1336,26 @@ describe('DeviceModeDestinations Plugin', () => {
       );
     });
 
+    it('should not add custom integration when it is not in the expected format', () => {
+      const integrationName = 'TestIntegration';
+
+      const mockIntegration = {
+        track: jest.fn(),
+      };
+
+      plugin.nativeDestinations.addCustomIntegration(
+        integrationName,
+        mockIntegration,
+        mockState,
+        mockLogger,
+      );
+
+      expect(mockState.nativeDestinations.activeDestinations.value).toHaveLength(0);
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        `DeviceModeDestinationsPlugin:: The custom integration "${integrationName}" does not match the expected format.`,
+      );
+    });
+
     it('should create destination with correct properties', () => {
       const integrationName = 'TestIntegration';
 
