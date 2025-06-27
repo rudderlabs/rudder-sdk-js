@@ -31,6 +31,7 @@ import {
   trackArgumentsToCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
 import { BufferQueue } from '@rudderstack/analytics-js-common/services/BufferQueue/BufferQueue';
+import type { RSACustomIntegration } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
 import { POST_LOAD_LOG_LEVEL, defaultLogger } from '../../services/Logger';
 import { defaultErrorHandler } from '../../services/ErrorHandler';
 import { defaultPluginEngine } from '../../services/PluginEngine';
@@ -59,6 +60,7 @@ import {
   CONSENT_TRACK_EVENT_NAME,
 } from '../../constants/app';
 import {
+  CUSTOM_INTEGRATION_CANNOT_BE_ADDED_ERROR,
   DATA_PLANE_URL_VALIDATION_ERROR,
   INVALID_CALLBACK_FN_ERROR,
   WRITE_KEY_VALIDATION_ERROR,
@@ -825,6 +827,41 @@ class Analytics implements IAnalytics {
 
   setAuthToken(token: string): void {
     this.userSessionManager?.setAuthToken(token);
+  }
+
+  /**
+   * Add a custom integration to the SDK.
+   * @param name - The name of the custom integration.
+   * @param integration - The custom integration object.
+   * @param isBufferedInvocation - Whether the invocation is buffered.
+   */
+  addCustomIntegration(
+    name: string,
+    integration: RSACustomIntegration,
+    isBufferedInvocation = false,
+  ): void {
+    const type = 'addCustomIntegration';
+    if (isBufferedInvocation) {
+      this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
+
+      this.pluginsManager?.invokeSingle(
+        'nativeDestinations.addCustomIntegration',
+        name,
+        integration,
+        state,
+        this.logger,
+      );
+    } else {
+      if (state.lifecycle.loaded.value) {
+        this.logger.error(CUSTOM_INTEGRATION_CANNOT_BE_ADDED_ERROR(ANALYTICS_CORE, name));
+        return;
+      }
+
+      state.eventBuffer.toBeProcessedArray.value = [
+        ...state.eventBuffer.toBeProcessedArray.value,
+        [type, name, integration],
+      ];
+    }
   }
   // End consumer exposed methods
 }
