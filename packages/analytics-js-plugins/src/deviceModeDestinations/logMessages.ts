@@ -24,6 +24,9 @@ const CUSTOM_INTEGRATION_INVALID_NAME_ERROR = (context: string, name: string): s
 const CUSTOM_INTEGRATION_ALREADY_EXISTS_ERROR = (context: string, name: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}An integration with name "${name}" already exists.`;
 
+const INVALID_CUSTOM_INTEGRATION_ERROR = (context: string, name: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The custom integration "${name}" does not match the expected format.`;
+
 export {
   INTEGRATION_NOT_SUPPORTED_ERROR,
   INTEGRATION_SDK_LOAD_ERROR,
@@ -33,4 +36,5 @@ export {
   INTEGRATION_READY_CHECK_ERROR,
   CUSTOM_INTEGRATION_INVALID_NAME_ERROR,
   CUSTOM_INTEGRATION_ALREADY_EXISTS_ERROR,
+  INVALID_CUSTOM_INTEGRATION_ERROR,
 };
