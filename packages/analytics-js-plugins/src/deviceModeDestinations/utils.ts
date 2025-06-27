@@ -23,6 +23,8 @@ import type {
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import {
   isBoolean,
+  isDefined,
+  isNullOrUndefined,
   isString,
   isUndefined,
 } from '@rudderstack/analytics-js-common/utilities/checks';
@@ -41,6 +43,7 @@ import {
   INTEGRATION_READY_CHECK_ERROR,
   CUSTOM_INTEGRATION_INVALID_NAME_ERROR,
   CUSTOM_INTEGRATION_ALREADY_EXISTS_ERROR,
+  INVALID_CUSTOM_INTEGRATION_ERROR,
 } from './logMessages';
 import { isHybridModeDestination } from '../shared-chunks/deviceModeDestinations';
 import { getSanitizedValue, isFunction } from '../shared-chunks/common';
@@ -339,12 +342,14 @@ const applyOverrideToDestination = (
 /**
  * Validates if a custom integration name is unique and not conflicting with existing destinations
  * @param name - The integration name to validate
+ * @param integration - The custom integration instance
  * @param state - Application state
  * @param logger - Logger instance
  * @returns boolean indicating if the name is valid
  */
-const validateCustomIntegrationName = (
+const validateCustomIntegration = (
   name: string,
+  integration: RSACustomIntegration,
   state: ApplicationState,
   logger: ILogger,
 ): boolean => {
@@ -362,6 +367,21 @@ const validateCustomIntegrationName = (
     initializedDestinations.some(dest => dest.displayName === name)
   ) {
     logger.error(CUSTOM_INTEGRATION_ALREADY_EXISTS_ERROR(DEVICE_MODE_DESTINATIONS_PLUGIN, name));
+    return false;
+  }
+
+  // Check if the integration is correctly implemented
+  if (
+    isNullOrUndefined(integration) ||
+    !isFunction(integration.isReady) ||
+    (isDefined(integration.init) && !isFunction(integration.init)) ||
+    (isDefined(integration.track) && !isFunction(integration.track)) ||
+    (isDefined(integration.page) && !isFunction(integration.page)) ||
+    (isDefined(integration.identify) && !isFunction(integration.identify)) ||
+    (isDefined(integration.group) && !isFunction(integration.group)) ||
+    (isDefined(integration.alias) && !isFunction(integration.alias))
+  ) {
+    logger.error(INVALID_CUSTOM_INTEGRATION_ERROR(DEVICE_MODE_DESTINATIONS_PLUGIN, name));
     return false;
   }
 
@@ -454,6 +474,6 @@ export {
   applySourceConfigurationOverrides,
   applyOverrideToDestination,
   filterDisabledDestinations,
-  validateCustomIntegrationName,
+  validateCustomIntegration,
   createCustomIntegrationDestination,
 };
