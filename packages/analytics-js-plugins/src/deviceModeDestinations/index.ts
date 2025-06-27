@@ -16,7 +16,7 @@ import {
   applySourceConfigurationOverrides,
   filterDisabledDestinations,
   createCustomIntegrationDestination,
-  validateCustomIntegrationName,
+  validateCustomIntegration,
 } from './utils';
 import { DEVICE_MODE_DESTINATIONS_PLUGIN, SCRIPT_LOAD_TIMEOUT_MS } from './constants';
 import { INTEGRATION_NOT_SUPPORTED_ERROR, INTEGRATION_SDK_LOAD_ERROR } from './logMessages';
@@ -39,7 +39,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
       state: ApplicationState,
       logger: ILogger,
     ): void {
-      if (!validateCustomIntegrationName(name, state, logger)) {
+      if (!validateCustomIntegration(name, integration, state, logger)) {
         return;
       }
 
