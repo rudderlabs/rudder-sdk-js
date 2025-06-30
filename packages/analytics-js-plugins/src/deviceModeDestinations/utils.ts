@@ -45,7 +45,10 @@ import {
   CUSTOM_INTEGRATION_ALREADY_EXISTS_ERROR,
   INVALID_CUSTOM_INTEGRATION_ERROR,
 } from './logMessages';
-import { isHybridModeDestination } from '../shared-chunks/deviceModeDestinations';
+import {
+  destDisplayNamesToFileNamesMap,
+  isHybridModeDestination,
+} from '../shared-chunks/deviceModeDestinations';
 import { getSanitizedValue, isFunction } from '../shared-chunks/common';
 import { INTEGRATIONS_ERROR_CATEGORY } from '../utilities/constants';
 
@@ -359,12 +362,11 @@ const validateCustomIntegration = (
   }
 
   // Check against existing configured destinations
-  const configuredDestinations = state.nativeDestinations.configuredDestinations.value || [];
-  const initializedDestinations = state.nativeDestinations.initializedDestinations.value || [];
+  const activeDestinations = state.nativeDestinations.activeDestinations.value || [];
 
   if (
-    configuredDestinations.some(dest => dest.displayName === name) ||
-    initializedDestinations.some(dest => dest.displayName === name)
+    isDefined(destDisplayNamesToFileNamesMap[name]) ||
+    activeDestinations.some(dest => dest.displayName === name)
   ) {
     logger.error(CUSTOM_INTEGRATION_ALREADY_EXISTS_ERROR(DEVICE_MODE_DESTINATIONS_PLUGIN, name));
     return false;

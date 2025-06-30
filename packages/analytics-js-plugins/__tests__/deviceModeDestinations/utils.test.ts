@@ -1142,6 +1142,7 @@ describe('deviceModeDestinations utils', () => {
       expect(result).toEqual([]);
     });
   });
+
   describe('getCumulativeIntegrationsConfig', () => {
     it('should return the cumulative integrations config', () => {
       const destination = {
@@ -1797,15 +1798,31 @@ describe('deviceModeDestinations utils', () => {
     });
 
     describe('name conflict validation', () => {
-      it('should return false when name conflicts with configured destination', () => {
-        const conflictingName = 'ExistingDestination';
+      it('should return false when name conflicts with supported destinations', () => {
+        const conflictingName = 'Google Analytics 4 (GA4)';
 
-        // Mock existing configured destination
-        state.nativeDestinations.configuredDestinations.value = [
+        const result = validateCustomIntegration(
+          conflictingName,
+          mockValidIntegration,
+          state,
+          defaultLogger,
+        );
+
+        expect(result).toBe(false);
+        expect(defaultLogger.error).toHaveBeenCalledWith(
+          'DeviceModeDestinationsPlugin:: An integration with name "Google Analytics 4 (GA4)" already exists.',
+        );
+      });
+
+      it('should return false when name conflicts with active destination', () => {
+        const conflictingName = 'Custom Integration 1';
+
+        // Mock existing active destination (not initialized)
+        state.nativeDestinations.activeDestinations.value = [
           {
-            displayName: 'ExistingDestination',
-            id: 'existing_123',
-            userFriendlyId: 'existing_123',
+            displayName: 'Custom Integration 1',
+            id: 'custom_integration_1',
+            userFriendlyId: 'custom_integration_1',
             enabled: true,
           } as any,
         ];
@@ -1819,48 +1836,18 @@ describe('deviceModeDestinations utils', () => {
 
         expect(result).toBe(false);
         expect(defaultLogger.error).toHaveBeenCalledWith(
-          'DeviceModeDestinationsPlugin:: An integration with name "ExistingDestination" already exists.',
+          'DeviceModeDestinationsPlugin:: An integration with name "Custom Integration 1" already exists.',
         );
       });
 
-      it('should return false when name conflicts with initialized destination', () => {
-        const conflictingName = 'InitializedDestination';
-
-        // Mock existing initialized destination
-        state.nativeDestinations.initializedDestinations.value = [
-          {
-            displayName: 'InitializedDestination',
-            id: 'initialized_123',
-            userFriendlyId: 'initialized_123',
-            enabled: true,
-          } as any,
-        ];
-
-        const result = validateCustomIntegration(
-          conflictingName,
-          mockValidIntegration,
-          state,
-          defaultLogger,
-        );
-
-        expect(result).toBe(false);
-        expect(defaultLogger.error).toHaveBeenCalledWith(
-          'DeviceModeDestinationsPlugin:: An integration with name "InitializedDestination" already exists.',
-        );
-      });
-
-      it('should return true when name does not conflict with existing destinations', () => {
+      it('should return true when name does not conflict with any destinations', () => {
         const uniqueName = 'UniqueCustomIntegration';
 
-        // Mock existing destinations with different names
-        state.nativeDestinations.configuredDestinations.value = [
-          { displayName: 'GA4', id: 'ga4_123', userFriendlyId: 'ga4_123', enabled: true } as any,
-        ];
-        state.nativeDestinations.initializedDestinations.value = [
+        state.nativeDestinations.activeDestinations.value = [
           {
-            displayName: 'Amplitude',
-            id: 'amp_123',
-            userFriendlyId: 'amp_123',
+            displayName: 'Custom Integration 1',
+            id: 'custom_integration_1',
+            userFriendlyId: 'custom_integration_1',
             enabled: true,
           } as any,
         ];
@@ -1880,8 +1867,7 @@ describe('deviceModeDestinations utils', () => {
         const validName = 'CustomIntegration';
 
         // Ensure arrays are empty
-        state.nativeDestinations.configuredDestinations.value = [];
-        state.nativeDestinations.initializedDestinations.value = [];
+        state.nativeDestinations.activeDestinations.value = [];
 
         const result = validateCustomIntegration(
           validName,
@@ -1898,8 +1884,7 @@ describe('deviceModeDestinations utils', () => {
         const validName = 'CustomIntegration';
 
         // Set arrays to null
-        state.nativeDestinations.configuredDestinations.value = null as any;
-        state.nativeDestinations.initializedDestinations.value = null as any;
+        state.nativeDestinations.activeDestinations.value = null as any;
 
         const result = validateCustomIntegration(
           validName,
@@ -1908,6 +1893,77 @@ describe('deviceModeDestinations utils', () => {
           defaultLogger,
         );
 
+        expect(result).toBe(true);
+        expect(defaultLogger.error).not.toHaveBeenCalled();
+      });
+
+      it('should handle case sensitivity in name conflicts', () => {
+        const conflictingName = 'custom integration 1';
+
+        // Mock existing destination with different case
+        state.nativeDestinations.activeDestinations.value = [
+          {
+            displayName: 'Custom Integration 1',
+            id: 'custom_integration_1',
+            userFriendlyId: 'custom_integration_1',
+            enabled: true,
+          } as any,
+        ];
+
+        const result = validateCustomIntegration(
+          conflictingName,
+          mockValidIntegration,
+          state,
+          defaultLogger,
+        );
+
+        // Should pass since JavaScript string comparison is case-sensitive
+        expect(result).toBe(true);
+        expect(defaultLogger.error).not.toHaveBeenCalled();
+      });
+
+      it('should return false when name conflicts with additional supported destinations', () => {
+        // Test with more built-in destination names to ensure comprehensive coverage
+        const additionalTestCases = [
+          'HubSpot',
+          'Hotjar',
+          'Facebook Pixel',
+          'Intercom',
+          'Mixpanel',
+          'PostHog',
+        ];
+
+        additionalTestCases.forEach(destinationName => {
+          jest.clearAllMocks();
+
+          const result = validateCustomIntegration(
+            destinationName,
+            mockValidIntegration,
+            state,
+            defaultLogger,
+          );
+
+          expect(result).toBe(false);
+          expect(defaultLogger.error).toHaveBeenCalledWith(
+            `DeviceModeDestinationsPlugin:: An integration with name "${destinationName}" already exists.`,
+          );
+        });
+      });
+
+      it('should be case-sensitive when checking built-in destination names', () => {
+        const modifiedName = 'google analytics 4 (ga4)'; // lowercase version
+
+        // Ensure no existing destinations
+        state.nativeDestinations.activeDestinations.value = [];
+
+        const result = validateCustomIntegration(
+          modifiedName,
+          mockValidIntegration,
+          state,
+          defaultLogger,
+        );
+
+        // Should pass since the exact case doesn't match the built-in destination
         expect(result).toBe(true);
         expect(defaultLogger.error).not.toHaveBeenCalled();
       });
