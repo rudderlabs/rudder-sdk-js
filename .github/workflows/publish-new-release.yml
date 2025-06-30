@@ -205,7 +205,7 @@ jobs:
           PROJECT_NAME: 'JS SDK Monorepo'
           TAG_COMPARE_URL: 'https://github.com/rudderlabs/rudder-sdk-js/compare/'
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/'
-          GITHUB_RUN_URL: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
+          GITHUB_RUN_URL: ${{ format('{0}/{1}/actions/runs/{2}/jobs/{3}', github.server_url, github.repository, github.run_id, github.job) }}
           ACTOR_URL: ${{ format('{0}/{1}', github.server_url, github.actor) }}
           ACTOR: ${{ github.actor }}
         with:
@@ -265,7 +265,6 @@ jobs:
     name: Publish packages to NPM
     uses: ./.github/workflows/deploy-npm.yml
     with:
-      is_called: 'true'
       trigger_source: ${{ needs.get-release-inputs.outputs.trigger_source }}
       monorepo_release_version: ${{ needs.get-release-inputs.outputs.release_version }}
       release_ticket_id: ${{ needs.get-release-inputs.outputs.release_ticket_id }}

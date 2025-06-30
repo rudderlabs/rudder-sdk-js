@@ -4,9 +4,6 @@ on:
   workflow_dispatch:
   workflow_call:
     inputs:
-      is_called:
-        type: string
-        required: true
       base_version:
         type: string
         required: false
@@ -62,7 +59,7 @@ jobs:
     name: Deploy to NPM
     # As we publish the NPM package with provenance, we must use GitHub-hosted runners
     runs-on: ubuntu-latest
-    if: ${{ inputs.is_called == 'true' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/tags/v')) }}
+    if: ${{ github.workflow_ref != '' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/tags/v')) }}
 
     steps:
       - name: Checkout
@@ -226,7 +223,7 @@ jobs:
           PROJECT_NAME: ${{ format('JS SDK NPM Package{0}', (inputs.environment == 'staging' && ' - Staging') || (inputs.environment == 'development' && ' - Development') || (inputs.environment == 'beta' && ' - Beta') || '') }}
           NPM_PACKAGE_URL: 'https://www.npmjs.com/package/@rudderstack/analytics-js'
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js@'
-          GITHUB_RUN_URL: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
+          GITHUB_RUN_URL: ${{ format('{0}/{1}/actions/runs/{2}/jobs/{3}', github.server_url, github.repository, github.run_id, github.job) }}
           ACTOR_URL: ${{ format('{0}/{1}', github.server_url, github.actor) }}
           ACTOR: ${{ github.actor }}
         with:
@@ -266,7 +263,7 @@ jobs:
                   "elements": [
                     {
                       "type": "mrkdwn",
-                      "text": ":package: ${{ (github.event_name == 'workflow_dispatch' && format('Published by <{0}|{1}>', env.ACTOR_URL, env.ACTOR)) || (inputs.trigger_source && inputs.trigger_source) }}"
+                      "text": ":package: ${{ inputs.trigger_source || format('Published by <{0}|{1}>', env.ACTOR_URL, env.ACTOR) }}"
                     },
                     {
                       "type": "mrkdwn",
@@ -297,7 +294,7 @@ jobs:
           PROJECT_NAME: ${{ format('JS SDK Service Worker NPM Package{0}', (inputs.environment == 'staging' && ' - Staging') || (inputs.environment == 'development' && ' - Development') || (inputs.environment == 'beta' && ' - Beta') || '') }}
           NPM_PACKAGE_URL: 'https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker'
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js-service-worker@'
-          GITHUB_RUN_URL: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
+          GITHUB_RUN_URL: ${{ format('{0}/{1}/actions/runs/{2}/jobs/{3}', github.server_url, github.repository, github.run_id, github.job) }}
           ACTOR_URL: ${{ format('{0}/{1}', github.server_url, github.actor) }}
           ACTOR: ${{ github.actor }}
         with:
@@ -337,7 +334,7 @@ jobs:
                   "elements": [
                     {
                       "type": "mrkdwn",
-                      "text": ":package: ${{ (github.event_name == 'workflow_dispatch' && format('Published by <{0}|{1}>', env.ACTOR_URL, env.ACTOR)) || (inputs.trigger_source && inputs.trigger_source) }}"
+                      "text": ":package: ${{ inputs.trigger_source || format('Published by <{0}|{1}>', env.ACTOR_URL, env.ACTOR) }}"
                     },
                     {
                       "type": "mrkdwn",
@@ -357,7 +354,7 @@ jobs:
           PROJECT_NAME: ${{ format('JS SDK Cookies Utilities{0}', (inputs.environment == 'staging' && ' - Staging') || (inputs.environment == 'development' && ' - Development') || (inputs.environment == 'beta' && ' - Beta') || '') }}
           NPM_PACKAGE_URL: 'https://www.npmjs.com/package/@rudderstack/analytics-js-cookies'
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js-cookies@'
-          GITHUB_RUN_URL: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
+          GITHUB_RUN_URL: ${{ format('{0}/{1}/actions/runs/{2}/jobs/{3}', github.server_url, github.repository, github.run_id, github.job) }}
           ACTOR_URL: ${{ format('{0}/{1}', github.server_url, github.actor) }}
           ACTOR: ${{ github.actor }}
         with:
@@ -397,7 +394,7 @@ jobs:
                   "elements": [
                     {
                       "type": "mrkdwn",
-                      "text": ":package: ${{ (github.event_name == 'workflow_dispatch' && format('Published by <{0}|{1}>', env.ACTOR_URL, env.ACTOR)) || (inputs.trigger_source && inputs.trigger_source) }}"
+                      "text": ":package: ${{ inputs.trigger_source || format('Published by <{0}|{1}>', env.ACTOR_URL, env.ACTOR) }}"
                     },
                     {
                       "type": "mrkdwn",
