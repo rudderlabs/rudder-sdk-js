@@ -22,6 +22,7 @@ jest.mock('../../src/shared-chunks/deviceModeDestinations', () => ({
     'Google Analytics 4 (GA4)': 'GA4',
     'Google Analytics': 'GoogleAnalytics',
     Amplitude: 'Amplitude',
+    VWO: 'VWO',
   },
   filterDestinations: jest.fn((integrations, destinations) => destinations),
   isHybridModeDestination: jest.fn(() => false),
@@ -1248,8 +1249,6 @@ describe('DeviceModeDestinations Plugin', () => {
 
     beforeEach(() => {
       mockState.nativeDestinations.activeDestinations.value = [];
-      mockState.nativeDestinations.configuredDestinations.value = [];
-      mockState.nativeDestinations.initializedDestinations.value = [];
     });
 
     it('should add custom integration to active destinations when validation passes', () => {
@@ -1298,11 +1297,8 @@ describe('DeviceModeDestinations Plugin', () => {
       );
     });
 
-    it('should not add custom integration when name conflicts with configured destination', () => {
-      const conflictingName = 'GA4';
-      mockState.nativeDestinations.configuredDestinations.value = [
-        { displayName: conflictingName } as Destination,
-      ];
+    it('should not add custom integration when name conflicts with supported destination', () => {
+      const conflictingName = 'VWO';
 
       plugin.nativeDestinations.addCustomIntegration(
         conflictingName,
@@ -1317,9 +1313,9 @@ describe('DeviceModeDestinations Plugin', () => {
       );
     });
 
-    it('should not add custom integration when name conflicts with initialized destination', () => {
-      const conflictingName = 'GoogleAnalytics';
-      mockState.nativeDestinations.initializedDestinations.value = [
+    it('should not add custom integration when name conflicts with already added custom destination', () => {
+      const conflictingName = 'Custom Integration 1';
+      mockState.nativeDestinations.activeDestinations.value = [
         { displayName: conflictingName } as Destination,
       ];
 
@@ -1330,7 +1326,9 @@ describe('DeviceModeDestinations Plugin', () => {
         mockLogger,
       );
 
-      expect(mockState.nativeDestinations.activeDestinations.value).toHaveLength(0);
+      expect(mockState.nativeDestinations.activeDestinations.value).toEqual([
+        { displayName: conflictingName } as Destination,
+      ]);
       expect(mockLogger.error).toHaveBeenCalledWith(
         `DeviceModeDestinationsPlugin:: An integration with name "${conflictingName}" already exists.`,
       );
