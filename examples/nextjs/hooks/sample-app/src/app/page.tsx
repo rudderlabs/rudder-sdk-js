@@ -7,43 +7,6 @@ import useRudderStackAnalytics from './useRudderAnalytics';
 export default function Home() {
   const analytics = useRudderStackAnalytics();
 
-  analytics?.addCustomIntegration('Custom Integration 1', {
-    init: (analytics, logger) => {
-      logger.debug('"init" called');
-    },
-    isReady: (analytics, logger) => {
-      logger.debug('"isReady" called');
-
-      // Return true when the 3rd party SDK is ready to accept events
-      return true;
-    },
-    page: (analytics, logger, rsEvent) => {
-      logger.debug('"page" called', rsEvent);
-
-      // Transform the data from rsEvent to the format expected by the 3rd party SDK
-    },
-    track: (analytics, logger, rsEvent) => {
-      logger.debug('"track" called', rsEvent);
-
-      // Transform the data from rsEvent to the format expected by the 3rd party SDK
-    },
-    identify: (analytics, logger, rsEvent) => {
-      logger.debug('"identify" called', rsEvent);
-
-      // Transform the data from rsEvent to the format expected by the 3rd party SDK
-    },
-    alias: (analytics, logger, rsEvent) => {
-      logger.debug('"alias" called', rsEvent);
-
-      // Transform the data from rsEvent to the format expected by the 3rd party SDK
-    },
-    group: (analytics, logger, rsEvent) => {
-      logger.debug('"group" called', rsEvent);
-
-      // Transform the data from rsEvent to the format expected by the 3rd party SDK
-    },
-  });
-
   const page = () => {
     analytics?.page(
       'Cart',
@@ -110,6 +73,43 @@ export default function Home() {
     // It is first available as an array and then as an object when the SDK is instantiated.
     // So, enqueue the event as early as possible.
     if (analytics && Array.isArray(analytics)) {
+      analytics?.addCustomIntegration('Custom Integration 1', {
+        init: (analytics, logger) => {
+          logger.debug('"init" called');
+        },
+        isReady: (analytics, logger) => {
+          logger.debug('"isReady" called');
+    
+          // Return true when the 3rd party SDK is ready to accept events
+          return true;
+        },
+        page: (analytics, logger, rsEvent) => {
+          logger.debug('"page" called', rsEvent);
+    
+          // Transform the data from rsEvent to the format expected by the 3rd party SDK
+        },
+        track: (analytics, logger, rsEvent) => {
+          logger.debug('"track" called', rsEvent);
+    
+          // Transform the data from rsEvent to the format expected by the 3rd party SDK
+        },
+        identify: (analytics, logger, rsEvent) => {
+          logger.debug('"identify" called', rsEvent);
+    
+          // Transform the data from rsEvent to the format expected by the 3rd party SDK
+        },
+        alias: (analytics, logger, rsEvent) => {
+          logger.debug('"alias" called', rsEvent);
+    
+          // Transform the data from rsEvent to the format expected by the 3rd party SDK
+        },
+        group: (analytics, logger, rsEvent) => {
+          logger.debug('"group" called', rsEvent);
+    
+          // Transform the data from rsEvent to the format expected by the 3rd party SDK
+        },
+      });
+
       analytics.page('Auto track');
     }
   }, [analytics]);
