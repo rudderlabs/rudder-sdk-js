@@ -149,7 +149,7 @@
     "commitlint": "19.8.1",
     "core-js": "3.43.0",
     "cross-env": "7.0.3",
-    "dotenv": "16.5.0",
+    "dotenv": "17.0.0",
     "each": "2.7.2",
     "eslint": "9.30.0",
     "eslint-config-prettier": "10.1.5",
