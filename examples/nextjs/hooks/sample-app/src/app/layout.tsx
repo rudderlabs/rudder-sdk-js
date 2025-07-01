@@ -37,7 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   var sdkVersion = "v3";
                   var sdkFileName = "rsa.min.js";
                   var scriptLoadingMode = "async";
-                  var methods = [ "setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "setAnonymousId", "startSession", "endSession", "consent" ];
+                  var methods = [ "setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "setAnonymousId", "startSession", "endSession", "consent", "addCustomIntegration" ];
                   for (var i = 0; i < methods.length; i++) {
                     var method = methods[i];
                     rudderanalytics[method] = function(methodName) {

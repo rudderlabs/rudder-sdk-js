@@ -11,7 +11,7 @@
     "setup": "npm install"
   },
   "dependencies": {
-    "@rudderstack/analytics-js": "*",
+    "@rudderstack/analytics-js": "3.21.0-beta.pr.2309.bb541e7",
     "next": "15.2.4",
     "react": "19.1.0",
     "react-dom": "19.1.0"
