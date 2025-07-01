@@ -653,8 +653,8 @@
                     if (status === 'failed') hasFailures = true;
                 } else {
                     // Mark incomplete as timeout
-                    suiteResults[i].status = 'cors-blocked';
-                    updateIndividualResult(i, 'cors-blocked', '⏰ Timeout');
+                    suiteResults[i].status = 'timeout';
+                    updateIndividualResult(i, 'timeout', '⏰ Timeout');
                 }
             }
             
