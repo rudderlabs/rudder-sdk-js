@@ -17,7 +17,7 @@ export default function RootLayout({ children }) {
           {`
             (function() {
               "use strict";
-              window.RudderSnippetVersion = "3.0.60";
+              window.RudderSnippetVersion = "3.1.0";
               var identifier = "rudderanalytics";
               if (!window[identifier]) {
                 window[identifier] = [];
@@ -33,7 +33,7 @@ export default function RootLayout({ children }) {
                   var sdkVersion = "v3";
                   var sdkFileName = "rsa.min.js";
                   var scriptLoadingMode = "async";
-                  var methods = [ "setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "setAnonymousId", "startSession", "endSession", "consent" ];
+                  var methods = [ "setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "setAnonymousId", "startSession", "endSession", "consent", "addCustomIntegration" ];
                   for (var i = 0; i < methods.length; i++) {
                     var method = methods[i];
                     rudderanalytics[method] = function(methodName) {
