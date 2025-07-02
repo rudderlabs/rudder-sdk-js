@@ -15,16 +15,15 @@ import {
 } from '../../../constants/storage';
 import { STORAGE_UNAVAILABILITY_ERROR_PREFIX } from '../../../constants/logMessages';
 
-const isStorageQuotaExceeded = (e: any): boolean => {
-  const matchingNames = ['QuotaExceededError', 'NS_ERROR_DOM_QUOTA_REACHED']; // [everything except Firefox, Firefox]
-  const matchingCodes = [22, 1014]; // [everything except Firefox, Firefox]
-  try {
-    const isQuotaExceededError = matchingNames.includes(e.name) || matchingCodes.includes(e.code);
+const isStorageQuotaExceeded = (e: unknown): boolean => {
+  const matchingNames = ['QuotaExceededError', 'NS_ERROR_DOM_QUOTA_REACHED'];
+  // Everything except Firefox, Firefox
+  const matchingCodes = [22, 1014];
 
-    return e instanceof DOMException && isQuotaExceededError;
-  } catch {
-    return false;
+  if (e instanceof DOMException) {
+    return matchingNames.includes(e.name) || matchingCodes.includes(e.code);
   }
+  return false;
 };
 
 // TODO: also check for SecurityErrors

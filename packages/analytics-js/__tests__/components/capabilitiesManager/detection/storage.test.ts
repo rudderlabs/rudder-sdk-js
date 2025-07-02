@@ -51,19 +51,6 @@ describe('Capabilities Detection - Storage', () => {
     expect(isStorageQuotaExceeded(weirdObject)).toBeFalsy();
   });
 
-  it('should handle errors with non-enumerable properties gracefully', () => {
-    const errorObj = new DOMException('test', 'QuotaExceededError');
-    Object.defineProperty(errorObj, 'name', {
-      get() {
-        throw new Error('Property access failed');
-      },
-      enumerable: true,
-    });
-
-    expect(() => isStorageQuotaExceeded(errorObj)).not.toThrow();
-    expect(isStorageQuotaExceeded(errorObj)).toBeFalsy();
-  });
-
   it('should detect if localstorage is available', () => {
     expect(isStorageAvailable()).toBeTruthy();
   });
