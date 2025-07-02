@@ -1,4 +1,4 @@
-import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
 import {
   isStorageQuotaExceeded,
   isStorageAvailable,
@@ -11,11 +11,46 @@ describe('Capabilities Detection - Storage', () => {
       isStorageQuotaExceeded(new DOMException('StorageQuotaExceeded', 'QuotaExceededError')),
     ).toBeTruthy();
   });
+
+  it('should detect Firefox storage quota exceeded errors', () => {
+    const firefoxError = new DOMException('StorageQuotaExceeded', 'NS_ERROR_DOM_QUOTA_REACHED');
+    // Mock the code property since it's read-only
+    Object.defineProperty(firefoxError, 'code', { value: 1014, writable: false });
+    expect(isStorageQuotaExceeded(firefoxError)).toBeTruthy();
+  });
+
+  it('should detect quota exceeded errors by error code', () => {
+    const errorWithCode = new DOMException('Some message', 'SomeError');
+    // Mock the code property since it's read-only
+    Object.defineProperty(errorWithCode, 'code', { value: 22, writable: false });
+    expect(isStorageQuotaExceeded(errorWithCode)).toBeTruthy();
+  });
+
   it('should not detect localstorage size limit errors for not listed error names', () => {
     expect(
       isStorageQuotaExceeded(new DOMException('StorageQuotaExceeded', 'RandomError')),
     ).toBeFalsy();
   });
+
+  it('should handle non-DOMException errors gracefully', () => {
+    const regularError = new Error('Regular error');
+    expect(() => isStorageQuotaExceeded(regularError)).not.toThrow();
+    expect(isStorageQuotaExceeded(regularError)).toBeFalsy();
+  });
+
+  it('should handle null and undefined inputs gracefully', () => {
+    expect(() => isStorageQuotaExceeded(null)).not.toThrow();
+    expect(() => isStorageQuotaExceeded(undefined)).not.toThrow();
+    expect(isStorageQuotaExceeded(null)).toBeFalsy();
+    expect(isStorageQuotaExceeded(undefined)).toBeFalsy();
+  });
+
+  it('should handle objects without name or code properties gracefully', () => {
+    const weirdObject = { message: 'weird object' };
+    expect(() => isStorageQuotaExceeded(weirdObject)).not.toThrow();
+    expect(isStorageQuotaExceeded(weirdObject)).toBeFalsy();
+  });
+
   it('should detect if localstorage is available', () => {
     expect(isStorageAvailable()).toBeTruthy();
   });
@@ -27,9 +62,7 @@ describe('Capabilities Detection - Storage', () => {
   });
 
   it('should log a warning when storage is unavailable', () => {
-    const mockLogger = {
-      warn: jest.fn(),
-    } as ILogger;
+    const mockLogger = defaultLogger;
 
     // Store the original descriptor so we can restore it later
     const originalLsDescriptor = Object.getOwnPropertyDescriptor(window, 'localStorage');
@@ -74,9 +107,7 @@ describe('Capabilities Detection - Storage', () => {
   });
 
   it('should log a warning when the local storage is full', () => {
-    const mockLogger = {
-      warn: jest.fn(),
-    } as ILogger;
+    const mockLogger = defaultLogger;
 
     // Store the original descriptor so we can restore it later
     const originalLsDescriptor = Object.getOwnPropertyDescriptor(window, 'localStorage');
