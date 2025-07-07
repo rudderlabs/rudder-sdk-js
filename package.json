@@ -199,11 +199,11 @@
     "user-agent-data-types": "0.4.2"
   },
   "optionalDependencies": {
-    "@nx/nx-darwin-arm64": "21.2.1",
-    "@nx/nx-darwin-x64": "21.2.1",
-    "@nx/nx-linux-x64-gnu": "21.2.1",
-    "@nx/nx-win32-x64-msvc": "21.2.1",
-    "@rollup/rollup-linux-x64-gnu": "4.44.1"
+    "@nx/nx-darwin-arm64": "21.2.2",
+    "@nx/nx-darwin-x64": "21.2.2",
+    "@nx/nx-linux-x64-gnu": "21.2.2",
+    "@nx/nx-win32-x64-msvc": "21.2.2",
+    "@rollup/rollup-linux-x64-gnu": "4.44.2"
   },
   "overrides": {
     "rudder-component-cookie": {
