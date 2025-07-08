@@ -1,74 +1,35 @@
 {
-  "workspaceLayout": {
-    "appsDir": "packages",
-    "libsDir": "packages"
-  },
+  "workspaceLayout": { "appsDir": "packages", "libsDir": "packages" },
   "defaultBase": "main",
   "release": {
     "projects": ["*"],
     "projectsRelationship": "independent",
     "releaseTagPattern": "{projectName}@{version}",
-    "version": {
-      "conventionalCommits": true
-    },
-    "changelog": {
-      "projectChangelogs": {
-        "createRelease": "github"
-      }
-    }
+    "version": { "conventionalCommits": true },
+    "changelog": { "projectChangelogs": { "createRelease": "github" } }
   },
-  "pluginsConfig": {
-    "@nx/js": {
-      "analyzeSourceFiles": true
-    }
-  },
+  "pluginsConfig": { "@nx/js": { "analyzeSourceFiles": true } },
   "targetDefaults": {
-    "test*": {
-      "inputs": ["test"],
-      "cache": true
-    },
-    "version": [
-      {
-        "target": "version",
-        "projects": "dependencies"
-      }
-    ],
-    "*build*": {
-      "inputs": ["default"],
-      "cache": true
-    },
+    "test*": { "inputs": ["test"], "cache": true },
+    "version": [{ "target": "version", "projects": "dependencies" }],
+    "*build*": { "inputs": ["default"], "cache": true },
     "check:size:json*": {
       "inputs": ["default", "{projectRoot}/.size-limit.js", "{projectRoot}/.size-limit.mjs"],
       "cache": true
     },
-    "check:pub": {
-      "inputs": ["{projectRoot}/package.json"],
-      "cache": true
-    },
-    "check:circular": {
-      "inputs": ["default"],
-      "cache": true
-    },
+    "check:pub": { "inputs": ["{projectRoot}/package.json"], "cache": true },
+    "check:circular": { "inputs": ["default"], "cache": true },
     "check:duplicates": {
       "inputs": ["default", "{projectRoot}/.jscpd.json", "{workspaceRoot}/.jscpd.json"],
       "cache": true
     },
-    "check:lint*": {
-      "inputs": ["default", "{workspaceRoot}/eslint.config.mjs"],
-      "cache": true
-    }
+    "check:lint*": { "inputs": ["default", "{workspaceRoot}/eslint.config.mjs"], "cache": true }
   },
-  "generators": {
-    "@nx/js:library": {
-      "buildable": true
-    }
-  },
+  "generators": { "@nx/js:library": { "buildable": true } },
   "namedInputs": {
     "sharedGlobals": [
       "{workspaceRoot}/.nvmrc",
-      {
-        "runtime": "node --version"
-      },
+      { "runtime": "node --version" },
       "{workspaceRoot}/package.json",
       "{workspaceRoot}/package-lock.json",
       "{workspaceRoot}/nx.json",
@@ -107,7 +68,6 @@
       "{projectRoot}/tsconfig.spec.json"
     ]
   },
-  "tui": {
-    "autoExit": true
-  }
+  "tui": { "autoExit": true },
+  "nxCloudId": "686ca11666df92f6542ac7c7"
 }
