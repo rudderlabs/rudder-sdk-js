@@ -51,7 +51,7 @@ index f58f821..5660e84 100644
  }
  exports.StaticRunManyTerminalOutputLifeCycle = StaticRunManyTerminalOutputLifeCycle;
 diff --git a/node_modules/nx/src/tasks-runner/run-command.js b/node_modules/nx/src/tasks-runner/run-command.js
-index 0a3a2ea..aab4327 100644
+index 0a3a2ea..860408a 100644
 --- a/node_modules/nx/src/tasks-runner/run-command.js
 +++ b/node_modules/nx/src/tasks-runner/run-command.js
 @@ -689,7 +689,9 @@ async function invokeTasksRunner({ tasks, projectGraph, taskGraph, lifeCycle, nx
@@ -59,7 +59,7 @@ index 0a3a2ea..aab4327 100644
      const lifeCycles = [];
      lifeCycles.push(new store_run_information_life_cycle_1.StoreRunInformationLifeCycle());
 -    lifeCycles.push(new nx_cloud_ci_message_life_cycle_1.NxCloudCIMessageLifeCycle());
-+    if (lifeCycle.args.silent !== true) {
++    if (lifeCycle.args?.silent !== true) {
 +        lifeCycles.push(new nx_cloud_ci_message_life_cycle_1.NxCloudCIMessageLifeCycle());
 +    }
      lifeCycles.push(lifeCycle);

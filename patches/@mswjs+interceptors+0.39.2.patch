@@ -1,5 +1,5 @@
 diff --git a/node_modules/@mswjs/interceptors/lib/node/chunk-GLGFOTGJ.mjs b/node_modules/@mswjs/interceptors/lib/node/chunk-GLGFOTGJ.mjs
-index 0beca9e..dbcea95 100644
+index 0beca9e..3586c4b 100644
 --- a/node_modules/@mswjs/interceptors/lib/node/chunk-GLGFOTGJ.mjs
 +++ b/node_modules/@mswjs/interceptors/lib/node/chunk-GLGFOTGJ.mjs
 @@ -439,13 +439,6 @@ var MockHttpSocket = class extends MockSocket {
@@ -17,7 +17,7 @@ index 0beca9e..dbcea95 100644
        socket.destroy(error);
      });
 diff --git a/node_modules/@mswjs/interceptors/lib/node/chunk-ZAIODWHA.js b/node_modules/@mswjs/interceptors/lib/node/chunk-ZAIODWHA.js
-index e1125f0..2cfc456 100644
+index e1125f0..e6b0bf8 100644
 --- a/node_modules/@mswjs/interceptors/lib/node/chunk-ZAIODWHA.js
 +++ b/node_modules/@mswjs/interceptors/lib/node/chunk-ZAIODWHA.js
 @@ -439,13 +439,6 @@ var MockHttpSocket = class extends MockSocket {
