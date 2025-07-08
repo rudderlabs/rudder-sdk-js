@@ -9,11 +9,12 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "wednesday"
-      time: "00:00"
-      timezone: "UTC"
+      interval: "cron"
+      # every wednesday at 00:01
+      cronjob: "1 0 * * 3"
     target-branch: "develop"
+    labels:
+      - "dependencies"
     groups:
       npm-dev-deps:
         patterns:
