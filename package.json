@@ -8,8 +8,8 @@
   ],
   "scripts": {
     "setup": "npm i --include=optional && npm run build:package:modern",
-    "setup:ci": "npm ci && npm i @nx/nx-linux-x64-gnu && npm run build:package:modern",
-    "setup:deps": "npm ci && npm i @nx/nx-linux-x64-gnu",
+    "setup:ci": "npm ci && npm run build:package:modern",
+    "setup:deps": "npm ci",
     "clean": "nx run-many -t clean && nx reset && git clean -xdf node_modules",
     "clean:cache": "rimraf -rf ./node_modules/.cache && rimraf -rf ./.nx/cache",
     "start": "nx run-many --targets=start --parallel=3 --projects=@rudderstack/analytics-js-integrations,@rudderstack/analytics-js-plugins,@rudderstack/analytics-js",
@@ -197,13 +197,6 @@
     "tslib": "2.8.1",
     "typescript": "5.8.3",
     "user-agent-data-types": "0.4.2"
-  },
-  "optionalDependencies": {
-    "@nx/nx-darwin-arm64": "21.2.2",
-    "@nx/nx-darwin-x64": "21.2.2",
-    "@nx/nx-linux-x64-gnu": "21.2.2",
-    "@nx/nx-win32-x64-msvc": "21.2.2",
-    "@rollup/rollup-linux-x64-gnu": "4.44.2"
   },
   "overrides": {
     "rudder-component-cookie": {
