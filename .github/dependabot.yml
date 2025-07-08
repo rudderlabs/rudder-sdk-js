@@ -1,28 +1,42 @@
 version: 2
 updates:
   - package-ecosystem: "github-actions"
-    directory: "/" 
+    directory: "/"
     schedule:
       interval: "weekly"
     target-branch: "develop"
 
   - package-ecosystem: "npm"
-    directory: "/" 
+    directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "cron"
+      # every wednesday at 00:01
+      cronjob: "1 0 * * 3"
     target-branch: "develop"
+    labels:
+      - "dependencies"
     groups:
+      npm-dev-deps:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+        dependency-type: "development"
+      
       npm-prod-deps:
         patterns:
           - "*"
+        exclude-patterns:
+          - "@nx/nx-*"
+          - "@rollup/rollup-*"
         update-types:
           - "minor"
           - "patch"
         dependency-type: "production"
-      npm-dev-deps:
+
+      npm-major-deps:
         patterns:
           - "*"
-        dependency-type: "development"
         update-types:
-          - "minor"
-          - "patch"
+          - "major"
