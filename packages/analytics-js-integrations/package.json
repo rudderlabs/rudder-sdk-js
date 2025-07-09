@@ -111,7 +111,7 @@
       "Opera >= 43"
     ],
     "modern": [
-      "defaults"
+      "defaults and supports es6-module-dynamic-import and not dead"
     ]
   }
 }
