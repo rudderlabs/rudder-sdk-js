@@ -111,14 +111,7 @@
       "Opera >= 43"
     ],
     "modern": [
-      "defaults",
-      "supports es6-module-dynamic-import"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 edge version",
-      "last 1 safari version"
+      "defaults"
     ]
   }
 }
