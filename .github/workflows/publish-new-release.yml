@@ -135,7 +135,7 @@ jobs:
         id: mark_latest_release
         continue-on-error: true
         env:
-          GH_TOKEN: ${{ secrets.PAT }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Get the analytics-js package version from package.json
           ANALYTICS_JS_VERSION=$(jq -r '.version' packages/analytics-js/package.json)
