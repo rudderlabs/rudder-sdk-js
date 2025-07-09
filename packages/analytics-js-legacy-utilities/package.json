@@ -1,8 +1,8 @@
 {
-  "name": "@rudderstack/analytics-js-common",
-  "version": "3.21.0",
+  "name": "@rudderstack/analytics-js-legacy-utilities",
+  "version": "1.0.0",
   "private": true,
-  "description": "RudderStack JavaScript SDK common code",
+  "description": "RudderStack JavaScript SDK legacy utilities",
   "module": "dist/npm/index.js",
   "types": "./dist/npm/index.d.ts",
   "publishConfig": {},
@@ -14,19 +14,21 @@
   ],
   "keywords": [
     "analytics",
-    "rudder"
+    "rudder",
+    "legacy",
+    "utils"
   ],
   "author": "RudderStack",
   "license": "Elastic-2.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rudderlabs/rudder-sdk-js.git",
-    "directory": "packages/analytics-js-common"
+    "directory": "packages/analytics-js-legacy-utilities"
   },
   "bugs": {
     "url": "https://github.com/rudderlabs/rudder-sdk-js/issues"
   },
-  "homepage": "https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-js-common/README.md",
+  "homepage": "https://github.com/rudderlabs/rudder-sdk-js/blob/main/packages/analytics-js-legacy-utilities/README.md",
   "scripts": {
     "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf -rf ./reports",
     "start": "exit 0",
@@ -55,26 +57,27 @@
     "release": "npm publish"
   },
   "dependencies": {
-    "@preact/signals-core": "1.11.0",
+    "ramda": "0.31.3",
     "rudder-component-cookie": "0.0.1",
     "@segment/top-domain": "3.0.1",
     "crypto-js": "4.2.0",
-    "@lukeed/uuid": "2.0.1",
     "get-value": "4.0.1",
-    "ramda": "0.31.3",
     "storejs": "2.1.0"
   },
-  "devDependencies": {
-    "@bugsnag/js": "8.4.0"
-  },
+  "devDependencies": {},
   "overrides": {},
   "browserslist": {
     "production": [
-      "> 0.1%",
-      "IE >= 11"
+      "defaults",
+      "Edge >= 80",
+      "Firefox >= 47",
+      "IE >= 11",
+      "Chrome >= 54",
+      "Safari >= 7",
+      "Opera >= 43"
     ],
     "modern": [
-      "defaults and supports es6-module-dynamic-import and not dead"
+      "defaults"
     ]
   }
 }
