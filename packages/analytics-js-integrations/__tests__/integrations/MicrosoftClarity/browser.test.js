@@ -223,6 +223,182 @@ describe('MicrosoftClarity identify tests', () => {
     expect(window.clarity).not.toHaveBeenCalled();
     loggerSpy.mockRestore();
   });
+
+  test('should call clarity identify without sessionId when context.sessionId is not provided', () => {
+    const rudderElement = {
+      message: {
+        userId: 'test-user-123',
+        context: {
+          // no sessionId
+          traits: {
+            name: 'John Doe',
+          },
+        },
+      },
+    };
+
+    clarityInstance.identify(rudderElement);
+    expect(window.clarity).toHaveBeenCalledWith('identify', 'test-user-123', undefined, undefined);
+    expect(window.clarity).toHaveBeenCalledWith('set', 'name', 'John Doe');
+  });
+
+  test('should call clarity identify without sessionId when context.sessionId is null', () => {
+    const rudderElement = {
+      message: {
+        userId: 'test-user-123',
+        context: {
+          sessionId: null,
+          traits: {
+            name: 'John Doe',
+          },
+        },
+      },
+    };
+
+    clarityInstance.identify(rudderElement);
+    expect(window.clarity).toHaveBeenCalledWith('identify', 'test-user-123', undefined, undefined);
+    expect(window.clarity).toHaveBeenCalledWith('set', 'name', 'John Doe');
+  });
+
+  test('should call clarity identify without customPageId when context.traits.customPageId is not provided', () => {
+    const rudderElement = {
+      message: {
+        userId: 'test-user-123',
+        context: {
+          sessionId: 'session-456',
+          traits: {
+            // no customPageId
+            name: 'John Doe',
+            email: 'john@example.com',
+          },
+        },
+      },
+    };
+
+    clarityInstance.identify(rudderElement);
+    expect(window.clarity).toHaveBeenCalledWith(
+      'identify',
+      'test-user-123',
+      'session-456',
+      undefined,
+    );
+    expect(window.clarity).toHaveBeenCalledWith('set', 'name', 'John Doe');
+    expect(window.clarity).toHaveBeenCalledWith('set', 'email', 'john@example.com');
+  });
+
+  test('should call clarity identify without customPageId when context.traits.customPageId is null', () => {
+    const rudderElement = {
+      message: {
+        userId: 'test-user-123',
+        context: {
+          sessionId: 'session-456',
+          traits: {
+            customPageId: null,
+            name: 'John Doe',
+          },
+        },
+      },
+    };
+
+    clarityInstance.identify(rudderElement);
+    expect(window.clarity).toHaveBeenCalledWith(
+      'identify',
+      'test-user-123',
+      'session-456',
+      undefined,
+    );
+    expect(window.clarity).toHaveBeenCalledWith('set', 'customPageId', null);
+    expect(window.clarity).toHaveBeenCalledWith('set', 'name', 'John Doe');
+  });
+
+  test('should call clarity identify without traits when context.traits is not provided', () => {
+    const rudderElement = {
+      message: {
+        userId: 'test-user-123',
+        context: {
+          sessionId: 'session-456',
+          // no traits
+        },
+      },
+    };
+
+    clarityInstance.identify(rudderElement);
+    expect(window.clarity).toHaveBeenCalledWith(
+      'identify',
+      'test-user-123',
+      'session-456',
+      undefined,
+    );
+    expect(window.clarity).toHaveBeenCalledTimes(1); // Only called once for identify, no set calls
+  });
+
+  test('should call clarity identify without traits when context.traits is null', () => {
+    const rudderElement = {
+      message: {
+        userId: 'test-user-123',
+        context: {
+          sessionId: 'session-456',
+          traits: null,
+        },
+      },
+    };
+
+    clarityInstance.identify(rudderElement);
+    expect(window.clarity).toHaveBeenCalledWith(
+      'identify',
+      'test-user-123',
+      'session-456',
+      undefined,
+    );
+    expect(window.clarity).toHaveBeenCalledTimes(1); // Only called once for identify, no set calls
+  });
+
+  test('should call clarity identify without traits when context.traits is empty object', () => {
+    const rudderElement = {
+      message: {
+        userId: 'test-user-123',
+        context: {
+          sessionId: 'session-456',
+          traits: {},
+        },
+      },
+    };
+
+    clarityInstance.identify(rudderElement);
+    expect(window.clarity).toHaveBeenCalledWith(
+      'identify',
+      'test-user-123',
+      'session-456',
+      undefined,
+    );
+    expect(window.clarity).toHaveBeenCalledTimes(1); // Only called once for identify, no set calls
+  });
+
+  test('should call clarity identify without context when context is not provided', () => {
+    const rudderElement = {
+      message: {
+        userId: 'test-user-123',
+        // no context
+      },
+    };
+
+    clarityInstance.identify(rudderElement);
+    expect(window.clarity).toHaveBeenCalledWith('identify', 'test-user-123', undefined, undefined);
+    expect(window.clarity).toHaveBeenCalledTimes(1); // Only called once for identify, no set calls
+  });
+
+  test('should call clarity identify without context when context is null', () => {
+    const rudderElement = {
+      message: {
+        userId: 'test-user-123',
+        context: null,
+      },
+    };
+
+    clarityInstance.identify(rudderElement);
+    expect(window.clarity).toHaveBeenCalledWith('identify', 'test-user-123', undefined, undefined);
+    expect(window.clarity).toHaveBeenCalledTimes(1); // Only called once for identify, no set calls
+  });
 });
 
 describe('MicrosoftClarity track tests', () => {
