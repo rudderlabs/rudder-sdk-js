@@ -69,6 +69,20 @@ class MicrosoftClarity {
       });
     }
   }
+
+  track(rudderElement) {
+    const { message } = rudderElement;
+    const { event } = message;
+    if (!event || typeof event !== 'string' || event.trim() === '') {
+      logger.error('event name is required for track call');
+      return;
+    }
+
+    // Send the custom event to Microsoft Clarity
+    // https://learn.microsoft.com/en-us/clarity/setup-and-installation/clarity-api#add-custom-events
+    // Note: Clarity custom events only support event names, not event properties
+    window.clarity('event', event);
+  }
 }
 
 export default MicrosoftClarity;
