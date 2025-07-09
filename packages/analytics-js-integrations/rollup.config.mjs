@@ -14,7 +14,7 @@ import alias from '@rollup/plugin-alias';
 import * as dotenv from 'dotenv';
 import pkg from './package.json' with { type: 'json' };
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 const INTG_SUFFIX = '_RS';
 const isLegacyBuild = process.env.BROWSERSLIST_ENV !== 'modern';
