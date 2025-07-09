@@ -15,7 +15,7 @@
       "@rudderstack/analytics-js-sanity-suite/*": ["./packages/sanity-suite/src/*"],
       "@rudderstack/analytics-js-cookies/*": ["./packages/analytics-js-cookies/src/*"],
       "@rudderstack/analytics-js-legacy-utilities/*": [
-        "packages/analytics-js-legacy-utilities/src/*"
+        "./packages/analytics-js-legacy-utilities/src/*"
       ]
     },
     "composite": true,

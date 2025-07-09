@@ -57,7 +57,7 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
-          files: ./packages/analytics-js/reports/coverage/clover.xml,./packages/analytics-js-common/reports/coverage/clover.xml,./packages/analytics-js-integrations/reports/coverage/clover.xml,./packages/analytics-js-plugins/reports/coverage/clover.xml,./packages/analytics-js-service-worker/reports/coverage/clover.xml,./packages/analytics-v1.1/reports/coverage/clover.xml,./packages/analytics-js-cookies/reports/coverage/clover.xml
+          files: ./packages/analytics-js/reports/coverage/clover.xml,./packages/analytics-js-common/reports/coverage/clover.xml,./packages/analytics-js-integrations/reports/coverage/clover.xml,./packages/analytics-js-plugins/reports/coverage/clover.xml,./packages/analytics-js-service-worker/reports/coverage/clover.xml,./packages/analytics-v1.1/reports/coverage/clover.xml,./packages/analytics-js-cookies/reports/coverage/clover.xml,./packages/analytics-js-legacy-utilities/reports/coverage/clover.xml
 
       - name: Execute linting check
         if: ${{ steps.check_affected.outputs.affected_projects != '' }}
