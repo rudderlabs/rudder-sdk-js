@@ -58,7 +58,8 @@ class MicrosoftClarity {
     }
 
     const identifyPromise = window.clarity('identify', userId, sessionId, customPageId);
-    if (typeof identifyPromise?.then === 'function') { // Clarity SDK is ready
+    if (typeof identifyPromise?.then === 'function') {
+      // Clarity SDK is ready
       identifyPromise.catch(error => {
         logger.error('The "identify" promise was rejected', error);
       });
@@ -70,6 +71,20 @@ class MicrosoftClarity {
         window.clarity('set', key, traits[key]);
       });
     }
+  }
+
+  track(rudderElement) {
+    const { message } = rudderElement;
+    const { event } = message;
+    if (!event || typeof event !== 'string' || event.trim() === '') {
+      logger.error('event name is required for track call');
+      return;
+    }
+
+    // Send the custom event to Microsoft Clarity
+    // https://learn.microsoft.com/en-us/clarity/setup-and-installation/clarity-api#add-custom-events
+    // Note: Clarity custom events only support event names, not event properties
+    window.clarity('event', event);
   }
 }
 
