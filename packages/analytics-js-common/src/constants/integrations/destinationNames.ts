@@ -298,3 +298,7 @@ export {
   DISPLAY_NAME as UserpilotDisplayName,
   DIR_NAME as UserpilotDirectoryName,
 } from './Userpilot/constants';
+export {
+  DISPLAY_NAME as ComscoreDisplayName,
+  DIR_NAME as ComscoreDirectoryName,
+} from './Comscore/constants';

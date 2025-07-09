@@ -162,6 +162,8 @@ import {
   XPixelDirectoryName,
   UserpilotDisplayName,
   UserpilotDirectoryName,
+  ComscoreDisplayName,
+  ComscoreDirectoryName,
 } from './destinationNames';
 
 // The destination directory name is used as the destination SDK file name in CDN
@@ -247,6 +249,7 @@ const destDisplayNamesToFileNamesMap: Record<string, string> = {
   [Gainsight_PXDisplayName]: Gainsight_PXDirectoryName,
   [XPixelDisplayName]: XPixelDirectoryName,
   [UserpilotDisplayName]: UserpilotDirectoryName,
+  [ComscoreDisplayName]: ComscoreDirectoryName,
 };
 
 export { destDisplayNamesToFileNamesMap };
