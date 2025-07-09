@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "description": "RudderStack JavaScript SDK legacy utilities",
+  "type": "module",
   "module": "dist/npm/index.js",
   "types": "./dist/npm/index.d.ts",
   "publishConfig": {},

@@ -16,7 +16,7 @@ import del from 'rollup-plugin-delete';
 import alias from '@rollup/plugin-alias';
 import * as dotenv from 'dotenv';
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 const isLegacyBuild = process.env.BROWSERSLIST_ENV !== 'modern';
 const variantSubfolder = isLegacyBuild ? '/legacy' : '/modern';

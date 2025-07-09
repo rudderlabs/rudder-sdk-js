@@ -16,7 +16,7 @@ import alias from '@rollup/plugin-alias';
 import * as dotenv from 'dotenv';
 import pkg from './package.json' with { type: 'json' };
 
-dotenv.config();
+dotenv.config({ quiet: true });
 const isLegacyBuild = process.env.BROWSERSLIST_ENV !== 'modern';
 const variantSubfolder = isLegacyBuild ? '/legacy' : '/modern';
 const sourceMapType =
