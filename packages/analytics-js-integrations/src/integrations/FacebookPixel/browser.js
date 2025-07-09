@@ -5,13 +5,8 @@
 /* eslint-disable class-methods-use-this */
 import each from '@ndhoule/each';
 import sha256 from 'crypto-js/sha256';
-import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
-import {
-  NAME,
-  traitsMapper,
-  reserveTraits,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/FacebookPixel/constants';
+import { ScriptLoader } from '@rudderstack/analytics-js-legacy-utilities/ScriptLoader';
+import { NAME, traitsMapper, reserveTraits, DISPLAY_NAME } from './constants';
 import Logger from '../../utils/logger';
 import {
   merge,

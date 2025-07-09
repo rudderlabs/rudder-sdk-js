@@ -2,10 +2,7 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-undef */
 /* eslint-disable no-underscore-dangle */
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/Fullstory/constants';
+import { NAME, DISPLAY_NAME } from './constants';
 import Logger from '../../utils/logger';
 import camelcase from '../../utils/camelcase';
 import { getDestinationOptions } from './utils';

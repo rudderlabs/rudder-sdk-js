@@ -1,8 +1,5 @@
 /* eslint-disable class-methods-use-this */
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/Optimizely/constants';
+import { NAME, DISPLAY_NAME } from './constants';
 import Logger from '../../utils/logger';
 import { mapRudderPropsToOptimizelyProps } from './utils';
 

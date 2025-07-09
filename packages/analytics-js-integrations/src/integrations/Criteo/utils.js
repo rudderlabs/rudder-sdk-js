@@ -1,6 +1,6 @@
 import md5 from 'md5';
 import sha256 from 'crypto-js/sha256';
-import { DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/Criteo/constants';
+import { DISPLAY_NAME } from './constants';
 import Logger from '../../utils/logger';
 import { getHashFromArray, isDefinedAndNotNull } from '../../utils/commonUtils';
 

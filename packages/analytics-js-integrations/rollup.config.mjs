@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import path from 'path';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
@@ -67,8 +66,8 @@ export function getDefaultConfig(distName, moduleType = 'cdn') {
       alias({
         entries: [
           {
-            find: '@rudderstack/analytics-js-common',
-            replacement: path.resolve('../analytics-js-common/src'),
+            find: '@rudderstack/analytics-js-legacy-utilities',
+            replacement: path.resolve('../analytics-js-legacy-utilities/src'),
           },
         ],
       }),

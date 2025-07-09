@@ -76,6 +76,26 @@ export function getDefaultConfig(distName) {
         __MODULE_TYPE__: `'${moduleType}'`,
         __RS_BUGSNAG_RELEASE_STAGE__: `'${process.env.BUGSNAG_RELEASE_STAGE || 'production'}'`,
       }),
+      alias({
+        entries: [
+          {
+            find: '@rudderstack/analytics-js-plugins',
+            replacement: path.resolve('../analytics-js-plugins/src'),
+          },
+          {
+            find: '@rudderstack/analytics-js-common',
+            replacement: path.resolve('../analytics-js-common/src'),
+          },
+          {
+            find: '@rudderstack/analytics-js-cookies',
+            replacement: path.resolve('../analytics-js-cookies/src'),
+          },
+          {
+            find: '@rudderstack/analytics-js-integrations',
+            replacement: path.resolve('../analytics-js-integrations/src'),
+          },
+        ],
+      }),
       resolve({
         jsnext: true,
         browser: true,
@@ -226,6 +246,10 @@ const buildEntries = () => {
             {
               find: '@rudderstack/analytics-js-cookies',
               replacement: path.resolve('./dist/dts/packages/analytics-js-cookies/src'),
+            },
+            {
+              find: '@rudderstack/analytics-js-integrations',
+              replacement: path.resolve('./dist/dts/packages/analytics-js-integrations/src'),
             },
           ],
         }),

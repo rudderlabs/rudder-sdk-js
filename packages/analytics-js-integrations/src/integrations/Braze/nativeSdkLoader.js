@@ -1,5 +1,5 @@
-import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
-import { BrazeOperationString } from '@rudderstack/analytics-js-common/constants/integrations/Braze/constants';
+import { LOAD_ORIGIN } from '@rudderstack/analytics-js-legacy-utilities/constants';
+import { BrazeOperationString } from './constants';
 
 const loadNativeSdk = () => {
   // load braze

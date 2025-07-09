@@ -1,7 +1,4 @@
-import {
-  trackPropertyMapping,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/XPixel/constants';
+import { trackPropertyMapping, DISPLAY_NAME } from './constants';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
 import { constructPayload } from '../../utils/utils';
 import Logger from '../../utils/logger';

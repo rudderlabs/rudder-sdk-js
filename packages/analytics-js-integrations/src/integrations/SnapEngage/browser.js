@@ -1,10 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/SnapEngage/constants';
+import { NAME, DISPLAY_NAME } from './constants';
 import Logger from '../../utils/logger';
 import { recordingLiveChatEvents } from './util';
 import { getHashFromArray } from '../../utils/commonUtils';

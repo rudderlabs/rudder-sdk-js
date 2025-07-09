@@ -1,4 +1,4 @@
-import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
+import { ScriptLoader } from '@rudderstack/analytics-js-legacy-utilities/ScriptLoader';
 
 function loadNativeSdk(script) {
   ScriptLoader('chatbeat', `//static.chartbeat.com/js/${script}`);

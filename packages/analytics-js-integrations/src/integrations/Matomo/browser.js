@@ -3,10 +3,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 // Research Spec: https://www.notion.so/rudderstacks/Matomo-c5a76c7838b94190a3374887b94a176e
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/Matomo/constants';
+import { NAME, DISPLAY_NAME } from './constants';
 import Logger from '../../utils/logger';
 import {
   goalIdMapping,

@@ -1,4 +1,4 @@
-import { identifyExcludeFields } from '@rudderstack/analytics-js-common/constants/integrations/Engage/constants';
+import { identifyExcludeFields } from './constants';
 
 // External ID format
 // {

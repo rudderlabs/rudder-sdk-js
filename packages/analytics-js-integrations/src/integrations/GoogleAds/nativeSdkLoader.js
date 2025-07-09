@@ -1,5 +1,5 @@
-import { DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/GoogleAds/constants';
-import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
+import { DISPLAY_NAME } from './constants';
+import { LOAD_ORIGIN } from '@rudderstack/analytics-js-legacy-utilities/constants';
 import Logger from '../../utils/logger';
 
 const logger = new Logger(DISPLAY_NAME);

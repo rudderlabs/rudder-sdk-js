@@ -1,7 +1,4 @@
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/MicrosoftClarity/constants';
+import { NAME, DISPLAY_NAME } from './constants';
 import Logger from '../../utils/logger';
 /* eslint-disable class-methods-use-this */
 
@@ -58,7 +55,8 @@ class MicrosoftClarity {
     }
 
     const identifyPromise = window.clarity('identify', userId, sessionId, customPageId);
-    if (typeof identifyPromise?.then === 'function') { // Clarity SDK is ready
+    if (typeof identifyPromise?.then === 'function') {
+      // Clarity SDK is ready
       identifyPromise.catch(error => {
         logger.error('The "identify" promise was rejected', error);
       });

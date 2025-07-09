@@ -1,7 +1,4 @@
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/GA4_V2/constants';
+import { NAME, DISPLAY_NAME } from './constants';
 import { isDefinedAndNotNull } from '../../utils/commonUtils';
 import Logger from '../../utils/logger';
 import { GA4 } from '../GA4';

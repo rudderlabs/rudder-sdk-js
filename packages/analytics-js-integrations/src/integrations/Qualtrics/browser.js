@@ -2,10 +2,7 @@
 /* eslint-disable no-unused-expressions */
 // eslint-disable-next-line no-nested-ternary
 // eslint-disable-next-line class-methods-use-this
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/Qualtrics/constants';
+import { NAME, DISPLAY_NAME } from './constants';
 import Logger from '../../utils/logger';
 /* eslint-disable class-methods-use-this */
 import { loadNativeSdk } from './nativeSdkLoader';

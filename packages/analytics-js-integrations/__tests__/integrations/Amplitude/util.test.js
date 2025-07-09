@@ -1,7 +1,4 @@
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/Amplitude/constants';
+import { NAME, DISPLAY_NAME } from '../../../src/integrations/Amplitude/constants';
 import {
   getTraitsToSetOnce,
   getTraitsToIncrement,

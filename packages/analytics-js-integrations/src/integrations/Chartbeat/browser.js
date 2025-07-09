@@ -5,11 +5,8 @@ import onBody from 'on-body';
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
-} from '@rudderstack/analytics-js-common/v1.1/utils/constants';
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/Chartbeat/constants';
+} from '@rudderstack/analytics-js-legacy-utilities/constants';
+import { NAME, DISPLAY_NAME } from './constants';
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
 

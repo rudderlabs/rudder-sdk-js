@@ -1,8 +1,8 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-param-reassign */
 /* eslint-disable object-shorthand */
-import { DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/Sentry/constants';
-import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
+import { DISPLAY_NAME } from './constants';
+import { LOAD_ORIGIN } from '@rudderstack/analytics-js-legacy-utilities/constants';
 import Logger from '../../utils/logger';
 import { isDefinedAndNotNullAndNotEmpty } from '../../utils/commonUtils';
 

@@ -1,4 +1,4 @@
-import { isDefined, isString } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isDefined, isString } from '@rudderstack/analytics-js-legacy-utilities/ObjectUtils';
 import { pick as ramdaPick, pickBy, isEmpty } from 'ramda';
 
 const isNotEmpty = x => {

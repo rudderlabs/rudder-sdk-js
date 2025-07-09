@@ -1,4 +1,4 @@
-import { DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/YandexMetrica/constants';
+import { DISPLAY_NAME } from './constants';
 import Logger from '../../utils/logger';
 import {
   removeUndefinedAndNullValues,
