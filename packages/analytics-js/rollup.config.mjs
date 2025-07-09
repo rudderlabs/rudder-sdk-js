@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import path from 'path';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
@@ -188,6 +187,30 @@ export function getDefaultConfig(distName) {
         __RS_POLYFILLIO_SDK_URL__: polyfillIoUrl,
         __RS_BUGSNAG_RELEASE_STAGE__: process.env.BUGSNAG_RELEASE_STAGE || 'production',
       }),
+      alias({
+        entries: [
+          {
+            find: '@rudderstack/analytics-js',
+            replacement: path.resolve('../analytics-js/src'),
+          },
+          {
+            find: '@rudderstack/analytics-js-plugins',
+            replacement: path.resolve('../analytics-js-plugins/src'),
+          },
+          {
+            find: '@rudderstack/analytics-js-common',
+            replacement: path.resolve('../analytics-js-common/src'),
+          },
+          {
+            find: '@rudderstack/analytics-js-cookies',
+            replacement: path.resolve('../analytics-js-cookies/src'),
+          },
+          {
+            find: '@rudderstack/analytics-js-integrations',
+            replacement: path.resolve('../analytics-js-integrations/src'),
+          },
+        ],
+      }),
       resolve({
         jsnext: true,
         browser: true,
@@ -350,26 +373,6 @@ const buildEntries = () => {
     {
       input: `dist/dts/packages/analytics-js/src/index.d.ts`,
       plugins: [
-        alias({
-          entries: [
-            {
-              find: '@rudderstack/analytics-js',
-              replacement: path.resolve('./dist/dts/packages/analytics-js/src'),
-            },
-            {
-              find: '@rudderstack/analytics-js-plugins',
-              replacement: path.resolve('./dist/dts/packages/analytics-js-plugins/src'),
-            },
-            {
-              find: '@rudderstack/analytics-js-common',
-              replacement: path.resolve('./dist/dts/packages/analytics-js-common/src'),
-            },
-            {
-              find: '@rudderstack/analytics-js-cookies',
-              replacement: path.resolve('./dist/dts/packages/analytics-js-cookies/src'),
-            },
-          ],
-        }),
         dts(),
         del({ hook: 'buildEnd', targets: './dist/dts' }),
       ],

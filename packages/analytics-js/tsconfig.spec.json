@@ -21,6 +21,7 @@
     "./package.json",
     "../../types/**/*",
     "../analytics-js-plugins/src/**/*",
-    "../analytics-js-common/src/**/*"
+    "../analytics-js-common/src/**/*",
+    "../analytics-js-cookies/src/**/*"
   ]
 }
