@@ -1,6 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/Sprig/constants';
+import { NAME } from './constants';
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
 

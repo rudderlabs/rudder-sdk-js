@@ -1,8 +1,10 @@
 import get from 'get-value';
 import { v4 as uuid } from '@lukeed/uuid';
 import { v4 as uuidSecure } from '@lukeed/uuid/secure';
-import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { isDefined } from '@rudderstack/analytics-js-legacy-utilities/ObjectUtils';
+import Logger from './logger';
+
+const logger = new Logger('Utils');
 
 /**
  * Utility method to remove '/' at the end of URL

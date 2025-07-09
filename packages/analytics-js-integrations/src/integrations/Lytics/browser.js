@@ -17,10 +17,7 @@
 /* eslint-disable one-var */
 /* eslint-disable lines-around-directive */
 /* eslint-disable strict */
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/Lytics/constants';
+import { NAME, DISPLAY_NAME } from './constants';
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
 

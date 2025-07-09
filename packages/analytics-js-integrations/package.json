@@ -2,21 +2,10 @@
   "name": "@rudderstack/analytics-js-integrations",
   "version": "3.14.3",
   "private": true,
+  "type": "module",
   "description": "RudderStack JavaScript SDK device mode integrations",
-  "main": "dist/npm/modern/cjs/index.js",
-  "module": "dist/npm/modern/esm/index.js",
-  "exports": {
-    ".": {
-      "types": "./dist/npm/index.d.ts",
-      "require": "./dist/npm/modern/cjs/index.js",
-      "import": "./dist/npm/modern/esm/index.js"
-    },
-    "./legacy": {
-      "types": "./dist/npm/index.d.ts",
-      "require": "./dist/npm/legacy/cjs/index.js",
-      "import": "./dist/npm/legacy/esm/index.js"
-    }
-  },
+  "main": "src/index.js",
+  "module": "src/index.js",
   "types": "./dist/npm/index.d.ts",
   "typesVersions": {
     "*": {
@@ -55,10 +44,10 @@
     "build:modern": "npm run build:browser:modern && npm run build:package:modern",
     "build:browser": "npm run build:integration:all",
     "build:browser:modern": "npm run build:integration:all:modern",
-    "build:npm": "exit 0",
-    "build:npm:modern": "exit 0",
-    "build:package": "exit 0",
-    "build:package:modern": "exit 0",
+    "build:npm": "tsc",
+    "build:npm:modern": "BROWSERSLIST_ENV=modern npm run build:npm",
+    "build:package": "npm run build:npm",
+    "build:package:modern": "npm run build:npm:modern",
     "test": "nx test --maxWorkers=50%",
     "test:ci": "nx test --configuration=ci --runInBand --maxWorkers=1 --forceExit",
     "check:lint": "nx lint",
@@ -85,7 +74,7 @@
     "build:integration:all:bundle-size:modern": "VISUALIZER=true npm run build:integration:all:modern"
   },
   "dependencies": {
-    "@rudderstack/analytics-js-common": "*",
+    "@rudderstack/analytics-js-legacy-utilities": "*",
     "@ndhoule/each": "2.0.1",
     "crypto-js": "4.2.0",
     "is": "3.3.0",
@@ -98,7 +87,21 @@
     "get-value": "4.0.1",
     "ramda": "0.31.3"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@babel/core": "7.27.4",
+    "@rollup/plugin-alias": "5.1.1",
+    "@rollup/plugin-babel": "6.0.4",
+    "@rollup/plugin-commonjs": "28.0.3",
+    "@rollup/plugin-json": "6.1.0",
+    "@rollup/plugin-node-resolve": "16.0.1",
+    "@rollup/plugin-replace": "6.0.2",
+    "@rollup/plugin-terser": "0.4.4",
+    "dotenv": "16.5.0",
+    "rollup-plugin-filesize": "10.0.0",
+    "rollup-plugin-polyfill-node": "0.13.0",
+    "rollup-plugin-typescript2": "0.36.0",
+    "rollup-plugin-visualizer": "6.0.3"
+  },
   "overrides": {},
   "browserslist": {
     "production": [
