@@ -23,6 +23,8 @@ for projectFolder in "${projectFolderNames[@]}"; do
     fullPath="packages/$projectFolder/$reportFile"
     if [ -f "$fullPath" ]; then
       sed -i "s+${reportFiles[$reportFile]}+$defaultPrefixToReplace+g" "$fullPath"
+    else
+      echo "Skipped: File $fullPath does not exist."
     fi
   done
 done
