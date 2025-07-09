@@ -27,10 +27,12 @@ for projectFolder in "${projectFolderNames[@]}"; do
       if [ "$reportFile" == "reports/eslint.json" ]; then
         echo "File $fullPath does not exist."
         echo "Creating empty ESLint report for $projectFolder"
+        mkdir -p "$(dirname "$fullPath")"
         echo "[]" > "$fullPath"
       elif [ "$reportFile" == "reports/sonar/results-report.xml" ]; then
         echo "File $fullPath does not exist."
         echo "Creating empty Sonar report for $projectFolder"
+        mkdir -p "$(dirname "$fullPath")"
         echo "<testExecutions version=\"1\"></testExecutions>" > "$fullPath"
       else
         echo "Skipped: File $fullPath does not exist."
