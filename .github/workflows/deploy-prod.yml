@@ -66,6 +66,7 @@ jobs:
   deploy-sanity-suite:
     name: Deploy sanity suite
     needs: [get-deploy-inputs]
+    if: (startsWith(github.event.pull_request.head.ref, 'release/') || startsWith(github.event.pull_request.head.ref, 'hotfix-release/')) && github.event.pull_request.merged == true
     uses: ./.github/workflows/deploy-sanity-suite.yml
     with:
       environment: 'production'

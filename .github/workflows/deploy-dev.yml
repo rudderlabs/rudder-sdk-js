@@ -43,6 +43,7 @@ jobs:
 
   deploy-sanity-suite:
     name: Deploy sanity suite
+    if: github.event.pull_request.merged == true
     needs: [get-deploy-inputs]
     uses: ./.github/workflows/deploy-sanity-suite.yml
     with:

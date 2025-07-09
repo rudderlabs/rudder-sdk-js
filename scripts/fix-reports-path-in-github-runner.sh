@@ -10,7 +10,21 @@ projectFolderNames=("analytics-js" "analytics-js-common" "analytics-js-integrati
 # List of files to alter
 for projectFolder in "${projectFolderNames[@]}"; do
   echo "Replacing $absolutePathPrefix for $projectFolder reports"
-  sed -i "s+$absolutePathPrefix+$defaultPrefixToReplace+g" "packages/$projectFolder/reports/coverage/lcov.info"
-  sed -i "s+/$absolutePathPrefix+$defaultPrefixToReplace+g" "packages/$projectFolder/reports/eslint.json"
-  sed -i "s+/$absolutePathPrefix+$defaultPrefixToReplace+g" "packages/$projectFolder/reports/sonar/results-report.xml"
+  
+  # Define report files to process with their sed patterns
+  declare -A reportFiles=(
+    ["reports/coverage/lcov.info"]="$absolutePathPrefix"
+    ["reports/eslint.json"]="/$absolutePathPrefix"
+    ["reports/sonar/results-report.xml"]="/$absolutePathPrefix"
+  )
+  
+  # Process each report file
+  for reportFile in "${!reportFiles[@]}"; do
+    fullPath="packages/$projectFolder/$reportFile"
+    if [ -f "$fullPath" ]; then
+      sed -i "s+${reportFiles[$reportFile]}+$defaultPrefixToReplace+g" "$fullPath"
+    else
+      echo "Skipped: File $fullPath does not exist."
+    fi
+  done
 done
