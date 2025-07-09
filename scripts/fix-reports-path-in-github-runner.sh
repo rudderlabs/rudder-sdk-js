@@ -11,18 +11,18 @@ projectFolderNames=("analytics-js" "analytics-js-common" "analytics-js-integrati
 for projectFolder in "${projectFolderNames[@]}"; do
   echo "Replacing $absolutePathPrefix for $projectFolder reports"
   
-  # Check and process lcov.info file
-  if [ -f "packages/$projectFolder/reports/coverage/lcov.info" ]; then
-    sed -i "s+$absolutePathPrefix+$defaultPrefixToReplace+g" "packages/$projectFolder/reports/coverage/lcov.info"
-  fi
+  # Define report files to process with their sed patterns
+  declare -A reportFiles=(
+    ["reports/coverage/lcov.info"]="$absolutePathPrefix"
+    ["reports/eslint.json"]="/$absolutePathPrefix"
+    ["reports/sonar/results-report.xml"]="/$absolutePathPrefix"
+  )
   
-  # Check and process eslint.json file
-  if [ -f "packages/$projectFolder/reports/eslint.json" ]; then
-    sed -i "s+/$absolutePathPrefix+$defaultPrefixToReplace+g" "packages/$projectFolder/reports/eslint.json"
-  fi
-  
-  # Check and process sonar results-report.xml file
-  if [ -f "packages/$projectFolder/reports/sonar/results-report.xml" ]; then
-    sed -i "s+/$absolutePathPrefix+$defaultPrefixToReplace+g" "packages/$projectFolder/reports/sonar/results-report.xml"
-  fi
+  # Process each report file
+  for reportFile in "${!reportFiles[@]}"; do
+    fullPath="packages/$projectFolder/$reportFile"
+    if [ -f "$fullPath" ]; then
+      sed -i "s+${reportFiles[$reportFile]}+$defaultPrefixToReplace+g" "$fullPath"
+    fi
+  done
 done
