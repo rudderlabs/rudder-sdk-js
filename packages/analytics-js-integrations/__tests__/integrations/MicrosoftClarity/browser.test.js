@@ -64,6 +64,33 @@ describe('MicrosoftClarity isLoaded tests', () => {
   });
 });
 
+describe('MicrosoftClarity isReady tests', () => {
+  let clarityInstance;
+
+  beforeEach(() => {
+    clarityInstance = new MicrosoftClarity(
+      { projectId: 'test-project-id', cookieConsent: true },
+      { logLevel: 'debug' },
+      destinationInfo,
+    );
+  });
+
+  test('should return false when window.clarity is undefined', () => {
+    delete window.clarity;
+    expect(clarityInstance.isReady()).toBe(false);
+  });
+
+  test('should return false when window.clarity exists but has queue', () => {
+    window.clarity = { q: [] };
+    expect(clarityInstance.isReady()).toBe(false);
+  });
+
+  test('should return true when window.clarity exists without queue', () => {
+    window.clarity = jest.fn();
+    expect(clarityInstance.isReady()).toBe(true);
+  });
+});
+
 describe('MicrosoftClarity identify tests', () => {
   let clarityInstance;
 
@@ -132,6 +159,69 @@ describe('MicrosoftClarity identify tests', () => {
     expect(window.clarity).toHaveBeenCalledWith('set', 'customPageId', 'page-789');
     expect(window.clarity).toHaveBeenCalledWith('set', 'name', 'John Doe');
     expect(window.clarity).toHaveBeenCalledWith('set', 'email', 'john@example.com');
+  });
+
+  test('should not call clarity when userId is missing', () => {
+    const rudderElement = {
+      message: {
+        context: {
+          sessionId: 'session-456',
+        },
+      },
+    };
+
+    const loggerSpy = jest.spyOn(console, 'error').mockImplementation();
+    clarityInstance.identify(rudderElement);
+    expect(window.clarity).not.toHaveBeenCalled();
+    loggerSpy.mockRestore();
+  });
+
+  test('should not call clarity when userId is undefined', () => {
+    const rudderElement = {
+      message: {
+        userId: undefined,
+        context: {
+          sessionId: 'session-456',
+        },
+      },
+    };
+
+    const loggerSpy = jest.spyOn(console, 'error').mockImplementation();
+    clarityInstance.identify(rudderElement);
+    expect(window.clarity).not.toHaveBeenCalled();
+    loggerSpy.mockRestore();
+  });
+
+  test('should not call clarity when userId is null', () => {
+    const rudderElement = {
+      message: {
+        userId: null,
+        context: {
+          sessionId: 'session-456',
+        },
+      },
+    };
+
+    const loggerSpy = jest.spyOn(console, 'error').mockImplementation();
+    clarityInstance.identify(rudderElement);
+    expect(window.clarity).not.toHaveBeenCalled();
+    loggerSpy.mockRestore();
+  });
+
+  test('should not call clarity when userId is empty string', () => {
+    const rudderElement = {
+      message: {
+        userId: '',
+        context: {
+          sessionId: 'session-456',
+        },
+      },
+    };
+
+    const loggerSpy = jest.spyOn(console, 'error').mockImplementation();
+    clarityInstance.identify(rudderElement);
+    expect(window.clarity).not.toHaveBeenCalled();
+    loggerSpy.mockRestore();
   });
 });
 
