@@ -21,6 +21,20 @@ const traitsMap = {
   birthday: 'birthday',
   id: null,
 };
+
+const identifyUserPropertiesMap = {
+  email: "u_em",
+  firstName: "u_fn",
+  lastName: "u_ln",
+  firstname: "u_fn",
+  lastname: "u_ln",
+  phone: "u_mb",
+  username: 'u_n',
+  userName: 'u_n',
+  gender: 'u_gd',
+  birthday: 'u_bd',
+}
+
 class MoEngage {
   constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
@@ -40,6 +54,11 @@ class MoEngage {
 
   init() {
     loadNativeSdk();
+    // var app_id = "OKSNM7KDD3VSWBHV2XLSIMDO"; // Replace "WorkspaceID" available in the settings page of MoEngage Dashboard.
+    // this.moeClient = window.moe({
+    //   app_id: this.app_id,
+    //   debug_logs: 1,
+    // });
     // setting the region if us then not needed.
     if (this.region !== 'US') {
       this.moeClient = window.moe({
@@ -104,7 +123,21 @@ class MoEngage {
     }
     // if user is present map
     if (userId) {
-      this.moeClient.add_unique_user_id(userId);
+      const userAttributes = {}
+      each((value, key) => {
+        if (Object.prototype.hasOwnProperty.call(identifyUserPropertiesMap, key)) {
+          const method = identifyUserPropertiesMap[key];
+          userAttributes[method] = value;
+        }
+      }, traits)
+      const payload = {
+        uid: userId,
+        ...userAttributes,
+      }
+      console.log("MoEngage identify payload: ", payload, traits);
+      console.log("MoEngage identify userId: ", this.moeClient);
+      this.moeClient.identifyUser(payload)
+      // this.moeClient.add_unique_user_id(userId);
     }
 
     // track user attributes : https://docs.moengage.com/docs/tracking-web-user-attributes
