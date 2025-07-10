@@ -19,7 +19,7 @@ import { DEFAULT_EXTENSIONS } from '@babel/core';
 
 dotenv.config();
 
-const baseCdnUrl = process.env.BASE_CDN_URL || 'https://cdn.rudderlabs.com';
+const baseCdnUrl = process.env.BASE_CDN_URL ? process.env.BASE_CDN_URL.replace(/\/+$/, '') : 'https://cdn.rudderlabs.com';
 const isContentScriptBuild = process.env.NO_EXTERNAL_HOST;
 let bugsnagSDKUrl = 'https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js';
 let polyfillIoUrl = 'https://polyfill-fastly.io/v3/polyfill.min.js';

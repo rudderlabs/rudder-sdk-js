@@ -140,7 +140,7 @@ jobs:
       - name: Setup workspace
         env:
           HUSKY: 0
-          REMOTE_MODULES_BASE_PATH: '${{ inputs.cdn_url_host }}/${{ inputs.s3_dir_path }}/modern/plugins'
+          REMOTE_MODULES_BASE_PATH: '${{ inputs.base_cdn_url }}/${{ inputs.s3_dir_path }}/modern/plugins'
           BUGSNAG_API_KEY: ${{ secrets.BUGSNAG_API_KEY }}
           BUGSNAG_RELEASE_STAGE: ${{ inputs.bugsnag_release_stage }}
           LOCK_DEPS_VERSION: ${{ inputs.environment == 'production' && 'true' || 'false' }}
