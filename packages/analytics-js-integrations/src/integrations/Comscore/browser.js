@@ -28,6 +28,10 @@ class Comscore {
     return !!window.COMSCORE && !!window.COMSCORE.beacon;
   }
 
+  isReady() {
+    return this.isLoaded();
+  }
+
   page(rudderElement) {
     const { message } = rudderElement;
     const { name: eventName, properties, integrations } = message;
