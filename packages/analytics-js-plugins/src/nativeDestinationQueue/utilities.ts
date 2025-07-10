@@ -85,7 +85,7 @@ const sendEventToDestination = (
  * @returns Boolean indicating whether the transformation should be applied
  */
 const shouldApplyTransformation = (dest: Destination): boolean => {
-  return dest.shouldApplyDeviceModeTransformation && !dest.cloned;
+  return dest.shouldApplyDeviceModeTransformation;
 };
 
 export {
