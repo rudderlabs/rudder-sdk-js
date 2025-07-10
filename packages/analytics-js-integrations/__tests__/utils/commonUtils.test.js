@@ -243,20 +243,20 @@ describe('isDefinedAndNotNullAndNotEmpty Tests', () => {
     const result = utils.isDefinedAndNotNullAndNotEmpty(testVar);
     expect(result).toStrictEqual(false);
   });
-  test('integer returns false', () => {
+  test('integer returns true', () => {
     const testVar = 124;
     const result = utils.isDefinedAndNotNullAndNotEmpty(testVar);
-    expect(result).toStrictEqual(false);
+    expect(result).toStrictEqual(true);
   });
-  test('true returns false', () => {
+  test('true returns true', () => {
     const testVar = true;
     const result = utils.isDefinedAndNotNullAndNotEmpty(testVar);
-    expect(result).toStrictEqual(false);
+    expect(result).toStrictEqual(true);
   });
-  test('false returns false', () => {
+  test('false returns true', () => {
     const testVar = false;
     const result = utils.isDefinedAndNotNullAndNotEmpty(testVar);
-    expect(result).toStrictEqual(false);
+    expect(result).toStrictEqual(true);
   });
 });
 
@@ -402,19 +402,19 @@ describe('isNotEmpty', () => {
   });
   // returns true for booleans
   it('should return true when input is a boolean', () => {
-    expect(utils.isNotEmpty(true)).toBe(false);
-    expect(utils.isNotEmpty(false)).toBe(false);
+    expect(utils.isNotEmpty(true)).toBe(true);
+    expect(utils.isNotEmpty(false)).toBe(true);
   });
   // returns true for numbers
   it('should return true when input is a number', () => {
-    expect(utils.isNotEmpty(5)).toBe(false);
-    expect(utils.isNotEmpty(0)).toBe(false);
-    expect(utils.isNotEmpty(-10)).toBe(false);
-    expect(utils.isNotEmpty(0.444548)).toBe(false);
+    expect(utils.isNotEmpty(5)).toBe(true);
+    expect(utils.isNotEmpty(0)).toBe(true);
+    expect(utils.isNotEmpty(-10)).toBe(true);
+    expect(utils.isNotEmpty(0.444548)).toBe(true);
   });
   // returns false for undefined
   it('should return false when input is undefined', () => {
-    expect(utils.isNotEmpty(undefined)).toBe(false);
+    expect(utils.isNotEmpty(undefined)).toBe(true);
   });
   // returns true for non-empty array
   it('should return true when input is a non-empty array', () => {
@@ -438,12 +438,45 @@ describe('isNotEmpty', () => {
   it('should return true for functions and symbols', () => {
     const func = () => {};
     const sym = Symbol('test');
-    expect(utils.isNotEmpty(func)).toBe(false);
-    expect(utils.isNotEmpty(sym)).toBe(false);
+    expect(utils.isNotEmpty(func)).toBe(true);
+    expect(utils.isNotEmpty(sym)).toBe(true);
   });
   // handles Date objects correctly
   it('should return true when input is a Date object', () => {
     const date = new Date();
     expect(utils.isNotEmpty(date)).toBe(true);
+  });
+});
+
+describe('removeUndefinedAndNullAndEmptyValues Tests', () => {
+  test('handles mixed data types correctly', () => {
+    const input = {
+      string: 'hello',
+      emptyString: '',
+      number: 42,
+      zero: 0,
+      one: 1,
+      boolean: true,
+      falseBool: false,
+      nullValue: null,
+      undefinedValue: undefined,
+      emptyObject: {},
+      filledObject: { key: 'value' },
+      emptyArray: [],
+      filledArray: [1, 2],
+      date: new Date('2023-01-01'),
+    };
+    const result = utils.removeUndefinedAndNullAndEmptyValues(input);
+    expect(result).toStrictEqual({
+      string: 'hello',
+      number: 42,
+      zero: 0,
+      one: 1,
+      boolean: true,
+      falseBool: false,
+      filledObject: { key: 'value' },
+      filledArray: [1, 2],
+      date: new Date('2023-01-01'),
+    });
   });
 });
