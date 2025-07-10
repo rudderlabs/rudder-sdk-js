@@ -399,6 +399,100 @@ describe('MicrosoftClarity identify tests', () => {
     expect(window.clarity).toHaveBeenCalledWith('identify', 'test-user-123', undefined, undefined);
     expect(window.clarity).toHaveBeenCalledTimes(1); // Only called once for identify, no set calls
   });
+
+  test('should handle when clarity identify returns a promise and promise resolves', () => {
+    const mockPromise = Promise.resolve();
+    window.clarity = jest.fn().mockReturnValue(mockPromise);
+
+    const rudderElement = {
+      message: {
+        userId: 'test-user-123',
+        context: {},
+      },
+    };
+
+    clarityInstance.identify(rudderElement);
+    expect(window.clarity).toHaveBeenCalledWith('identify', 'test-user-123', undefined, undefined);
+  });
+
+  test('should handle when clarity identify returns a promise and promise rejects', async () => {
+    const mockError = new Error('Clarity API error');
+    const mockPromise = Promise.reject(mockError);
+    window.clarity = jest.fn().mockReturnValue(mockPromise);
+
+    const loggerSpy = jest.spyOn(console, 'error').mockImplementation();
+
+    const rudderElement = {
+      message: {
+        userId: 'test-user-123',
+        context: {},
+      },
+    };
+
+    clarityInstance.identify(rudderElement);
+    expect(window.clarity).toHaveBeenCalledWith('identify', 'test-user-123', undefined, undefined);
+
+    // Wait for the promise to be processed
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    loggerSpy.mockRestore();
+  });
+
+  test('should handle when clarity identify returns undefined (not a promise)', () => {
+    window.clarity = jest.fn().mockReturnValue(undefined);
+
+    const rudderElement = {
+      message: {
+        userId: 'test-user-123',
+        context: {},
+      },
+    };
+
+    clarityInstance.identify(rudderElement);
+    expect(window.clarity).toHaveBeenCalledWith('identify', 'test-user-123', undefined, undefined);
+  });
+
+  test('should handle when clarity identify returns null (not a promise)', () => {
+    window.clarity = jest.fn().mockReturnValue(null);
+
+    const rudderElement = {
+      message: {
+        userId: 'test-user-123',
+        context: {},
+      },
+    };
+
+    clarityInstance.identify(rudderElement);
+    expect(window.clarity).toHaveBeenCalledWith('identify', 'test-user-123', undefined, undefined);
+  });
+
+  test('should handle when clarity identify returns an object without then method', () => {
+    window.clarity = jest.fn().mockReturnValue({ someProperty: 'value' });
+
+    const rudderElement = {
+      message: {
+        userId: 'test-user-123',
+        context: {},
+      },
+    };
+
+    clarityInstance.identify(rudderElement);
+    expect(window.clarity).toHaveBeenCalledWith('identify', 'test-user-123', undefined, undefined);
+  });
+
+  test('should handle when clarity identify returns an object with then property that is not a function', () => {
+    window.clarity = jest.fn().mockReturnValue({ then: 'not-a-function' });
+
+    const rudderElement = {
+      message: {
+        userId: 'test-user-123',
+        context: {},
+      },
+    };
+
+    clarityInstance.identify(rudderElement);
+    expect(window.clarity).toHaveBeenCalledWith('identify', 'test-user-123', undefined, undefined);
+  });
 });
 
 describe('MicrosoftClarity track tests', () => {
