@@ -17,7 +17,7 @@ import alias from '@rollup/plugin-alias';
 import * as dotenv from 'dotenv';
 import { DEFAULT_EXTENSIONS } from '@babel/core';
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 const isContentScriptBuild = process.env.NO_EXTERNAL_HOST;
 let bugsnagSDKUrl = 'https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js';

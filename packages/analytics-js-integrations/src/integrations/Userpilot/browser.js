@@ -1,10 +1,6 @@
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader.js';
-import {
-  NAME,
-  DISPLAY_NAME,
-  TRAIT_MAPPINGS,
-} from '@rudderstack/analytics-js-common/constants/integrations/Userpilot/constants';
+import { NAME, DISPLAY_NAME, TRAIT_MAPPINGS } from './constants';
 
 const logger = new Logger(DISPLAY_NAME);
 
@@ -38,7 +34,7 @@ class Userpilot {
    * Initializes the Userpilot SDK
    */
   init() {
-    return loadNativeSdk({ token: this.token, sdkEndpoint: this.sdkEndpoint })
+    return loadNativeSdk({ token: this.token, sdkEndpoint: this.sdkEndpoint });
   }
 
   /**
@@ -152,4 +148,4 @@ class Userpilot {
   }
 }
 
-export default Userpilot; 
+export default Userpilot;

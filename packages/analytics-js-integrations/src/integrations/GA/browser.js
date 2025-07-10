@@ -1,10 +1,12 @@
 /* eslint-disable class-methods-use-this */
 import is from 'is';
 import each from 'component-each';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
-import { NAME } from '@rudderstack/analytics-js-common/constants/integrations/GA/constants';
+import { ScriptLoader } from '@rudderstack/analytics-js-legacy-utilities/ScriptLoader';
+import { NAME, DISPLAY_NAME } from './constants';
 import { rejectArr } from '../../utils/utils';
+import Logger from '../../utils/logger';
+
+const logger = new Logger(DISPLAY_NAME);
 
 export default class GA {
   constructor(config, analytics, destinationInfo) {

@@ -21,7 +21,7 @@ import externalGlobals from 'rollup-plugin-external-globals';
 import * as dotenv from 'dotenv';
 import pkg from './package.json' with { type: 'json' };
 
-dotenv.config();
+dotenv.config({ quiet: true });
 const isLegacyBuild = process.env.BROWSERSLIST_ENV !== 'modern';
 const additionalWatchPaths = isLegacyBuild ? ['../analytics-js-plugins/src/**', '../analytics-js-common/src/**'] : [];
 const variantSubfolder = isLegacyBuild ? '/legacy' : '/modern';

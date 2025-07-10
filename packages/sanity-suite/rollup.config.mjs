@@ -14,7 +14,7 @@ import nodePolyfills from 'rollup-plugin-polyfill-node';
 import { DEFAULT_EXTENSIONS } from '@babel/core';
 import * as dotenv from 'dotenv';
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 const SERVER_PORT = 3003;
 const BASE_CDN_URL = 'https://cdn.rudderlabs.com';
