@@ -69,9 +69,9 @@ describe('Error Reporting utilities', () => {
       ['www.test-host.com', 'development'],
       ['[::1]', 'development'],
       ['', 'development'], // for file:// protocol
-      ['www.validhost.com', 'development'],
-      ['example.com', 'development'],
-      ['production.myapp.com', 'development'],
+      ['www.validhost.com', 'production'],
+      ['example.com', 'production'],
+      ['production.myapp.com', 'production'],
       [undefined, 'development'],
       [null, 'development'],
     ] as const;
