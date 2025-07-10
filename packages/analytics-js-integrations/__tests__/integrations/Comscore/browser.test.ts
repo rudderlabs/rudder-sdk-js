@@ -17,7 +17,7 @@ beforeEach(() => {
 });
 
 describe('Comscore init tests', () => {
-  test('Testing init call of Userpilot with token', () => {
+  test('Testing init call of Comscore with token', () => {
     const comscore = new Comscore({ publisherId: 'test-token' }, { logLevel: 'debug' });
     comscore.init();
     expect(comscore.name).toBe('COMSCORE');

@@ -9,9 +9,6 @@ import { getDestinationOptions, generateExtraData } from './utils';
 
 const logger = new Logger(DISPLAY_NAME);
 
-const getDestinationOptions = integrationsOptions =>
-  integrationsOptions && (integrationsOptions[DISPLAY_NAME] || integrationsOptions[NAME]);
-
 class Comscore {
   constructor(config, analytics) {
     if (analytics.logLevel) {
@@ -24,7 +21,7 @@ class Comscore {
   }
 
   init() {
-    loadNativeSdk();
+    loadNativeSdk(this.publisherId);
   }
 
   isLoaded() {
