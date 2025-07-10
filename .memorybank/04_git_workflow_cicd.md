@@ -101,11 +101,11 @@ The base URL for the sanity suite is `https://cdn.rudderlabs.com/sanity-suite/`.
   - `https://cdn.rudderlabs.com/sanity-suite/beta/{identifier}/v1.1/npm/index.html`
   - All suites webpage: `https://cdn.rudderlabs.com/sanity-suite/beta/{identifier}/all/index.html`
 - Development:
-  - `https://cdn.rudderlabs.com/sanity-suite/dev/v3/cdn/index.html`
-  - `https://cdn.rudderlabs.com/sanity-suite/dev/v3/npm/index.html`
-  - `https://cdn.rudderlabs.com/sanity-suite/dev/v1.1/cdn/index.html`
-  - `https://cdn.rudderlabs.com/sanity-suite/dev/v1.1/npm/index.html`
-  - All suites webpage: `https://cdn.rudderlabs.com/sanity-suite/dev/all/index.html`
+  - `https://cdn.dev.rudderlabs.com/sanity-suite/dev/v3/cdn/index.html`
+  - `https://cdn.dev.rudderlabs.com/sanity-suite/dev/v3/npm/index.html`
+  - `https://cdn.dev.rudderlabs.com/sanity-suite/dev/v1.1/cdn/index.html`
+  - `https://cdn.dev.rudderlabs.com/sanity-suite/dev/v1.1/npm/index.html`
+  - All suites webpage: `https://cdn.dev.rudderlabs.com/sanity-suite/dev/all/index.html`
 
 ## ⚙️ Development Commands
 

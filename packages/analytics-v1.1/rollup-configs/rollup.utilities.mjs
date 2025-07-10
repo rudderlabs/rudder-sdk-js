@@ -19,6 +19,7 @@ import { DEFAULT_EXTENSIONS } from '@babel/core';
 
 dotenv.config();
 
+const baseCdnUrl = process.env.BASE_CDN_URL || 'https://cdn.rudderlabs.com';
 const isContentScriptBuild = process.env.NO_EXTERNAL_HOST;
 let bugsnagSDKUrl = 'https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js';
 let polyfillIoUrl = 'https://polyfill-fastly.io/v3/polyfill.min.js';
@@ -76,6 +77,7 @@ export function getDefaultConfig(distName) {
         __RS_POLYFILLIO_SDK_URL__: polyfillIoUrl,
         __RS_BUGSNAG_SDK_URL__: bugsnagSDKUrl,
         __RS_GOOGLE_ADS_SDK_URL__: googleAdsSDKUrl,
+        __BASE_CDN_URL__: baseCdnUrl,
       }),
       alias({
         entries: [

@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import path from 'path';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
@@ -73,9 +72,9 @@ export function getDefaultConfig(distName) {
     plugins: [
       replace({
         preventAssignment: true,
-        __PACKAGE_VERSION__: version,
-        __MODULE_TYPE__: moduleType,
-        __RS_BUGSNAG_RELEASE_STAGE__: process.env.BUGSNAG_RELEASE_STAGE || 'production',
+        __PACKAGE_VERSION__: `'${version}'`,
+        __MODULE_TYPE__: `'${moduleType}'`,
+        __RS_BUGSNAG_RELEASE_STAGE__: `'${process.env.BUGSNAG_RELEASE_STAGE || 'production'}'`,
       }),
       resolve({
         jsnext: true,

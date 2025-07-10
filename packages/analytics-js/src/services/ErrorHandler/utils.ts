@@ -70,9 +70,7 @@ const createNewBreadcrumb = (message: string): Breadcrumb => ({
  */
 const getReleaseStage = (getHostName = () => window.location.hostname) => {
   const host = getHostName();
-  return !host || (host && DEV_HOSTS.includes(host))
-    ? 'development'
-    : '__RS_BUGSNAG_RELEASE_STAGE__';
+  return !host || (host && DEV_HOSTS.includes(host)) ? 'development' : __RS_BUGSNAG_RELEASE_STAGE__;
 };
 
 const getAppStateForMetadata = (state: ApplicationState): Record<string, any> => {

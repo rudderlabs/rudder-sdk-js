@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import { readdir } from 'fs/promises';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
@@ -17,7 +16,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 const SERVER_PORT = 3003;
-const BASE_CDN_URL = 'https://cdn.rudderlabs.com';
+const BASE_CDN_URL = process.env.BASE_CDN_URL || 'https://cdn.rudderlabs.com';
 const DEFAULT_SDK_VERSION = 'v3';
 
 const sdkVersion = process.env.SDK_VERSION || DEFAULT_SDK_VERSION;
@@ -152,7 +151,6 @@ const getCopyTargets = () => {
               dest: `${getDistPath()}/plugins`,
             },
           ];
-      
       return [...baseCopyTargets, allAggregatorCopy];
   }
 };
@@ -174,8 +172,8 @@ const getBuildConfig = featureName => ({
   plugins: [
     replace({
       preventAssignment: true,
-      __PACKAGE_VERSION__: sdkVersion,
-      __MODULE_TYPE__: distributionType,
+      __PACKAGE_VERSION__: `'${sdkVersion}'`,
+      __MODULE_TYPE__: `'${distributionType}'`,
       WRITE_KEY: process.env.WRITE_KEY,
       DATA_PLANE_URL: process.env.DATAPLANE_URL,
       CONFIG_SERVER_HOST: process.env.CONFIG_SERVER_HOST,
@@ -225,6 +223,7 @@ const getBuildConfig = featureName => ({
         __CONFIG_SERVER_HOST__: process.env.CONFIG_SERVER_HOST || '',
         __DEST_SDK_BASE_URL__: getDestinationSDKBaseURL(),
         __PLUGINS_SDK_BASE_URL__: getPluginsBaseURL(),
+        __BASE_CDN_URL__: BASE_CDN_URL,
         __CDN_VERSION_PATH__: `${cdnVersionPath}` || '',
         __FEATURE__: featureName,
         __IS_DEV_TESTBOOK__: isDevEnvTestBook,

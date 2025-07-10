@@ -36,6 +36,10 @@ on:
         description: 'Release ticket for artifact lookup'
         type: string
         required: false
+      base_cdn_url:
+        type: string
+        required: false
+        default: 'https://cdn.rudderlabs.com'
     secrets:
       RS_PROD_BUGSNAG_API_KEY:
         required: true
@@ -119,7 +123,7 @@ jobs:
       - name: Setup workspace
         env:
           HUSKY: 0
-          REMOTE_MODULES_BASE_PATH: 'https://cdn.rudderlabs.com/v3/modern/plugins'
+          REMOTE_MODULES_BASE_PATH: '${{ inputs.base_cdn_url }}/v3/modern/plugins'
           BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
           LOCK_DEPS_VERSION: ${{ inputs.environment == 'production' && 'true' || 'false' }}
           BUGSNAG_RELEASE_STAGE: ${{ inputs.bugsnag_release_stage || 'production' }}

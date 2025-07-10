@@ -61,8 +61,8 @@ export function getDefaultConfig(distName, moduleType = 'cdn') {
     plugins: [
       replace({
         preventAssignment: true,
-        __PACKAGE_VERSION__: version,
-        __MODULE_TYPE__: moduleType,
+        __PACKAGE_VERSION__: `'${version}'`,
+        __MODULE_TYPE__: `'${moduleType}'`,
       }),
       alias({
         entries: [
