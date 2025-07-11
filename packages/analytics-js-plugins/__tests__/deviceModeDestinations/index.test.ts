@@ -795,7 +795,7 @@ describe('DeviceModeDestinations Plugin', () => {
       expect(mockExternalSrcLoader.loadJSFile).toHaveBeenCalledTimes(2);
     });
 
-    it('should categorize SDK load errors with integrations category', () => {
+    it('should categorize integration SDK load errors with integrations category', () => {
       mockIsDestinationSDKMounted.mockReturnValueOnce(false);
 
       plugin.nativeDestinations.load(
@@ -824,7 +824,7 @@ describe('DeviceModeDestinations Plugin', () => {
       mockIsDestinationSDKMounted.mockClear();
     });
 
-    it('should handle multiple SDK load errors with proper categorization', () => {
+    it('should handle multiple integration SDK load errors with proper categorization', () => {
       mockIsDestinationSDKMounted.mockReturnValue(false);
 
       plugin.nativeDestinations.load(
@@ -899,7 +899,7 @@ describe('DeviceModeDestinations Plugin', () => {
       );
     });
 
-    it('should construct correct SDK URLs based on integrations CDN path', () => {
+    it('should construct correct integration SDK URLs based on integrations CDN path', () => {
       const customCDNPath = 'https://custom-cdn.example.com/integrations';
       mockState.lifecycle.integrationsCDNPath.value = customCDNPath;
       mockIsDestinationSDKMounted.mockReturnValueOnce(false);
