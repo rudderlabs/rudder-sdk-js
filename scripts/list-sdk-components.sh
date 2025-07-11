@@ -21,6 +21,7 @@ OUTPUT_HTML_FILE_NAME=$3
 OUTPUT_HTML_DIR_PATH=$4
 COMPONENT_NAME=$5
 ZIP_FILE_NAME=$6
+CDN_URL_HOST=$7
 
 OUTPUT_HTML_FILE_PATH="$OUTPUT_HTML_DIR_PATH/$OUTPUT_HTML_FILE_NAME"
 
@@ -54,7 +55,7 @@ echo "<html>" >> $OUTPUT_HTML_FILE_PATH
 echo "<head><title>RudderStack JavaScript SDK - $COMPONENT_NAME</title></head>" >> $OUTPUT_HTML_FILE_PATH
 echo "<body>" >> $OUTPUT_HTML_FILE_PATH
 echo "<h1>RudderStack JavaScript SDK - $COMPONENT_NAME</h1>" >> $OUTPUT_HTML_FILE_PATH
-echo "<p><a href=\"https://cdn.rudderlabs.com/$DIRECTORY_PATH/$ZIP_FILE_NAME\" download><button>Download All Files</button></a></p>" >> $OUTPUT_HTML_FILE_PATH
+echo "<p><a href=\"$CDN_URL_HOST/$DIRECTORY_PATH/$ZIP_FILE_NAME\" download><button>Download All Files</button></a></p>" >> $OUTPUT_HTML_FILE_PATH
 echo "<table>" >> $OUTPUT_HTML_FILE_PATH
 echo "<tr><th>#</th><th>File Name</th><th>Last Updated</th></tr>" >> $OUTPUT_HTML_FILE_PATH
 
@@ -65,7 +66,7 @@ COUNTER=1
 while IFS= read -r LINE; do
   TIMESTAMP=$(echo $LINE | awk '{print $1, $2}')
   FILE=$(echo $LINE | awk '{print $3}')
-  URL="https://cdn.rudderlabs.com/$DIRECTORY_PATH/$FILE"
+  URL="$CDN_URL_HOST/$DIRECTORY_PATH/$FILE"
 
   # Check if the file is in the excluded list
   if is_excluded "$FILE"; then

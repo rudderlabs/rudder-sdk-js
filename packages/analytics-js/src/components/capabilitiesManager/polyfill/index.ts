@@ -1,13 +1,11 @@
 import { legacyJSEngineRequiredPolyfills } from '../detection/dom';
-
-// eslint-disable-next-line no-constant-condition
-// @ts-expect-error we're dynamically filling this value during build
-// eslint-disable-next-line no-constant-condition
-const POLYFILL_URL = '__RS_POLYFILLIO_SDK_URL__'
-  ? `__RS_POLYFILLIO_SDK_URL__?version=3.111.0&features=${Object.keys(
-      legacyJSEngineRequiredPolyfills,
-    ).join('%2C')}`
-  : '';
+const polyfillIoSdkUrl: string = __RS_POLYFILLIO_SDK_URL__;
+const POLYFILL_URL =
+  polyfillIoSdkUrl !== ''
+    ? `${polyfillIoSdkUrl}?version=3.111.0&features=${Object.keys(
+        legacyJSEngineRequiredPolyfills,
+      ).join('%2C')}`
+    : '';
 
 const POLYFILL_LOAD_TIMEOUT = 10 * 1000; // 10 seconds
 

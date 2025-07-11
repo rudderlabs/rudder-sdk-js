@@ -37,7 +37,7 @@ export function getDefaultConfig(distName) {
         preventAssignment: true,
         __WRITE_KEY__: process.env.WRITE_KEY,
         __DATAPLANE_URL__: process.env.DATAPLANE_URL,
-        __PACKAGE_VERSION__: version,
+        __PACKAGE_VERSION__: `'${version}'`,
       }),
       typescript({
         tsconfig: './tsconfig.json',

@@ -69,9 +69,9 @@ describe('Error Reporting utilities', () => {
       ['www.test-host.com', 'development'],
       ['[::1]', 'development'],
       ['', 'development'], // for file:// protocol
-      ['www.validhost.com', '__RS_BUGSNAG_RELEASE_STAGE__'],
-      ['example.com', '__RS_BUGSNAG_RELEASE_STAGE__'],
-      ['production.myapp.com', '__RS_BUGSNAG_RELEASE_STAGE__'],
+      ['www.validhost.com', 'production'],
+      ['example.com', 'production'],
+      ['production.myapp.com', 'production'],
       [undefined, 'development'],
       [null, 'development'],
     ] as const;
@@ -339,8 +339,8 @@ describe('Error Reporting utilities', () => {
         payloadVersion: '5',
         notifier: {
           name: 'RudderStack JavaScript SDK',
-          version: '__PACKAGE_VERSION__',
-          url: '__REPOSITORY_URL__',
+          version: '0.0.0-test',
+          url: 'https://github.com/rudderlabs/rudder-sdk-js.git',
         },
         events: [
           {
@@ -365,7 +365,7 @@ describe('Error Reporting utilities', () => {
               type: 'handledException',
             },
             app: {
-              version: '__PACKAGE_VERSION__',
+              version: '0.0.0-test',
               releaseStage: 'development',
               type: 'cdn',
             },
@@ -442,13 +442,13 @@ describe('Error Reporting utilities', () => {
                   installType: 'cdn',
                   name: 'RudderLabs JavaScript SDK',
                   namespace: 'com.rudderlabs.javascript',
-                  version: '__PACKAGE_VERSION__',
+                  version: '0.0.0-test',
                 },
                 device: null,
                 library: {
                   name: 'RudderLabs JavaScript SDK',
                   snippetVersion: 'sample_snippet_version',
-                  version: '__PACKAGE_VERSION__',
+                  version: '0.0.0-test',
                 },
                 locale: 'en-US',
                 network: null,
@@ -604,8 +604,8 @@ describe('Error Reporting utilities', () => {
           message_id: 'test_uuid',
           source: {
             name: 'js',
-            sdk_version: '__PACKAGE_VERSION__',
-            install_type: '__MODULE_TYPE__',
+            sdk_version: '0.0.0-test',
+            install_type: 'npm',
           },
           errors: errorEventPayload,
         }),
