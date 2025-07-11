@@ -2,7 +2,16 @@
   "extends": "../../tsconfig.build.json",
   "compilerOptions": {
     "target": "es5",
-    "declarationDir": "./dist/dts"
+    "declarationDir": "./dist/npm",
+    "outDir": "./dist/npm",
+    "emitDeclarationOnly": false,
+    "sourceMap": false,
+    "declarationMap": false
   },
-  "include": ["./package.json", "./src/**/*", "../../types/**/*", "../analytics-js-common/src/**/*"]
+  "include": [
+    "./package.json",
+    "./src/**/*",
+    "../../types/**/*",
+    "../analytics-js-legacy-utilities/src/**/*"
+  ]
 }

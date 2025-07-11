@@ -1,10 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
-import { Storage } from '@rudderstack/analytics-js-common/v1.1/utils/storage';
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/SnapPixel/constants';
+import { Storage } from '@rudderstack/analytics-js-legacy-utilities/storage';
+import { NAME, DISPLAY_NAME } from './constants';
 import Logger from '../../utils/logger';
 import {
   getEventMappingFromConfig,

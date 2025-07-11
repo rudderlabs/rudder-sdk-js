@@ -1,11 +1,8 @@
 /* eslint-disable class-methods-use-this */
 import { equals } from 'ramda';
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/Braze/constants';
-import { Storage } from '@rudderstack/analytics-js-common/v1.1/utils/storage';
-import { stringifyWithoutCircularV1 } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
+import { NAME, DISPLAY_NAME } from './constants';
+import { Storage } from '@rudderstack/analytics-js-legacy-utilities/storage';
+import { stringifyWithoutCircularV1 } from '@rudderstack/analytics-js-legacy-utilities/ObjectUtils';
 import Logger from '../../utils/logger';
 import { isObject } from '../../utils/utils';
 import { isNotEmpty } from '../../utils/commonUtils';

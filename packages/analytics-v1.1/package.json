@@ -82,7 +82,8 @@
     "directory": "packages/analytics-v1.1"
   },
   "dependencies": {
-    "@rudderstack/analytics-js-common": "*",
+    "@rudderstack/analytics-js-integrations": "*",
+    "@rudderstack/analytics-js-legacy-utilities": "*",
     "get-value": "4.0.1",
     "ramda": "0.31.3",
     "component-emitter": "2.0.0",

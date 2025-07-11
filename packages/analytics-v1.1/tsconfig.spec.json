@@ -21,6 +21,8 @@
     "__fixtures__/**/*.js",
     "src/**/*.ts",
     "src/**/*.js",
-    "src/**/*.d.ts"
+    "src/**/*.d.ts",
+    "../analytics-js-integrations/src/**/*",
+    "../analytics-js-legacy-utilities/src/**/*"
   ]
 }

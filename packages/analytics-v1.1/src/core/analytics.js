@@ -15,18 +15,18 @@
 /* eslint-disable sonarjs/cognitive-complexity */
 import Emitter from 'component-emitter';
 import * as R from 'ramda';
-import { configToIntNames } from '@rudderstack/analytics-js-common/constants/integrations/config_to_integration_names';
-import { commonNames } from '@rudderstack/analytics-js-common/constants/integrations/integration_cname';
-import { handleError } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
+import { configToIntNames } from '@rudderstack/analytics-js-legacy-utilities/config_to_integration_names';
+import { commonNames } from '../constants/integrations/integration_cname';
+import { handleError } from '../utils/errorHandler';
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
-} from '@rudderstack/analytics-js-common/v1.1/utils/constants';
-import { Storage } from '@rudderstack/analytics-js-common/v1.1/utils/storage';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
-import { isNonEmptyObject } from '@rudderstack/analytics-js-common/utilities/object';
-import { isSDKRunningInChromeExtension } from '@rudderstack/analytics-js-common/utilities/detect';
+} from '@rudderstack/analytics-js-legacy-utilities/constants';
+import { Storage } from '@rudderstack/analytics-js-legacy-utilities/storage';
+import { logger } from '@rudderstack/analytics-js-legacy-utilities/logUtil';
+import { ScriptLoader } from '@rudderstack/analytics-js-legacy-utilities/ScriptLoader';
+import { isNonEmptyObject } from '@rudderstack/analytics-js-legacy-utilities/ObjectUtils';
+import { isSDKRunningInChromeExtension } from '@rudderstack/analytics-js-legacy-utilities/ObjectUtils';
 import {
   getJSONTrimmed,
   generateUUID,
