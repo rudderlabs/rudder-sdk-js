@@ -31,6 +31,7 @@ jobs:
       bugsnag_release_stage: 'development'
       s3_dir_path: 'dev/latest/v3'
       s3_dir_path_legacy: 'dev/latest/v1.1'
+      base_cdn_url: 'https://cdn.dev.rudderlabs.com'
       trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
     secrets:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_DEV_ACCOUNT_ID }}
@@ -43,6 +44,7 @@ jobs:
 
   deploy-sanity-suite:
     name: Deploy sanity suite
+    if: github.event.pull_request.merged == true
     needs: [get-deploy-inputs]
     uses: ./.github/workflows/deploy-sanity-suite.yml
     with:

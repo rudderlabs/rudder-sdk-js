@@ -21,7 +21,7 @@ const APP_STATE_EXCLUDE_KEYS = [
 ];
 const REQUEST_TIMEOUT_MS = 10 * 1000; // 10 seconds
 const NOTIFIER_NAME = 'RudderStack JavaScript SDK';
-const SDK_GITHUB_URL = '__REPOSITORY_URL__';
+const SDK_GITHUB_URL = __REPOSITORY_URL__;
 const SOURCE_NAME = 'js';
 
 export {
