@@ -606,10 +606,89 @@ describe('Error Reporting utilities', () => {
             name: 'js',
             sdk_version: '0.0.0-test',
             install_type: 'npm',
+            category: 'sdk',
           },
           errors: errorEventPayload,
         }),
       );
+    });
+
+    it('should include category in the payload when provided', () => {
+      const mockPayload = {
+        payloadVersion: '5',
+        events: [
+          {
+            exceptions: [{ message: 'test error' }],
+            severity: 'error',
+            unhandled: false,
+            severityReason: { type: 'handledException' },
+          },
+        ],
+      } as ErrorEventPayload;
+
+      const mockState = {
+        context: {
+          app: {
+            value: {
+              version: '3.0.0',
+              installType: 'cdn',
+            },
+          },
+        },
+        lifecycle: {
+          writeKey: {
+            value: 'test-write-key',
+          },
+        },
+      } as any;
+
+      const result = getErrorDeliveryPayload(mockPayload, mockState, 'integrations');
+      const parsedResult = JSON.parse(result);
+
+      expect(parsedResult.source.category).toBe('integrations');
+      expect(parsedResult.source.name).toBe('js');
+      expect(parsedResult.source.sdk_version).toBe('3.0.0');
+      expect(parsedResult.source.write_key).toBe('test-write-key');
+      expect(parsedResult.source.install_type).toBe('cdn');
+    });
+
+    it('should default to sdk category when category is not provided', () => {
+      const mockPayload = {
+        payloadVersion: '5',
+        events: [
+          {
+            exceptions: [{ message: 'test error' }],
+            severity: 'error',
+            unhandled: false,
+            severityReason: { type: 'handledException' },
+          },
+        ],
+      } as ErrorEventPayload;
+
+      const mockState = {
+        context: {
+          app: {
+            value: {
+              version: '3.0.0',
+              installType: 'cdn',
+            },
+          },
+        },
+        lifecycle: {
+          writeKey: {
+            value: 'test-write-key',
+          },
+        },
+      } as any;
+
+      const result = getErrorDeliveryPayload(mockPayload, mockState);
+      const parsedResult = JSON.parse(result);
+
+      expect(parsedResult.source.category).toBe('sdk');
+      expect(parsedResult.source.name).toBe('js');
+      expect(parsedResult.source.sdk_version).toBe('3.0.0');
+      expect(parsedResult.source.write_key).toBe('test-write-key');
+      expect(parsedResult.source.install_type).toBe('cdn');
     });
   });
 

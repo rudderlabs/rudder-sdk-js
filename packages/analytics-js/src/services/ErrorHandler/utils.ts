@@ -256,7 +256,11 @@ const isSDKError = (exception: Exception) => {
   );
 };
 
-const getErrorDeliveryPayload = (payload: ErrorEventPayload, state: ApplicationState): string => {
+const getErrorDeliveryPayload = (
+  payload: ErrorEventPayload,
+  state: ApplicationState,
+  category?: string,
+): string => {
   const data = {
     version: METRICS_PAYLOAD_VERSION,
     message_id: generateUUID(),
@@ -265,6 +269,7 @@ const getErrorDeliveryPayload = (payload: ErrorEventPayload, state: ApplicationS
       sdk_version: state.context.app.value.version,
       write_key: state.lifecycle.writeKey.value as string,
       install_type: state.context.app.value.installType,
+      category: category ?? 'sdk',
     },
     errors: payload,
   };
