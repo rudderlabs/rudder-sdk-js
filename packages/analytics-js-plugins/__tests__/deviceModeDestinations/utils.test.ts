@@ -1191,6 +1191,7 @@ describe('deviceModeDestinations utils', () => {
         context: 'DeviceModeDestinationsPlugin',
         customMessage: 'Failed to get integrations data for destination "GA4___1234567890".',
         groupingHash: 'Failed to get integrations data for destination "Google Analytics 4 (GA4)".',
+        category: 'integrations',
       });
     });
 
@@ -1355,6 +1356,7 @@ describe('deviceModeDestinations utils', () => {
         customMessage: 'Failed to initialize integration for destination "GA4___1234567890".',
         groupingHash:
           'Failed to initialize integration for destination "Google Analytics 4 (GA4)".',
+        category: 'integrations',
       });
     });
 
@@ -1398,6 +1400,7 @@ describe('deviceModeDestinations utils', () => {
             'Failed to get the ready status from integration for destination "GA4___1234567890"',
           groupingHash:
             'Failed to get the ready status from integration for destination "Google Analytics 4 (GA4)"',
+          category: 'integrations',
         });
 
         jest.useRealTimers();
@@ -1407,6 +1410,251 @@ describe('deviceModeDestinations utils', () => {
 
       // Fast-forward the timers to the next tick asynchronously
       jest.advanceTimersByTimeAsync(1);
+    });
+
+    it('should categorize initialization errors with integrations category', () => {
+      const mockState = {
+        lifecycle: {
+          integrationsCDNPath: { value: 'https://cdn.rudderlabs.com/v3' },
+        },
+        nativeDestinations: {
+          failedDestinations: { value: [] },
+          initializedDestinations: { value: [] },
+          integrationsConfig: { value: {} },
+        },
+      } as any;
+
+      const mockDestination = {
+        id: 'dest1',
+        displayName: 'Test Destination',
+        userFriendlyId: 'Test-Destination___dest1',
+        enabled: true,
+        shouldApplyDeviceModeTransformation: false,
+        propagateEventsUntransformedOnError: false,
+        config: {
+          apiKey: 'test-key',
+          blacklistedEvents: [],
+          whitelistedEvents: [],
+          eventFilteringOption: 'disable' as const,
+        },
+      };
+
+      const mockSDKClass = jest.fn().mockImplementation(() => {
+        throw new Error('Initialization failed');
+      });
+
+      // Mock the global SDK object
+      (globalThis as any).TestDestination_RS = {
+        TestDestination: mockSDKClass,
+      };
+
+      initializeDestination(
+        mockDestination,
+        mockState,
+        'TestDestination_RS',
+        'TestDestination',
+        defaultErrorHandler,
+        defaultLogger,
+      );
+
+      expect(defaultErrorHandler.onError).toHaveBeenCalledWith({
+        error: expect.any(Error),
+        context: 'DeviceModeDestinationsPlugin',
+        customMessage:
+          'Failed to initialize integration for destination "Test-Destination___dest1".',
+        groupingHash: 'Failed to initialize integration for destination "Test Destination".',
+        category: 'integrations',
+      });
+
+      // Clean up
+      delete (globalThis as any).TestDestination_RS;
+    });
+
+    it('should categorize ready check errors with integrations category', () => {
+      const mockState = {
+        lifecycle: {
+          integrationsCDNPath: { value: 'https://cdn.rudderlabs.com/v3' },
+        },
+        nativeDestinations: {
+          failedDestinations: { value: [] },
+          initializedDestinations: { value: [] },
+          integrationsConfig: { value: {} },
+        },
+      } as any;
+
+      const mockDestination = {
+        id: 'dest1',
+        displayName: 'Test Destination',
+        userFriendlyId: 'Test-Destination___dest1',
+        enabled: true,
+        shouldApplyDeviceModeTransformation: false,
+        propagateEventsUntransformedOnError: false,
+        config: {
+          apiKey: 'test-key',
+          blacklistedEvents: [],
+          whitelistedEvents: [],
+          eventFilteringOption: 'disable' as const,
+        },
+      };
+
+      const mockInstance = {
+        init: jest.fn(),
+        isLoaded: jest.fn(() => false), // This will cause the ready check to timeout
+        isReady: jest.fn(() => false),
+      };
+
+      const mockSDKClass = jest.fn().mockImplementation(() => mockInstance);
+
+      // Mock the global SDK object
+      (globalThis as any).TestDestination_RS = {
+        TestDestination: mockSDKClass,
+      };
+
+      initializeDestination(
+        mockDestination,
+        mockState,
+        'TestDestination_RS',
+        'TestDestination',
+        defaultErrorHandler,
+        defaultLogger,
+      );
+
+      // Wait for the ready check to timeout and trigger the error
+      setTimeout(() => {
+        expect(defaultErrorHandler.onError).toHaveBeenCalledWith({
+          error: expect.any(Error),
+          context: 'DeviceModeDestinationsPlugin',
+          customMessage: 'Failed to check destination "Test-Destination___dest1" ready state.',
+          groupingHash: 'Failed to check destination "Test Destination" ready state.',
+          category: 'integrations',
+        });
+      }, 100);
+
+      // Clean up
+      delete (globalThis as any).TestDestination_RS;
+    });
+
+    it('should categorize integrations data errors with integrations category', () => {
+      const mockState = {
+        lifecycle: {
+          integrationsCDNPath: { value: 'https://cdn.rudderlabs.com/v3' },
+        },
+        nativeDestinations: {
+          failedDestinations: { value: [] },
+          initializedDestinations: { value: [] },
+          integrationsConfig: { value: {} },
+        },
+      } as any;
+
+      const mockDestination = {
+        id: 'dest1',
+        displayName: 'Test Destination',
+        userFriendlyId: 'Test-Destination___dest1',
+        enabled: true,
+        shouldApplyDeviceModeTransformation: false,
+        propagateEventsUntransformedOnError: false,
+        config: {
+          apiKey: 'test-key',
+          blacklistedEvents: [],
+          whitelistedEvents: [],
+          eventFilteringOption: 'disable' as const,
+        },
+      };
+
+      const mockInstance = {
+        init: jest.fn(),
+        isLoaded: jest.fn(() => true),
+        isReady: jest.fn(() => true),
+        getDataForIntegrationsObject: jest.fn(() => {
+          throw new Error('Failed to get integrations data');
+        }),
+      };
+
+      const mockSDKClass = jest.fn().mockImplementation(() => mockInstance);
+
+      // Mock the global SDK object
+      (globalThis as any).TestDestination_RS = {
+        TestDestination: mockSDKClass,
+      };
+
+      initializeDestination(
+        mockDestination,
+        mockState,
+        'TestDestination_RS',
+        'TestDestination',
+        defaultErrorHandler,
+        defaultLogger,
+      );
+
+      // Wait for the integrations data error to be processed
+      setTimeout(() => {
+        expect(defaultErrorHandler.onError).toHaveBeenCalledWith({
+          error: expect.any(Error),
+          context: 'DeviceModeDestinationsPlugin',
+          customMessage:
+            'Failed to get integrations data for destination "Test-Destination___dest1".',
+          groupingHash: 'Failed to get integrations data for destination "Test Destination".',
+          category: 'integrations',
+        });
+      }, 100);
+
+      // Clean up
+      delete (globalThis as any).TestDestination_RS;
+    });
+  });
+
+  describe('getCumulativeIntegrationsConfig', () => {
+    it('should categorize integration data errors with integrations category', () => {
+      const mockDestination = {
+        id: 'dest1',
+        displayName: 'Test Destination',
+        userFriendlyId: 'Test-Destination___dest1',
+        instance: {
+          getDataForIntegrationsObject: jest.fn(() => {
+            throw new Error('Failed to get integrations data');
+          }),
+        },
+      } as any;
+
+      const currentConfig = { existingIntegration: true };
+
+      getCumulativeIntegrationsConfig(mockDestination, currentConfig, defaultErrorHandler);
+
+      expect(defaultErrorHandler.onError).toHaveBeenCalledWith({
+        error: expect.any(Error),
+        context: 'DeviceModeDestinationsPlugin',
+        customMessage:
+          'Failed to get integrations data for destination "Test-Destination___dest1".',
+        groupingHash: 'Failed to get integrations data for destination "Test Destination".',
+        category: 'integrations',
+      });
+    });
+
+    it('should not call error handler when integration data is retrieved successfully', () => {
+      const mockDestination = {
+        id: 'dest1',
+        displayName: 'Test Destination',
+        userFriendlyId: 'Test-Destination___dest1',
+        instance: {
+          getDataForIntegrationsObject: jest.fn(() => ({
+            newIntegration: true,
+          })),
+        },
+      } as any;
+
+      const currentConfig = { existingIntegration: true };
+
+      const result = getCumulativeIntegrationsConfig(
+        mockDestination,
+        currentConfig,
+        defaultErrorHandler,
+      );
+
+      expect(defaultErrorHandler.onError).not.toHaveBeenCalled();
+      expect(result).toEqual({
+        existingIntegration: true,
+        newIntegration: true,
+      });
     });
   });
 });

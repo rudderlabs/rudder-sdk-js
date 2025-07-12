@@ -10,6 +10,7 @@ export type ErrorInfo = {
   customMessage?: string;
   errorType?: ErrorType;
   groupingHash?: string | SDKError;
+  category?: 'sdk' | 'integrations';
 };
 
 export interface IErrorHandler {

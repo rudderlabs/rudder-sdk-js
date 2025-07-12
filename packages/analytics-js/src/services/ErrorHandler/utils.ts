@@ -24,6 +24,7 @@ import {
 import { SDK_CDN_BASE_URL } from '../../constants/urls';
 import {
   APP_STATE_EXCLUDE_KEYS,
+  DEFAULT_ERROR_CATEGORY,
   DEV_HOSTS,
   NOTIFIER_NAME,
   SDK_FILE_NAME_PREFIXES,
@@ -256,7 +257,11 @@ const isSDKError = (exception: Exception) => {
   );
 };
 
-const getErrorDeliveryPayload = (payload: ErrorEventPayload, state: ApplicationState): string => {
+const getErrorDeliveryPayload = (
+  payload: ErrorEventPayload,
+  state: ApplicationState,
+  category?: string,
+): string => {
   const data = {
     version: METRICS_PAYLOAD_VERSION,
     message_id: generateUUID(),
@@ -265,6 +270,7 @@ const getErrorDeliveryPayload = (payload: ErrorEventPayload, state: ApplicationS
       sdk_version: state.context.app.value.version,
       write_key: state.lifecycle.writeKey.value as string,
       install_type: state.context.app.value.installType,
+      category: category ?? DEFAULT_ERROR_CATEGORY,
     },
     errors: payload,
   };

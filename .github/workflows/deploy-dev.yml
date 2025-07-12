@@ -50,6 +50,7 @@ jobs:
     with:
       environment: 'development'
       trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
+      base_cdn_url: 'https://cdn.dev.rudderlabs.com'
     secrets:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_DEV_ACCOUNT_ID }}
       AWS_S3_BUCKET_NAME: ${{ secrets.AWS_DEV_S3_BUCKET_NAME }}
