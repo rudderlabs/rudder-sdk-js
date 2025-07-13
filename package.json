@@ -101,7 +101,7 @@
     "obj-case": "0.2.1",
     "object-path": "0.11.8",
     "on-body": "0.0.1",
-    "ramda": "0.30.1",
+    "ramda": "0.31.3",
     "rudder-component-cookie": "0.0.1",
     "storejs": "2.1.0"
   },
