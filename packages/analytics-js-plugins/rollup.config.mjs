@@ -96,26 +96,6 @@ export function getDefaultConfig(distName) {
           },
         ],
       }),
-      alias({
-        entries: [
-          {
-            find: '@rudderstack/analytics-js-plugins',
-            replacement: path.resolve('../analytics-js-plugins/src'),
-          },
-          {
-            find: '@rudderstack/analytics-js-common',
-            replacement: path.resolve('../analytics-js-common/src'),
-          },
-          {
-            find: '@rudderstack/analytics-js-cookies',
-            replacement: path.resolve('../analytics-js-cookies/src'),
-          },
-          {
-            find: '@rudderstack/analytics-js-integrations',
-            replacement: path.resolve('../analytics-js-integrations/src'),
-          },
-        ],
-      }),
       resolve({
         jsnext: true,
         browser: true,
