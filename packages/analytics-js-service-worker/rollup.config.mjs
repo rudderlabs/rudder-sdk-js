@@ -49,6 +49,18 @@ export function getDefaultConfig(distName) {
         preventAssignment: true,
         __PACKAGE_VERSION__: `'${version}'`,
       }),
+      alias({
+        entries: [
+          {
+            find: '@rudderstack/analytics-js-service-worker',
+            replacement: path.resolve('../analytics-js-service-worker/src'),
+          },
+          {
+            find: '@rudderstack/analytics-js-common',
+            replacement: path.resolve('../analytics-js-common/src'),
+          },
+        ],
+      }),
       resolve({
         jsnext: true,
         browser: true,

@@ -376,6 +376,30 @@ const buildEntries = () => {
     {
       input: `dist/dts/packages/analytics-js/src/index.d.ts`,
       plugins: [
+        alias({
+          entries: [
+            {
+              find: '@rudderstack/analytics-js',
+              replacement: path.resolve('./dist/dts/packages/analytics-js/src'),
+            },
+            {
+              find: '@rudderstack/analytics-js-plugins',
+              replacement: path.resolve('./dist/dts/packages/analytics-js-plugins/src'),
+            },
+            {
+              find: '@rudderstack/analytics-js-common',
+              replacement: path.resolve('./dist/dts/packages/analytics-js-common/src'),
+            },
+            {
+              find: '@rudderstack/analytics-js-cookies',
+              replacement: path.resolve('./dist/dts/packages/analytics-js-cookies/src'),
+            },
+            {
+              find: '@rudderstack/analytics-js-integrations',
+              replacement: path.resolve('./dist/dts/packages/analytics-js-integrations/src'),
+            },
+          ],
+        }),
         dts(),
         del({ hook: 'buildEnd', targets: './dist/dts' }),
       ],
