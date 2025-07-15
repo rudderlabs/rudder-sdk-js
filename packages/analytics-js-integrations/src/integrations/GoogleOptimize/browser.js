@@ -1,12 +1,9 @@
 /* eslint-disable prefer-rest-params */
 /* eslint-disable no-inner-declarations */
 /* eslint-disable class-methods-use-this */
-import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
-import { LOAD_ORIGIN } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/GoogleOptimize/constants';
+import { ScriptLoader } from '@rudderstack/analytics-js-legacy-utilities/ScriptLoader';
+import { LOAD_ORIGIN } from '@rudderstack/analytics-js-legacy-utilities/constants';
+import { NAME, DISPLAY_NAME } from './constants';
 import Logger from '../../utils/logger';
 
 const logger = new Logger(DISPLAY_NAME);

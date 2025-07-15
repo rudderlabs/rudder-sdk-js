@@ -1,11 +1,8 @@
 /* eslint-disable prefer-rest-params */
 /* eslint-disable class-methods-use-this */
-import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/GA4/constants';
-import { Cookie } from '@rudderstack/analytics-js-common/v1.1/utils/storage/cookie';
+import { ScriptLoader } from '@rudderstack/analytics-js-legacy-utilities/ScriptLoader';
+import { NAME, DISPLAY_NAME } from './constants';
+import { Cookie } from '@rudderstack/analytics-js-legacy-utilities/storage/cookie';
 import Logger from '../../utils/logger';
 import { eventsConfig } from './config';
 import {

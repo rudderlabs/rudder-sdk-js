@@ -3,7 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/analytics-js-integrations/src",
   "projectType": "library",
-  "tags": ["type:sdk", "scope:integrations"],
+  "tags": ["type:lib", "scope:integrations"],
   "targets": {
     "test": {
       "executor": "@nx/jest:jest",

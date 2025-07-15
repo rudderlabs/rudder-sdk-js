@@ -2,10 +2,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/Posthog/constants';
+import { NAME, DISPLAY_NAME } from './constants';
 import Logger from '../../utils/logger';
 import { isDefinedAndNotNull, removeTrailingSlashes } from '../../utils/utils';
 import { getXhrHeaders, getPropertyBlackList, getDestinationOptions } from './utils';

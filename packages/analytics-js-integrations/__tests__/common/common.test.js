@@ -19,7 +19,7 @@ describe('Destination generic tests', () => {
     integrations.forEach(async integrationName => {
       const IntegrationsClass = await import(`../../src/integrations/${integrationName}/browser`);
       const { NAME: expectedIntegrationName } = await import(
-        `@rudderstack/analytics-js-common/constants/integrations/${integrationName}/constants`
+        `../../src/integrations/${integrationName}/constants`
       );
       const Class = IntegrationsClass.default;
       const integration = new Class(

@@ -3,10 +3,7 @@
 import is from 'is';
 import extend from '@ndhoule/extend';
 import each from 'component-each';
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/Kissmetrics/constants';
+import { NAME, DISPLAY_NAME } from './constants';
 import Logger from '../../utils/logger';
 import { getRevenue } from '../../utils/utils';
 import { loadeNativeSdk } from './nativeSdkLoader';

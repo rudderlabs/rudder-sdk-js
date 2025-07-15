@@ -1,8 +1,5 @@
 import get from 'get-value';
-import {
-  DISPLAY_NAME,
-  NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/DCMFloodlight/constants';
+import { DISPLAY_NAME, NAME } from './constants';
 import Logger from '../../utils/logger';
 import { GENERIC_FALSE_VALUES, GENERIC_TRUE_VALUES } from '../../utils/constants';
 import {

@@ -17,7 +17,7 @@ import alias from '@rollup/plugin-alias';
 import * as dotenv from 'dotenv';
 import { DEFAULT_EXTENSIONS } from '@babel/core';
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 const baseCdnUrl = process.env.BASE_CDN_URL ? process.env.BASE_CDN_URL.replace(/\/+$/, '') : 'https://cdn.rudderlabs.com';
 const isContentScriptBuild = process.env.NO_EXTERNAL_HOST;

@@ -1,8 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/Mouseflow/constants';
+import { NAME, DISPLAY_NAME } from './constants';
 
 /**
  * Get destination specific options from integrations options
