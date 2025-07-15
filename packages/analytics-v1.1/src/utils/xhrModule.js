@@ -6,10 +6,10 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable class-methods-use-this */
 import Queue from '@segment/localstorage-retry';
-import { handleError } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
-import { FAILED_REQUEST_ERR_MSG_PREFIX } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
-import { stringifyWithoutCircularV1 } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { handleError } from './errorHandler';
+import { FAILED_REQUEST_ERR_MSG_PREFIX } from './constants';
+import { stringifyWithoutCircularV1 } from '@rudderstack/analytics-js-legacy-utilities/ObjectUtils';
+import { logger } from '@rudderstack/analytics-js-legacy-utilities/logUtil';
 import { getCurrentTimeFormatted } from './utils';
 import { REQUEST_TIMEOUT_MS } from './constants';
 

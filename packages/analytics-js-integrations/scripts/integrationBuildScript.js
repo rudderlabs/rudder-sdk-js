@@ -1,7 +1,8 @@
 /* eslint-disable no-console */
 import { exec } from 'child_process';
 import { cpus } from 'os';
-import { configToIntNames } from '../../analytics-js-legacy-utilities/src/config_to_integration_names.mjs';
+// eslint-disable-next-line @nx/enforce-module-boundaries
+import { configToIntNames } from '../../analytics-js-legacy-utilities/src/config_to_integration_names.js';
 
 const intgNamesArr = Object.values(configToIntNames);
 const totalIntgCount = intgNamesArr.length;

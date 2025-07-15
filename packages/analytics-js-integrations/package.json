@@ -68,7 +68,7 @@
     "build:integration:bundle-size": "VISUALIZER=true npm run build:integration",
     "build:integration:cli": "rollup -c --environment VERSION:$npm_package_version,PROD_DEBUG,ENV:prod,UGLIFY,INTG_NAME:$npm_config_intg",
     "build:integration:bundle-size:cli": "rollup -c --environment VERSION:$npm_package_version,VISUALIZER:true,PROD_DEBUG,ENV:prod,UGLIFY,INTG_NAME:$npm_config_intg",
-    "build:integration:all": "node ./scripts/integrationBuildScript.mjs",
+    "build:integration:all": "node ./scripts/integrationBuildScript.js",
     "build:integration:all:modern": "BROWSERSLIST_ENV=modern npm run build:integration:all",
     "build:integration:all:bundle-size": "VISUALIZER=true npm run build:integration:all",
     "build:integration:all:bundle-size:modern": "VISUALIZER=true npm run build:integration:all:modern"
