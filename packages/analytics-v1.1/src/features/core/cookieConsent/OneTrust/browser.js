@@ -1,4 +1,4 @@
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { logger } from '@rudderstack/analytics-js-legacy-utilities/logUtil';
 
 /* eslint-disable class-methods-use-this */
 class OneTrust {

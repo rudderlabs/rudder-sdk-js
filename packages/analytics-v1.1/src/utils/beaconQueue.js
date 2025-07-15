@@ -1,9 +1,9 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
-import { Store } from '@rudderstack/analytics-js-common/v1.1/utils/storage/store';
-import { handleError } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
-import { stringifyWithoutCircularV1 } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
+import { Store } from '@rudderstack/analytics-js-legacy-utilities/storage/store';
+import { handleError } from './errorHandler';
+import { stringifyWithoutCircularV1 } from '@rudderstack/analytics-js-legacy-utilities/ObjectUtils';
+import { logger } from '@rudderstack/analytics-js-legacy-utilities/logUtil';
 import { getCurrentTimeFormatted } from './utils';
 
 const defaults = {
