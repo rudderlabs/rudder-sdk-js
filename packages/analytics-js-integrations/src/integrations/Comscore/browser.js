@@ -1,8 +1,5 @@
 import Logger from '../../utils/logger';
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/Comscore/constants';
+import { NAME, DISPLAY_NAME } from './constants';
 import { loadNativeSdk } from './nativeSdkLoader';
 import { removeUndefinedAndNullAndEmptyValues } from '../../utils/commonUtils';
 import { getDestinationOptions, generateExtraData } from './utils';
@@ -38,7 +35,7 @@ class Comscore {
 
     const url = properties?.url;
     const comscoreInteConf = getDestinationOptions(integrations);
-    const consent = comscoreInteConf?.consent
+    const consent = comscoreInteConf?.consent;
     const basePayload = {
       c1: '2',
       c2: this.publisherId,

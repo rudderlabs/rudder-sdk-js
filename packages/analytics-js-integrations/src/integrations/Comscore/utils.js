@@ -1,7 +1,4 @@
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/Comscore/constants';
+import { NAME, DISPLAY_NAME } from './constants';
 import { getHashFromArray, isDefinedAndNotNull } from '../../utils/commonUtils';
 
 /**
