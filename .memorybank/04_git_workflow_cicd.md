@@ -89,11 +89,11 @@ The base URL for the sanity suite is `https://cdn.rudderlabs.com/sanity-suite/`.
   - `https://cdn.rudderlabs.com/sanity-suite/v1.1/npm/index.html`
   - All suites webpage: `https://cdn.rudderlabs.com/sanity-suite/all/index.html`
 - Staging:
-  - `https://cdn.rudderlabs.com/sanity-suite/staging/v3/cdn/index.html`
-  - `https://cdn.rudderlabs.com/sanity-suite/staging/v3/npm/index.html`
-  - `https://cdn.rudderlabs.com/sanity-suite/staging/v1.1/cdn/index.html`
-  - `https://cdn.rudderlabs.com/sanity-suite/staging/v1.1/npm/index.html`
-  - All suites webpage: `https://cdn.rudderlabs.com/sanity-suite/staging/all/index.html`
+  - `https://cdn.staging.rudderlabs.com/sanity-suite/staging/v3/cdn/index.html`
+  - `https://cdn.staging.rudderlabs.com/sanity-suite/staging/v3/npm/index.html`
+  - `https://cdn.staging.rudderlabs.com/sanity-suite/staging/v1.1/cdn/index.html`
+  - `https://cdn.staging.rudderlabs.com/sanity-suite/staging/v1.1/npm/index.html`
+  - All suites webpage: `https://cdn.staging.rudderlabs.com/sanity-suite/staging/all/index.html`
 - Beta:
   - `https://cdn.rudderlabs.com/sanity-suite/beta/{identifier}/v3/cdn/index.html`
   - `https://cdn.rudderlabs.com/sanity-suite/beta/{identifier}/v3/npm/index.html`
