@@ -81,6 +81,7 @@ const configToIntNames = {
   XPIXEL: 'XPixel',
   GAINSIGHT_PX: 'Gainsight_PX',
   USERPILOT: 'Userpilot',
+  COMSCORE: 'Comscore',
 };
 
 export { configToIntNames };
