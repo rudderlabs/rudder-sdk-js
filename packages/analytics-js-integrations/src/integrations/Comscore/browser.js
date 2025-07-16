@@ -39,14 +39,15 @@ class Comscore {
     const basePayload = {
       c1: '2',
       c2: this.publisherId,
+      ...consent,
     };
 
-    if (this.fieldMapping) {
-      const mappedData = generateExtraData(rudderElement, this.fieldMapping);
+
+    const mappedData = generateExtraData(rudderElement, this.fieldMapping);
+    if (Object.keys(mappedData).length > 0) {
       const payload = removeUndefinedAndNullAndEmptyValues({
         ...basePayload,
         ...mappedData,
-        ...consent,
       });
       window.COMSCORE.beacon(payload);
       return;
@@ -56,7 +57,6 @@ class Comscore {
       c4: url,
       c5: eventName,
       ...basePayload,
-      ...consent,
     });
     window.COMSCORE.beacon(payload);
   }
