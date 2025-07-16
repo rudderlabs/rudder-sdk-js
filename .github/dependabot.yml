@@ -27,9 +27,6 @@ updates:
       npm-prod-deps:
         patterns:
           - "*"
-        exclude-patterns:
-          - "@nx/nx-*"
-          - "@rollup/rollup-*"
         update-types:
           - "minor"
           - "patch"

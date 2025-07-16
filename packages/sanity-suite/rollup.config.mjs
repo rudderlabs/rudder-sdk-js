@@ -11,6 +11,7 @@ import copy from 'rollup-plugin-copy';
 import typescript from 'rollup-plugin-typescript2';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
 import { DEFAULT_EXTENSIONS } from '@babel/core';
+import del from 'rollup-plugin-delete';
 import * as dotenv from 'dotenv';
 
 dotenv.config({ quiet: true });
@@ -26,6 +27,9 @@ const isDMT = process.env.IS_DMT === 'true';
 const isDevEnvTestBook = process.env.IS_DEV_TESTBOOK === 'true';
 const distributionType = process.env.DISTRIBUTION_TYPE || 'cdn';
 const buildType = process.env.BUILD_TYPE || 'legacy';
+
+const randomId = Math.random().toString(36).slice(2, 10);
+const declarationDir = `./dist/dts-${sdkVersion}-${distributionType}-${randomId}`;
 
 const getDirectoryNames = async sourcePath =>
   (await readdir(sourcePath, { withFileTypes: true }))
@@ -100,19 +104,13 @@ const getPluginsBaseURL = () => {
 };
 
 const getCopyTargets = () => {
-  // Always copy the all/index.html aggregator file
-  const allAggregatorCopy = {
-    src: 'public/all/index.html',
-    dest: 'dist/all',
-    rename: 'index.html'
-  };
-
+  // Remove the allAggregatorCopy from copy targets; it will be handled by htmlTemplate now
   switch (distributionType) {
     case 'cdn':
-      return [allAggregatorCopy];
+      return [];
     case 'npm':
     case 'npm_bundled':
-      return [allAggregatorCopy];
+      return [];
     default:
       const baseCopyTargets = isLegacySdk
         ? [
@@ -151,7 +149,7 @@ const getCopyTargets = () => {
               dest: `${getDistPath()}/plugins`,
             },
           ];
-      return [...baseCopyTargets, allAggregatorCopy];
+      return baseCopyTargets;
   }
 };
 
@@ -200,6 +198,7 @@ const getBuildConfig = featureName => ({
     typescript({
       tsconfig: './tsconfig.json',
       useTsconfigDeclarationDir: true,
+      tsconfigOverride: { compilerOptions: { declarationDir } },
     }),
     babel({
       inputSourceMap: true,
@@ -230,6 +229,24 @@ const getBuildConfig = featureName => ({
         __IS_DMT__: isDMT,
       },
     }),
+    // Dedicated htmlTemplate for all/index.html aggregator (only in main build config)
+    !featureName && htmlTemplate({
+      template: 'public/all/index.html',
+      target: 'dist/all/index.html',
+      attrs: ['async', 'defer'],
+      replaceVars: {
+        __WRITE_KEY__: process.env.WRITE_KEY,
+        __DATAPLANE_URL__: process.env.DATAPLANE_URL,
+        __CONFIG_SERVER_HOST__: process.env.CONFIG_SERVER_HOST || '',
+        __DEST_SDK_BASE_URL__: getDestinationSDKBaseURL(),
+        __PLUGINS_SDK_BASE_URL__: getPluginsBaseURL(),
+        __BASE_CDN_URL__: baseCdnUrl,
+        __CDN_VERSION_PATH__: `${cdnVersionPath}` || '',
+        __FEATURE__: featureName,
+        __IS_DEV_TESTBOOK__: isDevEnvTestBook,
+        __IS_DMT__: isDMT,
+      },
+    }),
     !featureName &&
       process.env.DEV_SERVER &&
       serve({
@@ -243,6 +260,7 @@ const getBuildConfig = featureName => ({
         },
       }),
     process.env.DEV_SERVER && livereload(),
+    del({ hook: 'writeBundle', targets: declarationDir }),
   ],
   input: getJSSource(),
   output: [
