@@ -54,6 +54,7 @@ jobs:
       bugsnag_release_stage: 'staging'
       s3_dir_path: 'staging/latest/v3'
       s3_dir_path_legacy: 'staging/latest/v1.1'
+      base_cdn_url: 'https://cdn.staging.rudderlabs.com'
       use_pr_head_sha: true
       trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
       monorepo_release_version: ${{ needs.get-deploy-inputs.outputs.release_version }}
@@ -77,6 +78,7 @@ jobs:
       trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
       monorepo_release_version: ${{ needs.get-deploy-inputs.outputs.release_version }}
       release_ticket_id: ${{ needs.get-deploy-inputs.outputs.release_ticket_id }}
+      base_cdn_url: 'https://cdn.staging.rudderlabs.com'
     secrets:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_STAGING_ACCOUNT_ID }}
       AWS_S3_BUCKET_NAME: ${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}
