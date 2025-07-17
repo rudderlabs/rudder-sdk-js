@@ -118,6 +118,8 @@ class Mixpanel {
             record_min_ms: mixpanelIntgConfig.recordMinMs,
             record_block_selector: mixpanelIntgConfig.recordBlockSelector,
             record_canvas: mixpanelIntgConfig.recordCanvas,
+            // ref: https://docs.mixpanel.com/docs/session-replay/heatmaps#implementation
+            record_heatmap_data: mixpanelIntgConfig.recordHeatmapData,
           });
           options = { ...options, ...sessionReplayConfig };
         }
