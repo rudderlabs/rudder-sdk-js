@@ -1,6 +1,8 @@
 import sourceConfig1ExpectedData from '../../__fixtures__/sourceConfig1.json';
 
-const CONFIG_URL = `CONFIG_SERVER_HOST/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__`;
+const moduleType = __MODULE_TYPE__;
+const packageVersion = __PACKAGE_VERSION__;
+const CONFIG_URL = `CONFIG_SERVER_HOST/sourceConfig/?p=${moduleType}&v=${packageVersion}`;
 
 const getConfigUrl = (configUrl, writeKey) => {
   return configUrl

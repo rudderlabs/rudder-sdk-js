@@ -22,7 +22,7 @@ import type {
 import { looselyValidateEvent } from './loosely-validate-event';
 import { getDataPlaneUrl, isFunction, noop } from './utilities';
 
-const version = '__PACKAGE_VERSION__';
+const version = __PACKAGE_VERSION__;
 
 class Analytics implements IAnalytics {
   timeout?: number;

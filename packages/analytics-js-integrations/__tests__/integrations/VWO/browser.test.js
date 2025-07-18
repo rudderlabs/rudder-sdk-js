@@ -65,7 +65,7 @@ describe('VWO Track Event', () => {
       },
     });
     expect(window.VWO.event).toHaveBeenCalled();
-    expect(window.VWO.event).toBeCalledWith(
+    expect(window.VWO.event).toHaveBeenCalledWith(
       'rudder.buttonClicked',
       {},
       {
@@ -89,7 +89,7 @@ describe('VWO Track Event', () => {
       },
     });
     expect(window.VWO.event).toHaveBeenCalled();
-    expect(window.VWO.event).toBeCalledWith(
+    expect(window.VWO.event).toHaveBeenCalledWith(
       'rudder.checkoutCompleted',
       {
         category: 'Food',
@@ -130,7 +130,7 @@ describe('VWO Identify Event', () => {
       },
     });
     expect(window.VWO.visitor).toHaveBeenCalled();
-    expect(window.VWO.visitor).toBeCalledWith(
+    expect(window.VWO.visitor).toHaveBeenCalledWith(
       {
         'rudder.email': 'abc@ruddertack.com',
         'rudder.isRudderEvents': true,

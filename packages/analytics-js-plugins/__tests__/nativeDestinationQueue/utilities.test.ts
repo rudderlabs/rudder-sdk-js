@@ -147,7 +147,7 @@ describe('nativeDestinationQueue Plugin - utilities', () => {
       expect(shouldApplyTransformation(dest)).toBe(false);
     });
   });
-  
+
   describe('sendEventToDestination', () => {
     const sampleTrackEvent = {
       type: 'track',
@@ -207,6 +207,7 @@ describe('nativeDestinationQueue Plugin - utilities', () => {
           'Failed to forward event to integration for destination "ID_sample-destination-id".',
         groupingHash:
           'Failed to forward event to integration for destination "Destination Display Name".',
+        category: 'integrations',
       });
     });
 
@@ -243,6 +244,7 @@ describe('nativeDestinationQueue Plugin - utilities', () => {
         customMessage:
           'Failed to forward event to integration for destination "ID_sample-destination-id".',
         groupingHash: 'Failed to forward event to integration for destination "undefined".',
+        category: 'integrations',
       });
     });
 
@@ -265,6 +267,7 @@ describe('nativeDestinationQueue Plugin - utilities', () => {
         customMessage: 'Failed to forward event to integration for destination "undefined".',
         groupingHash:
           'Failed to forward event to integration for destination "Destination Display Name".',
+        category: 'integrations',
       });
     });
   });

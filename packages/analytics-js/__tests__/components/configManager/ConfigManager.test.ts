@@ -96,7 +96,7 @@ describe('ConfigManager', () => {
     state.loadOptions.value.lockIntegrationsVersion = lockIntegrationsVersion;
     state.loadOptions.value.lockPluginsVersion = lockPluginsVersion;
 
-    const expectedConfigUrl = `${sampleConfigUrl}/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}&lockPluginsVersion=${lockPluginsVersion}`;
+    const expectedConfigUrl = `${sampleConfigUrl}/sourceConfig/?p=npm&v=0.0.0-test&build=modern&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}&lockPluginsVersion=${lockPluginsVersion}`;
     configManagerInstance.getConfig = jest.fn();
 
     configManagerInstance.init();

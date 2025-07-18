@@ -1,5 +1,5 @@
 import get from 'get-value';
-import { ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME } from '@rudderstack/analytics-js-common/v1.1/utils/constants';
+import { ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME } from '../../../../utils/constants';
 import { BugsnagProvider, ERROR_REPORT_PROVIDER_NAME_BUGSNAG } from './providers/Bugsnag';
 
 const DEFAULT_ERROR_REPORT_PROVIDER = ERROR_REPORT_PROVIDER_NAME_BUGSNAG;

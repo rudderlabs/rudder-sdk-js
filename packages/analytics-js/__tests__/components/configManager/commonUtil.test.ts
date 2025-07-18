@@ -669,7 +669,7 @@ describe('Config Manager Common Utilities', () => {
       const sourceConfigURL = getSourceConfigURL('invalid-url', 'writekey', true, true, mockLogger);
 
       expect(sourceConfigURL).toBe(
-        'https://api.rudderstack.com/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=true&lockPluginsVersion=true',
+        'https://api.rudderstack.com/sourceConfig/?p=npm&v=0.0.0-test&build=modern&writeKey=writekey&lockIntegrationsVersion=true&lockPluginsVersion=true',
       );
 
       expect(mockLogger.warn).toHaveBeenCalledWith(
@@ -687,7 +687,7 @@ describe('Config Manager Common Utilities', () => {
       );
 
       expect(sourceConfigURL).toBe(
-        'https://www.dummy.url/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=false&lockPluginsVersion=false',
+        'https://www.dummy.url/sourceConfig/?p=npm&v=0.0.0-test&build=modern&writeKey=writekey&lockIntegrationsVersion=false&lockPluginsVersion=false',
       );
     });
 
@@ -701,7 +701,7 @@ describe('Config Manager Common Utilities', () => {
       );
 
       expect(sourceConfigURL).toBe(
-        'https://www.dummy.url/some/path/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=false&lockPluginsVersion=false',
+        'https://www.dummy.url/some/path/sourceConfig/?p=npm&v=0.0.0-test&build=modern&writeKey=writekey&lockIntegrationsVersion=false&lockPluginsVersion=false',
       );
     });
 
@@ -715,7 +715,7 @@ describe('Config Manager Common Utilities', () => {
       );
 
       expect(sourceConfigURL).toBe(
-        'https://www.dummy.url/sourceConfig?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=false&lockPluginsVersion=false',
+        'https://www.dummy.url/sourceConfig?p=npm&v=0.0.0-test&build=modern&writeKey=writekey&lockIntegrationsVersion=false&lockPluginsVersion=false',
       );
     });
 
@@ -729,7 +729,7 @@ describe('Config Manager Common Utilities', () => {
       );
 
       expect(sourceConfigURL).toBe(
-        'https://www.dummy.url/sourceConfig?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=false&lockPluginsVersion=false',
+        'https://www.dummy.url/sourceConfig?p=npm&v=0.0.0-test&build=modern&writeKey=writekey&lockIntegrationsVersion=false&lockPluginsVersion=false',
       );
     });
 
@@ -743,7 +743,7 @@ describe('Config Manager Common Utilities', () => {
       );
 
       expect(sourceConfigURL).toBe(
-        'https://www.dummy.url/some/path/sourceConfig/?abc=def&p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=writekey&lockIntegrationsVersion=false&lockPluginsVersion=false#blog',
+        'https://www.dummy.url/some/path/sourceConfig/?abc=def&p=npm&v=0.0.0-test&build=modern&writeKey=writekey&lockIntegrationsVersion=false&lockPluginsVersion=false#blog',
       );
     });
   });

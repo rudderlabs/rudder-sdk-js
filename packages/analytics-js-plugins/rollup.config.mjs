@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import path from 'path';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
@@ -20,7 +19,7 @@ import federation from '@originjs/vite-plugin-federation';
 import * as dotenv from 'dotenv';
 import pkg from './package.json' with { type: 'json' };
 
-dotenv.config();
+dotenv.config({ quiet: true });
 const isLegacyBuild = process.env.BROWSERSLIST_ENV !== 'modern';
 const variantSubfolder = isLegacyBuild ? '/legacy' : '/modern';
 const sourceMapType =
@@ -73,9 +72,29 @@ export function getDefaultConfig(distName) {
     plugins: [
       replace({
         preventAssignment: true,
-        __PACKAGE_VERSION__: version,
-        __MODULE_TYPE__: moduleType,
-        __RS_BUGSNAG_RELEASE_STAGE__: process.env.BUGSNAG_RELEASE_STAGE || 'production',
+        __PACKAGE_VERSION__: `'${version}'`,
+        __MODULE_TYPE__: `'${moduleType}'`,
+        __RS_BUGSNAG_RELEASE_STAGE__: `'${process.env.BUGSNAG_RELEASE_STAGE || 'production'}'`,
+      }),
+      alias({
+        entries: [
+          {
+            find: '@rudderstack/analytics-js-plugins',
+            replacement: path.resolve('../analytics-js-plugins/src'),
+          },
+          {
+            find: '@rudderstack/analytics-js-common',
+            replacement: path.resolve('../analytics-js-common/src'),
+          },
+          {
+            find: '@rudderstack/analytics-js-cookies',
+            replacement: path.resolve('../analytics-js-cookies/src'),
+          },
+          {
+            find: '@rudderstack/analytics-js-integrations',
+            replacement: path.resolve('../analytics-js-integrations/src'),
+          },
+        ],
       }),
       resolve({
         jsnext: true,
@@ -227,6 +246,10 @@ const buildEntries = () => {
             {
               find: '@rudderstack/analytics-js-cookies',
               replacement: path.resolve('./dist/dts/packages/analytics-js-cookies/src'),
+            },
+            {
+              find: '@rudderstack/analytics-js-integrations',
+              replacement: path.resolve('./dist/dts/packages/analytics-js-integrations/src'),
             },
           ],
         }),

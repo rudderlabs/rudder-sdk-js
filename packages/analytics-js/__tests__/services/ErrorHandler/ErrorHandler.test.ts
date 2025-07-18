@@ -199,6 +199,68 @@ describe('ErrorHandler', () => {
       );
     });
 
+    it('should pass category to getErrorDeliveryPayload for SDK errors', async () => {
+      state.reporting.isErrorReportingEnabled.value = true;
+      state.lifecycle.writeKey.value = 'dummy-write-key';
+      state.metrics.metricsServiceUrl.value = 'https://dummy.dataplane.com/rsaMetrics';
+
+      // Mock getErrorDeliveryPayload to verify category parameter
+      const getErrorDeliveryPayloadSpy = jest.spyOn(
+        require('../../../src/services/ErrorHandler/utils'),
+        'getErrorDeliveryPayload',
+      );
+
+      const error = new Error('dummy error');
+      error.stack =
+        'Error: Test:: dummy error\n    at Object.<anonymous> (https://cdn.rudderlabs.com/v3/modern/rsa.min.js:1:1)';
+
+      await errorHandlerInstance.onError({
+        error,
+        context: 'Test',
+        category: 'sdk',
+      });
+
+      expect(getErrorDeliveryPayloadSpy).toHaveBeenCalledTimes(1);
+      expect(getErrorDeliveryPayloadSpy).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.anything(),
+        'sdk',
+      );
+
+      getErrorDeliveryPayloadSpy.mockRestore();
+    });
+
+    it('should pass category to getErrorDeliveryPayload for integration errors', async () => {
+      state.reporting.isErrorReportingEnabled.value = true;
+      state.lifecycle.writeKey.value = 'dummy-write-key';
+      state.metrics.metricsServiceUrl.value = 'https://dummy.dataplane.com/rsaMetrics';
+
+      // Mock getErrorDeliveryPayload to verify category parameter
+      const getErrorDeliveryPayloadSpy = jest.spyOn(
+        require('../../../src/services/ErrorHandler/utils'),
+        'getErrorDeliveryPayload',
+      );
+
+      const error = new Error('integration error');
+      error.stack =
+        'Error: Test:: integration error\n    at Object.<anonymous> (https://cdn.rudderlabs.com/v3/modern/rsa.min.js:1:1)';
+
+      await errorHandlerInstance.onError({
+        error,
+        context: 'Test',
+        category: 'integrations',
+      });
+
+      expect(getErrorDeliveryPayloadSpy).toHaveBeenCalledTimes(1);
+      expect(getErrorDeliveryPayloadSpy).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.anything(),
+        'integrations',
+      );
+
+      getErrorDeliveryPayloadSpy.mockRestore();
+    });
+
     it('should notify errors if error reporting is enabled and the error message is allowed to be notified', async () => {
       state.reporting.isErrorReportingEnabled.value = true;
       state.lifecycle.writeKey.value = 'dummy-write-key';

@@ -21,6 +21,7 @@ import {
   destDisplayNamesToFileNamesMap,
   filterDestinations,
 } from '../shared-chunks/deviceModeDestinations';
+import { INTEGRATIONS_ERROR_CATEGORY } from '../utilities/constants';
 
 const pluginName: PluginName = 'DeviceModeDestinations';
 
@@ -50,6 +51,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
           errorHandler?.onError({
             error: new Error(errMessage),
             context: DEVICE_MODE_DESTINATIONS_PLUGIN,
+            category: INTEGRATIONS_ERROR_CATEGORY,
           });
           return false;
         });
@@ -115,6 +117,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
                     context: DEVICE_MODE_DESTINATIONS_PLUGIN,
                     customMessage,
                     groupingHash: customMessage,
+                    category: INTEGRATIONS_ERROR_CATEGORY,
                   });
 
                   state.nativeDestinations.failedDestinations.value = [

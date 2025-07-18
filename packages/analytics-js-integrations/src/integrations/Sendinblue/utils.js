@@ -1,9 +1,4 @@
-import {
-  NAME,
-  DISPLAY_NAME,
-  excludeReservedTraits,
-  excludePageProperties,
-} from '@rudderstack/analytics-js-common/constants/integrations/Sendinblue/constants';
+import { NAME, DISPLAY_NAME, excludeReservedTraits, excludePageProperties } from './constants';
 import { getDefinedTraits } from '../../utils/utils';
 import {
   getHashFromArray,

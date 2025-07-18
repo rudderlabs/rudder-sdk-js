@@ -8,6 +8,13 @@ global.window.innerHeight = 1024;
 global.window.__BUNDLE_ALL_PLUGINS__ = false;
 global.window.__LOCK_DEPS_VERSION__ = false;
 global.window.__IS_LEGACY_BUILD__ = false;
+global.window.__PACKAGE_VERSION__ = '0.0.0-test';
+global.window.__MODULE_TYPE__ = 'npm';
+global.window.__BASE_CDN_URL__ = 'https://cdn.rudderlabs.com';
+global.window.__RS_POLYFILLIO_SDK_URL__ = '';
+global.window.__RS_BUGSNAG_RELEASE_STAGE__ = 'production';
+global.window.__REPOSITORY_URL__ = 'https://github.com/rudderlabs/rudder-sdk-js.git';
+
 // Only define the mock if it's not already defined (e.g., in a real browser)
 if (typeof PromiseRejectionEvent === 'undefined') {
   // Mock class (very minimal)

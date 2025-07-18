@@ -104,10 +104,11 @@ class ErrorHandler implements IErrorHandler {
    * @param errorInfo.customMessage - The custom message of the error
    * @param errorInfo.errorType - The type of the error (handled or unhandled)
    * @param errorInfo.groupingHash - The grouping hash of the error
+   * @param errorInfo.category - The category of the error (sdk or integrations)
    */
   async onError(errorInfo: ErrorInfo) {
     try {
-      const { error, context, customMessage, groupingHash } = errorInfo;
+      const { error, context, customMessage, groupingHash, category } = errorInfo;
       const errorType = errorInfo.errorType ?? ErrorType.HANDLEDEXCEPTION;
 
       const errInstance = getErrInstance(error, errorType);
@@ -169,7 +170,7 @@ class ErrorHandler implements IErrorHandler {
             url: state.metrics.metricsServiceUrl.value as string,
             options: {
               method: 'POST',
-              data: getErrorDeliveryPayload(bugsnagPayload, state),
+              data: getErrorDeliveryPayload(bugsnagPayload, state, category),
               sendRawData: true,
             },
             isRawResponse: true,

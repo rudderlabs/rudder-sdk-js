@@ -9,6 +9,7 @@ import type { RudderEventType } from '../types/plugins';
 import { DEFAULT_QUEUE_OPTIONS, NATIVE_DESTINATION_QUEUE_PLUGIN } from './constants';
 import { INTEGRATION_EVENT_FORWARDING_ERROR } from './logMessages';
 import { mergeDeepRight } from '../shared-chunks/common';
+import { INTEGRATIONS_ERROR_CATEGORY } from '../utilities/constants';
 
 const getNormalizedQueueOptions = (queueOpts: DestinationsQueueOpts): DestinationsQueueOpts =>
   mergeDeepRight(DEFAULT_QUEUE_OPTIONS, queueOpts);
@@ -75,6 +76,7 @@ const sendEventToDestination = (
       context: NATIVE_DESTINATION_QUEUE_PLUGIN,
       customMessage: INTEGRATION_EVENT_FORWARDING_ERROR(dest.userFriendlyId),
       groupingHash: INTEGRATION_EVENT_FORWARDING_ERROR(dest.displayName),
+      category: INTEGRATIONS_ERROR_CATEGORY,
     });
   }
 };

@@ -6,6 +6,9 @@ on:
       release_ticket_id:
         description: Release ticket ID (Ex:- SDK-1234)
         required: true
+      slack_message_link:
+        description: Slack message URL of the release
+        required: true
         
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -117,6 +120,7 @@ jobs:
           git push --follow-tags
 
       - name: Create pull request into main
+        id: create-pr
         env:
           GH_TOKEN: ${{ secrets.PAT }}
         run: |
@@ -143,12 +147,103 @@ jobs:
           Please review and merge when ready. :rocket:
           EOF
           
-          # Create the PR using GitHub CLI
-          gh pr create \
+          # Create the PR using GitHub CLI and capture the URL
+          pr_url=$(gh pr create \
             --base main \
             --head ${{ steps.create-release.outputs.branch_name }} \
             --title "$pr_title" \
-            --body-file pr_body.md
+            --body-file pr_body.md)
+          
+          echo "pr_url=$pr_url" >> $GITHUB_OUTPUT
+
+      - name: Extract Slack channel and thread info
+        id: slack-info
+        continue-on-error: true
+        run: |
+          link="${{ github.event.inputs.slack_message_link }}"
+          
+          # Extract channel ID from the link (after /archives/ and before the next /)
+          channel_id=$(echo "$link" | sed -n 's|.*\/archives\/\([^\/]*\)\/.*|\1|p')
+          
+          # Check if thread_ts parameter exists in URL (for messages within a thread)
+          if echo "$link" | grep -q "thread_ts="; then
+            # Extract thread_ts parameter value
+            thread_ts=$(echo "$link" | sed -n 's|.*thread_ts=\([0-9]*\.[0-9]*\).*|\1|p')
+            echo "Using thread_ts from URL parameter: $thread_ts"
+          else
+            # Extract timestamp from /p part and convert to timestamp format (for parent messages)
+            thread_ts=$(echo "$link" | sed -n 's|.*\/p\([0-9]*\).*|\1|p')
+            
+            # Convert from Slack link format (p1640995200123456) to timestamp format (1640995200.123456)
+            if [ ${#thread_ts} -eq 16 ]; then
+              # Split into seconds and microseconds parts
+              seconds=${thread_ts:0:10}
+              microseconds=${thread_ts:10:6}
+              thread_ts="${seconds}.${microseconds}"
+            fi
+            echo "Using timestamp from /p part: $thread_ts"
+          fi
+          
+          echo "Extracted channel ID: $channel_id"
+          echo "Final thread timestamp: $thread_ts"
+          
+          echo "channel_id=$channel_id" >> $GITHUB_OUTPUT
+          echo "thread_ts=$thread_ts" >> $GITHUB_OUTPUT
+
+      - name: Create release info artifact
+        if: ${{ steps.slack-info.outputs.thread_ts != '' && steps.slack-info.outputs.channel_id != '' }}
+        run: |
+          # Create directory for artifact
+          mkdir -p release-info
+          
+          # Create JSON file with release information
+          cat > release-info/release-info.json << EOF
+          {
+            "channel_id": "${{ steps.slack-info.outputs.channel_id }}",
+            "thread_ts": "${{ steps.slack-info.outputs.thread_ts }}",
+            "pr_url": "${{ steps.create-pr.outputs.pr_url }}",
+            "release_version": "${{ env.NEW_VERSION_VALUE }}",
+            "release_branch": "${{ steps.create-release.outputs.branch_name }}",
+            "release_ticket_id": "${{ github.event.inputs.release_ticket_id }}",
+            "created_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          }
+          EOF
+          
+          echo "Created release info artifact:"
+          cat release-info/release-info.json
+
+      - name: Upload release info artifact
+        if: ${{ steps.slack-info.outputs.thread_ts != '' && steps.slack-info.outputs.channel_id != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-info-v${{ env.NEW_VERSION_VALUE }}-${{ github.event.inputs.release_ticket_id }}
+          path: release-info/
+          retention-days: 30
+
+      - name: Reply in Slack thread
+        if: ${{ steps.slack-info.outputs.thread_ts != '' && steps.slack-info.outputs.channel_id != '' }}
+        uses: slackapi/slack-github-action@b0fa283ad8fea605de13dc3f449259339835fc52  # v2.1.0
+        continue-on-error: true
+        with:
+          method: chat.postMessage
+          payload-templated: true
+          retries: rapid
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload: |
+            {
+              "channel": "${{ steps.slack-info.outputs.channel_id }}",
+              "thread_ts": "${{ steps.slack-info.outputs.thread_ts }}",
+              "text": ":rocket: Release PR created: <${{ steps.create-pr.outputs.pr_url }}|${{ steps.create-pr.outputs.pr_url }}>\nCC: <!subteam^S0555JBV36D> <!subteam^S03SW7DM8P3> <!subteam^S03SHJ20350>",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":rocket: *Release PR Created*: \n<${{ steps.create-pr.outputs.pr_url }}|${{ steps.create-pr.outputs.pr_url }}>\n\n*Monorepo Version:* v${{ env.NEW_VERSION_VALUE }}\n*Release Branch:* `${{ steps.create-release.outputs.branch_name }}`\n\n:point_right: Review and merge when ready!\nCC: <!subteam^S0555JBV36D> <!subteam^S03SW7DM8P3> <!subteam^S03SHJ20350>"
+                  }
+                }
+              ]
+            }
 
       - name: Delete hotfix release base branch
         continue-on-error: true

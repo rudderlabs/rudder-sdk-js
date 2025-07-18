@@ -1,0 +1,14 @@
+{
+  "presets": [
+    [
+      "@babel/env",
+      {
+        "corejs": "3.6",
+        "useBuiltIns": "entry",
+        "bugfixes": true
+      }
+    ],
+    "@babel/typescript"
+  ],
+  "plugins": []
+}

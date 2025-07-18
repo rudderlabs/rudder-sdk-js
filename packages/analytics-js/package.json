@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js",
-  "version": "3.21.0",
+  "version": "3.22.0",
   "description": "RudderStack JavaScript SDK",
   "main": "dist/npm/modern/cjs/index.cjs",
   "module": "dist/npm/modern/esm/index.mjs",
@@ -139,7 +139,7 @@
     "release": "npm publish"
   },
   "devDependencies": {
-    "@bugsnag/js": "8.2.0"
+    "@bugsnag/js": "8.4.0"
   },
   "browserslist": {
     "production": [
@@ -154,8 +154,8 @@
     "@rudderstack/analytics-js-common": "*",
     "@rudderstack/analytics-js-cookies": "*",
     "@rudderstack/analytics-js-plugins": "*",
-    "@preact/signals-core": "1.10.0",
-    "ramda": "0.30.1",
+    "@preact/signals-core": "1.11.0",
+    "ramda": "0.31.3",
     "storejs": "2.1.0"
   }
 }

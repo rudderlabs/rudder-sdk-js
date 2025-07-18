@@ -6,7 +6,7 @@ import type {
   RudderAnalyticsPreloader,
 } from '@rudderstack/analytics-js';
 
-window.RudderSnippetVersion = '__PACKAGE_VERSION__';
+window.RudderSnippetVersion = __PACKAGE_VERSION__;
 const identifier = 'rudderanalytics';
 if (!window[identifier]) {
   window[identifier] = [] as any;

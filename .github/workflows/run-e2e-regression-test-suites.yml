@@ -7,12 +7,22 @@ on:
         type: string
         default: production
       use_pr_head_sha:
-        type: string
-        default: 'false'
+        type: boolean
+        default: false
       build_source_id:
         type: string
         required: false
       sanity_test_suite_url:
+        type: string
+        required: false
+      trigger_source:
+        type: string
+        required: true
+        description: 'Description of what/who triggered the workflow chain'
+      monorepo_release_version:
+        type: string
+        required: false
+      release_ticket_id:
         type: string
         required: false
     secrets:
@@ -39,7 +49,7 @@ jobs:
       - name: Determine checkout SHA
         id: getSHA
         run: |
-          if ${{ inputs.use_pr_head_sha }} == 'true'; then
+          if ${{ inputs.use_pr_head_sha }}; then
             sha=${{ github.event.pull_request.head.sha }}
           else
             sha=${{ github.sha }}

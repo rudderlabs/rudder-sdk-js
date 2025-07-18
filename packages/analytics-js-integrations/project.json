@@ -3,7 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/analytics-js-integrations/src",
   "projectType": "library",
-  "tags": ["type:sdk", "scope:integrations"],
+  "tags": ["type:lib", "scope:integrations"],
   "targets": {
     "test": {
       "executor": "@nx/jest:jest",
@@ -51,9 +51,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-integrations@3.14.3",
-        "title": "@rudderstack/analytics-js-integrations@3.14.3",
-        "discussion-category": "@rudderstack/analytics-js-integrations@3.14.3",
+        "tag": "@rudderstack/analytics-js-integrations@3.15.0",
+        "title": "@rudderstack/analytics-js-integrations@3.15.0",
+        "discussion-category": "@rudderstack/analytics-js-integrations@3.15.0",
         "notesFile": "./packages/analytics-js-integrations/CHANGELOG_LATEST.md"
       }
     }

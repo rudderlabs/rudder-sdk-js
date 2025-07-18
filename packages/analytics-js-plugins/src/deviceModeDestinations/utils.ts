@@ -44,6 +44,7 @@ import {
 } from '../shared-chunks/deviceModeDestinations';
 import { getSanitizedValue, isFunction } from '../shared-chunks/common';
 import { isBoolean } from '@rudderstack/analytics-js-common/utilities/checks';
+import { INTEGRATIONS_ERROR_CATEGORY } from '../utilities/constants';
 
 /**
  * Determines if the destination SDK code is evaluated
@@ -219,6 +220,7 @@ const getCumulativeIntegrationsConfig = (
         context: DEVICE_MODE_DESTINATIONS_PLUGIN,
         customMessage: INTEGRATIONS_DATA_ERROR(dest.userFriendlyId),
         groupingHash: INTEGRATIONS_DATA_ERROR(dest.displayName),
+        category: INTEGRATIONS_ERROR_CATEGORY,
       });
     }
   }
@@ -267,6 +269,7 @@ const initializeDestination = (
           context: DEVICE_MODE_DESTINATIONS_PLUGIN,
           customMessage: INTEGRATION_READY_CHECK_ERROR(dest.userFriendlyId),
           groupingHash: INTEGRATION_READY_CHECK_ERROR(dest.displayName),
+          category: INTEGRATIONS_ERROR_CATEGORY,
         });
       });
   } catch (err) {
@@ -280,6 +283,7 @@ const initializeDestination = (
       context: DEVICE_MODE_DESTINATIONS_PLUGIN,
       customMessage: INTEGRATION_INIT_ERROR(dest.userFriendlyId),
       groupingHash: INTEGRATION_INIT_ERROR(dest.displayName),
+      category: INTEGRATIONS_ERROR_CATEGORY,
     });
   }
 };

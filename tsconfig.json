@@ -13,7 +13,10 @@
       "rudder-sdk-js/*": ["./packages/analytics-v1.1/src/*"],
       "@rudderstack/analytics-js-loading-script/*": ["./packages/loading-scripts/src/*"],
       "@rudderstack/analytics-js-sanity-suite/*": ["./packages/sanity-suite/src/*"],
-      "@rudderstack/analytics-js-cookies/*": ["./packages/analytics-js-cookies/src/*"]
+      "@rudderstack/analytics-js-cookies/*": ["./packages/analytics-js-cookies/src/*"],
+      "@rudderstack/analytics-js-legacy-utilities/*": [
+        "./packages/analytics-js-legacy-utilities/src/*"
+      ]
     },
     "composite": true,
     "outDir": "./dist",

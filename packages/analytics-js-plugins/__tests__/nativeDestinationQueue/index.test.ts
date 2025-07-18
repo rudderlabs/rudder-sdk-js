@@ -52,6 +52,7 @@ import {
 import { filterDestinations } from '../../src/shared-chunks/deviceModeDestinations';
 import { RetryQueue } from '../../src/utilities/retryQueue/RetryQueue';
 import type { QueueProcessCallback, QueueProcessCallbackInfo } from '../../src/types/plugins';
+import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 
 const mockGetNormalizedQueueOptions = getNormalizedQueueOptions as jest.MockedFunction<
   typeof getNormalizedQueueOptions
@@ -251,6 +252,7 @@ describe('NativeDestinationQueue Plugin', () => {
       timeSinceFirstAttempt: 0,
       reclaimed: false,
       isPageAccessible: true,
+      retryReason: 'client-network',
     };
 
     beforeEach(() => {
@@ -365,6 +367,7 @@ describe('NativeDestinationQueue Plugin', () => {
       expect(mockErrorHandler.onError).toHaveBeenCalledWith({
         error: processError,
         context: 'NativeDestinationQueuePlugin',
+        category: 'integrations',
       });
       expect(mockDone).toHaveBeenCalledWith(null);
     });

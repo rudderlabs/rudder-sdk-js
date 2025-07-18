@@ -25,6 +25,7 @@ import { NATIVE_DESTINATION_QUEUE_PLUGIN, QUEUE_NAME } from './constants';
 import { DESTINATION_EVENT_FILTERING_WARNING } from './logMessages';
 import { MEMORY_STORAGE } from '../shared-chunks/common';
 import { filterDestinations } from '../shared-chunks/deviceModeDestinations';
+import { INTEGRATIONS_ERROR_CATEGORY } from '../utilities/constants';
 
 const pluginName: PluginName = 'NativeDestinationQueue';
 
@@ -98,6 +99,7 @@ const NativeDestinationQueue = (): ExtensionPlugin => ({
               errorHandler?.onError({
                 error: e,
                 context: NATIVE_DESTINATION_QUEUE_PLUGIN,
+                category: INTEGRATIONS_ERROR_CATEGORY,
               });
             }
           });

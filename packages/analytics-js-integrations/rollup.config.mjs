@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import path from 'path';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
@@ -15,7 +14,7 @@ import alias from '@rollup/plugin-alias';
 import * as dotenv from 'dotenv';
 import pkg from './package.json' with { type: 'json' };
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 const INTG_SUFFIX = '_RS';
 const isLegacyBuild = process.env.BROWSERSLIST_ENV !== 'modern';
@@ -61,14 +60,14 @@ export function getDefaultConfig(distName, moduleType = 'cdn') {
     plugins: [
       replace({
         preventAssignment: true,
-        __PACKAGE_VERSION__: version,
-        __MODULE_TYPE__: moduleType,
+        __PACKAGE_VERSION__: `'${version}'`,
+        __MODULE_TYPE__: `'${moduleType}'`,
       }),
       alias({
         entries: [
           {
-            find: '@rudderstack/analytics-js-common',
-            replacement: path.resolve('../analytics-js-common/src'),
+            find: '@rudderstack/analytics-js-legacy-utilities',
+            replacement: path.resolve('../analytics-js-legacy-utilities/src'),
           },
         ],
       }),
