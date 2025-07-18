@@ -830,13 +830,13 @@ class Analytics implements IAnalytics {
   }
 
   /**
-   * Add a custom integration to the SDK.
-   * @param name - The name of the custom integration.
+   * Add a custom integration for a custom destination.
+   * @param destinationId - The ID of the custom destination from the RudderStack dashboard.
    * @param integration - The custom integration object.
    * @param isBufferedInvocation - Whether the invocation is buffered.
    */
   addCustomIntegration(
-    name: string,
+    destinationId: string,
     integration: RSACustomIntegration,
     isBufferedInvocation = false,
   ): void {
@@ -846,20 +846,20 @@ class Analytics implements IAnalytics {
 
       this.pluginsManager?.invokeSingle(
         'nativeDestinations.addCustomIntegration',
-        name,
+        destinationId,
         integration,
         state,
         this.logger,
       );
     } else {
       if (state.lifecycle.loaded.value) {
-        this.logger.error(CUSTOM_INTEGRATION_CANNOT_BE_ADDED_ERROR(ANALYTICS_CORE, name));
+        this.logger.error(CUSTOM_INTEGRATION_CANNOT_BE_ADDED_ERROR(ANALYTICS_CORE, destinationId));
         return;
       }
 
       state.eventBuffer.toBeProcessedArray.value = [
         ...state.eventBuffer.toBeProcessedArray.value,
-        [type, name, integration],
+        [type, destinationId, integration],
       ];
     }
   }

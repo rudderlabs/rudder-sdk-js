@@ -750,9 +750,9 @@ describe('Core - Rudder Analytics Facade', () => {
       alias: jest.fn(),
     };
 
-    rudderAnalytics.addCustomIntegration('TestIntegration', mockCustomIntegration);
+    rudderAnalytics.addCustomIntegration('custom-dest-123', mockCustomIntegration);
     expect(analyticsInstanceMock.addCustomIntegration).toHaveBeenCalledWith(
-      'TestIntegration',
+      'custom-dest-123',
       mockCustomIntegration,
     );
   });
@@ -771,7 +771,7 @@ describe('Core - Rudder Analytics Facade', () => {
       isReady: jest.fn(() => true),
     };
 
-    rudderAnalytics.addCustomIntegration('TestIntegration', mockCustomIntegration);
+    rudderAnalytics.addCustomIntegration('custom-dest-123', mockCustomIntegration);
 
     expect(dispatchEventSpy).toHaveBeenCalledWith(
       new ErrorEvent('error', {

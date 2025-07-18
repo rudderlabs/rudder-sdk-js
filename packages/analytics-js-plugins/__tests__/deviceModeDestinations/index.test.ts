@@ -1247,172 +1247,160 @@ describe('DeviceModeDestinations Plugin', () => {
       alias: jest.fn(),
     };
 
+    let mockCustomDestination: Destination;
+
     beforeEach(() => {
-      mockState.nativeDestinations.activeDestinations.value = [];
+      mockCustomDestination = {
+        id: 'custom-dest-123',
+        displayName: 'Custom Device Mode',
+        userFriendlyId: 'custom-dest-123',
+        enabled: true,
+        shouldApplyDeviceModeTransformation: false,
+        propagateEventsUntransformedOnError: false,
+        config: {
+          blacklistedEvents: [],
+          whitelistedEvents: [],
+          eventFilteringOption: 'disable',
+          connectionMode: 'device',
+          useNativeSDKToSend: true,
+        },
+      };
+      mockState.nativeDestinations.configuredDestinations.value = [mockCustomDestination];
+      jest.clearAllMocks();
     });
 
-    it('should add custom integration to active destinations when validation passes', () => {
-      const integrationName = 'TestCustomIntegration';
+    it('should add custom integration to configured destination when validation passes', () => {
+      const destinationId = 'custom-dest-123';
 
       plugin.nativeDestinations.addCustomIntegration(
-        integrationName,
+        destinationId,
         mockCustomIntegration,
         mockState,
         mockLogger,
       );
 
-      expect(mockState.nativeDestinations.activeDestinations.value).toHaveLength(1);
-
-      const addedDestination = mockState.nativeDestinations.activeDestinations.value[0]!;
-      expect(addedDestination.displayName).toBe(integrationName);
-      expect(addedDestination.isCustomIntegration).toBe(true);
-      expect(addedDestination.integration).toBeDefined();
+      // Verify the destination was updated with the integration
+      const updatedDestination = mockState.nativeDestinations.configuredDestinations.value.find(
+        dest => dest.id === destinationId,
+      );
+      expect(updatedDestination).toBeDefined();
+      expect(updatedDestination!.isCustomIntegration).toBe(true);
+      expect(updatedDestination!.integration).toBeDefined();
     });
 
-    it('should not add custom integration when validation fails for empty name', () => {
+    it('should not add custom integration when destination ID is not found', () => {
+      const invalidDestinationId = 'non-existent-dest';
+
       plugin.nativeDestinations.addCustomIntegration(
-        '',
+        invalidDestinationId,
         mockCustomIntegration,
         mockState,
         mockLogger,
       );
 
-      expect(mockState.nativeDestinations.activeDestinations.value).toHaveLength(0);
       expect(mockLogger.error).toHaveBeenCalledWith(
-        'DeviceModeDestinationsPlugin:: Custom integration name must be a non-empty string: "".',
+        `DeviceModeDestinationsPlugin:: The destination ID "${invalidDestinationId}" does not correspond to an enabled custom device mode destination.`,
       );
     });
 
-    it('should not add custom integration when validation fails for whitespace-only name', () => {
+    it('should not add custom integration when destination is not enabled', () => {
+      const disabledDestination = {
+        ...mockCustomDestination,
+        id: 'disabled-dest-456',
+        enabled: false,
+      };
+      mockState.nativeDestinations.configuredDestinations.value = [disabledDestination];
+
       plugin.nativeDestinations.addCustomIntegration(
-        '   ',
+        'disabled-dest-456',
         mockCustomIntegration,
         mockState,
         mockLogger,
       );
 
-      expect(mockState.nativeDestinations.activeDestinations.value).toHaveLength(0);
       expect(mockLogger.error).toHaveBeenCalledWith(
-        'DeviceModeDestinationsPlugin:: Custom integration name must be a non-empty string: "   ".',
+        'DeviceModeDestinationsPlugin:: The destination ID "disabled-dest-456" does not correspond to an enabled custom device mode destination.',
       );
     });
 
-    it('should not add custom integration when name conflicts with supported destination', () => {
-      const conflictingName = 'VWO';
+    it('should not add custom integration when destination display name is not "Custom Device Mode"', () => {
+      const regularDestination = {
+        ...mockCustomDestination,
+        id: 'regular-dest-789',
+        displayName: 'Google Analytics',
+      };
+      mockState.nativeDestinations.configuredDestinations.value = [regularDestination];
 
       plugin.nativeDestinations.addCustomIntegration(
-        conflictingName,
+        'regular-dest-789',
         mockCustomIntegration,
         mockState,
         mockLogger,
       );
 
-      expect(mockState.nativeDestinations.activeDestinations.value).toHaveLength(0);
       expect(mockLogger.error).toHaveBeenCalledWith(
-        `DeviceModeDestinationsPlugin:: An integration with name "${conflictingName}" already exists.`,
+        'DeviceModeDestinationsPlugin:: The destination ID "regular-dest-789" does not correspond to an enabled custom device mode destination.',
       );
     });
 
-    it('should not add custom integration when name conflicts with already added custom destination', () => {
-      const conflictingName = 'Custom Integration 1';
-      mockState.nativeDestinations.activeDestinations.value = [
-        { displayName: conflictingName } as Destination,
-      ];
+    it('should not add custom integration when integration already exists for destination', () => {
+      const destinationWithIntegration = {
+        ...mockCustomDestination,
+        integration: { isReady: jest.fn(() => true) },
+      };
+      mockState.nativeDestinations.configuredDestinations.value = [destinationWithIntegration];
 
       plugin.nativeDestinations.addCustomIntegration(
-        conflictingName,
+        'custom-dest-123',
         mockCustomIntegration,
         mockState,
         mockLogger,
       );
 
-      expect(mockState.nativeDestinations.activeDestinations.value).toEqual([
-        { displayName: conflictingName } as Destination,
-      ]);
       expect(mockLogger.error).toHaveBeenCalledWith(
-        `DeviceModeDestinationsPlugin:: An integration with name "${conflictingName}" already exists.`,
+        'DeviceModeDestinationsPlugin:: A custom integration with destination ID "custom-dest-123" was already added.',
       );
     });
 
     it('should not add custom integration when it is not in the expected format', () => {
-      const integrationName = 'TestIntegration';
+      // Create a fresh destination without any existing integration
+      const cleanDestination = {
+        ...mockCustomDestination,
+        id: 'fresh-dest-456',
+      };
+      mockState.nativeDestinations.configuredDestinations.value = [cleanDestination];
 
-      const mockIntegration = {
+      const invalidIntegration = {
         track: jest.fn(),
+        // Missing required isReady method
       };
 
       plugin.nativeDestinations.addCustomIntegration(
-        integrationName,
-        mockIntegration,
+        'fresh-dest-456',
+        invalidIntegration,
         mockState,
         mockLogger,
       );
 
-      expect(mockState.nativeDestinations.activeDestinations.value).toHaveLength(0);
       expect(mockLogger.error).toHaveBeenCalledWith(
-        `DeviceModeDestinationsPlugin:: The custom integration "${integrationName}" does not match the expected format.`,
+        'DeviceModeDestinationsPlugin:: The custom integration added for destination ID "fresh-dest-456" does not match the expected implementation format.',
       );
     });
 
-    it('should create destination with correct properties', () => {
-      const integrationName = 'TestIntegration';
+    it('should create integration wrapper with correct properties', () => {
+      const destinationId = 'custom-dest-123';
 
       plugin.nativeDestinations.addCustomIntegration(
-        integrationName,
+        destinationId,
         mockCustomIntegration,
         mockState,
         mockLogger,
       );
 
-      const destination = mockState.nativeDestinations.activeDestinations.value[0]!;
-
-      expect(destination.displayName).toBe(integrationName);
-      expect(destination.userFriendlyId).toMatch(
-        new RegExp(`^${integrationName.replaceAll(' ', '-')}___custom_`),
+      const updatedDestination = mockState.nativeDestinations.configuredDestinations.value.find(
+        dest => dest.id === destinationId,
       );
-      expect(destination.shouldApplyDeviceModeTransformation).toBe(false);
-      expect(destination.propagateEventsUntransformedOnError).toBe(false);
-      expect(destination.isCustomIntegration).toBe(true);
-      expect(destination.enabled).toBe(true);
-      expect(destination.config).toEqual({
-        blacklistedEvents: [],
-        whitelistedEvents: [],
-        eventFilteringOption: 'disable',
-        connectionMode: 'device',
-        useNativeSDKToSend: true,
-      });
-    });
-
-    it('should handle custom integration with minimal methods', () => {
-      const minimalIntegration: RSACustomIntegration = {
-        isReady: jest.fn(() => true),
-      };
-
-      plugin.nativeDestinations.addCustomIntegration(
-        'MinimalIntegration',
-        minimalIntegration,
-        mockState,
-        mockLogger,
-      );
-
-      const destination = mockState.nativeDestinations.activeDestinations.value[0]!;
-      expect(destination.integration?.isReady).toBeDefined();
-      expect(destination.integration?.init).toBeUndefined();
-      expect(destination.integration?.track).toBeUndefined();
-    });
-
-    it('should create instance with all provided methods', () => {
-      const integrationName = 'FullIntegration';
-
-      plugin.nativeDestinations.addCustomIntegration(
-        integrationName,
-        mockCustomIntegration,
-        mockState,
-        mockLogger,
-      );
-
-      const destination = mockState.nativeDestinations.activeDestinations.value[0]!;
-      const integration = destination.integration!;
+      const integration = updatedDestination!.integration!;
 
       expect(integration.init).toBeDefined();
       expect(integration.track).toBeDefined();
@@ -1423,94 +1411,280 @@ describe('DeviceModeDestinations Plugin', () => {
       expect(integration.isReady).toBeDefined();
     });
 
-    it('should sanitize integration name in userFriendlyId', () => {
-      const integrationName = 'Test Integration!@#$%';
+    it('should handle custom integration with minimal methods', () => {
+      // Create a fresh destination without any existing integration
+      const minimalDestination = {
+        ...mockCustomDestination,
+        id: 'minimal-dest-789',
+      };
+      mockState.nativeDestinations.configuredDestinations.value = [minimalDestination];
+
+      const minimalIntegration: RSACustomIntegration = {
+        isReady: jest.fn(() => true),
+      };
 
       plugin.nativeDestinations.addCustomIntegration(
-        integrationName,
-        mockCustomIntegration,
+        'minimal-dest-789',
+        minimalIntegration,
         mockState,
         mockLogger,
       );
 
-      const destination = mockState.nativeDestinations.activeDestinations.value[0]!;
-      expect(destination.displayName).toBe(integrationName);
-      expect(destination.userFriendlyId).toMatch(/^Test-Integration!@#\$%___custom_/);
+      const updatedDestination = mockState.nativeDestinations.configuredDestinations.value.find(
+        dest => dest.id === 'minimal-dest-789',
+      );
+      const integration = updatedDestination!.integration!;
+
+      expect(integration.isReady).toBeDefined();
+      expect(integration.init).toBeUndefined();
+      expect(integration.track).toBeUndefined();
+      expect(integration.page).toBeUndefined();
+      expect(integration.identify).toBeUndefined();
+      expect(integration.group).toBeUndefined();
+      expect(integration.alias).toBeUndefined();
     });
 
-    it('should handle multiple custom integrations', () => {
+    it('should work with multiple custom destinations', () => {
+      const customDest1 = { ...mockCustomDestination, id: 'custom-dest-1' };
+      const customDest2 = { ...mockCustomDestination, id: 'custom-dest-2' };
+      mockState.nativeDestinations.configuredDestinations.value = [customDest1, customDest2];
+
       const integration1 = { isReady: jest.fn(() => true) };
       const integration2 = { isReady: jest.fn(() => true) };
 
       plugin.nativeDestinations.addCustomIntegration(
-        'CustomIntegration1',
+        'custom-dest-1',
         integration1,
         mockState,
         mockLogger,
       );
 
       plugin.nativeDestinations.addCustomIntegration(
-        'CustomIntegration2',
+        'custom-dest-2',
         integration2,
         mockState,
         mockLogger,
       );
 
-      expect(mockState.nativeDestinations.activeDestinations.value).toHaveLength(2);
-      expect(mockState.nativeDestinations.activeDestinations.value[0]!.displayName).toBe(
-        'CustomIntegration1',
+      const updatedDest1 = mockState.nativeDestinations.configuredDestinations.value.find(
+        dest => dest.id === 'custom-dest-1',
       );
-      expect(mockState.nativeDestinations.activeDestinations.value[1]!.displayName).toBe(
-        'CustomIntegration2',
+      const updatedDest2 = mockState.nativeDestinations.configuredDestinations.value.find(
+        dest => dest.id === 'custom-dest-2',
       );
+
+      expect(updatedDest1!.integration).toBeDefined();
+      expect(updatedDest2!.integration).toBeDefined();
+      expect(updatedDest1!.isCustomIntegration).toBe(true);
+      expect(updatedDest2!.isCustomIntegration).toBe(true);
+    });
+  });
+
+  describe('integration with destination filtering', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
     });
 
-    it('should preserve existing active destinations when adding custom integration', () => {
-      const existingDestination = mockDestinations[0]!;
-      mockState.nativeDestinations.activeDestinations.value = [existingDestination];
+    it('should complete full workflow: add custom integration and filter destinations correctly', () => {
+      const customDestination: Destination = {
+        id: 'custom-dest-workflow',
+        displayName: 'Custom Device Mode',
+        userFriendlyId: 'custom-dest-workflow',
+        enabled: true,
+        shouldApplyDeviceModeTransformation: false,
+        propagateEventsUntransformedOnError: false,
+        config: {
+          blacklistedEvents: [],
+          whitelistedEvents: [],
+          eventFilteringOption: 'disable',
+          connectionMode: 'device',
+          useNativeSDKToSend: true,
+        },
+      };
 
+      const regularDestination: Destination = {
+        id: 'regular-dest-workflow',
+        displayName: 'Google Analytics',
+        userFriendlyId: 'regular-dest-workflow',
+        enabled: true,
+        shouldApplyDeviceModeTransformation: false,
+        propagateEventsUntransformedOnError: false,
+        config: {
+          blacklistedEvents: [],
+          whitelistedEvents: [],
+          eventFilteringOption: 'disable',
+          connectionMode: 'device',
+          useNativeSDKToSend: true,
+        },
+      };
+
+      mockState.nativeDestinations.configuredDestinations.value = [
+        customDestination,
+        regularDestination,
+      ];
+
+      const mockCustomIntegration: RSACustomIntegration = {
+        init: jest.fn(),
+        isReady: jest.fn(() => true),
+        track: jest.fn(),
+      };
+
+      // Step 1: Add custom integration
       plugin.nativeDestinations.addCustomIntegration(
-        'NewCustomIntegration',
+        'custom-dest-workflow',
         mockCustomIntegration,
         mockState,
         mockLogger,
       );
 
-      expect(mockState.nativeDestinations.activeDestinations.value).toHaveLength(2);
-      expect(mockState.nativeDestinations.activeDestinations.value[0]!).toBe(existingDestination);
-      expect(mockState.nativeDestinations.activeDestinations.value[1]!.displayName).toBe(
-        'NewCustomIntegration',
+      // Verify integration was added
+      const updatedDestination = mockState.nativeDestinations.configuredDestinations.value.find(
+        dest => dest.id === 'custom-dest-workflow',
       );
+      expect(updatedDestination!.isCustomIntegration).toBe(true);
+      expect(updatedDestination!.integration).toBeDefined();
     });
 
-    it('should handle null state values gracefully', () => {
-      mockState.nativeDestinations.configuredDestinations.value = null as any;
-      mockState.nativeDestinations.initializedDestinations.value = null as any;
+    it('should warn about custom destinations without integrations during filtering', () => {
+      const customDestWithoutIntegration: Destination = {
+        id: 'custom-dest-no-integration',
+        displayName: 'Custom Device Mode',
+        userFriendlyId: 'custom-dest-no-integration',
+        enabled: true,
+        shouldApplyDeviceModeTransformation: false,
+        propagateEventsUntransformedOnError: false,
+        config: {
+          blacklistedEvents: [],
+          whitelistedEvents: [],
+          eventFilteringOption: 'disable',
+          connectionMode: 'device',
+          useNativeSDKToSend: true,
+        },
+        isCustomIntegration: true, // Marked as custom but no integration added
+      };
 
-      plugin.nativeDestinations.addCustomIntegration(
-        'TestIntegration',
-        mockCustomIntegration,
+      const customDestWithIntegration: Destination = {
+        id: 'custom-dest-with-integration',
+        displayName: 'Custom Device Mode',
+        userFriendlyId: 'custom-dest-with-integration',
+        enabled: true,
+        shouldApplyDeviceModeTransformation: false,
+        propagateEventsUntransformedOnError: false,
+        config: {
+          blacklistedEvents: [],
+          whitelistedEvents: [],
+          eventFilteringOption: 'disable',
+          connectionMode: 'device',
+          useNativeSDKToSend: true,
+        },
+        isCustomIntegration: true,
+        integration: { isReady: jest.fn(() => true) },
+      };
+
+      mockState.nativeDestinations.configuredDestinations.value = [
+        customDestWithoutIntegration,
+        customDestWithIntegration,
+      ];
+
+      plugin.nativeDestinations.setActiveDestinations(
         mockState,
+        mockPluginsManager,
+        mockErrorHandler,
         mockLogger,
       );
 
-      expect(mockState.nativeDestinations.activeDestinations.value).toHaveLength(1);
-      expect(mockLogger.error).not.toHaveBeenCalled();
+      // Should warn about the destination without integration
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        'DeviceModeDestinationsPlugin:: No custom integration was added for destination ID "custom-dest-no-integration". Ignoring it.',
+      );
+
+      // Should not warn about destination with integration
+      expect(mockLogger.warn).toHaveBeenCalledTimes(1);
     });
 
-    it('should handle undefined state values gracefully', () => {
-      mockState.nativeDestinations.configuredDestinations.value = undefined as any;
-      mockState.nativeDestinations.initializedDestinations.value = undefined as any;
+    it('should handle multiple custom destinations with mixed integration states', () => {
+      const destinations: Destination[] = [
+        {
+          id: 'custom-1',
+          displayName: 'Custom Device Mode',
+          userFriendlyId: 'custom-1',
+          enabled: true,
+          shouldApplyDeviceModeTransformation: false,
+          propagateEventsUntransformedOnError: false,
+          config: {
+            blacklistedEvents: [],
+            whitelistedEvents: [],
+            eventFilteringOption: 'disable',
+            connectionMode: 'device',
+            useNativeSDKToSend: true,
+          },
+          isCustomIntegration: true,
+          integration: { isReady: jest.fn(() => true) },
+        },
+        {
+          id: 'custom-2',
+          displayName: 'Custom Device Mode',
+          userFriendlyId: 'custom-2',
+          enabled: true,
+          shouldApplyDeviceModeTransformation: false,
+          propagateEventsUntransformedOnError: false,
+          config: {
+            blacklistedEvents: [],
+            whitelistedEvents: [],
+            eventFilteringOption: 'disable',
+            connectionMode: 'device',
+            useNativeSDKToSend: true,
+          },
+          isCustomIntegration: true,
+          // No integration added
+        },
+        {
+          id: 'custom-3',
+          displayName: 'Custom Device Mode',
+          userFriendlyId: 'custom-3',
+          enabled: false, // Disabled
+          shouldApplyDeviceModeTransformation: false,
+          propagateEventsUntransformedOnError: false,
+          config: {
+            blacklistedEvents: [],
+            whitelistedEvents: [],
+            eventFilteringOption: 'disable',
+            connectionMode: 'device',
+            useNativeSDKToSend: true,
+          },
+          isCustomIntegration: true,
+        },
+        {
+          id: 'regular-dest',
+          displayName: 'Google Analytics',
+          userFriendlyId: 'regular-dest',
+          enabled: true,
+          shouldApplyDeviceModeTransformation: false,
+          propagateEventsUntransformedOnError: false,
+          config: {
+            blacklistedEvents: [],
+            whitelistedEvents: [],
+            eventFilteringOption: 'disable',
+            connectionMode: 'device',
+            useNativeSDKToSend: true,
+          },
+        },
+      ];
 
-      plugin.nativeDestinations.addCustomIntegration(
-        'TestIntegration',
-        mockCustomIntegration,
+      mockState.nativeDestinations.configuredDestinations.value = destinations;
+
+      plugin.nativeDestinations.setActiveDestinations(
         mockState,
+        mockPluginsManager,
+        mockErrorHandler,
         mockLogger,
       );
 
-      expect(mockState.nativeDestinations.activeDestinations.value).toHaveLength(1);
-      expect(mockLogger.error).not.toHaveBeenCalled();
+      // Should only warn about custom-2 (enabled custom destination without integration)
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        'DeviceModeDestinationsPlugin:: No custom integration was added for destination ID "custom-2". Ignoring it.',
+      );
+      expect(mockLogger.warn).toHaveBeenCalledTimes(1);
     });
   });
 });

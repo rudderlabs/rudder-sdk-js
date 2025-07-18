@@ -929,24 +929,24 @@ describe('Core - Analytics', () => {
 
     describe('when the call is not buffered', () => {
       it('should buffer the addCustomIntegration call when SDK is not loaded', () => {
-        const integrationName = 'TestIntegration';
+        const destinationId = 'custom-dest-123';
 
-        analytics.addCustomIntegration(integrationName, mockCustomIntegration);
+        analytics.addCustomIntegration(destinationId, mockCustomIntegration);
 
         expect(state.eventBuffer.toBeProcessedArray.value).toEqual([
-          ['addCustomIntegration', integrationName, mockCustomIntegration],
+          ['addCustomIntegration', destinationId, mockCustomIntegration],
         ]);
       });
 
       it('should add to existing buffered events when SDK is not loaded', () => {
-        const integrationName = 'TestIntegration';
+        const destinationId = 'custom-dest-123';
         state.eventBuffer.toBeProcessedArray.value = [['track', 'some_event']];
 
-        analytics.addCustomIntegration(integrationName, mockCustomIntegration);
+        analytics.addCustomIntegration(destinationId, mockCustomIntegration);
 
         expect(state.eventBuffer.toBeProcessedArray.value).toEqual([
           ['track', 'some_event'],
-          ['addCustomIntegration', integrationName, mockCustomIntegration],
+          ['addCustomIntegration', destinationId, mockCustomIntegration],
         ]);
       });
 
@@ -958,12 +958,12 @@ describe('Core - Analytics', () => {
           'invokeSingle',
         );
 
-        const integrationName = 'TestIntegration';
+        const destinationId = 'custom-dest-123';
 
-        analytics.addCustomIntegration(integrationName, mockCustomIntegration);
+        analytics.addCustomIntegration(destinationId, mockCustomIntegration);
 
         expect(loggerErrorSpy).toHaveBeenCalledWith(
-          'AnalyticsCore:: Cannot add custom integration "TestIntegration" after the SDK is loaded.',
+          'AnalyticsCore:: Cannot add custom integration for destination ID "custom-dest-123" after the SDK is loaded.',
         );
         expect(invokeSingleSpy).not.toHaveBeenCalled();
         expect(state.eventBuffer.toBeProcessedArray.value).toEqual([]);
@@ -972,7 +972,7 @@ describe('Core - Analytics', () => {
       it('should not leave breadcrumb when isBufferedInvocation is false', () => {
         const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
 
-        analytics.addCustomIntegration('TestIntegration', mockCustomIntegration);
+        analytics.addCustomIntegration('custom-dest-123', mockCustomIntegration);
 
         expect(leaveBreadcrumbSpy).not.toHaveBeenCalled();
       });
@@ -983,7 +983,7 @@ describe('Core - Analytics', () => {
           'invokeSingle',
         );
 
-        analytics.addCustomIntegration('TestIntegration', mockCustomIntegration);
+        analytics.addCustomIntegration('custom-dest-123', mockCustomIntegration);
 
         expect(invokeSingleSpy).not.toHaveBeenCalled();
       });
@@ -997,14 +997,14 @@ describe('Core - Analytics', () => {
           'invokeSingle',
         );
 
-        const integrationName = 'TestIntegration';
+        const destinationId = 'custom-dest-123';
 
-        analytics.addCustomIntegration(integrationName, mockCustomIntegration, true);
+        analytics.addCustomIntegration(destinationId, mockCustomIntegration, true);
 
         expect(leaveBreadcrumbSpy).toHaveBeenCalledWith('New addCustomIntegration invocation');
         expect(invokeSingleSpy).toHaveBeenCalledWith(
           'nativeDestinations.addCustomIntegration',
-          integrationName,
+          destinationId,
           mockCustomIntegration,
           state,
           analytics.logger,
@@ -1016,7 +1016,7 @@ describe('Core - Analytics', () => {
         analytics.pluginsManager = undefined;
 
         expect(() => {
-          analytics.addCustomIntegration('TestIntegration', mockCustomIntegration, true);
+          analytics.addCustomIntegration('custom-dest-123', mockCustomIntegration, true);
         }).not.toThrow();
 
         // Restore the original plugins manager

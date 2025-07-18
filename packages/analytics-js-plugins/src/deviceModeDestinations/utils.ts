@@ -25,30 +25,25 @@ import {
   isBoolean,
   isDefined,
   isNullOrUndefined,
-  isString,
   isUndefined,
 } from '@rudderstack/analytics-js-common/utilities/checks';
 import type { RSAEvent } from '@rudderstack/analytics-js-common/types/Event';
-import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
-import { getDestinationUserFriendlyId } from '@rudderstack/analytics-js-common/utilities/destinations';
 import {
   DEVICE_MODE_DESTINATIONS_PLUGIN,
   READY_CHECK_INTERVAL_MS,
   READY_CHECK_TIMEOUT_MS,
+  CUSTOM_DEVICE_MODE_DESTINATION_DISPLAY_NAME,
 } from './constants';
 import {
   INTEGRATION_INIT_ERROR,
   INTEGRATIONS_DATA_ERROR,
   INTEGRATION_READY_TIMEOUT_ERROR,
   INTEGRATION_READY_CHECK_ERROR,
-  CUSTOM_INTEGRATION_INVALID_NAME_ERROR,
+  CUSTOM_INTEGRATION_INVALID_DESTINATION_ID_ERROR,
   CUSTOM_INTEGRATION_ALREADY_EXISTS_ERROR,
   INVALID_CUSTOM_INTEGRATION_ERROR,
 } from './logMessages';
-import {
-  destDisplayNamesToFileNamesMap,
-  isHybridModeDestination,
-} from '../shared-chunks/deviceModeDestinations';
+import { isHybridModeDestination } from '../shared-chunks/deviceModeDestinations';
 import { getSanitizedValue, isFunction } from '../shared-chunks/common';
 import { INTEGRATIONS_ERROR_CATEGORY } from '../utilities/constants';
 
@@ -343,33 +338,43 @@ const applyOverrideToDestination = (
 };
 
 /**
- * Validates if a custom integration name is unique and not conflicting with existing destinations
- * @param name - The integration name to validate
+ * Validates if the destination ID and custom integration are valid
+ * @param destinationId - The destination ID to validate
  * @param integration - The custom integration instance
  * @param state - Application state
  * @param logger - Logger instance
- * @returns boolean indicating if the name is valid
+ * @returns Destination object if the integration is valid, undefined otherwise
  */
 const validateCustomIntegration = (
-  name: string,
+  destinationId: string,
   integration: RSACustomIntegration,
   state: ApplicationState,
   logger: ILogger,
-): boolean => {
-  if (!isString(name) || name.trim().length === 0) {
-    logger.error(CUSTOM_INTEGRATION_INVALID_NAME_ERROR(DEVICE_MODE_DESTINATIONS_PLUGIN, name));
-    return false;
+): Destination | undefined => {
+  const configuredDestinations = state.nativeDestinations.configuredDestinations.value;
+  const destination = configuredDestinations.find(
+    dest =>
+      dest.id === destinationId &&
+      dest.displayName === CUSTOM_DEVICE_MODE_DESTINATION_DISPLAY_NAME &&
+      dest.enabled,
+  );
+
+  if (!destination) {
+    logger.error(
+      CUSTOM_INTEGRATION_INVALID_DESTINATION_ID_ERROR(
+        DEVICE_MODE_DESTINATIONS_PLUGIN,
+        destinationId,
+      ),
+    );
+    return;
   }
 
-  // Check against existing configured destinations
-  const activeDestinations = state.nativeDestinations.activeDestinations.value || [];
-
-  if (
-    isDefined(destDisplayNamesToFileNamesMap[name]) ||
-    activeDestinations.some(dest => dest.displayName === name)
-  ) {
-    logger.error(CUSTOM_INTEGRATION_ALREADY_EXISTS_ERROR(DEVICE_MODE_DESTINATIONS_PLUGIN, name));
-    return false;
+  // Check if a custom integration is already added for the destination ID
+  if (isDefined(destination.integration)) {
+    logger.error(
+      CUSTOM_INTEGRATION_ALREADY_EXISTS_ERROR(DEVICE_MODE_DESTINATIONS_PLUGIN, destinationId),
+    );
+    return;
   }
 
   // Check if the integration is correctly implemented
@@ -383,35 +388,36 @@ const validateCustomIntegration = (
     (isDefined(integration.group) && !isFunction(integration.group)) ||
     (isDefined(integration.alias) && !isFunction(integration.alias))
   ) {
-    logger.error(INVALID_CUSTOM_INTEGRATION_ERROR(DEVICE_MODE_DESTINATIONS_PLUGIN, name));
-    return false;
+    logger.error(INVALID_CUSTOM_INTEGRATION_ERROR(DEVICE_MODE_DESTINATIONS_PLUGIN, destinationId));
+    return;
   }
 
-  return true;
+  return destination;
 };
 
 /**
- * Creates a Destination instance for a custom integration
- * @param name - The name of the custom integration
+ * Updates destination object with the custom integration
+ * @param destination - The destination object
  * @param integration - The custom integration instance
- * @returns Destination instance configured for the custom integration
+ * @param state - Application state
+ * @param logger - Logger instance
+ * @returns
  */
-const createCustomIntegrationDestination = (
-  name: string,
+const addIntegrationToDestination = (
+  destination: Destination,
   integration: RSACustomIntegration,
   state: ApplicationState,
   logger: ILogger,
-): Destination => {
-  // Generate unique ID for the custom integration
-  const uniqueId = `custom_${generateUUID()}`;
+): void => {
   const analyticsInstance = state.lifecycle.safeAnalyticsInstance.value as RSAnalytics;
 
   // Create a new logger object for the custom integration
   // to avoid conflicts with the main logger
   const integrationLogger = clone(logger);
+
   // Set the scope to the custom integration name
   // for easy identification in the logs
-  integrationLogger.setScope(name);
+  integrationLogger.setScope(destination.displayName);
 
   // Bind only the necessary methods to the new logger object
   const safeLogger: RSALogger = {
@@ -423,47 +429,30 @@ const createCustomIntegrationDestination = (
     setMinLogLevel: integrationLogger.setMinLogLevel.bind(integrationLogger),
   };
 
-  // Create a destination object for the custom integration
-  // similar to the standard device mode integrations
-  const destination: Destination = {
-    id: uniqueId,
-    displayName: name,
-    userFriendlyId: getDestinationUserFriendlyId(name, uniqueId),
-    shouldApplyDeviceModeTransformation: false,
-    propagateEventsUntransformedOnError: false,
-    config: {
-      blacklistedEvents: [],
-      whitelistedEvents: [],
-      eventFilteringOption: 'disable',
-      connectionMode: 'device',
-      useNativeSDKToSend: true,
-    },
-    enabled: true,
-    isCustomIntegration: true,
-    // Create a wrapper around the custom integration APIs
-    // to make them consistent with the standard device mode integrations
-    integration: {
-      ...(integration.init && { init: () => integration.init!(analyticsInstance, safeLogger) }),
-      ...(integration.track && {
-        track: (event: RSAEvent) => integration.track!(analyticsInstance, safeLogger, event),
-      }),
-      ...(integration.page && {
-        page: (event: RSAEvent) => integration.page!(analyticsInstance, safeLogger, event),
-      }),
-      ...(integration.identify && {
-        identify: (event: RSAEvent) => integration.identify!(analyticsInstance, safeLogger, event),
-      }),
-      ...(integration.group && {
-        group: (event: RSAEvent) => integration.group!(analyticsInstance, safeLogger, event),
-      }),
-      ...(integration.alias && {
-        alias: (event: RSAEvent) => integration.alias!(analyticsInstance, safeLogger, event),
-      }),
-      isReady: () => integration.isReady(analyticsInstance, safeLogger),
-    },
-  };
+  // Mark it as a custom integration
+  destination.isCustomIntegration = true;
 
-  return destination;
+  // Create a wrapper around the custom integration APIs
+  // to make them consistent with the standard device mode integrations
+  destination.integration = {
+    ...(integration.init && { init: () => integration.init!(analyticsInstance, safeLogger) }),
+    ...(integration.track && {
+      track: (event: RSAEvent) => integration.track!(analyticsInstance, safeLogger, event),
+    }),
+    ...(integration.page && {
+      page: (event: RSAEvent) => integration.page!(analyticsInstance, safeLogger, event),
+    }),
+    ...(integration.identify && {
+      identify: (event: RSAEvent) => integration.identify!(analyticsInstance, safeLogger, event),
+    }),
+    ...(integration.group && {
+      group: (event: RSAEvent) => integration.group!(analyticsInstance, safeLogger, event),
+    }),
+    ...(integration.alias && {
+      alias: (event: RSAEvent) => integration.alias!(analyticsInstance, safeLogger, event),
+    }),
+    isReady: () => integration.isReady(analyticsInstance, safeLogger),
+  };
 };
 
 export {
@@ -477,5 +466,5 @@ export {
   applyOverrideToDestination,
   filterDisabledDestinations,
   validateCustomIntegration,
-  createCustomIntegrationDestination,
+  addIntegrationToDestination,
 };

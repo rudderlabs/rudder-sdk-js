@@ -15,16 +15,21 @@ import {
   initializeDestination,
   applySourceConfigurationOverrides,
   filterDisabledDestinations,
-  createCustomIntegrationDestination,
+  addIntegrationToDestination,
   validateCustomIntegration,
 } from './utils';
 import { DEVICE_MODE_DESTINATIONS_PLUGIN, SCRIPT_LOAD_TIMEOUT_MS } from './constants';
-import { INTEGRATION_NOT_SUPPORTED_ERROR, INTEGRATION_SDK_LOAD_ERROR } from './logMessages';
+import {
+  INTEGRATION_NOT_ADDED_TO_CUSTOM_DESTINATION_WARNING,
+  INTEGRATION_NOT_SUPPORTED_ERROR,
+  INTEGRATION_SDK_LOAD_ERROR,
+} from './logMessages';
 import {
   destDisplayNamesToFileNamesMap,
   filterDestinations,
 } from '../shared-chunks/deviceModeDestinations';
 import { INTEGRATIONS_ERROR_CATEGORY } from '../utilities/constants';
+import { isUndefined } from '../shared-chunks/common';
 
 const pluginName: PluginName = 'DeviceModeDestinations';
 
@@ -35,21 +40,21 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
   },
   nativeDestinations: {
     addCustomIntegration(
-      name: string,
+      destinationId: string,
       integration: RSACustomIntegration,
       state: ApplicationState,
       logger: ILogger,
     ): void {
-      if (!validateCustomIntegration(name, integration, state, logger)) {
+      const destination = validateCustomIntegration(destinationId, integration, state, logger);
+      if (!destination) {
         return;
       }
 
-      const destination = createCustomIntegrationDestination(name, integration, state, logger);
+      addIntegrationToDestination(destination, integration, state, logger);
 
-      // Add them to the state
-      state.nativeDestinations.activeDestinations.value = [
-        ...state.nativeDestinations.activeDestinations.value,
-        destination,
+      // Refresh the state value to trigger any effects that depend on it
+      state.nativeDestinations.configuredDestinations.value = [
+        ...state.nativeDestinations.configuredDestinations.value,
       ];
     },
 
@@ -65,7 +70,27 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
       // Filter destination that doesn't have mapping config-->Integration names
       const configSupportedDestinations =
         state.nativeDestinations.configuredDestinations.value.filter((configDest: Destination) => {
-          if (destDisplayNamesToFileNamesMap[configDest.displayName]) {
+          // Filter enabled custom destinations that don't have an integration added to them
+          if (
+            configDest.enabled &&
+            configDest.isCustomIntegration &&
+            isUndefined(configDest.integration)
+          ) {
+            logger?.warn(
+              INTEGRATION_NOT_ADDED_TO_CUSTOM_DESTINATION_WARNING(
+                DEVICE_MODE_DESTINATIONS_PLUGIN,
+                configDest.id,
+              ),
+            );
+            return false;
+          }
+
+          // Ensure the destination is supported by the SDK
+          // or it is a custom integration
+          if (
+            configDest.isCustomIntegration ||
+            destDisplayNamesToFileNamesMap[configDest.displayName]
+          ) {
             return true;
           }
 
