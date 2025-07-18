@@ -30,6 +30,12 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
+      - name: Setup workspace
+        env:
+          HUSKY: 0
+        run: |
+          npm run setup:ci
+
       - name: Check for affected projects
         id: check_affected
         run: |
@@ -74,8 +80,8 @@ jobs:
 
       - name: Execute code quality checks
         run: |
-          npm run check:circular:ci
-          npm run check:duplicates:ci
+          npm run check:circular
+          npm run check:duplicates
 
       - name: Build the project
         run: |
