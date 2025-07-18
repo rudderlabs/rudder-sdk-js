@@ -52,7 +52,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           install_script: setup:ci
           build_script: check:size:build
-          script: npm run check:size:json:ci --silent -- --output-style=static --silent=true --exclude=@rudderstack/analytics-js-sanity-suite,${{ steps.check_affected.outputs.affected_projects }}
+          script: npm run check:size:json:ci --silent -- --output-style=static --silent=true --projects=${{ steps.check_affected.outputs.affected_projects }}
           is_monorepo: true
 
   security-code-quality-checks:
