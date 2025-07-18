@@ -267,8 +267,8 @@ const PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING = (context: string) =>
 const UNKNOWN_PLUGINS_WARNING = (context: string, unknownPlugins: string[]) =>
   `${context}${LOG_CONTEXT_SEPARATOR}Ignoring unknown plugins: ${unknownPlugins.join(', ')}.`;
 
-const CUSTOM_INTEGRATION_CANNOT_BE_ADDED_ERROR = (context: string, name: string) =>
-  `${context}${LOG_CONTEXT_SEPARATOR}Cannot add custom integration "${name}" after the SDK is loaded.`;
+const CUSTOM_INTEGRATION_CANNOT_BE_ADDED_ERROR = (context: string, destinationId: string) =>
+  `${context}${LOG_CONTEXT_SEPARATOR}Cannot add custom integration for destination ID "${destinationId}" after the SDK is loaded.`;
 
 export {
   UNSUPPORTED_CONSENT_MANAGER_ERROR,
