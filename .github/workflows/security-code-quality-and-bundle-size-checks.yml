@@ -78,15 +78,16 @@ jobs:
         run: |
           npm run setup:ci
 
+      - name: Build the project
+        run: |
+          npm run build:ci
+          npm run build:modern:ci
+
       - name: Execute code quality checks
         run: |
           npm run check:circular
           npm run check:duplicates
 
-      - name: Build the project
-        run: |
-          npm run build:ci
-          npm run build:modern:ci
 
       - name: Execute package linting checks
         run: |
