@@ -44,14 +44,14 @@ jobs:
           echo "affected_projects=$AFFECTED_PROJECTS" >> $GITHUB_OUTPUT
 
       - name: Execute bundle size checks
-        uses: rudderlabs/github-action-check-size-limit@v2.13.0
+        uses: rudderlabs/github-action-check-size-limit@v3.0.0
         if: ${{ steps.check_affected.outputs.affected_projects != '' }}
         env:
           HUSKY: 0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          install_script: setup:ci
-          build_script: check:size:build
+          install_script: npm run setup:ci
+          build_script: npm run check:size:build -- --projects=${{ steps.check_affected.outputs.affected_projects }}
           script: npm run check:size:json:ci --silent -- --output-style=static --silent=true --projects=${{ steps.check_affected.outputs.affected_projects }}
           is_monorepo: true
 
