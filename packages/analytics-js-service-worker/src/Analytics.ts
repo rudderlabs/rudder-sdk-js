@@ -37,9 +37,10 @@ class Analytics implements IAnalytics {
   host: string;
   flushed: boolean;
   axiosInstance: AxiosInstance;
-  logger: any;
+  logger: null | any;
   flushTimer?: null | any;
   timer?: null | any;
+
 
   /**
    * Initialize a new `Analytics` with your RudderStack source's `writeKey` and an
