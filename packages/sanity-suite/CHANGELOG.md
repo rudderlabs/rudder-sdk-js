@@ -2,6 +2,18 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.4.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.3.0...@rudderstack/analytics-js-sanity-suite@3.4.0) (2025-07-18)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.22.0`
+* `rudder-sdk-js` updated to version `2.52.0`
+
+### Features
+
+* add legacy utils package ([#2323](https://github.com/rudderlabs/rudder-sdk-js/issues/2323)) ([32a90c4](https://github.com/rudderlabs/rudder-sdk-js/commit/32a90c4417b747f4da2b1027249ccfbab1d075fd))
+* relocate destination constants ([#2325](https://github.com/rudderlabs/rudder-sdk-js/issues/2325)) ([0a421ae](https://github.com/rudderlabs/rudder-sdk-js/commit/0a421ae9f5c38556a3fa9487f16cdcea66921064))
+
 ## [3.3.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.2.14...@rudderstack/analytics-js-sanity-suite@3.3.0) (2025-06-20)
 
 ### Dependency Updates
