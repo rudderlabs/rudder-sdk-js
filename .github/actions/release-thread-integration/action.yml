@@ -43,6 +43,32 @@ outputs:
 runs:
   using: 'composite'
   steps:
+    - name: Ensure jq is installed
+      shell: bash
+      run: |
+        if ! command -v jq &> /dev/null; then
+          echo "jq not found, installing..."
+          if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+            # Linux - use apt-get (most common for GitHub runners)
+            sudo apt-get update && sudo apt-get install -y jq
+          elif [[ "$OSTYPE" == "darwin"* ]]; then
+            # macOS - use brew if available, otherwise install via curl
+            if command -v brew &> /dev/null; then
+              brew install jq
+            else
+              # Fallback: install jq binary directly
+              curl -L -o /usr/local/bin/jq https://github.com/stedolan/jq/releases/latest/download/jq-osx-amd64
+              chmod +x /usr/local/bin/jq
+            fi
+          else
+            echo "Unsupported OS type: $OSTYPE"
+            exit 1
+          fi
+        else
+          echo "jq is already installed"
+          jq --version
+        fi
+
     - name: Download release info artifact from original workflow
       id: download-release-info
       continue-on-error: true
@@ -132,32 +158,6 @@ runs:
           echo "3. The artifact name doesn't match"
           
           exit 1
-        fi
-
-    - name: Ensure jq is installed
-      shell: bash
-      run: |
-        if ! command -v jq &> /dev/null; then
-          echo "jq not found, installing..."
-          if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-            # Linux - use apt-get (most common for GitHub runners)
-            sudo apt-get update && sudo apt-get install -y jq
-          elif [[ "$OSTYPE" == "darwin"* ]]; then
-            # macOS - use brew if available, otherwise install via curl
-            if command -v brew &> /dev/null; then
-              brew install jq
-            else
-              # Fallback: install jq binary directly
-              curl -L -o /usr/local/bin/jq https://github.com/stedolan/jq/releases/latest/download/jq-osx-amd64
-              chmod +x /usr/local/bin/jq
-            fi
-          else
-            echo "Unsupported OS type: $OSTYPE"
-            exit 1
-          fi
-        else
-          echo "jq is already installed"
-          jq --version
         fi
 
     - name: Extract release info
