@@ -88,7 +88,7 @@
     "deep-object-diff": "1.1.9",
     "error-stack-parser": "2.1.4",
     "get-value": "4.0.1",
-    "is": "3.3.2",
+    "is": "3.3.0",
     "join-component": "1.1.0",
     "lodash.get": "4.4.2",
     "lodash.isempty": "4.4.0",
@@ -200,11 +200,11 @@
     "user-agent-data-types": "0.4.2"
   },
   "optionalDependencies": {
-    "@nx/nx-darwin-arm64": "21.3.1",
-    "@nx/nx-darwin-x64": "21.3.1",
-    "@nx/nx-linux-x64-gnu": "21.3.1",
-    "@nx/nx-win32-x64-msvc": "21.3.1",
-    "@rollup/rollup-linux-x64-gnu": "4.45.1"
+    "@nx/nx-darwin-arm64": "21.2.3",
+    "@nx/nx-darwin-x64": "21.2.3",
+    "@nx/nx-linux-x64-gnu": "21.2.2",
+    "@nx/nx-win32-x64-msvc": "21.2.3",
+    "@rollup/rollup-linux-x64-gnu": "4.45.0"
   },
   "overrides": {
     "rudder-component-cookie": {
