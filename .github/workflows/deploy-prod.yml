@@ -33,7 +33,7 @@ jobs:
           
           # Extract version and ticket from branch name (format: release/3.2.1-SDK-1234 or hotfix-release/3.2.2-SDK-5678)
           version=$(echo "$PR_BRANCH" | sed -n 's|.*\/\([0-9]\+\.[0-9]\+\.[0-9]\+\)-.*|\1|p')
-          ticket=$(echo "$PR_BRANCH" | sed -n 's|.*-\([^-]*\)$|\1|p')
+          ticket=$(echo "$PR_BRANCH" | sed -n 's|.*[0-9]\+-\(.*\)$|\1|p')
           
           echo "Extracted version: $version"
           echo "Extracted ticket: $ticket"
