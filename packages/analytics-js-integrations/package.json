@@ -96,7 +96,7 @@
     "@rollup/plugin-node-resolve": "16.0.1",
     "@rollup/plugin-replace": "6.0.2",
     "@rollup/plugin-terser": "0.4.4",
-    "dotenv": "17.1.0",
+    "dotenv": "17.2.0",
     "rollup-plugin-filesize": "10.0.0",
     "rollup-plugin-polyfill-node": "0.13.0",
     "rollup-plugin-typescript2": "0.36.0",
