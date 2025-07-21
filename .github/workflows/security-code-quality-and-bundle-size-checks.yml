@@ -76,8 +76,8 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           install_script: npm run setup:ci
-          build_script: npm run check:size:build -- --projects=${{ needs.get-affected-projects.outputs.affected_projects }}
-          script: npm run check:size:json:ci --silent -- --output-style=static --silent=true --projects=${{ needs.get-affected-projects.outputs.affected_projects }}
+          build_script: npm run check:size:build -- --projects=${{ needs.get-affected-projects.outputs.affected_projects }} --exclude=@rudderstack/analytics-js-sanity-suite
+          script: npm run check:size:json:ci --silent -- --output-style=static --silent=true --projects=${{ needs.get-affected-projects.outputs.affected_projects }} --exclude=@rudderstack/analytics-js-sanity-suite
           is_monorepo: true
 
   code-quality-checks:

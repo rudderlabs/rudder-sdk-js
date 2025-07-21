@@ -81,6 +81,7 @@ const clientToServerNames = {
   XPIXEL: 'XPixel',
   GAINSIGHT_PX: 'Gainsight PX',
   USERPILOT: 'Userpilot',
+  COMSCORE: 'Comscore',
 };
 
 export { clientToServerNames };
