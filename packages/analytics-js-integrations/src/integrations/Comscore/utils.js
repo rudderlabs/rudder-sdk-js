@@ -20,7 +20,7 @@ const getMappedData = (rudderElement, fieldMapping) => {
 
   Object.keys(fieldMapHashmap).forEach(field => {
     if (isDefinedAndNotNull(properties[field])) {
-      mappedData[fieldMapHashmap[field]] = message.properties[field];
+      mappedData[fieldMapHashmap[field]] = properties[field];
     }
   });
   return mappedData;
