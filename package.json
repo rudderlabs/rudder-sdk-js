@@ -212,6 +212,9 @@
     },
     "@segment/localstorage-retry": {
       "debug": "2.6.9"
+    },
+    "axios": {
+      "form-data": "4.0.4"
     }
   },
   "lint-staged": {
