@@ -14,15 +14,15 @@ const getDestinationOptions = integrationsOptions =>
 
 const getMappedData = (rudderElement, fieldMapping) => {
   const { message } = rudderElement;
-  const extraData = {};
+  const mappedData = {};
   const fieldMapHashmap = getHashFromArray(fieldMapping, 'from', 'to', false);
 
   Object.keys(fieldMapHashmap).forEach(field => {
     if (isDefinedAndNotNull(message.properties[field])) {
-      extraData[fieldMapHashmap[field]] = message.properties[field];
+      mappedData[fieldMapHashmap[field]] = message.properties[field];
     }
   });
-  return extraData;
+  return mappedData;
 };
 
 export { getDestinationOptions, getMappedData };
