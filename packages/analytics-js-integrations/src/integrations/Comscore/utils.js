@@ -13,12 +13,13 @@ const getDestinationOptions = integrationsOptions =>
   integrationsOptions && (integrationsOptions[DISPLAY_NAME] || integrationsOptions[NAME]);
 
 const getMappedData = (rudderElement, fieldMapping) => {
-  const { message } = rudderElement;
+  const { message = {} } = rudderElement;
+  const { properties = {} } = message;
   const mappedData = {};
   const fieldMapHashmap = getHashFromArray(fieldMapping, 'from', 'to', false);
 
   Object.keys(fieldMapHashmap).forEach(field => {
-    if (isDefinedAndNotNull(message.properties[field])) {
+    if (isDefinedAndNotNull(properties[field])) {
       mappedData[fieldMapHashmap[field]] = message.properties[field];
     }
   });
