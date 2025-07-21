@@ -1,12 +1,20 @@
-## [3.21.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.20.1...@rudderstack/analytics-js@3.21.0) (2025-06-20)
+## [3.22.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.21.0...@rudderstack/analytics-js@3.22.0) (2025-07-21)
 
 ### Dependency Updates
 
-* `@rudderstack/analytics-js-cookies` updated to version `0.4.27`
-* `@rudderstack/analytics-js-common` updated to version `3.21.0`
-* `@rudderstack/analytics-js-plugins` updated to version `3.10.2`
+* `@rudderstack/analytics-js-cookies` updated to version `0.5.0`
+* `@rudderstack/analytics-js-common` updated to version `3.22.0`
+* `@rudderstack/analytics-js-plugins` updated to version `3.11.0`
 
 ### Features
 
-* **analytics-js:** reduce error noise from CSP/adblocker ([#2296](https://github.com/rudderlabs/rudder-sdk-js/issues/2296)) ([c187816](https://github.com/rudderlabs/rudder-sdk-js/commit/c187816b2cfafb706670824001140e464e3d90d8))
+* add legacy utils package ([#2323](https://github.com/rudderlabs/rudder-sdk-js/issues/2323)) ([32a90c4](https://github.com/rudderlabs/rudder-sdk-js/commit/32a90c4417b747f4da2b1027249ccfbab1d075fd))
+* categorize integration errors ([#2331](https://github.com/rudderlabs/rudder-sdk-js/issues/2331)) ([c64df64](https://github.com/rudderlabs/rudder-sdk-js/commit/c64df64a585108dafc2cbd459806ab3506395dc7))
+* relocate destination constants ([#2325](https://github.com/rudderlabs/rudder-sdk-js/issues/2325)) ([0a421ae](https://github.com/rudderlabs/rudder-sdk-js/commit/0a421ae9f5c38556a3fa9487f16cdcea66921064))
+
+
+### Bug Fixes
+
+* error handle property access and instance mutation ([#2316](https://github.com/rudderlabs/rudder-sdk-js/issues/2316)) ([99f2788](https://github.com/rudderlabs/rudder-sdk-js/commit/99f278812ee832350e7a0afc807bf38d86bdce9f))
+* remove unnecessary bugsnag dependency in declaration files ([#2341](https://github.com/rudderlabs/rudder-sdk-js/issues/2341)) ([0e17aa2](https://github.com/rudderlabs/rudder-sdk-js/commit/0e17aa2651697f3d8a37d729704bf1530ebe925f))
 
