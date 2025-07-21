@@ -18,27 +18,23 @@
   },
   "dependencies": {
     "@emotion/react": "11.14.0",
-    "dotenv": "16.4.7",
-    "gatsby": "5.14.3",
+    "dotenv": "17.2.0",
+    "gatsby": "5.14.5",
     "gatsby-plugin-rudderstack": "*",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   },
   "devDependencies": {
-    "@types/node": "22.14.0",
-    "@types/react": "18.3.9",
-    "@types/react-dom": "18.3.0",
+    "@types/node": "24.0.15",
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
     "typescript": "5.8.3"
   },
   "overrides": {
-    "axios": "1.8.4",
     "cookie": "0.7.0",
     "path-to-regexp": "0.1.12",
-    "gatsby-cli": {
-      "pretty-error": "4.0.0"
-    },
-    "gatsby": {
-      "css-minimizer-webpack-plugin": "4.2.2"
+    "axios": {
+      "form-data": "4.0.4"
     }
   }
 }
