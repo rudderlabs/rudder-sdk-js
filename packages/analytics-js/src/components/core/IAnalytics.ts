@@ -218,13 +218,13 @@ export interface IAnalytics {
   setAuthToken(token: string): void;
 
   /**
-   * Add a custom integration to the SDK
-   * @param name - Unique name for the custom integration
+   * Add a custom integration for a custom destination
+   * @param destinationId - Unique ID for the custom destination from the RudderStack dashboard
    * @param integration - The custom integration instance implementing RSACustomIntegration
    * @param isBufferedInvocation - Internal flag to indicate if this is a buffered call
    */
   addCustomIntegration(
-    name: string,
+    destinationId: string,
     integration: RSACustomIntegration,
     isBufferedInvocation?: boolean,
   ): void;
