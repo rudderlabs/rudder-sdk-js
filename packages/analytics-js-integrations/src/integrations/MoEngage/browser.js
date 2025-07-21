@@ -53,25 +53,11 @@ class MoEngage {
   }
 
   init() {
-    loadNativeSdk();
-    // var app_id = "OKSNM7KDD3VSWBHV2XLSIMDO"; // Replace "WorkspaceID" available in the settings page of MoEngage Dashboard.
-    // this.moeClient = window.moe({
-    //   app_id: this.app_id,
-    //   debug_logs: 1,
-    // });
-    // setting the region if us then not needed.
-    if (this.region !== 'US') {
-      this.moeClient = window.moe({
-        app_id: this.apiId,
-        debug_logs: this.debug ? 1 : 0,
-        cluster: this.region === 'EU' ? 'eu' : 'in',
-      });
-    } else {
-      this.moeClient = window.moe({
-        app_id: this.apiId,
-        debug_logs: this.debug ? 1 : 0,
-      });
-    }
+    loadNativeSdk(this.calculateMoeDataCenter());
+    this.moeClient = window.moe({
+      app_id: this.app_id,
+      debug_logs: 1,
+    });
     this.initialUserId = this.analytics.getUserId();
   }
 
@@ -81,6 +67,18 @@ class MoEngage {
 
   isReady() {
     return this.isLoaded();
+  }
+
+  calculateMoeDataCenter() {
+    // Calculate the MoEngage data center based on the region
+    switch (this.region) {
+      case 'EU':
+        return 'dc_2';
+      case 'IN':
+        return 'dc_3';
+      default:
+        return 'dc_1'; // Default to US data center
+    }
   }
 
   track(rudderElement) {
@@ -134,10 +132,7 @@ class MoEngage {
         uid: userId,
         ...userAttributes,
       }
-      console.log("MoEngage identify payload: ", payload, traits);
-      console.log("MoEngage identify userId: ", this.moeClient);
       this.moeClient.identifyUser(payload)
-      // this.moeClient.add_unique_user_id(userId);
     }
 
     // track user attributes : https://docs.moengage.com/docs/tracking-web-user-attributes
