@@ -2,7 +2,7 @@ import Logger from '../../utils/logger';
 import { NAME, DISPLAY_NAME } from './constants';
 import { loadNativeSdk } from './nativeSdkLoader';
 import { removeUndefinedAndNullAndEmptyValues } from '../../utils/commonUtils';
-import { getDestinationOptions, generateExtraData } from './utils';
+import { getDestinationOptions, getMappedData } from './utils';
 
 const logger = new Logger(DISPLAY_NAME);
 
@@ -13,11 +13,15 @@ class Comscore {
     }
     this.analytics = analytics;
     this.publisherId = config.publisherId;
-    this.fieldMapping = config.fieldMapping;
+    this.fieldMapping = config.fieldMapping || [];
     this.name = NAME;
   }
 
   init() {
+    if(!this.publisherId) {
+      logger.error('Publisher ID is required for Comscore integration');
+      return;
+    }
     loadNativeSdk(this.publisherId);
   }
 
@@ -33,6 +37,7 @@ class Comscore {
     const { message } = rudderElement;
     const { name: eventName, properties, integrations } = message;
 
+    // https://direct-support.comscore.com/hc/en-us/articles/360007162413-Tag-Code-and-Tag-ID-parameters
     const url = properties?.url;
     const comscoreInteConf = getDestinationOptions(integrations);
     const consent = comscoreInteConf?.consent;
@@ -43,7 +48,7 @@ class Comscore {
     };
 
 
-    const mappedData = generateExtraData(rudderElement, this.fieldMapping);
+    const mappedData = getMappedData(rudderElement, this.fieldMapping);
     if (Object.keys(mappedData).length > 0) {
       const payload = removeUndefinedAndNullAndEmptyValues({
         ...basePayload,

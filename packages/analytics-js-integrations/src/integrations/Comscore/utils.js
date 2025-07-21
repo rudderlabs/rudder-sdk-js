@@ -12,7 +12,7 @@ import { getHashFromArray, isDefinedAndNotNull } from '../../utils/commonUtils';
 const getDestinationOptions = integrationsOptions =>
   integrationsOptions && (integrationsOptions[DISPLAY_NAME] || integrationsOptions[NAME]);
 
-const generateExtraData = (rudderElement, fieldMapping) => {
+const getMappedData = (rudderElement, fieldMapping) => {
   const { message } = rudderElement;
   const extraData = {};
   const fieldMapHashmap = getHashFromArray(fieldMapping, 'from', 'to', false);
@@ -25,4 +25,4 @@ const generateExtraData = (rudderElement, fieldMapping) => {
   return extraData;
 };
 
-export { getDestinationOptions, generateExtraData };
+export { getDestinationOptions, getMappedData };

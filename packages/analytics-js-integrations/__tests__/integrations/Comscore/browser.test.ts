@@ -13,7 +13,6 @@ beforeEach(() => {
   scriptElement.id = 'dummyScript';
   const headElements = document.getElementsByTagName('head');
   headElements[0].insertBefore(scriptElement, headElements[0].firstChild);
-  delete window.COMSCORE;
 });
 
 describe('Comscore init tests', () => {
@@ -22,6 +21,12 @@ describe('Comscore init tests', () => {
     comscore.init();
     expect(comscore.name).toBe('COMSCORE');
     expect(comscore.publisherId).toBe('test-token');
+  });
+
+  test('Testing init call of Comscore without token', () => {
+    const comscore = new Comscore({ publisherId: '' }, { logLevel: 'debug' });
+    comscore.init();
+    expect(comscore.publisherId).toBe('');
   });
 });
 
