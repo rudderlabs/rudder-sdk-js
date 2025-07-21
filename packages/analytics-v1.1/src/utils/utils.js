@@ -4,7 +4,6 @@ import { commonNames } from '../constants/integrations/integration_cname';
 import { clientToServerNames } from '../constants/integrations/client_server_name';
 import { logger } from '@rudderstack/analytics-js-legacy-utilities/logUtil';
 import { stringifyWithoutCircularV1 } from '@rudderstack/analytics-js-legacy-utilities/ObjectUtils';
-import { FAILED_REQUEST_ERR_MSG_PREFIX } from './constants';
 import { handleError } from './errorHandler';
 import {
   CONFIG_URL,
@@ -12,6 +11,7 @@ import {
   DEFAULT_REGION,
   RESIDENCY_SERVERS,
   SUPPORTED_CONSENT_MANAGERS,
+  FAILED_REQUEST_ERR_MSG_PREFIX,
 } from './constants';
 
 /**

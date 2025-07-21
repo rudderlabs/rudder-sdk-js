@@ -7,11 +7,10 @@
 /* eslint-disable class-methods-use-this */
 import Queue from '@segment/localstorage-retry';
 import { handleError } from './errorHandler';
-import { FAILED_REQUEST_ERR_MSG_PREFIX } from './constants';
+import { FAILED_REQUEST_ERR_MSG_PREFIX, REQUEST_TIMEOUT_MS } from './constants';
 import { stringifyWithoutCircularV1 } from '@rudderstack/analytics-js-legacy-utilities/ObjectUtils';
 import { logger } from '@rudderstack/analytics-js-legacy-utilities/logUtil';
 import { getCurrentTimeFormatted } from './utils';
-import { REQUEST_TIMEOUT_MS } from './constants';
 
 const queueOptions = {
   maxRetryDelay: 360000,
