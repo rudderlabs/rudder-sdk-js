@@ -225,3 +225,4 @@ jobs:
           slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
           deployment_name: 'Sanity Suite'
           slack_api_response: ${{ steps.slack.outputs.response }}
+          slack_slugs: '<!subteam^S0555JBV36D> <!subteam^S03SW7DM8P3>'
