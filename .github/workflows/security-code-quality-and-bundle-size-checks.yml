@@ -70,7 +70,6 @@ jobs:
 
       - name: Execute bundle size checks
         uses: rudderlabs/github-action-check-size-limit@v3.0.0
-        if: ${{ needs.get-affected-projects.outputs.affected_projects != '' }}
         env:
           HUSKY: 0
         with:
@@ -108,14 +107,14 @@ jobs:
           npm run build:ci
           npm run build:modern:ci
 
+      - name: Execute package linting checks
+        run: |
+          npm run check:pub:ci
+
       - name: Execute code quality checks
         run: |
           npm run check:circular -- --projects=${{ needs.get-affected-projects.outputs.affected_projects }}
           npm run check:duplicates -- --projects=${{ needs.get-affected-projects.outputs.affected_projects }}
-
-      - name: Execute package linting checks
-        run: |
-          npm run check:pub:ci
 
   security-checks:
     name: Security checks
