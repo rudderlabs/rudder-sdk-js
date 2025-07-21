@@ -325,6 +325,10 @@ import {
   DISPLAY_NAME as UserpilotDisplayName,
   DIR_NAME as UserpilotDirectoryName,
 } from '@rudderstack/analytics-js-integrations/integrations/Userpilot/constants';
+import {
+  DISPLAY_NAME as ComscoreDisplayName,
+  DIR_NAME as ComscoreDirectoryName,
+} from '@rudderstack/analytics-js-integrations/integrations/Comscore/constants';
 
 // The destination directory name is used as the destination SDK file name in CDN
 const destDisplayNamesToFileNamesMap: Record<string, string> = {
@@ -409,6 +413,7 @@ const destDisplayNamesToFileNamesMap: Record<string, string> = {
   [Gainsight_PXDisplayName]: Gainsight_PXDirectoryName,
   [XPixelDisplayName]: XPixelDirectoryName,
   [UserpilotDisplayName]: UserpilotDirectoryName,
+  [ComscoreDisplayName]: ComscoreDirectoryName
 };
 
 export { destDisplayNamesToFileNamesMap };

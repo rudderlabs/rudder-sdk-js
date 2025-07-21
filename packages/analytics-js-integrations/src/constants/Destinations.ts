@@ -167,3 +167,5 @@ export const YANDEX_METRICA_NAME = 'YANDEX_METRICA';
 export const YANDEX_METRICA_DISPLAY_NAME = 'Yandex.Metrica';
 export const USERPILOT_NAME = 'USERPILOT';
 export const USERPILOT_DISPLAY_NAME = 'Userpilot';
+export const COMSCORE_NAME = 'COMSCORE';
+export const COMSCORE_DISPLAY_NAME = 'Comscore';
