@@ -345,7 +345,7 @@ jobs:
               ]
             }
 
-      - name: Post NPM packages publish notification to release thread
+      - name: Post Browser SDK publish notification to release thread
         continue-on-error: true
         if: ${{ steps.slack.outcome == 'success' && inputs.monorepo_release_version != '' && inputs.release_ticket_id != '' }}
         uses: ./.github/actions/release-thread-integration
@@ -355,6 +355,7 @@ jobs:
           slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
           deployment_name: 'JS SDK Browser Package'
           slack_api_response: ${{ steps.slack.outputs.response }}
+          custom_message: ${{ inputs.environment == 'production' && 'Proceed to perform post-release testing of your changes.' || inputs.environment == 'staging' && 'Proceed to perform pre-release testing of your changes.' || '' }}
 
       # All the below steps are for v1.1 SDK (legacy)
       - name: Copy legacy SDK artifacts to S3

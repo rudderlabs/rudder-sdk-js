@@ -17,6 +17,14 @@ inputs:
   slack_api_response:
     description: 'JSON response from Slack API containing message details'
     required: true
+  slack_slugs:
+    description: 'Slack slugs for CC'
+    required: false
+    default: '<!subteam^S0555JBV36D> <!subteam^S03SW7DM8P3> <!subteam^S03SHJ20350>'
+  custom_message:
+    description: 'Custom message to post to the release thread'
+    required: false
+    default: ''
 
 outputs:
   has_thread_info:
@@ -224,13 +232,13 @@ runs:
           {
             "channel": "${{ steps.extract-info.outputs.channel_id }}",
             "thread_ts": "${{ steps.extract-info.outputs.thread_ts }}",
-            "text": ":white_check_mark: ${{ inputs.deployment_name }} deployment completed: <${{ steps.extract-message-url.outputs.message_url }}|View deployment details>\n\nCC: <!subteam^S0555JBV36D> <!subteam^S03SW7DM8P3> <!subteam^S03SHJ20350>",
+            "text": ":white_check_mark: ${{ inputs.deployment_name }} deployment completed: <${{ steps.extract-message-url.outputs.message_url }}|View deployment details>\n\nCC: ${{ inputs.slack_slugs }}",
             "blocks": [
               {
                 "type": "section",
                 "text": {
                   "type": "mrkdwn",
-                  "text": ":white_check_mark: *${{ inputs.deployment_name }} deployment completed*\n<${{ steps.extract-message-url.outputs.message_url }}|View deployment details>\n\nCC: <!subteam^S0555JBV36D> <!subteam^S03SW7DM8P3> <!subteam^S03SHJ20350>"
+                  "text": ":white_check_mark: *${{ inputs.deployment_name }} deployment completed*${{ inputs.custom_message != '' && format('\n\n{0}', inputs.custom_message) }}\n<${{ steps.extract-message-url.outputs.message_url }}|View deployment details>\n\nCC: ${{ inputs.slack_slugs }}"
                 }
               }
             ]
