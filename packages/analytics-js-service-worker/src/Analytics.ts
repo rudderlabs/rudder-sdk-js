@@ -41,7 +41,6 @@ class Analytics implements IAnalytics {
   flushTimer?: null | any;
   timer?: null | any;
 
-
   /**
    * Initialize a new `Analytics` with your RudderStack source's `writeKey` and an
    * optional dictionary of `options`.
