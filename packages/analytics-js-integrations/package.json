@@ -77,7 +77,7 @@
     "@rudderstack/analytics-js-legacy-utilities": "*",
     "@ndhoule/each": "2.0.1",
     "crypto-js": "4.2.0",
-    "is": "3.3.0",
+    "is": "3.3.2",
     "md5": "2.3.0",
     "obj-case": "0.2.1",
     "on-body": "0.0.1",
