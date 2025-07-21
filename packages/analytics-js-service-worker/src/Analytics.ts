@@ -37,7 +37,7 @@ class Analytics implements IAnalytics {
   host: string;
   flushed: boolean;
   axiosInstance: AxiosInstance;
-  logger: null | any;
+  logger: any;
   flushTimer?: null | any;
   timer?: null | any;
 
