@@ -1,3 +1,16 @@
+diff --git a/node_modules/nx/src/command-line/run-many/run-many.js b/node_modules/nx/src/command-line/run-many/run-many.js
+index 52cb033..5d7863e 100644
+--- a/node_modules/nx/src/command-line/run-many/run-many.js
++++ b/node_modules/nx/src/command-line/run-many/run-many.js
+@@ -64,7 +64,7 @@ function projectsToRun(nxArgs, projectGraph) {
+                 selectedProjects[project] = projectGraph.nodes[project];
+             }
+         }
+-        if (invalidProjects.length > 0) {
++        if (invalidProjects.length > 0 && nxArgs.silent !== true) {
+             output_1.output.warn({
+                 title: `The following projects do not have a configuration for any of the provided targets ("${nxArgs.targets.join(', ')}")`,
+                 bodyLines: invalidProjects.map((name) => `- ${name}`),
 diff --git a/node_modules/nx/src/command-line/yargs-utils/shared-options.js b/node_modules/nx/src/command-line/yargs-utils/shared-options.js
 index d20e82d..38faf3c 100644
 --- a/node_modules/nx/src/command-line/yargs-utils/shared-options.js
