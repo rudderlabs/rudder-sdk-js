@@ -64,7 +64,7 @@ class MoEngage {
   }
 
   isLoaded() {
-    return !!window.Moengage;
+    return !!window.moeBannerText;
   }
 
   isReady() {
@@ -106,7 +106,6 @@ class MoEngage {
   }
 
   reset() {
-    console.log(window.moe, window.moeBannerText, window.Moengage);
     this.initialUserId = this.analytics.getUserId();
     window.Moengage.destroy_session()
   }
@@ -154,12 +153,10 @@ class MoEngage {
       ...idPayload,
       ...userAttributes,
     };
-
     window.Moengage.identifyUser(payload);
 
 
     // track user attributes : https://docs.moengage.com/docs/tracking-web-user-attributes
-
     if (traits) {
       each((value, key) => {
         // check if name is present
