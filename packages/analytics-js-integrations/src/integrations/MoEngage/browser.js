@@ -117,8 +117,8 @@ class MoEngage {
       traits = context.traits;
     }
 
-    // We are destroying the session if userId is changed or initialUserId is not empty and userId is empty
-    // This is to ensure that if the user logs out and logs in again, we reset it
+    // We are destroying the session if userId is changed or initialUserId is not empty and userId is empty 
+    // This is a log out scenario
     if (
       (this.initialUserId !== '' && this.initialUserId !== userId) ||
       (this.initialUserId !== '' && userId === '')
