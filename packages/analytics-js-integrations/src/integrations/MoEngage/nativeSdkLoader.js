@@ -1,7 +1,7 @@
 import { LOAD_ORIGIN } from '@rudderstack/analytics-js-legacy-utilities/constants';
 
 function loadNativeSdk(dataCenter) {
-  var moeDataCenter = dataCenter;
+  var moeDataCenter = "dc_1";
   var sdkVersion = "2";
 
   !(function (e, n, i, t, a, r, o, d) {

@@ -22,18 +22,18 @@ const traitsMap = {
   id: null,
 };
 
-const identifyUserPropertiesMap = {
-  email: "u_em",
-  firstName: "u_fn",
-  lastName: "u_ln",
-  firstname: "u_fn",
-  lastname: "u_ln",
-  phone: "u_mb",
+const identifyUserPropertiesMap = { 
+  email: 'u_em',
+  firstName: 'u_fn',
+  lastName: 'u_ln',
+  firstname: 'u_fn',
+  lastname: 'u_ln',
+  phone: 'u_mb',
   username: 'u_n',
   userName: 'u_n',
   gender: 'u_gd',
   birthday: 'u_bd',
-}
+};
 
 class MoEngage {
   constructor(config, analytics, destinationInfo) {
@@ -55,14 +55,16 @@ class MoEngage {
   init() {
     loadNativeSdk(this.calculateMoeDataCenter());
     this.moeClient = window.moe({
-      app_id: this.app_id,
-      debug_logs: 1,
+      app_id: this.apiId,
+      debug_logs: this.debug ? 1 : 0,
     });
+
     this.initialUserId = this.analytics.getUserId();
+    this.anonymousId = this.analytics.getAnonymousId();
   }
 
   isLoaded() {
-    return !!window.moeBannerText;
+    return !!window.Moengage;
   }
 
   isReady() {
@@ -97,16 +99,16 @@ class MoEngage {
       return;
     }
     if (properties) {
-      this.moeClient.track_event(event, properties);
+      window.Moengage.track_event(event, properties);
     } else {
-      this.moeClient.track_event(event);
+      window.Moengage.track_event(event);
     }
   }
 
   reset() {
-    // reset the user id
+    console.log(window.moe, window.moeBannerText, window.Moengage);
     this.initialUserId = this.analytics.getUserId();
-    this.moeClient.destroy_session();
+    window.Moengage.destroy_session()
   }
 
   identify(rudderElement) {
@@ -115,38 +117,60 @@ class MoEngage {
     if (context) {
       traits = context.traits;
     }
-    // check if user id is same or not
-    if (this.initialUserId !== userId) {
+
+    // We are destroying the session if userId is changed or initialUserId is not empty and userId is empty
+    // This is to ensure that if the user logs out and logs in again, we reset it
+    if (
+      (this.initialUserId !== '' && this.initialUserId !== userId) ||
+      (this.initialUserId !== '' && userId === '')
+    ) {
       this.reset();
     }
-    // if user is present map
-    if (userId) {
-      const userAttributes = {}
-      each((value, key) => {
-        if (Object.prototype.hasOwnProperty.call(identifyUserPropertiesMap, key)) {
-          const method = identifyUserPropertiesMap[key];
-          userAttributes[method] = value;
-        }
-      }, traits)
-      const payload = {
-        uid: userId,
-        ...userAttributes,
-      }
-      this.moeClient.identifyUser(payload)
+
+    // If initialUserId is empty, set it to the current userId this happens when an anonymous user loggedIn for the first time
+    if (this.initialUserId === '' && userId) {
+      this.initialUserId = userId;
     }
 
+    const userAttributes = {};
+    each((value, key) => {
+      if (Object.prototype.hasOwnProperty.call(identifyUserPropertiesMap, key)) {
+        const method = identifyUserPropertiesMap[key];
+        userAttributes[method] = value;
+      }
+    }, traits);
+
+    let idPayload = {};
+    if (userId !== '') {
+      idPayload = { uid: userId, anonymousId: this.analytics.getAnonymousId() };
+    } else {
+      idPayload = { anonymousId: this.analytics.getAnonymousId() };
+    }
+
+    // It may happen that userId is not present so we will use anonymousId as uid
+    // https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/supported-api/#set-a-blank-user-id
+    const payload = {
+      // uid: userId ? userId : this.analytics.getAnonymousId(),
+      ...idPayload,
+      ...userAttributes,
+    };
+
+    window.Moengage.identifyUser(payload);
+
+
     // track user attributes : https://docs.moengage.com/docs/tracking-web-user-attributes
+
     if (traits) {
       each((value, key) => {
         // check if name is present
         if (key === 'name') {
-          this.moeClient.add_user_name(value);
+          window.Moengage.add_user_name(value);
         }
         if (Object.prototype.hasOwnProperty.call(traitsMap, key)) {
           const method = `add_${traitsMap[key]}`;
-          this.moeClient[method](value);
+          window.Moengage[method](value);
         } else {
-          this.moeClient.add_user_attribute(key, value);
+          window.Moengage.add_user_attribute(key, value);
         }
       }, traits);
     }
