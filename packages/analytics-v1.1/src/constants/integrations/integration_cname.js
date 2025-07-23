@@ -81,6 +81,7 @@ import { CNameMapping as Ninetailed } from '@rudderstack/analytics-js-integratio
 import { CNameMapping as XPixel } from '@rudderstack/analytics-js-integrations/integrations/XPixel/constants';
 import { CNameMapping as Gainsight_PX } from '@rudderstack/analytics-js-integrations/integrations/Gainsight_PX/constants';
 import { CNameMapping as Userpilot } from '@rudderstack/analytics-js-integrations/integrations/Userpilot/constants';
+import { CNameMapping as Comscore } from '@rudderstack/analytics-js-integrations/integrations/Comscore/constants';
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
 const commonNames = {
@@ -166,6 +167,7 @@ const commonNames = {
   ...XPixel,
   ...Gainsight_PX,
   ...Userpilot,
+  ...Comscore,
 };
 
 export { commonNames };

@@ -51,9 +51,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-legacy-utilities@1.0.0",
-        "title": "@rudderstack/analytics-js-legacy-utilities@1.0.0",
-        "discussion-category": "@rudderstack/analytics-js-legacy-utilities@1.0.0",
+        "tag": "@rudderstack/analytics-js-legacy-utilities@0.1.0",
+        "title": "@rudderstack/analytics-js-legacy-utilities@0.1.0",
+        "discussion-category": "@rudderstack/analytics-js-legacy-utilities@0.1.0",
         "notesFile": "./packages/analytics-js-legacy-utilities/CHANGELOG_LATEST.md"
       }
     }
