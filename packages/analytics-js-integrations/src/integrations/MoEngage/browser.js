@@ -64,7 +64,7 @@ class MoEngage {
     this.initialUserId = this.analytics.getUserId();
     if (this.identityResolution) {
       window.Moengage.identifyUser({
-        uid: !!this.initialUserId ? this.initialUserId : this.analytics.getAnonymousId(),
+        uid: this.initialUserId !== '' ? this.initialUserId : this.analytics.getAnonymousId(),
       });
     }
   }
@@ -141,7 +141,7 @@ class MoEngage {
         if (key === 'name') {
           window.Moengage.add_user_name(value);
         }
-        if (Object.prototype.hasOwnProperty.call(traitsMap, key)) {
+        if (Object.hasOwn(traitsMap, key)) {
           const method = `add_${traitsMap[key]}`;
           window.Moengage[method](value);
         } else {
@@ -179,7 +179,7 @@ class MoEngage {
 
     const userAttributes = {};
     each((value, key) => {
-      if (Object.prototype.hasOwnProperty.call(identifyUserPropertiesMap, key)) {
+      if (Object.hasOwn(identifyUserPropertiesMap, key)) {
         const method = identifyUserPropertiesMap[key];
         userAttributes[method] = value;
       }
@@ -199,7 +199,7 @@ class MoEngage {
         if (key === 'name') {
           window.Moengage.add_user_name(value);
         }
-        if (Object.prototype.hasOwnProperty.call(traitsMap, key)) {
+        if (Object.hasOwn(traitsMap, key)) {
           const method = `add_${traitsMap[key]}`;
           window.Moengage[method](value);
         } else {
