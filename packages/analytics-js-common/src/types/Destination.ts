@@ -94,14 +94,22 @@ export type ConsentManagementProviderConfig = {
   resolutionStrategy: string | undefined;
 };
 
-export type DestinationConfig = {
+/**
+ * The common configuration properties for all device
+ * and hybrid mode supported destinations.
+ */
+export type BaseDestinationConfig = {
   blacklistedEvents: DestinationEvent[];
   whitelistedEvents: DestinationEvent[];
+  eventFilteringOption: EventFilteringOption;
+  consentManagement: ConsentManagementProviderConfig[];
+  connectionMode: DestinationConnectionMode;
+};
+
+export type DestinationConfig = BaseDestinationConfig & {
   iubendaConsentPurposes?: IubendaConsentPurpose[];
   oneTrustCookieCategories?: OneTrustCookieCategory[];
   ketchConsentPurposes?: KetchConsentPurpose[];
-  consentManagement?: ConsentManagementProviderConfig[];
-  eventFilteringOption: EventFilteringOption;
   clickEventConversions?: Conversion[];
   pageLoadConversions?: Conversion[];
   conversionID?: string;
@@ -119,7 +127,6 @@ export type DestinationConfig = {
   measurementId?: string;
   capturePageView?: string;
   useNativeSDKToSend?: boolean;
-  connectionMode?: DestinationConnectionMode;
   extendPageViewParams?: boolean;
   eventMappingFromConfig?: EventMapping[];
   appKey?: string;

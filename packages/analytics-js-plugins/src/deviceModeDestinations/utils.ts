@@ -11,6 +11,7 @@ import type {
 import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import type { ILogger, RSALogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type {
+  CustomDestinationConfig,
   IntegrationRSAnalytics,
   RSACustomIntegration,
   RSAnalytics,
@@ -432,10 +433,16 @@ const addIntegrationToDestination = (
   // Mark it as a custom integration
   destination.isCustomIntegration = true;
 
+  // Create configuration object for the custom integration
+  // to pass to the init method
+  const customDestinationConfig = clone(destination.config) as CustomDestinationConfig;
+
   // Create a wrapper around the custom integration APIs
   // to make them consistent with the standard device mode integrations
   destination.integration = {
-    ...(integration.init && { init: () => integration.init!(analyticsInstance, safeLogger) }),
+    ...(integration.init && {
+      init: () => integration.init!(customDestinationConfig, analyticsInstance, safeLogger),
+    }),
     ...(integration.track && {
       track: (event: RSAEvent) => integration.track!(analyticsInstance, safeLogger, event),
     }),
