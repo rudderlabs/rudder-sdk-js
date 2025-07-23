@@ -11,8 +11,19 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  get-deploy-inputs:
+    name: Get Deploy Inputs
+    runs-on: [self-hosted, Linux, X64]
+    outputs:
+      trigger_source: ${{ steps.set-outputs.outputs.trigger_source }}
+    steps:
+      - name: Set outputs
+        id: set-outputs
+        run: echo "trigger_source=${{ format('PR <{0}|#{1}> merged by <{2}|{3}>', github.event.pull_request.html_url, github.event.pull_request.number, format('{0}/{1}', github.server_url, github.actor), github.actor) }}" >> $GITHUB_OUTPUT
+
   deploy:
     name: Deploy to Development Environment
+    needs: [get-deploy-inputs]
     if: github.event.pull_request.merged == true
     uses: ./.github/workflows/deploy.yml
     with:
@@ -20,22 +31,26 @@ jobs:
       bugsnag_release_stage: 'development'
       s3_dir_path: 'dev/latest/v3'
       s3_dir_path_legacy: 'dev/latest/v1.1'
-      action_type: ''
+      base_cdn_url: 'https://cdn.dev.rudderlabs.com'
+      trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
     secrets:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_DEV_ACCOUNT_ID }}
       AWS_S3_BUCKET_NAME: ${{ secrets.AWS_DEV_S3_BUCKET_NAME }}
       AWS_S3_SYNC_ROLE: ${{ secrets.AWS_DEV_S3_SYNC_ROLE }}
       AWS_CF_DISTRIBUTION_ID: ${{ secrets.AWS_DEV_CF_DISTRIBUTION_ID }}
-      BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
+      BUGSNAG_API_KEY: ${{ secrets.RS_DEV_BUGSNAG_API_KEY }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
 
   deploy-sanity-suite:
     name: Deploy sanity suite
-    needs: deploy
+    if: github.event.pull_request.merged == true
+    needs: [get-deploy-inputs]
     uses: ./.github/workflows/deploy-sanity-suite.yml
     with:
       environment: 'development'
+      trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
+      base_cdn_url: 'https://cdn.dev.rudderlabs.com'
     secrets:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_DEV_ACCOUNT_ID }}
       AWS_S3_BUCKET_NAME: ${{ secrets.AWS_DEV_S3_BUCKET_NAME }}
@@ -51,8 +66,9 @@ jobs:
   run-e2e-regression-test-suites:
     uses: ./.github/workflows/run-e2e-regression-test-suites.yml
     name: Run E2E Regression Test Suites
-    needs: deploy-sanity-suite
+    needs: [get-deploy-inputs, deploy-sanity-suite, deploy]
     with:
       environment: development
+      trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
     secrets:
       PAT: ${{ secrets.PAT }}

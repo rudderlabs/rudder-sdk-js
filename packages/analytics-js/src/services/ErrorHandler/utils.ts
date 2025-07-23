@@ -24,6 +24,7 @@ import {
 import { SDK_CDN_BASE_URL } from '../../constants/urls';
 import {
   APP_STATE_EXCLUDE_KEYS,
+  DEFAULT_ERROR_CATEGORY,
   DEV_HOSTS,
   NOTIFIER_NAME,
   SDK_FILE_NAME_PREFIXES,
@@ -65,13 +66,12 @@ const createNewBreadcrumb = (message: string): Breadcrumb => ({
 
 /**
  * A function to get the Bugsnag release stage for the current environment
+ * @param getHostName Optional function to get the hostname (primarily for testing)
  * @returns 'development' if the host is empty (for file:// protocol etc.) or a dev host (localhost, 127.0.0.1, etc.), otherwise '__RS_BUGSNAG_RELEASE_STAGE__' (it'll be replaced with the actual release stage during the build)
  */
-const getReleaseStage = () => {
-  const host = globalThis.location.hostname;
-  return !host || (host && DEV_HOSTS.includes(host))
-    ? 'development'
-    : '__RS_BUGSNAG_RELEASE_STAGE__';
+const getReleaseStage = (getHostName = () => window.location.hostname) => {
+  const host = getHostName();
+  return !host || (host && DEV_HOSTS.includes(host)) ? 'development' : __RS_BUGSNAG_RELEASE_STAGE__;
 };
 
 const getAppStateForMetadata = (state: ApplicationState): Record<string, any> => {
@@ -257,7 +257,11 @@ const isSDKError = (exception: Exception) => {
   );
 };
 
-const getErrorDeliveryPayload = (payload: ErrorEventPayload, state: ApplicationState): string => {
+const getErrorDeliveryPayload = (
+  payload: ErrorEventPayload,
+  state: ApplicationState,
+  category?: string,
+): string => {
   const data = {
     version: METRICS_PAYLOAD_VERSION,
     message_id: generateUUID(),
@@ -266,6 +270,7 @@ const getErrorDeliveryPayload = (payload: ErrorEventPayload, state: ApplicationS
       sdk_version: state.context.app.value.version,
       write_key: state.lifecycle.writeKey.value as string,
       install_type: state.context.app.value.installType,
+      category: category ?? DEFAULT_ERROR_CATEGORY,
     },
     errors: payload,
   };

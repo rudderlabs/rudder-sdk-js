@@ -6,14 +6,15 @@ import { getReferringDomain, getUrlWithoutHash } from './url';
  * Get the referrer URL
  * @returns The referrer URL
  */
-const getReferrer = (): string => document?.referrer || '$direct';
+const getReferrer = (getDocument = () => document): string => getDocument()?.referrer || '$direct';
 
 /**
  * To get the canonical URL of the page
  * @returns canonical URL
  */
-const getCanonicalUrl = (): string => {
-  const tags = document.getElementsByTagName('link');
+const getCanonicalUrl = (getDocument = () => document): string => {
+  const docInstance = getDocument();
+  const tags = docInstance.getElementsByTagName('link');
   let canonicalUrl = '';
 
   for (let i = 0; tags[i]; i += 1) {
@@ -27,13 +28,14 @@ const getCanonicalUrl = (): string => {
   return canonicalUrl;
 };
 
-const getUserAgent = (): Nullable<string> => {
-  if (isUndefined(globalThis.navigator)) {
+const getUserAgent = (getNavigator = () => globalThis.navigator): Nullable<string> => {
+  const navigator = getNavigator();
+  if (isUndefined(navigator)) {
     return null;
   }
 
-  let { userAgent } = globalThis.navigator;
-  const { brave } = globalThis.navigator as any;
+  let { userAgent } = navigator;
+  const { brave } = navigator as any;
 
   // For supporting Brave browser detection,
   // add "Brave/<version>" to the user agent with the version value from the Chrome component
@@ -50,24 +52,29 @@ const getUserAgent = (): Nullable<string> => {
   return userAgent;
 };
 
-const getLanguage = (): Nullable<string> => {
-  if (isUndefined(globalThis.navigator)) {
+const getLanguage = (getNavigator = () => globalThis.navigator): Nullable<string> => {
+  const navigator = getNavigator();
+  if (isUndefined(navigator)) {
     return null;
   }
 
-  return globalThis.navigator.language ?? (globalThis.navigator as any).browserLanguage;
+  return navigator.language ?? (navigator as any).browserLanguage;
 };
 
 /**
  * Default page properties
  * @returns Default page properties
  */
-const getDefaultPageProperties = (): Record<string, any> => {
-  const canonicalUrl = getCanonicalUrl();
-  let path = globalThis.location.pathname;
-  const { href: tabUrl } = globalThis.location;
+const getDefaultPageProperties = (
+  getLocation = () => globalThis.location,
+  getDocument = () => document,
+): Record<string, any> => {
+  const location = getLocation();
+  const canonicalUrl = getCanonicalUrl(getDocument);
+  let path = location.pathname;
+  const { href: tabUrl } = location;
   let pageUrl = tabUrl;
-  const { search } = globalThis.location;
+  const { search } = location;
 
   // If valid canonical URL is provided use this as page URL.
   if (canonicalUrl) {
@@ -87,8 +94,8 @@ const getDefaultPageProperties = (): Record<string, any> => {
   }
 
   const url = getUrlWithoutHash(pageUrl);
-  const { title } = document;
-  const referrer = getReferrer();
+  const { title } = getDocument();
+  const referrer = getReferrer(getDocument);
   return {
     path,
     referrer,

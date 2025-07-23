@@ -1,11 +1,8 @@
 import is from 'is';
 import get from 'get-value';
 import sha256 from 'crypto-js/sha256';
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/FacebookPixel/constants';
-import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import { NAME, DISPLAY_NAME } from './constants';
+import { isDefined } from '@rudderstack/analytics-js-legacy-utilities/ObjectUtils';
 import Logger from '../../utils/logger';
 
 const logger = new Logger(DISPLAY_NAME);

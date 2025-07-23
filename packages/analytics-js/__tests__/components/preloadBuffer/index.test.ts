@@ -8,27 +8,15 @@ import {
 import type { PreloadedEventCall } from '../../../src/components/preloadBuffer/types';
 
 describe('Preload Buffer', () => {
-  const originalWindowLocation = window.location;
+  const originalWindowLocation = window.location.href;
 
   const analytics = {
     enqueuePreloadBufferEvents: jest.fn(() => {}),
     load: jest.fn(() => {}),
   };
 
-  beforeEach(() => {
-    Object.defineProperty(window, 'location', {
-      configurable: true,
-      enumerable: true,
-      value: new URL(originalWindowLocation.href),
-    });
-  });
-
   afterEach(() => {
-    Object.defineProperty(window, 'location', {
-      configurable: true,
-      enumerable: true,
-      value: originalWindowLocation,
-    });
+    window.history.pushState({}, '', originalWindowLocation);
     (window as any).RudderStackGlobals = undefined;
   });
 
@@ -48,8 +36,10 @@ describe('Preload Buffer', () => {
   });
 
   it('should retrieve events data from query string with allowed keys', () => {
-    const testUrlParams = `${originalWindowLocation.href}?ajs_aid=asdfghjkl&ajs_uid=qzxcvbnm&ajs_event=dummyName&ajs_trait_dummy1=true&ajs_prop_dummy=true`;
-    window.location.href = testUrlParams;
+    const testUrlParams = `${originalWindowLocation}?ajs_aid=asdfghjkl&ajs_uid=qzxcvbnm&ajs_event=dummyName&ajs_trait_dummy1=true&ajs_prop_dummy=true`;
+
+    window.history.pushState({}, '', testUrlParams);
+
     const argumentsArray: PreloadedEventCall[] = [];
     retrieveEventsFromQueryString(argumentsArray);
 
@@ -75,8 +65,10 @@ describe('Preload Buffer', () => {
   });
 
   it('should retrieve all preloaded events from both array and query params', () => {
-    const testUrlParams = `${originalWindowLocation.href}?ajs_aid=asdfghjkl&ajs_uid=qzxcvbnm&ajs_event=dummyName&ajs_trait_dummy1=true&ajs_prop_dummy=true`;
-    window.location.href = testUrlParams;
+    const testUrlParams = `${originalWindowLocation}?ajs_aid=asdfghjkl&ajs_uid=qzxcvbnm&ajs_event=dummyName&ajs_trait_dummy1=true&ajs_prop_dummy=true`;
+
+    window.history.pushState({}, '', testUrlParams);
+
     (window as any).RudderStackGlobals = {
       app: {
         preloadedEventsBuffer: [['consent'], ['track'], ['track']],
@@ -99,7 +91,6 @@ describe('Preload Buffer', () => {
   });
 
   it('should not buffer any events if no preload array or query params exist', () => {
-    window.location.href = originalWindowLocation.href;
     (window as any).RudderStackGlobals = {
       app: {
         preloadedEventsBuffer: [],

@@ -19,6 +19,7 @@
     "src/**/*.ts",
     "src/**/*.d.ts",
     "../analytics-js-common/src/**/*",
-    "../analytics-js/src/**/*"
+    "../analytics-js/src/**/*",
+    "../analytics-js-integrations/src/**/*"
   ]
 }

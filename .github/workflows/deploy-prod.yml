@@ -11,8 +11,39 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  get-deploy-inputs:
+    name: Get Deploy Inputs
+    runs-on: [self-hosted, Linux, X64]
+    outputs:
+      trigger_source: ${{ steps.set-outputs.outputs.trigger_source }}
+      release_version: ${{ steps.extract-release-info.outputs.release_version }}
+      release_ticket_id: ${{ steps.extract-release-info.outputs.release_ticket_id }}
+    steps:
+      - name: Set outputs
+        id: set-outputs
+        run: echo "trigger_source=${{ format('PR <{0}|#{1}> merged by <{2}|{3}>', github.event.pull_request.html_url, github.event.pull_request.number, format('{0}/{1}', github.server_url, github.actor), github.actor) }}" >> $GITHUB_OUTPUT
+
+      - name: Extract release info from branch
+        id: extract-release-info
+        if: startsWith(github.event.pull_request.head.ref, 'release/') || startsWith(github.event.pull_request.head.ref, 'hotfix-release/')
+        env:
+          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
+        run: |
+          echo "Branch name: $PR_BRANCH"
+          
+          # Extract version and ticket from branch name (format: release/3.2.1-SDK-1234 or hotfix-release/3.2.2-SDK-5678)
+          version=$(echo "$PR_BRANCH" | sed -n 's|.*\/\([0-9]\+\.[0-9]\+\.[0-9]\+\)-.*|\1|p')
+          ticket=$(echo "$PR_BRANCH" | sed -n 's|.*[0-9]\+-\(.*\)$|\1|p')
+          
+          echo "Extracted version: $version"
+          echo "Extracted ticket: $ticket"
+          
+          echo "release_version=$version" >> $GITHUB_OUTPUT
+          echo "release_ticket_id=$ticket" >> $GITHUB_OUTPUT
+
   deploy:
     name: Deploy to production environment
+    needs: [get-deploy-inputs]
     if: (startsWith(github.event.pull_request.head.ref, 'release/') || startsWith(github.event.pull_request.head.ref, 'hotfix-release/')) && github.event.pull_request.merged == true
     uses: ./.github/workflows/deploy.yml
     with:
@@ -20,7 +51,9 @@ jobs:
       bugsnag_release_stage: 'production'
       s3_dir_path: 'v3'
       s3_dir_path_legacy: 'v1.1'
-      action_type: ''
+      trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
+      monorepo_release_version: ${{ needs.get-deploy-inputs.outputs.release_version }}
+      release_ticket_id: ${{ needs.get-deploy-inputs.outputs.release_ticket_id }}
     secrets:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_PROD_ACCOUNT_ID }}
       AWS_S3_BUCKET_NAME: ${{ secrets.AWS_PROD_S3_BUCKET_NAME }}
@@ -32,10 +65,14 @@ jobs:
 
   deploy-sanity-suite:
     name: Deploy sanity suite
-    needs: deploy
+    needs: [get-deploy-inputs]
+    if: (startsWith(github.event.pull_request.head.ref, 'release/') || startsWith(github.event.pull_request.head.ref, 'hotfix-release/')) && github.event.pull_request.merged == true
     uses: ./.github/workflows/deploy-sanity-suite.yml
     with:
       environment: 'production'
+      trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
+      monorepo_release_version: ${{ needs.get-deploy-inputs.outputs.release_version }}
+      release_ticket_id: ${{ needs.get-deploy-inputs.outputs.release_ticket_id }}
     secrets:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_PROD_ACCOUNT_ID }}
       AWS_S3_BUCKET_NAME: ${{ secrets.AWS_PROD_S3_BUCKET_NAME }}
@@ -51,8 +88,11 @@ jobs:
   run-e2e-regression-test-suites:
     uses: ./.github/workflows/run-e2e-regression-test-suites.yml
     name: Run E2E Regression Test Suites
-    needs: deploy-sanity-suite
+    needs: [get-deploy-inputs, deploy-sanity-suite, deploy]
     with:
+      trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
       environment: production
+      monorepo_release_version: ${{ needs.get-deploy-inputs.outputs.release_version }}
+      release_ticket_id: ${{ needs.get-deploy-inputs.outputs.release_ticket_id }}
     secrets:
       PAT: ${{ secrets.PAT }}

@@ -1,8 +1,8 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-undef */
 import each from '@ndhoule/each';
-import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
-import { DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/AdobeAnalytics/constants';
+import { isDefined } from '@rudderstack/analytics-js-legacy-utilities/ObjectUtils';
+import { DISPLAY_NAME } from './constants';
 import { path } from 'ramda';
 import Logger from '../../utils/logger';
 import { toIso, getHashFromArray, isDefinedAndNotNullAndNotEmpty } from '../../utils/commonUtils';

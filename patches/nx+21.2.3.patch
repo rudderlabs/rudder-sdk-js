@@ -1,0 +1,99 @@
+diff --git a/node_modules/nx/src/command-line/run-many/run-many.js b/node_modules/nx/src/command-line/run-many/run-many.js
+index 52cb033..5d7863e 100644
+--- a/node_modules/nx/src/command-line/run-many/run-many.js
++++ b/node_modules/nx/src/command-line/run-many/run-many.js
+@@ -64,7 +64,7 @@ function projectsToRun(nxArgs, projectGraph) {
+                 selectedProjects[project] = projectGraph.nodes[project];
+             }
+         }
+-        if (invalidProjects.length > 0) {
++        if (invalidProjects.length > 0 && nxArgs.silent !== true) {
+             output_1.output.warn({
+                 title: `The following projects do not have a configuration for any of the provided targets ("${nxArgs.targets.join(', ')}")`,
+                 bodyLines: invalidProjects.map((name) => `- ${name}`),
+diff --git a/node_modules/nx/src/command-line/yargs-utils/shared-options.js b/node_modules/nx/src/command-line/yargs-utils/shared-options.js
+index d20e82d..38faf3c 100644
+--- a/node_modules/nx/src/command-line/yargs-utils/shared-options.js
++++ b/node_modules/nx/src/command-line/yargs-utils/shared-options.js
+@@ -133,6 +133,10 @@ function withRunOptions(yargs) {
+         type: 'boolean',
+         hidden: true,
+         alias: 'agents',
++    })
++        .options('silent', {
++        type: 'boolean',
++        default: false,
+     });
+ }
+ function withTargetAndConfigurationOption(yargs, demandOption = true) {
+diff --git a/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js b/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
+index f58f821..407202f 100644
+--- a/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
++++ b/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
+@@ -23,6 +23,10 @@ class StaticRunManyTerminalOutputLifeCycle {
+         this.allCompletedTasks = new Map();
+     }
+     startCommand() {
++        if (this.args.silent) {
++            return;
++        }
++
+         if (this.tasks.length === 0) {
+             return;
+         }
+@@ -47,6 +51,10 @@ class StaticRunManyTerminalOutputLifeCycle {
+         output_1.output.addVerticalSeparatorWithoutNewLines('cyan');
+     }
+     endCommand() {
++        if (this.args.silent) {
++            return;
++        }
++        
+         output_1.output.addNewline();
+         if (this.tasks.length === 0) {
+             output_1.output.logSingleLine(`No tasks were run`);
+@@ -99,8 +107,9 @@ class StaticRunManyTerminalOutputLifeCycle {
+         }
+     }
+     printTaskTerminalOutput(task, cacheStatus, terminalOutput) {
++        const isSilent = this.args.silent === true;
+         const args = (0, utils_1.getPrintableCommandArgsForTask)(task);
+-        output_1.output.logCommandOutput(args.join(' '), cacheStatus, terminalOutput);
++        output_1.output.logCommandOutput(args.join(' '), cacheStatus, terminalOutput, isSilent);
+     }
+ }
+ exports.StaticRunManyTerminalOutputLifeCycle = StaticRunManyTerminalOutputLifeCycle;
+diff --git a/node_modules/nx/src/utils/output.js b/node_modules/nx/src/utils/output.js
+index 7d8eb43..8e9c0fc 100644
+--- a/node_modules/nx/src/utils/output.js
++++ b/node_modules/nx/src/utils/output.js
+@@ -157,20 +157,22 @@ class CLIOutput {
+         this.addNewline();
+         this.addNewline();
+     }
+-    logCommandOutput(message, taskStatus, output) {
++    logCommandOutput(message, taskStatus, output, isSilent) {
+         let commandOutputWithStatus = this.getCommandWithStatus(message, taskStatus);
+         if (process.env.NX_SKIP_LOG_GROUPING !== 'true' &&
+-            process.env.GITHUB_ACTIONS) {
++            process.env.GITHUB_ACTIONS && !isSilent) {
+             const icon = this.getStatusIcon(taskStatus);
+             commandOutputWithStatus = `${GH_GROUP_PREFIX}${icon} ${commandOutputWithStatus}`;
+         }
+-        this.addNewline();
+-        this.writeToStdOut(commandOutputWithStatus);
+-        this.addNewline();
+-        this.addNewline();
++        if (!isSilent) {
++            this.addNewline();
++            this.writeToStdOut(commandOutputWithStatus);
++            this.addNewline();
++            this.addNewline();
++        }
+         this.writeToStdOut(output);
+         if (process.env.NX_SKIP_LOG_GROUPING !== 'true' &&
+-            process.env.GITHUB_ACTIONS) {
++            process.env.GITHUB_ACTIONS && !isSilent) {
+             this.writeToStdOut(GH_GROUP_SUFFIX);
+         }
+     }

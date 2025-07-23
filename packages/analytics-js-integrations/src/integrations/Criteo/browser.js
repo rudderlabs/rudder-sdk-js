@@ -1,11 +1,7 @@
 /* eslint-disable no-unused-expressions */
 /* eslint-disable class-methods-use-this */
-import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
-import {
-  NAME,
-  DISPLAY_NAME,
-  supportedEvents,
-} from '@rudderstack/analytics-js-common/constants/integrations/Criteo/constants';
+import { ScriptLoader } from '@rudderstack/analytics-js-legacy-utilities/ScriptLoader';
+import { NAME, DISPLAY_NAME, supportedEvents } from './constants';
 import Logger from '../../utils/logger';
 import {
   getDeviceType,

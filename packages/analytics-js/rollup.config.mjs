@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import path from 'path';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
@@ -22,7 +21,8 @@ import externalGlobals from 'rollup-plugin-external-globals';
 import * as dotenv from 'dotenv';
 import pkg from './package.json' with { type: 'json' };
 
-dotenv.config();
+dotenv.config({ quiet: true });
+const baseCdnUrl = process.env.BASE_CDN_URL ? process.env.BASE_CDN_URL.replace(/\/+$/, '') : 'https://cdn.rudderlabs.com';
 const isLegacyBuild = process.env.BROWSERSLIST_ENV !== 'modern';
 const additionalWatchPaths = isLegacyBuild ? ['../analytics-js-plugins/src/**', '../analytics-js-common/src/**'] : [];
 const variantSubfolder = isLegacyBuild ? '/legacy' : '/modern';
@@ -48,7 +48,7 @@ const modName = 'rudderanalytics';
 const remotePluginsExportsFilename = `rsa-plugins`;
 const remotePluginsHostPromise = `Promise.resolve(window.RudderStackGlobals && window.RudderStackGlobals.app && window.RudderStackGlobals.app.pluginsCDNPath ? \`\${window.RudderStackGlobals.app.pluginsCDNPath}/${remotePluginsExportsFilename}.js\` : \`${remotePluginsBasePath}/${remotePluginsExportsFilename}.js\`)`;
 const moduleType = process.env.MODULE_TYPE || 'cdn';
-const lockDepsVersion = process.env.LOCK_DEPS_VERSION ?? false;
+const lockDepsVersion = process.env.LOCK_DEPS_VERSION === 'true';
 const isCDNPackageBuild = moduleType === 'cdn';
 let polyfillIoUrl = 'https://polyfill-fastly.io/v3/polyfill.min.js';
 
@@ -182,11 +182,37 @@ export function getDefaultConfig(distName) {
         preventAssignment: true,
         __BUNDLE_ALL_PLUGINS__: bundleAllPlugins,
         __IS_LEGACY_BUILD__: isLegacyBuild,
-        __PACKAGE_VERSION__: version,
-        __MODULE_TYPE__: moduleType,
+        __PACKAGE_VERSION__: `'${version}'`,
+        __MODULE_TYPE__: `'${moduleType}'`,
         __LOCK_DEPS_VERSION__: lockDepsVersion,
-        __RS_POLYFILLIO_SDK_URL__: polyfillIoUrl,
-        __RS_BUGSNAG_RELEASE_STAGE__: process.env.BUGSNAG_RELEASE_STAGE || 'production',
+        __RS_POLYFILLIO_SDK_URL__: `'${polyfillIoUrl || ''}'`,
+        __RS_BUGSNAG_RELEASE_STAGE__: `'${process.env.BUGSNAG_RELEASE_STAGE || 'production'}'`,
+        __BASE_CDN_URL__: `'${baseCdnUrl}'`,
+        __REPOSITORY_URL__: `'${pkg.repository.url}'`,
+      }),
+      alias({
+        entries: [
+          {
+            find: '@rudderstack/analytics-js',
+            replacement: path.resolve('../analytics-js/src'),
+          },
+          {
+            find: '@rudderstack/analytics-js-plugins',
+            replacement: path.resolve('../analytics-js-plugins/src'),
+          },
+          {
+            find: '@rudderstack/analytics-js-common',
+            replacement: path.resolve('../analytics-js-common/src'),
+          },
+          {
+            find: '@rudderstack/analytics-js-cookies',
+            replacement: path.resolve('../analytics-js-cookies/src'),
+          },
+          {
+            find: '@rudderstack/analytics-js-integrations',
+            replacement: path.resolve('../analytics-js-integrations/src'),
+          },
+        ],
       }),
       resolve({
         jsnext: true,
@@ -367,6 +393,10 @@ const buildEntries = () => {
             {
               find: '@rudderstack/analytics-js-cookies',
               replacement: path.resolve('./dist/dts/packages/analytics-js-cookies/src'),
+            },
+            {
+              find: '@rudderstack/analytics-js-integrations',
+              replacement: path.resolve('./dist/dts/packages/analytics-js-integrations/src'),
             },
           ],
         }),

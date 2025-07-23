@@ -14,26 +14,26 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "19.2.5",
-    "@angular/common": "19.2.5",
-    "@angular/compiler": "19.2.5",
-    "@angular/core": "19.2.5",
-    "@angular/forms": "19.2.5",
-    "@angular/platform-browser": "19.2.5",
-    "@angular/platform-browser-dynamic": "19.2.5",
-    "@angular/router": "19.2.5",
+    "@angular/animations": "20.1.2",
+    "@angular/common": "20.1.2",
+    "@angular/compiler": "20.1.2",
+    "@angular/core": "20.1.2",
+    "@angular/forms": "20.1.2",
+    "@angular/platform-browser": "20.1.2",
+    "@angular/platform-browser-dynamic": "20.1.2",
+    "@angular/router": "20.1.2",
     "@rudderstack/analytics-js": "*",
     "rxjs": "7.8.2",
     "tslib": "2.8.1",
-    "zone.js": "0.15.0"
+    "zone.js": "0.15.1"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "19.2.6",
-    "@angular/cli": "19.2.6",
-    "@angular/compiler-cli": "19.2.5",
-    "@types/jasmine": "5.1.7",
-    "dotenv": "16.4.5",
-    "jasmine-core": "5.6.0",
+    "@angular-devkit/build-angular": "20.1.1",
+    "@angular/cli": "20.1.1",
+    "@angular/compiler-cli": "20.1.2",
+    "@types/jasmine": "5.1.8",
+    "dotenv": "17.2.0",
+    "jasmine-core": "5.9.0",
     "karma": "6.4.4",
     "karma-chrome-launcher": "3.2.0",
     "karma-coverage": "2.2.1",
@@ -42,7 +42,5 @@
     "typescript": "5.8.3"
   },
   "overrides": {
-    "vite": "6.2.5",
-    "http-proxy-middleware": "2.0.7"
   }
 }

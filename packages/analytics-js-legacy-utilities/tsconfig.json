@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.build.json",
+  "compilerOptions": {
+    "rootDir": "./src/",
+    "target": "es2018",
+    "declarationDir": "./dist/npm",
+    "outDir": "./dist/npm",
+    "emitDeclarationOnly": false,
+    "sourceMap": false,
+    "declarationMap": false
+  },
+  "include": ["./src/**/*", "../../types/**/*"],
+  "references": []
+}

@@ -1,9 +1,6 @@
 /* eslint-disable func-names */
 /* eslint-disable compat/compat */
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/Shynet/constants';
+import { NAME, DISPLAY_NAME } from './constants';
 import Logger from '../../utils/logger';
 import { generateUUID } from '../../utils/utils';
 

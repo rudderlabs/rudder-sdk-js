@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-service-worker",
-  "version": "3.2.27",
+  "version": "3.3.0",
   "description": "RudderStack JavaScript Service Worker SDK",
   "main": "dist/npm/modern/cjs/index.cjs",
   "module": "dist/npm/modern/esm/index.mjs",
@@ -98,32 +98,21 @@
     "component-type": "2.0.0",
     "join-component": "1.1.0",
     "ms": "2.1.3",
-    "ramda": "0.30.1"
+    "ramda": "0.31.3"
   },
   "devDependencies": {
     "@types/ms": "2.1.0",
-    "@types/node": "24.0.3",
+    "@types/node": "24.0.15",
     "jest-date-mock": "1.0.10"
   },
   "overrides": {},
   "browserslist": {
     "production": [
-      "defaults",
-      "Edge >= 80",
-      "Firefox >= 47",
-      "IE >= 11",
-      "Chrome >= 54",
-      "Safari >= 7",
-      "Opera >= 43"
+      "> 0.1%",
+      "IE >= 11"
     ],
     "modern": [
-      "defaults and supports es6-module-dynamic-import"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 edge version",
-      "last 1 safari version"
+      "defaults and supports es6-module-dynamic-import and not dead"
     ]
   }
 }

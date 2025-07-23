@@ -1,9 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/Mixpanel/constants';
+import { NAME, DISPLAY_NAME } from './constants';
 import Logger from '../../utils/logger';
 import {
   pick,

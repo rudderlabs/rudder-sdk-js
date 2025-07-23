@@ -32,14 +32,23 @@ jobs:
     secrets:
       PAT: ${{ secrets.PAT }}
 
+  get-rollback-inputs:
+    name: Get Rollback Inputs
+    runs-on: [self-hosted, Linux, X64]
+    outputs:
+      trigger_source: ${{ steps.set-outputs.outputs.trigger_source }}
+    steps:
+      - name: Set outputs
+        id: set-outputs
+        run: echo "trigger_source=${{ format('Triggered from <{0}|{1}> by <{2}|{3}>', github.ref, github.ref_name, format('{0}/{1}', github.server_url, github.actor), github.actor) }}" >> $GITHUB_OUTPUT
+
   rollback:
-    needs: validate-actor
+    needs: [validate-actor, get-rollback-inputs]
     name: Rollback production deployment
     runs-on: [self-hosted, Linux, X64]
-
     steps:
       - name: Install AWS CLI
-        uses: unfor19/install-aws-cli-action@2ff7a6968c81b173eaaef188869215870f44902b  # master
+        uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c  # master
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@b47578312673ae6fa5b5096b330d9fbac3d116df  # v4.2.1
@@ -173,7 +182,7 @@ jobs:
       - name: Send message to Slack channel
         id: slack
         continue-on-error: true
-        uses: slackapi/slack-github-action@b0fa283ad8fea605de13dc3f449259339835fc52  # v2.1.0
+        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a  # v2.1.1
         env:
           PROJECT_NAME: 'JS SDK Browser Package - Rollback - Production'
           CDN_URL: ${{ format('https://cdn.rudderlabs.com/{0}/modern/rsa.min.js', env.LATEST_VERSION_DIR_NAME) }}
@@ -190,13 +199,13 @@ jobs:
           payload: |
             {
               "channel": "${{ secrets.SLACK_RELEASE_CHANNEL_ID }}",
-              "text": "*New Release: ${{ env.PROJECT_NAME }} - <${{ env.CDN_URL }}|${{ env.LINK_TEXT }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D> <!subteam^S03SW7DM8P3> <!subteam^S03SHJ20350>",
+              "text": "*:rocket: Deployment - ${{ env.PROJECT_NAME }} - <${{ env.CDN_URL }}|${{ env.LINK_TEXT }}>*\n${{ env.DATE }}\nCC: <!subteam^S0555JBV36D> <!subteam^S03SW7DM8P3> <!subteam^S03SHJ20350>",
               "blocks": [
                 {
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "New release: ${{ env.PROJECT_NAME }}"
+                    "text": ":rocket: Deployment - ${{ env.PROJECT_NAME }}"
                   }
                 },
                 {
@@ -219,7 +228,7 @@ jobs:
                   "elements": [
                     {
                       "type": "mrkdwn",
-                      "text": ":point_right: Manually triggered by <${{ env.ACTOR_URL }}|${{ env.ACTOR }}>"
+                      "text": ":boom: ${{ needs.get-rollback-inputs.outputs.trigger_source }}"
                     },
                     {
                       "type": "mrkdwn",
@@ -230,11 +239,31 @@ jobs:
               ]
             }
 
+  deploy-sanity-suite:
+    name: Deploy sanity suite
+    needs: [get-rollback-inputs]
+    uses: ./.github/workflows/deploy-sanity-suite.yml
+    with:
+      environment: 'production'
+      trigger_source: ${{ needs.get-rollback-inputs.outputs.trigger_source }}
+    secrets:
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_PROD_ACCOUNT_ID }}
+      AWS_S3_BUCKET_NAME: ${{ secrets.AWS_PROD_S3_BUCKET_NAME }}
+      AWS_S3_SYNC_ROLE: ${{ secrets.AWS_PROD_S3_SYNC_ROLE }}
+      AWS_CF_DISTRIBUTION_ID: ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }}
+      SANITY_SUITE_WRITE_KEY: ${{ secrets.SANITY_SUITE_PROD_WRITE_KEY }}
+      SANITY_SUITE_DATAPLANE_URL: ${{ secrets.SANITY_SUITE_PROD_DATAPLANE_URL }}
+      SANITY_SUITE_CONFIG_SERVER_HOST: ${{ secrets.SANITY_SUITE_PROD_CONFIG_SERVER_HOST }}
+      BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
+
   run-e2e-regression-test-suites:
     uses: ./.github/workflows/run-e2e-regression-test-suites.yml
     name: Run E2E Regression Test Suites
-    needs: rollback
+    needs: [get-rollback-inputs, rollback, deploy-sanity-suite]
     with:
       environment: production
+      trigger_source: ${{ needs.get-rollback-inputs.outputs.trigger_source }}
     secrets:
       PAT: ${{ secrets.PAT }}

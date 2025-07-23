@@ -1,5 +1,5 @@
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { Cookie } from '@rudderstack/analytics-js-common/v1.1/utils/storage/cookie';
+import { logger } from '@rudderstack/analytics-js-legacy-utilities/logUtil';
+import { Cookie } from '@rudderstack/analytics-js-legacy-utilities/storage/cookie';
 
 /* eslint-disable class-methods-use-this */
 class Ketch {
