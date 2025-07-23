@@ -22,7 +22,7 @@ const traitsMap = {
   id: null,
 };
 
-const identifyUserPropertiesMap = { 
+const identifyUserPropertiesMap = {
   email: 'u_em',
   firstName: 'u_fn',
   lastName: 'u_ln',
@@ -44,6 +44,7 @@ class MoEngage {
     this.apiId = config.apiId;
     this.debug = config.debug;
     this.region = config.region;
+    this.identityResolution = config.identityResolution || false;
     this.name = NAME;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
@@ -58,9 +59,10 @@ class MoEngage {
       app_id: this.apiId,
       debug_logs: this.debug ? 1 : 0,
     });
-
     this.initialUserId = this.analytics.getUserId();
-    this.anonymousId = this.analytics.getAnonymousId();
+    if (this.identityResolution) {
+      this.analytics.identify(this.initialUserId);
+    }
   }
 
   isLoaded() {
@@ -107,17 +109,54 @@ class MoEngage {
 
   reset() {
     this.initialUserId = this.analytics.getUserId();
-    window.Moengage.destroy_session()
+    window.Moengage.destroy_session();
+  }
+
+  identifyOld(rudderElement) {
+    const { userId, context } = rudderElement.message;
+    let traits = null;
+    if (context) {
+      traits = context.traits;
+    }
+    // check if user id is same or not
+    if (this.initialUserId !== userId) {
+      this.reset();
+    }
+    // if user is present map
+    if (userId) {
+      this.moeClient.add_unique_user_id(userId);
+    }
+
+    // track user attributes : https://docs.moengage.com/docs/tracking-web-user-attributes
+    if (traits) {
+      each((value, key) => {
+        // check if name is present
+        if (key === 'name') {
+          this.moeClient.add_user_name(value);
+        }
+        if (Object.prototype.hasOwnProperty.call(traitsMap, key)) {
+          const method = `add_${traitsMap[key]}`;
+          this.moeClient[method](value);
+        } else {
+          this.moeClient.add_user_attribute(key, value);
+        }
+      }, traits);
+    }
   }
 
   identify(rudderElement) {
+    if (!this.identityResolution) {
+      this.identifyOld(rudderElement);
+      return;
+    }
+
     const { userId, context } = rudderElement.message;
     let traits = null;
     if (context) {
       traits = context.traits;
     }
 
-    // We are destroying the session if userId is changed or initialUserId is not empty and userId is empty 
+    // We are destroying the session if userId is changed or initialUserId is not empty and userId is empty
     // This is a log out scenario
     if (
       (this.initialUserId !== '' && this.initialUserId !== userId) ||
@@ -139,24 +178,14 @@ class MoEngage {
       }
     }, traits);
 
-    let idPayload = {};
-    if (userId !== '') {
-      idPayload = { uid: userId, anonymousId: this.analytics.getAnonymousId() };
-    } else {
-      idPayload = { anonymousId: this.analytics.getAnonymousId() };
-    }
-
-    // It may happen that userId is not present so we will use anonymousId as uid
-    // https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/supported-api/#set-a-blank-user-id
     const payload = {
-      // uid: userId ? userId : this.analytics.getAnonymousId(),
-      ...idPayload,
+      anonymousId: this.analytics.getAnonymousId(),
+      ...(userId && { uid: userId }),
       ...userAttributes,
     };
     window.Moengage.identifyUser(payload);
 
-
-    // track user attributes : https://docs.moengage.com/docs/tracking-web-user-attributes
+    // track user attributes : https://developers.moengage.com/hc/en-us/articles/360061114832-Web-SDK-User-Attributes-Tracking
     if (traits) {
       each((value, key) => {
         // check if name is present
