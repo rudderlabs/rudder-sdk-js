@@ -102,7 +102,6 @@ describe('buildPayLoad_function', () => {
     const rudderElement = {
       message: {
         properties: {
-          customPiiPropertyWhiteHashFalse: 1234,
           BlacklistPiiPropertyHashTrueNonString: 1234,
           BlacklistPiiPropertyHashFalseNonString: 1234,
           customPiiPropertyWhiteHashFalse: 1234,
