@@ -238,7 +238,7 @@ runs:
                 "type": "section",
                 "text": {
                   "type": "mrkdwn",
-                  "text": ":white_check_mark: *${{ inputs.deployment_name }} deployment completed*${{ inputs.custom_message != '' && format('\n\n{0}', inputs.custom_message) }}\n<${{ steps.extract-message-url.outputs.message_url }}|View deployment details>\n\nCC: ${{ inputs.slack_slugs }}"
+                  "text": ":white_check_mark: *${{ inputs.deployment_name }} deployment completed*${{ inputs.custom_message != '' && format('\n\n{0}', inputs.custom_message) || '' }}\n<${{ steps.extract-message-url.outputs.message_url }}|View deployment details>\n\nCC: ${{ inputs.slack_slugs }}"
                 }
               }
             ]
