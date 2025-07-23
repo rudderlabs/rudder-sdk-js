@@ -55,18 +55,23 @@ class MoEngage {
 
   init() {
     loadNativeSdk(this.calculateMoeDataCenter());
-    this.moeClient = window.moe({
+    // Following MoEngage official convention: assign moe() result to global Moengage
+    window.Moengage = window.moe({
       app_id: this.apiId,
       debug_logs: this.debug ? 1 : 0,
     });
+
     this.initialUserId = this.analytics.getUserId();
     if (this.identityResolution) {
-      this.analytics.identify(this.initialUserId);
+      window.Moengage.identifyUser({
+        uid: !!this.initialUserId ? this.initialUserId : this.analytics.getAnonymousId(),
+      });
     }
   }
 
   isLoaded() {
-    return !!window.moeBannerText;
+    // Check if MoEngage is properly initialized following their official pattern
+    return !!window.Moengage && typeof window.Moengage.track_event === 'function';
   }
 
   isReady() {
@@ -91,6 +96,7 @@ class MoEngage {
       logger.error('Payload not correct');
       return;
     }
+
     const { event, properties, userId } = rudderElement.message;
     if (userId && this.initialUserId !== userId) {
       this.reset();
@@ -118,13 +124,14 @@ class MoEngage {
     if (context) {
       traits = context.traits;
     }
+
     // check if user id is same or not
     if (this.initialUserId !== userId) {
       this.reset();
     }
     // if user is present map
     if (userId) {
-      this.moeClient.add_unique_user_id(userId);
+      window.Moengage.add_unique_user_id(userId);
     }
 
     // track user attributes : https://docs.moengage.com/docs/tracking-web-user-attributes
@@ -132,13 +139,13 @@ class MoEngage {
       each((value, key) => {
         // check if name is present
         if (key === 'name') {
-          this.moeClient.add_user_name(value);
+          window.Moengage.add_user_name(value);
         }
         if (Object.prototype.hasOwnProperty.call(traitsMap, key)) {
           const method = `add_${traitsMap[key]}`;
-          this.moeClient[method](value);
+          window.Moengage[method](value);
         } else {
-          this.moeClient.add_user_attribute(key, value);
+          window.Moengage.add_user_attribute(key, value);
         }
       }, traits);
     }
