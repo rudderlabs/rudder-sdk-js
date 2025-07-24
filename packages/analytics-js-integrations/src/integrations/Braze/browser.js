@@ -31,6 +31,7 @@ class Braze {
     this.isReadyStatus = {
       hasLoggedErrorForAlias: false,
     };
+    this.sdkMetadataAdded = false;
 
     if (config.dataCenter) {
       // ref: https://www.braze.com/docs/user_guide/administrative/access_braze/braze_instances
@@ -71,6 +72,15 @@ class Braze {
     }
   }
 
+  addSdkMetadata() {
+    try {
+      window.braze.addSdkMetadata([window.braze.BrazeSdkMetadata.CDN]);
+      logger.debug('Successfully added Braze SDK metadata');
+    } catch (error) {
+      logger.error('Failed to add SDK metadata:', error);
+    }
+  }
+
   init() {
     loadNativeSdk();
     window.braze.initialize(this.appKey, {
@@ -78,7 +88,7 @@ class Braze {
       baseUrl: this.endPoint,
       allowUserSuppliedJavascript: this.allowUserSuppliedJavascript,
     });
-    window.braze.addSdkMetadata([window.braze.BrazeSdkMetadata.CDN, 'rud']);
+
     window.braze.automaticallyShowInAppMessages();
     const { userId } = this.analytics;
     // send userId if you have it https://js.appboycdn.com/web-sdk/latest/doc/module-appboy.html#.changeUser
@@ -126,6 +136,13 @@ class Braze {
     if (!this.isLoaded()) {
       return false;
     }
+
+    // Add SDK metadata when the integration becomes ready (only once)
+    if (!this.sdkMetadataAdded) {
+      this.addSdkMetadata();
+      this.sdkMetadataAdded = true;
+    }
+
     return this.setUserAlias();
   }
 
