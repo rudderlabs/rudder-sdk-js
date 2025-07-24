@@ -7,6 +7,7 @@ import type { IdentifyTraits } from './traits';
 import type { ConsentOptions } from './Consent';
 import type { IntegrationOpts } from './Integration';
 import type { RSAEvent } from './Event';
+import type { BaseDestinationConfig } from './Destination';
 
 export type AnalyticsIdentifyMethod = {
   (
@@ -223,17 +224,29 @@ export type RSAnalytics = Pick<
 >;
 
 /**
+ * Type for the custom destination configuration object
+ * For now, it is the same as the base destination config
+ * but in the future, it can be extended to include more properties
+ */
+export type CustomDestinationConfig = BaseDestinationConfig;
+
+/**
  * Type for the custom integration to be used in addCustomIntegration API
  * Defines the contract that all custom integrations must implement
  */
 export type RSACustomIntegration = {
   /**
    * Initialize the integration
+   * @param destinationConfig - The custom destination configuration object
    * @param analytics - The RudderStack analytics instance
    * @param logger - The logger instance for this integration
    * @optional
    */
-  init?: (analytics: RSAnalytics, logger: RSALogger) => void;
+  init?: (
+    destinationConfig: CustomDestinationConfig,
+    analytics: RSAnalytics,
+    logger: RSALogger,
+  ) => void;
 
   /**
    * Check if the integration is ready to process events

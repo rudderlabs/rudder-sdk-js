@@ -120,6 +120,8 @@ describe('deviceModeDestinations utils', () => {
         blacklistedEvents: [],
         whitelistedEvents: [],
         eventFilteringOption: 'disable',
+        consentManagement: [],
+        connectionMode: 'device',
       },
     };
 
@@ -382,6 +384,8 @@ describe('deviceModeDestinations utils', () => {
           blacklistedEvents: [],
           whitelistedEvents: [],
           eventFilteringOption: 'disable' as const,
+          consentManagement: [],
+          connectionMode: 'device' as const,
         },
       },
       {
@@ -396,6 +400,8 @@ describe('deviceModeDestinations utils', () => {
           blacklistedEvents: [],
           whitelistedEvents: [],
           eventFilteringOption: 'disable' as const,
+          consentManagement: [],
+          connectionMode: 'device' as const,
         },
       },
       {
@@ -410,6 +416,8 @@ describe('deviceModeDestinations utils', () => {
           blacklistedEvents: [],
           whitelistedEvents: [],
           eventFilteringOption: 'disable' as const,
+          consentManagement: [],
+          connectionMode: 'device' as const,
         },
       },
     ];
@@ -809,6 +817,8 @@ describe('deviceModeDestinations utils', () => {
         blacklistedEvents: [],
         whitelistedEvents: [],
         eventFilteringOption: 'disable' as const,
+        consentManagement: [],
+        connectionMode: 'device' as const,
       },
     };
 
@@ -1467,6 +1477,8 @@ describe('deviceModeDestinations utils', () => {
           blacklistedEvents: [],
           whitelistedEvents: [],
           eventFilteringOption: 'disable' as const,
+          consentManagement: [],
+          connectionMode: 'device' as const,
         },
       };
 
@@ -1525,6 +1537,8 @@ describe('deviceModeDestinations utils', () => {
           blacklistedEvents: [],
           whitelistedEvents: [],
           eventFilteringOption: 'disable' as const,
+          consentManagement: [],
+          connectionMode: 'device' as const,
         },
       };
 
@@ -1589,6 +1603,8 @@ describe('deviceModeDestinations utils', () => {
           blacklistedEvents: [],
           whitelistedEvents: [],
           eventFilteringOption: 'disable' as const,
+          consentManagement: [],
+          connectionMode: 'device' as const,
         },
       };
 
@@ -1715,8 +1731,8 @@ describe('deviceModeDestinations utils', () => {
           blacklistedEvents: [],
           whitelistedEvents: [],
           eventFilteringOption: 'disable' as const,
-          connectionMode: 'device',
-          useNativeSDKToSend: true,
+          connectionMode: 'device' as const,
+          consentManagement: [],
         },
       };
 
@@ -2043,8 +2059,8 @@ describe('deviceModeDestinations utils', () => {
           blacklistedEvents: [],
           whitelistedEvents: [],
           eventFilteringOption: 'disable' as const,
-          connectionMode: 'device',
-          useNativeSDKToSend: true,
+          connectionMode: 'device' as const,
+          consentManagement: [],
         },
       };
 
@@ -2091,8 +2107,8 @@ describe('deviceModeDestinations utils', () => {
           blacklistedEvents: [],
           whitelistedEvents: [],
           eventFilteringOption: 'disable' as const,
-          connectionMode: 'device',
-          useNativeSDKToSend: true,
+          connectionMode: 'device' as const,
+          consentManagement: [],
         },
       };
 
@@ -2126,8 +2142,8 @@ describe('deviceModeDestinations utils', () => {
           blacklistedEvents: [],
           whitelistedEvents: [],
           eventFilteringOption: 'disable' as const,
-          connectionMode: 'device',
-          useNativeSDKToSend: true,
+          connectionMode: 'device' as const,
+          consentManagement: [],
         },
       };
 
@@ -2154,6 +2170,13 @@ describe('deviceModeDestinations utils', () => {
       // Test init wrapper
       testDestination.integration?.init!();
       expect(mockInit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          blacklistedEvents: [],
+          whitelistedEvents: [],
+          eventFilteringOption: 'disable',
+          connectionMode: 'device',
+          consentManagement: [],
+        }),
         mockAnalyticsInstance,
         expect.objectContaining({
           log: expect.any(Function),
@@ -2208,8 +2231,8 @@ describe('deviceModeDestinations utils', () => {
           blacklistedEvents: [],
           whitelistedEvents: [],
           eventFilteringOption: 'disable' as const,
-          connectionMode: 'device',
-          useNativeSDKToSend: true,
+          connectionMode: 'device' as const,
+          consentManagement: [],
         },
       };
 
@@ -2256,7 +2279,17 @@ describe('deviceModeDestinations utils', () => {
         setMinLogLevel: expect.any(Function),
       });
 
-      expect(mockInit).toHaveBeenCalledWith(mockAnalyticsInstance, expectedLogger);
+      expect(mockInit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          blacklistedEvents: [],
+          whitelistedEvents: [],
+          eventFilteringOption: 'disable',
+          connectionMode: 'device',
+          consentManagement: [],
+        }),
+        mockAnalyticsInstance,
+        expectedLogger,
+      );
       expect(mockTrack).toHaveBeenCalledWith(mockAnalyticsInstance, expectedLogger, mockEvent);
       expect(mockPage).toHaveBeenCalledWith(mockAnalyticsInstance, expectedLogger, mockPageEvent);
       expect(mockIdentify).toHaveBeenCalledWith(
@@ -2280,8 +2313,8 @@ describe('deviceModeDestinations utils', () => {
           blacklistedEvents: [],
           whitelistedEvents: [],
           eventFilteringOption: 'disable' as const,
-          connectionMode: 'device',
-          useNativeSDKToSend: true,
+          connectionMode: 'device' as const,
+          consentManagement: [],
         },
       };
 
@@ -2298,6 +2331,13 @@ describe('deviceModeDestinations utils', () => {
 
       testDestination.integration?.init!();
       expect(mockInit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          blacklistedEvents: [],
+          whitelistedEvents: [],
+          eventFilteringOption: 'disable',
+          connectionMode: 'device' as const,
+          consentManagement: [],
+        }),
         customAnalyticsInstance,
         expect.objectContaining({
           log: expect.any(Function),
@@ -2322,8 +2362,8 @@ describe('deviceModeDestinations utils', () => {
           blacklistedEvents: [],
           whitelistedEvents: [],
           eventFilteringOption: 'disable' as const,
-          connectionMode: 'device',
-          useNativeSDKToSend: true,
+          connectionMode: 'device' as const,
+          consentManagement: [],
         },
       };
 
@@ -2332,7 +2372,7 @@ describe('deviceModeDestinations utils', () => {
 
       // Mock a realistic custom integration
       const realisticIntegration = {
-        init: (analytics: any, logger: any) => {
+        init: (destinationConfig: any, analytics: any, logger: any) => {
           logger.info('Initializing CustomAnalytics integration');
 
           // Use analytics API to get user information
@@ -2539,8 +2579,8 @@ describe('deviceModeDestinations utils', () => {
           blacklistedEvents: [],
           whitelistedEvents: [],
           eventFilteringOption: 'disable' as const,
-          connectionMode: 'device',
-          useNativeSDKToSend: true,
+          connectionMode: 'device' as const,
+          consentManagement: [],
         },
       };
 
@@ -2572,8 +2612,8 @@ describe('deviceModeDestinations utils', () => {
           blacklistedEvents: [],
           whitelistedEvents: [],
           eventFilteringOption: 'disable' as const,
-          connectionMode: 'device',
-          useNativeSDKToSend: true,
+          connectionMode: 'device' as const,
+          consentManagement: [],
         },
       };
 
@@ -2600,7 +2640,7 @@ describe('deviceModeDestinations utils', () => {
       testDestination.integration?.init!();
 
       // Verify that the logger methods are bound functions
-      const loggerArg = mockInit.mock.calls[0][1];
+      const loggerArg = mockInit.mock.calls[0][2];
 
       // Test that the logger methods are properly bound by verifying they're functions
       // and that calling them invokes the original logger methods

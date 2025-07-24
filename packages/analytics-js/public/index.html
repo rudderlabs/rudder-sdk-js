@@ -187,10 +187,10 @@
             }
 
             rudderanalytics.addCustomIntegration('test-dest-id-1', {
-              init: (analytics, logger) => {
+              init: (destinationConfig, analytics, logger) => {
                 logger.debug('"init" called');
                 
-                logger.debug('Received arguments', analytics, logger);
+                logger.debug('Received arguments', destinationConfig, analytics, logger);
               },
               isReady: (analytics, logger) => {
                 logger.debug('"isReady" called');
