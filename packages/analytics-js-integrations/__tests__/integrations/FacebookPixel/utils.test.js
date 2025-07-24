@@ -2,6 +2,9 @@ import {
   buildPayLoad,
   getHashedStatus,
   getProductsContentsAndContentIds,
+  merge,
+  getProductListViewedEventParams,
+  getProductContentAndId,
 } from '../../../src/integrations/FacebookPixel/utils';
 
 const blacklistPiiPropertiesMock = [
@@ -742,6 +745,75 @@ describe('buildPayLoad_function', () => {
     });
   });
 
+  // Tests for null/undefined properties handling (fixes the "Cannot convert undefined or null to object" error)
+  it('test_null_properties', () => {
+    const rudderElement = {
+      message: {
+        properties: null,
+      },
+    };
+    const result = buildPayLoad(
+      rudderElement,
+      whitelistPiiPropertiesMock,
+      blacklistPiiPropertiesMock,
+    );
+    expect(result).toEqual({});
+  });
+
+  it('test_undefined_properties', () => {
+    const rudderElement = {
+      message: {
+        properties: undefined,
+      },
+    };
+    const result = buildPayLoad(
+      rudderElement,
+      whitelistPiiPropertiesMock,
+      blacklistPiiPropertiesMock,
+    );
+    expect(result).toEqual({});
+  });
+
+  it('test_non_object_properties', () => {
+    const rudderElement = {
+      message: {
+        properties: 'not an object',
+      },
+    };
+    const result = buildPayLoad(
+      rudderElement,
+      whitelistPiiPropertiesMock,
+      blacklistPiiPropertiesMock,
+    );
+    expect(result).toEqual({});
+  });
+
+  it('test_number_properties', () => {
+    const rudderElement = {
+      message: {
+        properties: 123,
+      },
+    };
+    const result = buildPayLoad(
+      rudderElement,
+      whitelistPiiPropertiesMock,
+      blacklistPiiPropertiesMock,
+    );
+    expect(result).toEqual({});
+  });
+
+  it('test_missing_properties_key', () => {
+    const rudderElement = {
+      message: {},
+    };
+    const result = buildPayLoad(
+      rudderElement,
+      whitelistPiiPropertiesMock,
+      blacklistPiiPropertiesMock,
+    );
+    expect(result).toEqual({});
+  });
+
   it('test getProductsContentsAndContentIds', () => {
     const products = [
       {
@@ -774,6 +846,259 @@ describe('buildPayLoad_function', () => {
         },
       ],
       contentIds: ['prodid1', 'prodid2'],
+    });
+  });
+});
+
+describe('merge_function', () => {
+  it('test_merge_normal_objects', () => {
+    const obj1 = { a: 1, b: 2 };
+    const obj2 = { c: 3, d: 4 };
+    const result = merge(obj1, obj2);
+    expect(result).toEqual({ a: 1, b: 2, c: 3, d: 4 });
+  });
+
+  it('test_merge_overlapping_objects', () => {
+    const obj1 = { a: 1, b: 2 };
+    const obj2 = { b: 3, c: 4 };
+    const result = merge(obj1, obj2);
+    expect(result).toEqual({ a: 1, b: 2, c: 4 }); // obj1 takes precedence for overlapping keys
+  });
+
+  it('test_merge_null_obj1', () => {
+    const obj1 = null;
+    const obj2 = { c: 3, d: 4 };
+    const result = merge(obj1, obj2);
+    expect(result).toEqual({ c: 3, d: 4 });
+  });
+
+  it('test_merge_null_obj2', () => {
+    const obj1 = { a: 1, b: 2 };
+    const obj2 = null;
+    const result = merge(obj1, obj2);
+    expect(result).toEqual({ a: 1, b: 2 });
+  });
+
+  it('test_merge_undefined_obj1', () => {
+    const obj1 = undefined;
+    const obj2 = { c: 3, d: 4 };
+    const result = merge(obj1, obj2);
+    expect(result).toEqual({ c: 3, d: 4 });
+  });
+
+  it('test_merge_undefined_obj2', () => {
+    const obj1 = { a: 1, b: 2 };
+    const obj2 = undefined;
+    const result = merge(obj1, obj2);
+    expect(result).toEqual({ a: 1, b: 2 });
+  });
+
+  it('test_merge_both_null', () => {
+    const obj1 = null;
+    const obj2 = null;
+    const result = merge(obj1, obj2);
+    expect(result).toEqual({});
+  });
+
+  it('test_merge_both_undefined', () => {
+    const obj1 = undefined;
+    const obj2 = undefined;
+    const result = merge(obj1, obj2);
+    expect(result).toEqual({});
+  });
+
+  it('test_merge_non_object_types', () => {
+    const obj1 = 'string';
+    const obj2 = 123;
+    const result = merge(obj1, obj2);
+    expect(result).toEqual({});
+  });
+});
+
+describe('getProductListViewedEventParams_function', () => {
+  it('test_null_properties', () => {
+    const result = getProductListViewedEventParams(null);
+    expect(result).toEqual({ contentIds: [], contentType: 'product', contents: [] });
+  });
+
+  it('test_undefined_properties', () => {
+    const result = getProductListViewedEventParams(undefined);
+    expect(result).toEqual({ contentIds: [], contentType: 'product', contents: [] });
+  });
+
+  it('test_non_object_properties', () => {
+    const result = getProductListViewedEventParams('not an object');
+    expect(result).toEqual({ contentIds: [], contentType: 'product', contents: [] });
+  });
+
+  it('test_empty_properties', () => {
+    const result = getProductListViewedEventParams({});
+    expect(result).toEqual({ contentIds: [], contentType: 'product', contents: [] });
+  });
+
+  it('test_normal_properties_with_products', () => {
+    const properties = {
+      products: [
+        { product_id: 'prod1', quantity: 2 },
+        { product_id: 'prod2', quantity: 1 },
+      ],
+    };
+    const result = getProductListViewedEventParams(properties);
+    expect(result.contentIds).toEqual(['prod1', 'prod2']);
+    expect(result.contentType).toEqual('product');
+    expect(result.contents.length).toEqual(2);
+  });
+
+  it('test_category_without_valid_products', () => {
+    const properties = {
+      products: [], // Empty products array
+      category: 'electronics',
+    };
+    const result = getProductListViewedEventParams(properties);
+    expect(result.contentIds).toEqual(['electronics']);
+    expect(result.contentType).toEqual('product_group');
+    expect(result.contents).toEqual([{
+      id: 'electronics',
+      quantity: 1,
+    }]);
+  });
+
+  it('test_category_with_invalid_products', () => {
+    const properties = {
+      products: [
+        { quantity: 2 }, // Missing product_id
+        { price: 10 },   // Missing product_id
+      ],
+      category: 'clothing',
+    };
+    const result = getProductListViewedEventParams(properties);
+    expect(result.contentIds).toEqual(['clothing']);
+    expect(result.contentType).toEqual('product_group');
+    expect(result.contents).toEqual([{
+      id: 'clothing',
+      quantity: 1,
+    }]);
+  });
+});
+
+describe('getProductContentAndId_function', () => {
+  it('test_with_valid_prodId', () => {
+    const prodId = 'PROD123';
+    const quantity = 2;
+    const price = 29.99;
+    
+    const result = getProductContentAndId(prodId, quantity, price);
+    
+    expect(result).toEqual({
+      contents: [{
+        id: 'PROD123',
+        quantity: 2,
+        item_price: 29.99,
+      }],
+      contentIds: ['PROD123'],
+    });
+  });
+
+  it('test_with_null_prodId', () => {
+    const prodId = null;
+    const quantity = 1;
+    const price = 15.50;
+    
+    const result = getProductContentAndId(prodId, quantity, price);
+    
+    expect(result).toEqual({
+      contents: [],
+      contentIds: [],
+    });
+  });
+
+  it('test_with_undefined_prodId', () => {
+    const prodId = undefined;
+    const quantity = 3;
+    const price = 45.00;
+    
+    const result = getProductContentAndId(prodId, quantity, price);
+    
+    expect(result).toEqual({
+      contents: [],
+      contentIds: [],
+    });
+  });
+
+  it('test_with_empty_string_prodId', () => {
+    const prodId = '';
+    const quantity = 1;
+    const price = 10.00;
+    
+    const result = getProductContentAndId(prodId, quantity, price);
+    
+    expect(result).toEqual({
+      contents: [],
+      contentIds: [],
+    });
+  });
+
+  it('test_with_zero_prodId', () => {
+    const prodId = 0;
+    const quantity = 1;
+    const price = 5.00;
+    
+    const result = getProductContentAndId(prodId, quantity, price);
+    
+    expect(result).toEqual({
+      contents: [],
+      contentIds: [],
+    });
+  });
+
+  it('test_with_falsy_but_valid_prodId', () => {
+    const prodId = '0'; // String zero is truthy
+    const quantity = 1;
+    const price = 5.00;
+    
+    const result = getProductContentAndId(prodId, quantity, price);
+    
+    expect(result).toEqual({
+      contents: [{
+        id: '0',
+        quantity: 1,
+        item_price: 5.00,
+      }],
+      contentIds: ['0'],
+    });
+  });
+
+  it('test_with_null_quantity_and_price', () => {
+    const prodId = 'PROD456';
+    const quantity = null;
+    const price = null;
+    
+    const result = getProductContentAndId(prodId, quantity, price);
+    
+    expect(result).toEqual({
+      contents: [{
+        id: 'PROD456',
+        quantity: null,
+        item_price: null,
+      }],
+      contentIds: ['PROD456'],
+    });
+  });
+
+  it('test_with_undefined_quantity_and_price', () => {
+    const prodId = 'PROD789';
+    const quantity = undefined;
+    const price = undefined;
+    
+    const result = getProductContentAndId(prodId, quantity, price);
+    
+    expect(result).toEqual({
+      contents: [{
+        id: 'PROD789',
+        quantity: undefined,
+        item_price: undefined,
+      }],
+      contentIds: ['PROD789'],
     });
   });
 });
