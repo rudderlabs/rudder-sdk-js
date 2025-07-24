@@ -72,12 +72,14 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
         state.nativeDestinations.configuredDestinations.value.filter((configDest: Destination) => {
           // Filter enabled or disabled custom destinations that don't have an integration added to them
           if (configDest.isCustomIntegration && isUndefined(configDest.integration)) {
-            logger?.warn(
-              INTEGRATION_NOT_ADDED_TO_CUSTOM_DESTINATION_WARNING(
-                DEVICE_MODE_DESTINATIONS_PLUGIN,
-                configDest.id,
-              ),
-            );
+            if (configDest.enabled) {
+              logger?.warn(
+                INTEGRATION_NOT_ADDED_TO_CUSTOM_DESTINATION_WARNING(
+                  DEVICE_MODE_DESTINATIONS_PLUGIN,
+                  configDest.id,
+                ),
+              );
+            }
             return false;
           }
 

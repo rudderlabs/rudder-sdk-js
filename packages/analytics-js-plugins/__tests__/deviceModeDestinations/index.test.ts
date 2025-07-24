@@ -1684,14 +1684,11 @@ describe('DeviceModeDestinations Plugin', () => {
         mockLogger,
       );
 
-      // Should warn about custom-2 and custom-3 (both enabled and disabled custom destination without integration)
+      // Should only warn about custom-2 (enabled custom destination without integration)
       expect(mockLogger.warn).toHaveBeenCalledWith(
         'DeviceModeDestinationsPlugin:: No valid custom integration was added for destination ID "custom-2". Ignoring it.',
       );
-      expect(mockLogger.warn).toHaveBeenCalledWith(
-        'DeviceModeDestinationsPlugin:: No valid custom integration was added for destination ID "custom-3". Ignoring it.',
-      );
-      expect(mockLogger.warn).toHaveBeenCalledTimes(2);
+      expect(mockLogger.warn).toHaveBeenCalledTimes(1);
     });
   });
 });
