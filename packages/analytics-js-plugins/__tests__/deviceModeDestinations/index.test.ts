@@ -1299,11 +1299,11 @@ describe('DeviceModeDestinations Plugin', () => {
       );
 
       expect(mockLogger.error).toHaveBeenCalledWith(
-        `DeviceModeDestinationsPlugin:: The destination ID "${invalidDestinationId}" does not correspond to an enabled custom device mode destination.`,
+        `DeviceModeDestinationsPlugin:: The destination ID "${invalidDestinationId}" does not correspond to a custom device mode destination.`,
       );
     });
 
-    it('should not add custom integration when destination is not enabled', () => {
+    it('should add custom integration when destination is not enabled', () => {
       const disabledDestination = {
         ...mockCustomDestination,
         id: 'disabled-dest-456',
@@ -1318,9 +1318,13 @@ describe('DeviceModeDestinations Plugin', () => {
         mockLogger,
       );
 
-      expect(mockLogger.error).toHaveBeenCalledWith(
-        'DeviceModeDestinationsPlugin:: The destination ID "disabled-dest-456" does not correspond to an enabled custom device mode destination.',
+      // Verify the destination was updated with the integration
+      const updatedDestination = mockState.nativeDestinations.configuredDestinations.value.find(
+        dest => dest.id === disabledDestination.id,
       );
+      expect(updatedDestination).toBeDefined();
+      expect(updatedDestination!.isCustomIntegration).toBe(true);
+      expect(updatedDestination!.integration).toBeDefined();
     });
 
     it('should not add custom integration when destination display name is not "Custom Device Mode"', () => {
@@ -1339,7 +1343,7 @@ describe('DeviceModeDestinations Plugin', () => {
       );
 
       expect(mockLogger.error).toHaveBeenCalledWith(
-        'DeviceModeDestinationsPlugin:: The destination ID "regular-dest-789" does not correspond to an enabled custom device mode destination.',
+        'DeviceModeDestinationsPlugin:: The destination ID "regular-dest-789" does not correspond to a custom device mode destination.',
       );
     });
 
@@ -1595,7 +1599,7 @@ describe('DeviceModeDestinations Plugin', () => {
 
       // Should warn about the destination without integration
       expect(mockLogger.warn).toHaveBeenCalledWith(
-        'DeviceModeDestinationsPlugin:: No custom integration was added for destination ID "custom-dest-no-integration". Ignoring it.',
+        'DeviceModeDestinationsPlugin:: No valid custom integration was added for destination ID "custom-dest-no-integration". Ignoring it.',
       );
 
       // Should not warn about destination with integration
@@ -1682,9 +1686,12 @@ describe('DeviceModeDestinations Plugin', () => {
 
       // Should only warn about custom-2 (enabled custom destination without integration)
       expect(mockLogger.warn).toHaveBeenCalledWith(
-        'DeviceModeDestinationsPlugin:: No custom integration was added for destination ID "custom-2". Ignoring it.',
+        'DeviceModeDestinationsPlugin:: No valid custom integration was added for destination ID "custom-2". Ignoring it.',
       );
-      expect(mockLogger.warn).toHaveBeenCalledTimes(1);
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        'DeviceModeDestinationsPlugin:: No valid custom integration was added for destination ID "custom-3". Ignoring it.',
+      );
+      expect(mockLogger.warn).toHaveBeenCalledTimes(2);
     });
   });
 });

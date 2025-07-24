@@ -1765,11 +1765,11 @@ describe('deviceModeDestinations utils', () => {
 
         expect(result).toBeUndefined();
         expect(defaultLogger.error).toHaveBeenCalledWith(
-          'DeviceModeDestinationsPlugin:: The destination ID "non-existent-dest" does not correspond to an enabled custom device mode destination.',
+          'DeviceModeDestinationsPlugin:: The destination ID "non-existent-dest" does not correspond to a custom device mode destination.',
         );
       });
 
-      it('should return undefined for disabled destination', () => {
+      it('should return the destination object for disabled destination', () => {
         const disabledDestination = {
           ...mockCustomDestination,
           id: 'disabled-dest',
@@ -1784,10 +1784,8 @@ describe('deviceModeDestinations utils', () => {
           defaultLogger,
         );
 
-        expect(result).toBeUndefined();
-        expect(defaultLogger.error).toHaveBeenCalledWith(
-          'DeviceModeDestinationsPlugin:: The destination ID "disabled-dest" does not correspond to an enabled custom device mode destination.',
-        );
+        expect(result).toBeDefined();
+        expect(result).toEqual(disabledDestination);
       });
 
       it('should return undefined if no custom destinations are configured', () => {
@@ -1807,7 +1805,7 @@ describe('deviceModeDestinations utils', () => {
 
         expect(result).toBeUndefined();
         expect(defaultLogger.error).toHaveBeenCalledWith(
-          'DeviceModeDestinationsPlugin:: The destination ID "wrong-dest" does not correspond to an enabled custom device mode destination.',
+          'DeviceModeDestinationsPlugin:: The destination ID "wrong-dest" does not correspond to a custom device mode destination.',
         );
       });
     });
