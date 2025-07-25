@@ -33,6 +33,7 @@ const identifyUserPropertiesMap = {
   userName: 'u_n',
   gender: 'u_gd',
   birthday: 'u_bd',
+  id: null,
 };
 
 class MoEngage {
@@ -62,11 +63,6 @@ class MoEngage {
     });
 
     this.initialUserId = this.analytics.getUserId();
-    if (this.identityResolution) {
-      window.Moengage.identifyUser({
-        uid: this.initialUserId !== '' ? this.initialUserId : this.analytics.getAnonymousId(),
-      });
-    }
   }
 
   isLoaded() {
@@ -99,8 +95,16 @@ class MoEngage {
 
     const { event, properties, userId } = rudderElement.message;
     if (userId && this.initialUserId !== userId) {
-      this.reset();
+      this.reset().then(() => {
+        // Continue after reset is complete
+        this.trackEvent(event, properties);
+      });
+      return;
     }
+    this.trackEvent(event, properties);
+  }
+
+  trackEvent(event, properties) {
     // track event : https://docs.moengage.com/docs/tracking-events
     if (!event) {
       logger.error('Event name is not present');
@@ -115,7 +119,7 @@ class MoEngage {
 
   reset() {
     this.initialUserId = this.analytics.getUserId();
-    window.Moengage.destroy_session();
+    return window.Moengage.destroy_session();
   }
 
   identifyOld(rudderElement) {
@@ -127,8 +131,16 @@ class MoEngage {
 
     // check if user id is same or not
     if (this.initialUserId !== userId) {
-      this.reset();
+      this.reset().then(() => {
+        // Continue after reset is complete
+        this.processIdentifyOld(userId, traits);
+      });
+      return;
     }
+    this.processIdentifyOld(userId, traits);
+  }
+
+  processIdentifyOld(userId, traits) {
     // if user is present map
     if (userId) {
       window.Moengage.add_unique_user_id(userId);
@@ -169,9 +181,17 @@ class MoEngage {
       (this.initialUserId !== '' && this.initialUserId !== userId) ||
       (this.initialUserId !== '' && userId === '')
     ) {
-      this.reset();
+      this.reset().then(() => {
+        // Continue after reset is complete
+        this.processIdentify(userId, traits);
+      });
+      return;
     }
 
+    this.processIdentify(userId, traits);
+  }
+
+  processIdentify(userId, traits) {
     // If initialUserId is empty, set it to the current userId this happens when an anonymous user loggedIn for the first time
     if (this.initialUserId === '' && userId) {
       this.initialUserId = userId;
@@ -190,23 +210,21 @@ class MoEngage {
       ...(userId && { uid: userId }),
       ...userAttributes,
     };
-    window.Moengage.identifyUser(payload);
 
     // track user attributes : https://developers.moengage.com/hc/en-us/articles/360061114832-Web-SDK-User-Attributes-Tracking
-    if (traits) {
-      each((value, key) => {
-        // check if name is present
-        if (key === 'name') {
-          window.Moengage.add_user_name(value);
-        }
-        if (Object.hasOwn(traitsMap, key)) {
-          const method = `add_${traitsMap[key]}`;
-          window.Moengage[method](value);
-        } else {
-          window.Moengage.add_user_attribute(key, value);
-        }
-      }, traits);
-    }
+    window.Moengage.identifyUser(payload).then(() => {
+      if (traits) {
+        each((value, key) => {
+          // check if name is present
+          if (key === 'name') {
+            window.Moengage.add_user_name(value);
+          }
+          if (!Object.hasOwn(identifyUserPropertiesMap, key)) {
+            window.Moengage.add_user_attribute(key, value);
+          }
+        }, traits);
+      }
+    });
   }
 }
 
