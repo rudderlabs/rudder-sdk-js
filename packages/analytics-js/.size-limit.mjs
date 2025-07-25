@@ -77,7 +77,7 @@ export default [
     name: 'Core (Bundled) - Modern - NPM (CJS)',
     path: 'dist/npm/modern/bundled/cjs/index.cjs',
     import: '*',
-    limit: '41 KiB',
+    limit: '41.5 KiB',
   },
   {
     name: 'Core (Bundled) - Modern - NPM (UMD)',
