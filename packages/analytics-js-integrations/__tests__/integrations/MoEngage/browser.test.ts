@@ -1,21 +1,6 @@
 import MoEngage from '../../../src/integrations/MoEngage/browser';
 
 const mockMoEngageSDK = () => {
-  (window as any).moe = jest.fn(() => ({
-    track_event: jest.fn(),
-    add_user_attribute: jest.fn(),
-    add_user_name: jest.fn(),
-    add_first_name: jest.fn(),
-    add_last_name: jest.fn(),
-    add_email: jest.fn(),
-    add_mobile: jest.fn(),
-    add_gender: jest.fn(),
-    add_birthday: jest.fn(),
-    add_unique_user_id: jest.fn(),
-    destroy_session: jest.fn(),
-    identifyUser: jest.fn(),
-  }));
-
   (window as any).Moengage = {
     track_event: jest.fn(),
     add_user_attribute: jest.fn(),
@@ -31,16 +16,6 @@ const mockMoEngageSDK = () => {
     identifyUser: jest.fn().mockResolvedValue('done'),
   };
 };
-
-beforeEach(() => {
-  const scriptElement = document.createElement('script');
-  scriptElement.type = 'text/javascript';
-  scriptElement.id = 'dummyScript';
-  const headElements = document.getElementsByTagName('head');
-  if (headElements[0]) {
-    headElements[0].insertBefore(scriptElement, headElements[0].firstChild);
-  }
-});
 
 describe('MoEngage init tests', () => {
   test('Testing init call of MoEngage with apiId', () => {
@@ -317,6 +292,7 @@ describe('MoEngage identify tests (with identity resolution)', () => {
           traits: {
             email: 'test@example.com',
             firstName: 'John',
+            customKey: 'customValue',
           },
         },
       },
@@ -327,6 +303,7 @@ describe('MoEngage identify tests (with identity resolution)', () => {
       uid: 'user123',
       u_em: 'test@example.com',
       u_fn: 'John',
+      customKey: 'customValue',
     });
   });
 
