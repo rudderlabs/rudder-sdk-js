@@ -50,6 +50,14 @@ describe('MoEngage init tests', () => {
     );
     expect(moEngageIN.calculateMoeDataCenter()).toBe('dc_3');
   });
+
+  test('Testing default data center calculation', () => {
+    const moEngageDefault = new MoEngage(
+      { apiId: 'test-api-id' },
+      { logLevel: 'debug', getUserId: () => null, getAnonymousId: () => 'anon123' },
+    );
+    expect(moEngageDefault.calculateMoeDataCenter()).toBe('dc_1'); // Assuming US is default
+  });
 });
 
 describe('MoEngage isLoaded tests', () => {
@@ -325,7 +333,7 @@ describe('MoEngage identify tests (with identity resolution)', () => {
     expect(spy).toHaveBeenCalled();
   });
 
-  test('identify with logout scenario should reset session', async() => {
+  test('identify with logout scenario should reset session', async () => {
     (moEngage as any).initialUserId = 'user123';
     const resetSpy = jest.spyOn(moEngage, 'reset');
 
