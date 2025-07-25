@@ -283,9 +283,9 @@ describe('MoEngage identify tests (with identity resolution)', () => {
     jest.spyOn(moEngage, 'isLoaded').mockImplementation(() => true);
   });
 
-  test('identify with identity resolution should call identifyUser', () => {
+  test('identify with identity resolution should call identifyUser', async () => {
     const spy = jest.spyOn((window as any).Moengage, 'identifyUser');
-    moEngage.identify({
+    await moEngage.identify({
       message: {
         userId: 'user123',
         context: {
@@ -307,11 +307,11 @@ describe('MoEngage identify tests (with identity resolution)', () => {
     });
   });
 
-  test('identify without identity resolution should call identifyOld', () => {
+  test('identify without identity resolution should call identifyOld', async () => {
     (moEngage as any).identityResolution = false;
     const spy = jest.spyOn(moEngage as any, 'identifyOld');
 
-    moEngage.identify({
+    await moEngage.identify({
       message: {
         userId: 'user123',
         context: {
@@ -325,12 +325,12 @@ describe('MoEngage identify tests (with identity resolution)', () => {
     expect(spy).toHaveBeenCalled();
   });
 
-  test('identify with logout scenario should reset session', () => {
+  test('identify with logout scenario should reset session', async() => {
     (moEngage as any).initialUserId = 'user123';
     const resetSpy = jest.spyOn(moEngage, 'reset');
 
     // Test logout scenario (userId is empty but initialUserId exists)
-    moEngage.identify({
+    await moEngage.identify({
       message: {
         userId: '',
         context: {
@@ -344,11 +344,11 @@ describe('MoEngage identify tests (with identity resolution)', () => {
     expect(resetSpy).toHaveBeenCalled();
   });
 
-  test('identify with changed userId should reset session', () => {
+  test('identify with changed userId should reset session', async () => {
     (moEngage as any).initialUserId = 'user123';
     const resetSpy = jest.spyOn(moEngage, 'reset');
 
-    moEngage.identify({
+    await moEngage.identify({
       message: {
         userId: 'differentUser',
         context: {
@@ -362,10 +362,10 @@ describe('MoEngage identify tests (with identity resolution)', () => {
     expect(resetSpy).toHaveBeenCalled();
   });
 
-  test('identify with first-time login should set initialUserId', () => {
+  test('identify with first-time login should set initialUserId', async () => {
     (moEngage as any).initialUserId = '';
 
-    moEngage.identify({
+    await moEngage.identify({
       message: {
         userId: 'newUser',
         context: {
