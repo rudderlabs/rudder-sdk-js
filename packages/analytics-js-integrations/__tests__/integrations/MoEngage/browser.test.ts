@@ -418,7 +418,7 @@ describe('MoEngage identify tests (with identity resolution)', () => {
       },
     });
 
-    await new Promise(resolve => setTimeout(resolve, 0)); // Ensure async calls complete
+    await expect(window.Moengage.identifyUser).toHaveBeenCalled();
     expect(customSpy).toHaveBeenCalledWith('customProp', 'customValue');
   });
 });

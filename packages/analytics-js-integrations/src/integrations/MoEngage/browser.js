@@ -33,6 +33,7 @@ const identifyUserPropertiesMap = {
   userName: 'u_n',
   gender: 'u_gd',
   birthday: 'u_bd',
+  name: 'u_n',
   id: null,
 };
 
@@ -201,7 +202,8 @@ class MoEngage {
     each((value, key) => {
       if (Object.hasOwn(identifyUserPropertiesMap, key)) {
         const method = identifyUserPropertiesMap[key];
-        userAttributes[method] = value;
+        const userAttributeKey = method ? method : key;
+        userAttributes[userAttributeKey] = value;
       }
     }, traits);
 
@@ -212,19 +214,7 @@ class MoEngage {
     };
 
     // track user attributes : https://developers.moengage.com/hc/en-us/articles/360061114832-Web-SDK-User-Attributes-Tracking
-    window.Moengage.identifyUser(payload).then(() => {
-      if (traits) {
-        each((value, key) => {
-          // check if name is present
-          if (key === 'name') {
-            window.Moengage.add_user_name(value);
-          }
-          if (!Object.hasOwn(identifyUserPropertiesMap, key)) {
-            window.Moengage.add_user_attribute(key, value);
-          }
-        }, traits);
-      }
-    });
+    window.Moengage.identifyUser(payload);
   }
 }
 
