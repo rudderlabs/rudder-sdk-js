@@ -22,7 +22,7 @@ const CUSTOM_INTEGRATION_INVALID_DESTINATION_ID_ERROR = (
   context: string,
   destinationId: string,
 ): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The destination ID "${destinationId}" does not correspond to an enabled custom device mode destination.`;
+  `${context}${LOG_CONTEXT_SEPARATOR}The destination ID "${destinationId}" does not correspond to a custom device mode destination.`;
 
 const CUSTOM_INTEGRATION_ALREADY_EXISTS_ERROR = (context: string, destinationId: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}A custom integration with destination ID "${destinationId}" was already added.`;
@@ -34,7 +34,7 @@ const INTEGRATION_NOT_ADDED_TO_CUSTOM_DESTINATION_WARNING = (
   context: string,
   destinationId: string,
 ): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}No custom integration was added for destination ID "${destinationId}". Ignoring it.`;
+  `${context}${LOG_CONTEXT_SEPARATOR}No valid custom integration was added for destination ID "${destinationId}". Ignoring it.`;
 
 export {
   INTEGRATION_NOT_SUPPORTED_ERROR,
