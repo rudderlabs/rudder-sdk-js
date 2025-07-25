@@ -355,9 +355,7 @@ const validateCustomIntegration = (
   const configuredDestinations = state.nativeDestinations.configuredDestinations.value;
   const destination = configuredDestinations.find(
     dest =>
-      dest.id === destinationId &&
-      dest.displayName === CUSTOM_DEVICE_MODE_DESTINATION_DISPLAY_NAME &&
-      dest.enabled,
+      dest.id === destinationId && dest.displayName === CUSTOM_DEVICE_MODE_DESTINATION_DISPLAY_NAME,
   );
 
   if (!destination) {
