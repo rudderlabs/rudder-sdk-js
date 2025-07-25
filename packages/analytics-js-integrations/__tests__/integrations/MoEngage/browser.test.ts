@@ -401,24 +401,4 @@ describe('MoEngage identify tests (with identity resolution)', () => {
 
     expect((moEngage as any).initialUserId).toBe('newUser');
   });
-
-  test('identify should also call legacy attribute methods', async () => {
-    const customSpy = jest.spyOn((window as any).Moengage, 'add_user_attribute');
-
-    moEngage.identify({
-      message: {
-        userId: 'user123',
-        context: {
-          traits: {
-            name: 'John Doe',
-            email: 'test@example.com',
-            customProp: 'customValue',
-          },
-        },
-      },
-    });
-
-    await expect(window.Moengage.identifyUser).toHaveBeenCalled();
-    expect(customSpy).toHaveBeenCalledWith('customProp', 'customValue');
-  });
 });

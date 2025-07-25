@@ -202,8 +202,9 @@ class MoEngage {
     each((value, key) => {
       if (Object.hasOwn(identifyUserPropertiesMap, key)) {
         const method = identifyUserPropertiesMap[key];
-        const userAttributeKey = method ? method : key;
-        userAttributes[userAttributeKey] = value;
+        userAttributes[method] = value;
+      } else {
+        userAttributes[key] = value; // For any other attributes not in the map
       }
     }, traits);
 
