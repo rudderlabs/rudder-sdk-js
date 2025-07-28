@@ -164,6 +164,15 @@ class MoEngage {
     }
   }
 
+  // We are destroying the session if userId is changed or initialUserId is not empty and userId is empty
+  // This is a log out scenario
+  shouldResetSession(userId) {
+    return (
+      (this.initialUserId !== '' && this.initialUserId !== userId) ||
+      (this.initialUserId !== '' && userId === '')
+    );
+  }
+
   identify(rudderElement) {
     if (!this.identityResolution) {
       this.identifyOld(rudderElement);
@@ -176,12 +185,7 @@ class MoEngage {
       traits = context.traits;
     }
 
-    // We are destroying the session if userId is changed or initialUserId is not empty and userId is empty
-    // This is a log out scenario
-    if (
-      (this.initialUserId !== '' && this.initialUserId !== userId) ||
-      (this.initialUserId !== '' && userId === '')
-    ) {
+    if (this.shouldResetSession(userId)) {
       this.reset().then(() => {
         // Continue after reset is complete
         this.processIdentify(userId, traits);
