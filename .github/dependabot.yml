@@ -1,11 +1,45 @@
 version: 2
+
+# YAML Anchors for reusable configurations
+x-weekly-cron: &weekly_cron
+  interval: "cron"
+  # every wednesday at 00:01
+  cronjob: "1 0 * * 3"
+
+x-sample-app-labels: &sample_app_labels
+  - "dependencies"
+  - "sample-apps"
+
+x-sample-app-integrations-labels: &sample_app_integrations_labels
+  - "dependencies"
+  - "sample-apps"
+  - "integrations"
+
+x-sample-app-groups: &sample_app_groups
+  sample-apps-npm-deps:
+    patterns:
+      - "*"
+    update-types:
+      - "minor"
+      - "patch"
+  sample-apps-npm-major-deps:
+    patterns:
+      - "*"
+    update-types:
+      - "major"
+
+# Base template for sample apps
+x-common-sample-app: &common_sample_app
+  package-ecosystem: "npm"
+  schedule: *weekly_cron
+  target-branch: "develop"
+  labels: *sample_app_labels
+  groups: *sample_app_groups
+
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
-    schedule:
-      interval: "cron"
-      # every wednesday at 00:01
-      cronjob: "1 0 * * 3"
+    schedule: *weekly_cron
     target-branch: "develop"
     labels:
       - "dependencies"
@@ -13,10 +47,7 @@ updates:
 
   - package-ecosystem: "npm"
     directory: "/"
-    schedule:
-      interval: "cron"
-      # every wednesday at 00:01
-      cronjob: "1 0 * * 3"
+    schedule: *weekly_cron
     target-branch: "develop"
     labels:
       - "dependencies"
@@ -43,397 +74,58 @@ updates:
         update-types:
           - "major"
 
-  # Example applications dependency management
-  - package-ecosystem: "npm"
+  # Example applications - ultra-concise with merge keys
+  - <<: *common_sample_app
     directory: "/examples/angular/sample-app"
-    schedule:
-      interval: "cron"
-      # every wednesday at 00:01
-      cronjob: "1 0 * * 3"
-    target-branch: "develop"
-    labels:
-      - "dependencies"
-      - "sample-apps"
-    groups:
-      sample-apps-npm-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
-      sample-apps-npm-major-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "major"
 
-  - package-ecosystem: "npm"
+  - <<: *common_sample_app
     directory: "/examples/nextjs/hooks/sample-app"
-    schedule:
-      interval: "cron"
-      # every wednesday at 00:01
-      cronjob: "1 0 * * 3"
-    target-branch: "develop"
-    labels:
-      - "dependencies"
-      - "sample-apps"
-    groups:
-      sample-apps-npm-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
-      sample-apps-npm-major-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "major"
 
-  - package-ecosystem: "npm"
+  - <<: *common_sample_app
     directory: "/examples/nextjs/js/sample-app"
-    schedule:
-      interval: "cron"
-      # every wednesday at 00:01
-      cronjob: "1 0 * * 3"
-    target-branch: "develop"
-    labels:
-      - "dependencies"
-      - "sample-apps"
-    groups:
-      sample-apps-npm-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
-      sample-apps-npm-major-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "major"
 
-  - package-ecosystem: "npm"
+  - <<: *common_sample_app
     directory: "/examples/nextjs/page-router/sample-app"
-    schedule:
-      interval: "cron"
-      # every wednesday at 00:01
-      cronjob: "1 0 * * 3"
-    target-branch: "develop"
-    labels:
-      - "dependencies"
-      - "sample-apps"
-    groups:
-      sample-apps-npm-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
-      sample-apps-npm-major-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "major"
 
-  - package-ecosystem: "npm"
+  - <<: *common_sample_app
     directory: "/examples/nextjs/ts/sample-app"
-    schedule:
-      interval: "cron"
-      # every wednesday at 00:01
-      cronjob: "1 0 * * 3"
-    target-branch: "develop"
-    labels:
-      - "dependencies"
-      - "sample-apps"
-    groups:
-      sample-apps-npm-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
-      sample-apps-npm-major-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "major"
 
-  - package-ecosystem: "npm"
+  - <<: *common_sample_app
     directory: "/examples/reactjs/hooks/sample-app"
-    schedule:
-      interval: "cron"
-      # every wednesday at 00:01
-      cronjob: "1 0 * * 3"
-    target-branch: "develop"
-    labels:
-      - "dependencies"
-      - "sample-apps"
-    groups:
-      sample-apps-npm-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
-      sample-apps-npm-major-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "major"
 
-  - package-ecosystem: "npm"
+  - <<: *common_sample_app
     directory: "/examples/reactjs/js/sample-app"
-    schedule:
-      interval: "cron"
-      # every wednesday at 00:01
-      cronjob: "1 0 * * 3"
-    target-branch: "develop"
-    labels:
-      - "dependencies"
-      - "sample-apps"
-    groups:
-      sample-apps-npm-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
-      sample-apps-npm-major-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "major"
 
-  - package-ecosystem: "npm"
+  - <<: *common_sample_app
     directory: "/examples/reactjs/ts/sample-app"
-    schedule:
-      interval: "cron"
-      # every wednesday at 00:01
-      cronjob: "1 0 * * 3"
-    target-branch: "develop"
-    labels:
-      - "dependencies"
-      - "sample-apps"
-    groups:
-      sample-apps-npm-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
-      sample-apps-npm-major-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "major"
 
-  - package-ecosystem: "npm"
+  - <<: *common_sample_app
     directory: "/examples/reactjs/vite/sample-app"
-    schedule:
-      interval: "cron"
-      # every wednesday at 00:01
-      cronjob: "1 0 * * 3"
-    target-branch: "develop"
-    labels:
-      - "dependencies"
-      - "sample-apps"
-    groups:
-      sample-apps-npm-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
-      sample-apps-npm-major-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "major"
 
-  - package-ecosystem: "npm"
+  - <<: *common_sample_app
     directory: "/examples/gatsby/sample-gatsby-site"
-    schedule:
-      interval: "cron"
-      # every wednesday at 00:01
-      cronjob: "1 0 * * 3"
-    target-branch: "develop"
-    labels:
-      - "dependencies"
-      - "sample-apps"
-    groups:
-      sample-apps-npm-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
-      sample-apps-npm-major-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "major"
 
-  - package-ecosystem: "npm"
+  - <<: *common_sample_app
     directory: "/examples/gatsby/sample-gatsby-plugin-usage"
-    schedule:
-      interval: "cron"
-      # every wednesday at 00:01
-      cronjob: "1 0 * * 3"
-    target-branch: "develop"
-    labels:
-      - "dependencies"
-      - "sample-apps"
-    groups:
-      sample-apps-npm-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
-      sample-apps-npm-major-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "major"
 
-  - package-ecosystem: "npm"
+  - <<: *common_sample_app
     directory: "/examples/serverless/cloudflare-worker"
-    schedule:
-      interval: "cron"
-      # every wednesday at 00:01
-      cronjob: "1 0 * * 3"
-    target-branch: "develop"
-    labels:
-      - "dependencies"
-      - "sample-apps"
-    groups:
-      sample-apps-npm-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
-      sample-apps-npm-major-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "major"
 
-  - package-ecosystem: "npm"
+  - <<: *common_sample_app
     directory: "/examples/serverless/vercel-edge"
-    schedule:
-      interval: "cron"
-      # every wednesday at 00:01
-      cronjob: "1 0 * * 3"
-    target-branch: "develop"
-    labels:
-      - "dependencies"
-      - "sample-apps"
-    groups:
-      sample-apps-npm-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
-      sample-apps-npm-major-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "major"
 
-  - package-ecosystem: "npm"
+  - <<: *common_sample_app
     directory: "/examples/symfony/sample"
-    schedule:
-      interval: "cron"
-      # every wednesday at 00:01
-      cronjob: "1 0 * * 3"
-    target-branch: "develop"
-    labels:
-      - "dependencies"
-      - "sample-apps"
-    groups:
-      sample-apps-npm-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
-      sample-apps-npm-major-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "major"
 
-  - package-ecosystem: "npm"
+  # Integration examples with special labels
+  - <<: *common_sample_app
     directory: "/examples/integrations/Ninetailed/sample-apps/app-using-npm"
-    schedule:
-      interval: "cron"
-      # every wednesday at 00:01
-      cronjob: "1 0 * * 3"
-    target-branch: "develop"
-    labels:
-      - "dependencies"
-      - "sample-apps"
-      - "integrations"
-    groups:
-      sample-apps-npm-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
-      sample-apps-npm-major-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "major"
+    labels: *sample_app_integrations_labels
 
-  - package-ecosystem: "npm"
+  - <<: *common_sample_app
     directory: "/examples/integrations/Ninetailed/sample-apps/app-using-v1.1-cdn"
-    schedule:
-      interval: "cron"
-      # every wednesday at 00:01
-      cronjob: "1 0 * * 3"
-    target-branch: "develop"
-    labels:
-      - "dependencies"
-      - "sample-apps"
-      - "integrations"
-    groups:
-      sample-apps-npm-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
-      sample-apps-npm-major-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "major"
+    labels: *sample_app_integrations_labels
 
-  - package-ecosystem: "npm"
+  - <<: *common_sample_app
     directory: "/examples/integrations/Ninetailed/sample-apps/app-using-v3-cdn"
-    schedule:
-      interval: "cron"
-      # every wednesday at 00:01
-      cronjob: "1 0 * * 3"
-    target-branch: "develop"
-    labels:
-      - "dependencies"
-      - "sample-apps"
-      - "integrations"
-    groups:
-      sample-apps-npm-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
-      sample-apps-npm-major-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "major"
+    labels: *sample_app_integrations_labels
