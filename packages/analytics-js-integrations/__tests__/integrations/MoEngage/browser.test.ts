@@ -101,7 +101,7 @@ describe('MoEngage reset tests', () => {
 
   test('reset should update initialUserId and destroy session', () => {
     const spy = jest.spyOn((window as any).Moengage, 'destroy_session').mockResolvedValue('done');
-    moEngage.reset();
+    moEngage.resetSession();
 
     expect((moEngage as any).initialUserId).toBe('newUser');
     expect(spy).toHaveBeenCalled();
@@ -154,7 +154,7 @@ describe('MoEngage track tests', () => {
   });
 
   test('track event with different userId should reset session', () => {
-    const resetSpy = jest.spyOn(moEngage, 'reset');
+    const resetSpy = jest.spyOn(moEngage, 'resetSession');
     moEngage.track({
       message: {
         event: 'Test Event',
@@ -261,7 +261,7 @@ describe('MoEngage identifyOld tests (without identity resolution)', () => {
   });
 
   test('identify with different userId should reset session', () => {
-    const resetSpy = jest.spyOn(moEngage, 'reset');
+    const resetSpy = jest.spyOn(moEngage, 'resetSession');
     (moEngage as any).identifyOld({
       message: {
         userId: 'differentUser',
@@ -335,7 +335,7 @@ describe('MoEngage identify tests (with identity resolution)', () => {
 
   test('identify with logout scenario should reset session', async () => {
     (moEngage as any).initialUserId = 'user123';
-    const resetSpy = jest.spyOn(moEngage, 'reset');
+    const resetSpy = jest.spyOn(moEngage, 'resetSession');
 
     // Test logout scenario (userId is empty but initialUserId exists)
     await moEngage.identify({
@@ -354,7 +354,7 @@ describe('MoEngage identify tests (with identity resolution)', () => {
 
   test('identify with changed userId should reset session', async () => {
     (moEngage as any).initialUserId = 'user123';
-    const resetSpy = jest.spyOn(moEngage, 'reset');
+    const resetSpy = jest.spyOn(moEngage, 'resetSession');
 
     await moEngage.identify({
       message: {

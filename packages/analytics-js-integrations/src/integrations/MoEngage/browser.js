@@ -96,7 +96,7 @@ class MoEngage {
 
     const { event, properties, userId } = rudderElement.message;
     if (userId && this.initialUserId !== userId) {
-      this.reset().then(() => {
+      this.resetSession().then(() => {
         // Continue after reset is complete
         this.trackEvent(event, properties);
       });
@@ -118,7 +118,7 @@ class MoEngage {
     }
   }
 
-  reset() {
+  resetSession() {
     this.initialUserId = this.analytics.getUserId();
     return window.Moengage.destroy_session();
   }
@@ -132,7 +132,7 @@ class MoEngage {
 
     // check if user id is same or not
     if (this.initialUserId !== userId) {
-      this.reset().then(() => {
+      this.resetSession().then(() => {
         // Continue after reset is complete
         this.processIdentifyOld(userId, traits);
       });
@@ -186,7 +186,7 @@ class MoEngage {
     }
 
     if (this.shouldResetSession(userId)) {
-      this.reset().then(() => {
+      this.resetSession().then(() => {
         // Continue after reset is complete
         this.processIdentify(userId, traits);
       });
