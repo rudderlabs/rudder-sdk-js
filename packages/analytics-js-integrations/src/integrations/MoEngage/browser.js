@@ -1,41 +1,11 @@
 /* eslint-disable class-methods-use-this */
 import each from '@ndhoule/each';
-import { NAME, DISPLAY_NAME } from './constants';
+import { NAME, DISPLAY_NAME, IdentifyUserPropertiesMap, TraitsMap } from './constants';
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
+import { calculateMoeDataCenter } from './utils';
 
 const logger = new Logger(DISPLAY_NAME);
-
-// custom traits mapping context.traits --> moengage properties
-const traitsMap = {
-  firstName: 'first_name',
-  lastName: 'last_name',
-  firstname: 'first_name',
-  lastname: 'last_name',
-  email: 'email',
-  phone: 'mobile',
-  name: 'user_name',
-  username: 'user_name',
-  userName: 'user_name',
-  gender: 'gender',
-  birthday: 'birthday',
-  id: null,
-};
-
-const identifyUserPropertiesMap = {
-  email: 'u_em',
-  firstName: 'u_fn',
-  lastName: 'u_ln',
-  firstname: 'u_fn',
-  lastname: 'u_ln',
-  phone: 'u_mb',
-  username: 'u_n',
-  userName: 'u_n',
-  gender: 'u_gd',
-  birthday: 'u_bd',
-  name: 'u_n',
-  id: null,
-};
 
 class MoEngage {
   constructor(config, analytics, destinationInfo) {
@@ -46,7 +16,7 @@ class MoEngage {
     this.apiId = config.apiId;
     this.debug = config.debug;
     this.region = config.region;
-    this.identityResolution = config.identityResolution || false;
+    this.identityResolution = Boolean(config.identityResolution ?? false);
     this.name = NAME;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
@@ -56,35 +26,24 @@ class MoEngage {
   }
 
   init() {
-    loadNativeSdk(this.calculateMoeDataCenter());
+    this.moengageRegion = calculateMoeDataCenter(this.region);
+    loadNativeSdk(this.moengageRegion);
     // Following MoEngage official convention: assign moe() result to global Moengage
     window.Moengage = window.moe({
       app_id: this.apiId,
       debug_logs: this.debug ? 1 : 0,
     });
 
-    this.initialUserId = this.analytics.getUserId();
+    this.currentUserId = this.analytics.getUserId();
   }
 
   isLoaded() {
     // Check if MoEngage is properly initialized following their official pattern
-    return !!window.Moengage && typeof window.Moengage.track_event === 'function';
+    return !!window.moeBannerText && !!window.Moengage;
   }
 
   isReady() {
     return this.isLoaded();
-  }
-
-  calculateMoeDataCenter() {
-    // Calculate the MoEngage data center based on the region
-    switch (this.region) {
-      case 'EU':
-        return 'dc_2';
-      case 'IN':
-        return 'dc_3';
-      default:
-        return 'dc_1'; // Default to US data center
-    }
   }
 
   track(rudderElement) {
@@ -95,7 +54,7 @@ class MoEngage {
     }
 
     const { event, properties, userId } = rudderElement.message;
-    if (userId && this.initialUserId !== userId) {
+    if (userId && this.currentUserId !== userId) {
       this.resetSession().then(() => {
         // Continue after reset is complete
         this.trackEvent(event, properties);
@@ -106,7 +65,7 @@ class MoEngage {
   }
 
   trackEvent(event, properties) {
-    // track event : https://docs.moengage.com/docs/tracking-events
+    // track event : https://developers.moengage.com/hc/en-us/articles/360061179752-Web-SDK-Events-Tracking
     if (!event) {
       logger.error('Event name is not present');
       return;
@@ -119,7 +78,7 @@ class MoEngage {
   }
 
   resetSession() {
-    this.initialUserId = this.analytics.getUserId();
+    this.currentUserId = this.analytics.getUserId();
     return window.Moengage.destroy_session();
   }
 
@@ -131,7 +90,7 @@ class MoEngage {
     }
 
     // check if user id is same or not
-    if (this.initialUserId !== userId) {
+    if (this.currentUserId !== userId) {
       this.resetSession().then(() => {
         // Continue after reset is complete
         this.processIdentifyOld(userId, traits);
@@ -147,15 +106,15 @@ class MoEngage {
       window.Moengage.add_unique_user_id(userId);
     }
 
-    // track user attributes : https://docs.moengage.com/docs/tracking-web-user-attributes
+    // track user attributes : https://developers.moengage.com/hc/en-us/articles/360061179752-Web-SDK-Events-Tracking
     if (traits) {
       each((value, key) => {
         // check if name is present
         if (key === 'name') {
           window.Moengage.add_user_name(value);
         }
-        if (Object.hasOwn(traitsMap, key)) {
-          const method = `add_${traitsMap[key]}`;
+        if (Object.hasOwn(TraitsMap, key)) {
+          const method = `add_${TraitsMap[key]}`;
           window.Moengage[method](value);
         } else {
           window.Moengage.add_user_attribute(key, value);
@@ -164,12 +123,12 @@ class MoEngage {
     }
   }
 
-  // We are destroying the session if userId is changed or initialUserId is not empty and userId is empty
+  // We are destroying the session if userId is changed or currentUserId is not empty and userId is empty
   // This is a log out scenario
   shouldResetSession(userId) {
     return (
-      (this.initialUserId !== '' && this.initialUserId !== userId) ||
-      (this.initialUserId !== '' && userId === '')
+      (this.currentUserId !== '' && this.currentUserId !== userId) ||
+      (this.currentUserId !== '' && userId === '')
     );
   }
 
@@ -197,15 +156,15 @@ class MoEngage {
   }
 
   processIdentify(userId, traits) {
-    // If initialUserId is empty, set it to the current userId this happens when an anonymous user loggedIn for the first time
-    if (this.initialUserId === '' && userId) {
-      this.initialUserId = userId;
+    // If currentUserId is empty, set it to the current userId this happens when an anonymous user loggedIn for the first time
+    if (this.currentUserId === '' && userId) {
+      this.currentUserId = userId;
     }
 
     const userAttributes = {};
     each((value, key) => {
-      if (Object.hasOwn(identifyUserPropertiesMap, key)) {
-        const method = identifyUserPropertiesMap[key];
+      if (Object.hasOwn(IdentifyUserPropertiesMap, key)) {
+        const method = IdentifyUserPropertiesMap[key];
         userAttributes[method] = value;
       } else {
         userAttributes[key] = value; // For any other attributes not in the map

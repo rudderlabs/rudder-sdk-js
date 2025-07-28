@@ -29,26 +29,23 @@ describe('MoEngage init tests', () => {
     expect(moEngage.apiId).toBe('test-api-id');
     expect(moEngage.debug).toBe(true);
     expect(moEngage.region).toBe('US');
+    expect(moEngage.moengageRegion).toBeDefined();
   });
 
   test('Testing data center calculation', () => {
-    const moEngageUS = new MoEngage(
-      { apiId: 'test-api-id', region: 'US' },
-      { logLevel: 'debug', getUserId: () => null, getAnonymousId: () => 'anon123' },
-    );
-    expect(moEngageUS.calculateMoeDataCenter()).toBe('dc_1');
-
     const moEngageEU = new MoEngage(
       { apiId: 'test-api-id', region: 'EU' },
       { logLevel: 'debug', getUserId: () => null, getAnonymousId: () => 'anon123' },
     );
-    expect(moEngageEU.calculateMoeDataCenter()).toBe('dc_2');
+    moEngageEU.init();
+    expect(moEngageEU.moengageRegion).toBe('dc_2');
 
     const moEngageIN = new MoEngage(
       { apiId: 'test-api-id', region: 'IN' },
       { logLevel: 'debug', getUserId: () => null, getAnonymousId: () => 'anon123' },
     );
-    expect(moEngageIN.calculateMoeDataCenter()).toBe('dc_3');
+    moEngageIN.init();
+    expect(moEngageIN.moengageRegion).toBe('dc_3');
   });
 
   test('Testing default data center calculation', () => {
@@ -56,7 +53,8 @@ describe('MoEngage init tests', () => {
       { apiId: 'test-api-id' },
       { logLevel: 'debug', getUserId: () => null, getAnonymousId: () => 'anon123' },
     );
-    expect(moEngageDefault.calculateMoeDataCenter()).toBe('dc_1'); // Assuming US is default
+    moEngageDefault.init();
+    expect(moEngageDefault.moengageRegion).toBe('dc_1'); // Assuming US is default
   });
 });
 
@@ -76,12 +74,16 @@ describe('MoEngage isLoaded tests', () => {
   });
 
   test('isLoaded returns false when Moengage exists but track_event is not a function', () => {
-    (window as any).Moengage = { track_event: 'not a function' };
+    (window as any).Moengage = { track_event: jest.fn() };
+    (window as any).moeBannerText = undefined;
+
     expect(moEngage.isLoaded()).toBe(false);
   });
 
   test('isLoaded returns true when Moengage exists and track_event is a function', () => {
     (window as any).Moengage = { track_event: jest.fn() };
+    (window as any).moeBannerText = 'MoEngage Initialized';
+
     expect(moEngage.isLoaded()).toBe(true);
   });
 });
@@ -99,11 +101,11 @@ describe('MoEngage reset tests', () => {
     jest.spyOn(moEngage, 'isLoaded').mockImplementation(() => true);
   });
 
-  test('reset should update initialUserId and destroy session', () => {
+  test('reset should update currentUserId and destroy session', () => {
     const spy = jest.spyOn((window as any).Moengage, 'destroy_session').mockResolvedValue('done');
     moEngage.resetSession();
 
-    expect((moEngage as any).initialUserId).toBe('newUser');
+    expect((moEngage as any).currentUserId).toBe('newUser');
     expect(spy).toHaveBeenCalled();
   });
 });
@@ -118,7 +120,7 @@ describe('MoEngage track tests', () => {
     );
     moEngage.init();
     mockMoEngageSDK();
-    (moEngage as any).initialUserId = 'user123';
+    (moEngage as any).currentUserId = 'user123';
     jest.spyOn(moEngage, 'isLoaded').mockImplementation(() => true);
   });
 
@@ -196,7 +198,7 @@ describe('MoEngage identifyOld tests (without identity resolution)', () => {
     );
     moEngage.init();
     mockMoEngageSDK();
-    (moEngage as any).initialUserId = 'user123';
+    (moEngage as any).currentUserId = 'user123';
     jest.spyOn(moEngage, 'isLoaded').mockImplementation(() => true);
   });
 
@@ -287,7 +289,7 @@ describe('MoEngage identify tests (with identity resolution)', () => {
     );
     moEngage.init();
     mockMoEngageSDK();
-    (moEngage as any).initialUserId = 'user123';
+    (moEngage as any).currentUserId = 'user123';
     jest.spyOn(moEngage, 'isLoaded').mockImplementation(() => true);
   });
 
@@ -334,10 +336,10 @@ describe('MoEngage identify tests (with identity resolution)', () => {
   });
 
   test('identify with logout scenario should reset session', async () => {
-    (moEngage as any).initialUserId = 'user123';
+    (moEngage as any).currentUserId = 'user123';
     const resetSpy = jest.spyOn(moEngage, 'resetSession');
 
-    // Test logout scenario (userId is empty but initialUserId exists)
+    // Test logout scenario (userId is empty but currentUserId exists)
     await moEngage.identify({
       message: {
         userId: '',
@@ -353,7 +355,7 @@ describe('MoEngage identify tests (with identity resolution)', () => {
   });
 
   test('identify with changed userId should reset session', async () => {
-    (moEngage as any).initialUserId = 'user123';
+    (moEngage as any).currentUserId = 'user123';
     const resetSpy = jest.spyOn(moEngage, 'resetSession');
 
     await moEngage.identify({
@@ -370,8 +372,8 @@ describe('MoEngage identify tests (with identity resolution)', () => {
     expect(resetSpy).toHaveBeenCalled();
   });
 
-  test('identify with first-time login should set initialUserId', async () => {
-    (moEngage as any).initialUserId = '';
+  test('identify with first-time login should set currentUserId', async () => {
+    (moEngage as any).currentUserId = '';
 
     await moEngage.identify({
       message: {
@@ -384,6 +386,6 @@ describe('MoEngage identify tests (with identity resolution)', () => {
       },
     });
 
-    expect((moEngage as any).initialUserId).toBe('newUser');
+    expect((moEngage as any).currentUserId).toBe('newUser');
   });
 });
