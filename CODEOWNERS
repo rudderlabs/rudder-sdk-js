@@ -7,6 +7,5 @@
 /packages/analytics-js-integrations/README.md @rudderlabs/integrations
 /packages/analytics-js-integrations/.size-limit.js @rudderlabs/integrations
 
-/packages/analytics-js-common/src/constants/integrations/ @rudderlabs/integrations
 /assets/integrations/AdobeAnalytics/ @rudderlabs/integrations
 /examples/integrations/ @rudderlabs/integrations
