@@ -55,7 +55,7 @@ class MoEngage {
 
     const { event, properties, userId } = rudderElement.message;
     if (userId && this.currentUserId !== userId) {
-      this.resetSession().then(() => {
+      this.resetSession(userId).then(() => {
         // Continue after reset is complete
         this.trackEvent(event, properties);
       });
@@ -77,8 +77,8 @@ class MoEngage {
     }
   }
 
-  resetSession() {
-    this.currentUserId = this.analytics.getUserId();
+  resetSession(userId) {
+    this.currentUserId = userId;
     return window.Moengage.destroy_session();
   }
 
@@ -91,7 +91,7 @@ class MoEngage {
 
     // check if user id is same or not
     if (this.currentUserId !== userId) {
-      this.resetSession().then(() => {
+      this.resetSession(userId).then(() => {
         // Continue after reset is complete
         this.processIdentifyOld(userId, traits);
       });
@@ -138,24 +138,24 @@ class MoEngage {
       return;
     }
 
-    const { userId, context } = rudderElement.message;
+    const { userId, context, anonymousId } = rudderElement.message;
     let traits = null;
     if (context) {
       traits = context.traits;
     }
 
     if (this.shouldResetSession(userId)) {
-      this.resetSession().then(() => {
+      this.resetSession(userId).then(() => {
         // Continue after reset is complete
-        this.processIdentify(userId, traits);
+        this.processIdentify(userId, anonymousId, traits);
       });
       return;
     }
 
-    this.processIdentify(userId, traits);
+    this.processIdentify(userId, anonymousId, traits);
   }
 
-  processIdentify(userId, traits) {
+  processIdentify(userId, anonymousId, traits) {
     // If currentUserId is empty, set it to the current userId this happens when an anonymous user loggedIn for the first time
     if (this.currentUserId === '' && userId) {
       this.currentUserId = userId;
@@ -172,7 +172,7 @@ class MoEngage {
     }, traits);
 
     const payload = {
-      anonymousId: this.analytics.getAnonymousId(),
+      ...(anonymousId && { anonymousId }),
       ...(userId && { uid: userId }),
       ...userAttributes,
     };

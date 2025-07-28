@@ -22,7 +22,7 @@ describe('MoEngage init tests', () => {
     mockMoEngageSDK();
     const moEngage = new MoEngage(
       { apiId: 'test-api-id', debug: true, region: 'US' },
-      { logLevel: 'debug', getUserId: () => 'user123', getAnonymousId: () => 'anon123' },
+      { logLevel: 'debug', getUserId: () => 'user123' },
     );
     moEngage.init();
     expect(moEngage.name).toBe('MOENGAGE');
@@ -35,14 +35,14 @@ describe('MoEngage init tests', () => {
   test('Testing data center calculation', () => {
     const moEngageEU = new MoEngage(
       { apiId: 'test-api-id', region: 'EU' },
-      { logLevel: 'debug', getUserId: () => null, getAnonymousId: () => 'anon123' },
+      { logLevel: 'debug', getUserId: () => null },
     );
     moEngageEU.init();
     expect(moEngageEU.moengageRegion).toBe('dc_2');
 
     const moEngageIN = new MoEngage(
       { apiId: 'test-api-id', region: 'IN' },
-      { logLevel: 'debug', getUserId: () => null, getAnonymousId: () => 'anon123' },
+      { logLevel: 'debug', getUserId: () => null },
     );
     moEngageIN.init();
     expect(moEngageIN.moengageRegion).toBe('dc_3');
@@ -51,7 +51,7 @@ describe('MoEngage init tests', () => {
   test('Testing default data center calculation', () => {
     const moEngageDefault = new MoEngage(
       { apiId: 'test-api-id' },
-      { logLevel: 'debug', getUserId: () => null, getAnonymousId: () => 'anon123' },
+      { logLevel: 'debug', getUserId: () => null },
     );
     moEngageDefault.init();
     expect(moEngageDefault.moengageRegion).toBe('dc_1'); // Assuming US is default
@@ -64,7 +64,7 @@ describe('MoEngage isLoaded tests', () => {
   beforeEach(() => {
     moEngage = new MoEngage(
       { apiId: 'test-api-id', debug: true },
-      { logLevel: 'debug', getUserId: () => 'user123', getAnonymousId: () => 'anon123' },
+      { logLevel: 'debug', getUserId: () => 'user123' },
     );
   });
 
@@ -94,7 +94,7 @@ describe('MoEngage reset tests', () => {
   beforeEach(() => {
     moEngage = new MoEngage(
       { apiId: 'test-api-id', debug: true },
-      { logLevel: 'debug', getUserId: () => 'newUser', getAnonymousId: () => 'anon123' },
+      { logLevel: 'debug', getUserId: () => 'newUser' },
     );
     moEngage.init();
     mockMoEngageSDK();
@@ -103,7 +103,7 @@ describe('MoEngage reset tests', () => {
 
   test('reset should update currentUserId and destroy session', () => {
     const spy = jest.spyOn((window as any).Moengage, 'destroy_session').mockResolvedValue('done');
-    moEngage.resetSession();
+    moEngage.resetSession('newUser');
 
     expect((moEngage as any).currentUserId).toBe('newUser');
     expect(spy).toHaveBeenCalled();
@@ -116,7 +116,7 @@ describe('MoEngage track tests', () => {
   beforeEach(() => {
     moEngage = new MoEngage(
       { apiId: 'test-api-id', debug: true },
-      { logLevel: 'debug', getUserId: () => 'user123', getAnonymousId: () => 'anon123' },
+      { logLevel: 'debug', getUserId: () => 'user123' },
     );
     moEngage.init();
     mockMoEngageSDK();
@@ -194,7 +194,7 @@ describe('MoEngage identifyOld tests (without identity resolution)', () => {
   beforeEach(() => {
     moEngage = new MoEngage(
       { apiId: 'test-api-id', debug: true, identityResolution: false },
-      { logLevel: 'debug', getUserId: () => 'user123', getAnonymousId: () => 'anon123' },
+      { logLevel: 'debug', getUserId: () => 'user123' },
     );
     moEngage.init();
     mockMoEngageSDK();
@@ -285,7 +285,7 @@ describe('MoEngage identify tests (with identity resolution)', () => {
   beforeEach(() => {
     moEngage = new MoEngage(
       { apiId: 'test-api-id', debug: true, identityResolution: true },
-      { logLevel: 'debug', getUserId: () => 'user123', getAnonymousId: () => 'anon123' },
+      { logLevel: 'debug', getUserId: () => 'user123' },
     );
     moEngage.init();
     mockMoEngageSDK();
@@ -298,6 +298,7 @@ describe('MoEngage identify tests (with identity resolution)', () => {
     await moEngage.identify({
       message: {
         userId: 'user123',
+        anonymousId: 'anon123',
         context: {
           traits: {
             email: 'test@example.com',
