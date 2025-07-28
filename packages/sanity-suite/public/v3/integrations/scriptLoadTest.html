@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link
+    rel="icon"
+    href="https://www.rudderstack.com/favicon.ico"
+    type="image/x-icon"
+    sizes="48x48" />
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>RudderStack JS SDK v3 - Test All Integrations</title>
+    <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+    integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N"
+    crossorigin="anonymous" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
+      integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+      crossorigin="anonymous"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct"
+      crossorigin="anonymous"></script>
+    <style>
+      .collapsed-row pre {
+        height: 124px;
+        overflow: hidden;
+      }
+
+      .collapsed-row .table-heading pre {
+        height: 0px;
+        overflow: hidden;
+      }
+
+      .sortable-header:hover {
+        background-color: rgba(0, 0, 0, 0.5) !important;
+        color: #000000 !important;
+        transition: background-color 0.15s ease;
+      }
+
+      .sortable-header {
+        user-select: none;
+      }
+    </style>
+    <script>
+      (function() {
+        "use strict";
+        window.RudderSnippetVersion = "3.1.0";
+        var identifier = "rudderanalytics";
+        if (!window[identifier]) {
+          window[identifier] = [];
+        }
+        var rudderanalytics = window[identifier];
+        if (Array.isArray(rudderanalytics)) {
+          if (rudderanalytics.snippetExecuted === true && window.console && console.error) {
+            console.error("RudderStack JavaScript SDK snippet included more than once.");
+          } else {
+            rudderanalytics.snippetExecuted = true;
+            window.rudderAnalyticsBuildType = "legacy";
+            var sdkBaseUrl = "https://cdn.rudderlabs.com";
+            var sdkVersion = "v3";
+            var sdkFileName = "rsa.min.js";
+            var scriptLoadingMode = "async";
+            var methods = [ "setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "setAnonymousId", "startSession", "endSession", "consent", "addCustomIntegration" ];
+            for (var i = 0; i < methods.length; i++) {
+              var method = methods[i];
+              rudderanalytics[method] = function(methodName) {
+                return function() {
+                  if (Array.isArray(window[identifier])) {
+                    rudderanalytics.push([ methodName ].concat(Array.prototype.slice.call(arguments)));
+                  } else {
+                    var _methodName;
+                    (_methodName = window[identifier][methodName]) === null || _methodName === void 0 || _methodName.apply(window[identifier], arguments);
+                  }
+                };
+              }(method);
+            }
+            try {
+              new Function('class Test{field=()=>{};test({prop=[]}={}){return prop?(prop?.property??[...prop]):import("");}}');
+              window.rudderAnalyticsBuildType = "modern";
+            } catch (e) {}
+            var head = document.head || document.getElementsByTagName("head")[0];
+            var body = document.body || document.getElementsByTagName("body")[0];
+            window.rudderAnalyticsAddScript = function(url, extraAttributeKey, extraAttributeVal) {
+              var scriptTag = document.createElement("script");
+              scriptTag.src = url;
+              scriptTag.setAttribute("data-loader", "RS_JS_SDK");
+              if (extraAttributeKey && extraAttributeVal) {
+                scriptTag.setAttribute(extraAttributeKey, extraAttributeVal);
+              }
+              if (scriptLoadingMode === "async") {
+                scriptTag.async = true;
+              } else if (scriptLoadingMode === "defer") {
+                scriptTag.defer = true;
+              }
+              if (head) {
+                head.insertBefore(scriptTag, head.firstChild);
+              } else {
+                body.insertBefore(scriptTag, body.firstChild);
+              }
+            };
+            window.rudderAnalyticsMount = function() {
+              (function() {
+                if (typeof globalThis === "undefined") {
+                  var getGlobal = function getGlobal() {
+                    if (typeof self !== "undefined") {
+                      return self;
+                    }
+                    if (typeof window !== "undefined") {
+                      return window;
+                    }
+                    return null;
+                  };
+                  var global = getGlobal();
+                  if (global) {
+                    Object.defineProperty(global, "globalThis", {
+                      value: global,
+                      configurable: true
+                    });
+                  }
+                }
+              })();
+              window.rudderAnalyticsAddScript("".concat(sdkBaseUrl, "/").concat(sdkVersion, "/").concat(window.rudderAnalyticsBuildType, "/").concat(sdkFileName), "data-rsa-write-key", "1weqc5iqxRkpaUXHgDgYo3g34mg");
+            };
+            if (typeof Promise === "undefined" || typeof globalThis === "undefined") {
+              window.rudderAnalyticsAddScript("https://polyfill-fastly.io/v3/polyfill.min.js?version=3.111.0&features=Symbol%2CPromise&callback=rudderAnalyticsMount");
+            } else {
+              window.rudderAnalyticsMount();
+            }
+          }
+        }
+      })();
+
+      async function getAllNonCloudModeSupportedDestinations(baseControlPlaneUrl = 'https://api.rudderstack.com') {
+        console.debug('Fetching all destination definitions...');
+        const response = await fetch(`${baseControlPlaneUrl}/destination-definitions`);
+        const data = await response.json();
+
+        console.debug('Raw destination definitions fetched:', data);
+
+        const filteredDestinations = data.filter(item => item.category === null && (item.config.supportedConnectionModes?.web?.includes("device") || item.config.supportedConnectionModes?.web?.includes("hybrid")));
+
+        console.debug('Web device and hybrid mode supported destinations:', filteredDestinations);
+
+        return filteredDestinations;
+      }
+
+      function getDestinationsForSDKConfiguration(destinationDefinitions) {
+        const destinationsForSDKConfiguration = destinationDefinitions.map(item => ({
+          id: `dest_${item.id}_${Date.now()}`, // Generate unique ID
+          destinationDefinition: {
+            name: item.name,
+            displayName: item.displayName
+          },
+          config: {
+            connectionMode: 'device',
+          },
+          destinationDefinitionId: item.id,
+          enabled: true,
+          name: item.displayName,
+        }));
+
+        console.debug('Generated destinations for SDK configuration:', destinationsForSDKConfiguration);
+
+        return destinationsForSDKConfiguration;
+      }
+
+      function getVisualizerData(destinationDefinitions) {
+        const visualizerData = destinationDefinitions.map((item, index) => ({
+          sno: index + 1,
+          id: item.id,
+          name: item.name,
+          displayName: item.displayName,
+          isBeta: item.options?.isBeta === true,
+          lastUpdated: item.updatedAt,
+          featureFlag: item.options?.hidden?.featureFlagName?.replace('AMP_', ''),
+        }));
+
+        return visualizerData;
+      }
+
+      function loadSDK(destinations, baseControlPlaneUrl = 'https://api.rudderstack.com') {
+        try {
+          // Load SDK with filtered destinations
+          const loadOptions = {
+            logLevel: 'DEBUG',
+            configUrl: baseControlPlaneUrl,
+            getSourceConfig: () => ({
+              source: {
+                id: 'some_id',
+                config: {},
+                destinations
+              }
+            })
+          };
+
+          rudderanalytics.load('1weqc5iqxRkpaUXHgDgYo3g34mg', 'https://rudderstacygnn.dataplane.rudderstack.com', loadOptions);
+        } catch (error) {
+          console.error('Error loading SDK:', error);
+        }
+      }
+
+      // Global variables for data management
+      let allVisualizerData = [];
+      let filteredVisualizerData = [];
+
+      // Current sort state - start with lastUpdated descending as default
+      let currentSortBy = 'lastUpdated';
+      let currentSortOrder = 'desc';
+
+      // Function to sort by column with 3-state cycle: none -> asc -> desc -> none
+      function sortByColumn(column) {
+        if (currentSortBy === column) {
+          // Cycle through states: asc -> desc -> none
+          if (currentSortOrder === 'asc') {
+            currentSortOrder = 'desc';
+          } else if (currentSortOrder === 'desc') {
+            // Clear sorting - no active sort
+            currentSortBy = null;
+            currentSortOrder = null;
+          }
+        } else {
+          // New column - start with ascending
+          currentSortBy = column;
+          currentSortOrder = 'asc';
+        }
+        filterAndSortData();
+      }
+
+      // Function to filter and sort data
+      function filterAndSortData() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const betaFilter = document.getElementById('betaFilter') ? document.getElementById('betaFilter').value : 'all';
+        const featureFlagFilter = document.getElementById('featureFlagFilter') ? document.getElementById('featureFlagFilter').value : 'all';
+
+        // Filter data
+        filteredVisualizerData = allVisualizerData.filter(item => {
+          const matchesSearch = item.name.toLowerCase().includes(searchTerm) || 
+                               item.displayName.toLowerCase().includes(searchTerm) ||
+                               item.id.toLowerCase().includes(searchTerm);
+          
+          const matchesBeta = betaFilter === 'all' || 
+                             (betaFilter === 'beta' && item.isBeta) ||
+                             (betaFilter === 'stable' && !item.isBeta);
+          
+          const matchesFeatureFlag = featureFlagFilter === 'all' ||
+                                     (featureFlagFilter === 'with' && item.featureFlag) ||
+                                     (featureFlagFilter === 'without' && !item.featureFlag);
+
+          return matchesSearch && matchesBeta && matchesFeatureFlag;
+        });
+
+        // Sort data (only if a sort is active)
+        if (currentSortBy && currentSortOrder) {
+          filteredVisualizerData.sort((a, b) => {
+            let aValue, bValue;
+            
+            switch (currentSortBy) {
+              case 'name':
+                aValue = a.name.toLowerCase();
+                bValue = b.name.toLowerCase();
+                break;
+              case 'displayName':
+                aValue = a.displayName.toLowerCase();
+                bValue = b.displayName.toLowerCase();
+                break;
+              case 'lastUpdated':
+                aValue = new Date(a.lastUpdated);
+                bValue = new Date(b.lastUpdated);
+                break;
+              case 'isBeta':
+                aValue = a.isBeta ? 1 : 0;
+                bValue = b.isBeta ? 1 : 0;
+                break;
+              case 'featureFlag':
+                aValue = a.featureFlag ? 1 : 0;
+                bValue = b.featureFlag ? 1 : 0;
+                break;
+              default:
+                return 0;
+            }
+
+            if (aValue < bValue) return currentSortOrder === 'asc' ? -1 : 1;
+            if (aValue > bValue) return currentSortOrder === 'asc' ? 1 : -1;
+            return 0;
+          });
+        }
+        // If no active sort, data remains in its original API response order
+
+        // Re-number items
+        filteredVisualizerData = filteredVisualizerData.map((item, index) => ({
+          ...item,
+          sno: index + 1
+        }));
+
+        renderTable();
+      }
+
+      // Function to get sort indicator
+      function getSortIndicator(column) {
+        if (!currentSortBy || currentSortBy !== column) {
+          return '<i class="bi bi-arrow-down-up text-muted ml-1" style="font-size: 1em;"></i>';
+        }
+        return currentSortOrder === 'asc' 
+          ? '<i class="bi bi-arrow-up text-white ml-1" style="font-size: 1em;"></i>'
+          : '<i class="bi bi-arrow-down text-white ml-1" style="font-size: 1em;"></i>';
+      }
+
+      // Function to render the table
+      function renderTable() {
+        const tableContainer = document.getElementById('tableContainer');
+        
+        const tableHtml = `
+          <div class="table-responsive">
+            <table class="table table-sm table-striped table-hover table-bordered">
+              <thead class="thead-dark">
+                <tr>
+                  <th scope="col" class="text-center" style="width: 60px;">#</th>
+                  <th scope="col" style="min-width: 200px;">Definition ID</th>
+                  <th scope="col" class="sortable-header" style="min-width: 150px; cursor: pointer;" onclick="sortByColumn('name')">
+                    Name ${getSortIndicator('name')}
+                  </th>
+                  <th scope="col" class="sortable-header" style="min-width: 200px; cursor: pointer;" onclick="sortByColumn('displayName')">
+                    Display Name ${getSortIndicator('displayName')}
+                  </th>
+                  <th scope="col" class="text-center sortable-header" style="width: 100px; cursor: pointer;" onclick="sortByColumn('isBeta')">
+                    Is Beta? ${getSortIndicator('isBeta')}
+                  </th>
+                  <th scope="col" class="sortable-header" style="min-width: 120px; cursor: pointer;" onclick="sortByColumn('featureFlag')">
+                    Feature Flag ${getSortIndicator('featureFlag')}
+                  </th>
+                  <th scope="col" class="sortable-header" style="min-width: 140px; cursor: pointer;" onclick="sortByColumn('lastUpdated')">
+                    Last Updated ${getSortIndicator('lastUpdated')}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                ${filteredVisualizerData.map(item => `
+                  <tr>
+                    <td class="text-center text-muted">${item.sno}</td>
+                    <td><code class="text-primary">${item.id}</code></td>
+                    <td><span class="font-weight-medium">${item.name}</span></td>
+                    <td>${item.displayName}</td>
+                    <td class="text-center">
+                      ${item.isBeta 
+                        ? '<span class="badge badge-warning">Beta</span>' 
+                        : '<span class="badge badge-success">Stable</span>'}
+                    </td>
+                    <td>
+                      ${item.featureFlag 
+                        ? `<code class="text-info">${item.featureFlag}</code>` 
+                        : '<span class="text-muted">N/A</span>'}
+                    </td>
+                    <td class="text-muted small">${new Date(item.lastUpdated).toLocaleString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: true
+                    })}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+        
+        tableContainer.innerHTML = tableHtml;
+      }
+
+      // Function to display results in the UI
+      function displayResults(visualizerData) {
+        allVisualizerData = visualizerData;
+        filteredVisualizerData = [...visualizerData];
+        
+        const resultsContainer = document.getElementById('results');
+        
+        // Display controls and table
+        const resultsHtml = `
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="bi bi-search"></i></span>
+                </div>
+                <input type="text" class="form-control" id="searchInput" placeholder="Search by name, display name, or ID..." onkeyup="filterAndSortData()">
+              </div>
+            </div>
+            <div class="col-md-2">
+              <select class="form-control" id="betaFilter" onchange="filterAndSortData()">
+                <option value="all">All Types</option>
+                <option value="stable">Stable Only</option>
+                <option value="beta">Beta Only</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <select class="form-control" id="featureFlagFilter" onchange="filterAndSortData()">
+                <option value="all">All Flags</option>
+                <option value="with">With Flag</option>
+                <option value="without">No Flag</option>
+              </select>
+            </div>
+            <div class="col-md-2 text-right">
+              <button class="btn btn-outline-secondary" onclick="clearFilters()">
+                <i class="bi bi-arrow-clockwise"></i> Reset
+              </button>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="badge badge-primary badge-pill" id="countBadge">${visualizerData.length} destinations found</span>
+            <small class="text-muted">
+              <i class="bi bi-info-circle"></i> Click column headers to sort
+            </small>
+          </div>
+          <div id="tableContainer"></div>
+        `;
+        
+        resultsContainer.innerHTML = resultsHtml;
+        filterAndSortData(); // Apply default sort on initial load
+      }
+
+      // Function to clear all filters
+      function clearFilters() {
+        document.getElementById('searchInput').value = '';
+        if (document.getElementById('betaFilter')) {
+          document.getElementById('betaFilter').value = 'all';
+        }
+        if (document.getElementById('featureFlagFilter')) {
+          document.getElementById('featureFlagFilter').value = 'all';
+        }
+        currentSortBy = null;
+        currentSortOrder = null;
+        filterAndSortData();
+      }
+
+      // Update count badge
+      function updateCountBadge() {
+        const countBadge = document.getElementById('countBadge');
+        if (countBadge) {
+          countBadge.textContent = `${filteredVisualizerData.length} of ${allVisualizerData.length} destinations`;
+        }
+      }
+
+      // Override filterAndSortData to update count
+      const originalFilterAndSort = filterAndSortData;
+      filterAndSortData = function() {
+        originalFilterAndSort();
+        updateCountBadge();
+      };
+
+      $(document).ready(async function() {
+        const destinations = await getAllNonCloudModeSupportedDestinations();
+
+        // Generate visualizer data
+        const visualizerData = getVisualizerData(destinations);
+
+        // Display results in UI
+        displayResults(visualizerData);
+
+        // Generate destinations for SDK configuration
+        const destinationsForSDKConfiguration = getDestinationsForSDKConfiguration(destinations);
+
+        loadSDK(destinationsForSDKConfiguration);
+      });
+
+      rudderanalytics.ready(function () {
+        console.log('All ready!!!');
+      });
+
+      document.addEventListener('RSA_Initialised', function (e) {
+        console.log('RSA_Initialised', e.detail.analyticsInstance);
+      });
+
+      document.addEventListener('RSA_Ready', function (e) {
+        console.log('RSA_Ready', e.detail.analyticsInstance);
+      });
+    </script>
+    <script>
+      function page() {
+        rudderanalytics.page(
+          'Home',
+          'Cart Viewed',
+          {
+            path: '',
+            referrer: '',
+            search: '',
+            title: '',
+            url: '',
+          },
+          function (rudderElement) {
+            console.log('in page call');
+            document.getElementById('action').innerHTML = 'Page called';
+            document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
+          },
+        );
+      }
+
+      function identify() {
+        rudderanalytics.identify(
+          'customUserID',
+          {
+            name: 'John Doe',
+            title: 'CEO',
+            email: 'name.surname@domain.com',
+            company: 'Company123',
+            phone: '123-456-7890',
+            rating: 'Hot',
+            city: 'Austin',
+            postalCode: '12345',
+            country: 'US',
+            street: 'Sample Address',
+            state: 'TX',
+          },
+          {},
+          function (rudderElement) {
+            console.log('in identify call');
+            document.getElementById('action').innerHTML = 'Identify called';
+            document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
+          },
+        );
+      }
+
+      function track() {
+        rudderanalytics.track(
+          'test track event 1',
+          {
+            revenue: 30,
+            currency: 'USD',
+            user_actual_id: 12345,
+          },
+          function (rudderElement) {
+            console.log('in track call');
+            document.getElementById('action').innerHTML = 'Track called';
+            document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
+          },
+        );
+      }
+
+      function alias() {
+        rudderanalytics.alias('alias-user-id', function (rudderElement) {
+          console.log('alias call');
+          document.getElementById('action').innerHTML = 'Alias called';
+          document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
+        });
+      }
+
+      function group() {
+        rudderanalytics.group(
+          'sample_group_id',
+          {
+            name: 'Apple Inc.',
+            location: 'USA',
+          },
+          function (rudderElement) {
+            console.log('group call');
+            document.getElementById('action').innerHTML = 'Group called';
+            document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
+          },
+        );
+      }
+    </script>
+  </head>
+  <body>
+    <div class="container-xxl">
+      <div class="row px-4">
+        <div class="col" id="testBook">
+          <div class="row g-0 pt-4 pb-2 mb-2 border-bottom" style="background: #ffffff">
+            <div class="col">
+              <h1>RudderStack JS SDK v3 - Test All Integrations</h1>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col mt-4 pt-2 pb-2">
+              <h2>All Non-Cloud Mode Supported Destinations</h2>
+              <p>
+                This page fetches all non-cloud mode supported destination definitions from the RudderStack control plane and uses them to create mock destinations in the SDK configuration.
+              </p>
+              <div id="results"></div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col mt-4 pt-2 pb-2">
+              <h2>Test SDK Functions</h2>
+              <button data-testid="page-btn" onclick="page()" class="btn btn-primary">Page</button>
+              <button data-testid="identify-btn" onclick="identify()" class="btn btn-primary">Identify</button>
+              <button data-testid="track-btn" onclick="track()" class="btn btn-primary">Track</button>
+              <button data-testid="alias-btn" onclick="alias()" class="btn btn-primary">Alias</button>
+              <button data-testid="group-btn" onclick="group()" class="btn btn-primary">Group</button>
+              <p data-testid="action" id="action"></p>
+              <p data-testid="payload" id="rudderElement"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html> 
