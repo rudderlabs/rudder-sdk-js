@@ -188,6 +188,126 @@ describe('MoEngage track tests', () => {
   });
 });
 
+describe('MoEngage track tests with identity resolution enabled', () => {
+  let moEngage: MoEngage;
+
+  beforeEach(() => {
+    moEngage = new MoEngage(
+      { apiId: 'test-api-id', debug: true, identityResolution: true },
+      { logLevel: 'debug', getUserId: () => 'user123' },
+    );
+    moEngage.init();
+    mockMoEngageSDK();
+    (moEngage as any).currentUserId = 'user123';
+    jest.spyOn(moEngage, 'isLoaded').mockImplementation(() => true);
+  });
+
+  test('track event with identity resolution enabled should work normally', () => {
+    const spy = jest.spyOn((window as any).Moengage, 'track_event');
+    moEngage.track({
+      message: {
+        event: 'Test Event',
+        properties: {
+          category: 'test',
+          value: 100,
+        },
+        userId: 'user123',
+      },
+    });
+
+    expect(spy).toHaveBeenCalledWith('Test Event', {
+      category: 'test',
+      value: 100,
+    });
+  });
+
+  test('track event with different userId should reset session when identity resolution is enabled', () => {
+    const resetSpy = jest.spyOn(moEngage, 'resetSession');
+    moEngage.track({
+      message: {
+        event: 'Test Event',
+        userId: 'differentUser',
+      },
+    });
+
+    expect(resetSpy).toHaveBeenCalledWith('differentUser');
+  });
+
+  test('track event without userId should not reset session when identity resolution is enabled', () => {
+    const resetSpy = jest.spyOn(moEngage, 'resetSession');
+    moEngage.track({
+      message: {
+        event: 'Test Event',
+        properties: {
+          category: 'test',
+        },
+      },
+    });
+
+    expect(resetSpy).not.toHaveBeenCalled();
+  });
+});
+
+describe('MoEngage track tests with identity resolution disabled', () => {
+  let moEngage: MoEngage;
+
+  beforeEach(() => {
+    moEngage = new MoEngage(
+      { apiId: 'test-api-id', debug: true, identityResolution: false },
+      { logLevel: 'debug', getUserId: () => 'user123' },
+    );
+    moEngage.init();
+    mockMoEngageSDK();
+    (moEngage as any).currentUserId = 'user123';
+    jest.spyOn(moEngage, 'isLoaded').mockImplementation(() => true);
+  });
+
+  test('track event with identity resolution disabled should work normally', () => {
+    const spy = jest.spyOn((window as any).Moengage, 'track_event');
+    moEngage.track({
+      message: {
+        event: 'Test Event',
+        properties: {
+          category: 'test',
+          value: 100,
+        },
+        userId: 'user123',
+      },
+    });
+
+    expect(spy).toHaveBeenCalledWith('Test Event', {
+      category: 'test',
+      value: 100,
+    });
+  });
+
+  test('track event with different userId should reset session when identity resolution is disabled', () => {
+    const resetSpy = jest.spyOn(moEngage, 'resetSession');
+    moEngage.track({
+      message: {
+        event: 'Test Event',
+        userId: 'differentUser',
+      },
+    });
+
+    expect(resetSpy).toHaveBeenCalledWith('differentUser');
+  });
+
+  test('track event without userId should not reset session when identity resolution is disabled', () => {
+    const resetSpy = jest.spyOn(moEngage, 'resetSession');
+    moEngage.track({
+      message: {
+        event: 'Test Event',
+        properties: {
+          category: 'test',
+        },
+      },
+    });
+
+    expect(resetSpy).not.toHaveBeenCalled();
+  });
+});
+
 describe('MoEngage identifyOld tests (without identity resolution)', () => {
   let moEngage: MoEngage;
 

@@ -46,7 +46,21 @@ class MoEngage {
     return this.isLoaded();
   }
 
-  track(rudderElement) {
+  // We are destroying the session if userId is changed or currentUserId is not empty and userId is empty
+  // This is a log out scenario
+  shouldResetSession(userId) {
+    return (
+      (userId && this.currentUserId !== '' && this.currentUserId !== userId) ||
+      (this.currentUserId !== '' && userId === '')
+    );
+  }
+
+  resetSession(userId) {
+    this.currentUserId = userId;
+    return window.Moengage.destroy_session();
+  }
+
+  trackOld(rudderElement) {
     // Check if the user id is same as previous session if not a new session will start
     if (!rudderElement.message) {
       logger.error('Payload not correct');
@@ -55,6 +69,28 @@ class MoEngage {
 
     const { event, properties, userId } = rudderElement.message;
     if (userId && this.currentUserId !== userId) {
+      this.resetSession(userId).then(() => {
+        // Continue after reset is complete
+        this.trackEvent(event, properties);
+      });
+      return;
+    }
+    this.trackEvent(event, properties);
+  }
+
+  track(rudderElement) {
+    if (!this.identityResolution) {
+      this.trackOld(rudderElement);
+      return;
+    }
+    // Check if the user id is same as previous session if not a new session will start
+    if (!rudderElement.message) {
+      logger.error('Payload not correct');
+      return;
+    }
+
+    const { event, properties, userId } = rudderElement.message;
+    if (this.shouldResetSession(userId)) {
       this.resetSession(userId).then(() => {
         // Continue after reset is complete
         this.trackEvent(event, properties);
@@ -75,11 +111,6 @@ class MoEngage {
     } else {
       window.Moengage.track_event(event);
     }
-  }
-
-  resetSession(userId) {
-    this.currentUserId = userId;
-    return window.Moengage.destroy_session();
   }
 
   identifyOld(rudderElement) {
@@ -121,15 +152,6 @@ class MoEngage {
         }
       }, traits);
     }
-  }
-
-  // We are destroying the session if userId is changed or currentUserId is not empty and userId is empty
-  // This is a log out scenario
-  shouldResetSession(userId) {
-    return (
-      (this.currentUserId !== '' && this.currentUserId !== userId) ||
-      (this.currentUserId !== '' && userId === '')
-    );
   }
 
   identify(rudderElement) {
