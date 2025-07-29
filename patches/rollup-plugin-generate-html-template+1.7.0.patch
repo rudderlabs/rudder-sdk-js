@@ -1,5 +1,5 @@
 diff --git a/node_modules/rollup-plugin-generate-html-template/dist/rollup-plugin-generate-html-template.js b/node_modules/rollup-plugin-generate-html-template/dist/rollup-plugin-generate-html-template.js
-index 7935008..f9d49c8 100644
+index 7935008..e61b8d7 100644
 --- a/node_modules/rollup-plugin-generate-html-template/dist/rollup-plugin-generate-html-template.js
 +++ b/node_modules/rollup-plugin-generate-html-template/dist/rollup-plugin-generate-html-template.js
 @@ -3441,7 +3441,9 @@ function htmlTemplate(options = {}) {
@@ -39,12 +39,12 @@ index 7935008..f9d49c8 100644
            const finalTarget = path.join(targetDir, targetFile);
            await lib.ensureFile(finalTarget);
 -          await lib.writeFile(finalTarget, injected);
-+          await lib.writeFile(finalTarget, noInject ? buffer.toString("utf8") : injected);
++          await lib.writeFile(finalTarget, noInject ? tmpl : injected);
            resolve();
          } catch (e) {
            reject(e);
 diff --git a/node_modules/rollup-plugin-generate-html-template/dist/rollup-plugin-generate-html-template.module.js b/node_modules/rollup-plugin-generate-html-template/dist/rollup-plugin-generate-html-template.module.js
-index 81116b3..3461132 100644
+index 81116b3..3133201 100644
 --- a/node_modules/rollup-plugin-generate-html-template/dist/rollup-plugin-generate-html-template.module.js
 +++ b/node_modules/rollup-plugin-generate-html-template/dist/rollup-plugin-generate-html-template.module.js
 @@ -3437,7 +3437,8 @@ function htmlTemplate(options = {}) {
@@ -62,7 +62,7 @@ index 81116b3..3461132 100644
            const finalTarget = path.join(targetDir, targetFile);
            await lib.ensureFile(finalTarget);
 -          await lib.writeFile(finalTarget, injected);
-+          await lib.writeFile(finalTarget, noInject ? buffer.toString("utf8") : injected);
++          await lib.writeFile(finalTarget, noInject ? tmpl : injected);
            resolve();
          } catch (e) {
            reject(e);

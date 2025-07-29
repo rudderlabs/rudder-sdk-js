@@ -62,8 +62,8 @@
           } else {
             rudderanalytics.snippetExecuted = true;
             window.rudderAnalyticsBuildType = "legacy";
-            var sdkBaseUrl = "https://cdn.rudderlabs.com";
-            var sdkVersion = "v3";
+            var sdkBaseUrl = "__BASE_CDN_URL__";
+            var sdkVersion = "__CDN_VERSION_PATH__";
             var sdkFileName = "rsa.min.js";
             var scriptLoadingMode = "async";
             var methods = [ "setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "setAnonymousId", "startSession", "endSession", "consent", "addCustomIntegration" ];
@@ -125,7 +125,7 @@
                   }
                 }
               })();
-              window.rudderAnalyticsAddScript("".concat(sdkBaseUrl, "/").concat(sdkVersion, "/").concat(window.rudderAnalyticsBuildType, "/").concat(sdkFileName), "data-rsa-write-key", "1weqc5iqxRkpaUXHgDgYo3g34mg");
+              window.rudderAnalyticsAddScript("".concat(sdkBaseUrl, "/").concat(sdkVersion, "/").concat(window.rudderAnalyticsBuildType, "/").concat(sdkFileName), "data-rsa-write-key", "__WRITE_KEY__");
             };
             if (typeof Promise === "undefined" || typeof globalThis === "undefined") {
               window.rudderAnalyticsAddScript("https://polyfill-fastly.io/v3/polyfill.min.js?version=3.111.0&features=Symbol%2CPromise&callback=rudderAnalyticsMount");
@@ -199,7 +199,7 @@
             })
           };
 
-          rudderanalytics.load('1weqc5iqxRkpaUXHgDgYo3g34mg', 'https://rudderstacygnn.dataplane.rudderstack.com', loadOptions);
+          rudderanalytics.load('__WRITE_KEY__', '__DATAPLANE_URL__', loadOptions);
         } catch (error) {
           console.error('Error loading SDK:', error);
         }
@@ -329,7 +329,7 @@
                     Display Name ${getSortIndicator('displayName')}
                   </th>
                   <th scope="col" class="text-center sortable-header" style="width: 100px; cursor: pointer;" onclick="sortByColumn('isBeta')">
-                    Is Beta? ${getSortIndicator('isBeta')}
+                    Type ${getSortIndicator('isBeta')}
                   </th>
                   <th scope="col" class="sortable-header" style="min-width: 120px; cursor: pointer;" onclick="sortByColumn('featureFlag')">
                     Feature Flag ${getSortIndicator('featureFlag')}
@@ -455,7 +455,7 @@
       };
 
       $(document).ready(async function() {
-        const destinations = await getAllNonCloudModeSupportedDestinations();
+        const destinations = await getAllNonCloudModeSupportedDestinations('__CONFIG_SERVER_HOST__');
 
         // Generate visualizer data
         const visualizerData = getVisualizerData(destinations);
