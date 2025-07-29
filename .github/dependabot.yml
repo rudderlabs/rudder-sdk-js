@@ -3,8 +3,13 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "cron"
+      # every wednesday at 00:01
+      cronjob: "1 0 * * 3"
     target-branch: "develop"
+    labels:
+      - "dependencies"
+      - "github-actions"
 
   - package-ecosystem: "npm"
     directory: "/"
@@ -33,6 +38,62 @@ updates:
         dependency-type: "production"
 
       npm-major-deps:
+        patterns:
+          - "*"
+        update-types:
+          - "major"
+
+  # All sample applications managed together (excluding integrations)
+  - package-ecosystem: "npm"
+    directories:
+      - "/examples/angular/**/*"
+      - "/examples/nextjs/**/*"
+      - "/examples/reactjs/**/*"
+      - "/examples/gatsby/**/*"
+      - "/examples/serverless/**/*"
+      - "/examples/symfony/**/*"
+    schedule:
+      interval: "cron"
+      # every wednesday at 00:01
+      cronjob: "1 0 * * 3"
+    target-branch: "develop"
+    labels:
+      - "dependencies"
+      - "sample-apps"
+    groups:
+      sample-apps-npm-deps:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+      sample-apps-npm-major-deps:
+        patterns:
+          - "*"
+        update-types:
+          - "major"
+
+  # All integrations sample applications managed together
+  - package-ecosystem: "npm"
+    directories:
+      - "/examples/integrations/**/*"
+    schedule:
+      interval: "cron"
+      # every wednesday at 00:01
+      cronjob: "1 0 * * 3"
+    target-branch: "develop"
+    labels:
+      - "dependencies"
+      - "sample-apps"
+      - "integrations"
+    groups:
+      integrations-sample-apps-npm-deps:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+      integrations-sample-apps-npm-major-deps:
         patterns:
           - "*"
         update-types:
