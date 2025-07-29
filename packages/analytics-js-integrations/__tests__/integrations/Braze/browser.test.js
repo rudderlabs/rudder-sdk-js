@@ -364,6 +364,7 @@ describe('addSdkMetadata', () => {
     braze.addSdkMetadata();
 
     expect(window.braze.addSdkMetadata).toHaveBeenCalledWith([window.braze.BrazeSdkMetadata.CDN]);
+    expect(braze.sdkMetadataAdded).toBe(true);
   });
 
   it('should handle errors gracefully when addSdkMetadata fails', () => {
@@ -374,6 +375,9 @@ describe('addSdkMetadata', () => {
 
     // Should not throw an error
     expect(() => braze.addSdkMetadata()).not.toThrow();
+
+    // Flag should not be set when there's an error
+    expect(braze.sdkMetadataAdded).toBe(false);
 
     consoleSpy.mockRestore();
   });

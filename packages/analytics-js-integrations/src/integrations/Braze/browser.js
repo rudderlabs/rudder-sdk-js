@@ -75,6 +75,7 @@ class Braze {
   addSdkMetadata() {
     try {
       window.braze.addSdkMetadata([window.braze.BrazeSdkMetadata.CDN]);
+      this.sdkMetadataAdded = true;
       logger.debug('Successfully added Braze SDK metadata');
     } catch (error) {
       logger.error('Failed to add SDK metadata:', error);
@@ -140,7 +141,6 @@ class Braze {
     // Add SDK metadata when the integration becomes ready (only once)
     if (!this.sdkMetadataAdded) {
       this.addSdkMetadata();
-      this.sdkMetadataAdded = true;
     }
 
     return this.setUserAlias();
