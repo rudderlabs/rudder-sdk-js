@@ -21,13 +21,13 @@
     "dotenv": "17.2.0",
     "gatsby": "5.14.5",
     "gatsby-plugin-rudderstack": "*",
-    "react": "18.3.1",
-    "react-dom": "18.3.1"
+    "react": "19.1.1",
+    "react-dom": "19.1.1"
   },
   "devDependencies": {
     "@types/node": "24.0.15",
-    "@types/react": "18.3.12",
-    "@types/react-dom": "18.3.1",
+    "@types/react": "19.1.8",
+    "@types/react-dom": "19.1.6",
     "typescript": "5.8.3"
   },
   "overrides": {
