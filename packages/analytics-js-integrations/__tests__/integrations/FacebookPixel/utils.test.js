@@ -918,22 +918,22 @@ describe('merge_function', () => {
 describe('getProductListViewedEventParams_function', () => {
   it('test_null_properties', () => {
     const result = getProductListViewedEventParams(null);
-    expect(result).toEqual({ contentIds: [], contentType: 'product', contents: [] });
+    expect(result).toEqual({});
   });
 
   it('test_undefined_properties', () => {
     const result = getProductListViewedEventParams(undefined);
-    expect(result).toEqual({ contentIds: [], contentType: 'product', contents: [] });
+    expect(result).toEqual({});
   });
 
   it('test_non_object_properties', () => {
     const result = getProductListViewedEventParams('not an object');
-    expect(result).toEqual({ contentIds: [], contentType: 'product', contents: [] });
+    expect(result).toEqual({});
   });
 
   it('test_empty_properties', () => {
     const result = getProductListViewedEventParams({});
-    expect(result).toEqual({ contentIds: [], contentType: 'product', contents: [] });
+    expect(result).toEqual({ contentIds: [], contentType: undefined, contents: [] });
   });
 
   it('test_normal_properties_with_products', () => {

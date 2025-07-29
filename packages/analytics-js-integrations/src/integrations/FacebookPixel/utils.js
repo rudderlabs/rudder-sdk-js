@@ -296,7 +296,7 @@ const getProductContentAndId = (prodId, quantity, price) => {
 const getProductListViewedEventParams = properties => {
   // Add null/undefined check for properties
   if (!properties || typeof properties !== 'object') {
-    return { contentIds: [], contentType: 'product', contents: [] };
+    return {};
   }
   
   let { products, category, quantity, price } = properties;
@@ -315,9 +315,6 @@ const getProductListViewedEventParams = properties => {
       quantity: 1,
     });
     contentType = 'product_group';
-  } else {
-    // Default to 'product' when no contentIds and no category
-    contentType = 'product';
   }
 
   return { contentIds, contentType, contents };
