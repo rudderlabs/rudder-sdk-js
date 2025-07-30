@@ -224,7 +224,7 @@ jobs:
         uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a  # v2.1.1
         env:
           PROJECT_NAME: ${{ format('JS SDK NPM Package{0}', (inputs.environment == 'staging' && ' - Staging') || (inputs.environment == 'development' && ' - Development') || (inputs.environment == 'beta' && ' - Beta') || '') }}
-          NPM_PACKAGE_URL: 'https://www.npmjs.com/package/@rudderstack/analytics-js'
+          NPM_PACKAGE_URL: ${{ format('https://www.npmjs.com/package/@rudderstack/analytics-js/v/{0}', env.CURRENT_VERSION_VALUE) }}
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js@'
           GITHUB_RUN_URL: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
           ACTOR_URL: ${{ format('{0}/{1}', github.server_url, github.actor) }}
@@ -295,7 +295,7 @@ jobs:
         uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a  # v2.1.1
         env:
           PROJECT_NAME: ${{ format('JS SDK Service Worker NPM Package{0}', (inputs.environment == 'staging' && ' - Staging') || (inputs.environment == 'development' && ' - Development') || (inputs.environment == 'beta' && ' - Beta') || '') }}
-          NPM_PACKAGE_URL: 'https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker'
+          NPM_PACKAGE_URL: ${{ format('https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker/v/{0}', env.CURRENT_VERSION_SW_VALUE) }}
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js-service-worker@'
           GITHUB_RUN_URL: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
           ACTOR_URL: ${{ format('{0}/{1}', github.server_url, github.actor) }}
@@ -355,7 +355,7 @@ jobs:
         uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a  # v2.1.1
         env:
           PROJECT_NAME: ${{ format('JS SDK Cookies Utilities{0}', (inputs.environment == 'staging' && ' - Staging') || (inputs.environment == 'development' && ' - Development') || (inputs.environment == 'beta' && ' - Beta') || '') }}
-          NPM_PACKAGE_URL: 'https://www.npmjs.com/package/@rudderstack/analytics-js-cookies'
+          NPM_PACKAGE_URL: ${{ format('https://www.npmjs.com/package/@rudderstack/analytics-js-cookies/v/{0}', env.CURRENT_VERSION_COOKIE_UTILS_VALUE) }}
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js-cookies@'
           GITHUB_RUN_URL: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
           ACTOR_URL: ${{ format('{0}/{1}', github.server_url, github.actor) }}
