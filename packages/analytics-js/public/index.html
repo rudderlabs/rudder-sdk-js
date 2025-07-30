@@ -186,44 +186,96 @@
               loadOptions.configUrl = envConfigUrl;
             }
 
-            rudderanalytics.addCustomIntegration('test-dest-id-1', {
-              init: (destinationConfig, analytics, logger) => {
-                logger.debug('"init" called');
-                
-                logger.debug('Received arguments', destinationConfig, analytics, logger);
-              },
-              isReady: (analytics, logger) => {
-                logger.debug('"isReady" called');
-                
-                logger.debug('Received arguments', analytics, logger);
-                return true;
-              },
-              page: (analytics, logger, rsEvent) => {
-                logger.debug('"page" called');
-                
-                logger.debug('Received arguments', analytics, logger, rsEvent);
-              },
-              track: (analytics, logger, rsEvent) => {
-                logger.debug('"track" called', rsEvent);
-                
-                logger.debug('Received arguments', analytics, logger, rsEvent);
-              },
-              identify: (analytics, logger, message) => {
-                logger.debug('"identify" called', message);
-                
-                logger.debug('Received arguments', analytics, logger, message);
-              },
-              alias: (analytics, logger, message) => {
-                logger.debug('"alias" called', message);
-                
-                logger.debug('Received arguments', analytics, logger, message);
-              },
-              group: (analytics, logger, message) => {
-                logger.debug('"group" called', message);
-                
-                logger.debug('Received arguments', analytics, logger, message);
-              },
-            });
+            const customDeviceModeDestinationId = '__CUSTOM_DEVICE_MODE_DESTINATION_ID__';
+            if (!customDeviceModeDestinationId.startsWith('undefined')) {
+              rudderanalytics.addCustomIntegration(customDeviceModeDestinationId, {
+                init: (destinationConfig, analytics, logger) => {
+                  logger.debug('"init" called');
+                  
+                  logger.debug('Received arguments', destinationConfig, analytics, logger);
+
+                  logger.debug('Session ID', analytics.getSessionId());
+                  logger.debug('Anonymous ID', analytics.getAnonymousId());
+                  logger.debug('User ID', analytics.getUserId());
+                  logger.debug('User Traits', analytics.getUserTraits());
+                  logger.debug('Group ID', analytics.getGroupId());
+                  logger.debug('Group Traits', analytics.getGroupTraits());
+                },
+                isReady: (analytics, logger) => {
+                  logger.debug('"isReady" called');
+                  
+                  logger.debug('Received arguments', analytics, logger);
+
+                  logger.debug('Session ID', analytics.getSessionId());
+                  logger.debug('Anonymous ID', analytics.getAnonymousId());
+                  logger.debug('User ID', analytics.getUserId());
+                  logger.debug('User Traits', analytics.getUserTraits());
+                  logger.debug('Group ID', analytics.getGroupId());
+                  logger.debug('Group Traits', analytics.getGroupTraits());
+                  return true;
+                },
+                page: (analytics, logger, rsEvent) => {
+                  logger.debug('"page" called');
+                  
+                  logger.debug('Received arguments', analytics, logger, rsEvent);
+
+                  logger.debug('Session ID', analytics.getSessionId());
+                  logger.debug('Anonymous ID', analytics.getAnonymousId());
+                  logger.debug('User ID', analytics.getUserId());
+                  logger.debug('User Traits', analytics.getUserTraits());
+                  logger.debug('Group ID', analytics.getGroupId());
+                  logger.debug('Group Traits', analytics.getGroupTraits());
+                },
+                track: (analytics, logger, rsEvent) => {
+                  logger.debug('"track" called');
+                  
+                  logger.debug('Received arguments', analytics, logger, rsEvent);
+
+                  logger.debug('Session ID', analytics.getSessionId());
+                  logger.debug('Anonymous ID', analytics.getAnonymousId());
+                  logger.debug('User ID', analytics.getUserId());
+                  logger.debug('User Traits', analytics.getUserTraits());
+                  logger.debug('Group ID', analytics.getGroupId());
+                  logger.debug('Group Traits', analytics.getGroupTraits());
+                },
+                identify: (analytics, logger, rsEvent) => {
+                  logger.debug('"identify" called');
+                  
+                  logger.debug('Received arguments', analytics, logger, rsEvent);
+
+                  logger.debug('Session ID', analytics.getSessionId());
+                  logger.debug('Anonymous ID', analytics.getAnonymousId());
+                  logger.debug('User ID', analytics.getUserId());
+                  logger.debug('User Traits', analytics.getUserTraits());
+                  logger.debug('Group ID', analytics.getGroupId());
+                  logger.debug('Group Traits', analytics.getGroupTraits());
+                },
+                alias: (analytics, logger, rsEvent) => {
+                  logger.debug('"alias" called');
+                  
+                  logger.debug('Received arguments', analytics, logger, rsEvent);
+
+                  logger.debug('Session ID', analytics.getSessionId());
+                  logger.debug('Anonymous ID', analytics.getAnonymousId());
+                  logger.debug('User ID', analytics.getUserId());
+                  logger.debug('User Traits', analytics.getUserTraits());
+                  logger.debug('Group ID', analytics.getGroupId());
+                  logger.debug('Group Traits', analytics.getGroupTraits());
+                },
+                group: (analytics, logger, rsEvent) => {
+                  logger.debug('"group" called');
+                  
+                  logger.debug('Received arguments', analytics, logger, rsEvent);
+
+                  logger.debug('Session ID', analytics.getSessionId());
+                  logger.debug('Anonymous ID', analytics.getAnonymousId());
+                  logger.debug('User ID', analytics.getUserId());
+                  logger.debug('User Traits', analytics.getUserTraits());
+                  logger.debug('Group ID', analytics.getGroupId());
+                  logger.debug('Group Traits', analytics.getGroupTraits());
+                },
+              });
+            }
 
             rudderanalytics.load('__WRITE_KEY__', '__DATAPLANE_URL__', loadOptions);
           }
