@@ -21,13 +21,13 @@
     "dotenv": "17.2.1",
     "gatsby": "5.14.5",
     "gatsby-plugin-env-variables": "2.3.0",
-    "react": "18.3.1",
-    "react-dom": "18.3.1"
+    "react": "19.1.1",
+    "react-dom": "19.1.1"
   },
   "devDependencies": {
     "@types/node": "24.1.0",
-    "@types/react": "18.3.12",
-    "@types/react-dom": "18.3.1",
+    "@types/react": "19.1.9",
+    "@types/react-dom": "19.1.7",
     "typescript": "5.8.3"
   },
   "overrides": {
