@@ -233,7 +233,25 @@ const getBuildConfig = featureName => ({
     !featureName && htmlTemplate({
       template: 'public/all/index.html',
       target: 'dist/all/index.html',
-      attrs: ['async', 'defer'],
+      noInject: true,
+      replaceVars: {
+        __WRITE_KEY__: process.env.WRITE_KEY,
+        __DATAPLANE_URL__: process.env.DATAPLANE_URL,
+        __CONFIG_SERVER_HOST__: process.env.CONFIG_SERVER_HOST || '',
+        __DEST_SDK_BASE_URL__: getDestinationSDKBaseURL(),
+        __PLUGINS_SDK_BASE_URL__: getPluginsBaseURL(),
+        __BASE_CDN_URL__: baseCdnUrl,
+        __CDN_VERSION_PATH__: `${cdnVersionPath}` || '',
+        __FEATURE__: featureName,
+        __IS_DEV_TESTBOOK__: isDevEnvTestBook,
+        __IS_DMT__: isDMT,
+      },
+    }),
+    // Dedicated htmlTemplate for integrations/verifyIntegrationsLoad.html aggregator (only in main build config)
+    !featureName && htmlTemplate({
+      template: 'public/v3/integrations/verifyIntegrationsLoad.html',
+      target: `${getDistPath()}/integrations/verifyIntegrationsLoad.html`,
+      noInject: true,
       replaceVars: {
         __WRITE_KEY__: process.env.WRITE_KEY,
         __DATAPLANE_URL__: process.env.DATAPLANE_URL,
