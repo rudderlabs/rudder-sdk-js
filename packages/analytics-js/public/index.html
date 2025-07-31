@@ -174,20 +174,28 @@
             };
 
             const envDestSDKBaseURL = '__DEST_SDK_BASE_URL__';
-            if (envDestSDKBaseURL !== '' && envDestSDKBaseURL !== 'undefined' && envDestSDKBaseURL !== '__DEST_SDK_BASE_URL__') {
+            // This is to avoid the build process from replacing the placeholder with the actual value
+            const envDestSDKBaseURLPlaceHolder = '__' + 'DEST_SDK_BASE_URL' + '__';
+            if (envDestSDKBaseURL !== '' && envDestSDKBaseURL !== 'undefined' && envDestSDKBaseURL !== envDestSDKBaseURLPlaceHolder) {
               loadOptions.destSDKBaseURL = envDestSDKBaseURL + window.rudderAnalyticsBuildType + '/js-integrations';
             }
             const envPluginsSDKBaseURL = '__PLUGINS_BASE_URL__';
-            if (envPluginsSDKBaseURL !== '' && envPluginsSDKBaseURL !== 'undefined' && envPluginsSDKBaseURL !== '__PLUGINS_BASE_URL__') {
+            // This is to avoid the build process from replacing the placeholder with the actual value
+            const envPluginsSDKBaseURLPlaceHolder = '__' + 'PLUGINS_BASE_URL' + '__';
+            if (envPluginsSDKBaseURL !== '' && envPluginsSDKBaseURL !== 'undefined' && envPluginsSDKBaseURL !== envPluginsSDKBaseURLPlaceHolder) {
               loadOptions.pluginsSDKBaseURL = envPluginsSDKBaseURL + window.rudderAnalyticsBuildType + '/plugins';
             }
             const envConfigUrl = '__CONFIG_SERVER_HOST__';
-            if (envConfigUrl !== '' && envConfigUrl !== 'undefined' && envConfigUrl !== '__CONFIG_SERVER_HOST__') {
+            // This is to avoid the build process from replacing the placeholder with the actual value
+            const envConfigURLPlaceHolder = '__' + 'CONFIG_SERVER_HOST' + '__';
+            if (envConfigUrl !== '' && envConfigUrl !== 'undefined' && envConfigUrl !== envConfigURLPlaceHolder) {
               loadOptions.configUrl = envConfigUrl;
             }
 
             const customDeviceModeDestinationId = '__CUSTOM_DEVICE_MODE_DESTINATION_ID__';
-            if (customDeviceModeDestinationId !== '' && customDeviceModeDestinationId !== 'undefined' && customDeviceModeDestinationId !== '__CUSTOM_DEVICE_MODE_DESTINATION_ID__') {
+            // This is to avoid the build process from replacing the placeholder with the actual value
+            const customDeviceModeDestinationIdPlaceHolder = '__' + 'CUSTOM_DEVICE_MODE_DESTINATION_ID' + '__';
+            if (customDeviceModeDestinationId !== '' && customDeviceModeDestinationId !== 'undefined' && customDeviceModeDestinationId !== customDeviceModeDestinationIdPlaceHolder) {
               rudderanalytics.addCustomIntegration(customDeviceModeDestinationId, {
                 init: (destinationConfig, analytics, logger) => {
                   logger.debug('"init" called');
