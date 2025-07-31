@@ -174,20 +174,20 @@
             };
 
             const envDestSDKBaseURL = '__DEST_SDK_BASE_URL__';
-            if (!envDestSDKBaseURL.startsWith('undefined')) {
+            if (envDestSDKBaseURL !== '' && envDestSDKBaseURL !== 'undefined' && envDestSDKBaseURL !== '__DEST_SDK_BASE_URL__') {
               loadOptions.destSDKBaseURL = envDestSDKBaseURL + window.rudderAnalyticsBuildType + '/js-integrations';
             }
             const envPluginsSDKBaseURL = '__PLUGINS_BASE_URL__';
-            if (!envPluginsSDKBaseURL.startsWith('undefined')) {
+            if (envPluginsSDKBaseURL !== '' && envPluginsSDKBaseURL !== 'undefined' && envPluginsSDKBaseURL !== '__PLUGINS_BASE_URL__') {
               loadOptions.pluginsSDKBaseURL = envPluginsSDKBaseURL + window.rudderAnalyticsBuildType + '/plugins';
             }
             const envConfigUrl = '__CONFIG_SERVER_HOST__';
-            if (!envConfigUrl.startsWith('undefined')) {
+            if (envConfigUrl !== '' && envConfigUrl !== 'undefined' && envConfigUrl !== '__CONFIG_SERVER_HOST__') {
               loadOptions.configUrl = envConfigUrl;
             }
 
             const customDeviceModeDestinationId = '__CUSTOM_DEVICE_MODE_DESTINATION_ID__';
-            if (!customDeviceModeDestinationId.startsWith('undefined')) {
+            if (customDeviceModeDestinationId !== '' && customDeviceModeDestinationId !== 'undefined' && customDeviceModeDestinationId !== '__CUSTOM_DEVICE_MODE_DESTINATION_ID__') {
               rudderanalytics.addCustomIntegration(customDeviceModeDestinationId, {
                 init: (destinationConfig, analytics, logger) => {
                   logger.debug('"init" called');
