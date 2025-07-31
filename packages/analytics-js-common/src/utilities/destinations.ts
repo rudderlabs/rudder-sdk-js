@@ -2,6 +2,7 @@ import type { Destination } from '../types/Destination';
 
 /**
  * A function to filter and return non cloud mode destinations
+ * A destination is considered non cloud mode if it is not a cloud mode destination or if it is a hybrid mode destination
  * @param destination
  *
  * @returns boolean
@@ -28,4 +29,20 @@ const isHybridModeDestination = (destination: Destination): boolean =>
 const getNonCloudDestinations = (destinations: Destination[]): Destination[] | [] =>
   destinations.filter(isNonCloudDestination);
 
-export { isNonCloudDestination, getNonCloudDestinations, isHybridModeDestination };
+/**
+ * A function to get the user friendly id for a destination
+ * Replaces all spaces with hyphens and appends the id to the display name
+ * @param displayName The display name of the destination
+ * @param id The id of the destination
+ *
+ * @returns the user friendly id
+ */
+const getDestinationUserFriendlyId = (displayName: string, id: string): string =>
+  `${displayName.replaceAll(' ', '-')}___${id}`;
+
+export {
+  isNonCloudDestination,
+  getNonCloudDestinations,
+  isHybridModeDestination,
+  getDestinationUserFriendlyId,
+};

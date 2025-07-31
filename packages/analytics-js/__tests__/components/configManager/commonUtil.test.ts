@@ -827,6 +827,7 @@ describe('getDestinationsFromConfig', () => {
       shouldApplyDeviceModeTransformation: true,
       propagateEventsUntransformedOnError: false,
       userFriendlyId: 'Google-Analytics-4-(GA4)___2LoR1TbVG2bcISXvy7DamldfkgO',
+      isCustomIntegration: false,
     });
     expect(actualOutcome[1]).toEqual({
       id: '2LoR1TbVG2bcISXvy7Damldfkg1',
@@ -836,6 +837,7 @@ describe('getDestinationsFromConfig', () => {
       shouldApplyDeviceModeTransformation: false,
       propagateEventsUntransformedOnError: false,
       userFriendlyId: 'Braze___2LoR1TbVG2bcISXvy7Damldfkg1',
+      isCustomIntegration: false,
     });
   });
 

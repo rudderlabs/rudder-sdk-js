@@ -1,6 +1,7 @@
 import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
+import type { RSACustomIntegration } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
 import { batch } from '@preact/signals-core';
 import type { IUserSessionManager } from '../../../src/components/userSessionManager/types';
 import type { IEventManager } from '../../../src/components/eventManager/types';
@@ -251,7 +252,7 @@ describe('Core - Analytics', () => {
     it('should set authentication request header', () => {
       analytics.prepareInternalServices();
       const setAuthHeaderSpy = jest.spyOn(analytics.httpClient, 'setAuthHeader');
-      const initSpy = jest.spyOn(analytics.configManager, 'init');
+      const initSpy = jest.spyOn(analytics.configManager!, 'init');
       state.lifecycle.writeKey.value = dummyWriteKey;
       state.lifecycle.dataPlaneUrl.value = dummyDataplaneURL;
       analytics.loadConfig();
@@ -274,9 +275,11 @@ describe('Core - Analytics', () => {
       state.loadOptions.value.onLoaded = jest.fn();
       analytics.onInitialized();
       expect(dispatchEventSpy).toHaveBeenCalledTimes(1);
-      expect(dispatchEventSpy.mock.calls[0][0].detail).toStrictEqual({
-        analyticsInstance: undefined,
-      });
+      expect(dispatchEventSpy).toHaveBeenCalledWith(
+        new CustomEvent('RSA_Initialised', {
+          detail: { analyticsInstance: undefined },
+        }),
+      );
     });
 
     it('should log an error if the onLoaded callback is not a function', () => {
@@ -394,9 +397,11 @@ describe('Core - Analytics', () => {
       analytics.onReady();
 
       expect(dispatchEventSpy).toHaveBeenCalledTimes(1);
-      expect(dispatchEventSpy.mock.calls[0][0].detail).toStrictEqual({
-        analyticsInstance: undefined,
-      });
+      expect(dispatchEventSpy).toHaveBeenCalledWith(
+        new CustomEvent('RSA_Ready', {
+          detail: { analyticsInstance: undefined },
+        }),
+      );
     });
 
     it('should log an error if the provided callback is not a function', () => {
@@ -441,7 +446,7 @@ describe('Core - Analytics', () => {
     it('should sent events if loaded', () => {
       analytics.prepareInternalServices();
       const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
-      const addEventSpy = jest.spyOn(analytics.eventManager, 'addEvent');
+      const addEventSpy = jest.spyOn(analytics.eventManager!, 'addEvent');
 
       state.lifecycle.loaded.value = true;
       analytics.page({ name: 'name' });
@@ -464,7 +469,7 @@ describe('Core - Analytics', () => {
     it('should sent events if loaded', () => {
       analytics.prepareInternalServices();
       const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
-      const addEventSpy = jest.spyOn(analytics.eventManager, 'addEvent');
+      const addEventSpy = jest.spyOn(analytics.eventManager!, 'addEvent');
 
       state.lifecycle.loaded.value = true;
       analytics.track({ name: 'name' });
@@ -487,9 +492,9 @@ describe('Core - Analytics', () => {
     it('should sent events if loaded', () => {
       analytics.prepareInternalServices();
       const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
-      const addEventSpy = jest.spyOn(analytics.eventManager, 'addEvent');
-      const setUserIdSpy = jest.spyOn(analytics.userSessionManager, 'setUserId');
-      const setUserTraitsSpy = jest.spyOn(analytics.userSessionManager, 'setUserTraits');
+      const addEventSpy = jest.spyOn(analytics.eventManager!, 'addEvent');
+      const setUserIdSpy = jest.spyOn(analytics.userSessionManager!, 'setUserId');
+      const setUserTraitsSpy = jest.spyOn(analytics.userSessionManager!, 'setUserTraits');
       const resetSpy = jest.spyOn(analytics, 'reset');
 
       state.lifecycle.loaded.value = true;
@@ -508,9 +513,9 @@ describe('Core - Analytics', () => {
     it('should sent events if loaded and reset session if userID changed', () => {
       analytics.prepareInternalServices();
       const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
-      const addEventSpy = jest.spyOn(analytics.eventManager, 'addEvent');
-      const setUserIdSpy = jest.spyOn(analytics.userSessionManager, 'setUserId');
-      const setUserTraitsSpy = jest.spyOn(analytics.userSessionManager, 'setUserTraits');
+      const addEventSpy = jest.spyOn(analytics.eventManager!, 'addEvent');
+      const setUserIdSpy = jest.spyOn(analytics.userSessionManager!, 'setUserId');
+      const setUserTraitsSpy = jest.spyOn(analytics.userSessionManager!, 'setUserTraits');
       const resetSpy = jest.spyOn(analytics, 'reset');
 
       state.lifecycle.loaded.value = true;
@@ -537,7 +542,7 @@ describe('Core - Analytics', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       analytics.prepareInternalServices();
       const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
-      const addEventSpy = jest.spyOn(analytics.eventManager, 'addEvent');
+      const addEventSpy = jest.spyOn(analytics.eventManager!, 'addEvent');
 
       state.lifecycle.loaded.value = true;
 
@@ -555,7 +560,7 @@ describe('Core - Analytics', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       analytics.prepareInternalServices();
       state.session.userId.value = 'userId';
-      const addEventSpy = jest.spyOn(analytics.eventManager, 'addEvent');
+      const addEventSpy = jest.spyOn(analytics.eventManager!, 'addEvent');
       state.lifecycle.loaded.value = true;
 
       analytics.alias({ to: 'to' });
@@ -571,7 +576,7 @@ describe('Core - Analytics', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       analytics.prepareInternalServices();
       state.session.userId.value = null;
-      const addEventSpy = jest.spyOn(analytics.eventManager, 'addEvent');
+      const addEventSpy = jest.spyOn(analytics.eventManager!, 'addEvent');
       state.lifecycle.loaded.value = true;
 
       analytics.alias({ to: 'to' });
@@ -587,8 +592,8 @@ describe('Core - Analytics', () => {
   describe('group', () => {
     it('should buffer events until loaded', () => {
       analytics.prepareInternalServices();
-      const setGroupIdIdSpy = jest.spyOn(analytics.userSessionManager, 'setGroupId');
-      const setGroupTraitsSpy = jest.spyOn(analytics.userSessionManager, 'setGroupTraits');
+      const setGroupIdIdSpy = jest.spyOn(analytics.userSessionManager!, 'setGroupId');
+      const setGroupTraitsSpy = jest.spyOn(analytics.userSessionManager!, 'setGroupTraits');
 
       analytics.group({ groupId: 'groupId' });
       expect(setGroupIdIdSpy).toHaveBeenCalledTimes(0);
@@ -600,9 +605,9 @@ describe('Core - Analytics', () => {
     it('should sent events if loaded', () => {
       analytics.prepareInternalServices();
       const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
-      const setGroupIdIdSpy = jest.spyOn(analytics.userSessionManager, 'setGroupId');
-      const setGroupTraitsSpy = jest.spyOn(analytics.userSessionManager, 'setGroupTraits');
-      const addEventSpy = jest.spyOn(analytics.eventManager, 'addEvent');
+      const setGroupIdIdSpy = jest.spyOn(analytics.userSessionManager!, 'setGroupId');
+      const setGroupTraitsSpy = jest.spyOn(analytics.userSessionManager!, 'setGroupTraits');
+      const addEventSpy = jest.spyOn(analytics.eventManager!, 'addEvent');
 
       state.lifecycle.loaded.value = true;
       analytics.group({ groupId: 'groupId' });
@@ -620,7 +625,7 @@ describe('Core - Analytics', () => {
   describe('reset', () => {
     it('should buffer events until loaded', () => {
       analytics.prepareInternalServices();
-      const resetSpy = jest.spyOn(analytics.userSessionManager, 'reset');
+      const resetSpy = jest.spyOn(analytics.userSessionManager!, 'reset');
 
       analytics.reset(true);
       expect(resetSpy).toHaveBeenCalledTimes(0);
@@ -629,7 +634,7 @@ describe('Core - Analytics', () => {
     it('should reset session if loaded', () => {
       analytics.prepareInternalServices();
       const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
-      const resetSpy = jest.spyOn(analytics.userSessionManager, 'reset');
+      const resetSpy = jest.spyOn(analytics.userSessionManager!, 'reset');
 
       state.lifecycle.loaded.value = true;
       analytics.reset(true);
@@ -645,7 +650,7 @@ describe('Core - Analytics', () => {
         .spyOn(analytics.preloadBuffer, 'dequeue')
         .mockImplementationOnce(() => ['page', { path: '/home' }])
         .mockImplementationOnce(() => ['track', 'buttonClicked', { color: 'blue' }]);
-      const sizeSpy = jest
+      jest
         .spyOn(analytics.preloadBuffer, 'size')
         .mockImplementationOnce(() => 2)
         .mockImplementationOnce(() => 1)
@@ -902,6 +907,121 @@ describe('Core - Analytics', () => {
       analytics.consent();
 
       expect(invokeSingleSpy).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('addCustomIntegration', () => {
+    const mockCustomIntegration: RSACustomIntegration = {
+      init: jest.fn(),
+      isReady: jest.fn(() => true),
+      track: jest.fn(),
+      page: jest.fn(),
+      identify: jest.fn(),
+      group: jest.fn(),
+      alias: jest.fn(),
+    };
+
+    beforeEach(() => {
+      analytics.prepareInternalServices();
+      state.lifecycle.loaded.value = false;
+      state.eventBuffer.toBeProcessedArray.value = [];
+    });
+
+    describe('when the call is not buffered', () => {
+      it('should buffer the addCustomIntegration call when SDK is not loaded', () => {
+        const destinationId = 'custom-dest-123';
+
+        analytics.addCustomIntegration(destinationId, mockCustomIntegration);
+
+        expect(state.eventBuffer.toBeProcessedArray.value).toEqual([
+          ['addCustomIntegration', destinationId, mockCustomIntegration],
+        ]);
+      });
+
+      it('should add to existing buffered events when SDK is not loaded', () => {
+        const destinationId = 'custom-dest-123';
+        state.eventBuffer.toBeProcessedArray.value = [['track', 'some_event']];
+
+        analytics.addCustomIntegration(destinationId, mockCustomIntegration);
+
+        expect(state.eventBuffer.toBeProcessedArray.value).toEqual([
+          ['track', 'some_event'],
+          ['addCustomIntegration', destinationId, mockCustomIntegration],
+        ]);
+      });
+
+      it('should log error and return early when SDK is already loaded', () => {
+        state.lifecycle.loaded.value = true;
+        const loggerErrorSpy = jest.spyOn(analytics.logger, 'error');
+        const invokeSingleSpy = jest.spyOn(
+          analytics.pluginsManager as IPluginsManager,
+          'invokeSingle',
+        );
+
+        const destinationId = 'custom-dest-123';
+
+        analytics.addCustomIntegration(destinationId, mockCustomIntegration);
+
+        expect(loggerErrorSpy).toHaveBeenCalledWith(
+          'AnalyticsCore:: Cannot add custom integration for destination ID "custom-dest-123" after the SDK is loaded.',
+        );
+        expect(invokeSingleSpy).not.toHaveBeenCalled();
+        expect(state.eventBuffer.toBeProcessedArray.value).toEqual([]);
+      });
+
+      it('should not leave breadcrumb when isBufferedInvocation is false', () => {
+        const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
+
+        analytics.addCustomIntegration('custom-dest-123', mockCustomIntegration);
+
+        expect(leaveBreadcrumbSpy).not.toHaveBeenCalled();
+      });
+
+      it('should not invoke plugin manager when isBufferedInvocation is false', () => {
+        const invokeSingleSpy = jest.spyOn(
+          analytics.pluginsManager as IPluginsManager,
+          'invokeSingle',
+        );
+
+        analytics.addCustomIntegration('custom-dest-123', mockCustomIntegration);
+
+        expect(invokeSingleSpy).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when the call is buffered', () => {
+      it('should leave breadcrumb and invoke plugin manager', () => {
+        const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
+        const invokeSingleSpy = jest.spyOn(
+          analytics.pluginsManager as IPluginsManager,
+          'invokeSingle',
+        );
+
+        const destinationId = 'custom-dest-123';
+
+        analytics.addCustomIntegration(destinationId, mockCustomIntegration, true);
+
+        expect(leaveBreadcrumbSpy).toHaveBeenCalledWith('New addCustomIntegration invocation');
+        expect(invokeSingleSpy).toHaveBeenCalledWith(
+          'nativeDestinations.addCustomIntegration',
+          destinationId,
+          mockCustomIntegration,
+          state,
+          analytics.logger,
+        );
+      });
+
+      it('should handle undefined plugin manager gracefully', () => {
+        const originalPluginsManager = analytics.pluginsManager;
+        analytics.pluginsManager = undefined;
+
+        expect(() => {
+          analytics.addCustomIntegration('custom-dest-123', mockCustomIntegration, true);
+        }).not.toThrow();
+
+        // Restore the original plugins manager
+        analytics.pluginsManager = originalPluginsManager;
+      });
     });
   });
 });

@@ -9,19 +9,27 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import type { IErrorHandler, SDKError } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
+import type { RSACustomIntegration } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
 import {
   isDestinationSDKMounted,
   initializeDestination,
   applySourceConfigurationOverrides,
-  filterDisabledDestination,
+  filterDisabledDestinations,
+  addIntegrationToDestination,
+  validateCustomIntegration,
 } from './utils';
 import { DEVICE_MODE_DESTINATIONS_PLUGIN, SCRIPT_LOAD_TIMEOUT_MS } from './constants';
-import { INTEGRATION_NOT_SUPPORTED_ERROR, INTEGRATION_SDK_LOAD_ERROR } from './logMessages';
+import {
+  INTEGRATION_NOT_ADDED_TO_CUSTOM_DESTINATION_WARNING,
+  INTEGRATION_NOT_SUPPORTED_ERROR,
+  INTEGRATION_SDK_LOAD_ERROR,
+} from './logMessages';
 import {
   destDisplayNamesToFileNamesMap,
   filterDestinations,
 } from '../shared-chunks/deviceModeDestinations';
 import { INTEGRATIONS_ERROR_CATEGORY } from '../utilities/constants';
+import { isUndefined } from '../shared-chunks/common';
 
 const pluginName: PluginName = 'DeviceModeDestinations';
 
@@ -31,6 +39,25 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
     state.plugins.loadedPlugins.value = [...state.plugins.loadedPlugins.value, pluginName];
   },
   nativeDestinations: {
+    addCustomIntegration(
+      destinationId: string,
+      integration: RSACustomIntegration,
+      state: ApplicationState,
+      logger: ILogger,
+    ): void {
+      const destination = validateCustomIntegration(destinationId, integration, state, logger);
+      if (!destination) {
+        return;
+      }
+
+      addIntegrationToDestination(destination, integration, state, logger);
+
+      // Refresh the state value to trigger any effects that depend on it
+      state.nativeDestinations.configuredDestinations.value = [
+        ...state.nativeDestinations.configuredDestinations.value,
+      ];
+    },
+
     setActiveDestinations(
       state: ApplicationState,
       pluginsManager: IPluginsManager,
@@ -43,7 +70,25 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
       // Filter destination that doesn't have mapping config-->Integration names
       const configSupportedDestinations =
         state.nativeDestinations.configuredDestinations.value.filter((configDest: Destination) => {
-          if (destDisplayNamesToFileNamesMap[configDest.displayName]) {
+          // Filter enabled or disabled custom destinations that don't have an integration added to them
+          if (configDest.isCustomIntegration && isUndefined(configDest.integration)) {
+            if (configDest.enabled) {
+              logger?.warn(
+                INTEGRATION_NOT_ADDED_TO_CUSTOM_DESTINATION_WARNING(
+                  DEVICE_MODE_DESTINATIONS_PLUGIN,
+                  configDest.id,
+                ),
+              );
+            }
+            return false;
+          }
+
+          // Ensure the destination is supported by the SDK
+          // or it is a custom integration
+          if (
+            configDest.isCustomIntegration ||
+            destDisplayNamesToFileNamesMap[configDest.displayName]
+          ) {
             return true;
           }
 
@@ -57,19 +102,19 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
         });
 
       // Apply source configuration overrides if provided
-      const destinationsWithOverrides = state.loadOptions.value.sourceConfigurationOverride
+      const configuredDestinations = state.loadOptions.value.sourceConfigurationOverride
         ? applySourceConfigurationOverrides(
             configSupportedDestinations,
             state.loadOptions.value.sourceConfigurationOverride,
             logger,
           )
-        : filterDisabledDestination(configSupportedDestinations);
+        : filterDisabledDestinations(configSupportedDestinations);
 
       // Filter destinations that are disabled through load or consent API options
       const destinationsToLoad = filterDestinations(
         state.consents.postConsent.value?.integrations ??
           state.nativeDestinations.loadOnlyIntegrations.value,
-        destinationsWithOverrides,
+        configuredDestinations,
       );
 
       const consentedDestinations = destinationsToLoad.filter(
@@ -84,7 +129,11 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
           ) ?? true,
       );
 
-      state.nativeDestinations.activeDestinations.value = consentedDestinations;
+      // Add the distilled destinations to the active destinations list
+      state.nativeDestinations.activeDestinations.value = [
+        ...state.nativeDestinations.activeDestinations.value,
+        ...consentedDestinations,
+      ];
     },
 
     load(

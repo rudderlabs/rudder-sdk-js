@@ -284,6 +284,7 @@ export function getDefaultConfig(distName) {
             __DEST_SDK_BASE_URL__: destSDKBaseURL,
             __PLUGINS_BASE_URL__: remotePluginsBasePath,
             __SDK_BUNDLE_FILENAME__: distName,
+            __CUSTOM_DEVICE_MODE_DESTINATION_ID__: process.env.CUSTOM_DEVICE_MODE_DESTINATION_ID,
           },
         }),
       isLocalServerEnabled &&
