@@ -1734,6 +1734,7 @@ describe('deviceModeDestinations utils', () => {
           connectionMode: 'device' as const,
           consentManagement: [],
         },
+        isCustomIntegration: true,
       };
 
       state.nativeDestinations.configuredDestinations.value = [mockCustomDestination];
@@ -1793,6 +1794,7 @@ describe('deviceModeDestinations utils', () => {
           ...mockCustomDestination,
           id: 'wrong-dest',
           displayName: 'Google Analytics',
+          isCustomIntegration: false,
         };
         state.nativeDestinations.configuredDestinations.value = [wrongDisplayNameDestination];
 
@@ -2060,6 +2062,7 @@ describe('deviceModeDestinations utils', () => {
           connectionMode: 'device' as const,
           consentManagement: [],
         },
+        isCustomIntegration: true,
       };
 
       const mockInit = jest.fn();
@@ -2082,7 +2085,6 @@ describe('deviceModeDestinations utils', () => {
 
       addIntegrationToDestination(testDestination, mockIntegration, state, defaultLogger);
 
-      expect(testDestination.isCustomIntegration).toBe(true);
       expect(testDestination.integration).toBeDefined();
       expect(testDestination.integration!.init).toBeDefined();
       expect(testDestination.integration!.track).toBeDefined();
@@ -2108,6 +2110,7 @@ describe('deviceModeDestinations utils', () => {
           connectionMode: 'device' as const,
           consentManagement: [],
         },
+        isCustomIntegration: true,
       };
 
       const mockIsReady = jest.fn().mockReturnValue(true);
@@ -2117,7 +2120,6 @@ describe('deviceModeDestinations utils', () => {
 
       addIntegrationToDestination(testDestination, mockIntegration, state, defaultLogger);
 
-      expect(testDestination.isCustomIntegration).toBe(true);
       expect(testDestination.integration).toBeDefined();
       expect(testDestination.integration!.isReady).toBeDefined();
       expect(testDestination.integration!.init).toBeUndefined();

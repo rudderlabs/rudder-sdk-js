@@ -33,7 +33,6 @@ import {
   DEVICE_MODE_DESTINATIONS_PLUGIN,
   READY_CHECK_INTERVAL_MS,
   READY_CHECK_TIMEOUT_MS,
-  CUSTOM_DEVICE_MODE_DESTINATION_DISPLAY_NAME,
 } from './constants';
 import {
   INTEGRATION_INIT_ERROR,
@@ -354,8 +353,7 @@ const validateCustomIntegration = (
 ): Destination | undefined => {
   const configuredDestinations = state.nativeDestinations.configuredDestinations.value;
   const destination = configuredDestinations.find(
-    dest =>
-      dest.id === destinationId && dest.displayName === CUSTOM_DEVICE_MODE_DESTINATION_DISPLAY_NAME,
+    dest => dest.id === destinationId && dest.isCustomIntegration === true,
   );
 
   if (!destination) {
@@ -427,9 +425,6 @@ const addIntegrationToDestination = (
     error: integrationLogger.error.bind(integrationLogger),
     setMinLogLevel: integrationLogger.setMinLogLevel.bind(integrationLogger),
   };
-
-  // Mark it as a custom integration
-  destination.isCustomIntegration = true;
 
   // Create configuration object for the custom integration
   // to pass to the init method
