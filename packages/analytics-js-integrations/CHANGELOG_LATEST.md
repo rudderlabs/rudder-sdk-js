@@ -1,13 +1,13 @@
-## [3.15.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.14.3...@rudderstack/analytics-js-integrations@3.15.0) (2025-07-21)
+## [3.16.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.15.0...@rudderstack/analytics-js-integrations@3.16.0) (2025-07-30)
 
-### Dependency Updates
-
-* `@rudderstack/analytics-js-legacy-utilities` updated to version `0.1.0`
 
 ### Features
 
-* add legacy utils package ([#2323](https://github.com/rudderlabs/rudder-sdk-js/issues/2323)) ([32a90c4](https://github.com/rudderlabs/rudder-sdk-js/commit/32a90c4417b747f4da2b1027249ccfbab1d075fd))
-* migrate legacy sdk to use legacy utils package ([#2339](https://github.com/rudderlabs/rudder-sdk-js/issues/2339)) ([9a294c9](https://github.com/rudderlabs/rudder-sdk-js/commit/9a294c9ef1c2198d7fe4752b19e831958af7902e))
-* onboard comscore integration ([#2329](https://github.com/rudderlabs/rudder-sdk-js/issues/2329)) ([81fcf86](https://github.com/rudderlabs/rudder-sdk-js/commit/81fcf865a7be735679eb391cb91b03494a434980))
-* relocate destination constants ([#2325](https://github.com/rudderlabs/rudder-sdk-js/issues/2325)) ([0a421ae](https://github.com/rudderlabs/rudder-sdk-js/commit/0a421ae9f5c38556a3fa9487f16cdcea66921064))
+* moengage identity resolution support ([#2406](https://github.com/rudderlabs/rudder-sdk-js/issues/2406)) ([f328286](https://github.com/rudderlabs/rudder-sdk-js/commit/f328286f3f5c6dd89593abb374c2668ba3e46074))
+
+
+### Bug Fixes
+
+* braze sdk init issue ([#2409](https://github.com/rudderlabs/rudder-sdk-js/issues/2409)) ([0768f37](https://github.com/rudderlabs/rudder-sdk-js/commit/0768f37f6440361338e7e63d6cde7ef0c26dbc7c))
+* prevent null/undefined object conversion error in facebook pixel ([#2411](https://github.com/rudderlabs/rudder-sdk-js/issues/2411)) ([d2399ca](https://github.com/rudderlabs/rudder-sdk-js/commit/d2399ca9d1491c4f4de8827f0efeeb3cbbf26bcb)), closes [#2297](https://github.com/rudderlabs/rudder-sdk-js/issues/2297)
 
