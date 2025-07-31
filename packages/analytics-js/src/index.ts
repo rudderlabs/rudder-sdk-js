@@ -20,6 +20,7 @@ export { type IdentifyTraits } from '@rudderstack/analytics-js-common/types/trai
 export {
   type RSAnalytics,
   type RSACustomIntegration,
+  type CustomDestinationConfig,
 } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
 export { type RSAEvent } from '@rudderstack/analytics-js-common/types/Event';
 export {

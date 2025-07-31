@@ -228,7 +228,7 @@ export type RSAnalytics = Pick<
  * For now, it is the same as the base destination config
  * but in the future, it can be extended to include more properties
  */
-export type CustomDestinationConfig = BaseDestinationConfig;
+export type CustomDestinationConfig = BaseDestinationConfig & {};
 
 /**
  * Type for the custom integration to be used in addCustomIntegration API
