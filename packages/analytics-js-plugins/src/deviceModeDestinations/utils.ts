@@ -353,7 +353,7 @@ const validateCustomIntegration = (
 ): Destination | undefined => {
   const configuredDestinations = state.nativeDestinations.configuredDestinations.value;
   const destination = configuredDestinations.find(
-    dest => dest.id === destinationId && dest.isCustomIntegration,
+    dest => dest.id === destinationId && dest.isCustomIntegration === true,
   );
 
   if (!destination) {
