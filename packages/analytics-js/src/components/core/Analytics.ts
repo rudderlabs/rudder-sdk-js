@@ -326,6 +326,14 @@ class Analytics implements IAnalytics {
     // Process any preloaded events
     this.processDataInPreloadBuffer();
 
+    // Set lifecycle state
+    batch(() => {
+      state.lifecycle.loaded.value = true;
+      state.lifecycle.status.value = 'loaded';
+    });
+
+    this.initialized = true;
+
     // Execute onLoaded callback if provided in load options
     const onLoadedCallbackFn = state.loadOptions.value.onLoaded;
     // TODO: we need to avoid passing the window object to the callback function
@@ -336,14 +344,6 @@ class Analytics implements IAnalytics {
       LOAD_API,
       this.logger,
     );
-
-    // Set lifecycle state
-    batch(() => {
-      state.lifecycle.loaded.value = true;
-      state.lifecycle.status.value = 'loaded';
-    });
-
-    this.initialized = true;
 
     // Emit an event to use as substitute to the onLoaded callback
     dispatchSDKEvent('RSA_Initialised');

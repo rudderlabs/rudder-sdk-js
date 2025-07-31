@@ -1264,6 +1264,7 @@ describe('DeviceModeDestinations Plugin', () => {
           connectionMode: 'device',
           useNativeSDKToSend: true,
         },
+        isCustomIntegration: true,
       };
       mockState.nativeDestinations.configuredDestinations.value = [mockCustomDestination];
       jest.clearAllMocks();
@@ -1284,7 +1285,6 @@ describe('DeviceModeDestinations Plugin', () => {
         dest => dest.id === destinationId,
       );
       expect(updatedDestination).toBeDefined();
-      expect(updatedDestination!.isCustomIntegration).toBe(true);
       expect(updatedDestination!.integration).toBeDefined();
     });
 
@@ -1323,7 +1323,6 @@ describe('DeviceModeDestinations Plugin', () => {
         dest => dest.id === disabledDestination.id,
       );
       expect(updatedDestination).toBeDefined();
-      expect(updatedDestination!.isCustomIntegration).toBe(true);
       expect(updatedDestination!.integration).toBeDefined();
     });
 
@@ -1332,6 +1331,7 @@ describe('DeviceModeDestinations Plugin', () => {
         ...mockCustomDestination,
         id: 'regular-dest-789',
         displayName: 'Google Analytics',
+        isCustomIntegration: false,
       };
       mockState.nativeDestinations.configuredDestinations.value = [regularDestination];
 
@@ -1479,8 +1479,6 @@ describe('DeviceModeDestinations Plugin', () => {
 
       expect(updatedDest1!.integration).toBeDefined();
       expect(updatedDest2!.integration).toBeDefined();
-      expect(updatedDest1!.isCustomIntegration).toBe(true);
-      expect(updatedDest2!.isCustomIntegration).toBe(true);
     });
   });
 
@@ -1504,6 +1502,7 @@ describe('DeviceModeDestinations Plugin', () => {
           connectionMode: 'device',
           useNativeSDKToSend: true,
         },
+        isCustomIntegration: true,
       };
 
       const regularDestination: Destination = {
@@ -1545,7 +1544,6 @@ describe('DeviceModeDestinations Plugin', () => {
       const updatedDestination = mockState.nativeDestinations.configuredDestinations.value.find(
         dest => dest.id === 'custom-dest-workflow',
       );
-      expect(updatedDestination!.isCustomIntegration).toBe(true);
       expect(updatedDestination!.integration).toBeDefined();
     });
 

@@ -46,6 +46,7 @@ import {
 import { getDomain, removeTrailingSlashes } from '../../utilities/url';
 import type { ConfigResponseDestinationItem, SourceConfigResponse } from '../types';
 import {
+  CUSTOM_DEVICE_MODE_DESTINATION_DISPLAY_NAME,
   DEFAULT_DATA_SERVICE_ENDPOINT,
   DEFAULT_STORAGE_ENCRYPTION_VERSION,
   StorageEncryptionVersionsToPluginNameMap,
@@ -410,6 +411,8 @@ const getDestinationsFromConfig = (destinations: ConfigResponseDestinationItem[]
       destination.destinationDefinition.displayName,
       destination.id,
     ),
+    isCustomIntegration:
+      destination.destinationDefinition.displayName === CUSTOM_DEVICE_MODE_DESTINATION_DISPLAY_NAME,
   }));
 
 export {
