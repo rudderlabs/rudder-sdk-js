@@ -29,6 +29,7 @@ const mockBrazeSDK = () => {
       }
     }),
     addAlias: jest.fn(),
+    addSdkMetadata: jest.fn(),
     openSession: jest.fn(),
     getUser: jest.fn().mockReturnThis(),
     setCountry: jest.fn(),
@@ -44,6 +45,16 @@ const mockBrazeSDK = () => {
     logPurchase: jest.fn(),
     getCachedContentCards: jest.fn(),
     getCachedFeed: jest.fn(),
+    BrazeSdkMetadata: {
+      CDN: 'wcd',
+      GOOGLE_TAG_MANAGER: 'gg',
+      MANUAL: 'manu',
+      MPARTICLE: 'mp',
+      NPM: 'npm',
+      SEGMENT: 'sg',
+      SHOPIFY: 'shp',
+      TEALIUM: 'tl',
+    },
     User: {
       Genders: {
         OTHER: 'o',
@@ -52,6 +63,8 @@ const mockBrazeSDK = () => {
       },
     },
   };
+  // Mock brazeQueue as null to simulate loaded state by default
+  window.brazeQueue = null;
 };
 
 beforeEach(() => {
@@ -295,19 +308,87 @@ describe('isReady', () => {
   });
 
   it('should return true when loaded and alias set successfully', () => {
+    mockBrazeSDK();
     jest.spyOn(braze, 'isLoaded').mockReturnValue(true);
     jest.spyOn(braze, 'setUserAlias').mockReturnValue(true);
+    jest.spyOn(braze, 'addSdkMetadata');
 
     const result = braze.isReady();
     expect(result).toBe(true);
+    expect(braze.addSdkMetadata).toHaveBeenCalledTimes(1);
+    expect(braze.sdkMetadataAdded).toBe(true);
   });
 
   it('should return false when loaded but alias setting fails', () => {
+    mockBrazeSDK();
     jest.spyOn(braze, 'isLoaded').mockReturnValue(true);
     jest.spyOn(braze, 'setUserAlias').mockReturnValue(false);
+    jest.spyOn(braze, 'addSdkMetadata');
 
     const result = braze.isReady();
     expect(result).toBe(false);
+    expect(braze.addSdkMetadata).toHaveBeenCalledTimes(1);
+    expect(braze.sdkMetadataAdded).toBe(true);
+  });
+
+  it('should only add SDK metadata once even when called multiple times', () => {
+    mockBrazeSDK();
+    jest.spyOn(braze, 'isLoaded').mockReturnValue(true);
+    jest.spyOn(braze, 'setUserAlias').mockReturnValue(true);
+    jest.spyOn(braze, 'addSdkMetadata');
+
+    // Call isReady multiple times
+    braze.isReady();
+    braze.isReady();
+    braze.isReady();
+
+    // SDK metadata should only be added once
+    expect(braze.addSdkMetadata).toHaveBeenCalledTimes(1);
+    expect(braze.sdkMetadataAdded).toBe(true);
+  });
+});
+
+describe('addSdkMetadata', () => {
+  let braze;
+  let config;
+  let analytics;
+
+  beforeEach(() => {
+    config = { appKey: 'APP_KEY' };
+    analytics = { getAnonymousId: jest.fn() };
+    braze = new Braze(config, analytics, {});
+    mockBrazeSDK();
+  });
+
+  it('should call window.braze.addSdkMetadata with CDN metadata', () => {
+    braze.addSdkMetadata();
+
+    expect(window.braze.addSdkMetadata).toHaveBeenCalledWith([window.braze.BrazeSdkMetadata.CDN]);
+    expect(braze.sdkMetadataAdded).toBe(true);
+  });
+
+  it('should handle errors gracefully when addSdkMetadata fails', () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    window.braze.addSdkMetadata.mockImplementation(() => {
+      throw new Error('SDK metadata error');
+    });
+
+    // Should not throw an error
+    expect(() => braze.addSdkMetadata()).not.toThrow();
+
+    // Flag should not be set when there's an error
+    expect(braze.sdkMetadataAdded).toBe(false);
+
+    consoleSpy.mockRestore();
+  });
+
+  it('should log debug message on successful metadata addition', () => {
+    const consoleSpy = jest.spyOn(console, 'debug').mockImplementation(() => {});
+
+    braze.addSdkMetadata();
+
+    expect(window.braze.addSdkMetadata).toHaveBeenCalled();
+    consoleSpy.mockRestore();
   });
 });
 
