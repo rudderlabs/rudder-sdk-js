@@ -9,7 +9,7 @@
     "@testing-library/user-event": "14.6.1",
     "react": "19.1.1",
     "react-dom": "19.1.1",
-    "web-vitals": "4.2.4"
+    "web-vitals": "5.1.0"
   },
   "devDependencies": {
     "@testing-library/dom": "10.4.1",
