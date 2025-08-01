@@ -26,7 +26,7 @@
     "jsdom": {
       "form-data": "3.0.4"
     },
-    "webpack-dev-server": "5.2.2"
+    "webpack-dev-server": "4.11.1"
   },
   "scripts": {
     "start": "react-scripts start",
