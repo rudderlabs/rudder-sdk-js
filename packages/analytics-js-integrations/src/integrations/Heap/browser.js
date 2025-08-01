@@ -31,7 +31,12 @@ class Heap {
   }
 
   isLoaded() {
-    return !!window.heap?.appid;
+    return (
+      !!window.heap?.appid &&
+      typeof window.heap.track === 'function' &&
+      typeof window.heap.identify === 'function' &&
+      typeof window.heap.addUserProperties === 'function'
+    );
   }
 
   isReady() {
