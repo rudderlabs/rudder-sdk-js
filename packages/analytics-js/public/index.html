@@ -1,11 +1,477 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>RudderStack JS SDK Playground</title>
+    
     <link
       rel="icon"
       href="https://www.rudderstack.com/favicon.ico"
       type="image/x-icon"
       sizes="48x48" />
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha384-1H217gwSVyLSIfaLxHbE7dRb3v4mYCKbpQvzx0cegeju1MVsGrX5xXxAvs/HgeFs" crossorigin="anonymous"></script>
+    
+    <!-- Bootstrap JS and Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    
+    <!-- Custom CSS -->
+    <style>
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+      
+      .playground-header {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      }
+      
+      .btn-playground {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        border: none;
+        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+        transition: all 0.3s ease;
+      }
+      
+      .btn-playground:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+      }
+      
+      .tracking-btn {
+        transition: all 0.3s ease;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      
+      .tracking-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      }
+      
+      .output-panel {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      
+      .fade-in {
+        animation: fadeIn 0.5s ease-in;
+      }
+      
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      
+      .phase-transition {
+        transition: all 0.5s ease-in-out;
+      }
+      
+      /* JSON Editor Styling */
+      #json-editor {
+        font-family: 'Courier New', Consolas, Monaco, monospace;
+        background-color: #f8f9fa;
+        border: 1px solid #ced4da;
+        color: #495057;
+        line-height: 1.4;
+      }
+      
+      #json-editor:focus {
+        background-color: #fff;
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+      }
+      
+      .json-editor-toolbar {
+        background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+        border-radius: 6px;
+        padding: 8px;
+      }
+      
+      .opacity-50 {
+        opacity: 0.5 !important;
+      }
+      
+      .editor-mode-toggle .btn-check:checked + .btn {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: white;
+      }
+      
+      .editor-mode-toggle {
+        transition: all 0.3s ease;
+      }
+      
+      .editor-mode-toggle.shadow-lg {
+        transform: scale(1.05);
+        animation: modeToggleHighlight 1s ease-in-out;
+      }
+      
+      @keyframes modeToggleHighlight {
+        0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7); }
+        50% { box-shadow: 0 0 0 8px rgba(0, 123, 255, 0.3); }
+        100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
+      }
+      
+      /* Subtle auto-switch indicators */
+      .auto-switch-indicator {
+        position: relative;
+      }
+      
+      .auto-switch-indicator::before {
+        content: "✨";
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        font-size: 10px;
+        opacity: 0;
+        animation: autoSwitchGlow 2s ease-in-out;
+      }
+      
+      @keyframes autoSwitchGlow {
+        0%, 100% { opacity: 0; transform: scale(0.5); }
+        50% { opacity: 1; transform: scale(1.2); }
+      }
+      
+      /* Enhanced form control interactions */
+      .form-floating:hover, .form-check:hover {
+        cursor: pointer;
+        transform: translateY(-1px);
+        transition: all 0.2s ease;
+      }
+      
+      .form-floating input:disabled, .form-floating select:disabled, .form-check input:disabled {
+        cursor: not-allowed;
+      }
+      
+      /* Auto-switch highlighting */
+      .border-primary {
+        border: 2px solid #007bff !important;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+        transition: all 0.3s ease !important;
+      }
+      
+      /* JSON editor highlighting for real-time sync */
+      #json-editor.sync-update {
+        border-color: #28a745 !important;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+        transition: all 0.3s ease;
+      }
+      
+      .form-control.sync-update {
+        border-color: #007bff !important;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+        transition: all 0.3s ease;
+      }
+      
+      /* Configuration layout styles */
+      .config-columns {
+        height: 70vh;
+        max-height: 70vh;
+        overflow: hidden;
+      }
+      
+      .config-left-column {
+        background: linear-gradient(145deg, #f8f9fa, #ffffff);
+        overflow-y: auto;
+        overflow-x: hidden;
+        height: 70vh;
+        max-height: 70vh;
+        /* Firefox scrollbar styling */
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0,0,0,0.3) rgba(0,0,0,0.1);
+      }
+      
+      /* Custom scrollbar for left column (Webkit browsers) */
+      .config-left-column::-webkit-scrollbar {
+        width: 8px;
+      }
+      
+      .config-left-column::-webkit-scrollbar-track {
+        background: rgba(0,0,0,0.1);
+        border-radius: 4px;
+      }
+      
+      .config-left-column::-webkit-scrollbar-thumb {
+        background: rgba(0,0,0,0.3);
+        border-radius: 4px;
+      }
+      
+      .config-left-column::-webkit-scrollbar-thumb:hover {
+        background: rgba(0,0,0,0.5);
+      }
+      
+      .config-right-column {
+        background: linear-gradient(145deg, #ffffff, #f8f9fa);
+      }
+      
+      /* JSON Editor Container Flexbox */
+      .config-right-column .h-100 {
+        height: 100% !important;
+        max-height: 100%;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .config-right-column .flex-grow-1 {
+        min-height: 0; /* Important for flexbox to work properly */
+        overflow: hidden;
+        flex: 1;
+      }
+      
+      .config-right-column .flex-shrink-0 {
+        flex-shrink: 0;
+      }
+      
+      /* Ensure JSON editor fits within its container */
+      .config-right-column #json-editor {
+        height: 100% !important;
+        max-height: 100%;
+        min-height: 0;
+      }
+      
+      /* Form controls layout improvements */
+      .config-left-column .form-text {
+        font-size: 0.8rem;
+        margin-top: 0.375rem;
+        color: #6c757d;
+      }
+      
+      .config-left-column .form-check {
+        min-height: 1.5rem;
+        margin-bottom: 0.5rem;
+      }
+      
+      .config-left-column .col-md-6,
+      .config-left-column .col-md-4,
+      .config-left-column .col-md-3 {
+        padding-bottom: 0.5rem;
+      }
+      
+      /* Button group styling for JSON controls */
+      .btn-group .btn {
+        min-width: 80px;
+      }
+      
+      /* Action buttons styling - top positioned */
+      .action-buttons-top {
+        margin-bottom: 2rem;
+      }
+      
+      .action-buttons-top .btn {
+        font-weight: 600;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        border: none;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .action-buttons-top .btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+      }
+      
+      /* Primary Load SDK Button */
+      .action-buttons-top .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+      
+      .action-buttons-top .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+        color: white;
+      }
+      
+      /* Reset Button */
+      .action-buttons-top .btn-outline-primary {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: 2px solid #667eea;
+        color: #667eea;
+      }
+      
+      .action-buttons-top .btn-outline-primary:hover {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: 2px solid #667eea;
+        color: white;
+        transform: translateY(-3px);
+      }
+      
+      /* Toggle JSON Button */
+      .action-buttons-top .btn-outline-info {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: 2px solid #17a2b8;
+        color: #17a2b8;
+      }
+      
+      .action-buttons-top .btn-outline-info:hover {
+        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        border: 2px solid #17a2b8;
+        color: white;
+        transform: translateY(-3px);
+      }
+      
+      /* Required field styling */
+      #writeKey[required], #dataPlaneUrl[required] {
+        border-left: 3px solid #dc3545;
+      }
+      
+      #writeKey[required]:focus, #dataPlaneUrl[required]:focus {
+        border-left-color: #dc3545;
+        box-shadow: -2px 0 0 rgba(220, 53, 69, 0.25), 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+      }
+      
+      #writeKey:valid, #dataPlaneUrl:valid {
+        border-left: 3px solid #28a745;
+      }
+      
+      /* Full page utilization */
+      body {
+        margin: 0;
+        overflow-x: hidden;
+      }
+      
+      .container-fluid {
+        max-width: 100%;
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+      
+      /* Responsive adjustments */
+      @media (max-width: 991.98px) {
+        .config-columns {
+          height: auto;
+          max-height: none;
+          overflow: visible;
+        }
+        
+        .config-left-column {
+          height: auto;
+          max-height: none;
+          overflow: visible;
+          background: #ffffff;
+        }
+        
+        .config-right-column {
+          background: #ffffff;
+        }
+        
+        .config-right-column .h-100 {
+          height: auto !important;
+          max-height: none;
+          overflow: visible;
+        }
+        
+        #json-editor {
+          height: 40vh !important;
+          max-height: 40vh;
+        }
+        
+        .container-fluid {
+          padding-left: 0.5rem;
+          padding-right: 0.5rem;
+        }
+        
+
+      }
+      
+      @media (max-width: 767.98px) {
+        /* Stack form controls vertically on mobile */
+        .config-left-column .col-md-6,
+        .config-left-column .col-md-4,
+        .config-left-column .col-md-3 {
+          flex: 0 0 100%;
+          max-width: 100%;
+        }
+        
+        .btn-group {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+        
+        .btn-group .btn {
+          min-width: auto;
+          width: 100%;
+        }
+        
+        /* Action buttons responsive */
+        .action-buttons-top .d-flex {
+          flex-direction: column;
+          gap: 0.75rem !important;
+        }
+        
+        .action-buttons-top .btn {
+          width: 100%;
+          max-width: 280px;
+        }
+        
+        /* Ensure all action buttons stack properly on mobile */
+        .action-buttons-top .btn-primary,
+        .action-buttons-top .btn-outline-primary,
+        .action-buttons-top .btn-outline-info {
+          margin-bottom: 0.5rem;
+        }
+      }
+      
+      @media (max-width: 575.98px) {
+        #json-editor {
+          height: 30vh !important;
+          max-height: 30vh;
+        }
+        
+        .container-fluid {
+          padding-left: 0.25rem;
+          padding-right: 0.25rem;
+        }
+      }
+      
+      /* JSON editor enhancements */
+      #json-editor {
+        transition: all 0.3s ease;
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        overflow-y: auto;
+        overflow-x: hidden;
+        word-wrap: break-word;
+        white-space: pre-wrap;
+      }
+      
+      #json-editor:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.15);
+      }
+      
+      /* Scrollbar styling for JSON editor */
+      #json-editor::-webkit-scrollbar {
+        width: 8px;
+      }
+      
+      #json-editor::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+      }
+      
+      #json-editor::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 4px;
+      }
+      
+      #json-editor::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+      }
+    </style>
     <script>
       // prettier-ignore
       (function() {
@@ -88,7 +554,7 @@
 
               // Commented out SDK script addition
               // as the build process automatically adds the script
-              // window.rudderAnalyticsAddScript("".concat(sdkBaseUrl, "/").concat(sdkVersion, "/").concat(window.rudderAnalyticsBuildType, "/").concat(sdkFileName), "data-rsa-write-key", "__WRITE_KEY__");
+              window.rudderAnalyticsAddScript("".concat(sdkBaseUrl, "/").concat(sdkVersion, "/").concat(window.rudderAnalyticsBuildType, "/").concat(sdkFileName), "data-rsa-write-key", "1weqc5iqxRkpaUXHgDgYo3g34mg");
             };
             if (typeof Promise === "undefined" || typeof globalThis === "undefined") {
               window.rudderAnalyticsAddScript("https://polyfill-fastly.io/v3/polyfill.min.js?version=3.111.0&features=Symbol%2CPromise&callback=rudderAnalyticsMount");
@@ -173,251 +639,2796 @@
               // }
             };
 
-            const envDestSDKBaseURL = '__DEST_SDK_BASE_URL__';
+            const envDestSDKBaseURL = 'undefined';
             if (!envDestSDKBaseURL.startsWith('undefined')) {
               loadOptions.destSDKBaseURL = envDestSDKBaseURL + window.rudderAnalyticsBuildType + '/js-integrations';
             }
-            const envPluginsSDKBaseURL = '__PLUGINS_BASE_URL__';
+            const envPluginsSDKBaseURL = 'undefined';
             if (!envPluginsSDKBaseURL.startsWith('undefined')) {
               loadOptions.pluginsSDKBaseURL = envPluginsSDKBaseURL + window.rudderAnalyticsBuildType + '/plugins';
             }
-            const envConfigUrl = '__CONFIG_SERVER_HOST__';
+            const envConfigUrl = 'undefined';
             if (!envConfigUrl.startsWith('undefined')) {
               loadOptions.configUrl = envConfigUrl;
             }
-            rudderanalytics.load('__WRITE_KEY__', '__DATAPLANE_URL__', loadOptions);
+            // Don't auto-load the SDK - wait for user configuration
+            window.rudderLoadOptions = loadOptions;
           }
         }
       })();
 
       const localRudderAnalyticsRef = window.rudderanalytics;
 
-      // prettier-ignore
-      rudderanalytics.identify(
-        'customUserID',
-        {
-          name: 'John Doe',
-          title: 'CEO',
-          email: 'name.surname@domain.com',
-          company: 'Company123',
-          phone: '123-456-7890',
-          rating: 'Hot',
-          city: 'Austin',
-          postalCode: '12345',
-          country: 'US',
-          street: 'Sample Address',
-          state: 'TX',
-        },
-        function (message) {
-          console.log('in identify call', message);
+      // Global variables for playground state
+      let activeConfiguration = null;
+      let isSDKLoadStarted = false;
+      let isUpdatingFromForm = false; // Prevent circular updates
+      let isUpdatingFromJson = false; // Prevent circular updates
+      let lastJsonValue = null; // Track the JSON value when editor gets focus
+
+      // Function to check if JSON is valid
+      function isValidJson(jsonString) {
+        try {
+          JSON.parse(jsonString);
+          return true;
+        } catch (e) {
+          return false;
         }
-      );
+      }
 
-      // prettier-ignore
-      rudderanalytics.page(
-        'Home',
-        'Cart Viewed',
-        {
-          path: '',
-          referrer: '',
-          search: '',
-          title: '',
-          url: '',
-        },
-        function (message) {
-          console.log('in page call', message);
+      // Function to validate JSON editor content
+      function validateJsonEditor() {
+        const jsonContent = $('#json-editor').val();
+        const $status = $('#json-status');
+        
+        if (isValidJson(jsonContent)) {
+          $status.html('<span class="badge bg-success">✓ Valid JSON</span>');
+          return true;
+        } else {
+          $status.html('<span class="badge bg-danger">✗ Invalid JSON</span>');
+          return false;
         }
-      );
+      }
 
-      // prettier-ignore
-      rudderanalytics.track(
-        'test track event 1',
-        {
-          revenue: 30,
-          currency: 'USD',
-          user_actual_id: 12345,
-        },
-        function (message) {
-          console.log('in track call 1', message);
+
+
+      // Function to apply JSON configuration to form controls (only LoadOptions, not writeKey/dataPlaneUrl)
+      function applyJsonToForm(config) {
+        // JSON only contains LoadOptions, not writeKey or dataPlaneUrl
+        
+        // Basic Options
+        if (config.logLevel) $('#logLevel').val(config.logLevel);
+        if (config.configUrl) $('#configUrl').val(config.configUrl);
+        if (config.integrations) {
+          $('#loadAllIntegrations').prop('checked', config.integrations.All ?? true);
         }
-      );
-
-      // prettier-ignore
-      rudderanalytics.track(
-        'test track event 2',
-        {
-          revenue: 45,
-          currency: 'INR',
-          user_actual_id: 333,
-        },
-        function (message) {
-          console.log('in track call 2', message);
+        if (config.loadIntegration && typeof config.loadIntegration !== 'undefined') {
+          $('#loadNativeSDK').prop('checked', config.loadIntegration);
         }
-      );
-
-      // prettier-ignore
-      rudderanalytics.track(
-        'test track event 3',
-        {
-          revenue: 10003,
-          currency: 'EUR',
-          user_actual_id: 5678,
-        },
-        function (message) {
-          console.log('in track call 3', message);
+        if (typeof config.useBeacon !== 'undefined') $('#useBeacon').prop('checked', config.useBeacon);
+        if (typeof config.secureCookie !== 'undefined') $('#secureCookie').prop('checked', config.secureCookie);
+        if (typeof config.bufferDataPlaneEventsUntilReady !== 'undefined') {
+          $('#bufferDataPlaneEventsUntilReady').prop('checked', config.bufferDataPlaneEventsUntilReady);
         }
-      );
+        
+        // Advanced Options (existing)
+        if (config.destSDKBaseURL) $('#destSDKBaseURL').val(config.destSDKBaseURL);
+        if (config.pluginsSDKBaseURL) $('#pluginsSDKBaseURL').val(config.pluginsSDKBaseURL);
+        if (typeof config.polyfillIfRequired !== 'undefined') $('#polyfillIfRequired').prop('checked', config.polyfillIfRequired);
+        if (typeof config.sendAdblockPage !== 'undefined') $('#sendAdblockPage').prop('checked', config.sendAdblockPage);
+        if (typeof config.sameDomainCookiesOnly !== 'undefined') $('#sameDomainCookiesOnly').prop('checked', config.sameDomainCookiesOnly);
+        if (config.dataPlaneEventsBufferTimeout) $('#dataPlaneEventsBufferTimeout').val(config.dataPlaneEventsBufferTimeout);
+        
+        // Performance & Transport Options
+        if (config.uaChTrackLevel) $('#uaChTrackLevel').val(config.uaChTrackLevel);
+        if (typeof config.useGlobalIntegrationsConfigInEvents !== 'undefined') {
+          $('#useGlobalIntegrationsConfigInEvents').prop('checked', config.useGlobalIntegrationsConfigInEvents);
+        }
+        
+        // URLs & Endpoints
+        if (config.polyfillURL) $('#polyfillURL').val(config.polyfillURL);
+        if (config.dataServiceEndpoint) $('#dataServiceEndpoint').val(config.dataServiceEndpoint);
+        
+        // Plugin Configuration
+        if (config.plugins && Array.isArray(config.plugins)) {
+          setPluginSelections(config.plugins);
+        }
+        
+        // Queue Options
+        if (config.queueOptions) {
+          if (config.queueOptions.maxItems) $('#queueMaxItems').val(config.queueOptions.maxItems);
+          if (config.queueOptions.maxAttempts) $('#queueMaxAttempts').val(config.queueOptions.maxAttempts);
+          if (config.queueOptions.timerScaleFactor) $('#timerScaleFactor').val(config.queueOptions.timerScaleFactor);
+          if (config.queueOptions.maxRetryDelay) $('#queueMaxRetryDelay').val(config.queueOptions.maxRetryDelay);
+          if (config.queueOptions.minRetryDelay) $('#queueMinRetryDelay').val(config.queueOptions.minRetryDelay);
+          if (config.queueOptions.backoffFactor) $('#queueBackoffFactor').val(config.queueOptions.backoffFactor);
+          if (config.queueOptions.backoffJitter) $('#queueBackoffJitter').val(config.queueOptions.backoffJitter);
+          
+          // Batch options
+          if (config.queueOptions.batch) {
+            if (typeof config.queueOptions.batch.enabled !== 'undefined') {
+              $('#queueBatchEnabled').prop('checked', config.queueOptions.batch.enabled);
+            }
+            if (config.queueOptions.batch.maxItems) $('#queueBatchMaxItems').val(config.queueOptions.batch.maxItems);
+            if (config.queueOptions.batch.maxSize) $('#queueBatchMaxSize').val(config.queueOptions.batch.maxSize);
+            if (config.queueOptions.batch.flushInterval) $('#queueBatchFlushInterval').val(config.queueOptions.batch.flushInterval);
+          }
+        }
+        
+        // Destination Queue Options
+        if (config.destinationsQueueOptions && config.destinationsQueueOptions.maxItems) {
+          $('#destinationsQueueMaxItems').val(config.destinationsQueueOptions.maxItems);
+        }
+        
+        // Beacon Queue Options
+        if (config.beaconQueueOptions) {
+          if (config.beaconQueueOptions.maxItems) $('#beaconQueueMaxItems').val(config.beaconQueueOptions.maxItems);
+          if (config.beaconQueueOptions.flushQueueInterval) $('#beaconQueueFlushInterval').val(config.beaconQueueOptions.flushQueueInterval);
+        }
+        
+        // Session & Tracking Options
+        if (config.sessions) {
+          if (typeof config.sessions.autoTrack !== 'undefined') $('#sessionAutoTrack').prop('checked', config.sessions.autoTrack);
+          if (config.sessions.timeout) $('#sessionTimeout').val(config.sessions.timeout);
+          
+          // Session cutoff options
+          if (config.sessions.cutOff) {
+            if (typeof config.sessions.cutOff.enabled !== 'undefined') {
+              $('#sessionCutoffEnabled').prop('checked', config.sessions.cutOff.enabled);
+            }
+            if (config.sessions.cutOff.duration) {
+              $('#sessionCutoffDuration').val(config.sessions.cutOff.duration);
+            }
+          }
+        }
+        
+        if (config.autoTrack) {
+          if (typeof config.autoTrack.enabled !== 'undefined') {
+            $('#autoTrackEnabled').prop('checked', config.autoTrack.enabled);
+          }
+          
+          // Page lifecycle options
+          if (config.autoTrack.pageLifecycle) {
+            if (typeof config.autoTrack.pageLifecycle.enabled !== 'undefined') {
+              $('#pageLifecycleEnabled').prop('checked', config.autoTrack.pageLifecycle.enabled);
+            }
+          }
+        }
+        
+        // Consent Management Options
+        if (config.consentManagement) {
+          if (typeof config.consentManagement.enabled !== 'undefined') {
+            $('#consentManagementEnabled').prop('checked', config.consentManagement.enabled);
+          }
+          if (config.consentManagement.provider) {
+            $('#consentProvider').val(config.consentManagement.provider);
+          }
+          if (config.consentManagement.allowedConsentIds && Array.isArray(config.consentManagement.allowedConsentIds)) {
+            $('#allowedConsentIds').val(config.consentManagement.allowedConsentIds.join(', '));
+          }
+          if (config.consentManagement.deniedConsentIds && Array.isArray(config.consentManagement.deniedConsentIds)) {
+            $('#deniedConsentIds').val(config.consentManagement.deniedConsentIds.join(', '));
+          }
+        }
+        
+        if (config.anonymousIdOptions && config.anonymousIdOptions.autoCapture) {
+          if (typeof config.anonymousIdOptions.autoCapture.enabled !== 'undefined') {
+            $('#anonymousIdAutoCapture').prop('checked', config.anonymousIdOptions.autoCapture.enabled);
+          }
+          if (config.anonymousIdOptions.autoCapture.source) {
+            $('#anonymousIdSource').val(config.anonymousIdOptions.autoCapture.source);
+          }
+        }
+        
+        // Privacy & Consent Options
+        if (config.preConsent) {
+          if (typeof config.preConsent.enabled !== 'undefined') {
+            $('#preConsentEnabled').prop('checked', config.preConsent.enabled);
+          }
+          if (config.preConsent.storage && config.preConsent.storage.strategy) {
+            $('#preConsentStorageStrategy').val(config.preConsent.storage.strategy);
+          }
+          if (config.preConsent.events && config.preConsent.events.delivery) {
+            $('#preConsentEventsDelivery').val(config.preConsent.events.delivery);
+          }
+        }
+        
+        // Storage Configuration
+        if (config.storage) {
+          if (config.storage.type) {
+            $('#storageType').val(config.storage.type);
+          }
+          if (config.storage.encryption && config.storage.encryption.version) {
+            $('#storageEncryptionVersion').val(config.storage.encryption.version);
+          }
+          if (typeof config.storage.migrate !== 'undefined') {
+            $('#storageMigrate').prop('checked', config.storage.migrate);
+          }
+          
+          // Storage cookie options
+          if (config.storage.cookie) {
+            if (config.storage.cookie.domain) {
+              $('#storageCookieDomain').val(config.storage.cookie.domain);
+            }
+            if (config.storage.cookie.samesite) {
+              $('#storageCookieSameSite').val(config.storage.cookie.samesite);
+            }
+            if (config.storage.cookie.path) {
+              $('#storageCookiePath').val(config.storage.cookie.path);
+            }
+            if (config.storage.cookie.maxage) {
+              $('#storageCookieMaxAge').val(config.storage.cookie.maxage);
+            }
+            if (config.storage.cookie.expires) {
+              // Convert Date object to datetime-local format
+              const expires = new Date(config.storage.cookie.expires);
+              const localDateTime = new Date(expires.getTime() - expires.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+              $('#storageCookieExpires').val(localDateTime);
+            }
+            if (typeof config.storage.cookie.secure !== 'undefined') {
+              $('#storageCookieSecure').prop('checked', config.storage.cookie.secure);
+            }
+          }
+          
+          // Storage entries
+          if (config.storage.entries) {
+            if (config.storage.entries.userId) {
+              $('#storageEntryUserId').val(config.storage.entries.userId.type);
+            }
+            if (config.storage.entries.userTraits) {
+              $('#storageEntryUserTraits').val(config.storage.entries.userTraits.type);
+            }
+            if (config.storage.entries.anonymousId) {
+              $('#storageEntryAnonymousId').val(config.storage.entries.anonymousId.type);
+            }
+            if (config.storage.entries.groupId) {
+              $('#storageEntryGroupId').val(config.storage.entries.groupId.type);
+            }
+            if (config.storage.entries.groupTraits) {
+              $('#storageEntryGroupTraits').val(config.storage.entries.groupTraits.type);
+            }
+            if (config.storage.entries.sessionInfo) {
+              $('#storageEntrySessionInfo').val(config.storage.entries.sessionInfo.type);
+            }
+            if (config.storage.entries.initialReferrer) {
+              $('#storageEntryInitialReferrer').val(config.storage.entries.initialReferrer.type);
+            }
+            if (config.storage.entries.initialReferringDomain) {
+              $('#storageEntryInitialReferringDomain').val(config.storage.entries.initialReferringDomain.type);
+            }
+            if (config.storage.entries.authToken) {
+              $('#storageEntryAuthToken').val(config.storage.entries.authToken.type);
+            }
+          }
+        }
+        
+        // AdBlock Page Options
+        if (config.sendAdblockPageOptions && config.sendAdblockPageOptions.customizeText) {
+          $('#sendAdblockPageCustomText').val(config.sendAdblockPageOptions.customizeText);
+        }
+      }
 
-      // prettier-ignore
-      rudderanalytics.ready(function () {
-        console.log('All ready!!!');
+      // Function to combine selected plugin checkboxes with custom plugins
+      function getCombinedPlugins() {
+        const selectedPlugins = [];
+        
+        // Get checked plugins from checkboxes
+        document.querySelectorAll('.plugin-checkbox:checked').forEach(checkbox => {
+          selectedPlugins.push(checkbox.value);
+        });
+        
+        // Get custom plugins from text input
+        const customPlugins = document.getElementById('customPlugins')?.value;
+        if (customPlugins) {
+          const customPluginList = customPlugins.split(',').map(p => p.trim()).filter(p => p);
+          selectedPlugins.push(...customPluginList);
+        }
+        
+        // Update the hidden plugins field for JSON sync
+        const hiddenPluginsField = document.getElementById('plugins');
+        if (hiddenPluginsField) {
+          hiddenPluginsField.value = selectedPlugins.join(',');
+        }
+        
+        return selectedPlugins.length > 0 ? selectedPlugins : undefined;
+      }
 
-        // Once the SDK is ready, fire an event from a cached reference to
-        // window.rudderanalytics
-        localRudderAnalyticsRef.track(
-          'Test track event with cached RS reference',
-          {
-            revenue: 10003,
-            currency: 'EUR',
-            user_actual_id: 5678,
+      // Function to set plugin checkboxes and custom field from plugin array
+      function setPluginSelections(pluginArray) {
+        // Clear all plugin checkboxes first
+        document.querySelectorAll('.plugin-checkbox').forEach(checkbox => {
+          checkbox.checked = false;
+        });
+        
+        // Clear custom plugins field
+        const customPluginsField = document.getElementById('customPlugins');
+        if (customPluginsField) {
+          customPluginsField.value = '';
+        }
+        
+        if (!pluginArray || !Array.isArray(pluginArray)) {
+          return;
+        }
+        
+        const knownPlugins = [];
+        const unknownPlugins = [];
+        
+        // Separate known plugins (that have checkboxes) from unknown ones
+        pluginArray.forEach(plugin => {
+          const checkbox = document.getElementById(`plugin-${plugin}`);
+          if (checkbox) {
+            checkbox.checked = true;
+            knownPlugins.push(plugin);
+          } else {
+            unknownPlugins.push(plugin);
+          }
+        });
+        
+        // Set unknown plugins in the custom field
+        if (unknownPlugins.length > 0 && customPluginsField) {
+          customPluginsField.value = unknownPlugins.join(', ');
+        }
+        
+        // Update hidden field
+        const hiddenPluginsField = document.getElementById('plugins');
+        if (hiddenPluginsField) {
+          hiddenPluginsField.value = pluginArray.join(',');
+        }
+      }
+
+      // Function to build load options from form values only (ignores editor mode)
+      function buildConfigFromFormControls() {
+        const baseOptions = window.rudderLoadOptions || {};
+        
+        const formLoadOptions = {
+          ...baseOptions,
+          // Basic Options
+          logLevel: document.getElementById('logLevel')?.value || 'DEBUG',
+          configUrl: document.getElementById('configUrl')?.value || undefined,
+          integrations: {
+            All: document.getElementById('loadAllIntegrations')?.checked !== false,
           },
-          function (message) {
-            console.log('in track call 4', message);
+          loadIntegration: document.getElementById('loadNativeSDK')?.checked || false,
+          useBeacon: document.getElementById('useBeacon')?.checked || false,
+          secureCookie: document.getElementById('secureCookie')?.checked || false,
+          bufferDataPlaneEventsUntilReady: document.getElementById('bufferDataPlaneEventsUntilReady')?.checked || false,
+          
+          // Advanced Options (existing)
+          destSDKBaseURL: document.getElementById('destSDKBaseURL')?.value || undefined,
+          pluginsSDKBaseURL: document.getElementById('pluginsSDKBaseURL')?.value || undefined,
+          polyfillIfRequired: document.getElementById('polyfillIfRequired')?.checked !== false,
+          sendAdblockPage: document.getElementById('sendAdblockPage')?.checked || false,
+          sameDomainCookiesOnly: document.getElementById('sameDomainCookiesOnly')?.checked || false,
+          dataPlaneEventsBufferTimeout: parseInt(document.getElementById('dataPlaneEventsBufferTimeout')?.value) || 10000,
+          
+          // Performance & Transport Options
+          uaChTrackLevel: document.getElementById('uaChTrackLevel')?.value || 'default',
+          useGlobalIntegrationsConfigInEvents: document.getElementById('useGlobalIntegrationsConfigInEvents')?.checked || false,
+          
+          // URLs & Endpoints
+          polyfillURL: document.getElementById('polyfillURL')?.value || undefined,
+          dataServiceEndpoint: document.getElementById('dataServiceEndpoint')?.value || undefined,
+          
+          // Plugin Configuration
+          plugins: getCombinedPlugins(),
+          
+          // Queue Options (General queue configuration)
+          queueOptions: {
+            maxItems: parseInt(document.getElementById('queueMaxItems')?.value) || 100,
+            maxAttempts: parseInt(document.getElementById('queueMaxAttempts')?.value) || 10,
+            timerScaleFactor: parseFloat(document.getElementById('timerScaleFactor')?.value) || 1,
+            maxRetryDelay: parseInt(document.getElementById('queueMaxRetryDelay')?.value) || 360000,
+            minRetryDelay: parseInt(document.getElementById('queueMinRetryDelay')?.value) || 1000,
+            backoffFactor: parseFloat(document.getElementById('queueBackoffFactor')?.value) || 2,
+            backoffJitter: parseFloat(document.getElementById('queueBackoffJitter')?.value) || 0,
+            batch: {
+              enabled: document.getElementById('queueBatchEnabled')?.checked || false,
+              maxItems: parseInt(document.getElementById('queueBatchMaxItems')?.value) || 10,
+              maxSize: parseInt(document.getElementById('queueBatchMaxSize')?.value) || 512000,
+              flushInterval: parseInt(document.getElementById('queueBatchFlushInterval')?.value) || 10000,
+            },
+          },
+          
+          // Destination Queue Options
+          destinationsQueueOptions: {
+            maxItems: parseInt(document.getElementById('destinationsQueueMaxItems')?.value) || 100,
+          },
+          
+          // Beacon Queue Options
+          beaconQueueOptions: {
+            maxItems: parseInt(document.getElementById('beaconQueueMaxItems')?.value) || 100,
+            flushQueueInterval: parseInt(document.getElementById('beaconQueueFlushInterval')?.value) || 10000,
+          },
+          
+          // Session & Tracking Options
+          sessions: {
+            autoTrack: document.getElementById('sessionAutoTrack')?.checked !== false,
+            timeout: parseInt(document.getElementById('sessionTimeout')?.value) || 1800000,
+            cutOff: document.getElementById('sessionCutoffEnabled')?.checked ? {
+              enabled: true,
+              duration: parseInt(document.getElementById('sessionCutoffDuration')?.value) || 300000,
+            } : undefined,
+          },
+          
+          autoTrack: {
+            enabled: document.getElementById('autoTrackEnabled')?.checked || false,
+            pageLifecycle: document.getElementById('pageLifecycleEnabled')?.checked ? {
+              enabled: true,
+            } : undefined,
+          },
+          
+          // Consent Management Options
+          consentManagement: document.getElementById('consentManagementEnabled')?.checked ? {
+            enabled: true,
+            provider: document.getElementById('consentProvider')?.value || undefined,
+            allowedConsentIds: document.getElementById('allowedConsentIds')?.value ? 
+              document.getElementById('allowedConsentIds').value.split(',').map(id => id.trim()).filter(id => id) : 
+              undefined,
+            deniedConsentIds: document.getElementById('deniedConsentIds')?.value ? 
+              document.getElementById('deniedConsentIds').value.split(',').map(id => id.trim()).filter(id => id) : 
+              undefined,
+          } : undefined,
+          
+          anonymousIdOptions: {
+            autoCapture: {
+              enabled: document.getElementById('anonymousIdAutoCapture')?.checked === true,
+              source: document.getElementById('anonymousIdSource')?.value,
+            },
+          },
+          
+          // Privacy & Consent Options
+          preConsent: {
+            enabled: document.getElementById('preConsentEnabled')?.checked || false,
+            storage: {
+              strategy: document.getElementById('preConsentStorageStrategy')?.value || 'session',
+            },
+            events: {
+              delivery: document.getElementById('preConsentEventsDelivery')?.value || 'buffer',
+            },
+          },
+          
+          // Storage Configuration
+          storage: {
+            type: document.getElementById('storageType')?.value || 'cookieStorage',
+            encryption: {
+              version: document.getElementById('storageEncryptionVersion')?.value || 'v3',
+            },
+            migrate: document.getElementById('storageMigrate')?.checked !== false,
+            cookie: {
+              ...(document.getElementById('storageCookieDomain')?.value && {
+                domain: document.getElementById('storageCookieDomain').value
+              }),
+              ...(document.getElementById('storageCookieSameSite')?.value && {
+                samesite: document.getElementById('storageCookieSameSite').value
+              }),
+              ...(document.getElementById('storageCookiePath')?.value && {
+                path: document.getElementById('storageCookiePath').value
+              }),
+              ...(document.getElementById('storageCookieMaxAge')?.value && {
+                maxage: parseInt(document.getElementById('storageCookieMaxAge').value)
+              }),
+              ...(document.getElementById('storageCookieExpires')?.value && {
+                expires: new Date(document.getElementById('storageCookieExpires').value)
+              }),
+              ...(document.getElementById('storageCookieSecure')?.checked && {
+                secure: true
+              }),
+            },
+            entries: {
+              ...(document.getElementById('storageEntryUserId')?.value && {
+                userId: { type: document.getElementById('storageEntryUserId').value }
+              }),
+              ...(document.getElementById('storageEntryUserTraits')?.value && {
+                userTraits: { type: document.getElementById('storageEntryUserTraits').value }
+              }),
+              ...(document.getElementById('storageEntryAnonymousId')?.value && {
+                anonymousId: { type: document.getElementById('storageEntryAnonymousId').value }
+              }),
+              ...(document.getElementById('storageEntryGroupId')?.value && {
+                groupId: { type: document.getElementById('storageEntryGroupId').value }
+              }),
+              ...(document.getElementById('storageEntryGroupTraits')?.value && {
+                groupTraits: { type: document.getElementById('storageEntryGroupTraits').value }
+              }),
+              ...(document.getElementById('storageEntrySessionInfo')?.value && {
+                sessionInfo: { type: document.getElementById('storageEntrySessionInfo').value }
+              }),
+              ...(document.getElementById('storageEntryInitialReferrer')?.value && {
+                initialReferrer: { type: document.getElementById('storageEntryInitialReferrer').value }
+              }),
+              ...(document.getElementById('storageEntryInitialReferringDomain')?.value && {
+                initialReferringDomain: { type: document.getElementById('storageEntryInitialReferringDomain').value }
+              }),
+              ...(document.getElementById('storageEntryAuthToken')?.value && {
+                authToken: { type: document.getElementById('storageEntryAuthToken').value }
+              }),
+            },
+          },
+          
+          // AdBlock Page Options
+          sendAdblockPageOptions: document.getElementById('sendAdblockPageCustomText')?.value ? {
+            customizeText: document.getElementById('sendAdblockPageCustomText').value,
+          } : undefined,
+        };
+
+        // Apply the environment overrides (same as original logic)
+        const envDestSDKBaseURL = 'undefined';
+        if (!envDestSDKBaseURL.startsWith('undefined')) {
+          formLoadOptions.destSDKBaseURL = envDestSDKBaseURL + window.rudderAnalyticsBuildType + '/js-integrations';
+        }
+        const envPluginsSDKBaseURL = 'undefined';
+        if (!envPluginsSDKBaseURL.startsWith('undefined')) {
+          formLoadOptions.pluginsSDKBaseURL = envPluginsSDKBaseURL + window.rudderAnalyticsBuildType + '/plugins';
+        }
+
+        // Return only loadOptions (writeKey and dataPlaneUrl are separate)
+        return formLoadOptions;
+      }
+
+      // Function to build load options - try JSON first, fall back to form values
+      function buildLoadOptionsFromForm() {
+        const jsonContent = $('#json-editor').val();
+        
+        // Try JSON first if it's valid
+        if (jsonContent && isValidJson(jsonContent)) {
+          try {
+            const jsonConfig = JSON.parse(jsonContent);
+            return jsonConfig;
+          } catch (e) {
+            showToast('Invalid JSON configuration - using form values', 'warning');
+          }
+        }
+
+        // Fall back to form values
+        return buildConfigFromFormControls();
+      }
+
+      // Function to update JSON editor from form values
+      function updateJsonFromForm() {
+        if (isUpdatingFromJson) return; // Prevent circular updates
+        
+        isUpdatingFromForm = true;
+        
+        const loadOptions = buildConfigFromFormControls();
+        
+        // Update JSON editor
+        const newJsonContent = JSON.stringify(loadOptions, null, 2);
+        $('#json-editor').val(newJsonContent);
+        validateJsonEditor();
+        
+        // Update tracking value since we just updated from form
+        lastJsonValue = newJsonContent;
+        
+        // Add visual feedback
+        $('#json-editor').addClass('sync-update');
+        setTimeout(() => $('#json-editor').removeClass('sync-update'), 1000);
+        
+        isUpdatingFromForm = false;
+      }
+      
+      // Function to update form controls from JSON editor
+      function updateFormFromJson(showFeedback = true) {
+        if (isUpdatingFromForm) return; // Prevent circular updates
+        
+        const jsonContent = $('#json-editor').val();
+        if (!isValidJson(jsonContent)) {
+          return; // Don't update form with invalid JSON
+        }
+        
+        isUpdatingFromJson = true;
+        
+        try {
+          const config = JSON.parse(jsonContent);
+          applyJsonToForm(config);
+          
+          if (showFeedback) {
+            // Add visual feedback to form controls (exclude writeKey and dataPlaneUrl since they're not in JSON)
+            $('.form-control, .form-check-input, .form-select').not('#writeKey, #dataPlaneUrl').addClass('sync-update');
+            setTimeout(() => $('.form-control, .form-check-input, .form-select').not('#writeKey, #dataPlaneUrl').removeClass('sync-update'), 1000);
+            
+            showToast('Form updated from JSON', 'success');
+          }
+        } catch (e) {
+          if (showFeedback) {
+            showToast('Invalid JSON - form not updated', 'error');
+          }
+        }
+        
+        isUpdatingFromJson = false;
+      }
+
+      // Function to start the playground with smooth transitions
+      function startPlayground() {
+        try {
+          // Validate JSON configuration before loading SDK
+          const jsonContent = $('#json-editor').val();
+          if (jsonContent && !isValidJson(jsonContent)) {
+            showToast('Please fix JSON syntax errors before loading the SDK', 'danger');
+            $('#json-editor').focus();
+            return;
+          }
+          
+          // Get SDK parameters and load options separately
+          const writeKey = document.getElementById('writeKey')?.value?.trim();
+          const dataPlaneUrl = document.getElementById('dataPlaneUrl')?.value?.trim();
+          const loadOptions = buildLoadOptionsFromForm();
+          
+          // Validate required fields
+          if (!writeKey) {
+            showToast('Write Key is required to load the SDK', 'danger');
+            $('#writeKey').focus();
+            return;
+          }
+          
+          if (!dataPlaneUrl) {
+            showToast('Data Plane URL is required to load the SDK', 'danger');
+            $('#dataPlaneUrl').focus();
+            return;
+          }
+          
+          // Show loading state with Bootstrap spinner
+          const $startBtn = $('#startPlaygroundBtn');
+          const originalHtml = $startBtn.html();
+          $startBtn.prop('disabled', true)
+                  .html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Loading SDK...');
+
+          // Initialize the SDK with the configuration
+          console.log('🚀 Loading SDK with Write Key:', writeKey, 'Data Plane:', dataPlaneUrl, 'Load Options:', loadOptions);
+          
+          // Load the SDK with separate parameters
+          window.rudderanalytics.load(writeKey, dataPlaneUrl, loadOptions);
+          
+          // Save the active configuration (only loadOptions, writeKey and dataPlaneUrl are separate)
+          activeConfiguration = JSON.parse(JSON.stringify(loadOptions));
+          isSDKLoadStarted = true;
+
+          // Show success toast
+          showToast('SDK load started successfully!', 'success');
+
+          // Smooth phase transition with jQuery animations
+          setTimeout(() => {
+            // Fade out configuration phase
+            $('#configuration-phase').fadeOut(500, function() {
+              // Show playground phase with fade in
+              $('#playground-phase').fadeIn(500, function() {
+                // Update active configuration display
+                $('#active-config').text(JSON.stringify(activeConfiguration, null, 2));
+                
+                // Add fade-in animation to cards
+                $('.fade-in').each(function(index) {
+                  $(this).css('opacity', '0').delay(index * 100).animate({opacity: 1}, 300);
+                });
+              });
+            });
+
+            console.log('✅ SDK Playground ready!');
+          }, 1000);
+
+        } catch (error) {
+          console.error('❌ Error starting playground:', error);
+          showToast('Error starting playground. Check console for details.', 'danger');
+          
+          // Restore button state
+          $('#startPlaygroundBtn').prop('disabled', false).html(originalHtml);
+        }
+      }
+
+      // Function to go back to configuration
+      function backToConfiguration() {
+        if (confirm('Going back will reload the page and reset the SDK. Are you sure?')) {
+          // Reset page
+          window.location.reload();
+        }
+      }
+
+      // Function to reset form to defaults (only LoadOptions, not writeKey/dataPlaneUrl)
+      function resetToDefaults() {
+        // Reset basic LoadOptions form controls
+        document.getElementById('logLevel').value = 'DEBUG';
+        document.getElementById('configUrl').value = 'https://api.rudderstack.com';
+        document.getElementById('loadAllIntegrations').checked = true;
+        document.getElementById('loadNativeSDK').checked = true;
+        document.getElementById('useBeacon').checked = false;
+        document.getElementById('secureCookie').checked = false;
+        document.getElementById('bufferDataPlaneEventsUntilReady').checked = false;
+
+        // Reset advanced options (existing)
+        document.getElementById('destSDKBaseURL').value = 'https://cdn.rudderlabs.com/latest/v3/modern/js-integrations';
+        document.getElementById('pluginsSDKBaseURL').value = 'https://cdn.rudderlabs.com/latest/v3/modern/plugins';
+        document.getElementById('polyfillIfRequired').checked = true;
+        document.getElementById('sendAdblockPage').checked = false;
+        document.getElementById('sameDomainCookiesOnly').checked = false;
+        document.getElementById('dataPlaneEventsBufferTimeout').value = '10000';
+
+        // Reset Performance & Transport Options
+        document.getElementById('uaChTrackLevel').value = 'default';
+        document.getElementById('useGlobalIntegrationsConfigInEvents').checked = false;
+
+        // Reset URLs & Endpoints
+        document.getElementById('polyfillURL').value = '';
+        document.getElementById('dataServiceEndpoint').value = '';
+
+        // Reset Plugin & Queue Configuration
+        document.getElementById('queueMaxItems').value = '100';
+        document.getElementById('queueMaxAttempts').value = '10';
+        document.getElementById('timerScaleFactor').value = '1';
+        document.getElementById('queueMaxRetryDelay').value = '360000';
+        document.getElementById('queueMinRetryDelay').value = '1000';
+        document.getElementById('queueBackoffFactor').value = '2';
+        document.getElementById('queueBackoffJitter').value = '0';
+        document.getElementById('queueBatchEnabled').checked = false;
+        document.getElementById('queueBatchMaxItems').value = '10';
+        document.getElementById('queueBatchMaxSize').value = '512000';
+        document.getElementById('queueBatchFlushInterval').value = '10000';
+        document.getElementById('destinationsQueueMaxItems').value = '100';
+
+        // Reset Beacon Queue Options
+        document.getElementById('beaconQueueMaxItems').value = '100';
+        document.getElementById('beaconQueueFlushInterval').value = '10000';
+        
+        // Reset Plugin Configuration
+        document.querySelectorAll('.plugin-checkbox').forEach(checkbox => {
+          checkbox.checked = false;
+        });
+        document.getElementById('customPlugins').value = '';
+        document.getElementById('plugins').value = '';
+        
+        // Reset Session & Tracking Options
+        document.getElementById('sessionAutoTrack').checked = true;
+        document.getElementById('sessionTimeout').value = '1800000';
+        document.getElementById('sessionCutoffEnabled').checked = false;
+        document.getElementById('sessionCutoffDuration').value = '300000';
+        document.getElementById('autoTrackEnabled').checked = false;
+        document.getElementById('pageLifecycleEnabled').checked = false;
+        
+        // Reset Consent Management Options
+        document.getElementById('consentManagementEnabled').checked = false;
+        document.getElementById('consentProvider').value = '';
+        document.getElementById('allowedConsentIds').value = '';
+        document.getElementById('deniedConsentIds').value = '';
+        document.getElementById('anonymousIdAutoCapture').checked = false;
+        document.getElementById('anonymousIdSource').value = '';
+
+        // Reset Privacy & Consent Options
+        document.getElementById('preConsentEnabled').checked = false;
+        document.getElementById('preConsentStorageStrategy').value = 'session';
+        document.getElementById('preConsentEventsDelivery').value = 'buffer';
+
+        // Reset Storage Configuration
+        document.getElementById('storageType').value = 'cookieStorage';
+        document.getElementById('storageEncryptionVersion').value = 'v3';
+        document.getElementById('storageMigrate').checked = true;
+        
+        // Reset Storage Cookie Options
+        document.getElementById('storageCookieDomain').value = '';
+        document.getElementById('storageCookieSameSite').value = '';
+        document.getElementById('storageCookiePath').value = '';
+        document.getElementById('storageCookieMaxAge').value = '';
+        document.getElementById('storageCookieExpires').value = '';
+        document.getElementById('storageCookieSecure').checked = false;
+        
+        // Reset Storage Entries
+        document.getElementById('storageEntryUserId').value = '';
+        document.getElementById('storageEntryUserTraits').value = '';
+        document.getElementById('storageEntryAnonymousId').value = '';
+        document.getElementById('storageEntryGroupId').value = '';
+        document.getElementById('storageEntryGroupTraits').value = '';
+        document.getElementById('storageEntrySessionInfo').value = '';
+        document.getElementById('storageEntryInitialReferrer').value = '';
+        document.getElementById('storageEntryInitialReferringDomain').value = '';
+        document.getElementById('storageEntryAuthToken').value = '';
+        document.getElementById('sendAdblockPageCustomText').value = '';
+
+        // Update the JSON editor (only affects LoadOptions)
+        updateJsonFromForm();
+        showToast('Load options reset to defaults', 'info');
+      }
+
+
+
+      // Function to copy JSON to clipboard
+      function copyJsonToClipboard() {
+        const jsonEditor = document.getElementById('json-editor');
+        const jsonContent = jsonEditor.value;
+        
+        if (!jsonContent.trim()) {
+          showToast('No JSON content to copy', 'warning');
+          return;
+        }
+        
+        if (!isValidJson(jsonContent)) {
+          showToast('Cannot copy invalid JSON', 'error');
+          return;
+        }
+        
+        // Use modern clipboard API if available
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(jsonContent).then(() => {
+            showToast('JSON copied to clipboard!', 'success');
+          }).catch(() => {
+            fallbackCopyToClipboard(jsonContent);
+          });
+        } else {
+          fallbackCopyToClipboard(jsonContent);
+        }
+      }
+      
+      // Fallback copy method for older browsers
+      function fallbackCopyToClipboard(text) {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        try {
+          document.execCommand('copy');
+          showToast('JSON copied to clipboard!', 'success');
+        } catch (err) {
+          showToast('Failed to copy JSON to clipboard', 'error');
+        }
+        
+        document.body.removeChild(textArea);
+      }
+
+      // Initialize with jQuery when document is ready
+      $(document).ready(function() {
+        // Initialize the JSON editor
+        updateJsonFromForm();
+
+        // Add Bootstrap tooltips to all elements with data-bs-toggle="tooltip"
+        $('[data-bs-toggle="tooltip"]').tooltip();
+        
+        // Initialize tooltips for dynamically created elements
+        $(document).on('mouseenter', '[data-bs-toggle="tooltip"]', function() {
+          if (!$(this).attr('data-bs-original-title')) {
+            $(this).tooltip();
+          }
+        });
+
+        // Real-time form to JSON sync - update JSON when form controls change (exclude writeKey and dataPlaneUrl)
+        $('#logLevel, #configUrl, #loadAllIntegrations, #loadNativeSDK, #useBeacon, #secureCookie, #bufferDataPlaneEventsUntilReady, #destSDKBaseURL, #pluginsSDKBaseURL, #polyfillIfRequired, #sendAdblockPage, #sameDomainCookiesOnly, #dataPlaneEventsBufferTimeout, #uaChTrackLevel, #useGlobalIntegrationsConfigInEvents, #polyfillURL, #dataServiceEndpoint, #queueMaxItems, #queueMaxAttempts, #timerScaleFactor, #queueMaxRetryDelay, #queueMinRetryDelay, #queueBackoffFactor, #queueBackoffJitter, #queueBatchEnabled, #queueBatchMaxItems, #queueBatchMaxSize, #queueBatchFlushInterval, #destinationsQueueMaxItems, #beaconQueueMaxItems, #beaconQueueFlushInterval, #plugins, #sessionAutoTrack, #sessionTimeout, #sessionCutoffEnabled, #sessionCutoffDuration, #autoTrackEnabled, #pageLifecycleEnabled, #consentManagementEnabled, #consentProvider, #allowedConsentIds, #deniedConsentIds, #anonymousIdAutoCapture, #anonymousIdSource, #preConsentEnabled, #preConsentStorageStrategy, #preConsentEventsDelivery, #storageType, #storageEncryptionVersion, #storageMigrate, #storageCookieDomain, #storageCookieSameSite, #storageCookiePath, #storageCookieMaxAge, #storageCookieExpires, #storageCookieSecure, #storageEntryUserId, #storageEntryUserTraits, #storageEntryAnonymousId, #storageEntryGroupId, #storageEntryGroupTraits, #storageEntrySessionInfo, #storageEntryInitialReferrer, #storageEntryInitialReferringDomain, #storageEntryAuthToken, #sendAdblockPageCustomText, #customPlugins')
+          .on('change input', updateJsonFromForm);
+
+        // Add event handlers for plugin checkboxes
+        $('.plugin-checkbox').on('change', updateJsonFromForm);
+
+        // Add smooth hover effects to tracking buttons
+        $('.tracking-btn').hover(
+          function() {
+            $(this).addClass('shadow-lg');
+          },
+          function() {
+            $(this).removeClass('shadow-lg');
           }
         );
+
+        // Add loading animation to form switches
+        $('.form-check-input').on('change', function() {
+          const $this = $(this);
+          $this.prop('disabled', true);
+          setTimeout(() => {
+            $this.prop('disabled', false);
+            updateJsonFromForm();
+          }, 100);
+        });
+
+        // JSON editor - capture initial value when gaining focus
+        $('#json-editor').on('focus', function() {
+          if (!isUpdatingFromForm) {
+            lastJsonValue = $(this).val(); // Capture the value when user starts editing
+          }
+        });
+
+        // JSON editor - auto-format and update form when losing focus (blur)
+        $('#json-editor').on('blur', function() {
+          const currentJsonContent = $('#json-editor').val();
+          let wasAutoFormatted = false;
+          
+          // Auto-format JSON if valid (silent formatting without toast)
+          if (currentJsonContent && isValidJson(currentJsonContent)) {
+            try {
+              const parsed = JSON.parse(currentJsonContent);
+              const formatted = JSON.stringify(parsed, null, 2);
+              
+              // Only update if the formatted version is different
+              if (formatted !== currentJsonContent) {
+                $('#json-editor').val(formatted);
+                wasAutoFormatted = true;
+              }
+            } catch (e) {
+              // Silent fail - don't disrupt user experience with error toasts
+            }
+          }
+          
+          // Check if JSON content actually changed from when user started editing
+          const finalJsonContent = $('#json-editor').val(); // Get final content (might be formatted)
+          const hasActualChanges = finalJsonContent !== lastJsonValue;
+          
+          // Update form based on whether actual content changes occurred
+          if (finalJsonContent && isValidJson(finalJsonContent)) {
+            if (hasActualChanges) {
+              // Show visual feedback only when content actually changed (not just formatting)
+              updateFormFromJson(true);
+            } else {
+              // Silent update for formatting-only changes or no changes (keep form in sync)
+              updateFormFromJson(false);
+            }
+          }
+          
+          // Reset tracking value
+          lastJsonValue = null;
+        });
+
+        // JSON editor - validate on input
+        $('#json-editor').on('input', function() {
+          validateJsonEditor();
+        });
+
+        // JSON editor copy button
+        $('#copy-json').on('click', copyJsonToClipboard);
+
+        // Form submission validation
+        $('#sdk-config-form').on('submit', function(e) {
+          e.preventDefault();
+          
+          // Validate JSON before starting playground
+          const jsonContent = $('#json-editor').val();
+          if (jsonContent && !isValidJson(jsonContent)) {
+            showToast('Please fix JSON syntax errors before proceeding', 'danger');
+            $('#json-editor').focus();
+            return false;
+          }
+          
+          startPlayground();
+        });
+
+        // Add JSON editor keyboard shortcuts
+        $('#json-editor').on('keydown', function(e) {
+          // Tab key handling for proper indentation
+          if (e.keyCode === 9) {
+            e.preventDefault();
+            const start = this.selectionStart;
+            const end = this.selectionEnd;
+            const value = $(this).val();
+            $(this).val(value.substring(0, start) + '  ' + value.substring(end));
+            this.selectionStart = this.selectionEnd = start + 2;
+          }
+        });
+
+        // Initialize JSON editor with current form values
+        updateJsonFromForm();
+
+        // Show welcome toast
+        setTimeout(() => {
+          showToast('Welcome to RudderStack SDK Playground! 🚀', 'info');
+        }, 1000);
+
+        // Initialize any additional functionality if needed
+        // Tab navigation is handled automatically by Bootstrap
       });
 
+      // SDK Event Listeners for playground feedback
       document.addEventListener('RSA_Initialised', function (e) {
-        console.log('RSA_Initialised', e.detail.analyticsInstance);
+        showToast('SDK is initialised and loaded!', 'success');
+        console.log('🎯 RSA_Initialised', e.detail.analyticsInstance);
       });
 
       document.addEventListener('RSA_Ready', function (e) {
-        console.log('RSA_Ready', e.detail.analyticsInstance);
+        showToast('SDK is ready!', 'success');
+        console.log('✅ RSA_Ready', e.detail.analyticsInstance);
       });
     </script>
   </head>
   <body>
-    <h1>Test HTML file</h1>
-    <br />
+    <!-- PHASE 1: Configuration Phase -->
+    <div id="configuration-phase" class="phase-transition">
+      <div class="container-fluid px-3 py-4">
+        <div class="row">
+          <div class="col-12">
+            
+            <!-- Header -->
+            <div class="text-center mb-4">
+              <div class="card playground-header border-0 rounded-3 shadow">
+                <div class="card-body py-4">
+                  <h1 class="display-5 fw-bold mb-2">🚀 RudderStack JS SDK Playground</h1>
+                  <p class="mb-0 opacity-90">Configure your SDK load options and start experimenting</p>
+                </div>
+              </div>
+            </div>
 
-    <button data-testid="page-btn" onclick="page()">Page</button>
-    <button data-testid="identify-btn" onclick="identify()">identify</button>
-    <button data-testid="track-btn" onclick="track()">Track</button>
-    <button data-testid="alias-btn" onclick="alias()">Alias</button>
-    <button data-testid="group-btn" onclick="group()">Group</button>
-    <button data-testid="reload-page-btn" onclick="reloadPageWithEvents()">
-      Reload Page With Events
+            <!-- Action Buttons -->
+            <div class="text-center action-buttons-top">
+              <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <button type="button" id="startPlaygroundBtn" class="btn btn-primary btn-lg px-4 py-2" onclick="startPlayground()">
+                  🚀 Load SDK
+    </button>
+                <button type="button" class="btn btn-primary btn-lg px-4 py-2" onclick="resetToDefaults()">
+                  🔄 Reset to Defaults
     </button>
 
-    <p data-testid="action" id="action"></p>
-    <p data-testid="payload" id="rudderElement"></p>
+              </div>
+            </div>
+
+            <!-- SDK Configuration Panel -->
+            <div class="card border-0 shadow-lg rounded-3 fade-in">
+              <div class="card-header bg-primary text-white border-0 rounded-top-3">
+                <h2 class="h5 mb-0 fw-semibold">⚙️ SDK Configuration</h2>
+              </div>
+              <div class="card-body p-0">
+                
+                <form id="sdk-config-form">
+                  <div class="row g-0 config-columns">
+                    
+                    <!-- Left Column: Form Controls (2/3 width) -->
+                    <div id="formColumn" class="col-lg-8 config-left-column border-end">
+                      <div class="p-4">
+                        <!-- SDK Configuration -->
+                        <div class="row g-3 mb-4">
+                          <!-- Write Key -->
+                          <div class="col-md-6">
+                            <div class="form-floating">
+                              <input type="text" id="writeKey" class="form-control" placeholder="Your source write key" value="1weqc5iqxRkpaUXHgDgYo3g34mg" required />
+                              <label for="writeKey">Write Key *</label>
+                            </div>
+                            <div class="form-text">JavaScript source write key (required)</div>
+                          </div>
+
+                          <!-- Data Plane URL -->
+                          <div class="col-md-6">
+                            <div class="form-floating">
+                              <input type="text" id="dataPlaneUrl" class="form-control" value="https://rudderstacygnn.dataplane.rudderstack.com" placeholder="https://your-data-plane.com" required />
+                              <label for="dataPlaneUrl">Data Plane URL *</label>
+                            </div>
+                            <div class="form-text">Your RudderStack data plane URL (required)</div>
+                          </div>
+                        </div>
+
+                        <!-- Configuration Options with Collapsible Sections -->
+                        <div class="accordion accordion-flush" id="configurationAccordion">
+                          
+
+
+                          <!-- Integrations & Plugins -->
+                          <div class="accordion-item border-0 mb-3 rounded-3 shadow-sm">
+                            <h2 class="accordion-header" id="integrationsHeader">
+                              <button class="accordion-button collapsed bg-light fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#integrationsConfig" aria-expanded="false" aria-controls="integrationsConfig">
+                                🔧 Integrations & Plugins
+                              </button>
+                            </h2>
+                            <div id="integrationsConfig" class="accordion-collapse collapse" aria-labelledby="integrationsHeader" data-bs-parent="#configurationAccordion">
+                              <div class="accordion-body">
+                                <!-- Bootstrap Tabs for Integrations and Plugins -->
+                                <ul class="nav nav-tabs nav-fill mb-4" id="integrationsPluginsTabs" role="tablist">
+                                  <li class="nav-item" role="presentation">
+                                    <button class="nav-link active fw-semibold" id="integrations-tab" data-bs-toggle="tab" data-bs-target="#integrations-config" type="button" role="tab" aria-controls="integrations-config" aria-selected="true">
+                                      🔗 Integrations
+                                    </button>
+                                  </li>
+                                  <li class="nav-item" role="presentation">
+                                    <button class="nav-link fw-semibold" id="plugins-tab" data-bs-toggle="tab" data-bs-target="#plugins-config" type="button" role="tab" aria-controls="plugins-config" aria-selected="false">
+                                      🧩 Plugins
+                                    </button>
+                                  </li>
+                                </ul>
+
+                                <div class="tab-content" id="integrationsPluginsTabContent">
+                                  <!-- Tab 1: Integrations Configuration -->
+                                  <div class="tab-pane fade show active" id="integrations-config" role="tabpanel" aria-labelledby="integrations-tab">
+                                    <div class="card border-info border-opacity-25 bg-light">
+                                      <div class="card-header bg-info bg-opacity-10 border-0">
+                                        <p class="card-text text-muted mb-0 small">Configure how destination integrations are loaded and managed.</p>
+                                      </div>
+                                      <div class="card-body">
+                                        <div class="row g-3">
+                                          <!-- Load All Integrations -->
+                                          <div class="col-md-6">
+                                            <div class="p-2 bg-white rounded border">
+                                              <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="loadAllIntegrations" checked>
+                                                <label class="form-check-label fw-semibold" for="loadAllIntegrations">
+                                                  Load All Integrations
+                                                </label>
+                                              </div>
+                                              <div class="form-text small mt-1">Enable loading of destination integrations</div>
+                                            </div>
+                                          </div>
+
+                                          <!-- Load Native SDK -->
+                                          <div class="col-md-6">
+                                            <div class="p-2 bg-white rounded border">
+                                              <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="loadNativeSDK" checked>
+                                                <label class="form-check-label fw-semibold" for="loadNativeSDK">
+                                                  Load Native SDKs
+                                                </label>
+                                              </div>
+                                              <div class="form-text small mt-1">Enable loading of native SDKs</div>
+                                            </div>
+                                          </div>
+
+                                          <!-- Use Global Integrations Config -->
+                                          <div class="col-md-6">
+                                            <div class="p-2 bg-white rounded border">
+                                              <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="useGlobalIntegrationsConfigInEvents">
+                                                <label class="form-check-label fw-semibold" for="useGlobalIntegrationsConfigInEvents">
+                                                  Use Global Config
+                                                </label>
+                                              </div>
+                                              <div class="form-text small mt-1">Use global integrations config in events</div>
+                                            </div>
+                                          </div>
+
+                                          <!-- Buffer Events Until Ready -->
+                                          <div class="col-md-6">
+                                            <div class="p-2 bg-white rounded border">
+                                              <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="bufferDataPlaneEventsUntilReady">
+                                                <label class="form-check-label fw-semibold" for="bufferDataPlaneEventsUntilReady">
+                                                  Buffer Events Until Ready
+                                                </label>
+                                              </div>
+                                              <div class="form-text small mt-1">Queue events until SDK is fully initialized</div>
+                                            </div>
+                                          </div>
+
+                                          <!-- Buffer Timeout Configuration -->
+                                          <div class="col-md-6">
+                                            <div class="form-floating">
+                                              <input type="number" id="dataPlaneEventsBufferTimeout" class="form-control" value="10000" min="1000" max="60000" step="1000" />
+                                              <label for="dataPlaneEventsBufferTimeout">Buffer Timeout (ms)</label>
+                                            </div>
+                                            <div class="form-text">Timeout for buffering data plane events</div>
+                                          </div>
+
+                                          <!-- Destination SDKs Base URL -->
+                                          <div class="col-12">
+                                            <div class="form-floating">
+                                              <input type="text" id="destSDKBaseURL" class="form-control" />
+                                              <label for="destSDKBaseURL">Integration SDKs Base URL</label>
+                                            </div>
+                                            <div class="form-text">Base URL for loading destination integration SDKs</div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <!-- Tab 2: Plugins Configuration -->
+                                  <div class="tab-pane fade" id="plugins-config" role="tabpanel" aria-labelledby="plugins-tab">
+                                    <div class="card border-success border-opacity-25 bg-light">
+                                      <div class="card-header bg-success bg-opacity-10 border-0">
+                                        <p class="card-text text-muted mb-0 small">Configure SDK plugins for enhanced functionality and data processing.</p>
+                                      </div>
+                                      <div class="card-body">
+                                        <div class="row g-3 mb-4">
+                                          <!-- Plugins SDK Base URL -->
+                                          <div class="col-md-6">
+                                            <div class="form-floating">
+                                              <input type="text" id="pluginsSDKBaseURL" class="form-control" />
+                                              <label for="pluginsSDKBaseURL">Plugins SDK Base URL</label>
+                                            </div>
+                                            <div class="form-text">Base URL for loading plugin SDKs</div>
+                                          </div>
+                                        </div>
+
+                                        <!-- Plugin Selection -->
+                                        <div class="mb-3">
+                                          <h6 class="text-muted mb-3">Select Plugins <span class="badge bg-info ms-2">14 Available</span></h6>
+                                          
+                                          <!-- Transport & Queuing Plugins -->
+                                          <div class="mb-4">
+                                            <h6 class="text-info-emphasis mb-2">🚀 Transport & Queuing</h6>
+                                            <div class="row g-3">
+                                              <div class="col-md-4">
+                                                <div class="form-check">
+                                                  <input class="form-check-input plugin-checkbox" type="checkbox" id="plugin-BeaconQueue" value="BeaconQueue">
+                                                  <label class="form-check-label fw-semibold" for="plugin-BeaconQueue">BeaconQueue</label>
+                                                  <div class="form-text small">Reliable event queuing using Beacon API</div>
+                                                </div>
+                                              </div>
+                                              <div class="col-md-4">
+                                                <div class="form-check">
+                                                  <input class="form-check-input plugin-checkbox" type="checkbox" id="plugin-XhrQueue" value="XhrQueue">
+                                                  <label class="form-check-label fw-semibold" for="plugin-XhrQueue">XhrQueue</label>
+                                                  <div class="form-text small">XMLHttpRequest-based event queuing</div>
+                                                </div>
+                                              </div>
+                                              <div class="col-md-4">
+                                                <div class="form-check">
+                                                  <input class="form-check-input plugin-checkbox" type="checkbox" id="plugin-NativeDestinationQueue" value="NativeDestinationQueue">
+                                                  <label class="form-check-label fw-semibold" for="plugin-NativeDestinationQueue">NativeDestinationQueue</label>
+                                                  <div class="form-text small">Native destination event queuing</div>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+
+                                          <!-- Consent Management Plugins -->
+                                          <div class="mb-4">
+                                            <h6 class="text-warning-emphasis mb-2">🛡️ Consent Management</h6>
+                                            <div class="row g-3">
+                                              <div class="col-md-3">
+                                                <div class="form-check">
+                                                  <input class="form-check-input plugin-checkbox" type="checkbox" id="plugin-CustomConsentManager" value="CustomConsentManager">
+                                                  <label class="form-check-label fw-semibold" for="plugin-CustomConsentManager">CustomConsentManager</label>
+                                                  <div class="form-text small">Custom consent management</div>
+                                                </div>
+                                              </div>
+                                              <div class="col-md-3">
+                                                <div class="form-check">
+                                                  <input class="form-check-input plugin-checkbox" type="checkbox" id="plugin-OneTrustConsentManager" value="OneTrustConsentManager">
+                                                  <label class="form-check-label fw-semibold" for="plugin-OneTrustConsentManager">OneTrustConsentManager</label>
+                                                  <div class="form-text small">OneTrust consent integration</div>
+                                                </div>
+                                              </div>
+                                              <div class="col-md-3">
+                                                <div class="form-check">
+                                                  <input class="form-check-input plugin-checkbox" type="checkbox" id="plugin-KetchConsentManager" value="KetchConsentManager">
+                                                  <label class="form-check-label fw-semibold" for="plugin-KetchConsentManager">KetchConsentManager</label>
+                                                  <div class="form-text small">Ketch consent integration</div>
+                                                </div>
+                                              </div>
+                                              <div class="col-md-3">
+                                                <div class="form-check">
+                                                  <input class="form-check-input plugin-checkbox" type="checkbox" id="plugin-IubendaConsentManager" value="IubendaConsentManager">
+                                                  <label class="form-check-label fw-semibold" for="plugin-IubendaConsentManager">IubendaConsentManager</label>
+                                                  <div class="form-text small">Iubenda consent integration</div>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+
+                                          <!-- Data Processing Plugins -->
+                                          <div class="mb-4">
+                                            <h6 class="text-success-emphasis mb-2">⚡ Data Processing</h6>
+                                            <div class="row g-3">
+                                              <div class="col-md-4">
+                                                <div class="form-check">
+                                                  <input class="form-check-input plugin-checkbox" type="checkbox" id="plugin-DeviceModeTransformation" value="DeviceModeTransformation">
+                                                  <label class="form-check-label fw-semibold" for="plugin-DeviceModeTransformation">DeviceModeTransformation</label>
+                                                  <div class="form-text small">Client-side data transformations</div>
+                                                </div>
+                                              </div>
+                                              <div class="col-md-4">
+                                                <div class="form-check">
+                                                  <input class="form-check-input plugin-checkbox" type="checkbox" id="plugin-DeviceModeDestinations" value="DeviceModeDestinations">
+                                                  <label class="form-check-label fw-semibold" for="plugin-DeviceModeDestinations">DeviceModeDestinations</label>
+                                                  <div class="form-text small">Device-mode destination handling</div>
+                                                </div>
+                                              </div>
+                                              <div class="col-md-4">
+                                                <div class="form-check">
+                                                  <input class="form-check-input plugin-checkbox" type="checkbox" id="plugin-ExternalAnonymousId" value="ExternalAnonymousId">
+                                                  <label class="form-check-label fw-semibold" for="plugin-ExternalAnonymousId">ExternalAnonymousId</label>
+                                                  <div class="form-text small">External anonymous ID management</div>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+
+                                          <!-- Storage & Security Plugins -->
+                                          <div class="mb-4">
+                                            <h6 class="text-danger-emphasis mb-2">🔒 Storage & Security</h6>
+                                            <div class="row g-3">
+                                              <div class="col-md-4">
+                                                <div class="form-check">
+                                                  <input class="form-check-input plugin-checkbox" type="checkbox" id="plugin-StorageEncryption" value="StorageEncryption">
+                                                  <label class="form-check-label fw-semibold" for="plugin-StorageEncryption">StorageEncryption</label>
+                                                  <div class="form-text small">Modern storage encryption</div>
+                                                </div>
+                                              </div>
+                                              <div class="col-md-4">
+                                                <div class="form-check">
+                                                  <input class="form-check-input plugin-checkbox" type="checkbox" id="plugin-StorageEncryptionLegacy" value="StorageEncryptionLegacy">
+                                                  <label class="form-check-label fw-semibold" for="plugin-StorageEncryptionLegacy">StorageEncryptionLegacy</label>
+                                                  <div class="form-text small">Legacy storage encryption support</div>
+                                                </div>
+                                              </div>
+                                              <div class="col-md-4">
+                                                <div class="form-check">
+                                                  <input class="form-check-input plugin-checkbox" type="checkbox" id="plugin-StorageMigrator" value="StorageMigrator">
+                                                  <label class="form-check-label fw-semibold" for="plugin-StorageMigrator">StorageMigrator</label>
+                                                  <div class="form-text small">Storage migration between versions</div>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+
+                                          <!-- Utility Plugins -->
+                                          <div class="mb-4">
+                                            <h6 class="text-secondary mb-2">🔗 Utilities</h6>
+                                            <div class="row g-3">
+                                              <div class="col-md-4">
+                                                <div class="form-check">
+                                                  <input class="form-check-input plugin-checkbox" type="checkbox" id="plugin-GoogleLinker" value="GoogleLinker">
+                                                  <label class="form-check-label fw-semibold" for="plugin-GoogleLinker">GoogleLinker</label>
+                                                  <div class="form-text small">Google Analytics cross-domain linking</div>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        <!-- Custom Plugin Names -->
+                                        <div class="row g-3">
+                                          <div class="col-12">
+                                            <div class="form-floating">
+                                              <input type="text" id="customPlugins" class="form-control" placeholder="CustomPlugin1,CustomPlugin2" />
+                                              <label for="customPlugins">Custom Plugin Names</label>
+                                            </div>
+                                            <div class="form-text">Add custom plugin names (comma-separated). These will be combined with selected plugins above.</div>
+                                          </div>
+                                        </div>
+
+                                        <!-- Hidden field for final plugins value -->
+                                        <input type="hidden" id="plugins" />
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- Data Processing & Delivery -->
+                          <div class="accordion-item border-0 mb-3 rounded-3 shadow-sm">
+                            <h2 class="accordion-header" id="dataProcessingHeader">
+                              <button class="accordion-button collapsed bg-light fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#dataProcessingConfig" aria-expanded="false" aria-controls="dataProcessingConfig">
+                                📡 Data Processing & Delivery
+                              </button>
+                            </h2>
+                            <div id="dataProcessingConfig" class="accordion-collapse collapse" aria-labelledby="dataProcessingHeader" data-bs-parent="#configurationAccordion">
+                              <div class="accordion-body">
+                                <!-- Bootstrap Tabs for Data Processing Sub-sections -->
+                                <ul class="nav nav-tabs nav-fill mb-4" id="dataProcessingTabs" role="tablist">
+                                  <li class="nav-item" role="presentation">
+                                    <button class="nav-link active fw-semibold" id="queue-tab" data-bs-toggle="tab" data-bs-target="#queue-config" type="button" role="tab" aria-controls="queue-config" aria-selected="true">
+                                      🔄 General Queue
+                                    </button>
+                                  </li>
+                                  <li class="nav-item" role="presentation">
+                                    <button class="nav-link fw-semibold" id="destinations-queue-tab" data-bs-toggle="tab" data-bs-target="#destinations-queue-config" type="button" role="tab" aria-controls="destinations-queue-config" aria-selected="false">
+                                      🎯 Integrations Queue
+                                    </button>
+                                  </li>
+                                  <li class="nav-item" role="presentation">
+                                    <button class="nav-link fw-semibold" id="beacon-tab" data-bs-toggle="tab" data-bs-target="#beacon-config" type="button" role="tab" aria-controls="beacon-config" aria-selected="false">
+                                      📡 Beacon Transport
+                                    </button>
+                                  </li>
+                                </ul>
+
+                                <div class="tab-content" id="dataProcessingTabContent">
+                                  <!-- Tab 1: General Queue -->
+                                  <div class="tab-pane fade show active" id="queue-config" role="tabpanel" aria-labelledby="queue-tab">
+                                    <div class="card border-primary border-opacity-25 bg-light">
+                                      <div class="card-header bg-primary bg-opacity-10 border-0">
+
+                                        <p class="card-text text-muted mb-0 small">Configure general queue behavior for event processing and retry logic.</p>
+                                      </div>
+                                      <div class="card-body">
+                                        <!-- Basic Queue Settings -->
+                                        <div class="mb-4">
+                                          <h6 class="text-primary-emphasis mb-3">📦 Basic Queue Settings</h6>
+                                          <div class="row g-3">
+                                            <!-- Queue Max Items -->
+                                            <div class="col-md-4">
+                                              <div class="form-floating">
+                                                <input type="number" id="queueMaxItems" class="form-control" value="100" min="1" max="10000" />
+                                                <label for="queueMaxItems">Max Items</label>
+                                              </div>
+                                              <div class="form-text">Maximum events in queue</div>
+                                            </div>
+
+                                            <!-- Queue Max Attempts -->
+                                            <div class="col-md-4">
+                                              <div class="form-floating">
+                                                <input type="number" id="queueMaxAttempts" class="form-control" value="10" min="1" max="50" />
+                                                <label for="queueMaxAttempts">Max Attempts</label>
+                                              </div>
+                                              <div class="form-text">Maximum retry attempts</div>
+                                            </div>
+
+                                            <!-- Timer Scale Factor -->
+                                            <div class="col-md-4">
+                                              <div class="form-floating">
+                                                <input type="number" id="timerScaleFactor" class="form-control" value="1" min="0.1" max="10" step="0.1" />
+                                                <label for="timerScaleFactor">Timer Scale Factor</label>
+                                              </div>
+                                              <div class="form-text">Scale factor for timer values</div>
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        <!-- Retry Configuration -->
+                                        <div class="mb-4">
+                                          <h6 class="text-warning-emphasis mb-3">🔄 Retry Configuration</h6>
+                                          <div class="row g-3">
+                                            <!-- Max Retry Delay -->
+                                            <div class="col-md-3">
+                                              <div class="form-floating">
+                                                <input type="number" id="queueMaxRetryDelay" class="form-control" value="360000" min="1000" max="3600000" step="1000" />
+                                                <label for="queueMaxRetryDelay">Max Retry Delay (ms)</label>
+                                              </div>
+                                              <div class="form-text">Upper cap on retry delay</div>
+                                            </div>
+
+                                            <!-- Min Retry Delay -->
+                                            <div class="col-md-3">
+                                              <div class="form-floating">
+                                                <input type="number" id="queueMinRetryDelay" class="form-control" value="1000" min="100" max="60000" step="100" />
+                                                <label for="queueMinRetryDelay">Min Retry Delay (ms)</label>
+                                              </div>
+                                              <div class="form-text">Minimum delay before retry</div>
+                                            </div>
+
+                                            <!-- Backoff Factor -->
+                                            <div class="col-md-3">
+                                              <div class="form-floating">
+                                                <input type="number" id="queueBackoffFactor" class="form-control" value="2" min="1" max="10" step="0.1" />
+                                                <label for="queueBackoffFactor">Backoff Factor</label>
+                                              </div>
+                                              <div class="form-text">Exponential backoff base</div>
+                                            </div>
+
+                                            <!-- Backoff Jitter -->
+                                            <div class="col-md-3">
+                                              <div class="form-floating">
+                                                <input type="number" id="queueBackoffJitter" class="form-control" value="0" min="0" max="1" step="0.1" />
+                                                <label for="queueBackoffJitter">Backoff Jitter</label>
+                                              </div>
+                                              <div class="form-text">Jitter applied to delay</div>
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        <!-- Batching Configuration -->
+                                        <div class="mb-4">
+                                          <h6 class="text-success-emphasis mb-3">📦 Batching Configuration</h6>
+                                          <div class="row g-3 mb-3">
+                                            <!-- Enable Batching -->
+                                            <div class="col-12">
+                                              <div class="p-2 bg-white rounded border">
+                                                <div class="form-check form-switch">
+                                                  <input class="form-check-input" type="checkbox" id="queueBatchEnabled">
+                                                  <label class="form-check-label fw-semibold" for="queueBatchEnabled">
+                                                    Enable Batching
+                                                  </label>
+                                                </div>
+                                                <div class="form-text small mt-1">Enable event batching for improved performance</div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                          <div class="row g-3">
+                                            <!-- Batch Max Items -->
+                                            <div class="col-md-4">
+                                              <div class="form-floating">
+                                                <input type="number" id="queueBatchMaxItems" class="form-control" value="10" min="1" max="100" />
+                                                <label for="queueBatchMaxItems">Batch Max Items</label>
+                                              </div>
+                                              <div class="form-text">Max events per batch</div>
+                                            </div>
+
+                                            <!-- Batch Max Size -->
+                                            <div class="col-md-4">
+                                              <div class="form-floating">
+                                                <input type="number" id="queueBatchMaxSize" class="form-control" value="512000" min="1024" max="10485760" step="1024" />
+                                                <label for="queueBatchMaxSize">Batch Max Size (bytes)</label>
+                                              </div>
+                                              <div class="form-text">Max batch size in bytes</div>
+                                            </div>
+
+                                            <!-- Batch Flush Interval -->
+                                            <div class="col-md-4">
+                                              <div class="form-floating">
+                                                <input type="number" id="queueBatchFlushInterval" class="form-control" value="10000" min="1000" max="60000" step="1000" />
+                                                <label for="queueBatchFlushInterval">Flush Interval (ms)</label>
+                                              </div>
+                                              <div class="form-text">Auto-flush interval</div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <!-- Tab 2: Integrations Queue -->
+                                  <div class="tab-pane fade" id="destinations-queue-config" role="tabpanel" aria-labelledby="destinations-queue-tab">
+                                    <div class="card border-info border-opacity-25 bg-light">
+                                      <div class="card-header bg-info bg-opacity-10 border-0">
+
+                                        <p class="card-text text-muted mb-0 small">Configure queue behavior specifically for destination integrations and device-mode events.</p>
+                                      </div>
+                                      <div class="card-body">
+                                        <div class="row g-3">
+                                          <!-- Destinations Queue Max Items -->
+                                          <div class="col-md-6">
+                                            <div class="form-floating">
+                                              <input type="number" id="destinationsQueueMaxItems" class="form-control" value="100" min="1" max="1000" />
+                                              <label for="destinationsQueueMaxItems">Max Items</label>
+                                            </div>
+                                            <div class="form-text">Maximum items in destinations queue</div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <!-- Tab 3: Beacon Transport -->
+                                  <div class="tab-pane fade" id="beacon-config" role="tabpanel" aria-labelledby="beacon-tab">
+                                    <div class="card border-success border-opacity-25 bg-light">
+                                      <div class="card-header bg-success bg-opacity-10 border-0">
+
+                                        <p class="card-text text-muted mb-0 small">Configure Beacon API for reliable event delivery in challenging network conditions.</p>
+                                      </div>
+                                      <div class="card-body">
+                                        <div class="row g-3">
+                                          <!-- Use Beacon -->
+                                          <div class="col-12 mb-3">
+                                            <div class="p-3 bg-white rounded border">
+                                              <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="useBeacon">
+                                                <label class="form-check-label fw-semibold" for="useBeacon">
+                                                  Use Beacon API
+                                                </label>
+                                              </div>
+                                              <div class="form-text mt-1">Use Beacon API for reliable event delivery</div>
+                                            </div>
+                                          </div>
+
+                                          <!-- Beacon Queue Max Items -->
+                                          <div class="col-md-6">
+                                            <div class="form-floating">
+                                              <input type="number" id="beaconQueueMaxItems" class="form-control" value="100" min="1" max="1000" />
+                                              <label for="beaconQueueMaxItems">Beacon Queue Max Items</label>
+                                            </div>
+                                            <div class="form-text">Max items in beacon queue</div>
+                                          </div>
+
+                                          <!-- Beacon Queue Flush Interval -->
+                                          <div class="col-md-6">
+                                            <div class="form-floating">
+                                              <input type="number" id="beaconQueueFlushInterval" class="form-control" value="10000" min="1000" max="60000" />
+                                              <label for="beaconQueueFlushInterval">Beacon Flush Interval (ms)</label>
+                                            </div>
+                                            <div class="form-text">Auto-flush interval for beacon queue</div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- Storage & Cookies -->
+                          <div class="accordion-item border-0 mb-3 rounded-3 shadow-sm">
+                            <h2 class="accordion-header" id="storageHeader">
+                              <button class="accordion-button collapsed bg-light fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#storageConfig" aria-expanded="false" aria-controls="storageConfig">
+                                💾 Storage
+                              </button>
+                            </h2>
+                            <div id="storageConfig" class="accordion-collapse collapse" aria-labelledby="storageHeader" data-bs-parent="#configurationAccordion">
+                              <div class="accordion-body">
+                                <!-- Bootstrap Tabs for Storage Sub-sections -->
+                                <ul class="nav nav-tabs nav-fill mb-4" id="storageTabs" role="tablist">
+                                  <li class="nav-item" role="presentation">
+                                    <button class="nav-link active fw-semibold" id="storage-general-tab" data-bs-toggle="tab" data-bs-target="#storage-general-config" type="button" role="tab" aria-controls="storage-general-config" aria-selected="true">
+                                      ⚙️ General
+                                    </button>
+                                  </li>
+                                  <li class="nav-item" role="presentation">
+                                    <button class="nav-link fw-semibold" id="storage-cookies-tab" data-bs-toggle="tab" data-bs-target="#storage-cookies-config" type="button" role="tab" aria-controls="storage-cookies-config" aria-selected="false">
+                                      🍪 Cookies
+                                    </button>
+                                  </li>
+                                  <li class="nav-item" role="presentation">
+                                    <button class="nav-link fw-semibold" id="storage-entries-tab" data-bs-toggle="tab" data-bs-target="#storage-entries-config" type="button" role="tab" aria-controls="storage-entries-config" aria-selected="false">
+                                      📁 Entries
+                                    </button>
+                                  </li>
+                                </ul>
+
+                                <div class="tab-content" id="storageTabContent">
+                                  <!-- Tab 1: General -->
+                                  <div class="tab-pane fade show active" id="storage-general-config" role="tabpanel" aria-labelledby="storage-general-tab">
+                                    <div class="card border-primary border-opacity-25 bg-light">
+                                      <div class="card-header bg-primary bg-opacity-10 border-0">
+                                        <p class="card-text text-muted mb-0 small">Configure general storage settings including encryption, migration, and storage type.</p>
+                                      </div>
+                                      <div class="card-body">
+                                        <div class="row g-3 mb-4">
+                                          <!-- Storage Type -->
+                                          <div class="col-md-4">
+                                            <div class="form-floating">
+                                              <select id="storageType" class="form-select">
+                                                <option value="cookieStorage" selected>Cookie Storage</option>
+                                                <option value="localStorage">Local Storage</option>
+                                                <option value="memoryStorage">Memory Storage</option>
+                                                <option value="sessionStorage">Session Storage</option>
+                                                <option value="none">None</option>
+                                              </select>
+                                              <label for="storageType">Storage Type</label>
+                                            </div>
+                                            <div class="form-text">Primary storage mechanism for SDK data</div>
+                                          </div>
+
+                                          <!-- Storage Encryption Version -->
+                                          <div class="col-md-4">
+                                            <div class="form-floating">
+                                              <select id="storageEncryptionVersion" class="form-select">
+                                                <option value="legacy">Legacy</option>
+                                                <option value="v3" selected>v3</option>
+                                              </select>
+                                              <label for="storageEncryptionVersion">Encryption Version</label>
+                                            </div>
+                                            <div class="form-text">Storage encryption version</div>
+                                          </div>
+
+                                          <!-- Storage Migration -->
+                                          <div class="col-md-4">
+                                            <div class="p-2 bg-white rounded border">
+                                              <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="storageMigrate" checked>
+                                                <label class="form-check-label fw-semibold" for="storageMigrate">
+                                                  Enable Storage Migration
+                                                </label>
+                                              </div>
+                                            </div>
+                                            <div class="form-text small mt-1">Migrate storage between versions</div>
+                                          </div>
+                                        </div>
+
+                                        <!-- Data Service Section -->
+                                        <div class="row g-3">
+                                          <!-- Data Service Endpoint -->
+                                          <div class="col-md-12">
+                                            <div class="form-floating">
+                                              <input type="text" id="dataServiceEndpoint" class="form-control" placeholder="https://api.rudderstack.com" />
+                                              <label for="dataServiceEndpoint">Data Service Endpoint</label>
+                                            </div>
+                                            <div class="form-text">Custom data service endpoint URL for server-side operations</div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <!-- Tab 2: Cookies -->
+                                  <div class="tab-pane fade" id="storage-cookies-config" role="tabpanel" aria-labelledby="storage-cookies-tab">
+                                    <div class="card border-warning border-opacity-25 bg-light">
+                                      <div class="card-header bg-warning bg-opacity-10 border-0">
+                                        <p class="card-text text-muted mb-0 small">Configure storage cookie options including domain, security, lifetime, and path settings.</p>
+                                      </div>
+                                      <div class="card-body">
+                                        <div class="row g-3 mb-3">
+                                          <!-- Cookie Domain -->
+                                          <div class="col-md-4">
+                                            <div class="form-floating">
+                                              <input type="text" id="storageCookieDomain" class="form-control" placeholder="example.com" />
+                                              <label for="storageCookieDomain">Cookie Domain</label>
+                                            </div>
+                                            <div class="form-text">Domain for storage cookies</div>
+                                          </div>
+
+                                          <!-- SameSite Cookie -->
+                                          <div class="col-md-4">
+                                            <div class="form-floating">
+                                              <select id="storageCookieSameSite" class="form-select">
+                                                <option value="">Use Default</option>
+                                                <option value="Lax">Lax</option>
+                                                <option value="Strict">Strict</option>
+                                                <option value="None">None</option>
+                                              </select>
+                                              <label for="storageCookieSameSite">SameSite Policy</label>
+                                            </div>
+                                            <div class="form-text">SameSite attribute for storage cookies</div>
+                                          </div>
+
+                                          <!-- Cookie Path -->
+                                          <div class="col-md-4">
+                                            <div class="form-floating">
+                                              <input type="text" id="storageCookiePath" class="form-control" placeholder="/" />
+                                              <label for="storageCookiePath">Cookie Path</label>
+                                            </div>
+                                            <div class="form-text">Path scope for storage cookies</div>
+                                          </div>
+                                        </div>
+
+                                        <div class="row g-3 mb-3">
+                                          <!-- Cookie Max Age -->
+                                          <div class="col-md-4">
+                                            <div class="form-floating">
+                                              <input type="number" id="storageCookieMaxAge" class="form-control" placeholder="3600" min="0" />
+                                              <label for="storageCookieMaxAge">Max Age (seconds)</label>
+                                            </div>
+                                            <div class="form-text">Cookie lifetime in seconds</div>
+                                          </div>
+
+                                          <!-- Cookie Expires Date -->
+                                          <div class="col-md-4">
+                                            <div class="form-floating">
+                                              <input type="datetime-local" id="storageCookieExpires" class="form-control" />
+                                              <label for="storageCookieExpires">Expires Date</label>
+                                            </div>
+                                            <div class="form-text">Absolute expiration date</div>
+                                          </div>
+
+                                          <!-- Secure Cookie -->
+                                          <div class="col-md-4">
+                                            <div class="p-2 bg-white rounded border">
+                                              <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="storageCookieSecure">
+                                                <label class="form-check-label fw-semibold" for="storageCookieSecure">
+                                                  Secure Cookies
+                                                </label>
+                                              </div>
+                                            </div>
+                                            <div class="form-text small mt-1">Require HTTPS for storage cookies</div>
+                                          </div>
+                                        </div>
+
+                                        <!-- Additional Cookie Settings -->
+                                        <div class="row g-3">
+                                          <!-- Same Domain Cookies Only -->
+                                          <div class="col-md-4">
+                                            <div class="p-2 bg-white rounded border">
+                                              <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="sameDomainCookiesOnly">
+                                                <label class="form-check-label fw-semibold" for="sameDomainCookiesOnly">
+                                                  Same Domain Cookies Only
+                                                </label>
+                                              </div>
+                                            </div>
+                                            <div class="form-text small mt-1">Restrict cookies to same domain only</div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <!-- Tab 3: Entries -->
+                                  <div class="tab-pane fade" id="storage-entries-config" role="tabpanel" aria-labelledby="storage-entries-tab">
+                                    <div class="card border-success border-opacity-25 bg-light">
+                                      <div class="card-header bg-success bg-opacity-10 border-0">
+                                        <p class="card-text text-muted mb-0 small">Configure storage type overrides for specific user session data entries.</p>
+                                      </div>
+                                      <div class="card-body">
+                                        <div class="row g-3">
+                                          <!-- User ID Storage -->
+                                          <div class="col-md-6">
+                                            <div class="form-floating">
+                                              <select id="storageEntryUserId" class="form-select">
+                                                <option value="">Use Default</option>
+                                                <option value="cookieStorage">Cookie Storage</option>
+                                                <option value="localStorage">Local Storage</option>
+                                                <option value="memoryStorage">Memory Storage</option>
+                                                <option value="sessionStorage">Session Storage</option>
+                                                <option value="none">None</option>
+                                              </select>
+                                              <label for="storageEntryUserId">User ID Storage</label>
+                                            </div>
+                                            <div class="form-text">Storage type for user ID</div>
+                                          </div>
+
+                                          <!-- User Traits Storage -->
+                                          <div class="col-md-6">
+                                            <div class="form-floating">
+                                              <select id="storageEntryUserTraits" class="form-select">
+                                                <option value="">Use Default</option>
+                                                <option value="cookieStorage">Cookie Storage</option>
+                                                <option value="localStorage">Local Storage</option>
+                                                <option value="memoryStorage">Memory Storage</option>
+                                                <option value="sessionStorage">Session Storage</option>
+                                                <option value="none">None</option>
+                                              </select>
+                                              <label for="storageEntryUserTraits">User Traits Storage</label>
+                                            </div>
+                                            <div class="form-text">Storage type for user traits</div>
+                                          </div>
+
+                                          <!-- Anonymous ID Storage -->
+                                          <div class="col-md-6">
+                                            <div class="form-floating">
+                                              <select id="storageEntryAnonymousId" class="form-select">
+                                                <option value="">Use Default</option>
+                                                <option value="cookieStorage">Cookie Storage</option>
+                                                <option value="localStorage">Local Storage</option>
+                                                <option value="memoryStorage">Memory Storage</option>
+                                                <option value="sessionStorage">Session Storage</option>
+                                                <option value="none">None</option>
+                                              </select>
+                                              <label for="storageEntryAnonymousId">Anonymous ID Storage</label>
+                                            </div>
+                                            <div class="form-text">Storage type for anonymous ID</div>
+                                          </div>
+
+                                          <!-- Group ID Storage -->
+                                          <div class="col-md-6">
+                                            <div class="form-floating">
+                                              <select id="storageEntryGroupId" class="form-select">
+                                                <option value="">Use Default</option>
+                                                <option value="cookieStorage">Cookie Storage</option>
+                                                <option value="localStorage">Local Storage</option>
+                                                <option value="memoryStorage">Memory Storage</option>
+                                                <option value="sessionStorage">Session Storage</option>
+                                                <option value="none">None</option>
+                                              </select>
+                                              <label for="storageEntryGroupId">Group ID Storage</label>
+                                            </div>
+                                            <div class="form-text">Storage type for group ID</div>
+                                          </div>
+
+                                          <!-- Group Traits Storage -->
+                                          <div class="col-md-6">
+                                            <div class="form-floating">
+                                              <select id="storageEntryGroupTraits" class="form-select">
+                                                <option value="">Use Default</option>
+                                                <option value="cookieStorage">Cookie Storage</option>
+                                                <option value="localStorage">Local Storage</option>
+                                                <option value="memoryStorage">Memory Storage</option>
+                                                <option value="sessionStorage">Session Storage</option>
+                                                <option value="none">None</option>
+                                              </select>
+                                              <label for="storageEntryGroupTraits">Group Traits Storage</label>
+                                            </div>
+                                            <div class="form-text">Storage type for group traits</div>
+                                          </div>
+
+                                          <!-- Session Info Storage -->
+                                          <div class="col-md-6">
+                                            <div class="form-floating">
+                                              <select id="storageEntrySessionInfo" class="form-select">
+                                                <option value="">Use Default</option>
+                                                <option value="cookieStorage">Cookie Storage</option>
+                                                <option value="localStorage">Local Storage</option>
+                                                <option value="memoryStorage">Memory Storage</option>
+                                                <option value="sessionStorage">Session Storage</option>
+                                                <option value="none">None</option>
+                                              </select>
+                                              <label for="storageEntrySessionInfo">Session Info Storage</label>
+                                            </div>
+                                            <div class="form-text">Storage type for session information</div>
+                                          </div>
+
+                                          <!-- Initial Referrer Storage -->
+                                          <div class="col-md-6">
+                                            <div class="form-floating">
+                                              <select id="storageEntryInitialReferrer" class="form-select">
+                                                <option value="">Use Default</option>
+                                                <option value="cookieStorage">Cookie Storage</option>
+                                                <option value="localStorage">Local Storage</option>
+                                                <option value="memoryStorage">Memory Storage</option>
+                                                <option value="sessionStorage">Session Storage</option>
+                                                <option value="none">None</option>
+                                              </select>
+                                              <label for="storageEntryInitialReferrer">Initial Referrer Storage</label>
+                                            </div>
+                                            <div class="form-text">Storage type for initial referrer</div>
+                                          </div>
+
+                                          <!-- Initial Referring Domain Storage -->
+                                          <div class="col-md-6">
+                                            <div class="form-floating">
+                                              <select id="storageEntryInitialReferringDomain" class="form-select">
+                                                <option value="">Use Default</option>
+                                                <option value="cookieStorage">Cookie Storage</option>
+                                                <option value="localStorage">Local Storage</option>
+                                                <option value="memoryStorage">Memory Storage</option>
+                                                <option value="sessionStorage">Session Storage</option>
+                                                <option value="none">None</option>
+                                              </select>
+                                              <label for="storageEntryInitialReferringDomain">Initial Referring Domain Storage</label>
+                                            </div>
+                                            <div class="form-text">Storage type for initial referring domain</div>
+                                          </div>
+
+                                          <!-- Auth Token Storage -->
+                                          <div class="col-md-6">
+                                            <div class="form-floating">
+                                              <select id="storageEntryAuthToken" class="form-select">
+                                                <option value="">Use Default</option>
+                                                <option value="cookieStorage">Cookie Storage</option>
+                                                <option value="localStorage">Local Storage</option>
+                                                <option value="memoryStorage">Memory Storage</option>
+                                                <option value="sessionStorage">Session Storage</option>
+                                                <option value="none">None</option>
+                                              </select>
+                                              <label for="storageEntryAuthToken">Auth Token Storage</label>
+                                            </div>
+                                            <div class="form-text">Storage type for authentication token</div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- Session & Tracking -->
+                          <div class="accordion-item border-0 mb-3 rounded-3 shadow-sm">
+                            <h2 class="accordion-header" id="sessionHeader">
+                              <button class="accordion-button collapsed bg-light fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#sessionConfig" aria-expanded="false" aria-controls="sessionConfig">
+                                📊 Tracking
+                              </button>
+                            </h2>
+                            <div id="sessionConfig" class="accordion-collapse collapse" aria-labelledby="sessionHeader" data-bs-parent="#configurationAccordion">
+                              <div class="accordion-body">
+                                <!-- Bootstrap Tabs for Tracking Sub-sections -->
+                                <ul class="nav nav-tabs nav-fill mb-4" id="trackingTabs" role="tablist">
+                                  <li class="nav-item" role="presentation">
+                                    <button class="nav-link active fw-semibold" id="sessions-tab" data-bs-toggle="tab" data-bs-target="#sessions-config" type="button" role="tab" aria-controls="sessions-config" aria-selected="true">
+                                      👤 Sessions
+                                    </button>
+                                  </li>
+                                  <li class="nav-item" role="presentation">
+                                    <button class="nav-link fw-semibold" id="autotrack-tab" data-bs-toggle="tab" data-bs-target="#autotrack-config" type="button" role="tab" aria-controls="autotrack-config" aria-selected="false">
+                                      🔄 Automatic Tracking
+                                    </button>
+                                  </li>
+                                </ul>
+
+                                <div class="tab-content" id="trackingTabContent">
+                                  <!-- Tab 1: Sessions -->
+                                  <div class="tab-pane fade show active" id="sessions-config" role="tabpanel" aria-labelledby="sessions-tab">
+                                    <div class="card border-info border-opacity-25 bg-light">
+                                      <div class="card-header bg-info bg-opacity-10 border-0">
+                                        <p class="card-text text-muted mb-0 small">Configure user session behavior, timeouts, and cutoff conditions.</p>
+                                      </div>
+                                      <div class="card-body">
+                                        <!-- Basic Session Settings -->
+                                        <div class="mb-4">
+                                          <h6 class="text-info-emphasis mb-3">📊 Basic Session Settings</h6>
+                                          <div class="row g-3">
+                                            <!-- Session Auto Track -->
+                                            <div class="col-md-6">
+                                              <div class="p-2 bg-white rounded border">
+                                                <div class="form-check form-switch">
+                                                  <input class="form-check-input" type="checkbox" id="sessionAutoTrack" checked>
+                                                  <label class="form-check-label fw-semibold" for="sessionAutoTrack">
+                                                    Auto Track Sessions
+                                                  </label>
+                                                </div>
+                                              </div>
+                                              <div class="form-text small mt-1">Automatically track user sessions</div>
+                                            </div>
+
+                                            <!-- Session Timeout -->
+                                            <div class="col-md-6">
+                                              <div class="form-floating">
+                                                <input type="number" id="sessionTimeout" class="form-control" value="1800000" min="60000" max="7200000" />
+                                                <label for="sessionTimeout">Session Timeout (ms)</label>
+                                              </div>
+                                              <div class="form-text">Session timeout in milliseconds</div>
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        <!-- Session Cutoff Settings -->
+                                        <div class="mb-3">
+                                          <h6 class="text-warning-emphasis mb-3">✂️ Session Cutoff</h6>
+                                          <div class="row g-3">
+                                            <!-- Cutoff Enabled -->
+                                            <div class="col-md-6">
+                                              <div class="p-2 bg-white rounded border">
+                                                <div class="form-check form-switch">
+                                                  <input class="form-check-input" type="checkbox" id="sessionCutoffEnabled">
+                                                  <label class="form-check-label fw-semibold" for="sessionCutoffEnabled">
+                                                    Enable Session Cutoff
+                                                  </label>
+                                                </div>
+                                              </div>
+                                              <div class="form-text small mt-1">Enable automatic session cutoff conditions</div>
+                                            </div>
+
+                                            <!-- Cutoff Duration -->
+                                            <div class="col-md-6">
+                                              <div class="form-floating">
+                                                <input type="number" id="sessionCutoffDuration" class="form-control" value="300000" min="60000" max="3600000" />
+                                                <label for="sessionCutoffDuration">Cutoff Duration (ms)</label>
+                                              </div>
+                                              <div class="form-text">Duration after which session will be cut off</div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <!-- Tab 2: Automatic Tracking -->
+                                  <div class="tab-pane fade" id="autotrack-config" role="tabpanel" aria-labelledby="autotrack-tab">
+                                    <div class="card border-success border-opacity-25 bg-light">
+                                      <div class="card-header bg-success bg-opacity-10 border-0">
+                                        <p class="card-text text-muted mb-0 small">Configure automatic tracking of page views and page lifecycle events.</p>
+                                      </div>
+                                      <div class="card-body">
+                                        <!-- Auto Track Settings -->
+                                        <div class="mb-4">
+                                          <h6 class="text-success-emphasis mb-3">🔄 Auto Track Settings</h6>
+                                          <div class="row g-3">
+                                            <!-- Auto Track Enabled -->
+                                            <div class="col-md-6">
+                                              <div class="p-2 bg-white rounded border">
+                                                <div class="form-check form-switch">
+                                                  <input class="form-check-input" type="checkbox" id="autoTrackEnabled">
+                                                  <label class="form-check-label fw-semibold" for="autoTrackEnabled">
+                                                    Auto Track Page Views
+                                                  </label>
+                                                </div>
+                                              </div>
+                                              <div class="form-text small mt-1">Automatically track page views</div>
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        <!-- Page Lifecycle Settings -->
+                                        <div class="mb-3">
+                                          <h6 class="text-warning-emphasis mb-3">📄 Page Lifecycle Options</h6>
+                                          <div class="row g-3">
+                                            <!-- Page Lifecycle Enabled -->
+                                            <div class="col-md-6">
+                                              <div class="p-2 bg-white rounded border">
+                                                <div class="form-check form-switch">
+                                                  <input class="form-check-input" type="checkbox" id="pageLifecycleEnabled">
+                                                  <label class="form-check-label fw-semibold" for="pageLifecycleEnabled">
+                                                    Enable Page Lifecycle
+                                                  </label>
+                                                </div>
+                                              </div>
+                                              <div class="form-text small mt-1">Track page lifecycle events like unload</div>
+                                            </div>
+
+
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- Consent Management -->
+                          <div class="accordion-item border-0 mb-3 rounded-3 shadow-sm">
+                            <h2 class="accordion-header" id="privacyHeader">
+                              <button class="accordion-button collapsed bg-light fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#privacyConfig" aria-expanded="false" aria-controls="privacyConfig">
+                                🔒 Consent Management
+                              </button>
+                            </h2>
+                            <div id="privacyConfig" class="accordion-collapse collapse" aria-labelledby="privacyHeader" data-bs-parent="#configurationAccordion">
+                              <div class="accordion-body">
+                                <!-- Bootstrap Tabs for Consent Management -->
+                                <ul class="nav nav-tabs nav-fill mb-4" id="consentTabs" role="tablist">
+                                  <li class="nav-item" role="presentation">
+                                    <button class="nav-link active fw-semibold" id="consent-general-tab" data-bs-toggle="tab" data-bs-target="#consent-general-config" type="button" role="tab" aria-controls="consent-general-config" aria-selected="true">
+                                      🔒 General
+                                    </button>
+                                  </li>
+                                  <li class="nav-item" role="presentation">
+                                    <button class="nav-link fw-semibold" id="consent-preconsent-tab" data-bs-toggle="tab" data-bs-target="#consent-preconsent-config" type="button" role="tab" aria-controls="consent-preconsent-config" aria-selected="false">
+                                      ⏳ Pre-Consent
+                                    </button>
+                                  </li>
+                                </ul>
+
+                                <div class="tab-content" id="consentTabContent">
+                                  <!-- Tab 1: General Consent Management -->
+                                  <div class="tab-pane fade show active" id="consent-general-config" role="tabpanel" aria-labelledby="consent-general-tab">
+                                    <div class="card border-primary border-opacity-25 bg-light">
+                                      <div class="card-header bg-primary bg-opacity-10 border-0">
+                                        <p class="card-text text-muted mb-0 small">Configure consent management providers and consent categories.</p>
+                                      </div>
+                                      <div class="card-body">
+                                        <div class="row g-3 mb-4">
+                                          <!-- Consent Management Enabled -->
+                                          <div class="col-md-4">
+                                            <div class="p-2 bg-white rounded border">
+                                              <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="consentManagementEnabled">
+                                                <label class="form-check-label fw-semibold" for="consentManagementEnabled">
+                                                  Enable Consent Management
+                                                </label>
+                                              </div>
+                                            </div>
+                                            <div class="form-text small mt-1">Enable consent management integration</div>
+                                          </div>
+
+                                          <!-- Consent Provider -->
+                                          <div class="col-md-4">
+                                            <div class="form-floating">
+                                              <select id="consentProvider" class="form-select">
+                                                <option value="">Select Provider</option>
+                                                <option value="iubenda">Iubenda</option>
+                                                <option value="oneTrust">OneTrust</option>
+                                                <option value="ketch">Ketch</option>
+                                                <option value="custom">Custom</option>
+                                              </select>
+                                              <label for="consentProvider">Consent Provider</label>
+                                            </div>
+                                            <div class="form-text">Choose your consent management provider</div>
+                                          </div>
+                                        </div>
+
+                                        <div class="row g-3">
+                                          <!-- Allowed Consent IDs -->
+                                          <div class="col-md-6">
+                                            <div class="form-floating">
+                                              <input type="text" id="allowedConsentIds" class="form-control" placeholder="analytics,marketing" />
+                                              <label for="allowedConsentIds">Allowed Consent IDs</label>
+                                            </div>
+                                            <div class="form-text">Comma-separated list of allowed consent categories</div>
+                                          </div>
+
+                                          <!-- Denied Consent IDs -->
+                                          <div class="col-md-6">
+                                            <div class="form-floating">
+                                              <input type="text" id="deniedConsentIds" class="form-control" placeholder="advertising,targeting" />
+                                              <label for="deniedConsentIds">Denied Consent IDs</label>
+                                            </div>
+                                            <div class="form-text">Comma-separated list of denied consent categories</div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <!-- Tab 2: Pre-Consent -->
+                                  <div class="tab-pane fade" id="consent-preconsent-config" role="tabpanel" aria-labelledby="consent-preconsent-tab">
+                                    <div class="card border-warning border-opacity-25 bg-light">
+                                      <div class="card-header bg-warning bg-opacity-10 border-0">
+                                        <p class="card-text text-muted mb-0 small">Configure pre-consent data collection and storage strategies.</p>
+                                      </div>
+                                      <div class="card-body">
+                                        <div class="row g-3">
+                                          <!-- Pre-Consent Enabled -->
+                                          <div class="col-md-4">
+                                            <div class="p-2 bg-white rounded border">
+                                              <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="preConsentEnabled">
+                                                <label class="form-check-label fw-semibold" for="preConsentEnabled">
+                                                  Enable Pre-Consent Mode
+                                                </label>
+                                              </div>
+                                            </div>
+                                            <div class="form-text small mt-1">Enable pre-consent data collection</div>
+                                          </div>
+
+                                          <!-- Pre-Consent Storage Strategy -->
+                                          <div class="col-md-4">
+                                            <div class="form-floating">
+                                              <select id="preConsentStorageStrategy" class="form-select">
+                                                <option value="none">None</option>
+                                                <option value="session" selected>Session</option>
+                                                <option value="anonymousId">Anonymous ID</option>
+                                              </select>
+                                              <label for="preConsentStorageStrategy">Storage Strategy</label>
+                                            </div>
+                                            <div class="form-text">Storage strategy for pre-consent data</div>
+                                          </div>
+
+                                          <!-- Pre-Consent Events Delivery -->
+                                          <div class="col-md-4">
+                                            <div class="form-floating">
+                                              <select id="preConsentEventsDelivery" class="form-select">
+                                                <option value="immediate">Immediate</option>
+                                                <option value="buffer" selected>Buffer</option>
+                                              </select>
+                                              <label for="preConsentEventsDelivery">Events Delivery</label>
+                                            </div>
+                                            <div class="form-text">Events delivery mode for pre-consent</div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- Miscellaneous -->
+                          <div class="accordion-item border-0 mb-3 rounded-3 shadow-sm">
+                            <h2 class="accordion-header" id="advancedHeader">
+                              <button class="accordion-button collapsed bg-light fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#advancedConfig" aria-expanded="false" aria-controls="advancedConfig">
+                                🔧 Miscellaneous
+                              </button>
+                            </h2>
+                            <div id="advancedConfig" class="accordion-collapse collapse" aria-labelledby="advancedHeader" data-bs-parent="#configurationAccordion">
+                              <div class="accordion-body">
+                                <!-- Essential Configuration -->
+                                <h6 class="text-muted mb-3">Essential Configuration</h6>
+                                <div class="row g-3 mb-4">
+                                  <!-- Log Level -->
+                                  <div class="col-md-6">
+                                    <div class="form-floating">
+                                      <select id="logLevel" class="form-select">
+                                        <option value="LOG">LOG</option>
+                                        <option value="INFO">INFO</option>
+                                        <option value="DEBUG" selected>DEBUG</option>
+                                        <option value="WARN">WARN</option>
+                                        <option value="ERROR">ERROR</option>
+                                        <option value="NONE">NONE</option>
+                                      </select>
+                                      <label for="logLevel">Log Level</label>
+                                    </div>
+                                    <div class="form-text">Controls the verbosity of SDK logging</div>
+                                  </div>
+
+                                  <!-- Config URL -->
+                                  <div class="col-md-6">
+                                    <div class="form-floating">
+                                      <input type="text" id="configUrl" class="form-control" value="https://api.rudderstack.com" />
+                                      <label for="configUrl">Config URL</label>
+                                    </div>
+                                    <div class="form-text">RudderStack API endpoint for configuration</div>
+                                  </div>
+                                </div>
+
+                                <h6 class="text-muted mb-3">Browser Compatibility</h6>
+                                <div class="row g-3 mb-4">
+                                  <!-- Auto Polyfill -->
+                                  <div class="col-md-4">
+                                    <div class="form-check form-switch">
+                                      <input class="form-check-input" type="checkbox" id="polyfillIfRequired" checked>
+                                      <label class="form-check-label" for="polyfillIfRequired">
+                                        Auto Polyfill
+                                      </label>
+                                    </div>
+                                    <div class="form-text">Automatically polyfill missing browser APIs</div>
+                                  </div>
+
+                                  <!-- UA-CH Track Level -->
+                                  <div class="col-md-4">
+                                    <div class="form-floating">
+                                      <select id="uaChTrackLevel" class="form-select">
+                                        <option value="none">None</option>
+                                        <option value="default" selected>Default</option>
+                                        <option value="full">Full</option>
+                                      </select>
+                                      <label for="uaChTrackLevel">UA-CH Track Level</label>
+                                    </div>
+                                    <div class="form-text">User-Agent Client Hints tracking level</div>
+                                  </div>
+
+                                  <!-- Polyfill URL -->
+                                  <div class="col-md-4">
+                                    <div class="form-floating">
+                                      <input type="text" id="polyfillURL" class="form-control" placeholder="https://polyfill.io/v3/polyfill.min.js" />
+                                      <label for="polyfillURL">Polyfill URL</label>
+                                    </div>
+                                    <div class="form-text">Custom polyfill service URL</div>
+                                  </div>
+                                </div>
+
+                                <h6 class="text-muted mb-3">Ad Blocker Detection</h6>
+                                <div class="row g-3 mb-4">
+                                  <!-- Send Adblock Page -->
+                                  <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                      <input class="form-check-input" type="checkbox" id="sendAdblockPage">
+                                      <label class="form-check-label" for="sendAdblockPage">
+                                        Send Adblock Page
+                                      </label>
+                                    </div>
+                                    <div class="form-text">Send page events when adblock is detected</div>
+                                  </div>
+
+                                  <!-- AdBlock Page Custom Text -->
+                                  <div class="col-md-6">
+                                    <div class="form-floating">
+                                      <input type="text" id="sendAdblockPageCustomText" class="form-control" placeholder="Ad blocker detected" />
+                                      <label for="sendAdblockPageCustomText">AdBlock Custom Text</label>
+                                    </div>
+                                    <div class="form-text">Custom text for ad blocker detection</div>
+                                  </div>
+                                </div>
+
+                                <h6 class="text-muted mb-3">Anonymous ID Management</h6>
+                                <div class="row g-3 mb-4">
+                                  <!-- Anonymous ID Auto Capture -->
+                                  <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                      <input class="form-check-input" type="checkbox" id="anonymousIdAutoCapture">
+                                      <label class="form-check-label fw-semibold" for="anonymousIdAutoCapture">
+                                        Auto Capture Anonymous ID
+                                      </label>
+                                    </div>
+                                    <div class="form-text">Auto-capture anonymous ID</div>
+                                  </div>
+
+                                  <!-- Anonymous ID Source -->
+                                  <div class="col-md-6">
+                                    <div class="form-floating">
+                                      <input type="text" id="anonymousIdSource" class="form-control" />
+                                      <label for="anonymousIdSource">Anonymous ID Source</label>
+                                    </div>
+                                    <div class="form-text">Source identifier for anonymous ID</div>
+                                  </div>
+                                </div>
+
+
+                              </div>
+                            </div>
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- Right Column: JSON Editor (1/3 width) - Always Visible -->
+                    <div id="jsonColumn" class="col-lg-4 config-right-column">
+                      <div class="p-4 h-100 d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                          <h5 class="mb-0 text-muted">📋 JSON Configuration</h5>
+                          <button type="button" class="btn btn-outline-secondary" id="copy-json"
+                                  data-bs-toggle="tooltip" title="Copy JSON to Clipboard">
+                            <i class="fas fa-copy"></i> Copy
+                          </button>
+                        </div>
+                        
+                        <div class="flex-grow-1 position-relative">
+                          <textarea id="json-editor" class="form-control font-monospace w-100 h-100" 
+                                  style="resize: none; font-size: 0.8rem; border: 1px solid #dee2e6; overflow-y: auto;"
+                                  placeholder="JSON configuration will appear here..."></textarea>
+                        </div>
+                        
+                        <div class="mt-3 flex-shrink-0">
+                          <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div id="json-status">
+                              <span class="badge bg-success">✓ Valid JSON</span>
+                            </div>
+                            <small class="text-muted">Click outside editor to sync to form</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                  </div>
+                </form>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 2: Playground Phase -->
+    <div id="playground-phase" class="phase-transition" style="display: none;">
+      <div class="container-fluid px-3 py-4">
+        
+        <!-- Header -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="card playground-header border-0 rounded-3 shadow">
+              <div class="card-body text-center py-4">
+                <h1 class="display-5 fw-bold mb-2">🎮 RudderStack SDK Playground</h1>
+                <p class="mb-3 opacity-90">SDK loaded and ready for testing!</p>
+                <button class="btn btn-outline-light" onclick="backToConfiguration()">
+                  <i class="bi bi-arrow-left"></i> ← Back to Configuration
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <!-- Left Column: Actions and Configuration -->
+          <div class="col-lg-6">
+            
+            <!-- Tracking Methods -->
+            <div class="card border-0 shadow-lg rounded-4 mb-4 fade-in">
+              <div class="card-header bg-success text-white border-0 rounded-top-4">
+                <h3 class="h5 mb-0 fw-semibold">📊 Tracking Methods</h3>
+              </div>
+              <div class="card-body p-4">
+                <div class="row g-3">
+                  <div class="col-6">
+                    <button data-testid="page-btn" class="btn btn-success tracking-btn w-100 py-3" onclick="page()">
+                      📄 Page
+                    </button>
+                  </div>
+                  <div class="col-6">
+                    <button data-testid="track-btn" class="btn btn-danger tracking-btn w-100 py-3" onclick="track()">
+                      🎯 Track
+                    </button>
+                  </div>
+                  <div class="col-6">
+                    <button data-testid="identify-btn" class="btn btn-primary tracking-btn w-100 py-3" onclick="identify()">
+                      👤 Identify
+                    </button>
+                  </div>
+                  <div class="col-6">
+                    <button data-testid="alias-btn" class="btn btn-warning tracking-btn w-100 py-3" onclick="alias()">
+                      🔗 Alias
+                    </button>
+                  </div>
+                  <div class="col-6">
+                    <button data-testid="group-btn" class="btn btn-secondary tracking-btn w-100 py-3" onclick="group()">
+                      👥 Group
+                    </button>
+                  </div>
+                  <div class="col-6">
+                    <button data-testid="reload-page-btn" class="btn btn-info tracking-btn w-100 py-3" onclick="reloadPageWithEvents()">
+                      🔄 Reload Test
+    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Active Configuration -->
+            <div class="card border-0 shadow-lg rounded-4 fade-in">
+              <div class="card-header bg-secondary text-white border-0 rounded-top-4">
+                <h3 class="h5 mb-0 fw-semibold">⚙️ Active Configuration</h3>
+              </div>
+              <div class="card-body p-4">
+                <pre id="active-config" class="mb-0 small overflow-auto bg-light p-3 rounded border" style="max-height: 300px;"></pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Event Output -->
+          <div class="col-lg-6">
+            <div class="card border-0 shadow-lg rounded-4 fade-in">
+              <div class="card-header bg-info text-white border-0 rounded-top-4">
+                <h3 class="h5 mb-0 fw-semibold">📋 Event Output</h3>
+              </div>
+              <div class="card-body p-4">
+                
+                <!-- Last Action -->
+                <div class="mb-4">
+                  <label class="form-label fw-semibold text-muted">Last Action:</label>
+                  <div id="action" class="alert alert-info py-2 px-3 mb-0">
+                    <span class="fw-semibold">No actions performed yet</span>
+                  </div>
+                </div>
+
+                <!-- Event Payload -->
+                <div>
+                  <label class="form-label fw-semibold text-muted">Event Payload:</label>
+                  <div class="position-relative">
+                    <pre id="rudderElement" class="bg-light border rounded p-3 overflow-auto" style="min-height: 300px; max-height: 500px; font-size: 0.85rem;">Event details will appear here after making tracking calls</pre>
+                    <button class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0 m-2" onclick="copyEventPayload()" title="Copy to clipboard">
+                      📋 Copy
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <script>
-      // prettier-ignore
+      // Helper function to update playground output with Bootstrap styling
+      function updatePlaygroundOutput(action, element) {
+        const $actionDiv = $('#action');
+        const $rudderDiv = $('#rudderElement');
+        
+        // Update action with animation
+        if ($actionDiv.length) {
+          $actionDiv.fadeOut(200, function() {
+            $(this).removeClass('alert-info alert-success alert-warning alert-danger')
+                   .addClass('alert-success')
+                   .html(`<span class="fw-semibold">✅ ${action}</span>`)
+                   .fadeIn(300);
+          });
+        }
+        
+        // Update event payload with animation
+        if ($rudderDiv.length && element) {
+          $rudderDiv.fadeOut(200, function() {
+            $(this).text(JSON.stringify(element, null, 2)).fadeIn(300);
+          });
+        }
+      }
+
+      // Function to copy event payload to clipboard
+      function copyEventPayload() {
+        const eventPayload = document.getElementById('rudderElement').textContent;
+        if (eventPayload && eventPayload.trim() !== 'Event details will appear here after making tracking calls') {
+          navigator.clipboard.writeText(eventPayload).then(function() {
+            // Show success toast
+            showToast('Event payload copied to clipboard!', 'success');
+          }).catch(function() {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = eventPayload;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            showToast('Event payload copied to clipboard!', 'success');
+          });
+        } else {
+          showToast('No event payload to copy', 'warning');
+        }
+      }
+
+      // Function to show Bootstrap toast notifications
+      function showToast(message, type = 'info') {
+        const toastId = 'toast-' + Date.now();
+        const toastHtml = `
+          <div id="${toastId}" class="toast align-items-center text-bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+              <div class="toast-body">
+                ${message}
+              </div>
+              <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+          </div>
+        `;
+        
+        // Create toast container if it doesn't exist
+        if (!document.getElementById('toast-container')) {
+          $('body').append('<div id="toast-container" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11000;"></div>');
+        }
+        
+        $('#toast-container').append(toastHtml);
+        const toast = new bootstrap.Toast(document.getElementById(toastId), {
+          delay: 2500 // Show for 2.5 seconds instead of default 5 seconds
+        });
+        toast.show();
+        
+        // Remove toast element after it's hidden
+        document.getElementById(toastId).addEventListener('hidden.bs.toast', function() {
+          this.remove();
+        });
+      }
+
+      // Playground tracking functions
       function page() {
+        if (!isSDKLoadStarted) {
+          showToast('⚠️ Please load the SDK first by configuring options and starting the playground!', 'warning');
+          return;
+        }
+
+        // Show loading state on button
+        const $btn = $('[data-testid="page-btn"]');
+        const originalHtml = $btn.html();
+        $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span>📄 Page');
+
         rudderanalytics.page(
-          'Home',
-          'Cart Viewed',
+          'Playground Page',
+          'SDK Testing',
           {
-            path: '',
-            referrer: '',
-            search: '',
-            title: '',
-            url: '',
+            path: window.location.pathname,
+            referrer: document.referrer,
+            search: window.location.search,
+            title: document.title,
+            url: window.location.href,
+            created_at: new Date().toISOString(),
           },
           function (rudderElement) {
-            console.log('in page call');
-            document.getElementById('action').innerHTML = 'Page called';
-            document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
+            console.log('📄 Page call completed:', rudderElement);
+            updatePlaygroundOutput('Page Call Completed', rudderElement);
+            showToast('Page event tracked successfully!', 'success');
+            // Restore button state
+            $btn.prop('disabled', false).html(originalHtml);
           }
         );
       }
 
-      // prettier-ignore
       function identify() {
+        if (!isSDKLoadStarted) {
+          showToast('⚠️ Please load the SDK first by configuring options and starting the playground!', 'warning');
+          return;
+        }
+
+        // Show loading state on button
+        const $btn = $('[data-testid="identify-btn"]');
+        const originalHtml = $btn.html();
+        $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span>👤 Identify');
+
         rudderanalytics.identify(
-          'customUserID',
+          'playground-user-' + Date.now(),
           {
-            name: 'John Doe',
-            title: 'CEO',
-            email: 'name.surname@domain.com',
-            company: 'Company123',
-            phone: '123-456-7890',
-            rating: 'Hot',
-            city: 'Austin',
-            postalCode: '12345',
+            name: 'Playground User',
+            title: 'SDK Tester',
+            email: 'tester@playground.com',
+            company: 'RudderStack',
+            phone: '555-0123',
+            plan: 'Enterprise',
+            city: 'San Francisco',
             country: 'US',
-            street: 'Sample Address',
-            state: 'TX',
+            environment: 'playground',
+            created_at: new Date().toISOString(),
           },
           {},
           function (rudderElement) {
-            console.log('in identify call');
-            document.getElementById('action').innerHTML = 'Identify called';
-            document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
+            console.log('👤 Identify call completed:', rudderElement);
+            updatePlaygroundOutput('Identify Call Completed', rudderElement);
+            showToast('User identified successfully!', 'success');
+            // Restore button state
+            $btn.prop('disabled', false).html(originalHtml);
           }
         );
       }
 
-      // prettier-ignore
       function track() {
+        if (!isSDKLoadStarted) {
+          showToast('⚠️ Please load the SDK first by configuring options and starting the playground!', 'warning');
+          return;
+        }
+
+        // Show loading state on button
+        const $btn = $('[data-testid="track-btn"]');
+        const originalHtml = $btn.html();
+        $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span>🎯 Track');
+
+        const eventNames = [
+          'Playground Button Clicked',
+          'SDK Feature Tested',
+          'Event Tracking Demo',
+          'Configuration Applied',
+          'API Call Made'
+        ];
+
+        const randomEventName = eventNames[Math.floor(Math.random() * eventNames.length)];
+
         rudderanalytics.track(
-          'test track event 1',
+          randomEventName,
           {
-            revenue: 30,
+            buttonType: 'track',
+            sessionId: 'playground-session-' + Date.now(),
+            randomValue: Math.floor(Math.random() * 1000),
             currency: 'USD',
-            user_actual_id: 12345,
+            value: Math.floor(Math.random() * 100) + 1,
+            environment: 'playground',
+            sdk_version: '3.0',
+            created_at: new Date().toISOString(),
           },
           function (rudderElement) {
-            console.log('in track call');
-            document.getElementById('action').innerHTML = 'Track called';
-            document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
+            console.log('🎯 Track call completed:', rudderElement);
+            updatePlaygroundOutput(`Track Call: "${randomEventName}"`, rudderElement);
+            showToast(`Event "${randomEventName}" tracked successfully!`, 'success');
+            // Restore button state
+            $btn.prop('disabled', false).html(originalHtml);
           }
         );
       }
 
-      // prettier-ignore
       function alias() {
-        rudderanalytics.alias('alias-user-id', function (rudderElement) {
-          console.log('alias call');
-          document.getElementById('action').innerHTML = 'Alias called';
-          document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
+        if (!isSDKLoadStarted) {
+          showToast('⚠️ Please load the SDK first by configuring options and starting the playground!', 'warning');
+          return;
+        }
+
+        // Show loading state on button
+        const $btn = $('[data-testid="alias-btn"]');
+        const originalHtml = $btn.html();
+        $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span>🔗 Alias');
+
+        const aliasUserId = 'alias-user-' + Date.now();
+        
+        rudderanalytics.alias(aliasUserId, function (rudderElement) {
+          console.log('🔗 Alias call completed:', rudderElement);
+          updatePlaygroundOutput(`Alias Call: "${aliasUserId}"`, rudderElement);
+          showToast(`User aliased to "${aliasUserId}"!`, 'success');
+          // Restore button state
+          $btn.prop('disabled', false).html(originalHtml);
         });
       }
 
-      // prettier-ignore
       function group() {
+        if (!isSDKLoadStarted) {
+          showToast('⚠️ Please load the SDK first by configuring options and starting the playground!', 'warning');
+          return;
+        }
+
+        // Show loading state on button
+        const $btn = $('[data-testid="group-btn"]');
+        const originalHtml = $btn.html();
+        $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span>👥 Group');
+
+        const groupId = 'playground-group-' + Date.now();
+
         rudderanalytics.group(
-          'sample_group_id',
+          groupId,
           {
-            name: 'Apple Inc.',
-            location: 'USA',
+            name: 'RudderStack Playground',
+            industry: 'Customer Data Platform',
+            location: 'Global',
+            size: 'Enterprise',
+            plan: 'Pro',
+            created_at: new Date().toISOString(),
+            environment: 'testing',
           },
           function (rudderElement) {
-            console.log('group call');
-            document.getElementById('action').innerHTML = 'Group called';
-            document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
+            console.log('👥 Group call completed:', rudderElement);
+            updatePlaygroundOutput(`Group Call: "${groupId}"`, rudderElement);
+            showToast(`Group "${groupId}" created successfully!`, 'success');
+            // Restore button state
+            $btn.prop('disabled', false).html(originalHtml);
           }
         );
       }
 
-      // prettier-ignore
       function reloadPageWithEvents() {
-        rudderanalytics.track('Event 1 before reload', function (rudderElement) {
-          console.log('Event 1 before reload');
+        if (!isSDKLoadStarted) {
+          showToast('⚠️ Please load the SDK first by configuring options and starting the playground!', 'warning');
+          return;
+        }
 
-          document.getElementById('action').innerHTML = 'Event 1 before reload';
-          document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
+        // Show Bootstrap modal for confirmation
+        const modalHtml = `
+          <div class="modal fade" id="reloadModal" tabindex="-1" aria-labelledby="reloadModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="reloadModalLabel">🔄 Reload Test</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  This will fire multiple events and then reload the page. Are you sure you want to continue?
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <button type="button" class="btn btn-warning" onclick="executeReloadTest()">Continue Reload Test</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        // Remove existing modal if any
+        $('#reloadModal').remove();
+        $('body').append(modalHtml);
+        
+        const modal = new bootstrap.Modal(document.getElementById('reloadModal'));
+        modal.show();
+      }
+
+      // Function to execute the reload test
+      function executeReloadTest() {
+        const modal = bootstrap.Modal.getInstance(document.getElementById('reloadModal'));
+        modal.hide();
+
+        // Show loading state on button
+        const $btn = $('[data-testid="reload-page-btn"]');
+        const originalHtml = $btn.html();
+        $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span>🔄 Reloading...');
+
+        rudderanalytics.track('Event Before Reload - 1', {
+          sequence: 1,
+          timestamp: new Date().toISOString(),
+          test_type: 'reload_test'
+        }, function (rudderElement) {
+          console.log('🔄 Event 1 before reload:', rudderElement);
+          updatePlaygroundOutput('Event 1 Before Reload', rudderElement);
+          showToast('Event 1 fired before reload', 'info');
         });
 
-        rudderanalytics.track('Event 2 before reload', function (rudderElement) {
-          console.log('Event 2 before reload');
+        setTimeout(() => {
+          rudderanalytics.track('Event Before Reload - 2', {
+            sequence: 2,
+            timestamp: new Date().toISOString(),
+            test_type: 'reload_test'
+          }, function (rudderElement) {
+            console.log('🔄 Event 2 before reload:', rudderElement);
+            updatePlaygroundOutput('Event 2 Before Reload', rudderElement);
+            showToast('Event 2 fired before reload', 'info');
+          });
 
-          document.getElementById('action').innerHTML = 'Event 2 before reload';
-          document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-        });
-
+          setTimeout(() => {
+            showToast('Reloading page in 2 seconds...', 'warning');
+            setTimeout(() => {
         window.location.reload();
+            }, 2000);
+          }, 1000);
+        }, 500);
       }
     </script>
   </body>
