@@ -572,7 +572,7 @@
               //   All: false
               // },
               // useGlobalIntegrationsConfigInEvents: true,
-              // useServerSideCookies:true,
+              useServerSideCookies: false,
               // queueOptions: {
               //   batch: {
               //     maxSize: 5 * 1024, // 5KB
@@ -717,6 +717,7 @@
         if (typeof config.polyfillIfRequired !== 'undefined') $('#polyfillIfRequired').prop('checked', config.polyfillIfRequired);
         if (typeof config.sendAdblockPage !== 'undefined') $('#sendAdblockPage').prop('checked', config.sendAdblockPage);
         if (typeof config.sameDomainCookiesOnly !== 'undefined') $('#sameDomainCookiesOnly').prop('checked', config.sameDomainCookiesOnly);
+        if (typeof config.useServerSideCookies !== 'undefined') $('#useServerSideCookies').prop('checked', config.useServerSideCookies);
         if (config.dataPlaneEventsBufferTimeout) $('#dataPlaneEventsBufferTimeout').val(config.dataPlaneEventsBufferTimeout);
         
         // Performance & Transport Options
@@ -744,11 +745,9 @@
           if (config.queueOptions.backoffFactor) $('#queueBackoffFactor').val(config.queueOptions.backoffFactor);
           if (config.queueOptions.backoffJitter) $('#queueBackoffJitter').val(config.queueOptions.backoffJitter);
           
-          // Batch options
+          // Batch options (presence of batch object indicates batching is enabled)
           if (config.queueOptions.batch) {
-            if (typeof config.queueOptions.batch.enabled !== 'undefined') {
-              $('#queueBatchEnabled').prop('checked', config.queueOptions.batch.enabled);
-            }
+            $('#queueBatchEnabled').prop('checked', true);
             if (config.queueOptions.batch.maxItems) $('#queueBatchMaxItems').val(config.queueOptions.batch.maxItems);
             if (config.queueOptions.batch.maxSize) $('#queueBatchMaxSize').val(config.queueOptions.batch.maxSize);
             if (config.queueOptions.batch.flushInterval) $('#queueBatchFlushInterval').val(config.queueOptions.batch.flushInterval);
@@ -760,8 +759,9 @@
           $('#destinationsQueueMaxItems').val(config.destinationsQueueOptions.maxItems);
         }
         
-        // Beacon Queue Options
-        if (config.beaconQueueOptions) {
+        // Beacon Queue Options (only when useBeacon is enabled in JSON)
+        if (config.useBeacon && config.beaconQueueOptions) {
+          $('#useBeacon').prop('checked', true);
           if (config.beaconQueueOptions.maxItems) $('#beaconQueueMaxItems').val(config.beaconQueueOptions.maxItems);
           if (config.beaconQueueOptions.flushQueueInterval) $('#beaconQueueFlushInterval').val(config.beaconQueueOptions.flushQueueInterval);
         }
@@ -782,24 +782,19 @@
           }
         }
         
+        // Auto Track options (presence indicates it's enabled)
         if (config.autoTrack) {
-          if (typeof config.autoTrack.enabled !== 'undefined') {
-            $('#autoTrackEnabled').prop('checked', config.autoTrack.enabled);
-          }
+          $('#autoTrackEnabled').prop('checked', true);
           
           // Page lifecycle options
           if (config.autoTrack.pageLifecycle) {
-            if (typeof config.autoTrack.pageLifecycle.enabled !== 'undefined') {
-              $('#pageLifecycleEnabled').prop('checked', config.autoTrack.pageLifecycle.enabled);
-            }
+            $('#pageLifecycleEnabled').prop('checked', true);
           }
         }
         
-        // Consent Management Options
+        // Consent Management Options (presence indicates it's enabled)
         if (config.consentManagement) {
-          if (typeof config.consentManagement.enabled !== 'undefined') {
-            $('#consentManagementEnabled').prop('checked', config.consentManagement.enabled);
-          }
+          $('#consentManagementEnabled').prop('checked', true);
           if (config.consentManagement.provider) {
             $('#consentProvider').val(config.consentManagement.provider);
           }
@@ -811,20 +806,17 @@
           }
         }
         
+        // Anonymous ID Options (presence indicates auto capture is enabled)
         if (config.anonymousIdOptions && config.anonymousIdOptions.autoCapture) {
-          if (typeof config.anonymousIdOptions.autoCapture.enabled !== 'undefined') {
-            $('#anonymousIdAutoCapture').prop('checked', config.anonymousIdOptions.autoCapture.enabled);
-          }
+          $('#anonymousIdAutoCapture').prop('checked', true);
           if (config.anonymousIdOptions.autoCapture.source) {
             $('#anonymousIdSource').val(config.anonymousIdOptions.autoCapture.source);
           }
         }
         
-        // Privacy & Consent Options
+        // Privacy & Consent Options (presence indicates pre-consent is enabled)
         if (config.preConsent) {
-          if (typeof config.preConsent.enabled !== 'undefined') {
-            $('#preConsentEnabled').prop('checked', config.preConsent.enabled);
-          }
+          $('#preConsentEnabled').prop('checked', true);
           if (config.preConsent.storage && config.preConsent.storage.strategy) {
             $('#preConsentStorageStrategy').val(config.preConsent.storage.strategy);
           }
@@ -902,10 +894,10 @@
           }
         }
         
-        // AdBlock Page Options
-        if (config.sendAdblockPageOptions && config.sendAdblockPageOptions.customizeText) {
-          $('#sendAdblockPageCustomText').val(config.sendAdblockPageOptions.customizeText);
-        }
+
+        
+        // Update conditional sections after loading configuration
+        updateConditionalSections();
       }
 
       // Function to combine selected plugin checkboxes with custom plugins
@@ -988,18 +980,25 @@
           integrations: {
             All: document.getElementById('loadAllIntegrations')?.checked !== false,
           },
-          loadIntegration: document.getElementById('loadNativeSDK')?.checked || false,
+          ...(document.getElementById('loadAllIntegrations')?.checked && {
+            loadIntegration: document.getElementById('loadNativeSDK')?.checked || false,
+            bufferDataPlaneEventsUntilReady: document.getElementById('bufferDataPlaneEventsUntilReady')?.checked || false,
+          }),
           useBeacon: document.getElementById('useBeacon')?.checked || false,
           secureCookie: document.getElementById('secureCookie')?.checked || false,
-          bufferDataPlaneEventsUntilReady: document.getElementById('bufferDataPlaneEventsUntilReady')?.checked || false,
+          useServerSideCookies: document.getElementById('useServerSideCookies')?.checked || false,
           
           // Advanced Options (existing)
-          destSDKBaseURL: document.getElementById('destSDKBaseURL')?.value || undefined,
+          ...(document.getElementById('loadAllIntegrations')?.checked && document.getElementById('destSDKBaseURL')?.value && {
+            destSDKBaseURL: document.getElementById('destSDKBaseURL').value
+          }),
           pluginsSDKBaseURL: document.getElementById('pluginsSDKBaseURL')?.value || undefined,
           polyfillIfRequired: document.getElementById('polyfillIfRequired')?.checked !== false,
           sendAdblockPage: document.getElementById('sendAdblockPage')?.checked || false,
           sameDomainCookiesOnly: document.getElementById('sameDomainCookiesOnly')?.checked || false,
-          dataPlaneEventsBufferTimeout: parseInt(document.getElementById('dataPlaneEventsBufferTimeout')?.value) || 10000,
+          ...(document.getElementById('bufferDataPlaneEventsUntilReady')?.checked && {
+            dataPlaneEventsBufferTimeout: parseInt(document.getElementById('dataPlaneEventsBufferTimeout')?.value) || 10000
+          }),
           
           // Performance & Transport Options
           uaChTrackLevel: document.getElementById('uaChTrackLevel')?.value || 'default',
@@ -1007,7 +1006,9 @@
           
           // URLs & Endpoints
           polyfillURL: document.getElementById('polyfillURL')?.value || undefined,
-          dataServiceEndpoint: document.getElementById('dataServiceEndpoint')?.value || undefined,
+          ...(document.getElementById('useServerSideCookies')?.checked && document.getElementById('dataServiceEndpoint')?.value && {
+            dataServiceEndpoint: document.getElementById('dataServiceEndpoint').value
+          }),
           
           // Plugin Configuration
           plugins: getCombinedPlugins(),
@@ -1021,71 +1022,99 @@
             minRetryDelay: parseInt(document.getElementById('queueMinRetryDelay')?.value) || 1000,
             backoffFactor: parseFloat(document.getElementById('queueBackoffFactor')?.value) || 2,
             backoffJitter: parseFloat(document.getElementById('queueBackoffJitter')?.value) || 0,
-            batch: {
-              enabled: document.getElementById('queueBatchEnabled')?.checked || false,
-              maxItems: parseInt(document.getElementById('queueBatchMaxItems')?.value) || 10,
-              maxSize: parseInt(document.getElementById('queueBatchMaxSize')?.value) || 512000,
-              flushInterval: parseInt(document.getElementById('queueBatchFlushInterval')?.value) || 10000,
+            ...(document.getElementById('queueBatchEnabled')?.checked && {
+              batch: {
+                enabled: true,
+                maxItems: parseInt(document.getElementById('queueBatchMaxItems')?.value) || 10,
+                maxSize: parseInt(document.getElementById('queueBatchMaxSize')?.value) || 512000,
+                flushInterval: parseInt(document.getElementById('queueBatchFlushInterval')?.value) || 10000,
+              }
+            }),
+          },
+          
+          // Destination Queue Options (only when integrations are loaded)
+          ...(document.getElementById('loadAllIntegrations')?.checked && {
+            destinationsQueueOptions: {
+              maxItems: parseInt(document.getElementById('destinationsQueueMaxItems')?.value) || 100,
             },
-          },
+          }),
           
-          // Destination Queue Options
-          destinationsQueueOptions: {
-            maxItems: parseInt(document.getElementById('destinationsQueueMaxItems')?.value) || 100,
-          },
-          
-          // Beacon Queue Options
-          beaconQueueOptions: {
-            maxItems: parseInt(document.getElementById('beaconQueueMaxItems')?.value) || 100,
-            flushQueueInterval: parseInt(document.getElementById('beaconQueueFlushInterval')?.value) || 10000,
-          },
+          // Beacon Queue Options (only when useBeacon is enabled)
+          ...(document.getElementById('useBeacon')?.checked && {
+            beaconQueueOptions: {
+              maxItems: parseInt(document.getElementById('beaconQueueMaxItems')?.value) || 100,
+              flushQueueInterval: parseInt(document.getElementById('beaconQueueFlushInterval')?.value) || 10000,
+            }
+          }),
           
           // Session & Tracking Options
-          sessions: {
-            autoTrack: document.getElementById('sessionAutoTrack')?.checked !== false,
-            timeout: parseInt(document.getElementById('sessionTimeout')?.value) || 1800000,
-            cutOff: document.getElementById('sessionCutoffEnabled')?.checked ? {
+          ...(document.getElementById('sessionAutoTrack')?.checked !== false && {
+            sessions: {
+              autoTrack: true,
+              ...(document.getElementById('sessionAutoTrack')?.checked && {
+                timeout: parseInt(document.getElementById('sessionTimeout')?.value) || 1800000,
+              }),
+              ...(document.getElementById('sessionAutoTrack')?.checked && document.getElementById('sessionCutoffEnabled')?.checked && {
+                cutOff: {
+                  enabled: true,
+                  duration: parseInt(document.getElementById('sessionCutoffDuration')?.value) || 300000,
+                }
+              }),
+            }
+          }),
+          
+          // Auto Track Options (only when enabled)
+          ...(document.getElementById('autoTrackEnabled')?.checked && {
+            autoTrack: {
               enabled: true,
-              duration: parseInt(document.getElementById('sessionCutoffDuration')?.value) || 300000,
-            } : undefined,
-          },
+              ...(document.getElementById('pageLifecycleEnabled')?.checked && {
+                pageLifecycle: {
+                  enabled: true,
+                }
+              }),
+            }
+          }),
           
-          autoTrack: {
-            enabled: document.getElementById('autoTrackEnabled')?.checked || false,
-            pageLifecycle: document.getElementById('pageLifecycleEnabled')?.checked ? {
+          // Consent Management Options (only when enabled)
+          ...(document.getElementById('consentManagementEnabled')?.checked && {
+            consentManagement: {
               enabled: true,
-            } : undefined,
-          },
+              ...(document.getElementById('consentProvider')?.value && {
+                provider: document.getElementById('consentProvider').value
+              }),
+              ...(document.getElementById('allowedConsentIds')?.value && {
+                allowedConsentIds: document.getElementById('allowedConsentIds').value.split(',').map(id => id.trim()).filter(id => id)
+              }),
+              ...(document.getElementById('deniedConsentIds')?.value && {
+                deniedConsentIds: document.getElementById('deniedConsentIds').value.split(',').map(id => id.trim()).filter(id => id)
+              }),
+            }
+          }),
           
-          // Consent Management Options
-          consentManagement: document.getElementById('consentManagementEnabled')?.checked ? {
-            enabled: true,
-            provider: document.getElementById('consentProvider')?.value || undefined,
-            allowedConsentIds: document.getElementById('allowedConsentIds')?.value ? 
-              document.getElementById('allowedConsentIds').value.split(',').map(id => id.trim()).filter(id => id) : 
-              undefined,
-            deniedConsentIds: document.getElementById('deniedConsentIds')?.value ? 
-              document.getElementById('deniedConsentIds').value.split(',').map(id => id.trim()).filter(id => id) : 
-              undefined,
-          } : undefined,
+          // Anonymous ID Options (only when auto capture is enabled)
+          ...(document.getElementById('anonymousIdAutoCapture')?.checked && {
+            anonymousIdOptions: {
+              autoCapture: {
+                enabled: true,
+                ...(document.getElementById('anonymousIdSource')?.value && {
+                  source: document.getElementById('anonymousIdSource').value
+                }),
+              },
+            }
+          }),
           
-          anonymousIdOptions: {
-            autoCapture: {
-              enabled: document.getElementById('anonymousIdAutoCapture')?.checked === true,
-              source: document.getElementById('anonymousIdSource')?.value,
-            },
-          },
-          
-          // Privacy & Consent Options
-          preConsent: {
-            enabled: document.getElementById('preConsentEnabled')?.checked || false,
-            storage: {
-              strategy: document.getElementById('preConsentStorageStrategy')?.value || 'session',
-            },
-            events: {
-              delivery: document.getElementById('preConsentEventsDelivery')?.value || 'buffer',
-            },
-          },
+          // Privacy & Consent Options (only when pre-consent is enabled)
+          ...(document.getElementById('preConsentEnabled')?.checked && {
+            preConsent: {
+              enabled: true,
+              storage: {
+                strategy: document.getElementById('preConsentStorageStrategy')?.value || 'session',
+              },
+              events: {
+                delivery: document.getElementById('preConsentEventsDelivery')?.value || 'buffer',
+              },
+            }
+          }),
           
           // Storage Configuration
           storage: {
@@ -1145,10 +1174,7 @@
             },
           },
           
-          // AdBlock Page Options
-          sendAdblockPageOptions: document.getElementById('sendAdblockPageCustomText')?.value ? {
-            customizeText: document.getElementById('sendAdblockPageCustomText').value,
-          } : undefined,
+
         };
 
         // Apply the environment overrides (same as original logic)
@@ -1330,6 +1356,7 @@
         document.getElementById('loadNativeSDK').checked = true;
         document.getElementById('useBeacon').checked = false;
         document.getElementById('secureCookie').checked = false;
+        document.getElementById('useServerSideCookies').checked = false;
         document.getElementById('bufferDataPlaneEventsUntilReady').checked = false;
 
         // Reset advanced options (existing)
@@ -1417,8 +1444,10 @@
         document.getElementById('storageEntryInitialReferrer').value = '';
         document.getElementById('storageEntryInitialReferringDomain').value = '';
         document.getElementById('storageEntryAuthToken').value = '';
-        document.getElementById('sendAdblockPageCustomText').value = '';
 
+        // Update conditional sections after reset
+        updateConditionalSections();
+        
         // Update the JSON editor (only affects LoadOptions)
         updateJsonFromForm();
         showToast('Load options reset to defaults', 'info');
@@ -1490,7 +1519,7 @@
         });
 
         // Real-time form to JSON sync - update JSON when form controls change (exclude writeKey and dataPlaneUrl)
-        $('#logLevel, #configUrl, #loadAllIntegrations, #loadNativeSDK, #useBeacon, #secureCookie, #bufferDataPlaneEventsUntilReady, #destSDKBaseURL, #pluginsSDKBaseURL, #polyfillIfRequired, #sendAdblockPage, #sameDomainCookiesOnly, #dataPlaneEventsBufferTimeout, #uaChTrackLevel, #useGlobalIntegrationsConfigInEvents, #polyfillURL, #dataServiceEndpoint, #queueMaxItems, #queueMaxAttempts, #timerScaleFactor, #queueMaxRetryDelay, #queueMinRetryDelay, #queueBackoffFactor, #queueBackoffJitter, #queueBatchEnabled, #queueBatchMaxItems, #queueBatchMaxSize, #queueBatchFlushInterval, #destinationsQueueMaxItems, #beaconQueueMaxItems, #beaconQueueFlushInterval, #plugins, #sessionAutoTrack, #sessionTimeout, #sessionCutoffEnabled, #sessionCutoffDuration, #autoTrackEnabled, #pageLifecycleEnabled, #consentManagementEnabled, #consentProvider, #allowedConsentIds, #deniedConsentIds, #anonymousIdAutoCapture, #anonymousIdSource, #preConsentEnabled, #preConsentStorageStrategy, #preConsentEventsDelivery, #storageType, #storageEncryptionVersion, #storageMigrate, #storageCookieDomain, #storageCookieSameSite, #storageCookiePath, #storageCookieMaxAge, #storageCookieExpires, #storageCookieSecure, #storageEntryUserId, #storageEntryUserTraits, #storageEntryAnonymousId, #storageEntryGroupId, #storageEntryGroupTraits, #storageEntrySessionInfo, #storageEntryInitialReferrer, #storageEntryInitialReferringDomain, #storageEntryAuthToken, #sendAdblockPageCustomText, #customPlugins')
+        $('#logLevel, #configUrl, #loadAllIntegrations, #loadNativeSDK, #useBeacon, #secureCookie, #useServerSideCookies, #bufferDataPlaneEventsUntilReady, #destSDKBaseURL, #pluginsSDKBaseURL, #polyfillIfRequired, #sendAdblockPage, #sameDomainCookiesOnly, #dataPlaneEventsBufferTimeout, #uaChTrackLevel, #useGlobalIntegrationsConfigInEvents, #polyfillURL, #dataServiceEndpoint, #queueMaxItems, #queueMaxAttempts, #timerScaleFactor, #queueMaxRetryDelay, #queueMinRetryDelay, #queueBackoffFactor, #queueBackoffJitter, #queueBatchEnabled, #queueBatchMaxItems, #queueBatchMaxSize, #queueBatchFlushInterval, #destinationsQueueMaxItems, #beaconQueueMaxItems, #beaconQueueFlushInterval, #plugins, #sessionAutoTrack, #sessionTimeout, #sessionCutoffEnabled, #sessionCutoffDuration, #autoTrackEnabled, #pageLifecycleEnabled, #consentManagementEnabled, #consentProvider, #allowedConsentIds, #deniedConsentIds, #anonymousIdAutoCapture, #anonymousIdSource, #preConsentEnabled, #preConsentStorageStrategy, #preConsentEventsDelivery, #storageType, #storageEncryptionVersion, #storageMigrate, #storageCookieDomain, #storageCookieSameSite, #storageCookiePath, #storageCookieMaxAge, #storageCookieExpires, #storageCookieSecure, #storageEntryUserId, #storageEntryUserTraits, #storageEntryAnonymousId, #storageEntryGroupId, #storageEntryGroupTraits, #storageEntrySessionInfo, #storageEntryInitialReferrer, #storageEntryInitialReferringDomain, #storageEntryAuthToken, #customPlugins')
           .on('change input', updateJsonFromForm);
 
         // Add event handlers for plugin checkboxes
@@ -1515,6 +1544,166 @@
             updateJsonFromForm();
           }, 100);
         });
+
+        // Toggle buffer timeout section based on buffer events checkbox
+        $('#bufferDataPlaneEventsUntilReady').on('change', function() {
+          const isChecked = $(this).is(':checked');
+          const $timeoutSection = $('#bufferTimeoutSection');
+          
+          if (isChecked) {
+            $timeoutSection.show();
+          } else {
+            $timeoutSection.hide();
+          }
+        });
+
+        // Add event handlers for all conditional controls
+        $('#loadAllIntegrations').on('change', updateConditionalSections);
+        $('#useServerSideCookies').on('change', updateConditionalSections);
+        $('#autoTrackEnabled').on('change', updateConditionalSections);
+        $('#sessionAutoTrack').on('change', updateConditionalSections);
+        $('#consentManagementEnabled').on('change', updateConditionalSections);
+        $('#preConsentEnabled').on('change', updateConditionalSections);
+        $('#anonymousIdAutoCapture').on('change', updateConditionalSections);
+        $('#useBeacon').on('change', updateConditionalSections);
+        $('#queueBatchEnabled').on('change', updateConditionalSections);
+        $('#storageType').on('change', updateConditionalSections);
+        
+        // Update storage entry change handlers for cookies tab visibility
+        $('#storageEntryUserId, #storageEntryUserTraits, #storageEntryAnonymousId, #storageEntryGroupId, #storageEntryGroupTraits, #storageEntrySessionInfo, #storageEntryInitialReferrer, #storageEntryInitialReferringDomain, #storageEntryAuthToken').on('change', updateConditionalSections);
+
+        // Function to update conditional sections visibility
+        function updateConditionalSections() {
+          const loadAllIntegrationsChecked = $('#loadAllIntegrations').is(':checked');
+          const bufferEventsChecked = $('#bufferDataPlaneEventsUntilReady').is(':checked');
+          const useServerSideCookiesChecked = $('#useServerSideCookies').is(':checked');
+          const autoTrackChecked = $('#autoTrackEnabled').is(':checked');
+          const sessionAutoTrackChecked = $('#sessionAutoTrack').is(':checked');
+          const consentManagementChecked = $('#consentManagementEnabled').is(':checked');
+          const preConsentChecked = $('#preConsentEnabled').is(':checked');
+          const anonymousIdAutoCaptureChecked = $('#anonymousIdAutoCapture').is(':checked');
+          const useBeaconChecked = $('#useBeacon').is(':checked');
+          const batchingChecked = $('#queueBatchEnabled').is(':checked');
+          
+          // Update sections based on Load All Integrations
+          $('#loadNativeSDKSection').toggle(loadAllIntegrationsChecked);
+          $('#bufferDataPlaneEventsUntilReady').closest('.col-md-6').toggle(loadAllIntegrationsChecked);
+          $('#integrationsQueueTabButton').toggle(loadAllIntegrationsChecked);
+          $('#destSDKBaseURLSection').toggle(loadAllIntegrationsChecked);
+          
+          // If Load All Integrations is unchecked, ensure buffer events is also unchecked and hidden
+          if (!loadAllIntegrationsChecked) {
+            $('#bufferDataPlaneEventsUntilReady').prop('checked', false);
+            $('#bufferTimeoutSection').hide();
+            $('#destSDKBaseURL').val('');
+          }
+          
+          // Update Buffer Timeout section (only when Load All Integrations is checked)
+          if (loadAllIntegrationsChecked) {
+            $('#bufferTimeoutSection').toggle(bufferEventsChecked);
+          }
+          
+          // Link dataServiceEndpoint to useServerSideCookies
+          $('#dataServiceSection').toggle(useServerSideCookiesChecked);
+          if (!useServerSideCookiesChecked) {
+            $('#dataServiceEndpoint').val('');
+          }
+          
+          // Link page lifecycle to auto tracking
+          $('#pageLifecycleSection').toggle(autoTrackChecked);
+          if (!autoTrackChecked) {
+            $('#pageLifecycleEnabled').prop('checked', false);
+          }
+          
+          // Link session tracking options to Auto Track Sessions
+          $('#sessionTrackingOptionsSection').toggle(sessionAutoTrackChecked);
+          $('#sessionCutoffOptionsSection').toggle(sessionAutoTrackChecked);
+          if (!sessionAutoTrackChecked) {
+            $('#sessionTimeout').val('1800000');
+            $('#sessionCutoffEnabled').prop('checked', false);
+            $('#sessionCutoffDuration').val('300000');
+          }
+          
+          // Control consent management options and pre-consent tab visibility
+          $('#consentManagementOptionsSection').toggle(consentManagementChecked);
+          $('#preConsentTabButton').toggle(consentManagementChecked);
+          
+          if (!consentManagementChecked) {
+            $('#consentProvider').val('');
+            $('#allowedConsentIds').val('');
+            $('#deniedConsentIds').val('');
+            // Also disable pre-consent when consent management is disabled
+            $('#preConsentEnabled').prop('checked', false);
+            // If pre-consent tab is currently active, switch to general tab
+            if ($('#consent-preconsent-tab').hasClass('active')) {
+              $('#consent-general-tab').click();
+            }
+          }
+          
+          // Control pre-consent options (only control options, not the toggle itself)
+          $('#preConsentOptionsSection').toggle(preConsentChecked);
+          if (!preConsentChecked) {
+            $('#preConsentStorageStrategy').val('session');
+            $('#preConsentEventsDelivery').val('buffer');
+          }
+          
+          // Link anonymous ID source to auto capture
+          $('#anonymousIdSourceSection').toggle(anonymousIdAutoCaptureChecked);
+          if (!anonymousIdAutoCaptureChecked) {
+            $('#anonymousIdSource').val('segment');
+          }
+          
+          // Link beacon options to Use Beacon API
+          $('#beaconOptionsSection').toggle(useBeaconChecked);
+          if (!useBeaconChecked) {
+            $('#beaconQueueMaxItems').val('100');
+            $('#beaconQueueFlushInterval').val('10000');
+          }
+          
+          // Link batching options to batching enabled
+          $('#batchingOptionsSection').toggle(batchingChecked);
+          if (!batchingChecked) {
+            $('#queueBatchMaxItems').val('10');
+            $('#queueBatchMaxSize').val('512000');
+            $('#queueBatchFlushInterval').val('10000');
+          }
+          
+          // Control cookies tab visibility
+          updateCookiesTabVisibility();
+        }
+        
+        // Function to check if cookies tab should be visible
+        function updateCookiesTabVisibility() {
+          const storageType = $('#storageType').val();
+          const storageEntryTypes = [
+            $('#storageEntryUserId').val(),
+            $('#storageEntryUserTraits').val(),
+            $('#storageEntryAnonymousId').val(),
+            $('#storageEntryGroupId').val(),
+            $('#storageEntryGroupTraits').val(),
+            $('#storageEntrySessionInfo').val(),
+            $('#storageEntryInitialReferrer').val(),
+            $('#storageEntryInitialReferringDomain').val(),
+            $('#storageEntryAuthToken').val()
+          ];
+          
+          // Show cookies tab if global storage type is cookies or at least one entry uses cookies
+          const shouldShowCookiesTab = storageType === 'cookieStorage' || 
+                                       storageEntryTypes.some(type => type === 'cookieStorage');
+          
+          if (shouldShowCookiesTab) {
+            $('#storage-cookies-tab').parent().show();
+          } else {
+            $('#storage-cookies-tab').parent().hide();
+            // If cookies tab is currently active, switch to general tab
+            if ($('#storage-cookies-tab').hasClass('active')) {
+              $('#storage-general-tab').click();
+            }
+          }
+        }
+
+        // Initialize conditional sections on page load
+        updateConditionalSections();
 
         // JSON editor - capture initial value when gaining focus
         $('#json-editor').on('focus', function() {
@@ -1604,7 +1793,7 @@
 
         // Show welcome toast
         setTimeout(() => {
-          showToast('Welcome to RudderStack SDK Playground! 🚀', 'info');
+          showToast('Welcome to RudderStack JS SDK Playground! 🚀', 'info');
         }, 1000);
 
         // Initialize any additional functionality if needed
@@ -1689,14 +1878,11 @@
 
                         <!-- Configuration Options with Collapsible Sections -->
                         <div class="accordion accordion-flush" id="configurationAccordion">
-                          
-
-
                           <!-- Integrations & Plugins -->
                           <div class="accordion-item border-0 mb-3 rounded-3 shadow-sm">
                             <h2 class="accordion-header" id="integrationsHeader">
                               <button class="accordion-button collapsed bg-light fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#integrationsConfig" aria-expanded="false" aria-controls="integrationsConfig">
-                                🔧 Integrations & Plugins
+                                🔧 Device Mode Integrations & Plugins
                               </button>
                             </h2>
                             <div id="integrationsConfig" class="accordion-collapse collapse" aria-labelledby="integrationsHeader" data-bs-parent="#configurationAccordion">
@@ -1733,12 +1919,12 @@
                                                   Load All Integrations
                                                 </label>
                                               </div>
-                                              <div class="form-text small mt-1">Enable loading of destination integrations</div>
+                                              <div class="form-text small mt-1">Enable loading of the connected destination integrations</div>
                                             </div>
                                           </div>
 
                                           <!-- Load Native SDK -->
-                                          <div class="col-md-6">
+                                          <div class="col-md-6" id="loadNativeSDKSection">
                                             <div class="p-2 bg-white rounded border">
                                               <div class="form-check form-switch">
                                                 <input class="form-check-input" type="checkbox" id="loadNativeSDK" checked>
@@ -1746,7 +1932,7 @@
                                                   Load Native SDKs
                                                 </label>
                                               </div>
-                                              <div class="form-text small mt-1">Enable loading of native SDKs</div>
+                                              <div class="form-text small mt-1">Enable integrations to load third-party SDKs</div>
                                             </div>
                                           </div>
 
@@ -1756,10 +1942,10 @@
                                               <div class="form-check form-switch">
                                                 <input class="form-check-input" type="checkbox" id="useGlobalIntegrationsConfigInEvents">
                                                 <label class="form-check-label fw-semibold" for="useGlobalIntegrationsConfigInEvents">
-                                                  Use Global Config
+                                                  Use Global IntegrationsConfig
                                                 </label>
                                               </div>
-                                              <div class="form-text small mt-1">Use global integrations config in events</div>
+                                              <div class="form-text small mt-1">Use global (load API level) integrations config for events</div>
                                             </div>
                                           </div>
 
@@ -1769,15 +1955,15 @@
                                               <div class="form-check form-switch">
                                                 <input class="form-check-input" type="checkbox" id="bufferDataPlaneEventsUntilReady">
                                                 <label class="form-check-label fw-semibold" for="bufferDataPlaneEventsUntilReady">
-                                                  Buffer Events Until Ready
+                                                  Buffer Events Until SDK Ready
                                                 </label>
                                               </div>
-                                              <div class="form-text small mt-1">Queue events until SDK is fully initialized</div>
+                                              <div class="form-text small mt-1">Queue events to the data plane until the SDK is ready. Typically, to wait for the device mode integrations to get ready.</div>
                                             </div>
                                           </div>
 
                                           <!-- Buffer Timeout Configuration -->
-                                          <div class="col-md-6">
+                                          <div class="col-md-6" id="bufferTimeoutSection" style="display: none;">
                                             <div class="form-floating">
                                               <input type="number" id="dataPlaneEventsBufferTimeout" class="form-control" value="10000" min="1000" max="60000" step="1000" />
                                               <label for="dataPlaneEventsBufferTimeout">Buffer Timeout (ms)</label>
@@ -1786,7 +1972,7 @@
                                           </div>
 
                                           <!-- Destination SDKs Base URL -->
-                                          <div class="col-12">
+                                          <div class="col-12" id="destSDKBaseURLSection">
                                             <div class="form-floating">
                                               <input type="text" id="destSDKBaseURL" class="form-control" />
                                               <label for="destSDKBaseURL">Integration SDKs Base URL</label>
@@ -1819,7 +2005,10 @@
                                         <!-- Plugin Selection -->
                                         <div class="mb-3">
                                           <h6 class="text-muted mb-3">Select Plugins <span class="badge bg-info ms-2">14 Available</span></h6>
-                                          
+                                          <div class="form-text small">
+                                            <p>Note: If no plugins are selected, the SDK will load a default set of plugins based on other configurations and browser capabilities.</p>
+                                          </div>
+
                                           <!-- Transport & Queuing Plugins -->
                                           <div class="mb-4">
                                             <h6 class="text-info-emphasis mb-2">🚀 Transport & Queuing</h6>
@@ -1828,21 +2017,21 @@
                                                 <div class="form-check">
                                                   <input class="form-check-input plugin-checkbox" type="checkbox" id="plugin-BeaconQueue" value="BeaconQueue">
                                                   <label class="form-check-label fw-semibold" for="plugin-BeaconQueue">BeaconQueue</label>
-                                                  <div class="form-text small">Reliable event queuing using Beacon API</div>
+                                                  <div class="form-text small">Reliable event delivery using browser's Beacon API</div>
                                                 </div>
                                               </div>
                                               <div class="col-md-4">
                                                 <div class="form-check">
                                                   <input class="form-check-input plugin-checkbox" type="checkbox" id="plugin-XhrQueue" value="XhrQueue">
                                                   <label class="form-check-label fw-semibold" for="plugin-XhrQueue">XhrQueue</label>
-                                                  <div class="form-text small">XMLHttpRequest-based event queuing</div>
+                                                  <div class="form-text small">XMLHttpRequest-based event delivery</div>
                                                 </div>
                                               </div>
                                               <div class="col-md-4">
                                                 <div class="form-check">
                                                   <input class="form-check-input plugin-checkbox" type="checkbox" id="plugin-NativeDestinationQueue" value="NativeDestinationQueue">
                                                   <label class="form-check-label fw-semibold" for="plugin-NativeDestinationQueue">NativeDestinationQueue</label>
-                                                  <div class="form-text small">Native destination event queuing</div>
+                                                  <div class="form-text small">Queuing and delivery of events to the integrations</div>
                                                 </div>
                                               </div>
                                             </div>
@@ -1891,21 +2080,21 @@
                                                 <div class="form-check">
                                                   <input class="form-check-input plugin-checkbox" type="checkbox" id="plugin-DeviceModeTransformation" value="DeviceModeTransformation">
                                                   <label class="form-check-label fw-semibold" for="plugin-DeviceModeTransformation">DeviceModeTransformation</label>
-                                                  <div class="form-text small">Client-side data transformations</div>
+                                                  <div class="form-text small">User transformations for device mode integrations</div>
                                                 </div>
                                               </div>
                                               <div class="col-md-4">
                                                 <div class="form-check">
                                                   <input class="form-check-input plugin-checkbox" type="checkbox" id="plugin-DeviceModeDestinations" value="DeviceModeDestinations">
                                                   <label class="form-check-label fw-semibold" for="plugin-DeviceModeDestinations">DeviceModeDestinations</label>
-                                                  <div class="form-text small">Device-mode destination handling</div>
+                                                  <div class="form-text small">Device mode destination integrations management</div>
                                                 </div>
                                               </div>
                                               <div class="col-md-4">
                                                 <div class="form-check">
                                                   <input class="form-check-input plugin-checkbox" type="checkbox" id="plugin-ExternalAnonymousId" value="ExternalAnonymousId">
                                                   <label class="form-check-label fw-semibold" for="plugin-ExternalAnonymousId">ExternalAnonymousId</label>
-                                                  <div class="form-text small">External anonymous ID management</div>
+                                                  <div class="form-text small">To capture anonymous ID for external tools like Segment</div>
                                                 </div>
                                               </div>
                                             </div>
@@ -1919,21 +2108,21 @@
                                                 <div class="form-check">
                                                   <input class="form-check-input plugin-checkbox" type="checkbox" id="plugin-StorageEncryption" value="StorageEncryption">
                                                   <label class="form-check-label fw-semibold" for="plugin-StorageEncryption">StorageEncryption</label>
-                                                  <div class="form-text small">Modern storage encryption</div>
+                                                  <div class="form-text small">Storage encryption of persistent data</div>
                                                 </div>
                                               </div>
                                               <div class="col-md-4">
                                                 <div class="form-check">
                                                   <input class="form-check-input plugin-checkbox" type="checkbox" id="plugin-StorageEncryptionLegacy" value="StorageEncryptionLegacy">
                                                   <label class="form-check-label fw-semibold" for="plugin-StorageEncryptionLegacy">StorageEncryptionLegacy</label>
-                                                  <div class="form-text small">Legacy storage encryption support</div>
+                                                  <div class="form-text small">Storage encryption support for legacy SDK versions</div>
                                                 </div>
                                               </div>
                                               <div class="col-md-4">
                                                 <div class="form-check">
                                                   <input class="form-check-input plugin-checkbox" type="checkbox" id="plugin-StorageMigrator" value="StorageMigrator">
                                                   <label class="form-check-label fw-semibold" for="plugin-StorageMigrator">StorageMigrator</label>
-                                                  <div class="form-text small">Storage migration between versions</div>
+                                                  <div class="form-text small">Storage data migration between SDK versions</div>
                                                 </div>
                                               </div>
                                             </div>
@@ -1988,12 +2177,12 @@
                                 <ul class="nav nav-tabs nav-fill mb-4" id="dataProcessingTabs" role="tablist">
                                   <li class="nav-item" role="presentation">
                                     <button class="nav-link active fw-semibold" id="queue-tab" data-bs-toggle="tab" data-bs-target="#queue-config" type="button" role="tab" aria-controls="queue-config" aria-selected="true">
-                                      🔄 General Queue
+                                      🔄 Data Plane Events
                                     </button>
                                   </li>
-                                  <li class="nav-item" role="presentation">
+                                  <li class="nav-item" role="presentation" id="integrationsQueueTabButton">
                                     <button class="nav-link fw-semibold" id="destinations-queue-tab" data-bs-toggle="tab" data-bs-target="#destinations-queue-config" type="button" role="tab" aria-controls="destinations-queue-config" aria-selected="false">
-                                      🎯 Integrations Queue
+                                      🎯 Integrations Events
                                     </button>
                                   </li>
                                   <li class="nav-item" role="presentation">
@@ -2009,7 +2198,7 @@
                                     <div class="card border-primary border-opacity-25 bg-light">
                                       <div class="card-header bg-primary bg-opacity-10 border-0">
 
-                                        <p class="card-text text-muted mb-0 small">Configure general queue behavior for event processing and retry logic.</p>
+                                        <p class="card-text text-muted mb-0 small">Configure queue behavior for event processing and retry logic for the data plane.</p>
                                       </div>
                                       <div class="card-body">
                                         <!-- Basic Queue Settings -->
@@ -2022,7 +2211,7 @@
                                                 <input type="number" id="queueMaxItems" class="form-control" value="100" min="1" max="10000" />
                                                 <label for="queueMaxItems">Max Items</label>
                                               </div>
-                                              <div class="form-text">Maximum events in queue</div>
+                                              <div class="form-text">Maximum number of events the queue can hold at any given time</div>
                                             </div>
 
                                             <!-- Queue Max Attempts -->
@@ -2031,7 +2220,7 @@
                                                 <input type="number" id="queueMaxAttempts" class="form-control" value="10" min="1" max="50" />
                                                 <label for="queueMaxAttempts">Max Attempts</label>
                                               </div>
-                                              <div class="form-text">Maximum retry attempts</div>
+                                              <div class="form-text">Maximum number of retry attempts for an event</div>
                                             </div>
 
                                             <!-- Timer Scale Factor -->
@@ -2040,7 +2229,7 @@
                                                 <input type="number" id="timerScaleFactor" class="form-control" value="1" min="0.1" max="10" step="0.1" />
                                                 <label for="timerScaleFactor">Timer Scale Factor</label>
                                               </div>
-                                              <div class="form-text">Scale factor for timer values</div>
+                                              <div class="form-text">Scale factor for different timers used in the queue processing like acknowledgement, reclaim, etc.</div>
                                             </div>
                                           </div>
                                         </div>
@@ -2064,7 +2253,7 @@
                                                 <input type="number" id="queueMinRetryDelay" class="form-control" value="1000" min="100" max="60000" step="100" />
                                                 <label for="queueMinRetryDelay">Min Retry Delay (ms)</label>
                                               </div>
-                                              <div class="form-text">Minimum delay before retry</div>
+                                              <div class="form-text">Minimum delay before retry request</div>
                                             </div>
 
                                             <!-- Backoff Factor -->
@@ -2082,14 +2271,14 @@
                                                 <input type="number" id="queueBackoffJitter" class="form-control" value="0" min="0" max="1" step="0.1" />
                                                 <label for="queueBackoffJitter">Backoff Jitter</label>
                                               </div>
-                                              <div class="form-text">Jitter applied to delay</div>
+                                              <div class="form-text">Jitter applied to backoff delay</div>
                                             </div>
                                           </div>
                                         </div>
 
                                         <!-- Batching Configuration -->
                                         <div class="mb-4">
-                                          <h6 class="text-success-emphasis mb-3">📦 Batching Configuration</h6>
+                                          <h6 class="text-success-emphasis mb-3">📦 Batching</h6>
                                           <div class="row g-3 mb-3">
                                             <!-- Enable Batching -->
                                             <div class="col-12">
@@ -2104,14 +2293,14 @@
                                               </div>
                                             </div>
                                           </div>
-                                          <div class="row g-3">
+                                          <div class="row g-3" id="batchingOptionsSection">
                                             <!-- Batch Max Items -->
                                             <div class="col-md-4">
                                               <div class="form-floating">
                                                 <input type="number" id="queueBatchMaxItems" class="form-control" value="10" min="1" max="100" />
                                                 <label for="queueBatchMaxItems">Batch Max Items</label>
                                               </div>
-                                              <div class="form-text">Max events per batch</div>
+                                              <div class="form-text">Maximum number of events per batch request</div>
                                             </div>
 
                                             <!-- Batch Max Size -->
@@ -2120,7 +2309,7 @@
                                                 <input type="number" id="queueBatchMaxSize" class="form-control" value="512000" min="1024" max="10485760" step="1024" />
                                                 <label for="queueBatchMaxSize">Batch Max Size (bytes)</label>
                                               </div>
-                                              <div class="form-text">Max batch size in bytes</div>
+                                              <div class="form-text">Max size of the batch request in bytes</div>
                                             </div>
 
                                             <!-- Batch Flush Interval -->
@@ -2129,7 +2318,7 @@
                                                 <input type="number" id="queueBatchFlushInterval" class="form-control" value="10000" min="1000" max="60000" step="1000" />
                                                 <label for="queueBatchFlushInterval">Flush Interval (ms)</label>
                                               </div>
-                                              <div class="form-text">Auto-flush interval</div>
+                                              <div class="form-text">Auto-flush interval for the batch request</div>
                                             </div>
                                           </div>
                                         </div>
@@ -2142,7 +2331,7 @@
                                     <div class="card border-info border-opacity-25 bg-light">
                                       <div class="card-header bg-info bg-opacity-10 border-0">
 
-                                        <p class="card-text text-muted mb-0 small">Configure queue behavior specifically for destination integrations and device-mode events.</p>
+                                        <p class="card-text text-muted mb-0 small">Configure events queue behavior specifically for destination integrations.</p>
                                       </div>
                                       <div class="card-body">
                                         <div class="row g-3">
@@ -2152,7 +2341,7 @@
                                               <input type="number" id="destinationsQueueMaxItems" class="form-control" value="100" min="1" max="1000" />
                                               <label for="destinationsQueueMaxItems">Max Items</label>
                                             </div>
-                                            <div class="form-text">Maximum items in destinations queue</div>
+                                            <div class="form-text">Maximum items the destinations queue can hold at any given time</div>
                                           </div>
                                         </div>
                                       </div>
@@ -2164,7 +2353,7 @@
                                     <div class="card border-success border-opacity-25 bg-light">
                                       <div class="card-header bg-success bg-opacity-10 border-0">
 
-                                        <p class="card-text text-muted mb-0 small">Configure Beacon API for reliable event delivery in challenging network conditions.</p>
+                                        <p class="card-text text-muted mb-0 small">Configure Beacon API options for reliable event delivery.</p>
                                       </div>
                                       <div class="card-body">
                                         <div class="row g-3">
@@ -2181,22 +2370,24 @@
                                             </div>
                                           </div>
 
-                                          <!-- Beacon Queue Max Items -->
-                                          <div class="col-md-6">
-                                            <div class="form-floating">
-                                              <input type="number" id="beaconQueueMaxItems" class="form-control" value="100" min="1" max="1000" />
-                                              <label for="beaconQueueMaxItems">Beacon Queue Max Items</label>
+                                          <div id="beaconOptionsSection">
+                                            <!-- Beacon Queue Max Items -->
+                                            <div class="col-md-6">
+                                              <div class="form-floating">
+                                                <input type="number" id="beaconQueueMaxItems" class="form-control" value="100" min="1" max="1000" />
+                                                <label for="beaconQueueMaxItems">Beacon Queue Max Items</label>
+                                              </div>
+                                              <div class="form-text">Maximum number of events the queue can hold at any given time</div>
                                             </div>
-                                            <div class="form-text">Max items in beacon queue</div>
-                                          </div>
 
-                                          <!-- Beacon Queue Flush Interval -->
-                                          <div class="col-md-6">
-                                            <div class="form-floating">
-                                              <input type="number" id="beaconQueueFlushInterval" class="form-control" value="10000" min="1000" max="60000" />
-                                              <label for="beaconQueueFlushInterval">Beacon Flush Interval (ms)</label>
+                                            <!-- Beacon Queue Flush Interval -->
+                                            <div class="col-md-6">
+                                              <div class="form-floating">
+                                                <input type="number" id="beaconQueueFlushInterval" class="form-control" value="10000" min="1000" max="60000" />
+                                                <label for="beaconQueueFlushInterval">Beacon Flush Interval (ms)</label>
+                                              </div>
+                                              <div class="form-text">Auto-flush interval for the beacon queue</div>
                                             </div>
-                                            <div class="form-text">Auto-flush interval for beacon queue</div>
                                           </div>
                                         </div>
                                       </div>
@@ -2230,7 +2421,7 @@
                                   </li>
                                   <li class="nav-item" role="presentation">
                                     <button class="nav-link fw-semibold" id="storage-entries-tab" data-bs-toggle="tab" data-bs-target="#storage-entries-config" type="button" role="tab" aria-controls="storage-entries-config" aria-selected="false">
-                                      📁 Entries
+                                      📁 User Session Data
                                     </button>
                                   </li>
                                 </ul>
@@ -2248,23 +2439,23 @@
                                           <div class="col-md-4">
                                             <div class="form-floating">
                                               <select id="storageType" class="form-select">
-                                                <option value="cookieStorage" selected>Cookie Storage</option>
+                                                <option value="cookieStorage" selected>Cookies</option>
                                                 <option value="localStorage">Local Storage</option>
-                                                <option value="memoryStorage">Memory Storage</option>
+                                                <option value="memoryStorage">In-memory Storage</option>
                                                 <option value="sessionStorage">Session Storage</option>
                                                 <option value="none">None</option>
                                               </select>
                                               <label for="storageType">Storage Type</label>
                                             </div>
-                                            <div class="form-text">Primary storage mechanism for SDK data</div>
+                                            <div class="form-text">Primary storage mechanism for the persistent data like user ID, traits, etc.</div>
                                           </div>
 
                                           <!-- Storage Encryption Version -->
                                           <div class="col-md-4">
                                             <div class="form-floating">
                                               <select id="storageEncryptionVersion" class="form-select">
-                                                <option value="legacy">Legacy</option>
                                                 <option value="v3" selected>v3</option>
+                                                <option value="legacy">Legacy</option>
                                               </select>
                                               <label for="storageEncryptionVersion">Encryption Version</label>
                                             </div>
@@ -2277,23 +2468,39 @@
                                               <div class="form-check form-switch">
                                                 <input class="form-check-input" type="checkbox" id="storageMigrate" checked>
                                                 <label class="form-check-label fw-semibold" for="storageMigrate">
-                                                  Enable Storage Migration
+                                                  Enable Storage Data Migration
                                                 </label>
                                               </div>
                                             </div>
-                                            <div class="form-text small mt-1">Migrate storage between versions</div>
+                                            <div class="form-text small mt-1">Whether to automatically migrate the storage data from legacy to the current version.</div>
+                                          </div>
+                                        </div>
+
+                                        <!-- Server-Side Cookies Section -->
+                                        <div class="row g-3 mb-4">
+                                          <!-- Use Server-Side Cookies -->
+                                          <div class="col-md-6">
+                                            <div class="p-2 bg-white rounded border">
+                                              <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="useServerSideCookies">
+                                                <label class="form-check-label fw-semibold" for="useServerSideCookies">
+                                                  Use Server-Side Cookies
+                                                </label>
+                                              </div>
+                                            </div>
+                                            <div class="form-text small mt-1">Enable server-side cookie management for enhanced privacy compliance</div>
                                           </div>
                                         </div>
 
                                         <!-- Data Service Section -->
-                                        <div class="row g-3">
+                                        <div class="row g-3" id="dataServiceSection">
                                           <!-- Data Service Endpoint -->
                                           <div class="col-md-12">
                                             <div class="form-floating">
                                               <input type="text" id="dataServiceEndpoint" class="form-control" placeholder="https://api.rudderstack.com" />
                                               <label for="dataServiceEndpoint">Data Service Endpoint</label>
                                             </div>
-                                            <div class="form-text">Custom data service endpoint URL for server-side operations</div>
+                                            <div class="form-text">Custom data service endpoint for server-side cookies request.</div>
                                           </div>
                                         </div>
                                       </div>
@@ -2406,13 +2613,13 @@
                                             <div class="form-floating">
                                               <select id="storageEntryUserId" class="form-select">
                                                 <option value="">Use Default</option>
-                                                <option value="cookieStorage">Cookie Storage</option>
+                                                <option value="cookieStorage">Cookies</option>
                                                 <option value="localStorage">Local Storage</option>
-                                                <option value="memoryStorage">Memory Storage</option>
+                                                <option value="memoryStorage">In-memory Storage</option>
                                                 <option value="sessionStorage">Session Storage</option>
                                                 <option value="none">None</option>
                                               </select>
-                                              <label for="storageEntryUserId">User ID Storage</label>
+                                              <label for="storageEntryUserId">User ID</label>
                                             </div>
                                             <div class="form-text">Storage type for user ID</div>
                                           </div>
@@ -2422,13 +2629,13 @@
                                             <div class="form-floating">
                                               <select id="storageEntryUserTraits" class="form-select">
                                                 <option value="">Use Default</option>
-                                                <option value="cookieStorage">Cookie Storage</option>
+                                                <option value="cookieStorage">Cookies</option>
                                                 <option value="localStorage">Local Storage</option>
-                                                <option value="memoryStorage">Memory Storage</option>
+                                                <option value="memoryStorage">In-memory Storage</option>
                                                 <option value="sessionStorage">Session Storage</option>
                                                 <option value="none">None</option>
                                               </select>
-                                              <label for="storageEntryUserTraits">User Traits Storage</label>
+                                              <label for="storageEntryUserTraits">User Traits</label>
                                             </div>
                                             <div class="form-text">Storage type for user traits</div>
                                           </div>
@@ -2438,13 +2645,13 @@
                                             <div class="form-floating">
                                               <select id="storageEntryAnonymousId" class="form-select">
                                                 <option value="">Use Default</option>
-                                                <option value="cookieStorage">Cookie Storage</option>
+                                                <option value="cookieStorage">Cookies</option>
                                                 <option value="localStorage">Local Storage</option>
-                                                <option value="memoryStorage">Memory Storage</option>
+                                                <option value="memoryStorage">In-memory Storage</option>
                                                 <option value="sessionStorage">Session Storage</option>
                                                 <option value="none">None</option>
                                               </select>
-                                              <label for="storageEntryAnonymousId">Anonymous ID Storage</label>
+                                              <label for="storageEntryAnonymousId">Anonymous ID</label>
                                             </div>
                                             <div class="form-text">Storage type for anonymous ID</div>
                                           </div>
@@ -2460,7 +2667,7 @@
                                                 <option value="sessionStorage">Session Storage</option>
                                                 <option value="none">None</option>
                                               </select>
-                                              <label for="storageEntryGroupId">Group ID Storage</label>
+                                              <label for="storageEntryGroupId">Group ID</label>
                                             </div>
                                             <div class="form-text">Storage type for group ID</div>
                                           </div>
@@ -2470,13 +2677,13 @@
                                             <div class="form-floating">
                                               <select id="storageEntryGroupTraits" class="form-select">
                                                 <option value="">Use Default</option>
-                                                <option value="cookieStorage">Cookie Storage</option>
+                                                <option value="cookieStorage">Cookies</option>
                                                 <option value="localStorage">Local Storage</option>
-                                                <option value="memoryStorage">Memory Storage</option>
+                                                <option value="memoryStorage">In-memory Storage</option>
                                                 <option value="sessionStorage">Session Storage</option>
                                                 <option value="none">None</option>
                                               </select>
-                                              <label for="storageEntryGroupTraits">Group Traits Storage</label>
+                                              <label for="storageEntryGroupTraits">Group Traits</label>
                                             </div>
                                             <div class="form-text">Storage type for group traits</div>
                                           </div>
@@ -2486,13 +2693,13 @@
                                             <div class="form-floating">
                                               <select id="storageEntrySessionInfo" class="form-select">
                                                 <option value="">Use Default</option>
-                                                <option value="cookieStorage">Cookie Storage</option>
+                                                <option value="cookieStorage">Cookies</option>
                                                 <option value="localStorage">Local Storage</option>
-                                                <option value="memoryStorage">Memory Storage</option>
+                                                <option value="memoryStorage">In-memory Storage</option>
                                                 <option value="sessionStorage">Session Storage</option>
                                                 <option value="none">None</option>
                                               </select>
-                                              <label for="storageEntrySessionInfo">Session Info Storage</label>
+                                              <label for="storageEntrySessionInfo">Session Info</label>
                                             </div>
                                             <div class="form-text">Storage type for session information</div>
                                           </div>
@@ -2502,15 +2709,15 @@
                                             <div class="form-floating">
                                               <select id="storageEntryInitialReferrer" class="form-select">
                                                 <option value="">Use Default</option>
-                                                <option value="cookieStorage">Cookie Storage</option>
+                                                <option value="cookieStorage">Cookies</option>
                                                 <option value="localStorage">Local Storage</option>
-                                                <option value="memoryStorage">Memory Storage</option>
+                                                <option value="memoryStorage">In-memory Storage</option>
                                                 <option value="sessionStorage">Session Storage</option>
                                                 <option value="none">None</option>
                                               </select>
-                                              <label for="storageEntryInitialReferrer">Initial Referrer Storage</label>
+                                              <label for="storageEntryInitialReferrer">Initial Page Referrer</label>
                                             </div>
-                                            <div class="form-text">Storage type for initial referrer</div>
+                                            <div class="form-text">Storage type for initial page referrer</div>
                                           </div>
 
                                           <!-- Initial Referring Domain Storage -->
@@ -2518,15 +2725,15 @@
                                             <div class="form-floating">
                                               <select id="storageEntryInitialReferringDomain" class="form-select">
                                                 <option value="">Use Default</option>
-                                                <option value="cookieStorage">Cookie Storage</option>
+                                                <option value="cookieStorage">Cookies</option>
                                                 <option value="localStorage">Local Storage</option>
-                                                <option value="memoryStorage">Memory Storage</option>
+                                                <option value="memoryStorage">In-memory Storage</option>
                                                 <option value="sessionStorage">Session Storage</option>
                                                 <option value="none">None</option>
                                               </select>
-                                              <label for="storageEntryInitialReferringDomain">Initial Referring Domain Storage</label>
+                                              <label for="storageEntryInitialReferringDomain">Initial Page Referrer Domain</label>
                                             </div>
-                                            <div class="form-text">Storage type for initial referring domain</div>
+                                            <div class="form-text">Storage type for initial page referrer domain</div>
                                           </div>
 
                                           <!-- Auth Token Storage -->
@@ -2534,13 +2741,13 @@
                                             <div class="form-floating">
                                               <select id="storageEntryAuthToken" class="form-select">
                                                 <option value="">Use Default</option>
-                                                <option value="cookieStorage">Cookie Storage</option>
+                                                <option value="cookieStorage">Cookies</option>
                                                 <option value="localStorage">Local Storage</option>
-                                                <option value="memoryStorage">Memory Storage</option>
+                                                <option value="memoryStorage">In-memory Storage</option>
                                                 <option value="sessionStorage">Session Storage</option>
                                                 <option value="none">None</option>
                                               </select>
-                                              <label for="storageEntryAuthToken">Auth Token Storage</label>
+                                              <label for="storageEntryAuthToken">Auth Token</label>
                                             </div>
                                             <div class="form-text">Storage type for authentication token</div>
                                           </div>
@@ -2586,7 +2793,7 @@
                                       <div class="card-body">
                                         <!-- Basic Session Settings -->
                                         <div class="mb-4">
-                                          <h6 class="text-info-emphasis mb-3">📊 Basic Session Settings</h6>
+                                          <h6 class="text-info-emphasis mb-3">📊 General</h6>
                                           <div class="row g-3">
                                             <!-- Session Auto Track -->
                                             <div class="col-md-6">
@@ -2601,6 +2808,9 @@
                                               <div class="form-text small mt-1">Automatically track user sessions</div>
                                             </div>
 
+                                          </div>
+                                          
+                                          <div id="sessionTrackingOptionsSection">
                                             <!-- Session Timeout -->
                                             <div class="col-md-6">
                                               <div class="form-floating">
@@ -2613,7 +2823,7 @@
                                         </div>
 
                                         <!-- Session Cutoff Settings -->
-                                        <div class="mb-3">
+                                        <div class="mb-3" id="sessionCutoffOptionsSection">
                                           <h6 class="text-warning-emphasis mb-3">✂️ Session Cutoff</h6>
                                           <div class="row g-3">
                                             <!-- Cutoff Enabled -->
@@ -2652,7 +2862,7 @@
                                       <div class="card-body">
                                         <!-- Auto Track Settings -->
                                         <div class="mb-4">
-                                          <h6 class="text-success-emphasis mb-3">🔄 Auto Track Settings</h6>
+                                          <h6 class="text-success-emphasis mb-3">🔄 Auto Track</h6>
                                           <div class="row g-3">
                                             <!-- Auto Track Enabled -->
                                             <div class="col-md-6">
@@ -2660,18 +2870,18 @@
                                                 <div class="form-check form-switch">
                                                   <input class="form-check-input" type="checkbox" id="autoTrackEnabled">
                                                   <label class="form-check-label fw-semibold" for="autoTrackEnabled">
-                                                    Auto Track Page Views
+                                                    Enable Automatic Tracking
                                                   </label>
                                                 </div>
                                               </div>
-                                              <div class="form-text small mt-1">Automatically track page views</div>
+                                              <div class="form-text small mt-1">Automatically track page</div>
                                             </div>
                                           </div>
                                         </div>
 
                                         <!-- Page Lifecycle Settings -->
-                                        <div class="mb-3">
-                                          <h6 class="text-warning-emphasis mb-3">📄 Page Lifecycle Options</h6>
+                                        <div class="mb-3" id="pageLifecycleSection">
+                                          <h6 class="text-warning-emphasis mb-3">📄 Page Lifecycle</h6>
                                           <div class="row g-3">
                                             <!-- Page Lifecycle Enabled -->
                                             <div class="col-md-6">
@@ -2679,14 +2889,12 @@
                                                 <div class="form-check form-switch">
                                                   <input class="form-check-input" type="checkbox" id="pageLifecycleEnabled">
                                                   <label class="form-check-label fw-semibold" for="pageLifecycleEnabled">
-                                                    Enable Page Lifecycle
+                                                    Enable Page Lifecycle Tracking
                                                   </label>
                                                 </div>
                                               </div>
-                                              <div class="form-text small mt-1">Track page lifecycle events like unload</div>
+                                              <div class="form-text small mt-1">Track page unloaded event</div>
                                             </div>
-
-
                                           </div>
                                         </div>
                                       </div>
@@ -2713,7 +2921,7 @@
                                       🔒 General
                                     </button>
                                   </li>
-                                  <li class="nav-item" role="presentation">
+                                  <li class="nav-item" role="presentation" id="preConsentTabButton">
                                     <button class="nav-link fw-semibold" id="consent-preconsent-tab" data-bs-toggle="tab" data-bs-target="#consent-preconsent-config" type="button" role="tab" aria-controls="consent-preconsent-config" aria-selected="false">
                                       ⏳ Pre-Consent
                                     </button>
@@ -2741,40 +2949,44 @@
                                             </div>
                                             <div class="form-text small mt-1">Enable consent management integration</div>
                                           </div>
-
-                                          <!-- Consent Provider -->
-                                          <div class="col-md-4">
-                                            <div class="form-floating">
-                                              <select id="consentProvider" class="form-select">
-                                                <option value="">Select Provider</option>
-                                                <option value="iubenda">Iubenda</option>
-                                                <option value="oneTrust">OneTrust</option>
-                                                <option value="ketch">Ketch</option>
-                                                <option value="custom">Custom</option>
-                                              </select>
-                                              <label for="consentProvider">Consent Provider</label>
-                                            </div>
-                                            <div class="form-text">Choose your consent management provider</div>
-                                          </div>
                                         </div>
 
-                                        <div class="row g-3">
-                                          <!-- Allowed Consent IDs -->
-                                          <div class="col-md-6">
-                                            <div class="form-floating">
-                                              <input type="text" id="allowedConsentIds" class="form-control" placeholder="analytics,marketing" />
-                                              <label for="allowedConsentIds">Allowed Consent IDs</label>
+                                        <div id="consentManagementOptionsSection">
+                                          <div class="row g-3 mb-3">
+                                            <!-- Consent Provider -->
+                                            <div class="col-md-6">
+                                              <div class="form-floating">
+                                                <select id="consentProvider" class="form-select">
+                                                  <option value="">Select Provider</option>
+                                                  <option value="custom">Custom</option>
+                                                  <option value="iubenda">Iubenda</option>
+                                                  <option value="oneTrust">OneTrust</option>
+                                                  <option value="ketch">Ketch</option>
+                                                </select>
+                                                <label for="consentProvider">Consent Provider</label>
+                                              </div>
+                                              <div class="form-text">Choose your consent management provider</div>
                                             </div>
-                                            <div class="form-text">Comma-separated list of allowed consent categories</div>
                                           </div>
 
-                                          <!-- Denied Consent IDs -->
-                                          <div class="col-md-6">
-                                            <div class="form-floating">
-                                              <input type="text" id="deniedConsentIds" class="form-control" placeholder="advertising,targeting" />
-                                              <label for="deniedConsentIds">Denied Consent IDs</label>
+                                          <div class="row g-3">
+                                            <!-- Allowed Consent IDs -->
+                                            <div class="col-md-6">
+                                              <div class="form-floating">
+                                                <input type="text" id="allowedConsentIds" class="form-control" placeholder="analytics,marketing" />
+                                                <label for="allowedConsentIds">Allowed Consent IDs</label>
+                                              </div>
+                                              <div class="form-text">Comma-separated list of allowed consent categories</div>
                                             </div>
-                                            <div class="form-text">Comma-separated list of denied consent categories</div>
+
+                                            <!-- Denied Consent IDs -->
+                                            <div class="col-md-6">
+                                              <div class="form-floating">
+                                                <input type="text" id="deniedConsentIds" class="form-control" placeholder="advertising,targeting" />
+                                                <label for="deniedConsentIds">Denied Consent IDs</label>
+                                              </div>
+                                              <div class="form-text">Comma-separated list of denied consent categories</div>
+                                            </div>
                                           </div>
                                         </div>
                                       </div>
@@ -2788,7 +3000,7 @@
                                         <p class="card-text text-muted mb-0 small">Configure pre-consent data collection and storage strategies.</p>
                                       </div>
                                       <div class="card-body">
-                                        <div class="row g-3">
+                                        <div class="row g-3 mb-4">
                                           <!-- Pre-Consent Enabled -->
                                           <div class="col-md-4">
                                             <div class="p-2 bg-white rounded border">
@@ -2801,9 +3013,11 @@
                                             </div>
                                             <div class="form-text small mt-1">Enable pre-consent data collection</div>
                                           </div>
+                                        </div>
 
+                                        <div class="row g-3" id="preConsentOptionsSection">
                                           <!-- Pre-Consent Storage Strategy -->
-                                          <div class="col-md-4">
+                                          <div class="col-md-6">
                                             <div class="form-floating">
                                               <select id="preConsentStorageStrategy" class="form-select">
                                                 <option value="none">None</option>
@@ -2812,11 +3026,11 @@
                                               </select>
                                               <label for="preConsentStorageStrategy">Storage Strategy</label>
                                             </div>
-                                            <div class="form-text">Storage strategy for pre-consent data</div>
+                                            <div class="form-text">Storage strategy for persistent data</div>
                                           </div>
 
                                           <!-- Pre-Consent Events Delivery -->
-                                          <div class="col-md-4">
+                                          <div class="col-md-6">
                                             <div class="form-floating">
                                               <select id="preConsentEventsDelivery" class="form-select">
                                                 <option value="immediate">Immediate</option>
@@ -2824,7 +3038,7 @@
                                               </select>
                                               <label for="preConsentEventsDelivery">Events Delivery</label>
                                             </div>
-                                            <div class="form-text">Events delivery mode for pre-consent</div>
+                                            <div class="form-text">Events delivery mode for data plane events</div>
                                           </div>
                                         </div>
                                       </div>
@@ -2845,7 +3059,7 @@
                             <div id="advancedConfig" class="accordion-collapse collapse" aria-labelledby="advancedHeader" data-bs-parent="#configurationAccordion">
                               <div class="accordion-body">
                                 <!-- Essential Configuration -->
-                                <h6 class="text-muted mb-3">Essential Configuration</h6>
+                                <h6 class="text-muted mb-3">General</h6>
                                 <div class="row g-3 mb-4">
                                   <!-- Log Level -->
                                   <div class="col-md-6">
@@ -2866,10 +3080,10 @@
                                   <!-- Config URL -->
                                   <div class="col-md-6">
                                     <div class="form-floating">
-                                      <input type="text" id="configUrl" class="form-control" value="https://api.rudderstack.com" />
-                                      <label for="configUrl">Config URL</label>
+                                      <input type="text" id="configUrl" class="form-control" />
+                                      <label for="configUrl">Source Configuration URL</label>
                                     </div>
-                                    <div class="form-text">RudderStack API endpoint for configuration</div>
+                                    <div class="form-text">RudderStack API endpoint for source configuration data</div>
                                   </div>
                                 </div>
 
@@ -2885,6 +3099,15 @@
                                     </div>
                                     <div class="form-text">Automatically polyfill missing browser APIs</div>
                                   </div>
+                                  
+                                  <!-- Polyfill URL -->
+                                  <div class="col-md-4">
+                                    <div class="form-floating">
+                                      <input type="text" id="polyfillURL" class="form-control" placeholder="https://polyfill.io/v3/polyfill.min.js" />
+                                      <label for="polyfillURL">Polyfill URL</label>
+                                    </div>
+                                    <div class="form-text">Custom polyfill service URL</div>
+                                  </div>
 
                                   <!-- UA-CH Track Level -->
                                   <div class="col-md-4">
@@ -2899,14 +3122,6 @@
                                     <div class="form-text">User-Agent Client Hints tracking level</div>
                                   </div>
 
-                                  <!-- Polyfill URL -->
-                                  <div class="col-md-4">
-                                    <div class="form-floating">
-                                      <input type="text" id="polyfillURL" class="form-control" placeholder="https://polyfill.io/v3/polyfill.min.js" />
-                                      <label for="polyfillURL">Polyfill URL</label>
-                                    </div>
-                                    <div class="form-text">Custom polyfill service URL</div>
-                                  </div>
                                 </div>
 
                                 <h6 class="text-muted mb-3">Ad Blocker Detection</h6>
@@ -2922,14 +3137,7 @@
                                     <div class="form-text">Send page events when adblock is detected</div>
                                   </div>
 
-                                  <!-- AdBlock Page Custom Text -->
-                                  <div class="col-md-6">
-                                    <div class="form-floating">
-                                      <input type="text" id="sendAdblockPageCustomText" class="form-control" placeholder="Ad blocker detected" />
-                                      <label for="sendAdblockPageCustomText">AdBlock Custom Text</label>
-                                    </div>
-                                    <div class="form-text">Custom text for ad blocker detection</div>
-                                  </div>
+
                                 </div>
 
                                 <h6 class="text-muted mb-3">Anonymous ID Management</h6>
@@ -2942,24 +3150,23 @@
                                         Auto Capture Anonymous ID
                                       </label>
                                     </div>
-                                    <div class="form-text">Auto-capture anonymous ID</div>
+                                    <div class="form-text">Auto-capture anonymous ID from external tools like Segment</div>
                                   </div>
 
                                   <!-- Anonymous ID Source -->
-                                  <div class="col-md-6">
+                                  <div class="col-md-6" id="anonymousIdSourceSection">
                                     <div class="form-floating">
-                                      <input type="text" id="anonymousIdSource" class="form-control" />
+                                      <select id="anonymousIdSource" class="form-select">
+                                        <option value="segment">Segment</option>
+                                      </select>
                                       <label for="anonymousIdSource">Anonymous ID Source</label>
                                     </div>
                                     <div class="form-text">Source identifier for anonymous ID</div>
                                   </div>
                                 </div>
-
-
                               </div>
                             </div>
                           </div>
-
                         </div>
                       </div>
                     </div>
