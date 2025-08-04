@@ -256,6 +256,7 @@ describe('Init tests', () => {
           recordMaskTextSelector: '.sensitive',
           recordMaxMs: 30000,
           recordMinMs: 1000,
+          recordHeatmapData: true,
         },
       },
       logLevel: 'debug',
@@ -285,6 +286,7 @@ describe('Init tests', () => {
       record_max_ms: 30000,
       record_min_ms: 1000,
       record_sessions_percent: 50,
+      record_heatmap_data: true,
       loaded: expect.any(Function),
     });
   });
