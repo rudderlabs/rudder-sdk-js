@@ -144,7 +144,7 @@ class MoEngage {
         if (key === 'name') {
           window.Moengage.add_user_name(value);
         }
-        if (Object.hasOwn(TraitsMap, key)) {
+        if (Object.prototype.hasOwnProperty.call(TraitsMap, key)) {
           const method = `add_${TraitsMap[key]}`;
           window.Moengage[method](value);
         } else {
@@ -185,7 +185,7 @@ class MoEngage {
 
     const userAttributes = {};
     each((value, key) => {
-      if (Object.hasOwn(IdentifyUserPropertiesMap, key)) {
+      if (Object.prototype.hasOwnProperty.call(IdentifyUserPropertiesMap, key)) {
         const method = IdentifyUserPropertiesMap[key];
         userAttributes[method] = value;
       } else {
