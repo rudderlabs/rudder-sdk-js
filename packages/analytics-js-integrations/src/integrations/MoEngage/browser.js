@@ -185,7 +185,7 @@ class MoEngage {
 
     const userAttributes = {};
     each((value, key) => {
-      if (Object.hasOwn(IdentifyUserPropertiesMap, key)) {
+      if (Object.prototype.hasOwnProperty.call(IdentifyUserPropertiesMap, key)) {
         const method = IdentifyUserPropertiesMap[key];
         userAttributes[method] = value;
       } else {
