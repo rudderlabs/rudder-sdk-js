@@ -31,6 +31,7 @@ import {
   trackArgumentsToCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
 import { BufferQueue } from '@rudderstack/analytics-js-common/services/BufferQueue/BufferQueue';
+import type { RSACustomIntegration } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
 import { POST_LOAD_LOG_LEVEL, defaultLogger } from '../../services/Logger';
 import { defaultErrorHandler } from '../../services/ErrorHandler';
 import { defaultPluginEngine } from '../../services/PluginEngine';
@@ -59,6 +60,7 @@ import {
   CONSENT_TRACK_EVENT_NAME,
 } from '../../constants/app';
 import {
+  CUSTOM_INTEGRATION_CANNOT_BE_ADDED_ERROR,
   DATA_PLANE_URL_VALIDATION_ERROR,
   INVALID_CALLBACK_FN_ERROR,
   WRITE_KEY_VALIDATION_ERROR,
@@ -324,6 +326,14 @@ class Analytics implements IAnalytics {
     // Process any preloaded events
     this.processDataInPreloadBuffer();
 
+    // Set lifecycle state
+    batch(() => {
+      state.lifecycle.loaded.value = true;
+      state.lifecycle.status.value = 'loaded';
+    });
+
+    this.initialized = true;
+
     // Execute onLoaded callback if provided in load options
     const onLoadedCallbackFn = state.loadOptions.value.onLoaded;
     // TODO: we need to avoid passing the window object to the callback function
@@ -334,14 +344,6 @@ class Analytics implements IAnalytics {
       LOAD_API,
       this.logger,
     );
-
-    // Set lifecycle state
-    batch(() => {
-      state.lifecycle.loaded.value = true;
-      state.lifecycle.status.value = 'loaded';
-    });
-
-    this.initialized = true;
 
     // Emit an event to use as substitute to the onLoaded callback
     dispatchSDKEvent('RSA_Initialised');
@@ -825,6 +827,41 @@ class Analytics implements IAnalytics {
 
   setAuthToken(token: string): void {
     this.userSessionManager?.setAuthToken(token);
+  }
+
+  /**
+   * Add a custom integration for a custom destination.
+   * @param destinationId - The ID of the custom destination from the RudderStack dashboard.
+   * @param integration - The custom integration object.
+   * @param isBufferedInvocation - Whether the invocation is buffered.
+   */
+  addCustomIntegration(
+    destinationId: string,
+    integration: RSACustomIntegration,
+    isBufferedInvocation = false,
+  ): void {
+    const type = 'addCustomIntegration';
+    if (isBufferedInvocation) {
+      this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
+
+      this.pluginsManager?.invokeSingle(
+        'nativeDestinations.addCustomIntegration',
+        destinationId,
+        integration,
+        state,
+        this.logger,
+      );
+    } else {
+      if (state.lifecycle.loaded.value) {
+        this.logger.error(CUSTOM_INTEGRATION_CANNOT_BE_ADDED_ERROR(ANALYTICS_CORE, destinationId));
+        return;
+      }
+
+      state.eventBuffer.toBeProcessedArray.value = [
+        ...state.eventBuffer.toBeProcessedArray.value,
+        [type, destinationId, integration],
+      ];
+    }
   }
   // End consumer exposed methods
 }
