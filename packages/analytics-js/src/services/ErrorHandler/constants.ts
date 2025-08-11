@@ -14,7 +14,7 @@ const APP_STATE_EXCLUDE_KEYS = [
   'groupTraits',
   'anonymousId',
   'config',
-  'instance', // destination instance objects
+  'integration', // integration instance objects
   'eventBuffer', // pre-load event buffer (may contain PII)
   'traits',
   'authToken',

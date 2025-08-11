@@ -267,6 +267,9 @@ const PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING = (context: string) =>
 const UNKNOWN_PLUGINS_WARNING = (context: string, unknownPlugins: string[]) =>
   `${context}${LOG_CONTEXT_SEPARATOR}Ignoring unknown plugins: ${unknownPlugins.join(', ')}.`;
 
+const CUSTOM_INTEGRATION_CANNOT_BE_ADDED_ERROR = (context: string, destinationId: string) =>
+  `${context}${LOG_CONTEXT_SEPARATOR}Cannot add custom integration for destination ID "${destinationId}" after the SDK is loaded.`;
+
 export {
   UNSUPPORTED_CONSENT_MANAGER_ERROR,
   UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING,
@@ -326,4 +329,5 @@ export {
   INVALID_CALLBACK_FN_ERROR,
   CUT_OFF_DURATION_NOT_NUMBER_WARNING,
   CUT_OFF_DURATION_LESS_THAN_TIMEOUT_WARNING,
+  CUSTOM_INTEGRATION_CANNOT_BE_ADDED_ERROR,
 };

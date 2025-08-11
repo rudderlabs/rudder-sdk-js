@@ -9,18 +9,23 @@ import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/
 import {
   wait,
   isDestinationReady,
-  createDestinationInstance,
+  createIntegrationInstance,
   isDestinationSDKMounted,
   applySourceConfigurationOverrides,
   applyOverrideToDestination,
-  filterDisabledDestination,
+  filterDisabledDestinations,
   getCumulativeIntegrationsConfig,
   initializeDestination,
+  validateCustomIntegration,
+  addIntegrationToDestination,
 } from '../../src/deviceModeDestinations/utils';
-import type { DeviceModeDestinationsAnalyticsInstance } from '../../src/deviceModeDestinations/types';
-import type { LogLevel } from '../../src/types/plugins';
 import { resetState, state } from '../../__mocks__/state';
 import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
+
+// Mock the UUID generator
+jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
+  generateUUID: jest.fn(),
+}));
 
 describe('deviceModeDestinations utils', () => {
   describe('wait', () => {
@@ -100,12 +105,24 @@ describe('deviceModeDestinations utils', () => {
   });
 
   describe('isDestinationReady', () => {
-    let isLoadedResponse = false;
+    let isReadyResponse = false;
     const destination = {
-      instance: {
-        isLoaded: () => isLoadedResponse,
+      integration: {
+        isReady: () => isReadyResponse,
       },
       userFriendlyId: 'GA4___1234567890',
+      id: 'GA4___1234567890',
+      displayName: 'Google Analytics 4 (GA4)',
+      enabled: true,
+      shouldApplyDeviceModeTransformation: true,
+      propagateEventsUntransformedOnError: false,
+      config: {
+        blacklistedEvents: [],
+        whitelistedEvents: [],
+        eventFilteringOption: 'disable',
+        consentManagement: [],
+        connectionMode: 'device',
+      },
     };
 
     beforeEach(() => {
@@ -115,11 +132,11 @@ describe('deviceModeDestinations utils', () => {
 
     afterEach(() => {
       jest.useRealTimers();
-      isLoadedResponse = false;
+      isReadyResponse = false;
     });
 
     it('should return a promise that gets resolved when the destination is ready immediately', async () => {
-      isLoadedResponse = true;
+      isReadyResponse = true;
 
       const isReadyPromise = isDestinationReady(destination as Destination);
 
@@ -131,7 +148,7 @@ describe('deviceModeDestinations utils', () => {
 
     it('should return a promise that gets resolved when the destination is ready after some time', async () => {
       setTimeout(() => {
-        isLoadedResponse = true;
+        isReadyResponse = true;
       }, 1000);
 
       const isReadyPromise = isDestinationReady(destination as Destination);
@@ -152,47 +169,12 @@ describe('deviceModeDestinations utils', () => {
     });
   });
 
-  describe('createDestinationInstance', () => {
-    class MockAnalytics implements DeviceModeDestinationsAnalyticsInstance {
-      page = () => {};
-      track = () => {};
-      identify = () => {};
-      group = () => {};
-      alias = () => {};
-      getAnonymousId = () => 'anonymousId';
-      getUserId = () => 'userId';
-      getUserTraits = () => ({ trait1: 'value1' });
-      getGroupId = () => 'groupId';
-      getGroupTraits = () => ({ trait2: 'value2' });
-      getSessionId = () => 123;
-      loadIntegration = true;
-      logLevel = 'DEBUG' as LogLevel;
-      loadOnlyIntegrations = { All: true };
-    }
-
-    // create two mock instances to later choose based on the write key
-    const mockAnalyticsInstanceWriteKey1 = new MockAnalytics();
-    const mockAnalyticsInstanceWriteKey2 = new MockAnalytics();
-
-    class MockRudderAnalytics {
-      getAnalyticsInstance = (writeKey: string) => {
-        const instancesMap: Record<string, MockAnalytics> = {
-          '1234567890': mockAnalyticsInstanceWriteKey1,
-          '12345678910': mockAnalyticsInstanceWriteKey2,
-        };
-        return instancesMap[writeKey];
-      };
-    }
-
-    const mockRudderAnalyticsInstance = new MockRudderAnalytics();
-
+  describe('createIntegrationInstance', () => {
     // put destination SDK code on the window object
     const destSDKIdentifier = 'GA4_RS';
     const sdkTypeName = 'GA4';
 
     beforeAll(() => {
-      (window as any).rudderanalytics = mockRudderAnalyticsInstance;
-
       (window as any)[destSDKIdentifier] = {
         [sdkTypeName]: class {
           config: any;
@@ -206,7 +188,6 @@ describe('deviceModeDestinations utils', () => {
     });
 
     afterAll(() => {
-      delete (window as any).rudderanalytics;
       delete (window as any).GA4_RS;
     });
 
@@ -221,7 +202,7 @@ describe('deviceModeDestinations utils', () => {
         id: 'GA4___5678',
       } as unknown as Destination;
 
-      const destinationInstance = createDestinationInstance(
+      const destinationInstance = createIntegrationInstance(
         destSDKIdentifier,
         sdkTypeName,
         destination,
@@ -247,39 +228,90 @@ describe('deviceModeDestinations utils', () => {
         getSessionId: expect.any(Function),
       });
 
-      expect(destinationInstance.analytics.getAnonymousId()).toEqual('anonymousId');
-      expect(destinationInstance.analytics.getUserId()).toEqual('userId');
-      expect(destinationInstance.analytics.getUserTraits()).toEqual({ trait1: 'value1' });
-      expect(destinationInstance.analytics.getGroupId()).toEqual('groupId');
-      expect(destinationInstance.analytics.getGroupTraits()).toEqual({ trait2: 'value2' });
-      expect(destinationInstance.analytics.getSessionId()).toEqual(123);
+      // Make sure all the calls are forwarded to the correct instance
+      destinationInstance.analytics?.page(
+        'test-category',
+        'test-name',
+        { test: 'test' },
+        { test: 'test' },
+        () => {},
+      );
+      expect(state.lifecycle.safeAnalyticsInstance.value?.page).toHaveBeenCalledTimes(1);
+      expect(state.lifecycle.safeAnalyticsInstance.value?.page).toHaveBeenCalledWith(
+        'test-category',
+        'test-name',
+        { test: 'test' },
+        { test: 'test' },
+        expect.any(Function),
+      );
 
-      // Making sure that the call gets forwarded to the correct instance
-      const pageCallSpy = jest.spyOn(mockAnalyticsInstanceWriteKey2, 'page');
-      destinationInstance.analytics.page();
-      expect(mockAnalyticsInstanceWriteKey2.page).toHaveBeenCalled();
-      pageCallSpy.mockRestore();
+      destinationInstance.analytics?.track(
+        'test-event',
+        { test: 'test' },
+        { test: 'test' },
+        () => {},
+      );
+      expect(state.lifecycle.safeAnalyticsInstance.value?.track).toHaveBeenCalledTimes(1);
+      expect(state.lifecycle.safeAnalyticsInstance.value?.track).toHaveBeenCalledWith(
+        'test-event',
+        { test: 'test' },
+        { test: 'test' },
+        expect.any(Function),
+      );
+
+      destinationInstance.analytics?.identify(
+        'test-user-id',
+        { test: 'test' },
+        { test: 'test' },
+        () => {},
+      );
+      expect(state.lifecycle.safeAnalyticsInstance.value?.identify).toHaveBeenCalledTimes(1);
+      expect(state.lifecycle.safeAnalyticsInstance.value?.identify).toHaveBeenCalledWith(
+        'test-user-id',
+        { test: 'test' },
+        { test: 'test' },
+        expect.any(Function),
+      );
+
+      destinationInstance.analytics?.group(
+        'test-group-id',
+        { test: 'test' },
+        { test: 'test' },
+        () => {},
+      );
+      expect(state.lifecycle.safeAnalyticsInstance.value?.group).toHaveBeenCalledTimes(1);
+      expect(state.lifecycle.safeAnalyticsInstance.value?.group).toHaveBeenCalledWith(
+        'test-group-id',
+        { test: 'test' },
+        { test: 'test' },
+        expect.any(Function),
+      );
+
+      destinationInstance.analytics?.alias('test-alias-id', 'old-id', { test: 'test' }, () => {});
+      expect(state.lifecycle.safeAnalyticsInstance.value?.alias).toHaveBeenCalledTimes(1);
+      expect(state.lifecycle.safeAnalyticsInstance.value?.alias).toHaveBeenCalledWith(
+        'test-alias-id',
+        'old-id',
+        { test: 'test' },
+        expect.any(Function),
+      );
+
+      destinationInstance.analytics?.getUserId();
+      expect(state.lifecycle.safeAnalyticsInstance.value?.getUserId).toHaveBeenCalledTimes(1);
+
+      destinationInstance.analytics?.getUserTraits();
+      expect(state.lifecycle.safeAnalyticsInstance.value?.getUserTraits).toHaveBeenCalledTimes(1);
+
+      destinationInstance.analytics?.getGroupId();
+      expect(state.lifecycle.safeAnalyticsInstance.value?.getGroupId).toHaveBeenCalledTimes(1);
+
+      destinationInstance.analytics?.getGroupTraits();
+      expect(state.lifecycle.safeAnalyticsInstance.value?.getGroupTraits).toHaveBeenCalledTimes(1);
+
+      destinationInstance.analytics?.getSessionId();
+      expect(state.lifecycle.safeAnalyticsInstance.value?.getSessionId).toHaveBeenCalledTimes(1);
 
       resetState();
-    });
-
-    it('should handle when rudderanalytics global is missing', () => {
-      const originalRudderAnalytics = (globalThis as any).rudderanalytics;
-      delete (globalThis as any).rudderanalytics;
-
-      const destination = {
-        config: {
-          apiKey: '1234',
-        },
-        areTransformationsConnected: false,
-        id: 'GA4___5678',
-      } as unknown as Destination;
-
-      expect(() => {
-        createDestinationInstance(destSDKIdentifier, sdkTypeName, destination, state);
-      }).toThrow();
-
-      (globalThis as any).rudderanalytics = originalRudderAnalytics;
     });
   });
 
@@ -352,6 +384,8 @@ describe('deviceModeDestinations utils', () => {
           blacklistedEvents: [],
           whitelistedEvents: [],
           eventFilteringOption: 'disable' as const,
+          consentManagement: [],
+          connectionMode: 'device' as const,
         },
       },
       {
@@ -366,6 +400,8 @@ describe('deviceModeDestinations utils', () => {
           blacklistedEvents: [],
           whitelistedEvents: [],
           eventFilteringOption: 'disable' as const,
+          consentManagement: [],
+          connectionMode: 'device' as const,
         },
       },
       {
@@ -380,6 +416,8 @@ describe('deviceModeDestinations utils', () => {
           blacklistedEvents: [],
           whitelistedEvents: [],
           eventFilteringOption: 'disable' as const,
+          consentManagement: [],
+          connectionMode: 'device' as const,
         },
       },
     ];
@@ -779,6 +817,8 @@ describe('deviceModeDestinations utils', () => {
         blacklistedEvents: [],
         whitelistedEvents: [],
         eventFilteringOption: 'disable' as const,
+        consentManagement: [],
+        connectionMode: 'device' as const,
       },
     };
 
@@ -1066,7 +1106,7 @@ describe('deviceModeDestinations utils', () => {
     });
   });
 
-  describe('filterDisabledDestination', () => {
+  describe('filterDisabledDestinations', () => {
     it('should return only enabled destinations', () => {
       const destinations = [
         { id: '1', enabled: true },
@@ -1074,7 +1114,7 @@ describe('deviceModeDestinations utils', () => {
         { id: '3', enabled: true },
       ] as any[];
 
-      const result = filterDisabledDestination(destinations);
+      const result = filterDisabledDestinations(destinations);
 
       expect(result).toHaveLength(2);
       expect(result.every(dest => dest.enabled)).toBe(true);
@@ -1087,7 +1127,7 @@ describe('deviceModeDestinations utils', () => {
         { id: '2', enabled: false },
       ] as any[];
 
-      const result = filterDisabledDestination(destinations);
+      const result = filterDisabledDestinations(destinations);
 
       expect(result).toEqual([]);
     });
@@ -1098,22 +1138,23 @@ describe('deviceModeDestinations utils', () => {
         { id: '2', enabled: true },
       ] as any[];
 
-      const result = filterDisabledDestination(destinations);
+      const result = filterDisabledDestinations(destinations);
 
       expect(result).toHaveLength(2);
       expect(result.map(d => d.id)).toEqual(['1', '2']);
     });
 
     it('should return empty array if input is empty', () => {
-      const result = filterDisabledDestination([]);
+      const result = filterDisabledDestinations([]);
 
       expect(result).toEqual([]);
     });
   });
+
   describe('getCumulativeIntegrationsConfig', () => {
     it('should return the cumulative integrations config', () => {
       const destination = {
-        instance: {
+        integration: {
           getDataForIntegrationsObject: () => ({
             GA4: {
               client_id: '1234567890',
@@ -1145,7 +1186,7 @@ describe('deviceModeDestinations utils', () => {
 
     it('should return the current integrations config if the destination does not have a getDataForIntegrationsObject method', () => {
       const destination = {
-        instance: {},
+        integration: {},
         userFriendlyId: 'GA4___1234567890',
       } as unknown as Destination;
 
@@ -1164,7 +1205,7 @@ describe('deviceModeDestinations utils', () => {
 
     it('should handle errors thrown by the getDataForIntegrationsObject method', () => {
       const destination = {
-        instance: {
+        integration: {
           getDataForIntegrationsObject: () => {
             throw new Error('Error');
           },
@@ -1195,9 +1236,9 @@ describe('deviceModeDestinations utils', () => {
       });
     });
 
-    it('should handle null or undefined destination instance', () => {
+    it('should handle null or undefined destination integration', () => {
       const destination = {
-        instance: null,
+        integration: null,
         userFriendlyId: 'GA4___1234567890',
       } as unknown as Destination;
 
@@ -1208,9 +1249,9 @@ describe('deviceModeDestinations utils', () => {
       expect(result).toEqual(currentConfig);
     });
 
-    it('should handle destination instance without getDataForIntegrationsObject method', () => {
+    it('should handle destination integration without getDataForIntegrationsObject method', () => {
       const destination = {
-        instance: { someOtherMethod: () => {} },
+        integration: { someOtherMethod: () => {} },
         userFriendlyId: 'GA4___1234567890',
       } as unknown as Destination;
 
@@ -1223,7 +1264,7 @@ describe('deviceModeDestinations utils', () => {
 
     it('should merge data from getDataForIntegrationsObject', () => {
       const destination = {
-        instance: {
+        integration: {
           getDataForIntegrationsObject: () => ({
             GA4: { client_id: '12345' },
             NewIntegration: { data: 'test' },
@@ -1247,7 +1288,7 @@ describe('deviceModeDestinations utils', () => {
 
     it('should handle getDataForIntegrationsObject returning null/undefined', () => {
       const destination = {
-        instance: {
+        integration: {
           getDataForIntegrationsObject: () => null,
         },
         userFriendlyId: 'GA4___1234567890',
@@ -1262,7 +1303,7 @@ describe('deviceModeDestinations utils', () => {
 
     it('should work without error handler parameter', () => {
       const destination = {
-        instance: {
+        integration: {
           getDataForIntegrationsObject: () => {
             throw new Error('Test error');
           },
@@ -1370,7 +1411,7 @@ describe('deviceModeDestinations utils', () => {
           // eslint-disable-next-line @typescript-eslint/no-useless-constructor
           constructor() {}
           init = () => initMock();
-          isLoaded = () => false;
+          isReady = () => false;
         },
       };
 
@@ -1436,6 +1477,8 @@ describe('deviceModeDestinations utils', () => {
           blacklistedEvents: [],
           whitelistedEvents: [],
           eventFilteringOption: 'disable' as const,
+          consentManagement: [],
+          connectionMode: 'device' as const,
         },
       };
 
@@ -1494,6 +1537,8 @@ describe('deviceModeDestinations utils', () => {
           blacklistedEvents: [],
           whitelistedEvents: [],
           eventFilteringOption: 'disable' as const,
+          consentManagement: [],
+          connectionMode: 'device' as const,
         },
       };
 
@@ -1558,6 +1603,8 @@ describe('deviceModeDestinations utils', () => {
           blacklistedEvents: [],
           whitelistedEvents: [],
           eventFilteringOption: 'disable' as const,
+          consentManagement: [],
+          connectionMode: 'device' as const,
         },
       };
 
@@ -1609,7 +1656,7 @@ describe('deviceModeDestinations utils', () => {
         id: 'dest1',
         displayName: 'Test Destination',
         userFriendlyId: 'Test-Destination___dest1',
-        instance: {
+        integration: {
           getDataForIntegrationsObject: jest.fn(() => {
             throw new Error('Failed to get integrations data');
           }),
@@ -1635,7 +1682,7 @@ describe('deviceModeDestinations utils', () => {
         id: 'dest1',
         displayName: 'Test Destination',
         userFriendlyId: 'Test-Destination___dest1',
-        instance: {
+        integration: {
           getDataForIntegrationsObject: jest.fn(() => ({
             newIntegration: true,
           })),
@@ -1655,6 +1702,998 @@ describe('deviceModeDestinations utils', () => {
         existingIntegration: true,
         newIntegration: true,
       });
+    });
+  });
+
+  describe('validateCustomIntegration', () => {
+    const mockValidIntegration = {
+      isReady: jest.fn().mockReturnValue(true),
+      init: jest.fn(),
+      track: jest.fn(),
+      page: jest.fn(),
+      identify: jest.fn(),
+      group: jest.fn(),
+      alias: jest.fn(),
+    };
+
+    let mockCustomDestination: Destination;
+
+    beforeEach(() => {
+      resetState();
+      mockCustomDestination = {
+        id: 'custom-dest-123',
+        displayName: 'Custom Device Mode',
+        userFriendlyId: 'custom-dest-123',
+        enabled: true,
+        shouldApplyDeviceModeTransformation: false,
+        propagateEventsUntransformedOnError: false,
+        config: {
+          blacklistedEvents: [],
+          whitelistedEvents: [],
+          eventFilteringOption: 'disable' as const,
+          connectionMode: 'device' as const,
+          consentManagement: [],
+        },
+        isCustomIntegration: true,
+      };
+
+      state.nativeDestinations.configuredDestinations.value = [mockCustomDestination];
+      jest.clearAllMocks();
+    });
+
+    describe('destination validation', () => {
+      it('should return destination object for valid destination ID with valid integration', () => {
+        const validDestinationId = 'custom-dest-123';
+        const result = validateCustomIntegration(
+          validDestinationId,
+          mockValidIntegration,
+          state,
+          defaultLogger,
+        );
+
+        expect(result).toEqual(mockCustomDestination);
+        expect(defaultLogger.error).not.toHaveBeenCalled();
+      });
+
+      it('should return undefined for non-existent destination ID', () => {
+        const invalidDestinationId = 'non-existent-dest';
+        const result = validateCustomIntegration(
+          invalidDestinationId,
+          mockValidIntegration,
+          state,
+          defaultLogger,
+        );
+
+        expect(result).toBeUndefined();
+        expect(defaultLogger.error).toHaveBeenCalledWith(
+          'DeviceModeDestinationsPlugin:: The destination ID "non-existent-dest" does not correspond to a custom device mode destination.',
+        );
+      });
+
+      it('should return the destination object for disabled destination', () => {
+        const disabledDestination = {
+          ...mockCustomDestination,
+          id: 'disabled-dest',
+          enabled: false,
+        };
+        state.nativeDestinations.configuredDestinations.value = [disabledDestination];
+
+        const result = validateCustomIntegration(
+          'disabled-dest',
+          mockValidIntegration,
+          state,
+          defaultLogger,
+        );
+
+        expect(result).toBeDefined();
+        expect(result).toEqual(disabledDestination);
+      });
+
+      it('should return undefined if no custom destinations are configured', () => {
+        const wrongDisplayNameDestination = {
+          ...mockCustomDestination,
+          id: 'wrong-dest',
+          displayName: 'Google Analytics',
+          isCustomIntegration: false,
+        };
+        state.nativeDestinations.configuredDestinations.value = [wrongDisplayNameDestination];
+
+        const result = validateCustomIntegration(
+          'wrong-dest',
+          mockValidIntegration,
+          state,
+          defaultLogger,
+        );
+
+        expect(result).toBeUndefined();
+        expect(defaultLogger.error).toHaveBeenCalledWith(
+          'DeviceModeDestinationsPlugin:: The destination ID "wrong-dest" does not correspond to a custom device mode destination.',
+        );
+      });
+    });
+
+    describe('integration already exists validation', () => {
+      it('should return undefined when integration already exists for destination', () => {
+        const destinationWithIntegration = {
+          ...mockCustomDestination,
+          integration: { isReady: jest.fn() },
+        };
+        state.nativeDestinations.configuredDestinations.value = [destinationWithIntegration];
+
+        const result = validateCustomIntegration(
+          'custom-dest-123',
+          mockValidIntegration,
+          state,
+          defaultLogger,
+        );
+
+        expect(result).toBeUndefined();
+        expect(defaultLogger.error).toHaveBeenCalledWith(
+          'DeviceModeDestinationsPlugin:: A custom integration with destination ID "custom-dest-123" was already added.',
+        );
+      });
+
+      it('should return destination when no integration exists yet', () => {
+        const result = validateCustomIntegration(
+          'custom-dest-123',
+          mockValidIntegration,
+          state,
+          defaultLogger,
+        );
+
+        expect(result).toEqual(mockCustomDestination);
+        expect(defaultLogger.error).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('integration validation', () => {
+      const validDestinationId = 'custom-dest-123';
+
+      it('should return undefined for undefined integration', () => {
+        const result = validateCustomIntegration(
+          validDestinationId,
+          undefined as any,
+          state,
+          defaultLogger,
+        );
+
+        expect(result).toBeUndefined();
+        expect(defaultLogger.error).toHaveBeenCalledWith(
+          'DeviceModeDestinationsPlugin:: The custom integration added for destination ID "custom-dest-123" does not match the expected implementation format.',
+        );
+      });
+
+      it('should return undefined for null integration', () => {
+        const result = validateCustomIntegration(
+          validDestinationId,
+          null as any,
+          state,
+          defaultLogger,
+        );
+
+        expect(result).toBeUndefined();
+        expect(defaultLogger.error).toHaveBeenCalledWith(
+          'DeviceModeDestinationsPlugin:: The custom integration added for destination ID "custom-dest-123" does not match the expected implementation format.',
+        );
+      });
+
+      it('should return undefined for integration missing isReady method', () => {
+        const invalidIntegration = {
+          init: jest.fn(),
+          track: jest.fn(),
+          // Missing isReady method
+        };
+
+        const result = validateCustomIntegration(
+          validDestinationId,
+          invalidIntegration as any,
+          state,
+          defaultLogger,
+        );
+
+        expect(result).toBeUndefined();
+        expect(defaultLogger.error).toHaveBeenCalledWith(
+          'DeviceModeDestinationsPlugin:: The custom integration added for destination ID "custom-dest-123" does not match the expected implementation format.',
+        );
+      });
+
+      it('should return undefined for integration with non-function isReady', () => {
+        const invalidIntegration = {
+          isReady: 'not a function',
+        };
+
+        const result = validateCustomIntegration(
+          validDestinationId,
+          invalidIntegration as any,
+          state,
+          defaultLogger,
+        );
+
+        expect(result).toBeUndefined();
+        expect(defaultLogger.error).toHaveBeenCalledWith(
+          'DeviceModeDestinationsPlugin:: The custom integration added for destination ID "custom-dest-123" does not match the expected implementation format.',
+        );
+      });
+
+      it('should return undefined when optional methods are provided but not functions', () => {
+        const testCases = [
+          { method: 'init', value: 'not a function' },
+          { method: 'track', value: 123 },
+          { method: 'page', value: true },
+          { method: 'identify', value: {} },
+          { method: 'group', value: [] },
+          { method: 'alias', value: null },
+        ];
+
+        testCases.forEach(({ method, value }) => {
+          jest.clearAllMocks();
+          const invalidIntegration = {
+            isReady: jest.fn().mockReturnValue(true),
+            [method]: value,
+          };
+
+          const result = validateCustomIntegration(
+            validDestinationId,
+            invalidIntegration as any,
+            state,
+            defaultLogger,
+          );
+
+          expect(result).toBeUndefined();
+          expect(defaultLogger.error).toHaveBeenCalledWith(
+            'DeviceModeDestinationsPlugin:: The custom integration added for destination ID "custom-dest-123" does not match the expected implementation format.',
+          );
+        });
+      });
+
+      it('should return destination for integration with only isReady method', () => {
+        const minimalIntegration = {
+          isReady: jest.fn().mockReturnValue(true),
+        };
+
+        const result = validateCustomIntegration(
+          validDestinationId,
+          minimalIntegration,
+          state,
+          defaultLogger,
+        );
+
+        expect(result).toEqual(mockCustomDestination);
+        expect(defaultLogger.error).not.toHaveBeenCalled();
+      });
+
+      it('should return destination for integration with all valid optional methods', () => {
+        const fullIntegration = {
+          isReady: jest.fn().mockReturnValue(true),
+          init: jest.fn(),
+          track: jest.fn(),
+          page: jest.fn(),
+          identify: jest.fn(),
+          group: jest.fn(),
+          alias: jest.fn(),
+        };
+
+        const result = validateCustomIntegration(
+          validDestinationId,
+          fullIntegration,
+          state,
+          defaultLogger,
+        );
+
+        expect(result).toEqual(mockCustomDestination);
+        expect(defaultLogger.error).not.toHaveBeenCalled();
+      });
+
+      it('should return destination for integration with some valid optional methods', () => {
+        const partialIntegration = {
+          isReady: jest.fn().mockReturnValue(true),
+          init: jest.fn(),
+          track: jest.fn(),
+          // page, identify, group, alias methods are undefined (not provided)
+        };
+
+        const result = validateCustomIntegration(
+          validDestinationId,
+          partialIntegration,
+          state,
+          defaultLogger,
+        );
+
+        expect(result).toEqual(mockCustomDestination);
+        expect(defaultLogger.error).not.toHaveBeenCalled();
+      });
+
+      it('should validate each method independently', () => {
+        const mixedIntegration = {
+          isReady: jest.fn().mockReturnValue(true),
+          init: jest.fn(), // valid
+          track: 'invalid', // invalid - not a function
+          page: jest.fn(), // valid
+        };
+
+        const result = validateCustomIntegration(
+          validDestinationId,
+          mixedIntegration as any,
+          state,
+          defaultLogger,
+        );
+
+        expect(result).toBeUndefined();
+        expect(defaultLogger.error).toHaveBeenCalledWith(
+          'DeviceModeDestinationsPlugin:: The custom integration added for destination ID "custom-dest-123" does not match the expected implementation format.',
+        );
+      });
+    });
+  });
+
+  describe('addIntegrationToDestination', () => {
+    const mockAnalyticsInstance = {
+      track: jest.fn(),
+      page: jest.fn(),
+      identify: jest.fn(),
+      group: jest.fn(),
+      alias: jest.fn(),
+      getAnonymousId: jest.fn(),
+      getUserId: jest.fn(),
+      getUserTraits: jest.fn(),
+      getGroupId: jest.fn(),
+      getGroupTraits: jest.fn(),
+      getSessionId: jest.fn(),
+    };
+
+    beforeEach(() => {
+      resetState();
+      state.lifecycle.safeAnalyticsInstance.value = mockAnalyticsInstance;
+      jest.clearAllMocks();
+    });
+
+    it('should add integration methods to destination object', () => {
+      const testDestination: Destination = {
+        id: 'test-dest-123',
+        displayName: 'Custom Device Mode',
+        userFriendlyId: 'test-dest-123',
+        enabled: true,
+        shouldApplyDeviceModeTransformation: false,
+        propagateEventsUntransformedOnError: false,
+        config: {
+          blacklistedEvents: [],
+          whitelistedEvents: [],
+          eventFilteringOption: 'disable' as const,
+          connectionMode: 'device' as const,
+          consentManagement: [],
+        },
+        isCustomIntegration: true,
+      };
+
+      const mockInit = jest.fn();
+      const mockTrack = jest.fn();
+      const mockPage = jest.fn();
+      const mockIdentify = jest.fn();
+      const mockGroup = jest.fn();
+      const mockAlias = jest.fn();
+      const mockIsReady = jest.fn().mockReturnValue(true);
+
+      const mockIntegration = {
+        init: mockInit,
+        track: mockTrack,
+        page: mockPage,
+        identify: mockIdentify,
+        group: mockGroup,
+        alias: mockAlias,
+        isReady: mockIsReady,
+      };
+
+      addIntegrationToDestination(testDestination, mockIntegration, state, defaultLogger);
+
+      expect(testDestination.integration).toBeDefined();
+      expect(testDestination.integration!.init).toBeDefined();
+      expect(testDestination.integration!.track).toBeDefined();
+      expect(testDestination.integration!.page).toBeDefined();
+      expect(testDestination.integration!.identify).toBeDefined();
+      expect(testDestination.integration!.group).toBeDefined();
+      expect(testDestination.integration!.alias).toBeDefined();
+      expect(testDestination.integration!.isReady).toBeDefined();
+    });
+
+    it('should handle minimal integration with only isReady method', () => {
+      const testDestination: Destination = {
+        id: 'test-dest-minimal',
+        displayName: 'Custom Device Mode',
+        userFriendlyId: 'test-dest-minimal',
+        enabled: true,
+        shouldApplyDeviceModeTransformation: false,
+        propagateEventsUntransformedOnError: false,
+        config: {
+          blacklistedEvents: [],
+          whitelistedEvents: [],
+          eventFilteringOption: 'disable' as const,
+          connectionMode: 'device' as const,
+          consentManagement: [],
+        },
+        isCustomIntegration: true,
+      };
+
+      const mockIsReady = jest.fn().mockReturnValue(true);
+      const mockIntegration = {
+        isReady: mockIsReady,
+      };
+
+      addIntegrationToDestination(testDestination, mockIntegration, state, defaultLogger);
+
+      expect(testDestination.integration).toBeDefined();
+      expect(testDestination.integration!.isReady).toBeDefined();
+      expect(testDestination.integration!.init).toBeUndefined();
+      expect(testDestination.integration!.track).toBeUndefined();
+      expect(testDestination.integration!.page).toBeUndefined();
+      expect(testDestination.integration!.identify).toBeUndefined();
+      expect(testDestination.integration!.group).toBeUndefined();
+      expect(testDestination.integration!.alias).toBeUndefined();
+    });
+
+    it('should properly wrap integration methods with analytics instance and logger', () => {
+      const testDestination: Destination = {
+        id: 'wrapper-test-dest',
+        displayName: 'Custom Device Mode',
+        userFriendlyId: 'wrapper-test-dest',
+        enabled: true,
+        shouldApplyDeviceModeTransformation: false,
+        propagateEventsUntransformedOnError: false,
+        config: {
+          blacklistedEvents: [],
+          whitelistedEvents: [],
+          eventFilteringOption: 'disable' as const,
+          connectionMode: 'device' as const,
+          consentManagement: [],
+        },
+      };
+
+      const mockInit = jest.fn();
+      const mockTrack = jest.fn();
+      const mockIsReady = jest.fn().mockReturnValue(true);
+
+      const mockIntegration = {
+        init: mockInit,
+        track: mockTrack,
+        isReady: mockIsReady,
+      };
+
+      const mockEvent = {
+        message: {
+          type: 'track',
+          event: 'Test Event',
+          properties: { test: 'value' },
+        },
+      } as any;
+
+      addIntegrationToDestination(testDestination, mockIntegration, state, defaultLogger);
+
+      // Test init wrapper
+      testDestination.integration?.init!();
+      expect(mockInit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          blacklistedEvents: [],
+          whitelistedEvents: [],
+          eventFilteringOption: 'disable',
+          connectionMode: 'device',
+          consentManagement: [],
+        }),
+        mockAnalyticsInstance,
+        expect.objectContaining({
+          log: expect.any(Function),
+          info: expect.any(Function),
+          debug: expect.any(Function),
+          warn: expect.any(Function),
+          error: expect.any(Function),
+          setMinLogLevel: expect.any(Function),
+        }),
+      );
+
+      // Test track wrapper
+      testDestination.integration?.track!(mockEvent);
+      expect(mockTrack).toHaveBeenCalledWith(
+        mockAnalyticsInstance,
+        expect.objectContaining({
+          log: expect.any(Function),
+          info: expect.any(Function),
+          debug: expect.any(Function),
+          warn: expect.any(Function),
+          error: expect.any(Function),
+          setMinLogLevel: expect.any(Function),
+        }),
+        mockEvent,
+      );
+
+      // Test isReady wrapper
+      const isReady = testDestination.integration?.isReady();
+      expect(mockIsReady).toHaveBeenCalledWith(
+        mockAnalyticsInstance,
+        expect.objectContaining({
+          log: expect.any(Function),
+          info: expect.any(Function),
+          debug: expect.any(Function),
+          warn: expect.any(Function),
+          error: expect.any(Function),
+          setMinLogLevel: expect.any(Function),
+        }),
+      );
+      expect(isReady).toBe(true);
+    });
+
+    it('should handle all event types correctly', () => {
+      const testDestination: Destination = {
+        id: 'all-methods-dest',
+        displayName: 'Custom Device Mode',
+        userFriendlyId: 'all-methods-dest',
+        enabled: true,
+        shouldApplyDeviceModeTransformation: false,
+        propagateEventsUntransformedOnError: false,
+        config: {
+          blacklistedEvents: [],
+          whitelistedEvents: [],
+          eventFilteringOption: 'disable' as const,
+          connectionMode: 'device' as const,
+          consentManagement: [],
+        },
+      };
+
+      const mockInit = jest.fn();
+      const mockTrack = jest.fn();
+      const mockPage = jest.fn();
+      const mockIdentify = jest.fn();
+      const mockGroup = jest.fn();
+      const mockAlias = jest.fn();
+      const mockIsReady = jest.fn().mockReturnValue(true);
+
+      const mockIntegration = {
+        init: mockInit,
+        track: mockTrack,
+        page: mockPage,
+        identify: mockIdentify,
+        group: mockGroup,
+        alias: mockAlias,
+        isReady: mockIsReady,
+      };
+
+      addIntegrationToDestination(testDestination, mockIntegration, state, defaultLogger);
+
+      const mockEvent = { message: { type: 'track', event: 'Test Event' } } as any;
+      const mockPageEvent = { message: { type: 'page', name: 'Test Page' } } as any;
+      const mockIdentifyEvent = { message: { type: 'identify', userId: 'user123' } } as any;
+      const mockGroupEvent = { message: { type: 'group', groupId: 'group123' } } as any;
+      const mockAliasEvent = { message: { type: 'alias', previousId: 'old123' } } as any;
+
+      // Test all method wrappers
+      testDestination.integration?.init!();
+      testDestination.integration?.track!(mockEvent);
+      testDestination.integration?.page!(mockPageEvent);
+      testDestination.integration?.identify!(mockIdentifyEvent);
+      testDestination.integration?.group!(mockGroupEvent);
+      testDestination.integration?.alias!(mockAliasEvent);
+
+      const expectedLogger = expect.objectContaining({
+        log: expect.any(Function),
+        info: expect.any(Function),
+        debug: expect.any(Function),
+        warn: expect.any(Function),
+        error: expect.any(Function),
+        setMinLogLevel: expect.any(Function),
+      });
+
+      expect(mockInit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          blacklistedEvents: [],
+          whitelistedEvents: [],
+          eventFilteringOption: 'disable',
+          connectionMode: 'device',
+          consentManagement: [],
+        }),
+        mockAnalyticsInstance,
+        expectedLogger,
+      );
+      expect(mockTrack).toHaveBeenCalledWith(mockAnalyticsInstance, expectedLogger, mockEvent);
+      expect(mockPage).toHaveBeenCalledWith(mockAnalyticsInstance, expectedLogger, mockPageEvent);
+      expect(mockIdentify).toHaveBeenCalledWith(
+        mockAnalyticsInstance,
+        expectedLogger,
+        mockIdentifyEvent,
+      );
+      expect(mockGroup).toHaveBeenCalledWith(mockAnalyticsInstance, expectedLogger, mockGroupEvent);
+      expect(mockAlias).toHaveBeenCalledWith(mockAnalyticsInstance, expectedLogger, mockAliasEvent);
+    });
+
+    it('should use the analytics instance from state', () => {
+      const testDestination: Destination = {
+        id: 'state-test-dest',
+        displayName: 'Custom Device Mode',
+        userFriendlyId: 'state-test-dest',
+        enabled: true,
+        shouldApplyDeviceModeTransformation: false,
+        propagateEventsUntransformedOnError: false,
+        config: {
+          blacklistedEvents: [],
+          whitelistedEvents: [],
+          eventFilteringOption: 'disable' as const,
+          connectionMode: 'device' as const,
+          consentManagement: [],
+        },
+      };
+
+      const customAnalyticsInstance = { customMethod: jest.fn() };
+      state.lifecycle.safeAnalyticsInstance.value = customAnalyticsInstance as any;
+
+      const mockInit = jest.fn();
+      const mockIntegration = {
+        init: mockInit,
+        isReady: jest.fn().mockReturnValue(true),
+      };
+
+      addIntegrationToDestination(testDestination, mockIntegration, state, defaultLogger);
+
+      testDestination.integration?.init!();
+      expect(mockInit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          blacklistedEvents: [],
+          whitelistedEvents: [],
+          eventFilteringOption: 'disable',
+          connectionMode: 'device' as const,
+          consentManagement: [],
+        }),
+        customAnalyticsInstance,
+        expect.objectContaining({
+          log: expect.any(Function),
+          info: expect.any(Function),
+          debug: expect.any(Function),
+          warn: expect.any(Function),
+          error: expect.any(Function),
+          setMinLogLevel: expect.any(Function),
+        }),
+      );
+    });
+
+    it('should work with realistic custom integration implementation that uses analytics and logger APIs', () => {
+      const testDestination: Destination = {
+        id: 'realistic-test-dest',
+        displayName: 'Custom Device Mode',
+        userFriendlyId: 'realistic-test-dest',
+        enabled: true,
+        shouldApplyDeviceModeTransformation: false,
+        propagateEventsUntransformedOnError: false,
+        config: {
+          blacklistedEvents: [],
+          whitelistedEvents: [],
+          eventFilteringOption: 'disable' as const,
+          connectionMode: 'device' as const,
+          consentManagement: [],
+        },
+      };
+
+      let isInitialized = false;
+      const trackedEvents: any[] = [];
+
+      // Mock a realistic custom integration
+      const realisticIntegration = {
+        init: (destinationConfig: any, analytics: any, logger: any) => {
+          logger.info('Initializing CustomAnalytics integration');
+
+          // Use analytics API to get user information
+          const userId = analytics.getUserId();
+          const anonymousId = analytics.getAnonymousId();
+
+          logger.debug(
+            `CustomAnalytics: Found user ${userId || 'anonymous'} with ID ${anonymousId}`,
+          );
+
+          // Simulate API initialization
+          (global as any).customAnalytics = {
+            userId,
+            anonymousId,
+            ready: true,
+          };
+
+          isInitialized = true;
+          logger.info('CustomAnalytics integration initialized successfully');
+        },
+
+        track: (analytics: any, logger: any, event: any) => {
+          logger.debug('CustomAnalytics: Processing track event', event.message);
+
+          const userId = analytics.getUserId();
+          const sessionId = analytics.getSessionId();
+
+          const processedEvent = {
+            ...event.message,
+            userId,
+            sessionId,
+            timestamp: new Date().toISOString(),
+            processed: true,
+          };
+
+          trackedEvents.push(processedEvent);
+          logger.info(`CustomAnalytics: Successfully tracked event "${event.message.event}"`);
+        },
+
+        page: (analytics: any, logger: any, event: any) => {
+          logger.debug('CustomAnalytics: Processing page event', event.message);
+
+          const userTraits = analytics.getUserTraits();
+          const processedPageEvent = {
+            ...event.message,
+            userTraits,
+            type: 'page_view',
+            timestamp: new Date().toISOString(),
+          };
+
+          trackedEvents.push(processedPageEvent);
+          logger.info(
+            `CustomAnalytics: Successfully tracked page "${event.message.name || 'Unknown'}"`,
+          );
+        },
+
+        identify: (analytics: any, logger: any, event: any) => {
+          logger.debug('CustomAnalytics: Processing identify event', event.message);
+
+          // Simulate updating user profile
+          const { userId, traits } = event.message;
+          if (userId && traits) {
+            logger.info(`CustomAnalytics: Updating profile for user ${userId}`, traits);
+          } else {
+            logger.warn('CustomAnalytics: Identify event missing userId or traits');
+          }
+        },
+
+        isReady: (analytics: any, logger: any) => {
+          logger.debug('CustomAnalytics: Checking ready status');
+          const ready = isInitialized && (global as any).customAnalytics?.ready;
+          logger.debug(`CustomAnalytics: Ready status = ${ready}`);
+          return ready;
+        },
+      };
+
+      // Setup expected mock values
+      (mockAnalyticsInstance.getUserId as jest.Mock).mockReturnValue('user-123');
+      (mockAnalyticsInstance.getAnonymousId as jest.Mock).mockReturnValue('anon-456');
+      (mockAnalyticsInstance.getSessionId as jest.Mock).mockReturnValue(12345);
+      (mockAnalyticsInstance.getUserTraits as jest.Mock).mockReturnValue({
+        name: 'John Doe',
+        email: 'john@example.com',
+      });
+
+      addIntegrationToDestination(testDestination, realisticIntegration, state, defaultLogger);
+
+      // Test initialization
+      testDestination.integration?.init!();
+
+      expect(defaultLogger.info).toHaveBeenCalledWith('Initializing CustomAnalytics integration');
+      expect(defaultLogger.debug).toHaveBeenCalledWith(
+        'CustomAnalytics: Found user user-123 with ID anon-456',
+      );
+      expect(defaultLogger.info).toHaveBeenCalledWith(
+        'CustomAnalytics integration initialized successfully',
+      );
+      expect(isInitialized).toBe(true);
+      expect((global as any).customAnalytics).toEqual({
+        userId: 'user-123',
+        anonymousId: 'anon-456',
+        ready: true,
+      });
+
+      // Test isReady
+      const readyStatus = testDestination.integration?.isReady();
+      expect(readyStatus).toBe(true);
+      expect(defaultLogger.debug).toHaveBeenCalledWith('CustomAnalytics: Checking ready status');
+      expect(defaultLogger.debug).toHaveBeenCalledWith('CustomAnalytics: Ready status = true');
+
+      // Test track event
+      const trackEvent = {
+        message: {
+          type: 'track',
+          event: 'Purchase Completed',
+          properties: { value: 99.99, currency: 'USD' },
+        },
+      };
+
+      testDestination.integration?.track!(trackEvent as any);
+
+      expect(defaultLogger.debug).toHaveBeenCalledWith(
+        'CustomAnalytics: Processing track event',
+        trackEvent.message,
+      );
+      expect(defaultLogger.info).toHaveBeenCalledWith(
+        'CustomAnalytics: Successfully tracked event "Purchase Completed"',
+      );
+      expect(trackedEvents).toHaveLength(1);
+      expect(trackedEvents[0]).toMatchObject({
+        type: 'track',
+        event: 'Purchase Completed',
+        properties: { value: 99.99, currency: 'USD' },
+        userId: 'user-123',
+        sessionId: 12345,
+        processed: true,
+      });
+
+      // Test page event
+      const pageEvent = {
+        message: {
+          type: 'page',
+          name: 'Product Details',
+          properties: { product_id: 'prod-123' },
+        },
+      };
+
+      testDestination.integration?.page!(pageEvent as any);
+
+      expect(defaultLogger.debug).toHaveBeenCalledWith(
+        'CustomAnalytics: Processing page event',
+        pageEvent.message,
+      );
+      expect(defaultLogger.info).toHaveBeenCalledWith(
+        'CustomAnalytics: Successfully tracked page "Product Details"',
+      );
+      expect(trackedEvents).toHaveLength(2);
+      expect(trackedEvents[1]).toMatchObject({
+        type: 'page_view',
+        name: 'Product Details',
+        properties: { product_id: 'prod-123' },
+        userTraits: { name: 'John Doe', email: 'john@example.com' },
+      });
+
+      // Test identify event
+      const identifyEvent = {
+        message: {
+          type: 'identify',
+          userId: 'user-123',
+          traits: { name: 'John Doe', email: 'john@example.com', plan: 'premium' },
+        },
+      };
+
+      testDestination.integration?.identify!(identifyEvent as any);
+
+      expect(defaultLogger.debug).toHaveBeenCalledWith(
+        'CustomAnalytics: Processing identify event',
+        identifyEvent.message,
+      );
+      expect(defaultLogger.info).toHaveBeenCalledWith(
+        'CustomAnalytics: Updating profile for user user-123',
+        { name: 'John Doe', email: 'john@example.com', plan: 'premium' },
+      );
+
+      // Verify analytics API calls
+      expect(mockAnalyticsInstance.getUserId).toHaveBeenCalledTimes(2); // init, track
+      expect(mockAnalyticsInstance.getAnonymousId).toHaveBeenCalledTimes(1); // init
+      expect(mockAnalyticsInstance.getSessionId).toHaveBeenCalledTimes(1); // track
+      expect(mockAnalyticsInstance.getUserTraits).toHaveBeenCalledTimes(1); // page
+
+      // Cleanup
+      delete (global as any).customAnalytics;
+    });
+
+    it('should clone logger to avoid conflicts with main logger', () => {
+      const testDestination: Destination = {
+        id: 'cloned-logger-dest',
+        displayName: 'Custom Device Mode',
+        userFriendlyId: 'cloned-logger-dest',
+        enabled: true,
+        shouldApplyDeviceModeTransformation: false,
+        propagateEventsUntransformedOnError: false,
+        config: {
+          blacklistedEvents: [],
+          whitelistedEvents: [],
+          eventFilteringOption: 'disable' as const,
+          connectionMode: 'device' as const,
+          consentManagement: [],
+        },
+      };
+
+      const mockInit = jest.fn();
+      const mockIntegration = {
+        init: mockInit,
+        isReady: jest.fn().mockReturnValue(true),
+      };
+
+      addIntegrationToDestination(testDestination, mockIntegration, state, defaultLogger);
+
+      // Call the integration init to get the logger
+      testDestination.integration?.init!();
+
+      // Get the logger argument from the init function call
+      const loggerArg = mockInit.mock.calls[0][1];
+      expect(loggerArg).not.toBe(defaultLogger);
+    });
+
+    it('should create RSALogger with bound methods', () => {
+      const testDestination: Destination = {
+        id: 'bound-methods-dest',
+        displayName: 'Custom Device Mode',
+        userFriendlyId: 'bound-methods-dest',
+        enabled: true,
+        shouldApplyDeviceModeTransformation: false,
+        propagateEventsUntransformedOnError: false,
+        config: {
+          blacklistedEvents: [],
+          whitelistedEvents: [],
+          eventFilteringOption: 'disable' as const,
+          connectionMode: 'device' as const,
+          consentManagement: [],
+        },
+      };
+
+      const mockInit = jest.fn();
+      const mockTrack = jest.fn();
+      const mockPage = jest.fn();
+      const mockIdentify = jest.fn();
+      const mockGroup = jest.fn();
+      const mockAlias = jest.fn();
+      const mockIsReady = jest.fn();
+      const mockIntegration = {
+        init: mockInit,
+        isReady: mockIsReady,
+        track: mockTrack,
+        page: mockPage,
+        identify: mockIdentify,
+        group: mockGroup,
+        alias: mockAlias,
+      };
+
+      addIntegrationToDestination(testDestination, mockIntegration, state, defaultLogger);
+
+      // Call the integration init to get the logger
+      testDestination.integration?.init!();
+
+      // Verify that the logger methods are bound functions
+      const loggerArg = mockInit.mock.calls[0][2];
+
+      // Test that the logger methods are properly bound by verifying they're functions
+      // and that calling them invokes the original logger methods
+      expect(typeof loggerArg.log).toBe('function');
+      expect(typeof loggerArg.info).toBe('function');
+      expect(typeof loggerArg.debug).toBe('function');
+      expect(typeof loggerArg.warn).toBe('function');
+      expect(typeof loggerArg.error).toBe('function');
+      expect(typeof loggerArg.setMinLogLevel).toBe('function');
+
+      // Test that calling the bound methods actually calls the original logger methods
+      loggerArg.log('test message');
+      expect(defaultLogger.log).toHaveBeenCalledWith('test message');
+
+      loggerArg.info('test info');
+      expect(defaultLogger.info).toHaveBeenCalledWith('test info');
+
+      loggerArg.debug('test debug');
+      expect(defaultLogger.debug).toHaveBeenCalledWith('test debug');
+
+      loggerArg.warn('test warn');
+      expect(defaultLogger.warn).toHaveBeenCalledWith('test warn');
+
+      loggerArg.error('test error');
+      expect(defaultLogger.error).toHaveBeenCalledWith('test error');
+
+      // Verify that only the expected methods are present (no extra logger methods)
+      const loggerKeys = Object.keys(loggerArg);
+      expect(loggerKeys).toEqual(['log', 'info', 'debug', 'warn', 'error', 'setMinLogLevel']);
+
+      // Verify that all the remaining integration methods also get the same logger instance
+      testDestination.integration?.isReady!();
+      expect(mockIsReady.mock.calls[0][1]).toBe(loggerArg);
+
+      testDestination.integration?.track!({} as any);
+      expect(mockTrack.mock.calls[0][0]).toBe(mockAnalyticsInstance);
+      expect(mockTrack.mock.calls[0][1]).toBe(loggerArg);
+
+      testDestination.integration?.page!({} as any);
+      expect(mockPage.mock.calls[0][0]).toBe(mockAnalyticsInstance);
+      expect(mockPage.mock.calls[0][1]).toBe(loggerArg);
+
+      testDestination.integration?.identify!({} as any);
+      expect(mockIdentify.mock.calls[0][0]).toBe(mockAnalyticsInstance);
+      expect(mockIdentify.mock.calls[0][1]).toBe(loggerArg);
+
+      testDestination.integration?.group!({} as any);
+      expect(mockGroup.mock.calls[0][0]).toBe(mockAnalyticsInstance);
+      expect(mockGroup.mock.calls[0][1]).toBe(loggerArg);
+
+      testDestination.integration?.alias!({} as any);
+      expect(mockAlias.mock.calls[0][0]).toBe(mockAnalyticsInstance);
+      expect(mockAlias.mock.calls[0][1]).toBe(loggerArg);
     });
   });
 });

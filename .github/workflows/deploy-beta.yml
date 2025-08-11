@@ -155,7 +155,6 @@ jobs:
     needs: get-deploy-inputs
     if: ${{ inputs.deploy_to_npm }}
     with:
-      is_called: true
       environment: beta
       bugsnag_release_stage: beta
       version_suffix: ${{ needs.get-deploy-inputs.outputs.version_suffix }}

@@ -7,7 +7,10 @@ import {
   pageArgumentsToCallOptions,
   trackArgumentsToCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
-import type { IRudderAnalytics } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
+import type {
+  IRudderAnalytics,
+  RSACustomIntegration,
+} from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import {
   PageLifecycleEvents,
@@ -24,6 +27,7 @@ import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { getFormattedTimestamp } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import { dispatchErrorEvent } from '@rudderstack/analytics-js-common/utilities/errors';
 import { getSanitizedValue } from '@rudderstack/analytics-js-common/utilities/json';
+import type { ConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
 import { GLOBAL_PRELOAD_BUFFER } from '../constants/app';
 import {
   getPreloadedLoadEvent,
@@ -41,7 +45,6 @@ import { defaultCookieStorage } from '../services/StoreManager/storages/CookieSt
 import { defaultLocalStorage } from '../services/StoreManager/storages/LocalStorage';
 import { defaultSessionStorage } from '../services/StoreManager/storages/sessionStorage';
 import { defaultInMemoryStorage } from '../services/StoreManager/storages/InMemoryStorage';
-import type { ConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
 
 // TODO: add analytics restart/reset mechanism
 
@@ -94,6 +97,9 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
       this.getSessionId = this.getSessionId.bind(this);
       this.setAuthToken = this.setAuthToken.bind(this);
       this.consent = this.consent.bind(this);
+      this.addCustomIntegration = this.addCustomIntegration.bind(this);
+
+      this.createSafeAnalyticsInstance();
 
       RudderAnalytics.globalSingleton = this;
 
@@ -109,6 +115,27 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     } catch (error: any) {
       dispatchErrorEvent(error);
     }
+  }
+
+  /**
+   * Create an instance of the current instance that can be used
+   * to call a subset of methods of the current instance.
+   * It is typically used to expose the analytics instance to the integrations (standard and custom)
+   */
+  createSafeAnalyticsInstance(): void {
+    state.lifecycle.safeAnalyticsInstance.value = {
+      page: this.page.bind(this),
+      track: this.track.bind(this),
+      identify: this.identify.bind(this),
+      alias: this.alias.bind(this),
+      group: this.group.bind(this),
+      getAnonymousId: this.getAnonymousId.bind(this),
+      getUserId: this.getUserId.bind(this),
+      getUserTraits: this.getUserTraits.bind(this),
+      getGroupId: this.getGroupId.bind(this),
+      getGroupTraits: this.getGroupTraits.bind(this),
+      getSessionId: this.getSessionId.bind(this),
+    };
   }
 
   static initializeGlobalResources() {
@@ -598,6 +625,17 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   consent(options?: ConsentOptions): void {
     try {
       this.getAnalyticsInstance()?.consent(getSanitizedValue(options));
+    } catch (error: any) {
+      dispatchErrorEvent(error);
+    }
+  }
+
+  addCustomIntegration(destinationId: string, integration: RSACustomIntegration): void {
+    try {
+      this.getAnalyticsInstance()?.addCustomIntegration(
+        getSanitizedValue(destinationId),
+        getSanitizedValue(integration),
+      );
     } catch (error: any) {
       dispatchErrorEvent(error);
     }
