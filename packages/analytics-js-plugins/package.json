@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-plugins",
-  "version": "3.10.2",
+  "version": "3.11.1",
   "private": true,
   "description": "RudderStack JavaScript SDK plugins",
   "main": "dist/npm/modern/cjs/index.cjs",
@@ -90,29 +90,38 @@
   "dependencies": {
     "@rudderstack/analytics-js-cookies": "*",
     "@rudderstack/analytics-js-common": "*",
+    "@rudderstack/analytics-js-integrations": "*",
+    "crypto-es": "2.1.0",
     "ramda": "0.31.3"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@babel/core": "7.28.0",
+    "@originjs/vite-plugin-federation": "1.4.1",
+    "@rollup/plugin-alias": "5.1.1",
+    "@rollup/plugin-babel": "6.0.4",
+    "@rollup/plugin-commonjs": "28.0.6",
+    "@rollup/plugin-json": "6.1.0",
+    "@rollup/plugin-node-resolve": "16.0.1",
+    "@rollup/plugin-replace": "6.0.2",
+    "@rollup/plugin-terser": "0.4.4",
+    "dotenv": "17.2.1",
+    "rollup-plugin-delete": "3.0.1",
+    "rollup-plugin-dts": "6.2.1",
+    "rollup-plugin-filesize": "10.0.0",
+    "rollup-plugin-livereload": "2.0.5",
+    "rollup-plugin-polyfill-node": "0.13.0",
+    "rollup-plugin-serve": "3.0.0",
+    "rollup-plugin-typescript2": "0.36.0",
+    "rollup-plugin-visualizer": "6.0.3"
+  },
   "overrides": {},
   "browserslist": {
     "production": [
-      "defaults",
-      "Edge >= 80",
-      "Firefox >= 47",
-      "IE >= 11",
-      "Chrome >= 54",
-      "Safari >= 7",
-      "Opera >= 43"
+      "> 0.1%",
+      "IE >= 11"
     ],
     "modern": [
-      "defaults",
-      "supports es6-module-dynamic-import"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 edge version",
-      "last 1 safari version"
+      "defaults and supports es6-module-dynamic-import and not dead"
     ]
   }
 }

@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import path from 'path';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
@@ -17,7 +16,7 @@ import alias from '@rollup/plugin-alias';
 import * as dotenv from 'dotenv';
 import pkg from './package.json' with { type: 'json' };
 
-dotenv.config();
+dotenv.config({ quiet: true });
 const isLegacyBuild = process.env.BROWSERSLIST_ENV !== 'modern';
 const variantSubfolder = isLegacyBuild ? '/legacy' : '/modern';
 const sourceMapType =
@@ -47,7 +46,15 @@ export function getDefaultConfig(distName) {
     plugins: [
       replace({
         preventAssignment: true,
-        __PACKAGE_VERSION__: version,
+        __PACKAGE_VERSION__: `'${version}'`,
+      }),
+      alias({
+        entries: [
+          {
+            find: '@rudderstack/analytics-js-common',
+            replacement: path.resolve('../analytics-js-common/src'),
+          },
+        ],
       }),
       resolve({
         jsnext: true,

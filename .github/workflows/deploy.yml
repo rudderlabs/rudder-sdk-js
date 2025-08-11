@@ -11,6 +11,11 @@ on:
         description: 'Bugsnag release stage'
         type: string
         required: true
+      base_cdn_url:
+        description: 'Base CDN URL'
+        type: string
+        default: 'https://cdn.rudderlabs.com'
+        required: false
       s3_dir_path:
         description: 'S3 directory path'
         type: string
@@ -76,10 +81,10 @@ jobs:
 
     steps:
       - name: Install AWS CLI
-        uses: unfor19/install-aws-cli-action@2ff7a6968c81b173eaaef188869215870f44902b  # master
+        uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c  # master
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@b47578312673ae6fa5b5096b330d9fbac3d116df  # v4.2.1
+        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a  # v4.3.1
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_S3_SYNC_ROLE }}
           aws-region: us-east-1
@@ -135,7 +140,7 @@ jobs:
       - name: Setup workspace
         env:
           HUSKY: 0
-          REMOTE_MODULES_BASE_PATH: 'https://cdn.rudderlabs.com/${{ inputs.s3_dir_path }}/modern/plugins'
+          REMOTE_MODULES_BASE_PATH: '${{ inputs.base_cdn_url }}/${{ inputs.s3_dir_path }}/modern/plugins'
           BUGSNAG_API_KEY: ${{ secrets.BUGSNAG_API_KEY }}
           BUGSNAG_RELEASE_STAGE: ${{ inputs.bugsnag_release_stage }}
           LOCK_DEPS_VERSION: ${{ inputs.environment == 'production' && 'true' || 'false' }}
@@ -203,12 +208,12 @@ jobs:
           aws s3 cp ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
 
           # Generate the HTML file to list all the integrations
-          ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/legacy/js-integrations ${{ env.INTEGRATIONS_HTML_FILE }} ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/legacy/js-integrations "Device Mode Integrations (Legacy)" ${{ env.INTEGRATIONS_ZIP_FILE }}
+          ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/legacy/js-integrations ${{ env.INTEGRATIONS_HTML_FILE }} ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/legacy/js-integrations "Device Mode Integrations (Legacy)" ${{ env.INTEGRATIONS_ZIP_FILE }} ${{ inputs.base_cdn_url }}
 
-          ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/modern/js-integrations ${{ env.INTEGRATIONS_HTML_FILE }} ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/modern/js-integrations "Device Mode Integrations (Modern)" ${{ env.INTEGRATIONS_ZIP_FILE }}
+          ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/modern/js-integrations ${{ env.INTEGRATIONS_HTML_FILE }} ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/modern/js-integrations "Device Mode Integrations (Modern)" ${{ env.INTEGRATIONS_ZIP_FILE }} ${{ inputs.base_cdn_url }}
 
           # Generate the HTML file to list all the plugins
-          ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/modern/plugins ${{ env.PLUGINS_HTML_FILE }} ${{ env.PLUGINS_ARTIFACTS_BASE_PATH }}/modern/plugins "Plugins" ${{ env.PLUGINS_ZIP_FILE }}
+          ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/modern/plugins ${{ env.PLUGINS_HTML_FILE }} ${{ env.PLUGINS_ARTIFACTS_BASE_PATH }}/modern/plugins "Plugins" ${{ env.PLUGINS_ZIP_FILE }} ${{ inputs.base_cdn_url }}
 
           # Copy the HTML files to S3
           aws s3 cp ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/legacy/js-integrations/${{ env.INTEGRATIONS_HTML_FILE }} $s3_path_prefix/legacy/js-integrations/${{ env.INTEGRATIONS_HTML_FILE }} --cache-control ${{ env.CACHE_CONTROL_MAX_AGE }}
@@ -252,12 +257,12 @@ jobs:
           aws s3 cp ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
 
           # Generate the HTML file to list all the integrations
-          ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/legacy/js-integrations ${{ env.INTEGRATIONS_HTML_FILE }} ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/legacy/js-integrations "Device Mode Integrations (Legacy)" ${{ env.INTEGRATIONS_ZIP_FILE }}
+          ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/legacy/js-integrations ${{ env.INTEGRATIONS_HTML_FILE }} ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/legacy/js-integrations "Device Mode Integrations (Legacy)" ${{ env.INTEGRATIONS_ZIP_FILE }} ${{ inputs.base_cdn_url }}
 
-          ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/modern/js-integrations ${{ env.INTEGRATIONS_HTML_FILE }} ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/modern/js-integrations "Device Mode Integrations (Modern)" ${{ env.INTEGRATIONS_ZIP_FILE }}
+          ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/modern/js-integrations ${{ env.INTEGRATIONS_HTML_FILE }} ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/modern/js-integrations "Device Mode Integrations (Modern)" ${{ env.INTEGRATIONS_ZIP_FILE }} ${{ inputs.base_cdn_url }}
 
           # Generate the HTML file to list all the plugins
-          ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/modern/plugins ${{ env.PLUGINS_HTML_FILE }} ${{ env.PLUGINS_ARTIFACTS_BASE_PATH }}/modern/plugins "Plugins" ${{ env.PLUGINS_ZIP_FILE }}
+          ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/modern/plugins ${{ env.PLUGINS_HTML_FILE }} ${{ env.PLUGINS_ARTIFACTS_BASE_PATH }}/modern/plugins "Plugins" ${{ env.PLUGINS_ZIP_FILE }} ${{ inputs.base_cdn_url }}
 
           # Copy the HTML files to S3
           aws s3 cp ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/legacy/js-integrations/${{ env.INTEGRATIONS_HTML_FILE }} $s3_path_prefix/legacy/js-integrations/${{ env.INTEGRATIONS_HTML_FILE }} --cache-control ${{ env.CACHE_CONTROL_MAX_AGE }}
@@ -283,10 +288,10 @@ jobs:
       - name: Send message to Slack channel
         id: slack
         continue-on-error: true
-        uses: slackapi/slack-github-action@b0fa283ad8fea605de13dc3f449259339835fc52  # v2.1.0
+        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a  # v2.1.1
         env:
           PROJECT_NAME: ${{ format('JS SDK Browser Package{0}', (inputs.environment == 'staging' && ' - Staging') || (inputs.environment == 'development' && ' - Development') || (inputs.environment == 'beta' && ' - Beta') || '') }}
-          CDN_URL: ${{ format('https://cdn.rudderlabs.com/{0}/modern/rsa.min.js', inputs.s3_dir_path) }}
+          CDN_URL: ${{ format('{0}/{1}/modern/rsa.min.js', inputs.base_cdn_url, inputs.s3_dir_path) }}
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js@'
           LINK_TEXT: ${{ (inputs.environment == 'development' && 'Development') || (inputs.environment == 'staging' && format('v{0} - Staging', env.CURRENT_VERSION_VALUE)) || format('v{0}', env.CURRENT_VERSION_VALUE) }}
           GITHUB_RUN_URL: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
@@ -340,7 +345,7 @@ jobs:
               ]
             }
 
-      - name: Post NPM packages publish notification to release thread
+      - name: Post Browser SDK publish notification to release thread
         continue-on-error: true
         if: ${{ steps.slack.outcome == 'success' && inputs.monorepo_release_version != '' && inputs.release_ticket_id != '' }}
         uses: ./.github/actions/release-thread-integration
@@ -350,6 +355,7 @@ jobs:
           slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
           deployment_name: 'JS SDK Browser Package'
           slack_api_response: ${{ steps.slack.outputs.response }}
+          custom_message: ${{ inputs.environment == 'production' && 'Proceed to perform post-release testing of your changes.' || inputs.environment == 'staging' && 'Proceed to perform pre-release testing of your changes.' || '' }}
 
       # All the below steps are for v1.1 SDK (legacy)
       - name: Copy legacy SDK artifacts to S3

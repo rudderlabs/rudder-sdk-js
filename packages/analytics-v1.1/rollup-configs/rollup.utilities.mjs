@@ -17,8 +17,9 @@ import alias from '@rollup/plugin-alias';
 import * as dotenv from 'dotenv';
 import { DEFAULT_EXTENSIONS } from '@babel/core';
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
+const baseCdnUrl = process.env.BASE_CDN_URL ? process.env.BASE_CDN_URL.replace(/\/+$/, '') : 'https://cdn.rudderlabs.com';
 const isContentScriptBuild = process.env.NO_EXTERNAL_HOST;
 let bugsnagSDKUrl = 'https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js';
 let polyfillIoUrl = 'https://polyfill-fastly.io/v3/polyfill.min.js';
@@ -54,7 +55,7 @@ export function getDefaultConfig(distName) {
 
   return {
     watch: {
-      include: ['src/**', '../analytics-js-common/src/**'],
+      include: ['src/**', '../analytics-js-legacy-utilities/src/**', '../analytics-js-integrations/src/**'],
     },
     external: [],
     onwarn(warning, warn) {
@@ -76,12 +77,17 @@ export function getDefaultConfig(distName) {
         __RS_POLYFILLIO_SDK_URL__: polyfillIoUrl,
         __RS_BUGSNAG_SDK_URL__: bugsnagSDKUrl,
         __RS_GOOGLE_ADS_SDK_URL__: googleAdsSDKUrl,
+        __BASE_CDN_URL__: baseCdnUrl,
       }),
       alias({
         entries: [
           {
-            find: '@rudderstack/analytics-js-common',
-            replacement: path.resolve('../analytics-js-common/src'),
+            find: '@rudderstack/analytics-js-legacy-utilities',
+            replacement: path.resolve('../analytics-js-legacy-utilities/src'),
+          },
+          {
+            find: '@rudderstack/analytics-js-integrations',
+            replacement: path.resolve('../analytics-js-integrations/src'),
           },
         ],
       }),

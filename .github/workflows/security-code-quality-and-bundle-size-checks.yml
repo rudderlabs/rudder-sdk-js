@@ -14,9 +14,11 @@ env:
   BASE_REF: ${{ github.event.pull_request.base.sha || 'HEAD' }}
 
 jobs:
-  bundle-size-checks:
-    name: Bundle size checks
+  get-affected-projects:
+    name: Get affected projects
     runs-on: [self-hosted, Linux, X64]
+    outputs:
+      affected_projects: ${{ steps.check_affected.outputs.affected_projects }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,21 +32,58 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
+      - name: Setup workspace
+        env:
+          HUSKY: 0
+        run: |
+          npm run setup:deps
+
+      - name: Check for affected projects
+        id: check_affected
+        run: |
+          AFFECTED_PROJECTS=$(npx nx show projects --affected --exclude=@rudderstack/analytics-js-sanity-suite --base=$BASE_REF | paste -sd ',' - | sed 's/,$//')
+          echo "Affected projects: $AFFECTED_PROJECTS"
+          echo "affected_projects=$AFFECTED_PROJECTS" >> $GITHUB_OUTPUT
+
+  bundle-size-checks:
+    name: Bundle size checks
+    runs-on: [self-hosted, Linux, X64]
+    needs: get-affected-projects
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Setup workspace
+        env:
+          HUSKY: 0
+        run: |
+          npm run setup:deps
+
       - name: Execute bundle size checks
-        uses: rudderlabs/github-action-check-size-limit@v2.13.0
+        uses: rudderlabs/github-action-check-size-limit@v3.0.0
+        if: ${{ needs.get-affected-projects.outputs.affected_projects != '' }}
         env:
           HUSKY: 0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          install_script: setup:ci
-          build_script: check:size:build
-          script: npm run check:size:json:ci --silent -- --output-style=static --silent=true --exclude=@rudderstack/analytics-js-sanity-suite
+          install_script: npm run setup:ci
+          build_script: npm run check:size:build -- --projects=${{ needs.get-affected-projects.outputs.affected_projects }}
+          script: npm run check:size:json:ci --silent -- --output-style=static --silent=true --projects=${{ needs.get-affected-projects.outputs.affected_projects }}
           is_monorepo: true
 
-  security-code-quality-checks:
-    name: Security and code quality checks
+  code-quality-checks:
+    name: Code quality checks
     runs-on: [self-hosted, Linux, X64]
-
+    needs: get-affected-projects
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -64,11 +103,6 @@ jobs:
         run: |
           npm run setup:ci
 
-      - name: Execute code quality checks
-        run: |
-          npm run check:circular
-          npm run check:duplicates
-
       - name: Build the project
         run: |
           npm run build:ci
@@ -77,6 +111,34 @@ jobs:
       - name: Execute package linting checks
         run: |
           npm run check:pub:ci
+
+      - name: Execute code quality checks
+        if: ${{ needs.get-affected-projects.outputs.affected_projects != '' }}
+        run: |
+          npm run check:circular -- --projects=${{ needs.get-affected-projects.outputs.affected_projects }}
+          npm run check:duplicates -- --projects=${{ needs.get-affected-projects.outputs.affected_projects }}
+
+  security-checks:
+    name: Security checks
+    runs-on: [self-hosted, Linux, X64]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Setup workspace
+        env:
+          HUSKY: 0
+        run: |
+          npm run setup:deps
 
       - name: Execute security checks
         run: |

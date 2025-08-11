@@ -15,18 +15,20 @@
 /* eslint-disable sonarjs/cognitive-complexity */
 import Emitter from 'component-emitter';
 import * as R from 'ramda';
-import { configToIntNames } from '@rudderstack/analytics-js-common/constants/integrations/config_to_integration_names';
-import { commonNames } from '@rudderstack/analytics-js-common/constants/integrations/integration_cname';
-import { handleError } from '@rudderstack/analytics-js-common/v1.1/utils/errorHandler';
+import { configToIntNames } from '@rudderstack/analytics-js-legacy-utilities/config_to_integration_names';
+import { commonNames } from '../constants/integrations/integration_cname';
+import { handleError } from '../utils/errorHandler';
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
-} from '@rudderstack/analytics-js-common/v1.1/utils/constants';
-import { Storage } from '@rudderstack/analytics-js-common/v1.1/utils/storage';
-import { logger } from '@rudderstack/analytics-js-common/v1.1/utils/logUtil';
-import { ScriptLoader } from '@rudderstack/analytics-js-common/v1.1/utils/ScriptLoader';
-import { isNonEmptyObject } from '@rudderstack/analytics-js-common/utilities/object';
-import { isSDKRunningInChromeExtension } from '@rudderstack/analytics-js-common/utilities/detect';
+} from '@rudderstack/analytics-js-legacy-utilities/constants';
+import { Storage } from '@rudderstack/analytics-js-legacy-utilities/storage';
+import { logger } from '@rudderstack/analytics-js-legacy-utilities/logUtil';
+import { ScriptLoader } from '@rudderstack/analytics-js-legacy-utilities/ScriptLoader';
+import {
+  isNonEmptyObject,
+  isSDKRunningInChromeExtension,
+} from '@rudderstack/analytics-js-legacy-utilities/ObjectUtils';
 import {
   getJSONTrimmed,
   generateUUID,
@@ -698,17 +700,17 @@ class Analytics {
       this.toBeProcessedArray.push(['page', ...arguments]);
       return;
     }
-    if (typeof options === 'function') (callback = options), (options = null);
-    if (typeof properties === 'function') (callback = properties), (options = properties = null);
-    if (typeof name === 'function') (callback = name), (options = properties = name = null);
+    if (typeof options === 'function') ((callback = options), (options = null));
+    if (typeof properties === 'function') ((callback = properties), (options = properties = null));
+    if (typeof name === 'function') ((callback = name), (options = properties = name = null));
     if (typeof category === 'function')
-      (callback = category), (options = properties = name = category = null);
+      ((callback = category), (options = properties = name = category = null));
     if (typeof category === 'object' && category != null && category != undefined)
-      (options = name), (properties = category), (name = category = null);
+      ((options = name), (properties = category), (name = category = null));
     if (typeof name === 'object' && name != null && name != undefined)
-      (options = properties), (properties = name), (name = null);
+      ((options = properties), (properties = name), (name = null));
     if (typeof category === 'string' && typeof name !== 'string')
-      (name = category), (category = null);
+      ((name = category), (category = null));
     if (this.sendAdblockPage && category !== 'RudderJS-Initiated') {
       this.sendSampleRequest();
     }
@@ -746,9 +748,9 @@ class Analytics {
       this.toBeProcessedArray.push(['track', ...arguments]);
       return;
     }
-    if (typeof options === 'function') (callback = options), (options = null);
+    if (typeof options === 'function') ((callback = options), (options = null));
     if (typeof properties === 'function')
-      (callback = properties), (options = null), (properties = null);
+      ((callback = properties), (options = null), (properties = null));
 
     const clonedProperties = R.clone(properties);
     const clonedOptions = R.clone(options);
@@ -777,9 +779,9 @@ class Analytics {
       this.toBeProcessedArray.push(['identify', ...arguments]);
       return;
     }
-    if (typeof options === 'function') (callback = options), (options = null);
-    if (typeof traits === 'function') (callback = traits), (options = null), (traits = null);
-    if (typeof userId === 'object') (options = traits), (traits = userId), (userId = this.userId);
+    if (typeof options === 'function') ((callback = options), (options = null));
+    if (typeof traits === 'function') ((callback = traits), (options = null), (traits = null));
+    if (typeof userId === 'object') ((options = traits), (traits = userId), (userId = this.userId));
 
     const normalisedUserId = getStringId(userId);
     if (normalisedUserId && this.userId && normalisedUserId !== this.userId) {
@@ -815,11 +817,11 @@ class Analytics {
       this.toBeProcessedArray.push(['alias', ...arguments]);
       return;
     }
-    if (typeof options === 'function') (callback = options), (options = null);
-    if (typeof from === 'function') (callback = from), (options = null), (from = null);
-    if (typeof to === 'function') (callback = to), (options = null), (from = null), (to = null);
-    if (typeof from === 'object') (options = from), (from = null);
-    if (typeof to === 'object') (options = to), (from = null), (to = null);
+    if (typeof options === 'function') ((callback = options), (options = null));
+    if (typeof from === 'function') ((callback = from), (options = null), (from = null));
+    if (typeof to === 'function') ((callback = to), (options = null), (from = null), (to = null));
+    if (typeof from === 'object') ((options = from), (from = null));
+    if (typeof to === 'object') ((options = to), (from = null), (to = null));
 
     const rudderElement = new RudderElementBuilder().setType('alias').build();
 
@@ -846,12 +848,12 @@ class Analytics {
     }
     if (arguments.length === 0) return;
 
-    if (typeof options === 'function') (callback = options), (options = null);
-    if (typeof traits === 'function') (callback = traits), (options = null), (traits = null);
+    if (typeof options === 'function') ((callback = options), (options = null));
+    if (typeof traits === 'function') ((callback = traits), (options = null), (traits = null));
     if (typeof groupId === 'object')
-      (options = traits), (traits = groupId), (groupId = this.groupId);
+      ((options = traits), (traits = groupId), (groupId = this.groupId));
     if (typeof groupId === 'function')
-      (callback = groupId), (options = null), (traits = null), (groupId = this.groupId);
+      ((callback = groupId), (options = null), (traits = null), (groupId = this.groupId));
 
     this.groupId = getStringId(groupId);
     this.storage.setGroupId(this.groupId);
@@ -1211,7 +1213,7 @@ class Analytics {
 
   isDatasetAvailable() {
     const t = document.createElement('div');
-    return t.setAttribute('data-a-b', 'c'), t.dataset ? t.dataset.aB === 'c' : false;
+    return (t.setAttribute('data-a-b', 'c'), t.dataset ? t.dataset.aB === 'c' : false);
   }
 
   /**

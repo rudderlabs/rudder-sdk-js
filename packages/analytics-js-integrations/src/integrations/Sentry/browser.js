@@ -1,9 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/Sentry/constants';
+import { NAME, DISPLAY_NAME } from './constants';
 import Logger from '../../utils/logger';
 import { SentryScriptLoader, sentryInit } from './utils';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';

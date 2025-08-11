@@ -131,6 +131,40 @@ jobs:
           # Restore working copy
           git checkout -- .nxignore
 
+      - name: Mark analytics-js as latest release
+        id: mark_latest_release
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get the analytics-js package version from package.json
+          ANALYTICS_JS_VERSION=$(jq -r '.version' packages/analytics-js/package.json)
+          RELEASE_TAG="@rudderstack/analytics-js@${ANALYTICS_JS_VERSION}"
+          
+          echo "Looking for release: $RELEASE_TAG"
+          
+          # Wait for the release to be available and retry up to 10 times
+          for i in {1..10}; do
+            echo "Attempt $i: Checking if release $RELEASE_TAG exists..."
+            
+            if gh release view "$RELEASE_TAG" > /dev/null 2>&1; then
+              echo "Release found! Marking $RELEASE_TAG as latest..."
+              
+              if gh release edit "$RELEASE_TAG" --latest; then
+                echo "Successfully marked $RELEASE_TAG as the latest release"
+                exit 0
+              else
+                echo "Failed to mark release as latest, but release exists"
+                exit 1
+              fi
+            else
+              echo "Release $RELEASE_TAG not found yet, waiting 10 seconds..."
+              sleep 10
+            fi
+          done
+          
+          echo "ERROR: Release $RELEASE_TAG was not found after 10 attempts"
+
       - name: Create pull request into develop
         if: always()
         continue-on-error: true
@@ -166,7 +200,7 @@ jobs:
         id: slack
         if: always()
         continue-on-error: true
-        uses: slackapi/slack-github-action@b0fa283ad8fea605de13dc3f449259339835fc52  # v2.1.0
+        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a  # v2.1.1
         env:
           PROJECT_NAME: 'JS SDK Monorepo'
           TAG_COMPARE_URL: 'https://github.com/rudderlabs/rudder-sdk-js/compare/'

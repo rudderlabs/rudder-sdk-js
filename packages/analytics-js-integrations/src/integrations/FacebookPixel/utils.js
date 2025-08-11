@@ -1,11 +1,8 @@
 import is from 'is';
 import get from 'get-value';
 import sha256 from 'crypto-js/sha256';
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/FacebookPixel/constants';
-import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import { NAME, DISPLAY_NAME } from './constants';
+import { isDefined } from '@rudderstack/analytics-js-legacy-utilities/ObjectUtils';
 import Logger from '../../utils/logger';
 
 const logger = new Logger(DISPLAY_NAME);
@@ -114,10 +111,15 @@ const buildPayLoad = (
 
   const { properties } = rudderElement.message;
 
+  // Add null/undefined check for properties before calling Object.entries
+  if (!properties || typeof properties !== 'object') {
+    return {};
+  }
+
   const payload = Object.entries(properties).reduce((acc, [currPropName, currPropValue]) => {
     const isPropertyPii =
       defaultPiiProperties.includes(currPropName) ||
-      Object.prototype.hasOwnProperty.call(shouldPropBeHashedMap, currPropName);
+      Object.hasOwn(shouldPropBeHashedMap, currPropName);
 
     const isProperyWhiteListed = whitelistPiiPropertiesNames.includes(currPropName);
 
@@ -145,20 +147,21 @@ const buildPayLoad = (
 const merge = (obj1, obj2) => {
   const res = {};
 
+  // Add null/undefined checks for obj1 and obj2
+  const safeObj1 = obj1 && typeof obj1 === 'object' ? obj1 : {};
+  const safeObj2 = obj2 && typeof obj2 === 'object' ? obj2 : {};
+
   // All properties of obj1
-  Object.keys(obj1).forEach(propObj1 => {
-    if (Object.prototype.hasOwnProperty.call(obj1, propObj1)) {
-      res[propObj1] = obj1[propObj1];
+  Object.keys(safeObj1).forEach(propObj1 => {
+    if (Object.hasOwn(safeObj1, propObj1)) {
+      res[propObj1] = safeObj1[propObj1];
     }
   });
 
   // Extra properties of obj2
-  Object.keys(obj2).forEach(propObj2 => {
-    if (
-      Object.prototype.hasOwnProperty.call(obj2, propObj2) &&
-      !Object.prototype.hasOwnProperty.call(res, propObj2)
-    ) {
-      res[propObj2] = obj2[propObj2];
+  Object.keys(safeObj2).forEach(propObj2 => {
+    if (Object.hasOwn(safeObj2, propObj2) && !Object.hasOwn(res, propObj2)) {
+      res[propObj2] = safeObj2[propObj2];
     }
   });
 
@@ -206,10 +209,13 @@ const getContentType = (rudderElement, defaultValue, categoryToContent) => {
 
   // Otherwise check if there is a replacement set for all Facebook Pixel
   // track calls of this category
-  const { category } = rudderElement.message.properties;
-  if (category) {
-    const categoryMapping = categoryToContent?.find(i => i.from === category);
-    if (categoryMapping?.to) return categoryMapping.to;
+  const properties = rudderElement.message.properties;
+  if (properties && typeof properties === 'object') {
+    const { category } = properties;
+    if (category) {
+      const categoryMapping = categoryToContent?.find(i => i.from === category);
+      if (categoryMapping?.to) return categoryMapping.to;
+    }
   }
 
   // Otherwise return the default value
@@ -285,6 +291,11 @@ const getProductContentAndId = (prodId, quantity, price) => {
  * @returns
  */
 const getProductListViewedEventParams = properties => {
+  // Add null/undefined check for properties
+  if (!properties || typeof properties !== 'object') {
+    return {};
+  }
+
   let { products, category, quantity, price } = properties;
   if (!Array.isArray(products)) {
     products = [products];

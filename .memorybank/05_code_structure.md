@@ -39,6 +39,7 @@ packages/
   analytics-js-integrations/   # Device mode integrations for third-party destinations
   analytics-js-cookies/        # Cookie utilities for browser and Node.js
   analytics-js-common/         # Shared code and utilities for SDK packages
+  analytics-js-legacy-utilities/ # Legacy utilities package for shared code
   sanity-suite/                # Sanity suite for manual and automated testing
   loading-scripts/             # Loading script snippets for SDK initialization
   analytics-v1.1/              # Deprecated legacy SDK (for migration only)
@@ -86,6 +87,8 @@ packages/
 
 - **Purpose:** Device mode integrations for third-party destinations.
 - **Usage:** Bundled or loaded as needed to support direct client-side integrations.
+- **Structure:** Each integration has its own directory with `constants.js`, integration logic, and tests.
+- **Constants Pattern:** Each integration exports `NAME`, `DISPLAY_NAME`, `DIR_NAME`, and integration-specific constants.
 
 ### `analytics-js-cookies`
 
@@ -95,6 +98,12 @@ packages/
 ### `analytics-js-common`
 
 - **Purpose:** Shared code and utilities used by other SDK packages (analytics, plugins, integrations, service worker).
+
+### `analytics-js-legacy-utilities`
+
+- **Purpose:** Shared utilities for common code between integrations and analytics-v1.1 packages.
+- **Package Name:** `@rudderstack/analytics-js-legacy-utilities`
+- **Status:** Active package with complete NX setup (package.json, project.json, TypeScript configs, tests, etc.).
 
 ### `sanity-suite`
 

@@ -1,9 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/Amplitude/constants';
+import { NAME, DISPLAY_NAME } from './constants';
 import { isDefinedAndNotNullAndNotEmpty } from '../../utils/commonUtils';
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';

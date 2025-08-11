@@ -1,6 +1,6 @@
 /* eslint-disable guard-for-in */
-import { isEmptyObject } from '@rudderstack/analytics-js-common/v1.1/utils/ObjectUtils';
-import { DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/GA4/constants';
+import { isEmptyObject } from '@rudderstack/analytics-js-legacy-utilities/ObjectUtils';
+import { DISPLAY_NAME } from './constants';
 import Logger from '../../utils/logger';
 import {
   eventsConfig,

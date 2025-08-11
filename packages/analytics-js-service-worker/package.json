@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-service-worker",
-  "version": "3.2.27",
+  "version": "3.3.0",
   "description": "RudderStack JavaScript Service Worker SDK",
   "main": "dist/npm/modern/cjs/index.cjs",
   "module": "dist/npm/modern/esm/index.mjs",
@@ -93,7 +93,7 @@
     "@rudderstack/analytics-js-common": "*",
     "@vespaiach/axios-fetch-adapter": "0.3.1",
     "assert": "2.1.0",
-    "axios": "1.10.0",
+    "axios": "1.11.0",
     "axios-retry": "4.5.0",
     "component-type": "2.0.0",
     "join-component": "1.1.0",
@@ -102,28 +102,17 @@
   },
   "devDependencies": {
     "@types/ms": "2.1.0",
-    "@types/node": "24.0.10",
+    "@types/node": "24.1.0",
     "jest-date-mock": "1.0.10"
   },
   "overrides": {},
   "browserslist": {
     "production": [
-      "defaults",
-      "Edge >= 80",
-      "Firefox >= 47",
-      "IE >= 11",
-      "Chrome >= 54",
-      "Safari >= 7",
-      "Opera >= 43"
+      "> 0.1%",
+      "IE >= 11"
     ],
     "modern": [
-      "defaults and supports es6-module-dynamic-import"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 edge version",
-      "last 1 safari version"
+      "defaults and supports es6-module-dynamic-import and not dead"
     ]
   }
 }

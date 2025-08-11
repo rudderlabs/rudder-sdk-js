@@ -17,6 +17,14 @@ inputs:
   slack_api_response:
     description: 'JSON response from Slack API containing message details'
     required: true
+  slack_slugs:
+    description: 'Slack slugs for CC'
+    required: false
+    default: '<!subteam^S0555JBV36D> <!subteam^S03SW7DM8P3> <!subteam^S03SHJ20350>'
+  custom_message:
+    description: 'Custom message to post to the release thread'
+    required: false
+    default: ''
 
 outputs:
   has_thread_info:
@@ -35,14 +43,6 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - name: Download release info artifact
-      id: download-release-info
-      continue-on-error: true
-      uses: actions/download-artifact@v4
-      with:
-        name: release-info-v${{ inputs.monorepo_release_version }}-${{ inputs.release_ticket_id }}
-        path: release-info/
-
     - name: Ensure jq is installed
       shell: bash
       run: |
@@ -67,6 +67,97 @@ runs:
         else
           echo "jq is already installed"
           jq --version
+        fi
+
+    - name: Download release info artifact from original workflow
+      id: download-release-info
+      continue-on-error: true
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+        REPO: ${{ github.repository }}
+        ARTIFACT_NAME: release-info-v${{ inputs.monorepo_release_version }}-${{ inputs.release_ticket_id }}
+      run: |
+        # Create directory for artifact
+        mkdir -p release-info
+        
+        # Find the workflow run that created this artifact
+        # Look for the draft-new-release workflow runs
+        echo "Searching for artifact: $ARTIFACT_NAME"
+        
+        # Get the workflow ID for draft-new-release
+        workflow_response=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+          "https://api.github.com/repos/$REPO/actions/workflows/draft-new-release.yml")
+        
+        workflow_id=$(echo "$workflow_response" | jq -r '.id')
+        
+        if [ "$workflow_id" = "null" ] || [ -z "$workflow_id" ]; then
+          echo "Could not find draft-new-release workflow"
+          echo "Response: $workflow_response"
+          exit 1
+        fi
+        
+        echo "Found workflow ID: $workflow_id"
+        
+        # Get recent workflow runs (last 50 runs, completed status)
+        runs_response=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+          "https://api.github.com/repos/$REPO/actions/workflows/$workflow_id/runs?per_page=50&status=completed")
+        
+        if [ "$(echo "$runs_response" | jq -r '.total_count')" = "0" ]; then
+          echo "No completed workflow runs found"
+          exit 1
+        fi
+        
+        # Find the run that has our artifact
+        artifact_found=false
+        run_count=$(echo "$runs_response" | jq -r '.workflow_runs | length')
+        echo "Checking $run_count workflow runs for artifact..."
+        
+        for i in $(seq 0 $((run_count - 1))); do
+          run_id=$(echo "$runs_response" | jq -r ".workflow_runs[$i].id")
+          run_name=$(echo "$runs_response" | jq -r ".workflow_runs[$i].name")
+          run_created=$(echo "$runs_response" | jq -r ".workflow_runs[$i].created_at")
+          
+          echo "Checking run $run_id ($run_name) created at $run_created..."
+          
+          artifacts_response=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            "https://api.github.com/repos/$REPO/actions/runs/$run_id/artifacts")
+          
+          # Check if the response contains our artifact
+          artifact_exists=$(echo "$artifacts_response" | jq -r ".artifacts[] | select(.name == \"$ARTIFACT_NAME\") | .name // empty")
+          
+          if [ "$artifact_exists" = "$ARTIFACT_NAME" ]; then
+            echo "Found artifact in run $run_id"
+            artifact_id=$(echo "$artifacts_response" | jq -r ".artifacts[] | select(.name == \"$ARTIFACT_NAME\") | .id")
+            
+            # Download the artifact
+            download_response=$(curl -L -w "%{http_code}" -H "Authorization: token $GITHUB_TOKEN" \
+              "https://api.github.com/repos/$REPO/actions/artifacts/$artifact_id/zip" \
+              -o release-info.zip)
+            
+            http_code="${download_response: -3}"
+            if [ "$http_code" = "200" ]; then
+              # Extract the artifact
+              unzip -o release-info.zip -d release-info/
+              rm release-info.zip
+              
+              echo "Successfully downloaded and extracted artifact"
+              artifact_found=true
+              break
+            else
+              echo "Failed to download artifact, HTTP code: $http_code"
+            fi
+          fi
+        done
+        
+        if [ "$artifact_found" = false ]; then
+          echo "Artifact $ARTIFACT_NAME not found in recent workflow runs"
+          echo "This could mean:"
+          echo "1. The artifact has expired (artifacts expire after 90 days)"
+          echo "2. The artifact was never created"
+          echo "3. The artifact name doesn't match"
+          
+          exit 1
         fi
 
     - name: Extract release info
@@ -141,13 +232,13 @@ runs:
           {
             "channel": "${{ steps.extract-info.outputs.channel_id }}",
             "thread_ts": "${{ steps.extract-info.outputs.thread_ts }}",
-            "text": ":white_check_mark: ${{ inputs.deployment_name }} deployment completed: <${{ steps.extract-message-url.outputs.message_url }}|View deployment details>\n\nCC: <!subteam^S0555JBV36D> <!subteam^S03SW7DM8P3> <!subteam^S03SHJ20350>",
+            "text": ":white_check_mark: ${{ inputs.deployment_name }} deployment completed: <${{ steps.extract-message-url.outputs.message_url }}|View deployment details>\n\nCC: ${{ inputs.slack_slugs }}",
             "blocks": [
               {
                 "type": "section",
                 "text": {
                   "type": "mrkdwn",
-                  "text": ":white_check_mark: *${{ inputs.deployment_name }} deployment completed*\n<${{ steps.extract-message-url.outputs.message_url }}|View deployment details>\n\nCC: <!subteam^S0555JBV36D> <!subteam^S03SW7DM8P3> <!subteam^S03SHJ20350>"
+                  "text": ":white_check_mark: *${{ inputs.deployment_name }} deployment completed*${{ inputs.custom_message != '' && format('\n\n{0}', inputs.custom_message) || '' }}\n<${{ steps.extract-message-url.outputs.message_url }}|View deployment details>\n\nCC: ${{ inputs.slack_slugs }}"
                 }
               }
             ]

@@ -1,6 +1,6 @@
 #!/bin/bash
 # List of package folders
-projectFolderNames=("analytics-js" "analytics-js-common" "analytics-js-integrations" "analytics-js-plugins" "analytics-js-service-worker" "analytics-v1.1" "loading-scripts" "analytics-js-cookies")
+projectFolderNames=("analytics-js" "analytics-js-common" "analytics-js-integrations" "analytics-js-plugins" "analytics-js-service-worker" "analytics-v1.1" "loading-scripts" "analytics-js-cookies" "analytics-js-legacy-utilities")
 
 for projectFolder in "${projectFolderNames[@]}"; do
   # Set of package project name

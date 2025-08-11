@@ -1,9 +1,6 @@
 /* eslint-disable class-methods-use-this */
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/QuoraPixel/constants';
-import { isDefinedAndNotNull } from '@rudderstack/analytics-js-common/utilities/checks';
+import { NAME, DISPLAY_NAME } from './constants';
+import { isDefinedAndNotNull } from '@rudderstack/analytics-js-legacy-utilities/ObjectUtils';
 import Logger from '../../utils/logger';
 import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
 import { loadNativeSdk } from './nativeSdkLoader';

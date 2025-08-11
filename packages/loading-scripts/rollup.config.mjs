@@ -8,7 +8,7 @@ import livereload from 'rollup-plugin-livereload';
 import serve from 'rollup-plugin-serve';
 import * as dotenv from 'dotenv';
 
-dotenv.config();
+dotenv.config({ quiet: true });
 const outDirRoot = `dist`;
 const distName = 'loading-script';
 const modName = 'script';
@@ -37,7 +37,7 @@ export function getDefaultConfig(distName) {
         preventAssignment: true,
         __WRITE_KEY__: process.env.WRITE_KEY,
         __DATAPLANE_URL__: process.env.DATAPLANE_URL,
-        __PACKAGE_VERSION__: version,
+        __PACKAGE_VERSION__: `'${version}'`,
       }),
       typescript({
         tsconfig: './tsconfig.json',

@@ -8,6 +8,7 @@
     { "path": "./packages/analytics-v1.1/tsconfig.json" },
     { "path": "./packages/loading-scripts/tsconfig.json" },
     { "path": "./packages/sanity-suite/tsconfig.json" },
-    { "path": "./packages/analytics-js-cookies/tsconfig.json" }
+    { "path": "./packages/analytics-js-cookies/tsconfig.json" },
+    { "path": "./packages/analytics-js-legacy-utilities/tsconfig.json" }
   ]
 }

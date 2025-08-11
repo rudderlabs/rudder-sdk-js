@@ -9,6 +9,10 @@ on:
       use_pr_head_sha:
         type: boolean
         default: false
+      base_cdn_url:
+        type: string
+        required: false
+        default: 'https://cdn.rudderlabs.com'
       beta_identifier:
         type: string
         required: false
@@ -99,10 +103,10 @@ jobs:
           fi
 
       - name: Install AWS CLI
-        uses: unfor19/install-aws-cli-action@2ff7a6968c81b173eaaef188869215870f44902b  # master
+        uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c  # master
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@b47578312673ae6fa5b5096b330d9fbac3d116df  # v4.2.1
+        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a  # v4.3.1
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_S3_SYNC_ROLE }}
           aws-region: us-east-1
@@ -116,7 +120,7 @@ jobs:
       - name: Setup workspace
         env:
           HUSKY: 0
-          REMOTE_MODULES_BASE_PATH: 'https://cdn.rudderlabs.com/${{ env.SDK_CDN_VERSION_PATH_PREFIX }}v3/modern/plugins'
+          REMOTE_MODULES_BASE_PATH: '${{ inputs.base_cdn_url }}/${{ env.SDK_CDN_VERSION_PATH_PREFIX }}v3/modern/plugins'
           BUGSNAG_RELEASE_STAGE: ${{ env.BUGSNAG_RELEASE_STAGE }}
           BUGSNAG_API_KEY: ${{ secrets.BUGSNAG_API_KEY }}
           LOCK_DEPS_VERSION: ${{ inputs.environment == 'production' && 'true' || 'false' }}
@@ -129,6 +133,7 @@ jobs:
           DATAPLANE_URL: ${{ secrets.SANITY_SUITE_DATAPLANE_URL }}
           CONFIG_SERVER_HOST: ${{ secrets.SANITY_SUITE_CONFIG_SERVER_HOST }}
           SDK_CDN_VERSION_PATH_PREFIX: ${{ env.SDK_CDN_VERSION_PATH_PREFIX }}
+          BASE_CDN_URL: ${{ inputs.base_cdn_url }}
           HUSKY: 0
         run: |
           npm run build:sanity
@@ -153,11 +158,11 @@ jobs:
 
       - name: Send message to Slack channel
         id: slack
-        uses: slackapi/slack-github-action@b0fa283ad8fea605de13dc3f449259339835fc52  # v2.1.0
+        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a  # v2.1.1
         continue-on-error: true
         env:
           PROJECT_NAME: ${{ format('Sanity Suite - {0}', (inputs.environment == 'production' && 'Production') || (inputs.environment == 'staging' && 'Staging') || (inputs.environment == 'development' && 'Development') || 'Beta') }}
-          CDN_URL: 'https://cdn.rudderlabs.com/sanity-suite${{ env.SUITE_CDN_PATH }}/v3/cdn/index.html'
+          CDN_URL: '${{ inputs.base_cdn_url }}/sanity-suite${{ env.SUITE_CDN_PATH }}/v3/cdn/index.html'
           LINK_TEXT: ${{ ((inputs.environment == 'development' && format('v{0} - Development', env.CURRENT_VERSION_VALUE)) || (inputs.environment == 'staging' && format('v{0} - Staging', env.CURRENT_VERSION_VALUE)) || (inputs.environment == 'beta' && format('v{0} - Beta', env.CURRENT_VERSION_VALUE)) || format('v{0}', env.CURRENT_VERSION_VALUE)) }}
           GITHUB_RUN_URL: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
           ACTOR_URL: ${{ format('{0}/{1}', github.server_url, github.actor) }}
@@ -220,3 +225,4 @@ jobs:
           slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
           deployment_name: 'Sanity Suite'
           slack_api_response: ${{ steps.slack.outputs.response }}
+          slack_slugs: '<!subteam^S0555JBV36D> <!subteam^S03SW7DM8P3>'

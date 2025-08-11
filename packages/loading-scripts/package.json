@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-loading-scripts",
-  "version": "3.0.60",
+  "version": "3.1.0",
   "private": true,
   "description": "Loading script for RudderStack JavaScript SDK",
   "main": "./src/index.ts",
@@ -48,19 +48,11 @@
   "overrides": {},
   "browserslist": {
     "production": [
-      "defaults",
-      "Edge >= 80",
-      "Firefox >= 47",
-      "IE >= 11",
-      "Chrome >= 54",
-      "Safari >= 7",
-      "Opera >= 43"
+      "> 0.1%",
+      "IE >= 11"
     ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 edge version",
-      "last 1 safari version"
+    "modern": [
+      "defaults and supports es6-module-dynamic-import and not dead"
     ]
   }
 }

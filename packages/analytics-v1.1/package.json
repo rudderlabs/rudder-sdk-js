@@ -1,6 +1,6 @@
 {
   "name": "rudder-sdk-js",
-  "version": "2.51.4",
+  "version": "2.52.1",
   "description": "RudderStack JavaScript SDK",
   "main": "dist/npm/index.js",
   "module": "dist/npm/index.es.js",
@@ -82,7 +82,8 @@
     "directory": "packages/analytics-v1.1"
   },
   "dependencies": {
-    "@rudderstack/analytics-js-common": "*",
+    "@rudderstack/analytics-js-integrations": "*",
+    "@rudderstack/analytics-js-legacy-utilities": "*",
     "get-value": "4.0.1",
     "ramda": "0.31.3",
     "component-emitter": "2.0.0",
@@ -103,12 +104,6 @@
     ],
     "modern": [
       "defaults"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 edge version",
-      "last 1 safari version"
     ]
   }
 }

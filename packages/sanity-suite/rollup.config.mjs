@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import { readdir } from 'fs/promises';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
@@ -12,12 +11,13 @@ import copy from 'rollup-plugin-copy';
 import typescript from 'rollup-plugin-typescript2';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
 import { DEFAULT_EXTENSIONS } from '@babel/core';
+import del from 'rollup-plugin-delete';
 import * as dotenv from 'dotenv';
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 const SERVER_PORT = 3003;
-const BASE_CDN_URL = 'https://cdn.rudderlabs.com';
+const baseCdnUrl = process.env.BASE_CDN_URL ? process.env.BASE_CDN_URL.replace(/\/+$/, '') : 'https://cdn.rudderlabs.com';
 const DEFAULT_SDK_VERSION = 'v3';
 
 const sdkVersion = process.env.SDK_VERSION || DEFAULT_SDK_VERSION;
@@ -27,6 +27,9 @@ const isDMT = process.env.IS_DMT === 'true';
 const isDevEnvTestBook = process.env.IS_DEV_TESTBOOK === 'true';
 const distributionType = process.env.DISTRIBUTION_TYPE || 'cdn';
 const buildType = process.env.BUILD_TYPE || 'legacy';
+
+const randomId = Math.random().toString(36).slice(2, 10);
+const declarationDir = `./dist/dts-${sdkVersion}-${distributionType}-${randomId}`;
 
 const getDirectoryNames = async sourcePath =>
   (await readdir(sourcePath, { withFileTypes: true }))
@@ -74,10 +77,10 @@ const getDestinationSDKBaseURL = () => {
       return ''; // This is automatically determined in the HTML page
     case 'npm':
       return isLegacySdk
-        ? `${BASE_CDN_URL}/${cdnVersionPath}/js-integrations/`
-        : `${BASE_CDN_URL}/${cdnVersionPath}/${buildType}/js-integrations/`;
+        ? `${baseCdnUrl}/${cdnVersionPath}/js-integrations/`
+        : `${baseCdnUrl}/${cdnVersionPath}/${buildType}/js-integrations/`;
     case 'npm_bundled':
-      return `${BASE_CDN_URL}/${cdnVersionPath}/${buildType}/js-integrations/`;
+      return `${baseCdnUrl}/${cdnVersionPath}/${buildType}/js-integrations/`;
     default:
       return `http://localhost:${SERVER_PORT}/js-integrations/`;
   }
@@ -94,26 +97,20 @@ const getPluginsBaseURL = () => {
     case 'npm_bundled':
       return ''; // This is not needed for npm_bundled
     case 'npm':
-      return `${BASE_CDN_URL}/${cdnVersionPath}/${buildType}/plugins/`;
+      return `${baseCdnUrl}/${cdnVersionPath}/${buildType}/plugins/`;
     default:
       return `http://localhost:${SERVER_PORT}/plugins/`;
   }
 };
 
 const getCopyTargets = () => {
-  // Always copy the all/index.html aggregator file
-  const allAggregatorCopy = {
-    src: 'public/all/index.html',
-    dest: 'dist/all',
-    rename: 'index.html'
-  };
-
+  // Remove the allAggregatorCopy from copy targets; it will be handled by htmlTemplate now
   switch (distributionType) {
     case 'cdn':
-      return [allAggregatorCopy];
+      return [];
     case 'npm':
     case 'npm_bundled':
-      return [allAggregatorCopy];
+      return [];
     default:
       const baseCopyTargets = isLegacySdk
         ? [
@@ -152,8 +149,7 @@ const getCopyTargets = () => {
               dest: `${getDistPath()}/plugins`,
             },
           ];
-      
-      return [...baseCopyTargets, allAggregatorCopy];
+      return baseCopyTargets;
   }
 };
 
@@ -174,8 +170,8 @@ const getBuildConfig = featureName => ({
   plugins: [
     replace({
       preventAssignment: true,
-      __PACKAGE_VERSION__: sdkVersion,
-      __MODULE_TYPE__: distributionType,
+      __PACKAGE_VERSION__: `'${sdkVersion}'`,
+      __MODULE_TYPE__: `'${distributionType}'`,
       WRITE_KEY: process.env.WRITE_KEY,
       DATA_PLANE_URL: process.env.DATAPLANE_URL,
       CONFIG_SERVER_HOST: process.env.CONFIG_SERVER_HOST,
@@ -202,6 +198,7 @@ const getBuildConfig = featureName => ({
     typescript({
       tsconfig: './tsconfig.json',
       useTsconfigDeclarationDir: true,
+      tsconfigOverride: { compilerOptions: { declarationDir } },
     }),
     babel({
       inputSourceMap: true,
@@ -225,6 +222,43 @@ const getBuildConfig = featureName => ({
         __CONFIG_SERVER_HOST__: process.env.CONFIG_SERVER_HOST || '',
         __DEST_SDK_BASE_URL__: getDestinationSDKBaseURL(),
         __PLUGINS_SDK_BASE_URL__: getPluginsBaseURL(),
+        __BASE_CDN_URL__: baseCdnUrl,
+        __CDN_VERSION_PATH__: `${cdnVersionPath}` || '',
+        __FEATURE__: featureName,
+        __IS_DEV_TESTBOOK__: isDevEnvTestBook,
+        __IS_DMT__: isDMT,
+      },
+    }),
+    // Dedicated htmlTemplate for all/index.html aggregator (only in main build config)
+    !featureName && htmlTemplate({
+      template: 'public/all/index.html',
+      target: 'dist/all/index.html',
+      noInject: true,
+      replaceVars: {
+        __WRITE_KEY__: process.env.WRITE_KEY,
+        __DATAPLANE_URL__: process.env.DATAPLANE_URL,
+        __CONFIG_SERVER_HOST__: process.env.CONFIG_SERVER_HOST || '',
+        __DEST_SDK_BASE_URL__: getDestinationSDKBaseURL(),
+        __PLUGINS_SDK_BASE_URL__: getPluginsBaseURL(),
+        __BASE_CDN_URL__: baseCdnUrl,
+        __CDN_VERSION_PATH__: `${cdnVersionPath}` || '',
+        __FEATURE__: featureName,
+        __IS_DEV_TESTBOOK__: isDevEnvTestBook,
+        __IS_DMT__: isDMT,
+      },
+    }),
+    // Dedicated htmlTemplate for integrations/verifyIntegrationsLoad.html aggregator (only in main build config)
+    !featureName && htmlTemplate({
+      template: 'public/v3/integrations/verifyIntegrationsLoad.html',
+      target: `${getDistPath()}/integrations/verifyIntegrationsLoad.html`,
+      noInject: true,
+      replaceVars: {
+        __WRITE_KEY__: process.env.WRITE_KEY,
+        __DATAPLANE_URL__: process.env.DATAPLANE_URL,
+        __CONFIG_SERVER_HOST__: process.env.CONFIG_SERVER_HOST || '',
+        __DEST_SDK_BASE_URL__: getDestinationSDKBaseURL(),
+        __PLUGINS_SDK_BASE_URL__: getPluginsBaseURL(),
+        __BASE_CDN_URL__: baseCdnUrl,
         __CDN_VERSION_PATH__: `${cdnVersionPath}` || '',
         __FEATURE__: featureName,
         __IS_DEV_TESTBOOK__: isDevEnvTestBook,
@@ -244,6 +278,7 @@ const getBuildConfig = featureName => ({
         },
       }),
     process.env.DEV_SERVER && livereload(),
+    del({ hook: 'writeBundle', targets: declarationDir }),
   ],
   input: getJSSource(),
   output: [

@@ -8,10 +8,7 @@
 /* eslint-disable no-var */
 /* eslint-disable vars-on-top */
 /* eslint-disable no-unused-expressions */
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/RedditPixel/constants';
+import { NAME, DISPLAY_NAME } from './constants';
 import Logger from '../../utils/logger';
 import { getHashFromArrayWithDuplicate, getEventMappingFromConfig } from '../../utils/commonUtils';
 import { loadNativeSdk } from './nativeSdkLoader';

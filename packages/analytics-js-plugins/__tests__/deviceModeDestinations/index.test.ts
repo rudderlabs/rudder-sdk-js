@@ -154,6 +154,7 @@ describe('DeviceModeDestinations Plugin', () => {
       expect(mockErrorHandler.onError).toHaveBeenCalledWith({
         context: 'DeviceModeDestinationsPlugin',
         error: new Error('Integration for destination "Unsupported Destination" is not supported.'),
+        category: 'integrations',
       });
     });
 
@@ -362,6 +363,7 @@ describe('DeviceModeDestinations Plugin', () => {
       expect(mockErrorHandler.onError).toHaveBeenCalledWith({
         context: 'DeviceModeDestinationsPlugin',
         error: new Error('Integration for destination "undefined" is not supported.'),
+        category: 'integrations',
       });
     });
 
@@ -793,6 +795,77 @@ describe('DeviceModeDestinations Plugin', () => {
       expect(mockExternalSrcLoader.loadJSFile).toHaveBeenCalledTimes(2);
     });
 
+    it('should categorize integration SDK load errors with integrations category', () => {
+      mockIsDestinationSDKMounted.mockReturnValueOnce(false);
+
+      plugin.nativeDestinations.load(
+        mockState,
+        mockExternalSrcLoader,
+        mockErrorHandler,
+        mockLogger,
+      );
+
+      // Get the callback function passed to loadJSFile
+      const firstCall = mockExternalSrcLoader.loadJSFile.mock.calls[0];
+      const callback = firstCall[0].callback;
+
+      // Simulate an error in the callback
+      const loadError = new Error('Script load failed');
+      callback('Google-Analytics-4-(GA4)___dest1', loadError);
+
+      expect(mockErrorHandler.onError).toHaveBeenCalledWith({
+        error: loadError,
+        context: 'DeviceModeDestinationsPlugin',
+        customMessage: 'Failed to load integration SDK for destination "Google Analytics 4 (GA4)"',
+        groupingHash: 'Failed to load integration SDK for destination "Google Analytics 4 (GA4)"',
+        category: 'integrations',
+      });
+
+      mockIsDestinationSDKMounted.mockClear();
+    });
+
+    it('should handle multiple integration SDK load errors with proper categorization', () => {
+      mockIsDestinationSDKMounted.mockReturnValue(false);
+
+      plugin.nativeDestinations.load(
+        mockState,
+        mockExternalSrcLoader,
+        mockErrorHandler,
+        mockLogger,
+      );
+
+      // Get the callback functions from both loadJSFile calls
+      const firstCall = mockExternalSrcLoader.loadJSFile.mock.calls[0];
+      const secondCall = mockExternalSrcLoader.loadJSFile.mock.calls[1];
+      const firstCallback = firstCall[0].callback;
+      const secondCallback = secondCall[0].callback;
+
+      // Simulate errors in both callbacks
+      const loadError1 = new Error('Script load failed 1');
+      const loadError2 = new Error('Script load failed 2');
+
+      firstCallback('Google-Analytics-4-(GA4)___dest1', loadError1);
+      secondCallback('Google-Analytics___dest2', loadError2);
+
+      expect(mockErrorHandler.onError).toHaveBeenCalledTimes(2);
+      expect(mockErrorHandler.onError).toHaveBeenCalledWith({
+        error: loadError1,
+        context: 'DeviceModeDestinationsPlugin',
+        customMessage: 'Failed to load integration SDK for destination "Google Analytics 4 (GA4)"',
+        groupingHash: 'Failed to load integration SDK for destination "Google Analytics 4 (GA4)"',
+        category: 'integrations',
+      });
+      expect(mockErrorHandler.onError).toHaveBeenCalledWith({
+        error: loadError2,
+        context: 'DeviceModeDestinationsPlugin',
+        customMessage: 'Failed to load integration SDK for destination "Google Analytics"',
+        groupingHash: 'Failed to load integration SDK for destination "Google Analytics"',
+        category: 'integrations',
+      });
+
+      mockIsDestinationSDKMounted.mockClear();
+    });
+
     it('should handle empty active destinations array', () => {
       mockState.nativeDestinations.activeDestinations.value = [];
 
@@ -826,7 +899,7 @@ describe('DeviceModeDestinations Plugin', () => {
       );
     });
 
-    it('should construct correct SDK URLs based on integrations CDN path', () => {
+    it('should construct correct integration SDK URLs based on integrations CDN path', () => {
       const customCDNPath = 'https://custom-cdn.example.com/integrations';
       mockState.lifecycle.integrationsCDNPath.value = customCDNPath;
       mockIsDestinationSDKMounted.mockReturnValueOnce(false);
@@ -916,6 +989,7 @@ describe('DeviceModeDestinations Plugin', () => {
           customMessage:
             'Failed to load integration SDK for destination "Google Analytics 4 (GA4)"',
           groupingHash: 'Failed to load integration SDK for destination "Google Analytics 4 (GA4)"',
+          category: 'integrations',
         });
 
         expect(mockState.nativeDestinations.failedDestinations.value).toContain(
@@ -1065,6 +1139,7 @@ describe('DeviceModeDestinations Plugin', () => {
           customMessage:
             'Failed to load integration SDK for destination "Google Analytics 4 (GA4)"',
           groupingHash: 'Failed to load integration SDK for destination "Google Analytics 4 (GA4)"',
+          category: 'integrations',
         });
 
         expect(mockState.nativeDestinations.failedDestinations.value).toContain(

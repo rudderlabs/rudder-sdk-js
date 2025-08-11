@@ -1,6 +1,6 @@
 import get from 'get-value';
 import sha256 from 'crypto-js/sha256';
-import { DISPLAY_NAME } from '@rudderstack/analytics-js-common/constants/integrations/SnapPixel/constants';
+import { DISPLAY_NAME } from './constants';
 import Logger from '../../utils/logger';
 import {
   isNotEmpty,

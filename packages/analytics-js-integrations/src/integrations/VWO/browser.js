@@ -3,10 +3,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable camelcase */
-import {
-  NAME,
-  DISPLAY_NAME,
-} from '@rudderstack/analytics-js-common/constants/integrations/VWO/constants';
+import { NAME, DISPLAY_NAME } from './constants';
 import Logger from '../../utils/logger';
 import { getDestinationOptions, sanitizeName, sanitizeAttributes } from './utils';
 import { loadNativeSdk } from './nativeSdkLoader';

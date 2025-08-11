@@ -33,7 +33,7 @@ jobs:
           
           # Extract version and ticket from branch name (format: release/3.2.1-SDK-1234 or hotfix-release/3.2.2-SDK-5678)
           version=$(echo "$PR_BRANCH" | sed -n 's|.*\/\([0-9]\+\.[0-9]\+\.[0-9]\+\)-.*|\1|p')
-          ticket=$(echo "$PR_BRANCH" | sed -n 's|.*-\([^-]*\)$|\1|p')
+          ticket=$(echo "$PR_BRANCH" | sed -n 's|.*[0-9]\+-\(.*\)$|\1|p')
           
           echo "Extracted version: $version"
           echo "Extracted ticket: $ticket"
@@ -66,6 +66,7 @@ jobs:
   deploy-sanity-suite:
     name: Deploy sanity suite
     needs: [get-deploy-inputs]
+    if: (startsWith(github.event.pull_request.head.ref, 'release/') || startsWith(github.event.pull_request.head.ref, 'hotfix-release/')) && github.event.pull_request.merged == true
     uses: ./.github/workflows/deploy-sanity-suite.yml
     with:
       environment: 'production'
