@@ -1,4 +1,5 @@
 import type { LoadOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import type { RSACustomIntegration } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
 import { resetState, state } from '../../src/state';
 import { RudderAnalytics } from '../../src/app/RudderAnalytics';
 import { Analytics } from '../../src/components/core/Analytics';
@@ -56,9 +57,9 @@ describe('Core - Rudder Analytics Facade', () => {
 
   it('should return the global singleton if it exists', () => {
     const globalSingleton = rudderAnalytics;
-    rudderAnalytics = new RudderAnalytics();
+    const newInstance = new RudderAnalytics();
 
-    expect(rudderAnalytics).toEqual(globalSingleton);
+    expect(newInstance).toEqual(globalSingleton);
   });
 
   it('should dispatch an error event if an exception is thrown during the construction', () => {
@@ -738,6 +739,50 @@ describe('Core - Rudder Analytics Facade', () => {
     getAnalyticsInstanceSpy.mockRestore();
   });
 
+  it('should process addCustomIntegration arguments and forwards to addCustomIntegration call', () => {
+    const mockCustomIntegration: RSACustomIntegration = {
+      init: jest.fn(),
+      isReady: jest.fn(() => true),
+      track: jest.fn(),
+      page: jest.fn(),
+      identify: jest.fn(),
+      group: jest.fn(),
+      alias: jest.fn(),
+    };
+
+    rudderAnalytics.addCustomIntegration('custom-dest-123', mockCustomIntegration);
+    expect(analyticsInstanceMock.addCustomIntegration).toHaveBeenCalledWith(
+      'custom-dest-123',
+      mockCustomIntegration,
+    );
+  });
+
+  it('should dispatch an error event if an exception is thrown during the addCustomIntegration call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+
+    // Intentionally cause an error during the addCustomIntegration call
+    const getAnalyticsInstanceSpy = jest
+      .spyOn(rudderAnalytics, 'getAnalyticsInstance')
+      .mockImplementation(() => {
+        throw new Error('Error in getAnalyticsInstance');
+      });
+
+    const mockCustomIntegration: RSACustomIntegration = {
+      isReady: jest.fn(() => true),
+    };
+
+    rudderAnalytics.addCustomIntegration('custom-dest-123', mockCustomIntegration);
+
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in getAnalyticsInstance'),
+      }),
+    );
+
+    dispatchEventSpy.mockRestore();
+    getAnalyticsInstanceSpy.mockRestore();
+  });
+
   describe('trackPageLifecycleEvents', () => {
     let rudderAnalyticsInstance: RudderAnalytics;
 
@@ -902,6 +947,187 @@ describe('Core - Rudder Analytics Facade', () => {
       simulatePageBeingUnloadedAfterSDKLoad(false);
 
       expect(rudderAnalyticsInstance.track).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('createSafeAnalyticsInstance', () => {
+    let rudderAnalyticsInstance: RudderAnalytics;
+
+    beforeEach(() => {
+      resetState();
+      (window as any).rudderanalytics = [];
+      rudderAnalyticsInstance = new RudderAnalytics();
+    });
+
+    afterEach(() => {
+      resetState();
+      jest.resetAllMocks();
+    });
+
+    it('should create safe analytics instance and store it in state', () => {
+      // Clear any previous safe analytics instance
+      state.lifecycle.safeAnalyticsInstance.value = undefined;
+
+      // Call the method explicitly
+      rudderAnalyticsInstance.createSafeAnalyticsInstance();
+
+      // Verify the safe analytics instance is stored in state
+      expect(state.lifecycle.safeAnalyticsInstance.value).toBeDefined();
+      expect(state.lifecycle.safeAnalyticsInstance.value).not.toBeNull();
+    });
+
+    it('should bind all required methods to the safe analytics instance', () => {
+      // Clear any previous safe analytics instance
+      state.lifecycle.safeAnalyticsInstance.value = undefined;
+
+      // Call the method explicitly
+      rudderAnalyticsInstance.createSafeAnalyticsInstance();
+
+      const safeInstance = state.lifecycle.safeAnalyticsInstance.value!;
+
+      // Verify all methods are functions
+      expect(typeof safeInstance.page).toBe('function');
+      expect(typeof safeInstance.track).toBe('function');
+      expect(typeof safeInstance.identify).toBe('function');
+      expect(typeof safeInstance.alias).toBe('function');
+      expect(typeof safeInstance.group).toBe('function');
+      expect(typeof safeInstance.getAnonymousId).toBe('function');
+      expect(typeof safeInstance.getUserId).toBe('function');
+      expect(typeof safeInstance.getUserTraits).toBe('function');
+      expect(typeof safeInstance.getGroupId).toBe('function');
+      expect(typeof safeInstance.getGroupTraits).toBe('function');
+      expect(typeof safeInstance.getSessionId).toBe('function');
+
+      // Verify no other extra methods or properties are present
+      expect(Object.keys(safeInstance)).toEqual([
+        'page',
+        'track',
+        'identify',
+        'alias',
+        'group',
+        'getAnonymousId',
+        'getUserId',
+        'getUserTraits',
+        'getGroupId',
+        'getGroupTraits',
+        'getSessionId',
+      ]);
+    });
+
+    it('should properly bind methods so they reference the correct RudderAnalytics instance', () => {
+      // Mock the instance methods to track calls
+      const pageSpy = jest.spyOn(rudderAnalyticsInstance, 'page');
+      const trackSpy = jest.spyOn(rudderAnalyticsInstance, 'track');
+      const identifySpy = jest.spyOn(rudderAnalyticsInstance, 'identify');
+      const aliasSpy = jest.spyOn(rudderAnalyticsInstance, 'alias');
+      const groupSpy = jest.spyOn(rudderAnalyticsInstance, 'group');
+      const getAnonymousIdSpy = jest.spyOn(rudderAnalyticsInstance, 'getAnonymousId');
+      const getUserIdSpy = jest.spyOn(rudderAnalyticsInstance, 'getUserId');
+      const getUserTraitsSpy = jest.spyOn(rudderAnalyticsInstance, 'getUserTraits');
+      const getGroupIdSpy = jest.spyOn(rudderAnalyticsInstance, 'getGroupId');
+      const getGroupTraitsSpy = jest.spyOn(rudderAnalyticsInstance, 'getGroupTraits');
+      const getSessionIdSpy = jest.spyOn(rudderAnalyticsInstance, 'getSessionId');
+
+      // Call the method explicitly
+      rudderAnalyticsInstance.createSafeAnalyticsInstance();
+
+      const safeInstance = state.lifecycle.safeAnalyticsInstance.value!;
+
+      // Call methods through safe instance
+      safeInstance.page('Test Page');
+      safeInstance.track('Test Event', { prop: 'value' });
+      safeInstance.identify('user123', { name: 'Test User' });
+      safeInstance.alias('newId', 'oldId');
+      safeInstance.group('group123', { name: 'Test Group' });
+      safeInstance.getAnonymousId();
+      safeInstance.getUserId();
+      safeInstance.getUserTraits();
+      safeInstance.getGroupId();
+      safeInstance.getGroupTraits();
+      safeInstance.getSessionId();
+
+      // Verify the original instance methods were called
+      expect(pageSpy).toHaveBeenCalledWith('Test Page');
+      expect(trackSpy).toHaveBeenCalledWith('Test Event', { prop: 'value' });
+      expect(identifySpy).toHaveBeenCalledWith('user123', { name: 'Test User' });
+      expect(aliasSpy).toHaveBeenCalledWith('newId', 'oldId');
+      expect(groupSpy).toHaveBeenCalledWith('group123', { name: 'Test Group' });
+      expect(getAnonymousIdSpy).toHaveBeenCalled();
+      expect(getUserIdSpy).toHaveBeenCalled();
+      expect(getUserTraitsSpy).toHaveBeenCalled();
+      expect(getGroupIdSpy).toHaveBeenCalled();
+      expect(getGroupTraitsSpy).toHaveBeenCalled();
+      expect(getSessionIdSpy).toHaveBeenCalled();
+
+      // Cleanup spies
+      pageSpy.mockRestore();
+      trackSpy.mockRestore();
+      identifySpy.mockRestore();
+      aliasSpy.mockRestore();
+      groupSpy.mockRestore();
+      getAnonymousIdSpy.mockRestore();
+      getUserIdSpy.mockRestore();
+      getUserTraitsSpy.mockRestore();
+      getGroupIdSpy.mockRestore();
+      getGroupTraitsSpy.mockRestore();
+      getSessionIdSpy.mockRestore();
+    });
+
+    it('should create safe analytics instance automatically when RudderAnalytics instance is constructed', () => {
+      const originalGlobalSingleton = RudderAnalytics.globalSingleton;
+      // reset the global singleton
+      RudderAnalytics.globalSingleton = null;
+
+      // Create new RudderAnalytics instance
+      (window as any).rudderanalytics = [];
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const newInstance = new RudderAnalytics();
+
+      // Verify safe analytics instance was created automatically
+      expect(state.lifecycle.safeAnalyticsInstance.value).toBeDefined();
+      expect(state.lifecycle.safeAnalyticsInstance.value).not.toBeNull();
+
+      // Verify it has all required methods
+      const safeInstance = state.lifecycle.safeAnalyticsInstance.value!;
+      expect(safeInstance.page).toBeDefined();
+      expect(safeInstance.track).toBeDefined();
+      expect(safeInstance.identify).toBeDefined();
+      expect(safeInstance.alias).toBeDefined();
+      expect(safeInstance.group).toBeDefined();
+      expect(safeInstance.getAnonymousId).toBeDefined();
+      expect(safeInstance.getUserId).toBeDefined();
+      expect(safeInstance.getUserTraits).toBeDefined();
+      expect(safeInstance.getGroupId).toBeDefined();
+      expect(safeInstance.getGroupTraits).toBeDefined();
+      expect(safeInstance.getSessionId).toBeDefined();
+
+      // Restore the original global singleton
+      RudderAnalytics.globalSingleton = originalGlobalSingleton;
+    });
+
+    it('should maintain correct context when methods are called from safe instance', () => {
+      // Mock a method that relies on 'this' context
+      const originalGetUserId = rudderAnalyticsInstance.getUserId;
+      rudderAnalyticsInstance.getUserId = jest.fn(function (this: RudderAnalytics) {
+        // This should reference the correct RudderAnalytics instance
+        return this.defaultAnalyticsKey;
+      });
+
+      rudderAnalyticsInstance.defaultAnalyticsKey = 'test-write-key';
+
+      // Create safe analytics instance
+      rudderAnalyticsInstance.createSafeAnalyticsInstance();
+      const safeInstance = state.lifecycle.safeAnalyticsInstance.value!;
+
+      // Call through safe instance
+      const result = safeInstance.getUserId();
+
+      // Verify correct context was maintained
+      expect(result).toBe('test-write-key');
+      expect(rudderAnalyticsInstance.getUserId).toHaveBeenCalled();
+
+      // Restore original method
+      rudderAnalyticsInstance.getUserId = originalGetUserId;
     });
   });
 });

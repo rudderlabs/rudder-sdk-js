@@ -112,7 +112,7 @@ const buildPayLoad = (
   const { properties } = rudderElement.message;
 
   // Add null/undefined check for properties before calling Object.entries
-  if (!properties || (typeof properties !== 'object')) {
+  if (!properties || typeof properties !== 'object') {
     return {};
   }
 
@@ -160,10 +160,7 @@ const merge = (obj1, obj2) => {
 
   // Extra properties of obj2
   Object.keys(safeObj2).forEach(propObj2 => {
-    if (
-      Object.hasOwn(safeObj2, propObj2) &&
-      !Object.hasOwn(res, propObj2)
-    ) {
+    if (Object.hasOwn(safeObj2, propObj2) && !Object.hasOwn(res, propObj2)) {
       res[propObj2] = safeObj2[propObj2];
     }
   });
@@ -298,7 +295,7 @@ const getProductListViewedEventParams = properties => {
   if (!properties || typeof properties !== 'object') {
     return {};
   }
-  
+
   let { products, category, quantity, price } = properties;
   if (!Array.isArray(products)) {
     products = [products];

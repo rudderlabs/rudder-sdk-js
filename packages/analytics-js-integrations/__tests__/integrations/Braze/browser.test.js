@@ -368,7 +368,7 @@ describe('addSdkMetadata', () => {
   });
 
   it('should handle errors gracefully when addSdkMetadata fails', () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     window.braze.addSdkMetadata.mockImplementation(() => {
       throw new Error('SDK metadata error');
     });
@@ -383,7 +383,7 @@ describe('addSdkMetadata', () => {
   });
 
   it('should log debug message on successful metadata addition', () => {
-    const consoleSpy = jest.spyOn(console, 'debug').mockImplementation(() => { });
+    const consoleSpy = jest.spyOn(console, 'debug').mockImplementation(() => {});
 
     braze.addSdkMetadata();
 

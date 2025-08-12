@@ -13,11 +13,11 @@
   "dependencies": {
     "@rudderstack/analytics-js": "*",
     "@tailwindcss/postcss": "4.1.11",
-    "eslint": "9.31.0",
-    "eslint-config-next": "15.4.2",
-    "next": "15.4.2",
-    "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "eslint": "9.32.0",
+    "eslint-config-next": "15.4.4",
+    "next": "15.4.4",
+    "react": "19.1.1",
+    "react-dom": "19.1.1"
   },
   "devDependencies": {
     "@types/react": "19.1.8",
