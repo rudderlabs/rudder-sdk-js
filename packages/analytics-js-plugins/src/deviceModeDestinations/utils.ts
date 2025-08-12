@@ -6,23 +6,29 @@ import {
 } from '@rudderstack/analytics-js-common/utilities/object';
 import type {
   Destination,
-  DeviceModeDestination,
+  DeviceModeIntegration,
 } from '@rudderstack/analytics-js-common/types/Destination';
 import type { ApplicationState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import type { IRudderAnalytics } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
-import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
-import type { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
-import type { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
-import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
-import type { IdentifyTraits } from '@rudderstack/analytics-js-common/types/traits';
+import type { ILogger, RSALogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type {
-  AnonymousIdOptions,
+  CustomDestinationConfig,
+  IntegrationRSAnalytics,
+  RSACustomIntegration,
+  RSAnalytics,
+} from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
+import type { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
+import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type {
   SourceConfigurationOverride,
   SourceConfigurationOverrideDestination,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import type { DeviceModeDestinationsAnalyticsInstance } from './types';
+import {
+  isBoolean,
+  isDefined,
+  isNullOrUndefined,
+  isUndefined,
+} from '@rudderstack/analytics-js-common/utilities/checks';
+import type { RSAEvent } from '@rudderstack/analytics-js-common/types/Event';
 import {
   DEVICE_MODE_DESTINATIONS_PLUGIN,
   READY_CHECK_INTERVAL_MS,
@@ -33,17 +39,12 @@ import {
   INTEGRATIONS_DATA_ERROR,
   INTEGRATION_READY_TIMEOUT_ERROR,
   INTEGRATION_READY_CHECK_ERROR,
+  CUSTOM_INTEGRATION_INVALID_DESTINATION_ID_ERROR,
+  CUSTOM_INTEGRATION_ALREADY_EXISTS_ERROR,
+  INVALID_CUSTOM_INTEGRATION_ERROR,
 } from './logMessages';
-import {
-  aliasArgumentsToCallOptions,
-  groupArgumentsToCallOptions,
-  identifyArgumentsToCallOptions,
-  isHybridModeDestination,
-  pageArgumentsToCallOptions,
-  trackArgumentsToCallOptions,
-} from '../shared-chunks/deviceModeDestinations';
+import { isHybridModeDestination } from '../shared-chunks/deviceModeDestinations';
 import { getSanitizedValue, isFunction } from '../shared-chunks/common';
-import { isBoolean } from '@rudderstack/analytics-js-common/utilities/checks';
 import { INTEGRATIONS_ERROR_CATEGORY } from '../utilities/constants';
 
 /**
@@ -69,103 +70,22 @@ const wait = (time: number) =>
     (globalThis as typeof window).setTimeout(resolve, time);
   });
 
-const createDestinationInstance = (
+const createIntegrationInstance = (
   destSDKIdentifier: string,
   sdkTypeName: string,
   dest: Destination,
   state: ApplicationState,
-): DeviceModeDestination => {
-  const rAnalytics = (globalThis as any).rudderanalytics as IRudderAnalytics;
-  const analytics = rAnalytics.getAnalyticsInstance(state.lifecycle.writeKey.value);
-
-  const analyticsInstance: DeviceModeDestinationsAnalyticsInstance = {
+): DeviceModeIntegration => {
+  const analyticsInstance: IntegrationRSAnalytics = {
     loadIntegration: state.nativeDestinations.loadIntegration.value,
     logLevel: state.lifecycle.logLevel.value,
     loadOnlyIntegrations:
       state.consents.postConsent.value?.integrations ??
       state.nativeDestinations.loadOnlyIntegrations.value,
-    page: (
-      category?: string | Nullable<ApiObject> | ApiCallback,
-      name?: string | Nullable<ApiOptions> | Nullable<ApiObject> | ApiCallback,
-      properties?: Nullable<ApiOptions> | Nullable<ApiObject> | ApiCallback,
-      options?: Nullable<ApiOptions> | ApiCallback,
-      callback?: ApiCallback,
-    ) =>
-      analytics.page(
-        pageArgumentsToCallOptions(
-          getSanitizedValue(category),
-          getSanitizedValue(name),
-          getSanitizedValue(properties),
-          getSanitizedValue(options),
-          getSanitizedValue(callback),
-        ),
-      ),
-    track: (
-      event: string,
-      properties?: Nullable<ApiObject> | ApiCallback,
-      options?: Nullable<ApiOptions> | ApiCallback,
-      callback?: ApiCallback,
-    ) =>
-      analytics.track(
-        trackArgumentsToCallOptions(
-          getSanitizedValue(event),
-          getSanitizedValue(properties),
-          getSanitizedValue(options),
-          getSanitizedValue(callback),
-        ),
-      ),
-    identify: (
-      userId: string | number | Nullable<IdentifyTraits>,
-      traits?: Nullable<IdentifyTraits> | Nullable<ApiOptions> | ApiCallback,
-      options?: Nullable<ApiOptions> | ApiCallback,
-      callback?: ApiCallback,
-    ) =>
-      analytics.identify(
-        identifyArgumentsToCallOptions(
-          getSanitizedValue(userId),
-          getSanitizedValue(traits),
-          getSanitizedValue(options),
-          getSanitizedValue(callback),
-        ),
-      ),
-    alias: (
-      to: string,
-      from?: string | Nullable<ApiOptions> | ApiCallback,
-      options?: Nullable<ApiOptions> | ApiCallback,
-      callback?: ApiCallback,
-    ) =>
-      analytics.alias(
-        aliasArgumentsToCallOptions(
-          getSanitizedValue(to),
-          getSanitizedValue(from),
-          getSanitizedValue(options),
-          getSanitizedValue(callback),
-        ),
-      ),
-    group: (
-      groupId: string | number | Nullable<ApiObject>,
-      traits?: Nullable<ApiOptions> | Nullable<ApiObject> | ApiCallback,
-      options?: Nullable<ApiOptions> | ApiCallback,
-      callback?: ApiCallback,
-    ) =>
-      analytics.group(
-        groupArgumentsToCallOptions(
-          getSanitizedValue(groupId),
-          getSanitizedValue(traits),
-          getSanitizedValue(options),
-          getSanitizedValue(callback),
-        ),
-      ),
-    getAnonymousId: (options?: AnonymousIdOptions) =>
-      analytics.getAnonymousId(getSanitizedValue(options)),
-    getUserId: () => analytics.getUserId(),
-    getUserTraits: () => analytics.getUserTraits(),
-    getGroupId: () => analytics.getGroupId(),
-    getGroupTraits: () => analytics.getGroupTraits(),
-    getSessionId: () => analytics.getSessionId(),
+    ...(state.lifecycle.safeAnalyticsInstance.value as RSAnalytics),
   };
 
-  const deviceModeDestination: DeviceModeDestination = new (globalThis as any)[destSDKIdentifier][
+  const integration: DeviceModeIntegration = new (globalThis as any)[destSDKIdentifier][
     sdkTypeName
   ](clone(dest.config), analyticsInstance, {
     shouldApplyDeviceModeTransformation: dest.shouldApplyDeviceModeTransformation,
@@ -173,13 +93,12 @@ const createDestinationInstance = (
     destinationId: dest.id,
   });
 
-  return deviceModeDestination;
+  return integration;
 };
 
 const isDestinationReady = (dest: Destination, time = 0) =>
   new Promise((resolve, reject) => {
-    const instance = dest.instance as DeviceModeDestination;
-    if (instance.isLoaded() && (!instance.isReady || instance.isReady())) {
+    if (dest.integration?.isReady()) {
       resolve(true);
     } else if (time >= READY_CHECK_TIMEOUT_MS) {
       reject(new Error(INTEGRATION_READY_TIMEOUT_ERROR(READY_CHECK_TIMEOUT_MS)));
@@ -208,11 +127,11 @@ const getCumulativeIntegrationsConfig = (
   errorHandler?: IErrorHandler,
 ): IntegrationOpts => {
   let integrationsConfig: IntegrationOpts = curDestIntgConfig;
-  if (isFunction(dest.instance?.getDataForIntegrationsObject)) {
+  if (isFunction(dest.integration?.getDataForIntegrationsObject)) {
     try {
       integrationsConfig = {
         ...curDestIntgConfig,
-        ...getSanitizedValue(dest.instance.getDataForIntegrationsObject()),
+        ...getSanitizedValue(dest.integration.getDataForIntegrationsObject()),
       };
     } catch (err) {
       errorHandler?.onError({
@@ -237,10 +156,13 @@ const initializeDestination = (
 ) => {
   try {
     const initializedDestination = clone(dest);
-    const destInstance = createDestinationInstance(destSDKIdentifier, sdkTypeName, dest, state);
-    initializedDestination.instance = destInstance;
+    let integration: DeviceModeIntegration | undefined = initializedDestination.integration;
+    if (isUndefined(integration)) {
+      integration = createIntegrationInstance(destSDKIdentifier, sdkTypeName, dest, state);
+      initializedDestination.integration = integration;
+    }
 
-    destInstance.init();
+    integration.init?.();
 
     isDestinationReady(initializedDestination)
       .then(() => {
@@ -301,7 +223,7 @@ const applySourceConfigurationOverrides = (
   logger?: ILogger,
 ): Destination[] => {
   if (!sourceConfigOverride?.destinations?.length) {
-    return filterDisabledDestination(destinations);
+    return filterDisabledDestinations(destinations);
   }
 
   const destIds = destinations.map(dest => dest.id);
@@ -349,7 +271,7 @@ const applySourceConfigurationOverrides = (
     }
   });
 
-  return filterDisabledDestination(processedDestinations);
+  return filterDisabledDestinations(processedDestinations);
 };
 
 /**
@@ -357,7 +279,7 @@ const applySourceConfigurationOverrides = (
  * @param destinations Array of destinations to filter
  * @returns Filtered destinations to only include enabled ones
  */
-const filterDisabledDestination = (destinations: Destination[]): Destination[] =>
+const filterDisabledDestinations = (destinations: Destination[]): Destination[] =>
   destinations.filter(dest => dest.enabled);
 
 /**
@@ -416,14 +338,134 @@ const applyOverrideToDestination = (
   return clonedDest;
 };
 
+/**
+ * Validates if the destination ID and custom integration are valid
+ * @param destinationId - The destination ID to validate
+ * @param integration - The custom integration instance
+ * @param state - Application state
+ * @param logger - Logger instance
+ * @returns Destination object if the integration is valid, undefined otherwise
+ */
+const validateCustomIntegration = (
+  destinationId: string,
+  integration: RSACustomIntegration,
+  state: ApplicationState,
+  logger: ILogger,
+): Destination | undefined => {
+  const configuredDestinations = state.nativeDestinations.configuredDestinations.value;
+  const destination = configuredDestinations.find(
+    dest => dest.id === destinationId && dest.isCustomIntegration === true,
+  );
+
+  if (!destination) {
+    logger.error(
+      CUSTOM_INTEGRATION_INVALID_DESTINATION_ID_ERROR(
+        DEVICE_MODE_DESTINATIONS_PLUGIN,
+        destinationId,
+      ),
+    );
+    return;
+  }
+
+  // Check if a custom integration is already added for the destination ID
+  if (isDefined(destination.integration)) {
+    logger.error(
+      CUSTOM_INTEGRATION_ALREADY_EXISTS_ERROR(DEVICE_MODE_DESTINATIONS_PLUGIN, destinationId),
+    );
+    return;
+  }
+
+  // Check if the integration is correctly implemented
+  if (
+    isNullOrUndefined(integration) ||
+    !isFunction(integration.isReady) ||
+    (isDefined(integration.init) && !isFunction(integration.init)) ||
+    (isDefined(integration.track) && !isFunction(integration.track)) ||
+    (isDefined(integration.page) && !isFunction(integration.page)) ||
+    (isDefined(integration.identify) && !isFunction(integration.identify)) ||
+    (isDefined(integration.group) && !isFunction(integration.group)) ||
+    (isDefined(integration.alias) && !isFunction(integration.alias))
+  ) {
+    logger.error(INVALID_CUSTOM_INTEGRATION_ERROR(DEVICE_MODE_DESTINATIONS_PLUGIN, destinationId));
+    return;
+  }
+
+  return destination;
+};
+
+/**
+ * Updates destination object with the custom integration
+ * @param destination - The destination object
+ * @param integration - The custom integration instance
+ * @param state - Application state
+ * @param logger - Logger instance
+ * @returns
+ */
+const addIntegrationToDestination = (
+  destination: Destination,
+  integration: RSACustomIntegration,
+  state: ApplicationState,
+  logger: ILogger,
+): void => {
+  const analyticsInstance = state.lifecycle.safeAnalyticsInstance.value as RSAnalytics;
+
+  // Create a new logger object for the custom integration
+  // to avoid conflicts with the main logger
+  const integrationLogger = clone(logger);
+
+  // Set the scope to the custom integration name
+  // for easy identification in the logs
+  integrationLogger.setScope(destination.displayName);
+
+  // Bind only the necessary methods to the new logger object
+  const safeLogger: RSALogger = {
+    log: integrationLogger.log.bind(integrationLogger),
+    info: integrationLogger.info.bind(integrationLogger),
+    debug: integrationLogger.debug.bind(integrationLogger),
+    warn: integrationLogger.warn.bind(integrationLogger),
+    error: integrationLogger.error.bind(integrationLogger),
+    setMinLogLevel: integrationLogger.setMinLogLevel.bind(integrationLogger),
+  };
+
+  // Create configuration object for the custom integration
+  // to pass to the init method
+  const customDestinationConfig = clone(destination.config) as CustomDestinationConfig;
+
+  // Create a wrapper around the custom integration APIs
+  // to make them consistent with the standard device mode integrations
+  destination.integration = {
+    ...(integration.init && {
+      init: () => integration.init!(customDestinationConfig, analyticsInstance, safeLogger),
+    }),
+    ...(integration.track && {
+      track: (event: RSAEvent) => integration.track!(analyticsInstance, safeLogger, event),
+    }),
+    ...(integration.page && {
+      page: (event: RSAEvent) => integration.page!(analyticsInstance, safeLogger, event),
+    }),
+    ...(integration.identify && {
+      identify: (event: RSAEvent) => integration.identify!(analyticsInstance, safeLogger, event),
+    }),
+    ...(integration.group && {
+      group: (event: RSAEvent) => integration.group!(analyticsInstance, safeLogger, event),
+    }),
+    ...(integration.alias && {
+      alias: (event: RSAEvent) => integration.alias!(analyticsInstance, safeLogger, event),
+    }),
+    isReady: () => integration.isReady(analyticsInstance, safeLogger),
+  };
+};
+
 export {
   isDestinationSDKMounted,
   wait,
-  createDestinationInstance,
+  createIntegrationInstance,
   isDestinationReady,
   getCumulativeIntegrationsConfig,
   initializeDestination,
   applySourceConfigurationOverrides,
   applyOverrideToDestination,
-  filterDisabledDestination,
+  filterDisabledDestinations,
+  validateCustomIntegration,
+  addIntegrationToDestination,
 };

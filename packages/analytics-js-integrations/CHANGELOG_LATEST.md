@@ -1,13 +1,8 @@
-## [3.16.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.15.0...@rudderstack/analytics-js-integrations@3.16.0) (2025-07-30)
-
-
-### Features
-
-* moengage identity resolution support ([#2406](https://github.com/rudderlabs/rudder-sdk-js/issues/2406)) ([f328286](https://github.com/rudderlabs/rudder-sdk-js/commit/f328286f3f5c6dd89593abb374c2668ba3e46074))
+## [3.16.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.16.0...@rudderstack/analytics-js-integrations@3.16.1) (2025-08-11)
 
 
 ### Bug Fixes
 
-* braze sdk init issue ([#2409](https://github.com/rudderlabs/rudder-sdk-js/issues/2409)) ([0768f37](https://github.com/rudderlabs/rudder-sdk-js/commit/0768f37f6440361338e7e63d6cde7ef0c26dbc7c))
-* prevent null/undefined object conversion error in facebook pixel ([#2411](https://github.com/rudderlabs/rudder-sdk-js/issues/2411)) ([d2399ca](https://github.com/rudderlabs/rudder-sdk-js/commit/d2399ca9d1491c4f4de8827f0efeeb3cbbf26bcb)), closes [#2297](https://github.com/rudderlabs/rudder-sdk-js/issues/2297)
+* is loaded function for heap integration ([#2420](https://github.com/rudderlabs/rudder-sdk-js/issues/2420)) ([dae3607](https://github.com/rudderlabs/rudder-sdk-js/commit/dae3607f435579c80cc20bbac63d2f39dca886ec))
+* prevent null/undefined object conversion error in facebook pixel ([#2297](https://github.com/rudderlabs/rudder-sdk-js/issues/2297)) ([83287e3](https://github.com/rudderlabs/rudder-sdk-js/commit/83287e36f4ba8d54d61d3af0282d284650df2bfd))
 

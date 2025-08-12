@@ -10,7 +10,7 @@
       // prettier-ignore
       (function() {
         "use strict";
-        window.RudderSnippetVersion = "3.0.60";
+        window.RudderSnippetVersion = "3.2.0";
         var identifier = "rudderanalytics";
         if (!window[identifier]) {
           window[identifier] = [];
@@ -26,7 +26,7 @@
             var sdkVersion = "v3";
             var sdkFileName = "rsa.min.js";
             var scriptLoadingMode = "async";
-            var methods = [ "setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "setAnonymousId", "startSession", "endSession", "consent" ];
+            var methods = [ "setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "setAnonymousId", "startSession", "endSession", "consent", "addCustomIntegration" ];
             for (var i = 0; i < methods.length; i++) {
               var method = methods[i];
               rudderanalytics[method] = function(methodName) {
@@ -174,24 +174,124 @@
             };
 
             const envDestSDKBaseURL = '__DEST_SDK_BASE_URL__';
-            if (!envDestSDKBaseURL.startsWith('undefined')) {
+            // This is to avoid the build process from replacing the placeholder with the actual value
+            const envDestSDKBaseURLPlaceHolder = '__' + 'DEST_SDK_BASE_URL' + '__';
+            if (envDestSDKBaseURL !== '' && envDestSDKBaseURL !== 'undefined' && envDestSDKBaseURL !== envDestSDKBaseURLPlaceHolder) {
               loadOptions.destSDKBaseURL = envDestSDKBaseURL + window.rudderAnalyticsBuildType + '/js-integrations';
             }
             const envPluginsSDKBaseURL = '__PLUGINS_BASE_URL__';
-            if (!envPluginsSDKBaseURL.startsWith('undefined')) {
+            // This is to avoid the build process from replacing the placeholder with the actual value
+            const envPluginsSDKBaseURLPlaceHolder = '__' + 'PLUGINS_BASE_URL' + '__';
+            if (envPluginsSDKBaseURL !== '' && envPluginsSDKBaseURL !== 'undefined' && envPluginsSDKBaseURL !== envPluginsSDKBaseURLPlaceHolder) {
               loadOptions.pluginsSDKBaseURL = envPluginsSDKBaseURL + window.rudderAnalyticsBuildType + '/plugins';
             }
             const envConfigUrl = '__CONFIG_SERVER_HOST__';
-            if (!envConfigUrl.startsWith('undefined')) {
+            // This is to avoid the build process from replacing the placeholder with the actual value
+            const envConfigURLPlaceHolder = '__' + 'CONFIG_SERVER_HOST' + '__';
+            if (envConfigUrl !== '' && envConfigUrl !== 'undefined' && envConfigUrl !== envConfigURLPlaceHolder) {
               loadOptions.configUrl = envConfigUrl;
             }
+
+            const customDeviceModeDestinationId = '__CUSTOM_DEVICE_MODE_DESTINATION_ID__';
+            // This is to avoid the build process from replacing the placeholder with the actual value
+            const customDeviceModeDestinationIdPlaceHolder = '__' + 'CUSTOM_DEVICE_MODE_DESTINATION_ID' + '__';
+            if (customDeviceModeDestinationId !== '' && customDeviceModeDestinationId !== 'undefined' && customDeviceModeDestinationId !== customDeviceModeDestinationIdPlaceHolder) {
+              rudderanalytics.addCustomIntegration(customDeviceModeDestinationId, {
+                init: (destinationConfig, analytics, logger) => {
+                  logger.debug('"init" called');
+                  
+                  logger.debug('Received arguments', destinationConfig, analytics, logger);
+
+                  logger.debug('Session ID', analytics.getSessionId());
+                  logger.debug('Anonymous ID', analytics.getAnonymousId());
+                  logger.debug('User ID', analytics.getUserId());
+                  logger.debug('User Traits', analytics.getUserTraits());
+                  logger.debug('Group ID', analytics.getGroupId());
+                  logger.debug('Group Traits', analytics.getGroupTraits());
+                },
+                isReady: (analytics, logger) => {
+                  logger.debug('"isReady" called');
+                  
+                  logger.debug('Received arguments', analytics, logger);
+
+                  logger.debug('Session ID', analytics.getSessionId());
+                  logger.debug('Anonymous ID', analytics.getAnonymousId());
+                  logger.debug('User ID', analytics.getUserId());
+                  logger.debug('User Traits', analytics.getUserTraits());
+                  logger.debug('Group ID', analytics.getGroupId());
+                  logger.debug('Group Traits', analytics.getGroupTraits());
+                  return true;
+                },
+                page: (analytics, logger, rsEvent) => {
+                  logger.debug('"page" called');
+                  
+                  logger.debug('Received arguments', analytics, logger, rsEvent);
+
+                  logger.debug('Session ID', analytics.getSessionId());
+                  logger.debug('Anonymous ID', analytics.getAnonymousId());
+                  logger.debug('User ID', analytics.getUserId());
+                  logger.debug('User Traits', analytics.getUserTraits());
+                  logger.debug('Group ID', analytics.getGroupId());
+                  logger.debug('Group Traits', analytics.getGroupTraits());
+                },
+                track: (analytics, logger, rsEvent) => {
+                  logger.debug('"track" called');
+                  
+                  logger.debug('Received arguments', analytics, logger, rsEvent);
+
+                  logger.debug('Session ID', analytics.getSessionId());
+                  logger.debug('Anonymous ID', analytics.getAnonymousId());
+                  logger.debug('User ID', analytics.getUserId());
+                  logger.debug('User Traits', analytics.getUserTraits());
+                  logger.debug('Group ID', analytics.getGroupId());
+                  logger.debug('Group Traits', analytics.getGroupTraits());
+                },
+                identify: (analytics, logger, rsEvent) => {
+                  logger.debug('"identify" called');
+                  
+                  logger.debug('Received arguments', analytics, logger, rsEvent);
+
+                  logger.debug('Session ID', analytics.getSessionId());
+                  logger.debug('Anonymous ID', analytics.getAnonymousId());
+                  logger.debug('User ID', analytics.getUserId());
+                  logger.debug('User Traits', analytics.getUserTraits());
+                  logger.debug('Group ID', analytics.getGroupId());
+                  logger.debug('Group Traits', analytics.getGroupTraits());
+                },
+                alias: (analytics, logger, rsEvent) => {
+                  logger.debug('"alias" called');
+                  
+                  logger.debug('Received arguments', analytics, logger, rsEvent);
+
+                  logger.debug('Session ID', analytics.getSessionId());
+                  logger.debug('Anonymous ID', analytics.getAnonymousId());
+                  logger.debug('User ID', analytics.getUserId());
+                  logger.debug('User Traits', analytics.getUserTraits());
+                  logger.debug('Group ID', analytics.getGroupId());
+                  logger.debug('Group Traits', analytics.getGroupTraits());
+                },
+                group: (analytics, logger, rsEvent) => {
+                  logger.debug('"group" called');
+                  
+                  logger.debug('Received arguments', analytics, logger, rsEvent);
+
+                  logger.debug('Session ID', analytics.getSessionId());
+                  logger.debug('Anonymous ID', analytics.getAnonymousId());
+                  logger.debug('User ID', analytics.getUserId());
+                  logger.debug('User Traits', analytics.getUserTraits());
+                  logger.debug('Group ID', analytics.getGroupId());
+                  logger.debug('Group Traits', analytics.getGroupTraits());
+                },
+              });
+            }
+
             rudderanalytics.load('__WRITE_KEY__', '__DATAPLANE_URL__', loadOptions);
           }
         }
       })();
 
       const localRudderAnalyticsRef = window.rudderanalytics;
-
+        
       // prettier-ignore
       rudderanalytics.identify(
         'customUserID',
