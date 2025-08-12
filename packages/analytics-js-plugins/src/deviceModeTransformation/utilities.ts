@@ -192,4 +192,9 @@ const sendTransformedEventToDestinations = (
   });
 };
 
-export { createPayload, sendTransformedEventToDestinations };
+export {
+  createPayload,
+  sendTransformedEventToDestinations,
+  logOncePerDestination,
+  getDestinationId,
+};
