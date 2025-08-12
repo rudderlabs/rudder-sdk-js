@@ -101,7 +101,14 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
       event: RudderEvent,
       destinations: Destination[],
     ) {
-      const destinationIds = destinations.map(d => d.id);
+      const destinationIds: string[] = [];
+      destinations.forEach(d => {
+        const id = d.originalId ?? d.id;
+        if (!destinationIds.includes(id)) {
+          destinationIds.push(id);
+        }
+      });
+
       eventsQueue.addItem({
         event,
         destinationIds,
