@@ -3,9 +3,9 @@
     "@babel/core": "7.28.0",
     "@babel/preset-env": "7.28.0",
     "@symfony/webpack-encore": "5.1.0",
-    "core-js": "3.44.0",
+    "core-js": "3.45.0",
     "regenerator-runtime": "0.14.1",
-    "webpack": "5.101.0",
+    "webpack": "5.101.1",
     "webpack-cli": "6.0.1",
     "webpack-dev-server": "5.2.2",
     "webpack-notifier": "1.15.0"
