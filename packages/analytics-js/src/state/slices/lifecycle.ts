@@ -15,6 +15,7 @@ const lifecycleState: LifecycleState = {
   readyCallbacks: signal([]),
   writeKey: signal(undefined),
   dataPlaneUrl: signal(undefined),
+  safeAnalyticsInstance: signal(undefined),
 };
 
 export { lifecycleState };

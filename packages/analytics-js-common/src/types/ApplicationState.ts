@@ -21,6 +21,7 @@ import type {
 } from './Consent';
 import type { StorageType, CookieOptions } from './Storage';
 import type { UserSessionKey } from './UserSessionStorage';
+import type { RSAnalytics } from './IRudderAnalytics';
 
 export type CapabilitiesState = {
   isOnline: Signal<boolean>;
@@ -96,6 +97,7 @@ export type LifecycleState = {
   readyCallbacks: Signal<ReadyCallback[]>;
   writeKey: Signal<string | undefined>;
   dataPlaneUrl: Signal<string | undefined>;
+  safeAnalyticsInstance: Signal<RSAnalytics | undefined>;
 };
 
 export type AutoTrackState = {

@@ -10,8 +10,8 @@
 		"setup": "npm install"
 	},
 	"devDependencies": {
-		"dotenv": "17.2.0",
-		"wrangler": "4.25.0"
+		"dotenv": "17.2.1",
+		"wrangler": "4.26.0"
 	},
 	"dependencies": {
 		"@rudderstack/analytics-js-service-worker": "*",

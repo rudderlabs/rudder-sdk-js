@@ -19,6 +19,7 @@ import type {
   TrackCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
 import type { BufferQueue } from '@rudderstack/analytics-js-common/services/BufferQueue/BufferQueue';
+import type { RSACustomIntegration } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
 import type { Store } from '../../services/StoreManager';
 import type { IUserSessionManager } from '../userSessionManager/types';
 import type { IConfigManager } from '../configManager/types';
@@ -215,4 +216,16 @@ export interface IAnalytics {
    * To set auth token
    */
   setAuthToken(token: string): void;
+
+  /**
+   * Add a custom integration for a custom destination
+   * @param destinationId - Unique ID for the custom destination from the RudderStack dashboard
+   * @param integration - The custom integration instance implementing RSACustomIntegration
+   * @param isBufferedInvocation - Internal flag to indicate if this is a buffered call
+   */
+  addCustomIntegration(
+    destinationId: string,
+    integration: RSACustomIntegration,
+    isBufferedInvocation?: boolean,
+  ): void;
 }

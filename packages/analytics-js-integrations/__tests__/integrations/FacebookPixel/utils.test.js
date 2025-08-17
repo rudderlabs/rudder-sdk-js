@@ -917,22 +917,22 @@ describe('merge_function', () => {
 describe('getProductListViewedEventParams_function', () => {
   it('test_null_properties', () => {
     const result = getProductListViewedEventParams(null);
-    expect(result).toEqual({ contentIds: [], contentType: 'product', contents: [] });
+    expect(result).toEqual({});
   });
 
   it('test_undefined_properties', () => {
     const result = getProductListViewedEventParams(undefined);
-    expect(result).toEqual({ contentIds: [], contentType: 'product', contents: [] });
+    expect(result).toEqual({});
   });
 
   it('test_non_object_properties', () => {
     const result = getProductListViewedEventParams('not an object');
-    expect(result).toEqual({ contentIds: [], contentType: 'product', contents: [] });
+    expect(result).toEqual({});
   });
 
   it('test_empty_properties', () => {
     const result = getProductListViewedEventParams({});
-    expect(result).toEqual({ contentIds: [], contentType: 'product', contents: [] });
+    expect(result).toEqual({ contentIds: [], contentType: undefined, contents: [] });
   });
 
   it('test_normal_properties_with_products', () => {
@@ -956,27 +956,31 @@ describe('getProductListViewedEventParams_function', () => {
     const result = getProductListViewedEventParams(properties);
     expect(result.contentIds).toEqual(['electronics']);
     expect(result.contentType).toEqual('product_group');
-    expect(result.contents).toEqual([{
-      id: 'electronics',
-      quantity: 1,
-    }]);
+    expect(result.contents).toEqual([
+      {
+        id: 'electronics',
+        quantity: 1,
+      },
+    ]);
   });
 
   it('test_category_with_invalid_products', () => {
     const properties = {
       products: [
         { quantity: 2 }, // Missing product_id
-        { price: 10 },   // Missing product_id
+        { price: 10 }, // Missing product_id
       ],
       category: 'clothing',
     };
     const result = getProductListViewedEventParams(properties);
     expect(result.contentIds).toEqual(['clothing']);
     expect(result.contentType).toEqual('product_group');
-    expect(result.contents).toEqual([{
-      id: 'clothing',
-      quantity: 1,
-    }]);
+    expect(result.contents).toEqual([
+      {
+        id: 'clothing',
+        quantity: 1,
+      },
+    ]);
   });
 });
 
@@ -985,15 +989,17 @@ describe('getProductContentAndId_function', () => {
     const prodId = 'PROD123';
     const quantity = 2;
     const price = 29.99;
-    
+
     const result = getProductContentAndId(prodId, quantity, price);
-    
+
     expect(result).toEqual({
-      contents: [{
-        id: 'PROD123',
-        quantity: 2,
-        item_price: 29.99,
-      }],
+      contents: [
+        {
+          id: 'PROD123',
+          quantity: 2,
+          item_price: 29.99,
+        },
+      ],
       contentIds: ['PROD123'],
     });
   });
@@ -1001,10 +1007,10 @@ describe('getProductContentAndId_function', () => {
   it('test_with_null_prodId', () => {
     const prodId = null;
     const quantity = 1;
-    const price = 15.50;
-    
+    const price = 15.5;
+
     const result = getProductContentAndId(prodId, quantity, price);
-    
+
     expect(result).toEqual({
       contents: [],
       contentIds: [],
@@ -1014,10 +1020,10 @@ describe('getProductContentAndId_function', () => {
   it('test_with_undefined_prodId', () => {
     const prodId = undefined;
     const quantity = 3;
-    const price = 45.00;
-    
+    const price = 45.0;
+
     const result = getProductContentAndId(prodId, quantity, price);
-    
+
     expect(result).toEqual({
       contents: [],
       contentIds: [],
@@ -1027,10 +1033,10 @@ describe('getProductContentAndId_function', () => {
   it('test_with_empty_string_prodId', () => {
     const prodId = '';
     const quantity = 1;
-    const price = 10.00;
-    
+    const price = 10.0;
+
     const result = getProductContentAndId(prodId, quantity, price);
-    
+
     expect(result).toEqual({
       contents: [],
       contentIds: [],
@@ -1040,10 +1046,10 @@ describe('getProductContentAndId_function', () => {
   it('test_with_zero_prodId', () => {
     const prodId = 0;
     const quantity = 1;
-    const price = 5.00;
-    
+    const price = 5.0;
+
     const result = getProductContentAndId(prodId, quantity, price);
-    
+
     expect(result).toEqual({
       contents: [],
       contentIds: [],
@@ -1053,16 +1059,18 @@ describe('getProductContentAndId_function', () => {
   it('test_with_falsy_but_valid_prodId', () => {
     const prodId = '0'; // String zero is truthy
     const quantity = 1;
-    const price = 5.00;
-    
+    const price = 5.0;
+
     const result = getProductContentAndId(prodId, quantity, price);
-    
+
     expect(result).toEqual({
-      contents: [{
-        id: '0',
-        quantity: 1,
-        item_price: 5.00,
-      }],
+      contents: [
+        {
+          id: '0',
+          quantity: 1,
+          item_price: 5.0,
+        },
+      ],
       contentIds: ['0'],
     });
   });
@@ -1071,15 +1079,17 @@ describe('getProductContentAndId_function', () => {
     const prodId = 'PROD456';
     const quantity = null;
     const price = null;
-    
+
     const result = getProductContentAndId(prodId, quantity, price);
-    
+
     expect(result).toEqual({
-      contents: [{
-        id: 'PROD456',
-        quantity: null,
-        item_price: null,
-      }],
+      contents: [
+        {
+          id: 'PROD456',
+          quantity: null,
+          item_price: null,
+        },
+      ],
       contentIds: ['PROD456'],
     });
   });
@@ -1088,15 +1098,17 @@ describe('getProductContentAndId_function', () => {
     const prodId = 'PROD789';
     const quantity = undefined;
     const price = undefined;
-    
+
     const result = getProductContentAndId(prodId, quantity, price);
-    
+
     expect(result).toEqual({
-      contents: [{
-        id: 'PROD789',
-        quantity: undefined,
-        item_price: undefined,
-      }],
+      contents: [
+        {
+          id: 'PROD789',
+          quantity: undefined,
+          item_price: undefined,
+        },
+      ],
       contentIds: ['PROD789'],
     });
   });
