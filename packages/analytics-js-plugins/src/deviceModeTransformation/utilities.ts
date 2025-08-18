@@ -80,7 +80,7 @@ const sendTransformedEventToDestinations = (
   const ACTION_TO_SEND_UNTRANSFORMED_EVENT = 'Sending untransformed event';
   const ACTION_TO_DROP_EVENT = 'Dropping the event';
   const destinations: Destination[] = state.nativeDestinations.initializedDestinations.value.filter(
-    d => d && destinationIds.includes(d.originalId ?? d.id),
+    d => d && destinationIds.includes(getDestinationId(d)),
   );
 
   const loggedDestinations: string[] = [];
@@ -112,6 +112,7 @@ const sendTransformedEventToDestinations = (
                     DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR(
                       DMT_PLUGIN,
                       dest.displayName,
+                      destinationId,
                       reason,
                       action,
                     ),
@@ -123,6 +124,7 @@ const sendTransformedEventToDestinations = (
                     DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR(
                       DMT_PLUGIN,
                       dest.displayName,
+                      destinationId,
                       reason,
                       action,
                     ),
@@ -149,6 +151,7 @@ const sendTransformedEventToDestinations = (
                 DMT_REQUEST_FAILED_ERROR(
                   DMT_PLUGIN,
                   dest.displayName,
+                  destinationId,
                   status,
                   ACTION_TO_SEND_UNTRANSFORMED_EVENT,
                 ),
@@ -161,6 +164,7 @@ const sendTransformedEventToDestinations = (
                 DMT_REQUEST_FAILED_ERROR(
                   DMT_PLUGIN,
                   dest.displayName,
+                  destinationId,
                   status,
                   ACTION_TO_DROP_EVENT,
                 ),
@@ -186,7 +190,7 @@ const sendTransformedEventToDestinations = (
       errorHandler?.onError({
         error: err,
         context: DMT_PLUGIN,
-        customMessage: DMT_EXCEPTION(dest.displayName),
+        customMessage: DMT_EXCEPTION(dest.displayName, dest.id),
       });
     }
   });
