@@ -292,3 +292,37 @@ describe('BingAds Track event', () => {
     });
   });
 });
+
+describe('BingAds isLoaded tests', () => {
+  let bingAds;
+
+  beforeEach(() => {
+    bingAds = new BingAds({ tagID: '12567839' }, { loglevel: 'debug' });
+    // Clean up any existing UET environment
+    delete window.UET;
+    delete window.bing12567839;
+  });
+
+  test('should return true and set consent when fully loaded', () => {
+    // Mock the UET environment
+    window.UET = function () {};
+    window.bing12567839 = {
+      push: jest.fn(),
+    };
+
+    const isLoaded = bingAds.isLoaded();
+
+    expect(isLoaded).toBe(true);
+    expect(window.bing12567839.push).toHaveBeenCalledWith('consent', 'default', {
+      ad_storage: 'granted',
+    });
+  });
+
+  test('should return false and not set consent when not loaded', () => {
+    // Don't mock anything to simulate not loaded state
+    const isLoaded = bingAds.isLoaded();
+
+    expect(isLoaded).toBe(false);
+    // Should not throw any errors and no consent should be set
+  });
+});
