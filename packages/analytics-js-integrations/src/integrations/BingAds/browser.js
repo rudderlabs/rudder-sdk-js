@@ -35,16 +35,9 @@ class BingAds {
   }
 
   isLoaded() {
-    const isLoaded =
-      !!window.UET &&
-      !!window[this.uniqueId] &&
-      window[this.uniqueId].push !== Array.prototype.push;
-    if (isLoaded) {
-      // If integration loads successfully, user has consented or consent is not required
-      // In either case, it's safe to set consent as "granted"
-      window[this.uniqueId].push('consent', 'default', { ad_storage: 'granted' });
-    }
-    return isLoaded;
+    return (
+      !!window.UET && !!window[this.uniqueId] && window[this.uniqueId].push !== Array.prototype.push
+    );
   }
 
   isReady() {

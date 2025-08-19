@@ -1,6 +1,12 @@
 import { LOAD_ORIGIN } from '@rudderstack/analytics-js-legacy-utilities/constants';
 
 function loadNativeSdk(uniqueId, tagID) {
+  // Add consent as "granted" immediately when integration initializes
+  // If execution reaches here, user has consented or consent is not required
+  // UET script will process this consent and set the consent status accordingly
+  window[uniqueId] = window[uniqueId] || [];
+  window[uniqueId].push('consent', 'default', { ad_storage: 'granted' });
+
   ((w, d, t, r, u) => {
     let f;
     let n;

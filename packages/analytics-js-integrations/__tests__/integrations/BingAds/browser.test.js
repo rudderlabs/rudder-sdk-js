@@ -83,7 +83,7 @@ describe('BingAds Track event', () => {
         },
       },
     });
-    expect(output[0]).toEqual({
+    expect(output[1]).toEqual({
       event: 'button_click',
       event_label: event,
       event_category: 'Food',
@@ -118,7 +118,7 @@ describe('BingAds Track event', () => {
         },
       },
     });
-    expect(output[1]).toEqual({
+    expect(output[3]).toEqual({
       event: 'button_click',
       event_label: event,
       event_category: 'Food',
@@ -152,7 +152,7 @@ describe('BingAds Track event', () => {
         },
       },
     });
-    expect(output[2]).toEqual({
+    expect(output[5]).toEqual({
       event: 'button_click',
       event_label: event,
       event_category: 'Food',
@@ -172,7 +172,7 @@ describe('BingAds Track event', () => {
       },
     });
 
-    expect(output[3]).toEqual({
+    expect(output[7]).toEqual({
       event: 'track',
       event_label: event,
       ecomm_pagetype: 'other',
@@ -233,7 +233,7 @@ describe('BingAds Track event', () => {
         },
       },
     });
-    expect(output[4]).toEqual({
+    expect(output[11]).toEqual({
       event: 'button_click',
       event_label: event,
       event_category: 'Food',
@@ -278,7 +278,7 @@ describe('BingAds Track event', () => {
         },
       },
     });
-    expect(output[5]).toEqual({
+    expect(output[14]).toEqual({
       event: 'button_click',
       event_label: event,
       event_category: 'Food',
@@ -290,39 +290,5 @@ describe('BingAds Track event', () => {
         em: 'ee278943de84e5d6243578ee1a1057bcce0e50daad9755f45dfa64b60b13bc5d',
       },
     });
-  });
-});
-
-describe('BingAds isLoaded tests', () => {
-  let bingAds;
-
-  beforeEach(() => {
-    bingAds = new BingAds({ tagID: '12567839' }, { loglevel: 'debug' });
-    // Clean up any existing UET environment
-    delete window.UET;
-    delete window.bing12567839;
-  });
-
-  test('should return true and set consent when fully loaded', () => {
-    // Mock the UET environment
-    window.UET = function () {};
-    window.bing12567839 = {
-      push: jest.fn(),
-    };
-
-    const isLoaded = bingAds.isLoaded();
-
-    expect(isLoaded).toBe(true);
-    expect(window.bing12567839.push).toHaveBeenCalledWith('consent', 'default', {
-      ad_storage: 'granted',
-    });
-  });
-
-  test('should return false and not set consent when not loaded', () => {
-    // Don't mock anything to simulate not loaded state
-    const isLoaded = bingAds.isLoaded();
-
-    expect(isLoaded).toBe(false);
-    // Should not throw any errors and no consent should be set
   });
 });
