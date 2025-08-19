@@ -83,7 +83,7 @@ describe('BingAds Track event', () => {
         },
       },
     });
-    expect(output[0]).toEqual({
+    expect(output[1]).toEqual({
       event: 'button_click',
       event_label: event,
       event_category: 'Food',
@@ -118,7 +118,7 @@ describe('BingAds Track event', () => {
         },
       },
     });
-    expect(output[1]).toEqual({
+    expect(output[3]).toEqual({
       event: 'button_click',
       event_label: event,
       event_category: 'Food',
@@ -152,7 +152,7 @@ describe('BingAds Track event', () => {
         },
       },
     });
-    expect(output[2]).toEqual({
+    expect(output[5]).toEqual({
       event: 'button_click',
       event_label: event,
       event_category: 'Food',
@@ -172,7 +172,7 @@ describe('BingAds Track event', () => {
       },
     });
 
-    expect(output[3]).toEqual({
+    expect(output[7]).toEqual({
       event: 'track',
       event_label: event,
       ecomm_pagetype: 'other',
@@ -233,7 +233,7 @@ describe('BingAds Track event', () => {
         },
       },
     });
-    expect(output[4]).toEqual({
+    expect(output[11]).toEqual({
       event: 'button_click',
       event_label: event,
       event_category: 'Food',
@@ -278,7 +278,7 @@ describe('BingAds Track event', () => {
         },
       },
     });
-    expect(output[5]).toEqual({
+    expect(output[14]).toEqual({
       event: 'button_click',
       event_label: event,
       event_category: 'Food',

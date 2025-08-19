@@ -32,6 +32,10 @@ class BingAds {
 
   init() {
     loadNativeSdk(this.uniqueId, this.tagID);
+    // Add consent as "granted" immediately when integration initializes
+    // If execution reaches here, user has consented or consent is not required
+    window[this.uniqueId] = window[this.uniqueId] || [];
+    window[this.uniqueId].push('consent', 'default', { ad_storage: 'granted' });
   }
 
   isLoaded() {
