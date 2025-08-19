@@ -91,7 +91,7 @@
     "@rudderstack/analytics-js-cookies": "*",
     "@rudderstack/analytics-js-common": "*",
     "@rudderstack/analytics-js-integrations": "*",
-    "crypto-es": "2.1.0",
+    "crypto-es": "3.0.0",
     "ramda": "0.31.3"
   },
   "devDependencies": {
