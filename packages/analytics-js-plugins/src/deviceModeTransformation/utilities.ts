@@ -47,6 +47,25 @@ const createPayload = (
   return payload;
 };
 
+/**
+ * Helper function to get destination identifier consistently
+ */
+const getDestinationId = (dest: Destination): string => dest.originalId ?? dest.id;
+
+/**
+ * Helper function to log once per destination to avoid duplicate messages
+ */
+const logOncePerDestination = (
+  destinationId: string,
+  loggedDestinations: string[],
+  logFn: () => void,
+): void => {
+  if (!loggedDestinations.includes(destinationId)) {
+    loggedDestinations.push(destinationId);
+    logFn();
+  }
+};
+
 const sendTransformedEventToDestinations = (
   state: ApplicationState,
   pluginsManager: IPluginsManager,
@@ -61,17 +80,19 @@ const sendTransformedEventToDestinations = (
   const ACTION_TO_SEND_UNTRANSFORMED_EVENT = 'Sending untransformed event';
   const ACTION_TO_DROP_EVENT = 'Dropping the event';
   const destinations: Destination[] = state.nativeDestinations.initializedDestinations.value.filter(
-    d => d && destinationIds.includes(d.id),
+    d => d && destinationIds.includes(getDestinationId(d)),
   );
 
+  const loggedDestinations: string[] = [];
   destinations.forEach(dest => {
     try {
       const eventsToSend: TransformedEvent[] = [];
+      const destinationId = getDestinationId(dest);
       switch (status) {
         case 200: {
           const response: TransformationResponsePayload = JSON.parse(result);
           const destTransformedResult = response.transformedBatch.find(
-            (e: TransformedBatch) => e.id === dest.id,
+            (e: TransformedBatch) => e.id === destinationId,
           );
           destTransformedResult?.payload.forEach((tEvent: TransformedPayload) => {
             if (tEvent.status === '200') {
@@ -86,23 +107,29 @@ const sendTransformedEventToDestinations = (
               if (dest.propagateEventsUntransformedOnError === true) {
                 action = ACTION_TO_SEND_UNTRANSFORMED_EVENT;
                 eventsToSend.push(event);
-                logger?.warn(
-                  DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR(
-                    DMT_PLUGIN,
-                    dest.displayName,
-                    reason,
-                    action,
-                  ),
-                );
+                logOncePerDestination(destinationId, loggedDestinations, () => {
+                  logger?.warn(
+                    DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR(
+                      DMT_PLUGIN,
+                      dest.displayName,
+                      destinationId,
+                      reason,
+                      action,
+                    ),
+                  );
+                });
               } else {
-                logger?.error(
-                  DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR(
-                    DMT_PLUGIN,
-                    dest.displayName,
-                    reason,
-                    action,
-                  ),
-                );
+                logOncePerDestination(destinationId, loggedDestinations, () => {
+                  logger?.error(
+                    DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR(
+                      DMT_PLUGIN,
+                      dest.displayName,
+                      destinationId,
+                      reason,
+                      action,
+                    ),
+                  );
+                });
               }
             }
           });
@@ -111,25 +138,38 @@ const sendTransformedEventToDestinations = (
         }
         // Transformation server access denied
         case 404: {
-          logger?.warn(DMT_SERVER_ACCESS_DENIED_WARNING(DMT_PLUGIN));
+          logOncePerDestination(destinationId, loggedDestinations, () => {
+            logger?.warn(DMT_SERVER_ACCESS_DENIED_WARNING(DMT_PLUGIN));
+          });
           eventsToSend.push(event);
           break;
         }
         default: {
           if (dest.propagateEventsUntransformedOnError === true) {
-            logger?.warn(
-              DMT_REQUEST_FAILED_ERROR(
-                DMT_PLUGIN,
-                dest.displayName,
-                status,
-                ACTION_TO_SEND_UNTRANSFORMED_EVENT,
-              ),
-            );
+            logOncePerDestination(destinationId, loggedDestinations, () => {
+              logger?.warn(
+                DMT_REQUEST_FAILED_ERROR(
+                  DMT_PLUGIN,
+                  dest.displayName,
+                  destinationId,
+                  status,
+                  ACTION_TO_SEND_UNTRANSFORMED_EVENT,
+                ),
+              );
+            });
             eventsToSend.push(event);
           } else {
-            logger?.error(
-              DMT_REQUEST_FAILED_ERROR(DMT_PLUGIN, dest.displayName, status, ACTION_TO_DROP_EVENT),
-            );
+            logOncePerDestination(destinationId, loggedDestinations, () => {
+              logger?.error(
+                DMT_REQUEST_FAILED_ERROR(
+                  DMT_PLUGIN,
+                  dest.displayName,
+                  destinationId,
+                  status,
+                  ACTION_TO_DROP_EVENT,
+                ),
+              );
+            });
           }
           break;
         }
@@ -150,10 +190,15 @@ const sendTransformedEventToDestinations = (
       errorHandler?.onError({
         error: err,
         context: DMT_PLUGIN,
-        customMessage: DMT_EXCEPTION(dest.displayName),
+        customMessage: DMT_EXCEPTION(dest.displayName, dest.id),
       });
     }
   });
 };
 
-export { createPayload, sendTransformedEventToDestinations };
+export {
+  createPayload,
+  sendTransformedEventToDestinations,
+  logOncePerDestination,
+  getDestinationId,
+};

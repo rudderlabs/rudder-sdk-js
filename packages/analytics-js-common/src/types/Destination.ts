@@ -146,6 +146,7 @@ export type DestinationConfig = BaseDestinationConfig & {
 
 export type Destination = {
   id: string;
+  originalId?: string;
   displayName: string;
   userFriendlyId: string;
   shouldApplyDeviceModeTransformation: boolean;

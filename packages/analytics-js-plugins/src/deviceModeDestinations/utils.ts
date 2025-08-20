@@ -262,6 +262,7 @@ const applySourceConfigurationOverrides = (
       overrides.forEach((override: SourceConfigurationOverrideDestination, index: number) => {
         const overriddenDestination = applyOverrideToDestination(dest, override, `${index + 1}`);
         overriddenDestination.cloned = true;
+        overriddenDestination.originalId = dest.id;
         processedDestinations.push(overriddenDestination);
       });
     } else {
