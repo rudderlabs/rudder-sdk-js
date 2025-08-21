@@ -12,15 +12,15 @@ permissions:
   contents: write # Changed to write to allow creating/updating releases
 
 env:
-  NODE_OPTIONS: "--no-warnings"
-  CACHE_CONTROL_NO_STORE: "\"no-store\""
-  CACHE_CONTROL_MAX_AGE: "\"max-age=3600\""
-  LEGACY_DIR_NAME: "legacy"
-  MODERN_DIR_NAME: "modern"
-  INTEGRATIONS_DIR_NAME: "js-integrations"
-  PLUGINS_DIR_NAME: "plugins"
-  LATEST_VERSION_DIR_NAME: "v3"
-  LEGACY_SDK_LATEST_VERSION_DIR_NAME: "v1.1"
+  NODE_OPTIONS: '--no-warnings'
+  CACHE_CONTROL_NO_STORE: '"no-store"'
+  CACHE_CONTROL_MAX_AGE: '"max-age=3600"'
+  LEGACY_DIR_NAME: 'legacy'
+  MODERN_DIR_NAME: 'modern'
+  INTEGRATIONS_DIR_NAME: 'js-integrations'
+  PLUGINS_DIR_NAME: 'plugins'
+  LATEST_VERSION_DIR_NAME: 'v3'
+  LEGACY_SDK_LATEST_VERSION_DIR_NAME: 'v1.1'
 
 jobs:
   validate-actor:
@@ -48,16 +48,21 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
     steps:
       - name: Install AWS CLI
-        uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c  # master
+        uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c # master
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a  # v4.3.1
+        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_PROD_ACCOUNT_ID }}:role/${{ secrets.AWS_PROD_S3_SYNC_ROLE }}
           aws-region: us-east-1
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
       - name: Checkout main branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: main # Production branch
 
@@ -71,16 +76,15 @@ jobs:
           echo "LEGACY_SDK_CURRENT_VERSION_VALUE=$legacy_sdk_current_version" >> $GITHUB_ENV
           echo "Legacy SDK current version: $legacy_sdk_current_version"
 
-      - name: Checkout source code
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.sha }}
-
-      - name: Setup Node
+      - name: Setup Node (second checkout)
         uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
+          node-version: '24'
+
+      - name: Checkout source code
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.sha }}
 
       - name: Get rollback sdk versions
         run: |
@@ -134,25 +138,25 @@ jobs:
           script: |
             const rollbackVersion = process.env.LEGACY_SDK_ROLLBACK_VERSION_VALUE;
             const releaseTag = `@rudderstack/analytics-js@${rollbackVersion}`;
-            
+
             console.log(`Marking ${releaseTag} as the latest release on GitHub`);
-            
+
             // Find the release for the rollback version
             const releases = await github.rest.repos.listReleases({
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
-            
+
             const rollbackRelease = releases.data.find(release => 
               release.tag_name === releaseTag || 
               release.name === releaseTag
             );
-            
+
             if (!rollbackRelease) {
               console.log(`Release with tag ${releaseTag} not found`);
               return;
             }
-            
+
             // Update the release to set it as the latest
             await github.rest.repos.updateRelease({
               owner: context.repo.owner,
@@ -160,7 +164,7 @@ jobs:
               release_id: rollbackRelease.id,
               make_latest: true
             });
-            
+
             console.log(`Successfully marked ${releaseTag} as the latest release`);
 
       - name: Deprecate the rolled back NPM version
@@ -171,7 +175,7 @@ jobs:
         run: |
           VERSION_TO_DEPRECATE="${{ env.CURRENT_VERSION_VALUE }}"
           echo "Deprecating NPM version: $VERSION_TO_DEPRECATE"
-          
+
           # Deprecate the specified version with a message
           npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
           npm deprecate "@rudderstack/analytics-js@$VERSION_TO_DEPRECATE" "We've identified issues with this version of the package. Please switch to v${{ env.ROLLBACK_VERSION_VALUE }} or the latest version if available."
@@ -182,7 +186,7 @@ jobs:
       - name: Send message to Slack channel
         id: slack
         continue-on-error: true
-        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a  # v2.1.1
+        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
         env:
           PROJECT_NAME: 'JS SDK Browser Package - Rollback - Production'
           CDN_URL: ${{ format('https://cdn.rudderlabs.com/{0}/modern/rsa.min.js', env.LATEST_VERSION_DIR_NAME) }}

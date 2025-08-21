@@ -9,7 +9,7 @@ on:
       slack_message_link:
         description: Slack message URL of the release
         required: true
-        
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -32,16 +32,15 @@ jobs:
     name: Draft a new release
     runs-on: [self-hosted, Linux, X64]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
+          node-version: '24'
+
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - name: Setup workspace
         env:
@@ -125,7 +124,7 @@ jobs:
           GH_TOKEN: ${{ secrets.PAT }}
         run: |
           pr_title="chore(release): merge ${{ steps.create-release.outputs.branch_name }} into main [${{ github.event.inputs.release_ticket_id }}]"
-          
+
           # Create PR body with proper formatting
           cat > pr_body.md << EOF
           :crown: **Automated Release PR**
@@ -146,14 +145,14 @@ jobs:
           ---
           Please review and merge when ready. :rocket:
           EOF
-          
+
           # Create the PR using GitHub CLI and capture the URL
           pr_url=$(gh pr create \
             --base main \
             --head ${{ steps.create-release.outputs.branch_name }} \
             --title "$pr_title" \
             --body-file pr_body.md)
-          
+
           echo "pr_url=$pr_url" >> $GITHUB_OUTPUT
 
       - name: Extract Slack channel and thread info
@@ -161,10 +160,10 @@ jobs:
         continue-on-error: true
         run: |
           link="${{ github.event.inputs.slack_message_link }}"
-          
+
           # Extract channel ID from the link (after /archives/ and before the next /)
           channel_id=$(echo "$link" | sed -n 's|.*\/archives\/\([^\/]*\)\/.*|\1|p')
-          
+
           # Check if thread_ts parameter exists in URL (for messages within a thread)
           if echo "$link" | grep -q "thread_ts="; then
             # Extract thread_ts parameter value
@@ -183,10 +182,10 @@ jobs:
             fi
             echo "Using timestamp from /p part: $thread_ts"
           fi
-          
+
           echo "Extracted channel ID: $channel_id"
           echo "Final thread timestamp: $thread_ts"
-          
+
           echo "channel_id=$channel_id" >> $GITHUB_OUTPUT
           echo "thread_ts=$thread_ts" >> $GITHUB_OUTPUT
 
@@ -195,7 +194,7 @@ jobs:
         run: |
           # Create directory for artifact
           mkdir -p release-info
-          
+
           # Create JSON file with release information
           cat > release-info/release-info.json << EOF
           {
@@ -208,7 +207,7 @@ jobs:
             "created_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           }
           EOF
-          
+
           echo "Created release info artifact:"
           cat release-info/release-info.json
 
@@ -222,7 +221,7 @@ jobs:
 
       - name: Reply in Slack thread
         if: ${{ steps.slack-info.outputs.thread_ts != '' && steps.slack-info.outputs.channel_id != '' }}
-        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a  # v2.1.1
+        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
         continue-on-error: true
         with:
           method: chat.postMessage

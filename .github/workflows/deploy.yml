@@ -63,16 +63,16 @@ permissions:
   contents: read # This is required for actions/checkout
 
 env:
-  NODE_OPTIONS: "--no-warnings"
-  CACHE_CONTROL_NO_STORE: "\"no-store\""
-  CACHE_CONTROL_MAX_AGE: "\"max-age=3600\""
-  INTEGRATIONS_ZIP_FILE: "all_integration_sdks.tar.gz"
-  PLUGINS_ZIP_FILE: "all_plugins.tar.gz"
-  INTEGRATIONS_ARTIFACTS_BASE_PATH: "packages/analytics-js-integrations/dist/cdn"
-  PLUGINS_ARTIFACTS_BASE_PATH: "packages/analytics-js-plugins/dist/cdn"
-  CORE_ARTIFACTS_BASE_PATH: "packages/analytics-js/dist/cdn"
-  INTEGRATIONS_HTML_FILE: "list.html"
-  PLUGINS_HTML_FILE: "list.html"
+  NODE_OPTIONS: '--no-warnings'
+  CACHE_CONTROL_NO_STORE: '"no-store"'
+  CACHE_CONTROL_MAX_AGE: '"max-age=3600"'
+  INTEGRATIONS_ZIP_FILE: 'all_integration_sdks.tar.gz'
+  PLUGINS_ZIP_FILE: 'all_plugins.tar.gz'
+  INTEGRATIONS_ARTIFACTS_BASE_PATH: 'packages/analytics-js-integrations/dist/cdn'
+  PLUGINS_ARTIFACTS_BASE_PATH: 'packages/analytics-js-plugins/dist/cdn'
+  CORE_ARTIFACTS_BASE_PATH: 'packages/analytics-js/dist/cdn'
+  INTEGRATIONS_HTML_FILE: 'list.html'
+  PLUGINS_HTML_FILE: 'list.html'
 
 jobs:
   deploy:
@@ -81,10 +81,10 @@ jobs:
 
     steps:
       - name: Install AWS CLI
-        uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c  # master
+        uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c # master
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a  # v4.3.1
+        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_S3_SYNC_ROLE }}
           aws-region: us-east-1
@@ -100,8 +100,13 @@ jobs:
           echo "Checkout SHA: $sha"
           echo "SHA=$sha" >> $GITHUB_OUTPUT
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
       - name: Checkout source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ steps.getSHA.outputs.SHA }}
 
@@ -110,15 +115,15 @@ jobs:
         run: |
           CURRENT_VERSION_JS=$(jq -r .version packages/analytics-js/package.json)
           CURRENT_VERSION_V1=$(jq -r .version packages/analytics-v1.1/package.json)
-          
+
           # Append the suffix to create new versions
           NEW_VERSION_JS="${CURRENT_VERSION_JS}-${{ inputs.version_suffix }}"
           NEW_VERSION_V1="${CURRENT_VERSION_V1}-${{ inputs.version_suffix }}"
-          
+
           echo "Updating versions:"
           echo "analytics-js: $CURRENT_VERSION_JS -> $NEW_VERSION_JS"
           echo "analytics-v1.1: $CURRENT_VERSION_V1 -> $NEW_VERSION_V1"
-          
+
           # Update all package.json files using jq
           jq ".version = \"$NEW_VERSION_JS\"" packages/analytics-js/package.json > tmp && mv tmp packages/analytics-js/package.json
           jq ".version = \"$NEW_VERSION_V1\"" packages/analytics-v1.1/package.json > tmp && mv tmp packages/analytics-v1.1/package.json
@@ -130,12 +135,6 @@ jobs:
           echo "CURRENT_VERSION_V1_VALUE=$current_version_v1" >> $GITHUB_ENV
           echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
           echo "DATE=$(date)" >> $GITHUB_ENV
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
 
       - name: Setup workspace
         env:
@@ -162,11 +161,11 @@ jobs:
           tmp_file="/tmp/legacy_${{ env.INTEGRATIONS_ZIP_FILE }}"
           tar -czvf "$tmp_file" -C "${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/legacy/js-integrations/" .
           mv "$tmp_file" "${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/legacy/js-integrations/${{ env.INTEGRATIONS_ZIP_FILE }}"
-          
+
           tmp_file="/tmp/modern_${{ env.INTEGRATIONS_ZIP_FILE }}"
           tar -czvf "$tmp_file" -C "${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/modern/js-integrations/" .
           mv "$tmp_file" "${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/modern/js-integrations/${{ env.INTEGRATIONS_ZIP_FILE }}"
-          
+
           # Generate a zip file of all the plugins
           tmp_file="/tmp/${{ env.PLUGINS_ZIP_FILE }}"
           tar -czvf "$tmp_file" -C ${{ env.PLUGINS_ARTIFACTS_BASE_PATH }}/modern/plugins/ .
@@ -233,7 +232,7 @@ jobs:
 
       # Note: Although, it might seem like this step is not required when a new version is deployed,
       # as these artifacts are copied for the first time, we're invalidating the cache for the case
-      # where a release only contains changes to the integrations or plugins or both and the new artifacts 
+      # where a release only contains changes to the integrations or plugins or both and the new artifacts
       # are replaced with the old ones in the versioned directory.
       - name: Invalidate CloudFront cache for all the SDK artifacts (versioned directory)
         if: ${{ inputs.environment == 'production' }}
@@ -268,7 +267,7 @@ jobs:
           aws s3 cp ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/legacy/js-integrations/${{ env.INTEGRATIONS_HTML_FILE }} $s3_path_prefix/legacy/js-integrations/${{ env.INTEGRATIONS_HTML_FILE }} --cache-control ${{ env.CACHE_CONTROL_MAX_AGE }}
           aws s3 cp ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/modern/js-integrations/${{ env.INTEGRATIONS_HTML_FILE }} $s3_path_prefix/modern/js-integrations/${{ env.INTEGRATIONS_HTML_FILE }} --cache-control ${{ env.CACHE_CONTROL_MAX_AGE }}
           aws s3 cp ${{ env.PLUGINS_ARTIFACTS_BASE_PATH }}/modern/plugins/${{ env.PLUGINS_HTML_FILE }} $s3_path_prefix/modern/plugins/${{ env.PLUGINS_HTML_FILE }} --cache-control ${{ env.CACHE_CONTROL_MAX_AGE }}
-      
+
       - name: Copy SDK core artifacts to S3
         run: |
           s3_relative_path_prefix="${{ inputs.s3_dir_path }}"
@@ -282,13 +281,13 @@ jobs:
       - name: Invalidate CloudFront cache for all the SDK artifacts
         run: |
           invalidation_id=$(AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/${{ inputs.s3_dir_path }}*" --query "Invalidation.Id" --output text)
-          
+
           aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --id "$invalidation_id"
 
       - name: Send message to Slack channel
         id: slack
         continue-on-error: true
-        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a  # v2.1.1
+        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
         env:
           PROJECT_NAME: ${{ format('JS SDK Browser Package{0}', (inputs.environment == 'staging' && ' - Staging') || (inputs.environment == 'development' && ' - Development') || (inputs.environment == 'beta' && ' - Beta') || '') }}
           CDN_URL: ${{ format('{0}/{1}/modern/rsa.min.js', inputs.base_cdn_url, inputs.s3_dir_path) }}
@@ -393,10 +392,10 @@ jobs:
 
       # Note: Although, it might seem like this step is not required when a new version is deployed,
       # as these artifacts are copied for the first time, we're invalidating the cache for the case
-      # where a release only contains changes to the integrations or plugins or both and the new artifacts 
+      # where a release only contains changes to the integrations or plugins or both and the new artifacts
       # are replaced with the old ones in the versioned directory.
-      # 
-      # These version directory artifacts of legacy SDK are not actually used in production but to be in parity with the v3 SDK 
+      #
+      # These version directory artifacts of legacy SDK are not actually used in production but to be in parity with the v3 SDK
       # we're performing the same operation.
       - name: Invalidate CloudFront cache for all the legacy SDK artifacts (versioned directory)
         run: |
