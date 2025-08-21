@@ -60,20 +60,15 @@ The repository uses Nx for monorepo management with packages in `/packages/`:
 
 #### Core SDK Packages
 
-- **`analytics-js`** - Main JavaScript SDK (modern v3 architecture)
-- **`analytics-v1.1`** - Legacy v1.1 SDK (backward compatibility)
-- **`analytics-js-service-worker`** - Service worker SDK for serverless environments
-
 #### Supporting Packages
 
-- **`analytics-js-common`** - Shared utilities, types, constants, and services
-- **`analytics-js-plugins`** - Optional SDK plugins (consent managers, queues, encryption)
-- **`analytics-js-integrations`** - Device mode destination integrations
-- **`analytics-js-cookies`** - Cookie utilities
-- **`analytics-js-loading-scripts`** - SDK loading scripts
-- **`analytics-js-legacy-utilities`** - Utilities for legacy SDK support
-- **`sanity-suite`** - Testing and validation suite
-
+- **`analytics-js-common`** – Shared utilities, types, constants, and services
+- **`analytics-js-plugins`** – Optional SDK plugins (consent managers, queues, encryption)
+- **`analytics-js-integrations`** – Device mode destination integrations
+- **`analytics-js-cookies`** – Cookie utilities
+- **`loading-scripts`** – SDK loading scripts
+- **`analytics-js-legacy-utilities`** – Utilities for legacy SDK support
+- **`sanity-suite`** – Testing and validation suite
 ### Key Architectural Concepts
 
 #### Modern SDK (v3) Architecture
