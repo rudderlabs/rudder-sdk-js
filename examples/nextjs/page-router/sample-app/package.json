@@ -12,21 +12,21 @@
   },
   "dependencies": {
     "@rudderstack/analytics-js": "*",
-    "@tailwindcss/postcss": "4.1.11",
-    "next": "15.4.4",
+    "@tailwindcss/postcss": "4.1.12",
+    "next": "15.5.0",
     "react": "19.1.1",
     "react-dom": "19.1.1"
   },
   "devDependencies": {
-    "@types/node": "24.1.0",
-    "@types/react": "19.1.8",
-    "@types/react-dom": "19.1.6",
+    "@types/node": "24.3.0",
+    "@types/react": "19.1.10",
+    "@types/react-dom": "19.1.7",
     "autoprefixer": "10.4.21",
-    "eslint": "9.32.0",
-    "eslint-config-next": "15.4.4",
+    "eslint": "9.33.0",
+    "eslint-config-next": "15.5.0",
     "postcss": "8.5.6",
-    "tailwindcss": "4.1.11",
-    "typescript": "5.8.3"
+    "tailwindcss": "4.1.12",
+    "typescript": "5.9.2"
   },
   "overrides": {
     "cross-spawn": "7.0.6",
