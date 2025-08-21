@@ -31,10 +31,10 @@ on:
         required: true
 
 env:
-  MAX_WAIT_TIME_FOR_SANITY_TESTS: 18000  # 5 hours
-  CHECK_INTERVAL_FOR_SANITY_TESTS: 60   # 1 minute
-  MAX_WAIT_TIME_FOR_E2E_TESTS: 18000    # 5 hours
-  CHECK_INTERVAL_FOR_E2E_TESTS: 60      # 1 minute
+  MAX_WAIT_TIME_FOR_SANITY_TESTS: 18000 # 5 hours
+  CHECK_INTERVAL_FOR_SANITY_TESTS: 60 # 1 minute
+  MAX_WAIT_TIME_FOR_E2E_TESTS: 18000 # 5 hours
+  CHECK_INTERVAL_FOR_E2E_TESTS: 60 # 1 minute
   TARGET_REPO: rudderlabs/rudder-client-side-test
 
 jobs:
@@ -57,6 +57,12 @@ jobs:
           echo "Checkout SHA: $sha"
           echo "SHA=$sha" >> $GITHUB_OUTPUT
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
       - name: Checkout
         uses: actions/checkout@v5
         with:
@@ -77,6 +83,12 @@ jobs:
       sanity-conclusion: ${{ steps.run_sanity_tests.outputs.conclusion }}
 
     steps:
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
       - name: Checkout (for composite action)
         uses: actions/checkout@v5
 
@@ -90,7 +102,7 @@ jobs:
             --arg sanity_test_suite_url "${{ inputs.sanity_test_suite_url }}" \
             --arg build_source_id "${{ inputs.build_source_id }}" \
             '{environment: $environment, monorepo_version: $monorepo_version, sanity_test_suite_url: $sanity_test_suite_url, build_source_id: $build_source_id}')
-          
+
           echo "inputs_json=$inputs_json" >> $GITHUB_OUTPUT
 
       - name: Run sanity test suite
@@ -114,6 +126,12 @@ jobs:
     if: needs.trigger-and-wait-sanity-test-suite.outputs.sanity-conclusion == 'success'
 
     steps:
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
       - name: Checkout (for composite action)
         uses: actions/checkout@v5
 
@@ -127,7 +145,7 @@ jobs:
             --arg sanity_test_suite_url "${{ inputs.sanity_test_suite_url }}" \
             --arg build_source_id "${{ inputs.build_source_id }}" \
             '{environment: $environment, monorepo_version: $monorepo_version, sanity_test_suite_url: $sanity_test_suite_url, build_source_id: $build_source_id}')
-          
+
           echo "inputs_json=$inputs_json" >> $GITHUB_OUTPUT
 
       - name: Run E2E test suite

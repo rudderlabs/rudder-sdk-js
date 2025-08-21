@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       deploy_to_npm:
-        description: "Deploy to NPM"
+        description: 'Deploy to NPM'
         type: boolean
         default: false
 
@@ -40,6 +40,12 @@ jobs:
       beta_identifier_for_automation_tests: ${{ steps.deploy-inputs.outputs.beta_identifier_for_automation_tests }}
       trigger_source: ${{ format('Triggered via PR <{0}|#{1}> by <{2}|{3}>', steps.pr-info.outputs.pr_url, steps.pr-info.outputs.pr_number, format('{0}/{1}', github.server_url, github.actor), github.actor) }}
     steps:
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
       - name: Checkout code
         uses: actions/checkout@v5
         with:
@@ -52,7 +58,7 @@ jobs:
           script: |
             const branch = context.ref.replace('refs/heads/', '');
             console.log(`Finding PRs for branch: ${branch}`);
-            
+
             const { data: pullRequests } = await github.rest.pulls.list({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -60,7 +66,7 @@ jobs:
               base: 'develop',
               state: 'open'
             });
-            
+
             if (pullRequests.length > 0) {
               const pr = pullRequests[0];
               const prNumber = pr.number.toString();

@@ -22,6 +22,12 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
     needs: validate-actor
     steps:
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
       - name: Checkout source code
         uses: actions/checkout@v5
         with:

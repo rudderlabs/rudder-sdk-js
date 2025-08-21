@@ -29,14 +29,14 @@ jobs:
         run: |
           branch_name="${{ github.event.pull_request.head.ref }}"
           echo "Branch name: $branch_name"
-          
+
           # Extract version and ticket from branch name (format: release/3.2.1-SDK-1234 or hotfix-release/3.2.2-SDK-5678)
           version=$(echo "$branch_name" | sed -n 's|.*\/\([0-9]\+\.[0-9]\+\.[0-9]\+\)-.*|\1|p')
           ticket=$(echo "$branch_name" | sed -n 's|.*-\([^-]*\)$|\1|p')
-          
+
           echo "Extracted version: $version"
           echo "Extracted ticket: $ticket"
-          
+
           echo "release_version=$version" >> $GITHUB_OUTPUT
           echo "release_ticket_id=$ticket" >> $GITHUB_OUTPUT
 
@@ -71,6 +71,12 @@ jobs:
 
           echo "release_version=$VERSION" >> $GITHUB_OUTPUT
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
       - name: Checkout
         uses: actions/checkout@v5
         with:
@@ -89,12 +95,6 @@ jobs:
         run: |
           git tag -a v${{ steps.extract-version.outputs.release_version }} -m "chore(monorepo): release v${{ steps.extract-version.outputs.release_version }}"
           git push origin refs/tags/v${{ steps.extract-version.outputs.release_version }}
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
 
       - name: Setup workspace
         env:
@@ -140,9 +140,9 @@ jobs:
           # Get the analytics-js package version from package.json
           ANALYTICS_JS_VERSION=$(jq -r '.version' packages/analytics-js/package.json)
           RELEASE_TAG="@rudderstack/analytics-js@${ANALYTICS_JS_VERSION}"
-          
+
           echo "Looking for release: $RELEASE_TAG"
-          
+
           # Wait for the release to be available and retry up to 10 times
           for i in {1..10}; do
             echo "Attempt $i: Checking if release $RELEASE_TAG exists..."
@@ -162,7 +162,7 @@ jobs:
               sleep 10
             fi
           done
-          
+
           echo "ERROR: Release $RELEASE_TAG was not found after 10 attempts"
 
       - name: Create pull request into develop
@@ -172,7 +172,7 @@ jobs:
           GH_TOKEN: ${{ secrets.PAT }}
         run: |
           pr_title="chore(release): merge main into develop after release v${{ steps.extract-version.outputs.release_version }} [${{ steps.extract-version.outputs.release_ticket_id }}]"
-          
+
           # Create PR body with proper formatting
           cat > pr_body.md << EOF
           :crown: **Automated Post-Release PR**
@@ -188,7 +188,7 @@ jobs:
           ---
           Please review and merge it before closing the release ticket. :rocket:
           EOF
-          
+
           # Create the PR using GitHub CLI
           gh pr create \
             --base develop \
@@ -200,7 +200,7 @@ jobs:
         id: slack
         if: always()
         continue-on-error: true
-        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a  # v2.1.1
+        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
         env:
           PROJECT_NAME: 'JS SDK Monorepo'
           TAG_COMPARE_URL: 'https://github.com/rudderlabs/rudder-sdk-js/compare/'
