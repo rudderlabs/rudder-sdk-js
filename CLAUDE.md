@@ -112,8 +112,7 @@ packages/[package-name]/
 
 Device mode integrations follow this pattern:
 
-- Constants: `analytics-js-common/src/constants/integrations/[name]/constants.ts`
-- Implementation: `analytics-js-integrations/src/integrations/[name]/browser.js`
+- Implementation: `packages/analytics-js-integrations/src/integrations/[name]/browser.js`
 - Required methods: `init()`, `isLoaded()`, `isReady()`, event handlers
 
 ### Build System
