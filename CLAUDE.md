@@ -60,8 +60,11 @@ The repository uses Nx for monorepo management with packages in `/packages/`:
 
 #### Core SDK Packages
 
-#### Supporting Packages
+- **`analytics-js`** – Modern SDK (v3)
+- **`analytics-v1.1`** – Legacy SDK (v1.1 line)
+- **`analytics-js-service-worker`** – Service Worker support
 
+#### Supporting Packages
 - **`analytics-js-common`** – Shared utilities, types, constants, and services
 - **`analytics-js-plugins`** – Optional SDK plugins (consent managers, queues, encryption)
 - **`analytics-js-integrations`** – Device mode destination integrations
