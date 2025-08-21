@@ -21,7 +21,8 @@
     "useDefineForClassFields": false,
     "lib": ["ES2022", "dom"],
     "importsNotUsedAsValues": "remove",
-    "allowJs": true
+    "allowJs": true,
+    "types": ["user-agent-data-types"]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
@@ -29,8 +30,5 @@
     "strictInputAccessModifiers": true,
     "strictTemplates": true
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.js"
-  ]
+  "include": ["src/**/*.ts", "src/**/*.js"]
 }
