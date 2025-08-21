@@ -61,7 +61,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24'
-          cache: 'npm'
 
       - name: Checkout
         uses: actions/checkout@v5
@@ -87,7 +86,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24'
-          cache: 'npm'
 
       - name: Checkout (for composite action)
         uses: actions/checkout@v5
@@ -130,7 +128,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24'
-          cache: 'npm'
 
       - name: Checkout (for composite action)
         uses: actions/checkout@v5
