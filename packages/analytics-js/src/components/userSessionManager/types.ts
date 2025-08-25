@@ -3,6 +3,7 @@ import type { AnonymousIdOptions } from '@rudderstack/analytics-js-common/types/
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import type { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
+import type { ResetOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 
 export interface IUserSessionManager {
   storeManager?: IStoreManager;
@@ -19,7 +20,7 @@ export interface IUserSessionManager {
   getGroupTraits(): Nullable<ApiObject>;
   setGroupId(groupId?: Nullable<string>): void;
   setGroupTraits(traits?: Nullable<ApiObject>): void;
-  reset(resetAnonymousId?: boolean, noNewSessionStart?: boolean): void;
+  reset(options?: ResetOptions | boolean): void;
   start(sessionId?: number): void;
   end(): void;
   syncStorageDataToState(): void;

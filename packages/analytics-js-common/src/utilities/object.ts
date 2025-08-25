@@ -138,6 +138,15 @@ const getNormalizedObjectValue = (val: any): any => {
 const getNormalizedBooleanValue = (val: any, defVal: boolean): boolean =>
   typeof val === 'boolean' ? val : defVal;
 
+const deepFreeze = <T>(obj: T): T => {
+  Object.getOwnPropertyNames(obj).forEach(function (prop) {
+    if (obj[prop as keyof T] && typeof obj[prop as keyof T] === 'object') {
+      deepFreeze(obj[prop as keyof T]);
+    }
+  });
+  return Object.freeze(obj);
+};
+
 export {
   getValueByPath,
   hasValueByPath,
@@ -151,4 +160,5 @@ export {
   isObject,
   getNormalizedObjectValue,
   getNormalizedBooleanValue,
+  deepFreeze,
 };
