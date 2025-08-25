@@ -15,7 +15,7 @@ import type {
   AnonymousIdOptions,
   LoadOptions,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import type { ApiCallback } from '@rudderstack/analytics-js-common/types/EventApi';
+import type { ApiCallback, ResetOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 import {
   ANALYTICS_CORE,
   LOAD_API,
@@ -70,6 +70,7 @@ import { getConsentManagementData, getValidPostConsentOptions } from '../utiliti
 import { dispatchSDKEvent, isDataPlaneUrlValid, isWriteKeyValid } from './utilities';
 import { safelyInvokeCallback } from '../utilities/callbacks';
 import type { ConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
+import { stringifyData } from '@rudderstack/analytics-js-common/utilities/json';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events
@@ -651,21 +652,19 @@ class Analytics implements IAnalytics {
     });
   }
 
-  reset(resetAnonymousId?: boolean, isBufferedInvocation = false) {
+  reset(options?: ResetOptions | boolean, isBufferedInvocation = false) {
     const type = 'reset';
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value = [
         ...state.eventBuffer.toBeProcessedArray.value,
-        [type, resetAnonymousId],
+        [type, options],
       ];
       return;
     }
 
-    this.errorHandler.leaveBreadcrumb(
-      `New ${type} invocation, resetAnonymousId: ${resetAnonymousId}`,
-    );
-    this.userSessionManager?.reset(resetAnonymousId);
+    this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
+    this.userSessionManager?.reset(options);
   }
 
   getAnonymousId(options?: AnonymousIdOptions): string | undefined {

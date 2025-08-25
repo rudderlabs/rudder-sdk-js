@@ -17,13 +17,17 @@ import {
   type AnonymousIdOptions,
   type LoadOptions,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import type { ApiCallback, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
+import type {
+  ApiCallback,
+  ApiOptions,
+  ResetOptions,
+} from '@rudderstack/analytics-js-common/types/EventApi';
 import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import { RSA } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import type { IdentifyTraits } from '@rudderstack/analytics-js-common/types/traits';
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { onPageLeave } from '@rudderstack/analytics-js-common/utilities/page';
-import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isBoolean, isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { getFormattedTimestamp } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import { dispatchErrorEvent } from '@rudderstack/analytics-js-common/utilities/errors';
 import { getSanitizedValue } from '@rudderstack/analytics-js-common/utilities/json';
@@ -525,9 +529,40 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     }
   }
 
-  reset(resetAnonymousId?: boolean) {
+  /**
+   * Reset the analytics instance
+   * @param options Reset options. Except for anonymousId, initialReferrer, and initialReferringDomain
+   * all other values will be reset by default.
+   * @example
+   * ```ts
+   * reset({
+   *  entries: {
+   *    anonymousId: true,
+   *  }
+   * });
+   * ```
+   * @example
+   * ```ts
+   * reset({
+   *  entries: {
+   *    userId: false,
+   *    sessionInfo: false,
+   *  }
+   * });
+   * ```
+   * @returns none
+   */
+  reset(options?: ResetOptions): void;
+  /**
+   * Reset the analytics instance
+   * @param resetAnonymousId Reset anonymous ID
+   * @returns none
+   * @deprecated Use reset(options) instead
+   */
+  reset(resetAnonymousId?: boolean): void;
+  reset(options?: ResetOptions | boolean): void {
     try {
-      this.getAnalyticsInstance()?.reset(getSanitizedValue(resetAnonymousId));
+      this.getAnalyticsInstance()?.reset(getSanitizedValue(options));
     } catch (error: any) {
       dispatchErrorEvent(error);
     }
