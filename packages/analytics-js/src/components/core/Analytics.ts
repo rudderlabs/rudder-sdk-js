@@ -70,7 +70,6 @@ import { getConsentManagementData, getValidPostConsentOptions } from '../utiliti
 import { dispatchSDKEvent, isDataPlaneUrlValid, isWriteKeyValid } from './utilities';
 import { safelyInvokeCallback } from '../utilities/callbacks';
 import type { ConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
-import { stringifyData } from '@rudderstack/analytics-js-common/utilities/json';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events
