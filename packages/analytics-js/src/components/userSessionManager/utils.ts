@@ -122,16 +122,20 @@ const isStorageTypeValidForStoringData = (storageType: StorageType): boolean =>
 const generateAnonymousId = (): string => generateUUID();
 
 const getFinalResetOptions = (options: ResetOptions | boolean | undefined): ResetOptions => {
-  let opts = DEFAULT_RESET_OPTIONS;
+  // Legacy behavior: toggle only anonymousId without mutating defaults
   if (isBoolean(options)) {
-    // This case is for backward compatibility with the previous API
-    opts.entries.anonymousId = options;
-  } else {
-    // Override any defaults with the user provided options
-    opts = mergeDeepRight(DEFAULT_RESET_OPTIONS, options ?? {});
+    const { entries, ...rest } = DEFAULT_RESET_OPTIONS;
+    return {
+      ...rest,
+      entries: {
+        ...entries,
+        anonymousId: options,
+      },
+    };
   }
 
-  return opts;
+  // Override any defaults with the user provided options
+  return mergeDeepRight(DEFAULT_RESET_OPTIONS, options ?? {});
 };
 
 export {
