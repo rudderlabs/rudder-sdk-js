@@ -27,7 +27,7 @@ import { RSA } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import type { IdentifyTraits } from '@rudderstack/analytics-js-common/types/traits';
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { onPageLeave } from '@rudderstack/analytics-js-common/utilities/page';
-import { isBoolean, isString } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import { getFormattedTimestamp } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import { dispatchErrorEvent } from '@rudderstack/analytics-js-common/utilities/errors';
 import { getSanitizedValue } from '@rudderstack/analytics-js-common/utilities/json';

@@ -627,10 +627,17 @@ describe('Core - Analytics', () => {
       analytics.prepareInternalServices();
       const resetSpy = jest.spyOn(analytics.userSessionManager!, 'reset');
 
-      analytics.reset(true);
+      analytics.reset({
+        entries: {
+          anonymousId: true,
+        },
+      });
       expect(resetSpy).toHaveBeenCalledTimes(0);
-      expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([['reset', true]]);
+      expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([
+        ['reset', { entries: { anonymousId: true } }],
+      ]);
     });
+
     it('should reset session if loaded', () => {
       analytics.prepareInternalServices();
       const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');

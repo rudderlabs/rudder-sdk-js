@@ -14,7 +14,10 @@ import { hasMinLength, isPositiveInteger } from '../utilities/number';
 import type { ResetOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 import { DEFAULT_RESET_OPTIONS } from './constants';
 import { isBoolean } from '@rudderstack/analytics-js-common/utilities/checks';
-import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
+import {
+  isObjectLiteralAndNotNull,
+  mergeDeepRight,
+} from '@rudderstack/analytics-js-common/utilities/object';
 
 const MIN_SESSION_ID_LENGTH = 10;
 
@@ -135,7 +138,11 @@ const getFinalResetOptions = (options: ResetOptions | boolean | undefined): Rese
   }
 
   // Override any defaults with the user provided options
-  return mergeDeepRight(DEFAULT_RESET_OPTIONS, options ?? {});
+  if (isObjectLiteralAndNotNull(options) && isObjectLiteralAndNotNull(options.entries)) {
+    return mergeDeepRight(DEFAULT_RESET_OPTIONS, options);
+  }
+
+  return { ...DEFAULT_RESET_OPTIONS };
 };
 
 export {

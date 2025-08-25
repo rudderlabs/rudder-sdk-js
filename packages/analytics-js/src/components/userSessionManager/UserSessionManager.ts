@@ -6,7 +6,6 @@ import {
   mergeDeepRight,
 } from '@rudderstack/analytics-js-common/utilities/object';
 import {
-  isBoolean,
   isDefinedAndNotNull,
   isDefinedNotNullAndNotEmptyString,
   isNullOrUndefined,
@@ -71,11 +70,7 @@ import {
 } from './utils';
 import { getReferringDomain } from '../utilities/url';
 import { getReferrer } from '../utilities/page';
-import {
-  DEFAULT_RESET_OPTIONS,
-  DEFAULT_USER_SESSION_VALUES,
-  SERVER_SIDE_COOKIES_DEBOUNCE_TIME,
-} from './constants';
+import { DEFAULT_USER_SESSION_VALUES, SERVER_SIDE_COOKIES_DEBOUNCE_TIME } from './constants';
 import type {
   CallbackFunction,
   CookieData,
