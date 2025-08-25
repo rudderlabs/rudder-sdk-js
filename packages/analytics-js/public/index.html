@@ -176,13 +176,13 @@
             const envDestSDKBaseURL = '__DEST_SDK_BASE_URL__';
             // This is to avoid the build process from replacing the placeholder with the actual value
             const envDestSDKBaseURLPlaceHolder = '__' + 'DEST_SDK_BASE_URL' + '__';
-            if (envDestSDKBaseURL !== '' && envDestSDKBaseURL !== 'undefined' && envDestSDKBaseURL !== envDestSDKBaseURLPlaceHolder) {
+            if (envDestSDKBaseURL !== '' && envDestSDKBaseURL !== 'undefined/' && envDestSDKBaseURL !== envDestSDKBaseURLPlaceHolder) {
               loadOptions.destSDKBaseURL = envDestSDKBaseURL + window.rudderAnalyticsBuildType + '/js-integrations';
             }
             const envPluginsSDKBaseURL = '__PLUGINS_BASE_URL__';
             // This is to avoid the build process from replacing the placeholder with the actual value
             const envPluginsSDKBaseURLPlaceHolder = '__' + 'PLUGINS_BASE_URL' + '__';
-            if (envPluginsSDKBaseURL !== '' && envPluginsSDKBaseURL !== 'undefined' && envPluginsSDKBaseURL !== envPluginsSDKBaseURLPlaceHolder) {
+            if (envPluginsSDKBaseURL !== '' && envPluginsSDKBaseURL !== 'undefined/' && envPluginsSDKBaseURL !== envPluginsSDKBaseURLPlaceHolder) {
               loadOptions.pluginsSDKBaseURL = envPluginsSDKBaseURL + window.rudderAnalyticsBuildType + '/plugins';
             }
             const envConfigUrl = '__CONFIG_SERVER_HOST__';
