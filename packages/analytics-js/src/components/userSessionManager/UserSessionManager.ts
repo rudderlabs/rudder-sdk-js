@@ -767,7 +767,8 @@ class UserSessionManager implements IUserSessionManager {
 
     batch(() => {
       Object.keys(DEFAULT_USER_SESSION_VALUES).forEach(key => {
-        if (opts.entries[key as UserSessionKey] !== true) {
+        const userSessionKey = key as UserSessionKey;
+        if (opts.entries[userSessionKey] !== true) {
           return;
         }
 
@@ -779,8 +780,7 @@ class UserSessionManager implements IUserSessionManager {
             this.resetAndStartNewSession();
             break;
           default:
-            session[key as UserSessionKey].value =
-              DEFAULT_USER_SESSION_VALUES[key as UserSessionKey];
+            session[userSessionKey].value = DEFAULT_USER_SESSION_VALUES[userSessionKey];
             break;
         }
       });
