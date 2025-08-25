@@ -10,6 +10,7 @@ import {
   removeUndefinedAndNullValues,
   getNormalizedBooleanValue,
   getNormalizedObjectValue,
+  deepFreeze,
 } from '../../src/utilities/object';
 
 const identifyTraitsPayloadMock = {
@@ -535,6 +536,262 @@ describe('Common Utils - Object', () => {
       ({ input, output }: { input: any; output: any }) => {
         const outcome = getNormalizedBooleanValue(input[0], input[1]);
         expect(outcome).toEqual(output);
+      },
+    );
+  });
+
+  describe('deepFreeze', () => {
+    const tcData = [
+      {
+        input: { a: 1, b: 2, c: { d: 3 } },
+        output: { a: 1, b: 2, c: { d: 3 } },
+      },
+      {
+        input: { a: 1, b: 2, c: { d: 3, e: { f: 4 } } },
+        output: { a: 1, b: 2, c: { d: 3, e: { f: 4 } } },
+      },
+      {
+        input: { a: 1, b: null, c: { d: 3, e: { f: null } } },
+        output: { a: 1, b: null, c: { d: 3, e: { f: null } } },
+      },
+      {
+        input: { a: [{ b: 1 }, { c: 2 }, null] },
+        output: { a: [{ b: 1 }, { c: 2 }, null] },
+      },
+      {
+        input: { a: undefined, b: null, c: 0, d: false, e: '', f: NaN },
+        output: { a: undefined, b: null, c: 0, d: false, e: '', f: NaN },
+      },
+      {
+        input: {
+          nested: {
+            deep: {
+              very: {
+                deeply: {
+                  nested: {
+                    value: 42,
+                    nullValue: null,
+                    undefinedValue: undefined,
+                  },
+                },
+              },
+            },
+          },
+        },
+        output: {
+          nested: {
+            deep: {
+              very: {
+                deeply: {
+                  nested: {
+                    value: 42,
+                    nullValue: null,
+                    undefinedValue: undefined,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      {
+        input: {
+          mixedArray: [
+            1,
+            'string',
+            null,
+            undefined,
+            { nested: true },
+            [1, 2, { deep: 'value' }],
+            function testFn() {
+              return 'test';
+            },
+            new Date('2024-01-01'),
+            /regex/g,
+            Symbol('test'),
+          ],
+        },
+        output: {
+          mixedArray: [
+            1,
+            'string',
+            null,
+            undefined,
+            { nested: true },
+            [1, 2, { deep: 'value' }],
+            expect.any(Function),
+            expect.any(Date),
+            expect.any(RegExp),
+            expect.any(Symbol),
+          ],
+        },
+      },
+      {
+        input: {
+          sparseArray: [1, , , 4, undefined, null],
+          emptyObject: {},
+          emptyArray: [],
+          circularRef: { self: null },
+        },
+        output: {
+          sparseArray: [1, , , 4, undefined, null],
+          emptyObject: {},
+          emptyArray: [],
+          circularRef: { self: null },
+        },
+      },
+      {
+        input: {
+          complexNesting: {
+            level1: {
+              array: [
+                {
+                  id: 1,
+                  data: null,
+                  meta: {
+                    tags: ['a', 'b', null, undefined],
+                    settings: {
+                      enabled: false,
+                      config: {
+                        nested: {
+                          value: 'deep',
+                          empty: {},
+                        },
+                      },
+                    },
+                  },
+                },
+                {
+                  id: 2,
+                  data: {
+                    values: [1, 2, 3],
+                    nullField: null,
+                    undefinedField: undefined,
+                  },
+                },
+              ],
+            },
+          },
+        },
+        output: {
+          complexNesting: {
+            level1: {
+              array: [
+                {
+                  id: 1,
+                  data: null,
+                  meta: {
+                    tags: ['a', 'b', null, undefined],
+                    settings: {
+                      enabled: false,
+                      config: {
+                        nested: {
+                          value: 'deep',
+                          empty: {},
+                        },
+                      },
+                    },
+                  },
+                },
+                {
+                  id: 2,
+                  data: {
+                    values: [1, 2, 3],
+                    nullField: null,
+                    undefinedField: undefined,
+                  },
+                },
+              ],
+            },
+          },
+        },
+      },
+      {
+        input: {
+          primitiveTypes: {
+            number: 42,
+            string: 'hello',
+            boolean: true,
+            nullValue: null,
+            undefinedValue: undefined,
+            zero: 0,
+            emptyString: '',
+            falseValue: false,
+            infinity: Infinity,
+            negativeInfinity: -Infinity,
+            nanValue: NaN,
+          },
+        },
+        output: {
+          primitiveTypes: {
+            number: 42,
+            string: 'hello',
+            boolean: true,
+            nullValue: null,
+            undefinedValue: undefined,
+            zero: 0,
+            emptyString: '',
+            falseValue: false,
+            infinity: Infinity,
+            negativeInfinity: -Infinity,
+            nanValue: NaN,
+          },
+        },
+      },
+      {
+        input: {
+          arrayOfObjects: [
+            { id: 1, name: 'first', data: null },
+            { id: 2, name: 'second', data: { nested: { value: 'test' } } },
+            { id: 3, name: 'third', data: undefined },
+            null,
+            undefined,
+            { id: 4, name: 'fourth', data: [] },
+          ],
+        },
+        output: {
+          arrayOfObjects: [
+            { id: 1, name: 'first', data: null },
+            { id: 2, name: 'second', data: { nested: { value: 'test' } } },
+            { id: 3, name: 'third', data: undefined },
+            null,
+            undefined,
+            { id: 4, name: 'fourth', data: [] },
+          ],
+        },
+      },
+    ];
+
+    it.each(tcData)(
+      'should freeze the object',
+      ({ input, output }: { input: any; output: any }) => {
+        const outcome = deepFreeze(input);
+        expect(outcome).toEqual(output);
+
+        // Check if the object is frozen
+        expect(Object.isFrozen(outcome)).toBe(true);
+
+        // Check if the object is immutable
+        expect(Object.isSealed(outcome)).toBe(true);
+
+        // Check if the object is immutable
+        expect(Object.isExtensible(outcome)).toBe(false);
+
+        // try to mutate the object and ensure it has no effect and relevant errors are thrown
+        const firstKey = Object.keys(outcome)[0];
+        if (firstKey) {
+          expect(() => {
+            outcome[firstKey] = 'mutated';
+          }).toThrow();
+
+          expect(() => {
+            delete outcome[firstKey];
+          }).toThrow();
+        }
+
+        expect(() => {
+          outcome.newProperty = 'added';
+        }).toThrow();
       },
     );
   });
