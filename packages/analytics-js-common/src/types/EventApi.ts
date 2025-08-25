@@ -1,6 +1,7 @@
 import type { IntegrationOpts } from './Integration';
 import type { Nullable } from './Nullable';
 import type { ApiObject } from './ApiObject';
+import type { UserSessionKey } from './UserSessionStorage';
 
 // TODO: should we take the types from IdentifyTrait instead of any string key?
 //  https://www.rudderstack.com/docs/event-spec/standard-events/identify/#identify-traits
@@ -44,3 +45,9 @@ export type APIEvent = {
 export type RudderEventType = 'page' | 'track' | 'identify' | 'alias' | 'group';
 
 export type ReadyCallback = () => void;
+
+export type ResetOptions = {
+  entries: {
+    [key in UserSessionKey]?: boolean;
+  };
+};

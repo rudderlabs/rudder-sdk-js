@@ -6,7 +6,7 @@ import type {
   AnonymousIdOptions,
   LoadOptions,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import type { ApiCallback } from '@rudderstack/analytics-js-common/types/EventApi';
+import type { ApiCallback, ResetOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
@@ -167,9 +167,10 @@ export interface IAnalytics {
   ): void;
 
   /**
-   * Clear user information, optionally anonymousId as well
+   * Clear user information
+   * @param options options for reset
    */
-  reset(resetAnonymousId?: boolean, isBufferedInvocation?: boolean): void;
+  reset(options?: ResetOptions | boolean, isBufferedInvocation?: boolean): void;
 
   /**
    * To get userId set in the SDK

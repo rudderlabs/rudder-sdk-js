@@ -11,6 +11,10 @@ import {
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { INVALID_SESSION_ID_WARNING } from '../../constants/logMessages';
 import { hasMinLength, isPositiveInteger } from '../utilities/number';
+import type { ResetOptions } from '@rudderstack/analytics-js-common/types/EventApi';
+import { DEFAULT_RESET_OPTIONS } from './constants';
+import { isBoolean } from '@rudderstack/analytics-js-common/utilities/checks';
+import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 
 const MIN_SESSION_ID_LENGTH = 10;
 
@@ -117,6 +121,19 @@ const isStorageTypeValidForStoringData = (storageType: StorageType): boolean =>
  */
 const generateAnonymousId = (): string => generateUUID();
 
+const getFinalResetOptions = (options: ResetOptions | boolean | undefined): ResetOptions => {
+  let opts = DEFAULT_RESET_OPTIONS;
+  if (isBoolean(options)) {
+    // This case is for backward compatibility with the previous API
+    opts.entries.anonymousId = options;
+  } else {
+    // Override any defaults with the user provided options
+    opts = mergeDeepRight(DEFAULT_RESET_OPTIONS, options ?? {});
+  }
+
+  return opts;
+};
+
 export {
   hasSessionExpired,
   generateSessionId,
@@ -127,4 +144,5 @@ export {
   generateAnonymousId,
   isCutOffTimeExceeded,
   getCutOffExpirationTimestamp,
+  getFinalResetOptions,
 };
