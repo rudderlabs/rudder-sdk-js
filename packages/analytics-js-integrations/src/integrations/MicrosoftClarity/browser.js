@@ -1,6 +1,5 @@
 import { NAME, DISPLAY_NAME } from './constants';
 import Logger from '../../utils/logger';
-/* eslint-disable class-methods-use-this */
 
 import { loadNativeSdk } from './nativeSdkLoader';
 
