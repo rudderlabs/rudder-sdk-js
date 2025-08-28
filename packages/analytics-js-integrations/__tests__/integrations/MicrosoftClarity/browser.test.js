@@ -392,20 +392,7 @@ describe('MicrosoftClarity identify tests', () => {
 
     clarityInstance.identify(rudderElement);
     expect(window.clarity).toHaveBeenCalledWith('identify', 'test-user-123', undefined, undefined);
-  });
-
-  test('should handle when clarity identify returns null (not a promise)', () => {
-    window.clarity = jest.fn().mockReturnValue(null);
-
-    const rudderElement = {
-      message: {
-        userId: 'test-user-123',
-        context: {},
-      },
-    };
-
-    clarityInstance.identify(rudderElement);
-    expect(window.clarity).toHaveBeenCalledWith('identify', 'test-user-123', undefined, undefined);
+    expect(window.clarity).not.toHaveBeenCalledWith('set');
   });
 
   test('should handle when clarity identify returns an object without then method', () => {
@@ -420,10 +407,18 @@ describe('MicrosoftClarity identify tests', () => {
 
     clarityInstance.identify(rudderElement);
     expect(window.clarity).toHaveBeenCalledWith('identify', 'test-user-123', undefined, undefined);
+    expect(window.clarity).not.toHaveBeenCalledWith('set');
   });
 
   test('should handle when clarity identify returns an object with then property that is not a function', () => {
-    window.clarity = jest.fn().mockReturnValue({ then: 'not-a-function' });
+    const nonThenable = {};
+    Object.defineProperty(nonThenable, 'then', {
+      value: 'not-a-function',
+      enumerable: true,
+      configurable: true,
+      writable: true,
+    });
+    window.clarity = jest.fn().mockReturnValue(nonThenable);
 
     const rudderElement = {
       message: {
@@ -434,6 +429,7 @@ describe('MicrosoftClarity identify tests', () => {
 
     clarityInstance.identify(rudderElement);
     expect(window.clarity).toHaveBeenCalledWith('identify', 'test-user-123', undefined, undefined);
+    expect(window.clarity).not.toHaveBeenCalledWith('set');
   });
 });
 
