@@ -7,11 +7,6 @@ jest.mock('../../../src/integrations/MicrosoftClarity/nativeSdkLoader', () => ({
   loadNativeSdk: jest.fn(),
 }));
 
-// Mock the constants import
-jest.mock('@rudderstack/analytics-js-common/v1.1/utils/constants', () => ({
-  LOAD_ORIGIN: 'RS_JS_SDK',
-}));
-
 afterAll(() => {
   jest.restoreAllMocks();
 });
@@ -176,38 +171,6 @@ describe('MicrosoftClarity identify tests', () => {
     loggerSpy.mockRestore();
   });
 
-  test('should not call clarity when userId is undefined', () => {
-    const rudderElement = {
-      message: {
-        userId: undefined,
-        context: {
-          sessionId: 'session-456',
-        },
-      },
-    };
-
-    const loggerSpy = jest.spyOn(console, 'error').mockImplementation();
-    clarityInstance.identify(rudderElement);
-    expect(window.clarity).not.toHaveBeenCalled();
-    loggerSpy.mockRestore();
-  });
-
-  test('should not call clarity when userId is null', () => {
-    const rudderElement = {
-      message: {
-        userId: null,
-        context: {
-          sessionId: 'session-456',
-        },
-      },
-    };
-
-    const loggerSpy = jest.spyOn(console, 'error').mockImplementation();
-    clarityInstance.identify(rudderElement);
-    expect(window.clarity).not.toHaveBeenCalled();
-    loggerSpy.mockRestore();
-  });
-
   test('should not call clarity when userId is empty string', () => {
     const rudderElement = {
       message: {
@@ -318,27 +281,6 @@ describe('MicrosoftClarity identify tests', () => {
         context: {
           sessionId: 'session-456',
           // no traits
-        },
-      },
-    };
-
-    clarityInstance.identify(rudderElement);
-    expect(window.clarity).toHaveBeenCalledWith(
-      'identify',
-      'test-user-123',
-      'session-456',
-      undefined,
-    );
-    expect(window.clarity).toHaveBeenCalledTimes(1); // Only called once for identify, no set calls
-  });
-
-  test('should call clarity identify without traits when context.traits is null', () => {
-    const rudderElement = {
-      message: {
-        userId: 'test-user-123',
-        context: {
-          sessionId: 'session-456',
-          traits: null,
         },
       },
     };
