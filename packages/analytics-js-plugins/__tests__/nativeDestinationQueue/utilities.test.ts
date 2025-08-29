@@ -123,28 +123,20 @@ describe('nativeDestinationQueue Plugin - utilities', () => {
       },
     };
 
-    it('should return false if cloned is undefined but shouldApplyDeviceModeTransformation is false', () => {
+    it('should return false if shouldApplyDeviceModeTransformation is false', () => {
       const dest = { ...destination, shouldApplyDeviceModeTransformation: false };
       expect(shouldApplyTransformation(dest)).toBe(false);
     });
 
-    it('should return true if shouldApplyDeviceModeTransformation is true and cloned is undefined', () => {
+    it('should return true if shouldApplyDeviceModeTransformation is true', () => {
       expect(shouldApplyTransformation(destination)).toBe(true);
     });
 
-    it('should return true if shouldApplyDeviceModeTransformation is true and not cloned', () => {
-      const dest = { ...destination, cloned: false };
-      expect(shouldApplyTransformation(dest)).toBe(true);
-    });
-
-    it('should return false when shouldApplyDeviceModeTransformation and cloned both are true', () => {
-      const dest = { ...destination, cloned: true };
-      expect(shouldApplyTransformation(dest)).toBe(false);
-    });
-
-    it('should return false if both shouldApplyDeviceModeTransformation and cloned are false', () => {
-      const dest = { ...destination, shouldApplyDeviceModeTransformation: false, cloned: false };
-      expect(shouldApplyTransformation(dest)).toBe(false);
+    it('should return true if shouldApplyDeviceModeTransformation is true irrespective of cloned property', () => {
+      const dest1 = { ...destination, cloned: true };
+      const dest2 = { ...destination, cloned: undefined };
+      expect(shouldApplyTransformation(dest1)).toBe(true);
+      expect(shouldApplyTransformation(dest2)).toBe(true);
     });
   });
 

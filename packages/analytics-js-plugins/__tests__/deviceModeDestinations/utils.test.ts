@@ -581,6 +581,9 @@ describe('deviceModeDestinations utils', () => {
       // Enabled status should match override
       expect(dest1Clones[0]?.enabled).toBe(true);
       expect(dest1Clones[1]?.enabled).toBe(true);
+      // cloned destination should have originalId and originalId should be the original destination id
+      expect(dest1Clones[0]?.originalId).toBe('dest1');
+      expect(dest1Clones[1]?.originalId).toBe('dest1');
 
       // dest2 and dest3 should be unchanged
       expect(result.find(d => d.id === 'dest3')).toBe(mockDestinations[2]);
@@ -606,6 +609,7 @@ describe('deviceModeDestinations utils', () => {
       expect(dest2Clones[0]).toBeDefined();
       expect(dest2Clones[0]?.id).toBe('dest2_1');
       expect(dest2Clones[0]?.userFriendlyId).toBe('dest2_friendly_1');
+      expect(dest2Clones[0]?.originalId).toBe('dest2');
 
       // Config and enabled status should match each override
       expect(dest2Clones[0]?.config.apiKey).toBe('cloneA');
@@ -646,6 +650,9 @@ describe('deviceModeDestinations utils', () => {
       expect(dest3Clones[1]?.config?.extra).toBe(123);
       expect(dest3Clones[0]?.enabled).toBe(true);
       expect(dest3Clones[1]?.enabled).toBe(true);
+      // cloned destination should have originalId and originalId should be the original destination id
+      expect(dest3Clones[0]?.originalId).toBe('dest3');
+      expect(dest3Clones[1]?.originalId).toBe('dest3');
       // inherit other config properties
       expect(dest3Clones[0]?.config?.eventFilteringOption).toBe('disable');
       expect(dest3Clones[1]?.config?.eventFilteringOption).toBe('disable');

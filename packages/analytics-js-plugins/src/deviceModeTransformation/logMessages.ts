@@ -3,21 +3,23 @@ import { LOG_CONTEXT_SEPARATOR } from '../shared-chunks/common';
 const DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR = (
   context: string,
   displayName: string,
+  id: string,
   reason: string,
   action: string,
 ): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}Event transformation unsuccessful for destination "${displayName}". Reason: ${reason}. ${action}.`;
+  `${context}${LOG_CONTEXT_SEPARATOR}Event transformation unsuccessful for destination "${displayName}" with id "${id}". Reason: ${reason}. ${action}.`;
 
 const DMT_REQUEST_FAILED_ERROR = (
   context: string,
   displayName: string,
+  id: string,
   status: number | undefined,
   action: string,
 ): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}[Destination: ${displayName}].Transformation request failed with status: ${status}. Retries exhausted. ${action}.`;
+  `${context}${LOG_CONTEXT_SEPARATOR}[Destination: ${displayName} with id "${id}"].Transformation request failed with status: ${status}. Retries exhausted. ${action}.`;
 
-const DMT_EXCEPTION = (displayName: string): string =>
-  `Transformation failed for destination "${displayName}"`;
+const DMT_EXCEPTION = (displayName: string, id: string): string =>
+  `Transformation failed for destination "${displayName}" with id "${id}"`;
 
 const DMT_SERVER_ACCESS_DENIED_WARNING = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}Transformation server access is denied. The configuration data seems to be out of sync. Sending untransformed event to the destination.`;
