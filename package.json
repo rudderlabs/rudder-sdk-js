@@ -80,7 +80,7 @@
     "assert": "2.1.0",
     "axios": "1.11.0",
     "axios-retry": "4.5.0",
-    "component-each": "0.2.6",
+    "component-each": "1.0.0",
     "component-emitter": "2.0.0",
     "component-type": "2.0.0",
     "crypto-es": "2.1.0",
