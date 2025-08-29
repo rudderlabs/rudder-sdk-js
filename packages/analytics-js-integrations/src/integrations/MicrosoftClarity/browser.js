@@ -1,6 +1,5 @@
 import { NAME, DISPLAY_NAME } from './constants';
 import Logger from '../../utils/logger';
-/* eslint-disable class-methods-use-this */
 
 import { loadNativeSdk } from './nativeSdkLoader';
 
@@ -68,6 +67,20 @@ class MicrosoftClarity {
         window.clarity('set', key, traits[key]);
       });
     }
+  }
+
+  track(rudderElement) {
+    const { message } = rudderElement;
+    const { event } = message;
+    if (!event || typeof event !== 'string' || event.trim() === '') {
+      logger.error('event name is required for track call');
+      return;
+    }
+
+    // Send the custom event to Microsoft Clarity
+    // https://learn.microsoft.com/en-us/clarity/setup-and-installation/clarity-api#add-custom-events
+    // Note: Clarity custom events only support event names, not event properties
+    window.clarity('event', event);
   }
 }
 
