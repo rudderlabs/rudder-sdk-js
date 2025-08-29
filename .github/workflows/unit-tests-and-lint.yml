@@ -18,7 +18,7 @@ env:
 jobs:
   test:
     name: Unit Tests and Lint
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: [self-hosted, Linux, 'AMD64']
 
     steps:
       - name: Setup Node
