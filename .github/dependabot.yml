@@ -72,6 +72,11 @@ updates:
           - "*"
         update-types:
           - "major"
+    ignore:
+      - dependency-name: "typescript"
+        directories:
+          - "/examples/reactjs/hooks/**/*"
+          - "/examples/reactjs/ts/**/*"
 
   # All integrations sample applications managed together
   - package-ecosystem: "npm"
