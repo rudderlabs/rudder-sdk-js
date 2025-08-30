@@ -72,6 +72,8 @@ updates:
           - "*"
         update-types:
           - "major"
+    ignore:
+      - dependency-name: "typescript"
 
   # All integrations sample applications managed together
   - package-ecosystem: "npm"
