@@ -4,4 +4,6 @@
  */
 const isSDKRunningInChromeExtension = (): boolean => !!(window as any).chrome?.runtime?.id;
 
-export { isSDKRunningInChromeExtension };
+const isIE11 = (): boolean => Boolean(globalThis.navigator.userAgent.match(/Trident.*rv:11\./));
+
+export { isSDKRunningInChromeExtension, isIE11 };
