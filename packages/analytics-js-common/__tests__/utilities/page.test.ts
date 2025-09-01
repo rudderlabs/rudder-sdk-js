@@ -25,6 +25,7 @@ describe('onPageLeave', () => {
 
   afterEach(() => {
     (globalThis.navigator as any).userAgent = originalUserAgent;
+    jest.useRealTimers();
   });
 
   it('should fire the callback on pagehide event', () => {
