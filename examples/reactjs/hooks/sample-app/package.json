@@ -33,8 +33,9 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "clean": "rm -rf node_modules package-lock.json build",
-    "setup": "npm install"
+    "clean": "rm -rf node_modules build",
+    "setup": "npm install",
+    "clean:fresh": "npm run clean && rm -rf package-lock.json"
   },
   "eslintConfig": {
     "extends": [

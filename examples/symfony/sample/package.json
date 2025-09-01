@@ -17,8 +17,9 @@
     "dev": "encore dev",
     "watch": "encore dev --watch",
     "build": "encore production --progress",
-    "clean": "rm -rf node_modules package-lock.json public/build",
-    "setup": "npm install"
+    "clean": "rm -rf node_modules public/build",
+    "setup": "npm install",
+    "clean:fresh": "npm run clean && rm -rf package-lock.json"
   },
   "name": "sample",
   "version": "1.0.0",

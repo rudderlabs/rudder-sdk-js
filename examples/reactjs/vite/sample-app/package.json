@@ -9,8 +9,9 @@
     "build": "tsc && vite build",
     "lint": "eslint --config eslint.config.js src",
     "preview": "vite preview",
-    "clean": "rm -rf node_modules package-lock.json dist",
-    "setup": "npm install"
+    "clean": "rm -rf node_modules dist",
+    "setup": "npm install",
+    "clean:fresh": "npm run clean && rm -rf package-lock.json"
   },
   "dependencies": {
     "@rudderstack/analytics-js": "*",
