@@ -12,7 +12,7 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
-import { createPayload, sendTransformedEventToDestinations } from './utilities';
+import { createPayload, getDestinationId, sendTransformedEventToDestinations } from './utilities';
 import { getDMTDeliveryPayload } from '../utilities/eventsDelivery';
 import { DEFAULT_TRANSFORMATION_QUEUE_OPTIONS, QUEUE_NAME, REQUEST_TIMEOUT_MS } from './constants';
 import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
@@ -101,7 +101,16 @@ const DeviceModeTransformation = (): ExtensionPlugin => ({
       event: RudderEvent,
       destinations: Destination[],
     ) {
-      const destinationIds = destinations.map(d => d.id);
+      // Collect unique destination IDs for transformation
+      // For cloned destinations, getDestinationId returns originalId to ensure uniqueness
+      const destinationIds: string[] = [];
+      destinations.forEach(d => {
+        const id = getDestinationId(d);
+        if (!destinationIds.includes(id)) {
+          destinationIds.push(id);
+        }
+      });
+
       eventsQueue.addItem({
         event,
         destinationIds,

@@ -29,6 +29,10 @@ envFiles.forEach(file => {
 };
 `;
 
+  if (!fs.existsSync(path.dirname(file.path))) {
+    fs.mkdirSync(path.dirname(file.path));
+  }
+
   fs.writeFileSync(file.path, envContent, 'utf8');
   console.log(`Updated ${path.basename(file.path)} with environment variables`);
 });

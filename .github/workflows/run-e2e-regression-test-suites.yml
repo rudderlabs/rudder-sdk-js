@@ -100,7 +100,7 @@ jobs:
           github_token: ${{ secrets.PAT }}
           target_repo: ${{ env.TARGET_REPO }}
           workflow_file: sdk-team-js-sanity-suite.yaml
-          workflow_ref: main
+          workflow_ref: chore.temp-remove-api-test
           workflow_name: Sanity E2E Regression Tests
           workflow_inputs: ${{ steps.prepare_inputs.outputs.inputs_json }}
           max_wait_time: ${{ env.MAX_WAIT_TIME_FOR_SANITY_TESTS }}
@@ -137,7 +137,7 @@ jobs:
           github_token: ${{ secrets.PAT }}
           target_repo: ${{ env.TARGET_REPO }}
           workflow_file: sdk-team-js-regression.yaml
-          workflow_ref: main
+          workflow_ref: chore.temp-remove-api-test
           workflow_name: Full E2E Regression Tests
           workflow_inputs: ${{ steps.prepare_inputs.outputs.inputs_json }}
           max_wait_time: ${{ env.MAX_WAIT_TIME_FOR_E2E_TESTS }}

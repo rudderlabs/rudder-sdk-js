@@ -7,23 +7,24 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "clean": "rm -rf node_modules package-lock.json .next",
-    "setup": "npm install"
+    "clean": "rm -rf node_modules .next",
+    "setup": "npm install",
+    "clean:fresh": "npm run clean && rm -rf package-lock.json"
   },
   "dependencies": {
     "@rudderstack/analytics-js": "*",
-    "@tailwindcss/postcss": "4.1.11",
-    "eslint": "9.32.0",
-    "eslint-config-next": "15.4.4",
-    "next": "15.4.4",
+    "@tailwindcss/postcss": "4.1.12",
+    "eslint": "9.34.0",
+    "eslint-config-next": "15.5.2",
+    "next": "15.5.2",
     "react": "19.1.1",
     "react-dom": "19.1.1"
   },
   "devDependencies": {
-    "@types/react": "19.1.8",
+    "@types/react": "19.1.12",
     "autoprefixer": "10.4.21",
     "postcss": "8.5.6",
-    "tailwindcss": "4.1.11"
+    "tailwindcss": "4.1.12"
   },
   "overrides": {
     "cross-spawn": "7.0.6",
