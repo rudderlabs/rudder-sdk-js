@@ -12,22 +12,23 @@
     "start": "gatsby develop",
     "build": "gatsby build",
     "serve": "gatsby serve",
-    "clean": "gatsby clean && rm -rf node_modules package-lock.json",
+    "clean": "rm -rf node_modules public .cache",
     "setup": "npm install",
+    "clean:fresh": "npm run clean && rm -rf package-lock.json",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@rudderstack/analytics-js": "*",
     "dotenv": "17.2.1",
-    "gatsby": "5.14.6",
+    "gatsby": "5.15.0",
     "gatsby-plugin-env-variables": "2.3.0",
     "react": "18.3.1",
-    "react-dom": "19.1.1"
+    "react-dom": "18.3.1"
   },
   "devDependencies": {
     "@types/node": "24.3.0",
     "@types/react": "18.3.12",
-    "@types/react-dom": "19.1.8",
+    "@types/react-dom": "18.3.1",
     "typescript": "5.9.2"
   },
   "overrides": {
