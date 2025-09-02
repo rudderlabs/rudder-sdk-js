@@ -1799,7 +1799,7 @@ describe('User session manager', () => {
       userSessionManager.setInitialReferringDomain('test_initial_referring_domain');
       userSessionManager.setAuthToken('test_auth_token');
 
-      const dataBeforeReset = {
+      const dataBeforeReset = JSON.parse(JSON.stringify({
         userId: state.session.userId.value,
         userTraits: state.session.userTraits.value,
         groupId: state.session.groupId.value,
@@ -1809,7 +1809,7 @@ describe('User session manager', () => {
         anonymousId: state.session.anonymousId.value,
         sessionInfo: state.session.sessionInfo.value,
         authToken: state.session.authToken.value,
-      };
+      }));
 
       jest.advanceTimersByTime(1000);
       userSessionManager.reset();
@@ -1931,7 +1931,7 @@ describe('User session manager', () => {
       userSessionManager.setInitialReferringDomain('test_initial_referring_domain');
       userSessionManager.setAuthToken('test_auth_token');
 
-      const dataBeforeReset = {
+      const dataBeforeReset = JSON.parse(JSON.stringify({
         userId: state.session.userId.value,
         userTraits: state.session.userTraits.value,
         groupId: state.session.groupId.value,
@@ -1941,7 +1941,7 @@ describe('User session manager', () => {
         anonymousId: state.session.anonymousId.value,
         sessionInfo: state.session.sessionInfo.value,
         authToken: state.session.authToken.value,
-      };
+      }));
 
       jest.advanceTimersByTime(1000);
       userSessionManager.reset({
@@ -1952,7 +1952,7 @@ describe('User session manager', () => {
         },
       });
 
-      const dataAfterReset = {
+      const dataAfterReset = JSON.parse(JSON.stringify({
         userId: state.session.userId.value,
         userTraits: state.session.userTraits.value,
         groupId: state.session.groupId.value,
@@ -1962,7 +1962,7 @@ describe('User session manager', () => {
         anonymousId: state.session.anonymousId.value,
         sessionInfo: state.session.sessionInfo.value,
         authToken: state.session.authToken.value,
-      };
+      }));
 
       expect(dataAfterReset.userId).not.toEqual(dataBeforeReset.userId);
       expect(dataAfterReset.userTraits).not.toEqual(dataBeforeReset.userTraits);
@@ -2003,7 +2003,7 @@ describe('User session manager', () => {
       userSessionManager.setInitialReferringDomain('test_initial_referring_domain');
       userSessionManager.setAuthToken('test_auth_token');
 
-      const dataBeforeReset = {
+      const dataBeforeReset = JSON.parse(JSON.stringify({
         userId: state.session.userId.value,
         userTraits: state.session.userTraits.value,
         groupId: state.session.groupId.value,
@@ -2013,7 +2013,7 @@ describe('User session manager', () => {
         anonymousId: state.session.anonymousId.value,
         sessionInfo: state.session.sessionInfo.value,
         authToken: state.session.authToken.value,
-      };
+      }));
 
       jest.advanceTimersByTime(1000);
       userSessionManager.reset({
@@ -2027,7 +2027,7 @@ describe('User session manager', () => {
         },
       });
 
-      const dataAfterReset = {
+      const dataAfterReset = JSON.parse(JSON.stringify({
         userId: state.session.userId.value,
         userTraits: state.session.userTraits.value,
         groupId: state.session.groupId.value,
@@ -2037,7 +2037,7 @@ describe('User session manager', () => {
         anonymousId: state.session.anonymousId.value,
         sessionInfo: state.session.sessionInfo.value,
         authToken: state.session.authToken.value,
-      };
+      }));
 
       expect(dataAfterReset.userId).toEqual(dataBeforeReset.userId);
       expect(dataAfterReset.userTraits).toEqual(dataBeforeReset.userTraits);
