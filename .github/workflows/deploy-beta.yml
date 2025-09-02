@@ -163,7 +163,6 @@ jobs:
       trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
     secrets:
       RS_PROD_BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
 
