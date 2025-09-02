@@ -58,7 +58,7 @@ jobs:
           echo "SHA=$sha" >> $GITHUB_OUTPUT
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ steps.getSHA.outputs.SHA }}
 
@@ -78,7 +78,7 @@ jobs:
 
     steps:
       - name: Checkout (for composite action)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Prepare sanity test inputs
         id: prepare_inputs
@@ -115,7 +115,7 @@ jobs:
 
     steps:
       - name: Checkout (for composite action)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Prepare E2E test inputs
         id: prepare_inputs
