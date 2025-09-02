@@ -269,7 +269,6 @@ jobs:
       monorepo_release_version: ${{ needs.get-release-inputs.outputs.release_version }}
       release_ticket_id: ${{ needs.get-release-inputs.outputs.release_ticket_id }}
     secrets:
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       RS_PROD_BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}

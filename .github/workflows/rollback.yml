@@ -166,14 +166,12 @@ jobs:
       - name: Deprecate the rolled back NPM version
         continue-on-error: true
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
         run: |
           VERSION_TO_DEPRECATE="${{ env.CURRENT_VERSION_VALUE }}"
           echo "Deprecating NPM version: $VERSION_TO_DEPRECATE"
           
           # Deprecate the specified version with a message
-          npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
           npm deprecate "@rudderstack/analytics-js@$VERSION_TO_DEPRECATE" "We've identified issues with this version of the package. Please switch to v${{ env.ROLLBACK_VERSION_VALUE }} or the latest version if available."
 
           # Note: The legacy SDK is not deprecated as it is deprecated by default with every release.
