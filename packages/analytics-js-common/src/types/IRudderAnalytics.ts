@@ -1,5 +1,5 @@
 import type { Nullable } from './Nullable';
-import type { ApiCallback, ApiOptions } from './EventApi';
+import type { ApiCallback, ApiOptions, ResetOptions } from './EventApi';
 import type { AnonymousIdOptions, LoadOptions } from './LoadOptions';
 import type { ApiObject } from './ApiObject';
 import type { ILogger, LogLevel, RSALogger } from './Logger';
@@ -76,6 +76,11 @@ export type AnalyticsAliasMethod = {
   (to: string, callback?: ApiCallback): void;
 };
 
+export type AnalyticsResetMethod = {
+  (options?: ResetOptions): void;
+  (resetAnonymousId?: boolean): void;
+};
+
 export interface IRudderAnalytics<T = any> {
   analyticsInstances: Record<string, T>;
   defaultAnalyticsKey: string;
@@ -132,11 +137,11 @@ export interface IRudderAnalytics<T = any> {
   group: AnalyticsGroupMethod;
 
   /**
-   * Clear user information
+   * Clear user session information
    *
-   * @param resetAnonymousId optionally clears anonymousId as well
+   * @param options options for reset
    */
-  reset(resetAnonymousId?: boolean): void;
+  reset: AnalyticsResetMethod;
 
   /**
    * To get anonymousId set in the SDK
