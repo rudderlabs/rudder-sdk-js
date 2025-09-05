@@ -14,12 +14,14 @@
     "serve": "gatsby serve",
     "clean": "rm -rf node_modules public .cache",
     "setup": "npm install",
+    "setup:ci": "npm ci",
+    "verify": "node ../../utils/mock-servers/verify-with-mock.js .",
     "clean:fresh": "npm run clean && rm -rf package-lock.json",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@rudderstack/analytics-js": "*",
-    "dotenv": "17.2.1",
+    "dotenv": "17.2.2",
     "gatsby": "5.15.0",
     "gatsby-plugin-env-variables": "2.3.0",
     "react": "18.3.1",

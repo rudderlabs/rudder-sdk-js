@@ -5,13 +5,16 @@
 	"scripts": {
 		"deploy": "wrangler deploy",
 		"start": "wrangler dev",
+		"build": "exit 0",
 		"config": "node scripts/update-wrangler-config.js",
 		"clean": "rm -rf node_modules package-lock.json",
-		"setup": "npm install"
+		"setup": "npm install",
+		"setup:ci": "npm ci",
+		"verify": "wrangler deploy --dry-run"
 	},
 	"devDependencies": {
-		"dotenv": "17.2.1",
-		"wrangler": "4.33.1"
+		"dotenv": "17.2.2",
+		"wrangler": "4.33.2"
 	},
 	"dependencies": {
 		"@rudderstack/analytics-js-service-worker": "*",

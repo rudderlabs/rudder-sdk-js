@@ -34,6 +34,8 @@
     "eject": "react-scripts eject",
     "clean": "rm -rf node_modules build",
     "setup": "npm install",
+    "setup:ci": "npm ci",
+    "verify": "node ../../../utils/mock-servers/verify-with-mock.js .",
     "clean:fresh": "npm run clean && rm -rf package-lock.json"
   },
   "eslintConfig": {

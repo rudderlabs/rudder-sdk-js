@@ -7,6 +7,7 @@ dotenv.config();
 // Get environment variables
 const writeKey = process.env.NG_APP_RUDDERSTACK_WRITE_KEY || '';
 const dataplaneUrl = process.env.NG_APP_RUDDERSTACK_DATAPLANE_URL || '';
+const configUrl = process.env.NG_APP_RUDDERSTACK_CONFIG_URL || '';
 
 // Define the environment files
 const envFiles = [
@@ -26,6 +27,7 @@ envFiles.forEach(file => {
   production: ${file.production},
   RUDDERSTACK_WRITE_KEY: '${writeKey}',
   RUDDERSTACK_DATAPLANE_URL: '${dataplaneUrl}',
+  RUDDERSTACK_CONFIG_URL: '${configUrl}',
 };
 `;
 
