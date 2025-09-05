@@ -168,7 +168,6 @@ async function main() {
           server.kill('SIGTERM');
         }
       });
-      process.exit(0);
     };
     
     process.on('SIGINT', cleanup);

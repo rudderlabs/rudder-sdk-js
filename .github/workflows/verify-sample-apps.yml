@@ -47,6 +47,11 @@ jobs:
           FIRST=true
           
           while IFS= read -r dir; do
+            # Exclude mock-servers directory
+            if [[ "$dir" == *"examples/utils/mock-servers"* ]]; then
+              continue
+            fi
+          
             # Check if package.json exists in the directory
             if [[ ! -f "$dir/package.json" ]]; then
               continue
