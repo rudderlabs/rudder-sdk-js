@@ -75,7 +75,7 @@ async function runSampleAppVerification(appPath, controlPort, dataPort) {
     console.log('🚀 Starting sample app dev server...');
     const startProcess = spawn('npm', ['start'], {
       cwd: appPath,
-      stdio: 'inherit',
+      stdio: 'pipe',
       env
     });
     
@@ -92,6 +92,7 @@ async function runSampleAppVerification(appPath, controlPort, dataPort) {
     // Wait for server to start (look for common patterns)
     startProcess.stdout.on('data', (data) => {
       const output = data.toString();
+      console.log(output);
       if (output.includes('Local:') || 
           output.includes('localhost:') || 
           output.includes('server running') ||
@@ -103,6 +104,7 @@ async function runSampleAppVerification(appPath, controlPort, dataPort) {
     
     startProcess.stderr.on('data', (data) => {
       const output = data.toString();
+      console.error(output);
       if (output.includes('Local:') || 
           output.includes('localhost:') || 
           output.includes('server running') ||
