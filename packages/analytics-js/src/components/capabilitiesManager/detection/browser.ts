@@ -20,6 +20,4 @@ const hasBeacon = (): boolean =>
   !isNullOrUndefined(globalThis.navigator.sendBeacon) &&
   isFunction(globalThis.navigator.sendBeacon);
 
-const isIE11 = (): boolean => Boolean(globalThis.navigator.userAgent.match(/Trident.*rv:11\./));
-
-export { isBrowser, isNode, hasCrypto, hasUAClientHints, hasBeacon, isIE11 };
+export { isBrowser, isNode, hasCrypto, hasUAClientHints, hasBeacon };
