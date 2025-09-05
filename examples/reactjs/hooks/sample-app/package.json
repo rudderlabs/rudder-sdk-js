@@ -36,7 +36,7 @@
     "clean": "rm -rf node_modules build",
     "setup": "npm install",
     "setup:ci": "npm ci",
-    "verify": "exit 0",
+    "verify": "node ../../../utils/mock-servers/verify-with-mock.js .",
     "clean:fresh": "npm run clean && rm -rf package-lock.json"
   },
   "eslintConfig": {

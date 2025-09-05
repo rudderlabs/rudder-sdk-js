@@ -55,7 +55,7 @@ jobs:
             if [[ "$FIRST" != "true" ]]; then
               APPS_JSON+=","
             fi
-            APPS_JSON+="{\"path\":\"$dir\"}"
+            APPS_JSON+="{\"path\":\"$dir\",\"name\":\"$(basename $dir)\"}"
             FIRST=false
           done <<< "$AFFECTED_DIRS"
           
@@ -86,6 +86,10 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '${{ matrix.app.path }}/package-lock.json'
 
+      - name: Setup Mock Servers
+        working-directory: examples/utils/mock-servers
+        run: npm install
+
       - name: Install dependencies
         working-directory: ${{ matrix.app.path }}
         run: npm run setup:ci
@@ -108,7 +112,7 @@ jobs:
       - name: Summary
         run: |
           if [[ "${{ needs.detect-apps.outputs.affected-apps }}" == "[]" ]]; then
-            echo "✅ No sample apps affected by dependency changes"
+            echo "✅ No sample apps affected by changes"
             exit 0
           fi
           
