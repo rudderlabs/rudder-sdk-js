@@ -38,12 +38,12 @@ async function startMockServers(controlPort, dataPort) {
   console.log('🚀 Starting mock servers...');
   
   const controlPlane = spawn('node', [path.join(__dirname, 'control-plane.js')], {
-    stdio: 'pipe',
+    stdio: 'inherit',
     env: { ...process.env, MOCK_CONTROL_PORT: controlPort }
   });
   
   const dataPlane = spawn('node', [path.join(__dirname, 'data-plane.js')], {
-    stdio: 'pipe', 
+    stdio: 'inherit', 
     env: { ...process.env, MOCK_DATA_PORT: dataPort }
   });
   
@@ -75,7 +75,7 @@ async function runSampleAppVerification(appPath, controlPort, dataPort) {
     console.log('🚀 Starting sample app dev server...');
     const startProcess = spawn('npm', ['start'], {
       cwd: appPath,
-      stdio: 'pipe',
+      stdio: 'inherit',
       env
     });
     
