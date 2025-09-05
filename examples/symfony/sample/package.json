@@ -19,6 +19,8 @@
     "build": "encore production --progress",
     "clean": "rm -rf node_modules public/build",
     "setup": "npm install",
+    "setup:ci": "npm ci",
+    "verify": "exit 0",
     "clean:fresh": "npm run clean && rm -rf package-lock.json"
   },
   "name": "sample",

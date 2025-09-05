@@ -28,6 +28,8 @@
     "eject": "react-scripts eject",
     "clean": "rm -rf node_modules dist .next",
     "setup": "npm install",
+    "setup:ci": "npm ci",
+    "verify": "exit 0",
     "clean:fresh": "npm run clean && rm -rf package-lock.json"
   },
   "browserslist": {

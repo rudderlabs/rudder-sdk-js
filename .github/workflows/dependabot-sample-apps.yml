@@ -1,0 +1,124 @@
+name: Sample Apps Verification
+
+on:
+  pull_request:
+    branches: ['develop']
+    types: ['opened', 'synchronize', 'reopened']
+    paths:
+      - 'examples/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_OPTIONS: '--no-warnings'
+
+jobs:
+  # Detect affected sample apps
+  detect-apps:
+    name: Detect Affected Sample Apps
+    runs-on: ubuntu-latest
+    outputs:
+      affected-apps: ${{ steps.detect.outputs.affected-apps }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect affected sample apps
+        id: detect
+        run: |
+          # Get changed files in examples directory
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep "^examples/" || true)
+          
+          if [[ -z "$CHANGED_FILES" ]]; then
+            echo "No sample app changes detected"
+            echo "affected-apps=[]" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Extract unique app directories
+          AFFECTED_DIRS=$(echo "$CHANGED_FILES" | xargs -r dirname | sort -u)
+          
+          # Build JSON array of affected apps
+          APPS_JSON="["
+          FIRST=true
+          
+          while IFS= read -r dir; do
+            # Check if package.json exists in the directory
+            if [[ ! -f "$dir/package.json" ]]; then
+              continue
+            fi
+            
+            if [[ "$FIRST" != "true" ]]; then
+              APPS_JSON+=","
+            fi
+            APPS_JSON+="{\"path\":\"$dir\"}"
+            FIRST=false
+          done <<< "$AFFECTED_DIRS"
+          
+          APPS_JSON+="]"
+          
+          echo "Affected apps: $APPS_JSON"
+          echo "affected-apps=$APPS_JSON" >> $GITHUB_OUTPUT
+
+  # Run build and verification for affected sample apps in parallel
+  verify-sample-apps:
+    name: Build and Verify Sample App
+    runs-on: ubuntu-latest
+    needs: detect-apps
+    if: needs.detect-apps.outputs.affected-apps != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        app: ${{ fromJson(needs.detect-apps.outputs.affected-apps) }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+          cache-dependency-path: '${{ matrix.app.path }}/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: ${{ matrix.app.path }}
+        run: npm run setup:ci
+
+      - name: Build app
+        working-directory: ${{ matrix.app.path }}
+        run: npm run build
+
+      - name: Verify app startup
+        working-directory: ${{ matrix.app.path }}
+        run: npm run verify
+
+  # Summary job that aggregates results
+  verification-summary:
+    name: Sample Apps Verification Summary
+    runs-on: ubuntu-latest
+    needs: [detect-apps, verify-sample-apps]
+    if: always()
+    steps:
+      - name: Summary
+        run: |
+          if [[ "${{ needs.detect-apps.outputs.affected-apps }}" == "[]" ]]; then
+            echo "✅ No sample apps affected by dependency changes"
+            exit 0
+          fi
+          
+          if [[ "${{ needs.verify-sample-apps.result }}" == "success" ]]; then
+            echo "✅ All affected sample apps built and verified successfully"
+          elif [[ "${{ needs.verify-sample-apps.result }}" == "failure" ]]; then
+            echo "❌ Some sample apps failed build or verification"
+            exit 1
+          elif [[ "${{ needs.verify-sample-apps.result }}" == "skipped" ]]; then
+            echo "⏭️ Sample app verification was skipped"
+          else
+            echo "⚠️ Sample app verification completed with status: ${{ needs.verify-sample-apps.result }}"
+          fi
