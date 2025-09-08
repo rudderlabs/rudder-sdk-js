@@ -248,7 +248,7 @@ jobs:
       - name: Delete hotfix release base branch
         continue-on-error: true
         if: startsWith(github.ref_name, 'hotfix/')
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const branchToDelete = '${{ github.ref_name }}';
