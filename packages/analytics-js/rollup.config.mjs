@@ -159,7 +159,7 @@ const configSummaryOutput = () => {
 };
 
 export function getDefaultConfig(distName) {
-  const version = process.env.VERSION || 'dev-snapshot';
+  let version = process.env.VERSION || 'dev-snapshot';
   if (process.env.SDK_VERSION_SUFFIX) {
     version = `${version}-${process.env.SDK_VERSION_SUFFIX}`;
   }
