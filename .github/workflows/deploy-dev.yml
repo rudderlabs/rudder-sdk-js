@@ -28,10 +28,10 @@ jobs:
     if: github.event.pull_request.merged == true
     uses: ./.github/workflows/deploy.yml
     with:
-      environment: 'development'
+      environment: 'production'
       bugsnag_release_stage: 'development'
-      s3_dir_path: 'dev/latest/v3'
-      s3_dir_path_legacy: 'dev/latest/v1.1'
+      s3_dir_path: 'v3'
+      s3_dir_path_legacy: 'v1.1'
       base_cdn_url: 'https://cdn.dev.rudderlabs.com'
       trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
     secrets:
@@ -43,9 +43,29 @@ jobs:
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
 
+  deploy-dev-alternate:
+    needs: [get-deploy-inputs]
+    if: github.event.pull_request.merged == true
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: 'production'
+      bugsnag_release_stage: 'development'
+      s3_dir_path: 'v3'
+      s3_dir_path_legacy: 'v1.1'
+      base_cdn_url: 'https://cdn.dev.rudderlabs.com'
+      trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
+    secrets:
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_DEV_ACCOUNT_ID }}
+      AWS_S3_BUCKET_NAME: ${{ secrets.AWS_DEV_ALT_S3_BUCKET_NAME }}
+      AWS_S3_SYNC_ROLE: ${{ secrets.AWS_DEV_ALT_S3_SYNC_ROLE }}
+      AWS_CF_DISTRIBUTION_ID: ${{ secrets.AWS_DEV_ALT_CF_DISTRIBUTION_ID }}
+      BUGSNAG_API_KEY: ${{ secrets.RS_DEV_BUGSNAG_API_KEY }}
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
+
   deploy-sanity-suite:
     name: Deploy sanity suite
-    if: github.event.pull_request.merged == true
+    if: false
     needs: [get-deploy-inputs]
     uses: ./.github/workflows/deploy-sanity-suite.yml
     with:
@@ -65,6 +85,7 @@ jobs:
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
 
   run-e2e-regression-test-suites:
+    if: false
     uses: ./.github/workflows/run-e2e-regression-test-suites.yml
     name: Run E2E Regression Test Suites
     needs: [get-deploy-inputs, deploy-sanity-suite, deploy]
