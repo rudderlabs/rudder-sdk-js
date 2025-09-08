@@ -52,6 +52,7 @@ jobs:
       s3_dir_path_legacy: 'v1.1'
       base_cdn_url: 'https://cdn.dev.rudderlabs.com'
       trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
+      sdk_version_suffix: 'alternate'
     secrets:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_DEV_ACCOUNT_ID }}
       AWS_S3_BUCKET_NAME: ${{ secrets.AWS_DEV_ALT_S3_BUCKET_NAME }}
@@ -63,11 +64,10 @@ jobs:
 
   deploy-sanity-suite:
     name: Deploy sanity suite
-    if: false
     needs: [get-deploy-inputs]
     uses: ./.github/workflows/deploy-sanity-suite.yml
     with:
-      environment: 'development'
+      environment: 'production'
       trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
       base_cdn_url: 'https://cdn.dev.rudderlabs.com'
     secrets:
@@ -75,6 +75,26 @@ jobs:
       AWS_S3_BUCKET_NAME: ${{ secrets.AWS_DEV_S3_BUCKET_NAME }}
       AWS_S3_SYNC_ROLE: ${{ secrets.AWS_DEV_S3_SYNC_ROLE }}
       AWS_CF_DISTRIBUTION_ID: ${{ secrets.AWS_DEV_CF_DISTRIBUTION_ID }}
+      SANITY_SUITE_WRITE_KEY: ${{ secrets.SANITY_SUITE_DEV_WRITE_KEY }}
+      SANITY_SUITE_DATAPLANE_URL: ${{ secrets.SANITY_SUITE_DEV_DATAPLANE_URL }}
+      SANITY_SUITE_CONFIG_SERVER_HOST: ${{ secrets.SANITY_SUITE_DEV_CONFIG_SERVER_HOST }}
+      BUGSNAG_API_KEY: ${{ secrets.RS_DEV_BUGSNAG_API_KEY }}
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
+
+  deploy-sanity-suite-alternate:
+    name: Deploy sanity suite
+    needs: [get-deploy-inputs]
+    uses: ./.github/workflows/deploy-sanity-suite.yml
+    with:
+      environment: 'production'
+      trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
+      base_cdn_url: 'https://cdn.dev.rudderlabs.com'
+    secrets:
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_DEV_ACCOUNT_ID }}
+      AWS_S3_BUCKET_NAME: ${{ secrets.AWS_DEV_ALT_S3_BUCKET_NAME }}
+      AWS_S3_SYNC_ROLE: ${{ secrets.AWS_DEV_ALT_S3_SYNC_ROLE }}
+      AWS_CF_DISTRIBUTION_ID: ${{ secrets.AWS_DEV_ALT_CF_DISTRIBUTION_ID }}
       SANITY_SUITE_WRITE_KEY: ${{ secrets.SANITY_SUITE_DEV_WRITE_KEY }}
       SANITY_SUITE_DATAPLANE_URL: ${{ secrets.SANITY_SUITE_DEV_DATAPLANE_URL }}
       SANITY_SUITE_CONFIG_SERVER_HOST: ${{ secrets.SANITY_SUITE_DEV_CONFIG_SERVER_HOST }}
