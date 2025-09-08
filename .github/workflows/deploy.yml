@@ -42,6 +42,10 @@ on:
         description: 'Release ticket for artifact lookup'
         type: string
         required: false
+      sdk_version_suffix:
+        description: 'SDK version suffix'
+        type: string
+        required: false
     secrets:
       AWS_ACCOUNT_ID:
         required: true
@@ -152,6 +156,7 @@ jobs:
           BUGSNAG_API_KEY: ${{ secrets.BUGSNAG_API_KEY }}
           BUGSNAG_RELEASE_STAGE: ${{ inputs.bugsnag_release_stage }}
           LOCK_DEPS_VERSION: ${{ inputs.environment == 'production' && 'true' || 'false' }}
+          SDK_VERSION_SUFFIX: ${{ inputs.sdk_version_suffix }}
         run: |
           npm run build:browser
           npm run build:browser:modern
