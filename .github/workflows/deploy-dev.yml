@@ -25,7 +25,6 @@ jobs:
   deploy:
     name: Deploy to Development Environment
     needs: [get-deploy-inputs]
-    if: github.event.pull_request.merged == true
     uses: ./.github/workflows/deploy.yml
     with:
       environment: 'production'
@@ -45,7 +44,6 @@ jobs:
 
   deploy-dev-alternate:
     needs: [get-deploy-inputs]
-    if: github.event.pull_request.merged == true
     uses: ./.github/workflows/deploy.yml
     with:
       environment: 'production'
