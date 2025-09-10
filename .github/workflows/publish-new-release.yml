@@ -91,7 +91,7 @@ jobs:
           git push origin refs/tags/v${{ steps.extract-version.outputs.release_version }}
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
