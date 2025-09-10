@@ -11,6 +11,13 @@ import {
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { INVALID_SESSION_ID_WARNING } from '../../constants/logMessages';
 import { hasMinLength, isPositiveInteger } from '../utilities/number';
+import type { ResetOptions } from '@rudderstack/analytics-js-common/types/EventApi';
+import { DEFAULT_RESET_OPTIONS } from './constants';
+import { isBoolean } from '@rudderstack/analytics-js-common/utilities/checks';
+import {
+  isObjectLiteralAndNotNull,
+  mergeDeepRight,
+} from '@rudderstack/analytics-js-common/utilities/object';
 
 const MIN_SESSION_ID_LENGTH = 10;
 
@@ -117,6 +124,27 @@ const isStorageTypeValidForStoringData = (storageType: StorageType): boolean =>
  */
 const generateAnonymousId = (): string => generateUUID();
 
+const getFinalResetOptions = (options: ResetOptions | boolean | undefined): ResetOptions => {
+  // Legacy behavior: toggle only anonymousId without mutating defaults
+  if (isBoolean(options)) {
+    const { entries, ...rest } = DEFAULT_RESET_OPTIONS;
+    return {
+      ...rest,
+      entries: {
+        ...entries,
+        anonymousId: options,
+      },
+    };
+  }
+
+  // Override any defaults with the user provided options
+  if (isObjectLiteralAndNotNull(options) && isObjectLiteralAndNotNull(options.entries)) {
+    return mergeDeepRight(DEFAULT_RESET_OPTIONS, options);
+  }
+
+  return { ...DEFAULT_RESET_OPTIONS };
+};
+
 export {
   hasSessionExpired,
   generateSessionId,
@@ -127,4 +155,5 @@ export {
   generateAnonymousId,
   isCutOffTimeExceeded,
   getCutOffExpirationTimestamp,
+  getFinalResetOptions,
 };

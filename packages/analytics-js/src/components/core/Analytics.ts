@@ -15,7 +15,7 @@ import type {
   AnonymousIdOptions,
   LoadOptions,
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
-import type { ApiCallback } from '@rudderstack/analytics-js-common/types/EventApi';
+import type { ApiCallback, ResetOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 import {
   ANALYTICS_CORE,
   LOAD_API,
@@ -651,21 +651,19 @@ class Analytics implements IAnalytics {
     });
   }
 
-  reset(resetAnonymousId?: boolean, isBufferedInvocation = false) {
+  reset(options?: ResetOptions | boolean, isBufferedInvocation = false) {
     const type = 'reset';
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value = [
         ...state.eventBuffer.toBeProcessedArray.value,
-        [type, resetAnonymousId],
+        [type, options],
       ];
       return;
     }
 
-    this.errorHandler.leaveBreadcrumb(
-      `New ${type} invocation, resetAnonymousId: ${resetAnonymousId}`,
-    );
-    this.userSessionManager?.reset(resetAnonymousId);
+    this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
+    this.userSessionManager?.reset(options);
   }
 
   getAnonymousId(options?: AnonymousIdOptions): string | undefined {

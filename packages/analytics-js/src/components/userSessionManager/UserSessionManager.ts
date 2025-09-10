@@ -63,6 +63,7 @@ import {
   generateAutoTrackingSession,
   generateManualTrackingSession,
   getCutOffExpirationTimestamp,
+  getFinalResetOptions,
   hasSessionExpired,
   isCutOffTimeExceeded,
   isStorageTypeValidForStoringData,
@@ -78,6 +79,7 @@ import type {
   UserSessionStorageKeysType,
 } from './types';
 import { isPositiveInteger } from '../utilities/number';
+import type { ResetOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 
 class UserSessionManager implements IUserSessionManager {
   storeManager: IStoreManager;
@@ -728,51 +730,60 @@ class UserSessionManager implements IUserSessionManager {
     }
   }
 
-  /**
-   * Reset state values
-   * @param resetAnonymousId
-   * @param noNewSessionStart
-   * @returns
-   */
-  reset(resetAnonymousId?: boolean, noNewSessionStart?: boolean) {
-    const { session } = state;
+  resetAndStartNewSession() {
+    const session = state.session;
     const { manualTrack, autoTrack, timeout, cutOff } = session.sessionInfo.value;
 
-    batch(() => {
-      session.userId.value = DEFAULT_USER_SESSION_VALUES.userId;
-      session.userTraits.value = DEFAULT_USER_SESSION_VALUES.userTraits;
-      session.groupId.value = DEFAULT_USER_SESSION_VALUES.groupId;
-      session.groupTraits.value = DEFAULT_USER_SESSION_VALUES.groupTraits;
-      session.authToken.value = DEFAULT_USER_SESSION_VALUES.authToken;
+    if (autoTrack) {
+      const sessionInfo = {
+        ...DEFAULT_USER_SESSION_VALUES.sessionInfo,
+        timeout,
+      };
 
-      if (resetAnonymousId === true) {
-        // This will generate a new anonymous ID
-        this.setAnonymousId();
-      }
-
-      if (noNewSessionStart) {
-        return;
-      }
-
-      if (autoTrack) {
-        const sessionInfo = {
-          ...DEFAULT_USER_SESSION_VALUES.sessionInfo,
-          timeout,
+      if (cutOff) {
+        sessionInfo.cutOff = {
+          enabled: cutOff.enabled,
+          duration: cutOff.duration,
         };
+      }
 
-        if (cutOff) {
-          sessionInfo.cutOff = {
-            enabled: cutOff.enabled,
-            duration: cutOff.duration,
-          };
+      session.sessionInfo.value = sessionInfo;
+
+      this.startOrRenewAutoTracking(session.sessionInfo.value);
+    } else if (manualTrack) {
+      this.startManualTrackingInternal();
+    }
+  }
+
+  /**
+   * Reset state values
+   * @param options options for reset
+   * @returns
+   */
+  reset(options?: ResetOptions | boolean) {
+    const { session } = state;
+
+    const opts = getFinalResetOptions(options);
+
+    batch(() => {
+      Object.keys(DEFAULT_USER_SESSION_VALUES).forEach(key => {
+        const userSessionKey = key as UserSessionKey;
+        if (opts.entries[userSessionKey] !== true) {
+          return;
         }
 
-        session.sessionInfo.value = sessionInfo;
-
-        this.startOrRenewAutoTracking(session.sessionInfo.value);
-      } else if (manualTrack) {
-        this.startManualTrackingInternal();
-      }
+        switch (key) {
+          case 'anonymousId':
+            this.setAnonymousId();
+            break;
+          case 'sessionInfo':
+            this.resetAndStartNewSession();
+            break;
+          default:
+            session[userSessionKey].value = DEFAULT_USER_SESSION_VALUES[userSessionKey];
+            break;
+        }
+      });
     });
   }
 

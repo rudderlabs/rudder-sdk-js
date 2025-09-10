@@ -36,7 +36,7 @@ export default [
     name: 'Core - Modern - NPM (CJS)',
     path: 'dist/npm/modern/cjs/index.cjs',
     import: '*',
-    limit: '28 KiB',
+    limit: '28.5 KiB',
   },
   {
     name: 'Core - Modern - NPM (UMD)',
@@ -47,7 +47,7 @@ export default [
   {
     name: 'Core - Modern - CDN',
     path: 'dist/cdn/modern/iife/rsa.min.js',
-    limit: '28 KiB',
+    limit: '28.5 KiB',
   },
   {
     name: 'Core (Bundled) - Legacy - NPM (ESM)',
@@ -113,7 +113,7 @@ export default [
     name: 'Core (Content Script) - Modern - NPM (CJS)',
     path: 'dist/npm/modern/content-script/cjs/index.cjs',
     import: '*',
-    limit: '41 KiB',
+    limit: '41.5 KiB',
   },
   {
     name: 'Core (Content Script) - Modern - NPM (UMD)',

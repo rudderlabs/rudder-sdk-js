@@ -9,6 +9,7 @@ import {
   isCutOffTimeExceeded,
   generateAnonymousId,
   getCutOffExpirationTimestamp,
+  getFinalResetOptions,
 } from '../../../src/components/userSessionManager/utils';
 import { defaultLogger } from '../../../src/services/Logger';
 
@@ -275,7 +276,6 @@ describe('Utilities: User session manager', () => {
       const outcome3 = isStorageTypeValidForStoringData('memoryStorage');
       const outcome4 = isStorageTypeValidForStoringData('sessionStorage');
       const outcome5 = isStorageTypeValidForStoringData('none');
-      // @ts-expect-error testing invalid input
       const outcome6 = isStorageTypeValidForStoringData('random');
       expect(outcome1).toEqual(true);
       expect(outcome2).toEqual(true);
@@ -400,6 +400,146 @@ describe('Utilities: User session manager', () => {
     it('should return a newly generated anonymous id', () => {
       const outcome = generateAnonymousId();
       expect(outcome).toMatch(/^[\dA-Fa-f]{8}(?:-[\dA-Fa-f]{4}){3}-[\dA-Fa-f]{12}$/);
+    });
+  });
+
+  describe('getFinalResetOptions', () => {
+    const defaultOptions = {
+      entries: {
+        userId: true,
+        userTraits: true,
+        groupId: true,
+        groupTraits: true,
+        sessionInfo: true,
+        authToken: true,
+        anonymousId: false,
+        initialReferrer: false,
+        initialReferringDomain: false,
+      },
+    };
+
+    const testCases = [
+      {
+        input: undefined,
+        expected: defaultOptions,
+      },
+      {
+        input: true,
+        expected: {
+          ...defaultOptions,
+          entries: {
+            ...defaultOptions.entries,
+            anonymousId: true,
+          },
+        },
+      },
+      {
+        input: {
+          entries: {
+            userId: false,
+          },
+        },
+        expected: {
+          ...defaultOptions,
+          entries: {
+            ...defaultOptions.entries,
+            userId: false,
+          },
+        },
+      },
+      {
+        input: {
+          entries: {
+            userId: false,
+          },
+        },
+        expected: {
+          ...defaultOptions,
+          entries: {
+            ...defaultOptions.entries,
+            userId: false,
+          },
+        },
+      },
+      {
+        input: {
+          entries: {
+            userId: false,
+            userTraits: false,
+          },
+        },
+        expected: {
+          ...defaultOptions,
+          entries: {
+            ...defaultOptions.entries,
+            userId: false,
+            userTraits: false,
+          },
+        },
+      },
+      {
+        input: {
+          entries: {},
+        },
+        expected: defaultOptions,
+      },
+      {
+        input: {},
+        expected: defaultOptions,
+      },
+      {
+        input: null,
+        expected: defaultOptions,
+      },
+      {
+        input: false,
+        expected: defaultOptions,
+      },
+      {
+        input: 'xyz',
+        expected: defaultOptions,
+      },
+      {
+        input: 123,
+        expected: defaultOptions,
+      },
+      {
+        input: {
+          entries: null,
+        },
+        expected: defaultOptions,
+      },
+      {
+        input: {
+          entries: undefined,
+        },
+        expected: defaultOptions,
+      },
+      {
+        input: {
+          entries: {
+            userId: 'xyz',
+            abc: false,
+            anonymousId: {},
+          },
+        },
+        expected: {
+          ...defaultOptions,
+          entries: {
+            ...defaultOptions.entries,
+            userId: 'xyz',
+            abc: false,
+            anonymousId: {},
+          },
+        },
+      },
+    ];
+
+    testCases.forEach(testCase => {
+      it(`should return the correct reset options for ${JSON.stringify(testCase.input)}`, () => {
+        const outcome = getFinalResetOptions(testCase.input);
+        expect(outcome).toEqual(testCase.expected);
+      });
     });
   });
 });

@@ -1772,39 +1772,107 @@ describe('User session manager', () => {
   });
 
   describe('reset', () => {
-    it('should reset user session to the initial value except anonymousId', () => {
+    beforeEach(() => {
       jest.useFakeTimers();
       jest.setSystemTime(0);
+    });
 
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('should reset user session to the initial value except anonymousId and referrer related data', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.init();
+
       userSessionManager.setAnonymousId(dummyAnonymousId);
-      const sessionInfoBeforeReset = JSON.parse(JSON.stringify(state.session.sessionInfo.value));
+      userSessionManager.setUserId('test_user_id');
+      userSessionManager.setUserTraits({
+        name: 'test_user_name',
+        email: 'test_user_email',
+      });
+      userSessionManager.setGroupId('test_group_id');
+      userSessionManager.setGroupTraits({
+        name: 'test_group_name',
+      });
+      userSessionManager.setInitialReferrer('test_initial_referrer');
+      userSessionManager.setInitialReferringDomain('test_initial_referring_domain');
+      userSessionManager.setAuthToken('test_auth_token');
+
+      const dataBeforeReset = JSON.parse(JSON.stringify({
+        userId: state.session.userId.value,
+        userTraits: state.session.userTraits.value,
+        groupId: state.session.groupId.value,
+        groupTraits: state.session.groupTraits.value,
+        initialReferrer: state.session.initialReferrer.value,
+        initialReferringDomain: state.session.initialReferringDomain.value,
+        anonymousId: state.session.anonymousId.value,
+        sessionInfo: state.session.sessionInfo.value,
+        authToken: state.session.authToken.value,
+      }));
 
       jest.advanceTimersByTime(1000);
       userSessionManager.reset();
 
       expect(state.session.userId.value).toEqual('');
+      expect(state.session.userId.value).not.toEqual(dataBeforeReset.userId);
+
       expect(state.session.userTraits.value).toEqual({});
+      expect(state.session.userTraits.value).not.toEqual(dataBeforeReset.userTraits);
+
       expect(state.session.groupId.value).toEqual('');
+      expect(state.session.groupId.value).not.toEqual(dataBeforeReset.groupId);
+
       expect(state.session.groupTraits.value).toEqual({});
+      expect(state.session.groupTraits.value).not.toEqual(dataBeforeReset.groupTraits);
+
+      expect(state.session.authToken.value).toEqual(null);
+      expect(state.session.authToken.value).not.toEqual(dataBeforeReset.authToken);
+
       expect(state.session.anonymousId.value).toEqual(dummyAnonymousId);
 
-      // new session will be generated
-      expect(state.session.sessionInfo.value.autoTrack).toBe(sessionInfoBeforeReset.autoTrack);
-      expect(state.session.sessionInfo.value.timeout).toBe(sessionInfoBeforeReset.timeout);
-      expect(state.session.sessionInfo.value.expiresAt).not.toBe(sessionInfoBeforeReset.expiresAt);
-      expect(state.session.sessionInfo.value.id).not.toBe(sessionInfoBeforeReset.id);
-      expect(state.session.sessionInfo.value.sessionStart).toBe(undefined);
+      expect(state.session.initialReferrer.value).toEqual(dataBeforeReset.initialReferrer);
 
-      jest.useRealTimers();
+      expect(state.session.initialReferringDomain.value).toEqual(
+        dataBeforeReset.initialReferringDomain,
+      );
+
+      // new session will be generated
+      expect(state.session.sessionInfo.value.autoTrack).toBe(dataBeforeReset.sessionInfo.autoTrack);
+      expect(state.session.sessionInfo.value.manualTrack).toBe(
+        dataBeforeReset.sessionInfo.manualTrack,
+      );
+      expect(state.session.sessionInfo.value.cutOff).toEqual(dataBeforeReset.sessionInfo.cutOff);
+      expect(state.session.sessionInfo.value.timeout).toBe(dataBeforeReset.sessionInfo.timeout);
+      expect(state.session.sessionInfo.value.expiresAt).not.toBe(
+        dataBeforeReset.sessionInfo.expiresAt,
+      );
+      expect(state.session.sessionInfo.value.id).not.toBe(dataBeforeReset.sessionInfo.id);
+      expect(state.session.sessionInfo.value.sessionStart).toBe(undefined);
     });
 
     it('should clear the existing anonymousId and set a new anonymousId with first parameter set to true', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.init();
       userSessionManager.setAnonymousId(dummyAnonymousId);
+
+      jest.advanceTimersByTime(1000);
       userSessionManager.reset(true);
+
+      expect(state.session.anonymousId.value).toEqual('test_uuid');
+    });
+
+    it('should clear the existing anonymousId and set a new anonymousId when configured in the options', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+      userSessionManager.setAnonymousId(dummyAnonymousId);
+
+      jest.advanceTimersByTime(1000);
+      userSessionManager.reset({
+        entries: {
+          anonymousId: true,
+        },
+      });
       expect(state.session.anonymousId.value).toEqual('test_uuid');
     });
 
@@ -1812,11 +1880,17 @@ describe('User session manager', () => {
       state.storage.entries.value = anonymousIdWithNoStorageEntries;
       userSessionManager.init();
       userSessionManager.setAnonymousId(dummyAnonymousId);
-      userSessionManager.reset(true);
+
+      jest.advanceTimersByTime(1000);
+      userSessionManager.reset({
+        entries: {
+          anonymousId: true,
+        },
+      });
       expect(state.session.anonymousId.value).toEqual('');
     });
 
-    it('should not start a new session with second parameter set to true', () => {
+    it('should not start a new session when configured in the options', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       state.loadOptions.value.sessions = {
         autoTrack: true,
@@ -1828,8 +1902,152 @@ describe('User session manager', () => {
 
       userSessionManager.init();
       const sessionInfoBeforeReset = JSON.parse(JSON.stringify(state.session.sessionInfo.value));
-      userSessionManager.reset(true, true);
+
+      jest.advanceTimersByTime(1000);
+      userSessionManager.reset({
+        entries: {
+          sessionInfo: false,
+        },
+      });
       expect(state.session.sessionInfo.value).toEqual(sessionInfoBeforeReset);
+    });
+
+    it('should reset all the user session data as per the configuration', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      // Configure data in session
+      userSessionManager.setAnonymousId(dummyAnonymousId);
+      userSessionManager.setUserId('test_user_id');
+      userSessionManager.setUserTraits({
+        name: 'test_user_name',
+        email: 'test_user_email',
+      });
+      userSessionManager.setGroupId('test_group_id');
+      userSessionManager.setGroupTraits({
+        name: 'test_group_name',
+      });
+      userSessionManager.setInitialReferrer('test_initial_referrer');
+      userSessionManager.setInitialReferringDomain('test_initial_referring_domain');
+      userSessionManager.setAuthToken('test_auth_token');
+
+      const dataBeforeReset = JSON.parse(JSON.stringify({
+        userId: state.session.userId.value,
+        userTraits: state.session.userTraits.value,
+        groupId: state.session.groupId.value,
+        groupTraits: state.session.groupTraits.value,
+        initialReferrer: state.session.initialReferrer.value,
+        initialReferringDomain: state.session.initialReferringDomain.value,
+        anonymousId: state.session.anonymousId.value,
+        sessionInfo: state.session.sessionInfo.value,
+        authToken: state.session.authToken.value,
+      }));
+
+      jest.advanceTimersByTime(1000);
+      userSessionManager.reset({
+        entries: {
+          anonymousId: true,
+          initialReferrer: true,
+          initialReferringDomain: true,
+        },
+      });
+
+      const dataAfterReset = JSON.parse(JSON.stringify({
+        userId: state.session.userId.value,
+        userTraits: state.session.userTraits.value,
+        groupId: state.session.groupId.value,
+        groupTraits: state.session.groupTraits.value,
+        initialReferrer: state.session.initialReferrer.value,
+        initialReferringDomain: state.session.initialReferringDomain.value,
+        anonymousId: state.session.anonymousId.value,
+        sessionInfo: state.session.sessionInfo.value,
+        authToken: state.session.authToken.value,
+      }));
+
+      expect(dataAfterReset.userId).not.toEqual(dataBeforeReset.userId);
+      expect(dataAfterReset.userTraits).not.toEqual(dataBeforeReset.userTraits);
+      expect(dataAfterReset.groupId).not.toEqual(dataBeforeReset.groupId);
+      expect(dataAfterReset.groupTraits).not.toEqual(dataBeforeReset.groupTraits);
+      expect(dataAfterReset.initialReferrer).not.toEqual(dataBeforeReset.initialReferrer);
+      expect(dataAfterReset.initialReferringDomain).not.toEqual(
+        dataBeforeReset.initialReferringDomain,
+      );
+      expect(dataAfterReset.anonymousId).not.toEqual(dataBeforeReset.anonymousId);
+      expect(dataAfterReset.authToken).not.toEqual(dataBeforeReset.authToken);
+
+      expect(dataAfterReset.sessionInfo.autoTrack).toBe(dataBeforeReset.sessionInfo.autoTrack);
+      expect(dataAfterReset.sessionInfo.manualTrack).toBe(dataBeforeReset.sessionInfo.manualTrack);
+      expect(dataAfterReset.sessionInfo.cutOff).toEqual(dataBeforeReset.sessionInfo.cutOff);
+      expect(dataAfterReset.sessionInfo.timeout).toBe(dataBeforeReset.sessionInfo.timeout);
+      expect(dataAfterReset.sessionInfo.expiresAt).not.toBe(dataBeforeReset.sessionInfo.expiresAt);
+      expect(dataAfterReset.sessionInfo.id).not.toBe(dataBeforeReset.sessionInfo.id);
+      expect(dataAfterReset.sessionInfo.sessionStart).toBe(undefined);
+    });
+
+    it('should not reset any user session data when configured in the options', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      // Configure data in session
+      userSessionManager.setAnonymousId(dummyAnonymousId);
+      userSessionManager.setUserId('test_user_id');
+      userSessionManager.setUserTraits({
+        name: 'test_user_name',
+        email: 'test_user_email',
+      });
+      userSessionManager.setGroupId('test_group_id');
+      userSessionManager.setGroupTraits({
+        name: 'test_group_name',
+      });
+      userSessionManager.setInitialReferrer('test_initial_referrer');
+      userSessionManager.setInitialReferringDomain('test_initial_referring_domain');
+      userSessionManager.setAuthToken('test_auth_token');
+
+      const dataBeforeReset = JSON.parse(JSON.stringify({
+        userId: state.session.userId.value,
+        userTraits: state.session.userTraits.value,
+        groupId: state.session.groupId.value,
+        groupTraits: state.session.groupTraits.value,
+        initialReferrer: state.session.initialReferrer.value,
+        initialReferringDomain: state.session.initialReferringDomain.value,
+        anonymousId: state.session.anonymousId.value,
+        sessionInfo: state.session.sessionInfo.value,
+        authToken: state.session.authToken.value,
+      }));
+
+      jest.advanceTimersByTime(1000);
+      userSessionManager.reset({
+        entries: {
+          userId: false,
+          userTraits: false,
+          groupId: false,
+          groupTraits: false,
+          sessionInfo: false,
+          authToken: false,
+        },
+      });
+
+      const dataAfterReset = JSON.parse(JSON.stringify({
+        userId: state.session.userId.value,
+        userTraits: state.session.userTraits.value,
+        groupId: state.session.groupId.value,
+        groupTraits: state.session.groupTraits.value,
+        initialReferrer: state.session.initialReferrer.value,
+        initialReferringDomain: state.session.initialReferringDomain.value,
+        anonymousId: state.session.anonymousId.value,
+        sessionInfo: state.session.sessionInfo.value,
+        authToken: state.session.authToken.value,
+      }));
+
+      expect(dataAfterReset.userId).toEqual(dataBeforeReset.userId);
+      expect(dataAfterReset.userTraits).toEqual(dataBeforeReset.userTraits);
+      expect(dataAfterReset.groupId).toEqual(dataBeforeReset.groupId);
+      expect(dataAfterReset.groupTraits).toEqual(dataBeforeReset.groupTraits);
+      expect(dataAfterReset.initialReferrer).toEqual(dataBeforeReset.initialReferrer);
+      expect(dataAfterReset.initialReferringDomain).toEqual(dataBeforeReset.initialReferringDomain);
+      expect(dataAfterReset.anonymousId).toEqual(dataBeforeReset.anonymousId);
+      expect(dataAfterReset.sessionInfo).toEqual(dataBeforeReset.sessionInfo);
+      expect(dataAfterReset.authToken).toEqual(dataBeforeReset.authToken);
     });
 
     it('should retain previous session timeout and cut off information when auto tracking is enabled', () => {
@@ -1841,6 +2059,7 @@ describe('User session manager', () => {
 
       userSessionManager.init();
 
+      jest.advanceTimersByTime(1000);
       userSessionManager.reset();
 
       expect(state.session.sessionInfo.value).toEqual({

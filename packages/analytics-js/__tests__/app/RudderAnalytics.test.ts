@@ -376,6 +376,25 @@ describe('Core - Rudder Analytics Facade', () => {
     expect(analyticsInstanceMock.reset).toHaveBeenCalledWith(true);
   });
 
+  it('should process reset arguments and forwards to reset call with options', () => {
+    rudderAnalytics.reset({
+      entries: {
+        anonymousId: true,
+      },
+    });
+
+    expect(analyticsInstanceMock.reset).toHaveBeenCalledWith({
+      entries: {
+        anonymousId: true,
+      },
+    });
+  });
+
+  it('should process reset arguments and forwards to reset call without any arguments', () => {
+    rudderAnalytics.reset();
+    expect(analyticsInstanceMock.reset).toHaveBeenCalledWith(undefined);
+  });
+
   it('should dispatch an error event if an exception is thrown during the reset call', () => {
     const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
 
@@ -386,7 +405,7 @@ describe('Core - Rudder Analytics Facade', () => {
         throw new Error('Error in getAnalyticsInstance');
       });
 
-    rudderAnalytics.reset(true);
+    rudderAnalytics.reset();
 
     expect(dispatchEventSpy).toHaveBeenCalledWith(
       new ErrorEvent('error', {
