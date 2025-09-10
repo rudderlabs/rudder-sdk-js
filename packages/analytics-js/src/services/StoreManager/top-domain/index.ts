@@ -74,6 +74,12 @@ const domain = (url: string): string => {
       }
     } catch {
       // Silently continue to next domain level if cookie access is restricted or setting fails
+      // Best-effort cleanup to avoid leaking the test cookie
+      try {
+        cookie(cname, null, opts);
+      } catch {
+        // Ignore if we are unable to delete the cookie
+      }
     }
   }
 
