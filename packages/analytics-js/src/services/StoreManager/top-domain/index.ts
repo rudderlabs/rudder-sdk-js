@@ -73,7 +73,7 @@ const domain = (url: string): string => {
         return domain;
       }
     } catch {
-      // Ignore
+      // Silently continue to next domain level if cookie access is restricted or setting fails
     }
   }
 
