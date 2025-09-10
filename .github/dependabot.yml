@@ -73,7 +73,8 @@ updates:
           - "major"
     ignore:
       - dependency-name: "typescript"
-        update-types: version-update:semver-major
+        update-types: 
+          - version-update:semver-major
 
   # Gatsby sample applications with special dependency ignores
   - package-ecosystem: "npm"
@@ -101,11 +102,14 @@ updates:
           - "major"
     ignore:
       - dependency-name: "react"
-        update-types: version-update:semver-major
+        update-types: 
+          - version-update:semver-major
       - dependency-name: "react-dom"
-        update-types: version-update:semver-major
+        update-types: 
+          - version-update:semver-major
       - dependency-name: "@types/react-dom"
-        update-types: version-update:semver-major
+        update-types: 
+          - version-update:semver-major
 
   # All integrations sample applications managed together
   - package-ecosystem: "npm"
