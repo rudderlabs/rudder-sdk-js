@@ -43,13 +43,12 @@ updates:
         update-types:
           - "major"
 
-  # All sample applications managed together (excluding integrations)
+  # All sample applications managed together (excluding integrations and gatsby)
   - package-ecosystem: "npm"
     directories:
       - "/examples/angular/**/*"
       - "/examples/nextjs/**/*"
       - "/examples/reactjs/**/*"
-      - "/examples/gatsby/**/*"
       - "/examples/serverless/**/*"
       - "/examples/symfony/**/*"
     schedule:
@@ -74,6 +73,39 @@ updates:
           - "major"
     ignore:
       - dependency-name: "typescript"
+        update-types: version-update:semver-major
+
+  # Gatsby sample applications with special dependency ignores
+  - package-ecosystem: "npm"
+    directories:
+      - "/examples/gatsby/**/*"
+    schedule:
+      interval: "cron"
+      # every wednesday at 00:01
+      cronjob: "1 0 * * 3"
+    target-branch: "develop"
+    labels:
+      - "dependencies"
+      - "sample-apps"
+    groups:
+      gatsby-sample-apps-npm-deps:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+      gatsby-sample-apps-npm-major-deps:
+        patterns:
+          - "*"
+        update-types:
+          - "major"
+    ignore:
+      - dependency-name: "react"
+        update-types: version-update:semver-major
+      - dependency-name: "react-dom"
+        update-types: version-update:semver-major
+      - dependency-name: "@types/react-dom"
+        update-types: version-update:semver-major
 
   # All integrations sample applications managed together
   - package-ecosystem: "npm"
