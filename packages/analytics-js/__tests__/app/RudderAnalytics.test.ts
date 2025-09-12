@@ -820,8 +820,8 @@ describe('Core - Rudder Analytics Facade', () => {
     const simulatePageBeingUnloadedAfterSDKLoad = (sdkLoaded = true) => {
       // Simulate page being unloaded
       state.lifecycle.loaded.value = sdkLoaded;
-      const event = new Event('beforeunload');
-      window.dispatchEvent(event);
+      const event = new Event('pagehide');
+      document.dispatchEvent(event);
     };
 
     it('should inherit properties of autoTrack for page lifecycle events', () => {

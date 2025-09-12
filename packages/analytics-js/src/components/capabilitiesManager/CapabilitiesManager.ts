@@ -13,6 +13,7 @@ import { getTimezone } from '@rudderstack/analytics-js-common/utilities/timezone
 import { isValidURL } from '@rudderstack/analytics-js-common/utilities/url';
 import { isDefinedAndNotNull } from '@rudderstack/analytics-js-common/utilities/checks';
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
+import { isIE11 } from '@rudderstack/analytics-js-common/utilities/detect';
 import {
   INVALID_POLYFILL_URL_WARNING,
   POLYFILL_SCRIPT_LOAD_ERROR,
@@ -28,7 +29,6 @@ import {
   hasBeacon,
   hasCrypto,
   hasUAClientHints,
-  isIE11,
   isLegacyJSEngine,
   isStorageAvailable,
 } from './detection';

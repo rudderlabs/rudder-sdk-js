@@ -16,9 +16,16 @@ describe('onPageLeave', () => {
     });
   };
 
+  const originalUserAgent = (globalThis.navigator as any).userAgent;
+
   beforeEach(() => {
     jest.useFakeTimers();
     setVisibilityState('visible');
+  });
+
+  afterEach(() => {
+    (globalThis.navigator as any).userAgent = originalUserAgent;
+    jest.useRealTimers();
   });
 
   it('should fire the callback on pagehide event', () => {
@@ -40,7 +47,9 @@ describe('onPageLeave', () => {
     expect(evCallback).toHaveBeenCalledWith(true);
   });
 
-  it('should fire the callback on beforeunload event', () => {
+  it('should fire the callback on beforeunload event for IE11', () => {
+    (globalThis.navigator as any).userAgent =
+      'Mozilla/5.0 (Windows NT 10.0; Trident/7.0; rv:11.0) like Gecko';
     const evCallback = jest.fn();
     onPageLeave(evCallback);
 
@@ -95,7 +104,9 @@ describe('onPageLeave', () => {
     expect(evCallback).toHaveBeenCalledWith(false);
   });
 
-  it('should not fire the callback twice on beforeunload event', () => {
+  it('should not fire the callback twice on beforeunload event for IE11', () => {
+    (globalThis.navigator as any).userAgent =
+      'Mozilla/5.0 (Windows NT 10.0; Trident/7.0; rv:11.0) like Gecko';
     const evCallback = jest.fn();
     onPageLeave(evCallback);
 
@@ -106,6 +117,8 @@ describe('onPageLeave', () => {
   });
 
   it('should fire the callback only once if even multiple events are fired', () => {
+    (globalThis.navigator as any).userAgent =
+      'Mozilla/5.0 (Windows NT 10.0; Trident/7.0; rv:11.0) like Gecko';
     const evCallback = jest.fn();
     onPageLeave(evCallback);
 
@@ -166,7 +179,9 @@ describe('onPageLeave', () => {
     expect(evCallback).toHaveBeenNthCalledWith(2, false);
   });
 
-  it('should fire the callback on beforeunload event even after multiple visibility changes happen', () => {
+  it('should fire the callback on beforeunload event even after multiple visibility changes happen for IE11', () => {
+    (globalThis.navigator as any).userAgent =
+      'Mozilla/5.0 (Windows NT 10.0; Trident/7.0; rv:11.0) like Gecko';
     const evCallback = jest.fn();
     onPageLeave(evCallback);
 
@@ -184,7 +199,9 @@ describe('onPageLeave', () => {
     expect(evCallback).toHaveBeenNthCalledWith(2, false);
   });
 
-  it('should fire the callback on beforeunload event on the next tick even when the tab is inactive', () => {
+  it('should fire the callback on beforeunload event on the next tick even when the tab is inactive for IE11', () => {
+    (globalThis.navigator as any).userAgent =
+      'Mozilla/5.0 (Windows NT 10.0; Trident/7.0; rv:11.0) like Gecko';
     const evCallback = jest.fn();
     onPageLeave(evCallback);
 
