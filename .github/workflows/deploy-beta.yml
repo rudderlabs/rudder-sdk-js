@@ -41,7 +41,7 @@ jobs:
       trigger_source: ${{ format('Triggered via PR <{0}|#{1}> by <{2}|{3}>', steps.pr-info.outputs.pr_url, steps.pr-info.outputs.pr_number, format('{0}/{1}', github.server_url, github.actor), github.actor) }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 

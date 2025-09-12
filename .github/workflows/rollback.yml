@@ -57,7 +57,7 @@ jobs:
           aws-region: us-east-1
 
       - name: Checkout main branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: main # Production branch
 
@@ -72,7 +72,7 @@ jobs:
           echo "Legacy SDK current version: $legacy_sdk_current_version"
 
       - name: Checkout source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.sha }}
 
