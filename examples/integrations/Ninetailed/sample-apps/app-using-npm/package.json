@@ -16,7 +16,7 @@
   "overrides": {
     "nth-check": "2.1.1",
     "postcss": "8.4.47",
-    "webpack-dev-server": "5.2.2",
+    "webpack-dev-server": "4.15.2",
     "jsdom": {
       "form-data": "3.0.4"
     }
@@ -28,6 +28,8 @@
     "eject": "react-scripts eject",
     "clean": "rm -rf node_modules dist .next",
     "setup": "npm install",
+    "setup:ci": "npm ci",
+    "verify": "node ../../../../utils/mock-servers/verify-with-mock.js .",
     "clean:fresh": "npm run clean && rm -rf package-lock.json"
   },
   "browserslist": {

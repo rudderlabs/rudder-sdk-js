@@ -1,3 +1,5 @@
+import { isIE11 } from './detect';
+
 const onPageLeave = (callback: (isAccessible: boolean) => void) => {
   // To ensure the callback is only called once even if more than one events
   // are fired at once.
@@ -25,12 +27,18 @@ const onPageLeave = (callback: (isAccessible: boolean) => void) => {
   // Includes user actions like clicking a link, entering a new URL,
   // refreshing the page, or closing the browser tab
   // Note that 'pagehide' is not supported in IE.
-  // So, this is a fallback.
-  (globalThis as typeof window).addEventListener('beforeunload', () => {
-    isAccessible = false;
-    handleOnLeave();
-  });
+  // Registering this event conditionally for IE11 also because
+  // it affects bfcache optimization on modern browsers otherwise.
+  if (isIE11()) {
+    (globalThis as typeof window).addEventListener('beforeunload', () => {
+      isAccessible = false;
+      handleOnLeave();
+    });
+  }
 
+  // This is important for iOS Safari browser as it does not
+  // fire the regular pagehide and visibilitychange events
+  // when user goes to tablist view and closes the tab.
   (globalThis as typeof window).addEventListener('blur', () => {
     isAccessible = true;
     handleOnLeave();

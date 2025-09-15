@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { RudderAnalytics, RudderAnalyticsPreloader } from '@rudderstack/analytics-js';
+import {type LoadOptions, RudderAnalytics, RudderAnalyticsPreloader} from '@rudderstack/analytics-js';
 
 // Shared initialization promise
 let initializationPromise: Promise<RudderAnalytics | undefined> | null = null;
@@ -23,6 +23,7 @@ const useRudderStackAnalytics = (): RudderAnalytics | RudderAnalyticsPreloader |
         initializationPromise = (async () => {
           const writeKey = process.env.NEXT_PUBLIC_RUDDERSTACK_WRITE_KEY;
           const dataplaneUrl = process.env.NEXT_PUBLIC_RUDDERSTACK_DATAPLANE_URL;
+          const configUrl = process.env.NEXT_PUBLIC_RUDDERSTACK_CONFIG_URL;
 
           if (!writeKey || !dataplaneUrl) {
             console.error(`
@@ -30,6 +31,7 @@ const useRudderStackAnalytics = (): RudderAnalytics | RudderAnalyticsPreloader |
   1. Create a .env file in the repository root directory with valid values:
      WRITE_KEY=your_write_key
      DATAPLANE_URL=your_dataplane_url
+     CONFIG_SERVER_HOST=your_config_server_host
   2. Run the setup script to configure all examples:
      ./scripts/setup-examples-env.sh
   `);
@@ -39,11 +41,19 @@ const useRudderStackAnalytics = (): RudderAnalytics | RudderAnalyticsPreloader |
           const { RudderAnalytics } = await import('@rudderstack/analytics-js');
           const analyticsInstance = new RudderAnalytics();
 
-          analyticsInstance.load(writeKey, dataplaneUrl, {
+          // Build SDK configuration
+          const loadOptions: Partial<LoadOptions> = {
             onLoaded: () => {
               console.log('RudderStack Analytics is loaded!!!');
             },
-          });
+          };
+
+          // Add configUrl if provided
+          if (configUrl) {
+            loadOptions.configUrl = configUrl;
+          }
+
+          analyticsInstance.load(writeKey, dataplaneUrl, loadOptions);
 
           analyticsInstance.ready(() => {
             console.log('RudderStack Analytics is ready!!!');

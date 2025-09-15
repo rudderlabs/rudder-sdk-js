@@ -41,13 +41,13 @@ jobs:
       trigger_source: ${{ format('Triggered via PR <{0}|#{1}> by <{2}|{3}>', steps.pr-info.outputs.pr_url, steps.pr-info.outputs.pr_number, format('{0}/{1}', github.server_url, github.actor), github.actor) }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: Find PR for current branch
         id: pr-info
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const branch = context.ref.replace('refs/heads/', '');
@@ -163,7 +163,6 @@ jobs:
       trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
     secrets:
       RS_PROD_BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
 

@@ -328,8 +328,8 @@
           "displayName": "Google Analytics"
         },
         "updatedAt": "2024-10-01T09:57:51.189Z",
-        "shouldApplyDeviceModeTransformation": false,
-        "propagateEventsUntransformedOnError": false
+        "shouldApplyDeviceModeTransformation": true,
+        "propagateEventsUntransformedOnError": true
       },
       {
         "id": "2LoR1TbVG2bcISXvy7DamldfkgO",
@@ -392,8 +392,8 @@
           "displayName": "Google Analytics 4 (GA4)"
         },
         "updatedAt": "2024-10-01T10:07:57.063Z",
-        "shouldApplyDeviceModeTransformation": false,
-        "propagateEventsUntransformedOnError": false
+        "shouldApplyDeviceModeTransformation": true,
+        "propagateEventsUntransformedOnError": true
       },
       {
         "id": "2M5dOW6kipDywRHHLJy8blGeaIM",

@@ -1,5 +1,5 @@
 diff --git a/node_modules/nx/src/command-line/run-many/run-many.js b/node_modules/nx/src/command-line/run-many/run-many.js
-index 52cb033..5d7863e 100644
+index 87af9a8..a88119b 100644
 --- a/node_modules/nx/src/command-line/run-many/run-many.js
 +++ b/node_modules/nx/src/command-line/run-many/run-many.js
 @@ -64,7 +64,7 @@ function projectsToRun(nxArgs, projectGraph) {
@@ -27,7 +27,7 @@ index d20e82d..38faf3c 100644
  }
  function withTargetAndConfigurationOption(yargs, demandOption = true) {
 diff --git a/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js b/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
-index f58f821..407202f 100644
+index 28140be..743a5b4 100644
 --- a/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
 +++ b/node_modules/nx/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
 @@ -23,6 +23,10 @@ class StaticRunManyTerminalOutputLifeCycle {
@@ -41,7 +41,7 @@ index f58f821..407202f 100644
          if (this.tasks.length === 0) {
              return;
          }
-@@ -47,6 +51,10 @@ class StaticRunManyTerminalOutputLifeCycle {
+@@ -50,6 +54,10 @@ class StaticRunManyTerminalOutputLifeCycle {
          output_1.output.addVerticalSeparatorWithoutNewLines('cyan');
      }
      endCommand() {
@@ -52,7 +52,7 @@ index f58f821..407202f 100644
          output_1.output.addNewline();
          if (this.tasks.length === 0) {
              output_1.output.logSingleLine(`No tasks were run`);
-@@ -99,8 +107,9 @@ class StaticRunManyTerminalOutputLifeCycle {
+@@ -102,8 +110,9 @@ class StaticRunManyTerminalOutputLifeCycle {
          }
      }
      printTaskTerminalOutput(task, cacheStatus, terminalOutput) {

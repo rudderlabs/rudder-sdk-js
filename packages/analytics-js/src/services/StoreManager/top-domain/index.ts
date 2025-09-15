@@ -62,14 +62,24 @@ const domain = (url: string): string => {
       domain: `${domain.indexOf('localhost') !== -1 ? '' : '.'}${domain}`,
     };
 
-    // Set cookie on domain
-    cookie(cname, 1, opts);
+    try {
+      // Set cookie on domain
+      cookie(cname, 1, opts);
 
-    // If successful
-    if (cookie(cname)) {
-      // Remove cookie from domain
-      cookie(cname, null, opts);
-      return domain;
+      // If successful
+      if (cookie(cname)) {
+        // Remove cookie from domain
+        cookie(cname, null, opts);
+        return domain;
+      }
+    } catch {
+      // Silently continue to next domain level if cookie access is restricted or setting fails
+      // Best-effort cleanup to avoid leaking the test cookie
+      try {
+        cookie(cname, null, opts);
+      } catch {
+        // Ignore if we are unable to delete the cookie
+      }
     }
   }
 

@@ -1,8 +1,8 @@
-diff --git a/node_modules/@mswjs/interceptors/lib/node/chunk-GLGFOTGJ.mjs b/node_modules/@mswjs/interceptors/lib/node/chunk-GLGFOTGJ.mjs
-index 0beca9e..3586c4b 100644
---- a/node_modules/@mswjs/interceptors/lib/node/chunk-GLGFOTGJ.mjs
-+++ b/node_modules/@mswjs/interceptors/lib/node/chunk-GLGFOTGJ.mjs
-@@ -439,13 +439,6 @@ var MockHttpSocket = class extends MockSocket {
+diff --git a/node_modules/@mswjs/interceptors/lib/node/chunk-EKNRB5ZS.mjs b/node_modules/@mswjs/interceptors/lib/node/chunk-EKNRB5ZS.mjs
+index a1f1dd2..7d91fc5 100644
+--- a/node_modules/@mswjs/interceptors/lib/node/chunk-EKNRB5ZS.mjs
++++ b/node_modules/@mswjs/interceptors/lib/node/chunk-EKNRB5ZS.mjs
+@@ -471,13 +471,6 @@ var MockHttpSocket = class extends MockSocket {
      }
      const socket = this.createConnection();
      this.originalSocket = socket;
@@ -16,11 +16,11 @@ index 0beca9e..3586c4b 100644
      this.once("error", (error) => {
        socket.destroy(error);
      });
-diff --git a/node_modules/@mswjs/interceptors/lib/node/chunk-ZAIODWHA.js b/node_modules/@mswjs/interceptors/lib/node/chunk-ZAIODWHA.js
-index e1125f0..e6b0bf8 100644
---- a/node_modules/@mswjs/interceptors/lib/node/chunk-ZAIODWHA.js
-+++ b/node_modules/@mswjs/interceptors/lib/node/chunk-ZAIODWHA.js
-@@ -439,13 +439,6 @@ var MockHttpSocket = class extends MockSocket {
+diff --git a/node_modules/@mswjs/interceptors/lib/node/chunk-N4ZZFE24.js b/node_modules/@mswjs/interceptors/lib/node/chunk-N4ZZFE24.js
+index 6e68c6e..82d8fee 100644
+--- a/node_modules/@mswjs/interceptors/lib/node/chunk-N4ZZFE24.js
++++ b/node_modules/@mswjs/interceptors/lib/node/chunk-N4ZZFE24.js
+@@ -471,13 +471,6 @@ var MockHttpSocket = class extends MockSocket {
      }
      const socket = this.createConnection();
      this.originalSocket = socket;
@@ -35,10 +35,10 @@ index e1125f0..e6b0bf8 100644
        socket.destroy(error);
      });
 diff --git a/node_modules/@mswjs/interceptors/src/interceptors/ClientRequest/MockHttpSocket.ts b/node_modules/@mswjs/interceptors/src/interceptors/ClientRequest/MockHttpSocket.ts
-index 88bc924..91e674d 100644
+index c4fe832..ae9776c 100644
 --- a/node_modules/@mswjs/interceptors/src/interceptors/ClientRequest/MockHttpSocket.ts
 +++ b/node_modules/@mswjs/interceptors/src/interceptors/ClientRequest/MockHttpSocket.ts
-@@ -181,20 +181,6 @@ export class MockHttpSocket extends MockSocket {
+@@ -187,20 +187,6 @@ export class MockHttpSocket extends MockSocket {
      const socket = this.createConnection()
      this.originalSocket = socket
  

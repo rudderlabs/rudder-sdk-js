@@ -31,10 +31,12 @@ find examples -name ".env.example" | while read -r example_file; do
         # macOS
         sed -i '' "s|\${WRITE_KEY}|$WRITE_KEY|g" "$dir/.env"
         sed -i '' "s|\${DATAPLANE_URL}|$DATAPLANE_URL|g" "$dir/.env"
+        sed -i '' "s|\${CONFIG_SERVER_HOST}|$CONFIG_SERVER_HOST|g" "$dir/.env"
     else
         # Linux and others
         sed -i "s|\${WRITE_KEY}|$WRITE_KEY|g" "$dir/.env"
         sed -i "s|\${DATAPLANE_URL}|$DATAPLANE_URL|g" "$dir/.env"
+        sed -i "s|\${CONFIG_SERVER_HOST}|$CONFIG_SERVER_HOST|g" "$dir/.env"
     fi
 done
 

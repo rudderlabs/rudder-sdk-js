@@ -1,0 +1,21 @@
+{
+  "name": "mock-servers",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mock servers for RudderStack SDK sample app testing",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "start:control": "node control-plane.js",
+    "start:data": "node data-plane.js",
+    "verify-app": "node verify-with-mock.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "get-port": "^7.1.0"
+  },
+  "keywords": ["rudderstack", "mock", "testing", "examples"],
+  "author": "RudderStack",
+  "license": "MIT"
+}

@@ -58,7 +58,7 @@ jobs:
           echo "SHA=$sha" >> $GITHUB_OUTPUT
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ steps.getSHA.outputs.SHA }}
 
@@ -78,7 +78,7 @@ jobs:
 
     steps:
       - name: Checkout (for composite action)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Prepare sanity test inputs
         id: prepare_inputs
@@ -100,7 +100,7 @@ jobs:
           github_token: ${{ secrets.PAT }}
           target_repo: ${{ env.TARGET_REPO }}
           workflow_file: sdk-team-js-sanity-suite.yaml
-          workflow_ref: chore.temp-remove-api-test
+          workflow_ref: main
           workflow_name: Sanity E2E Regression Tests
           workflow_inputs: ${{ steps.prepare_inputs.outputs.inputs_json }}
           max_wait_time: ${{ env.MAX_WAIT_TIME_FOR_SANITY_TESTS }}
@@ -115,7 +115,7 @@ jobs:
 
     steps:
       - name: Checkout (for composite action)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Prepare E2E test inputs
         id: prepare_inputs
@@ -137,7 +137,7 @@ jobs:
           github_token: ${{ secrets.PAT }}
           target_repo: ${{ env.TARGET_REPO }}
           workflow_file: sdk-team-js-regression.yaml
-          workflow_ref: chore.temp-remove-api-test
+          workflow_ref: main
           workflow_name: Full E2E Regression Tests
           workflow_inputs: ${{ steps.prepare_inputs.outputs.inputs_json }}
           max_wait_time: ${{ env.MAX_WAIT_TIME_FOR_E2E_TESTS }}
