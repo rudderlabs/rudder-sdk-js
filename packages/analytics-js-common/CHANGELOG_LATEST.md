@@ -1,7 +1,8 @@
-## [3.24.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.23.0...@rudderstack/analytics-js-common@3.24.0) (2025-09-01)
+## [3.25.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.24.0...@rudderstack/analytics-js-common@3.25.0) (2025-09-15)
 
 
 ### Features
 
-* add dmt support for cloned destinations ([#2434](https://github.com/rudderlabs/rudder-sdk-js/issues/2434)) ([e701d6f](https://github.com/rudderlabs/rudder-sdk-js/commit/e701d6fb81edf1c326f1e50c4f1a040016521cd8))
+* optimize page leave events for bfcache ([#2458](https://github.com/rudderlabs/rudder-sdk-js/issues/2458)) ([48c1f20](https://github.com/rudderlabs/rudder-sdk-js/commit/48c1f208efa0edce88fe9bedaafd87511fb0a365))
+* reset api with options ([#2445](https://github.com/rudderlabs/rudder-sdk-js/issues/2445)) ([f739030](https://github.com/rudderlabs/rudder-sdk-js/commit/f73903092e20d45a6cf047cc03fe16f5290fb557))
 
