@@ -328,8 +328,8 @@
           "displayName": "Google Analytics"
         },
         "updatedAt": "2024-10-01T09:57:51.189Z",
-        "shouldApplyDeviceModeTransformation": false,
-        "propagateEventsUntransformedOnError": false
+        "shouldApplyDeviceModeTransformation": true,
+        "propagateEventsUntransformedOnError": true
       },
       {
         "id": "2LoR1TbVG2bcISXvy7DamldfkgO",
