@@ -8,6 +8,7 @@ jest.mock('../../../src/utils/logger', () =>
   jest.fn().mockImplementation(() => ({
     setLogLevel: jest.fn(),
     debug: jest.fn(),
+    warn: jest.fn(),
     error: jest.fn(),
   })),
 );
@@ -45,6 +46,7 @@ const mockBrazeSDK = () => {
     logPurchase: jest.fn(),
     getCachedContentCards: jest.fn(),
     getCachedFeed: jest.fn(),
+    requestImmediateDataFlush: jest.fn(),
     BrazeSdkMetadata: {
       CDN: 'wcd',
       GOOGLE_TAG_MANAGER: 'gg',
@@ -286,6 +288,18 @@ describe('setUserAlias', () => {
     const result = braze.setUserAlias();
     expect(result).toBe(false);
   });
+
+  it('should handle missing requestImmediateDataFlush method gracefully', () => {
+    analytics.getAnonymousId.mockReturnValue('anon123');
+    window.braze.getUser().addAlias.mockReturnValue(true);
+    // Remove the flush method to test defensive behavior
+    delete window.braze.requestImmediateDataFlush;
+
+    const result = braze.setUserAlias();
+    expect(result).toBe(true);
+    expect(window.braze.getUser().addAlias).toHaveBeenCalledWith('anon123', 'rudder_id');
+  });
+
 });
 
 describe('isReady', () => {
