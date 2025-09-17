@@ -126,6 +126,21 @@ class Braze {
         return false;
       }
 
+      // Immediately flush the alias to prevent race conditions with cloud mode events
+      // This ensures the alias is sent immediately instead of waiting for the regular
+      // interval (10 seconds with localStorage, 3 seconds without)
+      try {
+        if (window.braze && typeof window.braze.requestImmediateDataFlush === 'function') {
+          window.braze.requestImmediateDataFlush();
+          logger.debug('Braze alias flushed immediately to prevent race conditions');
+        } else {
+          logger.warn('Braze requestImmediateDataFlush method not available');
+        }
+      } catch (flushError) {
+        logger.warn('Failed to flush Braze alias immediately:', flushError);
+        // Don't fail the entire operation if flush fails
+      }
+
       return true;
     } catch (error) {
       this.logAliasError(`Error setting alias: ${stringifyWithoutCircularV1(error, true)}`);
