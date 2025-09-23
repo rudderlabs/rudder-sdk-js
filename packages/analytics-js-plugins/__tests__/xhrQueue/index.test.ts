@@ -213,6 +213,7 @@ describe('XhrQueue', () => {
         attemptNumber: 1,
         lastAttemptedAt: expect.any(Number),
         firstAttemptedAt: expect.any(Number),
+        reclaimed: undefined,
         id: 'sample_uuid',
         time: 1 + 1000 * 2 ** 1, // this is the delay calculation in RetryQueue
         type: 'Single',
@@ -391,6 +392,7 @@ describe('XhrQueue', () => {
           event: mergeDeepRight(event, { sentAt: 'sample_timestamp' }),
         },
         attemptNumber: 1,
+        reclaimed: undefined,
         lastAttemptedAt: expect.any(Number),
         firstAttemptedAt: expect.any(Number),
         id: 'sample_uuid',
@@ -498,6 +500,7 @@ describe('XhrQueue', () => {
           event: mergeDeepRight(event, { sentAt: 'sample_timestamp' }),
         },
         attemptNumber: 1,
+        reclaimed: undefined,
         lastAttemptedAt: expect.any(Number),
         firstAttemptedAt: expect.any(Number),
         id: 'sample_uuid',
