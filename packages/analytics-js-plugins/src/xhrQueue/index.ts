@@ -31,6 +31,7 @@ import {
   isErrRetryable,
   isUndefined,
   LOCAL_STORAGE,
+  MEMORY_STORAGE,
   toBase64,
   validateEventPayloadSize,
 } from '../shared-chunks/common';
@@ -124,7 +125,8 @@ const XhrQueue = (): ExtensionPlugin => ({
           });
         },
         storeManager,
-        LOCAL_STORAGE,
+        // If local storage is available, use it, else use memory storage
+        state.capabilities.storage.isLocalStorageAvailable.value ? LOCAL_STORAGE : MEMORY_STORAGE,
         logger,
         (itemData: XHRQueueItemData[]): number => {
           const currentTime = getCurrentTimeFormatted();
