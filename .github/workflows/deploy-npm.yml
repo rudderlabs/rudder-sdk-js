@@ -57,7 +57,7 @@ jobs:
     name: Deploy to NPM
     # As we publish the NPM package with provenance, we must use GitHub-hosted runners
     runs-on: ubuntu-latest
-    if: ${{ github.workflow_ref != '' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/tags/v')) }}
+    if: ${{ github.workflow_ref != '' || (github.event_name == 'workflow_dispatch' && (startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/feature/sdk-3969-resolve-npm-package-deployment-issues-with-nx'))) }}
 
     steps:
       - name: Checkout
@@ -161,7 +161,7 @@ jobs:
           # Remove unnecessary fields from package.json before publishing
           ./scripts/make-package-json-publish-ready.sh
 
-          npx nx release publish --base=${{ env.last_monorepo_version }} --head=${{ env.current_monorepo_version }} ${{ inputs.environment == 'beta' && '--tag=beta' || '' }}
+          npx nx release publish --base=${{ env.last_monorepo_version }} --head=${{ env.current_monorepo_version }} ${{ inputs.environment == 'beta' && '--tag=beta' || '' }} --dry-run
 
           # Reset the changes made to package.json
           git reset --hard

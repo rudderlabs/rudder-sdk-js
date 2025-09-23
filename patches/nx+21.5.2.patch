@@ -1,3 +1,31 @@
+diff --git a/node_modules/nx/src/command-line/release/config/config.js b/node_modules/nx/src/command-line/release/config/config.js
+index f69598d..a6c1fa2 100644
+--- a/node_modules/nx/src/command-line/release/config/config.js
++++ b/node_modules/nx/src/command-line/release/config/config.js
+@@ -807,7 +807,7 @@ async function handleNxReleaseConfigError(error, useLegacyVersioning) {
+         case 'CANNOT_RESOLVE_CHANGELOG_RENDERER': {
+             const nxJsonMessage = await (0, resolve_nx_json_error_message_1.resolveNxJsonConfigErrorMessage)(['release']);
+             output_1.output.error({
+-                title: `There was an error when resolving the configured changelog renderer at path: ${error.data.workspaceRelativePath}`,
++                title: `There was an error when resolving the configured changelog renderer at path: ${error.data.workspaceRelativePath}, error: ${error.data.error}`,
+                 bodyLines: [nxJsonMessage, linkMessage],
+             });
+             break;
+@@ -1053,11 +1053,13 @@ function validateChangelogConfig(releaseGroups, rootChangelogConfig) {
+         try {
+             (0, resolve_changelog_renderer_1.resolveChangelogRenderer)(rendererPath);
+         }
+-        catch {
++        catch (error) {
++            console.error(error);
+             return {
+                 code: 'CANNOT_RESOLVE_CHANGELOG_RENDERER',
+                 data: {
+                     workspaceRelativePath: (0, node_path_1.relative)(workspace_root_1.workspaceRoot, rendererPath),
++                    error: error,
+                 },
+             };
+         }
 diff --git a/node_modules/nx/src/command-line/run-many/run-many.js b/node_modules/nx/src/command-line/run-many/run-many.js
 index 87af9a8..a88119b 100644
 --- a/node_modules/nx/src/command-line/run-many/run-many.js
