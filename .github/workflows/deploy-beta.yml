@@ -130,6 +130,7 @@ jobs:
           echo "beta_identifier_for_automation_tests=pr-${{ steps.pr-info.outputs.pr_number }}-$SHA_SHORT" >> $GITHUB_OUTPUT
 
   deploy-cdn:
+    if: false
     name: Deploy to CDN
     uses: ./.github/workflows/deploy.yml
     needs: get-deploy-inputs
@@ -167,6 +168,7 @@ jobs:
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
 
   deploy-sanity-suite:
+    if: false
     name: Deploy sanity suite
     needs: [get-deploy-inputs]
     uses: ./.github/workflows/deploy-sanity-suite.yml
