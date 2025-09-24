@@ -55,7 +55,7 @@
     "release": "npm publish"
   },
   "dependencies": {
-    "@preact/signals-core": "1.11.0",
+    "@preact/signals-core": "1.12.1",
     "@lukeed/uuid": "2.0.1",
     "ramda": "0.31.3"
   },
