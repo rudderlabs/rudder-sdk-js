@@ -95,7 +95,7 @@
     "ramda": "0.31.3"
   },
   "devDependencies": {
-    "@babel/core": "7.28.0",
+    "@babel/core": "7.28.4",
     "@originjs/vite-plugin-federation": "1.4.1",
     "@rollup/plugin-alias": "5.1.1",
     "@rollup/plugin-babel": "6.0.4",
@@ -104,9 +104,9 @@
     "@rollup/plugin-node-resolve": "16.0.1",
     "@rollup/plugin-replace": "6.0.2",
     "@rollup/plugin-terser": "0.4.4",
-    "dotenv": "17.2.1",
+    "dotenv": "17.2.2",
     "rollup-plugin-delete": "3.0.1",
-    "rollup-plugin-dts": "6.2.1",
+    "rollup-plugin-dts": "6.2.3",
     "rollup-plugin-filesize": "10.0.0",
     "rollup-plugin-livereload": "2.0.5",
     "rollup-plugin-polyfill-node": "0.13.0",
