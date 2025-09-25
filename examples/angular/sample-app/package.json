@@ -3,15 +3,14 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "prebuild": "node scripts/setup-env.js",
-    "prestart": "node scripts/setup-env.js",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "clean": "rm -rf node_modules dist .angular",
-    "setup": "npm install",
-    "setup:ci": "npm ci",
+    "setup:env": "node scripts/setup-env.js",
+    "setup": "npm install && npm run setup:env",
+    "setup:ci": "npm ci && npm run setup:env",
     "verify": "node ../../utils/mock-servers/verify-with-mock.js .",
     "clean:fresh": "npm run clean && rm -rf package-lock.json"
   },
