@@ -125,7 +125,10 @@ const XhrQueue = (): ExtensionPlugin => ({
           });
         },
         storeManager,
-        // If local storage is available, use it, else use memory storage
+        // If local storage is available, use it; else, fall back to memory storage.
+        // Note: Memory storage is not persistent across page reloads. 
+        // This means queued events will be lost if the page is refreshed or closed, 
+        // potentially impacting analytics reliability and data completeness.
         state.capabilities.storage.isLocalStorageAvailable.value ? LOCAL_STORAGE : MEMORY_STORAGE,
         logger,
         (itemData: XHRQueueItemData[]): number => {
