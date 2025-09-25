@@ -1,0 +1,194 @@
+diff --git a/node_modules/crypto-es/dist/cipher-core.cjs b/node_modules/crypto-es/dist/cipher-core.cjs
+index fff5946..42eef92 100644
+--- a/node_modules/crypto-es/dist/cipher-core.cjs
++++ b/node_modules/crypto-es/dist/cipher-core.cjs
+@@ -2,6 +2,29 @@ const require_core = require('./core.cjs');
+ const require_enc_base64 = require('./enc-base64.cjs');
+ const require_evpkdf = require('./evpkdf.cjs');
+ 
++// ObjectAssign polyfill
++const ObjectAssign = typeof Object.assign !== "function" ? function (target) {
++  if (target == null) {
++    throw new TypeError('Cannot convert undefined or null to object');
++  }
++
++  target = Object(target);
++
++  for (let index = 1; index < arguments.length; index) {
++    const source = arguments[index];
++
++    if (source != null) {
++      for (const key in source) {
++        if (Object.prototype.hasOwnProperty.call(source, key)) {
++          target[key] = source[key];
++        }
++      }
++    }
++  }
++
++  return target;
++} : Object.assign;
++
+ //#region src/cipher-core.ts
+ /**
+ * Abstract base cipher template.
+@@ -44,7 +67,7 @@ var Cipher = class Cipher extends require_core.BufferedBlockAlgorithm {
+ 	*/
+ 	constructor(xformMode, key, cfg) {
+ 		super();
+-		this.cfg = Object.assign({}, cfg);
++		this.cfg = ObjectAssign({}, cfg);
+ 		this._xformMode = xformMode;
+ 		this._key = key;
+ 	}
+@@ -341,7 +364,7 @@ var BlockCipher = class extends Cipher {
+ 	* @param cfg - Configuration options
+ 	*/
+ 	constructor(xformMode, key, cfg) {
+-		super(xformMode, key, Object.assign({
++		super(xformMode, key, ObjectAssign({
+ 			mode: CBC,
+ 			padding: Pkcs7
+ 		}, cfg));
+@@ -499,7 +522,7 @@ var SerializableCipher = class extends require_core.Base {
+ 	* ```
+ 	*/
+ 	static encrypt(cipher, message, key, cfg) {
+-		const _cfg = Object.assign({}, this.cfg, cfg);
++		const _cfg = ObjectAssign({}, this.cfg, cfg);
+ 		const encryptor = cipher.createEncryptor(key, _cfg);
+ 		const ciphertext = encryptor.finalize(message);
+ 		const cipherCfg = encryptor.cfg;
+@@ -530,7 +553,7 @@ var SerializableCipher = class extends require_core.Base {
+ 	* ```
+ 	*/
+ 	static decrypt(cipher, ciphertext, key, cfg) {
+-		const _cfg = Object.assign({}, this.cfg, cfg);
++		const _cfg = ObjectAssign({}, this.cfg, cfg);
+ 		const _ciphertext = this._parse(ciphertext, _cfg.format);
+ 		const plaintext = cipher.createDecryptor(key, _cfg).finalize(_ciphertext.ciphertext);
+ 		return plaintext;
+@@ -582,7 +605,7 @@ const OpenSSLKdf = { execute(password, keySize, ivSize, salt, hasher) {
+ */
+ var PasswordBasedCipher = class extends SerializableCipher {
+ 	/** Configuration options */
+-	static cfg = Object.assign({}, SerializableCipher.cfg, { kdf: OpenSSLKdf });
++	static cfg = ObjectAssign({}, SerializableCipher.cfg, { kdf: OpenSSLKdf });
+ 	/**
+ 	* Encrypts a message using a password.
+ 	* 
+@@ -598,7 +621,7 @@ var PasswordBasedCipher = class extends SerializableCipher {
+ 	* ```
+ 	*/
+ 	static encrypt(cipher, message, password, cfg) {
+-		const _cfg = Object.assign({}, this.cfg, cfg);
++		const _cfg = ObjectAssign({}, this.cfg, cfg);
+ 		if (!_cfg.kdf) throw new Error("KDF required for password-based encryption");
+ 		const derivedParams = _cfg.kdf.execute(password, cipher.keySize || cipher.keySize, cipher.ivSize || cipher.ivSize, _cfg.salt, _cfg.hasher);
+ 		_cfg.iv = derivedParams.iv;
+@@ -621,7 +644,7 @@ var PasswordBasedCipher = class extends SerializableCipher {
+ 	* ```
+ 	*/
+ 	static decrypt(cipher, ciphertext, password, cfg) {
+-		const _cfg = Object.assign({}, this.cfg, cfg);
++		const _cfg = ObjectAssign({}, this.cfg, cfg);
+ 		const _ciphertext = this._parse(ciphertext, _cfg.format);
+ 		if (!_cfg.kdf) throw new Error("KDF required for password-based decryption");
+ 		const derivedParams = _cfg.kdf.execute(password, cipher.keySize || cipher.keySize, cipher.ivSize || cipher.ivSize, _ciphertext.salt, _cfg.hasher);
+diff --git a/node_modules/crypto-es/dist/cipher-core.mjs b/node_modules/crypto-es/dist/cipher-core.mjs
+index 8800812..fa5766b 100644
+--- a/node_modules/crypto-es/dist/cipher-core.mjs
++++ b/node_modules/crypto-es/dist/cipher-core.mjs
+@@ -2,6 +2,29 @@ import { Base, BufferedBlockAlgorithm, Hex, WordArray } from "./core.mjs";
+ import { Base64 } from "./enc-base64.mjs";
+ import { EvpKDFAlgo } from "./evpkdf.mjs";
+ 
++// ObjectAssign polyfill
++const ObjectAssign = typeof Object.assign !== "function" ? function (target) {
++  if (target == null) {
++    throw new TypeError('Cannot convert undefined or null to object');
++  }
++
++  target = Object(target);
++
++  for (let index = 1; index < arguments.length; index) {
++    const source = arguments[index];
++
++    if (source != null) {
++      for (const key in source) {
++        if (Object.prototype.hasOwnProperty.call(source, key)) {
++          target[key] = source[key];
++        }
++      }
++    }
++  }
++
++  return target;
++} : Object.assign;
++
+ //#region src/cipher-core.ts
+ /**
+ * Abstract base cipher template.
+@@ -44,7 +67,7 @@ var Cipher = class Cipher extends BufferedBlockAlgorithm {
+ 	*/
+ 	constructor(xformMode, key, cfg) {
+ 		super();
+-		this.cfg = Object.assign({}, cfg);
++		this.cfg = ObjectAssign({}, cfg);
+ 		this._xformMode = xformMode;
+ 		this._key = key;
+ 	}
+@@ -341,7 +364,7 @@ var BlockCipher = class extends Cipher {
+ 	* @param cfg - Configuration options
+ 	*/
+ 	constructor(xformMode, key, cfg) {
+-		super(xformMode, key, Object.assign({
++		super(xformMode, key, ObjectAssign({
+ 			mode: CBC,
+ 			padding: Pkcs7
+ 		}, cfg));
+@@ -499,7 +522,7 @@ var SerializableCipher = class extends Base {
+ 	* ```
+ 	*/
+ 	static encrypt(cipher, message, key, cfg) {
+-		const _cfg = Object.assign({}, this.cfg, cfg);
++		const _cfg = ObjectAssign({}, this.cfg, cfg);
+ 		const encryptor = cipher.createEncryptor(key, _cfg);
+ 		const ciphertext = encryptor.finalize(message);
+ 		const cipherCfg = encryptor.cfg;
+@@ -530,7 +553,7 @@ var SerializableCipher = class extends Base {
+ 	* ```
+ 	*/
+ 	static decrypt(cipher, ciphertext, key, cfg) {
+-		const _cfg = Object.assign({}, this.cfg, cfg);
++		const _cfg = ObjectAssign({}, this.cfg, cfg);
+ 		const _ciphertext = this._parse(ciphertext, _cfg.format);
+ 		const plaintext = cipher.createDecryptor(key, _cfg).finalize(_ciphertext.ciphertext);
+ 		return plaintext;
+@@ -582,7 +605,7 @@ const OpenSSLKdf = { execute(password, keySize, ivSize, salt, hasher) {
+ */
+ var PasswordBasedCipher = class extends SerializableCipher {
+ 	/** Configuration options */
+-	static cfg = Object.assign({}, SerializableCipher.cfg, { kdf: OpenSSLKdf });
++	static cfg = ObjectAssign({}, SerializableCipher.cfg, { kdf: OpenSSLKdf });
+ 	/**
+ 	* Encrypts a message using a password.
+ 	* 
+@@ -598,7 +621,7 @@ var PasswordBasedCipher = class extends SerializableCipher {
+ 	* ```
+ 	*/
+ 	static encrypt(cipher, message, password, cfg) {
+-		const _cfg = Object.assign({}, this.cfg, cfg);
++		const _cfg = ObjectAssign({}, this.cfg, cfg);
+ 		if (!_cfg.kdf) throw new Error("KDF required for password-based encryption");
+ 		const derivedParams = _cfg.kdf.execute(password, cipher.keySize || cipher.keySize, cipher.ivSize || cipher.ivSize, _cfg.salt, _cfg.hasher);
+ 		_cfg.iv = derivedParams.iv;
+@@ -621,7 +644,7 @@ var PasswordBasedCipher = class extends SerializableCipher {
+ 	* ```
+ 	*/
+ 	static decrypt(cipher, ciphertext, password, cfg) {
+-		const _cfg = Object.assign({}, this.cfg, cfg);
++		const _cfg = ObjectAssign({}, this.cfg, cfg);
+ 		const _ciphertext = this._parse(ciphertext, _cfg.format);
+ 		if (!_cfg.kdf) throw new Error("KDF required for password-based decryption");
+ 		const derivedParams = _cfg.kdf.execute(password, cipher.keySize || cipher.keySize, cipher.ivSize || cipher.ivSize, _ciphertext.salt, _cfg.hasher);
