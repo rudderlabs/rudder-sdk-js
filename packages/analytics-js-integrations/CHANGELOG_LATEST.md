@@ -1,7 +1,7 @@
-## [3.18.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.17.0...@rudderstack/analytics-js-integrations@3.18.0) (2025-09-01)
+## [3.18.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.18.0...@rudderstack/analytics-js-integrations@3.18.1) (2025-09-29)
 
 
-### Features
+### Bug Fixes
 
-* add custom events support in microsoft clarity ([#2324](https://github.com/rudderlabs/rudder-sdk-js/issues/2324)) ([efd473f](https://github.com/rudderlabs/rudder-sdk-js/commit/efd473f034e00b81a79b38a1e94bc8cc412c2fd9))
+* braze flush alias immediately ([#2487](https://github.com/rudderlabs/rudder-sdk-js/issues/2487)) ([18300ac](https://github.com/rudderlabs/rudder-sdk-js/commit/18300ace0fbead4f301c697e6b04da6619247833))
 
