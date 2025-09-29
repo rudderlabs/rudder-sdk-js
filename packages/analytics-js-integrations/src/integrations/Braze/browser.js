@@ -74,7 +74,7 @@ class Braze {
 
   addSdkMetadata() {
     try {
-      window.braze.addSdkMetadata([window.braze.BrazeSdkMetadata.CDN]);
+      globalThis.braze.addSdkMetadata([globalThis.braze.BrazeSdkMetadata.CDN]);
       this.sdkMetadataAdded = true;
       logger.debug('Successfully added Braze SDK metadata');
     } catch (error) {
@@ -84,26 +84,26 @@ class Braze {
 
   init() {
     loadNativeSdk();
-    window.braze.initialize(this.appKey, {
+    globalThis.braze.initialize(this.appKey, {
       enableLogging: this.enableBrazeLogging,
       baseUrl: this.endPoint,
       allowUserSuppliedJavascript: this.allowUserSuppliedJavascript,
     });
 
-    window.braze.automaticallyShowInAppMessages();
+    globalThis.braze.automaticallyShowInAppMessages();
     const { userId } = this.analytics;
     // send userId if you have it https://js.appboycdn.com/web-sdk/latest/doc/module-appboy.html#.changeUser
     if (userId) {
-      window.braze.changeUser(userId);
+      globalThis.braze.changeUser(userId);
     }
     if (this.enablePushNotification) {
-      window.braze.requestPushPermission();
+      globalThis.braze.requestPushPermission();
     }
-    window.braze.openSession();
+    globalThis.braze.openSession();
   }
 
   isLoaded() {
-    return window.brazeQueue === null;
+    return globalThis.brazeQueue === null;
   }
 
   setUserAlias() {
@@ -114,7 +114,7 @@ class Braze {
         return false;
       }
 
-      const user = window.braze.getUser();
+      const user = globalThis.braze.getUser();
       if (!user) {
         this.logAliasError('Braze user object is not available');
         return false;
@@ -124,6 +124,21 @@ class Braze {
       if (!aliasSet) {
         this.logAliasError('Failed to set alias for braze');
         return false;
+      }
+
+      // Immediately flush the alias to prevent race conditions with cloud mode events
+      // This ensures the alias is sent immediately instead of waiting for the regular
+      // interval (10 seconds with localStorage, 3 seconds without)
+      try {
+        if (globalThis.braze && typeof globalThis.braze.requestImmediateDataFlush === 'function') {
+          globalThis.braze.requestImmediateDataFlush();
+          logger.debug('Braze alias flushed immediately to prevent race conditions');
+        } else {
+          logger.warn('Braze requestImmediateDataFlush method not available');
+        }
+      } catch (flushError) {
+        logger.warn('Failed to flush Braze alias immediately:', flushError);
+        // Don't fail the entire operation if flush fails
       }
 
       return true;
@@ -184,7 +199,7 @@ class Braze {
 
     if (this.isHybridModeEnabled) {
       if (userId) {
-        window.braze.changeUser(userId);
+        globalThis.braze.changeUser(userId);
       }
       return;
     }
@@ -218,8 +233,8 @@ class Braze {
     ];
     // function set Address
     function setAddress() {
-      window.braze.getUser().setCountry(address?.country);
-      window.braze.getUser().setHomeCity(address?.city);
+      globalThis.braze.getUser().setCountry(address?.country);
+      globalThis.braze.getUser().setHomeCity(address?.city);
     }
     // function set Birthday
     function setBirthday() {
@@ -229,7 +244,7 @@ class Braze {
           logger.error('Invalid Date for birthday');
           return;
         }
-        window.braze
+        globalThis.braze
           .getUser()
           .setDateOfBirth(date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate());
       } catch (error) {
@@ -238,22 +253,22 @@ class Braze {
     }
     // function set Email
     function setEmail() {
-      window.braze.getUser().setEmail(email);
+      globalThis.braze.getUser().setEmail(email);
     }
     // function set firstName
     function setFirstName() {
-      window.braze.getUser().setFirstName(firstName);
+      globalThis.braze.getUser().setFirstName(firstName);
     }
     // function set gender
     function setGender(genderName) {
-      window.braze.getUser().setGender(genderName);
+      globalThis.braze.getUser().setGender(genderName);
     }
     // function set lastName
     function setLastName() {
-      window.braze.getUser().setLastName(lastName);
+      globalThis.braze.getUser().setLastName(lastName);
     }
     function setPhone() {
-      window.braze.getUser().setPhoneNumber(phone);
+      globalThis.braze.getUser().setPhoneNumber(phone);
     }
 
     // eslint-disable-next-line unicorn/consistent-destructuring
@@ -283,14 +298,14 @@ class Braze {
           .filter(key => reserved.indexOf(key) === -1)
           .forEach(key => {
             if (!prevTraits[key] || !equals(prevTraits[key], traits[key])) {
-              window.braze.getUser().setCustomUserAttribute(key, traits[key]);
+              globalThis.braze.getUser().setCustomUserAttribute(key, traits[key]);
             }
           });
       }
     } else {
-      window.braze.changeUser(userId);
+      globalThis.braze.changeUser(userId);
       // method removed from v4 https://www.braze.com/docs/api/objects_filters/user_attributes_object#braze-user-profile-fields
-      // window.braze.getUser().setAvatarImageUrl(avatar);
+      // globalThis.braze.getUser().setAvatarImageUrl(avatar);
       if (email) setEmail();
       if (firstName) setFirstName();
       if (lastName) setLastName();
@@ -303,7 +318,7 @@ class Braze {
         Object.keys(traits)
           .filter(key => reserved.indexOf(key) === -1)
           .forEach(key => {
-            window.braze.getUser().setCustomUserAttribute(key, traits[key]);
+            globalThis.braze.getUser().setCustomUserAttribute(key, traits[key]);
           });
       }
     }
@@ -336,7 +351,7 @@ class Braze {
         handlePurchase(properties);
       } else {
         properties = handleReservedProperties(properties);
-        window.braze.logCustomEvent(eventName, properties);
+        globalThis.braze.logCustomEvent(eventName, properties);
       }
     }
   }
@@ -349,9 +364,9 @@ class Braze {
     let { properties } = rudderElement.message;
     properties = handleReservedProperties(properties);
     if (eventName) {
-      window.braze.logCustomEvent(eventName, properties);
+      globalThis.braze.logCustomEvent(eventName, properties);
     } else {
-      window.braze.logCustomEvent('Page View', properties);
+      globalThis.braze.logCustomEvent('Page View', properties);
     }
   }
 }
