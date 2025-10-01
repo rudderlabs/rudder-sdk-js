@@ -117,7 +117,7 @@
     "@babel/preset-env": "7.28.3",
     "@babel/preset-typescript": "7.27.1",
     "@commitlint/config-conventional": "19.8.1",
-    "@commitlint/config-nx-scopes": "19.8.1",
+    "@commitlint/config-nx-scopes": "20.0.0",
     "@digitalroute/cz-conventional-changelog-for-jira": "8.0.1",
     "@eslint/js": "9.36.0",
     "@jscutlery/semver": "5.7.1",
