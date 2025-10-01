@@ -273,3 +273,22 @@ jobs:
       RS_PROD_BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
+
+  deprecate-closed-pr-betas:
+    needs: [publish-npm-packages]
+    name: Deprecate Beta NPM Packages from Closed PRs
+    runs-on: [self-hosted, Linux, X64]
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Run beta package deprecation
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          chmod +x scripts/deprecate-beta-packages.sh
+          ./scripts/deprecate-beta-packages.sh
