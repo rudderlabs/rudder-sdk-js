@@ -60,7 +60,7 @@
     "ramda": "0.31.3"
   },
   "devDependencies": {
-    "@bugsnag/js": "8.4.0"
+    "@bugsnag/js": "8.6.0"
   },
   "overrides": {},
   "browserslist": {
