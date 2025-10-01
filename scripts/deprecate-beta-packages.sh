@@ -23,8 +23,8 @@ declare -A PR_STATUSES
 echo "🚀 Starting beta package deprecation for closed PRs"
 
 # Validate required environment variables
-if [[ -z "${GITHUB_TOKEN:-}" || -z "${NPM_TOKEN:-}" ]]; then
-  echo "❌ Missing required environment variables: GITHUB_TOKEN, NPM_TOKEN"
+if [[ -z "${GH_TOKEN:-}" || -z "${NPM_TOKEN:-}" ]]; then
+  echo "❌ Missing required environment variables: GH_TOKEN, NPM_TOKEN"
   exit 1
 fi
 
@@ -32,6 +32,8 @@ fi
 npm set //registry.npmjs.org/:_authToken="$NPM_TOKEN"
 
 # Extract PR number from beta version
+# Beta version format: <version>-beta.pr.<pr_number>.<short_sha>
+# Example: 3.0.0-beta.pr.1234.abc1234
 extract_pr_number() {
   local version=$1
   echo "$version" | grep -oE 'beta\.pr\.([0-9]+)\.' | grep -oE '[0-9]+' | head -n1 || echo ""
@@ -52,8 +54,7 @@ check_pr_status() {
   repo_name=$(echo "$GITHUB_REPOSITORY" | cut -d'/' -f2)
 
   local response
-  response=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-    "https://api.github.com/repos/$repo_owner/$repo_name/pulls/$pr_number")
+  response=$(gh pr view "$pr_number" --repo "$repo_owner/$repo_name" --json state,merged)
 
   local state merged
   state=$(echo "$response" | jq -r '.state // "unknown"')
@@ -69,7 +70,7 @@ for package_name in "${PACKAGES[@]}"; do
   echo "📦 Processing: $package_name"
 
   # Get beta versions
-  versions=$(npm view "$package_name" versions --json 2>/dev/null | jq -r '.[] | select(contains("-beta.pr."))' || true)
+  versions=$(npm view "$package_name" versions --json 2>/dev/null | jq -r 'if type == "array" then .[] else . end | select(contains("-beta.pr."))' || true)
 
   if [[ -z "$versions" ]]; then
     echo "  No beta versions found"
@@ -107,11 +108,11 @@ for package_name in "${PACKAGES[@]}"; do
 
       echo "  Deprecation message: $deprecation_message"
 
-      if ! npm deprecate "$package_name@$version" "$deprecation_message" 2>&1; then
-        echo "  ❌ Failed to deprecate $version"
+      if ! npm_output=$(npm deprecate "$package_name@$version" "$deprecation_message" 2>&1); then
+        echo "  ❌ Failed to deprecate $package_name@$version: $npm_output"
       fi
     else
-      echo "  ⏭️  Skipping $version (PR #$pr_number is $state)"
+      echo "  ⏭️  Skipping $package_name@$version (PR #$pr_number is $state)"
     fi
 
     sleep 0.1

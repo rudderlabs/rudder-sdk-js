@@ -279,6 +279,8 @@ jobs:
     name: Deprecate Beta NPM Packages from Closed PRs
     runs-on: [self-hosted, Linux, X64]
     continue-on-error: true
+    permissions:
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -286,7 +288,7 @@ jobs:
       - name: Run beta package deprecation
         continue-on-error: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
