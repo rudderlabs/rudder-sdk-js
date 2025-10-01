@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@ninetailed/experience.js": "7.17.4",
-    "@testing-library/jest-dom": "6.8.0",
+    "@ninetailed/experience.js": "7.17.6",
+    "@testing-library/jest-dom": "6.9.0",
     "@testing-library/react": "16.3.0",
     "@testing-library/user-event": "14.6.1",
     "react": "19.1.1",
