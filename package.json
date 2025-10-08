@@ -200,15 +200,15 @@
     "user-agent-data-types": "0.4.2"
   },
   "optionalDependencies": {
-    "@nx/nx-darwin-arm64": "21.5.3",
-    "@nx/nx-darwin-x64": "21.5.3",
-    "@nx/nx-linux-x64-gnu": "21.5.3",
-    "@nx/nx-win32-x64-msvc": "21.5.3",
-    "@rollup/rollup-linux-x64-gnu": "4.52.2",
-    "@swc/core-linux-x64-gnu": "1.13.5",
-    "@swc/core-darwin-x64": "1.13.5",
-    "@swc/core-win32-x64-msvc": "1.13.5",
-    "@swc/core-darwin-arm64": "1.13.5"
+    "@nx/nx-darwin-arm64": "21.6.3",
+    "@nx/nx-darwin-x64": "21.6.3",
+    "@nx/nx-linux-x64-gnu": "21.6.3",
+    "@nx/nx-win32-x64-msvc": "21.6.3",
+    "@rollup/rollup-linux-x64-gnu": "4.52.4",
+    "@swc/core-linux-x64-gnu": "1.13.20",
+    "@swc/core-darwin-x64": "1.13.20",
+    "@swc/core-win32-x64-msvc": "1.13.20",
+    "@swc/core-darwin-arm64": "1.13.20"
   },
   "overrides": {
     "rudder-component-cookie": {
