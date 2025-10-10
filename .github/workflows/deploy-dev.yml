@@ -18,6 +18,11 @@ jobs:
     outputs:
       trigger_source: ${{ steps.set-outputs.outputs.trigger_source }}
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+        with:
+          egress-policy: audit
+
       - name: Set outputs
         id: set-outputs
         run: echo "trigger_source=${{ format('PR <{0}|#{1}> merged by <{2}|{3}>', github.event.pull_request.html_url, github.event.pull_request.number, format('{0}/{1}', github.server_url, github.actor), github.actor) }}" >> $GITHUB_OUTPUT
