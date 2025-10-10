@@ -46,6 +46,11 @@ jobs:
       version: ${{ steps.determine_version.outputs.current_version }}
 
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+        with:
+          egress-policy: audit
+
       - name: Determine checkout SHA
         id: getSHA
         run: |
@@ -77,6 +82,11 @@ jobs:
       sanity-conclusion: ${{ steps.run_sanity_tests.outputs.conclusion }}
 
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+        with:
+          egress-policy: audit
+
       - name: Checkout (for composite action)
         uses: actions/checkout@v5
 
@@ -114,6 +124,11 @@ jobs:
     if: needs.trigger-and-wait-sanity-test-suite.outputs.sanity-conclusion == 'success'
 
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+        with:
+          egress-policy: audit
+
       - name: Checkout (for composite action)
         uses: actions/checkout@v5
 

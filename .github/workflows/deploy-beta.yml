@@ -40,6 +40,11 @@ jobs:
       beta_identifier_for_automation_tests: ${{ steps.deploy-inputs.outputs.beta_identifier_for_automation_tests }}
       trigger_source: ${{ format('Triggered via PR <{0}|#{1}> by <{2}|{3}>', steps.pr-info.outputs.pr_url, steps.pr-info.outputs.pr_number, format('{0}/{1}', github.server_url, github.actor), github.actor) }}
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+        with:
+          egress-policy: audit
+
       - name: Checkout code
         uses: actions/checkout@v5
         with:

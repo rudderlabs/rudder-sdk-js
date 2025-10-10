@@ -38,6 +38,11 @@ jobs:
     outputs:
       trigger_source: ${{ steps.set-outputs.outputs.trigger_source }}
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+        with:
+          egress-policy: audit
+
       - name: Set outputs
         id: set-outputs
         run: echo "trigger_source=${{ format('Triggered from <{0}|{1}> by <{2}|{3}>', github.ref, github.ref_name, format('{0}/{1}', github.server_url, github.actor), github.actor) }}" >> $GITHUB_OUTPUT
@@ -47,6 +52,11 @@ jobs:
     name: Rollback production deployment
     runs-on: [self-hosted, Linux, X64]
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+        with:
+          egress-policy: audit
+
       - name: Install AWS CLI
         uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c  # master
 
