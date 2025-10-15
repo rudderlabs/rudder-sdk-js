@@ -74,7 +74,7 @@ describe('JS SDK Service Worker', () => {
     rudderAnalyticsClient.identify(identifyRequestPayload);
     rudderAnalyticsClient.flush();
     setTimeout(() => {
-      expect(capturedRequestBody.batch[0]).toMatchObject(identifyRequestPayload);
+      expect(capturedRequestBody?.batch?.[0]).toMatchObject(identifyRequestPayload);
       done();
     }, 1);
   });
@@ -83,7 +83,7 @@ describe('JS SDK Service Worker', () => {
     rudderAnalyticsClient.track(trackRequestPayload);
     rudderAnalyticsClient.flush();
     setTimeout(() => {
-      expect(capturedRequestBody.batch[0]).toMatchObject(trackRequestPayload);
+      expect(capturedRequestBody?.batch?.[0]).toMatchObject(trackRequestPayload);
       done();
     }, 1);
   });
@@ -93,7 +93,7 @@ describe('JS SDK Service Worker', () => {
     rudderAnalyticsClient.flush();
 
     setTimeout(() => {
-      expect(capturedRequestBody.batch[0]).toMatchObject(pageRequestPayload);
+      expect(capturedRequestBody?.batch?.[0]).toMatchObject(pageRequestPayload);
       done();
     }, 1);
   });
@@ -103,7 +103,7 @@ describe('JS SDK Service Worker', () => {
     rudderAnalyticsClient.flush();
 
     setTimeout(() => {
-      expect(capturedRequestBody.batch[0]).toMatchObject(screenRequestPayload);
+      expect(capturedRequestBody?.batch?.[0]).toMatchObject(screenRequestPayload);
       done();
     }, 1);
   });
@@ -113,7 +113,7 @@ describe('JS SDK Service Worker', () => {
     rudderAnalyticsClient.flush();
 
     setTimeout(() => {
-      expect(capturedRequestBody.batch[0]).toMatchObject(groupRequestPayload);
+      expect(capturedRequestBody?.batch?.[0]).toMatchObject(groupRequestPayload);
       done();
     }, 1);
   });
@@ -123,7 +123,7 @@ describe('JS SDK Service Worker', () => {
     rudderAnalyticsClient.flush();
 
     setTimeout(() => {
-      expect(capturedRequestBody.batch[0]).toMatchObject(aliasRequestPayload);
+      expect(capturedRequestBody?.batch?.[0]).toMatchObject(aliasRequestPayload);
       done();
     }, 1);
   });
