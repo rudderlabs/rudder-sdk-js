@@ -8,7 +8,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  id-token: write # allows the JWT to be requested from GitHub's OIDC provider
+  id-token: write # Allows the JWT to be requested from GitHub's OIDC provider (for AWS and NPM provenance)
   contents: write # Changed to write to allow creating/updating releases
 
 env:
@@ -72,10 +72,12 @@ jobs:
           ref: main # Production branch
 
       - name: Get current sdk versions
+        id: get-current-version
         run: |
-          current_version=$(jq -r .version packages/analytics-js/package.json)
-          echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
-          echo "SDK current version: $current_version"
+          current_sdk_version=$(jq -r .version packages/analytics-js/package.json)
+          echo "CURRENT_VERSION_VALUE=$current_sdk_version" >> $GITHUB_ENV
+          echo "current_sdk_version=$current_sdk_version" >> $GITHUB_OUTPUT
+          echo "SDK current version: $current_sdk_version"
 
           legacy_sdk_current_version=$(jq -r .version packages/analytics-v1.1/package.json)
           echo "LEGACY_SDK_CURRENT_VERSION_VALUE=$legacy_sdk_current_version" >> $GITHUB_ENV
@@ -93,10 +95,12 @@ jobs:
           cache: 'npm'
 
       - name: Get rollback sdk versions
+        id: get-rollback-version
         run: |
-          rollback_version=$(jq -r .version packages/analytics-js/package.json)
-          echo "ROLLBACK_VERSION_VALUE=$rollback_version" >> $GITHUB_ENV
-          echo "SDK rollback version: $rollback_version"
+          rollback_sdk_version=$(jq -r .version packages/analytics-js/package.json)
+          echo "ROLLBACK_VERSION_VALUE=$rollback_sdk_version" >> $GITHUB_ENV
+          echo "rollback_sdk_version=$rollback_sdk_version" >> $GITHUB_OUTPUT
+          echo "SDK rollback version: $rollback_sdk_version"
 
           legacy_sdk_rollback_version=$(jq -r .version packages/analytics-v1.1/package.json)
           echo "LEGACY_SDK_ROLLBACK_VERSION_VALUE=$legacy_sdk_rollback_version" >> $GITHUB_ENV
@@ -177,11 +181,10 @@ jobs:
         continue-on-error: true
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
         run: |
           VERSION_TO_DEPRECATE="${{ env.CURRENT_VERSION_VALUE }}"
           echo "Deprecating NPM version: $VERSION_TO_DEPRECATE"
-          
+
           # Deprecate the specified version with a message
           npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
           npm deprecate "@rudderstack/analytics-js@$VERSION_TO_DEPRECATE" "We've identified issues with this version of the package. Please switch to v${{ env.ROLLBACK_VERSION_VALUE }} or the latest version if available."

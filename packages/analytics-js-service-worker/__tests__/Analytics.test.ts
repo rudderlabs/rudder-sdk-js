@@ -1,6 +1,6 @@
 import { advanceTo } from 'jest-date-mock';
 import { Analytics } from '../src/Analytics';
-import { server } from '../__fixtures__/msw.server';
+import { server, capturedRequestBody, resetCapturedRequestBody } from '../__fixtures__/msw.server';
 import {
   aliasRequestPayload,
   dummyDataplaneHost,
@@ -17,7 +17,6 @@ jest.mock('uuid', () => ({ v4: () => '123456789' }));
 
 describe('JS SDK Service Worker', () => {
   let rudderAnalyticsClient: Analytics;
-  let requestBody: any;
 
   beforeAll(() => {
     advanceTo(new Date(2022, 1, 21, 0, 0, 0));
@@ -25,24 +24,17 @@ describe('JS SDK Service Worker', () => {
   });
 
   beforeEach(() => {
+    resetCapturedRequestBody();
     rudderAnalyticsClient = new Analytics(
       dummyWriteKey,
       dummyDataplaneHost,
       dummyInitOptions as any,
     );
-    server.events.on('request:start', async ({ request }) => {
-      const requestState = Object.getOwnPropertySymbols(request).find(
-        s => s.description === 'state',
-      );
-      requestBody = JSON.parse(request[requestState]?.body?.source);
-    });
   });
 
   afterEach(() => {
     server.resetHandlers();
-    server.events.removeAllListeners();
     rudderAnalyticsClient = null as any;
-    requestBody = null;
   });
 
   afterAll(() => {
@@ -82,18 +74,18 @@ describe('JS SDK Service Worker', () => {
     rudderAnalyticsClient.identify(identifyRequestPayload);
     rudderAnalyticsClient.flush();
     setTimeout(() => {
-      expect(requestBody.batch[0]).toEqual(expect.objectContaining(identifyRequestPayload));
+      expect(capturedRequestBody?.batch?.[0]).toMatchObject(identifyRequestPayload);
       done();
-    }, 10);
+    }, 1);
   });
 
   it('should record track', done => {
     rudderAnalyticsClient.track(trackRequestPayload);
     rudderAnalyticsClient.flush();
     setTimeout(() => {
-      expect(requestBody.batch[0]).toEqual(expect.objectContaining(trackRequestPayload));
+      expect(capturedRequestBody?.batch?.[0]).toMatchObject(trackRequestPayload);
       done();
-    }, 10);
+    }, 1);
   });
 
   it('should record page', done => {
@@ -101,9 +93,9 @@ describe('JS SDK Service Worker', () => {
     rudderAnalyticsClient.flush();
 
     setTimeout(() => {
-      expect(requestBody.batch[0]).toEqual(expect.objectContaining(pageRequestPayload));
+      expect(capturedRequestBody?.batch?.[0]).toMatchObject(pageRequestPayload);
       done();
-    }, 10);
+    }, 1);
   });
 
   it('should record screen', done => {
@@ -111,9 +103,9 @@ describe('JS SDK Service Worker', () => {
     rudderAnalyticsClient.flush();
 
     setTimeout(() => {
-      expect(requestBody.batch[0]).toEqual(expect.objectContaining(screenRequestPayload));
+      expect(capturedRequestBody?.batch?.[0]).toMatchObject(screenRequestPayload);
       done();
-    }, 10);
+    }, 1);
   });
 
   it('should record group', done => {
@@ -121,9 +113,9 @@ describe('JS SDK Service Worker', () => {
     rudderAnalyticsClient.flush();
 
     setTimeout(() => {
-      expect(requestBody.batch[0]).toEqual(expect.objectContaining(groupRequestPayload));
+      expect(capturedRequestBody?.batch?.[0]).toMatchObject(groupRequestPayload);
       done();
-    }, 10);
+    }, 1);
   });
 
   it('should record alias', done => {
@@ -131,9 +123,9 @@ describe('JS SDK Service Worker', () => {
     rudderAnalyticsClient.flush();
 
     setTimeout(() => {
-      expect(requestBody.batch[0]).toEqual(expect.objectContaining(aliasRequestPayload));
+      expect(capturedRequestBody?.batch?.[0]).toMatchObject(aliasRequestPayload);
       done();
-    }, 10);
+    }, 1);
   });
 
   it('should add a message to the queue when all parameters are valid', () => {

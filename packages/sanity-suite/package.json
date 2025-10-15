@@ -31,7 +31,7 @@
     "check:support": "NODE_ENV=production npx browserslist --mobile-to-desktop",
     "check:support:modern": "NODE_ENV=modern npx browserslist --mobile-to-desktop",
     "check:duplicates": "jscpd src/testBook",
-    "check:security": "npm audit --recursive --audit-level=high",
+    "check:security": "npm audit --audit-level=high",
     "build:modern": "exit 0",
     "package": "exit 0",
     "release": "exit 0",

@@ -58,7 +58,7 @@
     "check:support": "NODE_ENV=production npx browserslist --mobile-to-desktop",
     "check:support:modern": "NODE_ENV=modern npx browserslist --mobile-to-desktop",
     "check:duplicates": "jscpd src",
-    "check:security": "npm audit --recursive --audit-level=high",
+    "check:security": "npm audit --audit-level=high",
     "build:browser:debug": "rollup --config rollup-configs/rollup.sdk.browser.mjs --environment VERSION:$npm_package_version,UGLIFY,PROD_DEBUG:inline,ENV:prod",
     "build:browser:bundle-size": "VISUALIZER=true npm run build:browser",
     "build:browser:modern:bundle-size": "VISUALIZER=true npm run build:browser:modern",

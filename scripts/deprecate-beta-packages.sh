@@ -23,13 +23,13 @@ declare -A PR_STATUSES
 echo "🚀 Starting beta package deprecation for closed PRs"
 
 # Validate required environment variables
-if [[ -z "${GH_TOKEN:-}" || -z "${NPM_TOKEN:-}" ]]; then
-  echo "❌ Missing required environment variables: GH_TOKEN, NPM_TOKEN"
+if [[ -z "${GH_TOKEN:-}" ]] || [[ -z "${GITHUB_REPOSITORY:-}" ]] || [[ -z "${NPM_TOKEN:-}" ]]; then
+  echo "❌ Missing required environment variables: GH_TOKEN, GITHUB_REPOSITORY, NPM_TOKEN"
   exit 1
 fi
 
-# Setup NPM authentication
-npm set //registry.npmjs.org/:_authToken="$NPM_TOKEN"
+# Set NPM authentication
+npm set //registry.npmjs.org/:_authToken="${NPM_TOKEN}"
 
 # Extract PR number from beta version
 # Beta version format: <version>-beta.pr.<pr_number>.<short_sha>
