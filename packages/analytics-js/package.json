@@ -155,7 +155,7 @@
     "@rudderstack/analytics-js-cookies": "*",
     "@rudderstack/analytics-js-plugins": "*",
     "@preact/signals-core": "1.12.1",
-    "ramda": "0.31.3",
+    "ramda": "0.32.0",
     "storejs": "2.1.0"
   }
 }
