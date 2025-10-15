@@ -13,4 +13,10 @@ const server = setupServer(
   }),
 );
 
-export { server, capturedRequestBody };
+const resetCapturedRequestBody = () => {
+  capturedRequestBody = null;
+};
+
+const getCapturedRequestBody = () => capturedRequestBody;
+
+export { server, capturedRequestBody, resetCapturedRequestBody, getCapturedRequestBody };

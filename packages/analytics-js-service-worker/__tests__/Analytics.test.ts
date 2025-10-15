@@ -1,6 +1,6 @@
 import { advanceTo } from 'jest-date-mock';
 import { Analytics } from '../src/Analytics';
-import { server, capturedRequestBody } from '../__fixtures__/msw.server';
+import { server, capturedRequestBody, resetCapturedRequestBody } from '../__fixtures__/msw.server';
 import {
   aliasRequestPayload,
   dummyDataplaneHost,
@@ -24,6 +24,7 @@ describe('JS SDK Service Worker', () => {
   });
 
   beforeEach(() => {
+    resetCapturedRequestBody();
     rudderAnalyticsClient = new Analytics(
       dummyWriteKey,
       dummyDataplaneHost,

@@ -51,9 +51,6 @@ jobs:
     needs: [validate-actor, get-rollback-inputs]
     name: Rollback production deployment
     runs-on: [self-hosted, Linux, X64]
-    outputs:
-      current_sdk_version: ${{ steps.get-current-version.outputs.current_sdk_version }}
-      rollback_sdk_version: ${{ steps.get-rollback-version.outputs.rollback_sdk_version }}
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
@@ -180,6 +177,21 @@ jobs:
             
             console.log(`Successfully marked ${releaseTag} as the latest release`);
 
+      - name: Deprecate the rolled back NPM version
+        continue-on-error: true
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          VERSION_TO_DEPRECATE="${{ env.CURRENT_VERSION_VALUE }}"
+          echo "Deprecating NPM version: $VERSION_TO_DEPRECATE"
+
+          # Deprecate the specified version with a message
+          npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
+          npm deprecate "@rudderstack/analytics-js@$VERSION_TO_DEPRECATE" "We've identified issues with this version of the package. Please switch to v${{ env.ROLLBACK_VERSION_VALUE }} or the latest version if available."
+
+          # Note: The legacy SDK is not deprecated as it is deprecated by default with every release.
+          # Refer to deploy-npm.yml for more details.
+
       - name: Send message to Slack channel
         id: slack
         continue-on-error: true
@@ -239,16 +251,6 @@ jobs:
                 }
               ]
             }
-
-  deprecate-npm-version:
-    name: Deprecate rolled back NPM version
-    needs: [rollback]
-    uses: ./.github/workflows/deploy-npm.yml
-    with:
-      operation: deprecate
-      deprecate_package_name: '@rudderstack/analytics-js'
-      deprecate_package_version: ${{ needs.rollback.outputs.current_sdk_version }}
-      deprecation_message: "We've identified issues with this version of the package. Please switch to v${{ needs.rollback.outputs.rollback_sdk_version }} or the latest version if available."
 
   deploy-sanity-suite:
     name: Deploy sanity suite
