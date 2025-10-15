@@ -92,7 +92,7 @@
     "@rudderstack/analytics-js-common": "*",
     "@rudderstack/analytics-js-integrations": "*",
     "crypto-es": "2.1.0",
-    "ramda": "0.31.3"
+    "ramda": "0.32.0"
   },
   "devDependencies": {
     "@babel/core": "7.28.4",
