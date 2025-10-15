@@ -1,9 +1,14 @@
-name: Deploy to NPM
+name: NPM Operations
 
 on:
   workflow_dispatch:
   workflow_call:
     inputs:
+      operation:
+        description: 'Operation to perform: publish, deprecate, or deprecate-beta-packages'
+        type: string
+        required: false
+        default: 'publish'
       base_version:
         type: string
         required: false
@@ -37,15 +42,25 @@ on:
         type: string
         required: false
         default: 'https://cdn.rudderlabs.com'
+      deprecate_package_name:
+        description: 'Package name to deprecate (for deprecate operation)'
+        type: string
+        required: false
+      deprecate_package_version:
+        description: 'Package version to deprecate (for deprecate operation)'
+        type: string
+        required: false
+      deprecation_message:
+        description: 'Deprecation message (for deprecate operation)'
+        type: string
+        required: false
     secrets:
       RS_PROD_BUGSNAG_API_KEY:
-        required: true
-      NPM_TOKEN:
-        required: true
+        required: false
       SLACK_BOT_TOKEN:
-        required: true
+        required: false
       SLACK_RELEASE_CHANNEL_ID:
-        required: true
+        required: false
 
 permissions:
   id-token: write # Allows the JWT to be requested from GitHub's OIDC provider
@@ -55,11 +70,11 @@ env:
   NODE_OPTIONS: '--no-warnings'
 
 jobs:
-  deploy:
-    name: Deploy to NPM
+  publish:
+    name: Publish to NPM
     # As we publish the NPM package with provenance, we must use GitHub-hosted runners
     runs-on: ubuntu-latest
-    if: ${{ github.workflow_ref != '' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/tags/v')) }}
+    if: ${{ inputs.operation == 'publish' && (github.workflow_ref != '' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/tags/v'))) }}
 
     steps:
       - name: Harden the runner (Audit all outbound calls)
@@ -74,19 +89,19 @@ jobs:
           ref: ${{ github.sha }}
 
       - name: Modify package versions
-        if: ${{ inputs.version_suffix != '' }}
+        if: inputs.version_suffix != ''
         run: |
           CURRENT_VERSION_JS=$(jq -r .version packages/analytics-js/package.json)
           CURRENT_VERSION_V1=$(jq -r .version packages/analytics-v1.1/package.json)
-          
+
           # Append the suffix to create new versions
           NEW_VERSION_JS="${CURRENT_VERSION_JS}-${{ inputs.version_suffix }}"
           NEW_VERSION_V1="${CURRENT_VERSION_V1}-${{ inputs.version_suffix }}"
-          
+
           echo "Updating versions:"
           echo "analytics-js: $CURRENT_VERSION_JS -> $NEW_VERSION_JS"
           echo "analytics-v1.1: $CURRENT_VERSION_V1 -> $NEW_VERSION_V1"
-          
+
           # Update all package.json files using jq
           TMP_FILE_JS=$(mktemp)
           jq ".version = \"$NEW_VERSION_JS\"" packages/analytics-js/package.json > "$TMP_FILE_JS" && mv "$TMP_FILE_JS" packages/analytics-js/package.json
@@ -112,7 +127,7 @@ jobs:
 
           current_npm_version_sw=$(npm view @rudderstack/analytics-js-service-worker time --json 2>/dev/null | jq -r 'to_entries | map(select(.key != "modified" and .key != "created")) | sort_by(.value) | last.key' || echo "not found")
           echo "CURRENT_NPM_VERSION_SW=$current_npm_version_sw" >> $GITHUB_ENV
-          
+
           current_npm_version_cookie_utils=$(npm view @rudderstack/analytics-js-cookies time --json 2>/dev/null | jq -r 'to_entries | map(select(.key != "modified" and .key != "created")) | sort_by(.value) | last.key' || echo "not found")
           echo "CURRENT_NPM_VERSION_COOKIE_UTILS=$current_npm_version_cookie_utils" >> $GITHUB_ENV
 
@@ -163,14 +178,17 @@ jobs:
       - name: Publish package to NPM
         env:
           HUSKY: 0
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
         run: |
           # Remove unnecessary fields from package.json before publishing
           ./scripts/make-package-json-publish-ready.sh
 
-          npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
-          npx nx release publish --verbose --base=${{ env.last_monorepo_version }} --head=${{ env.current_monorepo_version }} ${{ inputs.environment == 'beta' && '--tag=beta' || '' }}
+          TAG_OPTION=""
+          if [[ "${{ inputs.environment }}" == "beta" ]]; then
+            TAG_OPTION="--tag=beta"
+          fi
+
+          npx nx release publish --verbose --base=${{ env.last_monorepo_version }} --head=${{ env.current_monorepo_version }} $TAG_OPTION
 
           # Reset the changes made to package.json
           git reset --hard
@@ -185,7 +203,7 @@ jobs:
       - name: Get versions in NPM after publish
         run: |
           npm cache clean --force
-          
+
           # Get latest version across all tags (most recently published)
           new_npm_version=$(npm view @rudderstack/analytics-js time --json 2>/dev/null | jq -r 'to_entries | map(select(.key != "modified" and .key != "created")) | sort_by(.value) | last.key' || echo "not found")
           echo "NEW_NPM_VERSION=$new_npm_version" >> $GITHUB_ENV
@@ -211,13 +229,9 @@ jobs:
       - name: Deprecate the legacy SDK NPM package
         continue-on-error: true
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
         run: |
-          npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
-
           npm deprecate rudder-sdk-js "This package is deprecated and no longer maintained. While your events are still being tracked and delivered, we strongly recommend you to migrate to the latest package, @rudderstack/analytics-js (https://www.npmjs.com/package/@rudderstack/analytics-js), for the latest features, security updates, and improved performance. For more details, visit the migration guide: https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/migration-guide/."
-
 
       - name: Send message to Slack channel
         if: env.CURRENT_NPM_VERSION != env.NEW_NPM_VERSION && env.NEW_NPM_VERSION != 'not found'
@@ -409,3 +423,49 @@ jobs:
                 }
               ]
             }
+
+  deprecate:
+    name: Deprecate NPM Package
+    runs-on: ubuntu-latest
+    if: ${{ inputs.operation == 'deprecate' }}
+
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+        with:
+          egress-policy: audit
+
+      - name: Deprecate specific NPM package version
+        env:
+          NPM_CONFIG_PROVENANCE: true
+        run: |
+          if [[ -z "${{ inputs.deprecate_package_name }}" ]] || [[ -z "${{ inputs.deprecate_package_version }}" ]] || [[ -z "${{ inputs.deprecation_message }}" ]]; then
+            echo "❌ Error: deprecate_package_name, deprecate_package_version, and deprecation_message are required for deprecate operation"
+            exit 1
+          fi
+
+          echo "🗑️  Deprecating ${{ inputs.deprecate_package_name }}@${{ inputs.deprecate_package_version }}"
+          npm deprecate "${{ inputs.deprecate_package_name }}@${{ inputs.deprecate_package_version }}" "${{ inputs.deprecation_message }}"
+
+  deprecate-beta-packages:
+    name: Deprecate Beta NPM Packages
+    runs-on: ubuntu-latest
+    if: ${{ inputs.operation == 'deprecate-beta-packages' }}
+
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+        with:
+          egress-policy: audit
+
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Run beta packages deprecation script
+        env:
+          NPM_CONFIG_PROVENANCE: true
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          chmod +x scripts/deprecate-beta-packages.sh
+          ./scripts/deprecate-beta-packages.sh

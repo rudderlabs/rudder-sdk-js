@@ -83,7 +83,7 @@
     "check:support": "NODE_ENV=production npx browserslist --mobile-to-desktop",
     "check:support:modern": "NODE_ENV=modern npx browserslist --mobile-to-desktop",
     "check:duplicates": "jscpd src",
-    "check:security": "npm audit --recursive --audit-level=high",
+    "check:security": "npm audit --audit-level=high",
     "package": "npm pack",
     "release": "npm publish"
   },

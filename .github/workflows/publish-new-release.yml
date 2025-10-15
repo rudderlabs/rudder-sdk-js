@@ -279,7 +279,6 @@ jobs:
       monorepo_release_version: ${{ needs.get-release-inputs.outputs.release_version }}
       release_ticket_id: ${{ needs.get-release-inputs.outputs.release_ticket_id }}
     secrets:
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       RS_PROD_BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
@@ -287,25 +286,6 @@ jobs:
   deprecate-closed-pr-betas:
     needs: [publish-npm-packages]
     name: Deprecate Beta NPM Packages from Closed PRs
-    runs-on: [self-hosted, Linux, X64]
-    continue-on-error: true
-    permissions:
-      contents: read
-    steps:
-      - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
-        with:
-          egress-policy: audit
-
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Run beta package deprecation
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-        run: |
-          chmod +x scripts/deprecate-beta-packages.sh
-          ./scripts/deprecate-beta-packages.sh
+    uses: ./.github/workflows/deploy-npm.yml
+    with:
+      operation: deprecate-beta-packages
