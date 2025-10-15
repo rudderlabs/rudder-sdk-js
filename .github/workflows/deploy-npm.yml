@@ -117,7 +117,7 @@ jobs:
           echo "CURRENT_NPM_VERSION_COOKIE_UTILS=$current_npm_version_cookie_utils" >> $GITHUB_ENV
 
       - name: Setup Node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
