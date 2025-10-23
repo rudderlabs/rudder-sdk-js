@@ -11,6 +11,9 @@ on:
         type: string
         default: 'js-sdk'
 
+permissions:
+  contents: read
+
 jobs:
   validate-actor:
     runs-on: [self-hosted, Linux, X64]
