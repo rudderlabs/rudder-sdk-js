@@ -71,6 +71,13 @@ const trackMapping = [
   },
 ];
 
+const pageMapping = [
+  {
+    destKey: 'event_id',
+    sourceKeys: ['properties.eventId', 'properties.event_id', 'messageId'],
+  },
+];
+
 // We need to remove 'checkout step completed' and 'submitform' from the list of events as per tiktok docs
 // tiktok changed the mapping for 'checkout step completed => purchase' and 'submitform => lead'
 // once all customer migrate to new event we can remove old mapping
@@ -97,4 +104,13 @@ const eventNameMapping = {
   schedule: 'Schedule',
 };
 
-export { NAME, CNameMapping, PARTNER_NAME, trackMapping, eventNameMapping, DISPLAY_NAME, DIR_NAME };
+export {
+  NAME,
+  CNameMapping,
+  PARTNER_NAME,
+  trackMapping,
+  pageMapping,
+  eventNameMapping,
+  DISPLAY_NAME,
+  DIR_NAME,
+};

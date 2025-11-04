@@ -1,4 +1,4 @@
-import { PARTNER_NAME, trackMapping } from './constants';
+import { PARTNER_NAME, trackMapping, pageMapping } from './constants';
 import { constructPayload } from '../../utils/utils';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
 
@@ -64,4 +64,13 @@ const getTrackResponse = message => {
     partner_name: PARTNER_NAME,
   });
 };
-export { getTrackResponse };
+
+const getPageResponse = message => {
+  const properties = constructPayload(message, pageMapping);
+  return removeUndefinedAndNullValues({
+    ...properties,
+    partner_name: PARTNER_NAME,
+  });
+};
+
+export { getTrackResponse, getPageResponse };

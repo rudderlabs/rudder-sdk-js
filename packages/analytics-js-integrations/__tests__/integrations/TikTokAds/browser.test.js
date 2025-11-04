@@ -19,8 +19,9 @@ const basicConfig = {
   ],
 };
 
-describe('tiktokads init tests', () => {
+describe('TikTokAds init tests', () => {
   let tiktokads;
+
   test('Testing init call of TiktokAds', () => {
     tiktokads = new TiktokAds(basicConfig, { loglevel: 'debug' });
     tiktokads.init();
@@ -28,7 +29,7 @@ describe('tiktokads init tests', () => {
   });
 });
 
-describe('tiktokads page', () => {
+describe('TikTokAds page', () => {
   let tiktokads;
   beforeEach(() => {
     tiktokads = new TiktokAds(basicConfig, { loglevel: 'debug' });
@@ -36,26 +37,67 @@ describe('tiktokads page', () => {
     window.ttq.page = jest.fn();
   });
 
-  test('send pageview', () => {
+  test('send Pageview with event_id from properties.event_id', () => {
     tiktokads.page({
       message: {
-        context: {},
         properties: {
-          category: 'test cat',
-          path: '/test',
-          url: 'http://localhost',
-          referrer: '',
-          title: 'test page',
-          testDimension: 'abc',
+          event_id: 'pageId',
         },
       },
     });
-    expect(window.ttq.page.mock.calls[0][0]).toEqual();
+    expect(window.ttq.page.mock.calls[0][0]).toEqual({
+      event_id: 'pageId',
+      partner_name: 'RudderStack',
+    });
+  });
+
+  test('send Pageview with event_id from properties.eventId', () => {
+    tiktokads.page({
+      message: {
+        properties: {
+          eventId: 'pageId',
+        },
+      },
+    });
+    expect(window.ttq.page.mock.calls[0][0]).toEqual({
+      event_id: 'pageId',
+      partner_name: 'RudderStack',
+    });
+  });
+
+  test('send Pageview with event_id from messageId fallback', () => {
+    tiktokads.page({
+      message: {
+        messageId: 'pageId',
+        properties: {},
+      },
+    });
+    expect(window.ttq.page.mock.calls[0][0]).toEqual({
+      event_id: 'pageId',
+      partner_name: 'RudderStack',
+    });
+  });
+
+  test('send Pageview with event_id priority: properties.eventId over properties.event_id', () => {
+    tiktokads.page({
+      message: {
+        messageId: 'messageId',
+        properties: {
+          eventId: 'pageId',
+          event_id: 'pageId-lowPrio',
+        },
+      },
+    });
+    expect(window.ttq.page.mock.calls[0][0]).toEqual({
+      event_id: 'pageId',
+      partner_name: 'RudderStack',
+    });
   });
 });
 
 describe('TiktokAds Track event', () => {
   let tiktokads;
+
   test('Testing Track product_added with no content_type in payload', () => {
     tiktokads = new TiktokAds(basicConfig, { loglevel: 'DEBUG' });
     tiktokads.init();
@@ -110,6 +152,7 @@ describe('TiktokAds Track event', () => {
       ],
     });
   });
+
   test('Testing Track product_added with content type in payload and multiple products', () => {
     tiktokads = new TiktokAds(basicConfig, { loglevel: 'DEBUG' });
     tiktokads.init();
@@ -387,8 +430,9 @@ describe('TiktokAds Track event', () => {
   });
 });
 
-describe('TiktokAds Identify event', () => {
+describe('TikTokAds Identify event', () => {
   let tiktokads;
+
   beforeEach(() => {
     tiktokads = new TiktokAds(
       {
@@ -405,6 +449,7 @@ describe('TiktokAds Identify event', () => {
     tiktokads.init();
     window.ttq.identify = jest.fn();
   });
+
   test('Testing Identify Custom Events', () => {
     tiktokads.identify({
       message: {

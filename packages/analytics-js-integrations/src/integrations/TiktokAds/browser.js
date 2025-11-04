@@ -8,7 +8,7 @@ import {
   getDestinationExternalID,
   getHashFromArrayWithDuplicate,
 } from '../../utils/commonUtils';
-import { getTrackResponse } from './util';
+import { getTrackResponse, getPageResponse } from './util';
 import { loadNativeSdk } from './nativeSdkLoader';
 
 const logger = new Logger(DISPLAY_NAME);
@@ -100,7 +100,9 @@ class TiktokAds {
   }
 
   page(rudderElement) {
-    window.ttq.page();
+    const { message } = rudderElement;
+    const updatedProperties = getPageResponse(message);
+    window.ttq.page(updatedProperties);
   }
 }
 
