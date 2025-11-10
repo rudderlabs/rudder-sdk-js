@@ -1,6 +1,6 @@
 import { LOAD_ORIGIN } from '@rudderstack/analytics-js-legacy-utilities/constants';
 
-function loadNativeSdk(siteID, datacenter,dataUseInApp) {
+function loadNativeSdk(siteID, datacenter, dataUseInApp) {
   window._cio = window._cio || [];
   (function () {
     let a;
