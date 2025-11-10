@@ -11,19 +11,11 @@ class CustomerIO {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
-    const {
-      dataUseInApp = false,
-      siteID,
-      apiKey,
-      datacenterEU,
-      datacenter,
-      sendPageNameInSDK,
-    } = config;
+    const { dataUseInApp = false, siteID, apiKey, datacenter, sendPageNameInSDK } = config;
 
     this.analytics = analytics;
     this.siteID = siteID;
     this.apiKey = apiKey;
-    this.datacenterEU = datacenterEU;
     this.datacenter = datacenter;
     this.sendPageNameInSDK = sendPageNameInSDK;
     this.dataUseInApp = dataUseInApp;
@@ -36,8 +28,8 @@ class CustomerIO {
   }
 
   init() {
-    const { siteID, datacenter, datacenterEU } = this;
-    loadNativeSdk(siteID, datacenter, datacenterEU);
+    const { siteID, datacenter, dataUseInApp } = this;
+    loadNativeSdk(siteID, datacenter, dataUseInApp);
   }
 
   isLoaded() {

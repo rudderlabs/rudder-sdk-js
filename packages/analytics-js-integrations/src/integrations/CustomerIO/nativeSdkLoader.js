@@ -1,6 +1,6 @@
 import { LOAD_ORIGIN } from '@rudderstack/analytics-js-legacy-utilities/constants';
 
-function loadNativeSdk(siteID, datacenter, datacenterEU,dataUseInApp) {
+function loadNativeSdk(siteID, datacenter, dataUseInApp) {
   window._cio = window._cio || [];
   (function () {
     let a;
@@ -24,7 +24,7 @@ function loadNativeSdk(siteID, datacenter, datacenterEU,dataUseInApp) {
     t.setAttribute('data-site-id', siteID);
 
     t.src = 'https://assets.customer.io/assets/track.js';
-    if (datacenter === 'EU' || datacenterEU === true) {
+    if (datacenter === 'EU') {
       t.src = 'https://assets.customer.io/assets/track-eu.js';
     }
     s.parentNode.insertBefore(t, s);
