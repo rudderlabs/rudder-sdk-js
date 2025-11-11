@@ -14,5 +14,10 @@ jobs:
     name: Check PR title
     runs-on: [self-hosted, Linux, X64]
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          egress-policy: audit
+
       - name: Check PR title
-        uses: rudderlabs/github-action-check-pr-title@v1.0.11
+        uses: rudderlabs/github-action-check-pr-title@0a83071336f7d6417249629f67a64530fcecda2e # v1.0.11

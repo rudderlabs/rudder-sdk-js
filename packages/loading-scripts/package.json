@@ -39,7 +39,7 @@
     "check:support": "NODE_ENV=production npx browserslist --mobile-to-desktop",
     "check:support:modern": "exit 0",
     "check:duplicates": "jscpd src",
-    "check:security": "npm audit --recursive --audit-level=high"
+    "check:security": "npm audit --audit-level=high"
   },
   "dependencies": {
     "@rudderstack/analytics-js": "*"

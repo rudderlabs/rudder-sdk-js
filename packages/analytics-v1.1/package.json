@@ -1,6 +1,6 @@
 {
   "name": "rudder-sdk-js",
-  "version": "2.52.5",
+  "version": "2.52.6",
   "description": "RudderStack JavaScript SDK",
   "main": "dist/npm/index.js",
   "module": "dist/npm/index.es.js",
@@ -58,7 +58,7 @@
     "check:support": "NODE_ENV=production npx browserslist --mobile-to-desktop",
     "check:support:modern": "NODE_ENV=modern npx browserslist --mobile-to-desktop",
     "check:duplicates": "jscpd src",
-    "check:security": "npm audit --recursive --audit-level=high",
+    "check:security": "npm audit --audit-level=high",
     "build:browser:debug": "rollup --config rollup-configs/rollup.sdk.browser.mjs --environment VERSION:$npm_package_version,UGLIFY,PROD_DEBUG:inline,ENV:prod",
     "build:browser:bundle-size": "VISUALIZER=true npm run build:browser",
     "build:browser:modern:bundle-size": "VISUALIZER=true npm run build:browser:modern",
@@ -85,7 +85,7 @@
     "@rudderstack/analytics-js-integrations": "*",
     "@rudderstack/analytics-js-legacy-utilities": "*",
     "get-value": "4.0.1",
-    "ramda": "0.31.3",
+    "ramda": "0.32.0",
     "component-emitter": "2.0.0",
     "@segment/localstorage-retry": "1.3.0",
     "@lukeed/uuid": "2.0.1"

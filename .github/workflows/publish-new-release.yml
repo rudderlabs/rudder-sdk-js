@@ -19,6 +19,11 @@ jobs:
       release_version: ${{ steps.extract-release-info.outputs.release_version }}
       release_ticket_id: ${{ steps.extract-release-info.outputs.release_ticket_id }}
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          egress-policy: audit
+
       - name: Set outputs
         id: set-outputs
         run: echo "trigger_source=${{ format('PR <{0}|#{1}> merged by <{2}|{3}>', github.event.pull_request.html_url, github.event.pull_request.number, format('{0}/{1}', github.server_url, github.actor), github.actor) }}" >> $GITHUB_OUTPUT
@@ -52,6 +57,11 @@ jobs:
       github.event.pull_request.merged == true
 
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          egress-policy: audit
+
       - name: Extract version from branch name (for release branches)
         id: extract-version
         env:
@@ -72,7 +82,7 @@ jobs:
           echo "release_version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0
           ref: ${{ github.sha }}
@@ -91,7 +101,7 @@ jobs:
           git push origin refs/tags/v${{ steps.extract-version.outputs.release_version }}
 
       - name: Setup Node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
@@ -269,7 +279,32 @@ jobs:
       monorepo_release_version: ${{ needs.get-release-inputs.outputs.release_version }}
       release_ticket_id: ${{ needs.get-release-inputs.outputs.release_ticket_id }}
     secrets:
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       RS_PROD_BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
+
+  deprecate-closed-pr-betas:
+    needs: [publish-npm-packages]
+    name: Deprecate Beta NPM Packages from Closed PRs
+    runs-on: [self-hosted, Linux, X64]
+    continue-on-error: true
+    permissions:
+      contents: read
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          egress-policy: audit
+
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Run beta package deprecation
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          chmod +x scripts/deprecate-beta-packages.sh
+          ./scripts/deprecate-beta-packages.sh

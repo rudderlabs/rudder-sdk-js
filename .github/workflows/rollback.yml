@@ -8,7 +8,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  id-token: write # allows the JWT to be requested from GitHub's OIDC provider
+  id-token: write # Allows the JWT to be requested from GitHub's OIDC provider (for AWS and NPM provenance)
   contents: write # Changed to write to allow creating/updating releases
 
 env:
@@ -38,6 +38,11 @@ jobs:
     outputs:
       trigger_source: ${{ steps.set-outputs.outputs.trigger_source }}
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          egress-policy: audit
+
       - name: Set outputs
         id: set-outputs
         run: echo "trigger_source=${{ format('Triggered from <{0}|{1}> by <{2}|{3}>', github.ref, github.ref_name, format('{0}/{1}', github.server_url, github.actor), github.actor) }}" >> $GITHUB_OUTPUT
@@ -47,46 +52,55 @@ jobs:
     name: Rollback production deployment
     runs-on: [self-hosted, Linux, X64]
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          egress-policy: audit
+
       - name: Install AWS CLI
         uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c  # master
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@a03048d87541d1d9fcf2ecf528a4a65ba9bd7838  # v5.0.0
+        uses: aws-actions/configure-aws-credentials@00943011d9042930efac3dcd3a170e4273319bc8  # v5.1.0
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_PROD_ACCOUNT_ID }}:role/${{ secrets.AWS_PROD_S3_SYNC_ROLE }}
           aws-region: us-east-1
 
       - name: Checkout main branch
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           ref: main # Production branch
 
       - name: Get current sdk versions
+        id: get-current-version
         run: |
-          current_version=$(jq -r .version packages/analytics-js/package.json)
-          echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
-          echo "SDK current version: $current_version"
+          current_sdk_version=$(jq -r .version packages/analytics-js/package.json)
+          echo "CURRENT_VERSION_VALUE=$current_sdk_version" >> $GITHUB_ENV
+          echo "current_sdk_version=$current_sdk_version" >> $GITHUB_OUTPUT
+          echo "SDK current version: $current_sdk_version"
 
           legacy_sdk_current_version=$(jq -r .version packages/analytics-v1.1/package.json)
           echo "LEGACY_SDK_CURRENT_VERSION_VALUE=$legacy_sdk_current_version" >> $GITHUB_ENV
           echo "Legacy SDK current version: $legacy_sdk_current_version"
 
       - name: Checkout source code
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           ref: ${{ github.sha }}
 
       - name: Setup Node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
       - name: Get rollback sdk versions
+        id: get-rollback-version
         run: |
-          rollback_version=$(jq -r .version packages/analytics-js/package.json)
-          echo "ROLLBACK_VERSION_VALUE=$rollback_version" >> $GITHUB_ENV
-          echo "SDK rollback version: $rollback_version"
+          rollback_sdk_version=$(jq -r .version packages/analytics-js/package.json)
+          echo "ROLLBACK_VERSION_VALUE=$rollback_sdk_version" >> $GITHUB_ENV
+          echo "rollback_sdk_version=$rollback_sdk_version" >> $GITHUB_OUTPUT
+          echo "SDK rollback version: $rollback_sdk_version"
 
           legacy_sdk_rollback_version=$(jq -r .version packages/analytics-v1.1/package.json)
           echo "LEGACY_SDK_ROLLBACK_VERSION_VALUE=$legacy_sdk_rollback_version" >> $GITHUB_ENV
@@ -127,7 +141,7 @@ jobs:
           aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --id "$invalidation_id"
 
       - name: Mark the rollback version as the latest GitHub release
-        uses: actions/github-script@v8
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         continue-on-error: true
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -167,11 +181,10 @@ jobs:
         continue-on-error: true
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
         run: |
           VERSION_TO_DEPRECATE="${{ env.CURRENT_VERSION_VALUE }}"
           echo "Deprecating NPM version: $VERSION_TO_DEPRECATE"
-          
+
           # Deprecate the specified version with a message
           npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
           npm deprecate "@rudderstack/analytics-js@$VERSION_TO_DEPRECATE" "We've identified issues with this version of the package. Please switch to v${{ env.ROLLBACK_VERSION_VALUE }} or the latest version if available."

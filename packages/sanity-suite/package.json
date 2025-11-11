@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-sanity-suite",
-  "version": "3.5.5",
+  "version": "3.5.6",
   "private": true,
   "description": "Sanity suite for testing JS SDK package",
   "main": "./dist/v3/cdn/testBook.js",
@@ -31,7 +31,7 @@
     "check:support": "NODE_ENV=production npx browserslist --mobile-to-desktop",
     "check:support:modern": "NODE_ENV=modern npx browserslist --mobile-to-desktop",
     "check:duplicates": "jscpd src/testBook",
-    "check:security": "npm audit --recursive --audit-level=high",
+    "check:security": "npm audit --audit-level=high",
     "build:modern": "exit 0",
     "package": "exit 0",
     "release": "exit 0",
@@ -64,7 +64,7 @@
     "rudder-sdk-js": "*",
     "deep-object-diff": "1.1.9",
     "object-path": "0.11.8",
-    "ramda": "0.31.3"
+    "ramda": "0.32.0"
   },
   "devDependencies": {
     "npm-run-all": "4.1.5"

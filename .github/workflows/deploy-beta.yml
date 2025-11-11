@@ -40,14 +40,19 @@ jobs:
       beta_identifier_for_automation_tests: ${{ steps.deploy-inputs.outputs.beta_identifier_for_automation_tests }}
       trigger_source: ${{ format('Triggered via PR <{0}|#{1}> by <{2}|{3}>', steps.pr-info.outputs.pr_url, steps.pr-info.outputs.pr_number, format('{0}/{1}', github.server_url, github.actor), github.actor) }}
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          egress-policy: audit
+
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0
 
       - name: Find PR for current branch
         id: pr-info
-        uses: actions/github-script@v8
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
             const branch = context.ref.replace('refs/heads/', '');
@@ -163,7 +168,6 @@ jobs:
       trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
     secrets:
       RS_PROD_BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
 

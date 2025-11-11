@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-plugins",
-  "version": "3.13.3",
+  "version": "3.13.4",
   "private": true,
   "description": "RudderStack JavaScript SDK plugins",
   "main": "dist/npm/modern/cjs/index.cjs",
@@ -83,7 +83,7 @@
     "check:support": "NODE_ENV=production npx browserslist --mobile-to-desktop",
     "check:support:modern": "NODE_ENV=modern npx browserslist --mobile-to-desktop",
     "check:duplicates": "jscpd src",
-    "check:security": "npm audit --recursive --audit-level=high",
+    "check:security": "npm audit --audit-level=high",
     "package": "npm pack",
     "release": "npm publish"
   },
@@ -92,19 +92,19 @@
     "@rudderstack/analytics-js-common": "*",
     "@rudderstack/analytics-js-integrations": "*",
     "crypto-es": "2.1.0",
-    "ramda": "0.31.3"
+    "ramda": "0.32.0"
   },
   "devDependencies": {
     "@babel/core": "7.28.4",
     "@originjs/vite-plugin-federation": "1.4.1",
     "@rollup/plugin-alias": "5.1.1",
-    "@rollup/plugin-babel": "6.0.4",
-    "@rollup/plugin-commonjs": "28.0.6",
+    "@rollup/plugin-babel": "6.1.0",
+    "@rollup/plugin-commonjs": "28.0.7",
     "@rollup/plugin-json": "6.1.0",
-    "@rollup/plugin-node-resolve": "16.0.1",
+    "@rollup/plugin-node-resolve": "16.0.3",
     "@rollup/plugin-replace": "6.0.2",
     "@rollup/plugin-terser": "0.4.4",
-    "dotenv": "17.2.2",
+    "dotenv": "17.2.3",
     "rollup-plugin-delete": "3.0.1",
     "rollup-plugin-dts": "6.2.3",
     "rollup-plugin-filesize": "10.0.0",
@@ -112,7 +112,7 @@
     "rollup-plugin-polyfill-node": "0.13.0",
     "rollup-plugin-serve": "3.0.0",
     "rollup-plugin-typescript2": "0.36.0",
-    "rollup-plugin-visualizer": "6.0.3"
+    "rollup-plugin-visualizer": "6.0.4"
   },
   "overrides": {},
   "browserslist": {

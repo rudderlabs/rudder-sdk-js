@@ -40,8 +40,6 @@ on:
     secrets:
       RS_PROD_BUGSNAG_API_KEY:
         required: true
-      NPM_TOKEN:
-        required: true
       SLACK_BOT_TOKEN:
         required: true
       SLACK_RELEASE_CHANNEL_ID:
@@ -62,26 +60,31 @@ jobs:
     if: ${{ github.workflow_ref != '' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/tags/v')) }}
 
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          egress-policy: audit
+
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0
           ref: ${{ github.sha }}
 
       - name: Modify package versions
-        if: ${{ inputs.version_suffix != '' }}
+        if: inputs.version_suffix != ''
         run: |
           CURRENT_VERSION_JS=$(jq -r .version packages/analytics-js/package.json)
           CURRENT_VERSION_V1=$(jq -r .version packages/analytics-v1.1/package.json)
-          
+
           # Append the suffix to create new versions
           NEW_VERSION_JS="${CURRENT_VERSION_JS}-${{ inputs.version_suffix }}"
           NEW_VERSION_V1="${CURRENT_VERSION_V1}-${{ inputs.version_suffix }}"
-          
+
           echo "Updating versions:"
           echo "analytics-js: $CURRENT_VERSION_JS -> $NEW_VERSION_JS"
           echo "analytics-v1.1: $CURRENT_VERSION_V1 -> $NEW_VERSION_V1"
-          
+
           # Update all package.json files using jq
           TMP_FILE_JS=$(mktemp)
           jq ".version = \"$NEW_VERSION_JS\"" packages/analytics-js/package.json > "$TMP_FILE_JS" && mv "$TMP_FILE_JS" packages/analytics-js/package.json
@@ -107,12 +110,12 @@ jobs:
 
           current_npm_version_sw=$(npm view @rudderstack/analytics-js-service-worker time --json 2>/dev/null | jq -r 'to_entries | map(select(.key != "modified" and .key != "created")) | sort_by(.value) | last.key' || echo "not found")
           echo "CURRENT_NPM_VERSION_SW=$current_npm_version_sw" >> $GITHUB_ENV
-          
+
           current_npm_version_cookie_utils=$(npm view @rudderstack/analytics-js-cookies time --json 2>/dev/null | jq -r 'to_entries | map(select(.key != "modified" and .key != "created")) | sort_by(.value) | last.key' || echo "not found")
           echo "CURRENT_NPM_VERSION_COOKIE_UTILS=$current_npm_version_cookie_utils" >> $GITHUB_ENV
 
       - name: Setup Node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
@@ -158,14 +161,17 @@ jobs:
       - name: Publish package to NPM
         env:
           HUSKY: 0
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
         run: |
           # Remove unnecessary fields from package.json before publishing
           ./scripts/make-package-json-publish-ready.sh
 
-          npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
-          npx nx release publish --verbose --base=${{ env.last_monorepo_version }} --head=${{ env.current_monorepo_version }} ${{ inputs.environment == 'beta' && '--tag=beta' || '' }}
+          TAG_OPTION=""
+          if [[ "${{ inputs.environment }}" == "beta" ]]; then
+            TAG_OPTION="--tag=beta"
+          fi
+
+          npx nx release publish --verbose --base=${{ env.last_monorepo_version }} --head=${{ env.current_monorepo_version }} $TAG_OPTION
 
           # Reset the changes made to package.json
           git reset --hard
@@ -180,7 +186,7 @@ jobs:
       - name: Get versions in NPM after publish
         run: |
           npm cache clean --force
-          
+
           # Get latest version across all tags (most recently published)
           new_npm_version=$(npm view @rudderstack/analytics-js time --json 2>/dev/null | jq -r 'to_entries | map(select(.key != "modified" and .key != "created")) | sort_by(.value) | last.key' || echo "not found")
           echo "NEW_NPM_VERSION=$new_npm_version" >> $GITHUB_ENV
@@ -205,14 +211,8 @@ jobs:
 
       - name: Deprecate the legacy SDK NPM package
         continue-on-error: true
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
         run: |
-          npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
-
           npm deprecate rudder-sdk-js "This package is deprecated and no longer maintained. While your events are still being tracked and delivered, we strongly recommend you to migrate to the latest package, @rudderstack/analytics-js (https://www.npmjs.com/package/@rudderstack/analytics-js), for the latest features, security updates, and improved performance. For more details, visit the migration guide: https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/migration-guide/."
-
 
       - name: Send message to Slack channel
         if: env.CURRENT_NPM_VERSION != env.NEW_NPM_VERSION && env.NEW_NPM_VERSION != 'not found'
