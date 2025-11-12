@@ -21,11 +21,15 @@ class Braze {
     }
     this.analytics = analytics;
     this.appKey = config.appKey;
+    this.usePlatformSpecificAppKeys = config.usePlatformSpecificApiKeys || false;
     this.trackAnonymousUser = config.trackAnonymousUser;
     this.enableBrazeLogging = config.enableBrazeLogging || false;
     this.allowUserSuppliedJavascript = config.allowUserSuppliedJavascript || false;
     this.enablePushNotification = config.enablePushNotification || false;
     if (!config.appKey) this.appKey = '';
+    if (this.usePlatformSpecificApiKeys && config.webAppKey) {
+      this.appKey = config.webAppKey;
+    }
     this.endPoint = '';
     this.isHybridModeEnabled = config.connectionMode === 'hybrid';
     this.isReadyStatus = {
