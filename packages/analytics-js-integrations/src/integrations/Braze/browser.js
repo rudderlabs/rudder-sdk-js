@@ -21,11 +21,22 @@ class Braze {
     }
     this.analytics = analytics;
     this.appKey = config.appKey;
+    this.usePlatformSpecificAppKeys = config.usePlatformSpecificAppKeys === true;
     this.trackAnonymousUser = config.trackAnonymousUser;
     this.enableBrazeLogging = config.enableBrazeLogging || false;
     this.allowUserSuppliedJavascript = config.allowUserSuppliedJavascript || false;
     this.enablePushNotification = config.enablePushNotification || false;
     if (!config.appKey) this.appKey = '';
+    if (this.usePlatformSpecificAppKeys) {
+      if (config.webAppKey && typeof config.webAppKey === 'string') {
+        this.appKey = config.webAppKey;
+      } else {
+        logger.warn(
+          'Configured to use platform specific app key but the web app key is not valid:',
+          config.webAppKey,
+        );
+      }
+    }
     this.endPoint = '';
     this.isHybridModeEnabled = config.connectionMode === 'hybrid';
     this.isReadyStatus = {
