@@ -181,15 +181,15 @@ describe('constructor', () => {
   it('should use web app key when platform specific app keys are enabled', () => {
     const config = {
       appKey: 'APP_KEY',
-      webAppKey: 'WEB_KEY',
-      usePlatformSpecificAppKeys: true,
+      webApiKey: 'WEB_KEY',
+      usePlatformSpecificApiKeys: true,
     };
     const analytics = {};
     const destinationInfo = {};
 
     const braze = new Braze(config, analytics, destinationInfo);
 
-    expect(braze.usePlatformSpecificAppKeys).toBe(true);
+    expect(braze.usePlatformSpecificApiKeys).toBe(true);
     expect(warnMock).not.toHaveBeenCalled();
     expect(braze.appKey).toBe('WEB_KEY');
   });
@@ -197,8 +197,8 @@ describe('constructor', () => {
   it('should log warn and fallback to configured app key when web app key is invalid', () => {
     const config = {
       appKey: 'APP_KEY',
-      webAppKey: 12345,
-      usePlatformSpecificAppKeys: true,
+      webApiKey: 12345,
+      usePlatformSpecificApiKeys: true,
     };
     const analytics = {};
     const destinationInfo = {};
@@ -206,7 +206,7 @@ describe('constructor', () => {
     const braze = new Braze(config, analytics, destinationInfo);
 
     expect(warnMock).toHaveBeenCalledWith(
-      'Configured to use platform specific app key but the web app key is not valid:',
+      'Configured to use platform specific api key but the web api key is not valid:',
       12345,
     );
     expect(braze.appKey).toBe('APP_KEY');
