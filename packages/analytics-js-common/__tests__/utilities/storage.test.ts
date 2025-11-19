@@ -1,11 +1,7 @@
 import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
-import {
-  isStorageQuotaExceeded,
-  isStorageAvailable,
-} from '../../../../src/components/capabilitiesManager/detection/storage';
-import { CookieStorage, InMemoryStorage } from '../../../../src/services/StoreManager/storages';
+import { isStorageQuotaExceeded, isStorageAvailable } from '../../src/utilities/storage';
 
-describe('Capabilities Detection - Storage', () => {
+describe('Storage Utilities', () => {
   it('should detect localstorage size limit errors', () => {
     expect(
       isStorageQuotaExceeded(new DOMException('StorageQuotaExceeded', 'QuotaExceededError')),
@@ -54,11 +50,8 @@ describe('Capabilities Detection - Storage', () => {
   it('should detect if localstorage is available', () => {
     expect(isStorageAvailable()).toBeTruthy();
   });
-  it('should detect if cookieStorage is available', () => {
-    expect(isStorageAvailable('cookieStorage', new CookieStorage())).toBeTruthy();
-  });
   it('should detect if memoryStorage is available', () => {
-    expect(isStorageAvailable('memoryStorage', new InMemoryStorage())).toBeTruthy();
+    expect(isStorageAvailable('memoryStorage')).toBeTruthy();
   });
 
   it('should log a warning when storage is unavailable', () => {

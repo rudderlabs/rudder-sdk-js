@@ -6,6 +6,13 @@ import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constant
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { EVENT_PAYLOAD_SIZE_BYTES_LIMIT } from './constants';
 import type { TransformationRequestPayload } from '../deviceModeTransformation/types';
+import {
+  LOCAL_STORAGE,
+  MEMORY_STORAGE,
+  SESSION_STORAGE,
+} from '@rudderstack/analytics-js-common/constants/storages';
+import { isStorageAvailable } from '@rudderstack/analytics-js-common/utilities/storage';
+import type { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
 
 const EVENT_PAYLOAD_SIZE_CHECK_FAIL_WARNING = (
   context: string,
@@ -77,9 +84,32 @@ const getFinalEventForDeliveryMutator = (event: RudderEvent, currentTime: string
   return finalEvent;
 };
 
+/**
+ * Utility to get the storage type for events persistence
+ * If local storage is available, use it; else, fall back to session storage; else, fall back to memory storage.
+ * On some browsers, persistence storage is blocked for the JS SDK that is loaded from RS domains.
+ * In such cases, we need to verify all the storage types and use the first one that is available.
+ * @param logger Logger instance for logging storage availability warnings
+ * @returns StorageType
+ */
+const getStorageTypeForEventsPersistence = (logger?: ILogger): StorageType => {
+  if (isStorageAvailable(LOCAL_STORAGE, undefined, logger)) {
+    return LOCAL_STORAGE;
+  }
+
+  if (isStorageAvailable(SESSION_STORAGE, undefined, logger)) {
+    return SESSION_STORAGE;
+  }
+
+  // Don't use cookie storage as it can potentially cause overhead with the network requests.
+  // Note that events will not be persisted across page reloads in this case.
+  return MEMORY_STORAGE;
+};
+
 export {
   getDeliveryPayload,
   validateEventPayloadSize,
   getFinalEventForDeliveryMutator,
   getDMTDeliveryPayload,
+  getStorageTypeForEventsPersistence,
 };

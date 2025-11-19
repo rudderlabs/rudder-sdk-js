@@ -1,19 +1,19 @@
-import { CAPABILITIES_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import type { IStorage } from '@rudderstack/analytics-js-common/types/Store';
-import type { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
+import { CAPABILITIES_MANAGER } from '../constants/loggerContexts';
+import type { IStorage } from '../types/Store';
+import type { StorageType } from '../types/Storage';
 import {
   COOKIE_STORAGE,
   LOCAL_STORAGE,
   MEMORY_STORAGE,
   SESSION_STORAGE,
-} from '@rudderstack/analytics-js-common/constants/storages';
-import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+} from '../constants/storages';
+import type { ILogger } from '../types/Logger';
 import {
   STORAGE_TEST_COOKIE,
   STORAGE_TEST_LOCAL_STORAGE,
   STORAGE_TEST_SESSION_STORAGE,
-} from '../../../constants/storage';
-import { STORAGE_UNAVAILABILITY_ERROR_PREFIX } from '../../../constants/logMessages';
+} from '../constants/storages';
+import { STORAGE_UNAVAILABILITY_ERROR_PREFIX } from '../constants/logMessages';
 
 const isStorageQuotaExceeded = (e: unknown): boolean => {
   const matchingNames = ['QuotaExceededError', 'NS_ERROR_DOM_QUOTA_REACHED'];
