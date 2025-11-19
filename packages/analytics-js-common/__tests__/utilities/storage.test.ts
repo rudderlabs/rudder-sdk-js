@@ -49,7 +49,7 @@ describe('Storage Utilities', () => {
   });
 
   it('should detect if localstorage is available', () => {
-    expect(isStorageAvailable()).toBeTruthy();
+    expect(isStorageAvailable('localStorage')).toBeTruthy();
   });
 
   it('should detect if cookie storage is available', () => {
@@ -67,7 +67,7 @@ describe('Storage Utilities', () => {
   });
 
   it('should return false if storage type is not supported', () => {
-    expect(isStorageAvailable('unsupported-storage-type')).toBeFalsy();
+    expect(isStorageAvailable('unsupported-storage-type' as any)).toBeFalsy();
   });
 
   it('should log a warning when storage is unavailable', () => {
