@@ -7,7 +7,7 @@ import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { MEMORY_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
-import { isStorageQuotaExceeded } from '../../components/capabilitiesManager/detection';
+import { isStorageQuotaExceeded } from '@rudderstack/analytics-js-common/utilities/storage';
 import {
   STORAGE_QUOTA_EXCEEDED_WARNING,
   STORE_DATA_FETCH_ERROR,

@@ -1,11 +1,8 @@
 import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
-import {
-  isStorageQuotaExceeded,
-  isStorageAvailable,
-} from '../../../../src/components/capabilitiesManager/detection/storage';
-import { CookieStorage, InMemoryStorage } from '../../../../src/services/StoreManager/storages';
+import { isStorageQuotaExceeded, isStorageAvailable } from '../../src/utilities/storage';
+import { IStorage } from '../../src/types/Store';
 
-describe('Capabilities Detection - Storage', () => {
+describe('Storage Utilities', () => {
   it('should detect localstorage size limit errors', () => {
     expect(
       isStorageQuotaExceeded(new DOMException('StorageQuotaExceeded', 'QuotaExceededError')),
@@ -52,13 +49,25 @@ describe('Capabilities Detection - Storage', () => {
   });
 
   it('should detect if localstorage is available', () => {
-    expect(isStorageAvailable()).toBeTruthy();
+    expect(isStorageAvailable('localStorage')).toBeTruthy();
   });
-  it('should detect if cookieStorage is available', () => {
-    expect(isStorageAvailable('cookieStorage', new CookieStorage())).toBeTruthy();
+
+  it('should detect if cookie storage is available', () => {
+    const mockCookieStorage = {
+      getItem: jest.fn(() => 'test-value'),
+      setItem: jest.fn(),
+      removeItem: jest.fn(),
+    } as unknown as IStorage;
+
+    expect(isStorageAvailable('cookieStorage', mockCookieStorage)).toBeTruthy();
   });
+
   it('should detect if memoryStorage is available', () => {
-    expect(isStorageAvailable('memoryStorage', new InMemoryStorage())).toBeTruthy();
+    expect(isStorageAvailable('memoryStorage')).toBeTruthy();
+  });
+
+  it('should return false if storage type is not supported', () => {
+    expect(isStorageAvailable('unsupported-storage-type' as any)).toBeFalsy();
   });
 
   it('should log a warning when storage is unavailable', () => {
