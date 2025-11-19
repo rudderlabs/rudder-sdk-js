@@ -28,7 +28,6 @@ import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import {
   getCurrentTimeFormatted,
   getFinalEventForDeliveryMutator,
-  LOCAL_STORAGE,
   validateEventPayloadSize,
 } from '../shared-chunks/common';
 import { getStorageTypeForEventsPersistence } from '../utilities/eventsDelivery';
