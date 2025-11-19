@@ -28,9 +28,9 @@ import { RetryQueue } from '../utilities/retryQueue/RetryQueue';
 import {
   getCurrentTimeFormatted,
   getFinalEventForDeliveryMutator,
-  LOCAL_STORAGE,
   validateEventPayloadSize,
 } from '../shared-chunks/common';
+import { getStorageTypeForEventsPersistence } from '../utilities/eventsDelivery';
 
 const pluginName: PluginName = 'BeaconQueue';
 
@@ -126,7 +126,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
         } as QueueOpts,
         queueProcessCallback,
         storeManager,
-        LOCAL_STORAGE,
+        getStorageTypeForEventsPersistence(logger),
         logger,
         (itemData: BeaconQueueItemData[]): number => {
           const currentTime = getCurrentTimeFormatted();

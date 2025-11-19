@@ -5,7 +5,7 @@ import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/objec
 import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
-import { isStorageAvailable } from '../../../components/capabilitiesManager/detection';
+import { isStorageAvailable } from '@rudderstack/analytics-js-common/utilities/storage';
 import { defaultLogger } from '../../Logger';
 import { getDefaultLocalStorageOptions } from './defaultOptions';
 

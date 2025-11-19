@@ -37,6 +37,6 @@ export default [
     name: 'Service Worker - Modern - NPM (UMD)',
     path: 'dist/npm/modern/umd/index.js',
     import: '*',
-    limit: '26 KiB',
+    limit: '26.5 KiB',
   },
 ];
