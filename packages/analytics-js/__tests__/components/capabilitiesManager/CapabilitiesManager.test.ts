@@ -189,22 +189,6 @@ describe('CapabilitiesManager', () => {
       expect(state.capabilities.storage.isCookieStorageAvailable.value).toBe(false);
     });
 
-    it('should detect cookie storage availability', () => {
-      jest.clearAllMocks();
-      jest.resetAllMocks();
-
-      // Use the actual implementation for this test
-      const { isStorageAvailable: actualIsStorageAvailable } = jest.requireActual(
-        '@rudderstack/analytics-js-common/utilities/storage',
-      );
-      const isCookieStorageAvailable = actualIsStorageAvailable(
-        COOKIE_STORAGE,
-        getStorageEngine('cookieStorage'),
-        mockLogger,
-      );
-      expect(isCookieStorageAvailable).toBe(true);
-    });
-
     it('should detect ad blockers when configured', () => {
       state.loadOptions.value.sendAdblockPage = true;
       state.lifecycle.sourceConfigUrl.value = 'https://api.rudderstack.com';
