@@ -72,8 +72,6 @@ import { detectAdBlockers } from '../../../src/components/capabilitiesManager/de
 import { getUserAgent, getLanguage } from '../../../src/components/utilities/page';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { POLYFILL_URL } from '../../../src/components/capabilitiesManager/polyfill';
-import { getStorageEngine } from '../../../src/services/StoreManager/storages/storageEngine';
-import { COOKIE_STORAGE } from '@rudderstack/analytics-js-common/src/constants/storages';
 
 // Mock function references
 const mockHasBeacon = hasBeacon as jest.MockedFunction<typeof hasBeacon>;
