@@ -72,6 +72,8 @@ import { detectAdBlockers } from '../../../src/components/capabilitiesManager/de
 import { getUserAgent, getLanguage } from '../../../src/components/utilities/page';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { POLYFILL_URL } from '../../../src/components/capabilitiesManager/polyfill';
+import { getStorageEngine } from '../../../src/services/StoreManager/storages/storageEngine';
+import { COOKIE_STORAGE } from '@rudderstack/analytics-js-common/src/constants/storages';
 
 // Mock function references
 const mockHasBeacon = hasBeacon as jest.MockedFunction<typeof hasBeacon>;
@@ -185,6 +187,22 @@ describe('CapabilitiesManager', () => {
       expect(state.capabilities.isBeaconAvailable.value).toBe(false);
       expect(state.capabilities.isCryptoAvailable.value).toBe(false);
       expect(state.capabilities.storage.isCookieStorageAvailable.value).toBe(false);
+    });
+
+    it('should detect cookie storage availability', () => {
+      jest.clearAllMocks();
+      jest.resetAllMocks();
+
+      // Use the actual implementation for this test
+      const { isStorageAvailable: actualIsStorageAvailable } = jest.requireActual(
+        '@rudderstack/analytics-js-common/utilities/storage',
+      );
+      const isCookieStorageAvailable = actualIsStorageAvailable(
+        COOKIE_STORAGE,
+        getStorageEngine('cookieStorage'),
+        mockLogger,
+      );
+      expect(isCookieStorageAvailable).toBe(true);
     });
 
     it('should detect ad blockers when configured', () => {

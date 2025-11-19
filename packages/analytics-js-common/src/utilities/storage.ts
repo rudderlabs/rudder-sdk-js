@@ -6,13 +6,11 @@ import {
   LOCAL_STORAGE,
   MEMORY_STORAGE,
   SESSION_STORAGE,
-} from '../constants/storages';
-import type { ILogger } from '../types/Logger';
-import {
   STORAGE_TEST_COOKIE,
   STORAGE_TEST_LOCAL_STORAGE,
   STORAGE_TEST_SESSION_STORAGE,
 } from '../constants/storages';
+import type { ILogger } from '../types/Logger';
 import { STORAGE_UNAVAILABILITY_ERROR_PREFIX } from '../constants/logMessages';
 
 const isStorageQuotaExceeded = (e: unknown): boolean => {
