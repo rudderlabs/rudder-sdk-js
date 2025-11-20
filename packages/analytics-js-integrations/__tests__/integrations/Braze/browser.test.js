@@ -1,17 +1,7 @@
-/* eslint-disable sonarjs/no-duplicate-string */
 import * as R from 'ramda';
 import { Storage } from '@rudderstack/analytics-js-legacy-utilities/storage';
+import { warnMock } from '../../../__mocks__/logger';
 import Braze from '../../../src/integrations/Braze/browser';
-
-// Mock dependencies
-jest.mock('../../../src/utils/logger', () =>
-  jest.fn().mockImplementation(() => ({
-    setLogLevel: jest.fn(),
-    debug: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-  })),
-);
 
 jest.mock('@rudderstack/analytics-js-legacy-utilities/storage', () => ({
   Storage: {
@@ -187,6 +177,40 @@ describe('constructor', () => {
       expect(braze.endPoint).toBe('sdk.fra-01.braze.eu');
     });
   });
+
+  it('should use web app key when platform specific app keys are enabled', () => {
+    const config = {
+      appKey: 'APP_KEY',
+      webApiKey: 'WEB_KEY',
+      usePlatformSpecificApiKeys: true,
+    };
+    const analytics = {};
+    const destinationInfo = {};
+
+    const braze = new Braze(config, analytics, destinationInfo);
+
+    expect(braze.usePlatformSpecificApiKeys).toBe(true);
+    expect(warnMock).not.toHaveBeenCalled();
+    expect(braze.appKey).toBe('WEB_KEY');
+  });
+
+  it('should log warn and fallback to configured app key when web app key is invalid', () => {
+    const config = {
+      appKey: 'APP_KEY',
+      webApiKey: 12345,
+      usePlatformSpecificApiKeys: true,
+    };
+    const analytics = {};
+    const destinationInfo = {};
+
+    const braze = new Braze(config, analytics, destinationInfo);
+
+    expect(warnMock).toHaveBeenCalledWith(
+      'Configured to use platform specific api key but the web api key is not valid:',
+      12345,
+    );
+    expect(braze.appKey).toBe('APP_KEY');
+  });
 });
 
 describe('init', () => {
@@ -299,7 +323,6 @@ describe('setUserAlias', () => {
     expect(result).toBe(true);
     expect(window.braze.getUser().addAlias).toHaveBeenCalledWith('anon123', 'rudder_id');
   });
-
 });
 
 describe('isReady', () => {

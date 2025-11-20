@@ -1,6 +1,14 @@
 import { isIE11 } from './detect';
 
-const onPageLeave = (callback: (isAccessible: boolean) => void) => {
+/**
+ * Registers events to detect page leave scenarios
+ * @param callback Callback function
+ * @param avoidBfCacheOptimization When `true`, forcefully subscribes to beforeunload event, compromising on the bfcache optimization
+ */
+const onPageLeave = (
+  callback: (isAccessible: boolean) => void,
+  avoidBfCacheOptimization = false,
+) => {
   // To ensure the callback is only called once even if more than one events
   // are fired at once.
   let pageLeft = false;
@@ -29,7 +37,8 @@ const onPageLeave = (callback: (isAccessible: boolean) => void) => {
   // Note that 'pagehide' is not supported in IE.
   // Registering this event conditionally for IE11 also because
   // it affects bfcache optimization on modern browsers otherwise.
-  if (isIE11()) {
+  // However, if optimization is disabled, force subscribe the event
+  if (avoidBfCacheOptimization || isIE11()) {
     (globalThis as typeof window).addEventListener('beforeunload', () => {
       isAccessible = false;
       handleOnLeave();

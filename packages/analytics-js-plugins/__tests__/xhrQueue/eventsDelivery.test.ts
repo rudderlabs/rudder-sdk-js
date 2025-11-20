@@ -37,11 +37,7 @@ describe('Events Delivery Utilities', () => {
 
       expect(result).toBe(LOCAL_STORAGE);
       expect(mockIsStorageAvailable).toHaveBeenCalledTimes(1);
-      expect(mockIsStorageAvailable).toHaveBeenCalledWith(
-        LOCAL_STORAGE,
-        undefined,
-        defaultLogger,
-      );
+      expect(mockIsStorageAvailable).toHaveBeenCalledWith(LOCAL_STORAGE, undefined, defaultLogger);
     });
 
     it('should fall back to SESSION_STORAGE when local storage is unavailable but session storage is available', () => {
@@ -53,7 +49,12 @@ describe('Events Delivery Utilities', () => {
 
       expect(result).toBe(SESSION_STORAGE);
       expect(mockIsStorageAvailable).toHaveBeenCalledTimes(2);
-      expect(mockIsStorageAvailable).toHaveBeenNthCalledWith(1, LOCAL_STORAGE, undefined, undefined);
+      expect(mockIsStorageAvailable).toHaveBeenNthCalledWith(
+        1,
+        LOCAL_STORAGE,
+        undefined,
+        undefined,
+      );
       expect(mockIsStorageAvailable).toHaveBeenNthCalledWith(
         2,
         SESSION_STORAGE,
@@ -94,7 +95,12 @@ describe('Events Delivery Utilities', () => {
 
       expect(result).toBe(MEMORY_STORAGE);
       expect(mockIsStorageAvailable).toHaveBeenCalledTimes(2);
-      expect(mockIsStorageAvailable).toHaveBeenNthCalledWith(1, LOCAL_STORAGE, undefined, undefined);
+      expect(mockIsStorageAvailable).toHaveBeenNthCalledWith(
+        1,
+        LOCAL_STORAGE,
+        undefined,
+        undefined,
+      );
       expect(mockIsStorageAvailable).toHaveBeenNthCalledWith(
         2,
         SESSION_STORAGE,
