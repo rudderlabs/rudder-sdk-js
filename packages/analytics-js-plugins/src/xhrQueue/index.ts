@@ -30,12 +30,11 @@ import {
   isDefined,
   isErrRetryable,
   isUndefined,
-  LOCAL_STORAGE,
-  MEMORY_STORAGE,
   toBase64,
   validateEventPayloadSize,
 } from '../shared-chunks/common';
 import { DEFAULT_RETRY_REASON, RETRY_REASON_CLIENT_TIMEOUT } from '../utilities/constants';
+import { getStorageTypeForEventsPersistence } from '../utilities/eventsDelivery';
 
 const pluginName: PluginName = 'XhrQueue';
 
@@ -125,11 +124,7 @@ const XhrQueue = (): ExtensionPlugin => ({
           });
         },
         storeManager,
-        // If local storage is available, use it; else, fall back to memory storage.
-        // Note: Memory storage is not persistent across page reloads. 
-        // This means queued events will be lost if the page is refreshed or closed, 
-        // potentially impacting analytics reliability and data completeness.
-        state.capabilities.storage.isLocalStorageAvailable.value ? LOCAL_STORAGE : MEMORY_STORAGE,
+        getStorageTypeForEventsPersistence(logger),
         logger,
         (itemData: XHRQueueItemData[]): number => {
           const currentTime = getCurrentTimeFormatted();

@@ -1,15 +1,15 @@
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import { isStorageAvailable } from '@rudderstack/analytics-js-common/utilities/storage';
+import { getTimezone } from '@rudderstack/analytics-js-common/utilities/timezone';
 import { defaultHttpClient } from '../../../src/services/HttpClient';
 import {
   isLegacyJSEngine,
   hasBeacon,
   hasCrypto,
   hasUAClientHints,
-  isIE11,
   getScreenDetails,
-  isStorageAvailable,
 } from '../../../src/components/capabilitiesManager/detection';
 import type { ICapabilitiesManager } from '../../../src/components/capabilitiesManager/types';
 import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
@@ -38,7 +38,6 @@ jest.mock('../../../src/components/capabilitiesManager/detection', () => {
       innerWidth: 1920,
       innerHeight: 1080,
     })),
-    isStorageAvailable: jest.fn(() => true),
   };
 });
 
@@ -65,17 +64,19 @@ jest.mock('../../../src/components/capabilitiesManager/polyfill', () => {
   };
 });
 
+jest.mock('@rudderstack/analytics-js-common/utilities/storage', () => ({
+  isStorageAvailable: jest.fn(() => true),
+}));
+
 import { detectAdBlockers } from '../../../src/components/capabilitiesManager/detection/adBlockers';
 import { getUserAgent, getLanguage } from '../../../src/components/utilities/page';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { POLYFILL_URL } from '../../../src/components/capabilitiesManager/polyfill';
-import { getTimezone } from '@rudderstack/analytics-js-common/utilities/timezone';
 
 // Mock function references
 const mockHasBeacon = hasBeacon as jest.MockedFunction<typeof hasBeacon>;
 const mockHasCrypto = hasCrypto as jest.MockedFunction<typeof hasCrypto>;
 const mockHasUAClientHints = hasUAClientHints as jest.MockedFunction<typeof hasUAClientHints>;
-const mockIsIE11 = isIE11 as jest.MockedFunction<typeof isIE11>;
 const mockIsLegacyJSEngine = isLegacyJSEngine as jest.MockedFunction<typeof isLegacyJSEngine>;
 const mockGetScreenDetails = getScreenDetails as jest.MockedFunction<typeof getScreenDetails>;
 const mockIsStorageAvailable = isStorageAvailable as jest.MockedFunction<typeof isStorageAvailable>;
@@ -111,7 +112,6 @@ describe('CapabilitiesManager', () => {
     mockHasBeacon.mockReturnValue(true);
     mockHasCrypto.mockReturnValue(true);
     mockHasUAClientHints.mockReturnValue(false);
-    mockIsIE11.mockReturnValue(false);
     mockIsLegacyJSEngine.mockReturnValue(false);
     mockGetScreenDetails.mockReturnValue({
       width: 1920,
