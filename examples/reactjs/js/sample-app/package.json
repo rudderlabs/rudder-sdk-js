@@ -15,8 +15,8 @@
     "@testing-library/dom": "10.4.1",
     "@types/jest": "30.0.0",
     "@types/node": "24.10.1",
-    "@types/react": "19.2.3",
-    "@types/react-dom": "19.2.2",
+    "@types/react": "19.2.6",
+    "@types/react-dom": "19.2.3",
     "react-scripts": "5.0.1"
   },
   "overrides": {
