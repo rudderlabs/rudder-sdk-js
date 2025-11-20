@@ -216,8 +216,8 @@ describe('onPageLeave', () => {
     });
   });
 
-  describe('avoidBfCacheOptimisation parameter', () => {
-    it('should subscribe to beforeunload event on modern browsers when avoidBfCacheOptimisation is true', () => {
+  describe('avoidBfCacheOptimization parameter', () => {
+    it('should subscribe to beforeunload event on modern browsers when avoidBfCacheOptimization is true', () => {
       (globalThis.navigator as any).userAgent =
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36';
       const evCallback = jest.fn();
@@ -228,7 +228,7 @@ describe('onPageLeave', () => {
       expect(evCallback).toHaveBeenCalledWith(false);
     });
 
-    it('should not subscribe to beforeunload event on modern browsers when avoidBfCacheOptimisation is false', () => {
+    it('should not subscribe to beforeunload event on modern browsers when avoidBfCacheOptimization is false', () => {
       (globalThis.navigator as any).userAgent =
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36';
       const evCallback = jest.fn();
@@ -238,7 +238,7 @@ describe('onPageLeave', () => {
       expect(evCallback).not.toHaveBeenCalled();
     });
 
-    it('should subscribe to beforeunload event on IE11 regardless of avoidBfCacheOptimisation value', () => {
+    it('should subscribe to beforeunload event on IE11 regardless of avoidBfCacheOptimization value', () => {
       (globalThis.navigator as any).userAgent =
         'Mozilla/5.0 (Windows NT 10.0; Trident/7.0; rv:11.0) like Gecko';
       const evCallback = jest.fn();
