@@ -65,9 +65,6 @@ const PLUGIN_INVOCATION_ERROR = (
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}Failed to invoke the "${extPoint}" extension point of plugin "${pluginName}".`;
 
-const STORAGE_UNAVAILABILITY_ERROR_PREFIX = (context: string, storageType: StorageType): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The "${storageType}" storage type is `;
-
 const SOURCE_CONFIG_FETCH_ERROR = 'Failed to fetch the source config';
 
 const WRITE_KEY_VALIDATION_ERROR = (context: string, writeKey: string): string =>
@@ -292,7 +289,6 @@ export {
   PLUGIN_INVOCATION_ERROR,
   STORAGE_QUOTA_EXCEEDED_WARNING,
   STORAGE_UNAVAILABLE_WARNING,
-  STORAGE_UNAVAILABILITY_ERROR_PREFIX,
   SOURCE_CONFIG_FETCH_ERROR,
   SOURCE_CONFIG_OPTION_ERROR,
   DATA_PLANE_URL_ERROR,

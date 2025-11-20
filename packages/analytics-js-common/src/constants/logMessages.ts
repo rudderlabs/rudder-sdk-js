@@ -1,3 +1,4 @@
+import type { StorageType } from '../types/Storage';
 import { isString } from '../utilities/checks';
 
 const LOG_CONTEXT_SEPARATOR = ':: ';
@@ -21,6 +22,9 @@ const BAD_DATA_WARNING = (context: string, key: string): string =>
 
 const COOKIE_DATA_ENCODING_ERROR = `Failed to encode the cookie data.`;
 
+const STORAGE_UNAVAILABILITY_ERROR_PREFIX = (context: string, storageType: StorageType): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The "${storageType}" storage type is `;
+
 export {
   LOG_CONTEXT_SEPARATOR,
   SCRIPT_ALREADY_EXISTS_ERROR,
@@ -30,4 +34,5 @@ export {
   JSON_STRINGIFY_WARNING,
   BAD_DATA_WARNING,
   COOKIE_DATA_ENCODING_ERROR,
+  STORAGE_UNAVAILABILITY_ERROR_PREFIX,
 };
