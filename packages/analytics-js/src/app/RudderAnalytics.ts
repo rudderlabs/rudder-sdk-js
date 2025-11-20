@@ -292,7 +292,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
               },
             );
           }
-        });
+        }, true);
       } else {
         // log warning if beacon is disabled
         this.logger.warn(PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING(RSA));
