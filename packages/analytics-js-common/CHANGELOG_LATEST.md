@@ -1,7 +1,7 @@
-## [3.26.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.25.0...@rudderstack/analytics-js-common@3.26.0) (2025-11-19)
+## [3.26.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.26.0...@rudderstack/analytics-js-common@3.26.1) (2025-11-20)
 
 
-### Features
+### Bug Fixes
 
-* check storage type availability for events persistence ([#2595](https://github.com/rudderlabs/rudder-sdk-js/issues/2595)) ([dd5bec5](https://github.com/rudderlabs/rudder-sdk-js/commit/dd5bec51e3a5bd8d678d2835259a1cfa1ce2614e))
+* avoid bfcache optimisation for page unloaded events ([#2601](https://github.com/rudderlabs/rudder-sdk-js/issues/2601)) ([3f415c0](https://github.com/rudderlabs/rudder-sdk-js/commit/3f415c07a19382d10a05d48f0203f3322381aa6c))
 
