@@ -88,19 +88,19 @@
     "ramda": "0.32.0"
   },
   "devDependencies": {
-    "@babel/core": "7.28.4",
+    "@babel/core": "7.28.5",
     "@rollup/plugin-alias": "5.1.1",
     "@rollup/plugin-babel": "6.1.0",
     "@rollup/plugin-commonjs": "28.0.7",
     "@rollup/plugin-json": "6.1.0",
     "@rollup/plugin-node-resolve": "16.0.3",
-    "@rollup/plugin-replace": "6.0.2",
+    "@rollup/plugin-replace": "6.0.3",
     "@rollup/plugin-terser": "0.4.4",
     "dotenv": "17.2.3",
     "rollup-plugin-filesize": "10.0.0",
     "rollup-plugin-polyfill-node": "0.13.0",
     "rollup-plugin-typescript2": "0.36.0",
-    "rollup-plugin-visualizer": "6.0.4"
+    "rollup-plugin-visualizer": "6.0.5"
   },
   "overrides": {},
   "browserslist": {
