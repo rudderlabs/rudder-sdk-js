@@ -6,6 +6,7 @@
 const isFunction = (value: any): value is Function =>
   typeof value === 'function' && Boolean(value.constructor && value.call && value.apply);
 
+
 /**
  * A function to check given value is a string
  * @param value input value
