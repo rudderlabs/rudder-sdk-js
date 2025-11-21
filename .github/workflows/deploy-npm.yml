@@ -164,7 +164,8 @@ jobs:
           NPM_CONFIG_PROVENANCE: true
         run: |
           # Remove unnecessary fields from package.json before publishing
-          npx nx affected --target=pre-release --base=${{ env.last_monorepo_version }} --head=${{ env.current_monorepo_version }}
+          # npx nx affected --target=pre-release --base=${{ env.last_monorepo_version }} --head=${{ env.current_monorepo_version }}
+          ./scripts/make-package-json-publish-ready.sh
 
           TAG_OPTION=""
           if [[ "${{ inputs.environment }}" == "beta" ]]; then
