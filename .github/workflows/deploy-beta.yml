@@ -7,6 +7,10 @@ on:
         description: "Deploy to NPM"
         type: boolean
         default: false
+      deploy_always:
+        description: Enable to by-pass all deploy restrictions
+        type: boolean
+        default: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -66,37 +70,46 @@ jobs:
               state: 'open'
             });
             
+            const deployAlways = '${{ inputs.deploy_always }}' === 'true';
+
             if (pullRequests.length > 0) {
               const pr = pullRequests[0];
               const prNumber = pr.number.toString();
               const prUrl = pr.html_url;
               console.log(`Found PR #${prNumber} for branch ${branch}: https://github.com/${context.repo.owner}/${context.repo.repo}/pull/${prNumber}`);
-              
+
+              if (deployAlways) {
+                console.log(`⚠️  deploy_always is enabled - bypassing all PR restrictions for PR #${prNumber}`);
+                core.setOutput('pr_number', prNumber);
+                core.setOutput('pr_url', prUrl);
+                return;
+              }
+
               // Check if PR is in draft state
               if (pr.draft) {
                 core.setFailed(`PR #${prNumber} is in draft state. Please mark it as ready for review before deploying.`);
                 return;
               }
-              
+
               // Get detailed PR information including mergeable state
               const { data: prDetails } = await github.rest.pulls.get({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 pull_number: prNumber
               });
-              
+
               // Check if PR is mergeable and all requirements are satisfied
               if (prDetails.mergeable === false) {
                 core.setFailed(`PR #${prNumber} is not in a mergeable state. Please resolve conflicts before deploying.`);
                 return;
               }
-              
+
               // The mergeable_state can be one of: clean, dirty, blocked, unstable, or unknown
               // Only 'clean' means all requirements are met (checks passed, approvals received, no conflicts)
               if (prDetails.mergeable_state !== 'clean') {
                 // Get more details about why it's not clean
                 let reason = '';
-                
+
                 if (prDetails.mergeable_state === 'blocked') {
                   reason = 'required checks or approvals are missing';
                 } else if (prDetails.mergeable_state === 'dirty') {
@@ -106,13 +119,13 @@ jobs:
                 } else {
                   reason = `the mergeable state is "${prDetails.mergeable_state}"`;
                 }
-                
+
                 core.setFailed(`PR #${prNumber} is not ready to merge: ${reason}. Please resolve all issues before deploying.`);
                 return;
               }
-              
+
               console.log(`PR #${prNumber} is in a clean mergeable state. All requirements satisfied. Proceeding with beta deployment.`);
-              
+
               core.setOutput('pr_number', prNumber);
               core.setOutput('pr_url', prUrl);
             } else {
