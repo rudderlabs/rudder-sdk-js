@@ -557,7 +557,7 @@ class UserSessionManager implements IUserSessionManager {
             this.serverSideCookieDebounceFuncs[sessionKey] = (
               globalThis as typeof window
             ).setTimeout(() => {
-              delete this.serverSideCookieDebounceFuncs[sessionKey];x
+              delete this.serverSideCookieDebounceFuncs[sessionKey];
 
               // In the debounce function, make the cookie request only when cookie requests are waiting
               // in the queue. The first request would have been sent already.
