@@ -165,7 +165,8 @@ jobs:
         run: |
           # Remove unnecessary fields from package.json before publishing
           # npx nx affected --target=pre-release --base=${{ env.last_monorepo_version }} --head=${{ env.current_monorepo_version }}
-          ./scripts/make-package-json-publish-ready.sh
+          # ./scripts/make-package-json-publish-ready.sh
+          npx nx run-many -t pre-release --projects=@rudderstack/analytics-js
 
           TAG_OPTION=""
           if [[ "${{ inputs.environment }}" == "beta" ]]; then
