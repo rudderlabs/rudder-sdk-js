@@ -1589,7 +1589,7 @@ describe('User session manager', () => {
       userSessionManager.refreshSession();
 
       // The effect from registerEffects calls syncValueToStorage with just the key
-      // refreshSession explicitly calls it with key + value when SDK is not ready
+      // refreshSession explicitly calls it with (sessionKey, sessionInfo) when SDK is not ready
       expect(syncValueToStorageSpy).toHaveBeenCalledTimes(3);
       expect(syncValueToStorageSpy).toHaveBeenCalledWith('sessionInfo', {
         autoTrack: true,

@@ -504,7 +504,7 @@ class UserSessionManager implements IUserSessionManager {
   /**
    * A function to sync values in storage
    * @param sessionKey
-   * @param value optional state value to sync. By default, we directly read from the state
+   * @param stateValue optional state value to sync. By default, we directly read from the state
    */
   syncValueToStorage(
     sessionKey: UserSessionKey,
@@ -557,7 +557,7 @@ class UserSessionManager implements IUserSessionManager {
             this.serverSideCookieDebounceFuncs[sessionKey] = (
               globalThis as typeof window
             ).setTimeout(() => {
-              delete this.serverSideCookieDebounceFuncs[sessionKey];
+              delete this.serverSideCookieDebounceFuncs[sessionKey];x
 
               // In the debounce function, make the cookie request only when cookie requests are waiting
               // in the queue. The first request would have been sent already.
