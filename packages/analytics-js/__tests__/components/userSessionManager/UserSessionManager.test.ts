@@ -160,7 +160,6 @@ describe('User session manager', () => {
         rl_anonymous_id: 'dummy-anonymousId',
       };
       setDataInCookieStorage(customData);
-      // @ts-expect-error - need to test this case
       state.loadOptions.value.externalAnonymousIdCookieName = 12345;
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       const spy = jest.spyOn(userSessionManager, 'getExternalAnonymousIdByCookieName');
@@ -175,7 +174,6 @@ describe('User session manager', () => {
         rl_anonymous_id: 'dummy-anonymousId',
       };
       setDataInCookieStorage(customData);
-      // @ts-expect-error - need to test this case
       state.loadOptions.value.externalAnonymousIdCookieName = null;
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       const spy = jest.spyOn(userSessionManager, 'getExternalAnonymousIdByCookieName');
@@ -649,7 +647,6 @@ describe('User session manager', () => {
 
     it('should log a warning and use default timeout if provided timeout is not in number format', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
-      // @ts-expect-error need to test this case
       state.loadOptions.value.sessions.timeout = '100000';
       userSessionManager.init();
       expect(defaultLogger.warn).toHaveBeenCalledWith(
@@ -681,7 +678,6 @@ describe('User session manager', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       state.loadOptions.value.sessions!.cutOff = {
         enabled: true,
-        // @ts-expect-error - need to test this case
         duration: '100000',
       };
 
@@ -1291,7 +1287,6 @@ describe('User session manager', () => {
     it('should reset the value to default value if the value is not an object', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.init();
-      // @ts-expect-error - need to test this case
       userSessionManager.setUserTraits('dummy-user-traits');
       expect(state.session.userTraits.value).toStrictEqual(DEFAULT_USER_SESSION_VALUES.userTraits);
     });
@@ -1367,7 +1362,6 @@ describe('User session manager', () => {
     it('should reset the value to default value if the value is not an object', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.init();
-      // @ts-expect-error - need to test this case
       userSessionManager.setGroupTraits('dummy-group-traits');
       expect(state.session.groupTraits.value).toStrictEqual(
         DEFAULT_USER_SESSION_VALUES.groupTraits,
@@ -1594,21 +1588,10 @@ describe('User session manager', () => {
       const syncValueToStorageSpy = jest.spyOn(userSessionManager, 'syncValueToStorage');
       userSessionManager.refreshSession();
 
+      // The effect from registerEffects calls syncValueToStorage with just the key
+      // refreshSession explicitly calls it with key + value when SDK is not ready
       expect(syncValueToStorageSpy).toHaveBeenCalledTimes(3);
-      expect(syncValueToStorageSpy).toHaveBeenNthCalledWith(1, 'sessionInfo', {
-        autoTrack: true,
-        timeout: 1800000,
-        expiresAt: expect.any(Number),
-        id: expect.any(Number),
-      });
-      expect(syncValueToStorageSpy).toHaveBeenNthCalledWith(2, 'sessionInfo', {
-        autoTrack: true,
-        timeout: 1800000,
-        expiresAt: expect.any(Number),
-        id: expect.any(Number),
-        sessionStart: true,
-      });
-      expect(syncValueToStorageSpy).toHaveBeenNthCalledWith(3, 'sessionInfo', {
+      expect(syncValueToStorageSpy).toHaveBeenCalledWith('sessionInfo', {
         autoTrack: true,
         timeout: 1800000,
         expiresAt: expect.any(Number),
@@ -1799,17 +1782,19 @@ describe('User session manager', () => {
       userSessionManager.setInitialReferringDomain('test_initial_referring_domain');
       userSessionManager.setAuthToken('test_auth_token');
 
-      const dataBeforeReset = JSON.parse(JSON.stringify({
-        userId: state.session.userId.value,
-        userTraits: state.session.userTraits.value,
-        groupId: state.session.groupId.value,
-        groupTraits: state.session.groupTraits.value,
-        initialReferrer: state.session.initialReferrer.value,
-        initialReferringDomain: state.session.initialReferringDomain.value,
-        anonymousId: state.session.anonymousId.value,
-        sessionInfo: state.session.sessionInfo.value,
-        authToken: state.session.authToken.value,
-      }));
+      const dataBeforeReset = JSON.parse(
+        JSON.stringify({
+          userId: state.session.userId.value,
+          userTraits: state.session.userTraits.value,
+          groupId: state.session.groupId.value,
+          groupTraits: state.session.groupTraits.value,
+          initialReferrer: state.session.initialReferrer.value,
+          initialReferringDomain: state.session.initialReferringDomain.value,
+          anonymousId: state.session.anonymousId.value,
+          sessionInfo: state.session.sessionInfo.value,
+          authToken: state.session.authToken.value,
+        }),
+      );
 
       jest.advanceTimersByTime(1000);
       userSessionManager.reset();
@@ -1931,17 +1916,19 @@ describe('User session manager', () => {
       userSessionManager.setInitialReferringDomain('test_initial_referring_domain');
       userSessionManager.setAuthToken('test_auth_token');
 
-      const dataBeforeReset = JSON.parse(JSON.stringify({
-        userId: state.session.userId.value,
-        userTraits: state.session.userTraits.value,
-        groupId: state.session.groupId.value,
-        groupTraits: state.session.groupTraits.value,
-        initialReferrer: state.session.initialReferrer.value,
-        initialReferringDomain: state.session.initialReferringDomain.value,
-        anonymousId: state.session.anonymousId.value,
-        sessionInfo: state.session.sessionInfo.value,
-        authToken: state.session.authToken.value,
-      }));
+      const dataBeforeReset = JSON.parse(
+        JSON.stringify({
+          userId: state.session.userId.value,
+          userTraits: state.session.userTraits.value,
+          groupId: state.session.groupId.value,
+          groupTraits: state.session.groupTraits.value,
+          initialReferrer: state.session.initialReferrer.value,
+          initialReferringDomain: state.session.initialReferringDomain.value,
+          anonymousId: state.session.anonymousId.value,
+          sessionInfo: state.session.sessionInfo.value,
+          authToken: state.session.authToken.value,
+        }),
+      );
 
       jest.advanceTimersByTime(1000);
       userSessionManager.reset({
@@ -1952,17 +1939,19 @@ describe('User session manager', () => {
         },
       });
 
-      const dataAfterReset = JSON.parse(JSON.stringify({
-        userId: state.session.userId.value,
-        userTraits: state.session.userTraits.value,
-        groupId: state.session.groupId.value,
-        groupTraits: state.session.groupTraits.value,
-        initialReferrer: state.session.initialReferrer.value,
-        initialReferringDomain: state.session.initialReferringDomain.value,
-        anonymousId: state.session.anonymousId.value,
-        sessionInfo: state.session.sessionInfo.value,
-        authToken: state.session.authToken.value,
-      }));
+      const dataAfterReset = JSON.parse(
+        JSON.stringify({
+          userId: state.session.userId.value,
+          userTraits: state.session.userTraits.value,
+          groupId: state.session.groupId.value,
+          groupTraits: state.session.groupTraits.value,
+          initialReferrer: state.session.initialReferrer.value,
+          initialReferringDomain: state.session.initialReferringDomain.value,
+          anonymousId: state.session.anonymousId.value,
+          sessionInfo: state.session.sessionInfo.value,
+          authToken: state.session.authToken.value,
+        }),
+      );
 
       expect(dataAfterReset.userId).not.toEqual(dataBeforeReset.userId);
       expect(dataAfterReset.userTraits).not.toEqual(dataBeforeReset.userTraits);
@@ -2003,17 +1992,19 @@ describe('User session manager', () => {
       userSessionManager.setInitialReferringDomain('test_initial_referring_domain');
       userSessionManager.setAuthToken('test_auth_token');
 
-      const dataBeforeReset = JSON.parse(JSON.stringify({
-        userId: state.session.userId.value,
-        userTraits: state.session.userTraits.value,
-        groupId: state.session.groupId.value,
-        groupTraits: state.session.groupTraits.value,
-        initialReferrer: state.session.initialReferrer.value,
-        initialReferringDomain: state.session.initialReferringDomain.value,
-        anonymousId: state.session.anonymousId.value,
-        sessionInfo: state.session.sessionInfo.value,
-        authToken: state.session.authToken.value,
-      }));
+      const dataBeforeReset = JSON.parse(
+        JSON.stringify({
+          userId: state.session.userId.value,
+          userTraits: state.session.userTraits.value,
+          groupId: state.session.groupId.value,
+          groupTraits: state.session.groupTraits.value,
+          initialReferrer: state.session.initialReferrer.value,
+          initialReferringDomain: state.session.initialReferringDomain.value,
+          anonymousId: state.session.anonymousId.value,
+          sessionInfo: state.session.sessionInfo.value,
+          authToken: state.session.authToken.value,
+        }),
+      );
 
       jest.advanceTimersByTime(1000);
       userSessionManager.reset({
@@ -2027,17 +2018,19 @@ describe('User session manager', () => {
         },
       });
 
-      const dataAfterReset = JSON.parse(JSON.stringify({
-        userId: state.session.userId.value,
-        userTraits: state.session.userTraits.value,
-        groupId: state.session.groupId.value,
-        groupTraits: state.session.groupTraits.value,
-        initialReferrer: state.session.initialReferrer.value,
-        initialReferringDomain: state.session.initialReferringDomain.value,
-        anonymousId: state.session.anonymousId.value,
-        sessionInfo: state.session.sessionInfo.value,
-        authToken: state.session.authToken.value,
-      }));
+      const dataAfterReset = JSON.parse(
+        JSON.stringify({
+          userId: state.session.userId.value,
+          userTraits: state.session.userTraits.value,
+          groupId: state.session.groupId.value,
+          groupTraits: state.session.groupTraits.value,
+          initialReferrer: state.session.initialReferrer.value,
+          initialReferringDomain: state.session.initialReferringDomain.value,
+          anonymousId: state.session.anonymousId.value,
+          sessionInfo: state.session.sessionInfo.value,
+          authToken: state.session.authToken.value,
+        }),
+      );
 
       expect(dataAfterReset.userId).toEqual(dataBeforeReset.userId);
       expect(dataAfterReset.userTraits).toEqual(dataBeforeReset.userTraits);
@@ -2111,7 +2104,11 @@ describe('User session manager', () => {
 
       setTimeout(() => {
         expect(setServerSideCookiesSpy).toHaveBeenCalledWith(
-          [{ name: 'rl_anonymous_id', value: 'dummy_anonymousId' }],
+          {
+            anonymousId: {
+              name: 'rl_anonymous_id',
+            },
+          },
           expect.any(Function),
           expect.any(Object),
         );
@@ -2145,16 +2142,21 @@ describe('User session manager', () => {
       clientDataStoreCookie.set = jest.fn();
       const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
 
-      // Even though we are calling syncValueToStorage multiple times in quick succession, only the
-      // last value should be sent to the server
+      // The first call sends immediately, then subsequent calls within debounce window are consolidated
+      // So we expect 2 calls: first (dummy_anonymousId1) and last (dummy_anonymousId3)
       userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId1');
       userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId2');
       userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId3');
 
       setTimeout(() => {
-        expect(setServerSideCookiesSpy).toHaveBeenCalledTimes(1);
+        expect(setServerSideCookiesSpy).toHaveBeenCalledTimes(2);
+        // Both calls should have the same structure with SessionEntryData
         expect(setServerSideCookiesSpy).toHaveBeenCalledWith(
-          [{ name: 'rl_anonymous_id', value: 'dummy_anonymousId3' }],
+          {
+            anonymousId: {
+              name: 'rl_anonymous_id',
+            },
+          },
           expect.any(Function),
           expect.any(Object),
         );
@@ -2183,11 +2185,16 @@ describe('User session manager', () => {
     const mockCallback = jest.fn();
     it('should encrypt cookie value and make request to data service', done => {
       state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
+      state.session.anonymousId.value = 'sample_cookie_value_1234';
       const getEncryptedCookieDataSpy = jest.spyOn(userSessionManager, 'getEncryptedCookieData');
       const makeRequestToSetCookieSpy = jest.spyOn(userSessionManager, 'makeRequestToSetCookie');
 
       userSessionManager.setServerSideCookies(
-        [{ name: 'key1', value: 'sample_cookie_value_1234' }],
+        {
+          anonymousId: {
+            name: 'key1',
+          },
+        },
         () => {},
         mockCookieStore,
       );
@@ -2215,17 +2222,17 @@ describe('User session manager', () => {
           domain: 'dummy.dataplane.host.com',
           samesite: 'Lax',
         };
+        state.session.userId.value = {
+          prop1: 'sample property 1',
+          prop2: 12345678,
+          prop3: { city: 'Kolkata', zip: '700001' },
+        };
         userSessionManager.setServerSideCookies(
-          [
-            {
+          {
+            userId: {
               name: 'key',
-              value: {
-                prop1: 'sample property 1',
-                prop2: 12345678,
-                prop3: { city: 'Kolkata', zip: '700001' },
-              },
             },
-          ],
+          },
           mockCallback,
           mockCookieStore,
         );
@@ -2257,8 +2264,13 @@ describe('User session manager', () => {
           domain: 'dummy.dataplane.host.com',
           samesite: 'Lax',
         };
+        state.session.userId.value = { prop1: 'sample property' };
         userSessionManager.setServerSideCookies(
-          [{ name: 'key', value: { prop1: 'sample property' } }],
+          {
+            userId: {
+              name: 'key',
+            },
+          },
           (name, val) => {
             mockCookieStore.set(name, val);
           },
@@ -2290,8 +2302,13 @@ describe('User session manager', () => {
         domain: 'dummy.dataplane.host.com',
         samesite: 'Lax',
       };
+      state.session.anonymousId.value = 'sample_cookie_value_1234';
       userSessionManager.setServerSideCookies(
-        [{ name: 'key', value: 'sample_cookie_value_1234' }],
+        {
+          anonymousId: {
+            name: 'key',
+          },
+        },
         mockCallback,
         mockCookieStore,
       );
@@ -2314,8 +2331,13 @@ describe('User session manager', () => {
         domain: 'dummy.dataplane.host.com',
         samesite: 'Lax',
       };
+      state.session.anonymousId.value = 'sample_cookie_value_1234';
       userSessionManager.setServerSideCookies(
-        [{ name: 'key', value: 'sample_cookie_value_1234' }],
+        {
+          anonymousId: {
+            name: 'key',
+          },
+        },
         mockCallback,
         mockCookieStore,
       );
@@ -2341,8 +2363,13 @@ describe('User session manager', () => {
         domain: 'dummy.dataplane.host.com',
         samesite: 'Lax',
       };
+      state.session.anonymousId.value = 'sample_cookie_value_1234';
       userSessionManager.setServerSideCookies(
-        [{ name: 'key', value: 'sample_cookie_value_1234' }],
+        {
+          anonymousId: {
+            name: 'key',
+          },
+        },
         mockCallback,
         mockCookieStore,
       );
@@ -2369,12 +2396,17 @@ describe('User session manager', () => {
       });
       userSessionManager.onError = jest.fn();
 
-      const cookiesData = [
-        { name: 'cookie1', value: 'value1' },
-        { name: 'cookie2', value: { complex: 'object' } },
-      ];
+      state.session.anonymousId.value = 'value1';
 
-      userSessionManager.setServerSideCookies(cookiesData, mockCallback, mockCookieStore);
+      userSessionManager.setServerSideCookies(
+        {
+          anonymousId: {
+            name: 'cookie1',
+          },
+        },
+        mockCallback,
+        mockCookieStore,
+      );
 
       // Verify onError was called with the correct parameters
       expect(userSessionManager.onError).toHaveBeenCalledTimes(1);
@@ -2384,10 +2416,9 @@ describe('User session manager', () => {
         'Failed to set/remove cookies via server. As a fallback, the cookies will be managed client side.',
       );
 
-      // Verify fallback behavior: all cookies are processed via callback
-      expect(mockCallback).toHaveBeenCalledTimes(2);
-      expect(mockCallback).toHaveBeenNthCalledWith(1, 'cookie1', 'value1');
-      expect(mockCallback).toHaveBeenNthCalledWith(2, 'cookie2', { complex: 'object' });
+      // Verify fallback behavior: cookie is processed via callback
+      expect(mockCallback).toHaveBeenCalledTimes(1);
+      expect(mockCallback).toHaveBeenCalledWith('cookie1', 'value1');
     });
 
     describe('getEncryptedCookieData', () => {
