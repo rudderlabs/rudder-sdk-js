@@ -173,7 +173,8 @@ jobs:
             TAG_OPTION="--tag=beta"
           fi
 
-          npx nx release publish --verbose --base=${{ env.last_monorepo_version }} --head=${{ env.current_monorepo_version }} $TAG_OPTION
+          # npx nx release publish --verbose --base=${{ env.last_monorepo_version }} --head=${{ env.current_monorepo_version }} $TAG_OPTION
+          npx nx release publish --verbose --projects=@rudderstack/analytics-js $TAG_OPTION
 
           # Reset the changes made to package.json
           git reset --hard
