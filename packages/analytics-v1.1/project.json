@@ -64,6 +64,12 @@
         "discussion-category": "rudder-sdk-js@2.52.7",
         "notesFile": "./packages/analytics-v1.1/CHANGELOG_LATEST.md"
       }
+    },
+    "pre-release": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "./scripts/make-package-json-publish-ready.sh packages/analytics-v1.1"
+      }
     }
   }
 }

@@ -56,6 +56,12 @@
         "discussion-category": "@rudderstack/analytics-js-integrations@3.19.0",
         "notesFile": "./packages/analytics-js-integrations/CHANGELOG_LATEST.md"
       }
+    },
+    "pre-release": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "./scripts/make-package-json-publish-ready.sh packages/analytics-js-integrations"
+      }
     }
   }
 }

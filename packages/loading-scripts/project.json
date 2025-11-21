@@ -55,6 +55,12 @@
         "discussion-category": "@rudderstack/analytics-js-loading-scripts@3.2.0",
         "notesFile": "./packages/loading-scripts/CHANGELOG_LATEST.md"
       }
+    },
+    "pre-release": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "./scripts/make-package-json-publish-ready.sh packages/loading-scripts"
+      }
     }
   }
 }

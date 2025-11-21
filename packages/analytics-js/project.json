@@ -57,6 +57,12 @@
         "discussion-category": "@rudderstack/analytics-js@3.25.1",
         "notesFile": "./packages/analytics-js/CHANGELOG_LATEST.md"
       }
+    },
+    "pre-release": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "./scripts/make-package-json-publish-ready.sh packages/analytics-js"
+      }
     }
   }
 }

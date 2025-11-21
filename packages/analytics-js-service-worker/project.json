@@ -56,6 +56,12 @@
         "discussion-category": "rudderstack/analytics-js-service-worker@3.3.5",
         "notesFile": "./packages/analytics-js-service-worker/CHANGELOG_LATEST.md"
       }
+    },
+    "pre-release": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "./scripts/make-package-json-publish-ready.sh packages/analytics-js-service-worker"
+      }
     }
   }
 }

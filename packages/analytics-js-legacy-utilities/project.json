@@ -56,6 +56,12 @@
         "discussion-category": "@rudderstack/analytics-js-legacy-utilities@0.1.0",
         "notesFile": "./packages/analytics-js-legacy-utilities/CHANGELOG_LATEST.md"
       }
+    },
+    "pre-release": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "./scripts/make-package-json-publish-ready.sh packages/analytics-js-legacy-utilities"
+      }
     }
   }
 }
