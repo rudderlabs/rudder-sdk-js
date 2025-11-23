@@ -73,9 +73,9 @@ describe('User session manager', () => {
 
   const clearStorage = () => {
     Object.values(COOKIE_KEYS).forEach(key => {
-      clientDataStoreCookie.remove(key);
-      clientDataStoreLS.remove(key);
-      clientDataStoreSession.remove(key);
+      clientDataStoreCookie.remove(key as string);
+      clientDataStoreLS.remove(key as string);
+      clientDataStoreSession.remove(key as string);
     });
   };
 
@@ -1401,12 +1401,16 @@ describe('User session manager', () => {
 
   describe('setInitialReferringDomain', () => {
     it('should set the provided initial referring domain', () => {
+      const setMock = jest.spyOn(clientDataStoreCookie, 'set');
+
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       const newReferrer = 'new-dummy-referrer-2';
       userSessionManager.init();
       userSessionManager.setInitialReferringDomain(newReferrer);
       expect(state.session.initialReferringDomain.value).toBe(newReferrer);
-      expect(clientDataStoreCookie.set).toHaveBeenCalled();
+      expect(setMock).toHaveBeenCalled();
+
+      setMock.mockRestore();
     });
 
     it('should reset the value to default value if persistence is not enabled for initial referring domain', () => {
@@ -1478,7 +1482,7 @@ describe('User session manager', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.init();
 
-      const futureTimestamp = Date.now() + 5000;
+      const futureTimestamp = Date.now() + Number.MAX_SAFE_INTEGER;
       state.session.sessionInfo.value = {
         autoTrack: true,
         timeout: 10 * 60 * 1000,
@@ -1591,13 +1595,7 @@ describe('User session manager', () => {
       // The effect from registerEffects calls syncValueToStorage with just the key
       // refreshSession explicitly calls it with (sessionKey, sessionInfo) when SDK is not ready
       expect(syncValueToStorageSpy).toHaveBeenCalledTimes(3);
-      expect(syncValueToStorageSpy).toHaveBeenCalledWith('sessionInfo', {
-        autoTrack: true,
-        timeout: 1800000,
-        expiresAt: expect.any(Number),
-        id: expect.any(Number),
-        sessionStart: true,
-      });
+      expect(syncValueToStorageSpy).toHaveBeenCalledWith('sessionInfo');
     });
   });
 
@@ -2084,37 +2082,48 @@ describe('User session manager', () => {
   });
 
   describe('syncValueToStorage', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+      jest.setSystemTime(0);
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
     it('should not call setServerSideCookies method in case isEnabledServerSideCookies state option is not set', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
-      userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId');
+
+      state.session.anonymousId.value = 'dummy_anonymousId';
+      userSessionManager.syncValueToStorage('anonymousId');
 
       jest.advanceTimersByTime(1000);
 
       expect(setServerSideCookiesSpy).not.toHaveBeenCalled();
     });
 
-    it('should call setServerSideCookies method in case isEnabledServerSideCookies state option is set to true', done => {
+    it('should call setServerSideCookies method in case isEnabledServerSideCookies state option is set to true', () => {
       state.serverCookies.isEnabledServerSideCookies.value = true;
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
-      clientDataStoreCookie.set = jest.fn();
-      const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
-      userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId');
 
-      setTimeout(() => {
-        expect(setServerSideCookiesSpy).toHaveBeenCalledWith(
-          {
-            anonymousId: {
-              name: 'rl_anonymous_id',
-            },
+      userSessionManager.setServerSideCookies = jest.fn();
+
+      state.session.anonymousId.value = 'dummy_anonymousId';
+      userSessionManager.syncValueToStorage('anonymousId');
+
+      jest.runAllTimers();
+
+      expect(userSessionManager.setServerSideCookies).toHaveBeenCalledWith(
+        {
+          anonymousId: {
+            name: 'rl_anonymous_id',
           },
-          expect.any(Function),
-          expect.any(Object),
-        );
-        expect(clientDataStoreCookie.set).toHaveBeenCalled();
-        done();
-      }, 1000);
+        },
+        expect.any(Function),
+        expect.any(Object),
+      );
     });
 
     describe('Cookie should be removed from server side', () => {
@@ -2125,7 +2134,8 @@ describe('User session manager', () => {
         state.storage.entries.value = entriesWithOnlyCookieStorage;
         userSessionManager.setServerSideCookies = jest.fn();
         clientDataStoreCookie.remove = jest.fn();
-        userSessionManager.syncValueToStorage('anonymousId', cookieValue);
+        state.session.anonymousId.value = cookieValue;
+        userSessionManager.syncValueToStorage('anonymousId');
 
         jest.advanceTimersByTime(1000);
 
@@ -2135,33 +2145,35 @@ describe('User session manager', () => {
       });
     });
 
-    it('should debounce multiple cookie set network requests', done => {
+    it('should debounce multiple cookie set network requests', () => {
       state.serverCookies.isEnabledServerSideCookies.value = true;
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
-      clientDataStoreCookie.set = jest.fn();
-      const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
+      // clientDataStoreCookie.set = jest.fn();
 
-      // The first call sends immediately, then subsequent calls within debounce window are consolidated
-      // So we expect 2 calls: first (dummy_anonymousId1) and last (dummy_anonymousId3)
-      userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId1');
-      userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId2');
-      userSessionManager.syncValueToStorage('anonymousId', 'dummy_anonymousId3');
+      userSessionManager.setServerSideCookies = jest.fn();
 
-      setTimeout(() => {
-        expect(setServerSideCookiesSpy).toHaveBeenCalledTimes(2);
-        // Both calls should have the same structure with SessionEntryData
-        expect(setServerSideCookiesSpy).toHaveBeenCalledWith(
-          {
-            anonymousId: {
-              name: 'rl_anonymous_id',
-            },
+      // All calls within debounce window are consolidated into a single request with the latest value
+      // Each syncValueToStorage resets the debounce timer, so only the last value is sent
+      state.session.anonymousId.value = 'dummy_anonymousId1';
+      userSessionManager.syncValueToStorage('anonymousId');
+      state.session.anonymousId.value = 'dummy_anonymousId2';
+      userSessionManager.syncValueToStorage('anonymousId');
+      state.session.anonymousId.value = 'dummy_anonymousId3';
+      userSessionManager.syncValueToStorage('anonymousId');
+
+      jest.runAllTimers();
+
+      expect(userSessionManager.setServerSideCookies).toHaveBeenCalledTimes(1);
+      expect(userSessionManager.setServerSideCookies).toHaveBeenCalledWith(
+        {
+          anonymousId: {
+            name: 'rl_anonymous_id',
           },
-          expect.any(Function),
-          expect.any(Object),
-        );
-        done();
-      }, 1000);
+        },
+        expect.any(Function),
+        expect.any(Object),
+      );
     });
   });
 
@@ -2208,6 +2220,7 @@ describe('User session manager', () => {
       );
       done();
     });
+
     describe('Network request to Data service is successful', () => {
       it('should validate cookies are set from the server side', done => {
         state.source.value = {
@@ -2265,6 +2278,17 @@ describe('User session manager', () => {
           samesite: 'Lax',
         };
         state.session.userId.value = { prop1: 'sample property' };
+
+        // Mock store that:
+        // 1. Returns null initially (cookie doesn't exist - originalCookieVal = null)
+        // 2. Returns null after server request (cookie still doesn't exist - actualCookieVal = null)
+        // This simulates complete failure: both originalCookieVal and actualCookieVal are null
+        const mockStoreWithNull = {
+          encrypt: jest.fn(val => `encrypted_${JSON.parse(val)}`),
+          set: jest.fn(),
+          get: jest.fn(() => null), // Always returns null - complete failure to set
+        };
+
         userSessionManager.setServerSideCookies(
           {
             userId: {
@@ -2272,17 +2296,118 @@ describe('User session manager', () => {
             },
           },
           (name, val) => {
-            mockCookieStore.set(name, val);
+            mockStoreWithNull.set(name, val);
           },
-          mockCookieStore,
+          mockStoreWithNull,
         );
         setTimeout(() => {
-          expect(mockCookieStore.get).toHaveBeenCalledWith('key');
+          expect(mockStoreWithNull.get).toHaveBeenCalledWith('key');
           expect(stringifyWithoutCircular).toHaveBeenCalled();
+          // Error should be logged: originalCookieVal is null AND actualCookieVal is null
           expect(defaultLogger.error).toHaveBeenCalledWith(
             'The server failed to set the key cookie. As a fallback, the cookies will be set client side.',
           );
-          expect(mockCookieStore.set).toHaveBeenCalledWith('key', { prop1: 'sample property' });
+          expect(mockStoreWithNull.set).toHaveBeenCalledWith('key', { prop1: 'sample property' });
+          done();
+        }, 1000);
+      });
+      it('should not log error when cookie existed before (originalCookieVal not null)', done => {
+        state.source.value = {
+          workspaceId: 'sample_workspaceId',
+          id: 'sample_source_id',
+          name: 'sample_source_name',
+        };
+        state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
+        state.storage.cookie.value = {
+          maxage: 10 * 60 * 1000, // 10 min
+          path: '/',
+          domain: 'dummy.dataplane.host.com',
+          samesite: 'Lax',
+        };
+        state.session.userId.value = { prop1: 'new value' };
+
+        // Mock store that:
+        // 1. Returns existing value initially (originalCookieVal = {prop1: 'old value'})
+        // 2. Returns different value after request (actualCookieVal = {prop1: 'old value'})
+        // This simulates: cookie existed before, so no error should be logged
+        const mockStoreWithExistingValue = {
+          encrypt: jest.fn(val => `encrypted_${JSON.parse(val)}`),
+          set: jest.fn(),
+          get: jest.fn(() => ({ prop1: 'old value' })), // Returns existing value (not null)
+        };
+
+        userSessionManager.setServerSideCookies(
+          {
+            userId: {
+              name: 'key',
+            },
+          },
+          (name, val) => {
+            mockStoreWithExistingValue.set(name, val);
+          },
+          mockStoreWithExistingValue,
+        );
+        setTimeout(() => {
+          expect(mockStoreWithExistingValue.get).toHaveBeenCalledWith('key');
+          // Error should NOT be logged because originalCookieVal was not null
+          expect(defaultLogger.error).not.toHaveBeenCalledWith(
+            'The server failed to set the key cookie. As a fallback, the cookies will be set client side.',
+          );
+          // But fallback should still be called because expectedCookieVal !== actualCookieVal
+          expect(mockStoreWithExistingValue.set).toHaveBeenCalledWith('key', {
+            prop1: 'new value',
+          });
+          done();
+        }, 1000);
+      });
+      it('should not log error when cookie was successfully set (originalCookieVal null, actualCookieVal not null)', done => {
+        state.source.value = {
+          workspaceId: 'sample_workspaceId',
+          id: 'sample_source_id',
+          name: 'sample_source_name',
+        };
+        state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
+        state.storage.cookie.value = {
+          maxage: 10 * 60 * 1000, // 10 min
+          path: '/',
+          domain: 'dummy.dataplane.host.com',
+          samesite: 'Lax',
+        };
+        state.session.userId.value = { prop1: 'sample property' };
+
+        let callCount = 0;
+        // Mock store that:
+        // 1. Returns null on first call (originalCookieVal = null)
+        // 2. Returns value on subsequent calls (actualCookieVal = {prop1: 'sample property'})
+        // This simulates successful cookie set
+        const mockStoreWithSuccessfulSet = {
+          encrypt: jest.fn(val => `encrypted_${JSON.parse(val)}`),
+          set: jest.fn(),
+          get: jest.fn(() => {
+            callCount++;
+            return callCount === 1 ? null : { prop1: 'sample property' };
+          }),
+        };
+
+        userSessionManager.setServerSideCookies(
+          {
+            userId: {
+              name: 'key',
+            },
+          },
+          (name, val) => {
+            mockStoreWithSuccessfulSet.set(name, val);
+          },
+          mockStoreWithSuccessfulSet,
+        );
+        setTimeout(() => {
+          expect(mockStoreWithSuccessfulSet.get).toHaveBeenCalledWith('key');
+          // Error should NOT be logged: originalCookieVal is null but actualCookieVal is NOT null (success!)
+          expect(defaultLogger.error).not.toHaveBeenCalledWith(
+            'The server failed to set the key cookie. As a fallback, the cookies will be set client side.',
+          );
+          // Fallback should NOT be called because cookie was successfully set
+          expect(mockStoreWithSuccessfulSet.set).not.toHaveBeenCalled();
           done();
         }, 1000);
       });

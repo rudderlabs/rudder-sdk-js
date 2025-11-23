@@ -8,6 +8,7 @@ import {
 import {
   isDefinedAndNotNull,
   isDefinedNotNullAndNotEmptyString,
+  isNull,
   isNullOrUndefined,
   isString,
 } from '@rudderstack/analytics-js-common/utilities/checks';
@@ -93,10 +94,6 @@ class UserSessionManager implements IUserSessionManager {
    * Tracks whether the setting the cookies action has been queued or not
    */
   serverSideCookiesRequestInProgress: Record<UserSessionKey, boolean>;
-  /**
-   * Tracks the number of queued cookie set requests
-   */
-  serverSideCookieSetRequests: Record<UserSessionKey, number>;
 
   constructor(
     pluginsManager: IPluginsManager,
@@ -113,7 +110,6 @@ class UserSessionManager implements IUserSessionManager {
     this.onError = this.onError.bind(this);
     this.serverSideCookieDebounceFuncs = {} as Record<UserSessionKey, number>;
     this.serverSideCookiesRequestInProgress = {} as Record<UserSessionKey, boolean>;
-    this.serverSideCookieSetRequests = {} as Record<UserSessionKey, number>;
   }
 
   /**
@@ -438,11 +434,20 @@ class UserSessionManager implements IUserSessionManager {
   ): void {
     // Retrieve the cookie value from the state
     const sessionKeys = Object.keys(sessionEntries) as UserSessionKey[];
-    const cookiesData: CookieData[] = sessionKeys.map((sessionKey: UserSessionKey) => {
-      return {
-        name: sessionEntries[sessionKey]!.name,
-        value: state.session[sessionKey]!.value as ApiObject | string,
-      };
+    const getCurrentCookiesState = (): CookieData[] => {
+      return sessionKeys.map((sessionKey: UserSessionKey) => {
+        return {
+          name: sessionEntries[sessionKey]!.name,
+          value: state.session[sessionKey]!.value as ApiObject | string,
+        };
+      });
+    };
+
+    const currentCookieValues: Record<string, Nullable<any>> = {};
+    sessionKeys.forEach((sessionKey: UserSessionKey) => {
+      currentCookieValues[sessionEntries[sessionKey]!.name] = store?.get(
+        sessionEntries[sessionKey]!.name,
+      );
     });
 
     const clearInProgressFlags = () => {
@@ -453,7 +458,13 @@ class UserSessionManager implements IUserSessionManager {
 
     try {
       // encrypt cookies values
-      const encryptedCookieData = this.getEncryptedCookieData(cookiesData, store);
+      const expectedCookiesState: Record<string, Nullable<any>> = {};
+      sessionKeys.forEach((sessionKey: UserSessionKey) => {
+        expectedCookiesState[sessionEntries[sessionKey]!.name] = state.session[sessionKey]!
+          .value as ApiObject | string;
+      });
+
+      const encryptedCookieData = this.getEncryptedCookieData(getCurrentCookiesState(), store);
       if (encryptedCookieData.length > 0) {
         // make request to data service to set the cookie from server side
         this.makeRequestToSetCookie(encryptedCookieData, (res, details) => {
@@ -461,12 +472,18 @@ class UserSessionManager implements IUserSessionManager {
           clearInProgressFlags();
 
           if (details?.xhr?.status === 200) {
-            cookiesData.forEach(cData => {
-              const cookieValue = store?.get(cData.name);
-              const before = stringifyWithoutCircular(cData.value, false, []);
-              const after = stringifyWithoutCircular(cookieValue, false, []);
-              if (after !== before) {
-                this.logger.error(FAILED_SETTING_COOKIE_FROM_SERVER_ERROR(cData.name));
+            getCurrentCookiesState().forEach(cData => {
+              const originalCookieVal = currentCookieValues[cData.name];
+
+              const actualCookieVal = store?.get(cData.name);
+              if (
+                stringifyWithoutCircular(expectedCookiesState[cData.name], false, []) !==
+                stringifyWithoutCircular(store?.get(cData.name), false, [])
+              ) {
+                // Log an error only when cookie didn't exist at all and we're also unable to set it
+                if (isNull(originalCookieVal) && isNull(actualCookieVal)) {
+                  this.logger.error(FAILED_SETTING_COOKIE_FROM_SERVER_ERROR(cData.name));
+                }
                 if (cb) {
                   cb(cData.name, cData.value);
                 }
@@ -474,7 +491,7 @@ class UserSessionManager implements IUserSessionManager {
             });
           } else {
             this.logger.error(DATA_SERVER_REQUEST_FAIL_ERROR(details?.xhr?.status));
-            cookiesData.forEach(each => {
+            getCurrentCookiesState().forEach(each => {
               if (cb) {
                 cb(each.name, each.value);
               }
@@ -493,7 +510,7 @@ class UserSessionManager implements IUserSessionManager {
         FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR,
         FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR,
       );
-      cookiesData.forEach(each => {
+      getCurrentCookiesState().forEach(each => {
         if (cb) {
           cb(each.name, each.value);
         }
@@ -504,12 +521,8 @@ class UserSessionManager implements IUserSessionManager {
   /**
    * A function to sync values in storage
    * @param sessionKey
-   * @param stateValue optional state value to sync. By default, we directly read from the state
    */
-  syncValueToStorage(
-    sessionKey: UserSessionKey,
-    stateValue?: Nullable<ApiObject> | Nullable<string>,
-  ) {
+  syncValueToStorage(sessionKey: UserSessionKey) {
     const entries = state.storage.entries.value;
     const storageType = entries[sessionKey]?.type as StorageType;
     if (isStorageTypeValidForStoringData(storageType)) {
@@ -518,7 +531,7 @@ class UserSessionManager implements IUserSessionManager {
       );
       const key = entries[sessionKey]?.key as string;
       // Determine the final user session entry value
-      const value = stateValue ?? state.session[sessionKey].value;
+      const value = state.session[sessionKey].value;
       if (value && (isString(value) || isNonEmptyObject(value))) {
         // if useServerSideCookies load option is set to true
         // set the cookie from server side
@@ -528,48 +541,30 @@ class UserSessionManager implements IUserSessionManager {
         ) {
           // Mark the requests as in progress.
           this.serverSideCookiesRequestInProgress[sessionKey] = true;
-          const setCookieFunc = () => {
-            const sessionEntries: SessionEntryData = {
-              [sessionKey]: {
-                name: key,
-              },
-            };
-            this.setServerSideCookies(
-              sessionEntries,
-              (cookieName, cookieValue) => {
-                curStore?.set(cookieName, cookieValue);
-              },
-              curStore,
+
+          if (this.serverSideCookieDebounceFuncs[sessionKey]) {
+            (globalThis as typeof window).clearTimeout(
+              this.serverSideCookieDebounceFuncs[sessionKey],
             );
-          };
-
-          // When debounce is not active, set it up.
-          // Debounce behavior: Only the first and last values are sent during the debounce window.
-          // The first request is sent immediately to prevent events from missing session info.
-          // Subsequent changes within the debounce window are consolidated into a single request
-          // that sends the latest value after the debounce delay. Intermediate values are not persisted.
-          if (!this.serverSideCookieDebounceFuncs[sessionKey]) {
-            this.serverSideCookieSetRequests[sessionKey] = 0;
-
-            // For the first time, make the cookie request anyway.
-            setCookieFunc();
-
-            this.serverSideCookieDebounceFuncs[sessionKey] = (
-              globalThis as typeof window
-            ).setTimeout(() => {
-              delete this.serverSideCookieDebounceFuncs[sessionKey];
-
-              // In the debounce function, make the cookie request only when cookie requests are waiting
-              // in the queue. The first request would have been sent already.
-              if (this.serverSideCookieSetRequests[sessionKey] > 0) {
-                setCookieFunc();
-                this.serverSideCookieSetRequests[sessionKey] = 0;
-              }
-            }, SERVER_SIDE_COOKIES_DEBOUNCE_TIME);
-          } else {
-            // Increment the queued cookie set actions
-            this.serverSideCookieSetRequests[sessionKey] += 1;
           }
+
+          this.serverSideCookieDebounceFuncs[sessionKey] = (globalThis as typeof window).setTimeout(
+            () => {
+              const sessionEntries: SessionEntryData = {
+                [sessionKey]: {
+                  name: key,
+                },
+              };
+              this.setServerSideCookies(
+                sessionEntries,
+                (cookieName, cookieValue) => {
+                  curStore?.set(cookieName, cookieValue);
+                },
+                curStore,
+              );
+            },
+            SERVER_SIDE_COOKIES_DEBOUNCE_TIME,
+          );
         } else {
           curStore?.set(key, value);
         }
@@ -760,8 +755,8 @@ class UserSessionManager implements IUserSessionManager {
    */
   refreshSession(): void {
     let initialSessionInfo = this.getSessionInfo();
-    // If cookie set request is in progress, use the state value. That should be sufficient.
-    if (initialSessionInfo === null && this.serverSideCookiesRequestInProgress['sessionInfo']) {
+    // Prefer session data from state if the cookie requests are in progress
+    if (this.serverSideCookiesRequestInProgress['sessionInfo']) {
       initialSessionInfo = state.session.sessionInfo.value;
     }
 
@@ -799,7 +794,7 @@ class UserSessionManager implements IUserSessionManager {
     if (state.lifecycle.status.value !== 'readyExecuted') {
       // Force update the storage as the 'effect' blocks are not getting triggered
       // when processing preload buffered requests
-      this.syncValueToStorage('sessionInfo', sessionInfo);
+      this.syncValueToStorage('sessionInfo');
     }
   }
 
