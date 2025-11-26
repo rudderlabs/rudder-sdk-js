@@ -63,7 +63,7 @@ jobs:
           echo "SHA=$sha" >> $GITHUB_OUTPUT
 
       - name: Checkout
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           ref: ${{ steps.getSHA.outputs.SHA }}
 
@@ -88,7 +88,7 @@ jobs:
           egress-policy: audit
 
       - name: Checkout (for composite action)
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
 
       - name: Prepare sanity test inputs
         id: prepare_inputs
@@ -130,7 +130,7 @@ jobs:
           egress-policy: audit
 
       - name: Checkout (for composite action)
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
 
       - name: Prepare E2E test inputs
         id: prepare_inputs
