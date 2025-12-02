@@ -51,6 +51,30 @@ describe('Preload Buffer', () => {
     ]);
   });
 
+  it('should retrieve identify event with only traits (no userId)', () => {
+    const testUrlParams = `${originalWindowLocation}?ajs_trait_email=test@example.com&ajs_trait_name=John`;
+
+    window.history.pushState({}, '', testUrlParams);
+
+    const argumentsArray: PreloadedEventCall[] = [];
+    retrieveEventsFromQueryString(argumentsArray);
+
+    expect(argumentsArray).toStrictEqual([
+      ['identify', { email: 'test@example.com', name: 'John' }],
+    ]);
+  });
+
+  it('should not add identify event when no userId or traits are present', () => {
+    const testUrlParams = `${originalWindowLocation}?ajs_event=dummyName&ajs_prop_dummy=true`;
+
+    window.history.pushState({}, '', testUrlParams);
+
+    const argumentsArray: PreloadedEventCall[] = [];
+    retrieveEventsFromQueryString(argumentsArray);
+
+    expect(argumentsArray).toStrictEqual([['track', 'dummyName', { dummy: 'true' }]]);
+  });
+
   it('should retrieve the load event if any', () => {
     const argumentsArray: PreloadedEventCall[] = [
       ['track'],
