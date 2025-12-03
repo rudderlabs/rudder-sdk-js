@@ -514,7 +514,6 @@ class UserSessionManager implements IUserSessionManager {
   /**
    * A function to sync values in storage
    * @param sessionKey
-   * @param value
    */
   syncValueToStorage(sessionKey: UserSessionKey) {
     const entries = state.storage.entries.value;
