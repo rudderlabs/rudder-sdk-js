@@ -436,7 +436,7 @@ class UserSessionManager implements IUserSessionManager {
       return sessionKeys.map((sessionKey: UserSessionKey) => {
         return {
           name: sessionToCookiesMap[sessionKey]!.name,
-          value: state.session[sessionKey]!.value,
+          value: state.session[sessionKey].value,
         } as CookieData;
       });
     };
@@ -453,7 +453,7 @@ class UserSessionManager implements IUserSessionManager {
       const expectedCookieValues: Record<string, CookieValue | undefined | null> = {};
       sessionKeys.forEach((sessionKey: UserSessionKey) => {
         expectedCookieValues[sessionToCookiesMap[sessionKey]!.name] =
-          state.session[sessionKey]!.value;
+          state.session[sessionKey].value;
       });
 
       // encrypt cookies values
