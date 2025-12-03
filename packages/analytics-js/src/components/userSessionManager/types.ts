@@ -4,6 +4,8 @@ import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import type { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
 import type { ResetOptions } from '@rudderstack/analytics-js-common/types/EventApi';
+import type { UserSessionKey } from '@rudderstack/analytics-js-common/types/UserSessionStorage';
+import type { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
 
 export interface IUserSessionManager {
   storeManager?: IStoreManager;
@@ -29,9 +31,17 @@ export interface IUserSessionManager {
 
 export type UserSessionStorageKeysType = keyof typeof COOKIE_KEYS;
 
+export type CookieValue = ApiObject | string | SessionInfo;
+
 export type CookieData = {
   name: string;
-  value: ApiObject | string;
+  value: CookieValue;
+};
+
+export type SessionToCookiesMap = {
+  [key in UserSessionKey]?: {
+    name: string;
+  };
 };
 
 export type EncryptedCookieData = {

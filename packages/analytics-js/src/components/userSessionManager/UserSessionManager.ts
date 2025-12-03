@@ -8,6 +8,7 @@ import {
 import {
   isDefinedAndNotNull,
   isDefinedNotNullAndNotEmptyString,
+  isNull,
   isNullOrUndefined,
   isString,
 } from '@rudderstack/analytics-js-common/utilities/checks';
@@ -74,8 +75,10 @@ import { DEFAULT_USER_SESSION_VALUES, SERVER_SIDE_COOKIES_DEBOUNCE_TIME } from '
 import type {
   CallbackFunction,
   CookieData,
+  CookieValue,
   EncryptedCookieData,
   IUserSessionManager,
+  SessionToCookiesMap,
   UserSessionStorageKeysType,
 } from './types';
 import { isPositiveInteger } from '../utilities/number';
@@ -417,23 +420,68 @@ class UserSessionManager implements IUserSessionManager {
 
   /**
    * A function to make an external request to set the cookie from server side
-   * @param key       cookie name
-   * @param value     encrypted cookie value
+   * @param sessionToCookiesMap map of session key to cookie name
+   * @param cb callback function to be called when the cookie is set
+   * @param store store to be used to get the cookie value
    */
-  setServerSideCookies(cookiesData: CookieData[], cb?: CallbackFunction, store?: IStore): void {
+  setServerSideCookies(
+    sessionToCookiesMap: SessionToCookiesMap,
+    cb?: CallbackFunction,
+    store?: IStore,
+  ): void {
+    // Retrieve the cookie value from the state
+    const sessionKeys = Object.keys(sessionToCookiesMap) as UserSessionKey[];
+
+    const getCurrentCookieValuesFromState = (): CookieData[] => {
+      return sessionKeys.map((sessionKey: UserSessionKey) => {
+        return {
+          name: sessionToCookiesMap[sessionKey]!.name,
+          value: state.session[sessionKey]!.value,
+        } as CookieData;
+      });
+    };
+
+    // Preserve the current cookie values
+    const originalCookieValues: Record<string, Nullable<CookieValue | undefined>> = {};
+    sessionKeys.forEach((sessionKey: UserSessionKey) => {
+      originalCookieValues[sessionToCookiesMap[sessionKey]!.name] = store?.get(
+        sessionToCookiesMap[sessionKey]!.name,
+      );
+    });
+
     try {
+      const expectedCookieValues: Record<string, CookieValue | undefined | null> = {};
+      sessionKeys.forEach((sessionKey: UserSessionKey) => {
+        expectedCookieValues[sessionToCookiesMap[sessionKey]!.name] =
+          state.session[sessionKey]!.value;
+      });
+
       // encrypt cookies values
-      const encryptedCookieData = this.getEncryptedCookieData(cookiesData, store);
+      const encryptedCookieData = this.getEncryptedCookieData(
+        getCurrentCookieValuesFromState(),
+        store,
+      );
+
       if (encryptedCookieData.length > 0) {
         // make request to data service to set the cookie from server side
         this.makeRequestToSetCookie(encryptedCookieData, (res, details) => {
           if (details?.xhr?.status === 200) {
-            cookiesData.forEach(cData => {
-              const cookieValue = store?.get(cData.name);
-              const before = stringifyWithoutCircular(cData.value, false, []);
-              const after = stringifyWithoutCircular(cookieValue, false, []);
-              if (after !== before) {
-                this.logger.error(FAILED_SETTING_COOKIE_FROM_SERVER_ERROR(cData.name));
+            getCurrentCookieValuesFromState().forEach(cData => {
+              const originalCookieVal = originalCookieValues[cData.name];
+              const currentCookieVal = store?.get(cData.name);
+
+              // Check if the expected cookie values are set.
+              if (
+                stringifyWithoutCircular(expectedCookieValues[cData.name], false, []) !==
+                stringifyWithoutCircular(currentCookieVal, false, [])
+              ) {
+                // It's fine if the values don't match as other active SDK sessions might have updated the cookie values
+                // or other cookie requests might have updated the cookie value.
+
+                // Log an error only when cookie didn't exist previously and currently also doesn't exist.
+                if (isNull(originalCookieVal) && isNull(currentCookieVal)) {
+                  this.logger.error(FAILED_SETTING_COOKIE_FROM_SERVER_ERROR(cData.name));
+                }
                 if (cb) {
                   cb(cData.name, cData.value);
                 }
@@ -441,7 +489,7 @@ class UserSessionManager implements IUserSessionManager {
             });
           } else {
             this.logger.error(DATA_SERVER_REQUEST_FAIL_ERROR(details?.xhr?.status));
-            cookiesData.forEach(each => {
+            getCurrentCookieValuesFromState().forEach(each => {
               if (cb) {
                 cb(each.name, each.value);
               }
@@ -455,7 +503,7 @@ class UserSessionManager implements IUserSessionManager {
         FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR,
         FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR,
       );
-      cookiesData.forEach(each => {
+      getCurrentCookieValuesFromState().forEach(each => {
         if (cb) {
           cb(each.name, each.value);
         }
@@ -468,18 +516,16 @@ class UserSessionManager implements IUserSessionManager {
    * @param sessionKey
    * @param value
    */
-  syncValueToStorage(
-    sessionKey: UserSessionKey,
-    value: Nullable<ApiObject> | Nullable<string> | undefined,
-  ) {
+  syncValueToStorage(sessionKey: UserSessionKey) {
     const entries = state.storage.entries.value;
     const storageType = entries[sessionKey]?.type as StorageType;
     if (isStorageTypeValidForStoringData(storageType)) {
-      const curStore = this.storeManager?.getStore(
+      const curStore = this.storeManager.getStore(
         storageClientDataStoreNameMap[storageType] as string,
       );
-      const key = entries[sessionKey]?.key as string;
-      if (value && (isString(value) || isNonEmptyObject(value))) {
+      const cookieName = entries[sessionKey]?.key as string;
+      const cookieValue = state.session[sessionKey].value;
+      if (cookieValue && (isString(cookieValue) || isNonEmptyObject(cookieValue))) {
         // if useServerSideCookies load option is set to true
         // set the cookie from server side
         if (
@@ -494,8 +540,15 @@ class UserSessionManager implements IUserSessionManager {
 
           this.serverSideCookieDebounceFuncs[sessionKey] = (globalThis as typeof window).setTimeout(
             () => {
+              // Create a map of session key to cookie name
+              const sessionToCookiesMap: SessionToCookiesMap = {
+                [sessionKey]: {
+                  name: cookieName,
+                },
+              };
+
               this.setServerSideCookies(
-                [{ name: key, value }],
+                sessionToCookiesMap,
                 (cookieName, cookieValue) => {
                   curStore?.set(cookieName, cookieValue);
                 },
@@ -505,10 +558,10 @@ class UserSessionManager implements IUserSessionManager {
             SERVER_SIDE_COOKIES_DEBOUNCE_TIME,
           );
         } else {
-          curStore?.set(key, value);
+          curStore?.set(cookieName, cookieValue);
         }
       } else {
-        curStore?.remove(key);
+        curStore?.remove(cookieName);
       }
     }
   }
@@ -520,7 +573,7 @@ class UserSessionManager implements IUserSessionManager {
     // This will work as long as the user session entry key names are same as the state keys
     USER_SESSION_KEYS.forEach(sessionKey => {
       effect(() => {
-        this.syncValueToStorage(sessionKey, state.session[sessionKey].value);
+        this.syncValueToStorage(sessionKey);
       });
     });
   }
@@ -726,7 +779,7 @@ class UserSessionManager implements IUserSessionManager {
     if (state.lifecycle.status.value !== 'readyExecuted') {
       // Force update the storage as the 'effect' blocks are not getting triggered
       // when processing preload buffered requests
-      this.syncValueToStorage('sessionInfo', sessionInfo);
+      this.syncValueToStorage('sessionInfo');
     }
   }
 
