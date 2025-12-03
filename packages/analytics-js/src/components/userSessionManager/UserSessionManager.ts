@@ -91,6 +91,10 @@ class UserSessionManager implements IUserSessionManager {
   httpClient: IHttpClient;
   logger: ILogger;
   serverSideCookieDebounceFuncs: Record<UserSessionKey, number>;
+  /**
+   * Tracks whether the setting the cookies action has been queued or not 1Code has comments. Press enter to view.
+   */
+  serverSideCookiesRequestInProgress: Record<UserSessionKey, boolean>;
 
   constructor(
     pluginsManager: IPluginsManager,
@@ -106,6 +110,7 @@ class UserSessionManager implements IUserSessionManager {
     this.httpClient = httpClient;
     this.onError = this.onError.bind(this);
     this.serverSideCookieDebounceFuncs = {} as Record<UserSessionKey, number>;
+    this.serverSideCookiesRequestInProgress = {} as Record<UserSessionKey, boolean>;
   }
 
   /**
@@ -449,6 +454,20 @@ class UserSessionManager implements IUserSessionManager {
       );
     });
 
+    const clearInProgressFlags = () => {
+      sessionKeys.forEach((sessionKey: UserSessionKey) => {
+        this.serverSideCookiesRequestInProgress[sessionKey] = false;
+      });
+    };
+
+    const setCookiesClientSide = () => {
+      getCurrentCookieValuesFromState().forEach(each => {
+        if (cb) {
+          cb(each.name, each.value);
+        }
+      });
+    };
+
     try {
       const expectedCookieValues: Record<string, CookieValue | undefined | null> = {};
       sessionKeys.forEach((sessionKey: UserSessionKey) => {
@@ -465,6 +484,9 @@ class UserSessionManager implements IUserSessionManager {
       if (encryptedCookieData.length > 0) {
         // make request to data service to set the cookie from server side
         this.makeRequestToSetCookie(encryptedCookieData, (res, details) => {
+          // Mark the cookie req status as done
+          clearInProgressFlags();
+
           if (details?.xhr?.status === 200) {
             getCurrentCookieValuesFromState().forEach(cData => {
               const originalCookieVal = originalCookieValues[cData.name];
@@ -489,13 +511,14 @@ class UserSessionManager implements IUserSessionManager {
             });
           } else {
             this.logger.error(DATA_SERVER_REQUEST_FAIL_ERROR(details?.xhr?.status));
-            getCurrentCookieValuesFromState().forEach(each => {
-              if (cb) {
-                cb(each.name, each.value);
-              }
-            });
+            setCookiesClientSide();
           }
         });
+      } else {
+        setCookiesClientSide();
+
+        // Mark the cookie req status as done
+        clearInProgressFlags();
       }
     } catch (e) {
       this.onError(
@@ -503,11 +526,10 @@ class UserSessionManager implements IUserSessionManager {
         FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR,
         FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR,
       );
-      getCurrentCookieValuesFromState().forEach(each => {
-        if (cb) {
-          cb(each.name, each.value);
-        }
-      });
+      setCookiesClientSide();
+
+      // Mark the cookie req status as done
+      clearInProgressFlags();
     }
   }
 
@@ -531,6 +553,9 @@ class UserSessionManager implements IUserSessionManager {
           state.serverCookies.isEnabledServerSideCookies.value &&
           storageType === COOKIE_STORAGE
         ) {
+          // Mark the requests as in progress.
+          this.serverSideCookiesRequestInProgress[sessionKey] = true;
+
           if (this.serverSideCookieDebounceFuncs[sessionKey]) {
             (globalThis as typeof window).clearTimeout(
               this.serverSideCookieDebounceFuncs[sessionKey],
@@ -745,7 +770,14 @@ class UserSessionManager implements IUserSessionManager {
    * before using it for building event payloads.
    */
   refreshSession(): void {
-    let sessionInfo = this.getSessionInfo() ?? DEFAULT_USER_SESSION_VALUES.sessionInfo;
+    let initialSessionInfo = this.getSessionInfo();
+    // Prefer session data from state if the cookie requests are in progress
+    if (this.serverSideCookiesRequestInProgress['sessionInfo']) {
+      initialSessionInfo = state.session.sessionInfo.value;
+    }
+
+    let sessionInfo = initialSessionInfo ?? DEFAULT_USER_SESSION_VALUES.sessionInfo;
+
     if (sessionInfo.autoTrack || sessionInfo.manualTrack) {
       if (sessionInfo.autoTrack) {
         this.startOrRenewAutoTracking(sessionInfo);
