@@ -97,7 +97,7 @@
   "devDependencies": {
     "@babel/core": "7.28.5",
     "@originjs/vite-plugin-federation": "1.4.1",
-    "@rollup/plugin-alias": "5.1.1",
+    "@rollup/plugin-alias": "6.0.0",
     "@rollup/plugin-babel": "6.1.0",
     "@rollup/plugin-commonjs": "29.0.0",
     "@rollup/plugin-json": "6.1.0",
