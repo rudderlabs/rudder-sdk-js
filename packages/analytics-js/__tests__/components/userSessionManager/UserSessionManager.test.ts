@@ -886,6 +886,163 @@ describe('User session manager', () => {
     });
   });
 
+  describe('getUserSessionValue', () => {
+    it('should return value from storage when no server-side cookie request is in progress', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      // Mock the store's get method to return a different value than state
+      const getSpy = jest
+        .spyOn(clientDataStoreCookie, 'get')
+        .mockReturnValue('dummy-userId-from-storage');
+      state.session.userId.value = 'dummy-userId-from-state';
+
+      // Ensure no request is in progress
+      userSessionManager.serverSideCookiesRequestInProgress.userId = false;
+
+      const actualUserId = userSessionManager.getUserSessionValue<string>('userId');
+      expect(actualUserId).toBe('dummy-userId-from-storage');
+      getSpy.mockRestore();
+    });
+
+    it('should return value from state when server-side cookie request is in progress', () => {
+      const customData = {
+        rl_user_id: 'dummy-userId-from-storage',
+      };
+      setDataInCookieStorage(customData);
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      // Set different value in state
+      state.session.userId.value = 'dummy-userId-from-state';
+
+      // Mark request as in progress
+      userSessionManager.serverSideCookiesRequestInProgress.userId = true;
+
+      const actualUserId = userSessionManager.getUserSessionValue<string>('userId');
+      expect(actualUserId).toBe('dummy-userId-from-state');
+    });
+
+    it('should return null when value not in storage and request not in progress', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      userSessionManager.serverSideCookiesRequestInProgress.userId = false;
+
+      const actualUserId = userSessionManager.getUserSessionValue<string>('userId');
+      expect(actualUserId).toBe(null);
+    });
+
+    it('should handle complex object types from state during in-progress request', () => {
+      const storageTraits = { key1: 'storage-value' };
+      const stateTraits = { key1: 'state-value', key2: 'new-value' };
+
+      setDataInCookieStorage({ rl_trait: storageTraits });
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      state.session.userTraits.value = stateTraits;
+      userSessionManager.serverSideCookiesRequestInProgress.userTraits = true;
+
+      const actualTraits = userSessionManager.getUserSessionValue<ApiObject>('userTraits');
+      expect(actualTraits).toStrictEqual(stateTraits);
+    });
+
+    it('should handle complex object types from storage when request not in progress', () => {
+      const storageTraits = { key1: 'storage-value' };
+      const stateTraits = { key1: 'state-value', key2: 'new-value' };
+
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      // Mock the store's get method to return storage value
+      const getSpy = jest.spyOn(clientDataStoreCookie, 'get').mockReturnValue(storageTraits);
+      state.session.userTraits.value = stateTraits;
+      userSessionManager.serverSideCookiesRequestInProgress.userTraits = false;
+
+      const actualTraits = userSessionManager.getUserSessionValue<ApiObject>('userTraits');
+      expect(actualTraits).toStrictEqual(storageTraits);
+      getSpy.mockRestore();
+    });
+
+    it('should handle sessionInfo objects correctly during in-progress request', () => {
+      const storageSessionInfo = {
+        autoTrack: true,
+        timeout: 10 * 60 * 1000,
+        expiresAt: Date.now() + 5000,
+        id: 1111111111,
+        sessionStart: false,
+      };
+      const stateSessionInfo = {
+        autoTrack: true,
+        timeout: 10 * 60 * 1000,
+        expiresAt: Date.now() + 5000,
+        id: 2222222222,
+        sessionStart: true,
+      };
+
+      setDataInCookieStorage({ rl_session: storageSessionInfo });
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      state.session.sessionInfo.value = stateSessionInfo;
+      userSessionManager.serverSideCookiesRequestInProgress.sessionInfo = true;
+
+      const actualSessionInfo = userSessionManager.getUserSessionValue<SessionInfo>('sessionInfo');
+      expect(actualSessionInfo?.id).toBe(2222222222);
+      expect(actualSessionInfo?.sessionStart).toBe(true);
+    });
+
+    it('should default to storage value when serverSideCookiesRequestInProgress flag is undefined', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      // Mock the store's get method
+      const getSpy = jest
+        .spyOn(clientDataStoreCookie, 'get')
+        .mockReturnValue('dummy-userId-from-storage');
+      state.session.userId.value = 'dummy-userId-from-state';
+
+      // Don't set the flag at all
+      delete userSessionManager.serverSideCookiesRequestInProgress.userId;
+
+      const actualUserId = userSessionManager.getUserSessionValue<string>('userId');
+      // Should default to storage since flag is falsy (undefined)
+      expect(actualUserId).toBe('dummy-userId-from-storage');
+      getSpy.mockRestore();
+    });
+
+    it('should work correctly for all session keys', () => {
+      const customData = {
+        rl_user_id: 'test-user-id',
+        rl_trait: { name: 'test' },
+        rl_group_id: 'test-group-id',
+        rl_group_trait: { company: 'test-company' },
+        ajs_anonymous_id: 'test-anon-id',
+        rl_page_init_referrer: 'https://test.com',
+        rl_page_init_referring_domain: 'test.com',
+        rl_session: { id: 123456789, autoTrack: true },
+        rl_auth_token: 'test-token',
+      };
+      setDataInCookieStorage(customData);
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      // Test each key without in-progress flag (reads from storage during init)
+      expect(userSessionManager.getUserSessionValue('userId')).toBe('test-user-id');
+      expect(userSessionManager.getUserSessionValue('userTraits')).toStrictEqual({ name: 'test' });
+      expect(userSessionManager.getUserSessionValue('groupId')).toBe('test-group-id');
+      expect(userSessionManager.getUserSessionValue('groupTraits')).toStrictEqual({
+        company: 'test-company',
+      });
+      // anonymousId gets set to test_uuid by the mock, which is expected
+      expect(userSessionManager.getUserSessionValue('anonymousId')).toBeDefined();
+      expect(userSessionManager.getUserSessionValue('initialReferrer')).toBe('https://test.com');
+      expect(userSessionManager.getUserSessionValue('initialReferringDomain')).toBe('test.com');
+      expect(userSessionManager.getUserSessionValue('authToken')).toBe('test-token');
+    });
+  });
+
   describe('getUserId', () => {
     it('should return the persisted user ID', () => {
       const customData = {
@@ -916,6 +1073,35 @@ describe('User session manager', () => {
       userSessionManager.init();
       const actualUserId = userSessionManager.getUserId();
       expect(actualUserId).toBe(null);
+    });
+
+    it('should prefer state value when server-side cookie request is in progress', () => {
+      const customData = {
+        rl_user_id: 'storage-user-id',
+      };
+      setDataInCookieStorage(customData);
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      state.session.userId.value = 'state-user-id';
+      userSessionManager.serverSideCookiesRequestInProgress.userId = true;
+
+      const actualUserId = userSessionManager.getUserId();
+      expect(actualUserId).toBe('state-user-id');
+    });
+
+    it('should prefer storage value when no server-side cookie request is in progress', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      // Mock the store to return different value than state
+      const getSpy = jest.spyOn(clientDataStoreCookie, 'get').mockReturnValue('storage-user-id');
+      state.session.userId.value = 'state-user-id';
+      userSessionManager.serverSideCookiesRequestInProgress.userId = false;
+
+      const actualUserId = userSessionManager.getUserId();
+      expect(actualUserId).toBe('storage-user-id');
+      getSpy.mockRestore();
     });
   });
 
@@ -950,6 +1136,38 @@ describe('User session manager', () => {
       const actualUserTraits = userSessionManager.getUserTraits();
       expect(actualUserTraits).toStrictEqual(null);
     });
+
+    it('should prefer state value when server-side cookie request is in progress', () => {
+      const storageTraits = { key1: 'storage-value' };
+      const stateTraits = { key1: 'state-value', key2: 'new-key' };
+
+      setDataInCookieStorage({ rl_trait: storageTraits });
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      state.session.userTraits.value = stateTraits;
+      userSessionManager.serverSideCookiesRequestInProgress.userTraits = true;
+
+      const actualUserTraits = userSessionManager.getUserTraits();
+      expect(actualUserTraits).toStrictEqual(stateTraits);
+    });
+
+    it('should prefer storage value when no server-side cookie request is in progress', () => {
+      const storageTraits = { key1: 'storage-value' };
+      const stateTraits = { key1: 'state-value', key2: 'new-key' };
+
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      // Mock the store to return storage value
+      const getSpy = jest.spyOn(clientDataStoreCookie, 'get').mockReturnValue(storageTraits);
+      state.session.userTraits.value = stateTraits;
+      userSessionManager.serverSideCookiesRequestInProgress.userTraits = false;
+
+      const actualUserTraits = userSessionManager.getUserTraits();
+      expect(actualUserTraits).toStrictEqual(storageTraits);
+      getSpy.mockRestore();
+    });
   });
 
   describe('getGroupId', () => {
@@ -983,6 +1201,32 @@ describe('User session manager', () => {
       const actualGroupId = userSessionManager.getGroupId();
       expect(actualGroupId).toStrictEqual(null);
     });
+
+    it('should prefer state value when server-side cookie request is in progress', () => {
+      setDataInCookieStorage({ rl_group_id: 'storage-group-id' });
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      state.session.groupId.value = 'state-group-id';
+      userSessionManager.serverSideCookiesRequestInProgress.groupId = true;
+
+      const actualGroupId = userSessionManager.getGroupId();
+      expect(actualGroupId).toBe('state-group-id');
+    });
+
+    it('should prefer storage value when no server-side cookie request is in progress', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      // Mock the store to return storage value
+      const getSpy = jest.spyOn(clientDataStoreCookie, 'get').mockReturnValue('storage-group-id');
+      state.session.groupId.value = 'state-group-id';
+      userSessionManager.serverSideCookiesRequestInProgress.groupId = false;
+
+      const actualGroupId = userSessionManager.getGroupId();
+      expect(actualGroupId).toBe('storage-group-id');
+      getSpy.mockRestore();
+    });
   });
 
   describe('getGroupTraits', () => {
@@ -1015,6 +1259,38 @@ describe('User session manager', () => {
       userSessionManager.init();
       const actualGroupTraits = userSessionManager.getGroupTraits();
       expect(actualGroupTraits).toStrictEqual(null);
+    });
+
+    it('should prefer state value when server-side cookie request is in progress', () => {
+      const storageTraits = { company: 'storage-company' };
+      const stateTraits = { company: 'state-company', industry: 'tech' };
+
+      setDataInCookieStorage({ rl_group_trait: storageTraits });
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      state.session.groupTraits.value = stateTraits;
+      userSessionManager.serverSideCookiesRequestInProgress.groupTraits = true;
+
+      const actualGroupTraits = userSessionManager.getGroupTraits();
+      expect(actualGroupTraits).toStrictEqual(stateTraits);
+    });
+
+    it('should prefer storage value when no server-side cookie request is in progress', () => {
+      const storageTraits = { company: 'storage-company' };
+      const stateTraits = { company: 'state-company', industry: 'tech' };
+
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      // Mock the store to return storage value
+      const getSpy = jest.spyOn(clientDataStoreCookie, 'get').mockReturnValue(storageTraits);
+      state.session.groupTraits.value = stateTraits;
+      userSessionManager.serverSideCookiesRequestInProgress.groupTraits = false;
+
+      const actualGroupTraits = userSessionManager.getGroupTraits();
+      expect(actualGroupTraits).toStrictEqual(storageTraits);
+      getSpy.mockRestore();
     });
   });
 
@@ -1054,6 +1330,34 @@ describe('User session manager', () => {
       const actualInitialReferrer = userSessionManager.getInitialReferrer();
       expect(actualInitialReferrer).toStrictEqual(null);
     });
+
+    it('should prefer state value when server-side cookie request is in progress', () => {
+      setDataInCookieStorage({ rl_page_init_referrer: 'https://storage.com' });
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      state.session.initialReferrer.value = 'https://state.com';
+      userSessionManager.serverSideCookiesRequestInProgress.initialReferrer = true;
+
+      const actualInitialReferrer = userSessionManager.getInitialReferrer();
+      expect(actualInitialReferrer).toBe('https://state.com');
+    });
+
+    it('should prefer storage value when no server-side cookie request is in progress', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      // Mock the store to return storage value
+      const getSpy = jest
+        .spyOn(clientDataStoreCookie, 'get')
+        .mockReturnValue('https://storage.com');
+      state.session.initialReferrer.value = 'https://state.com';
+      userSessionManager.serverSideCookiesRequestInProgress.initialReferrer = false;
+
+      const actualInitialReferrer = userSessionManager.getInitialReferrer();
+      expect(actualInitialReferrer).toBe('https://storage.com');
+      getSpy.mockRestore();
+    });
   });
 
   describe('getInitialReferringDomain', () => {
@@ -1088,6 +1392,32 @@ describe('User session manager', () => {
       const actualInitialReferringDomain = userSessionManager.getInitialReferringDomain();
       expect(actualInitialReferringDomain).toStrictEqual(null);
     });
+
+    it('should prefer state value when server-side cookie request is in progress', () => {
+      setDataInCookieStorage({ rl_page_init_referring_domain: 'storage.com' });
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      state.session.initialReferringDomain.value = 'state.com';
+      userSessionManager.serverSideCookiesRequestInProgress.initialReferringDomain = true;
+
+      const actualInitialReferringDomain = userSessionManager.getInitialReferringDomain();
+      expect(actualInitialReferringDomain).toBe('state.com');
+    });
+
+    it('should prefer storage value when no server-side cookie request is in progress', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      // Mock the store to return storage value
+      const getSpy = jest.spyOn(clientDataStoreCookie, 'get').mockReturnValue('storage.com');
+      state.session.initialReferringDomain.value = 'state.com';
+      userSessionManager.serverSideCookiesRequestInProgress.initialReferringDomain = false;
+
+      const actualInitialReferringDomain = userSessionManager.getInitialReferringDomain();
+      expect(actualInitialReferringDomain).toBe('storage.com');
+      getSpy.mockRestore();
+    });
   });
 
   describe('getAuthToken', () => {
@@ -1120,6 +1450,32 @@ describe('User session manager', () => {
       userSessionManager.init();
       const actualAuthToken = userSessionManager.getAuthToken();
       expect(actualAuthToken).toStrictEqual(null);
+    });
+
+    it('should prefer state value when server-side cookie request is in progress', () => {
+      setDataInCookieStorage({ rl_auth_token: 'storage-token-123' });
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      state.session.authToken.value = 'state-token-456';
+      userSessionManager.serverSideCookiesRequestInProgress.authToken = true;
+
+      const actualAuthToken = userSessionManager.getAuthToken();
+      expect(actualAuthToken).toBe('state-token-456');
+    });
+
+    it('should prefer storage value when no server-side cookie request is in progress', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      // Mock the store to return storage value
+      const getSpy = jest.spyOn(clientDataStoreCookie, 'get').mockReturnValue('storage-token-123');
+      state.session.authToken.value = 'state-token-456';
+      userSessionManager.serverSideCookiesRequestInProgress.authToken = false;
+
+      const actualAuthToken = userSessionManager.getAuthToken();
+      expect(actualAuthToken).toBe('storage-token-123');
+      getSpy.mockRestore();
     });
   });
 
@@ -1598,6 +1954,106 @@ describe('User session manager', () => {
       expect(syncValueToStorageSpy).toHaveBeenNthCalledWith(1, 'sessionInfo');
       expect(syncValueToStorageSpy).toHaveBeenNthCalledWith(2, 'sessionInfo');
       expect(syncValueToStorageSpy).toHaveBeenNthCalledWith(3, 'sessionInfo');
+    });
+
+    describe('Race condition with server-side cookie requests', () => {
+      it('should prefer state over storage when cookie request is in progress', () => {
+        state.storage.entries.value = entriesWithOnlyCookieStorage;
+        state.serverCookies.isEnabledServerSideCookies.value = true;
+        userSessionManager.init();
+
+        // Set up initial session in storage
+        const storageSessionInfo = {
+          autoTrack: true,
+          timeout: 10 * 60 * 1000,
+          expiresAt: Date.now() + 5000,
+          id: 1111111111,
+          sessionStart: false,
+        };
+        setDataInCookieStorage({
+          rl_session: storageSessionInfo,
+        });
+
+        // Set different session info in state (simulating a pending update)
+        const stateSessionInfo = {
+          autoTrack: true,
+          timeout: 10 * 60 * 1000,
+          expiresAt: Date.now() + 5000,
+          id: 2222222222,
+          sessionStart: true,
+        };
+        state.session.sessionInfo.value = stateSessionInfo;
+
+        // Mark cookie request as in progress
+        userSessionManager.serverSideCookiesRequestInProgress.sessionInfo = true;
+
+        // Call refreshSession
+        userSessionManager.refreshSession();
+
+        // Should use state value (2222222222) not storage value (1111111111)
+        expect(state.session.sessionInfo.value.id).toBe(2222222222);
+      });
+
+      it('should read from storage when no cookie request is in progress', () => {
+        state.storage.entries.value = entriesWithOnlyCookieStorage;
+        state.serverCookies.isEnabledServerSideCookies.value = true;
+        userSessionManager.init();
+
+        // Set up session in storage
+        const storageSessionInfo = {
+          autoTrack: true,
+          timeout: 10 * 60 * 1000,
+          expiresAt: Date.now() + 5000,
+          id: 1111111111,
+          sessionStart: false,
+        };
+        setDataInCookieStorage({
+          rl_session: storageSessionInfo,
+        });
+
+        // Set different session info in state
+        state.session.sessionInfo.value = {
+          autoTrack: true,
+          timeout: 10 * 60 * 1000,
+          expiresAt: Date.now() + 5000,
+          id: 2222222222,
+          sessionStart: true,
+        };
+
+        // Ensure no cookie request is in progress
+        userSessionManager.serverSideCookiesRequestInProgress.sessionInfo = false;
+
+        // Call refreshSession
+        userSessionManager.refreshSession();
+
+        // Should use storage value (1111111111) not state value (2222222222)
+        expect(state.session.sessionInfo.value.id).toBe(1111111111);
+      });
+
+      it('should handle undefined serverSideCookiesRequestInProgress flag', () => {
+        state.storage.entries.value = entriesWithOnlyCookieStorage;
+        state.serverCookies.isEnabledServerSideCookies.value = true;
+        userSessionManager.init();
+
+        const storageSessionInfo = {
+          autoTrack: true,
+          timeout: 10 * 60 * 1000,
+          expiresAt: Date.now() + 5000,
+          id: 1111111111,
+          sessionStart: false,
+        };
+        setDataInCookieStorage({
+          rl_session: storageSessionInfo,
+        });
+
+        // Don't set the flag at all (undefined)
+        delete userSessionManager.serverSideCookiesRequestInProgress.sessionInfo;
+
+        userSessionManager.refreshSession();
+
+        // Should default to reading from storage
+        expect(state.session.sessionInfo.value.id).toBe(1111111111);
+      });
     });
   });
 
@@ -2392,6 +2848,150 @@ describe('User session manager', () => {
       expect(mockCallback).toHaveBeenCalledTimes(2);
       expect(mockCallback).toHaveBeenNthCalledWith(1, 'cookie1', 'value1');
       expect(mockCallback).toHaveBeenNthCalledWith(2, 'cookie2', { complex: 'object' });
+    });
+
+    describe('serverSideCookiesRequestInProgress flag management', () => {
+      it('should set flag when syncValueToStorage triggers server-side cookie request', done => {
+        state.serverCookies.isEnabledServerSideCookies.value = true;
+        state.storage.entries.value = entriesWithOnlyCookieStorage;
+        state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
+        state.session.anonymousId.value = 'test_anon_id';
+
+        expect(userSessionManager.serverSideCookiesRequestInProgress.anonymousId).toBeFalsy();
+
+        userSessionManager.syncValueToStorage('anonymousId');
+
+        // Flag should be set immediately
+        expect(userSessionManager.serverSideCookiesRequestInProgress.anonymousId).toBe(true);
+
+        setTimeout(() => {
+          // Flag should be cleared after request completes
+          expect(userSessionManager.serverSideCookiesRequestInProgress.anonymousId).toBe(false);
+          done();
+        }, 1000);
+      });
+
+      it('should clear flag after successful server-side cookie set', done => {
+        state.source.value = {
+          workspaceId: 'sample_workspaceId',
+          id: 'sample_source_id',
+          name: 'sample_source_name',
+        };
+        state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
+        state.storage.cookie.value = {
+          maxage: 10 * 60 * 1000,
+          path: '/',
+          domain: 'dummy.dataplane.host.com',
+          samesite: 'Lax',
+        };
+        state.session.anonymousId.value = 'test_value';
+
+        const mockStore = {
+          encrypt: jest.fn(val => `encrypted_${JSON.parse(val)}`),
+          set: jest.fn(),
+          get: jest.fn(() => 'test_value'),
+        };
+
+        // Set flag as in progress
+        userSessionManager.serverSideCookiesRequestInProgress.anonymousId = true;
+
+        userSessionManager.setServerSideCookies(
+          { anonymousId: { name: 'key' } },
+          () => {},
+          mockStore,
+        );
+
+        setTimeout(() => {
+          // Flag should be cleared after successful request
+          expect(userSessionManager.serverSideCookiesRequestInProgress.anonymousId).toBe(false);
+          done();
+        }, 1000);
+      });
+
+      it('should clear flag after failed server-side cookie set', done => {
+        state.source.value = {
+          workspaceId: 'sample_workspaceId',
+          id: 'sample_source_id',
+          name: 'sample_source_name',
+        };
+        state.serverCookies.dataServiceUrl.value =
+          'https://dummy.dataplane.host.com/serverDown/rsaRequest';
+        state.storage.cookie.value = {
+          maxage: 10 * 60 * 1000,
+          path: '/',
+          domain: 'dummy.dataplane.host.com',
+          samesite: 'Lax',
+        };
+        state.session.anonymousId.value = 'test_value';
+
+        const mockStore = {
+          encrypt: jest.fn(val => `encrypted_${JSON.parse(val)}`),
+          set: jest.fn(),
+          get: jest.fn(() => null),
+        };
+
+        // Set flag as in progress
+        userSessionManager.serverSideCookiesRequestInProgress.anonymousId = true;
+
+        userSessionManager.setServerSideCookies(
+          { anonymousId: { name: 'key' } },
+          () => {},
+          mockStore,
+        );
+
+        setTimeout(() => {
+          // Flag should be cleared even after failed request
+          expect(userSessionManager.serverSideCookiesRequestInProgress.anonymousId).toBe(false);
+          done();
+        }, 1000);
+      });
+
+      it('should clear flag when no encrypted data to send', () => {
+        state.session.anonymousId.value = 'test_value';
+
+        const mockStore = {
+          encrypt: jest.fn(() => null), // No encrypted data
+          set: jest.fn(),
+          get: jest.fn(() => 'test_value'),
+        };
+
+        // Set flag as in progress
+        userSessionManager.serverSideCookiesRequestInProgress.anonymousId = true;
+
+        userSessionManager.setServerSideCookies(
+          { anonymousId: { name: 'key' } },
+          () => {},
+          mockStore,
+        );
+
+        // Flag should be cleared immediately when no data to send
+        expect(userSessionManager.serverSideCookiesRequestInProgress.anonymousId).toBe(false);
+      });
+
+      it('should clear flag when error occurs in setServerSideCookies', () => {
+        state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
+        state.session.anonymousId.value = 'test_value';
+
+        const mockStore = {
+          encrypt: jest.fn(() => {
+            throw new Error('Encryption error');
+          }),
+          set: jest.fn(),
+          get: jest.fn(() => 'test_value'),
+        };
+
+        // Set flag as in progress
+        userSessionManager.serverSideCookiesRequestInProgress.anonymousId = true;
+
+        userSessionManager.setServerSideCookies(
+          { anonymousId: { name: 'key' } },
+          () => {},
+          mockStore,
+        );
+
+        // Flag should be cleared even when error occurs
+        expect(userSessionManager.serverSideCookiesRequestInProgress.anonymousId).toBe(false);
+      });
     });
 
     describe('Race condition handling', () => {
