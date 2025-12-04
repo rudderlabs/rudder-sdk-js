@@ -7,6 +7,7 @@ import {
   trackArgumentsToCallOptions,
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
+import { isNonEmptyObject } from '@rudderstack/analytics-js-common/utilities/object';
 import { clone } from 'ramda';
 import type { PreloadedEventCall } from './types';
 import {
@@ -62,13 +63,14 @@ const retrieveEventsFromQueryString = (argumentsArray: PreloadedEventCall[] = []
     ]);
   }
 
-  // Set userId and user traits
-  if (queryObject.get(QUERY_PARAM_USER_ID_KEY)) {
-    argumentsArray.unshift([
-      'identify',
-      queryObject.get(QUERY_PARAM_USER_ID_KEY),
-      getEventDataFromQueryString(queryObject, eventArgumentToQueryParamMap.trait),
-    ]);
+  // Send identify event
+  const userId = queryObject.get(QUERY_PARAM_USER_ID_KEY);
+  const userTraits = getEventDataFromQueryString(queryObject, eventArgumentToQueryParamMap.trait);
+  if (userId || isNonEmptyObject(userTraits)) {
+    // In identify API, user ID is optional
+    const identifyApiArgs = [...(userId ? [userId] : []), userTraits];
+
+    argumentsArray.unshift(['identify', ...identifyApiArgs]);
   }
 
   // Set anonymousID
