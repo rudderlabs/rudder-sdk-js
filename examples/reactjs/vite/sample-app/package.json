@@ -17,14 +17,14 @@
   },
   "dependencies": {
     "@rudderstack/analytics-js": "*",
-    "react": "19.2.0",
-    "react-dom": "19.2.0"
+    "react": "19.2.1",
+    "react-dom": "19.2.1"
   },
   "devDependencies": {
-    "@types/react": "19.2.6",
+    "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
-    "@typescript-eslint/eslint-plugin": "8.47.0",
-    "@typescript-eslint/parser": "8.47.0",
+    "@typescript-eslint/eslint-plugin": "8.48.1",
+    "@typescript-eslint/parser": "8.48.1",
     "@vitejs/plugin-react-swc": "4.2.2",
     "eslint": "9.39.1",
     "eslint-plugin-react": "7.37.5",
@@ -32,7 +32,7 @@
     "eslint-plugin-react-refresh": "0.4.24",
     "globals": "16.5.0",
     "typescript": "5.9.3",
-    "vite": "7.2.4"
+    "vite": "7.2.6"
   },
   "overrides": {
     "brace-expansion": "1.1.12",
