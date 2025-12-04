@@ -92,7 +92,7 @@ class UserSessionManager implements IUserSessionManager {
   logger: ILogger;
   serverSideCookieDebounceFuncs: Record<UserSessionKey, number>;
   /**
-   * Tracks whether the setting the cookies action has been queued or not 1Code has comments. Press enter to view.
+   * Tracks whether a server-side cookie setting request is in progress or not.
    */
   serverSideCookiesRequestInProgress: Record<UserSessionKey, boolean>;
 
