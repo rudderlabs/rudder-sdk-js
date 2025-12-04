@@ -690,11 +690,27 @@ class UserSessionManager implements IUserSessionManager {
   }
 
   /**
+   * Fetches the value for a session key. Preferably from storage, if the server-side
+   * cookies request is not in progress. Otherwise, from the state.
+   * @param sessionKey - The session key to fetch the value for
+   * @returns - The value for the session key
+   */
+  getUserSessionValue<T>(sessionKey: UserSessionKey): Nullable<T> {
+    // If the server-side cookies request is in progress, fetch the value from the state.
+    if (this.serverSideCookiesRequestInProgress[sessionKey]) {
+      return state.session[sessionKey].value as Nullable<T>;
+    }
+
+    // Otherwise, fetch the value from storage.
+    return this.getEntryValue(sessionKey);
+  }
+
+  /**
    * Fetches User Id
    * @returns
    */
   getUserId(): Nullable<string> {
-    return this.getEntryValue('userId');
+    return this.getUserSessionValue<string>('userId');
   }
 
   /**
@@ -702,7 +718,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getUserTraits(): Nullable<ApiObject> {
-    return this.getEntryValue('userTraits');
+    return this.getUserSessionValue<ApiObject>('userTraits');
   }
 
   /**
@@ -710,7 +726,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getGroupId(): Nullable<string> {
-    return this.getEntryValue('groupId');
+    return this.getUserSessionValue<string>('groupId');
   }
 
   /**
@@ -718,7 +734,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getGroupTraits(): Nullable<ApiObject> {
-    return this.getEntryValue('groupTraits');
+    return this.getUserSessionValue<ApiObject>('groupTraits');
   }
 
   /**
@@ -726,7 +742,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getInitialReferrer(): Nullable<string> {
-    return this.getEntryValue('initialReferrer');
+    return this.getUserSessionValue<string>('initialReferrer');
   }
 
   /**
@@ -734,7 +750,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getInitialReferringDomain(): Nullable<string> {
-    return this.getEntryValue('initialReferringDomain');
+    return this.getUserSessionValue<string>('initialReferringDomain');
   }
 
   /**
@@ -742,7 +758,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getSessionInfo(): Nullable<SessionInfo> {
-    return this.getEntryValue('sessionInfo');
+    return this.getUserSessionValue<SessionInfo>('sessionInfo');
   }
 
   /**
@@ -750,7 +766,7 @@ class UserSessionManager implements IUserSessionManager {
    * @returns
    */
   getAuthToken(): Nullable<string> {
-    return this.getEntryValue('authToken');
+    return this.getUserSessionValue<string>('authToken');
   }
 
   /**
@@ -770,13 +786,7 @@ class UserSessionManager implements IUserSessionManager {
    * before using it for building event payloads.
    */
   refreshSession(): void {
-    let initialSessionInfo = this.getSessionInfo();
-    // Prefer session data from state if the cookie requests are in progress
-    if (this.serverSideCookiesRequestInProgress['sessionInfo']) {
-      initialSessionInfo = state.session.sessionInfo.value;
-    }
-
-    let sessionInfo = initialSessionInfo ?? DEFAULT_USER_SESSION_VALUES.sessionInfo;
+    let sessionInfo = this.getSessionInfo() ?? DEFAULT_USER_SESSION_VALUES.sessionInfo;
 
     if (sessionInfo.autoTrack || sessionInfo.manualTrack) {
       if (sessionInfo.autoTrack) {
