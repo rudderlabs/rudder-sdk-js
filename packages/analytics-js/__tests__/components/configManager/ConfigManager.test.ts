@@ -62,6 +62,7 @@ describe('ConfigManager', () => {
   const sampleScriptURL = 'https://www.dummy.url/fromScript/v3/rsa.min.js';
   const lockIntegrationsVersion = false;
   const lockPluginsVersion = false;
+  let activeTimers: Array<NodeJS.Timeout> = [];
 
   beforeAll(() => {
     server.listen();
@@ -73,12 +74,27 @@ describe('ConfigManager', () => {
       defaultErrorHandler,
       defaultLogger,
     );
+    activeTimers = [];
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    // Clear all active timers first
+    activeTimers.forEach(timer => clearTimeout(timer));
+    activeTimers = [];
+    
+    // Wait for any pending HTTP requests to complete
+    // This prevents libuv assertion failures from active I/O watchers
+    await new Promise(resolve => setTimeout(resolve, 50));
+    
+    // Reset MSW handlers and events
     server.resetHandlers();
     server.events.removeAllListeners();
+    
+    // Reset state
     resetState();
+    
+    // Give a final moment for any cleanup to complete
+    await new Promise(resolve => setTimeout(resolve, 10));
   });
 
   afterAll(() => {
@@ -111,17 +127,16 @@ describe('ConfigManager', () => {
     configManagerInstance.processConfig = jest.fn();
 
     const counter = signal(0);
-    server.use(
-      http.get(`${sampleConfigUrl}/sourceConfigClone`, () => {
-        counter.value = 1;
-        return new HttpResponse(JSON.stringify(dummySourceConfigResponse), {
-          status: 200,
-          headers: {
-            'Content-Type': 'application/json; charset=utf-8',
-          },
-        });
-      }),
-    );
+    const handler = http.get(`${sampleConfigUrl}/sourceConfigClone`, () => {
+      counter.value = 1;
+      return new HttpResponse(JSON.stringify(dummySourceConfigResponse), {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+        },
+      });
+    });
+    server.use(handler);
 
     configManagerInstance.getConfig();
 
@@ -129,7 +144,10 @@ describe('ConfigManager', () => {
       if (counter.value === 1) {
         try {
           expect(counter.value).toEqual(1);
-          done();
+          // Wait a tick to ensure HTTP response is fully processed
+          setTimeout(() => {
+            done();
+          }, 0);
         } catch (error) {
           done(error);
         }
@@ -271,10 +289,11 @@ describe('ConfigManager', () => {
     state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}&lockPluginsVersion=${lockPluginsVersion}`;
     configManagerInstance.processConfig = jest.fn();
     configManagerInstance.getConfig();
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       expect(configManagerInstance.processConfig).toHaveBeenCalled();
       done();
     }, 2000);
+    activeTimers.push(timer);
   });
 
   it('should set the data server URL in state if server side cookies feature is enabled', () => {
@@ -392,9 +411,10 @@ describe('ConfigManager', () => {
 
     configManagerInstance.getConfig();
 
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       expect(configManagerInstance.onError).toHaveBeenCalled();
       done();
     }, 1);
+    activeTimers.push(timer);
   });
 });
