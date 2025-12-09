@@ -26,6 +26,7 @@ class Braze {
     this.enableBrazeLogging = config.enableBrazeLogging || false;
     this.allowUserSuppliedJavascript = config.allowUserSuppliedJavascript || false;
     this.enablePushNotification = config.enablePushNotification || false;
+    this.preferredVersion = config.preferredVersion || '5.3';
     if (!config.appKey) this.appKey = '';
     if (this.usePlatformSpecificApiKeys) {
       if (config.webApiKey && typeof config.webApiKey === 'string') {
@@ -94,7 +95,7 @@ class Braze {
   }
 
   init() {
-    loadNativeSdk();
+    loadNativeSdk(this.preferredVersion);
     globalThis.braze.initialize(this.appKey, {
       enableLogging: this.enableBrazeLogging,
       baseUrl: this.endPoint,
