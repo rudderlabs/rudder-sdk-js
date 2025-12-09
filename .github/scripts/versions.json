@@ -1,0 +1,44 @@
+[
+  {
+    "Destination": "Amplitude",
+    "SDK Versions currently referred in Device Mode Destinations": "https://cdn.amplitude.com/libs/analytics-browser-1.9.1-min.js.gz",
+    "Link to check SDK versions documentation": "https://amplitude.com/docs/sdks/analytics/browser https://github.com/amplitude/Amplitude-TypeScript/tags https://github.com/amplitude/Amplitude-TypeScript/tree/main/packages/analytics-browser#installing-via-script-loader",
+    "Latest SDK Version rolled out": "2.32.0",
+    "Sunset Date Current SDK Version": "Version 1.9.1 is in Maintenance phase (at least 12 months from Nov 2025). No specific sunset date announced. Amplitude recommends upgrading to latest version."
+  },
+  {
+    "Destination": "Bing Ads",
+    "SDK Versions currently referred in Device Mode Destinations": "https://bat.bing.com/bat.js",
+    "Link to check SDK versions documentation": "https://help.ads.microsoft.com/#apex/ads/en/56686/2",
+    "Latest SDK Version rolled out": "1.1.3",
+    "Sunset Date Current SDK Version": "Uses bat.js - check Microsoft Ads documentation for updates."
+  },
+  {
+    "Destination": "Braze",
+    "SDK Versions currently referred in Device Mode Destinations": "https://js.appboycdn.com/web-sdk/5.3/braze.min.js",
+    "Link to check SDK versions documentation": "https://github.com/braze-inc/braze-web-sdk/blob/master/CHANGELOG.md https://braze.com/docs/developer_guide/sdk_integration/?tab=braze cdn&sdktab=web",
+    "Latest SDK Version rolled out": "6.4.0",
+    "Sunset Date Current SDK Version": "Latest version is 6.4.0. Current version 5.3 is outdated. Braze recommends keeping SDKs up-to-date. Version 6.x includes breaking changes from 5.x. No specific sunset date announced for version 5.3."
+  },
+  {
+    "Destination": "Iterable",
+    "SDK Versions currently referred in Device Mode Destinations": "https://unpkg.com/@iterable/web-sdk/index.js",
+    "Link to check SDK versions documentation": "https://github.com/Iterable/iterable-web-sdk/releases",
+    "Latest SDK Version rolled out": "2.2.1",
+    "Sunset Date Current SDK Version": "CDN always serves latest version. Check Iterable release notes for deprecation notices."
+  },
+  {
+    "Destination": "Mixpanel",
+    "SDK Versions currently referred in Device Mode Destinations": "https://cdn.mxpnl.com/libs/mixpanel-2-latest.min.js",
+    "Link to check SDK versions documentation": "https://github.com/mixpanel/mixpanel-js/tags https://docs.mixpanel.com/docs/quickstart/install-mixpanel#code",
+    "Latest SDK Version rolled out": "2.72.0",
+    "Sunset Date Current SDK Version": "Mixpanel uses 'latest' CDN - check Mixpanel docs for version info"
+  },
+  {
+    "Destination": "PostHog",
+    "SDK Versions currently referred in Device Mode Destinations": "https://app.posthog.com/static/array.js",
+    "Link to check SDK versions documentation": "https://github.com/PostHog/posthog-js/releases",
+    "Latest SDK Version rolled out": "1.304.0",
+    "Sunset Date Current SDK Version": "CDN always serves latest version. Check PostHog changelog for deprecation notices."
+  }
+]
