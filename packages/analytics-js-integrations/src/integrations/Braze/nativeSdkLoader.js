@@ -1,7 +1,7 @@
 import { LOAD_ORIGIN } from '@rudderstack/analytics-js-legacy-utilities/constants';
 import { BrazeOperationString } from './constants';
 
-const loadNativeSdk = (preferredVersion = '5.3') => {
+const loadNativeSdk = (preferredVersion) => {
   // load braze
   +(function (a, p, P, b, y) {
     a.braze = {};
