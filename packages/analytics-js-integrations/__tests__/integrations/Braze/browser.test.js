@@ -211,6 +211,80 @@ describe('constructor', () => {
     );
     expect(braze.appKey).toBe('APP_KEY');
   });
+
+  describe('preferredVersion configuration', () => {
+    it('should use the provided valid preferredVersion', () => {
+      const config = {
+        appKey: 'APP_KEY',
+        preferredVersion: '4.5.0',
+      };
+      const analytics = {};
+      const destinationInfo = {};
+
+      const braze = new Braze(config, analytics, destinationInfo);
+      expect(braze.preferredVersion).toBe('4.5.0');
+      expect(warnMock).not.toHaveBeenCalled();
+    });
+
+    it('should use default version when preferredVersion is not provided', () => {
+      const config = {
+        appKey: 'APP_KEY',
+      };
+      const analytics = {};
+      const destinationInfo = {};
+
+      const braze = new Braze(config, analytics, destinationInfo);
+      expect(braze.preferredVersion).toBe('5.3');
+    });
+
+    it('should warn and fallback to default when preferredVersion is not a string', () => {
+      const config = {
+        appKey: 'APP_KEY',
+        preferredVersion: 123,
+      };
+      const analytics = {};
+      const destinationInfo = {};
+
+      const braze = new Braze(config, analytics, destinationInfo);
+      expect(warnMock).toHaveBeenCalledWith(
+        'Invalid preferredVersion format, falling back to default version:',
+        '5.3',
+      );
+      expect(braze.preferredVersion).toBe('5.3');
+    });
+
+    it('should warn and fallback to default when preferredVersion contains invalid characters', () => {
+      const config = {
+        appKey: 'APP_KEY',
+        preferredVersion: '5.3-beta',
+      };
+      const analytics = {};
+      const destinationInfo = {};
+
+      const braze = new Braze(config, analytics, destinationInfo);
+      expect(warnMock).toHaveBeenCalledWith(
+        'Invalid preferredVersion format, falling back to default version:',
+        '5.3',
+      );
+      expect(braze.preferredVersion).toBe('5.3');
+    });
+
+    it('should warn and fallback to default when preferredVersion contains url-like characters', () => {
+      const config = {
+        appKey: 'APP_KEY',
+        preferredVersion: '/unrelated-uri/',
+      };
+      const analytics = {};
+      const destinationInfo = {};
+
+      const braze = new Braze(config, analytics, destinationInfo);
+      expect(warnMock).toHaveBeenCalledWith(
+        'Invalid preferredVersion format, falling back to default version:',
+        '5.3',
+      );
+      expect(braze.preferredVersion).toBe('5.3');
+    });
+  });
 });
 
 describe('init', () => {

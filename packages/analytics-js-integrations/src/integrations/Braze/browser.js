@@ -10,6 +10,7 @@ import { handlePurchase, formatGender, handleReservedProperties } from './utils'
 import { loadNativeSdk } from './nativeSdkLoader';
 
 const logger = new Logger(DISPLAY_NAME);
+const DEFAULT_PREFERRED_VERSION = '5.3';
 
 /*
 E-commerce support required for logPurchase support & other e-commerce events as track with productId changed
@@ -26,7 +27,12 @@ class Braze {
     this.enableBrazeLogging = config.enableBrazeLogging || false;
     this.allowUserSuppliedJavascript = config.allowUserSuppliedJavascript || false;
     this.enablePushNotification = config.enablePushNotification || false;
-    this.preferredVersion = config.preferredVersion || '5.3';
+    if (config.preferredVersion && (!/^[\d.]+$/.test(config.preferredVersion) || typeof config.preferredVersion !== 'string')) {
+      logger.warn('Invalid preferredVersion format, falling back to default version:', DEFAULT_PREFERRED_VERSION);
+      this.preferredVersion = DEFAULT_PREFERRED_VERSION;
+    } else {
+      this.preferredVersion = config.preferredVersion || DEFAULT_PREFERRED_VERSION;
+    }
     if (!config.appKey) this.appKey = '';
     if (this.usePlatformSpecificApiKeys) {
       if (config.webApiKey && typeof config.webApiKey === 'string') {
