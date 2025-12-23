@@ -1,53 +1,27 @@
-// Linear API helper for @audit.md workflow to create and manage Linear tickets using the Linear GraphQL API
-
-const axios = require('axios');
+// Linear API helper for Integration SDK Version Audit workflow
+// Reference implementation using @linear/sdk
 
 const LINEAR_API_KEY = process.env.LINEAR_API_KEY;
 const LINEAR_TEAM_ID = process.env.LINEAR_TEAM_ID;
 
 if (!LINEAR_API_KEY) {
-  console.error('LINEAR_API_KEY is required');
-  process.exit(1);
+  throw new Error('LINEAR_API_KEY environment variable is required');
 }
 if (!LINEAR_TEAM_ID) {
-  console.error('LINEAR_TEAM_ID is required');
-  process.exit(1);
+  throw new Error('LINEAR_TEAM_ID environment variable is required');
 }
 
-const linearClient = axios.create({
-  baseURL: 'https://api.linear.app',
-  headers: {
-    Authorization: LINEAR_API_KEY,
-    'Content-Type': 'application/json',
-  },
-  timeout: 30000, // 30 seconds
-});
+const { LinearClient } = require('@linear/sdk');
+const linearClient = new LinearClient({ apiKey: LINEAR_API_KEY });
 
 async function getStateId(stateName, teamId) {
-  const query = `
-    query GetState($teamId: String!) {
-      team(id: $teamId) {
-        states {
-          nodes {
-            id
-            name
-            type
-          }
-        }
-      }
-    }
-  `;
-
   try {
-    const res = await linearClient.post('/graphql', { query, variables: { teamId } });
-    if (res.data.errors) {
-      throw new Error(`Linear GraphQL error: ${JSON.stringify(res.data.errors)}`);
-    }
-    const states = res.data.data.team.states.nodes;
-    const state = states.find((s) => s.name.toLowerCase() === stateName.toLowerCase());
+    const team = await linearClient.team(teamId);
+    const states = await team.states();
+    const state = states.nodes.find((s) => s.name.toLowerCase() === stateName.toLowerCase());
     if (!state) {
       console.warn(
-        `State "${stateName}" not found. Available states: ${states.map((s) => s.name).join(', ')}`,
+        `State "${stateName}" not found. Available states: ${states.nodes.map((s) => s.name).join(', ')}`,
       );
       return null;
     }
@@ -59,27 +33,9 @@ async function getStateId(stateName, teamId) {
 }
 
 async function getCurrentUserId() {
-  const query = `
-    query {
-      viewer {
-        id
-        name
-        email
-      }
-    }
-  `;
-
   try {
-    const res = await linearClient.post('/graphql', { query });
-    if (res.data.errors) {
-      throw new Error(`Linear GraphQL error: ${JSON.stringify(res.data.errors)}`);
-    }
-    const viewer = res.data.data.viewer;
-    if (!viewer || !viewer.id) {
-      console.warn('Could not retrieve current user ID from viewer.');
-      return null;
-    }
-    return viewer.id;
+    const viewer = await linearClient.viewer;
+    return viewer?.id || null;
   } catch (error) {
     console.error('Error fetching current user ID:', error.message);
     return null;
@@ -87,36 +43,15 @@ async function getCurrentUserId() {
 }
 
 async function getUserId(userName) {
-  const query = `
-    query GetUsers {
-      users {
-        nodes {
-          id
-          name
-          email
-          displayName
-        }
-      }
-    }
-  `;
-
   try {
-    const res = await linearClient.post('/graphql', { query });
-    if (res.data.errors) {
-      throw new Error(`Linear GraphQL error: ${JSON.stringify(res.data.errors)}`);
-    }
-    const users = res.data.data.users.nodes;
-    const user = users.find(
+    const users = await linearClient.users();
+    const user = users.nodes.find(
       (u) =>
         u.name?.toLowerCase().includes(userName.toLowerCase()) ||
         u.displayName?.toLowerCase().includes(userName.toLowerCase()) ||
         u.email?.toLowerCase().includes(userName.toLowerCase()),
     );
-    if (!user) {
-      console.warn(`User "${userName}" not found.`);
-      return null;
-    }
-    return user.id;
+    return user?.id || null;
   } catch (error) {
     console.error(`Error fetching user ID for "${userName}":`, error.message);
     return null;
@@ -124,28 +59,10 @@ async function getUserId(userName) {
 }
 
 async function getCurrentCycleId(teamId) {
-  const query = `
-    query GetCurrentCycle($teamId: String!) {
-      team(id: $teamId) {
-        activeCycle {
-          id
-          name
-        }
-      }
-    }
-  `;
-
   try {
-    const res = await linearClient.post('/graphql', { query, variables: { teamId } });
-    if (res.data.errors) {
-      throw new Error(`Linear GraphQL error: ${JSON.stringify(res.data.errors)}`);
-    }
-    const activeCycle = res.data.data.team.activeCycle;
-    if (!activeCycle) {
-      console.warn('No active cycle found for team.');
-      return null;
-    }
-    return activeCycle.id;
+    const team = await linearClient.team(teamId);
+    const cycle = await team.activeCycle;
+    return cycle?.id || null;
   } catch (error) {
     console.error('Error fetching current cycle ID:', error.message);
     return null;
@@ -164,114 +81,80 @@ async function createIssue({
   cycleId,
   projectId,
 }) {
-  const mutation = `
-    mutation CreateIssue($input: IssueCreateInput!) {
-      issueCreate(input: $input) {
-        success
-        issue {
-          id
-          identifier
-          title
-          url
-        }
-      }
-    }
-  `;
-
-  const variables = {
-    input: {
+  try {
+    const result = await linearClient.createIssue({
+      teamId: LINEAR_TEAM_ID,
       title,
       description,
-      teamId: LINEAR_TEAM_ID,
-      parentId: parentId,
-      priority: priority ?? 3,
-      labelIds: labelIds,
-      dueDate: dueDate,
-      stateId: stateId,
-      assigneeId: assigneeId,
-      cycleId: cycleId,
-      projectId: projectId,
-    },
-  };
-
-  try {
-    const res = await linearClient.post('/graphql', { query: mutation, variables });
-    if (res.data.errors) {
-      throw new Error(`Linear GraphQL error: ${JSON.stringify(res.data.errors)}`);
+      parentId,
+      priority,
+      labelIds,
+      dueDate,
+      stateId,
+      assigneeId,
+      cycleId,
+      projectId,
+    });
+    // Linear SDK createIssue returns { _issue: { id }, success, lastSyncId }
+    // Check if result has an 'issue' property (promise/getter) or use _issue.id
+    const issueId = result.issue ? (await result.issue).id : result._issue?.id || result.id;
+    if (!issueId) {
+      throw new Error('Failed to create issue: no issue ID returned');
     }
-    return res.data.data.issueCreate.issue;
+    // Fetch full issue details to get identifier, title, url
+    const issue = await linearClient.issue(issueId);
+    return {
+      id: issue.id,
+      identifier: issue.identifier,
+      title: issue.title,
+      url: issue.url,
+    };
   } catch (error) {
-    if (error.response) {
-      throw new Error(
-        `Linear API error (${error.response.status}): ${JSON.stringify(error.response.data)}`,
-      );
-    }
+    console.error('Error creating issue:', error.message);
     throw error;
   }
 }
 
 async function listIssuesByParent(parentId, limit = 250) {
-  const query = `
-    query IssuesByParent($parentId: ID!, $first: Int!) {
-      issues(filter: { parent: { id: { eq: $parentId } } }, first: $first) {
-        nodes {
-          id
-          identifier
-          title
-          priority
-          url
-          dueDate
-          state { name }
-        }
-      }
-    }
-  `;
-
-  const variables = { parentId, first: limit };
   try {
-    const res = await linearClient.post('/graphql', { query, variables });
-    if (res.data.errors) {
-      throw new Error(`Linear GraphQL error: ${JSON.stringify(res.data.errors)}`);
-    }
-    return res.data.data.issues.nodes;
+    const issues = await linearClient.issues({
+      filter: { parent: { id: { eq: parentId } } },
+      first: limit,
+    });
+    return Promise.all(issues.nodes.map(async (issue) => {
+      const state = await issue.state;
+      return {
+        id: issue.id,
+        identifier: issue.identifier,
+        title: issue.title,
+        priority: issue.priority,
+        url: issue.url,
+        dueDate: issue.dueDate,
+        state: { name: state?.name },
+      };
+    }));
   } catch (error) {
-    if (error.response) {
-      throw new Error(
-        `Linear API error (${error.response.status}): ${JSON.stringify(error.response.data)}`,
-      );
-    }
+    console.error(`Error listing issues by parent "${parentId}":`, error.message);
     throw error;
   }
 }
 
 async function updateIssueDescription(issueId, description) {
-  const mutation = `
-    mutation UpdateIssue($id: String!, $description: String!) {
-      issueUpdate(id: $id, input: { description: $description }) {
-        success
-        issue {
-          id
-          identifier
-          title
-          url
-        }
-      }
-    }
-  `;
-
-  const variables = { id: issueId, description };
   try {
-    const res = await linearClient.post('/graphql', { query: mutation, variables });
-    if (res.data.errors) {
-      throw new Error(`Linear GraphQL error: ${JSON.stringify(res.data.errors)}`);
-    }
-    return res.data.data.issueUpdate.issue;
+    const result = await linearClient.updateIssue(issueId, { description });
+    // Linear SDK updateIssue returns { _issue: { id }, success, lastSyncId }
+    // Check if result has an 'issue' property (promise/getter) or use _issue.id
+    const updatedIssueId = result.issue ? (await result.issue).id : result._issue?.id || result.id || issueId;
+    // Fetch full issue details to get identifier, title, url
+    const issue = await linearClient.issue(updatedIssueId);
+    return {
+      id: issue.id,
+      identifier: issue.identifier,
+      title: issue.title,
+      url: issue.url,
+    };
   } catch (error) {
-    if (error.response) {
-      throw new Error(
-        `Linear API error (${error.response.status}): ${JSON.stringify(error.response.data)}`,
-      );
-    }
+    console.error(`Error updating issue description for "${issueId}":`, error.message);
     throw error;
   }
 }
