@@ -3,12 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@ninetailed/experience.js": "7.18.7",
+    "@ninetailed/experience.js": "7.18.9",
     "@testing-library/jest-dom": "6.9.1",
-    "@testing-library/react": "16.3.0",
+    "@testing-library/react": "16.3.1",
     "@testing-library/user-event": "14.6.1",
-    "react": "19.2.1",
-    "react-dom": "19.2.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
     "react-scripts": "5.0.1",
     "web-vitals": "5.1.0"
   },
