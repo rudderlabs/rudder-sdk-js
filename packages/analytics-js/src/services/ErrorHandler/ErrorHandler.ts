@@ -144,16 +144,15 @@ class ErrorHandler implements IErrorHandler {
             severityReason: { type: errorType },
           };
 
-          // Set grouping hash only for CDN installations (as an experiment)
-          // This will allow us to group errors by the message instead of the surrounding code.
-          // In case of NPM installations, the default grouping by surrounding code does not make sense as each user application is different.
+          // This will allow custom grouping of errors.
+          // In case of NPM installations, the default grouping by surrounding code
+          // does not make sense as each user application is different and will create a lot of noise in the alerts.
           // References:
           // https://docs.bugsnag.com/platforms/javascript/customizing-error-reports/#groupinghash
           // https://docs.bugsnag.com/product/error-grouping/#user_defined
           const normalizedGroupingHash = getErrorGroupingHash(
             groupingHash,
             bsException.message,
-            state,
             this.logger,
           );
 
