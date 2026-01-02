@@ -292,13 +292,9 @@ const getErrorDeliveryPayload = (
 const getErrorGroupingHash = (
   curErrGroupingHash: undefined | string | SDKError,
   defaultGroupingHash: string,
-  state: ApplicationState,
   logger: ILogger,
 ) => {
   let normalizedGroupingHash: string | undefined;
-  if (state.context.app.value.installType !== 'cdn') {
-    return normalizedGroupingHash;
-  }
 
   if (!isDefined(curErrGroupingHash)) {
     normalizedGroupingHash = defaultGroupingHash;

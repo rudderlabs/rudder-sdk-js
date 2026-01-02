@@ -336,35 +336,6 @@ describe('ErrorHandler', () => {
         'Test:: Sample custom message - dummy error',
       );
     });
-
-    it('should not generate grouping hash for non-CDN installations', async () => {
-      // @ts-expect-error for testing
-      state.context.app.value.installType = 'npm';
-      state.reporting.isErrorReportingEnabled.value = true;
-
-      const getBugsnagErrorEventSpy = jest.spyOn(
-        require('../../../src/services/ErrorHandler/utils'),
-        'getBugsnagErrorEvent',
-      );
-
-      const error = new Error('dummy error');
-      error.stack =
-        'Error: Test:: dummy error\n    at Object.<anonymous> (https://cdn.rudderlabs.com/v3/modern/rsa.min.js:1:1)';
-
-      await errorHandlerInstance.onError({
-        error,
-        context: 'Test',
-        customMessage: 'Sample custom message',
-      });
-
-      expect(getBugsnagErrorEventSpy).toHaveBeenCalledTimes(1);
-      expect(getBugsnagErrorEventSpy).toHaveBeenCalledWith(
-        expect.anything(),
-        expect.anything(),
-        expect.anything(),
-        undefined,
-      );
-    });
   });
 
   describe('CSP violation errors handling', () => {
