@@ -144,9 +144,9 @@ class ErrorHandler implements IErrorHandler {
             severityReason: { type: errorType },
           };
 
-          // This will allow us to group errors by the message instead of the surrounding code.
+          // This will allow custom grouping of errors.
           // In case of NPM installations, the default grouping by surrounding code
-          // does not make sense as each user application is different. This will create a lot of noise in the alerts.
+          // does not make sense as each user application is different and will create a lot of noise in the alerts.
           // References:
           // https://docs.bugsnag.com/platforms/javascript/customizing-error-reports/#groupinghash
           // https://docs.bugsnag.com/product/error-grouping/#user_defined

@@ -279,13 +279,11 @@ const getErrorDeliveryPayload = (
 
 /**
  * A function to get the grouping hash value to be used for the error event.
- * Grouping hash is suppressed for non-cdn installs.
  * If the grouping hash is an error instance, the normalized error message is used as the grouping hash.
  * If the grouping hash is an empty string or not specified, the default grouping hash is used.
  * If the grouping hash is a string, it is used as is.
  * @param curErrGroupingHash The grouping hash value part of the error event
  * @param defaultGroupingHash The default grouping hash value. It is the error message.
- * @param state The application state
  * @param logger The logger instance
  * @returns The final grouping hash value to be used for the error event
  */
