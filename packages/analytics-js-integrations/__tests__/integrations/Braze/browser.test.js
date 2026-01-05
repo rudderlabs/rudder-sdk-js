@@ -88,7 +88,7 @@ describe('constructor', () => {
     expect(braze.trackAnonymousUser).toEqual(undefined);
     expect(braze.enableBrazeLogging).toEqual(false);
     expect(braze.allowUserSuppliedJavascript).toEqual(false);
-    expect(braze.appKey).toEqual('APP_KEY');
+    expect(braze.appIdentifierKey).toEqual('APP_KEY');
   });
   it('should set the log level if provided', () => {
     const config = { logLevel: 'debug', dataCenter: 'eu' };
@@ -100,7 +100,7 @@ describe('constructor', () => {
     expect(braze.trackAnonymousUser).toEqual(undefined);
     expect(braze.enableBrazeLogging).toEqual(false);
     expect(braze.allowUserSuppliedJavascript).toEqual(false);
-    expect(braze.appKey).toEqual('');
+    expect(braze.appIdentifierKey).toEqual('');
   });
   // Add more tests for the constructor if needed
 
@@ -191,7 +191,7 @@ describe('constructor', () => {
 
     expect(braze.usePlatformSpecificApiKeys).toBe(true);
     expect(warnMock).not.toHaveBeenCalled();
-    expect(braze.appKey).toBe('WEB_KEY');
+    expect(braze.appIdentifierKey).toBe('WEB_KEY');
   });
 
   it('should log warn and fallback to configured app key when web app key is invalid', () => {
@@ -206,10 +206,9 @@ describe('constructor', () => {
     const braze = new Braze(config, analytics, destinationInfo);
 
     expect(warnMock).toHaveBeenCalledWith(
-      'Configured to use platform specific api key but the web api key is not valid:',
-      12345,
+      'Configured to use platform-specific app identifier key but the web app identifier key (12345) is not valid. Using the default app identifier key instead.',
     );
-    expect(braze.appKey).toBe('APP_KEY');
+    expect(braze.appIdentifierKey).toBe('APP_KEY');
   });
 });
 
