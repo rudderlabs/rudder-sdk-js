@@ -16,7 +16,7 @@
   "dependencies": {
     "@rudderstack/analytics-js": "*",
     "@tailwindcss/postcss": "4.1.17",
-    "next": "16.0.7",
+    "next": "16.0.10",
     "react": "19.2.1",
     "react-dom": "19.2.1"
   },
