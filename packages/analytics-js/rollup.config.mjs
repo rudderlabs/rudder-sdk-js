@@ -26,8 +26,9 @@ const baseCdnUrl = process.env.BASE_CDN_URL ? process.env.BASE_CDN_URL.replace(/
 const isLegacyBuild = process.env.BROWSERSLIST_ENV !== 'modern';
 const additionalWatchPaths = isLegacyBuild ? ['../analytics-js-plugins/src/**', '../analytics-js-common/src/**'] : [];
 const variantSubfolder = isLegacyBuild ? '/legacy' : '/modern';
-const bundledPluginsList = process.env.BUNDLED_PLUGINS;
-const isDynamicCustomBuild = Boolean(bundledPluginsList);
+const isCloudOnlyBuild = process.env.CLOUD_ONLY_BUILD === 'true';
+let bundledPluginsList = process.env.BUNDLED_PLUGINS;
+const isDynamicCustomBuild = Boolean(bundledPluginsList) || isCloudOnlyBuild;
 const bundleAllPlugins = isLegacyBuild || bundledPluginsList === 'all';
 const isContentScriptBuild = process.env.NO_EXTERNAL_HOST;
 const isModuleFederatedBuild = !isDynamicCustomBuild && !isLegacyBuild;
@@ -61,6 +62,8 @@ if (isContentScriptBuild) {
 // Set paths for other bundling variant named exports contents
 if (isContentScriptBuild) {
   outDirNpm = `${outDirNpm}/content-script`;
+} else if (isCloudOnlyBuild) {
+  outDirNpm = `${outDirNpm}/cloud-only`;
 } else if (isDynamicCustomBuild) {
   outDirNpm = `${outDirNpm}/bundled`;
 }
@@ -77,6 +80,14 @@ const getExternalsConfig = () => {
   }
 
   if (bundledPluginsList === 'all') {
+    return externalGlobalsConfig;
+  }
+
+  // Cloud-only build: exclude all device mode related plugins
+  if (isCloudOnlyBuild) {
+    externalGlobalsConfig['@rudderstack/analytics-js-plugins/deviceModeDestinations'] = '{}';
+    externalGlobalsConfig['@rudderstack/analytics-js-plugins/deviceModeTransformation'] = '{}';
+    externalGlobalsConfig['@rudderstack/analytics-js-plugins/nativeDestinationQueue'] = '{}';
     return externalGlobalsConfig;
   }
 
@@ -143,7 +154,9 @@ const getExternalsConfig = () => {
 
 // Output in console to assist debugging bundle builds
 const configSummaryOutput = () => {
-  if (isDynamicCustomBuild) {
+  if (isCloudOnlyBuild) {
+    console.log(`Cloud-Only Bundle. Excluding device mode plugins.`);
+  } else if (isDynamicCustomBuild) {
     console.log(`Custom Bundle. Including plugins: ${bundledPluginsList}`);
   }
 

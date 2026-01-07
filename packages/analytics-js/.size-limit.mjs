@@ -121,4 +121,40 @@ export default [
     import: '*',
     limit: '41.5 KiB',
   },
+  {
+    name: 'Core (Cloud-Only) - Legacy - NPM (ESM)',
+    path: 'dist/npm/legacy/cloud-only/esm/index.mjs',
+    import: '*',
+    limit: '50 KiB',
+  },
+  {
+    name: 'Core (Cloud-Only) - Legacy - NPM (CJS)',
+    path: 'dist/npm/legacy/cloud-only/cjs/index.cjs',
+    import: '*',
+    limit: '50 KiB',
+  },
+  {
+    name: 'Core (Cloud-Only) - Legacy - NPM (UMD)',
+    path: 'dist/npm/legacy/cloud-only/umd/index.js',
+    import: '*',
+    limit: '50 KiB',
+  },
+  {
+    name: 'Core (Cloud-Only) - Modern - NPM (ESM)',
+    path: 'dist/npm/modern/cloud-only/esm/index.mjs',
+    import: '*',
+    limit: '41.5 KiB',
+  },
+  {
+    name: 'Core (Cloud-Only) - Modern - NPM (CJS)',
+    path: 'dist/npm/modern/cloud-only/cjs/index.cjs',
+    import: '*',
+    limit: '41.5 KiB',
+  },
+  {
+    name: 'Core (Cloud-Only) - Modern - NPM (UMD)',
+    path: 'dist/npm/modern/cloud-only/umd/index.js',
+    import: '*',
+    limit: '41.5 KiB',
+  },
 ];
