@@ -72,26 +72,26 @@
         "default": "./dist/npm/legacy/content-script/esm/index.mjs"
       }
     },
-    "./cloud-only": {
+    "./lite": {
       "types": "./dist/npm/index.d.mts",
       "require": {
         "types": "./dist/npm/index.d.cts",
-        "default": "./dist/npm/modern/cloud-only/cjs/index.cjs"
+        "default": "./dist/npm/modern/lite/cjs/index.cjs"
       },
       "import": {
         "types": "./dist/npm/index.d.mts",
-        "default": "./dist/npm/modern/cloud-only/esm/index.mjs"
+        "default": "./dist/npm/modern/lite/esm/index.mjs"
       }
     },
-    "./legacy-cloud-only": {
+    "./legacy-lite": {
       "types": "./dist/npm/index.d.mts",
       "require": {
         "types": "./dist/npm/index.d.cts",
-        "default": "./dist/npm/legacy/cloud-only/cjs/index.cjs"
+        "default": "./dist/npm/legacy/lite/cjs/index.cjs"
       },
       "import": {
         "types": "./dist/npm/index.d.mts",
-        "default": "./dist/npm/legacy/cloud-only/esm/index.mjs"
+        "default": "./dist/npm/legacy/lite/esm/index.mjs"
       }
     }
   },
@@ -136,14 +136,14 @@
     "build:browser": "rollup -c --environment VERSION:$npm_package_version,UGLIFY,PROD_DEBUG,ENV:prod",
     "build:browser:dev": "rollup -c --environment PROD_DEBUG",
     "build:browser:modern": "BROWSERSLIST_ENV=modern npm run build:browser",
-    "build:package": "npm run build:npm && npm run build:npm:bundled && npm run build:npm:content-script && npm run build:npm:cloud-only",
-    "build:package:modern": "npm run build:npm:modern && npm run build:npm:bundled:modern && npm run build:npm:content-script:modern && npm run build:npm:cloud-only:modern",
+    "build:package": "npm run build:npm && npm run build:npm:bundled && npm run build:npm:content-script && npm run build:npm:lite",
+    "build:package:modern": "npm run build:npm:modern && npm run build:npm:bundled:modern && npm run build:npm:content-script:modern && npm run build:npm:lite:modern",
     "build:npm": "rollup -c --environment VERSION:$npm_package_version,ENV:prod,MODULE_TYPE:npm",
     "build:npm:modern": "BROWSERSLIST_ENV=modern npm run build:npm",
     "build:npm:bundled": "BUNDLED_PLUGINS=all npm run build:npm",
     "build:npm:bundled:modern": "BUNDLED_PLUGINS=all npm run build:npm:modern",
-    "build:npm:cloud-only": "CLOUD_ONLY_BUILD=true npm run build:npm",
-    "build:npm:cloud-only:modern": "CLOUD_ONLY_BUILD=true npm run build:npm:modern",
+    "build:npm:lite": "LITE_BUILD=true npm run build:npm",
+    "build:npm:lite:modern": "LITE_BUILD=true npm run build:npm:modern",
     "build:npm:content-script": "BUNDLED_PLUGINS=all NO_EXTERNAL_HOST=true npm run build:npm",
     "build:npm:content-script:modern": "BUNDLED_PLUGINS=all NO_EXTERNAL_HOST=true npm run build:npm:modern",
     "test": "nx test --maxWorkers=50%",
