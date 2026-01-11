@@ -29,7 +29,7 @@ const variantSubfolder = isLegacyBuild ? '/legacy' : '/modern';
 const isLiteBuild = process.env.LITE_BUILD === 'true';
 let bundledPluginsList = process.env.BUNDLED_PLUGINS;
 const isDynamicCustomBuild = Boolean(bundledPluginsList) || isLiteBuild;
-const bundleAllPlugins = isLegacyBuild || bundledPluginsList === 'all';
+const bundleAllPlugins = (isLegacyBuild && !isLiteBuild) || bundledPluginsList === 'all';
 const isContentScriptBuild = process.env.NO_EXTERNAL_HOST;
 const isModuleFederatedBuild = !isDynamicCustomBuild && !isLegacyBuild;
 const sourceMapType =
