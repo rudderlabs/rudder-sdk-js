@@ -2,8 +2,13 @@ name: Debug OIDC Token
 
 on:
   workflow_call:
-  workflow_dispatch:
-  push:
+    secrets:
+      AWS_DEV_ACCOUNT_ID:
+        required: true
+      AWS_DEV_S3_BUCKET_NAME:
+        required: true
+      AWS_DEV_S3_SYNC_ROLE:
+        required: true
 
 permissions:
   id-token: write
