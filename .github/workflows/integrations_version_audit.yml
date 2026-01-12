@@ -1,0 +1,45 @@
+name: Integration SDK Version Audit
+
+on:
+  schedule:
+    - cron: '0 9 1 * *' # Run monthly on the 1st at 9 AM UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: Run Integration SDK Version Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+        with:
+          egress-policy: audit
+
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+      - name: Install Cursor CLI
+        run: |
+          curl https://cursor.com/install -fsS | bash
+          echo "$HOME/.cursor/bin" >> $GITHUB_PATH
+
+      - name: Run Integration SDK Version Audit and Create Linear Tickets
+        env:
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+          LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
+          LINEAR_TEAM_ID: ${{ secrets.LINEAR_TEAM_ID }}
+        run: |
+          cursor-agent -p "⚠️ CRITICAL REQUIREMENTS:
+          1. Follow the plan in @.github/scripts/integrations_version_audit_plan.md
+          2. You MUST create Linear tickets DIRECTLY using Linear API calls during this execution
+          3. DO NOT create any script files (no .js files, no audit.js, no integrations_version_audit.js)
+          4. Read @.github/scripts/linearApi.js to understand the API structure
+          5. Make Linear API calls directly using your capabilities to create tickets immediately after analysis
+          6. Your output MUST include actual Linear ticket URLs (like https://linear.app/...)
+          7. If you create a script file instead of creating tickets, the task has FAILED
+
+          Execute the audit plan: analyze integrations, then immediately create Linear tickets using direct API calls. Include ticket URLs in your final output." --force

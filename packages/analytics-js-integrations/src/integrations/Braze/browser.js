@@ -20,20 +20,19 @@ class Braze {
       logger.setLogLevel(analytics.logLevel);
     }
     this.analytics = analytics;
-    this.appKey = config.appKey;
+    this.appIdentifierKey = config.appKey;
     this.usePlatformSpecificApiKeys = config.usePlatformSpecificApiKeys === true;
     this.trackAnonymousUser = config.trackAnonymousUser;
     this.enableBrazeLogging = config.enableBrazeLogging || false;
     this.allowUserSuppliedJavascript = config.allowUserSuppliedJavascript || false;
     this.enablePushNotification = config.enablePushNotification || false;
-    if (!config.appKey) this.appKey = '';
+    if (!config.appKey) this.appIdentifierKey = '';
     if (this.usePlatformSpecificApiKeys) {
       if (config.webApiKey && typeof config.webApiKey === 'string') {
-        this.appKey = config.webApiKey;
+        this.appIdentifierKey = config.webApiKey;
       } else {
         logger.warn(
-          'Configured to use platform specific api key but the web api key is not valid:',
-          config.webApiKey,
+          `Configured to use platform-specific app identifier key but the web app identifier key (${config.webApiKey}) is not valid. Using the default app identifier key instead.`,
         );
       }
     }
@@ -95,7 +94,7 @@ class Braze {
 
   init() {
     loadNativeSdk();
-    globalThis.braze.initialize(this.appKey, {
+    globalThis.braze.initialize(this.appIdentifierKey, {
       enableLogging: this.enableBrazeLogging,
       baseUrl: this.endPoint,
       allowUserSuppliedJavascript: this.allowUserSuppliedJavascript,

@@ -21,7 +21,7 @@ jobs:
       affected_projects: ${{ steps.check_affected.outputs.affected_projects }}
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@df199fb7be9f65074067a9eb93f12bb4c5547cf2 # v2.13.3
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
         with:
           egress-policy: audit
 
@@ -32,7 +32,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Node
-        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
@@ -56,7 +56,7 @@ jobs:
     needs: get-affected-projects
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@df199fb7be9f65074067a9eb93f12bb4c5547cf2 # v2.13.3
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
         with:
           egress-policy: audit
 
@@ -67,7 +67,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Node
-        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
@@ -96,7 +96,7 @@ jobs:
     needs: get-affected-projects
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@df199fb7be9f65074067a9eb93f12bb4c5547cf2 # v2.13.3
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
         with:
           egress-policy: audit
 
@@ -107,7 +107,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Setup Node
-        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
@@ -138,7 +138,7 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@df199fb7be9f65074067a9eb93f12bb4c5547cf2 # v2.13.3
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
         with:
           egress-policy: audit
 
@@ -149,7 +149,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Setup Node
-        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
