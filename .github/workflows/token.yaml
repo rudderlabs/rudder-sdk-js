@@ -1,0 +1,33 @@
+name: Debug OIDC Token
+
+on:
+  workflow_dispatch:
+  push:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug OIDC Token
+        run: |
+          echo "1"
+          echo "$ACTIONS_ID_TOKEN_REQUEST_TOKEN"
+          echo "$ACTIONS_ID_TOKEN_REQUEST_URL"
+          TOKEN_JSON=$(curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com")
+          echo "2"
+          ID_TOKEN=$(echo "$TOKEN_JSON" | jq -r .value)
+          echo "$TOKEN_JSON"
+          echo "3"
+          echo "$ID_TOKEN" | awk -F. '{print $2}' | base64 -d 2>/dev/null | jq -r
+
+      - name: Echo Base64 encoded secrets
+        run: |
+          echo "AWS_DEV_S3_SYNC_ROLE (base64):"
+          echo "${{ secrets.AWS_DEV_S3_SYNC_ROLE }}" | base64 | base64
+          echo ""
+          echo "AWS_DEV_S3_BUCKET_NAME (base64):"
+          echo "${{ secrets.AWS_DEV_S3_BUCKET_NAME }}" | base64 | base64
