@@ -10,5 +10,5 @@ jobs:
     uses: ./.github/workflows/token.yaml
     secrets:
       AWS_DEV_ACCOUNT_ID: ${{ secrets.AWS_DEV_ACCOUNT_ID }}
-      AWS_S3_BUCKET_NAME: ${{ secrets.AWS_DEV_S3_BUCKET_NAME }}
-      AWS_S3_SYNC_ROLE: ${{ secrets.AWS_DEV_S3_SYNC_ROLE }}
+      AWS_DEV_S3_BUCKET_NAME: ${{ secrets.AWS_DEV_S3_BUCKET_NAME }}
+      AWS_DEV_S3_SYNC_ROLE: ${{ secrets.AWS_DEV_S3_SYNC_ROLE }}
