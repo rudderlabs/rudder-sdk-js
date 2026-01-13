@@ -14,6 +14,7 @@ import {
   STORE_DATA_SAVE_ERROR,
 } from '../../constants/logMessages';
 import { getStorageEngine } from './storages/storageEngine';
+import { state } from '../../state';
 
 /**
  * Store Implementation with dedicated storage
@@ -140,9 +141,15 @@ class Store implements IStore {
       // storejs that is used in localstorage engine already deserializes json strings but swallows errors
       return JSON.parse(decryptedValue as string);
     } catch (err) {
-      const customMessage = STORE_DATA_FETCH_ERROR(key);
-      this.onError(err, customMessage, customMessage);
-
+      const encryptionPluginName = state.storage.encryptionPluginName.value;
+      // Log and report the error only if the encryption plugin is sucessfully loaded
+      if (
+        !encryptionPluginName ||
+        !state.plugins.failedPlugins.value.includes(encryptionPluginName)
+      ) {
+        const customMessage = STORE_DATA_FETCH_ERROR(key);
+        this.onError(err, customMessage, customMessage);
+      }
       return null;
     }
   }

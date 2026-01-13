@@ -1,10 +1,12 @@
 import { QueueStatuses } from '@rudderstack/analytics-js-common/constants/QueueStatuses';
+import { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
 import { Store } from '../../../src/services/StoreManager/Store';
 import { getStorageEngine } from '../../../src/services/StoreManager/storages/storageEngine';
 import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
 import { defaultLogger } from '../../../src/services/Logger';
 import { PluginsManager } from '../../../src/components/pluginsManager';
 import { PluginEngine } from '../../../src/services/PluginEngine';
+import { state } from '../../../src/state';
 
 describe('Store', () => {
   let store: Store;
@@ -46,13 +48,16 @@ describe('Store', () => {
       {
         name: 'name',
         id: 'id',
-        validKeys: QueueStatuses,
+        validKeys: { ...QueueStatuses, ...COOKIE_KEYS },
         errorHandler: defaultErrorHandler,
         logger: defaultLogger,
       },
       getStorageEngine('localStorage'),
       pluginsManager,
     );
+    // Reset state values before each test
+    state.storage.encryptionPluginName.value = undefined;
+    state.plugins.failedPlugins.value = [];
   });
 
   describe('.get', () => {
@@ -73,6 +78,106 @@ describe('Store', () => {
     it('should return null if value is not valid json', () => {
       engine.setItem('name.id.queue', '[{]}');
       expect(store.get(QueueStatuses.QUEUE)).toBeNull();
+    });
+
+    it('should not report errors when encryption plugin failed to load', () => {
+      const errorHandlerSpy = jest.spyOn(defaultErrorHandler, 'onError').mockImplementation();
+
+      // Mock decrypt to throw an error
+      const decryptSpy = jest.spyOn(store, 'decrypt').mockImplementation(() => {
+        throw new Error('Decryption failed');
+      });
+
+      // Set up state to indicate encryption plugin is configured but failed to load
+      state.storage.encryptionPluginName.value = 'StorageEncryption';
+      state.plugins.failedPlugins.value = ['StorageEncryption'];
+
+      // Mock engine to return an encrypted value
+      const getItemSpy = jest.spyOn(store.engine, 'getItem').mockReturnValue('encrypted-value');
+
+      const result = store.get('rl_anonymous_id');
+
+      expect(result).toBeNull();
+      expect(decryptSpy).toHaveBeenCalled();
+      expect(errorHandlerSpy).not.toHaveBeenCalled();
+
+      // Clean up
+      errorHandlerSpy.mockRestore();
+      decryptSpy.mockRestore();
+      getItemSpy.mockRestore();
+      state.storage.encryptionPluginName.value = undefined;
+      state.plugins.failedPlugins.value = [];
+    });
+
+    it('should report errors when encryption plugin loaded successfully but decryption fails', () => {
+      const errorHandlerSpy = jest.spyOn(defaultErrorHandler, 'onError').mockImplementation();
+
+      // Mock decrypt to throw an error
+      const decryptSpy = jest.spyOn(store, 'decrypt').mockImplementation(() => {
+        throw new Error('Decryption failed');
+      });
+
+      // Set up state to indicate encryption plugin is loaded successfully
+      state.storage.encryptionPluginName.value = 'StorageEncryption';
+      state.plugins.failedPlugins.value = [];
+
+      // Mock engine to return an encrypted value
+      const getItemSpy = jest.spyOn(store.engine, 'getItem').mockReturnValue('encrypted-value');
+
+      const result = store.get('rl_anonymous_id');
+
+      expect(result).toBeNull();
+      expect(decryptSpy).toHaveBeenCalled();
+      expect(errorHandlerSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          error: expect.any(Error),
+          context: 'Store id',
+          customMessage: 'Failed to retrieve or parse data for "rl_anonymous_id" from storage',
+          groupingHash: 'Failed to retrieve or parse data for "rl_anonymous_id" from storage',
+        }),
+      );
+
+      // Clean up
+      errorHandlerSpy.mockRestore();
+      decryptSpy.mockRestore();
+      getItemSpy.mockRestore();
+      state.storage.encryptionPluginName.value = undefined;
+      state.plugins.failedPlugins.value = [];
+    });
+
+    it('should report errors when no encryption plugin is configured', () => {
+      const errorHandlerSpy = jest.spyOn(defaultErrorHandler, 'onError').mockImplementation();
+
+      // Mock JSON.parse to throw an error
+      const jsonParseSpy = jest.spyOn(JSON, 'parse').mockImplementation(() => {
+        throw new Error('Invalid JSON');
+      });
+
+      // Set up state with no encryption plugin
+      state.storage.encryptionPluginName.value = undefined;
+      state.plugins.failedPlugins.value = [];
+
+      // Mock engine to return a value
+      const getItemSpy = jest.spyOn(store.engine, 'getItem').mockReturnValue('invalid-json');
+
+      const result = store.get('rl_anonymous_id');
+
+      expect(result).toBeNull();
+      expect(errorHandlerSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          error: expect.any(Error),
+          context: 'Store id',
+          customMessage: 'Failed to retrieve or parse data for "rl_anonymous_id" from storage',
+          groupingHash: 'Failed to retrieve or parse data for "rl_anonymous_id" from storage',
+        }),
+      );
+
+      // Clean up
+      errorHandlerSpy.mockRestore();
+      jsonParseSpy.mockRestore();
+      getItemSpy.mockRestore();
+      state.storage.encryptionPluginName.value = undefined;
+      state.plugins.failedPlugins.value = [];
     });
   });
 
