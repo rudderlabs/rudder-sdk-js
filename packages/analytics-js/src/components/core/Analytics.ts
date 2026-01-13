@@ -450,7 +450,9 @@ class Analytics implements IAnalytics {
 
     // Mark the ready status if not already done
     if (state.lifecycle.status.value !== 'ready') {
-      state.lifecycle.status.value = 'ready';
+      batch(() => {
+        state.lifecycle.status.value = 'ready';
+      });
     }
   }
   // End lifecycle methods
