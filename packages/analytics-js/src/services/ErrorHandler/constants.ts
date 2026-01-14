@@ -23,7 +23,6 @@ const REQUEST_TIMEOUT_MS = 10 * 1000; // 10 seconds
 const NOTIFIER_NAME = 'RudderStack JavaScript SDK';
 const SDK_GITHUB_URL = __REPOSITORY_URL__;
 const SOURCE_NAME = 'js';
-const DEFAULT_ERROR_CATEGORY = 'sdk';
 
 export {
   SDK_FILE_NAME_PREFIXES,
@@ -33,5 +32,4 @@ export {
   NOTIFIER_NAME,
   SDK_GITHUB_URL,
   SOURCE_NAME,
-  DEFAULT_ERROR_CATEGORY,
 };

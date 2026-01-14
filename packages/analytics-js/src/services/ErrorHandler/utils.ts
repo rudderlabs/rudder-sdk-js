@@ -18,13 +18,14 @@ import { CDN_INT_DIR } from '@rudderstack/analytics-js-common/constants/urls';
 import { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 import { METRICS_PAYLOAD_VERSION } from '@rudderstack/analytics-js-common/constants/metrics';
 import {
+  DEFAULT_ERROR_CATEGORY,
   ERROR_MESSAGES_TO_BE_FILTERED,
+  INTEGRATIONS_ERROR_CATEGORY,
   SCRIPT_LOAD_FAILURE_MESSAGES,
 } from '@rudderstack/analytics-js-common/constants/errors';
 import { SDK_CDN_BASE_URL } from '../../constants/urls';
 import {
   APP_STATE_EXCLUDE_KEYS,
-  DEFAULT_ERROR_CATEGORY,
   DEV_HOSTS,
   NOTIFIER_NAME,
   SDK_FILE_NAME_PREFIXES,
@@ -232,22 +233,45 @@ const checkIfAllowedToBeNotified = (
 };
 
 /**
+ * A function to get the directory name from a file path.
+ * @param {string} filePath The file path
+ * @returns The directory name or undefined if the file path is invalid
+ */
+const getDirectoryName = (filePath: string | undefined): string | undefined => {
+  if (!filePath) {
+    return undefined;
+  }
+  const paths = filePath.split('/');
+  return paths[paths.length - 2];
+};
+
+/**
+ * A function to get the top stack path from the exception.
+ * @param {Exception} exception The exception object
+ * @returns The top stack path or undefined if the exception is invalid
+ */
+const getTopStackPath = (exception: Exception) => {
+  const errorOrigin = exception.stacktrace[0]?.file;
+  if (!errorOrigin || typeof errorOrigin !== 'string') {
+    return undefined;
+  }
+  return errorOrigin;
+};
+
+/**
  * A function to determine if the error is from Rudder SDK
  * @param {Error} exception
  * @returns
  */
 const isSDKError = (exception: Exception) => {
-  const errorOrigin = exception.stacktrace[0]?.file;
+  const errorOrigin = getTopStackPath(exception);
 
-  if (!errorOrigin || typeof errorOrigin !== 'string') {
+  if (!errorOrigin) {
     return false;
   }
 
   const srcFileName = errorOrigin.substring(errorOrigin.lastIndexOf('/') + 1);
-  const paths = errorOrigin.split('/');
-  // extract the parent folder name from the error origin file path
-  // Ex: parentFolderName will be 'sample' for url: https://example.com/sample/file.min.js
-  const parentFolderName = paths[paths.length - 2];
+  const parentFolderName = getDirectoryName(errorOrigin);
 
   return (
     parentFolderName === CDN_INT_DIR ||
@@ -257,10 +281,24 @@ const isSDKError = (exception: Exception) => {
   );
 };
 
+const getErrorCategory = (exception: Exception, category: string | undefined): string => {
+  if (category) {
+    return category;
+  }
+
+  const errorOrigin = getTopStackPath(exception);
+  const directoryName = getDirectoryName(errorOrigin);
+  if (directoryName === CDN_INT_DIR) {
+    return INTEGRATIONS_ERROR_CATEGORY;
+  }
+
+  return DEFAULT_ERROR_CATEGORY;
+};
+
 const getErrorDeliveryPayload = (
   payload: ErrorEventPayload,
   state: ApplicationState,
-  category?: string,
+  category: string,
 ): string => {
   const data = {
     version: METRICS_PAYLOAD_VERSION,
@@ -270,7 +308,7 @@ const getErrorDeliveryPayload = (
       sdk_version: state.context.app.value.version,
       write_key: state.lifecycle.writeKey.value as string,
       install_type: state.context.app.value.installType,
-      category: category ?? DEFAULT_ERROR_CATEGORY,
+      category,
     },
     errors: payload,
   };
@@ -323,4 +361,5 @@ export {
   getDeviceDetails, // for testing
   getErrorGroupingHash,
   checkIfAdBlockersAreActive, // for testing
+  getErrorCategory,
 };

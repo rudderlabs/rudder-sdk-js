@@ -12,7 +12,7 @@ import type { RudderEventType } from '../types/plugins';
 import { DEFAULT_QUEUE_OPTIONS, NATIVE_DESTINATION_QUEUE_PLUGIN } from './constants';
 import { INTEGRATION_EVENT_FORWARDING_ERROR } from './logMessages';
 import { mergeDeepRight } from '../shared-chunks/common';
-import { INTEGRATIONS_ERROR_CATEGORY } from '../utilities/constants';
+import { INTEGRATIONS_ERROR_CATEGORY } from '../utilities/destination';
 
 const getNormalizedQueueOptions = (queueOpts: DestinationsQueueOpts): DestinationsQueueOpts =>
   mergeDeepRight(DEFAULT_QUEUE_OPTIONS, queueOpts);
