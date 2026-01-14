@@ -143,10 +143,9 @@ class Store implements IStore {
     } catch (err) {
       const encryptionPluginName = state.storage.encryptionPluginName.value;
       // Skip error reporting only when the encryption plugin is configured but failed to load
-      if (
-        !encryptionPluginName ||
-        !state.plugins.failedPlugins.value.includes(encryptionPluginName)
-      ) {
+      const shouldReportError =
+        !encryptionPluginName || !state.plugins.failedPlugins.value.includes(encryptionPluginName);
+      if (shouldReportError) {
         const customMessage = STORE_DATA_FETCH_ERROR(key);
         this.onError(err, customMessage, customMessage);
       }
