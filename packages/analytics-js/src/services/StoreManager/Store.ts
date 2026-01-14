@@ -142,7 +142,7 @@ class Store implements IStore {
       return JSON.parse(decryptedValue as string);
     } catch (err) {
       const encryptionPluginName = state.storage.encryptionPluginName.value;
-      // Log and report the error only if the encryption plugin is sucessfully loaded
+      // Log and report the error only if the encryption plugin is successfully loaded
       if (
         !encryptionPluginName ||
         !state.plugins.failedPlugins.value.includes(encryptionPluginName)
