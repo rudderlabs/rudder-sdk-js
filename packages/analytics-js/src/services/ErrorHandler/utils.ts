@@ -242,7 +242,7 @@ const getDirectoryName = (filePath: string | undefined): string | undefined => {
     return undefined;
   }
   const paths = filePath.split('/');
-  return paths[paths.length - 2];
+  return paths.at(-2);
 };
 
 /**
