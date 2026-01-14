@@ -131,7 +131,7 @@ const getCumulativeIntegrationsConfig = (
     try {
       integrationsConfig = {
         ...curDestIntgConfig,
-        ...getSanitizedValue(dest.integration?.getDataForIntegrationsObject()),
+        ...getSanitizedValue(dest.integration!.getDataForIntegrationsObject()),
       };
     } catch (err) {
       errorHandler?.onError({
