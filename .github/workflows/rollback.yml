@@ -140,6 +140,11 @@ jobs:
 
           aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --id "$invalidation_id"
 
+      - name: Get Job URL
+        id: get-job-url
+        continue-on-error: true
+        uses: ./.github/actions/get-job-url
+
       - name: Mark the rollback version as the latest GitHub release
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         continue-on-error: true
@@ -201,7 +206,7 @@ jobs:
           CDN_URL: ${{ format('https://cdn.rudderlabs.com/{0}/modern/rsa.min.js', env.LATEST_VERSION_DIR_NAME) }}
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js@'
           LINK_TEXT: ${{ format('v{0}', env.ROLLBACK_VERSION_VALUE) }}
-          GITHUB_RUN_URL: ${{ format('{0}/{1}/actions/runs/{2}/jobs/{3}', github.server_url, github.repository, github.run_id, github.job) }}
+          GITHUB_RUN_URL: ${{ steps.get-job-url.outputs.job_url }}
           ACTOR_URL: ${{ format('{0}/{1}', github.server_url, github.actor) }}
           ACTOR: ${{ github.actor }}
         with:

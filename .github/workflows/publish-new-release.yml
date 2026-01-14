@@ -206,6 +206,11 @@ jobs:
             --title "$pr_title" \
             --body-file pr_body.md
 
+      - name: Get Job URL
+        id: get-job-url
+        continue-on-error: true
+        uses: ./.github/actions/get-job-url
+
       - name: Send message to Slack channel
         id: slack
         if: always()
@@ -215,7 +220,7 @@ jobs:
           PROJECT_NAME: 'JS SDK Monorepo'
           TAG_COMPARE_URL: 'https://github.com/rudderlabs/rudder-sdk-js/compare/'
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/'
-          GITHUB_RUN_URL: ${{ format('{0}/{1}/actions/runs/{2}/jobs/{3}', github.server_url, github.repository, github.run_id, github.job) }}
+          GITHUB_RUN_URL: ${{ steps.get-job-url.outputs.job_url }}
           ACTOR_URL: ${{ format('{0}/{1}', github.server_url, github.actor) }}
           ACTOR: ${{ github.actor }}
         with:

@@ -1,0 +1,29 @@
+name: 'Get Job URL'
+description: 'Fetches the direct URL to the current GitHub Actions job'
+
+inputs:
+  github_token:
+    description: 'GitHub token for API access'
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  job_url:
+    description: 'Direct URL to the current job in GitHub Actions UI'
+    value: ${{ steps.get-job-url.outputs.job_url }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Get Job URL
+      id: get-job-url
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github_token }}
+      run: |
+        jobs=$(gh api repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs)
+        job_url=$(echo "$jobs" | jq -r '.jobs[] | select(.runner_name=="${{ runner.name }}") | .html_url')
+        if [ -z "$job_url" ] || [ "$job_url" = "null" ]; then
+          job_url=${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
+        fi
+        echo "job_url=$job_url" >> $GITHUB_OUTPUT

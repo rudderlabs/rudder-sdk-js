@@ -290,6 +290,11 @@ jobs:
           
           aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --id "$invalidation_id"
 
+      - name: Get Job URL
+        id: get-job-url
+        continue-on-error: true
+        uses: ./.github/actions/get-job-url
+
       - name: Send message to Slack channel
         id: slack
         continue-on-error: true
@@ -299,7 +304,7 @@ jobs:
           CDN_URL: ${{ format('{0}/{1}/modern/rsa.min.js', inputs.base_cdn_url, inputs.s3_dir_path) }}
           RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/@rudderstack/analytics-js@'
           LINK_TEXT: ${{ (inputs.environment == 'development' && 'Development') || (inputs.environment == 'staging' && format('v{0} - Staging', env.CURRENT_VERSION_VALUE)) || format('v{0}', env.CURRENT_VERSION_VALUE) }}
-          GITHUB_RUN_URL: ${{ format('{0}/{1}/actions/runs/{2}/jobs/{3}', github.server_url, github.repository, github.run_id, github.job) }}
+          GITHUB_RUN_URL: ${{ steps.get-job-url.outputs.job_url }}
           ACTOR: ${{ github.actor }}
           ACTOR_URL: ${{ format('{0}/{1}', github.server_url, github.actor) }}
         with:
