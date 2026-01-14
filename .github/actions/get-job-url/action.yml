@@ -22,5 +22,6 @@ runs:
         GH_TOKEN: ${{ inputs.github_token }}
       run: |
         jobs=$(gh api repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs)
+        echo $jobs
         job_url=$(echo "$jobs" | jq -r '.jobs[] | select(.name=="${{ github.job }}") | .html_url')
         echo "job_url=$job_url" >> $GITHUB_OUTPUT

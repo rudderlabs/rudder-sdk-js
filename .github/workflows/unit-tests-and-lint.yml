@@ -32,7 +32,6 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha || github.ref }}
 
-
       - name: Get Job URL
         id: get-job-url
         continue-on-error: true
