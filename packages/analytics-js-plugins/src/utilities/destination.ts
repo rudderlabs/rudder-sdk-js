@@ -38,3 +38,4 @@ const filterDestinations = (intgOpts: IntegrationOpts, destinations: Destination
 };
 
 export { isDestIntgConfigTruthy, isDestIntgConfigFalsy, filterDestinations };
+export { INTEGRATIONS_ERROR_CATEGORY } from '@rudderstack/analytics-js-common/constants/errors';

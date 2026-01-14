@@ -29,6 +29,7 @@ import {
   isUndefined,
 } from '@rudderstack/analytics-js-common/utilities/checks';
 import type { RSAEvent } from '@rudderstack/analytics-js-common/types/Event';
+import { INTEGRATIONS_ERROR_CATEGORY } from '@rudderstack/analytics-js-common/constants/errors';
 import {
   DEVICE_MODE_DESTINATIONS_PLUGIN,
   READY_CHECK_INTERVAL_MS,
@@ -45,7 +46,6 @@ import {
 } from './logMessages';
 import { isHybridModeDestination } from '../shared-chunks/deviceModeDestinations';
 import { getSanitizedValue, isFunction } from '../shared-chunks/common';
-import { INTEGRATIONS_ERROR_CATEGORY } from '../utilities/constants';
 
 /**
  * Determines if the destination SDK code is evaluated
@@ -61,8 +61,8 @@ const isDestinationSDKMounted = (
 ): boolean =>
   Boolean(
     (globalThis as any)[destSDKIdentifier]?.[sdkTypeName]?.prototype &&
-      typeof (globalThis as any)[destSDKIdentifier][sdkTypeName].prototype.constructor !==
-        'undefined',
+    typeof (globalThis as any)[destSDKIdentifier][sdkTypeName].prototype.constructor !==
+      'undefined',
   );
 
 const wait = (time: number) =>
@@ -131,7 +131,7 @@ const getCumulativeIntegrationsConfig = (
     try {
       integrationsConfig = {
         ...curDestIntgConfig,
-        ...getSanitizedValue(dest.integration.getDataForIntegrationsObject()),
+        ...getSanitizedValue(dest.integration!.getDataForIntegrationsObject()),
       };
     } catch (err) {
       errorHandler?.onError({
