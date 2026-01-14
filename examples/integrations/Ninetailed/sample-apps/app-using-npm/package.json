@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@ninetailed/experience.js": "7.18.9",
+    "@ninetailed/experience.js": "7.18.10",
     "@rudderstack/analytics-js": "*",
     "@testing-library/jest-dom": "6.9.1",
     "@testing-library/react": "16.3.1",
