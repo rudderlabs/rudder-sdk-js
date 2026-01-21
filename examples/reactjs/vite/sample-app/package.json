@@ -21,10 +21,10 @@
     "react-dom": "19.2.3"
   },
   "devDependencies": {
-    "@types/react": "19.2.7",
+    "@types/react": "19.2.9",
     "@types/react-dom": "19.2.3",
-    "@typescript-eslint/eslint-plugin": "8.52.0",
-    "@typescript-eslint/parser": "8.52.0",
+    "@typescript-eslint/eslint-plugin": "8.53.1",
+    "@typescript-eslint/parser": "8.53.1",
     "@vitejs/plugin-react-swc": "4.2.2",
     "eslint": "9.39.2",
     "eslint-plugin-react": "7.37.5",
@@ -32,7 +32,7 @@
     "eslint-plugin-react-refresh": "0.4.26",
     "globals": "16.5.0",
     "typescript": "5.9.3",
-    "vite": "7.3.0"
+    "vite": "7.3.1"
   },
   "overrides": {
     "brace-expansion": "1.1.12",
