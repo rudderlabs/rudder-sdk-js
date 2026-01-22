@@ -29,6 +29,10 @@ inputs:
   check_interval:
     description: 'Check interval in seconds'
     required: true
+  outputs_artifact_name:
+    description: 'Name of artifact containing job outputs JSON (optional). If provided, the action will download this artifact and expose its contents as output.'
+    required: false
+    default: ''
 
 outputs:
   status:
@@ -46,6 +50,12 @@ outputs:
   correlation_id:
     description: 'Unique correlation ID used to identify this workflow run'
     value: ${{ steps.trigger_workflow.outputs.correlation_id }}
+  job_outputs:
+    description: 'JSON string containing all outputs from the artifact (empty object if no artifact or retrieval failed)'
+    value: ${{ steps.retrieve_outputs.outputs.job_outputs }}
+  has_outputs:
+    description: 'Boolean indicating if outputs were successfully retrieved from artifact'
+    value: ${{ steps.retrieve_outputs.outputs.has_outputs }}
 
 runs:
   using: 'composite'
@@ -300,6 +310,123 @@ runs:
         echo "status=timeout" >> $GITHUB_OUTPUT
         echo "conclusion=timeout" >> $GITHUB_OUTPUT
         exit 1
+
+    - name: Retrieve job outputs from artifact
+      id: retrieve_outputs
+      if: always() && inputs.outputs_artifact_name != ''
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github_token }}
+      run: |
+        run_id="${{ steps.trigger_workflow.outputs.run_id }}"
+        artifact_name="${{ inputs.outputs_artifact_name }}"
+
+        echo "📦 Attempting to retrieve outputs from artifact: $artifact_name"
+        echo "🔗 Workflow run ID: $run_id"
+
+        # Initialize outputs
+        job_outputs=""
+        has_outputs="false"
+
+        # List artifacts for the workflow run
+        echo "🔍 Listing artifacts for workflow run..."
+        artifacts=$(gh api \
+          -H "Accept: application/vnd.github+json" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          "/repos/${{ inputs.target_repo }}/actions/runs/$run_id/artifacts" 2>&1 || echo "ARTIFACTS_LIST_FAILED")
+
+        if [[ "$artifacts" == *"ARTIFACTS_LIST_FAILED"* ]]; then
+          echo "⚠️  Failed to list artifacts for workflow run"
+          echo "has_outputs=false" >> $GITHUB_OUTPUT
+          echo "job_outputs={}" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+
+        # Find artifact by name
+        artifact_id=$(echo "$artifacts" | jq -r \
+          --arg name "$artifact_name" \
+          '.artifacts[] | select(.name == $name) | .id')
+
+        if [ -z "$artifact_id" ] || [ "$artifact_id" = "null" ]; then
+          echo "⚠️  Artifact '$artifact_name' not found in workflow run"
+          echo "ℹ️  Available artifacts:"
+          echo "$artifacts" | jq -r '.artifacts[] | "  - \(.name)"'
+          echo "has_outputs=false" >> $GITHUB_OUTPUT
+          echo "job_outputs={}" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+
+        echo "✅ Found artifact with ID: $artifact_id"
+        echo "📥 Downloading artifact..."
+
+        # Download artifact zip
+        download_result=$(gh api \
+          -H "Accept: application/vnd.github+json" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          "/repos/${{ inputs.target_repo }}/actions/artifacts/$artifact_id/zip" > outputs.zip 2>&1 || echo "DOWNLOAD_FAILED")
+
+        if [[ "$download_result" == *"DOWNLOAD_FAILED"* ]]; then
+          echo "❌ Failed to download artifact"
+          echo "has_outputs=false" >> $GITHUB_OUTPUT
+          echo "job_outputs={}" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+
+        echo "📦 Extracting artifact..."
+
+        # Extract artifact
+        if ! unzip -q outputs.zip -d outputs_dir 2>&1; then
+          echo "❌ Failed to extract artifact"
+          rm -rf outputs.zip outputs_dir
+          echo "has_outputs=false" >> $GITHUB_OUTPUT
+          echo "job_outputs={}" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+
+        # Find JSON file in extracted contents
+        json_file=$(find outputs_dir -name "*.json" -type f | head -1)
+
+        if [ -z "$json_file" ]; then
+          echo "⚠️  No JSON file found in artifact"
+          echo "ℹ️  Artifact contents:"
+          find outputs_dir -type f
+          rm -rf outputs.zip outputs_dir
+          echo "has_outputs=false" >> $GITHUB_OUTPUT
+          echo "job_outputs={}" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+
+        echo "📄 Found JSON file: $(basename "$json_file")"
+        echo "🔍 Reading outputs..."
+
+        # Read and validate JSON
+        job_outputs=$(cat "$json_file")
+
+        if echo "$job_outputs" | jq empty 2>/dev/null; then
+          echo "✅ Successfully retrieved and validated outputs"
+          echo "📊 Output summary:"
+          echo "$job_outputs" | jq -C '.' || echo "$job_outputs"
+
+          # Compact JSON for output
+          compacted_json=$(echo "$job_outputs" | jq -c '.')
+
+          echo "has_outputs=true" >> $GITHUB_OUTPUT
+          echo "job_outputs=$compacted_json" >> $GITHUB_OUTPUT
+          has_outputs="true"
+        else
+          echo "❌ Invalid JSON in artifact"
+          echo "has_outputs=false" >> $GITHUB_OUTPUT
+          echo "job_outputs={}" >> $GITHUB_OUTPUT
+        fi
+
+        # Cleanup
+        rm -rf outputs.zip outputs_dir
+
+        if [ "$has_outputs" = "true" ]; then
+          echo "🎉 Job outputs retrieval completed successfully"
+        else
+          echo "⚠️  Job outputs retrieval completed with warnings"
+        fi
 
     - name: Cleanup on cancellation
       if: cancelled()

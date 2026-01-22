@@ -115,6 +115,8 @@ jobs:
           workflow_inputs: ${{ steps.prepare_inputs.outputs.inputs_json }}
           max_wait_time: ${{ env.MAX_WAIT_TIME_FOR_SANITY_TESTS }}
           check_interval: ${{ env.CHECK_INTERVAL_FOR_SANITY_TESTS }}
+          outputs_artifact_name: job-outputs
+
 
   trigger-and-wait-e2e-test-suite:
     name: Run Full E2E Regression Tests
@@ -157,3 +159,4 @@ jobs:
           workflow_inputs: ${{ steps.prepare_inputs.outputs.inputs_json }}
           max_wait_time: ${{ env.MAX_WAIT_TIME_FOR_E2E_TESTS }}
           check_interval: ${{ env.CHECK_INTERVAL_FOR_E2E_TESTS }}
+          outputs_artifact_name: job-outputs
