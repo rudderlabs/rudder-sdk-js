@@ -29,6 +29,9 @@ on:
       PAT:
         description: Personal Access Token
         required: true
+      SLACK_BOT_TOKEN:
+        description: Slack Bot Token for posting to release threads
+        required: false
 
 env:
   MAX_WAIT_TIME_FOR_SANITY_TESTS: 18000  # 5 hours
@@ -117,6 +120,37 @@ jobs:
           check_interval: ${{ env.CHECK_INTERVAL_FOR_SANITY_TESTS }}
           outputs_artifact_name: job-outputs
 
+      - name: Extract sanity test results
+        id: extract-sanity-results
+        continue-on-error: true
+        if: steps.run_sanity_tests.outputs.has_outputs == 'true'
+        run: |
+          # Extract all fields from job outputs
+          slack_message_url=$(echo '${{ steps.run_sanity_tests.outputs.job_outputs }}' | jq -r '.slack_message_url')
+          test_passed=$(echo '${{ steps.run_sanity_tests.outputs.job_outputs }}' | jq -r '.test_status.passed // ""')
+          test_total=$(echo '${{ steps.run_sanity_tests.outputs.job_outputs }}' | jq -r '.test_status.total // ""')
+          test_percentage=$(echo '${{ steps.run_sanity_tests.outputs.job_outputs }}' | jq -r '.test_status.percentage // ""')
+          test_success=$(echo '${{ steps.run_sanity_tests.outputs.job_outputs }}' | jq -r '.test_status.success // ""')
+          test_summary=$(echo '${{ steps.run_sanity_tests.outputs.job_outputs }}' | jq -r '.test_status.summary // ""')
+
+          echo "slack_message_url=$slack_message_url" >> $GITHUB_OUTPUT
+          echo "test_passed=$test_passed" >> $GITHUB_OUTPUT
+          echo "test_total=$test_total" >> $GITHUB_OUTPUT
+          echo "test_percentage=$test_percentage" >> $GITHUB_OUTPUT
+          echo "test_success=$test_success" >> $GITHUB_OUTPUT
+          echo "test_summary=$test_summary" >> $GITHUB_OUTPUT
+
+      - name: Post sanity test results to release thread
+        continue-on-error: true
+        if: ${{ inputs.monorepo_release_version != '' && inputs.release_ticket_id != '' && steps.extract-sanity-results.outputs.slack_message_url != '' }}
+        uses: ./.github/actions/release-thread-integration
+        with:
+          monorepo_release_version: ${{ inputs.monorepo_release_version }}
+          release_ticket_id: ${{ inputs.release_ticket_id }}
+          slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
+          deployment_name: ${{ format('{0} Sanity E2E Regression Tests', steps.extract-sanity-results.outputs.test_success == 'true' && ':white_check_mark:' || ':warning:') }}
+          slack_message_url: ${{ steps.extract-sanity-results.outputs.slack_message_url }}
+          custom_message: ${{ steps.extract-sanity-results.outputs.test_success == 'true' && 'All tests passed successfully. Proceed to the next step.' || 'There are some test failures. Please review them and proceed to the next step.' }}
 
   trigger-and-wait-e2e-test-suite:
     name: Run Full E2E Regression Tests
@@ -160,3 +194,34 @@ jobs:
           max_wait_time: ${{ env.MAX_WAIT_TIME_FOR_E2E_TESTS }}
           check_interval: ${{ env.CHECK_INTERVAL_FOR_E2E_TESTS }}
           outputs_artifact_name: job-outputs
+
+      - name: Extract E2E test results
+        id: extract-e2e-results
+        if: steps.run_e2e_tests.outputs.has_outputs == 'true'
+        run: |
+          # Extract all fields from job outputs
+          slack_message_url=$(echo '${{ steps.run_e2e_tests.outputs.job_outputs }}' | jq -r '.slack_message_url')
+          test_passed=$(echo '${{ steps.run_e2e_tests.outputs.job_outputs }}' | jq -r '.test_status.passed // ""')
+          test_total=$(echo '${{ steps.run_e2e_tests.outputs.job_outputs }}' | jq -r '.test_status.total // ""')
+          test_percentage=$(echo '${{ steps.run_e2e_tests.outputs.job_outputs }}' | jq -r '.test_status.percentage // ""')
+          test_success=$(echo '${{ steps.run_e2e_tests.outputs.job_outputs }}' | jq -r '.test_status.success // ""')
+          test_summary=$(echo '${{ steps.run_e2e_tests.outputs.job_outputs }}' | jq -r '.test_status.summary // ""')
+
+          echo "slack_message_url=$slack_message_url" >> $GITHUB_OUTPUT
+          echo "test_passed=$test_passed" >> $GITHUB_OUTPUT
+          echo "test_total=$test_total" >> $GITHUB_OUTPUT
+          echo "test_percentage=$test_percentage" >> $GITHUB_OUTPUT
+          echo "test_success=$test_success" >> $GITHUB_OUTPUT
+          echo "test_summary=$test_summary" >> $GITHUB_OUTPUT
+
+      - name: Post E2E test results to release thread
+        continue-on-error: true
+        if: ${{ inputs.monorepo_release_version != '' && inputs.release_ticket_id != '' && steps.extract-e2e-results.outputs.slack_message_url != '' }}
+        uses: ./.github/actions/release-thread-integration
+        with:
+          monorepo_release_version: ${{ inputs.monorepo_release_version }}
+          release_ticket_id: ${{ inputs.release_ticket_id }}
+          slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
+          deployment_name: ${{ format('{0} Full E2E Regression Tests', steps.extract-e2e-results.outputs.test_success == 'true' && ':white_check_mark:' || ':warning:') }}
+          slack_message_url: ${{ steps.extract-e2e-results.outputs.slack_message_url }}
+          custom_message: ${{ steps.extract-e2e-results.outputs.test_success == 'true' && 'All tests passed successfully. Proceed to the next step.' || 'There are some test failures. Please review them and proceed to the next step.' }}
