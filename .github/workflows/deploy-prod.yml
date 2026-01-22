@@ -101,3 +101,4 @@ jobs:
       release_ticket_id: ${{ needs.get-deploy-inputs.outputs.release_ticket_id }}
     secrets:
       PAT: ${{ secrets.PAT }}
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
