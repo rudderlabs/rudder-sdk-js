@@ -26,6 +26,7 @@ import {
   getErrorGroupingHash,
   checkIfAllowedToBeNotified,
   isSDKError,
+  getErrorCategory,
 } from './utils';
 import { SDK_CDN_BASE_URL } from '../../constants/urls';
 
@@ -164,12 +165,14 @@ class ErrorHandler implements IErrorHandler {
             normalizedGroupingHash,
           );
 
+          const errorCategory = getErrorCategory(bsException, category);
+
           // send it to metrics service
           this.httpClient.getAsyncData({
             url: state.metrics.metricsServiceUrl.value as string,
             options: {
               method: 'POST',
-              data: getErrorDeliveryPayload(bugsnagPayload, state, category),
+              data: getErrorDeliveryPayload(bugsnagPayload, state, errorCategory),
               sendRawData: true,
             },
             isRawResponse: true,

@@ -21,6 +21,7 @@ import {
   isSDKError,
   getErrorGroupingHash,
   checkIfAdBlockersAreActive,
+  getErrorCategory,
 } from '../../../src/services/ErrorHandler/utils';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/uuId', () => ({
@@ -126,6 +127,42 @@ describe('Error Reporting utilities', () => {
     };
 
     expect(isSDKError(exception as unknown as Exception)).toBe(false);
+  });
+
+  describe('getErrorCategory', () => {
+    it('should return the provided category when it is explicitly passed', () => {
+      const exception = {
+        stacktrace: [{ file: 'https://example.com/rsa.min.js' }],
+      } as unknown as Exception;
+
+      expect(getErrorCategory(exception, 'custom')).toBe('custom');
+      expect(getErrorCategory(exception, 'sdk')).toBe('sdk');
+      expect(getErrorCategory(exception, 'integrations')).toBe('integrations');
+    });
+
+    it('should return "integrations" when error is from js-integrations directory and no category is provided', () => {
+      const exception = {
+        stacktrace: [{ file: 'https://cdn.example.com/js-integrations/Amplitude.min.js' }],
+      } as unknown as Exception;
+
+      expect(getErrorCategory(exception, undefined)).toBe('integrations');
+    });
+
+    it('should return "sdk" by default when no category is provided and error is not from integrations', () => {
+      const exception = {
+        stacktrace: [{ file: 'https://cdn.example.com/rsa.min.js' }],
+      } as unknown as Exception;
+
+      expect(getErrorCategory(exception, undefined)).toBe('sdk');
+    });
+
+    it('should return "sdk" when stacktrace is empty or invalid', () => {
+      const emptyStackException = {
+        stacktrace: [],
+      } as unknown as Exception;
+
+      expect(getErrorCategory(emptyStackException, undefined)).toBe('sdk');
+    });
   });
 
   describe('getAppStateForMetadata', () => {
@@ -597,7 +634,7 @@ describe('Error Reporting utilities', () => {
     it('should return error delivery payload', () => {
       const errorEventPayload = {} as unknown as ErrorEventPayload;
 
-      const deliveryPayload = getErrorDeliveryPayload(errorEventPayload, state);
+      const deliveryPayload = getErrorDeliveryPayload(errorEventPayload, state, 'sdk');
       expect(deliveryPayload).toEqual(
         JSON.stringify({
           version: '1',
@@ -681,7 +718,7 @@ describe('Error Reporting utilities', () => {
         },
       } as any;
 
-      const result = getErrorDeliveryPayload(mockPayload, mockState);
+      const result = getErrorDeliveryPayload(mockPayload, mockState, 'sdk');
       const parsedResult = JSON.parse(result);
 
       expect(parsedResult.source.category).toBe('sdk');

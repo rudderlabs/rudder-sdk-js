@@ -161,6 +161,11 @@ jobs:
         run: |
           AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/sanity-suite${{ env.SUITE_CDN_PATH }}*"
 
+      - name: Get Job URL
+        id: get-job-url
+        continue-on-error: true
+        uses: ./.github/actions/get-job-url
+
       - name: Send message to Slack channel
         id: slack
         uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a  # v2.1.1
@@ -169,7 +174,7 @@ jobs:
           PROJECT_NAME: ${{ format('Sanity Suite - {0}', (inputs.environment == 'production' && 'Production') || (inputs.environment == 'staging' && 'Staging') || (inputs.environment == 'development' && 'Development') || 'Beta') }}
           CDN_URL: '${{ inputs.base_cdn_url }}/sanity-suite${{ env.SUITE_CDN_PATH }}/v3/cdn/index.html'
           LINK_TEXT: ${{ ((inputs.environment == 'development' && format('v{0} - Development', env.CURRENT_VERSION_VALUE)) || (inputs.environment == 'staging' && format('v{0} - Staging', env.CURRENT_VERSION_VALUE)) || (inputs.environment == 'beta' && format('v{0} - Beta', env.CURRENT_VERSION_VALUE)) || format('v{0}', env.CURRENT_VERSION_VALUE)) }}
-          GITHUB_RUN_URL: ${{ format('{0}/{1}/actions/runs/{2}/jobs/{3}', github.server_url, github.repository, github.run_id, github.job) }}
+          GITHUB_RUN_URL: ${{ steps.get-job-url.outputs.job_url }}
           ACTOR_URL: ${{ format('{0}/{1}', github.server_url, github.actor) }}
           ACTOR: ${{ github.actor }}
         with:

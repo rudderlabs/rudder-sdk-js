@@ -28,8 +28,8 @@ import {
   destDisplayNamesToFileNamesMap,
   filterDestinations,
 } from '../shared-chunks/deviceModeDestinations';
-import { INTEGRATIONS_ERROR_CATEGORY } from '../utilities/constants';
 import { isUndefined } from '../shared-chunks/common';
+import { INTEGRATIONS_ERROR_CATEGORY } from '../utilities/destination';
 
 const pluginName: PluginName = 'DeviceModeDestinations';
 
