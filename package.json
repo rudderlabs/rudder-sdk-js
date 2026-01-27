@@ -200,7 +200,7 @@
     "user-agent-data-types": "0.4.2"
   },
   "optionalDependencies": {
-    "@linear/sdk": "68.1.0",
+    "@linear/sdk": "71.0.0",
     "@nx/nx-darwin-arm64": "22.3.3",
     "@nx/nx-darwin-x64": "22.3.3",
     "@nx/nx-linux-x64-gnu": "22.3.3",
