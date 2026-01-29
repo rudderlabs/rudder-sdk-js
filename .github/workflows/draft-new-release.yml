@@ -19,6 +19,8 @@ env:
 
 jobs:
   validate-actor:
+    permissions:
+      contents: read # to checkout repository code
     # Only allow to draft a new release from develop and hotfix branches
     if: github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/hotfix/')
     uses: ./.github/workflows/validate-actor.yml
@@ -50,6 +52,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
+          token: ${{ steps.generate-token.outputs.token }}
 
       - name: Setup Node
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
@@ -96,7 +99,6 @@ jobs:
           echo "New version is $new_version"
           echo "New release branch name is $branch_name"
           git checkout -b "$branch_name"
-          git push --set-upstream origin "$branch_name"
 
           echo "source_branch_name=$source_branch_name" >> $GITHUB_OUTPUT
           echo "branch_name=$branch_name" >> $GITHUB_OUTPUT
@@ -120,8 +122,6 @@ jobs:
           npx replace $CURRENT_VERSION_VALUE $NEW_VERSION_VALUE sonar-project.properties
           npm install
           npm run clean
-          git add .
-          git commit -m "chore(monorepo): sync versions and generate release logs" -n
 
       - name: Generate packages versions table
         id: packages-versions
@@ -129,9 +129,16 @@ jobs:
           chmod +x ./scripts/collect-packages-versions.sh
           ./scripts/collect-packages-versions.sh > packages_versions.md
 
-      - name: Push new version in release branch
-        run: |
-          git push --follow-tags
+      - name: Create verified commit and push release branch
+        uses: ryancyq/github-signed-commit@e9f3b28c80da7be66d24b8f501a5abe82a6b855f # v1.2.0
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+        with:
+          branch-name: ${{ steps.create-release.outputs.branch_name }}
+          commit-message: 'chore(monorepo): sync versions and generate release logs'
+          files: |
+            .
+          push-branch: true
 
       - name: Create pull request into main
         id: create-pr

@@ -14,6 +14,8 @@ jobs:
   get-release-inputs:
     name: Get Release Inputs
     runs-on: [self-hosted, Linux, X64]
+    permissions:
+      contents: read # to read repository contents
     outputs:
       trigger_source: ${{ steps.set-outputs.outputs.trigger_source }}
       release_version: ${{ steps.extract-release-info.outputs.release_version }}
@@ -50,6 +52,8 @@ jobs:
     needs: [get-release-inputs]
     # For publishing GitHub release, we need to only use the GitHub hosted runners
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # to checkout repository code
     # only merged pull requests must trigger this job
     if: >
       (startsWith(github.event.pull_request.head.ref, 'release/') ||
@@ -61,6 +65,15 @@ jobs:
         uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
         with:
           egress-policy: audit
+
+      - name: Generate GitHub App Token
+        id: generate-token
+        uses: actions/create-github-app-token@67018539274d69449ef7c02e8e71183d1719ab42 # v2.1.4
+        with:
+          app-id: ${{ vars.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_PRIVATE_KEY }}
+          permission-contents: write # to create commits, tags, and releases
+          permission-pull-requests: write # to create and update PRs
 
       - name: Extract version from branch name (for release branches)
         id: extract-version
@@ -86,6 +99,7 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.sha }}
+          token: ${{ steps.generate-token.outputs.token }}
 
       # In order to make a commit, we need to initialize a user.
       # You may choose to write something less generic here if you want, it doesn't matter functionality wise.
@@ -94,11 +108,17 @@ jobs:
           git config user.name "GitHub actions"
           git config user.email noreply@github.com
 
-      - name: Create monorepo release tag
+      - name: Create monorepo release tag via API
         id: create_monorepo_release
-        run: |
-          git tag -a v${{ steps.extract-version.outputs.release_version }} -m "chore(monorepo): release v${{ steps.extract-version.outputs.release_version }}"
-          git push origin refs/tags/v${{ steps.extract-version.outputs.release_version }}
+        uses: ryancyq/github-signed-commit@e9f3b28c80da7be66d24b8f501a5abe82a6b855f # v1.2.0
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+        with:
+          branch-name: ${{ github.ref_name }}
+          commit-message: 'chore(monorepo): release v${{ steps.extract-version.outputs.release_version }}'
+          files: |
+            .
+          tag: 'v${{ steps.extract-version.outputs.release_version }}'
 
       - name: Setup Node
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
@@ -278,6 +298,8 @@ jobs:
   publish-npm-packages:
     needs: [get-release-inputs, release]
     name: Publish packages to NPM
+    permissions:
+      contents: read # to checkout repository code
     uses: ./.github/workflows/deploy-npm.yml
     with:
       trigger_source: ${{ needs.get-release-inputs.outputs.trigger_source }}
