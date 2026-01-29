@@ -24,18 +24,27 @@ jobs:
     uses: ./.github/workflows/validate-actor.yml
     with:
       team_names: 'js-sdk,integrations'
-    secrets:
-      PAT: ${{ secrets.PAT }}
 
   draft-new-release:
     needs: validate-actor
     name: Draft a new release
     runs-on: [self-hosted, Linux, X64]
+    permissions:
+      contents: read # to checkout repository code
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
         with:
           egress-policy: audit
+
+      - name: Generate GitHub App Token
+        id: generate-token
+        uses: actions/create-github-app-token@67018539274d69449ef7c02e8e71183d1719ab42 # v2.1.4
+        with:
+          app-id: ${{ vars.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_PRIVATE_KEY }}
+          permission-contents: write # to create commits, tags, and push branches
+          permission-pull-requests: write # to create and update PRs
 
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -127,7 +136,7 @@ jobs:
       - name: Create pull request into main
         id: create-pr
         env:
-          GH_TOKEN: ${{ secrets.PAT }}
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
           pr_title="chore(release): merge ${{ steps.create-release.outputs.branch_name }} into main [${{ github.event.inputs.release_ticket_id }}]"
           

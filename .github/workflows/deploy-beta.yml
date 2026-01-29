@@ -32,8 +32,6 @@ jobs:
     uses: ./.github/workflows/validate-actor.yml
     with:
       team_names: 'js-sdk,integrations'
-    secrets:
-      PAT: ${{ secrets.PAT }}
 
   find-pr:
     name: Find PR for Current Branch
@@ -273,5 +271,3 @@ jobs:
       sanity_test_suite_url: https://cdn.rudderlabs.com/sanity-suite/beta/${{ needs.get-deploy-inputs.outputs.beta_identifier }}
       build_source_id: ${{ needs.get-deploy-inputs.outputs.beta_identifier_for_automation_tests }}
       trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
-    secrets:
-      PAT: ${{ secrets.PAT }}

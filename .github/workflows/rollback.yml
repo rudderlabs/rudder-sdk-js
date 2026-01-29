@@ -29,8 +29,6 @@ jobs:
     uses: ./.github/workflows/validate-actor.yml
     with:
       team_names: 'js-sdk,integrations'
-    secrets:
-      PAT: ${{ secrets.PAT }}
 
   get-rollback-inputs:
     name: Get Rollback Inputs
@@ -283,5 +281,3 @@ jobs:
     with:
       environment: production
       trigger_source: ${{ needs.get-rollback-inputs.outputs.trigger_source }}
-    secrets:
-      PAT: ${{ secrets.PAT }}

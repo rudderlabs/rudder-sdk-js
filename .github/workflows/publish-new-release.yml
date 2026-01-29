@@ -179,7 +179,7 @@ jobs:
         if: always()
         continue-on-error: true
         env:
-          GH_TOKEN: ${{ secrets.PAT }}
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
           pr_title="chore(release): merge main into develop after release v${{ steps.extract-version.outputs.release_version }} [${{ steps.extract-version.outputs.release_ticket_id }}]"
           
