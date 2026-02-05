@@ -1,29 +1,27 @@
 #!/bin/sh
 
-# Accept base and head as parameters (default to develop and HEAD)
-BASE_REF=${1:-develop}
-HEAD_REF=${2:-HEAD}
+# Accept affected projects as command line arguments
+# Usage: ./make-package-json-publish-ready.sh project1 project2 project3 ...
+# Example: ./make-package-json-publish-ready.sh $(npx nx show projects --affected)
+
+if [ $# -eq 0 ]; then
+  echo "No affected projects provided."
+  echo "Usage: $0 <project1> <project2> ..."
+  echo "Example: $0 \$(npx nx show projects --affected --base=origin/develop --head=HEAD)"
+  exit 0
+fi
 
 # Define the base directory of your monorepo
 BASE_DIR=$(pwd)
 # Define the directory containing your packages
 PACKAGES_DIR="$BASE_DIR/packages"
 
-# Get affected projects using Nx
-echo "Getting affected packages (base: $BASE_REF, head: $HEAD_REF)..."
-AFFECTED_PROJECTS=$(npx nx show projects --affected --base="$BASE_REF" --head="$HEAD_REF" 2>/dev/null)
-
-if [ -z "$AFFECTED_PROJECTS" ]; then
-  echo "No affected packages found."
-  exit 0
-fi
-
-echo "Affected packages:"
-echo "$AFFECTED_PROJECTS"
+echo "Processing $# affected package(s)..."
+echo "Projects: $*"
 echo ""
 
 # Convert project names to package directories
-for project in $AFFECTED_PROJECTS; do
+for project in "$@"; do
   # Extract package name from @rudderstack/analytics-js format
   package_name=$(echo "$project" | sed 's/@rudderstack\///')
 

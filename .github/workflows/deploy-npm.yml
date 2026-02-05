@@ -163,15 +163,27 @@ jobs:
           HUSKY: 0
           NPM_CONFIG_PROVENANCE: true
         run: |
+          # Get affected projects between versions
+          AFFECTED_PROJECTS=$(npx nx show projects --affected --base=${{ env.last_monorepo_version }} --head=${{ env.current_monorepo_version }})
+
           # Remove unnecessary fields from package.json before publishing
-          ./scripts/make-package-json-publish-ready.sh ${{ env.last_monorepo_version }} ${{ env.current_monorepo_version }}
+          if [ -n "$AFFECTED_PROJECTS" ]; then
+            echo "Cleaning package.json for affected projects..."
+            ./scripts/make-package-json-publish-ready.sh $AFFECTED_PROJECTS
 
-          TAG_OPTION=""
-          if [[ "${{ inputs.environment }}" == "beta" ]]; then
-            TAG_OPTION="--tag=beta"
+            # Convert space-separated projects to comma-separated for Nx
+            PROJECTS_CSV=$(echo $AFFECTED_PROJECTS | tr ' ' ',')
+            echo "Projects to publish: $PROJECTS_CSV"
+
+            TAG_OPTION=""
+            if [[ "${{ inputs.environment }}" == "beta" ]]; then
+              TAG_OPTION="--tag=beta"
+            fi
+
+            npx nx release publish --verbose --projects=$PROJECTS_CSV $TAG_OPTION
+          else
+            echo "No affected projects found, skipping publish"
           fi
-
-          npx nx release publish --verbose --projects=@rudderstack/analytics-js $TAG_OPTION
 
           # Reset the changes made to package.json
           git reset --hard
