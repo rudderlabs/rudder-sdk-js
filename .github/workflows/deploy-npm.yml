@@ -164,7 +164,7 @@ jobs:
           NPM_CONFIG_PROVENANCE: true
         run: |
           # Remove unnecessary fields from package.json before publishing
-          ./scripts/make-package-json-publish-ready.sh
+          ./scripts/make-package-json-publish-ready.sh ${{ env.last_monorepo_version }} ${{ env.current_monorepo_version }}
 
           TAG_OPTION=""
           if [[ "${{ inputs.environment }}" == "beta" ]]; then
