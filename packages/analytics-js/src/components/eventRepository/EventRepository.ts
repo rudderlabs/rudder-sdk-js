@@ -32,6 +32,8 @@ class EventRepository implements IEventRepository {
   dataplaneEventsQueue: any;
   destinationsEventsQueue: any;
   dmtEventsQueue: any;
+  eventsBuffer: RudderEvent[];
+  isEventBufferingActive: boolean;
 
   /**
    *
@@ -52,6 +54,8 @@ class EventRepository implements IEventRepository {
     this.httpClient = httpClient;
     this.logger = logger;
     this.storeManager = storeManager;
+    this.eventsBuffer = [];
+    this.isEventBufferingActive = true;
   }
 
   /**
@@ -96,50 +100,66 @@ class EventRepository implements IEventRepository {
     });
 
     const bufferEventsBeforeConsent = shouldBufferEventsForPreConsent(state);
+    if (!bufferEventsBeforeConsent) {
+      this.startDpEventsQueue();
+    }
+  }
 
-    // Start the queue processing only when the destinations are ready or hybrid mode destinations exist
-    // However, events will be enqueued for now.
-    // At the time of processing the events, the integrations config data from destinations
-    // is merged into the event object
-    let timeoutId: number;
-    effect(() => {
-      const shouldBufferDpEvents =
-        state.loadOptions.value.bufferDataPlaneEventsUntilReady === true &&
-        state.nativeDestinations.clientDestinationsReady.value === false;
+  private startDpEventsQueue() {
+    const bufferEventsUntilReady = state.loadOptions.value
+      .bufferDataPlaneEventsUntilReady as boolean;
 
-      const hybridDestExist = state.nativeDestinations.activeDestinations.value.some(
-        (dest: Destination) => isHybridModeDestination(dest),
-      );
+    const hybridDestExist = state.nativeDestinations.activeDestinations.value.some(
+      (dest: Destination) => isHybridModeDestination(dest),
+    );
+    const shouldBufferEvents = bufferEventsUntilReady && hybridDestExist;
 
-      if (
-        (hybridDestExist === false || shouldBufferDpEvents === false) &&
-        !bufferEventsBeforeConsent &&
-        this.dataplaneEventsQueue?.scheduleTimeoutActive !== true
-      ) {
-        (globalThis as typeof window).clearTimeout(timeoutId);
+    // Start the data plane events queue and replay the events from the buffer
+    // This function is called when the client destinations are ready
+    // or when the timeout expires
+    // or when no buffering is required
+    const startDpQueueAndReplayEvents = () => {
+      this.isEventBufferingActive = false;
+      this.eventsBuffer.forEach(event => {
+        this.enqueue(event);
+      });
+
+      if (this.dataplaneEventsQueue?.scheduleTimeoutActive !== true) {
         this.dataplaneEventsQueue?.start();
+      }
+
+      this.eventsBuffer = [];
+    };
+
+    let timeoutId: number;
+    // Start the queue when no event buffering is required
+    // or when buffering is required and the client destinations are ready
+    effect(() => {
+      if (!shouldBufferEvents || state.nativeDestinations.clientDestinationsReady.value) {
+        (globalThis as typeof window).clearTimeout(timeoutId);
+        startDpQueueAndReplayEvents();
       }
     });
 
     // Force start the data plane events queue processing after a timeout
-    if (state.loadOptions.value.bufferDataPlaneEventsUntilReady === true) {
+    if (shouldBufferEvents) {
+      this.isEventBufferingActive = true;
       timeoutId = (globalThis as typeof window).setTimeout(() => {
-        if (this.dataplaneEventsQueue?.scheduleTimeoutActive !== true) {
-          this.dataplaneEventsQueue?.start();
-        }
+        startDpQueueAndReplayEvents();
       }, state.loadOptions.value.dataPlaneEventsBufferTimeout);
     }
   }
 
   resume() {
-    if (this.dataplaneEventsQueue?.scheduleTimeoutActive !== true) {
-      if (state.consents.postConsent.value.discardPreConsentEvents) {
-        this.dataplaneEventsQueue?.clear();
-        this.destinationsEventsQueue?.clear();
-      }
-
-      this.dataplaneEventsQueue?.start();
+    if (
+      this.dataplaneEventsQueue?.scheduleTimeoutActive !== true &&
+      state.consents.postConsent.value.discardPreConsentEvents
+    ) {
+      this.dataplaneEventsQueue?.clear();
+      this.destinationsEventsQueue?.clear();
     }
+
+    this.startDpEventsQueue();
   }
 
   /**
@@ -149,24 +169,29 @@ class EventRepository implements IEventRepository {
    */
   enqueue(event: RudderEvent, callback?: ApiCallback): void {
     const dpQEvent = getFinalEvent(event, state);
-    this.pluginsManager.invokeSingle(
-      `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.enqueue`,
-      state,
-      this.dataplaneEventsQueue,
-      dpQEvent,
-      this.errorHandler,
-      this.logger,
-    );
 
-    const dQEvent = clone(event);
-    this.pluginsManager.invokeSingle(
-      `${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.enqueue`,
-      state,
-      this.destinationsEventsQueue,
-      dQEvent,
-      this.errorHandler,
-      this.logger,
-    );
+    if (this.isEventBufferingActive) {
+      this.eventsBuffer.push(dpQEvent);
+    } else {
+      this.pluginsManager.invokeSingle(
+        `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.enqueue`,
+        state,
+        this.dataplaneEventsQueue,
+        dpQEvent,
+        this.errorHandler,
+        this.logger,
+      );
+
+      const dQEvent = clone(event);
+      this.pluginsManager.invokeSingle(
+        `${DESTINATIONS_QUEUE_EXT_POINT_PREFIX}.enqueue`,
+        state,
+        this.destinationsEventsQueue,
+        dQEvent,
+        this.errorHandler,
+        this.logger,
+      );
+    }
 
     // Invoke the callback if it exists
     const apiName = `${event.type.charAt(0).toUpperCase()}${event.type.slice(1)}${API_SUFFIX}`;
