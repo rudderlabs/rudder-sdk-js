@@ -303,6 +303,8 @@ class Analytics implements IAnalytics {
       }
     }
 
+    // Setting the active destinations is important for the events processing.
+    // So, it should be done before initializing the event manager.
     this.setActiveDestinations();
 
     // Initialize event manager
