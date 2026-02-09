@@ -29,6 +29,8 @@ jobs:
     uses: ./.github/workflows/validate-actor.yml
     with:
       team_names: 'js-sdk,integrations'
+    secrets:
+      RELEASE_PRIVATE_KEY: ${{ secrets.RELEASE_PRIVATE_KEY }}
 
   get-rollback-inputs:
     name: Get Rollback Inputs
@@ -281,3 +283,5 @@ jobs:
     with:
       environment: production
       trigger_source: ${{ needs.get-rollback-inputs.outputs.trigger_source }}
+    secrets:
+      RELEASE_PRIVATE_KEY: ${{ secrets.RELEASE_PRIVATE_KEY }}

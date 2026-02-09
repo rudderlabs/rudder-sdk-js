@@ -26,8 +26,8 @@ on:
         type: string
         required: false
     secrets:
-      PAT:
-        description: Personal Access Token
+      RELEASE_PRIVATE_KEY:
+        description: GitHub App private key for token generation
         required: true
       SLACK_BOT_TOKEN:
         description: Slack Bot Token for posting to release threads
