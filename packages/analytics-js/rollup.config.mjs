@@ -27,7 +27,7 @@ const isLegacyBuild = process.env.BROWSERSLIST_ENV !== 'modern';
 const additionalWatchPaths = isLegacyBuild ? ['../analytics-js-plugins/src/**', '../analytics-js-common/src/**'] : [];
 const variantSubfolder = isLegacyBuild ? '/legacy' : '/modern';
 const isLiteBuild = process.env.LITE_BUILD === 'true';
-let bundledPluginsList = process.env.BUNDLED_PLUGINS;
+const bundledPluginsList = process.env.BUNDLED_PLUGINS;
 const isDynamicCustomBuild = Boolean(bundledPluginsList);
 const bundleAllPlugins = isLegacyBuild || bundledPluginsList === 'all';
 const isContentScriptBuild = process.env.NO_EXTERNAL_HOST;
