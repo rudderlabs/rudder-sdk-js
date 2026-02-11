@@ -28,10 +28,10 @@ const additionalWatchPaths = isLegacyBuild ? ['../analytics-js-plugins/src/**', 
 const variantSubfolder = isLegacyBuild ? '/legacy' : '/modern';
 const isLiteBuild = process.env.LITE_BUILD === 'true';
 let bundledPluginsList = process.env.BUNDLED_PLUGINS;
-const isDynamicCustomBuild = Boolean(bundledPluginsList) || isLiteBuild;
-const bundleAllPlugins = (isLegacyBuild && !isLiteBuild) || bundledPluginsList === 'all';
+const isDynamicCustomBuild = Boolean(bundledPluginsList);
+const bundleAllPlugins = isLegacyBuild || bundledPluginsList === 'all';
 const isContentScriptBuild = process.env.NO_EXTERNAL_HOST;
-const isModuleFederatedBuild = !isDynamicCustomBuild && !isLegacyBuild;
+const isModuleFederatedBuild = !isDynamicCustomBuild && !isLegacyBuild && !isLiteBuild;
 const sourceMapType =
   process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
 const cdnPath = isDynamicCustomBuild ? `dynamicCdnBundle` : `cdn`;
