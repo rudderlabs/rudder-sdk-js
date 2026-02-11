@@ -16,6 +16,7 @@ import { isDefined, isFunction } from '@rudderstack/analytics-js-common/utilitie
 import {
   DEPRECATED_PLUGIN_WARNING,
   generateMisconfiguredPluginsWarning,
+  UNAVAILABLE_PLUGINS_ERROR,
   UNKNOWN_PLUGINS_WARNING,
 } from '../../constants/logMessages';
 import { setExposedGlobal } from '../utilities/globals';
@@ -56,7 +57,7 @@ class PluginsManager implements IPluginsManager {
     state.lifecycle.status.value = 'pluginsLoading';
     // Expose pluginsCDNPath to global object, so it can be used in the promise that determines
     // remote plugin cdn path to support proxied plugin remotes
-    if (!__BUNDLE_ALL_PLUGINS__) {
+    if (!__PLUGINS_BUNDLED__) {
       setExposedGlobal('pluginsCDNPath', state.lifecycle.pluginsCDNPath.value);
     }
     this.setActivePlugins();
@@ -245,14 +246,21 @@ class PluginsManager implements IPluginsManager {
    * Register plugins that are direct imports to PluginEngine
    */
   registerLocalPlugins() {
-    Object.values(pluginsInventory).forEach(localPlugin => {
-      if (
-        isFunction(localPlugin) &&
-        state.plugins.activePlugins.value.includes(localPlugin().name)
-      ) {
-        this.register([localPlugin()]);
+    const unavailablePlugins: string[] = [];
+    Object.entries(pluginsInventory).forEach(([pluginName, localPlugin]) => {
+      if (state.plugins.activePlugins.value.includes(pluginName)) {
+        if (isFunction(localPlugin)) {
+          this.register([localPlugin()]);
+        } else {
+          unavailablePlugins.push(pluginName);
+          state.plugins.failedPlugins.value = [...state.plugins.failedPlugins.value, pluginName];
+        }
       }
     });
+
+    if (unavailablePlugins.length > 0) {
+      this.logger.error(UNAVAILABLE_PLUGINS_ERROR(PLUGINS_MANAGER, unavailablePlugins));
+    }
   }
 
   /**

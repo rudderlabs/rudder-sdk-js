@@ -38,7 +38,7 @@ const defaultLoadOptions: LoadOptions = {
     encryption: {
       version: DEFAULT_STORAGE_ENCRYPTION_VERSION,
     },
-    migrate: true,
+    migrate: !__IS_LITE_BUILD__,
     cookie: {},
   },
   sendAdblockPage: false,
