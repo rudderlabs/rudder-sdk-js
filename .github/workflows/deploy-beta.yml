@@ -158,7 +158,10 @@ jobs:
   get-deploy-inputs:
     name: Get Deploy Inputs
     needs: [find-pr, validate-pr]
-    if: ${{ always() && needs.find-pr.result == 'success' && (needs.validate-pr.result == 'success' || needs.validate-pr.result == 'skipped') }}
+    if: |
+      always() &&
+      needs.find-pr.result == 'success' &&
+      (needs.find-pr.outputs.force_deploy_mode == 'true' || needs.validate-pr.result == 'success')
     runs-on: [self-hosted, Linux, X64]
     outputs:
       version_suffix: ${{ steps.deploy-inputs.outputs.version_suffix }}
