@@ -1,5 +1,3 @@
-import { contextState } from '../../../src/state/slices/context';
-
 /**
  * Tests for context state slice, specifically the variant field
  * which tracks which build variant is being used
