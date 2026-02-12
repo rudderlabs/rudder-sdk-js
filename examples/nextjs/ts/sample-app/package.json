@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "start:dev": "next dev",
     "lint": "next lint",
     "clean": "rm -rf node_modules .next",
     "setup": "npm install",
