@@ -253,12 +253,15 @@ class PluginsManager implements IPluginsManager {
           this.register([localPlugin()]);
         } else {
           unavailablePlugins.push(pluginName);
-          state.plugins.failedPlugins.value = [...state.plugins.failedPlugins.value, pluginName];
         }
       }
     });
 
     if (unavailablePlugins.length > 0) {
+      state.plugins.failedPlugins.value = [
+        ...state.plugins.failedPlugins.value,
+        ...unavailablePlugins,
+      ];
       this.logger.error(UNAVAILABLE_PLUGINS_ERROR(PLUGINS_MANAGER, unavailablePlugins));
     }
   }
@@ -329,11 +332,11 @@ class PluginsManager implements IPluginsManager {
 
   // TODO: Implement reset API instead
   unregisterLocalPlugins() {
-    Object.values(pluginsInventory).forEach(localPlugin => {
+    Object.keys(pluginsInventory).forEach(pluginKey => {
       try {
-        this.engine.unregister(localPlugin().name);
+        this.engine.unregister(pluginKey);
       } catch (e) {
-        this.onError(e, `Failed to unregister plugin "${localPlugin().name}"`);
+        this.onError(e, `Failed to unregister plugin "${pluginKey}"`);
       }
     });
   }
