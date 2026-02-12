@@ -95,7 +95,6 @@ jobs:
   validate-pr:
     name: Validate PR Status
     needs: find-pr
-    if: ${{ needs.find-pr.outputs.force_deploy_mode != 'true' }}
     runs-on: [self-hosted, Linux, X64]
     steps:
       - name: Harden the runner (Audit all outbound calls)
@@ -113,6 +112,14 @@ jobs:
         with:
           script: |
             const prNumber = '${{ needs.find-pr.outputs.pr_number }}';
+            const forceDeployMode = '${{ needs.find-pr.outputs.force_deploy_mode }}' === 'true';
+
+            // Skip validation if force deploy is enabled
+            if (forceDeployMode) {
+              console.log(`⚠️ FORCE DEPLOY MODE - Skipping all PR validation checks`);
+              console.log(`PR #${prNumber} validation bypassed by explicit user confirmation`);
+              return;
+            }
 
             console.log(`Validating PR #${prNumber}...`);
 
@@ -158,10 +165,6 @@ jobs:
   get-deploy-inputs:
     name: Get Deploy Inputs
     needs: [find-pr, validate-pr]
-    if: |
-      always() &&
-      needs.find-pr.result == 'success' &&
-      (needs.validate-pr.result == 'success' || needs.validate-pr.result == 'skipped')
     runs-on: [self-hosted, Linux, X64]
     outputs:
       version_suffix: ${{ steps.deploy-inputs.outputs.version_suffix }}
@@ -208,7 +211,6 @@ jobs:
     name: Deploy to CDN
     uses: ./.github/workflows/deploy.yml
     needs: get-deploy-inputs
-    if: ${{ needs.get-deploy-inputs.result == 'success' }}
     with:
       environment: beta
       bugsnag_release_stage: beta
@@ -229,7 +231,7 @@ jobs:
     name: Deploy to NPM
     uses: ./.github/workflows/deploy-npm.yml
     needs: get-deploy-inputs
-    if: ${{ inputs.deploy_to_npm && needs.get-deploy-inputs.result == 'success' }}
+    if: ${{ inputs.deploy_to_npm }}
     with:
       environment: beta
       bugsnag_release_stage: beta
@@ -245,7 +247,6 @@ jobs:
   deploy-sanity-suite:
     name: Deploy sanity suite
     needs: [get-deploy-inputs]
-    if: ${{ needs.get-deploy-inputs.result == 'success' }}
     uses: ./.github/workflows/deploy-sanity-suite.yml
     with:
       environment: 'beta'
