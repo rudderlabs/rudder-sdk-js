@@ -179,12 +179,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Debug job conditions
-        run: |
-          echo "find-pr result: ${{ needs.find-pr.result }}"
-          echo "find-pr force_deploy_mode: ${{ needs.find-pr.outputs.force_deploy_mode }}"
-          echo "validate-pr result: ${{ needs.validate-pr.result }}"
-
       - name: Set trigger source
         id: set-trigger-source
         run: |
@@ -214,6 +208,7 @@ jobs:
     name: Deploy to CDN
     uses: ./.github/workflows/deploy.yml
     needs: get-deploy-inputs
+    if: ${{ needs.get-deploy-inputs.result == 'success' }}
     with:
       environment: beta
       bugsnag_release_stage: beta
@@ -234,7 +229,7 @@ jobs:
     name: Deploy to NPM
     uses: ./.github/workflows/deploy-npm.yml
     needs: get-deploy-inputs
-    if: ${{ inputs.deploy_to_npm }}
+    if: ${{ inputs.deploy_to_npm && needs.get-deploy-inputs.result == 'success' }}
     with:
       environment: beta
       bugsnag_release_stage: beta
@@ -250,6 +245,7 @@ jobs:
   deploy-sanity-suite:
     name: Deploy sanity suite
     needs: [get-deploy-inputs]
+    if: ${{ needs.get-deploy-inputs.result == 'success' }}
     uses: ./.github/workflows/deploy-sanity-suite.yml
     with:
       environment: 'beta'
