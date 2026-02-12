@@ -161,7 +161,7 @@ jobs:
     if: |
       always() &&
       needs.find-pr.result == 'success' &&
-      (needs.find-pr.outputs.force_deploy_mode == 'true' || needs.validate-pr.result == 'success')
+      (needs.validate-pr.result == 'success' || needs.validate-pr.result == 'skipped')
     runs-on: [self-hosted, Linux, X64]
     outputs:
       version_suffix: ${{ steps.deploy-inputs.outputs.version_suffix }}
@@ -178,6 +178,12 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
+
+      - name: Debug job conditions
+        run: |
+          echo "find-pr result: ${{ needs.find-pr.result }}"
+          echo "find-pr force_deploy_mode: ${{ needs.find-pr.outputs.force_deploy_mode }}"
+          echo "validate-pr result: ${{ needs.validate-pr.result }}"
 
       - name: Set trigger source
         id: set-trigger-source
