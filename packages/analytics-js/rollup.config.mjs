@@ -194,7 +194,10 @@ const getExternalsConfig = () => {
 // Output in console to assist debugging bundle builds
 const configSummaryOutput = () => {
   if (isLiteBuild) {
-    console.log(`Lite Bundle. Excluding device mode plugins.`);
+    const excludedPlugins = Object.keys(getExternalsConfig());
+    console.log(
+      `Lite Bundle. Excluding plugins (via externals config): ${excludedPlugins.join(', ')}`
+    );
   } else if (isDynamicCustomBuild) {
     console.log(`Custom Bundle. Including plugins: ${bundledPluginsList}`);
   }
