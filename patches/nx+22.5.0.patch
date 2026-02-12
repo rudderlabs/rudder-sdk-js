@@ -64,10 +64,10 @@ index 28140be..743a5b4 100644
  }
  exports.StaticRunManyTerminalOutputLifeCycle = StaticRunManyTerminalOutputLifeCycle;
 diff --git a/node_modules/nx/src/utils/output.js b/node_modules/nx/src/utils/output.js
-index 7d8eb43..8e9c0fc 100644
+index 60f840f..b4cb539 100644
 --- a/node_modules/nx/src/utils/output.js
 +++ b/node_modules/nx/src/utils/output.js
-@@ -157,20 +157,22 @@ class CLIOutput {
+@@ -169,20 +169,22 @@ class CLIOutput {
          this.addNewline();
          this.addNewline();
      }
