@@ -7,7 +7,7 @@
     "packages/*"
   ],
   "scripts": {
-    "setup": "npm i --include=optional && npm run prepare && npm run build:package:modern",
+    "setup": "npm ci --include=optional && npm run prepare && npm run build:package:modern",
     "setup:ci": "npm run setup:deps && npm run build:package:modern",
     "setup:deps": "npm ci --prefer-offline --no-audit --include=optional && npm run prepare",
     "clean": "nx run-many -t clean && nx reset && git clean -xdf node_modules",
