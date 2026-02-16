@@ -218,7 +218,8 @@
     "@segment/localstorage-retry": {
       "debug": "2.6.9"
     },
-    "tmp": "0.2.5"
+    "tmp": "0.2.5",
+    "tar": "7.5.9"
   },
   "lint-staged": {
     "*.{json,js,md,ts}": "prettier --write"
