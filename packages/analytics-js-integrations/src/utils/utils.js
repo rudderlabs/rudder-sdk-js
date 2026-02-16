@@ -7,14 +7,24 @@ import Logger from './logger';
 const logger = new Logger('Utils');
 
 /**
- * Returns the provided value when it is defined and not null; otherwise returns the default value.
- * Use this to default config options (e.g. booleans) without treating explicit false/0/'' as absent.
- * @param {*} value - The value to use if present (defined and not null)
- * @param {*} defaultValue - The value to return when value is undefined or null
- * @returns {*} value if present, otherwise defaultValue
+ * Returns the provided value when present and valid; otherwise returns the default value.
+ * When value is null or undefined, defaultValue is returned.
+ * When value is present: if the expectation is a boolean (defaultValue is boolean),
+ * only a valid boolean (true/false) is accepted—otherwise defaultValue is returned;
+ * for non-boolean defaults, value is returned as-is.
+ * @param {*} value - The value to use if present and valid for the expected type
+ * @param {*} defaultValue - The value to return when value is absent or invalid
+ * @returns {*} value if present and valid, otherwise defaultValue
  */
 function getValueOrDefault(value, defaultValue) {
-  return value != null ? value : defaultValue;
+  if (value !== null && value !== undefined) {
+    // If the expectation is a boolean, make sure the input is also boolean
+    if (typeof defaultValue === 'boolean') {
+      return typeof value === 'boolean' ? value : defaultValue;
+    }
+    return value;
+  }
+  return defaultValue;
 }
 
 /**
