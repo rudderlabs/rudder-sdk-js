@@ -13,7 +13,7 @@ const getMandatoryPluginsMap = (): PluginMap => ({}) as PluginMap;
  * Map of optional plugin names and direct imports for legacy builds
  */
 const getOptionalPluginsMap = (): PluginMap => {
-  if (!__BUNDLE_ALL_PLUGINS__) {
+  if (!__PLUGINS_BUNDLED__) {
     return {} as PluginMap;
   }
 
@@ -26,7 +26,7 @@ const getOptionalPluginsMap = (): PluginMap => {
 const getRemotePluginsMap = (
   activePluginNames: PluginName[],
 ): PluginMap<Promise<ExtensionPlugin>> => {
-  if (__BUNDLE_ALL_PLUGINS__) {
+  if (__PLUGINS_BUNDLED__) {
     return {} as PluginMap<Promise<ExtensionPlugin>>;
   }
 

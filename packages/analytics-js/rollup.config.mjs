@@ -26,11 +26,12 @@ const baseCdnUrl = process.env.BASE_CDN_URL ? process.env.BASE_CDN_URL.replace(/
 const isLegacyBuild = process.env.BROWSERSLIST_ENV !== 'modern';
 const additionalWatchPaths = isLegacyBuild ? ['../analytics-js-plugins/src/**', '../analytics-js-common/src/**'] : [];
 const variantSubfolder = isLegacyBuild ? '/legacy' : '/modern';
+const isLiteBuild = process.env.LITE_BUILD === 'true';
 const bundledPluginsList = process.env.BUNDLED_PLUGINS;
 const isDynamicCustomBuild = Boolean(bundledPluginsList);
 const bundleAllPlugins = isLegacyBuild || bundledPluginsList === 'all';
 const isContentScriptBuild = process.env.NO_EXTERNAL_HOST;
-const isModuleFederatedBuild = !isDynamicCustomBuild && !isLegacyBuild;
+const isModuleFederatedBuild = !isDynamicCustomBuild && !isLegacyBuild && !isLiteBuild;
 const sourceMapType =
   process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
 const cdnPath = isDynamicCustomBuild ? `dynamicCdnBundle` : `cdn`;
@@ -61,9 +62,46 @@ if (isContentScriptBuild) {
 // Set paths for other bundling variant named exports contents
 if (isContentScriptBuild) {
   outDirNpm = `${outDirNpm}/content-script`;
+} else if (isLiteBuild) {
+  outDirNpm = `${outDirNpm}/lite`;
 } else if (isDynamicCustomBuild) {
   outDirNpm = `${outDirNpm}/bundled`;
 }
+
+// Compute the variant name based on build flags
+const getVariantName = () => {
+  // CDN builds will use window.rudderAnalyticsBuildType at runtime
+  // So we inject a special marker that will be replaced at runtime
+  if (isCDNPackageBuild) {
+    return 'CDN_RUNTIME_VALUE'; // Special marker - will be handled in context.ts
+  }
+
+  const variantParts = [];
+
+  // Add legacy prefix if applicable
+  if (isLegacyBuild) {
+    variantParts.push('legacy');
+  }
+
+  // Determine the variant type
+  if (isContentScriptBuild) {
+    variantParts.push('content-script');
+  } else if (isLiteBuild) {
+    variantParts.push('lite');
+  } else if (bundledPluginsList === 'all') {
+    variantParts.push('bundled');
+  }
+
+  // Return assembled variant name or 'modern'/'legacy' for default exports
+  if (variantParts.length > 0) {
+    return variantParts.join('-');
+  }
+
+  // Default export: legacy or modern
+  return isLegacyBuild ? 'legacy' : 'modern';
+};
+
+const variantName = getVariantName();
 
 // Configuration to exclude plugin imports for generated bundle
 const getExternalsConfig = () => {
@@ -77,6 +115,18 @@ const getExternalsConfig = () => {
   }
 
   if (bundledPluginsList === 'all') {
+    return externalGlobalsConfig;
+  }
+
+  // Lite build: exclude device mode, storage legacy, beacon, and linker plugins
+  if (isLiteBuild) {
+    externalGlobalsConfig['@rudderstack/analytics-js-plugins/deviceModeDestinations'] = '{}';
+    externalGlobalsConfig['@rudderstack/analytics-js-plugins/deviceModeTransformation'] = '{}';
+    externalGlobalsConfig['@rudderstack/analytics-js-plugins/nativeDestinationQueue'] = '{}';
+    externalGlobalsConfig['@rudderstack/analytics-js-plugins/beaconQueue'] = '{}';
+    externalGlobalsConfig['@rudderstack/analytics-js-plugins/googleLinker'] = '{}';
+    externalGlobalsConfig['@rudderstack/analytics-js-plugins/storageEncryptionLegacy'] = '{}';
+    externalGlobalsConfig['@rudderstack/analytics-js-plugins/storageMigrator'] = '{}';
     return externalGlobalsConfig;
   }
 
@@ -143,7 +193,12 @@ const getExternalsConfig = () => {
 
 // Output in console to assist debugging bundle builds
 const configSummaryOutput = () => {
-  if (isDynamicCustomBuild) {
+  if (isLiteBuild) {
+    const excludedPlugins = Object.keys(getExternalsConfig());
+    console.log(
+      `Lite Bundle. Excluding plugins (via externals config): ${excludedPlugins.join(', ')}`
+    );
+  } else if (isDynamicCustomBuild) {
     console.log(`Custom Bundle. Including plugins: ${bundledPluginsList}`);
   }
 
@@ -180,10 +235,12 @@ export function getDefaultConfig(distName) {
     plugins: [
       replace({
         preventAssignment: true,
-        __BUNDLE_ALL_PLUGINS__: bundleAllPlugins,
+        __PLUGINS_BUNDLED__: bundleAllPlugins || isLiteBuild,
         __IS_LEGACY_BUILD__: isLegacyBuild,
+        __IS_LITE_BUILD__: isLiteBuild,
         __PACKAGE_VERSION__: `'${version}'`,
         __MODULE_TYPE__: `'${moduleType}'`,
+        __BUILD_VARIANT__: `'${variantName}'`,
         __LOCK_DEPS_VERSION__: lockDepsVersion,
         __RS_POLYFILLIO_SDK_URL__: `'${polyfillIoUrl || ''}'`,
         __RS_BUGSNAG_RELEASE_STAGE__: `'${process.env.BUGSNAG_RELEASE_STAGE || 'production'}'`,

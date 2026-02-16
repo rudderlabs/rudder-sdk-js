@@ -5,5 +5,6 @@ declare global {
     rudderanalytics: RudderAnalytics | RudderAnalyticsPreloader | undefined;
     RudderStackGlobals: IRudderStackGlobals;
     RudderSnippetVersion?: string;
+    rudderAnalyticsBuildType?: 'legacy' | 'modern';
   }
 }

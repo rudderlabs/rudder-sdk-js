@@ -88,7 +88,7 @@ class ConfigManager implements IConfigManager {
     }
 
     let pluginsCDNPath: Nullable<string> | undefined;
-    if (!__BUNDLE_ALL_PLUGINS__) {
+    if (!__PLUGINS_BUNDLED__) {
       // determine the path to fetch remote plugins from
       pluginsCDNPath = getPluginsCDNPath(
         APP_VERSION,

@@ -649,4 +649,268 @@ describe('PluginsManager', () => {
       );
     });
   });
+
+  describe('registerLocalPlugins', () => {
+    beforeEach(() => {
+      resetState();
+      pluginsManager = new PluginsManager(defaultPluginEngine, defaultErrorHandler, defaultLogger);
+      jest.clearAllMocks();
+    });
+
+    it('should successfully register available local plugins', () => {
+      // Mock pluginsInventory with function-based plugins
+      const mockPluginsInventory = {
+        TestPlugin1: jest.fn(() => ({ name: 'TestPlugin1', init: jest.fn() })),
+        TestPlugin2: jest.fn(() => ({ name: 'TestPlugin2', init: jest.fn() })),
+      };
+
+      // Mock the pluginsInventory import
+      const pluginsInventoryModule = require('../../../src/components/pluginsManager/pluginsInventory');
+      const originalInventory = pluginsInventoryModule.pluginsInventory;
+      pluginsInventoryModule.pluginsInventory = mockPluginsInventory;
+
+      // Set active plugins
+      state.plugins.activePlugins.value = ['TestPlugin1', 'TestPlugin2'];
+
+      pluginsManager.registerLocalPlugins();
+
+      // Verify both plugins were called and registered
+      expect(mockPluginsInventory.TestPlugin1).toHaveBeenCalled();
+      expect(mockPluginsInventory.TestPlugin2).toHaveBeenCalled();
+      expect(defaultPluginEngine.register).toHaveBeenCalledTimes(2);
+
+      // Restore original inventory
+      pluginsInventoryModule.pluginsInventory = originalInventory;
+    });
+
+    it('should log error when plugins are unavailable (not functions)', () => {
+      // Mock pluginsInventory with unavailable plugins (empty objects instead of functions)
+      const mockPluginsInventory = {
+        AvailablePlugin: jest.fn(() => ({ name: 'AvailablePlugin', init: jest.fn() })),
+        UnavailablePlugin1: {}, // Not a function - unavailable
+        UnavailablePlugin2: {}, // Not a function - unavailable
+      };
+
+      // Mock the pluginsInventory import
+      const pluginsInventoryModule = require('../../../src/components/pluginsManager/pluginsInventory');
+      const originalInventory = pluginsInventoryModule.pluginsInventory;
+      pluginsInventoryModule.pluginsInventory = mockPluginsInventory;
+
+      // Set active plugins including unavailable ones
+      state.plugins.activePlugins.value = [
+        'AvailablePlugin',
+        'UnavailablePlugin1',
+        'UnavailablePlugin2',
+      ];
+
+      const errorLogSpy = jest.spyOn(defaultLogger, 'error');
+
+      pluginsManager.registerLocalPlugins();
+
+      // Verify available plugin was registered
+      expect(mockPluginsInventory.AvailablePlugin).toHaveBeenCalled();
+      expect(defaultPluginEngine.register).toHaveBeenCalledTimes(1);
+
+      // Verify error was logged for unavailable plugins
+      expect(errorLogSpy).toHaveBeenCalledTimes(1);
+      expect(errorLogSpy).toHaveBeenCalledWith(
+        'PluginsManager:: Failed to load the following unavailable local plugins: UnavailablePlugin1, UnavailablePlugin2. Some features of the SDK may not work as expected. Make sure you are using the correct SDK bundle variant.',
+      );
+
+      // Verify unavailable plugins were added to failed plugins
+      expect(state.plugins.failedPlugins.value).toContain('UnavailablePlugin1');
+      expect(state.plugins.failedPlugins.value).toContain('UnavailablePlugin2');
+
+      // Restore original inventory
+      pluginsInventoryModule.pluginsInventory = originalInventory;
+      errorLogSpy.mockRestore();
+    });
+
+    it('should handle multiple unavailable plugins correctly', () => {
+      // Mock pluginsInventory with multiple unavailable plugins
+      const mockPluginsInventory = {
+        UnavailablePlugin1: null, // Not a function
+        UnavailablePlugin2: undefined, // Not a function
+        UnavailablePlugin3: 'string', // Not a function
+      };
+
+      // Mock the pluginsInventory import
+      const pluginsInventoryModule = require('../../../src/components/pluginsManager/pluginsInventory');
+      const originalInventory = pluginsInventoryModule.pluginsInventory;
+      pluginsInventoryModule.pluginsInventory = mockPluginsInventory;
+
+      // Set all as active plugins
+      state.plugins.activePlugins.value = [
+        'UnavailablePlugin1',
+        'UnavailablePlugin2',
+        'UnavailablePlugin3',
+      ];
+
+      const errorLogSpy = jest.spyOn(defaultLogger, 'error');
+
+      pluginsManager.registerLocalPlugins();
+
+      // Verify error was logged with all unavailable plugins
+      expect(errorLogSpy).toHaveBeenCalledTimes(1);
+      expect(errorLogSpy).toHaveBeenCalledWith(expect.stringContaining('UnavailablePlugin1'));
+      expect(errorLogSpy).toHaveBeenCalledWith(expect.stringContaining('UnavailablePlugin2'));
+      expect(errorLogSpy).toHaveBeenCalledWith(expect.stringContaining('UnavailablePlugin3'));
+
+      // Verify all were added to failed plugins
+      expect(state.plugins.failedPlugins.value).toEqual(
+        expect.arrayContaining(['UnavailablePlugin1', 'UnavailablePlugin2', 'UnavailablePlugin3']),
+      );
+
+      // Restore original inventory
+      pluginsInventoryModule.pluginsInventory = originalInventory;
+      errorLogSpy.mockRestore();
+    });
+
+    it('should not log error when all plugins are available', () => {
+      // Mock pluginsInventory with all available plugins
+      const mockPluginsInventory = {
+        Plugin1: jest.fn(() => ({ name: 'Plugin1', init: jest.fn() })),
+        Plugin2: jest.fn(() => ({ name: 'Plugin2', init: jest.fn() })),
+        Plugin3: jest.fn(() => ({ name: 'Plugin3', init: jest.fn() })),
+      };
+
+      // Mock the pluginsInventory import
+      const pluginsInventoryModule = require('../../../src/components/pluginsManager/pluginsInventory');
+      const originalInventory = pluginsInventoryModule.pluginsInventory;
+      pluginsInventoryModule.pluginsInventory = mockPluginsInventory;
+
+      // Set active plugins
+      state.plugins.activePlugins.value = ['Plugin1', 'Plugin2', 'Plugin3'];
+
+      const errorLogSpy = jest.spyOn(defaultLogger, 'error');
+
+      pluginsManager.registerLocalPlugins();
+
+      // Verify no error was logged
+      expect(errorLogSpy).not.toHaveBeenCalled();
+
+      // Verify all plugins were registered
+      expect(defaultPluginEngine.register).toHaveBeenCalledTimes(3);
+
+      // Restore original inventory
+      pluginsInventoryModule.pluginsInventory = originalInventory;
+      errorLogSpy.mockRestore();
+    });
+
+    it('should only process plugins that are in activePlugins list', () => {
+      // Mock pluginsInventory with more plugins than active
+      const mockPluginsInventory = {
+        ActivePlugin: jest.fn(() => ({ name: 'ActivePlugin', init: jest.fn() })),
+        InactivePlugin: jest.fn(() => ({ name: 'InactivePlugin', init: jest.fn() })),
+        UnavailableButInactive: {}, // Unavailable but not active
+      };
+
+      // Mock the pluginsInventory import
+      const pluginsInventoryModule = require('../../../src/components/pluginsManager/pluginsInventory');
+      const originalInventory = pluginsInventoryModule.pluginsInventory;
+      pluginsInventoryModule.pluginsInventory = mockPluginsInventory;
+
+      // Set only one active plugin
+      state.plugins.activePlugins.value = ['ActivePlugin'];
+
+      const errorLogSpy = jest.spyOn(defaultLogger, 'error');
+
+      pluginsManager.registerLocalPlugins();
+
+      // Verify only active plugin was processed
+      expect(mockPluginsInventory.ActivePlugin).toHaveBeenCalled();
+      expect(mockPluginsInventory.InactivePlugin).not.toHaveBeenCalled();
+      expect(defaultPluginEngine.register).toHaveBeenCalledTimes(1);
+
+      // Verify no error was logged (unavailable plugin wasn't active)
+      expect(errorLogSpy).not.toHaveBeenCalled();
+
+      // Restore original inventory
+      pluginsInventoryModule.pluginsInventory = originalInventory;
+      errorLogSpy.mockRestore();
+    });
+
+    it('should preserve existing failed plugins when adding new ones', () => {
+      // Mock pluginsInventory with unavailable plugin
+      const mockPluginsInventory = {
+        UnavailablePlugin: {}, // Not a function
+      };
+
+      // Mock the pluginsInventory import
+      const pluginsInventoryModule = require('../../../src/components/pluginsManager/pluginsInventory');
+      const originalInventory = pluginsInventoryModule.pluginsInventory;
+      pluginsInventoryModule.pluginsInventory = mockPluginsInventory;
+
+      // Set existing failed plugins
+      state.plugins.failedPlugins.value = ['ExistingFailedPlugin'];
+      state.plugins.activePlugins.value = ['UnavailablePlugin'];
+
+      const errorLogSpy = jest.spyOn(defaultLogger, 'error');
+
+      pluginsManager.registerLocalPlugins();
+
+      // Verify existing failed plugins are preserved
+      expect(state.plugins.failedPlugins.value).toContain('ExistingFailedPlugin');
+      expect(state.plugins.failedPlugins.value).toContain('UnavailablePlugin');
+      expect(state.plugins.failedPlugins.value).toHaveLength(2);
+
+      // Restore original inventory
+      pluginsInventoryModule.pluginsInventory = originalInventory;
+      errorLogSpy.mockRestore();
+    });
+
+    it('should provide helpful error message about bundle variants', () => {
+      // Mock pluginsInventory with unavailable plugin (e.g., excluded in lite build)
+      const mockPluginsInventory = {
+        DeviceModeDestinations: {}, // Excluded in lite builds
+      };
+
+      // Mock the pluginsInventory import
+      const pluginsInventoryModule = require('../../../src/components/pluginsManager/pluginsInventory');
+      const originalInventory = pluginsInventoryModule.pluginsInventory;
+      pluginsInventoryModule.pluginsInventory = mockPluginsInventory;
+
+      state.plugins.activePlugins.value = ['DeviceModeDestinations'];
+
+      const errorLogSpy = jest.spyOn(defaultLogger, 'error');
+
+      pluginsManager.registerLocalPlugins();
+
+      // Verify error message mentions bundle variants
+      expect(errorLogSpy).toHaveBeenCalledWith(
+        expect.stringContaining('correct SDK bundle variant'),
+      );
+
+      // Restore original inventory
+      pluginsInventoryModule.pluginsInventory = originalInventory;
+      errorLogSpy.mockRestore();
+    });
+
+    it('should handle empty active plugins list', () => {
+      // Mock pluginsInventory
+      const mockPluginsInventory = {
+        Plugin1: jest.fn(() => ({ name: 'Plugin1', init: jest.fn() })),
+      };
+
+      // Mock the pluginsInventory import
+      const pluginsInventoryModule = require('../../../src/components/pluginsManager/pluginsInventory');
+      const originalInventory = pluginsInventoryModule.pluginsInventory;
+      pluginsInventoryModule.pluginsInventory = mockPluginsInventory;
+
+      // Set empty active plugins
+      state.plugins.activePlugins.value = [];
+
+      const errorLogSpy = jest.spyOn(defaultLogger, 'error');
+
+      pluginsManager.registerLocalPlugins();
+
+      // Verify no plugins were registered and no errors logged
+      expect(defaultPluginEngine.register).not.toHaveBeenCalled();
+      expect(errorLogSpy).not.toHaveBeenCalled();
+
+      // Restore original inventory
+      pluginsInventoryModule.pluginsInventory = originalInventory;
+      errorLogSpy.mockRestore();
+    });
+  });
 });
