@@ -336,3 +336,25 @@ describe('flattenJsonPayload Tests', () => {
     expect(result).toStrictEqual({ '-.prop1.prop2': 'abc' });
   });
 });
+
+describe('getValueOrDefault Tests', () => {
+  test('returns value when value is defined and not null', () => {
+    expect(utils.getValueOrDefault(true, false)).toBe(true);
+    expect(utils.getValueOrDefault(42, 0)).toBe(42);
+    expect(utils.getValueOrDefault('hello', '')).toBe('hello');
+    expect(utils.getValueOrDefault({ key: 'val' }, {})).toStrictEqual({ key: 'val' });
+    expect(utils.getValueOrDefault([1, 2], [])).toStrictEqual([1, 2]);
+  });
+
+  test('returns value when value is explicitly false (does not treat falsy as absent)', () => {
+    expect(utils.getValueOrDefault(false, true)).toBe(false);
+    expect(utils.getValueOrDefault(false, false)).toBe(false);
+    expect(utils.getValueOrDefault(0, 100)).toBe(0);
+    expect(utils.getValueOrDefault('', 'default')).toBe('');
+    expect(utils.getValueOrDefault(undefined, false)).toBe(false);
+    expect(utils.getValueOrDefault(null, true)).toBe(true);
+    expect(utils.getValueOrDefault(null, 100)).toBe(100);
+    expect(utils.getValueOrDefault(undefined, 'default')).toBe('default');
+    expect(utils.getValueOrDefault(null, 'default')).toBe('default');
+  });
+});

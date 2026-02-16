@@ -7,6 +7,17 @@ import Logger from './logger';
 const logger = new Logger('Utils');
 
 /**
+ * Returns the provided value when it is defined and not null; otherwise returns the default value.
+ * Use this to default config options (e.g. booleans) without treating explicit false/0/'' as absent.
+ * @param {*} value - The value to use if present (defined and not null)
+ * @param {*} defaultValue - The value to return when value is undefined or null
+ * @returns {*} value if present, otherwise defaultValue
+ */
+function getValueOrDefault(value, defaultValue) {
+  return value != null ? value : defaultValue;
+}
+
+/**
  * Utility method to remove '/' at the end of URL
  * @param {*} inURL
  */
@@ -591,4 +602,5 @@ export {
   removeTrailingSlashes,
   constructPayload,
   isEmptyObject,
+  getValueOrDefault,
 };

@@ -85,7 +85,7 @@ describe('Amplitude', () => {
         {
           attribution: {
             disabled: true,
-            trackNewCampaigns: false,
+            trackNewCampaigns: true,
           },
           flushQueueSize: 50,
           flushIntervalMillis: 2000,
@@ -141,7 +141,7 @@ describe('Amplitude', () => {
         {
           attribution: {
             disabled: true,
-            trackNewCampaigns: false,
+            trackNewCampaigns: true,
           },
           flushQueueSize: 50,
           flushIntervalMillis: 2000,
