@@ -19,8 +19,7 @@ env:
 
 jobs:
   validate-actor:
-    permissions:
-      contents: read # to checkout repository code
+    permissions: {}
     # Only allow to draft a new release from develop and hotfix branches
     if: github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/hotfix/')
     uses: ./.github/workflows/validate-actor.yml
@@ -140,7 +139,6 @@ jobs:
           commit-message: 'chore(monorepo): sync versions and generate release logs'
           files: |
             .
-          push-branch: true
 
       - name: Create pull request into main
         id: create-pr

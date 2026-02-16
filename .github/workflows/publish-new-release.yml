@@ -114,7 +114,7 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         with:
-          branch-name: ${{ github.ref_name }}
+          branch-name: ${{ github.event.pull_request.base.ref }}
           commit-message: 'chore(monorepo): release v${{ steps.extract-version.outputs.release_version }}'
           files: |
             .
@@ -147,7 +147,7 @@ jobs:
         continue-on-error: true
         env:
           HUSKY: 0
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
           # The default behavior of Nx is to consider changes to package-lock.json
           # as impacting all the packages.
@@ -165,7 +165,7 @@ jobs:
         id: mark_latest_release
         continue-on-error: true
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
           # Get the analytics-js package version from package.json
           ANALYTICS_JS_VERSION=$(jq -r '.version' packages/analytics-js/package.json)
