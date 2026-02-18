@@ -485,6 +485,7 @@ describe('Error Reporting utilities', () => {
                 library: {
                   name: 'RudderLabs JavaScript SDK',
                   snippetVersion: 'sample_snippet_version',
+                  variant: 'modern',
                   version: '0.0.0-test',
                 },
                 locale: 'en-US',

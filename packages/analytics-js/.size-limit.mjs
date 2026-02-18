@@ -77,7 +77,7 @@ export default [
     name: 'Core (Bundled) - Modern - NPM (CJS)',
     path: 'dist/npm/modern/bundled/cjs/index.cjs',
     import: '*',
-    limit: '41.5 KiB',
+    limit: '42 KiB',
   },
   {
     name: 'Core (Bundled) - Modern - NPM (UMD)',
@@ -120,5 +120,41 @@ export default [
     path: 'dist/npm/modern/content-script/umd/index.js',
     import: '*',
     limit: '41.5 KiB',
+  },
+  {
+    name: 'Core (Lite) - Legacy - NPM (ESM)',
+    path: 'dist/npm/legacy/lite/esm/index.mjs',
+    import: '*',
+    limit: '39 KiB',
+  },
+  {
+    name: 'Core (Lite) - Legacy - NPM (CJS)',
+    path: 'dist/npm/legacy/lite/cjs/index.cjs',
+    import: '*',
+    limit: '39 KiB',
+  },
+  {
+    name: 'Core (Lite) - Legacy - NPM (UMD)',
+    path: 'dist/npm/legacy/lite/umd/index.js',
+    import: '*',
+    limit: '39 KiB',
+  },
+  {
+    name: 'Core (Lite) - Modern - NPM (ESM)',
+    path: 'dist/npm/modern/lite/esm/index.mjs',
+    import: '*',
+    limit: '34 KiB',
+  },
+  {
+    name: 'Core (Lite) - Modern - NPM (CJS)',
+    path: 'dist/npm/modern/lite/cjs/index.cjs',
+    import: '*',
+    limit: '34 KiB',
+  },
+  {
+    name: 'Core (Lite) - Modern - NPM (UMD)',
+    path: 'dist/npm/modern/lite/umd/index.js',
+    import: '*',
+    limit: '34 KiB',
   },
 ];

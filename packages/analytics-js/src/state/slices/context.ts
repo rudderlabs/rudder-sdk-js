@@ -1,6 +1,21 @@
 import { signal } from '@preact/signals-core';
 import type { ContextState } from '@rudderstack/analytics-js-common/types/ApplicationState';
-import { APP_NAME, APP_NAMESPACE, APP_VERSION, MODULE_TYPE } from '../../constants/app';
+import {
+  APP_NAME,
+  APP_NAMESPACE,
+  APP_VERSION,
+  MODULE_TYPE,
+  BUILD_VARIANT,
+} from '../../constants/app';
+
+// Helper to get the variant value
+const getVariantValue = (): string | undefined => {
+  // For CDN builds, use runtime window.rudderAnalyticsBuildType
+  if ((BUILD_VARIANT as string) === 'CDN_RUNTIME_VALUE') {
+    return (globalThis as typeof window).rudderAnalyticsBuildType;
+  }
+  return BUILD_VARIANT;
+};
 
 const contextState: ContextState = {
   app: signal({
@@ -14,6 +29,7 @@ const contextState: ContextState = {
     name: APP_NAME,
     version: APP_VERSION,
     snippetVersion: (globalThis as typeof window).RudderSnippetVersion,
+    variant: getVariantValue(),
   }),
   userAgent: signal(null),
   device: signal(null),

@@ -43,6 +43,7 @@ const useRudderStackAnalytics = (): RudderAnalytics | RudderAnalyticsPreloader |
 
           // Build SDK configuration
           const loadOptions: Partial<LoadOptions> = {
+            logLevel: 'DEBUG',
             onLoaded: () => {
               console.log('RudderStack Analytics is loaded!!!');
             },

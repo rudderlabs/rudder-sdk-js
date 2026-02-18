@@ -81,18 +81,18 @@ describe('ConfigManager', () => {
     // Clear all active timers first
     activeTimers.forEach(timer => clearTimeout(timer));
     activeTimers = [];
-    
+
     // Wait for any pending HTTP requests to complete
     // This prevents libuv assertion failures from active I/O watchers
     await new Promise(resolve => setTimeout(resolve, 50));
-    
+
     // Reset MSW handlers and events
     server.resetHandlers();
     server.events.removeAllListeners();
-    
+
     // Reset state
     resetState();
-    
+
     // Give a final moment for any cleanup to complete
     await new Promise(resolve => setTimeout(resolve, 10));
   });
@@ -351,12 +351,12 @@ describe('ConfigManager', () => {
     expect(getConfigSpy).not.toHaveBeenCalled();
   });
 
-  it('should not determine plugins CDN path if __BUNDLE_ALL_PLUGINS__ is true', () => {
+  it('should not determine plugins CDN path if __PLUGINS_BUNDLED__ is true', () => {
     state.loadOptions.value.destSDKBaseURL = sampleDestSDKUrl;
 
     // @ts-expect-error Testing global variable
     // eslint-disable-next-line no-underscore-dangle
-    global.window.__BUNDLE_ALL_PLUGINS__ = true;
+    global.window.__PLUGINS_BUNDLED__ = true;
 
     configManagerInstance.init();
 
@@ -364,7 +364,7 @@ describe('ConfigManager', () => {
 
     // @ts-expect-error Testing global variable
     // eslint-disable-next-line no-underscore-dangle
-    global.window.__BUNDLE_ALL_PLUGINS__ = false;
+    global.window.__PLUGINS_BUNDLED__ = false;
   });
 
   it('should log an error and exit if the provided plugins CDN URL is invalid', () => {

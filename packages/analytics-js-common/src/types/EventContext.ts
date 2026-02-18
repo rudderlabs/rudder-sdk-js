@@ -9,6 +9,7 @@ export type LibraryInfo = {
   readonly name: string;
   readonly version: string;
   readonly snippetVersion?: string;
+  readonly variant?: string;
 };
 
 export type OSInfo = {

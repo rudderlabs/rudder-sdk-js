@@ -4,7 +4,7 @@ Cookie component.
 
 ## Example
 
-```js
+```javascript
 // set
 cookie('name', 'tobi');
 cookie('name', 'tobi', { path: '/' });
