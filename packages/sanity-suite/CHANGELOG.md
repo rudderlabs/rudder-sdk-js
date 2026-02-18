@@ -2,6 +2,16 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.6.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.5.12...@rudderstack/analytics-js-sanity-suite@3.6.0) (2026-02-16)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.29.0`
+
+### Features
+
+* **analytics-js:** create lite named export ([#2745](https://github.com/rudderlabs/rudder-sdk-js/issues/2745)) ([8f900f4](https://github.com/rudderlabs/rudder-sdk-js/commit/8f900f4fa2797aa0160f40a0966ac2f0f4be9068))
+
 ## [3.5.12](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.5.11...@rudderstack/analytics-js-sanity-suite@3.5.12) (2026-01-23)
 
 ### Dependency Updates
