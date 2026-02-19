@@ -410,7 +410,10 @@ class Analytics implements IAnalytics {
 
     const totalDestinationsToLoad = state.nativeDestinations.activeDestinations.value.length;
     if (totalDestinationsToLoad === 0) {
-      state.lifecycle.status.value = 'destinationsReady';
+      batch(() => {
+        state.nativeDestinations.clientDestinationsReady.value = true;
+        state.lifecycle.status.value = 'destinationsReady';
+      });
       return;
     }
 
@@ -427,10 +430,9 @@ class Analytics implements IAnalytics {
     // Progress to next lifecycle phase if all native destinations are initialized or failed
     effect(() => {
       const areAllDestinationsReady =
-        totalDestinationsToLoad === 0 ||
         state.nativeDestinations.initializedDestinations.value.length +
           state.nativeDestinations.failedDestinations.value.length ===
-          totalDestinationsToLoad;
+        totalDestinationsToLoad;
 
       if (areAllDestinationsReady) {
         batch(() => {
