@@ -327,6 +327,58 @@ describe('Core - Analytics', () => {
     });
   });
 
+  describe('loadDestinations', () => {
+    beforeEach(() => {
+      analytics.prepareInternalServices();
+    });
+
+    it('should not load destinations when lifecycle status is destinationsLoading', () => {
+      state.lifecycle.status.value = 'destinationsLoading';
+
+      const invokeSingleSpy = jest.spyOn(
+        analytics.pluginsManager as IPluginsManager,
+        'invokeSingle',
+      );
+
+      analytics.loadDestinations();
+
+      expect(invokeSingleSpy).not.toHaveBeenCalled();
+    });
+
+    it('should not load destinations when clientDestinationsReady is true', () => {
+      state.nativeDestinations.clientDestinationsReady.value = true;
+
+      const invokeSingleSpy = jest.spyOn(
+        analytics.pluginsManager as IPluginsManager,
+        'invokeSingle',
+      );
+
+      analytics.loadDestinations();
+
+      expect(invokeSingleSpy).not.toHaveBeenCalled();
+    });
+
+    it('should load destinations when clientDestinationsReady is false and lifecycle status is not destinationsLoading', () => {
+      state.nativeDestinations.clientDestinationsReady.value = false;
+      state.lifecycle.status.value = 'loaded';
+
+      const invokeSingleSpy = jest.spyOn(
+        analytics.pluginsManager as IPluginsManager,
+        'invokeSingle',
+      );
+
+      analytics.loadDestinations();
+
+      expect(invokeSingleSpy).toHaveBeenCalledWith(
+        'nativeDestinations.setActiveDestinations',
+        state,
+        analytics.pluginsManager,
+        analytics.errorHandler,
+        analytics.logger,
+      );
+    });
+  });
+
   describe('ready', () => {
     it('should invoke callbacks passed', () => {
       const callback = jest.fn();

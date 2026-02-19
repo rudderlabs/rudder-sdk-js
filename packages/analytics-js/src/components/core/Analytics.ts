@@ -394,7 +394,7 @@ class Analytics implements IAnalytics {
     // If the integrations load is already triggered or completed, skip the rest of the logic
     if (
       state.lifecycle.status.value === 'destinationsLoading' ||
-      state.lifecycle.status.value === 'destinationsReady'
+      state.nativeDestinations.clientDestinationsReady.value === true
     ) {
       return;
     }
