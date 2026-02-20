@@ -130,6 +130,20 @@ jobs:
           chmod +x ./scripts/collect-packages-versions.sh
           ./scripts/collect-packages-versions.sh > packages_versions.md
 
+      - name: Create release branch on remote
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+          BRANCH_NAME: ${{ steps.create-release.outputs.branch_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          # The signed-commit action requires the branch to exist on the remote.
+          # Create the remote ref pointing at the current HEAD before committing.
+          sha=$(git rev-parse HEAD)
+          gh api "repos/${REPO}/git/refs" \
+            --method POST \
+            -f "ref=refs/heads/${BRANCH_NAME}" \
+            -f "sha=${sha}"
+
       - name: Create verified commit and push release branch
         uses: ryancyq/github-signed-commit@e9f3b28c80da7be66d24b8f501a5abe82a6b855f # v1.2.0
         env:
