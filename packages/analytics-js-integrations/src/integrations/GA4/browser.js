@@ -43,6 +43,7 @@ export default class GA4 {
       removeTrailingSlashes(config.sdkBaseUrl) || 'https://www.googletagmanager.com';
     this.serverContainerUrl = config.serverContainerUrl || null;
     this.isExtendedGa4_V2 = config.isExtendedGa4_V2 || false;
+    this.loadScriptStartedAt = null;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
@@ -142,14 +143,23 @@ export default class GA4 {
   }
 
   init() {
+    this.loadScriptStartedAt = Date.now();
     this.loadScript(this.measurementId, this.sdkBaseUrl);
   }
 
   /**
-   * If the gtag is successfully initialized, client ID and session ID fields will have valid values for the given GA4 configuration
+   * If the gtag is successfully initialized, client ID and session ID fields will have valid values for the given GA4 configuration.
+   * Returns true only after 2 seconds from init() to allow gtag to fully initialize.
    */
   isLoaded() {
-    return !!(this.sessionId && this.clientId);
+    const LOAD_DELAY_MS = 2000;
+    if (
+      this.loadScriptStartedAt === null ||
+      Date.now() - this.loadScriptStartedAt < LOAD_DELAY_MS
+    ) {
+      return false;
+    }
+    return !!(window.dataLayer && window.dataLayer.push !== Array.prototype.push);
   }
 
   isReady() {
