@@ -129,12 +129,20 @@ export default class GA4 {
      * Setting the parameter sessionId, clientId and session_number using gtag api
      * Ref: https://developers.google.com/tag-platform/gtagjs/reference
      */
-    window.gtag('get', this.measurementId, 'session_id', sessionId => {
-      this.sessionId = sessionId;
-    });
-    window.gtag('get', this.measurementId, 'client_id', clientId => {
-      this.clientId = clientId;
-    });
+    if (!this.overrideClientAndSessionId) {
+      window.gtag('get', this.measurementId, 'session_id', sessionId => {
+        this.sessionId = sessionId;
+      });
+    } else {
+      this.sessionId = this.analytics.getSessionId();
+    }
+    if (!this.overrideClientAndSessionId) {
+      window.gtag('get', this.measurementId, 'client_id', clientId => {
+        this.clientId = clientId;
+      });
+    } else {
+      this.clientId = this.analytics.getAnonymousId();
+    }
     window.gtag('get', this.measurementId, 'session_number', sessionNumber => {
       this.sessionNumber = sessionNumber;
     });
@@ -153,13 +161,10 @@ export default class GA4 {
    */
   isLoaded() {
     const LOAD_DELAY_MS = 2000;
-    if (
-      this.loadScriptStartedAt === null ||
-      Date.now() - this.loadScriptStartedAt < LOAD_DELAY_MS
-    ) {
-      return false;
-    }
-    return !!(window.dataLayer && window.dataLayer.push !== Array.prototype.push);
+    const gtagReady = !!(window.dataLayer && window.dataLayer.push !== Array.prototype.push);
+    const delayElapsed =
+      this.loadScriptStartedAt !== null && Date.now() - this.loadScriptStartedAt >= LOAD_DELAY_MS;
+    return gtagReady || delayElapsed;
   }
 
   isReady() {
