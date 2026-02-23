@@ -127,7 +127,6 @@ class Optimizely {
         return window?.optimizely?.get('state');
       } catch (e) {
         logger.error("Couldn't successfully get state from Optimizely", e);
-        return undefined;
       }
     };
 
