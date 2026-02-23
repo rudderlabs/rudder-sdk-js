@@ -130,10 +130,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
       );
 
       // Add the distilled destinations to the active destinations list
-      state.nativeDestinations.activeDestinations.value = [
-        ...state.nativeDestinations.activeDestinations.value,
-        ...consentedDestinations,
-      ];
+      state.nativeDestinations.activeDestinations.value = [...consentedDestinations];
     },
 
     load(
