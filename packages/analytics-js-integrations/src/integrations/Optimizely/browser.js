@@ -122,9 +122,18 @@ class Optimizely {
   };
 
   initOptimizelyIntegration(referrerOverride, sendCampaignData) {
+    const getState = () => {
+      try {
+        return window?.optimizely?.get('state');
+      } catch (e) {
+        logger.error("Couldn't successfully get state from Optimizely", e);
+        return undefined;
+      }
+    };
+
     const newActiveCampaign = (id, referrer) => {
       try {
-        const state = window?.optimizely?.get('state');
+        const state = getState();
         if (state) {
           const activeCampaigns = state.getCampaignStates({
             isActive: true,
@@ -139,13 +148,7 @@ class Optimizely {
     };
 
     const checkReferrer = () => {
-      let state;
-      try {
-        state = window?.optimizely?.get('state');
-      } catch (e) {
-        logger.error("Couldn't successfully get state when checking referrer from Optimizely", e);
-        state = undefined;
-      }
+      const state = getState();
       if (!state) {
         return undefined;
       }
@@ -173,12 +176,7 @@ class Optimizely {
 
     const registerCurrentlyActiveCampaigns = () => {
       window.optimizely = window.optimizely || [];
-      let state;
-      try {
-        state = window?.optimizely?.get('state');
-      } catch (e) {
-        state = undefined;
-      }
+      const state = getState();
       if (state) {
         const referrer = checkReferrer();
         const activeCampaigns = state.getCampaignStates({
