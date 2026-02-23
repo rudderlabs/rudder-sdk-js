@@ -43,6 +43,7 @@ export default class GA4 {
       removeTrailingSlashes(config.sdkBaseUrl) || 'https://www.googletagmanager.com';
     this.serverContainerUrl = config.serverContainerUrl || null;
     this.isExtendedGa4_V2 = config.isExtendedGa4_V2 || false;
+    this.gtagLoadedAt = null;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
@@ -128,12 +129,20 @@ export default class GA4 {
      * Setting the parameter sessionId, clientId and session_number using gtag api
      * Ref: https://developers.google.com/tag-platform/gtagjs/reference
      */
-    window.gtag('get', this.measurementId, 'session_id', sessionId => {
-      this.sessionId = sessionId;
-    });
-    window.gtag('get', this.measurementId, 'client_id', clientId => {
-      this.clientId = clientId;
-    });
+    if (!this.overrideClientAndSessionId) {
+      window.gtag('get', this.measurementId, 'session_id', sessionId => {
+        this.sessionId = sessionId;
+      });
+    } else {
+      this.sessionId = this.analytics.getSessionId();
+    }
+    if (!this.overrideClientAndSessionId) {
+      window.gtag('get', this.measurementId, 'client_id', clientId => {
+        this.clientId = clientId;
+      });
+    } else {
+      this.clientId = this.analytics.getAnonymousId();
+    }
     window.gtag('get', this.measurementId, 'session_number', sessionNumber => {
       this.sessionNumber = sessionNumber;
     });
@@ -146,10 +155,19 @@ export default class GA4 {
   }
 
   /**
-   * If the gtag is successfully initialized, client ID and session ID fields will have valid values for the given GA4 configuration
+   * If the gtag is successfully initialized, client ID and session ID fields will have valid values for the given GA4 configuration.
+   * Returns true only after 2 seconds from init() to allow gtag to fully initialize.
    */
   isLoaded() {
-    return !!(this.sessionId && this.clientId);
+    const LOAD_DELAY_MS = 2000;
+    const gtagReady = !!(window.dataLayer && window.dataLayer.push !== Array.prototype.push);
+    if (gtagReady && this.getLoadedAt === null) {
+      this.gtagLoadedAt = Date.now();
+    }
+    const hasWaitedLongEnough =
+      this.gtagLoadedAt !== null && Date.now() - this.gtagLoadedAt >= LOAD_DELAY_MS;
+    const hasValidSession = this.sessionNumber !== null;
+    return gtagReady && (hasValidSession || hasWaitedLongEnough);
   }
 
   isReady() {
