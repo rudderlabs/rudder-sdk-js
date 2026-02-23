@@ -2,6 +2,8 @@
 import { NAME, DISPLAY_NAME } from './constants';
 import Logger from '../../utils/logger';
 import { mapRudderPropsToOptimizelyProps } from './utils';
+import { isArray } from '../../utils/utils';
+import { isDefinedAndNotNullAndNotEmpty } from '../../utils/commonUtils';
 
 const logger = new Logger(DISPLAY_NAME);
 
@@ -51,23 +53,33 @@ class Optimizely {
     return undefined;
   };
 
+  getAudienceIdsAndNames = audiences => {
+    const audienceIds = [];
+    const audienceNames = [];
+    if (!isArray(audiences)) {
+      return { audienceIds, audienceNames };
+    }
+
+    for (const audience of audiences) {
+      const { id, name } = audience;
+      if (isDefinedAndNotNullAndNotEmpty(id)) {
+        audienceIds.push(id);
+      }
+      if (isDefinedAndNotNullAndNotEmpty(name)) {
+        audienceNames.push(name);
+      }
+    }
+    return {
+      audienceIds: audienceIds.sort((a, b) => a.localeCompare(b)),
+      audienceNames: audienceNames.sort((a, b) => a.localeCompare(b)),
+    };
+  };
+
   sendDataToRudder = campaignState => {
     const { experiment, variation } = campaignState;
     const context = { integrations: { All: true } };
     const { audiences, campaignName, id, isInCampaignHoldback } = campaignState;
-
-    // Reformatting this data structure into hash map so concatenating variation ids and names is easier later
-    const audiencesMap = {};
-    audiences.forEach(audience => {
-      audiencesMap[audience.id] = audience.name;
-    });
-
-    const audienceIds = Object.keys(audiencesMap)
-      .sort((a, b) => a.localeCompare(b))
-      .join();
-    const audienceNames = Object.values(audiencesMap)
-      .sort((a, b) => a.localeCompare(b))
-      .join(', ');
+    const { audienceIds, audienceNames } = this.getAudienceIdsAndNames(audiences);
 
     if (this.sendExperimentTrack) {
       let props = {
@@ -77,8 +89,8 @@ class Optimizely {
         experimentName: experiment.name,
         variationName: variation.name,
         variationId: variation.id,
-        audienceId: audienceIds, // eg. '7527562222,7527111138'
-        audienceName: audienceNames, // eg. 'Peaky Blinders, Trust Tree'
+        audienceId: audienceIds.join(','), // eg. '7527562222,7527111138'
+        audienceName: audienceNames.join(','), // eg. 'Peaky Blinders, Trust Tree'
         isInCampaignHoldback,
       };
 
@@ -123,7 +135,10 @@ class Optimizely {
           sendCampaignData(campaignState);
         }
       } catch (e) {
-        logger.error('Page loaded without Optimizely.');
+        logger.error(
+          `Optimizely not initialized due to transformation error:`,
+          e.message,
+        );
       }
     };
 
