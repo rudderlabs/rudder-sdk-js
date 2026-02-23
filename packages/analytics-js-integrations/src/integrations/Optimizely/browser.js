@@ -135,7 +135,7 @@ class Optimizely {
         }
       } catch (e) {
         logger.error(
-          `Optimizely not initialized due to transformation error:`,
+          "Optimizely not initialized due to transformation error: ",
           e.message,
         );
       }
