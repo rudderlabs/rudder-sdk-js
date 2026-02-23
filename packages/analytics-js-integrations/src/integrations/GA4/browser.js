@@ -43,7 +43,7 @@ export default class GA4 {
       removeTrailingSlashes(config.sdkBaseUrl) || 'https://www.googletagmanager.com';
     this.serverContainerUrl = config.serverContainerUrl || null;
     this.isExtendedGa4_V2 = config.isExtendedGa4_V2 || false;
-    this.loadScriptStartedAt = null;
+    this.gtagLoadedAt = null;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
@@ -151,7 +151,6 @@ export default class GA4 {
   }
 
   init() {
-    this.loadScriptStartedAt = Date.now();
     this.loadScript(this.measurementId, this.sdkBaseUrl);
   }
 
@@ -162,9 +161,13 @@ export default class GA4 {
   isLoaded() {
     const LOAD_DELAY_MS = 2000;
     const gtagReady = !!(window.dataLayer && window.dataLayer.push !== Array.prototype.push);
-    const delayElapsed =
-      this.loadScriptStartedAt !== null && Date.now() - this.loadScriptStartedAt >= LOAD_DELAY_MS;
-    return gtagReady || delayElapsed;
+    if (gtagReady && this.getLoadedAt === null) {
+      this.gtagLoadedAt = Date.now();
+    }
+    const hasWaitedLongEnough =
+      this.gtagLoadedAt !== null && Date.now() - this.gtagLoadedAt >= LOAD_DELAY_MS;
+    const hasValidSession = this.sessionNumber !== null;
+    return gtagReady && (hasValidSession || hasWaitedLongEnough);
   }
 
   isReady() {
