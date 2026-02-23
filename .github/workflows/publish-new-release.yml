@@ -300,6 +300,7 @@ jobs:
     name: Publish packages to NPM
     permissions:
       contents: read # to checkout repository code
+      id-token: write # to allow reusable workflow to request OIDC token for NPM provenance
     uses: ./.github/workflows/deploy-npm.yml
     with:
       trigger_source: ${{ needs.get-release-inputs.outputs.trigger_source }}
