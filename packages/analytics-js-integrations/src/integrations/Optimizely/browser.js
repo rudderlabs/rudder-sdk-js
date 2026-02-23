@@ -134,10 +134,7 @@ class Optimizely {
           sendCampaignData(campaignState);
         }
       } catch (e) {
-        logger.error(
-          "Optimizely not initialized due to transformation error: ",
-          e.message,
-        );
+        logger.error("Couldn't successfully process active campaign data from Optimizely", e);
       }
     };
 
@@ -146,6 +143,7 @@ class Optimizely {
       try {
         state = window?.optimizely?.get('state');
       } catch (e) {
+        logger.error("Couldn't successfully get state when checking referrer from Optimizely", e);
         state = undefined;
       }
       if (!state) {
