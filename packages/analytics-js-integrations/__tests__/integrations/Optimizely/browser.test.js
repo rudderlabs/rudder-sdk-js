@@ -96,19 +96,20 @@ describe('Optimizely getAudienceIdsAndNames', () => {
     expect(result.audienceNames).toEqual(['Peaky Blinders', 'Trust Tree']);
   });
 
-  test('should safely handle null audience names without throwing (INT-5858)', () => {
+  test('should safely handle null audience names without throwing', () => {
     const audiences = [
       { id: '7527562222', name: 'Peaky Blinders' },
       { id: '7527111138', name: null },
+      { id: '7527562223' },
     ];
     const result = optimizely.getAudienceIdsAndNames(audiences);
 
-    expect(result.audienceIds).toEqual(['7527111138', '7527562222']);
+    expect(result.audienceIds).toEqual(['7527111138', '7527562222', '7527562223']);
     expect(result.audienceNames).toEqual(['Peaky Blinders']);
   });
 
   test('should safely handle undefined audience names', () => {
-    const audiences = [{ id: '123', name: undefined }];
+    const audiences = [{ id: '123', name: undefined }, null, undefined];
     const result = optimizely.getAudienceIdsAndNames(audiences);
 
     expect(result.audienceIds).toEqual(['123']);

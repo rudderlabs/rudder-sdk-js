@@ -61,12 +61,11 @@ class Optimizely {
     }
 
     for (const audience of audiences) {
-      const { id, name } = audience;
-      if (isDefinedAndNotNullAndNotEmpty(id)) {
-        audienceIds.push(id);
+      if (isDefinedAndNotNullAndNotEmpty(audience?.id)) {
+        audienceIds.push(audience.id);
       }
-      if (isDefinedAndNotNullAndNotEmpty(name)) {
-        audienceNames.push(name);
+      if (isDefinedAndNotNullAndNotEmpty(audience?.name)) {
+        audienceNames.push(audience.name);
       }
     }
     return {
