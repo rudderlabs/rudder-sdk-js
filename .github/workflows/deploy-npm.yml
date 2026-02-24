@@ -75,13 +75,22 @@ jobs:
 
       - name: Resolve base and head versions
         id: resolve-versions
+        env:
+          INPUT_BASE_VERSION: ${{ inputs.base_version }}
+          INPUT_HEAD_VERSION: ${{ inputs.head_version }}
         run: |
-          if [ -n "${{ inputs.base_version }}" ] && [ -n "${{ inputs.head_version }}" ]; then
-            BASE_VERSION="${{ inputs.base_version }}"
-            HEAD_VERSION="${{ inputs.head_version }}"
+          if [ -n "$INPUT_BASE_VERSION" ] && [ -n "$INPUT_HEAD_VERSION" ]; then
+            BASE_VERSION="$INPUT_BASE_VERSION"
+            HEAD_VERSION="$INPUT_HEAD_VERSION"
           else
-            HEAD_VERSION=$(git tag -l "v3*" --sort=-version:refname | head -n 1)
-            BASE_VERSION=$(git tag -l "v3*" --sort=-version:refname | head -n 2 | awk 'NR == 2 { print $1 }')
+            TAGS=$(git tag -l "v3*" --sort=-version:refname)
+            HEAD_VERSION=$(echo "$TAGS" | head -n 1)
+            BASE_VERSION=$(echo "$TAGS" | head -n 2 | awk 'NR == 2 { print $1 }')
+          fi
+
+          if [ -z "$HEAD_VERSION" ]; then
+            echo "::warning::No v3* tag found; defaulting HEAD_VERSION to HEAD"
+            HEAD_VERSION="HEAD"
           fi
 
           if [ -z "$BASE_VERSION" ]; then
