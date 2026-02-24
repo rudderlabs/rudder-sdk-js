@@ -56,7 +56,7 @@ jobs:
   determine-affected:
     name: Determine Affected Publishable Projects
     runs-on: ubuntu-latest
-    if: ${{ github.workflow_ref != '' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/tags/v')) }}
+    if: ${{ github.event_name == 'workflow_call' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/tags/v')) }}
     outputs:
       projects: ${{ steps.affected-projects.outputs.projects }}
       base_version: ${{ steps.resolve-versions.outputs.base_version }}
@@ -77,11 +77,16 @@ jobs:
         id: resolve-versions
         run: |
           if [ -n "${{ inputs.base_version }}" ] && [ -n "${{ inputs.head_version }}" ]; then
-            BASE_VERSION=${{ inputs.base_version }}
-            HEAD_VERSION=${{ inputs.head_version }}
+            BASE_VERSION="${{ inputs.base_version }}"
+            HEAD_VERSION="${{ inputs.head_version }}"
           else
             HEAD_VERSION=$(git tag -l "v3*" --sort=-version:refname | head -n 1)
             BASE_VERSION=$(git tag -l "v3*" --sort=-version:refname | head -n 2 | awk 'NR == 2 { print $1 }')
+          fi
+
+          if [ -z "$BASE_VERSION" ]; then
+            echo "::warning::No previous v3* tag found; defaulting BASE_VERSION to HEAD~1"
+            BASE_VERSION="HEAD~1"
           fi
 
           echo "Base version: $BASE_VERSION"
@@ -104,32 +109,48 @@ jobs:
       - name: Determine affected publishable projects
         id: affected-projects
         run: |
-          BASE_VERSION=${{ steps.resolve-versions.outputs.base_version }}
-          HEAD_VERSION=${{ steps.resolve-versions.outputs.head_version }}
+          BASE_VERSION="${{ steps.resolve-versions.outputs.base_version }}"
+          HEAD_VERSION="${{ steps.resolve-versions.outputs.head_version }}"
 
           # Get affected projects between base and head versions
-          AFFECTED=$(npx nx show projects --affected --base="$BASE_VERSION" --head="$HEAD_VERSION" 2>/dev/null || echo "")
+          AFFECTED=""
+          if ! NX_OUTPUT=$(npx nx show projects --affected --base="$BASE_VERSION" --head="$HEAD_VERSION" 2>&1); then
+            echo "::warning::Failed to determine affected projects with nx:"
+            echo "$NX_OUTPUT"
+          else
+            AFFECTED="$NX_OUTPUT"
+          fi
 
           echo "All affected projects:"
           echo "$AFFECTED"
 
           # Filter to only publishable (non-private) packages
           PUBLISHABLE_PROJECTS=""
-          for project in $AFFECTED; do
-            # Find the package.json for this project
-            PROJECT_ROOT=$(npx nx show project "$project" --json 2>/dev/null | jq -r '.root')
-            if [ -n "$PROJECT_ROOT" ] && [ -f "$PROJECT_ROOT/package.json" ]; then
-              IS_PRIVATE=$(jq -r '.private // false' "$PROJECT_ROOT/package.json")
-              if [ "$IS_PRIVATE" != "true" ]; then
-                echo "Affected publishable project: $project"
-                if [ -n "$PUBLISHABLE_PROJECTS" ]; then
-                  PUBLISHABLE_PROJECTS="$PUBLISHABLE_PROJECTS,$project"
-                else
-                  PUBLISHABLE_PROJECTS="$project"
-                fi
+          while IFS= read -r project; do
+            [ -z "$project" ] && continue
+
+            PROJECT_INFO=$(npx nx show project "$project" --json 2>&1)
+            if [ $? -ne 0 ]; then
+              echo "::warning::Failed to get nx config for project '$project': $PROJECT_INFO"
+              continue
+            fi
+
+            PROJECT_ROOT=$(echo "$PROJECT_INFO" | jq -r '.root // empty')
+            if [ -z "$PROJECT_ROOT" ] || [ ! -f "$PROJECT_ROOT/package.json" ]; then
+              echo "::warning::No package.json found for project '$project' at '$PROJECT_ROOT'"
+              continue
+            fi
+
+            IS_PRIVATE=$(jq -r '.private // "false"' "$PROJECT_ROOT/package.json")
+            if [ "$IS_PRIVATE" != "true" ]; then
+              echo "Affected publishable project: $project"
+              if [ -n "$PUBLISHABLE_PROJECTS" ]; then
+                PUBLISHABLE_PROJECTS="$PUBLISHABLE_PROJECTS,$project"
+              else
+                PUBLISHABLE_PROJECTS="$project"
               fi
             fi
-          done
+          done <<< "$AFFECTED"
 
           echo "Publishable affected projects: $PUBLISHABLE_PROJECTS"
           echo "projects=$PUBLISHABLE_PROJECTS" >> $GITHUB_OUTPUT
@@ -137,7 +158,7 @@ jobs:
   deploy:
     name: Deploy to NPM
     needs: determine-affected
-    if: needs.determine-affected.outputs.projects != ''
+    if: needs.determine-affected.result == 'success' && needs.determine-affected.outputs.projects != ''
     # As we publish the NPM package with provenance, we must use GitHub-hosted runners
     runs-on: ubuntu-latest
 
@@ -225,6 +246,7 @@ jobs:
         env:
           HUSKY: 0
           NPM_CONFIG_PROVENANCE: true
+          PUBLISH_PROJECTS: ${{ needs.determine-affected.outputs.projects }}
         run: |
           # Remove unnecessary fields from package.json before publishing
           ./scripts/make-package-json-publish-ready.sh
@@ -234,10 +256,10 @@ jobs:
             TAG_OPTION="--tag=beta"
           fi
 
-          echo "Publishing projects: ${{ needs.determine-affected.outputs.projects }}"
+          echo "Publishing projects: $PUBLISH_PROJECTS"
           echo "DATE=$(date)" >> $GITHUB_ENV
 
-          npx nx release publish --verbose --projects=${{ needs.determine-affected.outputs.projects }} $TAG_OPTION
+          npx nx release publish --verbose --projects="$PUBLISH_PROJECTS" $TAG_OPTION
 
           # Reset the changes made to package.json
           git reset --hard
