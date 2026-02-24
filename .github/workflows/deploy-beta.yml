@@ -42,6 +42,7 @@ jobs:
     outputs:
       pr_number: ${{ steps.pr-info.outputs.pr_number }}
       pr_url: ${{ steps.pr-info.outputs.pr_url }}
+      pr_base_branch: ${{ steps.pr-info.outputs.pr_base_branch }}
       force_deploy_mode: ${{ steps.check-force-deploy.outputs.force_deploy_mode }}
     steps:
       - name: Harden the runner (Audit all outbound calls)
@@ -100,6 +101,7 @@ jobs:
 
               core.setOutput('pr_number', prNumber);
               core.setOutput('pr_url', prUrl);
+              core.setOutput('pr_base_branch', pr.base.ref);
             } else {
               const allowedBranches = 'develop, main, hotfix/*, release/*, hotfix-release/*';
               core.setFailed(`No open PR found for branch ${branch} targeting an allowed base branch (${allowedBranches})`);
@@ -244,13 +246,13 @@ jobs:
   deploy-npm:
     name: Deploy to NPM
     uses: ./.github/workflows/deploy-npm.yml
-    needs: get-deploy-inputs
+    needs: [find-pr, get-deploy-inputs]
     if: ${{ inputs.deploy_to_npm }}
     with:
       environment: beta
       bugsnag_release_stage: beta
       version_suffix: ${{ needs.get-deploy-inputs.outputs.version_suffix }}
-      base_version: develop
+      base_version: ${{ needs.find-pr.outputs.pr_base_branch }}
       head_version: ${{ github.ref_name }}
       trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
     secrets:
