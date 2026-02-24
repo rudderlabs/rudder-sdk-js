@@ -34,4 +34,3 @@ declare global {
     rudderanalytics: RudderAnalytics | RudderAnalyticsPreloader | undefined;
   }
 }
-
