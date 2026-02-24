@@ -72,24 +72,37 @@ jobs:
             const branch = context.ref.replace('refs/heads/', '');
             console.log(`Finding PRs for branch: ${branch}`);
 
+            const allowedBasePatterns = [
+              /^develop$/,
+              /^main$/,
+              /^hotfix\/.+$/,
+              /^release\/.+$/,
+              /^hotfix-release\/.+$/,
+            ];
+
             const { data: pullRequests } = await github.rest.pulls.list({
               owner: context.repo.owner,
               repo: context.repo.repo,
               head: `${context.repo.owner}:${branch}`,
-              base: 'develop',
               state: 'open'
             });
 
-            if (pullRequests.length > 0) {
-              const pr = pullRequests[0];
+            // Filter PRs whose base branch matches one of the allowed patterns
+            const validPRs = pullRequests.filter(pr =>
+              allowedBasePatterns.some(pattern => pattern.test(pr.base.ref))
+            );
+
+            if (validPRs.length > 0) {
+              const pr = validPRs[0];
               const prNumber = pr.number.toString();
               const prUrl = pr.html_url;
-              console.log(`Found PR #${prNumber} for branch ${branch}: ${prUrl}`);
+              console.log(`Found PR #${prNumber} for branch ${branch} targeting ${pr.base.ref}: ${prUrl}`);
 
               core.setOutput('pr_number', prNumber);
               core.setOutput('pr_url', prUrl);
             } else {
-              core.setFailed(`No open PR found for branch ${branch} targeting develop branch`);
+              const allowedBranches = 'develop, main, hotfix/*, release/*, hotfix-release/*';
+              core.setFailed(`No open PR found for branch ${branch} targeting an allowed base branch (${allowedBranches})`);
             }
 
   validate-pr:
