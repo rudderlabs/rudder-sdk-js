@@ -78,9 +78,25 @@ jobs:
           INPUT_BASE_VERSION: ${{ inputs.base_version }}
           INPUT_HEAD_VERSION: ${{ inputs.head_version }}
         run: |
+          # Resolve a ref to a locally available git reference.
+          # Branch names from inputs (e.g. "develop") only exist as remote refs
+          # (origin/develop) after checkout, so we need to resolve them.
+          resolve_ref() {
+            local ref="$1"
+            # Already resolvable locally (tag, SHA, HEAD~N, etc.)
+            if git rev-parse --verify "$ref" >/dev/null 2>&1; then
+              echo "$ref"
+            # Try as a remote branch
+            elif git rev-parse --verify "origin/$ref" >/dev/null 2>&1; then
+              echo "origin/$ref"
+            else
+              echo "$ref"
+            fi
+          }
+
           if [ -n "$INPUT_BASE_VERSION" ] && [ -n "$INPUT_HEAD_VERSION" ]; then
-            BASE_VERSION="$INPUT_BASE_VERSION"
-            HEAD_VERSION="$INPUT_HEAD_VERSION"
+            BASE_VERSION=$(resolve_ref "$INPUT_BASE_VERSION")
+            HEAD_VERSION=$(resolve_ref "$INPUT_HEAD_VERSION")
           else
             TAGS=$(git tag -l "v3*" --sort=-version:refname)
             HEAD_VERSION=$(echo "$TAGS" | head -n 1)
