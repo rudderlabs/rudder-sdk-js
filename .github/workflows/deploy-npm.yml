@@ -139,11 +139,11 @@ jobs:
           # Get affected projects between base and head versions
           AFFECTED=""
           if ! NX_OUTPUT=$(npx nx show projects --affected --base="$BASE_VERSION" --head="$HEAD_VERSION" 2>&1); then
-            echo "::warning::Failed to determine affected projects with nx:"
+            echo "::error::Failed to determine affected projects with nx:"
             echo "$NX_OUTPUT"
-          else
-            AFFECTED="$NX_OUTPUT"
+            exit 1
           fi
+          AFFECTED="$NX_OUTPUT"
 
           echo "All affected projects:"
           echo "$AFFECTED"
