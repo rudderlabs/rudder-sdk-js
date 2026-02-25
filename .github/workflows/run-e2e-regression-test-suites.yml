@@ -134,10 +134,10 @@ jobs:
       - name: Extract sanity test results
         id: extract-sanity-results
         continue-on-error: true
-        if: steps.run_sanity_tests.outputs.has_outputs == 'true'
+        if: always() && steps.run_sanity_tests.outputs.has_outputs == 'true'
         run: |
           # Extract all fields from job outputs
-          slack_message_url=$(echo '${{ steps.run_sanity_tests.outputs.job_outputs }}' | jq -r '.slack_message_url')
+          slack_message_url=$(echo '${{ steps.run_sanity_tests.outputs.job_outputs }}' | jq -r '.slack_message_url // ""')
           test_passed=$(echo '${{ steps.run_sanity_tests.outputs.job_outputs }}' | jq -r '.test_status.passed // ""')
           test_total=$(echo '${{ steps.run_sanity_tests.outputs.job_outputs }}' | jq -r '.test_status.total // ""')
           test_percentage=$(echo '${{ steps.run_sanity_tests.outputs.job_outputs }}' | jq -r '.test_status.percentage // ""')
@@ -153,13 +153,14 @@ jobs:
 
       - name: Post sanity test results to release thread
         continue-on-error: true
-        if: ${{ inputs.monorepo_release_version != '' && inputs.release_ticket_id != '' && steps.extract-sanity-results.outputs.slack_message_url != '' }}
+        if: ${{ !cancelled() && always() && inputs.monorepo_release_version != '' && inputs.release_ticket_id != '' && steps.extract-sanity-results.outputs.slack_message_url != '' }}
         uses: ./.github/actions/release-thread-integration
         with:
           monorepo_release_version: ${{ inputs.monorepo_release_version }}
           release_ticket_id: ${{ inputs.release_ticket_id }}
           slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
-          deployment_name: ${{ format('{0} Sanity E2E Regression Tests', steps.extract-sanity-results.outputs.test_success == 'true' && ':white_check_mark:' || ':warning:') }}
+          title: ${{ format('{0} Sanity E2E Regression Tests completed', steps.extract-sanity-results.outputs.test_success == 'true' && ':white_check_mark:' || ':x:') }}
+          link_text: 'View test results'
           slack_message_url: ${{ steps.extract-sanity-results.outputs.slack_message_url }}
           custom_message: ${{ steps.extract-sanity-results.outputs.test_success == 'true' && 'All tests passed successfully. Proceed to the next step.' || 'There are some test failures. Please review them and proceed to the next step.' }}
 
@@ -219,10 +220,11 @@ jobs:
 
       - name: Extract E2E test results
         id: extract-e2e-results
-        if: steps.run_e2e_tests.outputs.has_outputs == 'true'
+        continue-on-error: true
+        if: always() && steps.run_e2e_tests.outputs.has_outputs == 'true'
         run: |
           # Extract all fields from job outputs
-          slack_message_url=$(echo '${{ steps.run_e2e_tests.outputs.job_outputs }}' | jq -r '.slack_message_url')
+          slack_message_url=$(echo '${{ steps.run_e2e_tests.outputs.job_outputs }}' | jq -r '.slack_message_url // ""')
           test_passed=$(echo '${{ steps.run_e2e_tests.outputs.job_outputs }}' | jq -r '.test_status.passed // ""')
           test_total=$(echo '${{ steps.run_e2e_tests.outputs.job_outputs }}' | jq -r '.test_status.total // ""')
           test_percentage=$(echo '${{ steps.run_e2e_tests.outputs.job_outputs }}' | jq -r '.test_status.percentage // ""')
@@ -238,12 +240,13 @@ jobs:
 
       - name: Post E2E test results to release thread
         continue-on-error: true
-        if: ${{ inputs.monorepo_release_version != '' && inputs.release_ticket_id != '' && steps.extract-e2e-results.outputs.slack_message_url != '' }}
+        if: ${{ !cancelled() && always() && inputs.monorepo_release_version != '' && inputs.release_ticket_id != '' && steps.extract-e2e-results.outputs.slack_message_url != '' }}
         uses: ./.github/actions/release-thread-integration
         with:
           monorepo_release_version: ${{ inputs.monorepo_release_version }}
           release_ticket_id: ${{ inputs.release_ticket_id }}
           slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
-          deployment_name: ${{ format('{0} Full E2E Regression Tests', steps.extract-e2e-results.outputs.test_success == 'true' && ':white_check_mark:' || ':warning:') }}
+          title: ${{ format('{0} Full E2E Regression Tests completed', steps.extract-e2e-results.outputs.test_success == 'true' && ':white_check_mark:' || ':x:') }}
+          link_text: 'View test results'
           slack_message_url: ${{ steps.extract-e2e-results.outputs.slack_message_url }}
           custom_message: ${{ steps.extract-e2e-results.outputs.test_success == 'true' && 'All tests passed successfully. Proceed to the next step.' || 'There are some test failures. Please review them and proceed to the next step.' }}

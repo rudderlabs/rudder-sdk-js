@@ -399,7 +399,8 @@ jobs:
           monorepo_release_version: ${{ inputs.monorepo_release_version }}
           release_ticket_id: ${{ inputs.release_ticket_id }}
           slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
-          deployment_name: 'JS SDK NPM Package'
+          title: ':white_check_mark: JS SDK NPM Package deployment completed'
+          link_text: 'View deployment details'
           slack_api_response: ${{ steps.slack.outputs.response }}
 
       - name: Send message to Slack channel for Service Worker

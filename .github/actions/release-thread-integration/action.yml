@@ -11,11 +11,15 @@ inputs:
   slack_bot_token:
     description: 'Slack bot token for posting messages'
     required: true
-  deployment_name:
-    description: 'Name of the deployment (e.g., "JS SDK", "Sanity Suite", "NPM Package")'
+  title:
+    description: 'Title for the Slack message (e.g., ":white_check_mark: JS SDK deployment completed")'
     required: true
+  link_text:
+    description: 'Text for the Slack message link (e.g., "View deployment details", "View test results")'
+    required: false
+    default: 'View details'
   slack_message_url:
-    description: 'Slack message URL for the deployment'
+    description: 'Slack message URL'
     required: false
   slack_api_response:
     description: 'JSON response from Slack API containing message details'
@@ -246,13 +250,13 @@ runs:
           {
             "channel": "${{ steps.extract-info.outputs.channel_id }}",
             "thread_ts": "${{ steps.extract-info.outputs.thread_ts }}",
-            "text": ":white_check_mark: ${{ inputs.deployment_name }} deployment completed: <${{ steps.extract-message-url.outputs.message_url }}|View deployment details>\n\nCC: ${{ inputs.slack_slugs }}",
+            "text": "${{ inputs.title }}\n<${{ steps.extract-message-url.outputs.message_url }}|${{ inputs.link_text }}>\n\nCC: ${{ inputs.slack_slugs }}",
             "blocks": [
               {
                 "type": "section",
                 "text": {
                   "type": "mrkdwn",
-                  "text": ":white_check_mark: *${{ inputs.deployment_name }} deployment completed*${{ inputs.custom_message != '' && format('\n\n{0}', inputs.custom_message) || '' }}\n<${{ steps.extract-message-url.outputs.message_url }}|View deployment details>\n\nCC: ${{ inputs.slack_slugs }}"
+                  "text": "*${{ inputs.title }}*${{ inputs.custom_message != '' && format('\n\n{0}', inputs.custom_message) || '' }}\n<${{ steps.extract-message-url.outputs.message_url }}|${{ inputs.link_text }}>\n\nCC: ${{ inputs.slack_slugs }}"
                 }
               }
             ]
