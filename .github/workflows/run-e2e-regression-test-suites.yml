@@ -40,6 +40,9 @@ env:
   CHECK_INTERVAL_FOR_E2E_TESTS: 60      # 1 minute
   TARGET_REPO: rudderlabs/rudder-client-side-test
 
+permissions:
+  contents: read
+
 jobs:
   extract-monorepo-version:
     name: Extract Monorepo Version

@@ -17,6 +17,9 @@ concurrency:
 env:
   NODE_OPTIONS: '--no-warnings'
 
+permissions:
+  contents: read
+
 jobs:
   validate-actor:
     permissions: {}

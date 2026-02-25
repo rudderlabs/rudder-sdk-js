@@ -11,6 +11,9 @@ on:
       RELEASE_PRIVATE_KEY:
         required: true
 
+permissions:
+  contents: read
+
 jobs:
   validate-actor:
     runs-on: [self-hosted, Linux, X64]

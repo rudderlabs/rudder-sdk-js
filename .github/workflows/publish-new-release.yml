@@ -10,6 +10,9 @@ on:
 env:
   NODE_OPTIONS: '--no-warnings'
 
+permissions:
+  contents: read
+
 jobs:
   get-release-inputs:
     name: Get Release Inputs
