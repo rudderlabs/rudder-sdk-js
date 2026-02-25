@@ -107,5 +107,5 @@ jobs:
       monorepo_release_version: ${{ needs.get-deploy-inputs.outputs.release_version }}
       release_ticket_id: ${{ needs.get-deploy-inputs.outputs.release_ticket_id }}
     secrets:
-      PAT: ${{ secrets.PAT }}
+      RELEASE_PRIVATE_KEY: ${{ secrets.RELEASE_PRIVATE_KEY }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}

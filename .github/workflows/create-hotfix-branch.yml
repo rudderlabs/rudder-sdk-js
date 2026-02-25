@@ -15,7 +15,7 @@ jobs:
     with:
       team_names: 'js-sdk,integrations'
     secrets:
-      PAT: ${{ secrets.PAT }}
+      RELEASE_PRIVATE_KEY: ${{ secrets.RELEASE_PRIVATE_KEY }}
 
   create-branch:
     name: Create a new hotfix branch

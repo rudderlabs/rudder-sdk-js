@@ -30,7 +30,7 @@ jobs:
     with:
       team_names: 'js-sdk,integrations'
     secrets:
-      PAT: ${{ secrets.PAT }}
+      RELEASE_PRIVATE_KEY: ${{ secrets.RELEASE_PRIVATE_KEY }}
 
   get-rollback-inputs:
     name: Get Rollback Inputs
@@ -284,4 +284,4 @@ jobs:
       environment: production
       trigger_source: ${{ needs.get-rollback-inputs.outputs.trigger_source }}
     secrets:
-      PAT: ${{ secrets.PAT }}
+      RELEASE_PRIVATE_KEY: ${{ secrets.RELEASE_PRIVATE_KEY }}

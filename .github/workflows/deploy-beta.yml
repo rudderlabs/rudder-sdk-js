@@ -33,7 +33,7 @@ jobs:
     with:
       team_names: 'js-sdk,integrations'
     secrets:
-      PAT: ${{ secrets.PAT }}
+      RELEASE_PRIVATE_KEY: ${{ secrets.RELEASE_PRIVATE_KEY }}
 
   find-pr:
     name: Find PR for Current Branch
@@ -287,4 +287,5 @@ jobs:
       build_source_id: ${{ needs.get-deploy-inputs.outputs.beta_identifier_for_automation_tests }}
       trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
     secrets:
-      PAT: ${{ secrets.PAT }}
+      RELEASE_PRIVATE_KEY: ${{ secrets.RELEASE_PRIVATE_KEY }}
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}

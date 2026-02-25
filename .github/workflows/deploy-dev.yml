@@ -77,4 +77,4 @@ jobs:
       environment: development
       trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
     secrets:
-      PAT: ${{ secrets.PAT }}
+      RELEASE_PRIVATE_KEY: ${{ secrets.RELEASE_PRIVATE_KEY }}
