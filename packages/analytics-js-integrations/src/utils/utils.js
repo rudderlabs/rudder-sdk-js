@@ -7,6 +7,27 @@ import Logger from './logger';
 const logger = new Logger('Utils');
 
 /**
+ * Returns the provided value when present and valid; otherwise returns the default value.
+ * When value is null or undefined, defaultValue is returned.
+ * When value is present: if the expectation is a boolean (defaultValue is boolean),
+ * only a valid boolean (true/false) is accepted—otherwise defaultValue is returned;
+ * for non-boolean defaults, value is returned as-is.
+ * @param {*} value - The value to use if present and valid for the expected type
+ * @param {*} defaultValue - The value to return when value is absent or invalid
+ * @returns {*} value if present and valid, otherwise defaultValue
+ */
+function getValueOrDefault(value, defaultValue) {
+  if (value !== null && value !== undefined) {
+    // If the expectation is a boolean, make sure the input is also boolean
+    if (typeof defaultValue === 'boolean') {
+      return typeof value === 'boolean' ? value : defaultValue;
+    }
+    return value;
+  }
+  return defaultValue;
+}
+
+/**
  * Utility method to remove '/' at the end of URL
  * @param {*} inURL
  */
@@ -591,4 +612,5 @@ export {
   removeTrailingSlashes,
   constructPayload,
   isEmptyObject,
+  getValueOrDefault,
 };

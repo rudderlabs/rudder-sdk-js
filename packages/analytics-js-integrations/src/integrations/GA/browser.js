@@ -3,7 +3,7 @@ import is from 'is';
 import each from 'component-each';
 import { ScriptLoader } from '@rudderstack/analytics-js-legacy-utilities/ScriptLoader';
 import { NAME, DISPLAY_NAME } from './constants';
-import { rejectArr } from '../../utils/utils';
+import { rejectArr, getValueOrDefault } from '../../utils/utils';
 import Logger from '../../utils/logger';
 
 const logger = new Logger(DISPLAY_NAME);
@@ -29,11 +29,11 @@ export default class GA {
     this.enhancedLinkAttribution = config.enhancedLinkAttribution || false;
 
     this.includeSearch = config.includeSearch || false;
-    this.setAllMappedProps = config.setAllMappedProps || true;
+    this.setAllMappedProps = getValueOrDefault(config.setAllMappedProps, true);
     this.siteSpeedSampleRate = config.siteSpeedSampleRate || 1;
     this.sampleRate = config.sampleRate || 100;
-    this.trackCategorizedPages = config.trackCategorizedPages || true;
-    this.trackNamedPages = config.trackNamedPages || true;
+    this.trackCategorizedPages = getValueOrDefault(config.trackCategorizedPages, true);
+    this.trackNamedPages = getValueOrDefault(config.trackNamedPages, true);
     this.useRichEventNames = config.useRichEventNames || false;
     this.optimizeContainerId = config.optimize || '';
     this.resetCustomDimensionsOnPage = config.resetCustomDimensionsOnPage || [];

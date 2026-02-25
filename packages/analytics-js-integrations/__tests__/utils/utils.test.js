@@ -336,3 +336,40 @@ describe('flattenJsonPayload Tests', () => {
     expect(result).toStrictEqual({ '-.prop1.prop2': 'abc' });
   });
 });
+
+describe('getValueOrDefault Tests', () => {
+  test('returns provided value when it is not null/undefined and default is non-boolean', () => {
+    expect(utils.getValueOrDefault(42, 0)).toBe(42);
+    expect(utils.getValueOrDefault('hello', '')).toBe('hello');
+    expect(utils.getValueOrDefault({ key: 'val' }, {})).toStrictEqual({ key: 'val' });
+    expect(utils.getValueOrDefault([1, 2], [])).toStrictEqual([1, 2]);
+    expect(utils.getValueOrDefault(0, 100)).toBe(0);
+    expect(utils.getValueOrDefault('', 'default')).toBe('');
+  });
+
+  test('returns defaultValue when value is null or undefined', () => {
+    expect(utils.getValueOrDefault(undefined, false)).toBe(false);
+    expect(utils.getValueOrDefault(null, true)).toBe(true);
+    expect(utils.getValueOrDefault(undefined, 30)).toBe(30);
+    expect(utils.getValueOrDefault(null, 100)).toBe(100);
+    expect(utils.getValueOrDefault(undefined, 'default')).toBe('default');
+    expect(utils.getValueOrDefault(null, 'default')).toBe('default');
+  });
+
+  test('when default is boolean, only boolean value is accepted; otherwise returns default', () => {
+    // valid boolean values
+    expect(utils.getValueOrDefault(true, false)).toBe(true);
+    expect(utils.getValueOrDefault(false, true)).toBe(false);
+
+    // null/undefined with boolean default return default
+    expect(utils.getValueOrDefault(undefined, false)).toBe(false);
+    expect(utils.getValueOrDefault(null, true)).toBe(true);
+
+    // non-boolean values with boolean default return default
+    expect(utils.getValueOrDefault('true', false)).toBe(false);
+    expect(utils.getValueOrDefault('false', true)).toBe(true);
+    expect(utils.getValueOrDefault(1, false)).toBe(false);
+    expect(utils.getValueOrDefault(0, true)).toBe(true);
+    expect(utils.getValueOrDefault({}, false)).toBe(false);
+  });
+});
