@@ -250,7 +250,7 @@ runs:
           {
             "channel": "${{ steps.extract-info.outputs.channel_id }}",
             "thread_ts": "${{ steps.extract-info.outputs.thread_ts }}",
-            "text": "${{ inputs.title }}: <${{ steps.extract-message-url.outputs.message_url }}|${{ inputs.link_text }}>\n\nCC: ${{ inputs.slack_slugs }}",
+            "text": "${{ inputs.title }}\n<${{ steps.extract-message-url.outputs.message_url }}|${{ inputs.link_text }}>\n\nCC: ${{ inputs.slack_slugs }}",
             "blocks": [
               {
                 "type": "section",

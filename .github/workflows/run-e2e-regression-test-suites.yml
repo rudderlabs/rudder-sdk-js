@@ -137,7 +137,7 @@ jobs:
         if: always() && steps.run_sanity_tests.outputs.has_outputs == 'true'
         run: |
           # Extract all fields from job outputs
-          slack_message_url=$(echo '${{ steps.run_sanity_tests.outputs.job_outputs }}' | jq -r '.slack_message_url')
+          slack_message_url=$(echo '${{ steps.run_sanity_tests.outputs.job_outputs }}' | jq -r '.slack_message_url // ""')
           test_passed=$(echo '${{ steps.run_sanity_tests.outputs.job_outputs }}' | jq -r '.test_status.passed // ""')
           test_total=$(echo '${{ steps.run_sanity_tests.outputs.job_outputs }}' | jq -r '.test_status.total // ""')
           test_percentage=$(echo '${{ steps.run_sanity_tests.outputs.job_outputs }}' | jq -r '.test_status.percentage // ""')
@@ -153,7 +153,7 @@ jobs:
 
       - name: Post sanity test results to release thread
         continue-on-error: true
-        if: ${{ always() && inputs.monorepo_release_version != '' && inputs.release_ticket_id != '' && steps.extract-sanity-results.outputs.slack_message_url != '' }}
+        if: ${{ !cancelled() && always() && inputs.monorepo_release_version != '' && inputs.release_ticket_id != '' && steps.extract-sanity-results.outputs.slack_message_url != '' }}
         uses: ./.github/actions/release-thread-integration
         with:
           monorepo_release_version: ${{ inputs.monorepo_release_version }}
@@ -220,10 +220,11 @@ jobs:
 
       - name: Extract E2E test results
         id: extract-e2e-results
+        continue-on-error: true
         if: always() && steps.run_e2e_tests.outputs.has_outputs == 'true'
         run: |
           # Extract all fields from job outputs
-          slack_message_url=$(echo '${{ steps.run_e2e_tests.outputs.job_outputs }}' | jq -r '.slack_message_url')
+          slack_message_url=$(echo '${{ steps.run_e2e_tests.outputs.job_outputs }}' | jq -r '.slack_message_url // ""')
           test_passed=$(echo '${{ steps.run_e2e_tests.outputs.job_outputs }}' | jq -r '.test_status.passed // ""')
           test_total=$(echo '${{ steps.run_e2e_tests.outputs.job_outputs }}' | jq -r '.test_status.total // ""')
           test_percentage=$(echo '${{ steps.run_e2e_tests.outputs.job_outputs }}' | jq -r '.test_status.percentage // ""')
@@ -239,7 +240,7 @@ jobs:
 
       - name: Post E2E test results to release thread
         continue-on-error: true
-        if: ${{ always() && inputs.monorepo_release_version != '' && inputs.release_ticket_id != '' && steps.extract-e2e-results.outputs.slack_message_url != '' }}
+        if: ${{ !cancelled() && always() && inputs.monorepo_release_version != '' && inputs.release_ticket_id != '' && steps.extract-e2e-results.outputs.slack_message_url != '' }}
         uses: ./.github/actions/release-thread-integration
         with:
           monorepo_release_version: ${{ inputs.monorepo_release_version }}
