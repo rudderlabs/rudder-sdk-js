@@ -134,7 +134,7 @@ jobs:
       - name: Extract sanity test results
         id: extract-sanity-results
         continue-on-error: true
-        if: steps.run_sanity_tests.outputs.has_outputs == 'true'
+        if: always() && steps.run_sanity_tests.outputs.has_outputs == 'true'
         run: |
           # Extract all fields from job outputs
           slack_message_url=$(echo '${{ steps.run_sanity_tests.outputs.job_outputs }}' | jq -r '.slack_message_url')
@@ -153,7 +153,7 @@ jobs:
 
       - name: Post sanity test results to release thread
         continue-on-error: true
-        if: ${{ inputs.monorepo_release_version != '' && inputs.release_ticket_id != '' && steps.extract-sanity-results.outputs.slack_message_url != '' }}
+        if: ${{ always() && inputs.monorepo_release_version != '' && inputs.release_ticket_id != '' && steps.extract-sanity-results.outputs.slack_message_url != '' }}
         uses: ./.github/actions/release-thread-integration
         with:
           monorepo_release_version: ${{ inputs.monorepo_release_version }}
@@ -219,7 +219,7 @@ jobs:
 
       - name: Extract E2E test results
         id: extract-e2e-results
-        if: steps.run_e2e_tests.outputs.has_outputs == 'true'
+        if: always() && steps.run_e2e_tests.outputs.has_outputs == 'true'
         run: |
           # Extract all fields from job outputs
           slack_message_url=$(echo '${{ steps.run_e2e_tests.outputs.job_outputs }}' | jq -r '.slack_message_url')
@@ -238,7 +238,7 @@ jobs:
 
       - name: Post E2E test results to release thread
         continue-on-error: true
-        if: ${{ inputs.monorepo_release_version != '' && inputs.release_ticket_id != '' && steps.extract-e2e-results.outputs.slack_message_url != '' }}
+        if: ${{ always() && inputs.monorepo_release_version != '' && inputs.release_ticket_id != '' && steps.extract-e2e-results.outputs.slack_message_url != '' }}
         uses: ./.github/actions/release-thread-integration
         with:
           monorepo_release_version: ${{ inputs.monorepo_release_version }}
