@@ -159,7 +159,8 @@ jobs:
           monorepo_release_version: ${{ inputs.monorepo_release_version }}
           release_ticket_id: ${{ inputs.release_ticket_id }}
           slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
-          deployment_name: ${{ format('{0} Sanity E2E Regression Tests', steps.extract-sanity-results.outputs.test_success == 'true' && ':white_check_mark:' || ':warning:') }}
+          title: ${{ format('{0} Sanity E2E Regression Tests completed', steps.extract-sanity-results.outputs.test_success == 'true' && ':white_check_mark:' || ':x:') }}
+          link_text: 'View test results'
           slack_message_url: ${{ steps.extract-sanity-results.outputs.slack_message_url }}
           custom_message: ${{ steps.extract-sanity-results.outputs.test_success == 'true' && 'All tests passed successfully. Proceed to the next step.' || 'There are some test failures. Please review them and proceed to the next step.' }}
 
@@ -244,6 +245,7 @@ jobs:
           monorepo_release_version: ${{ inputs.monorepo_release_version }}
           release_ticket_id: ${{ inputs.release_ticket_id }}
           slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
-          deployment_name: ${{ format('{0} Full E2E Regression Tests', steps.extract-e2e-results.outputs.test_success == 'true' && ':white_check_mark:' || ':warning:') }}
+          title: ${{ format('{0} Full E2E Regression Tests completed', steps.extract-e2e-results.outputs.test_success == 'true' && ':white_check_mark:' || ':x:') }}
+          link_text: 'View test results'
           slack_message_url: ${{ steps.extract-e2e-results.outputs.slack_message_url }}
           custom_message: ${{ steps.extract-e2e-results.outputs.test_success == 'true' && 'All tests passed successfully. Proceed to the next step.' || 'There are some test failures. Please review them and proceed to the next step.' }}
