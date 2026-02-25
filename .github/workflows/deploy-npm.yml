@@ -53,11 +53,138 @@ env:
   NODE_OPTIONS: '--no-warnings'
 
 jobs:
-  deploy:
-    name: Deploy to NPM
-    # As we publish the NPM package with provenance, we must use GitHub-hosted runners
+  determine-affected:
+    name: Determine Affected Publishable Projects
     runs-on: ubuntu-latest
     if: ${{ github.workflow_ref != '' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/tags/v')) }}
+    outputs:
+      projects: ${{ steps.affected-projects.outputs.projects }}
+      base_version: ${{ steps.resolve-versions.outputs.base_version }}
+      head_version: ${{ steps.resolve-versions.outputs.head_version }}
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
+        with:
+          egress-policy: audit
+
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Resolve base and head versions
+        id: resolve-versions
+        env:
+          INPUT_BASE_VERSION: ${{ inputs.base_version }}
+          INPUT_HEAD_VERSION: ${{ inputs.head_version }}
+        run: |
+          # Resolve a ref to a locally available git reference.
+          # Branch names from inputs (e.g. "develop") only exist as remote refs
+          # (origin/develop) after checkout, so we need to resolve them.
+          resolve_ref() {
+            local ref="$1"
+            # Already resolvable locally (tag, SHA, HEAD~N, etc.)
+            if git rev-parse --verify "$ref" >/dev/null 2>&1; then
+              echo "$ref"
+            # Try as a remote branch
+            elif git rev-parse --verify "origin/$ref" >/dev/null 2>&1; then
+              echo "origin/$ref"
+            else
+              echo "$ref"
+            fi
+          }
+
+          if [ -n "$INPUT_BASE_VERSION" ] && [ -n "$INPUT_HEAD_VERSION" ]; then
+            BASE_VERSION=$(resolve_ref "$INPUT_BASE_VERSION")
+            HEAD_VERSION=$(resolve_ref "$INPUT_HEAD_VERSION")
+          else
+            TAGS=$(git tag -l "v3*" --sort=-version:refname)
+            HEAD_VERSION=$(echo "$TAGS" | head -n 1)
+            BASE_VERSION=$(echo "$TAGS" | head -n 2 | awk 'NR == 2 { print $1 }')
+          fi
+
+          if [ -z "$HEAD_VERSION" ]; then
+            echo "::warning::No v3* tag found; defaulting HEAD_VERSION to HEAD"
+            HEAD_VERSION="HEAD"
+          fi
+
+          if [ -z "$BASE_VERSION" ]; then
+            echo "::warning::No previous v3* tag found; defaulting BASE_VERSION to HEAD~1"
+            BASE_VERSION="HEAD~1"
+          fi
+
+          echo "Base version: $BASE_VERSION"
+          echo "Head version: $HEAD_VERSION"
+
+          echo "base_version=$BASE_VERSION" >> $GITHUB_OUTPUT
+          echo "head_version=$HEAD_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Setup Node
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        env:
+          HUSKY: 0
+        run: npm ci --ignore-scripts
+
+      - name: Determine affected publishable projects
+        id: affected-projects
+        run: |
+          BASE_VERSION="${{ steps.resolve-versions.outputs.base_version }}"
+          HEAD_VERSION="${{ steps.resolve-versions.outputs.head_version }}"
+
+          # Get affected projects between base and head versions
+          AFFECTED=""
+          if ! NX_OUTPUT=$(npx nx show projects --affected --base="$BASE_VERSION" --head="$HEAD_VERSION" 2>&1); then
+            echo "::error::Failed to determine affected projects with nx:"
+            echo "$NX_OUTPUT"
+            exit 1
+          fi
+          AFFECTED="$NX_OUTPUT"
+
+          echo "All affected projects:"
+          echo "$AFFECTED"
+
+          # Filter to only publishable (non-private) packages
+          PUBLISHABLE_PROJECTS=""
+          while IFS= read -r project; do
+            [ -z "$project" ] && continue
+
+            PROJECT_INFO=$(npx nx show project "$project" --json 2>&1)
+            if [ $? -ne 0 ]; then
+              echo "::warning::Failed to get nx config for project '$project': $PROJECT_INFO"
+              continue
+            fi
+
+            PROJECT_ROOT=$(echo "$PROJECT_INFO" | jq -r '.root // empty')
+            if [ -z "$PROJECT_ROOT" ] || [ ! -f "$PROJECT_ROOT/package.json" ]; then
+              echo "::warning::No package.json found for project '$project' at '$PROJECT_ROOT'"
+              continue
+            fi
+
+            IS_PRIVATE=$(jq -r '.private // "false"' "$PROJECT_ROOT/package.json")
+            if [ "$IS_PRIVATE" != "true" ]; then
+              echo "Affected publishable project: $project"
+              if [ -n "$PUBLISHABLE_PROJECTS" ]; then
+                PUBLISHABLE_PROJECTS="$PUBLISHABLE_PROJECTS,$project"
+              else
+                PUBLISHABLE_PROJECTS="$project"
+              fi
+            fi
+          done <<< "$AFFECTED"
+
+          echo "Publishable affected projects: $PUBLISHABLE_PROJECTS"
+          echo "projects=$PUBLISHABLE_PROJECTS" >> $GITHUB_OUTPUT
+
+  deploy:
+    name: Deploy to NPM
+    needs: determine-affected
+    if: needs.determine-affected.result == 'success' && needs.determine-affected.outputs.projects != ''
+    # As we publish the NPM package with provenance, we must use GitHub-hosted runners
+    runs-on: ubuntu-latest
 
     steps:
       - name: Harden the runner (Audit all outbound calls)
@@ -139,29 +266,11 @@ jobs:
           npm run build:package
           npm run build:package:modern
 
-      - name: Get the monorepo versions for the base and head versions
-        run: |
-          # If both base and head versions are provided, use them
-          if [ -n "${{ inputs.base_version }}" ] && [ -n "${{ inputs.head_version }}" ]; then
-            LAST_VERSION=${{ inputs.base_version }}
-            CURRENT_VERSION=${{ inputs.head_version }}
-          else
-            # Otherwise, get the two latest monorepo versions
-            CURRENT_VERSION=$(git tag -l "v3*" --sort=-version:refname | head -n 1)
-            LAST_VERSION=$(git tag -l "v3*" --sort=-version:refname | head -n 2 | awk 'NR == 2 { print $1 }')
-          fi
-
-          echo "Current version: $CURRENT_VERSION"
-          echo "Previous version: $LAST_VERSION"
-
-          echo "current_monorepo_version=$(echo $CURRENT_VERSION)" >> $GITHUB_ENV
-          echo "last_monorepo_version=$(echo $LAST_VERSION)" >> $GITHUB_ENV
-          echo "DATE=$(date)" >> $GITHUB_ENV
-
       - name: Publish package to NPM
         env:
           HUSKY: 0
           NPM_CONFIG_PROVENANCE: true
+          PUBLISH_PROJECTS: ${{ needs.determine-affected.outputs.projects }}
         run: |
           # Remove unnecessary fields from package.json before publishing
           ./scripts/make-package-json-publish-ready.sh
@@ -171,7 +280,10 @@ jobs:
             TAG_OPTION="--tag=beta"
           fi
 
-          npx nx release publish --verbose --projects=@rudderstack/analytics-js $TAG_OPTION
+          echo "Publishing projects: $PUBLISH_PROJECTS"
+          echo "DATE=$(date)" >> $GITHUB_ENV
+
+          npx nx release publish --verbose --projects="$PUBLISH_PROJECTS" $TAG_OPTION
 
           # Reset the changes made to package.json
           git reset --hard
