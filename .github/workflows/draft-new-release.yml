@@ -95,7 +95,7 @@ jobs:
 
           npm run bump-version:monorepo
           new_version=$(jq -r .version package.json)
-          git reset --hard
+          git reset --hard ORIG_HEAD
 
           branch_name="${release_type}/${new_version}-${{ github.event.inputs.release_ticket_id }}"
 
@@ -105,13 +105,6 @@ jobs:
           echo "New version is $new_version"
           echo "New release branch name is $branch_name"
           git checkout -b "$branch_name"
-
-          # Create branch via GitHub API (not git push)
-          BASE_SHA=$(git rev-parse HEAD)
-          gh api repos/${{ github.repository }}/git/refs \
-            --method POST \
-            -f ref="refs/heads/$branch_name" \
-            -f sha="$BASE_SHA"
 
           echo "source_branch_name=$source_branch_name" >> $GITHUB_OUTPUT
           echo "branch_name=$branch_name" >> $GITHUB_OUTPUT
