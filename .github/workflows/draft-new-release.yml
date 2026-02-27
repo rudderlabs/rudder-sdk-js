@@ -83,7 +83,6 @@ jobs:
         id: create-release
         env:
           HUSKY: 0
-          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
           source_branch_name=${GITHUB_REF#refs/heads/}
           release_type=release
