@@ -118,7 +118,7 @@ const getExternalsConfig = () => {
     return externalGlobalsConfig;
   }
 
-  // Lite build: exclude device mode, storage legacy, beacon, and linker plugins
+  // Lite build: exclude device mode, storage legacy, and linker plugins
   if (isLiteBuild) {
     externalGlobalsConfig['@rudderstack/analytics-js-plugins/deviceModeDestinations'] = '{}';
     externalGlobalsConfig['@rudderstack/analytics-js-plugins/deviceModeTransformation'] = '{}';
