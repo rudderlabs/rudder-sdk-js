@@ -83,6 +83,7 @@ jobs:
         id: create-release
         env:
           HUSKY: 0
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
           source_branch_name=${GITHUB_REF#refs/heads/}
           release_type=release
@@ -104,6 +105,13 @@ jobs:
           echo "New version is $new_version"
           echo "New release branch name is $branch_name"
           git checkout -b "$branch_name"
+
+          # Create branch via GitHub API (not git push)
+          BASE_SHA=$(git rev-parse HEAD)
+          gh api repos/${{ github.repository }}/git/refs \
+            --method POST \
+            -f ref="refs/heads/$branch_name" \
+            -f sha="$BASE_SHA"
 
           echo "source_branch_name=$source_branch_name" >> $GITHUB_OUTPUT
           echo "branch_name=$branch_name" >> $GITHUB_OUTPUT
