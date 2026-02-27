@@ -21,25 +21,32 @@ jobs:
     name: Create a new hotfix branch
     runs-on: [self-hosted, Linux, X64]
     needs: validate-actor
+    permissions:
+      contents: write # to create branch ref via API
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@a90bcbc6539c36a85cdfeb73f7e2f433735f215b # v2.15.0
         with:
           egress-policy: audit
 
+      - name: Generate GitHub App Token
+        id: generate-token
+        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
+        with:
+          app-id: ${{ vars.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_PRIVATE_KEY }}
+          permission-contents: write # to create branch ref via API
+
       - name: Checkout source code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
-
-      # In order to make a commit, we need to initialize a user.
-      # You may choose to write something less generic here if you want, it doesn't matter functionality wise.
-      - name: Initialize mandatory git config
-        run: |
-          git config user.name "GitHub actions"
-          git config user.email noreply@github.com
+          token: ${{ steps.generate-token.outputs.token }}
 
       - name: Create hotfix branch
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+          REPO: ${{ github.repository }}
         run: |
           chmod +x scripts/create-hotfix-branch.sh
           ./scripts/create-hotfix-branch.sh "${{ github.event.inputs.hotfix_branch_name }}"

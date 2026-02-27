@@ -94,7 +94,7 @@ jobs:
 
           npm run bump-version:monorepo
           new_version=$(jq -r .version package.json)
-          git reset --hard
+          git reset --hard ORIG_HEAD
 
           branch_name="${release_type}/${new_version}-${{ github.event.inputs.release_ticket_id }}"
 
