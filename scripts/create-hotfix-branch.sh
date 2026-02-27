@@ -38,28 +38,49 @@ if [ ${#FULL_BRANCH_NAME} -gt 255 ]; then
     error "Full branch name ($FULL_BRANCH_NAME) is too long (maximum 255 characters)"
 fi
 
-# Check if branch already exists
+# Check if branch already exists locally
 if git show-ref --verify --quiet refs/heads/$FULL_BRANCH_NAME; then
-    error "Branch ($FULL_BRANCH_NAME) already exists"
+    error "Branch ($FULL_BRANCH_NAME) already exists locally"
 fi
 
-# Create the branch
+# Create the branch locally
 git checkout -b $FULL_BRANCH_NAME
 
-# Push the branch and handle potential errors
-if ! git push origin $FULL_BRANCH_NAME; then
-    error "Failed to push branch ($FULL_BRANCH_NAME) to remote. Please check your permissions and try again."
+# Ensure required environment variables for GitHub API are present
+if [ -z "$GH_TOKEN" ]; then
+    error "GH_TOKEN environment variable is required to create remote branch via GitHub API"
 fi
 
-# Verify the branch exists remotely
-if ! git ls-remote --heads origin $FULL_BRANCH_NAME | grep -q $FULL_BRANCH_NAME; then
-    error "Branch ($FULL_BRANCH_NAME) was not pushed to remote successfully"
+# Determine repository slug (owner/repo)
+REPO_SLUG="${REPO:-$GITHUB_REPOSITORY}"
+if [ -z "$REPO_SLUG" ]; then
+    # Fallback to parsing from git remote if not provided
+    REMOTE_URL=$(git config --get remote.origin.url)
+    REMOTE_URL=${REMOTE_URL#git@github.com:}
+    REMOTE_URL=${REMOTE_URL#https://github.com/}
+    REPO_SLUG=${REMOTE_URL%.git}
 fi
 
-# Get the repository URL
-REPO_URL=$(git config --get remote.origin.url)
-REPO_URL=${REPO_URL#git@github.com:}
-REPO_URL=${REPO_URL%.git}
+if [ -z "$REPO_SLUG" ]; then
+    error "Unable to determine repository slug for GitHub API"
+fi
 
-success "Successfully created hotfix branch!"
-echo "Branch URL: https://github.com/$REPO_URL/tree/$FULL_BRANCH_NAME" 
+# Create or update the remote branch ref via GitHub API before any future commits
+sha=$(git rev-parse HEAD)
+if gh api "repos/${REPO_SLUG}/git/ref/heads/${FULL_BRANCH_NAME}" >/dev/null 2>&1; then
+    gh api "repos/${REPO_SLUG}/git/refs/heads/${FULL_BRANCH_NAME}" \
+      --method PATCH \
+      -f "sha=${sha}" \
+      -F "force=true"
+else
+    gh api repos/${REPO_SLUG}/git/refs \
+      --method POST \
+      -f "ref=refs/heads/${FULL_BRANCH_NAME}" \
+      -f "sha=${sha}"
+fi
+
+# Get the repository URL for success message
+REPO_URL="https://github.com/$REPO_SLUG"
+
+success "Successfully created hotfix branch locally and ensured remote branch via GitHub API."
+echo "Branch URL: $REPO_URL/tree/$FULL_BRANCH_NAME"
