@@ -22,7 +22,8 @@ permissions:
 
 jobs:
   validate-actor:
-    permissions: {}
+    permissions:
+      contents: read
     # Only allow to draft a new release from develop and hotfix branches
     if: github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/hotfix/')
     uses: ./.github/workflows/validate-actor.yml
