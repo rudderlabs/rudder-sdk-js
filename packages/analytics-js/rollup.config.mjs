@@ -123,7 +123,6 @@ const getExternalsConfig = () => {
     externalGlobalsConfig['@rudderstack/analytics-js-plugins/deviceModeDestinations'] = '{}';
     externalGlobalsConfig['@rudderstack/analytics-js-plugins/deviceModeTransformation'] = '{}';
     externalGlobalsConfig['@rudderstack/analytics-js-plugins/nativeDestinationQueue'] = '{}';
-    externalGlobalsConfig['@rudderstack/analytics-js-plugins/beaconQueue'] = '{}';
     externalGlobalsConfig['@rudderstack/analytics-js-plugins/googleLinker'] = '{}';
     externalGlobalsConfig['@rudderstack/analytics-js-plugins/storageEncryptionLegacy'] = '{}';
     externalGlobalsConfig['@rudderstack/analytics-js-plugins/storageMigrator'] = '{}';
