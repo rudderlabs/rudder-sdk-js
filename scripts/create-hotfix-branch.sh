@@ -73,7 +73,7 @@ if gh api "repos/${REPO_SLUG}/git/ref/heads/${FULL_BRANCH_NAME}" >/dev/null 2>&1
       -f "sha=${sha}" \
       -F "force=true"
 else
-    gh api repos/${REPO_SLUG}/git/refs \
+    gh api "repos/${REPO_SLUG}/git/refs" \
       --method POST \
       -f "ref=refs/heads/${FULL_BRANCH_NAME}" \
       -f "sha=${sha}"
