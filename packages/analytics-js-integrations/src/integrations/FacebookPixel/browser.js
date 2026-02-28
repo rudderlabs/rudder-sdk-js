@@ -53,21 +53,28 @@ class FacebookPixel {
   }
 
   init() {
-    window._fbq = function () {
-      if (window.fbq.callMethod) {
-        window.fbq.callMethod.apply(window.fbq, arguments);
-      } else {
-        window.fbq.queue.push(arguments);
-      }
-    };
+    // Guard against re-initializing the global fbq object when multiple Meta Pixel
+    // destinations are configured. The global setup should only run once; each
+    // destination independently calls fbq('init', pixelId) with its own Pixel ID.
+    if (!window.fbq) {
+      window._fbq = function () {
+        if (window.fbq.callMethod) {
+          window.fbq.callMethod.apply(window.fbq, arguments);
+        } else {
+          window.fbq.queue.push(arguments);
+        }
+      };
 
-    window.fbq = window.fbq || window._fbq;
-    window.fbq.push = window.fbq;
-    window.fbq.loaded = true;
-    window.fbq.disablePushState = true; // disables automatic pageview tracking
-    window.fbq.allowDuplicatePageViews = true; // enables fb
-    window.fbq.version = '2.0';
-    window.fbq.queue = [];
+      window.fbq = window._fbq;
+      window.fbq.push = window.fbq;
+      window.fbq.loaded = true;
+      window.fbq.disablePushState = true; // disables automatic pageview tracking
+      window.fbq.allowDuplicatePageViews = true; // enables fb
+      window.fbq.version = '2.0';
+      window.fbq.queue = [];
+      ScriptLoader('fbpixel-integration', 'https://connect.facebook.net/en_US/fbevents.js');
+    }
+
     window.fbq('set', 'autoConfig', this.autoConfig, this.pixelId); // toggle autoConfig : sends button click and page metadata
     if (this.advancedMapping) {
       if (this.useUpdatedMapping) {
@@ -97,7 +104,6 @@ class FacebookPixel {
     } else {
       window.fbq('init', this.pixelId);
     }
-    ScriptLoader('fbpixel-integration', 'https://connect.facebook.net/en_US/fbevents.js');
   }
 
   isLoaded() {
