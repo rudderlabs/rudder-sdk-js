@@ -146,6 +146,7 @@ jobs:
           ./scripts/generate-last-release-changelog.sh
           npm run bump-version:monorepo
           npx replace $CURRENT_VERSION_VALUE $NEW_VERSION_VALUE sonar-project.properties
+          npm install
 
       - name: Create verified commit and push changes to release branch
         uses: ryancyq/github-signed-commit@e9f3b28c80da7be66d24b8f501a5abe82a6b855f # v1.2.0
