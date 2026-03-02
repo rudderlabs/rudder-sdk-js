@@ -94,7 +94,7 @@ jobs:
 
           npm run bump-version:monorepo
           new_version=$(jq -r .version package.json)
-          git reset --hard ORIG_HEAD
+          git reset --hard
 
           branch_name="${release_type}/${new_version}-${{ github.event.inputs.release_ticket_id }}"
 
@@ -110,29 +110,6 @@ jobs:
           echo "new_version=$new_version" >> $GITHUB_OUTPUT
           echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
           echo "NEW_VERSION_VALUE=$new_version" >> $GITHUB_ENV
-
-      - name: Update changelog & bump version
-        id: finish-release
-        env:
-          HUSKY: 0
-          BASE_BRANCH: ${{ steps.create-release.outputs.branch_name }}
-        run: |
-          echo "Current version: $CURRENT_VERSION_VALUE"
-          echo "New version: $NEW_VERSION_VALUE"
-          git fetch --no-tags --prune --depth=100 origin main
-          npm run release
-          ./scripts/sync-tags-in-nx-projects.sh
-          ./scripts/generate-last-release-changelog.sh
-          npm run bump-version:monorepo
-          npx replace $CURRENT_VERSION_VALUE $NEW_VERSION_VALUE sonar-project.properties
-          npm install
-          npm run clean
-
-      - name: Generate packages versions table
-        id: packages-versions
-        run: |
-          chmod +x ./scripts/collect-packages-versions.sh
-          ./scripts/collect-packages-versions.sh > packages_versions.md
 
       - name: Create release branch on remote
         env:
@@ -155,15 +132,36 @@ jobs:
               -f "sha=${sha}"
           fi
 
-      - name: Create verified commit and push release branch
+      - name: Update changelog & bump version
+        id: finish-release
+        env:
+          HUSKY: 0
+          BASE_BRANCH: ${{ steps.create-release.outputs.branch_name }}
+        run: |
+          echo "Current version: $CURRENT_VERSION_VALUE"
+          echo "New version: $NEW_VERSION_VALUE"
+          git fetch --no-tags --prune --depth=100 origin main
+          npm run release -- --skipCommit=true
+          ./scripts/sync-tags-in-nx-projects.sh
+          ./scripts/generate-last-release-changelog.sh
+          npm run bump-version:monorepo
+          npx replace $CURRENT_VERSION_VALUE $NEW_VERSION_VALUE sonar-project.properties
+
+      - name: Create verified commit and push changes to release branch
         uses: ryancyq/github-signed-commit@e9f3b28c80da7be66d24b8f501a5abe82a6b855f # v1.2.0
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         with:
           branch-name: ${{ steps.create-release.outputs.branch_name }}
-          commit-message: 'chore(monorepo): sync versions and generate release logs'
+          commit-message: 'chore: update versions and generate release changelog'
           files: |
             .
+
+      - name: Generate packages versions table
+        id: packages-versions
+        run: |
+          chmod +x ./scripts/collect-packages-versions.sh
+          ./scripts/collect-packages-versions.sh > packages_versions.md
 
       - name: Create pull request into main
         id: create-pr
