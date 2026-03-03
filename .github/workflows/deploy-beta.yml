@@ -33,7 +33,7 @@ jobs:
     with:
       team_names: 'js-sdk,integrations'
     secrets:
-      PAT: ${{ secrets.PAT }}
+      RELEASE_PRIVATE_KEY: ${{ secrets.RELEASE_PRIVATE_KEY }}
 
   find-pr:
     name: Find PR for Current Branch
@@ -42,10 +42,11 @@ jobs:
     outputs:
       pr_number: ${{ steps.pr-info.outputs.pr_number }}
       pr_url: ${{ steps.pr-info.outputs.pr_url }}
+      pr_base_branch: ${{ steps.pr-info.outputs.pr_base_branch }}
       force_deploy_mode: ${{ steps.check-force-deploy.outputs.force_deploy_mode }}
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
+        uses: step-security/harden-runner@a90bcbc6539c36a85cdfeb73f7e2f433735f215b # v2.15.0
         with:
           egress-policy: audit
 
@@ -72,24 +73,38 @@ jobs:
             const branch = context.ref.replace('refs/heads/', '');
             console.log(`Finding PRs for branch: ${branch}`);
 
+            const allowedBasePatterns = [
+              /^develop$/,
+              /^main$/,
+              /^hotfix\/.+$/,
+              /^release\/.+$/,
+              /^hotfix-release\/.+$/,
+            ];
+
             const { data: pullRequests } = await github.rest.pulls.list({
               owner: context.repo.owner,
               repo: context.repo.repo,
               head: `${context.repo.owner}:${branch}`,
-              base: 'develop',
               state: 'open'
             });
 
-            if (pullRequests.length > 0) {
-              const pr = pullRequests[0];
+            // Filter PRs whose base branch matches one of the allowed patterns
+            const validPRs = pullRequests.filter(pr =>
+              allowedBasePatterns.some(pattern => pattern.test(pr.base.ref))
+            );
+
+            if (validPRs.length > 0) {
+              const pr = validPRs[0];
               const prNumber = pr.number.toString();
               const prUrl = pr.html_url;
-              console.log(`Found PR #${prNumber} for branch ${branch}: ${prUrl}`);
+              console.log(`Found PR #${prNumber} for branch ${branch} targeting ${pr.base.ref}: ${prUrl}`);
 
               core.setOutput('pr_number', prNumber);
               core.setOutput('pr_url', prUrl);
+              core.setOutput('pr_base_branch', pr.base.ref);
             } else {
-              core.setFailed(`No open PR found for branch ${branch} targeting develop branch`);
+              const allowedBranches = 'develop, main, hotfix/*, release/*, hotfix-release/*';
+              core.setFailed(`No open PR found for branch ${branch} targeting an allowed base branch (${allowedBranches})`);
             }
 
   validate-pr:
@@ -98,7 +113,7 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
+        uses: step-security/harden-runner@a90bcbc6539c36a85cdfeb73f7e2f433735f215b # v2.15.0
         with:
           egress-policy: audit
 
@@ -173,7 +188,7 @@ jobs:
       trigger_source: ${{ steps.set-trigger-source.outputs.trigger_source }}
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
+        uses: step-security/harden-runner@a90bcbc6539c36a85cdfeb73f7e2f433735f215b # v2.15.0
         with:
           egress-policy: audit
 
@@ -230,13 +245,13 @@ jobs:
   deploy-npm:
     name: Deploy to NPM
     uses: ./.github/workflows/deploy-npm.yml
-    needs: get-deploy-inputs
+    needs: [find-pr, get-deploy-inputs]
     if: ${{ inputs.deploy_to_npm }}
     with:
       environment: beta
       bugsnag_release_stage: beta
       version_suffix: ${{ needs.get-deploy-inputs.outputs.version_suffix }}
-      base_version: develop
+      base_version: ${{ needs.find-pr.outputs.pr_base_branch }}
       head_version: ${{ github.ref_name }}
       trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
     secrets:
@@ -274,4 +289,5 @@ jobs:
       build_source_id: ${{ needs.get-deploy-inputs.outputs.beta_identifier_for_automation_tests }}
       trigger_source: ${{ needs.get-deploy-inputs.outputs.trigger_source }}
     secrets:
-      PAT: ${{ secrets.PAT }}
+      RELEASE_PRIVATE_KEY: ${{ secrets.RELEASE_PRIVATE_KEY }}
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}

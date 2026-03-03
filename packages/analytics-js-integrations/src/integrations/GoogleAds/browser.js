@@ -18,6 +18,7 @@ import {
 import { loadNativeSdk } from './nativeSdkLoader';
 
 import { prepareParamsAndEventName } from '../GA4/utils';
+import { getValueOrDefault } from '../../utils/utils';
 
 const logger = new Logger(DISPLAY_NAME);
 
@@ -31,8 +32,8 @@ class GoogleAds {
     this.pageLoadConversions = config.pageLoadConversions;
     this.clickEventConversions = config.clickEventConversions;
     this.defaultPageConversion = config.defaultPageConversion;
-    this.sendPageView = config.sendPageView || true;
-    this.conversionLinker = config.conversionLinker || true;
+    this.sendPageView = getValueOrDefault(config.sendPageView, true);
+    this.conversionLinker = getValueOrDefault(config.conversionLinker, true);
     this.disableAdPersonalization = config.disableAdPersonalization || false;
     this.trackConversions = config.trackConversions;
     this.trackDynamicRemarketing = config.trackDynamicRemarketing;
@@ -46,7 +47,7 @@ class GoogleAds {
     // Depreciating: Added to make changes backward compatible
     this.dynamicRemarketing = config.dynamicRemarketing;
     this.allowEnhancedConversions = config.allowEnhancedConversions || false;
-    this.v2 = config.v2 || true;
+    this.v2 = getValueOrDefault(config.v2, true);
     this.allowIdentify = config.allowIdentify ?? false;
     this.name = NAME;
     ({

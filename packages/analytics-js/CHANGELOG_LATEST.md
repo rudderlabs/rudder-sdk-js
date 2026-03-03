@@ -1,12 +1,12 @@
-## [3.29.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.28.1...@rudderstack/analytics-js@3.29.0) (2026-02-16)
+## [3.30.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.29.0...@rudderstack/analytics-js@3.30.0) (2026-03-02)
 
-### Dependency Updates
-
-* `@rudderstack/analytics-js-cookies` updated to version `0.5.7`
-* `@rudderstack/analytics-js-common` updated to version `3.28.0`
-* `@rudderstack/analytics-js-plugins` updated to version `3.15.2`
 
 ### Features
 
-* **analytics-js:** create lite named export ([#2745](https://github.com/rudderlabs/rudder-sdk-js/issues/2745)) ([8f900f4](https://github.com/rudderlabs/rudder-sdk-js/commit/8f900f4fa2797aa0160f40a0966ac2f0f4be9068))
+* add BeaconQueue plugin into the lite variant ([#2806](https://github.com/rudderlabs/rudder-sdk-js/issues/2806)) ([b042281](https://github.com/rudderlabs/rudder-sdk-js/commit/b0422810257f6d298ccc18d3eef29c3a66ce8360))
+
+
+### Bug Fixes
+
+* **analytics-js:** prevent redundant destination loading [SDK-4540] ([#2781](https://github.com/rudderlabs/rudder-sdk-js/issues/2781)) ([ecd5a4c](https://github.com/rudderlabs/rudder-sdk-js/commit/ecd5a4cb0f4c5acac433e4542cc9e836324a7fd6))
 

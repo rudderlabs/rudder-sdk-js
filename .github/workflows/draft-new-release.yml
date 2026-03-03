@@ -17,30 +17,47 @@ concurrency:
 env:
   NODE_OPTIONS: '--no-warnings'
 
+permissions:
+  contents: read
+
 jobs:
   validate-actor:
+    permissions:
+      contents: read
     # Only allow to draft a new release from develop and hotfix branches
     if: github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/hotfix/')
     uses: ./.github/workflows/validate-actor.yml
     with:
       team_names: 'js-sdk,integrations'
     secrets:
-      PAT: ${{ secrets.PAT }}
+      RELEASE_PRIVATE_KEY: ${{ secrets.RELEASE_PRIVATE_KEY }}
 
   draft-new-release:
     needs: validate-actor
     name: Draft a new release
     runs-on: [self-hosted, Linux, X64]
+    permissions:
+      contents: read # to checkout repository code
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
+        uses: step-security/harden-runner@a90bcbc6539c36a85cdfeb73f7e2f433735f215b # v2.15.0
         with:
           egress-policy: audit
+
+      - name: Generate GitHub App Token
+        id: generate-token
+        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
+        with:
+          app-id: ${{ vars.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_PRIVATE_KEY }}
+          permission-contents: write # to create commits, tags, and push branches
+          permission-pull-requests: write # to create and update PRs
 
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
+          token: ${{ steps.generate-token.outputs.token }}
 
       - name: Setup Node
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
@@ -87,13 +104,33 @@ jobs:
           echo "New version is $new_version"
           echo "New release branch name is $branch_name"
           git checkout -b "$branch_name"
-          git push --set-upstream origin "$branch_name"
 
           echo "source_branch_name=$source_branch_name" >> $GITHUB_OUTPUT
           echo "branch_name=$branch_name" >> $GITHUB_OUTPUT
           echo "new_version=$new_version" >> $GITHUB_OUTPUT
           echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
           echo "NEW_VERSION_VALUE=$new_version" >> $GITHUB_ENV
+
+      - name: Create release branch on remote
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+          BRANCH_NAME: ${{ steps.create-release.outputs.branch_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          # The signed-commit action requires the branch to exist on the remote.
+          # Idempotent: update ref if it exists, create if it doesn't.
+          sha=$(git rev-parse HEAD)
+          if gh api "repos/${REPO}/git/ref/heads/${BRANCH_NAME}" >/dev/null 2>&1; then
+            gh api "repos/${REPO}/git/refs/heads/${BRANCH_NAME}" \
+              --method PATCH \
+              -f "sha=${sha}" \
+              -F "force=true"
+          else
+            gh api "repos/${REPO}/git/refs" \
+              --method POST \
+              -f "ref=refs/heads/${BRANCH_NAME}" \
+              -f "sha=${sha}"
+          fi
 
       - name: Update changelog & bump version
         id: finish-release
@@ -104,15 +141,22 @@ jobs:
           echo "Current version: $CURRENT_VERSION_VALUE"
           echo "New version: $NEW_VERSION_VALUE"
           git fetch --no-tags --prune --depth=100 origin main
-          npm run release
+          npm run release -- --skipCommit=true
           ./scripts/sync-tags-in-nx-projects.sh
           ./scripts/generate-last-release-changelog.sh
           npm run bump-version:monorepo
           npx replace $CURRENT_VERSION_VALUE $NEW_VERSION_VALUE sonar-project.properties
           npm install
-          npm run clean
-          git add .
-          git commit -m "chore(monorepo): sync versions and generate release logs" -n
+
+      - name: Create verified commit and push changes to release branch
+        uses: ryancyq/github-signed-commit@e9f3b28c80da7be66d24b8f501a5abe82a6b855f # v1.2.0
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+        with:
+          branch-name: ${{ steps.create-release.outputs.branch_name }}
+          commit-message: 'chore: update versions and generate release changelog'
+          files: |
+            .
 
       - name: Generate packages versions table
         id: packages-versions
@@ -120,14 +164,10 @@ jobs:
           chmod +x ./scripts/collect-packages-versions.sh
           ./scripts/collect-packages-versions.sh > packages_versions.md
 
-      - name: Push new version in release branch
-        run: |
-          git push --follow-tags
-
       - name: Create pull request into main
         id: create-pr
         env:
-          GH_TOKEN: ${{ secrets.PAT }}
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
           pr_title="chore(release): merge ${{ steps.create-release.outputs.branch_name }} into main [${{ github.event.inputs.release_ticket_id }}]"
           
@@ -255,6 +295,7 @@ jobs:
         if: startsWith(github.ref_name, 'hotfix/')
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
+          github-token: ${{ steps.generate-token.outputs.token }}
           script: |
             const branchToDelete = '${{ github.ref_name }}';
             const owner = context.repo.owner;

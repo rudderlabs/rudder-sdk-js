@@ -9,6 +9,7 @@ import {
 import { NAME, DISPLAY_NAME } from './constants';
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
+import { getValueOrDefault } from '../../utils/utils';
 
 const logger = new Logger(DISPLAY_NAME);
 
@@ -24,7 +25,7 @@ class Chartbeat {
     window._sf_async_config.domain = config.domain;
     this._sf_async_config = window._sf_async_config;
     this.isVideo = !!config.video;
-    this.sendNameAndCategoryAsTitle = config.sendNameAndCategoryAsTitle || true;
+    this.sendNameAndCategoryAsTitle = getValueOrDefault(config.sendNameAndCategoryAsTitle, true);
     this.subscriberEngagementKeys = config.subscriberEngagementKeys || [];
     this.replayEvents = [];
     this.failed = false;

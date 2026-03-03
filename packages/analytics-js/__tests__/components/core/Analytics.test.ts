@@ -88,10 +88,12 @@ describe('Core - Analytics', () => {
       expect(onPluginsReadySpy).toHaveBeenCalledTimes(1);
       expect(state.lifecycle.status.value).toBe('readyExecuted');
 
+      state.nativeDestinations.clientDestinationsReady.value = false;
       state.lifecycle.status.value = 'initialized';
       expect(onInitializedSpy).toHaveBeenCalledTimes(2);
       expect(state.lifecycle.status.value).toBe('readyExecuted');
 
+      state.nativeDestinations.clientDestinationsReady.value = false;
       state.lifecycle.status.value = 'loaded';
       expect(loadDestinationsSpy).toHaveBeenCalledTimes(3);
       expect(state.lifecycle.status.value).toBe('readyExecuted');
@@ -324,6 +326,123 @@ describe('Core - Analytics', () => {
       expect(onReadySpy).not.toHaveBeenCalled();
 
       onReadySpy.mockRestore();
+    });
+  });
+
+  describe('loadDestinations', () => {
+    beforeEach(() => {
+      analytics.prepareInternalServices();
+    });
+
+    it('should not load destinations when lifecycle status is destinationsLoading', () => {
+      state.lifecycle.status.value = 'destinationsLoading';
+
+      const invokeSingleSpy = jest.spyOn(
+        analytics.pluginsManager as IPluginsManager,
+        'invokeSingle',
+      );
+
+      analytics.loadDestinations();
+
+      expect(invokeSingleSpy).not.toHaveBeenCalled();
+    });
+
+    it('should not load destinations when clientDestinationsReady is true', () => {
+      state.nativeDestinations.clientDestinationsReady.value = true;
+
+      const invokeSingleSpy = jest.spyOn(
+        analytics.pluginsManager as IPluginsManager,
+        'invokeSingle',
+      );
+
+      analytics.loadDestinations();
+
+      expect(invokeSingleSpy).not.toHaveBeenCalled();
+    });
+
+    it('should set both destinationsReady and clientDestinationsReady when there are zero active destinations', () => {
+      state.nativeDestinations.clientDestinationsReady.value = false;
+      state.nativeDestinations.activeDestinations.value = [];
+      state.lifecycle.status.value = 'loaded';
+
+      const invokeSingleSpy = jest.spyOn(
+        analytics.pluginsManager as IPluginsManager,
+        'invokeSingle',
+      );
+
+      analytics.loadDestinations();
+
+      // Should call setActiveDestinations
+      expect(invokeSingleSpy).toHaveBeenCalledWith(
+        'nativeDestinations.setActiveDestinations',
+        state,
+        analytics.pluginsManager,
+        analytics.errorHandler,
+        analytics.logger,
+      );
+
+      // Should set both flags when activeDestinations is empty
+      expect(state.lifecycle.status.value).toBe('destinationsReady');
+      expect(state.nativeDestinations.clientDestinationsReady.value).toBe(true);
+    });
+
+    it('should return early when called multiple times with zero active destinations', () => {
+      state.nativeDestinations.clientDestinationsReady.value = false;
+      state.nativeDestinations.activeDestinations.value = [];
+      state.lifecycle.status.value = 'loaded';
+
+      const invokeSingleSpy = jest.spyOn(
+        analytics.pluginsManager as IPluginsManager,
+        'invokeSingle',
+      );
+
+      // First call - should process
+      analytics.loadDestinations();
+      expect(invokeSingleSpy).toHaveBeenCalledTimes(1);
+      expect(state.nativeDestinations.clientDestinationsReady.value).toBe(true);
+
+      invokeSingleSpy.mockClear();
+
+      // Second call - should return early because clientDestinationsReady is now true
+      analytics.loadDestinations();
+      expect(invokeSingleSpy).not.toHaveBeenCalled();
+    });
+
+    it('should load destinations when there are active destinations to load', () => {
+      state.nativeDestinations.clientDestinationsReady.value = false;
+      state.nativeDestinations.activeDestinations.value = [
+        { id: 'destination-1' },
+        { id: 'destination-2' },
+      ];
+      state.lifecycle.status.value = 'loaded';
+
+      const invokeSingleSpy = jest.spyOn(
+        analytics.pluginsManager as IPluginsManager,
+        'invokeSingle',
+      );
+
+      analytics.loadDestinations();
+
+      // Should call setActiveDestinations
+      expect(invokeSingleSpy).toHaveBeenCalledWith(
+        'nativeDestinations.setActiveDestinations',
+        state,
+        analytics.pluginsManager,
+        analytics.errorHandler,
+        analytics.logger,
+      );
+
+      // Should proceed to load destinations
+      expect(invokeSingleSpy).toHaveBeenCalledWith(
+        'nativeDestinations.load',
+        state,
+        analytics.externalSrcLoader,
+        analytics.errorHandler,
+        analytics.logger,
+      );
+
+      // Should set lifecycle status to destinationsLoading
+      expect(state.lifecycle.status.value).toBe('destinationsLoading');
     });
   });
 

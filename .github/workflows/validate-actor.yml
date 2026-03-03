@@ -2,14 +2,14 @@ name: Validate Actor
 
 on:
   workflow_call:
-    secrets:
-      PAT:
-        required: true
     inputs:
       team_names:
         description: 'Comma-separated list of team names'
         type: string
         default: 'js-sdk'
+    secrets:
+      RELEASE_PRIVATE_KEY:
+        required: true
 
 permissions:
   contents: read
@@ -17,17 +17,26 @@ permissions:
 jobs:
   validate-actor:
     runs-on: [self-hosted, Linux, X64]
+    permissions: {}
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
+        uses: step-security/harden-runner@a90bcbc6539c36a85cdfeb73f7e2f433735f215b # v2.15.0
         with:
           egress-policy: audit
+
+      - name: Generate GitHub App Token
+        id: generate-token
+        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
+        with:
+          app-id: ${{ vars.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_PRIVATE_KEY }}
+          permission-members: read # to check org team membership
 
       - name: Validate if actor is allowed to trigger the workflow
         env:
           ORG_NAME: rudderlabs
           TEAM_NAMES: ${{ inputs.team_names }}
-          GH_TOKEN: ${{ secrets.PAT }}
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
           actor=${{ github.actor || github.triggering_actor }}
           allowed=false

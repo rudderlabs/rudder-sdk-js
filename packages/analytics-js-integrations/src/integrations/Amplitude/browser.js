@@ -11,6 +11,7 @@ import {
   getFieldsToUnset,
   formatUrl,
 } from './utils';
+import { getValueOrDefault } from '../../utils/utils';
 
 const logger = new Logger(DISPLAY_NAME);
 
@@ -30,7 +31,7 @@ class Amplitude {
     this.attribution = config.attribution || false;
     this.flushQueueSize = config.eventUploadThreshold || 30;
     this.flushIntervalMillis = +config.eventUploadPeriodMillis || 1000;
-    this.trackNewCampaigns = config.trackNewCampaigns || true;
+    this.trackNewCampaigns = getValueOrDefault(config.trackNewCampaigns, true);
     this.trackRevenuePerProduct = config.trackRevenuePerProduct || false;
     this.preferAnonymousIdForDeviceId = config.preferAnonymousIdForDeviceId || false;
     this.traitsToSetOnce = getTraitsToSetOnce(config);

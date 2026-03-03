@@ -10,17 +10,22 @@ on:
 env:
   NODE_OPTIONS: '--no-warnings'
 
+permissions:
+  contents: read
+
 jobs:
   get-release-inputs:
     name: Get Release Inputs
     runs-on: [self-hosted, Linux, X64]
+    permissions:
+      contents: read # to read repository contents
     outputs:
       trigger_source: ${{ steps.set-outputs.outputs.trigger_source }}
       release_version: ${{ steps.extract-release-info.outputs.release_version }}
       release_ticket_id: ${{ steps.extract-release-info.outputs.release_ticket_id }}
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
+        uses: step-security/harden-runner@a90bcbc6539c36a85cdfeb73f7e2f433735f215b # v2.15.0
         with:
           egress-policy: audit
 
@@ -50,6 +55,8 @@ jobs:
     needs: [get-release-inputs]
     # For publishing GitHub release, we need to only use the GitHub hosted runners
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # to checkout repository code
     # only merged pull requests must trigger this job
     if: >
       (startsWith(github.event.pull_request.head.ref, 'release/') ||
@@ -58,9 +65,18 @@ jobs:
 
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
+        uses: step-security/harden-runner@a90bcbc6539c36a85cdfeb73f7e2f433735f215b # v2.15.0
         with:
           egress-policy: audit
+
+      - name: Generate GitHub App Token
+        id: generate-token
+        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
+        with:
+          app-id: ${{ vars.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_PRIVATE_KEY }}
+          permission-contents: write # to create commits, tags, and releases
+          permission-pull-requests: write # to create and update PRs
 
       - name: Extract version from branch name (for release branches)
         id: extract-version
@@ -86,6 +102,7 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.sha }}
+          token: ${{ steps.generate-token.outputs.token }}
 
       # In order to make a commit, we need to initialize a user.
       # You may choose to write something less generic here if you want, it doesn't matter functionality wise.
@@ -94,11 +111,17 @@ jobs:
           git config user.name "GitHub actions"
           git config user.email noreply@github.com
 
-      - name: Create monorepo release tag
+      - name: Create monorepo release tag via API
         id: create_monorepo_release
-        run: |
-          git tag -a v${{ steps.extract-version.outputs.release_version }} -m "chore(monorepo): release v${{ steps.extract-version.outputs.release_version }}"
-          git push origin refs/tags/v${{ steps.extract-version.outputs.release_version }}
+        uses: ryancyq/github-signed-commit@e9f3b28c80da7be66d24b8f501a5abe82a6b855f # v1.2.0
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+        with:
+          branch-name: ${{ github.event.pull_request.base.ref }}
+          commit-message: 'chore(monorepo): release v${{ steps.extract-version.outputs.release_version }}'
+          files: |
+            .
+          tag: 'v${{ steps.extract-version.outputs.release_version }}'
 
       - name: Setup Node
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
@@ -127,7 +150,7 @@ jobs:
         continue-on-error: true
         env:
           HUSKY: 0
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
           # The default behavior of Nx is to consider changes to package-lock.json
           # as impacting all the packages.
@@ -145,7 +168,7 @@ jobs:
         id: mark_latest_release
         continue-on-error: true
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
           # Get the analytics-js package version from package.json
           ANALYTICS_JS_VERSION=$(jq -r '.version' packages/analytics-js/package.json)
@@ -179,7 +202,7 @@ jobs:
         if: always()
         continue-on-error: true
         env:
-          GH_TOKEN: ${{ secrets.PAT }}
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
           pr_title="chore(release): merge main into develop after release v${{ steps.extract-version.outputs.release_version }} [${{ steps.extract-version.outputs.release_ticket_id }}]"
           
@@ -278,6 +301,9 @@ jobs:
   publish-npm-packages:
     needs: [get-release-inputs, release]
     name: Publish packages to NPM
+    permissions:
+      contents: read # to checkout repository code
+      id-token: write # to allow reusable workflow to request OIDC token for NPM provenance
     uses: ./.github/workflows/deploy-npm.yml
     with:
       trigger_source: ${{ needs.get-release-inputs.outputs.trigger_source }}
@@ -297,7 +323,7 @@ jobs:
       contents: read
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
+        uses: step-security/harden-runner@a90bcbc6539c36a85cdfeb73f7e2f433735f215b # v2.15.0
         with:
           egress-policy: audit
 
