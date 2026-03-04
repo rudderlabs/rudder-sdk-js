@@ -78,7 +78,7 @@
     "@segment/top-domain": "3.0.1",
     "@vespaiach/axios-fetch-adapter": "0.3.1",
     "assert": "2.1.0",
-    "axios": "1.13.5",
+    "axios": "1.13.6",
     "axios-retry": "4.5.0",
     "component-each": "0.2.6",
     "component-emitter": "2.0.0",
@@ -201,15 +201,15 @@
   },
   "optionalDependencies": {
     "@linear/sdk": "75.0.0",
-    "@nx/nx-darwin-arm64": "22.5.2",
-    "@nx/nx-darwin-x64": "22.5.2",
-    "@nx/nx-linux-x64-gnu": "22.5.2",
-    "@nx/nx-win32-x64-msvc": "22.5.2",
+    "@nx/nx-darwin-arm64": "22.5.3",
+    "@nx/nx-darwin-x64": "22.5.3",
+    "@nx/nx-linux-x64-gnu": "22.5.3",
+    "@nx/nx-win32-x64-msvc": "22.5.3",
     "@rollup/rollup-linux-x64-gnu": "4.59.0",
-    "@swc/core-linux-x64-gnu": "1.15.13",
-    "@swc/core-darwin-x64": "1.15.13",
-    "@swc/core-win32-x64-msvc": "1.15.13",
-    "@swc/core-darwin-arm64": "1.15.13"
+    "@swc/core-linux-x64-gnu": "1.15.18",
+    "@swc/core-darwin-x64": "1.15.18",
+    "@swc/core-win32-x64-msvc": "1.15.18",
+    "@swc/core-darwin-arm64": "1.15.18"
   },
   "overrides": {
     "rudder-component-cookie": {
