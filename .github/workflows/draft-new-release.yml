@@ -259,7 +259,7 @@ jobs:
 
       - name: Upload release info artifact
         if: ${{ steps.slack-info.outputs.thread_ts != '' && steps.slack-info.outputs.channel_id != '' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: release-info-v${{ env.NEW_VERSION_VALUE }}-${{ github.event.inputs.release_ticket_id }}
           path: release-info/
