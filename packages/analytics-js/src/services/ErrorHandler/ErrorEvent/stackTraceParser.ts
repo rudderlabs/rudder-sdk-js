@@ -15,7 +15,9 @@ function extractLocation(
   if (!urlLike || !urlLike.includes(':')) {
     return [urlLike || undefined, undefined, undefined];
   }
-  const parts = LOCATION_RE.exec(urlLike.replace(/[()]/g, ''));
+  const normalizedUrlLike =
+    urlLike.startsWith('(') && urlLike.endsWith(')') ? urlLike.slice(1, -1) : urlLike;
+  const parts = LOCATION_RE.exec(normalizedUrlLike);
   if (!parts) {
     return [undefined, undefined, undefined];
   }
