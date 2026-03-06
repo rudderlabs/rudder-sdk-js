@@ -454,7 +454,6 @@ describe('Error Reporting utilities', () => {
                 isAdBlockerDetectionInProgress: false,
                 isBeaconAvailable: false,
                 isCryptoAvailable: false,
-                isIE11: false,
                 isLegacyDOM: false,
                 isOnline: true,
                 isUaCHAvailable: false,
