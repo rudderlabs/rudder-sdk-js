@@ -5,7 +5,7 @@ export type ParsedFrame = {
   columnNumber: number | undefined;
 };
 
-const CHROME_STACK_LINE_RE = /^\s*at .*(\S+:\d+|\(native\))/;
+const CHROME_STACK_LINE_RE = /^\s*at /;
 const SAFARI_NATIVE_RE = /^(eval@)?(\[native code])?$/;
 const LOCATION_RE = /(.+?)(?::(\d+))?(?::(\d+))?$/;
 
@@ -62,10 +62,9 @@ function parseFFSafariLine(line: string): ParsedFrame | null {
       columnNumber: undefined,
     };
   }
-  const fnRegex = /((.*".+"[^@]*)?[^@]*)(?:@)/;
-  const fnMatch = line.match(fnRegex);
-  const functionName = (fnMatch && fnMatch[1]) || undefined;
-  const [fileName, lineNumber, columnNumber] = extractLocation(line.replace(fnRegex, ''));
+  const atIndex = line.lastIndexOf('@');
+  const functionName = atIndex > 0 ? line.slice(0, atIndex) : undefined;
+  const [fileName, lineNumber, columnNumber] = extractLocation(line.slice(atIndex + 1));
   return { functionName, fileName, lineNumber, columnNumber };
 }
 
