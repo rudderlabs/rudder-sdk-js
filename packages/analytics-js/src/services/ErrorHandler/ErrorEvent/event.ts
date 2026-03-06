@@ -1,5 +1,4 @@
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import ErrorStackParser from 'error-stack-parser';
 import type { Exception } from '@rudderstack/analytics-js-common/types/Metrics';
 import { ERROR_HANDLER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
@@ -11,6 +10,7 @@ import {
 import { getStacktrace } from '@rudderstack/analytics-js-common/utilities/errors';
 import type { Stackframe } from '@bugsnag/js';
 import { NON_ERROR_WARNING } from '../../../constants/logMessages';
+import { type ParsedFrame, parseStackTrace } from './stackTraceParser';
 
 const GLOBAL_CODE = 'global code';
 
@@ -22,13 +22,7 @@ const normalizeFunctionName = (name: string | undefined) => {
   return name;
 };
 
-/**
- * Takes a stacktrace.js style stackframe (https://github.com/stacktracejs/stackframe)
- * and returns a Bugsnag compatible stackframe (https://docs.bugsnag.com/api/error-reporting/#json-payload)
- * @param frame
- * @returns
- */
-const formatStackframe = (frame: ErrorStackParser.StackFrame): Stackframe => {
+const formatStackframe = (frame: ParsedFrame): Stackframe => {
   const f = {
     file: frame.fileName as string,
     method: normalizeFunctionName(frame.functionName),
@@ -50,13 +44,13 @@ function createException(
   errorClass: string,
   errorMessage: string,
   msgPrefix: string,
-  stacktrace: ErrorStackParser.StackFrame[],
+  stacktrace: ParsedFrame[],
 ): Exception {
   return {
     errorClass: ensureString(errorClass),
     message: `${msgPrefix}${ensureString(errorMessage)}`,
     type: 'browserjs',
-    stacktrace: stacktrace.reduce((accum: Stackframe[], frame: ErrorStackParser.StackFrame) => {
+    stacktrace: stacktrace.reduce((accum: Stackframe[], frame: ParsedFrame) => {
       const f = formatStackframe(frame);
       // don't include a stackframe if none of its properties are defined
       try {
@@ -84,7 +78,7 @@ const normalizeError = (maybeError: any, logger: ILogger): any => {
 
 const createBugsnagException = (error: any, msgPrefix: string): Exception => {
   try {
-    const stacktrace = ErrorStackParser.parse(error);
+    const stacktrace = parseStackTrace(error);
     return createException(error.name, error.message, msgPrefix, stacktrace);
   } catch {
     return createException(error.name, error.message, msgPrefix, []);
