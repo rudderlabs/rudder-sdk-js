@@ -34,7 +34,6 @@ export type CapabilitiesState = {
   isLegacyDOM: Signal<boolean>;
   isUaCHAvailable: Signal<boolean>;
   isCryptoAvailable: Signal<boolean>;
-  isIE11: Signal<boolean>;
   /**
    * This is used to track if the ad blocker detection is in progress.
    * It is used to avoid multiple ad blocker detection requests.

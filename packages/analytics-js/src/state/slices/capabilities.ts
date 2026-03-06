@@ -12,7 +12,6 @@ const capabilitiesState: CapabilitiesState = {
   isLegacyDOM: signal(false),
   isUaCHAvailable: signal(false),
   isCryptoAvailable: signal(false),
-  isIE11: signal(false),
   isAdBlockerDetectionInProgress: signal<boolean>(false),
   isAdBlocked: signal<boolean | undefined>(undefined),
   cspBlockedURLs: signal<string[]>([]),

@@ -4,11 +4,9 @@ import { stringifyWithoutCircular } from './json';
 const MANUAL_ERROR_IDENTIFIER = '[SDK DISPATCHED ERROR]';
 
 const getStacktrace = (err: any): string | undefined => {
-  const { stack, stacktrace, 'opera#sourceloc': operaSourceloc } = err;
-  const stackString = stack ?? stacktrace ?? operaSourceloc;
-
-  if (!!stackString && typeof stackString === 'string') {
-    return stackString;
+  const { stack } = err;
+  if (typeof stack === 'string' && stack) {
+    return stack;
   }
   return undefined;
 };
@@ -56,23 +54,8 @@ const dispatchErrorEvent = (error: any) => {
   if (isTypeOfError(error)) {
     const errStack = getStacktrace(error);
     if (errStack) {
-      const { stack, stacktrace, 'opera#sourceloc': operaSourceloc } = error;
-
-      switch (errStack) {
-        case stack:
-          // eslint-disable-next-line no-param-reassign
-          error.stack = `${stack}\n${MANUAL_ERROR_IDENTIFIER}`;
-          break;
-        case stacktrace:
-          // eslint-disable-next-line no-param-reassign
-          error.stacktrace = `${stacktrace}\n${MANUAL_ERROR_IDENTIFIER}`;
-          break;
-        case operaSourceloc:
-        default:
-          // eslint-disable-next-line no-param-reassign
-          error['opera#sourceloc'] = `${operaSourceloc}\n${MANUAL_ERROR_IDENTIFIER}`;
-          break;
-      }
+      // eslint-disable-next-line no-param-reassign
+      error.stack = `${errStack}\n${MANUAL_ERROR_IDENTIFIER}`;
     }
   }
 

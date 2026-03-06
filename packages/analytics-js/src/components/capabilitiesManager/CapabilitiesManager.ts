@@ -13,7 +13,6 @@ import { getTimezone } from '@rudderstack/analytics-js-common/utilities/timezone
 import { isValidURL } from '@rudderstack/analytics-js-common/utilities/url';
 import { isDefinedAndNotNull } from '@rudderstack/analytics-js-common/utilities/checks';
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
-import { isIE11 } from '@rudderstack/analytics-js-common/utilities/detect';
 import { isStorageAvailable } from '@rudderstack/analytics-js-common/utilities/storage';
 import {
   INVALID_POLYFILL_URL_WARNING,
@@ -83,7 +82,6 @@ class CapabilitiesManager implements ICapabilitiesManager {
       state.capabilities.isBeaconAvailable.value = hasBeacon();
       state.capabilities.isUaCHAvailable.value = hasUAClientHints();
       state.capabilities.isCryptoAvailable.value = hasCrypto();
-      state.capabilities.isIE11.value = isIE11();
       state.capabilities.isOnline.value = globalThis.navigator.onLine;
 
       // Get page context details
