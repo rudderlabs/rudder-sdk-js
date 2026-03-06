@@ -12,7 +12,7 @@ const LOCATION_RE = /(.+?)(?::(\d+))?(?::(\d+))?$/;
 function extractLocation(
   urlLike: string | undefined,
 ): [string | undefined, number | undefined, number | undefined] {
-  if (!urlLike || !urlLike.includes(':')) {
+  if (!urlLike?.includes(':')) {
     return [urlLike || undefined, undefined, undefined];
   }
   const normalizedUrlLike =
@@ -23,8 +23,8 @@ function extractLocation(
   }
   return [
     parts[1] || undefined,
-    parts[2] !== undefined ? Number(parts[2]) : undefined,
-    parts[3] !== undefined ? Number(parts[3]) : undefined,
+    parts[2] === undefined ? undefined : Number(parts[2]),
+    parts[3] === undefined ? undefined : Number(parts[3]),
   ];
 }
 
@@ -33,13 +33,13 @@ function parseV8Line(line: string): ParsedFrame | null {
     return null;
   }
   if (line.includes('(eval ')) {
-    line = line.replace(/eval code/g, 'eval').replace(/(\(eval at [^()]*)|(,.*$)/g, '');
+    line = line.replaceAll('eval code', 'eval').replaceAll(/(\(eval at [^()]*)|(,.*$)/g, '');
   }
   const sanitized = line
     .replace(/^\s+/, '')
-    .replace(/\(eval code/g, '(')
+    .replaceAll('(eval code', '(')
     .replace(/^.*?\s+/, '');
-  const parenLoc = sanitized.match(/ (\(.+\)$)/);
+  const parenLoc = / (\(.+\)$)/.exec(sanitized);
   const withoutLoc = parenLoc ? sanitized.replace(parenLoc[0], '') : sanitized;
   const [rawFile, lineNumber, columnNumber] = extractLocation(parenLoc ? parenLoc[1] : sanitized);
   const functionName = (parenLoc && withoutLoc) || undefined;
@@ -52,7 +52,7 @@ function parseFFSafariLine(line: string): ParsedFrame | null {
     return null;
   }
   if (line.includes(' > eval')) {
-    line = line.replace(/ line (\d+)(?: > eval line \d+)* > eval:\d+:\d+/g, ':$1');
+    line = line.replaceAll(/ line (\d+)(?: > eval line \d+)* > eval:\d+:\d+/g, ':$1');
   }
   if (!line.includes('@') && !line.includes(':')) {
     return {
