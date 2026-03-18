@@ -103,7 +103,7 @@
     "@rollup/plugin-json": "6.1.0",
     "@rollup/plugin-node-resolve": "16.0.3",
     "@rollup/plugin-replace": "6.0.3",
-    "@rollup/plugin-terser": "0.4.4",
+    "@rollup/plugin-terser": "1.0.0",
     "dotenv": "17.3.1",
     "rollup-plugin-delete": "3.0.2",
     "rollup-plugin-dts": "6.4.0",
