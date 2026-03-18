@@ -12,8 +12,6 @@ updates:
       - "dependencies"
       - "github-actions"
     open-pull-requests-limit: 10
-    commit-message:
-      prefix: "chore(ci)"
     groups:
       github-actions-deps:
         patterns:
@@ -30,10 +28,6 @@ updates:
     labels:
       - "dependencies"
     open-pull-requests-limit: 10
-    commit-message:
-      prefix: "chore(deps)"
-      prefix-development: "chore(deps-dev)"
-      include: "scope"
     groups:
       npm-dev-deps:
         patterns:
@@ -83,8 +77,6 @@ updates:
       - "dependencies"
       - "sample-apps"
     open-pull-requests-limit: 10
-    commit-message:
-      prefix: "chore(sample-apps-deps)"
     groups:
       sample-apps-npm-deps:
         patterns:
@@ -109,8 +101,6 @@ updates:
       - "dependencies"
       - "sample-apps"
     open-pull-requests-limit: 10
-    commit-message:
-      prefix: "chore(gatsby-sample-apps-deps)"
     groups:
       gatsby-sample-apps-npm-deps:
         patterns:
