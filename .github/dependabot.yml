@@ -4,31 +4,42 @@ updates:
     directory: "/"
     schedule:
       interval: "cron"
-      # every wednesday at 00:01
+      # every wednesday at 00:01 UTC
       cronjob: "1 0 * * 3"
+      timezone: "UTC"
     target-branch: "develop"
     labels:
       - "dependencies"
       - "github-actions"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "chore(ci)"
+    groups:
+      github-actions-deps:
+        patterns:
+          - "*"
 
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "cron"
-      # every wednesday at 00:01
+      # every wednesday at 00:01 UTC
       cronjob: "1 0 * * 3"
+      timezone: "UTC"
     target-branch: "develop"
     labels:
       - "dependencies"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+      include: "scope"
     groups:
       npm-dev-deps:
         patterns:
           - "*"
-        update-types:
-          - "minor"
-          - "patch"
         dependency-type: "development"
-      
+
       npm-prod-deps:
         patterns:
           - "*"
@@ -37,102 +48,80 @@ updates:
           - "patch"
         dependency-type: "production"
 
-      npm-major-deps:
+      npm-prod-major-deps:
         patterns:
           - "*"
         update-types:
           - "major"
+        dependency-type: "production"
 
-  # All sample applications managed together (excluding integrations and gatsby)
+  # All sample applications managed together (excluding gatsby)
   - package-ecosystem: "npm"
     directories:
-      - "/examples/angular/**/*"
-      - "/examples/nextjs/**/*"
-      - "/examples/reactjs/**/*"
-      - "/examples/serverless/**/*"
-      - "/examples/symfony/**/*"
+      - "/examples/angular/sample-app"
+      - "/examples/nextjs/hooks/sample-app"
+      - "/examples/nextjs/js/sample-app"
+      - "/examples/nextjs/page-router/sample-app"
+      - "/examples/nextjs/ts/sample-app"
+      - "/examples/reactjs/hooks/sample-app"
+      - "/examples/reactjs/js/sample-app"
+      - "/examples/reactjs/ts/sample-app"
+      - "/examples/reactjs/vite/sample-app"
+      - "/examples/serverless/cloudflare-worker"
+      - "/examples/serverless/vercel-edge"
+      - "/examples/symfony/sample"
+      - "/examples/integrations/Ninetailed/sample-apps/app-using-npm"
+      - "/examples/integrations/Ninetailed/sample-apps/app-using-v1.1-cdn"
+      - "/examples/integrations/Ninetailed/sample-apps/app-using-v3-cdn"
     schedule:
       interval: "cron"
-      # every wednesday at 00:01
+      # every wednesday at 00:01 UTC
       cronjob: "1 0 * * 3"
+      timezone: "UTC"
     target-branch: "develop"
     labels:
       - "dependencies"
       - "sample-apps"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "chore(sample-apps-deps)"
     groups:
       sample-apps-npm-deps:
         patterns:
           - "*"
-        update-types:
-          - "minor"
-          - "patch"
-      sample-apps-npm-major-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "major"
     ignore:
       - dependency-name: "typescript"
-        update-types: 
+        update-types:
           - version-update:semver-major
 
   # Gatsby sample applications with special dependency ignores
   - package-ecosystem: "npm"
     directories:
-      - "/examples/gatsby/**/*"
+      - "/examples/gatsby/sample-gatsby-plugin-usage"
+      - "/examples/gatsby/sample-gatsby-site"
     schedule:
       interval: "cron"
-      # every wednesday at 00:01
+      # every wednesday at 00:01 UTC
       cronjob: "1 0 * * 3"
+      timezone: "UTC"
     target-branch: "develop"
     labels:
       - "dependencies"
       - "sample-apps"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "chore(gatsby-sample-apps-deps)"
     groups:
       gatsby-sample-apps-npm-deps:
         patterns:
           - "*"
-        update-types:
-          - "minor"
-          - "patch"
-      gatsby-sample-apps-npm-major-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "major"
     ignore:
       - dependency-name: "react"
-        update-types: 
+        update-types:
           - version-update:semver-major
       - dependency-name: "react-dom"
-        update-types: 
+        update-types:
           - version-update:semver-major
       - dependency-name: "@types/react-dom"
-        update-types: 
+        update-types:
           - version-update:semver-major
-
-  # All integrations sample applications managed together
-  - package-ecosystem: "npm"
-    directories:
-      - "/examples/integrations/**/*"
-    schedule:
-      interval: "cron"
-      # every wednesday at 00:01
-      cronjob: "1 0 * * 3"
-    target-branch: "develop"
-    labels:
-      - "dependencies"
-      - "sample-apps"
-      - "integrations"
-    groups:
-      integrations-sample-apps-npm-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
-      integrations-sample-apps-npm-major-deps:
-        patterns:
-          - "*"
-        update-types:
-          - "major"
