@@ -335,7 +335,7 @@ jobs:
         if: env.CURRENT_NPM_VERSION != env.NEW_NPM_VERSION && env.NEW_NPM_VERSION != 'not found'
         id: slack
         continue-on-error: true
-        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a  # v2.1.1
+        uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95  # v3.0.1
         env:
           PROJECT_NAME: ${{ format('JS SDK NPM Package{0}', (inputs.environment == 'staging' && ' - Staging') || (inputs.environment == 'development' && ' - Development') || (inputs.environment == 'beta' && ' - Beta') || '') }}
           NPM_PACKAGE_URL: ${{ format('https://www.npmjs.com/package/@rudderstack/analytics-js/v/{0}', env.CURRENT_VERSION_VALUE) }}
@@ -407,7 +407,7 @@ jobs:
         if: env.CURRENT_NPM_VERSION_SW != env.NEW_NPM_VERSION_SW && env.NEW_NPM_VERSION_SW != 'not found'
         id: slackSw
         continue-on-error: true
-        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a  # v2.1.1
+        uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95  # v3.0.1
         env:
           PROJECT_NAME: ${{ format('JS SDK Service Worker NPM Package{0}', (inputs.environment == 'staging' && ' - Staging') || (inputs.environment == 'development' && ' - Development') || (inputs.environment == 'beta' && ' - Beta') || '') }}
           NPM_PACKAGE_URL: ${{ format('https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker/v/{0}', env.CURRENT_VERSION_SW_VALUE) }}
@@ -467,7 +467,7 @@ jobs:
         if: env.CURRENT_NPM_VERSION_COOKIE_UTILS != env.NEW_NPM_VERSION_COOKIE_UTILS && env.NEW_NPM_VERSION_COOKIE_UTILS != 'not found'
         id: slack-cookie-utils
         continue-on-error: true
-        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a  # v2.1.1
+        uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95  # v3.0.1
         env:
           PROJECT_NAME: ${{ format('JS SDK Cookies Utilities{0}', (inputs.environment == 'staging' && ' - Staging') || (inputs.environment == 'development' && ' - Development') || (inputs.environment == 'beta' && ' - Beta') || '') }}
           NPM_PACKAGE_URL: ${{ format('https://www.npmjs.com/package/@rudderstack/analytics-js-cookies/v/{0}', env.CURRENT_VERSION_COOKIE_UTILS_VALUE) }}
