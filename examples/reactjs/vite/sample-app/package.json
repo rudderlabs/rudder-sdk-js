@@ -32,7 +32,7 @@
     "eslint-plugin-react-refresh": "0.5.2",
     "globals": "17.4.0",
     "typescript": "5.9.3",
-    "vite": "7.3.1"
+    "vite": "8.0.1"
   },
   "overrides": {
     "brace-expansion": "1.1.12",
