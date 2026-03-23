@@ -104,24 +104,20 @@ jobs:
           ref: ${{ github.sha }}
           token: ${{ steps.generate-token.outputs.token }}
 
-      # In order to make a commit, we need to initialize a user.
-      # You may choose to write something less generic here if you want, it doesn't matter functionality wise.
-      - name: Initialize mandatory git config
-        run: |
-          git config user.name "GitHub actions"
-          git config user.email noreply@github.com
-
       - name: Create monorepo release tag via API
         id: create_monorepo_release
-        uses: ryancyq/github-signed-commit@e9f3b28c80da7be66d24b8f501a5abe82a6b855f # v1.2.0
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
-        with:
-          branch-name: ${{ github.event.pull_request.base.ref }}
-          commit-message: 'chore(monorepo): release v${{ steps.extract-version.outputs.release_version }}'
-          files: |
-            .
-          tag: 'v${{ steps.extract-version.outputs.release_version }}'
+        run: |
+          TAG_SHA=$(gh api repos/${{ github.repository }}/git/tags \
+            -f tag='v${{ steps.extract-version.outputs.release_version }}' \
+            -f message='chore(monorepo): release v${{ steps.extract-version.outputs.release_version }}' \
+            -f object='${{ github.sha }}' \
+            -f type='commit' --jq '.sha')
+
+          gh api repos/${{ github.repository }}/git/refs \
+            -f ref='refs/tags/v${{ steps.extract-version.outputs.release_version }}' \
+            -f sha="$TAG_SHA"
 
       - name: Setup Node
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
