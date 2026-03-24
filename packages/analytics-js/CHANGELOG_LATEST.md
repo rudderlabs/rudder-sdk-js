@@ -1,12 +1,10 @@
-## [3.30.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.29.0...@rudderstack/analytics-js@3.30.0) (2026-03-02)
+## [3.31.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js@3.30.0...@rudderstack/analytics-js@3.31.0) (2026-03-23)
 
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.28.1`
 
 ### Features
 
-* add BeaconQueue plugin into the lite variant ([#2806](https://github.com/rudderlabs/rudder-sdk-js/issues/2806)) ([b042281](https://github.com/rudderlabs/rudder-sdk-js/commit/b0422810257f6d298ccc18d3eef29c3a66ce8360))
-
-
-### Bug Fixes
-
-* **analytics-js:** prevent redundant destination loading [SDK-4540] ([#2781](https://github.com/rudderlabs/rudder-sdk-js/issues/2781)) ([ecd5a4c](https://github.com/rudderlabs/rudder-sdk-js/commit/ecd5a4cb0f4c5acac433e4542cc9e836324a7fd6))
+* **analytics-js:** replace error-stack-parser with lean inline parser [SDK-4625] ([#2833](https://github.com/rudderlabs/rudder-sdk-js/issues/2833)) ([9a99057](https://github.com/rudderlabs/rudder-sdk-js/commit/9a990577e928b007c88f665ecec27c1fd6fa8afe))
 

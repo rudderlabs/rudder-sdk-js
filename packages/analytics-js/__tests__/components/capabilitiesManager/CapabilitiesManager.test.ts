@@ -30,7 +30,6 @@ jest.mock('../../../src/components/capabilitiesManager/detection', () => {
     hasBeacon: jest.fn(() => true),
     hasCrypto: jest.fn(() => true),
     hasUAClientHints: jest.fn(() => false),
-    isIE11: jest.fn(() => false),
     getScreenDetails: jest.fn(() => ({
       width: 1920,
       height: 1080,
@@ -154,7 +153,6 @@ describe('CapabilitiesManager', () => {
       expect(state.capabilities.isBeaconAvailable.value).toBe(true);
       expect(state.capabilities.isCryptoAvailable.value).toBe(true);
       expect(state.capabilities.isUaCHAvailable.value).toBe(false);
-      expect(state.capabilities.isIE11.value).toBe(false);
       expect(state.capabilities.storage.isCookieStorageAvailable.value).toBe(true);
       expect(state.capabilities.storage.isLocalStorageAvailable.value).toBe(true);
       expect(state.capabilities.storage.isSessionStorageAvailable.value).toBe(true);

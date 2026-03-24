@@ -1,5 +1,5 @@
 import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
-import type ErrorStackParser from 'error-stack-parser';
+import type { ParsedFrame } from '../../../src/services/ErrorHandler/ErrorEvent/stackTraceParser';
 import {
   createBugsnagException,
   createException,
@@ -125,7 +125,7 @@ describe('event', () => {
           lineNumber: 3,
           columnNumber: 4,
         },
-      ] as unknown as ErrorStackParser.StackFrame[];
+      ] as unknown as ParsedFrame[];
 
       // create circular reference
       (stacktrace[2] as any).fileName = stacktrace;
