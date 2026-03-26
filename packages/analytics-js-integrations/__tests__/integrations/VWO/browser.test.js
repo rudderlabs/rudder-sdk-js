@@ -1,4 +1,5 @@
 import VWO from '../../../src/integrations/VWO/browser';
+import { loadNativeSdk } from '../../../src/integrations/VWO/nativeSdkLoader';
 
 const destinationInfo = {
   areTransformationsConnected: false,
@@ -139,5 +140,51 @@ describe('VWO Identify Event', () => {
         source: 'rudderstack',
       },
     );
+  });
+});
+
+describe('VWO SmartCode v3 loader sanity', () => {
+  const ACCOUNT_ID_THRESHOLD = 1200000;
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+    delete window._vwo_code;
+    // SmartCode v3 assigns `code` without declaration; declare it for strict-mode Jest runtime
+    globalThis.eval('var code;');
+    if (typeof performance.getEntriesByName !== 'function') {
+      performance.getEntriesByName = () => [];
+    }
+    window.document.head.querySelectorAll('script,style').forEach(el => el.remove());
+  });
+
+  afterEach(() => {
+    jest.runOnlyPendingTimers();
+    delete globalThis.code;
+    jest.useRealTimers();
+  });
+
+  test('uses SmartCode v3.0 when accountId is greater than threshold', () => {
+    const accountId = ACCOUNT_ID_THRESHOLD + 1;
+
+    loadNativeSdk(accountId, 2000, 2500, false, 1);
+
+    const code = window._vwo_code;
+    expect(code).toBeDefined();
+    expect(code.getVersion()).toBe(3);
+  });
+
+  test('v3.0 sanity: injects hide style and tag script', () => {
+    const accountId = ACCOUNT_ID_THRESHOLD + 42;
+
+    loadNativeSdk(accountId, 2000, 2500, false, 1);
+
+    const style = window.document.head.querySelector('#_vis_opt_path_hides');
+    expect(style).not.toBeNull();
+    expect(style.textContent).toContain('opacity:0');
+
+    const script = window.document.head.querySelector(
+      'script[src*="visualwebsiteoptimizer.com/tag/"]',
+    );
+    expect(script).not.toBeNull();
   });
 });
