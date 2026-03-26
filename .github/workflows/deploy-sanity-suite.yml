@@ -71,11 +71,15 @@ jobs:
 
       - name: Determine checkout SHA
         id: getSHA
+        env:
+          USE_PR_HEAD_SHA: ${{ inputs.use_pr_head_sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          DEFAULT_SHA: ${{ github.sha }}
         run: |
-          if ${{ inputs.use_pr_head_sha }}; then
-            sha=$(echo ${{ github.event.pull_request.head.sha }})
+          if [ "$USE_PR_HEAD_SHA" = "true" ]; then
+            sha="$PR_HEAD_SHA"
           else
-            sha=$(echo ${{ github.sha }})
+            sha="$DEFAULT_SHA"
           fi
           echo "Checkout SHA: $sha"
           echo "SHA=$sha" >> $GITHUB_OUTPUT
@@ -87,21 +91,24 @@ jobs:
 
       - name: Configure deployment options
         id: deployment-options
+        env:
+          INPUT_ENVIRONMENT: ${{ inputs.environment }}
+          INPUT_BETA_IDENTIFIER: ${{ inputs.beta_identifier }}
         run: |
           current_version=$(jq -r .version packages/sanity-suite/package.json)
           echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
           echo "DATE=$(date)" >> $GITHUB_ENV
-          echo "BUGSNAG_RELEASE_STAGE=${{ inputs.environment }}" >> $GITHUB_ENV
+          echo "BUGSNAG_RELEASE_STAGE=$INPUT_ENVIRONMENT" >> $GITHUB_ENV
 
-          if [ "${{ inputs.environment }}" == "staging" ]; then
+          if [ "$INPUT_ENVIRONMENT" == "staging" ]; then
             echo "SDK_CDN_VERSION_PATH_PREFIX=staging/latest/" >> $GITHUB_ENV
             echo "SUITE_CDN_PATH=/staging" >> $GITHUB_ENV
-          elif [ "${{ inputs.environment }}" == "production" ]; then
+          elif [ "$INPUT_ENVIRONMENT" == "production" ]; then
             echo "SDK_CDN_VERSION_PATH_PREFIX=" >> $GITHUB_ENV
             echo "SUITE_CDN_PATH=" >> $GITHUB_ENV
-          elif [ "${{ inputs.environment }}" == "beta" ]; then
-            echo "SDK_CDN_VERSION_PATH_PREFIX=beta/${{ inputs.beta_identifier }}/" >> $GITHUB_ENV
-            echo "SUITE_CDN_PATH=/beta/${{ inputs.beta_identifier }}" >> $GITHUB_ENV
+          elif [ "$INPUT_ENVIRONMENT" == "beta" ]; then
+            echo "SDK_CDN_VERSION_PATH_PREFIX=beta/${INPUT_BETA_IDENTIFIER}/" >> $GITHUB_ENV
+            echo "SUITE_CDN_PATH=/beta/${INPUT_BETA_IDENTIFIER}" >> $GITHUB_ENV
           else
             echo "SDK_CDN_VERSION_PATH_PREFIX=dev/latest/" >> $GITHUB_ENV
             echo "SUITE_CDN_PATH=/dev" >> $GITHUB_ENV

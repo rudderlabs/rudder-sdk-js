@@ -31,13 +31,20 @@ jobs:
 
       - name: Set outputs
         id: set-outputs
-        run: echo "trigger_source=${{ format('PR <{0}|#{1}> merged by <{2}|{3}>', github.event.pull_request.html_url, github.event.pull_request.number, format('{0}/{1}', github.server_url, github.actor), github.actor) }}" >> $GITHUB_OUTPUT
+        env:
+          PR_HTML_URL: ${{ github.event.pull_request.html_url }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          SERVER_URL: ${{ github.server_url }}
+          ACTOR: ${{ github.actor }}
+        run: echo "trigger_source=PR <${PR_HTML_URL}|#${PR_NUMBER}> merged by <${SERVER_URL}/${ACTOR}|${ACTOR}>" >> $GITHUB_OUTPUT
 
       - name: Extract release info from branch
         id: extract-release-info
         if: startsWith(github.event.pull_request.head.ref, 'release/') || startsWith(github.event.pull_request.head.ref, 'hotfix-release/')
+        env:
+          BRANCH_NAME: ${{ github.event.pull_request.head.ref }}
         run: |
-          branch_name="${{ github.event.pull_request.head.ref }}"
+          branch_name="${BRANCH_NAME}"
           echo "Branch name: $branch_name"
           
           # Extract version and ticket from branch name (format: release/3.2.1-SDK-1234 or hotfix-release/3.2.2-SDK-5678)
