@@ -33,7 +33,7 @@ function loadNativeSdk(
       try {
           e = Object.assign(JSON.parse(localStorage.getItem('_vwo_' + account_id + '_config')), e)
       } catch (e) {}
-      code = {
+      var code = {
           nonce: o && o.nonce,
           settings_tolerance: function() {
               return e.sT
@@ -65,7 +65,8 @@ function loadNativeSdk(
               var e = n.createElement('style');
               e.setAttribute('id', '_vis_opt_path_hides'), e.type = 'text/css', code && code.nonce && e.setAttribute('nonce', code.nonce), e.appendChild(n.createTextNode(this.hide_element() + this.hide_element_style())), n.head.appendChild(e), this.addScript('https://dev.visualwebsiteoptimizer.com/tag/' + account_id + '.js')
           }
-      }, t._vwo_code = code;
+      };
+      t._vwo_code = code;
       code.init();
     })();
     return;

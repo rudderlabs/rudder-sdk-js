@@ -149,17 +149,22 @@ describe('VWO SmartCode v3 loader sanity', () => {
   beforeEach(() => {
     jest.useFakeTimers();
     delete window._vwo_code;
-    // SmartCode v3 assigns `code` without declaration; declare it for strict-mode Jest runtime
-    globalThis.eval('var code;');
     if (typeof performance.getEntriesByName !== 'function') {
-      performance.getEntriesByName = () => [];
+      Object.defineProperty(performance, 'getEntriesByName', {
+        value: () => [],
+        configurable: true,
+      });
     }
     window.document.head.querySelectorAll('script,style').forEach(el => el.remove());
   });
 
   afterEach(() => {
     jest.runOnlyPendingTimers();
-    delete globalThis.code;
+    if (typeof originalGetEntriesByName === 'function') {
+      performance.getEntriesByName = originalGetEntriesByName;
+    } else {
+      delete performance.getEntriesByName;
+    }
     jest.useRealTimers();
   });
 
