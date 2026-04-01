@@ -18,6 +18,8 @@ updates:
           - "*"
 
   - package-ecosystem: "npm"
+    cooldown:
+      default-days: 5
     directory: "/"
     schedule:
       interval: "cron"
@@ -51,6 +53,8 @@ updates:
 
   # All sample applications managed together (excluding gatsby)
   - package-ecosystem: "npm"
+    cooldown:
+      default-days: 5
     directories:
       - "/examples/angular/sample-app"
       - "/examples/nextjs/hooks/sample-app"
@@ -88,6 +92,8 @@ updates:
 
   # Gatsby sample applications with special dependency ignores
   - package-ecosystem: "npm"
+    cooldown:
+      default-days: 5
     directories:
       - "/examples/gatsby/sample-gatsby-plugin-usage"
       - "/examples/gatsby/sample-gatsby-site"
