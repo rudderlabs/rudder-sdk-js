@@ -12,6 +12,9 @@ on:
       - synchronize
       - ready_for_review
 
+permissions:
+  contents: read
+
 jobs:
   auto-merge:
     runs-on: ubuntu-latest
