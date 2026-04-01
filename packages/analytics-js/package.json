@@ -178,7 +178,7 @@
     "@rudderstack/analytics-js-common": "*",
     "@rudderstack/analytics-js-cookies": "*",
     "@rudderstack/analytics-js-plugins": "*",
-    "@preact/signals-core": "1.14.0",
+    "@preact/signals-core": "1.14.1",
     "ramda": "0.32.0",
     "storejs": "2.1.1"
   }
