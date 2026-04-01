@@ -1,0 +1,34 @@
+name: Dependabot Auto-Merge (Sample Apps)
+
+on:
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    if: github.actor == 'dependabot[bot]'
+    steps:
+      - name: Check if PR only touches example apps
+        id: check
+        run: |
+          files=$(gh pr diff "$PR_NUMBER" --name-only)
+          non_example_files=$(echo "$files" | grep -v '^examples/' || true)
+          if [ -z "$non_example_files" ]; then
+            echo "only_examples=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "only_examples=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable auto-merge
+        if: steps.check.outputs.only_examples == 'true'
+        run: gh pr merge --auto --squash "$PR_NUMBER"
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
