@@ -96,11 +96,15 @@ jobs:
 
       - name: Determine checkout SHA
         id: getSHA
+        env:
+          USE_PR_HEAD_SHA: ${{ inputs.use_pr_head_sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          DEFAULT_SHA: ${{ github.sha }}
         run: |
-          if ${{ inputs.use_pr_head_sha }}; then
-            sha=$(echo ${{ github.event.pull_request.head.sha }})
+          if [ "$USE_PR_HEAD_SHA" = "true" ]; then
+            sha="$PR_HEAD_SHA"
           else
-            sha=$(echo ${{ github.sha }})
+            sha="$DEFAULT_SHA"
           fi
           echo "Checkout SHA: $sha"
           echo "SHA=$sha" >> $GITHUB_OUTPUT
@@ -112,13 +116,15 @@ jobs:
 
       - name: Modify package versions
         if: ${{ inputs.version_suffix != '' }}
+        env:
+          VERSION_SUFFIX: ${{ inputs.version_suffix }}
         run: |
           CURRENT_VERSION_JS=$(jq -r .version packages/analytics-js/package.json)
           CURRENT_VERSION_V1=$(jq -r .version packages/analytics-v1.1/package.json)
-          
+
           # Append the suffix to create new versions
-          NEW_VERSION_JS="${CURRENT_VERSION_JS}-${{ inputs.version_suffix }}"
-          NEW_VERSION_V1="${CURRENT_VERSION_V1}-${{ inputs.version_suffix }}"
+          NEW_VERSION_JS="${CURRENT_VERSION_JS}-${VERSION_SUFFIX}"
+          NEW_VERSION_V1="${CURRENT_VERSION_V1}-${VERSION_SUFFIX}"
           
           echo "Updating versions:"
           echo "analytics-js: $CURRENT_VERSION_JS -> $NEW_VERSION_JS"
@@ -191,8 +197,10 @@ jobs:
 
       - name: Determine cache policy based on environment
         id: cache_policy
+        env:
+          INPUT_ENVIRONMENT: ${{ inputs.environment }}
         run: |
-          if [ "${{ inputs.environment }}" == "production" ]; then
+          if [ "$INPUT_ENVIRONMENT" == "production" ]; then
             echo "CACHE_CONTROL=${{ env.CACHE_CONTROL_NO_STORE }}" >> $GITHUB_ENV
           else
             echo "CACHE_CONTROL=${{ env.CACHE_CONTROL_MAX_AGE }}" >> $GITHUB_ENV
@@ -202,6 +210,8 @@ jobs:
       # of the common production paths to avoid any downtime in production
       - name: Copy SDK plugins and integrations artifacts to S3 (versioned directory)
         if: ${{ inputs.environment == 'production' }}
+        env:
+          BASE_CDN_URL: ${{ inputs.base_cdn_url }}
         run: |
           s3_relative_path_prefix="${{ env.CURRENT_VERSION_VALUE }}"
           s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/$s3_relative_path_prefix"
@@ -213,12 +223,12 @@ jobs:
           aws s3 cp ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
 
           # Generate the HTML file to list all the integrations
-          ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/legacy/js-integrations ${{ env.INTEGRATIONS_HTML_FILE }} ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/legacy/js-integrations "Device Mode Integrations (Legacy)" ${{ env.INTEGRATIONS_ZIP_FILE }} ${{ inputs.base_cdn_url }}
+          ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/legacy/js-integrations ${{ env.INTEGRATIONS_HTML_FILE }} ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/legacy/js-integrations "Device Mode Integrations (Legacy)" ${{ env.INTEGRATIONS_ZIP_FILE }} "$BASE_CDN_URL"
 
-          ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/modern/js-integrations ${{ env.INTEGRATIONS_HTML_FILE }} ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/modern/js-integrations "Device Mode Integrations (Modern)" ${{ env.INTEGRATIONS_ZIP_FILE }} ${{ inputs.base_cdn_url }}
+          ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/modern/js-integrations ${{ env.INTEGRATIONS_HTML_FILE }} ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/modern/js-integrations "Device Mode Integrations (Modern)" ${{ env.INTEGRATIONS_ZIP_FILE }} "$BASE_CDN_URL"
 
           # Generate the HTML file to list all the plugins
-          ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/modern/plugins ${{ env.PLUGINS_HTML_FILE }} ${{ env.PLUGINS_ARTIFACTS_BASE_PATH }}/modern/plugins "Plugins" ${{ env.PLUGINS_ZIP_FILE }} ${{ inputs.base_cdn_url }}
+          ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/modern/plugins ${{ env.PLUGINS_HTML_FILE }} ${{ env.PLUGINS_ARTIFACTS_BASE_PATH }}/modern/plugins "Plugins" ${{ env.PLUGINS_ZIP_FILE }} "$BASE_CDN_URL"
 
           # Copy the HTML files to S3
           aws s3 cp ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/legacy/js-integrations/${{ env.INTEGRATIONS_HTML_FILE }} $s3_path_prefix/legacy/js-integrations/${{ env.INTEGRATIONS_HTML_FILE }} --cache-control ${{ env.CACHE_CONTROL_MAX_AGE }}
@@ -251,8 +261,11 @@ jobs:
         # IMPORTANT: We're deliberately avoiding copying these artifacts for the production environment
         # as they are already copied to versioned directory and expected to be loaded from there
         if: ${{ inputs.environment != 'production' }}
+        env:
+          S3_DIR_PATH: ${{ inputs.s3_dir_path }}
+          BASE_CDN_URL: ${{ inputs.base_cdn_url }}
         run: |
-          s3_relative_path_prefix="${{ inputs.s3_dir_path }}"
+          s3_relative_path_prefix="${S3_DIR_PATH}"
           s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/$s3_relative_path_prefix"
           copy_args="--recursive --cache-control ${{ env.CACHE_CONTROL }}"
 
@@ -262,12 +275,12 @@ jobs:
           aws s3 cp ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
 
           # Generate the HTML file to list all the integrations
-          ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/legacy/js-integrations ${{ env.INTEGRATIONS_HTML_FILE }} ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/legacy/js-integrations "Device Mode Integrations (Legacy)" ${{ env.INTEGRATIONS_ZIP_FILE }} ${{ inputs.base_cdn_url }}
+          ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/legacy/js-integrations ${{ env.INTEGRATIONS_HTML_FILE }} ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/legacy/js-integrations "Device Mode Integrations (Legacy)" ${{ env.INTEGRATIONS_ZIP_FILE }} "$BASE_CDN_URL"
 
-          ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/modern/js-integrations ${{ env.INTEGRATIONS_HTML_FILE }} ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/modern/js-integrations "Device Mode Integrations (Modern)" ${{ env.INTEGRATIONS_ZIP_FILE }} ${{ inputs.base_cdn_url }}
+          ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/modern/js-integrations ${{ env.INTEGRATIONS_HTML_FILE }} ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/modern/js-integrations "Device Mode Integrations (Modern)" ${{ env.INTEGRATIONS_ZIP_FILE }} "$BASE_CDN_URL"
 
           # Generate the HTML file to list all the plugins
-          ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/modern/plugins ${{ env.PLUGINS_HTML_FILE }} ${{ env.PLUGINS_ARTIFACTS_BASE_PATH }}/modern/plugins "Plugins" ${{ env.PLUGINS_ZIP_FILE }} ${{ inputs.base_cdn_url }}
+          ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/modern/plugins ${{ env.PLUGINS_HTML_FILE }} ${{ env.PLUGINS_ARTIFACTS_BASE_PATH }}/modern/plugins "Plugins" ${{ env.PLUGINS_ZIP_FILE }} "$BASE_CDN_URL"
 
           # Copy the HTML files to S3
           aws s3 cp ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/legacy/js-integrations/${{ env.INTEGRATIONS_HTML_FILE }} $s3_path_prefix/legacy/js-integrations/${{ env.INTEGRATIONS_HTML_FILE }} --cache-control ${{ env.CACHE_CONTROL_MAX_AGE }}
@@ -275,8 +288,10 @@ jobs:
           aws s3 cp ${{ env.PLUGINS_ARTIFACTS_BASE_PATH }}/modern/plugins/${{ env.PLUGINS_HTML_FILE }} $s3_path_prefix/modern/plugins/${{ env.PLUGINS_HTML_FILE }} --cache-control ${{ env.CACHE_CONTROL_MAX_AGE }}
       
       - name: Copy SDK core artifacts to S3
+        env:
+          S3_DIR_PATH: ${{ inputs.s3_dir_path }}
         run: |
-          s3_relative_path_prefix="${{ inputs.s3_dir_path }}"
+          s3_relative_path_prefix="${S3_DIR_PATH}"
           s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/$s3_relative_path_prefix"
           copy_args="--recursive --cache-control ${{ env.CACHE_CONTROL }}"
 
@@ -285,8 +300,10 @@ jobs:
           aws s3 cp ${{ env.CORE_ARTIFACTS_BASE_PATH }}/modern/iife/ $s3_path_prefix/modern/ $copy_args
 
       - name: Invalidate CloudFront cache for all the SDK artifacts
+        env:
+          S3_DIR_PATH: ${{ inputs.s3_dir_path }}
         run: |
-          invalidation_id=$(AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/${{ inputs.s3_dir_path }}*" --query "Invalidation.Id" --output text)
+          invalidation_id=$(AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/${S3_DIR_PATH}*" --query "Invalidation.Id" --output text)
           
           aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --id "$invalidation_id"
 
@@ -370,10 +387,12 @@ jobs:
 
       # All the below steps are for v1.1 SDK (legacy)
       - name: Copy legacy SDK artifacts to S3
+        env:
+          S3_DIR_PATH_LEGACY: ${{ inputs.s3_dir_path_legacy }}
         run: |
           core_sdk_path_prefix="packages/analytics-v1.1/dist/cdn"
           integration_sdks_path_prefix="packages/analytics-js-integrations/dist/cdn"
-          s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/${{ inputs.s3_dir_path_legacy }}"
+          s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/${S3_DIR_PATH_LEGACY}"
           copy_args="--recursive --cache-control ${{ env.CACHE_CONTROL }}"
 
           aws s3 cp $core_sdk_path_prefix/legacy/ $s3_path_prefix/ $copy_args
@@ -383,8 +402,10 @@ jobs:
           aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
 
       - name: Invalidate CloudFront cache for all the legacy SDK artifacts
+        env:
+          S3_DIR_PATH_LEGACY: ${{ inputs.s3_dir_path_legacy }}
         run: |
-          invalidation_id=$(AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/${{ inputs.s3_dir_path_legacy }}*" --query "Invalidation.Id" --output text)
+          invalidation_id=$(AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/${S3_DIR_PATH_LEGACY}*" --query "Invalidation.Id" --output text)
 
           aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --id "$invalidation_id"
 
