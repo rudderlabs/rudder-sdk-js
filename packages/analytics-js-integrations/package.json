@@ -96,10 +96,10 @@
     "@rollup/plugin-node-resolve": "16.0.3",
     "@rollup/plugin-replace": "6.0.3",
     "@rollup/plugin-terser": "1.0.0",
-    "dotenv": "17.3.1",
+    "dotenv": "17.4.0",
     "rollup-plugin-filesize": "10.0.0",
     "rollup-plugin-polyfill-node": "0.13.0",
-    "rollup-plugin-typescript2": "0.36.0",
+    "rollup-plugin-typescript2": "0.37.0",
     "rollup-plugin-visualizer": "7.0.1"
   },
   "overrides": {},
