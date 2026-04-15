@@ -13,8 +13,8 @@
 		"verify": "wrangler deploy --dry-run"
 	},
 	"devDependencies": {
-		"dotenv": "17.3.1",
-		"wrangler": "4.75.0"
+		"dotenv": "17.4.1",
+		"wrangler": "4.81.1"
 	},
 	"dependencies": {
 		"@rudderstack/analytics-js-service-worker": "*",
