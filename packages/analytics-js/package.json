@@ -163,7 +163,7 @@
     "release": "npm publish"
   },
   "devDependencies": {
-    "@bugsnag/js": "8.8.1"
+    "@bugsnag/js": "8.9.0"
   },
   "browserslist": {
     "production": [
