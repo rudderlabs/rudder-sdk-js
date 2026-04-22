@@ -39,11 +39,13 @@
     "isolatedModules": true,
     "noEmit": true,
     "typeRoots": ["./node_modules/@types", "./types"],
+    "types": ["node"],
     "rootDirs": ["packages"],
     "downlevelIteration": true,
     "sourceMap": true,
     "noUncheckedIndexedAccess": true,
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": true,
+    "ignoreDeprecations": "6.0"
   },
   "include": [
     "packages/**/src/**/*",
