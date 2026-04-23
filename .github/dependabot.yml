@@ -20,7 +20,7 @@ updates:
   # Runtime (shipped) prod deps + dev deps for the monorepo root.
   # Prod bumps are committed as `fix(deps):` so the release pipeline's conventional-commit
   # analyzer picks them up and bumps the packages that consume them (dev bumps stay as chore).
-  # Toolchain native binaries (@nx/*, @rollup/*, @swc/*) are excluded here and handled below.
+  # Toolchain packages (@nx/*, @rollup/rollup-*, @swc/core-*) are excluded here and handled below.
   - package-ecosystem: "npm"
     cooldown:
       default-days: 5
@@ -63,8 +63,9 @@ updates:
           - "major"
         dependency-type: "production"
 
-  # Build toolchain native binaries. These never ship in published bundles, so bumps
-  # are committed as `chore(deps):` and intentionally skipped by the release analyzer.
+  # Build toolchain packages — Nx (JS tooling + native runners) and Rollup/SWC native
+  # binaries. None of these ship in published bundles, so bumps are committed as
+  # `chore(deps):` and intentionally skipped by the release analyzer.
   - package-ecosystem: "npm"
     cooldown:
       default-days: 5
