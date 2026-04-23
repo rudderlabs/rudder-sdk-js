@@ -158,11 +158,21 @@ jobs:
           files: |
             .
 
-      # jscutlery creates local tags against the pre-bump HEAD during `npm run release`,
-      # so they never match the signed-commit SHA created above. Instead of pushing those
-      # stale tags, derive the bumped tag names from each project.json's synced
-      # `targets.github.options.tag` and (re)create them via the Git Data API against the
-      # release branch HEAD. Idempotent — skips tags that already exist on origin.
+      # jscutlery runs with --skipCommit=true, so it writes version/changelog files but
+      # creates no commits or tags. The signed-commit action above packages all file
+      # changes into one verified commit on the release branch. This step then creates
+      # annotated tag objects (via the Git Data API) for each bumped package at that
+      # commit, and points tag refs at them.
+      #
+      # Tags are annotated but unsigned. Signed annotated tags would require providing
+      # a `signature` field on `POST /git/tags`, which means provisioning a GPG/SSH key
+      # as a workflow secret. That is out of scope for this change — accepted tradeoff:
+      # tag objects show "Unverified" while the target commit remains verified. Same
+      # behavior as the existing v<version> monorepo tag in publish-new-release.yml.
+      #
+      # Affected-package filter: a package gets a new tag only if its package.json
+      # `version` differs between the release branch HEAD and origin/main. Unchanged
+      # packages are skipped. Also idempotent against reruns: skips tags already on origin.
       - name: Push release tags to release branch HEAD
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
@@ -170,32 +180,39 @@ jobs:
           REPO: ${{ github.repository }}
         run: |
           git fetch origin "$BRANCH_NAME"
+          git fetch --no-tags origin main
           release_sha=$(git rev-parse "origin/$BRANCH_NAME")
           echo "Release branch HEAD: $release_sha"
-
-          tagger_date=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
           for pj in packages/*/project.json; do
             tag=$(jq -r '.targets.github.options.tag // empty' "$pj")
             [ -z "$tag" ] && continue
 
-            encoded=$(printf '%s' "$tag" | jq -sRr @uri)
+            pkg_dir=$(dirname "$pj")
+            current_version=$(git show "origin/${BRANCH_NAME}:${pkg_dir}/package.json" 2>/dev/null | jq -r '.version // empty' 2>/dev/null || echo "")
+            prev_version=$(git show "origin/main:${pkg_dir}/package.json" 2>/dev/null | jq -r '.version // empty' 2>/dev/null || echo "")
 
+            if [ -n "$prev_version" ] && [ "$current_version" = "$prev_version" ]; then
+              echo "Skipping ${tag} — version unchanged vs origin/main"
+              continue
+            fi
+
+            encoded=$(printf '%s' "$tag" | jq -sRr @uri)
             if gh api "repos/${REPO}/git/ref/tags/${encoded}" >/dev/null 2>&1; then
-              echo "Tag ${tag} already exists on remote, skipping"
+              echo "Tag ${tag} already exists on origin, skipping"
               continue
             fi
 
             echo "Creating annotated tag ${tag} -> ${release_sha}"
 
+            pkg_scope="${tag%@*}"
+            pkg_version="${tag##*@}"
+
             tag_obj_sha=$(gh api -X POST "repos/${REPO}/git/tags" \
               -f "tag=${tag}" \
-              -f "message=chore(release): ${tag}" \
+              -f "message=chore(${pkg_scope}): release version ${pkg_version}" \
               -f "object=${release_sha}" \
               -f "type=commit" \
-              -f "tagger[name]=GitHub actions" \
-              -f "tagger[email]=noreply@github.com" \
-              -f "tagger[date]=${tagger_date}" \
               --jq '.sha')
 
             gh api -X POST "repos/${REPO}/git/refs" \
