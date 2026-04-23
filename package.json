@@ -147,6 +147,7 @@
     "babel-plugin-transform-object-hasown": "1.1.0",
     "commitizen": "4.3.1",
     "commitlint": "20.5.0",
+    "conventional-changelog-conventionalcommits": "7.0.2",
     "core-js": "3.49.0",
     "cross-env": "10.1.0",
     "dotenv": "17.4.2",
@@ -222,7 +223,8 @@
       "typescript": "$typescript"
     },
     "tmp": "0.2.5",
-    "tar": "7.5.9"
+    "tar": "7.5.9",
+    "conventional-changelog-conventionalcommits": "7.0.2"
   },
   "lint-staged": {
     "*.{json,js,md,ts}": "prettier --write"
