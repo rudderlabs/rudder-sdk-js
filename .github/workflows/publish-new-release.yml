@@ -111,10 +111,16 @@ jobs:
           ref: ${{ github.sha }}
           token: ${{ steps.generate-token.outputs.token }}
 
-      # Annotated tag object (unsigned) + ref. Unsigned tag objects show as "Unverified"
-      # on the Releases page; adding a signature would require provisioning a GPG/SSH
-      # key as a workflow secret, which is out of scope. Accepted tradeoff: tag object
-      # shows "Unverified" while the target release-merge commit remains verified.
+      # Annotated tag object (unsigned) + ref. GitHub's Git Data API for `POST /git/tags`
+      # does not accept a signature in its payload; producing a signed tag would require
+      # running `git tag -s` locally with a signing key provisioned as a workflow secret,
+      # which is out of scope. Accepted tradeoff: tag object shows "Unverified" while
+      # the target release-merge commit remains verified.
+      #
+      # Idempotence: if the tag already exists on origin, dereference it and only exit 0
+      # when it already points at the current COMMIT_SHA. If it points elsewhere, fail
+      # loudly — re-running this job after a partial failure should not silently leave
+      # a mispointed tag in place.
       - name: Create monorepo release tag via API
         id: create_monorepo_release
         env:
@@ -123,14 +129,31 @@ jobs:
           REPO: ${{ github.repository }}
           COMMIT_SHA: ${{ github.sha }}
         run: |
-          tag_obj_sha=$(gh api -X POST "repos/${REPO}/git/tags" \
+          encoded=$(printf '%s' "v${RELEASE_VERSION}" | jq -sRr @uri)
+          if existing_ref=$(gh api "repos/${REPO}/git/ref/tags/${encoded}" 2>/dev/null); then
+            existing_type=$(printf '%s' "$existing_ref" | jq -r '.object.type')
+            existing_obj=$(printf '%s' "$existing_ref" | jq -r '.object.sha')
+            if [ "$existing_type" = "tag" ]; then
+              existing_commit=$(gh api "repos/${REPO}/git/tags/${existing_obj}" --jq '.object.sha')
+            else
+              existing_commit="$existing_obj"
+            fi
+            if [ "$existing_commit" = "$COMMIT_SHA" ]; then
+              echo "Tag v${RELEASE_VERSION} already points at ${COMMIT_SHA}, nothing to do"
+              exit 0
+            fi
+            echo "::error::Tag v${RELEASE_VERSION} exists on origin but points at ${existing_commit} (expected ${COMMIT_SHA})"
+            exit 1
+          fi
+
+          tag_obj_sha=$(gh api --method POST "repos/${REPO}/git/tags" \
             -f "tag=v${RELEASE_VERSION}" \
             -f "message=chore(monorepo): release v${RELEASE_VERSION}" \
             -f "object=${COMMIT_SHA}" \
             -f "type=commit" \
             --jq '.sha')
 
-          gh api -X POST "repos/${REPO}/git/refs" \
+          gh api --method POST "repos/${REPO}/git/refs" \
             -f "ref=refs/tags/v${RELEASE_VERSION}" \
             -f "sha=${tag_obj_sha}"
 
