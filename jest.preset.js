@@ -30,7 +30,7 @@ module.exports = {
     ],
   ],
   transform: {
-    '^.+\\.(js|mjs|cjs|ts|html)?$': [
+    '^.+\\.(ts|js|cjs|html)$': [
       'ts-jest',
       {
         diagnostics: false,
@@ -39,6 +39,7 @@ module.exports = {
         tsconfig: '<rootDir>/tsconfig.spec.json',
       },
     ],
+    '^.+\\.mjs$': 'babel-jest',
   },
   transformIgnorePatterns: ['<rootDir>/dist/', '<rootDir>/reports/'],
   testMatch: [

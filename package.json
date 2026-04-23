@@ -116,7 +116,7 @@
     "@babel/plugin-transform-runtime": "7.29.0",
     "@babel/preset-env": "7.29.2",
     "@babel/preset-typescript": "7.28.5",
-    "@commitlint/config-conventional": "20.3.0",
+    "@commitlint/config-conventional": "20.5.0",
     "@commitlint/config-nx-scopes": "20.5.0",
     "@digitalroute/cz-conventional-changelog-for-jira": "8.0.1",
     "@eslint/js": "9.39.4",
@@ -172,13 +172,13 @@
     "jscpd": "4.0.9",
     "lint-staged": "16.4.0",
     "madge": "8.0.0",
-    "msw": "2.11.6",
+    "msw": "2.13.4",
     "npm-run-all": "4.1.5",
     "nx": "22.6.5",
     "patch-package": "8.0.1",
     "prettier": "3.8.3",
     "publint": "0.3.18",
-    "rollup": "4.60.1",
+    "rollup": "4.60.2",
     "rollup-plugin-copy": "3.5.0",
     "rollup-plugin-delete": "3.0.2",
     "rollup-plugin-dts": "6.4.1",
@@ -196,16 +196,16 @@
     "ts-jest": "29.4.9",
     "ts-node": "10.9.2",
     "tslib": "2.8.1",
-    "typescript": "5.9.3",
+    "typescript": "6.0.3",
     "user-agent-data-types": "0.4.3"
   },
   "optionalDependencies": {
-    "@linear/sdk": "75.0.0",
+    "@linear/sdk": "82.0.0",
     "@nx/nx-darwin-arm64": "22.6.5",
     "@nx/nx-darwin-x64": "22.6.5",
     "@nx/nx-linux-x64-gnu": "22.6.5",
     "@nx/nx-win32-x64-msvc": "22.6.5",
-    "@rollup/rollup-linux-x64-gnu": "4.60.1",
+    "@rollup/rollup-linux-x64-gnu": "4.60.2",
     "@swc/core-linux-x64-gnu": "1.15.26",
     "@swc/core-darwin-x64": "1.15.26",
     "@swc/core-win32-x64-msvc": "1.15.26",
@@ -217,6 +217,9 @@
     },
     "@segment/localstorage-retry": {
       "debug": "2.6.9"
+    },
+    "madge": {
+      "typescript": "$typescript"
     },
     "tmp": "0.2.5",
     "tar": "7.5.9"
