@@ -158,6 +158,90 @@ jobs:
           files: |
             .
 
+      # jscutlery runs with --skipCommit=true, so it writes version/changelog files but
+      # creates no commits or tags. The signed-commit action above packages all file
+      # changes into one verified commit on the release branch. This step then creates
+      # annotated tag objects (via the Git Data API) for each bumped package at that
+      # commit, and points tag refs at them.
+      #
+      # Tag objects are unsigned. GitHub's Git Data API for `POST /git/tags` does not
+      # accept a signature in its payload; producing a signed tag would require running
+      # `git tag -s` locally with a signing key provisioned as a workflow secret, which
+      # is out of scope. Accepted tradeoff: tag objects show "Unverified" while the
+      # target commit remains verified. Same behavior as the monorepo v<version> tag
+      # in publish-new-release.yml.
+      #
+      # Affected-package filter: a package gets a new tag only if its package.json
+      # `version` differs between the release branch HEAD and origin/main. Unchanged
+      # packages are skipped.
+      #
+      # Idempotence: if the tag already exists on origin, dereference it and only skip
+      # when it already points at the current release_sha. If it points elsewhere, fail
+      # loudly so we don't quietly leave a mispointed tag in place (that class of bug is
+      # exactly what caused the cc04066f-vs-bc75c04 mismatch in the previous release).
+      - name: Push release tags to release branch HEAD
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+          BRANCH_NAME: ${{ steps.create-release.outputs.branch_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          git fetch origin "$BRANCH_NAME"
+          git fetch --no-tags origin main
+          release_sha=$(git rev-parse "origin/$BRANCH_NAME")
+          echo "Release branch HEAD: $release_sha"
+
+          for pj in packages/*/project.json; do
+            tag=$(jq -r '.targets.github.options.tag // empty' "$pj")
+            [ -z "$tag" ] && continue
+
+            pkg_dir=$(dirname "$pj")
+            current_version=$(git show "origin/${BRANCH_NAME}:${pkg_dir}/package.json" 2>/dev/null | jq -r '.version // empty' 2>/dev/null || echo "")
+            prev_version=$(git show "origin/main:${pkg_dir}/package.json" 2>/dev/null | jq -r '.version // empty' 2>/dev/null || echo "")
+
+            if [ -z "$current_version" ]; then
+              echo "::error::Unable to read version for ${pkg_dir}; refusing to tag ${tag}"
+              exit 1
+            fi
+
+            if [ -n "$prev_version" ] && [ "$current_version" = "$prev_version" ]; then
+              echo "Skipping ${tag} — version unchanged vs origin/main"
+              continue
+            fi
+
+            encoded=$(printf '%s' "$tag" | jq -sRr @uri)
+            if existing_ref=$(gh api "repos/${REPO}/git/ref/tags/${encoded}" 2>/dev/null); then
+              existing_type=$(printf '%s' "$existing_ref" | jq -r '.object.type')
+              existing_obj=$(printf '%s' "$existing_ref" | jq -r '.object.sha')
+              if [ "$existing_type" = "tag" ]; then
+                existing_commit=$(gh api "repos/${REPO}/git/tags/${existing_obj}" --jq '.object.sha')
+              else
+                existing_commit="$existing_obj"
+              fi
+              if [ "$existing_commit" = "$release_sha" ]; then
+                echo "Tag ${tag} already points at ${release_sha}, skipping"
+                continue
+              fi
+              echo "::error::Tag ${tag} exists on origin but points at ${existing_commit} (expected ${release_sha})"
+              exit 1
+            fi
+
+            echo "Creating annotated tag ${tag} -> ${release_sha}"
+
+            pkg_scope="${tag%@*}"
+            pkg_version="${tag##*@}"
+
+            tag_obj_sha=$(gh api --method POST "repos/${REPO}/git/tags" \
+              -f "tag=${tag}" \
+              -f "message=chore(${pkg_scope}): release version ${pkg_version}" \
+              -f "object=${release_sha}" \
+              -f "type=commit" \
+              --jq '.sha')
+
+            gh api --method POST "repos/${REPO}/git/refs" \
+              -f "ref=refs/tags/${tag}" \
+              -f "sha=${tag_obj_sha}"
+          done
+
       - name: Generate packages versions table
         id: packages-versions
         run: |
