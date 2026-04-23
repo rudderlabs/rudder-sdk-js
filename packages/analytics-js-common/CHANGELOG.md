@@ -2,6 +2,14 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## <small>3.28.2 (2026-04-23)</small>
+
+* fix(analytics-js,common): record @preact/signals-core 1.14.1 bump for release (#2971) ([50ab479](https://github.com/rudderlabs/rudder-sdk-js/commit/50ab479)), closes [#2971](https://github.com/rudderlabs/rudder-sdk-js/issues/2971)
+* chore(deps-dev): bump the npm-dev-deps group across 1 directory with 28 updates (#2963) ([269283f](https://github.com/rudderlabs/rudder-sdk-js/commit/269283f)), closes [#2963](https://github.com/rudderlabs/rudder-sdk-js/issues/2963)
+* chore(deps): bump the npm-prod-deps group across 1 directory with 10 updates (#2959) ([edbd841](https://github.com/rudderlabs/rudder-sdk-js/commit/edbd841)), closes [#2959](https://github.com/rudderlabs/rudder-sdk-js/issues/2959)
+
+
+
 ## [3.28.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.28.0...@rudderstack/analytics-js-common@3.28.1) (2026-03-23)
 
 ## [3.28.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.27.0...@rudderstack/analytics-js-common@3.28.0) (2026-02-16)

@@ -2,6 +2,12 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## <small>3.15.5 (2026-04-23)</small>
+
+* chore(deps-dev): bump the npm-dev-deps group across 1 directory with 28 updates (#2963) ([269283f](https://github.com/rudderlabs/rudder-sdk-js/commit/269283f)), closes [#2963](https://github.com/rudderlabs/rudder-sdk-js/issues/2963)
+
+
+
 ## [3.15.4](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.15.3...@rudderstack/analytics-js-plugins@3.15.4) (2026-03-23)
 
 ### Dependency Updates

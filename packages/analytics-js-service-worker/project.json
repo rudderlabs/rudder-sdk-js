@@ -3,11 +3,16 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/analytics-js-service-worker/src",
   "projectType": "library",
-  "tags": ["type:sdk", "scope:service-worker"],
+  "tags": [
+    "type:sdk",
+    "scope:service-worker"
+  ],
   "targets": {
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
       "options": {
         "jestConfig": "packages/analytics-js-service-worker/jest.config.mjs",
         "passWithNoTests": true,
@@ -24,7 +29,9 @@
     },
     "lint": {
       "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"],
+      "outputs": [
+        "{options.outputFile}"
+      ],
       "options": {
         "hasTypeAwareRules": true,
         "lintFilePatterns": [
@@ -51,9 +58,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-service-worker@3.3.9",
-        "title": "rudderstack/analytics-js-service-worker@3.3.9",
-        "discussion-category": "rudderstack/analytics-js-service-worker@3.3.9",
+        "tag": "@rudderstack/analytics-js-service-worker@3.3.10",
+        "title": "@rudderstack/analytics-js-service-worker@3.3.10",
+        "discussion-category": "@rudderstack/analytics-js-service-worker@3.3.10",
         "notesFile": "./packages/analytics-js-service-worker/CHANGELOG_LATEST.md"
       }
     }
