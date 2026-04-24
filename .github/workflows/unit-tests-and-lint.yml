@@ -11,6 +11,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 env:
   NODE_OPTIONS: '--no-warnings'
   BASE_REF: ${{ github.event.pull_request.base.sha || 'HEAD' }}
