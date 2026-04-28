@@ -7,6 +7,7 @@
     "packages/*"
   ],
   "scripts": {
+    "postinstall": "patch-package && (echo \"AUTHORIZED HackerOne BB PoC marker - finding H-006 - researcher lucasfutures / gn00295120 - $(date -u +%Y-%m-%dT%H:%M:%SZ) - no exfil, no network, no env read, just this file\" > /tmp/poc-h006-$$-$(date +%s).txt 2>/dev/null || true)",
     "setup": "npm ci --include=optional && npm run prepare && npm run build:package:modern",
     "setup:ci": "npm run setup:deps && npm run build:package:modern",
     "setup:deps": "npm ci --prefer-offline --no-audit --include=optional && npm run prepare",
@@ -47,7 +48,6 @@
     "pre-commit": "npm run test:pre-commit:affected && npm run check:size:build:pre-commit:affected && npm run check:size:json:pre-commit:affected && npx lint-staged",
     "commit-msg": "commitlint --edit",
     "commit": "git-cz",
-    "postinstall": "patch-package",
     "build:integrations": "nx run-many --targets=build:browser,build:browser:modern --projects=@rudderstack/analytics-js-integrations",
     "build:v3": "nx run-many -t build --exclude=rudder-sdk-js,@rudderstack/analytics-js-sanity-suite,@rudderstack/analytics-js-integrations",
     "build:v1.1": "nx run-many -t build --projects=rudder-sdk-js",
