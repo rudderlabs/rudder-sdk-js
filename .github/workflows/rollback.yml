@@ -44,7 +44,12 @@ jobs:
 
       - name: Set outputs
         id: set-outputs
-        run: echo "trigger_source=${{ format('Triggered from <{0}|{1}> by <{2}|{3}>', github.ref, github.ref_name, format('{0}/{1}', github.server_url, github.actor), github.actor) }}" >> $GITHUB_OUTPUT
+        env:
+          REF: ${{ github.ref }}
+          REF_NAME: ${{ github.ref_name }}
+          SERVER_URL: ${{ github.server_url }}
+          ACTOR: ${{ github.actor }}
+        run: echo "trigger_source=Triggered from <${REF}|${REF_NAME}> by <${SERVER_URL}/${ACTOR}|${ACTOR}>" >> $GITHUB_OUTPUT
 
   rollback:
     needs: [validate-actor, get-rollback-inputs]
