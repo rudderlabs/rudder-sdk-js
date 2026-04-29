@@ -47,9 +47,6 @@ outputs:
   run_url:
     description: 'Direct URL to the workflow run'
     value: ${{ steps.trigger_workflow.outputs.run_url }}
-  correlation_id:
-    description: 'Unique correlation ID used to identify this workflow run'
-    value: ${{ steps.trigger_workflow.outputs.correlation_id }}
   job_outputs:
     description: 'JSON string containing all outputs from the artifact (empty object if no artifact or retrieval failed)'
     value: ${{ steps.retrieve_outputs.outputs.job_outputs }}
@@ -83,150 +80,51 @@ runs:
         echo "📋 Target: ${TARGET_REPO}/${WORKFLOW_FILE}"
         echo "🌿 Ref: $WORKFLOW_REF"
 
-        # Generate unique correlation ID for this workflow run
-        # Use portable random generation since uuidgen isn't available on all runners
-        random_hex=$(openssl rand -hex 4 2>/dev/null || printf "%08x" $((RANDOM * 32768 + RANDOM)))
-        correlation_id="wf-$(date +%s)-${random_hex}"
-        echo "🔗 Correlation ID: $correlation_id"
-
-        # Parse workflow inputs JSON and add correlation ID
         workflow_inputs="$WORKFLOW_INPUTS"
-        echo "📝 Original workflow inputs: $workflow_inputs"
-
-        # Create a temporary file for the API request body
-        request_body=$(mktemp)
-
-        # Build the request body with correlation ID and inputs
         if [ "$workflow_inputs" != "{}" ] && [ -n "$workflow_inputs" ]; then
-          echo "📤 Creating request body with custom inputs and correlation ID..."
-
-          # Merge correlation ID with existing inputs
-          enhanced_inputs=$(echo "$workflow_inputs" | jq \
-            --arg correlation_id "$correlation_id" \
-            '. + {_workflow_correlation_id: $correlation_id}')
-
-          # Create body with ref and enhanced inputs
-          jq -n \
-            --arg ref "$WORKFLOW_REF" \
-            --argjson inputs "$enhanced_inputs" \
-            '{ref: $ref, inputs: $inputs}' > "$request_body"
-
-          echo "  ✓ Request body with inputs and correlation ID created"
+          echo "📝 Custom workflow inputs provided"
         else
-          echo "📤 Creating request body with correlation ID only..."
-
-          # Create body with ref and correlation ID as the only input
-          jq -n \
-            --arg ref "$WORKFLOW_REF" \
-            --arg correlation_id "$correlation_id" \
-            '{ref: $ref, inputs: {_workflow_correlation_id: $correlation_id}}' > "$request_body"
-
-          echo "  ✓ Request body with correlation ID created"
+          echo "📝 No custom workflow inputs provided"
         fi
 
-        # Trigger the workflow (with error handling for correlation ID rejection)
-        echo "🚀 Attempting to trigger workflow with correlation ID..."
+        # Build the API request body
+        request_body=$(mktemp)
+        if [ "$workflow_inputs" != "{}" ] && [ -n "$workflow_inputs" ]; then
+          echo "$workflow_inputs" | jq \
+            --arg ref "$WORKFLOW_REF" \
+            '{ref: $ref, inputs: .}' > "$request_body"
+        else
+          jq -n --arg ref "$WORKFLOW_REF" '{ref: $ref}' > "$request_body"
+        fi
 
-        trigger_result=$(gh api \
+        # Trigger the workflow
+        if ! gh api \
           --method POST \
           -H "Accept: application/vnd.github+json" \
           -H "X-GitHub-Api-Version: 2022-11-28" \
           --input "$request_body" \
-          "/repos/${TARGET_REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches" 2>&1 || echo "TRIGGER_FAILED")
-
-        # Check if correlation ID was rejected and fall back if needed
-        if [[ "$trigger_result" == *"Unexpected inputs provided"* ]] && [[ "$trigger_result" == *"_workflow_correlation_id"* ]]; then
-          echo "⚠️  Target workflow doesn't accept correlation ID input. Falling back to standard trigger..."
-
-          # Create new request body without correlation ID
-          if [ "$workflow_inputs" != "{}" ] && [ -n "$workflow_inputs" ]; then
-            echo "$workflow_inputs" | jq \
-              --arg ref "$WORKFLOW_REF" \
-              '{ref: $ref, inputs: .}' > "$request_body"
-          else
-            jq -n --arg ref "$WORKFLOW_REF" '{ref: $ref}' > "$request_body"
-          fi
-
-          # Retry without correlation ID
-          gh api \
-            --method POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            --input "$request_body" \
-            "/repos/${TARGET_REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches"
-
-          echo "✅ '$WORKFLOW_NAME' workflow triggered without correlation ID"
-          correlation_tracking="disabled"
-
-        elif [[ "$trigger_result" == *"TRIGGER_FAILED"* ]]; then
-          echo "❌ Failed to trigger workflow:"
-          echo "$trigger_result"
+          "/repos/${TARGET_REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches"; then
+          echo "❌ Failed to trigger workflow"
           rm -f "$request_body"
           exit 1
-        else
-          echo "✅ '$WORKFLOW_NAME' workflow triggered with correlation ID"
-          correlation_tracking="enabled"
         fi
-
-        # Clean up
         rm -f "$request_body"
+        echo "✅ '$WORKFLOW_NAME' workflow triggered"
 
-        # Find the triggered workflow run
-        if [ "$correlation_tracking" = "enabled" ]; then
-          echo "⏳ Waiting for workflow to be created and searching by correlation ID..."
+        # Wait for the run to appear, then pick the latest workflow_dispatch run
+        # Note: the GitHub Runs API does not expose dispatch inputs, so we cannot
+        # filter by a correlation ID. Concurrent dispatches of the same workflow
+        # may pick the wrong run; serialize callers if that matters.
+        sleep 5
+        run_id=$(gh api \
+          -H "Accept: application/vnd.github+json" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          "/repos/${TARGET_REPO}/actions/workflows/${WORKFLOW_FILE}/runs?event=workflow_dispatch&per_page=1" | \
+          jq -r '.workflow_runs[0].id // empty')
 
-          max_search_attempts=20
-          search_attempt=0
-          run_id=""
-
-          while [ $search_attempt -lt $max_search_attempts ] && [ -z "$run_id" ]; do
-            echo "🔍 Search attempt $((search_attempt + 1))/$max_search_attempts..."
-
-            # Get recent workflow runs and search for our correlation ID
-            recent_runs=$(gh api \
-              -H "Accept: application/vnd.github+json" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              "/repos/${TARGET_REPO}/actions/workflows/${WORKFLOW_FILE}/runs?per_page=10")
-
-            # Search for a run that was triggered with our correlation ID
-            # We'll check the workflow runs created in the last few minutes
-            run_id=$(echo "$recent_runs" | jq -r \
-              --arg correlation_id "$correlation_id" \
-              --arg min_time "$(date -u -d '2 minutes ago' '+%Y-%m-%dT%H:%M:%SZ')" \
-              '.workflow_runs[] | select(.created_at >= $min_time) |
-               select(.event == "workflow_dispatch") |
-               .id' | head -1)
-
-            if [ -n "$run_id" ] && [ "$run_id" != "null" ]; then
-              echo "✅ Found workflow run with correlation ID: $run_id"
-              break
-            fi
-
-            search_attempt=$((search_attempt + 1))
-            sleep 3
-          done
-
-          if [ -z "$run_id" ] || [ "$run_id" = "null" ]; then
-            echo "❌ Could not find workflow run by correlation ID after $max_search_attempts attempts"
-            echo "🔄 Falling back to latest run method..."
-            correlation_tracking="disabled"
-          fi
-        fi
-
-        # If correlation tracking is disabled or failed, use latest run method
-        if [ "$correlation_tracking" = "disabled" ]; then
-          echo "📋 Using latest run method to find triggered workflow..."
-
-          # Wait a moment for the workflow to appear
-          sleep 5
-
-          run_id=$(gh api \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            "/repos/${TARGET_REPO}/actions/workflows/${WORKFLOW_FILE}/runs?per_page=1" | \
-            jq -r '.workflow_runs[0].id')
-
-          echo "✅ Found latest workflow run: $run_id"
+        if [[ -z "$run_id" || "$run_id" == "null" || ! "$run_id" =~ ^[0-9]+$ ]]; then
+          echo "::error::could not resolve workflow run id"
+          exit 1
         fi
 
         run_url="https://github.com/${TARGET_REPO}/actions/runs/$run_id"
@@ -236,8 +134,6 @@ runs:
 
         echo "run_id=$run_id" >> $GITHUB_OUTPUT
         echo "run_url=$run_url" >> $GITHUB_OUTPUT
-        echo "correlation_id=$correlation_id" >> $GITHUB_OUTPUT
-        echo "correlation_tracking=$correlation_tracking" >> $GITHUB_OUTPUT
 
     - name: Wait for workflow completion
       id: wait_for_workflow
@@ -251,6 +147,11 @@ runs:
         CHECK_INTERVAL: ${{ inputs.check_interval }}
         TARGET_REPO: ${{ inputs.target_repo }}
       run: |
+        # Validate inputs that flow into API URL paths
+        if [[ ! "$TARGET_REPO" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then
+          echo "::error::invalid target_repo format"; exit 1
+        fi
+
         # Validate numeric inputs used in arithmetic
         if [[ ! "$MAX_WAIT_TIME" =~ ^[0-9]+$ ]]; then
           echo "::error::invalid max_wait_time"; exit 1
@@ -258,9 +159,23 @@ runs:
         if [[ ! "$CHECK_INTERVAL" =~ ^[0-9]+$ ]]; then
           echo "::error::invalid check_interval"; exit 1
         fi
+        if [ "$MAX_WAIT_TIME" -le 0 ]; then
+          echo "::error::max_wait_time must be greater than 0"; exit 1
+        fi
+        if [ "$CHECK_INTERVAL" -le 0 ]; then
+          echo "::error::check_interval must be greater than 0"; exit 1
+        fi
+        if [ "$CHECK_INTERVAL" -gt "$MAX_WAIT_TIME" ]; then
+          echo "::error::check_interval must be less than or equal to max_wait_time"; exit 1
+        fi
 
         run_id="$RUN_ID"
         run_url="$RUN_URL"
+
+        if [[ -z "$run_id" || "$run_id" == "null" || ! "$run_id" =~ ^[0-9]+$ ]]; then
+          echo "::error::invalid run_id output from trigger_workflow: '$run_id'"
+          exit 1
+        fi
 
         echo "⏳ Waiting for '$WORKFLOW_NAME' workflow run $run_id to complete..."
         echo "📊 Max wait time: ${MAX_WAIT_TIME}s, Check interval: ${CHECK_INTERVAL}s"
@@ -348,8 +263,18 @@ runs:
         ARTIFACT_NAME: ${{ inputs.outputs_artifact_name }}
         TARGET_REPO: ${{ inputs.target_repo }}
       run: |
+        # Validate inputs that flow into API URL paths
+        if [[ ! "$TARGET_REPO" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then
+          echo "::error::invalid target_repo format"; exit 1
+        fi
+
         run_id="$RUN_ID"
         artifact_name="$ARTIFACT_NAME"
+
+        if [[ -z "$run_id" || "$run_id" == "null" || ! "$run_id" =~ ^[0-9]+$ ]]; then
+          echo "::error::invalid run_id: '$run_id'"
+          exit 1
+        fi
 
         echo "📦 Attempting to retrieve outputs from artifact: $artifact_name"
         echo "🔗 Workflow run ID: $run_id"
@@ -467,10 +392,15 @@ runs:
         RUN_URL: ${{ steps.trigger_workflow.outputs.run_url }}
         TARGET_REPO: ${{ inputs.target_repo }}
       run: |
+        # Validate inputs that flow into API URL paths
+        if [[ ! "$TARGET_REPO" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then
+          echo "::error::invalid target_repo format"; exit 1
+        fi
+
         run_id="$RUN_ID"
         run_url="$RUN_URL"
-        
-        if [ -n "$run_id" ] && [ "$run_id" != "null" ]; then
+
+        if [ -n "$run_id" ] && [ "$run_id" != "null" ] && [[ "$run_id" =~ ^[0-9]+$ ]]; then
           echo "🧹 Workflow was cancelled. Attempting to cancel external workflow..."
           echo "🔄 Cancelling external workflow run $run_id..."
           
