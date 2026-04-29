@@ -111,8 +111,10 @@ runs:
 
         # Capture dispatch time (UTC) before triggering so we can filter
         # the resulting run by created_at and avoid picking up a run from
-        # a concurrent dispatch.
-        dispatch_time=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+        # a concurrent dispatch. We back-date by 10 seconds to tolerate
+        # small clock skew between the runner and GitHub's servers (which
+        # populate created_at).
+        dispatch_time=$(date -u -d '10 seconds ago' +%Y-%m-%dT%H:%M:%SZ)
 
         # Trigger the workflow
         if ! gh api \
@@ -258,10 +260,16 @@ runs:
 
         while [ $elapsed_time -lt $MAX_WAIT_TIME ]; do
           # Get workflow run details
-          run_data=$(gh api \
+          if ! run_data=$(gh api \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            "/repos/${TARGET_REPO}/actions/runs/$run_id")
+            "/repos/${TARGET_REPO}/actions/runs/$run_id" 2>&1); then
+            echo "::error::failed to fetch run details for $run_id: $run_data"
+            echo "🔗 Check status manually at: $run_url"
+            echo "status=error" >> $GITHUB_OUTPUT
+            echo "conclusion=error" >> $GITHUB_OUTPUT
+            exit 1
+          fi
 
           run_status=$(echo "$run_data" | jq -r '.status')
           run_conclusion=$(echo "$run_data" | jq -r '.conclusion')
@@ -360,18 +368,25 @@ runs:
         echo "✅ Found artifact with ID: $artifact_id"
         echo "📥 Downloading artifact..."
 
-        # Download artifact zip
-        download_result=$(gh api \
+        # Download artifact zip. stderr must NOT be merged into outputs.zip
+        # because any warning from gh would corrupt the archive.
+        download_stderr=$(mktemp)
+        if ! gh api \
           -H "Accept: application/vnd.github+json" \
           -H "X-GitHub-Api-Version: 2022-11-28" \
-          "/repos/${TARGET_REPO}/actions/artifacts/$artifact_id/zip" > outputs.zip 2>&1 || echo "DOWNLOAD_FAILED")
-
-        if [[ "$download_result" == *"DOWNLOAD_FAILED"* ]]; then
+          "/repos/${TARGET_REPO}/actions/artifacts/$artifact_id/zip" \
+          > outputs.zip 2>"$download_stderr"; then
           echo "❌ Failed to download artifact"
+          if [ -s "$download_stderr" ]; then
+            echo "ℹ️  gh stderr:"
+            cat "$download_stderr"
+          fi
+          rm -f "$download_stderr" outputs.zip
           echo "has_outputs=false" >> $GITHUB_OUTPUT
           echo "job_outputs={}" >> $GITHUB_OUTPUT
           exit 0
         fi
+        rm -f "$download_stderr"
 
         echo "📦 Extracting artifact..."
 
