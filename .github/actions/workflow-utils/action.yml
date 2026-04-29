@@ -36,10 +36,10 @@ inputs:
 
 outputs:
   status:
-    description: 'Final status of the workflow (completed, timeout)'
+    description: 'Final status of the workflow (completed, timeout, error). "error" is set when a run-detail API call fails.'
     value: ${{ steps.wait_for_workflow.outputs.status }}
   conclusion:
-    description: 'Final conclusion (success, failure, cancelled, etc.)'
+    description: 'Final conclusion (success, failure, cancelled, timeout, error, etc.). "error" is set when a run-detail API call fails.'
     value: ${{ steps.wait_for_workflow.outputs.conclusion }}
   run_id:
     description: 'The workflow run ID'
@@ -113,8 +113,15 @@ runs:
         # the resulting run by created_at and avoid picking up a run from
         # a concurrent dispatch. We back-date by 10 seconds to tolerate
         # small clock skew between the runner and GitHub's servers (which
-        # populate created_at).
-        dispatch_time=$(date -u -d '10 seconds ago' +%Y-%m-%dT%H:%M:%SZ)
+        # populate created_at). Try GNU date first (Linux runners), then
+        # BSD date (macOS runners); fall back to no buffer as a last resort.
+        if dispatch_time=$(date -u -d '10 seconds ago' +%Y-%m-%dT%H:%M:%SZ 2>/dev/null); then
+          :
+        elif dispatch_time=$(date -u -v -10S +%Y-%m-%dT%H:%M:%SZ 2>/dev/null); then
+          :
+        else
+          dispatch_time=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+        fi
 
         # Trigger the workflow
         if ! gh api \
@@ -133,47 +140,86 @@ runs:
         # Resolve the dispatched run by polling and filtering on created_at.
         # The GitHub Runs API does not expose dispatch inputs, so we
         # approximate identity by selecting the oldest workflow_dispatch run
-        # created at or after our dispatch_time. We additionally match
-        # head_branch to WORKFLOW_REF only when WORKFLOW_REF is an explicit
-        # branch ref (refs/heads/*); for tags, SHAs, and other ref forms
-        # the API may report an empty or non-matching head_branch, so we
-        # leave the branch filter empty in those cases.
+        # created at or after our dispatch_time. We also match head_branch
+        # when WORKFLOW_REF is a branch ref (refs/heads/*) or a bare name
+        # that does not look like a commit SHA. Tag refs, full SHAs, and
+        # other ref forms leave the filter empty since head_branch is not
+        # populated for those dispatches.
         case "$WORKFLOW_REF" in
           refs/heads/*) head_branch_filter="${WORKFLOW_REF#refs/heads/}" ;;
-          *)            head_branch_filter="" ;;
+          refs/tags/*)  head_branch_filter="" ;;
+          *)
+            if [[ "$WORKFLOW_REF" =~ ^[0-9a-fA-F]{7,40}$ ]]; then
+              head_branch_filter=""
+            else
+              head_branch_filter="$WORKFLOW_REF"
+            fi
+            ;;
         esac
+
+        # Persist the last lookup error to a file so it survives subshell calls.
+        LOOKUP_ERROR_FILE=$(mktemp)
+        : > "$LOOKUP_ERROR_FILE"
+
+        # runs_lookup <branch_filter>  -> prints matching run_id (or empty) on stdout;
+        # on gh-api failure writes stderr to $LOOKUP_ERROR_FILE and returns 1.
+        runs_lookup() {
+          local filter="$1"
+          local stderr_file stdout
+          stderr_file=$(mktemp)
+          if stdout=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "/repos/${TARGET_REPO}/actions/workflows/${WORKFLOW_FILE}/runs?event=workflow_dispatch&per_page=10" \
+            2>"$stderr_file"); then
+            printf '%s' "$stdout" | jq -r \
+              --arg min_time "$dispatch_time" \
+              --arg branch "$filter" \
+              '[.workflow_runs[]?
+                | select(.created_at >= $min_time)
+                | select($branch == "" or .head_branch == $branch)]
+               | sort_by(.created_at) | .[0].id // empty'
+            rm -f "$stderr_file"
+            return 0
+          fi
+          cp "$stderr_file" "$LOOKUP_ERROR_FILE"
+          rm -f "$stderr_file"
+          return 1
+        }
 
         max_attempts=20
         attempt=0
         run_id=""
-        last_lookup_error=""
         while [ $attempt -lt $max_attempts ] && [ -z "$run_id" ]; do
           attempt=$((attempt + 1))
           sleep 3
-          if recent_runs=$(gh api \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            "/repos/${TARGET_REPO}/actions/workflows/${WORKFLOW_FILE}/runs?event=workflow_dispatch&per_page=10" 2>&1); then
-            run_id=$(printf '%s' "$recent_runs" | jq -r \
-              --arg min_time "$dispatch_time" \
-              --arg branch "$head_branch_filter" \
-              '[.workflow_runs[]?
-                | select(.created_at >= $min_time)
-                | select($branch == "" or .head_branch == $branch)]
-               | sort_by(.created_at) | .[0].id // empty')
-          else
-            last_lookup_error="$recent_runs"
-            recent_runs=""
-          fi
+          run_id=$(runs_lookup "$head_branch_filter") || run_id=""
         done
 
+        # Fallback: if a branch filter was applied but yielded no candidates,
+        # retry without the filter so a misclassified bare-name ref or an
+        # unexpected head_branch shape can not strand us.
+        if [[ -z "$run_id" || "$run_id" == "null" || ! "$run_id" =~ ^[0-9]+$ ]] \
+          && [ -n "$head_branch_filter" ]; then
+          echo "⚠️  No matching run found with head_branch=$head_branch_filter; retrying without branch filter"
+          fallback_attempts=5
+          fb=0
+          while [ $fb -lt $fallback_attempts ] && [ -z "$run_id" ]; do
+            fb=$((fb + 1))
+            sleep 3
+            run_id=$(runs_lookup "") || run_id=""
+          done
+        fi
+
         if [[ -z "$run_id" || "$run_id" == "null" || ! "$run_id" =~ ^[0-9]+$ ]]; then
-          echo "::error::could not resolve dispatched workflow run id (dispatched at $dispatch_time, polled ${max_attempts} times)"
-          if [ -n "$last_lookup_error" ]; then
-            echo "::error::last gh api error: $last_lookup_error"
+          echo "::error::could not resolve dispatched workflow run id (dispatched at $dispatch_time)"
+          if [ -s "$LOOKUP_ERROR_FILE" ]; then
+            echo "::error::last gh api error: $(cat "$LOOKUP_ERROR_FILE")"
           fi
+          rm -f "$LOOKUP_ERROR_FILE"
           exit 1
         fi
+        rm -f "$LOOKUP_ERROR_FILE"
 
         run_url="https://github.com/${TARGET_REPO}/actions/runs/$run_id"
 
