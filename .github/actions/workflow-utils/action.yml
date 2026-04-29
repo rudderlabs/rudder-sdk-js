@@ -161,8 +161,12 @@ runs:
         LOOKUP_ERROR_FILE=$(mktemp)
         : > "$LOOKUP_ERROR_FILE"
 
-        # runs_lookup <branch_filter>  -> prints matching run_id (or empty) on stdout;
-        # on gh-api failure writes stderr to $LOOKUP_ERROR_FILE and returns 1.
+        # runs_lookup <branch_filter>  -> on success prints "<filtered_id>|<unfiltered_id>"
+        # to stdout, where each side is empty if no candidate was found. On failure
+        # writes stderr to $LOOKUP_ERROR_FILE and returns 1. Computing both ids in
+        # the same jq pass lets the caller fall back to the unfiltered match when
+        # WORKFLOW_REF is e.g. a tag-name with empty head_branch, without burning
+        # the entire polling window before retrying.
         runs_lookup() {
           local filter="$1"
           local stderr_file stdout
@@ -175,10 +179,10 @@ runs:
             printf '%s' "$stdout" | jq -r \
               --arg min_time "$dispatch_time" \
               --arg branch "$filter" \
-              '[.workflow_runs[]?
-                | select(.created_at >= $min_time)
-                | select($branch == "" or .head_branch == $branch)]
-               | sort_by(.created_at) | .[0].id // empty'
+              '([.workflow_runs[]? | select(.created_at >= $min_time)]) as $all |
+               (($all | map(select($branch == "" or .head_branch == $branch)) | sort_by(.created_at) | .[0].id // "") | tostring) as $f |
+               (($all | sort_by(.created_at) | .[0].id // "") | tostring) as $u |
+               "\($f)|\($u)"'
             rm -f "$stderr_file"
             return 0
           fi
@@ -187,28 +191,37 @@ runs:
           return 1
         }
 
+        # Poll until we either find a filtered match or exhaust attempts. The
+        # filtered match is preferred because it is more likely to be the run
+        # we just dispatched; the unfiltered match is tracked alongside as a
+        # fallback for tag/SHA refs (where head_branch is typically empty).
         max_attempts=20
         attempt=0
         run_id=""
+        last_unfiltered_id=""
         while [ $attempt -lt $max_attempts ] && [ -z "$run_id" ]; do
           attempt=$((attempt + 1))
           sleep 3
-          run_id=$(runs_lookup "$head_branch_filter") || run_id=""
+          if ! lookup_result=$(runs_lookup "$head_branch_filter"); then
+            continue
+          fi
+          filtered_id="${lookup_result%%|*}"
+          unfiltered_id="${lookup_result#*|}"
+          if [ -n "$filtered_id" ] && [ "$filtered_id" != "null" ]; then
+            run_id="$filtered_id"
+          elif [ -n "$unfiltered_id" ] && [ "$unfiltered_id" != "null" ]; then
+            last_unfiltered_id="$unfiltered_id"
+          fi
         done
 
-        # Fallback: if a branch filter was applied but yielded no candidates,
-        # retry without the filter so a misclassified bare-name ref or an
-        # unexpected head_branch shape can not strand us.
+        # If we never matched the filter but did see at least one workflow_dispatch
+        # run created after dispatch_time, accept that as our run. This covers
+        # tag-name refs and any other case where head_branch does not match
+        # WORKFLOW_REF, without forcing a separate fallback polling phase.
         if [[ -z "$run_id" || "$run_id" == "null" || ! "$run_id" =~ ^[0-9]+$ ]] \
-          && [ -n "$head_branch_filter" ]; then
-          echo "⚠️  No matching run found with head_branch=$head_branch_filter; retrying without branch filter"
-          fallback_attempts=5
-          fb=0
-          while [ $fb -lt $fallback_attempts ] && [ -z "$run_id" ]; do
-            fb=$((fb + 1))
-            sleep 3
-            run_id=$(runs_lookup "") || run_id=""
-          done
+          && [ -n "$last_unfiltered_id" ] && [[ "$last_unfiltered_id" =~ ^[0-9]+$ ]]; then
+          echo "⚠️  No run matched head_branch=$head_branch_filter; using closest workflow_dispatch run by created_at"
+          run_id="$last_unfiltered_id"
         fi
 
         if [[ -z "$run_id" || "$run_id" == "null" || ! "$run_id" =~ ^[0-9]+$ ]]; then
