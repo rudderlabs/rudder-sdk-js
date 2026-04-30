@@ -170,26 +170,32 @@ runs:
         # that does not look like a commit SHA. Tag refs, full SHAs, and
         # other ref forms leave the filter empty since head_branch is not
         # populated for those dispatches.
-        # branch_filter_certain == 1 only when WORKFLOW_REF is an explicit
-        # branch ref (refs/heads/*). For bare-name refs we use the value as
-        # a filter but flag the polling loop that it is allowed to accept
-        # the unfiltered match instead of burning the full window.
+        # Decide whether to apply a head_branch filter. We only set a filter
+        # when we are confident WORKFLOW_REF identifies a branch:
+        #   - refs/heads/* is unambiguously a branch
+        #   - refs/tags/* is unambiguously a tag, no filter
+        #   - SHA-shaped bare names are not branches, no filter
+        #   - Other bare names are resolved against the GitHub Branches API;
+        #     a 200 means it's a real branch (set filter), anything else
+        #     leaves the filter empty so tag-name dispatches are not stalled
         case "$WORKFLOW_REF" in
           refs/heads/*)
             head_branch_filter="${WORKFLOW_REF#refs/heads/}"
-            branch_filter_certain=1
             ;;
           refs/tags/*)
             head_branch_filter=""
-            branch_filter_certain=0
             ;;
           *)
             if [[ "$WORKFLOW_REF" =~ ^[0-9a-fA-F]{7,40}$ ]]; then
               head_branch_filter=""
-            else
+            elif gh api \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "/repos/${TARGET_REPO}/branches/${WORKFLOW_REF}" >/dev/null 2>&1; then
               head_branch_filter="$WORKFLOW_REF"
+            else
+              head_branch_filter=""
             fi
-            branch_filter_certain=0
             ;;
         esac
 
@@ -257,13 +263,12 @@ runs:
             run_id="$filtered_id"
           elif [ -n "$unfiltered_id" ] && [ "$unfiltered_id" != "null" ]; then
             last_unfiltered_id="$unfiltered_id"
-            # Fast-path: only when no head_branch filter was set (tag/SHA
-            # dispatches where head_branch is typically empty), accept the
-            # unfiltered match as soon as we see it. When a filter IS set
-            # (any branch ref, including bare-name) we keep polling so a
-            # concurrent dispatch with a different branch can not steal
-            # the slot via the unfiltered match.
-            if [ "$branch_filter_certain" != "1" ] && [ -z "$head_branch_filter" ]; then
+            # Fast-path: when no head_branch filter is set (tag/SHA dispatches
+            # where head_branch is typically empty), accept the unfiltered
+            # match immediately. When a filter is set we keep polling so a
+            # concurrent dispatch with a different branch can not steal the
+            # slot via the unfiltered match.
+            if [ -z "$head_branch_filter" ]; then
               run_id="$unfiltered_id"
             fi
           fi
