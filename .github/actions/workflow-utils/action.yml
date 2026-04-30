@@ -368,7 +368,7 @@ runs:
 
     - name: Retrieve job outputs from artifact
       id: retrieve_outputs
-      if: always() && inputs.outputs_artifact_name != ''
+      if: always() && inputs.outputs_artifact_name != '' && steps.trigger_workflow.outputs.run_id != ''
       shell: bash
       env:
         GH_TOKEN: ${{ inputs.github_token }}
