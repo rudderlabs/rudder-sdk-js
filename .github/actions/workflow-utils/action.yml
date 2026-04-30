@@ -125,8 +125,8 @@ runs:
 
         # Trigger the workflow. Capture stdout+stderr so we can surface the
         # underlying gh error (permissions, missing workflow file, invalid
-        # ref, etc.) on failure. The request body is only logged on success
-        # is never echoed, so secrets in workflow_inputs do not leak here.
+        # ref, etc.) on failure. The request body is never echoed, so
+        # secrets in workflow_inputs do not leak here.
         dispatch_output_file=$(mktemp)
         if ! gh api \
           --method POST \
@@ -154,15 +154,26 @@ runs:
         # that does not look like a commit SHA. Tag refs, full SHAs, and
         # other ref forms leave the filter empty since head_branch is not
         # populated for those dispatches.
+        # branch_filter_certain == 1 only when WORKFLOW_REF is an explicit
+        # branch ref (refs/heads/*). For bare-name refs we use the value as
+        # a filter but flag the polling loop that it is allowed to accept
+        # the unfiltered match instead of burning the full window.
         case "$WORKFLOW_REF" in
-          refs/heads/*) head_branch_filter="${WORKFLOW_REF#refs/heads/}" ;;
-          refs/tags/*)  head_branch_filter="" ;;
+          refs/heads/*)
+            head_branch_filter="${WORKFLOW_REF#refs/heads/}"
+            branch_filter_certain=1
+            ;;
+          refs/tags/*)
+            head_branch_filter=""
+            branch_filter_certain=0
+            ;;
           *)
             if [[ "$WORKFLOW_REF" =~ ^[0-9a-fA-F]{7,40}$ ]]; then
               head_branch_filter=""
             else
               head_branch_filter="$WORKFLOW_REF"
             fi
+            branch_filter_certain=0
             ;;
         esac
 
@@ -220,6 +231,13 @@ runs:
             run_id="$filtered_id"
           elif [ -n "$unfiltered_id" ] && [ "$unfiltered_id" != "null" ]; then
             last_unfiltered_id="$unfiltered_id"
+            # Fast-path: when the filter is uncertain (bare-name ref or no
+            # filter at all), accept the unfiltered match as soon as we see
+            # it instead of polling the full window for a filtered match
+            # that may never appear (e.g. tag dispatches).
+            if [ "$branch_filter_certain" != "1" ]; then
+              run_id="$unfiltered_id"
+            fi
           fi
         done
 
@@ -327,17 +345,24 @@ runs:
         elapsed_time=0
 
         while [ $elapsed_time -lt $MAX_WAIT_TIME ]; do
-          # Get workflow run details
+          # Get workflow run details. Capture stderr separately so a
+          # successful call with stderr noise can not corrupt the JSON.
+          run_data_stderr=$(mktemp)
           if ! run_data=$(gh api \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            "/repos/${TARGET_REPO}/actions/runs/$run_id" 2>&1); then
-            echo "::error::failed to fetch run details for $run_id: $run_data"
+            "/repos/${TARGET_REPO}/actions/runs/$run_id" 2>"$run_data_stderr"); then
+            echo "::error::failed to fetch run details for $run_id"
+            if [ -s "$run_data_stderr" ]; then
+              echo "::error::gh stderr: $(cat "$run_data_stderr")"
+            fi
+            rm -f "$run_data_stderr"
             echo "🔗 Check status manually at: $run_url"
             echo "status=error" >> $GITHUB_OUTPUT
             echo "conclusion=error" >> $GITHUB_OUTPUT
             exit 1
           fi
+          rm -f "$run_data_stderr"
 
           run_status=$(echo "$run_data" | jq -r '.status')
           run_conclusion=$(echo "$run_data" | jq -r '.conclusion')
