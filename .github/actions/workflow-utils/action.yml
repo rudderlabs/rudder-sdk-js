@@ -396,19 +396,26 @@ runs:
         job_outputs=""
         has_outputs="false"
 
-        # List artifacts for the workflow run
+        # List artifacts for the workflow run. Capture stderr separately so a
+        # successful call with stderr noise can not corrupt the JSON we feed
+        # to jq later.
         echo "🔍 Listing artifacts for workflow run..."
-        artifacts=$(gh api \
+        artifacts_stderr=$(mktemp)
+        if ! artifacts=$(gh api \
           -H "Accept: application/vnd.github+json" \
           -H "X-GitHub-Api-Version: 2022-11-28" \
-          "/repos/${TARGET_REPO}/actions/runs/$run_id/artifacts" 2>&1 || echo "ARTIFACTS_LIST_FAILED")
-
-        if [[ "$artifacts" == *"ARTIFACTS_LIST_FAILED"* ]]; then
+          "/repos/${TARGET_REPO}/actions/runs/$run_id/artifacts" 2>"$artifacts_stderr"); then
           echo "⚠️  Failed to list artifacts for workflow run"
+          if [ -s "$artifacts_stderr" ]; then
+            echo "ℹ️  gh stderr:"
+            cat "$artifacts_stderr"
+          fi
+          rm -f "$artifacts_stderr"
           echo "has_outputs=false" >> $GITHUB_OUTPUT
           echo "job_outputs={}" >> $GITHUB_OUTPUT
           exit 0
         fi
+        rm -f "$artifacts_stderr"
 
         # Find artifact by name
         artifact_id=$(echo "$artifacts" | jq -r \
