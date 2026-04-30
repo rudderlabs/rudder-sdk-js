@@ -109,6 +109,22 @@ runs:
           jq -n --arg ref "$WORKFLOW_REF" '{ref: $ref}' > "$request_body"
         fi
 
+        # Snapshot existing workflow_dispatch run ids before triggering so the
+        # post-dispatch lookup can ignore any runs that already existed. This
+        # prevents the back-dated dispatch_time from accidentally selecting a
+        # run created in the buffer window. If the snapshot call fails we
+        # fall back to an empty exclusion list and rely on dispatch_time only.
+        pre_dispatch_ids='[]'
+        if pre_runs_json=$(gh api \
+          -H "Accept: application/vnd.github+json" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          "/repos/${TARGET_REPO}/actions/workflows/${WORKFLOW_FILE}/runs?event=workflow_dispatch&per_page=10" \
+          2>/dev/null); then
+          if snapshot=$(printf '%s' "$pre_runs_json" | jq -c '[.workflow_runs[]?.id]' 2>/dev/null); then
+            pre_dispatch_ids="$snapshot"
+          fi
+        fi
+
         # Capture dispatch time (UTC) before triggering so we can filter
         # the resulting run by created_at and avoid picking up a run from
         # a concurrent dispatch. We back-date by 10 seconds to tolerate
@@ -205,7 +221,10 @@ runs:
           if ! jq_stdout=$(printf '%s' "$gh_stdout" | jq -r \
             --arg min_time "$dispatch_time" \
             --arg branch "$filter" \
-            '([.workflow_runs[]? | select(.created_at >= $min_time)]) as $all |
+            --argjson exclude "$pre_dispatch_ids" \
+            '([.workflow_runs[]?
+                | select(.created_at >= $min_time)
+                | select(.id as $id | ($exclude | index($id)) | not)]) as $all |
              (($all | map(select($branch == "" or .head_branch == $branch)) | sort_by(.created_at) | .[0].id // "") | tostring) as $f |
              (($all | sort_by(.created_at) | .[0].id // "") | tostring) as $u |
              "\($f)|\($u)"' 2>"$jq_stderr"); then
@@ -238,11 +257,13 @@ runs:
             run_id="$filtered_id"
           elif [ -n "$unfiltered_id" ] && [ "$unfiltered_id" != "null" ]; then
             last_unfiltered_id="$unfiltered_id"
-            # Fast-path: when the filter is uncertain (bare-name ref or no
-            # filter at all), accept the unfiltered match as soon as we see
-            # it instead of polling the full window for a filtered match
-            # that may never appear (e.g. tag dispatches).
-            if [ "$branch_filter_certain" != "1" ]; then
+            # Fast-path: only when no head_branch filter was set (tag/SHA
+            # dispatches where head_branch is typically empty), accept the
+            # unfiltered match as soon as we see it. When a filter IS set
+            # (any branch ref, including bare-name) we keep polling so a
+            # concurrent dispatch with a different branch can not steal
+            # the slot via the unfiltered match.
+            if [ "$branch_filter_certain" != "1" ] && [ -z "$head_branch_filter" ]; then
               run_id="$unfiltered_id"
             fi
           fi
@@ -261,7 +282,8 @@ runs:
         if [[ -z "$run_id" || "$run_id" == "null" || ! "$run_id" =~ ^[0-9]+$ ]]; then
           echo "::error::could not resolve dispatched workflow run id (dispatched at $dispatch_time)"
           if [ -s "$LOOKUP_ERROR_FILE" ]; then
-            echo "::error::last gh api error: $(cat "$LOOKUP_ERROR_FILE")"
+            echo "last gh api / jq error:"
+            cat "$LOOKUP_ERROR_FILE"
           fi
           rm -f "$LOOKUP_ERROR_FILE"
           exit 1
@@ -361,7 +383,8 @@ runs:
             "/repos/${TARGET_REPO}/actions/runs/$run_id" 2>"$run_data_stderr"); then
             echo "::error::failed to fetch run details for $run_id"
             if [ -s "$run_data_stderr" ]; then
-              echo "::error::gh stderr: $(cat "$run_data_stderr")"
+              echo "gh stderr:"
+              cat "$run_data_stderr"
             fi
             rm -f "$run_data_stderr"
             echo "🔗 Check status manually at: $run_url"
