@@ -123,18 +123,27 @@ runs:
           dispatch_time=$(date -u +%Y-%m-%dT%H:%M:%SZ)
         fi
 
-        # Trigger the workflow
+        # Trigger the workflow. Capture stdout+stderr so we can surface the
+        # underlying gh error (permissions, missing workflow file, invalid
+        # ref, etc.) on failure. The request body is only logged on success
+        # is never echoed, so secrets in workflow_inputs do not leak here.
+        dispatch_output_file=$(mktemp)
         if ! gh api \
           --method POST \
           -H "Accept: application/vnd.github+json" \
           -H "X-GitHub-Api-Version: 2022-11-28" \
           --input "$request_body" \
-          "/repos/${TARGET_REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches"; then
-          echo "❌ Failed to trigger workflow"
-          rm -f "$request_body"
+          "/repos/${TARGET_REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches" \
+          >"$dispatch_output_file" 2>&1; then
+          echo "::error::failed to trigger workflow ${TARGET_REPO}/${WORKFLOW_FILE}@${WORKFLOW_REF}"
+          if [ -s "$dispatch_output_file" ]; then
+            echo "::error::gh api output:"
+            cat "$dispatch_output_file"
+          fi
+          rm -f "$dispatch_output_file" "$request_body"
           exit 1
         fi
-        rm -f "$request_body"
+        rm -f "$dispatch_output_file" "$request_body"
         echo "✅ '$WORKFLOW_NAME' workflow triggered"
 
         # Resolve the dispatched run by polling and filtering on created_at.
