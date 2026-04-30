@@ -3,11 +3,16 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/analytics-js-plugins/src",
   "projectType": "library",
-  "tags": ["type:lib", "scope:plugins"],
+  "tags": [
+    "type:lib",
+    "scope:plugins"
+  ],
   "targets": {
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
       "options": {
         "jestConfig": "packages/analytics-js-plugins/jest.config.mjs",
         "passWithNoTests": true,
@@ -24,7 +29,9 @@
     },
     "lint": {
       "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"],
+      "outputs": [
+        "{options.outputFile}"
+      ],
       "options": {
         "hasTypeAwareRules": true,
         "lintFilePatterns": [
@@ -51,9 +58,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "@rudderstack/analytics-js-plugins@3.15.4",
-        "title": "@rudderstack/analytics-js-plugins@3.15.4",
-        "discussion-category": "@rudderstack/analytics-js-plugins@3.15.4",
+        "tag": "@rudderstack/analytics-js-plugins@3.15.5",
+        "title": "@rudderstack/analytics-js-plugins@3.15.5",
+        "discussion-category": "@rudderstack/analytics-js-plugins@3.15.5",
         "notesFile": "./packages/analytics-js-plugins/CHANGELOG_LATEST.md"
       }
     }

@@ -25,19 +25,26 @@ jobs:
       release_ticket_id: ${{ steps.extract-release-info.outputs.release_ticket_id }}
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        uses: step-security/harden-runner@8d3c67de8e2fe68ef647c8db1e6a09f647780f40 # v2.19.0
         with:
           egress-policy: audit
 
       - name: Set outputs
         id: set-outputs
-        run: echo "trigger_source=${{ format('PR <{0}|#{1}> merged by <{2}|{3}>', github.event.pull_request.html_url, github.event.pull_request.number, format('{0}/{1}', github.server_url, github.actor), github.actor) }}" >> $GITHUB_OUTPUT
+        env:
+          PR_HTML_URL: ${{ github.event.pull_request.html_url }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          SERVER_URL: ${{ github.server_url }}
+          ACTOR: ${{ github.actor }}
+        run: echo "trigger_source=PR <${PR_HTML_URL}|#${PR_NUMBER}> merged by <${SERVER_URL}/${ACTOR}|${ACTOR}>" >> $GITHUB_OUTPUT
 
       - name: Extract release info from branch
         id: extract-release-info
         if: startsWith(github.event.pull_request.head.ref, 'release/') || startsWith(github.event.pull_request.head.ref, 'hotfix-release/')
+        env:
+          BRANCH_NAME: ${{ github.event.pull_request.head.ref }}
         run: |
-          branch_name="${{ github.event.pull_request.head.ref }}"
+          branch_name="${BRANCH_NAME}"
           echo "Branch name: $branch_name"
           
           # Extract version and ticket from branch name (format: release/3.2.1-SDK-1234 or hotfix-release/3.2.2-SDK-5678)
@@ -65,13 +72,13 @@ jobs:
 
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        uses: step-security/harden-runner@8d3c67de8e2fe68ef647c8db1e6a09f647780f40 # v2.19.0
         with:
           egress-policy: audit
 
       - name: Generate GitHub App Token
         id: generate-token
-        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
+        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
         with:
           app-id: ${{ vars.RELEASE_APP_ID }}
           private-key: ${{ secrets.RELEASE_PRIVATE_KEY }}
@@ -104,23 +111,54 @@ jobs:
           ref: ${{ github.sha }}
           token: ${{ steps.generate-token.outputs.token }}
 
+      # Annotated tag object (unsigned) + ref. GitHub's Git Data API for `POST /git/tags`
+      # does not accept a signature in its payload; producing a signed tag would require
+      # running `git tag -s` locally with a signing key provisioned as a workflow secret,
+      # which is out of scope. Accepted tradeoff: tag object shows "Unverified" while
+      # the target release-merge commit remains verified.
+      #
+      # Idempotence: if the tag already exists on origin, dereference it and only exit 0
+      # when it already points at the current COMMIT_SHA. If it points elsewhere, fail
+      # loudly — re-running this job after a partial failure should not silently leave
+      # a mispointed tag in place.
       - name: Create monorepo release tag via API
         id: create_monorepo_release
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+          RELEASE_VERSION: ${{ steps.extract-version.outputs.release_version }}
+          REPO: ${{ github.repository }}
+          COMMIT_SHA: ${{ github.sha }}
         run: |
-          TAG_SHA=$(gh api repos/${{ github.repository }}/git/tags \
-            -f tag='v${{ steps.extract-version.outputs.release_version }}' \
-            -f message='chore(monorepo): release v${{ steps.extract-version.outputs.release_version }}' \
-            -f object='${{ github.sha }}' \
-            -f type='commit' --jq '.sha')
+          encoded=$(printf '%s' "v${RELEASE_VERSION}" | jq -sRr @uri)
+          if existing_ref=$(gh api "repos/${REPO}/git/ref/tags/${encoded}" 2>/dev/null); then
+            existing_type=$(printf '%s' "$existing_ref" | jq -r '.object.type')
+            existing_obj=$(printf '%s' "$existing_ref" | jq -r '.object.sha')
+            if [ "$existing_type" = "tag" ]; then
+              existing_commit=$(gh api "repos/${REPO}/git/tags/${existing_obj}" --jq '.object.sha')
+            else
+              existing_commit="$existing_obj"
+            fi
+            if [ "$existing_commit" = "$COMMIT_SHA" ]; then
+              echo "Tag v${RELEASE_VERSION} already points at ${COMMIT_SHA}, nothing to do"
+              exit 0
+            fi
+            echo "::error::Tag v${RELEASE_VERSION} exists on origin but points at ${existing_commit} (expected ${COMMIT_SHA})"
+            exit 1
+          fi
 
-          gh api repos/${{ github.repository }}/git/refs \
-            -f ref='refs/tags/v${{ steps.extract-version.outputs.release_version }}' \
-            -f sha="$TAG_SHA"
+          tag_obj_sha=$(gh api --method POST "repos/${REPO}/git/tags" \
+            -f "tag=v${RELEASE_VERSION}" \
+            -f "message=chore(monorepo): release v${RELEASE_VERSION}" \
+            -f "object=${COMMIT_SHA}" \
+            -f "type=commit" \
+            --jq '.sha')
+
+          gh api --method POST "repos/${REPO}/git/refs" \
+            -f "ref=refs/tags/v${RELEASE_VERSION}" \
+            -f "sha=${tag_obj_sha}"
 
       - name: Setup Node
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
@@ -319,7 +357,7 @@ jobs:
       contents: read
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        uses: step-security/harden-runner@8d3c67de8e2fe68ef647c8db1e6a09f647780f40 # v2.19.0
         with:
           egress-policy: audit
 

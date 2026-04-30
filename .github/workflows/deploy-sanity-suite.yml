@@ -65,17 +65,21 @@ jobs:
 
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        uses: step-security/harden-runner@8d3c67de8e2fe68ef647c8db1e6a09f647780f40 # v2.19.0
         with:
           egress-policy: audit
 
       - name: Determine checkout SHA
         id: getSHA
+        env:
+          USE_PR_HEAD_SHA: ${{ inputs.use_pr_head_sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          DEFAULT_SHA: ${{ github.sha }}
         run: |
-          if ${{ inputs.use_pr_head_sha }}; then
-            sha=$(echo ${{ github.event.pull_request.head.sha }})
+          if [ "$USE_PR_HEAD_SHA" = "true" ]; then
+            sha="$PR_HEAD_SHA"
           else
-            sha=$(echo ${{ github.sha }})
+            sha="$DEFAULT_SHA"
           fi
           echo "Checkout SHA: $sha"
           echo "SHA=$sha" >> $GITHUB_OUTPUT
@@ -87,21 +91,24 @@ jobs:
 
       - name: Configure deployment options
         id: deployment-options
+        env:
+          INPUT_ENVIRONMENT: ${{ inputs.environment }}
+          INPUT_BETA_IDENTIFIER: ${{ inputs.beta_identifier }}
         run: |
           current_version=$(jq -r .version packages/sanity-suite/package.json)
           echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
           echo "DATE=$(date)" >> $GITHUB_ENV
-          echo "BUGSNAG_RELEASE_STAGE=${{ inputs.environment }}" >> $GITHUB_ENV
+          echo "BUGSNAG_RELEASE_STAGE=$INPUT_ENVIRONMENT" >> $GITHUB_ENV
 
-          if [ "${{ inputs.environment }}" == "staging" ]; then
+          if [ "$INPUT_ENVIRONMENT" == "staging" ]; then
             echo "SDK_CDN_VERSION_PATH_PREFIX=staging/latest/" >> $GITHUB_ENV
             echo "SUITE_CDN_PATH=/staging" >> $GITHUB_ENV
-          elif [ "${{ inputs.environment }}" == "production" ]; then
+          elif [ "$INPUT_ENVIRONMENT" == "production" ]; then
             echo "SDK_CDN_VERSION_PATH_PREFIX=" >> $GITHUB_ENV
             echo "SUITE_CDN_PATH=" >> $GITHUB_ENV
-          elif [ "${{ inputs.environment }}" == "beta" ]; then
-            echo "SDK_CDN_VERSION_PATH_PREFIX=beta/${{ inputs.beta_identifier }}/" >> $GITHUB_ENV
-            echo "SUITE_CDN_PATH=/beta/${{ inputs.beta_identifier }}" >> $GITHUB_ENV
+          elif [ "$INPUT_ENVIRONMENT" == "beta" ]; then
+            echo "SDK_CDN_VERSION_PATH_PREFIX=beta/${INPUT_BETA_IDENTIFIER}/" >> $GITHUB_ENV
+            echo "SUITE_CDN_PATH=/beta/${INPUT_BETA_IDENTIFIER}" >> $GITHUB_ENV
           else
             echo "SDK_CDN_VERSION_PATH_PREFIX=dev/latest/" >> $GITHUB_ENV
             echo "SUITE_CDN_PATH=/dev" >> $GITHUB_ENV
@@ -111,13 +118,13 @@ jobs:
         uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c  # master
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7  # v6.0.0
+        uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37  # v6.1.0
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_S3_SYNC_ROLE }}
           aws-region: us-east-1
 
       - name: Setup Node
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'

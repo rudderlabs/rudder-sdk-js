@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/filename-case -- kept for backwards compatibility with existing import paths from analytics-v1.1 */
 // map b/w the names of integrations coming from config plane to integration module names
 const configToIntNames = {
   HS: 'HubSpot',

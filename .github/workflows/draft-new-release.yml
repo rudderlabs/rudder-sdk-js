@@ -40,13 +40,13 @@ jobs:
       contents: read # to checkout repository code
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        uses: step-security/harden-runner@8d3c67de8e2fe68ef647c8db1e6a09f647780f40 # v2.19.0
         with:
           egress-policy: audit
 
       - name: Generate GitHub App Token
         id: generate-token
-        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
+        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
         with:
           app-id: ${{ vars.RELEASE_APP_ID }}
           private-key: ${{ secrets.RELEASE_PRIVATE_KEY }}
@@ -60,7 +60,7 @@ jobs:
           token: ${{ steps.generate-token.outputs.token }}
 
       - name: Setup Node
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
@@ -157,6 +157,90 @@ jobs:
           commit-message: 'chore: update versions and generate release changelog'
           files: |
             .
+
+      # jscutlery runs with --skipCommit=true, so it writes version/changelog files but
+      # creates no commits or tags. The signed-commit action above packages all file
+      # changes into one verified commit on the release branch. This step then creates
+      # annotated tag objects (via the Git Data API) for each bumped package at that
+      # commit, and points tag refs at them.
+      #
+      # Tag objects are unsigned. GitHub's Git Data API for `POST /git/tags` does not
+      # accept a signature in its payload; producing a signed tag would require running
+      # `git tag -s` locally with a signing key provisioned as a workflow secret, which
+      # is out of scope. Accepted tradeoff: tag objects show "Unverified" while the
+      # target commit remains verified. Same behavior as the monorepo v<version> tag
+      # in publish-new-release.yml.
+      #
+      # Affected-package filter: a package gets a new tag only if its package.json
+      # `version` differs between the release branch HEAD and origin/main. Unchanged
+      # packages are skipped.
+      #
+      # Idempotence: if the tag already exists on origin, dereference it and only skip
+      # when it already points at the current release_sha. If it points elsewhere, fail
+      # loudly so we don't quietly leave a mispointed tag in place (that class of bug is
+      # exactly what caused the cc04066f-vs-bc75c04 mismatch in the previous release).
+      - name: Push release tags to release branch HEAD
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+          BRANCH_NAME: ${{ steps.create-release.outputs.branch_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          git fetch origin "$BRANCH_NAME"
+          git fetch --no-tags origin main
+          release_sha=$(git rev-parse "origin/$BRANCH_NAME")
+          echo "Release branch HEAD: $release_sha"
+
+          for pj in packages/*/project.json; do
+            tag=$(jq -r '.targets.github.options.tag // empty' "$pj")
+            [ -z "$tag" ] && continue
+
+            pkg_dir=$(dirname "$pj")
+            current_version=$(git show "origin/${BRANCH_NAME}:${pkg_dir}/package.json" 2>/dev/null | jq -r '.version // empty' 2>/dev/null || echo "")
+            prev_version=$(git show "origin/main:${pkg_dir}/package.json" 2>/dev/null | jq -r '.version // empty' 2>/dev/null || echo "")
+
+            if [ -z "$current_version" ]; then
+              echo "::error::Unable to read version for ${pkg_dir}; refusing to tag ${tag}"
+              exit 1
+            fi
+
+            if [ -n "$prev_version" ] && [ "$current_version" = "$prev_version" ]; then
+              echo "Skipping ${tag} — version unchanged vs origin/main"
+              continue
+            fi
+
+            encoded=$(printf '%s' "$tag" | jq -sRr @uri)
+            if existing_ref=$(gh api "repos/${REPO}/git/ref/tags/${encoded}" 2>/dev/null); then
+              existing_type=$(printf '%s' "$existing_ref" | jq -r '.object.type')
+              existing_obj=$(printf '%s' "$existing_ref" | jq -r '.object.sha')
+              if [ "$existing_type" = "tag" ]; then
+                existing_commit=$(gh api "repos/${REPO}/git/tags/${existing_obj}" --jq '.object.sha')
+              else
+                existing_commit="$existing_obj"
+              fi
+              if [ "$existing_commit" = "$release_sha" ]; then
+                echo "Tag ${tag} already points at ${release_sha}, skipping"
+                continue
+              fi
+              echo "::error::Tag ${tag} exists on origin but points at ${existing_commit} (expected ${release_sha})"
+              exit 1
+            fi
+
+            echo "Creating annotated tag ${tag} -> ${release_sha}"
+
+            pkg_scope="${tag%@*}"
+            pkg_version="${tag##*@}"
+
+            tag_obj_sha=$(gh api --method POST "repos/${REPO}/git/tags" \
+              -f "tag=${tag}" \
+              -f "message=chore(${pkg_scope}): release version ${pkg_version}" \
+              -f "object=${release_sha}" \
+              -f "type=commit" \
+              --jq '.sha')
+
+            gh api --method POST "repos/${REPO}/git/refs" \
+              -f "ref=refs/tags/${tag}" \
+              -f "sha=${tag_obj_sha}"
+          done
 
       - name: Generate packages versions table
         id: packages-versions
@@ -259,7 +343,7 @@ jobs:
 
       - name: Upload release info artifact
         if: ${{ steps.slack-info.outputs.thread_ts != '' && steps.slack-info.outputs.channel_id != '' }}
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: release-info-v${{ env.NEW_VERSION_VALUE }}-${{ github.event.inputs.release_ticket_id }}
           path: release-info/
@@ -293,7 +377,7 @@ jobs:
       - name: Delete hotfix release base branch
         continue-on-error: true
         if: startsWith(github.ref_name, 'hotfix/')
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
           script: |

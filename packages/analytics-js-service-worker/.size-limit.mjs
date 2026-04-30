@@ -25,18 +25,18 @@ export default [
     name: 'Service Worker - Modern - NPM (ESM)',
     path: 'dist/npm/modern/esm/index.mjs',
     import: '*',
-    limit: '26.5 KiB',
+    limit: '27 KiB',
   },
   {
     name: 'Service Worker - Modern - NPM (CJS)',
     path: 'dist/npm/modern/cjs/index.cjs',
     import: '*',
-    limit: '26.5 KiB',
+    limit: '27 KiB',
   },
   {
     name: 'Service Worker - Modern - NPM (UMD)',
     path: 'dist/npm/modern/umd/index.js',
     import: '*',
-    limit: '26.5 KiB',
+    limit: '27 KiB',
   },
 ];

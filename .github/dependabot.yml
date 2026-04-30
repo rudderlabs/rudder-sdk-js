@@ -17,7 +17,13 @@ updates:
         patterns:
           - "*"
 
+  # Runtime (shipped) prod deps + dev deps for the monorepo root.
+  # Prod bumps are committed as `fix(deps):` so the release pipeline's conventional-commit
+  # analyzer picks them up and bumps the packages that consume them (dev bumps stay as chore).
+  # Toolchain packages (@nx/*, @rollup/rollup-*, @swc/core-*) are excluded here and handled below.
   - package-ecosystem: "npm"
+    cooldown:
+      default-days: 5
     directory: "/"
     schedule:
       interval: "cron"
@@ -28,6 +34,14 @@ updates:
     labels:
       - "dependencies"
     open-pull-requests-limit: 10
+    commit-message:
+      prefix: "fix"
+      prefix-development: "chore"
+      include: "scope"
+    ignore:
+      - dependency-name: "@nx/*"
+      - dependency-name: "@rollup/rollup-*"
+      - dependency-name: "@swc/core-*"
     groups:
       npm-dev-deps:
         patterns:
@@ -49,8 +63,41 @@ updates:
           - "major"
         dependency-type: "production"
 
+  # Build toolchain packages — Nx (JS tooling + native runners) and Rollup/SWC native
+  # binaries. None of these ship in published bundles, so bumps are committed as
+  # `chore(deps):` and intentionally skipped by the release analyzer.
+  - package-ecosystem: "npm"
+    cooldown:
+      default-days: 5
+    directory: "/"
+    schedule:
+      interval: "cron"
+      # every wednesday at 00:01 UTC
+      cronjob: "1 0 * * 3"
+      timezone: "UTC"
+    target-branch: "develop"
+    labels:
+      - "dependencies"
+      - "toolchain"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    allow:
+      - dependency-name: "@nx/*"
+      - dependency-name: "@rollup/rollup-*"
+      - dependency-name: "@swc/core-*"
+    groups:
+      npm-toolchain-deps:
+        patterns:
+          - "@nx/*"
+          - "@rollup/rollup-*"
+          - "@swc/core-*"
+
   # All sample applications managed together (excluding gatsby)
   - package-ecosystem: "npm"
+    cooldown:
+      default-days: 5
     directories:
       - "/examples/angular/sample-app"
       - "/examples/nextjs/hooks/sample-app"
@@ -88,6 +135,8 @@ updates:
 
   # Gatsby sample applications with special dependency ignores
   - package-ecosystem: "npm"
+    cooldown:
+      default-days: 5
     directories:
       - "/examples/gatsby/sample-gatsby-plugin-usage"
       - "/examples/gatsby/sample-gatsby-site"

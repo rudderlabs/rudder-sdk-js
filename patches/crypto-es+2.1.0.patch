@@ -2,46 +2,59 @@ diff --git a/node_modules/crypto-es/lib/cipher-core.js b/node_modules/crypto-es/
 index 54a75ea..c784f58 100644
 --- a/node_modules/crypto-es/lib/cipher-core.js
 +++ b/node_modules/crypto-es/lib/cipher-core.js
-@@ -8,6 +8,29 @@ import {
+@@ -8,6 +8,42 @@ import {
  import { Base64 } from './enc-base64.js';
  import { EvpKDFAlgo } from './evpkdf.js';
- 
-+// ObjectAssign polyfill
+
++// -----------------------------------------------------------------------------
++// IE11 compatibility shim for Object.assign
++//
++// Why this patch exists:
++//   crypto-es ships as native ESM and calls `Object.assign` directly inside its
++//   module body. The SDK's legacy bundle must keep working in IE11, which does
++//   not implement `Object.assign` natively.
++//
++//   The SDK *does* load polyfill.io at runtime via CapabilitiesManager, but
++//   that loader is asynchronous and runs AFTER crypto-es's module-level code
++//   (class statics, default configs) has already been evaluated — see
++//   `SerializableCipher.cfg = Object.assign(...)` and
++//   `PasswordBasedCipher.cfg = Object.assign(...)` below. Without this shim,
++//   those evaluations throw `Object.assign is not a function` before any
++//   polyfill has had a chance to attach.
++//
++//   This is the minimum-viable fix: a local `ObjectAssign` that falls back to
++//   a spec-compliant implementation only when the runtime lacks the native
++//   one. Every `Object.assign(...)` call in this file is rewritten to call it.
++//
++// Scope:
++//   Only `cipher-core.js` is patched — it contains the call sites actually
++//   exercised by the SDK in legacy builds. If new `Object.assign` usages
++//   surface in other crypto-es files (e.g. core.js), extend the same pattern
++//   there.
++// -----------------------------------------------------------------------------
 +const ObjectAssign = typeof Object.assign !== "function" ? function (target) {
-+  if (target == null) {
-+    throw new TypeError('Cannot convert undefined or null to object');
-+  }
-+
++  if (target == null) throw new TypeError('Cannot convert undefined or null to object');
 +  target = Object(target);
-+
 +  for (let index = 1; index < arguments.length; index++) {
 +    const source = arguments[index];
-+
-+    if (source != null) {
-+      for (const key in source) {
-+        if (Object.prototype.hasOwnProperty.call(source, key)) {
-+          target[key] = source[key];
-+        }
-+      }
-+    }
++    if (source != null) for (const key in source) if (Object.prototype.hasOwnProperty.call(source, key)) target[key] = source[key];
 +  }
-+
 +  return target;
 +} : Object.assign;
 +
  /**
   * Abstract base cipher template.
   *
-@@ -38,7 +61,7 @@ export class Cipher extends BufferedBlockAlgorithm {
+@@ -38,7 +74,7 @@ export class Cipher extends BufferedBlockAlgorithm {
       *
       * @property {WordArray} iv The IV to use for this operation.
       */
 -    this.cfg = Object.assign(new Base(), cfg);
 +    this.cfg = ObjectAssign(new Base(), cfg);
- 
+
      // Store transform mode and key
      this._xformMode = xformMode;
-@@ -425,7 +448,7 @@ export class BlockCipher extends Cipher {
+@@ -425,7 +461,7 @@ export class BlockCipher extends Cipher {
       * @property {Mode} mode The block mode to use. Default: CBC
       * @property {Padding} padding The padding strategy to use. Default: Pkcs7
       */
@@ -50,25 +63,25 @@ index 54a75ea..c784f58 100644
        {
          mode: CBC,
          padding: Pkcs7,
-@@ -644,7 +667,7 @@ export class SerializableCipher extends Base {
+@@ -644,7 +680,7 @@ export class SerializableCipher extends Base {
     */
    static encrypt(cipher, message, key, cfg) {
      // Apply config defaults
 -    const _cfg = Object.assign(new Base(), this.cfg, cfg);
 +    const _cfg = ObjectAssign(new Base(), this.cfg, cfg);
- 
+
      // Encrypt
      const encryptor = cipher.createEncryptor(key, _cfg);
-@@ -691,7 +714,7 @@ export class SerializableCipher extends Base {
+@@ -691,7 +727,7 @@ export class SerializableCipher extends Base {
      let _ciphertext = ciphertext;
- 
+
      // Apply config defaults
 -    const _cfg = Object.assign(new Base(), this.cfg, cfg);
 +    const _cfg = ObjectAssign(new Base(), this.cfg, cfg);
- 
+
      // Convert string to CipherParams
      _ciphertext = this._parse(_ciphertext, _cfg.format);
-@@ -733,7 +756,7 @@ export class SerializableCipher extends Base {
+@@ -733,7 +769,7 @@ export class SerializableCipher extends Base {
   *    The formatting strategy to convert cipher param objects to and from a string.
   *    Default: OpenSSL
   */
@@ -77,25 +90,25 @@ index 54a75ea..c784f58 100644
    new Base(),
    { format: OpenSSLFormatter },
  );
-@@ -811,7 +834,7 @@ export class PasswordBasedCipher extends SerializableCipher {
+@@ -811,7 +847,7 @@ export class PasswordBasedCipher extends SerializableCipher {
     */
    static encrypt(cipher, message, password, cfg) {
      // Apply config defaults
 -    const _cfg = Object.assign(new Base(), this.cfg, cfg);
 +    const _cfg = ObjectAssign(new Base(), this.cfg, cfg);
- 
+
      // Derive key and other params
      const derivedParams = _cfg.kdf.execute(password, cipher.keySize, cipher.ivSize, _cfg.salt, _cfg.hasher);
-@@ -854,7 +877,7 @@ export class PasswordBasedCipher extends SerializableCipher {
+@@ -854,7 +890,7 @@ export class PasswordBasedCipher extends SerializableCipher {
      let _ciphertext = ciphertext;
- 
+
      // Apply config defaults
 -    const _cfg = Object.assign(new Base(), this.cfg, cfg);
 +    const _cfg = ObjectAssign(new Base(), this.cfg, cfg);
- 
+
      // Convert string to CipherParams
      _ciphertext = this._parse(_ciphertext, _cfg.format);
-@@ -880,4 +903,4 @@ export class PasswordBasedCipher extends SerializableCipher {
+@@ -880,4 +916,4 @@ export class PasswordBasedCipher extends SerializableCipher {
   *     The key derivation function to use to generate a key and IV from a password.
   *     Default: OpenSSL
   */
