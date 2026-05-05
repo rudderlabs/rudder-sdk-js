@@ -47,6 +47,7 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
           REPO: ${{ github.repository }}
+          HOTFIX_BRANCH_NAME: ${{ github.event.inputs.hotfix_branch_name }}
         run: |
           chmod +x scripts/create-hotfix-branch.sh
-          ./scripts/create-hotfix-branch.sh "${{ github.event.inputs.hotfix_branch_name }}"
+          ./scripts/create-hotfix-branch.sh "$HOTFIX_BRANCH_NAME"

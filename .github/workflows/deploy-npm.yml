@@ -200,13 +200,15 @@ jobs:
 
       - name: Modify package versions
         if: inputs.version_suffix != ''
+        env:
+          VERSION_SUFFIX: ${{ inputs.version_suffix }}
         run: |
           CURRENT_VERSION_JS=$(jq -r .version packages/analytics-js/package.json)
           CURRENT_VERSION_V1=$(jq -r .version packages/analytics-v1.1/package.json)
 
           # Append the suffix to create new versions
-          NEW_VERSION_JS="${CURRENT_VERSION_JS}-${{ inputs.version_suffix }}"
-          NEW_VERSION_V1="${CURRENT_VERSION_V1}-${{ inputs.version_suffix }}"
+          NEW_VERSION_JS="${CURRENT_VERSION_JS}-${VERSION_SUFFIX}"
+          NEW_VERSION_V1="${CURRENT_VERSION_V1}-${VERSION_SUFFIX}"
 
           echo "Updating versions:"
           echo "analytics-js: $CURRENT_VERSION_JS -> $NEW_VERSION_JS"
@@ -271,12 +273,13 @@ jobs:
           HUSKY: 0
           NPM_CONFIG_PROVENANCE: true
           PUBLISH_PROJECTS: ${{ needs.determine-affected.outputs.projects }}
+          ENVIRONMENT: ${{ inputs.environment }}
         run: |
           # Remove unnecessary fields from package.json before publishing
           ./scripts/make-package-json-publish-ready.sh
 
           TAG_OPTION=""
-          if [[ "${{ inputs.environment }}" == "beta" ]]; then
+          if [[ "$ENVIRONMENT" == "beta" ]]; then
             TAG_OPTION="--tag=beta"
           fi
 
