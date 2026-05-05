@@ -65,7 +65,7 @@ jobs:
 
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@8d3c67de8e2fe68ef647c8db1e6a09f647780f40 # v2.19.0
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
         with:
           egress-policy: audit
 
@@ -175,7 +175,7 @@ jobs:
 
       - name: Send message to Slack channel
         id: slack
-        uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95  # v3.0.1
+        uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c  # v3.0.3
         continue-on-error: true
         env:
           PROJECT_NAME: ${{ format('Sanity Suite - {0}', (inputs.environment == 'production' && 'Production') || (inputs.environment == 'staging' && 'Staging') || (inputs.environment == 'development' && 'Development') || 'Beta') }}
