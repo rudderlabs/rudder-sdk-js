@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@rudderstack/analytics-js": "*",
-    "@tailwindcss/postcss": "4.2.2",
+    "@tailwindcss/postcss": "4.2.4",
     "eslint": "10.0.2",
     "eslint-config-next": "16.2.4",
     "next": "16.2.4",
@@ -26,7 +26,7 @@
     "@types/react": "19.2.14",
     "autoprefixer": "10.5.0",
     "postcss": "8.5.10",
-    "tailwindcss": "4.2.2"
+    "tailwindcss": "4.2.4"
   },
   "overrides": {
     "cross-spawn": "7.0.6",
