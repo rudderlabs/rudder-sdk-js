@@ -165,7 +165,7 @@
     "jest": "30.3.0",
     "jest-date-mock": "1.0.10",
     "jest-environment-jsdom": "30.3.0",
-    "jest-junit": "16.0.0",
+    "jest-junit": "17.0.0",
     "jest-sonar": "0.2.16",
     "jest-watch-typeahead": "3.0.1",
     "join-component": "1.1.0",
