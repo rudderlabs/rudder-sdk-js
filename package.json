@@ -78,7 +78,7 @@
     "@segment/top-domain": "3.0.1",
     "@vespaiach/axios-fetch-adapter": "0.3.1",
     "assert": "2.1.0",
-    "axios": "1.15.1",
+    "axios": "1.15.2",
     "axios-retry": "4.5.0",
     "component-each": "0.2.6",
     "component-emitter": "2.0.0",
@@ -206,10 +206,10 @@
     "@nx/nx-linux-x64-gnu": "22.6.5",
     "@nx/nx-win32-x64-msvc": "22.6.5",
     "@rollup/rollup-linux-x64-gnu": "4.60.2",
-    "@swc/core-linux-x64-gnu": "1.15.26",
-    "@swc/core-darwin-x64": "1.15.26",
-    "@swc/core-win32-x64-msvc": "1.15.26",
-    "@swc/core-darwin-arm64": "1.15.26"
+    "@swc/core-linux-x64-gnu": "1.15.30",
+    "@swc/core-darwin-x64": "1.15.30",
+    "@swc/core-win32-x64-msvc": "1.15.30",
+    "@swc/core-darwin-arm64": "1.15.30"
   },
   "overrides": {
     "rudder-component-cookie": {
