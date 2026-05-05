@@ -83,6 +83,7 @@ jobs:
         id: create-release
         env:
           HUSKY: 0
+          RELEASE_TICKET_ID: ${{ github.event.inputs.release_ticket_id }}
         run: |
           source_branch_name=${GITHUB_REF#refs/heads/}
           release_type=release
@@ -96,7 +97,7 @@ jobs:
           new_version=$(jq -r .version package.json)
           git reset --hard
 
-          branch_name="${release_type}/${new_version}-${{ github.event.inputs.release_ticket_id }}"
+          branch_name="${release_type}/${new_version}-${RELEASE_TICKET_ID}"
 
           echo "Source branch for new release is $source_branch_name"
           echo "Current version is $current_version"
@@ -252,21 +253,23 @@ jobs:
         id: create-pr
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+          BRANCH_NAME: ${{ steps.create-release.outputs.branch_name }}
+          RELEASE_TICKET_ID: ${{ github.event.inputs.release_ticket_id }}
         run: |
-          pr_title="chore(release): merge ${{ steps.create-release.outputs.branch_name }} into main [${{ github.event.inputs.release_ticket_id }}]"
-          
+          pr_title="chore(release): merge ${BRANCH_NAME} into main [${RELEASE_TICKET_ID}]"
+
           # Create PR body with proper formatting
           cat > pr_body.md << EOF
           :crown: **Automated Release PR**
 
-          This pull request was created automatically by the GitHub Actions workflow. It merges the release branch (\`${{ steps.create-release.outputs.branch_name }}\`) into the \`main\` branch.
+          This pull request was created automatically by the GitHub Actions workflow. It merges the release branch (\`${BRANCH_NAME}\`) into the \`main\` branch.
 
           This ensures that the latest release branch changes are incorporated into the \`main\` branch for production.
 
           ### Details
           - **Monorepo Release Version**: v${{ env.NEW_VERSION_VALUE }}
-          - **Release Branch**: \`${{ steps.create-release.outputs.branch_name }}\`
-          - **Related Ticket**: [${{ github.event.inputs.release_ticket_id }}](https://linear.app/rudderstack/issue/${{ github.event.inputs.release_ticket_id }})
+          - **Release Branch**: \`${BRANCH_NAME}\`
+          - **Related Ticket**: [${RELEASE_TICKET_ID}](https://linear.app/rudderstack/issue/${RELEASE_TICKET_ID})
 
           ### Version updates
 
@@ -275,21 +278,23 @@ jobs:
           ---
           Please review and merge when ready. :rocket:
           EOF
-          
+
           # Create the PR using GitHub CLI and capture the URL
           pr_url=$(gh pr create \
             --base main \
-            --head ${{ steps.create-release.outputs.branch_name }} \
+            --head "$BRANCH_NAME" \
             --title "$pr_title" \
             --body-file pr_body.md)
-          
+
           echo "pr_url=$pr_url" >> $GITHUB_OUTPUT
 
       - name: Extract Slack channel and thread info
         id: slack-info
         continue-on-error: true
+        env:
+          SLACK_MESSAGE_LINK: ${{ github.event.inputs.slack_message_link }}
         run: |
-          link="${{ github.event.inputs.slack_message_link }}"
+          link="${SLACK_MESSAGE_LINK}"
           
           # Extract channel ID from the link (after /archives/ and before the next /)
           channel_id=$(echo "$link" | sed -n 's|.*\/archives\/\([^\/]*\)\/.*|\1|p')
@@ -321,23 +326,36 @@ jobs:
 
       - name: Create release info artifact
         if: ${{ steps.slack-info.outputs.thread_ts != '' && steps.slack-info.outputs.channel_id != '' }}
+        env:
+          CHANNEL_ID: ${{ steps.slack-info.outputs.channel_id }}
+          THREAD_TS: ${{ steps.slack-info.outputs.thread_ts }}
+          PR_URL: ${{ steps.create-pr.outputs.pr_url }}
+          NEW_VERSION_VALUE: ${{ env.NEW_VERSION_VALUE }}
+          RELEASE_BRANCH: ${{ steps.create-release.outputs.branch_name }}
+          RELEASE_TICKET_ID: ${{ github.event.inputs.release_ticket_id }}
         run: |
           # Create directory for artifact
           mkdir -p release-info
-          
-          # Create JSON file with release information
-          cat > release-info/release-info.json << EOF
-          {
-            "channel_id": "${{ steps.slack-info.outputs.channel_id }}",
-            "thread_ts": "${{ steps.slack-info.outputs.thread_ts }}",
-            "pr_url": "${{ steps.create-pr.outputs.pr_url }}",
-            "release_version": "${{ env.NEW_VERSION_VALUE }}",
-            "release_branch": "${{ steps.create-release.outputs.branch_name }}",
-            "release_ticket_id": "${{ github.event.inputs.release_ticket_id }}",
-            "created_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          }
-          EOF
-          
+
+          # Create JSON file with release information using jq for safe construction
+          jq -n \
+            --arg channel_id "$CHANNEL_ID" \
+            --arg thread_ts "$THREAD_TS" \
+            --arg pr_url "$PR_URL" \
+            --arg release_version "$NEW_VERSION_VALUE" \
+            --arg release_branch "$RELEASE_BRANCH" \
+            --arg release_ticket_id "$RELEASE_TICKET_ID" \
+            --arg created_at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            '{
+              channel_id: $channel_id,
+              thread_ts: $thread_ts,
+              pr_url: $pr_url,
+              release_version: $release_version,
+              release_branch: $release_branch,
+              release_ticket_id: $release_ticket_id,
+              created_at: $created_at
+            }' > release-info/release-info.json
+
           echo "Created release info artifact:"
           cat release-info/release-info.json
 
@@ -378,10 +396,12 @@ jobs:
         continue-on-error: true
         if: startsWith(github.ref_name, 'hotfix/')
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          BRANCH_TO_DELETE: ${{ github.ref_name }}
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
           script: |
-            const branchToDelete = '${{ github.ref_name }}';
+            const branchToDelete = process.env.BRANCH_TO_DELETE;
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const ref = `heads/${branchToDelete}`;
