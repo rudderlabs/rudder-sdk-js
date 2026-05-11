@@ -67,6 +67,56 @@ describe('GoogleAds init tests', () => {
     googleAds.init();
     expect(typeof window.gtag).toBe('function');
   });
+
+  const removeGoogleAdsScripts = () => {
+    document.querySelectorAll("[id='googleAds-integration']").forEach(script => script.remove());
+  };
+
+  beforeEach(() => {
+    removeGoogleAdsScripts();
+  });
+
+  afterEach(() => {
+    removeGoogleAdsScripts();
+  });
+
+  test('uses default GTM domain when sdkBaseUrl is not provided', () => {
+    googleAds = new GoogleAds({ conversionID: mockConversionId }, {}, destinationInfo);
+    googleAds.init();
+
+    const script = document.querySelector("[id='googleAds-integration']");
+    expect(script.getAttribute('src')).toBe(
+      `https://www.googletagmanager.com/gtag/js?id=${mockConversionId}`,
+    );
+  });
+
+  test('uses custom sdkBaseUrl when provided', () => {
+    googleAds = new GoogleAds(
+      { conversionID: mockConversionId, sdkBaseUrl: 'https://custom-gtm.example.com' },
+      {},
+      destinationInfo,
+    );
+    googleAds.init();
+
+    const script = document.querySelector("[id='googleAds-integration']");
+    expect(script.getAttribute('src')).toBe(
+      `https://custom-gtm.example.com/gtag/js?id=${mockConversionId}`,
+    );
+  });
+
+  test('normalizes trailing slash in sdkBaseUrl', () => {
+    googleAds = new GoogleAds(
+      { conversionID: mockConversionId, sdkBaseUrl: 'https://custom-gtm.example.com///' },
+      {},
+      destinationInfo,
+    );
+    googleAds.init();
+
+    const script = document.querySelector("[id='googleAds-integration']");
+    expect(script.getAttribute('src')).toBe(
+      `https://custom-gtm.example.com/gtag/js?id=${mockConversionId}`,
+    );
+  });
 });
 
 describe('GoogleAds Identify tests', () => {
