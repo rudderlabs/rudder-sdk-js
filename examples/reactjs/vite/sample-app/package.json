@@ -23,8 +23,8 @@
   "devDependencies": {
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
-    "@typescript-eslint/eslint-plugin": "8.59.0",
-    "@typescript-eslint/parser": "8.59.0",
+    "@typescript-eslint/eslint-plugin": "8.59.1",
+    "@typescript-eslint/parser": "8.59.1",
     "@vitejs/plugin-react-swc": "4.3.0",
     "eslint": "9.39.4",
     "eslint-plugin-react": "7.37.5",
