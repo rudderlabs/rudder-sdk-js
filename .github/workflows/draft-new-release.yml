@@ -46,7 +46,7 @@ jobs:
 
       - name: Generate GitHub App Token
         id: generate-token
-        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
           app-id: ${{ vars.RELEASE_APP_ID }}
           private-key: ${{ secrets.RELEASE_PRIVATE_KEY }}
@@ -150,7 +150,7 @@ jobs:
           npm install
 
       - name: Create verified commit and push changes to release branch
-        uses: ryancyq/github-signed-commit@e9f3b28c80da7be66d24b8f501a5abe82a6b855f # v1.2.0
+        uses: ryancyq/github-signed-commit@6afa32d8aa9819faddc248e6258e9c11ec05ecc8 # v1.4.0
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         with:

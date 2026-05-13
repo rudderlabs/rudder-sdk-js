@@ -111,6 +111,10 @@ export default class PinterestTag {
     window.pintrk('track', eventName, pinterestObject);
   }
 
+  setEventId(payload, message) {
+    payload.event_id = get(message, `${this.deduplicationKey}`) ?? message.messageId;
+  }
+
   /**
    * Send rudder property and mappings array. This function will return data mapping destination property
    * @param {*} properties
@@ -199,7 +203,7 @@ export default class PinterestTag {
     if (!message?.event) {
       return;
     }
-    const { properties, event, messageId } = message;
+    const { properties, event } = message;
     const destEventArray = getDestinationEventName(
       event,
       this.userDefinedEventsMapping,
@@ -207,31 +211,35 @@ export default class PinterestTag {
     );
     destEventArray.forEach(eventName => {
       const pinterestObject = this.generatePinterestObject(properties);
-      pinterestObject.event_id = get(message, `${this.deduplicationKey}`) || messageId;
+      this.setEventId(pinterestObject, message);
       this.setLdp(message);
       this.sendPinterestTrack(eventName, pinterestObject);
     });
   }
 
   page(rudderElement) {
-    const { category, name } = rudderElement.message;
+    const { message } = rudderElement;
+    const { category, name } = message;
     const pageObject = { name: name || '' };
     let event = 'PageVisit';
     if (category) {
       pageObject.category = category;
       event = 'ViewCategory';
     }
-    this.setLdp(rudderElement.message);
+    this.setEventId(pageObject, message);
+    this.setLdp(message);
     window.pintrk('track', event, pageObject);
   }
 
   identify(rudderElement) {
-    const { context } = rudderElement.message;
-    const userTraits = context?.traits || {};
+    const { message } = rudderElement;
+    const userTraits = message.context?.traits || {};
     const { email } = userTraits;
     if (email) {
       const ldpObject = this.generateLdpObject();
-      window.pintrk('set', { em: email, ...ldpObject });
+      const payload = { em: email, ...ldpObject };
+      this.setEventId(payload, message);
+      window.pintrk('set', payload);
     }
   }
 }
