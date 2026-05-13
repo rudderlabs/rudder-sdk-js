@@ -10,6 +10,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   get-deploy-inputs:
     name: Get Deploy Inputs
@@ -52,6 +55,9 @@ jobs:
           echo "release_ticket_id=$ticket" >> $GITHUB_OUTPUT
 
   deploy:
+    permissions:
+      contents: read
+      id-token: write
     name: Deploy to production environment
     needs: [get-deploy-inputs]
     if: (startsWith(github.event.pull_request.head.ref, 'release/') || startsWith(github.event.pull_request.head.ref, 'hotfix-release/')) && github.event.pull_request.merged == true
@@ -74,6 +80,9 @@ jobs:
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
 
   deploy-sanity-suite:
+    permissions:
+      contents: read
+      id-token: write
     name: Deploy sanity suite
     needs: [get-deploy-inputs]
     if: (startsWith(github.event.pull_request.head.ref, 'release/') || startsWith(github.event.pull_request.head.ref, 'hotfix-release/')) && github.event.pull_request.merged == true

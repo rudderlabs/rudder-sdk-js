@@ -57,6 +57,9 @@ jobs:
           echo "release_ticket_id=$ticket" >> $GITHUB_OUTPUT
 
   deploy:
+    permissions:
+      contents: read
+      id-token: write
     name: Deploy to staging environment
     needs: [get-deploy-inputs]
     # Only allow running this workflow for PRs raised from release branches to main
@@ -82,6 +85,9 @@ jobs:
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
 
   deploy-sanity-suite:
+    permissions:
+      contents: read
+      id-token: write
     name: Deploy sanity suite
     needs: [get-deploy-inputs]
     uses: ./.github/workflows/deploy-sanity-suite.yml
