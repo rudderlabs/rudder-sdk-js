@@ -61,7 +61,7 @@
   },
   "devDependencies": {
     "@bugsnag/js": "8.9.0",
-    "@types/node": "25.6.0"
+    "@types/node": "25.6.2"
   },
   "overrides": {},
   "browserslist": {
