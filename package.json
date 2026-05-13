@@ -206,11 +206,11 @@
     "@nx/nx-darwin-x64": "22.7.1",
     "@nx/nx-linux-x64-gnu": "22.7.1",
     "@nx/nx-win32-x64-msvc": "22.7.1",
-    "@rollup/rollup-linux-x64-gnu": "4.60.2",
-    "@swc/core-linux-x64-gnu": "1.15.32",
-    "@swc/core-darwin-x64": "1.15.32",
-    "@swc/core-win32-x64-msvc": "1.15.32",
-    "@swc/core-darwin-arm64": "1.15.32"
+    "@rollup/rollup-linux-x64-gnu": "4.60.3",
+    "@swc/core-linux-x64-gnu": "1.15.33",
+    "@swc/core-darwin-x64": "1.15.33",
+    "@swc/core-win32-x64-msvc": "1.15.33",
+    "@swc/core-darwin-arm64": "1.15.33"
   },
   "overrides": {
     "rudder-component-cookie": {
