@@ -53,7 +53,7 @@ jobs:
 
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@8d3c67de8e2fe68ef647c8db1e6a09f647780f40 # v2.19.0
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
         with:
           egress-policy: audit
 
@@ -91,13 +91,13 @@ jobs:
 
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@8d3c67de8e2fe68ef647c8db1e6a09f647780f40 # v2.19.0
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
         with:
           egress-policy: audit
 
       - name: Generate GitHub App Token
         id: generate-token
-        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
           app-id: ${{ vars.RELEASE_APP_ID }}
           private-key: ${{ secrets.RELEASE_PRIVATE_KEY }}
@@ -109,13 +109,18 @@ jobs:
 
       - name: Prepare sanity test inputs
         id: prepare_inputs
+        env:
+          INPUT_ENVIRONMENT: ${{ inputs.environment }}
+          MONOREPO_VERSION: ${{ needs.extract-monorepo-version.outputs.version }}
+          INPUT_SANITY_TEST_SUITE_URL: ${{ inputs.sanity_test_suite_url }}
+          INPUT_BUILD_SOURCE_ID: ${{ inputs.build_source_id }}
         run: |
           # Create JSON object with all inputs for the sanity test workflow (compact format)
           inputs_json=$(jq -nc \
-            --arg environment "${{ inputs.environment }}" \
-            --arg monorepo_version "${{ needs.extract-monorepo-version.outputs.version }}" \
-            --arg sanity_test_suite_url "${{ inputs.sanity_test_suite_url }}" \
-            --arg build_source_id "${{ inputs.build_source_id }}" \
+            --arg environment "$INPUT_ENVIRONMENT" \
+            --arg monorepo_version "$MONOREPO_VERSION" \
+            --arg sanity_test_suite_url "$INPUT_SANITY_TEST_SUITE_URL" \
+            --arg build_source_id "$INPUT_BUILD_SOURCE_ID" \
             '{environment: $environment, monorepo_version: $monorepo_version, sanity_test_suite_url: $sanity_test_suite_url, build_source_id: $build_source_id}')
           
           echo "inputs_json=$inputs_json" >> $GITHUB_OUTPUT
@@ -178,13 +183,13 @@ jobs:
 
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@8d3c67de8e2fe68ef647c8db1e6a09f647780f40 # v2.19.0
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
         with:
           egress-policy: audit
 
       - name: Generate GitHub App Token
         id: generate-token
-        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
           app-id: ${{ vars.RELEASE_APP_ID }}
           private-key: ${{ secrets.RELEASE_PRIVATE_KEY }}
@@ -196,13 +201,18 @@ jobs:
 
       - name: Prepare E2E test inputs
         id: prepare_inputs
+        env:
+          INPUT_ENVIRONMENT: ${{ inputs.environment }}
+          MONOREPO_VERSION: ${{ needs.extract-monorepo-version.outputs.version }}
+          INPUT_SANITY_TEST_SUITE_URL: ${{ inputs.sanity_test_suite_url }}
+          INPUT_BUILD_SOURCE_ID: ${{ inputs.build_source_id }}
         run: |
           # Create JSON object with all inputs for the E2E test workflow (compact format)
           inputs_json=$(jq -nc \
-            --arg environment "${{ inputs.environment }}" \
-            --arg monorepo_version "${{ needs.extract-monorepo-version.outputs.version }}" \
-            --arg sanity_test_suite_url "${{ inputs.sanity_test_suite_url }}" \
-            --arg build_source_id "${{ inputs.build_source_id }}" \
+            --arg environment "$INPUT_ENVIRONMENT" \
+            --arg monorepo_version "$MONOREPO_VERSION" \
+            --arg sanity_test_suite_url "$INPUT_SANITY_TEST_SUITE_URL" \
+            --arg build_source_id "$INPUT_BUILD_SOURCE_ID" \
             '{environment: $environment, monorepo_version: $monorepo_version, sanity_test_suite_url: $sanity_test_suite_url, build_source_id: $build_source_id}')
           
           echo "inputs_json=$inputs_json" >> $GITHUB_OUTPUT

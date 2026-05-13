@@ -10,6 +10,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   get-deploy-inputs:
     name: Get Deploy Inputs
@@ -20,13 +23,18 @@ jobs:
       release_ticket_id: ${{ steps.extract-release-info.outputs.release_ticket_id }}
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@8d3c67de8e2fe68ef647c8db1e6a09f647780f40 # v2.19.0
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
         with:
           egress-policy: audit
 
       - name: Set outputs
         id: set-outputs
-        run: echo "trigger_source=${{ format('PR <{0}|#{1}> merged by <{2}|{3}>', github.event.pull_request.html_url, github.event.pull_request.number, format('{0}/{1}', github.server_url, github.actor), github.actor) }}" >> $GITHUB_OUTPUT
+        env:
+          PR_HTML_URL: ${{ github.event.pull_request.html_url }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          SERVER_URL: ${{ github.server_url }}
+          ACTOR: ${{ github.actor }}
+        run: echo "trigger_source=PR <${PR_HTML_URL}|#${PR_NUMBER}> merged by <${SERVER_URL}/${ACTOR}|${ACTOR}>" >> $GITHUB_OUTPUT
 
       - name: Extract release info from branch
         id: extract-release-info
@@ -47,6 +55,9 @@ jobs:
           echo "release_ticket_id=$ticket" >> $GITHUB_OUTPUT
 
   deploy:
+    permissions:
+      contents: read
+      id-token: write
     name: Deploy to production environment
     needs: [get-deploy-inputs]
     if: (startsWith(github.event.pull_request.head.ref, 'release/') || startsWith(github.event.pull_request.head.ref, 'hotfix-release/')) && github.event.pull_request.merged == true
@@ -69,6 +80,9 @@ jobs:
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
 
   deploy-sanity-suite:
+    permissions:
+      contents: read
+      id-token: write
     name: Deploy sanity suite
     needs: [get-deploy-inputs]
     if: (startsWith(github.event.pull_request.head.ref, 'release/') || startsWith(github.event.pull_request.head.ref, 'hotfix-release/')) && github.event.pull_request.merged == true

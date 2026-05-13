@@ -14,7 +14,7 @@
 	},
 	"devDependencies": {
 		"dotenv": "17.4.2",
-		"wrangler": "4.83.0"
+		"wrangler": "4.90.0"
 	},
 	"dependencies": {
 		"@rudderstack/analytics-js-service-worker": "*",

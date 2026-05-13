@@ -63,7 +63,7 @@ jobs:
       head_version: ${{ steps.resolve-versions.outputs.head_version }}
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@8d3c67de8e2fe68ef647c8db1e6a09f647780f40 # v2.19.0
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
         with:
           egress-policy: audit
 
@@ -188,7 +188,7 @@ jobs:
 
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@8d3c67de8e2fe68ef647c8db1e6a09f647780f40 # v2.19.0
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
         with:
           egress-policy: audit
 
@@ -200,13 +200,15 @@ jobs:
 
       - name: Modify package versions
         if: inputs.version_suffix != ''
+        env:
+          VERSION_SUFFIX: ${{ inputs.version_suffix }}
         run: |
           CURRENT_VERSION_JS=$(jq -r .version packages/analytics-js/package.json)
           CURRENT_VERSION_V1=$(jq -r .version packages/analytics-v1.1/package.json)
 
           # Append the suffix to create new versions
-          NEW_VERSION_JS="${CURRENT_VERSION_JS}-${{ inputs.version_suffix }}"
-          NEW_VERSION_V1="${CURRENT_VERSION_V1}-${{ inputs.version_suffix }}"
+          NEW_VERSION_JS="${CURRENT_VERSION_JS}-${VERSION_SUFFIX}"
+          NEW_VERSION_V1="${CURRENT_VERSION_V1}-${VERSION_SUFFIX}"
 
           echo "Updating versions:"
           echo "analytics-js: $CURRENT_VERSION_JS -> $NEW_VERSION_JS"
@@ -271,12 +273,13 @@ jobs:
           HUSKY: 0
           NPM_CONFIG_PROVENANCE: true
           PUBLISH_PROJECTS: ${{ needs.determine-affected.outputs.projects }}
+          ENVIRONMENT: ${{ inputs.environment }}
         run: |
           # Remove unnecessary fields from package.json before publishing
           ./scripts/make-package-json-publish-ready.sh
 
           TAG_OPTION=""
-          if [[ "${{ inputs.environment }}" == "beta" ]]; then
+          if [[ "$ENVIRONMENT" == "beta" ]]; then
             TAG_OPTION="--tag=beta"
           fi
 
@@ -335,7 +338,7 @@ jobs:
         if: env.CURRENT_NPM_VERSION != env.NEW_NPM_VERSION && env.NEW_NPM_VERSION != 'not found'
         id: slack
         continue-on-error: true
-        uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95  # v3.0.1
+        uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c  # v3.0.3
         env:
           PROJECT_NAME: ${{ format('JS SDK NPM Package{0}', (inputs.environment == 'staging' && ' - Staging') || (inputs.environment == 'development' && ' - Development') || (inputs.environment == 'beta' && ' - Beta') || '') }}
           NPM_PACKAGE_URL: ${{ format('https://www.npmjs.com/package/@rudderstack/analytics-js/v/{0}', env.CURRENT_VERSION_VALUE) }}
@@ -407,7 +410,7 @@ jobs:
         if: env.CURRENT_NPM_VERSION_SW != env.NEW_NPM_VERSION_SW && env.NEW_NPM_VERSION_SW != 'not found'
         id: slackSw
         continue-on-error: true
-        uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95  # v3.0.1
+        uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c  # v3.0.3
         env:
           PROJECT_NAME: ${{ format('JS SDK Service Worker NPM Package{0}', (inputs.environment == 'staging' && ' - Staging') || (inputs.environment == 'development' && ' - Development') || (inputs.environment == 'beta' && ' - Beta') || '') }}
           NPM_PACKAGE_URL: ${{ format('https://www.npmjs.com/package/@rudderstack/analytics-js-service-worker/v/{0}', env.CURRENT_VERSION_SW_VALUE) }}
@@ -467,7 +470,7 @@ jobs:
         if: env.CURRENT_NPM_VERSION_COOKIE_UTILS != env.NEW_NPM_VERSION_COOKIE_UTILS && env.NEW_NPM_VERSION_COOKIE_UTILS != 'not found'
         id: slack-cookie-utils
         continue-on-error: true
-        uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95  # v3.0.1
+        uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c  # v3.0.3
         env:
           PROJECT_NAME: ${{ format('JS SDK Cookies Utilities{0}', (inputs.environment == 'staging' && ' - Staging') || (inputs.environment == 'development' && ' - Development') || (inputs.environment == 'beta' && ' - Beta') || '') }}
           NPM_PACKAGE_URL: ${{ format('https://www.npmjs.com/package/@rudderstack/analytics-js-cookies/v/{0}', env.CURRENT_VERSION_COOKIE_UTILS_VALUE) }}

@@ -8,8 +8,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  id-token: write # Allows the JWT to be requested from GitHub's OIDC provider (for AWS and NPM provenance)
-  contents: write # Changed to write to allow creating/updating releases
+  contents: read
 
 env:
   NODE_OPTIONS: "--no-warnings"
@@ -39,21 +38,29 @@ jobs:
       trigger_source: ${{ steps.set-outputs.outputs.trigger_source }}
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@8d3c67de8e2fe68ef647c8db1e6a09f647780f40 # v2.19.0
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
         with:
           egress-policy: audit
 
       - name: Set outputs
         id: set-outputs
-        run: echo "trigger_source=${{ format('Triggered from <{0}|{1}> by <{2}|{3}>', github.ref, github.ref_name, format('{0}/{1}', github.server_url, github.actor), github.actor) }}" >> $GITHUB_OUTPUT
+        env:
+          REF: ${{ github.ref }}
+          REF_NAME: ${{ github.ref_name }}
+          SERVER_URL: ${{ github.server_url }}
+          ACTOR: ${{ github.actor }}
+        run: echo "trigger_source=Triggered from <${REF}|${REF_NAME}> by <${SERVER_URL}/${ACTOR}|${ACTOR}>" >> $GITHUB_OUTPUT
 
   rollback:
     needs: [validate-actor, get-rollback-inputs]
     name: Rollback production deployment
     runs-on: [self-hosted, Linux, X64]
+    permissions:
+      id-token: write
+      contents: write
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@8d3c67de8e2fe68ef647c8db1e6a09f647780f40 # v2.19.0
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
         with:
           egress-policy: audit
 
@@ -61,7 +68,7 @@ jobs:
         uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c  # master
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37  # v6.1.0
+        uses: aws-actions/configure-aws-credentials@d979d5b3a71173a29b74b5b88418bfda9437d885  # v6.1.1
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_PROD_ACCOUNT_ID }}:role/${{ secrets.AWS_PROD_S3_SYNC_ROLE }}
           aws-region: us-east-1
@@ -200,7 +207,7 @@ jobs:
       - name: Send message to Slack channel
         id: slack
         continue-on-error: true
-        uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95  # v3.0.1
+        uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c  # v3.0.3
         env:
           PROJECT_NAME: 'JS SDK Browser Package - Rollback - Production'
           CDN_URL: ${{ format('https://cdn.rudderlabs.com/{0}/modern/rsa.min.js', env.LATEST_VERSION_DIR_NAME) }}

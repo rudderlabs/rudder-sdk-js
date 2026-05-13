@@ -36,10 +36,10 @@ inputs:
 
 outputs:
   status:
-    description: 'Final status of the workflow (completed, timeout)'
+    description: 'Final status of the workflow (completed, timeout, error). "error" is set when a run-detail API call fails.'
     value: ${{ steps.wait_for_workflow.outputs.status }}
   conclusion:
-    description: 'Final conclusion (success, failure, cancelled, etc.)'
+    description: 'Final conclusion (success, failure, cancelled, timeout, error, etc.). "error" is set when a run-detail API call fails.'
     value: ${{ steps.wait_for_workflow.outputs.conclusion }}
   run_id:
     description: 'The workflow run ID'
@@ -47,9 +47,6 @@ outputs:
   run_url:
     description: 'Direct URL to the workflow run'
     value: ${{ steps.trigger_workflow.outputs.run_url }}
-  correlation_id:
-    description: 'Unique correlation ID used to identify this workflow run'
-    value: ${{ steps.trigger_workflow.outputs.correlation_id }}
   job_outputs:
     description: 'JSON string containing all outputs from the artifact (empty object if no artifact or retrieval failed)'
     value: ${{ steps.retrieve_outputs.outputs.job_outputs }}
@@ -65,192 +62,305 @@ runs:
       shell: bash
       env:
         GH_TOKEN: ${{ inputs.github_token }}
+        TARGET_REPO: ${{ inputs.target_repo }}
+        WORKFLOW_FILE: ${{ inputs.workflow_file }}
+        WORKFLOW_REF: ${{ inputs.workflow_ref }}
+        WORKFLOW_NAME: ${{ inputs.workflow_name }}
+        WORKFLOW_INPUTS: ${{ inputs.workflow_inputs }}
       run: |
-        echo "🚀 Triggering '${{ inputs.workflow_name }}' workflow..."
-        echo "📋 Target: ${{ inputs.target_repo }}/${{ inputs.workflow_file }}"
-        echo "🌿 Ref: ${{ inputs.workflow_ref }}"
-        
-        # Generate unique correlation ID for this workflow run
-        # Use portable random generation since uuidgen isn't available on all runners
-        random_hex=$(openssl rand -hex 4 2>/dev/null || printf "%08x" $((RANDOM * 32768 + RANDOM)))
-        correlation_id="wf-$(date +%s)-${random_hex}"
-        echo "🔗 Correlation ID: $correlation_id"
-        
-        # Parse workflow inputs JSON and add correlation ID
-        workflow_inputs='${{ inputs.workflow_inputs }}'
-        echo "📝 Original workflow inputs: $workflow_inputs"
-        
-        # Create a temporary file for the API request body
-        request_body=$(mktemp)
-        
-        # Build the request body with correlation ID and inputs
-        if [ "$workflow_inputs" != "{}" ] && [ -n "$workflow_inputs" ]; then
-          echo "📤 Creating request body with custom inputs and correlation ID..."
-          
-          # Merge correlation ID with existing inputs
-          enhanced_inputs=$(echo "$workflow_inputs" | jq \
-            --arg correlation_id "$correlation_id" \
-            '. + {_workflow_correlation_id: $correlation_id}')
-          
-          # Create body with ref and enhanced inputs
-          jq -n \
-            --arg ref "${{ inputs.workflow_ref }}" \
-            --argjson inputs "$enhanced_inputs" \
-            '{ref: $ref, inputs: $inputs}' > "$request_body"
-          
-          echo "  ✓ Request body with inputs and correlation ID created"
-        else
-          echo "📤 Creating request body with correlation ID only..."
-          
-          # Create body with ref and correlation ID as the only input
-          jq -n \
-            --arg ref "${{ inputs.workflow_ref }}" \
-            --arg correlation_id "$correlation_id" \
-            '{ref: $ref, inputs: {_workflow_correlation_id: $correlation_id}}' > "$request_body"
-          
-          echo "  ✓ Request body with correlation ID created"
+        # Validate inputs that flow into API URL paths
+        if [[ ! "$TARGET_REPO" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then
+          echo "::error::invalid target_repo format"; exit 1
         fi
-        
-        # Trigger the workflow (with error handling for correlation ID rejection)
-        echo "🚀 Attempting to trigger workflow with correlation ID..."
-        
-        trigger_result=$(gh api \
+        if [[ ! "$WORKFLOW_FILE" =~ ^[A-Za-z0-9_.-]+\.ya?ml$ ]]; then
+          echo "::error::invalid workflow_file format"; exit 1
+        fi
+
+        echo "🚀 Triggering '$WORKFLOW_NAME' workflow..."
+        echo "📋 Target: ${TARGET_REPO}/${WORKFLOW_FILE}"
+        echo "🌿 Ref: $WORKFLOW_REF"
+
+        workflow_inputs="$WORKFLOW_INPUTS"
+        if [ -z "$workflow_inputs" ] || [ "$workflow_inputs" = "{}" ]; then
+          has_custom_inputs=0
+          echo "📝 No custom workflow inputs provided"
+        else
+          # Validate that workflow_inputs is a JSON object (not array, string, null, etc.)
+          inputs_type=$(printf '%s' "$workflow_inputs" | jq -r 'type' 2>/dev/null || echo "invalid")
+          if [ "$inputs_type" != "object" ]; then
+            echo "::error::workflow_inputs must be a JSON object (got: $inputs_type)"
+            exit 1
+          fi
+          has_custom_inputs=1
+          echo "📝 Custom workflow inputs provided"
+        fi
+
+        # Build the API request body
+        request_body=$(mktemp)
+        if [ "$has_custom_inputs" = "1" ]; then
+          if ! printf '%s' "$workflow_inputs" | jq \
+            --arg ref "$WORKFLOW_REF" \
+            '{ref: $ref, inputs: .}' > "$request_body"; then
+            echo "::error::failed to build dispatch request body from workflow_inputs"
+            rm -f "$request_body"
+            exit 1
+          fi
+        else
+          jq -n --arg ref "$WORKFLOW_REF" '{ref: $ref}' > "$request_body"
+        fi
+
+        # Snapshot existing workflow_dispatch run ids before triggering so the
+        # post-dispatch lookup can ignore any runs that already existed. This
+        # prevents the back-dated dispatch_time from accidentally selecting a
+        # run created in the buffer window. If the snapshot call fails we
+        # fall back to an empty exclusion list and rely on dispatch_time only.
+        pre_dispatch_ids='[]'
+        if pre_runs_json=$(gh api \
+          -H "Accept: application/vnd.github+json" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          "/repos/${TARGET_REPO}/actions/workflows/${WORKFLOW_FILE}/runs?event=workflow_dispatch&per_page=10" \
+          2>/dev/null); then
+          if snapshot=$(printf '%s' "$pre_runs_json" | jq -c '[.workflow_runs[]?.id]' 2>/dev/null); then
+            pre_dispatch_ids="$snapshot"
+          fi
+        fi
+
+        # Capture dispatch time (UTC) before triggering so we can filter
+        # the resulting run by created_at and avoid picking up a run from
+        # a concurrent dispatch. We back-date by 10 seconds to tolerate
+        # small clock skew between the runner and GitHub's servers (which
+        # populate created_at). Try GNU date first (Linux runners), then
+        # BSD date (macOS runners); fall back to no buffer as a last resort.
+        if dispatch_time=$(date -u -d '10 seconds ago' +%Y-%m-%dT%H:%M:%SZ 2>/dev/null); then
+          :
+        elif dispatch_time=$(date -u -v -10S +%Y-%m-%dT%H:%M:%SZ 2>/dev/null); then
+          :
+        else
+          dispatch_time=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+        fi
+
+        # Trigger the workflow. Capture stdout+stderr so we can surface the
+        # underlying gh error (permissions, missing workflow file, invalid
+        # ref, etc.) on failure. The request body is never echoed, so
+        # secrets in workflow_inputs do not leak here.
+        dispatch_output_file=$(mktemp)
+        if ! gh api \
           --method POST \
           -H "Accept: application/vnd.github+json" \
           -H "X-GitHub-Api-Version: 2022-11-28" \
           --input "$request_body" \
-          "/repos/${{ inputs.target_repo }}/actions/workflows/${{ inputs.workflow_file }}/dispatches" 2>&1 || echo "TRIGGER_FAILED")
-        
-        # Check if correlation ID was rejected and fall back if needed
-        if [[ "$trigger_result" == *"Unexpected inputs provided"* ]] && [[ "$trigger_result" == *"_workflow_correlation_id"* ]]; then
-          echo "⚠️  Target workflow doesn't accept correlation ID input. Falling back to standard trigger..."
-          
-          # Create new request body without correlation ID
-          if [ "$workflow_inputs" != "{}" ] && [ -n "$workflow_inputs" ]; then
-            echo "$workflow_inputs" | jq \
-              --arg ref "${{ inputs.workflow_ref }}" \
-              '{ref: $ref, inputs: .}' > "$request_body"
-          else
-            jq -n --arg ref "${{ inputs.workflow_ref }}" '{ref: $ref}' > "$request_body"
+          "/repos/${TARGET_REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches" \
+          >"$dispatch_output_file" 2>&1; then
+          echo "::error::failed to trigger workflow ${TARGET_REPO}/${WORKFLOW_FILE}@${WORKFLOW_REF}"
+          if [ -s "$dispatch_output_file" ]; then
+            echo "::error::gh api output:"
+            cat "$dispatch_output_file"
           fi
-          
-          # Retry without correlation ID
-          gh api \
-            --method POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            --input "$request_body" \
-            "/repos/${{ inputs.target_repo }}/actions/workflows/${{ inputs.workflow_file }}/dispatches"
-          
-          echo "✅ '${{ inputs.workflow_name }}' workflow triggered without correlation ID"
-          correlation_tracking="disabled"
-          
-        elif [[ "$trigger_result" == *"TRIGGER_FAILED"* ]]; then
-          echo "❌ Failed to trigger workflow:"
-          echo "$trigger_result"
-          rm -f "$request_body"
+          rm -f "$dispatch_output_file" "$request_body"
           exit 1
-        else
-          echo "✅ '${{ inputs.workflow_name }}' workflow triggered with correlation ID"
-          correlation_tracking="enabled"
         fi
-        
-        # Clean up
-        rm -f "$request_body"
-        
-        # Find the triggered workflow run
-        if [ "$correlation_tracking" = "enabled" ]; then
-          echo "⏳ Waiting for workflow to be created and searching by correlation ID..."
-          
-          max_search_attempts=20
-          search_attempt=0
-          run_id=""
-          
-          while [ $search_attempt -lt $max_search_attempts ] && [ -z "$run_id" ]; do
-            echo "🔍 Search attempt $((search_attempt + 1))/$max_search_attempts..."
-            
-            # Get recent workflow runs and search for our correlation ID
-            recent_runs=$(gh api \
+        rm -f "$dispatch_output_file" "$request_body"
+        echo "✅ '$WORKFLOW_NAME' workflow triggered"
+
+        # Resolve the dispatched run by polling and filtering on created_at.
+        # The GitHub Runs API does not expose dispatch inputs, so we
+        # approximate identity by selecting the oldest workflow_dispatch run
+        # created at or after our dispatch_time. We also match head_branch
+        # when WORKFLOW_REF is a branch ref (refs/heads/*) or a bare name
+        # that does not look like a commit SHA. Tag refs, full SHAs, and
+        # other ref forms leave the filter empty since head_branch is not
+        # populated for those dispatches.
+        # Decide whether to apply a head_branch filter. We only set a filter
+        # when we are confident WORKFLOW_REF identifies a branch:
+        #   - refs/heads/* is unambiguously a branch
+        #   - refs/tags/* is unambiguously a tag, no filter
+        #   - SHA-shaped bare names are not branches, no filter
+        #   - Other bare names are resolved against the GitHub Branches API;
+        #     a 200 means it's a real branch (set filter), anything else
+        #     leaves the filter empty so tag-name dispatches are not stalled
+        case "$WORKFLOW_REF" in
+          refs/heads/*)
+            head_branch_filter="${WORKFLOW_REF#refs/heads/}"
+            ;;
+          refs/tags/*)
+            head_branch_filter=""
+            ;;
+          *)
+            if [[ "$WORKFLOW_REF" =~ ^[0-9a-fA-F]{7,40}$ ]]; then
+              head_branch_filter=""
+            elif gh api \
               -H "Accept: application/vnd.github+json" \
               -H "X-GitHub-Api-Version: 2022-11-28" \
-              "/repos/${{ inputs.target_repo }}/actions/workflows/${{ inputs.workflow_file }}/runs?per_page=10")
-            
-            # Search for a run that was triggered with our correlation ID
-            # We'll check the workflow runs created in the last few minutes
-            run_id=$(echo "$recent_runs" | jq -r \
-              --arg correlation_id "$correlation_id" \
-              --arg min_time "$(date -u -d '2 minutes ago' '+%Y-%m-%dT%H:%M:%SZ')" \
-              '.workflow_runs[] | select(.created_at >= $min_time) | 
-               select(.event == "workflow_dispatch") | 
-               .id' | head -1)
-            
-            if [ -n "$run_id" ] && [ "$run_id" != "null" ]; then
-              echo "✅ Found workflow run with correlation ID: $run_id"
-              break
+              "/repos/${TARGET_REPO}/branches/${WORKFLOW_REF}" >/dev/null 2>&1; then
+              head_branch_filter="$WORKFLOW_REF"
+            else
+              head_branch_filter=""
             fi
-            
-            search_attempt=$((search_attempt + 1))
-            sleep 3
-          done
-          
-          if [ -z "$run_id" ] || [ "$run_id" = "null" ]; then
-            echo "❌ Could not find workflow run by correlation ID after $max_search_attempts attempts"
-            echo "🔄 Falling back to latest run method..."
-            correlation_tracking="disabled"
-          fi
-        fi
-        
-        # If correlation tracking is disabled or failed, use latest run method
-        if [ "$correlation_tracking" = "disabled" ]; then
-          echo "📋 Using latest run method to find triggered workflow..."
-          
-          # Wait a moment for the workflow to appear
-          sleep 5
-          
-          run_id=$(gh api \
+            ;;
+        esac
+
+        # Persist the last lookup error to a file so it survives subshell calls.
+        LOOKUP_ERROR_FILE=$(mktemp)
+        : > "$LOOKUP_ERROR_FILE"
+
+        # runs_lookup <branch_filter>  -> on success prints "<filtered_id>|<unfiltered_id>"
+        # to stdout, where each side is empty if no candidate was found. On failure
+        # writes stderr to $LOOKUP_ERROR_FILE and returns 1. Computing both ids in
+        # the same jq pass lets the caller fall back to the unfiltered match when
+        # WORKFLOW_REF is e.g. a tag-name with empty head_branch, without burning
+        # the entire polling window before retrying.
+        runs_lookup() {
+          local filter="$1"
+          local gh_stderr gh_stdout jq_stderr jq_stdout
+          gh_stderr=$(mktemp)
+          if ! gh_stdout=$(gh api \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            "/repos/${{ inputs.target_repo }}/actions/workflows/${{ inputs.workflow_file }}/runs?per_page=1" | \
-            jq -r '.workflow_runs[0].id')
-          
-          echo "✅ Found latest workflow run: $run_id"
+            "/repos/${TARGET_REPO}/actions/workflows/${WORKFLOW_FILE}/runs?event=workflow_dispatch&per_page=10" \
+            2>"$gh_stderr"); then
+            cp "$gh_stderr" "$LOOKUP_ERROR_FILE"
+            rm -f "$gh_stderr"
+            return 1
+          fi
+          rm -f "$gh_stderr"
+          jq_stderr=$(mktemp)
+          if ! jq_stdout=$(printf '%s' "$gh_stdout" | jq -r \
+            --arg min_time "$dispatch_time" \
+            --arg branch "$filter" \
+            --argjson exclude "$pre_dispatch_ids" \
+            '([.workflow_runs[]?
+                | select(.created_at >= $min_time)
+                | select(.id as $id | ($exclude | index($id)) | not)]) as $all |
+             (($all | map(select($branch == "" or .head_branch == $branch)) | sort_by(.created_at) | .[0].id // "") | tostring) as $f |
+             (($all | sort_by(.created_at) | .[0].id // "") | tostring) as $u |
+             "\($f)|\($u)"' 2>"$jq_stderr"); then
+            { echo "jq parse failed for runs response:"; cat "$jq_stderr"; } > "$LOOKUP_ERROR_FILE"
+            rm -f "$jq_stderr"
+            return 1
+          fi
+          rm -f "$jq_stderr"
+          printf '%s' "$jq_stdout"
+          return 0
+        }
+
+        # Poll until we either find a filtered match or exhaust attempts. The
+        # filtered match is preferred because it is more likely to be the run
+        # we just dispatched; the unfiltered match is tracked alongside as a
+        # fallback for tag/SHA refs (where head_branch is typically empty).
+        max_attempts=20
+        attempt=0
+        run_id=""
+        last_unfiltered_id=""
+        while [ $attempt -lt $max_attempts ] && [ -z "$run_id" ]; do
+          attempt=$((attempt + 1))
+          sleep 3
+          if ! lookup_result=$(runs_lookup "$head_branch_filter"); then
+            continue
+          fi
+          filtered_id="${lookup_result%%|*}"
+          unfiltered_id="${lookup_result#*|}"
+          if [ -n "$filtered_id" ] && [ "$filtered_id" != "null" ]; then
+            run_id="$filtered_id"
+          elif [ -n "$unfiltered_id" ] && [ "$unfiltered_id" != "null" ]; then
+            last_unfiltered_id="$unfiltered_id"
+            # Fast-path: when no head_branch filter is set (tag/SHA dispatches
+            # where head_branch is typically empty), accept the unfiltered
+            # match immediately. When a filter is set we keep polling so a
+            # concurrent dispatch with a different branch can not steal the
+            # slot via the unfiltered match.
+            if [ -z "$head_branch_filter" ]; then
+              run_id="$unfiltered_id"
+            fi
+          fi
+        done
+
+        # If we never matched the filter but did see at least one workflow_dispatch
+        # run created after dispatch_time, accept that as our run. This covers
+        # tag-name refs and any other case where head_branch does not match
+        # WORKFLOW_REF, without forcing a separate fallback polling phase.
+        if [[ -z "$run_id" || "$run_id" == "null" || ! "$run_id" =~ ^[0-9]+$ ]] \
+          && [ -n "$last_unfiltered_id" ] && [[ "$last_unfiltered_id" =~ ^[0-9]+$ ]]; then
+          echo "⚠️  No run matched head_branch=$head_branch_filter; using closest workflow_dispatch run by created_at"
+          run_id="$last_unfiltered_id"
         fi
-        
-        run_url="https://github.com/${{ inputs.target_repo }}/actions/runs/$run_id"
-        
-        echo "📋 Latest '${{ inputs.workflow_name }}' workflow run ID: $run_id"
+
+        if [[ -z "$run_id" || "$run_id" == "null" || ! "$run_id" =~ ^[0-9]+$ ]]; then
+          echo "::error::could not resolve dispatched workflow run id (dispatched at $dispatch_time)"
+          if [ -s "$LOOKUP_ERROR_FILE" ]; then
+            echo "last gh api / jq error:"
+            cat "$LOOKUP_ERROR_FILE"
+          fi
+          rm -f "$LOOKUP_ERROR_FILE"
+          exit 1
+        fi
+        rm -f "$LOOKUP_ERROR_FILE"
+
+        run_url="https://github.com/${TARGET_REPO}/actions/runs/$run_id"
+
+        echo "📋 Latest '$WORKFLOW_NAME' workflow run ID: $run_id"
         echo "🔗 Direct URL: $run_url"
-        
+
         echo "run_id=$run_id" >> $GITHUB_OUTPUT
         echo "run_url=$run_url" >> $GITHUB_OUTPUT
-        echo "correlation_id=$correlation_id" >> $GITHUB_OUTPUT
-        echo "correlation_tracking=$correlation_tracking" >> $GITHUB_OUTPUT
 
     - name: Wait for workflow completion
       id: wait_for_workflow
       shell: bash
       env:
         GH_TOKEN: ${{ inputs.github_token }}
+        RUN_ID: ${{ steps.trigger_workflow.outputs.run_id }}
+        RUN_URL: ${{ steps.trigger_workflow.outputs.run_url }}
+        WORKFLOW_NAME: ${{ inputs.workflow_name }}
+        MAX_WAIT_TIME: ${{ inputs.max_wait_time }}
+        CHECK_INTERVAL: ${{ inputs.check_interval }}
+        TARGET_REPO: ${{ inputs.target_repo }}
       run: |
-        run_id="${{ steps.trigger_workflow.outputs.run_id }}"
-        run_url="${{ steps.trigger_workflow.outputs.run_url }}"
-        
-        echo "⏳ Waiting for '${{ inputs.workflow_name }}' workflow run $run_id to complete..."
-        echo "📊 Max wait time: ${{ inputs.max_wait_time }}s, Check interval: ${{ inputs.check_interval }}s"
+        # Validate inputs that flow into API URL paths
+        if [[ ! "$TARGET_REPO" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then
+          echo "::error::invalid target_repo format"; exit 1
+        fi
+
+        # Validate numeric inputs used in arithmetic
+        if [[ ! "$MAX_WAIT_TIME" =~ ^[0-9]+$ ]]; then
+          echo "::error::invalid max_wait_time"; exit 1
+        fi
+        if [[ ! "$CHECK_INTERVAL" =~ ^[0-9]+$ ]]; then
+          echo "::error::invalid check_interval"; exit 1
+        fi
+        if [ "$MAX_WAIT_TIME" -le 0 ]; then
+          echo "::error::max_wait_time must be greater than 0"; exit 1
+        fi
+        if [ "$CHECK_INTERVAL" -le 0 ]; then
+          echo "::error::check_interval must be greater than 0"; exit 1
+        fi
+        if [ "$CHECK_INTERVAL" -gt "$MAX_WAIT_TIME" ]; then
+          echo "::error::check_interval must be less than or equal to max_wait_time"; exit 1
+        fi
+
+        run_id="$RUN_ID"
+        run_url="$RUN_URL"
+
+        if [[ -z "$run_id" || "$run_id" == "null" || ! "$run_id" =~ ^[0-9]+$ ]]; then
+          echo "::error::invalid run_id output from trigger_workflow: '$run_id'"
+          exit 1
+        fi
+
+        echo "⏳ Waiting for '$WORKFLOW_NAME' workflow run $run_id to complete..."
+        echo "📊 Max wait time: ${MAX_WAIT_TIME}s, Check interval: ${CHECK_INTERVAL}s"
         echo "🔗 Monitor at: $run_url"
-        
+
         # Setup signal handler to cancel external workflow on termination
         cleanup_and_cancel() {
           echo ""
           echo "🚨 Cancellation detected! Attempting to cancel external workflow..."
           echo "🔄 Cancelling workflow run $run_id..."
-          
+
           cancel_result=$(gh api \
             --method POST \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            "/repos/${{ inputs.target_repo }}/actions/runs/$run_id/cancel" 2>&1 || echo "CANCEL_FAILED")
-          
+            "/repos/${TARGET_REPO}/actions/runs/$run_id/cancel" 2>&1 || echo "CANCEL_FAILED")
+
           if [[ "$cancel_result" == *"CANCEL_FAILED"* ]]; then
             echo "⚠️  Could not cancel external workflow (may already be completed)"
             echo "🔗 Check status manually at: $run_url"
@@ -258,54 +368,68 @@ runs:
             echo "✅ External workflow cancellation requested successfully"
             echo "🔗 Verify cancellation at: $run_url"
           fi
-          
+
           echo "🏁 Cleanup completed. Exiting..."
           exit 1
         }
-        
+
         # Register signal handlers (primary cancellation mechanism)
         trap cleanup_and_cancel SIGTERM SIGINT
-        
+
         elapsed_time=0
-        
-        while [ $elapsed_time -lt ${{ inputs.max_wait_time }} ]; do
-          # Get workflow run details
-          run_data=$(gh api \
+
+        while [ $elapsed_time -lt $MAX_WAIT_TIME ]; do
+          # Get workflow run details. Capture stderr separately so a
+          # successful call with stderr noise can not corrupt the JSON.
+          run_data_stderr=$(mktemp)
+          if ! run_data=$(gh api \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            "/repos/${{ inputs.target_repo }}/actions/runs/$run_id")
-          
+            "/repos/${TARGET_REPO}/actions/runs/$run_id" 2>"$run_data_stderr"); then
+            echo "::error::failed to fetch run details for $run_id"
+            if [ -s "$run_data_stderr" ]; then
+              echo "gh stderr:"
+              cat "$run_data_stderr"
+            fi
+            rm -f "$run_data_stderr"
+            echo "🔗 Check status manually at: $run_url"
+            echo "status=error" >> $GITHUB_OUTPUT
+            echo "conclusion=error" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          rm -f "$run_data_stderr"
+
           run_status=$(echo "$run_data" | jq -r '.status')
           run_conclusion=$(echo "$run_data" | jq -r '.conclusion')
-          
+
           echo "📈 Status: $run_status | Conclusion: $run_conclusion | Elapsed: ${elapsed_time}s"
-          
+
           # Check if workflow is completed
           if [ "$run_status" = "completed" ]; then
-            echo "🏁 '${{ inputs.workflow_name }}' workflow completed with conclusion: $run_conclusion"
-            
+            echo "🏁 '$WORKFLOW_NAME' workflow completed with conclusion: $run_conclusion"
+
             # Output results for GitHub Actions
             echo "status=$run_status" >> $GITHUB_OUTPUT
             echo "conclusion=$run_conclusion" >> $GITHUB_OUTPUT
-            
+
             # Exit with appropriate code based on conclusion
             if [ "$run_conclusion" = "success" ]; then
-              echo "✅ '${{ inputs.workflow_name }}' workflow passed!"
+              echo "✅ '$WORKFLOW_NAME' workflow passed!"
               exit 0
             else
-              echo "❌ '${{ inputs.workflow_name }}' workflow failed with conclusion: $run_conclusion"
+              echo "❌ '$WORKFLOW_NAME' workflow failed with conclusion: $run_conclusion"
               echo "🔗 Check details at: $run_url"
               exit 1
             fi
           fi
-          
+
           # Wait before next check
-          sleep ${{ inputs.check_interval }}
-          elapsed_time=$((elapsed_time + ${{ inputs.check_interval }}))
+          sleep "$CHECK_INTERVAL"
+          elapsed_time=$((elapsed_time + CHECK_INTERVAL))
         done
-        
+
         # Timeout reached
-        echo "⏰ Timeout reached waiting for '${{ inputs.workflow_name }}' workflow completion"
+        echo "⏰ Timeout reached waiting for '$WORKFLOW_NAME' workflow completion"
         echo "🔗 Check status at: $run_url"
         echo "status=timeout" >> $GITHUB_OUTPUT
         echo "conclusion=timeout" >> $GITHUB_OUTPUT
@@ -313,13 +437,26 @@ runs:
 
     - name: Retrieve job outputs from artifact
       id: retrieve_outputs
-      if: always() && inputs.outputs_artifact_name != ''
+      if: always() && inputs.outputs_artifact_name != '' && steps.trigger_workflow.outputs.run_id != ''
       shell: bash
       env:
         GH_TOKEN: ${{ inputs.github_token }}
+        RUN_ID: ${{ steps.trigger_workflow.outputs.run_id }}
+        ARTIFACT_NAME: ${{ inputs.outputs_artifact_name }}
+        TARGET_REPO: ${{ inputs.target_repo }}
       run: |
-        run_id="${{ steps.trigger_workflow.outputs.run_id }}"
-        artifact_name="${{ inputs.outputs_artifact_name }}"
+        # Validate inputs that flow into API URL paths
+        if [[ ! "$TARGET_REPO" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then
+          echo "::error::invalid target_repo format"; exit 1
+        fi
+
+        run_id="$RUN_ID"
+        artifact_name="$ARTIFACT_NAME"
+
+        if [[ -z "$run_id" || "$run_id" == "null" || ! "$run_id" =~ ^[0-9]+$ ]]; then
+          echo "::error::invalid run_id: '$run_id'"
+          exit 1
+        fi
 
         echo "📦 Attempting to retrieve outputs from artifact: $artifact_name"
         echo "🔗 Workflow run ID: $run_id"
@@ -328,19 +465,26 @@ runs:
         job_outputs=""
         has_outputs="false"
 
-        # List artifacts for the workflow run
+        # List artifacts for the workflow run. Capture stderr separately so a
+        # successful call with stderr noise can not corrupt the JSON we feed
+        # to jq later.
         echo "🔍 Listing artifacts for workflow run..."
-        artifacts=$(gh api \
+        artifacts_stderr=$(mktemp)
+        if ! artifacts=$(gh api \
           -H "Accept: application/vnd.github+json" \
           -H "X-GitHub-Api-Version: 2022-11-28" \
-          "/repos/${{ inputs.target_repo }}/actions/runs/$run_id/artifacts" 2>&1 || echo "ARTIFACTS_LIST_FAILED")
-
-        if [[ "$artifacts" == *"ARTIFACTS_LIST_FAILED"* ]]; then
+          "/repos/${TARGET_REPO}/actions/runs/$run_id/artifacts" 2>"$artifacts_stderr"); then
           echo "⚠️  Failed to list artifacts for workflow run"
+          if [ -s "$artifacts_stderr" ]; then
+            echo "ℹ️  gh stderr:"
+            cat "$artifacts_stderr"
+          fi
+          rm -f "$artifacts_stderr"
           echo "has_outputs=false" >> $GITHUB_OUTPUT
           echo "job_outputs={}" >> $GITHUB_OUTPUT
           exit 0
         fi
+        rm -f "$artifacts_stderr"
 
         # Find artifact by name
         artifact_id=$(echo "$artifacts" | jq -r \
@@ -359,18 +503,25 @@ runs:
         echo "✅ Found artifact with ID: $artifact_id"
         echo "📥 Downloading artifact..."
 
-        # Download artifact zip
-        download_result=$(gh api \
+        # Download artifact zip. stderr must NOT be merged into outputs.zip
+        # because any warning from gh would corrupt the archive.
+        download_stderr=$(mktemp)
+        if ! gh api \
           -H "Accept: application/vnd.github+json" \
           -H "X-GitHub-Api-Version: 2022-11-28" \
-          "/repos/${{ inputs.target_repo }}/actions/artifacts/$artifact_id/zip" > outputs.zip 2>&1 || echo "DOWNLOAD_FAILED")
-
-        if [[ "$download_result" == *"DOWNLOAD_FAILED"* ]]; then
+          "/repos/${TARGET_REPO}/actions/artifacts/$artifact_id/zip" \
+          > outputs.zip 2>"$download_stderr"; then
           echo "❌ Failed to download artifact"
+          if [ -s "$download_stderr" ]; then
+            echo "ℹ️  gh stderr:"
+            cat "$download_stderr"
+          fi
+          rm -f "$download_stderr" outputs.zip
           echo "has_outputs=false" >> $GITHUB_OUTPUT
           echo "job_outputs={}" >> $GITHUB_OUTPUT
           exit 0
         fi
+        rm -f "$download_stderr"
 
         echo "📦 Extracting artifact..."
 
@@ -433,11 +584,19 @@ runs:
       shell: bash
       env:
         GH_TOKEN: ${{ inputs.github_token }}
+        RUN_ID: ${{ steps.trigger_workflow.outputs.run_id }}
+        RUN_URL: ${{ steps.trigger_workflow.outputs.run_url }}
+        TARGET_REPO: ${{ inputs.target_repo }}
       run: |
-        run_id="${{ steps.trigger_workflow.outputs.run_id }}"
-        run_url="${{ steps.trigger_workflow.outputs.run_url }}"
-        
-        if [ -n "$run_id" ] && [ "$run_id" != "null" ]; then
+        # Validate inputs that flow into API URL paths
+        if [[ ! "$TARGET_REPO" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then
+          echo "::error::invalid target_repo format"; exit 1
+        fi
+
+        run_id="$RUN_ID"
+        run_url="$RUN_URL"
+
+        if [ -n "$run_id" ] && [ "$run_id" != "null" ] && [[ "$run_id" =~ ^[0-9]+$ ]]; then
           echo "🧹 Workflow was cancelled. Attempting to cancel external workflow..."
           echo "🔄 Cancelling external workflow run $run_id..."
           
@@ -445,7 +604,7 @@ runs:
             --method POST \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            "/repos/${{ inputs.target_repo }}/actions/runs/$run_id/cancel" 2>&1 || echo "CANCEL_FAILED")
+            "/repos/${TARGET_REPO}/actions/runs/$run_id/cancel" 2>&1 || echo "CANCEL_FAILED")
           
           if [[ "$cancel_result" == *"CANCEL_FAILED"* ]]; then
             echo "⚠️  Could not cancel external workflow (may already be completed or cancelled)"

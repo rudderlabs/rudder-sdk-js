@@ -46,7 +46,7 @@ jobs:
       force_deploy_mode: ${{ steps.check-force-deploy.outputs.force_deploy_mode }}
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@8d3c67de8e2fe68ef647c8db1e6a09f647780f40 # v2.19.0
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
         with:
           egress-policy: audit
 
@@ -57,8 +57,10 @@ jobs:
 
       - name: Check force deploy mode
         id: check-force-deploy
+        env:
+          FORCE_DEPLOY_CONFIRMATION: ${{ inputs.force_deploy_confirmation }}
         run: |
-          if [ "${{ inputs.force_deploy_confirmation }}" = "FORCE_DEPLOY" ]; then
+          if [ "$FORCE_DEPLOY_CONFIRMATION" = "FORCE_DEPLOY" ]; then
             echo "force_deploy_mode=true" >> $GITHUB_OUTPUT
             echo "⚠️ FORCE DEPLOY MODE ENABLED - All PR validation checks will be skipped"
           else
@@ -113,7 +115,7 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@8d3c67de8e2fe68ef647c8db1e6a09f647780f40 # v2.19.0
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
         with:
           egress-policy: audit
 
@@ -188,7 +190,7 @@ jobs:
       trigger_source: ${{ steps.set-trigger-source.outputs.trigger_source }}
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@8d3c67de8e2fe68ef647c8db1e6a09f647780f40 # v2.19.0
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
         with:
           egress-policy: audit
 
@@ -199,10 +201,16 @@ jobs:
 
       - name: Set trigger source
         id: set-trigger-source
+        env:
+          PR_URL: ${{ needs.find-pr.outputs.pr_url }}
+          PR_NUMBER: ${{ needs.find-pr.outputs.pr_number }}
+          SERVER_URL: ${{ github.server_url }}
+          ACTOR: ${{ github.actor }}
+          FORCE_DEPLOY_MODE: ${{ needs.find-pr.outputs.force_deploy_mode }}
         run: |
-          TRIGGER_BASE="Triggered via PR <${{ needs.find-pr.outputs.pr_url }}|#${{ needs.find-pr.outputs.pr_number }}> by <${{ github.server_url }}/${{ github.actor }}|${{ github.actor }}>"
+          TRIGGER_BASE="Triggered via PR <${PR_URL}|#${PR_NUMBER}> by <${SERVER_URL}/${ACTOR}|${ACTOR}>"
 
-          if [ "${{ needs.find-pr.outputs.force_deploy_mode }}" = "true" ]; then
+          if [ "$FORCE_DEPLOY_MODE" = "true" ]; then
             echo "trigger_source=${TRIGGER_BASE} [⚠️ FORCE DEPLOY]" >> $GITHUB_OUTPUT
           else
             echo "trigger_source=${TRIGGER_BASE}" >> $GITHUB_OUTPUT

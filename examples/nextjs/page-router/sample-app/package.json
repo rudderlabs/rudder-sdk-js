@@ -15,20 +15,20 @@
   },
   "dependencies": {
     "@rudderstack/analytics-js": "*",
-    "@tailwindcss/postcss": "4.2.2",
-    "next": "16.2.4",
-    "react": "19.2.5",
-    "react-dom": "19.2.5"
+    "@tailwindcss/postcss": "4.2.4",
+    "next": "16.2.6",
+    "react": "19.2.6",
+    "react-dom": "19.2.6"
   },
   "devDependencies": {
-    "@types/node": "25.6.0",
+    "@types/node": "25.6.2",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "autoprefixer": "10.5.0",
     "eslint": "10.0.2",
-    "eslint-config-next": "16.2.4",
-    "postcss": "8.5.10",
-    "tailwindcss": "4.2.2",
+    "eslint-config-next": "16.2.6",
+    "postcss": "8.5.14",
+    "tailwindcss": "4.2.4",
     "typescript": "5.9.3"
   },
   "overrides": {
