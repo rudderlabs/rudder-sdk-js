@@ -15,13 +15,13 @@
   },
   "dependencies": {
     "@rudderstack/analytics-js-service-worker": "*",
-    "@tailwindcss/postcss": "4.2.4",
+    "@tailwindcss/postcss": "4.3.0",
     "autoprefixer": "10.5.0",
     "next": "16.2.6",
     "postcss": "8.5.14",
     "react": "19.2.6",
     "react-dom": "19.2.6",
-    "tailwindcss": "4.2.4"
+    "tailwindcss": "4.3.0"
   },
   "devDependencies": {
     "@types/node": "25.6.2",
