@@ -18,7 +18,7 @@ import {
 import { loadNativeSdk } from './nativeSdkLoader';
 
 import { prepareParamsAndEventName } from '../GA4/utils';
-import { getValueOrDefault, removeTrailingSlashes } from '../../utils/utils';
+import { getValueOrDefault, removeTrailingSlashes, isValidURL } from '../../utils/utils';
 
 const logger = new Logger(DISPLAY_NAME);
 
@@ -49,7 +49,15 @@ class GoogleAds {
     this.allowEnhancedConversions = config.allowEnhancedConversions || false;
     this.v2 = getValueOrDefault(config.v2, true);
     this.allowIdentify = config.allowIdentify ?? false;
-    this.sdkBaseUrl = removeTrailingSlashes(config.sdkBaseUrl) || 'https://www.googletagmanager.com';
+    const sanitizedSdkBaseUrl = removeTrailingSlashes(config.sdkBaseUrl);
+    if (sanitizedSdkBaseUrl) {
+      const SDK_BASE_URL_PATTERN =
+        "(^\\{\\{.*\\|\\|(.*)\\}\\}$)|(^env[.].+)|(?!.*\\.ngrok\\.io)^(?:http(s)?:\\/\\/)?[\\w.-]+(?:\\.[\\w.-]+)+[\\w\\-._~:/?#[\\]@!\\$&'\\(\\)\\*\\+,;=.]*|^$";
+      if (!isValidURL(sanitizedSdkBaseUrl, SDK_BASE_URL_PATTERN)) {
+        throw new Error(`[GoogleAds]: Invalid sdkBaseUrl: "${sanitizedSdkBaseUrl}"`);
+      }
+    }
+    this.sdkBaseUrl = sanitizedSdkBaseUrl || 'https://www.googletagmanager.com';
     this.name = NAME;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
