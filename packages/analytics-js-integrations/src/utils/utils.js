@@ -35,6 +35,30 @@ function removeTrailingSlashes(inURL) {
   return inURL?.endsWith('/') ? inURL.replace(/\/+$/, '') : inURL;
 }
 
+const URL_PATTERN = new RegExp(
+  '^(https?:\\/\\/)' +
+    '(' +
+    '((([a-zA-Z\\d]([a-zA-Z\\d-]*[a-zA-Z\\d])*)\\.)+[a-zA-Z]{2,}|' +
+    'localhost|' +
+    '((25[0-5]|2[0-4][0-9]|[0-1]?[0-9]?[0-9]?)\\.){3}' +
+    '(25[0-5]|2[0-4][0-9]|[0-1]?[0-9]?[0-9]?))' +
+    ')' +
+    '(\\:\\d+)?' +
+    '(\\/[-a-zA-Z\\d%_.~+]*)*' +
+    '(\\?[;&a-zA-Z\\d%_.~+=-]*)?' +
+    '(\\#[-a-zA-Z\\d_]*)?$',
+);
+
+function isValidURL(url, pattern) {
+  if (typeof url !== 'string') {
+    return false;
+  }
+  if (typeof pattern === 'string' && !new RegExp(pattern).test(url)) {
+    return false;
+  }
+  return URL_PATTERN.test(url);
+}
+
 /**
  *
  * Utility function for UUID generation
@@ -610,6 +634,7 @@ export {
   isDefinedAndNotNull,
   getDataFromSource,
   removeTrailingSlashes,
+  isValidURL,
   constructPayload,
   isEmptyObject,
   getValueOrDefault,

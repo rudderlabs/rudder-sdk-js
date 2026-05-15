@@ -117,6 +117,40 @@ describe('GoogleAds init tests', () => {
       `https://custom-gtm.example.com/gtag/js?id=${mockConversionId}`,
     );
   });
+
+  test('throws an error when sdkBaseUrl is invalid', () => {
+    expect(() => {
+      new GoogleAds(
+        { conversionID: mockConversionId, sdkBaseUrl: 'not-a-valid-url' },
+        {},
+        destinationInfo,
+      );
+    }).toThrow('[GoogleAds]: Invalid sdkBaseUrl: "not-a-valid-url"');
+  });
+
+  test('throws an error when sdkBaseUrl contains ngrok domain', () => {
+    expect(() => {
+      new GoogleAds(
+        { conversionID: mockConversionId, sdkBaseUrl: 'https://abc.ngrok.io' },
+        {},
+        destinationInfo,
+      );
+    }).toThrow('[GoogleAds]: Invalid sdkBaseUrl: "https://abc.ngrok.io"');
+  });
+
+  test('uses default GTM domain when sdkBaseUrl is undefined', () => {
+    googleAds = new GoogleAds(
+      { conversionID: mockConversionId, sdkBaseUrl: undefined },
+      {},
+      destinationInfo,
+    );
+    googleAds.init();
+
+    const script = document.querySelector("[id='googleAds-integration']");
+    expect(script.getAttribute('src')).toBe(
+      `https://www.googletagmanager.com/gtag/js?id=${mockConversionId}`,
+    );
+  });
 });
 
 describe('GoogleAds Identify tests', () => {
