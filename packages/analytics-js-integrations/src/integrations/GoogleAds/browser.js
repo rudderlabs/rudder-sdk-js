@@ -18,7 +18,8 @@ import {
 import { loadNativeSdk } from './nativeSdkLoader';
 
 import { prepareParamsAndEventName } from '../GA4/utils';
-import { getValueOrDefault } from '../../utils/utils';
+import { getValueOrDefault, removeTrailingSlashes } from '../../utils/utils';
+import { isValidURL } from '@rudderstack/analytics-js-common/utilities/url';
 
 const logger = new Logger(DISPLAY_NAME);
 
@@ -49,6 +50,11 @@ class GoogleAds {
     this.allowEnhancedConversions = config.allowEnhancedConversions || false;
     this.v2 = getValueOrDefault(config.v2, true);
     this.allowIdentify = config.allowIdentify ?? false;
+    const sanitizedSdkBaseUrl = removeTrailingSlashes(config.sdkBaseUrl);
+    if (sanitizedSdkBaseUrl && !isValidURL(sanitizedSdkBaseUrl)) {
+      throw new Error(`Invalid sdkBaseUrl: "${sanitizedSdkBaseUrl}"`);
+    }
+    this.sdkBaseUrl = sanitizedSdkBaseUrl || 'https://www.googletagmanager.com';
     this.name = NAME;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
@@ -58,7 +64,7 @@ class GoogleAds {
   }
 
   init() {
-    const sourceUrl = `https://www.googletagmanager.com/gtag/js?id=${this.conversionId}`;
+    const sourceUrl = `${this.sdkBaseUrl}/gtag/js?id=${this.conversionId}`;
     loadNativeSdk(sourceUrl);
 
     // Additional Settings
