@@ -18,7 +18,8 @@ import {
 import { loadNativeSdk } from './nativeSdkLoader';
 
 import { prepareParamsAndEventName } from '../GA4/utils';
-import { getValueOrDefault, removeTrailingSlashes, isValidURL } from '../../utils/utils';
+import { getValueOrDefault, removeTrailingSlashes } from '../../utils/utils';
+import { isValidURL } from '@rudderstack/analytics-js-common/utilities/url';
 
 const logger = new Logger(DISPLAY_NAME);
 
@@ -50,12 +51,8 @@ class GoogleAds {
     this.v2 = getValueOrDefault(config.v2, true);
     this.allowIdentify = config.allowIdentify ?? false;
     const sanitizedSdkBaseUrl = removeTrailingSlashes(config.sdkBaseUrl);
-    if (sanitizedSdkBaseUrl) {
-      const SDK_BASE_URL_PATTERN =
-        "(^\\{\\{.*\\|\\|(.*)\\}\\}$)|(^env[.].+)|(?!.*\\.ngrok\\.io)^(?:http(s)?:\\/\\/)?[\\w.-]+(?:\\.[\\w.-]+)+[\\w\\-._~:/?#[\\]@!\\$&'\\(\\)\\*\\+,;=.]*|^$";
-      if (!isValidURL(sanitizedSdkBaseUrl, SDK_BASE_URL_PATTERN)) {
-        throw new Error(`[GoogleAds]: Invalid sdkBaseUrl: "${sanitizedSdkBaseUrl}"`);
-      }
+    if (sanitizedSdkBaseUrl && !isValidURL(sanitizedSdkBaseUrl)) {
+      throw new Error(`Invalid sdkBaseUrl: "${sanitizedSdkBaseUrl}"`);
     }
     this.sdkBaseUrl = sanitizedSdkBaseUrl || 'https://www.googletagmanager.com';
     this.name = NAME;

@@ -125,17 +125,7 @@ describe('GoogleAds init tests', () => {
         {},
         destinationInfo,
       );
-    }).toThrow('[GoogleAds]: Invalid sdkBaseUrl: "not-a-valid-url"');
-  });
-
-  test('throws an error when sdkBaseUrl contains ngrok domain', () => {
-    expect(() => {
-      new GoogleAds(
-        { conversionID: mockConversionId, sdkBaseUrl: 'https://abc.ngrok.io' },
-        {},
-        destinationInfo,
-      );
-    }).toThrow('[GoogleAds]: Invalid sdkBaseUrl: "https://abc.ngrok.io"');
+    }).toThrow('Invalid sdkBaseUrl: "not-a-valid-url"');
   });
 
   test('uses default GTM domain when sdkBaseUrl is undefined', () => {
