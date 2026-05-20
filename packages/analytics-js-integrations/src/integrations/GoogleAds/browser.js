@@ -18,8 +18,7 @@ import {
 import { loadNativeSdk } from './nativeSdkLoader';
 
 import { prepareParamsAndEventName } from '../GA4/utils';
-import { getValueOrDefault, removeTrailingSlashes } from '../../utils/utils';
-import { isValidURL } from '@rudderstack/analytics-js-common/utilities/url';
+import { getValueOrDefault, isValidURL, removeTrailingSlashes } from '../../utils/utils';
 
 const logger = new Logger(DISPLAY_NAME);
 

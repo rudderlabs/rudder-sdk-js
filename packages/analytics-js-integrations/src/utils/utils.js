@@ -35,6 +35,51 @@ function removeTrailingSlashes(inURL) {
   return inURL?.endsWith('/') ? inURL.replace(/\/+$/, '') : inURL;
 }
 
+// NOTE: URL_PATTERN and isValidURL below are duplicated from
+// `@rudderstack/analytics-js-common` (src/constants/urls.ts and src/utilities/url.ts).
+// We intentionally avoid depending on analytics-js-common here so that
+// non-functional changes (e.g. type-only edits) in common do not force a
+// rebuild + release of analytics-js-integrations. Tracked under SDK-4878 —
+// once a frozen-API shared utilities package exists, switch this module to
+// consume it and delete the duplicate. Keep the two implementations in sync
+// until then.
+const URL_PATTERN = new RegExp(
+  '^(https?:\\/\\/)' + // protocol
+    '(' +
+    '((([a-zA-Z\\d]([a-zA-Z\\d-]*[a-zA-Z\\d])*)\\.)+[a-zA-Z]{2,}|' + // domain name
+    'localhost|' + // localhost
+    '((25[0-5]|2[0-4][0-9]|[0-1]?[0-9]?[0-9]?)\\.){3}' + // OR IP (v4) address first 3 octets
+    '(25[0-5]|2[0-4][0-9]|[0-1]?[0-9]?[0-9]?))' + // last octet of IP address
+    ')' +
+    '(\\:\\d+)?' + // port
+    '(\\/[-a-zA-Z\\d%_.~+]*)*' + // path
+    '(\\?[;&a-zA-Z\\d%_.~+=-]*)?' + // query string
+    '(\\#[-a-zA-Z\\d_]*)?$', // fragment locator
+);
+
+/**
+ * Checks if provided url is valid or not
+ * @param {*} url
+ * @returns true if `url` is valid and false otherwise
+ */
+function isValidURL(url) {
+  if (typeof url !== 'string') {
+    return false;
+  }
+
+  try {
+    // If URL is supported by the browser, we can use it to validate the URL
+    // Otherwise, we can at least check if the URL matches the pattern
+    if (typeof globalThis.URL === 'function') {
+      // eslint-disable-next-line no-new
+      new URL(url);
+    }
+    return URL_PATTERN.test(url);
+  } catch (e) {
+    return false;
+  }
+}
+
 /**
  *
  * Utility function for UUID generation
@@ -613,4 +658,5 @@ export {
   constructPayload,
   isEmptyObject,
   getValueOrDefault,
+  isValidURL,
 };

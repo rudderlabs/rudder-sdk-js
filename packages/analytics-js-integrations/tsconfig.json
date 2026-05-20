@@ -12,7 +12,6 @@
     "./package.json",
     "./src/**/*",
     "../../types/**/*",
-    "../analytics-js-legacy-utilities/src/**/*",
-    "../analytics-js-common/src/**/*"
+    "../analytics-js-legacy-utilities/src/**/*"
   ]
 }
