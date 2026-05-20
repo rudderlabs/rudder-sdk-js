@@ -88,10 +88,14 @@
     "release": "npm publish"
   },
   "dependencies": {
-    "@rudderstack/analytics-js-cookies": "*",
+    "@digitalroute/cz-conventional-changelog-for-jira": "7.5.1",
+    "@nx/workspace": "22.6.5",
     "@rudderstack/analytics-js-common": "*",
+    "@rudderstack/analytics-js-cookies": "*",
     "@rudderstack/analytics-js-integrations": "*",
+    "commitizen": "4.2.4",
     "crypto-es": "2.1.0",
+    "nx": "22.6.5",
     "ramda": "0.32.0"
   },
   "devDependencies": {
@@ -107,7 +111,7 @@
     "dotenv": "17.4.2",
     "rollup-plugin-delete": "3.0.2",
     "rollup-plugin-dts": "6.4.1",
-    "rollup-plugin-filesize": "10.0.0",
+    "rollup-plugin-filesize": "^7.0.0",
     "rollup-plugin-livereload": "2.0.5",
     "rollup-plugin-polyfill-node": "0.13.0",
     "rollup-plugin-serve": "3.0.0",
