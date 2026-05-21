@@ -53,7 +53,7 @@ class GoogleAds {
     if (sanitizedSdkBaseUrl && !isValidURL(sanitizedSdkBaseUrl)) {
       throw new Error(`Invalid sdkBaseUrl: "${sanitizedSdkBaseUrl}"`);
     }
-    this.sdkBaseUrl = sanitizedSdkBaseUrl || 'https://www.googletagmanager.com';
+    this.sdkBaseUrl = sanitizedSdkBaseUrl || 'https://www.googletagmanager.com/gtag/js';
     this.name = NAME;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
@@ -63,7 +63,7 @@ class GoogleAds {
   }
 
   init() {
-    const sourceUrl = `${this.sdkBaseUrl}/gtag/js?id=${this.conversionId}`;
+    const sourceUrl = `${this.sdkBaseUrl}?id=${this.conversionId}`;
     loadNativeSdk(sourceUrl);
 
     // Additional Settings

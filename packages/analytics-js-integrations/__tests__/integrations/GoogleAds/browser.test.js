@@ -92,7 +92,7 @@ describe('GoogleAds init tests', () => {
 
   test('uses custom sdkBaseUrl when provided', () => {
     googleAds = new GoogleAds(
-      { conversionID: mockConversionId, sdkBaseUrl: 'https://custom-gtm.example.com' },
+      { conversionID: mockConversionId, sdkBaseUrl: 'https://custom-gtm.example.com/gtag/js' },
       {},
       destinationInfo,
     );
@@ -106,7 +106,7 @@ describe('GoogleAds init tests', () => {
 
   test('normalizes trailing slash in sdkBaseUrl', () => {
     googleAds = new GoogleAds(
-      { conversionID: mockConversionId, sdkBaseUrl: 'https://custom-gtm.example.com///' },
+      { conversionID: mockConversionId, sdkBaseUrl: 'https://custom-gtm.example.com/gtag/js///' },
       {},
       destinationInfo,
     );
