@@ -35,6 +35,37 @@ function removeTrailingSlashes(inURL) {
   return inURL?.endsWith('/') ? inURL.replace(/\/+$/, '') : inURL;
 }
 
+// Keep fallback validation simple and linear-time for environments without URL support.
+// This checks basic URL shape only; full validation should use the built-in URL parser.
+const URL_PATTERN = /^https?:\/\/[^\s#$./?].\S*$/i;
+
+/**
+ * Checks if provided url is valid or not
+ * @param {*} url
+ * @returns true if `url` is valid and false otherwise
+ */
+function isValidURL(url) {
+  if (typeof url !== 'string') {
+    return false;
+  }
+
+  try {
+    // Prefer built-in URL parsing where available (linear and standards-based).
+    if (typeof globalThis.URL === 'function') {
+      // eslint-disable-next-line no-new
+      const parsedURL = new URL(url);
+      return (
+        (parsedURL.protocol === 'http:' || parsedURL.protocol === 'https:') &&
+        parsedURL.hostname.length > 0
+      );
+    }
+    // Fallback for environments without URL support.
+    return URL_PATTERN.test(url);
+  } catch (e) {
+    return false;
+  }
+}
+
 /**
  *
  * Utility function for UUID generation
@@ -613,4 +644,5 @@ export {
   constructPayload,
   isEmptyObject,
   getValueOrDefault,
+  isValidURL,
 };

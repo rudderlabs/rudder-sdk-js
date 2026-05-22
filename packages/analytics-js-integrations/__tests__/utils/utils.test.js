@@ -373,3 +373,66 @@ describe('getValueOrDefault Tests', () => {
     expect(utils.getValueOrDefault({}, false)).toBe(false);
   });
 });
+
+describe('isValidURL Tests', () => {
+  test('returns false for non-string inputs', () => {
+    expect(utils.isValidURL(undefined)).toBe(false);
+    expect(utils.isValidURL(null)).toBe(false);
+    expect(utils.isValidURL(123)).toBe(false);
+    expect(utils.isValidURL({})).toBe(false);
+    expect(utils.isValidURL([])).toBe(false);
+  });
+
+  test('returns false for empty or blank strings', () => {
+    expect(utils.isValidURL('')).toBe(false);
+    expect(utils.isValidURL('   ')).toBe(false);
+  });
+
+  test('returns true for valid http and https URLs', () => {
+    expect(utils.isValidURL('http://example.com')).toBe(true);
+    expect(utils.isValidURL('https://example.com')).toBe(true);
+    expect(utils.isValidURL('https://www.googletagmanager.com/gtag/js')).toBe(true);
+    expect(utils.isValidURL('https://custom-gtm.example.com/gtag/js?id=AW-123')).toBe(true);
+    expect(utils.isValidURL('http://localhost:8080')).toBe(true);
+    expect(utils.isValidURL('https://192.168.0.1:3000/path')).toBe(true);
+  });
+
+  test('returns false for URLs with unsupported or missing protocol', () => {
+    expect(utils.isValidURL('ftp://example.com')).toBe(false);
+    expect(utils.isValidURL('ws://example.com')).toBe(false);
+    expect(utils.isValidURL('example.com')).toBe(false);
+    expect(utils.isValidURL('www.example.com')).toBe(false);
+    expect(utils.isValidURL('//example.com')).toBe(false);
+  });
+
+  test('returns false for malformed URLs', () => {
+    expect(utils.isValidURL('not-a-valid-url')).toBe(false);
+    expect(utils.isValidURL('http://')).toBe(false);
+    expect(utils.isValidURL('https://')).toBe(false);
+  });
+
+  describe('fallback path when globalThis.URL is unavailable', () => {
+    let originalURL;
+
+    beforeEach(() => {
+      originalURL = globalThis.URL;
+      // Force the regex fallback branch
+      globalThis.URL = undefined;
+    });
+
+    afterEach(() => {
+      globalThis.URL = originalURL;
+    });
+
+    test('returns true for valid http/https URLs via regex fallback', () => {
+      expect(utils.isValidURL('http://example.com')).toBe(true);
+      expect(utils.isValidURL('https://www.googletagmanager.com/gtag/js?id=AW-123')).toBe(true);
+    });
+
+    test('returns false for invalid URLs via regex fallback', () => {
+      expect(utils.isValidURL('not-a-valid-url')).toBe(false);
+      expect(utils.isValidURL('ftp://example.com')).toBe(false);
+      expect(utils.isValidURL('http://')).toBe(false);
+    });
+  });
+});
