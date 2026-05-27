@@ -175,7 +175,7 @@
     ]
   },
   "dependencies": {
-    "@preact/signals-core": "1.14.1",
+    "@preact/signals-core": "1.14.2",
     "@rudderstack/analytics-js-common": "*",
     "@rudderstack/analytics-js-cookies": "*",
     "@rudderstack/analytics-js-plugins": "*",
