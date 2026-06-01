@@ -64,7 +64,7 @@ RudderStack primarily supports two [connection modes](https://www.rudderstack.co
 2. **Device Mode Integration**: Events are sent directly from the client to the destination in this mode. Depending upon the client where you are collecting events from, the respective RudderStack client SDK (e.g. `rudder-sdk-js` for the web client) is responsible to transform and deliver these events (using the destination SDK).
 
 ## Developing _cloud mode_ RudderStack integration
-Follow the guide in [Contributing.md of the `rudder-transfomer` repo](https://github.com/rudderlabs/rudder-transformer/blob/docs-contrib-guide/CONTRIBUTING.md#building-your-first-custom-rudderStack-destination-integration) as
+Follow the guide in [Contributing.md of the `rudder-transformer` repo](https://github.com/rudderlabs/rudder-transformer/blob/docs-contrib-guide/CONTRIBUTING.md#building-your-first-custom-rudderStack-destination-integration) as
 the `rudder-transformer` is responsible for the **cloud mode** transformation.
 
 ## Developing _device mode_ RudderStack integration
