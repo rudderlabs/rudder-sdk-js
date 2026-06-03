@@ -43,7 +43,7 @@ class Amplitude {
     this.versionName = config.versionName;
     this.groupTypeTrait = config.groupTypeTrait;
     this.groupValueTrait = config.groupValueTrait;
-    this.sdkVersion = getAmplitudeSdkVersion(config);
+    this.apiVersion = getAmplitudeSdkVersion(config);
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
@@ -53,7 +53,7 @@ class Amplitude {
 
   init() {
     if (this.analytics.loadIntegration) {
-      loadNativeSdk(window, document, this.sdkVersion);
+      loadNativeSdk(window, document, this.apiVersion);
     }
 
     const commonInitOptions = {
@@ -62,7 +62,7 @@ class Amplitude {
       appVersion: this.versionName,
     };
     const initOptions =
-      this.sdkVersion === AMPLITUDE_SDK_V2
+      this.apiVersion === AMPLITUDE_SDK_V2
         ? {
             ...commonInitOptions,
             autocapture: {

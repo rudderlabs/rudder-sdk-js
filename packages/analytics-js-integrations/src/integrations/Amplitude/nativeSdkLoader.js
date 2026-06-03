@@ -7,7 +7,7 @@ import {
   AMPLITUDE_V2_SDK_URL,
 } from './constants';
 
-function loadNativeSdk(e, t, sdkVersion) {
+function loadNativeSdk(e, t, apiVersion) {
   'use strict';
   var n = e.amplitude || { _q: [], _iq: {} };
   if (n.invoked) e.console && console.error && console.error('Amplitude snippet has been loaded.');
@@ -33,7 +33,7 @@ function loadNativeSdk(e, t, sdkVersion) {
       };
     n.invoked = !0;
     var a = t.createElement('script');
-    var c = sdkVersion === AMPLITUDE_SDK_V2;
+    var c = apiVersion === AMPLITUDE_SDK_V2;
     a.setAttribute('data-loader', LOAD_ORIGIN),
       (a.type = 'text/javascript'),
       (a.crossOrigin = 'anonymous'),
