@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import { NAME, DISPLAY_NAME } from './constants';
+import { NAME, DISPLAY_NAME, AMPLITUDE_SDK_V2 } from './constants';
 import { isDefinedAndNotNullAndNotEmpty } from '../../utils/commonUtils';
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
@@ -10,6 +10,7 @@ import {
   getDestinationOptions,
   getFieldsToUnset,
   formatUrl,
+  getAmplitudeSdkVersion,
 } from './utils';
 import { getValueOrDefault } from '../../utils/utils';
 
@@ -42,6 +43,7 @@ class Amplitude {
     this.versionName = config.versionName;
     this.groupTypeTrait = config.groupTypeTrait;
     this.groupValueTrait = config.groupValueTrait;
+    this.sdkVersion = getAmplitudeSdkVersion(config);
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
@@ -51,15 +53,32 @@ class Amplitude {
 
   init() {
     if (this.analytics.loadIntegration) {
-      loadNativeSdk(window, document);
+      loadNativeSdk(window, document, this.sdkVersion);
     }
 
-    const initOptions = {
-      attribution: { disabled: this.attribution, trackNewCampaigns: !this.trackNewCampaigns },
+    const commonInitOptions = {
       flushQueueSize: this.flushQueueSize,
       flushIntervalMillis: this.flushIntervalMillis,
       appVersion: this.versionName,
     };
+    const initOptions =
+      this.sdkVersion === AMPLITUDE_SDK_V2
+        ? {
+            ...commonInitOptions,
+            autocapture: {
+              attribution: !this.attribution,
+              pageViews: false,
+              sessions: false,
+              formInteractions: false,
+              fileDownloads: false,
+              elementInteractions: false,
+              frustrationInteractions: false,
+            },
+          }
+        : {
+            ...commonInitOptions,
+            attribution: { disabled: this.attribution, trackNewCampaigns: !this.trackNewCampaigns },
+          };
 
     if (isDefinedAndNotNullAndNotEmpty(this.proxyServerUrl)) {
       if (this.proxyServerUrl.startsWith('http://')) {

@@ -2,6 +2,11 @@
 /* eslint-disable no-underscore-dangle */
 import { errorMock } from '../../../__mocks__/logger';
 import Amplitude from '../../../src/integrations/Amplitude/browser';
+import {
+  AMPLITUDE_SDK_VERSION_CONFIG_KEY,
+  AMPLITUDE_V1_SDK_URL,
+  AMPLITUDE_V2_SDK_URL,
+} from '../../../src/integrations/Amplitude/constants';
 
 const destinationConfig = {
   apiKey: 'AMPLITUDE_API_KEY',
@@ -72,6 +77,9 @@ describe('Amplitude', () => {
   describe('init', () => {
     beforeEach(() => {
       window.amplitude = undefined;
+      document
+        .querySelectorAll(`script[src="${AMPLITUDE_V1_SDK_URL}"], script[src="${AMPLITUDE_V2_SDK_URL}"]`)
+        .forEach(element => element.remove());
     });
 
     it('should initialize the destination SDK', () => {
@@ -216,6 +224,40 @@ describe('Amplitude', () => {
       amplitude.init();
 
       expect(window.amplitude._q[0].args[2].serverZone).toBe('EU');
+    });
+
+    it('should load v1 sdk by default when sdk version is not configured', () => {
+      const amplitude = new Amplitude(destinationConfig, analyticsInstance, destinationInfo);
+      amplitude.init();
+
+      expect(document.querySelector(`script[src="${AMPLITUDE_V1_SDK_URL}"]`)).toBeTruthy();
+    });
+
+    it('should load v2 sdk and initialize only attribution autocapture', () => {
+      const amplitude = new Amplitude(
+        {
+          ...destinationConfig,
+          [AMPLITUDE_SDK_VERSION_CONFIG_KEY]: 'v2',
+          attribution: false,
+        },
+        analyticsInstance,
+        destinationInfo,
+      );
+      amplitude.init();
+
+      expect(document.querySelector(`script[src="${AMPLITUDE_V2_SDK_URL}"]`)).toBeTruthy();
+      expect(window.amplitude._q[0].args[2]).toMatchObject({
+        autocapture: {
+          attribution: true,
+          pageViews: false,
+          sessions: false,
+          formInteractions: false,
+          fileDownloads: false,
+          elementInteractions: false,
+          frustrationInteractions: false,
+        },
+      });
+      expect(window.amplitude._q[0].args[2].attribution).toBeUndefined();
     });
   });
 

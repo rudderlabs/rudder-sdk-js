@@ -4,6 +4,7 @@ import {
   getTraitsToIncrement,
   getDestinationOptions,
   formatUrl,
+  getAmplitudeSdkVersion,
 } from '../../../src/integrations/Amplitude/utils';
 
 describe('getTraitsToSetOnce', () => {
@@ -181,5 +182,19 @@ describe('formatUrl', () => {
   it('should return "https://example.com" when the input URL is "example.com"', () => {
     const url = 'example.com';
     expect(formatUrl(url)).toBe('https://example.com');
+  });
+});
+
+describe('getAmplitudeSdkVersion', () => {
+  it('should fallback to v1 when sdkVersion is absent', () => {
+    expect(getAmplitudeSdkVersion({})).toBe('v1');
+  });
+
+  it('should resolve v2 for sdkVersion as "v2"', () => {
+    expect(getAmplitudeSdkVersion({ sdkVersion: 'v2' })).toBe('v2');
+  });
+
+  it('should resolve v2 for sdkVersion as "2"', () => {
+    expect(getAmplitudeSdkVersion({ sdkVersion: '2' })).toBe('v2');
   });
 });

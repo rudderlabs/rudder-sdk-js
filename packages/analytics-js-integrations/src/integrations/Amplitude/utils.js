@@ -1,4 +1,10 @@
-import { NAME, DISPLAY_NAME } from './constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+  AMPLITUDE_SDK_V1,
+  AMPLITUDE_SDK_V2,
+  AMPLITUDE_SDK_VERSION_CONFIG_KEY,
+} from './constants';
 
 const getTraitsToSetOnce = config => {
   const traitsToSetOnce = [];
@@ -60,10 +66,21 @@ function formatUrl(url) {
   }
   return `https://${url}`;
 }
+
+const getAmplitudeSdkVersion = config => {
+  const configuredSdkVersion = `${config?.[AMPLITUDE_SDK_VERSION_CONFIG_KEY] ?? ''}`
+    .trim()
+    .toLowerCase();
+  return configuredSdkVersion === '2' || configuredSdkVersion === AMPLITUDE_SDK_V2
+    ? AMPLITUDE_SDK_V2
+    : AMPLITUDE_SDK_V1;
+};
+
 export {
   getTraitsToSetOnce,
   getTraitsToIncrement,
   getDestinationOptions,
   getFieldsToUnset,
   formatUrl,
+  getAmplitudeSdkVersion,
 };
