@@ -233,7 +233,7 @@ describe('Amplitude', () => {
       expect(document.querySelector(`script[src="${AMPLITUDE_V1_SDK_URL}"]`)).toBeTruthy();
     });
 
-    it('should load v2 sdk and initialize only attribution autocapture', () => {
+    it('should load v2 sdk and enable attribution autocapture when attribution is not disabled', () => {
       const amplitude = new Amplitude(
         {
           ...destinationConfig,
@@ -249,6 +249,33 @@ describe('Amplitude', () => {
       expect(window.amplitude._q[0].args[2]).toMatchObject({
         autocapture: {
           attribution: true,
+          pageViews: false,
+          sessions: false,
+          formInteractions: false,
+          fileDownloads: false,
+          elementInteractions: false,
+          frustrationInteractions: false,
+        },
+      });
+      expect(window.amplitude._q[0].args[2].attribution).toBeUndefined();
+    });
+
+    it('should load v2 sdk and disable attribution autocapture when attribution is disabled', () => {
+      const amplitude = new Amplitude(
+        {
+          ...destinationConfig,
+          [AMPLITUDE_SDK_VERSION_CONFIG_KEY]: 'v2',
+          attribution: true,
+        },
+        analyticsInstance,
+        destinationInfo,
+      );
+      amplitude.init();
+
+      expect(document.querySelector(`script[src="${AMPLITUDE_V2_SDK_URL}"]`)).toBeTruthy();
+      expect(window.amplitude._q[0].args[2]).toMatchObject({
+        autocapture: {
+          attribution: false,
           pageViews: false,
           sessions: false,
           formInteractions: false,
