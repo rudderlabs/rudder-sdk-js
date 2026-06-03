@@ -1,7 +1,7 @@
 import { AM_NAME as NAME, AM_DISPLAY_NAME as DISPLAY_NAME } from '../../constants/Destinations';
 
 const DIR_NAME = 'Amplitude';
-const AMPLITUDE_SDK_VERSION_CONFIG_KEY = 'sdkVersion';
+const AMPLITUDE_SDK_VERSION_CONFIG_KEY = 'apiVersion';
 const AMPLITUDE_SDK_V1 = 'v1';
 const AMPLITUDE_SDK_V2 = 'v2';
 const AMPLITUDE_V1_SDK_URL = 'https://cdn.amplitude.com/libs/analytics-browser-1.9.1-min.js.gz';
