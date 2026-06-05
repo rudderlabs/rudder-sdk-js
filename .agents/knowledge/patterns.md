@@ -17,3 +17,8 @@
 - Plugin calls prefer extension-point invocation (`invokeSingle`/`invokeMultiple`) to keep queue and destination behaviors swappable (`packages/analytics-js/src/services/PluginEngine/PluginEngine.ts::PluginEngine.invokeSingle`).
 - Load-time buffering is a consistent behavior: preload snippet arrays and in-memory queues are drained after initialization to preserve call order (`packages/loading-scripts/src/index.ts:12`, `packages/analytics-js/src/components/core/Analytics.ts::Analytics.processDataInPreloadBuffer`).
 - Legacy v1.1 still follows class-centric mutable state and explicit polling for integration readiness (`allModulesInitialized` Promise loop), unlike v3 reactive effects (`packages/analytics-v1.1/src/core/analytics.js::Analytics.allModulesInitialized`).
+
+## INT-6511 — Bing Ads dedup identifier precedence
+
+- In `packages/analytics-js-integrations/src/integrations/BingAds/utils.js`, `buildEcommPayload` treats `properties.event_id` as the highest-precedence source for `payload.transaction_id` (ahead of existing `transaction_id`, `order_id`, and `checkout_id` aliases) so conversion identity is stable for Bing deduplication.
+- The same file adds `event_id` to `EXCLUSION_KEYS`, which prevents the identifier from being duplicated as an extra custom property when building Bing event payloads.

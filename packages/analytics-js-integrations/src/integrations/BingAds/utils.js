@@ -12,6 +12,7 @@ const EXCLUSION_KEYS = [
   'revenue',
   'ecomm_category',
   'transaction_id',
+  'event_id',
   'order_id',
   'checkout_id',
   'ecomm_pagetype',
@@ -87,7 +88,7 @@ const buildEcommPayload = message => {
     search_term: query,
     ecomm_query: query,
     ecomm_category: ecommCategory || categoryId,
-    transaction_id: transactionId || orderId || checkoutId,
+    transaction_id: properties.event_id || transactionId || orderId || checkoutId,
     ecomm_pagetype: ecommPageType || pagetype || DEFAULT_PAGETYPE,
   };
   const payload = handleProductsArray(properties);

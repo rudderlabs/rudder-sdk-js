@@ -125,6 +125,43 @@ describe('Build ecomm payload utility tests', () => {
     });
   });
 
+  test('Test for event_id being preferred as transaction_id for deduplication', () => {
+    const payload = buildEcommPayload({
+      properties: {
+        event_id: 'evt-123',
+        transaction_id: 'txn-123',
+        order_id: 'ord-456',
+        checkout_id: 'chk-789',
+      },
+    });
+
+    expect(payload).toEqual({
+      search_term: undefined,
+      ecomm_query: undefined,
+      ecomm_category: undefined,
+      transaction_id: 'evt-123',
+      ecomm_totalvalue: undefined,
+      ecomm_pagetype: 'other',
+    });
+  });
+
+  test('Test for event_id fallback to transaction_id aliases when absent', () => {
+    const payload = buildEcommPayload({
+      properties: {
+        order_id: 'ord-456',
+      },
+    });
+
+    expect(payload).toEqual({
+      search_term: undefined,
+      ecomm_query: undefined,
+      ecomm_category: undefined,
+      transaction_id: 'ord-456',
+      ecomm_totalvalue: undefined,
+      ecomm_pagetype: 'other',
+    });
+  });
+
   test('Test for empty payload', () => {
     const payload = buildEcommPayload({});
     expect(payload).toEqual({
