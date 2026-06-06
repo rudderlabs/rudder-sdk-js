@@ -197,4 +197,8 @@ describe('getAmplitudeSdkVersion', () => {
   it('should fallback to v1 for sdkVersion.web as "1"', () => {
     expect(getAmplitudeSdkVersion({ sdkVersion: { web: '1' } })).toBe('1');
   });
+
+  it('should fallback to v1 for an invalid sdkVersion.web value', () => {
+    expect(getAmplitudeSdkVersion({ sdkVersion: { web: 'foo' } })).toBe('1');
+  });
 });

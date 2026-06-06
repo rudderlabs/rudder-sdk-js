@@ -232,6 +232,28 @@ describe('Amplitude', () => {
       expect(document.querySelector(`script[src="${AMPLITUDE_V1_SDK_URL}"]`)).toBeTruthy();
     });
 
+    it('should load v1 sdk when sdkVersion is explicitly set to "1"', () => {
+      const amplitude = new Amplitude(
+        { ...destinationConfig, sdkVersion: { web: '1' } },
+        analyticsInstance,
+        destinationInfo,
+      );
+      amplitude.init();
+
+      expect(document.querySelector(`script[src="${AMPLITUDE_V1_SDK_URL}"]`)).toBeTruthy();
+    });
+
+    it('should load v1 sdk when sdkVersion is an invalid value', () => {
+      const amplitude = new Amplitude(
+        { ...destinationConfig, sdkVersion: { web: 'foo' } },
+        analyticsInstance,
+        destinationInfo,
+      );
+      amplitude.init();
+
+      expect(document.querySelector(`script[src="${AMPLITUDE_V1_SDK_URL}"]`)).toBeTruthy();
+    });
+
     it('should load v2 sdk and enable attribution autocapture when attribution is not disabled', () => {
       const amplitude = new Amplitude(
         {
@@ -255,6 +277,7 @@ describe('Amplitude', () => {
           elementInteractions: false,
           frustrationInteractions: false,
         },
+        serverUrl: 'https://some.proxyserverurl.com',
       });
       expect(window.amplitude._q[0].args[2].attribution).toBeUndefined();
     });
@@ -282,6 +305,7 @@ describe('Amplitude', () => {
           elementInteractions: false,
           frustrationInteractions: false,
         },
+        serverUrl: 'https://some.proxyserverurl.com',
       });
       expect(window.amplitude._q[0].args[2].attribution).toBeUndefined();
     });
