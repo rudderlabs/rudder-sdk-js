@@ -3,7 +3,6 @@
 import { errorMock } from '../../../__mocks__/logger';
 import Amplitude from '../../../src/integrations/Amplitude/browser';
 import {
-  AMPLITUDE_SDK_VERSION_CONFIG_KEY,
   AMPLITUDE_V1_SDK_URL,
   AMPLITUDE_V2_SDK_URL,
 } from '../../../src/integrations/Amplitude/constants';
@@ -237,7 +236,7 @@ describe('Amplitude', () => {
       const amplitude = new Amplitude(
         {
           ...destinationConfig,
-          [AMPLITUDE_SDK_VERSION_CONFIG_KEY]: 'v2',
+          sdkVersion: { web: '2' },
           attribution: false,
         },
         analyticsInstance,
@@ -264,7 +263,7 @@ describe('Amplitude', () => {
       const amplitude = new Amplitude(
         {
           ...destinationConfig,
-          [AMPLITUDE_SDK_VERSION_CONFIG_KEY]: 'v2',
+          sdkVersion: { web: '2' },
           attribution: true,
         },
         analyticsInstance,

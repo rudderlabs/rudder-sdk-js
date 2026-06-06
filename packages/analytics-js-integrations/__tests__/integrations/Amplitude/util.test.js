@@ -186,15 +186,15 @@ describe('formatUrl', () => {
 });
 
 describe('getAmplitudeSdkVersion', () => {
-  it('should fallback to v1 when apiVersion is absent', () => {
-    expect(getAmplitudeSdkVersion({})).toBe('v1');
+  it('should fallback to v1 when sdkVersion is absent', () => {
+    expect(getAmplitudeSdkVersion({})).toBe('1');
   });
 
-  it('should resolve v2 for apiVersion as "v2"', () => {
-    expect(getAmplitudeSdkVersion({ apiVersion: 'v2' })).toBe('v2');
+  it('should resolve v2 for sdkVersion.web as "2"', () => {
+    expect(getAmplitudeSdkVersion({ sdkVersion: { web: '2' } })).toBe('2');
   });
 
-  it('should resolve v2 for apiVersion as "2"', () => {
-    expect(getAmplitudeSdkVersion({ apiVersion: '2' })).toBe('v2');
+  it('should fallback to v1 for sdkVersion.web as "1"', () => {
+    expect(getAmplitudeSdkVersion({ sdkVersion: { web: '1' } })).toBe('1');
   });
 });
