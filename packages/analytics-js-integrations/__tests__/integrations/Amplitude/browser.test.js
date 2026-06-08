@@ -5,6 +5,8 @@ import Amplitude from '../../../src/integrations/Amplitude/browser';
 import {
   AMPLITUDE_V1_SDK_URL,
   AMPLITUDE_V2_SDK_URL,
+  AMPLITUDE_V1_SDK_INTEGRITY,
+  AMPLITUDE_V2_SDK_INTEGRITY,
 } from '../../../src/integrations/Amplitude/constants';
 
 const destinationConfig = {
@@ -234,18 +236,21 @@ describe('Amplitude', () => {
 
     it('should load v1 sdk when sdkVersion is explicitly set to "1"', () => {
       const amplitude = new Amplitude(
-        { ...destinationConfig, sdkVersion: { web: '1' } },
+        { ...destinationConfig, sdkVersion: '1' },
         analyticsInstance,
         destinationInfo,
       );
       amplitude.init();
 
       expect(document.querySelector(`script[src="${AMPLITUDE_V1_SDK_URL}"]`)).toBeTruthy();
+      // v1 init passes an explicit null userId
+      expect(window.amplitude._q[0].name).toBe('init');
+      expect(window.amplitude._q[0].args[1]).toBeNull();
     });
 
     it('should load v1 sdk when sdkVersion is an invalid value', () => {
       const amplitude = new Amplitude(
-        { ...destinationConfig, sdkVersion: { web: 'foo' } },
+        { ...destinationConfig, sdkVersion: 'foo' },
         analyticsInstance,
         destinationInfo,
       );
@@ -258,7 +263,7 @@ describe('Amplitude', () => {
       const amplitude = new Amplitude(
         {
           ...destinationConfig,
-          sdkVersion: { web: '2' },
+          sdkVersion: '2',
           attribution: false,
         },
         analyticsInstance,
@@ -267,6 +272,9 @@ describe('Amplitude', () => {
       amplitude.init();
 
       expect(document.querySelector(`script[src="${AMPLITUDE_V2_SDK_URL}"]`)).toBeTruthy();
+      // v2 init passes an undefined userId (not null)
+      expect(window.amplitude._q[0].name).toBe('init');
+      expect(window.amplitude._q[0].args[1]).toBeUndefined();
       expect(window.amplitude._q[0].args[2]).toMatchObject({
         autocapture: {
           attribution: true,
@@ -276,6 +284,9 @@ describe('Amplitude', () => {
           fileDownloads: false,
           elementInteractions: false,
           frustrationInteractions: false,
+          networkTracking: false,
+          webVitals: false,
+          pageUrlEnrichment: false,
         },
         serverUrl: 'https://some.proxyserverurl.com',
       });
@@ -286,7 +297,7 @@ describe('Amplitude', () => {
       const amplitude = new Amplitude(
         {
           ...destinationConfig,
-          sdkVersion: { web: '2' },
+          sdkVersion: '2',
           attribution: true,
         },
         analyticsInstance,
@@ -304,10 +315,37 @@ describe('Amplitude', () => {
           fileDownloads: false,
           elementInteractions: false,
           frustrationInteractions: false,
+          networkTracking: false,
+          webVitals: false,
+          pageUrlEnrichment: false,
         },
         serverUrl: 'https://some.proxyserverurl.com',
       });
       expect(window.amplitude._q[0].args[2].attribution).toBeUndefined();
+    });
+
+    it('should set the correct SRI integrity on the injected v1 script', () => {
+      const amplitude = new Amplitude(
+        { ...destinationConfig, sdkVersion: '1' },
+        analyticsInstance,
+        destinationInfo,
+      );
+      amplitude.init();
+
+      const script = document.querySelector(`script[src="${AMPLITUDE_V1_SDK_URL}"]`);
+      expect(script.integrity).toBe(AMPLITUDE_V1_SDK_INTEGRITY);
+    });
+
+    it('should set the correct SRI integrity on the injected v2 script', () => {
+      const amplitude = new Amplitude(
+        { ...destinationConfig, sdkVersion: '2' },
+        analyticsInstance,
+        destinationInfo,
+      );
+      amplitude.init();
+
+      const script = document.querySelector(`script[src="${AMPLITUDE_V2_SDK_URL}"]`);
+      expect(script.integrity).toBe(AMPLITUDE_V2_SDK_INTEGRITY);
     });
   });
 

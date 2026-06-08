@@ -190,15 +190,23 @@ describe('getAmplitudeSdkVersion', () => {
     expect(getAmplitudeSdkVersion({})).toBe('1');
   });
 
-  it('should resolve v2 for sdkVersion.web as "2"', () => {
-    expect(getAmplitudeSdkVersion({ sdkVersion: { web: '2' } })).toBe('2');
+  it('should resolve v2 for sdkVersion as "2"', () => {
+    expect(getAmplitudeSdkVersion({ sdkVersion: '2' })).toBe('2');
   });
 
-  it('should fallback to v1 for sdkVersion.web as "1"', () => {
-    expect(getAmplitudeSdkVersion({ sdkVersion: { web: '1' } })).toBe('1');
+  it('should resolve v1 for sdkVersion as "1"', () => {
+    expect(getAmplitudeSdkVersion({ sdkVersion: '1' })).toBe('1');
   });
 
-  it('should fallback to v1 for an invalid sdkVersion.web value', () => {
-    expect(getAmplitudeSdkVersion({ sdkVersion: { web: 'foo' } })).toBe('1');
+  it('should fallback to v1 for an invalid sdkVersion value', () => {
+    expect(getAmplitudeSdkVersion({ sdkVersion: 'foo' })).toBe('1');
+  });
+
+  it('should fallback to v1 when sdkVersion is null', () => {
+    expect(getAmplitudeSdkVersion({ sdkVersion: null })).toBe('1');
+  });
+
+  it('should normalise surrounding whitespace in sdkVersion', () => {
+    expect(getAmplitudeSdkVersion({ sdkVersion: ' 2 ' })).toBe('2');
   });
 });

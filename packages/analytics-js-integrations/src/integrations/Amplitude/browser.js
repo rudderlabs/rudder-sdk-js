@@ -73,6 +73,11 @@ class Amplitude {
               fileDownloads: false,
               elementInteractions: false,
               frustrationInteractions: false,
+              networkTracking: false,
+              webVitals: false,
+              // pageUrlEnrichment defaults to true in the v2 SDK; disable it so the
+              // only active autocapture feature is attribution.
+              pageUrlEnrichment: false,
             },
           }
         : {
@@ -102,7 +107,9 @@ class Amplitude {
     }
     if (this.preferAnonymousIdForDeviceId && this.analytics)
       initOptions.deviceId = this.analytics.getAnonymousId();
-    window.amplitude.init(this.apiKey, null, initOptions);
+    // v2's init expects an absent (undefined) userId; v1 keeps the existing null.
+    const userId = this.sdkVersion === AMPLITUDE_SDK_V2 ? undefined : null;
+    window.amplitude.init(this.apiKey, userId, initOptions);
   }
 
   isLoaded() {
