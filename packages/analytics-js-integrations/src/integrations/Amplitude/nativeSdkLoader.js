@@ -1,13 +1,5 @@
 import { LOAD_ORIGIN } from '@rudderstack/analytics-js-legacy-utilities/constants';
-import {
-  AMPLITUDE_SDK_V2,
-  AMPLITUDE_V1_SDK_INTEGRITY,
-  AMPLITUDE_V2_SDK_INTEGRITY,
-  AMPLITUDE_V1_SDK_URL,
-  AMPLITUDE_V2_SDK_URL,
-} from './constants';
-
-function loadNativeSdk(e, t, sdkVersion) {
+function loadNativeSdk(e, t, sdkUrl, sdkIntegrity) {
   'use strict';
   var n = e.amplitude || { _q: [], _iq: {} };
   if (n.invoked) e.console && console.error && console.error('Amplitude snippet has been loaded.');
@@ -33,18 +25,17 @@ function loadNativeSdk(e, t, sdkVersion) {
       };
     n.invoked = !0;
     var a = t.createElement('script');
-    var c = sdkVersion === AMPLITUDE_SDK_V2;
     a.setAttribute('data-loader', LOAD_ORIGIN),
       (a.type = 'text/javascript'),
       (a.crossOrigin = 'anonymous'),
       (a.async = !0),
-      (a.src = c ? AMPLITUDE_V2_SDK_URL : AMPLITUDE_V1_SDK_URL),
-      (a.integrity = c ? AMPLITUDE_V2_SDK_INTEGRITY : AMPLITUDE_V1_SDK_INTEGRITY),
+      (a.src = sdkUrl),
+      (a.integrity = sdkIntegrity),
       (a.onload = function () {
         e.amplitude.runQueuedFunctions || console.log('[Amplitude] Error: could not load SDK');
       });
-    var h = t.getElementsByTagName('script')[0];
-    h.parentNode.insertBefore(a, h);
+    var c = t.getElementsByTagName('script')[0];
+    c.parentNode.insertBefore(a, c);
     for (
       var u = function () {
           return (this._q = []), this;

@@ -234,9 +234,9 @@ describe('Amplitude', () => {
       expect(document.querySelector(`script[src="${AMPLITUDE_V1_SDK_URL}"]`)).toBeTruthy();
     });
 
-    it('should load v1 sdk when sdkVersion is explicitly set to "1"', () => {
+    it('should load v1 sdk when sdkVersion is explicitly set to 1', () => {
       const amplitude = new Amplitude(
-        { ...destinationConfig, sdkVersion: '1' },
+        { ...destinationConfig, sdkVersion: 1 },
         analyticsInstance,
         destinationInfo,
       );
@@ -263,7 +263,7 @@ describe('Amplitude', () => {
       const amplitude = new Amplitude(
         {
           ...destinationConfig,
-          sdkVersion: '2',
+          sdkVersion: 2,
           attribution: false,
         },
         analyticsInstance,
@@ -297,7 +297,7 @@ describe('Amplitude', () => {
       const amplitude = new Amplitude(
         {
           ...destinationConfig,
-          sdkVersion: '2',
+          sdkVersion: 2,
           attribution: true,
         },
         analyticsInstance,
@@ -326,7 +326,7 @@ describe('Amplitude', () => {
 
     it('should set the correct SRI integrity on the injected v1 script', () => {
       const amplitude = new Amplitude(
-        { ...destinationConfig, sdkVersion: '1' },
+        { ...destinationConfig, sdkVersion: 1 },
         analyticsInstance,
         destinationInfo,
       );
@@ -338,7 +338,7 @@ describe('Amplitude', () => {
 
     it('should set the correct SRI integrity on the injected v2 script', () => {
       const amplitude = new Amplitude(
-        { ...destinationConfig, sdkVersion: '2' },
+        { ...destinationConfig, sdkVersion: 2 },
         analyticsInstance,
         destinationInfo,
       );

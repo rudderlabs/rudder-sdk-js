@@ -68,9 +68,7 @@ function formatUrl(url) {
 }
 
 const getAmplitudeSdkVersion = config => {
-  const configuredSdkVersion = `${config?.[AMPLITUDE_SDK_VERSION_CONFIG_KEY] ?? ''}`
-    .trim()
-    .toLowerCase();
+  const configuredSdkVersion = Number(config?.[AMPLITUDE_SDK_VERSION_CONFIG_KEY]);
   return configuredSdkVersion === AMPLITUDE_SDK_V2
     ? AMPLITUDE_SDK_V2
     : AMPLITUDE_SDK_V1;

@@ -1,6 +1,14 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import { NAME, DISPLAY_NAME, AMPLITUDE_SDK_V2 } from './constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+  AMPLITUDE_SDK_V2,
+  AMPLITUDE_V1_SDK_URL,
+  AMPLITUDE_V2_SDK_URL,
+  AMPLITUDE_V1_SDK_INTEGRITY,
+  AMPLITUDE_V2_SDK_INTEGRITY,
+} from './constants';
 import { isDefinedAndNotNullAndNotEmpty } from '../../utils/commonUtils';
 import Logger from '../../utils/logger';
 import { loadNativeSdk } from './nativeSdkLoader';
@@ -53,7 +61,12 @@ class Amplitude {
 
   init() {
     if (this.analytics.loadIntegration) {
-      loadNativeSdk(window, document, this.sdkVersion);
+      const sdkUrl = this.sdkVersion === AMPLITUDE_SDK_V2 ? AMPLITUDE_V2_SDK_URL : AMPLITUDE_V1_SDK_URL;
+      const sdkIntegrity =
+        this.sdkVersion === AMPLITUDE_SDK_V2
+          ? AMPLITUDE_V2_SDK_INTEGRITY
+          : AMPLITUDE_V1_SDK_INTEGRITY;
+      loadNativeSdk(window, document, sdkUrl, sdkIntegrity);
     }
 
     const commonInitOptions = {
@@ -65,6 +78,7 @@ class Amplitude {
       this.sdkVersion === AMPLITUDE_SDK_V2
         ? {
             ...commonInitOptions,
+            // Enable only attribution in v2; all other autocapture toggles stay off.
             autocapture: {
               attribution: !this.attribution,
               pageViews: false,
@@ -75,8 +89,6 @@ class Amplitude {
               frustrationInteractions: false,
               networkTracking: false,
               webVitals: false,
-              // pageUrlEnrichment defaults to true in the v2 SDK; disable it so the
-              // only active autocapture feature is attribution.
               pageUrlEnrichment: false,
             },
           }
