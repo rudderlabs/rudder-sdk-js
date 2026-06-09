@@ -22,7 +22,10 @@ function loadNativeSdk(account_id, settings_tolerance) {
   let config = { sT: settings_tolerance, hES: hide_element_style, hE: hide_element };
 
   try {
-    config = Object.assign(JSON.parse(localStorage.getItem(`_wingify_${account_id}_config`)), config);
+    const storedConfig = localStorage.getItem(`_wingify_${account_id}_config`);
+    if (storedConfig) {
+      config = Object.assign(JSON.parse(storedConfig), config);
+    }
   } catch (e) {
     // ignore invalid localStorage config
   }

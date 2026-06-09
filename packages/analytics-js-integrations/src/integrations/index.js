@@ -127,7 +127,7 @@ const integrations = {
   SNAP_PIXEL: SnapPixel.default,
   TVSQUARED: TVSquared.default,
   VWO: VWO.default,
-  WINGIFY: Wingify.default,
+  WINGIFY: Wingify.Wingify,
   GOOGLE_OPTIMIZE: GoogleOptimize.default,
   POST_AFFILIATE_PRO: PostAffiliatePro.default,
   LAUNCHDARKLY: LaunchDarkly.default,

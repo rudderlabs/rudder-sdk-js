@@ -54,7 +54,7 @@ class Wingify {
         window.WINGIFY.push(['visitor', ...args]);
       };
 
-    if (this.sendExperimentTrack || this.experimentViewedIdentify) {
+    if (this.sendExperimentTrack || this.sendExperimentIdentify) {
       this.experimentViewed();
     }
   }

@@ -1,4 +1,5 @@
 import Wingify from '../../../src/integrations/Wingify/browser';
+import { integrations } from '../../../src/integrations/index';
 
 const destinationInfo = {
   areTransformationsConnected: false,
@@ -18,6 +19,13 @@ const mockWingify = new Wingify(
   { loglevel: 'debug', loadOnlyIntegrations: { Wingify: { loadIntegration: true } } },
   destinationInfo,
 );
+
+describe('Wingify registry', () => {
+  test('should be registered in integrations map', () => {
+    expect(integrations.WINGIFY).toBeDefined();
+    expect(typeof integrations.WINGIFY).toBe('function');
+  });
+});
 
 describe('Wingify init tests', () => {
   let wingify;
