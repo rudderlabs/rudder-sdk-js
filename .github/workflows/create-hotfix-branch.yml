@@ -13,7 +13,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     uses: ./.github/workflows/validate-actor.yml
     with:
-      team_names: 'js-sdk,integrations'
+      team_names: 'sdk_team,integrations'
     secrets:
       RELEASE_PRIVATE_KEY: ${{ secrets.RELEASE_PRIVATE_KEY }}
 
