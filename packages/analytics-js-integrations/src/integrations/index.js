@@ -39,6 +39,7 @@ import * as Sentry from './Sentry';
 import * as SnapPixel from './SnapPixel';
 import * as TVSquared from './TVSquared';
 import * as VWO from './VWO';
+import * as Wingify from './Wingify';
 import * as GoogleOptimize from './GoogleOptimize';
 import * as PostAffiliatePro from './PostAffiliatePro';
 import * as LaunchDarkly from './LaunchDarkly';
@@ -126,6 +127,7 @@ const integrations = {
   SNAP_PIXEL: SnapPixel.default,
   TVSQUARED: TVSquared.default,
   VWO: VWO.default,
+  WINGIFY: Wingify.default,
   GOOGLE_OPTIMIZE: GoogleOptimize.default,
   POST_AFFILIATE_PRO: PostAffiliatePro.default,
   LAUNCHDARKLY: LaunchDarkly.default,
