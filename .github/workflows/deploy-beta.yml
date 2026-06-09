@@ -31,7 +31,7 @@ jobs:
     if: ${{ startsWith(github.ref, 'refs/heads/') }}
     uses: ./.github/workflows/validate-actor.yml
     with:
-      team_names: 'js-sdk,integrations'
+      team_names: 'sdk_team,integrations'
     secrets:
       RELEASE_PRIVATE_KEY: ${{ secrets.RELEASE_PRIVATE_KEY }}
 
