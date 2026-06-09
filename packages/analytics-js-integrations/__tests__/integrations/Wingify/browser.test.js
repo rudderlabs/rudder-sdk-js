@@ -31,6 +31,14 @@ describe('Wingify init tests', () => {
   let wingify;
 
   test('Testing init call of Wingify', () => {
+    const appendedNodes = [];
+    const appendChildSpy = jest
+      .spyOn(document.head, 'appendChild')
+      .mockImplementation(node => {
+        appendedNodes.push(node);
+        return node;
+      });
+
     wingify = new Wingify(
       {
         accountId: '654331',
@@ -45,10 +53,13 @@ describe('Wingify init tests', () => {
       destinationInfo,
     );
     wingify.init();
-    const script = window.document.querySelector(
-      'script[src="https://edge.wingify.net/tag/654331.js"]',
+
+    const script = appendedNodes.find(
+      node => node.tagName === 'SCRIPT' && node.src === 'https://edge.wingify.net/tag/654331.js',
     );
     expect(script).toBeDefined();
+
+    appendChildSpy.mockRestore();
   });
 });
 
@@ -124,14 +135,14 @@ describe('Wingify Identify Event', () => {
     });
   });
 
-  test('Vistor call with attributes', async () => {
+  test('Visitor call with attributes', async () => {
     mockWingify.init();
     mockWingify.identify({
       message: {
         userId: 'rudder01',
         context: {
           traits: {
-            email: 'abc@ruddertack.com',
+            email: 'abc@rudderstack.com',
             isRudderEvents: true,
           },
         },
@@ -140,12 +151,57 @@ describe('Wingify Identify Event', () => {
     expect(window.WINGIFY.visitor).toHaveBeenCalled();
     expect(window.WINGIFY.visitor).toHaveBeenCalledWith(
       {
-        'rudder.email': 'abc@ruddertack.com',
+        'rudder.email': 'abc@rudderstack.com',
         'rudder.isRudderEvents': true,
       },
       {
         source: 'rudderstack',
       },
     );
+  });
+
+  test('Visitor call with top-level traits when context has no traits', async () => {
+    mockWingify.init();
+    mockWingify.identify({
+      message: {
+        userId: 'rudder01',
+        context: {},
+        traits: {
+          plan: 'enterprise',
+        },
+      },
+    });
+    expect(window.WINGIFY.visitor).toHaveBeenCalledWith(
+      {
+        'rudder.plan': 'enterprise',
+      },
+      {
+        source: 'rudderstack',
+      },
+    );
+  });
+});
+
+describe('Wingify Track Event validation', () => {
+  beforeEach(() => {
+    jest.restoreAllMocks();
+    jest.spyOn(mockWingify, 'init').mockImplementation(() => {
+      window.WINGIFY = {
+        push: jest.fn(),
+        event: jest.fn(),
+      };
+      return Promise.resolve(window.WINGIFY);
+    });
+  });
+
+  test('Track call with whitespace-only event name is rejected', () => {
+    mockWingify.init();
+    mockWingify.track({
+      message: {
+        context: {},
+        event: '   ',
+      },
+    });
+    expect(window.WINGIFY.event).not.toHaveBeenCalled();
   });
 });

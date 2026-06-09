@@ -77,37 +77,37 @@ class Wingify {
         }
         const expId = data[1];
         const variationId = data[2];
-        logger.info(
-          'experiment id:',
-          expId,
-          'Variation Name:',
-          _wingify_exp[expId].comb_n[variationId],
-        );
+        const experiment = window._wingify_exp?.[expId];
+        const variationName = experiment?.comb_n?.[variationId];
+
         if (
-          typeof _wingify_exp[expId].comb_n[variationId] !== 'undefined' &&
-          ['VISUAL_AB', 'VISUAL', 'SPLIT_URL', 'SURVEY'].indexOf(_wingify_exp[expId].type) > -1
+          typeof variationName === 'undefined' ||
+          ['VISUAL_AB', 'VISUAL', 'SPLIT_URL', 'SURVEY'].indexOf(experiment?.type) === -1
         ) {
-          try {
-            if (this.sendExperimentTrack) {
-              this.analytics.track('Experiment Viewed', {
-                experimentId: expId,
-                variationName: _wingify_exp[expId].comb_n[variationId],
-                CampaignName: _wingify_exp[expId].name,
-                VariationId: variationId,
-              });
-            }
-          } catch (error) {
-            logger.error('experimentViewed', error);
+          return;
+        }
+
+        logger.info('experiment id:', expId, 'Variation Name:', variationName);
+        try {
+          if (this.sendExperimentTrack) {
+            this.analytics.track('Experiment Viewed', {
+              experimentId: expId,
+              variationName,
+              CampaignName: experiment.name,
+              VariationId: variationId,
+            });
           }
-          try {
-            if (this.sendExperimentIdentify) {
-              this.analytics.identify({
-                [`Experiment: ${expId}`]: _wingify_exp[expId].comb_n[variationId],
-              });
-            }
-          } catch (error) {
-            logger.error('experimentViewed', error);
+        } catch (error) {
+          logger.error('experimentViewed', error);
+        }
+        try {
+          if (this.sendExperimentIdentify) {
+            this.analytics.identify({
+              [`Experiment: ${expId}`]: variationName,
+            });
           }
+        } catch (error) {
+          logger.error('experimentViewed', error);
         }
       },
     ]);
@@ -115,15 +115,14 @@ class Wingify {
 
   identify(rudderElement) {
     const { message } = rudderElement;
-    const { traits } = message.context || message;
-    const payload = traits || {};
+    const payload = message.context?.traits ?? message.traits ?? {};
     const formattedAttributes = sanitizeAttributes(payload);
 
     window.WINGIFY.visitor(formattedAttributes, { source: 'rudderstack' });
   }
 
   track(rudderElement) {
-    const eventName = rudderElement.message.event;
+    const eventName = rudderElement.message.event?.trim();
     if (!eventName) {
       logger.error('[WINGIFY] track:: event name is required');
       return;

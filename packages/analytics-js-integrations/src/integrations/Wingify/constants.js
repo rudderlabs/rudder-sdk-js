@@ -6,7 +6,6 @@ const CNameMapping = {
   [NAME]: NAME,
   Wingify: NAME,
   wingify: NAME,
-  WINGIFY: NAME,
 };
 
 export { NAME, CNameMapping, DISPLAY_NAME, DIR_NAME };

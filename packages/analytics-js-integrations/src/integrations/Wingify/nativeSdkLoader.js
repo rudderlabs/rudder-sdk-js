@@ -78,13 +78,16 @@ function loadNativeSdk(account_id, settings_tolerance) {
         code.finish();
       }, this.settings_tolerance());
 
-      const style = n.createElement('style');
-      style.id = '_vis_opt_path_hides';
-      if (o?.nonce) {
-        style.setAttribute('nonce', o.nonce);
+      const hideElement = this.hide_element();
+      if (hideElement) {
+        const style = n.createElement('style');
+        style.id = '_vis_opt_path_hides';
+        if (o?.nonce) {
+          style.setAttribute('nonce', o.nonce);
+        }
+        style.textContent = hideElement + this.hide_element_style();
+        n.head.appendChild(style);
       }
-      style.textContent = this.hide_element() + this.hide_element_style();
-      n.head.appendChild(style);
       this.addScript(`https://edge.wingify.net/tag/${account_id}.js`);
     },
   };
