@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       team_names:
-        description: 'Comma-separated list of team names'
+        description: 'Comma-separated list of GitHub team slugs (URL slug, not display name)'
         type: string
         default: 'sdk_team'
     secrets:
