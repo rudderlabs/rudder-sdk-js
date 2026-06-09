@@ -6,7 +6,7 @@ on:
       team_names:
         description: 'Comma-separated list of team names'
         type: string
-        default: 'js-sdk'
+        default: 'sdk_team'
     secrets:
       RELEASE_PRIVATE_KEY:
         required: true
