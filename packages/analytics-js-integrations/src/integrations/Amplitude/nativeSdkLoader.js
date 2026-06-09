@@ -228,6 +228,4 @@ function loadNativeSdkV2(e, t) {
   }
 }
 
-window, document;
-
 export { loadNativeSdkV1, loadNativeSdkV2 };
