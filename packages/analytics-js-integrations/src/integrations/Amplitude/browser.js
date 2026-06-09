@@ -1,17 +1,9 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import {
-  NAME,
-  DISPLAY_NAME,
-  AMPLITUDE_SDK_V2,
-  AMPLITUDE_V1_SDK_URL,
-  AMPLITUDE_V2_SDK_URL,
-  AMPLITUDE_V1_SDK_INTEGRITY,
-  AMPLITUDE_V2_SDK_INTEGRITY,
-} from './constants';
+import { NAME, DISPLAY_NAME, AMPLITUDE_SDK_V2 } from './constants';
 import { isDefinedAndNotNullAndNotEmpty } from '../../utils/commonUtils';
 import Logger from '../../utils/logger';
-import { loadNativeSdk } from './nativeSdkLoader';
+import { loadNativeSdkV1, loadNativeSdkV2 } from './nativeSdkLoader';
 import {
   getTraitsToSetOnce,
   getTraitsToIncrement,
@@ -61,12 +53,11 @@ class Amplitude {
 
   init() {
     if (this.analytics.loadIntegration) {
-      const sdkUrl = this.sdkVersion === AMPLITUDE_SDK_V2 ? AMPLITUDE_V2_SDK_URL : AMPLITUDE_V1_SDK_URL;
-      const sdkIntegrity =
-        this.sdkVersion === AMPLITUDE_SDK_V2
-          ? AMPLITUDE_V2_SDK_INTEGRITY
-          : AMPLITUDE_V1_SDK_INTEGRITY;
-      loadNativeSdk(window, document, sdkUrl, sdkIntegrity);
+      if (this.sdkVersion === AMPLITUDE_SDK_V2) {
+        loadNativeSdkV2(window, document);
+      } else {
+        loadNativeSdkV1(window, document);
+      }
     }
 
     const commonInitOptions = {
