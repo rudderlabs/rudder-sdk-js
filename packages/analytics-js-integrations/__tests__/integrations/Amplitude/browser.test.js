@@ -2,12 +2,13 @@
 /* eslint-disable no-underscore-dangle */
 import { errorMock } from '../../../__mocks__/logger';
 import Amplitude from '../../../src/integrations/Amplitude/browser';
-import {
-  AMPLITUDE_V1_SDK_URL,
-  AMPLITUDE_V2_SDK_URL,
-  AMPLITUDE_V1_SDK_INTEGRITY,
-  AMPLITUDE_V2_SDK_INTEGRITY,
-} from '../../../src/integrations/Amplitude/constants';
+
+const AMPLITUDE_V1_SDK_URL = 'https://cdn.amplitude.com/libs/analytics-browser-1.9.1-min.js.gz';
+const AMPLITUDE_V2_SDK_URL = 'https://cdn.amplitude.com/libs/analytics-browser-2.32.0-min.js.gz';
+const AMPLITUDE_V1_SDK_INTEGRITY =
+  'sha384-TPZhteUkZj8CAyBx+GZZytBdkuKnhKsSKcCoVCq0QSteWf/Kw5Kb9oVFUROLE1l3';
+const AMPLITUDE_V2_SDK_INTEGRITY =
+  'sha384-hZ3s3uB8PfU4QYbgXXtU9kEy7lt8i7kRKIWzbVjnS//GQSyv42iEVDEniwLASsSh';
 
 const destinationConfig = {
   apiKey: 'AMPLITUDE_API_KEY',
