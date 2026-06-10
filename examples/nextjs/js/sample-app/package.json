@@ -17,10 +17,10 @@
     "@rudderstack/analytics-js": "*",
     "@tailwindcss/postcss": "4.3.0",
     "eslint": "10.0.2",
-    "eslint-config-next": "16.2.6",
-    "next": "16.2.6",
+    "eslint-config-next": "16.2.7",
+    "next": "16.2.7",
     "react": "19.2.6",
-    "react-dom": "19.2.6"
+    "react-dom": "19.2.7"
   },
   "devDependencies": {
     "@types/react": "19.2.15",
