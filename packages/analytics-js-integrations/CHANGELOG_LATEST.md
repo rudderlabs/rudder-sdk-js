@@ -1,7 +1,7 @@
-## [3.21.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.20.2...@rudderstack/analytics-js-integrations@3.21.0) (2026-06-08)
+## [3.22.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.21.0...@rudderstack/analytics-js-integrations@3.22.0) (2026-06-11)
 
 
 ### Features
 
-* support custom sdkBaseUrl in google ads sdk ([#3002](https://github.com/rudderlabs/rudder-sdk-js/issues/3002)) ([a116355](https://github.com/rudderlabs/rudder-sdk-js/commit/a116355f3b0be7e40095dc0606b3b8e1a7ef28a1))
+* **@rudderstack/analytics-js-integrations:** add amplitude v1/v2 sdk selection ([#3042](https://github.com/rudderlabs/rudder-sdk-js/issues/3042)) ([804b67c](https://github.com/rudderlabs/rudder-sdk-js/commit/804b67c040a655c6916308b5d754d712fc0c2242))
 
