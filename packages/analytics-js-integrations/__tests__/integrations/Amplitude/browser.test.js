@@ -3,6 +3,13 @@
 import { errorMock } from '../../../__mocks__/logger';
 import Amplitude from '../../../src/integrations/Amplitude/browser';
 
+const AMPLITUDE_V1_SDK_URL = 'https://cdn.amplitude.com/libs/analytics-browser-1.9.1-min.js.gz';
+const AMPLITUDE_V2_SDK_URL = 'https://cdn.amplitude.com/libs/analytics-browser-2.32.0-min.js.gz';
+const AMPLITUDE_V1_SDK_INTEGRITY =
+  'sha384-TPZhteUkZj8CAyBx+GZZytBdkuKnhKsSKcCoVCq0QSteWf/Kw5Kb9oVFUROLE1l3';
+const AMPLITUDE_V2_SDK_INTEGRITY =
+  'sha384-hZ3s3uB8PfU4QYbgXXtU9kEy7lt8i7kRKIWzbVjnS//GQSyv42iEVDEniwLASsSh';
+
 const destinationConfig = {
   apiKey: 'AMPLITUDE_API_KEY',
   proxyServerUrl: 'https://some.proxyserverurl.com',
@@ -72,6 +79,9 @@ describe('Amplitude', () => {
   describe('init', () => {
     beforeEach(() => {
       window.amplitude = undefined;
+      document
+        .querySelectorAll(`script[src="${AMPLITUDE_V1_SDK_URL}"], script[src="${AMPLITUDE_V2_SDK_URL}"]`)
+        .forEach(element => element.remove());
     });
 
     it('should initialize the destination SDK', () => {
@@ -216,6 +226,127 @@ describe('Amplitude', () => {
       amplitude.init();
 
       expect(window.amplitude._q[0].args[2].serverZone).toBe('EU');
+    });
+
+    it('should load v1 sdk by default when sdk version is not configured', () => {
+      const amplitude = new Amplitude(destinationConfig, analyticsInstance, destinationInfo);
+      amplitude.init();
+
+      expect(document.querySelector(`script[src="${AMPLITUDE_V1_SDK_URL}"]`)).toBeTruthy();
+    });
+
+    it('should load v1 sdk when sdkVersion is explicitly set to 1', () => {
+      const amplitude = new Amplitude(
+        { ...destinationConfig, sdkVersion: 1 },
+        analyticsInstance,
+        destinationInfo,
+      );
+      amplitude.init();
+
+      expect(document.querySelector(`script[src="${AMPLITUDE_V1_SDK_URL}"]`)).toBeTruthy();
+      // v1 init passes an explicit null userId
+      expect(window.amplitude._q[0].name).toBe('init');
+      expect(window.amplitude._q[0].args[1]).toBeNull();
+    });
+
+    it('should load v1 sdk when sdkVersion is an invalid value', () => {
+      const amplitude = new Amplitude(
+        { ...destinationConfig, sdkVersion: 'foo' },
+        analyticsInstance,
+        destinationInfo,
+      );
+      amplitude.init();
+
+      expect(document.querySelector(`script[src="${AMPLITUDE_V1_SDK_URL}"]`)).toBeTruthy();
+    });
+
+    it('should load v2 sdk and enable attribution autocapture when attribution is not disabled', () => {
+      const amplitude = new Amplitude(
+        {
+          ...destinationConfig,
+          sdkVersion: 2,
+          attribution: false,
+        },
+        analyticsInstance,
+        destinationInfo,
+      );
+      amplitude.init();
+
+      expect(document.querySelector(`script[src="${AMPLITUDE_V2_SDK_URL}"]`)).toBeTruthy();
+      // v2 init passes an undefined userId (not null)
+      expect(window.amplitude._q[0].name).toBe('init');
+      expect(window.amplitude._q[0].args[1]).toBeUndefined();
+      expect(window.amplitude._q[0].args[2]).toMatchObject({
+        autocapture: {
+          attribution: true,
+          pageViews: false,
+          sessions: false,
+          formInteractions: false,
+          fileDownloads: false,
+          elementInteractions: false,
+          frustrationInteractions: false,
+          networkTracking: false,
+          webVitals: false,
+          pageUrlEnrichment: false,
+        },
+        serverUrl: 'https://some.proxyserverurl.com',
+      });
+      expect(window.amplitude._q[0].args[2].attribution).toBeUndefined();
+    });
+
+    it('should load v2 sdk and disable attribution autocapture when attribution is disabled', () => {
+      const amplitude = new Amplitude(
+        {
+          ...destinationConfig,
+          sdkVersion: 2,
+          attribution: true,
+        },
+        analyticsInstance,
+        destinationInfo,
+      );
+      amplitude.init();
+
+      expect(document.querySelector(`script[src="${AMPLITUDE_V2_SDK_URL}"]`)).toBeTruthy();
+      expect(window.amplitude._q[0].args[2]).toMatchObject({
+        autocapture: {
+          attribution: false,
+          pageViews: false,
+          sessions: false,
+          formInteractions: false,
+          fileDownloads: false,
+          elementInteractions: false,
+          frustrationInteractions: false,
+          networkTracking: false,
+          webVitals: false,
+          pageUrlEnrichment: false,
+        },
+        serverUrl: 'https://some.proxyserverurl.com',
+      });
+      expect(window.amplitude._q[0].args[2].attribution).toBeUndefined();
+    });
+
+    it('should set the correct SRI integrity on the injected v1 script', () => {
+      const amplitude = new Amplitude(
+        { ...destinationConfig, sdkVersion: 1 },
+        analyticsInstance,
+        destinationInfo,
+      );
+      amplitude.init();
+
+      const script = document.querySelector(`script[src="${AMPLITUDE_V1_SDK_URL}"]`);
+      expect(script.integrity).toBe(AMPLITUDE_V1_SDK_INTEGRITY);
+    });
+
+    it('should set the correct SRI integrity on the injected v2 script', () => {
+      const amplitude = new Amplitude(
+        { ...destinationConfig, sdkVersion: 2 },
+        analyticsInstance,
+        destinationInfo,
+      );
+      amplitude.init();
+
+      const script = document.querySelector(`script[src="${AMPLITUDE_V2_SDK_URL}"]`);
+      expect(script.integrity).toBe(AMPLITUDE_V2_SDK_INTEGRITY);
     });
   });
 

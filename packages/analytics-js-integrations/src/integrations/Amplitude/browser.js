@@ -1,15 +1,16 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import { NAME, DISPLAY_NAME } from './constants';
+import { NAME, DISPLAY_NAME, AMPLITUDE_SDK_V2 } from './constants';
 import { isDefinedAndNotNullAndNotEmpty } from '../../utils/commonUtils';
 import Logger from '../../utils/logger';
-import { loadNativeSdk } from './nativeSdkLoader';
+import { loadNativeSdkV1, loadNativeSdkV2 } from './nativeSdkLoader';
 import {
   getTraitsToSetOnce,
   getTraitsToIncrement,
   getDestinationOptions,
   getFieldsToUnset,
   formatUrl,
+  getAmplitudeSdkVersion,
 } from './utils';
 import { getValueOrDefault } from '../../utils/utils';
 
@@ -42,6 +43,7 @@ class Amplitude {
     this.versionName = config.versionName;
     this.groupTypeTrait = config.groupTypeTrait;
     this.groupValueTrait = config.groupValueTrait;
+    this.sdkVersion = getAmplitudeSdkVersion(config);
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
@@ -51,15 +53,40 @@ class Amplitude {
 
   init() {
     if (this.analytics.loadIntegration) {
-      loadNativeSdk(window, document);
+      if (this.sdkVersion === AMPLITUDE_SDK_V2) {
+        loadNativeSdkV2(window, document);
+      } else {
+        loadNativeSdkV1(window, document);
+      }
     }
 
-    const initOptions = {
-      attribution: { disabled: this.attribution, trackNewCampaigns: !this.trackNewCampaigns },
+    const commonInitOptions = {
       flushQueueSize: this.flushQueueSize,
       flushIntervalMillis: this.flushIntervalMillis,
       appVersion: this.versionName,
     };
+    const initOptions =
+      this.sdkVersion === AMPLITUDE_SDK_V2
+        ? {
+            ...commonInitOptions,
+            // Enable only attribution in v2; all other autocapture toggles stay off.
+            autocapture: {
+              attribution: !this.attribution,
+              pageViews: false,
+              sessions: false,
+              formInteractions: false,
+              fileDownloads: false,
+              elementInteractions: false,
+              frustrationInteractions: false,
+              networkTracking: false,
+              webVitals: false,
+              pageUrlEnrichment: false,
+            },
+          }
+        : {
+            ...commonInitOptions,
+            attribution: { disabled: this.attribution, trackNewCampaigns: !this.trackNewCampaigns },
+          };
 
     if (isDefinedAndNotNullAndNotEmpty(this.proxyServerUrl)) {
       if (this.proxyServerUrl.startsWith('http://')) {
@@ -83,7 +110,9 @@ class Amplitude {
     }
     if (this.preferAnonymousIdForDeviceId && this.analytics)
       initOptions.deviceId = this.analytics.getAnonymousId();
-    window.amplitude.init(this.apiKey, null, initOptions);
+    // v2's init expects an absent (undefined) userId; v1 keeps the existing null.
+    const userId = this.sdkVersion === AMPLITUDE_SDK_V2 ? undefined : null;
+    window.amplitude.init(this.apiKey, userId, initOptions);
   }
 
   isLoaded() {
