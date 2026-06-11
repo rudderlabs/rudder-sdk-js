@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-monorepo",
-  "version": "3.110.0",
+  "version": "3.111.0",
   "private": true,
   "description": "Monorepo for RudderStack Analytics JS SDK",
   "workspaces": [
@@ -202,15 +202,15 @@
   },
   "optionalDependencies": {
     "@linear/sdk": "82.0.0",
-    "@nx/nx-darwin-arm64": "22.7.2",
-    "@nx/nx-darwin-x64": "22.7.2",
-    "@nx/nx-linux-x64-gnu": "22.7.2",
-    "@nx/nx-win32-x64-msvc": "22.7.2",
+    "@nx/nx-darwin-arm64": "22.7.5",
+    "@nx/nx-darwin-x64": "22.7.5",
+    "@nx/nx-linux-x64-gnu": "22.7.5",
+    "@nx/nx-win32-x64-msvc": "22.7.5",
     "@rollup/rollup-linux-x64-gnu": "4.60.4",
-    "@swc/core-linux-x64-gnu": "1.15.33",
-    "@swc/core-darwin-x64": "1.15.33",
-    "@swc/core-win32-x64-msvc": "1.15.33",
-    "@swc/core-darwin-arm64": "1.15.33"
+    "@swc/core-linux-x64-gnu": "1.15.40",
+    "@swc/core-darwin-x64": "1.15.40",
+    "@swc/core-win32-x64-msvc": "1.15.40",
+    "@swc/core-darwin-arm64": "1.15.40"
   },
   "overrides": {
     "rudder-component-cookie": {

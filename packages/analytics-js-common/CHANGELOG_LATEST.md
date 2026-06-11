@@ -1,6 +1,7 @@
-## [3.28.2](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.28.1...@rudderstack/analytics-js-common@3.28.2) (2026-04-23)
+## [3.28.3](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.28.2...@rudderstack/analytics-js-common@3.28.3) (2026-06-08)
+
 
 ### Bug Fixes
 
-* **analytics-js,common:** record @preact/signals-core 1.14.1 bump for release ([#2971](https://github.com/rudderlabs/rudder-sdk-js/issues/2971)) ([50ab479](https://github.com/rudderlabs/rudder-sdk-js/commit/50ab479b06feb5ca166905a144d1e2f048af3414))
+* **deps:** bump the npm-prod-deps group across 1 directory with 7 updates ([#3022](https://github.com/rudderlabs/rudder-sdk-js/issues/3022)) ([2614f86](https://github.com/rudderlabs/rudder-sdk-js/commit/2614f8619e5b2dac65c85a85565297ba074986f7))
 
