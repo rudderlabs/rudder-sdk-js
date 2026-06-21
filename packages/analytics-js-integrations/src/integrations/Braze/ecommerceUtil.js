@@ -1,0 +1,347 @@
+import { constructPayload } from '../../utils/utils';
+import { removeUndefinedAndNullAndEmptyValues } from '../../utils/commonUtils';
+
+/**
+ * Braze recommended ecommerce event names.
+ * https://www.braze.com/docs/user_guide/data/activation/events/recommended_events
+ */
+export const BRAZE_ECOMMERCE_EVENTS = {
+  PRODUCT_VIEWED: 'ecommerce.product_viewed',
+  CART_UPDATED: 'ecommerce.cart_updated',
+  CHECKOUT_STARTED: 'ecommerce.checkout_started',
+  ORDER_PLACED: 'ecommerce.order_placed',
+  ORDER_REFUNDED: 'ecommerce.order_refunded',
+  ORDER_CANCELLED: 'ecommerce.order_cancelled',
+};
+
+const BRAZE_SOURCE_VALUES = ['web', 'ios', 'android'];
+
+// Case-insensitive RS event name -> Braze recommended event mapping.
+// Keys are lowercased RS event names. `Cart Viewed` and `Cart Updated` are
+// intentionally absent — both fall through to the legacy custom-event path.
+const EVENT_NAME_TO_BRAZE = {
+  'product viewed': { brazeEvent: BRAZE_ECOMMERCE_EVENTS.PRODUCT_VIEWED },
+  'product added': { brazeEvent: BRAZE_ECOMMERCE_EVENTS.CART_UPDATED, action: 'add' },
+  'product removed': { brazeEvent: BRAZE_ECOMMERCE_EVENTS.CART_UPDATED, action: 'remove' },
+  'checkout started': { brazeEvent: BRAZE_ECOMMERCE_EVENTS.CHECKOUT_STARTED },
+  'order completed': { brazeEvent: BRAZE_ECOMMERCE_EVENTS.ORDER_PLACED },
+  'order refunded': { brazeEvent: BRAZE_ECOMMERCE_EVENTS.ORDER_REFUNDED },
+  'order cancelled': { brazeEvent: BRAZE_ECOMMERCE_EVENTS.ORDER_CANCELLED },
+};
+
+// ---------------------------------------------------------------------------
+// Per-event field mappings (mirror of the cloud `Braze*Config.json` files).
+// Each entry is built via `m(destKey, sourceKeys, required)`:
+//   - `destKey`/`sourceKeys` are the `constructPayload` contract.
+//   - `req` flags Braze-required fields (consumed by collectMissingRequiredFields).
+// `sourceKeys` arrays are ordered fallback chains (first resolved value wins).
+// ---------------------------------------------------------------------------
+
+const m = (destKey, sourceKeys, req = false) => ({ destKey, sourceKeys, req });
+
+// Shared fallback chain reused across checkout/order events.
+const TOTAL_VALUE_SOURCES = ['properties.total', 'properties.revenue', 'properties.value'];
+
+const PRODUCT_VIEWED_MAPPING = [
+  m('product_id', ['properties.product_id', 'properties.sku'], true),
+  m('product_name', 'properties.name', true),
+  m('variant_id', ['properties.variant', 'properties.sku', 'properties.product_id'], true),
+  m('price', 'properties.price', true),
+  m('currency', 'properties.currency', true),
+  m('image_url', 'properties.image_url'),
+  m('product_url', 'properties.url'),
+  m('type', 'properties.type'),
+];
+
+const CART_UPDATED_MAPPING = [
+  m('cart_id', 'properties.cart_id', true),
+  m('total_value', ['properties.total', 'properties.value']),
+  m('subtotal_value', 'properties.subtotal_value'),
+  m('tax', 'properties.tax'),
+  m('shipping', 'properties.shipping'),
+  m('currency', 'properties.currency', true),
+];
+
+const CHECKOUT_STARTED_MAPPING = [
+  m('checkout_id', ['properties.checkout_id', 'properties.order_id'], true),
+  m('cart_id', 'properties.cart_id'),
+  m('total_value', TOTAL_VALUE_SOURCES, true),
+  m('subtotal_value', 'properties.subtotal_value'),
+  m('tax', 'properties.tax'),
+  m('shipping', 'properties.shipping'),
+  m('currency', 'properties.currency', true),
+];
+
+const ORDER_PLACED_MAPPING = [
+  m('order_id', 'properties.order_id', true),
+  m('total_value', TOTAL_VALUE_SOURCES, true),
+  m('currency', 'properties.currency', true),
+  m('cart_id', 'properties.cart_id'),
+  m('tax', 'properties.tax'),
+  m('shipping', 'properties.shipping'),
+  m('total_discounts', 'properties.discount'),
+  m('subtotal_value', 'properties.subtotal_value'),
+  m('discounts', 'properties.discounts'),
+];
+
+const ORDER_REFUNDED_MAPPING = [
+  m('order_id', 'properties.order_id', true),
+  m('total_value', TOTAL_VALUE_SOURCES, true),
+  m('currency', 'properties.currency', true),
+  m('total_discounts', 'properties.total_discounts'),
+  m('discounts', 'properties.discounts'),
+];
+
+const ORDER_CANCELLED_MAPPING = [
+  m('order_id', 'properties.order_id', true),
+  m('total_value', TOTAL_VALUE_SOURCES, true),
+  m('currency', 'properties.currency', true),
+  m('cancel_reason', ['properties.cancel_reason', 'properties.reason'], true),
+  m('tax', 'properties.tax'),
+  m('shipping', 'properties.shipping'),
+  m('total_discounts', 'properties.discount'),
+  m('subtotal_value', 'properties.subtotal_value'),
+  m('discounts', 'properties.discounts'),
+];
+
+// Shared per-product mapping (bare keys — read from each `products[i]` /
+// `properties` directly, no `properties.` prefix).
+const ECOMMERCE_PRODUCT_MAPPING = [
+  m('product_id', ['product_id', 'sku'], true),
+  m('product_name', 'name', true),
+  m('variant_id', ['variant', 'sku', 'product_id'], true),
+  m('quantity', 'quantity', true),
+  m('price', 'price', true),
+  m('image_url', 'image_url'),
+  m('product_url', 'url'),
+];
+
+const PER_EVENT_MAPPING = {
+  [BRAZE_ECOMMERCE_EVENTS.PRODUCT_VIEWED]: PRODUCT_VIEWED_MAPPING,
+  [BRAZE_ECOMMERCE_EVENTS.CART_UPDATED]: CART_UPDATED_MAPPING,
+  [BRAZE_ECOMMERCE_EVENTS.CHECKOUT_STARTED]: CHECKOUT_STARTED_MAPPING,
+  [BRAZE_ECOMMERCE_EVENTS.ORDER_PLACED]: ORDER_PLACED_MAPPING,
+  [BRAZE_ECOMMERCE_EVENTS.ORDER_REFUNDED]: ORDER_REFUNDED_MAPPING,
+  [BRAZE_ECOMMERCE_EVENTS.ORDER_CANCELLED]: ORDER_CANCELLED_MAPPING,
+};
+
+// ---------------------------------------------------------------------------
+// Private helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Mirror `constructPayload`'s truthiness rule: `0` and `false` are valid values; only
+ * undefined/null/empty-string count as missing.
+ */
+const isResolvedValue = value => {
+  if (value === 0 || value === false) return true;
+  if (value === undefined || value === null) return false;
+  return !(typeof value === 'string' && value.length === 0);
+};
+
+/**
+ * Return the subset of `source` whose keys are not in `consumed`.
+ * Used to derive the `metadata` pass-through.
+ */
+const pickUnmappedKeys = (source, consumed) => {
+  const result = {};
+  Object.keys(source).forEach(key => {
+    if (!consumed.has(key) && source[key] !== undefined) {
+      result[key] = source[key];
+    }
+  });
+  return result;
+};
+
+/**
+ * Compute the set of source keys referenced by a per-product mapping. Product mappings
+ * use bare keys (`product_id`, `name`, ...), so no prefix-stripping is required.
+ */
+const consumedKeysFromMapping = mapping => {
+  const consumed = new Set();
+  mapping.forEach(entry => {
+    const sources = Array.isArray(entry.sourceKeys) ? entry.sourceKeys : [entry.sourceKeys];
+    sources.forEach(src => {
+      if (typeof src === 'string') {
+        consumed.add(src);
+      }
+    });
+  });
+  return consumed;
+};
+
+/**
+ * Compute the set of message-property keys "consumed" by the event-level mapping (so
+ * they aren't duplicated into `metadata`). Includes the `properties.`-prefixed source
+ * keys, the `source` key (always derived), the `products` key for product-bearing
+ * events, and (for cart_updated) the top-level product field keys folded into products[0].
+ */
+const consumedTopLevelKeysForEvent = (brazeEvent, eventMapping, hasProducts) => {
+  const consumed = new Set();
+  consumed.add('source');
+
+  eventMapping.forEach(entry => {
+    const sources = Array.isArray(entry.sourceKeys) ? entry.sourceKeys : [entry.sourceKeys];
+    sources.forEach(src => {
+      if (typeof src === 'string' && src.startsWith('properties.')) {
+        consumed.add(src.slice('properties.'.length));
+      }
+    });
+  });
+
+  if (hasProducts) {
+    consumed.add('products');
+  }
+
+  // cart_updated uses top-level product fields as the single wrapped product;
+  // mark those keys as consumed so they don't duplicate into event-level metadata.
+  if (brazeEvent === BRAZE_ECOMMERCE_EVENTS.CART_UPDATED && hasProducts) {
+    consumedKeysFromMapping(ECOMMERCE_PRODUCT_MAPPING).forEach(key => consumed.add(key));
+  }
+
+  return consumed;
+};
+
+/**
+ * Build the `products[]` array for the outgoing payload.
+ * - cart_updated: read top-level product fields directly from `properties` into a
+ *   1-element products[]. No per-product metadata — unmapped event-level keys flow
+ *   through the event-level metadata pass.
+ * - other product-bearing events: map each item in `properties.products` and route
+ *   per-product unmapped keys to `products[i].metadata`.
+ */
+const buildProductsArray = (properties, brazeEvent) => {
+  const isCartUpdated = brazeEvent === BRAZE_ECOMMERCE_EVENTS.CART_UPDATED;
+
+  if (isCartUpdated && !Array.isArray(properties.products)) {
+    return [constructPayload(properties, ECOMMERCE_PRODUCT_MAPPING) || {}];
+  }
+
+  const rawProducts = Array.isArray(properties.products) ? properties.products : [];
+  const consumedKeys = consumedKeysFromMapping(ECOMMERCE_PRODUCT_MAPPING);
+  return rawProducts.map(raw => {
+    const item = raw && typeof raw === 'object' ? raw : {};
+    const product = constructPayload(item, ECOMMERCE_PRODUCT_MAPPING) || {};
+    const productMetadata = pickUnmappedKeys(item, consumedKeys);
+    if (Object.keys(productMetadata).length > 0) {
+      product.metadata = productMetadata;
+    }
+    return product;
+  });
+};
+
+/**
+ * Collect the Braze-required fields missing from the constructed payload — event-level
+ * and per-product. An empty `products[]` on a product-bearing event is reported as a
+ * missing `products` field. Returns a flat list of human-readable field labels.
+ */
+const collectMissingRequiredFields = (eventMapping, hasProducts, payload) => {
+  const missing = [];
+
+  eventMapping.forEach(entry => {
+    if (entry.req && !isResolvedValue(payload[entry.destKey])) {
+      missing.push(entry.destKey);
+    }
+  });
+
+  if (hasProducts) {
+    const products = Array.isArray(payload.products) ? payload.products : [];
+    if (products.length === 0) {
+      missing.push('products');
+    } else {
+      const missingProductFields = new Set();
+      products.forEach(product => {
+        ECOMMERCE_PRODUCT_MAPPING.forEach(entry => {
+          if (entry.req && !isResolvedValue(product[entry.destKey])) {
+            missingProductFields.add(`products.${entry.destKey}`);
+          }
+        });
+      });
+      missingProductFields.forEach(field => missing.push(field));
+    }
+  }
+
+  return missing;
+};
+
+// ---------------------------------------------------------------------------
+// Public surface
+// ---------------------------------------------------------------------------
+
+/**
+ * Resolve the Braze recommended event for a given RS event name.
+ * Returns `undefined` for unmapped events — caller falls back to the legacy path.
+ * Matching is case-insensitive on the trimmed event name.
+ */
+export const getEcommerceMapping = eventName => {
+  if (typeof eventName !== 'string') {
+    return undefined;
+  }
+  return EVENT_NAME_TO_BRAZE[eventName.trim().toLowerCase()];
+};
+
+/**
+ * Derive the Braze `source` field. On the web SDK this resolves to `'web'`, unless the
+ * event carries an explicit, valid `properties.source` (`web`/`ios`/`android`), which
+ * takes precedence. Always returns one of Braze's enum values; never undefined.
+ */
+export const deriveSource = message => {
+  const properties = message.properties || {};
+  const explicit = String(properties.source || '').toLowerCase();
+  if (BRAZE_SOURCE_VALUES.indexOf(explicit) !== -1) {
+    return explicit;
+  }
+  return 'web';
+};
+
+/**
+ * Build the `properties` object for a Braze recommended ecommerce event.
+ *
+ * Algorithm:
+ * 1. Run `constructPayload` against the message event-level mapping (never throws —
+ *    send-anyway is enforced via the validation warning instead).
+ * 2. For events with a `products[]`, build the array (single-product wrap for
+ *    `cart_updated`, iterate `properties.products` otherwise).
+ * 3. Set `source` via `deriveSource` and `action` when present.
+ * 4. Route unmapped event-level keys to `properties.metadata`, and unmapped per-product
+ *    keys to `products[].metadata`.
+ * 5. Emit a single `logger.warn` listing any missing Braze-required fields.
+ *
+ * Never throws on data shape; the warning + the (still-sent) payload is the contract.
+ */
+export const buildEcommerceEventProperties = (message, brazeEvent, action, logger) => {
+  const properties = message.properties || {};
+  const eventMapping = PER_EVENT_MAPPING[brazeEvent];
+  const hasProducts = brazeEvent !== BRAZE_ECOMMERCE_EVENTS.PRODUCT_VIEWED;
+
+  // Step 1: event-level field mapping.
+  const payload = constructPayload(message, eventMapping) || {};
+
+  // Step 2: products[] (skipped for product_viewed — flat, single-product event).
+  if (hasProducts) {
+    payload.products = buildProductsArray(properties, brazeEvent);
+  }
+
+  // Step 3: source + action.
+  payload.source = deriveSource(message);
+  if (action) {
+    payload.action = action;
+  }
+
+  // Step 4: route unmapped event-level keys to metadata.
+  const consumedEventKeys = consumedTopLevelKeysForEvent(brazeEvent, eventMapping, hasProducts);
+  const eventMetadata = pickUnmappedKeys(properties, consumedEventKeys);
+  if (Object.keys(eventMetadata).length > 0) {
+    payload.metadata = eventMetadata;
+  }
+
+  // Step 5: single warning for any missing Braze-required field.
+  const missingFields = collectMissingRequiredFields(eventMapping, hasProducts, payload);
+  if (missingFields.length > 0 && logger) {
+    logger.warn(
+      `${brazeEvent}: missing recommended Braze-required field(s): ${missingFields.join(', ')}. Event sent anyway.`,
+    );
+  }
+
+  return removeUndefinedAndNullAndEmptyValues(payload);
+};

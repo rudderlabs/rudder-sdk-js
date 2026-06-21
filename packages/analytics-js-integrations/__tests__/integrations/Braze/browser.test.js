@@ -1077,6 +1077,273 @@ describe('track', () => {
   });
 });
 
+describe('track - recommended ecommerce events', () => {
+  const baseConfig = {
+    appKey: 'APP_KEY',
+    trackAnonymousUser: true,
+    enableBrazeLogging: false,
+    dataCenter: 'US-03',
+    allowUserSuppliedJavascript: false,
+    useRecommendedEcommerceEvents: true,
+  };
+
+  const buildBraze = (configOverrides = {}) => {
+    const braze = new Braze({ ...baseConfig, ...configOverrides }, {}, {});
+    mockBrazeSDK();
+    return braze;
+  };
+
+  const trackEvent = (braze, event, properties) => {
+    braze.track({ message: { userId: 'user123', event, properties } });
+  };
+
+  it('maps Product Viewed to ecommerce.product_viewed (flat, no products array)', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Product Viewed', {
+      product_id: 'p1',
+      name: 'Game',
+      variant: 'v1',
+      price: 15.99,
+      currency: 'USD',
+      image_url: 'https://img/p1.png',
+      url: 'https://shop/p1',
+      type: 'digital',
+      campaign: 'summer',
+    });
+
+    expect(window.braze.logCustomEvent).toHaveBeenCalledTimes(1);
+    expect(window.braze.logCustomEvent).toHaveBeenCalledWith('ecommerce.product_viewed', {
+      product_id: 'p1',
+      product_name: 'Game',
+      variant_id: 'v1',
+      price: 15.99,
+      currency: 'USD',
+      image_url: 'https://img/p1.png',
+      product_url: 'https://shop/p1',
+      type: 'digital',
+      source: 'web',
+      metadata: { campaign: 'summer' },
+    });
+    expect(warnMock).not.toHaveBeenCalled();
+  });
+
+  it('maps Product Added to ecommerce.cart_updated with action add (single-product wrap)', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Product Added', {
+      cart_id: 'c1',
+      currency: 'USD',
+      product_id: 'p1',
+      name: 'Game',
+      variant: 'v1',
+      quantity: 2,
+      price: 15.99,
+      url: 'https://shop/p1',
+      list_id: 'wishlist',
+    });
+
+    expect(window.braze.logCustomEvent).toHaveBeenCalledWith('ecommerce.cart_updated', {
+      cart_id: 'c1',
+      currency: 'USD',
+      source: 'web',
+      action: 'add',
+      products: [
+        {
+          product_id: 'p1',
+          product_name: 'Game',
+          variant_id: 'v1',
+          quantity: 2,
+          price: 15.99,
+          product_url: 'https://shop/p1',
+        },
+      ],
+      metadata: { list_id: 'wishlist' },
+    });
+    expect(warnMock).not.toHaveBeenCalled();
+  });
+
+  it('maps Product Removed to ecommerce.cart_updated with action remove', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Product Removed', {
+      cart_id: 'c1',
+      currency: 'USD',
+      product_id: 'p1',
+      name: 'Game',
+      variant: 'v1',
+      quantity: 1,
+      price: 15.99,
+    });
+
+    const [eventName, props] = window.braze.logCustomEvent.mock.calls[0];
+    expect(eventName).toBe('ecommerce.cart_updated');
+    expect(props.action).toBe('remove');
+  });
+
+  it('maps Checkout Started to ecommerce.checkout_started with products array', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Checkout Started', {
+      checkout_id: 'ck1',
+      cart_id: 'c1',
+      total: 31.98,
+      currency: 'USD',
+      products: [{ product_id: 'p1', name: 'Game', variant: 'v1', quantity: 2, price: 15.99 }],
+    });
+
+    expect(window.braze.logCustomEvent).toHaveBeenCalledWith('ecommerce.checkout_started', {
+      checkout_id: 'ck1',
+      cart_id: 'c1',
+      total_value: 31.98,
+      currency: 'USD',
+      source: 'web',
+      products: [
+        { product_id: 'p1', product_name: 'Game', variant_id: 'v1', quantity: 2, price: 15.99 },
+      ],
+    });
+    expect(warnMock).not.toHaveBeenCalled();
+  });
+
+  it('maps Order Completed to ecommerce.order_placed (precedence over legacy purchases)', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'order completed', {
+      order_id: 'o1',
+      total: 31.98,
+      currency: 'USD',
+      coupon: 'SAVE10',
+      products: [
+        { product_id: 'p1', name: 'Game', variant: 'v1', quantity: 2, price: 15.99, color: 'red' },
+      ],
+    });
+
+    expect(window.braze.logPurchase).not.toHaveBeenCalled();
+    expect(window.braze.logCustomEvent).toHaveBeenCalledWith('ecommerce.order_placed', {
+      order_id: 'o1',
+      total_value: 31.98,
+      currency: 'USD',
+      source: 'web',
+      products: [
+        {
+          product_id: 'p1',
+          product_name: 'Game',
+          variant_id: 'v1',
+          quantity: 2,
+          price: 15.99,
+          metadata: { color: 'red' },
+        },
+      ],
+      metadata: { coupon: 'SAVE10' },
+    });
+  });
+
+  it('maps Order Refunded with optional total_discounts and discounts passthrough', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Order Refunded', {
+      order_id: 'o1',
+      total: 31.98,
+      currency: 'USD',
+      total_discounts: 5,
+      discounts: [{ code: 'SAVE10', amount: 5 }],
+      products: [{ product_id: 'p1', name: 'Game', variant: 'v1', quantity: 2, price: 15.99 }],
+    });
+
+    expect(window.braze.logCustomEvent).toHaveBeenCalledWith('ecommerce.order_refunded', {
+      order_id: 'o1',
+      total_value: 31.98,
+      currency: 'USD',
+      total_discounts: 5,
+      discounts: [{ code: 'SAVE10', amount: 5 }],
+      source: 'web',
+      products: [
+        { product_id: 'p1', product_name: 'Game', variant_id: 'v1', quantity: 2, price: 15.99 },
+      ],
+    });
+    expect(warnMock).not.toHaveBeenCalled();
+  });
+
+  it('maps Order Cancelled with cancel_reason fallback to reason', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Order Cancelled', {
+      order_id: 'o1',
+      total: 31.98,
+      currency: 'USD',
+      reason: 'changed mind',
+      products: [{ product_id: 'p1', name: 'Game', variant: 'v1', quantity: 2, price: 15.99 }],
+    });
+
+    const [eventName, props] = window.braze.logCustomEvent.mock.calls[0];
+    expect(eventName).toBe('ecommerce.order_cancelled');
+    expect(props.cancel_reason).toBe('changed mind');
+    expect(warnMock).not.toHaveBeenCalled();
+  });
+
+  it('warns with the missing required field names but still sends the event', () => {
+    const braze = buildBraze();
+    // Product Added missing required `currency`, and product missing `quantity`/`price`.
+    trackEvent(braze, 'Product Added', {
+      cart_id: 'c1',
+      product_id: 'p1',
+      name: 'Game',
+      variant: 'v1',
+    });
+
+    expect(window.braze.logCustomEvent).toHaveBeenCalledTimes(1);
+    expect(warnMock).toHaveBeenCalledTimes(1);
+    const warnMessage = warnMock.mock.calls[0][0];
+    expect(warnMessage).toContain('ecommerce.cart_updated');
+    expect(warnMessage).toContain('currency');
+    expect(warnMessage).toContain('products.quantity');
+    expect(warnMessage).toContain('products.price');
+  });
+
+  it('reports empty products array as a missing field and strips it from the payload', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Order Completed', {
+      order_id: 'o1',
+      total: 10,
+      currency: 'USD',
+      products: [],
+    });
+
+    expect(window.braze.logCustomEvent).toHaveBeenCalledTimes(1);
+    expect(warnMock.mock.calls[0][0]).toContain('products');
+    // empty products[] is scrubbed before send
+    expect(window.braze.logCustomEvent.mock.calls[0][1]).not.toHaveProperty('products');
+  });
+
+  it('honors an explicit valid properties.source override', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Product Viewed', {
+      product_id: 'p1',
+      name: 'Game',
+      variant: 'v1',
+      price: 15.99,
+      currency: 'USD',
+      source: 'ios',
+    });
+
+    expect(window.braze.logCustomEvent.mock.calls[0][1].source).toBe('ios');
+  });
+
+  it('falls through to legacy custom-event path for unmapped events (Cart Updated)', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Cart Updated', { cart_id: 'c1', value: 10 });
+
+    expect(window.braze.logCustomEvent).toHaveBeenCalledWith('Cart Updated', {
+      cart_id: 'c1',
+      value: 10,
+    });
+  });
+
+  it('falls through to legacy purchase path when the flag is off', () => {
+    const braze = buildBraze({ useRecommendedEcommerceEvents: false });
+    trackEvent(braze, 'order completed', {
+      currency: 'USD',
+      products: [{ product_id: 'p1', price: 15.99, quantity: 1 }],
+    });
+
+    expect(window.braze.logPurchase).toHaveBeenCalledTimes(1);
+    expect(window.braze.logCustomEvent).not.toHaveBeenCalled();
+  });
+});
+
 describe('page', () => {
   it('should call the necessary Braze methods to custom event', () => {
     const config = {
