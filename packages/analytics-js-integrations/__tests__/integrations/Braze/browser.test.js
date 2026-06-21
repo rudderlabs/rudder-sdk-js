@@ -1178,6 +1178,57 @@ describe('track - recommended ecommerce events', () => {
     expect(props.action).toBe('remove');
   });
 
+  it('cart_updated with an explicit products[] maps the array and keeps top-level fields in metadata', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Product Added', {
+      cart_id: 'c1',
+      currency: 'USD',
+      // top-level product-like fields coexisting with an explicit products[] array
+      product_id: 'top-level-pid',
+      name: 'top-level-name',
+      products: [{ product_id: 'p1', name: 'Game', variant: 'v1', quantity: 2, price: 15.99 }],
+    });
+
+    const props = window.braze.logCustomEvent.mock.calls[0][1];
+    // array is mapped, not the top-level wrap
+    expect(props.products).toEqual([
+      { product_id: 'p1', product_name: 'Game', variant_id: 'v1', quantity: 2, price: 15.99 },
+    ]);
+    // top-level product-like fields were NOT consumed, so they flow to metadata
+    expect(props.metadata).toEqual({ product_id: 'top-level-pid', name: 'top-level-name' });
+  });
+
+  it('does not leak a caller-provided properties.action into metadata', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Product Added', {
+      cart_id: 'c1',
+      currency: 'USD',
+      product_id: 'p1',
+      name: 'Game',
+      variant: 'v1',
+      quantity: 1,
+      price: 15.99,
+      action: 'caller-supplied',
+    });
+
+    const props = window.braze.logCustomEvent.mock.calls[0][1];
+    expect(props.action).toBe('add');
+    expect(props.metadata).toBeUndefined();
+  });
+
+  it('accepts total_discounts under either properties.discount or properties.total_discounts', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Order Refunded', {
+      order_id: 'o1',
+      total: 10,
+      currency: 'USD',
+      total_discounts: 3,
+      products: [{ product_id: 'p1', name: 'Game', variant: 'v1', quantity: 1, price: 15.99 }],
+    });
+
+    expect(window.braze.logCustomEvent.mock.calls[0][1].total_discounts).toBe(3);
+  });
+
   it('maps Checkout Started to ecommerce.checkout_started with products array', () => {
     const braze = buildBraze();
     trackEvent(braze, 'Checkout Started', {

@@ -39,8 +39,9 @@ const EVENT_NAME_TO_BRAZE = {
 
 const m = (destKey, sourceKeys, req = false) => ({ destKey, sourceKeys, req });
 
-// Shared fallback chain reused across checkout/order events.
+// Shared fallback chains reused across checkout/order events.
 const TOTAL_VALUE_SOURCES = ['properties.total', 'properties.revenue', 'properties.value'];
+const TOTAL_DISCOUNTS_SOURCES = ['properties.discount', 'properties.total_discounts'];
 
 const PRODUCT_VIEWED_MAPPING = [
   m('product_id', ['properties.product_id', 'properties.sku'], true),
@@ -79,7 +80,7 @@ const ORDER_PLACED_MAPPING = [
   m('cart_id', 'properties.cart_id'),
   m('tax', 'properties.tax'),
   m('shipping', 'properties.shipping'),
-  m('total_discounts', 'properties.discount'),
+  m('total_discounts', TOTAL_DISCOUNTS_SOURCES),
   m('subtotal_value', 'properties.subtotal_value'),
   m('discounts', 'properties.discounts'),
 ];
@@ -88,7 +89,7 @@ const ORDER_REFUNDED_MAPPING = [
   m('order_id', 'properties.order_id', true),
   m('total_value', TOTAL_VALUE_SOURCES, true),
   m('currency', 'properties.currency', true),
-  m('total_discounts', 'properties.total_discounts'),
+  m('total_discounts', TOTAL_DISCOUNTS_SOURCES),
   m('discounts', 'properties.discounts'),
 ];
 
@@ -99,7 +100,7 @@ const ORDER_CANCELLED_MAPPING = [
   m('cancel_reason', ['properties.cancel_reason', 'properties.reason'], true),
   m('tax', 'properties.tax'),
   m('shipping', 'properties.shipping'),
-  m('total_discounts', 'properties.discount'),
+  m('total_discounts', TOTAL_DISCOUNTS_SOURCES),
   m('subtotal_value', 'properties.subtotal_value'),
   m('discounts', 'properties.discounts'),
 ];
@@ -174,9 +175,10 @@ const consumedKeysFromMapping = mapping => {
  * Compute the set of message-property keys "consumed" by the event-level mapping (so
  * they aren't duplicated into `metadata`). Includes the `properties.`-prefixed source
  * keys, the `source` key (always derived), the `products` key for product-bearing
- * events, and (for cart_updated) the top-level product field keys folded into products[0].
+ * events, and (for cart_updated without an explicit `products[]`) the top-level product
+ * field keys folded into products[0].
  */
-const consumedTopLevelKeysForEvent = (brazeEvent, eventMapping, hasProducts) => {
+const consumedTopLevelKeysForEvent = (brazeEvent, eventMapping, hasProducts, properties) => {
   const consumed = new Set();
   consumed.add('source');
 
@@ -193,9 +195,14 @@ const consumedTopLevelKeysForEvent = (brazeEvent, eventMapping, hasProducts) => 
     consumed.add('products');
   }
 
-  // cart_updated uses top-level product fields as the single wrapped product;
-  // mark those keys as consumed so they don't duplicate into event-level metadata.
-  if (brazeEvent === BRAZE_ECOMMERCE_EVENTS.CART_UPDATED && hasProducts) {
+  // cart_updated wraps top-level product fields into a single product ONLY when no
+  // explicit `products[]` is provided; in that case mark those keys as consumed so they
+  // don't duplicate into event-level metadata. When `products[]` is present, the top-level
+  // fields are untouched and must flow through to metadata.
+  if (
+    brazeEvent === BRAZE_ECOMMERCE_EVENTS.CART_UPDATED &&
+    !Array.isArray(properties.products)
+  ) {
     consumedKeysFromMapping(ECOMMERCE_PRODUCT_MAPPING).forEach(key => consumed.add(key));
   }
 
@@ -204,11 +211,12 @@ const consumedTopLevelKeysForEvent = (brazeEvent, eventMapping, hasProducts) => 
 
 /**
  * Build the `products[]` array for the outgoing payload.
- * - cart_updated: read top-level product fields directly from `properties` into a
- *   1-element products[]. No per-product metadata — unmapped event-level keys flow
- *   through the event-level metadata pass.
- * - other product-bearing events: map each item in `properties.products` and route
- *   per-product unmapped keys to `products[i].metadata`.
+ * - cart_updated WITHOUT an explicit `products[]`: read top-level product fields directly
+ *   from `properties` into a 1-element products[]. No per-product metadata — unmapped
+ *   event-level keys flow through the event-level metadata pass.
+ * - all other cases (cart_updated WITH `products[]`, and other product-bearing events):
+ *   map each item in `properties.products` and route per-product unmapped keys to
+ *   `products[i].metadata`.
  */
 const buildProductsArray = (properties, brazeEvent) => {
   const isCartUpdated = brazeEvent === BRAZE_ECOMMERCE_EVENTS.CART_UPDATED;
@@ -301,17 +309,18 @@ export const deriveSource = message => {
  * 1. Run `constructPayload` against the message event-level mapping (never throws —
  *    send-anyway is enforced via the validation warning instead).
  * 2. For events with a `products[]`, build the array (single-product wrap for
- *    `cart_updated`, iterate `properties.products` otherwise).
+ *    `cart_updated` without an explicit `products[]`, iterate `properties.products`
+ *    otherwise).
  * 3. Set `source` via `deriveSource` and `action` when present.
- * 4. Route unmapped event-level keys to `properties.metadata`, and unmapped per-product
- *    keys to `products[].metadata`.
+ * 4. Route unmapped event-level keys to `properties.metadata` (excluding `action`, which is
+ *    set explicitly), and unmapped per-product keys to `products[].metadata`.
  * 5. Emit a single `logger.warn` listing any missing Braze-required fields.
  *
  * Never throws on data shape; the warning + the (still-sent) payload is the contract.
  */
 export const buildEcommerceEventProperties = (message, brazeEvent, action, logger) => {
   const properties = message.properties || {};
-  const eventMapping = PER_EVENT_MAPPING[brazeEvent];
+  const eventMapping = PER_EVENT_MAPPING[brazeEvent] || [];
   const hasProducts = brazeEvent !== BRAZE_ECOMMERCE_EVENTS.PRODUCT_VIEWED;
 
   // Step 1: event-level field mapping.
@@ -328,8 +337,17 @@ export const buildEcommerceEventProperties = (message, brazeEvent, action, logge
     payload.action = action;
   }
 
-  // Step 4: route unmapped event-level keys to metadata.
-  const consumedEventKeys = consumedTopLevelKeysForEvent(brazeEvent, eventMapping, hasProducts);
+  // Step 4: route unmapped event-level keys to metadata. Exclude `action` when it's set
+  // explicitly (Step 3) so a caller-provided `properties.action` can't conflict with it.
+  const consumedEventKeys = consumedTopLevelKeysForEvent(
+    brazeEvent,
+    eventMapping,
+    hasProducts,
+    properties,
+  );
+  if (action) {
+    consumedEventKeys.add('action');
+  }
   const eventMetadata = pickUnmappedKeys(properties, consumedEventKeys);
   if (Object.keys(eventMetadata).length > 0) {
     payload.metadata = eventMetadata;
