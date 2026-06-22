@@ -1413,6 +1413,38 @@ describe('track - recommended ecommerce events', () => {
     expect(window.braze.logCustomEvent.mock.calls[0][1].source).toBe('ios');
   });
 
+  it('honors an explicit properties.source with surrounding whitespace', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Product Viewed', {
+      product_id: 'p1',
+      name: 'Game',
+      variant: 'v1',
+      price: 15.99,
+      currency: 'USD',
+      source: 'ios ',
+    });
+
+    expect(window.braze.logCustomEvent.mock.calls[0][1].source).toBe('ios');
+  });
+
+  it('warns and scrubs a required field provided as an empty object', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Product Viewed', {
+      product_id: 'p1',
+      name: 'Game',
+      variant: 'v1',
+      price: 15.99,
+      currency: {},
+    });
+
+    expect(window.braze.logCustomEvent).toHaveBeenCalledTimes(1);
+    // empty-object required value is reported as missing...
+    expect(warnMock).toHaveBeenCalledTimes(1);
+    expect(warnMock.mock.calls[0][0]).toContain('currency');
+    // ...and never reaches the sent payload.
+    expect(window.braze.logCustomEvent.mock.calls[0][1]).not.toHaveProperty('currency');
+  });
+
   it('falls through to legacy custom-event path for unmapped events (Cart Updated)', () => {
     const braze = buildBraze();
     trackEvent(braze, 'Cart Updated', { cart_id: 'c1', value: 10 });

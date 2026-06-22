@@ -1,5 +1,8 @@
 import { constructPayload } from '../../utils/utils';
-import { removeUndefinedAndNullAndEmptyValues } from '../../utils/commonUtils';
+import {
+  isDefinedAndNotNullAndNotEmpty,
+  removeUndefinedAndNullAndEmptyValues,
+} from '../../utils/commonUtils';
 
 /**
  * Braze recommended ecommerce event names.
@@ -131,14 +134,13 @@ const PER_EVENT_MAPPING = {
 // ---------------------------------------------------------------------------
 
 /**
- * Mirror `constructPayload`'s truthiness rule: `0` and `false` are valid values; only
- * undefined/null/empty-string count as missing.
+ * A field counts as "resolved" iff it survives the outgoing payload scrub
+ * (`removeUndefinedAndNullAndEmptyValues`). Reuse that exact predicate so the
+ * missing-required-field warning can never drift from what's actually sent — e.g. a
+ * required field of `{}`/`[]`/`''` is both stripped from the payload AND warned, while
+ * `0`/`false`/numbers stay valid.
  */
-const isResolvedValue = value => {
-  if (value === 0 || value === false) return true;
-  if (value === undefined || value === null) return false;
-  return !(typeof value === 'string' && value.length === 0);
-};
+const isResolvedValue = isDefinedAndNotNullAndNotEmpty;
 
 /**
  * Return the subset of `source` whose keys are not in `consumed`, with undefined/null/empty
@@ -201,10 +203,7 @@ const consumedTopLevelKeysForEvent = (brazeEvent, eventMapping, hasProducts, pro
   // explicit `products[]` is provided; in that case mark those keys as consumed so they
   // don't duplicate into event-level metadata. When `products[]` is present, the top-level
   // fields are untouched and must flow through to metadata.
-  if (
-    brazeEvent === BRAZE_ECOMMERCE_EVENTS.CART_UPDATED &&
-    !Array.isArray(properties.products)
-  ) {
+  if (brazeEvent === BRAZE_ECOMMERCE_EVENTS.CART_UPDATED && !Array.isArray(properties.products)) {
     consumedKeysFromMapping(ECOMMERCE_PRODUCT_MAPPING).forEach(key => consumed.add(key));
   }
 
@@ -300,11 +299,15 @@ export const getEcommerceMapping = eventName => {
 /**
  * Derive the Braze `source` field. On the web SDK this resolves to `'web'`, unless the
  * event carries an explicit, valid `properties.source` (`web`/`ios`/`android`), which
- * takes precedence. Always returns one of Braze's enum values; never undefined.
+ * takes precedence. The explicit value is trimmed and lowercased before matching, so
+ * surrounding whitespace doesn't defeat it. Always returns one of Braze's enum values;
+ * never undefined.
  */
 export const deriveSource = message => {
   const properties = message.properties || {};
-  const explicit = String(properties.source || '').toLowerCase();
+  const explicit = String(properties.source || '')
+    .trim()
+    .toLowerCase();
   if (BRAZE_SOURCE_VALUES.indexOf(explicit) !== -1) {
     return explicit;
   }
