@@ -1111,8 +1111,8 @@ describe('track - recommended ecommerce events', () => {
       campaign: 'summer',
     });
 
-    expect(window.braze.logCustomEvent).toHaveBeenCalledTimes(1);
-    expect(window.braze.logCustomEvent).toHaveBeenCalledWith('ecommerce.product_viewed', {
+    expect(globalThis.braze.logCustomEvent).toHaveBeenCalledTimes(1);
+    expect(globalThis.braze.logCustomEvent).toHaveBeenCalledWith('ecommerce.product_viewed', {
       product_id: 'p1',
       product_name: 'Game',
       variant_id: 'v1',
@@ -1141,7 +1141,7 @@ describe('track - recommended ecommerce events', () => {
       list_id: 'wishlist',
     });
 
-    expect(window.braze.logCustomEvent).toHaveBeenCalledWith('ecommerce.cart_updated', {
+    expect(globalThis.braze.logCustomEvent).toHaveBeenCalledWith('ecommerce.cart_updated', {
       cart_id: 'c1',
       currency: 'USD',
       source: 'web',
@@ -1173,7 +1173,7 @@ describe('track - recommended ecommerce events', () => {
       price: 15.99,
     });
 
-    const [eventName, props] = window.braze.logCustomEvent.mock.calls[0];
+    const [eventName, props] = globalThis.braze.logCustomEvent.mock.calls[0];
     expect(eventName).toBe('ecommerce.cart_updated');
     expect(props.action).toBe('remove');
   });
@@ -1189,7 +1189,7 @@ describe('track - recommended ecommerce events', () => {
       products: [{ product_id: 'p1', name: 'Game', variant: 'v1', quantity: 2, price: 15.99 }],
     });
 
-    const props = window.braze.logCustomEvent.mock.calls[0][1];
+    const props = globalThis.braze.logCustomEvent.mock.calls[0][1];
     // array is mapped, not the top-level wrap
     expect(props.products).toEqual([
       { product_id: 'p1', product_name: 'Game', variant_id: 'v1', quantity: 2, price: 15.99 },
@@ -1211,7 +1211,7 @@ describe('track - recommended ecommerce events', () => {
       action: 'caller-supplied',
     });
 
-    const props = window.braze.logCustomEvent.mock.calls[0][1];
+    const props = globalThis.braze.logCustomEvent.mock.calls[0][1];
     expect(props.action).toBe('add');
     expect(props.metadata).toBeUndefined();
   });
@@ -1226,7 +1226,7 @@ describe('track - recommended ecommerce events', () => {
       products: [{ product_id: 'p1', name: 'Game', variant: 'v1', quantity: 1, price: 15.99 }],
     });
 
-    expect(window.braze.logCustomEvent.mock.calls[0][1].total_discounts).toBe(3);
+    expect(globalThis.braze.logCustomEvent.mock.calls[0][1].total_discounts).toBe(3);
   });
 
   it('does not emit an empty product object when cart_updated has no product fields', () => {
@@ -1235,7 +1235,7 @@ describe('track - recommended ecommerce events', () => {
     // single-product wrap must not emit a degenerate `[{}]`.
     trackEvent(braze, 'Product Added', { cart_id: 'c1' });
 
-    const [eventName, props] = window.braze.logCustomEvent.mock.calls[0];
+    const [eventName, props] = globalThis.braze.logCustomEvent.mock.calls[0];
     expect(eventName).toBe('ecommerce.cart_updated');
     // no degenerate `[{}]` — the empty products array is scrubbed off entirely
     expect(props.products).toBeUndefined();
@@ -1264,7 +1264,7 @@ describe('track - recommended ecommerce events', () => {
       ],
     });
 
-    const props = window.braze.logCustomEvent.mock.calls[0][1];
+    const props = globalThis.braze.logCustomEvent.mock.calls[0][1];
     expect(props.metadata).toEqual({ campaign: 'spring' });
     expect(props.products[0].metadata).toEqual({ finish: 'matte' });
   });
@@ -1279,7 +1279,7 @@ describe('track - recommended ecommerce events', () => {
       products: [{ product_id: 'p1', name: 'Game', variant: 'v1', quantity: 2, price: 15.99 }],
     });
 
-    expect(window.braze.logCustomEvent).toHaveBeenCalledWith('ecommerce.checkout_started', {
+    expect(globalThis.braze.logCustomEvent).toHaveBeenCalledWith('ecommerce.checkout_started', {
       checkout_id: 'ck1',
       cart_id: 'c1',
       total_value: 31.98,
@@ -1304,8 +1304,8 @@ describe('track - recommended ecommerce events', () => {
       ],
     });
 
-    expect(window.braze.logPurchase).not.toHaveBeenCalled();
-    expect(window.braze.logCustomEvent).toHaveBeenCalledWith('ecommerce.order_placed', {
+    expect(globalThis.braze.logPurchase).not.toHaveBeenCalled();
+    expect(globalThis.braze.logCustomEvent).toHaveBeenCalledWith('ecommerce.order_placed', {
       order_id: 'o1',
       total_value: 31.98,
       currency: 'USD',
@@ -1335,7 +1335,7 @@ describe('track - recommended ecommerce events', () => {
       products: [{ product_id: 'p1', name: 'Game', variant: 'v1', quantity: 2, price: 15.99 }],
     });
 
-    expect(window.braze.logCustomEvent).toHaveBeenCalledWith('ecommerce.order_refunded', {
+    expect(globalThis.braze.logCustomEvent).toHaveBeenCalledWith('ecommerce.order_refunded', {
       order_id: 'o1',
       total_value: 31.98,
       currency: 'USD',
@@ -1359,7 +1359,7 @@ describe('track - recommended ecommerce events', () => {
       products: [{ product_id: 'p1', name: 'Game', variant: 'v1', quantity: 2, price: 15.99 }],
     });
 
-    const [eventName, props] = window.braze.logCustomEvent.mock.calls[0];
+    const [eventName, props] = globalThis.braze.logCustomEvent.mock.calls[0];
     expect(eventName).toBe('ecommerce.order_cancelled');
     expect(props.cancel_reason).toBe('changed mind');
     expect(warnMock).not.toHaveBeenCalled();
@@ -1375,7 +1375,7 @@ describe('track - recommended ecommerce events', () => {
       variant: 'v1',
     });
 
-    expect(window.braze.logCustomEvent).toHaveBeenCalledTimes(1);
+    expect(globalThis.braze.logCustomEvent).toHaveBeenCalledTimes(1);
     expect(warnMock).toHaveBeenCalledTimes(1);
     const warnMessage = warnMock.mock.calls[0][0];
     expect(warnMessage).toContain('ecommerce.cart_updated');
@@ -1393,10 +1393,10 @@ describe('track - recommended ecommerce events', () => {
       products: [],
     });
 
-    expect(window.braze.logCustomEvent).toHaveBeenCalledTimes(1);
+    expect(globalThis.braze.logCustomEvent).toHaveBeenCalledTimes(1);
     expect(warnMock.mock.calls[0][0]).toContain('products');
     // empty products[] is scrubbed before send
-    expect(window.braze.logCustomEvent.mock.calls[0][1]).not.toHaveProperty('products');
+    expect(globalThis.braze.logCustomEvent.mock.calls[0][1]).not.toHaveProperty('products');
   });
 
   it('honors an explicit valid properties.source override', () => {
@@ -1410,7 +1410,7 @@ describe('track - recommended ecommerce events', () => {
       source: 'ios',
     });
 
-    expect(window.braze.logCustomEvent.mock.calls[0][1].source).toBe('ios');
+    expect(globalThis.braze.logCustomEvent.mock.calls[0][1].source).toBe('ios');
   });
 
   it('honors an explicit properties.source with surrounding whitespace', () => {
@@ -1424,7 +1424,7 @@ describe('track - recommended ecommerce events', () => {
       source: 'ios ',
     });
 
-    expect(window.braze.logCustomEvent.mock.calls[0][1].source).toBe('ios');
+    expect(globalThis.braze.logCustomEvent.mock.calls[0][1].source).toBe('ios');
   });
 
   it('warns and scrubs a required field provided as an empty object', () => {
@@ -1437,19 +1437,19 @@ describe('track - recommended ecommerce events', () => {
       currency: {},
     });
 
-    expect(window.braze.logCustomEvent).toHaveBeenCalledTimes(1);
+    expect(globalThis.braze.logCustomEvent).toHaveBeenCalledTimes(1);
     // empty-object required value is reported as missing...
     expect(warnMock).toHaveBeenCalledTimes(1);
     expect(warnMock.mock.calls[0][0]).toContain('currency');
     // ...and never reaches the sent payload.
-    expect(window.braze.logCustomEvent.mock.calls[0][1]).not.toHaveProperty('currency');
+    expect(globalThis.braze.logCustomEvent.mock.calls[0][1]).not.toHaveProperty('currency');
   });
 
   it('falls through to legacy custom-event path for unmapped events (Cart Updated)', () => {
     const braze = buildBraze();
     trackEvent(braze, 'Cart Updated', { cart_id: 'c1', value: 10 });
 
-    expect(window.braze.logCustomEvent).toHaveBeenCalledWith('Cart Updated', {
+    expect(globalThis.braze.logCustomEvent).toHaveBeenCalledWith('Cart Updated', {
       cart_id: 'c1',
       value: 10,
     });
@@ -1462,8 +1462,8 @@ describe('track - recommended ecommerce events', () => {
       products: [{ product_id: 'p1', price: 15.99, quantity: 1 }],
     });
 
-    expect(window.braze.logPurchase).toHaveBeenCalledTimes(1);
-    expect(window.braze.logCustomEvent).not.toHaveBeenCalled();
+    expect(globalThis.braze.logPurchase).toHaveBeenCalledTimes(1);
+    expect(globalThis.braze.logCustomEvent).not.toHaveBeenCalled();
   });
 });
 
