@@ -1229,6 +1229,43 @@ describe('track - recommended ecommerce events', () => {
     expect(window.braze.logCustomEvent.mock.calls[0][1].total_discounts).toBe(3);
   });
 
+  it('does not emit an empty product object when cart_updated has no product fields', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Cart Updated', { cart_id: 'c1' });
+
+    // no degenerate `[{}]` — the empty products array is scrubbed off entirely
+    const props = window.braze.logCustomEvent.mock.calls[0][1];
+    expect(props.products).toBeUndefined();
+  });
+
+  it('scrubs null/empty values out of event-level and per-product metadata', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Order Completed', {
+      order_id: 'o1',
+      total: 31.98,
+      currency: 'USD',
+      coupon: '',
+      note: null,
+      campaign: 'spring',
+      products: [
+        {
+          product_id: 'p1',
+          name: 'Game',
+          variant: 'v1',
+          quantity: 2,
+          price: 15.99,
+          color: '',
+          shade: null,
+          finish: 'matte',
+        },
+      ],
+    });
+
+    const props = window.braze.logCustomEvent.mock.calls[0][1];
+    expect(props.metadata).toEqual({ campaign: 'spring' });
+    expect(props.products[0].metadata).toEqual({ finish: 'matte' });
+  });
+
   it('maps Checkout Started to ecommerce.checkout_started with products array', () => {
     const braze = buildBraze();
     trackEvent(braze, 'Checkout Started', {

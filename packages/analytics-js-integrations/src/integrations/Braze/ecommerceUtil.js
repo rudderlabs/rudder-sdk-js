@@ -141,17 +141,19 @@ const isResolvedValue = value => {
 };
 
 /**
- * Return the subset of `source` whose keys are not in `consumed`.
- * Used to derive the `metadata` pass-through.
+ * Return the subset of `source` whose keys are not in `consumed`, with undefined/null/empty
+ * values scrubbed out. Used to derive the `metadata` pass-through — the top-level
+ * `removeUndefinedAndNullAndEmptyValues` is shallow, so this is the only place nested
+ * metadata gets cleaned.
  */
 const pickUnmappedKeys = (source, consumed) => {
   const result = {};
   Object.keys(source).forEach(key => {
-    if (!consumed.has(key) && source[key] !== undefined) {
+    if (!consumed.has(key)) {
       result[key] = source[key];
     }
   });
-  return result;
+  return removeUndefinedAndNullAndEmptyValues(result);
 };
 
 /**
@@ -222,20 +224,27 @@ const buildProductsArray = (properties, brazeEvent) => {
   const isCartUpdated = brazeEvent === BRAZE_ECOMMERCE_EVENTS.CART_UPDATED;
 
   if (isCartUpdated && !Array.isArray(properties.products)) {
-    return [constructPayload(properties, ECOMMERCE_PRODUCT_MAPPING) || {}];
+    const product = removeUndefinedAndNullAndEmptyValues(
+      constructPayload(properties, ECOMMERCE_PRODUCT_MAPPING) || {},
+    );
+    return Object.keys(product).length > 0 ? [product] : [];
   }
 
   const rawProducts = Array.isArray(properties.products) ? properties.products : [];
   const consumedKeys = consumedKeysFromMapping(ECOMMERCE_PRODUCT_MAPPING);
-  return rawProducts.map(raw => {
-    const item = raw && typeof raw === 'object' ? raw : {};
-    const product = constructPayload(item, ECOMMERCE_PRODUCT_MAPPING) || {};
-    const productMetadata = pickUnmappedKeys(item, consumedKeys);
-    if (Object.keys(productMetadata).length > 0) {
-      product.metadata = productMetadata;
-    }
-    return product;
-  });
+  return rawProducts
+    .map(raw => {
+      const item = raw && typeof raw === 'object' ? raw : {};
+      const product = removeUndefinedAndNullAndEmptyValues(
+        constructPayload(item, ECOMMERCE_PRODUCT_MAPPING) || {},
+      );
+      const productMetadata = pickUnmappedKeys(item, consumedKeys);
+      if (Object.keys(productMetadata).length > 0) {
+        product.metadata = productMetadata;
+      }
+      return product;
+    })
+    .filter(product => Object.keys(product).length > 0);
 };
 
 /**
