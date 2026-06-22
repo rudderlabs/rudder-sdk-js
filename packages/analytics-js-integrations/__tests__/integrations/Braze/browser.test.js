@@ -1231,10 +1231,13 @@ describe('track - recommended ecommerce events', () => {
 
   it('does not emit an empty product object when cart_updated has no product fields', () => {
     const braze = buildBraze();
-    trackEvent(braze, 'Cart Updated', { cart_id: 'c1' });
+    // `Product Added` maps to ecommerce.cart_updated; with no product fields the
+    // single-product wrap must not emit a degenerate `[{}]`.
+    trackEvent(braze, 'Product Added', { cart_id: 'c1' });
 
+    const [eventName, props] = window.braze.logCustomEvent.mock.calls[0];
+    expect(eventName).toBe('ecommerce.cart_updated');
     // no degenerate `[{}]` — the empty products array is scrubbed off entirely
-    const props = window.braze.logCustomEvent.mock.calls[0][1];
     expect(props.products).toBeUndefined();
   });
 
