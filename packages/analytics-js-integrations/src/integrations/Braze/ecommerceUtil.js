@@ -32,15 +32,33 @@ const EVENT_NAME_TO_BRAZE = {
   'order cancelled': { brazeEvent: BRAZE_ECOMMERCE_EVENTS.ORDER_CANCELLED },
 };
 
+// The type Braze expects for a recommended-event field. Resolved values are coerced to
+// this type where the conversion is safe and lossless; an un-coercible value is sent
+// verbatim and surfaced via the type-mismatch warning.
+const FIELD_TYPE = {
+  STRING: 'string',
+  INTEGER: 'integer',
+  FLOAT: 'float',
+  STRING_ARRAY: 'stringArray',
+  ARRAY: 'array',
+};
+
 // ---------------------------------------------------------------------------
 // Per-event field mappings (mirror of the cloud `Braze*Config.json` files).
-// Each entry is built via `m(destKey, sourceKeys, required)`:
+// Each entry is built via `m(destKey, sourceKeys, required, type)`:
 //   - `destKey`/`sourceKeys` are the `constructPayload` contract.
 //   - `req` flags Braze-required fields (consumed by collectMissingRequiredFields).
+//   - `type` is the Braze-expected type (default String); drives coercion + the
+//     type-mismatch warning.
 // `sourceKeys` arrays are ordered fallback chains (first resolved value wins).
 // ---------------------------------------------------------------------------
 
-const m = (destKey, sourceKeys, req = false) => ({ destKey, sourceKeys, req });
+const m = (destKey, sourceKeys, req = false, type = FIELD_TYPE.STRING) => ({
+  destKey,
+  sourceKeys,
+  req,
+  type,
+});
 
 // Shared fallback chains reused across checkout/order events.
 const TOTAL_VALUE_SOURCES = ['properties.total', 'properties.revenue', 'properties.value'];
@@ -50,62 +68,62 @@ const PRODUCT_VIEWED_MAPPING = [
   m('product_id', ['properties.product_id', 'properties.sku'], true),
   m('product_name', 'properties.name', true),
   m('variant_id', ['properties.variant', 'properties.sku', 'properties.product_id'], true),
-  m('price', 'properties.price', true),
+  m('price', 'properties.price', true, FIELD_TYPE.FLOAT),
   m('currency', 'properties.currency', true),
   m('image_url', 'properties.image_url'),
   m('product_url', 'properties.url'),
-  m('type', 'properties.type'),
+  m('type', 'properties.type', false, FIELD_TYPE.STRING_ARRAY),
 ];
 
 const CART_UPDATED_MAPPING = [
   m('cart_id', 'properties.cart_id', true),
-  m('total_value', ['properties.total', 'properties.value']),
-  m('subtotal_value', 'properties.subtotal_value'),
-  m('tax', 'properties.tax'),
-  m('shipping', 'properties.shipping'),
+  m('total_value', ['properties.total', 'properties.value'], false, FIELD_TYPE.FLOAT),
+  m('subtotal_value', 'properties.subtotal_value', false, FIELD_TYPE.FLOAT),
+  m('tax', 'properties.tax', false, FIELD_TYPE.FLOAT),
+  m('shipping', 'properties.shipping', false, FIELD_TYPE.FLOAT),
   m('currency', 'properties.currency', true),
 ];
 
 const CHECKOUT_STARTED_MAPPING = [
   m('checkout_id', ['properties.checkout_id', 'properties.order_id'], true),
   m('cart_id', 'properties.cart_id'),
-  m('total_value', TOTAL_VALUE_SOURCES, true),
-  m('subtotal_value', 'properties.subtotal_value'),
-  m('tax', 'properties.tax'),
-  m('shipping', 'properties.shipping'),
+  m('total_value', TOTAL_VALUE_SOURCES, true, FIELD_TYPE.FLOAT),
+  m('subtotal_value', 'properties.subtotal_value', false, FIELD_TYPE.FLOAT),
+  m('tax', 'properties.tax', false, FIELD_TYPE.FLOAT),
+  m('shipping', 'properties.shipping', false, FIELD_TYPE.FLOAT),
   m('currency', 'properties.currency', true),
 ];
 
 const ORDER_PLACED_MAPPING = [
   m('order_id', 'properties.order_id', true),
-  m('total_value', TOTAL_VALUE_SOURCES, true),
+  m('total_value', TOTAL_VALUE_SOURCES, true, FIELD_TYPE.FLOAT),
   m('currency', 'properties.currency', true),
   m('cart_id', 'properties.cart_id'),
-  m('tax', 'properties.tax'),
-  m('shipping', 'properties.shipping'),
-  m('total_discounts', TOTAL_DISCOUNTS_SOURCES),
-  m('subtotal_value', 'properties.subtotal_value'),
-  m('discounts', 'properties.discounts'),
+  m('tax', 'properties.tax', false, FIELD_TYPE.FLOAT),
+  m('shipping', 'properties.shipping', false, FIELD_TYPE.FLOAT),
+  m('total_discounts', TOTAL_DISCOUNTS_SOURCES, false, FIELD_TYPE.FLOAT),
+  m('subtotal_value', 'properties.subtotal_value', false, FIELD_TYPE.FLOAT),
+  m('discounts', 'properties.discounts', false, FIELD_TYPE.ARRAY),
 ];
 
 const ORDER_REFUNDED_MAPPING = [
   m('order_id', 'properties.order_id', true),
-  m('total_value', TOTAL_VALUE_SOURCES, true),
+  m('total_value', TOTAL_VALUE_SOURCES, true, FIELD_TYPE.FLOAT),
   m('currency', 'properties.currency', true),
-  m('total_discounts', TOTAL_DISCOUNTS_SOURCES),
-  m('discounts', 'properties.discounts'),
+  m('total_discounts', TOTAL_DISCOUNTS_SOURCES, false, FIELD_TYPE.FLOAT),
+  m('discounts', 'properties.discounts', false, FIELD_TYPE.ARRAY),
 ];
 
 const ORDER_CANCELLED_MAPPING = [
   m('order_id', 'properties.order_id', true),
-  m('total_value', TOTAL_VALUE_SOURCES, true),
+  m('total_value', TOTAL_VALUE_SOURCES, true, FIELD_TYPE.FLOAT),
   m('currency', 'properties.currency', true),
   m('cancel_reason', ['properties.cancel_reason', 'properties.reason'], true),
-  m('tax', 'properties.tax'),
-  m('shipping', 'properties.shipping'),
-  m('total_discounts', TOTAL_DISCOUNTS_SOURCES),
-  m('subtotal_value', 'properties.subtotal_value'),
-  m('discounts', 'properties.discounts'),
+  m('tax', 'properties.tax', false, FIELD_TYPE.FLOAT),
+  m('shipping', 'properties.shipping', false, FIELD_TYPE.FLOAT),
+  m('total_discounts', TOTAL_DISCOUNTS_SOURCES, false, FIELD_TYPE.FLOAT),
+  m('subtotal_value', 'properties.subtotal_value', false, FIELD_TYPE.FLOAT),
+  m('discounts', 'properties.discounts', false, FIELD_TYPE.ARRAY),
 ];
 
 // Shared per-product mapping (bare keys — read from each `products[i]` /
@@ -114,8 +132,8 @@ const ECOMMERCE_PRODUCT_MAPPING = [
   m('product_id', ['product_id', 'sku'], true),
   m('product_name', 'name', true),
   m('variant_id', ['variant', 'sku', 'product_id'], true),
-  m('quantity', 'quantity', true),
-  m('price', 'price', true),
+  m('quantity', 'quantity', true, FIELD_TYPE.INTEGER),
+  m('price', 'price', true, FIELD_TYPE.FLOAT),
   m('image_url', 'image_url'),
   m('product_url', 'url'),
 ];
@@ -141,6 +159,79 @@ const PER_EVENT_MAPPING = {
  * `0`/`false`/numbers stay valid.
  */
 const isResolvedValue = isDefinedAndNotNullAndNotEmpty;
+
+// A safe, lossless numeric-string conversion accepts only plain decimal literals (no
+// scientific notation, Infinity, or NaN). Integer additionally forbids a fractional part.
+const FLOAT_STRING_REGEX = /^[+-]?(\d+\.?\d*|\.\d+)$/;
+const INTEGER_STRING_REGEX = /^[+-]?\d+$/;
+
+/**
+ * Coerce a resolved primitive to the type Braze expects, when the conversion is safe and
+ * lossless; otherwise return it unchanged (the residual mismatch is surfaced by the
+ * type-mismatch warning). Mirrors the cloud/Kotlin coercion table:
+ *   - numeric string  -> float    (`"29.99"` -> `29.99`)
+ *   - integer string  -> integer  (`"2"` -> `2`; `"2.5"`/`"2.0"` left as-is)
+ *   - number/boolean  -> string   (`12345` -> `"12345"`, `true` -> `"true"`)
+ * Integer numbers are left as-is for float fields (Braze accepts an int where a float is
+ * expected, and JSON cannot express `2.0`). Arrays/objects are never coerced.
+ */
+const coerceValue = (value, type) => {
+  if (value === null || typeof value === 'object') {
+    return value;
+  }
+  switch (type) {
+    case FIELD_TYPE.STRING:
+      return typeof value === 'string' ? value : String(value);
+    case FIELD_TYPE.FLOAT:
+      return typeof value === 'string' && FLOAT_STRING_REGEX.test(value.trim())
+        ? Number(value.trim())
+        : value;
+    case FIELD_TYPE.INTEGER:
+      // Only a pure integer literal is a safe, lossless conversion ("2", not "2.5"/"2.0").
+      return typeof value === 'string' && INTEGER_STRING_REGEX.test(value.trim())
+        ? Number(value.trim())
+        : value;
+    default:
+      // stringArray / array — never coerced.
+      return value;
+  }
+};
+
+/**
+ * Whether `value` already matches the type Braze expects. A numeric written as a string
+ * (e.g. `"29.99"`) does NOT match a numeric type, so an un-coercible value still warns.
+ * `0`/`false` are valid for their respective types.
+ */
+const matchesType = (value, type) => {
+  switch (type) {
+    case FIELD_TYPE.STRING:
+      return typeof value === 'string';
+    case FIELD_TYPE.INTEGER:
+      // `value % 1 === 0` is true only for whole numbers; NaN/Infinity yield NaN and fail.
+      return typeof value === 'number' && value % 1 === 0;
+    case FIELD_TYPE.FLOAT:
+      return typeof value === 'number' && !Number.isNaN(value);
+    case FIELD_TYPE.STRING_ARRAY:
+      return Array.isArray(value) && value.every(item => typeof item === 'string');
+    case FIELD_TYPE.ARRAY:
+      return Array.isArray(value);
+    default:
+      return true;
+  }
+};
+
+/**
+ * Coerce every mapped field present in `obj` to its Braze-expected type, in place.
+ * Returns `obj` for chaining.
+ */
+const coerceMappedFields = (obj, mapping) => {
+  mapping.forEach(entry => {
+    if (entry.destKey in obj) {
+      obj[entry.destKey] = coerceValue(obj[entry.destKey], entry.type);
+    }
+  });
+  return obj;
+};
 
 /**
  * Return the subset of `source` whose keys are not in `consumed`, with undefined/null/empty
@@ -224,7 +315,10 @@ const buildProductsArray = (properties, brazeEvent) => {
 
   if (isCartUpdated && !Array.isArray(properties.products)) {
     const product = removeUndefinedAndNullAndEmptyValues(
-      constructPayload(properties, ECOMMERCE_PRODUCT_MAPPING) || {},
+      coerceMappedFields(
+        constructPayload(properties, ECOMMERCE_PRODUCT_MAPPING) || {},
+        ECOMMERCE_PRODUCT_MAPPING,
+      ),
     );
     return Object.keys(product).length > 0 ? [product] : [];
   }
@@ -235,7 +329,10 @@ const buildProductsArray = (properties, brazeEvent) => {
     .map(raw => {
       const item = raw && typeof raw === 'object' ? raw : {};
       const product = removeUndefinedAndNullAndEmptyValues(
-        constructPayload(item, ECOMMERCE_PRODUCT_MAPPING) || {},
+        coerceMappedFields(
+          constructPayload(item, ECOMMERCE_PRODUCT_MAPPING) || {},
+          ECOMMERCE_PRODUCT_MAPPING,
+        ),
       );
       const productMetadata = pickUnmappedKeys(item, consumedKeys);
       if (Object.keys(productMetadata).length > 0) {
@@ -278,6 +375,43 @@ const collectMissingRequiredFields = (eventMapping, hasProducts, payload) => {
   }
 
   return missing;
+};
+
+/**
+ * Whether a resolved value is present but doesn't match its Braze-expected type. Only
+ * resolved values are flagged — an empty/missing value is scrubbed before send and is the
+ * missing-required warning's job, so it must not double-warn here.
+ */
+const isTypeMismatch = (value, type) => isResolvedValue(value) && !matchesType(value, type);
+
+/**
+ * Collect the mapped fields whose (already-coerced) value is present but still doesn't
+ * match Braze's expected type — event-level and per-product. Returns labels of the form
+ * `destKey (expected <type>)` / `products.destKey (expected <type>)`.
+ */
+const collectTypeMismatchedFields = (eventMapping, hasProducts, payload) => {
+  const mismatched = [];
+
+  eventMapping.forEach(entry => {
+    if (isTypeMismatch(payload[entry.destKey], entry.type)) {
+      mismatched.push(`${entry.destKey} (expected ${entry.type})`);
+    }
+  });
+
+  if (hasProducts) {
+    const products = Array.isArray(payload.products) ? payload.products : [];
+    const mismatchedProductFields = new Set();
+    products.forEach(product => {
+      ECOMMERCE_PRODUCT_MAPPING.forEach(entry => {
+        if (isTypeMismatch(product[entry.destKey], entry.type)) {
+          mismatchedProductFields.add(`products.${entry.destKey} (expected ${entry.type})`);
+        }
+      });
+    });
+    mismatchedProductFields.forEach(field => mismatched.push(field));
+  }
+
+  return mismatched;
 };
 
 // ---------------------------------------------------------------------------
@@ -327,16 +461,19 @@ export const deriveSource = message => {
  * 4. Route unmapped event-level keys to `properties.metadata` (excluding `action`, which is
  *    set explicitly), and unmapped per-product keys to `products[].metadata`.
  * 5. Emit a single `logger.warn` listing any missing Braze-required fields.
+ * 6. Emit a single `logger.warn` listing any field whose value type doesn't match Braze's
+ *    schema after safe coercion (Braze rejects type-mismatched events; the value is sent
+ *    as-is so it's not silently dropped).
  *
- * Never throws on data shape; the warning + the (still-sent) payload is the contract.
+ * Never throws on data shape; the warnings + the (still-sent) payload are the contract.
  */
 export const buildEcommerceEventProperties = (message, brazeEvent, action, logger) => {
   const properties = message.properties || {};
   const eventMapping = PER_EVENT_MAPPING[brazeEvent] || [];
   const hasProducts = brazeEvent !== BRAZE_ECOMMERCE_EVENTS.PRODUCT_VIEWED;
 
-  // Step 1: event-level field mapping.
-  const payload = constructPayload(message, eventMapping) || {};
+  // Step 1: event-level field mapping, with each mapped value coerced to its Braze type.
+  const payload = coerceMappedFields(constructPayload(message, eventMapping) || {}, eventMapping);
 
   // Step 2: products[] (skipped for product_viewed — flat, single-product event).
   if (hasProducts) {
@@ -370,6 +507,14 @@ export const buildEcommerceEventProperties = (message, brazeEvent, action, logge
   if (missingFields.length > 0 && logger) {
     logger.warn(
       `${brazeEvent}: missing recommended Braze-required field(s): ${missingFields.join(', ')}. Event sent anyway.`,
+    );
+  }
+
+  // Step 6: single warning for any field whose type still doesn't match Braze's schema.
+  const mismatchedFields = collectTypeMismatchedFields(eventMapping, hasProducts, payload);
+  if (mismatchedFields.length > 0 && logger) {
+    logger.warn(
+      `${brazeEvent}: type-mismatched field(s) (sent as-is): ${mismatchedFields.join(', ')}.`,
     );
   }
 

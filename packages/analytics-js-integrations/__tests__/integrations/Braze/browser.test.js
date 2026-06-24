@@ -1107,7 +1107,7 @@ describe('track - recommended ecommerce events', () => {
       currency: 'USD',
       image_url: 'https://img/p1.png',
       url: 'https://shop/p1',
-      type: 'digital',
+      type: ['price_drop'],
       campaign: 'summer',
     });
 
@@ -1120,7 +1120,7 @@ describe('track - recommended ecommerce events', () => {
       currency: 'USD',
       image_url: 'https://img/p1.png',
       product_url: 'https://shop/p1',
-      type: 'digital',
+      type: ['price_drop'],
       source: 'web',
       metadata: { campaign: 'summer' },
     });
@@ -1443,6 +1443,82 @@ describe('track - recommended ecommerce events', () => {
     expect(warnMock.mock.calls[0][0]).toContain('currency');
     // ...and never reaches the sent payload.
     expect(globalThis.braze.logCustomEvent.mock.calls[0][1]).not.toHaveProperty('currency');
+  });
+
+  it('coerces safe/lossless type mismatches and does not warn', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Order Completed', {
+      order_id: 12345, // number -> string
+      total: '99.99', // numeric string -> float
+      currency: 'USD',
+      products: [{ product_id: 'p1', name: 'Game', variant: 'v1', quantity: '2', price: '15.99' }],
+    });
+
+    const props = globalThis.braze.logCustomEvent.mock.calls[0][1];
+    expect(props.order_id).toBe('12345');
+    expect(props.total_value).toBe(99.99);
+    expect(props.products[0].quantity).toBe(2);
+    expect(props.products[0].price).toBe(15.99);
+    expect(warnMock).not.toHaveBeenCalled();
+  });
+
+  it('sends un-coercible type mismatches as-is and warns (event-level and per-product)', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Order Completed', {
+      order_id: 'o1',
+      total: 'free', // non-numeric string -> stays, float mismatch
+      currency: 'USD',
+      products: [
+        { product_id: 'p1', name: 'Game', variant: 'v1', quantity: 2.5, price: 15.99 }, // 2.5 not integer
+      ],
+    });
+
+    const props = globalThis.braze.logCustomEvent.mock.calls[0][1];
+    // un-coercible values are sent verbatim
+    expect(props.total_value).toBe('free');
+    expect(props.products[0].quantity).toBe(2.5);
+    // ...and surfaced via the type-mismatch warning
+    expect(warnMock).toHaveBeenCalledTimes(1);
+    const warnMessage = warnMock.mock.calls[0][0];
+    expect(warnMessage).toContain('type-mismatched');
+    expect(warnMessage).toContain('total_value (expected float)');
+    expect(warnMessage).toContain('products.quantity (expected integer)');
+  });
+
+  it('leaves an integer-valued string with a fractional part un-coerced for an integer field', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Product Added', {
+      cart_id: 'c1',
+      currency: 'USD',
+      product_id: 'p1',
+      name: 'Game',
+      variant: 'v1',
+      quantity: '2.5', // not a pure integer literal -> stays "2.5"
+      price: '15.99', // numeric string -> 15.99
+    });
+
+    const props = globalThis.braze.logCustomEvent.mock.calls[0][1];
+    expect(props.products[0].quantity).toBe('2.5');
+    expect(props.products[0].price).toBe(15.99);
+    expect(warnMock).toHaveBeenCalledTimes(1);
+    expect(warnMock.mock.calls[0][0]).toContain('products.quantity (expected integer)');
+  });
+
+  it('warns when product_viewed type is not an array of strings', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Product Viewed', {
+      product_id: 'p1',
+      name: 'Game',
+      variant: 'v1',
+      price: 15.99,
+      currency: 'USD',
+      type: 'price_drop', // bare string, expected array of strings
+    });
+
+    const props = globalThis.braze.logCustomEvent.mock.calls[0][1];
+    expect(props.type).toBe('price_drop'); // sent as-is
+    expect(warnMock).toHaveBeenCalledTimes(1);
+    expect(warnMock.mock.calls[0][0]).toContain('type (expected stringArray)');
   });
 
   it('falls through to legacy custom-event path for unmapped events (Cart Updated)', () => {
