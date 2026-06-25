@@ -1084,7 +1084,7 @@ describe('track - recommended ecommerce events', () => {
     enableBrazeLogging: false,
     dataCenter: 'US-03',
     allowUserSuppliedJavascript: false,
-    useRecommendedEcommerceEvents: true,
+    useEcommerceRecommendedEvents: true,
   };
 
   const buildBraze = (configOverrides = {}) => {
@@ -1521,6 +1521,22 @@ describe('track - recommended ecommerce events', () => {
     expect(warnMock.mock.calls[0][0]).toContain('type (expected stringArray)');
   });
 
+  it('does not coerce a boolean to string; sends it as-is and warns', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Product Viewed', {
+      product_id: 'p1',
+      name: 'Game',
+      variant: 'v1',
+      price: 15.99,
+      currency: true, // boolean on a string field — not coerced
+    });
+
+    const props = globalThis.braze.logCustomEvent.mock.calls[0][1];
+    expect(props.currency).toBe(true); // sent verbatim, not "true"
+    expect(warnMock).toHaveBeenCalledTimes(1);
+    expect(warnMock.mock.calls[0][0]).toContain('currency (expected string)');
+  });
+
   it('falls through to legacy custom-event path for unmapped events (Cart Updated)', () => {
     const braze = buildBraze();
     trackEvent(braze, 'Cart Updated', { cart_id: 'c1', value: 10 });
@@ -1532,7 +1548,7 @@ describe('track - recommended ecommerce events', () => {
   });
 
   it('falls through to legacy purchase path when the flag is off', () => {
-    const braze = buildBraze({ useRecommendedEcommerceEvents: false });
+    const braze = buildBraze({ useEcommerceRecommendedEvents: false });
     trackEvent(braze, 'order completed', {
       currency: 'USD',
       products: [{ product_id: 'p1', price: 15.99, quantity: 1 }],

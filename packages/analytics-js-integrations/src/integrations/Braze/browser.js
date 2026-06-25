@@ -38,7 +38,7 @@ class Braze {
       }
     }
     this.endPoint = '';
-    this.useRecommendedEcommerceEvents = config.useRecommendedEcommerceEvents || false;
+    this.useEcommerceRecommendedEvents = config.useEcommerceRecommendedEvents || false;
     this.isHybridModeEnabled = config.connectionMode === 'hybrid';
     this.isReadyStatus = {
       hasLoggedErrorForAlias: false,
@@ -359,7 +359,7 @@ class Braze {
       canSendCustomEvent = true;
     }
     if (eventName && canSendCustomEvent) {
-      const ecommerceMapping = this.useRecommendedEcommerceEvents
+      const ecommerceMapping = this.useEcommerceRecommendedEvents
         ? getEcommerceMapping(eventName)
         : undefined;
       if (ecommerceMapping) {

@@ -168,12 +168,13 @@ const INTEGER_STRING_REGEX = /^[+-]?\d+$/;
 /**
  * Coerce a resolved primitive to the type Braze expects, when the conversion is safe and
  * lossless; otherwise return it unchanged (the residual mismatch is surfaced by the
- * type-mismatch warning). Mirrors the cloud/Kotlin coercion table:
+ * type-mismatch warning). Mirrors the cloud coercion table:
  *   - numeric string  -> float    (`"29.99"` -> `29.99`)
  *   - integer string  -> integer  (`"2"` -> `2`; `"2.5"`/`"2.0"` left as-is)
- *   - number/boolean  -> string   (`12345` -> `"12345"`, `true` -> `"true"`)
+ *   - number          -> string   (`12345` -> `"12345"`)
  * Integer numbers are left as-is for float fields (Braze accepts an int where a float is
- * expected, and JSON cannot express `2.0`). Arrays/objects are never coerced.
+ * expected, and JSON cannot express `2.0`). Booleans are NOT coerced to string, and
+ * arrays/objects are never coerced.
  */
 const coerceValue = (value, type) => {
   if (value === null || typeof value === 'object') {
@@ -181,7 +182,7 @@ const coerceValue = (value, type) => {
   }
   switch (type) {
     case FIELD_TYPE.STRING:
-      return typeof value === 'string' ? value : String(value);
+      return typeof value === 'number' ? String(value) : value;
     case FIELD_TYPE.FLOAT:
       return typeof value === 'string' && FLOAT_STRING_REGEX.test(value.trim())
         ? Number(value.trim())
