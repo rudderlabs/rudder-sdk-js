@@ -5,6 +5,15 @@ import {
   getDestinationOptions,
   formatUrl,
   getAmplitudeSdkVersion,
+  getAutoCapturePageViews,
+  getPageUrlEnrichment,
+  getTrackSessionEvents,
+  getWebVitals,
+  getFileDownloads,
+  getFrustrationInteractions,
+  getNetworkTracking,
+  getElementInteractions,
+  getFormInteractions,
 } from '../../../src/integrations/Amplitude/utils';
 
 describe('getTraitsToSetOnce', () => {
@@ -208,5 +217,55 @@ describe('getAmplitudeSdkVersion', () => {
 
   it('should parse numeric strings in sdkVersion', () => {
     expect(getAmplitudeSdkVersion({ sdkVersion: '2' })).toBe(2);
+  });
+});
+
+describe('Amplitude v2 autocapture config helpers', () => {
+  const helperCases = [
+    {
+      name: 'getAutoCapturePageViews',
+      getter: getAutoCapturePageViews,
+      key: 'autoCapturePageViews',
+    },
+    { name: 'getPageUrlEnrichment', getter: getPageUrlEnrichment, key: 'pageUrlEnrichment' },
+    { name: 'getWebVitals', getter: getWebVitals, key: 'webVitals' },
+    { name: 'getFileDownloads', getter: getFileDownloads, key: 'fileDownloads' },
+    {
+      name: 'getFrustrationInteractions',
+      getter: getFrustrationInteractions,
+      key: 'frustrationInteractions',
+    },
+    { name: 'getNetworkTracking', getter: getNetworkTracking, key: 'networkTracking' },
+    { name: 'getElementInteractions', getter: getElementInteractions, key: 'elementInteractions' },
+    { name: 'getFormInteractions', getter: getFormInteractions, key: 'formInteractions' },
+  ];
+
+  it.each(helperCases)('$name should default missing config to false', ({ getter }) => {
+    expect(getter({})).toBe(false);
+  });
+
+  it.each(helperCases)('$name should read true and false config values', ({ getter, key }) => {
+    expect(getter({ [key]: true })).toBe(true);
+    expect(getter({ [key]: false })).toBe(false);
+  });
+
+  it('getTrackSessionEvents should default missing config to false', () => {
+    expect(getTrackSessionEvents({})).toBe(false);
+  });
+
+  it('getTrackSessionEvents should read the web source value shape', () => {
+    expect(getTrackSessionEvents({ trackSessionEvents: { web: true } })).toBe(true);
+    expect(getTrackSessionEvents({ trackSessionEvents: { web: false } })).toBe(false);
+    expect(getTrackSessionEvents({ trackSessionEvents: { web: { enabled: true } } })).toBe(true);
+    expect(getTrackSessionEvents({ trackSessionEvents: { web: { enabled: false } } })).toBe(false);
+  });
+
+  it('getTrackSessionEvents should ignore non-web source values', () => {
+    expect(getTrackSessionEvents({ trackSessionEvents: { android: true, ios: true } })).toBe(false);
+  });
+
+  it('getTrackSessionEvents should support legacy boolean values', () => {
+    expect(getTrackSessionEvents({ trackSessionEvents: true })).toBe(true);
+    expect(getTrackSessionEvents({ trackSessionEvents: false })).toBe(false);
   });
 });

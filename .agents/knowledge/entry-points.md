@@ -16,3 +16,8 @@
 - `packages/analytics-js/src/components/core/Analytics.ts` — v3 lifecycle engine, service composition, and initialization sequence (`packages/analytics-js/src/components/core/Analytics.ts::Analytics`).
 - `packages/analytics-v1.1/src/core/analytics.js` — legacy line core implementation (class-centric runtime still shipped as `rudder-sdk-js`) (`packages/analytics-v1.1/src/core/analytics.js::Analytics`).
 - `packages/loading-scripts/src/index.ts` — snippet loader that buffers calls and chooses modern vs legacy runtime script dynamically (`packages/loading-scripts/src/index.ts:1`).
+
+## SDK-5014 — Amplitude V2 Autocapture Entry Points
+
+- Amplitude device-mode integration work lives under `packages/analytics-js-integrations/src/integrations/Amplitude/`; for v2 autocapture changes, start with `browser.js` for initialization, `utils.js` for helper getters, and `constants.js` for integration constants.
+- Existing Jest coverage for Amplitude Browser SDK v2 initialization payload shape is in `packages/analytics-js-integrations/__tests__/integrations/Amplitude/browser.test.js`; helper behavior is covered in `packages/analytics-js-integrations/__tests__/integrations/Amplitude/util.test.js`.

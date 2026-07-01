@@ -66,6 +66,19 @@ const destinationInfo = {
   destinationId: 'sample-destination-id',
 };
 
+const defaultV2Autocapture = {
+  attribution: true,
+  pageViews: false,
+  sessions: false,
+  formInteractions: false,
+  fileDownloads: false,
+  elementInteractions: false,
+  frustrationInteractions: false,
+  networkTracking: false,
+  webVitals: false,
+  pageUrlEnrichment: false,
+};
+
 describe('Amplitude', () => {
   beforeAll(() => {
     // Add a dummy script as it is required by the init script
@@ -277,18 +290,7 @@ describe('Amplitude', () => {
       expect(window.amplitude._q[0].name).toBe('init');
       expect(window.amplitude._q[0].args[1]).toBeUndefined();
       expect(window.amplitude._q[0].args[2]).toMatchObject({
-        autocapture: {
-          attribution: true,
-          pageViews: false,
-          sessions: false,
-          formInteractions: false,
-          fileDownloads: false,
-          elementInteractions: false,
-          frustrationInteractions: false,
-          networkTracking: false,
-          webVitals: false,
-          pageUrlEnrichment: false,
-        },
+        autocapture: defaultV2Autocapture,
         serverUrl: 'https://some.proxyserverurl.com',
       });
       expect(window.amplitude._q[0].args[2].attribution).toBeUndefined();
@@ -309,20 +311,69 @@ describe('Amplitude', () => {
       expect(document.querySelector(`script[src="${AMPLITUDE_V2_SDK_URL}"]`)).toBeTruthy();
       expect(window.amplitude._q[0].args[2]).toMatchObject({
         autocapture: {
+          ...defaultV2Autocapture,
           attribution: false,
-          pageViews: false,
-          sessions: false,
-          formInteractions: false,
-          fileDownloads: false,
-          elementInteractions: false,
-          frustrationInteractions: false,
-          networkTracking: false,
-          webVitals: false,
-          pageUrlEnrichment: false,
         },
         serverUrl: 'https://some.proxyserverurl.com',
       });
       expect(window.amplitude._q[0].args[2].attribution).toBeUndefined();
+    });
+
+    it.each([
+      ['autoCapturePageViews', 'pageViews', true],
+      ['pageUrlEnrichment', 'pageUrlEnrichment', true],
+      ['trackSessionEvents', 'sessions', { web: true }],
+      ['webVitals', 'webVitals', true],
+      ['fileDownloads', 'fileDownloads', true],
+      ['frustrationInteractions', 'frustrationInteractions', true],
+      ['networkTracking', 'networkTracking', true],
+      ['elementInteractions', 'elementInteractions', true],
+      ['formInteractions', 'formInteractions', true],
+    ])(
+      'should map %s config to only autocapture.%s for v2',
+      (configKey, autocaptureKey, configValue) => {
+        const amplitude = new Amplitude(
+          {
+            ...destinationConfig,
+            sdkVersion: 2,
+            attribution: false,
+            [configKey]: configValue,
+          },
+          analyticsInstance,
+          destinationInfo,
+        );
+        amplitude.init();
+
+        expect(window.amplitude._q[0].args[2].autocapture).toStrictEqual({
+          ...defaultV2Autocapture,
+          [autocaptureKey]: true,
+        });
+      },
+    );
+
+    it('should keep auto-capture page views independent from user-instrumented page toggles', () => {
+      const amplitude = new Amplitude(
+        {
+          ...destinationConfig,
+          sdkVersion: 2,
+          attribution: false,
+          autoCapturePageViews: true,
+          trackAllPages: false,
+          trackCategorizedPages: false,
+          trackNamedPages: false,
+        },
+        analyticsInstance,
+        destinationInfo,
+      );
+      amplitude.init();
+
+      expect(window.amplitude._q[0].args[2].autocapture).toStrictEqual({
+        ...defaultV2Autocapture,
+        pageViews: true,
+      });
+      expect(amplitude.trackAllPages).toBe(false);
+      expect(amplitude.trackCategorizedPages).toBe(false);
+      expect(amplitude.trackNamedPages).toBe(false);
     });
 
     it('should set the correct SRI integrity on the injected v1 script', () => {
@@ -1074,6 +1125,39 @@ describe('Amplitude', () => {
       amplitude.page(rudderElement);
 
       expect(spy).toHaveBeenCalledWith('Viewed page NAME', {});
+    });
+
+    it('should not translate page calls when only v2 auto-capture page views is enabled', () => {
+      const config = {
+        apiKey: 'YOUR_AMPLITUDE_API_KEY',
+        sdkVersion: 2,
+        autoCapturePageViews: true,
+        trackAllPages: false,
+        trackCategorizedPages: false,
+        trackNamedPages: false,
+      };
+
+      const analytics = {
+        logLevel: 'debug',
+        getAnonymousId: () => 'ANONYMOUS_ID',
+      };
+
+      const rudderElement = {
+        message: {
+          properties: {},
+          name: 'NAME',
+          category: 'CATEGORY',
+          integrations: {},
+        },
+      };
+
+      const amplitude = new Amplitude(config, analytics, destinationInfo);
+      const spy = jest.spyOn(window.amplitude, 'track');
+      spy.mockClear();
+
+      amplitude.page(rudderElement);
+
+      expect(spy).not.toHaveBeenCalled();
     });
   });
 
