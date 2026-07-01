@@ -21,4 +21,4 @@
 ## SDK-5014 — Amplitude V2 Autocapture Config Boundaries
 
 - Amplitude Browser SDK v2 autocapture config is assembled in `packages/analytics-js-integrations/src/integrations/Amplitude/browser.js:init()` using helper getters from `packages/analytics-js-integrations/src/integrations/Amplitude/utils.js`.
-- The dedicated `autoCapturePageViews` config key maps only to the Amplitude SDK `autocapture.pageViews` option; it intentionally does not affect Rudder `page()` translation gates such as `trackAllPages`, `trackCategorizedPages`, or `trackNamedPages`.
+- The dedicated `pageViews` config key maps only to the Amplitude SDK `autocapture.pageViews` option; it intentionally does not affect Rudder `page()` translation gates such as `trackAllPages`, `trackCategorizedPages`, or `trackNamedPages`.
