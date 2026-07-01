@@ -320,7 +320,7 @@ describe('Amplitude', () => {
     });
 
     it.each([
-      ['autoCapturePageViews', 'pageViews', true],
+      ['pageViews', 'pageViews', true],
       ['pageUrlEnrichment', 'pageUrlEnrichment', true],
       ['trackSessionEvents', 'sessions', { web: true }],
       ['webVitals', 'webVitals', true],
@@ -357,7 +357,7 @@ describe('Amplitude', () => {
           ...destinationConfig,
           sdkVersion: 2,
           attribution: false,
-          autoCapturePageViews: true,
+          pageViews: true,
           trackAllPages: false,
           trackCategorizedPages: false,
           trackNamedPages: false,
@@ -1131,7 +1131,7 @@ describe('Amplitude', () => {
       const config = {
         apiKey: 'YOUR_AMPLITUDE_API_KEY',
         sdkVersion: 2,
-        autoCapturePageViews: true,
+        pageViews: true,
         trackAllPages: false,
         trackCategorizedPages: false,
         trackNamedPages: false,

@@ -2,7 +2,7 @@ import { AM_NAME as NAME, AM_DISPLAY_NAME as DISPLAY_NAME } from '../../constant
 
 const DIR_NAME = 'Amplitude';
 const AMPLITUDE_SDK_VERSION_CONFIG_KEY = 'sdkVersion';
-const AMPLITUDE_AUTO_CAPTURE_PAGE_VIEWS_CONFIG_KEY = 'autoCapturePageViews';
+const AMPLITUDE_AUTO_CAPTURE_PAGE_VIEWS_CONFIG_KEY = 'pageViews';
 const AMPLITUDE_PAGE_URL_ENRICHMENT_CONFIG_KEY = 'pageUrlEnrichment';
 const AMPLITUDE_TRACK_SESSION_EVENTS_CONFIG_KEY = 'trackSessionEvents';
 const AMPLITUDE_WEB_VITALS_CONFIG_KEY = 'webVitals';

@@ -225,7 +225,7 @@ describe('Amplitude v2 autocapture config helpers', () => {
     {
       name: 'getAutoCapturePageViews',
       getter: getAutoCapturePageViews,
-      key: 'autoCapturePageViews',
+      key: 'pageViews',
     },
     { name: 'getPageUrlEnrichment', getter: getPageUrlEnrichment, key: 'pageUrlEnrichment' },
     { name: 'getWebVitals', getter: getWebVitals, key: 'webVitals' },
