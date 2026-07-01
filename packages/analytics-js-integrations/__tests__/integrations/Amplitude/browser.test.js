@@ -322,7 +322,7 @@ describe('Amplitude', () => {
     it.each([
       ['pageViews', 'pageViews', true],
       ['pageUrlEnrichment', 'pageUrlEnrichment', true],
-      ['trackSessionEvents', 'sessions', { web: true }],
+      ['trackSessionEvents', 'sessions', true],
       ['webVitals', 'webVitals', true],
       ['fileDownloads', 'fileDownloads', true],
       ['frustrationInteractions', 'frustrationInteractions', true],

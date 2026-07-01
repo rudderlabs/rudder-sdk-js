@@ -91,15 +91,8 @@ const getAutoCapturePageViews = config =>
 const getPageUrlEnrichment = config =>
   getBooleanConfigValue(config, AMPLITUDE_PAGE_URL_ENRICHMENT_CONFIG_KEY);
 
-const getTrackSessionEvents = config => {
-  const trackSessionEvents = config?.[AMPLITUDE_TRACK_SESSION_EVENTS_CONFIG_KEY];
-
-  if (typeof trackSessionEvents === 'boolean') {
-    return trackSessionEvents;
-  }
-
-  return trackSessionEvents?.web === true || trackSessionEvents?.web?.enabled === true;
-};
+const getTrackSessionEvents = config =>
+  getBooleanConfigValue(config, AMPLITUDE_TRACK_SESSION_EVENTS_CONFIG_KEY);
 
 const getWebVitals = config => getBooleanConfigValue(config, AMPLITUDE_WEB_VITALS_CONFIG_KEY);
 

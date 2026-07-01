@@ -238,6 +238,7 @@ describe('Amplitude v2 autocapture config helpers', () => {
     { name: 'getNetworkTracking', getter: getNetworkTracking, key: 'networkTracking' },
     { name: 'getElementInteractions', getter: getElementInteractions, key: 'elementInteractions' },
     { name: 'getFormInteractions', getter: getFormInteractions, key: 'formInteractions' },
+    { name: 'getTrackSessionEvents', getter: getTrackSessionEvents, key: 'trackSessionEvents' },
   ];
 
   it.each(helperCases)('$name should default missing config to false', ({ getter }) => {
@@ -249,23 +250,4 @@ describe('Amplitude v2 autocapture config helpers', () => {
     expect(getter({ [key]: false })).toBe(false);
   });
 
-  it('getTrackSessionEvents should default missing config to false', () => {
-    expect(getTrackSessionEvents({})).toBe(false);
-  });
-
-  it('getTrackSessionEvents should read the web source value shape', () => {
-    expect(getTrackSessionEvents({ trackSessionEvents: { web: true } })).toBe(true);
-    expect(getTrackSessionEvents({ trackSessionEvents: { web: false } })).toBe(false);
-    expect(getTrackSessionEvents({ trackSessionEvents: { web: { enabled: true } } })).toBe(true);
-    expect(getTrackSessionEvents({ trackSessionEvents: { web: { enabled: false } } })).toBe(false);
-  });
-
-  it('getTrackSessionEvents should ignore non-web source values', () => {
-    expect(getTrackSessionEvents({ trackSessionEvents: { android: true, ios: true } })).toBe(false);
-  });
-
-  it('getTrackSessionEvents should support legacy boolean values', () => {
-    expect(getTrackSessionEvents({ trackSessionEvents: true })).toBe(true);
-    expect(getTrackSessionEvents({ trackSessionEvents: false })).toBe(false);
-  });
 });
