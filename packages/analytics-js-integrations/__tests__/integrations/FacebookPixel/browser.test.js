@@ -85,6 +85,43 @@ describe('FacebookPixel init tests', () => {
   });
 });
 
+describe('FacebookPixel multiple destinations bootstrap guard', () => {
+  const mockAnalytics = {};
+
+  beforeEach(() => {
+    delete window.fbq;
+    delete window._fbq;
+  });
+
+  test('does not re-bootstrap the global fbq shim when a second destination initializes', () => {
+    // First destination bootstraps the global fbq shim.
+    const firstPixel = new FacebookPixel({ pixelId: '111111111' }, mockAnalytics, destinationInfo);
+    firstPixel.init();
+
+    const shimAfterFirstInit = window.fbq;
+    expect(typeof shimAfterFirstInit).toBe('function');
+    expect(window.fbq.version).toBe('2.0');
+
+    // Simulate the loaded SDK taking over: mark the shim and enqueue an event.
+    window.fbq.version = 'preserved-by-loaded-sdk';
+    window.fbq.queue.push('event-from-first-destination');
+
+    // Second destination initializes. Its init() must NOT reset the global shim.
+    const secondPixel = new FacebookPixel({ pixelId: '222222222' }, mockAnalytics, destinationInfo);
+    secondPixel.init();
+
+    // The guard preserves the already established shim: version and queue are untouched.
+    expect(window.fbq).toBe(shimAfterFirstInit);
+    expect(window.fbq.version).toBe('preserved-by-loaded-sdk');
+    expect(window.fbq.queue).toContain('event-from-first-destination');
+
+    // The second pixel still registers itself via its own init call.
+    expect(window.fbq.queue).toContainEqual(
+      expect.objectContaining({ 0: 'init', 1: '222222222' }),
+    );
+  });
+});
+
 describe('FacebookPixel page', () => {
   let facebookPixel;
   const mockAnalytics = {

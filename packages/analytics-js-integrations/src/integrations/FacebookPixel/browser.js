@@ -53,21 +53,28 @@ class FacebookPixel {
   }
 
   init() {
-    window._fbq = function () {
-      if (window.fbq.callMethod) {
-        window.fbq.callMethod.apply(window.fbq, arguments);
-      } else {
-        window.fbq.queue.push(arguments);
-      }
-    };
+    // Bootstrap the global fbq shim only once per page. When multiple Meta Pixel
+    // destinations are configured, each one calls init(), and re-running this block
+    // mutates the already loaded fbevents.js SDK (resetting fbq.version, fbq.queue, etc.),
+    // which makes Meta log "Multiple pixels with conflicting versions were detected"
+    // and prevents the second pixel from initializing. Guard it like Meta's own snippet.
+    if (!window.fbq) {
+      window._fbq = function () {
+        if (window.fbq.callMethod) {
+          window.fbq.callMethod.apply(window.fbq, arguments);
+        } else {
+          window.fbq.queue.push(arguments);
+        }
+      };
 
-    window.fbq = window.fbq || window._fbq;
-    window.fbq.push = window.fbq;
-    window.fbq.loaded = true;
-    window.fbq.disablePushState = true; // disables automatic pageview tracking
-    window.fbq.allowDuplicatePageViews = true; // enables fb
-    window.fbq.version = '2.0';
-    window.fbq.queue = [];
+      window.fbq = window.fbq || window._fbq;
+      window.fbq.push = window.fbq;
+      window.fbq.loaded = true;
+      window.fbq.disablePushState = true; // disables automatic pageview tracking
+      window.fbq.allowDuplicatePageViews = true; // enables fb
+      window.fbq.version = '2.0';
+      window.fbq.queue = [];
+    }
     window.fbq('set', 'autoConfig', this.autoConfig, this.pixelId); // toggle autoConfig : sends button click and page metadata
     if (this.advancedMapping) {
       if (this.useUpdatedMapping) {
