@@ -1152,8 +1152,8 @@ describe('Amplitude', () => {
       };
 
       const amplitude = new Amplitude(config, analytics, destinationInfo);
+      window.amplitude = window.amplitude ?? { track: jest.fn() };
       const spy = jest.spyOn(window.amplitude, 'track');
-      spy.mockClear();
 
       amplitude.page(rudderElement);
 
