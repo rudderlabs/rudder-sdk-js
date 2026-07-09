@@ -87,10 +87,21 @@ describe('FacebookPixel init tests', () => {
 
 describe('FacebookPixel multiple destinations bootstrap guard', () => {
   const mockAnalytics = {};
+  let previousFbq;
+  let previousFbqShim;
 
   beforeEach(() => {
+    // Capture and clear the globals so this suite exercises a fresh bootstrap,
+    // then restore them in afterEach so sibling suites are not affected.
+    previousFbq = window.fbq;
+    previousFbqShim = window._fbq;
     delete window.fbq;
     delete window._fbq;
+  });
+
+  afterEach(() => {
+    window.fbq = previousFbq;
+    window._fbq = previousFbqShim;
   });
 
   test('does not re-bootstrap the global fbq shim when a second destination initializes', () => {
@@ -119,6 +130,26 @@ describe('FacebookPixel multiple destinations bootstrap guard', () => {
     expect(window.fbq.queue).toContainEqual(
       expect.objectContaining({ 0: 'init', 1: '222222222' }),
     );
+  });
+
+  test('applies pushState flags on every init even when fbq is pre-existing', () => {
+    // Simulate the host page (or an earlier destination) having already bootstrapped
+    // Meta Pixel with automatic pageview tracking enabled.
+    window.fbq = jest.fn();
+    window.fbq.queue = [];
+    window.fbq.version = 'pre-existing';
+    window.fbq.disablePushState = false;
+    window.fbq.allowDuplicatePageViews = false;
+
+    const pixel = new FacebookPixel({ pixelId: '333333333' }, mockAnalytics, destinationInfo);
+    pixel.init();
+
+    // The one-time shim state is left untouched (no version conflict)...
+    expect(window.fbq.version).toBe('pre-existing');
+    // ...but the pageview flags are (re)applied on this init so we never fall back
+    // to Meta's automatic pageview/pushState tracking.
+    expect(window.fbq.disablePushState).toBe(true);
+    expect(window.fbq.allowDuplicatePageViews).toBe(true);
   });
 });
 

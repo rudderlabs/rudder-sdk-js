@@ -70,11 +70,14 @@ class FacebookPixel {
       window.fbq = window.fbq || window._fbq;
       window.fbq.push = window.fbq;
       window.fbq.loaded = true;
-      window.fbq.disablePushState = true; // disables automatic pageview tracking
-      window.fbq.allowDuplicatePageViews = true; // enables fb
       window.fbq.version = '2.0';
       window.fbq.queue = [];
     }
+    // Apply these flags on every init() (even when fbq was bootstrapped by the host page
+    // or an earlier destination), so we never fall back to Meta's automatic pageview
+    // tracking. They don't cause the version conflict, so they stay outside the guard.
+    window.fbq.disablePushState = true; // disables automatic pageview tracking
+    window.fbq.allowDuplicatePageViews = true; // enables fb
     window.fbq('set', 'autoConfig', this.autoConfig, this.pixelId); // toggle autoConfig : sends button click and page metadata
     if (this.advancedMapping) {
       if (this.useUpdatedMapping) {
