@@ -166,6 +166,29 @@ const FLOAT_STRING_REGEX = /^[+-]?(\d+\.?\d*|\.\d+)$/;
 const INTEGER_STRING_REGEX = /^[+-]?\d+$/;
 
 /**
+ * Whether `value` is a real, finite number. `Infinity`/`-Infinity` are excluded because they
+ * are not JSON-serializable (they become `null`), so they must never be treated as a valid
+ * numeric value nor be produced by a coercion. (`Number.isFinite` is unavailable on the
+ * legacy build targets, hence the explicit check.)
+ */
+const isFiniteNumber = value =>
+  typeof value === 'number' && !Number.isNaN(value) && value !== Infinity && value !== -Infinity;
+
+/**
+ * Parse a numeric string to a number, but only commit the conversion when it is lossless —
+ * an overflowing literal (e.g. a 400-digit number) would land on `Infinity`, so it is left
+ * verbatim for the type-mismatch warning instead of being destroyed.
+ */
+const coerceNumericString = (value, regex) => {
+  const trimmed = value.trim();
+  if (!regex.test(trimmed)) {
+    return value;
+  }
+  const num = Number(trimmed);
+  return isFiniteNumber(num) ? num : value;
+};
+
+/**
  * Coerce a resolved primitive to the type Braze expects, when the conversion is safe and
  * lossless; otherwise return it unchanged (the residual mismatch is surfaced by the
  * type-mismatch warning). Mirrors the cloud coercion table:
@@ -184,14 +207,10 @@ const coerceValue = (value, type) => {
     case FIELD_TYPE.STRING:
       return typeof value === 'number' ? String(value) : value;
     case FIELD_TYPE.FLOAT:
-      return typeof value === 'string' && FLOAT_STRING_REGEX.test(value.trim())
-        ? Number(value.trim())
-        : value;
+      return typeof value === 'string' ? coerceNumericString(value, FLOAT_STRING_REGEX) : value;
     case FIELD_TYPE.INTEGER:
       // Only a pure integer literal is a safe, lossless conversion ("2", not "2.5"/"2.0").
-      return typeof value === 'string' && INTEGER_STRING_REGEX.test(value.trim())
-        ? Number(value.trim())
-        : value;
+      return typeof value === 'string' ? coerceNumericString(value, INTEGER_STRING_REGEX) : value;
     default:
       // stringArray / array — never coerced.
       return value;
@@ -201,17 +220,17 @@ const coerceValue = (value, type) => {
 /**
  * Whether `value` already matches the type Braze expects. A numeric written as a string
  * (e.g. `"29.99"`) does NOT match a numeric type, so an un-coercible value still warns.
- * `0`/`false` are valid for their respective types.
+ * `0`/`false` are valid for their respective types; `NaN`/`Infinity` are not.
  */
 const matchesType = (value, type) => {
   switch (type) {
     case FIELD_TYPE.STRING:
       return typeof value === 'string';
     case FIELD_TYPE.INTEGER:
-      // `value % 1 === 0` is true only for whole numbers; NaN/Infinity yield NaN and fail.
-      return typeof value === 'number' && value % 1 === 0;
+      // `value % 1 === 0` is true only for whole numbers.
+      return isFiniteNumber(value) && value % 1 === 0;
     case FIELD_TYPE.FLOAT:
-      return typeof value === 'number' && !Number.isNaN(value);
+      return isFiniteNumber(value);
     case FIELD_TYPE.STRING_ARRAY:
       return Array.isArray(value) && value.every(item => typeof item === 'string');
     case FIELD_TYPE.ARRAY:

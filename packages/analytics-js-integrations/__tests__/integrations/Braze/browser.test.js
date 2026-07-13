@@ -1521,6 +1521,37 @@ describe('track - recommended ecommerce events', () => {
     expect(warnMock.mock.calls[0][0]).toContain('type (expected stringArray)');
   });
 
+  it('flags Infinity as a float type mismatch', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Product Viewed', {
+      product_id: 'p1',
+      name: 'Game',
+      variant: 'v1',
+      price: Infinity, // not JSON-serializable — must not pass as a valid float
+      currency: 'USD',
+    });
+
+    expect(warnMock).toHaveBeenCalledTimes(1);
+    expect(warnMock.mock.calls[0][0]).toContain('price (expected float)');
+  });
+
+  it('does not coerce an overflowing numeric string to Infinity', () => {
+    const braze = buildBraze();
+    const hugeNumber = new Array(401).join('9'); // 400 digits — Number(...) overflows to Infinity
+    trackEvent(braze, 'Product Viewed', {
+      product_id: 'p1',
+      name: 'Game',
+      variant: 'v1',
+      price: hugeNumber,
+      currency: 'USD',
+    });
+
+    const props = globalThis.braze.logCustomEvent.mock.calls[0][1];
+    expect(props.price).toBe(hugeNumber); // left verbatim, not Infinity
+    expect(warnMock).toHaveBeenCalledTimes(1);
+    expect(warnMock.mock.calls[0][0]).toContain('price (expected float)');
+  });
+
   it('does not coerce a boolean to string; sends it as-is and warns', () => {
     const braze = buildBraze();
     trackEvent(braze, 'Product Viewed', {
