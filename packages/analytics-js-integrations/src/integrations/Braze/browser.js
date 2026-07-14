@@ -38,7 +38,7 @@ class Braze {
       }
     }
     this.endPoint = '';
-    this.useEcommerceRecommendedEvents = config.useEcommerceRecommendedEvents || false;
+    this.useEcommerceRecommendedEvents = config.useEcommerceRecommendedEvents === true;
     this.isHybridModeEnabled = config.connectionMode === 'hybrid';
     this.isReadyStatus = {
       hasLoggedErrorForAlias: false,

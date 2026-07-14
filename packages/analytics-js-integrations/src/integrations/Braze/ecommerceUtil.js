@@ -17,7 +17,10 @@ export const BRAZE_ECOMMERCE_EVENTS = {
   ORDER_CANCELLED: 'ecommerce.order_cancelled',
 };
 
-const BRAZE_SOURCE_VALUES = ['web', 'ios', 'android'];
+// Braze requires a `source` on every recommended event. This is the web device-mode
+// integration, so it always reports `web` — the mobile SDKs report `ios`/`android`.
+// A caller-supplied `properties.source` is ignored (and not passed through to metadata).
+const BRAZE_WEB_SOURCE = 'web';
 
 // Case-insensitive RS event name -> Braze recommended event mapping.
 // Keys are lowercased RS event names. `Cart Viewed` and `Cart Updated` are
@@ -45,7 +48,7 @@ const FIELD_TYPE = {
 
 // ---------------------------------------------------------------------------
 // Per-event field mappings (mirror of the cloud `Braze*Config.json` files).
-// Each entry is built via `m(destKey, sourceKeys, required, type)`:
+// Each entry is built via `mapField(destKey, sourceKeys, required, type)`:
 //   - `destKey`/`sourceKeys` are the `constructPayload` contract.
 //   - `req` flags Braze-required fields (consumed by collectMissingRequiredFields).
 //   - `type` is the Braze-expected type (default String); drives coercion + the
@@ -53,7 +56,7 @@ const FIELD_TYPE = {
 // `sourceKeys` arrays are ordered fallback chains (first resolved value wins).
 // ---------------------------------------------------------------------------
 
-const m = (destKey, sourceKeys, req = false, type = FIELD_TYPE.STRING) => ({
+const mapField = (destKey, sourceKeys, req = false, type = FIELD_TYPE.STRING) => ({
   destKey,
   sourceKeys,
   req,
@@ -65,77 +68,77 @@ const TOTAL_VALUE_SOURCES = ['properties.total', 'properties.revenue', 'properti
 const TOTAL_DISCOUNTS_SOURCES = ['properties.discount', 'properties.total_discounts'];
 
 const PRODUCT_VIEWED_MAPPING = [
-  m('product_id', ['properties.product_id', 'properties.sku'], true),
-  m('product_name', 'properties.name', true),
-  m('variant_id', ['properties.variant', 'properties.sku', 'properties.product_id'], true),
-  m('price', 'properties.price', true, FIELD_TYPE.FLOAT),
-  m('currency', 'properties.currency', true),
-  m('image_url', 'properties.image_url'),
-  m('product_url', 'properties.url'),
-  m('type', 'properties.type', false, FIELD_TYPE.STRING_ARRAY),
+  mapField('product_id', ['properties.product_id', 'properties.sku'], true),
+  mapField('product_name', 'properties.name', true),
+  mapField('variant_id', ['properties.variant', 'properties.sku', 'properties.product_id'], true),
+  mapField('price', 'properties.price', true, FIELD_TYPE.FLOAT),
+  mapField('currency', 'properties.currency', true),
+  mapField('image_url', 'properties.image_url'),
+  mapField('product_url', 'properties.url'),
+  mapField('type', 'properties.type', false, FIELD_TYPE.STRING_ARRAY),
 ];
 
 const CART_UPDATED_MAPPING = [
-  m('cart_id', 'properties.cart_id', true),
-  m('total_value', ['properties.total', 'properties.value'], false, FIELD_TYPE.FLOAT),
-  m('subtotal_value', 'properties.subtotal_value', false, FIELD_TYPE.FLOAT),
-  m('tax', 'properties.tax', false, FIELD_TYPE.FLOAT),
-  m('shipping', 'properties.shipping', false, FIELD_TYPE.FLOAT),
-  m('currency', 'properties.currency', true),
+  mapField('cart_id', 'properties.cart_id', true),
+  mapField('total_value', ['properties.total', 'properties.value'], false, FIELD_TYPE.FLOAT),
+  mapField('subtotal_value', 'properties.subtotal_value', false, FIELD_TYPE.FLOAT),
+  mapField('tax', 'properties.tax', false, FIELD_TYPE.FLOAT),
+  mapField('shipping', 'properties.shipping', false, FIELD_TYPE.FLOAT),
+  mapField('currency', 'properties.currency', true),
 ];
 
 const CHECKOUT_STARTED_MAPPING = [
-  m('checkout_id', ['properties.checkout_id', 'properties.order_id'], true),
-  m('cart_id', 'properties.cart_id'),
-  m('total_value', TOTAL_VALUE_SOURCES, true, FIELD_TYPE.FLOAT),
-  m('subtotal_value', 'properties.subtotal_value', false, FIELD_TYPE.FLOAT),
-  m('tax', 'properties.tax', false, FIELD_TYPE.FLOAT),
-  m('shipping', 'properties.shipping', false, FIELD_TYPE.FLOAT),
-  m('currency', 'properties.currency', true),
+  mapField('checkout_id', ['properties.checkout_id', 'properties.order_id'], true),
+  mapField('cart_id', 'properties.cart_id'),
+  mapField('total_value', TOTAL_VALUE_SOURCES, true, FIELD_TYPE.FLOAT),
+  mapField('subtotal_value', 'properties.subtotal_value', false, FIELD_TYPE.FLOAT),
+  mapField('tax', 'properties.tax', false, FIELD_TYPE.FLOAT),
+  mapField('shipping', 'properties.shipping', false, FIELD_TYPE.FLOAT),
+  mapField('currency', 'properties.currency', true),
 ];
 
 const ORDER_PLACED_MAPPING = [
-  m('order_id', 'properties.order_id', true),
-  m('total_value', TOTAL_VALUE_SOURCES, true, FIELD_TYPE.FLOAT),
-  m('currency', 'properties.currency', true),
-  m('cart_id', 'properties.cart_id'),
-  m('tax', 'properties.tax', false, FIELD_TYPE.FLOAT),
-  m('shipping', 'properties.shipping', false, FIELD_TYPE.FLOAT),
-  m('total_discounts', TOTAL_DISCOUNTS_SOURCES, false, FIELD_TYPE.FLOAT),
-  m('subtotal_value', 'properties.subtotal_value', false, FIELD_TYPE.FLOAT),
-  m('discounts', 'properties.discounts', false, FIELD_TYPE.ARRAY),
+  mapField('order_id', 'properties.order_id', true),
+  mapField('total_value', TOTAL_VALUE_SOURCES, true, FIELD_TYPE.FLOAT),
+  mapField('currency', 'properties.currency', true),
+  mapField('cart_id', 'properties.cart_id'),
+  mapField('tax', 'properties.tax', false, FIELD_TYPE.FLOAT),
+  mapField('shipping', 'properties.shipping', false, FIELD_TYPE.FLOAT),
+  mapField('total_discounts', TOTAL_DISCOUNTS_SOURCES, false, FIELD_TYPE.FLOAT),
+  mapField('subtotal_value', 'properties.subtotal_value', false, FIELD_TYPE.FLOAT),
+  mapField('discounts', 'properties.discounts', false, FIELD_TYPE.ARRAY),
 ];
 
 const ORDER_REFUNDED_MAPPING = [
-  m('order_id', 'properties.order_id', true),
-  m('total_value', TOTAL_VALUE_SOURCES, true, FIELD_TYPE.FLOAT),
-  m('currency', 'properties.currency', true),
-  m('total_discounts', TOTAL_DISCOUNTS_SOURCES, false, FIELD_TYPE.FLOAT),
-  m('discounts', 'properties.discounts', false, FIELD_TYPE.ARRAY),
+  mapField('order_id', 'properties.order_id', true),
+  mapField('total_value', TOTAL_VALUE_SOURCES, true, FIELD_TYPE.FLOAT),
+  mapField('currency', 'properties.currency', true),
+  mapField('total_discounts', TOTAL_DISCOUNTS_SOURCES, false, FIELD_TYPE.FLOAT),
+  mapField('discounts', 'properties.discounts', false, FIELD_TYPE.ARRAY),
 ];
 
 const ORDER_CANCELLED_MAPPING = [
-  m('order_id', 'properties.order_id', true),
-  m('total_value', TOTAL_VALUE_SOURCES, true, FIELD_TYPE.FLOAT),
-  m('currency', 'properties.currency', true),
-  m('cancel_reason', ['properties.cancel_reason', 'properties.reason'], true),
-  m('tax', 'properties.tax', false, FIELD_TYPE.FLOAT),
-  m('shipping', 'properties.shipping', false, FIELD_TYPE.FLOAT),
-  m('total_discounts', TOTAL_DISCOUNTS_SOURCES, false, FIELD_TYPE.FLOAT),
-  m('subtotal_value', 'properties.subtotal_value', false, FIELD_TYPE.FLOAT),
-  m('discounts', 'properties.discounts', false, FIELD_TYPE.ARRAY),
+  mapField('order_id', 'properties.order_id', true),
+  mapField('total_value', TOTAL_VALUE_SOURCES, true, FIELD_TYPE.FLOAT),
+  mapField('currency', 'properties.currency', true),
+  mapField('cancel_reason', ['properties.cancel_reason', 'properties.reason'], true),
+  mapField('tax', 'properties.tax', false, FIELD_TYPE.FLOAT),
+  mapField('shipping', 'properties.shipping', false, FIELD_TYPE.FLOAT),
+  mapField('total_discounts', TOTAL_DISCOUNTS_SOURCES, false, FIELD_TYPE.FLOAT),
+  mapField('subtotal_value', 'properties.subtotal_value', false, FIELD_TYPE.FLOAT),
+  mapField('discounts', 'properties.discounts', false, FIELD_TYPE.ARRAY),
 ];
 
 // Shared per-product mapping (bare keys — read from each `products[i]` /
 // `properties` directly, no `properties.` prefix).
 const ECOMMERCE_PRODUCT_MAPPING = [
-  m('product_id', ['product_id', 'sku'], true),
-  m('product_name', 'name', true),
-  m('variant_id', ['variant', 'sku', 'product_id'], true),
-  m('quantity', 'quantity', true, FIELD_TYPE.INTEGER),
-  m('price', 'price', true, FIELD_TYPE.FLOAT),
-  m('image_url', 'image_url'),
-  m('product_url', 'url'),
+  mapField('product_id', ['product_id', 'sku'], true),
+  mapField('product_name', 'name', true),
+  mapField('variant_id', ['variant', 'sku', 'product_id'], true),
+  mapField('quantity', 'quantity', true, FIELD_TYPE.INTEGER),
+  mapField('price', 'price', true, FIELD_TYPE.FLOAT),
+  mapField('image_url', 'image_url'),
+  mapField('product_url', 'url'),
 ];
 
 const PER_EVENT_MAPPING = {
@@ -451,24 +454,6 @@ export const getEcommerceMapping = eventName => {
 };
 
 /**
- * Derive the Braze `source` field. On the web SDK this resolves to `'web'`, unless the
- * event carries an explicit, valid `properties.source` (`web`/`ios`/`android`), which
- * takes precedence. The explicit value is trimmed and lowercased before matching, so
- * surrounding whitespace doesn't defeat it. Always returns one of Braze's enum values;
- * never undefined.
- */
-export const deriveSource = message => {
-  const properties = message.properties || {};
-  const explicit = String(properties.source || '')
-    .trim()
-    .toLowerCase();
-  if (BRAZE_SOURCE_VALUES.indexOf(explicit) !== -1) {
-    return explicit;
-  }
-  return 'web';
-};
-
-/**
  * Build the `properties` object for a Braze recommended ecommerce event.
  *
  * Algorithm:
@@ -477,7 +462,7 @@ export const deriveSource = message => {
  * 2. For events with a `products[]`, build the array (single-product wrap for
  *    `cart_updated` without an explicit `products[]`, iterate `properties.products`
  *    otherwise).
- * 3. Set `source` via `deriveSource` and `action` when present.
+ * 3. Set `source` (always `web` on this SDK) and `action` when present.
  * 4. Route unmapped event-level keys to `properties.metadata` (excluding `action`, which is
  *    set explicitly), and unmapped per-product keys to `products[].metadata`.
  * 5. Emit a single `logger.warn` listing any missing Braze-required fields.
@@ -501,7 +486,7 @@ export const buildEcommerceEventProperties = (message, brazeEvent, action, logge
   }
 
   // Step 3: source + action.
-  payload.source = deriveSource(message);
+  payload.source = BRAZE_WEB_SOURCE;
   if (action) {
     payload.action = action;
   }

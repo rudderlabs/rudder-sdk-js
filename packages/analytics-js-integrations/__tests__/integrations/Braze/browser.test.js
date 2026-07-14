@@ -1399,7 +1399,7 @@ describe('track - recommended ecommerce events', () => {
     expect(globalThis.braze.logCustomEvent.mock.calls[0][1]).not.toHaveProperty('products');
   });
 
-  it('honors an explicit valid properties.source override', () => {
+  it('always reports source as web, ignoring a caller-supplied properties.source', () => {
     const braze = buildBraze();
     trackEvent(braze, 'Product Viewed', {
       product_id: 'p1',
@@ -1407,24 +1407,13 @@ describe('track - recommended ecommerce events', () => {
       variant: 'v1',
       price: 15.99,
       currency: 'USD',
-      source: 'ios',
+      source: 'ios', // this is the web SDK — the override must be ignored
     });
 
-    expect(globalThis.braze.logCustomEvent.mock.calls[0][1].source).toBe('ios');
-  });
-
-  it('honors an explicit properties.source with surrounding whitespace', () => {
-    const braze = buildBraze();
-    trackEvent(braze, 'Product Viewed', {
-      product_id: 'p1',
-      name: 'Game',
-      variant: 'v1',
-      price: 15.99,
-      currency: 'USD',
-      source: 'ios ',
-    });
-
-    expect(globalThis.braze.logCustomEvent.mock.calls[0][1].source).toBe('ios');
+    const props = globalThis.braze.logCustomEvent.mock.calls[0][1];
+    expect(props.source).toBe('web');
+    // the ignored value must not leak into metadata either
+    expect(props.metadata).toBeUndefined();
   });
 
   it('warns and scrubs a required field provided as an empty object', () => {
