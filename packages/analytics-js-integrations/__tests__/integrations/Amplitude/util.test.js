@@ -225,19 +225,35 @@ describe('Amplitude v2 autocapture config helpers', () => {
     {
       name: 'getAutoCapturePageViews',
       getter: getAutoCapturePageViews,
-      key: 'pageViews',
+      key: 'enablePageViewsAutoCapture',
     },
-    { name: 'getPageUrlEnrichment', getter: getPageUrlEnrichment, key: 'pageUrlEnrichment' },
-    { name: 'getWebVitals', getter: getWebVitals, key: 'webVitals' },
-    { name: 'getFileDownloads', getter: getFileDownloads, key: 'fileDownloads' },
+    {
+      name: 'getPageUrlEnrichment',
+      getter: getPageUrlEnrichment,
+      key: 'enablePageUrlEnrichmentAutoCapture',
+    },
+    { name: 'getWebVitals', getter: getWebVitals, key: 'enableWebVitalsAutoCapture' },
+    { name: 'getFileDownloads', getter: getFileDownloads, key: 'enableFileDownloadsAutoCapture' },
     {
       name: 'getFrustrationInteractions',
       getter: getFrustrationInteractions,
-      key: 'frustrationInteractions',
+      key: 'enableFrustrationInteractionsAutoCapture',
     },
-    { name: 'getNetworkTracking', getter: getNetworkTracking, key: 'networkTracking' },
-    { name: 'getElementInteractions', getter: getElementInteractions, key: 'elementInteractions' },
-    { name: 'getFormInteractions', getter: getFormInteractions, key: 'formInteractions' },
+    {
+      name: 'getNetworkTracking',
+      getter: getNetworkTracking,
+      key: 'enableNetworkTrackingAutoCapture',
+    },
+    {
+      name: 'getElementInteractions',
+      getter: getElementInteractions,
+      key: 'enableElementInteractionsAutoCapture',
+    },
+    {
+      name: 'getFormInteractions',
+      getter: getFormInteractions,
+      key: 'enableFormInteractionsAutoCapture',
+    },
     { name: 'getTrackSessionEvents', getter: getTrackSessionEvents, key: 'trackSessionEvents' },
   ];
 
@@ -249,5 +265,4 @@ describe('Amplitude v2 autocapture config helpers', () => {
     expect(getter({ [key]: true })).toBe(true);
     expect(getter({ [key]: false })).toBe(false);
   });
-
 });

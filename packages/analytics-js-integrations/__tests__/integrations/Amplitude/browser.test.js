@@ -93,7 +93,9 @@ describe('Amplitude', () => {
     beforeEach(() => {
       window.amplitude = undefined;
       document
-        .querySelectorAll(`script[src="${AMPLITUDE_V1_SDK_URL}"], script[src="${AMPLITUDE_V2_SDK_URL}"]`)
+        .querySelectorAll(
+          `script[src="${AMPLITUDE_V1_SDK_URL}"], script[src="${AMPLITUDE_V2_SDK_URL}"]`,
+        )
         .forEach(element => element.remove());
     });
 
@@ -320,15 +322,15 @@ describe('Amplitude', () => {
     });
 
     it.each([
-      ['pageViews', 'pageViews', true],
-      ['pageUrlEnrichment', 'pageUrlEnrichment', true],
+      ['enablePageViewsAutoCapture', 'pageViews', true],
+      ['enablePageUrlEnrichmentAutoCapture', 'pageUrlEnrichment', true],
       ['trackSessionEvents', 'sessions', true],
-      ['webVitals', 'webVitals', true],
-      ['fileDownloads', 'fileDownloads', true],
-      ['frustrationInteractions', 'frustrationInteractions', true],
-      ['networkTracking', 'networkTracking', true],
-      ['elementInteractions', 'elementInteractions', true],
-      ['formInteractions', 'formInteractions', true],
+      ['enableWebVitalsAutoCapture', 'webVitals', true],
+      ['enableFileDownloadsAutoCapture', 'fileDownloads', true],
+      ['enableFrustrationInteractionsAutoCapture', 'frustrationInteractions', true],
+      ['enableNetworkTrackingAutoCapture', 'networkTracking', true],
+      ['enableElementInteractionsAutoCapture', 'elementInteractions', true],
+      ['enableFormInteractionsAutoCapture', 'formInteractions', true],
     ])(
       'should map %s config to only autocapture.%s for v2',
       (configKey, autocaptureKey, configValue) => {
@@ -357,7 +359,7 @@ describe('Amplitude', () => {
           ...destinationConfig,
           sdkVersion: 2,
           attribution: false,
-          pageViews: true,
+          enablePageViewsAutoCapture: true,
           trackAllPages: false,
           trackCategorizedPages: false,
           trackNamedPages: false,
@@ -1131,7 +1133,7 @@ describe('Amplitude', () => {
       const config = {
         apiKey: 'YOUR_AMPLITUDE_API_KEY',
         sdkVersion: 2,
-        pageViews: true,
+        enablePageViewsAutoCapture: true,
         trackAllPages: false,
         trackCategorizedPages: false,
         trackNamedPages: false,
