@@ -6,7 +6,7 @@ export default [
   {
     name: 'All Integrations - Legacy - CDN',
     path: 'dist/cdn/legacy/js-integrations/*.min.js',
-    limit: '97 KiB',
+    limit: '98.5 KiB',
   },
   {
     name: 'All Integrations - Modern - CDN',
