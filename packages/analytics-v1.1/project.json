@@ -59,9 +59,9 @@
     "github": {
       "executor": "@jscutlery/semver:github",
       "options": {
-        "tag": "rudder-sdk-js@2.52.14",
-        "title": "rudder-sdk-js@2.52.14",
-        "discussion-category": "rudder-sdk-js@2.52.14",
+        "tag": "rudder-sdk-js@2.52.15",
+        "title": "rudder-sdk-js@2.52.15",
+        "discussion-category": "rudder-sdk-js@2.52.15",
         "notesFile": "./packages/analytics-v1.1/CHANGELOG_LATEST.md"
       }
     }
