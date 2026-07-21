@@ -48,6 +48,13 @@ describe('Core - Analytics', () => {
       expect(analytics.externalSrcLoader).toBeDefined();
       expect(analytics.capabilitiesManager).toBeDefined();
       expect(analytics.httpClient).toBeDefined();
+      expect(analytics.customContextStore.get()).toEqual({});
+    });
+
+    it('owns a custom context store per Analytics instance', () => {
+      const otherAnalytics = new Analytics();
+
+      expect(otherAnalytics.customContextStore).not.toBe(analytics.customContextStore);
     });
   });
 
