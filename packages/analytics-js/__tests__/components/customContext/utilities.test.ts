@@ -1,0 +1,165 @@
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { CONTEXT_RESERVED_ELEMENTS } from '../../../src/components/eventManager/constants';
+import { prepareCustomContextUpdate } from '../../../src/components/customContext';
+
+class MockLogger implements ILogger {
+  warn = jest.fn();
+  log = jest.fn();
+  error = jest.fn();
+  info = jest.fn();
+  debug = jest.fn();
+  minLogLevel = 0;
+  scope = 'test scope';
+  setMinLogLevel = jest.fn();
+  setScope = jest.fn();
+  logProvider = console;
+}
+
+describe('custom context utilities', () => {
+  let logger: MockLogger;
+
+  beforeEach(() => {
+    logger = new MockLogger();
+  });
+
+  it('returns retained values and segment-array deletion paths without marker-only branches', () => {
+    expect(
+      prepareCustomContextUpdate(
+        {
+          'region.code': null,
+          account: {
+            plan: undefined,
+            seats: 5,
+            preferences: { locale: null },
+          },
+        },
+        logger,
+      ),
+    ).toEqual({
+      context: { account: { seats: 5 } },
+      deletionPaths: [['region.code'], ['account', 'plan'], ['account', 'preferences', 'locale']],
+    });
+  });
+
+  it('accepts JSON-shaped values and preserves arrays for mergeDeepRight', () => {
+    expect(
+      prepareCustomContextUpdate(
+        {
+          experiment: 'checkout',
+          enabled: true,
+          allocation: 0.5,
+          variants: ['control', { name: 'treatment', weights: [1, 2] }],
+        },
+        logger,
+      ),
+    ).toEqual({
+      context: {
+        experiment: 'checkout',
+        enabled: true,
+        allocation: 0.5,
+        variants: ['control', { name: 'treatment', weights: [1, 2] }],
+      },
+      deletionPaths: [],
+    });
+  });
+
+  it.each([
+    ['null', null],
+    ['undefined', undefined],
+    ['an array', []],
+    ['a function', () => undefined],
+    ['a date', new Date('2026-07-21T00:00:00.000Z')],
+  ])('rejects %s as the top-level update', (_, input) => {
+    expect(prepareCustomContextUpdate(input, logger)).toBeUndefined();
+    expect(logger.warn).toHaveBeenCalledWith(
+      'CustomContext:: The custom context update is invalid. Use a plain object containing only JSON-shaped values.',
+    );
+  });
+
+  it.each([
+    ['a function', () => undefined],
+    ['a symbol', Symbol('secret')],
+    ['a date', new Date('2026-07-21T00:00:00.000Z')],
+    ['a map', new Map([['key', 'value']])],
+    ['a set', new Set(['value'])],
+    ['NaN', Number.NaN],
+    ['Infinity', Number.POSITIVE_INFINITY],
+  ])('rejects an update containing %s atomically', (_, invalidValue) => {
+    expect(
+      prepareCustomContextUpdate({ removeMe: null, valid: 'value', invalid: invalidValue }, logger),
+    ).toBeUndefined();
+  });
+
+  it.each([
+    ['a direct null entry', ['control', null]],
+    ['a direct undefined entry', ['control', undefined]],
+    ['a null marker inside an array object', [{ removeMe: null }]],
+    ['an undefined marker inside an array object', [{ removeMe: undefined }]],
+  ])('rejects %s instead of treating it as a deletion scope', (_, variants) => {
+    expect(prepareCustomContextUpdate({ variants }, logger)).toBeUndefined();
+  });
+
+  it('sanitizes BigInt and circular references using the existing SDK behavior', () => {
+    const context: Record<string, unknown> = { id: BigInt(123) };
+    context.self = context;
+
+    expect(prepareCustomContextUpdate(context, logger)).toEqual({
+      context: { id: '[BigInt]', self: '[Circular Reference]' },
+      deletionPaths: [],
+    });
+    expect(logger.warn).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not treat a reused non-circular object as a circular reference', () => {
+    const shared = { cohort: 'A' };
+
+    expect(prepareCustomContextUpdate({ first: shared, second: shared }, logger)).toEqual({
+      context: { first: { cohort: 'A' }, second: { cohort: 'A' } },
+      deletionPaths: [],
+    });
+    expect(logger.warn).not.toHaveBeenCalled();
+  });
+
+  it('filters reserved root keys before inspecting or sanitizing their values', () => {
+    const secretValue = 'must-not-appear-in-the-warning';
+    const reservedCircularValue: Record<string, unknown> = { secretValue };
+    reservedCircularValue.self = reservedCircularValue;
+
+    expect(
+      prepareCustomContextUpdate(
+        {
+          library: new Date('2026-07-21T00:00:00.000Z'),
+          screen: reservedCircularValue,
+          app: { library: 'nested names remain valid' },
+        },
+        logger,
+      ),
+    ).toEqual({
+      context: { app: { library: 'nested names remain valid' } },
+      deletionPaths: [],
+    });
+    expect(logger.warn).toHaveBeenCalledTimes(2);
+    expect(logger.warn).toHaveBeenNthCalledWith(
+      1,
+      `CustomContext:: The "library" property defined under "custom context" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (${CONTEXT_RESERVED_ELEMENTS}).`,
+    );
+    expect(logger.warn.mock.calls.flat().join(' ')).not.toContain(secretValue);
+  });
+
+  it('returns defensive retained values and deletion paths', () => {
+    const input = {
+      account: { seats: 5, plan: null },
+      variants: [{ name: 'control' }],
+    };
+    const result = prepareCustomContextUpdate(input, logger)!;
+
+    input.account.seats = 10;
+    input.variants[0]!.name = 'treatment';
+    result.deletionPaths[0]!.push('mutated');
+
+    expect(result.context).toEqual({
+      account: { seats: 5 },
+      variants: [{ name: 'control' }],
+    });
+  });
+});
