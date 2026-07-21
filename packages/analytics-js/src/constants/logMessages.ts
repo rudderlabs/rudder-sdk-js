@@ -158,6 +158,9 @@ const RESERVED_KEYWORD_WARNING = (
 const INVALID_CONTEXT_OBJECT_WARNING = (logContext: string): string =>
   `${logContext}${LOG_CONTEXT_SEPARATOR}Please make sure that the "context" property in the event API's "options" argument is a valid object literal with key-value pairs.`;
 
+const INVALID_CUSTOM_CONTEXT_WARNING = (logContext: string): string =>
+  `${logContext}${LOG_CONTEXT_SEPARATOR}The custom context update is invalid. Use a plain object containing only JSON-shaped values.`;
+
 const UNSUPPORTED_BEACON_API_WARNING = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The Beacon API is not supported by your browser. The events will be sent using XHR instead.`;
 
@@ -277,6 +280,7 @@ export {
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
   RESERVED_KEYWORD_WARNING,
   INVALID_CONTEXT_OBJECT_WARNING,
+  INVALID_CUSTOM_CONTEXT_WARNING,
   UNSUPPORTED_BEACON_API_WARNING,
   TIMEOUT_NOT_NUMBER_WARNING,
   TIMEOUT_ZERO_WARNING,
