@@ -1,7 +1,7 @@
-## [3.22.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.21.0...@rudderstack/analytics-js-integrations@3.22.0) (2026-06-11)
+## [3.23.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.22.0...@rudderstack/analytics-js-integrations@3.23.0) (2026-07-22)
 
 
 ### Features
 
-* **@rudderstack/analytics-js-integrations:** add amplitude v1/v2 sdk selection ([#3042](https://github.com/rudderlabs/rudder-sdk-js/issues/3042)) ([804b67c](https://github.com/rudderlabs/rudder-sdk-js/commit/804b67c040a655c6916308b5d754d712fc0c2242))
+* braze ecommerce events onboarding ([#3076](https://github.com/rudderlabs/rudder-sdk-js/issues/3076)) ([bb3f40f](https://github.com/rudderlabs/rudder-sdk-js/commit/bb3f40fbe78b1f6fbe4017bd7fb3595c3de63119))
 
