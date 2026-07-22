@@ -7,6 +7,7 @@ import Logger from '../../utils/logger';
 import { isObject } from '../../utils/utils';
 import { isNotEmpty } from '../../utils/commonUtils';
 import { handlePurchase, formatGender, handleReservedProperties } from './utils';
+import { getEcommerceMapping, buildEcommerceEventProperties } from './ecommerceUtil';
 import { loadNativeSdk } from './nativeSdkLoader';
 
 const logger = new Logger(DISPLAY_NAME);
@@ -37,6 +38,7 @@ class Braze {
       }
     }
     this.endPoint = '';
+    this.useEcommerceRecommendedEvents = config.useEcommerceRecommendedEvents === true;
     this.isHybridModeEnabled = config.connectionMode === 'hybrid';
     this.isReadyStatus = {
       hasLoggedErrorForAlias: false,
@@ -357,7 +359,19 @@ class Braze {
       canSendCustomEvent = true;
     }
     if (eventName && canSendCustomEvent) {
-      if (eventName.toLowerCase() === 'order completed') {
+      const ecommerceMapping = this.useEcommerceRecommendedEvents
+        ? getEcommerceMapping(eventName)
+        : undefined;
+      if (ecommerceMapping) {
+        const { brazeEvent, action } = ecommerceMapping;
+        const ecommerceProperties = buildEcommerceEventProperties(
+          rudderElement.message,
+          brazeEvent,
+          action,
+          logger,
+        );
+        globalThis.braze.logCustomEvent(brazeEvent, ecommerceProperties);
+      } else if (eventName.toLowerCase() === 'order completed') {
         handlePurchase(properties);
       } else {
         properties = handleReservedProperties(properties);
