@@ -1077,6 +1077,508 @@ describe('track', () => {
   });
 });
 
+describe('track - recommended ecommerce events', () => {
+  const baseConfig = {
+    appKey: 'APP_KEY',
+    trackAnonymousUser: true,
+    enableBrazeLogging: false,
+    dataCenter: 'US-03',
+    allowUserSuppliedJavascript: false,
+    useEcommerceRecommendedEvents: true,
+  };
+
+  const buildBraze = (configOverrides = {}) => {
+    const braze = new Braze({ ...baseConfig, ...configOverrides }, {}, {});
+    mockBrazeSDK();
+    return braze;
+  };
+
+  const trackEvent = (braze, event, properties) => {
+    braze.track({ message: { userId: 'user123', event, properties } });
+  };
+
+  it('maps Product Viewed to ecommerce.product_viewed (flat, no products array)', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Product Viewed', {
+      product_id: 'p1',
+      name: 'Game',
+      variant: 'v1',
+      price: 15.99,
+      currency: 'USD',
+      image_url: 'https://img/p1.png',
+      url: 'https://shop/p1',
+      type: ['price_drop'],
+      campaign: 'summer',
+    });
+
+    expect(globalThis.braze.logCustomEvent).toHaveBeenCalledTimes(1);
+    expect(globalThis.braze.logCustomEvent).toHaveBeenCalledWith('ecommerce.product_viewed', {
+      product_id: 'p1',
+      product_name: 'Game',
+      variant_id: 'v1',
+      price: 15.99,
+      currency: 'USD',
+      image_url: 'https://img/p1.png',
+      product_url: 'https://shop/p1',
+      type: ['price_drop'],
+      source: 'web',
+      metadata: { campaign: 'summer' },
+    });
+    expect(warnMock).not.toHaveBeenCalled();
+  });
+
+  it('maps Product Added to ecommerce.cart_updated with action add (single-product wrap)', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Product Added', {
+      cart_id: 'c1',
+      currency: 'USD',
+      product_id: 'p1',
+      name: 'Game',
+      variant: 'v1',
+      quantity: 2,
+      price: 15.99,
+      url: 'https://shop/p1',
+      list_id: 'wishlist',
+    });
+
+    expect(globalThis.braze.logCustomEvent).toHaveBeenCalledWith('ecommerce.cart_updated', {
+      cart_id: 'c1',
+      currency: 'USD',
+      source: 'web',
+      action: 'add',
+      products: [
+        {
+          product_id: 'p1',
+          product_name: 'Game',
+          variant_id: 'v1',
+          quantity: 2,
+          price: 15.99,
+          product_url: 'https://shop/p1',
+        },
+      ],
+      metadata: { list_id: 'wishlist' },
+    });
+    expect(warnMock).not.toHaveBeenCalled();
+  });
+
+  it('maps Product Removed to ecommerce.cart_updated with action remove', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Product Removed', {
+      cart_id: 'c1',
+      currency: 'USD',
+      product_id: 'p1',
+      name: 'Game',
+      variant: 'v1',
+      quantity: 1,
+      price: 15.99,
+    });
+
+    const [eventName, props] = globalThis.braze.logCustomEvent.mock.calls[0];
+    expect(eventName).toBe('ecommerce.cart_updated');
+    expect(props.action).toBe('remove');
+  });
+
+  it('cart_updated with an explicit products[] maps the array and keeps top-level fields in metadata', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Product Added', {
+      cart_id: 'c1',
+      currency: 'USD',
+      // top-level product-like fields coexisting with an explicit products[] array
+      product_id: 'top-level-pid',
+      name: 'top-level-name',
+      products: [{ product_id: 'p1', name: 'Game', variant: 'v1', quantity: 2, price: 15.99 }],
+    });
+
+    const props = globalThis.braze.logCustomEvent.mock.calls[0][1];
+    // array is mapped, not the top-level wrap
+    expect(props.products).toEqual([
+      { product_id: 'p1', product_name: 'Game', variant_id: 'v1', quantity: 2, price: 15.99 },
+    ]);
+    // top-level product-like fields were NOT consumed, so they flow to metadata
+    expect(props.metadata).toEqual({ product_id: 'top-level-pid', name: 'top-level-name' });
+  });
+
+  it('does not leak a caller-provided properties.action into metadata', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Product Added', {
+      cart_id: 'c1',
+      currency: 'USD',
+      product_id: 'p1',
+      name: 'Game',
+      variant: 'v1',
+      quantity: 1,
+      price: 15.99,
+      action: 'caller-supplied',
+    });
+
+    const props = globalThis.braze.logCustomEvent.mock.calls[0][1];
+    expect(props.action).toBe('add');
+    expect(props.metadata).toBeUndefined();
+  });
+
+  it('accepts total_discounts under either properties.discount or properties.total_discounts', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Order Refunded', {
+      order_id: 'o1',
+      total: 10,
+      currency: 'USD',
+      total_discounts: 3,
+      products: [{ product_id: 'p1', name: 'Game', variant: 'v1', quantity: 1, price: 15.99 }],
+    });
+
+    expect(globalThis.braze.logCustomEvent.mock.calls[0][1].total_discounts).toBe(3);
+  });
+
+  it('does not emit an empty product object when cart_updated has no product fields', () => {
+    const braze = buildBraze();
+    // `Product Added` maps to ecommerce.cart_updated; with no product fields the
+    // single-product wrap must not emit a degenerate `[{}]`.
+    trackEvent(braze, 'Product Added', { cart_id: 'c1' });
+
+    const [eventName, props] = globalThis.braze.logCustomEvent.mock.calls[0];
+    expect(eventName).toBe('ecommerce.cart_updated');
+    // no degenerate `[{}]` — the empty products array is scrubbed off entirely
+    expect(props.products).toBeUndefined();
+  });
+
+  it('scrubs null/empty values out of event-level and per-product metadata', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Order Completed', {
+      order_id: 'o1',
+      total: 31.98,
+      currency: 'USD',
+      coupon: '',
+      note: null,
+      campaign: 'spring',
+      products: [
+        {
+          product_id: 'p1',
+          name: 'Game',
+          variant: 'v1',
+          quantity: 2,
+          price: 15.99,
+          color: '',
+          shade: null,
+          finish: 'matte',
+        },
+      ],
+    });
+
+    const props = globalThis.braze.logCustomEvent.mock.calls[0][1];
+    expect(props.metadata).toEqual({ campaign: 'spring' });
+    expect(props.products[0].metadata).toEqual({ finish: 'matte' });
+  });
+
+  it('maps Checkout Started to ecommerce.checkout_started with products array', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Checkout Started', {
+      checkout_id: 'ck1',
+      cart_id: 'c1',
+      total: 31.98,
+      currency: 'USD',
+      products: [{ product_id: 'p1', name: 'Game', variant: 'v1', quantity: 2, price: 15.99 }],
+    });
+
+    expect(globalThis.braze.logCustomEvent).toHaveBeenCalledWith('ecommerce.checkout_started', {
+      checkout_id: 'ck1',
+      cart_id: 'c1',
+      total_value: 31.98,
+      currency: 'USD',
+      source: 'web',
+      products: [
+        { product_id: 'p1', product_name: 'Game', variant_id: 'v1', quantity: 2, price: 15.99 },
+      ],
+    });
+    expect(warnMock).not.toHaveBeenCalled();
+  });
+
+  it('maps Order Completed to ecommerce.order_placed (precedence over legacy purchases)', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'order completed', {
+      order_id: 'o1',
+      total: 31.98,
+      currency: 'USD',
+      coupon: 'SAVE10',
+      products: [
+        { product_id: 'p1', name: 'Game', variant: 'v1', quantity: 2, price: 15.99, color: 'red' },
+      ],
+    });
+
+    expect(globalThis.braze.logPurchase).not.toHaveBeenCalled();
+    expect(globalThis.braze.logCustomEvent).toHaveBeenCalledWith('ecommerce.order_placed', {
+      order_id: 'o1',
+      total_value: 31.98,
+      currency: 'USD',
+      source: 'web',
+      products: [
+        {
+          product_id: 'p1',
+          product_name: 'Game',
+          variant_id: 'v1',
+          quantity: 2,
+          price: 15.99,
+          metadata: { color: 'red' },
+        },
+      ],
+      metadata: { coupon: 'SAVE10' },
+    });
+  });
+
+  it('maps Order Refunded with optional total_discounts and discounts passthrough', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Order Refunded', {
+      order_id: 'o1',
+      total: 31.98,
+      currency: 'USD',
+      total_discounts: 5,
+      discounts: [{ code: 'SAVE10', amount: 5 }],
+      products: [{ product_id: 'p1', name: 'Game', variant: 'v1', quantity: 2, price: 15.99 }],
+    });
+
+    expect(globalThis.braze.logCustomEvent).toHaveBeenCalledWith('ecommerce.order_refunded', {
+      order_id: 'o1',
+      total_value: 31.98,
+      currency: 'USD',
+      total_discounts: 5,
+      discounts: [{ code: 'SAVE10', amount: 5 }],
+      source: 'web',
+      products: [
+        { product_id: 'p1', product_name: 'Game', variant_id: 'v1', quantity: 2, price: 15.99 },
+      ],
+    });
+    expect(warnMock).not.toHaveBeenCalled();
+  });
+
+  it('maps Order Cancelled with cancel_reason fallback to reason', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Order Cancelled', {
+      order_id: 'o1',
+      total: 31.98,
+      currency: 'USD',
+      reason: 'changed mind',
+      products: [{ product_id: 'p1', name: 'Game', variant: 'v1', quantity: 2, price: 15.99 }],
+    });
+
+    const [eventName, props] = globalThis.braze.logCustomEvent.mock.calls[0];
+    expect(eventName).toBe('ecommerce.order_cancelled');
+    expect(props.cancel_reason).toBe('changed mind');
+    expect(warnMock).not.toHaveBeenCalled();
+  });
+
+  it('warns with the missing required field names but still sends the event', () => {
+    const braze = buildBraze();
+    // Product Added missing required `currency`, and product missing `quantity`/`price`.
+    trackEvent(braze, 'Product Added', {
+      cart_id: 'c1',
+      product_id: 'p1',
+      name: 'Game',
+      variant: 'v1',
+    });
+
+    expect(globalThis.braze.logCustomEvent).toHaveBeenCalledTimes(1);
+    expect(warnMock).toHaveBeenCalledTimes(1);
+    const warnMessage = warnMock.mock.calls[0][0];
+    expect(warnMessage).toContain('ecommerce.cart_updated');
+    expect(warnMessage).toContain('currency');
+    expect(warnMessage).toContain('products.quantity');
+    expect(warnMessage).toContain('products.price');
+  });
+
+  it('reports empty products array as a missing field and strips it from the payload', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Order Completed', {
+      order_id: 'o1',
+      total: 10,
+      currency: 'USD',
+      products: [],
+    });
+
+    expect(globalThis.braze.logCustomEvent).toHaveBeenCalledTimes(1);
+    expect(warnMock.mock.calls[0][0]).toContain('products');
+    // empty products[] is scrubbed before send
+    expect(globalThis.braze.logCustomEvent.mock.calls[0][1]).not.toHaveProperty('products');
+  });
+
+  it('always reports source as web, ignoring a caller-supplied properties.source', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Product Viewed', {
+      product_id: 'p1',
+      name: 'Game',
+      variant: 'v1',
+      price: 15.99,
+      currency: 'USD',
+      source: 'ios', // this is the web SDK — the override must be ignored
+    });
+
+    const props = globalThis.braze.logCustomEvent.mock.calls[0][1];
+    expect(props.source).toBe('web');
+    // the ignored value must not leak into metadata either
+    expect(props.metadata).toBeUndefined();
+  });
+
+  it('warns and scrubs a required field provided as an empty object', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Product Viewed', {
+      product_id: 'p1',
+      name: 'Game',
+      variant: 'v1',
+      price: 15.99,
+      currency: {},
+    });
+
+    expect(globalThis.braze.logCustomEvent).toHaveBeenCalledTimes(1);
+    // empty-object required value is reported as missing...
+    expect(warnMock).toHaveBeenCalledTimes(1);
+    expect(warnMock.mock.calls[0][0]).toContain('currency');
+    // ...and never reaches the sent payload.
+    expect(globalThis.braze.logCustomEvent.mock.calls[0][1]).not.toHaveProperty('currency');
+  });
+
+  it('coerces safe/lossless type mismatches and does not warn', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Order Completed', {
+      order_id: 12345, // number -> string
+      total: '99.99', // numeric string -> float
+      currency: 'USD',
+      products: [{ product_id: 'p1', name: 'Game', variant: 'v1', quantity: '2', price: '15.99' }],
+    });
+
+    const props = globalThis.braze.logCustomEvent.mock.calls[0][1];
+    expect(props.order_id).toBe('12345');
+    expect(props.total_value).toBe(99.99);
+    expect(props.products[0].quantity).toBe(2);
+    expect(props.products[0].price).toBe(15.99);
+    expect(warnMock).not.toHaveBeenCalled();
+  });
+
+  it('sends un-coercible type mismatches as-is and warns (event-level and per-product)', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Order Completed', {
+      order_id: 'o1',
+      total: 'free', // non-numeric string -> stays, float mismatch
+      currency: 'USD',
+      products: [
+        { product_id: 'p1', name: 'Game', variant: 'v1', quantity: 2.5, price: 15.99 }, // 2.5 not integer
+      ],
+    });
+
+    const props = globalThis.braze.logCustomEvent.mock.calls[0][1];
+    // un-coercible values are sent verbatim
+    expect(props.total_value).toBe('free');
+    expect(props.products[0].quantity).toBe(2.5);
+    // ...and surfaced via the type-mismatch warning
+    expect(warnMock).toHaveBeenCalledTimes(1);
+    const warnMessage = warnMock.mock.calls[0][0];
+    expect(warnMessage).toContain('type-mismatched');
+    expect(warnMessage).toContain('total_value (expected float)');
+    expect(warnMessage).toContain('products.quantity (expected integer)');
+  });
+
+  it('leaves an integer-valued string with a fractional part un-coerced for an integer field', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Product Added', {
+      cart_id: 'c1',
+      currency: 'USD',
+      product_id: 'p1',
+      name: 'Game',
+      variant: 'v1',
+      quantity: '2.5', // not a pure integer literal -> stays "2.5"
+      price: '15.99', // numeric string -> 15.99
+    });
+
+    const props = globalThis.braze.logCustomEvent.mock.calls[0][1];
+    expect(props.products[0].quantity).toBe('2.5');
+    expect(props.products[0].price).toBe(15.99);
+    expect(warnMock).toHaveBeenCalledTimes(1);
+    expect(warnMock.mock.calls[0][0]).toContain('products.quantity (expected integer)');
+  });
+
+  it('warns when product_viewed type is not an array of strings', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Product Viewed', {
+      product_id: 'p1',
+      name: 'Game',
+      variant: 'v1',
+      price: 15.99,
+      currency: 'USD',
+      type: 'price_drop', // bare string, expected array of strings
+    });
+
+    const props = globalThis.braze.logCustomEvent.mock.calls[0][1];
+    expect(props.type).toBe('price_drop'); // sent as-is
+    expect(warnMock).toHaveBeenCalledTimes(1);
+    expect(warnMock.mock.calls[0][0]).toContain('type (expected stringArray)');
+  });
+
+  it('flags Infinity as a float type mismatch', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Product Viewed', {
+      product_id: 'p1',
+      name: 'Game',
+      variant: 'v1',
+      price: Infinity, // not JSON-serializable — must not pass as a valid float
+      currency: 'USD',
+    });
+
+    expect(warnMock).toHaveBeenCalledTimes(1);
+    expect(warnMock.mock.calls[0][0]).toContain('price (expected float)');
+  });
+
+  it('does not coerce an overflowing numeric string to Infinity', () => {
+    const braze = buildBraze();
+    const hugeNumber = new Array(401).join('9'); // 400 digits — Number(...) overflows to Infinity
+    trackEvent(braze, 'Product Viewed', {
+      product_id: 'p1',
+      name: 'Game',
+      variant: 'v1',
+      price: hugeNumber,
+      currency: 'USD',
+    });
+
+    const props = globalThis.braze.logCustomEvent.mock.calls[0][1];
+    expect(props.price).toBe(hugeNumber); // left verbatim, not Infinity
+    expect(warnMock).toHaveBeenCalledTimes(1);
+    expect(warnMock.mock.calls[0][0]).toContain('price (expected float)');
+  });
+
+  it('does not coerce a boolean to string; sends it as-is and warns', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Product Viewed', {
+      product_id: 'p1',
+      name: 'Game',
+      variant: 'v1',
+      price: 15.99,
+      currency: true, // boolean on a string field — not coerced
+    });
+
+    const props = globalThis.braze.logCustomEvent.mock.calls[0][1];
+    expect(props.currency).toBe(true); // sent verbatim, not "true"
+    expect(warnMock).toHaveBeenCalledTimes(1);
+    expect(warnMock.mock.calls[0][0]).toContain('currency (expected string)');
+  });
+
+  it('falls through to legacy custom-event path for unmapped events (Cart Updated)', () => {
+    const braze = buildBraze();
+    trackEvent(braze, 'Cart Updated', { cart_id: 'c1', value: 10 });
+
+    expect(globalThis.braze.logCustomEvent).toHaveBeenCalledWith('Cart Updated', {
+      cart_id: 'c1',
+      value: 10,
+    });
+  });
+
+  it('falls through to legacy purchase path when the flag is off', () => {
+    const braze = buildBraze({ useEcommerceRecommendedEvents: false });
+    trackEvent(braze, 'order completed', {
+      currency: 'USD',
+      products: [{ product_id: 'p1', price: 15.99, quantity: 1 }],
+    });
+
+    expect(globalThis.braze.logPurchase).toHaveBeenCalledTimes(1);
+    expect(globalThis.braze.logCustomEvent).not.toHaveBeenCalled();
+  });
+});
+
 describe('page', () => {
   it('should call the necessary Braze methods to custom event', () => {
     const config = {
