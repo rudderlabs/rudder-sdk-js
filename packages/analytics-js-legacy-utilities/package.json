@@ -61,7 +61,7 @@
     "rudder-component-cookie": "0.0.1",
     "@segment/top-domain": "3.0.1",
     "crypto-js": "4.2.0",
-    "get-value": "4.0.1",
+    "get-value": "4.1.0",
     "storejs": "2.1.1"
   },
   "devDependencies": {},
