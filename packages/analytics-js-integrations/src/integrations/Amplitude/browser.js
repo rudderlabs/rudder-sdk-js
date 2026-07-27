@@ -11,6 +11,15 @@ import {
   getFieldsToUnset,
   formatUrl,
   getAmplitudeSdkVersion,
+  getAutoCapturePageViews,
+  getPageUrlEnrichment,
+  getTrackSessionEvents,
+  getWebVitals,
+  getFileDownloads,
+  getFrustrationInteractions,
+  getNetworkTracking,
+  getElementInteractions,
+  getFormInteractions,
 } from './utils';
 import { getValueOrDefault } from '../../utils/utils';
 
@@ -44,6 +53,15 @@ class Amplitude {
     this.groupTypeTrait = config.groupTypeTrait;
     this.groupValueTrait = config.groupValueTrait;
     this.sdkVersion = getAmplitudeSdkVersion(config);
+    this.autoCapturePageViews = getAutoCapturePageViews(config);
+    this.pageUrlEnrichment = getPageUrlEnrichment(config);
+    this.trackSessionEvents = getTrackSessionEvents(config);
+    this.webVitals = getWebVitals(config);
+    this.fileDownloads = getFileDownloads(config);
+    this.frustrationInteractions = getFrustrationInteractions(config);
+    this.networkTracking = getNetworkTracking(config);
+    this.elementInteractions = getElementInteractions(config);
+    this.formInteractions = getFormInteractions(config);
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
@@ -69,18 +87,17 @@ class Amplitude {
       this.sdkVersion === AMPLITUDE_SDK_V2
         ? {
             ...commonInitOptions,
-            // Enable only attribution in v2; all other autocapture toggles stay off.
             autocapture: {
               attribution: !this.attribution,
-              pageViews: false,
-              sessions: false,
-              formInteractions: false,
-              fileDownloads: false,
-              elementInteractions: false,
-              frustrationInteractions: false,
-              networkTracking: false,
-              webVitals: false,
-              pageUrlEnrichment: false,
+              pageViews: this.autoCapturePageViews,
+              sessions: this.trackSessionEvents,
+              formInteractions: this.formInteractions,
+              fileDownloads: this.fileDownloads,
+              elementInteractions: this.elementInteractions,
+              frustrationInteractions: this.frustrationInteractions,
+              networkTracking: this.networkTracking,
+              webVitals: this.webVitals,
+              pageUrlEnrichment: this.pageUrlEnrichment,
             },
           }
         : {

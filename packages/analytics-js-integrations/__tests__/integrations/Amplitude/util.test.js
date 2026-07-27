@@ -5,6 +5,15 @@ import {
   getDestinationOptions,
   formatUrl,
   getAmplitudeSdkVersion,
+  getAutoCapturePageViews,
+  getPageUrlEnrichment,
+  getTrackSessionEvents,
+  getWebVitals,
+  getFileDownloads,
+  getFrustrationInteractions,
+  getNetworkTracking,
+  getElementInteractions,
+  getFormInteractions,
 } from '../../../src/integrations/Amplitude/utils';
 
 describe('getTraitsToSetOnce', () => {
@@ -208,5 +217,52 @@ describe('getAmplitudeSdkVersion', () => {
 
   it('should parse numeric strings in sdkVersion', () => {
     expect(getAmplitudeSdkVersion({ sdkVersion: '2' })).toBe(2);
+  });
+});
+
+describe('Amplitude v2 autocapture config helpers', () => {
+  const helperCases = [
+    {
+      name: 'getAutoCapturePageViews',
+      getter: getAutoCapturePageViews,
+      key: 'enablePageViewsAutoCapture',
+    },
+    {
+      name: 'getPageUrlEnrichment',
+      getter: getPageUrlEnrichment,
+      key: 'enablePageUrlEnrichmentAutoCapture',
+    },
+    { name: 'getWebVitals', getter: getWebVitals, key: 'enableWebVitalsAutoCapture' },
+    { name: 'getFileDownloads', getter: getFileDownloads, key: 'enableFileDownloadsAutoCapture' },
+    {
+      name: 'getFrustrationInteractions',
+      getter: getFrustrationInteractions,
+      key: 'enableFrustrationInteractionsAutoCapture',
+    },
+    {
+      name: 'getNetworkTracking',
+      getter: getNetworkTracking,
+      key: 'enableNetworkTrackingAutoCapture',
+    },
+    {
+      name: 'getElementInteractions',
+      getter: getElementInteractions,
+      key: 'enableElementInteractionsAutoCapture',
+    },
+    {
+      name: 'getFormInteractions',
+      getter: getFormInteractions,
+      key: 'enableFormInteractionsAutoCapture',
+    },
+    { name: 'getTrackSessionEvents', getter: getTrackSessionEvents, key: 'trackSessionEvents' },
+  ];
+
+  it.each(helperCases)('$name should default missing config to false', ({ getter }) => {
+    expect(getter({})).toBe(false);
+  });
+
+  it.each(helperCases)('$name should read true and false config values', ({ getter, key }) => {
+    expect(getter({ [key]: true })).toBe(true);
+    expect(getter({ [key]: false })).toBe(false);
   });
 });
