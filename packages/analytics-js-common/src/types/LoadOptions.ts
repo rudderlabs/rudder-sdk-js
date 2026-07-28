@@ -6,6 +6,7 @@ import type { ApiOptions } from './EventApi';
 import type { ConsentManagementOptions } from './Consent';
 import type { ApiObject } from './ApiObject';
 import type { StorageOpts, CookieSameSite } from './Storage';
+import type { CustomContextUpdate } from './CustomContext';
 
 export type UaChTrackLevel = 'none' | 'default' | 'full';
 
@@ -147,6 +148,7 @@ export type SourceConfigurationOverride = {
  * Represents the options parameter in the load API
  */
 export type LoadOptions = {
+  context?: CustomContextUpdate;
   logLevel?: LogLevel; // defaults to ERROR
   integrations?: IntegrationOpts; // defaults to { All : true }
   configUrl?: string; // defaults to https://api.rudderstack.com

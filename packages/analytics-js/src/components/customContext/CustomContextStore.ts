@@ -2,8 +2,8 @@ import { clone } from 'ramda';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { CustomContextState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
+import type { CustomContext } from '@rudderstack/analytics-js-common/types/CustomContext';
 import { prepareCustomContextUpdate } from './utilities';
-import type { CustomContext } from './types';
 
 const deleteValueAtPath = (context: CustomContext, path: string[]): void => {
   if (path.length === 0) {

@@ -13,6 +13,12 @@ export {
 export { type CookieSameSite } from '@rudderstack/analytics-js-common/types/Storage';
 export { type ApiCallback, type ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 export { type ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
+export {
+  type CustomContext,
+  type CustomContextUpdate,
+  type CustomContextUpdateValue,
+  type CustomContextValue,
+} from '@rudderstack/analytics-js-common/types/CustomContext';
 export { type IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
 export { type LogLevel, type RSALogger } from '@rudderstack/analytics-js-common/types/Logger';
 export { type PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';

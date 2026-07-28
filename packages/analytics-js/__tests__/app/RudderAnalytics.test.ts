@@ -197,6 +197,78 @@ describe('Core - Rudder Analytics Facade', () => {
     dispatchEventSpy.mockRestore();
   });
 
+  describe('custom context facade APIs', () => {
+    const customContextStoreMock = {
+      set: jest.fn(),
+      get: jest.fn(),
+      clear: jest.fn(),
+    };
+
+    beforeEach(() => {
+      customContextStoreMock.set.mockReset();
+      customContextStoreMock.get.mockReset();
+      customContextStoreMock.clear.mockReset();
+      (analyticsInstanceMock as any).customContextStore = customContextStoreMock;
+    });
+
+    afterEach(() => {
+      resetState();
+    });
+
+    it('routes raw set/get/clear calls after a valid load is accepted', () => {
+      const update = { account: { plan: undefined }, capturedAt: new Date() };
+      const snapshot = { region: 'EU' };
+      state.lifecycle.writeKey.value = 'writeKey';
+      state.lifecycle.status.value = 'mounted';
+      customContextStoreMock.get.mockReturnValue(snapshot);
+
+      rudderAnalytics.setCustomContext(update);
+      const result = rudderAnalytics.getCustomContext();
+      rudderAnalytics.clearCustomContext();
+
+      expect(customContextStoreMock.set).toHaveBeenCalledWith(update);
+      expect(result).toBe(snapshot);
+      expect(customContextStoreMock.clear).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not route when the lifecycle write key does not match the default instance', () => {
+      const loggerWarnSpy = jest.spyOn(rudderAnalytics.logger, 'warn');
+      state.lifecycle.writeKey.value = 'otherWriteKey';
+      state.lifecycle.status.value = 'mounted';
+
+      rudderAnalytics.setCustomContext({ region: 'EU' });
+      const result = rudderAnalytics.getCustomContext();
+      rudderAnalytics.clearCustomContext();
+
+      expect(result).toEqual({});
+      expect(customContextStoreMock.set).not.toHaveBeenCalled();
+      expect(customContextStoreMock.get).not.toHaveBeenCalled();
+      expect(customContextStoreMock.clear).not.toHaveBeenCalled();
+      expect(loggerWarnSpy).toHaveBeenCalledTimes(2);
+    });
+
+    it('does not lazily create an instance before a valid load is accepted', () => {
+      const loggerWarnSpy = jest.spyOn(rudderAnalytics.logger, 'warn');
+      rudderAnalytics.analyticsInstances = {};
+
+      rudderAnalytics.setCustomContext({ region: 'EU' });
+      const firstResult = rudderAnalytics.getCustomContext();
+      const secondResult = rudderAnalytics.getCustomContext();
+      rudderAnalytics.clearCustomContext();
+
+      expect(rudderAnalytics.analyticsInstances).toEqual({});
+      expect(firstResult).toEqual({});
+      expect(secondResult).toEqual({});
+      expect(firstResult).not.toBe(secondResult);
+      expect(loggerWarnSpy).toHaveBeenCalledWith(
+        'RudderStackAnalytics:: The "setCustomContext" API is unavailable before a valid load call is accepted.',
+      );
+      expect(loggerWarnSpy).toHaveBeenCalledWith(
+        'RudderStackAnalytics:: The "clearCustomContext" API is unavailable before a valid load call is accepted.',
+      );
+    });
+  });
+
   it('should process ready arguments and forwards to ready call', () => {
     const callback = () => console.log('Ready!');
 
