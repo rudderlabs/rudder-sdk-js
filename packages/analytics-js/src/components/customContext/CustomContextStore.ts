@@ -5,8 +5,8 @@ import {
   mergeDeepRight,
   removeUndefinedAndNullValues,
 } from '@rudderstack/analytics-js-common/utilities/object';
+import type { CustomContext } from '@rudderstack/analytics-js-common/types/CustomContext';
 import { prepareCustomContextUpdate } from './utilities';
-import type { CustomContext } from './types';
 
 class CustomContextStore {
   private readonly state: CustomContextState;

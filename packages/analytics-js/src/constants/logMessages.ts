@@ -164,6 +164,12 @@ const INVALID_CONTEXT_OBJECT_WARNING = (logContext: string): string =>
 const INVALID_CUSTOM_CONTEXT_WARNING = (logContext: string): string =>
   `${logContext}${LOG_CONTEXT_SEPARATOR}Invalid custom context. Use a plain object without prototype pollution keys.`;
 
+const CUSTOM_CONTEXT_API_BEFORE_LOAD_WARNING = (
+  logContext: string,
+  apiName: 'setCustomContext' | 'clearCustomContext',
+): string =>
+  `${logContext}${LOG_CONTEXT_SEPARATOR}The "${apiName}" API is unavailable before a valid load call is accepted.`;
+
 const UNSUPPORTED_BEACON_API_WARNING = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The Beacon API is not supported by your browser. The events will be sent using XHR instead.`;
 
@@ -285,6 +291,7 @@ export {
   RESERVED_CUSTOM_CONTEXT_KEY_WARNING,
   INVALID_CONTEXT_OBJECT_WARNING,
   INVALID_CUSTOM_CONTEXT_WARNING,
+  CUSTOM_CONTEXT_API_BEFORE_LOAD_WARNING,
   UNSUPPORTED_BEACON_API_WARNING,
   TIMEOUT_NOT_NUMBER_WARNING,
   TIMEOUT_ZERO_WARNING,

@@ -9,3 +9,17 @@ export type CustomContextValue =
 export interface CustomContext {
   [key: string]: CustomContextValue;
 }
+
+export type CustomContextUpdateValue =
+  | string
+  | number
+  | boolean
+  | Date
+  | null
+  | undefined
+  | CustomContextUpdate
+  | CustomContextValue[];
+
+export interface CustomContextUpdate {
+  [key: string]: CustomContextUpdateValue;
+}

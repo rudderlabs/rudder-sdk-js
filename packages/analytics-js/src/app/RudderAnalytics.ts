@@ -32,6 +32,10 @@ import { getFormattedTimestamp } from '@rudderstack/analytics-js-common/utilitie
 import { dispatchErrorEvent } from '@rudderstack/analytics-js-common/utilities/errors';
 import { getSanitizedValue } from '@rudderstack/analytics-js-common/utilities/json';
 import type { ConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
+import type {
+  CustomContext,
+  CustomContextUpdate,
+} from '@rudderstack/analytics-js-common/types/CustomContext';
 import { GLOBAL_PRELOAD_BUFFER } from '../constants/app';
 import {
   getPreloadedLoadEvent,
@@ -42,7 +46,10 @@ import { getExposedGlobal, setExposedGlobal } from '../components/utilities/glob
 import type { IAnalytics } from '../components/core/IAnalytics';
 import { Analytics } from '../components/core/Analytics';
 import { defaultLogger } from '../services/Logger/Logger';
-import { PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING } from '../constants/logMessages';
+import {
+  CUSTOM_CONTEXT_API_BEFORE_LOAD_WARNING,
+  PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING,
+} from '../constants/logMessages';
 import { state } from '../state';
 import { defaultErrorHandler } from '../services/ErrorHandler';
 import { defaultCookieStorage } from '../services/StoreManager/storages/CookieStorage';
@@ -96,6 +103,9 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
       this.getUserTraits = this.getUserTraits.bind(this);
       this.getGroupId = this.getGroupId.bind(this);
       this.getGroupTraits = this.getGroupTraits.bind(this);
+      this.setCustomContext = this.setCustomContext.bind(this);
+      this.getCustomContext = this.getCustomContext.bind(this);
+      this.clearCustomContext = this.clearCustomContext.bind(this);
       this.startSession = this.startSession.bind(this);
       this.endSession = this.endSession.bind(this);
       this.getSessionId = this.getSessionId.bind(this);
@@ -189,6 +199,20 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
       dispatchErrorEvent(error);
       return undefined;
     }
+  }
+
+  /**
+   * Retrieve the current default instance only after a valid load call has been accepted.
+   * This path must not lazily create an Analytics instance.
+   */
+  private getAcceptedDefaultAnalyticsInstance(): IAnalytics | undefined {
+    const defaultInstance = this.analyticsInstances[this.defaultAnalyticsKey];
+    const hasAcceptedLoad =
+      defaultInstance !== undefined &&
+      state.lifecycle.writeKey.value === this.defaultAnalyticsKey &&
+      state.lifecycle.status.value !== undefined;
+
+    return hasAcceptedLoad ? defaultInstance : undefined;
   }
 
   /**
@@ -621,6 +645,43 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     } catch (error: any) {
       dispatchErrorEvent(error);
       return undefined;
+    }
+  }
+
+  setCustomContext(context: CustomContextUpdate): void {
+    try {
+      const analyticsInstance = this.getAcceptedDefaultAnalyticsInstance();
+      if (!analyticsInstance) {
+        this.logger.warn(CUSTOM_CONTEXT_API_BEFORE_LOAD_WARNING(RSA, 'setCustomContext'));
+        return;
+      }
+
+      analyticsInstance.customContextStore.set(context);
+    } catch (error: any) {
+      dispatchErrorEvent(error);
+    }
+  }
+
+  getCustomContext(): CustomContext {
+    try {
+      return this.getAcceptedDefaultAnalyticsInstance()?.customContextStore.get() ?? {};
+    } catch (error: any) {
+      dispatchErrorEvent(error);
+      return {};
+    }
+  }
+
+  clearCustomContext(): void {
+    try {
+      const analyticsInstance = this.getAcceptedDefaultAnalyticsInstance();
+      if (!analyticsInstance) {
+        this.logger.warn(CUSTOM_CONTEXT_API_BEFORE_LOAD_WARNING(RSA, 'clearCustomContext'));
+        return;
+      }
+
+      analyticsInstance.customContextStore.clear();
+    } catch (error: any) {
+      dispatchErrorEvent(error);
     }
   }
 
