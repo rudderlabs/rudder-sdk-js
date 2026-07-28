@@ -68,7 +68,7 @@ describe('CustomContextStore', () => {
 
   it('leaves the previous snapshot unchanged when normalization rejects an update', () => {
     setContext({ region: 'EU', account: { plan: 'pro' } });
-    setContext({ region: null, invalid: new Date('2026-07-21T00:00:00.000Z') });
+    setContext({ region: null, invalid: new Map([['key', 'value']]) });
 
     expect(store.get()).toEqual({ region: 'EU', account: { plan: 'pro' } });
   });
@@ -91,6 +91,21 @@ describe('CustomContextStore', () => {
       account: { plan: 'pro' },
       variants: [{ name: 'control' }],
     });
+  });
+
+  it('owns date inputs and returns defensive date snapshots', () => {
+    const inputDate = new Date('2026-07-21T00:00:00.000Z');
+    setContext({ capturedAt: inputDate });
+    inputDate.setUTCFullYear(2030);
+
+    const firstSnapshot = store.get();
+    const firstSnapshotDate = firstSnapshot.capturedAt as Date;
+    firstSnapshotDate.setUTCFullYear(2031);
+
+    const storedDate = store.get().capturedAt as Date;
+    expect(storedDate).toEqual(new Date('2026-07-21T00:00:00.000Z'));
+    expect(storedDate).not.toBe(inputDate);
+    expect(storedDate).not.toBe(firstSnapshotDate);
   });
 
   it('clears the complete snapshot without retaining previous references', () => {
