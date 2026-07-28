@@ -225,11 +225,23 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
 
       setExposedGlobal(GLOBAL_PRELOAD_BUFFER, clone(preloadedEventsArray));
 
-      this.getAnalyticsInstance(writeKey)?.load(
-        writeKey,
-        dataPlaneUrl,
-        getSanitizedValue(loadOptions),
+      const loadOptionsCopy = loadOptions ? { ...loadOptions } : undefined;
+      const hasCustomContext = Object.prototype.hasOwnProperty.call(
+        loadOptionsCopy ?? {},
+        'context',
       );
+      const customContext = loadOptionsCopy?.context;
+      if (loadOptionsCopy) {
+        delete loadOptionsCopy.context;
+      }
+
+      const analyticsInstance = this.getAnalyticsInstance(writeKey);
+      const sanitizedLoadOptions = getSanitizedValue(loadOptionsCopy);
+      if (hasCustomContext) {
+        analyticsInstance?.load(writeKey, dataPlaneUrl, sanitizedLoadOptions, customContext);
+      } else {
+        analyticsInstance?.load(writeKey, dataPlaneUrl, sanitizedLoadOptions);
+      }
     } catch (error: any) {
       dispatchErrorEvent(error);
     }

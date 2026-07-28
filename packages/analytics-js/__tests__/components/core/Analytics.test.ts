@@ -277,6 +277,48 @@ describe('Core - Analytics', () => {
       expect(setExposedGlobal).toHaveBeenCalledWith('state', state, dummyWriteKey);
     });
 
+    it('seeds valid custom context before starting the lifecycle', () => {
+      const startLifecycleSpy = jest.spyOn(analytics, 'startLifecycle').mockImplementation();
+      const capturedAt = new Date('2026-07-21T00:00:00.000Z');
+
+      analytics.load(
+        dummyWriteKey,
+        sampleDataPlaneUrl,
+        { logLevel: 'ERROR' },
+        {
+          region: 'EU',
+          account: { plan: undefined, seats: 5 },
+          capturedAt,
+        },
+      );
+      capturedAt.setUTCFullYear(2030);
+
+      expect(analytics.customContextStore.get()).toEqual({
+        region: 'EU',
+        account: { seats: 5 },
+        capturedAt: new Date('2026-07-21T00:00:00.000Z'),
+      });
+      expect(startLifecycleSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('continues loading with an empty store when initial custom context is invalid', () => {
+      const startLifecycleSpy = jest.spyOn(analytics, 'startLifecycle').mockImplementation();
+      const loggerWarnSpy = jest.spyOn(analytics.logger, 'warn');
+
+      analytics.load(
+        dummyWriteKey,
+        sampleDataPlaneUrl,
+        { logLevel: 'ERROR' },
+        { valid: 'value', invalid: new Map([['key', 'value']]) },
+      );
+
+      expect(analytics.customContextStore.get()).toEqual({});
+      expect(startLifecycleSpy).toHaveBeenCalledTimes(1);
+      expect(loggerWarnSpy).toHaveBeenCalledWith(
+        'CustomContext:: The custom context update is invalid. Use a plain object containing only supported context values.',
+      );
+    });
+
     it('should set the log level if it is not configured', () => {
       state.loadOptions.value.logLevel = undefined;
       const setMinLogLevelSpy = jest.spyOn(analytics.logger, 'setMinLogLevel');
@@ -293,9 +335,10 @@ describe('Core - Analytics', () => {
       const startLifecycleSpy = jest.spyOn(analytics, 'startLifecycle');
       const errorSpy = jest.spyOn(analytics.logger, 'error');
 
-      analytics.load('', sampleDataPlaneUrl, { logLevel: 'ERROR' });
+      analytics.load('', sampleDataPlaneUrl, { logLevel: 'ERROR' }, { region: 'EU' });
 
       expect(state.lifecycle.status.value).toBeUndefined();
+      expect(analytics.customContextStore.get()).toEqual({});
       expect(startLifecycleSpy).not.toHaveBeenCalled();
 
       expect(errorSpy).toHaveBeenCalledTimes(1);

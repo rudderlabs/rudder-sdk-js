@@ -179,6 +179,38 @@ describe('Core - Rudder Analytics Facade', () => {
     loadSpy.mockRestore();
   });
 
+  it('extracts raw custom context without mutating the caller load options', () => {
+    const capturedAt = new Date('2026-07-21T00:00:00.000Z');
+    const loadOptions = {
+      ...mockLoadOptions,
+      context: {
+        capturedAt,
+        account: { plan: undefined },
+      },
+    };
+    const originalContext = loadOptions.context;
+
+    rudderAnalytics.analyticsInstances = {};
+    rudderAnalytics.defaultAnalyticsKey = '';
+    rudderAnalytics.load('writeKey', 'data-plane-url', loadOptions);
+    const analyticsInstance = rudderAnalytics.getAnalyticsInstance('writeKey') as Analytics;
+
+    expect(analyticsInstance.load).toHaveBeenCalledWith(
+      'writeKey',
+      'data-plane-url',
+      mockLoadOptions,
+      originalContext,
+    );
+    expect(loadOptions).toEqual({
+      ...mockLoadOptions,
+      context: {
+        capturedAt,
+        account: { plan: undefined },
+      },
+    });
+    expect(loadOptions.context).toBe(originalContext);
+  });
+
   it('should dispatch an error event if an exception is thrown during the load', () => {
     const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
 
