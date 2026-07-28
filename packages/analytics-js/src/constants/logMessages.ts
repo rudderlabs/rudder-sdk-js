@@ -159,7 +159,7 @@ const INVALID_CONTEXT_OBJECT_WARNING = (logContext: string): string =>
   `${logContext}${LOG_CONTEXT_SEPARATOR}Please make sure that the "context" property in the event API's "options" argument is a valid object literal with key-value pairs.`;
 
 const INVALID_CUSTOM_CONTEXT_WARNING = (logContext: string): string =>
-  `${logContext}${LOG_CONTEXT_SEPARATOR}The custom context update is invalid. Use a plain object containing only JSON-shaped values.`;
+  `${logContext}${LOG_CONTEXT_SEPARATOR}The custom context update is invalid. Use a plain object containing only supported context values.`;
 
 const UNSUPPORTED_BEACON_API_WARNING = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The Beacon API is not supported by your browser. The events will be sent using XHR instead.`;

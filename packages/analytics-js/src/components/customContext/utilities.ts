@@ -115,6 +115,10 @@ const isValidCustomContextValue = (value: unknown): value is CustomContextValue 
     return Number.isFinite(value);
   }
 
+  if (value instanceof Date) {
+    return !Number.isNaN(value.getTime());
+  }
+
   if (Array.isArray(value)) {
     return value.every(
       item => item !== null && item !== undefined && isValidCustomContextValue(item),

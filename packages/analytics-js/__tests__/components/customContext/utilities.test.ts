@@ -63,6 +63,31 @@ describe('custom context utilities', () => {
     });
   });
 
+  it('accepts and defensively clones valid dates at object and array positions', () => {
+    const objectDate = new Date('2026-07-21T00:00:00.000Z');
+    const arrayDate = new Date('2026-07-22T00:00:00.000Z');
+    const result = prepareCustomContextUpdate(
+      {
+        startedAt: objectDate,
+        milestones: [arrayDate],
+      },
+      logger,
+    )!;
+
+    objectDate.setUTCFullYear(2030);
+    arrayDate.setUTCFullYear(2030);
+
+    expect(result).toEqual({
+      context: {
+        startedAt: new Date('2026-07-21T00:00:00.000Z'),
+        milestones: [new Date('2026-07-22T00:00:00.000Z')],
+      },
+      deletionPaths: [],
+    });
+    expect(result.context.startedAt).not.toBe(objectDate);
+    expect(result.context.milestones).not.toContain(arrayDate);
+  });
+
   it.each([
     ['null', null],
     ['undefined', undefined],
@@ -72,14 +97,14 @@ describe('custom context utilities', () => {
   ])('rejects %s as the top-level update', (_, input) => {
     expect(prepareCustomContextUpdate(input, logger)).toBeUndefined();
     expect(logger.warn).toHaveBeenCalledWith(
-      'CustomContext:: The custom context update is invalid. Use a plain object containing only JSON-shaped values.',
+      'CustomContext:: The custom context update is invalid. Use a plain object containing only supported context values.',
     );
   });
 
   it.each([
     ['a function', () => undefined],
     ['a symbol', Symbol('secret')],
-    ['a date', new Date('2026-07-21T00:00:00.000Z')],
+    ['an invalid date', new Date('invalid')],
     ['a map', new Map([['key', 'value']])],
     ['a set', new Set(['value'])],
     ['NaN', Number.NaN],

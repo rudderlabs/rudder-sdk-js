@@ -2,7 +2,7 @@ export { filterReservedCustomContextKeys, prepareCustomContextUpdate } from './u
 export type {
   CustomContext,
   CustomContextDeletionPath,
-  CustomContextSnapshotProvider,
+  CustomContextSnapshot,
   CustomContextValue,
   PreparedCustomContextUpdate,
 } from './types';
