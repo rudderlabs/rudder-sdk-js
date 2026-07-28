@@ -1,4 +1,10 @@
-type CustomContextValue = string | number | boolean | CustomContext | CustomContextValue[];
+type CustomContextValue =
+  | string
+  | number
+  | boolean
+  | Date
+  | CustomContext
+  | CustomContextValue[];
 
 interface CustomContext {
   [key: string]: CustomContextValue;
@@ -11,12 +17,12 @@ type PreparedCustomContextUpdate = {
   deletionPaths: CustomContextDeletionPath[];
 };
 
-type CustomContextSnapshotProvider = () => CustomContext;
+type CustomContextSnapshot = CustomContext;
 
 export type {
   CustomContext,
   CustomContextDeletionPath,
-  CustomContextSnapshotProvider,
+  CustomContextSnapshot,
   CustomContextValue,
   PreparedCustomContextUpdate,
 };
