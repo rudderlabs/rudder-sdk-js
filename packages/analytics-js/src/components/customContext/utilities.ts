@@ -58,20 +58,15 @@ const inspectDeletionMarkers = (
 ): Pick<PreparedCustomContextUpdate, 'context' | 'deletionPaths'> => {
   const deletionPaths: CustomContextDeletionPath[] = [];
   const activeObjects: object[] = [];
-  const inspectedObjects = new WeakMap<object, UnknownContext>();
+  const activeRetainedValues: UnknownContext[] = [];
 
   const visitObject = (value: UnknownContext, parentPath: string[]): UnknownContext => {
-    const inspectedValue = inspectedObjects.get(value);
-    if (inspectedValue) {
-      return inspectedValue;
-    }
-
     const retainedValue: UnknownContext = {};
     activeObjects.push(value);
-    inspectedObjects.set(value, retainedValue);
+    activeRetainedValues.push(retainedValue);
     if (parentPath.length === 0 && originalRoot !== value) {
       activeObjects.push(originalRoot);
-      inspectedObjects.set(originalRoot, retainedValue);
+      activeRetainedValues.push(retainedValue);
     }
 
     Object.keys(value).forEach(key => {
@@ -81,8 +76,9 @@ const inspectDeletionMarkers = (
       if (childValue === null || childValue === undefined) {
         deletionPaths.push(childPath);
       } else if (isPlainObject(childValue)) {
-        if (activeObjects.includes(childValue)) {
-          retainedValue[key] = inspectedObjects.get(childValue);
+        const activeObjectIndex = activeObjects.indexOf(childValue);
+        if (activeObjectIndex >= 0) {
+          retainedValue[key] = activeRetainedValues[activeObjectIndex];
           return;
         }
 
@@ -96,8 +92,10 @@ const inspectDeletionMarkers = (
     });
 
     activeObjects.pop();
+    activeRetainedValues.pop();
     if (parentPath.length === 0) {
       activeObjects.pop();
+      activeRetainedValues.pop();
     }
     return retainedValue;
   };

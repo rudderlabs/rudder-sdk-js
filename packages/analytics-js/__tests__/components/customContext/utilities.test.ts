@@ -120,6 +120,18 @@ describe('custom context utilities', () => {
     expect(logger.warn).not.toHaveBeenCalled();
   });
 
+  it('records path-dependent deletions for every use of a shared object', () => {
+    const shared = { cohort: 'A', removeMe: null };
+
+    expect(prepareCustomContextUpdate({ first: shared, second: shared }, logger)).toEqual({
+      context: { first: { cohort: 'A' }, second: { cohort: 'A' } },
+      deletionPaths: [
+        ['first', 'removeMe'],
+        ['second', 'removeMe'],
+      ],
+    });
+  });
+
   it('filters reserved root keys before inspecting or sanitizing their values', () => {
     const secretValue = 'must-not-appear-in-the-warning';
     const reservedCircularValue: Record<string, unknown> = { secretValue };
