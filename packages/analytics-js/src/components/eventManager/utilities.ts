@@ -5,6 +5,7 @@ import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 import type { RudderContext, RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { CustomContext } from '@rudderstack/analytics-js-common/types/CustomContext';
 import type { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
 import {
   isNonEmptyObject,
@@ -237,6 +238,7 @@ const getEnrichedEvent = (
   options: Nullable<ApiOptions> | undefined,
   pageProps: ApiObject | undefined,
   logger: ILogger,
+  customContext: CustomContext = {},
 ): RudderEvent => {
   const commonEventData = {
     channel: CHANNEL,
@@ -314,7 +316,10 @@ const getEnrichedEvent = (
     }
   }
 
-  const processedEvent = mergeDeepRight(rudderEvent, commonEventData) as RudderEvent;
+  const sdkBuiltEvent = mergeDeepRight(rudderEvent, commonEventData) as RudderEvent;
+  const processedEvent = mergeDeepRight(sdkBuiltEvent, {
+    context: customContext,
+  }) as RudderEvent;
   // Set the default values for the event properties
   // matching with v1.1 payload
   if (processedEvent.event === undefined) {

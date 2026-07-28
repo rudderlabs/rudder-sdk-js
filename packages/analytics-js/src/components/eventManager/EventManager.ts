@@ -1,6 +1,7 @@
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { APIEvent } from '@rudderstack/analytics-js-common/types/EventApi';
+import type { CustomContext } from '@rudderstack/analytics-js-common/types/CustomContext';
 import type { IEventManager } from './types';
 import { RudderEventFactory } from './RudderEventFactory';
 import type { IEventRepository } from '../eventRepository/types';
@@ -51,9 +52,9 @@ class EventManager implements IEventManager {
    * Consumes a new incoming event
    * @param event Incoming event data
    */
-  addEvent(event: APIEvent) {
+  addEvent(event: APIEvent, customContext: CustomContext) {
     this.userSessionManager.refreshSession();
-    const rudderEvent = this.eventFactory.create(event);
+    const rudderEvent = this.eventFactory.create(event, customContext);
     this.eventRepository.enqueue(rudderEvent, event.callback);
   }
 }
