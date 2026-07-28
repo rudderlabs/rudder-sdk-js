@@ -3,6 +3,7 @@ import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import type { APIEvent, ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 import type { RudderContext, RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import type { CustomContext } from '@rudderstack/analytics-js-common/types/CustomContext';
 import { getEnrichedEvent, getUpdatedPageProperties } from './utilities';
 
 class RudderEventFactory {
@@ -24,6 +25,7 @@ class RudderEventFactory {
     name?: string,
     properties?: Nullable<ApiObject>,
     options?: Nullable<ApiOptions>,
+    customContext: CustomContext = {},
   ): RudderEvent {
     let props = properties ?? {};
     props = getUpdatedPageProperties(props, options);
@@ -35,7 +37,7 @@ class RudderEventFactory {
       type: 'page',
     };
 
-    return getEnrichedEvent(pageEvent, options, props, this.logger);
+    return getEnrichedEvent(pageEvent, options, props, this.logger, customContext);
   }
 
   /**
@@ -48,6 +50,7 @@ class RudderEventFactory {
     event: string,
     properties?: Nullable<ApiObject>,
     options?: Nullable<ApiOptions>,
+    customContext: CustomContext = {},
   ): RudderEvent {
     const trackEvent: Partial<RudderEvent> = {
       properties,
@@ -55,7 +58,7 @@ class RudderEventFactory {
       type: 'track',
     };
 
-    return getEnrichedEvent(trackEvent, options, undefined, this.logger);
+    return getEnrichedEvent(trackEvent, options, undefined, this.logger, customContext);
   }
 
   /**
@@ -68,6 +71,7 @@ class RudderEventFactory {
     userId?: Nullable<string>,
     traits?: Nullable<ApiObject>,
     options?: Nullable<ApiOptions>,
+    customContext: CustomContext = {},
   ): RudderEvent {
     const identifyEvent: Partial<RudderEvent> = {
       userId,
@@ -77,7 +81,7 @@ class RudderEventFactory {
       } as RudderContext,
     };
 
-    return getEnrichedEvent(identifyEvent, options, undefined, this.logger);
+    return getEnrichedEvent(identifyEvent, options, undefined, this.logger, customContext);
   }
 
   /**
@@ -86,13 +90,24 @@ class RudderEventFactory {
    * @param from Old user ID
    * @param options API options
    */
-  generateAliasEvent(to: string, from?: string, options?: Nullable<ApiOptions>): RudderEvent {
+  generateAliasEvent(
+    to: string,
+    from?: string,
+    options?: Nullable<ApiOptions>,
+    customContext: CustomContext = {},
+  ): RudderEvent {
     const aliasEvent: Partial<RudderEvent> = {
       previousId: from,
       type: 'alias',
     };
 
-    const enrichedEvent = getEnrichedEvent(aliasEvent, options, undefined, this.logger);
+    const enrichedEvent = getEnrichedEvent(
+      aliasEvent,
+      options,
+      undefined,
+      this.logger,
+      customContext,
+    );
     // override the User ID from the API inputs
     enrichedEvent.userId = to ?? enrichedEvent.userId;
     return enrichedEvent;
@@ -108,6 +123,7 @@ class RudderEventFactory {
     groupId?: Nullable<string>,
     traits?: Nullable<ApiObject>,
     options?: Nullable<ApiOptions>,
+    customContext: CustomContext = {},
   ): RudderEvent {
     const groupEvent: Partial<RudderEvent> = {
       type: 'group',
@@ -121,7 +137,7 @@ class RudderEventFactory {
       groupEvent.traits = traits;
     }
 
-    return getEnrichedEvent(groupEvent, options, undefined, this.logger);
+    return getEnrichedEvent(groupEvent, options, undefined, this.logger, customContext);
   }
 
   /**
@@ -129,7 +145,7 @@ class RudderEventFactory {
    * @param event API event parameters object
    * @returns A RudderEvent object
    */
-  create(event: APIEvent): RudderEvent {
+  create(event: APIEvent, customContext: CustomContext = {}): RudderEvent {
     let eventObj: RudderEvent | undefined;
     switch (event.type) {
       case 'page':
@@ -138,20 +154,41 @@ class RudderEventFactory {
           event.name,
           event.properties,
           event.options,
+          customContext,
         );
         break;
       case 'track':
-        eventObj = this.generateTrackEvent(event.name as string, event.properties, event.options);
+        eventObj = this.generateTrackEvent(
+          event.name as string,
+          event.properties,
+          event.options,
+          customContext,
+        );
         break;
       case 'identify':
-        eventObj = this.generateIdentifyEvent(event.userId, event.traits, event.options);
+        eventObj = this.generateIdentifyEvent(
+          event.userId,
+          event.traits,
+          event.options,
+          customContext,
+        );
         break;
       case 'alias':
-        eventObj = this.generateAliasEvent(event.to as string, event.from, event.options);
+        eventObj = this.generateAliasEvent(
+          event.to as string,
+          event.from,
+          event.options,
+          customContext,
+        );
         break;
       case 'group':
       default:
-        eventObj = this.generateGroupEvent(event.groupId, event.traits, event.options);
+        eventObj = this.generateGroupEvent(
+          event.groupId,
+          event.traits,
+          event.options,
+          customContext,
+        );
         break;
     }
     return eventObj;
