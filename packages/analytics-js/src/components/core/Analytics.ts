@@ -118,7 +118,12 @@ class Analytics implements IAnalytics {
   /**
    * Start application lifecycle if not already started
    */
-  load(writeKey: string, dataPlaneUrl: string, loadOptions: Partial<LoadOptions> = {}) {
+  load(
+    writeKey: string,
+    dataPlaneUrl: string,
+    loadOptions: Partial<LoadOptions> = {},
+    customContext?: unknown,
+  ) {
     if (state.lifecycle.status.value) {
       return;
     }
@@ -131,6 +136,10 @@ class Analytics implements IAnalytics {
     if (!isDataPlaneUrlValid(dataPlaneUrl)) {
       this.logger.error(DATA_PLANE_URL_VALIDATION_ERROR(ANALYTICS_CORE, dataPlaneUrl));
       return;
+    }
+
+    if (customContext !== undefined) {
+      this.customContextStore.set(customContext);
     }
 
     // Set initial state values
