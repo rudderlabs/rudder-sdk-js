@@ -952,7 +952,7 @@ class Analytics implements IAnalytics {
       if (isBufferedInvocation) {
         state.eventBuffer.toBeProcessedArray.value = [
           ...state.eventBuffer.toBeProcessedArray.value,
-          ['track', trackOptions],
+          ['track', trackOptions, this.customContextStore.get()],
         ];
       } else {
         this.track(trackOptions);
@@ -964,7 +964,7 @@ class Analytics implements IAnalytics {
       if (isBufferedInvocation) {
         state.eventBuffer.toBeProcessedArray.value = [
           ...state.eventBuffer.toBeProcessedArray.value,
-          ['page', pageOptions],
+          ['page', pageOptions, this.customContextStore.get()],
         ];
       } else {
         this.page(pageOptions);
