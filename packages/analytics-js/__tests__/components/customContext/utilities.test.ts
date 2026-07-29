@@ -124,6 +124,7 @@ describe('custom context utilities', () => {
     ['a function', () => undefined],
     ['a date', new Date('2026-07-21T00:00:00.000Z')],
     ['an object with a custom prototype', Object.create({})],
+    ['an object with a null-parent custom prototype', Object.create(Object.create(null))],
   ])('rejects %s as the top-level update', (_, input) => {
     expect(prepareCustomContextUpdate(input, logger)).toBeUndefined();
     expect(logger.warn).toHaveBeenCalledWith(
@@ -148,6 +149,14 @@ describe('custom context utilities', () => {
   it.each([
     ['a direct null entry', ['control', null]],
     ['a direct undefined entry', ['control', undefined]],
+    [
+      'a sparse array entry',
+      (() => {
+        const sparseArray: string[] = [];
+        sparseArray[1] = 'treatment';
+        return sparseArray;
+      })(),
+    ],
     ['a null marker inside an array object', [{ removeMe: null }]],
     ['an undefined marker inside an array object', [{ removeMe: undefined }]],
   ])('rejects %s instead of treating it as a deletion scope', (_, variants) => {

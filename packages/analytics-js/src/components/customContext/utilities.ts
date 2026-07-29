@@ -19,13 +19,38 @@ const CUSTOM_CONTEXT_PARENT_KEY_PATH = 'custom context';
 
 type UnknownContext = Record<string, unknown>;
 
+const objectConstructorSource = Function.prototype.toString.call(Object);
+
 const isPlainObject = (value: unknown): value is UnknownContext => {
   if (!isObjectLiteralAndNotNull(value)) {
     return false;
   }
 
   const prototype = Object.getPrototypeOf(value);
-  return prototype === null || Object.getPrototypeOf(prototype) === null;
+  if (prototype === null) {
+    return true;
+  }
+
+  const constructor = Object.prototype.hasOwnProperty.call(prototype, 'constructor')
+    ? prototype.constructor
+    : undefined;
+
+  return (
+    typeof constructor === 'function' &&
+    Function.prototype.toString.call(constructor) === objectConstructorSource
+  );
+};
+
+const isValidDate = (value: unknown): value is Date => {
+  if (Object.prototype.toString.call(value) !== '[object Date]') {
+    return false;
+  }
+
+  try {
+    return !Number.isNaN(Date.prototype.getTime.call(value));
+  } catch {
+    return false;
+  }
 };
 
 const filterReservedCustomContextKeys = (
@@ -116,12 +141,12 @@ const isValidCustomContextValue = (value: unknown): value is CustomContextValue 
     return Number.isFinite(value);
   }
 
-  if (value instanceof Date) {
-    return !Number.isNaN(value.getTime());
+  if (isValidDate(value)) {
+    return true;
   }
 
   if (Array.isArray(value)) {
-    return value.every(
+    return [...value].every(
       item => item !== null && item !== undefined && isValidCustomContextValue(item),
     );
   }
