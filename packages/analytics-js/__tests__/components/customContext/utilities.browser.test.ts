@@ -32,4 +32,29 @@ describe('custom context browser utilities', () => {
       iframe.remove();
     }
   });
+
+  it('accepts valid dates created in a different realm', () => {
+    const iframe = document.createElement('iframe');
+    document.body.appendChild(iframe);
+    const crossRealmDate = new iframe.contentWindow!.Date('2026-07-29T00:00:00.000Z');
+
+    try {
+      const result = prepareCustomContextUpdate(
+        {
+          occurredAt: crossRealmDate,
+          milestones: [crossRealmDate],
+        },
+        new MockLogger(),
+      )!;
+
+      expect(result.context).toEqual({
+        occurredAt: new Date('2026-07-29T00:00:00.000Z'),
+        milestones: [new Date('2026-07-29T00:00:00.000Z')],
+      });
+      expect(result.context.occurredAt).not.toBe(crossRealmDate);
+      expect(result.context.milestones).not.toContain(crossRealmDate);
+    } finally {
+      iframe.remove();
+    }
+  });
 });
