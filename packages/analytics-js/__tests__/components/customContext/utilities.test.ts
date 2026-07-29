@@ -125,6 +125,7 @@ describe('custom context utilities', () => {
     ['a date', new Date('2026-07-21T00:00:00.000Z')],
     ['an object with a custom prototype', Object.create({})],
     ['an object with a null-parent custom prototype', Object.create(Object.create(null))],
+    ['an object with a spoofed Object constructor', Object.create({ constructor: Object })],
   ])('rejects %s as the top-level update', (_, input) => {
     expect(prepareCustomContextUpdate(input, logger)).toBeUndefined();
     expect(logger.warn).toHaveBeenCalledWith(
@@ -174,6 +175,14 @@ describe('custom context utilities', () => {
     ],
     ['a null marker inside an array object', [{ removeMe: null }]],
     ['an undefined marker inside an array object', [{ removeMe: undefined }]],
+    [
+      'a null entry hidden by a custom iterator',
+      Object.assign([null], {
+        *[Symbol.iterator]() {
+          yield 'control';
+        },
+      }),
+    ],
   ])('rejects %s instead of treating it as a deletion scope', (_, variants) => {
     expect(prepareCustomContextUpdate({ variants }, logger)).toBeUndefined();
   });
