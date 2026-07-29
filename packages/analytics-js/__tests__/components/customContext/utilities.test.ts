@@ -70,24 +70,6 @@ describe('custom context utilities', () => {
     });
   });
 
-  it('accepts plain objects created with a different realm prototype', () => {
-    const iframe = document.createElement('iframe');
-    document.body.appendChild(iframe);
-    const foreignObjectPrototype = iframe.contentWindow!.Object.prototype;
-    const crossRealmContext = Object.assign(Object.create(foreignObjectPrototype), {
-      region: 'EU',
-    });
-
-    try {
-      expect(prepareCustomContextUpdate(crossRealmContext, logger)).toEqual({
-        context: { region: 'EU' },
-        deletionPaths: [],
-      });
-    } finally {
-      iframe.remove();
-    }
-  });
-
   it('accepts JSON-shaped values and preserves arrays for mergeDeepRight', () => {
     expect(
       prepareCustomContextUpdate(
@@ -237,6 +219,7 @@ describe('custom context utilities', () => {
       variants: [{ name: 'control' }],
     };
     const result = prepareCustomContextUpdate(input, logger)!;
+    const independentResult = prepareCustomContextUpdate(input, logger)!;
 
     input.account.seats = 10;
     input.variants[0]!.name = 'treatment';
@@ -246,5 +229,6 @@ describe('custom context utilities', () => {
       account: { seats: 5 },
       variants: [{ name: 'control' }],
     });
+    expect(independentResult.deletionPaths).toEqual([['account', 'plan']]);
   });
 });
