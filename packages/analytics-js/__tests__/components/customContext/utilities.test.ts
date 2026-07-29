@@ -41,6 +41,53 @@ describe('custom context utilities', () => {
     });
   });
 
+  it('retains explicitly supplied empty objects while pruning marker-only branches', () => {
+    expect(
+      prepareCustomContextUpdate(
+        {
+          empty: {},
+          nested: {
+            empty: {},
+            removeMe: null,
+          },
+          markerOnly: {
+            removeMe: undefined,
+          },
+        },
+        logger,
+      ),
+    ).toEqual({
+      context: {
+        empty: {},
+        nested: {
+          empty: {},
+        },
+      },
+      deletionPaths: [
+        ['nested', 'removeMe'],
+        ['markerOnly', 'removeMe'],
+      ],
+    });
+  });
+
+  it('accepts plain objects created with a different realm prototype', () => {
+    const iframe = document.createElement('iframe');
+    document.body.appendChild(iframe);
+    const foreignObjectPrototype = iframe.contentWindow!.Object.prototype;
+    const crossRealmContext = Object.assign(Object.create(foreignObjectPrototype), {
+      region: 'EU',
+    });
+
+    try {
+      expect(prepareCustomContextUpdate(crossRealmContext, logger)).toEqual({
+        context: { region: 'EU' },
+        deletionPaths: [],
+      });
+    } finally {
+      iframe.remove();
+    }
+  });
+
   it('accepts JSON-shaped values and preserves arrays for mergeDeepRight', () => {
     expect(
       prepareCustomContextUpdate(
@@ -94,6 +141,7 @@ describe('custom context utilities', () => {
     ['an array', []],
     ['a function', () => undefined],
     ['a date', new Date('2026-07-21T00:00:00.000Z')],
+    ['an object with a custom prototype', Object.create({})],
   ])('rejects %s as the top-level update', (_, input) => {
     expect(prepareCustomContextUpdate(input, logger)).toBeUndefined();
     expect(logger.warn).toHaveBeenCalledWith(
