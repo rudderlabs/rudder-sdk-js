@@ -38,6 +38,7 @@ const isPlainObject = (value: unknown): value is UnknownContext => {
 
   return (
     typeof constructor === 'function' &&
+    constructor.prototype === prototype &&
     Function.prototype.toString.call(constructor) === objectConstructorSource
   );
 };
@@ -175,9 +176,15 @@ const isValidCustomContextValue = (value: unknown): value is CustomContextValue 
   }
 
   if (Array.isArray(value)) {
-    return [...value].every(
-      item => item !== null && item !== undefined && isValidCustomContextValue(item),
-    );
+    for (let index = 0; index < value.length; index += 1) {
+      if (
+        !Object.prototype.hasOwnProperty.call(value, index) ||
+        !isValidCustomContextValue(value[index])
+      ) {
+        return false;
+      }
+    }
+    return true;
   }
 
   if (isPlainObject(value)) {
