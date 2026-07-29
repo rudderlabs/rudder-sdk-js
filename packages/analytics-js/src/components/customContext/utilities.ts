@@ -16,6 +16,7 @@ import type {
 
 const CUSTOM_CONTEXT = 'CustomContext';
 const CUSTOM_CONTEXT_PARENT_KEY_PATH = 'custom context';
+const PROTOTYPE_POLLUTION_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
 
 type UnknownContext = Record<string, unknown>;
 
@@ -51,6 +52,34 @@ const isValidDate = (value: unknown): value is Date => {
   } catch {
     return false;
   }
+};
+
+const containsPrototypePollutionKey = (
+  value: unknown,
+  isRoot = false,
+  visitedObjects = new Set<object>(),
+): boolean => {
+  if (!isObjectLiteralAndNotNull(value) && !Array.isArray(value)) {
+    return false;
+  }
+
+  const traversableValue = value as UnknownContext;
+  if (visitedObjects.has(traversableValue)) {
+    return false;
+  }
+
+  visitedObjects.add(traversableValue);
+
+  return Object.keys(traversableValue).some(key => {
+    if (isRoot && CONTEXT_RESERVED_ELEMENTS.includes(key)) {
+      return false;
+    }
+
+    return (
+      PROTOTYPE_POLLUTION_KEYS.has(key) ||
+      containsPrototypePollutionKey(traversableValue[key], false, visitedObjects)
+    );
+  });
 };
 
 const filterReservedCustomContextKeys = (
@@ -163,6 +192,11 @@ const prepareCustomContextUpdate = (
   logger: ILogger,
 ): PreparedCustomContextUpdate | undefined => {
   if (!isPlainObject(input)) {
+    logger.warn(INVALID_CUSTOM_CONTEXT_WARNING(CUSTOM_CONTEXT));
+    return undefined;
+  }
+
+  if (containsPrototypePollutionKey(input, true)) {
     logger.warn(INVALID_CUSTOM_CONTEXT_WARNING(CUSTOM_CONTEXT));
     return undefined;
   }
