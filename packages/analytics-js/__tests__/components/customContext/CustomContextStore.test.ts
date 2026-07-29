@@ -1,4 +1,6 @@
+import { signal } from '@preact/signals-core';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { CustomContext } from '@rudderstack/analytics-js-common/types/CustomContext';
 import { CustomContextStore } from '../../../src/components/customContext';
 
 class MockLogger implements ILogger {
@@ -17,10 +19,12 @@ class MockLogger implements ILogger {
 describe('CustomContextStore', () => {
   let logger: MockLogger;
   let store: CustomContextStore;
+  let contextState: ReturnType<typeof signal<CustomContext>>;
 
   beforeEach(() => {
     logger = new MockLogger();
-    store = new CustomContextStore(logger);
+    contextState = signal<CustomContext>({});
+    store = new CustomContextStore(contextState, logger);
   });
 
   const setContext = (context: unknown): void => {
@@ -118,11 +122,12 @@ describe('CustomContextStore', () => {
     expect(store.get()).toEqual({});
   });
 
-  it('keeps separate store instances isolated', () => {
-    const otherStore = new CustomContextStore(new MockLogger());
+  it('uses the provided state slice as the storage boundary', () => {
+    const otherStore = new CustomContextStore(contextState, new MockLogger());
     setContext({ region: 'EU' });
 
+    expect(contextState.value).toEqual({ region: 'EU' });
     expect(store.get()).toEqual({ region: 'EU' });
-    expect(otherStore.get()).toEqual({});
+    expect(otherStore.get()).toEqual({ region: 'EU' });
   });
 });

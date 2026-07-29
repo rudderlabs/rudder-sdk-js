@@ -51,10 +51,12 @@ describe('Core - Analytics', () => {
       expect(analytics.customContextStore.get()).toEqual({});
     });
 
-    it('owns a custom context store per Analytics instance', () => {
+    it('uses the shared custom context state across Analytics components', () => {
       const otherAnalytics = new Analytics();
+      analytics.customContextStore.set({ region: 'EU' });
 
       expect(otherAnalytics.customContextStore).not.toBe(analytics.customContextStore);
+      expect(otherAnalytics.customContextStore.get()).toEqual({ region: 'EU' });
     });
   });
 

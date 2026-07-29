@@ -1,8 +1,7 @@
-type CustomContextValue = string | number | boolean | Date | CustomContext | CustomContextValue[];
-
-interface CustomContext {
-  [key: string]: CustomContextValue;
-}
+import type {
+  CustomContext,
+  CustomContextValue,
+} from '@rudderstack/analytics-js-common/types/CustomContext';
 
 type UnknownContext = Record<string, unknown>;
 
