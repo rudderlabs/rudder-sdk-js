@@ -1,10 +1,4 @@
-type CustomContextValue =
-  | string
-  | number
-  | boolean
-  | Date
-  | CustomContext
-  | CustomContextValue[];
+type CustomContextValue = string | number | boolean | Date | CustomContext | CustomContextValue[];
 
 interface CustomContext {
   [key: string]: CustomContextValue;
