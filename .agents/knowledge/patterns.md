@@ -17,3 +17,8 @@
 - Plugin calls prefer extension-point invocation (`invokeSingle`/`invokeMultiple`) to keep queue and destination behaviors swappable (`packages/analytics-js/src/services/PluginEngine/PluginEngine.ts::PluginEngine.invokeSingle`).
 - Load-time buffering is a consistent behavior: preload snippet arrays and in-memory queues are drained after initialization to preserve call order (`packages/loading-scripts/src/index.ts:12`, `packages/analytics-js/src/components/core/Analytics.ts::Analytics.processDataInPreloadBuffer`).
 - Legacy v1.1 still follows class-centric mutable state and explicit polling for integration readiness (`allModulesInitialized` Promise loop), unlike v3 reactive effects (`packages/analytics-v1.1/src/core/analytics.js::Analytics.allModulesInitialized`).
+
+## SDK-5014 — Amplitude V2 Autocapture Config Boundaries
+
+- Amplitude Browser SDK v2 autocapture config is assembled in `packages/analytics-js-integrations/src/integrations/Amplitude/browser.js:init()` using helper getters from `packages/analytics-js-integrations/src/integrations/Amplitude/utils.js`.
+- The dedicated `pageViews` config key maps only to the Amplitude SDK `autocapture.pageViews` option; it intentionally does not affect Rudder `page()` translation gates such as `trackAllPages`, `trackCategorizedPages`, or `trackNamedPages`.
