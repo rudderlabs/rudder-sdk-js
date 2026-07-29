@@ -71,7 +71,7 @@
     "rudder"
   ],
   "author": "RudderStack",
-  "license": "Elastic-2.0",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/rudderlabs/rudder-sdk-js/issues"
   },
