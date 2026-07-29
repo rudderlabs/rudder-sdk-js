@@ -100,7 +100,7 @@ class Analytics implements IAnalytics {
     this.initialized = false;
     this.errorHandler = defaultErrorHandler;
     this.logger = defaultLogger;
-    this.customContextStore = new CustomContextStore(this.logger);
+    this.customContextStore = new CustomContextStore(state.customContext, this.logger);
     this.externalSrcLoader = new ExternalSrcLoader(this.logger);
     this.httpClient = defaultHttpClient;
     this.httpClient.init(this.errorHandler);

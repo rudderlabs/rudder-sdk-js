@@ -1,5 +1,6 @@
 import { clone } from 'ramda';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { CustomContextState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
 import { prepareCustomContextUpdate } from './utilities';
 import type { CustomContext } from './types';
@@ -23,10 +24,11 @@ const deleteValueAtPath = (context: CustomContext, path: string[]): void => {
 };
 
 class CustomContextStore {
-  private context: CustomContext = {};
+  private state: CustomContextState;
   private logger: ILogger;
 
-  constructor(logger: ILogger) {
+  constructor(state: CustomContextState, logger: ILogger) {
+    this.state = state;
     this.logger = logger;
   }
 
@@ -36,17 +38,17 @@ class CustomContextStore {
       return;
     }
 
-    const workingContext = clone(this.context);
+    const workingContext = clone(this.state.value);
     update.deletionPaths.forEach(path => deleteValueAtPath(workingContext, path));
-    this.context = mergeDeepRight(workingContext, update.context);
+    this.state.value = mergeDeepRight(workingContext, update.context);
   }
 
   get(): CustomContext {
-    return clone(this.context);
+    return clone(this.state.value);
   }
 
   clear(): void {
-    this.context = {};
+    this.state.value = {};
   }
 }
 
