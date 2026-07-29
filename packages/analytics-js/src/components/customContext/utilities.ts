@@ -1,5 +1,6 @@
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { getSanitizedValue } from '@rudderstack/analytics-js-common/utilities/json';
+import { isObjectLiteralAndNotNull } from '@rudderstack/analytics-js-common/utilities/object';
 import { clone } from 'ramda';
 import {
   INVALID_CUSTOM_CONTEXT_WARNING,
@@ -19,12 +20,12 @@ const CUSTOM_CONTEXT_PARENT_KEY_PATH = 'custom context';
 type UnknownContext = Record<string, unknown>;
 
 const isPlainObject = (value: unknown): value is UnknownContext => {
-  if (value === null || typeof value !== 'object') {
+  if (!isObjectLiteralAndNotNull(value)) {
     return false;
   }
 
   const prototype = Object.getPrototypeOf(value);
-  return prototype === Object.prototype || prototype === null;
+  return prototype === null || Object.getPrototypeOf(prototype) === null;
 };
 
 const filterReservedCustomContextKeys = (
@@ -83,7 +84,7 @@ const inspectDeletionMarkers = (
         }
 
         const retainedChildValue = visitObject(childValue, childPath);
-        if (Object.keys(retainedChildValue).length > 0) {
+        if (Object.keys(retainedChildValue).length > 0 || Object.keys(childValue).length === 0) {
           retainedValue[key] = retainedChildValue;
         }
       } else {
