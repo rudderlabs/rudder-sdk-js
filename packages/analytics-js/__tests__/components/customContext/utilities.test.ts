@@ -147,6 +147,21 @@ describe('custom context utilities', () => {
   });
 
   it.each([
+    ['a root __proto__ key', JSON.parse('{"__proto__":{"polluted":true}}')],
+    [
+      'a nested constructor key',
+      { account: JSON.parse('{"constructor":{"prototype":{"polluted":true}}}') },
+    ],
+    ['a prototype key inside an array object', { items: [JSON.parse('{"prototype":{}}')] }],
+  ])('rejects an update containing %s', (_, input) => {
+    expect(prepareCustomContextUpdate(input, logger)).toBeUndefined();
+    expect(logger.warn).toHaveBeenCalledWith(
+      'CustomContext:: The custom context update is invalid. Use a plain object containing only supported context values.',
+    );
+    expect(Object.prototype).not.toHaveProperty('polluted');
+  });
+
+  it.each([
     ['a direct null entry', ['control', null]],
     ['a direct undefined entry', ['control', undefined]],
     [
@@ -198,7 +213,9 @@ describe('custom context utilities', () => {
 
   it('filters reserved root keys before inspecting or sanitizing their values', () => {
     const secretValue = 'must-not-appear-in-the-warning';
-    const reservedCircularValue: Record<string, unknown> = { secretValue };
+    const reservedCircularValue = JSON.parse(
+      `{"__proto__":{"polluted":true},"secretValue":"${secretValue}"}`,
+    ) as Record<string, unknown>;
     reservedCircularValue.self = reservedCircularValue;
 
     expect(
