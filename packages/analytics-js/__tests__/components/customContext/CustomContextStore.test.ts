@@ -52,6 +52,20 @@ describe('CustomContextStore', () => {
     });
   });
 
+  it('treats an empty array update as a no-op for an existing array', () => {
+    setContext({ tags: ['a', 'b', 'c'] });
+    setContext({ tags: [] });
+
+    expect(store.get()).toEqual({ tags: ['a', 'b', 'c'] });
+  });
+
+  it('deletes a complete array through its enclosing object property', () => {
+    setContext({ tags: ['a', 'b', 'c'], region: 'EU' });
+    setContext({ tags: null });
+
+    expect(store.get()).toEqual({ region: 'EU' });
+  });
+
   it('deletes top-level and nested paths while retaining an existing empty parent', () => {
     setContext({
       region: 'EU',
