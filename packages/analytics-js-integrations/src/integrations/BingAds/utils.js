@@ -4,6 +4,7 @@ import { isDefinedAndNotNull } from '../../utils/commonUtils';
 
 const EXCLUSION_KEYS = [
   'event',
+  'event_id',
   'category',
   'category_id',
   'currency',
@@ -25,6 +26,15 @@ const EXCLUSION_KEYS = [
 ];
 
 const DEFAULT_PAGETYPE = 'other';
+
+function getEventId(message) {
+  return (
+    get(message, 'traits.event_id') ||
+    get(message, 'context.traits.event_id') ||
+    get(message, 'properties.event_id') ||
+    message.messageId
+  );
+}
 
 const buildCommonPayload = message => {
   const { event, properties = {} } = message;
@@ -195,4 +205,5 @@ export {
   EXCLUSION_KEYS,
   DEFAULT_PAGETYPE,
   constructPidPayload,
+  getEventId,
 };

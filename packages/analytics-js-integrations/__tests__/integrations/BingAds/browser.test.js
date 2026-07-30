@@ -291,4 +291,77 @@ describe('BingAds Track event', () => {
       },
     });
   });
+
+  test('passes properties.event_id as UET event_id', () => {
+    bingAds.track({
+      message: {
+        messageId: 'fallback-message-id',
+        type: 'track',
+        context: {},
+        event,
+        properties: {
+          event_action: 'button_click',
+          event_id: 'property-event-id',
+          customProp: 'custom',
+        },
+      },
+    });
+
+    expect(output[output.length - 1]).toEqual({
+      event: 'button_click',
+      event_label: event,
+      ecomm_pagetype: 'other',
+      customProp: 'custom',
+      event_id: 'property-event-id',
+    });
+  });
+
+  test('uses messageId as event_id fallback', () => {
+    bingAds.track({
+      message: {
+        messageId: 'fallback-message-id',
+        type: 'track',
+        context: {},
+        event,
+        properties: {
+          event_action: 'button_click',
+          customProp: 'custom',
+        },
+      },
+    });
+
+    expect(output[output.length - 1]).toEqual({
+      event: 'button_click',
+      event_label: event,
+      ecomm_pagetype: 'other',
+      customProp: 'custom',
+      event_id: 'fallback-message-id',
+    });
+  });
+
+  test('does not add extra event_id representations through custom properties', () => {
+    bingAds.track({
+      message: {
+        messageId: 'fallback-message-id',
+        type: 'track',
+        context: {},
+        event,
+        properties: {
+          event_action: 'button_click',
+          event_id: 'property-event-id',
+          customProp: 'custom',
+        },
+      },
+    });
+
+    const latestOutput = output[output.length - 1];
+    expect(Object.keys(latestOutput).filter(key => key === 'event_id')).toHaveLength(1);
+    expect(latestOutput).toEqual({
+      event: 'button_click',
+      event_label: event,
+      ecomm_pagetype: 'other',
+      customProp: 'custom',
+      event_id: 'property-event-id',
+    });
+  });
 });

@@ -3,7 +3,10 @@ import {
   buildEcommPayload,
   handleProductsArray,
   constructPidPayload,
+  getEventId,
+  EXCLUSION_KEYS,
 } from '../../../src/integrations/BingAds/utils';
+import { extractCustomFields } from '../../../src/utils/utils';
 import { query, products } from './__fixtures__/data';
 
 describe('Build common payload utility tests', () => {
@@ -135,6 +138,81 @@ describe('Build ecomm payload utility tests', () => {
       ecomm_totalvalue: undefined,
       ecomm_pagetype: 'other',
     });
+  });
+});
+
+describe('Event ID utility tests', () => {
+  test('excludes event_id from custom properties', () => {
+    const customProperties = extractCustomFields(
+      {
+        properties: {
+          event_id: 'properties-event-id',
+          customProp: 'custom',
+        },
+      },
+      {},
+      ['properties'],
+      EXCLUSION_KEYS,
+    );
+
+    expect(customProperties).toEqual({
+      customProp: 'custom',
+    });
+  });
+
+  test('uses traits.event_id before other event_id sources', () => {
+    const eventId = getEventId({
+      messageId: 'message-id',
+      traits: {
+        event_id: 'traits-event-id',
+      },
+      context: {
+        traits: {
+          event_id: 'context-traits-event-id',
+        },
+      },
+      properties: {
+        event_id: 'properties-event-id',
+      },
+    });
+
+    expect(eventId).toEqual('traits-event-id');
+  });
+
+  test('uses context.traits.event_id before properties.event_id', () => {
+    const eventId = getEventId({
+      messageId: 'message-id',
+      context: {
+        traits: {
+          event_id: 'context-traits-event-id',
+        },
+      },
+      properties: {
+        event_id: 'properties-event-id',
+      },
+    });
+
+    expect(eventId).toEqual('context-traits-event-id');
+  });
+
+  test('uses properties.event_id before messageId fallback', () => {
+    const eventId = getEventId({
+      messageId: 'message-id',
+      properties: {
+        event_id: 'properties-event-id',
+      },
+    });
+
+    expect(eventId).toEqual('properties-event-id');
+  });
+
+  test('uses messageId as fallback', () => {
+    const eventId = getEventId({
+      messageId: 'message-id',
+      properties: {},
+    });
+
+    expect(eventId).toEqual('message-id');
   });
 });
 
