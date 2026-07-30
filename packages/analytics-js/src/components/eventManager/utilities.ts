@@ -23,12 +23,8 @@ import {
   INVALID_CONTEXT_OBJECT_WARNING,
   RESERVED_KEYWORD_WARNING,
 } from '../../constants/logMessages';
-import {
-  CHANNEL,
-  CONTEXT_RESERVED_ELEMENTS,
-  RESERVED_ELEMENTS,
-  TOP_LEVEL_ELEMENTS,
-} from './constants';
+import { CHANNEL, RESERVED_ELEMENTS, TOP_LEVEL_ELEMENTS } from './constants';
+import { filterReservedCustomContextKeys } from '../customContext';
 import { getDefaultPageProperties } from '../utilities/page';
 import { extractUTMParameters } from '../utilities/url';
 import { generateAnonymousId, isStorageTypeValidForStoringData } from '../userSessionManager/utils';
@@ -164,21 +160,17 @@ const getMergedContext = (
 ): RudderContext => {
   let context = rudderContext;
   Object.keys(options).forEach(key => {
-    if (!TOP_LEVEL_ELEMENTS.includes(key) && !CONTEXT_RESERVED_ELEMENTS.includes(key)) {
+    if (!TOP_LEVEL_ELEMENTS.includes(key)) {
       if (key !== 'context') {
-        context = mergeDeepRight(context, {
-          [key]: options[key],
-        });
+        context = mergeDeepRight(
+          context,
+          filterReservedCustomContextKeys({ [key]: options[key] }, logger),
+        );
       } else if (!isUndefined(options[key]) && isObjectLiteralAndNotNull(options[key])) {
-        const tempContext: Record<string, any> = {};
-        Object.keys(options[key] as Record<string, any>).forEach(e => {
-          if (!CONTEXT_RESERVED_ELEMENTS.includes(e)) {
-            tempContext[e] = (options[key] as Record<string, any>)[e];
-          }
-        });
-        context = mergeDeepRight(context, {
-          ...tempContext,
-        });
+        context = mergeDeepRight(
+          context,
+          filterReservedCustomContextKeys(options[key] as Record<string, unknown>, logger),
+        );
       } else {
         logger.warn(INVALID_CONTEXT_OBJECT_WARNING(EVENT_MANAGER));
       }
