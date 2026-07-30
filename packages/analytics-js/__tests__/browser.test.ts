@@ -103,10 +103,14 @@ describe('Test suite for the SDK', () => {
       // Queue up some API calls before the SDK script is loaded
       window.rudderanalytics?.page();
       window.rudderanalytics?.track('test-event');
+      window.rudderanalytics?.setLogLevel('DEBUG');
 
       await waitForSDKReady();
 
       expect((window.rudderanalytics as any).push).not.toBe(Array.prototype.push);
+      expect((window as any).RudderStackGlobals[WRITE_KEY].state.lifecycle.logLevel.value).toBe(
+        'DEBUG',
+      );
 
       // one source configuration request, one page request, and one track request
       expect(xhrMock.send).toHaveBeenCalledTimes(3);

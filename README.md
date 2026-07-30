@@ -220,6 +220,14 @@ rudderanalytics.load(<WRITE_KEY>, <DATA_PLANE_URL>, {
 
 > For more information on the other supported methods, see the [**JavaScript SDK APIs**](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/supported-api/).
 
+## Changing the log level at runtime
+
+You can use the `setLogLevel` API to change the SDK logger level after the SDK has loaded. Supported levels are `LOG`, `INFO`, `DEBUG`, `WARN`, `ERROR`, and `NONE`.
+
+```javascript
+rudderanalytics.setLogLevel('DEBUG');
+```
+
 ## [](https://github.com/rudderlabs/rudder-sdk-js/blob/main/README.md#self-hosted-control-plane)Self-hosted control plane
 
 | **[Control Plane Lite](https://www.rudderstack.com/docs/get-started/rudderstack-open-source/control-plane-lite/) is now deprecated. It will not work with the latest rudder-server versions (after v1.2). Using [RudderStack Open Source](https://www.rudderstack.com/docs/get-started/rudderstack-open-source/control-plane-setup/#rudderstack-open-source) to set up your control plane is strongly recommended.** |

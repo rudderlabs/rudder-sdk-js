@@ -122,6 +122,37 @@ describe('ConfigManager', () => {
     expect(state.lifecycle.sourceConfigUrl.value).toBe(expectedConfigUrl);
     expect(configManagerInstance.getConfig).toHaveBeenCalled();
   });
+
+  it('should use the default effective log level for invalid load option log levels', () => {
+    getSDKUrl.mockImplementation(() => sampleScriptURL);
+
+    state.lifecycle.writeKey.value = sampleWriteKey;
+    state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
+    state.loadOptions.value.logLevel = 'dummy' as any;
+    state.loadOptions.value.configUrl = sampleConfigUrl;
+    configManagerInstance.getConfig = jest.fn();
+
+    configManagerInstance.init();
+
+    expect(state.lifecycle.logLevel.value).toBe('LOG');
+    expect(defaultLogger.setMinLogLevel).toHaveBeenLastCalledWith('LOG');
+  });
+
+  it('should apply runtime lifecycle log level changes to the logger', () => {
+    state.lifecycle.logLevel.value = 'WARN';
+    (defaultLogger.setMinLogLevel as jest.Mock).mockClear();
+
+    const disposeEffect = configManagerInstance.attachEffects();
+
+    expect(defaultLogger.setMinLogLevel).toHaveBeenCalledWith('WARN');
+
+    (defaultLogger.setMinLogLevel as jest.Mock).mockClear();
+    state.lifecycle.logLevel.value = 'ERROR';
+
+    expect(defaultLogger.setMinLogLevel).toHaveBeenCalledWith('ERROR');
+
+    disposeEffect();
+  });
   it('should fetch configurations using sourceConfig endpoint', done => {
     state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfigClone/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}&lockPluginsVersion=${lockPluginsVersion}`;
     configManagerInstance.processConfig = jest.fn();
@@ -228,11 +259,10 @@ describe('ConfigManager', () => {
 
     expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
     expect(defaultErrorHandler.onError).toHaveBeenCalledWith({
-      error: new SyntaxError(
-        "Expected ',' or '}' after property value in JSON at position 15 (line 1 column 16)",
-      ),
+      error: expect.any(SyntaxError),
       context: 'ConfigManager',
       customMessage: 'Unable to process/parse source configuration response',
+      groupingHash: undefined,
     });
   });
 

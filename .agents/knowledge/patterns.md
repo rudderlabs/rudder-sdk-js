@@ -22,3 +22,8 @@
 
 - Amplitude Browser SDK v2 autocapture config is assembled in `packages/analytics-js-integrations/src/integrations/Amplitude/browser.js:init()` using helper getters from `packages/analytics-js-integrations/src/integrations/Amplitude/utils.js`.
 - The dedicated `pageViews` config key maps only to the Amplitude SDK `autocapture.pageViews` option; it intentionally does not affect Rudder `page()` translation gates such as `trackAllPages`, `trackCategorizedPages`, or `trackNamedPages`.
+
+## SDK-537 — Runtime Logger Level Updates
+
+- Runtime logger-level updates should keep `state.lifecycle.logLevel.value` synchronized with the logger's effective threshold; invalid `setLogLevel` and `loadOptions.logLevel` values normalize to `DEFAULT_LOG_LEVEL` (`LOG`) rather than preserving raw invalid input, matching existing `Logger.setMinLogLevel` fallback semantics (`packages/analytics-js/src/services/Logger/Logger.ts::Logger.setMinLogLevel`, `packages/analytics-js/src/components/configManager/ConfigManager.ts::ConfigManager`).
+- Modern v3 public facade methods that must be callable before CDN SDK load need explicit loading-script stubs in `packages/loading-scripts/src/index.ts`; after buffering, replay is generic through `consumePreloadBufferedEvent` when the core `Analytics` instance exposes a same-named method, as with preloaded `['setLogLevel', level]` calls (`packages/loading-scripts/src/index.ts`, `packages/analytics-js/src/components/core/Analytics.ts::Analytics.setLogLevel`).

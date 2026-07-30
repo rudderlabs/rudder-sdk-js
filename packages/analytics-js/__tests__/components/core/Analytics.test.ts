@@ -775,9 +775,11 @@ describe('Core - Analytics', () => {
       const dequeueSpy = jest
         .spyOn(analytics.preloadBuffer, 'dequeue')
         .mockImplementationOnce(() => ['page', { path: '/home' }])
-        .mockImplementationOnce(() => ['track', 'buttonClicked', { color: 'blue' }]);
+        .mockImplementationOnce(() => ['track', 'buttonClicked', { color: 'blue' }])
+        .mockImplementationOnce(() => ['setLogLevel', 'DEBUG']);
       jest
         .spyOn(analytics.preloadBuffer, 'size')
+        .mockImplementationOnce(() => 3)
         .mockImplementationOnce(() => 2)
         .mockImplementationOnce(() => 1)
         .mockImplementationOnce(() => 0);
@@ -787,13 +789,14 @@ describe('Core - Analytics', () => {
       const events = [
         ['page', { path: '/home' }],
         ['track', 'buttonClicked', { color: 'blue' }],
+        ['setLogLevel', 'DEBUG'],
       ];
 
       analytics.enqueuePreloadBufferEvents(events as any);
-      expect(enqueueSpy).toHaveBeenCalledTimes(2);
+      expect(enqueueSpy).toHaveBeenCalledTimes(3);
       analytics.processDataInPreloadBuffer();
 
-      expect(dequeueSpy).toHaveBeenCalledTimes(2);
+      expect(dequeueSpy).toHaveBeenCalledTimes(3);
       expect(pageSpy).toHaveBeenCalledWith({
         properties: { path: '/home' },
       });
@@ -801,6 +804,7 @@ describe('Core - Analytics', () => {
         name: 'buttonClicked',
         properties: { color: 'blue' },
       });
+      expect(state.lifecycle.logLevel.value).toBe('DEBUG');
     });
   });
 

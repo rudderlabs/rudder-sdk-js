@@ -32,6 +32,7 @@ import { getFormattedTimestamp } from '@rudderstack/analytics-js-common/utilitie
 import { dispatchErrorEvent } from '@rudderstack/analytics-js-common/utilities/errors';
 import { getSanitizedValue } from '@rudderstack/analytics-js-common/utilities/json';
 import type { ConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
+import type { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
 import { GLOBAL_PRELOAD_BUFFER } from '../constants/app';
 import {
   getPreloadedLoadEvent,
@@ -41,7 +42,7 @@ import type { PreloadedEventCall } from '../components/preloadBuffer/types';
 import { getExposedGlobal, setExposedGlobal } from '../components/utilities/globals';
 import type { IAnalytics } from '../components/core/IAnalytics';
 import { Analytics } from '../components/core/Analytics';
-import { defaultLogger } from '../services/Logger/Logger';
+import { defaultLogger, getEffectiveLogLevel } from '../services/Logger/Logger';
 import { PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING } from '../constants/logMessages';
 import { state } from '../state';
 import { defaultErrorHandler } from '../services/ErrorHandler';
@@ -102,6 +103,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
       this.setAuthToken = this.setAuthToken.bind(this);
       this.consent = this.consent.bind(this);
       this.addCustomIntegration = this.addCustomIntegration.bind(this);
+      this.setLogLevel = this.setLogLevel.bind(this);
 
       this.createSafeAnalyticsInstance();
 
@@ -660,6 +662,16 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
   consent(options?: ConsentOptions): void {
     try {
       this.getAnalyticsInstance()?.consent(getSanitizedValue(options));
+    } catch (error: any) {
+      dispatchErrorEvent(error);
+    }
+  }
+
+  setLogLevel(logLevel: LogLevel): void {
+    try {
+      const effectiveLogLevel = getEffectiveLogLevel(getSanitizedValue(logLevel));
+      state.lifecycle.logLevel.value = effectiveLogLevel;
+      this.logger.setMinLogLevel(effectiveLogLevel);
     } catch (error: any) {
       dispatchErrorEvent(error);
     }

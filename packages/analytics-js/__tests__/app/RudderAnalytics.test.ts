@@ -1,8 +1,10 @@
+import type { LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
 import type { LoadOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { RSACustomIntegration } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
 import { resetState, state } from '../../src/state';
 import { RudderAnalytics } from '../../src/app/RudderAnalytics';
 import { Analytics } from '../../src/components/core/Analytics';
+import { LOG_LEVEL_MAP } from '../../src/services/Logger/Logger';
 
 jest.mock('../../src/components/core/Analytics');
 
@@ -756,6 +758,50 @@ describe('Core - Rudder Analytics Facade', () => {
     dispatchEventSpy.mockRestore();
 
     getAnalyticsInstanceSpy.mockRestore();
+  });
+
+  it('should update lifecycle state and shared logger when setLogLevel is called', () => {
+    const setMinLogLevelSpy = jest.spyOn(rudderAnalytics.logger, 'setMinLogLevel');
+
+    rudderAnalytics.setLogLevel('DEBUG');
+
+    expect(state.lifecycle.logLevel.value).toBe('DEBUG');
+    expect(rudderAnalytics.logger.minLogLevel).toBe(LOG_LEVEL_MAP.DEBUG);
+    expect(setMinLogLevelSpy).toHaveBeenCalledWith('DEBUG');
+
+    setMinLogLevelSpy.mockRestore();
+  });
+
+  it('should use the default effective log level for invalid setLogLevel values', () => {
+    const setMinLogLevelSpy = jest.spyOn(rudderAnalytics.logger, 'setMinLogLevel');
+
+    rudderAnalytics.setLogLevel('dummy' as LogLevel);
+
+    expect(state.lifecycle.logLevel.value).toBe('LOG');
+    expect(rudderAnalytics.logger.minLogLevel).toBe(LOG_LEVEL_MAP.LOG);
+    expect(setMinLogLevelSpy).toHaveBeenCalledWith('LOG');
+
+    setMinLogLevelSpy.mockRestore();
+  });
+
+  it('should dispatch an error event if an exception is thrown during the setLogLevel call', () => {
+    const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+    const loggerSetMinLogLevelSpy = jest
+      .spyOn(rudderAnalytics.logger, 'setMinLogLevel')
+      .mockImplementation(() => {
+        throw new Error('Error in setMinLogLevel');
+      });
+
+    rudderAnalytics.setLogLevel('DEBUG');
+
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      new ErrorEvent('error', {
+        error: new Error('Error in setMinLogLevel'),
+      }),
+    );
+
+    dispatchEventSpy.mockRestore();
+    loggerSetMinLogLevelSpy.mockRestore();
   });
 
   it('should process addCustomIntegration arguments and forwards to addCustomIntegration call', () => {

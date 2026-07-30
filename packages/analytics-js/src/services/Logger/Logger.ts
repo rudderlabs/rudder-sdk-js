@@ -1,4 +1,4 @@
-import { isString, isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import type { ILogger, LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
 import type { LoggerProvider } from './types';
 
@@ -17,6 +17,14 @@ const LOG_MSG_PREFIX = 'RS SDK';
 const LOG_MSG_PREFIX_STYLE = 'font-weight: bold; background: black; color: white;';
 const LOG_MSG_STYLE = 'font-weight: normal;';
 
+const getEffectiveLogLevel = (logLevel: LogLevel): LogLevel => {
+  if (Object.prototype.hasOwnProperty.call(LOG_LEVEL_MAP, logLevel)) {
+    return logLevel;
+  }
+
+  return DEFAULT_LOG_LEVEL;
+};
+
 /**
  * Service to log messages/data to output provider, default is console
  */
@@ -26,7 +34,7 @@ class Logger implements ILogger {
   logProvider: LoggerProvider;
 
   constructor(minLogLevel: LogLevel = DEFAULT_LOG_LEVEL, scope = '', logProvider = console) {
-    this.minLogLevel = LOG_LEVEL_MAP[minLogLevel];
+    this.minLogLevel = LOG_LEVEL_MAP[getEffectiveLogLevel(minLogLevel)];
     this.scope = scope;
     this.logProvider = logProvider;
   }
@@ -63,13 +71,8 @@ class Logger implements ILogger {
     this.scope = scopeVal || this.scope;
   }
 
-  // TODO: should we allow to change the level via global variable on run time
-  //  to assist on the fly debugging?
   setMinLogLevel(logLevel: LogLevel) {
-    this.minLogLevel = LOG_LEVEL_MAP[logLevel];
-    if (isUndefined(this.minLogLevel)) {
-      this.minLogLevel = LOG_LEVEL_MAP[DEFAULT_LOG_LEVEL];
-    }
+    this.minLogLevel = LOG_LEVEL_MAP[getEffectiveLogLevel(logLevel)];
   }
 
   /**
@@ -116,6 +119,7 @@ const defaultLogger = new Logger();
 export {
   Logger,
   DEFAULT_LOG_LEVEL,
+  getEffectiveLogLevel,
   LOG_LEVEL_MAP,
   LOG_MSG_PREFIX,
   LOG_MSG_PREFIX_STYLE,

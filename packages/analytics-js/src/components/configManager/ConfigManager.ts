@@ -39,6 +39,7 @@ import {
   getDestinationsFromConfig,
 } from './util/commonUtil';
 import { METRICS_SERVICE_ENDPOINT } from './constants';
+import { getEffectiveLogLevel } from '../../services/Logger';
 
 class ConfigManager implements IConfigManager {
   httpClient: IHttpClient;
@@ -54,10 +55,10 @@ class ConfigManager implements IConfigManager {
     this.processConfig = this.processConfig.bind(this);
   }
 
-  attachEffects() {
-    effect(() => {
+  attachEffects(): () => void {
+    return effect(() => {
       this.logger.setMinLogLevel(state.lifecycle.logLevel.value);
-    });
+    }) as () => void;
   }
 
   /**
@@ -118,7 +119,7 @@ class ConfigManager implements IConfigManager {
       state.lifecycle.pluginsCDNPath.value = pluginsCDNPath;
 
       if (logLevel) {
-        state.lifecycle.logLevel.value = logLevel;
+        state.lifecycle.logLevel.value = getEffectiveLogLevel(logLevel);
       }
 
       state.lifecycle.sourceConfigUrl.value = getSourceConfigURL(

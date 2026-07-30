@@ -5,6 +5,7 @@ import {
   LOG_MSG_STYLE,
   LOG_LEVEL_MAP,
   Logger,
+  getEffectiveLogLevel,
 } from '../../../src/services/Logger/Logger';
 
 import SpyInstance = jest.SpyInstance;
@@ -200,5 +201,10 @@ describe('Logger', () => {
 
     loggerInstance.warn('dummy warn msg');
     expect(console.warn).toHaveBeenCalled();
+  });
+
+  it('should return the effective log level for valid and invalid inputs', () => {
+    expect(getEffectiveLogLevel('DEBUG')).toBe('DEBUG');
+    expect(getEffectiveLogLevel('dummy' as LogLevel)).toBe('LOG');
   });
 });

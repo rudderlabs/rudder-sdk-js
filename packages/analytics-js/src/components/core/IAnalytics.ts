@@ -1,5 +1,5 @@
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
-import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { ILogger, LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import type {
@@ -217,6 +217,11 @@ export interface IAnalytics {
    * To set auth token
    */
   setAuthToken(token: string): void;
+
+  /**
+   * To change the SDK logger level at runtime
+   */
+  setLogLevel(logLevel: LogLevel): void;
 
   /**
    * Add a custom integration for a custom destination

@@ -4,7 +4,7 @@ import { batch, effect } from '@preact/signals-core';
 import { isFunction, isNull } from '@rudderstack/analytics-js-common/utilities/checks';
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { clone } from 'ramda';
-import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { ILogger, LogLevel } from '@rudderstack/analytics-js-common/types/Logger';
 import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
@@ -32,7 +32,7 @@ import {
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
 import { BufferQueue } from '@rudderstack/analytics-js-common/services/BufferQueue/BufferQueue';
 import type { RSACustomIntegration } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
-import { POST_LOAD_LOG_LEVEL, defaultLogger } from '../../services/Logger';
+import { POST_LOAD_LOG_LEVEL, defaultLogger, getEffectiveLogLevel } from '../../services/Logger';
 import { defaultErrorHandler } from '../../services/ErrorHandler';
 import { defaultPluginEngine } from '../../services/PluginEngine';
 import { PluginsManager } from '../pluginsManager';
@@ -127,15 +127,21 @@ class Analytics implements IAnalytics {
     }
 
     // Set initial state values
+    const normalizedLoadOptions = normalizeLoadOptions(state.loadOptions.value, loadOptions);
+    const effectiveLogLevel = getEffectiveLogLevel(
+      normalizedLoadOptions.logLevel ?? POST_LOAD_LOG_LEVEL,
+    );
+
     batch(() => {
       state.lifecycle.writeKey.value = clone(writeKey);
       state.lifecycle.dataPlaneUrl.value = clone(dataPlaneUrl);
-      state.loadOptions.value = normalizeLoadOptions(state.loadOptions.value, loadOptions);
+      state.loadOptions.value = normalizedLoadOptions;
+      state.lifecycle.logLevel.value = effectiveLogLevel;
       state.lifecycle.status.value = 'mounted';
     });
 
     // set log level as early as possible
-    this.logger.setMinLogLevel(state.loadOptions.value.logLevel ?? POST_LOAD_LOG_LEVEL);
+    this.logger.setMinLogLevel(effectiveLogLevel);
 
     // Expose state to global objects
     setExposedGlobal('state', state, writeKey);
@@ -829,6 +835,10 @@ class Analytics implements IAnalytics {
 
   setAuthToken(token: string): void {
     this.userSessionManager?.setAuthToken(token);
+  }
+
+  setLogLevel(logLevel: LogLevel): void {
+    state.lifecycle.logLevel.value = getEffectiveLogLevel(logLevel);
   }
 
   /**

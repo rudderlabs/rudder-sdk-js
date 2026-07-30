@@ -206,6 +206,12 @@ export interface IRudderAnalytics<T = any> {
   consent(options?: ConsentOptions): void;
 
   /**
+   * To change the SDK logger level at runtime
+   * @param logLevel The logger level to apply
+   */
+  setLogLevel(logLevel: LogLevel): void;
+
+  /**
    * To add a custom integration for a custom destination
    * @param destinationId The ID of the custom destination from the RudderStack dashboard
    * @param integration The custom integration object

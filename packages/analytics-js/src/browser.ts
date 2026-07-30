@@ -26,6 +26,7 @@ const {
   consent,
   setAuthToken,
   addCustomIntegration,
+  setLogLevel,
 } = new RudderAnalytics();
 
 /*
@@ -54,4 +55,5 @@ export {
   consent,
   setAuthToken,
   addCustomIntegration,
+  setLogLevel,
 };

@@ -1,6 +1,7 @@
 export {
   Logger,
   DEFAULT_LOG_LEVEL,
+  getEffectiveLogLevel,
   LOG_LEVEL_MAP,
   defaultLogger,
   POST_LOAD_LOG_LEVEL,
