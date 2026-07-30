@@ -179,6 +179,16 @@ describe('Core - Rudder Analytics Facade', () => {
     loadSpy.mockRestore();
   });
 
+  it('loads a new analytics instance without optional load options', () => {
+    rudderAnalytics.analyticsInstances = {};
+    rudderAnalytics.defaultAnalyticsKey = '';
+
+    rudderAnalytics.load('writeKey', 'data-plane-url');
+    const analyticsInstance = rudderAnalytics.getAnalyticsInstance('writeKey') as Analytics;
+
+    expect(analyticsInstance.load).toHaveBeenCalledWith('writeKey', 'data-plane-url', undefined);
+  });
+
   it('extracts raw custom context without mutating the caller load options', () => {
     const capturedAt = new Date('2026-07-21T00:00:00.000Z');
     const loadOptions = {
