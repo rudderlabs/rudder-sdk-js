@@ -246,6 +246,30 @@ describe('RudderEventFactory', () => {
     });
   });
 
+  it.each([
+    ['page', { type: 'page', name: 'Custom context page' }],
+    ['track', { type: 'track', name: 'Custom context track' }],
+    ['identify', { type: 'identify', userId: 'custom-context-user' }],
+    ['group', { type: 'group', groupId: 'custom-context-group' }],
+    ['alias', { type: 'alias', to: 'custom-context-alias' }],
+  ] as Array<[string, APIEvent]>)('applies custom context to %s events', (_, apiEvent) => {
+    const event = rudderEventFactory.create(apiEvent, { surface: apiEvent.type });
+
+    expect(event.context).toMatchObject({ surface: apiEvent.type });
+  });
+
+  it('defaults custom context for direct event generators', () => {
+    const events = [
+      rudderEventFactory.generatePageEvent(),
+      rudderEventFactory.generateTrackEvent('Direct track'),
+      rudderEventFactory.generateIdentifyEvent(),
+      rudderEventFactory.generateGroupEvent(),
+      rudderEventFactory.generateAliasEvent('direct-alias'),
+    ];
+
+    events.forEach(event => expect(event.context).toBeDefined());
+  });
+
   it('should generate a track event if track event data is provided even without event name', () => {
     const apiEvent = {
       type: 'track',
