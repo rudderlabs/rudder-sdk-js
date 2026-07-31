@@ -1,5 +1,4 @@
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { CONTEXT_RESERVED_ELEMENTS } from '../../../src/components/eventManager/constants';
 import {
   filterReservedCustomContextKeys,
   prepareCustomContextUpdate,
@@ -260,7 +259,7 @@ describe('custom context utilities', () => {
     expect(logger.warn).toHaveBeenCalledTimes(2);
     expect(logger.warn).toHaveBeenNthCalledWith(
       1,
-      `CustomContext:: The "library" property defined under "custom context" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (${CONTEXT_RESERVED_ELEMENTS}).`,
+      'CustomContext:: The top-level custom context property "library" is reserved and was ignored.',
     );
     expect(logger.warn.mock.calls.flat().join(' ')).not.toContain(secretValue);
   });
