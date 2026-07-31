@@ -422,13 +422,20 @@ describe('ConfigManager', () => {
   });
 
   it('should fetch configuration from getSourceConfig load option even when it returns a promise', done => {
+    expect.assertions(1);
+
     state.loadOptions.value.getSourceConfig = () => Promise.resolve(dummySourceConfigResponse);
 
     configManagerInstance.getConfig();
 
     effect(() => {
       if (state.lifecycle.status.value === 'configured') {
-        done();
+        try {
+          expect(state.lifecycle.status.value).toBe('configured');
+          done();
+        } catch (error) {
+          done(error);
+        }
       }
     });
   });
