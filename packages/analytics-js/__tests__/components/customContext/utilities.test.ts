@@ -1,6 +1,9 @@
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONTEXT_RESERVED_ELEMENTS } from '../../../src/components/eventManager/constants';
-import { prepareCustomContextUpdate } from '../../../src/components/customContext';
+import {
+  filterReservedCustomContextKeys,
+  prepareCustomContextUpdate,
+} from '../../../src/components/customContext';
 
 class MockLogger implements ILogger {
   warn = jest.fn();
@@ -20,6 +23,20 @@ describe('custom context utilities', () => {
 
   beforeEach(() => {
     logger = new MockLogger();
+  });
+
+  it('copies retained keys without invoking the __proto__ setter', () => {
+    const input = JSON.parse('{"__proto__":{"polluted":true},"plan":"pro"}') as Record<
+      string,
+      unknown
+    >;
+
+    const retainedContext = filterReservedCustomContextKeys(input, logger);
+
+    expect(Object.getPrototypeOf(retainedContext)).toBe(Object.prototype);
+    expect(Object.hasOwn(retainedContext, '__proto__')).toBe(true);
+    expect(retainedContext['__proto__']).toEqual({ polluted: true });
+    expect(retainedContext.plan).toBe('pro');
   });
 
   it('returns retained values and segment-array deletion paths without marker-only branches', () => {
