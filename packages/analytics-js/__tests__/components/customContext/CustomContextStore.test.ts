@@ -1,4 +1,5 @@
 import { signal } from '@preact/signals-core';
+import type { CustomContextState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { CustomContext } from '@rudderstack/analytics-js-common/types/CustomContext';
 import { CustomContextStore } from '../../../src/components/customContext';
@@ -19,7 +20,7 @@ class MockLogger implements ILogger {
 describe('CustomContextStore', () => {
   let logger: MockLogger;
   let store: CustomContextStore;
-  let contextState: ReturnType<typeof signal<CustomContext>>;
+  let contextState: CustomContextState;
 
   beforeEach(() => {
     logger = new MockLogger();
