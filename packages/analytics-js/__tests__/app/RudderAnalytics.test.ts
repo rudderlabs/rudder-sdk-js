@@ -198,19 +198,6 @@ describe('Core - Rudder Analytics Facade', () => {
   });
 
   describe('custom context facade APIs', () => {
-    const customContextStoreMock = {
-      set: jest.fn(),
-      get: jest.fn(),
-      clear: jest.fn(),
-    };
-
-    beforeEach(() => {
-      customContextStoreMock.set.mockReset();
-      customContextStoreMock.get.mockReset();
-      customContextStoreMock.clear.mockReset();
-      (analyticsInstanceMock as any).customContextStore = customContextStoreMock;
-    });
-
     afterEach(() => {
       resetState();
     });
@@ -220,16 +207,16 @@ describe('Core - Rudder Analytics Facade', () => {
       const snapshot = { region: 'EU' };
       state.lifecycle.writeKey.value = 'writeKey';
       state.lifecycle.status.value = 'mounted';
-      customContextStoreMock.get.mockReturnValue(snapshot);
+      jest.mocked(analyticsInstanceMock.getCustomContext).mockReturnValue(snapshot);
 
       rudderAnalytics.setCustomContext(update);
       const result = rudderAnalytics.getCustomContext();
       rudderAnalytics.clearCustomContext();
 
-      expect(customContextStoreMock.set).toHaveBeenCalledWith(update);
-      expect(customContextStoreMock.get).toHaveBeenCalledTimes(1);
+      expect(analyticsInstanceMock.setCustomContext).toHaveBeenCalledWith(update);
+      expect(analyticsInstanceMock.getCustomContext).toHaveBeenCalledTimes(1);
       expect(result).toEqual(snapshot);
-      expect(customContextStoreMock.clear).toHaveBeenCalledTimes(1);
+      expect(analyticsInstanceMock.clearCustomContext).toHaveBeenCalledTimes(1);
     });
 
     it('does not route when the lifecycle write key does not match the default instance', () => {
@@ -242,9 +229,9 @@ describe('Core - Rudder Analytics Facade', () => {
       rudderAnalytics.clearCustomContext();
 
       expect(result).toEqual({});
-      expect(customContextStoreMock.set).not.toHaveBeenCalled();
-      expect(customContextStoreMock.get).not.toHaveBeenCalled();
-      expect(customContextStoreMock.clear).not.toHaveBeenCalled();
+      expect(analyticsInstanceMock.setCustomContext).not.toHaveBeenCalled();
+      expect(analyticsInstanceMock.getCustomContext).not.toHaveBeenCalled();
+      expect(analyticsInstanceMock.clearCustomContext).not.toHaveBeenCalled();
       expect(loggerWarnSpy).toHaveBeenCalledTimes(2);
     });
 
