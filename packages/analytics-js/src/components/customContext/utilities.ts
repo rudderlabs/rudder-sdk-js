@@ -12,12 +12,11 @@ import type {
   CustomContextDeletionPath,
   CustomContextValue,
   PreparedCustomContextUpdate,
+  UnknownContext,
 } from './types';
 
 const CUSTOM_CONTEXT = 'CustomContext';
 const PROTOTYPE_POLLUTION_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
-
-type UnknownContext = Record<string, unknown>;
 
 const objectConstructorSource = Function.prototype.toString.call(Object);
 
