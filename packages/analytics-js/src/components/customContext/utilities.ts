@@ -57,7 +57,6 @@ const isValidDate = (value: unknown): value is Date => {
 
 const containsPrototypePollutionKey = (
   value: unknown,
-  isRoot = false,
   visitedObjects = new Set<object>(),
 ): boolean => {
   if (!isObjectLiteralAndNotNull(value) && !Array.isArray(value)) {
@@ -72,13 +71,9 @@ const containsPrototypePollutionKey = (
   visitedObjects.add(traversableValue);
 
   return Object.keys(traversableValue).some(key => {
-    if (isRoot && CONTEXT_RESERVED_ELEMENTS.includes(key)) {
-      return false;
-    }
-
     return (
       PROTOTYPE_POLLUTION_KEYS.has(key) ||
-      containsPrototypePollutionKey(traversableValue[key], false, visitedObjects)
+      containsPrototypePollutionKey(traversableValue[key], visitedObjects)
     );
   });
 };
@@ -102,7 +97,12 @@ const filterReservedCustomContextKeys = (
       return;
     }
 
-    retainedContext[key] = context[key];
+    Object.defineProperty(retainedContext, key, {
+      configurable: true,
+      enumerable: true,
+      value: context[key],
+      writable: true,
+    });
   });
 
   return retainedContext;
@@ -203,12 +203,13 @@ const prepareCustomContextUpdate = (
     return undefined;
   }
 
-  if (containsPrototypePollutionKey(input, true)) {
+  const acceptedInput = filterReservedCustomContextKeys(input, logger);
+
+  if (containsPrototypePollutionKey(acceptedInput)) {
     logger.warn(INVALID_CUSTOM_CONTEXT_WARNING(CUSTOM_CONTEXT));
     return undefined;
   }
 
-  const acceptedInput = filterReservedCustomContextKeys(input, logger);
   const inspectedUpdate = inspectDeletionMarkers(acceptedInput, input);
   const sanitizedContext = getSanitizedValue(inspectedUpdate.context, logger);
 
