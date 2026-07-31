@@ -1,18 +1,5 @@
-import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import { Logger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
 import { prepareCustomContextUpdate } from '../../../src/components/customContext';
-
-class MockLogger implements ILogger {
-  warn = jest.fn();
-  log = jest.fn();
-  error = jest.fn();
-  info = jest.fn();
-  debug = jest.fn();
-  minLogLevel = 0;
-  scope = 'test scope';
-  setMinLogLevel = jest.fn();
-  setScope = jest.fn();
-  logProvider = console;
-}
 
 describe('custom context browser utilities', () => {
   it('accepts plain objects created with a different realm prototype', () => {
@@ -24,7 +11,7 @@ describe('custom context browser utilities', () => {
     });
 
     try {
-      expect(prepareCustomContextUpdate(crossRealmContext, new MockLogger())).toEqual({
+      expect(prepareCustomContextUpdate(crossRealmContext, new Logger())).toEqual({
         context: { region: 'EU' },
         deletionPaths: [],
       });
@@ -44,7 +31,7 @@ describe('custom context browser utilities', () => {
           occurredAt: crossRealmDate,
           milestones: [crossRealmDate],
         },
-        new MockLogger(),
+        new Logger(),
       )!;
 
       expect(result.context).toEqual({
