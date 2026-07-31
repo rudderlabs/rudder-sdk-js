@@ -18,7 +18,7 @@ import type {
 const CUSTOM_CONTEXT = 'CustomContext';
 const PROTOTYPE_POLLUTION_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
 
-const objectConstructorSource = Function.prototype.toString.call(Object);
+const OBJECT_CONSTRUCTOR_SOURCE = Function.prototype.toString.call(Object);
 
 const isPlainObject = (value: unknown): value is UnknownContext => {
   if (!isObjectLiteralAndNotNull(value)) {
@@ -37,7 +37,7 @@ const isPlainObject = (value: unknown): value is UnknownContext => {
   return (
     typeof constructor === 'function' &&
     constructor.prototype === prototype &&
-    Function.prototype.toString.call(constructor) === objectConstructorSource
+    Function.prototype.toString.call(constructor) === OBJECT_CONSTRUCTOR_SOURCE
   );
 };
 
