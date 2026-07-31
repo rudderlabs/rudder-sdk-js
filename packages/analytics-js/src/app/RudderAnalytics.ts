@@ -656,7 +656,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
         return;
       }
 
-      analyticsInstance.customContextStore.set(context);
+      analyticsInstance.setCustomContext(context);
     } catch (error: any) {
       dispatchErrorEvent(error);
     }
@@ -664,7 +664,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
 
   getCustomContext(): CustomContext {
     try {
-      return this.getAcceptedDefaultAnalyticsInstance()?.customContextStore.get() ?? {};
+      return this.getAcceptedDefaultAnalyticsInstance()?.getCustomContext() ?? {};
     } catch (error: any) {
       dispatchErrorEvent(error);
       return {};
@@ -679,7 +679,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
         return;
       }
 
-      analyticsInstance.customContextStore.clear();
+      analyticsInstance.clearCustomContext();
     } catch (error: any) {
       dispatchErrorEvent(error);
     }
