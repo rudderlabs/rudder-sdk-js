@@ -6,6 +6,8 @@ interface CustomContext {
 
 type CustomContextDeletionPath = string[];
 
+type UnknownContext = Record<string, unknown>;
+
 type PreparedCustomContextUpdate = {
   context: CustomContext;
   deletionPaths: CustomContextDeletionPath[];
@@ -19,4 +21,5 @@ export type {
   CustomContextSnapshot,
   CustomContextValue,
   PreparedCustomContextUpdate,
+  UnknownContext,
 };
