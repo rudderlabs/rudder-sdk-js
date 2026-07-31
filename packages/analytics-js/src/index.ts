@@ -15,8 +15,8 @@ export { type ApiCallback, type ApiOptions } from '@rudderstack/analytics-js-com
 export { type ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 export {
   type CustomContext,
-  type CustomContextUpdate,
-  type CustomContextUpdateValue,
+  type InputCustomContext,
+  type InputCustomContextValue,
   type CustomContextValue,
 } from '@rudderstack/analytics-js-common/types/CustomContext';
 export { type IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';

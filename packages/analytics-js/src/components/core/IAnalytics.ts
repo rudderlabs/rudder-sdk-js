@@ -22,7 +22,7 @@ import type { BufferQueue } from '@rudderstack/analytics-js-common/services/Buff
 import type { RSACustomIntegration } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
 import type {
   CustomContext,
-  CustomContextUpdate,
+  InputCustomContext,
 } from '@rudderstack/analytics-js-common/types/CustomContext';
 import type { Store } from '../../services/StoreManager';
 import type { IUserSessionManager } from '../userSessionManager/types';
@@ -201,7 +201,7 @@ export interface IAnalytics {
   /**
    * Merge fields into the current custom context
    */
-  setCustomContext(context: CustomContextUpdate): void;
+  setCustomContext(context: InputCustomContext): void;
 
   /**
    * Get a defensive snapshot of the current custom context
