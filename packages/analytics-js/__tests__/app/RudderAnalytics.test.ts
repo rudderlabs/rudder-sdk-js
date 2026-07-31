@@ -227,7 +227,8 @@ describe('Core - Rudder Analytics Facade', () => {
       rudderAnalytics.clearCustomContext();
 
       expect(customContextStoreMock.set).toHaveBeenCalledWith(update);
-      expect(result).toBe(snapshot);
+      expect(customContextStoreMock.get).toHaveBeenCalledTimes(1);
+      expect(result).toEqual(snapshot);
       expect(customContextStoreMock.clear).toHaveBeenCalledTimes(1);
     });
 
