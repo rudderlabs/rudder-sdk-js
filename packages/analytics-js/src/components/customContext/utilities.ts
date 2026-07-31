@@ -189,30 +189,35 @@ const prepareCustomContextUpdate = (
   input: unknown,
   logger: ILogger,
 ): PreparedCustomContextUpdate | undefined => {
-  if (!isPlainObject(input)) {
+  try {
+    if (!isPlainObject(input)) {
+      logger.warn(INVALID_CUSTOM_CONTEXT_WARNING(CUSTOM_CONTEXT));
+      return undefined;
+    }
+
+    const acceptedInput = filterReservedCustomContextKeys(input, logger);
+
+    if (containsPrototypePollutionKey(acceptedInput)) {
+      logger.warn(INVALID_CUSTOM_CONTEXT_WARNING(CUSTOM_CONTEXT));
+      return undefined;
+    }
+
+    const inspectedUpdate = inspectDeletionMarkers(acceptedInput, input);
+    const sanitizedContext = getSanitizedValue(inspectedUpdate.context, logger);
+
+    if (!isValidCustomContextValue(sanitizedContext)) {
+      logger.warn(INVALID_CUSTOM_CONTEXT_WARNING(CUSTOM_CONTEXT));
+      return undefined;
+    }
+
+    return {
+      context: clone(sanitizedContext as CustomContext),
+      deletionPaths: inspectedUpdate.deletionPaths.map(path => [...path]),
+    };
+  } catch {
     logger.warn(INVALID_CUSTOM_CONTEXT_WARNING(CUSTOM_CONTEXT));
     return undefined;
   }
-
-  const acceptedInput = filterReservedCustomContextKeys(input, logger);
-
-  if (containsPrototypePollutionKey(acceptedInput)) {
-    logger.warn(INVALID_CUSTOM_CONTEXT_WARNING(CUSTOM_CONTEXT));
-    return undefined;
-  }
-
-  const inspectedUpdate = inspectDeletionMarkers(acceptedInput, input);
-  const sanitizedContext = getSanitizedValue(inspectedUpdate.context, logger);
-
-  if (!isValidCustomContextValue(sanitizedContext)) {
-    logger.warn(INVALID_CUSTOM_CONTEXT_WARNING(CUSTOM_CONTEXT));
-    return undefined;
-  }
-
-  return {
-    context: clone(sanitizedContext as CustomContext),
-    deletionPaths: inspectedUpdate.deletionPaths.map(path => [...path]),
-  };
 };
 
 export { filterReservedCustomContextKeys, prepareCustomContextUpdate };

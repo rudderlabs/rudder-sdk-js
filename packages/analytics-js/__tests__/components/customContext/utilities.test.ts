@@ -136,6 +136,40 @@ describe('custom context utilities', () => {
     );
   });
 
+  it('fails closed when an enumerable property getter throws', () => {
+    const secretValue = 'must-not-appear-in-the-warning';
+    const input = Object.defineProperty({}, 'account', {
+      enumerable: true,
+      get: () => {
+        throw new Error(secretValue);
+      },
+    });
+
+    expect(prepareCustomContextUpdate(input, logger)).toBeUndefined();
+    expect(logger.warn).toHaveBeenCalledWith(
+      'CustomContext:: The custom context update is invalid. Use a plain object containing only supported context values.',
+    );
+    expect(logger.warn.mock.calls.flat().join(' ')).not.toContain(secretValue);
+  });
+
+  it('fails closed when a Proxy inspection trap throws', () => {
+    const secretValue = 'must-not-appear-in-the-warning';
+    const input = new Proxy(
+      {},
+      {
+        ownKeys: () => {
+          throw new Error(secretValue);
+        },
+      },
+    );
+
+    expect(prepareCustomContextUpdate(input, logger)).toBeUndefined();
+    expect(logger.warn).toHaveBeenCalledWith(
+      'CustomContext:: The custom context update is invalid. Use a plain object containing only supported context values.',
+    );
+    expect(logger.warn.mock.calls.flat().join(' ')).not.toContain(secretValue);
+  });
+
   it.each([
     ['a function', () => undefined],
     ['a symbol', Symbol('secret')],
