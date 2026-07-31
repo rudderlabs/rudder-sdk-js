@@ -34,7 +34,7 @@ import { getSanitizedValue } from '@rudderstack/analytics-js-common/utilities/js
 import type { ConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
 import type {
   CustomContext,
-  CustomContextUpdate,
+  InputCustomContext,
 } from '@rudderstack/analytics-js-common/types/CustomContext';
 import { GLOBAL_PRELOAD_BUFFER } from '../constants/app';
 import {
@@ -648,7 +648,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     }
   }
 
-  setCustomContext(context: CustomContextUpdate): void {
+  setCustomContext(context: InputCustomContext): void {
     try {
       const analyticsInstance = this.getAcceptedDefaultAnalyticsInstance();
       if (!analyticsInstance) {

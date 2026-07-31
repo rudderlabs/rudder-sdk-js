@@ -10,16 +10,16 @@ export interface CustomContext {
   [key: string]: CustomContextValue;
 }
 
-export type CustomContextUpdateValue =
+export type InputCustomContextValue =
   | string
   | number
   | boolean
   | Date
   | null
   | undefined
-  | CustomContextUpdate
+  | InputCustomContext
   | CustomContextValue[];
 
-export interface CustomContextUpdate {
-  [key: string]: CustomContextUpdateValue;
+export interface InputCustomContext {
+  [key: string]: InputCustomContextValue;
 }

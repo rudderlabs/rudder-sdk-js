@@ -8,7 +8,7 @@ import type { ConsentOptions } from './Consent';
 import type { IntegrationOpts } from './Integration';
 import type { RSAEvent } from './Event';
 import type { BaseDestinationConfig } from './Destination';
-import type { CustomContext, CustomContextUpdate } from './CustomContext';
+import type { CustomContext, InputCustomContext } from './CustomContext';
 
 export type AnalyticsIdentifyMethod = {
   (
@@ -182,7 +182,7 @@ export interface IRudderAnalytics<T = any> {
   /**
    * Merge fields into the in-memory custom context for subsequent event calls.
    */
-  setCustomContext(context: CustomContextUpdate): void;
+  setCustomContext(context: InputCustomContext): void;
 
   /**
    * Get a defensive snapshot of the current in-memory custom context.

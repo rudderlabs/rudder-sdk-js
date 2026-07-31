@@ -34,7 +34,7 @@ import { BufferQueue } from '@rudderstack/analytics-js-common/services/BufferQue
 import type { RSACustomIntegration } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
 import type {
   CustomContext,
-  CustomContextUpdate,
+  InputCustomContext,
 } from '@rudderstack/analytics-js-common/types/CustomContext';
 import { POST_LOAD_LOG_LEVEL, defaultLogger } from '../../services/Logger';
 import { defaultErrorHandler } from '../../services/ErrorHandler';
@@ -153,7 +153,7 @@ class Analytics implements IAnalytics {
     this.startLifecycle();
   }
 
-  setCustomContext(context: CustomContextUpdate): void {
+  setCustomContext(context: InputCustomContext): void {
     this.customContextStore.set(context);
   }
 
