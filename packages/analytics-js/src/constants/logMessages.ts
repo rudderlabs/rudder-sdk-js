@@ -155,6 +155,9 @@ const RESERVED_KEYWORD_WARNING = (
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The "${property}" property defined under "${parentKeyPath}" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (${reservedElements}).`;
 
+const RESERVED_CUSTOM_CONTEXT_KEY_WARNING = (logContext: string, property: string): string =>
+  `${logContext}${LOG_CONTEXT_SEPARATOR}The top-level custom context property "${property}" is reserved and was ignored.`;
+
 const INVALID_CONTEXT_OBJECT_WARNING = (logContext: string): string =>
   `${logContext}${LOG_CONTEXT_SEPARATOR}Please make sure that the "context" property in the event API's "options" argument is a valid object literal with key-value pairs.`;
 
@@ -279,6 +282,7 @@ export {
   UNSUPPORTED_STORAGE_ENCRYPTION_VERSION_WARNING,
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
   RESERVED_KEYWORD_WARNING,
+  RESERVED_CUSTOM_CONTEXT_KEY_WARNING,
   INVALID_CONTEXT_OBJECT_WARNING,
   INVALID_CUSTOM_CONTEXT_WARNING,
   UNSUPPORTED_BEACON_API_WARNING,

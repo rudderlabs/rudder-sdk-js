@@ -4,7 +4,7 @@ import { isObjectLiteralAndNotNull } from '@rudderstack/analytics-js-common/util
 import { clone } from 'ramda';
 import {
   INVALID_CUSTOM_CONTEXT_WARNING,
-  RESERVED_KEYWORD_WARNING,
+  RESERVED_CUSTOM_CONTEXT_KEY_WARNING,
 } from '../../constants/logMessages';
 import { CONTEXT_RESERVED_ELEMENTS } from '../eventManager/constants';
 import type {
@@ -15,7 +15,6 @@ import type {
 } from './types';
 
 const CUSTOM_CONTEXT = 'CustomContext';
-const CUSTOM_CONTEXT_PARENT_KEY_PATH = 'custom context';
 const PROTOTYPE_POLLUTION_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
 
 type UnknownContext = Record<string, unknown>;
@@ -86,14 +85,7 @@ const filterReservedCustomContextKeys = (
 
   Object.keys(context).forEach(key => {
     if (CONTEXT_RESERVED_ELEMENTS.includes(key)) {
-      logger.warn(
-        RESERVED_KEYWORD_WARNING(
-          CUSTOM_CONTEXT,
-          key,
-          CUSTOM_CONTEXT_PARENT_KEY_PATH,
-          CONTEXT_RESERVED_ELEMENTS,
-        ),
-      );
+      logger.warn(RESERVED_CUSTOM_CONTEXT_KEY_WARNING(CUSTOM_CONTEXT, key));
       return;
     }
 
