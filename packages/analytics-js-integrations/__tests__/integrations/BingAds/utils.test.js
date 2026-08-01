@@ -160,7 +160,21 @@ describe('Event ID utility tests', () => {
     });
   });
 
-  test('uses traits.event_id before other event_id sources', () => {
+  test('uses context.event_id before properties.event_id', () => {
+    const eventId = getEventId({
+      messageId: 'message-id',
+      context: {
+        event_id: 'context-event-id',
+      },
+      properties: {
+        event_id: 'properties-event-id',
+      },
+    });
+
+    expect(eventId).toEqual('context-event-id');
+  });
+
+  test('ignores event_id in traits', () => {
     const eventId = getEventId({
       messageId: 'message-id',
       traits: {
@@ -171,28 +185,10 @@ describe('Event ID utility tests', () => {
           event_id: 'context-traits-event-id',
         },
       },
-      properties: {
-        event_id: 'properties-event-id',
-      },
+      properties: {},
     });
 
-    expect(eventId).toEqual('traits-event-id');
-  });
-
-  test('uses context.traits.event_id before properties.event_id', () => {
-    const eventId = getEventId({
-      messageId: 'message-id',
-      context: {
-        traits: {
-          event_id: 'context-traits-event-id',
-        },
-      },
-      properties: {
-        event_id: 'properties-event-id',
-      },
-    });
-
-    expect(eventId).toEqual('context-traits-event-id');
+    expect(eventId).toEqual('message-id');
   });
 
   test('uses properties.event_id before messageId fallback', () => {

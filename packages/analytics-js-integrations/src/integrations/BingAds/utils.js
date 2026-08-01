@@ -29,10 +29,7 @@ const DEFAULT_PAGETYPE = 'other';
 
 function getEventId(message) {
   return (
-    get(message, 'traits.event_id') ||
-    get(message, 'context.traits.event_id') ||
-    get(message, 'properties.event_id') ||
-    message.messageId
+    get(message, 'context.event_id') || get(message, 'properties.event_id') || message.messageId
   );
 }
 

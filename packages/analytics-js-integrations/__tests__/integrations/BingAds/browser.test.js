@@ -316,6 +316,32 @@ describe('BingAds Track event', () => {
     });
   });
 
+  test('passes context.event_id as UET event_id', () => {
+    bingAds.track({
+      message: {
+        messageId: 'fallback-message-id',
+        type: 'track',
+        context: {
+          event_id: 'context-event-id',
+        },
+        event,
+        properties: {
+          event_action: 'button_click',
+          event_id: 'property-event-id',
+          customProp: 'custom',
+        },
+      },
+    });
+
+    expect(output[output.length - 1]).toEqual({
+      event: 'button_click',
+      event_label: event,
+      ecomm_pagetype: 'other',
+      customProp: 'custom',
+      event_id: 'context-event-id',
+    });
+  });
+
   test('uses messageId as event_id fallback', () => {
     bingAds.track({
       message: {
