@@ -1,50 +1,72 @@
-# Amplitude Guides & Surveys with RudderStack CDN
+# Amplitude Guides & Surveys with the RudderStack CDN
 
-This self-testing page demonstrates the supported initialization order for Amplitude Guides &
-Surveys with the RudderStack JavaScript SDK:
+This Vite and TypeScript sample demonstrates how to add Amplitude Guides & Surveys to the Amplitude
+Browser SDK v2 instance initialized by a RudderStack device-mode destination.
 
-1. Load RudderStack from the production v3 CDN.
-2. Let the Amplitude device-mode destination initialize Browser SDK v2.
-3. Wait for `rudderanalytics.ready()`.
-4. Load `API_KEY.engagement.js`.
-5. Register `window.engagement.plugin()` with the existing `window.amplitude` instance.
+The app presents a small product-adoption journey instead of a synthetic test screen. Its actions
+send `page` and `track` calls through RudderStack so they can be used as targeting signals for
+Guides & Surveys content configured in Amplitude.
 
-The default test uses an in-page RudderStack source configuration, so it does not require a
-RudderStack control-plane source or send RudderStack events. Pass an Amplitude client-side API key
-in the page URL; the example uses it for both the device-mode destination and Engagement bundle.
+## Prerequisites
 
-## Run
+Create or use a RudderStack JavaScript source with an Amplitude destination configured as follows:
 
-From the repository root:
+- Connection mode: **Device mode**
+- Amplitude Browser SDK version: **v2**
+- Replace device ID with anonymous ID: **Disabled** when preserving Amplitude's native device ID
+- API key: The same client-side key used by the Engagement bundle
+
+Do not initialize a second Amplitude Analytics instance. In particular, do not add another
+`amplitude.init()`, `engagement.init()`, or `engagement.boot()` call.
+
+## Run the app
+
+Install the dependencies and create a local environment file:
 
 ```sh
-python3 -m http.server 4173 --directory examples/integrations/Amplitude/guides-and-surveys-cdn
+npm install
+cp .env.example .env
 ```
 
-Open the page with an Amplitude client-side API key:
+Complete `.env` with the source and destination values:
 
 ```text
-http://127.0.0.1:4173/?apiKey=YOUR_AMPLITUDE_API_KEY
+VITE_RUDDERSTACK_WRITE_KEY=YOUR_WRITE_KEY
+VITE_RUDDERSTACK_DATA_PLANE_URL=https://YOUR_DATA_PLANE_URL
+VITE_RUDDERSTACK_CONFIG_URL=https://api.rudderstack.com
+VITE_AMPLITUDE_API_KEY=YOUR_AMPLITUDE_API_KEY
 ```
 
-The page verifies the CDN assets, plugin registration, and that the Amplitude device and user
-identifiers do not change when the Engagement plugin is added.
+Then start Vite:
 
-The full machine-readable result is also available as:
+```sh
+npm run dev
+```
+
+Open the local URL printed by Vite. Once the integrations are ready, use the three journey actions
+to send events that can target Amplitude content.
+
+## Integration sequence
+
+RudderStack loads Amplitude Browser SDK v2 as a device-mode destination. Only after the
+RudderStack ready callback fires does the sample load the project-specific Engagement bundle and
+register its plugin:
+
+```ts
+rudderanalytics.ready(async () => {
+  await loadScript(`https://cdn.amplitude.com/script/${AMPLITUDE_API_KEY}.engagement.js`);
+
+  await amplitude.add(window.engagement.plugin()).promise;
+});
+```
+
+The app's developer view reports the loaded SDK version, available targeted content, and Amplitude
+identity before and after plugin registration. The machine-readable initialization result is also
+available in the browser console:
 
 ```js
 await window.__AMPLITUDE_GUIDES_SURVEYS_TEST__;
 ```
 
-## Test with a real RudderStack source
-
-Configure an Amplitude device-mode destination with Browser SDK v2 and the same Amplitude API key,
-then pass the source details as query parameters:
-
-```text
-http://127.0.0.1:4173/?apiKey=YOUR_AMPLITUDE_API_KEY&writeKey=YOUR_WRITE_KEY&dataPlaneUrl=https%3A%2F%2FYOUR_DATA_PLANE_URL
-```
-
-When both parameters are present, the page fetches the real source configuration instead of using
-the local test fixture. Keep **Replace device ID with anonymous ID** disabled when validating
-identity continuity with an existing Amplitude Browser SDK device ID.
+Guides and surveys still need to be created, published, and targeted to this user or these events in
+the Amplitude project before content appears in the page.

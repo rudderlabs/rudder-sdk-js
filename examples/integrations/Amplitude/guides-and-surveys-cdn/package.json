@@ -1,0 +1,21 @@
+{
+  "name": "amplitude-guides-surveys-cdn-example",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "start": "vite --host 0.0.0.0",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "clean": "rm -rf node_modules dist",
+    "setup": "npm install",
+    "setup:ci": "npm ci",
+    "verify": "node ../../../utils/mock-servers/verify-with-mock.js .",
+    "clean:fresh": "npm run clean && rm -rf package-lock.json"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vite": "8.2.0"
+  }
+}

@@ -3,56 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Amplitude Guides &amp; Surveys via RudderStack CDN</title>
-    <link rel="stylesheet" href="./styles.css" />
+    <meta name="description" content="RudderStack CDN example for Amplitude Guides & Surveys" />
+    <meta name="theme-color" content="#f5f2ea" />
+    <title>Signal Studio · Amplitude Guides & Surveys</title>
   </head>
   <body>
-    <main>
-      <p class="eyebrow">RudderStack CDN integration test</p>
-      <h1>Amplitude Guides &amp; Surveys</h1>
-      <p class="lede">
-        This page lets RudderStack device mode initialize Amplitude Browser SDK v2, then loads
-        the Amplitude Engagement bundle and registers it from the RudderStack ready callback.
-      </p>
-
-      <section class="summary" aria-labelledby="summary-title">
-        <div>
-          <h2 id="summary-title">Test status</h2>
-          <p id="overall-status" class="status pending">Running…</p>
-        </div>
-        <dl>
-          <div>
-            <dt>Mode</dt>
-            <dd id="test-mode">Local source configuration</dd>
-          </div>
-          <div>
-            <dt>Amplitude project</dt>
-            <dd><code id="api-key"></code></dd>
-          </div>
-        </dl>
-      </section>
-
-      <section aria-labelledby="checks-title">
-        <h2 id="checks-title">Checks</h2>
-        <ol id="checks" class="checks"></ol>
-      </section>
-
-      <section aria-labelledby="identity-title">
-        <h2 id="identity-title">Identity snapshot</h2>
-        <pre id="identity">Waiting for Amplitude…</pre>
-      </section>
-
-      <details>
-        <summary>How the integration is registered</summary>
-        <pre><code>rudderanalytics.ready(async () =&gt; {
-  await loadScript(
-    `https://cdn.amplitude.com/script/${AMPLITUDE_API_KEY}.engagement.js`,
-  );
-  amplitude.add(window.engagement.plugin());
-});</code></pre>
-      </details>
-    </main>
-
-    <script src="./app.js"></script>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
