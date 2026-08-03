@@ -42,3 +42,7 @@
 <!-- linear:RUD-2781 -->
 
 - Root quality commands that delegate to Nx (for example lint/check scripts) depend on the workspace toolchain being installed so `nx` resolves at runtime; without provisioned dependencies these checks fail before actual lint/test evaluation.
+
+## AI-1258 — Dependency Lockfile Drift Blocks CI Installs
+
+- In this checkout, `npm ci --prefer-offline --no-audit --include=optional` fails before installing dependencies because `package.json` and `package-lock.json` are out of sync (`typescript@5.9.3` and `conventional-commits-filter@5.0.0` are missing from the lock file); root Jest/Nx validation therefore requires a synchronized lock file or a non-`ci` install path in similar environments.
