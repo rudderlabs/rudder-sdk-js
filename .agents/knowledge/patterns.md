@@ -26,3 +26,6 @@
 ## AI-1258 — Bing Ads Event ID Deduplication Tests
 
 - For Bing Ads event deduplication, pair browser-level payload tests with direct utility tests for `getEventId` precedence/exclusion so the FacebookPixel-compatible resolution order (`traits.event_id` → `context.traits.event_id` → `properties.event_id` → `messageId`) remains explicit and easier to diagnose if regressions occur (`packages/analytics-js-integrations/__tests__/integrations/BingAds/browser.test.js`, `packages/analytics-js-integrations/__tests__/integrations/BingAds/utils.test.js`).
+## ANA-123 — Sanity Suite SourceConfig Fixture Parity
+
+- Sanity-suite sourceConfig fixtures must mirror live sourceConfig destination configs exactly except explicitly ignored fields; Amplitude web device-mode fixture configs include flattened `config.sdkVersion: 1` after `config.residencyServer` in `packages/sanity-suite/__fixtures__/sourceConfig1.json` and `packages/sanity-suite/__fixtures__/sourceConfigDMT1.json`.
