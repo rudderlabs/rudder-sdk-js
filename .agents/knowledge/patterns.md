@@ -29,3 +29,8 @@
 ## ANA-123 — Sanity Suite SourceConfig Fixture Parity
 
 - Sanity-suite sourceConfig fixtures must mirror live sourceConfig destination configs exactly except explicitly ignored fields; Amplitude web device-mode fixture configs include flattened `config.sdkVersion: 1` after `config.residencyServer` in `packages/sanity-suite/__fixtures__/sourceConfig1.json` and `packages/sanity-suite/__fixtures__/sourceConfigDMT1.json`.
+
+## INT-6620 — DCM Floodlight Per-Event Fallbacks
+
+- DCM Floodlight device-mode per-event `floodlightActivityTag`, `floodlightGroupTag`, and `floodlightCountingMethod` should be treated as absent when blank or whitespace-only, then resolved independently with `?.trim() ||` the destination-level default (`packages/analytics-js-integrations/src/integrations/DCMFloodlight/browser.js`).
+- Per-track DCM Floodlight overrides should remain local values passed through the track flow rather than being written to `this.*`, so a persistent SPA integration instance does not carry one event's tags or counting method into later events (`packages/analytics-js-integrations/src/integrations/DCMFloodlight/browser.js`).

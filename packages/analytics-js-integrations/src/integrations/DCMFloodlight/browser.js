@@ -122,17 +122,14 @@ class DCMFloodlight {
       return;
     }
 
-    if (conversionEvent.floodlightActivityTag && conversionEvent.floodlightGroupTag) {
-      this.activityTag = conversionEvent.floodlightActivityTag.trim();
-      this.groupTag = conversionEvent.floodlightGroupTag.trim();
-      // use counting method from config only if activity and group tags are configure for given conversion event
-      if (conversionEvent.floodlightCountingMethod) {
-        this.countingMethod = conversionEvent.floodlightCountingMethod.trim();
-      }
-    }
+    const activityTag = conversionEvent.floodlightActivityTag?.trim() || this.activityTag;
+    const groupTag = conversionEvent.floodlightGroupTag?.trim() || this.groupTag;
 
     // Specifies how conversions will be counted for a Floodlight activity
-    let countingMethod = get(message, 'properties.countingMethod') || this.countingMethod;
+    let countingMethod =
+      get(message, 'properties.countingMethod') ||
+      conversionEvent.floodlightCountingMethod?.trim() ||
+      this.countingMethod;
     if (!countingMethod) {
       logger.error('countingMethod is required for track call');
       return;
@@ -152,13 +149,34 @@ class DCMFloodlight {
     customFloodlightVariable = removeUndefinedAndNullValues(customFloodlightVariable);
 
     if (this.tagFormat === GTAG) {
-      this.trackWithGtag(message, salesTag, customFloodlightVariable, countingMethod);
+      this.trackWithGtag(
+        message,
+        salesTag,
+        customFloodlightVariable,
+        countingMethod,
+        activityTag,
+        groupTag,
+      );
     } else {
-      this.trackWithIframe(message, salesTag, customFloodlightVariable, countingMethod);
+      this.trackWithIframe(
+        message,
+        salesTag,
+        customFloodlightVariable,
+        countingMethod,
+        activityTag,
+        groupTag,
+      );
     }
   }
 
-  trackWithGtag(message, salesTag, customFloodlightVariable, countingMethod) {
+  trackWithGtag(
+    message,
+    salesTag,
+    customFloodlightVariable,
+    countingMethod,
+    activityTag,
+    groupTag,
+  ) {
     let eventSnippetPayload = buildGtagTrackPayload(
       message,
       salesTag,
@@ -170,7 +188,7 @@ class DCMFloodlight {
       allow_custom_scripts: true,
       ...eventSnippetPayload,
       ...customFloodlightVariable,
-      send_to: `DC-${this.advertiserId}/${this.groupTag}/${this.activityTag}+${countingMethod}`,
+      send_to: `DC-${this.advertiserId}/${groupTag}/${activityTag}+${countingMethod}`,
     };
 
     eventSnippetPayload = removeUndefinedAndNullValues(eventSnippetPayload);
@@ -180,7 +198,14 @@ class DCMFloodlight {
     window.gtag('event', 'conversion', eventSnippetPayload);
   }
 
-  trackWithIframe(message, salesTag, customFloodlightVariable, countingMethod) {
+  trackWithIframe(
+    message,
+    salesTag,
+    customFloodlightVariable,
+    countingMethod,
+    activityTag,
+    groupTag,
+  ) {
     let eventSnippetPayload = buildIframeTrackPayload(
       message,
       salesTag,
@@ -194,7 +219,7 @@ class DCMFloodlight {
     };
     eventSnippetPayload = removeUndefinedAndNullValues(eventSnippetPayload);
     eventSnippetPayload = flattenPayload(eventSnippetPayload);
-    const src = `https://${this.advertiserId}.fls.doubleclick.net/activityi;src=${this.advertiserId};type=${this.groupTag};cat=${this.activityTag};${eventSnippetPayload}?`;
+    const src = `https://${this.advertiserId}.fls.doubleclick.net/activityi;src=${this.advertiserId};type=${groupTag};cat=${activityTag};${eventSnippetPayload}?`;
     this.addIframe(src);
   }
 

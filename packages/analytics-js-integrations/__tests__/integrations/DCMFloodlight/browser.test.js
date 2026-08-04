@@ -40,6 +40,37 @@ const config = {
       ],
     },
     {
+      eventName: 'groupOverrideOnlyEvent',
+      floodlightActivityTag: '',
+      floodlightGroupTag: 'conv01',
+      floodlightCountingMethod: 'standard',
+      salesTag: false,
+      customVariables: [],
+    },
+    {
+      eventName: 'globalFallbackEvent',
+      floodlightActivityTag: '',
+      floodlightGroupTag: '',
+      floodlightCountingMethod: 'standard',
+      salesTag: false,
+      customVariables: [],
+    },
+    {
+      eventName: 'groupOverrideWithUniqueCountingEvent',
+      floodlightActivityTag: '',
+      floodlightGroupTag: 'conv01',
+      floodlightCountingMethod: 'unique',
+      salesTag: false,
+      customVariables: [],
+    },
+    {
+      eventName: 'missingCountingMethodEvent',
+      floodlightActivityTag: 'signu03',
+      floodlightGroupTag: 'conv03',
+      salesTag: false,
+      customVariables: [],
+    },
+    {
       eventName: 'Viewed doc home page',
       floodlightActivityTag: 'signu01',
       floodlightGroupTag: 'conv02',
@@ -187,42 +218,147 @@ describe('track', () => {
     }
   });
 
-  it('should throw an error when counting method is missing from properties and config for given conversion event', () => {
+  it('should not send an event when counting method is missing from properties and config for given conversion event', () => {
     dcmFloodlight = new DCMFloodlight(config, { loglevel: 'debug' });
     dcmFloodlight.init();
     window.gtag = jest.fn();
-    try {
-      dcmFloodlight.track({
-        message: {
-          type: 'track',
-          event: 'testEvent3',
-          properties: {
-            name: 'test',
-          },
+    dcmFloodlight.track({
+      message: {
+        type: 'track',
+        event: 'missingCountingMethodEvent',
+        properties: {
+          name: 'test',
         },
-      });
-    } catch (error) {
-      expect(error).toEqual('countingMethod is required for track call');
-    }
+      },
+    });
+    expect(window.gtag).not.toHaveBeenCalled();
   });
 
-  it('should throw an error when counting method is present for given conversion event, but group tag for that given event is missing', () => {
+  it('should fall back to the global group tag when the conversion event group tag is missing', () => {
     dcmFloodlight = new DCMFloodlight(config, { loglevel: 'debug' });
     dcmFloodlight.init();
     window.gtag = jest.fn();
-    try {
-      dcmFloodlight.track({
-        message: {
-          type: 'track',
-          event: 'testEvent2',
-          properties: {
-            name: 'test',
-          },
+    dcmFloodlight.track({
+      message: {
+        type: 'track',
+        event: 'testEvent2',
+        properties: {
+          name: 'test',
         },
-      });
-    } catch (error) {
-      expect(error).toEqual('countingMethod is required for track call');
-    }
+      },
+    });
+    expect(window.gtag.mock.calls[0][2]).toEqual({
+      allow_custom_scripts: true,
+      send_to: 'DC-00000000/conv00/signu01+standard',
+    });
+  });
+
+  it('should fall back to the global activity tag when the conversion event activity tag is missing', () => {
+    dcmFloodlight = new DCMFloodlight(config, { loglevel: 'debug' });
+    dcmFloodlight.init();
+    window.gtag = jest.fn();
+    dcmFloodlight.track({
+      message: {
+        type: 'track',
+        event: 'groupOverrideOnlyEvent',
+        properties: {
+          name: 'test',
+        },
+      },
+    });
+    expect(window.gtag.mock.calls[0][2]).toEqual({
+      allow_custom_scripts: true,
+      send_to: 'DC-00000000/conv01/signu00+standard',
+    });
+  });
+
+  it('should use global tags when the conversion event tags are missing', () => {
+    dcmFloodlight = new DCMFloodlight(config, { loglevel: 'debug' });
+    dcmFloodlight.init();
+    window.gtag = jest.fn();
+    dcmFloodlight.track({
+      message: {
+        type: 'track',
+        event: 'globalFallbackEvent',
+        properties: {
+          name: 'test',
+        },
+      },
+    });
+    expect(window.gtag.mock.calls[0][2]).toEqual({
+      allow_custom_scripts: true,
+      send_to: 'DC-00000000/conv00/signu00+standard',
+    });
+  });
+
+  it('should not leak overridden conversion event tags to subsequent events', () => {
+    dcmFloodlight = new DCMFloodlight(config, { loglevel: 'debug' });
+    dcmFloodlight.init();
+    window.gtag = jest.fn();
+    dcmFloodlight.track({
+      message: {
+        type: 'track',
+        event: 'testEvent',
+        properties: {
+          name: 'test',
+        },
+      },
+    });
+    dcmFloodlight.track({
+      message: {
+        type: 'track',
+        event: 'globalFallbackEvent',
+        properties: {
+          name: 'test',
+        },
+      },
+    });
+    expect(window.gtag.mock.calls[0][2].send_to).toBe(
+      'DC-00000000/conv01/signu01+standard',
+    );
+    expect(window.gtag.mock.calls[1][2].send_to).toBe(
+      'DC-00000000/conv00/signu00+standard',
+    );
+  });
+
+  it('should use the conversion event counting method when only one conversion event tag is configured', () => {
+    dcmFloodlight = new DCMFloodlight(config, { loglevel: 'debug' });
+    dcmFloodlight.init();
+    window.gtag = jest.fn();
+    dcmFloodlight.track({
+      message: {
+        type: 'track',
+        event: 'groupOverrideWithUniqueCountingEvent',
+        properties: {
+          name: 'test',
+        },
+      },
+    });
+    expect(window.gtag.mock.calls[0][2]).toEqual({
+      allow_custom_scripts: true,
+      send_to: 'DC-00000000/conv01/signu00+unique',
+    });
+  });
+
+  it('should use independent tag fallbacks for iframe tags', () => {
+    dcmFloodlight = new DCMFloodlight(
+      { ...config, tagFormat: 'iframeTag' },
+      { loglevel: 'debug' },
+    );
+    dcmFloodlight.init();
+    dcmFloodlight.track({
+      message: {
+        type: 'track',
+        event: 'groupOverrideOnlyEvent',
+        properties: {
+          name: 'test',
+        },
+      },
+    });
+    const iframes = document.getElementsByTagName('iframe');
+    expect(iframes[iframes.length - 1].src).toContain(
+      ';type=conv01;cat=signu00;',
+    );
   });
 });
 
