@@ -811,6 +811,23 @@ describe('Core - Analytics', () => {
       );
       expect(addEventSpy).toHaveBeenNthCalledWith(3, { type: 'track', name: 'after-clear' }, {});
     });
+
+    it('retains a context snapshot supplied by a later internal buffering stage', () => {
+      analytics.prepareInternalServices();
+      const addEventSpy = jest.spyOn(analytics.eventManager!, 'addEvent');
+      state.eventBuffer.toBeProcessedArray.value = [
+        ['track', { name: 'internally-buffered' }, { version: 'captured' }],
+      ];
+      analytics.customContextStore.set({ version: 'current' });
+
+      state.lifecycle.loaded.value = true;
+      analytics.processBufferedEvents();
+
+      expect(addEventSpy).toHaveBeenCalledWith(
+        { type: 'track', name: 'internally-buffered' },
+        { version: 'captured' },
+      );
+    });
   });
 
   describe('identify', () => {
