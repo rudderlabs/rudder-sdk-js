@@ -202,11 +202,9 @@ describe('Core - Rudder Analytics Facade', () => {
       resetState();
     });
 
-    it('routes raw set/get/clear calls after a valid load is accepted', () => {
+    it('routes raw set/get/clear calls through the default analytics instance', () => {
       const update = { account: { plan: undefined }, capturedAt: new Date() };
       const snapshot = { region: 'EU' };
-      state.lifecycle.writeKey.value = 'writeKey';
-      state.lifecycle.status.value = 'mounted';
       jest.mocked(analyticsInstanceMock.getCustomContext).mockReturnValue(snapshot);
 
       rudderAnalytics.setCustomContext(update);
@@ -219,41 +217,22 @@ describe('Core - Rudder Analytics Facade', () => {
       expect(analyticsInstanceMock.clearCustomContext).toHaveBeenCalledTimes(1);
     });
 
-    it('does not route when the lifecycle write key does not match the default instance', () => {
-      const loggerWarnSpy = jest.spyOn(rudderAnalytics.logger, 'warn');
-      state.lifecycle.writeKey.value = 'otherWriteKey';
-      state.lifecycle.status.value = 'mounted';
-
-      rudderAnalytics.setCustomContext({ region: 'EU' });
-      const result = rudderAnalytics.getCustomContext();
-      rudderAnalytics.clearCustomContext();
-
-      expect(result).toEqual({});
-      expect(analyticsInstanceMock.setCustomContext).not.toHaveBeenCalled();
-      expect(analyticsInstanceMock.getCustomContext).not.toHaveBeenCalled();
-      expect(analyticsInstanceMock.clearCustomContext).not.toHaveBeenCalled();
-      expect(loggerWarnSpy).toHaveBeenCalledTimes(2);
-    });
-
-    it('does not lazily create an instance before a valid load is accepted', () => {
-      const loggerWarnSpy = jest.spyOn(rudderAnalytics.logger, 'warn');
+    it('uses a lazily created instance to buffer calls before load', () => {
+      const update = { region: 'EU' };
       rudderAnalytics.analyticsInstances = {};
 
-      rudderAnalytics.setCustomContext({ region: 'EU' });
+      rudderAnalytics.setCustomContext(update);
       const firstResult = rudderAnalytics.getCustomContext();
       const secondResult = rudderAnalytics.getCustomContext();
       rudderAnalytics.clearCustomContext();
 
-      expect(rudderAnalytics.analyticsInstances).toEqual({});
+      const analyticsInstance = rudderAnalytics.analyticsInstances.writeKey;
+      expect(analyticsInstance).toBeInstanceOf(Analytics);
+      expect(analyticsInstance?.setCustomContext).toHaveBeenCalledWith(update);
+      expect(analyticsInstance?.clearCustomContext).toHaveBeenCalledTimes(1);
       expect(firstResult).toEqual({});
       expect(secondResult).toEqual({});
       expect(firstResult).not.toBe(secondResult);
-      expect(loggerWarnSpy).toHaveBeenCalledWith(
-        'RudderStackAnalytics:: The "setCustomContext" API is unavailable before a valid load call is accepted.',
-      );
-      expect(loggerWarnSpy).toHaveBeenCalledWith(
-        'RudderStackAnalytics:: The "clearCustomContext" API is unavailable before a valid load call is accepted.',
-      );
     });
   });
 

@@ -61,11 +61,12 @@ describe('Core - Analytics', () => {
   });
 
   describe('custom context APIs', () => {
-    it('delegates set, get, and clear to the custom context store', () => {
+    it('delegates set, get, and clear to the custom context store after load', () => {
       const update = { region: 'EU' };
       const setSpy = jest.spyOn(analytics.customContextStore, 'set');
       const getSpy = jest.spyOn(analytics.customContextStore, 'get');
       const clearSpy = jest.spyOn(analytics.customContextStore, 'clear');
+      state.lifecycle.loaded.value = true;
 
       analytics.setCustomContext(update);
       expect(analytics.getCustomContext()).toEqual(update);
@@ -76,15 +77,82 @@ describe('Core - Analytics', () => {
       expect(clearSpy).toHaveBeenCalledTimes(1);
     });
 
+    it('buffers set and clear with event calls in invocation order before load', () => {
+      const update = { region: 'EU' };
+      const setSpy = jest.spyOn(analytics.customContextStore, 'set');
+      const clearSpy = jest.spyOn(analytics.customContextStore, 'clear');
+
+      analytics.setCustomContext(update);
+      analytics.track({ name: 'buffered-event' });
+      analytics.clearCustomContext();
+
+      expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([
+        ['setCustomContext', update],
+        ['track', { name: 'buffered-event' }],
+        ['clearCustomContext'],
+      ]);
+      expect(setSpy).not.toHaveBeenCalled();
+      expect(clearSpy).not.toHaveBeenCalled();
+
+      analytics.prepareInternalServices();
+      const addEventSpy = jest.spyOn(analytics.eventManager!, 'addEvent');
+      state.lifecycle.loaded.value = true;
+      analytics.processBufferedEvents();
+
+      expect(setSpy).toHaveBeenCalledWith(update);
+      expect(clearSpy).toHaveBeenCalledTimes(1);
+      expect(setSpy.mock.invocationCallOrder[0]).toBeLessThan(
+        addEventSpy.mock.invocationCallOrder[0]!,
+      );
+      expect(addEventSpy.mock.invocationCallOrder[0]).toBeLessThan(
+        clearSpy.mock.invocationCallOrder[0]!,
+      );
+      expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([]);
+    });
+
+    it('returns a fresh empty object while pre-load updates remain buffered', () => {
+      analytics.setCustomContext({ region: 'EU' });
+
+      const firstResult = analytics.getCustomContext();
+      const secondResult = analytics.getCustomContext();
+
+      expect(firstResult).toEqual({});
+      expect(secondResult).toEqual({});
+      expect(firstResult).not.toBe(secondResult);
+    });
+
+    it('keeps buffered custom context calls pending when load is invalid', () => {
+      const update = { region: 'EU' };
+      analytics.setCustomContext(update);
+
+      analytics.load('', 'invalid-url');
+
+      expect(state.lifecycle.status.value).toBeUndefined();
+      expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([
+        ['setCustomContext', update],
+      ]);
+      expect(analytics.getCustomContext()).toEqual({});
+    });
+
     it('replays preloaded set and clear calls against the Analytics instance in order', () => {
-      const setSpy = jest.spyOn(analytics, 'setCustomContext');
-      const clearSpy = jest.spyOn(analytics, 'clearCustomContext');
+      const setSpy = jest.spyOn(analytics.customContextStore, 'set');
+      const clearSpy = jest.spyOn(analytics.customContextStore, 'clear');
 
       analytics.enqueuePreloadBufferEvents([
         ['setCustomContext', { region: 'EU' }],
         ['clearCustomContext'],
       ]);
       analytics.processDataInPreloadBuffer();
+
+      expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([
+        ['setCustomContext', { region: 'EU' }],
+        ['clearCustomContext'],
+      ]);
+      expect(setSpy).not.toHaveBeenCalled();
+      expect(clearSpy).not.toHaveBeenCalled();
+
+      state.lifecycle.loaded.value = true;
+      analytics.processBufferedEvents();
 
       expect(setSpy).toHaveBeenCalledWith({ region: 'EU' });
       expect(clearSpy).toHaveBeenCalledTimes(1);
