@@ -301,6 +301,31 @@ describe('Core - Analytics', () => {
       expect(startLifecycleSpy).toHaveBeenCalledTimes(1);
     });
 
+    it('seeds load-time context before replaying buffered context updates', () => {
+      jest.spyOn(analytics, 'startLifecycle').mockImplementation();
+
+      analytics.setCustomContext({ account: { plan: 'pro' } });
+      analytics.load(
+        dummyWriteKey,
+        sampleDataPlaneUrl,
+        { logLevel: 'ERROR' },
+        { region: 'EU', account: { source: 'load' } },
+      );
+
+      expect(analytics.getCustomContext()).toEqual({
+        region: 'EU',
+        account: { source: 'load' },
+      });
+
+      state.lifecycle.loaded.value = true;
+      analytics.processBufferedEvents();
+
+      expect(analytics.getCustomContext()).toEqual({
+        region: 'EU',
+        account: { source: 'load', plan: 'pro' },
+      });
+    });
+
     it('continues loading with an empty store when initial custom context is invalid', () => {
       const startLifecycleSpy = jest.spyOn(analytics, 'startLifecycle').mockImplementation();
       const loggerWarnSpy = jest.spyOn(analytics.logger, 'warn');
