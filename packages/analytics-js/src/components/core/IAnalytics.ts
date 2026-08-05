@@ -32,7 +32,6 @@ import type { ICapabilitiesManager } from '../capabilitiesManager/types';
 import type { PreloadedEventCall } from '../preloadBuffer/types';
 import type { ConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
 import type { CustomContextStore } from '../customContext';
-import type { CustomContext } from '@rudderstack/analytics-js-common/types/CustomContext';
 
 export interface IAnalytics {
   preloadBuffer: BufferQueue<PreloadedEventCall>;
@@ -137,47 +136,27 @@ export interface IAnalytics {
   /**
    * To record a page view event
    */
-  page(
-    pageOptions: PageCallOptions,
-    isBufferedInvocation?: boolean,
-    preservedCustomContext?: CustomContext,
-  ): void;
+  page(pageOptions: PageCallOptions, isBufferedInvocation?: boolean): void;
 
   /**
    * To record a user track event
    */
-  track(
-    trackCallOptions: TrackCallOptions,
-    isBufferedInvocation?: boolean,
-    preservedCustomContext?: CustomContext,
-  ): void;
+  track(trackCallOptions: TrackCallOptions, isBufferedInvocation?: boolean): void;
 
   /**
    * To record a user identification event
    */
-  identify(
-    identifyCallOptions: IdentifyCallOptions,
-    isBufferedInvocation?: boolean,
-    preservedCustomContext?: CustomContext,
-  ): void;
+  identify(identifyCallOptions: IdentifyCallOptions, isBufferedInvocation?: boolean): void;
 
   /**
    * To record a user alias event
    */
-  alias(
-    aliasCallOptions: AliasCallOptions,
-    isBufferedInvocation?: boolean,
-    preservedCustomContext?: CustomContext,
-  ): void;
+  alias(aliasCallOptions: AliasCallOptions, isBufferedInvocation?: boolean): void;
 
   /**
    * To record a user group event
    */
-  group(
-    groupCallOptions: GroupCallOptions,
-    isBufferedInvocation?: boolean,
-    preservedCustomContext?: CustomContext,
-  ): void;
+  group(groupCallOptions: GroupCallOptions, isBufferedInvocation?: boolean): void;
 
   /**
    * To get anonymousId set in the SDK

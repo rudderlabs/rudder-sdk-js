@@ -75,10 +75,7 @@ import { getConsentManagementData, getValidPostConsentOptions } from '../utiliti
 import { dispatchSDKEvent, isDataPlaneUrlValid, isWriteKeyValid } from './utilities';
 import { safelyInvokeCallback } from '../utilities/callbacks';
 import type { ConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
-import type { CustomContext } from '@rudderstack/analytics-js-common/types/CustomContext';
 import { CustomContextStore } from '../customContext';
-
-const CUSTOM_CONTEXT_EVENT_METHODS = ['page', 'track', 'identify', 'alias', 'group'];
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events
@@ -424,12 +421,8 @@ class Analytics implements IAnalytics {
       if (bufferedEvent) {
         const methodName = bufferedEvent[0];
         if (isFunction((this as any)[methodName])) {
-          if (CUSTOM_CONTEXT_EVENT_METHODS.includes(methodName)) {
-            (this as any)[methodName](bufferedEvent[1], true, bufferedEvent[2]);
-          } else {
-            // Send additional arg 'true' to indicate that this is a buffered invocation
-            (this as any)[methodName](...bufferedEvent.slice(1), true);
-          }
+          // Send additional arg 'true' to indicate that this is a buffered invocation
+          (this as any)[methodName](...bufferedEvent.slice(1), true);
         }
       }
 
@@ -543,21 +536,18 @@ class Analytics implements IAnalytics {
     }
   }
 
-  page(
-    payload: PageCallOptions,
-    isBufferedInvocation = false,
-    preservedCustomContext?: CustomContext,
-  ) {
+  page(payload: PageCallOptions, isBufferedInvocation = false) {
     const type = 'page';
-    const invocationContext = preservedCustomContext ?? this.customContextStore.get();
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value = [
         ...state.eventBuffer.toBeProcessedArray.value,
-        [type, payload, invocationContext],
+        [type, payload],
       ];
       return;
     }
+
+    const invocationContext = this.customContextStore.get();
 
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
     state.metrics.triggered.value += 1;
@@ -597,21 +587,18 @@ class Analytics implements IAnalytics {
     }
   }
 
-  track(
-    payload: TrackCallOptions,
-    isBufferedInvocation = false,
-    preservedCustomContext?: CustomContext,
-  ) {
+  track(payload: TrackCallOptions, isBufferedInvocation = false) {
     const type = 'track';
-    const invocationContext = preservedCustomContext ?? this.customContextStore.get();
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value = [
         ...state.eventBuffer.toBeProcessedArray.value,
-        [type, payload, invocationContext],
+        [type, payload],
       ];
       return;
     }
+
+    const invocationContext = this.customContextStore.get();
 
     this.errorHandler.leaveBreadcrumb(`New ${type} event - ${payload.name}`);
     state.metrics.triggered.value += 1;
@@ -628,21 +615,18 @@ class Analytics implements IAnalytics {
     );
   }
 
-  identify(
-    payload: IdentifyCallOptions,
-    isBufferedInvocation = false,
-    preservedCustomContext?: CustomContext,
-  ) {
+  identify(payload: IdentifyCallOptions, isBufferedInvocation = false) {
     const type = 'identify';
-    const invocationContext = preservedCustomContext ?? this.customContextStore.get();
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value = [
         ...state.eventBuffer.toBeProcessedArray.value,
-        [type, payload, invocationContext],
+        [type, payload],
       ];
       return;
     }
+
+    const invocationContext = this.customContextStore.get();
 
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
     state.metrics.triggered.value += 1;
@@ -673,21 +657,18 @@ class Analytics implements IAnalytics {
     );
   }
 
-  alias(
-    payload: AliasCallOptions,
-    isBufferedInvocation = false,
-    preservedCustomContext?: CustomContext,
-  ) {
+  alias(payload: AliasCallOptions, isBufferedInvocation = false) {
     const type = 'alias';
-    const invocationContext = preservedCustomContext ?? this.customContextStore.get();
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value = [
         ...state.eventBuffer.toBeProcessedArray.value,
-        [type, payload, invocationContext],
+        [type, payload],
       ];
       return;
     }
+
+    const invocationContext = this.customContextStore.get();
 
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
     state.metrics.triggered.value += 1;
@@ -707,21 +688,18 @@ class Analytics implements IAnalytics {
     );
   }
 
-  group(
-    payload: GroupCallOptions,
-    isBufferedInvocation = false,
-    preservedCustomContext?: CustomContext,
-  ) {
+  group(payload: GroupCallOptions, isBufferedInvocation = false) {
     const type = 'group';
-    const invocationContext = preservedCustomContext ?? this.customContextStore.get();
 
     if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value = [
         ...state.eventBuffer.toBeProcessedArray.value,
-        [type, payload, invocationContext],
+        [type, payload],
       ];
       return;
     }
+
+    const invocationContext = this.customContextStore.get();
 
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
     state.metrics.triggered.value += 1;
