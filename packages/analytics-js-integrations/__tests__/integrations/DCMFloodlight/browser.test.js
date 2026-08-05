@@ -1,3 +1,4 @@
+import { errorMock } from '../../../__mocks__/logger';
 import { DCMFloodlight } from '../../../src/integrations/DCMFloodlight';
 
 const config = {
@@ -119,6 +120,7 @@ const destinationInfo = {
 };
 
 beforeEach(() => {
+  errorMock.mockClear();
   // Add a dummy script as it is required by the init script
   const scriptElement = document.createElement('script');
   scriptElement.type = 'text/javascript';
@@ -158,6 +160,66 @@ describe('track', () => {
     window.gtag = [];
   });
   let dcmFloodlight;
+
+  const invalidTagCases = [
+    {
+      description: 'no tags configured anywhere',
+      overrides: {
+        activityTag: undefined,
+        groupTag: undefined,
+      },
+      expectedError: 'groupTag is required for track call',
+    },
+    {
+      description: 'only the group tag is missing',
+      overrides: {
+        activityTag: 'signu00',
+        groupTag: undefined,
+      },
+      expectedError: 'groupTag is required for track call',
+    },
+    {
+      description: 'only the activity tag is missing',
+      overrides: {
+        activityTag: undefined,
+        groupTag: 'conv00',
+      },
+      expectedError: 'activityTag is required for track call',
+    },
+    {
+      description: 'the destination-level group tag is whitespace-only',
+      overrides: {
+        activityTag: 'signu00',
+        groupTag: '   ',
+      },
+      expectedError: 'groupTag is required for track call',
+    },
+  ];
+
+  const getInvalidTagConfig = overrides => ({
+    ...config,
+    ...overrides,
+    conversionEvents: [
+      {
+        eventName: 'tagValidationEvent',
+        floodlightActivityTag: '',
+        floodlightGroupTag: '',
+        floodlightCountingMethod: 'standard',
+        salesTag: false,
+        customVariables: [],
+      },
+    ],
+  });
+
+  const tagValidationPayload = {
+    message: {
+      type: 'track',
+      event: 'tagValidationEvent',
+      properties: {
+        name: 'test',
+      },
+    },
+  };
 
   it('should use the fallback counting method from config for matching conversion event when counting method is missing from properties', () => {
     dcmFloodlight = new DCMFloodlight(config, { loglevel: 'debug' });
@@ -313,12 +375,8 @@ describe('track', () => {
         },
       },
     });
-    expect(window.gtag.mock.calls[0][2].send_to).toBe(
-      'DC-00000000/conv01/signu01+standard',
-    );
-    expect(window.gtag.mock.calls[1][2].send_to).toBe(
-      'DC-00000000/conv00/signu00+standard',
-    );
+    expect(window.gtag.mock.calls[0][2].send_to).toBe('DC-00000000/conv01/signu01+standard');
+    expect(window.gtag.mock.calls[1][2].send_to).toBe('DC-00000000/conv00/signu00+standard');
   });
 
   it('should use the conversion event counting method when only one conversion event tag is configured', () => {
@@ -340,11 +398,44 @@ describe('track', () => {
     });
   });
 
+  it.each(invalidTagCases)(
+    'should not send a gtag event when $description',
+    ({ overrides, expectedError }) => {
+      dcmFloodlight = new DCMFloodlight(getInvalidTagConfig(overrides), {
+        loglevel: 'debug',
+      });
+      dcmFloodlight.init();
+      window.gtag = jest.fn();
+      dcmFloodlight.track(tagValidationPayload);
+
+      expect(errorMock).toHaveBeenCalledWith(expectedError);
+      expect(window.gtag).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(invalidTagCases)(
+    'should not append an iframe when $description',
+    ({ overrides, expectedError }) => {
+      dcmFloodlight = new DCMFloodlight(
+        getInvalidTagConfig({
+          ...overrides,
+          tagFormat: 'iframeTag',
+        }),
+        {
+          loglevel: 'debug',
+        },
+      );
+      dcmFloodlight.init();
+      const initialIframeCount = document.getElementsByTagName('iframe').length;
+      dcmFloodlight.track(tagValidationPayload);
+
+      expect(errorMock).toHaveBeenCalledWith(expectedError);
+      expect(document.getElementsByTagName('iframe').length).toBe(initialIframeCount);
+    },
+  );
+
   it('should use independent tag fallbacks for iframe tags', () => {
-    dcmFloodlight = new DCMFloodlight(
-      { ...config, tagFormat: 'iframeTag' },
-      { loglevel: 'debug' },
-    );
+    dcmFloodlight = new DCMFloodlight({ ...config, tagFormat: 'iframeTag' }, { loglevel: 'debug' });
     dcmFloodlight.init();
     dcmFloodlight.track({
       message: {
@@ -356,9 +447,7 @@ describe('track', () => {
       },
     });
     const iframes = document.getElementsByTagName('iframe');
-    expect(iframes[iframes.length - 1].src).toContain(
-      ';type=conv01;cat=signu00;',
-    );
+    expect(iframes[iframes.length - 1].src).toContain(';type=conv01;cat=signu00;');
   });
 });
 

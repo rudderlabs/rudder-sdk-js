@@ -122,8 +122,17 @@ class DCMFloodlight {
       return;
     }
 
-    const activityTag = conversionEvent.floodlightActivityTag?.trim() || this.activityTag;
-    const groupTag = conversionEvent.floodlightGroupTag?.trim() || this.groupTag;
+    const activityTag = conversionEvent.floodlightActivityTag?.trim() || this.activityTag?.trim();
+    const groupTag = conversionEvent.floodlightGroupTag?.trim() || this.groupTag?.trim();
+
+    if (!groupTag) {
+      logger.error('groupTag is required for track call');
+      return;
+    }
+    if (!activityTag) {
+      logger.error('activityTag is required for track call');
+      return;
+    }
 
     // Specifies how conversions will be counted for a Floodlight activity
     let countingMethod =
