@@ -147,24 +147,23 @@ class RudderEventFactory {
    */
   create(event: APIEvent, customContext: CustomContext = {}): RudderEvent {
     let eventObj: RudderEvent | undefined;
-    const ctx = customContext;
-    const { name, properties, options } = event;
-    switch (event.type) {
+    const { type, name, properties, options, category, userId, traits, to, from, groupId } = event;
+    switch (type) {
       case 'page':
-        eventObj = this.generatePageEvent(event.category, name, properties, options, ctx);
+        eventObj = this.generatePageEvent(category, name, properties, options, customContext);
         break;
       case 'track':
-        eventObj = this.generateTrackEvent(name as string, properties, options, ctx);
+        eventObj = this.generateTrackEvent(name as string, properties, options, customContext);
         break;
       case 'identify':
-        eventObj = this.generateIdentifyEvent(event.userId, event.traits, event.options, ctx);
+        eventObj = this.generateIdentifyEvent(userId, traits, options, customContext);
         break;
       case 'alias':
-        eventObj = this.generateAliasEvent(event.to as string, event.from, event.options, ctx);
+        eventObj = this.generateAliasEvent(to as string, from, options, customContext);
         break;
       case 'group':
       default:
-        eventObj = this.generateGroupEvent(event.groupId, event.traits, event.options, ctx);
+        eventObj = this.generateGroupEvent(groupId, traits, options, customContext);
         break;
     }
     return eventObj;
