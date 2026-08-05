@@ -62,9 +62,24 @@ describe('Test suite for the SDK', () => {
     'group-trait-key-2': 'group-trait-value-2',
   };
 
-  const loadSDKScript = () => {
-    loadingSnippet(dummyCDNHost, SDK_FILE_NAME, WRITE_KEY, DATA_PLANE_URL);
+  const loadSDKScript = (options = {}) => {
+    loadingSnippet(dummyCDNHost, SDK_FILE_NAME, WRITE_KEY, DATA_PLANE_URL, options);
   };
+
+  const getSentEvents = (): Record<string, any>[] =>
+    xhrMock.send.mock.calls
+      .map(([body]: [unknown]) => {
+        if (typeof body !== 'string') {
+          return undefined;
+        }
+
+        try {
+          return JSON.parse(body);
+        } catch {
+          return undefined;
+        }
+      })
+      .filter((body: Record<string, any> | undefined) => body?.event);
 
   const waitForSDKReady = async () => {
     const readyPromise = new Promise((resolve, reject) => {
@@ -110,6 +125,28 @@ describe('Test suite for the SDK', () => {
 
       // one source configuration request, one page request, and one track request
       expect(xhrMock.send).toHaveBeenCalledTimes(3);
+    });
+
+    it('applies load, set, and clear context in preload invocation order', async () => {
+      loadSDKScript({ context: { version: 'load-time' } });
+
+      window.rudderanalytics?.track('before-runtime-update');
+      window.rudderanalytics?.setCustomContext({ version: 'runtime' });
+      window.rudderanalytics?.track('after-runtime-update');
+      window.rudderanalytics?.clearCustomContext();
+      window.rudderanalytics?.track('after-clear');
+
+      await waitForSDKReady();
+
+      const eventsByName = Object.fromEntries(getSentEvents().map(event => [event.event, event]));
+
+      expect(eventsByName['before-runtime-update']?.context).toMatchObject({
+        version: 'load-time',
+      });
+      expect(eventsByName['after-runtime-update']?.context).toMatchObject({
+        version: 'runtime',
+      });
+      expect(eventsByName['after-clear']?.context).not.toHaveProperty('version');
     });
   });
 

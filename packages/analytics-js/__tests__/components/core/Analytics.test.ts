@@ -1089,12 +1089,9 @@ describe('Core - Analytics', () => {
         ['identify', 'preloaded-user', { source: 'query-string' }],
         ['track', 'preloaded-event', { source: 'preload-buffer' }],
       ]);
-      analytics.load(
-        dummyWriteKey,
-        dummyDataplaneURL,
-        {},
-        { region: 'EU', source: 'load-time' },
-      );
+      analytics.load(dummyWriteKey, dummyDataplaneURL, {
+        context: { region: 'EU', source: 'load-time' },
+      });
       state.lifecycle.loaded.value = true;
 
       analytics.processDataInPreloadBuffer();
