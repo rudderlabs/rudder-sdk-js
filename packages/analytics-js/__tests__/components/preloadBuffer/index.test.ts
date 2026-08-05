@@ -1,4 +1,5 @@
 import {
+  consumePreloadBufferedEvent,
   getEventDataFromQueryString,
   getPreloadedLoadEvent,
   promotePreloadedConsentEventsToTop,
@@ -112,6 +113,34 @@ describe('Preload Buffer', () => {
     ]);
 
     expect(analytics.load).toHaveBeenCalledTimes(0);
+  });
+
+  it('routes custom context and event calls through the analytics APIs in preload order', () => {
+    const callOrder: string[] = [];
+    const instance = {
+      setCustomContext: jest.fn(() => callOrder.push('set')),
+      clearCustomContext: jest.fn(() => callOrder.push('clear')),
+      track: jest.fn((event: { name: string }) => callOrder.push(`track:${event.name}`)),
+    };
+    const orderedCalls: PreloadedEventCall[] = [
+      ['track', 'before-update'],
+      ['setCustomContext', { version: 'runtime' }],
+      ['track', 'after-set'],
+      ['clearCustomContext'],
+      ['track', 'after-clear'],
+    ];
+
+    orderedCalls.forEach(call => consumePreloadBufferedEvent(call, instance as any));
+
+    expect(callOrder).toEqual([
+      'track:before-update',
+      'set',
+      'track:after-set',
+      'clear',
+      'track:after-clear',
+    ]);
+    expect(instance.setCustomContext).toHaveBeenCalledWith({ version: 'runtime' });
+    expect(instance.clearCustomContext).toHaveBeenCalledTimes(1);
   });
 
   it('should not buffer any events if no preload array or query params exist', () => {
