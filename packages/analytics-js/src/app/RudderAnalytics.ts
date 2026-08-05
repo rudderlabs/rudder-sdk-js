@@ -46,10 +46,7 @@ import { getExposedGlobal, setExposedGlobal } from '../components/utilities/glob
 import type { IAnalytics } from '../components/core/IAnalytics';
 import { Analytics } from '../components/core/Analytics';
 import { defaultLogger } from '../services/Logger/Logger';
-import {
-  CUSTOM_CONTEXT_API_BEFORE_LOAD_WARNING,
-  PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING,
-} from '../constants/logMessages';
+import { PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING } from '../constants/logMessages';
 import { state } from '../state';
 import { defaultErrorHandler } from '../services/ErrorHandler';
 import { defaultCookieStorage } from '../services/StoreManager/storages/CookieStorage';
@@ -199,20 +196,6 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
       dispatchErrorEvent(error);
       return undefined;
     }
-  }
-
-  /**
-   * Retrieve the current default instance only after a valid load call has been accepted.
-   * This path must not lazily create an Analytics instance.
-   */
-  private getAcceptedDefaultAnalyticsInstance(): IAnalytics | undefined {
-    const defaultInstance = this.analyticsInstances[this.defaultAnalyticsKey];
-    const hasAcceptedLoad =
-      defaultInstance !== undefined &&
-      state.lifecycle.writeKey.value === this.defaultAnalyticsKey &&
-      state.lifecycle.status.value !== undefined;
-
-    return hasAcceptedLoad ? defaultInstance : undefined;
   }
 
   /**
@@ -650,13 +633,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
 
   setCustomContext(context: InputCustomContext): void {
     try {
-      const analyticsInstance = this.getAcceptedDefaultAnalyticsInstance();
-      if (!analyticsInstance) {
-        this.logger.warn(CUSTOM_CONTEXT_API_BEFORE_LOAD_WARNING(RSA, 'setCustomContext'));
-        return;
-      }
-
-      analyticsInstance.setCustomContext(context);
+      this.getAnalyticsInstance()?.setCustomContext(context);
     } catch (error: any) {
       dispatchErrorEvent(error);
     }
@@ -664,7 +641,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
 
   getCustomContext(): CustomContext {
     try {
-      return this.getAcceptedDefaultAnalyticsInstance()?.getCustomContext() ?? {};
+      return this.getAnalyticsInstance()?.getCustomContext() ?? {};
     } catch (error: any) {
       dispatchErrorEvent(error);
       return {};
@@ -673,13 +650,7 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
 
   clearCustomContext(): void {
     try {
-      const analyticsInstance = this.getAcceptedDefaultAnalyticsInstance();
-      if (!analyticsInstance) {
-        this.logger.warn(CUSTOM_CONTEXT_API_BEFORE_LOAD_WARNING(RSA, 'clearCustomContext'));
-        return;
-      }
-
-      analyticsInstance.clearCustomContext();
+      this.getAnalyticsInstance()?.clearCustomContext();
     } catch (error: any) {
       dispatchErrorEvent(error);
     }

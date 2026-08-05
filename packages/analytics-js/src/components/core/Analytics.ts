@@ -154,6 +154,14 @@ class Analytics implements IAnalytics {
   }
 
   setCustomContext(context: InputCustomContext): void {
+    if (!state.lifecycle.loaded.value) {
+      state.eventBuffer.toBeProcessedArray.value = [
+        ...state.eventBuffer.toBeProcessedArray.value,
+        ['setCustomContext', context],
+      ];
+      return;
+    }
+
     this.customContextStore.set(context);
   }
 
@@ -162,6 +170,14 @@ class Analytics implements IAnalytics {
   }
 
   clearCustomContext(): void {
+    if (!state.lifecycle.loaded.value) {
+      state.eventBuffer.toBeProcessedArray.value = [
+        ...state.eventBuffer.toBeProcessedArray.value,
+        ['clearCustomContext'],
+      ];
+      return;
+    }
+
     this.customContextStore.clear();
   }
 
