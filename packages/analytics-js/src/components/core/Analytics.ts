@@ -75,7 +75,10 @@ import { getConsentManagementData, getValidPostConsentOptions } from '../utiliti
 import { dispatchSDKEvent, isDataPlaneUrlValid, isWriteKeyValid } from './utilities';
 import { safelyInvokeCallback } from '../utilities/callbacks';
 import type { ConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
+import type { CustomContext } from '@rudderstack/analytics-js-common/types/CustomContext';
 import { CustomContextStore } from '../customContext';
+
+const CUSTOM_CONTEXT_EVENT_METHODS = ['page', 'track', 'identify', 'alias', 'group'];
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events
@@ -423,8 +426,12 @@ class Analytics implements IAnalytics {
       if (bufferedEvent) {
         const methodName = bufferedEvent[0];
         if (isFunction((this as any)[methodName])) {
-          // Send additional arg 'true' to indicate that this is a buffered invocation
-          (this as any)[methodName](...bufferedEvent.slice(1), true);
+          if (CUSTOM_CONTEXT_EVENT_METHODS.includes(methodName) && bufferedEvent.length > 2) {
+            (this as any)[methodName](bufferedEvent[1], true, bufferedEvent[2]);
+          } else {
+            // Send additional arg 'true' to indicate that this is a buffered invocation
+            (this as any)[methodName](...bufferedEvent.slice(1), true);
+          }
         }
       }
 
@@ -538,7 +545,11 @@ class Analytics implements IAnalytics {
     }
   }
 
-  page(payload: PageCallOptions, isBufferedInvocation = false) {
+  page(
+    payload: PageCallOptions,
+    isBufferedInvocation = false,
+    preservedCustomContext?: CustomContext,
+  ) {
     const type = 'page';
 
     if (!state.lifecycle.loaded.value) {
@@ -549,7 +560,7 @@ class Analytics implements IAnalytics {
       return;
     }
 
-    const invocationContext = this.customContextStore.get();
+    const invocationContext = preservedCustomContext ?? this.customContextStore.get();
 
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
     state.metrics.triggered.value += 1;
@@ -589,7 +600,11 @@ class Analytics implements IAnalytics {
     }
   }
 
-  track(payload: TrackCallOptions, isBufferedInvocation = false) {
+  track(
+    payload: TrackCallOptions,
+    isBufferedInvocation = false,
+    preservedCustomContext?: CustomContext,
+  ) {
     const type = 'track';
 
     if (!state.lifecycle.loaded.value) {
@@ -600,7 +615,7 @@ class Analytics implements IAnalytics {
       return;
     }
 
-    const invocationContext = this.customContextStore.get();
+    const invocationContext = preservedCustomContext ?? this.customContextStore.get();
 
     this.errorHandler.leaveBreadcrumb(`New ${type} event - ${payload.name}`);
     state.metrics.triggered.value += 1;
@@ -617,7 +632,11 @@ class Analytics implements IAnalytics {
     );
   }
 
-  identify(payload: IdentifyCallOptions, isBufferedInvocation = false) {
+  identify(
+    payload: IdentifyCallOptions,
+    isBufferedInvocation = false,
+    preservedCustomContext?: CustomContext,
+  ) {
     const type = 'identify';
 
     if (!state.lifecycle.loaded.value) {
@@ -628,7 +647,7 @@ class Analytics implements IAnalytics {
       return;
     }
 
-    const invocationContext = this.customContextStore.get();
+    const invocationContext = preservedCustomContext ?? this.customContextStore.get();
 
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
     state.metrics.triggered.value += 1;
@@ -659,7 +678,11 @@ class Analytics implements IAnalytics {
     );
   }
 
-  alias(payload: AliasCallOptions, isBufferedInvocation = false) {
+  alias(
+    payload: AliasCallOptions,
+    isBufferedInvocation = false,
+    preservedCustomContext?: CustomContext,
+  ) {
     const type = 'alias';
 
     if (!state.lifecycle.loaded.value) {
@@ -670,7 +693,7 @@ class Analytics implements IAnalytics {
       return;
     }
 
-    const invocationContext = this.customContextStore.get();
+    const invocationContext = preservedCustomContext ?? this.customContextStore.get();
 
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
     state.metrics.triggered.value += 1;
@@ -690,7 +713,11 @@ class Analytics implements IAnalytics {
     );
   }
 
-  group(payload: GroupCallOptions, isBufferedInvocation = false) {
+  group(
+    payload: GroupCallOptions,
+    isBufferedInvocation = false,
+    preservedCustomContext?: CustomContext,
+  ) {
     const type = 'group';
 
     if (!state.lifecycle.loaded.value) {
@@ -701,7 +728,7 @@ class Analytics implements IAnalytics {
       return;
     }
 
-    const invocationContext = this.customContextStore.get();
+    const invocationContext = preservedCustomContext ?? this.customContextStore.get();
 
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
     state.metrics.triggered.value += 1;
