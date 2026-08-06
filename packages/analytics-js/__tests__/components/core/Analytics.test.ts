@@ -739,9 +739,7 @@ describe('Core - Analytics', () => {
   describe('page', () => {
     it('should buffer events until loaded', () => {
       analytics.page({ name: 'name' });
-      expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([
-        ['page', { name: 'name' }],
-      ]);
+      expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([['page', { name: 'name' }]]);
     });
     it('should sent events if loaded', () => {
       analytics.prepareInternalServices();
@@ -752,10 +750,13 @@ describe('Core - Analytics', () => {
       analytics.page({ name: 'name' });
       expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([]);
-      expect(addEventSpy).toHaveBeenCalledWith({
-        type: 'page',
-        name: 'name',
-      });
+      expect(addEventSpy).toHaveBeenCalledWith(
+        {
+          type: 'page',
+          name: 'name',
+        },
+        {},
+      );
     });
   });
 
@@ -775,10 +776,57 @@ describe('Core - Analytics', () => {
       analytics.track({ name: 'name' });
       expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([]);
-      expect(addEventSpy).toHaveBeenCalledWith({
-        type: 'track',
-        name: 'name',
-      });
+      expect(addEventSpy).toHaveBeenCalledWith(
+        {
+          type: 'track',
+          name: 'name',
+        },
+        {},
+      );
+    });
+
+    it('captures context when a buffered event reaches its ordered replay position', () => {
+      analytics.prepareInternalServices();
+      const addEventSpy = jest.spyOn(analytics.eventManager!, 'addEvent');
+
+      analytics.track({ name: 'before-update' });
+      analytics.setCustomContext({ version: 'updated' });
+      analytics.track({ name: 'after-update' });
+      analytics.clearCustomContext();
+      analytics.track({ name: 'after-clear' });
+
+      analytics.customContextStore.set({ version: 'load-time' });
+      state.lifecycle.loaded.value = true;
+      analytics.processBufferedEvents();
+
+      expect(addEventSpy).toHaveBeenNthCalledWith(
+        1,
+        { type: 'track', name: 'before-update' },
+        { version: 'load-time' },
+      );
+      expect(addEventSpy).toHaveBeenNthCalledWith(
+        2,
+        { type: 'track', name: 'after-update' },
+        { version: 'updated' },
+      );
+      expect(addEventSpy).toHaveBeenNthCalledWith(3, { type: 'track', name: 'after-clear' }, {});
+    });
+
+    it('retains a context snapshot supplied by a later internal buffering stage', () => {
+      analytics.prepareInternalServices();
+      const addEventSpy = jest.spyOn(analytics.eventManager!, 'addEvent');
+      state.eventBuffer.toBeProcessedArray.value = [
+        ['track', { name: 'internally-buffered' }, { version: 'captured' }],
+      ];
+      analytics.customContextStore.set({ version: 'current' });
+
+      state.lifecycle.loaded.value = true;
+      analytics.processBufferedEvents();
+
+      expect(addEventSpy).toHaveBeenCalledWith(
+        { type: 'track', name: 'internally-buffered' },
+        { version: 'captured' },
+      );
     });
   });
 
@@ -805,10 +853,13 @@ describe('Core - Analytics', () => {
       expect(setUserIdSpy).toHaveBeenCalledTimes(1);
       expect(setUserTraitsSpy).toHaveBeenCalledTimes(1);
       expect(resetSpy).toHaveBeenCalledTimes(0);
-      expect(addEventSpy).toHaveBeenCalledWith({
-        type: 'identify',
-        userId: 'userId',
-      });
+      expect(addEventSpy).toHaveBeenCalledWith(
+        {
+          type: 'identify',
+          userId: 'userId',
+        },
+        {},
+      );
     });
     it('should sent events if loaded and reset session if userID changed', () => {
       analytics.prepareInternalServices();
@@ -826,17 +877,22 @@ describe('Core - Analytics', () => {
       expect(setUserIdSpy).toHaveBeenCalledTimes(1);
       expect(setUserTraitsSpy).toHaveBeenCalledTimes(1);
       expect(resetSpy).toHaveBeenCalledTimes(1);
-      expect(addEventSpy).toHaveBeenCalledWith({
-        type: 'identify',
-        userId: 'userId',
-      });
+      expect(addEventSpy).toHaveBeenCalledWith(
+        {
+          type: 'identify',
+          userId: 'userId',
+        },
+        {},
+      );
     });
   });
 
   describe('alias', () => {
     it('should buffer events until loaded', () => {
       analytics.alias({ to: 'to' });
-      expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([['alias', { to: 'to' }]]);
+      expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([
+        ['alias', { to: 'to' }],
+      ]);
     });
     it('should sent events if loaded', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
@@ -849,11 +905,14 @@ describe('Core - Analytics', () => {
       analytics.alias({ to: 'to', from: 'x' });
       expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([]);
-      expect(addEventSpy).toHaveBeenCalledWith({
-        type: 'alias',
-        to: 'to',
-        from: 'x',
-      });
+      expect(addEventSpy).toHaveBeenCalledWith(
+        {
+          type: 'alias',
+          to: 'to',
+          from: 'x',
+        },
+        {},
+      );
     });
 
     it('should use the user ID if from is not provided', () => {
@@ -865,11 +924,14 @@ describe('Core - Analytics', () => {
 
       analytics.alias({ to: 'to' });
 
-      expect(addEventSpy).toHaveBeenCalledWith({
-        type: 'alias',
-        to: 'to',
-        from: 'userId',
-      });
+      expect(addEventSpy).toHaveBeenCalledWith(
+        {
+          type: 'alias',
+          to: 'to',
+          from: 'userId',
+        },
+        {},
+      );
     });
 
     it('should use the anonymous ID if user ID is not set', () => {
@@ -881,11 +943,14 @@ describe('Core - Analytics', () => {
 
       analytics.alias({ to: 'to' });
 
-      expect(addEventSpy).toHaveBeenCalledWith({
-        type: 'alias',
-        to: 'to',
-        from: 'test_uuid',
-      });
+      expect(addEventSpy).toHaveBeenCalledWith(
+        {
+          type: 'alias',
+          to: 'to',
+          from: 'test_uuid',
+        },
+        {},
+      );
     });
   });
 
@@ -915,10 +980,13 @@ describe('Core - Analytics', () => {
       expect(setGroupIdIdSpy).toHaveBeenCalledTimes(1);
       expect(setGroupTraitsSpy).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([]);
-      expect(addEventSpy).toHaveBeenCalledWith({
-        type: 'group',
-        groupId: 'groupId',
-      });
+      expect(addEventSpy).toHaveBeenCalledWith(
+        {
+          type: 'group',
+          groupId: 'groupId',
+        },
+        {},
+      );
     });
   });
 

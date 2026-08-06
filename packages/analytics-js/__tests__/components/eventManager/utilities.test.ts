@@ -699,7 +699,7 @@ describe('Event Manager - Utilities', () => {
       });
     });
 
-    it('should skip merging into context if options contain either top-level or context reserved elements', () => {
+    it('should warn and skip reserved context elements from both supported options shapes', () => {
       // Set specific contextual data in options to override
       // Include top-level elements and reserved elements in options and options context object
       // which should be skipped
@@ -707,6 +707,9 @@ describe('Event Manager - Utilities', () => {
         newContextKey1: 'newContextValue1',
         anonymousId: 'test_anon_id',
         originalTimestamp: '2020-01-01T00:00:00.000Z',
+        library: {
+          name: 'wrapper-free override',
+        },
         context: {
           campaign: {
             name: 'test1',
@@ -721,15 +724,11 @@ describe('Event Manager - Utilities', () => {
             width: 100,
             height: 200,
           },
-          library: {
-            name: 'test1',
-            isNew: true,
-          },
           'ua-ch': {},
         },
       };
 
-      const mergedContext = getMergedContext(defaultContext, apiOptions);
+      const mergedContext = getMergedContext(defaultContext, apiOptions, mockLogger);
 
       expect(mergedContext).toEqual({
         library: {
@@ -757,6 +756,27 @@ describe('Event Manager - Utilities', () => {
         },
         userAgent: 'defaultUA',
       });
+      expect(mockLogger.warn).toHaveBeenCalledTimes(5);
+      expect(mockLogger.warn).toHaveBeenNthCalledWith(
+        1,
+        'CustomContext:: The top-level custom context property "library" is reserved and was ignored.',
+      );
+      expect(mockLogger.warn).toHaveBeenNthCalledWith(
+        2,
+        'CustomContext:: The top-level custom context property "consentManagement" is reserved and was ignored.',
+      );
+      expect(mockLogger.warn).toHaveBeenNthCalledWith(
+        3,
+        'CustomContext:: The top-level custom context property "userAgent" is reserved and was ignored.',
+      );
+      expect(mockLogger.warn).toHaveBeenNthCalledWith(
+        4,
+        'CustomContext:: The top-level custom context property "screen" is reserved and was ignored.',
+      );
+      expect(mockLogger.warn).toHaveBeenNthCalledWith(
+        5,
+        'CustomContext:: The top-level custom context property "ua-ch" is reserved and was ignored.',
+      );
     });
 
     it('should log warning if the context inside the options is not a valid object', () => {

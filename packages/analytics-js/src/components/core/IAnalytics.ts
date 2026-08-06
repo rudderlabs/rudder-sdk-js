@@ -136,27 +136,47 @@ export interface IAnalytics {
   /**
    * To record a page view event
    */
-  page(pageOptions: PageCallOptions, isBufferedInvocation?: boolean): void;
+  page(
+    pageOptions: PageCallOptions,
+    isBufferedInvocation?: boolean,
+    preservedCustomContext?: CustomContext,
+  ): void;
 
   /**
    * To record a user track event
    */
-  track(trackCallOptions: TrackCallOptions, isBufferedInvocation?: boolean): void;
+  track(
+    trackCallOptions: TrackCallOptions,
+    isBufferedInvocation?: boolean,
+    preservedCustomContext?: CustomContext,
+  ): void;
 
   /**
    * To record a user identification event
    */
-  identify(identifyCallOptions: IdentifyCallOptions, isBufferedInvocation?: boolean): void;
+  identify(
+    identifyCallOptions: IdentifyCallOptions,
+    isBufferedInvocation?: boolean,
+    preservedCustomContext?: CustomContext,
+  ): void;
 
   /**
    * To record a user alias event
    */
-  alias(aliasCallOptions: AliasCallOptions, isBufferedInvocation?: boolean): void;
+  alias(
+    aliasCallOptions: AliasCallOptions,
+    isBufferedInvocation?: boolean,
+    preservedCustomContext?: CustomContext,
+  ): void;
 
   /**
    * To record a user group event
    */
-  group(groupCallOptions: GroupCallOptions, isBufferedInvocation?: boolean): void;
+  group(
+    groupCallOptions: GroupCallOptions,
+    isBufferedInvocation?: boolean,
+    preservedCustomContext?: CustomContext,
+  ): void;
 
   /**
    * To get anonymousId set in the SDK

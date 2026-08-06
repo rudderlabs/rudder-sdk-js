@@ -5,6 +5,7 @@ import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import type { ApiOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 import type { RudderContext, RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import type { CustomContext } from '@rudderstack/analytics-js-common/types/CustomContext';
 import type { IntegrationOpts } from '@rudderstack/analytics-js-common/types/Integration';
 import {
   isNonEmptyObject,
@@ -22,12 +23,8 @@ import {
   INVALID_CONTEXT_OBJECT_WARNING,
   RESERVED_KEYWORD_WARNING,
 } from '../../constants/logMessages';
-import {
-  CHANNEL,
-  CONTEXT_RESERVED_ELEMENTS,
-  RESERVED_ELEMENTS,
-  TOP_LEVEL_ELEMENTS,
-} from './constants';
+import { CHANNEL, RESERVED_ELEMENTS, TOP_LEVEL_ELEMENTS } from './constants';
+import { filterReservedCustomContextKeys } from '../customContext';
 import { getDefaultPageProperties } from '../utilities/page';
 import { extractUTMParameters } from '../utilities/url';
 import { generateAnonymousId, isStorageTypeValidForStoringData } from '../userSessionManager/utils';
@@ -163,21 +160,17 @@ const getMergedContext = (
 ): RudderContext => {
   let context = rudderContext;
   Object.keys(options).forEach(key => {
-    if (!TOP_LEVEL_ELEMENTS.includes(key) && !CONTEXT_RESERVED_ELEMENTS.includes(key)) {
+    if (!TOP_LEVEL_ELEMENTS.includes(key)) {
       if (key !== 'context') {
-        context = mergeDeepRight(context, {
-          [key]: options[key],
-        });
+        context = mergeDeepRight(
+          context,
+          filterReservedCustomContextKeys({ [key]: options[key] }, logger),
+        );
       } else if (!isUndefined(options[key]) && isObjectLiteralAndNotNull(options[key])) {
-        const tempContext: Record<string, any> = {};
-        Object.keys(options[key] as Record<string, any>).forEach(e => {
-          if (!CONTEXT_RESERVED_ELEMENTS.includes(e)) {
-            tempContext[e] = (options[key] as Record<string, any>)[e];
-          }
-        });
-        context = mergeDeepRight(context, {
-          ...tempContext,
-        });
+        context = mergeDeepRight(
+          context,
+          filterReservedCustomContextKeys(options[key] as Record<string, unknown>, logger),
+        );
       } else {
         logger.warn(INVALID_CONTEXT_OBJECT_WARNING(EVENT_MANAGER));
       }
@@ -237,6 +230,7 @@ const getEnrichedEvent = (
   options: Nullable<ApiOptions> | undefined,
   pageProps: ApiObject | undefined,
   logger: ILogger,
+  customContext: CustomContext = {},
 ): RudderEvent => {
   const commonEventData = {
     channel: CHANNEL,
@@ -314,7 +308,10 @@ const getEnrichedEvent = (
     }
   }
 
-  const processedEvent = mergeDeepRight(rudderEvent, commonEventData) as RudderEvent;
+  const sdkBuiltEvent = mergeDeepRight(rudderEvent, commonEventData) as RudderEvent;
+  const processedEvent = mergeDeepRight(sdkBuiltEvent, {
+    context: customContext,
+  }) as RudderEvent;
   // Set the default values for the event properties
   // matching with v1.1 payload
   if (processedEvent.event === undefined) {
