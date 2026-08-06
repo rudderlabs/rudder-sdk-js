@@ -75,7 +75,6 @@ import { getConsentManagementData, getValidPostConsentOptions } from '../utiliti
 import { dispatchSDKEvent, isDataPlaneUrlValid, isWriteKeyValid } from './utilities';
 import { safelyInvokeCallback } from '../utilities/callbacks';
 import type { ConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
-import type { CustomContext } from '@rudderstack/analytics-js-common/types/CustomContext';
 import { CustomContextStore } from '../customContext';
 
 const CUSTOM_CONTEXT_EVENT_METHODS = ['page', 'track', 'identify', 'alias', 'group'];

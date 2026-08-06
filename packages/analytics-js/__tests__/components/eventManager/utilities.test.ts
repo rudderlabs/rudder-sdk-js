@@ -759,23 +759,23 @@ describe('Event Manager - Utilities', () => {
       expect(mockLogger.warn).toHaveBeenCalledTimes(5);
       expect(mockLogger.warn).toHaveBeenNthCalledWith(
         1,
-        'CustomContext:: The "library" property defined under "custom context" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (library,consentManagement,userAgent,ua-ch,screen).',
+        'CustomContext:: The top-level custom context property "library" is reserved and was ignored.',
       );
       expect(mockLogger.warn).toHaveBeenNthCalledWith(
         2,
-        'CustomContext:: The "consentManagement" property defined under "custom context" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (library,consentManagement,userAgent,ua-ch,screen).',
+        'CustomContext:: The top-level custom context property "consentManagement" is reserved and was ignored.',
       );
       expect(mockLogger.warn).toHaveBeenNthCalledWith(
         3,
-        'CustomContext:: The "userAgent" property defined under "custom context" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (library,consentManagement,userAgent,ua-ch,screen).',
+        'CustomContext:: The top-level custom context property "userAgent" is reserved and was ignored.',
       );
       expect(mockLogger.warn).toHaveBeenNthCalledWith(
         4,
-        'CustomContext:: The "screen" property defined under "custom context" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (library,consentManagement,userAgent,ua-ch,screen).',
+        'CustomContext:: The top-level custom context property "screen" is reserved and was ignored.',
       );
       expect(mockLogger.warn).toHaveBeenNthCalledWith(
         5,
-        'CustomContext:: The "ua-ch" property defined under "custom context" is a reserved keyword. Please choose a different property name to avoid conflicts with reserved keywords (library,consentManagement,userAgent,ua-ch,screen).',
+        'CustomContext:: The top-level custom context property "ua-ch" is reserved and was ignored.',
       );
     });
 
