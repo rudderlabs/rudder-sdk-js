@@ -197,6 +197,45 @@ describe('Core - Rudder Analytics Facade', () => {
     dispatchEventSpy.mockRestore();
   });
 
+  describe('custom context facade APIs', () => {
+    afterEach(() => {
+      resetState();
+    });
+
+    it('routes raw set/get/clear calls through the default analytics instance', () => {
+      const update = { account: { plan: undefined }, capturedAt: new Date() };
+      const snapshot = { region: 'EU' };
+      jest.mocked(analyticsInstanceMock.getCustomContext).mockReturnValue(snapshot);
+
+      rudderAnalytics.setCustomContext(update);
+      const result = rudderAnalytics.getCustomContext();
+      rudderAnalytics.clearCustomContext();
+
+      expect(analyticsInstanceMock.setCustomContext).toHaveBeenCalledWith(update);
+      expect(analyticsInstanceMock.getCustomContext).toHaveBeenCalledTimes(1);
+      expect(result).toEqual(snapshot);
+      expect(analyticsInstanceMock.clearCustomContext).toHaveBeenCalledTimes(1);
+    });
+
+    it('uses a lazily created instance to buffer calls before load', () => {
+      const update = { region: 'EU' };
+      rudderAnalytics.analyticsInstances = {};
+
+      rudderAnalytics.setCustomContext(update);
+      const firstResult = rudderAnalytics.getCustomContext();
+      const secondResult = rudderAnalytics.getCustomContext();
+      rudderAnalytics.clearCustomContext();
+
+      const analyticsInstance = rudderAnalytics.analyticsInstances.writeKey;
+      expect(analyticsInstance).toBeInstanceOf(Analytics);
+      expect(analyticsInstance?.setCustomContext).toHaveBeenCalledWith(update);
+      expect(analyticsInstance?.clearCustomContext).toHaveBeenCalledTimes(1);
+      expect(firstResult).toEqual({});
+      expect(secondResult).toEqual({});
+      expect(firstResult).not.toBe(secondResult);
+    });
+  });
+
   it('should process ready arguments and forwards to ready call', () => {
     const callback = () => console.log('Ready!');
 

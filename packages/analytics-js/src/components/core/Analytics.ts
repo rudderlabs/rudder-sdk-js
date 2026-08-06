@@ -32,6 +32,10 @@ import {
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
 import { BufferQueue } from '@rudderstack/analytics-js-common/services/BufferQueue/BufferQueue';
 import type { RSACustomIntegration } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
+import type {
+  CustomContext,
+  InputCustomContext,
+} from '@rudderstack/analytics-js-common/types/CustomContext';
 import { POST_LOAD_LOG_LEVEL, defaultLogger } from '../../services/Logger';
 import { defaultErrorHandler } from '../../services/ErrorHandler';
 import { defaultPluginEngine } from '../../services/PluginEngine';
@@ -147,6 +151,34 @@ class Analytics implements IAnalytics {
 
     // State application lifecycle
     this.startLifecycle();
+  }
+
+  setCustomContext(context: InputCustomContext): void {
+    if (!state.lifecycle.loaded.value) {
+      state.eventBuffer.toBeProcessedArray.value = [
+        ...state.eventBuffer.toBeProcessedArray.value,
+        ['setCustomContext', context],
+      ];
+      return;
+    }
+
+    this.customContextStore.set(context);
+  }
+
+  getCustomContext(): CustomContext {
+    return this.customContextStore.get();
+  }
+
+  clearCustomContext(): void {
+    if (!state.lifecycle.loaded.value) {
+      state.eventBuffer.toBeProcessedArray.value = [
+        ...state.eventBuffer.toBeProcessedArray.value,
+        ['clearCustomContext'],
+      ];
+      return;
+    }
+
+    this.customContextStore.clear();
   }
 
   // Start lifecycle methods

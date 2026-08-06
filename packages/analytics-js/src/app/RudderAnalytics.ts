@@ -32,6 +32,10 @@ import { getFormattedTimestamp } from '@rudderstack/analytics-js-common/utilitie
 import { dispatchErrorEvent } from '@rudderstack/analytics-js-common/utilities/errors';
 import { getSanitizedValue } from '@rudderstack/analytics-js-common/utilities/json';
 import type { ConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
+import type {
+  CustomContext,
+  InputCustomContext,
+} from '@rudderstack/analytics-js-common/types/CustomContext';
 import { GLOBAL_PRELOAD_BUFFER } from '../constants/app';
 import {
   getPreloadedLoadEvent,
@@ -96,6 +100,9 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
       this.getUserTraits = this.getUserTraits.bind(this);
       this.getGroupId = this.getGroupId.bind(this);
       this.getGroupTraits = this.getGroupTraits.bind(this);
+      this.setCustomContext = this.setCustomContext.bind(this);
+      this.getCustomContext = this.getCustomContext.bind(this);
+      this.clearCustomContext = this.clearCustomContext.bind(this);
       this.startSession = this.startSession.bind(this);
       this.endSession = this.endSession.bind(this);
       this.getSessionId = this.getSessionId.bind(this);
@@ -621,6 +628,31 @@ class RudderAnalytics implements IRudderAnalytics<IAnalytics> {
     } catch (error: any) {
       dispatchErrorEvent(error);
       return undefined;
+    }
+  }
+
+  setCustomContext(context: InputCustomContext): void {
+    try {
+      this.getAnalyticsInstance()?.setCustomContext(context);
+    } catch (error: any) {
+      dispatchErrorEvent(error);
+    }
+  }
+
+  getCustomContext(): CustomContext {
+    try {
+      return this.getAnalyticsInstance()?.getCustomContext() ?? {};
+    } catch (error: any) {
+      dispatchErrorEvent(error);
+      return {};
+    }
+  }
+
+  clearCustomContext(): void {
+    try {
+      this.getAnalyticsInstance()?.clearCustomContext();
+    } catch (error: any) {
+      dispatchErrorEvent(error);
     }
   }
 
