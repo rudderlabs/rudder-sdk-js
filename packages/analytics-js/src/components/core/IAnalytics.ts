@@ -32,7 +32,6 @@ import type { ICapabilitiesManager } from '../capabilitiesManager/types';
 import type { PreloadedEventCall } from '../preloadBuffer/types';
 import type { ConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
 import type { CustomContextStore } from '../customContext';
-import type { CustomContext } from '@rudderstack/analytics-js-common/types/CustomContext';
 
 export interface IAnalytics {
   preloadBuffer: BufferQueue<PreloadedEventCall>;
