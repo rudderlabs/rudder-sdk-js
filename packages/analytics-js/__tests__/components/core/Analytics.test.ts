@@ -280,17 +280,17 @@ describe('Core - Analytics', () => {
     it('seeds valid custom context before starting the lifecycle', () => {
       const startLifecycleSpy = jest.spyOn(analytics, 'startLifecycle').mockImplementation();
       const capturedAt = new Date('2026-07-21T00:00:00.000Z');
+      const context = {
+        region: 'EU',
+        account: { plan: undefined, seats: 5 },
+        capturedAt,
+      };
+      const loadOptions = {
+        logLevel: 'ERROR' as const,
+        context,
+      };
 
-      analytics.load(
-        dummyWriteKey,
-        sampleDataPlaneUrl,
-        { logLevel: 'ERROR' },
-        {
-          region: 'EU',
-          account: { plan: undefined, seats: 5 },
-          capturedAt,
-        },
-      );
+      analytics.load(dummyWriteKey, sampleDataPlaneUrl, loadOptions);
       capturedAt.setUTCFullYear(2030);
 
       expect(analytics.customContextStore.get()).toEqual({
@@ -298,6 +298,8 @@ describe('Core - Analytics', () => {
         account: { seats: 5 },
         capturedAt: new Date('2026-07-21T00:00:00.000Z'),
       });
+      expect(loadOptions.context).toBe(context);
+      expect(state.loadOptions.value).not.toHaveProperty('context');
       expect(startLifecycleSpy).toHaveBeenCalledTimes(1);
     });
 
@@ -305,12 +307,10 @@ describe('Core - Analytics', () => {
       jest.spyOn(analytics, 'startLifecycle').mockImplementation();
 
       analytics.setCustomContext({ account: { plan: 'pro' } });
-      analytics.load(
-        dummyWriteKey,
-        sampleDataPlaneUrl,
-        { logLevel: 'ERROR' },
-        { region: 'EU', account: { source: 'load' } },
-      );
+      analytics.load(dummyWriteKey, sampleDataPlaneUrl, {
+        logLevel: 'ERROR',
+        context: { region: 'EU', account: { source: 'load' } },
+      });
 
       expect(analytics.getCustomContext()).toEqual({
         region: 'EU',
@@ -330,12 +330,10 @@ describe('Core - Analytics', () => {
       const startLifecycleSpy = jest.spyOn(analytics, 'startLifecycle').mockImplementation();
       const loggerWarnSpy = jest.spyOn(analytics.logger, 'warn');
 
-      analytics.load(
-        dummyWriteKey,
-        sampleDataPlaneUrl,
-        { logLevel: 'ERROR' },
-        { valid: 'value', invalid: new Map([['key', 'value']]) },
-      );
+      analytics.load(dummyWriteKey, sampleDataPlaneUrl, {
+        logLevel: 'ERROR',
+        context: { valid: 'value', invalid: new Map([['key', 'value']]) } as any,
+      });
 
       expect(analytics.customContextStore.get()).toEqual({});
       expect(startLifecycleSpy).toHaveBeenCalledTimes(1);
@@ -360,7 +358,10 @@ describe('Core - Analytics', () => {
       const startLifecycleSpy = jest.spyOn(analytics, 'startLifecycle');
       const errorSpy = jest.spyOn(analytics.logger, 'error');
 
-      analytics.load('', sampleDataPlaneUrl, { logLevel: 'ERROR' }, { region: 'EU' });
+      analytics.load('', sampleDataPlaneUrl, {
+        logLevel: 'ERROR',
+        context: { region: 'EU' },
+      });
 
       expect(state.lifecycle.status.value).toBeUndefined();
       expect(analytics.customContextStore.get()).toEqual({});

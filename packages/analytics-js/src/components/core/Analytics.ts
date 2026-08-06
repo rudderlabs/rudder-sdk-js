@@ -2,6 +2,7 @@
 import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader';
 import { batch, effect } from '@preact/signals-core';
 import { isFunction, isNull } from '@rudderstack/analytics-js-common/utilities/checks';
+import { getSanitizedValue } from '@rudderstack/analytics-js-common/utilities/json';
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { clone } from 'ramda';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
@@ -118,12 +119,7 @@ class Analytics implements IAnalytics {
   /**
    * Start application lifecycle if not already started
    */
-  load(
-    writeKey: string,
-    dataPlaneUrl: string,
-    loadOptions: Partial<LoadOptions> = {},
-    customContext?: unknown,
-  ) {
+  load(writeKey: string, dataPlaneUrl: string, loadOptions: Partial<LoadOptions> = {}) {
     if (state.lifecycle.status.value) {
       return;
     }
@@ -138,6 +134,11 @@ class Analytics implements IAnalytics {
       return;
     }
 
+    const loadOptionsCopy = { ...loadOptions };
+    const customContext = loadOptionsCopy.context;
+    delete loadOptionsCopy.context;
+    const sanitizedLoadOptions = getSanitizedValue(loadOptionsCopy);
+
     if (customContext !== undefined) {
       this.customContextStore.set(customContext);
     }
@@ -146,7 +147,7 @@ class Analytics implements IAnalytics {
     batch(() => {
       state.lifecycle.writeKey.value = clone(writeKey);
       state.lifecycle.dataPlaneUrl.value = clone(dataPlaneUrl);
-      state.loadOptions.value = normalizeLoadOptions(state.loadOptions.value, loadOptions);
+      state.loadOptions.value = normalizeLoadOptions(state.loadOptions.value, sanitizedLoadOptions);
       state.lifecycle.status.value = 'mounted';
     });
 
