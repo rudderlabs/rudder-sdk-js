@@ -27,6 +27,7 @@ import type { IEventManager } from '../eventManager/types';
 import type { ICapabilitiesManager } from '../capabilitiesManager/types';
 import type { PreloadedEventCall } from '../preloadBuffer/types';
 import type { ConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
+import type { CustomContextStore } from '../customContext';
 
 export interface IAnalytics {
   preloadBuffer: BufferQueue<PreloadedEventCall>;
@@ -42,6 +43,7 @@ export interface IAnalytics {
   userSessionManager?: IUserSessionManager;
   pluginsManager?: IPluginsManager;
   clientDataStore?: Store;
+  customContextStore: CustomContextStore;
 
   /**
    * Start application lifecycle if not already started

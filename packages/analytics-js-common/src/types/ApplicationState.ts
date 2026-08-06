@@ -22,6 +22,7 @@ import type {
 import type { StorageType, CookieOptions } from './Storage';
 import type { UserSessionKey } from './UserSessionStorage';
 import type { RSAnalytics } from './IRudderAnalytics';
+import type { CustomContext } from './CustomContext';
 
 export type CapabilitiesState = {
   isOnline: Signal<boolean>;
@@ -76,6 +77,8 @@ export type ContextState = {
   'ua-ch': Signal<UADataValues | undefined>;
   timezone: Signal<string | undefined>;
 };
+
+export type CustomContextState = Signal<CustomContext>;
 
 export type EventBufferState = {
   // TODO: make this a BufferQueue?
@@ -205,6 +208,7 @@ export interface ApplicationState {
   capabilities: CapabilitiesState;
   consents: ConsentsState;
   context: ContextState;
+  customContext: CustomContextState;
   eventBuffer: EventBufferState;
   lifecycle: LifecycleState;
   loadOptions: LoadOptionsState;

@@ -1,3 +1,4 @@
+export { CustomContextStore } from './CustomContextStore';
 export { filterReservedCustomContextKeys, prepareCustomContextUpdate } from './utilities';
 export type {
   CustomContext,

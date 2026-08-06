@@ -309,6 +309,16 @@ describe('Error Reporting utilities', () => {
 
       expect(getAppStateForMetadata(input)).toEqual(expected);
     });
+
+    it('excludes custom context from application state metadata', () => {
+      state.customContext.value = {
+        account: {
+          plan: 'enterprise',
+        },
+      };
+
+      expect(getAppStateForMetadata(state)).not.toHaveProperty('customContext');
+    });
   });
 
   describe('getBugsnagErrorEvent', () => {
