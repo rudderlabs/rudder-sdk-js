@@ -7,6 +7,7 @@ import {
   buildEcommPayload,
   EXCLUSION_KEYS,
   constructPidPayload,
+  getEventId,
 } from './utils';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
 
@@ -76,6 +77,10 @@ class BingAds {
     );
 
     payload = { ...payload, ...customProperties };
+    const eventId = getEventId(rudderElement.message);
+    if (eventId) {
+      payload.event_id = eventId;
+    }
     if (this.enableEnhancedConversions === true) {
       payload.pid = context?.traits?.pid || constructPidPayload(context, this.isHashRequired);
     }

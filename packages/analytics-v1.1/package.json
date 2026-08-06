@@ -1,6 +1,6 @@
 {
   "name": "rudder-sdk-js",
-  "version": "2.52.16",
+  "version": "2.52.17",
   "description": "RudderStack JavaScript SDK",
   "main": "dist/npm/index.js",
   "module": "dist/npm/index.es.js",
@@ -71,7 +71,7 @@
     "rudder"
   ],
   "author": "RudderStack",
-  "license": "Elastic-2.0",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/rudderlabs/rudder-sdk-js/issues"
   },

@@ -2,6 +2,17 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.6.2](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.6.1...@rudderstack/analytics-js-sanity-suite@3.6.2) (2026-08-05)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.31.6`
+* `rudder-sdk-js` updated to version `2.52.17`
+
+### Bug Fixes
+
+* update Amplitude source config fixtures ([#3138](https://github.com/rudderlabs/rudder-sdk-js/issues/3138)) ([cf88116](https://github.com/rudderlabs/rudder-sdk-js/commit/cf88116756f28bec07ef6e6fac93c27659515eaf))
+
 ## [3.6.2](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.6.1...@rudderstack/analytics-js-sanity-suite@3.6.2) (2026-07-27)
 
 ### Dependency Updates

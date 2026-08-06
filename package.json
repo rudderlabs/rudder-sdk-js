@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-monorepo",
-  "version": "3.114.0",
+  "version": "3.115.0",
   "private": true,
   "description": "Monorepo for RudderStack Analytics JS SDK",
   "workspaces": [
@@ -60,7 +60,7 @@
     "deploy:npm": "nx affected --target=deploy --parallel=1 --skipCommitTypes=docs,ci,chore,test"
   },
   "author": "RudderStack",
-  "license": "Elastic-2.0",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/rudderlabs/rudder-sdk-js/issues"
   },

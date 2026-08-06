@@ -180,6 +180,7 @@
           "eventFilteringOption": "whitelistedEvents",
           "mapDeviceBrand": false,
           "residencyServer": "standard",
+          "sdkVersion": 1,
           "userProvidedPageEventString": "",
           "useUserDefinedPageEventName": false,
           "attribution": false,

@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-integrations",
-  "version": "3.24.0",
+  "version": "3.24.1",
   "private": true,
   "type": "module",
   "description": "RudderStack JavaScript SDK device mode integrations",
@@ -26,7 +26,7 @@
     "rudder"
   ],
   "author": "RudderStack",
-  "license": "Elastic-2.0",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rudderlabs/rudder-sdk-js.git",
