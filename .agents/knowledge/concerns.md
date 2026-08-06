@@ -46,3 +46,8 @@
 ## AI-1258 — Dependency Lockfile Drift Blocks CI Installs
 
 - In this checkout, `npm ci --prefer-offline --no-audit --include=optional` fails before installing dependencies because `package.json` and `package-lock.json` are out of sync (`typescript@5.9.3` and `conventional-commits-filter@5.0.0` are missing from the lock file); root Jest/Nx validation therefore requires a synchronized lock file or a non-`ci` install path in similar environments.
+
+## SDK-5265 — Kotlin SDK Work Is Out of Scope Here
+
+- This repo has no Kotlin/Android/Gradle implementation surface, so Kotlin mobile SDK integration requests (for example CleverTap Kotlin device mode) should be routed to the Kotlin mobile SDK repository rather than implemented through JS integration metadata.
+- Existing CleverTap files under `packages/analytics-js-integrations/src/integrations/Clevertap/` are JS web device-mode references only; editing generated destination constants or JS registration would not add Kotlin SDK runtime behavior.
