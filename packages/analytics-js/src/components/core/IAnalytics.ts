@@ -56,7 +56,6 @@ export interface IAnalytics {
     writeKey: string,
     dataPlaneUrl?: string | Partial<LoadOptions>,
     loadOptions?: Partial<LoadOptions>,
-    customContext?: unknown,
   ): void;
 
   /**
