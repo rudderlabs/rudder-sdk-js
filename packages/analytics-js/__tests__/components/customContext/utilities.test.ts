@@ -128,7 +128,7 @@ describe('custom context utilities', () => {
   ])('rejects %s as the top-level update', (_, input) => {
     expect(prepareCustomContextUpdate(input, logger)).toBeUndefined();
     expect(logger.warn).toHaveBeenCalledWith(
-      'CustomContext:: The custom context update is invalid. Use a plain object containing only supported context values.',
+      'CustomContext:: Invalid custom context. Use a plain object without prototype pollution keys.',
     );
   });
 
@@ -143,7 +143,7 @@ describe('custom context utilities', () => {
 
     expect(prepareCustomContextUpdate(input, logger)).toBeUndefined();
     expect(logger.warn).toHaveBeenCalledWith(
-      'CustomContext:: The custom context update is invalid. Use a plain object containing only supported context values.',
+      'CustomContext:: Invalid custom context. Use a plain object without prototype pollution keys.',
     );
     expect(logger.warn.mock.calls.flat().join(' ')).not.toContain(secretValue);
   });
@@ -161,7 +161,7 @@ describe('custom context utilities', () => {
 
     expect(prepareCustomContextUpdate(input, logger)).toBeUndefined();
     expect(logger.warn).toHaveBeenCalledWith(
-      'CustomContext:: The custom context update is invalid. Use a plain object containing only supported context values.',
+      'CustomContext:: Invalid custom context. Use a plain object without prototype pollution keys.',
     );
     expect(logger.warn.mock.calls.flat().join(' ')).not.toContain(secretValue);
   });
@@ -192,7 +192,7 @@ describe('custom context utilities', () => {
   ])('rejects an update containing %s', (_, input) => {
     expect(prepareCustomContextUpdate(input, logger)).toBeUndefined();
     expect(logger.warn).toHaveBeenCalledWith(
-      'CustomContext:: The custom context update is invalid. Use a plain object containing only supported context values.',
+      'CustomContext:: Invalid custom context. Use a plain object without prototype pollution keys.',
     );
     expect(Object.prototype).not.toHaveProperty('polluted');
   });
