@@ -79,7 +79,9 @@ describe('Test suite for the SDK', () => {
           return undefined;
         }
       })
-      .filter((body: Record<string, any> | undefined) => body?.event);
+      .filter((body: Record<string, any> | undefined): body is Record<string, any> =>
+        Boolean(body?.event),
+      );
 
   const waitForSDKReady = async () => {
     const readyPromise = new Promise((resolve, reject) => {
