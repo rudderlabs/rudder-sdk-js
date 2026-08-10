@@ -338,7 +338,7 @@ describe('Core - Analytics', () => {
       expect(analytics.customContextStore.get()).toEqual({});
       expect(startLifecycleSpy).toHaveBeenCalledTimes(1);
       expect(loggerWarnSpy).toHaveBeenCalledWith(
-        'CustomContext:: The custom context update is invalid. Use a plain object containing only supported context values.',
+        'CustomContext:: Invalid custom context. Use a plain object without prototype pollution keys.',
       );
     });
 
