@@ -178,10 +178,12 @@ describe('custom context utilities', () => {
     ['a set', new Set(['value'])],
     ['NaN', Number.NaN],
     ['Infinity', Number.POSITIVE_INFINITY],
-  ])('rejects an update containing %s atomically', (_, invalidValue) => {
-    expect(
-      prepareCustomContextUpdate({ removeMe: null, valid: 'value', invalid: invalidValue }, logger),
-    ).toBeUndefined();
+  ])('leaves the serialization outcome of %s to the caller', (_, value) => {
+    const result = prepareCustomContextUpdate({ removeMe: null, valid: 'value', value }, logger);
+
+    expect(result?.context.valid).toBe('value');
+    expect(Object.hasOwn(result?.context ?? {}, 'value')).toBe(true);
+    expect(result?.deletionPaths).toEqual([['removeMe']]);
   });
 
   it.each([
@@ -220,8 +222,11 @@ describe('custom context utilities', () => {
         },
       }),
     ],
-  ])('rejects %s instead of treating it as a deletion scope', (_, variants) => {
-    expect(prepareCustomContextUpdate({ variants }, logger)).toBeUndefined();
+  ])('leaves the serialization outcome of %s in an array to the caller', (_, variants) => {
+    const result = prepareCustomContextUpdate({ variants }, logger);
+
+    expect(Object.hasOwn(result?.context ?? {}, 'variants')).toBe(true);
+    expect(result?.deletionPaths).toEqual([]);
   });
 
   it('sanitizes BigInt and circular references using the existing SDK behavior', () => {

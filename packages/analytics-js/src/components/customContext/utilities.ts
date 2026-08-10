@@ -10,7 +10,6 @@ import { CONTEXT_RESERVED_ELEMENTS } from '../eventManager/constants';
 import type {
   CustomContext,
   CustomContextDeletionPath,
-  CustomContextValue,
   PreparedCustomContextUpdate,
   UnknownContext,
 } from './types';
@@ -39,18 +38,6 @@ const isPlainObject = (value: unknown): value is UnknownContext => {
     constructor.prototype === prototype &&
     Function.prototype.toString.call(constructor) === OBJECT_CONSTRUCTOR_SOURCE
   );
-};
-
-const isValidDate = (value: unknown): value is Date => {
-  if (Object.prototype.toString.call(value) !== '[object Date]') {
-    return false;
-  }
-
-  try {
-    return !Number.isNaN(Date.prototype.getTime.call(value));
-  } catch {
-    return false;
-  }
 };
 
 const containsPrototypePollutionKey = (
@@ -153,38 +140,6 @@ const inspectDeletionMarkers = (
   };
 };
 
-const isValidCustomContextValue = (value: unknown): value is CustomContextValue => {
-  if (typeof value === 'string' || typeof value === 'boolean') {
-    return true;
-  }
-
-  if (typeof value === 'number') {
-    return Number.isFinite(value);
-  }
-
-  if (isValidDate(value)) {
-    return true;
-  }
-
-  if (Array.isArray(value)) {
-    for (let index = 0; index < value.length; index += 1) {
-      if (
-        !Object.prototype.hasOwnProperty.call(value, index) ||
-        !isValidCustomContextValue(value[index])
-      ) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  if (isPlainObject(value)) {
-    return Object.values(value).every(isValidCustomContextValue);
-  }
-
-  return false;
-};
-
 const prepareCustomContextUpdate = (
   input: unknown,
   logger: ILogger,
@@ -204,11 +159,6 @@ const prepareCustomContextUpdate = (
 
     const inspectedUpdate = inspectDeletionMarkers(acceptedInput, input);
     const sanitizedContext = getSanitizedValue(inspectedUpdate.context, logger);
-
-    if (!isValidCustomContextValue(sanitizedContext)) {
-      logger.warn(INVALID_CUSTOM_CONTEXT_WARNING(CUSTOM_CONTEXT));
-      return undefined;
-    }
 
     return {
       context: clone(sanitizedContext as CustomContext),
