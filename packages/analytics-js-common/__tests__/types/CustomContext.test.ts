@@ -1,11 +1,11 @@
-import type { CustomContext, CustomContextUpdate } from '../../src/types/CustomContext';
+import type { CustomContext, InputCustomContext } from '../../src/types/CustomContext';
 import type { IRudderAnalytics } from '../../src/types/IRudderAnalytics';
 import type { LoadOptions } from '../../src/types/LoadOptions';
 
 describe('CustomContext public types', () => {
   it('supports the approved load, runtime update, and snapshot surfaces', () => {
     const capturedAt = new Date('2026-07-28T00:00:00.000Z');
-    const update: CustomContextUpdate = {
+    const update: InputCustomContext = {
       region: 'EU',
       capturedAt,
       account: {
@@ -33,7 +33,7 @@ describe('CustomContext public types', () => {
   });
 
   it('rejects unsupported public values at compile time', () => {
-    const invalidUpdates: CustomContextUpdate[] = [
+    const invalidUpdates: InputCustomContext[] = [
       // @ts-expect-error Map is not a supported custom context value
       { invalid: new Map([['key', 'value']]) },
       // @ts-expect-error functions are not supported custom context values
