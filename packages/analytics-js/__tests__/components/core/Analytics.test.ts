@@ -332,7 +332,7 @@ describe('Core - Analytics', () => {
 
       analytics.load(dummyWriteKey, sampleDataPlaneUrl, {
         logLevel: 'ERROR',
-        context: { valid: 'value', invalid: new Map([['key', 'value']]) } as any,
+        context: new Map([['key', 'value']]) as any,
       });
 
       expect(analytics.customContextStore.get()).toEqual({});
