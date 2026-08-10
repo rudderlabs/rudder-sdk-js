@@ -644,6 +644,8 @@ class Analytics implements IAnalytics {
           },
           state.loadOptions.value.sendAdblockPageOptions,
         ),
+        isBufferedInvocation,
+        invocationContext,
       );
     }
   }

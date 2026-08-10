@@ -893,6 +893,38 @@ describe('Core - Analytics', () => {
         { region: 'EU' },
       );
     });
+
+    it('uses the captured context for an automatic adblock page event during replay', () => {
+      analytics.prepareInternalServices();
+      const addEventSpy = jest.spyOn(analytics.eventManager!, 'addEvent');
+      state.lifecycle.loaded.value = true;
+      state.capabilities.isAdBlocked.value = true;
+      state.eventBuffer.toBeProcessedArray.value = [
+        ['page', { name: 'customer-page' }, { region: 'before' }],
+      ];
+      analytics.customContextStore.set({ region: 'after' });
+
+      analytics.processBufferedEvents();
+
+      expect(addEventSpy).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({
+          type: 'page',
+          name: 'customer-page',
+        }),
+        { region: 'before' },
+      );
+      expect(addEventSpy).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({
+          type: 'page',
+          category: ADBLOCK_PAGE_CATEGORY,
+          name: ADBLOCK_PAGE_NAME,
+          properties: expect.objectContaining({ path: ADBLOCK_PAGE_PATH }),
+        }),
+        { region: 'before' },
+      );
+    });
   });
 
   describe('track', () => {
