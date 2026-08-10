@@ -617,7 +617,7 @@ describe('Event Manager - Utilities', () => {
         },
       };
 
-      const mergedContext = getMergedContext(defaultContext, apiOptions);
+      const mergedContext = getMergedContext(defaultContext, apiOptions, mockLogger);
 
       expect(mergedContext).toEqual({
         library: {
@@ -667,7 +667,7 @@ describe('Event Manager - Utilities', () => {
         },
       };
 
-      const mergedContext = getMergedContext(defaultContext, apiOptions);
+      const mergedContext = getMergedContext(defaultContext, apiOptions, mockLogger);
 
       expect(mergedContext).toEqual({
         library: {
