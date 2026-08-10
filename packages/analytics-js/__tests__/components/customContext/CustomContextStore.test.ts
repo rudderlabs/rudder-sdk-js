@@ -65,17 +65,28 @@ describe('CustomContextStore', () => {
     expect(store.get()).toEqual({ account: {} });
   });
 
-  it('does not create parents when deleting a missing nested path', () => {
+  it('retains an empty parent when deleting a missing nested path', () => {
     setContext({ missing: { nested: null } });
 
-    expect(store.get()).toEqual({});
+    expect(store.get()).toEqual({ missing: {} });
   });
 
-  it('leaves the previous snapshot unchanged when normalization rejects an update', () => {
+  it('applies deletion markers with user supplied values in one update', () => {
+    const value = new Map([['key', 'value']]);
     setContext({ region: 'EU', account: { plan: 'pro' } });
-    setContext({ region: null, invalid: new Map([['key', 'value']]) });
+    setContext({ region: null, value });
 
-    expect(store.get()).toEqual({ region: 'EU', account: { plan: 'pro' } });
+    expect(store.get()).toEqual({ account: { plan: 'pro' }, value });
+  });
+
+  it('does not apply object property cleanup to array entries', () => {
+    setContext({
+      variants: ['control', null, undefined, { removeMe: null }],
+    });
+
+    expect(store.get()).toStrictEqual({
+      variants: ['control', null, undefined, { removeMe: null }],
+    });
   });
 
   it('owns input values and returns deep defensive snapshots', () => {
