@@ -20,11 +20,12 @@ import { DEFAULT_INTEGRATIONS_CONFIG } from '@rudderstack/analytics-js-common/co
 import type { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
 import { state } from '../../state';
 import {
+  INVALID_CUSTOM_CONTEXT_WARNING,
   INVALID_CONTEXT_OBJECT_WARNING,
   RESERVED_KEYWORD_WARNING,
 } from '../../constants/logMessages';
 import { CHANNEL, RESERVED_ELEMENTS, TOP_LEVEL_ELEMENTS } from './constants';
-import { filterReservedCustomContextKeys } from '../customContext';
+import { containsPrototypePollutionKey, filterReservedCustomContextKeys } from '../customContext';
 import { getDefaultPageProperties } from '../utilities/page';
 import { extractUTMParameters } from '../utilities/url';
 import { generateAnonymousId, isStorageTypeValidForStoringData } from '../userSessionManager/utils';
@@ -159,18 +160,24 @@ const getMergedContext = (
   logger: ILogger,
 ): RudderContext => {
   let context = rudderContext;
+
+  const mergeContext = (candidateContext: Record<string, unknown>): void => {
+    const acceptedContext = filterReservedCustomContextKeys(candidateContext, logger);
+
+    if (containsPrototypePollutionKey(acceptedContext)) {
+      logger.warn(INVALID_CUSTOM_CONTEXT_WARNING(EVENT_MANAGER));
+      return;
+    }
+
+    context = mergeDeepRight(context, acceptedContext);
+  };
+
   Object.keys(options).forEach(key => {
     if (!TOP_LEVEL_ELEMENTS.includes(key)) {
       if (key !== 'context') {
-        context = mergeDeepRight(
-          context,
-          filterReservedCustomContextKeys({ [key]: options[key] }, logger),
-        );
+        mergeContext({ [key]: options[key] });
       } else if (!isUndefined(options[key]) && isObjectLiteralAndNotNull(options[key])) {
-        context = mergeDeepRight(
-          context,
-          filterReservedCustomContextKeys(options[key] as Record<string, unknown>, logger),
-        );
+        mergeContext(options[key] as Record<string, unknown>);
       } else {
         logger.warn(INVALID_CONTEXT_OBJECT_WARNING(EVENT_MANAGER));
       }

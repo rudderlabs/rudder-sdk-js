@@ -107,4 +107,8 @@ const prepareCustomContextUpdate = (
   }
 };
 
-export { filterReservedCustomContextKeys, prepareCustomContextUpdate };
+export {
+  containsPrototypePollutionKey,
+  filterReservedCustomContextKeys,
+  prepareCustomContextUpdate,
+};

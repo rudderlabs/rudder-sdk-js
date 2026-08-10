@@ -779,6 +779,24 @@ describe('Event Manager - Utilities', () => {
       );
     });
 
+    it.each([
+      ['a top-level wrapper-free key', JSON.parse('{"__proto__":{"polluted":true}}') as ApiOptions],
+      [
+        'a nested options.context key',
+        {
+          context: JSON.parse('{"account":{"constructor":{"polluted":true}}}'),
+        } as ApiOptions,
+      ],
+    ])('should warn and skip prototype-pollution input from %s', (_, apiOptions) => {
+      const mergedContext = getMergedContext(defaultContext, apiOptions, mockLogger);
+
+      expect(mergedContext).toEqual(defaultContext);
+      expect(Object.getPrototypeOf(mergedContext)).toBe(Object.getPrototypeOf(defaultContext));
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        'EventManager:: The custom context update is invalid. Use a plain object containing only supported context values.',
+      );
+    });
+
     it('should log warning if the context inside the options is not a valid object', () => {
       // Set specific contextual data in options to override
       // Set the 'context' object to be a string
