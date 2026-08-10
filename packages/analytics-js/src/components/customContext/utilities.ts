@@ -7,12 +7,7 @@ import {
   RESERVED_CUSTOM_CONTEXT_KEY_WARNING,
 } from '../../constants/logMessages';
 import { CONTEXT_RESERVED_ELEMENTS } from '../eventManager/constants';
-import type {
-  CustomContext,
-  CustomContextDeletionPath,
-  PreparedCustomContextUpdate,
-  UnknownContext,
-} from './types';
+import type { UnknownContext } from './types';
 
 const CUSTOM_CONTEXT = 'CustomContext';
 const PROTOTYPE_POLLUTION_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
@@ -78,7 +73,7 @@ const filterReservedCustomContextKeys = (
     Object.defineProperty(retainedContext, key, {
       configurable: true,
       enumerable: true,
-      value: context[key],
+      value: context[key] === context ? retainedContext : context[key],
       writable: true,
     });
   });
@@ -86,64 +81,10 @@ const filterReservedCustomContextKeys = (
   return retainedContext;
 };
 
-const inspectDeletionMarkers = (
-  context: UnknownContext,
-  originalRoot: UnknownContext,
-): Pick<PreparedCustomContextUpdate, 'context' | 'deletionPaths'> => {
-  const deletionPaths: CustomContextDeletionPath[] = [];
-  const activeObjects: object[] = [];
-  const activeRetainedValues: UnknownContext[] = [];
-
-  const visitObject = (value: UnknownContext, parentPath: string[]): UnknownContext => {
-    const retainedValue: UnknownContext = {};
-    activeObjects.push(value);
-    activeRetainedValues.push(retainedValue);
-    if (parentPath.length === 0 && originalRoot !== value) {
-      activeObjects.push(originalRoot);
-      activeRetainedValues.push(retainedValue);
-    }
-
-    Object.keys(value).forEach(key => {
-      const childValue = value[key];
-      const childPath = [...parentPath, key];
-
-      if (childValue === null || childValue === undefined) {
-        deletionPaths.push(childPath);
-      } else if (isPlainObject(childValue)) {
-        const activeObjectIndex = activeObjects.indexOf(childValue);
-        if (activeObjectIndex >= 0) {
-          retainedValue[key] = activeRetainedValues[activeObjectIndex];
-          return;
-        }
-
-        const retainedChildValue = visitObject(childValue, childPath);
-        if (Object.keys(retainedChildValue).length > 0 || Object.keys(childValue).length === 0) {
-          retainedValue[key] = retainedChildValue;
-        }
-      } else {
-        retainedValue[key] = childValue;
-      }
-    });
-
-    activeObjects.pop();
-    activeRetainedValues.pop();
-    if (parentPath.length === 0) {
-      activeObjects.pop();
-      activeRetainedValues.pop();
-    }
-    return retainedValue;
-  };
-
-  return {
-    context: visitObject(context, []) as CustomContext,
-    deletionPaths,
-  };
-};
-
 const prepareCustomContextUpdate = (
   input: unknown,
   logger: ILogger,
-): PreparedCustomContextUpdate | undefined => {
+): UnknownContext | undefined => {
   try {
     if (!isPlainObject(input)) {
       logger.warn(INVALID_CUSTOM_CONTEXT_WARNING(CUSTOM_CONTEXT));
@@ -157,13 +98,9 @@ const prepareCustomContextUpdate = (
       return undefined;
     }
 
-    const inspectedUpdate = inspectDeletionMarkers(acceptedInput, input);
-    const sanitizedContext = getSanitizedValue(inspectedUpdate.context, logger);
+    const sanitizedContext = getSanitizedValue(acceptedInput, logger);
 
-    return {
-      context: clone(sanitizedContext as CustomContext),
-      deletionPaths: inspectedUpdate.deletionPaths.map(path => [...path]),
-    };
+    return clone(sanitizedContext as UnknownContext);
   } catch {
     logger.warn(INVALID_CUSTOM_CONTEXT_WARNING(CUSTOM_CONTEXT));
     return undefined;

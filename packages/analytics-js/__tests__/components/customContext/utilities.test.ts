@@ -25,7 +25,7 @@ describe('custom context utilities', () => {
     expect(retainedContext.plan).toBe('pro');
   });
 
-  it('returns retained values and segment-array deletion paths without marker-only branches', () => {
+  it('keeps object-property deletion markers for store cleanup', () => {
     expect(
       prepareCustomContextUpdate(
         {
@@ -38,13 +38,17 @@ describe('custom context utilities', () => {
         },
         logger,
       ),
-    ).toEqual({
-      context: { account: { seats: 5 } },
-      deletionPaths: [['region.code'], ['account', 'plan'], ['account', 'preferences', 'locale']],
+    ).toStrictEqual({
+      'region.code': null,
+      account: {
+        plan: undefined,
+        seats: 5,
+        preferences: { locale: null },
+      },
     });
   });
 
-  it('retains explicitly supplied empty objects while pruning marker-only branches', () => {
+  it('keeps explicit empty objects and marker-only branches for store cleanup', () => {
     expect(
       prepareCustomContextUpdate(
         {
@@ -59,17 +63,15 @@ describe('custom context utilities', () => {
         },
         logger,
       ),
-    ).toEqual({
-      context: {
+    ).toStrictEqual({
+      empty: {},
+      nested: {
         empty: {},
-        nested: {
-          empty: {},
-        },
+        removeMe: null,
       },
-      deletionPaths: [
-        ['nested', 'removeMe'],
-        ['markerOnly', 'removeMe'],
-      ],
+      markerOnly: {
+        removeMe: undefined,
+      },
     });
   });
 
@@ -85,13 +87,10 @@ describe('custom context utilities', () => {
         logger,
       ),
     ).toEqual({
-      context: {
-        experiment: 'checkout',
-        enabled: true,
-        allocation: 0.5,
-        variants: ['control', { name: 'treatment', weights: [1, 2] }],
-      },
-      deletionPaths: [],
+      experiment: 'checkout',
+      enabled: true,
+      allocation: 0.5,
+      variants: ['control', { name: 'treatment', weights: [1, 2] }],
     });
   });
 
@@ -110,14 +109,11 @@ describe('custom context utilities', () => {
     arrayDate.setUTCFullYear(2030);
 
     expect(result).toEqual({
-      context: {
-        startedAt: new Date('2026-07-21T00:00:00.000Z'),
-        milestones: [new Date('2026-07-22T00:00:00.000Z')],
-      },
-      deletionPaths: [],
+      startedAt: new Date('2026-07-21T00:00:00.000Z'),
+      milestones: [new Date('2026-07-22T00:00:00.000Z')],
     });
-    expect(result.context.startedAt).not.toBe(objectDate);
-    expect(result.context.milestones).not.toContain(arrayDate);
+    expect(result.startedAt).not.toBe(objectDate);
+    expect(result.milestones).not.toContain(arrayDate);
   });
 
   it.each([
@@ -181,9 +177,9 @@ describe('custom context utilities', () => {
   ])('leaves the serialization outcome of %s to the caller', (_, value) => {
     const result = prepareCustomContextUpdate({ removeMe: null, valid: 'value', value }, logger);
 
-    expect(result?.context.valid).toBe('value');
-    expect(Object.hasOwn(result?.context ?? {}, 'value')).toBe(true);
-    expect(result?.deletionPaths).toEqual([['removeMe']]);
+    expect(result?.valid).toBe('value');
+    expect(Object.hasOwn(result ?? {}, 'value')).toBe(true);
+    expect(result?.removeMe).toBeNull();
   });
 
   it.each([
@@ -225,8 +221,7 @@ describe('custom context utilities', () => {
   ])('leaves the serialization outcome of %s in an array to the caller', (_, variants) => {
     const result = prepareCustomContextUpdate({ variants }, logger);
 
-    expect(Object.hasOwn(result?.context ?? {}, 'variants')).toBe(true);
-    expect(result?.deletionPaths).toEqual([]);
+    expect(Object.hasOwn(result ?? {}, 'variants')).toBe(true);
   });
 
   it('sanitizes BigInt and circular references using the existing SDK behavior', () => {
@@ -234,8 +229,8 @@ describe('custom context utilities', () => {
     context.self = context;
 
     expect(prepareCustomContextUpdate(context, logger)).toEqual({
-      context: { id: '[BigInt]', self: '[Circular Reference]' },
-      deletionPaths: [],
+      id: '[BigInt]',
+      self: '[Circular Reference]',
     });
     expect(logger.warn).toHaveBeenCalledTimes(2);
   });
@@ -244,21 +239,18 @@ describe('custom context utilities', () => {
     const shared = { cohort: 'A' };
 
     expect(prepareCustomContextUpdate({ first: shared, second: shared }, logger)).toEqual({
-      context: { first: { cohort: 'A' }, second: { cohort: 'A' } },
-      deletionPaths: [],
+      first: { cohort: 'A' },
+      second: { cohort: 'A' },
     });
     expect(logger.warn).not.toHaveBeenCalled();
   });
 
-  it('records path-dependent deletions for every use of a shared object', () => {
+  it('keeps deletion markers for every use of a shared object', () => {
     const shared = { cohort: 'A', removeMe: null };
 
     expect(prepareCustomContextUpdate({ first: shared, second: shared }, logger)).toEqual({
-      context: { first: { cohort: 'A' }, second: { cohort: 'A' } },
-      deletionPaths: [
-        ['first', 'removeMe'],
-        ['second', 'removeMe'],
-      ],
+      first: { cohort: 'A', removeMe: null },
+      second: { cohort: 'A', removeMe: null },
     });
   });
 
@@ -278,10 +270,7 @@ describe('custom context utilities', () => {
         },
         logger,
       ),
-    ).toEqual({
-      context: { app: { library: 'nested names remain valid' } },
-      deletionPaths: [],
-    });
+    ).toEqual({ app: { library: 'nested names remain valid' } });
     expect(logger.warn).toHaveBeenCalledTimes(2);
     expect(logger.warn).toHaveBeenNthCalledWith(
       1,
@@ -290,7 +279,7 @@ describe('custom context utilities', () => {
     expect(logger.warn.mock.calls.flat().join(' ')).not.toContain(secretValue);
   });
 
-  it('returns defensive retained values and deletion paths', () => {
+  it('returns defensive retained values', () => {
     const input = {
       account: { seats: 5, plan: null },
       variants: [{ name: 'control' }],
@@ -300,12 +289,15 @@ describe('custom context utilities', () => {
 
     input.account.seats = 10;
     input.variants[0]!.name = 'treatment';
-    result.deletionPaths[0]!.push('mutated');
+    (result.account as Record<string, unknown>).plan = 'mutated';
 
-    expect(result.context).toEqual({
-      account: { seats: 5 },
+    expect(result).toEqual({
+      account: { seats: 5, plan: 'mutated' },
       variants: [{ name: 'control' }],
     });
-    expect(independentResult.deletionPaths).toEqual([['account', 'plan']]);
+    expect(independentResult).toEqual({
+      account: { seats: 5, plan: null },
+      variants: [{ name: 'control' }],
+    });
   });
 });

@@ -12,8 +12,7 @@ describe('custom context browser utilities', () => {
 
     try {
       expect(prepareCustomContextUpdate(crossRealmContext, new Logger())).toEqual({
-        context: { region: 'EU' },
-        deletionPaths: [],
+        region: 'EU',
       });
     } finally {
       iframe.remove();
@@ -34,12 +33,12 @@ describe('custom context browser utilities', () => {
         new Logger(),
       )!;
 
-      expect(result.context).toEqual({
+      expect(result).toEqual({
         occurredAt: new Date('2026-07-29T00:00:00.000Z'),
         milestones: [new Date('2026-07-29T00:00:00.000Z')],
       });
-      expect(result.context.occurredAt).not.toBe(crossRealmDate);
-      expect(result.context.milestones).not.toContain(crossRealmDate);
+      expect(result.occurredAt).not.toBe(crossRealmDate);
+      expect(result.milestones).not.toContain(crossRealmDate);
     } finally {
       iframe.remove();
     }
