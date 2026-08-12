@@ -11,6 +11,10 @@ import {
   mockConversionId,
   noEventNameTrackCallPayload,
   identifyCallPayloadWithTraits,
+  identifyCallPayloadWithEmailTrait,
+  identifyCallPayloadWithFullAddressTraits,
+  identifyCallPayloadWithPhoneTrait,
+  identifyCallPayloadWithEmptyTraits,
   identifyCallPayloadWithoutTraits,
   identifyCallPayloadWithoutMandatoryTraits,
 } from './__fixtures__/data';
@@ -151,16 +155,55 @@ describe('GoogleAds Identify tests', () => {
     window.gtag = jest.fn();
   });
 
+  const mandatoryTraitsErrorMessage = 'Traits are mandatory for identify call';
+  const matchKeyErrorMessage =
+    'Either email or full address (firstName, lastName, postalCode, country) is required for identify call';
+
   test('Testing identify call of Google Ads without traits', () => {
     googleAds.identify(identifyCallPayloadWithoutTraits);
-    expect(errMock).toHaveBeenLastCalledWith('Traits are mandatory for identify call');
+    expect(errMock).toHaveBeenLastCalledWith(mandatoryTraitsErrorMessage);
+    expect(window.gtag).not.toHaveBeenCalled();
+  });
+
+  test('Testing identify call of Google Ads with empty traits', () => {
+    googleAds.identify(identifyCallPayloadWithEmptyTraits);
+    expect(errMock).toHaveBeenLastCalledWith(mandatoryTraitsErrorMessage);
+    expect(window.gtag).not.toHaveBeenCalled();
+  });
+
+  test('Testing identify call of Google Ads with phone only traits', () => {
+    googleAds.identify(identifyCallPayloadWithPhoneTrait);
+    expect(errMock).toHaveBeenLastCalledWith(matchKeyErrorMessage);
+    expect(window.gtag).not.toHaveBeenCalled();
   });
 
   test('Testing identify call of Google Ads with none of the mandatory traits', () => {
     googleAds.identify(identifyCallPayloadWithoutMandatoryTraits);
-    expect(errMock).toHaveBeenLastCalledWith(
-      'Email, Phone are mandatory fields and either of FirstName, LastName, PostalCode, Country is mandatory for identify call',
-    );
+    expect(errMock).toHaveBeenLastCalledWith(matchKeyErrorMessage);
+    expect(window.gtag).not.toHaveBeenCalled();
+  });
+
+  test('Testing identify call of Google Ads with email only traits', () => {
+    googleAds.identify(identifyCallPayloadWithEmailTrait);
+    expect(window.gtag.mock.calls[0][0]).toEqual('set');
+    expect(window.gtag.mock.calls[0][1]).toEqual('user_data');
+    expect(window.gtag.mock.calls[0][2]).toEqual({
+      email: 'test@email.com',
+    });
+  });
+
+  test('Testing identify call of Google Ads with full address traits', () => {
+    googleAds.identify(identifyCallPayloadWithFullAddressTraits);
+    expect(window.gtag.mock.calls[0][0]).toEqual('set');
+    expect(window.gtag.mock.calls[0][1]).toEqual('user_data');
+    expect(window.gtag.mock.calls[0][2]).toEqual({
+      address: {
+        first_name: 'test',
+        last_name: 'user',
+        postal_code: '123456',
+        country: 'test country',
+      },
+    });
   });
 
   test('Testing identify call of Google Ads with traits', () => {
