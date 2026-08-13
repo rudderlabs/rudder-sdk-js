@@ -258,6 +258,51 @@ const identifyCallPayloadWithoutMandatoryTraits = {
   },
 };
 
+const identifyCallPayloadWithEmailTrait = {
+  message: {
+    userId: 'userId',
+    context: {
+      traits: {
+        email: 'test@email.com',
+      },
+    },
+  },
+};
+
+const identifyCallPayloadWithFullAddressTraits = {
+  message: {
+    userId: 'userId',
+    context: {
+      traits: {
+        firstName: 'test',
+        lastName: 'user',
+        postalCode: '123456',
+        country: 'test country',
+      },
+    },
+  },
+};
+
+const identifyCallPayloadWithPhoneTrait = {
+  message: {
+    userId: 'userId',
+    context: {
+      traits: {
+        phone: '1234567890',
+      },
+    },
+  },
+};
+
+const identifyCallPayloadWithEmptyTraits = {
+  message: {
+    userId: 'userId',
+    context: {
+      traits: {},
+    },
+  },
+};
+
 const identifyCallPayloadWithoutTraits = {
   message: {
     userId: 'userId',
@@ -295,6 +340,10 @@ export {
   mockEventTypeConversions,
   noEventNameTrackCallPayload,
   identifyCallPayloadWithTraits,
+  identifyCallPayloadWithEmailTrait,
+  identifyCallPayloadWithFullAddressTraits,
+  identifyCallPayloadWithPhoneTrait,
+  identifyCallPayloadWithEmptyTraits,
   identifyCallPayloadWithoutTraits,
   identifyCallPayloadWithoutMandatoryTraits,
 };

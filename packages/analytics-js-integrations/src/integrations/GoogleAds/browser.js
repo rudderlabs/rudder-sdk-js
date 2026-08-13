@@ -106,13 +106,12 @@ class GoogleAds {
       logger.error('Traits are mandatory for identify call');
       return;
     }
-    if (
-      !traits.email ||
-      !traits.phone ||
-      (!traits.firstName && !traits.lastName && !traits.postalCode && !traits.country)
-    ) {
+    const hasEmail = traits.email;
+    const hasFullAddress = traits.firstName && traits.lastName && traits.postalCode && traits.country;
+
+    if (!hasEmail && !hasFullAddress) {
       logger.error(
-        'Email, Phone are mandatory fields and either of FirstName, LastName, PostalCode, Country is mandatory for identify call',
+        'Either email or full address (firstName, lastName, postalCode, country) is required for identify call',
       );
       return;
     }

@@ -29,3 +29,8 @@
 ## ANA-123 — Sanity Suite SourceConfig Fixture Parity
 
 - Sanity-suite sourceConfig fixtures must mirror live sourceConfig destination configs exactly except explicitly ignored fields; Amplitude web device-mode fixture configs include flattened `config.sdkVersion: 1` after `config.residencyServer` in `packages/sanity-suite/__fixtures__/sourceConfig1.json` and `packages/sanity-suite/__fixtures__/sourceConfigDMT1.json`.
+
+## INT-6982 — Google Ads Enhanced Conversions Identify Match Keys
+
+- Google Ads device-mode Enhanced Conversions identify validation in `packages/analytics-js-integrations/src/integrations/GoogleAds/browser.js` accepts non-empty traits when either `traits.email` is truthy or the complete address match-key group (`firstName`, `lastName`, `postalCode`, `country`) is truthy; `phone` is optional and is passed through by `generateUserDataPayload` when available.
+- Empty or missing traits continue to use the existing `Traits are mandatory for identify call` rejection path; non-empty traits without email/full-address log `Either email or full address (firstName, lastName, postalCode, country) is required for identify call`.
