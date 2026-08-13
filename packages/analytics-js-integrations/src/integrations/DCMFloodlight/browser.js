@@ -122,6 +122,10 @@ class DCMFloodlight {
       return;
     }
 
+    // groupTag (tag string `type`) and activityTag (`cat`) together address the Floodlight
+    // activity, so both are required - fall back to the destination-level values and drop
+    // the event if either is still missing.
+    // Ref - https://support.google.com/campaignmanager/answer/7554821#zippy=%2Cfields-in-all-event-snippets
     const activityTag = conversionEvent.floodlightActivityTag?.trim() || this.activityTag?.trim();
     const groupTag = conversionEvent.floodlightGroupTag?.trim() || this.groupTag?.trim();
 
