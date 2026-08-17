@@ -2,6 +2,38 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.15.12](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.15.11...@rudderstack/analytics-js-plugins@3.15.12) (2026-08-13)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-integrations` updated to version `3.24.2`
+
+## [3.15.11](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.15.10...@rudderstack/analytics-js-plugins@3.15.11) (2026-08-05)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-integrations` updated to version `3.24.1`
+
+## [3.15.10](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.15.9...@rudderstack/analytics-js-plugins@3.15.10) (2026-07-27)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-common` updated to version `3.28.4`
+* `@rudderstack/analytics-js-cookies` updated to version `0.5.13`
+* `@rudderstack/analytics-js-integrations` updated to version `3.24.0`
+
+## [3.15.9](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.15.8...@rudderstack/analytics-js-plugins@3.15.9) (2026-07-22)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-integrations` updated to version `3.23.0`
+
+## [3.15.8](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.15.7...@rudderstack/analytics-js-plugins@3.15.8) (2026-06-11)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-integrations` updated to version `3.22.0`
+
 ## [3.15.7](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-plugins@3.15.6...@rudderstack/analytics-js-plugins@3.15.7) (2026-06-08)
 
 ### Dependency Updates

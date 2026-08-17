@@ -58,7 +58,7 @@
     "build:all": "npm-run-all --parallel build:cdn:v1.1 build:cdn build:npm:v1.1 build:npm"
   },
   "author": "RudderStack",
-  "license": "Elastic-2.0",
+  "license": "MIT",
   "dependencies": {
     "@rudderstack/analytics-js": "*",
     "rudder-sdk-js": "*",

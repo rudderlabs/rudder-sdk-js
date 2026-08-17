@@ -3,7 +3,7 @@ name: Feature request
 about: Suggest an idea for this project
 title: 'Feature Request: <Title>'
 labels: open source
-assignees: rudderlabs/js-sdk
+assignees: []
 ---
 
 **Is your feature request related to a problem? Please describe.**

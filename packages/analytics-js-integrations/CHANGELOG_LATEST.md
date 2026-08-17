@@ -1,7 +1,7 @@
-## [3.21.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.20.2...@rudderstack/analytics-js-integrations@3.21.0) (2026-06-08)
+## [3.24.2](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.24.1...@rudderstack/analytics-js-integrations@3.24.2) (2026-08-13)
 
 
-### Features
+### Bug Fixes
 
-* support custom sdkBaseUrl in google ads sdk ([#3002](https://github.com/rudderlabs/rudder-sdk-js/issues/3002)) ([a116355](https://github.com/rudderlabs/rudder-sdk-js/commit/a116355f3b0be7e40095dc0606b3b8e1a7ef28a1))
+* **@rudderstack/analytics-js-integrations:** relax Google Ads identify validation ([#3152](https://github.com/rudderlabs/rudder-sdk-js/issues/3152)) ([d4adcfd](https://github.com/rudderlabs/rudder-sdk-js/commit/d4adcfdea534b37bbe45792336cd540b700f0b7a))
 

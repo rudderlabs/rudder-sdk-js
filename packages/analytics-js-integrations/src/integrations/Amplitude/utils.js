@@ -1,4 +1,19 @@
-import { NAME, DISPLAY_NAME } from './constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+  AMPLITUDE_SDK_V1,
+  AMPLITUDE_SDK_V2,
+  AMPLITUDE_SDK_VERSION_CONFIG_KEY,
+  AMPLITUDE_AUTO_CAPTURE_PAGE_VIEWS_CONFIG_KEY,
+  AMPLITUDE_PAGE_URL_ENRICHMENT_CONFIG_KEY,
+  AMPLITUDE_TRACK_SESSION_EVENTS_CONFIG_KEY,
+  AMPLITUDE_WEB_VITALS_CONFIG_KEY,
+  AMPLITUDE_FILE_DOWNLOADS_CONFIG_KEY,
+  AMPLITUDE_FRUSTRATION_INTERACTIONS_CONFIG_KEY,
+  AMPLITUDE_NETWORK_TRACKING_CONFIG_KEY,
+  AMPLITUDE_ELEMENT_INTERACTIONS_CONFIG_KEY,
+  AMPLITUDE_FORM_INTERACTIONS_CONFIG_KEY,
+} from './constants';
 
 const getTraitsToSetOnce = config => {
   const traitsToSetOnce = [];
@@ -60,10 +75,56 @@ function formatUrl(url) {
   }
   return `https://${url}`;
 }
+
+const getAmplitudeSdkVersion = config => {
+  const configuredSdkVersion = Number(config?.[AMPLITUDE_SDK_VERSION_CONFIG_KEY]);
+  return configuredSdkVersion === AMPLITUDE_SDK_V2
+    ? AMPLITUDE_SDK_V2
+    : AMPLITUDE_SDK_V1;
+};
+
+const getBooleanConfigValue = (config, key) => config?.[key] === true;
+
+const getAutoCapturePageViews = config =>
+  getBooleanConfigValue(config, AMPLITUDE_AUTO_CAPTURE_PAGE_VIEWS_CONFIG_KEY);
+
+const getPageUrlEnrichment = config =>
+  getBooleanConfigValue(config, AMPLITUDE_PAGE_URL_ENRICHMENT_CONFIG_KEY);
+
+const getTrackSessionEvents = config =>
+  getBooleanConfigValue(config, AMPLITUDE_TRACK_SESSION_EVENTS_CONFIG_KEY);
+
+const getWebVitals = config => getBooleanConfigValue(config, AMPLITUDE_WEB_VITALS_CONFIG_KEY);
+
+const getFileDownloads = config =>
+  getBooleanConfigValue(config, AMPLITUDE_FILE_DOWNLOADS_CONFIG_KEY);
+
+const getFrustrationInteractions = config =>
+  getBooleanConfigValue(config, AMPLITUDE_FRUSTRATION_INTERACTIONS_CONFIG_KEY);
+
+const getNetworkTracking = config =>
+  getBooleanConfigValue(config, AMPLITUDE_NETWORK_TRACKING_CONFIG_KEY);
+
+const getElementInteractions = config =>
+  getBooleanConfigValue(config, AMPLITUDE_ELEMENT_INTERACTIONS_CONFIG_KEY);
+
+const getFormInteractions = config =>
+  getBooleanConfigValue(config, AMPLITUDE_FORM_INTERACTIONS_CONFIG_KEY);
+
 export {
   getTraitsToSetOnce,
   getTraitsToIncrement,
   getDestinationOptions,
   getFieldsToUnset,
   formatUrl,
+  getAmplitudeSdkVersion,
+  getAutoCapturePageViews,
+  getPageUrlEnrichment,
+  getTrackSessionEvents,
+  getWebVitals,
+  getFileDownloads,
+  getFrustrationInteractions,
+  getNetworkTracking,
+  getElementInteractions,
+  getFormInteractions,
 };

@@ -4,6 +4,16 @@ import {
   getTraitsToIncrement,
   getDestinationOptions,
   formatUrl,
+  getAmplitudeSdkVersion,
+  getAutoCapturePageViews,
+  getPageUrlEnrichment,
+  getTrackSessionEvents,
+  getWebVitals,
+  getFileDownloads,
+  getFrustrationInteractions,
+  getNetworkTracking,
+  getElementInteractions,
+  getFormInteractions,
 } from '../../../src/integrations/Amplitude/utils';
 
 describe('getTraitsToSetOnce', () => {
@@ -181,5 +191,78 @@ describe('formatUrl', () => {
   it('should return "https://example.com" when the input URL is "example.com"', () => {
     const url = 'example.com';
     expect(formatUrl(url)).toBe('https://example.com');
+  });
+});
+
+describe('getAmplitudeSdkVersion', () => {
+  it('should fallback to v1 when sdkVersion is absent', () => {
+    expect(getAmplitudeSdkVersion({})).toBe(1);
+  });
+
+  it('should resolve v2 for sdkVersion as 2', () => {
+    expect(getAmplitudeSdkVersion({ sdkVersion: 2 })).toBe(2);
+  });
+
+  it('should resolve v1 for sdkVersion as 1', () => {
+    expect(getAmplitudeSdkVersion({ sdkVersion: 1 })).toBe(1);
+  });
+
+  it('should fallback to v1 for an invalid sdkVersion value', () => {
+    expect(getAmplitudeSdkVersion({ sdkVersion: 'foo' })).toBe(1);
+  });
+
+  it('should fallback to v1 when sdkVersion is null', () => {
+    expect(getAmplitudeSdkVersion({ sdkVersion: null })).toBe(1);
+  });
+
+  it('should parse numeric strings in sdkVersion', () => {
+    expect(getAmplitudeSdkVersion({ sdkVersion: '2' })).toBe(2);
+  });
+});
+
+describe('Amplitude v2 autocapture config helpers', () => {
+  const helperCases = [
+    {
+      name: 'getAutoCapturePageViews',
+      getter: getAutoCapturePageViews,
+      key: 'enablePageViewsAutoCapture',
+    },
+    {
+      name: 'getPageUrlEnrichment',
+      getter: getPageUrlEnrichment,
+      key: 'enablePageUrlEnrichmentAutoCapture',
+    },
+    { name: 'getWebVitals', getter: getWebVitals, key: 'enableWebVitalsAutoCapture' },
+    { name: 'getFileDownloads', getter: getFileDownloads, key: 'enableFileDownloadsAutoCapture' },
+    {
+      name: 'getFrustrationInteractions',
+      getter: getFrustrationInteractions,
+      key: 'enableFrustrationInteractionsAutoCapture',
+    },
+    {
+      name: 'getNetworkTracking',
+      getter: getNetworkTracking,
+      key: 'enableNetworkTrackingAutoCapture',
+    },
+    {
+      name: 'getElementInteractions',
+      getter: getElementInteractions,
+      key: 'enableElementInteractionsAutoCapture',
+    },
+    {
+      name: 'getFormInteractions',
+      getter: getFormInteractions,
+      key: 'enableFormInteractionsAutoCapture',
+    },
+    { name: 'getTrackSessionEvents', getter: getTrackSessionEvents, key: 'trackSessionEvents' },
+  ];
+
+  it.each(helperCases)('$name should default missing config to false', ({ getter }) => {
+    expect(getter({})).toBe(false);
+  });
+
+  it.each(helperCases)('$name should read true and false config values', ({ getter, key }) => {
+    expect(getter({ [key]: true })).toBe(true);
+    expect(getter({ [key]: false })).toBe(false);
   });
 });

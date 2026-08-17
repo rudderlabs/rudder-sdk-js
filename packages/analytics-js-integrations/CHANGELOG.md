@@ -2,6 +2,50 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.24.2](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.24.1...@rudderstack/analytics-js-integrations@3.24.2) (2026-08-13)
+
+
+### Bug Fixes
+
+* **@rudderstack/analytics-js-integrations:** relax Google Ads identify validation ([#3152](https://github.com/rudderlabs/rudder-sdk-js/issues/3152)) ([d4adcfd](https://github.com/rudderlabs/rudder-sdk-js/commit/d4adcfdea534b37bbe45792336cd540b700f0b7a))
+
+## [3.24.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.24.0...@rudderstack/analytics-js-integrations@3.24.1) (2026-08-05)
+
+
+### Bug Fixes
+
+* **@rudderstack/analytics-js-integrations:** add Bing Ads event_id dedupe ([#3137](https://github.com/rudderlabs/rudder-sdk-js/issues/3137)) ([3b2036e](https://github.com/rudderlabs/rudder-sdk-js/commit/3b2036ea4f1abd795e878b0132dbe63cb0190838))
+* **fb-pixel:** guard fbq bootstrap for multiple pixels ([#3139](https://github.com/rudderlabs/rudder-sdk-js/issues/3139)) ([d4a6082](https://github.com/rudderlabs/rudder-sdk-js/commit/d4a6082aafb19f95c3312a8e45040502de1cc1ba)), closes [#3097](https://github.com/rudderlabs/rudder-sdk-js/issues/3097)
+
+## [3.24.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.23.0...@rudderstack/analytics-js-integrations@3.24.0) (2026-07-27)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-legacy-utilities` updated to version `0.1.1`
+
+### Features
+
+* wire amplitude v2 autocapture toggles ([#3091](https://github.com/rudderlabs/rudder-sdk-js/issues/3091)) ([5b4f8b1](https://github.com/rudderlabs/rudder-sdk-js/commit/5b4f8b1e4a8e7aa84374d54c8d7c538a39cee07b))
+
+
+### Bug Fixes
+
+* **deps:** bump the npm-prod-deps group across 1 directory with 7 updates ([#3111](https://github.com/rudderlabs/rudder-sdk-js/issues/3111)) ([61ed835](https://github.com/rudderlabs/rudder-sdk-js/commit/61ed835bcc8904e59c16a990f184aa784625a090))
+
+## [3.23.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.22.0...@rudderstack/analytics-js-integrations@3.23.0) (2026-07-22)
+
+
+### Features
+
+* braze ecommerce events onboarding ([#3076](https://github.com/rudderlabs/rudder-sdk-js/issues/3076)) ([bb3f40f](https://github.com/rudderlabs/rudder-sdk-js/commit/bb3f40fbe78b1f6fbe4017bd7fb3595c3de63119))
+
+## [3.22.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.21.0...@rudderstack/analytics-js-integrations@3.22.0) (2026-06-11)
+
+
+### Features
+
+* **@rudderstack/analytics-js-integrations:** add amplitude v1/v2 sdk selection ([#3042](https://github.com/rudderlabs/rudder-sdk-js/issues/3042)) ([804b67c](https://github.com/rudderlabs/rudder-sdk-js/commit/804b67c040a655c6916308b5d754d712fc0c2242))
+
 ## [3.21.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.20.2...@rudderstack/analytics-js-integrations@3.21.0) (2026-06-08)
 
 

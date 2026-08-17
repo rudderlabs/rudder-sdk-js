@@ -2,6 +2,41 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [2.52.18](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.52.17...rudder-sdk-js@2.52.18) (2026-08-13)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-integrations` updated to version `3.24.2`
+
+## [2.52.17](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.52.16...rudder-sdk-js@2.52.17) (2026-08-05)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-integrations` updated to version `3.24.1`
+
+## [2.52.16](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.52.15...rudder-sdk-js@2.52.16) (2026-07-27)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-legacy-utilities` updated to version `0.1.1`
+* `@rudderstack/analytics-js-integrations` updated to version `3.24.0`
+
+### Bug Fixes
+
+* **deps:** bump the npm-prod-deps group across 1 directory with 7 updates ([#3111](https://github.com/rudderlabs/rudder-sdk-js/issues/3111)) ([61ed835](https://github.com/rudderlabs/rudder-sdk-js/commit/61ed835bcc8904e59c16a990f184aa784625a090))
+
+## [2.52.15](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.52.14...rudder-sdk-js@2.52.15) (2026-07-22)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-integrations` updated to version `3.23.0`
+
+## [2.52.14](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.52.13...rudder-sdk-js@2.52.14) (2026-06-11)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-integrations` updated to version `3.22.0`
+
 ## [2.52.13](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.52.12...rudder-sdk-js@2.52.13) (2026-06-08)
 
 ### Dependency Updates
