@@ -1,3 +1,4 @@
+import { errorMock } from '../../../__mocks__/logger';
 import { DCMFloodlight } from '../../../src/integrations/DCMFloodlight';
 
 const config = {
@@ -38,6 +39,37 @@ const config = {
           to: '2',
         },
       ],
+    },
+    {
+      eventName: 'groupOverrideOnlyEvent',
+      floodlightActivityTag: '',
+      floodlightGroupTag: 'conv01',
+      floodlightCountingMethod: 'standard',
+      salesTag: false,
+      customVariables: [],
+    },
+    {
+      eventName: 'globalFallbackEvent',
+      floodlightActivityTag: '',
+      floodlightGroupTag: '',
+      floodlightCountingMethod: 'standard',
+      salesTag: false,
+      customVariables: [],
+    },
+    {
+      eventName: 'groupOverrideWithUniqueCountingEvent',
+      floodlightActivityTag: '',
+      floodlightGroupTag: 'conv01',
+      floodlightCountingMethod: 'unique',
+      salesTag: false,
+      customVariables: [],
+    },
+    {
+      eventName: 'missingCountingMethodEvent',
+      floodlightActivityTag: 'signu03',
+      floodlightGroupTag: 'conv03',
+      salesTag: false,
+      customVariables: [],
     },
     {
       eventName: 'Viewed doc home page',
@@ -88,6 +120,7 @@ const destinationInfo = {
 };
 
 beforeEach(() => {
+  errorMock.mockClear();
   // Add a dummy script as it is required by the init script
   const scriptElement = document.createElement('script');
   scriptElement.type = 'text/javascript';
@@ -127,6 +160,66 @@ describe('track', () => {
     window.gtag = [];
   });
   let dcmFloodlight;
+
+  const invalidTagCases = [
+    {
+      description: 'no tags configured anywhere',
+      overrides: {
+        activityTag: undefined,
+        groupTag: undefined,
+      },
+      expectedError: 'groupTag is required for track call',
+    },
+    {
+      description: 'only the group tag is missing',
+      overrides: {
+        activityTag: 'signu00',
+        groupTag: undefined,
+      },
+      expectedError: 'groupTag is required for track call',
+    },
+    {
+      description: 'only the activity tag is missing',
+      overrides: {
+        activityTag: undefined,
+        groupTag: 'conv00',
+      },
+      expectedError: 'activityTag is required for track call',
+    },
+    {
+      description: 'the destination-level group tag is whitespace-only',
+      overrides: {
+        activityTag: 'signu00',
+        groupTag: '   ',
+      },
+      expectedError: 'groupTag is required for track call',
+    },
+  ];
+
+  const getInvalidTagConfig = overrides => ({
+    ...config,
+    ...overrides,
+    conversionEvents: [
+      {
+        eventName: 'tagValidationEvent',
+        floodlightActivityTag: '',
+        floodlightGroupTag: '',
+        floodlightCountingMethod: 'standard',
+        salesTag: false,
+        customVariables: [],
+      },
+    ],
+  });
+
+  const tagValidationPayload = {
+    message: {
+      type: 'track',
+      event: 'tagValidationEvent',
+      properties: {
+        name: 'test',
+      },
+    },
+  };
 
   it('should use the fallback counting method from config for matching conversion event when counting method is missing from properties', () => {
     dcmFloodlight = new DCMFloodlight(config, { loglevel: 'debug' });
@@ -187,42 +280,174 @@ describe('track', () => {
     }
   });
 
-  it('should throw an error when counting method is missing from properties and config for given conversion event', () => {
+  it('should not send an event when counting method is missing from properties and config for given conversion event', () => {
     dcmFloodlight = new DCMFloodlight(config, { loglevel: 'debug' });
     dcmFloodlight.init();
     window.gtag = jest.fn();
-    try {
-      dcmFloodlight.track({
-        message: {
-          type: 'track',
-          event: 'testEvent3',
-          properties: {
-            name: 'test',
-          },
+    dcmFloodlight.track({
+      message: {
+        type: 'track',
+        event: 'missingCountingMethodEvent',
+        properties: {
+          name: 'test',
         },
-      });
-    } catch (error) {
-      expect(error).toEqual('countingMethod is required for track call');
-    }
+      },
+    });
+    expect(window.gtag).not.toHaveBeenCalled();
   });
 
-  it('should throw an error when counting method is present for given conversion event, but group tag for that given event is missing', () => {
+  it('should fall back to the global group tag when the conversion event group tag is missing', () => {
     dcmFloodlight = new DCMFloodlight(config, { loglevel: 'debug' });
     dcmFloodlight.init();
     window.gtag = jest.fn();
-    try {
-      dcmFloodlight.track({
-        message: {
-          type: 'track',
-          event: 'testEvent2',
-          properties: {
-            name: 'test',
-          },
+    dcmFloodlight.track({
+      message: {
+        type: 'track',
+        event: 'testEvent2',
+        properties: {
+          name: 'test',
         },
+      },
+    });
+    expect(window.gtag.mock.calls[0][2]).toEqual({
+      allow_custom_scripts: true,
+      send_to: 'DC-00000000/conv00/signu01+standard',
+    });
+  });
+
+  it('should fall back to the global activity tag when the conversion event activity tag is missing', () => {
+    dcmFloodlight = new DCMFloodlight(config, { loglevel: 'debug' });
+    dcmFloodlight.init();
+    window.gtag = jest.fn();
+    dcmFloodlight.track({
+      message: {
+        type: 'track',
+        event: 'groupOverrideOnlyEvent',
+        properties: {
+          name: 'test',
+        },
+      },
+    });
+    expect(window.gtag.mock.calls[0][2]).toEqual({
+      allow_custom_scripts: true,
+      send_to: 'DC-00000000/conv01/signu00+standard',
+    });
+  });
+
+  it('should use global tags when the conversion event tags are missing', () => {
+    dcmFloodlight = new DCMFloodlight(config, { loglevel: 'debug' });
+    dcmFloodlight.init();
+    window.gtag = jest.fn();
+    dcmFloodlight.track({
+      message: {
+        type: 'track',
+        event: 'globalFallbackEvent',
+        properties: {
+          name: 'test',
+        },
+      },
+    });
+    expect(window.gtag.mock.calls[0][2]).toEqual({
+      allow_custom_scripts: true,
+      send_to: 'DC-00000000/conv00/signu00+standard',
+    });
+  });
+
+  it('should not leak overridden conversion event tags to subsequent events', () => {
+    dcmFloodlight = new DCMFloodlight(config, { loglevel: 'debug' });
+    dcmFloodlight.init();
+    window.gtag = jest.fn();
+    dcmFloodlight.track({
+      message: {
+        type: 'track',
+        event: 'testEvent',
+        properties: {
+          name: 'test',
+        },
+      },
+    });
+    dcmFloodlight.track({
+      message: {
+        type: 'track',
+        event: 'globalFallbackEvent',
+        properties: {
+          name: 'test',
+        },
+      },
+    });
+    expect(window.gtag.mock.calls[0][2].send_to).toBe('DC-00000000/conv01/signu01+standard');
+    expect(window.gtag.mock.calls[1][2].send_to).toBe('DC-00000000/conv00/signu00+standard');
+  });
+
+  it('should use the conversion event counting method when only one conversion event tag is configured', () => {
+    dcmFloodlight = new DCMFloodlight(config, { loglevel: 'debug' });
+    dcmFloodlight.init();
+    window.gtag = jest.fn();
+    dcmFloodlight.track({
+      message: {
+        type: 'track',
+        event: 'groupOverrideWithUniqueCountingEvent',
+        properties: {
+          name: 'test',
+        },
+      },
+    });
+    expect(window.gtag.mock.calls[0][2]).toEqual({
+      allow_custom_scripts: true,
+      send_to: 'DC-00000000/conv01/signu00+unique',
+    });
+  });
+
+  it.each(invalidTagCases)(
+    'should not send a gtag event when $description',
+    ({ overrides, expectedError }) => {
+      dcmFloodlight = new DCMFloodlight(getInvalidTagConfig(overrides), {
+        loglevel: 'debug',
       });
-    } catch (error) {
-      expect(error).toEqual('countingMethod is required for track call');
-    }
+      dcmFloodlight.init();
+      window.gtag = jest.fn();
+      dcmFloodlight.track(tagValidationPayload);
+
+      expect(errorMock).toHaveBeenCalledWith(expectedError);
+      expect(window.gtag).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(invalidTagCases)(
+    'should not append an iframe when $description',
+    ({ overrides, expectedError }) => {
+      dcmFloodlight = new DCMFloodlight(
+        getInvalidTagConfig({
+          ...overrides,
+          tagFormat: 'iframeTag',
+        }),
+        {
+          loglevel: 'debug',
+        },
+      );
+      dcmFloodlight.init();
+      const initialIframeCount = document.getElementsByTagName('iframe').length;
+      dcmFloodlight.track(tagValidationPayload);
+
+      expect(errorMock).toHaveBeenCalledWith(expectedError);
+      expect(document.getElementsByTagName('iframe').length).toBe(initialIframeCount);
+    },
+  );
+
+  it('should use independent tag fallbacks for iframe tags', () => {
+    dcmFloodlight = new DCMFloodlight({ ...config, tagFormat: 'iframeTag' }, { loglevel: 'debug' });
+    dcmFloodlight.init();
+    dcmFloodlight.track({
+      message: {
+        type: 'track',
+        event: 'groupOverrideOnlyEvent',
+        properties: {
+          name: 'test',
+        },
+      },
+    });
+    const iframes = document.getElementsByTagName('iframe');
+    expect(iframes[iframes.length - 1].src).toContain(';type=conv01;cat=signu00;');
   });
 });
 
