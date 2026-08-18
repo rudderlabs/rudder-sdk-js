@@ -47,6 +47,10 @@ jobs:
         run: |
           npm run setup:deps
 
+      - name: Execute release versioning regression
+        run: |
+          npm run test:release-versioning
+
       - name: Check for affected projects
         id: check_affected
         run: |
