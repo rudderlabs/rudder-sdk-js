@@ -134,10 +134,8 @@ class Analytics implements IAnalytics {
       return;
     }
 
-    const loadOptionsCopy = { ...loadOptions };
-    const customContext = loadOptionsCopy.context;
-    delete loadOptionsCopy.context;
-    const sanitizedLoadOptions = getSanitizedValue(loadOptionsCopy);
+    const { context: customContext, ...loadOptionsWithoutContext } = loadOptions;
+    const sanitizedLoadOptions = getSanitizedValue(loadOptionsWithoutContext);
 
     if (customContext !== undefined) {
       this.customContextStore.set(customContext);
