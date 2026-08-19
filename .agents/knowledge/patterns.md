@@ -30,6 +30,11 @@
 
 - Sanity-suite sourceConfig fixtures must mirror live sourceConfig destination configs exactly except explicitly ignored fields; Amplitude web device-mode fixture configs include flattened `config.sdkVersion: 1` after `config.residencyServer` in `packages/sanity-suite/__fixtures__/sourceConfig1.json` and `packages/sanity-suite/__fixtures__/sourceConfigDMT1.json`.
 
+## INT-6620 — DCM Floodlight Per-Event Fallbacks
+
+- DCM Floodlight device-mode per-event `floodlightActivityTag`, `floodlightGroupTag`, and `floodlightCountingMethod` should be treated as absent when blank or whitespace-only, then resolved independently with `?.trim() ||` the destination-level default (`packages/analytics-js-integrations/src/integrations/DCMFloodlight/browser.js`).
+- Per-track DCM Floodlight overrides should remain local values passed through the track flow rather than being written to `this.*`, so a persistent SPA integration instance does not carry one event's tags or counting method into later events (`packages/analytics-js-integrations/src/integrations/DCMFloodlight/browser.js`).
+- Resolve and trim DCM Floodlight activity/group tags inside `track()`, validate the resolved local tags there, and keep `trackWithGtag()`/`trackWithIframe()` as consumers of already-resolved values instead of duplicating tag validation in those transport helpers (`packages/analytics-js-integrations/src/integrations/DCMFloodlight/browser.js`).
 ## INT-6982 — Google Ads Enhanced Conversions Identify Match Keys
 
 - Google Ads device-mode Enhanced Conversions identify validation in `packages/analytics-js-integrations/src/integrations/GoogleAds/browser.js` accepts non-empty traits when either `traits.email` is truthy or the complete address match-key group (`firstName`, `lastName`, `postalCode`, `country`) is truthy; `phone` is optional and is passed through by `generateUserDataPayload` when available.
