@@ -159,11 +159,12 @@ jobs:
           files: |
             .
 
-      # jscutlery runs with --skipCommit=true, so it writes version/changelog files but
-      # creates no commits or tags. The signed-commit action above packages all file
-      # changes into one verified commit on the release branch. This step then creates
-      # annotated tag objects (via the Git Data API) for each bumped package at that
-      # commit, and points tag refs at them.
+      # jscutlery runs with --skipCommit=true, so it writes version/changelog files
+      # without creating release commits, but it still creates local tags at the
+      # current HEAD. Those local tags are not pushed. The signed-commit action above
+      # packages all file changes into one verified commit on the release branch. This
+      # step then creates annotated tag objects (via the Git Data API) for each bumped
+      # package at that commit, and points tag refs at them.
       #
       # Tag objects are unsigned. GitHub's Git Data API for `POST /git/tags` does not
       # accept a signature in its payload; producing a signed tag would require running

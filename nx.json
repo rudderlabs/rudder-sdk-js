@@ -27,12 +27,6 @@
       "inputs": ["test"],
       "cache": true
     },
-    "version": [
-      {
-        "target": "version",
-        "projects": "dependencies"
-      }
-    ],
     "*build*": {
       "inputs": ["default"],
       "cache": true
