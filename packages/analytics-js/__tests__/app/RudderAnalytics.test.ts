@@ -234,6 +234,36 @@ describe('Core - Rudder Analytics Facade', () => {
       expect(secondResult).toEqual({});
       expect(firstResult).not.toBe(secondResult);
     });
+
+    it('returns an empty object when no analytics instance is available', () => {
+      const getAnalyticsInstanceSpy = jest
+        .spyOn(rudderAnalytics, 'getAnalyticsInstance')
+        .mockReturnValue(undefined);
+
+      expect(rudderAnalytics.getCustomContext()).toEqual({});
+
+      getAnalyticsInstanceSpy.mockRestore();
+    });
+
+    it.each([
+      ['setCustomContext', () => rudderAnalytics.setCustomContext({ region: 'EU' }), undefined],
+      ['getCustomContext', () => rudderAnalytics.getCustomContext(), {}],
+      ['clearCustomContext', () => rudderAnalytics.clearCustomContext(), undefined],
+    ])('dispatches an error event when %s fails', (_method, invoke, expectedResult) => {
+      const error = new Error('Error in getAnalyticsInstance');
+      const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+      const getAnalyticsInstanceSpy = jest
+        .spyOn(rudderAnalytics, 'getAnalyticsInstance')
+        .mockImplementation(() => {
+          throw error;
+        });
+
+      expect(invoke()).toEqual(expectedResult);
+      expect(dispatchEventSpy).toHaveBeenCalledWith(new ErrorEvent('error', { error }));
+
+      getAnalyticsInstanceSpy.mockRestore();
+      dispatchEventSpy.mockRestore();
+    });
   });
 
   it('should process ready arguments and forwards to ready call', () => {
