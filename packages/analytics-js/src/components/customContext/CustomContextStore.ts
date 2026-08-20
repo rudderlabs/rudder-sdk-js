@@ -9,8 +9,8 @@ import { prepareCustomContextUpdate } from './utilities';
 import type { CustomContext } from './types';
 
 class CustomContextStore {
-  private state: CustomContextState;
-  private logger: ILogger;
+  private readonly state: CustomContextState;
+  private readonly logger: ILogger;
 
   constructor(state: CustomContextState, logger: ILogger) {
     this.state = state;
