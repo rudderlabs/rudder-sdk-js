@@ -193,17 +193,18 @@ jobs:
           echo "Release branch HEAD: $release_sha"
 
           for pj in packages/*/project.json; do
-            tag=$(jq -r '.targets.github.options.tag // empty' "$pj")
-            [ -z "$tag" ] && continue
-
             pkg_dir=$(dirname "$pj")
-            current_version=$(git show "origin/${BRANCH_NAME}:${pkg_dir}/package.json" 2>/dev/null | jq -r '.version // empty' 2>/dev/null || echo "")
+            current_package=$(git show "origin/${BRANCH_NAME}:${pkg_dir}/package.json" 2>/dev/null || echo "")
+            current_version=$(printf '%s' "$current_package" | jq -r '.version // empty' 2>/dev/null || echo "")
             prev_version=$(git show "origin/main:${pkg_dir}/package.json" 2>/dev/null | jq -r '.version // empty' 2>/dev/null || echo "")
 
-            if [ -z "$current_version" ]; then
-              echo "::error::Unable to read version for ${pkg_dir}; refusing to tag ${tag}"
+            if [ -z "$current_package" ] || [ -z "$current_version" ]; then
+              echo "::error::Unable to read package metadata for ${pkg_dir}; refusing to create a release tag"
               exit 1
             fi
+
+            tag=$(printf '%s' "$current_package" | node ./scripts/get-release-version-tag.js "$pj")
+            [ -z "$tag" ] && continue
 
             if [ -n "$prev_version" ] && [ "$current_version" = "$prev_version" ]; then
               echo "Skipping ${tag} — version unchanged vs origin/main"

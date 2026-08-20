@@ -5,6 +5,7 @@ const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
 
+const { getReleaseVersionTag } = require('./get-release-version-tag');
 const { orderDependentsBeforeDependencies } = require('./run-release-version-targets');
 
 const repoRoot = path.resolve(__dirname, '..');
@@ -149,6 +150,42 @@ test('orders version targets from dependents to dependencies', () => {
   });
 
   assert.deepEqual(ordered, ['parent', 'middle', 'leaf']);
+});
+
+test('builds a release tag for a versioned project without a github target', () => {
+  const tag = getReleaseVersionTag(
+    {
+      targets: {
+        version: {
+          executor: '@jscutlery/semver:version',
+        },
+      },
+    },
+    {
+      name: '@rudderstack/analytics-js-sanity-suite',
+      version: '3.6.2',
+    },
+  );
+
+  assert.equal(tag, '@rudderstack/analytics-js-sanity-suite@3.6.2');
+});
+
+test('does not build a release tag for a project without a version target', () => {
+  const tag = getReleaseVersionTag(
+    {
+      targets: {
+        github: {
+          executor: '@jscutlery/semver:github',
+        },
+      },
+    },
+    {
+      name: '@rudderstack/example',
+      version: '1.0.0',
+    },
+  );
+
+  assert.equal(tag, null);
 });
 
 test('bumps a three-level trackDeps chain with skipCommit tags', () => {
