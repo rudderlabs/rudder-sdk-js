@@ -194,5 +194,21 @@ describe('Test suite for the SDK', () => {
         expect(window.rudderanalytics?.getGroupTraits()).toEqual({});
       });
     });
+
+    describe('custom context', () => {
+      it('should expose the custom context APIs on the browser global', () => {
+        expect(window.rudderanalytics?.setCustomContext).toEqual(expect.any(Function));
+        expect(window.rudderanalytics?.getCustomContext).toEqual(expect.any(Function));
+        expect(window.rudderanalytics?.clearCustomContext).toEqual(expect.any(Function));
+      });
+
+      it('should update, read, and clear custom context', () => {
+        window.rudderanalytics?.setCustomContext({ region: 'EU' });
+        expect(window.rudderanalytics?.getCustomContext()).toEqual({ region: 'EU' });
+
+        window.rudderanalytics?.clearCustomContext();
+        expect(window.rudderanalytics?.getCustomContext()).toEqual({});
+      });
+    });
   });
 });
