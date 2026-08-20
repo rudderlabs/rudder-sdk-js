@@ -18,7 +18,7 @@ export type InputCustomContextValue =
   | null
   | undefined
   | InputCustomContext
-  | CustomContextValue[];
+  | InputCustomContextValue[];
 
 export interface InputCustomContext {
   [key: string]: InputCustomContextValue;
