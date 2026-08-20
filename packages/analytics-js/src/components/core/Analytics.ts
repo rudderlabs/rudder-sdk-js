@@ -70,6 +70,7 @@ import { getConsentManagementData, getValidPostConsentOptions } from '../utiliti
 import { dispatchSDKEvent, isDataPlaneUrlValid, isWriteKeyValid } from './utilities';
 import { safelyInvokeCallback } from '../utilities/callbacks';
 import type { ConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
+import { CustomContextStore } from '../customContext';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events
@@ -89,6 +90,7 @@ class Analytics implements IAnalytics {
   eventManager?: IEventManager;
   userSessionManager?: IUserSessionManager;
   clientDataStore?: Store;
+  customContextStore: CustomContextStore;
 
   /**
    * Initialize services and components or use default ones if singletons
@@ -98,6 +100,7 @@ class Analytics implements IAnalytics {
     this.initialized = false;
     this.errorHandler = defaultErrorHandler;
     this.logger = defaultLogger;
+    this.customContextStore = new CustomContextStore(state.customContext, this.logger);
     this.externalSrcLoader = new ExternalSrcLoader(this.logger);
     this.httpClient = defaultHttpClient;
     this.httpClient.init(this.errorHandler);

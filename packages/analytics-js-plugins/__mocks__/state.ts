@@ -60,6 +60,7 @@ const defaultStateValues: ApplicationState = {
     'ua-ch': signal(undefined),
     timezone: signal(undefined),
   },
+  customContext: signal({}),
   eventBuffer: {
     toBeProcessedArray: signal([]),
     readyCallbacksArray: signal([]),
@@ -203,6 +204,7 @@ const resetState = () => {
   state.capabilities = clone(defaultStateValues.capabilities);
   state.consents = clone(defaultStateValues.consents);
   state.context = clone(defaultStateValues.context);
+  state.customContext = clone(defaultStateValues.customContext);
   state.eventBuffer = clone(defaultStateValues.eventBuffer);
   state.lifecycle = clone(defaultStateValues.lifecycle);
   state.loadOptions = clone(defaultStateValues.loadOptions);

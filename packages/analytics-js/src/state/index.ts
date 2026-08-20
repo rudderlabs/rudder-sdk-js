@@ -9,6 +9,7 @@ import { lifecycleState } from './slices/lifecycle';
 import { consentsState } from './slices/consents';
 import { metricsState } from './slices/metrics';
 import { contextState } from './slices/context';
+import { customContextState } from './slices/customContext';
 import { nativeDestinationsState } from './slices/nativeDestinations';
 import { eventBufferState } from './slices/eventBuffer';
 import { pluginsState } from './slices/plugins';
@@ -21,6 +22,7 @@ const defaultStateValues: ApplicationState = {
   capabilities: capabilitiesState,
   consents: consentsState,
   context: contextState,
+  customContext: customContextState,
   eventBuffer: eventBufferState,
   lifecycle: lifecycleState,
   loadOptions: loadOptionsState,
@@ -44,6 +46,7 @@ const resetState = () => {
   state.capabilities = clone(defaultStateValues.capabilities);
   state.consents = clone(defaultStateValues.consents);
   state.context = clone(defaultStateValues.context);
+  state.customContext = clone(defaultStateValues.customContext);
   state.eventBuffer = clone(defaultStateValues.eventBuffer);
   state.lifecycle = clone(defaultStateValues.lifecycle);
   state.loadOptions = clone(defaultStateValues.loadOptions);
