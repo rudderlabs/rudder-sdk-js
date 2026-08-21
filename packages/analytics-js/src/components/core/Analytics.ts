@@ -2,6 +2,7 @@
 import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader';
 import { batch, effect } from '@preact/signals-core';
 import { isFunction, isNull } from '@rudderstack/analytics-js-common/utilities/checks';
+import { getSanitizedValue } from '@rudderstack/analytics-js-common/utilities/json';
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { clone } from 'ramda';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
@@ -133,11 +134,18 @@ class Analytics implements IAnalytics {
       return;
     }
 
+    const { context: customContext, ...loadOptionsWithoutContext } = loadOptions;
+    const sanitizedLoadOptions = getSanitizedValue(loadOptionsWithoutContext);
+
+    if (customContext !== undefined) {
+      this.customContextStore.set(customContext);
+    }
+
     // Set initial state values
     batch(() => {
       state.lifecycle.writeKey.value = clone(writeKey);
       state.lifecycle.dataPlaneUrl.value = clone(dataPlaneUrl);
-      state.loadOptions.value = normalizeLoadOptions(state.loadOptions.value, loadOptions);
+      state.loadOptions.value = normalizeLoadOptions(state.loadOptions.value, sanitizedLoadOptions);
       state.lifecycle.status.value = 'mounted';
     });
 
