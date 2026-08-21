@@ -1,6 +1,23 @@
 import { dummyCDNHost, SDK_FILE_NAME } from '../__fixtures__/fixtures';
 import { loadingSnippet } from './nativeSdkLoader';
 import { server } from '../__fixtures__/msw.server';
+import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+
+type SentTrackEvent = Pick<RudderEvent, 'event' | 'context'>;
+
+const isSentTrackEvent = (value: unknown): value is SentTrackEvent => {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  return (
+    'event' in value &&
+    typeof value.event === 'string' &&
+    'context' in value &&
+    typeof value.context === 'object' &&
+    value.context !== null
+  );
+};
 
 describe('Test suite for the SDK', () => {
   beforeAll(() => {
@@ -66,7 +83,7 @@ describe('Test suite for the SDK', () => {
     loadingSnippet(dummyCDNHost, SDK_FILE_NAME, WRITE_KEY, DATA_PLANE_URL, options);
   };
 
-  const getSentEvents = (): Record<string, any>[] =>
+  const getSentEvents = (): SentTrackEvent[] =>
     xhrMock.send.mock.calls
       .map(([body]: [unknown]) => {
         if (typeof body !== 'string') {
@@ -74,14 +91,13 @@ describe('Test suite for the SDK', () => {
         }
 
         try {
-          return JSON.parse(body);
+          const parsedBody: unknown = JSON.parse(body);
+          return isSentTrackEvent(parsedBody) ? parsedBody : undefined;
         } catch {
           return undefined;
         }
       })
-      .filter((body: Record<string, any> | undefined): body is Record<string, any> =>
-        Boolean(body?.event),
-      );
+      .filter((body: SentTrackEvent | undefined): body is SentTrackEvent => body !== undefined);
 
   const waitForSDKReady = async () => {
     const readyPromise = new Promise((resolve, reject) => {
