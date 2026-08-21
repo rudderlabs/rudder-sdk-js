@@ -76,7 +76,7 @@ import { dispatchSDKEvent, isDataPlaneUrlValid, isWriteKeyValid } from './utilit
 import { safelyInvokeCallback } from '../utilities/callbacks';
 import type { ConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
 import type { BufferedEvent } from '@rudderstack/analytics-js-common/types/Event';
-import { CustomContextStore } from '../customContext';
+import { CustomContextStore, prepareCustomContextUpdate } from '../customContext';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events
@@ -478,6 +478,15 @@ class Analytics implements IAnalytics {
     }
   }
 
+  private getInvocationContext(preservedCustomContext?: CustomContext): CustomContext {
+    if (preservedCustomContext === undefined) {
+      return this.customContextStore.get();
+    }
+
+    const preparedContext = prepareCustomContextUpdate(preservedCustomContext, this.logger);
+    return (preparedContext as CustomContext | undefined) ?? {};
+  }
+
   /**
    * Load device mode destinations
    */
@@ -599,7 +608,7 @@ class Analytics implements IAnalytics {
       return;
     }
 
-    const invocationContext = preservedCustomContext ?? this.customContextStore.get();
+    const invocationContext = this.getInvocationContext(preservedCustomContext);
 
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
     state.metrics.triggered.value += 1;
@@ -654,7 +663,7 @@ class Analytics implements IAnalytics {
       return;
     }
 
-    const invocationContext = preservedCustomContext ?? this.customContextStore.get();
+    const invocationContext = this.getInvocationContext(preservedCustomContext);
 
     this.errorHandler.leaveBreadcrumb(`New ${type} event - ${payload.name}`);
     state.metrics.triggered.value += 1;
@@ -686,7 +695,7 @@ class Analytics implements IAnalytics {
       return;
     }
 
-    const invocationContext = preservedCustomContext ?? this.customContextStore.get();
+    const invocationContext = this.getInvocationContext(preservedCustomContext);
 
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
     state.metrics.triggered.value += 1;
@@ -732,7 +741,7 @@ class Analytics implements IAnalytics {
       return;
     }
 
-    const invocationContext = preservedCustomContext ?? this.customContextStore.get();
+    const invocationContext = this.getInvocationContext(preservedCustomContext);
 
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
     state.metrics.triggered.value += 1;
@@ -767,7 +776,7 @@ class Analytics implements IAnalytics {
       return;
     }
 
-    const invocationContext = preservedCustomContext ?? this.customContextStore.get();
+    const invocationContext = this.getInvocationContext(preservedCustomContext);
 
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
     state.metrics.triggered.value += 1;

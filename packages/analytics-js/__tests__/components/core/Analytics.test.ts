@@ -828,6 +828,40 @@ describe('Core - Analytics', () => {
         { version: 'captured' },
       );
     });
+
+    it('filters reserved keys from a context snapshot supplied by an internal buffering stage', () => {
+      analytics.prepareInternalServices();
+      const addEventSpy = jest.spyOn(analytics.eventManager!, 'addEvent');
+      state.eventBuffer.toBeProcessedArray.value = [
+        [
+          'track',
+          { name: 'internally-buffered' },
+          { agentId: 'agent-1', library: { name: 'override' } },
+        ],
+      ];
+
+      state.lifecycle.loaded.value = true;
+      analytics.processBufferedEvents();
+
+      expect(addEventSpy).toHaveBeenCalledWith(
+        { type: 'track', name: 'internally-buffered' },
+        { agentId: 'agent-1' },
+      );
+    });
+
+    it('rejects an unsafe context snapshot supplied by an internal buffering stage', () => {
+      analytics.prepareInternalServices();
+      const addEventSpy = jest.spyOn(analytics.eventManager!, 'addEvent');
+      const unsafeContext = JSON.parse('{"nested":{"__proto__":{"polluted":true}}}');
+      state.eventBuffer.toBeProcessedArray.value = [
+        ['track', { name: 'internally-buffered' }, unsafeContext],
+      ];
+
+      state.lifecycle.loaded.value = true;
+      analytics.processBufferedEvents();
+
+      expect(addEventSpy).toHaveBeenCalledWith({ type: 'track', name: 'internally-buffered' }, {});
+    });
   });
 
   describe('identify', () => {
