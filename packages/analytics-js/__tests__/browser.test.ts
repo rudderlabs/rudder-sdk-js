@@ -2,6 +2,7 @@ import { dummyCDNHost, SDK_FILE_NAME } from '../__fixtures__/fixtures';
 import { loadingSnippet } from './nativeSdkLoader';
 import { server } from '../__fixtures__/msw.server';
 import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import type { LoadOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
 
 type SentTrackEvent = Pick<RudderEvent, 'event' | 'context'>;
 
@@ -79,7 +80,7 @@ describe('Test suite for the SDK', () => {
     'group-trait-key-2': 'group-trait-value-2',
   };
 
-  const loadSDKScript = (options = {}) => {
+  const loadSDKScript = (options: Partial<LoadOptions> = {}) => {
     loadingSnippet(dummyCDNHost, SDK_FILE_NAME, WRITE_KEY, DATA_PLANE_URL, options);
   };
 
