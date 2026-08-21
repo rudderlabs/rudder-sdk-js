@@ -75,9 +75,8 @@ import { getConsentManagementData, getValidPostConsentOptions } from '../utiliti
 import { dispatchSDKEvent, isDataPlaneUrlValid, isWriteKeyValid } from './utilities';
 import { safelyInvokeCallback } from '../utilities/callbacks';
 import type { ConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
+import type { BufferedEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { CustomContextStore } from '../customContext';
-
-const CUSTOM_CONTEXT_EVENT_METHODS = ['page', 'track', 'identify', 'alias', 'group'];
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events
@@ -421,18 +420,61 @@ class Analytics implements IAnalytics {
       state.eventBuffer.toBeProcessedArray.value = bufferedEvents;
 
       if (bufferedEvent) {
-        const methodName = bufferedEvent[0];
-        if (isFunction((this as any)[methodName])) {
-          if (CUSTOM_CONTEXT_EVENT_METHODS.includes(methodName) && bufferedEvent.length > 2) {
-            (this as any)[methodName](bufferedEvent[1], true, bufferedEvent[2]);
-          } else {
-            // Send additional arg 'true' to indicate that this is a buffered invocation
-            (this as any)[methodName](...bufferedEvent.slice(1), true);
-          }
-        }
+        this.processBufferedEvent(bufferedEvent);
       }
 
       bufferedEvents = state.eventBuffer.toBeProcessedArray.value;
+    }
+  }
+
+  processBufferedEvent(bufferedEvent: BufferedEvent) {
+    switch (bufferedEvent[0]) {
+      case 'setCustomContext':
+        this.setCustomContext(bufferedEvent[1]);
+        break;
+      case 'clearCustomContext':
+        this.clearCustomContext();
+        break;
+      case 'ready':
+        this.ready(bufferedEvent[1], true);
+        break;
+      case 'page':
+        this.page(bufferedEvent[1], true, bufferedEvent[2]);
+        break;
+      case 'track':
+        this.track(bufferedEvent[1], true, bufferedEvent[2]);
+        break;
+      case 'identify':
+        this.identify(bufferedEvent[1], true, bufferedEvent[2]);
+        break;
+      case 'alias':
+        this.alias(bufferedEvent[1], true, bufferedEvent[2]);
+        break;
+      case 'group':
+        this.group(bufferedEvent[1], true, bufferedEvent[2]);
+        break;
+      case 'reset':
+        this.reset(bufferedEvent[1], true);
+        break;
+      case 'setAnonymousId':
+        this.setAnonymousId(bufferedEvent[1], bufferedEvent[2], true);
+        break;
+      case 'startSession':
+        this.startSession(bufferedEvent[1], true);
+        break;
+      case 'endSession':
+        this.endSession(true);
+        break;
+      case 'consent':
+        this.consent(bufferedEvent[1], true);
+        break;
+      case 'addCustomIntegration':
+        this.addCustomIntegration(bufferedEvent[1], bufferedEvent[2], true);
+        break;
+      default: {
+        const unsupportedEvent: never = bufferedEvent;
+        return unsupportedEvent;
+      }
     }
   }
 
