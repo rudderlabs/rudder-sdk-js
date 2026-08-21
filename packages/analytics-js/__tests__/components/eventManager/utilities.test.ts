@@ -790,10 +790,13 @@ describe('Event Manager - Utilities', () => {
         } as ApiOptions,
       ],
     ])('should warn and skip prototype-pollution input from %s', (_, apiOptions) => {
+      const expectedContext = JSON.parse(JSON.stringify(defaultContext)) as RudderContext;
+      const expectedPrototype = Object.getPrototypeOf(defaultContext);
       const mergedContext = getMergedContext(defaultContext, apiOptions, mockLogger);
 
-      expect(mergedContext).toEqual(defaultContext);
-      expect(Object.getPrototypeOf(mergedContext)).toBe(Object.getPrototypeOf(defaultContext));
+      expect(mergedContext).toEqual(expectedContext);
+      expect(Object.getPrototypeOf(mergedContext)).toBe(expectedPrototype);
+      expect(Object.prototype).not.toHaveProperty('polluted');
       expect(mockLogger.warn).toHaveBeenCalledWith(INVALID_CUSTOM_CONTEXT_WARNING(EVENT_MANAGER));
     });
 
