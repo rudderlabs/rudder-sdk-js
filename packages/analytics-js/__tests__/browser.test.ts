@@ -1,6 +1,24 @@
 import { dummyCDNHost, SDK_FILE_NAME } from '../__fixtures__/fixtures';
 import { loadingSnippet } from './nativeSdkLoader';
 import { server } from '../__fixtures__/msw.server';
+import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import type { LoadOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
+
+type SentTrackEvent = Pick<RudderEvent, 'event' | 'context'>;
+
+const isSentTrackEvent = (value: unknown): value is SentTrackEvent => {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  return (
+    'event' in value &&
+    typeof value.event === 'string' &&
+    'context' in value &&
+    typeof value.context === 'object' &&
+    value.context !== null
+  );
+};
 
 describe('Test suite for the SDK', () => {
   beforeAll(() => {
@@ -62,9 +80,25 @@ describe('Test suite for the SDK', () => {
     'group-trait-key-2': 'group-trait-value-2',
   };
 
-  const loadSDKScript = () => {
-    loadingSnippet(dummyCDNHost, SDK_FILE_NAME, WRITE_KEY, DATA_PLANE_URL);
+  const loadSDKScript = (options: Partial<LoadOptions> = {}) => {
+    loadingSnippet(dummyCDNHost, SDK_FILE_NAME, WRITE_KEY, DATA_PLANE_URL, options);
   };
+
+  const getSentEvents = (): SentTrackEvent[] =>
+    xhrMock.send.mock.calls
+      .map(([body]: [unknown]) => {
+        if (typeof body !== 'string') {
+          return undefined;
+        }
+
+        try {
+          const parsedBody: unknown = JSON.parse(body);
+          return isSentTrackEvent(parsedBody) ? parsedBody : undefined;
+        } catch {
+          return undefined;
+        }
+      })
+      .filter((body: SentTrackEvent | undefined): body is SentTrackEvent => body !== undefined);
 
   const waitForSDKReady = async () => {
     const readyPromise = new Promise((resolve, reject) => {
@@ -110,6 +144,28 @@ describe('Test suite for the SDK', () => {
 
       // one source configuration request, one page request, and one track request
       expect(xhrMock.send).toHaveBeenCalledTimes(3);
+    });
+
+    it('applies load, set, and clear context in preload invocation order', async () => {
+      loadSDKScript({ context: { version: 'load-time' } });
+
+      window.rudderanalytics?.track('before-runtime-update');
+      window.rudderanalytics?.setCustomContext({ version: 'runtime' });
+      window.rudderanalytics?.track('after-runtime-update');
+      window.rudderanalytics?.clearCustomContext();
+      window.rudderanalytics?.track('after-clear');
+
+      await waitForSDKReady();
+
+      const eventsByName = Object.fromEntries(getSentEvents().map(event => [event.event, event]));
+
+      expect(eventsByName['before-runtime-update']?.context).toMatchObject({
+        version: 'load-time',
+      });
+      expect(eventsByName['after-runtime-update']?.context).toMatchObject({
+        version: 'runtime',
+      });
+      expect(eventsByName['after-clear']?.context).not.toHaveProperty('version');
     });
   });
 
