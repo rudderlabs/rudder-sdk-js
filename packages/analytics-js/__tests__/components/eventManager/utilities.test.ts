@@ -11,6 +11,7 @@ import type {
 } from '@rudderstack/analytics-js-common/types/EventContext';
 import type { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
 import type { RudderContext, RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import { EVENT_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { resetState, state } from '../../../src/state';
 import {
   checkForReservedElements,
@@ -27,6 +28,7 @@ import { PluginsManager } from '../../../src/components/pluginsManager';
 import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
 import { defaultPluginEngine } from '../../../src/services/PluginEngine';
 import { defaultLogger } from '../../../src/services/Logger';
+import { INVALID_CUSTOM_CONTEXT_WARNING } from '../../../src/constants/logMessages';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/timestamp', () => ({
   getCurrentTimeFormatted: jest.fn().mockReturnValue('2020-01-01T00:00:00.000Z'),
@@ -792,9 +794,7 @@ describe('Event Manager - Utilities', () => {
 
       expect(mergedContext).toEqual(defaultContext);
       expect(Object.getPrototypeOf(mergedContext)).toBe(Object.getPrototypeOf(defaultContext));
-      expect(mockLogger.warn).toHaveBeenCalledWith(
-        'EventManager:: The custom context update is invalid. Use a plain object containing only supported context values.',
-      );
+      expect(mockLogger.warn).toHaveBeenCalledWith(INVALID_CUSTOM_CONTEXT_WARNING(EVENT_MANAGER));
     });
 
     it('should log warning if the context inside the options is not a valid object', () => {
