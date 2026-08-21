@@ -11,6 +11,7 @@ import type {
 } from '@rudderstack/analytics-js-common/types/EventContext';
 import type { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
 import type { RudderContext, RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
+import { EVENT_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { resetState, state } from '../../../src/state';
 import {
   checkForReservedElements,
@@ -27,6 +28,7 @@ import { PluginsManager } from '../../../src/components/pluginsManager';
 import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
 import { defaultPluginEngine } from '../../../src/services/PluginEngine';
 import { defaultLogger } from '../../../src/services/Logger';
+import { INVALID_CUSTOM_CONTEXT_WARNING } from '../../../src/constants/logMessages';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/timestamp', () => ({
   getCurrentTimeFormatted: jest.fn().mockReturnValue('2020-01-01T00:00:00.000Z'),
@@ -617,7 +619,7 @@ describe('Event Manager - Utilities', () => {
         },
       };
 
-      const mergedContext = getMergedContext(defaultContext, apiOptions);
+      const mergedContext = getMergedContext(defaultContext, apiOptions, mockLogger);
 
       expect(mergedContext).toEqual({
         library: {
@@ -667,7 +669,7 @@ describe('Event Manager - Utilities', () => {
         },
       };
 
-      const mergedContext = getMergedContext(defaultContext, apiOptions);
+      const mergedContext = getMergedContext(defaultContext, apiOptions, mockLogger);
 
       expect(mergedContext).toEqual({
         library: {
@@ -699,7 +701,7 @@ describe('Event Manager - Utilities', () => {
       });
     });
 
-    it('should skip merging into context if options contain either top-level or context reserved elements', () => {
+    it('should warn and skip reserved context elements from both supported options shapes', () => {
       // Set specific contextual data in options to override
       // Include top-level elements and reserved elements in options and options context object
       // which should be skipped
@@ -707,6 +709,9 @@ describe('Event Manager - Utilities', () => {
         newContextKey1: 'newContextValue1',
         anonymousId: 'test_anon_id',
         originalTimestamp: '2020-01-01T00:00:00.000Z',
+        library: {
+          name: 'wrapper-free override',
+        },
         context: {
           campaign: {
             name: 'test1',
@@ -721,15 +726,11 @@ describe('Event Manager - Utilities', () => {
             width: 100,
             height: 200,
           },
-          library: {
-            name: 'test1',
-            isNew: true,
-          },
           'ua-ch': {},
         },
       };
 
-      const mergedContext = getMergedContext(defaultContext, apiOptions);
+      const mergedContext = getMergedContext(defaultContext, apiOptions, mockLogger);
 
       expect(mergedContext).toEqual({
         library: {
@@ -757,6 +758,46 @@ describe('Event Manager - Utilities', () => {
         },
         userAgent: 'defaultUA',
       });
+      expect(mockLogger.warn).toHaveBeenCalledTimes(5);
+      expect(mockLogger.warn).toHaveBeenNthCalledWith(
+        1,
+        'CustomContext:: The top-level custom context property "library" is reserved and was ignored.',
+      );
+      expect(mockLogger.warn).toHaveBeenNthCalledWith(
+        2,
+        'CustomContext:: The top-level custom context property "consentManagement" is reserved and was ignored.',
+      );
+      expect(mockLogger.warn).toHaveBeenNthCalledWith(
+        3,
+        'CustomContext:: The top-level custom context property "userAgent" is reserved and was ignored.',
+      );
+      expect(mockLogger.warn).toHaveBeenNthCalledWith(
+        4,
+        'CustomContext:: The top-level custom context property "screen" is reserved and was ignored.',
+      );
+      expect(mockLogger.warn).toHaveBeenNthCalledWith(
+        5,
+        'CustomContext:: The top-level custom context property "ua-ch" is reserved and was ignored.',
+      );
+    });
+
+    it.each([
+      ['a top-level wrapper-free key', JSON.parse('{"__proto__":{"polluted":true}}') as ApiOptions],
+      [
+        'a nested options.context key',
+        {
+          context: JSON.parse('{"account":{"constructor":{"polluted":true}}}'),
+        } as ApiOptions,
+      ],
+    ])('should warn and skip prototype-pollution input from %s', (_, apiOptions) => {
+      const expectedContext = JSON.parse(JSON.stringify(defaultContext)) as RudderContext;
+      const expectedPrototype = Object.getPrototypeOf(defaultContext);
+      const mergedContext = getMergedContext(defaultContext, apiOptions, mockLogger);
+
+      expect(mergedContext).toEqual(expectedContext);
+      expect(Object.getPrototypeOf(mergedContext)).toBe(expectedPrototype);
+      expect(Object.prototype).not.toHaveProperty('polluted');
+      expect(mockLogger.warn).toHaveBeenCalledWith(INVALID_CUSTOM_CONTEXT_WARNING(EVENT_MANAGER));
     });
 
     it('should log warning if the context inside the options is not a valid object', () => {

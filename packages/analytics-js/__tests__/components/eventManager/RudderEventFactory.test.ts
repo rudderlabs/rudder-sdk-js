@@ -214,6 +214,62 @@ describe('RudderEventFactory', () => {
     });
   });
 
+  it('merges custom context after SDK context and before per-event options', () => {
+    const capturedAt = new Date('2026-07-21T00:00:00.000Z');
+    const customContext = {
+      region: 'global',
+      nested: { global: true },
+      capturedAt,
+    };
+    const apiEvent = {
+      type: 'track',
+      name: 'Context precedence',
+      options: {
+        context: {
+          region: 'event',
+          nested: { event: true },
+        },
+      },
+    } as APIEvent;
+
+    const trackEvent = rudderEventFactory.create(apiEvent, customContext);
+
+    expect(trackEvent.context).toMatchObject({
+      region: 'event',
+      nested: { global: true, event: true },
+      capturedAt: new Date('2026-07-21T00:00:00.000Z'),
+    });
+    expect(customContext).toEqual({
+      region: 'global',
+      nested: { global: true },
+      capturedAt,
+    });
+  });
+
+  it.each([
+    ['page', { type: 'page', name: 'Custom context page' }],
+    ['track', { type: 'track', name: 'Custom context track' }],
+    ['identify', { type: 'identify', userId: 'custom-context-user' }],
+    ['group', { type: 'group', groupId: 'custom-context-group' }],
+    ['alias', { type: 'alias', to: 'custom-context-alias' }],
+  ] as Array<[string, APIEvent]>)('applies custom context to %s events', (_, apiEvent) => {
+    const event = rudderEventFactory.create(apiEvent, { surface: apiEvent.type });
+
+    expect(event.context).toMatchObject({ surface: apiEvent.type });
+  });
+
+  it('defaults custom context for direct event generators', () => {
+    const events = [
+      rudderEventFactory.generatePageEvent(),
+      rudderEventFactory.generateTrackEvent('Direct track'),
+      rudderEventFactory.generateIdentifyEvent(),
+      rudderEventFactory.generateGroupEvent(),
+      rudderEventFactory.generateAliasEvent('direct-alias'),
+    ];
+
+    events.forEach(event => expect(event.context).toBeDefined());
+  });
+
   it('should generate a track event if track event data is provided even without event name', () => {
     const apiEvent = {
       type: 'track',

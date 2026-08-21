@@ -2,6 +2,7 @@ import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/Plu
 import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
 import type { RSACustomIntegration } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
+import type { BufferedEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { batch } from '@preact/signals-core';
 import type { IUserSessionManager } from '../../../src/components/userSessionManager/types';
 import type { IEventManager } from '../../../src/components/eventManager/types';
@@ -160,6 +161,114 @@ describe('Core - Analytics', () => {
         clearSpy.mock.invocationCallOrder[0]!,
       );
       expect(analytics.getCustomContext()).toEqual({});
+    });
+  });
+
+  describe('processBufferedEvent', () => {
+    it('dispatches every supported buffered event with the correct arguments', () => {
+      const callback = jest.fn();
+      const preservedContext = { region: 'EU' };
+      const customIntegration: RSACustomIntegration = {
+        init: jest.fn(),
+        isReady: jest.fn(() => true),
+        track: jest.fn(),
+        page: jest.fn(),
+        identify: jest.fn(),
+        group: jest.fn(),
+        alias: jest.fn(),
+      };
+      const spies = {
+        setCustomContext: jest.spyOn(analytics, 'setCustomContext').mockImplementation(),
+        clearCustomContext: jest.spyOn(analytics, 'clearCustomContext').mockImplementation(),
+        ready: jest.spyOn(analytics, 'ready').mockImplementation(),
+        page: jest.spyOn(analytics, 'page').mockImplementation(),
+        track: jest.spyOn(analytics, 'track').mockImplementation(),
+        identify: jest.spyOn(analytics, 'identify').mockImplementation(),
+        alias: jest.spyOn(analytics, 'alias').mockImplementation(),
+        group: jest.spyOn(analytics, 'group').mockImplementation(),
+        reset: jest.spyOn(analytics, 'reset').mockImplementation(),
+        setAnonymousId: jest.spyOn(analytics, 'setAnonymousId').mockImplementation(),
+        startSession: jest.spyOn(analytics, 'startSession').mockImplementation(),
+        endSession: jest.spyOn(analytics, 'endSession').mockImplementation(),
+        consent: jest.spyOn(analytics, 'consent').mockImplementation(),
+        addCustomIntegration: jest.spyOn(analytics, 'addCustomIntegration').mockImplementation(),
+      };
+      const cases: Array<{
+        event: BufferedEvent;
+        spy: jest.SpyInstance;
+        expectedArguments: unknown[];
+      }> = [
+        {
+          event: ['setCustomContext', { agentId: 'agent-1' }],
+          spy: spies.setCustomContext,
+          expectedArguments: [{ agentId: 'agent-1' }],
+        },
+        { event: ['clearCustomContext'], spy: spies.clearCustomContext, expectedArguments: [] },
+        { event: ['ready', callback], spy: spies.ready, expectedArguments: [callback, true] },
+        {
+          event: ['page', { name: 'Docs' }, preservedContext],
+          spy: spies.page,
+          expectedArguments: [{ name: 'Docs' }, true, preservedContext],
+        },
+        {
+          event: ['track', { name: 'Viewed Docs' }, preservedContext],
+          spy: spies.track,
+          expectedArguments: [{ name: 'Viewed Docs' }, true, preservedContext],
+        },
+        {
+          event: ['identify', { userId: 'user-1' }, preservedContext],
+          spy: spies.identify,
+          expectedArguments: [{ userId: 'user-1' }, true, preservedContext],
+        },
+        {
+          event: ['alias', { to: 'user-1' }, preservedContext],
+          spy: spies.alias,
+          expectedArguments: [{ to: 'user-1' }, true, preservedContext],
+        },
+        {
+          event: ['group', { groupId: 'group-1' }, preservedContext],
+          spy: spies.group,
+          expectedArguments: [{ groupId: 'group-1' }, true, preservedContext],
+        },
+        { event: ['reset', true], spy: spies.reset, expectedArguments: [true, true] },
+        {
+          event: ['setAnonymousId', 'anonymous-1', 'linker-1'],
+          spy: spies.setAnonymousId,
+          expectedArguments: ['anonymous-1', 'linker-1', true],
+        },
+        {
+          event: ['startSession', 123],
+          spy: spies.startSession,
+          expectedArguments: [123, true],
+        },
+        { event: ['endSession'], spy: spies.endSession, expectedArguments: [true] },
+        {
+          event: ['consent', { sendPageEvent: true }],
+          spy: spies.consent,
+          expectedArguments: [{ sendPageEvent: true }, true],
+        },
+        {
+          event: ['addCustomIntegration', 'destination-1', customIntegration],
+          spy: spies.addCustomIntegration,
+          expectedArguments: ['destination-1', customIntegration, true],
+        },
+      ];
+
+      cases.forEach(({ event, spy, expectedArguments }) => {
+        analytics.processBufferedEvent(event);
+
+        expect(spy).toHaveBeenCalledWith(...expectedArguments);
+      });
+
+      Object.values(spies).forEach(spy => {
+        expect(spy).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it('ignores an unsupported buffered event', () => {
+      const unsupportedEvent = ['unsupported'] as unknown as BufferedEvent;
+
+      expect(analytics.processBufferedEvent(unsupportedEvent)).toBe(unsupportedEvent);
     });
   });
 
@@ -739,9 +848,7 @@ describe('Core - Analytics', () => {
   describe('page', () => {
     it('should buffer events until loaded', () => {
       analytics.page({ name: 'name' });
-      expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([
-        ['page', { name: 'name' }],
-      ]);
+      expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([['page', { name: 'name' }]]);
     });
     it('should sent events if loaded', () => {
       analytics.prepareInternalServices();
@@ -752,10 +859,13 @@ describe('Core - Analytics', () => {
       analytics.page({ name: 'name' });
       expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([]);
-      expect(addEventSpy).toHaveBeenCalledWith({
-        type: 'page',
-        name: 'name',
-      });
+      expect(addEventSpy).toHaveBeenCalledWith(
+        {
+          type: 'page',
+          name: 'name',
+        },
+        {},
+      );
     });
   });
 
@@ -775,10 +885,91 @@ describe('Core - Analytics', () => {
       analytics.track({ name: 'name' });
       expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([]);
-      expect(addEventSpy).toHaveBeenCalledWith({
-        type: 'track',
-        name: 'name',
-      });
+      expect(addEventSpy).toHaveBeenCalledWith(
+        {
+          type: 'track',
+          name: 'name',
+        },
+        {},
+      );
+    });
+
+    it('captures context when a buffered event reaches its ordered replay position', () => {
+      analytics.prepareInternalServices();
+      const addEventSpy = jest.spyOn(analytics.eventManager!, 'addEvent');
+
+      analytics.track({ name: 'before-update' });
+      analytics.setCustomContext({ version: 'updated' });
+      analytics.track({ name: 'after-update' });
+      analytics.clearCustomContext();
+      analytics.track({ name: 'after-clear' });
+
+      analytics.customContextStore.set({ version: 'load-time' });
+      state.lifecycle.loaded.value = true;
+      analytics.processBufferedEvents();
+
+      expect(addEventSpy).toHaveBeenNthCalledWith(
+        1,
+        { type: 'track', name: 'before-update' },
+        { version: 'load-time' },
+      );
+      expect(addEventSpy).toHaveBeenNthCalledWith(
+        2,
+        { type: 'track', name: 'after-update' },
+        { version: 'updated' },
+      );
+      expect(addEventSpy).toHaveBeenNthCalledWith(3, { type: 'track', name: 'after-clear' }, {});
+    });
+
+    it('retains a context snapshot supplied by a later internal buffering stage', () => {
+      analytics.prepareInternalServices();
+      const addEventSpy = jest.spyOn(analytics.eventManager!, 'addEvent');
+      state.eventBuffer.toBeProcessedArray.value = [
+        ['track', { name: 'internally-buffered' }, { version: 'captured' }],
+      ];
+      analytics.customContextStore.set({ version: 'current' });
+
+      state.lifecycle.loaded.value = true;
+      analytics.processBufferedEvents();
+
+      expect(addEventSpy).toHaveBeenCalledWith(
+        { type: 'track', name: 'internally-buffered' },
+        { version: 'captured' },
+      );
+    });
+
+    it('filters reserved keys from a context snapshot supplied by an internal buffering stage', () => {
+      analytics.prepareInternalServices();
+      const addEventSpy = jest.spyOn(analytics.eventManager!, 'addEvent');
+      state.eventBuffer.toBeProcessedArray.value = [
+        [
+          'track',
+          { name: 'internally-buffered' },
+          { agentId: 'agent-1', library: { name: 'override' } },
+        ],
+      ];
+
+      state.lifecycle.loaded.value = true;
+      analytics.processBufferedEvents();
+
+      expect(addEventSpy).toHaveBeenCalledWith(
+        { type: 'track', name: 'internally-buffered' },
+        { agentId: 'agent-1' },
+      );
+    });
+
+    it('rejects an unsafe context snapshot supplied by an internal buffering stage', () => {
+      analytics.prepareInternalServices();
+      const addEventSpy = jest.spyOn(analytics.eventManager!, 'addEvent');
+      const unsafeContext = JSON.parse('{"nested":{"__proto__":{"polluted":true}}}');
+      state.eventBuffer.toBeProcessedArray.value = [
+        ['track', { name: 'internally-buffered' }, unsafeContext],
+      ];
+
+      state.lifecycle.loaded.value = true;
+      analytics.processBufferedEvents();
+
+      expect(addEventSpy).toHaveBeenCalledWith({ type: 'track', name: 'internally-buffered' }, {});
     });
   });
 
@@ -805,10 +996,13 @@ describe('Core - Analytics', () => {
       expect(setUserIdSpy).toHaveBeenCalledTimes(1);
       expect(setUserTraitsSpy).toHaveBeenCalledTimes(1);
       expect(resetSpy).toHaveBeenCalledTimes(0);
-      expect(addEventSpy).toHaveBeenCalledWith({
-        type: 'identify',
-        userId: 'userId',
-      });
+      expect(addEventSpy).toHaveBeenCalledWith(
+        {
+          type: 'identify',
+          userId: 'userId',
+        },
+        {},
+      );
     });
     it('should sent events if loaded and reset session if userID changed', () => {
       analytics.prepareInternalServices();
@@ -826,17 +1020,22 @@ describe('Core - Analytics', () => {
       expect(setUserIdSpy).toHaveBeenCalledTimes(1);
       expect(setUserTraitsSpy).toHaveBeenCalledTimes(1);
       expect(resetSpy).toHaveBeenCalledTimes(1);
-      expect(addEventSpy).toHaveBeenCalledWith({
-        type: 'identify',
-        userId: 'userId',
-      });
+      expect(addEventSpy).toHaveBeenCalledWith(
+        {
+          type: 'identify',
+          userId: 'userId',
+        },
+        {},
+      );
     });
   });
 
   describe('alias', () => {
     it('should buffer events until loaded', () => {
       analytics.alias({ to: 'to' });
-      expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([['alias', { to: 'to' }]]);
+      expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([
+        ['alias', { to: 'to' }],
+      ]);
     });
     it('should sent events if loaded', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
@@ -849,11 +1048,14 @@ describe('Core - Analytics', () => {
       analytics.alias({ to: 'to', from: 'x' });
       expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([]);
-      expect(addEventSpy).toHaveBeenCalledWith({
-        type: 'alias',
-        to: 'to',
-        from: 'x',
-      });
+      expect(addEventSpy).toHaveBeenCalledWith(
+        {
+          type: 'alias',
+          to: 'to',
+          from: 'x',
+        },
+        {},
+      );
     });
 
     it('should use the user ID if from is not provided', () => {
@@ -865,11 +1067,14 @@ describe('Core - Analytics', () => {
 
       analytics.alias({ to: 'to' });
 
-      expect(addEventSpy).toHaveBeenCalledWith({
-        type: 'alias',
-        to: 'to',
-        from: 'userId',
-      });
+      expect(addEventSpy).toHaveBeenCalledWith(
+        {
+          type: 'alias',
+          to: 'to',
+          from: 'userId',
+        },
+        {},
+      );
     });
 
     it('should use the anonymous ID if user ID is not set', () => {
@@ -881,11 +1086,14 @@ describe('Core - Analytics', () => {
 
       analytics.alias({ to: 'to' });
 
-      expect(addEventSpy).toHaveBeenCalledWith({
-        type: 'alias',
-        to: 'to',
-        from: 'test_uuid',
-      });
+      expect(addEventSpy).toHaveBeenCalledWith(
+        {
+          type: 'alias',
+          to: 'to',
+          from: 'test_uuid',
+        },
+        {},
+      );
     });
   });
 
@@ -915,10 +1123,13 @@ describe('Core - Analytics', () => {
       expect(setGroupIdIdSpy).toHaveBeenCalledTimes(1);
       expect(setGroupTraitsSpy).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([]);
-      expect(addEventSpy).toHaveBeenCalledWith({
-        type: 'group',
-        groupId: 'groupId',
-      });
+      expect(addEventSpy).toHaveBeenCalledWith(
+        {
+          type: 'group',
+          groupId: 'groupId',
+        },
+        {},
+      );
     });
   });
 
@@ -1247,12 +1458,12 @@ describe('Core - Analytics', () => {
 
       it('should add to existing buffered events when SDK is not loaded', () => {
         const destinationId = 'custom-dest-123';
-        state.eventBuffer.toBeProcessedArray.value = [['track', 'some_event']];
+        state.eventBuffer.toBeProcessedArray.value = [['track', { name: 'some_event' }]];
 
         analytics.addCustomIntegration(destinationId, mockCustomIntegration);
 
         expect(state.eventBuffer.toBeProcessedArray.value).toEqual([
-          ['track', 'some_event'],
+          ['track', { name: 'some_event' }],
           ['addCustomIntegration', destinationId, mockCustomIntegration],
         ]);
       });
