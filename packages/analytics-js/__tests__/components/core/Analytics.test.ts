@@ -2,6 +2,7 @@ import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/Plu
 import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
 import type { RSACustomIntegration } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
+import type { BufferedEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { batch } from '@preact/signals-core';
 import type { IUserSessionManager } from '../../../src/components/userSessionManager/types';
 import type { IEventManager } from '../../../src/components/eventManager/types';
@@ -160,6 +161,114 @@ describe('Core - Analytics', () => {
         clearSpy.mock.invocationCallOrder[0]!,
       );
       expect(analytics.getCustomContext()).toEqual({});
+    });
+  });
+
+  describe('processBufferedEvent', () => {
+    it('dispatches every supported buffered event with the correct arguments', () => {
+      const callback = jest.fn();
+      const preservedContext = { region: 'EU' };
+      const customIntegration: RSACustomIntegration = {
+        init: jest.fn(),
+        isReady: jest.fn(() => true),
+        track: jest.fn(),
+        page: jest.fn(),
+        identify: jest.fn(),
+        group: jest.fn(),
+        alias: jest.fn(),
+      };
+      const spies = {
+        setCustomContext: jest.spyOn(analytics, 'setCustomContext').mockImplementation(),
+        clearCustomContext: jest.spyOn(analytics, 'clearCustomContext').mockImplementation(),
+        ready: jest.spyOn(analytics, 'ready').mockImplementation(),
+        page: jest.spyOn(analytics, 'page').mockImplementation(),
+        track: jest.spyOn(analytics, 'track').mockImplementation(),
+        identify: jest.spyOn(analytics, 'identify').mockImplementation(),
+        alias: jest.spyOn(analytics, 'alias').mockImplementation(),
+        group: jest.spyOn(analytics, 'group').mockImplementation(),
+        reset: jest.spyOn(analytics, 'reset').mockImplementation(),
+        setAnonymousId: jest.spyOn(analytics, 'setAnonymousId').mockImplementation(),
+        startSession: jest.spyOn(analytics, 'startSession').mockImplementation(),
+        endSession: jest.spyOn(analytics, 'endSession').mockImplementation(),
+        consent: jest.spyOn(analytics, 'consent').mockImplementation(),
+        addCustomIntegration: jest.spyOn(analytics, 'addCustomIntegration').mockImplementation(),
+      };
+      const cases: Array<{
+        event: BufferedEvent;
+        spy: jest.SpyInstance;
+        expectedArguments: unknown[];
+      }> = [
+        {
+          event: ['setCustomContext', { agentId: 'agent-1' }],
+          spy: spies.setCustomContext,
+          expectedArguments: [{ agentId: 'agent-1' }],
+        },
+        { event: ['clearCustomContext'], spy: spies.clearCustomContext, expectedArguments: [] },
+        { event: ['ready', callback], spy: spies.ready, expectedArguments: [callback, true] },
+        {
+          event: ['page', { name: 'Docs' }, preservedContext],
+          spy: spies.page,
+          expectedArguments: [{ name: 'Docs' }, true, preservedContext],
+        },
+        {
+          event: ['track', { name: 'Viewed Docs' }, preservedContext],
+          spy: spies.track,
+          expectedArguments: [{ name: 'Viewed Docs' }, true, preservedContext],
+        },
+        {
+          event: ['identify', { userId: 'user-1' }, preservedContext],
+          spy: spies.identify,
+          expectedArguments: [{ userId: 'user-1' }, true, preservedContext],
+        },
+        {
+          event: ['alias', { to: 'user-1' }, preservedContext],
+          spy: spies.alias,
+          expectedArguments: [{ to: 'user-1' }, true, preservedContext],
+        },
+        {
+          event: ['group', { groupId: 'group-1' }, preservedContext],
+          spy: spies.group,
+          expectedArguments: [{ groupId: 'group-1' }, true, preservedContext],
+        },
+        { event: ['reset', true], spy: spies.reset, expectedArguments: [true, true] },
+        {
+          event: ['setAnonymousId', 'anonymous-1', 'linker-1'],
+          spy: spies.setAnonymousId,
+          expectedArguments: ['anonymous-1', 'linker-1', true],
+        },
+        {
+          event: ['startSession', 123],
+          spy: spies.startSession,
+          expectedArguments: [123, true],
+        },
+        { event: ['endSession'], spy: spies.endSession, expectedArguments: [true] },
+        {
+          event: ['consent', { sendPageEvent: true }],
+          spy: spies.consent,
+          expectedArguments: [{ sendPageEvent: true }, true],
+        },
+        {
+          event: ['addCustomIntegration', 'destination-1', customIntegration],
+          spy: spies.addCustomIntegration,
+          expectedArguments: ['destination-1', customIntegration, true],
+        },
+      ];
+
+      cases.forEach(({ event, spy, expectedArguments }) => {
+        analytics.processBufferedEvent(event);
+
+        expect(spy).toHaveBeenCalledWith(...expectedArguments);
+      });
+
+      Object.values(spies).forEach(spy => {
+        expect(spy).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it('ignores an unsupported buffered event', () => {
+      const unsupportedEvent = ['unsupported'] as unknown as BufferedEvent;
+
+      expect(analytics.processBufferedEvent(unsupportedEvent)).toBe(unsupportedEvent);
     });
   });
 
