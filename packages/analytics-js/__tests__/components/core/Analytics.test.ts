@@ -1315,12 +1315,12 @@ describe('Core - Analytics', () => {
 
       it('should add to existing buffered events when SDK is not loaded', () => {
         const destinationId = 'custom-dest-123';
-        state.eventBuffer.toBeProcessedArray.value = [['track', 'some_event']];
+        state.eventBuffer.toBeProcessedArray.value = [['track', { name: 'some_event' }]];
 
         analytics.addCustomIntegration(destinationId, mockCustomIntegration);
 
         expect(state.eventBuffer.toBeProcessedArray.value).toEqual([
-          ['track', 'some_event'],
+          ['track', { name: 'some_event' }],
           ['addCustomIntegration', destinationId, mockCustomIntegration],
         ]);
       });
