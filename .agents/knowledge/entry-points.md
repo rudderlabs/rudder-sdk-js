@@ -21,3 +21,9 @@
 
 - Amplitude device-mode integration work lives under `packages/analytics-js-integrations/src/integrations/Amplitude/`; for v2 autocapture changes, start with `browser.js` for initialization, `utils.js` for helper getters, and `constants.js` for integration constants.
 - Existing Jest coverage for Amplitude Browser SDK v2 initialization payload shape is in `packages/analytics-js-integrations/__tests__/integrations/Amplitude/browser.test.js`; helper behavior is covered in `packages/analytics-js-integrations/__tests__/integrations/Amplitude/util.test.js`.
+
+## INT-7047 — OpenAI Ads Device-Mode Entry Points
+
+- No OpenAI Ads integration currently exists under `packages/analytics-js-integrations/src/integrations/OpenAIAds/` or `packages/analytics-js-integrations/__tests__/integrations/OpenAIAds/`; new device-mode work should add those package-local implementation and test directories.
+- For OpenAI Ads JS Pixel work, use `packages/analytics-js-integrations/src/integrations/TiktokAds/` and `packages/analytics-js-integrations/src/integrations/SnapPixel/` as closest reference integrations for `browser.js`, `constants.js`, `index.js`, `nativeSdkLoader.js`, and `util.js` layout.
+- Registering a new device-mode integration requires updating `packages/analytics-js-integrations/src/integrations/index.js`; `packages/analytics-js-integrations/src/constants/Destinations.ts` is generated from `rudder-integrations-config` and is marked `DO NOT EDIT`, so do not hand-edit it in this repo.

@@ -39,3 +39,8 @@
 
 - Google Ads device-mode Enhanced Conversions identify validation in `packages/analytics-js-integrations/src/integrations/GoogleAds/browser.js` accepts non-empty traits when either `traits.email` is truthy or the complete address match-key group (`firstName`, `lastName`, `postalCode`, `country`) is truthy; `phone` is optional and is passed through by `generateUserDataPayload` when available.
 - Empty or missing traits continue to use the existing `Traits are mandatory for identify call` rejection path; non-empty traits without email/full-address log `Either email or full address (firstName, lastName, postalCode, country) is required for identify call`.
+
+## INT-7047 — OpenAI Ads Pixel Reference Patterns
+
+- TiktokAds and SnapPixel are the device-mode pattern references for an OpenAI Ads JS Pixel integration: both use `browser.js`, `constants.js`, `index.js`, `nativeSdkLoader.js`, and `util.js`; construct the integration with `(config, analytics, destinationInfo)`; expose `init()`, `isLoaded()`, `isReady()`, `track()`, and `page()`; and set script `data-loader` to `LOAD_ORIGIN` in the native SDK loader (`packages/analytics-js-integrations/src/integrations/TiktokAds/`, `packages/analytics-js-integrations/src/integrations/SnapPixel/`).
+- UI-configured event mapping in similar pixel integrations uses `getHashFromArrayWithDuplicate`; SnapPixel also uses `getEventMappingFromConfig` for configured event mappings, making these helpers the established references for OpenAI Ads `eventsToStandard` mapping (`packages/analytics-js-integrations/src/integrations/TiktokAds/`, `packages/analytics-js-integrations/src/integrations/SnapPixel/`).
