@@ -20,6 +20,10 @@ import type {
 } from '@rudderstack/analytics-js-common/utilities/eventMethodOverloads';
 import type { BufferQueue } from '@rudderstack/analytics-js-common/services/BufferQueue/BufferQueue';
 import type { RSACustomIntegration } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
+import type {
+  CustomContext,
+  InputCustomContext,
+} from '@rudderstack/analytics-js-common/types/CustomContext';
 import type { Store } from '../../services/StoreManager';
 import type { IUserSessionManager } from '../userSessionManager/types';
 import type { IConfigManager } from '../configManager/types';
@@ -27,6 +31,7 @@ import type { IEventManager } from '../eventManager/types';
 import type { ICapabilitiesManager } from '../capabilitiesManager/types';
 import type { PreloadedEventCall } from '../preloadBuffer/types';
 import type { ConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
+import type { CustomContextStore } from '../customContext';
 
 export interface IAnalytics {
   preloadBuffer: BufferQueue<PreloadedEventCall>;
@@ -42,6 +47,7 @@ export interface IAnalytics {
   userSessionManager?: IUserSessionManager;
   pluginsManager?: IPluginsManager;
   clientDataStore?: Store;
+  customContextStore: CustomContextStore;
 
   /**
    * Start application lifecycle if not already started
@@ -191,6 +197,21 @@ export interface IAnalytics {
    * To get group traits set in the SDK
    */
   getGroupTraits(): Nullable<ApiObject> | undefined;
+
+  /**
+   * Merge fields into the current custom context
+   */
+  setCustomContext(context: InputCustomContext): void;
+
+  /**
+   * Get a defensive snapshot of the current custom context
+   */
+  getCustomContext(): CustomContext;
+
+  /**
+   * Clear the current custom context
+   */
+  clearCustomContext(): void;
 
   /**
    * To manually start user session in the SDK
