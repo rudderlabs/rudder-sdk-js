@@ -6,7 +6,10 @@ const path = require('node:path');
 const test = require('node:test');
 
 const { getReleaseVersionTag } = require('./get-release-version-tag');
-const { orderDependentsBeforeDependencies } = require('./run-release-version-targets');
+const {
+  orderDependentsBeforeDependencies,
+  updateLatestChangelogDependencyVersions,
+} = require('./run-release-version-targets');
 
 const repoRoot = path.resolve(__dirname, '..');
 const runnerPath = path.join(repoRoot, 'scripts/run-release-version-targets.js');
@@ -40,6 +43,33 @@ function readPackageVersion(workspaceRoot, project) {
   return pkg.version;
 }
 
+function runReleaseVersioning(workspaceRoot) {
+  const env = {
+    ...process.env,
+    NX_DAEMON: 'false',
+    PATH: `${path.join(rootNodeModules, '.bin')}${path.delimiter}${process.env.PATH}`,
+  };
+
+  run('node', [runnerPath, '--skipCommit=true', '--baseBranch=main'], {
+    cwd: workspaceRoot,
+    env,
+  });
+}
+
+function assertReleasedProject(workspaceRoot, project) {
+  assert.equal(readPackageVersion(workspaceRoot, project), '1.0.1');
+  run('git', ['rev-parse', `${project}@1.0.1`], { cwd: workspaceRoot });
+}
+
+function assertDependencyVersion(workspaceRoot, project, dependency) {
+  const changelog = fs.readFileSync(
+    path.join(workspaceRoot, 'packages', project, 'CHANGELOG.md'),
+    'utf8',
+  );
+
+  assert.match(changelog, new RegExp(`\\* \`${dependency}\` updated to version \`1\\.0\\.1\``));
+}
+
 function createProject(workspaceRoot, project, dependencies = []) {
   const projectRoot = path.join(workspaceRoot, 'packages', project);
   const dependencyMap = Object.fromEntries(dependencies.map(dependency => [dependency, '*']));
@@ -62,7 +92,6 @@ function createProject(workspaceRoot, project, dependencies = []) {
           preset: 'conventionalcommits',
           tagPrefix: '{projectName}@',
           trackDeps: true,
-          skipProjectChangelog: true,
         },
       },
     },
@@ -71,7 +100,7 @@ function createProject(workspaceRoot, project, dependencies = []) {
   fs.writeFileSync(path.join(projectRoot, 'src/index.js'), `export const name = '${project}';\n`);
 }
 
-function createWorkspace() {
+function createWorkspace(changedProjects = ['leaf']) {
   const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'rudder-release-version-test-'));
   const workspaceRoot = path.join(tmpRoot, 'workspace');
 
@@ -118,14 +147,14 @@ function createWorkspace() {
     });
   }
 
-  fs.appendFileSync(
-    path.join(workspaceRoot, 'packages/leaf/src/index.js'),
-    'export const fix = true;\n',
-  );
-  run('git', ['add', 'packages/leaf/src/index.js'], { cwd: workspaceRoot });
-  run('git', ['commit', '--quiet', '-m', 'fix(leaf): patch leaf'], {
-    cwd: workspaceRoot,
-  });
+  for (const project of changedProjects) {
+    const sourcePath = path.join(workspaceRoot, 'packages', project, 'src/index.js');
+    fs.appendFileSync(sourcePath, 'export const fix = true;\n');
+    run('git', ['add', sourcePath], { cwd: workspaceRoot });
+    run('git', ['commit', '--quiet', '-m', `fix(${project}): patch ${project}`], {
+      cwd: workspaceRoot,
+    });
+  }
 
   return {
     workspaceRoot,
@@ -188,28 +217,56 @@ test('does not build a release tag for a project without a version target', () =
   assert.equal(tag, null);
 });
 
+test('updates dependency versions only in the latest changelog release', () => {
+  const changelog = `# Changelog
+
+## [2.0.0](https://example.com/2.0.0)
+
+### Dependency Updates
+
+* \`middle\` updated to version \`1.0.0\`
+
+## [1.0.0](https://example.com/1.0.0)
+
+### Dependency Updates
+
+* \`middle\` updated to version \`0.9.0\`
+`;
+
+  assert.equal(
+    updateLatestChangelogDependencyVersions(changelog, new Map([['middle', '1.0.1']])),
+    changelog.replace(
+      '* `middle` updated to version `1.0.0`',
+      '* `middle` updated to version `1.0.1`',
+    ),
+  );
+});
+
 test('bumps a three-level trackDeps chain with skipCommit tags', () => {
   const fixture = createWorkspace();
 
   try {
-    const env = {
-      ...process.env,
-      NX_DAEMON: 'false',
-      PATH: `${path.join(rootNodeModules, '.bin')}${path.delimiter}${process.env.PATH}`,
-    };
-
-    run('node', [runnerPath, '--skipCommit=true', '--baseBranch=main'], {
-      cwd: fixture.workspaceRoot,
-      env,
-    });
-
-    assert.equal(readPackageVersion(fixture.workspaceRoot, 'parent'), '1.0.1');
-    assert.equal(readPackageVersion(fixture.workspaceRoot, 'middle'), '1.0.1');
-    assert.equal(readPackageVersion(fixture.workspaceRoot, 'leaf'), '1.0.1');
-
+    runReleaseVersioning(fixture.workspaceRoot);
     for (const project of ['parent', 'middle', 'leaf']) {
-      run('git', ['rev-parse', `${project}@1.0.1`], { cwd: fixture.workspaceRoot });
+      assertReleasedProject(fixture.workspaceRoot, project);
     }
+    assertDependencyVersion(fixture.workspaceRoot, 'parent', 'middle');
+    assertDependencyVersion(fixture.workspaceRoot, 'middle', 'leaf');
+  } finally {
+    fixture.remove();
+  }
+});
+
+test('uses final versions for dependencies with direct changes', () => {
+  const fixture = createWorkspace(['middle', 'leaf']);
+
+  try {
+    runReleaseVersioning(fixture.workspaceRoot);
+    for (const project of ['parent', 'middle', 'leaf']) {
+      assertReleasedProject(fixture.workspaceRoot, project);
+    }
+    assertDependencyVersion(fixture.workspaceRoot, 'parent', 'middle');
+    assertDependencyVersion(fixture.workspaceRoot, 'middle', 'leaf');
   } finally {
     fixture.remove();
   }
