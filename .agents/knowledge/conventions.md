@@ -22,4 +22,4 @@
 
 ## INT-7067 — OpenAI Ads Registration Constants
 
-- OpenAI Ads device-mode registration uses package-local constants plus a literal `OPENAI_ADS` key in `packages/analytics-js-integrations/src/integrations/index.js`; do not manually edit generated `packages/analytics-js-integrations/src/constants/Destinations.ts` for this destination unless generation or compilation requires it.
+- OpenAI Ads device-mode registration uses package-local constants plus a literal `OPENAI_ADS` key in `packages/analytics-js-integrations/src/integrations/index.js`; also keep `OPENAI_ADS_NAME` and `OPENAI_ADS_DISPLAY_NAME` available from `packages/analytics-js-integrations/src/constants/Destinations.ts` because the package constants parity test imports every integration and compares those exports.
