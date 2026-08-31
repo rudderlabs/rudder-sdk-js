@@ -39,3 +39,7 @@
 
 - Google Ads device-mode Enhanced Conversions identify validation in `packages/analytics-js-integrations/src/integrations/GoogleAds/browser.js` accepts non-empty traits when either `traits.email` is truthy or the complete address match-key group (`firstName`, `lastName`, `postalCode`, `country`) is truthy; `phone` is optional and is passed through by `generateUserDataPayload` when available.
 - Empty or missing traits continue to use the existing `Traits are mandatory for identify call` rejection path; non-empty traits without email/full-address log `Either email or full address (firstName, lastName, postalCode, country) is required for identify call`.
+
+## INT-7067 — OpenAI Ads Measurement Consent Cookie Handling
+
+- OpenAI Ads device-mode `__obref` forwarding should read `document.cookie` at send time during normal destination method invocation, not cache the cookie during init or instance lifetime; the integration relies on existing SDK consent/device-mode gating to stop invoking destination methods after measurement consent is revoked (`packages/analytics-js-integrations/src/integrations/OpenAIAds/browser.js`).
