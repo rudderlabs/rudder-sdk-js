@@ -69,12 +69,6 @@ describe('OpenAIAds initialization and registry', () => {
     expect(window.oaiq.queue).toHaveLength(1);
   });
 
-  test('uses conversionIdentifier as the device-safe pixel identifier fallback', () => {
-    const integration = new OpenAIAds({ conversionIdentifier: 'conversion-pixel' }, { logLevel: 'DEBUG' });
-    integration.init();
-
-    expect(Array.from(window.oaiq.queue[0])).toEqual(['init', { pixelId: 'conversion-pixel' }]);
-  });
 });
 
 describe('OpenAIAds identify', () => {

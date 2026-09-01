@@ -107,7 +107,6 @@ const RESERVED_CUSTOM_PROPERTY_KEYS = [
   'userAgent',
   'apiKey',
   'pixelId',
-  'conversionIdentifier',
 ];
 
 const LOGGER_MESSAGES = {

@@ -130,7 +130,7 @@ const getEventMappingIndex = eventMapping => {
   }, {});
 };
 
-const resolvePixelId = config => trimString(config?.pixelId) || trimString(config?.conversionIdentifier);
+const resolvePixelId = config => trimString(config?.pixelId);
 
 const resolveEvent = (message, messageType, eventMapping) => {
   const sourceKey = messageType === 'track' ? trimString(message?.event) : trimString(message?.name);
