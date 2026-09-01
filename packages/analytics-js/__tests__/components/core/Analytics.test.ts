@@ -1211,14 +1211,48 @@ describe('Core - Analytics', () => {
       analytics.prepareInternalServices();
       const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
       const resetSpy = jest.spyOn(analytics.userSessionManager!, 'reset');
+      const destinationResetSpy = jest.fn();
       analytics.customContextStore.set({ region: 'EU' });
+      state.nativeDestinations.initializedDestinations.value = [
+        {
+          id: 'destination-id',
+          displayName: 'OpenAI Ads',
+          userFriendlyId: 'OpenAI Ads',
+          integration: {
+            isReady: () => true,
+            reset: destinationResetSpy,
+          },
+        } as any,
+      ];
 
       state.lifecycle.loaded.value = true;
       analytics.reset(true);
       expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(resetSpy).toHaveBeenCalledTimes(1);
+      expect(destinationResetSpy).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([]);
       expect(analytics.customContextStore.get()).toEqual({ region: 'EU' });
+    });
+
+    it('should skip native destination reset hooks when reset preserves user data', () => {
+      analytics.prepareInternalServices();
+      const destinationResetSpy = jest.fn();
+      state.nativeDestinations.initializedDestinations.value = [
+        {
+          id: 'destination-id',
+          displayName: 'OpenAI Ads',
+          userFriendlyId: 'OpenAI Ads',
+          integration: {
+            isReady: () => true,
+            reset: destinationResetSpy,
+          },
+        } as any,
+      ];
+
+      state.lifecycle.loaded.value = true;
+      analytics.reset({ entries: { userId: false, userTraits: false, sessionInfo: true } });
+
+      expect(destinationResetSpy).not.toHaveBeenCalled();
     });
 
     it('should process the preload buffer', () => {

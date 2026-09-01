@@ -139,6 +139,33 @@ describe('OpenAIAds identify', () => {
       ),
     ).toBe(true);
   });
+
+  test('clears pixel user state on reset with pixelId and an empty user object', () => {
+    const integration = initForCalls();
+    integration.identify({
+      message: {
+        type: 'identify',
+        context: { traits: { email: 'person@example.com', obref: 'obref-from-traits' } },
+      },
+    });
+    window.oaiq.mockClear();
+
+    integration.reset();
+
+    expect(window.oaiq).toHaveBeenCalledTimes(1);
+    expect(window.oaiq).toHaveBeenCalledWith('init', { pixelId: 'pixel-123', user: {} });
+    expect(window.oaiq).not.toHaveBeenCalledWith('init', { pixelId: 'pixel-123' });
+
+    integration.track({
+      message: {
+        type: 'track',
+        event: 'Product Viewed',
+        properties: { amount: 1, currency: 'USD', source_url: 'https://example.com/products' },
+      },
+    });
+
+    expect(window.oaiq.mock.calls.filter(call => call[0] === 'init')).toHaveLength(1);
+  });
 });
 
 describe('OpenAIAds conversion events', () => {

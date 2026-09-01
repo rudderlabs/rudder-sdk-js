@@ -85,6 +85,14 @@ class OpenAIAds {
     this.updatePixelUser(this.userData);
   }
 
+  reset() {
+    this.userData = {};
+    this.cookieObref = undefined;
+    if (this.pixelId && typeof window.oaiq === 'function') {
+      window.oaiq('init', { pixelId: this.pixelId, user: {} });
+    }
+  }
+
   track(rudderElement) {
     this.sendConversionEvent(rudderElement, 'track');
   }
