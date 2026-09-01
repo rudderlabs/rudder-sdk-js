@@ -16,6 +16,7 @@ const APP_STATE_EXCLUDE_KEYS = [
   'config',
   'integration', // integration instance objects
   'eventBuffer', // pre-load event buffer (may contain PII)
+  'customContext', // customer-provided event context
   'traits',
   'authToken',
 ];

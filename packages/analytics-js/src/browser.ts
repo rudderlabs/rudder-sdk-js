@@ -26,6 +26,9 @@ const {
   consent,
   setAuthToken,
   addCustomIntegration,
+  setCustomContext,
+  getCustomContext,
+  clearCustomContext,
 } = new RudderAnalytics();
 
 /*
@@ -54,4 +57,7 @@ export {
   consent,
   setAuthToken,
   addCustomIntegration,
+  setCustomContext,
+  getCustomContext,
+  clearCustomContext,
 };

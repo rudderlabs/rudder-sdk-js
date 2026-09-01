@@ -179,6 +179,33 @@ describe('Core - Rudder Analytics Facade', () => {
     loadSpy.mockRestore();
   });
 
+  it('loads a new analytics instance without optional load options', () => {
+    rudderAnalytics.analyticsInstances = {};
+    rudderAnalytics.defaultAnalyticsKey = '';
+
+    rudderAnalytics.load('writeKey', 'data-plane-url');
+    const analyticsInstance = rudderAnalytics.getAnalyticsInstance('writeKey') as Analytics;
+
+    expect(analyticsInstance.load).toHaveBeenCalledWith('writeKey', 'data-plane-url', undefined);
+  });
+
+  it('passes custom context through load options to the analytics instance', () => {
+    const capturedAt = new Date('2026-07-21T00:00:00.000Z');
+    const loadOptions = {
+      ...mockLoadOptions,
+      context: {
+        capturedAt,
+        account: { plan: undefined },
+      },
+    };
+    rudderAnalytics.analyticsInstances = {};
+    rudderAnalytics.defaultAnalyticsKey = '';
+    rudderAnalytics.load('writeKey', 'data-plane-url', loadOptions);
+    const analyticsInstance = rudderAnalytics.getAnalyticsInstance('writeKey') as Analytics;
+
+    expect(analyticsInstance.load).toHaveBeenCalledWith('writeKey', 'data-plane-url', loadOptions);
+  });
+
   it('should dispatch an error event if an exception is thrown during the load', () => {
     const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
 
@@ -195,6 +222,75 @@ describe('Core - Rudder Analytics Facade', () => {
     );
 
     dispatchEventSpy.mockRestore();
+  });
+
+  describe('custom context facade APIs', () => {
+    afterEach(() => {
+      resetState();
+    });
+
+    it('routes raw set/get/clear calls through the default analytics instance', () => {
+      const update = { account: { plan: undefined }, capturedAt: new Date() };
+      const snapshot = { region: 'EU' };
+      jest.mocked(analyticsInstanceMock.getCustomContext).mockReturnValue(snapshot);
+
+      rudderAnalytics.setCustomContext(update);
+      const result = rudderAnalytics.getCustomContext();
+      rudderAnalytics.clearCustomContext();
+
+      expect(analyticsInstanceMock.setCustomContext).toHaveBeenCalledWith(update);
+      expect(analyticsInstanceMock.getCustomContext).toHaveBeenCalledTimes(1);
+      expect(result).toEqual(snapshot);
+      expect(analyticsInstanceMock.clearCustomContext).toHaveBeenCalledTimes(1);
+    });
+
+    it('uses a lazily created instance to buffer calls before load', () => {
+      const update = { region: 'EU' };
+      rudderAnalytics.analyticsInstances = {};
+
+      rudderAnalytics.setCustomContext(update);
+      const firstResult = rudderAnalytics.getCustomContext();
+      const secondResult = rudderAnalytics.getCustomContext();
+      rudderAnalytics.clearCustomContext();
+
+      const analyticsInstance = rudderAnalytics.analyticsInstances.writeKey;
+      expect(analyticsInstance).toBeInstanceOf(Analytics);
+      expect(analyticsInstance?.setCustomContext).toHaveBeenCalledWith(update);
+      expect(analyticsInstance?.clearCustomContext).toHaveBeenCalledTimes(1);
+      expect(firstResult).toEqual({});
+      expect(secondResult).toEqual({});
+      expect(firstResult).not.toBe(secondResult);
+    });
+
+    it('returns an empty object when no analytics instance is available', () => {
+      const getAnalyticsInstanceSpy = jest
+        .spyOn(rudderAnalytics, 'getAnalyticsInstance')
+        .mockReturnValue(undefined);
+
+      expect(rudderAnalytics.getCustomContext()).toEqual({});
+
+      getAnalyticsInstanceSpy.mockRestore();
+    });
+
+    it.each([
+      ['setCustomContext', () => rudderAnalytics.setCustomContext({ region: 'EU' }), undefined],
+      ['getCustomContext', () => rudderAnalytics.getCustomContext(), {}],
+      ['clearCustomContext', () => rudderAnalytics.clearCustomContext(), undefined],
+    ])('dispatches an error event when %s fails', (_method, invoke, expectedResult) => {
+      const error = new Error('Error in getAnalyticsInstance');
+      const dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
+      const getAnalyticsInstanceSpy = jest
+        .spyOn(rudderAnalytics, 'getAnalyticsInstance')
+        .mockImplementation(() => {
+          throw error;
+        });
+
+      expect(invoke()).toEqual(expectedResult);
+      expect(dispatchEventSpy).toHaveBeenCalledWith(new ErrorEvent('error', { error }));
+
+      getAnalyticsInstanceSpy.mockRestore();
+      dispatchEventSpy.mockRestore();
+    });
   });
 
   it('should process ready arguments and forwards to ready call', () => {

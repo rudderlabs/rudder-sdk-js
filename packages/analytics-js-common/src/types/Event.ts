@@ -1,12 +1,34 @@
-import type { RudderEventType, Traits } from './EventApi';
+import type { ApiCallback, ResetOptions, RudderEventType, Traits } from './EventApi';
 import type { Nullable } from './Nullable';
-import type { ConsentManagement } from './Consent';
+import type { ConsentManagement, ConsentOptions } from './Consent';
 import type { AppInfo, LibraryInfo, OSInfo, ScreenInfo, UTMParameters } from './EventContext';
 import type { IntegrationOpts } from './Integration';
 import type { ApiObject } from './ApiObject';
+import type { CustomContext, InputCustomContext } from './CustomContext';
+import type { RSACustomIntegration } from './IRudderAnalytics';
+import type {
+  AliasCallOptions,
+  GroupCallOptions,
+  IdentifyCallOptions,
+  PageCallOptions,
+  TrackCallOptions,
+} from '../utilities/eventMethodOverloads';
 
-// TODO: fix type
-export type BufferedEvent = any[];
+export type BufferedEvent =
+  | ['setCustomContext', InputCustomContext]
+  | ['clearCustomContext']
+  | ['ready', ApiCallback]
+  | ['page', PageCallOptions, CustomContext?]
+  | ['track', TrackCallOptions, CustomContext?]
+  | ['identify', IdentifyCallOptions, CustomContext?]
+  | ['alias', AliasCallOptions, CustomContext?]
+  | ['group', GroupCallOptions, CustomContext?]
+  | ['reset', ResetOptions | boolean | undefined]
+  | ['setAnonymousId', string | undefined, string | undefined]
+  | ['startSession', number | undefined]
+  | ['endSession']
+  | ['consent', ConsentOptions | undefined]
+  | ['addCustomIntegration', string, RSACustomIntegration];
 
 export type PageLifecycle = {
   pageViewId: string; // UUID

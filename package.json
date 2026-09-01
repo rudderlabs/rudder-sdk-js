@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-monorepo",
-  "version": "3.116.0",
+  "version": "3.118.0",
   "private": true,
   "description": "Monorepo for RudderStack Analytics JS SDK",
   "workspaces": [
@@ -24,6 +24,7 @@
     "build:package:modern": "nx run-many -t build:package:modern",
     "package": "nx run-many -t package",
     "test": "nx run-many -t test",
+    "test:release-versioning": "node --test scripts/run-release-version-targets.test.js",
     "test:pre-commit:affected": "nx affected -t test --base=HEAD",
     "test:ci": "nx affected -t test --base=$BASE_REF --configuration=ci --runInBand --maxWorkers=1 --forceExit",
     "check:lint:ci": "nx affected -t check:lint:ci --base=$BASE_REF --verbose",
@@ -53,7 +54,7 @@
     "build:v1.1": "nx run-many -t build --projects=rudder-sdk-js",
     "build:sanity": "rm -rf packages/sanity-suite/dist && nx run-many --targets=build:all --projects=@rudderstack/analytics-js-sanity-suite",
     "bump-version:monorepo": "npm version minor --git-tag-version false",
-    "release": "nx affected --base=origin/main --target=version --parallel=1 --skipCommitTypes=docs,ci,chore,test --baseBranch=$BASE_BRANCH",
+    "release": "node scripts/run-release-version-targets.js --skipCommitTypes=docs,ci,chore,test --baseBranch=$BASE_BRANCH",
     "release:nx": "nx release --skip-publish --verbose --dry-run",
     "release:github": "nx affected --target=github --parallel=1 --skipCommitTypes=docs,ci,chore,test",
     "reset:nx": "nx reset",
@@ -78,7 +79,7 @@
     "@segment/top-domain": "3.0.1",
     "@vespaiach/axios-fetch-adapter": "0.3.1",
     "assert": "2.1.0",
-    "axios": "1.18.1",
+    "axios": "1.19.0",
     "axios-retry": "4.5.0",
     "component-each": "0.2.6",
     "component-emitter": "2.0.0",
@@ -202,15 +203,15 @@
   },
   "optionalDependencies": {
     "@linear/sdk": "82.0.0",
-    "@nx/nx-darwin-arm64": "22.7.5",
-    "@nx/nx-darwin-x64": "22.7.5",
-    "@nx/nx-linux-x64-gnu": "22.7.5",
-    "@nx/nx-win32-x64-msvc": "22.7.5",
-    "@rollup/rollup-linux-x64-gnu": "4.62.2",
-    "@swc/core-linux-x64-gnu": "1.15.46",
-    "@swc/core-darwin-x64": "1.15.46",
-    "@swc/core-win32-x64-msvc": "1.15.46",
-    "@swc/core-darwin-arm64": "1.15.46"
+    "@nx/nx-darwin-arm64": "23.1.1",
+    "@nx/nx-darwin-x64": "23.1.1",
+    "@nx/nx-linux-x64-gnu": "23.1.1",
+    "@nx/nx-win32-x64-msvc": "23.1.1",
+    "@rollup/rollup-linux-x64-gnu": "4.62.5",
+    "@swc/core-linux-x64-gnu": "1.16.1",
+    "@swc/core-darwin-x64": "1.16.1",
+    "@swc/core-win32-x64-msvc": "1.16.1",
+    "@swc/core-darwin-arm64": "1.16.1"
   },
   "overrides": {
     "rudder-component-cookie": {

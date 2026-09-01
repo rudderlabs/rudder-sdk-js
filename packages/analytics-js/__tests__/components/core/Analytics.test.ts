@@ -2,6 +2,7 @@ import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/Plu
 import type { IStoreManager } from '@rudderstack/analytics-js-common/types/Store';
 import { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
 import type { RSACustomIntegration } from '@rudderstack/analytics-js-common/types/IRudderAnalytics';
+import type { BufferedEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { batch } from '@preact/signals-core';
 import type { IUserSessionManager } from '../../../src/components/userSessionManager/types';
 import type { IEventManager } from '../../../src/components/eventManager/types';
@@ -12,6 +13,11 @@ import {
 import { setExposedGlobal } from '../../../src/components/utilities/globals';
 import { resetState, state } from '../../../src/state';
 import { Analytics } from '../../../src/components/core/Analytics';
+import {
+  ADBLOCK_PAGE_CATEGORY,
+  ADBLOCK_PAGE_NAME,
+  ADBLOCK_PAGE_PATH,
+} from '../../../src/constants/app';
 
 jest.mock('../../../src/components/utilities/globals', () => {
   const originalModule = jest.requireActual('../../../src/components/utilities/globals');
@@ -48,6 +54,226 @@ describe('Core - Analytics', () => {
       expect(analytics.externalSrcLoader).toBeDefined();
       expect(analytics.capabilitiesManager).toBeDefined();
       expect(analytics.httpClient).toBeDefined();
+      expect(analytics.customContextStore.get()).toEqual({});
+    });
+
+    it('uses the shared custom context state across Analytics components', () => {
+      const otherAnalytics = new Analytics();
+      analytics.customContextStore.set({ region: 'EU' });
+
+      expect(otherAnalytics.customContextStore).not.toBe(analytics.customContextStore);
+      expect(otherAnalytics.customContextStore.get()).toEqual({ region: 'EU' });
+    });
+  });
+
+  describe('custom context APIs', () => {
+    it('delegates set, get, and clear to the custom context store after load', () => {
+      const update = { region: 'EU' };
+      const setSpy = jest.spyOn(analytics.customContextStore, 'set');
+      const getSpy = jest.spyOn(analytics.customContextStore, 'get');
+      const clearSpy = jest.spyOn(analytics.customContextStore, 'clear');
+      state.lifecycle.loaded.value = true;
+
+      analytics.setCustomContext(update);
+      expect(analytics.getCustomContext()).toEqual(update);
+      analytics.clearCustomContext();
+
+      expect(setSpy).toHaveBeenCalledWith(update);
+      expect(getSpy).toHaveBeenCalledTimes(1);
+      expect(clearSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('buffers set and clear with event calls in invocation order before load', () => {
+      const update = { region: 'EU' };
+      const setSpy = jest.spyOn(analytics.customContextStore, 'set');
+      const clearSpy = jest.spyOn(analytics.customContextStore, 'clear');
+
+      analytics.setCustomContext(update);
+      analytics.track({ name: 'buffered-event' });
+      analytics.clearCustomContext();
+
+      expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([
+        ['setCustomContext', update],
+        ['track', { name: 'buffered-event' }],
+        ['clearCustomContext'],
+      ]);
+      expect(setSpy).not.toHaveBeenCalled();
+      expect(clearSpy).not.toHaveBeenCalled();
+
+      analytics.prepareInternalServices();
+      const addEventSpy = jest.spyOn(analytics.eventManager!, 'addEvent');
+      state.lifecycle.loaded.value = true;
+      analytics.processBufferedEvents();
+
+      expect(setSpy).toHaveBeenCalledWith(update);
+      expect(clearSpy).toHaveBeenCalledTimes(1);
+      expect(setSpy.mock.invocationCallOrder[0]).toBeLessThan(
+        addEventSpy.mock.invocationCallOrder[0]!,
+      );
+      expect(addEventSpy.mock.invocationCallOrder[0]).toBeLessThan(
+        clearSpy.mock.invocationCallOrder[0]!,
+      );
+      expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([]);
+    });
+
+    it('returns a fresh empty object while pre-load updates remain buffered', () => {
+      analytics.setCustomContext({ region: 'EU' });
+
+      const firstResult = analytics.getCustomContext();
+      const secondResult = analytics.getCustomContext();
+
+      expect(firstResult).toEqual({});
+      expect(secondResult).toEqual({});
+      expect(firstResult).not.toBe(secondResult);
+    });
+
+    it('keeps buffered custom context calls pending when load is invalid', () => {
+      const update = { region: 'EU' };
+      analytics.setCustomContext(update);
+
+      analytics.load('', 'invalid-url');
+
+      expect(state.lifecycle.status.value).toBeUndefined();
+      expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([
+        ['setCustomContext', update],
+      ]);
+      expect(analytics.getCustomContext()).toEqual({});
+    });
+
+    it('replays preloaded set and clear calls against the Analytics instance in order', () => {
+      const setSpy = jest.spyOn(analytics.customContextStore, 'set');
+      const clearSpy = jest.spyOn(analytics.customContextStore, 'clear');
+
+      analytics.enqueuePreloadBufferEvents([
+        ['setCustomContext', { region: 'EU' }],
+        ['clearCustomContext'],
+      ]);
+      analytics.processDataInPreloadBuffer();
+
+      expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([
+        ['setCustomContext', { region: 'EU' }],
+        ['clearCustomContext'],
+      ]);
+      expect(setSpy).not.toHaveBeenCalled();
+      expect(clearSpy).not.toHaveBeenCalled();
+
+      state.lifecycle.loaded.value = true;
+      analytics.processBufferedEvents();
+
+      expect(setSpy).toHaveBeenCalledWith({ region: 'EU' });
+      expect(clearSpy).toHaveBeenCalledTimes(1);
+      expect(setSpy.mock.invocationCallOrder[0]).toBeLessThan(
+        clearSpy.mock.invocationCallOrder[0]!,
+      );
+      expect(analytics.getCustomContext()).toEqual({});
+    });
+  });
+
+  describe('processBufferedEvent', () => {
+    it('dispatches every supported buffered event with the correct arguments', () => {
+      const callback = jest.fn();
+      const preservedContext = { region: 'EU' };
+      const customIntegration: RSACustomIntegration = {
+        init: jest.fn(),
+        isReady: jest.fn(() => true),
+        track: jest.fn(),
+        page: jest.fn(),
+        identify: jest.fn(),
+        group: jest.fn(),
+        alias: jest.fn(),
+      };
+      const spies = {
+        setCustomContext: jest.spyOn(analytics, 'setCustomContext').mockImplementation(),
+        clearCustomContext: jest.spyOn(analytics, 'clearCustomContext').mockImplementation(),
+        ready: jest.spyOn(analytics, 'ready').mockImplementation(),
+        page: jest.spyOn(analytics, 'page').mockImplementation(),
+        track: jest.spyOn(analytics, 'track').mockImplementation(),
+        identify: jest.spyOn(analytics, 'identify').mockImplementation(),
+        alias: jest.spyOn(analytics, 'alias').mockImplementation(),
+        group: jest.spyOn(analytics, 'group').mockImplementation(),
+        reset: jest.spyOn(analytics, 'reset').mockImplementation(),
+        setAnonymousId: jest.spyOn(analytics, 'setAnonymousId').mockImplementation(),
+        startSession: jest.spyOn(analytics, 'startSession').mockImplementation(),
+        endSession: jest.spyOn(analytics, 'endSession').mockImplementation(),
+        consent: jest.spyOn(analytics, 'consent').mockImplementation(),
+        addCustomIntegration: jest.spyOn(analytics, 'addCustomIntegration').mockImplementation(),
+      };
+      const cases: Array<{
+        event: BufferedEvent;
+        spy: jest.SpyInstance;
+        expectedArguments: unknown[];
+      }> = [
+        {
+          event: ['setCustomContext', { agentId: 'agent-1' }],
+          spy: spies.setCustomContext,
+          expectedArguments: [{ agentId: 'agent-1' }],
+        },
+        { event: ['clearCustomContext'], spy: spies.clearCustomContext, expectedArguments: [] },
+        { event: ['ready', callback], spy: spies.ready, expectedArguments: [callback, true] },
+        {
+          event: ['page', { name: 'Docs' }, preservedContext],
+          spy: spies.page,
+          expectedArguments: [{ name: 'Docs' }, true, preservedContext],
+        },
+        {
+          event: ['track', { name: 'Viewed Docs' }, preservedContext],
+          spy: spies.track,
+          expectedArguments: [{ name: 'Viewed Docs' }, true, preservedContext],
+        },
+        {
+          event: ['identify', { userId: 'user-1' }, preservedContext],
+          spy: spies.identify,
+          expectedArguments: [{ userId: 'user-1' }, true, preservedContext],
+        },
+        {
+          event: ['alias', { to: 'user-1' }, preservedContext],
+          spy: spies.alias,
+          expectedArguments: [{ to: 'user-1' }, true, preservedContext],
+        },
+        {
+          event: ['group', { groupId: 'group-1' }, preservedContext],
+          spy: spies.group,
+          expectedArguments: [{ groupId: 'group-1' }, true, preservedContext],
+        },
+        { event: ['reset', true], spy: spies.reset, expectedArguments: [true, true] },
+        {
+          event: ['setAnonymousId', 'anonymous-1', 'linker-1'],
+          spy: spies.setAnonymousId,
+          expectedArguments: ['anonymous-1', 'linker-1', true],
+        },
+        {
+          event: ['startSession', 123],
+          spy: spies.startSession,
+          expectedArguments: [123, true],
+        },
+        { event: ['endSession'], spy: spies.endSession, expectedArguments: [true] },
+        {
+          event: ['consent', { sendPageEvent: true }],
+          spy: spies.consent,
+          expectedArguments: [{ sendPageEvent: true }, true],
+        },
+        {
+          event: ['addCustomIntegration', 'destination-1', customIntegration],
+          spy: spies.addCustomIntegration,
+          expectedArguments: ['destination-1', customIntegration, true],
+        },
+      ];
+
+      cases.forEach(({ event, spy, expectedArguments }) => {
+        analytics.processBufferedEvent(event);
+
+        expect(spy).toHaveBeenCalledWith(...expectedArguments);
+      });
+
+      Object.values(spies).forEach(spy => {
+        expect(spy).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it('ignores an unsupported buffered event', () => {
+      const unsupportedEvent = ['unsupported'] as unknown as BufferedEvent;
+
+      expect(analytics.processBufferedEvent(unsupportedEvent)).toBe(unsupportedEvent);
     });
   });
 
@@ -165,6 +391,71 @@ describe('Core - Analytics', () => {
       expect(setExposedGlobal).toHaveBeenCalledWith('state', state, dummyWriteKey);
     });
 
+    it('seeds valid custom context before starting the lifecycle', () => {
+      const startLifecycleSpy = jest.spyOn(analytics, 'startLifecycle').mockImplementation();
+      const capturedAt = new Date('2026-07-21T00:00:00.000Z');
+      const context = {
+        region: 'EU',
+        account: { plan: undefined, seats: 5 },
+        capturedAt,
+      };
+      const loadOptions = {
+        logLevel: 'ERROR' as const,
+        context,
+      };
+
+      analytics.load(dummyWriteKey, sampleDataPlaneUrl, loadOptions);
+      capturedAt.setUTCFullYear(2030);
+
+      expect(analytics.customContextStore.get()).toEqual({
+        region: 'EU',
+        account: { seats: 5 },
+        capturedAt: new Date('2026-07-21T00:00:00.000Z'),
+      });
+      expect(loadOptions.context).toBe(context);
+      expect(state.loadOptions.value).not.toHaveProperty('context');
+      expect(startLifecycleSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('seeds load-time context before replaying buffered context updates', () => {
+      jest.spyOn(analytics, 'startLifecycle').mockImplementation();
+
+      analytics.setCustomContext({ account: { plan: 'pro' } });
+      analytics.load(dummyWriteKey, sampleDataPlaneUrl, {
+        logLevel: 'ERROR',
+        context: { region: 'EU', account: { source: 'load' } },
+      });
+
+      expect(analytics.getCustomContext()).toEqual({
+        region: 'EU',
+        account: { source: 'load' },
+      });
+
+      state.lifecycle.loaded.value = true;
+      analytics.processBufferedEvents();
+
+      expect(analytics.getCustomContext()).toEqual({
+        region: 'EU',
+        account: { source: 'load', plan: 'pro' },
+      });
+    });
+
+    it('continues loading with an empty store when initial custom context is invalid', () => {
+      const startLifecycleSpy = jest.spyOn(analytics, 'startLifecycle').mockImplementation();
+      const loggerWarnSpy = jest.spyOn(analytics.logger, 'warn');
+
+      analytics.load(dummyWriteKey, sampleDataPlaneUrl, {
+        logLevel: 'ERROR',
+        context: new Map([['key', 'value']]) as any,
+      });
+
+      expect(analytics.customContextStore.get()).toEqual({});
+      expect(startLifecycleSpy).toHaveBeenCalledTimes(1);
+      expect(loggerWarnSpy).toHaveBeenCalledWith(
+        'CustomContext:: Invalid custom context. Use a plain object without prototype pollution keys.',
+      );
+    });
+
     it('should set the log level if it is not configured', () => {
       state.loadOptions.value.logLevel = undefined;
       const setMinLogLevelSpy = jest.spyOn(analytics.logger, 'setMinLogLevel');
@@ -181,9 +472,13 @@ describe('Core - Analytics', () => {
       const startLifecycleSpy = jest.spyOn(analytics, 'startLifecycle');
       const errorSpy = jest.spyOn(analytics.logger, 'error');
 
-      analytics.load('', sampleDataPlaneUrl, { logLevel: 'ERROR' });
+      analytics.load('', sampleDataPlaneUrl, {
+        logLevel: 'ERROR',
+        context: { region: 'EU' },
+      });
 
       expect(state.lifecycle.status.value).toBeUndefined();
+      expect(analytics.customContextStore.get()).toEqual({});
       expect(startLifecycleSpy).not.toHaveBeenCalled();
 
       expect(errorSpy).toHaveBeenCalledTimes(1);
@@ -558,9 +853,7 @@ describe('Core - Analytics', () => {
   describe('page', () => {
     it('should buffer events until loaded', () => {
       analytics.page({ name: 'name' });
-      expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([
-        ['page', { name: 'name' }],
-      ]);
+      expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([['page', { name: 'name' }]]);
     });
     it('should sent events if loaded', () => {
       analytics.prepareInternalServices();
@@ -571,10 +864,66 @@ describe('Core - Analytics', () => {
       analytics.page({ name: 'name' });
       expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([]);
-      expect(addEventSpy).toHaveBeenCalledWith({
-        type: 'page',
-        name: 'name',
-      });
+      expect(addEventSpy).toHaveBeenCalledWith(
+        {
+          type: 'page',
+          name: 'name',
+        },
+        {},
+      );
+    });
+
+    it('enriches an automatic adblock page event with current custom context', () => {
+      analytics.prepareInternalServices();
+      const addEventSpy = jest.spyOn(analytics.eventManager!, 'addEvent');
+      analytics.customContextStore.set({ region: 'EU' });
+      state.lifecycle.loaded.value = true;
+      state.capabilities.isAdBlocked.value = true;
+
+      analytics.page({ name: 'customer-page' });
+
+      expect(addEventSpy).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({
+          type: 'page',
+          category: ADBLOCK_PAGE_CATEGORY,
+          name: ADBLOCK_PAGE_NAME,
+          properties: expect.objectContaining({ path: ADBLOCK_PAGE_PATH }),
+        }),
+        { region: 'EU' },
+      );
+    });
+
+    it('uses the captured context for an automatic adblock page event during replay', () => {
+      analytics.prepareInternalServices();
+      const addEventSpy = jest.spyOn(analytics.eventManager!, 'addEvent');
+      state.lifecycle.loaded.value = true;
+      state.capabilities.isAdBlocked.value = true;
+      state.eventBuffer.toBeProcessedArray.value = [
+        ['page', { name: 'customer-page' }, { region: 'before' }],
+      ];
+      analytics.customContextStore.set({ region: 'after' });
+
+      analytics.processBufferedEvents();
+
+      expect(addEventSpy).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({
+          type: 'page',
+          name: 'customer-page',
+        }),
+        { region: 'before' },
+      );
+      expect(addEventSpy).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({
+          type: 'page',
+          category: ADBLOCK_PAGE_CATEGORY,
+          name: ADBLOCK_PAGE_NAME,
+          properties: expect.objectContaining({ path: ADBLOCK_PAGE_PATH }),
+        }),
+        { region: 'before' },
+      );
     });
   });
 
@@ -594,10 +943,91 @@ describe('Core - Analytics', () => {
       analytics.track({ name: 'name' });
       expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([]);
-      expect(addEventSpy).toHaveBeenCalledWith({
-        type: 'track',
-        name: 'name',
-      });
+      expect(addEventSpy).toHaveBeenCalledWith(
+        {
+          type: 'track',
+          name: 'name',
+        },
+        {},
+      );
+    });
+
+    it('captures context when a buffered event reaches its ordered replay position', () => {
+      analytics.prepareInternalServices();
+      const addEventSpy = jest.spyOn(analytics.eventManager!, 'addEvent');
+
+      analytics.track({ name: 'before-update' });
+      analytics.setCustomContext({ version: 'updated' });
+      analytics.track({ name: 'after-update' });
+      analytics.clearCustomContext();
+      analytics.track({ name: 'after-clear' });
+
+      analytics.customContextStore.set({ version: 'load-time' });
+      state.lifecycle.loaded.value = true;
+      analytics.processBufferedEvents();
+
+      expect(addEventSpy).toHaveBeenNthCalledWith(
+        1,
+        { type: 'track', name: 'before-update' },
+        { version: 'load-time' },
+      );
+      expect(addEventSpy).toHaveBeenNthCalledWith(
+        2,
+        { type: 'track', name: 'after-update' },
+        { version: 'updated' },
+      );
+      expect(addEventSpy).toHaveBeenNthCalledWith(3, { type: 'track', name: 'after-clear' }, {});
+    });
+
+    it('retains a context snapshot supplied by a later internal buffering stage', () => {
+      analytics.prepareInternalServices();
+      const addEventSpy = jest.spyOn(analytics.eventManager!, 'addEvent');
+      state.eventBuffer.toBeProcessedArray.value = [
+        ['track', { name: 'internally-buffered' }, { version: 'captured' }],
+      ];
+      analytics.customContextStore.set({ version: 'current' });
+
+      state.lifecycle.loaded.value = true;
+      analytics.processBufferedEvents();
+
+      expect(addEventSpy).toHaveBeenCalledWith(
+        { type: 'track', name: 'internally-buffered' },
+        { version: 'captured' },
+      );
+    });
+
+    it('filters reserved keys from a context snapshot supplied by an internal buffering stage', () => {
+      analytics.prepareInternalServices();
+      const addEventSpy = jest.spyOn(analytics.eventManager!, 'addEvent');
+      state.eventBuffer.toBeProcessedArray.value = [
+        [
+          'track',
+          { name: 'internally-buffered' },
+          { agentId: 'agent-1', library: { name: 'override' } },
+        ],
+      ];
+
+      state.lifecycle.loaded.value = true;
+      analytics.processBufferedEvents();
+
+      expect(addEventSpy).toHaveBeenCalledWith(
+        { type: 'track', name: 'internally-buffered' },
+        { agentId: 'agent-1' },
+      );
+    });
+
+    it('rejects an unsafe context snapshot supplied by an internal buffering stage', () => {
+      analytics.prepareInternalServices();
+      const addEventSpy = jest.spyOn(analytics.eventManager!, 'addEvent');
+      const unsafeContext = JSON.parse('{"nested":{"__proto__":{"polluted":true}}}');
+      state.eventBuffer.toBeProcessedArray.value = [
+        ['track', { name: 'internally-buffered' }, unsafeContext],
+      ];
+
+      state.lifecycle.loaded.value = true;
+      analytics.processBufferedEvents();
+
+      expect(addEventSpy).toHaveBeenCalledWith({ type: 'track', name: 'internally-buffered' }, {});
     });
   });
 
@@ -624,10 +1054,13 @@ describe('Core - Analytics', () => {
       expect(setUserIdSpy).toHaveBeenCalledTimes(1);
       expect(setUserTraitsSpy).toHaveBeenCalledTimes(1);
       expect(resetSpy).toHaveBeenCalledTimes(0);
-      expect(addEventSpy).toHaveBeenCalledWith({
-        type: 'identify',
-        userId: 'userId',
-      });
+      expect(addEventSpy).toHaveBeenCalledWith(
+        {
+          type: 'identify',
+          userId: 'userId',
+        },
+        {},
+      );
     });
     it('should sent events if loaded and reset session if userID changed', () => {
       analytics.prepareInternalServices();
@@ -645,17 +1078,22 @@ describe('Core - Analytics', () => {
       expect(setUserIdSpy).toHaveBeenCalledTimes(1);
       expect(setUserTraitsSpy).toHaveBeenCalledTimes(1);
       expect(resetSpy).toHaveBeenCalledTimes(1);
-      expect(addEventSpy).toHaveBeenCalledWith({
-        type: 'identify',
-        userId: 'userId',
-      });
+      expect(addEventSpy).toHaveBeenCalledWith(
+        {
+          type: 'identify',
+          userId: 'userId',
+        },
+        {},
+      );
     });
   });
 
   describe('alias', () => {
     it('should buffer events until loaded', () => {
       analytics.alias({ to: 'to' });
-      expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([['alias', { to: 'to' }]]);
+      expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([
+        ['alias', { to: 'to' }],
+      ]);
     });
     it('should sent events if loaded', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
@@ -668,11 +1106,14 @@ describe('Core - Analytics', () => {
       analytics.alias({ to: 'to', from: 'x' });
       expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([]);
-      expect(addEventSpy).toHaveBeenCalledWith({
-        type: 'alias',
-        to: 'to',
-        from: 'x',
-      });
+      expect(addEventSpy).toHaveBeenCalledWith(
+        {
+          type: 'alias',
+          to: 'to',
+          from: 'x',
+        },
+        {},
+      );
     });
 
     it('should use the user ID if from is not provided', () => {
@@ -684,11 +1125,14 @@ describe('Core - Analytics', () => {
 
       analytics.alias({ to: 'to' });
 
-      expect(addEventSpy).toHaveBeenCalledWith({
-        type: 'alias',
-        to: 'to',
-        from: 'userId',
-      });
+      expect(addEventSpy).toHaveBeenCalledWith(
+        {
+          type: 'alias',
+          to: 'to',
+          from: 'userId',
+        },
+        {},
+      );
     });
 
     it('should use the anonymous ID if user ID is not set', () => {
@@ -700,11 +1144,14 @@ describe('Core - Analytics', () => {
 
       analytics.alias({ to: 'to' });
 
-      expect(addEventSpy).toHaveBeenCalledWith({
-        type: 'alias',
-        to: 'to',
-        from: 'test_uuid',
-      });
+      expect(addEventSpy).toHaveBeenCalledWith(
+        {
+          type: 'alias',
+          to: 'to',
+          from: 'test_uuid',
+        },
+        {},
+      );
     });
   });
 
@@ -734,10 +1181,13 @@ describe('Core - Analytics', () => {
       expect(setGroupIdIdSpy).toHaveBeenCalledTimes(1);
       expect(setGroupTraitsSpy).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([]);
-      expect(addEventSpy).toHaveBeenCalledWith({
-        type: 'group',
-        groupId: 'groupId',
-      });
+      expect(addEventSpy).toHaveBeenCalledWith(
+        {
+          type: 'group',
+          groupId: 'groupId',
+        },
+        {},
+      );
     });
   });
 
@@ -761,12 +1211,14 @@ describe('Core - Analytics', () => {
       analytics.prepareInternalServices();
       const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
       const resetSpy = jest.spyOn(analytics.userSessionManager!, 'reset');
+      analytics.customContextStore.set({ region: 'EU' });
 
       state.lifecycle.loaded.value = true;
       analytics.reset(true);
       expect(leaveBreadcrumbSpy).toHaveBeenCalledTimes(1);
       expect(resetSpy).toHaveBeenCalledTimes(1);
       expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([]);
+      expect(analytics.customContextStore.get()).toEqual({ region: 'EU' });
     });
 
     it('should process the preload buffer', () => {
@@ -801,6 +1253,38 @@ describe('Core - Analytics', () => {
         name: 'buttonClicked',
         properties: { color: 'blue' },
       });
+    });
+
+    it('captures load-time context when processing preloaded event calls', () => {
+      jest.spyOn(analytics, 'startLifecycle').mockImplementation();
+      analytics.prepareInternalServices();
+      const addEventSpy = jest.spyOn(analytics.eventManager!, 'addEvent');
+
+      analytics.enqueuePreloadBufferEvents([
+        ['identify', 'preloaded-user', { source: 'query-string' }],
+        ['track', 'preloaded-event', { source: 'preload-buffer' }],
+      ]);
+      analytics.load(dummyWriteKey, dummyDataplaneURL, {
+        context: { region: 'EU', source: 'load-time' },
+      });
+      state.lifecycle.loaded.value = true;
+
+      analytics.processDataInPreloadBuffer();
+
+      expect(addEventSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'identify',
+          userId: 'preloaded-user',
+        }),
+        { region: 'EU', source: 'load-time' },
+      );
+      expect(addEventSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'track',
+          name: 'preloaded-event',
+        }),
+        { region: 'EU', source: 'load-time' },
+      );
     });
   });
 
@@ -960,6 +1444,7 @@ describe('Core - Analytics', () => {
 
     it('should add consent auto tracking events to the end of the buffered events', () => {
       analytics.prepareInternalServices();
+      analytics.customContextStore.set({ consentRegion: 'EU' });
 
       state.eventBuffer.toBeProcessedArray.value = [['identify', { userId: 'test_user_id' }]];
 
@@ -985,6 +1470,7 @@ describe('Core - Analytics', () => {
             options: undefined,
             callback: undefined,
           },
+          { consentRegion: 'EU' },
         ],
         [
           'page',
@@ -995,8 +1481,31 @@ describe('Core - Analytics', () => {
             options: undefined,
             callback: undefined,
           },
+          { consentRegion: 'EU' },
         ],
       ]);
+    });
+
+    it('replays consent-generated events with the context captured when queued', () => {
+      analytics.prepareInternalServices();
+      const addEventSpy = jest.spyOn(analytics.eventManager!, 'addEvent');
+      analytics.customContextStore.set({ consentRegion: 'before' });
+      state.consents.enabled.value = true;
+      state.lifecycle.loaded.value = true;
+      state.consents.initialized.value = false;
+
+      analytics.consent({ trackConsent: true }, true);
+      analytics.customContextStore.set({ consentRegion: 'after' });
+      analytics.processBufferedEvents();
+
+      expect(addEventSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'track',
+          name: 'Consent Management Interaction',
+        }),
+        { consentRegion: 'before' },
+      );
+      expect(analytics.customContextStore.get()).toEqual({ consentRegion: 'after' });
     });
 
     it('should refresh consents data when the API is invoked multiple times', () => {
@@ -1066,12 +1575,12 @@ describe('Core - Analytics', () => {
 
       it('should add to existing buffered events when SDK is not loaded', () => {
         const destinationId = 'custom-dest-123';
-        state.eventBuffer.toBeProcessedArray.value = [['track', 'some_event']];
+        state.eventBuffer.toBeProcessedArray.value = [['track', { name: 'some_event' }]];
 
         analytics.addCustomIntegration(destinationId, mockCustomIntegration);
 
         expect(state.eventBuffer.toBeProcessedArray.value).toEqual([
-          ['track', 'some_event'],
+          ['track', { name: 'some_event' }],
           ['addCustomIntegration', destinationId, mockCustomIntegration],
         ]);
       });

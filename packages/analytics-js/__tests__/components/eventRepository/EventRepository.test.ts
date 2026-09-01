@@ -291,6 +291,49 @@ describe('EventRepository', () => {
     invokeSingleSpy.mockRestore();
   });
 
+  it('should pass the same enriched context to cloud and device mode queues', () => {
+    const eventRepository = new EventRepository(
+      mockPluginsManager,
+      defaultStoreManager,
+      defaultHttpClient,
+      defaultErrorHandler,
+      defaultLogger,
+    );
+    const enrichedEvent = {
+      ...testEvent,
+      context: {
+        region: 'EU',
+        experiment: { bucket: 'treatment' },
+      },
+    } as RudderEvent;
+
+    eventRepository.init();
+    const invokeSingleSpy = jest.spyOn(mockPluginsManager, 'invokeSingle');
+    eventRepository.enqueue(enrichedEvent);
+
+    expect(invokeSingleSpy).toHaveBeenNthCalledWith(
+      1,
+      'dataplaneEventsQueue.enqueue',
+      state,
+      mockDataplaneEventsQueue,
+      {
+        ...enrichedEvent,
+        integrations: { All: true },
+      },
+      defaultErrorHandler,
+      defaultLogger,
+    );
+    expect(invokeSingleSpy).toHaveBeenNthCalledWith(
+      2,
+      'destinationsEventsQueue.enqueue',
+      state,
+      mockDestinationsEventsQueue,
+      enrichedEvent,
+      defaultErrorHandler,
+      defaultLogger,
+    );
+  });
+
   it('should invoke event callback function if provided', () => {
     const eventRepository = new EventRepository(
       mockPluginsManager,

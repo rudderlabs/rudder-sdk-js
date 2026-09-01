@@ -9,6 +9,8 @@ import { StoreManager } from '../../../src/services/StoreManager/StoreManager';
 import { PluginsManager } from '../../../src/components/pluginsManager/PluginsManager';
 import { defaultLogger } from '../../../src/services/Logger';
 import { defaultHttpClient } from '../../../src/services/HttpClient';
+import type { APIEvent } from '@rudderstack/analytics-js-common/types/EventApi';
+import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 
 describe('EventManager', () => {
   class MockErrorHandler implements IErrorHandler {
@@ -61,5 +63,20 @@ describe('EventManager', () => {
 
       eventRepositoryResumeSpy.mockRestore();
     });
+  });
+
+  it('forwards the invocation-time context snapshot to event construction', () => {
+    const apiEvent = { type: 'track', name: 'Test event' } as APIEvent;
+    const customContext = { region: 'EU' };
+    const rudderEvent = { type: 'track' } as RudderEvent;
+    const refreshSessionSpy = jest.spyOn(userSessionManager, 'refreshSession').mockImplementation();
+    const createSpy = jest.spyOn(eventManager.eventFactory, 'create').mockReturnValue(rudderEvent);
+    const enqueueSpy = jest.spyOn(eventRepository, 'enqueue').mockImplementation();
+
+    eventManager.addEvent(apiEvent, customContext);
+
+    expect(refreshSessionSpy).toHaveBeenCalledTimes(1);
+    expect(createSpy).toHaveBeenCalledWith(apiEvent, customContext);
+    expect(enqueueSpy).toHaveBeenCalledWith(rudderEvent, undefined);
   });
 });

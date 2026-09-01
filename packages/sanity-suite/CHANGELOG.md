@@ -2,6 +2,33 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.7.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.6.1...@rudderstack/analytics-js-sanity-suite@3.7.0) (2026-08-24)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.31.8`
+* `rudder-sdk-js` updated to version `2.52.19`
+
+### Features
+
+* sdk-5058 expose custom context public api ([#3131](https://github.com/rudderlabs/rudder-sdk-js/issues/3131)) ([08686ce](https://github.com/rudderlabs/rudder-sdk-js/commit/08686ce687069c5f344c15653691dc35879bc63a))
+
+
+### Bug Fixes
+
+* update Amplitude source config fixtures ([#3138](https://github.com/rudderlabs/rudder-sdk-js/issues/3138)) ([cf88116](https://github.com/rudderlabs/rudder-sdk-js/commit/cf88116756f28bec07ef6e6fac93c27659515eaf))
+
+## [3.6.2](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.6.1...@rudderstack/analytics-js-sanity-suite@3.6.2) (2026-08-19)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.31.8`
+* `rudder-sdk-js` updated to version `2.52.19`
+
+### Bug Fixes
+
+* update Amplitude source config fixtures ([#3138](https://github.com/rudderlabs/rudder-sdk-js/issues/3138)) ([cf88116](https://github.com/rudderlabs/rudder-sdk-js/commit/cf88116756f28bec07ef6e6fac93c27659515eaf))
+
 ## [3.6.2](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.6.1...@rudderstack/analytics-js-sanity-suite@3.6.2) (2026-08-13)
 
 ### Dependency Updates

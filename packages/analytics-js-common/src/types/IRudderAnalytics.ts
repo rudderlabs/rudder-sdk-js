@@ -8,6 +8,7 @@ import type { ConsentOptions } from './Consent';
 import type { IntegrationOpts } from './Integration';
 import type { RSAEvent } from './Event';
 import type { BaseDestinationConfig } from './Destination';
+import type { CustomContext, InputCustomContext } from './CustomContext';
 
 export type AnalyticsIdentifyMethod = {
   (
@@ -179,6 +180,21 @@ export interface IRudderAnalytics<T = any> {
   getGroupTraits(): Nullable<ApiObject> | undefined;
 
   /**
+   * Merge fields into the in-memory custom context for subsequent event calls.
+   */
+  setCustomContext(context: InputCustomContext): void;
+
+  /**
+   * Get a defensive snapshot of the current in-memory custom context.
+   */
+  getCustomContext(): CustomContext;
+
+  /**
+   * Clear the complete in-memory custom context.
+   */
+  clearCustomContext(): void;
+
+  /**
    * To manually start user session in the SDK
    */
   startSession(sessionId?: number): void;
@@ -233,7 +249,7 @@ export type RSAnalytics = Pick<
  * For now, it is the same as the base destination config
  * but in the future, it can be extended to include more properties
  */
-export type CustomDestinationConfig = BaseDestinationConfig & {};
+export type CustomDestinationConfig = BaseDestinationConfig;
 
 /**
  * Type for the custom integration to be used in addCustomIntegration API

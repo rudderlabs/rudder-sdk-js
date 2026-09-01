@@ -1,4 +1,4 @@
-## [3.3.13](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-service-worker@3.3.12...@rudderstack/analytics-js-service-worker@3.3.13) (2026-07-27)
+## [3.3.14](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-service-worker@3.3.13...@rudderstack/analytics-js-service-worker@3.3.14) (2026-08-24)
 
 ### Dependency Updates
 
