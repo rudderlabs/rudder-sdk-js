@@ -43,3 +43,4 @@
 ## INT-7067 — OpenAI Ads Measurement Consent Cookie Handling
 
 - OpenAI Ads device-mode `__obref` forwarding should read `document.cookie` at send time during normal destination method invocation, not cache the cookie during init or instance lifetime; the integration relies on existing SDK consent/device-mode gating to stop invoking destination methods after measurement consent is revoked (`packages/analytics-js-integrations/src/integrations/OpenAIAds/browser.js`).
+- OpenAI Ads device-mode reset must clear stored Measurement Pixel user state by reinitializing the pixel with an explicit empty user payload (`window.oaiq("init", { pixelId, user: {} })`); reinitializing with only `{ pixelId }` does not clear vendor-side user state, and core SDK reset paths should invoke initialized device-mode destinations that expose `reset()` when clearing user ID or traits (`packages/analytics-js-integrations/src/integrations/OpenAIAds/browser.js`).
