@@ -17,3 +17,4 @@
 
 - Adding `packages/analytics-js-integrations/src/integrations/OpenAIAds` without matching `OPENAI_ADS_NAME` and `OPENAI_ADS_DISPLAY_NAME` exports in `packages/analytics-js-integrations/src/constants/Destinations.ts` breaks `packages/analytics-js-integrations/__tests__/constants.test.ts`, because that test imports every integration's `constants.js` and compares `NAME`/`DISPLAY_NAME` to `Destinations.ts` exports.
 - When adding a new `analytics-js-integrations` device-mode integration, include its `*_NAME` and `*_DISPLAY_NAME` exports in `Destinations.ts` in the same PR unless the generated constants have already been refreshed.
+- Do not implement OpenAI Ads Measurement Pixel logout/user clearing by adding core SDK device-mode reset hook plumbing from stale or local spec text; the durable behavior from the spec PR is MoEngage-style integration-local user ID change detection that clears the pixel user via `window.oaiq("init", { pixelId, user: {} })`.
