@@ -77,7 +77,6 @@ import { safelyInvokeCallback } from '../utilities/callbacks';
 import type { ConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
 import type { BufferedEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { CustomContextStore, prepareCustomContextUpdate } from '../customContext';
-import { getFinalResetOptions } from '../userSessionManager/utils';
 
 /*
  * Analytics class with lifecycle based on state ad user triggered events
@@ -816,37 +815,6 @@ class Analytics implements IAnalytics {
 
     this.errorHandler.leaveBreadcrumb(`New ${type} invocation`);
     this.userSessionManager?.reset(options);
-    this.resetNativeDestinations(options);
-  }
-
-  resetNativeDestinations(options?: ResetOptions | boolean) {
-    const { entries } = getFinalResetOptions(options);
-    const shouldClearUserData = entries.userId === true || entries.userTraits === true;
-
-    if (!shouldClearUserData) {
-      return;
-    }
-
-    state.nativeDestinations.initializedDestinations.value.forEach(destination => {
-      const reset = destination.integration?.reset;
-      if (!isFunction(reset)) {
-        return;
-      }
-
-      try {
-        destination.integration!.reset!();
-      } catch (err) {
-        const destinationName =
-          destination.userFriendlyId || destination.displayName || destination.id || 'unknown';
-        const customMessage = `Failed to reset device-mode destination "${destinationName}"`;
-        this.errorHandler.onError({
-          error: err,
-          context: ANALYTICS_CORE,
-          customMessage,
-          groupingHash: customMessage,
-        });
-      }
-    });
   }
 
   getAnonymousId(options?: AnonymousIdOptions): string | undefined {

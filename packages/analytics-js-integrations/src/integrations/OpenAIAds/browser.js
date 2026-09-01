@@ -14,6 +14,16 @@ import {
 
 const logger = new Logger(DISPLAY_NAME);
 
+const normalizeUserId = userId => {
+  if (typeof userId === 'string') {
+    return userId.trim();
+  }
+  if (typeof userId === 'number' || typeof userId === 'boolean') {
+    return String(userId);
+  }
+  return '';
+};
+
 class OpenAIAds {
   constructor(config = {}, analytics = {}, destinationInfo) {
     if (analytics.logLevel) {
@@ -29,6 +39,7 @@ class OpenAIAds {
     this.defaultActionSource = config.defaultActionSource;
     this.userData = {};
     this.cookieObref = undefined;
+    this.currentUserId = '';
 
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
@@ -45,6 +56,7 @@ class OpenAIAds {
 
     loadNativeSdk();
     initPixel(this.pixelId);
+    this.currentUserId = normalizeUserId(this.analytics?.getUserId?.());
   }
 
   isLoaded() {
@@ -72,8 +84,39 @@ class OpenAIAds {
     }
   }
 
+  // Mirrors the MoEngage integration pattern: clear vendor user state when the SDK user changes
+  // or when a previously identified user becomes empty after logout/reset.
+  shouldResetSession(userId) {
+    return (
+      (userId && this.currentUserId !== '' && this.currentUserId !== userId) ||
+      (this.currentUserId !== '' && userId === '')
+    );
+  }
+
+  resetSession(userId) {
+    this.currentUserId = userId;
+    this.userData = {};
+    this.cookieObref = undefined;
+    if (this.pixelId && typeof window.oaiq === 'function') {
+      window.oaiq('init', { pixelId: this.pixelId, user: {} });
+    }
+  }
+
+  syncUserId(message) {
+    const userId = normalizeUserId(message?.userId);
+    if (this.shouldResetSession(userId)) {
+      this.resetSession(userId);
+      return;
+    }
+
+    if (this.currentUserId === '' && userId) {
+      this.currentUserId = userId;
+    }
+  }
+
   identify(rudderElement) {
     const message = rudderElement?.message || rudderElement || {};
+    this.syncUserId(message);
     const user = buildUserData(message, logger);
 
     if (Object.keys(user).length === 0) {
@@ -83,14 +126,6 @@ class OpenAIAds {
 
     this.userData = { ...this.userData, ...user };
     this.updatePixelUser(this.userData);
-  }
-
-  reset() {
-    this.userData = {};
-    this.cookieObref = undefined;
-    if (this.pixelId && typeof window.oaiq === 'function') {
-      window.oaiq('init', { pixelId: this.pixelId, user: {} });
-    }
   }
 
   track(rudderElement) {
@@ -107,6 +142,7 @@ class OpenAIAds {
 
   sendConversionEvent(rudderElement, messageType) {
     const message = rudderElement?.message || rudderElement || {};
+    this.syncUserId(message);
     const resolvedEvent = resolveEvent(message, messageType, this.eventMapping);
 
     if (resolvedEvent.error) {

@@ -18,10 +18,11 @@ const baseConfig = {
   defaultActionSource: 'web',
 };
 
-const makeIntegration = config => new OpenAIAds({ ...baseConfig, ...config }, { logLevel: 'DEBUG' });
+const makeIntegration = (config, analytics = {}) =>
+  new OpenAIAds({ ...baseConfig, ...config }, { logLevel: 'DEBUG', ...analytics });
 
-const initForCalls = config => {
-  const integration = makeIntegration(config);
+const initForCalls = (config, analytics) => {
+  const integration = makeIntegration(config, analytics);
   integration.init();
   window.oaiq = jest.fn();
   return integration;
@@ -140,31 +141,28 @@ describe('OpenAIAds identify', () => {
     ).toBe(true);
   });
 
-  test('clears pixel user state on reset with pixelId and an empty user object', () => {
-    const integration = initForCalls();
+  test('clears pixel user state before identify when userId changes, then repopulates', () => {
+    const integration = initForCalls({}, { getUserId: () => 'old-user' });
+
     integration.identify({
       message: {
         type: 'identify',
-        context: { traits: { email: 'person@example.com', obref: 'obref-from-traits' } },
-      },
-    });
-    window.oaiq.mockClear();
-
-    integration.reset();
-
-    expect(window.oaiq).toHaveBeenCalledTimes(1);
-    expect(window.oaiq).toHaveBeenCalledWith('init', { pixelId: 'pixel-123', user: {} });
-    expect(window.oaiq).not.toHaveBeenCalledWith('init', { pixelId: 'pixel-123' });
-
-    integration.track({
-      message: {
-        type: 'track',
-        event: 'Product Viewed',
-        properties: { amount: 1, currency: 'USD', source_url: 'https://example.com/products' },
+        userId: 'new-user',
+        context: { traits: { email: 'new@example.com' } },
       },
     });
 
-    expect(window.oaiq.mock.calls.filter(call => call[0] === 'init')).toHaveLength(1);
+    expect(window.oaiq).toHaveBeenCalledTimes(2);
+    expect(window.oaiq.mock.calls[0]).toEqual(['init', { pixelId: 'pixel-123', user: {} }]);
+    expect(window.oaiq.mock.calls[1]).toEqual([
+      'init',
+      {
+        user: {
+          emails_sha256: [sha256('new@example.com').toString()],
+          external_ids_sha256: [sha256('new-user').toString()],
+        },
+      },
+    ]);
   });
 });
 
@@ -216,6 +214,37 @@ describe('OpenAIAds conversion events', () => {
       },
       { id: 'order-123' },
     ]);
+  });
+
+  test('clears pixel user state before measuring when a previously known user logs out', () => {
+    const integration = initForCalls({}, { getUserId: () => 'User-123' });
+
+    integration.track({
+      message: {
+        type: 'track',
+        userId: '',
+        event: 'Product Viewed',
+        messageId: 'post-reset',
+        properties: {},
+        context: { page: { url: 'https://example.com/post-reset' } },
+      },
+    });
+
+    expect(window.oaiq).toHaveBeenCalledTimes(2);
+    expect(window.oaiq.mock.calls[0]).toEqual(['init', { pixelId: 'pixel-123', user: {} }]);
+    expect(window.oaiq.mock.calls[1]).toEqual([
+      'measureSingle',
+      'pixel-123',
+      'contents_viewed',
+      {
+        type: 'contents',
+        action_source: 'web',
+        source_url: 'https://example.com/post-reset',
+        currency: 'USD',
+      },
+      { id: 'post-reset' },
+    ]);
+    expect(window.oaiq).not.toHaveBeenCalledWith('init', { pixelId: 'pixel-123' });
   });
 
   test('fires mapped custom events with custom properties and messageId fallback', () => {

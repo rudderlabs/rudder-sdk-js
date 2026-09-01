@@ -77,12 +77,6 @@ export type DeviceModeIntegration = {
    * @optional
    */
   alias?: (event: RSAEvent) => void;
-
-  /**
-   * Clear integration-local user state when the SDK reset clears user data
-   * @optional
-   */
-  reset?: () => void;
 };
 
 export type DeviceModeIntegrationEventAPIs = Pick<
