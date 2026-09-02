@@ -2630,6 +2630,10 @@ describe('User session manager', () => {
       });
 
       afterEach(() => {
+        // The store is a shared singleton, so any override made here would otherwise leak
+        // into later tests. Drop them before handing the timers back.
+        delete (clientDataStoreCookie as Partial<Store>).set;
+        delete (clientDataStoreCookie as Partial<Store>).remove;
         jest.useRealTimers();
       });
 
@@ -2646,6 +2650,20 @@ describe('User session manager', () => {
 
       it('should make a request if the persisted value is different', () => {
         clientDataStoreCookie.set(COOKIE_KEYS.anonymousId, 'stale_anonymousId');
+        state.session.anonymousId.value = dummyAnonymousId;
+        const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
+
+        userSessionManager.syncValueToStorage('anonymousId');
+        jest.advanceTimersByTime(1000);
+
+        expect(setServerSideCookiesSpy).toHaveBeenCalled();
+      });
+
+      // An A -> B -> A transition: the B request is still pending when the value reverts to A.
+      // Skipping here would let B land afterwards, leaving the cookie and the state divergent.
+      it('should make a request if one is already pending for the same key', () => {
+        clientDataStoreCookie.set(COOKIE_KEYS.anonymousId, dummyAnonymousId);
+        userSessionManager.serverSideCookiesRequestInProgress.anonymousId = true;
         state.session.anonymousId.value = dummyAnonymousId;
         const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
 

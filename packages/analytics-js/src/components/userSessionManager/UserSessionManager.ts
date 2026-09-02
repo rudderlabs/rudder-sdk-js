@@ -540,7 +540,7 @@ class UserSessionManager implements IUserSessionManager {
    * @param cookieValue value that is about to be written
    * @returns true if the persisted value is identical to the value to be written
    */
-  isValueAlreadyPersisted(
+  private isValueAlreadyPersisted(
     store: IStore | undefined,
     cookieName: string,
     cookieValue: CookieValue,
@@ -573,7 +573,14 @@ class UserSessionManager implements IUserSessionManager {
         ) {
           // Skip the request if the cookie already holds this exact value.
           // The cookie is set with a long max age, so it needs no periodic renewal.
-          if (this.isValueAlreadyPersisted(curStore, cookieName, cookieValue)) {
+          //
+          // Only safe while nothing is pending for this key. A queued or in-flight request
+          // may still write a different value, so skipping then would leave the cookie and
+          // the state divergent with nothing to reconcile them.
+          if (
+            !this.serverSideCookiesRequestInProgress[sessionKey] &&
+            this.isValueAlreadyPersisted(curStore, cookieName, cookieValue)
+          ) {
             return;
           }
 
