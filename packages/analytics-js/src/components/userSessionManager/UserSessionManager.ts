@@ -621,7 +621,12 @@ class UserSessionManager implements IUserSessionManager {
             return;
           }
 
-          // Mark the requests as in progress.
+          // Both are set at the point the write is committed to, not when the cookie
+          // actually changes. cookieWrittenInPageLoad is pre-emptive on purpose: the
+          // client-side fallback writes through the callback below without setting it, and
+          // a fallback only ever follows a request, so this is what covers that path. It
+          // also keeps the skip guard above off a key with an outstanding write, without
+          // the guard having to consult the pending state below.
           this.serverSideCookiesRequestInProgress[sessionKey] = true;
           this.cookieWrittenInPageLoad[sessionKey] = true;
 
