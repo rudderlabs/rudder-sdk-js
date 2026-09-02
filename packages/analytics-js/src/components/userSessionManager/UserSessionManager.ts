@@ -54,6 +54,7 @@ import {
   CUT_OFF_DURATION_NOT_NUMBER_WARNING,
   DATA_SERVER_REQUEST_FAIL_ERROR,
   FAILED_SETTING_COOKIE_FROM_SERVER_ERROR,
+  COLLAPSED_COOKIE_BATCH_ERROR,
   FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR,
   TIMEOUT_NOT_NUMBER_WARNING,
   TIMEOUT_NOT_RECOMMENDED_WARNING,
@@ -498,6 +499,8 @@ class UserSessionManager implements IUserSessionManager {
           clearInProgressFlags();
 
           if (details?.xhr?.status === 200) {
+            const missingCookies: string[] = [];
+
             getCurrentCookieValuesFromState().forEach(cData => {
               const originalCookieVal = originalCookieValues[cData.name];
               const currentCookieVal = store?.get(cData.name);
@@ -512,6 +515,7 @@ class UserSessionManager implements IUserSessionManager {
 
                 // Log an error only when cookie didn't exist previously and currently also doesn't exist.
                 if (isNull(originalCookieVal) && isNull(currentCookieVal)) {
+                  missingCookies.push(cData.name);
                   this.logger.error(FAILED_SETTING_COOKIE_FROM_SERVER_ERROR(cData.name));
                 }
                 if (cb) {
@@ -519,6 +523,24 @@ class UserSessionManager implements IUserSessionManager {
                 }
               }
             });
+
+            // A batch coming back with cookies missing points at something shared rather
+            // than at any one cookie, so say so once instead of leaving the operator with
+            // a per-cookie error and no cause. Purely diagnostic: it never changes how the
+            // SDK sends the next batch.
+            //
+            // The message lists candidate causes rather than asserting one, because this
+            // condition cannot tell them apart. A data service that collapses the batch
+            // still sets the last cookie, so exactly one survives, whereas rejected cookie
+            // attributes usually leave none of them set.
+            if (
+              sessionKeys.length > 1 &&
+              missingCookies.length > 0 &&
+              !state.serverCookies.isCollapsedBatchErrorLogged.value
+            ) {
+              state.serverCookies.isCollapsedBatchErrorLogged.value = true;
+              this.logger.error(COLLAPSED_COOKIE_BATCH_ERROR(missingCookies, sessionKeys.length));
+            }
           } else {
             this.logger.error(DATA_SERVER_REQUEST_FAIL_ERROR(details?.xhr?.status));
             setCookiesClientSide();
@@ -604,6 +626,10 @@ class UserSessionManager implements IUserSessionManager {
           // the same window goes to the data service as one request instead of one each.
           this.serverSideCookiesPending[sessionKey] = cookieName;
 
+          // Restarting the shared timer means a steady stream of changes to any key can
+          // keep postponing the flush for every other key, where per-key timers only ever
+          // delayed their own. That needs changes arriving closer together than the
+          // debounce, continuously, so it is accepted rather than capped with a max wait.
           if (this.serverSideCookiesDebounceTimer) {
             (globalThis as typeof window).clearTimeout(this.serverSideCookiesDebounceTimer);
           }

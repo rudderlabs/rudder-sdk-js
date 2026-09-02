@@ -181,6 +181,7 @@ const defaultStateValues: ApplicationState = {
   serverCookies: {
     isEnabledServerSideCookies: signal(false),
     dataServiceUrl: signal(undefined),
+    isCollapsedBatchErrorLogged: signal(false),
   },
   dataPlaneEvents: {
     eventsQueuePluginName: signal<PluginName | undefined>(undefined),

@@ -202,6 +202,11 @@ export type StorageState = {
 export type ServerCookiesState = {
   isEnabledServerSideCookies: Signal<boolean>;
   dataServiceUrl: Signal<string | undefined>;
+  /**
+   * Whether the error about a cookie batch coming back with cookies missing has already
+   * been logged. The cause is the same for every subsequent batch, so it is said once.
+   */
+  isCollapsedBatchErrorLogged: Signal<boolean>;
 };
 
 export interface ApplicationState {

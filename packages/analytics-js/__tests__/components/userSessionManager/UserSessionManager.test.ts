@@ -2675,6 +2675,54 @@ describe('User session manager', () => {
         );
       });
 
+      // A data service that predates multi-cookie support sets only the last cookie of a
+      // batch. The others are recovered client side, but the operator needs telling why.
+      // The per-cookie errors already fire here, so match on the batch message specifically
+      const batchErrorCalls = () =>
+        (defaultLogger.error as jest.Mock).mock.calls.filter(([message]) =>
+          String(message).includes('sent in one request'),
+        );
+
+      it('should report once when a batch comes back with cookies missing', () => {
+        let capturedCallback: any;
+        userSessionManager.makeRequestToSetCookie = jest.fn((_data: any, cb: any) => {
+          capturedCallback = cb;
+        });
+
+        state.session.anonymousId.value = dummyAnonymousId;
+        userSessionManager.syncValueToStorage('anonymousId');
+        state.session.userId.value = 'dummy_userId';
+        userSessionManager.syncValueToStorage('userId');
+        jest.advanceTimersByTime(1000);
+
+        // The server responds 200 but no cookie was actually set
+        capturedCallback(null, { xhr: { status: 200 } });
+
+        expect(batchErrorCalls()).toHaveLength(1);
+        expect(batchErrorCalls()[0][0]).toContain(COOKIE_KEYS.anonymousId);
+        expect(batchErrorCalls()[0][0]).toContain(COOKIE_KEYS.userId);
+
+        // A later collapsed batch must not repeat it, the cause has not changed
+        capturedCallback(null, { xhr: { status: 200 } });
+
+        expect(batchErrorCalls()).toHaveLength(1);
+      });
+
+      it('should not report a collapsed batch for a single cookie request', () => {
+        let capturedCallback: any;
+        userSessionManager.makeRequestToSetCookie = jest.fn((_data: any, cb: any) => {
+          capturedCallback = cb;
+        });
+
+        state.session.anonymousId.value = dummyAnonymousId;
+        userSessionManager.syncValueToStorage('anonymousId');
+        jest.advanceTimersByTime(1000);
+
+        capturedCallback(null, { xhr: { status: 200 } });
+
+        expect(batchErrorCalls()).toHaveLength(0);
+      });
+
       it('should not batch keys that are not backed by cookie storage', () => {
         state.storage.entries.value = entriesWithMixStorageButWithoutNone;
         const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
