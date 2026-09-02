@@ -95,13 +95,6 @@ class UserSessionManager implements IUserSessionManager {
    * Tracks whether a server-side cookie setting request is in progress or not.
    */
   serverSideCookiesRequestInProgress: Record<UserSessionKey, boolean>;
-  /**
-   * Tracks the keys whose cookie the SDK has written during this page load, either
-   * client-side or through the data service. Once set, the value in the cookie can no
-   * longer be assumed to have been set by the data service, so the equal-value skip in
-   * syncValueToStorage no longer applies. Never cleared.
-   */
-  cookieWrittenInPageLoad: Record<UserSessionKey, boolean>;
 
   constructor(
     pluginsManager: IPluginsManager,
@@ -118,7 +111,6 @@ class UserSessionManager implements IUserSessionManager {
     this.onError = this.onError.bind(this);
     this.serverSideCookieDebounceFuncs = {} as Record<UserSessionKey, number>;
     this.serverSideCookiesRequestInProgress = {} as Record<UserSessionKey, boolean>;
-    this.cookieWrittenInPageLoad = {} as Record<UserSessionKey, boolean>;
   }
 
   /**
@@ -233,8 +225,6 @@ class UserSessionManager implements IUserSessionManager {
             const value = store.get(COOKIE_KEYS[key]);
             if (isDefinedNotNullAndNotEmptyString(value)) {
               curStore.set(COOKIE_KEYS[key], value);
-              // Written client-side, so it still needs syncing to the data service
-              this.cookieWrittenInPageLoad[key as UserSessionKey] = true;
             }
 
             store.remove(COOKIE_KEYS[key]);
@@ -283,8 +273,6 @@ class UserSessionManager implements IUserSessionManager {
         // migration failed
         if (!isNullOrUndefined(migratedVal)) {
           store.set(storageEntry, migratedVal);
-          // Written client-side, so it still needs syncing to the data service
-          this.cookieWrittenInPageLoad[storageKey as UserSessionKey] = true;
         }
       });
     });
@@ -546,24 +534,6 @@ class UserSessionManager implements IUserSessionManager {
   }
 
   /**
-   * A function to check whether the value is already persisted in the storage as is
-   * @param store store to read the persisted value from
-   * @param cookieName name of the cookie
-   * @param cookieValue value that is about to be written
-   * @returns true if the persisted value is identical to the value to be written
-   */
-  private isValueAlreadyPersisted(
-    store: IStore | undefined,
-    cookieName: string,
-    cookieValue: CookieValue,
-  ): boolean {
-    return (
-      stringifyWithoutCircular(store?.get(cookieName), false, []) ===
-      stringifyWithoutCircular(cookieValue, false, [])
-    );
-  }
-
-  /**
    * A function to sync values in storage
    * @param sessionKey
    */
@@ -583,24 +553,8 @@ class UserSessionManager implements IUserSessionManager {
           state.serverCookies.isEnabledServerSideCookies.value &&
           storageType === COOKIE_STORAGE
         ) {
-          // Skip the request if the cookie already holds this exact value.
-          // The cookie is set with a long max age, so it needs no periodic renewal.
-          //
-          // Only safe before the SDK has written this cookie itself during this page load.
-          // Afterwards the stored value may have been written client-side (by storage
-          // migration or the fallback path), which Safari ITP caps at 7 days, or a write may
-          // still be pending, so the value cannot be assumed to have come from the data
-          // service. This flag is never cleared, so it cannot go stale.
-          if (
-            !this.cookieWrittenInPageLoad[sessionKey] &&
-            this.isValueAlreadyPersisted(curStore, cookieName, cookieValue)
-          ) {
-            return;
-          }
-
           // Mark the requests as in progress.
           this.serverSideCookiesRequestInProgress[sessionKey] = true;
-          this.cookieWrittenInPageLoad[sessionKey] = true;
 
           if (this.serverSideCookieDebounceFuncs[sessionKey]) {
             (globalThis as typeof window).clearTimeout(
