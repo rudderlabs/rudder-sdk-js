@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Server-side cookies harness</title>
+  </head>
+  <body>
+    <h1>Server-side cookies harness</h1>
+    <script>
+      // Exposed so the specs can drive the SDK and observe when it is ready
+      window.__rsaReady = new Promise(resolve => {
+        window.__rsaResolveReady = resolve;
+      });
+    </script>
+    <script src="__SDK_URL__"></script>
+    <script>
+      const loadOptions = {
+        useServerSideCookies: true,
+        dataServiceEndpoint: '__DATA_SERVICE_PATH__',
+        logLevel: 'DEBUG',
+        pluginsSDKBaseURL: '__PLUGINS_URL__',
+        onLoaded: () => window.__rsaResolveReady(true),
+      };
+
+      const sourceConfigUrl = '__SOURCE_CONFIG_URL__';
+      if (sourceConfigUrl) {
+        loadOptions.configUrl = sourceConfigUrl;
+      }
+
+      rudderanalytics.load('__WRITE_KEY__', '__DATA_PLANE_URL__', loadOptions);
+    </script>
+  </body>
+</html>

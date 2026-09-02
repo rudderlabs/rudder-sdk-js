@@ -1,0 +1,15 @@
+{
+  "name": "@rudderstack/e2e-server-side-cookies",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Real-browser checks for the server-side cookies flow, parameterised so the same suite runs against a local build, staging and production.",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "start": "node ./start-harness.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1"
+  }
+}
