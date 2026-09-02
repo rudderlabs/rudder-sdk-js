@@ -2718,6 +2718,35 @@ describe('User session manager', () => {
         expect(batchErrorCalls()).toHaveLength(1);
       });
 
+      // On a repeat page load the SDK rewrites values the cookies already hold. Nothing
+      // changes, and that must not read as the server having failed to apply them.
+      it('should not report a collapsed batch when the cookies already hold the values', () => {
+        clientDataStoreCookie.set(COOKIE_KEYS.anonymousId, dummyAnonymousId);
+        clientDataStoreCookie.set(COOKIE_KEYS.userId, 'dummy_userId');
+
+        let capturedCallback: any;
+        userSessionManager.makeRequestToSetCookie = jest.fn((_data: any, cb: any) => {
+          capturedCallback = cb;
+        });
+
+        state.session.anonymousId.value = dummyAnonymousId;
+        userSessionManager.syncValueToStorage('anonymousId');
+        state.session.userId.value = 'dummy_userId';
+        userSessionManager.syncValueToStorage('userId');
+        jest.advanceTimersByTime(1000);
+
+        // A real multi-cookie batch went out, otherwise the assertion below proves nothing
+        expect(userSessionManager.makeRequestToSetCookie).toHaveBeenCalledTimes(1);
+        expect(
+          (userSessionManager.makeRequestToSetCookie as jest.Mock).mock.calls[0][0],
+        ).toHaveLength(2);
+
+        // The cookies are untouched by the response, because they already held these values
+        capturedCallback(null, { xhr: { status: 200 } });
+
+        expect(batchErrorCalls()).toHaveLength(0);
+      });
+
       it('should not report a collapsed batch for a single cookie request', () => {
         let capturedCallback: any;
         userSessionManager.makeRequestToSetCookie = jest.fn((_data: any, cb: any) => {

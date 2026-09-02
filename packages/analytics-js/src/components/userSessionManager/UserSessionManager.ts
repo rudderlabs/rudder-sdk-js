@@ -499,6 +499,9 @@ class UserSessionManager implements IUserSessionManager {
           clearInProgressFlags();
 
           if (details?.xhr?.status === 200) {
+            // Only the cookies that were actually sent can be reported as unapplied, so
+            // both halves of the diagnostic are drawn from the same set
+            const sentCookieNames = new Set(encryptedCookieData.map(each => each.name));
             const unappliedCookies: string[] = [];
 
             getCurrentCookieValuesFromState().forEach(cData => {
@@ -517,8 +520,9 @@ class UserSessionManager implements IUserSessionManager {
                 // write. A value that moved to something else was set by another tab or
                 // request, which is expected rather than a failure.
                 if (
+                  sentCookieNames.has(cData.name) &&
                   stringifyWithoutCircular(originalCookieVal, false, []) ===
-                  stringifyWithoutCircular(currentCookieVal, false, [])
+                    stringifyWithoutCircular(currentCookieVal, false, [])
                 ) {
                   unappliedCookies.push(cData.name);
                 }
