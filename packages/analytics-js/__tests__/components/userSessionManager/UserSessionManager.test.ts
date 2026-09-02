@@ -2683,6 +2683,59 @@ describe('User session manager', () => {
         expect(setServerSideCookiesSpy).toHaveBeenCalledTimes(1);
       });
 
+      // Storage migration rewrites the cookie client side. If the guard then skips, the cookie
+      // stays a script written cookie for good, and Safari ITP caps it at 7 days - which is the
+      // exact outcome server-side cookies exist to avoid.
+      it('should make a request for a cookie that storage migration rewrote', () => {
+        // Only stub the migration extension point. The store uses the same plugins manager
+        // for encryption, so a blanket mock would write the cookie unencrypted.
+        const originalInvokeSingle = defaultPluginsManager.invokeSingle.bind(defaultPluginsManager);
+        const migrateSpy = jest
+          .spyOn(defaultPluginsManager, 'invokeSingle')
+          .mockImplementation((extPoint?: string, ...args: any[]) =>
+            extPoint === 'storage.migrate'
+              ? dummyAnonymousId
+              : originalInvokeSingle(extPoint, ...args),
+          );
+        state.storage.migrate.value = true;
+        state.session.anonymousId.value = dummyAnonymousId;
+        const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
+
+        // Migration writes the value into the cookie client side
+        userSessionManager.migrateStorageIfNeeded(undefined, ['anonymousId']);
+        expect(clientDataStoreCookie.get(COOKIE_KEYS.anonymousId)).toEqual(dummyAnonymousId);
+
+        userSessionManager.syncValueToStorage('anonymousId');
+        jest.advanceTimersByTime(1000);
+
+        expect(setServerSideCookiesSpy).toHaveBeenCalled();
+        migrateSpy.mockRestore();
+      });
+
+      // With two writes in flight for one key, the earlier response clears the shared
+      // in-progress flag while the later one is still outstanding. Skipping on the strength
+      // of that flag would let the later write land last and diverge the cookie from state.
+      it('should keep requesting after an earlier response clears the in-progress flag', () => {
+        clientDataStoreCookie.set(COOKIE_KEYS.anonymousId, dummyAnonymousId);
+        const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
+
+        state.session.anonymousId.value = 'pending_anonymousId';
+        userSessionManager.syncValueToStorage('anonymousId');
+        jest.advanceTimersByTime(1000);
+        setServerSideCookiesSpy.mockClear();
+
+        // An earlier response lands and clears the shared flag, even though a write is
+        // still outstanding for this key
+        userSessionManager.serverSideCookiesRequestInProgress.anonymousId = false;
+
+        // State returns to the value the cookie still holds
+        state.session.anonymousId.value = dummyAnonymousId;
+        userSessionManager.syncValueToStorage('anonymousId');
+        jest.advanceTimersByTime(1000);
+
+        expect(setServerSideCookiesSpy).toHaveBeenCalledTimes(1);
+      });
+
       it('should make a request if the cookie does not exist yet', () => {
         state.session.anonymousId.value = dummyAnonymousId;
         const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
