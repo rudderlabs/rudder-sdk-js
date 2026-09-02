@@ -2616,6 +2616,91 @@ describe('User session manager', () => {
         done();
       }, 1000);
     });
+
+    describe('redundant server-side cookie requests', () => {
+      beforeEach(() => {
+        jest.useFakeTimers();
+        // Earlier tests replace these on the shared store instance and never restore them.
+        // Drop the own properties so the real prototype implementations are used again.
+        delete (clientDataStoreCookie as Partial<Store>).set;
+        delete (clientDataStoreCookie as Partial<Store>).remove;
+        state.serverCookies.isEnabledServerSideCookies.value = true;
+        state.storage.entries.value = entriesWithOnlyCookieStorage;
+        state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
+      });
+
+      afterEach(() => {
+        jest.useRealTimers();
+      });
+
+      it('should not make a request if the persisted value is already up to date', () => {
+        clientDataStoreCookie.set(COOKIE_KEYS.anonymousId, dummyAnonymousId);
+        state.session.anonymousId.value = dummyAnonymousId;
+        const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
+
+        userSessionManager.syncValueToStorage('anonymousId');
+        jest.advanceTimersByTime(1000);
+
+        expect(setServerSideCookiesSpy).not.toHaveBeenCalled();
+      });
+
+      it('should make a request if the persisted value is different', () => {
+        clientDataStoreCookie.set(COOKIE_KEYS.anonymousId, 'stale_anonymousId');
+        state.session.anonymousId.value = dummyAnonymousId;
+        const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
+
+        userSessionManager.syncValueToStorage('anonymousId');
+        jest.advanceTimersByTime(1000);
+
+        expect(setServerSideCookiesSpy).toHaveBeenCalled();
+      });
+
+      it('should make a request if the cookie does not exist yet', () => {
+        state.session.anonymousId.value = dummyAnonymousId;
+        const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
+
+        userSessionManager.syncValueToStorage('anonymousId');
+        jest.advanceTimersByTime(1000);
+
+        expect(setServerSideCookiesSpy).toHaveBeenCalled();
+      });
+
+      // The session cookie must keep syncing, otherwise the persisted expiresAt goes stale and
+      // the next event would start a new session while the user is still active.
+      it('should still make a request for the session info as expiresAt changes', () => {
+        const persistedSessionInfo = {
+          id: 1234567890,
+          expiresAt: 1234567890 + DEFAULT_SESSION_TIMEOUT_MS,
+          autoTrack: true,
+          timeout: DEFAULT_SESSION_TIMEOUT_MS,
+        };
+        clientDataStoreCookie.set(COOKIE_KEYS.sessionInfo, persistedSessionInfo);
+        state.session.sessionInfo.value = {
+          ...persistedSessionInfo,
+          expiresAt: persistedSessionInfo.expiresAt + 60 * 1000,
+        };
+        const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
+
+        userSessionManager.syncValueToStorage('sessionInfo');
+        jest.advanceTimersByTime(1000);
+
+        expect(setServerSideCookiesSpy).toHaveBeenCalled();
+      });
+
+      it('should not skip the client-side write when server-side cookies are disabled', () => {
+        state.serverCookies.isEnabledServerSideCookies.value = false;
+        clientDataStoreCookie.set(COOKIE_KEYS.anonymousId, dummyAnonymousId);
+        clientDataStoreCookie.set = jest.fn();
+        state.session.anonymousId.value = dummyAnonymousId;
+
+        userSessionManager.syncValueToStorage('anonymousId');
+
+        expect(clientDataStoreCookie.set).toHaveBeenCalledWith(
+          COOKIE_KEYS.anonymousId,
+          dummyAnonymousId,
+        );
+      });
+    });
   });
 
   describe('setServerSideCookies', () => {

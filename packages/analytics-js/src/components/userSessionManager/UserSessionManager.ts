@@ -534,6 +534,24 @@ class UserSessionManager implements IUserSessionManager {
   }
 
   /**
+   * A function to check whether the value is already persisted in the storage as is
+   * @param store store to read the persisted value from
+   * @param cookieName name of the cookie
+   * @param cookieValue value that is about to be written
+   * @returns true if the persisted value is identical to the value to be written
+   */
+  isValueAlreadyPersisted(
+    store: IStore | undefined,
+    cookieName: string,
+    cookieValue: CookieValue,
+  ): boolean {
+    return (
+      stringifyWithoutCircular(store?.get(cookieName), false, []) ===
+      stringifyWithoutCircular(cookieValue, false, [])
+    );
+  }
+
+  /**
    * A function to sync values in storage
    * @param sessionKey
    */
@@ -553,6 +571,12 @@ class UserSessionManager implements IUserSessionManager {
           state.serverCookies.isEnabledServerSideCookies.value &&
           storageType === COOKIE_STORAGE
         ) {
+          // Skip the request if the cookie already holds this exact value.
+          // The cookie is set with a long max age, so it needs no periodic renewal.
+          if (this.isValueAlreadyPersisted(curStore, cookieName, cookieValue)) {
+            return;
+          }
+
           // Mark the requests as in progress.
           this.serverSideCookiesRequestInProgress[sessionKey] = true;
 
