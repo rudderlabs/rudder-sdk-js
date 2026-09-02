@@ -102,6 +102,17 @@ class UserSessionManager implements IUserSessionManager {
    * syncValueToStorage no longer applies. Never cleared.
    */
   cookieWrittenInPageLoad: Record<UserSessionKey, boolean>;
+  /**
+   * Tracks the keys with a request actually on the wire, as opposed to one that is only
+   * queued behind the debounce. Only one request per key may be in flight, otherwise the
+   * responses can be applied out of order and leave the cookie on an older value.
+   */
+  serverSideCookiesInFlight: Record<UserSessionKey, boolean>;
+  /**
+   * Tracks the keys whose value changed while a request was in flight. The write is held
+   * back and reissued against the then current value once the response lands.
+   */
+  serverSideCookiesResyncPending: Record<UserSessionKey, boolean>;
 
   constructor(
     pluginsManager: IPluginsManager,
@@ -119,6 +130,8 @@ class UserSessionManager implements IUserSessionManager {
     this.serverSideCookieDebounceFuncs = {} as Record<UserSessionKey, number>;
     this.serverSideCookiesRequestInProgress = {} as Record<UserSessionKey, boolean>;
     this.cookieWrittenInPageLoad = {} as Record<UserSessionKey, boolean>;
+    this.serverSideCookiesInFlight = {} as Record<UserSessionKey, boolean>;
+    this.serverSideCookiesResyncPending = {} as Record<UserSessionKey, boolean>;
   }
 
   /**
@@ -466,9 +479,18 @@ class UserSessionManager implements IUserSessionManager {
       );
     });
 
-    const clearInProgressFlags = () => {
+    // Release each key once its request is done. A value that changed while the request was
+    // in flight was held back rather than sent concurrently, so reissue it now against the
+    // current value. That also re-applies a removal that happened mid-flight.
+    const completeRequest = () => {
       sessionKeys.forEach((sessionKey: UserSessionKey) => {
-        this.serverSideCookiesRequestInProgress[sessionKey] = false;
+        this.serverSideCookiesInFlight[sessionKey] = false;
+        if (this.serverSideCookiesResyncPending[sessionKey]) {
+          this.serverSideCookiesResyncPending[sessionKey] = false;
+          this.syncValueToStorage(sessionKey);
+        } else {
+          this.serverSideCookiesRequestInProgress[sessionKey] = false;
+        }
       });
     };
 
@@ -496,9 +518,6 @@ class UserSessionManager implements IUserSessionManager {
       if (encryptedCookieData.length > 0) {
         // make request to data service to set the cookie from server side
         this.makeRequestToSetCookie(encryptedCookieData, (res, details) => {
-          // Mark the cookie req status as done
-          clearInProgressFlags();
-
           if (details?.xhr?.status === 200) {
             getCurrentCookieValuesFromState().forEach(cData => {
               const originalCookieVal = originalCookieValues[cData.name];
@@ -525,12 +544,16 @@ class UserSessionManager implements IUserSessionManager {
             this.logger.error(DATA_SERVER_REQUEST_FAIL_ERROR(details?.xhr?.status));
             setCookiesClientSide();
           }
+
+          // Mark the cookie req status as done, after any client-side correction above, so
+          // that a resync reissued here sees the settled cookie value
+          completeRequest();
         });
       } else {
         setCookiesClientSide();
 
         // Mark the cookie req status as done
-        clearInProgressFlags();
+        completeRequest();
       }
     } catch (e) {
       this.onError(
@@ -541,7 +564,7 @@ class UserSessionManager implements IUserSessionManager {
       setCookiesClientSide();
 
       // Mark the cookie req status as done
-      clearInProgressFlags();
+      completeRequest();
     }
   }
 
@@ -602,6 +625,14 @@ class UserSessionManager implements IUserSessionManager {
           this.serverSideCookiesRequestInProgress[sessionKey] = true;
           this.cookieWrittenInPageLoad[sessionKey] = true;
 
+          // Never put a second request for the same key on the wire. The browser applies
+          // Set-Cookie in response arrival order, so concurrent writes can settle on an
+          // older value. Hold this one back and reissue it once the response lands.
+          if (this.serverSideCookiesInFlight[sessionKey]) {
+            this.serverSideCookiesResyncPending[sessionKey] = true;
+            return;
+          }
+
           if (this.serverSideCookieDebounceFuncs[sessionKey]) {
             (globalThis as typeof window).clearTimeout(
               this.serverSideCookieDebounceFuncs[sessionKey],
@@ -610,6 +641,7 @@ class UserSessionManager implements IUserSessionManager {
 
           this.serverSideCookieDebounceFuncs[sessionKey] = (globalThis as typeof window).setTimeout(
             () => {
+              this.serverSideCookiesInFlight[sessionKey] = true;
               // Create a map of session key to cookie name
               const sessionToCookiesMap: SessionToCookiesMap = {
                 [sessionKey]: {
@@ -631,6 +663,29 @@ class UserSessionManager implements IUserSessionManager {
           curStore?.set(cookieName, cookieValue);
         }
       } else {
+        if (
+          state.serverCookies.isEnabledServerSideCookies.value &&
+          storageType === COOKIE_STORAGE
+        ) {
+          // Drop any write still waiting on the debounce, otherwise it would fire after this
+          // removal and resurrect the cookie.
+          if (this.serverSideCookieDebounceFuncs[sessionKey]) {
+            (globalThis as typeof window).clearTimeout(
+              this.serverSideCookieDebounceFuncs[sessionKey],
+            );
+            this.serverSideCookieDebounceFuncs[sessionKey] = 0;
+          }
+
+          if (this.serverSideCookiesInFlight[sessionKey]) {
+            // A request already on the wire cannot be recalled, and the server will set the
+            // cookie. Re-apply the removal once its response lands.
+            this.serverSideCookiesResyncPending[sessionKey] = true;
+          } else {
+            this.serverSideCookiesRequestInProgress[sessionKey] = false;
+            this.serverSideCookiesResyncPending[sessionKey] = false;
+          }
+        }
+
         curStore?.remove(cookieName);
       }
     }

@@ -2673,14 +2673,14 @@ describe('User session manager', () => {
 
         expect(setServerSideCookiesSpy).toHaveBeenCalledTimes(1);
         expect(userSessionManager.serverSideCookiesRequestInProgress.anonymousId).toBe(true);
-        setServerSideCookiesSpy.mockClear();
 
-        // Back to A while B is still unresolved
+        // Back to A while B is still unresolved. The write must be held for reissue rather
+        // than skipped; it is not sent now, because concurrent writes can settle out of order.
         state.session.anonymousId.value = dummyAnonymousId;
         userSessionManager.syncValueToStorage('anonymousId');
         jest.advanceTimersByTime(1000);
 
-        expect(setServerSideCookiesSpy).toHaveBeenCalledTimes(1);
+        expect(userSessionManager.serverSideCookiesResyncPending.anonymousId).toBe(true);
       });
 
       // Storage migration rewrites the cookie client side. If the guard then skips, the cookie
@@ -2722,18 +2722,19 @@ describe('User session manager', () => {
         state.session.anonymousId.value = 'pending_anonymousId';
         userSessionManager.syncValueToStorage('anonymousId');
         jest.advanceTimersByTime(1000);
-        setServerSideCookiesSpy.mockClear();
+        expect(setServerSideCookiesSpy).toHaveBeenCalledTimes(1);
 
         // An earlier response lands and clears the shared flag, even though a write is
         // still outstanding for this key
         userSessionManager.serverSideCookiesRequestInProgress.anonymousId = false;
 
-        // State returns to the value the cookie still holds
+        // State returns to the value the cookie still holds. The guard must not skip, so
+        // the write is held for reissue once the outstanding response lands.
         state.session.anonymousId.value = dummyAnonymousId;
         userSessionManager.syncValueToStorage('anonymousId');
         jest.advanceTimersByTime(1000);
 
-        expect(setServerSideCookiesSpy).toHaveBeenCalledTimes(1);
+        expect(userSessionManager.serverSideCookiesResyncPending.anonymousId).toBe(true);
       });
 
       it('should make a request if the cookie does not exist yet', () => {
@@ -2780,6 +2781,112 @@ describe('User session manager', () => {
           COOKIE_KEYS.anonymousId,
           dummyAnonymousId,
         );
+      });
+    });
+
+    describe('serialised server-side cookie writes', () => {
+      let capturedCallbacks: any[];
+
+      beforeEach(() => {
+        jest.useFakeTimers();
+        delete (clientDataStoreCookie as Partial<Store>).set;
+        delete (clientDataStoreCookie as Partial<Store>).remove;
+        state.serverCookies.isEnabledServerSideCookies.value = true;
+        state.storage.entries.value = entriesWithOnlyCookieStorage;
+        state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
+        capturedCallbacks = [];
+        // Hold the response so the request stays genuinely in flight
+        userSessionManager.makeRequestToSetCookie = jest.fn((_data: any, cb: any) => {
+          capturedCallbacks.push(cb);
+        });
+      });
+
+      afterEach(() => {
+        delete (clientDataStoreCookie as Partial<Store>).set;
+        delete (clientDataStoreCookie as Partial<Store>).remove;
+        jest.useRealTimers();
+      });
+
+      const respond = (index: number) => capturedCallbacks[index]?.(null, { xhr: { status: 200 } });
+
+      it('should not issue a second request while one is in flight for the same key', () => {
+        state.session.anonymousId.value = 'value_b';
+        userSessionManager.syncValueToStorage('anonymousId');
+        jest.advanceTimersByTime(1000);
+
+        expect(userSessionManager.makeRequestToSetCookie).toHaveBeenCalledTimes(1);
+
+        state.session.anonymousId.value = 'value_c';
+        userSessionManager.syncValueToStorage('anonymousId');
+        jest.advanceTimersByTime(1000);
+
+        expect(userSessionManager.makeRequestToSetCookie).toHaveBeenCalledTimes(1);
+      });
+
+      it('should issue the held back write once the in-flight response lands', () => {
+        state.session.anonymousId.value = 'value_b';
+        userSessionManager.syncValueToStorage('anonymousId');
+        jest.advanceTimersByTime(1000);
+
+        state.session.anonymousId.value = 'value_c';
+        userSessionManager.syncValueToStorage('anonymousId');
+        jest.advanceTimersByTime(1000);
+
+        // Held back while the first request is outstanding
+        expect(userSessionManager.makeRequestToSetCookie).toHaveBeenCalledTimes(1);
+
+        respond(0);
+        jest.advanceTimersByTime(1000);
+
+        expect(userSessionManager.makeRequestToSetCookie).toHaveBeenCalledTimes(2);
+        expect(state.session.anonymousId.value).toEqual('value_c');
+      });
+
+      it('should keep the request in progress flag set while a resync is pending', () => {
+        state.session.anonymousId.value = 'value_b';
+        userSessionManager.syncValueToStorage('anonymousId');
+        jest.advanceTimersByTime(1000);
+
+        state.session.anonymousId.value = 'value_c';
+        userSessionManager.syncValueToStorage('anonymousId');
+
+        respond(0);
+
+        expect(userSessionManager.serverSideCookiesRequestInProgress.anonymousId).toBe(true);
+      });
+
+      it('should not resurrect a removed cookie from a queued write', () => {
+        state.session.anonymousId.value = 'value_b';
+        userSessionManager.syncValueToStorage('anonymousId');
+
+        // Cleared before the debounce fires
+        state.session.anonymousId.value = '';
+        userSessionManager.syncValueToStorage('anonymousId');
+
+        jest.advanceTimersByTime(1000);
+
+        expect(userSessionManager.makeRequestToSetCookie).not.toHaveBeenCalled();
+        expect(clientDataStoreCookie.get(COOKIE_KEYS.anonymousId)).toBeNull();
+        expect(userSessionManager.serverSideCookiesRequestInProgress.anonymousId).toBe(false);
+      });
+
+      it('should re-apply a removal that happened while a request was in flight', () => {
+        state.session.anonymousId.value = 'value_b';
+        userSessionManager.syncValueToStorage('anonymousId');
+        jest.advanceTimersByTime(1000);
+
+        expect(userSessionManager.makeRequestToSetCookie).toHaveBeenCalledTimes(1);
+
+        // Cleared while the request is still outstanding
+        state.session.anonymousId.value = '';
+        userSessionManager.syncValueToStorage('anonymousId');
+
+        // The outstanding response lands and the server sets the cookie
+        clientDataStoreCookie.set(COOKIE_KEYS.anonymousId, 'value_b');
+        respond(0);
+        jest.advanceTimersByTime(1000);
+
+        expect(clientDataStoreCookie.get(COOKIE_KEYS.anonymousId)).toBeNull();
       });
     });
   });
