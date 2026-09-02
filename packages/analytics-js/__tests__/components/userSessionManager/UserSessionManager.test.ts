@@ -2657,17 +2657,23 @@ describe('User session manager', () => {
       });
 
       it('should not resend the previous batch in a later one', () => {
+        let capturedCallback: any;
+        userSessionManager.makeRequestToSetCookie = jest.fn((_data: any, cb: any) => {
+          capturedCallback = cb;
+        });
         const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
 
         state.session.anonymousId.value = dummyAnonymousId;
         userSessionManager.syncValueToStorage('anonymousId');
         jest.advanceTimersByTime(1000);
+        capturedCallback(null, { xhr: { status: 200 } });
 
+        setServerSideCookiesSpy.mockClear();
         state.session.userId.value = 'dummy_userId';
         userSessionManager.syncValueToStorage('userId');
         jest.advanceTimersByTime(1000);
 
-        expect(setServerSideCookiesSpy).toHaveBeenCalledTimes(2);
+        expect(setServerSideCookiesSpy).toHaveBeenCalledTimes(1);
         expect(setServerSideCookiesSpy).toHaveBeenLastCalledWith(
           { userId: { name: COOKIE_KEYS.userId } },
           expect.any(Function),
@@ -2721,6 +2727,83 @@ describe('User session manager', () => {
         capturedCallback(null, { xhr: { status: 200 } });
 
         expect(batchErrorCalls()).toHaveLength(0);
+      });
+
+      it('should not put a second batch on the wire while one is in flight', () => {
+        userSessionManager.makeRequestToSetCookie = jest.fn();
+
+        state.session.anonymousId.value = dummyAnonymousId;
+        userSessionManager.syncValueToStorage('anonymousId');
+        jest.advanceTimersByTime(1000);
+
+        expect(userSessionManager.makeRequestToSetCookie).toHaveBeenCalledTimes(1);
+
+        state.session.userId.value = 'dummy_userId';
+        userSessionManager.syncValueToStorage('userId');
+        jest.advanceTimersByTime(1000);
+
+        expect(userSessionManager.makeRequestToSetCookie).toHaveBeenCalledTimes(1);
+      });
+
+      it('should send the queued keys once the in-flight batch completes', () => {
+        let capturedCallback: any;
+        userSessionManager.makeRequestToSetCookie = jest.fn((_data: any, cb: any) => {
+          capturedCallback = cb;
+        });
+        const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
+
+        state.session.anonymousId.value = dummyAnonymousId;
+        userSessionManager.syncValueToStorage('anonymousId');
+        jest.advanceTimersByTime(1000);
+
+        state.session.userId.value = 'dummy_userId';
+        userSessionManager.syncValueToStorage('userId');
+        jest.advanceTimersByTime(1000);
+
+        setServerSideCookiesSpy.mockClear();
+        capturedCallback(null, { xhr: { status: 200 } });
+        jest.advanceTimersByTime(1000);
+
+        expect(setServerSideCookiesSpy).toHaveBeenCalledTimes(1);
+        expect(setServerSideCookiesSpy).toHaveBeenCalledWith(
+          { userId: { name: COOKIE_KEYS.userId } },
+          expect.any(Function),
+          expect.any(Object),
+        );
+      });
+
+      it('should keep a still queued key marked as in progress', () => {
+        let capturedCallback: any;
+        userSessionManager.makeRequestToSetCookie = jest.fn((_data: any, cb: any) => {
+          capturedCallback = cb;
+        });
+
+        state.session.anonymousId.value = dummyAnonymousId;
+        userSessionManager.syncValueToStorage('anonymousId');
+        jest.advanceTimersByTime(1000);
+
+        state.session.userId.value = 'dummy_userId';
+        userSessionManager.syncValueToStorage('userId');
+
+        capturedCallback(null, { xhr: { status: 200 } });
+
+        expect(userSessionManager.serverSideCookiesRequestInProgress.userId).toBe(true);
+      });
+
+      it('should not resurrect a removed cookie from a queued write', () => {
+        userSessionManager.makeRequestToSetCookie = jest.fn();
+
+        state.session.anonymousId.value = dummyAnonymousId;
+        userSessionManager.syncValueToStorage('anonymousId');
+
+        // Cleared before the debounce fires
+        state.session.anonymousId.value = '';
+        userSessionManager.syncValueToStorage('anonymousId');
+
+        jest.advanceTimersByTime(1000);
+
+        expect(userSessionManager.makeRequestToSetCookie).not.toHaveBeenCalled();
+        expect(clientDataStoreCookie.get(COOKIE_KEYS.anonymousId)).toBeNull();
       });
 
       it('should not batch keys that are not backed by cookie storage', () => {

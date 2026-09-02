@@ -102,6 +102,12 @@ class UserSessionManager implements IUserSessionManager {
    */
   serverSideCookiesPending: Partial<Record<UserSessionKey, string>>;
   /**
+   * Whether a batch is currently on the wire. Only one may be, because the browser applies
+   * Set-Cookie in response arrival order, so concurrent requests can settle the cookies on
+   * an older value. Anything queued meanwhile goes out in the next batch.
+   */
+  isServerSideCookiesBatchInFlight: boolean;
+  /**
    * Tracks whether a server-side cookie setting request is in progress or not.
    */
   serverSideCookiesRequestInProgress: Record<UserSessionKey, boolean>;
@@ -121,6 +127,7 @@ class UserSessionManager implements IUserSessionManager {
     this.onError = this.onError.bind(this);
     this.serverSideCookiesDebounceTimer = 0;
     this.serverSideCookiesPending = {};
+    this.isServerSideCookiesBatchInFlight = false;
     this.serverSideCookiesRequestInProgress = {} as Record<UserSessionKey, boolean>;
   }
 
@@ -467,8 +474,16 @@ class UserSessionManager implements IUserSessionManager {
 
     const clearInProgressFlags = () => {
       sessionKeys.forEach((sessionKey: UserSessionKey) => {
-        this.serverSideCookiesRequestInProgress[sessionKey] = false;
+        // A key queued again while this batch was outstanding is still not written, so it
+        // stays in progress until the batch carrying its newer value completes
+        if (!this.serverSideCookiesPending[sessionKey]) {
+          this.serverSideCookiesRequestInProgress[sessionKey] = false;
+        }
       });
+
+      // Release the wire and send whatever queued up behind this batch
+      this.isServerSideCookiesBatchInFlight = false;
+      this.flushServerSideCookies();
     };
 
     const setCookiesClientSide = () => {
@@ -569,6 +584,12 @@ class UserSessionManager implements IUserSessionManager {
    * A function to send every queued server-side cookie as a single request
    */
   flushServerSideCookies() {
+    // Hold the queue until the outstanding batch lands. Its keys stay pending and go out
+    // in the next one, so two responses can never race to set the same cookie.
+    if (this.isServerSideCookiesBatchInFlight) {
+      return;
+    }
+
     const sessionToCookiesMap = Object.entries(this.serverSideCookiesPending).reduce(
       (acc: SessionToCookiesMap, [sessionKey, cookieName]) => {
         acc[sessionKey as UserSessionKey] = { name: cookieName as string };
@@ -590,6 +611,7 @@ class UserSessionManager implements IUserSessionManager {
       storageClientDataStoreNameMap[COOKIE_STORAGE] as string,
     );
 
+    this.isServerSideCookiesBatchInFlight = true;
     this.setServerSideCookies(
       sessionToCookiesMap,
       (cookieName, cookieValue) => {
@@ -641,6 +663,11 @@ class UserSessionManager implements IUserSessionManager {
           curStore?.set(cookieName, cookieValue);
         }
       } else {
+        // Drop any queued write for this key, otherwise the next batch would resurrect the
+        // cookie that is being removed here
+        delete this.serverSideCookiesPending[sessionKey];
+        this.serverSideCookiesRequestInProgress[sessionKey] = false;
+
         curStore?.remove(cookieName);
       }
     }
