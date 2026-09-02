@@ -2659,18 +2659,28 @@ describe('User session manager', () => {
         expect(setServerSideCookiesSpy).toHaveBeenCalled();
       });
 
-      // An A -> B -> A transition: the B request is still pending when the value reverts to A.
-      // Skipping here would let B land afterwards, leaving the cookie and the state divergent.
+      // A -> B -> A, driven through the real debounced path. The B request is still in flight
+      // when the value reverts to A, which is what the cookie already holds. Skipping there
+      // would leave B as the last write to land, diverging the cookie from the state.
       it('should make a request if one is already pending for the same key', () => {
         clientDataStoreCookie.set(COOKIE_KEYS.anonymousId, dummyAnonymousId);
-        userSessionManager.serverSideCookiesRequestInProgress.anonymousId = true;
-        state.session.anonymousId.value = dummyAnonymousId;
         const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
 
+        // B: let the debounce elapse so the request is genuinely in flight and unresolved
+        state.session.anonymousId.value = 'pending_anonymousId';
         userSessionManager.syncValueToStorage('anonymousId');
         jest.advanceTimersByTime(1000);
 
-        expect(setServerSideCookiesSpy).toHaveBeenCalled();
+        expect(setServerSideCookiesSpy).toHaveBeenCalledTimes(1);
+        expect(userSessionManager.serverSideCookiesRequestInProgress.anonymousId).toBe(true);
+        setServerSideCookiesSpy.mockClear();
+
+        // Back to A while B is still unresolved
+        state.session.anonymousId.value = dummyAnonymousId;
+        userSessionManager.syncValueToStorage('anonymousId');
+        jest.advanceTimersByTime(1000);
+
+        expect(setServerSideCookiesSpy).toHaveBeenCalledTimes(1);
       });
 
       it('should make a request if the cookie does not exist yet', () => {
