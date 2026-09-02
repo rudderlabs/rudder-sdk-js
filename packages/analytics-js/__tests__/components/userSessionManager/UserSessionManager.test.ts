@@ -3,6 +3,7 @@ import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utili
 import { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
 import { UserSessionManager } from '../../../src/components/userSessionManager';
 import { DEFAULT_USER_SESSION_VALUES } from '../../../src/components/userSessionManager/constants';
+import { USER_SESSION_KEYS } from '../../../src/constants/storage';
 import { StoreManager } from '../../../src/services/StoreManager';
 import type { Store } from '../../../src/services/StoreManager/Store';
 import { state, resetState } from '../../../src/state';
@@ -2615,6 +2616,82 @@ describe('User session manager', () => {
         );
         done();
       }, 1000);
+    });
+
+    describe('batched server-side cookie requests', () => {
+      beforeEach(() => {
+        jest.useFakeTimers();
+        // Earlier tests replace these on the shared store instance and never restore them.
+        delete (clientDataStoreCookie as Partial<Store>).set;
+        delete (clientDataStoreCookie as Partial<Store>).remove;
+        state.serverCookies.isEnabledServerSideCookies.value = true;
+        state.storage.entries.value = entriesWithOnlyCookieStorage;
+        state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
+      });
+
+      afterEach(() => {
+        delete (clientDataStoreCookie as Partial<Store>).set;
+        delete (clientDataStoreCookie as Partial<Store>).remove;
+        jest.useRealTimers();
+      });
+
+      it('should send all the keys changed in the same tick in one request', () => {
+        const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
+
+        state.session.anonymousId.value = dummyAnonymousId;
+        userSessionManager.syncValueToStorage('anonymousId');
+        state.session.userId.value = 'dummy_userId';
+        userSessionManager.syncValueToStorage('userId');
+
+        jest.advanceTimersByTime(1000);
+
+        expect(setServerSideCookiesSpy).toHaveBeenCalledTimes(1);
+        expect(setServerSideCookiesSpy).toHaveBeenCalledWith(
+          {
+            anonymousId: { name: COOKIE_KEYS.anonymousId },
+            userId: { name: COOKIE_KEYS.userId },
+          },
+          expect.any(Function),
+          expect.any(Object),
+        );
+      });
+
+      it('should not resend the previous batch in a later one', () => {
+        const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
+
+        state.session.anonymousId.value = dummyAnonymousId;
+        userSessionManager.syncValueToStorage('anonymousId');
+        jest.advanceTimersByTime(1000);
+
+        state.session.userId.value = 'dummy_userId';
+        userSessionManager.syncValueToStorage('userId');
+        jest.advanceTimersByTime(1000);
+
+        expect(setServerSideCookiesSpy).toHaveBeenCalledTimes(2);
+        expect(setServerSideCookiesSpy).toHaveBeenLastCalledWith(
+          { userId: { name: COOKIE_KEYS.userId } },
+          expect.any(Function),
+          expect.any(Object),
+        );
+      });
+
+      it('should not batch keys that are not backed by cookie storage', () => {
+        state.storage.entries.value = entriesWithMixStorageButWithoutNone;
+        const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
+
+        USER_SESSION_KEYS.forEach(sessionKey => {
+          userSessionManager.syncValueToStorage(sessionKey);
+        });
+
+        jest.advanceTimersByTime(1000);
+
+        const batchedKeys = setServerSideCookiesSpy.mock.calls.flatMap(call =>
+          Object.keys(call[0]),
+        );
+        batchedKeys.forEach(sessionKey => {
+          expect(state.storage.entries.value[sessionKey]?.type).toEqual('cookieStorage');
+        });
+      });
     });
   });
 

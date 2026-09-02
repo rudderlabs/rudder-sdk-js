@@ -90,7 +90,16 @@ class UserSessionManager implements IUserSessionManager {
   errorHandler: IErrorHandler;
   httpClient: IHttpClient;
   logger: ILogger;
-  serverSideCookieDebounceFuncs: Record<UserSessionKey, number>;
+  /**
+   * The single debounce timer shared by every key. Server-side cookie writes are collected
+   * into one request rather than one per key.
+   */
+  serverSideCookiesDebounceTimer: number;
+  /**
+   * Session keys waiting to be written, mapped to the cookie name each one is stored under.
+   * Drained into a single request when the debounce timer fires.
+   */
+  serverSideCookiesPending: Partial<Record<UserSessionKey, string>>;
   /**
    * Tracks whether a server-side cookie setting request is in progress or not.
    */
@@ -109,7 +118,8 @@ class UserSessionManager implements IUserSessionManager {
     this.errorHandler = errorHandler;
     this.httpClient = httpClient;
     this.onError = this.onError.bind(this);
-    this.serverSideCookieDebounceFuncs = {} as Record<UserSessionKey, number>;
+    this.serverSideCookiesDebounceTimer = 0;
+    this.serverSideCookiesPending = {};
     this.serverSideCookiesRequestInProgress = {} as Record<UserSessionKey, boolean>;
   }
 
@@ -534,6 +544,40 @@ class UserSessionManager implements IUserSessionManager {
   }
 
   /**
+   * A function to send every queued server-side cookie as a single request
+   */
+  flushServerSideCookies() {
+    const sessionToCookiesMap = Object.entries(this.serverSideCookiesPending).reduce(
+      (acc: SessionToCookiesMap, [sessionKey, cookieName]) => {
+        acc[sessionKey as UserSessionKey] = { name: cookieName as string };
+        return acc;
+      },
+      {} as SessionToCookiesMap,
+    );
+
+    // Drain before sending, so anything that changes while the request is in flight is
+    // queued for the next batch rather than being sent twice
+    this.serverSideCookiesPending = {};
+
+    if (Object.keys(sessionToCookiesMap).length === 0) {
+      return;
+    }
+
+    // Every batched key is backed by cookie storage by construction, so they share a store
+    const curStore = this.storeManager.getStore(
+      storageClientDataStoreNameMap[COOKIE_STORAGE] as string,
+    );
+
+    this.setServerSideCookies(
+      sessionToCookiesMap,
+      (cookieName, cookieValue) => {
+        curStore?.set(cookieName, cookieValue);
+      },
+      curStore,
+    );
+  }
+
+  /**
    * A function to sync values in storage
    * @param sessionKey
    */
@@ -556,31 +600,17 @@ class UserSessionManager implements IUserSessionManager {
           // Mark the requests as in progress.
           this.serverSideCookiesRequestInProgress[sessionKey] = true;
 
-          if (this.serverSideCookieDebounceFuncs[sessionKey]) {
-            (globalThis as typeof window).clearTimeout(
-              this.serverSideCookieDebounceFuncs[sessionKey],
-            );
+          // Queue this key and restart the shared debounce, so everything that changes in
+          // the same window goes to the data service as one request instead of one each.
+          this.serverSideCookiesPending[sessionKey] = cookieName;
+
+          if (this.serverSideCookiesDebounceTimer) {
+            (globalThis as typeof window).clearTimeout(this.serverSideCookiesDebounceTimer);
           }
 
-          this.serverSideCookieDebounceFuncs[sessionKey] = (globalThis as typeof window).setTimeout(
-            () => {
-              // Create a map of session key to cookie name
-              const sessionToCookiesMap: SessionToCookiesMap = {
-                [sessionKey]: {
-                  name: cookieName,
-                },
-              };
-
-              this.setServerSideCookies(
-                sessionToCookiesMap,
-                (cookieName, cookieValue) => {
-                  curStore?.set(cookieName, cookieValue);
-                },
-                curStore,
-              );
-            },
-            SERVER_SIDE_COOKIES_DEBOUNCE_TIME,
-          );
+          this.serverSideCookiesDebounceTimer = (globalThis as typeof window).setTimeout(() => {
+            this.flushServerSideCookies();
+          }, SERVER_SIDE_COOKIES_DEBOUNCE_TIME);
         } else {
           curStore?.set(cookieName, cookieValue);
         }
