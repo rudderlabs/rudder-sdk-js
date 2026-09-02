@@ -568,7 +568,10 @@ class UserSessionManager implements IUserSessionManager {
   /**
    * A function to send every queued server-side cookie as a single request
    */
-  flushServerSideCookies() {
+  private flushServerSideCookies() {
+    // The timer has fired, so drop its id rather than leaving a stale one behind
+    this.serverSideCookiesDebounceTimer = 0;
+
     const sessionToCookiesMap = Object.entries(this.serverSideCookiesPending).reduce(
       (acc: SessionToCookiesMap, [sessionKey, cookieName]) => {
         acc[sessionKey as UserSessionKey] = { name: cookieName as string };

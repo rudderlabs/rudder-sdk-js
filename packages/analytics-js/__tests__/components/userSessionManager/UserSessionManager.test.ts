@@ -2684,10 +2684,13 @@ describe('User session manager', () => {
         );
 
       it('should report once when a batch comes back with cookies missing', () => {
-        let capturedCallback: any;
+        const capturedCallbacks: any[] = [];
         userSessionManager.makeRequestToSetCookie = jest.fn((_data: any, cb: any) => {
-          capturedCallback = cb;
+          capturedCallbacks.push(cb);
         });
+        // Keep the client-side fallback from populating the store, so the second batch is
+        // still missing its cookies. This is what a rejected cookie attribute looks like.
+        clientDataStoreCookie.set = jest.fn();
 
         state.session.anonymousId.value = dummyAnonymousId;
         userSessionManager.syncValueToStorage('anonymousId');
@@ -2696,14 +2699,21 @@ describe('User session manager', () => {
         jest.advanceTimersByTime(1000);
 
         // The server responds 200 but no cookie was actually set
-        capturedCallback(null, { xhr: { status: 200 } });
+        capturedCallbacks[0](null, { xhr: { status: 200 } });
 
         expect(batchErrorCalls()).toHaveLength(1);
         expect(batchErrorCalls()[0][0]).toContain(COOKIE_KEYS.anonymousId);
         expect(batchErrorCalls()[0][0]).toContain(COOKIE_KEYS.userId);
 
-        // A later collapsed batch must not repeat it, the cause has not changed
-        capturedCallback(null, { xhr: { status: 200 } });
+        // A genuinely separate later batch must not repeat it, the cause has not changed
+        state.session.anonymousId.value = 'second_anonymousId';
+        userSessionManager.syncValueToStorage('anonymousId');
+        state.session.userId.value = 'second_userId';
+        userSessionManager.syncValueToStorage('userId');
+        jest.advanceTimersByTime(1000);
+
+        expect(capturedCallbacks).toHaveLength(2);
+        capturedCallbacks[1](null, { xhr: { status: 200 } });
 
         expect(batchErrorCalls()).toHaveLength(1);
       });
