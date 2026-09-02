@@ -499,7 +499,7 @@ class UserSessionManager implements IUserSessionManager {
           clearInProgressFlags();
 
           if (details?.xhr?.status === 200) {
-            const missingCookies: string[] = [];
+            const unappliedCookies: string[] = [];
 
             getCurrentCookieValuesFromState().forEach(cData => {
               const originalCookieVal = originalCookieValues[cData.name];
@@ -513,9 +513,18 @@ class UserSessionManager implements IUserSessionManager {
                 // It's fine if the values don't match as other active SDK sessions might have updated the cookie values
                 // or other cookie requests might have updated the cookie value.
 
+                // Left exactly as the request found it, so the server did not apply this
+                // write. A value that moved to something else was set by another tab or
+                // request, which is expected rather than a failure.
+                if (
+                  stringifyWithoutCircular(originalCookieVal, false, []) ===
+                  stringifyWithoutCircular(currentCookieVal, false, [])
+                ) {
+                  unappliedCookies.push(cData.name);
+                }
+
                 // Log an error only when cookie didn't exist previously and currently also doesn't exist.
                 if (isNull(originalCookieVal) && isNull(currentCookieVal)) {
-                  missingCookies.push(cData.name);
                   this.logger.error(FAILED_SETTING_COOKIE_FROM_SERVER_ERROR(cData.name));
                 }
                 if (cb) {
@@ -533,13 +542,17 @@ class UserSessionManager implements IUserSessionManager {
             // condition cannot tell them apart. A data service that collapses the batch
             // still sets the last cookie, so exactly one survives, whereas rejected cookie
             // attributes usually leave none of them set.
+            // Counted from what was actually sent, not from the queued keys: encryption can
+            // drop a key, and reporting it as sent would overstate the batch.
             if (
-              sessionKeys.length > 1 &&
-              missingCookies.length > 0 &&
+              encryptedCookieData.length > 1 &&
+              unappliedCookies.length > 0 &&
               !state.serverCookies.isCollapsedBatchErrorLogged.value
             ) {
               state.serverCookies.isCollapsedBatchErrorLogged.value = true;
-              this.logger.error(COLLAPSED_COOKIE_BATCH_ERROR(missingCookies, sessionKeys.length));
+              this.logger.error(
+                COLLAPSED_COOKIE_BATCH_ERROR(unappliedCookies, encryptedCookieData.length),
+              );
             }
           } else {
             this.logger.error(DATA_SERVER_REQUEST_FAIL_ERROR(details?.xhr?.status));
