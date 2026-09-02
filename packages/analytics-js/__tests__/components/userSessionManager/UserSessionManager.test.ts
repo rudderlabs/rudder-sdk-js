@@ -2766,6 +2766,13 @@ describe('User session manager', () => {
         state.storage.entries.value = entriesWithMixStorageButWithoutNone;
         const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
 
+        // A key with no value takes the remove path and never reaches a batch, so the
+        // boundary is only exercised if both sides carry one: userId is cookie-backed,
+        // anonymousId and userTraits are not.
+        state.session.userId.value = 'dummy_userId';
+        state.session.anonymousId.value = dummyAnonymousId;
+        state.session.userTraits.value = { trait: 'dummy_trait' };
+
         USER_SESSION_KEYS.forEach(sessionKey => {
           userSessionManager.syncValueToStorage(sessionKey);
         });
@@ -2775,9 +2782,10 @@ describe('User session manager', () => {
         const batchedKeys = setServerSideCookiesSpy.mock.calls.flatMap(call =>
           Object.keys(call[0]),
         );
-        batchedKeys.forEach(sessionKey => {
-          expect(state.storage.entries.value[sessionKey]?.type).toEqual('cookieStorage');
-        });
+        // userId is the only cookie-backed key in this fixture. Asserting the exact set
+        // rather than looping over whatever was batched, so a batch that never happens
+        // fails here instead of passing with nothing to iterate.
+        expect(batchedKeys).toEqual(['userId']);
       });
     });
   });
