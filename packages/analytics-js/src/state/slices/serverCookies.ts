@@ -4,6 +4,7 @@ import type { ServerCookiesState } from '@rudderstack/analytics-js-common/types/
 const serverSideCookiesState: ServerCookiesState = {
   isEnabledServerSideCookies: signal(false),
   dataServiceUrl: signal(undefined),
+  isCollapsedBatchErrorLogged: signal(false),
 };
 
 export { serverSideCookiesState };
