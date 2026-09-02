@@ -101,7 +101,7 @@ class UserSessionManager implements IUserSessionManager {
    * longer be assumed to have been set by the data service, so the equal-value skip in
    * syncValueToStorage no longer applies. Never cleared.
    */
-  serverSideCookieSyncRequired: Record<UserSessionKey, boolean>;
+  cookieWrittenInPageLoad: Record<UserSessionKey, boolean>;
 
   constructor(
     pluginsManager: IPluginsManager,
@@ -118,7 +118,7 @@ class UserSessionManager implements IUserSessionManager {
     this.onError = this.onError.bind(this);
     this.serverSideCookieDebounceFuncs = {} as Record<UserSessionKey, number>;
     this.serverSideCookiesRequestInProgress = {} as Record<UserSessionKey, boolean>;
-    this.serverSideCookieSyncRequired = {} as Record<UserSessionKey, boolean>;
+    this.cookieWrittenInPageLoad = {} as Record<UserSessionKey, boolean>;
   }
 
   /**
@@ -234,7 +234,7 @@ class UserSessionManager implements IUserSessionManager {
             if (isDefinedNotNullAndNotEmptyString(value)) {
               curStore.set(COOKIE_KEYS[key], value);
               // Written client-side, so it still needs syncing to the data service
-              this.serverSideCookieSyncRequired[key as UserSessionKey] = true;
+              this.cookieWrittenInPageLoad[key as UserSessionKey] = true;
             }
 
             store.remove(COOKIE_KEYS[key]);
@@ -284,7 +284,7 @@ class UserSessionManager implements IUserSessionManager {
         if (!isNullOrUndefined(migratedVal)) {
           store.set(storageEntry, migratedVal);
           // Written client-side, so it still needs syncing to the data service
-          this.serverSideCookieSyncRequired[storageKey as UserSessionKey] = true;
+          this.cookieWrittenInPageLoad[storageKey as UserSessionKey] = true;
         }
       });
     });
@@ -592,7 +592,7 @@ class UserSessionManager implements IUserSessionManager {
           // still be pending, so the value cannot be assumed to have come from the data
           // service. This flag is never cleared, so it cannot go stale.
           if (
-            !this.serverSideCookieSyncRequired[sessionKey] &&
+            !this.cookieWrittenInPageLoad[sessionKey] &&
             this.isValueAlreadyPersisted(curStore, cookieName, cookieValue)
           ) {
             return;
@@ -600,7 +600,7 @@ class UserSessionManager implements IUserSessionManager {
 
           // Mark the requests as in progress.
           this.serverSideCookiesRequestInProgress[sessionKey] = true;
-          this.serverSideCookieSyncRequired[sessionKey] = true;
+          this.cookieWrittenInPageLoad[sessionKey] = true;
 
           if (this.serverSideCookieDebounceFuncs[sessionKey]) {
             (globalThis as typeof window).clearTimeout(
