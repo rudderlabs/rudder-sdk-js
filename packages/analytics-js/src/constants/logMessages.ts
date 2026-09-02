@@ -105,7 +105,7 @@ const FAILED_SETTING_COOKIE_FROM_SERVER_ERROR = (key: string) =>
   `The server failed to set the ${key} cookie. As a fallback, the cookies will be set client side.`;
 const FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR = `Failed to set/remove cookies via server. As a fallback, the cookies will be managed client side.`;
 const COLLAPSED_COOKIE_BATCH_ERROR = (missingCookies: string[], batchSize: number) =>
-  `The server set ${batchSize - missingCookies.length} of ${batchSize} cookies sent in one request, missing: ${missingCookies.join(', ')}. These were set client side instead. Check that the data service and any proxy preserve every "Set-Cookie" header, and that the cookie domain and SameSite/Secure attributes are valid.`;
+  `The server set ${batchSize - missingCookies.length} of ${batchSize} cookies sent in one request, missing: ${missingCookies.join(', ')}. A fallback to set them client side was attempted. Check that the data service and any proxy preserve every "Set-Cookie" header, and that the cookie domain and SameSite/Secure attributes are valid.`;
 
 // WARNING
 const STORAGE_TYPE_VALIDATION_WARNING = (
