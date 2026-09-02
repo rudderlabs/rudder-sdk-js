@@ -22,6 +22,10 @@ import {
   DIR_NAME as VWODirectoryName,
 } from '@rudderstack/analytics-js-integrations/integrations/VWO/constants';
 import {
+  DISPLAY_NAME as WingifyDisplayName,
+  DIR_NAME as WingifyDirectoryName,
+} from '@rudderstack/analytics-js-integrations/integrations/Wingify/constants';
+import {
   DISPLAY_NAME as GoogleTagManagerDisplayName,
   DIR_NAME as GoogleTagManagerDirectoryName,
 } from '@rudderstack/analytics-js-integrations/integrations/GoogleTagManager/constants';
@@ -337,6 +341,7 @@ const destDisplayNamesToFileNamesMap: Record<string, string> = {
   [HotjarDisplayName]: HotjarDirectoryName,
   [GoogleAdsDisplayName]: GoogleAdsDirectoryName,
   [VWODisplayName]: VWODirectoryName,
+  [WingifyDisplayName]: WingifyDirectoryName,
   [GoogleTagManagerDisplayName]: GoogleTagManagerDirectoryName,
   [BrazeDisplayName]: BrazeDirectoryName,
   [IntercomDisplayName]: IntercomDirectoryName,
