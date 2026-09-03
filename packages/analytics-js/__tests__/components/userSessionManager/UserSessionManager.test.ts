@@ -1,3 +1,4 @@
+import { batch } from '@preact/signals-core';
 import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
@@ -18,6 +19,7 @@ import {
   entriesWithOnlyCookieStorage,
   entriesWithOnlyLocalStorage,
   entriesWithOnlyNoStorage,
+  entriesWithOnlySessionStorage,
   entriesWithStorageOnlyForAnonymousId,
 } from '../../../__fixtures__/fixtures';
 import { server } from '../../../__fixtures__/msw.server';
@@ -2055,6 +2057,198 @@ describe('User session manager', () => {
         // Should default to reading from storage
         expect(state.session.sessionInfo.value.id).toBe(1111111111);
       });
+    });
+  });
+
+  describe('Buffered event replay', () => {
+    // Buffered events are replayed from inside the lifecycle `effect`, which puts every
+    // state write in the same batch. The storage sync effects registered by `init` are
+    // queued behind that batch and do not run in between, so storage stays behind the
+    // state for the whole replay. `batch` reproduces exactly that condition.
+    const sessionInfoInStorage = (id: number) => ({
+      autoTrack: true,
+      timeout: 10 * 60 * 1000,
+      expiresAt: Date.now() + 5000,
+      id,
+      sessionStart: false,
+    });
+
+    // entriesWithInMemoryFallback stores sessionInfo as 'none', so it does not exercise
+    // memory storage for the session at all
+    const entriesWithOnlyMemoryStorage = Object.fromEntries(
+      Object.entries(entriesWithOnlyCookieStorage).map(([key, entry]) => [
+        key,
+        { ...entry, type: 'memoryStorage' },
+      ]),
+    ) as typeof entriesWithOnlyCookieStorage;
+
+    it('should retain a manually started session for the events replayed after it', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      const manualSessionId = 1029384756;
+
+      batch(() => {
+        // startSession() in the buffer
+        userSessionManager.start(manualSessionId);
+        // ...followed by a buffered track()
+        userSessionManager.refreshSession();
+      });
+
+      expect(state.session.sessionInfo.value.id).toBe(manualSessionId);
+      expect(state.session.sessionInfo.value.manualTrack).toBe(true);
+    });
+
+    it('should retain the new session created by a replayed reset', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      // Seeded rather than taken from the session init creates, whose ID is Date.now() and
+      // so can collide with the one reset creates a fraction of a millisecond later
+      setDataInCookieStorage({ rl_session: sessionInfoInStorage(1111111111) });
+      userSessionManager.init();
+
+      expect(state.session.sessionInfo.value.id).toBe(1111111111);
+
+      batch(() => {
+        // reset() in the buffer
+        userSessionManager.reset();
+        // ...followed by a buffered track()
+        userSessionManager.refreshSession();
+      });
+
+      expect(state.session.sessionInfo.value.id).not.toBe(1111111111);
+    });
+
+    it('should not resurrect an ended session for the events replayed after it', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      batch(() => {
+        // endSession() in the buffer
+        userSessionManager.end();
+        // ...followed by a buffered track()
+        userSessionManager.refreshSession();
+      });
+
+      expect(state.session.sessionInfo.value).toStrictEqual({});
+    });
+
+    it('should use the identity set by a replayed event for the events replayed after it', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      batch(() => {
+        // identify() in the buffer
+        userSessionManager.setUserId('user-from-state');
+        userSessionManager.setGroupId('group-from-state');
+
+        // ...must not read back the stale value that storage still holds
+        expect(userSessionManager.getUserId()).toBe('user-from-state');
+        expect(userSessionManager.getGroupId()).toBe('group-from-state');
+      });
+    });
+
+    it('should read from storage again once the queued sync has run', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      batch(() => {
+        userSessionManager.setUserId('user-from-state');
+      });
+
+      // The queued effect has now persisted it, so another tab's write must win again
+      setDataInCookieStorage({ rl_user_id: 'user-from-another-tab' });
+
+      expect(userSessionManager.getUserId()).toBe('user-from-another-tab');
+    });
+
+    it('should keep reading session info from storage outside a replay', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      // Another tab advances the session
+      setDataInCookieStorage({ rl_session: sessionInfoInStorage(1111111111) });
+
+      userSessionManager.refreshSession();
+
+      expect(state.session.sessionInfo.value.id).toBe(1111111111);
+    });
+
+    it('should not fragment the session when the stored one expires during the replay', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      setDataInCookieStorage({
+        rl_session: {
+          autoTrack: true,
+          timeout: 10 * 60 * 1000,
+          expiresAt: Date.now() - 1000, // already expired
+          id: 1111111111,
+          sessionStart: false,
+        },
+      });
+      userSessionManager.init();
+
+      // The expired session is replaced during init
+      const renewedSessionId = state.session.sessionInfo.value.id;
+      expect(renewedSessionId).not.toBe(1111111111);
+
+      batch(() => {
+        userSessionManager.refreshSession();
+        userSessionManager.refreshSession();
+        userSessionManager.refreshSession();
+      });
+
+      // One new session for the whole replay, not one per event
+      expect(state.session.sessionInfo.value.id).toBe(renewedSessionId);
+    });
+
+    it('should retain a manually started session while a server-side cookie write is pending', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      state.serverCookies.isEnabledServerSideCookies.value = true;
+      userSessionManager.init();
+
+      const manualSessionId = 1029384756;
+
+      batch(() => {
+        userSessionManager.start(manualSessionId);
+        userSessionManager.refreshSession();
+      });
+
+      expect(state.session.sessionInfo.value.id).toBe(manualSessionId);
+    });
+
+    describe.each([
+      ['local storage', entriesWithOnlyLocalStorage],
+      ['session storage', entriesWithOnlySessionStorage],
+      ['in-memory storage', entriesWithOnlyMemoryStorage],
+    ])('with %s', (_label, entries) => {
+      it('should retain a manually started session for the events replayed after it', () => {
+        state.storage.entries.value = entries;
+        userSessionManager.init();
+
+        const manualSessionId = 1029384756;
+
+        batch(() => {
+          userSessionManager.start(manualSessionId);
+          userSessionManager.refreshSession();
+        });
+
+        expect(state.session.sessionInfo.value.id).toBe(manualSessionId);
+        expect(state.session.sessionInfo.value.manualTrack).toBe(true);
+      });
+    });
+
+    it('should not start a session during the replay when storage is disabled', () => {
+      // Session tracking is off entirely for storage type 'none', and must stay off. The
+      // state can never be ahead of a storage that holds nothing, so preferring it here
+      // would surface a session for the replayed events that then vanished on the next one.
+      state.storage.entries.value = entriesWithOnlyNoStorage;
+      userSessionManager.init();
+
+      batch(() => {
+        userSessionManager.start(1029384756);
+        userSessionManager.refreshSession();
+      });
+
+      expect(state.session.sessionInfo.value).toStrictEqual({});
     });
   });
 

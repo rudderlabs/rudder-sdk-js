@@ -105,6 +105,11 @@ class UserSessionManager implements IUserSessionManager {
    * Tracks whether a server-side cookie setting request is in progress or not.
    */
   serverSideCookiesRequestInProgress: Record<UserSessionKey, boolean>;
+  /**
+   * The value each key was last handed to storage with, recorded by the sync effect.
+   * Anything else in the state means storage has not been given the current value yet.
+   */
+  lastSyncedValues: Partial<Record<UserSessionKey, any>>;
 
   constructor(
     pluginsManager: IPluginsManager,
@@ -122,6 +127,7 @@ class UserSessionManager implements IUserSessionManager {
     this.serverSideCookiesDebounceTimer = 0;
     this.serverSideCookiesPending = {};
     this.serverSideCookiesRequestInProgress = {} as Record<UserSessionKey, boolean>;
+    this.lastSyncedValues = {};
   }
 
   /**
@@ -673,7 +679,11 @@ class UserSessionManager implements IUserSessionManager {
     // This will work as long as the user session entry key names are same as the state keys
     USER_SESSION_KEYS.forEach(sessionKey => {
       effect(() => {
+        // Read before syncing so the effect subscribes to the signal, and record after
+        // so that reads can tell whether storage has been given the current value yet
+        const value = state.session[sessionKey].value;
         this.syncValueToStorage(sessionKey);
+        this.lastSyncedValues[sessionKey] = value;
       });
     });
   }
@@ -766,15 +776,39 @@ class UserSessionManager implements IUserSessionManager {
   }
 
   /**
-   * Fetches the value for a session key. Preferably from storage, if the server-side
-   * cookies request is not in progress. Otherwise, from the state.
+   * Fetches the value for a session key. Preferably from storage, so that changes made by
+   * other tabs are picked up. Falls back to the state whenever storage is known to be
+   * behind it.
    * @param sessionKey - The session key to fetch the value for
    * @returns - The value for the session key
    */
   getUserSessionValue<T>(sessionKey: UserSessionKey): Nullable<T> {
-    // If the server-side cookies request is in progress, fetch the value from the state.
+    // peek() rather than value, as this is a plain read; subscribing here would make
+    // every enclosing effect depend on all the user session signals
+    const stateValue = state.session[sessionKey].peek();
+
+    // Until the sync effect has run for this key there is nothing to compare against, so
+    // storage stays authoritative. That is the case throughout init, where the state is
+    // still being hydrated from storage and the effects are not registered yet.
+    //
+    // The persistence check matters for storage types that hold nothing at all ('none'),
+    // where the state can never be ahead of storage because there is no destination.
+    // Without it, a session started during a replay would survive the replay and then
+    // disappear on the next event, once the sync effect had caught up.
+    const isSyncRecorded =
+      this.isPersistenceEnabledForStorageEntry(sessionKey) && sessionKey in this.lastSyncedValues;
+
+    // Storage has not been given this value yet. Buffered events are replayed from within
+    // the lifecycle effect, so the sync effects are queued behind that batch and do not
+    // run in between, leaving storage behind the state for the whole replay. Direct state
+    // writes such as start(), end() and reset() are in the same position.
+    if (isSyncRecorded && stateValue !== this.lastSyncedValues[sessionKey]) {
+      return stateValue as Nullable<T>;
+    }
+
+    // Storage has the value, but for server-side cookies it is only on its way there.
     if (this.serverSideCookiesRequestInProgress[sessionKey]) {
-      return state.session[sessionKey].value as Nullable<T>;
+      return stateValue as Nullable<T>;
     }
 
     // Otherwise, fetch the value from storage.
