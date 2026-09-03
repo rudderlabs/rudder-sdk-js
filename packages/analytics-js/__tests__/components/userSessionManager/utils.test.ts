@@ -368,12 +368,12 @@ describe('Utilities: User session manager', () => {
 
     it('should return undefined if cut off is not defined', () => {
       const outcome = getCutOffExpirationTimestamp(undefined);
-      expect(outcome).toEqual(undefined);
+      expect(outcome).toBeUndefined();
     });
 
     it('should return undefined if cut off is not enabled', () => {
       const outcome = getCutOffExpirationTimestamp({ enabled: false });
-      expect(outcome).toEqual(undefined);
+      expect(outcome).toBeUndefined();
     });
 
     it('should return the cut off expiry timestamp if it is set', () => {
@@ -392,7 +392,7 @@ describe('Utilities: User session manager', () => {
 
     it('should return undefined if the cut off duration is not a valid number', () => {
       const outcome = getCutOffExpirationTimestamp({ enabled: true });
-      expect(outcome).toEqual(undefined);
+      expect(outcome).toBeUndefined();
     });
   });
 
