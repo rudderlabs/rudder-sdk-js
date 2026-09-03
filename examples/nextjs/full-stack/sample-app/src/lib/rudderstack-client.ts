@@ -13,7 +13,11 @@ export function getBrowserAnalytics(): RudderAnalytics | RudderAnalyticsPreloade
   }
 
   if (!initializationPromise) {
-    initializationPromise = initializeBrowserAnalytics();
+    initializationPromise = initializeBrowserAnalytics().catch(error => {
+      initializationPromise = undefined;
+      console.error('Failed to initialize the RudderStack JavaScript SDK.', error);
+      return undefined;
+    });
   }
 
   return window.rudderanalytics;
