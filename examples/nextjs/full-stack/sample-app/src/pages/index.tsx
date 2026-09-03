@@ -18,8 +18,8 @@ export default function Home({ serverPageEvent }: HomeProps) {
   const [browserStatus, setBrowserStatus] = useState('No browser event sent yet.');
   const [serverStatus, setServerStatus] = useState(serverPageEvent);
 
-  const sendBrowserEvent = async (type: EventType) => {
-    const analytics = await getBrowserAnalytics();
+  const sendBrowserEvent = (type: EventType) => {
+    const analytics = getBrowserAnalytics();
     if (!analytics) {
       setBrowserStatus('Add the browser environment variables before you send events.');
       return;
