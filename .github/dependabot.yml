@@ -67,6 +67,7 @@ updates:
       default-days: 5
     directories:
       - "/examples/angular/sample-app"
+      - "/examples/nextjs/full-stack/sample-app"
       - "/examples/nextjs/hooks/sample-app"
       - "/examples/nextjs/js/sample-app"
       - "/examples/nextjs/page-router/sample-app"
