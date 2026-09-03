@@ -33,6 +33,8 @@ Open [http://localhost:3000](http://localhost:3000).
 
 The browser buttons call the JavaScript SDK `page`, `identify`, `track`, `group`, and `alias` APIs.
 
+The custom document installs the JavaScript SDK preload snippet before the application becomes interactive. The snippet buffers an initial browser `page` call until the SDK loads during application startup.
+
 The server buttons call a Next.js API route. The route calls the same event APIs on the Node SDK. `getServerSideProps` also sends a `page` event for each server-rendered request.
 
 Both SDK paths include an `integrations` setting. Edit `src/lib/rudderstack-config.ts` to select destinations by their dashboard names.
