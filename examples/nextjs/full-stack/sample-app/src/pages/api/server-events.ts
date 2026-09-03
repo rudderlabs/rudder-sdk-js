@@ -18,6 +18,14 @@ export default async function handler(
     return;
   }
 
+  if (
+    process.env.NODE_ENV === 'production' &&
+    process.env.RUDDERSTACK_ALLOW_SERVER_EVENTS_API !== 'true'
+  ) {
+    response.status(403).json({ message: 'The server event demo is disabled in production.' });
+    return;
+  }
+
   const type = request.body?.type;
   if (typeof type !== 'string' || !supportedEvents.includes(type as EventType)) {
     response.status(400).json({ message: 'The event type is not supported.' });
