@@ -6,6 +6,7 @@ import type { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/co
 import type { ResetOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 import type { UserSessionKey } from '@rudderstack/analytics-js-common/types/UserSessionStorage';
 import type { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
+import type { SessionState } from '@rudderstack/analytics-js-common/types/ApplicationState';
 
 export interface IUserSessionManager {
   storeManager?: IStoreManager;
@@ -30,6 +31,16 @@ export interface IUserSessionManager {
 }
 
 export type UserSessionStorageKeysType = keyof typeof COOKIE_KEYS;
+
+/**
+ * Any value a user session key can hold in the state, derived from the state contract so
+ * the two cannot drift apart. Deliberately not correlated per key: the only operation on
+ * these values is an identity comparison, and a per-key mapped type cannot be written
+ * through a union-typed key without a cast.
+ */
+export type UserSessionValue = {
+  [key in UserSessionKey]: SessionState[key]['value'];
+}[UserSessionKey];
 
 export type CookieValue = ApiObject | string | SessionInfo;
 
