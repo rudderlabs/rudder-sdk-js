@@ -1,18 +1,22 @@
-import type { LoadOptions, RudderAnalytics } from '@rudderstack/analytics-js';
+import type {
+  LoadOptions,
+  RudderAnalytics,
+  RudderAnalyticsPreloader,
+} from '@rudderstack/analytics-js';
 import { destinationRouting } from './rudderstack-config';
 
 let initializationPromise: Promise<RudderAnalytics | undefined> | undefined;
 
-export function getBrowserAnalytics(): Promise<RudderAnalytics | undefined> {
+export function getBrowserAnalytics(): RudderAnalytics | RudderAnalyticsPreloader | undefined {
   if (typeof window === 'undefined') {
-    return Promise.resolve(undefined);
+    return undefined;
   }
 
   if (!initializationPromise) {
     initializationPromise = initializeBrowserAnalytics();
   }
 
-  return initializationPromise;
+  return window.rudderanalytics;
 }
 
 async function initializeBrowserAnalytics(): Promise<RudderAnalytics | undefined> {
