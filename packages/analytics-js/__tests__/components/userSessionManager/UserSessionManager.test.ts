@@ -3,6 +3,7 @@ import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utili
 import { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
 import { UserSessionManager } from '../../../src/components/userSessionManager';
 import { DEFAULT_USER_SESSION_VALUES } from '../../../src/components/userSessionManager/constants';
+import { USER_SESSION_KEYS } from '../../../src/constants/storage';
 import { StoreManager } from '../../../src/services/StoreManager';
 import type { Store } from '../../../src/services/StoreManager/Store';
 import { state, resetState } from '../../../src/state';
@@ -2617,11 +2618,10 @@ describe('User session manager', () => {
       }, 1000);
     });
 
-    describe('redundant server-side cookie requests', () => {
+    describe('batched server-side cookie requests', () => {
       beforeEach(() => {
         jest.useFakeTimers();
         // Earlier tests replace these on the shared store instance and never restore them.
-        // Drop the own properties so the real prototype implementations are used again.
         delete (clientDataStoreCookie as Partial<Store>).set;
         delete (clientDataStoreCookie as Partial<Store>).remove;
         state.serverCookies.isEnabledServerSideCookies.value = true;
@@ -2630,156 +2630,162 @@ describe('User session manager', () => {
       });
 
       afterEach(() => {
-        // The store is a shared singleton, so any override made here would otherwise leak
-        // into later tests. Drop them before handing the timers back.
         delete (clientDataStoreCookie as Partial<Store>).set;
         delete (clientDataStoreCookie as Partial<Store>).remove;
         jest.useRealTimers();
       });
 
-      it('should not make a request if the persisted value is already up to date', () => {
-        clientDataStoreCookie.set(COOKIE_KEYS.anonymousId, dummyAnonymousId);
+      it('should send all the keys changed in the same tick in one request', () => {
+        const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
+
         state.session.anonymousId.value = dummyAnonymousId;
-        const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
-
         userSessionManager.syncValueToStorage('anonymousId');
-        jest.advanceTimersByTime(1000);
+        state.session.userId.value = 'dummy_userId';
+        userSessionManager.syncValueToStorage('userId');
 
-        expect(setServerSideCookiesSpy).not.toHaveBeenCalled();
-      });
-
-      it('should make a request if the persisted value is different', () => {
-        clientDataStoreCookie.set(COOKIE_KEYS.anonymousId, 'stale_anonymousId');
-        state.session.anonymousId.value = dummyAnonymousId;
-        const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
-
-        userSessionManager.syncValueToStorage('anonymousId');
-        jest.advanceTimersByTime(1000);
-
-        expect(setServerSideCookiesSpy).toHaveBeenCalled();
-      });
-
-      // A -> B -> A, driven through the real debounced path. The B request is still in flight
-      // when the value reverts to A, which is what the cookie already holds. Skipping there
-      // would leave B as the last write to land, diverging the cookie from the state.
-      it('should make a request if one is already pending for the same key', () => {
-        clientDataStoreCookie.set(COOKIE_KEYS.anonymousId, dummyAnonymousId);
-        const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
-
-        // B: let the debounce elapse so the request is genuinely in flight and unresolved
-        state.session.anonymousId.value = 'pending_anonymousId';
-        userSessionManager.syncValueToStorage('anonymousId');
         jest.advanceTimersByTime(1000);
 
         expect(setServerSideCookiesSpy).toHaveBeenCalledTimes(1);
-        expect(userSessionManager.serverSideCookiesRequestInProgress.anonymousId).toBe(true);
-        setServerSideCookiesSpy.mockClear();
-
-        // Back to A while B is still unresolved
-        state.session.anonymousId.value = dummyAnonymousId;
-        userSessionManager.syncValueToStorage('anonymousId');
-        jest.advanceTimersByTime(1000);
-
-        expect(setServerSideCookiesSpy).toHaveBeenCalledTimes(1);
-      });
-
-      // Storage migration rewrites the cookie client side. If the guard then skips, the cookie
-      // stays a script written cookie for good, and Safari ITP caps it at 7 days - which is the
-      // exact outcome server-side cookies exist to avoid.
-      it('should make a request for a cookie that storage migration rewrote', () => {
-        // Only stub the migration extension point. The store uses the same plugins manager
-        // for encryption, so a blanket mock would write the cookie unencrypted.
-        const originalInvokeSingle = defaultPluginsManager.invokeSingle.bind(defaultPluginsManager);
-        const migrateSpy = jest
-          .spyOn(defaultPluginsManager, 'invokeSingle')
-          .mockImplementation((extPoint?: string, ...args: any[]) =>
-            extPoint === 'storage.migrate'
-              ? dummyAnonymousId
-              : originalInvokeSingle(extPoint, ...args),
-          );
-        state.storage.migrate.value = true;
-        state.session.anonymousId.value = dummyAnonymousId;
-        const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
-
-        // Migration writes the value into the cookie client side
-        userSessionManager.migrateStorageIfNeeded(undefined, ['anonymousId']);
-        expect(clientDataStoreCookie.get(COOKIE_KEYS.anonymousId)).toEqual(dummyAnonymousId);
-
-        userSessionManager.syncValueToStorage('anonymousId');
-        jest.advanceTimersByTime(1000);
-
-        expect(setServerSideCookiesSpy).toHaveBeenCalled();
-        migrateSpy.mockRestore();
-      });
-
-      // With two writes in flight for one key, the earlier response clears the shared
-      // in-progress flag while the later one is still outstanding. Skipping on the strength
-      // of that flag would let the later write land last and diverge the cookie from state.
-      it('should keep requesting after an earlier response clears the in-progress flag', () => {
-        clientDataStoreCookie.set(COOKIE_KEYS.anonymousId, dummyAnonymousId);
-        const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
-
-        state.session.anonymousId.value = 'pending_anonymousId';
-        userSessionManager.syncValueToStorage('anonymousId');
-        jest.advanceTimersByTime(1000);
-        setServerSideCookiesSpy.mockClear();
-
-        // An earlier response lands and clears the shared flag, even though a write is
-        // still outstanding for this key
-        userSessionManager.serverSideCookiesRequestInProgress.anonymousId = false;
-
-        // State returns to the value the cookie still holds
-        state.session.anonymousId.value = dummyAnonymousId;
-        userSessionManager.syncValueToStorage('anonymousId');
-        jest.advanceTimersByTime(1000);
-
-        expect(setServerSideCookiesSpy).toHaveBeenCalledTimes(1);
-      });
-
-      it('should make a request if the cookie does not exist yet', () => {
-        state.session.anonymousId.value = dummyAnonymousId;
-        const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
-
-        userSessionManager.syncValueToStorage('anonymousId');
-        jest.advanceTimersByTime(1000);
-
-        expect(setServerSideCookiesSpy).toHaveBeenCalled();
-      });
-
-      // The session cookie must keep syncing, otherwise the persisted expiresAt goes stale and
-      // the next event would start a new session while the user is still active.
-      it('should still make a request for the session info as expiresAt changes', () => {
-        const persistedSessionInfo = {
-          id: 1234567890,
-          expiresAt: 1234567890 + DEFAULT_SESSION_TIMEOUT_MS,
-          autoTrack: true,
-          timeout: DEFAULT_SESSION_TIMEOUT_MS,
-        };
-        clientDataStoreCookie.set(COOKIE_KEYS.sessionInfo, persistedSessionInfo);
-        state.session.sessionInfo.value = {
-          ...persistedSessionInfo,
-          expiresAt: persistedSessionInfo.expiresAt + 60 * 1000,
-        };
-        const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
-
-        userSessionManager.syncValueToStorage('sessionInfo');
-        jest.advanceTimersByTime(1000);
-
-        expect(setServerSideCookiesSpy).toHaveBeenCalled();
-      });
-
-      it('should not skip the client-side write when server-side cookies are disabled', () => {
-        state.serverCookies.isEnabledServerSideCookies.value = false;
-        clientDataStoreCookie.set(COOKIE_KEYS.anonymousId, dummyAnonymousId);
-        clientDataStoreCookie.set = jest.fn();
-        state.session.anonymousId.value = dummyAnonymousId;
-
-        userSessionManager.syncValueToStorage('anonymousId');
-
-        expect(clientDataStoreCookie.set).toHaveBeenCalledWith(
-          COOKIE_KEYS.anonymousId,
-          dummyAnonymousId,
+        expect(setServerSideCookiesSpy).toHaveBeenCalledWith(
+          {
+            anonymousId: { name: COOKIE_KEYS.anonymousId },
+            userId: { name: COOKIE_KEYS.userId },
+          },
+          expect.any(Function),
+          expect.any(Object),
         );
+      });
+
+      it('should not resend the previous batch in a later one', () => {
+        const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
+
+        state.session.anonymousId.value = dummyAnonymousId;
+        userSessionManager.syncValueToStorage('anonymousId');
+        jest.advanceTimersByTime(1000);
+
+        state.session.userId.value = 'dummy_userId';
+        userSessionManager.syncValueToStorage('userId');
+        jest.advanceTimersByTime(1000);
+
+        expect(setServerSideCookiesSpy).toHaveBeenCalledTimes(2);
+        expect(setServerSideCookiesSpy).toHaveBeenLastCalledWith(
+          { userId: { name: COOKIE_KEYS.userId } },
+          expect.any(Function),
+          expect.any(Object),
+        );
+      });
+
+      // A data service that predates multi-cookie support sets only the last cookie of a
+      // batch. The others are recovered client side, but the operator needs telling why.
+      // The per-cookie errors already fire here, so match on the batch message specifically
+      const batchErrorCalls = () =>
+        (defaultLogger.error as jest.Mock).mock.calls.filter(([message]) =>
+          String(message).includes('sent in one request'),
+        );
+
+      it('should report once when a batch comes back with cookies missing', () => {
+        const capturedCallbacks: any[] = [];
+        userSessionManager.makeRequestToSetCookie = jest.fn((_data: any, cb: any) => {
+          capturedCallbacks.push(cb);
+        });
+        // Keep the client-side fallback from populating the store, so the second batch is
+        // still missing its cookies. This is what a rejected cookie attribute looks like.
+        clientDataStoreCookie.set = jest.fn();
+
+        state.session.anonymousId.value = dummyAnonymousId;
+        userSessionManager.syncValueToStorage('anonymousId');
+        state.session.userId.value = 'dummy_userId';
+        userSessionManager.syncValueToStorage('userId');
+        jest.advanceTimersByTime(1000);
+
+        // The server responds 200 but no cookie was actually set
+        capturedCallbacks[0](null, { xhr: { status: 200 } });
+
+        expect(batchErrorCalls()).toHaveLength(1);
+        expect(batchErrorCalls()[0][0]).toContain(COOKIE_KEYS.anonymousId);
+        expect(batchErrorCalls()[0][0]).toContain(COOKIE_KEYS.userId);
+
+        // A genuinely separate later batch must not repeat it, the cause has not changed
+        state.session.anonymousId.value = 'second_anonymousId';
+        userSessionManager.syncValueToStorage('anonymousId');
+        state.session.userId.value = 'second_userId';
+        userSessionManager.syncValueToStorage('userId');
+        jest.advanceTimersByTime(1000);
+
+        expect(capturedCallbacks).toHaveLength(2);
+        capturedCallbacks[1](null, { xhr: { status: 200 } });
+
+        expect(batchErrorCalls()).toHaveLength(1);
+      });
+
+      // On a repeat page load the SDK rewrites values the cookies already hold. Nothing
+      // changes, and that must not read as the server having failed to apply them.
+      it('should not report a collapsed batch when the cookies already hold the values', () => {
+        clientDataStoreCookie.set(COOKIE_KEYS.anonymousId, dummyAnonymousId);
+        clientDataStoreCookie.set(COOKIE_KEYS.userId, 'dummy_userId');
+
+        let capturedCallback: any;
+        userSessionManager.makeRequestToSetCookie = jest.fn((_data: any, cb: any) => {
+          capturedCallback = cb;
+        });
+
+        state.session.anonymousId.value = dummyAnonymousId;
+        userSessionManager.syncValueToStorage('anonymousId');
+        state.session.userId.value = 'dummy_userId';
+        userSessionManager.syncValueToStorage('userId');
+        jest.advanceTimersByTime(1000);
+
+        // A real multi-cookie batch went out, otherwise the assertion below proves nothing
+        expect(userSessionManager.makeRequestToSetCookie).toHaveBeenCalledTimes(1);
+        expect(
+          (userSessionManager.makeRequestToSetCookie as jest.Mock).mock.calls[0][0],
+        ).toHaveLength(2);
+
+        // The cookies are untouched by the response, because they already held these values
+        capturedCallback(null, { xhr: { status: 200 } });
+
+        expect(batchErrorCalls()).toHaveLength(0);
+      });
+
+      it('should not report a collapsed batch for a single cookie request', () => {
+        let capturedCallback: any;
+        userSessionManager.makeRequestToSetCookie = jest.fn((_data: any, cb: any) => {
+          capturedCallback = cb;
+        });
+
+        state.session.anonymousId.value = dummyAnonymousId;
+        userSessionManager.syncValueToStorage('anonymousId');
+        jest.advanceTimersByTime(1000);
+
+        capturedCallback(null, { xhr: { status: 200 } });
+
+        expect(batchErrorCalls()).toHaveLength(0);
+      });
+
+      it('should not batch keys that are not backed by cookie storage', () => {
+        state.storage.entries.value = entriesWithMixStorageButWithoutNone;
+        const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
+
+        // A key with no value takes the remove path and never reaches a batch, so the
+        // boundary is only exercised if both sides carry one: userId is cookie-backed,
+        // anonymousId and userTraits are not.
+        state.session.userId.value = 'dummy_userId';
+        state.session.anonymousId.value = dummyAnonymousId;
+        state.session.userTraits.value = { trait: 'dummy_trait' };
+
+        USER_SESSION_KEYS.forEach(sessionKey => {
+          userSessionManager.syncValueToStorage(sessionKey);
+        });
+
+        jest.advanceTimersByTime(1000);
+
+        const batchedKeys = setServerSideCookiesSpy.mock.calls.flatMap(call =>
+          Object.keys(call[0]),
+        );
+        // userId is the only cookie-backed key in this fixture. Asserting the exact set
+        // rather than looping over whatever was batched, so a batch that never happens
+        // fails here instead of passing with nothing to iterate.
+        expect(batchedKeys).toEqual(['userId']);
       });
     });
   });
