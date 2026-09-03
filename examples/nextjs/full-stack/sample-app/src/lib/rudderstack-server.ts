@@ -8,18 +8,27 @@ import {
 
 let analytics: Analytics | undefined;
 
+export class RudderStackConfigurationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'RudderStackConfigurationError';
+  }
+}
+
 function validateDataPlaneUrl(dataPlaneUrl: string): void {
   let url: URL;
 
   try {
     url = new URL(dataPlaneUrl);
   } catch {
-    throw new Error('RUDDERSTACK_DATAPLANE_URL must be a valid URL.');
+    throw new RudderStackConfigurationError('RUDDERSTACK_DATAPLANE_URL must be a valid URL.');
   }
 
   const isLoopback = ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname);
   if (url.protocol !== 'https:' && !isLoopback) {
-    throw new Error('RUDDERSTACK_DATAPLANE_URL must use HTTPS unless it targets a loopback host.');
+    throw new RudderStackConfigurationError(
+      'RUDDERSTACK_DATAPLANE_URL must use HTTPS unless it targets a loopback host.',
+    );
   }
 }
 
@@ -28,7 +37,9 @@ function getServerAnalytics(): Analytics {
   const dataPlaneUrl = process.env.RUDDERSTACK_DATAPLANE_URL;
 
   if (!writeKey || !dataPlaneUrl) {
-    throw new Error('Missing RUDDERSTACK_WRITE_KEY or RUDDERSTACK_DATAPLANE_URL.');
+    throw new RudderStackConfigurationError(
+      'Missing RUDDERSTACK_WRITE_KEY or RUDDERSTACK_DATAPLANE_URL.',
+    );
   }
 
   validateDataPlaneUrl(dataPlaneUrl);
