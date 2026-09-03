@@ -125,7 +125,7 @@ const isStorageTypeValidForStoringData = (storageType: StorageType): boolean =>
 const generateAnonymousId = (): string => generateUUID();
 
 const isKnownResetEntry = (key: string): key is keyof ResetOptions['entries'] =>
-  Object.prototype.hasOwnProperty.call(DEFAULT_RESET_OPTIONS.entries, key);
+  Object.keys(DEFAULT_RESET_OPTIONS.entries).some(resetEntry => resetEntry === key);
 
 const getFinalResetOptions = (options: ResetOptions | boolean | undefined): ResetOptions => {
   // Legacy behavior: toggle only anonymousId without mutating defaults
