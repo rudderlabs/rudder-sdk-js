@@ -8,6 +8,21 @@ import {
 
 let analytics: Analytics | undefined;
 
+function validateDataPlaneUrl(dataPlaneUrl: string): void {
+  let url: URL;
+
+  try {
+    url = new URL(dataPlaneUrl);
+  } catch {
+    throw new Error('RUDDERSTACK_DATAPLANE_URL must be a valid URL.');
+  }
+
+  const isLoopback = ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname);
+  if (url.protocol !== 'https:' && !isLoopback) {
+    throw new Error('RUDDERSTACK_DATAPLANE_URL must use HTTPS unless it targets a loopback host.');
+  }
+}
+
 function getServerAnalytics(): Analytics {
   const writeKey = process.env.RUDDERSTACK_WRITE_KEY;
   const dataPlaneUrl = process.env.RUDDERSTACK_DATAPLANE_URL;
@@ -15,6 +30,8 @@ function getServerAnalytics(): Analytics {
   if (!writeKey || !dataPlaneUrl) {
     throw new Error('Missing RUDDERSTACK_WRITE_KEY or RUDDERSTACK_DATAPLANE_URL.');
   }
+
+  validateDataPlaneUrl(dataPlaneUrl);
 
   if (!analytics) {
     analytics = new Analytics(writeKey, {
