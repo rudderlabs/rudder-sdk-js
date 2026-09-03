@@ -519,19 +519,25 @@ describe('Utilities: User session manager', () => {
         input: {
           entries: {
             userId: 'xyz',
-            abc: false,
-            anonymousId: {},
           },
         },
-        expected: {
-          ...defaultOptions,
+        expected: defaultOptions,
+      },
+      {
+        input: {
           entries: {
-            ...defaultOptions.entries,
-            userId: 'xyz',
-            abc: false,
             anonymousId: {},
           },
         },
+        expected: defaultOptions,
+      },
+      {
+        input: {
+          entries: {
+            abc: false,
+          },
+        },
+        expected: defaultOptions,
       },
     ];
 
