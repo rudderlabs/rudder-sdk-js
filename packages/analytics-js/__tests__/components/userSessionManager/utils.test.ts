@@ -539,6 +539,22 @@ describe('Utilities: User session manager', () => {
         },
         expected: defaultOptions,
       },
+      {
+        input: {
+          entries: {
+            userId: false,
+            anonymousId: {},
+            abc: true,
+          },
+        },
+        expected: {
+          ...defaultOptions,
+          entries: {
+            ...defaultOptions.entries,
+            userId: false,
+          },
+        },
+      },
     ];
 
     testCases.forEach(testCase => {
