@@ -20,6 +20,8 @@ The script creates this sample's local `.env` file. You can also copy this direc
 
 The server and browser settings use the same source in this sample. The `NEXT_PUBLIC_` values are included in the browser bundle. RudderStack write keys are designed for client-side use, but you must not put other secrets in these variables.
 
+The server event API is enabled during local development. Production builds disable the API by default. Set `RUDDERSTACK_ALLOW_SERVER_EVENTS_API=true` only when you run the application as a trusted production demo.
+
 ## Run the sample
 
 ```bash
