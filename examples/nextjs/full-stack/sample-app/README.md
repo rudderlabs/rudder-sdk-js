@@ -43,6 +43,6 @@ Both SDK paths include an `integrations` setting. Edit `src/lib/rudderstack-conf
 
 Only `getServerSideProps` and the API route import `src/lib/rudderstack-server.ts`. Do not import this module from browser code. `getServerSideProps` uses a dynamic import so the browser build does not follow the Node SDK dependency.
 
-`next.config.js` lists `@rudderstack/rudder-sdk-node` in `serverExternalPackages`. Next.js then uses the installed Node.js package instead of adding it to a browser or server bundle. This prevents Node.js dependencies such as `fs` from entering a browser bundle.
+`next.config.js` lists `@rudderstack/rudder-sdk-node` in `serverExternalPackages`. Next.js then uses the installed Node.js package at server runtime instead of adding it to the server bundle. This setting does not control browser bundling. The import boundary described above prevents Node.js dependencies such as `fs` from entering the browser bundle.
 
 The server module creates one shared Node SDK client. It does not create a new client for each event. The server waits for the SDK to enqueue the event. The API route then waits for `flush()` before it finishes the request. This behavior is important for short-lived serverless runtimes.
