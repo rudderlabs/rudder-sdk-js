@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type { EventType } from '@/lib/rudderstack-config';
-import { sendServerEvent } from '@/lib/rudderstack-server';
+import { RudderStackConfigurationError, sendServerEvent } from '@/lib/rudderstack-server';
 
 const supportedEvents: EventType[] = ['page', 'identify', 'track', 'group', 'alias'];
 
@@ -37,6 +37,10 @@ export default async function handler(
     response.status(200).json({ message: `The server sent a ${type} event.` });
   } catch (error) {
     console.error('Failed to send a server event.', error);
-    response.status(500).json({ message: 'The server could not send the event.' });
+    const message =
+      error instanceof RudderStackConfigurationError
+        ? error.message
+        : 'The server could not send the event.';
+    response.status(500).json({ message });
   }
 }
