@@ -171,7 +171,7 @@ describe('Utilities: User session manager', () => {
     it('should return newly generated session id', () => {
       const outcome = generateSessionId();
       expect(typeof outcome).toBe('number');
-      expect(outcome.toString().length).toEqual(13);
+      expect(outcome.toString()).toHaveLength(13);
     });
   });
 
