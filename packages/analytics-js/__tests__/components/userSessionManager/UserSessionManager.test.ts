@@ -1,4 +1,6 @@
 import { batch } from '@preact/signals-core';
+import { MEMORY_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
+import type { StorageEntries } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
@@ -2074,13 +2076,14 @@ describe('User session manager', () => {
     });
 
     // entriesWithInMemoryFallback stores sessionInfo as 'none', so it does not exercise
-    // memory storage for the session at all
-    const entriesWithOnlyMemoryStorage = Object.fromEntries(
+    // memory storage for the session at all. Typed as StorageEntries rather than as the
+    // cookie fixture, so a malformed entry is caught rather than hidden by the cast.
+    const entriesWithOnlyMemoryStorage: StorageEntries = Object.fromEntries(
       Object.entries(entriesWithOnlyCookieStorage).map(([key, entry]) => [
         key,
-        { ...entry, type: 'memoryStorage' },
+        { ...entry, type: MEMORY_STORAGE },
       ]),
-    ) as typeof entriesWithOnlyCookieStorage;
+    );
 
     it('should retain a manually started session for the events replayed after it', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;

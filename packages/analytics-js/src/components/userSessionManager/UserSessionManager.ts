@@ -81,6 +81,7 @@ import type {
   IUserSessionManager,
   SessionToCookiesMap,
   UserSessionStorageKeysType,
+  UserSessionValue,
 } from './types';
 import { isPositiveInteger } from '../utilities/number';
 import type { ResetOptions } from '@rudderstack/analytics-js-common/types/EventApi';
@@ -109,7 +110,7 @@ class UserSessionManager implements IUserSessionManager {
    * The value each key was last handed to storage with, recorded by the sync effect.
    * Anything else in the state means storage has not been given the current value yet.
    */
-  lastSyncedValues: Partial<Record<UserSessionKey, any>>;
+  lastSyncedValues: Partial<Record<UserSessionKey, UserSessionValue>>;
 
   constructor(
     pluginsManager: IPluginsManager,
