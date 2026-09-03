@@ -19,6 +19,9 @@ function getServerAnalytics(): Analytics {
   if (!analytics) {
     analytics = new Analytics(writeKey, {
       dataPlaneUrl,
+      axiosConfig: {
+        timeout: 5_000,
+      },
       flushAt: 20,
       flushInterval: 10_000,
       logLevel: 'debug',
