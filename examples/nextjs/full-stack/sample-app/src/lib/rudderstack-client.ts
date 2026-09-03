@@ -8,7 +8,11 @@ import { destinationRouting } from './rudderstack-config';
 let initializationPromise: Promise<RudderAnalytics | undefined> | undefined;
 
 export function getBrowserAnalytics(): RudderAnalytics | RudderAnalyticsPreloader | undefined {
-  if (typeof window === 'undefined') {
+  if (
+    typeof window === 'undefined' ||
+    !process.env.NEXT_PUBLIC_RUDDERSTACK_WRITE_KEY ||
+    !process.env.NEXT_PUBLIC_RUDDERSTACK_DATAPLANE_URL
+  ) {
     return undefined;
   }
 
