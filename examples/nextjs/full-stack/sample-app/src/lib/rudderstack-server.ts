@@ -40,7 +40,7 @@ export async function sendServerEvent(type: EventType): Promise<void> {
       client.page({
         ...common,
         name: 'Next.js Server Page',
-        properties: { renderedBy: 'getServerSideProps' },
+        properties: { runtime: 'Next.js server' },
       });
       break;
     case 'identify':
