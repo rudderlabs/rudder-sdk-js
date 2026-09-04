@@ -12,3 +12,9 @@
 - The current release flow in `package.json` runs `scripts/run-release-version-targets.js`, which reads the Nx project graph and executes all `version` targets serially from dependents to dependencies.
 - The critical SDK chain must run `@rudderstack/analytics-js` before `@rudderstack/analytics-js-plugins` before `@rudderstack/analytics-js-integrations` so transitive `trackDeps: true` bumps propagate under `--skipCommit=true`.
 - The regression for this behavior is `npm run test:release-versioning`; it builds a temporary three-level dependency chain with `trackDeps: true`, runs real JSCutlery versioning with `--skipCommit=true` and no `--dryRun`, and asserts all three versions increase.
+
+## INT-7067 — OpenAI Ads Destination Constants Required for CI
+
+- Adding `packages/analytics-js-integrations/src/integrations/OpenAIAds` without matching `OPENAI_ADS_NAME` and `OPENAI_ADS_DISPLAY_NAME` exports in `packages/analytics-js-integrations/src/constants/Destinations.ts` breaks `packages/analytics-js-integrations/__tests__/constants.test.ts`, because that test imports every integration's `constants.js` and compares `NAME`/`DISPLAY_NAME` to `Destinations.ts` exports.
+- When adding a new `analytics-js-integrations` device-mode integration, include its `*_NAME` and `*_DISPLAY_NAME` exports in `Destinations.ts` in the same PR unless the generated constants have already been refreshed.
+- Do not implement OpenAI Ads Measurement Pixel logout/user clearing by adding core SDK device-mode reset hook plumbing from stale or local spec text; the durable behavior from the spec PR is MoEngage-style integration-local user ID change detection that clears the pixel user via `window.oaiq("init", { pixelId, user: {} })`.
