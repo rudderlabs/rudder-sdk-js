@@ -72,6 +72,7 @@ env:
   PLUGINS_ARTIFACTS_BASE_PATH: "packages/analytics-js-plugins/dist/cdn"
   CORE_ARTIFACTS_BASE_PATH: "packages/analytics-js/dist/cdn"
   LOADER_ARTIFACTS_BASE_PATH: "packages/loading-scripts/dist"
+  LOADER_CDN_BASE_DIR: "js_sdk_loading_snippet"
   INTEGRATIONS_HTML_FILE: "list.html"
   PLUGINS_HTML_FILE: "list.html"
 
@@ -247,24 +248,6 @@ jobs:
           aws s3 cp ${{ env.CORE_ARTIFACTS_BASE_PATH }}/legacy/iife/ $s3_path_prefix/legacy/ $copy_args
           aws s3 cp ${{ env.CORE_ARTIFACTS_BASE_PATH }}/modern/iife/ $s3_path_prefix/modern/ $copy_args
 
-      # Published as loader[.min].js: built without a write key, the loading
-      # script is a pure loader, so the same artifact serves both purposes. It
-      # sits at the root of the version directory rather than under legacy/ or
-      # modern/ because its job is to detect which of the two to fetch.
-      - name: Copy SDK loader artifacts to S3 (versioned directory)
-        if: ${{ inputs.environment == 'production' }}
-        env:
-          BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
-          VERSION: ${{ env.CURRENT_VERSION_VALUE }}
-          MAX_AGE: ${{ env.CACHE_CONTROL_MAX_AGE }}
-          SRC: ${{ env.LOADER_ARTIFACTS_BASE_PATH }}
-        run: |
-          s3_path_prefix="s3://${BUCKET_NAME}/${VERSION}"
-          copy_args=(--cache-control "${MAX_AGE}")
-
-          aws s3 cp "${SRC}/loading-script.js" "${s3_path_prefix}/loader.js" "${copy_args[@]}"
-          aws s3 cp "${SRC}/loading-script.min.js" "${s3_path_prefix}/loader.min.js" "${copy_args[@]}"
-
       # Note: Although, it might seem like this step is not required when a new version is deployed,
       # as these artifacts are copied for the first time, we're invalidating the cache for the case
       # where a release only contains changes to the integrations or plugins or both and the new artifacts 
@@ -318,22 +301,63 @@ jobs:
           aws s3 cp ${{ env.CORE_ARTIFACTS_BASE_PATH }}/legacy/iife/ $s3_path_prefix/legacy/ $copy_args
           aws s3 cp ${{ env.CORE_ARTIFACTS_BASE_PATH }}/modern/iife/ $s3_path_prefix/modern/ $copy_args
 
-      # Published as loader[.min].js: built without a write key, the loading
-      # script is a pure loader, so the same artifact serves both purposes. It
-      # sits at the root of the version directory rather than under legacy/ or
-      # modern/ because its job is to detect which of the two to fetch.
+      # Published as loader[.min].js under its own prefix rather than the SDK's
+      # version directory: built without a write key the loading script is a
+      # pure loader, it is versioned by the loading-scripts package rather than
+      # by the SDK, and its whole job is to pick between the legacy and modern
+      # SDK builds.
       - name: Copy SDK loader artifacts to S3
         env:
-          S3_DIR_PATH: ${{ inputs.s3_dir_path }}
+          ENVIRONMENT: ${{ inputs.environment }}
           BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
-          MAX_AGE: ${{ env.CACHE_CONTROL }}
+          BASE_DIR: ${{ env.LOADER_CDN_BASE_DIR }}
+          LATEST_CACHE_CONTROL: ${{ env.CACHE_CONTROL }}
+          VERSIONED_CACHE_CONTROL: ${{ env.CACHE_CONTROL_MAX_AGE }}
           SRC: ${{ env.LOADER_ARTIFACTS_BASE_PATH }}
         run: |
-          s3_path_prefix="s3://${BUCKET_NAME}/${S3_DIR_PATH}"
-          copy_args=(--cache-control "${MAX_AGE}")
+          case "${ENVIRONMENT}" in
+            production) env_prefix="" ;;
+            staging) env_prefix="staging/" ;;
+            development) env_prefix="dev/" ;;
+            *) echo "No loader publish configured for ${ENVIRONMENT}"; exit 0 ;;
+          esac
 
-          aws s3 cp "${SRC}/loading-script.js" "${s3_path_prefix}/loader.js" "${copy_args[@]}"
-          aws s3 cp "${SRC}/loading-script.min.js" "${s3_path_prefix}/loader.min.js" "${copy_args[@]}"
+          latest_path="s3://${BUCKET_NAME}/${env_prefix}${BASE_DIR}/latest"
+          latest_args=(--cache-control "${LATEST_CACHE_CONTROL}")
+
+          aws s3 cp "${SRC}/loading-script.js" "${latest_path}/loader.js" "${latest_args[@]}"
+          aws s3 cp "${SRC}/loading-script.min.js" "${latest_path}/loader.min.js" "${latest_args[@]}"
+
+          # Production also keeps an immutable copy at the loading-scripts
+          # package version, so a pinned URL never moves under a caller.
+          if [ "${ENVIRONMENT}" = "production" ]; then
+            loader_version=$(node -p "require('./packages/loading-scripts/package.json').version")
+            versioned_path="s3://${BUCKET_NAME}/${BASE_DIR}/${loader_version}"
+            versioned_args=(--cache-control "${VERSIONED_CACHE_CONTROL}")
+
+            aws s3 cp "${SRC}/loading-script.js" "${versioned_path}/loader.js" "${versioned_args[@]}"
+            aws s3 cp "${SRC}/loading-script.min.js" "${versioned_path}/loader.min.js" "${versioned_args[@]}"
+          fi
+
+      # The loader lives outside the s3_dir_path prefix, so the SDK artifact
+      # invalidation below does not reach it. Only the latest path needs it --
+      # the versioned copies are immutable.
+      - name: Invalidate CloudFront cache for the SDK loader
+        env:
+          ENVIRONMENT: ${{ inputs.environment }}
+          BASE_DIR: ${{ env.LOADER_CDN_BASE_DIR }}
+          DISTRIBUTION_ID: ${{ secrets.AWS_CF_DISTRIBUTION_ID }}
+        run: |
+          case "${ENVIRONMENT}" in
+            production) env_prefix="" ;;
+            staging) env_prefix="staging/" ;;
+            development) env_prefix="dev/" ;;
+            *) echo "No loader publish configured for ${ENVIRONMENT}"; exit 0 ;;
+          esac
+
+          invalidation_id=$(AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id "${DISTRIBUTION_ID}" --paths "/${env_prefix}${BASE_DIR}/latest/*" --query "Invalidation.Id" --output text)
+
+          aws cloudfront wait invalidation-completed --distribution-id "${DISTRIBUTION_ID}" --id "$invalidation_id"
 
       - name: Invalidate CloudFront cache for all the SDK artifacts
         env:
