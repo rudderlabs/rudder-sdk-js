@@ -109,7 +109,6 @@ const LOGGER_MESSAGES = {
   IDENTIFY_NO_USER_DATA: 'OpenAI Ads identify skipped because no usable user data was found',
   HASHED_PII_REJECTED: fieldName => `OpenAI Ads rejected apparent pre-hashed value for ${fieldName}`,
   INVALID_EVENT_DATA: reason => `OpenAI Ads event skipped: ${reason}`,
-  FILTERED_EVENT: sourceKey => `OpenAI Ads event filtered by client-side settings for ${sourceKey}`,
 };
 
 export {

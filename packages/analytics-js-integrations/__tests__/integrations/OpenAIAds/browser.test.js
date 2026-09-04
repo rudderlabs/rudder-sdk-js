@@ -136,7 +136,7 @@ describe('OpenAIAds identify', () => {
             city: ' San Francisco ',
             country: 'US',
           },
-          ip: '192.168.0.1',
+          ip: '::ffff:192.0.2.128',
           userAgent: 'Mozilla/5.0',
         },
       },
@@ -153,7 +153,7 @@ describe('OpenAIAds identify', () => {
         obref: 'obref-from-traits',
         cities: ['San Francisco'],
         countries: ['US'],
-        ip_address: '192.168.0.1',
+        ip_address: '::ffff:192.0.2.128',
         user_agent: 'Mozilla/5.0',
       },
     });
@@ -215,7 +215,7 @@ describe('OpenAIAds identify', () => {
 
 describe('OpenAIAds conversion events', () => {
   test('fires mapped standard track events with event data and event options', () => {
-    const integration = initForCalls();
+    const integration = initForCalls({ defaultActionSource: 'WEB' });
     integration.track({
       message: {
         type: 'track',
@@ -604,32 +604,6 @@ describe('OpenAIAds conversion events', () => {
     expect(window.oaiq.mock.calls.filter(call => call[0] === 'measureSingle')).toHaveLength(1);
   });
 
-  test('honors client-side allowlist, denylist, and disabled filtering settings', () => {
-    const allowlisted = initForCalls({
-      eventFilteringOption: { web: 'whitelistedEvents' },
-      whitelistedEvents: { web: [{ eventName: 'Product Viewed' }] },
-    });
-    allowlisted.track({ message: { type: 'track', event: 'Trial Signup', properties: {} } });
-    expect(window.oaiq).not.toHaveBeenCalled();
-
-    const denylisted = initForCalls({
-      eventFilteringOption: { web: 'blacklistedEvents' },
-      blacklistedEvents: { web: [{ eventName: 'Product Viewed' }] },
-    });
-    denylisted.track({ message: { type: 'track', event: 'Product Viewed', properties: {} } });
-    expect(window.oaiq).not.toHaveBeenCalled();
-
-    const disabled = initForCalls({ eventFilteringOption: { web: 'disable' } });
-    disabled.track({
-      message: {
-        type: 'track',
-        event: 'Product Viewed',
-        properties: {},
-        context: { page: { url: 'https://example.com/product' } },
-      },
-    });
-    expect(getMeasureCall()).toBeTruthy();
-  });
 });
 
 describe('OpenAIAds currency helper', () => {

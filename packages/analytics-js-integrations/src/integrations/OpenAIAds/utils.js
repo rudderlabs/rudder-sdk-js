@@ -159,28 +159,6 @@ const resolveEvent = (message, messageType, eventMapping) => {
   };
 };
 
-const isEventFiltered = (sourceKey, config) => {
-  const option = config?.eventFilteringOption?.web;
-  if (!option || option === 'disable') {
-    return false;
-  }
-
-  const eventList =
-    option === 'whitelistedEvents' ? config?.whitelistedEvents?.web : config?.blacklistedEvents?.web;
-  const configuredEvents = (Array.isArray(eventList) ? eventList : [])
-    .map(item => normalizeMappingKey(item?.eventName))
-    .filter(Boolean);
-  const normalizedSourceKey = normalizeMappingKey(sourceKey);
-
-  if (option === 'whitelistedEvents') {
-    return !configuredEvents.includes(normalizedSourceKey);
-  }
-  if (option === 'blacklistedEvents') {
-    return configuredEvents.includes(normalizedSourceKey);
-  }
-  return false;
-};
-
 const getDeduplicationId = (message, mappingRow) => {
   const deduplicationKey = trimString(mappingRow?.deduplicationKey);
   if (deduplicationKey) {
@@ -264,15 +242,6 @@ const normalizeAndHashValues = (message, paths, normalizer, fieldName, logger) =
 const normalizeRawArrayValues = (message, paths) => {
   const values = collectValuesFromPaths(message, paths);
   return [...new Set(normalizeList(values))];
-};
-
-const isValidIpAddress = value => {
-  if (!value) {
-    return false;
-  }
-  const ipv4 = /^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/;
-  const ipv6 = /^[\d:A-Fa-f]+$/;
-  return ipv4.test(value) || (value.includes(':') && ipv6.test(value));
 };
 
 const buildUserData = (message = {}, logger, extraUserData = {}) => {
@@ -441,7 +410,7 @@ const buildUserData = (message = {}, logger, extraUserData = {}) => {
   }
 
   const ipAddress = collectFirstRawValue(message, ['context.ip', 'request_ip']);
-  if (isValidIpAddress(ipAddress)) {
+  if (ipAddress) {
     user.ip_address = ipAddress;
   }
 
@@ -613,7 +582,7 @@ const getActionSource = (properties, defaultActionSource) => {
   const actionSource =
     trimString(properties?.action_source)?.toLowerCase() ||
     trimString(properties?.actionSource)?.toLowerCase();
-  const resolved = actionSource || trimString(defaultActionSource);
+  const resolved = actionSource || trimString(defaultActionSource)?.toLowerCase();
   if (!resolved) {
     return { actionSource: undefined };
   }
@@ -777,7 +746,6 @@ export {
   buildEventData,
   buildUserData,
   getDeduplicationId,
-  isEventFiltered,
   removeEmptyValues,
   resolveEvent,
 };

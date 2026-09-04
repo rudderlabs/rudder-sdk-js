@@ -1,5 +1,5 @@
 // Source: ISO 4217 active currency minor units published by SIX Group.
-// https://www.six-group.com/dam/download/financial-information/data-center/iso-currrency/lists/list-one.xml
+// https://www.six-group.com/en/products-services/financial-information/data-standards.html
 const ISO_4217_EXPONENTS = {
   AED: 2,
   AFN: 2,

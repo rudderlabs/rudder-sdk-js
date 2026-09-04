@@ -5,7 +5,6 @@ import {
   buildEventData,
   buildUserData,
   getDeduplicationId,
-  isEventFiltered,
   removeEmptyValues,
   resolveEvent,
 } from './utils';
@@ -67,15 +66,12 @@ class OpenAIAds {
     return {
       defaultCurrency: this.config.defaultCurrency,
       defaultActionSource: this.config.defaultActionSource,
-      eventFilteringOption: this.config.eventFilteringOption,
-      whitelistedEvents: this.config.whitelistedEvents,
-      blacklistedEvents: this.config.blacklistedEvents,
     };
   }
 
-  updatePixelUser(user, allowEmpty = false) {
+  updatePixelUser(user) {
     const cleanedUser = removeEmptyValues(user);
-    if ((Object.keys(cleanedUser).length > 0 || allowEmpty) && typeof window.oaiq === 'function') {
+    if (Object.keys(cleanedUser).length > 0 && typeof window.oaiq === 'function') {
       window.oaiq('init', { user: cleanedUser });
     }
   }
@@ -154,11 +150,6 @@ class OpenAIAds {
 
     if (resolvedEvent.error) {
       logger.error(resolvedEvent.error);
-      return;
-    }
-
-    if (isEventFiltered(resolvedEvent.sourceKey, this.config)) {
-      logger.info(LOGGER_MESSAGES.FILTERED_EVENT(resolvedEvent.sourceKey));
       return;
     }
 
