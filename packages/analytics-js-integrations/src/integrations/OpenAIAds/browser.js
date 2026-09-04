@@ -173,8 +173,14 @@ class OpenAIAds {
       this.cookieObref = cookieObref;
     }
 
+    const deduplicationResult = getDeduplicationId(message, resolvedEvent.mappingRow);
+    if (deduplicationResult.error) {
+      logger.error(LOGGER_MESSAGES.INVALID_EVENT_DATA(deduplicationResult.error));
+      return;
+    }
+
     const eventOptions = removeEmptyValues({
-      id: getDeduplicationId(message, resolvedEvent.mappingRow),
+      id: deduplicationResult.id,
     });
 
     window.oaiq(

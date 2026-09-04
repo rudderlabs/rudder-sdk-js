@@ -1,5 +1,4 @@
 import sha256 from 'crypto-js/sha256';
-import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
 import { normalizeCurrency, toMinorUnits } from './currency';
 import {
   ALLOWED_ACTION_SOURCES,
@@ -105,30 +104,16 @@ const getNestedValue = (object, path) => {
   }, object);
 };
 
-const getUsableScalarByPath = (object, path) => {
-  const value = getNestedValue(object, path);
-  if (!isScalar(value)) {
-    return undefined;
-  }
-  const trimmed = trimString(value);
-  return trimmed || undefined;
-};
-
 const normalizeMappingKey = value => (typeof value === 'string' ? value.trim().toLowerCase() : '');
 
-const getEventMappingIndex = eventMapping => {
-  // Keep parity with existing integrations that normalize UI mapping rows through this helper,
-  // while storing full rows separately because OpenAI needs customEventName and deduplicationKey.
-  getHashFromArrayWithDuplicate(eventMapping, 'from', 'to', true);
-
-  return (Array.isArray(eventMapping) ? eventMapping : []).reduce((acc, row) => {
+const getEventMappingIndex = eventMapping =>
+  (Array.isArray(eventMapping) ? eventMapping : []).reduce((acc, row) => {
     const key = normalizeMappingKey(row?.from);
     if (key && !acc[key]) {
       acc[key] = row;
     }
     return acc;
   }, {});
-};
 
 const resolvePixelId = config => trimString(config?.pixelId);
 
@@ -148,7 +133,7 @@ const resolveEvent = (message, messageType, eventMapping) => {
     if (mappedTo === CUSTOM_EVENT_TYPE) {
       const customEventName = trimString(mappingRow.customEventName);
       if (!customEventName) {
-        return { error: LOGGER_MESSAGES.MAPPING_NOT_FOUND(sourceKey) };
+        return { error: LOGGER_MESSAGES.CUSTOM_MAPPING_MISSING_NAME };
       }
       eventType = CUSTOM_EVENT_TYPE;
       eventName = customEventName;
@@ -159,9 +144,6 @@ const resolveEvent = (message, messageType, eventMapping) => {
     } else {
       return { error: LOGGER_MESSAGES.MAPPING_NOT_FOUND(sourceKey) };
     }
-  } else if (STANDARD_EVENT_NAMES.includes(sourceKey)) {
-    eventType = sourceKey;
-    eventName = sourceKey;
   } else {
     return { error: LOGGER_MESSAGES.MAPPING_NOT_FOUND(sourceKey) };
   }
@@ -203,8 +185,19 @@ const isEventFiltered = (sourceKey, config) => {
 };
 
 const getDeduplicationId = (message, mappingRow) => {
-  const configuredValue = getUsableScalarByPath(message, mappingRow?.deduplicationKey);
-  return configuredValue || trimString(message?.messageId);
+  const deduplicationKey = trimString(mappingRow?.deduplicationKey);
+  if (deduplicationKey) {
+    const configuredValue = getNestedValue(message, deduplicationKey);
+    if (!isEmptyValue(configuredValue)) {
+      if (!isScalar(configuredValue)) {
+        return {
+          error: `OpenAI Ads deduplication key "${deduplicationKey}" must resolve to a string`,
+        };
+      }
+      return { id: trimString(configuredValue) };
+    }
+  }
+  return { id: trimString(message?.messageId) };
 };
 
 const hashNormalized = value => sha256(value).toString();
@@ -508,8 +501,19 @@ const getAmountValue = properties => {
   return undefined;
 };
 
-const resolveCurrency = (properties, defaultCurrency) =>
-  normalizeCurrency(trimString(properties?.currency) || defaultCurrency);
+const resolveCurrency = (properties, defaultCurrency) => {
+  const rawCurrency = trimString(properties?.currency) || trimString(defaultCurrency);
+  if (!rawCurrency) {
+    return { currency: undefined };
+  }
+
+  const currency = normalizeCurrency(rawCurrency);
+  if (!currency) {
+    return { error: `Unsupported currency code: ${rawCurrency.toUpperCase()}` };
+  }
+
+  return { currency };
+};
 
 const getPositiveInteger = value => {
   if (isEmptyValue(value)) {
@@ -559,6 +563,16 @@ const getMappedContentItem = (item, eventCurrency, defaultCurrency) => {
     content.content_type = contentType;
   }
 
+  const groupId = trimString(getFirstUsableValue(item, ['group_id', 'groupId']));
+  if (groupId) {
+    content.group_id = groupId;
+  }
+
+  const variantDict = getFirstUsableValue(item, ['variant_dict', 'variantDict']);
+  if (isPlainObject(variantDict)) {
+    content.variant_dict = variantDict;
+  }
+
   const quantityValue = getFirstUsableValue(item, ['quantity', 'count']);
   const quantity = getPositiveInteger(quantityValue);
   if (quantity === null) {
@@ -569,14 +583,19 @@ const getMappedContentItem = (item, eventCurrency, defaultCurrency) => {
   }
 
   const itemAmountValue = getFirstUsableValue(item, ['amount', 'value', 'price']);
-  const itemCurrency = resolveCurrency(
-    { currency: getFirstUsableValue(item, ['currency', 'currency_code', 'currencyCode']) || eventCurrency },
-    defaultCurrency,
-  );
-  if (itemCurrency) {
-    content.currency = itemCurrency;
-  }
   if (!isEmptyValue(itemAmountValue)) {
+    const itemCurrencyResult = resolveCurrency(
+      {
+        currency:
+          getFirstUsableValue(item, ['currency', 'currency_code', 'currencyCode']) ||
+          eventCurrency,
+      },
+      defaultCurrency,
+    );
+    if (itemCurrencyResult.error) {
+      return { invalid: true };
+    }
+    const itemCurrency = itemCurrencyResult.currency;
     const amount = toMinorUnits(itemAmountValue, itemCurrency);
     if (amount === undefined) {
       return { invalid: true };
@@ -599,7 +618,11 @@ const buildContents = (properties, defaultCurrency, isCustomEvent) => {
     return { error: 'invalid content item' };
   }
 
-  const eventCurrency = resolveCurrency(properties, defaultCurrency);
+  const eventCurrencyResult = resolveCurrency(properties, defaultCurrency);
+  if (eventCurrencyResult.error) {
+    return { error: eventCurrencyResult.error };
+  }
+  const eventCurrency = eventCurrencyResult.currency;
   const contents = [];
   for (const contentItem of contentItems) {
     const mapped = getMappedContentItem(contentItem, eventCurrency, defaultCurrency);
@@ -619,31 +642,39 @@ const buildContents = (properties, defaultCurrency, isCustomEvent) => {
 };
 
 const getActionSource = (properties, defaultActionSource) => {
-  const actionSource = trimString(properties?.action_source) || trimString(properties?.actionSource);
+  const actionSource =
+    trimString(properties?.action_source)?.toLowerCase() ||
+    trimString(properties?.actionSource)?.toLowerCase();
   const resolved = actionSource || trimString(defaultActionSource);
-  return ALLOWED_ACTION_SOURCES.includes(resolved) ? resolved : undefined;
+  if (!resolved) {
+    return { actionSource: undefined };
+  }
+  if (!ALLOWED_ACTION_SOURCES.includes(resolved)) {
+    return { error: `Unsupported OpenAI Ads action_source: ${resolved}` };
+  }
+  return { actionSource: resolved };
 };
 
 const getSourceUrl = message => {
-  const url =
+  return (
     trimString(message?.properties?.source_url) ||
     trimString(message?.properties?.sourceUrl) ||
-    trimString(message?.properties?.url) ||
-    trimString(message?.context?.page?.url);
-  if (!url || !/^https?:\/\//i.test(url)) {
-    return undefined;
-  }
-  try {
-    const parsedUrl = new URL(url);
-    parsedUrl.search = '';
-    parsedUrl.hash = '';
-    return parsedUrl.toString();
-  } catch (_) {
-    return undefined;
-  }
+    trimString(message?.context?.page?.url)
+  );
 };
 
-const sanitizeCustomValue = (value, seen = new WeakSet()) => {
+const getOptOut = properties => {
+  const optOutValue = !isEmptyValue(properties?.optOut) ? properties.optOut : properties?.opt_out;
+  if (isEmptyValue(optOutValue)) {
+    return { optOut: undefined };
+  }
+  if (typeof optOutValue !== 'boolean') {
+    return { error: 'opt_out must be a boolean' };
+  }
+  return { optOut: optOutValue };
+};
+
+const sanitizeCustomValue = (value, seen = new Set()) => {
   if (isEmptyValue(value)) {
     return undefined;
   }
@@ -704,7 +735,11 @@ const buildEventData = (message, resolvedEvent, config) => {
   const eventData = { type: dataType };
   const explicitKeys = ['type'];
 
-  const actionSource = getActionSource(properties, config?.defaultActionSource);
+  const actionSourceResult = getActionSource(properties, config?.defaultActionSource);
+  if (actionSourceResult.error) {
+    return { error: actionSourceResult.error };
+  }
+  const actionSource = actionSourceResult.actionSource;
   if (actionSource) {
     eventData.action_source = actionSource;
     explicitKeys.push('action_source');
@@ -719,30 +754,40 @@ const buildEventData = (message, resolvedEvent, config) => {
     explicitKeys.push('source_url');
   }
 
+  const optOutResult = getOptOut(properties);
+  if (optOutResult.error) {
+    return { error: optOutResult.error };
+  }
+  if (optOutResult.optOut !== undefined) {
+    eventData.opt_out = optOutResult.optOut;
+    explicitKeys.push('opt_out');
+  }
+
   const oppref = trimString(properties.oppref);
   if (oppref) {
     eventData.oppref = oppref;
     explicitKeys.push('oppref');
   }
 
-  if (dataType === 'contents' || dataType === CUSTOM_EVENT_TYPE) {
-    const currency = resolveCurrency(properties, config?.defaultCurrency);
-    if (currency) {
-      eventData.currency = currency;
-      explicitKeys.push('currency');
-    }
+  const currencyResult = resolveCurrency(properties, config?.defaultCurrency);
+  if (currencyResult.error) {
+    return { error: currencyResult.error };
+  }
+  const currency = currencyResult.currency;
 
-    const amountValue = getAmountValue(properties);
-    if (!isEmptyValue(amountValue)) {
-      const amount = toMinorUnits(amountValue, currency);
-      if (amount === undefined) {
-        return { error: 'invalid amount or currency' };
-      }
-      eventData.amount = amount;
-      eventData.currency = currency;
-      explicitKeys.push('amount');
+  const amountValue = getAmountValue(properties);
+  if (!isEmptyValue(amountValue)) {
+    const amount = toMinorUnits(amountValue, currency);
+    if (amount === undefined) {
+      return { error: 'invalid amount or currency' };
     }
+    eventData.amount = amount;
+    eventData.currency = currency;
+    explicitKeys.push('amount');
+    explicitKeys.push('currency');
+  }
 
+  if (dataType !== 'customer_action') {
     const contentsResult = buildContents(properties, config?.defaultCurrency, isCustom);
     if (contentsResult.error) {
       return { error: contentsResult.error };

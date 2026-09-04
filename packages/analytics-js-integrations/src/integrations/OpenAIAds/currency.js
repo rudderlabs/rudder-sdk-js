@@ -199,22 +199,19 @@ const toMinorUnits = (amount, currency) => {
   }
 
   const decimalString = toDecimalString(amount);
-  if (!decimalString || !/^-?\d+(\.\d+)?$/.test(decimalString)) {
+  if (!decimalString || !/^\d+(\.\d+)?$/.test(decimalString)) {
     return undefined;
   }
 
   const exponent = ISO_4217_EXPONENTS[normalizedCurrency];
-  const sign = decimalString.startsWith('-') ? -1 : 1;
-  const unsigned = sign === -1 ? decimalString.slice(1) : decimalString;
-  const [integerPart, fractionPart = ''] = unsigned.split('.');
+  const [integerPart, fractionPart = ''] = decimalString.split('.');
 
   if (fractionPart.length > exponent) {
     return undefined;
   }
 
   const paddedFraction = fractionPart.padEnd(exponent, '0');
-  const minorUnits =
-    sign * (Number(integerPart) * 10 ** exponent + Number(paddedFraction || '0'));
+  const minorUnits = Number(integerPart) * 10 ** exponent + Number(paddedFraction || '0');
 
   return Number.isInteger(minorUnits) && Math.abs(minorUnits) <= MAX_SAFE_INTEGER
     ? minorUnits

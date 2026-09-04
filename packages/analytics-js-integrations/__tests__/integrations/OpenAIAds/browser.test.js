@@ -13,6 +13,7 @@ const baseConfig = {
     { from: 'Landing Page', to: 'page_viewed' },
     { from: 'Home Screen', to: 'contents_viewed' },
     { from: 'Mobile Install', to: 'app_installed' },
+    { from: 'Subscription Created', to: 'subscription_created' },
   ],
   defaultCurrency: 'USD',
   defaultActionSource: 'web',
@@ -178,9 +179,12 @@ describe('OpenAIAds conversion events', () => {
           orderId: 'order-123',
           amount: '129.99',
           currency: 'usd',
+          optOut: true,
           contents: {
             product_id: 'sku-1',
             name: 'Product One',
+            groupId: 'group-1',
+            variantDict: { color: 'red' },
             quantity: 2,
             price: '12.34',
           },
@@ -198,7 +202,8 @@ describe('OpenAIAds conversion events', () => {
       {
         type: 'contents',
         action_source: 'web',
-        source_url: 'https://example.com/page',
+        source_url: 'https://example.com/page?query=1#hash',
+        opt_out: true,
         oppref: 'oppref-value',
         currency: 'USD',
         amount: 12999,
@@ -206,6 +211,8 @@ describe('OpenAIAds conversion events', () => {
           {
             id: 'sku-1',
             name: 'Product One',
+            group_id: 'group-1',
+            variant_dict: { color: 'red' },
             quantity: 2,
             currency: 'USD',
             amount: 1234,
@@ -240,7 +247,6 @@ describe('OpenAIAds conversion events', () => {
         type: 'contents',
         action_source: 'web',
         source_url: 'https://example.com/post-reset',
-        currency: 'USD',
       },
       { id: 'post-reset' },
     ]);
@@ -293,7 +299,7 @@ describe('OpenAIAds conversion events', () => {
     ]);
   });
 
-  test('passes through exact OpenAI standard event names without mapping', () => {
+  test('skips exact OpenAI standard event names without mapping', () => {
     const integration = initForCalls({ eventMapping: [] });
     integration.track({
       message: {
@@ -305,18 +311,12 @@ describe('OpenAIAds conversion events', () => {
       },
     });
 
-    expect(getMeasureCall()).toEqual([
-      'measureSingle',
-      'pixel-123',
-      'order_created',
-      {
-        type: 'contents',
-        action_source: 'web',
-        source_url: 'https://example.com/order',
-        currency: 'USD',
-      },
-      { id: 'msg-456' },
-    ]);
+    expect(window.oaiq).not.toHaveBeenCalled();
+    expect(
+      console.error.mock.calls.some(call =>
+        call[0].includes('OpenAI Ads event mapping not found for order_created'),
+      ),
+    ).toBe(true);
   });
 
   test('skips web action-source events without a valid source URL', () => {
@@ -383,7 +383,6 @@ describe('OpenAIAds conversion events', () => {
         type: 'contents',
         action_source: 'web',
         source_url: 'https://example.com/landing',
-        currency: 'USD',
       },
       { id: 'page-id' },
     );
@@ -395,10 +394,99 @@ describe('OpenAIAds conversion events', () => {
         type: 'contents',
         action_source: 'web',
         source_url: 'https://example.com/home',
-        currency: 'USD',
       },
       { id: 'screen-id' },
     );
+  });
+
+  test('maps plan enrollment events with amount, currency, and contents', () => {
+    const integration = initForCalls();
+
+    integration.track({
+      message: {
+        type: 'track',
+        event: 'Subscription Created',
+        messageId: 'subscription-id',
+        properties: {
+          amount: '25.00',
+          currency: 'USD',
+          contents: [
+            { id: 'plan-pro', name: 'Pro plan', quantity: 1, variantDict: 'blue' },
+            { id: 'plan-basic', currency: 'US' },
+          ],
+        },
+        context: { page: { url: 'https://example.com/subscribe' } },
+      },
+    });
+
+    expect(getMeasureCall()).toEqual([
+      'measureSingle',
+      'pixel-123',
+      'subscription_created',
+      {
+        type: 'plan_enrollment',
+        action_source: 'web',
+        source_url: 'https://example.com/subscribe',
+        amount: 2500,
+        currency: 'USD',
+        contents: [
+          { id: 'plan-pro', name: 'Pro plan', quantity: 1 },
+          { id: 'plan-basic' },
+        ],
+      },
+      { id: 'subscription-id' },
+    ]);
+  });
+
+  test('skips invalid action sources, opt out values, currency, and deduplication paths', () => {
+    const integration = initForCalls();
+
+    integration.track({
+      message: {
+        type: 'track',
+        event: 'Product Viewed',
+        properties: { action_source: 'invalid_source', source_url: 'https://example.com/item' },
+      },
+    });
+    integration.track({
+      message: {
+        type: 'track',
+        event: 'Product Viewed',
+        properties: { optOut: 'true', source_url: 'https://example.com/item' },
+      },
+    });
+    integration.track({
+      message: {
+        type: 'track',
+        event: 'Product Viewed',
+        properties: { currency: 'NOPE', source_url: 'https://example.com/item' },
+      },
+    });
+    integration.track({
+      message: {
+        type: 'track',
+        event: 'Product Viewed',
+        properties: { orderId: { id: 'not-scalar' }, source_url: 'https://example.com/item' },
+      },
+    });
+
+    expect(window.oaiq).not.toHaveBeenCalled();
+    expect(
+      console.error.mock.calls.some(call =>
+        call[0].includes('Unsupported OpenAI Ads action_source: invalid_source'),
+      ),
+    ).toBe(true);
+    expect(console.error.mock.calls.some(call => call[0].includes('opt_out must be a boolean'))).toBe(
+      true,
+    );
+    expect(console.error.mock.calls.some(call => call[0].includes('Unsupported currency code: NOPE'))).toBe(
+      true,
+    );
+    expect(
+      console.error.mock.calls.some(call =>
+        call[0].includes('OpenAI Ads deduplication key "properties.orderId" must resolve to a string'),
+      ),
+    ).toBe(true);
   });
 
   test('updates pixel user data before measuring and does not put user under eventData', () => {
@@ -488,5 +576,6 @@ describe('OpenAIAds currency helper', () => {
     expect(toMinorUnits('1.234', 'KWD')).toBe(1234);
     expect(toMinorUnits('1.2', 'JPY')).toBeUndefined();
     expect(toMinorUnits(1, 'NOPE')).toBeUndefined();
+    expect(toMinorUnits('-1.23', 'USD')).toBeUndefined();
   });
 });
