@@ -25,8 +25,8 @@ const getBufferedCalls = () => Array.from(getBuffer());
 describe('CDN loader', () => {
   beforeEach(() => {
     jest.resetModules();
-    // The loader build sets this at build time; jest defaults it to false so
-    // the snippet shape is the default under test.
+    // jest defaults the flag to false; this block covers the GTM build, so it
+    // opts in explicitly. The snippet shape is covered by the block below.
     (window as unknown as { __IS_GTM_BUILD__: boolean }).__IS_GTM_BUILD__ = true;
     window.rudderanalytics = undefined;
     document.head.innerHTML = '';

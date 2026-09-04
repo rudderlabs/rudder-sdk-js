@@ -123,8 +123,10 @@ export function getDefaultConfig(distName, isGtmBuild = false) {
 const buildEntries = () => {
   // One source, two artifacts. loader.js reads its configuration from its own
   // script tag; loader-gtm.js has none to read and leaves it to the buffered
-  // load call. __IS_GTM_BUILD__ is constant-folded, so each artifact keeps only
-  // its own branch.
+  // load call. @rollup/plugin-replace substitutes __IS_GTM_BUILD__ with a
+  // boolean literal and rollup drops the branch not taken, before terser runs --
+  // so terser's evaluate/dead_code settings are not what makes this work.
+  // Verified in the output: the flag appears nowhere in any of the four files.
   return [
     { name: distName, isGtmBuild: false },
     { name: `${distName}-gtm`, isGtmBuild: true },
