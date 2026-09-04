@@ -20,13 +20,13 @@ if (Array.isArray(rudderanalytics)) {
   } else {
     (rudderanalytics as any).snippetExecuted = true;
 
-    // The write key is substituted at build time. When it is not -- the CDN
-    // loader build, and the raw source under test -- this script is a pure
-    // loader: it sets up the buffer and fetches the SDK, and whoever buffered a
-    // `load` call supplies the configuration. The placeholder is split so that
-    // @rollup/plugin-replace does not substitute this comparison too.
-    const writeKey = '__WRITE_KEY__';
-    const hasWriteKey = writeKey !== '__WRITE' + '_KEY__' && writeKey !== 'undefined' && !!writeKey;
+    // This file builds two artifacts. The snippet carries a write key and calls
+    // load() with it; the CDN loader carries neither and leaves the load call to
+    // whoever buffered one -- which is what the GTM template does, since its
+    // sandbox cannot express any of the work below.
+    //
+    // __IS_CDN_LOADER__ is replaced with a boolean literal at build time, so
+    // each artifact keeps only its own branch and neither carries the check.
     window.rudderAnalyticsBuildType = 'legacy';
 
     const sdkBaseUrl = 'https://cdn.rudderlabs.com';
@@ -138,10 +138,10 @@ if (Array.isArray(rudderanalytics)) {
       /* eslint-enable */
 
       const sdkUrl = `${sdkBaseUrl}/${sdkVersion}/${window.rudderAnalyticsBuildType}/${sdkFileName}`;
-      if (hasWriteKey) {
-        window.rudderAnalyticsAddScript(sdkUrl, 'data-rsa-write-key', writeKey);
-      } else {
+      if (__IS_CDN_LOADER__) {
         window.rudderAnalyticsAddScript(sdkUrl);
+      } else {
+        window.rudderAnalyticsAddScript(sdkUrl, 'data-rsa-write-key', '__WRITE_KEY__');
       }
     };
 
@@ -154,13 +154,13 @@ if (Array.isArray(rudderanalytics)) {
     }
     /* Loading snippet end */
 
-    if (hasWriteKey) {
+    if (!__IS_CDN_LOADER__) {
       const loadOptions = {
         // configure your load options here
       };
 
       (rudderanalytics as unknown as RudderAnalytics).load(
-        writeKey,
+        '__WRITE_KEY__',
         '__DATAPLANE_URL__',
         loadOptions,
       );

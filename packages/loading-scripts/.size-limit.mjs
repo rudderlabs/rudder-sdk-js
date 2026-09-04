@@ -8,4 +8,9 @@ export default [
     path: 'dist/loading-script.min.js',
     limit: '1 KiB',
   },
+  {
+    name: 'CDN Loader',
+    path: 'dist/loader.min.js',
+    limit: '1 KiB',
+  },
 ];

@@ -301,11 +301,10 @@ jobs:
           aws s3 cp ${{ env.CORE_ARTIFACTS_BASE_PATH }}/legacy/iife/ $s3_path_prefix/legacy/ $copy_args
           aws s3 cp ${{ env.CORE_ARTIFACTS_BASE_PATH }}/modern/iife/ $s3_path_prefix/modern/ $copy_args
 
-      # Published as loader[.min].js under its own prefix rather than the SDK's
-      # version directory: built without a write key the loading script is a
-      # pure loader, it is versioned by the loading-scripts package rather than
-      # by the SDK, and its whole job is to pick between the legacy and modern
-      # SDK builds.
+      # The loader is published under its own prefix rather than the SDK's
+      # version directory: it is versioned by the loading-scripts package rather
+      # than by the SDK, and its whole job is to pick between the legacy and
+      # modern SDK builds.
       - name: Copy SDK loader artifacts to S3
         env:
           ENVIRONMENT: ${{ inputs.environment }}
@@ -325,8 +324,8 @@ jobs:
           latest_path="s3://${BUCKET_NAME}/${env_prefix}${BASE_DIR}/latest"
           latest_args=(--cache-control "${LATEST_CACHE_CONTROL}")
 
-          aws s3 cp "${SRC}/loading-script.js" "${latest_path}/loader.js" "${latest_args[@]}"
-          aws s3 cp "${SRC}/loading-script.min.js" "${latest_path}/loader.min.js" "${latest_args[@]}"
+          aws s3 cp "${SRC}/loader.js" "${latest_path}/loader.js" "${latest_args[@]}"
+          aws s3 cp "${SRC}/loader.min.js" "${latest_path}/loader.min.js" "${latest_args[@]}"
 
           # Production also keeps an immutable copy at the loading-scripts
           # package version, so a pinned URL never moves under a caller.
@@ -335,8 +334,8 @@ jobs:
             versioned_path="s3://${BUCKET_NAME}/${BASE_DIR}/${loader_version}"
             versioned_args=(--cache-control "${VERSIONED_CACHE_CONTROL}")
 
-            aws s3 cp "${SRC}/loading-script.js" "${versioned_path}/loader.js" "${versioned_args[@]}"
-            aws s3 cp "${SRC}/loading-script.min.js" "${versioned_path}/loader.min.js" "${versioned_args[@]}"
+            aws s3 cp "${SRC}/loader.js" "${versioned_path}/loader.js" "${versioned_args[@]}"
+            aws s3 cp "${SRC}/loader.min.js" "${versioned_path}/loader.min.js" "${versioned_args[@]}"
           fi
 
       # The loader lives outside the s3_dir_path prefix, so the SDK artifact

@@ -25,6 +25,9 @@ const getBufferedCalls = () => Array.from(getBuffer());
 describe('CDN loader', () => {
   beforeEach(() => {
     jest.resetModules();
+    // The loader build sets this at build time; jest defaults it to false so
+    // the snippet shape is the default under test.
+    (window as unknown as { __IS_CDN_LOADER__: boolean }).__IS_CDN_LOADER__ = true;
     window.rudderanalytics = undefined;
     document.head.innerHTML = '';
     document.body.innerHTML = '';
@@ -168,19 +171,18 @@ describe('CDN loader', () => {
 describe('loading snippet', () => {
   beforeEach(() => {
     jest.resetModules();
+    (window as unknown as { __IS_CDN_LOADER__: boolean }).__IS_CDN_LOADER__ = false;
     window.rudderanalytics = undefined;
     document.head.innerHTML = '';
     document.body.innerHTML = '';
   });
 
-  it('omits the write key attribute when the placeholder is unsubstituted', async () => {
+  it('passes its write key through the script tag attribute', async () => {
     await import('../src');
 
-    // @rollup/plugin-replace substitutes the write key at build time. The raw
-    // source under jest is therefore the CDN loader shape: no write key, so no
-    // attribute to pass and nothing to configure. The substituted shape is
-    // exercised by the build, not by jest.
-    expect(getSdkScriptTag()).toBeDefined();
-    expect(getSdkScriptTag()?.hasAttribute('data-rsa-write-key')).toBe(false);
+    // The placeholder is substituted by @rollup/plugin-replace at build time,
+    // so under jest it stays literal. What matters is that the snippet build
+    // sets the attribute where the loader build does not.
+    expect(getSdkScriptTag()?.getAttribute('data-rsa-write-key')).toBe('__WRITE_KEY__');
   });
 });

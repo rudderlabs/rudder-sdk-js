@@ -14,7 +14,7 @@ const distName = 'loading-script';
 const modName = 'script';
 const shouldUglify = process.env.UGLIFY === 'true';
 
-export function getDefaultConfig(distName) {
+export function getDefaultConfig(distName, isCdnLoader = false) {
   const version = process.env.VERSION || 'dev-snapshot';
   const isLocalServerEnabled = process.env.DEV_SERVER;
 
@@ -35,6 +35,7 @@ export function getDefaultConfig(distName) {
     plugins: [
       replace({
         preventAssignment: true,
+        __IS_CDN_LOADER__: JSON.stringify(isCdnLoader),
         __WRITE_KEY__: process.env.WRITE_KEY,
         __DATAPLANE_URL__: process.env.DATAPLANE_URL,
         __PACKAGE_VERSION__: `'${version}'`,
@@ -122,22 +123,27 @@ export function getDefaultConfig(distName) {
 }
 
 const buildEntries = () => {
+  // One source, two artifacts. The snippet bakes in a write key and calls
+  // load(); the CDN loader does neither and takes its configuration from a
+  // buffered load call. __IS_CDN_LOADER__ is constant-folded, so each artifact
+  // keeps only its own branch.
   return [
-    {
-      ...getDefaultConfig(distName),
-      input: 'src/index.ts',
-      output: {
-        entryFileNames: `${distName}${shouldUglify ? '.min' : ''}.js`,
-        dir: outDirRoot,
-        format: 'iife',
-        name: modName,
-        sourcemap: false,
-        generatedCode: {
-          preset: 'es5',
-        },
+    { name: distName, isCdnLoader: false },
+    { name: 'loader', isCdnLoader: true },
+  ].map(({ name, isCdnLoader }) => ({
+    ...getDefaultConfig(name, isCdnLoader),
+    input: 'src/index.ts',
+    output: {
+      entryFileNames: `${name}${shouldUglify ? '.min' : ''}.js`,
+      dir: outDirRoot,
+      format: 'iife',
+      name: modName,
+      sourcemap: false,
+      generatedCode: {
+        preset: 'es5',
       },
     },
-  ];
+  }));
 };
 
 export default buildEntries();
