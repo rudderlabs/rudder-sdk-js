@@ -16,7 +16,10 @@ const shouldUglify = process.env.UGLIFY === 'true';
 
 export function getDefaultConfig(distName, isGtmBuild = false) {
   const version = process.env.VERSION || 'dev-snapshot';
-  const isLocalServerEnabled = process.env.DEV_SERVER;
+  // Only the primary build gets the dev server. Both configs are built on every
+  // run, and rollup-plugin-serve binds a fixed port, so enabling it for both
+  // fails with EADDRINUSE.
+  const isLocalServerEnabled = process.env.DEV_SERVER && distName === 'loader';
 
   return {
     watch: {
