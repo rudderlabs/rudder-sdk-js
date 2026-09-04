@@ -1,3 +1,5 @@
+// Source: ISO 4217 active currency minor units published by SIX Group.
+// https://www.six-group.com/dam/download/financial-information/data-center/iso-currrency/lists/list-one.xml
 const ISO_4217_EXPONENTS = {
   AED: 2,
   AFN: 2,
@@ -168,7 +170,7 @@ const ISO_4217_EXPONENTS = {
   ZWL: 2,
 };
 
-const MAX_SAFE_INTEGER = 9007199254740991;
+const MAX_SAFE_INTEGER = Math.pow(2, 53) - 1;
 
 const normalizeCurrency = currency => {
   if (typeof currency !== 'string') {

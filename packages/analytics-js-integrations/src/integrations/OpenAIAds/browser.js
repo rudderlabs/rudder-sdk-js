@@ -9,20 +9,9 @@ import {
   isEventFiltered,
   removeEmptyValues,
   resolveEvent,
-  resolvePixelId,
 } from './utils';
 
 const logger = new Logger(DISPLAY_NAME);
-
-const normalizeUserId = userId => {
-  if (typeof userId === 'string') {
-    return userId.trim();
-  }
-  if (typeof userId === 'number' || typeof userId === 'boolean') {
-    return String(userId);
-  }
-  return '';
-};
 
 class OpenAIAds {
   constructor(config = {}, analytics = {}, destinationInfo) {
@@ -33,13 +22,10 @@ class OpenAIAds {
     this.name = NAME;
     this.analytics = analytics;
     this.config = config;
-    this.pixelId = resolvePixelId(config);
-    this.eventMapping = config.eventMapping || [];
-    this.defaultCurrency = config.defaultCurrency;
-    this.defaultActionSource = config.defaultActionSource;
     this.userData = {};
     this.cookieObref = undefined;
     this.currentUserId = '';
+    this.pixelInitialized = false;
 
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
@@ -49,14 +35,26 @@ class OpenAIAds {
   }
 
   init() {
-    if (!this.pixelId) {
-      logger.error(LOGGER_MESSAGES.MISSING_PIXEL_ID);
+    if (!this.ensurePixelInitialized()) {
       return;
     }
 
-    loadNativeSdk();
-    initPixel(this.pixelId);
-    this.currentUserId = normalizeUserId(this.analytics?.getUserId?.());
+    this.currentUserId = this.analytics.getUserId?.() || '';
+  }
+
+  ensurePixelInitialized() {
+    if (!this.config.pixelId) {
+      logger.error(LOGGER_MESSAGES.MISSING_PIXEL_ID);
+      return false;
+    }
+
+    if (!this.pixelInitialized || typeof window.oaiq !== 'function') {
+      loadNativeSdk();
+      initPixel(this.config.pixelId);
+      this.pixelInitialized = true;
+    }
+
+    return true;
   }
 
   isLoaded() {
@@ -69,8 +67,8 @@ class OpenAIAds {
 
   getPayloadConfig() {
     return {
-      defaultCurrency: this.defaultCurrency,
-      defaultActionSource: this.defaultActionSource,
+      defaultCurrency: this.config.defaultCurrency,
+      defaultActionSource: this.config.defaultActionSource,
       eventFilteringOption: this.config.eventFilteringOption,
       whitelistedEvents: this.config.whitelistedEvents,
       blacklistedEvents: this.config.blacklistedEvents,
@@ -79,7 +77,7 @@ class OpenAIAds {
 
   updatePixelUser(user, allowEmpty = false) {
     const cleanedUser = removeEmptyValues(user);
-    if (Object.keys(cleanedUser).length > 0 || allowEmpty) {
+    if ((Object.keys(cleanedUser).length > 0 || allowEmpty) && typeof window.oaiq === 'function') {
       window.oaiq('init', { user: cleanedUser });
     }
   }
@@ -97,13 +95,17 @@ class OpenAIAds {
     this.currentUserId = userId;
     this.userData = {};
     this.cookieObref = undefined;
-    if (this.pixelId && typeof window.oaiq === 'function') {
-      window.oaiq('init', { pixelId: this.pixelId, user: {} });
+    if (this.config.pixelId && typeof window.oaiq === 'function') {
+      window.oaiq('init', { pixelId: this.config.pixelId, user: {} });
     }
   }
 
   syncUserId(message) {
-    const userId = normalizeUserId(message?.userId);
+    if (!Object.prototype.hasOwnProperty.call(message || {}, 'userId')) {
+      return;
+    }
+
+    const userId = message.userId || '';
     if (this.shouldResetSession(userId)) {
       this.resetSession(userId);
       return;
@@ -115,6 +117,10 @@ class OpenAIAds {
   }
 
   identify(rudderElement) {
+    if (!this.ensurePixelInitialized()) {
+      return;
+    }
+
     const message = rudderElement?.message || rudderElement || {};
     this.syncUserId(message);
     const user = buildUserData(message, logger);
@@ -141,9 +147,13 @@ class OpenAIAds {
   }
 
   sendConversionEvent(rudderElement, messageType) {
+    if (!this.ensurePixelInitialized()) {
+      return;
+    }
+
     const message = rudderElement?.message || rudderElement || {};
     this.syncUserId(message);
-    const resolvedEvent = resolveEvent(message, messageType, this.eventMapping);
+    const resolvedEvent = resolveEvent(message, messageType, this.config.eventMapping || []);
 
     if (resolvedEvent.error) {
       logger.error(resolvedEvent.error);
@@ -185,7 +195,7 @@ class OpenAIAds {
 
     window.oaiq(
       'measureSingle',
-      this.pixelId,
+      this.config.pixelId,
       resolvedEvent.eventName,
       eventDataResult.eventData,
       eventOptions,

@@ -1,28 +1,16 @@
-const NAME = 'OPENAI_ADS';
-const DISPLAY_NAME = 'OpenAI Ads';
+export {
+  OPENAI_ADS_NAME as NAME,
+  OPENAI_ADS_DISPLAY_NAME as DISPLAY_NAME,
+} from '../../constants/Destinations';
+
 const DIR_NAME = 'OpenAIAds';
 
 const PIXEL_URL = 'https://bzrcdn.openai.com/sdk/oaiq.min.js';
 const COOKIE_OBREF = '__obref';
 
-const STANDARD_EVENT_NAMES = [
-  'app_installed',
-  'app_opened',
-  'appointment_scheduled',
-  'checkout_started',
-  'contents_viewed',
-  'items_added',
-  'lead_created',
-  'order_created',
-  'page_viewed',
-  'registration_completed',
-  'subscription_created',
-  'trial_started',
-];
-
-const PIXEL_UNSUPPORTED_EVENTS = ['app_installed', 'app_opened'];
-
 const EVENT_DATA_SHAPES = {
+  app_installed: 'customer_action',
+  app_opened: 'customer_action',
   checkout_started: 'contents',
   contents_viewed: 'contents',
   items_added: 'contents',
@@ -34,6 +22,9 @@ const EVENT_DATA_SHAPES = {
   subscription_created: 'plan_enrollment',
   trial_started: 'plan_enrollment',
 };
+
+const STANDARD_EVENT_NAMES = Object.keys(EVENT_DATA_SHAPES);
+const PIXEL_UNSUPPORTED_EVENTS = ['app_installed', 'app_opened'];
 
 const CUSTOM_EVENT_TYPE = 'custom';
 
@@ -122,17 +113,7 @@ const LOGGER_MESSAGES = {
   FILTERED_EVENT: sourceKey => `OpenAI Ads event filtered by client-side settings for ${sourceKey}`,
 };
 
-const CNameMapping = {
-  [NAME]: NAME,
-  OpenAIAds: NAME,
-  OPENAIADS: NAME,
-  'OpenAI Ads': NAME,
-  'openai ads': NAME,
-};
-
 export {
-  NAME,
-  DISPLAY_NAME,
   DIR_NAME,
   PIXEL_URL,
   COOKIE_OBREF,
@@ -143,5 +124,4 @@ export {
   ALLOWED_ACTION_SOURCES,
   RESERVED_CUSTOM_PROPERTY_KEYS,
   LOGGER_MESSAGES,
-  CNameMapping,
 };

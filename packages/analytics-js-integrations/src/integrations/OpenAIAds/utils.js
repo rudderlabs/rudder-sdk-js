@@ -115,8 +115,6 @@ const getEventMappingIndex = eventMapping =>
     return acc;
   }, {});
 
-const resolvePixelId = config => trimString(config?.pixelId);
-
 const resolveEvent = (message, messageType, eventMapping) => {
   const sourceKey = messageType === 'track' ? trimString(message?.event) : trimString(message?.name);
   if (!sourceKey) {
@@ -191,7 +189,7 @@ const getDeduplicationId = (message, mappingRow) => {
     if (!isEmptyValue(configuredValue)) {
       if (!isScalar(configuredValue)) {
         return {
-          error: `OpenAI Ads deduplication key "${deduplicationKey}" must resolve to a string`,
+          error: `OpenAI Ads deduplication key "${deduplicationKey}" must resolve to a scalar value`,
         };
       }
       return { id: trimString(configuredValue) };
@@ -813,5 +811,4 @@ export {
   isEventFiltered,
   removeEmptyValues,
   resolveEvent,
-  resolvePixelId,
 };

@@ -59,18 +59,65 @@ describe('OpenAIAds initialization and registry', () => {
     expect(script.getAttribute('data-loader')).toBe('RS_JS_SDK');
     expect(Array.from(window.oaiq.queue[0])).toEqual(['init', { pixelId: 'pixel-123' }]);
     expect(JSON.stringify(window.oaiq.queue)).not.toContain('secret-api-key');
-    expect(integration.isLoaded()).toBe(false);
-
-    script.onload();
     expect(integration.isLoaded()).toBe(true);
     expect(integration.isReady()).toBe(true);
 
     const secondIntegration = makeIntegration();
     secondIntegration.init();
     expect(document.querySelectorAll(`script[src="${PIXEL_URL}"]`)).toHaveLength(1);
-    expect(window.oaiq.queue).toHaveLength(1);
+    expect(window.oaiq.queue).toHaveLength(2);
   });
 
+  test('guards identify and track when pixelId is missing', () => {
+    const integration = makeIntegration({ pixelId: undefined });
+
+    expect(() => {
+      integration.identify({
+        message: { type: 'identify', context: { traits: { email: 'person@example.com' } } },
+      });
+      integration.track({
+        message: {
+          type: 'track',
+          event: 'Product Viewed',
+          properties: {},
+          context: { page: { url: 'https://example.com/product' } },
+        },
+      });
+    }).not.toThrow();
+
+    expect(window.oaiq).toBeUndefined();
+    expect(
+      console.error.mock.calls.filter(call =>
+        call[0].includes('OpenAI Ads pixelId is required for initialization'),
+      ),
+    ).toHaveLength(2);
+  });
+
+  test('installs the pixel queue when identify is invoked before init', () => {
+    const integration = makeIntegration();
+
+    integration.identify({
+      message: { type: 'identify', context: { traits: { email: 'person@example.com' } } },
+    });
+
+    expect(Array.from(window.oaiq.queue[0])).toEqual(['init', { pixelId: 'pixel-123' }]);
+    expect(Array.from(window.oaiq.queue[1])).toEqual([
+      'init',
+      { user: { emails_sha256: [sha256('person@example.com').toString()] } },
+    ]);
+    expect(document.querySelectorAll(`script[src="${PIXEL_URL}"]`)).toHaveLength(1);
+  });
+
+  test('uses the pixel queue when the script tag already exists', () => {
+    document.head.innerHTML = `<script id="openai-ads-measurement-pixel" src="${PIXEL_URL}"></script>`;
+    const integration = makeIntegration();
+
+    integration.init();
+
+    expect(integration.isReady()).toBe(true);
+    expect(document.querySelectorAll('#openai-ads-measurement-pixel')).toHaveLength(1);
+    expect(Array.from(window.oaiq.queue[0])).toEqual(['init', { pixelId: 'pixel-123' }]);
+  });
 });
 
 describe('OpenAIAds identify', () => {
@@ -251,6 +298,33 @@ describe('OpenAIAds conversion events', () => {
       { id: 'post-reset' },
     ]);
     expect(window.oaiq).not.toHaveBeenCalledWith('init', { pixelId: 'pixel-123' });
+  });
+
+  test('does not clear pixel user state when userId is omitted from an event', () => {
+    const integration = initForCalls({}, { getUserId: () => 'User-123' });
+
+    integration.track({
+      message: {
+        type: 'track',
+        event: 'Product Viewed',
+        messageId: 'without-user-id',
+        properties: {},
+        context: { page: { url: 'https://example.com/no-user-id' } },
+      },
+    });
+
+    expect(window.oaiq).toHaveBeenCalledTimes(1);
+    expect(window.oaiq.mock.calls[0]).toEqual([
+      'measureSingle',
+      'pixel-123',
+      'contents_viewed',
+      {
+        type: 'contents',
+        action_source: 'web',
+        source_url: 'https://example.com/no-user-id',
+      },
+      { id: 'without-user-id' },
+    ]);
   });
 
   test('fires mapped custom events with custom properties and messageId fallback', () => {
@@ -484,7 +558,9 @@ describe('OpenAIAds conversion events', () => {
     );
     expect(
       console.error.mock.calls.some(call =>
-        call[0].includes('OpenAI Ads deduplication key "properties.orderId" must resolve to a string'),
+        call[0].includes(
+          'OpenAI Ads deduplication key "properties.orderId" must resolve to a scalar value',
+        ),
       ),
     ).toBe(true);
   });

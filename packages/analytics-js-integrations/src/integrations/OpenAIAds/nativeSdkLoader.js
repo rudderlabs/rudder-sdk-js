@@ -2,10 +2,8 @@ import { LOAD_ORIGIN } from '@rudderstack/analytics-js-legacy-utilities/constant
 import { PIXEL_URL } from './constants';
 
 const SCRIPT_ID = 'openai-ads-measurement-pixel';
-const initializedPixels = new Set();
 
 let sdkLoadStarted = false;
-let sdkLoaded = false;
 
 const installQueue = () => {
   if (typeof window.oaiq === 'function') {
@@ -34,14 +32,6 @@ const loadNativeSdk = () => {
   script.async = true;
   script.src = PIXEL_URL;
   script.setAttribute('data-loader', LOAD_ORIGIN);
-  script.onload = script.onreadystatechange = function () {
-    const readyState = this.readyState;
-    if (!readyState || readyState === 'loaded' || readyState === 'complete') {
-      sdkLoaded = true;
-      script.onload = null;
-      script.onreadystatechange = null;
-    }
-  };
 
   const firstScript = document.getElementsByTagName('script')[0];
   if (firstScript?.parentNode) {
@@ -52,19 +42,16 @@ const loadNativeSdk = () => {
 };
 
 const initPixel = pixelId => {
-  if (!pixelId || initializedPixels.has(pixelId)) {
+  if (!pixelId || typeof window.oaiq !== 'function') {
     return;
   }
-  initializedPixels.add(pixelId);
   window.oaiq('init', { pixelId });
 };
 
-const isNativeSdkLoaded = () => sdkLoaded === true && typeof window.oaiq === 'function';
+const isNativeSdkLoaded = () => typeof window.oaiq === 'function';
 
 const resetNativeSdkLoaderForTests = () => {
   sdkLoadStarted = false;
-  sdkLoaded = false;
-  initializedPixels.clear();
 };
 
 export { loadNativeSdk, initPixel, isNativeSdkLoaded, resetNativeSdkLoaderForTests };
