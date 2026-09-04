@@ -103,7 +103,6 @@ if (Array.isArray(rudderanalytics)) {
     };
 
     window.rudderAnalyticsMount = () => {
-      /* eslint-disable */
       // globalThis polyfill as polyfill-fastly.io one does not work in legacy safari
       (function () {
         if (typeof globalThis === 'undefined') {
@@ -127,7 +126,6 @@ if (Array.isArray(rudderanalytics)) {
           }
         }
       })();
-      /* eslint-enable */
 
       const sdkUrl = `${sdkBaseUrl}/${sdkVersion}/${window.rudderAnalyticsBuildType}/${sdkFileName}`;
 
