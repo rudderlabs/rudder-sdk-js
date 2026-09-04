@@ -2,7 +2,6 @@ import sha256 from 'crypto-js/sha256';
 import { normalizeCurrency, toMinorUnits } from './currency';
 import {
   ALLOWED_ACTION_SOURCES,
-  COOKIE_OBREF,
   CUSTOM_EVENT_TYPE,
   EVENT_DATA_SHAPES,
   LOGGER_MESSAGES,
@@ -339,8 +338,8 @@ const buildUserData = (message = {}, logger, extraUserData = {}) => {
       'traits.first_names',
       'context.traits.first_names',
       'traits.firstName',
-      'context.traits.firstName',
       'traits.first_name',
+      'context.traits.firstName',
       'context.traits.first_name',
     ],
     normalizeName,
@@ -359,8 +358,8 @@ const buildUserData = (message = {}, logger, extraUserData = {}) => {
       'traits.last_names',
       'context.traits.last_names',
       'traits.lastName',
-      'context.traits.lastName',
       'traits.last_name',
+      'context.traits.lastName',
       'context.traits.last_name',
     ],
     normalizeName,
@@ -379,10 +378,6 @@ const buildUserData = (message = {}, logger, extraUserData = {}) => {
         'context.traits.regions',
         'traits.region',
         'context.traits.region',
-        'traits.states',
-        'context.traits.states',
-        'traits.state',
-        'context.traits.state',
       ],
     },
     {
@@ -396,15 +391,18 @@ const buildUserData = (message = {}, logger, extraUserData = {}) => {
         'context.traits.postalCode',
         'traits.postal_code',
         'context.traits.postal_code',
-        'traits.zips',
-        'context.traits.zips',
-        'traits.zip',
-        'context.traits.zip',
       ],
     },
     {
       field: 'cities',
-      paths: ['traits.cities', 'context.traits.cities', 'traits.city', 'context.traits.city'],
+      paths: [
+        'traits.cities',
+        'context.traits.cities',
+        'traits.address.city',
+        'context.traits.address.city',
+        'traits.city',
+        'context.traits.city',
+      ],
     },
     {
       field: 'countries',
@@ -413,10 +411,6 @@ const buildUserData = (message = {}, logger, extraUserData = {}) => {
         'context.traits.countries',
         'traits.country',
         'context.traits.country',
-        'traits.countryCodes',
-        'context.traits.countryCodes',
-        'traits.countryCode',
-        'context.traits.countryCode',
       ],
     },
   ];
@@ -458,30 +452,6 @@ const buildUserData = (message = {}, logger, extraUserData = {}) => {
 
   return removeEmptyValues(user);
 };
-
-const getCookieValue = cookieName => {
-  if (typeof document === 'undefined' || typeof document.cookie !== 'string') {
-    return undefined;
-  }
-
-  const cookie = document.cookie
-    .split(';')
-    .map(item => item.trim())
-    .find(item => item.startsWith(`${cookieName}=`));
-
-  if (!cookie) {
-    return undefined;
-  }
-
-  const value = cookie.slice(cookieName.length + 1);
-  try {
-    return decodeURIComponent(value);
-  } catch (_) {
-    return value;
-  }
-};
-
-const getObrefFromCookie = () => trimString(getCookieValue(COOKIE_OBREF));
 
 const getAmountValue = properties => {
   if (!properties) {
@@ -807,7 +777,6 @@ export {
   buildEventData,
   buildUserData,
   getDeduplicationId,
-  getObrefFromCookie,
   isEventFiltered,
   removeEmptyValues,
   resolveEvent,

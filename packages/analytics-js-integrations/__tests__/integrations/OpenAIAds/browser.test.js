@@ -34,7 +34,6 @@ const getUserInitCall = () => window.oaiq.mock.calls.find(call => call[0] === 'i
 
 beforeEach(() => {
   document.head.innerHTML = '<script id="dummyScript"></script>';
-  document.cookie = '__obref=; Max-Age=0';
   delete window.oaiq;
   resetNativeSdkLoaderForTests();
   jest.spyOn(console, 'error').mockImplementation(() => {});
@@ -587,7 +586,7 @@ describe('OpenAIAds conversion events', () => {
     expect(window.oaiq.mock.calls[1][0]).toBe('measureSingle');
   });
 
-  test('reads __obref at send time without caching it', () => {
+  test('does not forward __obref cookie because the pixel handles it', () => {
     const integration = initForCalls();
 
     document.cookie = '__obref=first-obref';
@@ -600,21 +599,9 @@ describe('OpenAIAds conversion events', () => {
         context: { page: { url: 'https://example.com/first' } },
       },
     });
-    document.cookie = '__obref=; Max-Age=0';
-    integration.track({
-      message: {
-        type: 'track',
-        event: 'Product Viewed',
-        messageId: 'second',
-        properties: {},
-        context: { page: { url: 'https://example.com/second' } },
-      },
-    });
 
-    expect(window.oaiq.mock.calls[0]).toEqual(['init', { user: { obref: 'first-obref' } }]);
-    expect(window.oaiq.mock.calls[2]).toEqual(['init', { user: {} }]);
-    expect(window.oaiq.mock.calls.filter(call => call[0] === 'init')).toHaveLength(2);
-    expect(window.oaiq.mock.calls.filter(call => call[0] === 'measureSingle')).toHaveLength(2);
+    expect(window.oaiq.mock.calls.filter(call => call[0] === 'init')).toHaveLength(0);
+    expect(window.oaiq.mock.calls.filter(call => call[0] === 'measureSingle')).toHaveLength(1);
   });
 
   test('honors client-side allowlist, denylist, and disabled filtering settings', () => {

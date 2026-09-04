@@ -6,7 +6,6 @@ export {
 const DIR_NAME = 'OpenAIAds';
 
 const PIXEL_URL = 'https://bzrcdn.openai.com/sdk/oaiq.min.js';
-const COOKIE_OBREF = '__obref';
 
 const EVENT_DATA_SHAPES = {
   app_installed: 'customer_action',
@@ -116,7 +115,6 @@ const LOGGER_MESSAGES = {
 export {
   DIR_NAME,
   PIXEL_URL,
-  COOKIE_OBREF,
   STANDARD_EVENT_NAMES,
   PIXEL_UNSUPPORTED_EVENTS,
   EVENT_DATA_SHAPES,

@@ -5,7 +5,6 @@ import {
   buildEventData,
   buildUserData,
   getDeduplicationId,
-  getObrefFromCookie,
   isEventFiltered,
   removeEmptyValues,
   resolveEvent,
@@ -23,7 +22,6 @@ class OpenAIAds {
     this.analytics = analytics;
     this.config = config;
     this.userData = {};
-    this.cookieObref = undefined;
     this.currentUserId = '';
     this.pixelInitialized = false;
 
@@ -94,7 +92,6 @@ class OpenAIAds {
   resetSession(userId) {
     this.currentUserId = userId;
     this.userData = {};
-    this.cookieObref = undefined;
     if (this.config.pixelId && typeof window.oaiq === 'function') {
       window.oaiq('init', { pixelId: this.config.pixelId, user: {} });
     }
@@ -172,15 +169,9 @@ class OpenAIAds {
     }
 
     const eventUserData = buildUserData(message, logger);
-    const cookieObref = getObrefFromCookie();
-    const hasCookieObrefChanged = this.cookieObref !== cookieObref;
     const pixelUserData = { ...this.userData, ...eventUserData };
-    if (cookieObref) {
-      pixelUserData.obref = cookieObref;
-    }
-    if (Object.keys(eventUserData).length > 0 || hasCookieObrefChanged) {
-      this.updatePixelUser(pixelUserData, hasCookieObrefChanged);
-      this.cookieObref = cookieObref;
+    if (Object.keys(eventUserData).length > 0) {
+      this.updatePixelUser(pixelUserData);
     }
 
     const deduplicationResult = getDeduplicationId(message, resolvedEvent.mappingRow);
