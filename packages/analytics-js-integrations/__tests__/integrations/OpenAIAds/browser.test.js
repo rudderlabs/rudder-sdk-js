@@ -161,7 +161,9 @@ describe('OpenAIAds identify', () => {
 
   test('skips identify when there is no usable user data', () => {
     const integration = initForCalls();
-    integration.identify({ message: { type: 'identify', context: { traits: { email: 'not-valid' } } } });
+    integration.identify({
+      message: { type: 'identify', context: { traits: { email: 'not-valid' } } },
+    });
 
     expect(window.oaiq).not.toHaveBeenCalled();
     expect(
@@ -186,6 +188,30 @@ describe('OpenAIAds identify', () => {
         call[0].includes('OpenAI Ads rejected apparent pre-hashed value for email'),
       ),
     ).toBe(true);
+  });
+
+  test('skips non-scalar trait paths and falls through to later ones', () => {
+    const integration = initForCalls();
+
+    integration.identify({
+      message: {
+        type: 'identify',
+        context: {
+          traits: { email: 'person@example.com' },
+          ip: { nested: 'not-a-scalar' },
+          userAgent: 'Mozilla/5.0',
+        },
+        request_ip: '5.6.7.8',
+      },
+    });
+
+    expect(window.oaiq).toHaveBeenCalledWith('init', {
+      user: {
+        emails_sha256: [sha256('person@example.com').toString()],
+        ip_address: '5.6.7.8',
+        user_agent: 'Mozilla/5.0',
+      },
+    });
   });
 
   test('clears pixel user state before identify when userId changes, then repopulates', () => {
@@ -343,10 +369,7 @@ describe('OpenAIAds conversion events', () => {
               safe: 'kept',
             },
           },
-          customList: [
-            { label: 'allowed', phone: '5551200100' },
-            { email: 'drop@example.com' },
-          ],
+          customList: [{ label: 'allowed', phone: '5551200100' }, { email: 'drop@example.com' }],
           email: 'drop@example.com',
           emptyValue: '',
         },
@@ -392,6 +415,85 @@ describe('OpenAIAds conversion events', () => {
     ).toBe(true);
   });
 
+  test('skips non-scalar property aliases and falls through to later ones', () => {
+    const integration = initForCalls();
+
+    integration.track({
+      message: {
+        type: 'track',
+        event: 'Product Viewed',
+        messageId: 'fallback-alias',
+        properties: {
+          action_source: ['not-a-scalar'],
+          actionSource: 'offline',
+          source_url: ['not-a-scalar'],
+        },
+        context: { page: { url: 'https://example.com/fallback' } },
+      },
+    });
+
+    expect(getMeasureCall()).toEqual([
+      'measureSingle',
+      'pixel-123',
+      'contents_viewed',
+      {
+        type: 'contents',
+        action_source: 'offline',
+        source_url: 'https://example.com/fallback',
+      },
+      { id: 'fallback-alias' },
+    ]);
+  });
+
+  test('maps events named after Object prototype members', () => {
+    const integration = initForCalls({
+      eventMapping: [{ from: 'constructor', to: 'order_created' }],
+    });
+
+    integration.track({
+      message: {
+        type: 'track',
+        event: 'constructor',
+        messageId: 'proto-id',
+        properties: {},
+        context: { page: { url: 'https://example.com/proto' } },
+      },
+    });
+
+    expect(getMeasureCall()).toEqual([
+      'measureSingle',
+      'pixel-123',
+      'order_created',
+      {
+        type: 'contents',
+        action_source: 'web',
+        source_url: 'https://example.com/proto',
+      },
+      { id: 'proto-id' },
+    ]);
+  });
+
+  test('does not resolve unmapped Object prototype members as event mappings', () => {
+    const integration = initForCalls({ eventMapping: [] });
+
+    integration.track({
+      message: {
+        type: 'track',
+        event: 'constructor',
+        messageId: 'proto-id',
+        properties: {},
+        context: { page: { url: 'https://example.com/proto' } },
+      },
+    });
+
+    expect(window.oaiq).not.toHaveBeenCalled();
+    expect(
+      console.error.mock.calls.some(call =>
+        call[0].includes('OpenAI Ads event mapping not found for constructor'),
+      ),
+    ).toBe(true);
+  });
+
   test('skips web action-source events without a valid source URL', () => {
     const integration = initForCalls();
 
@@ -400,7 +502,9 @@ describe('OpenAIAds conversion events', () => {
     expect(window.oaiq).not.toHaveBeenCalled();
     expect(
       console.error.mock.calls.some(call =>
-        call[0].includes('OpenAI Ads event skipped: source_url is required when action_source is web'),
+        call[0].includes(
+          'OpenAI Ads event skipped: source_url is required when action_source is web',
+        ),
       ),
     ).toBe(true);
   });
@@ -419,7 +523,9 @@ describe('OpenAIAds conversion events', () => {
       ),
     ).toBe(true);
     expect(
-      console.error.mock.calls.some(call => call[0].includes('OpenAI Ads source event key is required')),
+      console.error.mock.calls.some(call =>
+        call[0].includes('OpenAI Ads source event key is required'),
+      ),
     ).toBe(true);
     expect(
       console.error.mock.calls.some(call =>
@@ -502,10 +608,7 @@ describe('OpenAIAds conversion events', () => {
         source_url: 'https://example.com/subscribe',
         amount: 2500,
         currency: 'USD',
-        contents: [
-          { id: 'plan-pro', name: 'Pro plan', quantity: 1 },
-          { id: 'plan-basic' },
-        ],
+        contents: [{ id: 'plan-pro', name: 'Pro plan', quantity: 1 }, { id: 'plan-basic' }],
       },
       { id: 'subscription-id' },
     ]);
@@ -549,12 +652,12 @@ describe('OpenAIAds conversion events', () => {
         call[0].includes('Unsupported OpenAI Ads action_source: invalid_source'),
       ),
     ).toBe(true);
-    expect(console.error.mock.calls.some(call => call[0].includes('opt_out must be a boolean'))).toBe(
-      true,
-    );
-    expect(console.error.mock.calls.some(call => call[0].includes('Unsupported currency code: NOPE'))).toBe(
-      true,
-    );
+    expect(
+      console.error.mock.calls.some(call => call[0].includes('opt_out must be a boolean')),
+    ).toBe(true);
+    expect(
+      console.error.mock.calls.some(call => call[0].includes('Unsupported currency code: NOPE')),
+    ).toBe(true);
     expect(
       console.error.mock.calls.some(call =>
         call[0].includes(
@@ -603,7 +706,6 @@ describe('OpenAIAds conversion events', () => {
     expect(window.oaiq.mock.calls.filter(call => call[0] === 'init')).toHaveLength(0);
     expect(window.oaiq.mock.calls.filter(call => call[0] === 'measureSingle')).toHaveLength(1);
   });
-
 });
 
 describe('OpenAIAds currency helper', () => {

@@ -11,10 +11,10 @@ import {
 } from './constants';
 
 const SHA256_HEX_REGEX = /^[\da-f]{64}$/i;
-const EMAIL_REGEX = /^(([^\s"(),.:;<>@[\\\]]+(\.[^\s"(),.:;<>@[\\\]]+)*)|(".+"))@((\[(?:\d{1,3}\.){3}\d{1,3}])|(([\dA-Za-z-]+\.)+[A-Za-z]{2,}))$/;
+const EMAIL_REGEX =
+  /^(([^\s"(),.:;<>@[\\\]]+(\.[^\s"(),.:;<>@[\\\]]+)*)|(".+"))@((\[(?:\d{1,3}\.){3}\d{1,3}])|(([\dA-Za-z-]+\.)+[A-Za-z]{2,}))$/;
 
-const isPlainObject = value =>
-  value !== null && typeof value === 'object' && !Array.isArray(value);
+const isPlainObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 
 const isScalar = value =>
   ['string', 'number', 'boolean'].indexOf(typeof value) !== -1 && Number.isNaN(value) === false;
@@ -54,29 +54,7 @@ const removeEmptyValues = obj =>
     return acc;
   }, {});
 
-const getFirstUsableValue = (source, keys) => {
-  if (!source) {
-    return undefined;
-  }
-  for (const key of keys) {
-    const value = source[key];
-    if (!isEmptyValue(value)) {
-      return value;
-    }
-  }
-  return undefined;
-};
-
 const toArray = value => (Array.isArray(value) ? value : [value]);
-
-const normalizeList = value => {
-  if (isEmptyValue(value)) {
-    return [];
-  }
-  return toArray(value)
-    .map(trimString)
-    .filter(Boolean);
-};
 
 const getNestedValue = (object, path) => {
   if (!path || typeof path !== 'string') {
@@ -103,8 +81,39 @@ const getNestedValue = (object, path) => {
   }, object);
 };
 
+// Single lookup primitive: first usable value across an ordered list of keys or dotted paths.
+const pick = (source, paths) => {
+  for (const path of paths) {
+    const value = getNestedValue(source, path);
+    if (!isEmptyValue(value)) {
+      return value;
+    }
+  }
+  return undefined;
+};
+
+// Trims per path rather than trimming pick()'s result: a non-scalar at an earlier
+// path must be skipped so the remaining paths are still tried, not win and then
+// trim away to undefined.
+const pickString = (source, paths) => {
+  for (const path of paths) {
+    const value = trimString(getNestedValue(source, path));
+    if (value) {
+      return value;
+    }
+  }
+  return undefined;
+};
+
+const pickList = (source, paths) => {
+  const value = pick(source, paths);
+  return isEmptyValue(value) ? [] : toArray(value);
+};
+
 const normalizeMappingKey = value => (typeof value === 'string' ? value.trim().toLowerCase() : '');
 
+// Null prototype so that a source event named "constructor" or "toString" cannot
+// resolve to an inherited Object member instead of a configured mapping row.
 const getEventMappingIndex = eventMapping =>
   (Array.isArray(eventMapping) ? eventMapping : []).reduce((acc, row) => {
     const key = normalizeMappingKey(row?.from);
@@ -112,50 +121,49 @@ const getEventMappingIndex = eventMapping =>
       acc[key] = row;
     }
     return acc;
-  }, {});
+  }, Object.create(null));
 
-const resolveEvent = (message, messageType, eventMapping) => {
-  const sourceKey = messageType === 'track' ? trimString(message?.event) : trimString(message?.name);
+const resolveEvent = (message, messageType, eventMappingIndex) => {
+  const sourceKey =
+    messageType === 'track' ? trimString(message?.event) : trimString(message?.name);
   if (!sourceKey) {
     return { error: LOGGER_MESSAGES.MISSING_SOURCE_KEY };
   }
 
-  const mappingRow = getEventMappingIndex(eventMapping)[normalizeMappingKey(sourceKey)];
-  let eventType;
-  let eventName;
-  let isCustom = false;
-
-  if (mappingRow) {
-    const mappedTo = trimString(mappingRow.to);
-    if (mappedTo === CUSTOM_EVENT_TYPE) {
-      const customEventName = trimString(mappingRow.customEventName);
-      if (!customEventName) {
-        return { error: LOGGER_MESSAGES.CUSTOM_MAPPING_MISSING_NAME };
-      }
-      eventType = CUSTOM_EVENT_TYPE;
-      eventName = customEventName;
-      isCustom = true;
-    } else if (STANDARD_EVENT_NAMES.includes(mappedTo)) {
-      eventType = mappedTo;
-      eventName = mappedTo;
-    } else {
-      return { error: LOGGER_MESSAGES.MAPPING_NOT_FOUND(sourceKey) };
-    }
-  } else {
+  const mappingRow = eventMappingIndex?.[normalizeMappingKey(sourceKey)];
+  if (!mappingRow) {
     return { error: LOGGER_MESSAGES.MAPPING_NOT_FOUND(sourceKey) };
   }
 
-  if (PIXEL_UNSUPPORTED_EVENTS.includes(eventType)) {
-    return { error: LOGGER_MESSAGES.UNSUPPORTED_PIXEL_EVENT(eventType) };
+  const mappedTo = trimString(mappingRow.to);
+
+  if (mappedTo === CUSTOM_EVENT_TYPE) {
+    const customEventName = trimString(mappingRow.customEventName);
+    if (!customEventName) {
+      return { error: LOGGER_MESSAGES.CUSTOM_MAPPING_MISSING_NAME };
+    }
+    return {
+      sourceKey,
+      mappingRow,
+      eventName: customEventName,
+      isCustom: true,
+      dataType: CUSTOM_EVENT_TYPE,
+    };
+  }
+
+  if (!STANDARD_EVENT_NAMES.includes(mappedTo)) {
+    return { error: LOGGER_MESSAGES.MAPPING_NOT_FOUND(sourceKey) };
+  }
+  if (PIXEL_UNSUPPORTED_EVENTS.includes(mappedTo)) {
+    return { error: LOGGER_MESSAGES.UNSUPPORTED_PIXEL_EVENT(mappedTo) };
   }
 
   return {
     sourceKey,
     mappingRow,
-    eventType,
-    eventName,
-    isCustom,
-    dataType: isCustom ? CUSTOM_EVENT_TYPE : EVENT_DATA_SHAPES[eventType],
+    eventName: mappedTo,
+    isCustom: false,
+    dataType: EVENT_DATA_SHAPES[mappedTo],
   };
 };
 
@@ -174,8 +182,6 @@ const getDeduplicationId = (message, mappingRow) => {
   }
   return { id: trimString(message?.messageId) };
 };
-
-const hashNormalized = value => sha256(value).toString();
 
 const normalizeEmail = value => {
   const email = trimString(value)?.toLowerCase();
@@ -197,70 +203,20 @@ const normalizeName = value => {
 
 const normalizeExternalId = value => trimString(value)?.toLowerCase();
 
-const collectValuesFromPaths = (message, paths) => {
-  for (const path of paths) {
-    const value = getNestedValue(message, path);
-    if (!isEmptyValue(value)) {
-      return toArray(value);
-    }
-  }
-  return [];
-};
-
-const collectFirstRawValue = (message, paths) => {
-  for (const path of paths) {
-    const value = trimString(getNestedValue(message, path));
-    if (value) {
-      return value;
-    }
-  }
-  return undefined;
-};
-
-const normalizeAndHashValues = (message, paths, normalizer, fieldName, logger) => {
-  const values = collectValuesFromPaths(message, paths);
-  const hashedValues = [];
-
-  values.forEach(value => {
-    const raw = trimString(value);
-    if (!raw) {
-      return;
-    }
-    if (SHA256_HEX_REGEX.test(raw)) {
-      logger?.error(LOGGER_MESSAGES.HASHED_PII_REJECTED(fieldName));
-      return;
-    }
-    const normalized = normalizer(raw);
-    if (normalized) {
-      hashedValues.push(hashNormalized(normalized));
-    }
-  });
-
-  return [...new Set(hashedValues)];
-};
-
-const normalizeRawArrayValues = (message, paths) => {
-  const values = collectValuesFromPaths(message, paths);
-  return [...new Set(normalizeList(values))];
-};
-
-const buildUserData = (message = {}, logger, extraUserData = {}) => {
-  const user = {};
-
-  const emails = normalizeAndHashValues(
-    message,
-    ['traits.emails', 'context.traits.emails', 'traits.email', 'context.traits.email'],
-    normalizeEmail,
-    'email',
-    logger,
-  );
-  if (emails.length > 0) {
-    user.emails_sha256 = emails;
-  }
-
-  const phones = normalizeAndHashValues(
-    message,
-    [
+// field: pixel payload key. normalize: hash the values after normalizing (PII).
+// single: take one scalar instead of a de-duplicated list.
+const USER_FIELD_SPECS = [
+  {
+    field: 'emails_sha256',
+    label: 'email',
+    normalize: normalizeEmail,
+    paths: ['traits.emails', 'context.traits.emails', 'traits.email', 'context.traits.email'],
+  },
+  {
+    field: 'phone_numbers_sha256',
+    label: 'phone',
+    normalize: normalizePhone,
+    paths: [
       'traits.phoneNumbers',
       'context.traits.phoneNumbers',
       'traits.phone_numbers',
@@ -270,17 +226,12 @@ const buildUserData = (message = {}, logger, extraUserData = {}) => {
       'traits.phone',
       'context.traits.phone',
     ],
-    normalizePhone,
-    'phone',
-    logger,
-  );
-  if (phones.length > 0) {
-    user.phone_numbers_sha256 = phones;
-  }
-
-  const externalIds = normalizeAndHashValues(
-    message,
-    [
+  },
+  {
+    field: 'external_ids_sha256',
+    label: 'external_id',
+    normalize: normalizeExternalId,
+    paths: [
       'traits.externalIds',
       'context.traits.externalIds',
       'traits.external_ids',
@@ -291,17 +242,12 @@ const buildUserData = (message = {}, logger, extraUserData = {}) => {
       'context.traits.external_id',
       'userId',
     ],
-    normalizeExternalId,
-    'external_id',
-    logger,
-  );
-  if (externalIds.length > 0) {
-    user.external_ids_sha256 = externalIds;
-  }
-
-  const firstNames = normalizeAndHashValues(
-    message,
-    [
+  },
+  {
+    field: 'first_names_sha256',
+    label: 'first_name',
+    normalize: normalizeName,
+    paths: [
       'traits.firstNames',
       'context.traits.firstNames',
       'traits.first_names',
@@ -311,17 +257,12 @@ const buildUserData = (message = {}, logger, extraUserData = {}) => {
       'context.traits.firstName',
       'context.traits.first_name',
     ],
-    normalizeName,
-    'first_name',
-    logger,
-  );
-  if (firstNames.length > 0) {
-    user.first_names_sha256 = firstNames;
-  }
-
-  const lastNames = normalizeAndHashValues(
-    message,
-    [
+  },
+  {
+    field: 'last_names_sha256',
+    label: 'last_name',
+    normalize: normalizeName,
+    paths: [
       'traits.lastNames',
       'context.traits.lastNames',
       'traits.last_names',
@@ -331,112 +272,96 @@ const buildUserData = (message = {}, logger, extraUserData = {}) => {
       'context.traits.lastName',
       'context.traits.last_name',
     ],
-    normalizeName,
-    'last_name',
-    logger,
-  );
-  if (lastNames.length > 0) {
-    user.last_names_sha256 = lastNames;
-  }
+  },
+  {
+    field: 'regions',
+    paths: ['traits.regions', 'context.traits.regions', 'traits.region', 'context.traits.region'],
+  },
+  {
+    field: 'postal_codes',
+    paths: [
+      'traits.postalCodes',
+      'context.traits.postalCodes',
+      'traits.postal_codes',
+      'context.traits.postal_codes',
+      'traits.postalCode',
+      'context.traits.postalCode',
+      'traits.postal_code',
+      'context.traits.postal_code',
+    ],
+  },
+  {
+    field: 'cities',
+    paths: [
+      'traits.cities',
+      'context.traits.cities',
+      'traits.address.city',
+      'context.traits.address.city',
+      'traits.city',
+      'context.traits.city',
+    ],
+  },
+  {
+    field: 'countries',
+    paths: [
+      'traits.countries',
+      'context.traits.countries',
+      'traits.country',
+      'context.traits.country',
+    ],
+  },
+  { field: 'obref', single: true, paths: ['traits.obref', 'context.traits.obref'] },
+  {
+    field: 'android_advertising_id',
+    single: true,
+    paths: [
+      'traits.android_advertising_id',
+      'context.traits.android_advertising_id',
+      'traits.androidAdvertisingId',
+      'context.traits.androidAdvertisingId',
+      'context.device.advertisingId',
+    ],
+  },
+  { field: 'ip_address', single: true, paths: ['context.ip', 'request_ip'] },
+  { field: 'user_agent', single: true, paths: ['context.userAgent', 'context.user_agent'] },
+];
 
-  const rawArrayMappings = [
-    {
-      field: 'regions',
-      paths: [
-        'traits.regions',
-        'context.traits.regions',
-        'traits.region',
-        'context.traits.region',
-      ],
-    },
-    {
-      field: 'postal_codes',
-      paths: [
-        'traits.postalCodes',
-        'context.traits.postalCodes',
-        'traits.postal_codes',
-        'context.traits.postal_codes',
-        'traits.postalCode',
-        'context.traits.postalCode',
-        'traits.postal_code',
-        'context.traits.postal_code',
-      ],
-    },
-    {
-      field: 'cities',
-      paths: [
-        'traits.cities',
-        'context.traits.cities',
-        'traits.address.city',
-        'context.traits.address.city',
-        'traits.city',
-        'context.traits.city',
-      ],
-    },
-    {
-      field: 'countries',
-      paths: [
-        'traits.countries',
-        'context.traits.countries',
-        'traits.country',
-        'context.traits.country',
-      ],
-    },
-  ];
-
-  rawArrayMappings.forEach(({ field, paths }) => {
-    const values = normalizeRawArrayValues(message, paths);
-    if (values.length > 0) {
-      user[field] = values;
+const hashUserValues = (message, { paths, normalize, label }, logger) => {
+  const hashed = pickList(message, paths).reduce((acc, value) => {
+    const raw = trimString(value);
+    if (!raw) {
+      return acc;
     }
-  });
-
-  const obref =
-    collectFirstRawValue(message, ['traits.obref', 'context.traits.obref']) ||
-    trimString(extraUserData.obref);
-  if (obref) {
-    user.obref = obref;
-  }
-
-  const androidAdvertisingId = collectFirstRawValue(message, [
-    'traits.android_advertising_id',
-    'context.traits.android_advertising_id',
-    'traits.androidAdvertisingId',
-    'context.traits.androidAdvertisingId',
-    'context.device.advertisingId',
-  ]);
-  if (androidAdvertisingId) {
-    user.android_advertising_id = androidAdvertisingId;
-  }
-
-  const ipAddress = collectFirstRawValue(message, ['context.ip', 'request_ip']);
-  if (ipAddress) {
-    user.ip_address = ipAddress;
-  }
-
-  const userAgent = collectFirstRawValue(message, ['context.userAgent', 'context.user_agent']);
-  if (userAgent) {
-    user.user_agent = userAgent;
-  }
-
-  return removeEmptyValues(user);
+    if (SHA256_HEX_REGEX.test(raw)) {
+      logger?.error(LOGGER_MESSAGES.HASHED_PII_REJECTED(label));
+      return acc;
+    }
+    const normalized = normalize(raw);
+    if (normalized) {
+      acc.push(sha256(normalized).toString());
+    }
+    return acc;
+  }, []);
+  return [...new Set(hashed)];
 };
 
-const getAmountValue = properties => {
-  if (!properties) {
-    return undefined;
+const resolveUserField = (message, spec, logger) => {
+  if (spec.single) {
+    return pickString(message, spec.paths);
   }
-  if (!isEmptyValue(properties.amount)) {
-    return properties.amount;
+  if (spec.normalize) {
+    return hashUserValues(message, spec, logger);
   }
-  if (!isEmptyValue(properties.value)) {
-    return properties.value;
-  }
-  if (!isEmptyValue(properties.revenue)) {
-    return properties.revenue;
-  }
-  return undefined;
+  return [...new Set(pickList(message, spec.paths).map(trimString).filter(Boolean))];
 };
+
+const buildUserData = (message = {}, logger) =>
+  removeEmptyValues(
+    USER_FIELD_SPECS.reduce((user, spec) => {
+      user[spec.field] = resolveUserField(message, spec, logger);
+      return user;
+    }, {}),
+  );
 
 const resolveCurrency = (properties, defaultCurrency) => {
   const rawCurrency = trimString(properties?.currency) || trimString(defaultCurrency);
@@ -460,14 +385,10 @@ const getPositiveInteger = value => {
   return Number.isInteger(numberValue) && numberValue > 0 ? numberValue : null;
 };
 
-const getMappedContentItem = (item, eventCurrency, defaultCurrency) => {
-  if (!isPlainObject(item)) {
-    return { invalid: true };
-  }
-
-  const content = {};
-  const id = trimString(
-    getFirstUsableValue(item, [
+const CONTENT_FIELD_SPECS = [
+  {
+    field: 'id',
+    aliases: [
       'id',
       'content_id',
       'contentId',
@@ -476,95 +397,76 @@ const getMappedContentItem = (item, eventCurrency, defaultCurrency) => {
       'product_id',
       'productId',
       'sku',
-    ]),
-  );
-  if (id) {
-    content.id = id;
+    ],
+  },
+  { field: 'name', aliases: ['name', 'title', 'product_name', 'productName'] },
+  {
+    field: 'content_type',
+    aliases: ['content_type', 'contentType', 'type', 'category', 'product_category'],
+  },
+  { field: 'group_id', aliases: ['group_id', 'groupId'] },
+];
+
+const getMappedContentItem = (item, eventCurrency, defaultCurrency) => {
+  if (!isPlainObject(item)) {
+    return { error: 'invalid content item' };
   }
 
-  const name = trimString(getFirstUsableValue(item, ['name', 'title', 'product_name', 'productName']));
-  if (name) {
-    content.name = name;
-  }
+  const content = CONTENT_FIELD_SPECS.reduce((acc, { field, aliases }) => {
+    acc[field] = trimString(pick(item, aliases));
+    return acc;
+  }, {});
 
-  const contentType = trimString(
-    getFirstUsableValue(item, [
-      'content_type',
-      'contentType',
-      'type',
-      'category',
-      'product_category',
-    ]),
-  );
-  if (contentType) {
-    content.content_type = contentType;
-  }
-
-  const groupId = trimString(getFirstUsableValue(item, ['group_id', 'groupId']));
-  if (groupId) {
-    content.group_id = groupId;
-  }
-
-  const variantDict = getFirstUsableValue(item, ['variant_dict', 'variantDict']);
+  const variantDict = pick(item, ['variant_dict', 'variantDict']);
   if (isPlainObject(variantDict)) {
     content.variant_dict = variantDict;
   }
 
-  const quantityValue = getFirstUsableValue(item, ['quantity', 'count']);
-  const quantity = getPositiveInteger(quantityValue);
+  const quantity = getPositiveInteger(pick(item, ['quantity', 'count']));
   if (quantity === null) {
-    return { invalid: true };
+    return { error: 'invalid content item quantity' };
   }
-  if (quantity !== undefined) {
-    content.quantity = quantity;
-  }
+  content.quantity = quantity;
 
-  const itemAmountValue = getFirstUsableValue(item, ['amount', 'value', 'price']);
+  const itemAmountValue = pick(item, ['amount', 'value', 'price']);
   if (!isEmptyValue(itemAmountValue)) {
     const itemCurrencyResult = resolveCurrency(
-      {
-        currency:
-          getFirstUsableValue(item, ['currency', 'currency_code', 'currencyCode']) ||
-          eventCurrency,
-      },
+      { currency: pick(item, ['currency', 'currency_code', 'currencyCode']) || eventCurrency },
       defaultCurrency,
     );
     if (itemCurrencyResult.error) {
-      return { invalid: true };
+      // Prefixed so an item-level failure is not mistaken for the event-level currency error.
+      return { error: `invalid content item currency: ${itemCurrencyResult.error}` };
     }
-    const itemCurrency = itemCurrencyResult.currency;
-    const amount = toMinorUnits(itemAmountValue, itemCurrency);
+    const amount = toMinorUnits(itemAmountValue, itemCurrencyResult.currency);
     if (amount === undefined) {
-      return { invalid: true };
+      return { error: 'invalid content item amount' };
     }
     content.amount = amount;
-    content.currency = itemCurrency;
+    content.currency = itemCurrencyResult.currency;
   }
 
   return { content: removeEmptyValues(content) };
 };
 
 const buildContents = (properties, defaultCurrency, isCustomEvent) => {
-  const contentInput = !isEmptyValue(properties?.contents) ? properties.contents : properties?.products;
+  const contentInput = !isEmptyValue(properties?.contents)
+    ? properties.contents
+    : properties?.products;
   if (isEmptyValue(contentInput)) {
     return { contents: undefined };
-  }
-
-  const contentItems = Array.isArray(contentInput) ? contentInput : [contentInput];
-  if (!contentItems.every(isPlainObject)) {
-    return { error: 'invalid content item' };
   }
 
   const eventCurrencyResult = resolveCurrency(properties, defaultCurrency);
   if (eventCurrencyResult.error) {
     return { error: eventCurrencyResult.error };
   }
-  const eventCurrency = eventCurrencyResult.currency;
+
   const contents = [];
-  for (const contentItem of contentItems) {
-    const mapped = getMappedContentItem(contentItem, eventCurrency, defaultCurrency);
-    if (mapped.invalid) {
-      return { error: 'invalid content item' };
+  for (const contentItem of toArray(contentInput)) {
+    const mapped = getMappedContentItem(contentItem, eventCurrencyResult.currency, defaultCurrency);
+    if (mapped.error) {
+      return { error: mapped.error };
     }
     if (!isEmptyValue(mapped.content)) {
       contents.push(mapped.content);
@@ -579,10 +481,9 @@ const buildContents = (properties, defaultCurrency, isCustomEvent) => {
 };
 
 const getActionSource = (properties, defaultActionSource) => {
-  const actionSource =
-    trimString(properties?.action_source)?.toLowerCase() ||
-    trimString(properties?.actionSource)?.toLowerCase();
-  const resolved = actionSource || trimString(defaultActionSource)?.toLowerCase();
+  const resolved =
+    pickString(properties, ['action_source', 'actionSource'])?.toLowerCase() ||
+    trimString(defaultActionSource)?.toLowerCase();
   if (!resolved) {
     return { actionSource: undefined };
   }
@@ -592,16 +493,8 @@ const getActionSource = (properties, defaultActionSource) => {
   return { actionSource: resolved };
 };
 
-const getSourceUrl = message => {
-  return (
-    trimString(message?.properties?.source_url) ||
-    trimString(message?.properties?.sourceUrl) ||
-    trimString(message?.context?.page?.url)
-  );
-};
-
 const getOptOut = properties => {
-  const optOutValue = !isEmptyValue(properties?.optOut) ? properties.optOut : properties?.opt_out;
+  const optOutValue = pick(properties, ['optOut', 'opt_out']);
   if (isEmptyValue(optOutValue)) {
     return { optOut: undefined };
   }
@@ -651,12 +544,9 @@ const sanitizeCustomValue = (value, seen = new Set()) => {
   return undefined;
 };
 
-const getCustomProperties = (properties, explicitKeys) =>
+const getCustomProperties = (properties, mappedKeys) =>
   Object.entries(properties || {}).reduce((acc, [key, value]) => {
-    if (
-      RESERVED_CUSTOM_PROPERTY_KEYS.includes(key) ||
-      explicitKeys.includes(key)
-    ) {
+    if (RESERVED_CUSTOM_PROPERTY_KEYS.includes(key) || mappedKeys.includes(key)) {
       return acc;
     }
     const sanitizedValue = sanitizeCustomValue(value);
@@ -669,59 +559,48 @@ const getCustomProperties = (properties, explicitKeys) =>
 const buildEventData = (message, resolvedEvent, config) => {
   const properties = isPlainObject(message?.properties) ? message.properties : {};
   const { dataType, isCustom } = resolvedEvent;
-  const eventData = { type: dataType };
-  const explicitKeys = ['type'];
 
   const actionSourceResult = getActionSource(properties, config?.defaultActionSource);
   if (actionSourceResult.error) {
     return { error: actionSourceResult.error };
   }
-  const actionSource = actionSourceResult.actionSource;
-  if (actionSource) {
-    eventData.action_source = actionSource;
-    explicitKeys.push('action_source');
-  }
 
-  const sourceUrl = getSourceUrl(message);
-  if (actionSource === 'web' && !sourceUrl) {
+  const sourceUrl = pickString(message, [
+    'properties.source_url',
+    'properties.sourceUrl',
+    'context.page.url',
+  ]);
+  if (actionSourceResult.actionSource === 'web' && !sourceUrl) {
     return { error: 'source_url is required when action_source is web' };
-  }
-  if (sourceUrl) {
-    eventData.source_url = sourceUrl;
-    explicitKeys.push('source_url');
   }
 
   const optOutResult = getOptOut(properties);
   if (optOutResult.error) {
     return { error: optOutResult.error };
   }
-  if (optOutResult.optOut !== undefined) {
-    eventData.opt_out = optOutResult.optOut;
-    explicitKeys.push('opt_out');
-  }
-
-  const oppref = trimString(properties.oppref);
-  if (oppref) {
-    eventData.oppref = oppref;
-    explicitKeys.push('oppref');
-  }
 
   const currencyResult = resolveCurrency(properties, config?.defaultCurrency);
   if (currencyResult.error) {
     return { error: currencyResult.error };
   }
-  const currency = currencyResult.currency;
 
-  const amountValue = getAmountValue(properties);
+  // Empty entries are stripped by removeEmptyValues below, so no per-field guards are needed.
+  const eventData = {
+    type: dataType,
+    action_source: actionSourceResult.actionSource,
+    source_url: sourceUrl,
+    opt_out: optOutResult.optOut,
+    oppref: trimString(properties.oppref),
+  };
+
+  const amountValue = pick(properties, ['amount', 'value', 'revenue']);
   if (!isEmptyValue(amountValue)) {
-    const amount = toMinorUnits(amountValue, currency);
+    const amount = toMinorUnits(amountValue, currencyResult.currency);
     if (amount === undefined) {
       return { error: 'invalid amount or currency' };
     }
     eventData.amount = amount;
-    eventData.currency = currency;
-    explicitKeys.push('amount');
-    explicitKeys.push('currency');
+    eventData.currency = currencyResult.currency;
   }
 
   if (dataType !== 'customer_action') {
@@ -729,14 +608,11 @@ const buildEventData = (message, resolvedEvent, config) => {
     if (contentsResult.error) {
       return { error: contentsResult.error };
     }
-    if (contentsResult.contents) {
-      eventData.contents = contentsResult.contents;
-      explicitKeys.push('contents');
-    }
+    eventData.contents = contentsResult.contents;
   }
 
   if (isCustom) {
-    Object.assign(eventData, getCustomProperties(properties, explicitKeys));
+    Object.assign(eventData, getCustomProperties(properties, Object.keys(eventData)));
   }
 
   return { eventData: removeEmptyValues(eventData) };
@@ -746,6 +622,7 @@ export {
   buildEventData,
   buildUserData,
   getDeduplicationId,
+  getEventMappingIndex,
   removeEmptyValues,
   resolveEvent,
 };

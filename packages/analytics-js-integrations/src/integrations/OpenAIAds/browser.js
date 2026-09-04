@@ -5,6 +5,7 @@ import {
   buildEventData,
   buildUserData,
   getDeduplicationId,
+  getEventMappingIndex,
   removeEmptyValues,
   resolveEvent,
 } from './utils';
@@ -20,6 +21,7 @@ class OpenAIAds {
     this.name = NAME;
     this.analytics = analytics;
     this.config = config;
+    this.eventMappingIndex = getEventMappingIndex(config.eventMapping);
     this.userData = {};
     this.currentUserId = '';
     this.pixelInitialized = false;
@@ -146,7 +148,7 @@ class OpenAIAds {
 
     const message = rudderElement?.message || rudderElement || {};
     this.syncUserId(message);
-    const resolvedEvent = resolveEvent(message, messageType, this.config.eventMapping || []);
+    const resolvedEvent = resolveEvent(message, messageType, this.eventMappingIndex);
 
     if (resolvedEvent.error) {
       logger.error(resolvedEvent.error);
@@ -183,7 +185,6 @@ class OpenAIAds {
       eventOptions,
     );
   }
-
 }
 
 export default OpenAIAds;
