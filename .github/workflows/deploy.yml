@@ -334,12 +334,22 @@ jobs:
 
           # Production also keeps an immutable copy at the loading-scripts
           # package version, so a pinned URL never moves under a caller.
+          #
+          # The release command skips ci/chore/docs/test commits, so a loader
+          # change can land without bumping that version. Existing keys are
+          # therefore never overwritten -- a pinned URL that already exists stays
+          # exactly as published, and the mismatch is reported instead.
           if [ "${ENVIRONMENT}" = "production" ]; then
             loader_version=$(node -p "require('./packages/loading-scripts/package.json').version")
             versioned_path="s3://${BUCKET_NAME}/${BASE_DIR}/${loader_version}"
             versioned_args=(--cache-control "${VERSIONED_CACHE_CONTROL}")
 
             for artifact in loader.js loader.min.js loader-gtm.js loader-gtm.min.js; do
+              if aws s3api head-object --bucket "${BUCKET_NAME}" \
+                   --key "${BASE_DIR}/${loader_version}/${artifact}" >/dev/null 2>&1; then
+                echo "::warning::${BASE_DIR}/${loader_version}/${artifact} already exists and was left untouched. Bump the loading-scripts package version to publish a new pinned copy."
+                continue
+              fi
               aws s3 cp "${SRC}/${artifact}" "${versioned_path}/${artifact}" "${versioned_args[@]}"
             done
           fi
