@@ -168,56 +168,28 @@ describe('CDN loader', () => {
   });
 });
 
-describe('self-configuring loader', () => {
-  const setCurrentScript = (attributes: Record<string, string>) => {
-    const scriptTag = document.createElement('script');
-    Object.keys(attributes).forEach(key => {
-      scriptTag.setAttribute(key, attributes[key] as string);
-    });
-    document.head.appendChild(scriptTag);
-    Object.defineProperty(document, 'currentScript', {
-      value: scriptTag,
-      configurable: true,
-    });
-  };
-
+describe('loading snippet', () => {
   beforeEach(() => {
     jest.resetModules();
     (window as unknown as { __IS_GTM_BUILD__: boolean }).__IS_GTM_BUILD__ = false;
     window.rudderanalytics = undefined;
     document.head.innerHTML = '';
     document.body.innerHTML = '';
-    Object.defineProperty(document, 'currentScript', { value: null, configurable: true });
   });
 
-  it('loads the SDK with the configuration on its own script tag', async () => {
-    setCurrentScript({
-      'data-rsa-write-key': 'write-key',
-      'data-rsa-data-plane-url': 'https://dataplane.example.com',
-    });
-
+  it('buffers a load call with its configured write key', async () => {
     await import('../src');
 
-    expect(getBufferedCalls()).toEqual([['load', 'write-key', 'https://dataplane.example.com']]);
-    expect(getSdkScriptTag()?.getAttribute('data-rsa-write-key')).toBe('write-key');
+    // The placeholders are substituted when the snippet is filled in, so under
+    // jest they stay literal. What matters is that this build calls load at all,
+    // which is the only thing separating it from the GTM build.
+    expect(getBufferedCalls()).toEqual([['load', '__WRITE_KEY__', '__DATAPLANE_URL__', {}]]);
   });
 
-  it('behaves like the GTM build when its script tag carries no configuration', async () => {
-    setCurrentScript({});
-
+  it('passes its write key to the SDK script tag', async () => {
     await import('../src');
 
-    // Nothing to read, so the load call is left to whoever buffered one.
-    expect(getBufferedCalls()).toEqual([]);
-    expect(getSdkScriptTag()).toBeDefined();
-    expect(getSdkScriptTag()?.hasAttribute('data-rsa-write-key')).toBe(false);
-  });
-
-  it('ignores a partial configuration', async () => {
-    setCurrentScript({ 'data-rsa-write-key': 'write-key' });
-
-    await import('../src');
-
-    expect(getBufferedCalls()).toEqual([]);
+    // The SDK locates its own URL through this attribute.
+    expect(getSdkScriptTag()?.getAttribute('data-rsa-write-key')).toBe('__WRITE_KEY__');
   });
 });
