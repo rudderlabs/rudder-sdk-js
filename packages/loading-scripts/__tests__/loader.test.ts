@@ -27,7 +27,7 @@ describe('CDN loader', () => {
     jest.resetModules();
     // The loader build sets this at build time; jest defaults it to false so
     // the snippet shape is the default under test.
-    (window as unknown as { __IS_CDN_LOADER__: boolean }).__IS_CDN_LOADER__ = true;
+    (window as unknown as { __IS_GTM_BUILD__: boolean }).__IS_GTM_BUILD__ = true;
     window.rudderanalytics = undefined;
     document.head.innerHTML = '';
     document.body.innerHTML = '';
@@ -168,21 +168,56 @@ describe('CDN loader', () => {
   });
 });
 
-describe('loading snippet', () => {
+describe('self-configuring loader', () => {
+  const setCurrentScript = (attributes: Record<string, string>) => {
+    const scriptTag = document.createElement('script');
+    Object.keys(attributes).forEach(key => {
+      scriptTag.setAttribute(key, attributes[key] as string);
+    });
+    document.head.appendChild(scriptTag);
+    Object.defineProperty(document, 'currentScript', {
+      value: scriptTag,
+      configurable: true,
+    });
+  };
+
   beforeEach(() => {
     jest.resetModules();
-    (window as unknown as { __IS_CDN_LOADER__: boolean }).__IS_CDN_LOADER__ = false;
+    (window as unknown as { __IS_GTM_BUILD__: boolean }).__IS_GTM_BUILD__ = false;
     window.rudderanalytics = undefined;
     document.head.innerHTML = '';
     document.body.innerHTML = '';
+    Object.defineProperty(document, 'currentScript', { value: null, configurable: true });
   });
 
-  it('passes its write key through the script tag attribute', async () => {
+  it('loads the SDK with the configuration on its own script tag', async () => {
+    setCurrentScript({
+      'data-rsa-write-key': 'write-key',
+      'data-rsa-data-plane-url': 'https://dataplane.example.com',
+    });
+
     await import('../src');
 
-    // The placeholder is substituted by @rollup/plugin-replace at build time,
-    // so under jest it stays literal. What matters is that the snippet build
-    // sets the attribute where the loader build does not.
-    expect(getSdkScriptTag()?.getAttribute('data-rsa-write-key')).toBe('__WRITE_KEY__');
+    expect(getBufferedCalls()).toEqual([['load', 'write-key', 'https://dataplane.example.com']]);
+    expect(getSdkScriptTag()?.getAttribute('data-rsa-write-key')).toBe('write-key');
+  });
+
+  it('behaves like the GTM build when its script tag carries no configuration', async () => {
+    setCurrentScript({});
+
+    await import('../src');
+
+    // Nothing to read, so the load call is left to whoever buffered one.
+    expect(getBufferedCalls()).toEqual([]);
+    expect(getSdkScriptTag()).toBeDefined();
+    expect(getSdkScriptTag()?.hasAttribute('data-rsa-write-key')).toBe(false);
+  });
+
+  it('ignores a partial configuration', async () => {
+    setCurrentScript({ 'data-rsa-write-key': 'write-key' });
+
+    await import('../src');
+
+    expect(getBufferedCalls()).toEqual([]);
   });
 });

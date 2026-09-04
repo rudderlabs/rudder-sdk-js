@@ -10,11 +10,11 @@ import * as dotenv from 'dotenv';
 
 dotenv.config({ quiet: true });
 const outDirRoot = `dist`;
-const distName = 'loading-script';
+const distName = 'loader';
 const modName = 'script';
 const shouldUglify = process.env.UGLIFY === 'true';
 
-export function getDefaultConfig(distName, isCdnLoader = false) {
+export function getDefaultConfig(distName, isGtmBuild = false) {
   const version = process.env.VERSION || 'dev-snapshot';
   const isLocalServerEnabled = process.env.DEV_SERVER;
 
@@ -35,9 +35,7 @@ export function getDefaultConfig(distName, isCdnLoader = false) {
     plugins: [
       replace({
         preventAssignment: true,
-        __IS_CDN_LOADER__: JSON.stringify(isCdnLoader),
-        __WRITE_KEY__: process.env.WRITE_KEY,
-        __DATAPLANE_URL__: process.env.DATAPLANE_URL,
+        __IS_GTM_BUILD__: JSON.stringify(isGtmBuild),
         __PACKAGE_VERSION__: `'${version}'`,
       }),
       typescript({
@@ -123,15 +121,15 @@ export function getDefaultConfig(distName, isCdnLoader = false) {
 }
 
 const buildEntries = () => {
-  // One source, two artifacts. The snippet bakes in a write key and calls
-  // load(); the CDN loader does neither and takes its configuration from a
-  // buffered load call. __IS_CDN_LOADER__ is constant-folded, so each artifact
-  // keeps only its own branch.
+  // One source, two artifacts. loader.js reads its configuration from its own
+  // script tag; loader-gtm.js has none to read and leaves it to the buffered
+  // load call. __IS_GTM_BUILD__ is constant-folded, so each artifact keeps only
+  // its own branch.
   return [
-    { name: distName, isCdnLoader: false },
-    { name: 'loader', isCdnLoader: true },
-  ].map(({ name, isCdnLoader }) => ({
-    ...getDefaultConfig(name, isCdnLoader),
+    { name: distName, isGtmBuild: false },
+    { name: `${distName}-gtm`, isGtmBuild: true },
+  ].map(({ name, isGtmBuild }) => ({
+    ...getDefaultConfig(name, isGtmBuild),
     input: 'src/index.ts',
     output: {
       entryFileNames: `${name}${shouldUglify ? '.min' : ''}.js`,

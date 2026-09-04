@@ -4,13 +4,13 @@
  */
 export default [
   {
-    name: 'Load Snippet',
-    path: 'dist/loading-script.min.js',
+    name: 'SDK Loader',
+    path: 'dist/loader.min.js',
     limit: '1 KiB',
   },
   {
-    name: 'CDN Loader',
-    path: 'dist/loader.min.js',
+    name: 'SDK Loader (GTM)',
+    path: 'dist/loader-gtm.min.js',
     limit: '1 KiB',
   },
 ];

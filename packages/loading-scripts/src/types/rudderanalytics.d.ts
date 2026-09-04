@@ -2,7 +2,7 @@ import type { RudderAnalytics, RudderAnalyticsPreloader } from '@rudderstack/ana
 
 declare global {
   /** Replaced with a boolean literal at build time. See src/index.ts. */
-  const __IS_CDN_LOADER__: boolean;
+  const __IS_GTM_BUILD__: boolean;
 
   interface Window {
     rudderanalytics: RudderAnalytics | RudderAnalyticsPreloader | undefined;

@@ -20,13 +20,30 @@ if (Array.isArray(rudderanalytics)) {
   } else {
     (rudderanalytics as any).snippetExecuted = true;
 
-    // This file builds two artifacts. The snippet carries a write key and calls
-    // load() with it; the CDN loader carries neither and leaves the load call to
-    // whoever buffered one -- which is what the GTM template does, since its
-    // sandbox cannot express any of the work below.
+    // This file builds two CDN artifacts:
     //
-    // __IS_CDN_LOADER__ is replaced with a boolean literal at build time, so
-    // each artifact keeps only its own branch and neither carries the check.
+    //   loader.js      self-configuring. Reads the write key and data plane URL
+    //                  from data-* attributes on its own script tag, so a page
+    //                  needs nothing but the one script tag.
+    //   loader-gtm.js  no self-configuration. GTM's injectScript cannot set
+    //                  data-* attributes, so the GTM template buffers a load
+    //                  call and this build leaves the configuration to it.
+    //
+    // __IS_GTM_BUILD__ is replaced with a boolean literal at build time and
+    // constant-folded away, so neither artifact carries the check.
+    //
+    // document.currentScript is only valid while this script executes, so the
+    // attributes are read up front rather than inside the mount callback.
+    let writeKey: string | null = null;
+    let dataPlaneUrl: string | null = null;
+
+    if (!__IS_GTM_BUILD__) {
+      const loaderScriptTag = document.currentScript as HTMLScriptElement | null;
+      if (loaderScriptTag) {
+        writeKey = loaderScriptTag.getAttribute('data-rsa-write-key');
+        dataPlaneUrl = loaderScriptTag.getAttribute('data-rsa-data-plane-url');
+      }
+    }
     window.rudderAnalyticsBuildType = 'legacy';
 
     const sdkBaseUrl = 'https://cdn.rudderlabs.com';
@@ -137,11 +154,13 @@ if (Array.isArray(rudderanalytics)) {
       })();
       /* eslint-enable */
 
+      // The SDK locates its own URL through this attribute, so it is only
+      // useful when a write key is known.
       const sdkUrl = `${sdkBaseUrl}/${sdkVersion}/${window.rudderAnalyticsBuildType}/${sdkFileName}`;
-      if (__IS_CDN_LOADER__) {
+      if (__IS_GTM_BUILD__) {
         window.rudderAnalyticsAddScript(sdkUrl);
       } else {
-        window.rudderAnalyticsAddScript(sdkUrl, 'data-rsa-write-key', '__WRITE_KEY__');
+        window.rudderAnalyticsAddScript(sdkUrl, 'data-rsa-write-key', writeKey || undefined);
       }
     };
 
@@ -154,16 +173,10 @@ if (Array.isArray(rudderanalytics)) {
     }
     /* Loading snippet end */
 
-    if (!__IS_CDN_LOADER__) {
-      const loadOptions = {
-        // configure your load options here
-      };
-
-      (rudderanalytics as unknown as RudderAnalytics).load(
-        '__WRITE_KEY__',
-        '__DATAPLANE_URL__',
-        loadOptions,
-      );
+    // With no attributes to read, this build behaves exactly like loader-gtm.js:
+    // whoever buffered a load call supplies the configuration.
+    if (!__IS_GTM_BUILD__ && writeKey && dataPlaneUrl) {
+      (rudderanalytics as unknown as RudderAnalytics).load(writeKey, dataPlaneUrl);
     }
   }
 }
