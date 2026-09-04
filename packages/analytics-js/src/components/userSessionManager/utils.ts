@@ -124,6 +124,9 @@ const isStorageTypeValidForStoringData = (storageType: StorageType): boolean =>
  */
 const generateAnonymousId = (): string => generateUUID();
 
+const isKnownResetEntry = (key: string): key is keyof ResetOptions['entries'] =>
+  Object.prototype.hasOwnProperty.call(DEFAULT_RESET_OPTIONS.entries, key);
+
 const getFinalResetOptions = (options: ResetOptions | boolean | undefined): ResetOptions => {
   // Legacy behavior: toggle only anonymousId without mutating defaults
   if (isBoolean(options)) {
@@ -139,7 +142,21 @@ const getFinalResetOptions = (options: ResetOptions | boolean | undefined): Rese
 
   // Override any defaults with the user provided options
   if (isObjectLiteralAndNotNull(options) && isObjectLiteralAndNotNull(options.entries)) {
-    return mergeDeepRight(DEFAULT_RESET_OPTIONS, options);
+    const optionEntries = options.entries;
+    const validEntries = Object.keys(optionEntries).reduce<ResetOptions['entries']>(
+      (entries, key) => {
+        if (isKnownResetEntry(key)) {
+          const value = optionEntries[key];
+          if (isBoolean(value)) {
+            entries[key] = value;
+          }
+        }
+        return entries;
+      },
+      {},
+    );
+
+    return mergeDeepRight(DEFAULT_RESET_OPTIONS, { entries: validEntries });
   }
 
   return { ...DEFAULT_RESET_OPTIONS };
