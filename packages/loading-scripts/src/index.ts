@@ -19,6 +19,14 @@ if (Array.isArray(rudderanalytics)) {
     console.error('RudderStack JavaScript SDK snippet included more than once.');
   } else {
     (rudderanalytics as any).snippetExecuted = true;
+
+    // The write key is substituted at build time. When it is not -- the CDN
+    // loader build, and the raw source under test -- this script is a pure
+    // loader: it sets up the buffer and fetches the SDK, and whoever buffered a
+    // `load` call supplies the configuration. The placeholder is split so that
+    // @rollup/plugin-replace does not substitute this comparison too.
+    const writeKey = '__WRITE_KEY__';
+    const hasWriteKey = writeKey !== '__WRITE' + '_KEY__' && writeKey !== 'undefined' && !!writeKey;
     window.rudderAnalyticsBuildType = 'legacy';
 
     const sdkBaseUrl = 'https://cdn.rudderlabs.com';
@@ -129,11 +137,12 @@ if (Array.isArray(rudderanalytics)) {
       })();
       /* eslint-enable */
 
-      window.rudderAnalyticsAddScript(
-        `${sdkBaseUrl}/${sdkVersion}/${window.rudderAnalyticsBuildType}/${sdkFileName}`,
-        'data-rsa-write-key',
-        '__WRITE_KEY__',
-      );
+      const sdkUrl = `${sdkBaseUrl}/${sdkVersion}/${window.rudderAnalyticsBuildType}/${sdkFileName}`;
+      if (hasWriteKey) {
+        window.rudderAnalyticsAddScript(sdkUrl, 'data-rsa-write-key', writeKey);
+      } else {
+        window.rudderAnalyticsAddScript(sdkUrl);
+      }
     };
 
     if (typeof Promise === 'undefined' || typeof globalThis === 'undefined') {
@@ -145,14 +154,16 @@ if (Array.isArray(rudderanalytics)) {
     }
     /* Loading snippet end */
 
-    const loadOptions = {
-      // configure your load options here
-    };
+    if (hasWriteKey) {
+      const loadOptions = {
+        // configure your load options here
+      };
 
-    (rudderanalytics as unknown as RudderAnalytics).load(
-      '__WRITE_KEY__',
-      '__DATAPLANE_URL__',
-      loadOptions,
-    );
+      (rudderanalytics as unknown as RudderAnalytics).load(
+        writeKey,
+        '__DATAPLANE_URL__',
+        loadOptions,
+      );
+    }
   }
 }
