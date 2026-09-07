@@ -123,6 +123,15 @@ class StoreManager implements IStoreManager {
       entriesOptions = postConsentStorageOpts?.entries;
     }
 
+    // Without the deprecated pre-consent storage strategy, the storage options decide what is
+    // persisted before consent is given. Only the fallback changes: nothing is persisted unless
+    // a storage type has been explicitly configured.
+    const preConsentOpts = state.consents.preConsent.value;
+    const defaultStorageType =
+      preConsentOpts.enabled && !preConsentOpts.storage?.strategy
+        ? NO_STORAGE
+        : DEFAULT_STORAGE_TYPE;
+
     let trulyAnonymousTracking = true;
     let storageEntries = {};
     USER_SESSION_KEYS.forEach(sessionKey => {
@@ -134,7 +143,7 @@ class StoreManager implements IStoreManager {
 
       // Storage type precedence order: pre-consent strategy > entry type > global type > default
       const storageType =
-        preConsentStorageType ?? configuredStorageType ?? globalStorageType ?? DEFAULT_STORAGE_TYPE;
+        preConsentStorageType ?? configuredStorageType ?? globalStorageType ?? defaultStorageType;
 
       const finalStorageType = this.getResolvedStorageTypeForEntry(storageType, sessionKey);
 

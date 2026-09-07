@@ -36,6 +36,7 @@ import {
   UNSUPPORTED_BEACON_API_WARNING,
   UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
   UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY,
+  DEPRECATED_PRE_CONSENT_STORAGE_STRATEGY,
   UNSUPPORTED_STORAGE_ENCRYPTION_VERSION_WARNING,
   SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING,
 } from '../../../constants/logMessages';
@@ -240,19 +241,24 @@ const updateConsentsStateFromLoadOptions = (logger: ILogger): void => {
   // Pre-consent
   const preConsentOpts = state.loadOptions.value.preConsent;
 
-  let storageStrategy: StorageStrategy =
-    preConsentOpts?.storage?.strategy ?? DEFAULT_PRE_CONSENT_STORAGE_STRATEGY;
-  const StorageStrategies = ['none', 'session', 'anonymousId'];
-  if (isDefined(storageStrategy) && !StorageStrategies.includes(storageStrategy)) {
-    storageStrategy = DEFAULT_PRE_CONSENT_STORAGE_STRATEGY;
+  // The storage strategy is deprecated. When it is not set, the storage load API option decides
+  // what is persisted before consent is given.
+  let storageStrategy: StorageStrategy | undefined = preConsentOpts?.storage?.strategy;
+  if (isDefined(storageStrategy)) {
+    logger.warn(DEPRECATED_PRE_CONSENT_STORAGE_STRATEGY(CONFIG_MANAGER));
 
-    logger.warn(
-      UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY(
-        CONFIG_MANAGER,
-        preConsentOpts?.storage?.strategy,
-        DEFAULT_PRE_CONSENT_STORAGE_STRATEGY,
-      ),
-    );
+    const StorageStrategies = ['none', 'session', 'anonymousId'];
+    if (!StorageStrategies.includes(storageStrategy as string)) {
+      storageStrategy = DEFAULT_PRE_CONSENT_STORAGE_STRATEGY;
+
+      logger.warn(
+        UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY(
+          CONFIG_MANAGER,
+          preConsentOpts?.storage?.strategy,
+          DEFAULT_PRE_CONSENT_STORAGE_STRATEGY,
+        ),
+      );
+    }
   }
 
   let eventsDeliveryType: DeliveryType =

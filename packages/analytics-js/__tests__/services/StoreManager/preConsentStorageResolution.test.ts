@@ -59,9 +59,9 @@ type TestCase = {
  * value against the load API storage options, across the full pipeline:
  * load options -> config manager -> store manager -> `state.storage.entries`.
  *
- * These expectations must not change when `strategy` is deprecated in favour of the granular
- * `type`/`entries` options, so they are asserted against explicitly constructed values rather
- * than shared fixtures.
+ * These expectations must not change now that `strategy` is deprecated in favour of the storage
+ * load API option, so they are asserted against explicitly constructed values rather than shared
+ * fixtures.
  */
 describe('Pre-consent storage resolution', () => {
   let logger: ILogger;
@@ -94,6 +94,22 @@ describe('Pre-consent storage resolution', () => {
     storeManager.isInitialized = false;
     jest.resetAllMocks();
   });
+
+  /**
+   * Runs the load options through the whole resolution pipeline:
+   * config manager -> store manager -> `state.storage.entries`
+   */
+  const resolveStorageEntries = (
+    storage: StorageOpts | undefined,
+    preConsent: PreConsentOptions,
+  ) => {
+    state.loadOptions.value.storage = { ...state.loadOptions.value.storage, ...storage };
+    state.loadOptions.value.preConsent = preConsent;
+
+    updateStorageStateFromLoadOptions(logger);
+    updateConsentsStateFromLoadOptions(logger);
+    storeManager.initClientDataStores();
+  };
 
   const testCases: TestCase[] = [
     {
@@ -202,15 +218,88 @@ describe('Pre-consent storage resolution', () => {
   it.each(testCases)(
     '$description',
     ({ storage, preConsent, expectedEntries, expectedTrulyAnonymousTracking }) => {
-      state.loadOptions.value.storage = { ...state.loadOptions.value.storage, ...storage };
-      state.loadOptions.value.preConsent = preConsent;
-
-      updateStorageStateFromLoadOptions(logger);
-      updateConsentsStateFromLoadOptions(logger);
-      storeManager.initClientDataStores();
+      resolveStorageEntries(storage, preConsent);
 
       expect(state.storage.entries.value).toEqual(expectedEntries);
       expect(state.storage.trulyAnonymousTracking.value).toBe(expectedTrulyAnonymousTracking);
     },
   );
+
+  describe('without the storage strategy', () => {
+    it('should persist both the anonymous ID and the session info if they are the only configured entries', () => {
+      resolveStorageEntries(
+        {
+          entries: {
+            anonymousId: { type: 'cookieStorage' },
+            sessionInfo: { type: 'cookieStorage' },
+          },
+        },
+        { enabled: true, events: { delivery: 'buffer' } },
+      );
+
+      expect(state.storage.entries.value).toEqual(
+        buildExpectedEntries('none', {
+          anonymousId: 'cookieStorage',
+          sessionInfo: 'cookieStorage',
+        }),
+      );
+      expect(state.storage.trulyAnonymousTracking.value).toBe(false);
+    });
+
+    it('should persist every entry if the storage type is configured', () => {
+      resolveStorageEntries({ type: 'localStorage' }, { enabled: true });
+
+      expect(state.storage.entries.value).toEqual(buildExpectedEntries('localStorage'));
+      expect(state.storage.trulyAnonymousTracking.value).toBe(false);
+    });
+
+    it('should give the entry storage type precedence over the storage type', () => {
+      resolveStorageEntries(
+        { type: 'localStorage', entries: { anonymousId: { type: 'sessionStorage' } } },
+        { enabled: true },
+      );
+
+      expect(state.storage.entries.value).toEqual(
+        buildExpectedEntries('localStorage', { anonymousId: 'sessionStorage' }),
+      );
+    });
+
+    it('should not persist an entry that is configured with no storage', () => {
+      resolveStorageEntries(
+        { type: 'localStorage', entries: { anonymousId: { type: 'none' } } },
+        { enabled: true },
+      );
+
+      expect(state.storage.entries.value).toEqual(
+        buildExpectedEntries('localStorage', { anonymousId: 'none' }),
+      );
+    });
+
+    it('should not log a deprecation warning', () => {
+      resolveStorageEntries({ type: 'localStorage' }, { enabled: true });
+
+      expect(logger.warn).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('with the deprecated storage strategy', () => {
+    it('should take precedence over the storage options', () => {
+      resolveStorageEntries(
+        { type: 'localStorage', entries: { anonymousId: { type: 'cookieStorage' } } },
+        { enabled: true, storage: { strategy: 'session' } },
+      );
+
+      expect(state.storage.entries.value).toEqual(
+        buildExpectedEntries('none', { sessionInfo: 'localStorage' }),
+      );
+    });
+
+    it('should log a deprecation warning', () => {
+      resolveStorageEntries(undefined, { enabled: true, storage: { strategy: 'session' } });
+
+      expect(logger.warn).toHaveBeenCalledWith(
+        'ConfigManager:: The pre-consent storage strategy option is deprecated. Please use the "storage" load API option instead.',
+      );
+    });
+  });
 });

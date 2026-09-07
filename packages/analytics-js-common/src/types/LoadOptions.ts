@@ -99,10 +99,16 @@ export type OnLoadedCallback = (analytics: any) => void;
 
 export type DeliveryType = 'immediate' | 'buffer';
 
+/**
+ * @deprecated Use the `storage` load API option to control what is persisted before consent is given. It will be removed in the next major version.
+ */
 export type StorageStrategy = 'none' | 'session' | 'anonymousId';
 
 export type PreConsentStorageOptions = {
-  strategy: StorageStrategy;
+  /**
+   * @deprecated Use the `storage` load API option to control what is persisted before consent is given. It will be removed in the next major version.
+   */
+  strategy?: StorageStrategy;
 };
 
 export type PreConsentEventsOptions = {

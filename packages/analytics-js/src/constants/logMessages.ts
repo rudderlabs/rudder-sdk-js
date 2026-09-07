@@ -234,6 +234,9 @@ const UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY = (
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The pre-consent storage strategy "${selectedStrategy}" is not supported. Please choose one of the following supported strategies: "none, session, anonymousId". The default strategy "${defaultStrategy}" will be used instead.`;
 
+const DEPRECATED_PRE_CONSENT_STORAGE_STRATEGY = (context: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The pre-consent storage strategy option is deprecated. Please use the "storage" load API option instead.`;
+
 const UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE = (
   context: string,
   selectedDeliveryType: DeliveryType | undefined,
@@ -319,6 +322,7 @@ export {
   INVALID_CONFIG_URL_WARNING,
   POLYFILL_SCRIPT_LOAD_ERROR,
   UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY,
+  DEPRECATED_PRE_CONSENT_STORAGE_STRATEGY,
   UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
   SOURCE_CONFIG_RESOLUTION_ERROR,
   DATA_SERVER_URL_INVALID_ERROR,
