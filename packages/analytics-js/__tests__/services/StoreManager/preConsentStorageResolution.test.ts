@@ -15,6 +15,7 @@ import {
   updateConsentsStateFromLoadOptions,
   updateStorageStateFromLoadOptions,
 } from '../../../src/components/configManager/util/commonUtil';
+import { normalizeLoadOptions } from '../../../src/components/utilities/loadOptions';
 
 jest.mock('../../../src/services/StoreManager/storages/storageEngine', () => ({
   __esModule: true,
@@ -300,6 +301,44 @@ describe('Pre-consent storage resolution', () => {
       expect(logger.warn).toHaveBeenCalledWith(
         'ConfigManager:: The pre-consent storage strategy option is deprecated. Please use the "storage" load API option instead.',
       );
+    });
+  });
+
+  describe('with no storage options supplied to the load API', () => {
+    /**
+     * Runs the load options through `normalizeLoadOptions` first, exactly as the load API does,
+     * so that any default it fills in is included in the resolution.
+     */
+    const loadWithoutStorageOptions = (preConsent: PreConsentOptions) => {
+      state.loadOptions.value = normalizeLoadOptions(state.loadOptions.value, {
+        consentManagement: { enabled: true, provider: 'oneTrust' },
+        preConsent,
+      });
+
+      updateStorageStateFromLoadOptions(logger);
+      updateConsentsStateFromLoadOptions(logger);
+      storeManager.initClientDataStores();
+    };
+
+    it('should not default the storage type or the entries', () => {
+      loadWithoutStorageOptions({ enabled: true });
+
+      expect(state.loadOptions.value.storage?.type).toBeUndefined();
+      expect(state.loadOptions.value.storage?.entries).toBeUndefined();
+    });
+
+    it('should not persist anything before consent', () => {
+      loadWithoutStorageOptions({ enabled: true, events: { delivery: 'buffer' } });
+
+      expect(state.storage.entries.value).toEqual(buildExpectedEntries('none'));
+      expect(state.storage.trulyAnonymousTracking.value).toBe(true);
+    });
+
+    it('should persist everything in the default storage type if pre-consent is not enabled', () => {
+      loadWithoutStorageOptions({ enabled: false });
+
+      expect(state.storage.entries.value).toEqual(buildExpectedEntries('cookieStorage'));
+      expect(state.storage.trulyAnonymousTracking.value).toBe(false);
     });
   });
 });
