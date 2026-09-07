@@ -281,6 +281,30 @@ describe('Pre-consent storage resolution', () => {
 
       expect(logger.warn).not.toHaveBeenCalled();
     });
+
+    it('should not persist an entry whose storage type is unsupported', () => {
+      resolveStorageEntries(
+        // @ts-expect-error testing an invalid value
+        { entries: { anonymousId: { type: 'localStoarge' } } },
+        { enabled: true, events: { delivery: 'buffer' } },
+      );
+
+      expect(state.storage.entries.value).toEqual(buildExpectedEntries('none'));
+      expect(state.storage.trulyAnonymousTracking.value).toBe(true);
+      expect(logger.warn).toHaveBeenCalledWith(
+        'StoreManager:: The storage type "localStoarge" is not supported. Please choose one of the following supported types: "localStorage,memoryStorage,cookieStorage,sessionStorage,none". The default type "none" will be used instead.',
+      );
+    });
+
+    it('should still resolve an unsupported entry storage type after consent is given', () => {
+      // @ts-expect-error testing an invalid value
+      resolveStorageEntries(
+        { entries: { anonymousId: { type: 'localStoarge' } } },
+        { enabled: false },
+      );
+
+      expect(state.storage.entries.value).toEqual(buildExpectedEntries('cookieStorage'));
+    });
   });
 
   describe('with the deprecated storage strategy', () => {

@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/deprecation */
 import type {
   IStoreConfig,
   IStoreManager,
@@ -20,6 +21,7 @@ import {
 } from '@rudderstack/analytics-js-common/utilities/object';
 import {
   DEFAULT_STORAGE_TYPE,
+  SUPPORTED_STORAGE_TYPES,
   type StorageType,
 } from '@rudderstack/analytics-js-common/types/Storage';
 import type { UserSessionKey } from '@rudderstack/analytics-js-common/types/UserSessionStorage';
@@ -27,7 +29,10 @@ import { batch } from '@preact/signals-core';
 import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
 import { USER_SESSION_KEYS } from '../../constants/storage';
-import { STORAGE_UNAVAILABLE_WARNING } from '../../constants/logMessages';
+import {
+  STORAGE_TYPE_VALIDATION_WARNING,
+  STORAGE_UNAVAILABLE_WARNING,
+} from '../../constants/logMessages';
 import { type StoreManagerOptions, storageClientDataStoreNameMap } from './types';
 import { state } from '../../state';
 import { configureStorageEngines, getStorageEngine } from './storages/storageEngine';
@@ -127,10 +132,11 @@ class StoreManager implements IStoreManager {
     // persisted before consent is given. Only the fallback changes: nothing is persisted unless
     // a storage type has been explicitly configured.
     const preConsentOpts = state.consents.preConsent.value;
-    const defaultStorageType =
-      preConsentOpts.enabled && !preConsentOpts.storage?.strategy
-        ? NO_STORAGE
-        : DEFAULT_STORAGE_TYPE;
+    const isStorageFromLoadOptionsBeforeConsent =
+      preConsentOpts.enabled === true && !preConsentOpts.storage?.strategy;
+    const defaultStorageType = isStorageFromLoadOptionsBeforeConsent
+      ? NO_STORAGE
+      : DEFAULT_STORAGE_TYPE;
 
     let trulyAnonymousTracking = true;
     let storageEntries = {};
@@ -142,8 +148,15 @@ class StoreManager implements IStoreManager {
       const preConsentStorageType = getStorageTypeFromPreConsentIfApplicable(state, sessionKey);
 
       // Storage type precedence order: pre-consent strategy > entry type > global type > default
-      const storageType =
+      let storageType =
         preConsentStorageType ?? configuredStorageType ?? globalStorageType ?? defaultStorageType;
+
+      // Entry storage types are not validated at config time, so an unsupported value would
+      // otherwise resolve to a persistent storage type and store the data before consent is given
+      if (isStorageFromLoadOptionsBeforeConsent && !SUPPORTED_STORAGE_TYPES.includes(storageType)) {
+        this.logger.warn(STORAGE_TYPE_VALIDATION_WARNING(STORE_MANAGER, storageType, NO_STORAGE));
+        storageType = NO_STORAGE;
+      }
 
       const finalStorageType = this.getResolvedStorageTypeForEntry(storageType, sessionKey);
 

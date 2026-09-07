@@ -4,10 +4,7 @@ import {
   SUPPORTED_STORAGE_TYPES,
 } from '@rudderstack/analytics-js-common/types/Storage';
 import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constants/logMessages';
-import type {
-  DeliveryType,
-  StorageStrategy,
-} from '@rudderstack/analytics-js-common/types/LoadOptions';
+import type { DeliveryType } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 
 // CONSTANT
@@ -229,8 +226,8 @@ const POLYFILL_SCRIPT_LOAD_ERROR = (scriptId: string, url: string): string =>
 
 const UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY = (
   context: string,
-  selectedStrategy: StorageStrategy | undefined,
-  defaultStrategy: StorageStrategy,
+  selectedStrategy: string | undefined,
+  defaultStrategy: string,
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The pre-consent storage strategy "${selectedStrategy}" is not supported. Please choose one of the following supported strategies: "none, session, anonymousId". The default strategy "${defaultStrategy}" will be used instead.`;
 

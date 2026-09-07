@@ -26,13 +26,19 @@ describe('Pre-consent to post-consent storage transition', () => {
     defaultLogger,
   );
   const storeManager = new StoreManager(defaultPluginsManager, defaultErrorHandler, defaultLogger);
-  storeManager.init();
 
-  const clientDataStoreCookie = storeManager.getStore('clientDataInCookie') as Store;
-  const clientDataStoreLS = storeManager.getStore('clientDataInLocalStorage') as Store;
-  const clientDataStoreSession = storeManager.getStore('clientDataInSessionStorage') as Store;
-
+  let clientDataStoreCookie: Store;
+  let clientDataStoreLS: Store;
+  let clientDataStoreSession: Store;
   let userSessionManager: UserSessionManager;
+
+  beforeAll(() => {
+    storeManager.init();
+
+    clientDataStoreCookie = storeManager.getStore('clientDataInCookie') as Store;
+    clientDataStoreLS = storeManager.getStore('clientDataInLocalStorage') as Store;
+    clientDataStoreSession = storeManager.getStore('clientDataInSessionStorage') as Store;
+  });
 
   beforeEach(() => {
     Object.values(COOKIE_KEYS).forEach(key => {

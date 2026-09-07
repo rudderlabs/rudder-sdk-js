@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/deprecation */
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { batch } from '@preact/signals-core';
@@ -73,7 +74,6 @@ const getSDKUrl = (): string | undefined => {
   const scripts = document.getElementsByTagName('script');
   const sdkFileNameRegex = /(?:^|\/)rsa(\.min)?\.js$/;
 
-  // eslint-disable-next-line no-restricted-syntax
   for (const script of scripts) {
     const src = script.getAttribute('src');
     if (src && sdkFileNameRegex.test(src)) {
