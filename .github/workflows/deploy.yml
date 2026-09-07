@@ -323,6 +323,9 @@ jobs:
           LATEST_CACHE_CONTROL: ${{ env.CACHE_CONTROL }}
           VERSIONED_CACHE_CONTROL: ${{ env.CACHE_CONTROL_MAX_AGE }}
           SRC: ${{ env.LOADER_ARTIFACTS_BASE_PATH }}
+          # `aws s3 cp` infers this from the extension; `put-object` below does
+          # not, and would default to binary/octet-stream.
+          CONTENT_TYPE: "text/javascript"
         run: |
           case "${ENVIRONMENT}" in
             production) env_prefix="" ;;
@@ -342,21 +345,38 @@ jobs:
           # package version, so a pinned URL never moves under a caller.
           #
           # The release command skips ci/chore/docs/test commits, so a loader
-          # change can land without bumping that version. Existing keys are
-          # therefore never overwritten -- a pinned URL that already exists stays
-          # exactly as published, and the mismatch is reported instead.
+          # change can land without bumping that version. The upload is
+          # therefore conditional on the key not existing: S3 itself rejects a
+          # write over an existing pinned copy with PreconditionFailed, which is
+          # the only failure treated as "already published". Anything else --
+          # credentials, throttling, a network blip -- fails the deployment
+          # instead of overwriting.
           if [ "${ENVIRONMENT}" = "production" ]; then
             loader_version=$(node -p "require('./packages/loading-scripts/package.json').version")
-            versioned_path="s3://${BUCKET_NAME}/${BASE_DIR}/${loader_version}"
-            versioned_args=(--cache-control "${VERSIONED_CACHE_CONTROL}")
 
             for artifact in loader.js loader.min.js loader-gtm.js loader-gtm.min.js; do
-              if aws s3api head-object --bucket "${BUCKET_NAME}" \
-                   --key "${BASE_DIR}/${loader_version}/${artifact}" >/dev/null 2>&1; then
-                echo "::warning::${BASE_DIR}/${loader_version}/${artifact} already exists and was left untouched. Bump the loading-scripts package version to publish a new pinned copy."
+              key="${BASE_DIR}/${loader_version}/${artifact}"
+
+              if put_output=$(aws s3api put-object \
+                   --bucket "${BUCKET_NAME}" \
+                   --key "${key}" \
+                   --body "${SRC}/${artifact}" \
+                   --content-type "${CONTENT_TYPE}" \
+                   --cache-control "${VERSIONED_CACHE_CONTROL}" \
+                   --if-none-match '*' 2>&1); then
+                echo "published ${key}"
                 continue
               fi
-              aws s3 cp "${SRC}/${artifact}" "${versioned_path}/${artifact}" "${versioned_args[@]}"
+
+              case "${put_output}" in
+                *PreconditionFailed*)
+                  echo "::warning::${key} already exists and was left untouched. Bump the loading-scripts package version to publish a new pinned copy."
+                  ;;
+                *)
+                  echo "${put_output}" >&2
+                  exit 1
+                  ;;
+              esac
             done
           fi
 
