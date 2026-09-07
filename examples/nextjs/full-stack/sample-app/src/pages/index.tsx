@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { getBrowserAnalytics } from '@/lib/rudderstack-client';
 import {
   destinationRouting,
+  eventTypes,
   sampleAnonymousId,
   sampleUserId,
   type EventType,
@@ -11,8 +12,6 @@ import {
 type HomeProps = {
   serverPageEvent: string;
 };
-
-const eventTypes: EventType[] = ['page', 'identify', 'track', 'group', 'alias'];
 
 export default function Home({ serverPageEvent }: HomeProps) {
   const [browserStatus, setBrowserStatus] = useState('No browser event sent yet.');

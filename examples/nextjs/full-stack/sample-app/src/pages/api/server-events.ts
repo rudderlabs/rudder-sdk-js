@@ -1,8 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import type { EventType } from '@/lib/rudderstack-config';
+import { eventTypes, type EventType } from '@/lib/rudderstack-config';
 import { RudderStackConfigurationError, sendServerEvent } from '@/lib/rudderstack-server';
-
-const supportedEvents: EventType[] = ['page', 'identify', 'track', 'group', 'alias'];
 
 type ApiResponse = {
   message: string;
@@ -27,7 +25,7 @@ export default async function handler(
   }
 
   const type = request.body?.type;
-  if (typeof type !== 'string' || !supportedEvents.includes(type as EventType)) {
+  if (typeof type !== 'string' || !eventTypes.includes(type as EventType)) {
     response.status(400).json({ message: 'The event type is not supported.' });
     return;
   }

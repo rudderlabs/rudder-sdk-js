@@ -6,4 +6,6 @@ export const destinationRouting = {
 export const sampleUserId = 'nextjs-sample-user-123';
 export const sampleAnonymousId = 'nextjs-sample-anonymous-123';
 
-export type EventType = 'page' | 'identify' | 'track' | 'group' | 'alias';
+export const eventTypes = ['page', 'identify', 'track', 'group', 'alias'] as const;
+
+export type EventType = (typeof eventTypes)[number];
