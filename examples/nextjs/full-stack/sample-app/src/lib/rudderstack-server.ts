@@ -5,6 +5,7 @@ import {
   sampleUserId,
   type EventType,
 } from './rudderstack-config';
+import { getDataPlaneUrlValidationError } from './rudderstack-url';
 
 let analytics: Analytics | undefined;
 
@@ -12,23 +13,6 @@ export class RudderStackConfigurationError extends Error {
   constructor(message: string) {
     super(message);
     this.name = 'RudderStackConfigurationError';
-  }
-}
-
-function validateDataPlaneUrl(dataPlaneUrl: string): void {
-  let url: URL;
-
-  try {
-    url = new URL(dataPlaneUrl);
-  } catch {
-    throw new RudderStackConfigurationError('RUDDERSTACK_DATAPLANE_URL must be a valid URL.');
-  }
-
-  const isLoopback = ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname);
-  if (url.protocol !== 'https:' && !isLoopback) {
-    throw new RudderStackConfigurationError(
-      'RUDDERSTACK_DATAPLANE_URL must use HTTPS unless it targets a loopback host.',
-    );
   }
 }
 
@@ -42,7 +26,10 @@ function getServerAnalytics(): Analytics {
     );
   }
 
-  validateDataPlaneUrl(dataPlaneUrl);
+  const validationError = getDataPlaneUrlValidationError(dataPlaneUrl);
+  if (validationError) {
+    throw new RudderStackConfigurationError(`RUDDERSTACK_DATAPLANE_URL ${validationError}`);
+  }
 
   if (!analytics) {
     analytics = new Analytics(writeKey, {

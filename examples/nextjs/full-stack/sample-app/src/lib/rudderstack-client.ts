@@ -4,20 +4,26 @@ import type {
   RudderAnalyticsPreloader,
 } from '@rudderstack/analytics-js';
 import { destinationRouting } from './rudderstack-config';
+import { getDataPlaneUrlValidationError } from './rudderstack-url';
 
 let initializationPromise: Promise<RudderAnalytics | undefined> | undefined;
 
 export function getBrowserAnalytics(): RudderAnalytics | RudderAnalyticsPreloader | undefined {
-  if (
-    typeof window === 'undefined' ||
-    !process.env.NEXT_PUBLIC_RUDDERSTACK_WRITE_KEY ||
-    !process.env.NEXT_PUBLIC_RUDDERSTACK_DATAPLANE_URL
-  ) {
+  const writeKey = process.env.NEXT_PUBLIC_RUDDERSTACK_WRITE_KEY;
+  const dataPlaneUrl = process.env.NEXT_PUBLIC_RUDDERSTACK_DATAPLANE_URL;
+
+  if (typeof window === 'undefined' || !writeKey || !dataPlaneUrl) {
+    return undefined;
+  }
+
+  const validationError = getDataPlaneUrlValidationError(dataPlaneUrl);
+  if (validationError) {
+    console.error(`NEXT_PUBLIC_RUDDERSTACK_DATAPLANE_URL ${validationError}`);
     return undefined;
   }
 
   if (!initializationPromise) {
-    initializationPromise = initializeBrowserAnalytics().catch(error => {
+    initializationPromise = initializeBrowserAnalytics(writeKey, dataPlaneUrl).catch(error => {
       initializationPromise = undefined;
       console.error('Failed to initialize the RudderStack JavaScript SDK.', error);
       return undefined;
@@ -27,17 +33,10 @@ export function getBrowserAnalytics(): RudderAnalytics | RudderAnalyticsPreloade
   return window.rudderanalytics;
 }
 
-async function initializeBrowserAnalytics(): Promise<RudderAnalytics | undefined> {
-  const writeKey = process.env.NEXT_PUBLIC_RUDDERSTACK_WRITE_KEY;
-  const dataPlaneUrl = process.env.NEXT_PUBLIC_RUDDERSTACK_DATAPLANE_URL;
-
-  if (!writeKey || !dataPlaneUrl) {
-    console.error(
-      'Missing NEXT_PUBLIC_RUDDERSTACK_WRITE_KEY or NEXT_PUBLIC_RUDDERSTACK_DATAPLANE_URL.',
-    );
-    return undefined;
-  }
-
+async function initializeBrowserAnalytics(
+  writeKey: string,
+  dataPlaneUrl: string,
+): Promise<RudderAnalytics> {
   const { RudderAnalytics } = await import('@rudderstack/analytics-js');
   const analytics = new RudderAnalytics();
   const loadOptions: Partial<LoadOptions> = {
