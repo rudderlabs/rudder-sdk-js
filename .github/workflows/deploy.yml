@@ -64,8 +64,12 @@ permissions:
 
 env:
   NODE_OPTIONS: "--no-warnings"
-  CACHE_CONTROL_NO_STORE: "\"no-store\""
-  CACHE_CONTROL_MAX_AGE: "\"max-age=3600\""
+  # Bare directives, no embedded quotes. Every existing use substitutes these
+  # into a shell command, where the quotes were removed again before argv --
+  # but a step that routes them through `env:` gets the value verbatim, and S3
+  # would then store a Cache-Control header that no cache honours.
+  CACHE_CONTROL_NO_STORE: "no-store"
+  CACHE_CONTROL_MAX_AGE: "max-age=3600"
   INTEGRATIONS_ZIP_FILE: "all_integration_sdks.tar.gz"
   PLUGINS_ZIP_FILE: "all_plugins.tar.gz"
   INTEGRATIONS_ARTIFACTS_BASE_PATH: "packages/analytics-js-integrations/dist/cdn"
