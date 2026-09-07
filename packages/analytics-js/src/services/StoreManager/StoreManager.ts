@@ -138,6 +138,17 @@ class StoreManager implements IStoreManager {
       ? NO_STORAGE
       : DEFAULT_STORAGE_TYPE;
 
+    // An unsupported storage type is normalized to the default type at config time, which would
+    // otherwise read here as an explicitly configured type and persist the data before consent
+    const configuredGlobalStorageType = state.loadOptions.value.storage?.type;
+    if (
+      isStorageFromLoadOptionsBeforeConsent &&
+      configuredGlobalStorageType !== undefined &&
+      !SUPPORTED_STORAGE_TYPES.includes(configuredGlobalStorageType)
+    ) {
+      globalStorageType = undefined;
+    }
+
     let trulyAnonymousTracking = true;
     let storageEntries = {};
     USER_SESSION_KEYS.forEach(sessionKey => {

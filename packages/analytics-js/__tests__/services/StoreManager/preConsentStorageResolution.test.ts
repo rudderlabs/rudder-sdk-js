@@ -296,6 +296,21 @@ describe('Pre-consent storage resolution', () => {
       );
     });
 
+    it('should not persist anything if the storage type is unsupported', () => {
+      // @ts-expect-error testing an invalid value
+      resolveStorageEntries({ type: 'random-type' }, { enabled: true });
+
+      expect(state.storage.entries.value).toEqual(buildExpectedEntries('none'));
+      expect(state.storage.trulyAnonymousTracking.value).toBe(true);
+    });
+
+    it('should still resolve an unsupported storage type after consent is given', () => {
+      // @ts-expect-error testing an invalid value
+      resolveStorageEntries({ type: 'random-type' }, { enabled: false });
+
+      expect(state.storage.entries.value).toEqual(buildExpectedEntries('cookieStorage'));
+    });
+
     it('should still resolve an unsupported entry storage type after consent is given', () => {
       // @ts-expect-error testing an invalid value
       resolveStorageEntries(
