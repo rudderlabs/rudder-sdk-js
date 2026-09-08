@@ -4,7 +4,7 @@ import { http, HttpResponse } from 'msw';
 import type { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { defaultHttpClient } from '../../../src/services/HttpClient';
 import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
-import { defaultLogger } from '../../../src/services/Logger';
+import { defaultLogger, Logger } from '../../../src/services/Logger';
 import { ConfigManager } from '../../../src/components/configManager';
 import { state, resetState } from '../../../src/state';
 import { getSDKUrl } from '../../../src/components/configManager/util/commonUtil';
@@ -402,6 +402,47 @@ describe('ConfigManager', () => {
       }
     });
   });
+
+  it.each([
+    {
+      optionName: 'storage.type',
+      loadOptions: { storage: { type: 'random-type' } },
+      expectedWarning: 'The storage type "random-type" is not supported',
+    },
+    {
+      optionName: 'preConsent.storage.strategy',
+      loadOptions: { preConsent: { storage: { strategy: 'random-strategy' } } },
+      expectedWarning: 'The pre-consent storage strategy "random-strategy" is not supported',
+    },
+  ])(
+    'should emit the load option validation warning for $optionName at the configured log level',
+    ({ loadOptions, expectedWarning }) => {
+      const logProvider = {
+        log: jest.fn(),
+        info: jest.fn(),
+        debug: jest.fn(),
+        warn: jest.fn(),
+        error: jest.fn(),
+      };
+      const logger = new Logger('WARN', undefined, logProvider);
+      const configManager = new ConfigManager(defaultHttpClient, defaultErrorHandler, logger);
+      configManager.getConfig = jest.fn();
+
+      state.lifecycle.writeKey.value = sampleWriteKey;
+      state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
+      state.loadOptions.value.logLevel = 'WARN';
+      // @ts-expect-error Testing invalid input
+      state.loadOptions.value = { ...state.loadOptions.value, ...loadOptions };
+
+      configManager.init();
+
+      expect(logProvider.warn).toHaveBeenCalledWith(
+        expect.stringContaining(expectedWarning),
+        expect.any(String),
+        expect.any(String),
+      );
+    },
+  );
 
   it('should handle promise rejection errors from getSourceConfig function', done => {
     // @ts-expect-error Testing invalid input
