@@ -138,17 +138,6 @@ class StoreManager implements IStoreManager {
       ? NO_STORAGE
       : DEFAULT_STORAGE_TYPE;
 
-    // An unsupported storage type is normalized to the default type at config time, which would
-    // otherwise read here as an explicitly configured type and persist the data before consent
-    const configuredGlobalStorageType = state.loadOptions.value.storage?.type;
-    if (
-      isStorageFromLoadOptionsBeforeConsent &&
-      configuredGlobalStorageType !== undefined &&
-      !SUPPORTED_STORAGE_TYPES.includes(configuredGlobalStorageType)
-    ) {
-      globalStorageType = undefined;
-    }
-
     let trulyAnonymousTracking = true;
     let storageEntries = {};
     USER_SESSION_KEYS.forEach(sessionKey => {
@@ -162,11 +151,10 @@ class StoreManager implements IStoreManager {
       let storageType =
         preConsentStorageType ?? configuredStorageType ?? globalStorageType ?? defaultStorageType;
 
-      // Entry storage types are not validated at config time, so an unsupported value would
-      // otherwise resolve to a persistent storage type and store the data before consent is given
-      if (isStorageFromLoadOptionsBeforeConsent && !SUPPORTED_STORAGE_TYPES.includes(storageType)) {
-        this.logger.warn(STORAGE_TYPE_VALIDATION_WARNING(STORE_MANAGER, storageType, NO_STORAGE));
-        storageType = NO_STORAGE;
+      // Entry storage types are not validated at config time, unlike the global storage type
+      if (!SUPPORTED_STORAGE_TYPES.includes(storageType)) {
+        this.logger.warn(STORAGE_TYPE_VALIDATION_WARNING(STORE_MANAGER, storageType));
+        storageType = defaultStorageType;
       }
 
       const finalStorageType = this.getResolvedStorageTypeForEntry(storageType, sessionKey);

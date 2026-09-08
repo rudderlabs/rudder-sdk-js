@@ -190,9 +190,10 @@ describe('Config Manager Common Utilities', () => {
 
       updateStorageStateFromLoadOptions(mockLogger);
 
-      expect(state.storage.type.value).toBe('cookieStorage');
+      // An unsupported type is not a configured type, so the applicable default is used instead
+      expect(state.storage.type.value).toBeUndefined();
       expect(mockLogger.warn).toHaveBeenCalledWith(
-        'ConfigManager:: The storage type "random-type" is not supported. Please choose one of the following supported types: "localStorage,memoryStorage,cookieStorage,sessionStorage,none". The default type "cookieStorage" will be used instead.',
+        'ConfigManager:: The storage type "random-type" is not supported. Please choose one of the following supported types: "localStorage,memoryStorage,cookieStorage,sessionStorage,none". The default storage type will be used instead.',
       );
     });
 

@@ -4,10 +4,7 @@ import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/logge
 import { batch } from '@preact/signals-core';
 import { isDefined, isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { isSDKRunningInChromeExtension } from '@rudderstack/analytics-js-common/utilities/detect';
-import {
-  DEFAULT_STORAGE_TYPE,
-  type CookieOptions,
-} from '@rudderstack/analytics-js-common/types/Storage';
+import type { CookieOptions } from '@rudderstack/analytics-js-common/types/Storage';
 import type {
   DeliveryType,
   StorageStrategy,
@@ -74,6 +71,7 @@ const getSDKUrl = (): string | undefined => {
   const scripts = document.getElementsByTagName('script');
   const sdkFileNameRegex = /(?:^|\/)rsa(\.min)?\.js$/;
 
+  // eslint-disable-next-line no-restricted-syntax
   for (const script of scripts) {
     const src = script.getAttribute('src');
     if (src && sdkFileNameRegex.test(src)) {
@@ -178,8 +176,9 @@ const updateStorageStateFromLoadOptions = (logger: ILogger): void => {
   const { storage: storageOptsFromLoad } = state.loadOptions.value;
   let storageType = storageOptsFromLoad?.type;
   if (isDefined(storageType) && !isValidStorageType(storageType)) {
-    logger.warn(STORAGE_TYPE_VALIDATION_WARNING(CONFIG_MANAGER, storageType, DEFAULT_STORAGE_TYPE));
-    storageType = DEFAULT_STORAGE_TYPE;
+    logger.warn(STORAGE_TYPE_VALIDATION_WARNING(CONFIG_MANAGER, storageType));
+    // An unsupported type is not a configured type, so the applicable default is used instead
+    storageType = undefined;
   }
 
   let storageEncryptionVersion = storageOptsFromLoad?.encryption?.version;

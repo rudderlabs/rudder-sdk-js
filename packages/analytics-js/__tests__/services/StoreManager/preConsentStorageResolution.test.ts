@@ -292,7 +292,7 @@ describe('Pre-consent storage resolution', () => {
       expect(state.storage.entries.value).toEqual(buildExpectedEntries('none'));
       expect(state.storage.trulyAnonymousTracking.value).toBe(true);
       expect(logger.warn).toHaveBeenCalledWith(
-        'StoreManager:: The storage type "localStoarge" is not supported. Please choose one of the following supported types: "localStorage,memoryStorage,cookieStorage,sessionStorage,none". The default type "none" will be used instead.',
+        'StoreManager:: The storage type "localStoarge" is not supported. Please choose one of the following supported types: "localStorage,memoryStorage,cookieStorage,sessionStorage,none". The default storage type will be used instead.',
       );
     });
 

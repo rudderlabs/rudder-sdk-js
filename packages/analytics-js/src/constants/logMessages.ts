@@ -1,8 +1,5 @@
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import {
-  type StorageType,
-  SUPPORTED_STORAGE_TYPES,
-} from '@rudderstack/analytics-js-common/types/Storage';
+import { SUPPORTED_STORAGE_TYPES } from '@rudderstack/analytics-js-common/types/Storage';
 import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constants/logMessages';
 import type { DeliveryType } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
@@ -105,12 +102,8 @@ const COLLAPSED_COOKIE_BATCH_ERROR = (missingCookies: string[], batchSize: numbe
   `The server did not set ${missingCookies.length} of the ${batchSize} cookies sent in one request: ${missingCookies.join(', ')}. A fallback to set them client side was attempted. Check that the data service and any proxy preserve every "Set-Cookie" header, and that the cookie domain and SameSite/Secure attributes are valid.`;
 
 // WARNING
-const STORAGE_TYPE_VALIDATION_WARNING = (
-  context: string,
-  storageType: any,
-  defaultStorageType: StorageType,
-): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The storage type "${storageType}" is not supported. Please choose one of the following supported types: "${SUPPORTED_STORAGE_TYPES}". The default type "${defaultStorageType}" will be used instead.`;
+const STORAGE_TYPE_VALIDATION_WARNING = (context: string, storageType: any): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The storage type "${storageType}" is not supported. Please choose one of the following supported types: "${SUPPORTED_STORAGE_TYPES}". The default storage type will be used instead.`;
 
 const UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING = (
   context: string,
