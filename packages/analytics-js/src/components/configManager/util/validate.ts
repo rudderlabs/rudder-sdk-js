@@ -33,7 +33,7 @@ const validateStorageOptions = (
   context: string,
   logger?: ILogger,
 ): void => {
-  if (!storageOpts) {
+  if (!isObjectLiteralAndNotNull(storageOpts)) {
     return;
   }
 

@@ -62,11 +62,14 @@ describe('Config manager util - validate load arguments', () => {
       expect(logger.warn).not.toHaveBeenCalled();
     });
 
-    it('should not warn if no storage options are provided', () => {
-      validateStorageOptions(undefined, 'ConfigManager', logger);
-
-      expect(logger.warn).not.toHaveBeenCalled();
-    });
+    it.each([undefined, null, 'a string', 42, true, [], () => {}])(
+      'should not warn or throw for a non object storage options value: %p',
+      storageOpts => {
+        // @ts-expect-error testing invalid values
+        expect(() => validateStorageOptions(storageOpts, 'ConsentAPI', logger)).not.toThrow();
+        expect(logger.warn).not.toHaveBeenCalled();
+      },
+    );
 
     it('should warn for an unsupported storage type', () => {
       // @ts-expect-error testing invalid value
