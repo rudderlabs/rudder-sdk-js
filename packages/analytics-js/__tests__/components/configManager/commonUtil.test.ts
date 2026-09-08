@@ -364,7 +364,7 @@ describe('Config Manager Common Utilities', () => {
 
       updateConsentsStateFromLoadOptions(mockLogger);
 
-      expect(state.consents.activeConsentManagerPluginName.value).toBe(undefined);
+      expect(state.consents.activeConsentManagerPluginName.value).toBeUndefined();
       expect(mockLogger.error).toHaveBeenCalledWith(
         'ConfigManager:: The consent manager "randomManager" is not supported. Please choose one of the following supported consent managers: "iubenda,oneTrust,ketch,custom".',
       );
@@ -544,7 +544,7 @@ describe('Config Manager Common Utilities', () => {
       expect(state.consents.metadata.value).toStrictEqual(
         mockSourceConfig.consentManagementMetadata,
       );
-      expect(state.consents.resolutionStrategy.value).toBe(undefined);
+      expect(state.consents.resolutionStrategy.value).toBeUndefined();
     });
 
     it('should not update the metadata and resolution strategy to state if the metadata in source config is not an object literal', () => {
@@ -555,7 +555,7 @@ describe('Config Manager Common Utilities', () => {
 
       updateConsentsState(mockSourceConfig);
 
-      expect(state.consents.metadata.value).toBe(undefined);
+      expect(state.consents.metadata.value).toBeUndefined();
       expect(state.consents.resolutionStrategy.value).toBe('and'); // default value
     });
 
