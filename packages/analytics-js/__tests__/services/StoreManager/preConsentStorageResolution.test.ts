@@ -228,7 +228,49 @@ describe('Pre-consent storage resolution', () => {
     },
   );
 
-  describe('without the storage strategy', () => {
+  describe('without opting in to the storage before consent', () => {
+    // The storage load API options must not reach the pre-consent phase on their own, so an
+    // existing configuration keeps persisting nothing after upgrading.
+    const notOptedIn: [string, StorageOpts, PreConsentOptions][] = [
+      ['a global storage type', { type: 'localStorage' }, { enabled: true }],
+      [
+        'storage entries',
+        { entries: { anonymousId: { type: 'cookieStorage' } } },
+        { enabled: true },
+      ],
+      ['a global type and no events options', { type: 'localStorage' }, { enabled: true }],
+      [
+        'a global type and an empty pre-consent storage object',
+        { type: 'localStorage' },
+        { enabled: true, storage: {} },
+      ],
+      [
+        'a global type and the storage explicitly not enabled',
+        { type: 'localStorage' },
+        { enabled: true, storage: { enabled: false } },
+      ],
+      [
+        'a single non identifier entry',
+        { entries: { userId: { type: 'localStorage' } } },
+        { enabled: true },
+      ],
+    ];
+
+    it.each(notOptedIn)('should persist nothing with %s', (_desc, storage, preConsent) => {
+      resolveStorageEntries(storage, preConsent);
+
+      expect(state.storage.entries.value).toEqual(buildExpectedEntries('none'));
+      expect(state.storage.trulyAnonymousTracking.value).toBe(true);
+    });
+
+    it('should persist the storage options once consent is given', () => {
+      resolveStorageEntries({ type: 'localStorage' }, { enabled: false });
+
+      expect(state.storage.entries.value).toEqual(buildExpectedEntries('localStorage'));
+    });
+  });
+
+  describe('with the storage enabled before consent', () => {
     it('should persist both the anonymous ID and the session info if they are the only configured entries', () => {
       resolveStorageEntries(
         {
@@ -237,7 +279,11 @@ describe('Pre-consent storage resolution', () => {
             sessionInfo: { type: 'cookieStorage' },
           },
         },
-        { enabled: true, events: { delivery: 'buffer' } },
+        {
+          enabled: true,
+          storage: { enabled: true, storage: { enabled: true } },
+          events: { delivery: 'buffer' },
+        },
       );
 
       expect(state.storage.entries.value).toEqual(
@@ -250,7 +296,10 @@ describe('Pre-consent storage resolution', () => {
     });
 
     it('should persist every entry if the storage type is configured', () => {
-      resolveStorageEntries({ type: 'localStorage' }, { enabled: true });
+      resolveStorageEntries(
+        { type: 'localStorage' },
+        { enabled: true, storage: { enabled: true } },
+      );
 
       expect(state.storage.entries.value).toEqual(buildExpectedEntries('localStorage'));
       expect(state.storage.trulyAnonymousTracking.value).toBe(false);
@@ -259,7 +308,7 @@ describe('Pre-consent storage resolution', () => {
     it('should give the entry storage type precedence over the storage type', () => {
       resolveStorageEntries(
         { type: 'localStorage', entries: { anonymousId: { type: 'sessionStorage' } } },
-        { enabled: true },
+        { enabled: true, storage: { enabled: true } },
       );
 
       expect(state.storage.entries.value).toEqual(
@@ -270,7 +319,7 @@ describe('Pre-consent storage resolution', () => {
     it('should not persist an entry that is configured with no storage', () => {
       resolveStorageEntries(
         { type: 'localStorage', entries: { anonymousId: { type: 'none' } } },
-        { enabled: true },
+        { enabled: true, storage: { enabled: true } },
       );
 
       expect(state.storage.entries.value).toEqual(
@@ -279,7 +328,10 @@ describe('Pre-consent storage resolution', () => {
     });
 
     it('should not log a deprecation warning', () => {
-      resolveStorageEntries({ type: 'localStorage' }, { enabled: true });
+      resolveStorageEntries(
+        { type: 'localStorage' },
+        { enabled: true, storage: { enabled: true } },
+      );
 
       expect(logger.warn).not.toHaveBeenCalled();
     });
@@ -288,7 +340,11 @@ describe('Pre-consent storage resolution', () => {
       resolveStorageEntries(
         // @ts-expect-error testing an invalid value
         { entries: { anonymousId: { type: 'localStoarge' } } },
-        { enabled: true, events: { delivery: 'buffer' } },
+        {
+          enabled: true,
+          storage: { enabled: true, storage: { enabled: true } },
+          events: { delivery: 'buffer' },
+        },
       );
 
       expect(state.storage.entries.value).toEqual(buildExpectedEntries('none'));
@@ -300,7 +356,7 @@ describe('Pre-consent storage resolution', () => {
 
     it('should not persist anything if the storage type is unsupported', () => {
       // @ts-expect-error testing an invalid value
-      resolveStorageEntries({ type: 'random-type' }, { enabled: true });
+      resolveStorageEntries({ type: 'random-type' }, { enabled: true, storage: { enabled: true } });
 
       expect(state.storage.entries.value).toEqual(buildExpectedEntries('none'));
       expect(state.storage.trulyAnonymousTracking.value).toBe(true);
@@ -394,7 +450,10 @@ describe('Pre-consent storage resolution', () => {
     };
 
     it('should leave the storage as it is if an invocation provides no storage options', () => {
-      resolveStorageEntries({ type: 'localStorage' }, { enabled: true });
+      resolveStorageEntries(
+        { type: 'localStorage' },
+        { enabled: true, storage: { enabled: true } },
+      );
 
       expect(state.storage.entries.value).toEqual(buildExpectedEntries('localStorage'));
 
@@ -413,7 +472,10 @@ describe('Pre-consent storage resolution', () => {
     });
 
     it('should replace the storage options if a later invocation provides them', () => {
-      resolveStorageEntries({ type: 'localStorage' }, { enabled: true });
+      resolveStorageEntries(
+        { type: 'localStorage' },
+        { enabled: true, storage: { enabled: true } },
+      );
       giveConsent({
         storage: { type: 'cookieStorage', entries: { anonymousId: { type: 'sessionStorage' } } },
       });

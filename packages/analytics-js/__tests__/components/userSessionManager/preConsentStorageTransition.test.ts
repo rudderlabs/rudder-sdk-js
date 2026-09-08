@@ -101,7 +101,7 @@ describe('Pre-consent to post-consent storage transition', () => {
   it('should persist only the configured entries before consent', () => {
     loadBeforeConsent(
       { entries: { anonymousId: { type: 'cookieStorage' } } },
-      { enabled: true, events: { delivery: 'buffer' } },
+      { enabled: true, storage: { enabled: true }, events: { delivery: 'buffer' } },
     );
 
     const preConsentAnonymousId = state.session.anonymousId.value;
@@ -118,7 +118,7 @@ describe('Pre-consent to post-consent storage transition', () => {
   it('should relocate the persisted data if the post-consent storage type differs', () => {
     loadBeforeConsent(
       { entries: { anonymousId: { type: 'sessionStorage' } } },
-      { enabled: true, events: { delivery: 'buffer' } },
+      { enabled: true, storage: { enabled: true }, events: { delivery: 'buffer' } },
     );
 
     const preConsentAnonymousId = state.session.anonymousId.value;
@@ -141,7 +141,7 @@ describe('Pre-consent to post-consent storage transition', () => {
           sessionInfo: { type: 'cookieStorage' },
         },
       },
-      { enabled: true, events: { delivery: 'buffer' } },
+      { enabled: true, storage: { enabled: true }, events: { delivery: 'buffer' } },
     );
 
     const preConsentAnonymousId = state.session.anonymousId.value;
