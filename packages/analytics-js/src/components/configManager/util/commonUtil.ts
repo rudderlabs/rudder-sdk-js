@@ -241,7 +241,9 @@ const updateConsentsStateFromLoadOptions = (logger: ILogger): void => {
   }
 
   // The storage load API options drive the pre-consent phase only when it is explicitly enabled,
-  // so an existing configuration keeps persisting nothing before consent is given.
+  // so an existing configuration keeps persisting nothing before consent is given. Enabling it
+  // takes precedence over the deprecated strategy, otherwise a migration that leaves the strategy
+  // in place would silently do nothing.
   let storageStrategy: StorageStrategy | undefined;
   if (preConsentOpts?.storage?.enabled !== true) {
     storageStrategy = configuredStrategy ?? DEFAULT_PRE_CONSENT_STORAGE_STRATEGY;

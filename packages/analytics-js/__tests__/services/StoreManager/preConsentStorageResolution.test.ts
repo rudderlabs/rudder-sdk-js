@@ -281,7 +281,7 @@ describe('Pre-consent storage resolution', () => {
         },
         {
           enabled: true,
-          storage: { enabled: true, storage: { enabled: true } },
+          storage: { enabled: true },
           events: { delivery: 'buffer' },
         },
       );
@@ -342,7 +342,7 @@ describe('Pre-consent storage resolution', () => {
         { entries: { anonymousId: { type: 'localStoarge' } } },
         {
           enabled: true,
-          storage: { enabled: true, storage: { enabled: true } },
+          storage: { enabled: true },
           events: { delivery: 'buffer' },
         },
       );
