@@ -167,6 +167,12 @@ jobs:
 
             IS_PRIVATE=$(jq -r '.private // "false"' "$PROJECT_ROOT/package.json")
             if [ "$IS_PRIVATE" != "true" ]; then
+              PACKAGE_NAME=$(jq -r '.name // empty' "$PROJECT_ROOT/package.json")
+              if [ -z "$PACKAGE_NAME" ]; then
+                echo "::warning::No name found in $PROJECT_ROOT/package.json; skipping"
+                continue
+              fi
+
               echo "Affected publishable project: $project"
               if [ -n "$PUBLISHABLE_PROJECTS" ]; then
                 PUBLISHABLE_PROJECTS="$PUBLISHABLE_PROJECTS,$project"
@@ -211,8 +217,19 @@ jobs:
           echo "Updating versions:"
 
           for PACKAGE_JSON in packages/*/package.json; do
+            # Guards against an unmatched glob, which would otherwise be passed to jq verbatim
+            if [ ! -f "$PACKAGE_JSON" ]; then
+              continue
+            fi
+
             IS_PRIVATE=$(jq -r '.private // "false"' "$PACKAGE_JSON")
             if [ "$IS_PRIVATE" = "true" ]; then
+              continue
+            fi
+
+            PACKAGE_NAME=$(jq -r '.name // empty' "$PACKAGE_JSON")
+            if [ -z "$PACKAGE_NAME" ]; then
+              echo "::warning::No name found in $PACKAGE_JSON; skipping"
               continue
             fi
 
@@ -222,12 +239,13 @@ jobs:
               continue
             fi
 
-            PACKAGE_NAME=$(jq -r '.name // empty' "$PACKAGE_JSON")
             NEW_VERSION="${CURRENT_VERSION}-${VERSION_SUFFIX}"
             echo "$PACKAGE_NAME: $CURRENT_VERSION -> $NEW_VERSION"
 
+            # --arg rather than interpolating into the jq program, so a suffix containing
+            # quotes or backslashes cannot corrupt or inject into it
             TMP_FILE=$(mktemp)
-            jq ".version = \"$NEW_VERSION\"" "$PACKAGE_JSON" > "$TMP_FILE" && mv "$TMP_FILE" "$PACKAGE_JSON"
+            jq --arg version "$NEW_VERSION" '.version = $version' "$PACKAGE_JSON" > "$TMP_FILE" && mv "$TMP_FILE" "$PACKAGE_JSON"
           done
 
       - name: Get new version number

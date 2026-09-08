@@ -10,12 +10,17 @@
 
 set -euo pipefail
 
+# Anchored to the script's own location so the package lookup below does not depend on
+# the working directory the script happens to be invoked from
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+REPO_ROOT=$(cd "$SCRIPT_DIR/.." && pwd)
+
 # Configuration
 # Derived from the workspace rather than hardcoded, so this list cannot drift from the
 # set of packages that beta deploys publish. The private check matches the one used to
 # pick the packages to version and publish.
 PACKAGES=()
-for package_json in packages/*/package.json; do
+for package_json in "$REPO_ROOT"/packages/*/package.json; do
   if [[ ! -f "$package_json" ]]; then
     continue
   fi
@@ -35,7 +40,7 @@ for package_json in packages/*/package.json; do
 done
 
 if [[ ${#PACKAGES[@]} -eq 0 ]]; then
-  echo "❌ No publishable packages found under packages/"
+  echo "❌ No publishable packages found under $REPO_ROOT/packages"
   exit 1
 fi
 
