@@ -232,7 +232,7 @@ const UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY = (
   `${context}${LOG_CONTEXT_SEPARATOR}The pre-consent storage strategy "${selectedStrategy}" is not supported. Please choose one of the following supported strategies: "none, session, anonymousId". The default strategy "${defaultStrategy}" will be used instead.`;
 
 const DEPRECATED_PRE_CONSENT_STORAGE_STRATEGY = (context: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The pre-consent storage strategy option is deprecated. Please use the "storage" load API option instead.`;
+  `${context}${LOG_CONTEXT_SEPARATOR}The pre-consent storage strategy option is deprecated. Please enable "storage" in the pre-consent options and use the "storage" load API option instead.`;
 
 const UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE = (
   context: string,

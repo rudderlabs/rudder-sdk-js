@@ -396,7 +396,7 @@ describe('Pre-consent storage resolution', () => {
       resolveStorageEntries(undefined, { enabled: true, storage: { strategy: 'session' } });
 
       expect(logger.warn).toHaveBeenCalledWith(
-        'ConfigManager:: The pre-consent storage strategy option is deprecated. Please use the "storage" load API option instead.',
+        'ConfigManager:: The pre-consent storage strategy option is deprecated. Please enable "storage" in the pre-consent options and use the "storage" load API option instead.',
       );
     });
   });
