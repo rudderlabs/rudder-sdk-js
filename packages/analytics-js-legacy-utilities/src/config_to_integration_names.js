@@ -73,6 +73,7 @@ const configToIntNames = {
   SENDINBLUE: 'Sendinblue',
   OLARK: 'Olark',
   LEMNISK: 'Lemnisk',
+  OPENAI_ADS: 'OpenAIAds',
   TIKTOK_ADS: 'TiktokAds',
   ACTIVE_CAMPAIGN: 'ActiveCampaign',
   SPRIG: 'Sprig',
