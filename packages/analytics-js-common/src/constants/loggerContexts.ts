@@ -9,6 +9,7 @@ const PLUGIN_ENGINE = 'PluginEngine';
 const STORE_MANAGER = 'StoreManager';
 const READY_API = `Ready${API_SUFFIX}`;
 const LOAD_API = `Load${API_SUFFIX}`;
+const CONSENT_API = `Consent${API_SUFFIX}`;
 const EVENT_REPOSITORY = 'EventRepository';
 const EXTERNAL_SRC_LOADER = 'ExternalSrcLoader';
 const HTTP_CLIENT = 'HttpClient';
@@ -25,6 +26,7 @@ export {
   STORE_MANAGER,
   READY_API,
   LOAD_API,
+  CONSENT_API,
   EVENT_REPOSITORY,
   EXTERNAL_SRC_LOADER,
   HTTP_CLIENT,

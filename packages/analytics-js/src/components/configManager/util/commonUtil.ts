@@ -1,12 +1,10 @@
+/* eslint-disable sonarjs/deprecation */
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { batch } from '@preact/signals-core';
 import { isDefined, isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { isSDKRunningInChromeExtension } from '@rudderstack/analytics-js-common/utilities/detect';
-import {
-  DEFAULT_STORAGE_TYPE,
-  type CookieOptions,
-} from '@rudderstack/analytics-js-common/types/Storage';
+import type { CookieOptions } from '@rudderstack/analytics-js-common/types/Storage';
 import type {
   DeliveryType,
   StorageStrategy,
@@ -32,10 +30,10 @@ import { state } from '../../../state';
 import {
   INVALID_CONFIG_URL_WARNING,
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
-  STORAGE_TYPE_VALIDATION_WARNING,
   UNSUPPORTED_BEACON_API_WARNING,
   UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
   UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY,
+  DEPRECATED_PRE_CONSENT_STORAGE_STRATEGY,
   UNSUPPORTED_STORAGE_ENCRYPTION_VERSION_WARNING,
   SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING,
 } from '../../../constants/logMessages';
@@ -51,7 +49,7 @@ import {
   DEFAULT_STORAGE_ENCRYPTION_VERSION,
   StorageEncryptionVersionsToPluginNameMap,
 } from '../constants';
-import { getDataServiceUrl, isValidStorageType, isWebpageTopLevelDomain } from './validate';
+import { getDataServiceUrl, isWebpageTopLevelDomain, validateStorageOptions } from './validate';
 import { getConsentManagementData } from '../../utilities/consent';
 
 /**
@@ -175,11 +173,10 @@ const getServerSideCookiesStateData = (logger: ILogger) => {
 
 const updateStorageStateFromLoadOptions = (logger: ILogger): void => {
   const { storage: storageOptsFromLoad } = state.loadOptions.value;
-  let storageType = storageOptsFromLoad?.type;
-  if (isDefined(storageType) && !isValidStorageType(storageType)) {
-    logger.warn(STORAGE_TYPE_VALIDATION_WARNING(CONFIG_MANAGER, storageType, DEFAULT_STORAGE_TYPE));
-    storageType = DEFAULT_STORAGE_TYPE;
-  }
+
+  // Only reported here. The applicable default depends on the consent phase, so the unsupported
+  // values are resolved in the store manager.
+  validateStorageOptions(storageOptsFromLoad, CONFIG_MANAGER, logger);
 
   let storageEncryptionVersion = storageOptsFromLoad?.encryption?.version;
   const encryptionPluginName =
@@ -219,8 +216,6 @@ const updateStorageStateFromLoadOptions = (logger: ILogger): void => {
   const { sscEnabled, finalDataServiceUrl, cookieOptions } = getServerSideCookiesStateData(logger);
 
   batch(() => {
-    state.storage.type.value = storageType;
-
     state.storage.cookie.value = cookieOptions;
 
     state.serverCookies.isEnabledServerSideCookies.value = sscEnabled;
@@ -240,19 +235,31 @@ const updateConsentsStateFromLoadOptions = (logger: ILogger): void => {
   // Pre-consent
   const preConsentOpts = state.loadOptions.value.preConsent;
 
-  let storageStrategy: StorageStrategy =
-    preConsentOpts?.storage?.strategy ?? DEFAULT_PRE_CONSENT_STORAGE_STRATEGY;
-  const StorageStrategies = ['none', 'session', 'anonymousId'];
-  if (isDefined(storageStrategy) && !StorageStrategies.includes(storageStrategy)) {
-    storageStrategy = DEFAULT_PRE_CONSENT_STORAGE_STRATEGY;
+  const configuredStrategy = preConsentOpts?.storage?.strategy;
+  if (isDefined(configuredStrategy)) {
+    logger.warn(DEPRECATED_PRE_CONSENT_STORAGE_STRATEGY(CONFIG_MANAGER));
+  }
 
-    logger.warn(
-      UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY(
-        CONFIG_MANAGER,
-        preConsentOpts?.storage?.strategy,
-        DEFAULT_PRE_CONSENT_STORAGE_STRATEGY,
-      ),
-    );
+  // The storage load API options drive the pre-consent phase only when it is explicitly enabled,
+  // so an existing configuration keeps persisting nothing before consent is given. Enabling it
+  // takes precedence over the deprecated strategy, otherwise a migration that leaves the strategy
+  // in place would silently do nothing.
+  let storageStrategy: StorageStrategy | undefined;
+  if (preConsentOpts?.storage?.enabled !== true) {
+    storageStrategy = configuredStrategy ?? DEFAULT_PRE_CONSENT_STORAGE_STRATEGY;
+
+    const StorageStrategies = ['none', 'session', 'anonymousId'];
+    if (!StorageStrategies.includes(storageStrategy as string)) {
+      storageStrategy = DEFAULT_PRE_CONSENT_STORAGE_STRATEGY;
+
+      logger.warn(
+        UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY(
+          CONFIG_MANAGER,
+          configuredStrategy,
+          DEFAULT_PRE_CONSENT_STORAGE_STRATEGY,
+        ),
+      );
+    }
   }
 
   let eventsDeliveryType: DeliveryType =

@@ -1,4 +1,7 @@
-import { CONFIG_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import {
+  CONFIG_MANAGER,
+  CONSENT_API,
+} from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import type {
   ConsentManagementOptions,
   ConsentManagementProvider,
@@ -13,9 +16,11 @@ import {
   isObjectLiteralAndNotNull,
   mergeDeepRight,
 } from '@rudderstack/analytics-js-common/utilities/object';
+import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { clone } from 'ramda';
 import { state } from '../../state';
 import { UNSUPPORTED_CONSENT_MANAGER_ERROR } from '../../constants/logMessages';
+import { validateStorageOptions } from '../configManager/util/validate';
 import { ConsentManagersToPluginNameMap } from '../configManager/constants';
 
 /**
@@ -50,16 +55,24 @@ const getUserSelectedConsentManager = (
  * @param options Consent options provided by the user
  * @returns Validated and normalized consent options
  */
-const getValidPostConsentOptions = (options?: ConsentOptions) => {
+const getValidPostConsentOptions = (options?: ConsentOptions, logger?: ILogger) => {
   const validOptions: ConsentOptions = {
     sendPageEvent: false,
     trackConsent: false,
     discardPreConsentEvents: false,
   };
+
+  // The storage options persist across consent API invocations, so an invocation that does not
+  // provide them leaves the storage as it is
+  validOptions.storage = state.consents.postConsent.value.storage;
+
   if (isObjectLiteralAndNotNull(options)) {
     const clonedOptions = clone(options);
 
-    validOptions.storage = clonedOptions.storage;
+    if (isDefined(clonedOptions.storage)) {
+      validateStorageOptions(clonedOptions.storage, CONSENT_API, logger);
+      validOptions.storage = clonedOptions.storage;
+    }
     if (isNonEmptyObject(clonedOptions.integrations)) {
       validOptions.integrations = clonedOptions.integrations;
     }

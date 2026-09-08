@@ -1,9 +1,15 @@
 import { isObjectLiteralAndNotNull } from '@rudderstack/analytics-js-common/utilities/object';
-import { isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isDefined, isNullOrUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import {
   SUPPORTED_STORAGE_TYPES,
+  type StorageOpts,
   type StorageType,
 } from '@rudderstack/analytics-js-common/types/Storage';
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
+import {
+  STORAGE_TYPE_VALIDATION_WARNING,
+  UNSUPPORTED_STORAGE_ENTRY_TYPE_WARNING,
+} from '../../../constants/logMessages';
 
 const isValidSourceConfig = (res: any): boolean =>
   isObjectLiteralAndNotNull(res) &&
@@ -14,6 +20,37 @@ const isValidSourceConfig = (res: any): boolean =>
 
 const isValidStorageType = (storageType?: StorageType): boolean =>
   typeof storageType === 'string' && SUPPORTED_STORAGE_TYPES.includes(storageType);
+
+/**
+ * Warns about the unsupported storage types in the storage options. It only reports them, as the
+ * applicable default depends on the consent phase and is determined at resolution time.
+ * @param storageOpts Storage options from the load API options or the consent API options
+ * @param context Logger context
+ * @param logger Logger instance
+ */
+const validateStorageOptions = (
+  storageOpts: StorageOpts | undefined,
+  context: string,
+  logger?: ILogger,
+): void => {
+  if (!isObjectLiteralAndNotNull(storageOpts)) {
+    return;
+  }
+
+  const { type, entries } = storageOpts;
+  if (isDefined(type) && !isValidStorageType(type)) {
+    logger?.warn(STORAGE_TYPE_VALIDATION_WARNING(context, type));
+  }
+
+  if (entries) {
+    Object.entries(entries).forEach(([entryKey, entryOpts]) => {
+      const entryType = entryOpts?.type;
+      if (isDefined(entryType) && !isValidStorageType(entryType)) {
+        logger?.warn(UNSUPPORTED_STORAGE_ENTRY_TYPE_WARNING(context, entryKey, entryType));
+      }
+    });
+  }
+};
 
 const getTopDomain = (url: string) => {
   // Create a URL object
@@ -55,6 +92,7 @@ const isWebpageTopLevelDomain = (providedDomain: string): boolean => {
 export {
   isValidSourceConfig,
   isValidStorageType,
+  validateStorageOptions,
   getTopDomainUrl,
   getDataServiceUrl,
   isWebpageTopLevelDomain,

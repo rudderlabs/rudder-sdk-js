@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/deprecation */
 import type { LogLevel } from './Logger';
 import type { Nullable } from './Nullable';
 import type { PluginName } from './PluginsManager';
@@ -99,10 +100,23 @@ export type OnLoadedCallback = (analytics: any) => void;
 
 export type DeliveryType = 'immediate' | 'buffer';
 
+/**
+ * @deprecated Use the `storage` load API option to control what is persisted before consent is given. It will be removed in the next major version.
+ */
 export type StorageStrategy = 'none' | 'session' | 'anonymousId';
 
 export type PreConsentStorageOptions = {
-  strategy: StorageStrategy;
+  /**
+   * Applies the `storage` load API option during the pre-consent phase, taking precedence over
+   * `strategy`. When it is not enabled, `strategy` decides what is persisted instead, and with
+   * neither of them nothing is persisted before consent is given. Defaults to false.
+   */
+  enabled?: boolean;
+  /**
+   * Only applies when `enabled` is not set. Defaults to persisting nothing.
+   * @deprecated Enable `storage` in the pre-consent options and use the `storage` load API option instead. It will be removed in the next major version.
+   */
+  strategy?: StorageStrategy;
 };
 
 export type PreConsentEventsOptions = {

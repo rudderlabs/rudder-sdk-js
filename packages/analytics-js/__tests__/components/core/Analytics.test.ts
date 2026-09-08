@@ -853,7 +853,9 @@ describe('Core - Analytics', () => {
   describe('page', () => {
     it('should buffer events until loaded', () => {
       analytics.page({ name: 'name' });
-      expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([['page', { name: 'name' }]]);
+      expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([
+        ['page', { name: 'name' }],
+      ]);
     });
     it('should sent events if loaded', () => {
       analytics.prepareInternalServices();
@@ -1091,9 +1093,7 @@ describe('Core - Analytics', () => {
   describe('alias', () => {
     it('should buffer events until loaded', () => {
       analytics.alias({ to: 'to' });
-      expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([
-        ['alias', { to: 'to' }],
-      ]);
+      expect(state.eventBuffer.toBeProcessedArray.value).toStrictEqual([['alias', { to: 'to' }]]);
     });
     it('should sent events if loaded', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
@@ -1302,7 +1302,7 @@ describe('Core - Analytics', () => {
       state.consents.enabled.value = true;
       state.lifecycle.loaded.value = true;
       state.consents.initialized.value = false;
-      state.storage.type.value = 'localStorage';
+      state.loadOptions.value.storage.type = 'localStorage';
       state.storage.entries.value = entriesWithMixStorage;
 
       const leaveBreadcrumbSpy = jest.spyOn(analytics.errorHandler, 'leaveBreadcrumb');
@@ -1398,7 +1398,6 @@ describe('Core - Analytics', () => {
       expect(resumeSpy).toHaveBeenCalledTimes(1);
       expect(loadDestinationsSpy).toHaveBeenCalledTimes(1);
 
-      expect(state.storage.type.value).toBe('cookieStorage');
       expect(state.storage.entries.value).toStrictEqual({
         userId: {
           type: 'sessionStorage',
@@ -1514,7 +1513,7 @@ describe('Core - Analytics', () => {
       state.consents.enabled.value = true;
       state.lifecycle.loaded.value = true;
       state.consents.initialized.value = false;
-      state.storage.type.value = 'localStorage';
+      state.loadOptions.value.storage.type = 'localStorage';
       state.storage.entries.value = entriesWithMixStorage;
 
       const invokeSingleSpy = jest.spyOn(

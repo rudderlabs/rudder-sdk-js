@@ -193,7 +193,6 @@ export type StorageEntries = {
 export type StorageState = {
   encryptionPluginName: Signal<PluginName | undefined>;
   migrate: Signal<boolean>;
-  type: Signal<StorageType | undefined>;
   cookie: Signal<CookieOptions | undefined>;
   entries: Signal<StorageEntries>;
   trulyAnonymousTracking: Signal<boolean>;
