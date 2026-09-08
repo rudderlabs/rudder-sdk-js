@@ -167,6 +167,12 @@ jobs:
 
             IS_PRIVATE=$(jq -r '.private // "false"' "$PROJECT_ROOT/package.json")
             if [ "$IS_PRIVATE" != "true" ]; then
+              PACKAGE_NAME=$(jq -r '.name // empty' "$PROJECT_ROOT/package.json")
+              if [ -z "$PACKAGE_NAME" ]; then
+                echo "::warning::No name found in $PROJECT_ROOT/package.json; skipping"
+                continue
+              fi
+
               echo "Affected publishable project: $project"
               if [ -n "$PUBLISHABLE_PROJECTS" ]; then
                 PUBLISHABLE_PROJECTS="$PUBLISHABLE_PROJECTS,$project"
@@ -203,22 +209,44 @@ jobs:
         env:
           VERSION_SUFFIX: ${{ inputs.version_suffix }}
         run: |
-          CURRENT_VERSION_JS=$(jq -r .version packages/analytics-js/package.json)
-          CURRENT_VERSION_V1=$(jq -r .version packages/analytics-v1.1/package.json)
-
-          # Append the suffix to create new versions
-          NEW_VERSION_JS="${CURRENT_VERSION_JS}-${VERSION_SUFFIX}"
-          NEW_VERSION_V1="${CURRENT_VERSION_V1}-${VERSION_SUFFIX}"
-
+          # Every publishable package must get the suffix, not just a hardcoded couple of
+          # them. A package that keeps its released version is skipped by nx at publish
+          # time in favour of "npm dist-tag add", and a failure there aborts the whole
+          # release, including the packages whose versions were perfectly valid.
+          # The private check mirrors the filter used to determine affected projects.
           echo "Updating versions:"
-          echo "analytics-js: $CURRENT_VERSION_JS -> $NEW_VERSION_JS"
-          echo "analytics-v1.1: $CURRENT_VERSION_V1 -> $NEW_VERSION_V1"
 
-          # Update all package.json files using jq
-          TMP_FILE_JS=$(mktemp)
-          jq ".version = \"$NEW_VERSION_JS\"" packages/analytics-js/package.json > "$TMP_FILE_JS" && mv "$TMP_FILE_JS" packages/analytics-js/package.json
-          TMP_FILE_V1=$(mktemp)
-          jq ".version = \"$NEW_VERSION_V1\"" packages/analytics-v1.1/package.json > "$TMP_FILE_V1" && mv "$TMP_FILE_V1" packages/analytics-v1.1/package.json
+          for PACKAGE_JSON in packages/*/package.json; do
+            # Guards against an unmatched glob, which would otherwise be passed to jq verbatim
+            if [ ! -f "$PACKAGE_JSON" ]; then
+              continue
+            fi
+
+            IS_PRIVATE=$(jq -r '.private // "false"' "$PACKAGE_JSON")
+            if [ "$IS_PRIVATE" = "true" ]; then
+              continue
+            fi
+
+            PACKAGE_NAME=$(jq -r '.name // empty' "$PACKAGE_JSON")
+            if [ -z "$PACKAGE_NAME" ]; then
+              echo "::warning::No name found in $PACKAGE_JSON; skipping"
+              continue
+            fi
+
+            CURRENT_VERSION=$(jq -r '.version // empty' "$PACKAGE_JSON")
+            if [ -z "$CURRENT_VERSION" ]; then
+              echo "::warning::No version found in $PACKAGE_JSON; skipping"
+              continue
+            fi
+
+            NEW_VERSION="${CURRENT_VERSION}-${VERSION_SUFFIX}"
+            echo "$PACKAGE_NAME: $CURRENT_VERSION -> $NEW_VERSION"
+
+            # --arg rather than interpolating into the jq program, so a suffix containing
+            # quotes or backslashes cannot corrupt or inject into it
+            TMP_FILE=$(mktemp)
+            jq --arg version "$NEW_VERSION" '.version = $version' "$PACKAGE_JSON" > "$TMP_FILE" && mv "$TMP_FILE" "$PACKAGE_JSON"
+          done
 
       - name: Get new version number
         run: |
