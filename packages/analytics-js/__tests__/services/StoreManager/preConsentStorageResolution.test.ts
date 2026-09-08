@@ -1,6 +1,7 @@
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { StorageOpts, StorageType } from '@rudderstack/analytics-js-common/types/Storage';
 import type { PreConsentOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
+import type { ConsentOptions } from '@rudderstack/analytics-js-common/types/Consent';
 import type { UserSessionKey } from '@rudderstack/analytics-js-common/types/UserSessionStorage';
 import { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
 import { getStorageEngine } from '../../../src/services/StoreManager/storages/storageEngine';
@@ -16,6 +17,7 @@ import {
   updateStorageStateFromLoadOptions,
 } from '../../../src/components/configManager/util/commonUtil';
 import { normalizeLoadOptions } from '../../../src/components/utilities/loadOptions';
+import { getValidPostConsentOptions } from '../../../src/components/utilities/consent';
 
 jest.mock('../../../src/services/StoreManager/storages/storageEngine', () => ({
   __esModule: true,
@@ -292,7 +294,7 @@ describe('Pre-consent storage resolution', () => {
       expect(state.storage.entries.value).toEqual(buildExpectedEntries('none'));
       expect(state.storage.trulyAnonymousTracking.value).toBe(true);
       expect(logger.warn).toHaveBeenCalledWith(
-        'StoreManager:: The storage type "localStoarge" is not supported. Please choose one of the following supported types: "localStorage,memoryStorage,cookieStorage,sessionStorage,none". The default storage type will be used instead.',
+        'ConfigManager:: The storage type "localStoarge" configured for the entry "anonymousId" is not supported. Please choose one of the following supported types: "localStorage,memoryStorage,cookieStorage,sessionStorage,none". The default storage type will be used instead.',
       );
     });
 
@@ -378,6 +380,47 @@ describe('Pre-consent storage resolution', () => {
 
       expect(state.storage.entries.value).toEqual(buildExpectedEntries('cookieStorage'));
       expect(state.storage.trulyAnonymousTracking.value).toBe(false);
+    });
+  });
+
+  describe('across consent API invocations', () => {
+    /**
+     * Mirrors what the consent API does with the storage options
+     */
+    const giveConsent = (options?: ConsentOptions) => {
+      state.consents.preConsent.value = { ...state.consents.preConsent.value, enabled: false };
+      state.consents.postConsent.value = getValidPostConsentOptions(options, logger);
+      storeManager.initializeStorageState();
+    };
+
+    it('should leave the storage as it is if an invocation provides no storage options', () => {
+      resolveStorageEntries({ type: 'localStorage' }, { enabled: true });
+
+      expect(state.storage.entries.value).toEqual(buildExpectedEntries('localStorage'));
+
+      giveConsent({
+        storage: { type: 'cookieStorage', entries: { anonymousId: { type: 'sessionStorage' } } },
+      });
+
+      const afterFirstConsent = buildExpectedEntries('cookieStorage', {
+        anonymousId: 'sessionStorage',
+      });
+      expect(state.storage.entries.value).toEqual(afterFirstConsent);
+
+      giveConsent();
+
+      expect(state.storage.entries.value).toEqual(afterFirstConsent);
+    });
+
+    it('should replace the storage options if a later invocation provides them', () => {
+      resolveStorageEntries({ type: 'localStorage' }, { enabled: true });
+      giveConsent({
+        storage: { type: 'cookieStorage', entries: { anonymousId: { type: 'sessionStorage' } } },
+      });
+
+      giveConsent({ storage: { type: 'sessionStorage' } });
+
+      expect(state.storage.entries.value).toEqual(buildExpectedEntries('sessionStorage'));
     });
   });
 });

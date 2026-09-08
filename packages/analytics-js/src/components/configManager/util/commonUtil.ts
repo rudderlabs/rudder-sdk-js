@@ -30,7 +30,6 @@ import { state } from '../../../state';
 import {
   INVALID_CONFIG_URL_WARNING,
   STORAGE_DATA_MIGRATION_OVERRIDE_WARNING,
-  STORAGE_TYPE_VALIDATION_WARNING,
   UNSUPPORTED_BEACON_API_WARNING,
   UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
   UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY,
@@ -50,7 +49,7 @@ import {
   DEFAULT_STORAGE_ENCRYPTION_VERSION,
   StorageEncryptionVersionsToPluginNameMap,
 } from '../constants';
-import { getDataServiceUrl, isValidStorageType, isWebpageTopLevelDomain } from './validate';
+import { getDataServiceUrl, isWebpageTopLevelDomain, validateStorageOptions } from './validate';
 import { getConsentManagementData } from '../../utilities/consent';
 
 /**
@@ -174,12 +173,10 @@ const getServerSideCookiesStateData = (logger: ILogger) => {
 
 const updateStorageStateFromLoadOptions = (logger: ILogger): void => {
   const { storage: storageOptsFromLoad } = state.loadOptions.value;
-  let storageType = storageOptsFromLoad?.type;
-  if (isDefined(storageType) && !isValidStorageType(storageType)) {
-    logger.warn(STORAGE_TYPE_VALIDATION_WARNING(CONFIG_MANAGER, storageType));
-    // An unsupported type is not a configured type, so the applicable default is used instead
-    storageType = undefined;
-  }
+
+  // Only reported here. The applicable default depends on the consent phase, so the unsupported
+  // values are resolved in the store manager.
+  validateStorageOptions(storageOptsFromLoad, CONFIG_MANAGER, logger);
 
   let storageEncryptionVersion = storageOptsFromLoad?.encryption?.version;
   const encryptionPluginName =
@@ -219,8 +216,6 @@ const updateStorageStateFromLoadOptions = (logger: ILogger): void => {
   const { sscEnabled, finalDataServiceUrl, cookieOptions } = getServerSideCookiesStateData(logger);
 
   batch(() => {
-    state.storage.type.value = storageType;
-
     state.storage.cookie.value = cookieOptions;
 
     state.serverCookies.isEnabledServerSideCookies.value = sscEnabled;

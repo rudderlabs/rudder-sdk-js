@@ -105,6 +105,13 @@ const COLLAPSED_COOKIE_BATCH_ERROR = (missingCookies: string[], batchSize: numbe
 const STORAGE_TYPE_VALIDATION_WARNING = (context: string, storageType: any): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The storage type "${storageType}" is not supported. Please choose one of the following supported types: "${SUPPORTED_STORAGE_TYPES}". The default storage type will be used instead.`;
 
+const UNSUPPORTED_STORAGE_ENTRY_TYPE_WARNING = (
+  context: string,
+  entry: string,
+  storageType: any,
+): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The storage type "${storageType}" configured for the entry "${entry}" is not supported. Please choose one of the following supported types: "${SUPPORTED_STORAGE_TYPES}". The default storage type will be used instead.`;
+
 const UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING = (
   context: string,
   selectedErrorReportingProvider: string | undefined,
@@ -309,6 +316,7 @@ export {
   PLUGIN_EXT_POINT_MISSING_ERROR,
   PLUGIN_EXT_POINT_INVALID_ERROR,
   STORAGE_TYPE_VALIDATION_WARNING,
+  UNSUPPORTED_STORAGE_ENTRY_TYPE_WARNING,
   INVALID_CONFIG_URL_WARNING,
   POLYFILL_SCRIPT_LOAD_ERROR,
   UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY,

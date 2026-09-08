@@ -182,21 +182,6 @@ describe('Config Manager Common Utilities', () => {
       expect(state.storage.encryptionPluginName.value).toBe('StorageEncryption');
     });
 
-    it('should log a warning if the specified storage type is not valid', () => {
-      state.loadOptions.value.storage = {
-        // @ts-expect-error testing invalid value
-        type: 'random-type',
-      };
-
-      updateStorageStateFromLoadOptions(mockLogger);
-
-      // An unsupported type is not a configured type, so the applicable default is used instead
-      expect(state.storage.type.value).toBeUndefined();
-      expect(mockLogger.warn).toHaveBeenCalledWith(
-        'ConfigManager:: The storage type "random-type" is not supported. Please choose one of the following supported types: "localStorage,memoryStorage,cookieStorage,sessionStorage,none". The default storage type will be used instead.',
-      );
-    });
-
     it('should log a warning if the encryption version is not supported', () => {
       state.loadOptions.value.storage = {
         encryption: {

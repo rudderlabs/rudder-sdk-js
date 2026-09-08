@@ -29,10 +29,7 @@ import { batch } from '@preact/signals-core';
 import { isDefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
 import { USER_SESSION_KEYS } from '../../constants/storage';
-import {
-  STORAGE_TYPE_VALIDATION_WARNING,
-  STORAGE_UNAVAILABLE_WARNING,
-} from '../../constants/logMessages';
+import { STORAGE_UNAVAILABLE_WARNING } from '../../constants/logMessages';
 import { type StoreManagerOptions, storageClientDataStoreNameMap } from './types';
 import { state } from '../../state';
 import { configureStorageEngines, getStorageEngine } from './storages/storageEngine';
@@ -118,7 +115,7 @@ class StoreManager implements IStoreManager {
   }
 
   initializeStorageState() {
-    let globalStorageType = state.storage.type.value;
+    let globalStorageType = state.loadOptions.value.storage?.type;
     let entriesOptions = state.loadOptions.value.storage?.entries;
 
     // Use the storage options from post consent if anything is defined
@@ -138,6 +135,12 @@ class StoreManager implements IStoreManager {
       ? NO_STORAGE
       : DEFAULT_STORAGE_TYPE;
 
+    // The unsupported values are reported where the options enter the SDK, so they are only
+    // resolved here, against the default that applies to the current consent phase
+    if (globalStorageType !== undefined && !SUPPORTED_STORAGE_TYPES.includes(globalStorageType)) {
+      globalStorageType = undefined;
+    }
+
     let trulyAnonymousTracking = true;
     let storageEntries = {};
     USER_SESSION_KEYS.forEach(sessionKey => {
@@ -151,9 +154,7 @@ class StoreManager implements IStoreManager {
       let storageType =
         preConsentStorageType ?? configuredStorageType ?? globalStorageType ?? defaultStorageType;
 
-      // Entry storage types are not validated at config time, unlike the global storage type
       if (!SUPPORTED_STORAGE_TYPES.includes(storageType)) {
-        this.logger.warn(STORAGE_TYPE_VALIDATION_WARNING(STORE_MANAGER, storageType));
         storageType = defaultStorageType;
       }
 
@@ -173,7 +174,6 @@ class StoreManager implements IStoreManager {
     });
 
     batch(() => {
-      state.storage.type.value = globalStorageType;
       state.storage.entries.value = storageEntries;
       state.storage.trulyAnonymousTracking.value = trulyAnonymousTracking;
     });
