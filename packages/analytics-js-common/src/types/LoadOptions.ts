@@ -107,13 +107,13 @@ export type StorageStrategy = 'none' | 'session' | 'anonymousId';
 
 export type PreConsentStorageOptions = {
   /**
-   * Applies the `storage` load API option during the pre-consent phase. Nothing is persisted
-   * before consent is given unless this is enabled. Takes precedence over `strategy`.
-   * Defaults to false.
+   * Applies the `storage` load API option during the pre-consent phase, taking precedence over
+   * `strategy`. When it is not enabled, `strategy` decides what is persisted instead, and with
+   * neither of them nothing is persisted before consent is given. Defaults to false.
    */
   enabled?: boolean;
   /**
-   * Only applies when `enabled` is not set.
+   * Only applies when `enabled` is not set. Defaults to persisting nothing.
    * @deprecated Enable `storage` in the pre-consent options and use the `storage` load API option instead. It will be removed in the next major version.
    */
   strategy?: StorageStrategy;
