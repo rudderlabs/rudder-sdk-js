@@ -2,7 +2,8 @@
 // https://www.six-group.com/en/products-services/financial-information/data-standards.html
 const CURRENCY_CODES =
   ' AED AFN ALL AMD ANG AOA ARS AUD AWG AZN BAM BBD BDT BGN BHD BIF BMD BND BOB BOV BRL BSD BTN BWP BYN BZD CAD CDF CHE CHF CHW CLF CLP CNY COP COU CRC CUC CUP CVE CZK DJF DKK DOP DZD EGP ERN ETB EUR FJD FKP GBP GEL GHS GIP GMD GNF GTQ GYD HKD HNL HTG HUF IDR ILS INR IQD IRR ISK JMD JOD JPY KES KGS KHR KMF KPW KRW KWD KYD KZT LAK LBP LKR LRD LSL LYD MAD MDL MGA MKD MMK MNT MOP MRU MUR MVR MWK MXN MXV MYR MZN NAD NGN NIO NOK NPR NZD OMR PAB PEN PGK PHP PKR PLN PYG QAR RON RSD RUB RWF SAR SBD SCR SDG SEK SGD SHP SLE SLL SOS SRD SSP STN SVC SYP SZL THB TJS TMT TND TOP TRY TTD TWD TZS UAH UGX USD USN UYI UYU UYW UZS VED VES VND VUV WST XAF XCD XOF XPF YER ZAR ZMW ZWL ';
-const ZERO_DECIMAL_CURRENCIES = ' BIF CLP DJF GNF ISK JPY KMF KRW PYG RWF UGX UYI VND VUV XAF XOF XPF ';
+const ZERO_DECIMAL_CURRENCIES =
+  ' BIF CLP DJF GNF ISK JPY KMF KRW PYG RWF UGX UYI VND VUV XAF XOF XPF ';
 const THREE_DECIMAL_CURRENCIES = ' BHD IQD JOD KWD LYD OMR TND ';
 const FOUR_DECIMAL_CURRENCIES = ' CLF UYW ';
 
@@ -63,7 +64,8 @@ const toMinorUnits = (amount, currency) => {
     return undefined;
   }
 
-  const paddedFraction = normalizedFractionPart.padEnd(exponent, '0');
+  // `String.prototype.padEnd` is unavailable in the legacy browser targets this package supports.
+  const paddedFraction = (normalizedFractionPart + '0000').slice(0, exponent);
   const minorUnitMultiplier = Math.pow(10, exponent);
   const minorUnits = Number(integerPart) * minorUnitMultiplier + Number(paddedFraction || '0');
 

@@ -74,7 +74,7 @@ describe('OpenAIAds initialization and registry', () => {
     expect(window.oaiq.q).toHaveLength(2);
   });
 
-  test('guards identify and track when pixelId is missing', () => {
+  test('stays inert but resolves readiness immediately when pixelId is missing', () => {
     const integration = makeIntegration({ pixelId: undefined });
 
     expect(() => {
@@ -86,6 +86,8 @@ describe('OpenAIAds initialization and registry', () => {
       });
     }).not.toThrow();
 
+    // The pixel is never loaded and no call is made, but readiness resolves right away so a
+    // destination saved without a pixelId does not stall device-mode delivery for its peers.
     expect(window.oaiq).toBeUndefined();
     expect(integration.isLoaded()).toBe(true);
     expect(integration.isReady()).toBe(true);
@@ -636,6 +638,33 @@ describe('OpenAIAds conversion events', () => {
     ]);
   });
 
+  test('falls back to products when contents is present but empty', () => {
+    const integration = initForCalls();
+
+    integration.track({
+      message: {
+        type: 'track',
+        event: 'Product Viewed',
+        messageId: 'products-fallback',
+        properties: {
+          contents: [],
+          products: [{ product_id: 'sku-2', name: 'Product Two', price: '5.00' }],
+        },
+      },
+    });
+
+    expect(getMeasureCall()).toEqual([
+      'measureSingle',
+      'pixel-123',
+      'contents_viewed',
+      {
+        type: 'contents',
+        contents: [{ id: 'sku-2', name: 'Product Two', amount: 500, currency: 'USD' }],
+      },
+      { event_id: 'products-fallback' },
+    ]);
+  });
+
   test('skips only non-scalar deduplication paths', () => {
     const integration = initForCalls();
 
@@ -660,7 +689,11 @@ describe('OpenAIAds conversion events', () => {
   test('does not resolve prototype-chain segments in configured deduplication paths', () => {
     const integration = initForCalls({
       eventMapping: [
-        { from: 'Product Viewed', to: 'contents_viewed', deduplicationKey: 'properties.constructor' },
+        {
+          from: 'Product Viewed',
+          to: 'contents_viewed',
+          deduplicationKey: 'properties.constructor',
+        },
       ],
     });
 

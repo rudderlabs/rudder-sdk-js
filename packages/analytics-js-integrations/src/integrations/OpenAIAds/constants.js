@@ -35,9 +35,11 @@ const LOGGER_MESSAGES = {
   CUSTOM_MAPPING_INVALID_NAME: 'OpenAI Ads custom event mapping has invalid customEventName',
   INVALID_MAPPING_DESTINATION: (sourceKey, mappedTo) =>
     `OpenAI Ads event mapping for ${sourceKey} has invalid destination ${mappedTo}`,
-  UNSUPPORTED_PIXEL_EVENT: eventName => `OpenAI Ads event ${eventName} is unsupported by Measurement Pixel`,
+  UNSUPPORTED_PIXEL_EVENT: eventName =>
+    `OpenAI Ads event ${eventName} is unsupported by Measurement Pixel`,
   IDENTIFY_NO_USER_DATA: 'OpenAI Ads identify skipped because no usable user data was found',
-  HASHED_PII_REJECTED: fieldName => `OpenAI Ads rejected apparent pre-hashed value for ${fieldName}`,
+  HASHED_PII_REJECTED: fieldName =>
+    `OpenAI Ads rejected apparent pre-hashed value for ${fieldName}`,
   INVALID_EVENT_DATA: reason => `OpenAI Ads event skipped: ${reason}`,
 };
 
