@@ -2,7 +2,10 @@
 
 <p align="center">
   <a href="https://rudderstack.com/">
-    <img alt="RudderStack" width="512" src="https://raw.githubusercontent.com/rudderlabs/rudder-sdk-js/develop/assets/rs-logo-full-light.jpg">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/rudderlabs/rudder-sdk-js/develop/assets/rs-logo-full-dark.png">
+      <img alt="RudderStack" width="512" src="https://raw.githubusercontent.com/rudderlabs/rudder-sdk-js/develop/assets/rs-logo-full-light.jpg">
+    </picture>
   </a>
   <br />
   <caption>The Customer Data Platform for Developers</caption>
@@ -91,8 +94,8 @@ RudderStack JS SDK [service worker](https://www.npmjs.com/package/@rudderstack/a
 
 For more details, see:
 
-- [Vercel Edge Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/serverless/USAGE.md)
-- [Cloudflare Worker Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/serverless/USAGE.md)
+- [Vercel Edge Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/serverless/USAGE.md#vercel-edge)
+- [Cloudflare Worker Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/main/examples/serverless/USAGE.md#cloudflare-worker)
 
 ## License
 

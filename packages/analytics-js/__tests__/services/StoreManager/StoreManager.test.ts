@@ -123,20 +123,20 @@ describe('StoreManager', () => {
     });
 
     it('should construct the storage entry state with global storage type if only global storage type is provided as load option', () => {
-      state.storage.type.value = LOCAL_STORAGE;
+      state.loadOptions.value.storage.type = LOCAL_STORAGE;
       storeManager.initClientDataStores();
       expect(state.storage.entries.value).toEqual(entriesWithOnlyLocalStorage);
     });
 
     it('should enable truly anonymous tracking if all the persisted data have storage type none', () => {
-      state.storage.type.value = NO_STORAGE;
+      state.loadOptions.value.storage.type = NO_STORAGE;
       storeManager.initClientDataStores();
       expect(state.storage.entries.value).toEqual(entriesWithOnlyNoStorage);
       expect(state.storage.trulyAnonymousTracking.value).toBe(true);
     });
 
     it('should construct the storage entry state with global type session storage', () => {
-      state.storage.type.value = SESSION_STORAGE;
+      state.loadOptions.value.storage.type = SESSION_STORAGE;
       getStorageEngine.mockImplementation(() => ({
         isEnabled: true,
         getItem: jest.fn(),
@@ -148,7 +148,7 @@ describe('StoreManager', () => {
     });
 
     it('should construct the storage entry state with global type and load options', () => {
-      state.storage.type.value = MEMORY_STORAGE;
+      state.loadOptions.value.storage.type = MEMORY_STORAGE;
       state.loadOptions.value.storage.entries = loadOptionWithEntry;
       storeManager.initClientDataStores();
       expect(state.storage.entries.value).toEqual(entriesWithMixStorage);
@@ -158,8 +158,8 @@ describe('StoreManager', () => {
     it('should construct the valid storage entry state if invalid storage entry in load option', () => {
       state.loadOptions.value.storage.entries = loadOptionWithInvalidEntry;
       storeManager.initClientDataStores();
+      // The unsupported types are reported where the options enter the SDK, not here
       expect(state.storage.entries.value).toEqual(entriesWithOnlyCookieStorage);
-      expect(logger.warn).toHaveBeenCalled();
       expect(state.storage.trulyAnonymousTracking.value).toBe(false);
     });
 

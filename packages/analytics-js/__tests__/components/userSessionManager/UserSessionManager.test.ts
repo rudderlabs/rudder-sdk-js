@@ -1,8 +1,12 @@
+import { batch } from '@preact/signals-core';
+import { MEMORY_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
+import type { StorageEntries } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import type { IPluginsManager } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { stringifyWithoutCircular } from '@rudderstack/analytics-js-common/utilities/json';
 import { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
 import { UserSessionManager } from '../../../src/components/userSessionManager';
 import { DEFAULT_USER_SESSION_VALUES } from '../../../src/components/userSessionManager/constants';
+import { USER_SESSION_KEYS } from '../../../src/constants/storage';
 import { StoreManager } from '../../../src/services/StoreManager';
 import type { Store } from '../../../src/services/StoreManager/Store';
 import { state, resetState } from '../../../src/state';
@@ -17,6 +21,7 @@ import {
   entriesWithOnlyCookieStorage,
   entriesWithOnlyLocalStorage,
   entriesWithOnlyNoStorage,
+  entriesWithOnlySessionStorage,
   entriesWithStorageOnlyForAnonymousId,
 } from '../../../__fixtures__/fixtures';
 import { server } from '../../../__fixtures__/msw.server';
@@ -2057,6 +2062,199 @@ describe('User session manager', () => {
     });
   });
 
+  describe('Buffered event replay', () => {
+    // Buffered events are replayed from inside the lifecycle `effect`, which puts every
+    // state write in the same batch. The storage sync effects registered by `init` are
+    // queued behind that batch and do not run in between, so storage stays behind the
+    // state for the whole replay. `batch` reproduces exactly that condition.
+    const sessionInfoInStorage = (id: number) => ({
+      autoTrack: true,
+      timeout: 10 * 60 * 1000,
+      expiresAt: Date.now() + 5000,
+      id,
+      sessionStart: false,
+    });
+
+    // entriesWithInMemoryFallback stores sessionInfo as 'none', so it does not exercise
+    // memory storage for the session at all. Typed as StorageEntries rather than as the
+    // cookie fixture, so a malformed entry is caught rather than hidden by the cast.
+    const entriesWithOnlyMemoryStorage: StorageEntries = Object.fromEntries(
+      Object.entries(entriesWithOnlyCookieStorage).map(([key, entry]) => [
+        key,
+        { ...entry, type: MEMORY_STORAGE },
+      ]),
+    );
+
+    it('should retain a manually started session for the events replayed after it', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      const manualSessionId = 1029384756;
+
+      batch(() => {
+        // startSession() in the buffer
+        userSessionManager.start(manualSessionId);
+        // ...followed by a buffered track()
+        userSessionManager.refreshSession();
+      });
+
+      expect(state.session.sessionInfo.value.id).toBe(manualSessionId);
+      expect(state.session.sessionInfo.value.manualTrack).toBe(true);
+    });
+
+    it('should retain the new session created by a replayed reset', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      // Seeded rather than taken from the session init creates, whose ID is Date.now() and
+      // so can collide with the one reset creates a fraction of a millisecond later
+      setDataInCookieStorage({ rl_session: sessionInfoInStorage(1111111111) });
+      userSessionManager.init();
+
+      expect(state.session.sessionInfo.value.id).toBe(1111111111);
+
+      batch(() => {
+        // reset() in the buffer
+        userSessionManager.reset();
+        // ...followed by a buffered track()
+        userSessionManager.refreshSession();
+      });
+
+      expect(state.session.sessionInfo.value.id).not.toBe(1111111111);
+    });
+
+    it('should not resurrect an ended session for the events replayed after it', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      batch(() => {
+        // endSession() in the buffer
+        userSessionManager.end();
+        // ...followed by a buffered track()
+        userSessionManager.refreshSession();
+      });
+
+      expect(state.session.sessionInfo.value).toStrictEqual({});
+    });
+
+    it('should use the identity set by a replayed event for the events replayed after it', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      batch(() => {
+        // identify() in the buffer
+        userSessionManager.setUserId('user-from-state');
+        userSessionManager.setGroupId('group-from-state');
+
+        // ...must not read back the stale value that storage still holds
+        expect(userSessionManager.getUserId()).toBe('user-from-state');
+        expect(userSessionManager.getGroupId()).toBe('group-from-state');
+      });
+    });
+
+    it('should read from storage again once the queued sync has run', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      batch(() => {
+        userSessionManager.setUserId('user-from-state');
+      });
+
+      // The queued effect has now persisted it, so another tab's write must win again
+      setDataInCookieStorage({ rl_user_id: 'user-from-another-tab' });
+
+      expect(userSessionManager.getUserId()).toBe('user-from-another-tab');
+    });
+
+    it('should keep reading session info from storage outside a replay', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+
+      // Another tab advances the session
+      setDataInCookieStorage({ rl_session: sessionInfoInStorage(1111111111) });
+
+      userSessionManager.refreshSession();
+
+      expect(state.session.sessionInfo.value.id).toBe(1111111111);
+    });
+
+    it('should not fragment the session when the stored one expires during the replay', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      setDataInCookieStorage({
+        rl_session: {
+          autoTrack: true,
+          timeout: 10 * 60 * 1000,
+          expiresAt: Date.now() - 1000, // already expired
+          id: 1111111111,
+          sessionStart: false,
+        },
+      });
+      userSessionManager.init();
+
+      // The expired session is replaced during init
+      const renewedSessionId = state.session.sessionInfo.value.id;
+      expect(renewedSessionId).not.toBe(1111111111);
+
+      batch(() => {
+        userSessionManager.refreshSession();
+        userSessionManager.refreshSession();
+        userSessionManager.refreshSession();
+      });
+
+      // One new session for the whole replay, not one per event
+      expect(state.session.sessionInfo.value.id).toBe(renewedSessionId);
+    });
+
+    it('should retain a manually started session while a server-side cookie write is pending', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      state.serverCookies.isEnabledServerSideCookies.value = true;
+      userSessionManager.init();
+
+      const manualSessionId = 1029384756;
+
+      batch(() => {
+        userSessionManager.start(manualSessionId);
+        userSessionManager.refreshSession();
+      });
+
+      expect(state.session.sessionInfo.value.id).toBe(manualSessionId);
+    });
+
+    describe.each([
+      ['local storage', entriesWithOnlyLocalStorage],
+      ['session storage', entriesWithOnlySessionStorage],
+      ['in-memory storage', entriesWithOnlyMemoryStorage],
+    ])('with %s', (_label, entries) => {
+      it('should retain a manually started session for the events replayed after it', () => {
+        state.storage.entries.value = entries;
+        userSessionManager.init();
+
+        const manualSessionId = 1029384756;
+
+        batch(() => {
+          userSessionManager.start(manualSessionId);
+          userSessionManager.refreshSession();
+        });
+
+        expect(state.session.sessionInfo.value.id).toBe(manualSessionId);
+        expect(state.session.sessionInfo.value.manualTrack).toBe(true);
+      });
+    });
+
+    it('should not start a session during the replay when storage is disabled', () => {
+      // Session tracking is off entirely for storage type 'none', and must stay off. The
+      // state can never be ahead of a storage that holds nothing, so preferring it here
+      // would surface a session for the replayed events that then vanished on the next one.
+      state.storage.entries.value = entriesWithOnlyNoStorage;
+      userSessionManager.init();
+
+      batch(() => {
+        userSessionManager.start(1029384756);
+        userSessionManager.refreshSession();
+      });
+
+      expect(state.session.sessionInfo.value).toStrictEqual({});
+    });
+  });
+
   describe('getSessionId', () => {
     it('should return session id for active session', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
@@ -2615,6 +2813,177 @@ describe('User session manager', () => {
         );
         done();
       }, 1000);
+    });
+
+    describe('batched server-side cookie requests', () => {
+      beforeEach(() => {
+        jest.useFakeTimers();
+        // Earlier tests replace these on the shared store instance and never restore them.
+        delete (clientDataStoreCookie as Partial<Store>).set;
+        delete (clientDataStoreCookie as Partial<Store>).remove;
+        state.serverCookies.isEnabledServerSideCookies.value = true;
+        state.storage.entries.value = entriesWithOnlyCookieStorage;
+        state.serverCookies.dataServiceUrl.value = 'https://dummy.dataplane.host.com/rsaRequest';
+      });
+
+      afterEach(() => {
+        delete (clientDataStoreCookie as Partial<Store>).set;
+        delete (clientDataStoreCookie as Partial<Store>).remove;
+        jest.useRealTimers();
+      });
+
+      it('should send all the keys changed in the same tick in one request', () => {
+        const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
+
+        state.session.anonymousId.value = dummyAnonymousId;
+        userSessionManager.syncValueToStorage('anonymousId');
+        state.session.userId.value = 'dummy_userId';
+        userSessionManager.syncValueToStorage('userId');
+
+        jest.advanceTimersByTime(1000);
+
+        expect(setServerSideCookiesSpy).toHaveBeenCalledTimes(1);
+        expect(setServerSideCookiesSpy).toHaveBeenCalledWith(
+          {
+            anonymousId: { name: COOKIE_KEYS.anonymousId },
+            userId: { name: COOKIE_KEYS.userId },
+          },
+          expect.any(Function),
+          expect.any(Object),
+        );
+      });
+
+      it('should not resend the previous batch in a later one', () => {
+        const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
+
+        state.session.anonymousId.value = dummyAnonymousId;
+        userSessionManager.syncValueToStorage('anonymousId');
+        jest.advanceTimersByTime(1000);
+
+        state.session.userId.value = 'dummy_userId';
+        userSessionManager.syncValueToStorage('userId');
+        jest.advanceTimersByTime(1000);
+
+        expect(setServerSideCookiesSpy).toHaveBeenCalledTimes(2);
+        expect(setServerSideCookiesSpy).toHaveBeenLastCalledWith(
+          { userId: { name: COOKIE_KEYS.userId } },
+          expect.any(Function),
+          expect.any(Object),
+        );
+      });
+
+      // A data service that predates multi-cookie support sets only the last cookie of a
+      // batch. The others are recovered client side, but the operator needs telling why.
+      // The per-cookie errors already fire here, so match on the batch message specifically
+      const batchErrorCalls = () =>
+        (defaultLogger.error as jest.Mock).mock.calls.filter(([message]) =>
+          String(message).includes('sent in one request'),
+        );
+
+      it('should report once when a batch comes back with cookies missing', () => {
+        const capturedCallbacks: any[] = [];
+        userSessionManager.makeRequestToSetCookie = jest.fn((_data: any, cb: any) => {
+          capturedCallbacks.push(cb);
+        });
+        // Keep the client-side fallback from populating the store, so the second batch is
+        // still missing its cookies. This is what a rejected cookie attribute looks like.
+        clientDataStoreCookie.set = jest.fn();
+
+        state.session.anonymousId.value = dummyAnonymousId;
+        userSessionManager.syncValueToStorage('anonymousId');
+        state.session.userId.value = 'dummy_userId';
+        userSessionManager.syncValueToStorage('userId');
+        jest.advanceTimersByTime(1000);
+
+        // The server responds 200 but no cookie was actually set
+        capturedCallbacks[0](null, { xhr: { status: 200 } });
+
+        expect(batchErrorCalls()).toHaveLength(1);
+        expect(batchErrorCalls()[0][0]).toContain(COOKIE_KEYS.anonymousId);
+        expect(batchErrorCalls()[0][0]).toContain(COOKIE_KEYS.userId);
+
+        // A genuinely separate later batch must not repeat it, the cause has not changed
+        state.session.anonymousId.value = 'second_anonymousId';
+        userSessionManager.syncValueToStorage('anonymousId');
+        state.session.userId.value = 'second_userId';
+        userSessionManager.syncValueToStorage('userId');
+        jest.advanceTimersByTime(1000);
+
+        expect(capturedCallbacks).toHaveLength(2);
+        capturedCallbacks[1](null, { xhr: { status: 200 } });
+
+        expect(batchErrorCalls()).toHaveLength(1);
+      });
+
+      // On a repeat page load the SDK rewrites values the cookies already hold. Nothing
+      // changes, and that must not read as the server having failed to apply them.
+      it('should not report a collapsed batch when the cookies already hold the values', () => {
+        clientDataStoreCookie.set(COOKIE_KEYS.anonymousId, dummyAnonymousId);
+        clientDataStoreCookie.set(COOKIE_KEYS.userId, 'dummy_userId');
+
+        let capturedCallback: any;
+        userSessionManager.makeRequestToSetCookie = jest.fn((_data: any, cb: any) => {
+          capturedCallback = cb;
+        });
+
+        state.session.anonymousId.value = dummyAnonymousId;
+        userSessionManager.syncValueToStorage('anonymousId');
+        state.session.userId.value = 'dummy_userId';
+        userSessionManager.syncValueToStorage('userId');
+        jest.advanceTimersByTime(1000);
+
+        // A real multi-cookie batch went out, otherwise the assertion below proves nothing
+        expect(userSessionManager.makeRequestToSetCookie).toHaveBeenCalledTimes(1);
+        expect(
+          (userSessionManager.makeRequestToSetCookie as jest.Mock).mock.calls[0][0],
+        ).toHaveLength(2);
+
+        // The cookies are untouched by the response, because they already held these values
+        capturedCallback(null, { xhr: { status: 200 } });
+
+        expect(batchErrorCalls()).toHaveLength(0);
+      });
+
+      it('should not report a collapsed batch for a single cookie request', () => {
+        let capturedCallback: any;
+        userSessionManager.makeRequestToSetCookie = jest.fn((_data: any, cb: any) => {
+          capturedCallback = cb;
+        });
+
+        state.session.anonymousId.value = dummyAnonymousId;
+        userSessionManager.syncValueToStorage('anonymousId');
+        jest.advanceTimersByTime(1000);
+
+        capturedCallback(null, { xhr: { status: 200 } });
+
+        expect(batchErrorCalls()).toHaveLength(0);
+      });
+
+      it('should not batch keys that are not backed by cookie storage', () => {
+        state.storage.entries.value = entriesWithMixStorageButWithoutNone;
+        const setServerSideCookiesSpy = jest.spyOn(userSessionManager, 'setServerSideCookies');
+
+        // A key with no value takes the remove path and never reaches a batch, so the
+        // boundary is only exercised if both sides carry one: userId is cookie-backed,
+        // anonymousId and userTraits are not.
+        state.session.userId.value = 'dummy_userId';
+        state.session.anonymousId.value = dummyAnonymousId;
+        state.session.userTraits.value = { trait: 'dummy_trait' };
+
+        USER_SESSION_KEYS.forEach(sessionKey => {
+          userSessionManager.syncValueToStorage(sessionKey);
+        });
+
+        jest.advanceTimersByTime(1000);
+
+        const batchedKeys = setServerSideCookiesSpy.mock.calls.flatMap(call =>
+          Object.keys(call[0]),
+        );
+        // userId is the only cookie-backed key in this fixture. Asserting the exact set
+        // rather than looping over whatever was batched, so a batch that never happens
+        // fails here instead of passing with nothing to iterate.
+        expect(batchedKeys).toEqual(['userId']);
+      });
     });
   });
 

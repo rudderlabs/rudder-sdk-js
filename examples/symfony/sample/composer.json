@@ -23,7 +23,7 @@
         "symfony/framework-bundle": "7.2.*",
         "symfony/http-client": "7.2.*",
         "symfony/intl": "7.2.*",
-        "symfony/mailer": "7.2.*",
+        "symfony/mailer": "7.4.*",
         "symfony/mime": "7.4.*",
         "symfony/monolog-bundle": "^3.0",
         "symfony/notifier": "7.2.*",

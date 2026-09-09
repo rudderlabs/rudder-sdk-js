@@ -182,20 +182,6 @@ describe('Config Manager Common Utilities', () => {
       expect(state.storage.encryptionPluginName.value).toBe('StorageEncryption');
     });
 
-    it('should log a warning if the specified storage type is not valid', () => {
-      state.loadOptions.value.storage = {
-        // @ts-expect-error testing invalid value
-        type: 'random-type',
-      };
-
-      updateStorageStateFromLoadOptions(mockLogger);
-
-      expect(state.storage.type.value).toBe('cookieStorage');
-      expect(mockLogger.warn).toHaveBeenCalledWith(
-        'ConfigManager:: The storage type "random-type" is not supported. Please choose one of the following supported types: "localStorage,memoryStorage,cookieStorage,sessionStorage,none". The default type "cookieStorage" will be used instead.',
-      );
-    });
-
     it('should log a warning if the encryption version is not supported', () => {
       state.loadOptions.value.storage = {
         encryption: {
@@ -378,7 +364,7 @@ describe('Config Manager Common Utilities', () => {
 
       updateConsentsStateFromLoadOptions(mockLogger);
 
-      expect(state.consents.activeConsentManagerPluginName.value).toBe(undefined);
+      expect(state.consents.activeConsentManagerPluginName.value).toBeUndefined();
       expect(mockLogger.error).toHaveBeenCalledWith(
         'ConfigManager:: The consent manager "randomManager" is not supported. Please choose one of the following supported consent managers: "iubenda,oneTrust,ketch,custom".',
       );
@@ -558,7 +544,7 @@ describe('Config Manager Common Utilities', () => {
       expect(state.consents.metadata.value).toStrictEqual(
         mockSourceConfig.consentManagementMetadata,
       );
-      expect(state.consents.resolutionStrategy.value).toBe(undefined);
+      expect(state.consents.resolutionStrategy.value).toBeUndefined();
     });
 
     it('should not update the metadata and resolution strategy to state if the metadata in source config is not an object literal', () => {
@@ -569,7 +555,7 @@ describe('Config Manager Common Utilities', () => {
 
       updateConsentsState(mockSourceConfig);
 
-      expect(state.consents.metadata.value).toBe(undefined);
+      expect(state.consents.metadata.value).toBeUndefined();
       expect(state.consents.resolutionStrategy.value).toBe('and'); // default value
     });
 

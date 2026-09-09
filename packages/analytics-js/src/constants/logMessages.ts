@@ -1,13 +1,7 @@
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import {
-  type StorageType,
-  SUPPORTED_STORAGE_TYPES,
-} from '@rudderstack/analytics-js-common/types/Storage';
+import { SUPPORTED_STORAGE_TYPES } from '@rudderstack/analytics-js-common/types/Storage';
 import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constants/logMessages';
-import type {
-  DeliveryType,
-  StorageStrategy,
-} from '@rudderstack/analytics-js-common/types/LoadOptions';
+import type { DeliveryType } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 
 // CONSTANT
@@ -104,14 +98,19 @@ const DATA_SERVER_REQUEST_FAIL_ERROR = (status?: number) =>
 const FAILED_SETTING_COOKIE_FROM_SERVER_ERROR = (key: string) =>
   `The server failed to set the ${key} cookie. As a fallback, the cookies will be set client side.`;
 const FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR = `Failed to set/remove cookies via server. As a fallback, the cookies will be managed client side.`;
+const COLLAPSED_COOKIE_BATCH_ERROR = (missingCookies: string[], batchSize: number) =>
+  `The server did not set ${missingCookies.length} of the ${batchSize} cookies sent in one request: ${missingCookies.join(', ')}. A fallback to set them client side was attempted. Check that the data service and any proxy preserve every "Set-Cookie" header, and that the cookie domain and SameSite/Secure attributes are valid.`;
 
 // WARNING
-const STORAGE_TYPE_VALIDATION_WARNING = (
+const STORAGE_TYPE_VALIDATION_WARNING = (context: string, storageType: any): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The storage type "${storageType}" is not supported. Please choose one of the following supported types: "${SUPPORTED_STORAGE_TYPES}". The default storage type will be used instead.`;
+
+const UNSUPPORTED_STORAGE_ENTRY_TYPE_WARNING = (
   context: string,
+  entry: string,
   storageType: any,
-  defaultStorageType: StorageType,
 ): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The storage type "${storageType}" is not supported. Please choose one of the following supported types: "${SUPPORTED_STORAGE_TYPES}". The default type "${defaultStorageType}" will be used instead.`;
+  `${context}${LOG_CONTEXT_SEPARATOR}The storage type "${storageType}" configured for the entry "${entry}" is not supported. Please choose one of the following supported types: "${SUPPORTED_STORAGE_TYPES}". The default storage type will be used instead.`;
 
 const UNSUPPORTED_ERROR_REPORTING_PROVIDER_WARNING = (
   context: string,
@@ -227,10 +226,13 @@ const POLYFILL_SCRIPT_LOAD_ERROR = (scriptId: string, url: string): string =>
 
 const UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY = (
   context: string,
-  selectedStrategy: StorageStrategy | undefined,
-  defaultStrategy: StorageStrategy,
+  selectedStrategy: string | undefined,
+  defaultStrategy: string,
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The pre-consent storage strategy "${selectedStrategy}" is not supported. Please choose one of the following supported strategies: "none, session, anonymousId". The default strategy "${defaultStrategy}" will be used instead.`;
+
+const DEPRECATED_PRE_CONSENT_STORAGE_STRATEGY = (context: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The pre-consent storage strategy option is deprecated. Please enable "storage" in the pre-consent options and use the "storage" load API option instead.`;
 
 const UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE = (
   context: string,
@@ -314,14 +316,17 @@ export {
   PLUGIN_EXT_POINT_MISSING_ERROR,
   PLUGIN_EXT_POINT_INVALID_ERROR,
   STORAGE_TYPE_VALIDATION_WARNING,
+  UNSUPPORTED_STORAGE_ENTRY_TYPE_WARNING,
   INVALID_CONFIG_URL_WARNING,
   POLYFILL_SCRIPT_LOAD_ERROR,
   UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY,
+  DEPRECATED_PRE_CONSENT_STORAGE_STRATEGY,
   UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
   SOURCE_CONFIG_RESOLUTION_ERROR,
   DATA_SERVER_URL_INVALID_ERROR,
   DATA_SERVER_REQUEST_FAIL_ERROR,
   FAILED_SETTING_COOKIE_FROM_SERVER_ERROR,
+  COLLAPSED_COOKIE_BATCH_ERROR,
   FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR,
   generateMisconfiguredPluginsWarning,
   INVALID_POLYFILL_URL_WARNING,

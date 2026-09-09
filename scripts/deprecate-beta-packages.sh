@@ -10,17 +10,45 @@
 
 set -euo pipefail
 
+# Anchored to the script's own location so the package lookup below does not depend on
+# the working directory the script happens to be invoked from
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+REPO_ROOT=$(cd "$SCRIPT_DIR/.." && pwd)
+
 # Configuration
-PACKAGES=(
-  "@rudderstack/analytics-js"
-  "@rudderstack/analytics-js-service-worker"
-  "@rudderstack/analytics-js-cookies"
-)
+# Derived from the workspace rather than hardcoded, so this list cannot drift from the
+# set of packages that beta deploys publish. The private check matches the one used to
+# pick the packages to version and publish.
+PACKAGES=()
+for package_json in "$REPO_ROOT"/packages/*/package.json; do
+  if [[ ! -f "$package_json" ]]; then
+    continue
+  fi
+
+  is_private=$(jq -r '.private // "false"' "$package_json")
+  if [[ "$is_private" == "true" ]]; then
+    continue
+  fi
+
+  package_name=$(jq -r '.name // empty' "$package_json")
+  if [[ -z "$package_name" ]]; then
+    echo "⚠️  No name found in $package_json; skipping"
+    continue
+  fi
+
+  PACKAGES+=("$package_name")
+done
+
+if [[ ${#PACKAGES[@]} -eq 0 ]]; then
+  echo "❌ No publishable packages found under $REPO_ROOT/packages"
+  exit 1
+fi
 
 # Track processed PRs to avoid duplicate API calls
 declare -A PR_STATUSES
 
 echo "🚀 Starting beta package deprecation for closed PRs"
+echo "📦 Publishable packages: ${PACKAGES[*]}"
 
 # Validate required environment variables
 if [[ -z "${GH_TOKEN:-}" ]] || [[ -z "${GITHUB_REPOSITORY:-}" ]] || [[ -z "${NPM_TOKEN:-}" ]]; then

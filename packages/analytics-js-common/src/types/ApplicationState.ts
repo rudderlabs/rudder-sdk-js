@@ -193,7 +193,6 @@ export type StorageEntries = {
 export type StorageState = {
   encryptionPluginName: Signal<PluginName | undefined>;
   migrate: Signal<boolean>;
-  type: Signal<StorageType | undefined>;
   cookie: Signal<CookieOptions | undefined>;
   entries: Signal<StorageEntries>;
   trulyAnonymousTracking: Signal<boolean>;
@@ -202,6 +201,11 @@ export type StorageState = {
 export type ServerCookiesState = {
   isEnabledServerSideCookies: Signal<boolean>;
   dataServiceUrl: Signal<string | undefined>;
+  /**
+   * Whether the error about a cookie batch coming back with cookies missing has already
+   * been logged. The cause is the same for every subsequent batch, so it is said once.
+   */
+  isCollapsedBatchErrorLogged: Signal<boolean>;
 };
 
 export interface ApplicationState {

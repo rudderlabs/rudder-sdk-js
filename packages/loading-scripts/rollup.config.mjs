@@ -10,13 +10,16 @@ import * as dotenv from 'dotenv';
 
 dotenv.config({ quiet: true });
 const outDirRoot = `dist`;
-const distName = 'loading-script';
+const distName = 'loader';
 const modName = 'script';
 const shouldUglify = process.env.UGLIFY === 'true';
 
-export function getDefaultConfig(distName) {
+export function getDefaultConfig(distName, isGtmBuild = false) {
   const version = process.env.VERSION || 'dev-snapshot';
-  const isLocalServerEnabled = process.env.DEV_SERVER;
+  // Only the primary build gets the dev server. Both configs are built on every
+  // run, and rollup-plugin-serve binds a fixed port, so enabling it for both
+  // fails with EADDRINUSE.
+  const isLocalServerEnabled = process.env.DEV_SERVER && distName === 'loader';
 
   return {
     watch: {
@@ -35,8 +38,7 @@ export function getDefaultConfig(distName) {
     plugins: [
       replace({
         preventAssignment: true,
-        __WRITE_KEY__: process.env.WRITE_KEY,
-        __DATAPLANE_URL__: process.env.DATAPLANE_URL,
+        __IS_GTM_BUILD__: JSON.stringify(isGtmBuild),
         __PACKAGE_VERSION__: `'${version}'`,
       }),
       typescript({
@@ -122,22 +124,29 @@ export function getDefaultConfig(distName) {
 }
 
 const buildEntries = () => {
+  // One source, two artifacts. loader.js reads its configuration from its own
+  // script tag; loader-gtm.js has none to read and leaves it to the buffered
+  // load call. @rollup/plugin-replace substitutes __IS_GTM_BUILD__ with a
+  // boolean literal and rollup drops the branch not taken, before terser runs --
+  // so terser's evaluate/dead_code settings are not what makes this work.
+  // Verified in the output: the flag appears nowhere in any of the four files.
   return [
-    {
-      ...getDefaultConfig(distName),
-      input: 'src/index.ts',
-      output: {
-        entryFileNames: `${distName}${shouldUglify ? '.min' : ''}.js`,
-        dir: outDirRoot,
-        format: 'iife',
-        name: modName,
-        sourcemap: false,
-        generatedCode: {
-          preset: 'es5',
-        },
+    { name: distName, isGtmBuild: false },
+    { name: `${distName}-gtm`, isGtmBuild: true },
+  ].map(({ name, isGtmBuild }) => ({
+    ...getDefaultConfig(name, isGtmBuild),
+    input: 'src/index.ts',
+    output: {
+      entryFileNames: `${name}${shouldUglify ? '.min' : ''}.js`,
+      dir: outDirRoot,
+      format: 'iife',
+      name: modName,
+      sourcemap: false,
+      generatedCode: {
+        preset: 'es5',
       },
     },
-  ];
+  }));
 };
 
 export default buildEntries();

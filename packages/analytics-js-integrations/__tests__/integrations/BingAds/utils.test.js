@@ -221,7 +221,7 @@ describe('Construct PID payload for enahcned conversions', () => {
     const result = constructPidPayload(message, true);
 
     // Assert
-    expect(result).toEqual(undefined);
+    expect(result).toBeUndefined();
   });
 
   // Returns undefined when email is invalid
@@ -249,6 +249,26 @@ describe('Construct PID payload for enahcned conversions', () => {
       context: {
         traits: {
           email: 'test+1@example.com',
+        },
+      },
+    };
+
+    // Act
+    const result = constructPidPayload(message, true);
+
+    // Assert
+    expect(result).toEqual({
+      em: '973dfe463ec85785f5f95af5ba3906eedb2d931c24e69824a89ea65dba4e813b',
+      '': '',
+    });
+  });
+
+  it('should remove all characters between the first plus sign and at sign before hashing', () => {
+    // Arrange
+    const message = {
+      context: {
+        traits: {
+          email: 'test+one+two@example.com',
         },
       },
     };

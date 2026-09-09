@@ -54,6 +54,7 @@ import {
   CUT_OFF_DURATION_NOT_NUMBER_WARNING,
   DATA_SERVER_REQUEST_FAIL_ERROR,
   FAILED_SETTING_COOKIE_FROM_SERVER_ERROR,
+  COLLAPSED_COOKIE_BATCH_ERROR,
   FAILED_SETTING_COOKIE_FROM_SERVER_GLOBAL_ERROR,
   TIMEOUT_NOT_NUMBER_WARNING,
   TIMEOUT_NOT_RECOMMENDED_WARNING,
@@ -80,6 +81,7 @@ import type {
   IUserSessionManager,
   SessionToCookiesMap,
   UserSessionStorageKeysType,
+  UserSessionValue,
 } from './types';
 import { isPositiveInteger } from '../utilities/number';
 import type { ResetOptions } from '@rudderstack/analytics-js-common/types/EventApi';
@@ -90,11 +92,25 @@ class UserSessionManager implements IUserSessionManager {
   errorHandler: IErrorHandler;
   httpClient: IHttpClient;
   logger: ILogger;
-  serverSideCookieDebounceFuncs: Record<UserSessionKey, number>;
+  /**
+   * The single debounce timer shared by every key. Server-side cookie writes are collected
+   * into one request rather than one per key.
+   */
+  serverSideCookiesDebounceTimer: number;
+  /**
+   * Session keys waiting to be written, mapped to the cookie name each one is stored under.
+   * Drained into a single request when the debounce timer fires.
+   */
+  serverSideCookiesPending: Partial<Record<UserSessionKey, string>>;
   /**
    * Tracks whether a server-side cookie setting request is in progress or not.
    */
   serverSideCookiesRequestInProgress: Record<UserSessionKey, boolean>;
+  /**
+   * The value each key was last handed to storage with, recorded by the sync effect.
+   * Anything else in the state means storage has not been given the current value yet.
+   */
+  lastSyncedValues: Partial<Record<UserSessionKey, UserSessionValue>>;
 
   constructor(
     pluginsManager: IPluginsManager,
@@ -109,8 +125,10 @@ class UserSessionManager implements IUserSessionManager {
     this.errorHandler = errorHandler;
     this.httpClient = httpClient;
     this.onError = this.onError.bind(this);
-    this.serverSideCookieDebounceFuncs = {} as Record<UserSessionKey, number>;
+    this.serverSideCookiesDebounceTimer = 0;
+    this.serverSideCookiesPending = {};
     this.serverSideCookiesRequestInProgress = {} as Record<UserSessionKey, boolean>;
+    this.lastSyncedValues = {};
   }
 
   /**
@@ -488,6 +506,11 @@ class UserSessionManager implements IUserSessionManager {
           clearInProgressFlags();
 
           if (details?.xhr?.status === 200) {
+            // Only the cookies that were actually sent can be reported as unapplied, so
+            // both halves of the diagnostic are drawn from the same set
+            const sentCookieNames = new Set(encryptedCookieData.map(each => each.name));
+            const unappliedCookies: string[] = [];
+
             getCurrentCookieValuesFromState().forEach(cData => {
               const originalCookieVal = originalCookieValues[cData.name];
               const currentCookieVal = store?.get(cData.name);
@@ -500,6 +523,17 @@ class UserSessionManager implements IUserSessionManager {
                 // It's fine if the values don't match as other active SDK sessions might have updated the cookie values
                 // or other cookie requests might have updated the cookie value.
 
+                // Left exactly as the request found it, so the server did not apply this
+                // write. A value that moved to something else was set by another tab or
+                // request, which is expected rather than a failure.
+                if (
+                  sentCookieNames.has(cData.name) &&
+                  stringifyWithoutCircular(originalCookieVal, false, []) ===
+                    stringifyWithoutCircular(currentCookieVal, false, [])
+                ) {
+                  unappliedCookies.push(cData.name);
+                }
+
                 // Log an error only when cookie didn't exist previously and currently also doesn't exist.
                 if (isNull(originalCookieVal) && isNull(currentCookieVal)) {
                   this.logger.error(FAILED_SETTING_COOKIE_FROM_SERVER_ERROR(cData.name));
@@ -509,6 +543,28 @@ class UserSessionManager implements IUserSessionManager {
                 }
               }
             });
+
+            // A batch coming back with cookies missing points at something shared rather
+            // than at any one cookie, so say so once instead of leaving the operator with
+            // a per-cookie error and no cause. Purely diagnostic: it never changes how the
+            // SDK sends the next batch.
+            //
+            // The message lists candidate causes rather than asserting one, because this
+            // condition cannot tell them apart. A data service that collapses the batch
+            // still sets the last cookie, so exactly one survives, whereas rejected cookie
+            // attributes usually leave none of them set.
+            // Counted from what was actually sent, not from the queued keys: encryption can
+            // drop a key, and reporting it as sent would overstate the batch.
+            if (
+              encryptedCookieData.length > 1 &&
+              unappliedCookies.length > 0 &&
+              !state.serverCookies.isCollapsedBatchErrorLogged.value
+            ) {
+              state.serverCookies.isCollapsedBatchErrorLogged.value = true;
+              this.logger.error(
+                COLLAPSED_COOKIE_BATCH_ERROR(unappliedCookies, encryptedCookieData.length),
+              );
+            }
           } else {
             this.logger.error(DATA_SERVER_REQUEST_FAIL_ERROR(details?.xhr?.status));
             setCookiesClientSide();
@@ -534,6 +590,43 @@ class UserSessionManager implements IUserSessionManager {
   }
 
   /**
+   * A function to send every queued server-side cookie as a single request
+   */
+  private flushServerSideCookies() {
+    // The timer has fired, so drop its id rather than leaving a stale one behind
+    this.serverSideCookiesDebounceTimer = 0;
+
+    const sessionToCookiesMap = Object.entries(this.serverSideCookiesPending).reduce(
+      (acc: SessionToCookiesMap, [sessionKey, cookieName]) => {
+        acc[sessionKey as UserSessionKey] = { name: cookieName as string };
+        return acc;
+      },
+      {} as SessionToCookiesMap,
+    );
+
+    // Drain before sending, so anything that changes while the request is in flight is
+    // queued for the next batch rather than being sent twice
+    this.serverSideCookiesPending = {};
+
+    if (Object.keys(sessionToCookiesMap).length === 0) {
+      return;
+    }
+
+    // Every batched key is backed by cookie storage by construction, so they share a store
+    const curStore = this.storeManager.getStore(
+      storageClientDataStoreNameMap[COOKIE_STORAGE] as string,
+    );
+
+    this.setServerSideCookies(
+      sessionToCookiesMap,
+      (cookieName, cookieValue) => {
+        curStore?.set(cookieName, cookieValue);
+      },
+      curStore,
+    );
+  }
+
+  /**
    * A function to sync values in storage
    * @param sessionKey
    */
@@ -556,31 +649,21 @@ class UserSessionManager implements IUserSessionManager {
           // Mark the requests as in progress.
           this.serverSideCookiesRequestInProgress[sessionKey] = true;
 
-          if (this.serverSideCookieDebounceFuncs[sessionKey]) {
-            (globalThis as typeof window).clearTimeout(
-              this.serverSideCookieDebounceFuncs[sessionKey],
-            );
+          // Queue this key and restart the shared debounce, so everything that changes in
+          // the same window goes to the data service as one request instead of one each.
+          this.serverSideCookiesPending[sessionKey] = cookieName;
+
+          // Restarting the shared timer means a steady stream of changes to any key can
+          // keep postponing the flush for every other key, where per-key timers only ever
+          // delayed their own. That needs changes arriving closer together than the
+          // debounce, continuously, so it is accepted rather than capped with a max wait.
+          if (this.serverSideCookiesDebounceTimer) {
+            (globalThis as typeof window).clearTimeout(this.serverSideCookiesDebounceTimer);
           }
 
-          this.serverSideCookieDebounceFuncs[sessionKey] = (globalThis as typeof window).setTimeout(
-            () => {
-              // Create a map of session key to cookie name
-              const sessionToCookiesMap: SessionToCookiesMap = {
-                [sessionKey]: {
-                  name: cookieName,
-                },
-              };
-
-              this.setServerSideCookies(
-                sessionToCookiesMap,
-                (cookieName, cookieValue) => {
-                  curStore?.set(cookieName, cookieValue);
-                },
-                curStore,
-              );
-            },
-            SERVER_SIDE_COOKIES_DEBOUNCE_TIME,
-          );
+          this.serverSideCookiesDebounceTimer = (globalThis as typeof window).setTimeout(() => {
+            this.flushServerSideCookies();
+          }, SERVER_SIDE_COOKIES_DEBOUNCE_TIME);
         } else {
           curStore?.set(cookieName, cookieValue);
         }
@@ -597,7 +680,11 @@ class UserSessionManager implements IUserSessionManager {
     // This will work as long as the user session entry key names are same as the state keys
     USER_SESSION_KEYS.forEach(sessionKey => {
       effect(() => {
+        // Read before syncing so the effect subscribes to the signal, and record after
+        // so that reads can tell whether storage has been given the current value yet
+        const value = state.session[sessionKey].value;
         this.syncValueToStorage(sessionKey);
+        this.lastSyncedValues[sessionKey] = value;
       });
     });
   }
@@ -690,15 +777,39 @@ class UserSessionManager implements IUserSessionManager {
   }
 
   /**
-   * Fetches the value for a session key. Preferably from storage, if the server-side
-   * cookies request is not in progress. Otherwise, from the state.
+   * Fetches the value for a session key. Preferably from storage, so that changes made by
+   * other tabs are picked up. Falls back to the state whenever storage is known to be
+   * behind it.
    * @param sessionKey - The session key to fetch the value for
    * @returns - The value for the session key
    */
   getUserSessionValue<T>(sessionKey: UserSessionKey): Nullable<T> {
-    // If the server-side cookies request is in progress, fetch the value from the state.
+    // peek() rather than value, as this is a plain read; subscribing here would make
+    // every enclosing effect depend on all the user session signals
+    const stateValue = state.session[sessionKey].peek();
+
+    // Until the sync effect has run for this key there is nothing to compare against, so
+    // storage stays authoritative. That is the case throughout init, where the state is
+    // still being hydrated from storage and the effects are not registered yet.
+    //
+    // The persistence check matters for storage types that hold nothing at all ('none'),
+    // where the state can never be ahead of storage because there is no destination.
+    // Without it, a session started during a replay would survive the replay and then
+    // disappear on the next event, once the sync effect had caught up.
+    const isSyncRecorded =
+      this.isPersistenceEnabledForStorageEntry(sessionKey) && sessionKey in this.lastSyncedValues;
+
+    // Storage has not been given this value yet. Buffered events are replayed from within
+    // the lifecycle effect, so the sync effects are queued behind that batch and do not
+    // run in between, leaving storage behind the state for the whole replay. Direct state
+    // writes such as start(), end() and reset() are in the same position.
+    if (isSyncRecorded && stateValue !== this.lastSyncedValues[sessionKey]) {
+      return stateValue as Nullable<T>;
+    }
+
+    // Storage has the value, but for server-side cookies it is only on its way there.
     if (this.serverSideCookiesRequestInProgress[sessionKey]) {
-      return state.session[sessionKey].value as Nullable<T>;
+      return stateValue as Nullable<T>;
     }
 
     // Otherwise, fetch the value from storage.

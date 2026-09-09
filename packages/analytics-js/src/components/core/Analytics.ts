@@ -911,7 +911,7 @@ class Analytics implements IAnalytics {
 
     batch(() => {
       state.consents.preConsent.value = { ...state.consents.preConsent.value, enabled: false };
-      state.consents.postConsent.value = getValidPostConsentOptions(options);
+      state.consents.postConsent.value = getValidPostConsentOptions(options, this.logger);
 
       const { initialized, consentsData } = getConsentManagementData(
         state.consents.postConsent.value.consentManagement,

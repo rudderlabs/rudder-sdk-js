@@ -64,13 +64,19 @@ permissions:
 
 env:
   NODE_OPTIONS: "--no-warnings"
-  CACHE_CONTROL_NO_STORE: "\"no-store\""
-  CACHE_CONTROL_MAX_AGE: "\"max-age=3600\""
+  # Bare directives, no embedded quotes. Every existing use substitutes these
+  # into a shell command, where the quotes were removed again before argv --
+  # but a step that routes them through `env:` gets the value verbatim, and S3
+  # would then store a Cache-Control header that no cache honours.
+  CACHE_CONTROL_NO_STORE: "no-store"
+  CACHE_CONTROL_MAX_AGE: "max-age=3600"
   INTEGRATIONS_ZIP_FILE: "all_integration_sdks.tar.gz"
   PLUGINS_ZIP_FILE: "all_plugins.tar.gz"
   INTEGRATIONS_ARTIFACTS_BASE_PATH: "packages/analytics-js-integrations/dist/cdn"
   PLUGINS_ARTIFACTS_BASE_PATH: "packages/analytics-js-plugins/dist/cdn"
   CORE_ARTIFACTS_BASE_PATH: "packages/analytics-js/dist/cdn"
+  LOADER_ARTIFACTS_BASE_PATH: "packages/loading-scripts/dist"
+  LOADER_CDN_BASE_DIR: "js-sdk-loader-scripts"
   INTEGRATIONS_HTML_FILE: "list.html"
   PLUGINS_HTML_FILE: "list.html"
 
@@ -81,7 +87,7 @@ jobs:
 
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
         with:
           egress-policy: audit
 
@@ -89,7 +95,7 @@ jobs:
         uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c  # master
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c  # v6.2.3
+        uses: aws-actions/configure-aws-credentials@cbe3b392738ccf3f987d68400dafcf4b0624a56c  # v6.2.4
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_S3_SYNC_ROLE }}
           aws-region: us-east-1
@@ -298,6 +304,101 @@ jobs:
           # Copy all the files to S3
           aws s3 cp ${{ env.CORE_ARTIFACTS_BASE_PATH }}/legacy/iife/ $s3_path_prefix/legacy/ $copy_args
           aws s3 cp ${{ env.CORE_ARTIFACTS_BASE_PATH }}/modern/iife/ $s3_path_prefix/modern/ $copy_args
+
+      # The loaders are published under their own prefix rather than the SDK's
+      # version directory: they are versioned by the loading-scripts package
+      # rather than by the SDK, and their whole job is to pick between the
+      # legacy and modern SDK builds.
+      #
+      # loader[.min].js carries the __WRITE_KEY__ / __DATAPLANE_URL__
+      # placeholders and is the snippet source people copy and fill in.
+      # loader-gtm[.min].js carries no configuration at all -- the GTM template
+      # buffers the load call itself, because its sandbox cannot set the
+      # data-* attributes the snippet relies on.
+      - name: Copy SDK loader artifacts to S3
+        env:
+          ENVIRONMENT: ${{ inputs.environment }}
+          BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
+          BASE_DIR: ${{ env.LOADER_CDN_BASE_DIR }}
+          LATEST_CACHE_CONTROL: ${{ env.CACHE_CONTROL }}
+          VERSIONED_CACHE_CONTROL: ${{ env.CACHE_CONTROL_MAX_AGE }}
+          SRC: ${{ env.LOADER_ARTIFACTS_BASE_PATH }}
+          # `aws s3 cp` infers this from the extension; `put-object` below does
+          # not, and would default to binary/octet-stream.
+          CONTENT_TYPE: "text/javascript"
+        run: |
+          case "${ENVIRONMENT}" in
+            production) env_prefix="" ;;
+            staging) env_prefix="staging/" ;;
+            development) env_prefix="dev/" ;;
+            *) echo "No loader publish configured for ${ENVIRONMENT}"; exit 0 ;;
+          esac
+
+          latest_path="s3://${BUCKET_NAME}/${env_prefix}${BASE_DIR}/latest"
+          latest_args=(--cache-control "${LATEST_CACHE_CONTROL}")
+
+          for artifact in loader.js loader.min.js loader-gtm.js loader-gtm.min.js; do
+            aws s3 cp "${SRC}/${artifact}" "${latest_path}/${artifact}" "${latest_args[@]}"
+          done
+
+          # Production also keeps an immutable copy at the loading-scripts
+          # package version, so a pinned URL never moves under a caller.
+          #
+          # The release command skips ci/chore/docs/test commits, so a loader
+          # change can land without bumping that version. The upload is
+          # therefore conditional on the key not existing: S3 itself rejects a
+          # write over an existing pinned copy with PreconditionFailed, which is
+          # the only failure treated as "already published". Anything else --
+          # credentials, throttling, a network blip -- fails the deployment
+          # instead of overwriting.
+          if [ "${ENVIRONMENT}" = "production" ]; then
+            loader_version=$(node -p "require('./packages/loading-scripts/package.json').version")
+
+            for artifact in loader.js loader.min.js loader-gtm.js loader-gtm.min.js; do
+              key="${BASE_DIR}/${loader_version}/${artifact}"
+
+              if put_output=$(aws s3api put-object \
+                   --bucket "${BUCKET_NAME}" \
+                   --key "${key}" \
+                   --body "${SRC}/${artifact}" \
+                   --content-type "${CONTENT_TYPE}" \
+                   --cache-control "${VERSIONED_CACHE_CONTROL}" \
+                   --if-none-match '*' 2>&1); then
+                echo "published ${key}"
+                continue
+              fi
+
+              case "${put_output}" in
+                *PreconditionFailed*)
+                  echo "::warning::${key} already exists and was left untouched. Bump the loading-scripts package version to publish a new pinned copy."
+                  ;;
+                *)
+                  echo "${put_output}" >&2
+                  exit 1
+                  ;;
+              esac
+            done
+          fi
+
+      # The loader lives outside the s3_dir_path prefix, so the SDK artifact
+      # invalidation below does not reach it. Only the latest path needs it --
+      # the versioned copies are immutable.
+      - name: Invalidate CloudFront cache for the SDK loader
+        env:
+          ENVIRONMENT: ${{ inputs.environment }}
+          BASE_DIR: ${{ env.LOADER_CDN_BASE_DIR }}
+          DISTRIBUTION_ID: ${{ secrets.AWS_CF_DISTRIBUTION_ID }}
+        run: |
+          case "${ENVIRONMENT}" in
+            production) env_prefix="" ;;
+            staging) env_prefix="staging/" ;;
+            development) env_prefix="dev/" ;;
+            *) echo "No loader publish configured for ${ENVIRONMENT}"; exit 0 ;;
+          esac
+
+          invalidation_id=$(AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id "${DISTRIBUTION_ID}" --paths "/${env_prefix}${BASE_DIR}/latest/*" --query "Invalidation.Id" --output text)
+
+          aws cloudfront wait invalidation-completed --distribution-id "${DISTRIBUTION_ID}" --id "$invalidation_id"
 
       - name: Invalidate CloudFront cache for all the SDK artifacts
         env:

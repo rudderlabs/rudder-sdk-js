@@ -103,7 +103,6 @@ if (Array.isArray(rudderanalytics)) {
     };
 
     window.rudderAnalyticsMount = () => {
-      /* eslint-disable */
       // globalThis polyfill as polyfill-fastly.io one does not work in legacy safari
       (function () {
         if (typeof globalThis === 'undefined') {
@@ -127,13 +126,17 @@ if (Array.isArray(rudderanalytics)) {
           }
         }
       })();
-      /* eslint-enable */
 
-      window.rudderAnalyticsAddScript(
-        `${sdkBaseUrl}/${sdkVersion}/${window.rudderAnalyticsBuildType}/${sdkFileName}`,
-        'data-rsa-write-key',
-        '__WRITE_KEY__',
-      );
+      const sdkUrl = `${sdkBaseUrl}/${sdkVersion}/${window.rudderAnalyticsBuildType}/${sdkFileName}`;
+
+      // Braces are deliberately omitted on the __IS_GTM_BUILD__ branches. The
+      // flag is a build-time literal, so the branch not taken is dropped -- but
+      // a braced branch leaves its block behind in the beautified artifact,
+      // which is the one people read and hand-edit.
+      // The SDK locates its own URL through this attribute, so it is only
+      // useful when a write key is known.
+      if (__IS_GTM_BUILD__) window.rudderAnalyticsAddScript(sdkUrl);
+      else window.rudderAnalyticsAddScript(sdkUrl, 'data-rsa-write-key', '__WRITE_KEY__');
     };
 
     if (typeof Promise === 'undefined' || typeof globalThis === 'undefined') {
@@ -145,14 +148,11 @@ if (Array.isArray(rudderanalytics)) {
     }
     /* Loading snippet end */
 
-    const loadOptions = {
-      // configure your load options here
-    };
-
-    (rudderanalytics as unknown as RudderAnalytics).load(
-      '__WRITE_KEY__',
-      '__DATAPLANE_URL__',
-      loadOptions,
-    );
+    // With no attributes to read, this build behaves exactly like loader-gtm.js:
+    // whoever buffered a load call supplies the configuration.
+    if (!__IS_GTM_BUILD__)
+      (rudderanalytics as unknown as RudderAnalytics).load('__WRITE_KEY__', '__DATAPLANE_URL__', {
+        // configure your load options here
+      });
   }
 }
