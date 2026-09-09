@@ -78,11 +78,16 @@ class OpenAIAds {
     return this.isLoaded();
   }
 
+  // Holds on to the published user object so later updates merge onto it, and re-inits the
+  // pixel with the complete object: the pixel replaces its stored user rather than merging.
   updatePixelUser(user) {
     const cleanedUser = removeUndefinedAndNullValues(user);
-    if (Object.keys(cleanedUser).length > 0 && isNativeSdkLoaded()) {
-      window.oaiq('init', { pixelId: this.config.pixelId, user: cleanedUser });
+    if (Object.keys(cleanedUser).length === 0 || !isNativeSdkLoaded()) {
+      return;
     }
+
+    this.userData = cleanedUser;
+    window.oaiq('init', { pixelId: this.config.pixelId, user: cleanedUser });
   }
 
   // The pixel keeps user state for the current page and applies it to later measure calls.
@@ -98,14 +103,9 @@ class OpenAIAds {
       typeof this.analytics.getAnonymousId === 'function'
         ? this.analytics.getAnonymousId()
         : undefined;
-    const user = buildUserData(
-      { userId: this.currentUserId, anonymousId, context: { traits } },
-      logger,
+    this.updatePixelUser(
+      buildUserData({ userId: this.currentUserId, anonymousId, context: { traits } }, logger),
     );
-    if (Object.keys(user).length > 0) {
-      this.userData = user;
-      this.updatePixelUser(this.userData);
-    }
   }
 
   // Mirrors the MoEngage integration pattern: clear vendor user state when the SDK user changes
@@ -161,8 +161,7 @@ class OpenAIAds {
       return;
     }
 
-    this.userData = { ...this.userData, ...user };
-    this.updatePixelUser(this.userData);
+    this.updatePixelUser({ ...this.userData, ...user });
   }
 
   track(rudderElement) {
