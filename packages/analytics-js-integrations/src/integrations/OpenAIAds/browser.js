@@ -92,7 +92,16 @@ class OpenAIAds {
       typeof this.analytics.getUserTraits === 'function'
         ? this.analytics.getUserTraits()
         : undefined;
-    const user = buildUserData({ userId: this.currentUserId, context: { traits } }, logger);
+    // `anonymousId` is carried so an anonymous visitor still seeds an `external_id_sha256`,
+    // matching the cloud-mode `userId` -> `anonymousId` mapping.
+    const anonymousId =
+      typeof this.analytics.getAnonymousId === 'function'
+        ? this.analytics.getAnonymousId()
+        : undefined;
+    const user = buildUserData(
+      { userId: this.currentUserId, anonymousId, context: { traits } },
+      logger,
+    );
     if (Object.keys(user).length > 0) {
       this.userData = user;
       this.updatePixelUser(this.userData);

@@ -187,13 +187,16 @@ const hashUserValue = (value, fieldName, normalize, logger) => {
  * The plural `*_sha256` list fields are Conversions API only and are not sent from device mode.
  */
 const buildUserData = (message = {}, logger) => {
-  const { email, phone, firstName, lastName, userIdOnly, city, state, country, postalCode } =
+  // `userId` here is `getDefinedTraits`' resolved identifier: `userId`, then `anonymousId`.
+  // This mirrors the cloud-mode `external_ids_sha256` mapping (INT-7118), so the pixel and the
+  // Conversions API derive the conversion match key from the same identifier.
+  const { email, phone, firstName, lastName, userId, city, state, country, postalCode } =
     getDefinedTraits(message);
 
   return removeUndefinedAndNullValues({
     email_sha256: hashUserValue(email, 'email', normalizeEmail, logger),
     phone_number_sha256: hashUserValue(phone, 'phone', normalizePhone, logger),
-    external_id_sha256: hashUserValue(userIdOnly, 'external_id', normalizeExternalId, logger),
+    external_id_sha256: hashUserValue(userId, 'external_id', normalizeExternalId, logger),
     first_name_sha256: hashUserValue(firstName, 'first_name', normalizeName, logger),
     last_name_sha256: hashUserValue(lastName, 'last_name', normalizeName, logger),
     city: trimString(city),

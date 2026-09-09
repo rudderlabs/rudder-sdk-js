@@ -241,6 +241,77 @@ describe('OpenAIAds identify', () => {
     });
   });
 
+  test('prefers userId over anonymousId for the external id', () => {
+    const integration = initForCalls();
+
+    integration.identify({
+      message: {
+        type: 'identify',
+        userId: 'User-123',
+        anonymousId: 'anon-abc',
+        context: { traits: {} },
+      },
+    });
+
+    expect(window.oaiq).toHaveBeenCalledWith('init', {
+      pixelId: 'pixel-123',
+      user: { external_id_sha256: sha256('User-123').toString() },
+    });
+  });
+
+  test('falls back to anonymousId for the external id when userId is absent', () => {
+    const integration = initForCalls();
+
+    integration.identify({
+      message: {
+        type: 'identify',
+        anonymousId: 'anon-abc',
+        context: { traits: { email: 'person@example.com' } },
+      },
+    });
+
+    expect(window.oaiq).toHaveBeenCalledWith('init', {
+      pixelId: 'pixel-123',
+      user: {
+        email_sha256: sha256('person@example.com').toString(),
+        external_id_sha256: sha256('anon-abc').toString(),
+      },
+    });
+  });
+
+  test('ignores trait and context external ids for the external id', () => {
+    const integration = initForCalls();
+
+    integration.identify({
+      message: {
+        type: 'identify',
+        context: {
+          traits: {
+            externalId: 'trait-external-id',
+            external_ids: ['legacy-external-id'],
+            email: 'person@example.com',
+          },
+        },
+      },
+    });
+
+    expect(window.oaiq).toHaveBeenCalledWith('init', {
+      pixelId: 'pixel-123',
+      user: { email_sha256: sha256('person@example.com').toString() },
+    });
+  });
+
+  test('seeds the external id from anonymousId for an anonymous visitor', () => {
+    const integration = makeIntegration({}, { getAnonymousId: () => 'anon-seeded' });
+
+    integration.init();
+
+    expect(Array.from(window.oaiq.q[1])).toEqual([
+      'init',
+      { pixelId: 'pixel-123', user: { external_id_sha256: sha256('anon-seeded').toString() } },
+    ]);
+  });
+
   test('clears pixel user state before identify when userId changes, then repopulates', () => {
     const integration = initForCalls({}, { getUserId: () => 'old-user' });
 
