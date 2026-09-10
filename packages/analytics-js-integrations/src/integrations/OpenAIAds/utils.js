@@ -90,16 +90,25 @@ const getEventMappingIndex = eventMapping =>
 const isValidCustomEventName = value =>
   CUSTOM_EVENT_NAME_REGEX.test(value) && !STANDARD_EVENT_NAMES.includes(value.toLowerCase());
 
+const getDefaultPageEvent = () => ({
+  eventName: 'page_viewed',
+  dataType: EVENT_DATA_SHAPES.page_viewed,
+});
+
 const resolveEvent = (message, messageType, eventMappingIndex) => {
   const sourceKey =
     messageType === 'track' ? trimString(message?.event) : trimString(message?.name);
   if (!sourceKey) {
-    return { error: LOGGER_MESSAGES.MISSING_SOURCE_KEY };
+    return messageType === 'page'
+      ? getDefaultPageEvent()
+      : { error: LOGGER_MESSAGES.MISSING_SOURCE_KEY };
   }
 
   const mappingRow = eventMappingIndex?.[normalizeMappingKey(sourceKey)];
   if (!mappingRow) {
-    return { error: LOGGER_MESSAGES.MAPPING_NOT_FOUND(sourceKey) };
+    return messageType === 'page'
+      ? getDefaultPageEvent()
+      : { error: LOGGER_MESSAGES.MAPPING_NOT_FOUND(sourceKey) };
   }
 
   const mappedTo = trimString(mappingRow.to);

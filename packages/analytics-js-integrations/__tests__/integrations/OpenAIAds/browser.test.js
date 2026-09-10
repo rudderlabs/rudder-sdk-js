@@ -579,14 +579,21 @@ describe('OpenAIAds conversion events', () => {
     ]);
   });
 
-  test('skips unmapped, missing source, and pixel-unsupported app lifecycle events', () => {
+  test('skips unmapped and pixel-unsupported track events while defaulting unnamed pages', () => {
     const integration = initForCalls();
 
     integration.track({ message: { type: 'track', event: 'Unknown Event', properties: {} } });
-    integration.page({ message: { type: 'page', properties: {} } });
+    integration.page({ message: { type: 'page', messageId: 'unnamed-page-id', properties: {} } });
     integration.track({ message: { type: 'track', event: 'Mobile Install', properties: {} } });
 
-    expect(window.oaiq).not.toHaveBeenCalled();
+    expect(window.oaiq).toHaveBeenCalledTimes(1);
+    expect(getMeasureCall()).toEqual([
+      'measureSingle',
+      'pixel-123',
+      'page_viewed',
+      { type: 'contents' },
+      { event_id: 'unnamed-page-id' },
+    ]);
     expect(
       console.error.mock.calls.some(call =>
         call[0].includes('OpenAI Ads event mapping not found for Unknown Event'),
@@ -596,10 +603,23 @@ describe('OpenAIAds conversion events', () => {
       console.error.mock.calls.some(call =>
         call[0].includes('OpenAI Ads source event key is required'),
       ),
-    ).toBe(true);
+    ).toBe(false);
     expect(
       console.error.mock.calls.some(call =>
         call[0].includes('OpenAI Ads event app_installed is unsupported by Measurement Pixel'),
+      ),
+    ).toBe(true);
+  });
+
+  test('skips track events without a source key', () => {
+    const integration = initForCalls();
+
+    integration.track({ message: { type: 'track', messageId: 'missing-track-source' } });
+
+    expect(window.oaiq).not.toHaveBeenCalled();
+    expect(
+      console.error.mock.calls.some(call =>
+        call[0].includes('OpenAI Ads source event key is required'),
       ),
     ).toBe(true);
   });
@@ -618,6 +638,45 @@ describe('OpenAIAds conversion events', () => {
       { type: 'contents' },
       { event_id: 'page-id' },
     );
+  });
+
+  test('uses configured page mappings before the page_viewed fallback', () => {
+    const integration = initForCalls({
+      eventMapping: [{ from: 'Landing Page', to: 'lead_created' }],
+    });
+
+    integration.page({
+      message: { type: 'page', name: 'Landing Page', messageId: 'mapped-page-id' },
+    });
+
+    expect(window.oaiq).toHaveBeenCalledWith(
+      'measureSingle',
+      'pixel-123',
+      'lead_created',
+      { type: 'customer_action' },
+      { event_id: 'mapped-page-id' },
+    );
+  });
+
+  test('defaults unmapped page names to page_viewed without logging a missing mapping', () => {
+    const integration = initForCalls();
+
+    integration.page({
+      message: { type: 'page', name: 'Unmapped Page', messageId: 'unmapped-page-id' },
+    });
+
+    expect(window.oaiq).toHaveBeenCalledWith(
+      'measureSingle',
+      'pixel-123',
+      'page_viewed',
+      { type: 'contents' },
+      { event_id: 'unmapped-page-id' },
+    );
+    expect(
+      console.error.mock.calls.some(call =>
+        call[0].includes('OpenAI Ads event mapping not found for Unmapped Page'),
+      ),
+    ).toBe(false);
   });
 
   test('maps plan enrollment events with plan_id, amount, currency, and contents', () => {
