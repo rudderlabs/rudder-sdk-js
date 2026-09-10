@@ -609,6 +609,7 @@ describe('Error Reporting utilities', () => {
               },
               serverCookies: {
                 isEnabledServerSideCookies: false,
+                isCollapsedBatchErrorLogged: false,
               },
               session: {
                 initialReferrer: '',

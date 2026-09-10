@@ -102,6 +102,13 @@ class ConfigManager implements IConfigManager {
       return;
     }
 
+    // Set the log level before attaching the effects so that the effect that syncs it
+    // to the logger does not pin the logger at the default level and swallow the
+    // warnings emitted while processing the rest of the load options
+    if (logLevel) {
+      state.lifecycle.logLevel.value = logLevel;
+    }
+
     this.attachEffects();
 
     state.lifecycle.activeDataplaneUrl.value = removeTrailingSlashes(
@@ -116,10 +123,6 @@ class ConfigManager implements IConfigManager {
     batch(() => {
       state.lifecycle.integrationsCDNPath.value = intgCdnUrl;
       state.lifecycle.pluginsCDNPath.value = pluginsCDNPath;
-
-      if (logLevel) {
-        state.lifecycle.logLevel.value = logLevel;
-      }
 
       state.lifecycle.sourceConfigUrl.value = getSourceConfigURL(
         configUrl,

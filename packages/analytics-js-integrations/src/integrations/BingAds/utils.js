@@ -117,7 +117,7 @@ const formatAndHashEmailAddress = emailString => {
   email = email.replace(/\+[^@]+/g, '');
 
   // Remove any periods that come before “@”
-  email = email.replace(/\./g, (match, offset) => {
+  email = email.replace(/* NOSONAR */ /\./g, (match, offset) => {
     if (offset < email.indexOf('@')) {
       return '';
     }

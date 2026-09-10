@@ -8,6 +8,7 @@ global.window.innerHeight = 1024;
 global.window.__PLUGINS_BUNDLED__ = false;
 global.window.__LOCK_DEPS_VERSION__ = false;
 global.window.__IS_LEGACY_BUILD__ = false;
+global.window.__IS_GTM_BUILD__ = false;
 global.window.__PACKAGE_VERSION__ = '0.0.0-test';
 global.window.__MODULE_TYPE__ = 'npm';
 global.window.__BASE_CDN_URL__ = 'https://cdn.rudderlabs.com';
