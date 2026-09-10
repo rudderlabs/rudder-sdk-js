@@ -6,6 +6,7 @@ export {
 const DIR_NAME = 'OpenAIAds';
 
 const PIXEL_URL = 'https://bzrcdn.openai.com/sdk/oaiq.min.js';
+const SCRIPT_ID = 'openai-ads-measurement-pixel';
 
 const EVENT_DATA_SHAPES = {
   app_installed: 'customer_action',
@@ -46,6 +47,7 @@ const LOGGER_MESSAGES = {
 export {
   DIR_NAME,
   PIXEL_URL,
+  SCRIPT_ID,
   STANDARD_EVENT_NAMES,
   PIXEL_UNSUPPORTED_EVENTS,
   EVENT_DATA_SHAPES,

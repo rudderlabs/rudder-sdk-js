@@ -74,43 +74,17 @@ describe('OpenAIAds initialization and registry', () => {
     expect(window.oaiq.q).toHaveLength(2);
   });
 
-  test('stays inert but resolves readiness immediately when pixelId is missing', () => {
+  test('throws from init when pixelId is missing so the destination fails fast', () => {
     const integration = makeIntegration({ pixelId: undefined });
 
-    expect(() => {
-      integration.identify({
-        message: { type: 'identify', context: { traits: { email: 'person@example.com' } } },
-      });
-      integration.track({
-        message: { type: 'track', event: 'Product Viewed', properties: {} },
-      });
-    }).not.toThrow();
+    // The device-mode plugin catches this and moves the destination to `failedDestinations`,
+    // so it is never dispatched to and never polled for readiness.
+    expect(() => integration.init()).toThrow('OpenAI Ads pixelId is required for initialization');
 
-    // The pixel is never loaded and no call is made, but readiness resolves right away so a
-    // destination saved without a pixelId does not stall device-mode delivery for its peers.
     expect(window.oaiq).toBeUndefined();
-    expect(integration.isLoaded()).toBe(true);
-    expect(integration.isReady()).toBe(true);
-    expect(
-      console.error.mock.calls.filter(call =>
-        call[0].includes('OpenAI Ads pixelId is required for initialization'),
-      ),
-    ).toHaveLength(2);
-  });
-
-  test('installs the pixel queue when identify is invoked before init', () => {
-    const integration = makeIntegration();
-
-    integration.identify({
-      message: { type: 'identify', context: { traits: { email: 'person@example.com' } } },
-    });
-
-    expect(Array.from(window.oaiq.q[0])).toEqual(['init', { pixelId: 'pixel-123' }]);
-    expect(Array.from(window.oaiq.q[1])).toEqual([
-      'init',
-      { pixelId: 'pixel-123', user: { email_sha256: sha256('person@example.com').toString() } },
-    ]);
-    expect(document.querySelectorAll(`script[src="${PIXEL_URL}"]`)).toHaveLength(1);
+    expect(document.querySelectorAll(`script[src="${PIXEL_URL}"]`)).toHaveLength(0);
+    expect(integration.isLoaded()).toBe(false);
+    expect(integration.isReady()).toBe(false);
   });
 
   test('uses the pixel queue when the script tag already exists', () => {

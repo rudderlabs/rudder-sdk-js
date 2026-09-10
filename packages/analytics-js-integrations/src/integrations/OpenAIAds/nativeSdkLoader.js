@@ -1,7 +1,13 @@
+/**
+ * Loader for the OpenAI Ads Measurement Pixel.
+ * https://developers.openai.com/ads/measurement-pixel
+ *
+ * `installQueue` and the async script insert mirror OpenAI's own install snippet. The `oaiq.q`
+ * array is load-bearing: calls made before `oaiq.min.js` arrives are buffered there, and the
+ * vendor script drains that exact property on load, so it must not be renamed.
+ */
 import { LOAD_ORIGIN } from '@rudderstack/analytics-js-legacy-utilities/constants';
-import { PIXEL_URL } from './constants';
-
-const SCRIPT_ID = 'openai-ads-measurement-pixel';
+import { PIXEL_URL, SCRIPT_ID } from './constants';
 
 let sdkLoadStarted = false;
 
@@ -41,7 +47,7 @@ const loadNativeSdk = () => {
 };
 
 const initPixel = pixelId => {
-  if (!pixelId || typeof window.oaiq !== 'function') {
+  if (typeof window.oaiq !== 'function') {
     return;
   }
   window.oaiq('init', { pixelId });

@@ -24,7 +24,6 @@ class OpenAIAds {
     this.eventMappingIndex = getEventMappingIndex(config.eventMapping);
     this.userData = {};
     this.currentUserId = '';
-    this.pixelInitialized = false;
 
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
@@ -34,9 +33,15 @@ class OpenAIAds {
   }
 
   init() {
-    if (!this.ensurePixelInitialized()) {
-      return;
+    const { pixelId } = this.config;
+    // Fail fast: the device-mode plugin catches this and moves the destination straight to
+    // `failedDestinations`, so it is never dispatched to and never polled for readiness.
+    if (!pixelId) {
+      throw new Error(LOGGER_MESSAGES.MISSING_PIXEL_ID);
     }
+
+    loadNativeSdk();
+    initPixel(pixelId);
 
     const analyticsUserId =
       typeof this.analytics.getUserId === 'function' ? this.analytics.getUserId() : undefined;
@@ -45,33 +50,8 @@ class OpenAIAds {
     this.seedUserData();
   }
 
-  ensurePixelInitialized() {
-    const { pixelId } = this.config;
-    if (!pixelId) {
-      logger.error(LOGGER_MESSAGES.MISSING_PIXEL_ID);
-      return false;
-    }
-
-    if (!this.pixelInitialized || !isNativeSdkLoaded()) {
-      loadNativeSdk();
-      initPixel(pixelId);
-      this.pixelInitialized = true;
-    }
-
-    return true;
-  }
-
-  // Device-mode readiness is a shared gate, not a per-destination one: the queue that feeds
-  // every device-mode destination only starts once all of them have resolved as loaded or
-  // failed (`Analytics.ts` loadDestinations / `EventRepository.ts`, and `allModulesInitialized`
-  // in analytics-v1.1). A destination saved without a `pixelId` can never load the pixel, so
-  // polling it until the timeout would stall delivery for every other destination on the source.
-  // Resolving immediately keeps this destination inert without holding up its peers: every
-  // entry point returns early from `ensurePixelInitialized`, and OpenAIAds does not implement
-  // `getDataForIntegrationsObject`, so it never claims the event in the message `integrations`
-  // object and never suppresses the cloud-mode path.
   isLoaded() {
-    return !this.config.pixelId || isNativeSdkLoaded();
+    return isNativeSdkLoaded();
   }
 
   isReady() {
@@ -144,10 +124,6 @@ class OpenAIAds {
   }
 
   identify(rudderElement) {
-    if (!this.ensurePixelInitialized()) {
-      return;
-    }
-
     const message = rudderElement?.message ?? rudderElement ?? {};
     // A logout has already cleared the pixel user state; re-publishing the stale
     // context traits that the SDK keeps around would undo it.
@@ -173,10 +149,6 @@ class OpenAIAds {
   }
 
   sendConversionEvent(rudderElement, messageType) {
-    if (!this.ensurePixelInitialized()) {
-      return;
-    }
-
     const message = rudderElement?.message ?? rudderElement ?? {};
     this.syncUserId(message);
     const resolvedEvent = resolveEvent(message, messageType, this.eventMappingIndex);
