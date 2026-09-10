@@ -45,6 +45,7 @@ import { CNameMapping as Sentry } from '@rudderstack/analytics-js-integrations/i
 import { CNameMapping as SnapPixel } from '@rudderstack/analytics-js-integrations/integrations/SnapPixel/constants';
 import { CNameMapping as TVSquared } from '@rudderstack/analytics-js-integrations/integrations/TVSquared/constants';
 import { CNameMapping as VWO } from '@rudderstack/analytics-js-integrations/integrations/VWO/constants';
+import { CNameMapping as Wingify } from '@rudderstack/analytics-js-integrations/integrations/Wingify/constants';
 import { CNameMapping as GA360 } from '@rudderstack/analytics-js-integrations/integrations/GA360/constants';
 import { CNameMapping as Adroll } from '@rudderstack/analytics-js-integrations/integrations/Adroll/constants';
 import { CNameMapping as DCMFloodlight } from '@rudderstack/analytics-js-integrations/integrations/DCMFloodlight/constants';
@@ -134,6 +135,7 @@ const commonNames = {
   ...SnapPixel,
   ...TVSquared,
   ...VWO,
+  ...Wingify,
   ...Adroll,
   ...DCMFloodlight,
   ...Matomo,

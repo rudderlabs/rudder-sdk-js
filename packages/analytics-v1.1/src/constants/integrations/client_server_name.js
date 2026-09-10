@@ -18,6 +18,7 @@ const clientToServerNames = {
   KISSMETRICS: 'Kiss Metrics',
   LOTAME: 'Lotame',
   VWO: 'VWO',
+  WINGIFY: 'Wingify',
   OPTIMIZELY: 'Optimizely Web',
   FULLSTORY: 'Fullstory',
   TVSQUARED: 'TVSquared',
