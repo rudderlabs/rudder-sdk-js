@@ -18,7 +18,6 @@ export default function useRudderAnalytics():
   const dataPlaneUrl = process.env.NEXT_PUBLIC_RUDDERSTACK_DATAPLANE_URL;
   const validationError = dataPlaneUrl ? getDataPlaneUrlValidationError(dataPlaneUrl) : undefined;
 
-  // A later render can retry initialization after a failed attempt.
   useEffect(() => {
     if (!writeKey || !dataPlaneUrl || analytics) {
       return;
@@ -32,6 +31,7 @@ export default function useRudderAnalytics():
     let active = true;
     if (!initializationPromise) {
       initializationPromise = initializeBrowserAnalytics(writeKey, dataPlaneUrl).catch(error => {
+        // Allow a later mount to retry initialization.
         initializationPromise = undefined;
         console.error('Failed to initialize the RudderStack JavaScript SDK.', error);
         return undefined;
@@ -47,7 +47,7 @@ export default function useRudderAnalytics():
     return () => {
       active = false;
     };
-  });
+  }, [analytics, writeKey, dataPlaneUrl, validationError]);
 
   if (typeof window === 'undefined' || !writeKey || !dataPlaneUrl || validationError) {
     return undefined;
