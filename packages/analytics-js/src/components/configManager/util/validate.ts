@@ -89,6 +89,13 @@ const getDataServiceUrl = (endpoint: string, useExactDomain: boolean, topHost: s
 };
 
 /**
+ * Determines whether a host falls under a cookie domain, as the browser does when
+ * it decides which cookies to send to a request.
+ */
+const isDomainMatch = (hostname: string, cookieDomain: string): boolean =>
+  hostname === cookieDomain || hostname.endsWith(`.${cookieDomain}`);
+
+/**
  * Determines whether the data service can set cookies that the current webpage is able to read.
  * A host outside the webpage's domain can only set cookies for its own domain.
  */
@@ -102,9 +109,7 @@ const isWebpageDataServiceHost = (
     return dataServiceHostname === globalThis.location.hostname;
   }
 
-  return (
-    dataServiceHostname === webpageTopDomain || dataServiceHostname.endsWith(`.${webpageTopDomain}`)
-  );
+  return isDomainMatch(dataServiceHostname, webpageTopDomain);
 };
 
 const isWebpageTopLevelDomain = (providedDomain: string): boolean => {
@@ -117,6 +122,7 @@ export {
   isValidStorageType,
   validateStorageOptions,
   getDataServiceUrl,
+  isDomainMatch,
   isWebpageDataServiceHost,
   isWebpageTopLevelDomain,
 };

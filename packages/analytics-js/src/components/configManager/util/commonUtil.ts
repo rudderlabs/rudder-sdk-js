@@ -53,6 +53,7 @@ import {
 import { domain } from '../../../services/StoreManager/top-domain';
 import {
   getDataServiceUrl,
+  isDomainMatch,
   isWebpageDataServiceHost,
   isWebpageTopLevelDomain,
   validateStorageOptions,
@@ -162,6 +163,23 @@ const getServerSideCookiesStateData = (logger: ILogger) => {
           SERVER_SIDE_COOKIE_DATA_SERVICE_HOST_ERROR(
             CONFIG_MANAGER,
             dataServiceHostname,
+            webpageHostname,
+          ),
+        );
+      }
+
+      // A cookie domain the webpage itself does not fall under yields cookies it cannot read,
+      // no matter which host sets them
+      if (
+        !sameDomainCookiesOnly &&
+        isDefined(providedCookieDomain) &&
+        !isDomainMatch(webpageHostname, removeLeadingPeriod(providedCookieDomain as string))
+      ) {
+        sscEnabled = false;
+        logger.warn(
+          SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING(
+            CONFIG_MANAGER,
+            providedCookieDomain,
             webpageHostname,
           ),
         );
