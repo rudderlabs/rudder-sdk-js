@@ -318,7 +318,7 @@ describe('Config Manager Common Utilities', () => {
       updateStorageStateFromLoadOptions(mockLogger);
 
       expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(false);
-      expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect(mockLogger.error).toHaveBeenCalledWith(
         "ConfigManager:: The provided cookie domain (random-host.com) does not match the current webpage's domain (www.test-host.com). Hence, the cookies will be set client-side.",
       );
     });

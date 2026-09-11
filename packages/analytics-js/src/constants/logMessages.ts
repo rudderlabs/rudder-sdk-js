@@ -139,7 +139,7 @@ const STORAGE_DATA_MIGRATION_OVERRIDE_WARNING = (
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The storage data migration has been disabled because the configured storage encryption version (${storageEncryptionVersion}) is not the latest (${defaultVersion}). To enable storage data migration, please update the storage encryption version to the latest version.`;
 
-const SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING = (
+const SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_ERROR = (
   context: string,
   providedCookieDomain: string | undefined,
   currentCookieDomain: string,
@@ -339,7 +339,7 @@ export {
   INVALID_POLYFILL_URL_WARNING,
   SOURCE_DISABLED_ERROR,
   COMPONENT_BASE_URL_ERROR,
-  SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING,
+  SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_ERROR,
   SERVER_SIDE_COOKIE_DATA_SERVICE_HOST_ERROR,
   PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING,
   BREADCRUMB_ERROR,
