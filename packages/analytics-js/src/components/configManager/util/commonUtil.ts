@@ -148,9 +148,16 @@ const isServerSideCookiesUsable = (
    */
   // Hostnames reach us already lowercased, a configured cookie domain does not
   const cookieDomain = removeLeadingPeriod(providedCookieDomain as string).toLowerCase();
+
+  /**
+   * The cookie domain also has to sit at or below the browser-verified domain of the webpage.
+   * Anything above it is a public suffix, ex: 'co.uk', which the browser refuses to scope
+   * cookies to however well it matches as a string suffix.
+   */
   if (
     !isDomainMatch(dataServiceHostname, cookieDomain) ||
-    !isDomainMatch(webpage.hostname, cookieDomain)
+    !isDomainMatch(webpage.hostname, cookieDomain) ||
+    (webpage.topDomain && !isDomainMatch(cookieDomain, webpage.topDomain))
   ) {
     logger.error(
       SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_ERROR(
