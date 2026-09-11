@@ -42,7 +42,7 @@ import {
   isErrorReportingEnabled,
   isMetricsReportingEnabled,
 } from '../../utilities/statsCollection';
-import { getDomain, removeTrailingSlashes } from '../../utilities/url';
+import { getDomain, getHostname, removeTrailingSlashes } from '../../utilities/url';
 import type { ConfigResponseDestinationItem, SourceConfigResponse } from '../types';
 import {
   CUSTOM_DEVICE_MODE_DESTINATION_DISPLAY_NAME,
@@ -206,13 +206,16 @@ const getServerSideCookiesStateData = (logger: ILogger) => {
       webpageTopHost,
     );
 
-    if (isValidURL(dataServiceUrl)) {
+    // The hostname is unavailable on legacy JS engines without the URL polyfill,
+    // in which case the data service host cannot be verified
+    const dataServiceHostname = getHostname(dataServiceUrl);
+
+    if (isValidURL(dataServiceUrl) && dataServiceHostname) {
       finalDataServiceUrl = removeTrailingSlashes(dataServiceUrl) as string;
 
       const curHost = getDomain(window.location.href);
       const dataServiceHost = getDomain(dataServiceUrl);
 
-      const dataServiceHostname = new URL(dataServiceUrl).hostname;
       sscEnabled = isServerSideCookiesUsable(
         dataServiceHostname,
         providedCookieDomain,

@@ -463,6 +463,24 @@ describe('Config Manager Common Utilities', () => {
 
       expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(true);
     });
+
+    it('should set isEnabledServerSideCookies to false if the URL constructor is unavailable', () => {
+      state.loadOptions.value.useServerSideCookies = true;
+
+      (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
+
+      // Legacy JS engines without the URL polyfill: isValidURL falls back to a regex check
+      const originalURL = globalThis.URL;
+      delete (globalThis as any).URL;
+
+      try {
+        expect(() => updateStorageStateFromLoadOptions(mockLogger)).not.toThrow();
+      } finally {
+        globalThis.URL = originalURL;
+      }
+
+      expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(false);
+    });
   });
 
   describe('updateConsentsStateFromLoadOptions', () => {
