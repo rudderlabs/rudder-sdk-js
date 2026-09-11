@@ -88,6 +88,25 @@ const getDataServiceUrl = (endpoint: string, useExactDomain: boolean, topHost: s
   return `${url}/${formattedEndpoint}`;
 };
 
+/**
+ * Determines whether the data service can set cookies that the current webpage is able to read.
+ * A host outside the webpage's domain can only set cookies for its own domain.
+ */
+const isWebpageDataServiceHost = (
+  dataServiceHostname: string,
+  webpageTopDomain: string,
+  hostOnlyCookies: boolean,
+): boolean => {
+  // Host-only cookies can be read back only by the exact host that set them
+  if (hostOnlyCookies || !webpageTopDomain) {
+    return dataServiceHostname === globalThis.location.hostname;
+  }
+
+  return (
+    dataServiceHostname === webpageTopDomain || dataServiceHostname.endsWith(`.${webpageTopDomain}`)
+  );
+};
+
 const isWebpageTopLevelDomain = (providedDomain: string): boolean => {
   const { topDomain } = getTopDomain(window.location.href);
   return topDomain === providedDomain;
@@ -98,5 +117,6 @@ export {
   isValidStorageType,
   validateStorageOptions,
   getDataServiceUrl,
+  isWebpageDataServiceHost,
   isWebpageTopLevelDomain,
 };

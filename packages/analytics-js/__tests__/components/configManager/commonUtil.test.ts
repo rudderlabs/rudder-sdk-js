@@ -15,6 +15,7 @@ import {
 } from '../../../src/components/configManager/util/commonUtil';
 import {
   getDataServiceUrl,
+  isWebpageDataServiceHost,
   isWebpageTopLevelDomain,
 } from '../../../src/components/configManager/util/validate';
 import { state, resetState } from '../../../src/state';
@@ -45,6 +46,11 @@ describe('Config Manager Common Utilities', () => {
 
   let originalGetDataServiceUrl: (endpoint: string, useExactDomain: boolean) => string;
   let isWebpageTopLevelDomainOriginal: (domain: string) => boolean;
+  let isWebpageDataServiceHostOriginal: (
+    dataServiceHostname: string,
+    webpageTopDomain: string,
+    hostOnlyCookies: boolean,
+  ) => boolean;
 
   beforeAll(() => {
     // Save the original implementation
@@ -54,12 +60,16 @@ describe('Config Manager Common Utilities', () => {
     isWebpageTopLevelDomainOriginal = jest.requireActual(
       '../../../src/components/configManager/util/validate',
     ).isWebpageTopLevelDomain;
+    isWebpageDataServiceHostOriginal = jest.requireActual(
+      '../../../src/components/configManager/util/validate',
+    ).isWebpageDataServiceHost;
   });
 
   beforeEach(() => {
     resetState();
     state.lifecycle.writeKey.value = 'writeKey';
     (getDataServiceUrl as jest.Mock).mockRestore();
+    (isWebpageDataServiceHost as jest.Mock).mockImplementation(isWebpageDataServiceHostOriginal);
   });
 
   describe('getSDKUrl', () => {
@@ -351,9 +361,38 @@ describe('Config Manager Common Utilities', () => {
       updateStorageStateFromLoadOptions(mockLogger);
 
       expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(false);
-      expect(mockLogger.warn).toHaveBeenCalledWith(
-        "ConfigManager:: The data service host (random-host.com) is not under the current webpage's domain (test-host.com). Hence, the cookies will be set client-side.",
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'ConfigManager:: The data service host (random-host.com) cannot set cookies for the current webpage (www.test-host.com). Hence, the cookies will be set client-side instead of server-side.',
       );
+    });
+
+    it('should set isEnabledServerSideCookies to false if sameDomainCookiesOnly is set and the data service host is not the exact webpage host', () => {
+      state.loadOptions.value.useServerSideCookies = true;
+      state.loadOptions.value.sameDomainCookiesOnly = true;
+      state.loadOptions.value.dataServiceEndpoint = 'https://shop.test-host.com/rsaRequest';
+
+      (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
+      updateStorageStateFromLoadOptions(mockLogger);
+
+      expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(false);
+    });
+
+    it('should not force the cross-site cookie options when the data service host disables server-side cookies', () => {
+      state.loadOptions.value.useServerSideCookies = true;
+      state.loadOptions.value.dataServiceEndpoint = 'https://random-host.com/rsaRequest';
+      state.loadOptions.value.storage = {
+        cookie: {
+          samesite: 'Lax',
+        },
+      };
+
+      (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
+      updateStorageStateFromLoadOptions(mockLogger);
+
+      expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(false);
+      expect(state.storage.cookie.value).toEqual({
+        samesite: 'Lax',
+      });
     });
 
     it('should ignore the port when matching the data service host against the webpage domain', () => {
