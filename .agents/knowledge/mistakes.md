@@ -19,3 +19,7 @@
 - When adding a new `analytics-js-integrations` device-mode integration, include its `*_NAME` and `*_DISPLAY_NAME` exports in `Destinations.ts` in the same PR unless the generated constants have already been refreshed.
 - Do not implement OpenAI Ads Measurement Pixel logout/user clearing by adding core SDK device-mode reset hook plumbing from stale or local spec text; the durable behavior from the spec PR is MoEngage-style integration-local user ID change detection that clears the pixel user via `window.oaiq("init", { pixelId, user: {} })`.
 - Adding OpenAI Ads as a mapped destination can fail the bundle-size gate for `All Integrations - Legacy - CDN`, which sums every standalone CDN integration artifact; if the destination remains in `config_to_integration_names.js`, keep the implementation bundle-friendly and update the aggregate `.size-limit.mjs` budget explicitly when needed.
+
+## INT-7126 — OpenAI Ads Browser Jest Config
+
+- Run the OpenAI Ads browser integration Jest file from the monorepo root with the package config: `npx --no-install jest --config packages/analytics-js-integrations/jest.config.mjs __tests__/integrations/OpenAIAds/browser.test.js --runInBand`; plain root `npx jest packages/.../browser.test.js` can hit sample-app haste collisions and fail workspace alias resolution such as `@rudderstack/analytics-js-legacy-utilities/ObjectUtils`.

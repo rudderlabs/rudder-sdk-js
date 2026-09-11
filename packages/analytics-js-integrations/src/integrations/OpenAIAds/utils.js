@@ -13,12 +13,12 @@ import {
 
 const SHA256_HEX_REGEX = /^[\da-f]{64}$/i;
 const CUSTOM_EVENT_NAME_REGEX = /^[\dA-Za-z](?:[\w-]{0,62}[\dA-Za-z])?$/;
-const BLOCKED_PATH_SEGMENTS = ['__proto__', 'prototype', 'constructor'];
+const BLOCKED_PATH_SEGMENTS = new Set(['__proto__', 'prototype', 'constructor']);
+const SCALAR_TYPES = new Set(['string', 'number', 'boolean']);
 
 const isPlainObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 
-const isScalar = value =>
-  ['string', 'number', 'boolean'].indexOf(typeof value) !== -1 && !Number.isNaN(value);
+const isScalar = value => SCALAR_TYPES.has(typeof value) && !Number.isNaN(value);
 
 const isPresent = value => {
   if (value === undefined || value === null || value === '') {
@@ -65,7 +65,7 @@ const getConfiguredValue = (source, path) => {
   const normalizedPath = trimString(path);
   if (
     !normalizedPath ||
-    normalizedPath.split('.').some(segment => BLOCKED_PATH_SEGMENTS.includes(segment))
+    normalizedPath.split('.').some(segment => BLOCKED_PATH_SEGMENTS.has(segment))
   ) {
     return undefined;
   }
@@ -90,16 +90,25 @@ const getEventMappingIndex = eventMapping =>
 const isValidCustomEventName = value =>
   CUSTOM_EVENT_NAME_REGEX.test(value) && !STANDARD_EVENT_NAMES.includes(value.toLowerCase());
 
+const getDefaultPageEvent = () => ({
+  eventName: 'page_viewed',
+  dataType: EVENT_DATA_SHAPES.page_viewed,
+});
+
 const resolveEvent = (message, messageType, eventMappingIndex) => {
   const sourceKey =
     messageType === 'track' ? trimString(message?.event) : trimString(message?.name);
   if (!sourceKey) {
-    return { error: LOGGER_MESSAGES.MISSING_SOURCE_KEY };
+    return messageType === 'page'
+      ? getDefaultPageEvent()
+      : { error: LOGGER_MESSAGES.MISSING_SOURCE_KEY };
   }
 
   const mappingRow = eventMappingIndex?.[normalizeMappingKey(sourceKey)];
   if (!mappingRow) {
-    return { error: LOGGER_MESSAGES.MAPPING_NOT_FOUND(sourceKey) };
+    return messageType === 'page'
+      ? getDefaultPageEvent()
+      : { error: LOGGER_MESSAGES.MAPPING_NOT_FOUND(sourceKey) };
   }
 
   const mappedTo = trimString(mappingRow.to);
@@ -164,7 +173,7 @@ const normalizePhone = value => {
 const normalizeName = value =>
   trimString(value)
     ?.toLowerCase()
-    .replace(/[\s!"#$%&'()*+,./:;<=>?@[\\\]^_`{|}~\-]/g, '') || undefined;
+    .replace(/[\s!"#$%&'()*+,./:;<=>?@[\\\]^_`{|}~-]/g, '') || undefined;
 
 // External IDs are only trimmed; the OpenAI spec requires the original case to be preserved.
 const normalizeExternalId = value => trimString(value);
@@ -186,12 +195,12 @@ const hashUserValue = (value, fieldName, normalize, logger) => {
  * Builds the singular, scalar Measurement Pixel `user` object.
  * The plural `*_sha256` list fields are Conversions API only and are not sent from device mode.
  */
-const buildUserData = (message = {}, logger) => {
+const buildUserData = (message, logger) => {
   // `userId` here is `getDefinedTraits`' resolved identifier: `userId`, then `anonymousId`.
   // This mirrors the cloud-mode `external_ids_sha256` mapping (INT-7118), so the pixel and the
   // Conversions API derive the conversion match key from the same identifier.
   const { email, phone, firstName, lastName, userId, city, state, country, postalCode } =
-    getDefinedTraits(message);
+    getDefinedTraits(message || {});
 
   return removeUndefinedAndNullValues({
     email_sha256: hashUserValue(email, 'email', normalizeEmail, logger),
