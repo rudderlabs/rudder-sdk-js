@@ -1,6 +1,7 @@
 import {
   extractUTMParameters,
   getUrlWithoutHash,
+  getHostname,
   getReferringDomain,
   removeTrailingSlashes,
 } from '../../../src/components/utilities/url';
@@ -29,6 +30,27 @@ describe('utilities - url', () => {
 
     it('should get empty string if referrer is not a valid URL', () => {
       expect(getReferringDomain('abcd')).toBe('');
+    });
+  });
+
+  describe('getHostname', () => {
+    it('should get the hostname without the port if the input is a valid URL', () => {
+      expect(getHostname('https://rudderlabs.com:8080/blog')).toBe('rudderlabs.com');
+    });
+
+    it('should get null if the input is not a valid URL', () => {
+      expect(getHostname('abcd')).toBe(null);
+    });
+
+    it('should get null if the URL constructor is unavailable', () => {
+      const originalURL = globalThis.URL;
+      delete (globalThis as any).URL;
+
+      try {
+        expect(getHostname('https://rudderlabs.com')).toBe(null);
+      } finally {
+        globalThis.URL = originalURL;
+      }
     });
   });
 

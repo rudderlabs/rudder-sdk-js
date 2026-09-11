@@ -18,6 +18,15 @@ const getDomain = (url: string): Nullable<string> => {
   }
 };
 
+const getHostname = (url: string): Nullable<string> => {
+  try {
+    const urlObj = new URL(url);
+    return urlObj.hostname;
+  } catch (error) {
+    return null;
+  }
+};
+
 /**
  * Get the referring domain from the referrer URL
  * @param referrer Page referrer
@@ -73,4 +82,5 @@ export {
   extractUTMParameters,
   getUrlWithoutHash,
   getDomain,
+  getHostname,
 };

@@ -15,6 +15,8 @@ import {
 } from '../../../src/components/configManager/util/commonUtil';
 import {
   getDataServiceUrl,
+  isDomainMatch,
+  isWebpageDataServiceHost,
   isWebpageTopLevelDomain,
 } from '../../../src/components/configManager/util/validate';
 import { state, resetState } from '../../../src/state';
@@ -45,6 +47,12 @@ describe('Config Manager Common Utilities', () => {
 
   let originalGetDataServiceUrl: (endpoint: string, useExactDomain: boolean) => string;
   let isWebpageTopLevelDomainOriginal: (domain: string) => boolean;
+  let isDomainMatchOriginal: (hostname: string, cookieDomain: string) => boolean;
+  let isWebpageDataServiceHostOriginal: (
+    dataServiceHostname: string,
+    webpageTopDomain: string,
+    hostOnlyCookies: boolean,
+  ) => boolean;
 
   beforeAll(() => {
     // Save the original implementation
@@ -54,12 +62,20 @@ describe('Config Manager Common Utilities', () => {
     isWebpageTopLevelDomainOriginal = jest.requireActual(
       '../../../src/components/configManager/util/validate',
     ).isWebpageTopLevelDomain;
+    isWebpageDataServiceHostOriginal = jest.requireActual(
+      '../../../src/components/configManager/util/validate',
+    ).isWebpageDataServiceHost;
+    isDomainMatchOriginal = jest.requireActual(
+      '../../../src/components/configManager/util/validate',
+    ).isDomainMatch;
   });
 
   beforeEach(() => {
     resetState();
     state.lifecycle.writeKey.value = 'writeKey';
     (getDataServiceUrl as jest.Mock).mockRestore();
+    (isWebpageDataServiceHost as jest.Mock).mockImplementation(isWebpageDataServiceHostOriginal);
+    (isDomainMatch as jest.Mock).mockImplementation(isDomainMatchOriginal);
   });
 
   describe('getSDKUrl', () => {
@@ -252,11 +268,11 @@ describe('Config Manager Common Utilities', () => {
 
     it('should set the value of isEnabledServerSideCookies to true if the useServerSideCookies is set to true and the dataServiceUrl is a valid url', () => {
       state.loadOptions.value.useServerSideCookies = true;
-      (getDataServiceUrl as jest.Mock).mockImplementation(() => 'https://www.dummy.url');
+      (getDataServiceUrl as jest.Mock).mockImplementation(() => 'https://www.test-host.com/dummy');
       updateStorageStateFromLoadOptions(mockLogger);
 
       expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(true);
-      expect(state.serverCookies.dataServiceUrl.value).toBe('https://www.dummy.url');
+      expect(state.serverCookies.dataServiceUrl.value).toBe('https://www.test-host.com/dummy');
     });
 
     it('should determine the dataServiceUrl from the exact domain if sameDomainCookiesOnly load option is set to true', () => {
@@ -302,7 +318,7 @@ describe('Config Manager Common Utilities', () => {
       updateStorageStateFromLoadOptions(mockLogger);
 
       expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(false);
-      expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect(mockLogger.error).toHaveBeenCalledWith(
         "ConfigManager:: The provided cookie domain (random-host.com) does not match the current webpage's domain (www.test-host.com). Hence, the cookies will be set client-side.",
       );
     });
@@ -316,6 +332,154 @@ describe('Config Manager Common Utilities', () => {
       updateStorageStateFromLoadOptions(mockLogger);
 
       expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(true);
+    });
+
+    it('should use an absolute dataServiceEndpoint on the current origin as the data service URL', () => {
+      state.loadOptions.value.useServerSideCookies = true;
+      state.loadOptions.value.dataServiceEndpoint = 'https://www.test-host.com/rsaRequest';
+
+      (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
+      updateStorageStateFromLoadOptions(mockLogger);
+
+      expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(true);
+      expect(state.serverCookies.dataServiceUrl.value).toBe('https://www.test-host.com/rsaRequest');
+    });
+
+    it('should keep the cookie domain untouched for an absolute dataServiceEndpoint on a sibling subdomain', () => {
+      state.loadOptions.value.useServerSideCookies = true;
+      state.loadOptions.value.dataServiceEndpoint = 'https://shop.test-host.com/rsaRequest';
+
+      (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
+      updateStorageStateFromLoadOptions(mockLogger);
+
+      expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(true);
+      expect(state.serverCookies.dataServiceUrl.value).toBe(
+        'https://shop.test-host.com/rsaRequest',
+      );
+      expect(state.storage.cookie.value?.domain).toBeUndefined();
+    });
+
+    it('should set isEnabledServerSideCookies to false if the absolute dataServiceEndpoint host is outside the webpage domain', () => {
+      state.loadOptions.value.useServerSideCookies = true;
+      state.loadOptions.value.dataServiceEndpoint = 'https://random-host.com/rsaRequest';
+
+      (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
+      updateStorageStateFromLoadOptions(mockLogger);
+
+      expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(false);
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'ConfigManager:: The data service host (random-host.com) cannot set cookies for the current webpage (www.test-host.com). Hence, the cookies will be set client-side instead of server-side.',
+      );
+    });
+
+    it('should set isEnabledServerSideCookies to false if sameDomainCookiesOnly is set and the data service host is not the exact webpage host', () => {
+      state.loadOptions.value.useServerSideCookies = true;
+      state.loadOptions.value.sameDomainCookiesOnly = true;
+      state.loadOptions.value.dataServiceEndpoint = 'https://shop.test-host.com/rsaRequest';
+
+      (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
+      updateStorageStateFromLoadOptions(mockLogger);
+
+      expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(false);
+    });
+
+    it('should not force the cross-site cookie options when the data service host disables server-side cookies', () => {
+      state.loadOptions.value.useServerSideCookies = true;
+      state.loadOptions.value.dataServiceEndpoint = 'https://random-host.com/rsaRequest';
+      state.loadOptions.value.storage = {
+        cookie: {
+          samesite: 'Lax',
+        },
+      };
+
+      (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
+      updateStorageStateFromLoadOptions(mockLogger);
+
+      expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(false);
+      expect(state.storage.cookie.value).toEqual({
+        samesite: 'Lax',
+      });
+    });
+
+    it('should not force the cross-site cookie options when the cookie domain check disables server-side cookies', () => {
+      state.loadOptions.value.useServerSideCookies = true;
+      state.loadOptions.value.setCookieDomain = 'www.test-host.com';
+      state.loadOptions.value.dataServiceEndpoint = 'https://shop.test-host.com/rsaRequest';
+      state.loadOptions.value.storage = {
+        cookie: {
+          samesite: 'Lax',
+        },
+      };
+
+      (isWebpageTopLevelDomain as jest.Mock).mockImplementation(isWebpageTopLevelDomainOriginal);
+      (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
+      updateStorageStateFromLoadOptions(mockLogger);
+
+      expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(false);
+      expect(state.storage.cookie.value?.samesite).toBe('Lax');
+      expect(state.storage.cookie.value?.secure).toBeUndefined();
+    });
+
+    it('should set isEnabledServerSideCookies to false if the webpage cannot read cookies scoped to the provided cookie domain', () => {
+      state.loadOptions.value.useServerSideCookies = true;
+      state.loadOptions.value.setCookieDomain = 'shop.test-host.com';
+      state.loadOptions.value.dataServiceEndpoint = 'https://shop.test-host.com/rsaRequest';
+
+      (isWebpageTopLevelDomain as jest.Mock).mockImplementation(isWebpageTopLevelDomainOriginal);
+      (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
+      updateStorageStateFromLoadOptions(mockLogger);
+
+      expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(false);
+    });
+
+    it('should match the provided cookie domain regardless of its case', () => {
+      state.loadOptions.value.useServerSideCookies = true;
+      state.loadOptions.value.setCookieDomain = '.Test-Host.com';
+
+      (isWebpageTopLevelDomain as jest.Mock).mockImplementation(isWebpageTopLevelDomainOriginal);
+      (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
+      updateStorageStateFromLoadOptions(mockLogger);
+
+      expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(true);
+    });
+
+    it('should set isEnabledServerSideCookies to false if the provided cookie domain is above the webpage top domain', () => {
+      state.loadOptions.value.useServerSideCookies = true;
+      state.loadOptions.value.setCookieDomain = 'com';
+
+      (isWebpageTopLevelDomain as jest.Mock).mockImplementation(isWebpageTopLevelDomainOriginal);
+      (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
+      updateStorageStateFromLoadOptions(mockLogger);
+
+      expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(false);
+    });
+
+    it('should ignore the port when matching the data service host against the webpage domain', () => {
+      state.loadOptions.value.useServerSideCookies = true;
+      state.loadOptions.value.dataServiceEndpoint = 'https://shop.test-host.com:8443/rsaRequest';
+
+      (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
+      updateStorageStateFromLoadOptions(mockLogger);
+
+      expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(true);
+    });
+
+    it('should set isEnabledServerSideCookies to false if the URL constructor is unavailable', () => {
+      state.loadOptions.value.useServerSideCookies = true;
+
+      (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
+
+      // Legacy JS engines without the URL polyfill: isValidURL falls back to a regex check
+      const originalURL = globalThis.URL;
+      delete (globalThis as any).URL;
+
+      try {
+        expect(() => updateStorageStateFromLoadOptions(mockLogger)).not.toThrow();
+      } finally {
+        globalThis.URL = originalURL;
+      }
+
+      expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(false);
     });
   });
 

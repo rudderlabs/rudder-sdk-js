@@ -1,36 +1,100 @@
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import {
-  getTopDomainUrl,
   getDataServiceUrl,
+  isWebpageDataServiceHost,
   isWebpageTopLevelDomain,
   validateStorageOptions,
 } from '../../../src/components/configManager/util/validate';
 
 describe('Config manager util - validate load arguments', () => {
-  describe('getTopDomainUrl', () => {
-    const testCaseData = [
-      ['https://sub.example.com', 'https://example.com'],
-      ['https://www.example.com/some/page/iam/viewing.html', 'https://example.com'],
-      ['https://example.com/some/page/iam/viewing.html', 'https://example.com'],
-      ['http://localhost/some/page/iam/viewing.html', 'http://localhost'],
-    ];
-    it.each(testCaseData)('if url is "%s" it should return "%s"', (input, expectedOutput) => {
-      const actualOutput = getTopDomainUrl(input);
-      expect(actualOutput).toBe(expectedOutput);
-    });
-  });
   describe('getDataServiceUrl', () => {
     it('should return dataServiceUrl', () => {
-      const dataServiceUrl = getDataServiceUrl('endpoint', false);
+      const dataServiceUrl = getDataServiceUrl('endpoint', false, 'test-host.com');
       expect(dataServiceUrl).toBe('https://test-host.com/endpoint');
     });
+
     it('should prepare the dataServiceUrl with endpoint without leading slash', () => {
-      const dataServiceUrl = getDataServiceUrl('/endpoint', false);
+      const dataServiceUrl = getDataServiceUrl('/endpoint', false, 'test-host.com');
       expect(dataServiceUrl).toBe('https://test-host.com/endpoint');
     });
+
     it('should return dataServiceUrl with exact domain', () => {
-      const dataServiceUrl = getDataServiceUrl('endpoint', true);
+      const dataServiceUrl = getDataServiceUrl('endpoint', true, 'test-host.com');
       expect(dataServiceUrl).toBe('https://www.test-host.com/endpoint');
+    });
+
+    it('should derive the host from the provided top domain', () => {
+      const dataServiceUrl = getDataServiceUrl('endpoint', false, 'example.co.uk');
+      expect(dataServiceUrl).toBe('https://example.co.uk/endpoint');
+    });
+
+    it('should fall back to the exact origin if the top domain could not be determined', () => {
+      const dataServiceUrl = getDataServiceUrl('endpoint', false, '');
+      expect(dataServiceUrl).toBe('https://www.test-host.com/endpoint');
+    });
+
+    it('should use an absolute HTTPS endpoint as the data service URL as it is', () => {
+      const dataServiceUrl = getDataServiceUrl(
+        'https://shop.air-up.dev/rsaRequest',
+        false,
+        'air-up.dev',
+      );
+      expect(dataServiceUrl).toBe('https://shop.air-up.dev/rsaRequest');
+    });
+
+    it('should use an absolute HTTP endpoint as the data service URL as it is', () => {
+      const dataServiceUrl = getDataServiceUrl(
+        'http://shop.air-up.dev/rsaRequest',
+        false,
+        'air-up.dev',
+      );
+      expect(dataServiceUrl).toBe('http://shop.air-up.dev/rsaRequest');
+    });
+
+    it('should not append the default endpoint to an absolute endpoint without a path', () => {
+      const dataServiceUrl = getDataServiceUrl('https://shop.air-up.dev', false, 'air-up.dev');
+      expect(dataServiceUrl).toBe('https://shop.air-up.dev');
+    });
+
+    it('should ignore the exact domain flag for an absolute endpoint', () => {
+      const dataServiceUrl = getDataServiceUrl(
+        'https://shop.air-up.dev/rsaRequest',
+        true,
+        'air-up.dev',
+      );
+      expect(dataServiceUrl).toBe('https://shop.air-up.dev/rsaRequest');
+    });
+  });
+
+  describe('isWebpageDataServiceHost', () => {
+    it('should allow the exact webpage host', () => {
+      expect(isWebpageDataServiceHost('www.test-host.com', 'test-host.com', false)).toBe(true);
+    });
+
+    it('should allow the webpage top domain', () => {
+      expect(isWebpageDataServiceHost('test-host.com', 'test-host.com', false)).toBe(true);
+    });
+
+    it('should allow a sibling subdomain of the webpage top domain', () => {
+      expect(isWebpageDataServiceHost('shop.test-host.com', 'test-host.com', false)).toBe(true);
+    });
+
+    it('should not allow a host outside the webpage top domain', () => {
+      expect(isWebpageDataServiceHost('random-host.com', 'test-host.com', false)).toBe(false);
+    });
+
+    it('should not allow a host that merely ends with the webpage top domain', () => {
+      expect(isWebpageDataServiceHost('nottest-host.com', 'test-host.com', false)).toBe(false);
+    });
+
+    it('should only allow the exact webpage host for host-only cookies', () => {
+      expect(isWebpageDataServiceHost('shop.test-host.com', 'test-host.com', true)).toBe(false);
+      expect(isWebpageDataServiceHost('www.test-host.com', 'test-host.com', true)).toBe(true);
+    });
+
+    it('should only allow the exact webpage host if the top domain could not be determined', () => {
+      expect(isWebpageDataServiceHost('test-host.com', '', false)).toBe(false);
+      expect(isWebpageDataServiceHost('www.test-host.com', '', false)).toBe(true);
     });
   });
 
@@ -39,6 +103,7 @@ describe('Config manager util - validate load arguments', () => {
       const isTopLevel = isWebpageTopLevelDomain('test-host.com');
       expect(isTopLevel).toBe(true);
     });
+
     it('should return false for subdomain', () => {
       const isTopLevel = isWebpageTopLevelDomain('sub.test-host.com');
       expect(isTopLevel).toBe(false);

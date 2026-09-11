@@ -35,13 +35,14 @@ import {
   UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY,
   DEPRECATED_PRE_CONSENT_STORAGE_STRATEGY,
   UNSUPPORTED_STORAGE_ENCRYPTION_VERSION_WARNING,
-  SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING,
+  SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_ERROR,
+  SERVER_SIDE_COOKIE_DATA_SERVICE_HOST_ERROR,
 } from '../../../constants/logMessages';
 import {
   isErrorReportingEnabled,
   isMetricsReportingEnabled,
 } from '../../utilities/statsCollection';
-import { getDomain, removeTrailingSlashes } from '../../utilities/url';
+import { getDomain, getHostname, removeTrailingSlashes } from '../../utilities/url';
 import type { ConfigResponseDestinationItem, SourceConfigResponse } from '../types';
 import {
   CUSTOM_DEVICE_MODE_DESTINATION_DISPLAY_NAME,
@@ -49,7 +50,14 @@ import {
   DEFAULT_STORAGE_ENCRYPTION_VERSION,
   StorageEncryptionVersionsToPluginNameMap,
 } from '../constants';
-import { getDataServiceUrl, isWebpageTopLevelDomain, validateStorageOptions } from './validate';
+import { domain } from '../../../services/StoreManager/top-domain';
+import {
+  getDataServiceUrl,
+  isDomainMatch,
+  isWebpageDataServiceHost,
+  isWebpageTopLevelDomain,
+  validateStorageOptions,
+} from './validate';
 import { getConsentManagementData } from '../../utilities/consent';
 
 /**
@@ -92,6 +100,78 @@ const updateReportingState = (res: SourceConfigResponse): void => {
   state.reporting.isMetricsReportingEnabled.value = isMetricsReportingEnabled(res.source.config);
 };
 
+/**
+ * Resolves the webpage's browser-verified cookie domain, along with the same domain carrying
+ * the current port so that a derived data service URL still points at the webpage's own server.
+ * Note: the storage module probes the same cookie levels again while building the default
+ * cookie options; both belong in the refactor noted below.
+ */
+const getWebpageTopDomain = (): { topDomain: string; topHost: string } => {
+  const topDomain = domain(globalThis.location.href);
+  const { port } = globalThis.location;
+
+  return { topDomain, topHost: topDomain && port ? `${topDomain}:${port}` : topDomain };
+};
+
+/**
+ * Determines whether the cookies the data service would set are ones the webpage can read
+ * back, and reports the reason when they are not.
+ */
+const isServerSideCookiesUsable = (
+  dataServiceHostname: string,
+  providedCookieDomain: string | undefined,
+  webpage: { hostname: string; topDomain: string },
+  sameDomainCookiesOnly: boolean,
+  logger: ILogger,
+): boolean => {
+  // The data service sets the cookies, so it has to be a host whose cookies the webpage
+  // can read back. In the same domain cookies mode they are host-only, hence the exact host
+  if (!isWebpageDataServiceHost(dataServiceHostname, webpage.topDomain, sameDomainCookiesOnly)) {
+    logger.error(
+      SERVER_SIDE_COOKIE_DATA_SERVICE_HOST_ERROR(
+        CONFIG_MANAGER,
+        dataServiceHostname,
+        webpage.hostname,
+      ),
+    );
+    return false;
+  }
+
+  // The cookie domain is dropped altogether in the same domain cookies mode
+  if (sameDomainCookiesOnly || !isDefined(providedCookieDomain)) {
+    return true;
+  }
+
+  /**
+   * A provided cookie domain only works if the data service is able to set it and the webpage
+   * falls under it, ex: cookie domain 'random.com', or a sibling subdomain of the webpage
+   */
+  // Hostnames reach us already lowercased, a configured cookie domain does not
+  const cookieDomain = removeLeadingPeriod(providedCookieDomain as string).toLowerCase();
+
+  /**
+   * The cookie domain also has to sit at or below the browser-verified domain of the webpage.
+   * Anything above it is a public suffix, ex: 'co.uk', which the browser refuses to scope
+   * cookies to however well it matches as a string suffix.
+   */
+  if (
+    !isDomainMatch(dataServiceHostname, cookieDomain) ||
+    !isDomainMatch(webpage.hostname, cookieDomain) ||
+    (webpage.topDomain && !isDomainMatch(cookieDomain, webpage.topDomain))
+  ) {
+    logger.error(
+      SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_ERROR(
+        CONFIG_MANAGER,
+        providedCookieDomain,
+        webpage.hostname,
+      ),
+    );
+    return false;
+  }
+
+  return true;
+};
+
 const getServerSideCookiesStateData = (logger: ILogger) => {
   const {
     useServerSideCookies,
@@ -117,47 +197,44 @@ const getServerSideCookiesStateData = (logger: ILogger) => {
         !isWebpageTopLevelDomain(removeLeadingPeriod(providedCookieDomain as string))) ||
       (sameDomainCookiesOnly as boolean);
 
+    const { hostname: webpageHostname } = globalThis.location;
+    const { topDomain: webpageTopDomain, topHost: webpageTopHost } = getWebpageTopDomain();
+
     const dataServiceUrl = getDataServiceUrl(
       dataServiceEndpoint ?? DEFAULT_DATA_SERVICE_ENDPOINT,
       useExactDomain,
+      webpageTopHost,
     );
 
-    if (isValidURL(dataServiceUrl)) {
+    // The hostname is unavailable on legacy JS engines without the URL polyfill,
+    // in which case the data service host cannot be verified
+    const dataServiceHostname = getHostname(dataServiceUrl);
+
+    if (isValidURL(dataServiceUrl) && dataServiceHostname) {
       finalDataServiceUrl = removeTrailingSlashes(dataServiceUrl) as string;
 
       const curHost = getDomain(window.location.href);
       const dataServiceHost = getDomain(dataServiceUrl);
+
+      sscEnabled = isServerSideCookiesUsable(
+        dataServiceHostname,
+        providedCookieDomain,
+        { hostname: webpageHostname, topDomain: webpageTopDomain },
+        sameDomainCookiesOnly as boolean,
+        logger,
+      );
 
       // If the current host is different from the data service host, then it is a cross-site request
       // For server-side cookies to work, we need to set the SameSite=None and Secure attributes
       // One round of cookie options manipulation is taking place here
       // Based on these(setCookieDomain/storage.cookie or sameDomainCookiesOnly) two load-options, final cookie options are set in the storage module
       // TODO: Refactor the cookie options manipulation logic in one place
-      if (curHost !== dataServiceHost) {
+      if (sscEnabled && curHost !== dataServiceHost) {
         cookieOptions = {
           ...cookieOptions,
           samesite: 'None',
           secure: true,
         };
-      }
-      /**
-       * If the sameDomainCookiesOnly flag is not set and the cookie domain is provided(not top level domain),
-       * and the data service host is different from the provided cookie domain, then we disable server-side cookies
-       * ex: provided cookie domain: 'random.com', data service host: 'sub.example.com'
-       */
-      if (
-        !sameDomainCookiesOnly &&
-        useExactDomain &&
-        dataServiceHost !== removeLeadingPeriod(providedCookieDomain as string)
-      ) {
-        sscEnabled = false;
-        logger.warn(
-          SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING(
-            CONFIG_MANAGER,
-            providedCookieDomain,
-            dataServiceHost as string,
-          ),
-        );
       }
     } else {
       sscEnabled = false;
