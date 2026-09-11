@@ -395,6 +395,25 @@ describe('Config Manager Common Utilities', () => {
       });
     });
 
+    it('should not force the cross-site cookie options when the cookie domain check disables server-side cookies', () => {
+      state.loadOptions.value.useServerSideCookies = true;
+      state.loadOptions.value.setCookieDomain = 'www.test-host.com';
+      state.loadOptions.value.dataServiceEndpoint = 'https://shop.test-host.com/rsaRequest';
+      state.loadOptions.value.storage = {
+        cookie: {
+          samesite: 'Lax',
+        },
+      };
+
+      (isWebpageTopLevelDomain as jest.Mock).mockImplementation(isWebpageTopLevelDomainOriginal);
+      (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
+      updateStorageStateFromLoadOptions(mockLogger);
+
+      expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(false);
+      expect(state.storage.cookie.value?.samesite).toBe('Lax');
+      expect(state.storage.cookie.value?.secure).toBeUndefined();
+    });
+
     it('should ignore the port when matching the data service host against the webpage domain', () => {
       state.loadOptions.value.useServerSideCookies = true;
       state.loadOptions.value.dataServiceEndpoint = 'https://shop.test-host.com:8443/rsaRequest';

@@ -167,18 +167,6 @@ const getServerSideCookiesStateData = (logger: ILogger) => {
         );
       }
 
-      // If the current host is different from the data service host, then it is a cross-site request
-      // For server-side cookies to work, we need to set the SameSite=None and Secure attributes
-      // One round of cookie options manipulation is taking place here
-      // Based on these(setCookieDomain/storage.cookie or sameDomainCookiesOnly) two load-options, final cookie options are set in the storage module
-      // TODO: Refactor the cookie options manipulation logic in one place
-      if (sscEnabled && curHost !== dataServiceHost) {
-        cookieOptions = {
-          ...cookieOptions,
-          samesite: 'None',
-          secure: true,
-        };
-      }
       /**
        * If the sameDomainCookiesOnly flag is not set and the cookie domain is provided(not top level domain),
        * and the data service host is different from the provided cookie domain, then we disable server-side cookies
@@ -197,6 +185,19 @@ const getServerSideCookiesStateData = (logger: ILogger) => {
             dataServiceHost as string,
           ),
         );
+      }
+
+      // If the current host is different from the data service host, then it is a cross-site request
+      // For server-side cookies to work, we need to set the SameSite=None and Secure attributes
+      // One round of cookie options manipulation is taking place here
+      // Based on these(setCookieDomain/storage.cookie or sameDomainCookiesOnly) two load-options, final cookie options are set in the storage module
+      // TODO: Refactor the cookie options manipulation logic in one place
+      if (sscEnabled && curHost !== dataServiceHost) {
+        cookieOptions = {
+          ...cookieOptions,
+          samesite: 'None',
+          secure: true,
+        };
       }
     } else {
       sscEnabled = false;
