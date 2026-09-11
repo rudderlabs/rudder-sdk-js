@@ -65,7 +65,7 @@ const getTopDomain = (url: string) => {
   // Handle different cases, especially for co.uk or similar TLDs
   if (parts.length > 2) {
     // Join the last two parts for the top-level domain
-    topDomain = `${parts.at(-2)}.${parts.at(-1)}`;
+    topDomain = parts.slice(-2).join('.');
   } else {
     // If only two parts or less, return as it is
     topDomain = host;

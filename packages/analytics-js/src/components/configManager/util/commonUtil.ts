@@ -146,7 +146,8 @@ const isServerSideCookiesUsable = (
    * A provided cookie domain only works if the data service is able to set it and the webpage
    * falls under it, ex: cookie domain 'random.com', or a sibling subdomain of the webpage
    */
-  const cookieDomain = removeLeadingPeriod(providedCookieDomain as string);
+  // Hostnames reach us already lowercased, a configured cookie domain does not
+  const cookieDomain = removeLeadingPeriod(providedCookieDomain as string).toLowerCase();
   if (
     !isDomainMatch(dataServiceHostname, cookieDomain) ||
     !isDomainMatch(webpage.hostname, cookieDomain)

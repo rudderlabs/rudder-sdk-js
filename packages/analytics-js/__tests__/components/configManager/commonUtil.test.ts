@@ -432,6 +432,17 @@ describe('Config Manager Common Utilities', () => {
       expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(false);
     });
 
+    it('should match the provided cookie domain regardless of its case', () => {
+      state.loadOptions.value.useServerSideCookies = true;
+      state.loadOptions.value.setCookieDomain = '.Test-Host.com';
+
+      (isWebpageTopLevelDomain as jest.Mock).mockImplementation(isWebpageTopLevelDomainOriginal);
+      (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
+      updateStorageStateFromLoadOptions(mockLogger);
+
+      expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(true);
+    });
+
     it('should ignore the port when matching the data service host against the webpage domain', () => {
       state.loadOptions.value.useServerSideCookies = true;
       state.loadOptions.value.dataServiceEndpoint = 'https://shop.test-host.com:8443/rsaRequest';
