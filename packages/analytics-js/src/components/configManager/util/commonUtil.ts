@@ -125,10 +125,15 @@ const getServerSideCookiesStateData = (logger: ILogger) => {
     // cookie options; both belong in the refactor noted below
     const webpageTopDomain = domain(globalThis.location.href);
 
+    // The cookie domain probe drops the port, which the derived data service host must keep
+    const { port } = window.location;
+    const webpageTopHost =
+      webpageTopDomain && port ? `${webpageTopDomain}:${port}` : webpageTopDomain;
+
     const dataServiceUrl = getDataServiceUrl(
       dataServiceEndpoint ?? DEFAULT_DATA_SERVICE_ENDPOINT,
       useExactDomain,
-      webpageTopDomain,
+      webpageTopHost,
     );
 
     if (isValidURL(dataServiceUrl)) {
