@@ -73,13 +73,19 @@ const getTopDomain = (url: string) => {
   return { topDomain, protocol };
 };
 
-const getTopDomainUrl = (url: string) => {
-  const { topDomain, protocol } = getTopDomain(url);
-  return `${protocol}//${topDomain}`;
-};
+const ABSOLUTE_URL_REGEX = /^https?:\/\//i;
 
-const getDataServiceUrl = (endpoint: string, useExactDomain: boolean) => {
-  const url = useExactDomain ? window.location.origin : getTopDomainUrl(window.location.href);
+const getDataServiceUrl = (endpoint: string, useExactDomain: boolean, topDomain: string) => {
+  // An absolute URL carries its own host, so it is used as the final request URL as it is
+  if (ABSOLUTE_URL_REGEX.test(endpoint)) {
+    return endpoint;
+  }
+
+  // An unknown top domain (ex: IP address hosts) leaves the current origin as the only usable host
+  const url =
+    useExactDomain || !topDomain
+      ? window.location.origin
+      : `${window.location.protocol}//${topDomain}`;
   const formattedEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
   return `${url}/${formattedEndpoint}`;
 };
@@ -93,7 +99,6 @@ export {
   isValidSourceConfig,
   isValidStorageType,
   validateStorageOptions,
-  getTopDomainUrl,
   getDataServiceUrl,
   isWebpageTopLevelDomain,
 };

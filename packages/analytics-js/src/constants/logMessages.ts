@@ -146,6 +146,13 @@ const SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING = (
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The provided cookie domain (${providedCookieDomain}) does not match the current webpage's domain (${currentCookieDomain}). Hence, the cookies will be set client-side.`;
 
+const SERVER_SIDE_COOKIE_DATA_SERVICE_HOST_WARNING = (
+  context: string,
+  dataServiceHost: string,
+  webpageDomain: string,
+): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The data service host (${dataServiceHost}) is not under the current webpage's domain (${webpageDomain}). Hence, the cookies will be set client-side.`;
+
 const RESERVED_KEYWORD_WARNING = (
   context: string,
   property: string,
@@ -333,6 +340,7 @@ export {
   SOURCE_DISABLED_ERROR,
   COMPONENT_BASE_URL_ERROR,
   SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING,
+  SERVER_SIDE_COOKIE_DATA_SERVICE_HOST_WARNING,
   PAGE_UNLOAD_ON_BEACON_DISABLED_WARNING,
   BREADCRUMB_ERROR,
   NON_ERROR_WARNING,

@@ -36,6 +36,7 @@ import {
   DEPRECATED_PRE_CONSENT_STORAGE_STRATEGY,
   UNSUPPORTED_STORAGE_ENCRYPTION_VERSION_WARNING,
   SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_WARNING,
+  SERVER_SIDE_COOKIE_DATA_SERVICE_HOST_WARNING,
 } from '../../../constants/logMessages';
 import {
   isErrorReportingEnabled,
@@ -49,6 +50,7 @@ import {
   DEFAULT_STORAGE_ENCRYPTION_VERSION,
   StorageEncryptionVersionsToPluginNameMap,
 } from '../constants';
+import { domain } from '../../../services/StoreManager/top-domain';
 import { getDataServiceUrl, isWebpageTopLevelDomain, validateStorageOptions } from './validate';
 import { getConsentManagementData } from '../../utilities/consent';
 
@@ -117,9 +119,16 @@ const getServerSideCookiesStateData = (logger: ILogger) => {
         !isWebpageTopLevelDomain(removeLeadingPeriod(providedCookieDomain as string))) ||
       (sameDomainCookiesOnly as boolean);
 
+    // The browser-verified domain of the webpage, used both to derive the default
+    // data service host and to validate an explicitly provided one
+    // Note: the storage module probes the same cookie levels again while building the default
+    // cookie options; both belong in the refactor noted below
+    const webpageTopDomain = domain(globalThis.location.href);
+
     const dataServiceUrl = getDataServiceUrl(
       dataServiceEndpoint ?? DEFAULT_DATA_SERVICE_ENDPOINT,
       useExactDomain,
+      webpageTopDomain,
     );
 
     if (isValidURL(dataServiceUrl)) {
@@ -127,6 +136,25 @@ const getServerSideCookiesStateData = (logger: ILogger) => {
 
       const curHost = getDomain(window.location.href);
       const dataServiceHost = getDomain(dataServiceUrl);
+
+      // The data service can only set cookies for its own domain or a parent of it, so a host
+      // outside the webpage's domain sets cookies that the webpage will never be able to read
+      const dataServiceHostname = new URL(dataServiceUrl).hostname;
+      const isDataServiceHostAllowed = webpageTopDomain
+        ? dataServiceHostname === webpageTopDomain ||
+          dataServiceHostname.endsWith(`.${webpageTopDomain}`)
+        : dataServiceHostname === window.location.hostname;
+
+      if (!isDataServiceHostAllowed) {
+        sscEnabled = false;
+        logger.warn(
+          SERVER_SIDE_COOKIE_DATA_SERVICE_HOST_WARNING(
+            CONFIG_MANAGER,
+            dataServiceHostname,
+            webpageTopDomain,
+          ),
+        );
+      }
 
       // If the current host is different from the data service host, then it is a cross-site request
       // For server-side cookies to work, we need to set the SameSite=None and Secure attributes
