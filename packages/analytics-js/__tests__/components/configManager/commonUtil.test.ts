@@ -481,6 +481,26 @@ describe('Config Manager Common Utilities', () => {
 
       expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(false);
     });
+
+    it('should set isEnabledServerSideCookies to false if the URL constructor is unavailable and a cookie domain is provided', () => {
+      state.loadOptions.value.useServerSideCookies = true;
+      state.loadOptions.value.setCookieDomain = 'test-host.com';
+
+      (isWebpageTopLevelDomain as jest.Mock).mockImplementation(isWebpageTopLevelDomainOriginal);
+      (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
+
+      // Legacy JS engines without the URL polyfill: the top domain check runs before any URL parsing
+      const originalURL = globalThis.URL;
+      delete (globalThis as any).URL;
+
+      try {
+        expect(() => updateStorageStateFromLoadOptions(mockLogger)).not.toThrow();
+      } finally {
+        globalThis.URL = originalURL;
+      }
+
+      expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(false);
+    });
   });
 
   describe('updateConsentsStateFromLoadOptions', () => {

@@ -108,6 +108,19 @@ describe('Config manager util - validate load arguments', () => {
       const isTopLevel = isWebpageTopLevelDomain('sub.test-host.com');
       expect(isTopLevel).toBe(false);
     });
+
+    it('should resolve the same top domain if the URL constructor is unavailable', () => {
+      // Legacy JS engines run this before the polyfills load
+      const originalURL = globalThis.URL;
+      delete (globalThis as any).URL;
+
+      try {
+        expect(isWebpageTopLevelDomain('test-host.com')).toBe(true);
+        expect(isWebpageTopLevelDomain('sub.test-host.com')).toBe(false);
+      } finally {
+        globalThis.URL = originalURL;
+      }
+    });
   });
 
   describe('validateStorageOptions', () => {

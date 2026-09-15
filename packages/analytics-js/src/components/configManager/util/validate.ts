@@ -52,12 +52,21 @@ const validateStorageOptions = (
   }
 };
 
-const getTopDomain = (url: string) => {
-  // Create a URL object
-  const urlObj = new URL(url);
+/**
+ * Parses a URL without the URL constructor, which is unavailable on legacy JS engines
+ * until the polyfills load.
+ */
+const legacyParseUrl = (url: string): { host: string; protocol: string } => {
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  return { host: anchor.host, protocol: anchor.protocol };
+};
 
-  // Extract the host and protocol
-  const { host, protocol } = urlObj;
+const getTopDomain = (url: string) => {
+  // Extract the host and protocol. This runs before the polyfills load,
+  // thus new URL cannot be used unconditionally
+  const { host, protocol } =
+    typeof globalThis.URL !== 'function' ? legacyParseUrl(url) : new URL(url);
 
   // Split the host into parts
   const parts: string[] = host.split('.');
