@@ -62,6 +62,10 @@ import {
   DIR_NAME as OptimizelyDirectoryName,
 } from '@rudderstack/analytics-js-integrations/integrations/Optimizely/constants';
 import {
+  DISPLAY_NAME as OpenAIAdsDisplayName,
+  DIR_NAME as OpenAIAdsDirectoryName,
+} from '@rudderstack/analytics-js-integrations/integrations/OpenAIAds/constants';
+import {
   DISPLAY_NAME as BugsnagDisplayName,
   DIR_NAME as BugsnagDirectoryName,
 } from '@rudderstack/analytics-js-integrations/integrations/Bugsnag/constants';
@@ -347,6 +351,7 @@ const destDisplayNamesToFileNamesMap: Record<string, string> = {
   [FacebookPixelDisplayName]: FacebookPixelDirectoryName,
   [LotameDisplayName]: LotameDirectoryName,
   [OptimizelyDisplayName]: OptimizelyDirectoryName,
+  [OpenAIAdsDisplayName]: OpenAIAdsDirectoryName,
   [BugsnagDisplayName]: BugsnagDirectoryName,
   [FullstoryDisplayName]: FullstoryDirectoryName,
   [TVSquaredDisplayName]: TVSquaredDirectoryName,
