@@ -264,6 +264,22 @@ describe('Config Manager Common Utilities', () => {
       updateStorageStateFromLoadOptions(mockLogger);
 
       expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(false);
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'ConfigManager:: The server side cookies functionality is disabled as the provided data server URL, "invalid-url" is invalid.',
+      );
+    });
+
+    it('should set isEnabledServerSideCookies to false if the provided dataServiceEndpoint is a malformed absolute URL', () => {
+      state.loadOptions.value.useServerSideCookies = true;
+      state.loadOptions.value.dataServiceEndpoint = 'https://shop .test-host.com/rsaRequest';
+
+      (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
+      updateStorageStateFromLoadOptions(mockLogger);
+
+      expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(false);
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'ConfigManager:: The server side cookies functionality is disabled as the provided data server URL, "https://shop .test-host.com/rsaRequest" is invalid.',
+      );
     });
 
     it('should set the value of isEnabledServerSideCookies to true if the useServerSideCookies is set to true and the dataServiceUrl is a valid url', () => {

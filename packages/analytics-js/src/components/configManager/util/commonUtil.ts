@@ -37,6 +37,7 @@ import {
   UNSUPPORTED_STORAGE_ENCRYPTION_VERSION_WARNING,
   SERVER_SIDE_COOKIE_FEATURE_OVERRIDE_ERROR,
   SERVER_SIDE_COOKIE_DATA_SERVICE_HOST_ERROR,
+  DATA_SERVER_URL_INVALID_ERROR,
 } from '../../../constants/logMessages';
 import {
   isErrorReportingEnabled,
@@ -237,6 +238,8 @@ const getServerSideCookiesStateData = (logger: ILogger) => {
         };
       }
     } else {
+      // A malformed dataServiceEndpoint reaches here, ex: a typo in an absolute URL
+      logger.error(DATA_SERVER_URL_INVALID_ERROR(CONFIG_MANAGER, dataServiceUrl));
       sscEnabled = false;
     }
   }

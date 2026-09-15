@@ -90,8 +90,8 @@ const STORE_DATA_SAVE_ERROR = (key: string): string =>
 const STORE_DATA_FETCH_ERROR = (key: string): string =>
   `Failed to retrieve or parse data for "${key}" from storage`;
 
-const DATA_SERVER_URL_INVALID_ERROR = (url: string) =>
-  `The server side cookies functionality is disabled as the provided data server URL, "${url}" is invalid.`;
+const DATA_SERVER_URL_INVALID_ERROR = (context: string, url: string) =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The server side cookies functionality is disabled as the provided data server URL, "${url}" is invalid.`;
 
 const DATA_SERVER_REQUEST_FAIL_ERROR = (status?: number) =>
   `The server responded with status ${status} while setting the cookies. As a fallback, the cookies will be set client side.`;
