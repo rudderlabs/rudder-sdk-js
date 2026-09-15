@@ -73,6 +73,7 @@ class Store implements IStore {
   swapQueueStoreToInMemoryEngine() {
     const { validKeys, noCompoundKey } = this;
     const inMemoryStorage = getStorageEngine(MEMORY_STORAGE);
+    const durableEngine = this.engine;
 
     // grab existing data, but only for this page's queue instance, not all
     // better to keep other queues in localstorage to be flushed later
@@ -83,17 +84,25 @@ class Store implements IStore {
 
     // Client data stores keep their durable copy. Dropping rl_user_id and the
     // other cookie keys here would lose the identity on the next page load.
-    if (!noCompoundKey) {
-      existingEntries.forEach(([storeKey]) => this.remove(storeKey));
-    }
+    const canDropDurableCopy = !noCompoundKey && durableEngine !== inMemoryStorage;
 
     this.engine = inMemoryStorage;
 
-    // Write through set() so the values are serialised and keyed exactly as
-    // every later read expects them.
     existingEntries.forEach(([storeKey, value]) => {
-      if (!isNullOrUndefined(value)) {
-        this.set(storeKey, value);
+      if (isNullOrUndefined(value)) {
+        return;
+      }
+
+      // Write through set() so the values are serialised and keyed exactly as
+      // every later read expects them.
+      this.set(storeKey, value);
+
+      // Only give up the durable copy once the value is readable from memory:
+      // set() swallows serialisation and storage failures, and get() returns
+      // null on a parse or decryption failure.
+      const validKey = this.createValidKey(storeKey);
+      if (canDropDurableCopy && validKey && !isNullOrUndefined(this.get(storeKey))) {
+        durableEngine.removeItem(validKey);
       }
     });
   }

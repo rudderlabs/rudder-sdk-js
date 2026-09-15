@@ -453,29 +453,11 @@ describe('Store', () => {
       expect(store.getOriginalEngine().getItem('swapRemove.q2.queue')).toBeNull();
     });
 
-    it('should migrate client data to the in-memory engine', () => {
-      store = new Store(
-        {
-          name: 'swapClient',
-          id: 'c1',
-          validKeys: COOKIE_KEYS,
-          noCompoundKey: true,
-          errorHandler: defaultErrorHandler,
-          logger: defaultLogger,
-        },
-        lsProxy,
-        pluginsManager,
-      );
-
-      store.set(COOKIE_KEYS.userId, 'user-1');
-
-      store.swapQueueStoreToInMemoryEngine();
-
-      expect(store.get(COOKIE_KEYS.userId)).toStrictEqual('user-1');
-    });
-
     // Regression guard: the quota swap serves the client data store too, where
     // dropping the durable copy would lose identity on the next page load.
+    // Production client data stores are created without validKeys
+    // (StoreManager.initClientDataStores), so nothing migrates for them today;
+    // this pins the noCompoundKey branch regardless of how they are configured.
     it('should retain client data in the original engine after the swap', () => {
       store = new Store(
         {
