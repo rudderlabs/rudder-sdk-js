@@ -648,6 +648,44 @@ describe('Queue', () => {
     }
   });
 
+  it('should keep the name registered while another queue still holds it', () => {
+    const loggerErrorSpy = jest.spyOn(defaultLogger, 'error').mockImplementation();
+
+    queue.start();
+
+    const secondQueue = new RetryQueue(
+      'test',
+      {},
+      jest.fn(),
+      defaultStoreManager,
+      undefined,
+      defaultLogger,
+    );
+
+    try {
+      secondQueue.start();
+      // The blocked queue releasing the name must not hand it to a third queue
+      // while the original is still running.
+      secondQueue.stop();
+      loggerErrorSpy.mockClear();
+
+      const thirdQueue = new RetryQueue(
+        'test',
+        {},
+        jest.fn(),
+        defaultStoreManager,
+        undefined,
+        defaultLogger,
+      );
+      thirdQueue.start();
+
+      expect(loggerErrorSpy).toHaveBeenCalledWith(expect.stringContaining('test'));
+      thirdQueue.stop();
+    } finally {
+      loggerErrorSpy.mockRestore();
+    }
+  });
+
   it('should reclaim from the handle it discovered after that handle swaps engines', () => {
     // A localStorage quota error during the reclaim handshake swaps the donor's
     // handle to the in-memory engine and drops its durable copy. Reclaim must read

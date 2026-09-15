@@ -54,10 +54,10 @@ const sortByTime = (a: QueueItem, b: QueueItem) => a.time - b.time;
 
 const RETRY_QUEUE = 'RetryQueue';
 
-// Names of the queues currently running on this page, keyed by name.
+// Ids of the queues currently running on this page, keyed by queue name.
 // findOtherQueues matches donor queues on the name alone, so two running queues
 // sharing one will reclaim each other's items.
-const runningQueueIdsByName = new Map<string, string>();
+const runningQueueIdsByName = new Map<string, Set<string>>();
 
 class RetryQueue implements IQueue<QueueItemData> {
   name: string;
@@ -225,7 +225,9 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.schedule.cancelAll();
     this.scheduleTimeoutActive = false;
 
-    if (runningQueueIdsByName.get(this.name) === this.id) {
+    const runningQueueIds = runningQueueIdsByName.get(this.name);
+    runningQueueIds?.delete(this.id);
+    if (runningQueueIds?.size === 0) {
       runningQueueIdsByName.delete(this.name);
     }
   }
@@ -238,11 +240,13 @@ class RetryQueue implements IQueue<QueueItemData> {
       this.stop();
     }
 
-    const runningQueueId = runningQueueIdsByName.get(this.name);
-    if (runningQueueId && runningQueueId !== this.id) {
+    const runningQueueIds = runningQueueIdsByName.get(this.name) ?? new Set<string>();
+    if (runningQueueIds.size > 0 && !runningQueueIds.has(this.id)) {
       this.logger?.error(RETRY_QUEUE_NAME_COLLISION_ERROR(RETRY_QUEUE, this.name));
     }
-    runningQueueIdsByName.set(this.name, this.id);
+
+    runningQueueIds.add(this.id);
+    runningQueueIdsByName.set(this.name, runningQueueIds);
 
     this.scheduleTimeoutActive = true;
     this.scheduleFlushBatch();
