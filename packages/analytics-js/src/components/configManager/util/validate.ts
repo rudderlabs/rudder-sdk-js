@@ -52,12 +52,21 @@ const validateStorageOptions = (
   }
 };
 
-const getTopDomain = (url: string) => {
-  // Create a URL object
-  const urlObj = new URL(url);
+/**
+ * Parses a URL without the URL constructor, which is unavailable on legacy JS engines
+ * until the polyfills load.
+ */
+const legacyParseUrl = (url: string): { host: string; protocol: string } => {
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  return { host: anchor.host, protocol: anchor.protocol };
+};
 
-  // Extract the host and protocol
-  const { host, protocol } = urlObj;
+const getTopDomain = (url: string) => {
+  // Extract the host and protocol. This runs before the polyfills load,
+  // thus new URL cannot be used unconditionally
+  const { host, protocol } =
+    typeof globalThis.URL !== 'function' ? legacyParseUrl(url) : new URL(url);
 
   // Split the host into parts
   const parts: string[] = host.split('.');
@@ -65,7 +74,7 @@ const getTopDomain = (url: string) => {
   // Handle different cases, especially for co.uk or similar TLDs
   if (parts.length > 2) {
     // Join the last two parts for the top-level domain
-    topDomain = `${parts[parts.length - 2]}.${parts[parts.length - 1]}`;
+    topDomain = parts.slice(-2).join('.');
   } else {
     // If only two parts or less, return as it is
     topDomain = host;
@@ -73,15 +82,43 @@ const getTopDomain = (url: string) => {
   return { topDomain, protocol };
 };
 
-const getTopDomainUrl = (url: string) => {
-  const { topDomain, protocol } = getTopDomain(url);
-  return `${protocol}//${topDomain}`;
-};
+const ABSOLUTE_URL_REGEX = /^https?:\/\//i;
 
-const getDataServiceUrl = (endpoint: string, useExactDomain: boolean) => {
-  const url = useExactDomain ? window.location.origin : getTopDomainUrl(window.location.href);
+const getDataServiceUrl = (endpoint: string, useExactDomain: boolean, topHost: string) => {
+  // An absolute URL carries its own host, so it is used as the final request URL as it is
+  if (ABSOLUTE_URL_REGEX.test(endpoint)) {
+    return endpoint;
+  }
+
+  // An unknown top host (ex: IP address hosts) leaves the current origin as the only usable host
+  const url =
+    useExactDomain || !topHost ? window.location.origin : `${window.location.protocol}//${topHost}`;
   const formattedEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
   return `${url}/${formattedEndpoint}`;
+};
+
+/**
+ * Determines whether a host falls under a cookie domain, as the browser does when
+ * it decides which cookies to send to a request.
+ */
+const isDomainMatch = (hostname: string, cookieDomain: string): boolean =>
+  hostname === cookieDomain || hostname.endsWith(`.${cookieDomain}`);
+
+/**
+ * Determines whether the data service can set cookies that the current webpage is able to read.
+ * A host outside the webpage's domain can only set cookies for its own domain.
+ */
+const isWebpageDataServiceHost = (
+  dataServiceHostname: string,
+  webpageTopDomain: string,
+  hostOnlyCookies: boolean,
+): boolean => {
+  // Host-only cookies can be read back only by the exact host that set them
+  if (hostOnlyCookies || !webpageTopDomain) {
+    return dataServiceHostname === globalThis.location.hostname;
+  }
+
+  return isDomainMatch(dataServiceHostname, webpageTopDomain);
 };
 
 const isWebpageTopLevelDomain = (providedDomain: string): boolean => {
@@ -93,7 +130,8 @@ export {
   isValidSourceConfig,
   isValidStorageType,
   validateStorageOptions,
-  getTopDomainUrl,
   getDataServiceUrl,
+  isDomainMatch,
+  isWebpageDataServiceHost,
   isWebpageTopLevelDomain,
 };

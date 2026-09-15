@@ -30,7 +30,7 @@ export default [
     name: 'Core - Modern - NPM (ESM)',
     path: 'dist/npm/modern/esm/index.mjs',
     import: '*',
-    limit: '28.5 KiB',
+    limit: '29 KiB',
   },
   {
     name: 'Core - Modern - NPM (CJS)',
@@ -42,7 +42,7 @@ export default [
     name: 'Core - Modern - NPM (UMD)',
     path: 'dist/npm/modern/umd/index.js',
     import: '*',
-    limit: '28.5 KiB',
+    limit: '29 KiB',
   },
   {
     name: 'Core - Modern - CDN',
@@ -77,7 +77,7 @@ export default [
     name: 'Core (Bundled) - Modern - NPM (CJS)',
     path: 'dist/npm/modern/bundled/cjs/index.cjs',
     import: '*',
-    limit: '42 KiB',
+    limit: '42.5 KiB',
   },
   {
     name: 'Core (Bundled) - Modern - NPM (UMD)',
