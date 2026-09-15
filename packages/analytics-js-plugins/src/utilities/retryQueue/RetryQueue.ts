@@ -13,7 +13,11 @@ import type {
   QueueItemProcessResponse,
 } from '../../types/plugins';
 import { Schedule, ScheduleModes } from './Schedule';
-import { RETRY_QUEUE_ENTRY_REMOVE_ERROR, RETRY_QUEUE_PROCESS_ERROR } from './logMessages';
+import {
+  RETRY_QUEUE_ENTRY_REMOVE_ERROR,
+  RETRY_QUEUE_NAME_COLLISION_ERROR,
+  RETRY_QUEUE_PROCESS_ERROR,
+} from './logMessages';
 import type { QueueTimeouts, QueueBackoff, InProgressQueueItem } from './types';
 import {
   DEFAULT_MAX_ITEMS,
@@ -49,6 +53,11 @@ import { DEFAULT_RETRY_REASON } from '../constants';
 const sortByTime = (a: QueueItem, b: QueueItem) => a.time - b.time;
 
 const RETRY_QUEUE = 'RetryQueue';
+
+// Names of the queues currently running on this page, keyed by name.
+// findOtherQueues matches donor queues on the name alone, so two running queues
+// sharing one will reclaim each other's items.
+const runningQueueIdsByName = new Map<string, string>();
 
 class RetryQueue implements IQueue<QueueItemData> {
   name: string;
@@ -215,6 +224,10 @@ class RetryQueue implements IQueue<QueueItemData> {
   stop() {
     this.schedule.cancelAll();
     this.scheduleTimeoutActive = false;
+
+    if (runningQueueIdsByName.get(this.name) === this.id) {
+      runningQueueIdsByName.delete(this.name);
+    }
   }
 
   /**
@@ -224,6 +237,12 @@ class RetryQueue implements IQueue<QueueItemData> {
     if (this.scheduleTimeoutActive) {
       this.stop();
     }
+
+    const runningQueueId = runningQueueIdsByName.get(this.name);
+    if (runningQueueId && runningQueueId !== this.id) {
+      this.logger?.error(RETRY_QUEUE_NAME_COLLISION_ERROR(RETRY_QUEUE, this.name));
+    }
+    runningQueueIdsByName.set(this.name, this.id);
 
     this.scheduleTimeoutActive = true;
     this.scheduleFlushBatch();

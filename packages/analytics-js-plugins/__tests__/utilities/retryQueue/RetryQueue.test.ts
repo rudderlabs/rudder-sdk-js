@@ -623,6 +623,31 @@ describe('Queue', () => {
     });
   });
 
+  it('should log an error when another running queue already uses the same name', () => {
+    // Two running queues sharing a name reclaim each other's items. See SDK-5473.
+    const loggerErrorSpy = jest.spyOn(defaultLogger, 'error').mockImplementation();
+
+    queue.start();
+
+    const collidingQueue = new RetryQueue(
+      'test',
+      {},
+      jest.fn(),
+      defaultStoreManager,
+      undefined,
+      defaultLogger,
+    );
+
+    try {
+      collidingQueue.start();
+
+      expect(loggerErrorSpy).toHaveBeenCalledWith(expect.stringContaining('test'));
+    } finally {
+      collidingQueue.stop();
+      loggerErrorSpy.mockRestore();
+    }
+  });
+
   it('should reclaim from the handle it discovered after that handle swaps engines', () => {
     // A localStorage quota error during the reclaim handshake swaps the donor's
     // handle to the in-memory engine and drops its durable copy. Reclaim must read
