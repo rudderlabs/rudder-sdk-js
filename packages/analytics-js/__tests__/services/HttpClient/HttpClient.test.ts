@@ -4,6 +4,16 @@ import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/
 import { HttpClient } from '../../../src/services/HttpClient';
 import { server } from '../../../__fixtures__/msw.server';
 import { dummyDataplaneHost } from '../../../__fixtures__/fixtures';
+import { xhrRequest } from '../../../src/services/HttpClient/xhr/xhrRequestHandler';
+
+jest.mock('../../../src/services/HttpClient/xhr/xhrRequestHandler', () => {
+  const actualModule = jest.requireActual('../../../src/services/HttpClient/xhr/xhrRequestHandler');
+  return {
+    ...actualModule,
+    // Delegates to the real implementation unless a test overrides it for a single call
+    xhrRequest: jest.fn((...args: any[]) => actualModule.xhrRequest(...args)),
+  };
+});
 
 describe('HttpClient', () => {
   let clientInstance: HttpClient;
@@ -209,7 +219,7 @@ describe('HttpClient', () => {
       }
       done();
     };
-    
+
     clientInstance.getAsyncData({
       callback,
       url: `${dummyDataplaneHost}/timeoutSample`,
@@ -232,6 +242,114 @@ describe('HttpClient', () => {
           b: BigInt(1),
         },
       },
+    });
+  });
+
+  describe('getAsyncData callback error handling', () => {
+    const successDetails = {
+      response: '{"json": "sample"}',
+      options: { method: 'GET', url: `${dummyDataplaneHost}/jsonSample`, headers: {} },
+    } as ResponseDetails;
+
+    // Lets the pending timers and the promise chain they settle run to completion so that
+    // assertions can be made at the top level of the test body and fail fast.
+    const flushAsyncChain = async (ticks = 3) => {
+      for (let i = 0; i < ticks; i += 1) {
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise(resolve => {
+          setTimeout(resolve, 0);
+        });
+      }
+    };
+
+    it('should invoke the callback only once when the callback throws for a successful response', async () => {
+      (xhrRequest as jest.Mock).mockImplementationOnce(
+        () =>
+          new Promise(resolve => {
+            setTimeout(() => resolve(successDetails), 0);
+          }),
+      );
+
+      const callback = jest.fn(() => {
+        if (callback.mock.calls.length === 1) {
+          throw new Error('Callback failed on the first invocation');
+        }
+      });
+
+      clientInstance.getAsyncData({
+        callback,
+        url: `${dummyDataplaneHost}/jsonSample`,
+      });
+
+      await flushAsyncChain();
+
+      expect(callback).toHaveBeenCalledTimes(1);
+      expect(callback).toHaveBeenCalledWith({ json: 'sample' }, successDetails);
+    });
+
+    it('should report a callback exception via the error handler without an unhandled rejection', async () => {
+      const unhandledRejections: unknown[] = [];
+      const onUnhandledRejection = (reason: unknown) => {
+        unhandledRejections.push(reason);
+      };
+      process.on('unhandledRejection', onUnhandledRejection);
+
+      try {
+        (xhrRequest as jest.Mock).mockImplementationOnce(
+          () =>
+            new Promise(resolve => {
+              setTimeout(() => resolve(successDetails), 0);
+            }),
+        );
+
+        const callbackError = new Error('Callback always fails');
+        const callback = jest.fn(() => {
+          throw callbackError;
+        });
+
+        clientInstance.getAsyncData({
+          callback,
+          url: `${dummyDataplaneHost}/jsonSample`,
+        });
+
+        await flushAsyncChain();
+
+        expect(callback).toHaveBeenCalledTimes(1);
+        expect(unhandledRejections).toStrictEqual([]);
+        expect(defaultErrorHandler.onError).toHaveBeenCalledWith({
+          error: callbackError,
+          context: 'HttpClient',
+        });
+      } finally {
+        process.off('unhandledRejection', onUnhandledRejection);
+      }
+    });
+
+    it('should invoke the callback with the response details when the request fails', async () => {
+      const failureDetails = {
+        response: '',
+        error: new Error('The request failed'),
+        options: { method: 'GET', url: `${dummyDataplaneHost}/jsonSample`, headers: {} },
+      } as ResponseDetails;
+
+      (xhrRequest as jest.Mock).mockImplementationOnce(
+        () =>
+          new Promise((_resolve, reject) => {
+            setTimeout(() => reject(failureDetails), 0);
+          }),
+      );
+
+      const callback = jest.fn();
+
+      clientInstance.getAsyncData({
+        callback,
+        url: `${dummyDataplaneHost}/jsonSample`,
+      });
+
+      await flushAsyncChain();
+
+      expect(callback).toHaveBeenCalledTimes(1);
+      expect(callback).toHaveBeenCalledWith(undefined, failureDetails);
     });
   });
 });

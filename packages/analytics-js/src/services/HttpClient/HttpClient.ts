@@ -63,19 +63,23 @@ class HttpClient implements IHttpClient {
     const isFireAndForget = !isFunction(callback);
 
     xhrRequest(createXhrRequestOptions(url, options, this.basicAuthHeader), timeout, this.logger)
-      .then((data: ResponseDetails) => {
-        if (!isFireAndForget) {
-          callback(
-            isRawResponse ? data.response : responseTextToJson<T>(data.response, this.onError),
-            data,
-          );
-        }
-      })
-      .catch((data: ResponseDetails) => {
-        if (!isFireAndForget) {
-          callback(undefined, data);
-        }
-      });
+      .then(
+        (data: ResponseDetails) => {
+          if (!isFireAndForget) {
+            callback(
+              isRawResponse ? data.response : responseTextToJson<T>(data.response, this.onError),
+              data,
+            );
+          }
+        },
+        (data: ResponseDetails) => {
+          if (!isFireAndForget) {
+            callback(undefined, data);
+          }
+        },
+      )
+      // Exceptions thrown by the callback must never re-enter it
+      .catch(this.onError);
   }
 
   /**

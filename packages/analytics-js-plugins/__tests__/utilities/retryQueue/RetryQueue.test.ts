@@ -71,7 +71,7 @@ describe('Queue', () => {
       'test-retry-reason',
       {},
       jest.fn().mockImplementation((item, done) => {
-        // Simulate failure to test retry behavior  
+        // Simulate failure to test retry behavior
         done(new Error('Test error'), { retryReason: 'server-501' });
       }),
       defaultStoreManager,
@@ -85,7 +85,7 @@ describe('Queue', () => {
 
     // Check the requeued item has the retry reason
     const requeuedItems = retryQueue.getStorageEntry('queue') as QueueItem<QueueItemData>[];
-    
+
     expect(requeuedItems).toHaveLength(1);
     expect(requeuedItems[0]).toMatchObject({
       item: 'test-item',
@@ -621,6 +621,74 @@ describe('Queue', () => {
       isPageAccessible: true,
       retryReason: 'client-network',
     });
+  });
+
+  it('should reclaim from the handle it discovered after that handle swaps engines', () => {
+    // A localStorage quota error during the reclaim handshake swaps the donor's
+    // handle to the in-memory engine and drops its durable copy. Reclaim must read
+    // that handle rather than building a fresh localStorage store, which would find
+    // nothing and silently lose the donor's events. See SDK-5473.
+    const donorId = 'swapped-donor';
+    const donor = new Store(
+      {
+        name: 'test',
+        id: donorId,
+        validKeys: QueueStatuses,
+        errorHandler: defaultStoreManager.errorHandler,
+        logger: defaultStoreManager.logger,
+      },
+      defaultLocalStorage,
+      defaultPluginsManager,
+    );
+    donor.set(donor.validKeys.ACK as string, 0); // fake timers start at time 0
+    donor.set(donor.validKeys.QUEUE as string, [
+      {
+        item: 'donor-item',
+        time: 0,
+        attemptNumber: 0,
+        type: 'Single',
+      },
+    ]);
+
+    // tryReclaim's first write to the donor's handle is where the quota error lands
+    // in production. Emulate Store.set's quota path there: swap the handle to the
+    // in-memory engine and drop its durable copy.
+    const originalSetStore = defaultStoreManager.setStore;
+    let swapped = false;
+    defaultStoreManager.setStore = (config: any) => {
+      const created = originalSetStore(config) as Store;
+
+      if (config.id === donorId && !swapped) {
+        const originalSet = created.set;
+        created.set = (key: string, value: any) => {
+          if (!swapped) {
+            swapped = true;
+            created.swapQueueStoreToInMemoryEngine();
+            Object.values(QueueStatuses).forEach(statusKey => {
+              defaultLocalStorage.removeItem(`test.${donorId}.${statusKey}`);
+            });
+          }
+          originalSet(key, value);
+        };
+      }
+
+      return created;
+    };
+
+    try {
+      jest.advanceTimersByTime(queue.timeouts.reclaimTimeout);
+      queue.start();
+      jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
+
+      expect(swapped).toBe(true);
+      expect(queue.processQueueCb).toHaveBeenCalledWith(
+        'donor-item',
+        expect.any(Function),
+        expect.objectContaining({ reclaimed: true }),
+      );
+    } finally {
+      defaultStoreManager.setStore = originalSetStore;
+    }
   });
 
   it('should take over an in-progress task if a queue is abandoned', () => {

@@ -460,6 +460,75 @@ describe('Device Mode Transformation Utilities', () => {
       expect(mockPluginsManager.invokeSingle).not.toHaveBeenCalled();
     });
 
+    it('should not deliver the event if the queue item does not have destination IDs', () => {
+      // An item from a different queue that got processed by the DMT queue
+      const foreignQueueItem = {
+        url: 'https://dummy.dataplane.host.com/v1/track',
+        headers: { 'Content-Type': 'application/json' },
+        event: sampleEvent,
+      } as any;
+      const result = 'some response';
+      const status = 200;
+
+      expect(() => {
+        sendTransformedEventToDestinations(
+          mockState,
+          mockPluginsManager,
+          foreignQueueItem.destinationIds,
+          result,
+          status,
+          sampleEvent,
+          mockErrorHandler,
+          mockLogger,
+        );
+      }).not.toThrow();
+
+      expect(mockErrorHandler.onError).toHaveBeenCalledWith({
+        error: expect.any(Error),
+        context: 'DeviceModeTransformationPlugin',
+        customMessage: expect.stringContaining('Invalid destination IDs'),
+      });
+      expect(mockPluginsManager.invokeSingle).not.toHaveBeenCalled();
+    });
+
+    it('should not deliver the event if the queue item is an array of foreign items', () => {
+      // A batched item from a different queue that got processed by the DMT queue
+      const foreignQueueItem = [
+        {
+          url: 'https://dummy.dataplane.host.com/v1/track',
+          headers: { 'Content-Type': 'application/json' },
+          event: sampleEvent,
+        },
+        {
+          url: 'https://dummy.dataplane.host.com/v1/track',
+          headers: { 'Content-Type': 'application/json' },
+          event: sampleEvent,
+        },
+      ] as any;
+      const result = 'some response';
+      const status = 200;
+
+      expect(() => {
+        sendTransformedEventToDestinations(
+          mockState,
+          mockPluginsManager,
+          foreignQueueItem.destinationIds,
+          result,
+          status,
+          sampleEvent,
+          mockErrorHandler,
+          mockLogger,
+        );
+      }).not.toThrow();
+
+      expect(mockErrorHandler.onError).toHaveBeenCalledWith({
+        error: expect.any(Error),
+        context: 'DeviceModeTransformationPlugin',
+        customMessage: expect.stringContaining('Invalid destination IDs'),
+      });
+      expect(mockPluginsManager.invokeSingle).not.toHaveBeenCalled();
+    });
+
     describe('Cloned destinations support', () => {
       beforeEach(() => {
         // Setup state with cloned destinations

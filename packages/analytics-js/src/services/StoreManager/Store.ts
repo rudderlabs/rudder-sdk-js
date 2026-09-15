@@ -71,23 +71,31 @@ class Store implements IStore {
    * Switch to inMemoryEngine, bringing any existing data with.
    */
   swapQueueStoreToInMemoryEngine() {
-    const { name, id, validKeys, noCompoundKey } = this;
+    const { validKeys, noCompoundKey } = this;
     const inMemoryStorage = getStorageEngine(MEMORY_STORAGE);
 
     // grab existing data, but only for this page's queue instance, not all
     // better to keep other queues in localstorage to be flushed later
     // than to pull them into memory and remove them from durable storage
-    Object.keys(validKeys).forEach(key => {
-      const value = this.get(validKeys[key] as string);
-      const validKey = noCompoundKey ? key : [name, id, key].join('.');
+    const existingEntries = Object.values(validKeys).map(
+      storeKey => [storeKey, this.get(storeKey)] as [string, any],
+    );
 
-      inMemoryStorage.setItem(validKey, value);
-      // TODO: are we sure we want to drop clientData
-      //  if cookies are not available and localstorage is full?
-      this.remove(key);
-    });
+    // Client data stores keep their durable copy. Dropping rl_user_id and the
+    // other cookie keys here would lose the identity on the next page load.
+    if (!noCompoundKey) {
+      existingEntries.forEach(([storeKey]) => this.remove(storeKey));
+    }
 
     this.engine = inMemoryStorage;
+
+    // Write through set() so the values are serialised and keyed exactly as
+    // every later read expects them.
+    existingEntries.forEach(([storeKey, value]) => {
+      if (!isNullOrUndefined(value)) {
+        this.set(storeKey, value);
+      }
+    });
   }
 
   /**

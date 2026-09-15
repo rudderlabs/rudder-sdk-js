@@ -675,15 +675,14 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.schedule.run(this.ack, this.timeouts.ackTimer, ScheduleModes.ASAP);
   }
 
-  reclaim(id: string) {
-    const other = this.storeManager.setStore({
-      id,
-      name: this.name,
-      validKeys: QueueStatuses,
-      type: LOCAL_STORAGE,
-      errorHandler: this.storeManager.errorHandler,
-      logger: this.storeManager.logger,
-    });
+  /**
+   * Take over the items of another queue.
+   *
+   * Reads through the handle `findOtherQueues` discovered rather than building a
+   * fresh one: a quota error during the handshake swaps that handle to the
+   * in-memory engine, and a new localStorage store would find nothing.
+   */
+  reclaim(other: IStore) {
     const our = {
       queue: (this.getStorageEntry(QueueStatuses.QUEUE) ?? []) as QueueItem[],
     };
@@ -822,7 +821,7 @@ class RetryQueue implements IQueue<QueueItemData> {
         return;
       }
 
-      this.reclaim(store.id);
+      this.reclaim(store);
     };
     const createReclaimEndTask = (store: IStore) => () => {
       if (store.get(QueueStatuses.RECLAIM_START) !== this.id) {

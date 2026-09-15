@@ -84,7 +84,9 @@ describe('Device mode transformation plugin', () => {
     ) as RetryQueue;
 
     expect(queue).toBeDefined();
-    expect(queue.name).toBe('rudder_dummy-write-key');
+    // Must not collide with the XhrQueue name (`rudder_<writeKey>`); a shared name
+    // lets either queue reclaim the other's items. See SDK-5473.
+    expect(queue.name).toBe('rudder_dmt_dummy-write-key');
   });
 
   it('should add item in queue on enqueue', () => {

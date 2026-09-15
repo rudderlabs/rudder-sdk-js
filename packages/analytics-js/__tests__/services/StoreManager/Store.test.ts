@@ -38,12 +38,16 @@ describe('Store', () => {
     },
     isEnabled: true,
   };
+  // `should swap upon quotaExceeded on set` replaces this with a throwing stub;
+  // keep the original so beforeEach can restore it for every later test.
+  const originalLsProxySetItem = lsProxy.setItem;
 
   const pluginEngine = new PluginEngine(defaultLogger);
   const pluginsManager = new PluginsManager(pluginEngine, defaultErrorHandler, defaultLogger);
 
   beforeEach(() => {
     engine.clear();
+    lsProxy.setItem = originalLsProxySetItem;
     store = new Store(
       {
         name: 'name',
@@ -395,7 +399,7 @@ describe('Store', () => {
         pluginsManager,
       );
 
-      Object.keys(QueueStatuses).forEach(keyValue => {
+      Object.values(QueueStatuses).forEach(keyValue => {
         store.set(keyValue, 'stuff');
       });
 
@@ -405,6 +409,92 @@ describe('Store', () => {
 
       store.set(QueueStatuses.QUEUE, 'other');
       expect(store.get(QueueStatuses.QUEUE)).toStrictEqual('other');
+    });
+
+    it('should migrate existing queue entries to the in-memory engine', () => {
+      store = new Store(
+        {
+          name: 'swapMigrate',
+          id: 'q1',
+          validKeys: QueueStatuses,
+          errorHandler: defaultErrorHandler,
+          logger: defaultLogger,
+        },
+        lsProxy,
+        pluginsManager,
+      );
+
+      store.set(QueueStatuses.QUEUE, ['event-1']);
+      store.set(QueueStatuses.ACK, 1735689600000);
+
+      store.swapQueueStoreToInMemoryEngine();
+
+      expect(store.get(QueueStatuses.QUEUE)).toStrictEqual(['event-1']);
+      expect(store.get(QueueStatuses.ACK)).toStrictEqual(1735689600000);
+    });
+
+    it('should remove the migrated queue entries from the original engine', () => {
+      store = new Store(
+        {
+          name: 'swapRemove',
+          id: 'q2',
+          validKeys: QueueStatuses,
+          errorHandler: defaultErrorHandler,
+          logger: defaultLogger,
+        },
+        lsProxy,
+        pluginsManager,
+      );
+
+      store.set(QueueStatuses.QUEUE, ['event-1']);
+
+      store.swapQueueStoreToInMemoryEngine();
+
+      expect(store.getOriginalEngine().getItem('swapRemove.q2.queue')).toBeNull();
+    });
+
+    it('should migrate client data to the in-memory engine', () => {
+      store = new Store(
+        {
+          name: 'swapClient',
+          id: 'c1',
+          validKeys: COOKIE_KEYS,
+          noCompoundKey: true,
+          errorHandler: defaultErrorHandler,
+          logger: defaultLogger,
+        },
+        lsProxy,
+        pluginsManager,
+      );
+
+      store.set(COOKIE_KEYS.userId, 'user-1');
+
+      store.swapQueueStoreToInMemoryEngine();
+
+      expect(store.get(COOKIE_KEYS.userId)).toStrictEqual('user-1');
+    });
+
+    // Regression guard: the quota swap serves the client data store too, where
+    // dropping the durable copy would lose identity on the next page load.
+    it('should retain client data in the original engine after the swap', () => {
+      store = new Store(
+        {
+          name: 'swapClientRetain',
+          id: 'c2',
+          validKeys: COOKIE_KEYS,
+          noCompoundKey: true,
+          errorHandler: defaultErrorHandler,
+          logger: defaultLogger,
+        },
+        lsProxy,
+        pluginsManager,
+      );
+
+      store.set(COOKIE_KEYS.userId, 'user-1');
+
+      store.swapQueueStoreToInMemoryEngine();
+
+      expect(store.getOriginalEngine().getItem(COOKIE_KEYS.userId)).not.toBeNull();
     });
   });
 });
