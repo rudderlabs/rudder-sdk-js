@@ -43,7 +43,7 @@ import {
   isErrorReportingEnabled,
   isMetricsReportingEnabled,
 } from '../../utilities/statsCollection';
-import { getDomain, getHostname, removeTrailingSlashes } from '../../utilities/url';
+import { getHostname, removeTrailingSlashes } from '../../utilities/url';
 import type { ConfigResponseDestinationItem, SourceConfigResponse } from '../types';
 import {
   CUSTOM_DEVICE_MODE_DESTINATION_DISPLAY_NAME,
@@ -214,9 +214,6 @@ const getServerSideCookiesStateData = (logger: ILogger) => {
     if (isValidURL(dataServiceUrl) && dataServiceHostname) {
       finalDataServiceUrl = removeTrailingSlashes(dataServiceUrl) as string;
 
-      const curHost = getDomain(window.location.href);
-      const dataServiceHost = getDomain(dataServiceUrl);
-
       sscEnabled = isServerSideCookiesUsable(
         dataServiceHostname,
         providedCookieDomain,
@@ -225,12 +222,13 @@ const getServerSideCookiesStateData = (logger: ILogger) => {
         logger,
       );
 
-      // If the current host is different from the data service host, then it is a cross-site request
+      // If the current hostname is different from the data service hostname, then it is a
+      // cross-site request. Cookies are not isolated by port, hence it plays no part here.
       // For server-side cookies to work, we need to set the SameSite=None and Secure attributes
       // One round of cookie options manipulation is taking place here
       // Based on these(setCookieDomain/storage.cookie or sameDomainCookiesOnly) two load-options, final cookie options are set in the storage module
       // TODO: Refactor the cookie options manipulation logic in one place
-      if (sscEnabled && curHost !== dataServiceHost) {
+      if (sscEnabled && webpageHostname !== dataServiceHostname) {
         cookieOptions = {
           ...cookieOptions,
           samesite: 'None',

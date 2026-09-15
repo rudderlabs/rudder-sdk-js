@@ -480,6 +480,31 @@ describe('Config Manager Common Utilities', () => {
       expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(true);
     });
 
+    it('should not force the cross-site cookie options if only the data service port differs', () => {
+      state.loadOptions.value.useServerSideCookies = true;
+      // Cookies are not isolated by port, so another port on the webpage host is not cross-site
+      state.loadOptions.value.dataServiceEndpoint = 'https://www.test-host.com:8443/rsaRequest';
+
+      (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
+      updateStorageStateFromLoadOptions(mockLogger);
+
+      expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(true);
+      expect(state.storage.cookie.value?.samesite).toBeUndefined();
+      expect(state.storage.cookie.value?.secure).toBeUndefined();
+    });
+
+    it('should force the cross-site cookie options if the data service hostname differs', () => {
+      state.loadOptions.value.useServerSideCookies = true;
+      state.loadOptions.value.dataServiceEndpoint = 'https://shop.test-host.com/rsaRequest';
+
+      (getDataServiceUrl as jest.Mock).mockImplementation(originalGetDataServiceUrl);
+      updateStorageStateFromLoadOptions(mockLogger);
+
+      expect(state.serverCookies.isEnabledServerSideCookies.value).toBe(true);
+      expect(state.storage.cookie.value?.samesite).toBe('None');
+      expect(state.storage.cookie.value?.secure).toBe(true);
+    });
+
     it('should set isEnabledServerSideCookies to false if the URL constructor is unavailable', () => {
       state.loadOptions.value.useServerSideCookies = true;
 
