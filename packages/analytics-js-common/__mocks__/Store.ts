@@ -19,11 +19,13 @@ class Store implements IStore {
     this.errorHandler = config.errorHandler;
     this.logger = config.logger;
     this.pluginsManager = pluginsManager;
+    this.noSwapOnQuota = config.noSwapOnQuota;
   }
   id = 'test';
   name = 'test';
   isEncrypted = false;
   validKeys: Record<string, string>;
+  noSwapOnQuota?: boolean;
   engine: IStorage = defaultLocalStorage;
   originalEngine: IStorage = defaultLocalStorage;
   errorHandler;
@@ -42,7 +44,20 @@ class Store implements IStore {
   };
   set = (key: string, value: any) => {
     const validKey = this.createValidKey(key);
-    this.engine.setItem(validKey, value);
+    // Mirror the real Store: a quota error falls back to in-memory storage,
+    // unless the store opted out of that fallback.
+    try {
+      this.engine.setItem(validKey, value);
+    } catch (err) {
+      if ((err as any)?.name !== 'QuotaExceededError') {
+        throw err;
+      }
+      if (this.noSwapOnQuota) {
+        return;
+      }
+      this.swapQueueStoreToInMemoryEngine();
+      this.engine.setItem(validKey, value);
+    }
   };
   get = <T = string>(key: string) => {
     const validKey = this.createValidKey(key);

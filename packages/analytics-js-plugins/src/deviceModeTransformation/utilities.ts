@@ -15,6 +15,7 @@ import type {
 import { DMT_PLUGIN } from './constants';
 import {
   DMT_EXCEPTION,
+  DMT_INVALID_DESTINATION_IDS_ERROR,
   DMT_REQUEST_FAILED_ERROR,
   DMT_SERVER_ACCESS_DENIED_WARNING,
   DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR,
@@ -79,6 +80,19 @@ const sendTransformedEventToDestinations = (
   const NATIVE_DEST_EXT_POINT = 'destinationsEventsQueue.enqueueEventToDestination';
   const ACTION_TO_SEND_UNTRANSFORMED_EVENT = 'Sending untransformed event';
   const ACTION_TO_DROP_EVENT = 'Dropping the event';
+
+  // Items that don't carry destination IDs don't belong to this queue
+  // and cannot be delivered to any destination
+  if (!Array.isArray(destinationIds)) {
+    const errMessage = DMT_INVALID_DESTINATION_IDS_ERROR(ACTION_TO_DROP_EVENT);
+    errorHandler?.onError({
+      error: new Error(errMessage),
+      context: DMT_PLUGIN,
+      customMessage: errMessage,
+    });
+    return;
+  }
+
   const destinations: Destination[] = state.nativeDestinations.initializedDestinations.value.filter(
     d => d && destinationIds.includes(getDestinationId(d)),
   );
