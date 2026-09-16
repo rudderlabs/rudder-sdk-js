@@ -28,6 +28,7 @@ class Store implements IStore {
   originalEngine: IStorage;
   noKeyValidation?: boolean;
   noCompoundKey?: boolean;
+  noSwapOnQuota?: boolean;
   errorHandler: IErrorHandler;
   logger: ILogger;
   pluginsManager: IPluginsManager;
@@ -40,6 +41,7 @@ class Store implements IStore {
     this.engine = engine;
     this.noKeyValidation = Object.keys(this.validKeys).length === 0;
     this.noCompoundKey = config.noCompoundKey;
+    this.noSwapOnQuota = config.noSwapOnQuota;
     this.originalEngine = this.engine;
     this.errorHandler = config.errorHandler;
     this.logger = config.logger;
@@ -102,7 +104,14 @@ class Store implements IStore {
       // null on a parse or decryption failure.
       const validKey = this.createValidKey(storeKey);
       if (canDropDurableCopy && validKey && !isNullOrUndefined(this.get(storeKey))) {
-        durableEngine.removeItem(validKey);
+        try {
+          durableEngine.removeItem(validKey);
+        } catch {
+          // The durable engine can refuse a removal (NS_ERROR_STORAGE_BUSY). The
+          // value is already safe in memory, so leave the stale copy for a later
+          // cleanup rather than aborting the migration - this runs inside set()'s
+          // catch, and throwing here would lose the value that triggered it.
+        }
       }
     });
   }
@@ -126,6 +135,11 @@ class Store implements IStore {
     } catch (err) {
       if (isStorageQuotaExceeded(err)) {
         this.logger.warn(STORAGE_QUOTA_EXCEEDED_WARNING(`Store ${this.id}`));
+
+        if (this.noSwapOnQuota) {
+          return;
+        }
+
         // switch to inMemory engine
         this.swapQueueStoreToInMemoryEngine();
         // and save it there

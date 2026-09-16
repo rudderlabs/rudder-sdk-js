@@ -901,6 +901,10 @@ class RetryQueue implements IQueue<QueueItemData> {
               name,
               validKeys: QueueStatuses,
               type: LOCAL_STORAGE,
+              // This store stands in for another queue's entries. If its storage is
+              // full it must keep them where they are: moving them to memory drops
+              // the durable copy, and an abandoned handshake then loses them for good.
+              noSwapOnQuota: true,
               errorHandler: this.storeManager.errorHandler,
               logger: this.storeManager.logger,
             }),

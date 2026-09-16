@@ -12,6 +12,12 @@ export interface IStoreConfig {
   isEncrypted?: boolean;
   validKeys?: Record<string, string>;
   noCompoundKey?: boolean;
+  /**
+   * Keep this store on its durable engine when the storage quota is exceeded
+   * instead of falling back to in-memory storage. Used for stores that stand in
+   * for another queue's entries, which must stay discoverable by a later scan.
+   */
+  noSwapOnQuota?: boolean;
   errorHandler: IErrorHandler;
   logger: ILogger;
   type?: StorageType;
@@ -37,6 +43,7 @@ export interface IStore {
   originalEngine: IStorage;
   noKeyValidation?: boolean;
   noCompoundKey?: boolean;
+  noSwapOnQuota?: boolean;
   errorHandler: IErrorHandler;
   logger: ILogger;
   pluginsManager: IPluginsManager;

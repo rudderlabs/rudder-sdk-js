@@ -686,6 +686,64 @@ describe('Queue', () => {
     }
   });
 
+  it('should leave a donor queue alone when its reclaim marker cannot be written', () => {
+    // If the donor's storage is full, the marker write fails. Starting the handshake
+    // anyway risks losing the donor's entries when the scheduled task is abandoned,
+    // so the attempt is skipped and the entries stay discoverable. See SDK-5473.
+    const donorId = 'full-donor';
+    const donor = new Store(
+      {
+        name: 'test',
+        id: donorId,
+        validKeys: QueueStatuses,
+        errorHandler: defaultStoreManager.errorHandler,
+        logger: defaultStoreManager.logger,
+      },
+      defaultLocalStorage,
+      defaultPluginsManager,
+    );
+    donor.set(donor.validKeys.ACK as string, 0); // fake timers start at time 0
+    donor.set(donor.validKeys.QUEUE as string, [
+      { item: 'donor-item', time: 0, attemptNumber: 0, type: 'Single' },
+    ]);
+
+    // The donor's storage is full, so writing the marker throws. Without an opt-out
+    // the donor's handle would fall back to memory and drop its durable copy, which
+    // a later scan can no longer find.
+    const originalSetItem = defaultLocalStorage.setItem;
+    defaultLocalStorage.setItem = (key: string, value: any) => {
+      if (key.endsWith(`${donorId}.${QueueStatuses.RECLAIM_START}`)) {
+        throw new DOMException('Quota exceeded', 'QuotaExceededError');
+      }
+      return originalSetItem.call(defaultLocalStorage, key, value);
+    };
+
+    // Capture the handle findOtherQueues builds for the donor.
+    const originalSetStore = defaultStoreManager.setStore;
+    const donorHandles: Store[] = [];
+    defaultStoreManager.setStore = (config: any) => {
+      const created = originalSetStore(config) as Store;
+      if (config.id === donorId) {
+        donorHandles.push(created);
+      }
+      return created;
+    };
+
+    try {
+      jest.advanceTimersByTime(queue.timeouts.reclaimTimeout);
+      queue.start();
+      jest.advanceTimersByTime(queue.timeouts.reclaimTimer + queue.timeouts.reclaimWait * 2);
+
+      expect(donorHandles.length).toBeGreaterThan(0);
+      expect((donorHandles[0] as Store).engine).toStrictEqual(defaultLocalStorage);
+      expect(queue.processQueueCb).not.toHaveBeenCalled();
+      expect(defaultLocalStorage.getItem(`test.${donorId}.${QueueStatuses.QUEUE}`)).not.toBeNull();
+    } finally {
+      defaultStoreManager.setStore = originalSetStore;
+      defaultLocalStorage.setItem = originalSetItem;
+    }
+  });
+
   it('should reclaim from the handle it discovered after that handle swaps engines', () => {
     // A localStorage quota error during the reclaim handshake swaps the donor's
     // handle to the in-memory engine and drops its durable copy. Reclaim must read

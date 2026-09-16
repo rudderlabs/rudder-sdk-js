@@ -453,6 +453,72 @@ describe('Store', () => {
       expect(store.getOriginalEngine().getItem('swapRemove.q2.queue')).toBeNull();
     });
 
+    it('should save the triggering value when the durable engine refuses removal', () => {
+      // localStorage.removeItem can throw NS_ERROR_STORAGE_BUSY. The swap runs from
+      // inside set()'s catch, so an escaping error loses the very event that
+      // triggered the quota fallback. See SDK-5473.
+      let quotaArmed = false;
+      const busyEngine = {
+        ...lsProxy,
+        setItem(key: string, value: any) {
+          if (quotaArmed) {
+            quotaArmed = false;
+            throw new DOMException('Quota exceeded', 'QuotaExceededError');
+          }
+          return window.localStorage.setItem(key, value);
+        },
+        removeItem() {
+          throw new DOMException('busy', 'NS_ERROR_STORAGE_BUSY');
+        },
+      };
+
+      store = new Store(
+        {
+          name: 'swapBusy',
+          id: 'b1',
+          validKeys: QueueStatuses,
+          errorHandler: defaultErrorHandler,
+          logger: defaultLogger,
+        },
+        busyEngine,
+        pluginsManager,
+      );
+
+      store.set(QueueStatuses.QUEUE, ['event-1']);
+      quotaArmed = true;
+
+      expect(() => store.set(QueueStatuses.BATCH_QUEUE, ['event-2'])).not.toThrow();
+      expect(store.get(QueueStatuses.BATCH_QUEUE)).toStrictEqual(['event-2']);
+      expect(store.get(QueueStatuses.QUEUE)).toStrictEqual(['event-1']);
+    });
+
+    it('should not fall back to memory when the store opts out', () => {
+      // Stores that represent another queue's entries must keep those entries in
+      // durable storage, so an interrupted reclaim can still find them later.
+      const quotaEngine = {
+        ...lsProxy,
+        setItem() {
+          throw new DOMException('Quota exceeded', 'QuotaExceededError');
+        },
+      };
+
+      store = new Store(
+        {
+          name: 'noFallback',
+          id: 'n1',
+          validKeys: QueueStatuses,
+          noSwapOnQuota: true,
+          errorHandler: defaultErrorHandler,
+          logger: defaultLogger,
+        },
+        quotaEngine,
+        pluginsManager,
+      );
+
+      expect(() => store.set(QueueStatuses.QUEUE, ['event-1'])).not.toThrow();
+      expect(store.engine).toStrictEqual(quotaEngine);
+    });
+
     // Regression guard: the quota swap serves the client data store too, where
     // dropping the durable copy would lose identity on the next page load.
     // Production client data stores are created without validKeys
