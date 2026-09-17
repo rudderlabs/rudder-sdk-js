@@ -28,6 +28,7 @@ class Store implements IStore {
   originalEngine: IStorage;
   noKeyValidation?: boolean;
   noCompoundKey?: boolean;
+  noSwapOnQuota?: boolean;
   errorHandler: IErrorHandler;
   logger: ILogger;
   pluginsManager: IPluginsManager;
@@ -40,6 +41,7 @@ class Store implements IStore {
     this.engine = engine;
     this.noKeyValidation = Object.keys(this.validKeys).length === 0;
     this.noCompoundKey = config.noCompoundKey;
+    this.noSwapOnQuota = config.noSwapOnQuota;
     this.originalEngine = this.engine;
     this.errorHandler = config.errorHandler;
     this.logger = config.logger;
@@ -71,23 +73,47 @@ class Store implements IStore {
    * Switch to inMemoryEngine, bringing any existing data with.
    */
   swapQueueStoreToInMemoryEngine() {
-    const { name, id, validKeys, noCompoundKey } = this;
+    const { validKeys, noCompoundKey } = this;
     const inMemoryStorage = getStorageEngine(MEMORY_STORAGE);
+    const durableEngine = this.engine;
 
     // grab existing data, but only for this page's queue instance, not all
     // better to keep other queues in localstorage to be flushed later
     // than to pull them into memory and remove them from durable storage
-    Object.keys(validKeys).forEach(key => {
-      const value = this.get(validKeys[key] as string);
-      const validKey = noCompoundKey ? key : [name, id, key].join('.');
+    const existingEntries = Object.values(validKeys).map(
+      storeKey => [storeKey, this.get(storeKey)] as [string, any],
+    );
 
-      inMemoryStorage.setItem(validKey, value);
-      // TODO: are we sure we want to drop clientData
-      //  if cookies are not available and localstorage is full?
-      this.remove(key);
-    });
+    // Client data stores keep their durable copy. Dropping rl_user_id and the
+    // other cookie keys here would lose the identity on the next page load.
+    const canDropDurableCopy = !noCompoundKey && durableEngine !== inMemoryStorage;
 
     this.engine = inMemoryStorage;
+
+    existingEntries.forEach(([storeKey, value]) => {
+      if (isNullOrUndefined(value)) {
+        return;
+      }
+
+      // Write through set() so the values are serialised and keyed exactly as
+      // every later read expects them.
+      this.set(storeKey, value);
+
+      // Only give up the durable copy once the value is readable from memory:
+      // set() swallows serialisation and storage failures, and get() returns
+      // null on a parse or decryption failure.
+      const validKey = this.createValidKey(storeKey);
+      if (canDropDurableCopy && validKey && !isNullOrUndefined(this.get(storeKey))) {
+        try {
+          durableEngine.removeItem(validKey);
+        } catch {
+          // The durable engine can refuse a removal (NS_ERROR_STORAGE_BUSY). The
+          // value is already safe in memory, so leave the stale copy for a later
+          // cleanup rather than aborting the migration - this runs inside set()'s
+          // catch, and throwing here would lose the value that triggered it.
+        }
+      }
+    });
   }
 
   /**
@@ -109,6 +135,11 @@ class Store implements IStore {
     } catch (err) {
       if (isStorageQuotaExceeded(err)) {
         this.logger.warn(STORAGE_QUOTA_EXCEEDED_WARNING(`Store ${this.id}`));
+
+        if (this.noSwapOnQuota) {
+          return;
+        }
+
         // switch to inMemory engine
         this.swapQueueStoreToInMemoryEngine();
         // and save it there

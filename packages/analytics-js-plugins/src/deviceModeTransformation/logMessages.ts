@@ -24,9 +24,13 @@ const DMT_EXCEPTION = (displayName: string, id: string): string =>
 const DMT_SERVER_ACCESS_DENIED_WARNING = (context: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}Transformation server access is denied. The configuration data seems to be out of sync. Sending untransformed event to the destination.`;
 
+const DMT_INVALID_DESTINATION_IDS_ERROR = (action: string): string =>
+  `Invalid destination IDs in the queue item. ${action}.`;
+
 export {
   DMT_TRANSFORMATION_UNSUCCESSFUL_ERROR,
   DMT_REQUEST_FAILED_ERROR,
   DMT_EXCEPTION,
   DMT_SERVER_ACCESS_DENIED_WARNING,
+  DMT_INVALID_DESTINATION_IDS_ERROR,
 };

@@ -13,7 +13,11 @@ import type {
   QueueItemProcessResponse,
 } from '../../types/plugins';
 import { Schedule, ScheduleModes } from './Schedule';
-import { RETRY_QUEUE_ENTRY_REMOVE_ERROR, RETRY_QUEUE_PROCESS_ERROR } from './logMessages';
+import {
+  RETRY_QUEUE_ENTRY_REMOVE_ERROR,
+  RETRY_QUEUE_NAME_COLLISION_ERROR,
+  RETRY_QUEUE_PROCESS_ERROR,
+} from './logMessages';
 import type { QueueTimeouts, QueueBackoff, InProgressQueueItem } from './types';
 import {
   DEFAULT_MAX_ITEMS,
@@ -49,6 +53,11 @@ import { DEFAULT_RETRY_REASON } from '../constants';
 const sortByTime = (a: QueueItem, b: QueueItem) => a.time - b.time;
 
 const RETRY_QUEUE = 'RetryQueue';
+
+// Ids of the queues currently running on this page, keyed by queue name.
+// findOtherQueues matches donor queues on the name alone, so two running queues
+// sharing one will reclaim each other's items.
+const runningQueueIdsByName = new Map<string, Set<string>>();
 
 class RetryQueue implements IQueue<QueueItemData> {
   name: string;
@@ -215,6 +224,12 @@ class RetryQueue implements IQueue<QueueItemData> {
   stop() {
     this.schedule.cancelAll();
     this.scheduleTimeoutActive = false;
+
+    const runningQueueIds = runningQueueIdsByName.get(this.name);
+    runningQueueIds?.delete(this.id);
+    if (runningQueueIds?.size === 0) {
+      runningQueueIdsByName.delete(this.name);
+    }
   }
 
   /**
@@ -224,6 +239,14 @@ class RetryQueue implements IQueue<QueueItemData> {
     if (this.scheduleTimeoutActive) {
       this.stop();
     }
+
+    const runningQueueIds = runningQueueIdsByName.get(this.name) ?? new Set<string>();
+    if (runningQueueIds.size > 0 && !runningQueueIds.has(this.id)) {
+      this.logger?.error(RETRY_QUEUE_NAME_COLLISION_ERROR(RETRY_QUEUE, this.name));
+    }
+
+    runningQueueIds.add(this.id);
+    runningQueueIdsByName.set(this.name, runningQueueIds);
 
     this.scheduleTimeoutActive = true;
     this.scheduleFlushBatch();
@@ -675,15 +698,14 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.schedule.run(this.ack, this.timeouts.ackTimer, ScheduleModes.ASAP);
   }
 
-  reclaim(id: string) {
-    const other = this.storeManager.setStore({
-      id,
-      name: this.name,
-      validKeys: QueueStatuses,
-      type: LOCAL_STORAGE,
-      errorHandler: this.storeManager.errorHandler,
-      logger: this.storeManager.logger,
-    });
+  /**
+   * Take over the items of another queue.
+   *
+   * Reads through the handle `findOtherQueues` discovered rather than building a
+   * fresh one: a quota error during the handshake swaps that handle to the
+   * in-memory engine, and a new localStorage store would find nothing.
+   */
+  reclaim(other: IStore) {
     const our = {
       queue: (this.getStorageEntry(QueueStatuses.QUEUE) ?? []) as QueueItem[],
     };
@@ -822,7 +844,7 @@ class RetryQueue implements IQueue<QueueItemData> {
         return;
       }
 
-      this.reclaim(store.id);
+      this.reclaim(store);
     };
     const createReclaimEndTask = (store: IStore) => () => {
       if (store.get(QueueStatuses.RECLAIM_START) !== this.id) {
@@ -879,6 +901,10 @@ class RetryQueue implements IQueue<QueueItemData> {
               name,
               validKeys: QueueStatuses,
               type: LOCAL_STORAGE,
+              // This store stands in for another queue's entries. If its storage is
+              // full it must keep them where they are: moving them to memory drops
+              // the durable copy, and an abandoned handshake then loses them for good.
+              noSwapOnQuota: true,
               errorHandler: this.storeManager.errorHandler,
               logger: this.storeManager.logger,
             }),

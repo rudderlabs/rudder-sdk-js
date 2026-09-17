@@ -1,8 +1,7 @@
-## [3.30.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.29.0...@rudderstack/analytics-js-common@3.30.0) (2026-09-09)
+## [3.30.1](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-common@3.30.0...@rudderstack/analytics-js-common@3.30.1) (2026-09-17)
 
 
-### Features
+### Bug Fixes
 
-* **analytics-js:** batch server-side cookie requests ([#3178](https://github.com/rudderlabs/rudder-sdk-js/issues/3178)) ([201efcb](https://github.com/rudderlabs/rudder-sdk-js/commit/201efcbedf17ee2bd7a835aed275764644375051)), closes [#3176](https://github.com/rudderlabs/rudder-sdk-js/issues/3176)
-* **analytics-js:** deprecate pre-consent storage strategy ([#3188](https://github.com/rudderlabs/rudder-sdk-js/issues/3188)) ([0d92edb](https://github.com/rudderlabs/rudder-sdk-js/commit/0d92edb85c94e55a454aedfd97f66b79eab8bfc2))
+* stop DMT queue reclaiming XhrQueue items on storage quota error ([#3212](https://github.com/rudderlabs/rudder-sdk-js/issues/3212)) ([60f858e](https://github.com/rudderlabs/rudder-sdk-js/commit/60f858efbaa75e3d4757a81f9ada9d8f37502fa0))
 
