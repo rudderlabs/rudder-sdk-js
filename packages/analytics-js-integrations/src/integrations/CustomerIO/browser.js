@@ -49,10 +49,11 @@ class CustomerIO {
   initV2() {
     const { writeKey, datacenter, anonymousInApp, analytics } = this;
     if (!writeKey) {
-      logger.error(
+      // Throwing marks the destination as failed in the device-mode framework and surfaces the
+      // error, rather than silently loading nothing.
+      throw new Error(
         'writeKey is required to load the Customer.io JavaScript client (SDK version 2.x); aborting load',
       );
-      return;
     }
     // Known-user in-app needs no client option (workspace setting). Anonymous in-app is an
     // explicit opt-in, and it is the only reason to hand the In-App Plugin any options: the
@@ -81,10 +82,7 @@ class CustomerIO {
     return this.isLoaded();
   }
 
-  /**
-   * The loaded client for the configured version. Undefined only if `init()` aborted (2.x
-   * without a write key); `isReady()` is false then, so callers treat it as a no-op.
-   */
+  /** The loaded client for the configured version. Event methods run only after `isReady()`. */
   getNativeClient() {
     return this.sdkVersion === SDK_V2 ? window[V2_GLOBAL_NAME] : window._cio;
   }
@@ -97,9 +95,6 @@ class CustomerIO {
       return;
     }
     const client = this.getNativeClient();
-    if (!client) {
-      return;
-    }
     const createAt = traits.createdAt;
     if (createAt) {
       traits.created_at = Math.floor(new Date(createAt).getTime() / 1000);
@@ -115,9 +110,6 @@ class CustomerIO {
 
   track(rudderElement) {
     const client = this.getNativeClient();
-    if (!client) {
-      return;
-    }
     const eventName = rudderElement.message.event;
     const { properties } = rudderElement.message;
     client.track(eventName, properties);
@@ -125,9 +117,6 @@ class CustomerIO {
 
   page(rudderElement) {
     const client = this.getNativeClient();
-    if (!client) {
-      return;
-    }
     if (this.sendPageNameInSDK === false) {
       client.page(rudderElement.message.properties);
     } else {

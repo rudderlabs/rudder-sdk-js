@@ -219,15 +219,14 @@ describe('CustomerIO', () => {
       expect(window.cioanalytics._loadOptions).toStrictEqual({});
     });
 
-    it('logs an error and injects nothing when writeKey is empty', () => {
+    it('throws and injects nothing when writeKey is empty', () => {
       const customerio = new CustomerIO(
         { ...v2Config, writeKey: '' },
         analyticsInstance,
         destinationInfo,
       );
-      customerio.init();
 
-      expect(errorMock).toHaveBeenCalledWith(
+      expect(() => customerio.init()).toThrow(
         'writeKey is required to load the Customer.io JavaScript client (SDK version 2.x); aborting load',
       );
       expect(document.querySelector('script[data-global-customerio-analytics-key]')).toBeNull();
@@ -334,23 +333,6 @@ describe('CustomerIO', () => {
 
   describe('track', () => {
     const trackElement = { message: { event: 'Order Completed', properties: { total: 10 } } };
-
-    it('is a no-op when the 2.x client never loaded (init aborted without a writeKey)', () => {
-      const customerio = new CustomerIO(
-        { ...v2Config, writeKey: '' },
-        analyticsInstance,
-        destinationInfo,
-      );
-      customerio.init();
-
-      expect(() => customerio.track(trackElement)).not.toThrow();
-      expect(() =>
-        customerio.page({ message: { properties: { url: 'https://example.com/' } } }),
-      ).not.toThrow();
-      expect(() =>
-        customerio.identify({ message: { userId: 'USER_ID', context: { traits: {} } } }),
-      ).not.toThrow();
-    });
 
     it('forwards the event to the legacy client on 1.x', () => {
       window._cio = { track: jest.fn() };
