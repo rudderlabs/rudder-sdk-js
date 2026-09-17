@@ -354,7 +354,7 @@ export function getDefaultConfig(distName) {
         }),
       isLocalServerEnabled &&
         serve({
-          open: true,
+          open: false,
           openPage: `/${cdnPath}/${isLegacyBuild ? 'legacy' : 'modern'}/iife/index.html`,
           contentBase: ['dist'],
           host: 'localhost',
