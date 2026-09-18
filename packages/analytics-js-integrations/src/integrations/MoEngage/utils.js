@@ -25,6 +25,6 @@ export function calculateMoeDataCenter(region) {
     return MOENGAGE_DATA_CENTER_MAP[region];
   }
 
-  logger.warn(`Unrecognized region "${region}". Defaulting to dc_1.`);
+  logger.warn(`Unrecognized region "${region}". Defaulting to ${DEFAULT_MOENGAGE_DATA_CENTER}.`);
   return DEFAULT_MOENGAGE_DATA_CENTER;
 }
