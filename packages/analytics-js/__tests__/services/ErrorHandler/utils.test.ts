@@ -1672,25 +1672,6 @@ describe('Error Reporting utilities', () => {
       expect(mockResolve).not.toHaveBeenCalled();
     });
 
-    it('should resolve with true if ad blocker detection never completes', () => {
-      jest.useFakeTimers();
-      state.capabilities.isAdBlocked.value = undefined;
-      state.capabilities.isAdBlockerDetectionInProgress.value = false;
-      // A hung probe never invokes its callback, so isAdBlocked stays undefined.
-      defaultHttpClient.getAsyncData.mockImplementation(() => {});
-      const mockResolve = jest.fn();
-
-      checkIfAdBlockersAreActive(state, defaultHttpClient, mockResolve);
-      expect(mockResolve).not.toHaveBeenCalled();
-
-      jest.advanceTimersByTime(20000);
-
-      // We cannot tell a blocked client from a CDN outage, so an unresolved
-      // probe must not swallow the error.
-      expect(mockResolve).toHaveBeenCalledWith(true);
-      jest.useRealTimers();
-    });
-
     it('should resolve when detection completes via effect', async () => {
       state.capabilities.isAdBlocked.value = undefined;
       state.capabilities.isAdBlockerDetectionInProgress.value = false;

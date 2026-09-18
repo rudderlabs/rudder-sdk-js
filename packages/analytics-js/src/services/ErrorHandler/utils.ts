@@ -24,7 +24,6 @@ import {
   SCRIPT_LOAD_FAILURE_MESSAGES,
 } from '@rudderstack/analytics-js-common/constants/errors';
 import { SDK_CDN_BASE_URL } from '../../constants/urls';
-import { AD_BLOCKER_DETECTION_TIMEOUT_MS } from '../../constants/timeouts';
 import { CDN_PROBE_FILE } from './constants';
 import {
   APP_STATE_EXCLUDE_KEYS,
@@ -174,36 +173,18 @@ const checkIfAdBlockersAreActive = (
       detectAdBlockers(httpClient);
     }
 
-    let isSettled = false;
-    let detectionDisposer: (() => void) | undefined;
-    let timeoutId: number | undefined;
-
-    const settleOnce = (isAllowedToBeNotified: boolean) => {
-      if (isSettled) {
-        return;
-      }
-      isSettled = true;
-      (globalThis as typeof window).clearTimeout(timeoutId);
-
-      // Cleanup the effect.
-      detectionDisposer?.();
-      resolve(isAllowedToBeNotified);
-    };
-
-    // Wait for the detection to complete.
-    detectionDisposer = effect(() => {
+    // Wait for the detection to complete. The probe runs through the XHR client,
+    // which always settles (xhr.timeout plus ontimeout/onerror), so the callback
+    // is guaranteed and no separate guard is needed here.
+    const detectionDisposer = effect(() => {
       if (isDefined(state.capabilities.isAdBlocked.value)) {
         // If ad blocker is not detected, notify.
-        settleOnce(state.capabilities.isAdBlocked.value === false);
+        resolve(state.capabilities.isAdBlocked.value === false);
+
+        // Cleanup the effect.
+        detectionDisposer();
       }
     });
-
-    // A probe that never settles must not swallow the error. We cannot tell a
-    // blocked client from a CDN outage, so fall back to notifying.
-    timeoutId = (globalThis as typeof window).setTimeout(
-      () => settleOnce(true),
-      AD_BLOCKER_DETECTION_TIMEOUT_MS,
-    );
   } else {
     // If ad blocker is not detected, notify.
     resolve(state.capabilities.isAdBlocked.value === false);
