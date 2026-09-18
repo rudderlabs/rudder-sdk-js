@@ -332,8 +332,83 @@ jobs:
               ]
             }
 
+  # deploy-prod.yml and this workflow are triggered independently by the same
+  # `pull_request: closed` event -- no `needs:`, no `workflow_run`, no shared
+  # concurrency group -- so nothing orders the CDN deploy against the npm
+  # publish. The npm build pins REMOTE_MODULES_BASE_PATH at the new version's
+  # CDN directory, so publishing before that directory exists hands every
+  # upgrading consumer 403s on /<version>/modern/plugins/*. Block until the
+  # production deploy job for this same commit has succeeded: an unpublished
+  # npm version is recoverable, a published one pointing at a missing CDN
+  # directory is not.
+  wait-for-cdn-deploy:
+    name: Wait for the production CDN deploy
+    needs: [get-release-inputs]
+    runs-on: [self-hosted, Linux, X64]
+    permissions:
+      contents: read
+      actions: read # to poll the production deploy run for this commit
+    if: >
+      (startsWith(github.event.pull_request.head.ref, 'release/') ||
+      startsWith(github.event.pull_request.head.ref, 'hotfix-release/')) &&
+      github.event.pull_request.merged == true
+
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
+
+      - name: Wait for the production deploy job to succeed
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          # Both workflows are triggered by the same webhook delivery, so their
+          # runs share this head SHA.
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          DEPLOY_WORKFLOW: 'deploy-prod.yml'
+          # The deploy runs through a reusable workflow, so its job surfaces as
+          # "<caller job name> / <called job name>".
+          DEPLOY_JOB_NAME: 'Deploy to environment'
+          TIMEOUT_SECONDS: '2700'
+          POLL_INTERVAL_SECONDS: '20'
+        run: |
+          deadline=$(( $(date +%s) + TIMEOUT_SECONDS ))
+
+          while :; do
+            run_id=$(gh api "repos/${REPO}/actions/workflows/${DEPLOY_WORKFLOW}/runs?head_sha=${HEAD_SHA}&per_page=1" --jq '.workflow_runs[0].id // empty' || true)
+
+            if [ -n "$run_id" ]; then
+              jobs_json=$(gh api "repos/${REPO}/actions/runs/${run_id}/jobs?per_page=100" || true)
+              job=$(printf '%s' "$jobs_json" | jq -r --arg name "$DEPLOY_JOB_NAME" 'first(.jobs[] | select(.name | endswith($name))) | "\(.status) \(.conclusion // "")"' 2>/dev/null || true)
+              status="${job%% *}"
+              conclusion="${job#* }"
+
+              if [ "$status" = "completed" ]; then
+                if [ "$conclusion" = "success" ]; then
+                  echo "CDN deploy job succeeded in run ${run_id}"
+                  exit 0
+                fi
+
+                echo "::error::CDN deploy job in run ${run_id} concluded '${conclusion}'; refusing to publish to npm"
+                exit 1
+              fi
+
+              echo "CDN deploy job is '${status:-not reported yet}' in run ${run_id}"
+            else
+              echo "No ${DEPLOY_WORKFLOW} run found yet for ${HEAD_SHA}"
+            fi
+
+            if [ "$(date +%s)" -ge "$deadline" ]; then
+              echo "::error::Timed out after ${TIMEOUT_SECONDS}s waiting for the CDN deploy of ${HEAD_SHA}"
+              exit 1
+            fi
+
+            sleep "${POLL_INTERVAL_SECONDS}"
+          done
+
   publish-npm-packages:
-    needs: [get-release-inputs, release]
+    needs: [get-release-inputs, release, wait-for-cdn-deploy]
     name: Publish packages to NPM
     permissions:
       contents: read # to checkout repository code
