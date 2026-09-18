@@ -321,6 +321,29 @@ describe('Error Reporting utilities', () => {
     });
   });
 
+  describe('getAppStateForMetadata - SDK CDN reachability', () => {
+    it.each([[true], [false]])(
+      'should serialise isSdkCdnBlocked=%s into the reported metadata',
+      isBlocked => {
+        state.capabilities.isSdkCdnBlocked.value = isBlocked;
+
+        const metadata = getAppStateForMetadata(state) as any;
+
+        expect(metadata.capabilities.isSdkCdnBlocked).toBe(isBlocked);
+      },
+    );
+
+    it('should omit isSdkCdnBlocked when the probe has not run', () => {
+      state.capabilities.isSdkCdnBlocked.value = undefined;
+
+      const metadata = getAppStateForMetadata(state) as any;
+
+      // JSON.stringify drops undefined, so absence means "never probed" rather
+      // than "reachable". Same trap as isAdBlocked.
+      expect('isSdkCdnBlocked' in metadata.capabilities).toBe(false);
+    });
+  });
+
   describe('getBugsnagErrorEvent', () => {
     it('should return the error event payload', () => {
       state.session.sessionInfo.value = { id: 123 };
