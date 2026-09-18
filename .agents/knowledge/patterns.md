@@ -50,3 +50,9 @@
 ## INT-7126 — OpenAI Ads Page Event Fallback
 
 - OpenAI Ads device-mode `page` events intentionally fall back to `{ eventName: 'page_viewed', dataType: EVENT_DATA_SHAPES.page_viewed }` in `resolveEvent` when `message.name` is missing or absent from `eventMappingIndex`; configured page mapping rows still take precedence, while `track` events continue to error on missing or unmapped source keys (`packages/analytics-js-integrations/src/integrations/OpenAIAds/utils.js::resolveEvent`).
+
+## RUD-3124 — MoEngage Web Data-Center Resolution
+
+- MoEngage web device mode maps canonical regions `US`, `EU`, `IND`, `US-DC-04`, `SGP-DC-05`, and `IDN-DC-06` to `dc_1` through `dc_6`, while retaining legacy `IN` as an alias for India's `dc_3` (`packages/analytics-js-integrations/src/integrations/MoEngage/utils.js`).
+- Empty regions preserve the legacy silent `dc_1` fallback; non-empty unknown regions warn and then default to `dc_1`. The utility uses a module-local `Logger(DISPLAY_NAME)` explicitly set to `WARN`, because the legacy logger defaults to `ERROR` and would otherwise suppress the warning (`packages/analytics-js-integrations/src/integrations/MoEngage/utils.js`).
+- Region lookup uses `Object.prototype.hasOwnProperty.call` so inherited object properties such as `toString` are treated as unknown and cannot become invalid native-loader data-center arguments (`packages/analytics-js-integrations/src/integrations/MoEngage/utils.js`).
