@@ -1,0 +1,777 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RudderStack device-mode e2e</title>
+    <!--
+      Self-asserting harness page. Upper-case tokens wrapped in double underscores are filled by generate.mjs.
+      All verification lives here: this page records outbound network + SDK lifecycle
+      and exposes the verdict as window.__E2E_RESULT__ (also rendered in the DOM).
+      A runner (run-cdp.mjs) only reads window.__E2E_RESULT__ — it holds no destination knowledge.
+      NOTE: this file is GENERIC. Nothing about any specific destination is hardcoded.
+    -->
+    <script>
+      // ---- capture layer: patch network APIs BEFORE the SDK (or any native SDK) loads ----
+      (function () {
+        var cfg = (window.__E2E_CONFIG__ = {
+          integration: __INTEGRATION__,
+          sdkVersion: __SDK_VERSION__,
+          writeKey: __WRITE_KEY__,
+          dataPlaneUrl: __DATA_PLANE_URL__,
+          configUrl: __CONFIG_URL__,
+          destSDKBaseURL: __DEST_SDK_BASE_URL__,
+          pluginsSDKBaseURL: __PLUGINS_SDK_BASE_URL__,
+          events: __EVENTS_JSON__,
+          expectations: __EXPECTATIONS_JSON__,
+          settleMs: __SETTLE_MS__,
+        });
+
+        var result = (window.__E2E_RESULT__ = {
+          status: 'running',
+          startedAt: Date.now(),
+          integration: cfg.integration,
+          sdkVersion: cfg.sdkVersion,
+          testCases: cfg.events,
+          ready: false,
+          loadError: null,
+          // null = "not evaluated yet"; finish() sets these to true/false. A runner that times out
+          // before finish() can then print "not evaluated" instead of a misleading FAIL.
+          sourceConfigOk: null,
+          integrationBundleLoaded: null,
+          integrationMatched: null,
+          nativeSdkLoaded: null,
+          dataSent: null,
+          integrationBundleUrls: [],
+          eventsFired: [],
+          warnings: [], // captured console.error / onerror / unhandledrejection — shown, NOT fatal
+          requests: [],
+          thirdPartyRequests: [],
+          dataRequests: [],
+          expectations: [],
+          pass: false,
+          failures: [],
+        });
+
+        function hostOf(url) {
+          try {
+            return new URL(url, location.href).host;
+          } catch (e) {
+            return '';
+          }
+        }
+
+        // In local dev EVERYTHING on localhost is our own infra (core SDK, integration
+        // bundles, plugins, this harness). A genuine device-mode call-out goes to a
+        // NON-localhost, NON-RudderStack host. That is how we detect delivery generically.
+        function isLocalOrRudderStack(host) {
+          if (!host) return true;
+          var h = hostnameOf(host);
+          if (h === hostnameOf(location.host)) return true;
+          if (h === 'localhost' || h === '127.0.0.1' || h === '::1') return true;
+          // exact domain or a true subdomain (suffix) — NOT a substring, so hosts like
+          // `rudderstack.com.attacker.tld` or `evil-rudderstack.com` are correctly third-party.
+          if (isHostOfDomain(h, 'rudderstack.com')) return true;
+          if (isHostOfDomain(h, 'rudderlabs.com')) return true;
+          return false;
+        }
+        // Host without the port, IPv6-safe: `[::1]:3000` → `::1`, `127.0.0.1:3001` → `127.0.0.1`,
+        // `api.rudderstack.com` → itself. (A plain `split(':')[0]` would mangle bracketed IPv6.)
+        function hostnameOf(host) {
+          var s = String(host).toLowerCase();
+          if (s.charAt(0) === '[') {
+            var i = s.indexOf(']');
+            return i >= 0 ? s.slice(1, i) : s;
+          }
+          var c = s.lastIndexOf(':');
+          return c >= 0 ? s.slice(0, c) : s;
+        }
+        function isHostOfDomain(h, domain) {
+          return h === domain || h.slice(-(domain.length + 1)) === '.' + domain;
+        }
+
+        // Best-effort serialization of a request body so the user can SEE what the device-mode SDK
+        // actually delivered (the payload is the proof a change landed).
+        function serializeBody(body) {
+          if (body == null) return undefined;
+          try {
+            if (typeof body === 'string') return body;
+            if (typeof URLSearchParams !== 'undefined' && body instanceof URLSearchParams) {
+              return body.toString();
+            }
+            if (typeof FormData !== 'undefined' && body instanceof FormData) {
+              var obj = {};
+              body.forEach(function (v, k) {
+                obj[k] = typeof v === 'string' ? v : '[file]';
+              });
+              return obj;
+            }
+            if (typeof Blob !== 'undefined' && body instanceof Blob) return '[blob ' + (body.size || '?') + 'B]';
+            if (body instanceof ArrayBuffer) return '[arraybuffer ' + body.byteLength + 'B]';
+            return String(body);
+          } catch (e) {
+            return '[unserializable body]';
+          }
+        }
+
+        // Query string parsed to an object (GET/pixel destinations carry the payload here).
+        function queryOf(u) {
+          try {
+            var parsed = new URL(u, location.href);
+            var keys = [];
+            parsed.searchParams.forEach(function () {
+              keys.push(1);
+            });
+            if (keys.length === 0) return undefined;
+            var obj = {};
+            parsed.searchParams.forEach(function (v, k) {
+              obj[k] = v;
+            });
+            return obj;
+          } catch (e) {
+            return undefined;
+          }
+        }
+
+        var patchedUrls = {}; // URLs captured by a fetch/XHR/sendBeacon patch (for observer dedup)
+
+        // A request seen by a fetch/XHR/sendBeacon PATCH is a distinct physical call and is ALWAYS
+        // kept — some destinations POST many batches to the SAME URL, so keying on URL alone would
+        // wrongly collapse them. A PerformanceObserver entry is a BACKSTOP for requests the patches
+        // miss (native-SDK <script> loads, img pixels); its HTTP method is unknown. An observer entry
+        // is dropped ONLY when a PATCH already captured that exact URL (that's the phantom re-report of
+        // a patched call). Two observer-only pixels to the same URL are BOTH kept — each is a distinct
+        // delivery, so a repeated post-event pixel still counts toward dataSent.
+        // `ts` = epoch ms when the request STARTED. Patches call at request time (default Date.now()).
+        // Observer callbacks fire late, so they pass the real start time (performance.timeOrigin +
+        // entry.startTime), else a startup pixel could be stamped after firstEventAt and miscounted.
+        function record(url, method, kind, body, fromObserver, ts) {
+          if (!url) return {};
+          // Normalize to an absolute URL so a patch that saw a RELATIVE url (e.g. "/pixel") keys the
+          // same as the PerformanceObserver, which always reports absolute URLs — otherwise the same
+          // request would be counted twice.
+          var u;
+          try {
+            u = new URL(String(url), location.href).href;
+          } catch (e) {
+            u = String(url);
+          }
+          var host = hostOf(u);
+          var entry = { url: u, host: host, method: method || undefined, kind: kind, ts: ts || Date.now() };
+          var b = serializeBody(body);
+          if (b !== undefined) entry.body = b;
+          var q = queryOf(u);
+          if (q !== undefined) entry.query = q;
+          if (!fromObserver) patchedUrls[u] = true; // this exact URL was captured by a patch
+          result.requests.push(entry);
+          // NOTE: integration-bundle "loaded" is computed in finish() from the request STATUS — a
+          // bundle request that 404s must not count as loaded.
+          if (!isLocalOrRudderStack(host)) {
+            if (fromObserver) {
+              if (!patchedUrls[u]) result.thirdPartyRequests.push(entry);
+            } else {
+              result.thirdPartyRequests.push(entry);
+            }
+          }
+          return entry;
+        }
+
+        // fetch
+        if (typeof window.fetch === 'function') {
+          var _fetch = window.fetch;
+          window.fetch = function (input, init) {
+            var url = typeof input === 'string' ? input : input && input.url;
+            var method = (init && init.method) || (input && input.method) || 'GET';
+            var body = (init && init.body) || (typeof input === 'object' && input && input.body) || undefined;
+            var entry = record(url, method, 'fetch', body);
+            return _fetch.apply(this, arguments).then(
+              function (res) {
+                entry.status = res.status;
+                return res;
+              },
+              function (err) {
+                entry.status = 'error';
+                entry.error = String(err);
+                throw err;
+              },
+            );
+          };
+        }
+
+        // XMLHttpRequest — capture the body at send() time (open() only knows method+url).
+        var _open = XMLHttpRequest.prototype.open;
+        var _send = XMLHttpRequest.prototype.send;
+        XMLHttpRequest.prototype.open = function (method, url) {
+          this.__e2eMethod = method;
+          this.__e2eUrl = url;
+          return _open.apply(this, arguments);
+        };
+        XMLHttpRequest.prototype.send = function (body) {
+          var self = this;
+          this.__e2e = record(this.__e2eUrl, this.__e2eMethod, 'xhr', body);
+          this.addEventListener('loadend', function () {
+            if (self.__e2e) self.__e2e.status = self.status;
+          });
+          return _send.apply(this, arguments);
+        };
+
+        // navigator.sendBeacon
+        if (navigator && typeof navigator.sendBeacon === 'function') {
+          var _beacon = navigator.sendBeacon.bind(navigator);
+          navigator.sendBeacon = function (url, data) {
+            var entry = record(url, 'POST', 'beacon', data);
+            var ok = _beacon(url, data);
+            entry.status = ok ? 'queued' : 'failed';
+            return ok;
+          };
+        }
+
+        // NOTE: image/pixel requests are captured by the PerformanceObserver below (initiatorType
+        // 'img'). We deliberately do NOT override window.Image — doing so changes the page under test
+        // (breaks `img instanceof Image`, ignores `new Image(w, h)` args), which a native SDK may
+        // notice and behave differently than in production.
+
+        // PerformanceObserver('resource') is the authoritative capture: it sees EVERY network
+        // resource the page fetches — including <script> tags (how the SDK loads integration
+        // bundles) and native-SDK assets — which the API patches above cannot see. The patches
+        // remain for request method/status richness; record() dedupes by URL so counts stay honest.
+        try {
+          if (window.PerformanceObserver) {
+            var po = new PerformanceObserver(function (list) {
+              list.getEntries().forEach(function (e) {
+                // Use the request's real START time, not when this (late) callback runs.
+                var startTs =
+                  performance && performance.timeOrigin ? performance.timeOrigin + e.startTime : undefined;
+                var entry = record(e.name, undefined, e.initiatorType || 'resource', undefined, true, startTs);
+                if (entry && typeof e.responseStatus === 'number' && entry.status == null) {
+                  entry.status = e.responseStatus;
+                }
+              });
+            });
+            po.observe({ type: 'resource', buffered: true });
+          }
+        } catch (e) {
+          /* non-fatal */
+        }
+
+        // Error capture → warnings (shown but NON-fatal: third-party SDKs log plenty of harmless
+        // noise, so a console.error must not by itself fail the run). We capture from three sources
+        // so async errors thrown during integration init are not missed.
+        function warn(source, msg) {
+          try {
+            result.warnings.push(source + ': ' + msg);
+          } catch (e) {
+            /* ignore */
+          }
+        }
+        var _consoleError = console.error;
+        console.error = function () {
+          warn('console.error', Array.prototype.map.call(arguments, String).join(' '));
+          return _consoleError.apply(this, arguments);
+        };
+        window.addEventListener('error', function (e) {
+          warn('window.onerror', (e && (e.message || (e.error && e.error.message))) || 'error event');
+        });
+        window.addEventListener('unhandledrejection', function (e) {
+          warn('unhandledrejection', (e && e.reason && (e.reason.message || String(e.reason))) || 'rejection');
+        });
+      })();
+    </script>
+    <style>
+      body {
+        font-family: -apple-system, Segoe UI, Roboto, sans-serif;
+        margin: 24px;
+        color: #1a1a1a;
+      }
+      #status {
+        font-size: 22px;
+        font-weight: 700;
+      }
+      table {
+        border-collapse: collapse;
+        margin-top: 12px;
+        max-width: 900px;
+      }
+      th,
+      td {
+        border: 1px solid #ccc;
+        padding: 6px 10px;
+        text-align: left;
+        vertical-align: top;
+        font-size: 13px;
+      }
+      th {
+        background: #f4f4f4;
+      }
+      .fail {
+        color: #c0392b;
+      }
+      .ok {
+        color: #1e8449;
+      }
+      code {
+        font-family: SFMono-Regular, Menlo, monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>RudderStack device-mode e2e harness</h1>
+    <p>
+      Integration: <code id="meta-int"></code> &middot; SDK: <code id="meta-ver"></code>
+    </p>
+    <div id="plan"></div>
+    <p>
+      <button id="runBtn" type="button">▶ Run tests</button>
+      <button id="resetBtn" type="button" style="display: none">↺ Reset &amp; run again</button>
+    </p>
+    <div id="status">idle — click “Run tests”.</div>
+    <table id="report">
+      <tbody></tbody>
+    </table>
+
+    <!-- RudderStack SDK snippet (array stub; works for v1.1 and v3 method surfaces) -->
+    <script>
+      (function () {
+        var identifier = 'rudderanalytics';
+        window[identifier] = window[identifier] || [];
+        var ra = window[identifier];
+        var methods = [
+          'setDefaultInstanceKey',
+          'load',
+          'ready',
+          'page',
+          'track',
+          'identify',
+          'alias',
+          'group',
+          'reset',
+          'setAnonymousId',
+          'startSession',
+          'endSession',
+          'consent',
+          'addCustomIntegration',
+          'setCustomContext',
+          'clearCustomContext',
+        ];
+        for (var i = 0; i < methods.length; i++) {
+          (function (m) {
+            ra[m] = function () {
+              ra.push([m].concat(Array.prototype.slice.call(arguments)));
+            };
+          })(methods[i]);
+        }
+      })();
+    </script>
+    <script src="__SDK_URL__"></script>
+
+    <!-- load the SDK against the REAL connection (write key), fire events, compute verdict -->
+    <script>
+      (function () {
+        var cfg = window.__E2E_CONFIG__;
+        var result = window.__E2E_RESULT__;
+        var ra = window.rudderanalytics;
+
+        document.getElementById('meta-int').textContent = cfg.integration || '(any)';
+        document.getElementById('meta-ver').textContent = cfg.sdkVersion || '';
+
+        // Show WHAT will be sent before anything runs, then wait for the Run button. Automation
+        // (report mode) appends ?autorun=1 to start without a click. window.__E2E_RUN__ is the same
+        // entry point, callable over CDP.
+        // Declared BEFORE the auto-run call below — otherwise `var started` would be assigned after
+        // run() executed and reset the guard, letting a second __E2E_RUN__() fire everything twice.
+        var started = false;
+        var finished = false;
+
+        renderPlan();
+        var runBtn = document.getElementById('runBtn');
+        var resetBtn = document.getElementById('resetBtn');
+        if (runBtn) runBtn.addEventListener('click', run);
+        if (resetBtn) resetBtn.addEventListener('click', function () { location.reload(); });
+        window.__E2E_RUN__ = run;
+        // Report/automation mode appends ?autorun=1 to start without a click.
+        if (/[?&]autorun=1\b/.test(location.search)) run();
+
+        function run() {
+          if (started) return; // one run per page load; use Reset to run again
+          started = true;
+          if (runBtn) { runBtn.disabled = true; runBtn.textContent = 'Running…'; }
+          setStatus('running…', null);
+
+          var loadOptions = {};
+          if (cfg.destSDKBaseURL) loadOptions.destSDKBaseURL = cfg.destSDKBaseURL;
+          if (cfg.pluginsSDKBaseURL) loadOptions.pluginsSDKBaseURL = cfg.pluginsSDKBaseURL;
+          if (cfg.configUrl) loadOptions.configUrl = cfg.configUrl;
+
+          try {
+            ra.load(cfg.writeKey, cfg.dataPlaneUrl, loadOptions);
+          } catch (e) {
+            result.loadError = 'load() threw: ' + String(e);
+          }
+
+          // Fallback: if ready() never fires (bad key, plugins not served), still produce a verdict
+          // so an interactive user isn't stuck on a spinner and the runner doesn't just time out.
+          var settle = Number(cfg.settleMs) || 6000;
+          var readyTimer = setTimeout(function () {
+            if (!result.ready) finish();
+          }, settle + 15000);
+
+          ra.ready(function () {
+            result.ready = true;
+            clearTimeout(readyTimer);
+            // Timestamp the moment before events fire, so "data sent" can count only requests that
+            // came AFTER the events — a native SDK fetching its own config at startup doesn't count.
+            result.firstEventAt = Date.now();
+            (cfg.events || []).forEach(function (ev) {
+              try {
+                if (ev.type === 'identify') ra.identify(ev.userId || undefined, ev.traits || {});
+                else if (ev.type === 'track') ra.track(ev.event, ev.properties || {});
+                else if (ev.type === 'page')
+                  ra.page(ev.category || undefined, ev.name || undefined, ev.properties || {});
+                else if (ev.type === 'group') ra.group(ev.groupId, ev.traits || {});
+                else if (ev.type === 'alias') ra.alias(ev.to, ev.from);
+                else throw new Error('unknown event type: ' + ev.type);
+                result.eventsFired.push({ type: ev.type, ok: true });
+              } catch (e) {
+                result.eventsFired.push({ type: ev.type, ok: false, error: String(e) });
+              }
+            });
+            setTimeout(finish, settle);
+          });
+        }
+
+        function setStatus(text, pass) {
+          var s = document.getElementById('status');
+          s.textContent = text;
+          s.className = pass == null ? '' : pass ? 'ok' : 'fail';
+        }
+
+        // The plan: the exact test cases (and expectations) that will be sent, shown before running.
+        function renderPlan() {
+          var events = cfg.events || [];
+          var lines = ['Test cases to send (' + events.length + '):'];
+          events.forEach(function (e, i) {
+            lines.push('  ' + (i + 1) + '. ' + describeEvent(e));
+          });
+          if ((cfg.expectations || []).length) {
+            lines.push('', 'Expectations (' + cfg.expectations.length + '):');
+            cfg.expectations.forEach(function (x) {
+              lines.push('  • ' + (x.description || JSON.stringify(x)));
+            });
+          }
+          var pre = document.createElement('pre');
+          pre.textContent = lines.join('\n');
+          var plan = document.getElementById('plan');
+          plan.innerHTML = '<h2>Plan</h2>';
+          plan.appendChild(pre);
+        }
+
+        function describeEvent(e) {
+          if (e.type === 'identify') return 'identify ' + (e.userId || '(anonymous)') + '  traits=' + short(e.traits);
+          if (e.type === 'track') return 'track "' + e.event + '"  properties=' + short(e.properties);
+          if (e.type === 'page') return 'page ' + (e.name || e.category || '(no name)') + '  properties=' + short(e.properties);
+          if (e.type === 'group') return 'group ' + (e.groupId || '') + '  traits=' + short(e.traits);
+          if (e.type === 'alias') return 'alias ' + (e.to || '') + ' ← ' + (e.from || '');
+          return JSON.stringify(e);
+        }
+        function short(o) {
+          try {
+            return o ? JSON.stringify(o) : '{}';
+          } catch (e) {
+            return '{}';
+          }
+        }
+
+        // A <script>/asset LOAD (the native SDK bootstrapping) is NOT the same as DATA being sent.
+        // Only "data sent" proves the device-mode SDK actually forwarded an event.
+        function isScriptLike(r) {
+          var k = (r.kind || '').toLowerCase();
+          return k === 'script' || k === 'link' || k === 'css' || /\.(js|mjs|css)(\?|$)/i.test(r.url);
+        }
+        function isDataRequest(r) {
+          return !isScriptLike(r);
+        }
+        function statusIsOk(s) {
+          return typeof s === 'number' && s >= 200 && s < 300;
+        }
+        // A bundle counts as LOADED unless its request recorded a client/server error status. (A
+        // cross-origin resource may report status 0/undefined even on success — we don't fail those.)
+        function statusNotError(s) {
+          return !(typeof s === 'number' && s >= 400);
+        }
+        // Normalize an integration identity: lowercase, strip non-alphanumerics —
+        // `GoogleAds`/`GOOGLEADS`/`Google Ads` → `googleads`.
+        function normId(s) {
+          return String(s).toLowerCase().replace(/[^a-z0-9]/g, '');
+        }
+        // The integration name a `/js-integrations/<Name>.min.js` URL declares (extension stripped).
+        function bundleNameOf(u) {
+          try {
+            var last = new URL(u, location.href).pathname.split('/').pop() || '';
+            return last.replace(/\.min\.js$/i, '').replace(/\.js$/i, '');
+          } catch (e) {
+            return '';
+          }
+        }
+
+        function finish() {
+          if (finished) return; // guard: ready() path and the fallback timer can both call this
+          finished = true;
+
+          // sourceConfig must have been fetched AND returned a 2xx — a 401 for a wrong write key
+          // must not read as PASS.
+          result.sourceConfigOk = result.requests.some(function (r) {
+            return r.url.indexOf('sourceConfig') !== -1 && statusIsOk(r.status);
+          });
+          // Bundles that were actually requested from /js-integrations/ AND did not error out.
+          result.integrationBundleUrls = result.requests
+            .filter(function (r) {
+              return r.url.indexOf('/js-integrations/') !== -1 && statusNotError(r.status);
+            })
+            .map(function (r) {
+              return r.url;
+            });
+          result.integrationBundleLoaded = result.integrationBundleUrls.length > 0;
+          // Exact normalized match on the bundle's OWN name — so the REQUESTED integration's bundle
+          // must have loaded (another connected destination's bundle can't satisfy it), and `GA` does
+          // not match `GA360`.
+          result.integrationMatched = cfg.integration
+            ? result.integrationBundleUrls.some(function (u) {
+                return normId(bundleNameOf(u)) === normId(cfg.integration);
+              })
+            : null;
+
+          result.dataRequests = result.thirdPartyRequests.filter(isDataRequest);
+          result.nativeSdkLoaded = result.thirdPartyRequests.some(isScriptLike);
+          // "data sent" counts only data requests made AFTER the events fired — a native SDK's
+          // own startup/config fetch (before firstEventAt) is not event delivery. NOTE: this is
+          // still a WEAK signal (the SDK could send anything post-event); for the values that
+          // actually matter, use `expectations`.
+          var cutoff = result.firstEventAt || 0;
+          result.dataRequestsAfterEvents = cutoff
+            ? result.dataRequests.filter(function (r) { return r.ts >= cutoff; })
+            : [];
+          result.dataSent = result.dataRequestsAfterEvents.length > 0;
+
+          result.expectations = evaluateExpectations();
+          computeVerdict();
+          render();
+        }
+
+        // A searchable string for a request: URL + serialized body (so a substring can be matched
+        // against query params AND the payload without the caller knowing where it lives).
+        function requestHaystack(r) {
+          var bodyStr =
+            typeof r.body === 'string' ? r.body : r.body != null ? JSON.stringify(r.body) : '';
+          return r.url + ' ' + bodyStr;
+        }
+
+        function bodyAsObject(r) {
+          if (r.body && typeof r.body === 'object') return r.body;
+          if (typeof r.body === 'string') {
+            try {
+              return JSON.parse(r.body);
+            } catch (e) {
+              return null;
+            }
+          }
+          return null;
+        }
+
+        function getPath(obj, path) {
+          return String(path)
+            .split('.')
+            .reduce(function (o, k) {
+              return o == null ? undefined : o[k];
+            }, obj);
+        }
+
+        // Optional, generic, opt-in checks against the outgoing DATA requests made AFTER the events
+        // fired (NOT native-SDK script/asset loads, and NOT the SDK's own pre-event startup/config
+        // requests — a value appearing in either must not pass). Comparison is strict `===`. No
+        // destination logic.
+        //   { description, requestIncludes: "substr" }         -> substr appears in any post-event data request (url|body)
+        //   { description, requestBodyPath: "a.b", equals: X }  -> a post-event JSON body has that path strictly === X
+        function evaluateExpectations() {
+          var specs = Array.isArray(cfg.expectations) ? cfg.expectations : [];
+          var reqs = result.dataRequestsAfterEvents || [];
+          return specs.map(function (spec) {
+            var pass = false;
+            var detail = '';
+            if (typeof spec.requestIncludes === 'string') {
+              var needle = spec.requestIncludes;
+              var hit = reqs.filter(function (r) {
+                return requestHaystack(r).indexOf(needle) !== -1;
+              });
+              pass = hit.length > 0;
+              detail = pass ? 'found in ' + hit.length + ' request(s)' : 'not found in any request';
+            } else if (typeof spec.requestBodyPath === 'string') {
+              var match = null;
+              reqs.forEach(function (r) {
+                var obj = bodyAsObject(r);
+                if (obj == null) return;
+                var val = getPath(obj, spec.requestBodyPath);
+                if (val !== undefined && val === spec.equals) match = { r: r, val: val };
+              });
+              pass = match != null;
+              detail = pass
+                ? spec.requestBodyPath + ' = ' + JSON.stringify(match.val)
+                : spec.requestBodyPath + ' did not equal ' + JSON.stringify(spec.equals) + ' in any request';
+            } else {
+              detail = 'invalid expectation (needs requestIncludes or requestBodyPath+equals)';
+            }
+            return {
+              description: spec.description || spec.requestIncludes || spec.requestBodyPath || 'expectation',
+              pass: pass,
+              detail: detail,
+            };
+          });
+        }
+
+        function computeVerdict() {
+          var f = result.failures;
+          if (!result.ready) f.push('SDK ready() never fired (bad write key, or plugins not served?)');
+          if (result.loadError) f.push(result.loadError);
+          if (!result.sourceConfigOk)
+            f.push('sourceConfig not fetched successfully — no 2xx (write key / configUrl?)');
+          if (!result.integrationBundleLoaded)
+            f.push('no device-mode integration bundle loaded (/js-integrations/)');
+          // If a specific integration was requested, its OWN bundle must have loaded — otherwise a
+          // different connected destination could make the run pass while yours never loaded.
+          if (cfg.integration && result.integrationMatched === false)
+            f.push('the requested integration bundle ("' + cfg.integration + '") did not load — another connected destination may have');
+          if (result.eventsFired.some(function (e) { return !e.ok; }))
+            f.push('one or more events threw when calling the SDK');
+          // The real delivery signal: DATA actually sent, not merely a native-SDK <script> load.
+          if (!result.dataSent)
+            f.push('no device-mode DATA sent to the destination (a native-SDK asset load alone does not count)');
+          result.expectations.forEach(function (e) {
+            if (!e.pass) f.push('expectation failed: ' + e.description + ' (' + e.detail + ')');
+          });
+          // result.warnings (console.error / onerror / unhandledrejection) are deliberately NOT
+          // failures — third-party SDKs log noise; they're surfaced separately.
+          result.pass = f.length === 0;
+          result.status = 'done';
+          result.finishedAt = Date.now();
+        }
+
+        function render() {
+          setStatus(result.pass ? 'PASS ✅' : 'FAIL ❌', result.pass);
+          if (runBtn) runBtn.style.display = 'none'; // one run per page; use Reset to run again
+          if (resetBtn) resetBtn.style.display = '';
+
+          var firedOk = result.eventsFired.filter(function (e) { return e.ok; }).length;
+          var rows = [
+            ['SDK ready() fired', result.ready],
+            ['sourceConfig fetched (2xx)', result.sourceConfigOk],
+            ['integration bundle loaded', result.integrationBundleLoaded],
+            ['integration name matched bundle', cfg.integration ? result.integrationMatched : 'n/a'],
+            ['events fired without throwing', result.eventsFired.length + ' fired, ' + firedOk + ' ok'],
+            ['native SDK asset loaded (info)', result.nativeSdkLoaded],
+            [
+              'DATA sent after events (weak signal)',
+              result.dataSent +
+                ' (' + (result.dataRequestsAfterEvents || []).length + ' after events / ' +
+                result.dataRequests.length + ' total data req)',
+            ],
+            ['warnings (non-fatal)', result.warnings.length],
+          ];
+          var html = '<tr><th>check</th><th>value</th></tr>';
+          rows.forEach(function (r) {
+            html += '<tr><td>' + esc(r[0]) + '</td><td>' + esc(String(r[1])) + '</td></tr>';
+          });
+          if (result.warnings.length) {
+            html += '<tr><th>warnings</th><td>' + esc(result.warnings.join('\n')) + '</td></tr>';
+          }
+          if (result.failures.length) {
+            html +=
+              '<tr><th>failures</th><td class="fail">' + esc(result.failures.join('\n')) + '</td></tr>';
+          }
+          document.querySelector('#report tbody').innerHTML = html;
+
+          renderExpectations();
+          renderTestCases();
+          renderRequests();
+        }
+
+        function esc(s) {
+          return String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+        }
+
+        function pretty(v) {
+          if (v == null) return '';
+          if (typeof v === 'string') {
+            try {
+              return JSON.stringify(JSON.parse(v), null, 2);
+            } catch (e) {
+              return v;
+            }
+          }
+          try {
+            return JSON.stringify(v, null, 2);
+          } catch (e) {
+            return String(v);
+          }
+        }
+
+        function section(title) {
+          var h = document.createElement('h2');
+          h.textContent = title;
+          document.body.appendChild(h);
+          var pre = document.createElement('pre');
+          document.body.appendChild(pre);
+          return pre;
+        }
+
+        function renderExpectations() {
+          if (!result.expectations.length) return;
+          var pre = section('Expectations');
+          pre.innerHTML = result.expectations
+            .map(function (e) {
+              return (
+                '<span class="' +
+                (e.pass ? 'ok' : 'fail') +
+                '">' +
+                (e.pass ? 'PASS' : 'FAIL') +
+                '</span>  ' +
+                esc(e.description) +
+                '  —  ' +
+                esc(e.detail)
+              );
+            })
+            .join('\n');
+        }
+
+        function renderTestCases() {
+          var pre = section('Test cases fired (input)');
+          pre.textContent = (cfg.events || []).map(function (e) { return pretty(e); }).join('\n') || '(none)';
+        }
+
+        // Show the ACTUAL outgoing device-mode DATA requests (method, URL, query, body) so the user
+        // can confirm the payload — native-SDK <script>/asset loads are excluded (they carry no data).
+        function renderRequests() {
+          var reqs = result.dataRequests || [];
+          var pre = section('Outgoing device-mode data requests (' + reqs.length + ')');
+          if (!reqs.length) {
+            pre.textContent =
+              '(none — the device-mode SDK sent no data. Native SDK asset loaded: ' +
+              (result.nativeSdkLoaded ? 'yes' : 'no') +
+              ')';
+            return;
+          }
+          pre.innerHTML = reqs
+            .map(function (r) {
+              var lines = [];
+              lines.push(esc((r.method || 'GET') + ' ' + r.url + '  [' + (r.status == null ? '?' : r.status) + ']'));
+              if (r.query) lines.push('query: ' + esc(pretty(r.query)));
+              if (r.body !== undefined) lines.push('body:  ' + esc(pretty(r.body)));
+              return lines.join('\n');
+            })
+            .join('\n\n' + '─'.repeat(60) + '\n');
+        }
+      })();
+    </script>
+  </body>
+</html>
