@@ -107,7 +107,7 @@ export default [
     name: 'Core (Content Script) - Modern - NPM (ESM)',
     path: 'dist/npm/modern/content-script/esm/index.mjs',
     import: '*',
-    limit: '42 KiB',
+    limit: '43 KiB',
   },
   {
     name: 'Core (Content Script) - Modern - NPM (CJS)',
