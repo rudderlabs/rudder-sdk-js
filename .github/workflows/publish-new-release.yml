@@ -365,7 +365,11 @@ jobs:
           REPO: ${{ github.repository }}
           # Both workflows are triggered by the same webhook delivery, so their
           # runs share this head SHA.
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          # Both this workflow and deploy-prod.yml run off the same
+          # pull_request: closed event, so their runs share github.sha (the PR
+          # merge commit). head.sha is the source branch tip and never matches
+          # the deploy run, which would make this gate time out on every release.
+          HEAD_SHA: ${{ github.sha }}
           DEPLOY_WORKFLOW: 'deploy-prod.yml'
           # The deploy runs through a reusable workflow, so its job surfaces as
           # "<caller job name> / <called job name>".
