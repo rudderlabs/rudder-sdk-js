@@ -276,6 +276,27 @@ class PluginsManager implements IPluginsManager {
     );
 
     const loadFailures: unknown[] = [];
+    let isIncidentReported = false;
+
+    // A single remote entry failure rejects every plugin import, so the fan-out
+    // is one incident. Report it once, on a microtask so the sibling rejections
+    // it arrives with are already recorded, and without waiting on imports that
+    // may never settle - a dynamic import has no timeout of its own.
+    const reportIncidentOnce = () => {
+      if (isIncidentReported) {
+        return;
+      }
+      isIncidentReported = true;
+
+      Promise.resolve().then(() => {
+        const firstFailure = loadFailures[0];
+        this.onError(
+          firstFailure,
+          `Failed to load plugins: ${state.plugins.failedPlugins.value.join(', ')}`,
+          firstFailure as SDKError,
+        );
+      });
+    };
 
     return Promise.all(
       Object.keys(remotePluginsList).map(async remotePluginKey => {
@@ -291,25 +312,12 @@ class PluginsManager implements IPluginsManager {
               REMOTE_PLUGIN_LOAD_ERROR(PLUGINS_MANAGER, remotePluginKey, (err as Error)?.message),
             );
             loadFailures.push(err);
+            reportIncidentOnce();
           });
       }),
-    )
-      .then(() => {
-        // A single remote entry failure rejects every plugin import, so the
-        // fan-out is one incident. Report it once; the per-plugin detail is
-        // already carried in state.plugins.failedPlugins.
-        if (loadFailures.length > 0) {
-          const firstFailure = loadFailures[0];
-          this.onError(
-            firstFailure,
-            `Failed to load plugins: ${state.plugins.failedPlugins.value.join(', ')}`,
-            firstFailure as SDKError,
-          );
-        }
-      })
-      .catch(err => {
-        this.onError(err);
-      });
+    ).catch(err => {
+      this.onError(err);
+    });
   }
 
   /**

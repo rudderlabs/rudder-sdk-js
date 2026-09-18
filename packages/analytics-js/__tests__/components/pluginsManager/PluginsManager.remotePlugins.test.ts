@@ -56,6 +56,21 @@ describe('PluginsManager - remote plugins', () => {
     expect(defaultLogger.error).toHaveBeenCalledTimes(failing.length);
   });
 
+  it('should still report when one remote plugin never settles', async () => {
+    state.plugins.activePlugins.value = ['XhrQueue', 'StorageEncryption'] as any;
+    mockRemotePluginsInventory.mockReturnValue({
+      // A stalled import must not suppress the incident for the ones that failed.
+      XhrQueue: () => new Promise(() => {}),
+      StorageEncryption: () => Promise.reject(fetchFailure(REMOTE_ENTRY)),
+    });
+
+    pluginsManager.registerRemotePlugins();
+    await flush();
+
+    expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
+    expect(state.plugins.failedPlugins.value).toEqual(['StorageEncryption']);
+  });
+
   it('should not report an error when every remote plugin loads', async () => {
     state.plugins.activePlugins.value = ['XhrQueue'] as any;
     mockRemotePluginsInventory.mockReturnValue({
