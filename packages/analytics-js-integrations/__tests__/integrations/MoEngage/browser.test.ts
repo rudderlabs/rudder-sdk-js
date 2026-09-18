@@ -1,5 +1,16 @@
 import MoEngage from '../../../src/integrations/MoEngage/browser';
 
+let mockWarn: jest.Mock;
+
+jest.mock('../../../src/utils/logger', () => ({
+  __esModule: true,
+  default: jest.fn().mockImplementation(() => ({
+    setLogLevel: jest.fn(),
+    warn: jest.fn().mockImplementation((...args) => mockWarn(...args)),
+    error: jest.fn().mockImplementation((...args) => console.error(...args)),
+  })),
+}));
+
 const mockMoEngageSDK = () => {
   (window as any).Moengage = {
     track_event: jest.fn(),
@@ -18,6 +29,10 @@ const mockMoEngageSDK = () => {
 };
 
 describe('MoEngage init tests', () => {
+  beforeEach(() => {
+    mockWarn = jest.fn();
+  });
+
   test('Testing init call of MoEngage with apiId', () => {
     mockMoEngageSDK();
     const moEngage = new MoEngage(
@@ -32,29 +47,52 @@ describe('MoEngage init tests', () => {
     expect(moEngage.moengageRegion).toBeDefined();
   });
 
-  test('Testing data center calculation', () => {
-    const moEngageEU = new MoEngage(
-      { apiId: 'test-api-id', region: 'EU' },
+  test.each([
+    ['US', 'dc_1'],
+    ['EU', 'dc_2'],
+    ['IND', 'dc_3'],
+    ['US-DC-04', 'dc_4'],
+    ['SGP-DC-05', 'dc_5'],
+    ['IDN-DC-06', 'dc_6'],
+  ])('calculates the %s data center as %s', (region, expectedDataCenter) => {
+    const moEngage = new MoEngage(
+      { apiId: 'test-api-id', region },
       { logLevel: 'debug', getUserId: () => null },
     );
-    moEngageEU.init();
-    expect(moEngageEU.moengageRegion).toBe('dc_2');
 
-    const moEngageIN = new MoEngage(
-      { apiId: 'test-api-id', region: 'IN' },
-      { logLevel: 'debug', getUserId: () => null },
-    );
-    moEngageIN.init();
-    expect(moEngageIN.moengageRegion).toBe('dc_3');
+    moEngage.init();
+
+    expect(moEngage.moengageRegion).toBe(expectedDataCenter);
+    expect(mockWarn).not.toHaveBeenCalled();
   });
 
-  test('Testing default data center calculation', () => {
-    const moEngageDefault = new MoEngage(
-      { apiId: 'test-api-id' },
+  test.each([
+    ['absent', {}],
+    ['undefined', { region: undefined }],
+    ['null', { region: null }],
+    ['empty', { region: '' }],
+  ])('defaults an %s region to dc_1 without warning', (_description, regionConfig) => {
+    const moEngage = new MoEngage(
+      { apiId: 'test-api-id', ...regionConfig },
       { logLevel: 'debug', getUserId: () => null },
     );
-    moEngageDefault.init();
-    expect(moEngageDefault.moengageRegion).toBe('dc_1'); // Assuming US is default
+
+    moEngage.init();
+
+    expect(moEngage.moengageRegion).toBe('dc_1');
+    expect(mockWarn).not.toHaveBeenCalled();
+  });
+
+  test('warns and defaults an unrecognized region to dc_1', () => {
+    const moEngage = new MoEngage(
+      { apiId: 'test-api-id', region: 'DC-101' },
+      { logLevel: 'debug', getUserId: () => null },
+    );
+
+    moEngage.init();
+
+    expect(moEngage.moengageRegion).toBe('dc_1');
+    expect(mockWarn).toHaveBeenCalledWith(expect.stringContaining('DC-101'));
   });
 });
 
