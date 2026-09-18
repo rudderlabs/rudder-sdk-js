@@ -6,9 +6,14 @@ on:
     types:
       - closed
 
+# A production deploy must never be pre-empted. The deploy job uploads the
+# pinned plugin directory before it overwrites the core at /v3, so cancelling
+# it part way through is the one thing that can leave a live core pointing at
+# an incomplete pinned plugin directory -- a state no invalidation repairs.
+# A queued duplicate run is strictly safer than a truncated one.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 permissions:
   contents: read
