@@ -17,6 +17,7 @@ import {
   DEPRECATED_PLUGIN_WARNING,
   generateMisconfiguredPluginsWarning,
   UNAVAILABLE_PLUGINS_ERROR,
+  REMOTE_PLUGIN_LOAD_ERROR,
   UNKNOWN_PLUGINS_WARNING,
 } from '../../constants/logMessages';
 import { setExposedGlobal } from '../utilities/globals';
@@ -274,7 +275,9 @@ class PluginsManager implements IPluginsManager {
       state.plugins.activePlugins.value as PluginName[],
     );
 
-    Promise.all(
+    const loadFailures: unknown[] = [];
+
+    return Promise.all(
       Object.keys(remotePluginsList).map(async remotePluginKey => {
         await remotePluginsList[remotePluginKey as PluginName]()
           .then((remotePluginModule: any) => this.register([remotePluginModule.default()]))
@@ -284,12 +287,29 @@ class PluginsManager implements IPluginsManager {
               ...state.plugins.failedPlugins.value,
               remotePluginKey,
             ];
-            this.onError(err, `Failed to load plugin "${remotePluginKey}"`, err);
+            this.logger.error(
+              REMOTE_PLUGIN_LOAD_ERROR(PLUGINS_MANAGER, remotePluginKey, (err as Error)?.message),
+            );
+            loadFailures.push(err);
           });
       }),
-    ).catch(err => {
-      this.onError(err);
-    });
+    )
+      .then(() => {
+        // A single remote entry failure rejects every plugin import, so the
+        // fan-out is one incident. Report it once; the per-plugin detail is
+        // already carried in state.plugins.failedPlugins.
+        if (loadFailures.length > 0) {
+          const firstFailure = loadFailures[0];
+          this.onError(
+            firstFailure,
+            `Failed to load plugins: ${state.plugins.failedPlugins.value.join(', ')}`,
+            firstFailure as SDKError,
+          );
+        }
+      })
+      .catch(err => {
+        this.onError(err);
+      });
   }
 
   /**
