@@ -50,6 +50,11 @@ export type CapabilitiesState = {
    * adds or imports onto the that are blocked due to CSP (Content Security Policy).
    */
   cspBlockedURLs: Signal<string[]>;
+  /**
+   * Whether this client could reach the SDK CDN when a script load failed.
+   * Diagnostic only - a blocked client and a CDN outage are indistinguishable.
+   */
+  isSdkCdnBlocked: Signal<boolean | undefined>;
 };
 
 export type ConsentsState = {

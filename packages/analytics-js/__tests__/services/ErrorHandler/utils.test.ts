@@ -799,6 +799,16 @@ describe('Error Reporting utilities', () => {
         'should allow integrations load failures from RudderStack CDN',
       ],
 
+      [
+        'PluginsManager:: Failed to load plugin "NativeDestinationQueue" - error loading dynamically imported module: https://cdn.non-rudderstack.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js',
+        false,
+        'should not allow Firefox-worded plugins load failures from non-RudderStack CDN',
+      ],
+      [
+        'PluginsManager:: Failed to load plugin "NativeDestinationQueue" - error loading dynamically imported module: https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js',
+        true,
+        'should allow Firefox-worded plugins load failures from RudderStack CDN',
+      ],
       ['dummy error', true, 'should allow generic errors'],
       ['', true, 'should allow empty messages'],
     ];
@@ -811,6 +821,62 @@ describe('Error Reporting utilities', () => {
         defaultHttpClient,
       );
       expect(result).toBe(expected);
+    });
+
+    describe('SDK CDN reachability', () => {
+      const PLUGIN_URL =
+        'https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js';
+      const message = `PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: ${PLUGIN_URL}`;
+
+      beforeEach(() => {
+        state.capabilities.isSdkCdnBlocked.value = undefined;
+        state.capabilities.isAdBlocked.value = false;
+        state.capabilities.cspBlockedURLs.value = [];
+        state.lifecycle.pluginsCDNPath.value = 'https://cdn.rudderlabs.com/3.20.1/modern/plugins';
+      });
+
+      it('should record the CDN as blocked when the probe cannot reach it', async () => {
+        defaultHttpClient.getAsyncData.mockImplementation(({ callback }: any) => {
+          callback(null, { error: new Error('blocked') });
+        });
+
+        await checkIfAllowedToBeNotified(
+          { message } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        expect(state.capabilities.isSdkCdnBlocked.value).toBe(true);
+      });
+
+      it('should record the CDN as reachable when the probe succeeds', async () => {
+        defaultHttpClient.getAsyncData.mockImplementation(({ url, callback }: any) => {
+          callback(null, { xhr: { responseURL: url } });
+        });
+
+        await checkIfAllowedToBeNotified(
+          { message } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        expect(state.capabilities.isSdkCdnBlocked.value).toBe(false);
+      });
+
+      it('should still notify regardless of the probe result', async () => {
+        defaultHttpClient.getAsyncData.mockImplementation(({ callback }: any) => {
+          callback(null, { error: new Error('blocked') });
+        });
+
+        const result = await checkIfAllowedToBeNotified(
+          { message } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        // Diagnostic only: a blocked client and a CDN outage look identical here.
+        expect(result).toBe(true);
+      });
     });
 
     describe('CSP blocked URLs filtering', () => {
@@ -833,6 +899,23 @@ describe('Error Reporting utilities', () => {
         state.capabilities.cspBlockedURLs.value = [blockedUrl];
 
         const message = `PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: ${blockedUrl}`;
+
+        const result = await checkIfAllowedToBeNotified(
+          { message } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        expect(result).toBe(false);
+      });
+
+      // CSP3 "strip url for use in reports" reduces a cross-origin blockedURI to
+      // its origin, so this is the only shape production ever stores.
+      it('should not notify when CSP reports only the origin of the blocked URL', async () => {
+        state.capabilities.cspBlockedURLs.value = ['https://cdn.rudderlabs.com'];
+
+        const message =
+          'PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js';
 
         const result = await checkIfAllowedToBeNotified(
           { message } as unknown as Exception,
@@ -1587,6 +1670,25 @@ describe('Error Reporting utilities', () => {
 
       // Should not resolve immediately but wait for effect
       expect(mockResolve).not.toHaveBeenCalled();
+    });
+
+    it('should resolve with true if ad blocker detection never completes', () => {
+      jest.useFakeTimers();
+      state.capabilities.isAdBlocked.value = undefined;
+      state.capabilities.isAdBlockerDetectionInProgress.value = false;
+      // A hung probe never invokes its callback, so isAdBlocked stays undefined.
+      defaultHttpClient.getAsyncData.mockImplementation(() => {});
+      const mockResolve = jest.fn();
+
+      checkIfAdBlockersAreActive(state, defaultHttpClient, mockResolve);
+      expect(mockResolve).not.toHaveBeenCalled();
+
+      jest.advanceTimersByTime(20000);
+
+      // We cannot tell a blocked client from a CDN outage, so an unresolved
+      // probe must not swallow the error.
+      expect(mockResolve).toHaveBeenCalledWith(true);
+      jest.useRealTimers();
     });
 
     it('should resolve when detection completes via effect', async () => {

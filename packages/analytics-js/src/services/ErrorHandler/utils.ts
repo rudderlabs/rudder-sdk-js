@@ -24,6 +24,8 @@ import {
   SCRIPT_LOAD_FAILURE_MESSAGES,
 } from '@rudderstack/analytics-js-common/constants/errors';
 import { SDK_CDN_BASE_URL } from '../../constants/urls';
+import { AD_BLOCKER_DETECTION_TIMEOUT_MS } from '../../constants/timeouts';
+import { CDN_PROBE_FILE } from './constants';
 import {
   APP_STATE_EXCLUDE_KEYS,
   DEV_HOSTS,
@@ -172,20 +174,76 @@ const checkIfAdBlockersAreActive = (
       detectAdBlockers(httpClient);
     }
 
+    let isSettled = false;
+    let detectionDisposer: (() => void) | undefined;
+    let timeoutId: number | undefined;
+
+    const settleOnce = (isAllowedToBeNotified: boolean) => {
+      if (isSettled) {
+        return;
+      }
+      isSettled = true;
+      (globalThis as typeof window).clearTimeout(timeoutId);
+
+      // Cleanup the effect.
+      detectionDisposer?.();
+      resolve(isAllowedToBeNotified);
+    };
+
     // Wait for the detection to complete.
-    const detectionDisposer = effect(() => {
+    detectionDisposer = effect(() => {
       if (isDefined(state.capabilities.isAdBlocked.value)) {
         // If ad blocker is not detected, notify.
-        resolve(state.capabilities.isAdBlocked.value === false);
-
-        // Cleanup the effect.
-        detectionDisposer();
+        settleOnce(state.capabilities.isAdBlocked.value === false);
       }
     });
+
+    // A probe that never settles must not swallow the error. We cannot tell a
+    // blocked client from a CDN outage, so fall back to notifying.
+    timeoutId = (globalThis as typeof window).setTimeout(
+      () => settleOnce(true),
+      AD_BLOCKER_DETECTION_TIMEOUT_MS,
+    );
   } else {
     // If ad blocker is not detected, notify.
     resolve(state.capabilities.isAdBlocked.value === false);
   }
+};
+
+/**
+ * Records whether this client can reach the SDK CDN at all.
+ * Purely diagnostic: it never suppresses, because a client-side block and a
+ * CDN outage are indistinguishable from the browser.
+ */
+const detectSdkCdnBlocked = (
+  state: ApplicationState,
+  httpClient: IHttpClient,
+  done: () => void,
+): void => {
+  const baseURL = state.lifecycle.pluginsCDNPath.value;
+  if (isDefined(state.capabilities.isSdkCdnBlocked.value) || !isString(baseURL)) {
+    done();
+    return;
+  }
+
+  const url = `${baseURL}/${CDN_PROBE_FILE}`;
+  httpClient.getAsyncData({
+    url,
+    options: {
+      // HEAD is CORS-safelisted; any custom header would trigger a preflight,
+      // which the CDN rejects.
+      method: 'HEAD',
+      headers: {
+        'Content-Type': undefined,
+      },
+    },
+    isRawResponse: true,
+    callback: (_result: any, details: any) => {
+      state.capabilities.isSdkCdnBlocked.value =
+        details?.error !== undefined || details?.xhr?.responseURL !== url;
+      done();
+    },
+  });
 };
 
 /**
@@ -212,12 +270,21 @@ const checkIfAllowedToBeNotified = (
       if (isString(extractedURL)) {
         if (extractedURL.startsWith(SDK_CDN_BASE_URL)) {
           // Filter out errors that are from CSP blocked URLs.
-          if (state.capabilities.cspBlockedURLs.value.includes(extractedURL)) {
-            resolve(false);
-          } else {
-            // Filter out errors if adblockers are detected.
-            checkIfAdBlockersAreActive(state, httpClient, resolve);
-          }
+          // Record CDN reachability for the report before deciding anything.
+          detectSdkCdnBlocked(state, httpClient, () => {
+            // Browsers strip a cross-origin blockedURI down to its origin, so a
+            // stored entry is a prefix of the failing URL rather than equal to it.
+            if (
+              state.capabilities.cspBlockedURLs.value.some((blockedURL: string) =>
+                extractedURL.startsWith(blockedURL),
+              )
+            ) {
+              resolve(false);
+            } else {
+              // Filter out errors if adblockers are detected.
+              checkIfAdBlockersAreActive(state, httpClient, resolve);
+            }
+          });
         } else {
           // Filter out errors that are not from the RS CDN.
           resolve(false);
