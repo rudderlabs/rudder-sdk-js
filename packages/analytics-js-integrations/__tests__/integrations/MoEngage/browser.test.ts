@@ -50,6 +50,7 @@ describe('MoEngage init tests', () => {
   test.each([
     ['US', 'dc_1'],
     ['EU', 'dc_2'],
+    ['IN', 'dc_3'],
     ['IND', 'dc_3'],
     ['US-DC-04', 'dc_4'],
     ['SGP-DC-05', 'dc_5'],
