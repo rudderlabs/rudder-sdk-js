@@ -9,7 +9,6 @@ const DEFAULT_MOENGAGE_DATA_CENTER = 'dc_1';
 const MOENGAGE_DATA_CENTER_MAP = {
   US: 'dc_1',
   EU: 'dc_2',
-  IN: 'dc_3',
   IND: 'dc_3',
   'US-DC-04': 'dc_4',
   'SGP-DC-05': 'dc_5',
