@@ -95,9 +95,13 @@ runs:
 
         # Retries only the URLs that are still unreachable, so a slow artifact
         # does not re-fetch the ones that already answered.
+        # $1 is a regex the response body must also match, or '' for a plain
+        # reachability check.
         wait_for_urls() {
+          local match=$1
+          shift
           local urls=("$@")
-          local pending url status remaining budget first_pass=1
+          local pending url status out reason remaining budget first_pass=1
 
           while :; do
             pending=()
@@ -122,12 +126,27 @@ runs:
                 budget="$remaining"
               fi
 
-              status=$(curl -sS -o /dev/null -w '%{http_code}' --retry 2 --retry-delay 5 --retry-max-time "$budget" --max-time "$budget" "$url" || echo '000')
+              if [ -n "$match" ]; then
+                out=$(mktemp)
+              else
+                out=/dev/null
+              fi
 
-              if [ "$status" = "200" ]; then
+              status=$(curl -sS -o "$out" -w '%{http_code}' --retry 2 --retry-delay 5 --retry-max-time "$budget" --max-time "$budget" "$url" || echo '000')
+              reason=""
+
+              if [ "$status" != "200" ]; then
+                reason="returned $status"
+              elif [ -n "$match" ] && ! grep -qE -- "$match" "$out"; then
+                reason="is served but is not this release's build"
+              fi
+
+              [ "$out" = /dev/null ] || rm -f "$out"
+
+              if [ -z "$reason" ]; then
                 echo "ok  $status  $url"
               else
-                echo "$url returned $status"
+                echo "$url $reason"
                 pending+=("$url")
               fi
             done
@@ -140,7 +159,7 @@ runs:
 
             if [ "$(date +%s)" -ge "$deadline" ]; then
               for url in "${pending[@]}"; do
-                echo "::error::$url is not reachable on the CDN"
+                echo "::error::$url is not the published artifact this release expects"
               done
               return 1
             fi
@@ -153,16 +172,34 @@ runs:
 
         markers=()
         listings=()
+        cores=()
+
+        # The core embeds its own version as a quoted string literal, so when the
+        # caller names a version the core can be checked for identity rather
+        # than mere presence. That matters because S3 never removes what an
+        # earlier attempt left behind: a stale or partial version prefix answers
+        # 200 for every URL here, and the floating path answers 200 with the
+        # previous release whether or not this deploy got that far. deploy.yml
+        # copies the core to the floating path only after its own per-file check
+        # has passed, so a floating core that reports this version is also
+        # evidence that the check passed.
+        core_pattern=""
+
+        if [ -n "$SDK_VERSION" ]; then
+          core_pattern="['\"\`]$(printf '%s' "$SDK_VERSION" | sed 's/[][\\.*^$/]/\\&/g')['\"\`]"
+        fi
 
         if [ "$VERIFY_CORE" = "true" ]; then
-          # The versioned copy is the release-specific one: the floating path
-          # still answers 200 with the previous release's core.
           if [ -n "$SDK_VERSION" ]; then
-            markers+=("${BASE_CDN_URL}/${SDK_VERSION}/modern/rsa.min.js")
+            cores+=("${BASE_CDN_URL}/${SDK_VERSION}/modern/rsa.min.js")
           fi
 
           if [ -n "$S3_DIR_PATH" ]; then
-            markers+=("${BASE_CDN_URL}/${S3_DIR_PATH}/modern/rsa.min.js")
+            if [ -n "$SDK_VERSION" ]; then
+              cores+=("${BASE_CDN_URL}/${S3_DIR_PATH}/modern/rsa.min.js")
+            else
+              markers+=("${BASE_CDN_URL}/${S3_DIR_PATH}/modern/rsa.min.js")
+            fi
           fi
         fi
 
@@ -190,7 +227,11 @@ runs:
           done
         fi
 
-        wait_for_urls "${markers[@]}" "${listings[@]}" || exit 1
+        wait_for_urls '' "${markers[@]}" "${listings[@]}" || exit 1
+
+        if [ "${#cores[@]}" -gt 0 ]; then
+          wait_for_urls "$core_pattern" "${cores[@]}" || exit 1
+        fi
 
         listed=()
 
@@ -212,5 +253,5 @@ runs:
         done
 
         if [ "${#listed[@]}" -gt 0 ]; then
-          wait_for_urls "${listed[@]}" || exit 1
+          wait_for_urls '' "${listed[@]}" || exit 1
         fi
