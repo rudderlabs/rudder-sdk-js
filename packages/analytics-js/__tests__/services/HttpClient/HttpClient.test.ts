@@ -97,6 +97,28 @@ describe('HttpClient', () => {
     expect(clientInstance.basicAuthHeader).toBeUndefined();
   });
 
+  const authHeaderFor = async (config: Record<string, unknown>) => {
+    clientInstance.setAuthHeader('dummyWriteKey');
+    await new Promise<void>(resolve => {
+      clientInstance.getAsyncData({
+        url: `${dummyDataplaneHost}/jsonSample`,
+        callback: () => resolve(),
+        ...config,
+      } as any);
+    });
+    return (xhrRequest as jest.Mock).mock.calls[0][0].headers.Authorization;
+  };
+
+  it('should omit the auth header when the request opts out', async () => {
+    // Authorization is not CORS-safelisted, so sending it turns a simple request
+    // into a preflighted one that the CDN refuses.
+    await expect(authHeaderFor({ skipAuthHeader: true })).resolves.toBeUndefined();
+  });
+
+  it('should send the auth header when the request does not opt out', async () => {
+    await expect(authHeaderFor({})).resolves.toStrictEqual('Basic ZHVtbXlXcml0ZUtleTo=');
+  });
+
   it('should getAsyncData with auth header expecting json response', done => {
     const callback = (response: any) => {
       expect(response).toStrictEqual({ json: 'sample' });

@@ -320,26 +320,26 @@ describe('Error Reporting utilities', () => {
     });
   });
 
-  describe('getAppStateForMetadata - SDK CDN reachability', () => {
-    it.each([[true], [false]])(
-      'should serialise isSdkCdnBlocked=%s into the reported metadata',
-      isBlocked => {
-        state.capabilities.isSdkCdnBlocked.value = isBlocked;
-
-        const metadata = getAppStateForMetadata(state) as any;
-
-        expect(metadata.capabilities.isSdkCdnBlocked).toBe(isBlocked);
-      },
-    );
-
-    it('should omit isSdkCdnBlocked when the probe has not run', () => {
-      state.capabilities.isSdkCdnBlocked.value = undefined;
+  describe('getAppStateForMetadata - SDK CDN probe', () => {
+    it('should serialise the probe outcome into the reported metadata', () => {
+      state.capabilities.sdkCdnProbe.value = { status: 0, timedOut: false, redirected: true };
 
       const metadata = getAppStateForMetadata(state) as any;
 
-      // JSON.stringify drops undefined, so absence means "never probed" rather
-      // than "reachable". Same trap as isAdBlocked.
-      expect('isSdkCdnBlocked' in metadata.capabilities).toBe(false);
+      expect(metadata.capabilities.sdkCdnProbe).toEqual({
+        status: 0,
+        timedOut: false,
+        redirected: true,
+      });
+    });
+
+    it('should omit the probe outcome when it has not run', () => {
+      state.capabilities.sdkCdnProbe.value = undefined;
+
+      const metadata = getAppStateForMetadata(state) as any;
+
+      // JSON.stringify drops undefined, so absence means "never probed".
+      expect('sdkCdnProbe' in metadata.capabilities).toBe(false);
     });
   });
 
@@ -770,6 +770,7 @@ describe('Error Reporting utilities', () => {
           setTimeout(() => {
             callback(null, {
               xhr: {
+                status: 200,
                 responseURL: url,
               },
             });
@@ -850,81 +851,87 @@ describe('Error Reporting utilities', () => {
         'https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js';
       const message = `PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: ${PLUGIN_URL}`;
 
+      const probeResponds = (details: any) => {
+        defaultHttpClient.getAsyncData.mockImplementation(({ url, callback }: any) => {
+          callback(null, {
+            ...details,
+            xhr: { status: details.status ?? 200, responseURL: details.responseURL ?? url },
+          });
+        });
+      };
+
+      const notify = () =>
+        checkIfAllowedToBeNotified({ message } as unknown as Exception, state, defaultHttpClient);
+
       beforeEach(() => {
-        state.capabilities.isSdkCdnBlocked.value = undefined;
+        state.capabilities.sdkCdnProbe.value = undefined;
         state.capabilities.isAdBlocked.value = false;
         state.capabilities.cspBlockedURLs.value = [];
         state.lifecycle.pluginsCDNPath.value = 'https://cdn.rudderlabs.com/3.20.1/modern/plugins';
       });
 
-      it('should record the CDN as blocked when the probe cannot reach it', async () => {
-        defaultHttpClient.getAsyncData.mockImplementation(({ callback }: any) => {
-          callback(null, { error: new Error('blocked') });
+      it('should record the probe outcome for the report', async () => {
+        probeResponds({ status: 503 });
+
+        await notify();
+
+        expect(state.capabilities.sdkCdnProbe.value).toEqual({
+          status: 503,
+          timedOut: false,
+          redirected: false,
         });
-
-        await checkIfAllowedToBeNotified(
-          { message } as unknown as Exception,
-          state,
-          defaultHttpClient,
-        );
-
-        expect(state.capabilities.isSdkCdnBlocked.value).toBe(true);
       });
 
-      it('should record the CDN as reachable when the probe succeeds', async () => {
-        defaultHttpClient.getAsyncData.mockImplementation(({ url, callback }: any) => {
-          callback(null, { xhr: { responseURL: url } });
-        });
+      it('should not notify when the request never reached the CDN', async () => {
+        probeResponds({ status: 0, error: new Error('blocked'), responseURL: '' });
 
-        await checkIfAllowedToBeNotified(
-          { message } as unknown as Exception,
-          state,
-          defaultHttpClient,
-        );
+        expect(await notify()).toBe(false);
+      });
 
-        expect(state.capabilities.isSdkCdnBlocked.value).toBe(false);
+      it('should not notify when the probe was redirected', async () => {
+        probeResponds({ status: 200, responseURL: 'https://blocker.local/stub.js' });
+
+        expect(await notify()).toBe(false);
+      });
+
+      it.each([[500], [403], [404]])(
+        'should notify when the CDN answered with %s',
+        async status => {
+          probeResponds({ status, error: new Error('server error') });
+
+          expect(await notify()).toBe(true);
+        },
+      );
+
+      it('should notify when the CDN is reachable', async () => {
+        probeResponds({ status: 200 });
+
+        expect(await notify()).toBe(true);
+      });
+
+      it('should notify when the probe timed out', async () => {
+        probeResponds({ status: 0, timedOut: true, error: new Error('timeout'), responseURL: '' });
+
+        expect(await notify()).toBe(true);
       });
 
       it('should notify even when an ad blocker is detected', async () => {
         state.capabilities.isAdBlocked.value = true;
-        defaultHttpClient.getAsyncData.mockImplementation(({ url, callback }: any) => {
-          callback(null, { xhr: { responseURL: url } });
-        });
+        probeResponds({ status: 200 });
 
-        const result = await checkIfAllowedToBeNotified(
-          { message } as unknown as Exception,
-          state,
-          defaultHttpClient,
-        );
-
-        // The ad blocker probe targets the source config host, not the CDN, so
-        // it says nothing about whether this failure is real.
-        expect(result).toBe(true);
-      });
-
-      it('should still notify regardless of the probe result', async () => {
-        defaultHttpClient.getAsyncData.mockImplementation(({ callback }: any) => {
-          callback(null, { error: new Error('blocked') });
-        });
-
-        const result = await checkIfAllowedToBeNotified(
-          { message } as unknown as Exception,
-          state,
-          defaultHttpClient,
-        );
-
-        // Diagnostic only: a blocked client and a CDN outage look identical here.
-        expect(result).toBe(true);
+        // The ad blocker probe targets the source config host, not the CDN.
+        expect(await notify()).toBe(true);
       });
     });
 
     describe('CSP blocked URLs filtering', () => {
       beforeEach(() => {
         // Mock successful HTTP request (no ad blocker)
-        defaultHttpClient.getAsyncData.mockImplementationOnce(({ callback }) => {
+        defaultHttpClient.getAsyncData.mockImplementationOnce(({ url, callback }: any) => {
           callback(null, {
             xhr: {
-              responseURL: 'https://api.rudderstack.com/sourceConfig?view=ad',
+              status: 200,
+              responseURL: url,
             },
           });
         });

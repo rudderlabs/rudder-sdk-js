@@ -150,17 +150,16 @@ const getBugsnagErrorEvent = (
 };
 
 /**
- * Records whether this client can reach the SDK CDN at all.
- * Purely diagnostic: it never suppresses, because a client-side block and a
- * CDN outage are indistinguishable from the browser.
+ * Probes the SDK CDN and records what came back, so the report can tell a
+ * request that never left the client from one the CDN answered with an error.
  */
-const detectSdkCdnBlocked = (
+const probeSdkCdn = (
   state: ApplicationState,
   httpClient: IHttpClient,
   done: () => void,
 ): void => {
   const baseURL = state.lifecycle.pluginsCDNPath.value;
-  if (isDefined(state.capabilities.isSdkCdnBlocked.value) || !isString(baseURL)) {
+  if (isDefined(state.capabilities.sdkCdnProbe.value) || !isString(baseURL)) {
     done();
     return;
   }
@@ -168,18 +167,28 @@ const detectSdkCdnBlocked = (
   const url = `${baseURL}/${CDN_PROBE_FILE}`;
   httpClient.getAsyncData({
     url,
+    // The CDN refuses preflight, so this has to stay a simple request: a HEAD
+    // carrying none of the headers the client would otherwise add.
+    skipAuthHeader: true,
     options: {
-      // HEAD is CORS-safelisted; any custom header would trigger a preflight,
-      // which the CDN rejects.
       method: 'HEAD',
       headers: {
         'Content-Type': undefined,
+        Accept: undefined,
       },
     },
     isRawResponse: true,
     callback: (_result: any, details: any) => {
-      state.capabilities.isSdkCdnBlocked.value =
-        details?.error !== undefined || details?.xhr?.responseURL !== url;
+      // A request that never reached the CDN reports status 0. A blocker that
+      // answers instead of dropping it lands on a different URL.
+      const status = details?.xhr?.status ?? 0;
+      const responseURL = details?.xhr?.responseURL;
+
+      state.capabilities.sdkCdnProbe.value = {
+        status,
+        timedOut: details?.timedOut === true,
+        redirected: status !== 0 && isString(responseURL) && responseURL !== url,
+      };
       done();
     },
   });
@@ -217,13 +226,22 @@ const checkIfAllowedToBeNotified = (
           // it probes the source config host rather than the CDN, and a client
           // that cannot reach the CDN is indistinguishable from a CDN outage, so
           // it must not suppress the error.
-          detectSdkCdnBlocked(state, httpClient, () => {
+          probeSdkCdn(state, httpClient, () => {
             // Browsers strip a cross-origin blockedURI down to its origin, so a
             // stored entry is a prefix of the failing URL rather than equal to it.
             const isCspBlocked = state.capabilities.cspBlockedURLs.value.some(
               (blockedURL: string) => extractedURL.startsWith(blockedURL),
             );
-            resolve(!isCspBlocked);
+
+            // A probe that never reached the CDN, or that was answered by
+            // something else, is a client-side failure: nothing server side
+            // produces either shape. A timeout is not attributable, and any
+            // status the CDN itself returned is worth reporting.
+            const probe = state.capabilities.sdkCdnProbe.value;
+            const isClientSideFailure =
+              probe !== undefined && !probe.timedOut && (probe.status === 0 || probe.redirected);
+
+            resolve(!isCspBlocked && !isClientSideFailure);
           });
         } else {
           // Filter out errors that are not from the RS CDN.

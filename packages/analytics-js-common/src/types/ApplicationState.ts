@@ -24,6 +24,13 @@ import type { UserSessionKey } from './UserSessionStorage';
 import type { RSAnalytics } from './IRudderAnalytics';
 import type { CustomContext } from './CustomContext';
 
+export type SdkCdnProbeResult = {
+  /** 0 when the request never reached the CDN; otherwise what the CDN answered with. */
+  status: number;
+  timedOut: boolean;
+  redirected: boolean;
+};
+
 export type CapabilitiesState = {
   isOnline: Signal<boolean>;
   storage: {
@@ -51,10 +58,11 @@ export type CapabilitiesState = {
    */
   cspBlockedURLs: Signal<string[]>;
   /**
-   * Whether this client could reach the SDK CDN when a script load failed.
-   * Diagnostic only - a blocked client and a CDN outage are indistinguishable.
+   * Outcome of the SDK CDN probe run when a CDN script load failed.
+   * status 0 means the request never reached the CDN (blocked, DNS, offline or
+   * CORS); any other status is what the CDN itself answered with.
    */
-  isSdkCdnBlocked: Signal<boolean | undefined>;
+  sdkCdnProbe: Signal<SdkCdnProbeResult | undefined>;
 };
 
 export type ConsentsState = {
