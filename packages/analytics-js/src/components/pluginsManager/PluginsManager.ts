@@ -276,6 +276,11 @@ class PluginsManager implements IPluginsManager {
     );
 
     const loadFailures: unknown[] = [];
+    // Kept separate from state.plugins.failedPlugins, which also collects
+    // unknown plugins from setActivePlugins, unavailable local plugins from
+    // registerLocalPlugins and registration failures from register(). Reporting
+    // the global list would attribute those to this remote load incident.
+    const failedRemotePlugins: string[] = [];
     let isIncidentReported = false;
 
     // A single remote entry failure rejects every plugin import, so the fan-out
@@ -295,7 +300,7 @@ class PluginsManager implements IPluginsManager {
         const firstFailure = loadFailures[0];
         this.onError(
           firstFailure,
-          `Failed to load plugins: ${state.plugins.failedPlugins.value.join(', ')}`,
+          `Failed to load plugins: ${failedRemotePlugins.join(', ')}`,
           firstFailure as SDKError,
         );
       });
@@ -307,12 +312,20 @@ class PluginsManager implements IPluginsManager {
           .then((remotePluginModule: any) => this.register([remotePluginModule.default()]))
           .catch(err => {
             // TODO: add retry here if dynamic import fails
+            failedRemotePlugins.push(remotePluginKey);
             state.plugins.failedPlugins.value = [
               ...state.plugins.failedPlugins.value,
               remotePluginKey,
             ];
             this.logger.error(
-              REMOTE_PLUGIN_LOAD_ERROR(PLUGINS_MANAGER, remotePluginKey, (err as Error)?.message),
+              REMOTE_PLUGIN_LOAD_ERROR(
+                PLUGINS_MANAGER,
+                remotePluginKey,
+                // A rejection is not guaranteed to be an Error; the assertion
+                // only silences the compiler, so the reason still needs a
+                // fallback or the log reads "- undefined".
+                (err as Error)?.message ?? String(err),
+              ),
             );
             loadFailures.push(err);
             reportIncidentOnce();
