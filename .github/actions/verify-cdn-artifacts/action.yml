@@ -92,6 +92,12 @@ runs:
         echo "Verifying: ${selected[*]}"
 
         deadline=$(( $(date +%s) + TIMEOUT_SECONDS ))
+        # Scoped to the run, not to each wait_for_urls call. The first pass is
+        # exempt from the deadline so the log can name every missing artifact,
+        # and this phase is called once per artifact group -- keeping the flag
+        # local would hand each group its own uncapped pass and timeout_seconds
+        # would stop being an upper bound on the run.
+        first_pass=1
 
         # Retries only the URLs that are still unreachable, so a slow artifact
         # does not re-fetch the ones that already answered.
@@ -101,7 +107,7 @@ runs:
           local match=$1
           shift
           local urls=("$@")
-          local pending url status out reason remaining budget first_pass=1
+          local pending url status out reason remaining budget
 
           while :; do
             pending=()
