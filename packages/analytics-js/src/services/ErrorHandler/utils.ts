@@ -237,11 +237,14 @@ const probeSdkCdn = (
 /**
  * A function to determine whether the error should be promoted to notify or not.
  * Script load failures from a host other than the RS CDN are not promoted.
- * For those from the RS CDN, the CDN reachability probe is awaited so its result
- * is carried in the report, and only a CSP violation suppresses the error. The
- * generic ad blocker signal is deliberately not consulted: it probes the source
- * config host, and a client that cannot reach the CDN cannot be told apart from
- * a CDN outage.
+ * For those from the RS CDN, a probe of the failed URL is awaited so its result
+ * is carried in the report, and the error is suppressed in exactly two cases: a
+ * CSP violation covering that URL, or a probe whose shape nothing server side
+ * produces -- a request that never reached the CDN, or one answered by
+ * something else. Any status the CDN itself returned is promoted.
+ * The generic ad blocker signal is deliberately not consulted: it probes the
+ * source config host, and a client that cannot reach the CDN cannot be told
+ * apart from a CDN outage.
  * Errors from other causes are promoted unless explicitly denylisted.
  * @param {Error} exception The error object
  * @param {ApplicationState} state The application state
