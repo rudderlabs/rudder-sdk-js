@@ -58,11 +58,13 @@ export type CapabilitiesState = {
    */
   cspBlockedURLs: Signal<string[]>;
   /**
-   * Outcome of the SDK CDN probe run when a CDN script load failed.
+   * Outcome of the SDK CDN probes, keyed by the URL probed. A plugin path can be
+   * blocked while an integration path is reachable, so a failure is only ever
+   * judged against a probe of its own URL.
    * status 0 means the request never reached the CDN (blocked, DNS, offline or
    * CORS); any other status is what the CDN itself answered with.
    */
-  sdkCdnProbe: Signal<SdkCdnProbeResult | undefined>;
+  sdkCdnProbe: Signal<Record<string, SdkCdnProbeResult>>;
 };
 
 export type ConsentsState = {
