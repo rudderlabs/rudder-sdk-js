@@ -238,11 +238,26 @@ runs:
         for listing in "${listings[@]}"; do
           count=0
 
+          # The listing is fetched to a file rather than piped straight into the
+          # loop: in a process substitution curl's exit status is invisible, so a
+          # response truncated after the first few links would leave count
+          # nonzero and narrow the check to whatever arrived. That is the partial
+          # upload this action exists to catch, so it has to be a hard failure.
+          listing_body=$(mktemp)
+
+          if ! curl -fsS --retry 2 --retry-delay 5 --retry-max-time "$REQUEST_TIMEOUT_SECONDS" --max-time "$REQUEST_TIMEOUT_SECONDS" -o "$listing_body" "$listing"; then
+            rm -f "$listing_body"
+            echo "::error::Failed to download ${listing}"
+            exit 1
+          fi
+
           while IFS= read -r url; do
             [ -n "$url" ] || continue
             listed+=("$url")
             count=$(( count + 1 ))
-          done < <(curl -sS --retry 2 --retry-delay 5 --retry-max-time "$REQUEST_TIMEOUT_SECONDS" --max-time "$REQUEST_TIMEOUT_SECONDS" "$listing" | grep -oE 'href="[^"]+\.js"' | sed -e 's/^href="//' -e 's/"$//' | sort -u)
+          done < <(grep -oE 'href="[^"]+\.js"' "$listing_body" | sed -e 's/^href="//' -e 's/"$//' | sort -u)
+
+          rm -f "$listing_body"
 
           if [ "$count" -eq 0 ]; then
             echo "::error::${listing} names no JavaScript artifacts"
