@@ -260,7 +260,7 @@ const checkIfAllowedToBeNotified = (
     if (SCRIPT_LOAD_FAILURE_MESSAGES.some((regex: RegExp) => regex.test(errMsg))) {
       const extractedURL = /https?:\/\/[^\s"'(),;<>[\]{}]+/.exec(errMsg)?.[0];
       if (isString(extractedURL)) {
-        if (extractedURL.startsWith(SDK_CDN_BASE_URL)) {
+        if (isSameOrUnder(extractedURL, SDK_CDN_BASE_URL)) {
           // Wait for the CDN reachability probe so its result is carried in the
           // report. The generic ad blocker signal is deliberately not consulted:
           // it probes the source config host rather than the CDN, and a client

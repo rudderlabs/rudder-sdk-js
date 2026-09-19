@@ -1017,8 +1017,10 @@ describe('Error Reporting utilities', () => {
         expect(result).toBe(false);
       });
 
-      it('should not treat a look-alike host as the blocked origin', async () => {
+      it('should not treat a look-alike host as the RS CDN', async () => {
+        const probed: string[] = [];
         defaultHttpClient.getAsyncData.mockImplementation(({ url, callback }: any) => {
+          probed.push(url);
           callback(null, { xhr: { status: 200, responseURL: url } });
         });
         state.capabilities.cspBlockedURLs.value = ['https://cdn.rudderlabs.com'];
@@ -1032,8 +1034,10 @@ describe('Error Reporting utilities', () => {
           defaultHttpClient,
         );
 
-        // A bare string prefix would match the origin entry and suppress this.
-        expect(result).toBe(true);
+        // Filtered as a third-party script failure, not as one of ours.
+        expect(result).toBe(false);
+        // A bare string prefix accepted this host as the CDN and probed it.
+        expect(probed).toEqual([]);
       });
 
       it('should not treat a source map as the blocked script', async () => {

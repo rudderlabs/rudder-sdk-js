@@ -1,4 +1,7 @@
-import type { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
+import type {
+  IRequestConfig,
+  ResponseDetails,
+} from '@rudderstack/analytics-js-common/types/HttpClient';
 import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
 import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
 import { HttpClient } from '../../../src/services/HttpClient';
@@ -97,14 +100,14 @@ describe('HttpClient', () => {
     expect(clientInstance.basicAuthHeader).toBeUndefined();
   });
 
-  const authHeaderFor = async (config: Record<string, unknown>) => {
+  const authHeaderFor = async (config: Pick<IRequestConfig, 'skipAuthHeader'>) => {
     clientInstance.setAuthHeader('dummyWriteKey');
     await new Promise<void>(resolve => {
       clientInstance.getAsyncData({
         url: `${dummyDataplaneHost}/jsonSample`,
         callback: () => resolve(),
         ...config,
-      } as any);
+      });
     });
     return (xhrRequest as jest.Mock).mock.calls[0][0].headers.Authorization;
   };
