@@ -1,0 +1,111 @@
+name: 'Verify CDN Artifacts'
+description: 'Asserts that the published SDK artifacts are reachable on the CDN, with an optional bounded retry window'
+
+inputs:
+  base_cdn_url:
+    description: 'Base CDN URL the artifacts are published under'
+    required: true
+  sdk_version:
+    description: 'Versioned CDN directory holding the pinned plugin artifacts. Required whenever plugin artifacts are verified.'
+    required: false
+    default: ''
+  s3_dir_path:
+    description: 'Floating CDN directory holding the live core bundle. Empty skips the core check.'
+    required: false
+    default: ''
+  plugins_src:
+    description: 'Local directory of built plugin artifacts. Every *.js in it is verified under the versioned plugins directory.'
+    required: false
+    default: ''
+  plugin_artifacts:
+    description: 'Newline-separated artifact names to verify under the versioned plugins directory, for callers that have no local build to enumerate.'
+    required: false
+    default: ''
+  timeout_seconds:
+    description: 'How long to keep retrying artifacts that are not reachable yet. 0 checks once and fails.'
+    required: false
+    default: '0'
+  poll_interval_seconds:
+    description: 'Delay between retries'
+    required: false
+    default: '20'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Verify the artifacts are reachable
+      shell: bash
+      env:
+        BASE_CDN_URL: ${{ inputs.base_cdn_url }}
+        SDK_VERSION: ${{ inputs.sdk_version }}
+        S3_DIR_PATH: ${{ inputs.s3_dir_path }}
+        PLUGINS_SRC: ${{ inputs.plugins_src }}
+        PLUGIN_ARTIFACTS: ${{ inputs.plugin_artifacts }}
+        TIMEOUT_SECONDS: ${{ inputs.timeout_seconds }}
+        POLL_INTERVAL_SECONDS: ${{ inputs.poll_interval_seconds }}
+      run: |
+        # A release gate that silently verifies nothing is worse than no gate.
+        if [ -z "$SDK_VERSION" ] && { [ -n "$PLUGINS_SRC" ] || [ -n "$PLUGIN_ARTIFACTS" ]; }; then
+          echo "::error::sdk_version is required to verify plugin artifacts"
+          exit 1
+        fi
+
+        urls=()
+
+        if [ -n "$SDK_VERSION" ]; then
+          plugins_url_prefix="${BASE_CDN_URL}/${SDK_VERSION}/modern/plugins"
+
+          # Every built entry point and chunk, not just the remote ones: a
+          # missing shared chunk breaks the remote plugins that import it.
+          if [ -n "$PLUGINS_SRC" ]; then
+            for artifact in "${PLUGINS_SRC}"/*.js; do
+              urls+=("${plugins_url_prefix}/$(basename "$artifact")")
+            done
+          fi
+
+          while IFS= read -r artifact; do
+            [ -n "$artifact" ] || continue
+            urls+=("${plugins_url_prefix}/${artifact}")
+          done <<< "$PLUGIN_ARTIFACTS"
+        fi
+
+        if [ -n "$S3_DIR_PATH" ]; then
+          urls+=("${BASE_CDN_URL}/${S3_DIR_PATH}/modern/rsa.min.js")
+        fi
+
+        if [ "${#urls[@]}" -eq 0 ]; then
+          echo "::error::Nothing to verify: none of sdk_version or s3_dir_path were provided"
+          exit 1
+        fi
+
+        deadline=$(( $(date +%s) + TIMEOUT_SECONDS ))
+
+        while :; do
+          pending=()
+
+          for url in "${urls[@]}"; do
+            status=$(curl -sS -o /dev/null -w '%{http_code}' --retry 2 --retry-delay 5 --max-time 30 "$url" || echo '000')
+
+            if [ "$status" = "200" ]; then
+              echo "ok  $status  $url"
+            else
+              echo "$url returned $status"
+              pending+=("$url")
+            fi
+          done
+
+          if [ "${#pending[@]}" -eq 0 ]; then
+            exit 0
+          fi
+
+          if [ "$(date +%s)" -ge "$deadline" ]; then
+            for url in "${pending[@]}"; do
+              echo "::error::$url is not reachable on the CDN"
+            done
+            exit 1
+          fi
+
+          echo "${#pending[@]} artifact(s) not reachable yet; retrying in ${POLL_INTERVAL_SECONDS}s"
+          urls=("${pending[@]}")
+          sleep "${POLL_INTERVAL_SECONDS}"
+        done
