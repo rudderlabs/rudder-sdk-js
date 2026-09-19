@@ -150,13 +150,6 @@ const getBugsnagErrorEvent = (
 };
 
 /**
- * A function to check if adblockers are active. The promise's resolve function
- * is invoked with true if adblockers are not detected and false otherwise.
- * @param {ApplicationState} state The application state
- * @param {IHttpClient} httpClient The HTTP client instance
- * @param {Function} resolve The promise's resolve function
- */
-/**
  * Records whether this client can reach the SDK CDN at all.
  * Purely diagnostic: it never suppresses, because a client-side block and a
  * CDN outage are indistinguishable from the browser.
@@ -194,9 +187,13 @@ const detectSdkCdnBlocked = (
 
 /**
  * A function to determine whether the error should be promoted to notify or not.
- * For plugin and integration errors from RS CDN, if it is due to CSP blocked URLs or AdBlockers,
- * it will not be promoted to notify.
- * If it is due to other reasons, it will be promoted to notify.
+ * Script load failures from a host other than the RS CDN are not promoted.
+ * For those from the RS CDN, the CDN reachability probe is awaited so its result
+ * is carried in the report, and only a CSP violation suppresses the error. The
+ * generic ad blocker signal is deliberately not consulted: it probes the source
+ * config host, and a client that cannot reach the CDN cannot be told apart from
+ * a CDN outage.
+ * Errors from other causes are promoted unless explicitly denylisted.
  * @param {Error} exception The error object
  * @param {ApplicationState} state The application state
  * @param {IHttpClient} httpClient The HTTP client instance
@@ -215,7 +212,6 @@ const checkIfAllowedToBeNotified = (
       const extractedURL = /https?:\/\/[^\s"'(),;<>[\]{}]+/.exec(errMsg)?.[0];
       if (isString(extractedURL)) {
         if (extractedURL.startsWith(SDK_CDN_BASE_URL)) {
-          // Filter out errors that are from CSP blocked URLs.
           // Wait for the CDN reachability probe so its result is carried in the
           // report. The generic ad blocker signal is deliberately not consulted:
           // it probes the source config host rather than the CDN, and a client
