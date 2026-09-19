@@ -33,16 +33,10 @@ import {
   SDK_GITHUB_URL,
   SOURCE_NAME,
 } from './constants';
-import {
-  isDefined,
-  isString,
-  isUndefined,
-} from '@rudderstack/analytics-js-common/utilities/checks';
+import { isDefined, isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { normalizeError } from './ErrorEvent/event';
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
-import { detectAdBlockers } from '../../components/capabilitiesManager/detection/adBlockers';
-import { effect } from '@preact/signals-core';
 
 const getErrInstance = (err: SDKError, errorType: string) => {
   switch (errorType) {
@@ -162,35 +156,6 @@ const getBugsnagErrorEvent = (
  * @param {IHttpClient} httpClient The HTTP client instance
  * @param {Function} resolve The promise's resolve function
  */
-const checkIfAdBlockersAreActive = (
-  state: ApplicationState,
-  httpClient: IHttpClient,
-  resolve: (value: boolean) => void,
-): void => {
-  // Initiate ad blocker detection if not done previously and not already in progress.
-  if (isUndefined(state.capabilities.isAdBlocked.value)) {
-    if (state.capabilities.isAdBlockerDetectionInProgress.value === false) {
-      detectAdBlockers(httpClient);
-    }
-
-    // Wait for the detection to complete. The probe runs through the XHR client,
-    // which always settles (xhr.timeout plus ontimeout/onerror), so the callback
-    // is guaranteed and no separate guard is needed here.
-    const detectionDisposer = effect(() => {
-      if (isDefined(state.capabilities.isAdBlocked.value)) {
-        // If ad blocker is not detected, notify.
-        resolve(state.capabilities.isAdBlocked.value === false);
-
-        // Cleanup the effect.
-        detectionDisposer();
-      }
-    });
-  } else {
-    // If ad blocker is not detected, notify.
-    resolve(state.capabilities.isAdBlocked.value === false);
-  }
-};
-
 /**
  * Records whether this client can reach the SDK CDN at all.
  * Purely diagnostic: it never suppresses, because a client-side block and a
@@ -251,20 +216,18 @@ const checkIfAllowedToBeNotified = (
       if (isString(extractedURL)) {
         if (extractedURL.startsWith(SDK_CDN_BASE_URL)) {
           // Filter out errors that are from CSP blocked URLs.
-          // Record CDN reachability for the report before deciding anything.
+          // Wait for the CDN reachability probe so its result is carried in the
+          // report. The generic ad blocker signal is deliberately not consulted:
+          // it probes the source config host rather than the CDN, and a client
+          // that cannot reach the CDN is indistinguishable from a CDN outage, so
+          // it must not suppress the error.
           detectSdkCdnBlocked(state, httpClient, () => {
             // Browsers strip a cross-origin blockedURI down to its origin, so a
             // stored entry is a prefix of the failing URL rather than equal to it.
-            if (
-              state.capabilities.cspBlockedURLs.value.some((blockedURL: string) =>
-                extractedURL.startsWith(blockedURL),
-              )
-            ) {
-              resolve(false);
-            } else {
-              // Filter out errors if adblockers are detected.
-              checkIfAdBlockersAreActive(state, httpClient, resolve);
-            }
+            const isCspBlocked = state.capabilities.cspBlockedURLs.value.some(
+              (blockedURL: string) => extractedURL.startsWith(blockedURL),
+            );
+            resolve(!isCspBlocked);
           });
         } else {
           // Filter out errors that are not from the RS CDN.
@@ -408,6 +371,5 @@ export {
   getUserDetails, // for testing
   getDeviceDetails, // for testing
   getErrorGroupingHash,
-  checkIfAdBlockersAreActive, // for testing
   getErrorCategory,
 };

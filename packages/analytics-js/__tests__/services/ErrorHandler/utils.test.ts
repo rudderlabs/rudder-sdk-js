@@ -20,7 +20,6 @@ import {
   checkIfAllowedToBeNotified,
   isSDKError,
   getErrorGroupingHash,
-  checkIfAdBlockersAreActive,
   getErrorCategory,
 } from '../../../src/services/ErrorHandler/utils';
 
@@ -886,6 +885,23 @@ describe('Error Reporting utilities', () => {
         expect(state.capabilities.isSdkCdnBlocked.value).toBe(false);
       });
 
+      it('should notify even when an ad blocker is detected', async () => {
+        state.capabilities.isAdBlocked.value = true;
+        defaultHttpClient.getAsyncData.mockImplementation(({ url, callback }: any) => {
+          callback(null, { xhr: { responseURL: url } });
+        });
+
+        const result = await checkIfAllowedToBeNotified(
+          { message } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        // The ad blocker probe targets the source config host, not the CDN, so
+        // it says nothing about whether this failure is real.
+        expect(result).toBe(true);
+      });
+
       it('should still notify regardless of the probe result', async () => {
         defaultHttpClient.getAsyncData.mockImplementation(({ callback }: any) => {
           callback(null, { error: new Error('blocked') });
@@ -1020,25 +1036,6 @@ describe('Error Reporting utilities', () => {
         expect(result).toBe(true); // Should proceed to ad blocker check and return true since no ad blocker
       });
 
-      it('should properly handle the logic flow when CSP check passes but ad blocker check fails', async () => {
-        const scriptUrl =
-          'https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js';
-
-        // Empty CSP blocked list, but ad blocker detected
-        state.capabilities.cspBlockedURLs.value = [];
-        state.capabilities.isAdBlocked.value = true;
-
-        const message = `PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: ${scriptUrl}`;
-
-        const result = await checkIfAllowedToBeNotified(
-          { message } as unknown as Exception,
-          state,
-          defaultHttpClient,
-        );
-
-        expect(result).toBe(false);
-      });
-
       it('should not notify for non-RudderStack CDN URLs even if not CSP blocked', async () => {
         const nonRSUrl = 'https://cdn.example.com/3.20.1/modern/plugins/plugin.min.js';
 
@@ -1054,190 +1051,6 @@ describe('Error Reporting utilities', () => {
         );
 
         expect(result).toBe(false); // Should not notify for non-RS CDN URLs
-      });
-    });
-
-    describe('Ad blocker detection integration', () => {
-      beforeEach(() => {
-        // Reset ad blocker state
-        state.capabilities.isAdBlocked.value = undefined;
-        state.capabilities.isAdBlockerDetectionInProgress.value = false;
-      });
-
-      it('should not notify if ad blocker is detected for RS CDN URLs', async () => {
-        // Mock ad blocker detected
-        state.capabilities.isAdBlocked.value = true;
-
-        const message =
-          'PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js';
-
-        const result = await checkIfAllowedToBeNotified(
-          { message } as unknown as Exception,
-          state,
-          defaultHttpClient,
-        );
-
-        expect(result).toBe(false);
-      });
-
-      it('should notify if ad blocker is not detected for RS CDN URLs', async () => {
-        // Mock no ad blocker detected
-        state.capabilities.isAdBlocked.value = false;
-
-        const message =
-          'PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js';
-
-        const result = await checkIfAllowedToBeNotified(
-          { message } as unknown as Exception,
-          state,
-          defaultHttpClient,
-        );
-
-        expect(result).toBe(true);
-      });
-
-      it('should trigger ad blocker detection if not done previously (adblockers are not detected)', async () => {
-        // Mock ad blocker detection not done yet
-        state.capabilities.isAdBlocked.value = undefined;
-        state.capabilities.isAdBlockerDetectionInProgress.value = false;
-
-        const message =
-          'PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js';
-
-        const result = await checkIfAllowedToBeNotified(
-          { message } as unknown as Exception,
-          state,
-          defaultHttpClient,
-        );
-
-        expect(result).toBe(true);
-      });
-
-      it('should trigger ad blocker detection if not done previously (adblockers are detected)', async () => {
-        // Mock ad blocker detection not done yet
-        state.capabilities.isAdBlocked.value = undefined;
-        state.capabilities.isAdBlockerDetectionInProgress.value = false;
-
-        // Mock HTTP client for ad blocker detection
-        defaultHttpClient.getAsyncData.mockClear();
-        defaultHttpClient.getAsyncData.mockReset();
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        defaultHttpClient.getAsyncData.mockImplementation(({ callback, ...rest }) => {
-          // Simulate ad blocker detection request
-          setTimeout(() => {
-            callback(null, {
-              error: new Error('Request blocked'),
-            });
-          }, 10);
-        });
-
-        const message =
-          'PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js';
-
-        // The detectAdBlockers function will run and set isAdBlocked.value based on the mock
-        const result = await checkIfAllowedToBeNotified(
-          { message } as unknown as Exception,
-          state,
-          defaultHttpClient,
-        );
-
-        expect(result).toBe(false); // Should not notify because ad blocker detected
-        expect(state.capabilities.isAdBlocked.value).toBe(true); // Verify ad blocker was detected
-      });
-
-      it('should not trigger duplicate ad blocker detection if already in progress', async () => {
-        // Mock ad blocker detection already in progress
-        state.capabilities.isAdBlocked.value = undefined;
-        state.capabilities.isAdBlockerDetectionInProgress.value = true;
-
-        const message =
-          'PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js';
-
-        // Start the checkIfAllowedToBeNotified function
-        const resultPromise = checkIfAllowedToBeNotified(
-          { message } as unknown as Exception,
-          state,
-          defaultHttpClient,
-        );
-
-        // Use a Promise with immediate resolution to ensure effect is set up first
-        await new Promise(resolve => setTimeout(resolve, 0));
-
-        // Complete the ad blocker detection with no ad blocker detected
-        state.capabilities.isAdBlocked.value = false; // No ad blocker detected
-
-        const result = await resultPromise;
-
-        expect(result).toBe(true); // Should notify because no ad blocker detected
-      });
-
-      it('should handle complete workflow for RudderStack CDN URLs with proper validation', async () => {
-        const rsUrl = 'https://cdn.rudderlabs.com/v3/modern/plugins/test-plugin.min.js';
-
-        // Setup: URL not CSP blocked, no ad blocker detected
-        state.capabilities.cspBlockedURLs.value = [
-          'https://cdn.rudderlabs.com/different-plugin.min.js',
-        ]; // Different URL
-        state.capabilities.isAdBlocked.value = false;
-        state.capabilities.isAdBlockerDetectionInProgress.value = false;
-
-        const message = `PluginsManager:: Failed to load plugin "Test" - Failed to fetch dynamically imported module: ${rsUrl}`;
-
-        const result = await checkIfAllowedToBeNotified(
-          { message } as unknown as Exception,
-          state,
-          defaultHttpClient,
-        );
-
-        // Should pass all checks:
-        // 1. Is script load failure message ✓
-        // 2. URL extracted successfully ✓
-        // 3. Is RudderStack CDN URL ✓
-        // 4. Not in CSP blocked list ✓
-        // 5. Ad blocker not detected ✓
-        expect(result).toBe(true);
-      });
-    });
-
-    describe('Combined CSP and ad blocker filtering', () => {
-      it('should not notify if URL is CSP blocked, regardless of ad blocker status', async () => {
-        const blockedUrl =
-          'https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js';
-
-        // Set CSP blocked and no ad blocker
-        state.capabilities.cspBlockedURLs.value = [blockedUrl];
-        state.capabilities.isAdBlocked.value = false;
-
-        const message = `PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: ${blockedUrl}`;
-
-        const result = await checkIfAllowedToBeNotified(
-          { message } as unknown as Exception,
-          state,
-          defaultHttpClient,
-        );
-
-        expect(result).toBe(false);
-      });
-
-      it('should check ad blocker only if URL is not CSP blocked', async () => {
-        const scriptUrl =
-          'https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js';
-        const differentBlockedUrl =
-          'https://cdn.rudderlabs.com/3.20.1/modern/plugins/different-plugin.min.js';
-
-        // Set different URL as CSP blocked, and mock ad blocker detected
-        state.capabilities.cspBlockedURLs.value = [differentBlockedUrl];
-        state.capabilities.isAdBlocked.value = true;
-
-        const message = `PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: ${scriptUrl}`;
-
-        const result = await checkIfAllowedToBeNotified(
-          { message } as unknown as Exception,
-          state,
-          defaultHttpClient,
-        );
-
-        expect(result).toBe(false); // Should not notify due to ad blocker
       });
     });
 
@@ -1644,71 +1457,4 @@ describe('Error Reporting utilities', () => {
     });
   });
 
-  describe('checkIfAdBlockersAreActive', () => {
-    beforeEach(() => {
-      // Reset ad blocker state
-      state.capabilities.isAdBlocked.value = undefined;
-      state.capabilities.isAdBlockerDetectionInProgress.value = false;
-    });
-
-    afterEach(() => {
-      jest.clearAllMocks();
-    });
-
-    it('should immediately resolve with true when ad blocker is not detected', () => {
-      state.capabilities.isAdBlocked.value = false;
-      const mockResolve = jest.fn();
-
-      checkIfAdBlockersAreActive(state, defaultHttpClient, mockResolve);
-
-      expect(mockResolve).toHaveBeenCalledWith(true);
-    });
-
-    it('should immediately resolve with false when ad blocker is detected', () => {
-      state.capabilities.isAdBlocked.value = true;
-      const mockResolve = jest.fn();
-
-      checkIfAdBlockersAreActive(state, defaultHttpClient, mockResolve);
-
-      expect(mockResolve).toHaveBeenCalledWith(false);
-    });
-
-    it('should set up effect listener when ad blocker status is undefined and not in progress', () => {
-      state.capabilities.isAdBlocked.value = undefined;
-      state.capabilities.isAdBlockerDetectionInProgress.value = false;
-      const mockResolve = jest.fn();
-
-      checkIfAdBlockersAreActive(state, defaultHttpClient, mockResolve);
-
-      // Should not resolve immediately but wait for effect
-      expect(mockResolve).not.toHaveBeenCalled();
-    });
-
-    it('should not trigger duplicate detection when already in progress', () => {
-      state.capabilities.isAdBlocked.value = undefined;
-      state.capabilities.isAdBlockerDetectionInProgress.value = true;
-      const mockResolve = jest.fn();
-
-      checkIfAdBlockersAreActive(state, defaultHttpClient, mockResolve);
-
-      // Should not resolve immediately but wait for effect
-      expect(mockResolve).not.toHaveBeenCalled();
-    });
-
-    it('should resolve when detection completes via effect', async () => {
-      state.capabilities.isAdBlocked.value = undefined;
-      state.capabilities.isAdBlockerDetectionInProgress.value = false;
-      const mockResolve = jest.fn();
-
-      checkIfAdBlockersAreActive(state, defaultHttpClient, mockResolve);
-
-      // Simulate detection completion
-      state.capabilities.isAdBlocked.value = false;
-
-      // Wait for effect to trigger
-      await new Promise(resolve => setTimeout(resolve, 0));
-
-      expect(mockResolve).toHaveBeenCalledWith(true);
-    });
-  });
 });
