@@ -438,7 +438,11 @@ jobs:
           # The floating path already holds the previous release, so a copy that
           # silently failed would answer 200 and this step would pass while the
           # Slack message below announced the new version.
-          sdk_version: ${{ env.CURRENT_VERSION_VALUE }}
+          #
+          # Production only: naming a version also makes the action assert the
+          # versioned prefix, and only production uploads one. Elsewhere this
+          # stays a plain reachability check of the floating path.
+          sdk_version: ${{ inputs.environment == 'production' && env.CURRENT_VERSION_VALUE || '' }}
 
       - name: Get Job URL
         id: get-job-url
