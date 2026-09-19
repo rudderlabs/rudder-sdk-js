@@ -15,8 +15,9 @@ const defaultStateValues: ApplicationState = {
     isLegacyDOM: signal(false),
     isUaCHAvailable: signal(false),
     isCryptoAvailable: signal(false),
-    isIE11: signal(false),
+    isAdBlockerDetectionInProgress: signal(false),
     isAdBlocked: signal(false),
+    cspBlockedURLs: signal([]),
     sdkCdnProbe: signal(undefined),
   },
   consents: {
