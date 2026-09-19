@@ -1108,15 +1108,15 @@ describe('Error Reporting utilities', () => {
         expect(result).toBe(true);
       });
 
-      it('should handle CSP blocked URL and continue to ad blocker check when URL is not CSP blocked', async () => {
+      it('should notify when a different URL is CSP blocked', async () => {
         const scriptUrl =
           'https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js';
         const differentBlockedUrl =
           'https://cdn.rudderlabs.com/3.20.1/modern/plugins/different-plugin.min.js';
 
-        // Set different URL as CSP blocked, so our script URL should proceed to ad blocker check
+        // Only this URL's own CSP entry can suppress it, so a different one
+        // leaves the verdict to the probe.
         state.capabilities.cspBlockedURLs.value = [differentBlockedUrl];
-        state.capabilities.isAdBlocked.value = false; // Mock ad blocker not detected
 
         const message = `PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: ${scriptUrl}`;
 
@@ -1126,7 +1126,7 @@ describe('Error Reporting utilities', () => {
           defaultHttpClient,
         );
 
-        expect(result).toBe(true); // Should proceed to ad blocker check and return true since no ad blocker
+        expect(result).toBe(true);
       });
 
       it('should not notify for non-RudderStack CDN URLs even if not CSP blocked', async () => {
@@ -1246,9 +1246,8 @@ describe('Error Reporting utilities', () => {
         const rsUrl = 'https://cdn.rudderlabs.com/v3/modern/plugins/test.min.js';
         const nonRsUrl = 'https://cdn.example.com/v3/modern/plugins/test.min.js';
 
-        // Test RudderStack CDN URL (should proceed to CSP/ad blocker checks)
+        // Test RudderStack CDN URL (should proceed to the CSP and probe checks)
         state.capabilities.cspBlockedURLs.value = [];
-        state.capabilities.isAdBlocked.value = false;
 
         const rsMessage = `PluginsManager:: Failed to load plugin "Test" - Failed to fetch dynamically imported module: ${rsUrl}`;
         const rsResult = await checkIfAllowedToBeNotified(
