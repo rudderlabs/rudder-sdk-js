@@ -265,15 +265,18 @@ jobs:
 
       # `aws s3 cp` exiting 0 says nothing about whether every chunk landed, and
       # nothing else in the pipeline ever fetches a published URL. The pinned
-      # plugin directory is what the core will point its remote imports at, so a
-      # partial upload has to fail the job here -- deliberately before the core
-      # is copied to the common production path below, which is the ordering the
+      # plugin directory is what the core will point its remote imports at, and
+      # the integrations beside it are loaded by name at runtime, so a partial
+      # upload has to fail the job here -- deliberately before the core is
+      # copied to the common production path below, which is the ordering the
       # versioned-first upload above exists to preserve.
-      - name: Verify published SDK plugin artifacts (versioned directory)
+      - name: Verify published SDK plugin and integration artifacts (versioned directory)
         if: ${{ inputs.environment == 'production' }}
         uses: ./.github/actions/verify-cdn-artifacts
         with:
           base_cdn_url: ${{ inputs.base_cdn_url }}
+          verify_plugins: 'true'
+          verify_integrations: 'true'
           sdk_version: ${{ env.CURRENT_VERSION_VALUE }}
           plugins_src: ${{ env.PLUGINS_ARTIFACTS_BASE_PATH }}/modern/plugins
 
@@ -429,6 +432,7 @@ jobs:
         uses: ./.github/actions/verify-cdn-artifacts
         with:
           base_cdn_url: ${{ inputs.base_cdn_url }}
+          verify_core: 'true'
           s3_dir_path: ${{ inputs.s3_dir_path }}
 
       - name: Get Job URL

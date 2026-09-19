@@ -340,12 +340,12 @@ jobs:
   # upgrading consumer 403s on /<version>/modern/plugins/*.
   #
   # Assert the property the npm packages actually depend on -- the artifacts
-  # are on the CDN -- rather than the CI state that stands in for it. The
-  # plugin listing is uploaded after the recursive upload of the pinned
-  # directory returns, so it doubles as the marker that the directory is
-  # populated, and the core at the floating path is the last artifact a deploy
-  # publishes. An unpublished npm version is recoverable, a published one
-  # pointing at a missing CDN directory is not.
+  # are on the CDN -- rather than the CI state that stands in for it. Each
+  # generated listing is uploaded after the recursive upload of its directory
+  # returns, so it doubles as the marker that the directory is populated, and
+  # the core at the floating path is the last artifact a deploy publishes. An
+  # unpublished npm version is recoverable, a published one pointing at a
+  # missing CDN directory is not.
   verify-cdn-artifacts:
     name: Verify the production CDN artifacts
     needs: [get-release-inputs]
@@ -372,11 +372,11 @@ jobs:
         uses: ./.github/actions/verify-cdn-artifacts
         with:
           base_cdn_url: 'https://cdn.rudderlabs.com'
+          verify_core: 'true'
+          verify_plugins: 'true'
+          verify_integrations: 'true'
           sdk_version: ${{ needs.get-release-inputs.outputs.release_version }}
           s3_dir_path: 'v3'
-          plugin_artifacts: |
-            all_plugins.tar.gz
-            list.html
           timeout_seconds: '2700'
           poll_interval_seconds: '20'
 

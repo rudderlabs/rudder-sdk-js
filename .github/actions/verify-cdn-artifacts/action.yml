@@ -1,26 +1,38 @@
 name: 'Verify CDN Artifacts'
-description: 'Asserts that the published SDK artifacts are reachable on the CDN, with an optional bounded retry window'
+description: 'Asserts that the selected published SDK artifacts are reachable on the CDN, with an optional bounded retry window'
 
 inputs:
   base_cdn_url:
     description: 'Base CDN URL the artifacts are published under'
     required: true
+  verify_core:
+    description: 'Verify the core bundle at <base_cdn_url>/<s3_dir_path>/modern/rsa.min.js'
+    required: false
+    default: 'false'
+  verify_plugins:
+    description: 'Verify the plugins published under <base_cdn_url>/<sdk_version>/modern/plugins'
+    required: false
+    default: 'false'
+  verify_integrations:
+    description: 'Verify the legacy and modern integrations published under <base_cdn_url>/<sdk_version>'
+    required: false
+    default: 'false'
   sdk_version:
-    description: 'Versioned CDN directory holding the pinned plugin artifacts. Required whenever plugin artifacts are verified.'
+    description: 'Versioned CDN directory. Required by verify_plugins and verify_integrations.'
     required: false
     default: ''
   s3_dir_path:
-    description: 'Floating CDN directory holding the live core bundle. Empty skips the core check.'
+    description: 'Floating CDN directory. Required by verify_core.'
     required: false
     default: ''
   plugins_src:
-    description: 'Local directory of built plugin artifacts. Every *.js in it is verified under the versioned plugins directory.'
+    description: 'Local directory of built plugin artifacts. When set, every *.js in it is verified individually on top of the plugins listing.'
     required: false
     default: ''
-  plugin_artifacts:
-    description: 'Newline-separated artifact names to verify under the versioned plugins directory, for callers that have no local build to enumerate.'
+  listing_file:
+    description: 'Generated listing each recursive upload writes last. Must match INTEGRATIONS_HTML_FILE / PLUGINS_HTML_FILE in deploy.yml.'
     required: false
-    default: ''
+    default: 'list.html'
   timeout_seconds:
     description: 'How long to keep retrying artifacts that are not reachable yet. 0 checks once and fails.'
     required: false
@@ -37,45 +49,71 @@ runs:
       shell: bash
       env:
         BASE_CDN_URL: ${{ inputs.base_cdn_url }}
+        VERIFY_CORE: ${{ inputs.verify_core }}
+        VERIFY_PLUGINS: ${{ inputs.verify_plugins }}
+        VERIFY_INTEGRATIONS: ${{ inputs.verify_integrations }}
         SDK_VERSION: ${{ inputs.sdk_version }}
         S3_DIR_PATH: ${{ inputs.s3_dir_path }}
         PLUGINS_SRC: ${{ inputs.plugins_src }}
-        PLUGIN_ARTIFACTS: ${{ inputs.plugin_artifacts }}
+        LISTING_FILE: ${{ inputs.listing_file }}
         TIMEOUT_SECONDS: ${{ inputs.timeout_seconds }}
         POLL_INTERVAL_SECONDS: ${{ inputs.poll_interval_seconds }}
       run: |
-        # A release gate that silently verifies nothing is worse than no gate.
-        if [ -z "$SDK_VERSION" ] && { [ -n "$PLUGINS_SRC" ] || [ -n "$PLUGIN_ARTIFACTS" ]; }; then
-          echo "::error::sdk_version is required to verify plugin artifacts"
+        selected=()
+        invalid=0
+
+        if [ "$VERIFY_CORE" = "true" ]; then
+          selected+=("core")
+          [ -n "$S3_DIR_PATH" ] || { echo "::error::verify_core requires s3_dir_path"; invalid=1; }
+        fi
+
+        if [ "$VERIFY_PLUGINS" = "true" ]; then
+          selected+=("plugins")
+          [ -n "$SDK_VERSION" ] || { echo "::error::verify_plugins requires sdk_version"; invalid=1; }
+        fi
+
+        if [ "$VERIFY_INTEGRATIONS" = "true" ]; then
+          selected+=("integrations")
+          [ -n "$SDK_VERSION" ] || { echo "::error::verify_integrations requires sdk_version"; invalid=1; }
+        fi
+
+        if [ "${#selected[@]}" -eq 0 ]; then
+          echo "::error::Set at least one of verify_core, verify_plugins, verify_integrations"
           exit 1
         fi
 
+        [ "$invalid" -eq 0 ] || exit 1
+
+        echo "Verifying: ${selected[*]}"
+
         urls=()
 
-        if [ -n "$SDK_VERSION" ]; then
-          plugins_url_prefix="${BASE_CDN_URL}/${SDK_VERSION}/modern/plugins"
+        if [ "$VERIFY_CORE" = "true" ]; then
+          urls+=("${BASE_CDN_URL}/${S3_DIR_PATH}/modern/rsa.min.js")
+        fi
+
+        if [ "$VERIFY_PLUGINS" = "true" ]; then
+          plugins_prefix="${BASE_CDN_URL}/${SDK_VERSION}/modern/plugins"
+
+          # The listing is uploaded after the recursive upload of the directory
+          # returns, so it doubles as the marker that the directory is populated.
+          urls+=("${plugins_prefix}/${LISTING_FILE}")
 
           # Every built entry point and chunk, not just the remote ones: a
           # missing shared chunk breaks the remote plugins that import it.
           if [ -n "$PLUGINS_SRC" ]; then
             for artifact in "${PLUGINS_SRC}"/*.js; do
-              urls+=("${plugins_url_prefix}/$(basename "$artifact")")
+              urls+=("${plugins_prefix}/$(basename "$artifact")")
             done
           fi
-
-          while IFS= read -r artifact; do
-            [ -n "$artifact" ] || continue
-            urls+=("${plugins_url_prefix}/${artifact}")
-          done <<< "$PLUGIN_ARTIFACTS"
         fi
 
-        if [ -n "$S3_DIR_PATH" ]; then
-          urls+=("${BASE_CDN_URL}/${S3_DIR_PATH}/modern/rsa.min.js")
-        fi
-
-        if [ "${#urls[@]}" -eq 0 ]; then
-          echo "::error::Nothing to verify: none of sdk_version or s3_dir_path were provided"
-          exit 1
+        if [ "$VERIFY_INTEGRATIONS" = "true" ]; then
+          # Both builds are uploaded on every release and both are loaded by
+          # name at runtime, so neither listing may be missing.
+          for variant in legacy modern; do
+            urls+=("${BASE_CDN_URL}/${SDK_VERSION}/${variant}/js-integrations/${LISTING_FILE}")
+          done
         fi
 
         deadline=$(( $(date +%s) + TIMEOUT_SECONDS ))
