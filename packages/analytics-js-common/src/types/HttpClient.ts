@@ -6,6 +6,12 @@ export interface IRequestConfig {
   options?: Partial<IXHRRequestOptions>;
   isRawResponse?: boolean;
   timeout?: number;
+  /**
+   * Omit the basic auth header for this request. Authorization is not
+   * CORS-safelisted, so sending it turns an otherwise simple cross-origin
+   * request into a preflighted one, which the CDN refuses.
+   */
+  skipAuthHeader?: boolean;
 }
 
 export type ResponseDetails = {
