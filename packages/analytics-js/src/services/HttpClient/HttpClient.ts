@@ -38,11 +38,11 @@ class HttpClient implements IHttpClient {
   async getData<T = any>(
     config: IRequestConfig,
   ): Promise<{ data: T | string | undefined; details?: ResponseDetails }> {
-    const { url, options, timeout, isRawResponse } = config;
+    const { url, options, timeout, isRawResponse, skipAuthHeader } = config;
 
     try {
       const data = await xhrRequest(
-        createXhrRequestOptions(url, options, this.basicAuthHeader),
+        createXhrRequestOptions(url, options, this.getAuthHeader(skipAuthHeader)),
         timeout,
         this.logger,
       );
@@ -59,10 +59,14 @@ class HttpClient implements IHttpClient {
    * Implement requests in a non-blocking way
    */
   getAsyncData<T = any>(config: IAsyncRequestConfig<T>) {
-    const { callback, url, options, timeout, isRawResponse } = config;
+    const { callback, url, options, timeout, isRawResponse, skipAuthHeader } = config;
     const isFireAndForget = !isFunction(callback);
 
-    xhrRequest(createXhrRequestOptions(url, options, this.basicAuthHeader), timeout, this.logger)
+    xhrRequest(
+      createXhrRequestOptions(url, options, this.getAuthHeader(skipAuthHeader)),
+      timeout,
+      this.logger,
+    )
       .then(
         (data: ResponseDetails) => {
           if (!isFireAndForget) {
@@ -96,6 +100,10 @@ class HttpClient implements IHttpClient {
   /**
    * Set basic authentication header (eg writekey)
    */
+  private getAuthHeader(skipAuthHeader?: boolean): string | undefined {
+    return skipAuthHeader === true ? undefined : this.basicAuthHeader;
+  }
+
   setAuthHeader(value: string, noBtoa = false) {
     const authVal = noBtoa ? value : toBase64(`${value}:`);
     this.basicAuthHeader = `Basic ${authVal}`;
