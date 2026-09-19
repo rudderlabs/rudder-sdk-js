@@ -1017,6 +1017,43 @@ describe('Error Reporting utilities', () => {
         expect(result).toBe(false);
       });
 
+      it('should not treat a look-alike host as the blocked origin', async () => {
+        defaultHttpClient.getAsyncData.mockImplementation(({ url, callback }: any) => {
+          callback(null, { xhr: { status: 200, responseURL: url } });
+        });
+        state.capabilities.cspBlockedURLs.value = ['https://cdn.rudderlabs.com'];
+
+        const message =
+          'PluginsManager:: Failed to load plugin "X" - Failed to fetch dynamically imported module: https://cdn.rudderlabs.com.evil.example/3.20.1/modern/plugins/rsa-plugins.js';
+
+        const result = await checkIfAllowedToBeNotified(
+          { message } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        // A bare string prefix would match the origin entry and suppress this.
+        expect(result).toBe(true);
+      });
+
+      it('should not treat a source map as the blocked script', async () => {
+        defaultHttpClient.getAsyncData.mockImplementation(({ url, callback }: any) => {
+          callback(null, { xhr: { status: 200, responseURL: url } });
+        });
+        const blocked = 'https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins.js';
+        state.capabilities.cspBlockedURLs.value = [blocked];
+
+        const message = `PluginsManager:: Failed to load plugin "X" - Failed to fetch dynamically imported module: ${blocked}.map`;
+
+        const result = await checkIfAllowedToBeNotified(
+          { message } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        expect(result).toBe(true);
+      });
+
       it('should notify if the script URL is not in CSP blocked list', async () => {
         const scriptUrl =
           'https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js';
