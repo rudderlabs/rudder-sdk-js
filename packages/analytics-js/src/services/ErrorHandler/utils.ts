@@ -148,6 +148,28 @@ const getBugsnagErrorEvent = (
   };
 };
 
+/**
+ * Whether a URL is the blocked one or sits beneath it.
+ *
+ * Browsers strip a cross-origin blockedURI down to its origin, so a stored entry
+ * is often a prefix of the failing URL rather than equal to it. Matching on a
+ * bare string prefix is too loose: an origin entry would swallow a look-alike
+ * host, and a script entry would swallow its own source map. The prefix only
+ * counts when the next character starts a new path, query or fragment.
+ */
+const isSameOrUnder = (url: string, blockedURL: string): boolean => {
+  if (url === blockedURL) {
+    return true;
+  }
+
+  if (!url.startsWith(blockedURL)) {
+    return false;
+  }
+
+  const boundary = url.charAt(blockedURL.length);
+  return boundary === '/' || boundary === '?' || boundary === '#';
+};
+
 // Probes already in flight, keyed by URL. Concurrent failures share one request
 // rather than each firing its own HEAD and possibly reaching different verdicts
 // about the same URL.
@@ -245,10 +267,8 @@ const checkIfAllowedToBeNotified = (
           // that cannot reach the CDN is indistinguishable from a CDN outage, so
           // it must not suppress the error.
           probeSdkCdn(state, httpClient, extractedURL, () => {
-            // Browsers strip a cross-origin blockedURI down to its origin, so a
-            // stored entry is a prefix of the failing URL rather than equal to it.
             const isCspBlocked = state.capabilities.cspBlockedURLs.value.some(
-              (blockedURL: string) => extractedURL.startsWith(blockedURL),
+              (blockedURL: string) => isSameOrUnder(extractedURL, blockedURL),
             );
 
             // A probe that never reached the CDN, or that was answered by
