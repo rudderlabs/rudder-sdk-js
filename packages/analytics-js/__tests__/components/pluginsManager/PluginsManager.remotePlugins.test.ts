@@ -101,6 +101,36 @@ describe('PluginsManager - remote plugins', () => {
     expect(state.plugins.failedPlugins.value).toEqual(['StorageEncryption']);
   });
 
+  it('should not attribute earlier local plugin failures to this incident', async () => {
+    // setActivePlugins, registerLocalPlugins and register() all push into the
+    // same state.plugins.failedPlugins list before any remote import runs.
+    state.plugins.failedPlugins.value = ['UnknownPlugin', 'UnavailableLocalPlugin'];
+    state.plugins.activePlugins.value = ['XhrQueue'] as any;
+    mockRemotePluginsInventory.mockReturnValue({
+      XhrQueue: () => Promise.reject(fetchFailure(REMOTE_ENTRY)),
+    });
+
+    pluginsManager.registerRemotePlugins();
+    await flush();
+
+    const { customMessage } = (defaultErrorHandler.onError as jest.Mock).mock.calls[0][0];
+    expect(customMessage).toContain('XhrQueue');
+    expect(customMessage).not.toContain('UnknownPlugin');
+    expect(customMessage).not.toContain('UnavailableLocalPlugin');
+  });
+
+  it('should give a reason when the rejection is not an Error', async () => {
+    state.plugins.activePlugins.value = ['XhrQueue'] as any;
+    mockRemotePluginsInventory.mockReturnValue({
+      XhrQueue: () => Promise.reject('boom'),
+    });
+
+    pluginsManager.registerRemotePlugins();
+    await flush();
+
+    expect(defaultLogger.error).toHaveBeenCalledWith(expect.stringContaining('boom'));
+  });
+
   it('should not report an error when every remote plugin loads', async () => {
     state.plugins.activePlugins.value = ['XhrQueue'] as any;
     mockRemotePluginsInventory.mockReturnValue({
