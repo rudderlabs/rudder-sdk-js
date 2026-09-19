@@ -434,6 +434,11 @@ jobs:
           base_cdn_url: ${{ inputs.base_cdn_url }}
           verify_core: 'true'
           s3_dir_path: ${{ inputs.s3_dir_path }}
+          # Named so the core is checked for identity, not just reachability.
+          # The floating path already holds the previous release, so a copy that
+          # silently failed would answer 200 and this step would pass while the
+          # Slack message below announced the new version.
+          sdk_version: ${{ env.CURRENT_VERSION_VALUE }}
 
       - name: Get Job URL
         id: get-job-url
