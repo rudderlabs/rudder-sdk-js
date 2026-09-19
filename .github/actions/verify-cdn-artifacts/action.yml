@@ -6,7 +6,7 @@ inputs:
     description: 'Base CDN URL the artifacts are published under'
     required: true
   verify_core:
-    description: 'Verify the core bundle at <base_cdn_url>/<s3_dir_path>/modern/rsa.min.js'
+    description: 'Verify the core bundle, at the versioned prefix when sdk_version is set and at the floating prefix when s3_dir_path is set'
     required: false
     default: 'false'
   verify_plugins:
@@ -22,11 +22,11 @@ inputs:
     required: false
     default: ''
   s3_dir_path:
-    description: 'Floating CDN directory. Required by verify_core.'
+    description: 'Floating CDN directory. Used by verify_core.'
     required: false
     default: ''
   plugins_src:
-    description: 'Local directory of built plugin artifacts. When set, every *.js in it is verified individually on top of the plugins listing.'
+    description: 'Local directory of built plugin artifacts. When set, every *.js in it is verified too, which also catches an artifact that was built but never uploaded.'
     required: false
     default: ''
   listing_file:
@@ -64,7 +64,7 @@ runs:
 
         if [ "$VERIFY_CORE" = "true" ]; then
           selected+=("core")
-          [ -n "$S3_DIR_PATH" ] || { echo "::error::verify_core requires s3_dir_path"; invalid=1; }
+          [ -n "$SDK_VERSION" ] || [ -n "$S3_DIR_PATH" ] || { echo "::error::verify_core requires sdk_version or s3_dir_path"; invalid=1; }
         fi
 
         if [ "$VERIFY_PLUGINS" = "true" ]; then
@@ -86,64 +86,105 @@ runs:
 
         echo "Verifying: ${selected[*]}"
 
-        urls=()
+        deadline=$(( $(date +%s) + TIMEOUT_SECONDS ))
+
+        # Retries only the URLs that are still unreachable, so a slow artifact
+        # does not re-fetch the ones that already answered.
+        wait_for_urls() {
+          local urls=("$@")
+          local pending url status
+
+          while :; do
+            pending=()
+
+            for url in "${urls[@]}"; do
+              status=$(curl -sS -o /dev/null -w '%{http_code}' --retry 2 --retry-delay 5 --max-time 30 "$url" || echo '000')
+
+              if [ "$status" = "200" ]; then
+                echo "ok  $status  $url"
+              else
+                echo "$url returned $status"
+                pending+=("$url")
+              fi
+            done
+
+            if [ "${#pending[@]}" -eq 0 ]; then
+              return 0
+            fi
+
+            if [ "$(date +%s)" -ge "$deadline" ]; then
+              for url in "${pending[@]}"; do
+                echo "::error::$url is not reachable on the CDN"
+              done
+              return 1
+            fi
+
+            echo "${#pending[@]} artifact(s) not reachable yet; retrying in ${POLL_INTERVAL_SECONDS}s"
+            urls=("${pending[@]}")
+            sleep "${POLL_INTERVAL_SECONDS}"
+          done
+        }
+
+        markers=()
+        listings=()
 
         if [ "$VERIFY_CORE" = "true" ]; then
-          urls+=("${BASE_CDN_URL}/${S3_DIR_PATH}/modern/rsa.min.js")
+          # The versioned copy is the release-specific one: the floating path
+          # still answers 200 with the previous release's core.
+          if [ -n "$SDK_VERSION" ]; then
+            markers+=("${BASE_CDN_URL}/${SDK_VERSION}/modern/rsa.min.js")
+          fi
+
+          if [ -n "$S3_DIR_PATH" ]; then
+            markers+=("${BASE_CDN_URL}/${S3_DIR_PATH}/modern/rsa.min.js")
+          fi
         fi
 
+        # Each listing is uploaded after the recursive upload of its directory
+        # returns, so it marks that directory as populated, and it names every
+        # object in it -- which is how the per-file check below finds them
+        # without a local build to enumerate.
         if [ "$VERIFY_PLUGINS" = "true" ]; then
-          plugins_prefix="${BASE_CDN_URL}/${SDK_VERSION}/modern/plugins"
-
-          # The listing is uploaded after the recursive upload of the directory
-          # returns, so it doubles as the marker that the directory is populated.
-          urls+=("${plugins_prefix}/${LISTING_FILE}")
-
-          # Every built entry point and chunk, not just the remote ones: a
-          # missing shared chunk breaks the remote plugins that import it.
-          if [ -n "$PLUGINS_SRC" ]; then
-            for artifact in "${PLUGINS_SRC}"/*.js; do
-              urls+=("${plugins_prefix}/$(basename "$artifact")")
-            done
-          fi
+          listings+=("${BASE_CDN_URL}/${SDK_VERSION}/modern/plugins/${LISTING_FILE}")
         fi
 
         if [ "$VERIFY_INTEGRATIONS" = "true" ]; then
-          # Both builds are uploaded on every release and both are loaded by
-          # name at runtime, so neither listing may be missing.
           for variant in legacy modern; do
-            urls+=("${BASE_CDN_URL}/${SDK_VERSION}/${variant}/js-integrations/${LISTING_FILE}")
+            listings+=("${BASE_CDN_URL}/${SDK_VERSION}/${variant}/js-integrations/${LISTING_FILE}")
           done
         fi
 
-        deadline=$(( $(date +%s) + TIMEOUT_SECONDS ))
-
-        while :; do
-          pending=()
-
-          for url in "${urls[@]}"; do
-            status=$(curl -sS -o /dev/null -w '%{http_code}' --retry 2 --retry-delay 5 --max-time 30 "$url" || echo '000')
-
-            if [ "$status" = "200" ]; then
-              echo "ok  $status  $url"
-            else
-              echo "$url returned $status"
-              pending+=("$url")
-            fi
+        # Every built entry point and chunk, not just the remote ones: a missing
+        # shared chunk breaks the remote plugins that import it. Enumerating the
+        # build output as well as the listing catches an artifact that was built
+        # but never uploaded, which the listing alone cannot see.
+        if [ -n "$PLUGINS_SRC" ]; then
+          for artifact in "${PLUGINS_SRC}"/*.js; do
+            markers+=("${BASE_CDN_URL}/${SDK_VERSION}/modern/plugins/$(basename "$artifact")")
           done
+        fi
 
-          if [ "${#pending[@]}" -eq 0 ]; then
-            exit 0
-          fi
+        wait_for_urls "${markers[@]}" "${listings[@]}" || exit 1
 
-          if [ "$(date +%s)" -ge "$deadline" ]; then
-            for url in "${pending[@]}"; do
-              echo "::error::$url is not reachable on the CDN"
-            done
+        listed=()
+
+        for listing in "${listings[@]}"; do
+          count=0
+
+          while IFS= read -r url; do
+            [ -n "$url" ] || continue
+            listed+=("$url")
+            count=$(( count + 1 ))
+          done < <(curl -sS --retry 2 --retry-delay 5 --max-time 30 "$listing" | grep -oE 'href="[^"]+\.js"' | sed -e 's/^href="//' -e 's/"$//' | sort -u)
+
+          if [ "$count" -eq 0 ]; then
+            echo "::error::${listing} names no JavaScript artifacts"
             exit 1
           fi
 
-          echo "${#pending[@]} artifact(s) not reachable yet; retrying in ${POLL_INTERVAL_SECONDS}s"
-          urls=("${pending[@]}")
-          sleep "${POLL_INTERVAL_SECONDS}"
+          echo "${listing} names ${count} JavaScript artifact(s)"
         done
+
+        if [ "${#listed[@]}" -gt 0 ]; then
+          wait_for_urls "${listed[@]}" || exit 1
+        fi
