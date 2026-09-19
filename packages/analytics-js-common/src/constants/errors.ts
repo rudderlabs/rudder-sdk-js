@@ -1,6 +1,11 @@
 const FAILED_REQUEST_ERR_MSG_PREFIX = 'The request failed';
 
-const PLUGINS_LOAD_FAILURE_MESSAGES = [/Failed to fetch dynamically imported module: .*/];
+const PLUGINS_LOAD_FAILURE_MESSAGES = [
+  // Chromium
+  /Failed to fetch dynamically imported module: .*/,
+  // Firefox
+  /error loading dynamically imported module: .*/,
+];
 
 const INTEGRATIONS_LOAD_FAILURE_MESSAGES = [
   /Unable to load \(.*\) the script with the id .*/,
