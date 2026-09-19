@@ -1,5 +1,8 @@
 import { signal } from '@preact/signals-core';
-import type { CapabilitiesState } from '@rudderstack/analytics-js-common/types/ApplicationState';
+import type {
+  CapabilitiesState,
+  SdkCdnProbeResult,
+} from '@rudderstack/analytics-js-common/types/ApplicationState';
 
 const capabilitiesState: CapabilitiesState = {
   isOnline: signal(true),
@@ -15,6 +18,7 @@ const capabilitiesState: CapabilitiesState = {
   isAdBlockerDetectionInProgress: signal<boolean>(false),
   isAdBlocked: signal<boolean | undefined>(undefined),
   cspBlockedURLs: signal<string[]>([]),
+  sdkCdnProbe: signal<SdkCdnProbeResult | undefined>(undefined),
 };
 
 export { capabilitiesState };
