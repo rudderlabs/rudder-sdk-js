@@ -121,14 +121,19 @@ runs:
               # single request may outlive what is left of it -- otherwise a
               # directory full of unreachable files walks past the deadline one
               # request at a time before it is ever consulted.
-              if [ "$first_pass" -eq 0 ] && [ "$remaining" -le 0 ]; then
+              #
+              # Both only apply when there is a retry budget. timeout_seconds: 0
+              # is "check once", its deadline is already in the past, and this
+              # function is called once per artifact group -- so without this the
+              # groups after the first would skip every URL unfetched and fail.
+              if [ "$TIMEOUT_SECONDS" -gt 0 ] && [ "$first_pass" -eq 0 ] && [ "$remaining" -le 0 ]; then
                 pending+=("$url")
                 continue
               fi
 
               budget="$REQUEST_TIMEOUT_SECONDS"
 
-              if [ "$first_pass" -eq 0 ] && [ "$remaining" -lt "$budget" ]; then
+              if [ "$TIMEOUT_SECONDS" -gt 0 ] && [ "$first_pass" -eq 0 ] && [ "$remaining" -lt "$budget" ]; then
                 budget="$remaining"
               fi
 
