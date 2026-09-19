@@ -25,7 +25,11 @@ import type { RSAnalytics } from './IRudderAnalytics';
 import type { CustomContext } from './CustomContext';
 
 export type SdkCdnProbeResult = {
-  /** 0 when the request never reached the CDN; otherwise what the CDN answered with. */
+  /**
+   * The status XHR observed. 0 when the request never reached a server at
+   * all. A non-zero status is not proof the CDN answered -- something else
+   * may have -- so check redirectedOffCdn for the responder's origin.
+   */
   status: number;
   timedOut: boolean;
   /** Answered by a URL outside the SDK CDN, which no CDN response does. */
@@ -62,8 +66,9 @@ export type CapabilitiesState = {
    * Outcome of the SDK CDN probes, keyed by the URL probed. A plugin path can be
    * blocked while an integration path is reachable, so a failure is only ever
    * judged against a probe of its own URL.
-   * status 0 means the request never reached the CDN (blocked, DNS, offline or
-   * CORS); any other status is what the CDN itself answered with.
+   * status 0 means the request never reached a server at all (blocked, DNS,
+   * offline or CORS). A non-zero status came from whatever answered, which is
+   * the CDN only when redirectedOffCdn is false.
    */
   sdkCdnProbe: Signal<Record<string, SdkCdnProbeResult>>;
 };
