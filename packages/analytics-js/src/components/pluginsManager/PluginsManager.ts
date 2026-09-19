@@ -279,16 +279,19 @@ class PluginsManager implements IPluginsManager {
     let isIncidentReported = false;
 
     // A single remote entry failure rejects every plugin import, so the fan-out
-    // is one incident. Report it once, on a microtask so the sibling rejections
-    // it arrives with are already recorded, and without waiting on imports that
-    // may never settle - a dynamic import has no timeout of its own.
+    // is one incident. Report it once, from a task rather than a microtask: the
+    // siblings resolve through several awaits of the federation runtime, so a
+    // microtask scheduled by the first failure runs before they have landed and
+    // the report would name only that one. A task drains the whole microtask
+    // cascade first, and still cannot be held up by an import that never
+    // settles - a dynamic import has no timeout of its own.
     const reportIncidentOnce = () => {
       if (isIncidentReported) {
         return;
       }
       isIncidentReported = true;
 
-      Promise.resolve().then(() => {
+      (globalThis as typeof window).setTimeout(() => {
         const firstFailure = loadFailures[0];
         this.onError(
           firstFailure,

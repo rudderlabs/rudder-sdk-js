@@ -16,8 +16,22 @@ const fetchFailure = (url: string) =>
 
 const REMOTE_ENTRY = 'https://cdn.rudderlabs.com/3.34.1/modern/plugins/rsa-plugins.js';
 
+// Module federation resolves each import through several awaits, so sibling
+// rejections do not all land in the same microtask round. Reproduce that depth,
+// otherwise a one-hop Promise.reject makes the ordering look far more forgiving
+// than it is in a browser.
+const rejectAfterHops = (hops: number, err: Error) => {
+  let p: Promise<unknown> = Promise.resolve();
+  for (let i = 0; i < hops; i += 1) {
+    p = p.then(() => undefined);
+  }
+  return p.then(() => {
+    throw err;
+  });
+};
+
 // registerRemotePlugins is fire-and-forget; let its promises settle.
-const flush = () => new Promise(resolve => setTimeout(resolve, 0));
+const flush = () => new Promise(resolve => setTimeout(resolve, 20));
 
 describe('PluginsManager - remote plugins', () => {
   let pluginsManager: PluginsManager;
@@ -41,6 +55,22 @@ describe('PluginsManager - remote plugins', () => {
     // One remote entry failure fans out to every plugin; it is one incident.
     expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
     expect(state.plugins.failedPlugins.value).toEqual(failing);
+  });
+
+  it('should name every failed plugin in the reported message', async () => {
+    const failing = ['XhrQueue', 'StorageEncryption', 'GoogleLinker'];
+    state.plugins.activePlugins.value = failing as any;
+    mockRemotePluginsInventory.mockReturnValue(
+      Object.fromEntries(
+        failing.map((name, i) => [name, () => rejectAfterHops(i + 1, fetchFailure(REMOTE_ENTRY))]),
+      ),
+    );
+
+    pluginsManager.registerRemotePlugins();
+    await flush();
+
+    const customMessage = (defaultErrorHandler.onError as jest.Mock).mock.calls[0][0].customMessage;
+    failing.forEach(name => expect(customMessage).toContain(name));
   });
 
   it('should still log every individual plugin failure', async () => {
