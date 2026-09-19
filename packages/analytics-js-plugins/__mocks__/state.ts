@@ -18,7 +18,7 @@ const defaultStateValues: ApplicationState = {
     isAdBlockerDetectionInProgress: signal(false),
     isAdBlocked: signal(false),
     cspBlockedURLs: signal([]),
-    sdkCdnProbe: signal(undefined),
+    sdkCdnProbe: signal({}),
   },
   consents: {
     enabled: signal(false),

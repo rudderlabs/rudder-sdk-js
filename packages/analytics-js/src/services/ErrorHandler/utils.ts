@@ -24,7 +24,6 @@ import {
   SCRIPT_LOAD_FAILURE_MESSAGES,
 } from '@rudderstack/analytics-js-common/constants/errors';
 import { SDK_CDN_BASE_URL } from '../../constants/urls';
-import { CDN_PROBE_FILE } from './constants';
 import {
   APP_STATE_EXCLUDE_KEYS,
   DEV_HOSTS,
@@ -149,22 +148,35 @@ const getBugsnagErrorEvent = (
   };
 };
 
+// Probes already in flight, keyed by URL. Concurrent failures share one request
+// rather than each firing its own HEAD and possibly reaching different verdicts
+// about the same URL.
+const inFlightProbes = new Map<string, (() => void)[]>();
+
 /**
- * Probes the SDK CDN and records what came back, so the report can tell a
- * request that never left the client from one the CDN answered with an error.
+ * Probes the URL that failed to load and records what came back, so the report
+ * can tell a request that never left the client from one the CDN answered with
+ * an error. The failed URL is probed rather than a fixed path: plugins and
+ * integrations sit under different prefixes and can be blocked independently.
  */
 const probeSdkCdn = (
   state: ApplicationState,
   httpClient: IHttpClient,
+  url: string,
   done: () => void,
 ): void => {
-  const baseURL = state.lifecycle.pluginsCDNPath.value;
-  if (isDefined(state.capabilities.sdkCdnProbe.value) || !isString(baseURL)) {
+  if (isDefined(state.capabilities.sdkCdnProbe.value[url])) {
     done();
     return;
   }
 
-  const url = `${baseURL}/${CDN_PROBE_FILE}`;
+  const waiting = inFlightProbes.get(url);
+  if (waiting) {
+    waiting.push(done);
+    return;
+  }
+  inFlightProbes.set(url, [done]);
+
   httpClient.getAsyncData({
     url,
     // The CDN refuses preflight, so this has to stay a simple request: a HEAD
@@ -185,11 +197,17 @@ const probeSdkCdn = (
       const responseURL = details?.xhr?.responseURL;
 
       state.capabilities.sdkCdnProbe.value = {
-        status,
-        timedOut: details?.timedOut === true,
-        redirected: status !== 0 && isString(responseURL) && responseURL !== url,
+        ...state.capabilities.sdkCdnProbe.value,
+        [url]: {
+          status,
+          timedOut: details?.timedOut === true,
+          redirected: status !== 0 && isString(responseURL) && responseURL !== url,
+        },
       };
-      done();
+
+      const waiters = inFlightProbes.get(url) ?? [];
+      inFlightProbes.delete(url);
+      waiters.forEach(waiter => waiter());
     },
   });
 };
@@ -226,7 +244,7 @@ const checkIfAllowedToBeNotified = (
           // it probes the source config host rather than the CDN, and a client
           // that cannot reach the CDN is indistinguishable from a CDN outage, so
           // it must not suppress the error.
-          probeSdkCdn(state, httpClient, () => {
+          probeSdkCdn(state, httpClient, extractedURL, () => {
             // Browsers strip a cross-origin blockedURI down to its origin, so a
             // stored entry is a prefix of the failing URL rather than equal to it.
             const isCspBlocked = state.capabilities.cspBlockedURLs.value.some(
@@ -237,7 +255,7 @@ const checkIfAllowedToBeNotified = (
             // something else, is a client-side failure: nothing server side
             // produces either shape. A timeout is not attributable, and any
             // status the CDN itself returned is worth reporting.
-            const probe = state.capabilities.sdkCdnProbe.value;
+            const probe = state.capabilities.sdkCdnProbe.value[extractedURL];
             const isClientSideFailure =
               probe !== undefined && !probe.timedOut && (probe.status === 0 || probe.redirected);
 

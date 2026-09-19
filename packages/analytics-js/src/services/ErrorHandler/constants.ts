@@ -25,9 +25,6 @@ const NOTIFIER_NAME = 'RudderStack JavaScript SDK';
 const SDK_GITHUB_URL = __REPOSITORY_URL__;
 const SOURCE_NAME = 'js';
 
-// Served from every plugins CDN path; used only to test reachability.
-const CDN_PROBE_FILE = 'rsa-plugins.js';
-
 export {
   SDK_FILE_NAME_PREFIXES,
   DEV_HOSTS,
@@ -36,5 +33,4 @@ export {
   NOTIFIER_NAME,
   SDK_GITHUB_URL,
   SOURCE_NAME,
-  CDN_PROBE_FILE,
 };

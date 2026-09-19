@@ -322,24 +322,31 @@ describe('Error Reporting utilities', () => {
 
   describe('getAppStateForMetadata - SDK CDN probe', () => {
     it('should serialise the probe outcome into the reported metadata', () => {
-      state.capabilities.sdkCdnProbe.value = { status: 0, timedOut: false, redirected: true };
+      state.capabilities.sdkCdnProbe.value = {
+        'https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins.js': {
+          status: 0,
+          timedOut: false,
+          redirected: true,
+        },
+      };
 
       const metadata = getAppStateForMetadata(state) as any;
 
       expect(metadata.capabilities.sdkCdnProbe).toEqual({
-        status: 0,
-        timedOut: false,
-        redirected: true,
+        'https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins.js': {
+          status: 0,
+          timedOut: false,
+          redirected: true,
+        },
       });
     });
 
-    it('should omit the probe outcome when it has not run', () => {
-      state.capabilities.sdkCdnProbe.value = undefined;
+    it('should carry an empty probe map when nothing has been probed', () => {
+      state.capabilities.sdkCdnProbe.value = {};
 
       const metadata = getAppStateForMetadata(state) as any;
 
-      // JSON.stringify drops undefined, so absence means "never probed".
-      expect('sdkCdnProbe' in metadata.capabilities).toBe(false);
+      expect(metadata.capabilities.sdkCdnProbe).toEqual({});
     });
   });
 
@@ -489,6 +496,7 @@ describe('Error Reporting utilities', () => {
                 isLegacyDOM: false,
                 isOnline: true,
                 isUaCHAvailable: false,
+                sdkCdnProbe: {},
                 storage: {
                   isCookieStorageAvailable: false,
                   isLocalStorageAvailable: false,
@@ -864,7 +872,7 @@ describe('Error Reporting utilities', () => {
         checkIfAllowedToBeNotified({ message } as unknown as Exception, state, defaultHttpClient);
 
       beforeEach(() => {
-        state.capabilities.sdkCdnProbe.value = undefined;
+        state.capabilities.sdkCdnProbe.value = {};
         state.capabilities.isAdBlocked.value = false;
         state.capabilities.cspBlockedURLs.value = [];
         state.lifecycle.pluginsCDNPath.value = 'https://cdn.rudderlabs.com/3.20.1/modern/plugins';
@@ -876,10 +884,47 @@ describe('Error Reporting utilities', () => {
         await notify();
 
         expect(state.capabilities.sdkCdnProbe.value).toEqual({
-          status: 503,
-          timedOut: false,
-          redirected: false,
+          [PLUGIN_URL]: { status: 503, timedOut: false, redirected: false },
         });
+      });
+
+      it('should probe the URL that failed rather than a fixed plugins path', async () => {
+        const INTEGRATION_URL =
+          'https://cdn.rudderlabs.com/3.20.1/modern/js-integrations/GA4.min.js';
+        const probed: string[] = [];
+        defaultHttpClient.getAsyncData.mockImplementation(({ url, callback }: any) => {
+          probed.push(url);
+          callback(null, { xhr: { status: 200, responseURL: url } });
+        });
+
+        await checkIfAllowedToBeNotified(
+          {
+            message: `Unable to load (GA4) the script with the id GA4 from ${INTEGRATION_URL}`,
+          } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        // Probing pluginsCDNPath here would judge an integration failure by a
+        // prefix that can be blocked independently of it.
+        expect(probed).toEqual([INTEGRATION_URL]);
+      });
+
+      it('should issue one probe when the same URL fails concurrently', async () => {
+        const callbacks: ((...args: any[]) => void)[] = [];
+        let requests = 0;
+        defaultHttpClient.getAsyncData.mockImplementation(({ url, callback }: any) => {
+          requests += 1;
+          callbacks.push(() => callback(null, { xhr: { status: 503, responseURL: url } }));
+        });
+
+        const results = [notify(), notify(), notify()];
+        callbacks.forEach(respond => respond());
+
+        await Promise.all(results);
+
+        // All three wait on one HEAD, so they cannot reach different verdicts.
+        expect(requests).toBe(1);
       });
 
       it('should not notify when the request never reached the CDN', async () => {

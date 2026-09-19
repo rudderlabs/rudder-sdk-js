@@ -18,7 +18,7 @@ const capabilitiesState: CapabilitiesState = {
   isAdBlockerDetectionInProgress: signal<boolean>(false),
   isAdBlocked: signal<boolean | undefined>(undefined),
   cspBlockedURLs: signal<string[]>([]),
-  sdkCdnProbe: signal<SdkCdnProbeResult | undefined>(undefined),
+  sdkCdnProbe: signal<Record<string, SdkCdnProbeResult>>({}),
 };
 
 export { capabilitiesState };
