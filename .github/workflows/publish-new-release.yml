@@ -332,8 +332,62 @@ jobs:
               ]
             }
 
+  # deploy-prod.yml and this workflow are triggered independently by the same
+  # `pull_request: closed` event -- no `needs:`, no `workflow_run`, no shared
+  # concurrency group -- so nothing orders the CDN deploy against the npm
+  # publish. The npm build pins REMOTE_MODULES_BASE_PATH at the new version's
+  # CDN directory, so publishing before that directory exists hands every
+  # upgrading consumer 403s on /<version>/modern/plugins/*.
+  #
+  # Assert the property the npm packages actually depend on -- the artifacts
+  # are on the CDN -- rather than the CI state that stands in for it. A
+  # production build sets LOCK_DEPS_VERSION, so at runtime the SDK rewrites the
+  # /v3 plugin and integration paths to /<version>, which is the prefix this
+  # verifies. Each generated listing names every object in its directory, so
+  # the gate fetches each one rather than trusting the listing's presence, and
+  # the versioned core is checked because the floating path answers 200 with
+  # the previous release either way. An unpublished npm version is
+  # recoverable, a published one pointing at a missing CDN directory is not.
+  verify-cdn-artifacts:
+    name: Verify the production CDN artifacts
+    needs: [get-release-inputs]
+    runs-on: [self-hosted, Linux, X64]
+    # Outer bound on the gate. The action honours timeout_seconds itself; this
+    # is the backstop for the case it cannot bound from inside, a CDN that
+    # stops answering rather than returning a status.
+    timeout-minutes: 50
+    permissions:
+      contents: read # to checkout the repository for the local action
+    if: >
+      (startsWith(github.event.pull_request.head.ref, 'release/') ||
+      startsWith(github.event.pull_request.head.ref, 'hotfix-release/')) &&
+      github.event.pull_request.merged == true
+
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
+
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # The deploy runs on its own schedule, so wait for the artifacts to land
+      # rather than failing on the first miss.
+      - name: Wait for the production CDN artifacts
+        uses: ./.github/actions/verify-cdn-artifacts
+        with:
+          base_cdn_url: 'https://cdn.rudderlabs.com'
+          verify_core: 'true'
+          verify_plugins: 'true'
+          verify_integrations: 'true'
+          sdk_version: ${{ needs.get-release-inputs.outputs.release_version }}
+          s3_dir_path: 'v3'
+          timeout_seconds: '2700'
+          poll_interval_seconds: '20'
+
   publish-npm-packages:
-    needs: [get-release-inputs, release]
+    needs: [get-release-inputs, release, verify-cdn-artifacts]
     name: Publish packages to NPM
     permissions:
       contents: read # to checkout repository code
