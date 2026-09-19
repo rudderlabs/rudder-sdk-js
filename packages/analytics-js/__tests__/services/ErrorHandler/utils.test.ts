@@ -888,6 +888,25 @@ describe('Error Reporting utilities', () => {
         });
       });
 
+      it('should issue the probe as a simple HEAD request', async () => {
+        let sent: any;
+        defaultHttpClient.getAsyncData.mockImplementation((config: any) => {
+          sent = config;
+          config.callback(null, { xhr: { status: 200, responseURL: config.url } });
+        });
+
+        await notify();
+
+        // Authorization is not CORS-safelisted and neither are these headers, so
+        // any of them would preflight a cross-origin request that the CDN
+        // answers with 403 -- the probe would never reach the resource.
+        expect(sent.url).toBe(PLUGIN_URL);
+        expect(sent.skipAuthHeader).toBe(true);
+        expect(sent.options.method).toBe('HEAD');
+        expect(sent.options.headers['Content-Type']).toBeUndefined();
+        expect(sent.options.headers.Accept).toBeUndefined();
+      });
+
       it('should probe the URL that failed rather than a fixed plugins path', async () => {
         const INTEGRATION_URL =
           'https://cdn.rudderlabs.com/3.20.1/modern/js-integrations/GA4.min.js';
