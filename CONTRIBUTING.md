@@ -115,6 +115,12 @@ The repository is a monorepo, with different packages under the `packages` direc
 * NX: Manages the monorepo and CI/CD
 * Size Limit: Checks the sizes of final bundles
 
+  Limits live in each package's `.size-limit` config and are owned by CODEOWNERS.
+  When one needs raising, set it to at least **10% above the measured size**. A
+  limit raised to just above the current size makes the next unrelated change
+  fail the check, and the bundle then grows one bump at a time with nobody
+  reviewing the trend.
+
 ### 3. Coding the essential components of the integration
 
 > Before proceeding with the next steps, we recommend drafting a document outlining the requirements of your integration and relevant resources
