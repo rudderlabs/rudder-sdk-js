@@ -112,6 +112,24 @@ describe('HttpClient', () => {
     return (xhrRequest as jest.Mock).mock.calls[0][0].headers.Authorization;
   };
 
+  const authHeaderForBlocking = async (config: Pick<IRequestConfig, 'skipAuthHeader'>) => {
+    clientInstance.setAuthHeader('dummyWriteKey');
+    await clientInstance.getData({
+      url: `${dummyDataplaneHost}/jsonSample`,
+      ...config,
+    });
+    return (xhrRequest as jest.Mock).mock.calls[0][0].headers.Authorization;
+  };
+
+  it('should omit the auth header on the blocking path when the request opts out', async () => {
+    // getData routes through the same helper, so it needs its own guard.
+    await expect(authHeaderForBlocking({ skipAuthHeader: true })).resolves.toBeUndefined();
+  });
+
+  it('should send the auth header on the blocking path by default', async () => {
+    await expect(authHeaderForBlocking({})).resolves.toStrictEqual('Basic ZHVtbXlXcml0ZUtleTo=');
+  });
+
   it('should omit the auth header when the request opts out', async () => {
     // Authorization is not CORS-safelisted, so sending it turns a simple request
     // into a preflighted one that the CDN refuses.

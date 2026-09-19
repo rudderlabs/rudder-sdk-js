@@ -28,7 +28,8 @@ export type SdkCdnProbeResult = {
   /** 0 when the request never reached the CDN; otherwise what the CDN answered with. */
   status: number;
   timedOut: boolean;
-  redirected: boolean;
+  /** Answered by a URL outside the SDK CDN, which no CDN response does. */
+  redirectedOffCdn: boolean;
 };
 
 export type CapabilitiesState = {

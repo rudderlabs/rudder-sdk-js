@@ -214,7 +214,9 @@ const probeSdkCdn = (
     isRawResponse: true,
     callback: (_result: any, details: any) => {
       // A request that never reached the CDN reports status 0. A blocker that
-      // answers instead of dropping it lands on a different URL.
+      // answers instead of dropping it lands on a URL outside the CDN. An
+      // ordinary redirect that stays under the CDN -- canonicalisation, a signed
+      // URL -- is the CDN answering and must not be mistaken for one.
       const status = details?.xhr?.status ?? 0;
       const responseURL = details?.xhr?.responseURL;
 
@@ -223,7 +225,11 @@ const probeSdkCdn = (
         [url]: {
           status,
           timedOut: details?.timedOut === true,
-          redirected: status !== 0 && isString(responseURL) && responseURL !== url,
+          redirectedOffCdn:
+            status !== 0 &&
+            isString(responseURL) &&
+            responseURL !== url &&
+            !isSameOrUnder(responseURL, SDK_CDN_BASE_URL),
         },
       };
 
@@ -280,7 +286,7 @@ const checkIfAllowedToBeNotified = (
             // status the CDN itself returned is worth reporting.
             const probe = state.capabilities.sdkCdnProbe.value[extractedURL];
             const isClientSideFailure =
-              probe !== undefined && !probe.timedOut && (probe.status === 0 || probe.redirected);
+              probe !== undefined && !probe.timedOut && (probe.status === 0 || probe.redirectedOffCdn);
 
             resolve(!isCspBlocked && !isClientSideFailure);
           });

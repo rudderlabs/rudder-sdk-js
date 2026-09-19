@@ -326,7 +326,7 @@ describe('Error Reporting utilities', () => {
         'https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins.js': {
           status: 0,
           timedOut: false,
-          redirected: true,
+          redirectedOffCdn: true,
         },
       };
 
@@ -336,7 +336,7 @@ describe('Error Reporting utilities', () => {
         'https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins.js': {
           status: 0,
           timedOut: false,
-          redirected: true,
+          redirectedOffCdn: true,
         },
       });
     });
@@ -884,7 +884,7 @@ describe('Error Reporting utilities', () => {
         await notify();
 
         expect(state.capabilities.sdkCdnProbe.value).toEqual({
-          [PLUGIN_URL]: { status: 503, timedOut: false, redirected: false },
+          [PLUGIN_URL]: { status: 503, timedOut: false, redirectedOffCdn: false },
         });
       });
 
@@ -933,10 +933,20 @@ describe('Error Reporting utilities', () => {
         expect(await notify()).toBe(false);
       });
 
-      it('should not notify when the probe was redirected', async () => {
+      it('should not notify when the probe was answered off the CDN', async () => {
         probeResponds({ status: 200, responseURL: 'https://blocker.local/stub.js' });
 
         expect(await notify()).toBe(false);
+      });
+
+      it('should notify when a redirect stays under the CDN', async () => {
+        // Canonicalisation or a signed URL is the CDN answering, not a blocker.
+        probeResponds({
+          status: 404,
+          responseURL: 'https://cdn.rudderlabs.com/3.20.1/modern/plugins/canonical.min.js',
+        });
+
+        expect(await notify()).toBe(true);
       });
 
       it.each([[500], [403], [404]])(
