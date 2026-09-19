@@ -352,6 +352,10 @@ jobs:
     name: Verify the production CDN artifacts
     needs: [get-release-inputs]
     runs-on: [self-hosted, Linux, X64]
+    # Outer bound on the gate. The action honours timeout_seconds itself; this
+    # is the backstop for the case it cannot bound from inside, a CDN that
+    # stops answering rather than returning a status.
+    timeout-minutes: 50
     permissions:
       contents: read # to checkout the repository for the local action
     if: >
