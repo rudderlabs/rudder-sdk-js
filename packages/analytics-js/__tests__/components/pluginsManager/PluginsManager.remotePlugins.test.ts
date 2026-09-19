@@ -1,3 +1,4 @@
+import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
 import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
 import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
 import { defaultPluginEngine } from '@rudderstack/analytics-js-common/__mocks__/PluginEngine';
@@ -43,8 +44,8 @@ describe('PluginsManager - remote plugins', () => {
   });
 
   it('should report a single error when every remote plugin fails to load', async () => {
-    const failing = ['XhrQueue', 'StorageEncryption', 'GoogleLinker'];
-    state.plugins.activePlugins.value = failing as any;
+    const failing: PluginName[] = ['XhrQueue', 'StorageEncryption', 'GoogleLinker'];
+    state.plugins.activePlugins.value = failing;
     mockRemotePluginsInventory.mockReturnValue(
       Object.fromEntries(failing.map(name => [name, () => Promise.reject(fetchFailure(REMOTE_ENTRY))])),
     );
@@ -58,8 +59,8 @@ describe('PluginsManager - remote plugins', () => {
   });
 
   it('should name every failed plugin in the reported message', async () => {
-    const failing = ['XhrQueue', 'StorageEncryption', 'GoogleLinker'];
-    state.plugins.activePlugins.value = failing as any;
+    const failing: PluginName[] = ['XhrQueue', 'StorageEncryption', 'GoogleLinker'];
+    state.plugins.activePlugins.value = failing;
     mockRemotePluginsInventory.mockReturnValue(
       Object.fromEntries(
         failing.map((name, i) => [name, () => rejectAfterHops(i + 1, fetchFailure(REMOTE_ENTRY))]),
@@ -74,8 +75,8 @@ describe('PluginsManager - remote plugins', () => {
   });
 
   it('should still log every individual plugin failure', async () => {
-    const failing = ['XhrQueue', 'StorageEncryption'];
-    state.plugins.activePlugins.value = failing as any;
+    const failing: PluginName[] = ['XhrQueue', 'StorageEncryption'];
+    state.plugins.activePlugins.value = failing;
     mockRemotePluginsInventory.mockReturnValue(
       Object.fromEntries(failing.map(name => [name, () => Promise.reject(fetchFailure(REMOTE_ENTRY))])),
     );
@@ -87,7 +88,7 @@ describe('PluginsManager - remote plugins', () => {
   });
 
   it('should still report when one remote plugin never settles', async () => {
-    state.plugins.activePlugins.value = ['XhrQueue', 'StorageEncryption'] as any;
+    state.plugins.activePlugins.value = ['XhrQueue', 'StorageEncryption'] satisfies PluginName[];
     mockRemotePluginsInventory.mockReturnValue({
       // A stalled import must not suppress the incident for the ones that failed.
       XhrQueue: () => new Promise(() => {}),
@@ -105,7 +106,7 @@ describe('PluginsManager - remote plugins', () => {
     // setActivePlugins, registerLocalPlugins and register() all push into the
     // same state.plugins.failedPlugins list before any remote import runs.
     state.plugins.failedPlugins.value = ['UnknownPlugin', 'UnavailableLocalPlugin'];
-    state.plugins.activePlugins.value = ['XhrQueue'] as any;
+    state.plugins.activePlugins.value = ['XhrQueue'] satisfies PluginName[];
     mockRemotePluginsInventory.mockReturnValue({
       XhrQueue: () => Promise.reject(fetchFailure(REMOTE_ENTRY)),
     });
@@ -120,7 +121,7 @@ describe('PluginsManager - remote plugins', () => {
   });
 
   it('should give a reason when the rejection is not an Error', async () => {
-    state.plugins.activePlugins.value = ['XhrQueue'] as any;
+    state.plugins.activePlugins.value = ['XhrQueue'] satisfies PluginName[];
     mockRemotePluginsInventory.mockReturnValue({
       XhrQueue: () => Promise.reject('boom'),
     });
@@ -132,7 +133,7 @@ describe('PluginsManager - remote plugins', () => {
   });
 
   it('should not report an error when every remote plugin loads', async () => {
-    state.plugins.activePlugins.value = ['XhrQueue'] as any;
+    state.plugins.activePlugins.value = ['XhrQueue'] satisfies PluginName[];
     mockRemotePluginsInventory.mockReturnValue({
       XhrQueue: () => Promise.resolve({ default: () => ({ name: 'XhrQueue' }) }),
     });
