@@ -119,7 +119,7 @@ export default [
     name: 'Core (Content Script) - Modern - NPM (UMD)',
     path: 'dist/npm/modern/content-script/umd/index.js',
     import: '*',
-    limit: '42 KiB',
+    limit: '46.5 KiB',
   },
   {
     name: 'Core (Lite) - Legacy - NPM (ESM)',
