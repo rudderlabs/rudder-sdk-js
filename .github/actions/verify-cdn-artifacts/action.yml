@@ -251,7 +251,28 @@ runs:
           # upload this action exists to catch, so it has to be a hard failure.
           listing_body=$(mktemp)
 
-          if ! curl -fsS --retry 2 --retry-delay 5 --retry-max-time "$REQUEST_TIMEOUT_SECONDS" --max-time "$REQUEST_TIMEOUT_SECONDS" -o "$listing_body" "$listing"; then
+          # A listing may not outlive what is left of the deadline; without this a
+          # run with many listings walks past timeout_seconds one fetch at a time.
+          # Only applies when there is a retry budget to spend: timeout_seconds: 0
+          # means "check once", and by this point the marker pass has already
+          # cleared first_pass, so gating on the deadline would fail every
+          # deploy-time call before it issued a request.
+          listing_remaining=$(( deadline - $(date +%s) ))
+          listing_budget="$REQUEST_TIMEOUT_SECONDS"
+
+          if [ "$TIMEOUT_SECONDS" -gt 0 ] && [ "$first_pass" -eq 0 ]; then
+            if [ "$listing_remaining" -le 0 ]; then
+              rm -f "$listing_body"
+              echo "::error::Ran out of time before downloading ${listing}"
+              exit 1
+            fi
+
+            if [ "$listing_remaining" -lt "$listing_budget" ]; then
+              listing_budget="$listing_remaining"
+            fi
+          fi
+
+          if ! curl -fsS --retry 2 --retry-delay 5 --retry-max-time "$listing_budget" --max-time "$listing_budget" -o "$listing_body" "$listing"; then
             rm -f "$listing_body"
             echo "::error::Failed to download ${listing}"
             exit 1
