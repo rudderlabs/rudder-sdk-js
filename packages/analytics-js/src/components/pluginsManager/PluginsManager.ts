@@ -17,6 +17,7 @@ import {
   DEPRECATED_PLUGIN_WARNING,
   generateMisconfiguredPluginsWarning,
   UNAVAILABLE_PLUGINS_ERROR,
+  REMOTE_PLUGIN_LOAD_ERROR,
   UNKNOWN_PLUGINS_WARNING,
 } from '../../constants/logMessages';
 import { setExposedGlobal } from '../utilities/globals';
@@ -274,7 +275,33 @@ class PluginsManager implements IPluginsManager {
       state.plugins.activePlugins.value as PluginName[],
     );
 
-    Promise.all(
+    const loadFailures: unknown[] = [];
+    let isIncidentReported = false;
+
+    // A single remote entry failure rejects every plugin import, so the fan-out
+    // is one incident. Report it once, from a task rather than a microtask: the
+    // siblings resolve through several awaits of the federation runtime, so a
+    // microtask scheduled by the first failure runs before they have landed and
+    // the report would name only that one. A task drains the whole microtask
+    // cascade first, and still cannot be held up by an import that never
+    // settles - a dynamic import has no timeout of its own.
+    const reportIncidentOnce = () => {
+      if (isIncidentReported) {
+        return;
+      }
+      isIncidentReported = true;
+
+      (globalThis as typeof window).setTimeout(() => {
+        const firstFailure = loadFailures[0];
+        this.onError(
+          firstFailure,
+          `Failed to load plugins: ${state.plugins.failedPlugins.value.join(', ')}`,
+          firstFailure as SDKError,
+        );
+      });
+    };
+
+    return Promise.all(
       Object.keys(remotePluginsList).map(async remotePluginKey => {
         await remotePluginsList[remotePluginKey as PluginName]()
           .then((remotePluginModule: any) => this.register([remotePluginModule.default()]))
@@ -284,7 +311,11 @@ class PluginsManager implements IPluginsManager {
               ...state.plugins.failedPlugins.value,
               remotePluginKey,
             ];
-            this.onError(err, `Failed to load plugin "${remotePluginKey}"`, err);
+            this.logger.error(
+              REMOTE_PLUGIN_LOAD_ERROR(PLUGINS_MANAGER, remotePluginKey, (err as Error)?.message),
+            );
+            loadFailures.push(err);
+            reportIncidentOnce();
           });
       }),
     ).catch(err => {
