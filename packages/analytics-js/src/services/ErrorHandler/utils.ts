@@ -24,6 +24,7 @@ import {
   SCRIPT_LOAD_FAILURE_MESSAGES,
 } from '@rudderstack/analytics-js-common/constants/errors';
 import { SDK_CDN_BASE_URL } from '../../constants/urls';
+import { CDN_PROBE_FILE } from './constants';
 import {
   APP_STATE_EXCLUDE_KEYS,
   DEV_HOSTS,
@@ -32,16 +33,10 @@ import {
   SDK_GITHUB_URL,
   SOURCE_NAME,
 } from './constants';
-import {
-  isDefined,
-  isString,
-  isUndefined,
-} from '@rudderstack/analytics-js-common/utilities/checks';
+import { isDefined, isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { normalizeError } from './ErrorEvent/event';
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
-import { detectAdBlockers } from '../../components/capabilitiesManager/detection/adBlockers';
-import { effect } from '@preact/signals-core';
 
 const getErrInstance = (err: SDKError, errorType: string) => {
   switch (errorType) {
@@ -155,44 +150,59 @@ const getBugsnagErrorEvent = (
 };
 
 /**
- * A function to check if adblockers are active. The promise's resolve function
- * is invoked with true if adblockers are not detected and false otherwise.
- * @param {ApplicationState} state The application state
- * @param {IHttpClient} httpClient The HTTP client instance
- * @param {Function} resolve The promise's resolve function
+ * Probes the SDK CDN and records what came back, so the report can tell a
+ * request that never left the client from one the CDN answered with an error.
  */
-const checkIfAdBlockersAreActive = (
+const probeSdkCdn = (
   state: ApplicationState,
   httpClient: IHttpClient,
-  resolve: (value: boolean) => void,
+  done: () => void,
 ): void => {
-  // Initiate ad blocker detection if not done previously and not already in progress.
-  if (isUndefined(state.capabilities.isAdBlocked.value)) {
-    if (state.capabilities.isAdBlockerDetectionInProgress.value === false) {
-      detectAdBlockers(httpClient);
-    }
-
-    // Wait for the detection to complete.
-    const detectionDisposer = effect(() => {
-      if (isDefined(state.capabilities.isAdBlocked.value)) {
-        // If ad blocker is not detected, notify.
-        resolve(state.capabilities.isAdBlocked.value === false);
-
-        // Cleanup the effect.
-        detectionDisposer();
-      }
-    });
-  } else {
-    // If ad blocker is not detected, notify.
-    resolve(state.capabilities.isAdBlocked.value === false);
+  const baseURL = state.lifecycle.pluginsCDNPath.value;
+  if (isDefined(state.capabilities.sdkCdnProbe.value) || !isString(baseURL)) {
+    done();
+    return;
   }
+
+  const url = `${baseURL}/${CDN_PROBE_FILE}`;
+  httpClient.getAsyncData({
+    url,
+    // The CDN refuses preflight, so this has to stay a simple request: a HEAD
+    // carrying none of the headers the client would otherwise add.
+    skipAuthHeader: true,
+    options: {
+      method: 'HEAD',
+      headers: {
+        'Content-Type': undefined,
+        Accept: undefined,
+      },
+    },
+    isRawResponse: true,
+    callback: (_result: any, details: any) => {
+      // A request that never reached the CDN reports status 0. A blocker that
+      // answers instead of dropping it lands on a different URL.
+      const status = details?.xhr?.status ?? 0;
+      const responseURL = details?.xhr?.responseURL;
+
+      state.capabilities.sdkCdnProbe.value = {
+        status,
+        timedOut: details?.timedOut === true,
+        redirected: status !== 0 && isString(responseURL) && responseURL !== url,
+      };
+      done();
+    },
+  });
 };
 
 /**
  * A function to determine whether the error should be promoted to notify or not.
- * For plugin and integration errors from RS CDN, if it is due to CSP blocked URLs or AdBlockers,
- * it will not be promoted to notify.
- * If it is due to other reasons, it will be promoted to notify.
+ * Script load failures from a host other than the RS CDN are not promoted.
+ * For those from the RS CDN, the CDN reachability probe is awaited so its result
+ * is carried in the report, and only a CSP violation suppresses the error. The
+ * generic ad blocker signal is deliberately not consulted: it probes the source
+ * config host, and a client that cannot reach the CDN cannot be told apart from
+ * a CDN outage.
+ * Errors from other causes are promoted unless explicitly denylisted.
  * @param {Error} exception The error object
  * @param {ApplicationState} state The application state
  * @param {IHttpClient} httpClient The HTTP client instance
@@ -211,13 +221,28 @@ const checkIfAllowedToBeNotified = (
       const extractedURL = /https?:\/\/[^\s"'(),;<>[\]{}]+/.exec(errMsg)?.[0];
       if (isString(extractedURL)) {
         if (extractedURL.startsWith(SDK_CDN_BASE_URL)) {
-          // Filter out errors that are from CSP blocked URLs.
-          if (state.capabilities.cspBlockedURLs.value.includes(extractedURL)) {
-            resolve(false);
-          } else {
-            // Filter out errors if adblockers are detected.
-            checkIfAdBlockersAreActive(state, httpClient, resolve);
-          }
+          // Wait for the CDN reachability probe so its result is carried in the
+          // report. The generic ad blocker signal is deliberately not consulted:
+          // it probes the source config host rather than the CDN, and a client
+          // that cannot reach the CDN is indistinguishable from a CDN outage, so
+          // it must not suppress the error.
+          probeSdkCdn(state, httpClient, () => {
+            // Browsers strip a cross-origin blockedURI down to its origin, so a
+            // stored entry is a prefix of the failing URL rather than equal to it.
+            const isCspBlocked = state.capabilities.cspBlockedURLs.value.some(
+              (blockedURL: string) => extractedURL.startsWith(blockedURL),
+            );
+
+            // A probe that never reached the CDN, or that was answered by
+            // something else, is a client-side failure: nothing server side
+            // produces either shape. A timeout is not attributable, and any
+            // status the CDN itself returned is worth reporting.
+            const probe = state.capabilities.sdkCdnProbe.value;
+            const isClientSideFailure =
+              probe !== undefined && !probe.timedOut && (probe.status === 0 || probe.redirected);
+
+            resolve(!isCspBlocked && !isClientSideFailure);
+          });
         } else {
           // Filter out errors that are not from the RS CDN.
           resolve(false);
@@ -360,6 +385,5 @@ export {
   getUserDetails, // for testing
   getDeviceDetails, // for testing
   getErrorGroupingHash,
-  checkIfAdBlockersAreActive, // for testing
   getErrorCategory,
 };

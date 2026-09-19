@@ -17,6 +17,7 @@ const defaultStateValues: ApplicationState = {
     isCryptoAvailable: signal(false),
     isIE11: signal(false),
     isAdBlocked: signal(false),
+    sdkCdnProbe: signal(undefined),
   },
   consents: {
     enabled: signal(false),
