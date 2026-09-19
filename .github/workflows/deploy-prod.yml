@@ -18,7 +18,11 @@ on:
 # release merges in separate groups and let them publish to /v3 at the same
 # time -- exactly what this is meant to prevent.
 concurrency:
-  group: ${{ github.workflow }}
+  # Shared with rollback.yml: both write the same production /v3 paths and
+  # invalidate the same distribution, so they have to queue against each
+  # other and not just against themselves. A literal rather than
+  # github.workflow, which differs per workflow and would split the group.
+  group: production-cdn-write
   cancel-in-progress: false
 
 permissions:

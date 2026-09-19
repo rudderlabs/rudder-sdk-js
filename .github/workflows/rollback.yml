@@ -4,8 +4,11 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # Shared with deploy-prod.yml -- see the note there. Cancelling mid-run
+  # would leave the production core paired with another run's artifacts,
+  # which no invalidation repairs.
+  group: production-cdn-write
+  cancel-in-progress: false
 
 permissions:
   contents: read
