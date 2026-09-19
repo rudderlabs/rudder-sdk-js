@@ -281,30 +281,6 @@ class PluginsManager implements IPluginsManager {
     // registerLocalPlugins and registration failures from register(). Reporting
     // the global list would attribute those to this remote load incident.
     const failedRemotePlugins: string[] = [];
-    let isIncidentReported = false;
-
-    // A single remote entry failure rejects every plugin import, so the fan-out
-    // is one incident. Report it once, from a task rather than a microtask: the
-    // siblings resolve through several awaits of the federation runtime, so a
-    // microtask scheduled by the first failure runs before they have landed and
-    // the report would name only that one. A task drains the whole microtask
-    // cascade first, and still cannot be held up by an import that never
-    // settles - a dynamic import has no timeout of its own.
-    const reportIncidentOnce = () => {
-      if (isIncidentReported) {
-        return;
-      }
-      isIncidentReported = true;
-
-      (globalThis as typeof window).setTimeout(() => {
-        const firstFailure = loadFailures[0];
-        this.onError(
-          firstFailure,
-          `Failed to load plugins: ${failedRemotePlugins.join(', ')}`,
-          firstFailure as SDKError,
-        );
-      });
-    };
 
     return Promise.all(
       Object.keys(remotePluginsList).map(async remotePluginKey => {
@@ -328,12 +304,32 @@ class PluginsManager implements IPluginsManager {
               ),
             );
             loadFailures.push(err);
-            reportIncidentOnce();
           });
       }),
-    ).catch(err => {
-      this.onError(err);
-    });
+    )
+      .then(() => {
+        // A failed remote entry rejects every plugin import at once, so the
+        // fan-out is one incident and gets one report, raised only after every
+        // import has settled so it names all of them.
+        //
+        // An import that never settles therefore means no report. That is
+        // deliberate: a dynamic import has no timeout of its own, and holding a
+        // timer open to salvage a partial report would spend page resources on
+        // error reporting, which is the lowest priority thing the SDK does.
+        if (failedRemotePlugins.length === 0) {
+          return;
+        }
+
+        const firstFailure = loadFailures[0];
+        this.onError(
+          firstFailure,
+          `Failed to load plugins: ${failedRemotePlugins.join(', ')}`,
+          firstFailure as SDKError,
+        );
+      })
+      .catch(err => {
+        this.onError(err);
+      });
   }
 
   /**
