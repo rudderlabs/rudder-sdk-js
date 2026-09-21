@@ -530,7 +530,7 @@ describe('xhrQueue Plugin Utilities', () => {
 
       const retryReasons = ['client-network', 'client-timeout', 'server-500', 'server-429'];
 
-      retryReasons.forEach((retryReason) => {
+      retryReasons.forEach(retryReason => {
         const requestInfo = getRequestInfo(
           queueItemData,
           state,
@@ -571,7 +571,7 @@ describe('xhrQueue Plugin Utilities', () => {
           maxRetryAttempts: 10,
           willBeRetried: true,
           timeSinceFirstAttempt: 45000, // 45 seconds in milliseconds
-          timeSinceLastAttempt: 15000,  // 15 seconds in milliseconds
+          timeSinceLastAttempt: 15000, // 15 seconds in milliseconds
           reclaimed: false,
           isPageAccessible: true,
           retryReason: 'server-503',
