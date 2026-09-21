@@ -282,6 +282,8 @@ const UNKNOWN_PLUGINS_WARNING = (context: string, unknownPlugins: string[]) =>
 const REMOTE_PLUGIN_LOAD_ERROR = (context: string, pluginName: string, reason: string) =>
   `${context}${LOG_CONTEXT_SEPARATOR}Failed to load plugin "${pluginName}" - ${reason}`;
 
+const NO_PLUGIN_FACTORY_EXPORTED_REASON = 'the module exported no plugin factory';
+
 const UNAVAILABLE_PLUGINS_ERROR = (context: string, unavailablePlugins: string[]) =>
   `${context}${LOG_CONTEXT_SEPARATOR}Failed to load the following unavailable local plugins: ${unavailablePlugins.join(', ')}. Some features of the SDK may not work as expected. Make sure you are using the correct SDK bundle variant.`;
 
@@ -355,4 +357,5 @@ export {
   CUSTOM_INTEGRATION_CANNOT_BE_ADDED_ERROR,
   UNAVAILABLE_PLUGINS_ERROR,
   REMOTE_PLUGIN_LOAD_ERROR,
+  NO_PLUGIN_FACTORY_EXPORTED_REASON,
 };
