@@ -371,6 +371,16 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+
+      # The CDN is keyed by the analytics-js package version, not by the
+      # monorepo release version the branch name carries -- release 3.122.0
+      # publishes SDK 3.34.1. deploy.yml reads the same file to decide where to
+      # upload, so reading it here is what keeps the two in step.
+      - name: Resolve the SDK version
+        id: sdk-version
+        run: echo "value=$(jq -r .version packages/analytics-js/package.json)" >> $GITHUB_OUTPUT
 
       # The deploy runs on its own schedule, so wait for the artifacts to land
       # rather than failing on the first miss.
@@ -381,7 +391,7 @@ jobs:
           verify_core: 'true'
           verify_plugins: 'true'
           verify_integrations: 'true'
-          sdk_version: ${{ needs.get-release-inputs.outputs.release_version }}
+          sdk_version: ${{ steps.sdk-version.outputs.value }}
           s3_dir_path: 'v3'
           timeout_seconds: '2700'
           poll_interval_seconds: '20'
