@@ -58,5 +58,18 @@ describe('Destination utilities', () => {
       );
       expect(userFriendlyId2).toBe('GA4-for-JS-SDK-Device___dummyDestinationId2');
     });
+
+    it('should build the user friendly id on an engine without String.prototype.replaceAll', () => {
+      const { replaceAll } = String.prototype;
+      // @ts-expect-error simulating a legacy JS engine where the polyfill did not load
+      delete String.prototype.replaceAll;
+      try {
+        expect(getDestinationUserFriendlyId('GA4 for JS SDK Hybrid', 'dummyDestinationId')).toBe(
+          'GA4-for-JS-SDK-Hybrid___dummyDestinationId',
+        );
+      } finally {
+        String.prototype.replaceAll = replaceAll;
+      }
+    });
   });
 });

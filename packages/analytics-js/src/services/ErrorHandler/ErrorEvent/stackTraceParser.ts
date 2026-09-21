@@ -33,11 +33,11 @@ function parseV8Line(line: string): ParsedFrame | null {
     return null;
   }
   if (line.includes('(eval ')) {
-    line = line.replaceAll('eval code', 'eval').replaceAll(/(\(eval at [^()]*)|(,.*$)/g, '');
+    line = line.replace(/eval code/g, 'eval').replace(/(\(eval at [^()]*)|(,.*$)/g, '');
   }
   const sanitized = line
     .replace(/^\s+/, '')
-    .replaceAll('(eval code', '(')
+    .replace(/\(eval code/g, '(')
     .replace(/^.*?\s+/, '');
   const parenLoc = / (\(.+\)$)/.exec(sanitized);
   const withoutLoc = parenLoc ? sanitized.replace(parenLoc[0], '') : sanitized;
@@ -52,7 +52,7 @@ function parseFFSafariLine(line: string): ParsedFrame | null {
     return null;
   }
   if (line.includes(' > eval')) {
-    line = line.replaceAll(/ line (\d+)(?: > eval line \d+)* > eval:\d+:\d+/g, ':$1');
+    line = line.replace(/ line (\d+)(?: > eval line \d+)* > eval:\d+:\d+/g, ':$1');
   }
   if (!line.includes('@') && !line.includes(':')) {
     return {

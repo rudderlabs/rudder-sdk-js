@@ -10,14 +10,14 @@ import type { Destination } from '../types/Destination';
 const isNonCloudDestination = (destination: Destination): boolean =>
   Boolean(
     destination.config.connectionMode !== 'cloud' ||
-      destination.config.useNativeSDKToSend === true || // this is the older flag for hybrid mode destinations
-      destination.config.useNativeSDK === true,
+    destination.config.useNativeSDKToSend === true || // this is the older flag for hybrid mode destinations
+    destination.config.useNativeSDK === true,
   );
 
 const isHybridModeDestination = (destination: Destination): boolean =>
   Boolean(
     destination.config.connectionMode === 'hybrid' ||
-      destination.config.useNativeSDKToSend === true,
+    destination.config.useNativeSDKToSend === true,
   );
 
 /**
@@ -38,7 +38,7 @@ const getNonCloudDestinations = (destinations: Destination[]): Destination[] | [
  * @returns the user friendly id
  */
 const getDestinationUserFriendlyId = (displayName: string, id: string): string =>
-  `${displayName.replaceAll(' ', '-')}___${id}`;
+  `${displayName.replace(/ /g, '-')}___${id}`;
 
 export {
   isNonCloudDestination,
