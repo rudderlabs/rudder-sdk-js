@@ -156,22 +156,49 @@ class Store implements IStore {
    */
   get<T = any>(key: string): Nullable<T> {
     const validKey = this.createValidKey(key);
+    let storedValue;
     let decryptedValue;
+    let isRetrieved = false;
 
     try {
       if (!validKey) {
         return null;
       }
 
-      decryptedValue = this.decrypt(this.engine.getItem(validKey));
+      storedValue = this.engine.getItem(validKey);
+      decryptedValue = this.decrypt(storedValue);
 
       if (isNullOrUndefined(decryptedValue) || decryptedValue === '') {
         return null;
       }
 
+      isRetrieved = true;
       // storejs that is used in localstorage engine already deserializes json strings but swallows errors
       return JSON.parse(decryptedValue as string);
     } catch (err) {
+      // Both encryption plugins, and `crypto` with no decrypt extension point registered, return
+      // an unrecognised format untouched, so an unchanged value may still be readable; keep it.
+      const isDecrypted = !this.isEncrypted || decryptedValue !== storedValue;
+
+      // Drop a parse failure so a later read is a clean miss instead of the same error on every
+      // poll, and only while the entry still holds what was read. Web Storage has no conditional
+      // delete, so that narrows rather than closes the window in which another tab's write is
+      // dropped; the cost there is a restarted reclaim handshake, since queued events are written
+      // only by the context that owns the store. The compare is serialized because storejs
+      // deserializes on every read, and uses `JSON.stringify` because `stringifyWithoutCircular`
+      // returns null on failure, which would make two unserializable values compare equal.
+      try {
+        if (
+          isRetrieved &&
+          isDecrypted &&
+          JSON.stringify(this.engine.getItem(validKey as string)) === JSON.stringify(storedValue)
+        ) {
+          this.remove(key);
+        }
+      } catch {
+        // The engine can refuse the re-read or the removal; a later read retries.
+      }
+
       const encryptionPluginName = state.storage.encryptionPluginName.value;
       // Skip error reporting only when the encryption plugin is configured but failed to load
       const shouldReportError =
