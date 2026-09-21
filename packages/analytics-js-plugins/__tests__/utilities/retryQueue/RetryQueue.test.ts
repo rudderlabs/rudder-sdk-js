@@ -1833,3 +1833,19 @@ describe('end-to-end', () => {
     queue.addItem({ a: 'b' });
   });
 });
+
+describe('legacy JS engines', () => {
+  it('evaluates on an engine without Map', () => {
+    const { Map: OriginalMap } = globalThis;
+    // @ts-expect-error simulating a legacy JS engine where the polyfill has not been applied yet
+    delete globalThis.Map;
+
+    try {
+      jest.resetModules();
+      expect(() => require('../../../src/utilities/retryQueue/RetryQueue')).not.toThrow();
+    } finally {
+      globalThis.Map = OriginalMap;
+      jest.resetModules();
+    }
+  });
+});

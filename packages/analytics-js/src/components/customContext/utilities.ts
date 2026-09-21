@@ -10,7 +10,10 @@ import { CONTEXT_RESERVED_ELEMENTS } from '../eventManager/constants';
 import type { UnknownContext } from './types';
 
 const CUSTOM_CONTEXT = 'CustomContext';
-const PROTOTYPE_POLLUTION_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+// An array and indexOf, because this constant is built while the module is
+// evaluated. The polyfill loader lives in this same bundle and cannot have run
+// yet, so a missing Set here can never be repaired by a runtime polyfill.
+const PROTOTYPE_POLLUTION_KEYS = ['__proto__', 'constructor', 'prototype'];
 
 const OBJECT_CONSTRUCTOR_SOURCE = Function.prototype.toString.call(Object);
 
@@ -52,7 +55,7 @@ const containsPrototypePollutionKey = (
 
   return Object.keys(traversableValue).some(key => {
     return (
-      PROTOTYPE_POLLUTION_KEYS.has(key) ||
+      PROTOTYPE_POLLUTION_KEYS.indexOf(key) !== -1 ||
       containsPrototypePollutionKey(traversableValue[key], visitedObjects)
     );
   });

@@ -300,4 +300,18 @@ describe('custom context utilities', () => {
       variants: [{ name: 'control' }],
     });
   });
+
+  it('evaluates on an engine without Set', () => {
+    const { Set: OriginalSet } = globalThis;
+    // @ts-expect-error simulating a legacy JS engine where the polyfill has not been applied yet
+    delete globalThis.Set;
+
+    try {
+      jest.resetModules();
+      expect(() => require('../../../src/components/customContext/utilities')).not.toThrow();
+    } finally {
+      globalThis.Set = OriginalSet;
+      jest.resetModules();
+    }
+  });
 });

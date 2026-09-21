@@ -57,7 +57,10 @@ const RETRY_QUEUE = 'RetryQueue';
 // Ids of the queues currently running on this page, keyed by queue name.
 // findOtherQueues matches donor queues on the name alone, so two running queues
 // sharing one will reclaim each other's items.
-const runningQueueIdsByName = new Map<string, Set<string>>();
+// A prototype-less object and arrays, because this registry is built while the
+// module is evaluated. In the bundled variants that happens before the polyfill
+// loader can run, so a missing Map here can never be repaired by a polyfill.
+const runningQueueIdsByName: Record<string, string[]> = Object.create(null);
 
 class RetryQueue implements IQueue<QueueItemData> {
   name: string;
@@ -225,10 +228,16 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.schedule.cancelAll();
     this.scheduleTimeoutActive = false;
 
-    const runningQueueIds = runningQueueIdsByName.get(this.name);
-    runningQueueIds?.delete(this.id);
-    if (runningQueueIds?.size === 0) {
-      runningQueueIdsByName.delete(this.name);
+    const runningQueueIds = runningQueueIdsByName[this.name];
+    if (runningQueueIds) {
+      const idIndex = runningQueueIds.indexOf(this.id);
+      if (idIndex !== -1) {
+        runningQueueIds.splice(idIndex, 1);
+      }
+
+      if (runningQueueIds.length === 0) {
+        delete runningQueueIdsByName[this.name];
+      }
     }
   }
 
@@ -240,13 +249,15 @@ class RetryQueue implements IQueue<QueueItemData> {
       this.stop();
     }
 
-    const runningQueueIds = runningQueueIdsByName.get(this.name) ?? new Set<string>();
-    if (runningQueueIds.size > 0 && !runningQueueIds.has(this.id)) {
+    const runningQueueIds = runningQueueIdsByName[this.name] ?? [];
+    if (runningQueueIds.length > 0 && runningQueueIds.indexOf(this.id) === -1) {
       this.logger?.error(RETRY_QUEUE_NAME_COLLISION_ERROR(RETRY_QUEUE, this.name));
     }
 
-    runningQueueIds.add(this.id);
-    runningQueueIdsByName.set(this.name, runningQueueIds);
+    if (runningQueueIds.indexOf(this.id) === -1) {
+      runningQueueIds.push(this.id);
+    }
+    runningQueueIdsByName[this.name] = runningQueueIds;
 
     this.scheduleTimeoutActive = true;
     this.scheduleFlushBatch();
