@@ -231,6 +231,9 @@ const INVALID_CONFIG_URL_WARNING = (context: string, configUrl: string | undefin
 const POLYFILL_SCRIPT_LOAD_ERROR = (scriptId: string, url: string): string =>
   `Failed to load the polyfill script with ID "${scriptId}" from URL ${url}.`;
 
+const POLYFILL_VERIFICATION_ERROR = (missingFeatures: string[]): string =>
+  `Failed to apply the polyfills for the following features: ${missingFeatures.join(', ')}.`;
+
 const UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY = (
   context: string,
   selectedStrategy: string | undefined,
@@ -329,6 +332,7 @@ export {
   UNSUPPORTED_STORAGE_ENTRY_TYPE_WARNING,
   INVALID_CONFIG_URL_WARNING,
   POLYFILL_SCRIPT_LOAD_ERROR,
+  POLYFILL_VERIFICATION_ERROR,
   UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY,
   DEPRECATED_PRE_CONSENT_STORAGE_STRATEGY,
   UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE,

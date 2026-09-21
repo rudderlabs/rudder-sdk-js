@@ -2,7 +2,7 @@ import { legacyJSEngineRequiredPolyfills } from '../detection/dom';
 const polyfillIoSdkUrl: string = __RS_POLYFILLIO_SDK_URL__;
 const POLYFILL_URL =
   polyfillIoSdkUrl !== ''
-    ? `${polyfillIoSdkUrl}?version=3.111.0&features=${Object.keys(
+    ? `${polyfillIoSdkUrl}?version=3.111.0&flags=always%2Cgated&features=${Object.keys(
         legacyJSEngineRequiredPolyfills,
       ).join('%2C')}`
     : '';
