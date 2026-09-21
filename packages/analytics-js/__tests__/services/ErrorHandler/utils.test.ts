@@ -799,6 +799,22 @@ describe('Error Reporting utilities', () => {
         'should allow integrations load failures from RudderStack CDN',
       ],
 
+      [
+        'ErrorHandler:: A timeout of 11000 ms occurred',
+        false,
+        'should not allow the unhandled copy of the device mode readiness timeout',
+      ],
+      [
+        'DeviceModeDestinationsPlugin:: Failed to get the ready status from integration for destination "Google Tag Manager" - A timeout of 11000 ms occurred',
+        true,
+        'should allow the handled device mode readiness timeout',
+      ],
+      [
+        'ErrorHandler:: A timeout of 5000 ms occurred',
+        true,
+        'should allow an unhandled timeout of any other duration',
+      ],
+
       ['dummy error', true, 'should allow generic errors'],
       ['', true, 'should allow empty messages'],
     ];

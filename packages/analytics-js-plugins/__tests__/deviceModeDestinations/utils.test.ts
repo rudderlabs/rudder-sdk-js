@@ -19,6 +19,11 @@ import {
   validateCustomIntegration,
   addIntegrationToDestination,
 } from '../../src/deviceModeDestinations/utils';
+import { ERROR_MESSAGES_TO_BE_FILTERED } from '@rudderstack/analytics-js-common/constants/errors';
+import { ERROR_HANDLER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { LOG_CONTEXT_SEPARATOR } from '@rudderstack/analytics-js-common/constants/logMessages';
+import { READY_CHECK_TIMEOUT_MS } from '../../src/deviceModeDestinations/constants';
+import { INTEGRATION_READY_TIMEOUT_ERROR } from '../../src/deviceModeDestinations/logMessages';
 import { resetState, state } from '../../__mocks__/state';
 import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
 
@@ -2701,6 +2706,18 @@ describe('deviceModeDestinations utils', () => {
       testDestination.integration?.alias!({} as any);
       expect(mockAlias.mock.calls[0][0]).toBe(mockAnalyticsInstance);
       expect(mockAlias.mock.calls[0][1]).toBe(loggerArg);
+    });
+  });
+
+  describe('READY_CHECK_TIMEOUT_MS', () => {
+    it('should stay in sync with the error message filter in analytics-js-common', () => {
+      // The filter cannot import this constant, so it hardcodes the duration. This
+      // test fails if the constant moves and the filter is left behind.
+      const unhandledCopy = `${ERROR_HANDLER}${LOG_CONTEXT_SEPARATOR}${INTEGRATION_READY_TIMEOUT_ERROR(
+        READY_CHECK_TIMEOUT_MS,
+      )}`;
+
+      expect(ERROR_MESSAGES_TO_BE_FILTERED.some(regex => regex.test(unhandledCopy))).toBe(true);
     });
   });
 });
