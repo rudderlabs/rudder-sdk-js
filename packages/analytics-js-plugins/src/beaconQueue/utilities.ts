@@ -12,6 +12,7 @@ import {
 } from './constants';
 import type { BeaconBatchData } from './types';
 import {
+  getUrlOriginAndPathname,
   mergeDeepRight,
   removeDuplicateSlashes,
   stringifyWithoutCircular,
@@ -51,21 +52,18 @@ const getNormalizedBeaconQueueOptions = (queueOpts: BeaconQueueOpts): BeaconQueu
   mergeDeepRight(DEFAULT_BEACON_QUEUE_OPTIONS, queueOpts);
 
 const getDeliveryUrl = (dataplaneUrl: string, writeKey: string): string => {
-  const dpUrl = new URL(dataplaneUrl);
-  return new URL(
-    removeDuplicateSlashes(
-      [
-        dpUrl.pathname,
-        '/',
-        'beacon',
-        '/',
-        DATA_PLANE_API_VERSION,
-        '/',
-        `batch?writeKey=${writeKey}`,
-      ].join(''),
-    ),
-    dpUrl,
-  ).href;
+  const { origin, pathname } = getUrlOriginAndPathname(dataplaneUrl);
+  return `${origin}${removeDuplicateSlashes(
+    [
+      pathname,
+      '/',
+      'beacon',
+      '/',
+      DATA_PLANE_API_VERSION,
+      '/',
+      `batch?writeKey=${encodeURIComponent(writeKey)}`,
+    ].join(''),
+  )}`;
 };
 
 export { getBatchDeliveryPayload, getDeliveryUrl, getNormalizedBeaconQueueOptions };

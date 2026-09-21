@@ -26,4 +26,38 @@ const isValidURL = (url: string | undefined): url is string => {
   }
 };
 
-export { removeDuplicateSlashes, isValidURL };
+/**
+ * Parses a URL without the URL constructor, which a page can shadow with a
+ * global of its own and which is unavailable on legacy JS engines until the
+ * polyfills load.
+ */
+const legacyParseUrl = (url: string): { origin: string; pathname: string } => {
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  return { origin: `${anchor.protocol}//${anchor.host}`, pathname: anchor.pathname };
+};
+
+/**
+ * Extracts the origin and the pathname from the provided url
+ * @param url
+ * @returns the origin and the pathname of `url`
+ */
+const getUrlOriginAndPathname = (url: string): { origin: string; pathname: string } => {
+  // A page can replace the global with a callable of its own, which `isFunction`
+  // cannot tell apart from the native parser. Only a value that parses without
+  // throwing and yields both an origin and a pathname is usable here.
+  if (isFunction(globalThis.URL)) {
+    try {
+      const parsedUrl = new URL(url);
+      if (isString(parsedUrl.origin) && isString(parsedUrl.pathname)) {
+        return { origin: parsedUrl.origin, pathname: parsedUrl.pathname };
+      }
+    } catch (e) {
+      // Fall back to the anchor element below
+    }
+  }
+
+  return legacyParseUrl(url);
+};
+
+export { removeDuplicateSlashes, isValidURL, getUrlOriginAndPathname };

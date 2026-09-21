@@ -9,7 +9,10 @@ export {
   isNullOrUndefined,
   isDefined,
 } from '@rudderstack/analytics-js-common/utilities/checks';
-export { removeDuplicateSlashes } from '@rudderstack/analytics-js-common/utilities/url';
+export {
+  removeDuplicateSlashes,
+  getUrlOriginAndPathname,
+} from '@rudderstack/analytics-js-common/utilities/url';
 export { generateUUID } from '@rudderstack/analytics-js-common/utilities/uuId';
 export { isErrRetryable } from '@rudderstack/analytics-js-common/utilities/http';
 export { fromBase64, toBase64 } from '@rudderstack/analytics-js-common/utilities/string';

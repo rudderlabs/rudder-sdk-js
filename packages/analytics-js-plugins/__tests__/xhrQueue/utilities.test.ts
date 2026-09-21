@@ -92,6 +92,55 @@ describe('xhrQueue Plugin Utilities', () => {
 
       expect(deliveryUrl).toEqual('https://test.com/some/path/v1/track');
     });
+
+    it('should return delivery url if the page has replaced the global URL constructor', () => {
+      const originalURL = globalThis.URL;
+      // Pages can define a global URL of their own, which shadows window.URL long
+      // after the capability detection determined that the constructor is usable.
+      (globalThis as any).URL = '/Acquisto/ShoppingCart';
+
+      try {
+        const deliveryUrl = getDeliveryUrl('https://test.com/some/path', 'track');
+
+        expect(deliveryUrl).toEqual('https://test.com/some/path/v1/track');
+      } finally {
+        globalThis.URL = originalURL;
+      }
+    });
+
+    it('should return delivery url if the page has replaced the global URL constructor with a callable', () => {
+      const originalURL = globalThis.URL;
+      // A callable replacement passes the isFunction guard, but what it constructs
+      // carries neither an origin nor a pathname.
+      (globalThis as any).URL = function URLStub() {
+        return { toString: () => '/Acquisto/ShoppingCart' };
+      };
+
+      try {
+        const deliveryUrl = getDeliveryUrl('https://test.com/some/path', 'track');
+
+        expect(deliveryUrl).toEqual('https://test.com/some/path/v1/track');
+      } finally {
+        globalThis.URL = originalURL;
+      }
+    });
+
+    it('should return delivery url if the global URL constructor throws', () => {
+      const originalURL = globalThis.URL;
+      (globalThis as any).URL = class {
+        constructor() {
+          throw new TypeError('URL is not a constructor');
+        }
+      };
+
+      try {
+        const deliveryUrl = getDeliveryUrl('https://test.com/some/path', 'track');
+
+        expect(deliveryUrl).toEqual('https://test.com/some/path/v1/track');
+      } finally {
+        globalThis.URL = originalURL;
+      }
+    });
   });
 
   describe('getBatchDeliveryUrl', () => {
@@ -530,7 +579,7 @@ describe('xhrQueue Plugin Utilities', () => {
 
       const retryReasons = ['client-network', 'client-timeout', 'server-500', 'server-429'];
 
-      retryReasons.forEach((retryReason) => {
+      retryReasons.forEach(retryReason => {
         const requestInfo = getRequestInfo(
           queueItemData,
           state,
@@ -571,7 +620,7 @@ describe('xhrQueue Plugin Utilities', () => {
           maxRetryAttempts: 10,
           willBeRetried: true,
           timeSinceFirstAttempt: 45000, // 45 seconds in milliseconds
-          timeSinceLastAttempt: 15000,  // 15 seconds in milliseconds
+          timeSinceLastAttempt: 15000, // 15 seconds in milliseconds
           reclaimed: false,
           isPageAccessible: true,
           retryReason: 'server-503',
