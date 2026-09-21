@@ -431,5 +431,19 @@ describe('BeaconQueue Plugin', () => {
         expect(size).toBe(100);
       }
     });
+
+    it('should not throw if the batch payload could not be created', () => {
+      const retryQueueCall = MockRetryQueue.mock.calls[MockRetryQueue.mock.calls.length - 1];
+      const sizeCalculator = retryQueueCall && retryQueueCall[6];
+
+      if (!sizeCalculator) {
+        throw new Error('RetryQueue did not receive a size calculator');
+      }
+
+      // getBatchDeliveryPayload returns undefined when the Blob constructor is missing or throws.
+      mockGetBatchDeliveryPayload.mockReturnValueOnce(undefined);
+
+      expect(() => sizeCalculator([{ event: sampleEvent }])).not.toThrow();
+    });
   });
 });

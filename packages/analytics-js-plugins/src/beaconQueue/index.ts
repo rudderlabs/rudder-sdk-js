@@ -132,7 +132,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
           const currentTime = getCurrentTimeFormatted();
           const events = itemData.map((queueItemData: BeaconQueueItemData) => queueItemData.event);
           // type casting to Blob as we know that the event has already been validated prior to enqueue
-          return (getBatchDeliveryPayload(events, currentTime, logger) as Blob).size;
+          return (getBatchDeliveryPayload(events, currentTime, logger) as Blob)?.size;
         },
       );
 

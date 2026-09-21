@@ -50,8 +50,22 @@ const getBatchDeliveryPayload = (
 const getNormalizedBeaconQueueOptions = (queueOpts: BeaconQueueOpts): BeaconQueueOpts =>
   mergeDeepRight(DEFAULT_BEACON_QUEUE_OPTIONS, queueOpts);
 
+// A valid pair is matched first, so only an unpaired surrogate is captured.
+const LONE_SURROGATE_REGEX = /[\uD800-\uDBFF][\uDC00-\uDFFF]|([\uD800-\uDFFF])/g;
+
+// `encodeURIComponent` throws on a lone surrogate, which write key validation lets through, so
+// substitute it the way a url parser would. Falling back to the raw key instead would leave a
+// reserved character such as `#` free to truncate it.
+const encodeWriteKey = (writeKey: string): string =>
+  encodeURIComponent(
+    writeKey.replace(LONE_SURROGATE_REGEX, (pair, loneSurrogate) =>
+      loneSurrogate ? '\uFFFD' : pair,
+    ),
+  );
+
 const getDeliveryUrl = (dataplaneUrl: string, writeKey: string): string => {
   const dpUrl = new URL(dataplaneUrl);
+
   return new URL(
     removeDuplicateSlashes(
       [
@@ -61,7 +75,7 @@ const getDeliveryUrl = (dataplaneUrl: string, writeKey: string): string => {
         '/',
         DATA_PLANE_API_VERSION,
         '/',
-        `batch?writeKey=${writeKey}`,
+        `batch?writeKey=${encodeWriteKey(writeKey)}`,
       ].join(''),
     ),
     dpUrl,
