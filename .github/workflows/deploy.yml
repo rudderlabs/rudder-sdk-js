@@ -157,7 +157,10 @@ jobs:
       - name: Setup workspace
         env:
           HUSKY: 0
-          REMOTE_MODULES_BASE_PATH: '${{ inputs.base_cdn_url }}/${{ inputs.s3_dir_path }}/modern/plugins'
+          # Production publishes plugin artifacts only under the versioned directory; the
+          # `s3_dir_path` copy is gated to non production, and in production that path is
+          # the frozen `v3` alias (SDK-5497). Name the directory this run actually writes.
+          REMOTE_MODULES_BASE_PATH: "${{ inputs.base_cdn_url }}/${{ inputs.environment == 'production' && env.CURRENT_VERSION_VALUE || inputs.s3_dir_path }}/modern/plugins"
           BUGSNAG_API_KEY: ${{ secrets.BUGSNAG_API_KEY }}
           BUGSNAG_RELEASE_STAGE: ${{ inputs.bugsnag_release_stage }}
           LOCK_DEPS_VERSION: ${{ inputs.environment == 'production' && 'true' || 'false' }}
@@ -166,6 +169,10 @@ jobs:
 
       - name: Build artifacts
         env:
+          # Production publishes plugin artifacts only under the versioned directory; the
+          # `s3_dir_path` copy is gated to non production, and in production that path is
+          # the frozen `v3` alias (SDK-5497). Name the directory this run actually writes.
+          REMOTE_MODULES_BASE_PATH: "${{ inputs.base_cdn_url }}/${{ inputs.environment == 'production' && env.CURRENT_VERSION_VALUE || inputs.s3_dir_path }}/modern/plugins"
           BUGSNAG_API_KEY: ${{ secrets.BUGSNAG_API_KEY }}
           BUGSNAG_RELEASE_STAGE: ${{ inputs.bugsnag_release_stage }}
           LOCK_DEPS_VERSION: ${{ inputs.environment == 'production' && 'true' || 'false' }}

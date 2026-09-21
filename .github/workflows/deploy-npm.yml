@@ -280,7 +280,11 @@ jobs:
       - name: Setup workspace
         env:
           HUSKY: 0
-          REMOTE_MODULES_BASE_PATH: '${{ inputs.base_cdn_url }}/v3/modern/plugins'
+          # `LOCK_DEPS_VERSION` is true in production, so the SDK resolves its primary
+          # plugins URL to the package version. A `v3` fallback would disagree with that
+          # inside the same artifact, and `v3/modern/plugins` is not refreshed in
+          # production anyway (SDK-5497), so the fallback follows the primary path.
+          REMOTE_MODULES_BASE_PATH: "${{ inputs.base_cdn_url }}/${{ inputs.environment == 'production' && env.CURRENT_VERSION_VALUE || 'v3' }}/modern/plugins"
           BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
           LOCK_DEPS_VERSION: ${{ inputs.environment == 'production' && 'true' || 'false' }}
           BUGSNAG_RELEASE_STAGE: ${{ inputs.bugsnag_release_stage || 'production' }}
@@ -289,6 +293,11 @@ jobs:
 
       - name: Build release artifacts
         env:
+          # `LOCK_DEPS_VERSION` is true in production, so the SDK resolves its primary
+          # plugins URL to the package version. A `v3` fallback would disagree with that
+          # inside the same artifact, and `v3/modern/plugins` is not refreshed in
+          # production anyway (SDK-5497), so the fallback follows the primary path.
+          REMOTE_MODULES_BASE_PATH: "${{ inputs.base_cdn_url }}/${{ inputs.environment == 'production' && env.CURRENT_VERSION_VALUE || 'v3' }}/modern/plugins"
           BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
           BUGSNAG_RELEASE_STAGE: ${{ inputs.bugsnag_release_stage || 'production' }}
           LOCK_DEPS_VERSION: ${{ inputs.environment == 'production' && 'true' || 'false' }}

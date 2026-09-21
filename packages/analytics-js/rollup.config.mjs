@@ -20,6 +20,12 @@ import federation from '@originjs/vite-plugin-federation';
 import externalGlobals from 'rollup-plugin-external-globals';
 import * as dotenv from 'dotenv';
 import pkg from './package.json' with { type: 'json' };
+import {
+  getDevServerPluginsBasePath,
+  getRemotePluginsFallbackBasePath,
+  assertRemotePluginsBasePath,
+  getRemotePluginsHostPromise,
+} from './rollup.federation.mjs';
 
 dotenv.config({ quiet: true });
 const baseCdnUrl = process.env.BASE_CDN_URL ? process.env.BASE_CDN_URL.replace(/\/+$/, '') : 'https://cdn.rudderlabs.com';
@@ -35,9 +41,24 @@ const isModuleFederatedBuild = !isDynamicCustomBuild && !isLegacyBuild && !isLit
 const sourceMapType =
   process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
 const cdnPath = isDynamicCustomBuild ? `dynamicCdnBundle` : `cdn`;
-let remotePluginsBasePath =
-  process.env.REMOTE_MODULES_BASE_PATH ?? `${baseCdnUrl}/v3`;
-remotePluginsBasePath = remotePluginsBasePath?.endsWith('/') ? remotePluginsBasePath : `${remotePluginsBasePath}/`;
+// Feeds the `__PLUGINS_BASE_URL__` placeholder, which the dev server page appends the variant
+// and the plugins directory to, mirroring how it treats `__DEST_SDK_BASE_URL__`. It is derived
+// from the CDN origin rather than from `REMOTE_MODULES_BASE_PATH`, which names the plugins
+// directory itself: handing that to a consumer that appends the directory produced
+// `<cdn>/<version>/modern/plugins/modern/plugins` and took precedence over the fallback.
+const devServerPluginsBasePath = getDevServerPluginsBasePath(baseCdnUrl);
+// The module federation fallback needs the plugins directory itself, which is what the deploy
+// workflow passes. Its default carries the variant and the directory for the same reason, so an
+// unset environment cannot bake a URL that resolves to the wrong place. Only the module
+// federated build bakes it, so only that build is held to it.
+const remotePluginsFallbackBasePath = assertRemotePluginsBasePath(
+  getRemotePluginsFallbackBasePath(
+    process.env.REMOTE_MODULES_BASE_PATH,
+    baseCdnUrl,
+    variantSubfolder,
+  ),
+  isModuleFederatedBuild,
+);
 let destSDKBaseURL = process.env.DEST_SDK_BASE_URL ?? `${baseCdnUrl}/v3`;
 destSDKBaseURL = destSDKBaseURL?.endsWith('/') ? destSDKBaseURL : `${destSDKBaseURL}/`;
 const outDirNpmRoot = `dist/npm`;
@@ -47,7 +68,10 @@ const outDirCDN = `${outDirCDNRoot}${variantSubfolder}`;
 const distName = 'rsa';
 const modName = 'rudderanalytics';
 const remotePluginsExportsFilename = `rsa-plugins`;
-const remotePluginsHostPromise = `Promise.resolve(window.RudderStackGlobals && window.RudderStackGlobals.app && window.RudderStackGlobals.app.pluginsCDNPath ? \`\${window.RudderStackGlobals.app.pluginsCDNPath}/${remotePluginsExportsFilename}.js\` : \`${remotePluginsBasePath}/${remotePluginsExportsFilename}.js\`)`;
+const remotePluginsHostPromise = getRemotePluginsHostPromise(
+  remotePluginsFallbackBasePath,
+  remotePluginsExportsFilename,
+);
 const moduleType = process.env.MODULE_TYPE || 'cdn';
 const lockDepsVersion = process.env.LOCK_DEPS_VERSION === 'true';
 const isCDNPackageBuild = moduleType === 'cdn';
@@ -338,7 +362,7 @@ export function getDefaultConfig(distName) {
             __DATAPLANE_URL__: process.env.DATAPLANE_URL,
             __CONFIG_SERVER_HOST__: process.env.CONFIG_SERVER_HOST,
             __DEST_SDK_BASE_URL__: destSDKBaseURL,
-            __PLUGINS_BASE_URL__: remotePluginsBasePath,
+            __PLUGINS_BASE_URL__: devServerPluginsBasePath,
             __SDK_BUNDLE_FILENAME__: distName,
             __CUSTOM_DEVICE_MODE_DESTINATION_ID__: process.env.CUSTOM_DEVICE_MODE_DESTINATION_ID,
           },
