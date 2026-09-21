@@ -156,22 +156,55 @@ class Store implements IStore {
    */
   get<T = any>(key: string): Nullable<T> {
     const validKey = this.createValidKey(key);
+    let storedValue;
     let decryptedValue;
+    let isRetrieved = false;
 
     try {
       if (!validKey) {
         return null;
       }
 
-      decryptedValue = this.decrypt(this.engine.getItem(validKey));
+      storedValue = this.engine.getItem(validKey);
+      decryptedValue = this.decrypt(storedValue);
 
       if (isNullOrUndefined(decryptedValue) || decryptedValue === '') {
         return null;
       }
 
+      isRetrieved = true;
       // storejs that is used in localstorage engine already deserializes json strings but swallows errors
       return JSON.parse(decryptedValue as string);
     } catch (err) {
+      // On an encrypted store, only a value that decryption actually changed is known to have
+      // been decrypted. Both encryption plugins return a format they do not recognise untouched,
+      // and `crypto` does the same when no plugin has registered the extension point, so a value
+      // that came back unchanged may still be readable by the matching plugin or encryption
+      // version and has to survive.
+      const isDecrypted = !this.isEncrypted || decryptedValue !== storedValue;
+
+      // Drop the entry only when it was decrypted and retrieved and then failed to parse, so a
+      // later read is a clean miss instead of the same parse error on every poll. A retrieval or
+      // decryption failure leaves a value that may still be readable later, so that one is kept.
+      // Re-read it and remove it only while it still holds what was read, so a newer value written
+      // by another tab in the meantime is not discarded; storejs deserializes on every read, so
+      // that check compares the serialized form rather than the reference, which would never match
+      // for an object or an array. `stringifyWithoutCircular` is deliberately not used for it: it
+      // returns null on failure, so two unserializable values would compare equal and the entry
+      // would go.
+      try {
+        if (
+          isRetrieved &&
+          isDecrypted &&
+          JSON.stringify(this.engine.getItem(validKey as string)) === JSON.stringify(storedValue)
+        ) {
+          this.remove(key);
+        }
+      } catch {
+        // The engine can refuse the read back or the removal (NS_ERROR_STORAGE_BUSY) and an
+        // unserializable value cannot be compared; either way a later read retries.
+      }
+
       const encryptionPluginName = state.storage.encryptionPluginName.value;
       // Skip error reporting only when the encryption plugin is configured but failed to load
       const shouldReportError =

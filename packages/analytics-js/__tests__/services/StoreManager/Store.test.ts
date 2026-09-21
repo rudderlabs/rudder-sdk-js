@@ -1,5 +1,7 @@
 import { QueueStatuses } from '@rudderstack/analytics-js-common/constants/QueueStatuses';
 import { COOKIE_KEYS } from '@rudderstack/analytics-js-cookies/constants/cookies';
+import { decryptBrowser } from '@rudderstack/analytics-js-cookies/cookiesUtilities';
+import type { ExtensionPlugin } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { Store } from '../../../src/services/StoreManager/Store';
 import { getStorageEngine } from '../../../src/services/StoreManager/storages/storageEngine';
 import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
@@ -62,6 +64,7 @@ describe('Store', () => {
     // Reset state values before each test
     state.storage.encryptionPluginName.value = undefined;
     state.plugins.failedPlugins.value = [];
+    state.plugins.loadedPlugins.value = [];
   });
 
   describe('.get', () => {
@@ -82,6 +85,208 @@ describe('Store', () => {
     it('should return null if value is not valid json', () => {
       engine.setItem('name.id.queue', '[{]}');
       expect(store.get(QueueStatuses.QUEUE)).toBeNull();
+    });
+
+    it('should drop the entry and report only once if the value cannot be parsed', () => {
+      const errorHandlerSpy = jest.spyOn(defaultErrorHandler, 'onError').mockImplementation();
+      const reclaimStartKey = `name.id.${QueueStatuses.RECLAIM_START}`;
+
+      // A single encoded value: set() writes two JSON layers and get() strips both,
+      // so an entry that is missing one of them throws on parse.
+      engine.setItem(reclaimStartKey, JSON.stringify('c68ffc7a-5e1a-4b2d-8c3f-9a1e0d7b6c45'));
+
+      expect(store.get(QueueStatuses.RECLAIM_START)).toBeNull();
+      expect(errorHandlerSpy).toHaveBeenCalledTimes(1);
+      expect(engine.getItem(reclaimStartKey)).toBeNull();
+
+      // The corrupt entry is gone, so the next read is a clean miss and is not reported again
+      expect(store.get(QueueStatuses.RECLAIM_START)).toBeNull();
+      expect(errorHandlerSpy).toHaveBeenCalledTimes(1);
+
+      errorHandlerSpy.mockRestore();
+    });
+
+    it('should leave the stored value in place when decryption fails', () => {
+      const errorHandlerSpy = jest.spyOn(defaultErrorHandler, 'onError').mockImplementation();
+      const reclaimStartKey = `name.id.${QueueStatuses.RECLAIM_START}`;
+
+      store.set(QueueStatuses.RECLAIM_START, 'c68ffc7a-5e1a-4b2d-8c3f-9a1e0d7b6c45');
+      const storedValue = engine.getItem(reclaimStartKey);
+
+      const decryptSpy = jest.spyOn(store, 'decrypt').mockImplementation(() => {
+        throw new Error('Decryption failed');
+      });
+
+      expect(store.get(QueueStatuses.RECLAIM_START)).toBeNull();
+      // A transiently failing encryption plugin must not cost the value; it is
+      // readable again as soon as the plugin recovers.
+      expect(engine.getItem(reclaimStartKey)).toBe(storedValue);
+      expect(errorHandlerSpy).toHaveBeenCalledTimes(1);
+
+      decryptSpy.mockRestore();
+      errorHandlerSpy.mockRestore();
+    });
+
+    it('should not remove anything when the engine fails to retrieve the value', () => {
+      const errorHandlerSpy = jest.spyOn(defaultErrorHandler, 'onError').mockImplementation();
+      const removeItemSpy = jest.spyOn(store.engine, 'removeItem');
+      const getItemSpy = jest.spyOn(store.engine, 'getItem').mockImplementation(() => {
+        throw new Error('NS_ERROR_STORAGE_BUSY');
+      });
+
+      expect(store.get(QueueStatuses.RECLAIM_START)).toBeNull();
+      expect(removeItemSpy).not.toHaveBeenCalled();
+      expect(errorHandlerSpy).toHaveBeenCalledTimes(1);
+
+      getItemSpy.mockRestore();
+      removeItemSpy.mockRestore();
+      errorHandlerSpy.mockRestore();
+    });
+
+    it('should not remove an unparseable value that was rewritten after it was read', () => {
+      const errorHandlerSpy = jest.spyOn(defaultErrorHandler, 'onError').mockImplementation();
+      const reclaimStartKey = `name.id.${QueueStatuses.RECLAIM_START}`;
+      const corruptValue = 'c68ffc7a-5e1a-4b2d-8c3f-9a1e0d7b6c45';
+
+      engine.setItem(reclaimStartKey, JSON.stringify(corruptValue));
+
+      const removeItemSpy = jest.spyOn(store.engine, 'removeItem');
+      // Another tab writes a healthy reclaimStart marker between the read and the removal
+      const getItemSpy = jest
+        .spyOn(store.engine, 'getItem')
+        .mockReturnValueOnce(corruptValue)
+        .mockReturnValue('1758440000000');
+
+      expect(store.get(QueueStatuses.RECLAIM_START)).toBeNull();
+      expect(removeItemSpy).not.toHaveBeenCalled();
+      expect(errorHandlerSpy).toHaveBeenCalledTimes(1);
+
+      getItemSpy.mockRestore();
+      removeItemSpy.mockRestore();
+      errorHandlerSpy.mockRestore();
+    });
+
+    it('should drop an unparseable value that the engine deserializes on every read', () => {
+      const errorHandlerSpy = jest.spyOn(defaultErrorHandler, 'onError').mockImplementation();
+      const queueKey = `name.id.${QueueStatuses.QUEUE}`;
+
+      // storejs parses the entry on every read, so the engine hands back a new array
+      // each time. The value still fails to parse, and a reference comparison would
+      // never match it against itself.
+      engine.setItem(queueKey, '[{}]');
+
+      expect(store.get(QueueStatuses.QUEUE)).toBeNull();
+      expect(errorHandlerSpy).toHaveBeenCalledTimes(1);
+      expect(engine.getItem(queueKey)).toBeNull();
+
+      // The corrupt entry is gone, so the next read is a clean miss and is not reported again
+      expect(store.get(QueueStatuses.QUEUE)).toBeNull();
+      expect(errorHandlerSpy).toHaveBeenCalledTimes(1);
+
+      errorHandlerSpy.mockRestore();
+    });
+
+    it('should not remove an unparseable object value that was rewritten after it was read', () => {
+      const errorHandlerSpy = jest.spyOn(defaultErrorHandler, 'onError').mockImplementation();
+      const queueKey = `name.id.${QueueStatuses.QUEUE}`;
+
+      engine.setItem(queueKey, '[{}]');
+
+      const removeItemSpy = jest.spyOn(store.engine, 'removeItem');
+      // Another tab writes a different queue between the read and the removal
+      const getItemSpy = jest
+        .spyOn(store.engine, 'getItem')
+        .mockReturnValueOnce([{}])
+        .mockReturnValue([{ id: 'from-another-tab' }]);
+
+      expect(store.get(QueueStatuses.QUEUE)).toBeNull();
+      expect(removeItemSpy).not.toHaveBeenCalled();
+      expect(errorHandlerSpy).toHaveBeenCalledTimes(1);
+
+      getItemSpy.mockRestore();
+      removeItemSpy.mockRestore();
+      errorHandlerSpy.mockRestore();
+    });
+
+    it.each([
+      ['has not loaded yet', [] as string[]],
+      ['failed to load', ['StorageEncryption']],
+    ])(
+      'should keep an encrypted value when the encryption plugin %s',
+      (_scenario, failedPlugins) => {
+        const errorHandlerSpy = jest.spyOn(defaultErrorHandler, 'onError').mockImplementation();
+        const encryptedStore = new Store(
+          {
+            name: 'name',
+            id: 'id',
+            validKeys: { ...QueueStatuses, ...COOKIE_KEYS },
+            isEncrypted: true,
+            errorHandler: defaultErrorHandler,
+            logger: defaultLogger,
+          },
+          getStorageEngine('localStorage'),
+          pluginsManager,
+        );
+        const reclaimStartKey = `name.id.${QueueStatuses.RECLAIM_START}`;
+        const cipherText = 'RudderEncrypt:U2FsdGVkX1+x4Hn1Qb9Zq0pTn0X8';
+
+        // No decrypt extension point is registered, so invokeSingle returns undefined and
+        // crypto hands the ciphertext straight back. This is the real fallback, not a
+        // throwing decrypt: the value looks retrieved and then fails to parse.
+        state.storage.encryptionPluginName.value = 'StorageEncryption';
+        state.plugins.loadedPlugins.value = [];
+        state.plugins.failedPlugins.value = failedPlugins;
+
+        engine.setItem(reclaimStartKey, cipherText);
+
+        expect(encryptedStore.get(QueueStatuses.RECLAIM_START)).toBeNull();
+        // Deleting here would destroy the only copy of a value the plugin can still read
+        expect(engine.getItem(reclaimStartKey)).toBe(cipherText);
+
+        errorHandlerSpy.mockRestore();
+      },
+    );
+
+    it('should keep an encrypted value that the configured plugin cannot decrypt', () => {
+      const errorHandlerSpy = jest.spyOn(defaultErrorHandler, 'onError').mockImplementation();
+      const encryptedStore = new Store(
+        {
+          name: 'name',
+          id: 'id',
+          validKeys: { ...QueueStatuses, ...COOKIE_KEYS },
+          isEncrypted: true,
+          errorHandler: defaultErrorHandler,
+          logger: defaultLogger,
+        },
+        getStorageEngine('localStorage'),
+        pluginsManager,
+      );
+      const reclaimStartKey = `name.id.${QueueStatuses.RECLAIM_START}`;
+      // A v1 value in a store configured for v3. The real v3 decrypt only handles the
+      // RS_ENC_v3_ prefix and returns anything else untouched, so the ciphertext reaches
+      // JSON.parse and throws just as it would if no plugin had run at all.
+      const legacyCipherText = 'RudderEncrypt:U2FsdGVkX1+x4Hn1Qb9Zq0pTn0X8';
+
+      pluginEngine.register(
+        {
+          name: 'StorageEncryption',
+          storage: { decrypt: (value: string) => decryptBrowser(value) },
+        } as unknown as ExtensionPlugin,
+        state,
+      );
+      state.storage.encryptionPluginName.value = 'StorageEncryption';
+      state.plugins.loadedPlugins.value = ['StorageEncryption'];
+
+      engine.setItem(reclaimStartKey, legacyCipherText);
+
+      try {
+        expect(encryptedStore.get(QueueStatuses.RECLAIM_START)).toBeNull();
+        // The legacy plugin can still read this value; deleting it loses it for good
+        expect(engine.getItem(reclaimStartKey)).toBe(legacyCipherText);
+      } finally {
+        pluginEngine.unregister('StorageEncryption');
+        errorHandlerSpy.mockRestore();
+      }
     });
 
     it('should not report errors when encryption plugin failed to load', () => {
