@@ -187,6 +187,42 @@ eval@[native code]`);
     });
   });
 
+  describe('legacy JS engines', () => {
+    it('parses stack traces on an engine without String.prototype.replaceAll', () => {
+      const { replaceAll } = String.prototype;
+      // @ts-expect-error simulating a legacy JS engine where the polyfill did not load
+      delete String.prototype.replaceAll;
+      try {
+        const v8Error = makeError(`Error: test
+    at functionOne (file.js:10:5)`);
+        expect(parseStackTrace(v8Error)[0]).toEqual({
+          functionName: 'functionOne',
+          fileName: 'file.js',
+          lineNumber: 10,
+          columnNumber: 5,
+        });
+
+        // V8 eval frame: the only input that reaches the eval branch
+        const v8EvalError = makeError(`Error: test
+    at evalFn (eval at outer (http://host/app.js:10:5), <anonymous>:1:7)`);
+        expect(parseStackTrace(v8EvalError)[0]).toEqual({
+          functionName: 'evalFn',
+          fileName: 'http://host/app.js',
+          lineNumber: 10,
+          columnNumber: 5,
+        });
+
+        const ffError = makeError(`evalFn@http://host/app.js line 10 > eval:1:1`);
+        expect(parseStackTrace(ffError)[0]).toMatchObject({
+          functionName: 'evalFn',
+          fileName: 'http://host/app.js',
+        });
+      } finally {
+        String.prototype.replaceAll = replaceAll;
+      }
+    });
+  });
+
   describe('branch selection heuristic', () => {
     it('uses the V8 branch when any line starts with "    at "', () => {
       // Mixed content: first line is a message, second is V8
