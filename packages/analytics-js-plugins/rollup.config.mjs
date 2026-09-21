@@ -197,7 +197,10 @@ const outputFilesNpm = [
 
 const outputFilesCdn = [
   {
-    chunkFileNames: `${distName}-[name]${process.env.UGLIFY === 'true' ? '.min' : ''}.js`,
+    // The chunk URLs are served from a versioned directory that is overwritten in place on a
+    // re-release, so the content hash is what keeps a cached chunk from being served for a
+    // different build of the same version.
+    chunkFileNames: `${distName}-[name]-[hash]${process.env.UGLIFY === 'true' ? '.min' : ''}.js`,
     dir: outDirCDN,
     format: 'esm',
     name: modName,
