@@ -263,6 +263,23 @@ jobs:
 
           aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --id "$invalidation_id"
 
+      # `aws s3 cp` exiting 0 says nothing about whether every chunk landed, and
+      # nothing else in the pipeline ever fetches a published URL. The pinned
+      # plugin directory is what the core will point its remote imports at, and
+      # the integrations beside it are loaded by name at runtime, so a partial
+      # upload has to fail the job here -- deliberately before the core is
+      # copied to the common production path below, which is the ordering the
+      # versioned-first upload above exists to preserve.
+      - name: Verify published SDK plugin and integration artifacts (versioned directory)
+        if: ${{ inputs.environment == 'production' }}
+        uses: ./.github/actions/verify-cdn-artifacts
+        with:
+          base_cdn_url: ${{ inputs.base_cdn_url }}
+          verify_plugins: 'true'
+          verify_integrations: 'true'
+          sdk_version: ${{ env.CURRENT_VERSION_VALUE }}
+          plugins_src: ${{ env.PLUGINS_ARTIFACTS_BASE_PATH }}/modern/plugins
+
       - name: Copy SDK plugins and integrations artifacts to S3
         # IMPORTANT: We're deliberately avoiding copying these artifacts for the production environment
         # as they are already copied to versioned directory and expected to be loaded from there
@@ -407,6 +424,25 @@ jobs:
           invalidation_id=$(AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/${S3_DIR_PATH}*" --query "Invalidation.Id" --output text)
           
           aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --id "$invalidation_id"
+
+      # The core is the entry point every consumer loads, and the Slack message
+      # below advertises exactly this URL. Assert it is actually fetchable
+      # before claiming the deployment succeeded.
+      - name: Verify published SDK core artifact
+        uses: ./.github/actions/verify-cdn-artifacts
+        with:
+          base_cdn_url: ${{ inputs.base_cdn_url }}
+          verify_core: 'true'
+          s3_dir_path: ${{ inputs.s3_dir_path }}
+          # Named so the core is checked for identity, not just reachability.
+          # The floating path already holds the previous release, so a copy that
+          # silently failed would answer 200 and this step would pass while the
+          # Slack message below announced the new version.
+          #
+          # Production only: naming a version also makes the action assert the
+          # versioned prefix, and only production uploads one. Elsewhere this
+          # stays a plain reachability check of the floating path.
+          sdk_version: ${{ inputs.environment == 'production' && env.CURRENT_VERSION_VALUE || '' }}
 
       - name: Get Job URL
         id: get-job-url
