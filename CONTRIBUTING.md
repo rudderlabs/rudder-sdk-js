@@ -65,9 +65,6 @@ RudderStack primarily supports two [connection modes](https://www.rudderstack.co
 
 ## Developing _cloud mode_ RudderStack integration
 
-Follow the guide in [Contributing.md of the `rudder-transformer` repo](https://github.com/rudderlabs/rudder-transformer/blob/develop/CONTRIBUTING.md) as
-the `rudder-transformer` is responsible for the **cloud mode** transformation.
-
 Follow the guide in [Contributing.md of the `rudder-transformer` repo](https://github.com/rudderlabs/rudder-transformer/blob/develop/CONTRIBUTING.md) as the `rudder-transformer` is responsible for the **cloud mode** transformation. Destination-specific guidance is under its _Building your first custom RudderStack source integration_ section, which also covers mapping event data to a destination's data spec.
 
 ## Developing _device mode_ RudderStack integration
