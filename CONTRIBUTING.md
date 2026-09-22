@@ -64,7 +64,7 @@ RudderStack primarily supports two [connection modes](https://www.rudderstack.co
 2. **Device Mode Integration**: Events are sent directly from the client to the destination in this mode. Depending upon the client where you are collecting events from, the respective RudderStack client SDK (e.g. `rudder-sdk-js` for the web client) is responsible to transform and deliver these events (using the destination SDK).
 
 ## Developing _cloud mode_ RudderStack integration
-Follow the guide in [Contributing.md of the `rudder-transformer` repo](https://github.com/rudderlabs/rudder-transformer/blob/docs-contrib-guide/CONTRIBUTING.md#building-your-first-custom-rudderStack-destination-integration) as
+Follow the guide in [Contributing.md of the `rudder-transformer` repo](https://github.com/rudderlabs/rudder-transformer/blob/develop/CONTRIBUTING.md) as
 the `rudder-transformer` is responsible for the **cloud mode** transformation.
 
 ## Developing _device mode_ RudderStack integration
@@ -82,7 +82,7 @@ In this guide, we'll focus specifically on developing a destination integration 
 * Makes it hard to collect **first-party** data
 * Prone to ad blockers
 
-If _device mode_ integration does not seem suitable, go ahead with the _cloud mode_ inregration development instead and follow [this guide](https://github.com/rudderlabs/rudder-transformer/blob/docs-contrib-guide/CONTRIBUTING.md#building-your-first-custom-rudderStack-destination-integration).
+If _device mode_ integration does not seem suitable, go ahead with the _cloud mode_ inregration development instead and follow [this guide](https://github.com/rudderlabs/rudder-transformer/blob/develop/CONTRIBUTING.md).
 
 ### 1. Setting up the development environment
 
@@ -128,19 +128,32 @@ The repository is a monorepo, with different packages under the `packages` direc
 Your integration will require several key files:
 
 **Constants definition**
-> `/packages/analytics-js-common/src/constants/integrations/<integration-name>/constants.ts`
+> `packages/analytics-js-integrations/src/integrations/<DIR_NAME>/constants.js`
 
-Start by creating a new folder in `analytics-js-common` package, under `/packages/analytics-js-common/src/constants/integrations` for the new integration (e.g., test-integration-1). 
-We will define few basic constants mandatorily required for all the integrations.
-   - Integration name
-   - Display name
-   - Directory name
+Start by creating a new folder under `packages/analytics-js-integrations/src/integrations/` for the new integration, named after its `DIR_NAME`.
+The integration's `constants.js` must export:
+   - `NAME`: The canonical integration name, imported from the auto-generated `packages/analytics-js-integrations/src/constants/Destinations.ts` file.
+   - `DISPLAY_NAME`: The integration's display name, imported from the same auto-generated `Destinations.ts` file.
+   - `DIR_NAME`: The name of the integration directory. Define it locally without special characters or spaces.
+   - `CNameMapping`: A map from the destination name spellings and aliases used in the RudderStack dashboard to the canonical `NAME`.
 
-This can be done by creating a `constants.ts` with `NAME`, `DISPLAY_NAME`, and `DIR_NAME` at minimum.
+For example, the Google Analytics integration defines its constants as follows:
 
-The integration and display names should be referred from the auto-generated file in `/packages/analytics-js-common/src/constants/integrations/Destinations.ts`. See the existing integrations for reference.
+```javascript
+import { GA_NAME as NAME, GA_DISPLAY_NAME as DISPLAY_NAME } from '../../constants/Destinations';
 
-The directory name is the name of the integration directory in the `packages/analytics-js-integrations/src/integrations` directory. It should not contain any special characters or spaces.
+const DIR_NAME = 'GA';
+
+const CNameMapping = {
+  [NAME]: NAME,
+  'Google Analytics': NAME,
+  GoogleAnalytics: NAME,
+  'GOOGLE ANALYTICS': NAME,
+  'google analytics': NAME,
+};
+
+export { NAME, CNameMapping, DISPLAY_NAME, DIR_NAME };
+```
 
 **Main integration code**
 > `packages/analytics-js-integrations/src/integrations/<integration-name>/browser.js`
@@ -183,12 +196,11 @@ The directory name is the name of the integration directory in the `packages/ana
 ### 4. Building and testing
 
 #### Build process
-```bash
-# For legacy build
-npm run build:integration --environment INTG_NAME:TestIntegrationOne
 
-# For modern build
-npm run build:integration:modern --environment INTG_NAME:TestIntegrationOne
+Run the single-integration build command from the `packages/analytics-js-integrations` directory:
+
+```bash
+npm run build:integration:cli --intg=TestIntegrationOne
 ```
 
 #### Testing setup
