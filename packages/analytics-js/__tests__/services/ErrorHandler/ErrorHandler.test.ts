@@ -367,9 +367,38 @@ describe('ErrorHandler', () => {
       // Dispatch the CSP violation event
       document.dispatchEvent(cspEvent);
 
-      // Verify the URL was added to the blocked list
-      expect(state.capabilities.cspViolations.value.map(v => v.blockedURL)).toContain(blockedURL);
-      expect(state.capabilities.cspViolations.value).toHaveLength(1);
+      // The directive is what lets the filter tell a blocked import from a
+      // blocked probe, so assert the pair rather than just the URL.
+      expect(state.capabilities.cspViolations.value).toEqual([
+        { blockedURL, directive: 'script-src' },
+      ]);
+    });
+
+    it('should record the directive that rejected the request', () => {
+      const blockedURL = 'https://cdn.rudderlabs.com/v3/modern/plugins/plugin1.min.js';
+
+      // connect-src rejects the reachability probe; script-src would reject the
+      // import. The filter treats the two differently, so the listener has to
+      // keep them apart.
+      document.dispatchEvent(
+        new SecurityPolicyViolationEvent('securitypolicyviolation', {
+          disposition: 'enforce',
+          blockedURI: blockedURL,
+          violatedDirective: 'connect-src',
+          effectiveDirective: 'connect-src',
+          originalPolicy: "connect-src 'self'",
+          documentURI: 'https://example.com',
+          referrer: '',
+          statusCode: 200,
+          lineNumber: 1,
+          columnNumber: 1,
+          sourceFile: 'https://example.com',
+        }),
+      );
+
+      expect(state.capabilities.cspViolations.value).toEqual([
+        { blockedURL, directive: 'connect-src' },
+      ]);
     });
 
     it('should not record a look-alike host as an SDK CDN violation', () => {
@@ -487,10 +516,10 @@ describe('ErrorHandler', () => {
       document.dispatchEvent(cspEvent1);
       document.dispatchEvent(cspEvent2);
 
-      // Verify both URLs were added to the blocked list
-      expect(state.capabilities.cspViolations.value.map(v => v.blockedURL)).toContain(blockedURL1);
-      expect(state.capabilities.cspViolations.value.map(v => v.blockedURL)).toContain(blockedURL2);
-      expect(state.capabilities.cspViolations.value).toHaveLength(2);
+      expect(state.capabilities.cspViolations.value).toEqual([
+        { blockedURL: blockedURL1, directive: 'script-src' },
+        { blockedURL: blockedURL2, directive: 'script-src' },
+      ]);
     });
 
     it('should not duplicate CSP blocked URLs', () => {
