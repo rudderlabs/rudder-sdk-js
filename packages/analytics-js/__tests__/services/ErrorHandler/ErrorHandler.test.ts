@@ -372,6 +372,29 @@ describe('ErrorHandler', () => {
       expect(state.capabilities.cspViolations.value).toHaveLength(1);
     });
 
+    it('should not record a look-alike host as an SDK CDN violation', () => {
+      const blockedURL = 'https://cdn.rudderlabs.com.evil.example/some-script.js';
+
+      document.dispatchEvent(
+        new SecurityPolicyViolationEvent('securitypolicyviolation', {
+          disposition: 'enforce',
+          blockedURI: blockedURL,
+          violatedDirective: 'script-src',
+          effectiveDirective: 'script-src',
+          originalPolicy: "script-src 'self'",
+          documentURI: 'https://example.com',
+          referrer: '',
+          statusCode: 200,
+          lineNumber: 1,
+          columnNumber: 1,
+          sourceFile: 'https://example.com',
+        }),
+      );
+
+      // A bare prefix would accept this host and pollute the violation list.
+      expect(state.capabilities.cspViolations.value).toEqual([]);
+    });
+
     it('should not track CSP blocked URLs from non-RudderStack CDN', () => {
       const blockedURL = 'https://cdn.example.com/some-script.js';
 

@@ -458,4 +458,5 @@ export {
   getDeviceDetails, // for testing
   getErrorGroupingHash,
   getErrorCategory,
+  isSameOrUnder,
 };

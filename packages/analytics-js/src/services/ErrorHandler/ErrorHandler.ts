@@ -27,6 +27,7 @@ import {
   checkIfAllowedToBeNotified,
   isSDKError,
   getErrorCategory,
+  isSameOrUnder,
 } from './utils';
 import { SDK_CDN_BASE_URL } from '../../constants/urls';
 
@@ -88,7 +89,7 @@ class ErrorHandler implements IErrorHandler {
       const blockedURL = isString(event.blockedURI) ? event.blockedURI : '';
       const directive = isString(event.effectiveDirective) ? event.effectiveDirective : '';
 
-      if (event.disposition !== 'enforce' || !blockedURL.startsWith(SDK_CDN_BASE_URL)) {
+      if (event.disposition !== 'enforce' || !isSameOrUnder(blockedURL, SDK_CDN_BASE_URL)) {
         return;
       }
 
