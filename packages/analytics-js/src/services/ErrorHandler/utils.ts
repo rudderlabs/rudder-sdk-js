@@ -148,6 +148,21 @@ const getBugsnagErrorEvent = (
   };
 };
 
+// A violation only speaks for the kind of load the directive governs. default-src
+// is the fallback for both, so it counts for either.
+const SCRIPT_CSP_DIRECTIVES = ['script-src-elem', 'script-src', 'default-src'];
+const CONNECT_CSP_DIRECTIVES = ['connect-src', 'default-src'];
+
+const hasCspViolation = (
+  state: ApplicationState,
+  url: string,
+  directives: string[],
+): boolean =>
+  state.capabilities.cspViolations.value.some(
+    violation =>
+      directives.includes(violation.directive) && isSameOrUnder(url, violation.blockedURL),
+  );
+
 /**
  * Whether a URL is the blocked one or sits beneath it.
  *
@@ -276,17 +291,27 @@ const checkIfAllowedToBeNotified = (
           // that cannot reach the CDN is indistinguishable from a CDN outage, so
           // it must not suppress the error.
           probeSdkCdn(state, httpClient, extractedURL, () => {
-            const isCspBlocked = state.capabilities.cspBlockedURLs.value.some(
-              (blockedURL: string) => isSameOrUnder(extractedURL, blockedURL),
-            );
+            // Only a script directive can explain a failed script load.
+            const isCspBlocked = hasCspViolation(state, extractedURL, SCRIPT_CSP_DIRECTIVES);
 
             // A probe that never reached the CDN, or that was answered by
             // something else, is a client-side failure: nothing server side
             // produces either shape. A timeout is not attributable, and any
             // status the CDN itself returned is worth reporting.
             const probe = state.capabilities.sdkCdnProbe.value[extractedURL];
+
+            // Unless CSP stopped the probe itself. connect-src governs the probe
+            // while script-src governs the import, and a page can allow the
+            // import and deny the probe -- then status 0 says nothing about the
+            // load that actually failed, so the probe is inconclusive and the
+            // error stands on its own.
+            const isProbeCspBlocked = hasCspViolation(state, extractedURL, CONNECT_CSP_DIRECTIVES);
+
             const isClientSideFailure =
-              probe !== undefined && !probe.timedOut && (probe.status === 0 || probe.redirectedOffCdn);
+              probe !== undefined &&
+              !probe.timedOut &&
+              !isProbeCspBlocked &&
+              (probe.status === 0 || probe.redirectedOffCdn);
 
             resolve(!isCspBlocked && !isClientSideFailure);
           });

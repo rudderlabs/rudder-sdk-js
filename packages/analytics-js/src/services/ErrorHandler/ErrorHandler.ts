@@ -80,18 +80,26 @@ class ErrorHandler implements IErrorHandler {
       },
     );
 
-    // Listen to CSP violations and add the blocked URL to the state
-    // if those URLs are from RS CDN.
+    // Listen to CSP violations for RS CDN URLs, recording the directive that
+    // rejected each one. script-src governs a plugin import and connect-src the
+    // reachability probe, so without the directive a probe-only violation looks
+    // identical to one that stopped the script.
     document.addEventListener('securitypolicyviolation', (event: SecurityPolicyViolationEvent) => {
       const blockedURL = isString(event.blockedURI) ? event.blockedURI : '';
-      if (
-        event.disposition === 'enforce' &&
-        blockedURL.startsWith(SDK_CDN_BASE_URL) &&
-        !state.capabilities.cspBlockedURLs.value.includes(blockedURL)
-      ) {
-        state.capabilities.cspBlockedURLs.value = [
-          ...state.capabilities.cspBlockedURLs.value,
-          blockedURL,
+      const directive = isString(event.effectiveDirective) ? event.effectiveDirective : '';
+
+      if (event.disposition !== 'enforce' || !blockedURL.startsWith(SDK_CDN_BASE_URL)) {
+        return;
+      }
+
+      const isAlreadyRecorded = state.capabilities.cspViolations.value.some(
+        violation => violation.blockedURL === blockedURL && violation.directive === directive,
+      );
+
+      if (!isAlreadyRecorded) {
+        state.capabilities.cspViolations.value = [
+          ...state.capabilities.cspViolations.value,
+          { blockedURL, directive },
         ];
       }
     });

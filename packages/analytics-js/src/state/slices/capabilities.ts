@@ -1,6 +1,7 @@
 import { signal } from '@preact/signals-core';
 import type {
   CapabilitiesState,
+  CspViolation,
   SdkCdnProbeResult,
 } from '@rudderstack/analytics-js-common/types/ApplicationState';
 
@@ -17,7 +18,7 @@ const capabilitiesState: CapabilitiesState = {
   isCryptoAvailable: signal(false),
   isAdBlockerDetectionInProgress: signal<boolean>(false),
   isAdBlocked: signal<boolean | undefined>(undefined),
-  cspBlockedURLs: signal<string[]>([]),
+  cspViolations: signal<CspViolation[]>([]),
   sdkCdnProbe: signal<Record<string, SdkCdnProbeResult>>({}),
 };
 

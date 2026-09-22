@@ -489,7 +489,7 @@ describe('Error Reporting utilities', () => {
                 },
               },
               capabilities: {
-                cspBlockedURLs: [],
+                cspViolations: [],
                 isAdBlockerDetectionInProgress: false,
                 isBeaconAvailable: false,
                 isCryptoAvailable: false,
@@ -874,7 +874,7 @@ describe('Error Reporting utilities', () => {
       beforeEach(() => {
         state.capabilities.sdkCdnProbe.value = {};
         state.capabilities.isAdBlocked.value = false;
-        state.capabilities.cspBlockedURLs.value = [];
+        state.capabilities.cspViolations.value = [];
         state.lifecycle.pluginsCDNPath.value = 'https://cdn.rudderlabs.com/3.20.1/modern/plugins';
       });
 
@@ -886,6 +886,26 @@ describe('Error Reporting utilities', () => {
         expect(state.capabilities.sdkCdnProbe.value).toEqual({
           [PLUGIN_URL]: { status: 503, timedOut: false, redirectedOffCdn: false },
         });
+      });
+
+      it('should notify when only the probe is CSP blocked', async () => {
+        // script-src allows the import, connect-src denies the probe. The plugin
+        // failed for a real reason (a 404 here) and the probe cannot speak to it.
+        probeResponds({ status: 0, error: new Error('blocked'), responseURL: '' });
+        state.capabilities.cspViolations.value = [
+          { blockedURL: 'https://cdn.rudderlabs.com', directive: 'connect-src' },
+        ];
+
+        expect(await notify()).toBe(true);
+      });
+
+      it('should not notify when the script itself is CSP blocked', async () => {
+        probeResponds({ status: 0, error: new Error('blocked'), responseURL: '' });
+        state.capabilities.cspViolations.value = [
+          { blockedURL: 'https://cdn.rudderlabs.com', directive: 'script-src-elem' },
+        ];
+
+        expect(await notify()).toBe(false);
       });
 
       it('should issue the probe as a simple HEAD request', async () => {
@@ -1016,7 +1036,7 @@ describe('Error Reporting utilities', () => {
           'https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js';
 
         // Add URL to CSP blocked list
-        state.capabilities.cspBlockedURLs.value = [blockedUrl];
+        state.capabilities.cspViolations.value = [{ blockedURL: blockedUrl, directive: 'script-src-elem' }];
 
         const message = `PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: ${blockedUrl}`;
 
@@ -1032,7 +1052,7 @@ describe('Error Reporting utilities', () => {
       // CSP3 "strip url for use in reports" reduces a cross-origin blockedURI to
       // its origin, so this is the only shape production ever stores.
       it('should not notify when CSP reports only the origin of the blocked URL', async () => {
-        state.capabilities.cspBlockedURLs.value = ['https://cdn.rudderlabs.com'];
+        state.capabilities.cspViolations.value = [{ blockedURL: 'https://cdn.rudderlabs.com', directive: 'script-src-elem' }];
 
         const message =
           'PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js';
@@ -1052,7 +1072,7 @@ describe('Error Reporting utilities', () => {
           probed.push(url);
           callback(null, { xhr: { status: 200, responseURL: url } });
         });
-        state.capabilities.cspBlockedURLs.value = ['https://cdn.rudderlabs.com'];
+        state.capabilities.cspViolations.value = [{ blockedURL: 'https://cdn.rudderlabs.com', directive: 'script-src-elem' }];
 
         const message =
           'PluginsManager:: Failed to load plugin "X" - Failed to fetch dynamically imported module: https://cdn.rudderlabs.com.evil.example/3.20.1/modern/plugins/rsa-plugins.js';
@@ -1074,7 +1094,7 @@ describe('Error Reporting utilities', () => {
           callback(null, { xhr: { status: 200, responseURL: url } });
         });
         const blocked = 'https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins.js';
-        state.capabilities.cspBlockedURLs.value = [blocked];
+        state.capabilities.cspViolations.value = [{ blockedURL: blocked, directive: 'script-src-elem' }];
 
         const message = `PluginsManager:: Failed to load plugin "X" - Failed to fetch dynamically imported module: ${blocked}.map`;
 
@@ -1094,7 +1114,7 @@ describe('Error Reporting utilities', () => {
           'https://cdn.rudderlabs.com/3.20.1/modern/plugins/different-plugin.min.js';
 
         // Add different URL to CSP blocked list
-        state.capabilities.cspBlockedURLs.value = [differentBlockedUrl];
+        state.capabilities.cspViolations.value = [{ blockedURL: differentBlockedUrl, directive: 'script-src-elem' }];
 
         const message = `PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: ${scriptUrl}`;
 
@@ -1108,7 +1128,7 @@ describe('Error Reporting utilities', () => {
       });
 
       it('should handle messages without extractable URLs', async () => {
-        state.capabilities.cspBlockedURLs.value = ['https://cdn.rudderlabs.com/some-url.js'];
+        state.capabilities.cspViolations.value = [{ blockedURL: 'https://cdn.rudderlabs.com/some-url.js', directive: 'script-src-elem' }];
 
         const message =
           'PluginsManager:: Failed to load plugin - Failed to fetch dynamically imported module: invalid-url';
@@ -1123,7 +1143,7 @@ describe('Error Reporting utilities', () => {
       });
 
       it('should handle empty CSP blocked URLs list', async () => {
-        state.capabilities.cspBlockedURLs.value = [];
+        state.capabilities.cspViolations.value = [];
 
         const message =
           'PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins-remote-NativeDestinationQueue.min.js';
@@ -1145,7 +1165,7 @@ describe('Error Reporting utilities', () => {
 
         // Only this URL's own CSP entry can suppress it, so a different one
         // leaves the verdict to the probe.
-        state.capabilities.cspBlockedURLs.value = [differentBlockedUrl];
+        state.capabilities.cspViolations.value = [{ blockedURL: differentBlockedUrl, directive: 'script-src-elem' }];
 
         const message = `PluginsManager:: Failed to load plugin "NativeDestinationQueue" - Failed to fetch dynamically imported module: ${scriptUrl}`;
 
@@ -1162,7 +1182,7 @@ describe('Error Reporting utilities', () => {
         const nonRSUrl = 'https://cdn.example.com/3.20.1/modern/plugins/plugin.min.js';
 
         // Empty CSP blocked list
-        state.capabilities.cspBlockedURLs.value = [];
+        state.capabilities.cspViolations.value = [];
 
         const message = `PluginsManager:: Failed to load plugin "Test" - Failed to fetch dynamically imported module: ${nonRSUrl}`;
 
@@ -1179,7 +1199,7 @@ describe('Error Reporting utilities', () => {
     describe('URL extraction logic', () => {
       it('should extract HTTPS URLs correctly', async () => {
         const extractedUrl = 'https://cdn.rudderlabs.com/v3/modern/plugins/test.min.js';
-        state.capabilities.cspBlockedURLs.value = [extractedUrl];
+        state.capabilities.cspViolations.value = [{ blockedURL: extractedUrl, directive: 'script-src-elem' }];
 
         const message = `Error: Failed to load - ${extractedUrl} - additional text`;
 
@@ -1194,7 +1214,7 @@ describe('Error Reporting utilities', () => {
 
       it('should extract HTTP URLs correctly', async () => {
         const extractedUrl = 'http://cdn.rudderlabs.com/v3/modern/plugins/test.min.js';
-        state.capabilities.cspBlockedURLs.value = [extractedUrl];
+        state.capabilities.cspViolations.value = [{ blockedURL: extractedUrl, directive: 'script-src-elem' }];
 
         const message = `Error: Failed to load - ${extractedUrl} - additional text`;
 
@@ -1210,7 +1230,7 @@ describe('Error Reporting utilities', () => {
       it('should handle multiple URLs in message and extract the first one', async () => {
         const firstUrl = 'https://cdn.rudderlabs.com/v3/modern/plugins/first.min.js';
         const secondUrl = 'https://cdn.rudderlabs.com/v3/modern/plugins/second.min.js';
-        state.capabilities.cspBlockedURLs.value = [firstUrl];
+        state.capabilities.cspViolations.value = [{ blockedURL: firstUrl, directive: 'script-src-elem' }];
 
         const message = `PluginsManager:: Failed to load plugin "Test" - Failed to fetch dynamically imported module: ${firstUrl} and also ${secondUrl}`;
 
@@ -1226,7 +1246,7 @@ describe('Error Reporting utilities', () => {
       it('should handle URLs with query parameters and fragments', async () => {
         const extractedUrl =
           'https://cdn.rudderlabs.com/v3/modern/plugins/test.min.js?version=1.0&cache=false#section';
-        state.capabilities.cspBlockedURLs.value = [extractedUrl];
+        state.capabilities.cspViolations.value = [{ blockedURL: extractedUrl, directive: 'script-src-elem' }];
 
         const message = `Error: Failed to load - ${extractedUrl} - additional text`;
 
@@ -1240,7 +1260,7 @@ describe('Error Reporting utilities', () => {
       });
 
       it('should handle null/undefined URL extraction results', async () => {
-        state.capabilities.cspBlockedURLs.value = [];
+        state.capabilities.cspViolations.value = [];
 
         // Message that won't match the URL extraction regex
         const message =
@@ -1256,7 +1276,7 @@ describe('Error Reporting utilities', () => {
       });
 
       it('should validate extracted URL is a string before processing', async () => {
-        state.capabilities.cspBlockedURLs.value = ['https://cdn.rudderlabs.com/test.js'];
+        state.capabilities.cspViolations.value = [{ blockedURL: 'https://cdn.rudderlabs.com/test.js', directive: 'script-src-elem' }];
 
         // Message that produces a non-string match result
         const message =
@@ -1276,7 +1296,7 @@ describe('Error Reporting utilities', () => {
         const nonRsUrl = 'https://cdn.example.com/v3/modern/plugins/test.min.js';
 
         // Test RudderStack CDN URL (should proceed to the CSP and probe checks)
-        state.capabilities.cspBlockedURLs.value = [];
+        state.capabilities.cspViolations.value = [];
 
         const rsMessage = `PluginsManager:: Failed to load plugin "Test" - Failed to fetch dynamically imported module: ${rsUrl}`;
         const rsResult = await checkIfAllowedToBeNotified(
@@ -1298,7 +1318,7 @@ describe('Error Reporting utilities', () => {
 
       it('should extract URLs without trailing punctuation', async () => {
         const baseUrl = 'https://cdn.rudderlabs.com/v3/modern/plugins/test.min.js';
-        state.capabilities.cspBlockedURLs.value = [baseUrl];
+        state.capabilities.cspViolations.value = [{ blockedURL: baseUrl, directive: 'script-src-elem' }];
         state.capabilities.isAdBlocked.value = false;
 
         // Test various trailing punctuation scenarios
@@ -1359,7 +1379,7 @@ describe('Error Reporting utilities', () => {
 
       it('should extract URLs correctly without being affected by multiple trailing punctuation marks', async () => {
         const baseUrl = 'https://cdn.rudderlabs.com/v3/modern/plugins/test.min.js';
-        state.capabilities.cspBlockedURLs.value = [baseUrl];
+        state.capabilities.cspViolations.value = [{ blockedURL: baseUrl, directive: 'script-src-elem' }];
 
         const message = `PluginsManager:: Failed to load plugin "Test" - Failed to fetch dynamically imported module: ${baseUrl}"';,)>]}`;
 
@@ -1376,7 +1396,7 @@ describe('Error Reporting utilities', () => {
       it('should preserve valid URL characters that are not trailing punctuation', async () => {
         const urlWithValidChars =
           'https://cdn.rudderlabs.com/v3/modern/plugins/test-plugin_v1.2.3.min.js';
-        state.capabilities.cspBlockedURLs.value = [urlWithValidChars];
+        state.capabilities.cspViolations.value = [{ blockedURL: urlWithValidChars, directive: 'script-src-elem' }];
 
         const message = `PluginsManager:: Failed to load plugin "Test" - Failed to fetch dynamically imported module: ${urlWithValidChars}`;
 
@@ -1393,7 +1413,7 @@ describe('Error Reporting utilities', () => {
       it('should handle URLs with query parameters followed by trailing punctuation', async () => {
         const baseUrl =
           'https://cdn.rudderlabs.com/v3/modern/plugins/test.min.js?version=1.0&cache=false';
-        state.capabilities.cspBlockedURLs.value = [baseUrl];
+        state.capabilities.cspViolations.value = [{ blockedURL: baseUrl, directive: 'script-src-elem' }];
 
         const message = `PluginsManager:: Failed to load plugin "Test" - Failed to fetch dynamically imported module: ${baseUrl}";`;
 
