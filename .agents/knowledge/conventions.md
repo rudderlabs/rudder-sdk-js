@@ -26,4 +26,4 @@
 
 ## DOCS-2581 — Named Integration Build Command
 
-- Build one named device-mode integration from `packages/analytics-js-integrations` with `npm run build:integration:cli --intg=<Name>`; the generic `build:integration` and `build:integration:modern` scripts do not consume an integration-name argument, and there is no verified separate modern named-build command.
+- Build one named device mode integration from `packages/analytics-js-integrations` with `npm run build:integration:cli --intg=<Name>`; the generic `build:integration` and `build:integration:modern` scripts do not consume an integration-name argument — prefix `BROWSERSLIST_ENV=modern` for the modern variant. Output lands in `dist/cdn/<legacy|modern>/js-integrationsperrollup.config.mjs`.
