@@ -64,8 +64,11 @@ RudderStack primarily supports two [connection modes](https://www.rudderstack.co
 2. **Device Mode Integration**: Events are sent directly from the client to the destination in this mode. Depending upon the client where you are collecting events from, the respective RudderStack client SDK (e.g. `rudder-sdk-js` for the web client) is responsible to transform and deliver these events (using the destination SDK).
 
 ## Developing _cloud mode_ RudderStack integration
+
 Follow the guide in [Contributing.md of the `rudder-transformer` repo](https://github.com/rudderlabs/rudder-transformer/blob/develop/CONTRIBUTING.md) as
 the `rudder-transformer` is responsible for the **cloud mode** transformation.
+
+Follow the guide in [Contributing.md of the `rudder-transformer` repo](https://github.com/rudderlabs/rudder-transformer/blob/develop/CONTRIBUTING.md) as the `rudder-transformer` is responsible for the **cloud mode** transformation. Destination-specific guidance is under its _Building your first custom RudderStack source integration_ section, which also covers mapping event data to a destination's data spec.
 
 ## Developing _device mode_ RudderStack integration
 
@@ -82,7 +85,7 @@ In this guide, we'll focus specifically on developing a destination integration 
 * Makes it hard to collect **first-party** data
 * Prone to ad blockers
 
-If _device mode_ integration does not seem suitable, go ahead with the _cloud mode_ integration development instead and follow [this guide](https://github.com/rudderlabs/rudder-transformer/blob/develop/CONTRIBUTING.md).
+If _device mode_ integration does not seem suitable, go ahead with the _cloud mode_ integration development instead and follow the [`rudder-transformer` contribution guide](https://github.com/rudderlabs/rudder-transformer/blob/develop/CONTRIBUTING.md) (see the same section noted above).
 
 ### 1. Setting up the development environment
 
@@ -200,22 +203,29 @@ export { NAME, CNameMapping, DISPLAY_NAME, DIR_NAME };
 Run the single-integration build command from the `packages/analytics-js-integrations` directory:
 
 ```bash
+# Legacy build -> dist/cdn/legacy/js-integrations
 npm run build:integration:cli --intg=TestIntegrationOne
+
+# Modern build -> dist/cdn/modern/js-integrations
+BROWSERSLIST_ENV=modern npm run build:integration:cli --intg=TestIntegrationOne
 ```
 
 #### Testing setup
 
-a. Serve the bundle:
+a. Serve the bundle from `packages/analytics-js-integrations`:
+
    ```bash
-   npx serve dist/cdn/js-integrations
+   npm run serve
    ```
-   The bundle will be served at `http://localhost:3000`.
+   
+   This serves `dist` at `http://localhost:3005` with CORS enabled. Your built integration is therefore at `http://localhost:3005/cdn/legacy/js-integrations`
+   (or `.../cdn/modern/js-integrations` for a modern build).
 
 b. Configure test environment:
    - Modify `packages/analytics-js/public/index.html` to mock source configuration data and point to the local integrations bundle.
       ```javascript
       rudderanalytics.load(writeKey, dataPlaneUrl, {
-         destSDKBaseURL: 'http://localhost:3000',
+         destSDKBaseURL: 'http://localhost:3005/cdn/legacy/js-integrations',
          getSourceConfig: () => ({
             updatedAt: new Date().toISOString(),
             source: {
