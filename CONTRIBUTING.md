@@ -197,14 +197,12 @@ export { NAME, CNameMapping, DISPLAY_NAME, DIR_NAME };
 
 #### Build process
 
-Run the single-integration build command from the `packages/analytics-js-integrations` directory:
-
 ```bash
-# Legacy build -> dist/cdn/legacy/js-integrations
-npm run build:integration:cli --intg=TestIntegrationOne
+# For legacy build
+npm run build:integration --environment INTG_NAME:TestIntegrationOne
 
-# Modern build -> dist/cdn/modern/js-integrations
-BROWSERSLIST_ENV=modern npm run build:integration:cli --intg=TestIntegrationOne
+# For modern build
+npm run build:integration:modern --environment INTG_NAME:TestIntegrationOne
 ```
 
 #### Testing setup
