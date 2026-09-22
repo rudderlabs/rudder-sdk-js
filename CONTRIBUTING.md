@@ -82,7 +82,7 @@ In this guide, we'll focus specifically on developing a destination integration 
 * Makes it hard to collect **first-party** data
 * Prone to ad blockers
 
-If _device mode_ integration does not seem suitable, go ahead with the _cloud mode_ inregration development instead and follow [this guide](https://github.com/rudderlabs/rudder-transformer/blob/develop/CONTRIBUTING.md).
+If _device mode_ integration does not seem suitable, go ahead with the _cloud mode_ integration development instead and follow [this guide](https://github.com/rudderlabs/rudder-transformer/blob/develop/CONTRIBUTING.md).
 
 ### 1. Setting up the development environment
 
