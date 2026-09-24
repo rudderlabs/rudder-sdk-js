@@ -35,7 +35,7 @@ jobs:
   draft-new-release:
     needs: validate-actor
     name: Draft a new release
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: arc-amd64
     permissions:
       contents: read # to checkout repository code
     steps:

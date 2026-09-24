@@ -19,7 +19,7 @@ jobs:
 
   create-branch:
     name: Create a new hotfix branch
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: arc-amd64
     needs: validate-actor
     permissions:
       contents: write # to create branch ref via API

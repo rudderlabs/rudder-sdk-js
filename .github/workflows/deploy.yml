@@ -83,7 +83,7 @@ env:
 jobs:
   deploy:
     name: Deploy to environment
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: arc-amd64
 
     steps:
       - name: Harden the runner (Audit all outbound calls)

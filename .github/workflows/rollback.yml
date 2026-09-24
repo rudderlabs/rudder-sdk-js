@@ -36,7 +36,7 @@ jobs:
 
   get-rollback-inputs:
     name: Get Rollback Inputs
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: arc-amd64
     outputs:
       trigger_source: ${{ steps.set-outputs.outputs.trigger_source }}
     steps:
@@ -57,7 +57,7 @@ jobs:
   rollback:
     needs: [validate-actor, get-rollback-inputs]
     name: Rollback production deployment
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: arc-amd64
     permissions:
       id-token: write
       contents: write
