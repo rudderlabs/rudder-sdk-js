@@ -56,3 +56,7 @@
 - MoEngage web device mode maps canonical control-plane regions `US`, `EU`, `IND`, `US-DC-04`, `SGP-DC-05`, and `IDN-DC-06` to `dc_1` through `dc_6`; empty regions silently retain the legacy `dc_1` fallback, while non-empty unknown regions warn and then default to `dc_1` (`packages/analytics-js-integrations/src/integrations/MoEngage/utils.js`).
 - The unknown-region warning uses a module-local `Logger(DISPLAY_NAME)` explicitly set to `WARN`, because the legacy logger defaults to `ERROR` and would otherwise suppress `warn()`; this preserves the existing `calculateMoeDataCenter(region)` call signature (`packages/analytics-js-integrations/src/integrations/MoEngage/utils.js`).
 - Guard lookup-table reads with `Object.prototype.hasOwnProperty.call(...)` so inherited property names are handled as unknown regions rather than returned as invalid native-loader data-center values (`packages/analytics-js-integrations/src/integrations/MoEngage/utils.js`).
+
+## INT-7215 — Facebook Pixel Scoped PageView
+
+- Facebook Pixel device-mode `page()` must scope `PageView` to the configured pixel with `window.fbq('trackSingle', this.pixelId, 'PageView', properties, { eventID })`; plain `fbq('track', ...)` broadcasts to every Meta pixel initialized on the page. Regression coverage should assert the complete call, including pixel ID, unchanged properties, and derived event ID (`packages/analytics-js-integrations/src/integrations/FacebookPixel/browser.js`, `packages/analytics-js-integrations/__tests__/integrations/FacebookPixel/browser.test.js`).
