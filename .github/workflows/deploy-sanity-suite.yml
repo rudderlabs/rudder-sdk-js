@@ -61,7 +61,7 @@ env:
 jobs:
   deploy:
     name: Deploy Sanity Suite
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: arc-amd64
 
     steps:
       - name: Harden the runner (Audit all outbound calls)
