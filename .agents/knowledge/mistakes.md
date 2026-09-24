@@ -23,3 +23,9 @@
 ## INT-7126 — OpenAI Ads Browser Jest Config
 
 - Run the OpenAI Ads browser integration Jest file from the monorepo root with the package config: `npx --no-install jest --config packages/analytics-js-integrations/jest.config.mjs __tests__/integrations/OpenAIAds/browser.test.js --runInBand`; plain root `npx jest packages/.../browser.test.js` can hit sample-app haste collisions and fail workspace alias resolution such as `@rudderstack/analytics-js-legacy-utilities/ObjectUtils`.
+
+## INT-7215 — Affected Projects Can Expose a Pre-existing Bundle Limit Failure
+
+<!-- session: 2026-09-24 -->
+
+- A change confined to `packages/analytics-js-integrations` can make Nx include `packages/analytics-js` in the bundle-size job. The size-limit action fails when any current artifact exceeds its absolute budget even if its base-branch artifact has the identical size: CI reported `Core (Content Script) - Modern - NPM (UMD)` as 43,009 bytes against 43,008 bytes for both the PR and base. Correct the stale budget in `packages/analytics-js/.size-limit.mjs` using the established sibling allowance rather than trying to shrink the unrelated integration change.
