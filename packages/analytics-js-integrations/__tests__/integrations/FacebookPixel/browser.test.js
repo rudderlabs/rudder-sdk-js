@@ -174,7 +174,7 @@ describe('FacebookPixel page', () => {
     window.fbq = jest.fn();
   });
 
-  test('send pageview', () => {
+  test('sends pageview only to the configured pixel', () => {
     facebookPixel.page({
       message: {
         context: {},
@@ -185,19 +185,28 @@ describe('FacebookPixel page', () => {
           referrer: '',
           title: 'test page',
           testDimension: 'abc',
+          event_id: 'pageViewId',
         },
       },
     });
-    expect(window.fbq.mock.calls[0][0]).toEqual('track');
-    expect(window.fbq.mock.calls[0][1]).toEqual('PageView');
-    expect(window.fbq.mock.calls[0][2]).toEqual({
-      category: 'test cat',
-      path: '/test',
-      url: 'http://localhost',
-      referrer: '',
-      title: 'test page',
-      testDimension: 'abc',
-    });
+
+    expect(window.fbq.mock.calls).toEqual([
+      [
+        'trackSingle',
+        '12567839',
+        'PageView',
+        {
+          category: 'test cat',
+          path: '/test',
+          url: 'http://localhost',
+          referrer: '',
+          title: 'test page',
+          testDimension: 'abc',
+          event_id: 'pageViewId',
+        },
+        { eventID: 'pageViewId' },
+      ],
+    ]);
   });
 });
 

@@ -120,7 +120,7 @@ class FacebookPixel {
 
   page(rudderElement) {
     const { properties } = rudderElement.message;
-    window.fbq('track', 'PageView', properties, {
+    window.fbq('trackSingle', this.pixelId, 'PageView', properties, {
       eventID: getEventId(rudderElement.message),
     });
   }
