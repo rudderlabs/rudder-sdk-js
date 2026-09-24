@@ -120,9 +120,12 @@ class FacebookPixel {
 
   page(rudderElement) {
     const { properties } = rudderElement.message;
-    window.fbq('track', 'PageView', properties, {
-      eventID: getEventId(rudderElement.message),
-    });
+    this.makeTrackSingleCall(
+      this.pixelId,
+      'PageView',
+      properties,
+      getEventId(rudderElement.message),
+    );
   }
 
   track(rudderElement) {
@@ -187,13 +190,13 @@ class FacebookPixel {
         currency,
       };
 
-      this.makeTrackSignalCall(
+      this.makeTrackSingleCall(
         this.pixelId,
         'ViewContent',
         merge(productInfo, payload),
         derivedEventID,
       );
-      this.makeTrackSignalCalls(this.pixelId, event, legacyTo, derivedEventID, {
+      this.makeTrackSingleCalls(this.pixelId, event, legacyTo, derivedEventID, {
         currency,
         value: revValue,
       });
@@ -211,13 +214,13 @@ class FacebookPixel {
         contents,
       };
 
-      this.makeTrackSignalCall(
+      this.makeTrackSingleCall(
         this.pixelId,
         eventHelpers.getEventName(event),
         merge(productInfo, payload),
         derivedEventID,
       );
-      this.makeTrackSignalCalls(this.pixelId, event, legacyTo, derivedEventID, {
+      this.makeTrackSingleCalls(this.pixelId, event, legacyTo, derivedEventID, {
         currency,
         value: productInfo.value,
       });
@@ -244,13 +247,13 @@ class FacebookPixel {
         content_name: contentName,
       };
 
-      this.makeTrackSignalCall(
+      this.makeTrackSingleCall(
         this.pixelId,
         'Purchase',
         merge(productInfo, payload),
         derivedEventID,
       );
-      this.makeTrackSignalCalls(this.pixelId, event, legacyTo, derivedEventID, {
+      this.makeTrackSingleCalls(this.pixelId, event, legacyTo, derivedEventID, {
         currency,
         value: revValue,
       });
@@ -266,8 +269,8 @@ class FacebookPixel {
         search_string: query,
       };
 
-      this.makeTrackSignalCall(this.pixelId, 'Search', merge(productInfo, payload), derivedEventID);
-      this.makeTrackSignalCalls(this.pixelId, event, legacyTo, derivedEventID, { currency, value });
+      this.makeTrackSingleCall(this.pixelId, 'Search', merge(productInfo, payload), derivedEventID);
+      this.makeTrackSingleCalls(this.pixelId, event, legacyTo, derivedEventID, { currency, value });
     } else if (event === 'Checkout Started') {
       let contentCategory = category;
       const { contents, contentIds } = getProductsContentsAndContentIds(products, quantity, price);
@@ -286,13 +289,13 @@ class FacebookPixel {
         num_items: contentIds.length,
       };
 
-      this.makeTrackSignalCall(
+      this.makeTrackSingleCall(
         this.pixelId,
         'InitiateCheckout',
         merge(productInfo, payload),
         derivedEventID,
       );
-      this.makeTrackSignalCalls(this.pixelId, event, legacyTo, derivedEventID, {
+      this.makeTrackSingleCalls(this.pixelId, event, legacyTo, derivedEventID, {
         currency,
         value: revValue,
       });
@@ -305,15 +308,15 @@ class FacebookPixel {
       logger.info('Not standard event & no custom mapping available');
       payload.value = revValue;
       payload.currency = currency;
-      this.makeTrackSignalCalls(this.pixelId, event, standardTo, derivedEventID, payload);
-      this.makeTrackSignalCalls(this.pixelId, event, legacyTo, derivedEventID, {
+      this.makeTrackSingleCalls(this.pixelId, event, standardTo, derivedEventID, payload);
+      this.makeTrackSingleCalls(this.pixelId, event, legacyTo, derivedEventID, {
         currency,
         value: revValue,
       });
     }
   }
 
-  makeTrackSignalCalls(pixelId, event, array, derivedEventID, payload) {
+  makeTrackSingleCalls(pixelId, event, array, derivedEventID, payload) {
     each((val, key) => {
       if (key === event.toLowerCase()) {
         window.fbq('trackSingle', pixelId, val, payload, {
@@ -323,7 +326,7 @@ class FacebookPixel {
     }, array);
   }
 
-  makeTrackSignalCall(pixelId, event, payload, derivedEventID) {
+  makeTrackSingleCall(pixelId, event, payload, derivedEventID) {
     window.fbq('trackSingle', pixelId, event, payload, {
       eventID: derivedEventID,
     });

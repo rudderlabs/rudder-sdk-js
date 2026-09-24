@@ -151,6 +151,22 @@ describe('FacebookPixel multiple destinations bootstrap guard', () => {
     expect(window.fbq.disablePushState).toBe(true);
     expect(window.fbq.allowDuplicatePageViews).toBe(true);
   });
+
+  test("does not send a pixel its sibling destination's pageview", () => {
+    const firstPixel = new FacebookPixel({ pixelId: '111111111' }, mockAnalytics, destinationInfo);
+    const secondPixel = new FacebookPixel({ pixelId: '222222222' }, mockAnalytics, destinationInfo);
+    firstPixel.init();
+    secondPixel.init();
+    window.fbq = jest.fn();
+
+    firstPixel.page({ message: { context: {}, properties: { event_id: 'first' } } });
+    secondPixel.page({ message: { context: {}, properties: { event_id: 'second' } } });
+
+    expect(window.fbq.mock.calls).toEqual([
+      ['trackSingle', '111111111', 'PageView', { event_id: 'first' }, { eventID: 'first' }],
+      ['trackSingle', '222222222', 'PageView', { event_id: 'second' }, { eventID: 'second' }],
+    ]);
+  });
 });
 
 describe('FacebookPixel page', () => {
@@ -174,7 +190,7 @@ describe('FacebookPixel page', () => {
     window.fbq = jest.fn();
   });
 
-  test('send pageview', () => {
+  test('sends pageview only to the configured pixel', () => {
     facebookPixel.page({
       message: {
         context: {},
@@ -185,19 +201,48 @@ describe('FacebookPixel page', () => {
           referrer: '',
           title: 'test page',
           testDimension: 'abc',
+          event_id: 'pageViewId',
         },
       },
     });
-    expect(window.fbq.mock.calls[0][0]).toEqual('track');
-    expect(window.fbq.mock.calls[0][1]).toEqual('PageView');
-    expect(window.fbq.mock.calls[0][2]).toEqual({
-      category: 'test cat',
-      path: '/test',
-      url: 'http://localhost',
-      referrer: '',
-      title: 'test page',
-      testDimension: 'abc',
+
+    expect(window.fbq.mock.calls).toEqual([
+      [
+        'trackSingle',
+        '12567839',
+        'PageView',
+        {
+          category: 'test cat',
+          path: '/test',
+          url: 'http://localhost',
+          referrer: '',
+          title: 'test page',
+          testDimension: 'abc',
+          event_id: 'pageViewId',
+        },
+        { eventID: 'pageViewId' },
+      ],
+    ]);
+  });
+
+  test('uses messageId as eventID when no event_id is available', () => {
+    facebookPixel.page({
+      message: {
+        messageId: 'page-message-id',
+        context: {},
+        properties: { title: 'Message ID page' },
+      },
     });
+
+    expect(window.fbq.mock.calls).toEqual([
+      [
+        'trackSingle',
+        '12567839',
+        'PageView',
+        { title: 'Message ID page' },
+        { eventID: 'page-message-id' },
+      ],
+    ]);
   });
 });
 
