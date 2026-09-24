@@ -60,3 +60,4 @@
 ## INT-7215 — Facebook Pixel Scoped PageView
 
 - Facebook Pixel device-mode `page()` must scope `PageView` to the configured pixel with `window.fbq('trackSingle', this.pixelId, 'PageView', properties, { eventID })`; plain `fbq('track', ...)` broadcasts to every Meta pixel initialized on the page. Regression coverage should assert the complete call, including pixel ID, unchanged properties, and derived event ID (`packages/analytics-js-integrations/src/integrations/FacebookPixel/browser.js`, `packages/analytics-js-integrations/__tests__/integrations/FacebookPixel/browser.test.js`).
+- Use the accurately named `makeTrackSingleCall` / `makeTrackSingleCalls` helpers for scoped Meta Pixel commands, and route `page()` through `makeTrackSingleCall` so PageView and standard events share construction of `fbq('trackSingle', pixelId, event, payload, { eventID })` (`packages/analytics-js-integrations/src/integrations/FacebookPixel/browser.js`).
