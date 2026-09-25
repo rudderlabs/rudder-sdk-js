@@ -6,6 +6,7 @@ const configToIntNames = {
   HOTJAR: 'Hotjar',
   GOOGLEADS: 'GoogleAds',
   VWO: 'VWO',
+  WINGIFY: 'Wingify',
   GTM: 'GoogleTagManager',
   BRAZE: 'Braze',
   INTERCOM: 'INTERCOM',
