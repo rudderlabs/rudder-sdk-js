@@ -1,4 +1,4 @@
-import type { IErrorHandler } from '@rudderstack/analytics-js-common/types/ErrorHandler';
+import type { IErrorHandler, SDKError } from '@rudderstack/analytics-js-common/types/ErrorHandler';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { IExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader/types';
 import { ExternalSrcLoader } from '@rudderstack/analytics-js-common/services/ExternalSrcLoader';
@@ -11,12 +11,13 @@ import {
 import { CAPABILITIES_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
 import { getTimezone } from '@rudderstack/analytics-js-common/utilities/timezone';
 import { isValidURL } from '@rudderstack/analytics-js-common/utilities/url';
-import { isDefinedAndNotNull } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isDefinedAndNotNull, isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
 import type { IHttpClient } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { isStorageAvailable } from '@rudderstack/analytics-js-common/utilities/storage';
 import {
   INVALID_POLYFILL_URL_WARNING,
   POLYFILL_SCRIPT_LOAD_ERROR,
+  POLYFILL_VERIFICATION_ERROR,
 } from '../../constants/logMessages';
 import { getLanguage, getUserAgent } from '../utilities/page';
 import { getStorageEngine } from '../../services/StoreManager/storages';
@@ -30,6 +31,7 @@ import {
   hasCrypto,
   hasUAClientHints,
   isLegacyJSEngine,
+  legacyJSEngineRequiredPolyfills,
 } from './detection';
 import { detectAdBlockers } from './detection/adBlockers';
 import { debounce } from '../utilities/globals';
@@ -130,19 +132,36 @@ class CapabilitiesManager implements ICapabilitiesManager {
 
     if (shouldLoadPolyfill) {
       const isDefaultPolyfillService = polyfillUrl !== state.loadOptions.value.polyfillURL;
-      if (isDefaultPolyfillService) {
-        // write key specific callback
-        // NOTE: we're not putting this into RudderStackGlobals as providing the property path to the callback function in the polyfill URL is not possible
-        const polyfillCallbackName = `RS_polyfillCallback_${state.lifecycle.writeKey.value}`;
-
-        const polyfillCallback = (): void => {
-          this.onReady();
-
-          // Remove the entry from window so we don't leave room for calling it again
+      // write key specific callback
+      // NOTE: we're not putting this into RudderStackGlobals as providing the property path to the callback function in the polyfill URL is not possible
+      const polyfillCallbackName = `RS_polyfillCallback_${state.lifecycle.writeKey.value}`;
+      // A timed out script stays in the DOM, so a late response can still fire the
+      // callback. Settle once, and drop the handler on failure as well as success.
+      let isPolyfillLoadSettled = false;
+      let installedPolyfillCallback: (() => void) | undefined;
+      const settlePolyfillLoad = (onSettled: () => void): void => {
+        // Only remove our own handler: the name is keyed by write key alone, so the
+        // global may belong to the page or to another in-flight load.
+        if (
+          installedPolyfillCallback &&
+          (globalThis as any)[polyfillCallbackName] === installedPolyfillCallback
+        ) {
           delete (globalThis as any)[polyfillCallbackName];
-        };
+        }
 
-        (globalThis as any)[polyfillCallbackName] = polyfillCallback;
+        if (isPolyfillLoadSettled) {
+          return;
+        }
+
+        isPolyfillLoadSettled = true;
+        onSettled();
+      };
+
+      if (isDefaultPolyfillService) {
+        installedPolyfillCallback = (): void => {
+          settlePolyfillLoad(() => this.onPolyfillLoaded());
+        };
+        (globalThis as any)[polyfillCallbackName] = installedPolyfillCallback;
 
         polyfillUrl = `${polyfillUrl}&callback=${polyfillCallbackName}`;
       }
@@ -152,17 +171,37 @@ class CapabilitiesManager implements ICapabilitiesManager {
         id: POLYFILL_SCRIPT_ID,
         async: true,
         timeout: POLYFILL_LOAD_TIMEOUT,
-        callback: (scriptId?: string) => {
-          if (!scriptId) {
-            this.onError(new Error(POLYFILL_SCRIPT_LOAD_ERROR(POLYFILL_SCRIPT_ID, polyfillUrl)));
+        callback: (scriptId?: string, err?: SDKError) => {
+          if (!scriptId || err) {
+            // Report and stop: the SDK misbehaves on an engine still missing these.
+            settlePolyfillLoad(() => {
+              this.onError(new Error(POLYFILL_SCRIPT_LOAD_ERROR(POLYFILL_SCRIPT_ID, polyfillUrl)));
+            });
           } else if (!isDefaultPolyfillService) {
-            this.onReady();
+            settlePolyfillLoad(() => this.onPolyfillLoaded());
           }
         },
       });
     } else {
       this.onReady();
     }
+  }
+
+  /**
+   * Report the features that the polyfill script did not apply and then set the
+   * lifecycle status to next phase
+   */
+  onPolyfillLoaded() {
+    if (isLegacyJSEngine()) {
+      const missingFeatures = Object.keys(legacyJSEngineRequiredPolyfills).filter(feature => {
+        const isFeatureMissing = legacyJSEngineRequiredPolyfills[feature];
+        return isFunction(isFeatureMissing) && isFeatureMissing();
+      });
+
+      this.onError(new Error(POLYFILL_VERIFICATION_ERROR(missingFeatures)));
+    }
+
+    this.onReady();
   }
 
   /**

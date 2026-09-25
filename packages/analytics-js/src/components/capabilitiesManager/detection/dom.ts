@@ -23,19 +23,18 @@ const legacyJSEngineRequiredPolyfills: Record<string, () => boolean> = {
   'String.fromCodePoint': () => !isFunction(globalThis.String.fromCodePoint),
   'Object.entries': () => !isFunction(globalThis.Object.entries),
   'Object.values': () => !isFunction(globalThis.Object.values),
+  // Not used in this package, but the device mode integrations need them
   'Object.assign': () => !isFunction(globalThis.Object.assign),
   'Object.fromEntries': () => !isFunction(globalThis.Object.fromEntries),
   'Element.prototype.dataset': () => !isDatasetAvailable(),
   // Ideally, we should separate the checks for TextEncoder and TextDecoder but
   // the polyfill service serves them under the same feature name, "TextEncoder".
   TextEncoder: () => !isFunction(globalThis.TextEncoder) || !isFunction(globalThis.TextDecoder),
-  requestAnimationFrame: () =>
-    !isFunction(globalThis.requestAnimationFrame) || !isFunction(globalThis.cancelAnimationFrame),
   CustomEvent: () => !isFunction(globalThis.CustomEvent),
-  'navigator.sendBeacon': () => !isFunction(globalThis.navigator.sendBeacon),
   // Note, the polyfill service serves both ArrayBuffer and Uint8Array under the same feature name, "ArrayBuffer".
   ArrayBuffer: () => !isFunction(globalThis.Uint8Array),
   Set: () => !isFunction(globalThis.Set),
+  Map: () => !isFunction(globalThis.Map),
   atob: () => !isFunction(globalThis.atob),
 };
 
