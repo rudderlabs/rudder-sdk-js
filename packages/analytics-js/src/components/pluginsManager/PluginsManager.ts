@@ -38,6 +38,11 @@ import type { PluginsGroup } from './types';
 // TODO: we may want to add chained plugins that pass their value to the next one
 // TODO: add retry mechanism for getting remote plugins
 // TODO: add timeout error mechanism for marking remote plugins that failed to load as failed in state
+
+// A rejection is not guaranteed to be an Error; the assertion only silences the
+// compiler, so the reason still needs a fallback or it reads "- undefined".
+const failureReason = (err: unknown): string => (err as Error)?.message ?? String(err);
+
 class PluginsManager implements IPluginsManager {
   engine: IPluginEngine;
   errorHandler: IErrorHandler;
@@ -275,12 +280,14 @@ class PluginsManager implements IPluginsManager {
       state.plugins.activePlugins.value as PluginName[],
     );
 
-    const loadFailures: unknown[] = [];
     // Kept separate from state.plugins.failedPlugins, which also collects
     // unknown plugins from setActivePlugins, unavailable local plugins from
     // registerLocalPlugins and registration failures from register(). Reporting
     // the global list would attribute those to this remote load incident.
-    const failedRemotePlugins: string[] = [];
+    //
+    // Each failure carries its plugin, so the report can be derived from this list
+    // alone rather than from a second array kept in rejection order.
+    const loadFailures: { plugin: string; err: unknown }[] = [];
 
     return Promise.all(
       Object.keys(remotePluginsList).map(async remotePluginKey => {
@@ -288,22 +295,14 @@ class PluginsManager implements IPluginsManager {
           .then((remotePluginModule: any) => this.register([remotePluginModule.default()]))
           .catch(err => {
             // TODO: add retry here if dynamic import fails
-            failedRemotePlugins.push(remotePluginKey);
             state.plugins.failedPlugins.value = [
               ...state.plugins.failedPlugins.value,
               remotePluginKey,
             ];
             this.logger.error(
-              REMOTE_PLUGIN_LOAD_ERROR(
-                PLUGINS_MANAGER,
-                remotePluginKey,
-                // A rejection is not guaranteed to be an Error; the assertion
-                // only silences the compiler, so the reason still needs a
-                // fallback or the log reads "- undefined".
-                (err as Error)?.message ?? String(err),
-              ),
+              REMOTE_PLUGIN_LOAD_ERROR(PLUGINS_MANAGER, remotePluginKey, failureReason(err)),
             );
-            loadFailures.push(err);
+            loadFailures.push({ plugin: remotePluginKey, err });
           });
       }),
     )
@@ -316,15 +315,32 @@ class PluginsManager implements IPluginsManager {
         // deliberate: a dynamic import has no timeout of its own, and holding a
         // timer open to salvage a partial report would spend page resources on
         // error reporting, which is the lowest priority thing the SDK does.
-        if (failedRemotePlugins.length === 0) {
+        if (loadFailures.length === 0) {
           return;
         }
 
-        const firstFailure = loadFailures[0];
+        // Sorted, so neither the message nor the choice below depends on the order
+        // the imports happened to reject in. The same incident was seen reported
+        // two different ways within an hour before this.
+        const failures = [...loadFailures].sort((a, b) => (a.plugin < b.plugin ? -1 : 1));
+
+        // The cause becomes the report's grouping key. Plugins that failed on the
+        // same reason share one root cause -- a dead remote entry, or a shared
+        // chunk -- and that reason is the one worth grouping on, so the most widely
+        // shared one wins. Only when every failure is distinct does the lowest
+        // plugin name decide it, which is arbitrary but at least stable.
+        const sharedBy = (failure: { err: unknown }) =>
+          failures.filter(other => failureReason(other.err) === failureReason(failure.err)).length;
+        // No initial value: the early return above guarantees at least one failure,
+        // and seeding with failures[0] would type the result as possibly undefined.
+        const cause = failures.reduce((widest, failure) =>
+          sharedBy(failure) > sharedBy(widest) ? failure : widest,
+        );
+
         this.onError(
-          firstFailure,
-          `Failed to load plugins: ${failedRemotePlugins.join(', ')}`,
-          firstFailure as SDKError,
+          cause.err,
+          `Failed to load plugins: ${failures.map(failure => failure.plugin).join(', ')}`,
+          cause.err as SDKError,
         );
       })
       .catch(err => {

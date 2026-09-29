@@ -17,6 +17,9 @@ const fetchFailure = (url: string) =>
 
 const REMOTE_ENTRY = 'https://cdn.rudderlabs.com/3.34.1/modern/plugins/rsa-plugins.js';
 
+const chunkOf = (name: string) =>
+  `https://cdn.rudderlabs.com/3.34.1/modern/plugins/rsa-plugins-remote-${name}.min.js`;
+
 // Module federation resolves each import through several awaits, so sibling
 // rejections do not all land in the same microtask round. Reproduce that depth,
 // otherwise a one-hop Promise.reject makes the ordering look far more forgiving
@@ -166,5 +169,76 @@ describe('PluginsManager - remote plugins', () => {
 
     expect(defaultErrorHandler.onError).not.toHaveBeenCalled();
     expect(state.plugins.failedPlugins.value).toEqual([]);
+  });
+
+  it('should list the failed plugins in sorted order', async () => {
+    // The order imports reject in is a race, so the message must not depend on it:
+    // the same incident was observed in production reading two different ways an
+    // hour apart.
+    const failing: PluginName[] = ['XhrQueue', 'ExternalAnonymousId', 'StorageMigrator'];
+    state.plugins.activePlugins.value = failing;
+    mockRemotePluginsInventory.mockReturnValue(
+      Object.fromEntries(
+        failing.map((name, i) => [name, () => rejectAfterHops(i + 1, fetchFailure(REMOTE_ENTRY))]),
+      ),
+    );
+
+    pluginsManager.registerRemotePlugins();
+    await flush();
+
+    const { customMessage } = (defaultErrorHandler.onError as jest.Mock).mock.calls[0][0];
+    expect(customMessage).toBe(
+      'Failed to load plugins: ExternalAnonymousId, StorageMigrator, XhrQueue',
+    );
+  });
+
+  it('should report the same cause whichever import rejects first', async () => {
+    // The reported cause becomes the BugSnag grouping key, so a race here smears
+    // one incident across several groups.
+    const runWithFirst = async (first: PluginName) => {
+      resetState();
+      jest.clearAllMocks();
+      pluginsManager = new PluginsManager(defaultPluginEngine, defaultErrorHandler, defaultLogger);
+      const failing: PluginName[] = ['XhrQueue', 'ExternalAnonymousId'];
+      state.plugins.activePlugins.value = failing;
+      mockRemotePluginsInventory.mockReturnValue(
+        Object.fromEntries(
+          failing.map(name => [
+            name,
+            () => rejectAfterHops(name === first ? 1 : 4, fetchFailure(chunkOf(name))),
+          ]),
+        ),
+      );
+
+      pluginsManager.registerRemotePlugins();
+      await flush();
+
+      return (defaultErrorHandler.onError as jest.Mock).mock.calls[0][0].error.message;
+    };
+
+    expect(await runWithFirst('XhrQueue')).toBe(await runWithFirst('ExternalAnonymousId'));
+  });
+
+  it('should report the cause shared by the most plugins', async () => {
+    // Two plugins failed on the shared remote entry and one on its own chunk. The
+    // shared URL is the root cause and deserves to be the group, even though the
+    // plugin that failed alone sorts first.
+    state.plugins.activePlugins.value = [
+      'ExternalAnonymousId',
+      'StorageMigrator',
+      'XhrQueue',
+    ] satisfies PluginName[];
+    mockRemotePluginsInventory.mockReturnValue({
+      ExternalAnonymousId: () =>
+        rejectAfterHops(1, fetchFailure(chunkOf('ExternalAnonymousId'))),
+      StorageMigrator: () => rejectAfterHops(2, fetchFailure(REMOTE_ENTRY)),
+      XhrQueue: () => rejectAfterHops(3, fetchFailure(REMOTE_ENTRY)),
+    });
+
+    pluginsManager.registerRemotePlugins();
+    await flush();
+
+    const { error } = (defaultErrorHandler.onError as jest.Mock).mock.calls[0][0];
+    expect(error.message).toBe(fetchFailure(REMOTE_ENTRY).message);
   });
 });
