@@ -156,6 +156,27 @@ describe('PluginsManager - remote plugins', () => {
     await flush();
 
     expect(defaultLogger.error).toHaveBeenCalledWith(expect.stringContaining('boom'));
+    expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
+  });
+
+  it('should still report when the chosen cause is not an Error', async () => {
+    // ErrorHandler runs the cause through normalizeError, which drops anything that is
+    // not a real Error, and then returns without reporting. Choosing the cause by the
+    // most widely shared reason makes that silence deterministic rather than a matter
+    // of which import rejected first, so the reason has to be carried as an Error.
+    const failing: PluginName[] = ['XhrQueue', 'StorageEncryption'];
+    state.plugins.activePlugins.value = failing;
+    mockRemotePluginsInventory.mockReturnValue(
+      Object.fromEntries(failing.map(name => [name, () => Promise.reject('boom')])),
+    );
+
+    pluginsManager.registerRemotePlugins();
+    await flush();
+
+    const { error, groupingHash } = (defaultErrorHandler.onError as jest.Mock).mock.calls[0][0];
+    expect(error).toBeInstanceOf(Error);
+    expect(error.message).toBe('boom');
+    expect(groupingHash).toBe('boom');
   });
 
   it('should not report an error when every remote plugin loads', async () => {

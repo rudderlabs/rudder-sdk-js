@@ -12,7 +12,11 @@ import type { IErrorHandler, SDKError } from '@rudderstack/analytics-js-common/t
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { PLUGINS_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { isDefined, isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
+import {
+  isDefined,
+  isFunction,
+  isTypeOfError,
+} from '@rudderstack/analytics-js-common/utilities/checks';
 import {
   DEPRECATED_PLUGIN_WARNING,
   generateMisconfiguredPluginsWarning,
@@ -315,14 +319,14 @@ class PluginsManager implements IPluginsManager {
         // deliberate: a dynamic import has no timeout of its own, and holding a
         // timer open to salvage a partial report would spend page resources on
         // error reporting, which is the lowest priority thing the SDK does.
-        if (loadFailures.length === 0) {
-          return;
-        }
-
         // Sorted, so neither the message nor the choice below depends on the order
         // the imports happened to reject in. The same incident was seen reported
         // two different ways within an hour before this.
         const failures = [...loadFailures].sort((a, b) => (a.plugin < b.plugin ? -1 : 1));
+        const [firstFailure] = failures;
+        if (!firstFailure) {
+          return;
+        }
 
         // The cause becomes the report's grouping key. Plugins that failed on the
         // same reason share one root cause -- a dead remote entry, or a shared
@@ -331,16 +335,21 @@ class PluginsManager implements IPluginsManager {
         // plugin name decide it, which is arbitrary but at least stable.
         const sharedBy = (failure: { err: unknown }) =>
           failures.filter(other => failureReason(other.err) === failureReason(failure.err)).length;
-        // No initial value: the early return above guarantees at least one failure,
-        // and seeding with failures[0] would type the result as possibly undefined.
-        const cause = failures.reduce((widest, failure) =>
-          sharedBy(failure) > sharedBy(widest) ? failure : widest,
+        const cause = failures.reduce(
+          (widest, failure) => (sharedBy(failure) > sharedBy(widest) ? failure : widest),
+          firstFailure,
         );
 
+        // ErrorHandler runs the cause through normalizeError, which drops anything
+        // that is not a real Error and then returns without reporting. Choosing the
+        // cause by the most widely shared reason would make that silence
+        // deterministic, so a non-Error rejection is carried as one. The reason
+        // string is stable either way, so it also serves as the grouping hash.
+        const reason = failureReason(cause.err);
         this.onError(
-          cause.err,
+          isTypeOfError(cause.err) ? cause.err : new Error(reason),
           `Failed to load plugins: ${failures.map(failure => failure.plugin).join(', ')}`,
-          cause.err as SDKError,
+          reason,
         );
       })
       .catch(err => {
