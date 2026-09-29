@@ -118,7 +118,7 @@ jobs:
         uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c  # master
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@cbe3b392738ccf3f987d68400dafcf4b0624a56c  # v6.2.4
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd  # v6.3.0
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_S3_SYNC_ROLE }}
           aws-region: us-east-1
@@ -164,9 +164,15 @@ jobs:
         run: |
           aws s3 cp packages/sanity-suite/dist/ s3://${{ secrets.AWS_S3_BUCKET_NAME }}/sanity-suite${{ env.SUITE_CDN_PATH }}/ --recursive --cache-control ${{ env.CACHE_CONTROL }}
 
+      # E2E jobs in deploy-prod, deploy-staging, deploy-dev, deploy-beta and
+      # rollback all `needs:` this job, so it has to block on the invalidation
+      # completing -- otherwise they can run against the previously cached
+      # suite pages and flake in ways that read as SDK bugs.
       - name: Create Cloudfront invalidation
         run: |
-          AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/sanity-suite${{ env.SUITE_CDN_PATH }}*"
+          invalidation_id=$(AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/sanity-suite${{ env.SUITE_CDN_PATH }}*" --query "Invalidation.Id" --output text)
+
+          aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --id "$invalidation_id"
 
       - name: Get Job URL
         id: get-job-url

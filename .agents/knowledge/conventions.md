@@ -23,3 +23,7 @@
 ## INT-7067 — OpenAI Ads Registration Constants
 
 - OpenAI Ads device-mode registration uses package-local constants plus a literal `OPENAI_ADS` key in `packages/analytics-js-integrations/src/integrations/index.js`; also keep `OPENAI_ADS_NAME` and `OPENAI_ADS_DISPLAY_NAME` available from `packages/analytics-js-integrations/src/constants/Destinations.ts` because the package constants parity test imports every integration and compares those exports.
+
+## DOCS-2581 — Named Integration Build Command
+
+- Build one named device mode integration from `packages/analytics-js-integrations` with `npm run build:integration:cli --intg=<Name>`; the generic `build:integration` and `build:integration:modern` scripts do not consume an integration-name argument — prefix `BROWSERSLIST_ENV=modern` for the modern variant. Output lands in `dist/cdn/<legacy|modern>/js-integrations` as defined in `rollup.config.mjs`.

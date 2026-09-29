@@ -82,7 +82,16 @@
       "!{projectRoot}/**/*.md",
       "!{projectRoot}/**/*.txt",
       "{workspaceRoot}/types/**/*",
-      "{workspaceRoot}/babel.config.json"
+      "{workspaceRoot}/babel.config.json",
+      {
+        "env": "LOCK_DEPS_VERSION"
+      },
+      {
+        "env": "BASE_CDN_URL"
+      },
+      {
+        "env": "REMOTE_MODULES_BASE_PATH"
+      }
     ],
     "test": [
       "sharedGlobals",

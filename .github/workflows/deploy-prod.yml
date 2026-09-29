@@ -6,9 +6,24 @@ on:
     types:
       - closed
 
+# A production deploy must never be pre-empted, and two of them must never
+# overlap. The deploy job uploads the pinned plugin directory before it
+# overwrites the core at /v3, so a run that is cancelled part way through --
+# or overtaken by a second release -- can leave a live core pointing at an
+# incomplete pinned plugin directory, a state no invalidation repairs. A
+# queued run is strictly safer than a truncated or racing one.
+#
+# The group is deliberately constant. github.ref here is the pull request's
+# merge ref, which differs per release PR, so including it would put two
+# release merges in separate groups and let them publish to /v3 at the same
+# time -- exactly what this is meant to prevent.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # Shared with rollback.yml: both write the same production /v3 paths and
+  # invalidate the same distribution, so they have to queue against each
+  # other and not just against themselves. A literal rather than
+  # github.workflow, which differs per workflow and would split the group.
+  group: production-cdn-write
+  cancel-in-progress: false
 
 permissions:
   contents: read

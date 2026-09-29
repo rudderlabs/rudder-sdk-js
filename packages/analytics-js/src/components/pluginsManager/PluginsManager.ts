@@ -17,6 +17,7 @@ import {
   DEPRECATED_PLUGIN_WARNING,
   generateMisconfiguredPluginsWarning,
   UNAVAILABLE_PLUGINS_ERROR,
+  REMOTE_PLUGIN_LOAD_ERROR,
   UNKNOWN_PLUGINS_WARNING,
 } from '../../constants/logMessages';
 import { setExposedGlobal } from '../utilities/globals';
@@ -274,22 +275,61 @@ class PluginsManager implements IPluginsManager {
       state.plugins.activePlugins.value as PluginName[],
     );
 
-    Promise.all(
+    const loadFailures: unknown[] = [];
+    // Kept separate from state.plugins.failedPlugins, which also collects
+    // unknown plugins from setActivePlugins, unavailable local plugins from
+    // registerLocalPlugins and registration failures from register(). Reporting
+    // the global list would attribute those to this remote load incident.
+    const failedRemotePlugins: string[] = [];
+
+    return Promise.all(
       Object.keys(remotePluginsList).map(async remotePluginKey => {
         await remotePluginsList[remotePluginKey as PluginName]()
           .then((remotePluginModule: any) => this.register([remotePluginModule.default()]))
           .catch(err => {
             // TODO: add retry here if dynamic import fails
+            failedRemotePlugins.push(remotePluginKey);
             state.plugins.failedPlugins.value = [
               ...state.plugins.failedPlugins.value,
               remotePluginKey,
             ];
-            this.onError(err, `Failed to load plugin "${remotePluginKey}"`, err);
+            this.logger.error(
+              REMOTE_PLUGIN_LOAD_ERROR(
+                PLUGINS_MANAGER,
+                remotePluginKey,
+                // A rejection is not guaranteed to be an Error; the assertion
+                // only silences the compiler, so the reason still needs a
+                // fallback or the log reads "- undefined".
+                (err as Error)?.message ?? String(err),
+              ),
+            );
+            loadFailures.push(err);
           });
       }),
-    ).catch(err => {
-      this.onError(err);
-    });
+    )
+      .then(() => {
+        // A failed remote entry rejects every plugin import at once, so the
+        // fan-out is one incident and gets one report, raised only after every
+        // import has settled so it names all of them.
+        //
+        // An import that never settles therefore means no report. That is
+        // deliberate: a dynamic import has no timeout of its own, and holding a
+        // timer open to salvage a partial report would spend page resources on
+        // error reporting, which is the lowest priority thing the SDK does.
+        if (failedRemotePlugins.length === 0) {
+          return;
+        }
+
+        const firstFailure = loadFailures[0];
+        this.onError(
+          firstFailure,
+          `Failed to load plugins: ${failedRemotePlugins.join(', ')}`,
+          firstFailure as SDKError,
+        );
+      })
+      .catch(err => {
+        this.onError(err);
+      });
   }
 
   /**

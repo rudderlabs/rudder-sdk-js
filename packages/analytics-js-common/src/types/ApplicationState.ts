@@ -24,6 +24,25 @@ import type { UserSessionKey } from './UserSessionStorage';
 import type { RSAnalytics } from './IRudderAnalytics';
 import type { CustomContext } from './CustomContext';
 
+export type CspViolation = {
+  /** The blockedURI as reported; cross-origin ones are stripped to the origin. */
+  blockedURL: string;
+  /** effectiveDirective, e.g. script-src-elem or connect-src. */
+  directive: string;
+};
+
+export type SdkCdnProbeResult = {
+  /**
+   * The status XHR observed. 0 when the request never reached a server at
+   * all. A non-zero status is not proof the CDN answered -- something else
+   * may have -- so check redirectedOffCdn for the responder's origin.
+   */
+  status: number;
+  timedOut: boolean;
+  /** Answered by a URL outside the SDK CDN, which no CDN response does. */
+  redirectedOffCdn: boolean;
+};
+
 export type CapabilitiesState = {
   isOnline: Signal<boolean>;
   storage: {
@@ -46,10 +65,21 @@ export type CapabilitiesState = {
    */
   isAdBlocked: Signal<boolean | undefined>;
   /**
-   * This is used to track all the URLs SDK
-   * adds or imports onto the that are blocked due to CSP (Content Security Policy).
+   * CSP violations seen for SDK CDN URLs, each paired with the directive that
+   * rejected it. The directive matters: script-src governs a plugin import while
+   * connect-src governs the reachability probe, and a page can allow one and
+   * deny the other, so a violation only speaks for the kind of load it stopped.
    */
-  cspBlockedURLs: Signal<string[]>;
+  cspViolations: Signal<CspViolation[]>;
+  /**
+   * Outcome of the SDK CDN probes, keyed by the URL probed. A plugin path can be
+   * blocked while an integration path is reachable, so a failure is only ever
+   * judged against a probe of its own URL.
+   * status 0 means the request never reached a server at all (blocked, DNS,
+   * offline or CORS). A non-zero status came from whatever answered, which is
+   * the CDN only when redirectedOffCdn is false.
+   */
+  sdkCdnProbe: Signal<Record<string, SdkCdnProbeResult>>;
 };
 
 export type ConsentsState = {

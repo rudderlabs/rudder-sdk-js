@@ -367,9 +367,61 @@ describe('ErrorHandler', () => {
       // Dispatch the CSP violation event
       document.dispatchEvent(cspEvent);
 
-      // Verify the URL was added to the blocked list
-      expect(state.capabilities.cspBlockedURLs.value).toContain(blockedURL);
-      expect(state.capabilities.cspBlockedURLs.value).toHaveLength(1);
+      // The directive is what lets the filter tell a blocked import from a
+      // blocked probe, so assert the pair rather than just the URL.
+      expect(state.capabilities.cspViolations.value).toEqual([
+        { blockedURL, directive: 'script-src' },
+      ]);
+    });
+
+    it('should record the directive that rejected the request', () => {
+      const blockedURL = 'https://cdn.rudderlabs.com/v3/modern/plugins/plugin1.min.js';
+
+      // connect-src rejects the reachability probe; script-src would reject the
+      // import. The filter treats the two differently, so the listener has to
+      // keep them apart.
+      document.dispatchEvent(
+        new SecurityPolicyViolationEvent('securitypolicyviolation', {
+          disposition: 'enforce',
+          blockedURI: blockedURL,
+          violatedDirective: 'connect-src',
+          effectiveDirective: 'connect-src',
+          originalPolicy: "connect-src 'self'",
+          documentURI: 'https://example.com',
+          referrer: '',
+          statusCode: 200,
+          lineNumber: 1,
+          columnNumber: 1,
+          sourceFile: 'https://example.com',
+        }),
+      );
+
+      expect(state.capabilities.cspViolations.value).toEqual([
+        { blockedURL, directive: 'connect-src' },
+      ]);
+    });
+
+    it('should not record a look-alike host as an SDK CDN violation', () => {
+      const blockedURL = 'https://cdn.rudderlabs.com.evil.example/some-script.js';
+
+      document.dispatchEvent(
+        new SecurityPolicyViolationEvent('securitypolicyviolation', {
+          disposition: 'enforce',
+          blockedURI: blockedURL,
+          violatedDirective: 'script-src',
+          effectiveDirective: 'script-src',
+          originalPolicy: "script-src 'self'",
+          documentURI: 'https://example.com',
+          referrer: '',
+          statusCode: 200,
+          lineNumber: 1,
+          columnNumber: 1,
+          sourceFile: 'https://example.com',
+        }),
+      );
+
+      // A bare prefix would accept this host and pollute the violation list.
+      expect(state.capabilities.cspViolations.value).toEqual([]);
     });
 
     it('should not track CSP blocked URLs from non-RudderStack CDN', () => {
@@ -394,8 +446,8 @@ describe('ErrorHandler', () => {
       document.dispatchEvent(cspEvent);
 
       // Verify the URL was NOT added to the blocked list
-      expect(state.capabilities.cspBlockedURLs.value).not.toContain(blockedURL);
-      expect(state.capabilities.cspBlockedURLs.value).toEqual([]);
+      expect(state.capabilities.cspViolations.value.map(v => v.blockedURL)).not.toContain(blockedURL);
+      expect(state.capabilities.cspViolations.value).toEqual([]);
     });
 
     it('should ignore CSP violations with "report" disposition', () => {
@@ -421,8 +473,8 @@ describe('ErrorHandler', () => {
       document.dispatchEvent(cspEvent);
 
       // Verify the URL was NOT added to the blocked list (only "enforce" disposition is tracked)
-      expect(state.capabilities.cspBlockedURLs.value).not.toContain(blockedURL);
-      expect(state.capabilities.cspBlockedURLs.value).toEqual([]);
+      expect(state.capabilities.cspViolations.value.map(v => v.blockedURL)).not.toContain(blockedURL);
+      expect(state.capabilities.cspViolations.value).toEqual([]);
     });
 
     it('should track multiple CSP blocked URLs', () => {
@@ -464,10 +516,10 @@ describe('ErrorHandler', () => {
       document.dispatchEvent(cspEvent1);
       document.dispatchEvent(cspEvent2);
 
-      // Verify both URLs were added to the blocked list
-      expect(state.capabilities.cspBlockedURLs.value).toContain(blockedURL1);
-      expect(state.capabilities.cspBlockedURLs.value).toContain(blockedURL2);
-      expect(state.capabilities.cspBlockedURLs.value).toHaveLength(2);
+      expect(state.capabilities.cspViolations.value).toEqual([
+        { blockedURL: blockedURL1, directive: 'script-src' },
+        { blockedURL: blockedURL2, directive: 'script-src' },
+      ]);
     });
 
     it('should not duplicate CSP blocked URLs', () => {
@@ -494,7 +546,7 @@ describe('ErrorHandler', () => {
 
       // Verify the URL appears only once in the blocked list
       expect(
-        state.capabilities.cspBlockedURLs.value.filter(url => url === blockedURL),
+        state.capabilities.cspViolations.value.filter(v => v.blockedURL === blockedURL),
       ).toHaveLength(1);
       // Note: The current implementation doesn't deduplicate, but we document this behavior
       // If deduplication is needed, the implementation should be updated
@@ -527,9 +579,9 @@ describe('ErrorHandler', () => {
 
       // Verify all RudderStack CDN URLs were tracked
       testUrls.forEach(url => {
-        expect(state.capabilities.cspBlockedURLs.value).toContain(url);
+        expect(state.capabilities.cspViolations.value.map(v => v.blockedURL)).toContain(url);
       });
-      expect(state.capabilities.cspBlockedURLs.value).toHaveLength(testUrls.length);
+      expect(state.capabilities.cspViolations.value).toHaveLength(testUrls.length);
     });
 
     it('should handle non-string blockedURI values gracefully', () => {
@@ -543,7 +595,7 @@ describe('ErrorHandler', () => {
 
       testCases.forEach(({ value, description: _description }) => {
         // Clear previous state
-        state.capabilities.cspBlockedURLs.value = [];
+        state.capabilities.cspViolations.value = [];
 
         // Create CSP violation event with non-string blockedURI
         const cspEvent = new SecurityPolicyViolationEvent('securitypolicyviolation', {
@@ -562,7 +614,7 @@ describe('ErrorHandler', () => {
 
         // Should not throw an error and should not add anything to blocked list
         expect(() => document.dispatchEvent(cspEvent)).not.toThrow();
-        expect(state.capabilities.cspBlockedURLs.value).toEqual([]);
+        expect(state.capabilities.cspViolations.value).toEqual([]);
       });
     });
   });
