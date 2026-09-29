@@ -322,31 +322,28 @@ describe('Error Reporting utilities', () => {
 
   describe('getAppStateForMetadata - SDK CDN probe', () => {
     it('should serialise the probe outcome into the reported metadata', () => {
-      state.capabilities.sdkCdnProbe.value = {
-        'https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins.js': {
-          status: 0,
-          timedOut: false,
-          redirectedOffCdn: true,
-        },
-      };
+      const url = 'https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins.js';
+      state.capabilities.sdkCdnProbe.value = [
+        { url, status: 0, timedOut: false, redirectedOffCdn: true, contentType: undefined },
+      ];
 
       const metadata = getAppStateForMetadata(state) as any;
 
-      expect(metadata.capabilities.sdkCdnProbe).toEqual({
-        'https://cdn.rudderlabs.com/3.20.1/modern/plugins/rsa-plugins.js': {
-          status: 0,
-          timedOut: false,
-          redirectedOffCdn: true,
-        },
-      });
+      // The URL has to reach the report as a VALUE. BugSnag rewrites dots in
+      // metadata keys to U+FF0E, so a URL-keyed map arrives unfilterable and
+      // impossible to paste anywhere.
+      expect(metadata.capabilities.sdkCdnProbe).toEqual([
+        { url, status: 0, timedOut: false, redirectedOffCdn: true },
+      ]);
+      expect(JSON.stringify(metadata.capabilities.sdkCdnProbe)).toContain(url);
     });
 
-    it('should carry an empty probe map when nothing has been probed', () => {
-      state.capabilities.sdkCdnProbe.value = {};
+    it('should carry an empty probe list when nothing has been probed', () => {
+      state.capabilities.sdkCdnProbe.value = [];
 
       const metadata = getAppStateForMetadata(state) as any;
 
-      expect(metadata.capabilities.sdkCdnProbe).toEqual({});
+      expect(metadata.capabilities.sdkCdnProbe).toEqual([]);
     });
   });
 
@@ -496,7 +493,7 @@ describe('Error Reporting utilities', () => {
                 isLegacyDOM: false,
                 isOnline: true,
                 isUaCHAvailable: false,
-                sdkCdnProbe: {},
+                sdkCdnProbe: [],
                 storage: {
                   isCookieStorageAvailable: false,
                   isLocalStorageAvailable: false,
@@ -872,7 +869,7 @@ describe('Error Reporting utilities', () => {
         checkIfAllowedToBeNotified({ message } as unknown as Exception, state, defaultHttpClient);
 
       beforeEach(() => {
-        state.capabilities.sdkCdnProbe.value = {};
+        state.capabilities.sdkCdnProbe.value = [];
         state.capabilities.isAdBlocked.value = false;
         state.capabilities.cspViolations.value = [];
         state.lifecycle.pluginsCDNPath.value = 'https://cdn.rudderlabs.com/3.20.1/modern/plugins';
@@ -883,9 +880,9 @@ describe('Error Reporting utilities', () => {
 
         await notify();
 
-        expect(state.capabilities.sdkCdnProbe.value).toEqual({
-          [PLUGIN_URL]: { status: 503, timedOut: false, redirectedOffCdn: false },
-        });
+        expect(state.capabilities.sdkCdnProbe.value).toEqual([
+          { url: PLUGIN_URL, status: 503, timedOut: false, redirectedOffCdn: false },
+        ]);
       });
 
       it('should notify when only the probe is CSP blocked', async () => {
@@ -925,6 +922,71 @@ describe('Error Reporting utilities', () => {
         expect(sent.options.method).toBe('HEAD');
         expect(sent.options.headers['Content-Type']).toBeUndefined();
         expect(sent.options.headers.Accept).toBeUndefined();
+      });
+
+      it('should record the response content-type', async () => {
+        // The production shape this exists for: status 200 on a URL whose import()
+        // still failed. A HEAD ignores the MIME type; a module fetch does not, so
+        // the status alone can never name the cause.
+        defaultHttpClient.getAsyncData.mockImplementation(({ url, callback }: any) => {
+          callback(null, {
+            xhr: {
+              status: 200,
+              responseURL: url,
+              getResponseHeader: (name: string) =>
+                name.toLowerCase() === 'content-type' ? 'text/html; charset=utf-8' : null,
+            },
+          });
+        });
+
+        await notify();
+
+        expect(state.capabilities.sdkCdnProbe.value).toEqual([
+          {
+            url: PLUGIN_URL,
+            status: 200,
+            timedOut: false,
+            redirectedOffCdn: false,
+            contentType: 'text/html; charset=utf-8',
+          },
+        ]);
+      });
+
+      it('should leave the content-type undefined when the response carries none', async () => {
+        probeResponds({ status: 200 });
+
+        await notify();
+
+        expect(state.capabilities.sdkCdnProbe.value[0].contentType).toBeUndefined();
+      });
+
+      it('should keep one entry per probed URL', async () => {
+        const INTEGRATION_URL =
+          'https://cdn.rudderlabs.com/3.20.1/modern/js-integrations/GA4.min.js';
+        probeResponds({ status: 503 });
+
+        await notify();
+        await checkIfAllowedToBeNotified(
+          {
+            message: `Unable to load (GA4) the script with the id GA4 from ${INTEGRATION_URL}`,
+          } as unknown as Exception,
+          state,
+          defaultHttpClient,
+        );
+
+        expect(state.capabilities.sdkCdnProbe.value.map(p => p.url)).toEqual([
+          PLUGIN_URL,
+          INTEGRATION_URL,
+        ]);
+      });
+
+      it('should not duplicate an entry when the same URL fails again', async () => {
+        probeResponds({ status: 503 });
+
+        await notify();
+        await notify();
+
+        expect(state.capabilities.sdkCdnProbe.value).toHaveLength(1);
       });
 
       it('should probe the URL that failed rather than a fixed plugins path', async () => {

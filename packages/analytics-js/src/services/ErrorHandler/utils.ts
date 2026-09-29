@@ -1,6 +1,7 @@
 import type {
   ApplicationState,
   Breadcrumb,
+  SdkCdnProbeResult,
 } from '@rudderstack/analytics-js-common/types/ApplicationState';
 import {
   ErrorType,
@@ -196,13 +197,16 @@ const inFlightProbes = new Map<string, (() => void)[]>();
  * an error. The failed URL is probed rather than a fixed path: plugins and
  * integrations sit under different prefixes and can be blocked independently.
  */
+const findProbe = (state: ApplicationState, url: string): SdkCdnProbeResult | undefined =>
+  state.capabilities.sdkCdnProbe.value.find(probe => probe.url === url);
+
 const probeSdkCdn = (
   state: ApplicationState,
   httpClient: IHttpClient,
   url: string,
   done: () => void,
 ): void => {
-  if (isDefined(state.capabilities.sdkCdnProbe.value[url])) {
+  if (isDefined(findProbe(state, url))) {
     done();
     return;
   }
@@ -234,10 +238,14 @@ const probeSdkCdn = (
       // URL -- is the CDN answering and must not be mistaken for one.
       const status = details?.xhr?.status ?? 0;
       const responseURL = details?.xhr?.responseURL;
+      // Absent on a response that carried no such header, and on any XHR stub that
+      // does not implement it, so it is read defensively.
+      const contentType = details?.xhr?.getResponseHeader?.('content-type');
 
-      state.capabilities.sdkCdnProbe.value = {
+      state.capabilities.sdkCdnProbe.value = [
         ...state.capabilities.sdkCdnProbe.value,
-        [url]: {
+        {
+          url,
           status,
           timedOut: details?.timedOut === true,
           redirectedOffCdn:
@@ -245,8 +253,9 @@ const probeSdkCdn = (
             isString(responseURL) &&
             responseURL !== url &&
             !isSameOrUnder(responseURL, SDK_CDN_BASE_URL),
+          contentType: isString(contentType) ? contentType : undefined,
         },
-      };
+      ];
 
       const waiters = inFlightProbes.get(url) ?? [];
       inFlightProbes.delete(url);
@@ -298,7 +307,7 @@ const checkIfAllowedToBeNotified = (
             // something else, is a client-side failure: nothing server side
             // produces either shape. A timeout is not attributable, and any
             // status the CDN itself returned is worth reporting.
-            const probe = state.capabilities.sdkCdnProbe.value[extractedURL];
+            const probe = findProbe(state, extractedURL);
 
             // Unless CSP stopped the probe itself. connect-src governs the probe
             // while script-src governs the import, and a page can allow the
