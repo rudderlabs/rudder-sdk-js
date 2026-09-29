@@ -159,6 +159,24 @@ describe('PluginsManager - remote plugins', () => {
     expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
   });
 
+  it('should report the plugin failure when the rejection cannot be coerced', async () => {
+    // Object.create(null) has no toString, so String() on it throws. Unguarded, that
+    // throw rejects the catch handler, Promise.all rejects with it, the aggregate
+    // report is skipped, and the outer catch reports the coercion TypeError in place
+    // of the plugin failure.
+    const failing: PluginName[] = ['XhrQueue', 'StorageEncryption'];
+    state.plugins.activePlugins.value = failing;
+    mockRemotePluginsInventory.mockReturnValue(
+      Object.fromEntries(failing.map(name => [name, () => Promise.reject(Object.create(null))])),
+    );
+
+    pluginsManager.registerRemotePlugins();
+    await flush();
+
+    const { customMessage } = (defaultErrorHandler.onError as jest.Mock).mock.calls[0][0];
+    expect(customMessage).toBe('Failed to load plugins: StorageEncryption, XhrQueue');
+  });
+
   it('should coerce a non-string rejection message to a string', async () => {
     // getErrorGroupingHash rejects a non-string hash and falls back to the full report
     // message, which embeds the plugin list -- so one reason would split into a group

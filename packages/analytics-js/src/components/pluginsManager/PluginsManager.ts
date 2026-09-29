@@ -43,13 +43,28 @@ import type { PluginsGroup } from './types';
 // TODO: add retry mechanism for getting remote plugins
 // TODO: add timeout error mechanism for marking remote plugins that failed to load as failed in state
 
-// A rejection is not guaranteed to be an Error, and even one carrying a `message` is
-// not guaranteed to carry a string in it, so the reason is coerced rather than
-// asserted. Without that, a `{ message: 503 }` reason would reach getErrorGroupingHash
-// as a number, be rejected there as a non-string, and fall back to the full report
-// message -- which embeds the plugin list, so one reason would split into a group per
-// list. The fallback also keeps the log from reading "- undefined".
-const failureReason = (err: unknown): string => String((err as Error)?.message ?? err);
+/**
+ * The reason to report for a rejected plugin import, from a value that carries no
+ * guarantees at all.
+ *
+ * It need not be an Error, and one carrying a `message` need not carry a string in it,
+ * so the value is coerced rather than asserted: a `{ message: 503 }` reason reaching
+ * getErrorGroupingHash as a number would be rejected there as a non-string and fall
+ * back to the full report message, which names the failed plugins -- so a single
+ * reason would split into a group per plugin list.
+ *
+ * Nor is it guaranteed to be coercible. `Object.create(null)` has no `toString`, and a
+ * `message` getter may throw; either would reject this handler, take Promise.all down
+ * with it, skip the aggregate report and report the coercion failure in its place. So
+ * extraction is total, and falls back to a fixed string that still groups.
+ */
+const failureReason = (err: unknown): string => {
+  try {
+    return String((err as Error)?.message ?? err);
+  } catch {
+    return 'an error that could not be read';
+  }
+};
 
 class PluginsManager implements IPluginsManager {
   engine: IPluginEngine;
