@@ -159,6 +159,32 @@ describe('PluginsManager - remote plugins', () => {
     expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
   });
 
+  it('should read each rejection reason once', async () => {
+    // The reason feeds the log line, the frequency count behind the cause choice, and
+    // the grouping hash. Rereading it per comparison is O(n^2) in the number of failed
+    // plugins, and a stateful `message` getter would answer differently each time --
+    // incoherent counts, and a reported hash that matches none of them.
+    let reads = 0;
+    const statefulReason = () => ({
+      get message(): string {
+        reads += 1;
+        return `read ${reads}`;
+      },
+    });
+    const failing: PluginName[] = ['XhrQueue', 'StorageEncryption', 'GoogleLinker'];
+    state.plugins.activePlugins.value = failing;
+    mockRemotePluginsInventory.mockReturnValue(
+      Object.fromEntries(failing.map(name => [name, () => Promise.reject(statefulReason())])),
+    );
+
+    pluginsManager.registerRemotePlugins();
+    await flush();
+
+    expect(reads).toBe(failing.length);
+    const { groupingHash } = (defaultErrorHandler.onError as jest.Mock).mock.calls[0][0];
+    expect(['read 1', 'read 2', 'read 3']).toContain(groupingHash);
+  });
+
   it('should not preserve an Error impostor that carries no stack', async () => {
     // Object.prototype.toString.call reports '[object Error]' for anything that merely
     // sets Symbol.toStringTag, so isTypeOfError accepts it -- but normalizeError also

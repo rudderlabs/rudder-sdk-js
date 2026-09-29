@@ -334,9 +334,14 @@ class PluginsManager implements IPluginsManager {
     // registerLocalPlugins and registration failures from register(). Reporting
     // the global list would attribute those to this remote load incident.
     //
-    // Each failure carries its plugin, so the report can be derived from this list
-    // alone rather than from a second array kept in rejection order.
-    const loadFailures: { plugin: string; err: unknown }[] = [];
+    // Each failure carries its plugin and its reason, so the report can be derived from
+    // this list alone rather than from a second array kept in rejection order. The reason
+    // is read once, here, and then reused: it feeds the log line, the frequency count
+    // behind the cause choice and the grouping hash, and rereading it per comparison
+    // would be quadratic in the number of failed plugins -- as well as letting a stateful
+    // `message` getter answer differently each time, which would make the counts
+    // incoherent and the reported hash match none of them.
+    const loadFailures: { plugin: string; reason: string; err: unknown }[] = [];
 
     return Promise.all(
       Object.keys(remotePluginsList).map(async remotePluginKey => {
@@ -348,10 +353,9 @@ class PluginsManager implements IPluginsManager {
               ...state.plugins.failedPlugins.value,
               remotePluginKey,
             ];
-            this.logger.error(
-              REMOTE_PLUGIN_LOAD_ERROR(PLUGINS_MANAGER, remotePluginKey, failureReason(err)),
-            );
-            loadFailures.push({ plugin: remotePluginKey, err });
+            const reason = failureReason(err);
+            this.logger.error(REMOTE_PLUGIN_LOAD_ERROR(PLUGINS_MANAGER, remotePluginKey, reason));
+            loadFailures.push({ plugin: remotePluginKey, reason, err });
           });
       }),
     )
@@ -383,8 +387,8 @@ class PluginsManager implements IPluginsManager {
         // reached first. That covers the all-distinct case as well as two reasons
         // shared by equally many plugins. Arbitrary, but stable across page loads,
         // which is the whole point.
-        const sharedBy = (failure: { err: unknown }) =>
-          failures.filter(other => failureReason(other.err) === failureReason(failure.err)).length;
+        const sharedBy = (failure: { reason: string }) =>
+          failures.filter(other => other.reason === failure.reason).length;
         const cause = failures.reduce(
           (widest, failure) => (sharedBy(failure) > sharedBy(widest) ? failure : widest),
           firstFailure,
@@ -395,11 +399,10 @@ class PluginsManager implements IPluginsManager {
         // cause by the most widely shared reason would make that silence
         // deterministic, so a non-Error rejection is carried as one. The reason
         // string is stable either way, so it also serves as the grouping hash.
-        const reason = failureReason(cause.err);
         this.onError(
-          failureError(cause.err, reason),
+          failureError(cause.err, cause.reason),
           `Failed to load plugins: ${failures.map(failure => failure.plugin).join(', ')}`,
-          reason,
+          cause.reason,
         );
       })
       .catch(err => {
