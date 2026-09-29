@@ -66,6 +66,25 @@ const failureReason = (err: unknown): string => {
   }
 };
 
+/**
+ * The error to report for a rejected plugin import: the rejection itself when it is a
+ * real Error, so its stack survives, and otherwise one carrying the reason.
+ *
+ * Classification is guarded for the same kind of value as the reason above.
+ * `isTypeOfError` runs `Object.prototype.toString.call`, which reads
+ * `Symbol.toStringTag`, and its `instanceof` fallback walks the prototype chain -- a
+ * throwing tag getter or a revoked proxy makes either throw. On this path that throw
+ * would reach the outer catch and replace the aggregate report with the inspection
+ * failure, which is the exact outcome this reporting is here to avoid.
+ */
+const failureError = (err: unknown, reason: string): unknown => {
+  try {
+    return isTypeOfError(err) ? err : new Error(reason);
+  } catch {
+    return new Error(reason);
+  }
+};
+
 class PluginsManager implements IPluginsManager {
   engine: IPluginEngine;
   errorHandler: IErrorHandler;
@@ -371,7 +390,7 @@ class PluginsManager implements IPluginsManager {
         // string is stable either way, so it also serves as the grouping hash.
         const reason = failureReason(cause.err);
         this.onError(
-          isTypeOfError(cause.err) ? cause.err : new Error(reason),
+          failureError(cause.err, reason),
           `Failed to load plugins: ${failures.map(failure => failure.plugin).join(', ')}`,
           reason,
         );

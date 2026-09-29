@@ -159,6 +159,29 @@ describe('PluginsManager - remote plugins', () => {
     expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
   });
 
+  it('should report the plugin failure when the rejection resists inspection', async () => {
+    // isTypeOfError runs Object.prototype.toString.call, which reads
+    // Symbol.toStringTag, so a throwing tag getter (or a revoked proxy) throws during
+    // classification -- this time on the report path, where the outer catch would
+    // again replace the aggregate message with the inspection error.
+    const hostile = {
+      get [Symbol.toStringTag](): string {
+        throw new Error('tag getter');
+      },
+    };
+    const failing: PluginName[] = ['XhrQueue', 'StorageEncryption'];
+    state.plugins.activePlugins.value = failing;
+    mockRemotePluginsInventory.mockReturnValue(
+      Object.fromEntries(failing.map(name => [name, () => Promise.reject(hostile)])),
+    );
+
+    pluginsManager.registerRemotePlugins();
+    await flush();
+
+    const { customMessage } = (defaultErrorHandler.onError as jest.Mock).mock.calls[0][0];
+    expect(customMessage).toBe('Failed to load plugins: StorageEncryption, XhrQueue');
+  });
+
   it('should report the plugin failure when the rejection cannot be coerced', async () => {
     // Object.create(null) has no toString, so String() on it throws. Unguarded, that
     // throw rejects the catch handler, Promise.all rejects with it, the aggregate
