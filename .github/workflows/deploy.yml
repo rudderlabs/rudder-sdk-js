@@ -283,6 +283,15 @@ jobs:
       - name: Copy SDK plugins and integrations artifacts to S3
         # IMPORTANT: We're deliberately avoiding copying these artifacts for the production environment
         # as they are already copied to versioned directory and expected to be loaded from there
+        #
+        # HAZARD (SDK-5497): this gate is the only thing that writes v3/modern/plugins/, so that
+        # directory has been frozen in production since January 2025 while v3/modern/rsa.min.js is
+        # refreshed every release. A v3 install with `lockPluginsVersion: false` therefore pairs a
+        # current core with January 2025 plugin chunks, and the module federation share scope skew
+        # surfaces as arbitrary runtime breakage rather than a load failure. The default (true)
+        # resolves /<version>/modern/plugins/ and is unaffected. Fixing this needs a product
+        # decision: refreshing the directory and removing it both change live traffic, with no
+        # rollback for a browser that has already fetched.
         if: ${{ inputs.environment != 'production' }}
         env:
           S3_DIR_PATH: ${{ inputs.s3_dir_path }}
