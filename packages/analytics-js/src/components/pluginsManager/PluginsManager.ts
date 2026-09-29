@@ -43,9 +43,13 @@ import type { PluginsGroup } from './types';
 // TODO: add retry mechanism for getting remote plugins
 // TODO: add timeout error mechanism for marking remote plugins that failed to load as failed in state
 
-// A rejection is not guaranteed to be an Error; the assertion only silences the
-// compiler, so the reason still needs a fallback or it reads "- undefined".
-const failureReason = (err: unknown): string => (err as Error)?.message ?? String(err);
+// A rejection is not guaranteed to be an Error, and even one carrying a `message` is
+// not guaranteed to carry a string in it, so the reason is coerced rather than
+// asserted. Without that, a `{ message: 503 }` reason would reach getErrorGroupingHash
+// as a number, be rejected there as a non-string, and fall back to the full report
+// message -- which embeds the plugin list, so one reason would split into a group per
+// list. The fallback also keeps the log from reading "- undefined".
+const failureReason = (err: unknown): string => String((err as Error)?.message ?? err);
 
 class PluginsManager implements IPluginsManager {
   engine: IPluginEngine;
@@ -331,8 +335,13 @@ class PluginsManager implements IPluginsManager {
         // The cause becomes the report's grouping key. Plugins that failed on the
         // same reason share one root cause -- a dead remote entry, or a shared
         // chunk -- and that reason is the one worth grouping on, so the most widely
-        // shared one wins. Only when every failure is distinct does the lowest
-        // plugin name decide it, which is arbitrary but at least stable.
+        // shared one wins.
+        //
+        // Any tie on that count is broken by the plugin name, since `failures` is
+        // sorted by it and the strict `>` below keeps whichever tied reason was
+        // reached first. That covers the all-distinct case as well as two reasons
+        // shared by equally many plugins. Arbitrary, but stable across page loads,
+        // which is the whole point.
         const sharedBy = (failure: { err: unknown }) =>
           failures.filter(other => failureReason(other.err) === failureReason(failure.err)).length;
         const cause = failures.reduce(
