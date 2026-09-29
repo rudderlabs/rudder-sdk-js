@@ -159,6 +159,27 @@ describe('PluginsManager - remote plugins', () => {
     expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
   });
 
+  it('should not preserve an Error impostor that carries no stack', async () => {
+    // Object.prototype.toString.call reports '[object Error]' for anything that merely
+    // sets Symbol.toStringTag, so isTypeOfError accepts it -- but normalizeError also
+    // demands a non-empty stack and drops whatever lacks one, which silences the report
+    // exactly as a bare string rejection used to.
+    const impostor = { [Symbol.toStringTag]: 'Error', message: 'looks real' };
+    const failing: PluginName[] = ['XhrQueue', 'StorageEncryption'];
+    state.plugins.activePlugins.value = failing;
+    mockRemotePluginsInventory.mockReturnValue(
+      Object.fromEntries(failing.map(name => [name, () => Promise.reject(impostor)])),
+    );
+
+    pluginsManager.registerRemotePlugins();
+    await flush();
+
+    const { error } = (defaultErrorHandler.onError as jest.Mock).mock.calls[0][0];
+    expect(typeof error.stack).toBe('string');
+    expect(error.stack).not.toBe('');
+    expect(error.message).toBe('looks real');
+  });
+
   it('should report the plugin failure when the rejection resists inspection', async () => {
     // isTypeOfError runs Object.prototype.toString.call, which reads
     // Symbol.toStringTag, so a throwing tag getter (or a revoked proxy) throws during

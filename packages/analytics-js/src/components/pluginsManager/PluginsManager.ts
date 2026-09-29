@@ -4,6 +4,7 @@ import type {
   IPluginEngine,
 } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { getNonCloudDestinations } from '@rudderstack/analytics-js-common/utilities/destinations';
+import { getStacktrace } from '@rudderstack/analytics-js-common/utilities/errors';
 import type {
   IPluginsManager,
   PluginName,
@@ -70,16 +71,22 @@ const failureReason = (err: unknown): string => {
  * The error to report for a rejected plugin import: the rejection itself when it is a
  * real Error, so its stack survives, and otherwise one carrying the reason.
  *
- * Classification is guarded for the same kind of value as the reason above.
- * `isTypeOfError` runs `Object.prototype.toString.call`, which reads
- * `Symbol.toStringTag`, and its `instanceof` fallback walks the prototype chain -- a
- * throwing tag getter or a revoked proxy makes either throw. On this path that throw
- * would reach the outer catch and replace the aggregate report with the inspection
- * failure, which is the exact outcome this reporting is here to avoid.
+ * The test mirrors what ErrorHandler.normalizeError will actually accept, by calling the
+ * same getStacktrace: being Error-SHAPED is not enough there, it also wants a non-empty
+ * string stack, and it drops anything else -- at which point onError returns and the
+ * aggregate report is lost. `isTypeOfError` alone would let through an object that only
+ * sets `Symbol.toStringTag` to 'Error', since that is all Object.prototype.toString
+ * reports on, and such an impostor carries no stack.
+ *
+ * Classification is guarded for the same kind of value as the reason above. That
+ * toString call reads `Symbol.toStringTag` and the `instanceof` fallback walks the
+ * prototype chain, so a throwing tag getter or a revoked proxy makes either throw. On
+ * this path that throw would reach the outer catch and replace the aggregate report with
+ * the inspection failure, which is the exact outcome this reporting is here to avoid.
  */
 const failureError = (err: unknown, reason: string): unknown => {
   try {
-    return isTypeOfError(err) ? err : new Error(reason);
+    return isTypeOfError(err) && isDefined(getStacktrace(err)) ? err : new Error(reason);
   } catch {
     return new Error(reason);
   }
