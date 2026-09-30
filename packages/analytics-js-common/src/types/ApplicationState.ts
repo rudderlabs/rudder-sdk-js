@@ -33,6 +33,13 @@ export type CspViolation = {
 
 export type SdkCdnProbeResult = {
   /**
+   * The URL probed. Carried as a value, never used as a map key: BugSnag treats
+   * `.` as a path separator in its filter syntax and rewrites dots in metadata
+   * KEYS to U+FF0E, which leaves a URL-keyed map unfilterable and impossible to
+   * paste anywhere. Values are left alone.
+   */
+  url: string;
+  /**
    * The status XHR observed. 0 when the request never reached a server at
    * all. A non-zero status is not proof the CDN answered -- something else
    * may have -- so check redirectedOffCdn for the responder's origin.
@@ -41,6 +48,17 @@ export type SdkCdnProbeResult = {
   timedOut: boolean;
   /** Answered by a URL outside the SDK CDN, which no CDN response does. */
   redirectedOffCdn: boolean;
+  /**
+   * The response content-type, when the response carried one. A HEAD is
+   * indifferent to it but a module fetch is not, so this is what separates
+   * "the CDN answered" from "the browser would accept what it answered with" --
+   * the difference behind a status 200 on a URL whose import() still failed.
+   *
+   * Content-Type is CORS-safelisted, so it is readable cross-origin.
+   * access-control-allow-origin is not, and needs no field: this probe is itself
+   * a cross-origin request, so any non-zero status already proves it was there.
+   */
+  contentType: string | undefined;
 };
 
 export type CapabilitiesState = {
@@ -72,14 +90,14 @@ export type CapabilitiesState = {
    */
   cspViolations: Signal<CspViolation[]>;
   /**
-   * Outcome of the SDK CDN probes, keyed by the URL probed. A plugin path can be
+   * Outcome of the SDK CDN probes, one entry per URL probed. A plugin path can be
    * blocked while an integration path is reachable, so a failure is only ever
    * judged against a probe of its own URL.
    * status 0 means the request never reached a server at all (blocked, DNS,
    * offline or CORS). A non-zero status came from whatever answered, which is
    * the CDN only when redirectedOffCdn is false.
    */
-  sdkCdnProbe: Signal<Record<string, SdkCdnProbeResult>>;
+  sdkCdnProbe: Signal<SdkCdnProbeResult[]>;
 };
 
 export type ConsentsState = {
