@@ -141,7 +141,7 @@ if (Array.isArray(rudderanalytics)) {
 
     if (typeof Promise === 'undefined' || typeof globalThis === 'undefined') {
       window.rudderAnalyticsAddScript(
-        'https://polyfill-fastly.io/v3/polyfill.min.js?version=3.111.0&features=Symbol%2CPromise&callback=rudderAnalyticsMount',
+        'https://polyfill-fastly.io/v3/polyfill.min.js?version=3.111.0&flags=always%2Cgated&features=Symbol%2CPromise&callback=rudderAnalyticsMount',
       );
     } else {
       window.rudderAnalyticsMount();

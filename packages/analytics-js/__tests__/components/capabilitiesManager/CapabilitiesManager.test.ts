@@ -389,6 +389,177 @@ describe('CapabilitiesManager', () => {
         groupingHash: undefined,
       });
     });
+
+    it('should not advance the load when the polyfill script load fails or times out', () => {
+      const onReadySpy = jest.spyOn(capabilitiesManager, 'onReady');
+      const onErrorSpy = jest.spyOn(capabilitiesManager as any, 'onError');
+
+      mockIsLegacyJSEngine.mockReturnValueOnce(true);
+      state.loadOptions.value.polyfillIfRequired = true;
+      state.lifecycle.writeKey.value = 'sample-write-key';
+
+      // The loader hands over the script ID along with the error on the failure paths
+      capabilitiesManager.externalSrcLoader.loadJSFile = jest.fn((config: any) => {
+        config.callback(config.id, new Error('Script load timed out'));
+      });
+
+      capabilitiesManager.prepareBrowserCapabilities();
+
+      // The SDK would not behave correctly on an engine that is still missing these
+      // APIs, so the failure is reported and the lifecycle is left where it is
+      expect(onErrorSpy).toHaveBeenCalledTimes(1);
+      expect(onReadySpy).not.toHaveBeenCalled();
+      expect(state.lifecycle.status.value).not.toBe('browserCapabilitiesReady');
+    });
+
+    it('should ignore the polyfill service callback when it fires after the load has failed', () => {
+      const onReadySpy = jest.spyOn(capabilitiesManager, 'onReady');
+      const onPolyfillLoadedSpy = jest.spyOn(capabilitiesManager as any, 'onPolyfillLoaded');
+      const polyfillCallbackName = 'RS_polyfillCallback_sample-write-key';
+      let lateServiceCallback: (() => void) | undefined;
+
+      mockIsLegacyJSEngine.mockReturnValue(true);
+      state.loadOptions.value.polyfillIfRequired = true;
+      state.lifecycle.writeKey.value = 'sample-write-key';
+
+      // A timed out script is not removed from the DOM, so the response can still arrive later
+      capabilitiesManager.externalSrcLoader.loadJSFile = jest.fn((config: any) => {
+        lateServiceCallback = (globalThis as any)[polyfillCallbackName];
+        config.callback(config.id, new Error('Script load timed out'));
+      });
+
+      try {
+        capabilitiesManager.prepareBrowserCapabilities();
+
+        expect((globalThis as any)[polyfillCallbackName]).toBeUndefined();
+
+        lateServiceCallback?.();
+
+        expect(onPolyfillLoadedSpy).not.toHaveBeenCalled();
+        expect(onReadySpy).not.toHaveBeenCalled();
+      } finally {
+        delete (globalThis as any)[polyfillCallbackName];
+      }
+    });
+
+    it('should leave a callback it did not install alone when a custom polyfill URL is used', () => {
+      const polyfillCallbackName = 'RS_polyfillCallback_sample-write-key';
+      // owned by the page, or by another in-flight load sharing this write key
+      const foreignCallback = jest.fn();
+      (globalThis as any)[polyfillCallbackName] = foreignCallback;
+
+      mockIsLegacyJSEngine.mockReturnValue(true);
+      state.loadOptions.value.polyfillIfRequired = true;
+      state.loadOptions.value.polyfillURL = 'https://custom.polyfill.com/v3/polyfill.min.js';
+      state.lifecycle.writeKey.value = 'sample-write-key';
+
+      capabilitiesManager.externalSrcLoader.loadJSFile = jest.fn((config: any) => {
+        config.callback(config.id);
+      });
+
+      try {
+        capabilitiesManager.prepareBrowserCapabilities();
+
+        expect((globalThis as any)[polyfillCallbackName]).toBe(foreignCallback);
+      } finally {
+        delete (globalThis as any)[polyfillCallbackName];
+      }
+    });
+
+    it('should leave a callback it did not install alone when a custom polyfill URL fails', () => {
+      const polyfillCallbackName = 'RS_polyfillCallback_sample-write-key';
+      const foreignCallback = jest.fn();
+      (globalThis as any)[polyfillCallbackName] = foreignCallback;
+
+      mockIsLegacyJSEngine.mockReturnValue(true);
+      state.loadOptions.value.polyfillIfRequired = true;
+      state.loadOptions.value.polyfillURL = 'https://custom.polyfill.com/v3/polyfill.min.js';
+      state.lifecycle.writeKey.value = 'sample-write-key';
+
+      capabilitiesManager.externalSrcLoader.loadJSFile = jest.fn((config: any) => {
+        config.callback(config.id, new Error('Script load timed out'));
+      });
+
+      try {
+        capabilitiesManager.prepareBrowserCapabilities();
+
+        expect((globalThis as any)[polyfillCallbackName]).toBe(foreignCallback);
+      } finally {
+        delete (globalThis as any)[polyfillCallbackName];
+      }
+    });
+
+    it('should remove its own callback once the default polyfill service has settled', () => {
+      const polyfillCallbackName = 'RS_polyfillCallback_sample-write-key';
+
+      mockIsLegacyJSEngine.mockReturnValue(true);
+      state.loadOptions.value.polyfillIfRequired = true;
+      state.lifecycle.writeKey.value = 'sample-write-key';
+      capabilitiesManager.externalSrcLoader.loadJSFile = jest.fn();
+
+      try {
+        capabilitiesManager.prepareBrowserCapabilities();
+
+        expect((globalThis as any)[polyfillCallbackName]).toEqual(expect.any(Function));
+
+        (globalThis as any)[polyfillCallbackName]();
+
+        expect((globalThis as any)[polyfillCallbackName]).toBeUndefined();
+      } finally {
+        delete (globalThis as any)[polyfillCallbackName];
+      }
+    });
+
+    it('should leave a callback that replaced its own alone when the load settles', () => {
+      const polyfillCallbackName = 'RS_polyfillCallback_sample-write-key';
+      const replacementCallback = jest.fn();
+
+      mockIsLegacyJSEngine.mockReturnValue(true);
+      state.loadOptions.value.polyfillIfRequired = true;
+      state.lifecycle.writeKey.value = 'sample-write-key';
+
+      // the page, or another in-flight load sharing this write key, overwrites the handler
+      // after this invocation installed it but before this invocation settles
+      capabilitiesManager.externalSrcLoader.loadJSFile = jest.fn((config: any) => {
+        (globalThis as any)[polyfillCallbackName] = replacementCallback;
+        config.callback(config.id, new Error('Script load timed out'));
+      });
+
+      try {
+        capabilitiesManager.prepareBrowserCapabilities();
+
+        expect((globalThis as any)[polyfillCallbackName]).toBe(replacementCallback);
+      } finally {
+        delete (globalThis as any)[polyfillCallbackName];
+      }
+    });
+
+    it('should report the features that are still missing after the polyfill script is loaded', () => {
+      const onErrorSpy = jest.spyOn(capabilitiesManager as any, 'onError');
+      const onReadySpy = jest.spyOn(capabilitiesManager, 'onReady');
+      const { atob } = globalThis;
+
+      mockIsLegacyJSEngine.mockReturnValue(true);
+      state.loadOptions.value.polyfillIfRequired = true;
+      state.lifecycle.writeKey.value = 'sample-write-key';
+      capabilitiesManager.externalSrcLoader.loadJSFile = jest.fn();
+
+      capabilitiesManager.prepareBrowserCapabilities();
+
+      // @ts-expect-error simulating a polyfill bundle that did not apply all the features
+      delete globalThis.atob;
+      try {
+        (globalThis as any)['RS_polyfillCallback_sample-write-key']();
+      } finally {
+        globalThis.atob = atob;
+      }
+
+      expect(onErrorSpy).toHaveBeenCalledWith(
+        new Error('Failed to apply the polyfills for the following features: atob.'),
+      );
+      expect(onReadySpy).toHaveBeenCalledTimes(1);
+      expect(state.lifecycle.status.value).toBe('browserCapabilitiesReady');
+    });
   });
 
   describe('Window Event Listeners', () => {
