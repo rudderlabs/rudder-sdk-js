@@ -147,7 +147,7 @@ export function getDefaultConfig(distName) {
         }),
       isLocalServerEnabled &&
         serve({
-          open: true,
+          open: false,
           openPage: `/cdn/${
             process.env.BROWSERSLIST_ENV === 'modern' ? 'modern' : 'legacy'
           }/index.html`,
