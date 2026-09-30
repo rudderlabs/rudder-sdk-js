@@ -4,6 +4,7 @@ import type {
   IPluginEngine,
 } from '@rudderstack/analytics-js-common/types/PluginEngine';
 import { getNonCloudDestinations } from '@rudderstack/analytics-js-common/utilities/destinations';
+import { getStacktrace } from '@rudderstack/analytics-js-common/utilities/errors';
 import type {
   IPluginsManager,
   PluginName,
@@ -12,7 +13,11 @@ import type { IErrorHandler, SDKError } from '@rudderstack/analytics-js-common/t
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { PLUGINS_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { isDefined, isFunction } from '@rudderstack/analytics-js-common/utilities/checks';
+import {
+  isDefined,
+  isFunction,
+  isTypeOfError,
+} from '@rudderstack/analytics-js-common/utilities/checks';
 import {
   DEPRECATED_PLUGIN_WARNING,
   generateMisconfiguredPluginsWarning,
@@ -38,6 +43,55 @@ import type { PluginsGroup } from './types';
 // TODO: we may want to add chained plugins that pass their value to the next one
 // TODO: add retry mechanism for getting remote plugins
 // TODO: add timeout error mechanism for marking remote plugins that failed to load as failed in state
+
+/**
+ * The reason to report for a rejected plugin import, from a value that carries no
+ * guarantees at all.
+ *
+ * It need not be an Error, and one carrying a `message` need not carry a string in it,
+ * so the value is coerced rather than asserted: a `{ message: 503 }` reason reaching
+ * getErrorGroupingHash as a number would be rejected there as a non-string and fall
+ * back to the full report message, which names the failed plugins -- so a single
+ * reason would split into a group per plugin list.
+ *
+ * Nor is it guaranteed to be coercible. `Object.create(null)` has no `toString`, and a
+ * `message` getter may throw; either would reject this handler, take Promise.all down
+ * with it, skip the aggregate report and report the coercion failure in its place. So
+ * extraction is total, and falls back to a fixed string that still groups.
+ */
+const failureReason = (err: unknown): string => {
+  try {
+    return String((err as Error)?.message ?? err);
+  } catch {
+    return 'an error that could not be read';
+  }
+};
+
+/**
+ * The error to report for a rejected plugin import: the rejection itself when it is a
+ * real Error, so its stack survives, and otherwise one carrying the reason.
+ *
+ * The test mirrors what ErrorHandler.normalizeError will actually accept, by calling the
+ * same getStacktrace: being Error-SHAPED is not enough there, it also wants a non-empty
+ * string stack, and it drops anything else -- at which point onError returns and the
+ * aggregate report is lost. `isTypeOfError` alone would let through an object that only
+ * sets `Symbol.toStringTag` to 'Error', since that is all Object.prototype.toString
+ * reports on, and such an impostor carries no stack.
+ *
+ * Classification is guarded for the same kind of value as the reason above. That
+ * toString call reads `Symbol.toStringTag` and the `instanceof` fallback walks the
+ * prototype chain, so a throwing tag getter or a revoked proxy makes either throw. On
+ * this path that throw would reach the outer catch and replace the aggregate report with
+ * the inspection failure, which is the exact outcome this reporting is here to avoid.
+ */
+const failureError = (err: unknown, reason: string): unknown => {
+  try {
+    return isTypeOfError(err) && isDefined(getStacktrace(err)) ? err : new Error(reason);
+  } catch {
+    return new Error(reason);
+  }
+};
+
 class PluginsManager implements IPluginsManager {
   engine: IPluginEngine;
   errorHandler: IErrorHandler;
@@ -275,12 +329,19 @@ class PluginsManager implements IPluginsManager {
       state.plugins.activePlugins.value as PluginName[],
     );
 
-    const loadFailures: unknown[] = [];
     // Kept separate from state.plugins.failedPlugins, which also collects
     // unknown plugins from setActivePlugins, unavailable local plugins from
     // registerLocalPlugins and registration failures from register(). Reporting
     // the global list would attribute those to this remote load incident.
-    const failedRemotePlugins: string[] = [];
+    //
+    // Each failure carries its plugin and its reason, so the report can be derived from
+    // this list alone rather than from a second array kept in rejection order. The reason
+    // is read once, here, and then reused: it feeds the log line, the frequency count
+    // behind the cause choice and the grouping hash, and rereading it per comparison
+    // would be quadratic in the number of failed plugins -- as well as letting a stateful
+    // `message` getter answer differently each time, which would make the counts
+    // incoherent and the reported hash match none of them.
+    const loadFailures: { plugin: string; reason: string; err: unknown }[] = [];
 
     return Promise.all(
       Object.keys(remotePluginsList).map(async remotePluginKey => {
@@ -288,22 +349,13 @@ class PluginsManager implements IPluginsManager {
           .then((remotePluginModule: any) => this.register([remotePluginModule.default()]))
           .catch(err => {
             // TODO: add retry here if dynamic import fails
-            failedRemotePlugins.push(remotePluginKey);
             state.plugins.failedPlugins.value = [
               ...state.plugins.failedPlugins.value,
               remotePluginKey,
             ];
-            this.logger.error(
-              REMOTE_PLUGIN_LOAD_ERROR(
-                PLUGINS_MANAGER,
-                remotePluginKey,
-                // A rejection is not guaranteed to be an Error; the assertion
-                // only silences the compiler, so the reason still needs a
-                // fallback or the log reads "- undefined".
-                (err as Error)?.message ?? String(err),
-              ),
-            );
-            loadFailures.push(err);
+            const reason = failureReason(err);
+            this.logger.error(REMOTE_PLUGIN_LOAD_ERROR(PLUGINS_MANAGER, remotePluginKey, reason));
+            loadFailures.push({ plugin: remotePluginKey, reason, err });
           });
       }),
     )
@@ -316,15 +368,41 @@ class PluginsManager implements IPluginsManager {
         // deliberate: a dynamic import has no timeout of its own, and holding a
         // timer open to salvage a partial report would spend page resources on
         // error reporting, which is the lowest priority thing the SDK does.
-        if (failedRemotePlugins.length === 0) {
+        // Sorted, so neither the message nor the choice below depends on the order
+        // the imports happened to reject in. The same incident was seen reported
+        // two different ways within an hour before this.
+        const failures = [...loadFailures].sort((a, b) => (a.plugin < b.plugin ? -1 : 1));
+        const [firstFailure] = failures;
+        if (!firstFailure) {
           return;
         }
 
-        const firstFailure = loadFailures[0];
-        this.onError(
+        // The cause becomes the report's grouping key. Plugins that failed on the
+        // same reason share one root cause -- a dead remote entry, or a shared
+        // chunk -- and that reason is the one worth grouping on, so the most widely
+        // shared one wins.
+        //
+        // Any tie on that count is broken by the plugin name, since `failures` is
+        // sorted by it and the strict `>` below keeps whichever tied reason was
+        // reached first. That covers the all-distinct case as well as two reasons
+        // shared by equally many plugins. Arbitrary, but stable across page loads,
+        // which is the whole point.
+        const sharedBy = (failure: { reason: string }) =>
+          failures.filter(other => other.reason === failure.reason).length;
+        const cause = failures.reduce(
+          (widest, failure) => (sharedBy(failure) > sharedBy(widest) ? failure : widest),
           firstFailure,
-          `Failed to load plugins: ${failedRemotePlugins.join(', ')}`,
-          firstFailure as SDKError,
+        );
+
+        // ErrorHandler runs the cause through normalizeError, which drops anything
+        // that is not a real Error and then returns without reporting. Choosing the
+        // cause by the most widely shared reason would make that silence
+        // deterministic, so a non-Error rejection is carried as one. The reason
+        // string is stable either way, so it also serves as the grouping hash.
+        this.onError(
+          failureError(cause.err, cause.reason),
+          `Failed to load plugins: ${failures.map(failure => failure.plugin).join(', ')}`,
+          cause.reason,
         );
       })
       .catch(err => {
