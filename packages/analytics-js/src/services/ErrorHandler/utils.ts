@@ -336,7 +336,7 @@ const getDirectoryName = (filePath: string | undefined): string | undefined => {
   }
   const paths = filePath.split('/');
   // Not `.at(-2)`: Array.prototype.at is neither transpiled nor polyfilled
-  return paths[paths.length - 2];
+  return paths[paths.length - 2]; // NOSONAR
 };
 
 /**

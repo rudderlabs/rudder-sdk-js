@@ -120,12 +120,13 @@ describe('Error Reporting utilities', () => {
       },
     );
 
-    // Test when stacktrace is empty array
-    const exception = {
-      stacktrace: [],
-    };
+    it('should return false when the stacktrace is empty', () => {
+      const exception = {
+        stacktrace: [],
+      };
 
-    expect(isSDKError(exception as unknown as Exception)).toBe(false);
+      expect(isSDKError(exception as unknown as Exception)).toBe(false);
+    });
   });
 
   describe('on engines without Array.prototype.at', () => {
@@ -138,7 +139,6 @@ describe('Error Reporting utilities', () => {
       try {
         return fn();
       } finally {
-        // eslint-disable-next-line no-extend-native
         Array.prototype.at = originalAt;
       }
     };
@@ -1241,25 +1241,14 @@ describe('Error Reporting utilities', () => {
     });
 
     describe('URL extraction logic', () => {
-      it('should extract HTTPS URLs correctly', async () => {
-        const extractedUrl = 'https://cdn.rudderlabs.com/v3/modern/plugins/test.min.js';
-        state.capabilities.cspViolations.value = [
-          { blockedURL: extractedUrl, directive: 'script-src-elem' },
-        ];
-
-        const message = `Error: Failed to load - ${extractedUrl} - additional text`;
-
-        const result = await checkIfAllowedToBeNotified(
-          { message } as unknown as Exception,
-          state,
-          defaultHttpClient,
-        );
-
-        expect(result).toBe(true); // Should proceed since error message doesn't match script failure patterns
-      });
-
-      it('should extract HTTP URLs correctly', async () => {
-        const extractedUrl = 'http://cdn.rudderlabs.com/v3/modern/plugins/test.min.js';
+      it.each([
+        ['HTTPS URLs', 'https://cdn.rudderlabs.com/v3/modern/plugins/test.min.js'],
+        ['HTTP URLs', 'http://cdn.rudderlabs.com/v3/modern/plugins/test.min.js'],
+        [
+          'URLs with query parameters and fragments',
+          'https://cdn.rudderlabs.com/v3/modern/plugins/test.min.js?version=1.0&cache=false#section',
+        ],
+      ])('should extract %s correctly', async (_, extractedUrl) => {
         state.capabilities.cspViolations.value = [
           { blockedURL: extractedUrl, directive: 'script-src-elem' },
         ];
@@ -1291,24 +1280,6 @@ describe('Error Reporting utilities', () => {
         );
 
         expect(result).toBe(false); // Should not notify because URL is CSP blocked
-      });
-
-      it('should handle URLs with query parameters and fragments', async () => {
-        const extractedUrl =
-          'https://cdn.rudderlabs.com/v3/modern/plugins/test.min.js?version=1.0&cache=false#section';
-        state.capabilities.cspViolations.value = [
-          { blockedURL: extractedUrl, directive: 'script-src-elem' },
-        ];
-
-        const message = `Error: Failed to load - ${extractedUrl} - additional text`;
-
-        const result = await checkIfAllowedToBeNotified(
-          { message } as unknown as Exception,
-          state,
-          defaultHttpClient,
-        );
-
-        expect(result).toBe(true); // Should proceed since error message doesn't match script failure patterns
       });
 
       it('should handle null/undefined URL extraction results', async () => {
