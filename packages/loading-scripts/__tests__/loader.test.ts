@@ -89,6 +89,48 @@ describe('CDN loader', () => {
     expect(getSdkScriptTag()?.src).toBe('https://cdn.rudderlabs.com/v3/modern/rsa.min.js');
   });
 
+  describe('when the page blocks eval', () => {
+    // A CSP without 'unsafe-eval' (or Trusted Types) makes the Function constructor
+    // throw before the probe source is even parsed.
+    const blockEval = (error: Error) =>
+      jest.spyOn(globalThis, 'Function').mockImplementation(() => {
+        throw error;
+      });
+    const originalPromiseAny = Promise.any;
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+      Promise.any = originalPromiseAny;
+    });
+
+    it('still picks the modern build when the browser has the modern APIs', async () => {
+      blockEval(new EvalError('Refused to evaluate a string as JavaScript'));
+
+      await import('../src/index');
+
+      expect(window.rudderAnalyticsBuildType).toBe('modern');
+      expect(getSdkScriptTag()?.src).toBe('https://cdn.rudderlabs.com/v3/modern/rsa.min.js');
+    });
+
+    it('falls back to the legacy build when the modern APIs are missing', async () => {
+      blockEval(new EvalError('Refused to evaluate a string as JavaScript'));
+      // @ts-expect-error simulating an engine without Promise.any
+      delete Promise.any;
+
+      await import('../src/index');
+
+      expect(window.rudderAnalyticsBuildType).toBe('legacy');
+    });
+
+    it('keeps the legacy build for engines that cannot parse the probe', async () => {
+      blockEval(new SyntaxError('Unexpected token'));
+
+      await import('../src/index');
+
+      expect(window.rudderAnalyticsBuildType).toBe('legacy');
+    });
+  });
+
   it('sets the snippet version', async () => {
     await import('../src/index');
 
