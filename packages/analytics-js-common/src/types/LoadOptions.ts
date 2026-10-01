@@ -189,7 +189,7 @@ export type LoadOptions = {
    * release, so the chunks can be far older than the core SDK loading them.
    */
   lockPluginsVersion?: boolean; // defaults to true.
-  polyfillIfRequired?: boolean; // defaults to true. Controls whether the SDK should polyfill unsupported browser API's if they are detected as missing
+  polyfillIfRequired?: boolean; // defaults to true. Controls whether the SDK should polyfill unsupported browser API's if they are detected as missing. Legacy build only
   onLoaded?: OnLoadedCallback;
   uaChTrackLevel?: UaChTrackLevel;
   // TODO: define type for sourceConfig once the trimmed response is implemented
@@ -197,7 +197,7 @@ export type LoadOptions = {
   sendAdblockPage?: boolean;
   sendAdblockPageOptions?: ApiOptions;
   plugins?: Nullable<PluginName[]>;
-  polyfillURL?: string;
+  polyfillURL?: string; // Legacy build only; the modern build never loads polyfills
   useGlobalIntegrationsConfigInEvents?: boolean;
   bufferDataPlaneEventsUntilReady?: boolean;
   dataPlaneEventsBufferTimeout?: number;
