@@ -125,6 +125,40 @@ describe('CapabilitiesManager', () => {
     mockGetTimezone.mockReturnValue('America/New_York');
     // @ts-expect-error needed for the test
     POLYFILL_URL = 'https://somevalid.polyfill.url';
+    // Polyfill loading only exists in the legacy build; the modern build is covered separately
+    (globalThis as any).__IS_LEGACY_BUILD__ = true;
+  });
+
+  afterEach(() => {
+    (globalThis as any).__IS_LEGACY_BUILD__ = false;
+  });
+
+  describe('in the modern build', () => {
+    beforeEach(() => {
+      (globalThis as any).__IS_LEGACY_BUILD__ = false;
+    });
+
+    it('should not load polyfills even when the required APIs look missing', () => {
+      mockIsLegacyJSEngine.mockReturnValue(true);
+      state.loadOptions.value.polyfillIfRequired = true;
+      capabilitiesManager.externalSrcLoader = { loadJSFile: jest.fn() } as any;
+
+      capabilitiesManager.prepareBrowserCapabilities();
+
+      expect(capabilitiesManager.externalSrcLoader.loadJSFile).not.toHaveBeenCalled();
+      expect(state.capabilities.isLegacyDOM.value).toBe(false);
+      expect(state.lifecycle.status.value).toBe('browserCapabilitiesReady');
+    });
+
+    it('should not check for missing features after a polyfill load', () => {
+      mockIsLegacyJSEngine.mockReturnValue(true);
+      const onErrorSpy = jest.spyOn(capabilitiesManager, 'onError');
+
+      capabilitiesManager.onPolyfillLoaded();
+
+      expect(onErrorSpy).not.toHaveBeenCalled();
+      expect(state.lifecycle.status.value).toBe('browserCapabilitiesReady');
+    });
   });
 
   describe('Initialization', () => {
