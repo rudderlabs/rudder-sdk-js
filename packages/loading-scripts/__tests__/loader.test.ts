@@ -97,25 +97,44 @@ describe('CDN loader', () => {
         throw error;
       });
     const originalPromiseAny = Promise.any;
+    const originalReplaceChildren = Element.prototype.replaceChildren;
 
     afterEach(() => {
       jest.restoreAllMocks();
       Promise.any = originalPromiseAny;
+      Element.prototype.replaceChildren = originalReplaceChildren;
     });
 
-    it('still picks the modern build when the browser has the modern APIs', async () => {
-      blockEval(new EvalError('Refused to evaluate a string as JavaScript'));
+    // CSP rejects with an EvalError, Trusted Types with a TypeError.
+    it.each([
+      ['CSP', new EvalError('Refused to evaluate a string as JavaScript')],
+      ['Trusted Types', new TypeError('This document requires TrustedScript assignment')],
+    ])(
+      'still picks the modern build under %s when the browser has the modern APIs',
+      async (_policy, error) => {
+        blockEval(error);
 
-      await import('../src/index');
+        await import('../src/index');
 
-      expect(window.rudderAnalyticsBuildType).toBe('modern');
-      expect(getSdkScriptTag()?.src).toBe('https://cdn.rudderlabs.com/v3/modern/rsa.min.js');
-    });
+        expect(window.rudderAnalyticsBuildType).toBe('modern');
+        expect(getSdkScriptTag()?.src).toBe('https://cdn.rudderlabs.com/v3/modern/rsa.min.js');
+      },
+    );
 
-    it('falls back to the legacy build when the modern APIs are missing', async () => {
+    it('falls back to the legacy build when Promise.any is missing', async () => {
       blockEval(new EvalError('Refused to evaluate a string as JavaScript'));
       // @ts-expect-error simulating an engine without Promise.any
       delete Promise.any;
+
+      await import('../src/index');
+
+      expect(window.rudderAnalyticsBuildType).toBe('legacy');
+    });
+
+    it('falls back to the legacy build when replaceChildren is missing', async () => {
+      blockEval(new EvalError('Refused to evaluate a string as JavaScript'));
+      // @ts-expect-error simulating an engine with a Promise.any polyfill but no replaceChildren
+      delete Element.prototype.replaceChildren;
 
       await import('../src/index');
 
