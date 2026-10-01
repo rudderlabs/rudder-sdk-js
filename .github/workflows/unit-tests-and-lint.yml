@@ -21,7 +21,7 @@ env:
 jobs:
   test:
     name: Unit Tests and Lint
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: arc-amd64
 
     steps:
       - name: Harden the runner (Audit all outbound calls)
