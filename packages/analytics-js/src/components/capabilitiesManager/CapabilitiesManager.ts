@@ -246,7 +246,7 @@ class CapabilitiesManager implements ICapabilitiesManager {
    * @param error The error object
    */
   onError(error: unknown, groupingHash?: string): void {
-    this.errorHandler.onError({
+    void this.errorHandler.onError({
       error,
       context: CAPABILITIES_MANAGER,
       groupingHash,
