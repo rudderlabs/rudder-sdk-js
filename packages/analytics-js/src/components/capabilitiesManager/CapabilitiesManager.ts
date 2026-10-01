@@ -114,8 +114,8 @@ class CapabilitiesManager implements ICapabilitiesManager {
    * Detect if polyfills are required and then load script from polyfill URL
    */
   prepareBrowserCapabilities() {
-    // The loading snippet only hands the modern build to engines that already ship every
-    // API on the polyfill list, so the detection and loading below exist in the legacy build only.
+    // The snippet only hands the modern build to engines that ship every polyfill-list API the
+    // SDK and integrations call (replaceAll is listed but unused), so this is legacy-only.
     if (!__IS_LEGACY_BUILD__) {
       this.onReady();
       return;
