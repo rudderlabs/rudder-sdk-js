@@ -114,6 +114,13 @@ class CapabilitiesManager implements ICapabilitiesManager {
    * Detect if polyfills are required and then load script from polyfill URL
    */
   prepareBrowserCapabilities() {
+    // The loading snippet only hands the modern build to engines that already ship every
+    // API on the polyfill list, so the detection and loading below exist in the legacy build only.
+    if (!__IS_LEGACY_BUILD__) {
+      this.onReady();
+      return;
+    }
+
     state.capabilities.isLegacyDOM.value = isLegacyJSEngine();
     const customPolyfillUrl = state.loadOptions.value.polyfillURL;
     let polyfillUrl = POLYFILL_URL;
@@ -192,7 +199,8 @@ class CapabilitiesManager implements ICapabilitiesManager {
    * lifecycle status to next phase
    */
   onPolyfillLoaded() {
-    if (isLegacyJSEngine()) {
+    // Guarded too so the detection list is dropped from the modern bundle
+    if (__IS_LEGACY_BUILD__ && isLegacyJSEngine()) {
       const missingFeatures = Object.keys(legacyJSEngineRequiredPolyfills).filter(feature => {
         const isFeatureMissing = legacyJSEngineRequiredPolyfills[feature];
         return isFunction(isFeatureMissing) && isFeatureMissing();
