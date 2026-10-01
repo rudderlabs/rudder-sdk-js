@@ -133,15 +133,24 @@ describe('Error Reporting utilities', () => {
     // Chrome < 92, Firefox < 90 and Safari < 15.4 still get the modern build, and nothing polyfills `at`
     // Removed only around the call: jest itself relies on `at`
     const withoutArrayAt = <T>(fn: () => T): T => {
-      const originalAt = Array.prototype.at;
+      // Restore the descriptor, not the value: assignment would leave `at` enumerable
+      const originalAt = Object.getOwnPropertyDescriptor(Array.prototype, 'at')!;
       // @ts-expect-error simulating an older engine
       delete Array.prototype.at;
       try {
         return fn();
       } finally {
-        Array.prototype.at = originalAt;
+        Object.defineProperty(Array.prototype, 'at', originalAt);
       }
     };
+
+    it('should leave Array.prototype.at exactly as it found it', () => {
+      const before = Object.getOwnPropertyDescriptor(Array.prototype, 'at');
+
+      withoutArrayAt(() => undefined);
+
+      expect(Object.getOwnPropertyDescriptor(Array.prototype, 'at')).toEqual(before);
+    });
 
     const integrationError = {
       stacktrace: [{ file: 'https://cdn.example.com/js-integrations/Amplitude.min.js' }],
