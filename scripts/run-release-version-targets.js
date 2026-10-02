@@ -57,6 +57,103 @@ function getVersionProjects(graph) {
     }));
 }
 
+function readProjectVersions(graph, workspaceRoot = process.cwd()) {
+  return new Map(
+    getVersionProjects(graph).map(project => {
+      const packagePath = path.join(workspaceRoot, project.root, 'package.json');
+      const packageMetadata = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
+
+      if (!packageMetadata.name || !packageMetadata.version) {
+        throw new Error(`Package name and version are required in ${packagePath}`);
+      }
+
+      return [
+        project.name,
+        {
+          name: packageMetadata.name,
+          root: project.root,
+          version: packageMetadata.version,
+        },
+      ];
+    }),
+  );
+}
+
+function updateLatestChangelogDependencyVersions(changelog, dependencyVersions) {
+  const firstReleaseIndex = changelog.search(/^## \[/m);
+
+  if (firstReleaseIndex === -1) {
+    return changelog;
+  }
+
+  const nextReleaseOffset = changelog.slice(firstReleaseIndex + 1).search(/^## \[/m);
+  const latestReleaseEnd =
+    nextReleaseOffset === -1 ? changelog.length : firstReleaseIndex + 1 + nextReleaseOffset;
+  const latestRelease = changelog.slice(firstReleaseIndex, latestReleaseEnd);
+  const updatedLatestRelease = latestRelease.replace(
+    /^(\* `([^`]+)` updated to version `)([^`]+)(`)$/gm,
+    (line, prefix, dependencyName, currentVersion, suffix) => {
+      const finalVersion = dependencyVersions.get(dependencyName);
+
+      return finalVersion && finalVersion !== currentVersion
+        ? `${prefix}${finalVersion}${suffix}`
+        : line;
+    },
+  );
+
+  return (
+    changelog.slice(0, firstReleaseIndex) + updatedLatestRelease + changelog.slice(latestReleaseEnd)
+  );
+}
+
+function updateChangedDependencyVersionsInChangelogs(
+  graph,
+  initialVersions,
+  finalVersions,
+  workspaceRoot = process.cwd(),
+) {
+  const changedProjects = new Set(
+    [...finalVersions.entries()]
+      .filter(([projectName, metadata]) => {
+        return initialVersions.get(projectName)?.version !== metadata.version;
+      })
+      .map(([projectName]) => projectName),
+  );
+  const updatedChangelogs = [];
+
+  for (const projectName of changedProjects) {
+    const project = finalVersions.get(projectName);
+    const changelogPath = path.join(workspaceRoot, project.root, 'CHANGELOG.md');
+
+    if (!fs.existsSync(changelogPath)) {
+      continue;
+    }
+
+    const dependencyVersions = new Map(
+      (graph.dependencies?.[projectName] || [])
+        .filter(dependency => changedProjects.has(dependency.target))
+        .map(dependency => {
+          const dependencyMetadata = finalVersions.get(dependency.target);
+          return [dependencyMetadata.name, dependencyMetadata.version];
+        }),
+    );
+
+    if (dependencyVersions.size === 0) {
+      continue;
+    }
+
+    const changelog = fs.readFileSync(changelogPath, 'utf8');
+    const updatedChangelog = updateLatestChangelogDependencyVersions(changelog, dependencyVersions);
+
+    if (updatedChangelog !== changelog) {
+      fs.writeFileSync(changelogPath, updatedChangelog);
+      updatedChangelogs.push(path.relative(workspaceRoot, changelogPath));
+    }
+  }
+
+  return updatedChangelogs;
+}
+
 function compareProjects(a, b) {
   return a.root.localeCompare(b.root) || a.name.localeCompare(b.name);
 }
@@ -130,6 +227,7 @@ function runVersionTargets(projects, forwardedArgs, workspaceRoot = process.cwd(
 function main(argv = process.argv.slice(2)) {
   const graph = readProjectGraph();
   const projects = orderDependentsBeforeDependencies(graph);
+  const initialVersions = readProjectVersions(graph);
 
   console.log(`${VERSION_TARGET} target order:`);
   projects.forEach((project, index) => {
@@ -137,6 +235,19 @@ function main(argv = process.argv.slice(2)) {
   });
 
   runVersionTargets(projects, argv);
+
+  // Dependents run before their dependencies. Align the newest changelog entries
+  // after all version targets have produced their final package versions.
+  const finalVersions = readProjectVersions(graph);
+  const updatedChangelogs = updateChangedDependencyVersionsInChangelogs(
+    graph,
+    initialVersions,
+    finalVersions,
+  );
+
+  updatedChangelogs.forEach(changelog => {
+    console.log(`Updated dependency versions in ${changelog}`);
+  });
 }
 
 if (require.main === module) {
@@ -152,5 +263,8 @@ module.exports = {
   getVersionProjects,
   orderDependentsBeforeDependencies,
   readProjectGraph,
+  readProjectVersions,
   runVersionTargets,
+  updateChangedDependencyVersionsInChangelogs,
+  updateLatestChangelogDependencyVersions,
 };
