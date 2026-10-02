@@ -85,7 +85,7 @@ jobs:
           npm run setup:deps
 
       - name: Execute bundle size checks
-        uses: rudderlabs/github-action-check-size-limit@3afc3f6011b321f501b901375737ba55d8aff29d # v3.0.0
+        uses: rudderlabs/github-action-check-size-limit@ddef333bb34d83ca3a58ae300ff4e7571ebd4c94 # v3.0.1
         if: ${{ needs.get-affected-projects.outputs.affected_projects != '' }}
         env:
           HUSKY: 0
