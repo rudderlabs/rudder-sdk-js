@@ -51,6 +51,14 @@ const remotePluginsHostPromise = `Promise.resolve(window.RudderStackGlobals && w
 const moduleType = process.env.MODULE_TYPE || 'cdn';
 const lockDepsVersion = process.env.LOCK_DEPS_VERSION === 'true';
 const isCDNPackageBuild = moduleType === 'cdn';
+// The CDN modern core is only ever served by the loading snippet, whose feature probe admits
+// Chrome/Edge 80, Firefox 74 and Safari/iOS 14 and up, so it can skip down-levelling `?.`/`??`.
+// npm builds and the remote plugin chunks keep the browserslist floor: npm consumers pick the
+// build at bundle time with no probe, and the plugins they fetch from the CDN skip their bundler.
+const cdnModernTargets =
+  isCDNPackageBuild && !isLegacyBuild && !isDynamicCustomBuild
+    ? { chrome: '80', edge: '80', firefox: '74', safari: '14', ios: '14', opera: '67', samsung: '13' }
+    : undefined;
 let polyfillIoUrl = 'https://polyfill-fastly.io/v3/polyfill.min.js';
 
 // For Chrome extension as content script any references in code to third party URLs
@@ -294,6 +302,7 @@ export function getDefaultConfig(distName) {
         exclude: ['node_modules/@babel/**', 'node_modules/core-js/**'],
         extensions: [...DEFAULT_EXTENSIONS, '.ts'],
         sourcemap: sourceMapType,
+        ...(cdnModernTargets && { targets: cdnModernTargets }),
       }),
       externalGlobals(getExternalsConfig()),
       !isLegacyBuild &&
