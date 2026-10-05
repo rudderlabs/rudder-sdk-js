@@ -16,10 +16,12 @@ import { isDefined, isFunction } from '@rudderstack/analytics-js-common/utilitie
 import {
   DEPRECATED_PLUGIN_WARNING,
   generateMisconfiguredPluginsWarning,
+  NO_PLUGIN_FACTORY_EXPORTED_REASON,
   UNAVAILABLE_PLUGINS_ERROR,
   REMOTE_PLUGIN_LOAD_ERROR,
   UNKNOWN_PLUGINS_WARNING,
 } from '../../constants/logMessages';
+import { REMOTE_PLUGINS_ENTRY_FILE } from '../../constants/urls';
 import { setExposedGlobal } from '../utilities/globals';
 import { state } from '../../state';
 import {
@@ -275,6 +277,9 @@ class PluginsManager implements IPluginsManager {
       state.plugins.activePlugins.value as PluginName[],
     );
 
+    const pluginsCDNPath = state.lifecycle.pluginsCDNPath.value as string;
+    const remoteEntryUrl = `${pluginsCDNPath}/${REMOTE_PLUGINS_ENTRY_FILE}`;
+
     const loadFailures: unknown[] = [];
     // Kept separate from state.plugins.failedPlugins, which also collects
     // unknown plugins from setActivePlugins, unavailable local plugins from
@@ -285,7 +290,16 @@ class PluginsManager implements IPluginsManager {
     return Promise.all(
       Object.keys(remotePluginsList).map(async remotePluginKey => {
         await remotePluginsList[remotePluginKey as PluginName]()
-          .then((remotePluginModule: any) => this.register([remotePluginModule.default()]))
+          .then((remotePluginModule: any) => {
+            // An intercepted chunk can parse yet export nothing; calling the
+            // undefined factory blind reports a per-build minified name.
+            const pluginFactory = remotePluginModule?.default;
+            if (!isFunction(pluginFactory)) {
+              throw new Error(NO_PLUGIN_FACTORY_EXPORTED_REASON);
+            }
+
+            this.register([pluginFactory()]);
+          })
           .catch(err => {
             // TODO: add retry here if dynamic import fails
             failedRemotePlugins.push(remotePluginKey);
@@ -293,16 +307,12 @@ class PluginsManager implements IPluginsManager {
               ...state.plugins.failedPlugins.value,
               remotePluginKey,
             ];
-            this.logger.error(
-              REMOTE_PLUGIN_LOAD_ERROR(
-                PLUGINS_MANAGER,
-                remotePluginKey,
-                // A rejection is not guaranteed to be an Error; the assertion
-                // only silences the compiler, so the reason still needs a
-                // fallback or the log reads "- undefined".
-                (err as Error)?.message ?? String(err),
-              ),
-            );
+
+            // A rejection is not guaranteed to be an Error, so without the
+            // fallback the log reads "- undefined".
+            const reason = (err as Error)?.message ?? String(err);
+            this.logger.error(REMOTE_PLUGIN_LOAD_ERROR(PLUGINS_MANAGER, remotePluginKey, reason));
+
             loadFailures.push(err);
           });
       }),
@@ -320,11 +330,12 @@ class PluginsManager implements IPluginsManager {
           return;
         }
 
-        const firstFailure = loadFailures[0];
         this.onError(
-          firstFailure,
+          loadFailures[0],
           `Failed to load plugins: ${failedRemotePlugins.join(', ')}`,
-          firstFailure as SDKError,
+          // Grouping on the message split one bug across two dozen groups: the
+          // federation runtime names its own local, renamed by the host bundler per build.
+          remoteEntryUrl,
         );
       })
       .catch(err => {

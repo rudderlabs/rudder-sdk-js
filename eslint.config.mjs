@@ -82,12 +82,13 @@ export default [
         'String.prototype.endsWith',
         'String.prototype.startsWith',
         'String.prototype.includes',
-        'String.prototype.replaceAll',
         'String.fromCodePoint',
         'Object.entries',
         'Object.values',
         'Object.assign',
         'Object.fromEntries',
+        // Not polyfilled - the service has no such feature; known ES2022 gap.
+        'Object.hasOwn',
         'TextEncoder',
         'TextDecoder',
         'CustomEvent',
@@ -100,7 +101,7 @@ export default [
       ]
     },
     rules: {
-      'compat/compat': 'warn',
+      'compat/compat': 'error',
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',
