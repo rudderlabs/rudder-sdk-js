@@ -38,7 +38,7 @@ jobs:
   find-pr:
     name: Find PR for Current Branch
     needs: validate-actor
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: arc-amd64
     outputs:
       pr_number: ${{ steps.pr-info.outputs.pr_number }}
       pr_url: ${{ steps.pr-info.outputs.pr_url }}
@@ -112,7 +112,7 @@ jobs:
   validate-pr:
     name: Validate PR Status
     needs: find-pr
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: arc-amd64
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
@@ -182,7 +182,7 @@ jobs:
   get-deploy-inputs:
     name: Get Deploy Inputs
     needs: [find-pr, validate-pr]
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: arc-amd64
     outputs:
       version_suffix: ${{ steps.deploy-inputs.outputs.version_suffix }}
       beta_identifier: ${{ steps.deploy-inputs.outputs.beta_identifier }}

@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   validate-actor:
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: arc-amd64
     permissions: {}
     steps:
       - name: Harden the runner (Audit all outbound calls)
