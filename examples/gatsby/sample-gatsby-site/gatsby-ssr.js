@@ -1,6 +1,12 @@
-// Initialize rudderanalytics buffer
-export const onClientEntry = () => {
-  if (typeof window !== 'undefined') {
+import * as React from 'react';
+
+// Initialize rudderanalytics buffer inline in <head> so it exists before the app bundle and any GTM tags run
+export const onRenderBody = ({ setHeadComponents }) => {
+  setHeadComponents([
+    <script
+      key='rudderanalytics-buffer'
+      dangerouslySetInnerHTML={{
+        __html: `
     (function () {
       'use strict';
       window.RudderSnippetVersion = '3.1.0';
@@ -55,5 +61,8 @@ export const onClientEntry = () => {
 
       window.rudderanalytics.page('Sample Page Event');
     })();
-  }
+`,
+      }}
+    />,
+  ]);
 };
