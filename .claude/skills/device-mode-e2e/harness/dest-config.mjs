@@ -317,7 +317,8 @@ async function main() {
         '                           [--strict] [--destDir <dir>] [--integrationsConfigPath <repo>]\n' +
         '                           [--remote] [--ref <branch>]\n' +
         '  no --config: print the expected web device-mode config shape.\n' +
-        '  --config:    compare a DELIVERED config against it (--strict exits 1 on a mismatch).',
+        '  --config:    compare a DELIVERED config against it (--strict exits 1 on a TYPE mismatch;\n' +
+        '               missing/unlisted keys are reported but never fail - most keys are optional).',
     );
     process.exit(args.help ? 0 : 2);
   }
@@ -357,6 +358,9 @@ async function main() {
   console.log(
     `[dest-config] ${mismatches} shape mismatch(es), ${report.missing.length} missing, ${report.unexpected.length} unlisted.`,
   );
+  // --strict fails on a TYPE mismatch only. `missing` is informational on purpose: most keys are
+  // optional in the schema, so an unset setting is legitimately not delivered. Same rule as the
+  // page's configContract: 'strict'.
   process.exit(args.strict && mismatches > 0 ? 1 : 0);
 }
 

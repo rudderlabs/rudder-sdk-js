@@ -45,6 +45,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { assertSafeControlPlaneUrl } from './url-safety.mjs';
 import {
   findNonWebKeys,
   getExpectedWebShape,
@@ -327,6 +328,12 @@ async function main() {
   }
   // Same integrity rule as sdkUrl/destSDKBaseURL: a remote plugins base must be HTTPS.
   if (cfg.pluginsSDKBaseURL) safeUrlForAttr(cfg.pluginsSDKBaseURL, 'config.pluginsSDKBaseURL');
+
+  // Same rule as preflight.mjs: the page hands this to the SDK, which puts the write key in the
+  // sourceConfig URL and the Authorization header — a remote http:// control plane would leak it.
+  if (cfg.configUrl) {
+    assertSafeControlPlaneUrl(cfg.configUrl, 'config.configUrl');
+  }
 
   const settleMs = Number.isFinite(cfg.settleMs) ? cfg.settleMs : 6000;
 

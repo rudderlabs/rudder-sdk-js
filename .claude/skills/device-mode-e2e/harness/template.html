@@ -60,6 +60,7 @@
           requests: [],
           thirdPartyRequests: [],
           dataRequests: [],
+          failedDataRequests: [],
           expectations: [],
           pass: false,
           failures: [],
@@ -521,6 +522,12 @@
         function isDataRequest(r) {
           return !isScriptLike(r);
         }
+        // A transport that the browser rejected outright: fetch records 'error' when the promise
+        // rejects, sendBeacon 'failed' when the browser refuses to queue it. Those never left the
+        // page, so they must not count as delivery — they stay in the lists for diagnostics.
+        function isFailedTransport(r) {
+          return r.status === 'error' || r.status === 'failed';
+        }
         function statusIsOk(s) {
           return typeof s === 'number' && s >= 200 && s < 300;
         }
@@ -698,8 +705,12 @@
           // actually matter, use `expectations`.
           var cutoff = result.firstEventAt || 0;
           result.dataRequestsAfterEvents = cutoff
-            ? result.dataRequests.filter(function (r) { return r.ts >= cutoff; })
+            ? result.dataRequests.filter(function (r) {
+                return r.ts >= cutoff && !isFailedTransport(r);
+              })
             : [];
+          // Kept separately so a rejected beacon/fetch is visible instead of silently dropped.
+          result.failedDataRequests = result.dataRequests.filter(isFailedTransport);
           result.dataSent = result.dataRequestsAfterEvents.length > 0;
 
           extractDeliveredConfig();
@@ -836,6 +847,7 @@
                 result.dataRequests.length + ' total data req)',
             ],
             ['warnings (non-fatal)', result.warnings.length],
+            ['failed transports (not counted)', result.failedDataRequests.length],
             [
               'delivered config contract',
               result.configContract

@@ -21,6 +21,7 @@
  */
 import { writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { assertSafeControlPlaneUrl } from './url-safety.mjs';
 
 const DEFAULT_CONFIG_BE_URL = 'https://api.rudderstack.com';
 
@@ -86,8 +87,6 @@ function connectionModeOf(dest) {
   return 'unknown';
 }
 
-const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '::1', '[::1]']);
-
 // Normalize an integration identity for comparison: lowercase, strip non-alphanumerics. So
 // `GoogleAds` / `GOOGLEADS` / `Google Ads` / `GOOGLE_ADS` all collapse to `googleads`.
 const normId = (s) => String(s).toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -102,18 +101,13 @@ async function main() {
     process.exit(args.help ? 0 : 2);
   }
 
-  // The write key travels in the query AND the Authorization header, so a remote control-plane
-  // override MUST be HTTPS (loopback dev endpoints excepted) — otherwise it's sent in cleartext.
+  // The write key travels in the query AND the Authorization header, so a remote control plane must
+  // be HTTPS (see url-safety.mjs — generate.mjs applies the same rule).
   if (args.configUrl) {
-    let cp;
     try {
-      cp = new URL(args.configUrl);
-    } catch {
-      console.error(`[preflight] --configUrl is not a valid URL: ${args.configUrl}`);
-      process.exit(2);
-    }
-    if (cp.protocol !== 'https:' && !LOOPBACK_HOSTS.has(cp.hostname)) {
-      console.error('[preflight] --configUrl must be https:// (loopback dev endpoints excepted) — it carries the write key.');
+      assertSafeControlPlaneUrl(args.configUrl, '--configUrl');
+    } catch (err) {
+      console.error(`[preflight] ${err.message}`);
       process.exit(2);
     }
   }

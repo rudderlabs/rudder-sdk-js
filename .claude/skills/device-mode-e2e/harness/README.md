@@ -141,9 +141,17 @@ config only — the full payload is dropped, since it holds every destination's 
 }
 ```
 
-Mismatches are **warnings** by default (destination contracts vary; false failures would be worse
-than a visible warning). `configContract: "strict"` promotes them to run failures. With no contract
-available (no checkout, no network) the check is skipped and `checked: false` says why.
+Type mismatches are **warnings** by default (destination contracts vary; false failures would be
+worse than a visible warning). `configContract: "strict"` promotes **mismatches** to run failures.
+
+`missing` and `unexpected` are **informational and never fail the run**, in either mode: most keys in
+`destConfig.web` / `destConfig.defaultConfig` are optional in the schema, so a setting nobody
+configured simply is not delivered — failing on that would fire on healthy connections. They are
+reported separately from `mismatches` so a genuinely absent key is still visible. `dest-config.mjs
+--strict` follows the same rule, so the CLI and the page agree.
+
+With no contract available (no checkout, no network) the check is skipped and `checked: false` says
+why.
 
 ## Optional destination config override (`configOverride`)
 

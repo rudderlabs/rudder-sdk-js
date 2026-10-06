@@ -20,7 +20,7 @@ import { createServer } from 'node:http';
 import { mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
-import { dirname, extname, join, resolve, basename, sep } from 'node:path';
+import { basename, extname, join, resolve } from 'node:path';
 
 function parseArgs(argv) {
   const out = { timeout: 60000, headless: false, keepOpen: false };
@@ -79,32 +79,45 @@ function findChrome() {
   return candidates.find((p) => existsSync(p)) || null;
 }
 
-/** Minimal single-directory static file server on an ephemeral localhost port. */
-async function serveDir(dir) {
-  const root = resolve(dir);
+/**
+ * Serves EXACTLY ONE file (the harness page) on an ephemeral loopback port.
+ *
+ * Deliberately not a directory server: the documented workflow keeps the run config (write key) and
+ * the preflight snapshot (destination config) in the same temp dir, and a native third-party SDK
+ * loaded by the page runs in THIS origin — a directory server would let it fetch those files. Any
+ * path other than the page itself is a 404.
+ * @param {string} filePath Absolute path of the page to serve.
+ * @returns {Promise<{server: import('node:http').Server, port: number, origin: string, path: string}>} Server handle.
+ */
+async function servePage(filePath) {
+  const pageName = basename(filePath);
   const server = createServer(async (req, res) => {
+    const headers = { 'access-control-allow-origin': '*' };
+    let requested;
     try {
-      const rel = decodeURIComponent((req.url || '/').split('?')[0]);
-      const filePath = resolve(join(root, rel));
-      // Guard against path traversal — compare against root + separator so /tmp/abc can't match
-      // a sibling /tmp/abcd. (Low risk: the server only listens on 127.0.0.1.)
-      if (filePath !== root && !filePath.startsWith(root + sep)) {
-        res.writeHead(403).end('forbidden');
-        return;
-      }
+      requested = decodeURIComponent((req.url || '/').split('?')[0]);
+    } catch {
+      res.writeHead(400, headers).end('bad request');
+      return;
+    }
+    if (requested !== `/${pageName}` && requested !== '/') {
+      res.writeHead(404, headers).end('not found');
+      return;
+    }
+    try {
       const body = await readFile(filePath);
       res.writeHead(200, {
-        'content-type': MIME[extname(filePath)] || 'application/octet-stream',
-        'access-control-allow-origin': '*',
+        ...headers,
+        'content-type': MIME[extname(filePath)] || 'text/html; charset=utf-8',
       });
       res.end(body);
     } catch {
-      res.writeHead(404).end('not found');
+      res.writeHead(404, headers).end('not found');
     }
   });
   await new Promise((r) => server.listen(0, '127.0.0.1', r));
   const { port } = server.address();
-  return { server, port, origin: `http://127.0.0.1:${port}` };
+  return { server, port, origin: `http://127.0.0.1:${port}`, path: `/${pageName}` };
 }
 
 /** Minimal CDP client over a single flat-session WebSocket. */
@@ -236,6 +249,12 @@ function printReport(result) {
     ),
   );
   console.log(reportLine('warnings (non-fatal)', String((result.warnings || []).length)));
+  const failedReqs = result.failedDataRequests || [];
+  if (failedReqs.length) {
+    console.log(
+      reportLine('failed transports (not counted)', `${failedReqs.length} (browser rejected; see below)`),
+    );
+  }
   const cc = result.configContract;
   if (cc) {
     console.log(
@@ -246,6 +265,11 @@ function printReport(result) {
           : `not checked (${cc.reason})`,
       ),
     );
+  }
+  if (failedReqs.length) {
+    console.log('');
+    console.log('Rejected transports (NOT counted as delivery):');
+    failedReqs.forEach((r) => console.log(`  ${r.method || 'GET'} ${r.url}  [${r.status}]${r.error ? ' ' + r.error : ''}`));
   }
   if (cc && cc.checked && (cc.mismatches > 0 || cc.missing.length || cc.unexpected.length)) {
     console.log('');
@@ -347,8 +371,8 @@ async function main() {
   if (args.page) {
     const pagePath = resolve(args.page);
     await stat(pagePath); // throws if missing
-    fileServer = await serveDir(dirname(pagePath));
-    targetUrl = `${fileServer.origin}/${basename(pagePath)}`;
+    fileServer = await servePage(pagePath);
+    targetUrl = `${fileServer.origin}${fileServer.path}`;
   }
   // Report mode drives the page without a click: ?autorun=1 calls window.__E2E_RUN__() on load.
   // Interactive mode (--no-autorun) opens the page and lets the user click ▶ Run themselves.

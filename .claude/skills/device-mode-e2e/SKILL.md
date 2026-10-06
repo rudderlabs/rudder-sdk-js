@@ -23,10 +23,15 @@ verification is baked in.
   beacon/pixel, _not_ merely a native-SDK `<script>` load. "native SDK asset loaded" is reported
   separately as info; only "data sent" counts as delivery.
 
-- the destination config **arrived in the SDK as the control-plane contract says it should** — for a
-  web device-mode connection, every key `rudder-integrations-config` lists is present and has the
-  expected type. A key stored per source type (`{ web: … }`) must arrive **resolved** to its inner
-  value, not as an object; this catches delivery bugs the SDK would otherwise swallow. Reported as warnings by default; `configContract: "strict"` makes a mismatch fail.
+- the destination config **arrived in the SDK with the shape the control-plane contract says** — for
+  each key `rudder-integrations-config` lists for a web device-mode connection **and that was
+  delivered**, the value has the expected type. A key stored per source type (`{ web: … }`) must
+  arrive **resolved** to its inner value, not as an object; this catches delivery bugs the SDK would
+  otherwise swallow. Reported as warnings by default; `configContract: "strict"` fails the run on a
+  **type mismatch**.
+  Keys that are listed but absent are reported as `missing` and are **informational only** — most
+  destination settings are optional, so an unset one legitimately never reaches the SDK. Keys
+  delivered but not listed appear as `unexpected`, also informational.
   Schema _conformance_ is not checked here — that is rudder-integrations-config's own CI job.
 
 Captured console/page errors (`console.error`, `onerror`, `unhandledrejection`) are shown as
