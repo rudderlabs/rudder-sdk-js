@@ -354,7 +354,9 @@ export function getDefaultConfig(distName) {
         }),
       isLocalServerEnabled &&
         serve({
-          open: false,
+          // Opens the demo page by default; pass NO_BROWSER_OPEN (see the start:*:no-open scripts)
+          // to serve without opening a tab, e.g. for automated e2e runs.
+          open: !process.env.NO_BROWSER_OPEN,
           openPage: `/${cdnPath}/${isLegacyBuild ? 'legacy' : 'modern'}/iife/index.html`,
           contentBase: ['dist'],
           host: 'localhost',

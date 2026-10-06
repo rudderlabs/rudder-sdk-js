@@ -22,8 +22,21 @@
  *     "configUrl": "https://…",        // optional control-plane override
  *     "settleMs": 6000,                // optional wait before verdict
  *     "events": [ … ],                 // targeted calls derived from the implementation
- *     "expectations": [ … ]            // optional generic assertions on the outgoing requests
+ *     "expectations": [ … ],           // optional generic assertions on the outgoing requests
+ *     "configOverride": { … },         // optional v3 destination-config override (see below)
+ *     "preflightJson": "…",            // required with configOverride: preflight.mjs --json output
+ *     "destinationId": "…",            // optional: pick the destination explicitly
+ *     "destDir": "<dir>",              // optional integrations-config dir (ambiguous names)
+ *     "integrationsConfigPath": "…",   // optional local rudder-integrations-config checkout
+ *     "integrationsConfigRef": "develop", // optional branch for the GitHub fallback
+ *     "integrationsConfigRemote": false   // optional: skip the local checkout, read GitHub
  *   }
+ *
+ * `configOverride` lets a run vary the destination config WITHOUT editing the dashboard: it becomes
+ * the SDK's v3 `sourceConfigurationOverride` load option, which shallow-merges over the config the
+ * real sourceConfig call returned (so that call still happens and is still verified). The merged
+ * config is validated against the destination's `schema.json` in rudder-integrations-config, so a
+ * shape the control plane would never send fails here instead of silently testing fiction.
  *
  * NOTE: pluginsSDKBaseURL is effectively REQUIRED for a v3 local run — omitting it makes the CDN
  * snippet derive the plugins URL from the core script's origin (which serves no plugins), so all
@@ -32,6 +45,12 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  findNonWebKeys,
+  getExpectedWebShape,
+  loadDestinationContract,
+  normalizeName,
+} from './dest-config.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
@@ -76,6 +95,158 @@ function safeUrlForAttr(url, label) {
     throw new Error(`${label} must be https:// unless it is a loopback dev URL (localhost/127.0.0.1/::1): ${url}`);
   }
   return url;
+}
+
+/**
+ * Picks the destination the override applies to out of a preflight snapshot.
+ * @param {object[]} destinations Destinations from the preflight snapshot.
+ * @param {object} cfg Run config (uses `destinationId` then `integration`).
+ * @returns {object} The matched destination entry.
+ */
+function pickOverrideTarget(destinations, cfg) {
+  if (cfg.destinationId) {
+    const byId = destinations.find((d) => d.id === cfg.destinationId);
+    if (!byId) {
+      throw new Error(
+        `config.destinationId "${cfg.destinationId}" is not in the preflight snapshot (ids: ${destinations.map((d) => d.id).join(', ') || 'none'}).`,
+      );
+    }
+    return byId;
+  }
+  if (!cfg.integration) {
+    throw new Error('config.configOverride needs config.destinationId or config.integration to know which destination to override.');
+  }
+  const needle = normalizeName(cfg.integration);
+  const matches = destinations.filter((d) =>
+    [d.displayName, d.definitionName, d.name].filter(Boolean).some((n) => normalizeName(n) === needle),
+  );
+  if (matches.length === 0) {
+    throw new Error(`"${cfg.integration}" is not in the preflight snapshot — re-run preflight.mjs --json for the right source.`);
+  }
+  if (matches.length > 1) {
+    throw new Error(
+      `"${cfg.integration}" matches ${matches.length} destinations in the preflight snapshot; set config.destinationId (ids: ${matches.map((d) => d.id).join(', ')}).`,
+    );
+  }
+  return matches[0];
+}
+
+/**
+ * Loads the destination's control-plane contract from rudder-integrations-config, or null when it
+ * cannot be read (no checkout and no network). A missing contract is NOT fatal: it only means the
+ * page skips the delivered-config check.
+ * @param {object} cfg Parsed run config.
+ * @returns {Promise<{dbConfig: object, schema: object, source: string, destDir: string}|null>} Contract or null.
+ */
+async function loadContractOrNull(cfg) {
+  if (!cfg.integration && !cfg.destDir) {
+    return null;
+  }
+  try {
+    const contract = await loadDestinationContract({
+      integration: cfg.integration,
+      destDir: cfg.destDir,
+      integrationsConfigPath: cfg.integrationsConfigPath,
+      ref: cfg.integrationsConfigRef,
+      remote: cfg.integrationsConfigRemote === true,
+    });
+    console.log(`[generate] config contract: ${contract.source}`);
+    return contract;
+  } catch (err) {
+    console.warn(
+      `[generate] warning: could not read the integrations-config contract (${err.message}).\n` +
+        '           The run will skip the delivered-config check.',
+    );
+    return null;
+  }
+}
+
+/**
+ * Builds the SDK's v3 `sourceConfigurationOverride` from `config.configOverride`.
+ *
+ * The override is merged into the config the SDK RECEIVED, i.e. values are already resolved for the
+ * web source type (`"sdkVersion": "v2"`, not `{ "web": "v2" }`). Schema conformance is not checked
+ * here — that is rudder-integrations-config's own job; this harness verifies what the SDK is
+ * actually delivered (see `configContract`).
+ * @param {object} cfg Parsed run config.
+ * @param {string} sdkVersion Resolved SDK version ('v3' | 'v1.1').
+ * @param {object|null} contract Destination contract, when available.
+ * @returns {Promise<{destinations: {id: string, config: object}[]}|null>} Override for load options.
+ */
+async function buildConfigOverride(cfg, sdkVersion, contract) {
+  const override = cfg.configOverride;
+  if (override === undefined || override === null) {
+    return null;
+  }
+  if (typeof override !== 'object' || Array.isArray(override)) {
+    throw new Error('config.configOverride must be an object of destination config keys.');
+  }
+  if (Object.keys(override).length === 0) {
+    throw new Error('config.configOverride is empty — remove it or set the keys you want to vary.');
+  }
+  // sourceConfigurationOverride is a v3 load option; v1.1 has no equivalent.
+  if (sdkVersion !== 'v3') {
+    throw new Error(
+      `config.configOverride needs sdkVersion v3 (got: ${sdkVersion}) — the SDK's sourceConfigurationOverride load option is v3-only.`,
+    );
+  }
+
+  // The SDK keys overrides by destination id: take it as given, else resolve it from a preflight
+  // snapshot. (The snapshot is only needed for the id — nothing is validated against it.)
+  let destinationId = cfg.destinationId;
+  let label = destinationId;
+  if (!destinationId) {
+    if (!cfg.preflightJson) {
+      throw new Error(
+        'config.configOverride needs config.destinationId, or config.preflightJson ' +
+          '(preflight.mjs --json <path>) to resolve the id from the connected destinations.',
+      );
+    }
+    const snapshot = JSON.parse(await readFile(cfg.preflightJson, 'utf8'));
+    const destinations = Array.isArray(snapshot.destinations) ? snapshot.destinations : [];
+    const target = pickOverrideTarget(destinations, cfg);
+    if (!target.id) {
+      throw new Error('the matched destination in the preflight snapshot has no id — the SDK keys overrides by id.');
+    }
+    destinationId = target.id;
+    label = target.name;
+  }
+
+  if (contract) {
+    const nonWeb = findNonWebKeys(contract.dbConfig, override);
+    if (nonWeb.length) {
+      console.warn(
+        '[generate] warning: the control plane does not send these keys for a web device-mode ' +
+          `connection, so overriding them does not mirror production: ${nonWeb.join(', ')}`,
+      );
+    }
+  }
+  console.log(
+    `[generate] config override for "${label}" (id=${destinationId}): ${Object.keys(override).join(', ')}`,
+  );
+  return { destinations: [{ id: destinationId, config: override }] };
+}
+
+/**
+ * Builds the delivered-config expectations the page checks the real sourceConfig against.
+ * @param {object} cfg Parsed run config.
+ * @param {object|null} contract Destination contract, when available.
+ * @returns {{keys: object, strict: boolean, destinationId: string|null, integration: string|null}|null} Contract payload or null.
+ */
+function buildConfigContract(cfg, contract) {
+  if (!contract) {
+    return null;
+  }
+  if (cfg.configContract !== undefined && !['warn', 'strict'].includes(cfg.configContract)) {
+    throw new Error(`config.configContract must be 'warn' (default) or 'strict' (got: ${cfg.configContract}).`);
+  }
+  const expected = getExpectedWebShape(contract.dbConfig, contract.schema);
+  return {
+    keys: expected.keys,
+    strict: cfg.configContract === 'strict',
+    destinationId: cfg.destinationId ?? null,
+    integration: cfg.integration ?? null,
+  };
 }
 
 async function main() {
@@ -159,6 +330,10 @@ async function main() {
 
   const settleMs = Number.isFinite(cfg.settleMs) ? cfg.settleMs : 6000;
 
+  const contract = await loadContractOrNull(cfg);
+  const configOverride = await buildConfigOverride(cfg, sdkVersion, contract);
+  const configContract = buildConfigContract(cfg, contract);
+
   // JSON.stringify does NOT escape `</script>` / a lone `<`, nor U+2028/U+2029 (which it leaves raw
   // but are JS line terminators that break an inline <script> in some parsers). Escape all three to
   // their unicode forms so the injected value stays valid, inert JS.
@@ -178,6 +353,8 @@ async function main() {
     __EVENTS_JSON__: safeJson(events),
     __EXPECTATIONS_JSON__: safeJson(Array.isArray(cfg.expectations) ? cfg.expectations : []),
     __SETTLE_MS__: safeJson(settleMs),
+    __CONFIG_OVERRIDE_JSON__: safeJson(configOverride),
+    __CONFIG_CONTRACT_JSON__: safeJson(configContract),
     __SDK_URL__: sdkUrl,
   };
 

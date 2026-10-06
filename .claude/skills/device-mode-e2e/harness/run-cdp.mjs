@@ -212,6 +212,13 @@ function printReport(result) {
     result.testCases.forEach((e, i) => console.log(`  ${i + 1}. ${describeEvent(e)}`));
     console.log('─'.repeat(60));
   }
+  if (result.configOverride && Array.isArray(result.configOverride.destinations)) {
+    console.log('Destination config override (merged over the real sourceConfig):');
+    result.configOverride.destinations.forEach((d) =>
+      console.log(`  ${d.id}: ${compact(d.config)}`),
+    );
+    console.log('─'.repeat(60));
+  }
   console.log(reportLine('SDK ready() fired', mark(result.ready)));
   console.log(reportLine('sourceConfig fetched (2xx)', mark(result.sourceConfigOk)));
   console.log(reportLine('integration bundle loaded', mark(result.integrationBundleLoaded)));
@@ -229,6 +236,26 @@ function printReport(result) {
     ),
   );
   console.log(reportLine('warnings (non-fatal)', String((result.warnings || []).length)));
+  const cc = result.configContract;
+  if (cc) {
+    console.log(
+      reportLine(
+        'delivered config contract',
+        cc.checked
+          ? `${cc.mismatches} mismatch(es), ${cc.missing.length} missing, ${cc.unexpected.length} unlisted [${cc.strict ? 'strict' : 'warn'}]`
+          : `not checked (${cc.reason})`,
+      ),
+    );
+  }
+  if (cc && cc.checked && (cc.mismatches > 0 || cc.missing.length || cc.unexpected.length)) {
+    console.log('');
+    console.log('Delivered destination config vs integrations-config contract:');
+    cc.rows
+      .filter((r) => !r.ok)
+      .forEach((r) => console.log(`  MISMATCH ${r.key}: expected ${r.expected}, got ${r.actual} (${r.scope})`));
+    if (cc.missing.length) console.log(`  expected for web but not delivered: ${cc.missing.join(', ')}`);
+    if (cc.unexpected.length) console.log(`  delivered but not listed for web: ${cc.unexpected.join(', ')}`);
+  }
   if ((result.expectations || []).length) {
     console.log('');
     console.log('Expectations:');
@@ -296,7 +323,8 @@ async function main() {
   if (typeof WebSocket === 'undefined') {
     console.error(
       `This runner needs Node >= 22 (global WebSocket); current is ${process.version}.\n` +
-        'Run `nvm use 22` first (your shell may default to an older Node), then re-run — or\n' +
+        'Run `nvm use` first to pick up the repo\'s .nvmrc version (your shell may default to an\n' +
+        'older Node), then re-run — or\n' +
         'invoke this script with an explicit Node >= 22 binary. Alternatively use the zero-dep\n' +
         'fallback: open the harness page in your browser and read the on-page PASS/FAIL table.',
     );

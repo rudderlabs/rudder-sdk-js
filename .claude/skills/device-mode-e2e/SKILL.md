@@ -1,6 +1,6 @@
 ---
 name: device-mode-e2e
-description: End-to-end test a device-mode integration change locally. Builds and serves the SDK, derives targeted events from the integration's implementation, generates a self-asserting HTML harness that loads the REAL connection from a write key alone, runs it headlessly, and reports a generic delivery PASS/FAIL (SDK loaded config, initialized the device-mode integration, forwarded events, and fired outbound third-party calls). Use when asked to "e2e test", "run e2e", "verify device mode", or "test my <destination> changes" for a browser device-mode integration (e.g. Customer.io). Confirming events inside the destination dashboard stays manual.
+description: End-to-end test a device-mode integration change locally. Builds and serves the SDK, derives targeted events from the integration's implementation, generates a self-asserting HTML harness that loads the REAL connection from a write key alone, runs it headlessly, and reports a generic delivery PASS/FAIL (SDK loaded config, initialized the device-mode integration, forwarded events, and fired outbound third-party calls). Use when asked to "e2e test", "run e2e", "verify device mode", or "test my <destination> changes" for any browser device-mode integration. Confirming events inside the destination dashboard stays manual.
 argument-hint: <Integration> <writeKey> [v3|v1.1]
 ---
 
@@ -20,18 +20,24 @@ verification is baked in.
 - it loaded the device-mode integration bundle (`/js-integrations/`),
 - `ready()` fired and every event was forwarded without throwing,
 - **DATA was actually sent** to a third-party (non-localhost, non-RudderStack) host — a fetch/XHR/
-  beacon/pixel, *not* merely a native-SDK `<script>` load. "native SDK asset loaded" is reported
+  beacon/pixel, _not_ merely a native-SDK `<script>` load. "native SDK asset loaded" is reported
   separately as info; only "data sent" counts as delivery.
+
+- the destination config **arrived in the SDK as the control-plane contract says it should** — for a
+  web device-mode connection, every key `rudder-integrations-config` lists is present and has the
+  expected type. A key stored per source type (`{ web: … }`) must arrive **resolved** to its inner
+  value, not as an object; this catches delivery bugs the SDK would otherwise swallow. Reported as warnings by default; `configContract: "strict"` makes a mismatch fail.
+  Schema _conformance_ is not checked here — that is rudder-integrations-config's own CI job.
 
 Captured console/page errors (`console.error`, `onerror`, `unhandledrejection`) are shown as
 **warnings** — they do not fail the run (third-party SDKs log noise).
 
 **It also SHOWS you the actual outgoing requests** — method, URL, query params, and body — so you can
-confirm your fix put the right value in the payload (e.g. BingAds sending `messageId` as `eventId`),
-not just that *a* request fired. You can optionally add generic `expectations` to turn a specific
+confirm your fix put the right value in the payload (say, the SDK's `messageId` arriving as the
+destination's own event id), not just that _a_ request fired. You can optionally add generic `expectations` to turn a specific
 value check into an automated PASS/FAIL (see step 5 and step 7).
 
-**Manual (out of scope — inherently per-destination):** confirming the events *arrived inside* the
+**Manual (out of scope — inherently per-destination):** confirming the events _arrived inside_ the
 destination's dashboard. The harness ends by reminding you to check it. Do not try to automate this
 in the generic skill.
 
@@ -67,7 +73,7 @@ if they might want to test the released SDK — surface the choice.
 
 ## Inputs
 
-- **Integration** (e.g. `CustomerIO`) — the folder under
+- **Integration** — the folder name under
   `packages/analytics-js-integrations/src/integrations/`. Used to locate the source for test-case
   derivation and to match the loaded bundle name. Never used for verification logic.
 - **writeKey** (required) — a workspace source that has this integration connected as a device-mode
@@ -76,11 +82,12 @@ if they might want to test the released SDK — surface the choice.
 
 ## Prerequisites
 
-- **Node ≥ 22** — the headless runner uses the global `WebSocket`. Your shell may default to an older
-  Node (e.g. 20); switch first and verify:
+- **The repo's Node version** — pinned in `.nvmrc` at the repo root. The headless runner needs the
+  global `WebSocket` (Node ≥ 22), and your shell may default to an older Node; switch first and
+  verify:
 
   ```bash
-  nvm use 22 && node -v      # or point the scripts at an explicit Node >= 22 binary
+  nvm use && node -v      # picks up .nvmrc; or point the scripts at an explicit Node >= 22 binary
   ```
 
 - **Chrome/Chromium installed.** The runner probes standard locations; if it can't find yours, set
@@ -103,11 +110,16 @@ just-connected destination, not a stale control-plane copy):
 
 ```bash
 node .claude/skills/device-mode-e2e/harness/preflight.mjs \
-  --writeKey <WRITE_KEY> --integration <Integration>
+  --writeKey <WRITE_KEY> --integration <Integration> --json <temp>/preflight.json
 ```
 
 Exit `0` = connected & enabled. Exit `1` = not connected / disabled / zero destinations — fix the
 connection first. (Add `--configUrl` for a non-default control plane.)
+
+`--json` writes the resolved destinations — **id**, enabled, connectionMode and their **live config**.
+It is required only for a config override (step 5), but always worth passing: the printed `id` is
+what an override is keyed by. Write it to the same temp dir as the page — it contains the
+destination's config.
 
 ### 2. Build + serve the SDK, integrations, AND plugins — **only for `cdn: local`**
 
@@ -116,12 +128,12 @@ connection first. (Add `--configUrl` for a non-default control plane.)
 > straight to derive test cases (step 4) → config with `cdn` (step 5) → run.
 
 A v3 **local** run needs **three** servers. Run each in its own terminal (they keep watching/serving).
-The core/v1.1 dev servers no longer auto-open a browser tab
-(their `rollup-plugin-serve` `open` is set to false):
+Use the core/v1.1 `:no-open` scripts so their dev servers serve without opening a demo tab on top of
+the harness window (plain `start`/`start:modern` still open one):
 
 ```bash
 # 1) core SDK   → http://localhost:3001  (rsa.min.js under /cdn/<variant>/iife/)
-cd packages/analytics-js && npm run start:modern
+cd packages/analytics-js && npm run start:modern:no-open
 
 # 2) integrations → http://localhost:3005  (bundles under /cdn/<variant>/js-integrations/)
 cd packages/analytics-js-integrations && npm run start:modern
@@ -137,7 +149,7 @@ cd packages/analytics-js-plugins && npm run start:modern
 > plugin**, so no integration bundle is ever requested. You **must** serve the plugins package and set
 > `pluginsSDKBaseURL`. (Same mechanism applies to `destSDKBaseURL` for integrations.)
 
-**Faster iteration:** the integrations `start` rebuilds *every* bundle (minutes). To rebuild just one,
+**Faster iteration:** the integrations `start` rebuilds _every_ bundle (minutes). To rebuild just one,
 use the targeted CLI build, then serve `dist`:
 
 ```bash
@@ -148,11 +160,11 @@ npx serve ./dist -p 3005 --cors
 
 **Base URLs for a v3 modern build** (use `legacy` instead of `modern` for a legacy build):
 
-- `sdkUrl`            = `http://localhost:3001/cdn/modern/iife/rsa.min.js`
-- `destSDKBaseURL`    = `http://localhost:3005/cdn/modern/js-integrations`
+- `sdkUrl` = `http://localhost:3001/cdn/modern/iife/rsa.min.js`
+- `destSDKBaseURL` = `http://localhost:3005/cdn/modern/js-integrations`
 - `pluginsSDKBaseURL` = `http://localhost:3002/cdn/modern/plugins`
 
-For **v1.1**, serve the legacy core (`cd packages/analytics-v1.1 && npm run start`;
+For **v1.1**, serve the legacy core (`cd packages/analytics-v1.1 && npm run start:no-open`;
 bundle `rudder-analytics.min.js`) and keep the integrations server; v1.1 does not use the remote plugins.
 Confirm ports/filenames from each dev-server log — they can differ from your setup.
 
@@ -205,8 +217,12 @@ Create a JSON config (full schema in `harness/README.md`). **Write it to a temp 
   "destSDKBaseURL": "http://localhost:3005/cdn/modern/js-integrations",
   "pluginsSDKBaseURL": "http://localhost:3002/cdn/modern/plugins",
   "settleMs": 6000,
-  "events": [ /* the targeted events derived in step 4 */ ],
-  "expectations": [ /* optional — see below */ ]
+  "events": [
+    /* the targeted events derived in step 4 */
+  ],
+  "expectations": [
+    /* optional — see below */
+  ]
 }
 ```
 
@@ -219,7 +235,9 @@ them as `<base>/v3/<variant>/{rsa.min.js, js-integrations, plugins}` (`variant` 
   "integration": "<Integration>",
   "cdn": "production",
   "settleMs": 6000,
-  "events": [ /* … */ ]
+  "events": [
+    /* … */
+  ]
 }
 ```
 
@@ -228,13 +246,13 @@ are v3-only; for v1.1 on a CDN, set them explicitly. Leave `dataPlaneUrl` unset 
 cloud-mode. Set `configUrl` only for a non-default control plane (EU / self-hosted / staging CP).
 
 **Optional `expectations`** turn a specific value check on the outgoing request into an automated
-PASS/FAIL (generic — no per-destination logic). Use them when the change is about *what* the request
+PASS/FAIL (generic — no per-destination logic). Use them when the change is about _what_ the request
 carries:
 
 ```jsonc
-// e.g. BingAds fix: messageId should be forwarded as eventId
-{ "description": "eventId is forwarded", "requestIncludes": "<expected value>" }
-{ "description": "eventId body field equals value", "requestBodyPath": "eventId", "equals": "<value>" }
+// e.g. a fix that must forward a value into a specific request field
+{ "description": "<what this proves>", "requestIncludes": "<expected value>" }
+{ "description": "<what this proves>", "requestBodyPath": "<field>", "equals": "<value>" }
 ```
 
 Both are evaluated **only against DATA requests made after the events fired** (a pre-event startup
@@ -243,6 +261,51 @@ request can't satisfy them). `requestIncludes` matches a substring in any such r
 type). For a **user-controlled** field, set a recognizable sentinel value in the event and assert it.
 For an **SDK-generated** id (`messageId`), you can't predict it — rely on the printed request body
 (step 7) instead of a static expectation.
+
+**Optional `configOverride`** varies the **destination config** for one run — without editing the
+dashboard. Use it to exercise a config-dependent code path (a version switch, a new setting, a
+mapping toggle) across several runs against one connection:
+
+```jsonc
+{
+  // …the fields above, plus:
+  "configOverride": { "<configKey>": "<value>" },
+  "destinationId": "<id>", // from step 1; or…
+  "preflightJson": "<temp>/preflight.json", // …let the id be resolved from the snapshot
+}
+```
+
+- **Write it in the shape the SDK receives**, i.e. values already resolved for the web source type:
+  `"<configKey>": "<value>"`, **not** `{ "<configKey>": { "web": "<value>" } }`. The override merges
+  into the config the integration reads, not into the control plane's stored form. Keys and values
+  are whatever the destination under test defines — run `dest-config.mjs` (below) to list them.
+- It becomes the SDK's v3 `sourceConfigurationOverride` load option, so the **real `sourceConfig`
+  call still happens** and is still verified — only the matched destination's `config` is adjusted
+  afterwards.
+- The SDK **shallow-merges** it (`{...real, ...override}`), so a nested object is replaced wholesale
+  — pass the whole object.
+- **v3 only.** `sourceConfigurationOverride` does not exist in v1.1; the combination is rejected.
+- It needs the destination **id**: give `destinationId`, or `preflightJson` to resolve it by name.
+- `generate.mjs` warns when an overridden key is not one the control plane sends for a **web**
+  device-mode connection (`db-config.json`'s `destConfig.web` + `destConfig.defaultConfig`) — such an
+  override does not mirror production.
+- The delivered-config check reports what the **control plane delivered**, before your override is
+  applied — so a mismatch there is about the real connection, not about what you overrode.
+
+To see a destination's expected web shape, or to check a delivered config offline:
+
+```bash
+# expected shape (which keys, which delivered type)
+node .claude/skills/device-mode-e2e/harness/dest-config.mjs --integration <Integration>
+# compare a delivered config (preflight --json, or result.deliveredConfig) against it
+node .claude/skills/device-mode-e2e/harness/dest-config.mjs \
+  --integration <Integration> --config <delivered-config.json> [--strict]   # --remote reads GitHub
+```
+
+The contract is read from a local checkout (`integrationsConfigPath`, env `INTEGRATIONS_CONFIG_PATH`,
+else `~/workspace/rudder-integrations-config`), falling back to GitHub (`integrationsConfigRef`,
+default `develop`; `integrationsConfigRemote: true` forces it). With no contract available the run
+simply skips the check and says so.
 
 ### 6. Generate the page, then pick a mode
 
@@ -292,23 +355,22 @@ lightly formatted:
 - the overall **PASS/FAIL**,
 - and the **"expected on the `<destination>` dashboard"** summary (below).
 
-Reducing it to "it passed" defeats the whole point — the detail *is* the deliverable. (Tip: pass
+Reducing it to "it passed" defeats the whole point — the detail _is_ the deliverable. (Tip: pass
 `--json <path>` and read that file if you need the structured data to build the summary.)
 
-The **Outgoing device-mode data requests** bodies are where the fix is confirmed (e.g. `eventId` in the
-BingAds request is the `messageId`).
+The **Outgoing device-mode data requests** bodies are where the fix is confirmed — the payload shows
+the value your change was supposed to put there.
 
 **To reduce the user to a reader (report-first flow):** after a Mode-B run, produce an **"Expected on
 the `<destination>` dashboard"** summary so they only have to glance at the dashboard. Build it by
 reading the integration's mapping (`browser.js`: identify→attributes, track→custom event,
 ecommerce→purchase, alias→id) together with the captured request bodies, and write, per test case,
-what should appear. Example (Braze):
+what should appear. Shape it like this, using the mapping the integration actually implements:
 
-> - `identify e2e-braze-user-1` → profile with email / first name / … attributes
-> - `track "E2E Braze Custom Event"` → a custom event of that name
-> - `track "Order Completed"` → a purchase (sku, price, qty)
-> - `page` → a custom event / Page View
-> - startup → `rudder_id` alias
+> - `identify <userId>` → a profile with the traits you sent
+> - `track "<event name>"` → an event of that name with those properties
+> - `track "<ecommerce event>"` → whatever the integration maps it to (e.g. a purchase)
+> - `page` → however that integration represents a page view
 
 This narrative is **LLM-authored at report time** — it needs no destination code in the harness (the
 request bodies already contain the attributes/events/purchases). On PASS the RudderStack side is
@@ -324,7 +386,9 @@ Only the core bundle differs between `v3` and `v1.1`: point `sdkUrl` at the resp
 
 ## Security
 
-The generated page and the config **embed the write key in plaintext**. Keep them **out of the repo
+The report, the `--json` result and the `preflight --json` snapshot contain the destination's
+**delivered config** (which can include destination API keys), and the generated page and run config
+**embed the write key in plaintext**. Keep them **out of the repo
 and off shared/hosted pages**: write both to a temp dir **outside the working tree** (the runner serves
 the page from there — never copy it into the repo), and delete them when done. Never commit them or
 paste the page URL into a shared location.
@@ -347,13 +411,18 @@ paste the page URL into a shared location.
   ```
 - **`Timed out with no verdict`** — the SDK never became ready; open the page in a browser to see
   console errors. Increase `--timeout` / `settleMs` for slow native SDKs.
-- **`needs Node >= 22`** — run `nvm use 22` (see Prerequisites) or use the zero-dep fallback.
+- **`needs Node >= 22`** — run `nvm use` to pick up the repo's `.nvmrc` version (see Prerequisites),
+  or use the zero-dep fallback.
 - **`No Chrome found`** — set `CHROME_PATH` (see Prerequisites) or use the zero-dep fallback.
 
 ## Files
 
 - `harness/template.html` — self-asserting page; owns all verification (`window.__E2E_RESULT__`).
 - `harness/generate.mjs` — fills the template from a config (pure templating; no verification logic).
-- `harness/preflight.mjs` — cache-busted sourceConfig check (is the integration connected?).
+- `harness/preflight.mjs` — cache-busted sourceConfig check (is the integration connected?); `--json`
+  snapshots destination ids + live configs for a config override.
+- `harness/dest-config.mjs` — reads a destination's contract (`db-config.json` + `schema.json`) from
+  rudder-integrations-config, derives the expected **web delivered** shape, and compares a delivered
+  config against it; also a standalone CLI.
 - `harness/run-cdp.mjs` — headless system-Chrome-over-CDP runner (no Puppeteer); reads the verdict.
 - `harness/README.md` — config schema, event shapes, extension notes.

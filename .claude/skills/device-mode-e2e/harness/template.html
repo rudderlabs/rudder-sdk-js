@@ -25,6 +25,12 @@
           events: __EVENTS_JSON__,
           expectations: __EXPECTATIONS_JSON__,
           settleMs: __SETTLE_MS__,
+          // v3 sourceConfigurationOverride ({ destinations: [{ id, config }] }) or null. Varies the
+          // destination config for this run; the real sourceConfig call still happens underneath.
+          configOverride: __CONFIG_OVERRIDE_JSON__,
+          // Expected delivered shape for each web device-mode config key, from
+          // rudder-integrations-config (db-config.json + schema.json), or null when unavailable.
+          configContract: __CONFIG_CONTRACT_JSON__,
         });
 
         var result = (window.__E2E_RESULT__ = {
@@ -33,6 +39,12 @@
           integration: cfg.integration,
           sdkVersion: cfg.sdkVersion,
           testCases: cfg.events,
+          // Echoed into the result so a report makes clear which config the run actually used.
+          configOverride: cfg.configOverride || null,
+          // The destination config as the SDK received it, plus the contract check over it.
+          deliveredDestination: null,
+          deliveredConfig: null,
+          configContract: null,
           ready: false,
           loadError: null,
           // null = "not evaluated yet"; finish() sets these to true/false. A runner that times out
@@ -211,6 +223,15 @@
           this.__e2e = record(this.__e2eUrl, this.__e2eMethod, 'xhr', body);
           this.addEventListener('loadend', function () {
             if (self.__e2e) self.__e2e.status = self.status;
+            // The v3 SDK fetches sourceConfig over XHR, so this is the EXACT payload it parsed.
+            // Keep it to check what the destination config looks like as delivered (see finish()).
+            if (String(self.__e2eUrl || '').indexOf('sourceConfig') !== -1 && self.status === 200) {
+              try {
+                result.__sourceConfigResponse = JSON.parse(self.responseText);
+              } catch (e) {
+                result.warnings.push('could not parse the sourceConfig response: ' + String(e));
+              }
+            }
           });
           return _send.apply(this, arguments);
         };
@@ -401,6 +422,9 @@
           if (cfg.destSDKBaseURL) loadOptions.destSDKBaseURL = cfg.destSDKBaseURL;
           if (cfg.pluginsSDKBaseURL) loadOptions.pluginsSDKBaseURL = cfg.pluginsSDKBaseURL;
           if (cfg.configUrl) loadOptions.configUrl = cfg.configUrl;
+          // Varies the destination config for this run only; the SDK still fetches the real
+          // sourceConfig and shallow-merges this over the matching destination's config.
+          if (cfg.configOverride) loadOptions.sourceConfigurationOverride = cfg.configOverride;
 
           try {
             ra.load(cfg.writeKey, cfg.dataPlaneUrl, loadOptions);
@@ -458,6 +482,13 @@
               lines.push('  • ' + (x.description || JSON.stringify(x)));
             });
           }
+          // Make it obvious the run is NOT using the dashboard config as-is.
+          if (cfg.configOverride && cfg.configOverride.destinations) {
+            lines.push('', 'Destination config override (merged over the real sourceConfig):');
+            cfg.configOverride.destinations.forEach(function (d) {
+              lines.push('  • ' + d.id + ': ' + short(d.config));
+            });
+          }
           var pre = document.createElement('pre');
           pre.textContent = lines.join('\n');
           var plan = document.getElementById('plan');
@@ -513,6 +544,125 @@
           }
         }
 
+        // warn() lives in the capture script's scope, so record warnings through the result object.
+        function addWarning(source, msg) {
+          try {
+            result.warnings.push(source + ': ' + msg);
+          } catch (e) {
+            /* ignore */
+          }
+        }
+
+        // ---- delivered destination config: what the SDK ACTUALLY received ----
+        // Schema conformance is rudder-integrations-config's own concern. What this harness can
+        // uniquely check is DELIVERY: for a web device-mode connection, did each config key arrive,
+        // and with the type the control-plane contract says it should have? A per-source-type key is
+        // STORED as { web: … } and delivered resolved, so `sdkVersion` must arrive as a string.
+        function deliveredTypeOf(v) {
+          if (v === null) return 'null';
+          if (Object.prototype.toString.call(v) === '[object Array]') return 'array';
+          return typeof v;
+        }
+        function matchesExpectedType(types, v) {
+          if (!types || types.length === 0) return true; // contract says nothing → anything passes
+          var actual = deliveredTypeOf(v);
+          for (var i = 0; i < types.length; i++) {
+            if (types[i] === actual) return true;
+            if (actual === 'number' && types[i] === 'integer') return true;
+          }
+          return false;
+        }
+        // Pick the destination this run is about out of the sourceConfig payload, then keep ONLY its
+        // config: the payload holds every connected destination's settings (API keys included) and
+        // the result is written to disk with --json.
+        function extractDeliveredConfig() {
+          var payload = result.__sourceConfigResponse;
+          delete result.__sourceConfigResponse;
+          if (!payload) return;
+          var source = payload.source || payload;
+          var dests = source && source.destinations;
+          if (!dests || !dests.length) return;
+          var wantedId =
+            (cfg.configOverride &&
+              cfg.configOverride.destinations &&
+              cfg.configOverride.destinations[0] &&
+              cfg.configOverride.destinations[0].id) ||
+            (cfg.configContract && cfg.configContract.destinationId) ||
+            null;
+          var match = null;
+          if (wantedId) {
+            for (var i = 0; i < dests.length; i++) {
+              if (dests[i].id === wantedId) match = dests[i];
+            }
+          }
+          if (!match && cfg.integration) {
+            var needle = normId(cfg.integration);
+            for (var j = 0; j < dests.length; j++) {
+              var def = dests[j].destinationDefinition || {};
+              if (
+                normId(def.displayName || '') === needle ||
+                normId(def.name || '') === needle ||
+                normId(dests[j].name || '') === needle
+              ) {
+                match = dests[j];
+              }
+            }
+          }
+          if (!match) return;
+          result.deliveredDestination = {
+            id: match.id || null,
+            name: (match.destinationDefinition && match.destinationDefinition.displayName) || match.name || null,
+            enabled: match.enabled !== false,
+          };
+          result.deliveredConfig = match.config || {};
+        }
+        // Compare the delivered config against the expectations generate.mjs embedded from
+        // db-config.json + schema.json. Mirrors compareDeliveredConfig() in dest-config.mjs.
+        function evaluateConfigContract() {
+          var spec = cfg.configContract;
+          if (!spec || !spec.keys) return null;
+          if (!result.deliveredConfig) {
+            return { checked: false, reason: 'the destination was not found in the sourceConfig response', strict: !!spec.strict };
+          }
+          var config = result.deliveredConfig;
+          var rows = [];
+          var missing = [];
+          var keys = spec.keys;
+          for (var key in keys) {
+            if (!Object.prototype.hasOwnProperty.call(keys, key)) continue;
+            var expectedTypes = keys[key].types || [];
+            if (!Object.prototype.hasOwnProperty.call(config, key)) {
+              missing.push(key);
+              continue;
+            }
+            rows.push({
+              key: key,
+              expected: expectedTypes.length ? expectedTypes.join('|') : 'any',
+              actual: deliveredTypeOf(config[key]),
+              scope: keys[key].scope,
+              ok: matchesExpectedType(expectedTypes, config[key]),
+            });
+          }
+          var unexpected = [];
+          for (var ck in config) {
+            if (Object.prototype.hasOwnProperty.call(config, ck) && !Object.prototype.hasOwnProperty.call(keys, ck)) {
+              unexpected.push(ck);
+            }
+          }
+          var mismatched = rows.filter(function (r) { return !r.ok; });
+          mismatched.forEach(function (r) {
+            addWarning('config contract', r.key + ' arrived as ' + r.actual + ', contract says ' + r.expected);
+          });
+          return {
+            checked: true,
+            strict: !!spec.strict,
+            rows: rows,
+            missing: missing,
+            unexpected: unexpected,
+            mismatches: mismatched.length,
+          };
+        }
+
         function finish() {
           if (finished) return; // guard: ready() path and the fallback timer can both call this
           finished = true;
@@ -532,8 +682,8 @@
             });
           result.integrationBundleLoaded = result.integrationBundleUrls.length > 0;
           // Exact normalized match on the bundle's OWN name — so the REQUESTED integration's bundle
-          // must have loaded (another connected destination's bundle can't satisfy it), and `GA` does
-          // not match `GA360`.
+          // must have loaded (another connected destination's bundle can't satisfy it), and a short
+          // name can't match a longer one.
           result.integrationMatched = cfg.integration
             ? result.integrationBundleUrls.some(function (u) {
                 return normId(bundleNameOf(u)) === normId(cfg.integration);
@@ -551,6 +701,9 @@
             ? result.dataRequests.filter(function (r) { return r.ts >= cutoff; })
             : [];
           result.dataSent = result.dataRequestsAfterEvents.length > 0;
+
+          extractDeliveredConfig();
+          result.configContract = evaluateConfigContract();
 
           result.expectations = evaluateExpectations();
           computeVerdict();
@@ -647,6 +800,15 @@
           result.expectations.forEach(function (e) {
             if (!e.pass) f.push('expectation failed: ' + e.description + ' (' + e.detail + ')');
           });
+          // Delivered-config mismatches are reported as warnings by default (destination contracts
+          // vary); configContract: 'strict' promotes them to failures.
+          if (result.configContract && result.configContract.strict) {
+            if (!result.configContract.checked) {
+              f.push('delivered-config check could not run: ' + result.configContract.reason);
+            } else if (result.configContract.mismatches > 0) {
+              f.push(result.configContract.mismatches + ' delivered config key(s) did not match the integrations-config contract');
+            }
+          }
           // result.warnings (console.error / onerror / unhandledrejection) are deliberately NOT
           // failures — third-party SDKs log noise; they're surfaced separately.
           result.pass = f.length === 0;
@@ -674,6 +836,30 @@
                 result.dataRequests.length + ' total data req)',
             ],
             ['warnings (non-fatal)', result.warnings.length],
+            [
+              'delivered config contract',
+              result.configContract
+                ? result.configContract.checked
+                  ? result.configContract.mismatches +
+                    ' mismatch(es), ' +
+                    result.configContract.missing.length +
+                    ' missing, ' +
+                    result.configContract.unexpected.length +
+                    ' unlisted' +
+                    (result.configContract.strict ? ' [strict]' : ' [warn]')
+                  : 'not checked (' + result.configContract.reason + ')'
+                : 'n/a (no integrations-config contract)',
+            ],
+            [
+              'destination config override',
+              result.configOverride
+                ? result.configOverride.destinations
+                    .map(function (d) {
+                      return d.id + ' → ' + short(d.config);
+                    })
+                    .join('; ')
+                : 'none (dashboard config as-is)',
+            ],
           ];
           var html = '<tr><th>check</th><th>value</th></tr>';
           rows.forEach(function (r) {
@@ -688,6 +874,7 @@
           }
           document.querySelector('#report tbody').innerHTML = html;
 
+          renderConfigContract();
           renderExpectations();
           renderTestCases();
           renderRequests();
@@ -723,6 +910,34 @@
           var pre = document.createElement('pre');
           document.body.appendChild(pre);
           return pre;
+        }
+
+        // Show the delivered config and how it compares to the control-plane contract.
+        function renderConfigContract() {
+          var cc = result.configContract;
+          if (!cc) return;
+          var pre = section('Delivered destination config (as the SDK received it)');
+          if (!cc.checked) {
+            pre.textContent = 'not checked — ' + cc.reason;
+            return;
+          }
+          var lines = [];
+          if (result.deliveredDestination) {
+            lines.push(
+              'destination: ' + (result.deliveredDestination.name || '(unnamed)') +
+                '  id=' + (result.deliveredDestination.id || '(none)'),
+            );
+            lines.push('');
+          }
+          cc.rows.forEach(function (r) {
+            lines.push(
+              (r.ok ? 'ok      ' : 'MISMATCH') + '  ' + r.key + '  expected=' + r.expected + '  actual=' + r.actual + '  (' + r.scope + ')',
+            );
+          });
+          if (cc.missing.length) lines.push('', 'expected for web but NOT delivered: ' + cc.missing.join(', '));
+          if (cc.unexpected.length) lines.push('', 'delivered but not listed for web in db-config: ' + cc.unexpected.join(', '));
+          lines.push('', 'config: ' + pretty(result.deliveredConfig));
+          pre.textContent = lines.join('\n');
         }
 
         function renderExpectations() {
