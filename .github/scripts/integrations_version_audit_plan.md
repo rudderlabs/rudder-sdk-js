@@ -101,6 +101,17 @@ A vendor SDK copy that is served from a RudderStack host (for example `cdn.rudde
   - **Loading method**: State explicitly whether our loading method still matches the vendor's current public docs. A mismatch exists when the vendor's current docs mark our script URL, CDN host, snippet or init call as deprecated or removed, or no longer document it. A vendor preference for another install method (for example npm) is not a mismatch while the docs still document our method.
   - **Sources**: Keep the source URL for every fact. If a page gives no answer, write "not found". Never fill a gap from memory.
 
+- **Research effort** - the audit has no value for an integration that you did not research:
+  - Research one integration at a time. Do not put several vendors in one search.
+  - Do not shorten the research to save time. A complete run matters more than a fast run.
+  - Almost every vendor in this repository has public installation docs. "Documentation not found" is a rare result.
+  - Before you write "documentation not found" for a vendor, try all four sources in this order:
+    1. A web search for the vendor's install docs, for example "[vendor] JavaScript SDK installation" and "[vendor] tracking code install".
+    2. The vendor's docs sites, for example `docs.[vendor domain]`, `developers.[vendor domain]` and `help.[vendor domain]`. Take the vendor domain from the loaded script URL.
+    3. The vendor's public GitHub repository and npm package for the web SDK.
+    4. A web search for the exact script file name or host that our loader uses.
+  - If one source fails, try the next one. A failed page load or an empty search is not a result.
+
 ### Phase 3: Priority Calculation and Categorization
 
 5. **Calculate priority and due dates**
@@ -126,10 +137,12 @@ Decide in this order:
 1. **Action Required**: a row of the priority table matches on facts that you verified. Missing facts do not change this. Name each missing fact in the ticket.
 2. **Unknown**: no row matches, and a fact that could make a row match is missing. Examples:
    - The loaded version cannot be determined (a `versioned` URL, or a RudderStack-hosted copy)
-   - The vendor's documentation cannot be found or read, so the latest version or the loading method is not known
+   - The vendor's documentation cannot be found or read after all four sources of step 4, so the latest version or the loading method is not known
 3. **No Action**: no row matches, and no fact is missing. This means no sunset date, the same major version as the latest release, and a loading method that matches the vendor's current docs. A minor or patch gap alone is No Action. Report the gap in the master ticket.
 
-An Unknown integration gets no subticket. List it in the summary log, with the reason.
+An Unknown integration gets no subticket. List it in the summary log, with the reason. For "documentation not found", the reason names each source that you tried.
+
+**Unknown limit**: if more than 10 integrations are Unknown, the research was too shallow. Repeat step 4 one time for the Unknown integrations, then categorize them again.
 
 6a. **Enforce full coverage of discovered integrations** (AFTER the analysis, BEFORE any ticket)
 
