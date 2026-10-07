@@ -196,9 +196,21 @@ An Unknown integration gets no subticket. List it in the summary log, with the r
 
   const updatableIntegrations = []; // existing open subticket found
   const newIntegrations = []; // no existing subticket
+  const errors = [];
 
   for (const integration of actionRequiredIntegrations) {
-    const existingSub = await findOpenSubticketGlobally(integration.name);
+    let existingSub;
+    try {
+      existingSub = await findOpenSubticketGlobally(integration.name);
+    } catch {
+      try {
+        existingSub = await findOpenSubticketGlobally(integration.name); // retry one time
+      } catch (error) {
+        // No ticket for this integration: a failed search is not "no duplicate"
+        errors.push(`Duplicate search failed for ${integration.name}: ${error.message}`);
+        continue;
+      }
+    }
     if (existingSub) {
       updatableIntegrations.push({ integration, existingSub });
     } else {

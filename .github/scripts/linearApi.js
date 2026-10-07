@@ -219,6 +219,9 @@ async function listIssuesByParent(parentId, limit = 250) {
 async function updateIssue(issueId, fields) {
   try {
     const result = await linearClient.updateIssue(issueId, fields);
+    if (!result.success) {
+      throw new Error('Linear did not apply the update');
+    }
     // Linear SDK updateIssue returns { _issue: { id }, success, lastSyncId }
     // Check if result has an 'issue' property (promise/getter) or use _issue.id
     const updatedIssueId = result.issue
