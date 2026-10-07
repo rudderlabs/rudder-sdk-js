@@ -91,8 +91,11 @@ function findChrome() {
  */
 async function servePage(filePath) {
   const pageName = basename(filePath);
+  // No CORS header: Chrome loads this page top-level, so it needs none — and `*` would let any
+  // site the user visits fetch http://127.0.0.1:<port>/<page> (the port is guessable) and read the
+  // write key embedded in the page.
   const server = createServer(async (req, res) => {
-    const headers = { 'access-control-allow-origin': '*' };
+    const headers = {};
     let requested;
     try {
       requested = decodeURIComponent((req.url || '/').split('?')[0]);

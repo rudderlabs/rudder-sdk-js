@@ -211,9 +211,16 @@ change the page under test) — pixels come from the observer.
 
 ## Security
 
-The config and the generated page **embed the write key in plaintext**. Write both to a temp dir
-**outside the working tree** (never into the repo — not even the gitignored `dist/`), never commit
-them, and don't paste the page URL anywhere shared. Delete them when done.
+The config and the generated page **embed the write key in plaintext**, and the `--json` result and
+`preflight --json` snapshot carry the destination's delivered config (possibly its API keys). Write
+them to a temp dir outside the working tree and delete them when done.
+
+Layout matters: keep the page in a directory of its **own** (`<temp>/page/harness.html`) with the run
+config and `preflight.json` one level up. Every script running in the page's origin — the
+destination's own SDK included — can fetch anything served beside the page. `run-cdp.mjs` serves only
+the requested HTML file and sets no `Access-Control-Allow-Origin`, so neither a sibling file nor
+another web origin can read it; a static server used for the zero-dep fallback only has that
+property if you point it at the isolated directory.
 
 ## Extending
 

@@ -102,9 +102,15 @@ if they might want to test the released SDK — surface the choice.
   export CHROME_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
   ```
 
-If Node ≥ 22 or Chrome is unavailable, use the **zero-dep fallback**: serve the generated page over
-http (any static server) and open it in your own browser, click **▶ Run tests**, and read the on-page
-PASS/FAIL table — no runner needed. (`run-cdp.mjs` is only for the automated report flow.)
+If Node ≥ 22 or Chrome is unavailable, use the **zero-dep fallback**: serve the **directory that
+holds only the generated page** (`<temp>/page`, see step 6) with any static server, open it in your
+own browser, click **▶ Run tests**, and read the on-page PASS/FAIL table — no runner needed.
+(`run-cdp.mjs` is only for the automated report flow.)
+
+> **Never point a directory server at the dir holding the run config or `preflight.json`.** A native
+> destination SDK loaded by the page runs in the page's origin, so it could fetch those sibling files
+> and read the write key / destination config. `run-cdp.mjs` serves the single HTML file for exactly
+> this reason; a plain static server does not, so give it a directory with nothing else in it.
 
 ## Steps
 
@@ -123,8 +129,15 @@ connection first. (Add `--configUrl` for a non-default control plane.)
 
 `--json` writes the resolved destinations — **id**, enabled, connectionMode and their **live config**.
 It is required only for a config override (step 5), but always worth passing: the printed `id` is
-what an override is keyed by. Write it to the same temp dir as the page — it contains the
-destination's config.
+what an override is keyed by.
+
+**Use this layout for the temp files** (it keeps secrets off the page's own origin — see Security):
+
+```text
+<temp>/preflight.json     # destination config — NOT served
+<temp>/run.json           # run config, embeds the write key — NOT served
+<temp>/page/harness.html  # the only file any server is pointed at
+```
 
 ### 2. Build + serve the SDK, integrations, AND plugins — **only for `cdn: local`**
 
@@ -315,8 +328,9 @@ simply skips the check and says so.
 ### 6. Generate the page, then pick a mode
 
 ```bash
-# generate (write the page to a temp dir too — it embeds the write key)
-node .claude/skills/device-mode-e2e/harness/generate.mjs --config <config.json> --out <harness.html>
+# generate the page into its OWN directory (it embeds the write key; nothing else goes in there)
+mkdir -p <temp>/page
+node .claude/skills/device-mode-e2e/harness/generate.mjs --config <temp>/run.json --out <temp>/page/harness.html
 ```
 
 The page shows the **test cases** it will send and a **▶ Run tests** button; it does nothing until run.
@@ -393,10 +407,15 @@ Only the core bundle differs between `v3` and `v1.1`: point `sdkUrl` at the resp
 
 The report, the `--json` result and the `preflight --json` snapshot contain the destination's
 **delivered config** (which can include destination API keys), and the generated page and run config
-**embed the write key in plaintext**. Keep them **out of the repo
-and off shared/hosted pages**: write both to a temp dir **outside the working tree** (the runner serves
-the page from there — never copy it into the repo), and delete them when done. Never commit them or
-paste the page URL into a shared location.
+**embed the write key in plaintext**. Keep them **out of the repo and off shared/hosted pages**:
+write them to a temp dir **outside the working tree** and delete them when done. Never commit them
+or paste the page URL into a shared location.
+
+**Keep the page in its own directory** (`<temp>/page/harness.html`), with the run config and
+`preflight.json` one level up. Anything served next to the page is readable by every script running
+in the page's origin — including the destination's own SDK. `run-cdp.mjs` serves just the one file
+and sets no CORS header; a static server used for the fallback needs the isolated directory to get
+the same property.
 
 ## Troubleshooting
 
