@@ -98,7 +98,11 @@ A vendor SDK copy that is served from a RudderStack host (for example `cdn.rudde
     - Read the vendor's current installation/quick-start docs and compare them with our loader: script URL, CDN host, snippet shape and init call
   - **Cross-reference**: Compare the SDK URL found in the codebase with the vendor's latest version and documentation
   - **Identify gaps**: Flag discrepancies between the loaded SDK version, the integration code and the official documentation
-  - **Loading method**: State explicitly whether our loading method still matches the vendor's current public docs. A mismatch exists when the vendor's current docs mark our script URL, CDN host, snippet or init call as deprecated or removed, or no longer document it. A vendor preference for another install method (for example npm) is not a mismatch while the docs still document our method.
+  - **Loading method**: State explicitly whether our loading method still matches the vendor's current public docs.
+    - **The vendor's main install page decides.** This is the page that the vendor's docs present first for a new browser install.
+    - Our loading method **matches** when the main install page, or a current page that it links to, documents our script URL, our snippet shape and our init call. Compare the host, the path and the names of the query parameters. Ignore the values of customer parameters.
+    - Our loading method is a **mismatch** in every other case. A method that the vendor documents only on a page marked legacy, classic, deprecated or old is a mismatch. A method that the vendor still supports but no longer shows is a mismatch.
+    - A vendor preference for another install method (for example npm or a loader script) is not a mismatch while a current page still documents our method.
   - **Sources**: Keep the source URL for every fact. If a page gives no answer, write "not found". Never fill a gap from memory.
 
 - **Research effort** - the audit has no value for an integration that you did not research:
@@ -209,18 +213,19 @@ An Unknown integration gets no subticket. List it in the summary log, with the r
 8. **Update existing subtickets in place**
 
 - Update each existing open subticket under its current parent master ticket. Do not move it.
-- Keep the existing due date when it is earlier than the calculated one. An Urgent ticket must not move to "tomorrow" on every run.
+- Keep the existing due date when it is earlier than the calculated one, or when no due date is calculated. An Urgent ticket must not move to "tomorrow" on every run.
 - Track the parent master IDs of all updated subtickets, so their descriptions can be refreshed in step 8b.
 
   ```javascript
   const affectedMasterIds = new Set();
+  const earlierDate = (a, b) => (a && b ? (a < b ? a : b) : a || b); // ISO dates (YYYY-MM-DD) or null
 
   for (const { integration, existingSub } of updatableIntegrations) {
     console.log(`Updating existing subticket: ${existingSub.identifier} for ${integration.name}`);
     await updateIssue(existingSub.id, {
       description: ticketDescription,
       priority: calculatedPriority,
-      dueDate: calculatedDueDate,
+      dueDate: earlierDate(existingSub.dueDate, calculatedDueDate),
     });
     affectedMasterIds.add(existingSub.parentId);
     // Track as "updated" (not "created") in the summary - store { identifier, url }
