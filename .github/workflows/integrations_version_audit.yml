@@ -13,6 +13,11 @@ on:
 permissions:
   contents: read
 
+# Two runs at the same time can both find no open ticket and both create one
+concurrency:
+  group: integrations-version-audit
+  cancel-in-progress: false
+
 jobs:
   audit:
     name: Run Integration SDK Version Audit
@@ -69,4 +74,4 @@ jobs:
           Execute the audit plan: analyze integrations, then create or update Linear tickets using direct API calls. Include ticket URLs in your final output.
           $DRY_RUN_RULES" --force | tee audit-output.log
 
-          grep -v '^[[:space:]]*$' audit-output.log | tail -n 1 | grep -q 'AUDIT_RESULT: PASSED'
+          grep -v '^[[:space:]]*$' audit-output.log | tail -n 1 | grep -Exq 'AUDIT_RESULT: PASSED[[:space:]]*'
