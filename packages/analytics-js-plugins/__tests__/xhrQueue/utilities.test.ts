@@ -29,7 +29,7 @@ describe('xhrQueue Plugin Utilities', () => {
         minRetryDelay: 1000,
         backoffFactor: 2,
         backoffJitter: 0.2,
-        maxAttempts: 32,
+        maxAttempts: 40,
         maxItems: 100,
       });
     });
@@ -43,7 +43,7 @@ describe('xhrQueue Plugin Utilities', () => {
         minRetryDelay: 1000,
         backoffFactor: 2,
         backoffJitter: 0.2,
-        maxAttempts: 32,
+        maxAttempts: 40,
         maxItems: 100,
       });
     });
@@ -57,7 +57,7 @@ describe('xhrQueue Plugin Utilities', () => {
         minRetryDelay: 1000,
         backoffFactor: 2,
         backoffJitter: 0.2,
-        maxAttempts: 32,
+        maxAttempts: 40,
         maxItems: 100,
       });
     });

@@ -318,12 +318,11 @@ class RetryQueue implements IQueue<QueueItemData> {
    * @return {Number} The delay in milliseconds to wait before attempting a retry
    */
   getDelay(attemptNumber: number): number {
-    // Jitter after capping so delays at the cap still spread out
-    let ms = Number(
-      Math.min(
-        this.backoff.minRetryDelay * this.backoff.factor ** attemptNumber,
-        this.backoff.maxRetryDelay,
-      ).toPrecision(1),
+    // Cap leaves headroom for +jitter so the jittered delay never exceeds maxRetryDelay
+    const cap = Math.floor(this.backoff.maxRetryDelay / (1 + this.backoff.jitter));
+    let ms = Math.min(
+      Number((this.backoff.minRetryDelay * this.backoff.factor ** attemptNumber).toPrecision(1)),
+      cap,
     );
 
     if (this.backoff.jitter) {

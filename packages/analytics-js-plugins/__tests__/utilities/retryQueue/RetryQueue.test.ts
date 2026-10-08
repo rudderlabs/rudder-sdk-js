@@ -467,7 +467,7 @@ describe('Queue', () => {
     });
   });
 
-  it('should apply jitter to delays capped at maxRetryDelay', () => {
+  it('should keep jittered delays within maxRetryDelay', () => {
     const jitterQueue = new RetryQueue(
       'test-jitter',
       { minRetryDelay: 1000, maxRetryDelay: 360000, backoffFactor: 2, backoffJitter: 0.2 },
@@ -478,18 +478,36 @@ describe('Queue', () => {
     );
     const randomSpy = jest.spyOn(Math, 'random');
 
-    // Capped base delay is 4e5 (360000 rounded to 1 significant digit)
+    // Capped base delay is 360000 / 1.2 so that +20% jitter still fits under the max
     randomSpy.mockReturnValue(0);
-    expect(jitterQueue.getDelay(20)).toBe(400000);
+    expect(jitterQueue.getDelay(20)).toBe(300000);
 
     randomSpy.mockReturnValue(0.4);
-    expect(jitterQueue.getDelay(20)).toBe(400000 - 32000);
+    expect(jitterQueue.getDelay(20)).toBe(300000 - 24000);
 
     randomSpy.mockReturnValue(0.9);
-    expect(jitterQueue.getDelay(20)).toBe(400000 + 72000);
+    expect(jitterQueue.getDelay(20)).toBe(300000 + 54000);
+
+    randomSpy.mockReturnValue(0.9999);
+    expect(jitterQueue.getDelay(20)).toBeLessThanOrEqual(360000);
 
     randomSpy.mockRestore();
     jitterQueue.stop();
+  });
+
+  it('should cap delays at maxRetryDelay without jitter', () => {
+    const noJitterQueue = new RetryQueue(
+      'test-no-jitter',
+      { minRetryDelay: 1000, maxRetryDelay: 360000, backoffFactor: 2 },
+      jest.fn(),
+      defaultStoreManager,
+      undefined,
+      defaultLogger,
+    );
+
+    expect(noJitterQueue.getDelay(20)).toBe(360000);
+
+    noJitterQueue.stop();
   });
 
   it('should respect shouldRetry', () => {

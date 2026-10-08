@@ -3,7 +3,7 @@ const DEFAULT_RETRY_QUEUE_OPTIONS = {
   minRetryDelay: 1000,
   backoffFactor: 2,
   backoffJitter: 0.2,
-  maxAttempts: 32, // ~3h of retries at these delays
+  maxAttempts: 40, // ~3h of retries at these delays
   maxItems: 100,
 };
 
