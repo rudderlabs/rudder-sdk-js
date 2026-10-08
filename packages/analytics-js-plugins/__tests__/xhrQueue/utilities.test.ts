@@ -25,11 +25,11 @@ describe('xhrQueue Plugin Utilities', () => {
       const queueOptions = getNormalizedQueueOptions({});
 
       expect(queueOptions).toEqual({
-        maxRetryDelay: 360000,
+        maxRetryDelay: 540000,
         minRetryDelay: 1000,
         backoffFactor: 2,
         backoffJitter: 0.2,
-        maxAttempts: 40,
+        maxAttempts: 30,
         maxItems: 100,
       });
     });
@@ -39,11 +39,11 @@ describe('xhrQueue Plugin Utilities', () => {
       const queueOptions = getNormalizedQueueOptions(null);
 
       expect(queueOptions).toEqual({
-        maxRetryDelay: 360000,
+        maxRetryDelay: 540000,
         minRetryDelay: 1000,
         backoffFactor: 2,
         backoffJitter: 0.2,
-        maxAttempts: 40,
+        maxAttempts: 30,
         maxItems: 100,
       });
     });
@@ -53,11 +53,11 @@ describe('xhrQueue Plugin Utilities', () => {
       const queueOptions = getNormalizedQueueOptions(undefined);
 
       expect(queueOptions).toEqual({
-        maxRetryDelay: 360000,
+        maxRetryDelay: 540000,
         minRetryDelay: 1000,
         backoffFactor: 2,
         backoffJitter: 0.2,
-        maxAttempts: 40,
+        maxAttempts: 30,
         maxItems: 100,
       });
     });
