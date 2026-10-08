@@ -103,7 +103,7 @@ async function searchIssues({ titleContains, teamId, stateTypes, limit = 50 }) {
           priority: issue.priority,
           url: issue.url,
           dueDate: issue.dueDate,
-          state: { name: state?.name },
+          state: { name: state?.name, type: state?.type },
           parentId: parent?.id || null,
         };
       }),
@@ -118,6 +118,17 @@ async function searchIssues({ titleContains, teamId, stateTypes, limit = 50 }) {
 const getIssueNumber = identifier => parseInt(identifier.replace(/\D+/g, ''), 10) || 0;
 
 const getSubticketTitle = integrationName => `${integrationName} ${SUBTICKET_TITLE_SUFFIX}`;
+
+async function findOpenAuditMasterTicket() {
+  const results = await searchIssues({
+    titleContains: MASTER_TITLE_MARKER,
+    stateTypes: OPEN_STATE_TYPES,
+  });
+  const masterTickets = results
+    .filter(issue => !issue.parentId)
+    .sort((a, b) => getIssueNumber(b.identifier) - getIssueNumber(a.identifier));
+  return masterTickets.length > 0 ? masterTickets[0] : null;
+}
 
 async function findOpenSubticketGlobally(integrationName) {
   // Closed masters count too: people close a master and leave its subtickets open
@@ -206,7 +217,7 @@ async function listIssuesByParent(parentId, limit = 250) {
           priority: issue.priority,
           url: issue.url,
           dueDate: issue.dueDate,
-          state: { name: state?.name },
+          state: { name: state?.name, type: state?.type },
         };
       }),
     );
@@ -256,6 +267,7 @@ module.exports = {
   getCurrentCycleId,
   searchIssues,
   getSubticketTitle,
+  findOpenAuditMasterTicket,
   findOpenSubticketGlobally,
   MAINTENANCE_PROJECT_ID,
   KTLO_LABEL_ID,

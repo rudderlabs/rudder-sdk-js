@@ -7,6 +7,7 @@ Conduct an AI-assisted audit of **every device mode integration in this reposito
 ## Key Files
 
 - **Data Source**: `packages/analytics-js-integrations/src/integrations` - One folder per device mode integration. The vendor SDK URL is read from the integration's source files. There is no hard-coded integration list.
+- **Docs Links**: `.github/scripts/integration_docs.json` - The vendor docs links that earlier runs found, one entry per integration. It holds no version data. Each run starts its research from these links.
 - **Linear API Helper**: `.github/scripts/linearApi.js` - Reference implementation for Linear API calls (agent uses this to understand API structure and makes calls directly)
 
 **Important**: The workflow is performed entirely through AI-assisted analysis using Cursor's capabilities. The agent reads `linearApi.js` to understand the API structure, then makes Linear API calls directly using its capabilities. **Tickets are created immediately after analysis completes, not deferred to a script.**
@@ -105,6 +106,12 @@ A vendor SDK copy that is served from a RudderStack host (for example `cdn.rudde
     - A vendor preference for another install method (for example npm or a loader script) is not a mismatch while a current page still documents our method.
   - **Sources**: Keep the source URL for every fact. If a page gives no answer, write "not found". Never fill a gap from memory.
 
+- **Docs links file** - start the research of each integration from `.github/scripts/integration_docs.json`:
+  - The file maps each integration name to two links. `installDocs` is the vendor's main install page for a browser install. `releaseNotes` is the page or registry that lists the latest release, and only a `versioned` integration needs it.
+  - Open the stored links first. A stored link is a starting point, not a result: read the page in this run.
+  - Search for the docs only when an entry or a link is missing, the link does not load, or the page no longer documents the browser install. Then use the four sources below.
+  - The run cannot save the file. Under the heading `DOCS LINK UPDATES`, print one JSON object in the format of the file. It holds every entry that is new or changed in this run. Print `{}` when nothing changed. A person commits the block.
+
 - **Research effort** - the audit has no value for an integration that you did not research:
   - Research one integration at a time. Do not put several vendors in one search.
   - Do not shorten the research to save time. A complete run matters more than a fast run.
@@ -144,7 +151,7 @@ Decide in this order:
    - The vendor's documentation cannot be found or read after all four sources of step 4, so the latest version or the loading method is not known
 3. **No Action**: no row matches, and no fact is missing. This means no sunset date, the same major version as the latest release, and a loading method that matches the vendor's current docs. A minor or patch gap alone is No Action. Report the gap in the master ticket.
 
-An Unknown integration gets no subticket. List it in the summary log, with the reason. For "documentation not found", the reason names each source that you tried.
+An Unknown integration gets no subticket. On every run, list it with the reason in the report master ticket (step 8b) and in the summary log, so a person can check it. For "documentation not found", the reason names each source that you tried.
 
 **Unknown limit**: if more than 10 integrations are Unknown, the research was too shallow. Repeat step 4 one time for the Unknown integrations, then categorize them again.
 
@@ -166,7 +173,7 @@ An Unknown integration gets no subticket. List it in the summary log, with the r
 
 **⚠️ DEDUPLICATION**: Before creating any ticket, always check for an existing open ticket. Never create a duplicate.
 
-**Zero findings is a valid result.** If no integration is "Action Required", create and update no ticket, and go to step 9.
+**Zero findings is a valid result.** If no integration is "Action Required", create and update no subticket, and go to step 8b.
 
 7. **Classify integrations and check for existing subtickets** (EXECUTE FIRST)
 
@@ -184,6 +191,7 @@ An Unknown integration gets no subticket. List it in the summary log, with the r
     createIssue,
     getStateId,
     getCurrentCycleId,
+    findOpenAuditMasterTicket,
     findOpenSubticketGlobally,
     getSubticketTitle,
     listIssuesByParent,
@@ -303,14 +311,17 @@ An Unknown integration gets no subticket. List it in the summary log, with the r
 8b. **Refresh the descriptions of all affected master tickets** (AFTER all subtickets are created or updated)
 
 - Refresh the description of every master ticket that had a subticket created or updated in this run. This covers the new master ticket and every master in `affectedMasterIds`.
+- **The report master** holds the result of the full run. It is the new master ticket of this run. If this run created no master, it is the newest open master (`findOpenAuditMasterTicket()`). If no open master exists and at least one integration is Unknown, create a master for the report.
 - Build each description from the Master Ticket Description Template.
-- For a new master, fill every section with the results of this run.
-- For an older master, rebuild only the four priority sections from its own open subtickets. Leave its other sections unchanged.
+- For the report master, fill every section with the results of this run. This includes the No Action, Unknown and Wrappers sections.
+- For every other master, rebuild only the four priority sections from its own open subtickets (`state.type` is `triage`, `backlog`, `unstarted` or `started`). Leave its other sections unchanged.
 
   ```javascript
+  const reportMaster = newMasterTicket || (await findOpenAuditMasterTicket());
+
   const mastersToRefresh = new Set(affectedMasterIds);
-  if (newMasterTicket) {
-    mastersToRefresh.add(newMasterTicket.id);
+  if (reportMaster) {
+    mastersToRefresh.add(reportMaster.id);
   }
 
   for (const masterId of mastersToRefresh) {
@@ -326,6 +337,7 @@ An Unknown integration gets no subticket. List it in the summary log, with the r
 - After all analysis and ticket creation is complete, log a summary of what was done to console:
 - **MUST include the actual Linear URL** of every ticket that this run created or updated
 - **MUST distinguish** between updated tickets and newly created ones
+- **MUST include the `DOCS LINK UPDATES` block** from step 4, before the result line
 - **MUST end with the result line.** The last line of the output is `AUDIT_RESULT: PASSED`, or `AUDIT_RESULT: FAILED - <reason>`. The workflow reads this line to pass or fail the run.
 
 ```javascript
@@ -368,6 +380,8 @@ if (errors.length > 0) {
   errors.forEach(err => console.log(`  - ${err}`));
 }
 console.log('\n=== End of Audit Summary ===\n');
+console.log('DOCS LINK UPDATES');
+console.log(JSON.stringify(docsLinkUpdates, null, 2)); // {} when no link is new or changed
 console.log(auditPassed ? 'AUDIT_RESULT: PASSED' : `AUDIT_RESULT: FAILED - ${failureReason}`);
 ```
 
@@ -510,7 +524,7 @@ Use the existing `.github/scripts/linearApi.js` module for ticket creation and d
 - `getCurrentUserId()` - Query Linear API to get the current authenticated user's ID (uses `viewer` query)
 - `getUserId(userName)` - Query Linear API to find user ID by name (for searching specific users)
 - `getCurrentCycleId(teamId)` - Query Linear API to find the current/active cycle ID
-- `listIssuesByParent(parentId, limit)` - List all subtickets for a parent ticket
+- `listIssuesByParent(parentId, limit)` - List all subtickets for a parent ticket, open and closed. Each one has `state.name` and `state.type`.
 - `updateIssue(issueId, fields)` - Update any fields on an existing ticket (e.g., `{ description, priority, dueDate }`)
 - `updateIssueDescription(issueId, description)` - Convenience wrapper that only updates the description
 
@@ -518,6 +532,7 @@ Use the existing `.github/scripts/linearApi.js` module for ticket creation and d
 
 - `searchIssues({ titleContains, teamId, stateTypes, limit })` - Search tickets by title substring, optionally filtered by workflow status types. Throws on an API error.
 - `getSubticketTitle(integrationName)` - Build the full subticket title: `<integration name> SDK Version Audit [Rudder SDK JS]`
+- `findOpenAuditMasterTicket()` - Find the newest open master audit ticket of this repository. Returns the ticket object or null.
 - `findOpenSubticketGlobally(integrationName)` - Find an open subticket for one integration across ALL master audit tickets of this repository. Accepts only a full title match under a master of this repository, open or closed. Returns the newest match (including `parentId`) or null.
 
 **Title markers:**
@@ -552,7 +567,7 @@ Use the existing `.github/scripts/linearApi.js` module for ticket creation and d
 
 - **Error Handling**:
   - Ambiguous or invalid sunset dates → treat as no sunset date, include the original date string in the ticket for manual review
-  - Missing version info on a `versioned` integration → Categorize as "Unknown", state the reason
+  - Missing version info on a `versioned` integration → Follow the order in step 6. The category is "Unknown" only when no row of the priority table matches. State the reason.
   - API errors (Linear API failures) → Log error with integration name, continue with remaining integrations, note failures in summary. The audit result is FAILED.
 - **Edge Cases**: Handle "NA", "n/a", "Not applicable", "TBD", empty strings gracefully when parsing data
 - **No version in the URL**: An `unversioned` integration is never skipped. It gets the loading-method check, and a mismatch creates a ticket.
