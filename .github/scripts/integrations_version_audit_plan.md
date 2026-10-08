@@ -7,7 +7,7 @@ Conduct an AI-assisted audit of **every device mode integration in this reposito
 ## Key Files
 
 - **Data Source**: `packages/analytics-js-integrations/src/integrations` - One folder per device mode integration. The vendor SDK URL is read from the integration's source files. There is no hard-coded integration list.
-- **Docs Links**: `.github/scripts/integration_docs.json` - The vendor docs links that earlier runs found, one entry per integration. It holds no version data. Each run starts its research from these links.
+- **Docs Links**: `.github/scripts/integration_docs.json` - The vendor docs links that earlier runs found, one entry per integration: `installDocs`, `releaseNotes` and `statusNotice`. It holds no version data. Each run starts its research from these links.
 - **Linear API Helper**: `.github/scripts/linearApi.js` - Reference implementation for Linear API calls (agent uses this to understand API structure and makes calls directly)
 
 **Important**: The workflow is performed entirely through AI-assisted analysis using Cursor's capabilities. The agent reads `linearApi.js` to understand the API structure, then makes Linear API calls directly using its capabilities. **Tickets are created immediately after analysis completes, not deferred to a script.**
@@ -104,10 +104,14 @@ A vendor SDK copy that is served from a RudderStack host (for example `cdn.rudde
     - Our loading method **matches** when the main install page, or a current page that it links to, documents our script URL, our snippet shape and our init call. Compare the host, the path and the names of the query parameters. Ignore the values of customer parameters.
     - Our loading method is a **mismatch** in every other case. A method that the vendor documents only on a page marked legacy, classic, deprecated or old is a mismatch. A method that the vendor still supports but no longer shows is a mismatch.
     - A vendor preference for another install method (for example npm or a loader script) is not a mismatch while a current page still documents our method.
+  - **Script URL**: Request our script URL when it holds no customer value. If the host does not resolve, or the file returns 404 or 410, the integration cannot load. This is a mismatch, and the sunset date is today.
   - **Sources**: Keep the source URL for every fact. If a page gives no answer, write "not found". Never fill a gap from memory.
 
 - **Docs links file** - start the research of each integration from `.github/scripts/integration_docs.json`:
-  - The file maps each integration name to two links. `installDocs` is the vendor's main install page for a browser install. `releaseNotes` is the page or registry that lists the latest release, and only a `versioned` integration needs it.
+  - The file maps each integration name to its links:
+    - `installDocs` - the vendor's main install page for a browser install.
+    - `releaseNotes` - the page or registry that lists the latest release. Only a `versioned` integration needs it.
+    - `statusNotice` - a vendor page that announces a shutdown, a rename or an acquisition of the product. Most integrations have none. Read it on every run: a shutdown date on that page is a sunset date, also when the install page still loads.
   - Open the stored links first. A stored link is a starting point, not a result: read the page in this run.
   - Search for the docs only when an entry or a link is missing, the link does not load, or the page no longer documents the browser install. Then use the four sources below.
   - The run cannot save the file. Under the heading `DOCS LINK UPDATES`, print one JSON object in the format of the file. It holds every entry that is new or changed in this run. Print `{}` when nothing changed. A person commits the block.
