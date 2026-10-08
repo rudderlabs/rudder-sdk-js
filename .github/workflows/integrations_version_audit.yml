@@ -3,12 +3,7 @@ name: Integration SDK Version Audit
 on:
   schedule:
     - cron: '0 9 1 */2 *' # Run every 2 months on the 1st at 9 AM UTC
-  workflow_dispatch:
-    inputs:
-      dry_run:
-        description: 'Print the tickets and make no Linear call'
-        type: boolean
-        default: true
+  workflow_dispatch: {}
 
 permissions:
   contents: read
@@ -40,26 +35,10 @@ jobs:
       - name: Run Integration SDK Version Audit and Create Linear Tickets
         env:
           CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
-          # A dry run gets no Linear key, so it cannot write a ticket
-          LINEAR_API_KEY: ${{ !inputs.dry_run && secrets.LINEAR_API_KEY || '' }}
+          LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
           LINEAR_TEAM_ID: ${{ secrets.LINEAR_TEAM_ID }}
-          DRY_RUN: ${{ inputs.dry_run }}
         shell: bash
         run: |
-          DRY_RUN_RULES=''
-          if [ "$DRY_RUN" = 'true' ]; then
-            DRY_RUN_RULES='
-          DRY RUN MODE. These rules replace requirements 2, 5, 7 and 8 above, and Phase 4 of the plan:
-          - Make NO Linear API call of any kind. This run has no Linear key.
-          - Run Phase 1, Phase 2, Phase 3 and step 6a for ALL integrations, exactly as the plan says.
-          - Skip Phase 4. Under the heading WOULD-BE TICKETS, print for each Action Required integration: the subticket title, the priority, the due date, the matched row of the priority table, and the full ticket description from the template.
-          - Under the heading NO TICKET, print one line for each No Action, Unknown and wrapper integration: the name, the group and the reason.
-          - Print the summary of step 9 with zero ticket counts and no ticket URL.
-          - After the summary, print the heading DOCS LINK UPDATES and then the JSON object of the plan in one code fence. Put nothing else in that fence.
-          - Under the heading PLAN ISSUES, list every place where the plan was unclear, contradicted itself, or could not be followed.
-          - The last line is AUDIT_RESULT: PASSED when the coverage check passed.'
-          fi
-
           cursor-agent -p "⚠️ CRITICAL REQUIREMENTS:
           1. Follow the plan in @.github/scripts/integrations_version_audit_plan.md
           2. You MUST create Linear tickets DIRECTLY using Linear API calls during this execution
@@ -72,7 +51,6 @@ jobs:
           9. If you create a script file instead of creating tickets, the task has FAILED
           10. The last line of your output MUST be 'AUDIT_RESULT: PASSED' or 'AUDIT_RESULT: FAILED - <reason>'
 
-          Execute the audit plan: analyze integrations, then create or update Linear tickets using direct API calls. Include ticket URLs in your final output.
-          $DRY_RUN_RULES" --force | tee audit-output.log
+          Execute the audit plan: analyze integrations, then create or update Linear tickets using direct API calls. Include ticket URLs in your final output." --force | tee audit-output.log
 
           grep -v '^[[:space:]]*$' audit-output.log | tail -n 1 | grep -Exq 'AUDIT_RESULT: PASSED[[:space:]]*'
