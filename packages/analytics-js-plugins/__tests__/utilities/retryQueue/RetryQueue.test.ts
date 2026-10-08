@@ -467,6 +467,31 @@ describe('Queue', () => {
     });
   });
 
+  it('should apply jitter to delays capped at maxRetryDelay', () => {
+    const jitterQueue = new RetryQueue(
+      'test-jitter',
+      { minRetryDelay: 1000, maxRetryDelay: 360000, backoffFactor: 2, backoffJitter: 0.2 },
+      jest.fn(),
+      defaultStoreManager,
+      undefined,
+      defaultLogger,
+    );
+    const randomSpy = jest.spyOn(Math, 'random');
+
+    // Capped base delay is 4e5 (360000 rounded to 1 significant digit)
+    randomSpy.mockReturnValue(0);
+    expect(jitterQueue.getDelay(20)).toBe(400000);
+
+    randomSpy.mockReturnValue(0.4);
+    expect(jitterQueue.getDelay(20)).toBe(400000 - 32000);
+
+    randomSpy.mockReturnValue(0.9);
+    expect(jitterQueue.getDelay(20)).toBe(400000 + 72000);
+
+    randomSpy.mockRestore();
+    jitterQueue.stop();
+  });
+
   it('should respect shouldRetry', () => {
     queue.shouldRetry = (_, attemptNumber) => attemptNumber <= 2;
 

@@ -33,6 +33,7 @@ describe('XhrQueue', () => {
         minRetryDelay: 1000,
         maxRetryDelay: 360000,
         backoffFactor: 2,
+        backoffJitter: 0,
         maxAttempts: 10,
         maxItems: 100,
       };
