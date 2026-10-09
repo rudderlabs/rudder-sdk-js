@@ -314,8 +314,8 @@ describe('Queue', () => {
       retryAttemptNumber: 1,
       maxRetryAttempts: Infinity,
       willBeRetried: true,
-      timeSinceFirstAttempt: 2000,
-      timeSinceLastAttempt: 2000,
+      timeSinceFirstAttempt: 1000,
+      timeSinceLastAttempt: 1000,
       retryReason: 'client-network',
       reclaimed: false,
       isPageAccessible: true,
@@ -331,8 +331,8 @@ describe('Queue', () => {
       retryAttemptNumber: 2,
       maxRetryAttempts: Infinity,
       willBeRetried: true,
-      timeSinceFirstAttempt: 6000,
-      timeSinceLastAttempt: 4000,
+      timeSinceFirstAttempt: 3000,
+      timeSinceLastAttempt: 2000,
       reclaimed: false,
       isPageAccessible: true,
       retryReason: 'client-network',
@@ -510,6 +510,48 @@ describe('Queue', () => {
 
     randomSpy.mockRestore();
     negativeJitterQueue.stop();
+  });
+
+  it('should clamp unsafe jitter values to [0, 1]', () => {
+    const createQueue = (backoffJitter: number) =>
+      new RetryQueue(
+        'test-unsafe-jitter',
+        { minRetryDelay: 1000, maxRetryDelay: 360000, backoffFactor: 2, backoffJitter },
+        jest.fn(),
+        defaultStoreManager,
+        undefined,
+        defaultLogger,
+      );
+    const randomSpy = jest.spyOn(Math, 'random').mockReturnValue(0.4);
+
+    const negativeQueue = createQueue(-1.5);
+    expect(negativeQueue.backoff.jitter).toBe(0);
+    expect(negativeQueue.getDelay(1)).toBe(1000);
+
+    randomSpy.mockReturnValue(0.9);
+    const largeQueue = createQueue(2);
+    expect(largeQueue.backoff.jitter).toBe(1);
+    expect(largeQueue.getDelay(20)).toBe(180000 + 162000);
+
+    randomSpy.mockRestore();
+    negativeQueue.stop();
+    largeQueue.stop();
+  });
+
+  it('should use the base delay for the first retry', () => {
+    const baseDelayQueue = new RetryQueue(
+      'test-base-delay',
+      { minRetryDelay: 1000, maxRetryDelay: 360000, backoffFactor: 2 },
+      jest.fn(),
+      defaultStoreManager,
+      undefined,
+      defaultLogger,
+    );
+
+    expect(baseDelayQueue.getDelay(1)).toBe(1000);
+    expect(baseDelayQueue.getDelay(2)).toBe(2000);
+
+    baseDelayQueue.stop();
   });
 
   it('should cap delays at maxRetryDelay without jitter', () => {

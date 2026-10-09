@@ -119,7 +119,8 @@ class RetryQueue implements IQueue<QueueItemData> {
       minRetryDelay: options.minRetryDelay || DEFAULT_MIN_RETRY_DELAY_MS,
       maxRetryDelay: options.maxRetryDelay || DEFAULT_MAX_RETRY_DELAY_MS,
       factor: options.backoffFactor || DEFAULT_BACKOFF_FACTOR,
-      jitter: options.backoffJitter || DEFAULT_BACKOFF_JITTER,
+      // Clamp so delays stay positive and within maxRetryDelay
+      jitter: Math.min(Math.max(options.backoffJitter || DEFAULT_BACKOFF_JITTER, 0), 1),
     };
 
     // Limit the timer scale factor to the minimum value
@@ -321,7 +322,10 @@ class RetryQueue implements IQueue<QueueItemData> {
     // Cap leaves headroom for +jitter so the jittered delay never exceeds maxRetryDelay
     const cap = Math.floor(this.backoff.maxRetryDelay / (1 + this.backoff.jitter));
     let ms = Math.min(
-      Number((this.backoff.minRetryDelay * this.backoff.factor ** attemptNumber).toPrecision(1)),
+      // First retry waits the base delay
+      Number(
+        (this.backoff.minRetryDelay * this.backoff.factor ** (attemptNumber - 1)).toPrecision(1),
+      ),
       cap,
     );
 
