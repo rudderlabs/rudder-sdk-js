@@ -115,12 +115,14 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.batch = { enabled: false };
     this.configureBatchMode(options);
 
+    // `??` keeps an explicit 0 but also keeps NaN, which would make every delay NaN
+    const jitter = options.backoffJitter ?? DEFAULT_BACKOFF_JITTER;
     this.backoff = {
       minRetryDelay: options.minRetryDelay || DEFAULT_MIN_RETRY_DELAY_MS,
       maxRetryDelay: options.maxRetryDelay || DEFAULT_MAX_RETRY_DELAY_MS,
       factor: options.backoffFactor || DEFAULT_BACKOFF_FACTOR,
       // Clamp so delays stay positive and within maxRetryDelay
-      jitter: Math.min(Math.max(options.backoffJitter ?? DEFAULT_BACKOFF_JITTER, 0), 1),
+      jitter: Number.isNaN(jitter) ? DEFAULT_BACKOFF_JITTER : Math.min(Math.max(jitter, 0), 1),
     };
 
     // Limit the timer scale factor to the minimum value

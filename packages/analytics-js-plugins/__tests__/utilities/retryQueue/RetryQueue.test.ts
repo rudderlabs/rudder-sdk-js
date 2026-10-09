@@ -7,6 +7,7 @@ import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger
 import { defaultPluginsManager } from '@rudderstack/analytics-js-common/__mocks__/PluginsManager';
 import { Schedule } from '../../../src/utilities/retryQueue/Schedule';
 import { RetryQueue } from '../../../src/utilities/retryQueue/RetryQueue';
+import { DEFAULT_BACKOFF_JITTER } from '../../../src/utilities/retryQueue/constants';
 import type { QueueItem, QueueItemData } from '../../../src/types/plugins';
 
 const size = (queue: RetryQueue): { queue: number; inProgress: number } => ({
@@ -560,6 +561,22 @@ describe('Queue', () => {
 
       zeroJitterQueue.stop();
     });
+  });
+
+  it('should fall back to the default jitter when jitter is NaN', () => {
+    const nanJitterQueue = new RetryQueue(
+      'test-nan-jitter',
+      { backoffJitter: NaN },
+      jest.fn(),
+      defaultStoreManager,
+      undefined,
+      defaultLogger,
+    );
+
+    expect(nanJitterQueue.backoff.jitter).toBe(DEFAULT_BACKOFF_JITTER);
+    expect(Number.isNaN(nanJitterQueue.getDelay(1))).toBe(false);
+
+    nanJitterQueue.stop();
   });
 
   it('should use the base delay for the first retry', () => {
