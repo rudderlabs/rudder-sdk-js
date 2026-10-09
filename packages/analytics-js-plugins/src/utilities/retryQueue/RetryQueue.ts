@@ -110,7 +110,7 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.batchSizeCalcCb = queueBatchItemsSizeCalculatorCb;
 
     this.maxItems = options.maxItems || DEFAULT_MAX_ITEMS;
-    this.maxAttempts = options.maxAttempts || DEFAULT_MAX_RETRY_ATTEMPTS;
+    this.maxAttempts = options.maxAttempts ?? DEFAULT_MAX_RETRY_ATTEMPTS;
 
     this.batch = { enabled: false };
     this.configureBatchMode(options);

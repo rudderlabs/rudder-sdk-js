@@ -527,6 +527,22 @@ describe('Queue', () => {
     noJitterQueue.stop();
   });
 
+  it('should not retry when maxAttempts is 0', () => {
+    const noRetryQueue = new RetryQueue(
+      'test-no-retry',
+      { maxAttempts: 0 },
+      jest.fn(),
+      defaultStoreManager,
+      undefined,
+      defaultLogger,
+    );
+
+    expect(noRetryQueue.maxAttempts).toBe(0);
+    expect(noRetryQueue.shouldRetry('a', 1)).toBe(false);
+
+    noRetryQueue.stop();
+  });
+
   it('should respect shouldRetry', () => {
     queue.shouldRetry = (_, attemptNumber) => attemptNumber <= 2;
 
