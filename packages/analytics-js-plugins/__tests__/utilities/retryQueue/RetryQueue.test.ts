@@ -7,6 +7,7 @@ import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger
 import { defaultPluginsManager } from '@rudderstack/analytics-js-common/__mocks__/PluginsManager';
 import { Schedule } from '../../../src/utilities/retryQueue/Schedule';
 import { RetryQueue } from '../../../src/utilities/retryQueue/RetryQueue';
+import { DEFAULT_BACKOFF_JITTER } from '../../../src/utilities/retryQueue/constants';
 import type { QueueItem, QueueItemData } from '../../../src/types/plugins';
 
 const size = (queue: RetryQueue): { queue: number; inProgress: number } => ({
@@ -314,8 +315,8 @@ describe('Queue', () => {
       retryAttemptNumber: 1,
       maxRetryAttempts: Infinity,
       willBeRetried: true,
-      timeSinceFirstAttempt: 2000,
-      timeSinceLastAttempt: 2000,
+      timeSinceFirstAttempt: 1000,
+      timeSinceLastAttempt: 1000,
       retryReason: 'client-network',
       reclaimed: false,
       isPageAccessible: true,
@@ -331,8 +332,8 @@ describe('Queue', () => {
       retryAttemptNumber: 2,
       maxRetryAttempts: Infinity,
       willBeRetried: true,
-      timeSinceFirstAttempt: 6000,
-      timeSinceLastAttempt: 4000,
+      timeSinceFirstAttempt: 3000,
+      timeSinceLastAttempt: 2000,
       reclaimed: false,
       isPageAccessible: true,
       retryReason: 'client-network',
@@ -465,6 +466,164 @@ describe('Queue', () => {
       isPageAccessible: true,
       retryReason: 'client-network',
     });
+  });
+
+  it('should keep jittered delays within maxRetryDelay', () => {
+    const jitterQueue = new RetryQueue(
+      'test-jitter',
+      { minRetryDelay: 1000, maxRetryDelay: 360000, backoffFactor: 2, backoffJitter: 0.2 },
+      jest.fn(),
+      defaultStoreManager,
+      undefined,
+      defaultLogger,
+    );
+    const randomSpy = jest.spyOn(Math, 'random');
+
+    // Capped base delay is 360000 / 1.2 so that +20% jitter still fits under the max
+    randomSpy.mockReturnValue(0);
+    expect(jitterQueue.getDelay(20)).toBe(300000);
+
+    randomSpy.mockReturnValue(0.4);
+    expect(jitterQueue.getDelay(20)).toBe(300000 - 24000);
+
+    randomSpy.mockReturnValue(0.9);
+    expect(jitterQueue.getDelay(20)).toBe(300000 + 54000);
+
+    randomSpy.mockReturnValue(0.9999);
+    expect(jitterQueue.getDelay(20)).toBeLessThanOrEqual(360000);
+
+    randomSpy.mockRestore();
+    jitterQueue.stop();
+  });
+
+  it('should keep delays within maxRetryDelay for negative jitter', () => {
+    const negativeJitterQueue = new RetryQueue(
+      'test-negative-jitter',
+      { minRetryDelay: 1000, maxRetryDelay: 360000, backoffFactor: 2, backoffJitter: -0.2 },
+      jest.fn(),
+      defaultStoreManager,
+      undefined,
+      defaultLogger,
+    );
+    const randomSpy = jest.spyOn(Math, 'random').mockReturnValue(0.4);
+
+    expect(negativeJitterQueue.getDelay(20)).toBe(360000);
+
+    randomSpy.mockRestore();
+    negativeJitterQueue.stop();
+  });
+
+  it('should clamp unsafe jitter values to [0, 1]', () => {
+    const createQueue = (backoffJitter: number) =>
+      new RetryQueue(
+        'test-unsafe-jitter',
+        { minRetryDelay: 1000, maxRetryDelay: 360000, backoffFactor: 2, backoffJitter },
+        jest.fn(),
+        defaultStoreManager,
+        undefined,
+        defaultLogger,
+      );
+    const randomSpy = jest.spyOn(Math, 'random').mockReturnValue(0.4);
+
+    const negativeQueue = createQueue(-1.5);
+    expect(negativeQueue.backoff.jitter).toBe(0);
+    expect(negativeQueue.getDelay(1)).toBe(1000);
+
+    randomSpy.mockReturnValue(0.9);
+    const largeQueue = createQueue(2);
+    expect(largeQueue.backoff.jitter).toBe(1);
+    expect(largeQueue.getDelay(20)).toBe(180000 + 162000);
+
+    randomSpy.mockRestore();
+    negativeQueue.stop();
+    largeQueue.stop();
+  });
+
+  it('should honour an explicit jitter of 0 regardless of the default', () => {
+    jest.isolateModules(() => {
+      jest.doMock('../../../src/utilities/retryQueue/constants', () => ({
+        ...jest.requireActual('../../../src/utilities/retryQueue/constants'),
+        DEFAULT_BACKOFF_JITTER: 0.5,
+      }));
+      const {
+        RetryQueue: IsolatedRetryQueue,
+      } = require('../../../src/utilities/retryQueue/RetryQueue');
+      const zeroJitterQueue = new IsolatedRetryQueue(
+        'test-zero-jitter',
+        { backoffJitter: 0 },
+        jest.fn(),
+        defaultStoreManager,
+        undefined,
+        defaultLogger,
+      );
+
+      expect(zeroJitterQueue.backoff.jitter).toBe(0);
+
+      zeroJitterQueue.stop();
+    });
+  });
+
+  it('should fall back to the default jitter when jitter is NaN', () => {
+    const nanJitterQueue = new RetryQueue(
+      'test-nan-jitter',
+      { backoffJitter: NaN },
+      jest.fn(),
+      defaultStoreManager,
+      undefined,
+      defaultLogger,
+    );
+
+    expect(nanJitterQueue.backoff.jitter).toBe(DEFAULT_BACKOFF_JITTER);
+    expect(Number.isNaN(nanJitterQueue.getDelay(1))).toBe(false);
+
+    nanJitterQueue.stop();
+  });
+
+  it('should use the base delay for the first retry', () => {
+    const baseDelayQueue = new RetryQueue(
+      'test-base-delay',
+      { minRetryDelay: 1000, maxRetryDelay: 360000, backoffFactor: 2 },
+      jest.fn(),
+      defaultStoreManager,
+      undefined,
+      defaultLogger,
+    );
+
+    expect(baseDelayQueue.getDelay(1)).toBe(1000);
+    expect(baseDelayQueue.getDelay(2)).toBe(2000);
+
+    baseDelayQueue.stop();
+  });
+
+  it('should cap delays at maxRetryDelay without jitter', () => {
+    const noJitterQueue = new RetryQueue(
+      'test-no-jitter',
+      { minRetryDelay: 1000, maxRetryDelay: 360000, backoffFactor: 2 },
+      jest.fn(),
+      defaultStoreManager,
+      undefined,
+      defaultLogger,
+    );
+
+    expect(noJitterQueue.getDelay(20)).toBe(360000);
+
+    noJitterQueue.stop();
+  });
+
+  it('should not retry when maxAttempts is 0', () => {
+    const noRetryQueue = new RetryQueue(
+      'test-no-retry',
+      { maxAttempts: 0 },
+      jest.fn(),
+      defaultStoreManager,
+      undefined,
+      defaultLogger,
+    );
+
+    expect(noRetryQueue.maxAttempts).toBe(0);
+    expect(noRetryQueue.shouldRetry('a', 1)).toBe(false);
+
+    noRetryQueue.stop();
   });
 
   it('should respect shouldRetry', () => {

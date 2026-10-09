@@ -33,6 +33,7 @@ describe('XhrQueue', () => {
         minRetryDelay: 1000,
         maxRetryDelay: 360000,
         backoffFactor: 2,
+        backoffJitter: 0,
         maxAttempts: 10,
         maxItems: 100,
       };
@@ -214,7 +215,7 @@ describe('XhrQueue', () => {
         lastAttemptedAt: expect.any(Number),
         firstAttemptedAt: expect.any(Number),
         id: 'sample_uuid',
-        time: 1 + 1000 * 2 ** 1, // this is the delay calculation in RetryQueue
+        time: 1 + 1000 * 2 ** 0, // this is the delay calculation in RetryQueue
         type: 'Single',
         retryReason: 'server-429', // Retry reason should be preserved
       },
@@ -394,7 +395,7 @@ describe('XhrQueue', () => {
         lastAttemptedAt: expect.any(Number),
         firstAttemptedAt: expect.any(Number),
         id: 'sample_uuid',
-        time: 1 + 1000 * 2 ** 1, // this is the delay calculation in RetryQueue
+        time: 1 + 1000 * 2 ** 0, // this is the delay calculation in RetryQueue
         type: 'Single',
         retryReason: 'client-timeout', // Retry reason should be client-timeout for timeout errors
       },
@@ -501,7 +502,7 @@ describe('XhrQueue', () => {
         lastAttemptedAt: expect.any(Number),
         firstAttemptedAt: expect.any(Number),
         id: 'sample_uuid',
-        time: 1 + 1000 * 2 ** 1,
+        time: 1 + 1000 * 2 ** 0,
         type: 'Single',
         retryReason: 'client-network', // Default retry reason when no status is available
       },

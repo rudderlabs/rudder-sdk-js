@@ -2,6 +2,7 @@ import type { RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import type { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilities/timestamp';
 import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
+import { defaultStoreManager } from '@rudderstack/analytics-js-common/__mocks__/StoreManager';
 import type { ApiObject } from '@rudderstack/analytics-js-common/types/ApiObject';
 import {
   getNormalizedQueueOptions,
@@ -12,6 +13,7 @@ import {
   getBatchDeliveryPayload,
 } from '../../src/xhrQueue/utilities';
 import { resetState, state } from '../../__mocks__/state';
+import { RetryQueue } from '../../src/utilities/retryQueue/RetryQueue';
 
 jest.mock('@rudderstack/analytics-js-common/utilities/timestamp', () => ({
   getCurrentTimeFormatted: () => '2021-01-01T00:00:00.000Z',
@@ -23,10 +25,11 @@ describe('xhrQueue Plugin Utilities', () => {
       const queueOptions = getNormalizedQueueOptions({});
 
       expect(queueOptions).toEqual({
-        maxRetryDelay: 360000,
+        maxRetryDelay: 540000,
         minRetryDelay: 1000,
         backoffFactor: 2,
-        maxAttempts: 10,
+        backoffJitter: 0.2,
+        maxAttempts: 30,
         maxItems: 100,
       });
     });
@@ -36,10 +39,11 @@ describe('xhrQueue Plugin Utilities', () => {
       const queueOptions = getNormalizedQueueOptions(null);
 
       expect(queueOptions).toEqual({
-        maxRetryDelay: 360000,
+        maxRetryDelay: 540000,
         minRetryDelay: 1000,
         backoffFactor: 2,
-        maxAttempts: 10,
+        backoffJitter: 0.2,
+        maxAttempts: 30,
         maxItems: 100,
       });
     });
@@ -49,10 +53,11 @@ describe('xhrQueue Plugin Utilities', () => {
       const queueOptions = getNormalizedQueueOptions(undefined);
 
       expect(queueOptions).toEqual({
-        maxRetryDelay: 360000,
+        maxRetryDelay: 540000,
         minRetryDelay: 1000,
         backoffFactor: 2,
-        maxAttempts: 10,
+        backoffJitter: 0.2,
+        maxAttempts: 30,
         maxItems: 100,
       });
     });
@@ -68,9 +73,42 @@ describe('xhrQueue Plugin Utilities', () => {
         maxRetryDelay: 720000,
         minRetryDelay: 3000,
         backoffFactor: 2,
+        backoffJitter: 0.2,
         maxAttempts: 100,
         maxItems: 100,
       });
+    });
+  });
+
+  describe('default retry window', () => {
+    const totalRetryTimeMs = (random: number) => {
+      const randomSpy = jest.spyOn(Math, 'random').mockReturnValue(random);
+      const queueOptions = getNormalizedQueueOptions({});
+      const queue = new RetryQueue(
+        'retry-window',
+        queueOptions,
+        jest.fn(),
+        defaultStoreManager,
+        undefined,
+        defaultLogger,
+      );
+
+      let total = 0;
+      for (let attempt = 1; attempt <= queue.maxAttempts; attempt++) {
+        total += queue.getDelay(attempt);
+      }
+
+      queue.stop();
+      randomSpy.mockRestore();
+      return total;
+    };
+
+    it('should keep retrying for approximately 3 hours', () => {
+      const HOUR_MS = 60 * 60 * 1000;
+
+      // Math.random 0.45 sits mid-range on the shorter side, 0.75 on the longer side
+      expect(totalRetryTimeMs(0.45)).toBeGreaterThanOrEqual(2.5 * HOUR_MS);
+      expect(totalRetryTimeMs(0.75)).toBeLessThanOrEqual(3.5 * HOUR_MS);
     });
   });
 
