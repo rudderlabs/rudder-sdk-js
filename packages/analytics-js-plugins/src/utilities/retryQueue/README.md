@@ -64,7 +64,7 @@ this.backoff = {
   MIN_RETRY_DELAY: opts.minRetryDelay || 1000,
   MAX_RETRY_DELAY: opts.maxRetryDelay || 30000,
   FACTOR: opts.backoffFactor || 2,
-  JITTER: Math.min(Math.max(opts.backoffJitter || 0, 0), 1),
+  JITTER: Math.min(Math.max(opts.backoffJitter ?? 0, 0), 1),
 };
 ```
 

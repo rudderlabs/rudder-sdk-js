@@ -538,6 +538,30 @@ describe('Queue', () => {
     largeQueue.stop();
   });
 
+  it('should honour an explicit jitter of 0 regardless of the default', () => {
+    jest.isolateModules(() => {
+      jest.doMock('../../../src/utilities/retryQueue/constants', () => ({
+        ...jest.requireActual('../../../src/utilities/retryQueue/constants'),
+        DEFAULT_BACKOFF_JITTER: 0.5,
+      }));
+      const {
+        RetryQueue: IsolatedRetryQueue,
+      } = require('../../../src/utilities/retryQueue/RetryQueue');
+      const zeroJitterQueue = new IsolatedRetryQueue(
+        'test-zero-jitter',
+        { backoffJitter: 0 },
+        jest.fn(),
+        defaultStoreManager,
+        undefined,
+        defaultLogger,
+      );
+
+      expect(zeroJitterQueue.backoff.jitter).toBe(0);
+
+      zeroJitterQueue.stop();
+    });
+  });
+
   it('should use the base delay for the first retry', () => {
     const baseDelayQueue = new RetryQueue(
       'test-base-delay',

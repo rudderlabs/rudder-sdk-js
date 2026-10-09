@@ -120,7 +120,7 @@ class RetryQueue implements IQueue<QueueItemData> {
       maxRetryDelay: options.maxRetryDelay || DEFAULT_MAX_RETRY_DELAY_MS,
       factor: options.backoffFactor || DEFAULT_BACKOFF_FACTOR,
       // Clamp so delays stay positive and within maxRetryDelay
-      jitter: Math.min(Math.max(options.backoffJitter || DEFAULT_BACKOFF_JITTER, 0), 1),
+      jitter: Math.min(Math.max(options.backoffJitter ?? DEFAULT_BACKOFF_JITTER, 0), 1),
     };
 
     // Limit the timer scale factor to the minimum value
