@@ -56,4 +56,5 @@ jobs:
 
           Execute the audit plan: analyze integrations, then create or update Linear tickets using direct API calls. Include ticket URLs in your final output." --force | tee audit-output.log
 
-          grep -v '^[[:space:]]*$' audit-output.log | tail -n 1 | grep -Exq 'AUDIT_RESULT: PASSED[[:space:]]*'
+          # The agent can add text after the result line, also with no line break
+          grep '^AUDIT_RESULT: ' audit-output.log | tail -n 1 | grep -q '^AUDIT_RESULT: PASSED'
