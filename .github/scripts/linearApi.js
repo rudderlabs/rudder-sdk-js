@@ -14,7 +14,7 @@ if (!LINEAR_TEAM_ID) {
 const { LinearClient } = require('@linear/sdk');
 const linearClient = new LinearClient({ apiKey: LINEAR_API_KEY });
 
-// Hardcoded Linear IDs for master ticket creation
+// Hardcoded Linear IDs for ticket creation
 const MAINTENANCE_PROJECT_ID = 'f99cafb5-7d4a-4549-8c77-afe2644feba9'; // Integrations: Maintenance Project
 const KTLO_LABEL_ID = '68c1ca4f-cc21-4c28-9ce5-618a8b39c788'; // Type: KTLO
 const VERSION_UPGRADE_LABEL_ID = '2ee64e36-d577-4b4b-9ae4-e7292db061d4'; // KTLO Type: VersionUpgrade
@@ -252,15 +252,43 @@ async function updateIssue(issueId, fields) {
   }
 }
 
-async function updateIssueDescription(issueId, description) {
-  return updateIssue(issueId, { description });
+async function getIssue(issueId) {
+  try {
+    const issue = await linearClient.issue(issueId);
+    return {
+      id: issue.id,
+      identifier: issue.identifier,
+      title: issue.title,
+      url: issue.url,
+      description: issue.description,
+      priority: issue.priority,
+      dueDate: issue.dueDate,
+      projectId: issue.projectId || null,
+    };
+  } catch (error) {
+    console.error(`Error fetching issue "${issueId}":`, error.message);
+    throw error;
+  }
+}
+
+async function createComment(issueId, body) {
+  try {
+    const result = await linearClient.createComment({ issueId, body });
+    if (!result.success) {
+      throw new Error('Linear did not create the comment');
+    }
+  } catch (error) {
+    console.error(`Error creating comment on issue "${issueId}":`, error.message);
+    throw error;
+  }
 }
 
 module.exports = {
   createIssue,
   listIssuesByParent,
   updateIssue,
-  updateIssueDescription,
+  getIssue,
+  createComment,
   getStateId,
   getUserId,
   getCurrentUserId,

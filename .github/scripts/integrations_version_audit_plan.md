@@ -16,6 +16,10 @@ Conduct an AI-assisted audit of **every device mode integration in this reposito
 
 - `LINEAR_API_KEY` - Required, Linear API key for authentication
 - `LINEAR_TEAM_ID` - Required, Linear team ID (UUID) where tickets will be created
+- `AUDIT_RUN_URL` - Set by the workflow, the URL of the CI run. Every ticket description and every changelog comment names it.
+- `AUDIT_CODE_URL` - Set by the workflow, the GitHub URL of the repository files at the audited commit (`https://github.com/<owner>/<repo>/blob/<commit SHA>`). Every file path in a ticket links to it.
+
+A run outside the workflow does not have the two `AUDIT_*` variables. In that case, write `Local run` for the run, and write each file path with no link.
 
 ## Priority and Due Date Mapping
 
@@ -200,7 +204,8 @@ An Unknown integration gets no subticket. On every run, list it with the reason 
     getSubticketTitle,
     listIssuesByParent,
     updateIssue,
-    updateIssueDescription,
+    getIssue,
+    createComment,
     MAINTENANCE_PROJECT_ID,
     KTLO_LABEL_ID,
     VERSION_UPGRADE_LABEL_ID,
@@ -238,6 +243,11 @@ An Unknown integration gets no subticket. On every run, list it with the reason 
 
 - Update each existing open subticket under its current parent master ticket. Do not move it.
 - Keep the existing due date when it is earlier than the calculated one, or when no due date is calculated. An Urgent ticket must not move to "tomorrow" on every run.
+- Read the subticket with `getIssue` before the update. The update replaces the description, so the old text is the only source for the changelog.
+- Add the two labels with `addedLabelIds`. This keeps every label that the ticket already has.
+- Set the maintenance project only when the ticket has no project.
+- If Linear rejects the labels, repeat the update without `addedLabelIds` and log a warning. A label must not block the update or fail the audit.
+- After the update, add one changelog comment to the subticket (see Changelog Comment Template).
 - Track the parent master IDs of all updated subtickets, so their descriptions can be refreshed in step 8b.
 
   ```javascript
@@ -246,11 +256,15 @@ An Unknown integration gets no subticket. On every run, list it with the reason 
 
   for (const { integration, existingSub } of updatableIntegrations) {
     console.log(`Updating existing subticket: ${existingSub.identifier} for ${integration.name}`);
+    const before = await getIssue(existingSub.id); // the old description, for the changelog comment
     await updateIssue(existingSub.id, {
       description: ticketDescription,
       priority: calculatedPriority,
       dueDate: earlierDate(existingSub.dueDate, calculatedDueDate),
+      projectId: before.projectId || MAINTENANCE_PROJECT_ID,
+      addedLabelIds: [KTLO_LABEL_ID, VERSION_UPGRADE_LABEL_ID],
     });
+    await createComment(existingSub.id, changelogComment); // Changelog Comment Template
     affectedMasterIds.add(existingSub.parentId);
     // Track as "updated" (not "created") in the summary - store { identifier, url }
   }
@@ -296,7 +310,8 @@ An Unknown integration gets no subticket. On every run, list it with the reason 
         parentId: newMasterTicket.id,
         priority: calculatedPriority, // 1-4 based on urgency (1=Urgent, 4=Low)
         dueDate: calculatedDueDate, // ISO format string (YYYY-MM-DD) or null
-        labelIds: [],
+        projectId: MAINTENANCE_PROJECT_ID,
+        labelIds: [KTLO_LABEL_ID, VERSION_UPGRADE_LABEL_ID],
       });
       // Track as "created" in the summary
     }
@@ -308,6 +323,8 @@ An Unknown integration gets no subticket. On every run, list it with the reason 
 - Consider a small delay between ticket calls to avoid rate limiting.
 - **Verification**: after all tickets are created or updated, verify that:
   - Every integration requiring action has a subticket - **MUST have an actual ticket URL**
+  - Every subticket has the two labels and a project
+  - Every subticket that this run updated in place has a changelog comment
   - Each subticket contains the analysis from the codebase search and the web_search findings
   - Priority and due dates match the priority table
 - **CRITICAL**: if an integration is "Action Required" and the output holds no ticket URL for it, the audit has FAILED. Never invent a ticket URL.
@@ -318,7 +335,9 @@ An Unknown integration gets no subticket. On every run, list it with the reason 
 - **The report master** holds the result of the full run. It is the new master ticket of this run. If this run created no master, it is the newest open master (`findOpenAuditMasterTicket()`). If no open master exists and at least one integration is Unknown, create a master for the report.
 - Build each description from the Master Ticket Description Template.
 - For the report master, fill every section with the results of this run. This includes the No Action, Unknown and Wrappers sections.
-- For every other master, rebuild only the four priority sections from its own open subtickets (`state.type` is `triage`, `backlog`, `unstarted` or `started`). Leave its other sections unchanged.
+- For every other master, rebuild only the four priority sections from its own open subtickets (`state.type` is `triage`, `backlog`, `unstarted` or `started`), and the Audit Metadata section. Leave its other sections unchanged.
+- Read each master with `getIssue` before the update. Add the two labels with `addedLabelIds`, and set the maintenance project only when the master has no project. The label rule of step 8 applies.
+- Add one changelog comment to every master that existed before this run (see Changelog Comment Template). The new master of this run gets no comment.
 
   ```javascript
   const reportMaster = newMasterTicket || (await findOpenAuditMasterTicket());
@@ -329,9 +348,17 @@ An Unknown integration gets no subticket. On every run, list it with the reason 
   }
 
   for (const masterId of mastersToRefresh) {
+    const before = await getIssue(masterId); // the old description, for the changelog comment
     const subtickets = await listIssuesByParent(masterId);
     const refreshedDescription = masterDescriptionFromTemplate; // Master Ticket Description Template
-    await updateIssueDescription(masterId, refreshedDescription);
+    await updateIssue(masterId, {
+      description: refreshedDescription,
+      projectId: before.projectId || MAINTENANCE_PROJECT_ID,
+      addedLabelIds: [KTLO_LABEL_ID, VERSION_UPGRADE_LABEL_ID],
+    });
+    if (masterId !== newMasterTicket?.id) {
+      await createComment(masterId, changelogComment); // Changelog Comment Template
+    }
     console.log(`Refreshed master ticket description: ${masterId}`);
   }
   ```
@@ -395,9 +422,22 @@ console.log(auditPassed ? 'AUDIT_RESULT: PASSED' : `AUDIT_RESULT: FAILED - ${fai
 - The audit has PASSED only when the coverage check passed, and every "Action Required" integration has a real ticket URL (not a placeholder, not "pending", not "to be created")
 - A run with zero "Action Required" integrations has PASSED with no ticket URL
 - Ensure the summary log includes any errors encountered during the process
-- If a ticket failed to create or update, retry it once. If it still fails, the audit has FAILED.
+- If a ticket failed to create or update, or a changelog comment failed, retry it once. If it still fails, the audit has FAILED.
 
 ## Linear Ticket Templates
+
+In the templates, `[text]` is a placeholder. `[text](URL)` is a Markdown link: fill in both parts and keep the link.
+
+### Link Rules
+
+These rules apply to every ticket description and every comment.
+
+- Write every URL as a Markdown link. Never write a bare URL, and never put a URL in backticks.
+- Use a short label that names the target, for example `[Sentry install docs](https://docs.sentry.io/platforms/javascript/install/)`.
+- For a ticket, the label is the ticket identifier, for example `[INT-1234](https://linear.app/...)`.
+- For a vendor script URL, the label is the URL itself, because the URL is the fact.
+- A URL pattern with a `${name}` placeholder does not load. Write it in backticks, with no link.
+- Write each repository file path as a link to the file at the audited commit: `[<file path>](<AUDIT_CODE_URL>/<file path>)`. Add `#L<line>` when one line holds the fact, for example the line that holds the script URL.
 
 ### Master Ticket Description Template
 
@@ -408,25 +448,25 @@ List each integration in exactly one section.
 
 **Count**: [Number]
 
-- **[Integration Name]** ([Ticket URL]) — Due: [Date] — Sunset: [Sunset Date] — Docs: [Link] — [Brief description]
+- **[Integration Name]** ([Ticket identifier](Ticket URL)) — Due: [Date] — Sunset: [Sunset Date] — [Docs page title](Docs URL) — [Brief description]
 
 ## ⚠️ High Priority Updates
 
 **Count**: [Number]
 
-- **[Integration Name]** ([Ticket URL]) — Due: [Date] — Sunset: [Sunset Date] — Docs: [Link] — [Brief description]
+- **[Integration Name]** ([Ticket identifier](Ticket URL)) — Due: [Date] — Sunset: [Sunset Date] — [Docs page title](Docs URL) — [Brief description]
 
 ## 📋 Medium Priority Monitoring
 
 **Count**: [Number]
 
-- **[Integration Name]** ([Ticket URL]) — Due: [Date or "None"] — Sunset: [Sunset Date or "None"] — Docs: [Link] — [Brief description]
+- **[Integration Name]** ([Ticket identifier](Ticket URL)) — Due: [Date or "None"] — Sunset: [Sunset Date or "None"] — [Docs page title](Docs URL) — [Brief description]
 
 ## 🔽 Low Priority
 
 **Count**: [Number]
 
-- **[Integration Name]** ([Ticket URL]) — Sunset: [Sunset Date or "None"] — Docs: [Link] — [Brief description]
+- **[Integration Name]** ([Ticket identifier](Ticket URL)) — Sunset: [Sunset Date or "None"] — [Docs page title](Docs URL) — [Brief description]
 
 ## ✅ No Action Required
 
@@ -446,7 +486,14 @@ List each integration in exactly one section.
 **Count**: [Number]
 
 - **[Integration Name]** - Uses the loader of **[Parent Integration Name]**
+
+## Audit Metadata
+
+- Audit run: [GitHub Actions run](AUDIT_RUN_URL)
+- Run date: [YYYY-MM-DD, UTC]
 ```
+
+The Audit Metadata section names the latest run that wrote the description. The changelog comments keep the earlier runs.
 
 ### Individual Integration Ticket Description Template
 
@@ -454,7 +501,8 @@ List each integration in exactly one section.
 ## Current State
 
 - Group: [versioned/unversioned/no-vendor-script]
-- SDK URL in code: [URL, with the file path that loads it. One line per URL.]
+- SDK URL in code: [One sub-item per URL]
+  - [Script URL](Script URL) in [File path](AUDIT_CODE_URL/File path#L[line])
 - Version in use: [version or "Not in the URL"]
 - Latest available: [latest version or "Not applicable"]
 - Sunset date: [date or "None announced"]
@@ -464,9 +512,9 @@ List each integration in exactly one section.
 
 ## References
 
-- Docs: [link]
-- Migration: [link if available]
-- Changelog: [link if available]
+- Docs: [Page title](URL)
+- Migration: [Page title](URL) [if available]
+- Changelog: [Page title](URL) [if available]
 
 ## Actions
 
@@ -485,6 +533,29 @@ List each integration in exactly one section.
 
 - Risks: [breaking changes from docs]
 - Rollback: Revert the loader to the previous SDK URL
+
+## Audit Metadata
+
+- Audit run: [GitHub Actions run](AUDIT_RUN_URL)
+- Run date: [YYYY-MM-DD, UTC]
+```
+
+### Changelog Comment Template
+
+Add this comment to every ticket that the run updates in place. A ticket that the run creates gets no comment.
+
+- Compare the old description and fields (from `getIssue`) with the new ones.
+- Write one line for each fact that changed, in the form `old → new`.
+  - Subticket facts: priority, due date, SDK URL, version in use, latest available, sunset date, loading method and wrappers covered.
+  - Master facts: each integration that entered a section, left a section or moved to another section. For the report master, add the old and new counts of the No Action and Unknown sections.
+- A new run link or a new run date alone is not a change.
+- Keep each line short. Do not copy the old description into the comment.
+
+```markdown
+**Audit update** — [GitHub Actions run](AUDIT_RUN_URL) — [YYYY-MM-DD, UTC]
+
+- [Fact]: [old value] → [new value]
+- [When no fact changed, write only this line: "No change since the last audit run."]
 ```
 
 ## Date Parsing
@@ -529,8 +600,9 @@ Use the existing `.github/scripts/linearApi.js` module for ticket creation and d
 - `getUserId(userName)` - Query Linear API to find user ID by name (for searching specific users)
 - `getCurrentCycleId(teamId)` - Query Linear API to find the current/active cycle ID
 - `listIssuesByParent(parentId, limit)` - List all subtickets for a parent ticket, open and closed. Each one has `state.name` and `state.type`.
-- `updateIssue(issueId, fields)` - Update any fields on an existing ticket (e.g., `{ description, priority, dueDate }`)
-- `updateIssueDescription(issueId, description)` - Convenience wrapper that only updates the description
+- `updateIssue(issueId, fields)` - Update any fields on an existing ticket (e.g., `{ description, priority, dueDate, projectId, addedLabelIds }`)
+- `getIssue(issueId)` - Read one ticket: `description`, `priority`, `dueDate` and `projectId`. Call it before an update, to build the changelog comment.
+- `createComment(issueId, body)` - Add a Markdown comment to a ticket
 
 **Duplicate Detection (MUST use before creating tickets):**
 
@@ -544,7 +616,7 @@ Use the existing `.github/scripts/linearApi.js` module for ticket creation and d
 - `MASTER_TITLE_MARKER` - `Integration SDK Version Audit [Rudder SDK JS]`
 - **Never change the marker to `[Rudder Transformer]`.** That marker belongs to the rudder-transformer audit, and a shared marker would make this audit update that repository's tickets.
 
-**Hardcoded Constants (for master ticket creation):**
+**Hardcoded Constants (for every ticket, master and subticket):**
 
 - `MAINTENANCE_PROJECT_ID` - Project ID for the maintenance project
 - `KTLO_LABEL_ID` - Label ID for KTLO under Type
