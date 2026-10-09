@@ -108,7 +108,7 @@ A vendor SDK copy that is served from a RudderStack host (for example `cdn.rudde
     - Our loading method **matches** when the main install page, or a current page that it links to, documents our script URL, our snippet shape and our init call. Compare the host, the path and the names of the query parameters. Ignore the values of customer parameters.
     - Our loading method is a **mismatch** in every other case. A method that the vendor documents only on a page marked legacy, classic, deprecated or old is a mismatch. A method that the vendor still supports but no longer shows is a mismatch.
     - A vendor preference for another install method (for example npm or a loader script) is not a mismatch while a current page still documents our method.
-  - **Script URL**: Request our script URL when it holds no customer value. If the host does not resolve, or the file returns 404 or 410, the integration cannot load. This is a mismatch, and the sunset date is today.
+  - **Script URL**: Check that the host of each script URL resolves to an address. A `${name}` placeholder in the path or the query string does not stop this check, because the host is fixed. Skip the check only when the host itself holds a placeholder. When the URL holds no placeholder, also request the file. If the host does not resolve after one retry, or the file returns 404 or 410, the integration cannot load. This is a mismatch, and the sunset date is today.
   - **Sources**: Keep the source URL for every fact. If a page gives no answer, write "not found". Never fill a gap from memory.
 
 - **Docs links file** - start the research of each integration from `.github/scripts/integration_docs.json`:
