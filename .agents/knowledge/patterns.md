@@ -68,3 +68,10 @@
 ## SDK-5671 — CleverTap Preloaded Global Normalization
 
 - CleverTap device-mode initialization preserves object-valued preload queues, but resets a truthy primitive `window.clevertap` (such as a string, number, or boolean) to `{}` before adding queue properties; a loaded SDK object is still reset through the existing `getAccountID` path, while function-valued globals keep their queues (`packages/analytics-js-integrations/src/integrations/Clevertap/browser.js`, `packages/analytics-js-integrations/__tests__/integrations/Clevertap/browser.test.js`).
+
+## INT-7311 — Sentry Build-Target CDN Loading
+
+- The Sentry device-mode integration keeps vendor SDK ownership external and selects versioned CDN artifacts with `__RUDDER_INTEGRATIONS_LEGACY_BUILD__`: legacy builds load Sentry 6.13.1 while modern builds load 11.6.0. Project loader URLs are not derived from DSNs because they are project-specific and are not part of the destination configuration contract (`packages/analytics-js-integrations/src/integrations/Sentry/browser.js`).
+- Load the base `bundle.min.js` before `rewriteframes.min.js` with dynamically created scripts set to `async = false`; only load RewriteFrames when non-empty `includePaths` are configured. Initialize it through v11's `window.Sentry.rewriteFramesIntegration(options)` or legacy `new window.Sentry.Integrations.RewriteFrames(options)` according to the loaded SDK (`packages/analytics-js-integrations/src/integrations/Sentry/browser.js`).
+- Guard Sentry initialization with an integration-instance `isInitialized` flag: repeated readiness checks must not call `Sentry.init()` again because current Sentry replaces the active client rather than deduplicating initialization (`packages/analytics-js-integrations/src/integrations/Sentry/browser.js`).
+- Pin each modern 11.6.0 CDN artifact to its release-registry SRI value in integration constants and assert those literal integrity values in loader tests, covering both `bundle.min.js` and `rewriteframes.min.js` (`packages/analytics-js-integrations/src/integrations/Sentry/constants.js`, `packages/analytics-js-integrations/__tests__/integrations/Sentry/browser.test.js`).

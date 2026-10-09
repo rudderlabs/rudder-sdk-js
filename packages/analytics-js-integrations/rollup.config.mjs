@@ -62,6 +62,7 @@ export function getDefaultConfig(distName, moduleType = 'cdn') {
         preventAssignment: true,
         __PACKAGE_VERSION__: `'${version}'`,
         __MODULE_TYPE__: `'${moduleType}'`,
+        __RUDDER_INTEGRATIONS_LEGACY_BUILD__: JSON.stringify(isLegacyBuild),
       }),
       alias({
         entries: [
