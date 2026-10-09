@@ -336,7 +336,7 @@ class RetryQueue implements IQueue<QueueItemData> {
       }
     }
 
-    return ms;
+    return Math.min(ms, this.backoff.maxRetryDelay);
   }
 
   enqueue(entry: QueueItem<QueueItemData>) {

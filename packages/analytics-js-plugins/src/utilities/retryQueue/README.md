@@ -72,7 +72,14 @@ Default implementation:
 
 ```javascript
 queue.getDelay = function (attemptNumber) {
-  var ms = this.backoff.MIN_RETRY_DELAY * Math.pow(this.backoff.FACTOR, attemptNumber);
+  // Leave headroom for +jitter so the jittered delay stays within MAX_RETRY_DELAY
+  var cap = Math.floor(this.backoff.MAX_RETRY_DELAY / (1 + this.backoff.JITTER));
+  var ms = Math.min(
+    Number(
+      (this.backoff.MIN_RETRY_DELAY * Math.pow(this.backoff.FACTOR, attemptNumber)).toPrecision(1),
+    ),
+    cap,
+  );
   if (this.backoff.JITTER) {
     var rand = Math.random();
     var deviation = Math.floor(rand * this.backoff.JITTER * ms);
@@ -82,7 +89,7 @@ queue.getDelay = function (attemptNumber) {
       ms += deviation;
     }
   }
-  return Number(Math.min(ms, this.backoff.MAX_RETRY_DELAY).toPrecision(1));
+  return Math.min(ms, this.backoff.MAX_RETRY_DELAY);
 };
 ```
 

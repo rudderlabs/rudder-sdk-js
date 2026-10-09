@@ -495,6 +495,23 @@ describe('Queue', () => {
     jitterQueue.stop();
   });
 
+  it('should keep delays within maxRetryDelay for negative jitter', () => {
+    const negativeJitterQueue = new RetryQueue(
+      'test-negative-jitter',
+      { minRetryDelay: 1000, maxRetryDelay: 360000, backoffFactor: 2, backoffJitter: -0.2 },
+      jest.fn(),
+      defaultStoreManager,
+      undefined,
+      defaultLogger,
+    );
+    const randomSpy = jest.spyOn(Math, 'random').mockReturnValue(0.4);
+
+    expect(negativeJitterQueue.getDelay(20)).toBe(360000);
+
+    randomSpy.mockRestore();
+    negativeJitterQueue.stop();
+  });
+
   it('should cap delays at maxRetryDelay without jitter', () => {
     const noJitterQueue = new RetryQueue(
       'test-no-jitter',

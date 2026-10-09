@@ -94,7 +94,7 @@ describe('xhrQueue Plugin Utilities', () => {
       );
 
       let total = 0;
-      for (let attempt = 1; attempt <= queueOptions.maxAttempts; attempt++) {
+      for (let attempt = 1; attempt <= queue.maxAttempts; attempt++) {
         total += queue.getDelay(attempt);
       }
 
