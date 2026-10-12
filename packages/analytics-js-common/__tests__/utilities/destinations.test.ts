@@ -11,7 +11,7 @@ describe('Destination utilities', () => {
   describe('getNonCloudDestinations', () => {
     it('should get non-cloud destinations', () => {
       const actualOutcome = getNonCloudDestinations(destinations);
-      expect(actualOutcome.length).toBe(3);
+      expect(actualOutcome).toHaveLength(3);
     });
   });
 
@@ -57,6 +57,30 @@ describe('Destination utilities', () => {
         destinations[1]!.id,
       );
       expect(userFriendlyId2).toBe('GA4-for-JS-SDK-Device___dummyDestinationId2');
+    });
+
+    it.each([
+      [undefined, '___dummyId'],
+      [null, '___dummyId'],
+      [42, '42___dummyId'],
+    ])('should build the user friendly id when displayName is %p', (displayName, expected) => {
+      // the source config response is not schema-checked, so this arrives non-string in the wild
+      expect(getDestinationUserFriendlyId(displayName as any, 'dummyId')).toBe(expected);
+    });
+
+    it('should build the user friendly id on an engine without String.prototype.replaceAll', () => {
+      // Restore the descriptor, not just the value: plain assignment after delete would
+      // recreate replaceAll as enumerable and make later tests order-dependent.
+      const descriptor = Object.getOwnPropertyDescriptor(String.prototype, 'replaceAll');
+      // @ts-expect-error simulating a legacy JS engine where the polyfill did not load
+      delete String.prototype.replaceAll;
+      try {
+        expect(getDestinationUserFriendlyId('GA4 for JS SDK Hybrid', 'dummyDestinationId')).toBe(
+          'GA4-for-JS-SDK-Hybrid___dummyDestinationId',
+        );
+      } finally {
+        Object.defineProperty(String.prototype, 'replaceAll', descriptor as PropertyDescriptor);
+      }
     });
   });
 });

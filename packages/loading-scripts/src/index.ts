@@ -69,7 +69,18 @@ if (Array.isArray(rudderanalytics)) {
       );
       window.rudderAnalyticsBuildType = 'modern';
     } catch (e) {
-      // Do nothing
+      // A CSP without 'unsafe-eval' (or Trusted Types) rejects the probe before parsing it,
+      // which used to send every browser on such pages to the legacy build. Only a
+      // SyntaxError means the engine is too old; otherwise judge by APIs that shipped
+      // alongside that syntax (Chrome 86, Firefox 79, Safari 14).
+      if (
+        !(e instanceof SyntaxError) &&
+        typeof Promise !== 'undefined' &&
+        typeof Promise.any === 'function' &&
+        'replaceChildren' in Element.prototype
+      ) {
+        window.rudderAnalyticsBuildType = 'modern';
+      }
     }
 
     const head = document.head || document.getElementsByTagName('head')[0];
@@ -141,7 +152,7 @@ if (Array.isArray(rudderanalytics)) {
 
     if (typeof Promise === 'undefined' || typeof globalThis === 'undefined') {
       window.rudderAnalyticsAddScript(
-        'https://polyfill-fastly.io/v3/polyfill.min.js?version=3.111.0&features=Symbol%2CPromise&callback=rudderAnalyticsMount',
+        'https://polyfill-fastly.io/v3/polyfill.min.js?version=3.111.0&flags=always%2Cgated&features=Symbol%2CPromise&callback=rudderAnalyticsMount',
       );
     } else {
       window.rudderAnalyticsMount();

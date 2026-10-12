@@ -13,7 +13,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang='en'>
       <head>
-        <Script id='bufferEvents'>
+        <Script id='bufferEvents' strategy='beforeInteractive'>
           {`
             (function() {
               "use strict";

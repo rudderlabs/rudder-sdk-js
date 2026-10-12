@@ -46,7 +46,7 @@ permissions:
 jobs:
   extract-monorepo-version:
     name: Extract Monorepo Version
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: arc-amd64
 
     outputs:
       version: ${{ steps.determine_version.outputs.current_version }}
@@ -81,7 +81,7 @@ jobs:
 
   trigger-and-wait-sanity-test-suite:
     name: Run Sanity E2E Regression Tests
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: arc-amd64
     needs: extract-monorepo-version
     permissions:
       contents: read # to checkout repository code
@@ -174,7 +174,7 @@ jobs:
 
   trigger-and-wait-e2e-test-suite:
     name: Run Full E2E Regression Tests
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: arc-amd64
     needs: [extract-monorepo-version, trigger-and-wait-sanity-test-suite]
     # Only run if sanity tests passed
     if: needs.trigger-and-wait-sanity-test-suite.outputs.sanity-conclusion == 'success'

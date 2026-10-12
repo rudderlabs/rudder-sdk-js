@@ -231,6 +231,9 @@ const INVALID_CONFIG_URL_WARNING = (context: string, configUrl: string | undefin
 const POLYFILL_SCRIPT_LOAD_ERROR = (scriptId: string, url: string): string =>
   `Failed to load the polyfill script with ID "${scriptId}" from URL ${url}.`;
 
+const POLYFILL_VERIFICATION_ERROR = (missingFeatures: string[]): string =>
+  `Failed to apply the polyfills for the following features: ${missingFeatures.join(', ')}.`;
+
 const UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY = (
   context: string,
   selectedStrategy: string | undefined,
@@ -282,6 +285,8 @@ const UNKNOWN_PLUGINS_WARNING = (context: string, unknownPlugins: string[]) =>
 const REMOTE_PLUGIN_LOAD_ERROR = (context: string, pluginName: string, reason: string) =>
   `${context}${LOG_CONTEXT_SEPARATOR}Failed to load plugin "${pluginName}" - ${reason}`;
 
+const NO_PLUGIN_FACTORY_EXPORTED_REASON = 'the module exported no plugin factory';
+
 const UNAVAILABLE_PLUGINS_ERROR = (context: string, unavailablePlugins: string[]) =>
   `${context}${LOG_CONTEXT_SEPARATOR}Failed to load the following unavailable local plugins: ${unavailablePlugins.join(', ')}. Some features of the SDK may not work as expected. Make sure you are using the correct SDK bundle variant.`;
 
@@ -329,6 +334,7 @@ export {
   UNSUPPORTED_STORAGE_ENTRY_TYPE_WARNING,
   INVALID_CONFIG_URL_WARNING,
   POLYFILL_SCRIPT_LOAD_ERROR,
+  POLYFILL_VERIFICATION_ERROR,
   UNSUPPORTED_PRE_CONSENT_STORAGE_STRATEGY,
   DEPRECATED_PRE_CONSENT_STORAGE_STRATEGY,
   UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE,
@@ -355,4 +361,5 @@ export {
   CUSTOM_INTEGRATION_CANNOT_BE_ADDED_ERROR,
   UNAVAILABLE_PLUGINS_ERROR,
   REMOTE_PLUGIN_LOAD_ERROR,
+  NO_PLUGIN_FACTORY_EXPORTED_REASON,
 };

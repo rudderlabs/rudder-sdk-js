@@ -16,7 +16,7 @@ permissions:
 jobs:
   get-release-inputs:
     name: Get Release Inputs
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: arc-amd64
     permissions:
       contents: read # to read repository contents
     outputs:
@@ -351,7 +351,7 @@ jobs:
   verify-cdn-artifacts:
     name: Verify the production CDN artifacts
     needs: [get-release-inputs]
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: arc-amd64
     # Outer bound on the gate. The action honours timeout_seconds itself; this
     # is the backstop for the case it cannot bound from inside, a CDN that
     # stops answering rather than returning a status.
@@ -415,7 +415,7 @@ jobs:
   deprecate-closed-pr-betas:
     needs: [publish-npm-packages]
     name: Deprecate Beta NPM Packages from Closed PRs
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: arc-amd64
     continue-on-error: true
     permissions:
       contents: read

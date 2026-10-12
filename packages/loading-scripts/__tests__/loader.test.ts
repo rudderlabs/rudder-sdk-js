@@ -89,6 +89,67 @@ describe('CDN loader', () => {
     expect(getSdkScriptTag()?.src).toBe('https://cdn.rudderlabs.com/v3/modern/rsa.min.js');
   });
 
+  describe('when the page blocks eval', () => {
+    // A CSP without 'unsafe-eval' (or Trusted Types) makes the Function constructor
+    // throw before the probe source is even parsed.
+    const blockEval = (error: Error) =>
+      jest.spyOn(globalThis, 'Function').mockImplementation(() => {
+        throw error;
+      });
+    const originalPromiseAny = Promise.any;
+    const originalReplaceChildren = Element.prototype.replaceChildren;
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+      Promise.any = originalPromiseAny;
+      Element.prototype.replaceChildren = originalReplaceChildren;
+    });
+
+    // CSP rejects with an EvalError, Trusted Types with a TypeError.
+    it.each([
+      ['CSP', new EvalError('Refused to evaluate a string as JavaScript')],
+      ['Trusted Types', new TypeError('This document requires TrustedScript assignment')],
+    ])(
+      'still picks the modern build under %s when the browser has the modern APIs',
+      async (_policy, error) => {
+        blockEval(error);
+
+        await import('../src/index');
+
+        expect(window.rudderAnalyticsBuildType).toBe('modern');
+        expect(getSdkScriptTag()?.src).toBe('https://cdn.rudderlabs.com/v3/modern/rsa.min.js');
+      },
+    );
+
+    it('falls back to the legacy build when Promise.any is missing', async () => {
+      blockEval(new EvalError('Refused to evaluate a string as JavaScript'));
+      // @ts-expect-error simulating an engine without Promise.any
+      delete Promise.any;
+
+      await import('../src/index');
+
+      expect(window.rudderAnalyticsBuildType).toBe('legacy');
+    });
+
+    it('falls back to the legacy build when replaceChildren is missing', async () => {
+      blockEval(new EvalError('Refused to evaluate a string as JavaScript'));
+      // @ts-expect-error simulating an engine with a Promise.any polyfill but no replaceChildren
+      delete Element.prototype.replaceChildren;
+
+      await import('../src/index');
+
+      expect(window.rudderAnalyticsBuildType).toBe('legacy');
+    });
+
+    it('keeps the legacy build for engines that cannot parse the probe', async () => {
+      blockEval(new SyntaxError('Unexpected token'));
+
+      await import('../src/index');
+
+      expect(window.rudderAnalyticsBuildType).toBe('legacy');
+    });
+  });
+
   it('sets the snippet version', async () => {
     await import('../src/index');
 

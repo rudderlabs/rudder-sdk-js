@@ -14,7 +14,7 @@ concurrency:
 jobs:
   get-deploy-inputs:
     name: Get Deploy Inputs
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: arc-amd64
     outputs:
       trigger_source: ${{ steps.set-outputs.outputs.trigger_source }}
     steps:

@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js",
-  "version": "3.34.3",
+  "version": "3.35.0",
   "description": "RudderStack JavaScript SDK",
   "main": "dist/npm/modern/cjs/index.cjs",
   "module": "dist/npm/modern/esm/index.mjs",
@@ -131,6 +131,8 @@
     "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf -rf ./reports",
     "start": "rollup -c --watch --environment DEV_SERVER,PROD_DEBUG",
     "start:modern": "BROWSERSLIST_ENV=modern npm run start",
+    "start:no-open": "rollup -c --watch --environment DEV_SERVER,PROD_DEBUG,NO_BROWSER_OPEN",
+    "start:modern:no-open": "BROWSERSLIST_ENV=modern npm run start:no-open",
     "build": "npm run build:browser && npm run build:package",
     "build:modern": "npm run build:browser:modern && npm run build:package:modern",
     "build:browser": "rollup -c --environment VERSION:$npm_package_version,UGLIFY,PROD_DEBUG,ENV:prod",
@@ -171,7 +173,7 @@
       "IE >= 11"
     ],
     "modern": [
-      "defaults and supports es6-module-dynamic-import and not dead"
+      "supports es6-module-dynamic-import and not dead"
     ]
   },
   "dependencies": {

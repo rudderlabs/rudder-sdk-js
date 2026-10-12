@@ -3,7 +3,12 @@
 defaultPrefixToReplace=""
 defaultAbsolutePathPrefix="home/runner/work/rudder-sdk-js/rudder-sdk-js/"
 selfHostedAbsolutePathPrefix="runner/_work/rudder-sdk-js/rudder-sdk-js/"
-absolutePathPrefix="$selfHostedAbsolutePathPrefix"
+# Derive from the runner's workspace so runner changes (e.g. ARC's /home/runner/_work) don't break paths
+if [ -n "$GITHUB_WORKSPACE" ]; then
+  absolutePathPrefix="${GITHUB_WORKSPACE#/}/"
+else
+  absolutePathPrefix="$selfHostedAbsolutePathPrefix"
+fi
 # List of package folders
 projectFolderNames=("analytics-js" "analytics-js-common" "analytics-js-integrations" "analytics-js-plugins" "analytics-js-service-worker" "analytics-v1.1" "analytics-js-cookies" "analytics-js-legacy-utilities")
 

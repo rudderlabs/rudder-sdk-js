@@ -153,11 +153,7 @@ const getBugsnagErrorEvent = (
 const SCRIPT_CSP_DIRECTIVES = ['script-src-elem', 'script-src', 'default-src'];
 const CONNECT_CSP_DIRECTIVES = ['connect-src', 'default-src'];
 
-const hasCspViolation = (
-  state: ApplicationState,
-  url: string,
-  directives: string[],
-): boolean =>
+const hasCspViolation = (state: ApplicationState, url: string, directives: string[]): boolean =>
   state.capabilities.cspViolations.value.some(
     violation =>
       directives.includes(violation.directive) && isSameOrUnder(url, violation.blockedURL),
@@ -339,7 +335,8 @@ const getDirectoryName = (filePath: string | undefined): string | undefined => {
     return undefined;
   }
   const paths = filePath.split('/');
-  return paths.at(-2);
+  // Not `.at(-2)`: Array.prototype.at is neither transpiled nor polyfilled
+  return paths[paths.length - 2]; // NOSONAR
 };
 
 /**

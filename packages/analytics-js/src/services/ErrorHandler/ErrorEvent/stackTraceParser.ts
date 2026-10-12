@@ -7,7 +7,7 @@ export type ParsedFrame = {
 
 const CHROME_STACK_LINE_RE = /^\s*at /;
 const SAFARI_NATIVE_RE = /^(eval@)?(\[native code])?$/;
-const LOCATION_RE = /(.+?)(?::(\d+))?(?::(\d+))?$/;
+const DIGITS_RE = /^\d+$/;
 
 function extractLocation(
   urlLike: string | undefined,
@@ -17,15 +17,18 @@ function extractLocation(
   }
   const normalizedUrlLike =
     urlLike.startsWith('(') && urlLike.endsWith(')') ? urlLike.slice(1, -1) : urlLike;
-  const parts = LOCATION_RE.exec(normalizedUrlLike);
-  if (!parts) {
-    return [undefined, undefined, undefined];
+  // Take up to two trailing all-digit segments as line and column; whatever is left,
+  // colons included, is the file. A url keeps its scheme because "//host" is not digits.
+  const segments = normalizedUrlLike.split(':');
+  const location: number[] = [];
+  while (
+    segments.length > 1 &&
+    location.length < 2 &&
+    DIGITS_RE.test(segments[segments.length - 1] as string)
+  ) {
+    location.unshift(Number(segments.pop()));
   }
-  return [
-    parts[1] || undefined,
-    parts[2] === undefined ? undefined : Number(parts[2]),
-    parts[3] === undefined ? undefined : Number(parts[3]),
-  ];
+  return [segments.join(':') || undefined, location[0], location[1]];
 }
 
 function parseV8Line(line: string): ParsedFrame | null {
@@ -33,11 +36,14 @@ function parseV8Line(line: string): ParsedFrame | null {
     return null;
   }
   if (line.includes('(eval ')) {
-    line = line.replaceAll('eval code', 'eval').replaceAll(/(\(eval at [^()]*)|(,.*$)/g, '');
+    line = line
+      .replace(/eval code/g, 'eval')
+      .replace(/\(eval at [^()]*/g, '')
+      .replace(/,.*/, '');
   }
   const sanitized = line
     .replace(/^\s+/, '')
-    .replaceAll('(eval code', '(')
+    .replace(/\(eval code/g, '(')
     .replace(/^.*?\s+/, '');
   const parenLoc = / (\(.+\)$)/.exec(sanitized);
   const withoutLoc = parenLoc ? sanitized.replace(parenLoc[0], '') : sanitized;
@@ -52,7 +58,7 @@ function parseFFSafariLine(line: string): ParsedFrame | null {
     return null;
   }
   if (line.includes(' > eval')) {
-    line = line.replaceAll(/ line (\d+)(?: > eval line \d+)* > eval:\d+:\d+/g, ':$1');
+    line = line.replace(/ line (\d+)(?: > eval line \d+)* > eval:\d+:\d+/g, ':$1');
   }
   if (!line.includes('@') && !line.includes(':')) {
     return {

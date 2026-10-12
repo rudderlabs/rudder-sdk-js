@@ -110,16 +110,19 @@ class RetryQueue implements IQueue<QueueItemData> {
     this.batchSizeCalcCb = queueBatchItemsSizeCalculatorCb;
 
     this.maxItems = options.maxItems || DEFAULT_MAX_ITEMS;
-    this.maxAttempts = options.maxAttempts || DEFAULT_MAX_RETRY_ATTEMPTS;
+    this.maxAttempts = options.maxAttempts ?? DEFAULT_MAX_RETRY_ATTEMPTS;
 
     this.batch = { enabled: false };
     this.configureBatchMode(options);
 
+    // `??` keeps an explicit 0 but also keeps NaN, which would make every delay NaN
+    const jitter = options.backoffJitter ?? DEFAULT_BACKOFF_JITTER;
     this.backoff = {
       minRetryDelay: options.minRetryDelay || DEFAULT_MIN_RETRY_DELAY_MS,
       maxRetryDelay: options.maxRetryDelay || DEFAULT_MAX_RETRY_DELAY_MS,
       factor: options.backoffFactor || DEFAULT_BACKOFF_FACTOR,
-      jitter: options.backoffJitter || DEFAULT_BACKOFF_JITTER,
+      // Clamp so delays stay positive and within maxRetryDelay
+      jitter: Number.isNaN(jitter) ? DEFAULT_BACKOFF_JITTER : Math.min(Math.max(jitter, 0), 1),
     };
 
     // Limit the timer scale factor to the minimum value
@@ -318,7 +321,15 @@ class RetryQueue implements IQueue<QueueItemData> {
    * @return {Number} The delay in milliseconds to wait before attempting a retry
    */
   getDelay(attemptNumber: number): number {
-    let ms = this.backoff.minRetryDelay * this.backoff.factor ** attemptNumber;
+    // Cap leaves headroom for +jitter so the jittered delay never exceeds maxRetryDelay
+    const cap = Math.floor(this.backoff.maxRetryDelay / (1 + this.backoff.jitter));
+    let ms = Math.min(
+      // First retry waits the base delay
+      Number(
+        (this.backoff.minRetryDelay * this.backoff.factor ** (attemptNumber - 1)).toPrecision(1),
+      ),
+      cap,
+    );
 
     if (this.backoff.jitter) {
       const rand = Math.random();
@@ -331,7 +342,7 @@ class RetryQueue implements IQueue<QueueItemData> {
       }
     }
 
-    return Number(Math.min(ms, this.backoff.maxRetryDelay).toPrecision(1));
+    return Math.min(ms, this.backoff.maxRetryDelay);
   }
 
   enqueue(entry: QueueItem<QueueItemData>) {
