@@ -2,6 +2,17 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [3.7.7](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.7.6...@rudderstack/analytics-js-sanity-suite@3.7.7) (2026-10-12)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js` updated to version `3.34.3`
+* `rudder-sdk-js` updated to version `2.52.23`
+
+### Bug Fixes
+
+* **monorepo:** deliver polyfills to every user agent ([#3229](https://github.com/rudderlabs/rudder-sdk-js/issues/3229)) ([711036d](https://github.com/rudderlabs/rudder-sdk-js/commit/711036df308503243d80ec5264c7034423bbbc41))
+
 ## [3.7.6](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-sanity-suite@3.7.5...@rudderstack/analytics-js-sanity-suite@3.7.6) (2026-09-28)
 
 ### Dependency Updates
