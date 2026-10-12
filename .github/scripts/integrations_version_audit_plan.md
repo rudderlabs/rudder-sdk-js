@@ -243,7 +243,11 @@ An Unknown integration gets no subticket. On every run, list it with the reason 
 
 - Update each existing open subticket under its current parent master ticket. Do not move it.
 - Keep the existing due date when it is earlier than the calculated one, or when no due date is calculated. An Urgent ticket must not move to "tomorrow" on every run.
-- Read the subticket with `getIssue` before the update. The update replaces the description, so the old text is the only source for the changelog.
+- Read the subticket with `getIssue` before the update. The update replaces the description, so the old text is the only source for the changelog and for the work of people.
+- **Keep the work of people.** The update refreshes the audit facts. It must not remove what an engineer did in the old description:
+  - **Checked items**: copy each checked item (`- [x]`) of the old Actions and Testing lists into the new list, checked, with its old text. Do not add an unchecked copy of the same action. If a fact in the item changed (for example a new target version), keep the old checked item and add the new item below it, unchecked.
+  - **Notes**: copy the content of the old `## Notes` section unchanged. The audit never edits or removes text in this section.
+  - **Added sections**: copy each section whose heading is not in the template unchanged. Put it before the Audit Metadata section.
 - Add the two labels with `addedLabelIds`. This keeps every label that the ticket already has.
 - Set the maintenance project only when the ticket has no project.
 - If Linear rejects the labels, repeat the update without `addedLabelIds` and log a warning. A label must not block the update or fail the audit.
@@ -325,6 +329,7 @@ An Unknown integration gets no subticket. On every run, list it with the reason 
   - Every integration requiring action has a subticket - **MUST have an actual ticket URL**
   - Every subticket has the two labels and a project
   - Every subticket that this run updated in place has a changelog comment
+  - Every subticket that this run updated in place still has its checked items, its Notes content and its added sections
   - Each subticket contains the analysis from the codebase search and the web_search findings
   - Priority and due dates match the priority table
 - **CRITICAL**: if an integration is "Action Required" and the output holds no ticket URL for it, the audit has FAILED. Never invent a ticket URL.
@@ -533,6 +538,10 @@ The Audit Metadata section names the latest run that wrote the description. The 
 
 - Risks: [breaking changes from docs]
 - Rollback: Revert the loader to the previous SDK URL
+
+## Notes
+
+_Add manual notes here. An audit update keeps this section and every checked item._
 
 ## Audit Metadata
 
