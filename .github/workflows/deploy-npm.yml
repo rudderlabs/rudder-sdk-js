@@ -340,7 +340,8 @@ jobs:
             version="${versions[$project]:-}"
             [ -z "$version" ] && continue
 
-            until npm view "$project@$version" version --prefer-online >/dev/null 2>&1; do
+            # npm's own fetch timeout and retries can stall for minutes, so cap each attempt
+            until timeout 30 npm view "$project@$version" version --prefer-online >/dev/null 2>&1; do
               if [ "$SECONDS" -ge "$deadline" ]; then
                 echo "::warning::$project@$version not visible on NPM after 10 minutes"
                 exit 0
