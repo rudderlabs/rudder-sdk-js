@@ -321,7 +321,7 @@ jobs:
           git clean -fd
 
       - name: Wait for NPM propagation
-        timeout-minutes: 12
+        timeout-minutes: 13
         env:
           PUBLISH_PROJECTS: ${{ needs.determine-affected.outputs.projects }}
         run: |
@@ -344,7 +344,8 @@ jobs:
             until timeout 30 npm view "$project@$version" version --prefer-online >/dev/null 2>&1; do
               if [ "$SECONDS" -ge "$deadline" ]; then
                 echo "::warning::$project@$version not visible on NPM after 10 minutes"
-                exit 0
+                # Past the deadline, the remaining projects still get one attempt each
+                continue 2
               fi
               echo "Waiting for $project@$version..."
               sleep 20
