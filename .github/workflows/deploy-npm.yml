@@ -321,10 +321,37 @@ jobs:
           git clean -fd
 
       - name: Wait for NPM propagation
+        timeout-minutes: 13
+        env:
+          PUBLISH_PROJECTS: ${{ needs.determine-affected.outputs.projects }}
         run: |
-          # It has been observed that the NPM package is not immediately available after publish.
-          echo "Waiting for NPM propagation..."
-          sleep 15
+          # The registry records a version minutes after npm publish returns (observed up to ~4 min),
+          # so poll for the exact published versions instead of sleeping a fixed time.
+          declare -A versions=(
+            ["@rudderstack/analytics-js"]="$CURRENT_VERSION_VALUE"
+            ["@rudderstack/analytics-js-service-worker"]="$CURRENT_VERSION_SW_VALUE"
+            ["@rudderstack/analytics-js-cookies"]="$CURRENT_VERSION_COOKIE_UTILS_VALUE"
+            ["rudder-sdk-js"]="$CURRENT_VERSION_V1_VALUE"
+          )
+
+          deadline=$((SECONDS + 600))
+          IFS=',' read -ra projects <<< "$PUBLISH_PROJECTS"
+          for project in "${projects[@]}"; do
+            version="${versions[$project]:-}"
+            [ -z "$version" ] && continue
+
+            # npm's own fetch timeout and retries can stall for minutes, so cap each attempt
+            until timeout 30 npm view "$project@$version" version --prefer-online >/dev/null 2>&1; do
+              if [ "$SECONDS" -ge "$deadline" ]; then
+                echo "::warning::$project@$version not visible on NPM after 10 minutes"
+                # Past the deadline, the remaining projects still get one attempt each
+                continue 2
+              fi
+              echo "Waiting for $project@$version..."
+              sleep 20
+            done
+            echo "$project@$version is available"
+          done
 
       - name: Get versions in NPM after publish
         run: |
