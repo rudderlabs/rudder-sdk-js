@@ -1410,19 +1410,13 @@ describe('Core - Analytics', () => {
       analytics.processDataInPreloadBuffer();
 
       expect(dequeueSpy).toHaveBeenCalledTimes(2);
-      expect(pageSpy).toHaveBeenCalledWith(
-        {
-          properties: { path: '/home' },
-        },
-        true,
-      );
-      expect(trackSpy).toHaveBeenCalledWith(
-        {
-          name: 'buttonClicked',
-          properties: { color: 'blue' },
-        },
-        true,
-      );
+      expect(pageSpy).toHaveBeenCalledWith({
+        properties: { path: '/home' },
+      });
+      expect(trackSpy).toHaveBeenCalledWith({
+        name: 'buttonClicked',
+        properties: { color: 'blue' },
+      });
     });
 
     it('captures load-time context when processing preloaded event calls', () => {

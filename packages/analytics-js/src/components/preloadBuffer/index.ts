@@ -147,26 +147,11 @@ const retrievePreloadBufferEvents = (instance: IAnalytics) => {
   }
 };
 
-// Number of API arguments before the `isBufferedInvocation` flag of each non-event method
-const API_ARGUMENTS_COUNT: Record<string, number> = {
-  ready: 1,
-  reset: 1,
-  setAnonymousId: 2,
-  startSession: 1,
-  endSession: 0,
-  consent: 1,
-  setCustomContext: 1,
-  clearCustomContext: 0,
-  addCustomIntegration: 2,
-};
-
 const consumePreloadBufferedEvent = (event: any, analyticsInstance: IAnalytics) => {
   const methodName = event.shift();
   let callOptions;
 
   if (isFunction((analyticsInstance as any)[methodName])) {
-    const argumentsCount = API_ARGUMENTS_COUNT[methodName];
-
     switch (methodName) {
       case 'page':
         callOptions = pageArgumentsToCallOptions(...(event as [any]));
@@ -184,17 +169,12 @@ const consumePreloadBufferedEvent = (event: any, analyticsInstance: IAnalytics) 
         callOptions = groupArgumentsToCallOptions(...(event as [any]));
         break;
       default:
-        if (argumentsCount === undefined) {
-          (analyticsInstance as any)[methodName](...event);
-        } else {
-          const apiArguments = Array.from({ length: argumentsCount }, (_, index) => event[index]);
-          (analyticsInstance as any)[methodName](...apiArguments, true);
-        }
+        (analyticsInstance as any)[methodName](...event);
         break;
     }
 
     if (callOptions) {
-      (analyticsInstance as any)[methodName](callOptions, true);
+      (analyticsInstance as any)[methodName](callOptions);
     }
   }
 };

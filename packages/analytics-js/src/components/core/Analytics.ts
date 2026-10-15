@@ -368,6 +368,15 @@ class Analytics implements IAnalytics {
    * Trigger onLoaded callback if any is provided in config & emit initialised event
    */
   onInitialized() {
+    // Preloaded calls were made before the ones buffered while initializing, so queue them first
+    const callsDuringInitialization = state.eventBuffer.toBeProcessedArray.value;
+    state.eventBuffer.toBeProcessedArray.value = [];
+    this.processDataInPreloadBuffer();
+    state.eventBuffer.toBeProcessedArray.value = [
+      ...state.eventBuffer.toBeProcessedArray.value,
+      ...callsDuringInitialization,
+    ];
+
     // Set lifecycle state
     batch(() => {
       state.lifecycle.loaded.value = true;
@@ -376,11 +385,9 @@ class Analytics implements IAnalytics {
 
     this.initialized = true;
 
-    // Replay in invocation order: preloaded calls, then calls made while initializing.
-    // Calls made from within the replay (e.g., event callbacks) are queued behind them.
+    // Calls made while draining (e.g., from event callbacks) are queued behind the buffered ones
     this.isDrainingBuffer = true;
     try {
-      this.processDataInPreloadBuffer();
       this.processBufferedEvents();
     } finally {
       this.isDrainingBuffer = false;
