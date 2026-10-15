@@ -234,7 +234,7 @@ class Analytics implements IAnalytics {
         }
       } catch (err) {
         const issue = 'Failed to load the SDK';
-        this.errorHandler.onError({
+        void this.errorHandler.onError({
           error: err,
           context: ANALYTICS_CORE,
           customMessage: issue,
@@ -368,13 +368,17 @@ class Analytics implements IAnalytics {
    * Trigger onLoaded callback if any is provided in config & emit initialised event
    */
   onInitialized() {
-    // Preloaded calls were made before the ones buffered while initializing, so queue them first
+    // Preloaded calls were made before the ones buffered while initializing, so queue them first.
+    // Exception: they stay behind any consent call made while initializing, so that consent still
+    // applies to them as it always has (see SDK-5623)
     const callsDuringInitialization = state.eventBuffer.toBeProcessedArray.value;
     state.eventBuffer.toBeProcessedArray.value = [];
     this.processDataInPreloadBuffer();
+    const lastConsentIndex = callsDuringInitialization.map(([type]) => type).lastIndexOf('consent');
     state.eventBuffer.toBeProcessedArray.value = [
+      ...callsDuringInitialization.slice(0, lastConsentIndex + 1),
       ...state.eventBuffer.toBeProcessedArray.value,
-      ...callsDuringInitialization,
+      ...callsDuringInitialization.slice(lastConsentIndex + 1),
     ];
 
     // Set lifecycle state
@@ -435,7 +439,18 @@ class Analytics implements IAnalytics {
       state.eventBuffer.toBeProcessedArray.value = bufferedEvents;
 
       if (bufferedEvent) {
-        this.processBufferedEvent(bufferedEvent);
+        // A failing call must not stop the rest of the buffer or the load notifications
+        try {
+          this.processBufferedEvent(bufferedEvent);
+        } catch (err) {
+          const issue = 'Failed to process a buffered API call';
+          void this.errorHandler.onError({
+            error: err,
+            context: ANALYTICS_CORE,
+            customMessage: issue,
+            groupingHash: issue,
+          });
+        }
       }
 
       bufferedEvents = state.eventBuffer.toBeProcessedArray.value;
@@ -965,7 +980,11 @@ class Analytics implements IAnalytics {
     // Resume event manager to process the events to destinations
     this.eventManager?.resume();
 
-    this.loadDestinations();
+    // While replaying, defer to the 'loaded' lifecycle handler so that custom integrations
+    // added later in the buffer are registered before destinations are loaded
+    if (!this.isDrainingBuffer) {
+      this.loadDestinations();
+    }
 
     this.sendTrackingEvents(isBufferedInvocation);
   }

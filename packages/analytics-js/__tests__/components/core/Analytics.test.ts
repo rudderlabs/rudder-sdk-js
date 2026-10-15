@@ -681,16 +681,116 @@ describe('Core - Analytics', () => {
       expect(state.eventBuffer.toBeProcessedArray.value).toEqual([]);
     });
 
-    it('stops deferring calls when replaying a buffered call throws', () => {
+    it('reports a failing buffered call and still replays the rest and notifies onLoaded', () => {
+      const replayError = new Error('replay failure');
       jest.spyOn(analytics.userSessionManager!, 'end').mockImplementationOnce(() => {
-        throw new Error('replay failure');
+        throw replayError;
       });
+      const onErrorSpy = jest.spyOn(analytics.errorHandler, 'onError');
+      const onLoadedCallback = jest.fn();
+      state.loadOptions.value.onLoaded = onLoadedCallback;
       analytics.endSession();
+      analytics.track({ name: 'after-failing-call' });
 
-      expect(() => analytics.onInitialized()).toThrow('replay failure');
+      expect(() => analytics.onInitialized()).not.toThrow();
 
-      analytics.track({ name: 'after-failure' });
-      expect(dispatched).toEqual(['track:after-failure']);
+      expect(onErrorSpy).toHaveBeenCalledWith(expect.objectContaining({ error: replayError }));
+      expect(onLoadedCallback).toHaveBeenCalledTimes(1);
+      analytics.track({ name: 'after-load' });
+      expect(dispatched).toEqual(['track:after-failing-call', 'track:after-load']);
+    });
+
+    describe('consent calls made while initializing', () => {
+      beforeEach(() => {
+        jest.spyOn(analytics.pluginsManager!, 'invokeSingle').mockImplementation();
+        jest.spyOn(analytics.storeManager!, 'initializeStorageState').mockImplementation();
+        jest.spyOn(analytics.userSessionManager!, 'syncStorageDataToState').mockImplementation();
+        jest.spyOn(analytics.eventManager!, 'resume').mockImplementation(() => {
+          dispatched.push('consent');
+        });
+      });
+
+      it('replays preloaded calls after the last consent made while initializing', () => {
+        analytics.enqueuePreloadBufferEvents([['track', 'preloaded']]);
+        analytics.track({ name: 'before-consent' });
+        analytics.consent({});
+        analytics.track({ name: 'after-consent' });
+
+        analytics.onInitialized();
+
+        expect(dispatched).toEqual([
+          'track:before-consent',
+          'consent',
+          'track:preloaded',
+          'track:after-consent',
+        ]);
+      });
+
+      it('applies a preloaded consent before calls made while initializing', () => {
+        analytics.enqueuePreloadBufferEvents([['consent', {}]]);
+        analytics.track({ name: 'during-init' });
+
+        analytics.onInitialized();
+
+        expect(dispatched).toEqual(['consent', 'track:during-init']);
+      });
+    });
+
+    describe('consent replayed with a custom integration', () => {
+      let pluginCalls: string[];
+      const integration = { name: 'custom' } as unknown as RSACustomIntegration;
+
+      beforeEach(() => {
+        pluginCalls = [];
+        jest
+          .spyOn(analytics.pluginsManager!, 'invokeSingle')
+          .mockImplementation((extPoint: string) => {
+            pluginCalls.push(extPoint);
+            return undefined;
+          });
+        jest.spyOn(analytics.storeManager!, 'initializeStorageState').mockImplementation();
+        jest.spyOn(analytics.userSessionManager!, 'syncStorageDataToState').mockImplementation();
+        jest.spyOn(analytics.eventManager!, 'resume').mockImplementation();
+        analytics.startLifecycle();
+      });
+
+      it('loads destinations only after an integration added during initialization is registered', () => {
+        analytics.enqueuePreloadBufferEvents([['consent', {}]]);
+        analytics.addCustomIntegration('destination-id', integration);
+
+        state.lifecycle.status.value = 'initialized';
+
+        expect(pluginCalls.indexOf('nativeDestinations.addCustomIntegration')).toBeGreaterThan(-1);
+        expect(pluginCalls.indexOf('nativeDestinations.addCustomIntegration')).toBeLessThan(
+          pluginCalls.indexOf('nativeDestinations.setActiveDestinations'),
+        );
+      });
+
+      it('loads destinations only after a preloaded integration is registered', () => {
+        // Preloaded consent calls are promoted ahead of every other preloaded call
+        analytics.enqueuePreloadBufferEvents([
+          ['consent', {}],
+          ['addCustomIntegration', 'destination-id', integration],
+        ]);
+
+        state.lifecycle.status.value = 'initialized';
+
+        expect(pluginCalls.indexOf('nativeDestinations.addCustomIntegration')).toBeGreaterThan(-1);
+        expect(pluginCalls.indexOf('nativeDestinations.addCustomIntegration')).toBeLessThan(
+          pluginCalls.indexOf('nativeDestinations.setActiveDestinations'),
+        );
+      });
+
+      it('still loads destinations when consent is given after the SDK has loaded', () => {
+        state.lifecycle.status.value = 'initialized';
+        pluginCalls = [];
+        state.nativeDestinations.clientDestinationsReady.value = false;
+        state.lifecycle.status.value = 'readyExecuted';
+
+        analytics.consent({});
+
+        expect(pluginCalls).toContain('nativeDestinations.setActiveDestinations');
+      });
     });
 
     it('resets the session before setting a new user ID for a buffered identify', () => {
