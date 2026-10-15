@@ -46,3 +46,7 @@
 ## AI-1258 — Dependency Lockfile Drift Blocks CI Installs
 
 - In this checkout, `npm ci --prefer-offline --no-audit --include=optional` fails before installing dependencies because `package.json` and `package-lock.json` are out of sync (`typescript@5.9.3` and `conventional-commits-filter@5.0.0` are missing from the lock file); root Jest/Nx validation therefore requires a synchronized lock file or a non-`ci` install path in similar environments.
+
+## INT-7311 — Sentry Browser Compatibility Split
+
+- Sentry 11.6.0's browser floor is newer than the integrations package's legacy targets, and transpiling Rudder's wrapper cannot make the externally loaded vendor artifact IE11-compatible. Preserve Sentry 6.13.1 for legacy builds rather than changing the package-wide browserslist or silently weakening unrelated integrations' support (`packages/analytics-js-integrations/src/integrations/Sentry/browser.js`, `packages/analytics-js-integrations/package.json`).

@@ -1,12 +1,29 @@
-/* eslint-disable class-methods-use-this */
 import get from 'get-value';
-import { NAME, DISPLAY_NAME } from './constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+  SENTRY_SDK_ID,
+  SENTRY_SDK_URL,
+  SENTRY_SDK_INTEGRITY,
+  SENTRY_REWRITE_FRAMES_ID,
+  SENTRY_REWRITE_FRAMES_URL,
+  SENTRY_REWRITE_FRAMES_INTEGRITY,
+} from './constants';
 import Logger from '../../utils/logger';
 import { SentryScriptLoader, sentryInit } from './utils';
-import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
+import {
+  isDefinedAndNotNullAndNotEmpty,
+  removeUndefinedAndNullValues,
+} from '../../utils/commonUtils';
 import { getDefinedTraits, isObject } from '../../utils/utils';
 
 const logger = new Logger(DISPLAY_NAME);
+
+const hasBaseSdk = () =>
+  !!(window.Sentry && isObject(window.Sentry) && window.Sentry.init && window.Sentry.setUser);
+
+const hasRewriteFramesIntegration = () =>
+  !!(window.Sentry?.rewriteFramesIntegration || window.Sentry?.Integrations?.RewriteFrames);
 
 class Sentry {
   constructor(config, analytics, destinationInfo) {
@@ -20,12 +37,16 @@ class Sentry {
     this.environment = config.environment;
     this.ignoreErrors = config.ignoreErrors;
     this.includePathsArray = config.includePaths;
+    this.requiresRewriteFrames = this.includePathsArray?.some(({ includePaths } = {}) =>
+      isDefinedAndNotNullAndNotEmpty(includePaths),
+    );
     this.logger = config.logger;
     this.allowUrls = config.allowUrls;
     this.denyUrls = config.denyUrls;
     this.release = config.release;
     this.customVersionProperty = config.customVersionProperty;
     this.serverName = config.serverName;
+    this.isInitialized = false;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
@@ -38,37 +59,29 @@ class Sentry {
       logger.error('DSN is a mandatory field');
       return;
     }
-    SentryScriptLoader(
-      'sentry',
-      `https://browser.sentry-cdn.com/6.13.1/bundle.min.js`,
-      `sha384-vUP3nL55ipf9vVr3gDgKyDuYwcwOC8nZGAksntVhezPcr2QXl1Ls81oolaVSkPm+`,
-    );
-
-    SentryScriptLoader(
-      'plugin',
-      `https://browser.sentry-cdn.com/6.13.1/rewriteframes.min.js`,
-      `sha384-WOm9k3kzVt1COFAB/zCXOFx4lDMtJh/2vmEizIwgog7OW0P/dPwl3s8f6MdwrD7q`,
-    );
+    // Sentry's project loader URL is project-specific and cannot be derived from the existing
+    // DSN-only destination contract, so load the versioned browser CDN artifacts directly.
+    SentryScriptLoader(SENTRY_SDK_ID, SENTRY_SDK_URL, SENTRY_SDK_INTEGRITY, hasBaseSdk);
+    if (this.requiresRewriteFrames) {
+      SentryScriptLoader(
+        SENTRY_REWRITE_FRAMES_ID,
+        SENTRY_REWRITE_FRAMES_URL,
+        SENTRY_REWRITE_FRAMES_INTEGRITY,
+        hasRewriteFramesIntegration,
+      );
+    }
   }
 
-  // eslint-disable-next-line class-methods-use-this
   isLoaded() {
-    return !!(
-      window.Sentry &&
-      isObject(window.Sentry) &&
-      window.Sentry.setUser &&
-      window.Sentry.Integrations.RewriteFrames
-    );
+    return hasBaseSdk() && (!this.requiresRewriteFrames || hasRewriteFramesIntegration());
   }
 
-  // eslint-disable-next-line class-methods-use-this
   isReady() {
-    if (
-      window.Sentry &&
-      isObject(window.Sentry) &&
-      window.Sentry.setUser &&
-      window.Sentry.Integrations.RewriteFrames
-    ) {
+    if (this.isInitialized) {
+      return true;
+    }
+
+    if (this.isLoaded()) {
       const sentryConfig = sentryInit(
         this.allowUrls,
         this.denyUrls,
@@ -85,6 +98,7 @@ class Sentry {
       if (this.logger) {
         window.Sentry.setTag('logger', this.logger);
       }
+      this.isInitialized = true;
       return true;
     }
     return false;

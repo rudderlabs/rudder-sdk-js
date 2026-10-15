@@ -4,6 +4,24 @@ import {
 } from '../../constants/Destinations';
 
 const DIR_NAME = 'Sentry';
+/* global __RUDDER_INTEGRATIONS_LEGACY_BUILD__ */
+const IS_LEGACY_BUILD =
+  typeof __RUDDER_INTEGRATIONS_LEGACY_BUILD__ !== 'undefined' &&
+  __RUDDER_INTEGRATIONS_LEGACY_BUILD__;
+const SENTRY_MODERN_SDK_VERSION = '11.6.0';
+const SENTRY_LEGACY_SDK_VERSION = '6.13.1';
+const SENTRY_SDK_VERSION = IS_LEGACY_BUILD ? SENTRY_LEGACY_SDK_VERSION : SENTRY_MODERN_SDK_VERSION;
+const SENTRY_CDN_BASE_URL = `https://browser.sentry-cdn.com/${SENTRY_SDK_VERSION}`;
+const SENTRY_SDK_ID = `rudder-sentry-${SENTRY_SDK_VERSION}-sdk`;
+const SENTRY_SDK_URL = `${SENTRY_CDN_BASE_URL}/bundle.min.js`;
+const SENTRY_SDK_INTEGRITY = IS_LEGACY_BUILD
+  ? 'sha384-vUP3nL55ipf9vVr3gDgKyDuYwcwOC8nZGAksntVhezPcr2QXl1Ls81oolaVSkPm+'
+  : 'sha384-rlznaM0ZTdlKZRMeVO8a43/HbvKhLqHABk8FFcshozlZDT84nCfG8GdTIWeQioHe';
+const SENTRY_REWRITE_FRAMES_ID = `rudder-sentry-${SENTRY_SDK_VERSION}-rewrite-frames`;
+const SENTRY_REWRITE_FRAMES_URL = `${SENTRY_CDN_BASE_URL}/rewriteframes.min.js`;
+const SENTRY_REWRITE_FRAMES_INTEGRITY = IS_LEGACY_BUILD
+  ? 'sha384-WOm9k3kzVt1COFAB/zCXOFx4lDMtJh/2vmEizIwgog7OW0P/dPwl3s8f6MdwrD7q'
+  : 'sha384-wr5WXNPJhwYJOBmdmTeEbeA5Qxx3uO5u7fU0CFiOGFgt45iYtMU9CxdYizOyr10U';
 
 const CNameMapping = {
   [NAME]: NAME,
@@ -11,4 +29,16 @@ const CNameMapping = {
   Sentry: NAME,
 };
 
-export { NAME, CNameMapping, DISPLAY_NAME, DIR_NAME };
+export {
+  NAME,
+  CNameMapping,
+  DISPLAY_NAME,
+  DIR_NAME,
+  SENTRY_SDK_VERSION,
+  SENTRY_SDK_ID,
+  SENTRY_SDK_URL,
+  SENTRY_SDK_INTEGRITY,
+  SENTRY_REWRITE_FRAMES_ID,
+  SENTRY_REWRITE_FRAMES_URL,
+  SENTRY_REWRITE_FRAMES_INTEGRITY,
+};
