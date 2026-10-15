@@ -139,8 +139,50 @@ describe('Preload Buffer', () => {
       'clear',
       'track:after-clear',
     ]);
-    expect(instance.setCustomContext).toHaveBeenCalledWith({ version: 'runtime' });
-    expect(instance.clearCustomContext).toHaveBeenCalledTimes(1);
+    expect(instance.setCustomContext).toHaveBeenCalledWith({ version: 'runtime' }, true);
+    expect(instance.clearCustomContext).toHaveBeenCalledWith(true);
+  });
+
+  it('marks replayed calls as buffered invocations without shifting their arguments', () => {
+    const callback = jest.fn();
+    const integration = { name: 'custom' };
+    const instance = {
+      track: jest.fn(),
+      ready: jest.fn(),
+      reset: jest.fn(),
+      setAnonymousId: jest.fn(),
+      startSession: jest.fn(),
+      endSession: jest.fn(),
+      consent: jest.fn(),
+      addCustomIntegration: jest.fn(),
+      setAuthToken: jest.fn(),
+    };
+    const calls: PreloadedEventCall[] = [
+      ['track', 'event-name'],
+      ['ready', callback],
+      ['reset'],
+      ['setAnonymousId', 'anon-id'],
+      ['startSession', 1234567890],
+      ['endSession'],
+      ['consent', { trackConsent: true }],
+      ['addCustomIntegration', 'destination-id', integration],
+      ['setAuthToken', 'auth-token'],
+    ];
+
+    calls.forEach(call => consumePreloadBufferedEvent(call, instance as any));
+
+    expect(instance.track).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'event-name' }),
+      true,
+    );
+    expect(instance.ready).toHaveBeenCalledWith(callback, true);
+    expect(instance.reset).toHaveBeenCalledWith(undefined, true);
+    expect(instance.setAnonymousId).toHaveBeenCalledWith('anon-id', undefined, true);
+    expect(instance.startSession).toHaveBeenCalledWith(1234567890, true);
+    expect(instance.endSession).toHaveBeenCalledWith(true);
+    expect(instance.consent).toHaveBeenCalledWith({ trackConsent: true }, true);
+    expect(instance.addCustomIntegration).toHaveBeenCalledWith('destination-id', integration, true);
+    expect(instance.setAuthToken).toHaveBeenCalledWith('auth-token');
   });
 
   it('should not buffer any events if no preload array or query params exist', () => {

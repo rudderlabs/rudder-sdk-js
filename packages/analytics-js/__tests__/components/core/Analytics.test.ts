@@ -206,9 +206,9 @@ describe('Core - Analytics', () => {
         {
           event: ['setCustomContext', { agentId: 'agent-1' }],
           spy: spies.setCustomContext,
-          expectedArguments: [{ agentId: 'agent-1' }],
+          expectedArguments: [{ agentId: 'agent-1' }, true],
         },
-        { event: ['clearCustomContext'], spy: spies.clearCustomContext, expectedArguments: [] },
+        { event: ['clearCustomContext'], spy: spies.clearCustomContext, expectedArguments: [true] },
         { event: ['ready', callback], spy: spies.ready, expectedArguments: [callback, true] },
         {
           event: ['page', { name: 'Docs' }, preservedContext],
@@ -336,11 +336,9 @@ describe('Core - Analytics', () => {
     it('should short circuit the lifecycle when pre-consent behavior is enabled', () => {
       analytics.startLifecycle();
       const loadDestinationsSpy = jest.spyOn(analytics, 'loadDestinations');
-      const processBufferedEventsSpy = jest.spyOn(analytics, 'processBufferedEvents');
 
       state.consents.preConsent.value = { enabled: true };
       state.lifecycle.status.value = 'loaded';
-      expect(processBufferedEventsSpy).toHaveBeenCalledTimes(1);
       expect(loadDestinationsSpy).not.toHaveBeenCalled();
       expect(state.lifecycle.status.value).toBe('readyExecuted');
     });
@@ -605,6 +603,172 @@ describe('Core - Analytics', () => {
         'LoadAPI:: The callback threw an exception',
         new Error('Test error'),
       );
+    });
+  });
+
+  describe('buffered call ordering on initialization', () => {
+    let dispatched: string[];
+
+    const eventLabel = (event: any) => `${event.type}:${event.name ?? event.userId ?? ''}`;
+
+    beforeEach(() => {
+      dispatched = [];
+      analytics.prepareInternalServices();
+      jest.spyOn(analytics.eventManager!, 'addEvent').mockImplementation((event: any) => {
+        dispatched.push(eventLabel(event));
+        event.callback?.();
+      });
+    });
+
+    it('dispatches preloaded calls ahead of calls made while the SDK was initializing', () => {
+      analytics.enqueuePreloadBufferEvents([['identify', 'preloaded-user']]);
+      analytics.page({ name: 'during-init' });
+
+      analytics.onInitialized();
+
+      expect(dispatched).toEqual(['identify:preloaded-user', 'page:during-init']);
+    });
+
+    it('dispatches calls made in the onLoaded callback after all buffered calls', () => {
+      analytics.enqueuePreloadBufferEvents([['track', 'preloaded']]);
+      analytics.track({ name: 'during-init' });
+      state.loadOptions.value.onLoaded = () => analytics.track({ name: 'on-loaded' });
+
+      analytics.onInitialized();
+
+      expect(dispatched).toEqual(['track:preloaded', 'track:during-init', 'track:on-loaded']);
+    });
+
+    it('dispatches calls made in an RSA_Initialised listener after all buffered calls', () => {
+      const listener = () => analytics.track({ name: 'on-initialised-event' });
+      document.addEventListener('RSA_Initialised', listener);
+      analytics.track({ name: 'during-init' });
+
+      analytics.onInitialized();
+      document.removeEventListener('RSA_Initialised', listener);
+
+      expect(dispatched).toEqual(['track:during-init', 'track:on-initialised-event']);
+    });
+
+    it('defers calls made from an event callback until the remaining buffered calls are dispatched', () => {
+      analytics.enqueuePreloadBufferEvents([
+        ['track', 'preloaded', {}, () => analytics.track({ name: 'nested-preloaded' })],
+      ]);
+      analytics.track({
+        name: 'during-init',
+        callback: () => analytics.track({ name: 'nested-during-init' }),
+      });
+      analytics.track({ name: 'during-init-2' });
+
+      analytics.onInitialized();
+
+      expect(dispatched).toEqual([
+        'track:preloaded',
+        'track:during-init',
+        'track:during-init-2',
+        'track:nested-preloaded',
+        'track:nested-during-init',
+      ]);
+    });
+
+    it('dispatches calls directly once the buffer is drained', () => {
+      analytics.track({ name: 'during-init' });
+      analytics.onInitialized();
+
+      analytics.track({ name: 'after-load' });
+
+      expect(dispatched).toEqual(['track:during-init', 'track:after-load']);
+      expect(state.eventBuffer.toBeProcessedArray.value).toEqual([]);
+    });
+
+    it('stops deferring calls when replaying a buffered call throws', () => {
+      jest.spyOn(analytics.userSessionManager!, 'end').mockImplementationOnce(() => {
+        throw new Error('replay failure');
+      });
+      analytics.endSession();
+
+      expect(() => analytics.onInitialized()).toThrow('replay failure');
+
+      analytics.track({ name: 'after-failure' });
+      expect(dispatched).toEqual(['track:after-failure']);
+    });
+
+    it('resets the session before setting a new user ID for a buffered identify', () => {
+      state.session.userId.value = 'old-user';
+      const resetSpy = jest.spyOn(analytics.userSessionManager!, 'reset');
+      const setUserIdSpy = jest.spyOn(analytics.userSessionManager!, 'setUserId');
+      analytics.identify({ userId: 'new-user' });
+
+      analytics.onInitialized();
+
+      expect(resetSpy).toHaveBeenCalledTimes(1);
+      expect(resetSpy.mock.invocationCallOrder[0]).toBeLessThan(
+        setUserIdSpy.mock.invocationCallOrder[0]!,
+      );
+      expect(state.eventBuffer.toBeProcessedArray.value).toEqual([]);
+    });
+
+    it('replays preloaded non-event APIs with their original arguments', () => {
+      const resetSpy = jest.spyOn(analytics.userSessionManager!, 'reset');
+      const setAnonymousIdSpy = jest.spyOn(analytics.userSessionManager!, 'setAnonymousId');
+      const startSpy = jest.spyOn(analytics.userSessionManager!, 'start');
+      const invokeSingleSpy = jest.spyOn(analytics.pluginsManager!, 'invokeSingle');
+      const errorSpy = jest.spyOn(analytics.logger, 'error');
+      const integration = { name: 'custom' } as unknown as RSACustomIntegration;
+      analytics.enqueuePreloadBufferEvents([
+        ['reset'],
+        ['setAnonymousId', 'preloaded-anon-id'],
+        ['startSession'],
+        ['addCustomIntegration', 'destination-id', integration],
+      ]);
+
+      analytics.onInitialized();
+
+      expect(resetSpy).toHaveBeenCalledWith(undefined);
+      expect(setAnonymousIdSpy).toHaveBeenCalledWith('preloaded-anon-id', undefined);
+      expect(startSpy).toHaveBeenCalledWith(undefined);
+      expect(invokeSingleSpy).toHaveBeenCalledWith(
+        'nativeDestinations.addCustomIntegration',
+        'destination-id',
+        integration,
+        state,
+        analytics.logger,
+      );
+      expect(errorSpy).not.toHaveBeenCalled();
+    });
+
+    it('applies buffered custom context updates in order without re-buffering them', () => {
+      analytics.track({ name: 'before-set' });
+      analytics.setCustomContext({ version: 'runtime' });
+      analytics.track({ name: 'after-set' });
+      analytics.clearCustomContext();
+      const addEventSpy = analytics.eventManager!.addEvent as jest.Mock;
+
+      analytics.onInitialized();
+
+      expect(addEventSpy.mock.calls.map(([, context]) => context)).toEqual([
+        {},
+        { version: 'runtime' },
+      ]);
+      expect(analytics.getCustomContext()).toEqual({});
+      expect(state.eventBuffer.toBeProcessedArray.value).toEqual([]);
+    });
+
+    it('dispatches buffered calls when consent is given in the onLoaded callback', () => {
+      analytics.startLifecycle();
+      state.consents.preConsent.value = { enabled: true };
+      jest.spyOn(analytics.storeManager!, 'initializeStorageState').mockImplementation();
+      jest.spyOn(analytics.userSessionManager!, 'syncStorageDataToState').mockImplementation();
+      jest.spyOn(analytics.eventManager!, 'resume').mockImplementation();
+      const readyCallback = jest.fn();
+      analytics.track({ name: 'during-init' });
+      analytics.ready(readyCallback);
+      state.loadOptions.value.onLoaded = () => analytics.consent({});
+
+      state.lifecycle.status.value = 'initialized';
+
+      expect(dispatched).toEqual(['track:during-init']);
+      expect(readyCallback).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -1246,13 +1410,19 @@ describe('Core - Analytics', () => {
       analytics.processDataInPreloadBuffer();
 
       expect(dequeueSpy).toHaveBeenCalledTimes(2);
-      expect(pageSpy).toHaveBeenCalledWith({
-        properties: { path: '/home' },
-      });
-      expect(trackSpy).toHaveBeenCalledWith({
-        name: 'buttonClicked',
-        properties: { color: 'blue' },
-      });
+      expect(pageSpy).toHaveBeenCalledWith(
+        {
+          properties: { path: '/home' },
+        },
+        true,
+      );
+      expect(trackSpy).toHaveBeenCalledWith(
+        {
+          name: 'buttonClicked',
+          properties: { color: 'blue' },
+        },
+        true,
+      );
     });
 
     it('captures load-time context when processing preloaded event calls', () => {

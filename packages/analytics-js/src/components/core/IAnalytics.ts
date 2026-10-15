@@ -36,6 +36,7 @@ import type { CustomContextStore } from '../customContext';
 export interface IAnalytics {
   preloadBuffer: BufferQueue<PreloadedEventCall>;
   initialized: boolean;
+  isDrainingBuffer: boolean;
   httpClient: IHttpClient;
   logger: ILogger;
   errorHandler: IErrorHandler;
@@ -201,7 +202,7 @@ export interface IAnalytics {
   /**
    * Merge fields into the current custom context
    */
-  setCustomContext(context: InputCustomContext): void;
+  setCustomContext(context: InputCustomContext, isBufferedInvocation?: boolean): void;
 
   /**
    * Get a defensive snapshot of the current custom context
@@ -211,7 +212,7 @@ export interface IAnalytics {
   /**
    * Clear the current custom context
    */
-  clearCustomContext(): void;
+  clearCustomContext(isBufferedInvocation?: boolean): void;
 
   /**
    * To manually start user session in the SDK

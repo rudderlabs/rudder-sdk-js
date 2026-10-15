@@ -97,6 +97,7 @@ class Analytics implements IAnalytics {
   userSessionManager?: IUserSessionManager;
   clientDataStore?: Store;
   customContextStore: CustomContextStore;
+  isDrainingBuffer: boolean;
 
   /**
    * Initialize services and components or use default ones if singletons
@@ -104,6 +105,7 @@ class Analytics implements IAnalytics {
   constructor() {
     this.preloadBuffer = new BufferQueue();
     this.initialized = false;
+    this.isDrainingBuffer = false;
     this.errorHandler = defaultErrorHandler;
     this.logger = defaultLogger;
     this.customContextStore = new CustomContextStore(state.customContext, this.logger);
@@ -162,8 +164,8 @@ class Analytics implements IAnalytics {
     this.startLifecycle();
   }
 
-  setCustomContext(context: InputCustomContext): void {
-    if (!state.lifecycle.loaded.value) {
+  setCustomContext(context: InputCustomContext, isBufferedInvocation = false): void {
+    if (this.shouldBuffer(isBufferedInvocation)) {
       state.eventBuffer.toBeProcessedArray.value = [
         ...state.eventBuffer.toBeProcessedArray.value,
         ['setCustomContext', context],
@@ -178,8 +180,8 @@ class Analytics implements IAnalytics {
     return this.customContextStore.get();
   }
 
-  clearCustomContext(): void {
-    if (!state.lifecycle.loaded.value) {
+  clearCustomContext(isBufferedInvocation = false): void {
+    if (this.shouldBuffer(isBufferedInvocation)) {
       state.eventBuffer.toBeProcessedArray.value = [
         ...state.eventBuffer.toBeProcessedArray.value,
         ['clearCustomContext'],
@@ -250,7 +252,6 @@ class Analytics implements IAnalytics {
   }
 
   onLoaded() {
-    this.processBufferedEvents();
     // Short-circuit the life cycle and move to the ready state if pre-consent behavior is enabled
     if (state.consents.preConsent.value.enabled === true) {
       state.lifecycle.status.value = 'ready';
@@ -367,9 +368,6 @@ class Analytics implements IAnalytics {
    * Trigger onLoaded callback if any is provided in config & emit initialised event
    */
   onInitialized() {
-    // Process any preloaded events
-    this.processDataInPreloadBuffer();
-
     // Set lifecycle state
     batch(() => {
       state.lifecycle.loaded.value = true;
@@ -377,6 +375,16 @@ class Analytics implements IAnalytics {
     });
 
     this.initialized = true;
+
+    // Replay in invocation order: preloaded calls, then calls made while initializing.
+    // Calls made from within the replay (e.g., event callbacks) are queued behind them.
+    this.isDrainingBuffer = true;
+    try {
+      this.processDataInPreloadBuffer();
+      this.processBufferedEvents();
+    } finally {
+      this.isDrainingBuffer = false;
+    }
 
     // Execute onLoaded callback if provided in load options
     const onLoadedCallbackFn = state.loadOptions.value.onLoaded;
@@ -430,10 +438,10 @@ class Analytics implements IAnalytics {
   processBufferedEvent(bufferedEvent: BufferedEvent) {
     switch (bufferedEvent[0]) {
       case 'setCustomContext':
-        this.setCustomContext(bufferedEvent[1]);
+        this.setCustomContext(bufferedEvent[1], true);
         break;
       case 'clearCustomContext':
-        this.clearCustomContext();
+        this.clearCustomContext(true);
         break;
       case 'ready':
         this.ready(bufferedEvent[1], true);
@@ -476,6 +484,14 @@ class Analytics implements IAnalytics {
         return unsupportedEvent;
       }
     }
+  }
+
+  /**
+   * Whether an API call must be queued instead of executed now: either the SDK is not loaded yet,
+   * or the buffer is being drained and this call was not replayed from it
+   */
+  private shouldBuffer(isBufferedInvocation: boolean): boolean {
+    return !state.lifecycle.loaded.value || (this.isDrainingBuffer && !isBufferedInvocation);
   }
 
   private getInvocationContext(preservedCustomContext?: CustomContext): CustomContext {
@@ -563,7 +579,7 @@ class Analytics implements IAnalytics {
   ready(callback: ApiCallback, isBufferedInvocation = false) {
     const type = 'ready';
 
-    if (!state.lifecycle.loaded.value) {
+    if (this.shouldBuffer(isBufferedInvocation)) {
       state.eventBuffer.toBeProcessedArray.value = [
         ...state.eventBuffer.toBeProcessedArray.value,
         [type, callback],
@@ -600,7 +616,7 @@ class Analytics implements IAnalytics {
   ) {
     const type = 'page';
 
-    if (!state.lifecycle.loaded.value) {
+    if (this.shouldBuffer(isBufferedInvocation)) {
       state.eventBuffer.toBeProcessedArray.value = [
         ...state.eventBuffer.toBeProcessedArray.value,
         [type, payload],
@@ -657,7 +673,7 @@ class Analytics implements IAnalytics {
   ) {
     const type = 'track';
 
-    if (!state.lifecycle.loaded.value) {
+    if (this.shouldBuffer(isBufferedInvocation)) {
       state.eventBuffer.toBeProcessedArray.value = [
         ...state.eventBuffer.toBeProcessedArray.value,
         [type, payload],
@@ -689,7 +705,7 @@ class Analytics implements IAnalytics {
   ) {
     const type = 'identify';
 
-    if (!state.lifecycle.loaded.value) {
+    if (this.shouldBuffer(isBufferedInvocation)) {
       state.eventBuffer.toBeProcessedArray.value = [
         ...state.eventBuffer.toBeProcessedArray.value,
         [type, payload],
@@ -707,7 +723,8 @@ class Analytics implements IAnalytics {
     );
 
     if (shouldResetSession) {
-      this.reset();
+      // Part of this identify call, so it must not be deferred behind other buffered calls
+      this.reset(undefined, true);
     }
 
     // `null` value indicates that previous user ID needs to be retained
@@ -735,7 +752,7 @@ class Analytics implements IAnalytics {
   ) {
     const type = 'alias';
 
-    if (!state.lifecycle.loaded.value) {
+    if (this.shouldBuffer(isBufferedInvocation)) {
       state.eventBuffer.toBeProcessedArray.value = [
         ...state.eventBuffer.toBeProcessedArray.value,
         [type, payload],
@@ -770,7 +787,7 @@ class Analytics implements IAnalytics {
   ) {
     const type = 'group';
 
-    if (!state.lifecycle.loaded.value) {
+    if (this.shouldBuffer(isBufferedInvocation)) {
       state.eventBuffer.toBeProcessedArray.value = [
         ...state.eventBuffer.toBeProcessedArray.value,
         [type, payload],
@@ -805,7 +822,7 @@ class Analytics implements IAnalytics {
   reset(options?: ResetOptions | boolean, isBufferedInvocation = false) {
     const type = 'reset';
 
-    if (!state.lifecycle.loaded.value) {
+    if (this.shouldBuffer(isBufferedInvocation)) {
       state.eventBuffer.toBeProcessedArray.value = [
         ...state.eventBuffer.toBeProcessedArray.value,
         [type, options],
@@ -828,7 +845,7 @@ class Analytics implements IAnalytics {
   ): void {
     const type = 'setAnonymousId';
     // Buffering is needed as setting the anonymous ID may require invoking the GoogleLinker plugin
-    if (!state.lifecycle.loaded.value) {
+    if (this.shouldBuffer(isBufferedInvocation)) {
       state.eventBuffer.toBeProcessedArray.value = [
         ...state.eventBuffer.toBeProcessedArray.value,
         [type, anonymousId, rudderAmpLinkerParam],
@@ -863,7 +880,7 @@ class Analytics implements IAnalytics {
   startSession(sessionId?: number, isBufferedInvocation = false): void {
     const type = 'startSession';
 
-    if (!state.lifecycle.loaded.value) {
+    if (this.shouldBuffer(isBufferedInvocation)) {
       state.eventBuffer.toBeProcessedArray.value = [
         ...state.eventBuffer.toBeProcessedArray.value,
         [type, sessionId],
@@ -878,7 +895,7 @@ class Analytics implements IAnalytics {
   endSession(isBufferedInvocation = false): void {
     const type = 'endSession';
 
-    if (!state.lifecycle.loaded.value) {
+    if (this.shouldBuffer(isBufferedInvocation)) {
       state.eventBuffer.toBeProcessedArray.value = [
         ...state.eventBuffer.toBeProcessedArray.value,
         [type],
@@ -899,7 +916,7 @@ class Analytics implements IAnalytics {
   consent(options?: ConsentOptions, isBufferedInvocation = false) {
     const type = 'consent';
 
-    if (!state.lifecycle.loaded.value) {
+    if (this.shouldBuffer(isBufferedInvocation)) {
       state.eventBuffer.toBeProcessedArray.value = [
         ...state.eventBuffer.toBeProcessedArray.value,
         [type, options],
