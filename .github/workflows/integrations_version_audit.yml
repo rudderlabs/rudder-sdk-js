@@ -8,6 +8,11 @@ on:
 permissions:
   contents: read
 
+# Two runs at the same time can both find no open ticket and both create one
+concurrency:
+  group: integrations-version-audit
+  cancel-in-progress: false
+
 jobs:
   audit:
     name: Run Integration SDK Version Audit
@@ -32,14 +37,24 @@ jobs:
           CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
           LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
           LINEAR_TEAM_ID: ${{ secrets.LINEAR_TEAM_ID }}
+          AUDIT_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          AUDIT_CODE_URL: ${{ github.server_url }}/${{ github.repository }}/blob/${{ github.sha }}
+        shell: bash
         run: |
           cursor-agent -p "⚠️ CRITICAL REQUIREMENTS:
           1. Follow the plan in @.github/scripts/integrations_version_audit_plan.md
           2. You MUST create Linear tickets DIRECTLY using Linear API calls during this execution
           3. DO NOT create any script files (no .js files, no audit.js, no integrations_version_audit.js)
           4. Read @.github/scripts/linearApi.js to understand the API structure
-          5. Make Linear API calls directly using your capabilities to create tickets immediately after analysis
-          6. Your output MUST include actual Linear ticket URLs (like https://linear.app/...)
-          7. If you create a script file instead of creating tickets, the task has FAILED
+          5. Before creating any ticket, check for an existing open duplicate and update it instead of creating a new one
+          6. Discover the integrations from packages/analytics-js-integrations/src/integrations - do NOT use a hard-coded list
+          7. Make Linear API calls directly using your capabilities to create or update tickets immediately after analysis
+          8. Your output MUST include the actual Linear URL (like https://linear.app/...) of every ticket you create or update. Never invent a URL
+          9. If you create a script file instead of creating tickets, the task has FAILED
+          10. The last line of your output MUST be 'AUDIT_RESULT: PASSED' or 'AUDIT_RESULT: FAILED - <reason>'
+          11. The CI run URL is $AUDIT_RUN_URL and the code URL is $AUDIT_CODE_URL - use them in the tickets and the comments as the plan describes
 
-          Execute the audit plan: analyze integrations, then immediately create Linear tickets using direct API calls. Include ticket URLs in your final output." --force
+          Execute the audit plan: analyze integrations, then create or update Linear tickets using direct API calls. Include ticket URLs in your final output." --force | tee audit-output.log
+
+          # The agent can add text after the result line, also with no line break
+          grep '^AUDIT_RESULT: ' audit-output.log | tail -n 1 | grep -q '^AUDIT_RESULT: PASSED'
