@@ -97,7 +97,7 @@ class Analytics implements IAnalytics {
   userSessionManager?: IUserSessionManager;
   clientDataStore?: Store;
   customContextStore: CustomContextStore;
-  isDrainingBuffer: boolean;
+  private isDrainingBuffer: boolean;
 
   /**
    * Initialize services and components or use default ones if singletons

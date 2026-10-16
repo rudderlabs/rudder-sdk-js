@@ -36,7 +36,6 @@ import type { CustomContextStore } from '../customContext';
 export interface IAnalytics {
   preloadBuffer: BufferQueue<PreloadedEventCall>;
   initialized: boolean;
-  isDrainingBuffer: boolean;
   httpClient: IHttpClient;
   logger: ILogger;
   errorHandler: IErrorHandler;
