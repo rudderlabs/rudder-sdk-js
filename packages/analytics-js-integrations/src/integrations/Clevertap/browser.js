@@ -52,13 +52,19 @@ class Clevertap {
 
   init() {
     const sourceUrl = 'https://static.clevertap.com/js/clevertap.min.js';
+    // Preserve requests queued by the page before the integration initializes.
+    // A loaded SDK can also expose an Array subclass; only reuse a preload queue.
+    const notifications =
+      !this.isLoaded() && Array.isArray(window.clevertap?.notifications)
+        ? window.clevertap.notifications
+        : [];
 
     window.clevertap = {
       event: [],
       profile: [],
       account: [],
       onUserLogin: [],
-      notifications: [],
+      notifications,
       privacy: [],
     };
     /*
