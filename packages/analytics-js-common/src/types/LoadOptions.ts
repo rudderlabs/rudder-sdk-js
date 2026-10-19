@@ -71,15 +71,15 @@ export type BatchOpts = {
  * Represents the queue options parameter in loadOptions type
  */
 export type QueueOpts = {
-  // Upper cap on maximum delay for an event
+  // Upper cap on the retry delay in ms; the jittered delay never exceeds it
   maxRetryDelay?: number;
-  // Minimum delay before sending an event
+  // Delay in ms before the first retry
   minRetryDelay?: number;
   // Exponential base
   backoffFactor?: number;
-  // Jitter to be applied to the delay
+  // Fraction (0-1) of random +/- deviation on the delay; out-of-range is clamped, NaN uses the default
   backoffJitter?: number;
-  // Maximum number of attempts
+  // Maximum number of retries; 0 disables retries
   maxAttempts?: number;
   // Maximum number of events/events batch in storage
   maxItems?: number;
@@ -166,7 +166,7 @@ export type LoadOptions = {
   logLevel?: LogLevel; // defaults to ERROR
   integrations?: IntegrationOpts; // defaults to { All : true }
   configUrl?: string; // defaults to https://api.rudderstack.com
-  queueOptions?: QueueOpts;
+  queueOptions?: QueueOpts; // defaults to { maxRetryDelay: 540000, minRetryDelay: 1000, backoffFactor: 2, backoffJitter: 0.2, maxAttempts: 30 (~3h of retries), maxItems: 100 }
   loadIntegration?: boolean; // defaults to true.
   sessions?: SessionOpts;
   secureCookie?: boolean; // defaults to false.

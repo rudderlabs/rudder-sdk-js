@@ -85,7 +85,7 @@ class RetryQueue implements IQueue<QueueItemData> {
    * Constructs a RetryQueue backed by localStorage
    *
    * @param {String} name The name of the queue. Will be used to find abandoned queues and retry their items
-   * @param {QueueOpts} [options] Optional argument to override `maxItems`, `maxAttempts`, `minRetryDelay, `maxRetryDelay`, `backoffFactor` and `backoffJitter`.
+   * @param {QueueOpts} [options] Optional argument to override `maxItems`, `maxAttempts`, `minRetryDelay`, `maxRetryDelay`, `backoffFactor` and `backoffJitter`.
    * @param {QueueProcessCallback} queueProcessCb The function to call in order to process an item added to the queue
    * @param {IStoreManager} storeManager The store manager instance to use
    * @param {StorageType} [storageType] The storage type to use. Defaults to LOCAL_STORAGE
