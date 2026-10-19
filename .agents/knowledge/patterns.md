@@ -60,3 +60,7 @@
 ## INT-7215 — Facebook Pixel Scoped PageView
 
 - Facebook Pixel device-mode `page()` must scope `PageView` to the configured pixel with `window.fbq('trackSingle', this.pixelId, 'PageView', properties, { eventID })`; plain `fbq('track', ...)` broadcasts to every Meta pixel initialized on the page. Regression coverage should assert the complete call, including pixel ID, unchanged properties, and derived event ID (`packages/analytics-js-integrations/src/integrations/FacebookPixel/browser.js`, `packages/analytics-js-integrations/__tests__/integrations/FacebookPixel/browser.test.js`).
+
+## SDK-5671 — CleverTap Preloaded Global Normalization
+
+- CleverTap device-mode initialization preserves object-valued preload queues, but resets a truthy primitive `window.clevertap` (such as a string, number, or boolean) to `{}` before adding queue properties; a loaded SDK object is still reset through the existing `getAccountID` path, while function-valued globals keep their queues (`packages/analytics-js-integrations/src/integrations/Clevertap/browser.js`, `packages/analytics-js-integrations/__tests__/integrations/Clevertap/browser.test.js`).
