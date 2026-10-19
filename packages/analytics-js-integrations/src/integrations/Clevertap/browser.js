@@ -56,6 +56,9 @@ class Clevertap {
     if (typeof window.clevertap?.getAccountID === 'function') {
       window.clevertap = {};
     }
+    if (window.clevertap && typeof window.clevertap !== 'object') {
+      window.clevertap = {};
+    }
     // Keep the existing global and queues so early calls aren't discarded.
     window.clevertap = window.clevertap || {};
     window.clevertap.event = window.clevertap.event || [];
