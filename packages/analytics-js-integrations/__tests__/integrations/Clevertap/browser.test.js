@@ -57,10 +57,9 @@ describe('Clevertap init tests', () => {
       serviceWorkerPath: '/clevertap_sw.js',
     };
     const notifications = [];
-    const account = [{ id: 'different-account' }];
     window.clevertap = {
       notifications,
-      account,
+      account: [{ id: 'different-account' }],
       privacy: [{ optOut: false }],
       region: 'eu',
     };
@@ -69,7 +68,6 @@ describe('Clevertap init tests', () => {
     ScriptLoader.mockImplementationOnce(() => {
       expect(window.clevertap.notifications).toBe(notifications);
       expect(window.clevertap.notifications).toEqual([notification]);
-      expect(window.clevertap.account).toBe(account);
       expect(window.clevertap.account).toEqual([{ id: '12567839' }]);
       expect(window.clevertap.region).toBe('in');
       expect(window.clevertap.privacy).toEqual([
@@ -139,7 +137,6 @@ describe('Clevertap init tests', () => {
     const existing = {
       event: ['Order Completed', { orderId: 'order-1' }],
       profile: [{ Site: { Name: 'Test User' } }],
-      account: [{ id: '12567839' }],
       onUserLogin: [{ Site: { Identity: 'user-1' } }],
       notifications: [{ titleText: 'Receive updates?' }],
       privacy: [{ optOut: true }],
@@ -186,7 +183,7 @@ describe('Clevertap init tests', () => {
 
   test('preserves native SDK APIs without checking whether the SDK is loaded', () => {
     const existing = { logout: jest.fn() };
-    ['event', 'profile', 'account', 'onUserLogin', 'notifications', 'privacy'].forEach(key => {
+    ['event', 'profile', 'onUserLogin', 'notifications', 'privacy'].forEach(key => {
       existing[key] = { push: jest.fn() };
     });
     const apis = { ...existing };
@@ -201,7 +198,7 @@ describe('Clevertap init tests', () => {
     Object.keys(apis).forEach(key => {
       expect(window.clevertap[key]).toBe(apis[key]);
     });
-    expect(existing.account.push).toHaveBeenCalledWith({ id: '12567839' });
+    expect(window.clevertap.account).toEqual([{ id: '12567839' }]);
     expect(existing.privacy.push.mock.calls).toEqual([[{ optOut: false }], [{ useIP: false }]]);
   });
 });
