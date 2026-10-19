@@ -294,16 +294,4 @@ describe('Clevertap init tests', () => {
       expect(clevertap.isReady()).toBe(false);
     },
   );
-
-  test('drops queued logins when the destination opts out', () => {
-    window.clevertap = { onUserLogin: [{ Site: { Identity: 'user-1' } }] };
-    clevertap = new Clevertap(
-      { accountId: '12567839' },
-      { loadOnlyIntegrations: { CleverTap: { optOut: true } } },
-    );
-
-    clevertap.init();
-
-    expect(window.clevertap.onUserLogin).toEqual([]);
-  });
 });

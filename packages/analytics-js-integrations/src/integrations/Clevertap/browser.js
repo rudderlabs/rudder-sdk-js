@@ -71,11 +71,6 @@ class Clevertap {
       this.optOut = clevertapIntgConfig.optOut;
       this.useIP = clevertapIntgConfig.useIP;
     }
-    // The SDK replays queued logins before queued privacy settings, so they'd be sent despite opt-out.
-    if (this.optOut && window.clevertap.onUserLogin.length > 0) {
-      logger.warn('Dropping queued CleverTap logins: opted out');
-      window.clevertap.onUserLogin.length = 0;
-    }
     window.clevertap.enablePersonalization = true;
     window.clevertap.privacy.push({ optOut: this.optOut || false }, { useIP: this.useIP || false });
     const preloadedId = window.clevertap.account?.[0]?.id;
