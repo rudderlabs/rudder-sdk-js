@@ -167,6 +167,49 @@ describe('Test suite for the SDK', () => {
       });
       expect(eventsByName['after-clear']?.context).not.toHaveProperty('version');
     });
+
+    describe('event ordering', () => {
+      const getSentEventsOrder = (): string[] =>
+        xhrMock.send.mock.calls
+          .map(([body]: [unknown]) => (typeof body === 'string' ? JSON.parse(body) : undefined))
+          .filter((event: any) => event?.type)
+          .map((event: any) => `${event.type}:${event.event ?? event.name ?? event.userId}`);
+
+      const getSentEvent = (type: string) =>
+        xhrMock.send.mock.calls
+          .map(([body]: [unknown]) => (typeof body === 'string' ? JSON.parse(body) : undefined))
+          .find((event: any) => event?.type === type);
+
+      it('sends preloaded calls before calls made while the SDK is initializing', async () => {
+        // Answer the source config request asynchronously, like the network would
+        xhrMock.send.mockImplementationOnce(() => {
+          setTimeout(() => {
+            window.rudderanalytics?.page('during-init');
+            xhrMock.onload();
+          }, 0);
+        });
+        loadSDKScript();
+        window.rudderanalytics?.identify(USER_ID, USER_TRAITS);
+
+        await waitForSDKReady();
+
+        expect(getSentEventsOrder()).toEqual([`identify:${USER_ID}`, 'page:during-init']);
+        expect(getSentEvent('page').userId).toBe(USER_ID);
+        expect(getSentEvent('page').context.traits).toMatchObject(USER_TRAITS);
+      });
+
+      it('sends calls made in the onLoaded callback after preloaded calls', async () => {
+        loadSDKScript({
+          onLoaded: (rudderanalytics: any) => rudderanalytics.page('on-loaded'),
+        });
+        window.rudderanalytics?.identify(USER_ID, USER_TRAITS);
+
+        await waitForSDKReady();
+
+        expect(getSentEventsOrder()).toEqual([`identify:${USER_ID}`, 'page:on-loaded']);
+        expect(getSentEvent('page').userId).toBe(USER_ID);
+      });
+    });
   });
 
   describe('api', () => {
