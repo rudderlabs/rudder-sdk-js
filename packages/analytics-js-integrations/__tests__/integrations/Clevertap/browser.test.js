@@ -292,6 +292,18 @@ describe('Clevertap init tests', () => {
     expect(clevertap.isReady()).toBe(false);
   });
 
+  test('replaces a loaded SDK that has no account yet', () => {
+    const live = { logout: jest.fn(), getAccountID: () => undefined, privacy: { push: jest.fn() } };
+    window.clevertap = live;
+    clevertap = new Clevertap({ accountId: '12567839' }, { loadOnlyIntegrations: {} });
+
+    clevertap.init();
+
+    expect(window.clevertap).not.toBe(live);
+    expect(live.privacy.push).not.toHaveBeenCalled();
+    expect(clevertap.isReady()).toBe(false);
+  });
+
   test('keeps a loaded SDK bound to the configured account', () => {
     const live = {
       logout: jest.fn(),
