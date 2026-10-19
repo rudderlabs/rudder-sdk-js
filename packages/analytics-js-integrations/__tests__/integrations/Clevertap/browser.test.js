@@ -149,6 +149,20 @@ describe('Clevertap init tests', () => {
     expect(window.clevertap.token).toBe('token');
   });
 
+  test('keeps the fallbacks of a matching preloaded account', () => {
+    const account = [{ id: '12567839' }, 'eu', 'example.com', 'token'];
+    window.clevertap = { account };
+    clevertap = new Clevertap(
+      { accountId: '12567839', region: 'none' },
+      { loadOnlyIntegrations: {} },
+    );
+
+    clevertap.init();
+
+    expect(window.clevertap.account).toBe(account);
+    expect(window.clevertap.account).toEqual([{ id: '12567839' }, 'eu', 'example.com', 'token']);
+  });
+
   test('replaces a preloaded account and region fallback with the configured account', () => {
     window.clevertap = { account: [{ id: 'different-account' }, 'eu'] };
     clevertap = new Clevertap(
@@ -258,6 +272,6 @@ describe('Clevertap init tests', () => {
       expect(window.clevertap[key]).toBe(apis[key]);
     });
     expect(window.clevertap.account).toEqual([{ id: '12567839' }]);
-    expect(existing.privacy.push.mock.calls).toEqual([[{ optOut: false }], [{ useIP: false }]]);
+    expect(existing.privacy.push.mock.calls).toEqual([[{ optOut: false }, { useIP: false }]]);
   });
 });

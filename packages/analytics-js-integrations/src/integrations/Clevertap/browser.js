@@ -68,18 +68,20 @@ class Clevertap {
       this.useIP = clevertapIntgConfig.useIP;
     }
     window.clevertap.enablePersonalization = true;
-    window.clevertap.privacy.push({ optOut: this.optOut || false });
-    window.clevertap.privacy.push({ useIP: this.useIP || false });
+    window.clevertap.privacy.push({ optOut: this.optOut || false }, { useIP: this.useIP || false });
     const preloadedId = window.clevertap.account?.[0]?.id;
-    if (preloadedId && preloadedId !== this.accountId) {
-      logger.warn(`Ignoring preloaded account ${preloadedId}`);
-      // These belong to the ignored account; the SDK reads them from the global.
-      delete window.clevertap.region;
-      delete window.clevertap.targetDomain;
-      delete window.clevertap.token;
+    // A matching preload keeps its account[1..3] region, domain, and token fallbacks.
+    if (preloadedId !== this.accountId) {
+      if (preloadedId) {
+        logger.warn(`Ignoring preloaded account ${preloadedId}`);
+        // These belong to the ignored account; the SDK reads them from the global.
+        delete window.clevertap.region;
+        delete window.clevertap.targetDomain;
+        delete window.clevertap.token;
+      }
+      // The native SDK reads account[0] as the ID and account[1] as a region fallback.
+      window.clevertap.account = [{ id: this.accountId }];
     }
-    // The native SDK reads account[0] as the ID and account[1] as a region fallback.
-    window.clevertap.account = [{ id: this.accountId }];
     if (this.region && this.region !== 'none') {
       window.clevertap.region = this.region;
     }
