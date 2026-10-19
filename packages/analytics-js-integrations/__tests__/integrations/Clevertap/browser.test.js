@@ -57,9 +57,10 @@ describe('Clevertap init tests', () => {
       serviceWorkerPath: '/clevertap_sw.js',
     };
     const notifications = [];
+    const account = [{ id: 'different-account' }];
     window.clevertap = {
       notifications,
-      account: [{ id: 'different-account' }],
+      account,
       privacy: [{ optOut: false }],
       region: 'eu',
     };
@@ -68,7 +69,8 @@ describe('Clevertap init tests', () => {
     ScriptLoader.mockImplementationOnce(() => {
       expect(window.clevertap.notifications).toBe(notifications);
       expect(window.clevertap.notifications).toEqual([notification]);
-      expect(window.clevertap.account).toEqual([{ id: 'different-account' }, { id: '12567839' }]);
+      expect(window.clevertap.account).toBe(account);
+      expect(window.clevertap.account).toEqual([{ id: '12567839' }]);
       expect(window.clevertap.region).toBe('in');
       expect(window.clevertap.privacy).toEqual([
         { optOut: false },
@@ -88,6 +90,19 @@ describe('Clevertap init tests', () => {
       'https://static.clevertap.com/js/clevertap.min.js',
     );
     expect(clevertap.isReady()).toBe(false);
+  });
+
+  test('replaces a preloaded account and region fallback with the configured account', () => {
+    window.clevertap = { account: [{ id: 'different-account' }, 'eu'] };
+    clevertap = new Clevertap(
+      { accountId: '12567839', region: 'none' },
+      { loadOnlyIntegrations: {} },
+    );
+
+    clevertap.init();
+
+    expect(window.clevertap.account).toEqual([{ id: '12567839' }]);
+    expect(window.clevertap.region).toBeUndefined();
   });
 
   test('retains the preload queue when requests are added after initialization', () => {
@@ -144,7 +159,7 @@ describe('Clevertap init tests', () => {
     expect(window.clevertap.profile).toEqual([{ Site: { Name: 'Test User' } }]);
     expect(window.clevertap.onUserLogin).toEqual([{ Site: { Identity: 'user-1' } }]);
     expect(window.clevertap.notifications).toEqual([{ titleText: 'Receive updates?' }]);
-    expect(window.clevertap.account).toEqual([{ id: '12567839' }, { id: '12567839' }]);
+    expect(window.clevertap.account).toEqual([{ id: '12567839' }]);
     expect(window.clevertap.privacy).toEqual([
       { optOut: true },
       { optOut: false },

@@ -71,7 +71,17 @@ class Clevertap {
     window.clevertap.enablePersonalization = true;
     window.clevertap.privacy.push({ optOut: this.optOut || false });
     window.clevertap.privacy.push({ useIP: this.useIP || false });
-    window.clevertap.account.push({ id: this.accountId });
+    const { account } = window.clevertap;
+    if (Array.isArray(account)) {
+      const preloadedId = account[0]?.id;
+      if (preloadedId && preloadedId !== this.accountId) {
+        logger.warn(`Ignoring preloaded account ${preloadedId}`);
+      }
+      // The native SDK reads account[0] as the ID and account[1] as a region fallback.
+      account.splice(0, account.length, { id: this.accountId });
+    } else {
+      account.push({ id: this.accountId });
+    }
     if (this.region && this.region !== 'none') {
       window.clevertap.region = this.region;
     }
