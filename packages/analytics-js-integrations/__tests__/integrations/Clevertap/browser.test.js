@@ -274,4 +274,36 @@ describe('Clevertap init tests', () => {
     expect(window.clevertap.account).toEqual([{ id: '12567839' }]);
     expect(existing.privacy.push.mock.calls).toEqual([[{ optOut: false }, { useIP: false }]]);
   });
+
+  test('replaces a loaded SDK bound to a different account', () => {
+    const live = { logout: jest.fn(), getAccountID: () => 'different-account' };
+    ['event', 'profile', 'onUserLogin', 'notifications', 'privacy'].forEach(key => {
+      live[key] = { push: jest.fn() };
+    });
+    window.clevertap = live;
+    clevertap = new Clevertap({ accountId: '12567839' }, { loadOnlyIntegrations: {} });
+
+    clevertap.init();
+
+    expect(window.clevertap).not.toBe(live);
+    expect(live.privacy.push).not.toHaveBeenCalled();
+    expect(window.clevertap.account).toEqual([{ id: '12567839' }]);
+    expect(window.clevertap.privacy).toEqual([{ optOut: false }, { useIP: false }]);
+    expect(clevertap.isReady()).toBe(false);
+  });
+
+  test('keeps a loaded SDK bound to the configured account', () => {
+    const live = {
+      logout: jest.fn(),
+      getAccountID: () => '12567839',
+      privacy: { push: jest.fn() },
+    };
+    window.clevertap = live;
+    clevertap = new Clevertap({ accountId: '12567839' }, { loadOnlyIntegrations: {} });
+
+    clevertap.init();
+
+    expect(window.clevertap).toBe(live);
+    expect(live.privacy.push).toHaveBeenCalledWith({ optOut: false }, { useIP: false });
+  });
 });

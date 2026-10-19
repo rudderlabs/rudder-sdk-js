@@ -52,6 +52,12 @@ class Clevertap {
 
   init() {
     const sourceUrl = 'https://static.clevertap.com/js/clevertap.min.js';
+    // A loaded SDK for another account would receive our events and privacy settings.
+    const loadedId = window.clevertap?.getAccountID?.();
+    if (loadedId && loadedId !== this.accountId) {
+      logger.warn(`Ignoring loaded CleverTap account ${loadedId}`);
+      window.clevertap = {};
+    }
     // Keep the existing global and queues so early calls aren't discarded.
     window.clevertap = window.clevertap || {};
     window.clevertap.event = window.clevertap.event || [];
