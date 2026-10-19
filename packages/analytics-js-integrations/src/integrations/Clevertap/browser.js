@@ -56,7 +56,8 @@ class Clevertap {
     if (typeof window.clevertap?.getAccountID === 'function') {
       window.clevertap = {};
     }
-    if (window.clevertap && typeof window.clevertap !== 'object') {
+    // A primitive can't hold the queues; assigning them would throw.
+    if (window.clevertap && !['object', 'function'].includes(typeof window.clevertap)) {
       window.clevertap = {};
     }
     // Keep the existing global and queues so early calls aren't discarded.

@@ -63,4 +63,4 @@
 
 ## SDK-5671 — CleverTap Preloaded Global Normalization
 
-- CleverTap device-mode initialization preserves object-valued preload queues, but resets a truthy primitive `window.clevertap` (such as a string, number, or boolean) to `{}` before adding queue properties; a loaded SDK object is still reset through the existing `getAccountID` path, while function-valued globals remain unchanged (`packages/analytics-js-integrations/src/integrations/Clevertap/browser.js`, `packages/analytics-js-integrations/__tests__/integrations/Clevertap/browser.test.js`).
+- CleverTap device-mode initialization preserves object-valued preload queues, but resets a truthy primitive `window.clevertap` (such as a string, number, or boolean) to `{}` before adding queue properties; a loaded SDK object is still reset through the existing `getAccountID` path, while function-valued globals keep their queues (`packages/analytics-js-integrations/src/integrations/Clevertap/browser.js`, `packages/analytics-js-integrations/__tests__/integrations/Clevertap/browser.test.js`).
