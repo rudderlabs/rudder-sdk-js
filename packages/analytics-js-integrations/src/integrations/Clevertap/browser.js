@@ -73,6 +73,10 @@ class Clevertap {
     const preloadedId = window.clevertap.account?.[0]?.id;
     if (preloadedId && preloadedId !== this.accountId) {
       logger.warn(`Ignoring preloaded account ${preloadedId}`);
+      // These belong to the ignored account; the SDK reads them from the global.
+      delete window.clevertap.region;
+      delete window.clevertap.targetDomain;
+      delete window.clevertap.token;
     }
     // The native SDK reads account[0] as the ID and account[1] as a region fallback.
     window.clevertap.account = [{ id: this.accountId }];

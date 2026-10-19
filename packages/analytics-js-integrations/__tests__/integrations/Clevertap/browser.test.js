@@ -113,6 +113,42 @@ describe('Clevertap init tests', () => {
     warn.mockRestore();
   });
 
+  test('clears account-scoped settings when a preloaded account differs', () => {
+    window.clevertap = {
+      account: [{ id: 'different-account' }],
+      region: 'eu',
+      targetDomain: 'example.com',
+      token: 'token',
+    };
+    clevertap = new Clevertap(
+      { accountId: '12567839', region: 'none' },
+      { loadOnlyIntegrations: {} },
+    );
+
+    clevertap.init();
+
+    expect(window.clevertap.account).toEqual([{ id: '12567839' }]);
+    expect(window.clevertap).not.toHaveProperty('region');
+    expect(window.clevertap).not.toHaveProperty('targetDomain');
+    expect(window.clevertap).not.toHaveProperty('token');
+  });
+
+  test('keeps account-scoped settings when a preloaded account matches', () => {
+    window.clevertap = {
+      account: [{ id: '12567839' }],
+      region: 'eu',
+      targetDomain: 'example.com',
+      token: 'token',
+    };
+    clevertap = new Clevertap({ accountId: '12567839' }, { loadOnlyIntegrations: {} });
+
+    clevertap.init();
+
+    expect(window.clevertap.region).toBe('eu');
+    expect(window.clevertap.targetDomain).toBe('example.com');
+    expect(window.clevertap.token).toBe('token');
+  });
+
   test('replaces a preloaded account and region fallback with the configured account', () => {
     window.clevertap = { account: [{ id: 'different-account' }, 'eu'] };
     clevertap = new Clevertap(
