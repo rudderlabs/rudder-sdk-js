@@ -1,5 +1,6 @@
 import Clevertap from '../../../src/integrations/Clevertap/browser';
 import { ScriptLoader } from '@rudderstack/analytics-js-legacy-utilities/ScriptLoader';
+import Logger from '../../../src/utils/logger';
 
 jest.mock('@rudderstack/analytics-js-legacy-utilities/ScriptLoader', () => ({
   ScriptLoader: jest.fn(),
@@ -88,6 +89,28 @@ describe('Clevertap init tests', () => {
       'https://static.clevertap.com/js/clevertap.min.js',
     );
     expect(clevertap.isReady()).toBe(false);
+  });
+
+  test('warns when a preloaded account differs from the configured account', () => {
+    const warn = jest.spyOn(Logger.prototype, 'warn');
+    window.clevertap = { account: [{ id: 'different-account' }] };
+    clevertap = new Clevertap({ accountId: '12567839' }, { loadOnlyIntegrations: {} });
+
+    clevertap.init();
+
+    expect(warn).toHaveBeenCalledWith('Ignoring preloaded account different-account');
+    warn.mockRestore();
+  });
+
+  test('does not warn when a preloaded account matches the configured account', () => {
+    const warn = jest.spyOn(Logger.prototype, 'warn');
+    window.clevertap = { account: [{ id: '12567839' }] };
+    clevertap = new Clevertap({ accountId: '12567839' }, { loadOnlyIntegrations: {} });
+
+    clevertap.init();
+
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
   });
 
   test('replaces a preloaded account and region fallback with the configured account', () => {
