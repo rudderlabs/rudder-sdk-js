@@ -52,13 +52,9 @@ class Clevertap {
 
   init() {
     const sourceUrl = 'https://static.clevertap.com/js/clevertap.min.js';
-    // A loaded SDK for another account, or for none yet, would receive our events and privacy settings.
+    // Only preload queues are kept; a loaded SDK is replaced as before (one account per page).
     if (typeof window.clevertap?.getAccountID === 'function') {
-      const loadedId = window.clevertap.getAccountID();
-      if (loadedId !== this.accountId) {
-        logger.warn(`Ignoring loaded CleverTap account ${loadedId}`);
-        window.clevertap = {};
-      }
+      window.clevertap = {};
     }
     // Keep the existing global and queues so early calls aren't discarded.
     window.clevertap = window.clevertap || {};
@@ -74,6 +70,11 @@ class Clevertap {
     if (clevertapIntgConfig) {
       this.optOut = clevertapIntgConfig.optOut;
       this.useIP = clevertapIntgConfig.useIP;
+    }
+    // The SDK replays queued logins before queued privacy settings, so they'd be sent despite opt-out.
+    if (this.optOut && window.clevertap.onUserLogin.length > 0) {
+      logger.warn('Dropping queued CleverTap logins: opted out');
+      window.clevertap.onUserLogin.length = 0;
     }
     window.clevertap.enablePersonalization = true;
     window.clevertap.privacy.push({ optOut: this.optOut || false }, { useIP: this.useIP || false });
