@@ -1,7 +1,7 @@
 /*
  GENERATED - DO NOT EDIT
  This file is generated from the templates/Destinations.ts.template file.
- Original file: https://github.com/rudderlabs/rudder-integrations-config/blob/develop/generated/Destinations.ts
+ Original file: https://github.com/rudderlabs/rudder-integrations-config/blob/main/generated/Destinations.ts
  
  NOTE: Contains only constants for device mode destinations
  */
@@ -109,6 +109,8 @@ export const NINETAILED_NAME = 'NINETAILED';
 export const NINETAILED_DISPLAY_NAME = 'Ninetailed';
 export const OLARK_NAME = 'OLARK';
 export const OLARK_DISPLAY_NAME = 'Olark';
+export const OPENAI_ADS_NAME = 'OPENAI_ADS';
+export const OPENAI_ADS_DISPLAY_NAME = 'OpenAI Ads';
 export const OPTIMIZELY_NAME = 'OPTIMIZELY';
 export const OPTIMIZELY_DISPLAY_NAME = 'Optimizely Web';
 export const PENDO_NAME = 'PENDO';
