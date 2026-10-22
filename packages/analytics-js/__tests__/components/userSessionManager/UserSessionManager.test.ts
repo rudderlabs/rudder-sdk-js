@@ -2399,6 +2399,9 @@ describe('User session manager', () => {
         id: expect.any(Number),
         sessionStart: undefined,
       });
+      expect(defaultLogger.warn).not.toHaveBeenCalledWith(
+        expect.stringContaining('The provided session ID'),
+      );
     });
 
     it('endSessionTracking: should clear session info', () => {
