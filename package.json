@@ -44,7 +44,7 @@
     "check:pub:ci": "nx affected -t check:pub --verbose --base=$BASE_REF",
     "format": "prettier --write .",
     "lint:fix": "nx run-many -t check:lint --fix",
-    "prepare": "(git config --global --includes core.hooksPath || husky) && patch-package",
+    "prepare": "patch-package",
     "pre-commit": "npx lint-staged",
     "commit-msg": "commitlint --edit",
     "commit": "git-cz",
