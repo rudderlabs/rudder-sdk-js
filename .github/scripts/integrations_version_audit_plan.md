@@ -117,7 +117,7 @@ A vendor SDK copy that is served from a RudderStack host (for example `cdn.rudde
     - `releaseNotes` - the page or registry that lists the latest release. Only a `versioned` integration needs it.
     - `statusNotice` - a vendor page that announces a shutdown, a rename or an acquisition of the product. Most integrations have none. Read it on every run: a shutdown date on that page is a sunset date, also when the install page still loads.
   - Open the stored links first. A stored link is a starting point, not a result: read the page in this run.
-  - Search for the docs only when an entry or a link is missing, the link does not load, or the page no longer documents the browser install. Then use the four sources below.
+  - Search for the docs only when an entry or a link is missing, the link does not load, the page no longer documents the browser install, or the `releaseNotes` page does not show the latest release. Then use the four sources below.
   - The run cannot save the file. Under the heading `DOCS LINK UPDATES`, print one JSON object in the format of the file. It holds every entry that is new or changed in this run. Print `{}` when nothing changed. A person commits the block.
 
 - **Research effort** - the audit has no value for an integration that you did not research:
@@ -250,7 +250,7 @@ An Unknown integration gets no subticket. On every run, list it with the reason 
   - **Added sections**: copy each section whose heading is not in the template unchanged. Put it before the Audit Metadata section.
 - Add the two labels with `addedLabelIds`. This keeps every label that the ticket already has.
 - Set the maintenance project only when the ticket has no project.
-- If Linear rejects the labels, repeat the update without `addedLabelIds` and log a warning. A label must not block the update or fail the audit.
+- If Linear rejects the labels, repeat the update without `addedLabelIds`, so the other fields still change. Record the label error. The audit result is FAILED, so a person adds the labels.
 - After the update, add one changelog comment to the subticket (see Changelog Comment Template).
 - Track the parent master IDs of all updated subtickets, so their descriptions can be refreshed in step 8b.
 
@@ -388,9 +388,9 @@ if (!coveragePassed) {
 }
 console.log(`\nBy Category:`);
 console.log(`  - Action Required: ${actionRequiredCount}`);
-console.log(`  - No Action: ${noActionCount}`);
 console.log(`  - Unknown: ${unknownCount}`);
 unknownIntegrations.forEach(i => console.log(`      ${i.name}: ${i.reason}`));
+console.log(`  - No Action: ${noActionCount}`);
 console.log(`  - Wrappers (covered by parent): ${wrapperCount}`);
 wrapperIntegrations.forEach(i => console.log(`      ${i.name}: covered by ${i.parent}`));
 console.log(`\nBy Priority:`);
@@ -473,18 +473,18 @@ List each integration in exactly one section.
 
 - **[Integration Name]** ([Ticket identifier](Ticket URL)) — Sunset: [Sunset Date or "None"] — [Docs page title](Docs URL) — [Brief description]
 
+## ❓ Unknown (Manual Review Needed)
+
+**Count**: [Number]
+
+- **[Integration Name]** - [Reason, e.g., "Vendor docs not found", "Version of the hosted copy is not visible"]
+
 ## ✅ No Action Required
 
 **Count**: [Number]
 
 - **[Integration Name]** - [Group] - [Brief reason, e.g., "Loads 7.0, latest is 7.2, same major", "Loader matches current vendor docs"]
 - [Continue listing every integration that requires no action]
-
-## ❓ Unknown (Manual Review Needed)
-
-**Count**: [Number]
-
-- **[Integration Name]** - [Reason, e.g., "Vendor docs not found", "Version of the hosted copy is not visible"]
 
 ## ℹ️ Wrappers (Covered by the Parent Integration)
 
