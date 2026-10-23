@@ -1,0 +1,251 @@
+{
+  "ActiveCampaign": {
+    "installDocs": "https://help.activecampaign.com/hc/en-us/articles/221493708-How-to-set-up-Site-Tracking"
+  },
+  "AdobeAnalytics": {
+    "installDocs": "https://experienceleague.adobe.com/en/docs/analytics/implementation/js/overview",
+    "releaseNotes": "https://github.com/adobe/appmeasurement/releases"
+  },
+  "Adroll": {
+    "installDocs": "https://help.adroll.com/hc/en-us/articles/360040116252-Connect-AdRoll-to-your-Site-Add-the-Pixel-to-your-Website-Header"
+  },
+  "Amplitude": {
+    "installDocs": "https://amplitude.com/docs/sdks/analytics/browser/browser-sdk-2",
+    "releaseNotes": "https://www.npmjs.com/package/@amplitude/analytics-browser"
+  },
+  "Appcues": {
+    "installDocs": "https://docs.appcues.com/install-appcues-web/install-the-appcues-sdk"
+  },
+  "Axeptio": {
+    "installDocs": "https://support.axeptio.eu/en/articles/273981-integration-and-data-release"
+  },
+  "BingAds": {
+    "installDocs": "https://learn.microsoft.com/en-us/advertising/msa-help/hlp_ba_proc_uetv2addtag"
+  },
+  "Braze": {
+    "installDocs": "https://www.braze.com/docs/developer_guide/sdk_integration",
+    "releaseNotes": "https://github.com/braze-inc/braze-web-sdk/blob/master/CHANGELOG.md"
+  },
+  "Bugsnag": {
+    "installDocs": "https://docs.bugsnag.com/platforms/javascript/cdn-guide/",
+    "releaseNotes": "https://docs.bugsnag.com/platforms/javascript/"
+  },
+  "Chartbeat": {
+    "installDocs": "https://docs.chartbeat.com/cbp/tracking/standard-websites/our-javascript"
+  },
+  "Clevertap": {
+    "installDocs": "https://developer.clevertap.com/docs/web-quickstart-guide"
+  },
+  "CommandBar": {
+    "installDocs": "https://amplitude.com/guides-and-surveys",
+    "releaseNotes": "https://www.npmjs.com/package/commandbar"
+  },
+  "Comscore": {
+    "installDocs": "https://direct-support.comscore.com/hc/en-us/articles/360006458373-Website-Tag-Implementation-pdf"
+  },
+  "ConvertFlow": {
+    "installDocs": "https://support.convertflow.com/en/articles/2514428-installing-the-convertflow-code-on-your-website"
+  },
+  "Criteo": {
+    "installDocs": "https://developers.criteo.com/retailer-integration/docs/onetag"
+  },
+  "CustomerIO": {
+    "installDocs": "https://docs.customer.io/integrations/data-in/connections/javascript/js-source/",
+    "releaseNotes": "https://docs.customer.io/integrations/data-in/connections/javascript/legacy-js/getting-started/"
+  },
+  "DCMFloodlight": {
+    "installDocs": "https://developers.google.com/tag-platform/gtagjs"
+  },
+  "Drip": {
+    "installDocs": "https://help.drip.com/hc/en-us/articles/4424702539789-Install-Your-JavaScript-Snippet"
+  },
+  "FacebookPixel": {
+    "installDocs": "https://developers.facebook.com/docs/meta-pixel/get-started"
+  },
+  "Fullstory": {
+    "installDocs": "https://developer.fullstory.com/browser/getting-started/"
+  },
+  "GA": {
+    "installDocs": "https://developers.google.com/tag-platform/gtagjs",
+    "statusNotice": "https://support.google.com/analytics/answer/11583528?hl=en"
+  },
+  "GA4": {
+    "installDocs": "https://developers.google.com/tag-platform/gtagjs"
+  },
+  "Gainsight_PX": {
+    "installDocs": "https://support.gainsight.com/PX/API_for_Developers/01About/Work_with_Gainsight_PX_Web_SDK"
+  },
+  "GoogleAds": {
+    "installDocs": "https://developers.google.com/tag-platform/gtagjs"
+  },
+  "GoogleOptimize": {
+    "installDocs": "https://support.google.com/analytics/answer/12979939?hl=en"
+  },
+  "GoogleTagManager": {
+    "installDocs": "https://support.google.com/tagmanager/answer/14847097?hl=en"
+  },
+  "Heap": {
+    "installDocs": "https://developers.heap.io/docs/web"
+  },
+  "Hotjar": {
+    "installDocs": "https://help.hotjar.com/hc/en-us/articles/115011639927-What-is-the-Hotjar-Tracking-Code"
+  },
+  "HubSpot": {
+    "installDocs": "https://knowledge.hubspot.com/reports/install-the-hubspot-tracking-code"
+  },
+  "INTERCOM": {
+    "installDocs": "https://developers.intercom.com/installing-intercom/web/installation"
+  },
+  "Iterable": {
+    "installDocs": "https://support.iterable.com/hc/en-us/articles/4419628585364-Setting-up-Iterable-s-Web-SDK"
+  },
+  "June": {
+    "installDocs": "https://www.june.so/docs/tracking/web/browser",
+    "statusNotice": "https://www.june.so/blog/a-new-chapter"
+  },
+  "Keen": {
+    "installDocs": "https://github.com/keen/keen-tracking.js/",
+    "releaseNotes": "https://github.com/keen/keen-tracking.js/releases"
+  },
+  "Kissmetrics": {
+    "installDocs": "https://support.kissmetrics.io/docs/installing-the-javascript-library-quickstart",
+    "releaseNotes": "https://support.kissmetrics.io/docs/saas-javascript-code-examples"
+  },
+  "Klaviyo": {
+    "installDocs": "https://developers.klaviyo.com/en/docs/javascript_api"
+  },
+  "LaunchDarkly": {
+    "installDocs": "https://docs.launchdarkly.com/sdk/client-side/javascript/",
+    "releaseNotes": "https://www.npmjs.com/package/@launchdarkly/js-client-sdk"
+  },
+  "Lemnisk": {
+    "installDocs": "https://docs.lemnisk.co/sources/javascript-sdk"
+  },
+  "LinkedInInsightTag": {
+    "installDocs": "https://www.linkedin.com/help/lms/answer/a418880"
+  },
+  "LiveChat": {
+    "installDocs": "https://platform.text.com/docs/extending-chat-widget/javascript-api"
+  },
+  "Lytics": {
+    "installDocs": "https://docs.lytics.com/docs/lytics-javascript-tag"
+  },
+  "Matomo": {
+    "installDocs": "https://developer.matomo.org/guides/tracking-javascript-guide"
+  },
+  "MicrosoftClarity": {
+    "installDocs": "https://learn.microsoft.com/en-us/clarity/setup-and-installation/clarity-setup"
+  },
+  "Mixpanel": {
+    "installDocs": "https://docs.mixpanel.com/docs/tracking-methods/sdks/javascript",
+    "releaseNotes": "https://www.npmjs.com/package/mixpanel-browser"
+  },
+  "MoEngage": {
+    "installDocs": "https://www.moengage.com/docs/developer-guide/web-sdk/web-sdk-integration/basic-integration/web-sdk-integration",
+    "releaseNotes": "https://www.npmjs.com/package/@moengage/web-sdk"
+  },
+  "Mouseflow": {
+    "installDocs": "https://help.mouseflow.com/en/articles/4264201-installation-guide"
+  },
+  "Ninetailed": {
+    "installDocs": "https://www.contentful.com/developers/docs/personalization/experience-sdk/"
+  },
+  "Olark": {
+    "installDocs": "https://www.olark.com/help/html"
+  },
+  "OpenAIAds": {
+    "installDocs": "https://developers.openai.com/ads/measurement-pixel"
+  },
+  "Optimizely": {
+    "installDocs": "https://docs.developers.optimizely.com/web-experimentation/reference/push"
+  },
+  "Pendo": {
+    "installDocs": "https://support.pendo.io/hc/en-us/articles/360046272771-Developer-s-guide-to-implementing-Pendo-using-the-install-script"
+  },
+  "PinterestTag": {
+    "installDocs": "https://help.pinterest.com/en/business/article/install-the-base-code"
+  },
+  "Podsights": {
+    "installDocs": "https://help.adanalytics.spotify.com/migration/technical-pixel-docs",
+    "statusNotice": "https://help.adanalytics.spotify.com/spotify-ad-analytics-faq"
+  },
+  "PostAffiliatePro": {
+    "installDocs": "https://support.qualityunit.com/417400-Clicks-referrals-tracking"
+  },
+  "Posthog": {
+    "installDocs": "https://posthog.com/docs/libraries/js",
+    "releaseNotes": "https://www.npmjs.com/package/posthog-js"
+  },
+  "ProfitWell": {
+    "installDocs": "https://www.paddle.com/help/profitwell-metrics/setup/install-engagement/how-to-install-the-profit-well-js-snippet-for-engagement-data"
+  },
+  "Qualaroo": {
+    "installDocs": "https://help.qualaroo.com/installing-qualaroo-javascript-on-site"
+  },
+  "Qualtrics": {
+    "installDocs": "https://www.qualtrics.com/support/website-app-feedback/settings-tab/deployment-section/"
+  },
+  "QuoraPixel": {
+    "installDocs": "https://quoraadsupport.zendesk.com/hc/en-us/articles/115010466208-How-do-I-install-the-Quora-pixel"
+  },
+  "RedditPixel": {
+    "installDocs": "https://business.reddithelp.com/s/article/Install-the-Reddit-Pixel-on-your-website"
+  },
+  "Refiner": {
+    "installDocs": "https://refiner.io/docs/kb/install-client/javascript/",
+    "releaseNotes": "https://www.npmjs.com/package/refiner-js"
+  },
+  "Rockerbox": {
+    "installDocs": "https://help.rockerbox.com/article/unydvsq7jr-site-direct-all-pages-pixel"
+  },
+  "RollBar": {
+    "installDocs": "https://docs.rollbar.com/docs/javascript",
+    "releaseNotes": "https://github.com/rollbar/rollbar.js/releases"
+  },
+  "Satismeter": {
+    "installDocs": "https://support.satismeter.com/hc/en-us/articles/6980378813331-How-to-install-your-survey-code-into-a-website"
+  },
+  "Sendinblue": {
+    "installDocs": "https://developers.brevo.com/docs/getting-started-with-js-implementation"
+  },
+  "Sentry": {
+    "installDocs": "https://docs.sentry.io/platforms/javascript/",
+    "releaseNotes": "https://www.npmjs.com/package/@sentry/browser"
+  },
+  "SnapEngage": {
+    "installDocs": "https://support.teamsupport.com/knowledgeBase/30982517"
+  },
+  "SnapPixel": {
+    "installDocs": "https://businesshelp.snapchat.com/s/article/page-view-event"
+  },
+  "SpotifyPixel": {
+    "installDocs": "https://help.adanalytics.spotify.com/migration/technical-pixel-docs"
+  },
+  "Sprig": {
+    "installDocs": "https://docs.sprig.com/docs/installation/introduction-web/web-javascript"
+  },
+  "TiktokAds": {
+    "installDocs": "https://ads.tiktok.com/help/article/get-started-pixel"
+  },
+  "TVSquared": {
+    "installDocs": "https://help.innovid.com/hc/en-us/articles/9337391580573-XP-Tracker-and-Tagging-Guide"
+  },
+  "Userpilot": {
+    "installDocs": "https://docs.userpilot.com/developer/installation/web"
+  },
+  "Vero": {
+    "installDocs": "https://help.getvero.com/developer-docs/getting-started"
+  },
+  "VWO": {
+    "installDocs": "https://vwo.com/blog/understanding-vwo-smartcode/"
+  },
+  "Woopra": {
+    "installDocs": "https://docs.woopra.com/reference/the-javascript-snippet"
+  },
+  "XPixel": {
+    "installDocs": "https://help.x.com/en/business-and-advertising/conversion-tracking-for-websites"
+  },
+  "YandexMetrica": {
+    "installDocs": "https://yandex.com/support/metrica/en/code/counter-initialize"
+  }
+}
