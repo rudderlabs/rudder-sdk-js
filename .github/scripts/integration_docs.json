@@ -116,7 +116,7 @@
   },
   "LaunchDarkly": {
     "installDocs": "https://docs.launchdarkly.com/sdk/client-side/javascript/",
-    "releaseNotes": "https://www.npmjs.com/package/@launchdarkly/js-client-sdk"
+    "releaseNotes": "https://www.npmjs.com/package/launchdarkly-js-client-sdk"
   },
   "Lemnisk": {
     "installDocs": "https://docs.lemnisk.co/sources/javascript-sdk"
