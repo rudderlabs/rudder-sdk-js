@@ -12,3 +12,7 @@
 ## INT-7215 — Facebook Pixel Multi-Destination Regression Coverage
 
 - Facebook Pixel `page()` regression coverage should instantiate two destinations with distinct pixel IDs and prove that each emits exactly one `trackSingle` call scoped to its own pixel. Also cover `getEventId` falling back to `message.messageId` when no `event_id` exists in traits, context traits, or properties, preserving Meta device/cloud deduplication behavior (`packages/analytics-js-integrations/__tests__/integrations/FacebookPixel/browser.test.js`).
+
+## INT-7435 — Resolve OpenAI Ads Hashing Config at Integration Boundary
+
+- Resolve the default-on `isHashRequired` setting once in the OpenAI Ads browser integration (for example, `this.isHashRequired = this.config.isHashRequired ?? true`) and pass the resulting boolean explicitly to `buildUserData`; keep `buildUserData` and `hashUserValue` parameters required rather than adding duplicate helper-level defaults that can drift (`packages/analytics-js-integrations/src/integrations/OpenAIAds/browser.js`, `packages/analytics-js-integrations/src/integrations/OpenAIAds/utils.js`).

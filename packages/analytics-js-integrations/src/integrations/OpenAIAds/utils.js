@@ -178,11 +178,20 @@ const normalizeName = value =>
 // External IDs are only trimmed; the OpenAI spec requires the original case to be preserved.
 const normalizeExternalId = value => trimString(value);
 
-const hashUserValue = (value, fieldName, normalize, logger) => {
+const hashUserValue = (value, fieldName, normalize, logger, isHashRequired) => {
   const raw = trimString(value);
   if (!raw) {
     return undefined;
   }
+
+  if (isHashRequired === false) {
+    if (!SHA256_HEX_REGEX.test(raw)) {
+      logger?.error(LOGGER_MESSAGES.UNHASHED_PII_REJECTED(fieldName));
+      return undefined;
+    }
+    return raw.toLowerCase();
+  }
+
   if (SHA256_HEX_REGEX.test(raw)) {
     logger?.error(LOGGER_MESSAGES.HASHED_PII_REJECTED(fieldName));
     return undefined;
@@ -195,19 +204,43 @@ const hashUserValue = (value, fieldName, normalize, logger) => {
  * Builds the singular, scalar Measurement Pixel `user` object.
  * The plural `*_sha256` list fields are Conversions API only and are not sent from device mode.
  */
-const buildUserData = (message, logger) => {
+const buildUserData = (message, logger, isHashRequired) => {
   // `userId` here is `getDefinedTraits`' resolved identifier: `userId`, then `anonymousId`.
-  // This mirrors the cloud-mode `external_ids_sha256` mapping (INT-7118), so the pixel and the
-  // Conversions API derive the conversion match key from the same identifier.
-  const { email, phone, firstName, lastName, userId, city, state, country, postalCode } =
-    getDefinedTraits(message || {});
+  // `userIdOnly` distinguishes a customer identifier from the anonymousId fallback.
+  const {
+    email,
+    phone,
+    firstName,
+    lastName,
+    userId,
+    userIdOnly,
+    city,
+    state,
+    country,
+    postalCode,
+  } = getDefinedTraits(message || {});
+  const anonymousIdRequiresHashing =
+    isHashRequired !== false || !SHA256_HEX_REGEX.test(trimString(userId) || '');
+  const externalIdHashRequired = userIdOnly ? isHashRequired : anonymousIdRequiresHashing;
 
   return removeUndefinedAndNullValues({
-    email_sha256: hashUserValue(email, 'email', normalizeEmail, logger),
-    phone_number_sha256: hashUserValue(phone, 'phone', normalizePhone, logger),
-    external_id_sha256: hashUserValue(userId, 'external_id', normalizeExternalId, logger),
-    first_name_sha256: hashUserValue(firstName, 'first_name', normalizeName, logger),
-    last_name_sha256: hashUserValue(lastName, 'last_name', normalizeName, logger),
+    email_sha256: hashUserValue(email, 'email', normalizeEmail, logger, isHashRequired),
+    phone_number_sha256: hashUserValue(phone, 'phone', normalizePhone, logger, isHashRequired),
+    external_id_sha256: hashUserValue(
+      userId,
+      'external_id',
+      normalizeExternalId,
+      logger,
+      externalIdHashRequired,
+    ),
+    first_name_sha256: hashUserValue(
+      firstName,
+      'first_name',
+      normalizeName,
+      logger,
+      isHashRequired,
+    ),
+    last_name_sha256: hashUserValue(lastName, 'last_name', normalizeName, logger, isHashRequired),
     city: trimString(city),
     region: trimString(state),
     postal_code: trimString(postalCode),
