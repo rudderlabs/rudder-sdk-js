@@ -84,7 +84,11 @@ class OpenAIAds {
         ? this.analytics.getAnonymousId()
         : undefined;
     this.updatePixelUser(
-      buildUserData({ userId: this.currentUserId, anonymousId, context: { traits } }, logger),
+      buildUserData(
+        { userId: this.currentUserId, anonymousId, context: { traits } },
+        logger,
+        this.config.isHashRequired ?? true,
+      ),
     );
   }
 
@@ -131,7 +135,7 @@ class OpenAIAds {
       return;
     }
 
-    const user = buildUserData(message, logger);
+    const user = buildUserData(message, logger, this.config.isHashRequired ?? true);
     if (Object.keys(user).length === 0) {
       logger.error(LOGGER_MESSAGES.IDENTIFY_NO_USER_DATA);
       return;

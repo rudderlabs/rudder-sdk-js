@@ -8,6 +8,14 @@ import { resetNativeSdkLoaderForTests } from '../../../src/integrations/OpenAIAd
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { configToIntNames } from '../../../../analytics-js-legacy-utilities/src/config_to_integration_names';
 
+const HASHED_USER_VALUES = {
+  email: sha256('person@example.com').toString(),
+  phone: sha256('15551200100').toString(),
+  externalId: sha256('User-123').toString(),
+  firstName: sha256('maryjane').toString(),
+  lastName: sha256('oconnor').toString(),
+};
+
 const baseConfig = {
   pixelId: 'pixel-123',
   eventMapping: [
@@ -122,6 +130,29 @@ describe('OpenAIAds initialization and registry', () => {
       },
     ]);
   });
+
+  test('honors disabled hashing while seeding restored user data', () => {
+    const integration = makeIntegration(
+      { isHashRequired: false },
+      {
+        getUserId: () => HASHED_USER_VALUES.externalId.toUpperCase(),
+        getUserTraits: () => ({ email: HASHED_USER_VALUES.email.toUpperCase() }),
+      },
+    );
+
+    integration.init();
+
+    expect(Array.from(window.oaiq.q[1])).toEqual([
+      'init',
+      {
+        pixelId: 'pixel-123',
+        user: {
+          email_sha256: HASHED_USER_VALUES.email,
+          external_id_sha256: HASHED_USER_VALUES.externalId,
+        },
+      },
+    ]);
+  });
 });
 
 describe('OpenAIAds identify', () => {
@@ -176,21 +207,215 @@ describe('OpenAIAds identify', () => {
     ).toBe(true);
   });
 
-  test('rejects apparent pre-hashed PII instead of passing through or double hashing', () => {
-    const integration = initForCalls();
+  test.each([undefined, true])(
+    'hashes plain values and rejects pre-hashed values when isHashRequired is %s',
+    isHashRequired => {
+      const integration = initForCalls({ isHashRequired });
+      integration.identify({
+        message: {
+          type: 'identify',
+          userId: 'User-123',
+          context: {
+            traits: {
+              email: ' Person@Example.COM ',
+              phone: ' +1 (555) 120-0100 ',
+              firstName: ' Mary Jane ',
+              lastName: HASHED_USER_VALUES.lastName,
+              city: ' San Francisco ',
+              state: ' CA ',
+              postalCode: ' 94105 ',
+              country: ' US ',
+            },
+          },
+        },
+      });
+
+      expect(window.oaiq).toHaveBeenCalledWith('init', {
+        pixelId: 'pixel-123',
+        user: {
+          email_sha256: HASHED_USER_VALUES.email,
+          phone_number_sha256: HASHED_USER_VALUES.phone,
+          external_id_sha256: HASHED_USER_VALUES.externalId,
+          first_name_sha256: HASHED_USER_VALUES.firstName,
+          city: 'San Francisco',
+          region: 'CA',
+          postal_code: '94105',
+          country: 'US',
+        },
+      });
+      expect(
+        console.error.mock.calls.some(call =>
+          call[0].includes('OpenAI Ads rejected apparent pre-hashed value for last_name'),
+        ),
+      ).toBe(true);
+    },
+  );
+
+  test('passes through lowercase pre-hashed user fields when hashing is disabled', () => {
+    const integration = initForCalls({ isHashRequired: false });
     integration.identify({
       message: {
         type: 'identify',
-        context: { traits: { email: sha256('person@example.com').toString() } },
+        userId: HASHED_USER_VALUES.externalId.toUpperCase(),
+        context: {
+          traits: {
+            email: HASHED_USER_VALUES.email.toUpperCase(),
+            phone: HASHED_USER_VALUES.phone,
+            firstName: HASHED_USER_VALUES.firstName,
+            lastName: HASHED_USER_VALUES.lastName,
+            city: ' San Francisco ',
+            state: ' CA ',
+            postalCode: ' 94105 ',
+            country: ' US ',
+          },
+        },
+      },
+    });
+
+    expect(window.oaiq).toHaveBeenCalledWith('init', {
+      pixelId: 'pixel-123',
+      user: {
+        email_sha256: HASHED_USER_VALUES.email,
+        phone_number_sha256: HASHED_USER_VALUES.phone,
+        external_id_sha256: HASHED_USER_VALUES.externalId,
+        first_name_sha256: HASHED_USER_VALUES.firstName,
+        last_name_sha256: HASHED_USER_VALUES.lastName,
+        city: 'San Francisco',
+        region: 'CA',
+        postal_code: '94105',
+        country: 'US',
+      },
+    });
+  });
+
+  test('drops and logs plain customer PII when hashing is disabled', () => {
+    const integration = initForCalls({ isHashRequired: false });
+    integration.identify({
+      message: {
+        type: 'identify',
+        userId: 'User-123',
+        context: {
+          traits: {
+            email: 'person@example.com',
+            phone: '+1 (555) 120-0100',
+            firstName: 'Mary',
+            lastName: 'O Connor',
+            city: ' San Francisco ',
+            state: ' CA ',
+            postalCode: ' 94105 ',
+            country: ' US ',
+          },
+        },
+      },
+    });
+
+    expect(window.oaiq).toHaveBeenCalledWith('init', {
+      pixelId: 'pixel-123',
+      user: {
+        city: 'San Francisco',
+        region: 'CA',
+        postal_code: '94105',
+        country: 'US',
+      },
+    });
+    expect(JSON.stringify(window.oaiq.mock.calls)).not.toContain('person@example.com');
+    ['email', 'phone', 'external_id', 'first_name', 'last_name'].forEach(fieldName => {
+      expect(
+        console.error.mock.calls.some(call =>
+          call[0].includes(
+            `OpenAI Ads rejected unhashed value for ${fieldName} because destination hashing is disabled`,
+          ),
+        ),
+      ).toBe(true);
+    });
+  });
+
+  test('keeps hashing a non-hex anonymousId fallback when hashing is disabled', () => {
+    const integration = initForCalls({ isHashRequired: false });
+
+    integration.identify({
+      message: { type: 'identify', anonymousId: ' Anon-ABC ', context: { traits: {} } },
+    });
+
+    expect(window.oaiq).toHaveBeenCalledWith('init', {
+      pixelId: 'pixel-123',
+      user: { external_id_sha256: sha256('Anon-ABC').toString() },
+    });
+  });
+
+  test('passes through a hex anonymousId fallback lowercased when hashing is disabled', () => {
+    const integration = initForCalls({ isHashRequired: false });
+
+    integration.identify({
+      message: {
+        type: 'identify',
+        anonymousId: HASHED_USER_VALUES.externalId.toUpperCase(),
+        context: { traits: {} },
+      },
+    });
+
+    expect(window.oaiq).toHaveBeenCalledWith('init', {
+      pixelId: 'pixel-123',
+      user: { external_id_sha256: HASHED_USER_VALUES.externalId },
+    });
+  });
+
+  test('does not apply the anonymousId exception to a real userId when hashing is disabled', () => {
+    const integration = initForCalls({ isHashRequired: false });
+
+    integration.identify({
+      message: {
+        type: 'identify',
+        userId: 'plain-user-id',
+        anonymousId: 'anon-abc',
+        context: { traits: {} },
       },
     });
 
     expect(window.oaiq).not.toHaveBeenCalled();
     expect(
       console.error.mock.calls.some(call =>
-        call[0].includes('OpenAI Ads rejected apparent pre-hashed value for email'),
+        call[0].includes('OpenAI Ads rejected unhashed value for external_id'),
       ),
     ).toBe(true);
+  });
+
+  test('omits external id when neither userId nor anonymousId is usable', () => {
+    const integration = initForCalls({ isHashRequired: false });
+
+    integration.identify({
+      message: {
+        type: 'identify',
+        userId: ' ',
+        context: { traits: { email: HASHED_USER_VALUES.email } },
+      },
+    });
+
+    expect(window.oaiq).toHaveBeenCalledWith('init', {
+      pixelId: 'pixel-123',
+      user: { email_sha256: HASHED_USER_VALUES.email },
+    });
+    expect(
+      console.error.mock.calls.some(call => call[0].includes('external_id')),
+    ).toBe(false);
+  });
+
+  test('uses anonymousId when a blank customer userId falls through in the trait resolver', () => {
+    const integration = initForCalls({ isHashRequired: false });
+
+    integration.identify({
+      message: {
+        type: 'identify',
+        userId: '',
+        anonymousId: 'anon-fallback',
+        context: { traits: {} },
+      },
+    });
+
+    expect(window.oaiq).toHaveBeenCalledWith('init', {
+      pixelId: 'pixel-123',
+      user: { external_id_sha256: sha256('anon-fallback').toString() },
+    });
   });
 
   test('skips non-scalar trait paths and falls through to later ones', () => {
