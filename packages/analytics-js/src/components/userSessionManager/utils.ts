@@ -13,7 +13,7 @@ import { INVALID_SESSION_ID_WARNING } from '../../constants/logMessages';
 import { hasMinLength, isPositiveInteger } from '../utilities/number';
 import type { ResetOptions } from '@rudderstack/analytics-js-common/types/EventApi';
 import { DEFAULT_RESET_OPTIONS } from './constants';
-import { isBoolean } from '@rudderstack/analytics-js-common/utilities/checks';
+import { isBoolean, isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import {
   isObjectLiteralAndNotNull,
   mergeDeepRight,
@@ -53,6 +53,11 @@ const generateSessionId = (): number => Date.now();
  * @returns
  */
 const isManualSessionIdValid = (sessionId: number | undefined, logger: ILogger): boolean => {
+  // Omitting the ID is the documented way to get an auto-generated one
+  if (isUndefined(sessionId)) {
+    return false;
+  }
+
   if (
     !sessionId ||
     !isPositiveInteger(sessionId) ||
