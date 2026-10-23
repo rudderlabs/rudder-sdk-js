@@ -178,7 +178,7 @@ const normalizeName = value =>
 // External IDs are only trimmed; the OpenAI spec requires the original case to be preserved.
 const normalizeExternalId = value => trimString(value);
 
-const hashUserValue = (value, fieldName, normalize, logger, isHashRequired = true) => {
+const hashUserValue = (value, fieldName, normalize, logger, isHashRequired) => {
   const raw = trimString(value);
   if (!raw) {
     return undefined;
@@ -204,7 +204,7 @@ const hashUserValue = (value, fieldName, normalize, logger, isHashRequired = tru
  * Builds the singular, scalar Measurement Pixel `user` object.
  * The plural `*_sha256` list fields are Conversions API only and are not sent from device mode.
  */
-const buildUserData = (message, logger, isHashRequired = true) => {
+const buildUserData = (message, logger, isHashRequired) => {
   // `userId` here is `getDefinedTraits`' resolved identifier: `userId`, then `anonymousId`.
   // `userIdOnly` distinguishes a customer identifier from the anonymousId fallback.
   const {
