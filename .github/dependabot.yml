@@ -1,4 +1,6 @@
 version: 2
+# No `target-branch`: develop is the default branch, and setting it makes security updates
+# ignore every option below (groups, ignore, labels).
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -7,7 +9,6 @@ updates:
       # every wednesday at 00:01 UTC
       cronjob: "1 0 * * 3"
       timezone: "UTC"
-    target-branch: "develop"
     labels:
       - "dependencies"
       - "github-actions"
@@ -21,7 +22,7 @@ updates:
   # Prod bumps are committed as `fix(deps):` so the release pipeline's conventional-commit
   # analyzer picks them up and bumps the packages that consume them; dev bumps stay as `chore`.
   # Override the PR title manually when a bump shouldn't trigger a release (e.g. toolchain-only).
-  # Note: Dependabot does not allow two npm entries for the same directory + target-branch,
+  # Note: Dependabot does not allow two npm entries for the same directory,
   # so per-group commit prefixes are not possible — keep this as a single entry.
   - package-ecosystem: "npm"
     cooldown:
@@ -32,7 +33,6 @@ updates:
       # every wednesday at 00:01 UTC
       cronjob: "1 0 * * 3"
       timezone: "UTC"
-    target-branch: "develop"
     labels:
       - "dependencies"
     open-pull-requests-limit: 10
@@ -61,39 +61,278 @@ updates:
           - "major"
         dependency-type: "production"
 
-  # All sample applications managed together (excluding gatsby)
+      npm-security-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"
+
+  # Sample applications (excluding gatsby), one entry per framework so a failing app
+  # only blocks its own framework's PR. Monthly, with majors split out.
+  # Angular sample apps
   - package-ecosystem: "npm"
     cooldown:
       default-days: 5
     directories:
       - "/examples/angular/sample-app"
-      - "/examples/nextjs/full-stack/sample-app"
-      - "/examples/nextjs/hooks/sample-app"
-      - "/examples/nextjs/js/sample-app"
-      - "/examples/nextjs/page-router/sample-app"
-      - "/examples/nextjs/ts/sample-app"
-      - "/examples/reactjs/hooks/sample-app"
-      - "/examples/reactjs/js/sample-app"
-      - "/examples/reactjs/ts/sample-app"
-      - "/examples/reactjs/vite/sample-app"
-      - "/examples/serverless/cloudflare-worker"
-      - "/examples/serverless/vercel-edge"
-      - "/examples/symfony/sample"
-      - "/examples/integrations/Ninetailed/sample-apps/app-using-npm"
-      - "/examples/integrations/Ninetailed/sample-apps/app-using-v1.1-cdn"
-      - "/examples/integrations/Ninetailed/sample-apps/app-using-v3-cdn"
     schedule:
       interval: "cron"
-      # every wednesday at 00:01 UTC
-      cronjob: "1 0 * * 3"
+      # 1st of every month at 00:01 UTC
+      cronjob: "1 0 1 * *"
       timezone: "UTC"
-    target-branch: "develop"
     labels:
       - "dependencies"
       - "sample-apps"
     open-pull-requests-limit: 10
     groups:
-      sample-apps-npm-deps:
+      angular-sample-apps-npm-deps:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+      angular-sample-apps-npm-major-deps:
+        patterns:
+          - "*"
+        update-types:
+          - "major"
+
+      angular-sample-apps-security-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"
+    ignore:
+      - dependency-name: "typescript"
+        update-types:
+          - version-update:semver-major
+
+  # Next.js sample apps
+  - package-ecosystem: "npm"
+    cooldown:
+      default-days: 5
+    directories:
+      - "/examples/nextjs/full-stack/sample-app"
+      - "/examples/nextjs/hooks/sample-app"
+      - "/examples/nextjs/page-router/sample-app"
+      - "/examples/nextjs/ts/sample-app"
+    schedule:
+      interval: "cron"
+      # 1st of every month at 00:01 UTC
+      cronjob: "1 0 1 * *"
+      timezone: "UTC"
+    labels:
+      - "dependencies"
+      - "sample-apps"
+    open-pull-requests-limit: 10
+    groups:
+      nextjs-sample-apps-npm-deps:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+      nextjs-sample-apps-npm-major-deps:
+        patterns:
+          - "*"
+        update-types:
+          - "major"
+
+      nextjs-sample-apps-security-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"
+    ignore:
+      - dependency-name: "typescript"
+        update-types:
+          - version-update:semver-major
+
+  # React (Vite) sample apps
+  - package-ecosystem: "npm"
+    cooldown:
+      default-days: 5
+    directories:
+      - "/examples/reactjs/vite/sample-app"
+    schedule:
+      interval: "cron"
+      # 1st of every month at 00:01 UTC
+      cronjob: "1 0 1 * *"
+      timezone: "UTC"
+    labels:
+      - "dependencies"
+      - "sample-apps"
+    open-pull-requests-limit: 10
+    groups:
+      react-sample-apps-npm-deps:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+      react-sample-apps-npm-major-deps:
+        patterns:
+          - "*"
+        update-types:
+          - "major"
+
+      react-sample-apps-security-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"
+    ignore:
+      - dependency-name: "typescript"
+        update-types:
+          - version-update:semver-major
+
+  # React (create-react-app) sample apps
+  - package-ecosystem: "npm"
+    cooldown:
+      default-days: 5
+    directories:
+      - "/examples/reactjs/hooks/sample-app"
+      - "/examples/reactjs/js/sample-app"
+      - "/examples/reactjs/ts/sample-app"
+    schedule:
+      interval: "cron"
+      # 1st of every month at 00:01 UTC
+      cronjob: "1 0 1 * *"
+      timezone: "UTC"
+    labels:
+      - "dependencies"
+      - "sample-apps"
+    open-pull-requests-limit: 10
+    groups:
+      react-cra-sample-apps-npm-deps:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+      react-cra-sample-apps-npm-major-deps:
+        patterns:
+          - "*"
+        update-types:
+          - "major"
+
+      react-cra-sample-apps-security-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"
+    ignore:
+      - dependency-name: "typescript"
+        update-types:
+          - version-update:semver-major
+
+  # Serverless sample apps
+  - package-ecosystem: "npm"
+    cooldown:
+      default-days: 5
+    directories:
+      - "/examples/serverless/cloudflare-worker"
+      - "/examples/serverless/vercel-edge"
+    schedule:
+      interval: "cron"
+      # 1st of every month at 00:01 UTC
+      cronjob: "1 0 1 * *"
+      timezone: "UTC"
+    labels:
+      - "dependencies"
+      - "sample-apps"
+    open-pull-requests-limit: 10
+    groups:
+      serverless-sample-apps-npm-deps:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+      serverless-sample-apps-npm-major-deps:
+        patterns:
+          - "*"
+        update-types:
+          - "major"
+
+      serverless-sample-apps-security-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"
+    ignore:
+      - dependency-name: "typescript"
+        update-types:
+          - version-update:semver-major
+
+  # Symfony sample apps
+  - package-ecosystem: "npm"
+    cooldown:
+      default-days: 5
+    directories:
+      - "/examples/symfony/sample"
+    schedule:
+      interval: "cron"
+      # 1st of every month at 00:01 UTC
+      cronjob: "1 0 1 * *"
+      timezone: "UTC"
+    labels:
+      - "dependencies"
+      - "sample-apps"
+    open-pull-requests-limit: 10
+    groups:
+      symfony-sample-apps-npm-deps:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+      symfony-sample-apps-npm-major-deps:
+        patterns:
+          - "*"
+        update-types:
+          - "major"
+
+      symfony-sample-apps-security-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"
+    ignore:
+      - dependency-name: "typescript"
+        update-types:
+          - version-update:semver-major
+
+  # Ninetailed sample apps
+  - package-ecosystem: "npm"
+    cooldown:
+      default-days: 5
+    directories:
+      - "/examples/integrations/Ninetailed/sample-app"
+    schedule:
+      interval: "cron"
+      # 1st of every month at 00:01 UTC
+      cronjob: "1 0 1 * *"
+      timezone: "UTC"
+    labels:
+      - "dependencies"
+      - "sample-apps"
+    open-pull-requests-limit: 10
+    groups:
+      ninetailed-sample-apps-npm-deps:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+      ninetailed-sample-apps-npm-major-deps:
+        patterns:
+          - "*"
+        update-types:
+          - "major"
+
+      ninetailed-sample-apps-security-updates:
+        applies-to: security-updates
         patterns:
           - "*"
     ignore:
@@ -110,16 +349,20 @@ updates:
       - "/examples/gatsby/sample-gatsby-site"
     schedule:
       interval: "cron"
-      # every wednesday at 00:01 UTC
-      cronjob: "1 0 * * 3"
+      # 1st of every month at 00:01 UTC
+      cronjob: "1 0 1 * *"
       timezone: "UTC"
-    target-branch: "develop"
     labels:
       - "dependencies"
       - "sample-apps"
     open-pull-requests-limit: 10
     groups:
       gatsby-sample-apps-npm-deps:
+        patterns:
+          - "*"
+
+      gatsby-sample-apps-security-updates:
+        applies-to: security-updates
         patterns:
           - "*"
     ignore:
