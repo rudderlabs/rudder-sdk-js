@@ -59,9 +59,7 @@ describe('Sentry initialization', () => {
       script.id.startsWith('rudder-sentry'),
     );
     expect(scripts).toHaveLength(2);
-    expect(scripts.map(script => script.id)).toEqual(
-      expect.arrayContaining([SENTRY_SDK_ID, SENTRY_REWRITE_FRAMES_ID]),
-    );
+    expect(scripts.map(script => script.id)).toEqual([SENTRY_SDK_ID, SENTRY_REWRITE_FRAMES_ID]);
     expect(document.getElementById(SENTRY_SDK_ID)).toMatchObject({
       src: SENTRY_SDK_URL,
       integrity: SENTRY_SDK_INTEGRITY,
@@ -98,7 +96,7 @@ describe('Sentry initialization', () => {
   test('replaces stale or failed Sentry script elements before retrying the loader', () => {
     const staleSdkScript = document.createElement('script');
     staleSdkScript.id = SENTRY_SDK_ID;
-    staleSdkScript.src = 'https://browser.sentry-cdn.com/6.13.1/bundle.min.js';
+    staleSdkScript.src = 'https://browser.sentry-cdn.com/11.5.0/bundle.min.js';
     staleSdkScript.integrity = 'sha384-old';
     document.head.appendChild(staleSdkScript);
 
@@ -130,7 +128,7 @@ describe('Sentry initialization', () => {
     loadedSdkScript.integrity = SENTRY_SDK_INTEGRITY;
     loadedSdkScript.setAttribute('data-rudder-sentry-load-status', 'loaded');
     document.head.appendChild(loadedSdkScript);
-    window.Sentry = { Integrations: { RewriteFrames: jest.fn() } };
+    window.Sentry = { init: jest.fn() };
 
     makeIntegration({ includePaths: [] }).init();
 

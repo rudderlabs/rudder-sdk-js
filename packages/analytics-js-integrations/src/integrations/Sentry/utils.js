@@ -25,7 +25,13 @@ const isExpectedSentryScript = (scriptElement, src, integrity, isScriptReady) =>
   );
 };
 
-const SentryScriptLoader = (id, src, integrity, isScriptReady = () => true) => {
+const SentryScriptLoader = (
+  id,
+  src,
+  integrity,
+  isScriptReady = () => true,
+  insertAfterScriptId,
+) => {
   const existingScript = document.getElementById(id);
   if (isExpectedSentryScript(existingScript, src, integrity, isScriptReady)) {
     return;
@@ -52,9 +58,14 @@ const SentryScriptLoader = (id, src, integrity, isScriptReady = () => true) => {
     logger.error(`Failed to load script - ${id}`);
   };
   const e = document.getElementsByTagName('script')[0];
+  const precedingScript = insertAfterScriptId && document.getElementById(insertAfterScriptId);
   logger.info('==parent script==', e);
   logger.info('==adding script==', js);
-  e.parentNode.insertBefore(js, e);
+  if (precedingScript) {
+    precedingScript.parentNode.insertBefore(js, precedingScript.nextSibling);
+  } else {
+    e.parentNode.insertBefore(js, e);
+  }
 };
 
 const sentryInit = (
@@ -104,11 +115,7 @@ const sentryInit = (
         return frame;
       },
     };
-    const rewriteFramesIntegration = window.Sentry.rewriteFramesIntegration
-      ? window.Sentry.rewriteFramesIntegration(rewriteFramesOptions)
-      : new window.Sentry.Integrations.RewriteFrames(rewriteFramesOptions);
-
-    sentryConfig.integrations = [rewriteFramesIntegration];
+    sentryConfig.integrations = [window.Sentry.rewriteFramesIntegration(rewriteFramesOptions)];
   }
   return sentryConfig;
 };

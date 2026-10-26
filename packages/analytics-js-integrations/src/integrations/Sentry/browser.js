@@ -22,8 +22,7 @@ const logger = new Logger(DISPLAY_NAME);
 const hasBaseSdk = () =>
   !!(window.Sentry && isObject(window.Sentry) && window.Sentry.init && window.Sentry.setUser);
 
-const hasRewriteFramesIntegration = () =>
-  !!(window.Sentry?.rewriteFramesIntegration || window.Sentry?.Integrations?.RewriteFrames);
+const hasRewriteFramesIntegration = () => !!window.Sentry?.rewriteFramesIntegration;
 
 class Sentry {
   constructor(config, analytics, destinationInfo) {
@@ -68,6 +67,7 @@ class Sentry {
         SENTRY_REWRITE_FRAMES_URL,
         SENTRY_REWRITE_FRAMES_INTEGRITY,
         hasRewriteFramesIntegration,
+        SENTRY_SDK_ID,
       );
     }
   }

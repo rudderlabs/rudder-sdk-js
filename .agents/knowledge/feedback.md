@@ -12,3 +12,7 @@
 ## INT-7215 — Facebook Pixel Multi-Destination Regression Coverage
 
 - Facebook Pixel `page()` regression coverage should instantiate two destinations with distinct pixel IDs and prove that each emits exactly one `trackSingle` call scoped to its own pixel. Also cover `getEventId` falling back to `message.messageId` when no `event_id` exists in traits, context traits, or properties, preserving Meta device/cloud deduplication behavior (`packages/analytics-js-integrations/__tests__/integrations/FacebookPixel/browser.test.js`).
+
+## INT-7311 — Sentry Uses One Current SDK Version
+
+- The Sentry device-mode integration must load only the selected current Sentry SDK version in every integrations build target. Do not preserve an older vendor SDK for the legacy/default build; `packages/analytics-js-integrations/src/integrations/Sentry/constants.js` must expose one version, URL set, and SRI set shared by legacy and modern Rudder bundles.
