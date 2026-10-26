@@ -41,6 +41,32 @@ remotePluginsBasePath = remotePluginsBasePath?.endsWith('/') ? remotePluginsBase
 let destSDKBaseURL = process.env.DEST_SDK_BASE_URL ?? `${baseCdnUrl}/v3`;
 destSDKBaseURL = destSDKBaseURL?.endsWith('/') ? destSDKBaseURL : `${destSDKBaseURL}/`;
 const outDirNpmRoot = `dist/npm`;
+
+// index.d.mts and index.d.cts each declare their own RudderAnalytics, so augmenting Window in both
+// conflicts (TS2717) in programs that load both. Move the augmentation to one shared file instead.
+const sharedGlobalTypes = () => {
+  let globalTypes;
+  return {
+    name: 'shared-global-types',
+    renderChunk(code) {
+      const block = /\ndeclare global \{\n {4}interface Window \{\n([\s\S]*?)\n {4}\}\n\}\n/;
+      const match = code.match(block);
+      if (!match) {
+        this.error('Window augmentation not found in the bundled types');
+      }
+      const body = match[1].replace(/^ {4}/gm, '');
+      const exported = [...code.matchAll(/^export (?:type )?\{([^}]+)\};$/gm)].flatMap(
+        ([, names]) => names.split(',').map(name => name.trim()),
+      );
+      const used = exported.filter(name => new RegExp(`\\b${name}\\b`).test(body));
+      globalTypes = `import type { ${used.join(', ')} } from './index.mjs';\n\ndeclare global {\n  interface Window {\n${body}\n  }\n}\n\nexport {};\n`;
+      return `/// <reference path="./global.d.ts" />\n${code.replace(block, '\n')}`;
+    },
+    generateBundle() {
+      this.emitFile({ type: 'asset', fileName: 'global.d.ts', source: globalTypes });
+    },
+  };
+};
 const outDirCDNRoot = `dist/${cdnPath}`;
 let outDirNpm = `${outDirNpmRoot}${variantSubfolder}`;
 const outDirCDN = `${outDirCDNRoot}${variantSubfolder}`;
@@ -470,6 +496,7 @@ const buildEntries = () => {
         }),
         // Published package has no dependencies, so inline the Signal type exposed via the state types
         dts({ includeExternal: ['@preact/signals-core'] }),
+        sharedGlobalTypes(),
         del({ hook: 'buildEnd', targets: './dist/dts' }),
       ],
       output: [

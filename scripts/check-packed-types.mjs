@@ -15,13 +15,15 @@ const specifiers = Object.keys(pkg.exports ?? { '.': null })
   .filter(key => !key.includes('*') && !key.endsWith('.json'))
   .map(key => path.posix.join(pkg.name, key));
 
-// ESM and CJS consumers are checked separately: .d.mts and .d.cts both augment the global Window
+// The mixed ESM + CJS programs load both .d.mts and .d.cts, so they catch conflicting global declarations
 const configs = [
-  { module: 'esnext', moduleResolution: 'bundler', file: 'index.ts' },
-  { module: 'node16', moduleResolution: 'node16', file: 'index.mts' },
-  { module: 'node16', moduleResolution: 'node16', file: 'index.cts' },
-  { module: 'nodenext', moduleResolution: 'nodenext', file: 'index.mts' },
-  { module: 'nodenext', moduleResolution: 'nodenext', file: 'index.cts' },
+  { module: 'esnext', moduleResolution: 'bundler', files: ['index.ts'] },
+  { module: 'node16', moduleResolution: 'node16', files: ['index.mts'] },
+  { module: 'node16', moduleResolution: 'node16', files: ['index.cts'] },
+  { module: 'node16', moduleResolution: 'node16', files: ['index.mts', 'index.cts'] },
+  { module: 'nodenext', moduleResolution: 'nodenext', files: ['index.mts'] },
+  { module: 'nodenext', moduleResolution: 'nodenext', files: ['index.cts'] },
+  { module: 'nodenext', moduleResolution: 'nodenext', files: ['index.mts', 'index.cts'] },
 ];
 
 const workDir = mkdtempSync(path.join(tmpdir(), 'check-packed-types-'));
@@ -52,9 +54,12 @@ try {
     JSON.stringify({ type: 'module', private: true }),
   );
 
-  for (const { file, ...compilerOptions } of configs) {
-    const label = `module: ${compilerOptions.module}, ${file}`;
-    const tsconfig = path.join(workDir, `tsconfig.${compilerOptions.module}.${file}.json`);
+  for (const { files, ...compilerOptions } of configs) {
+    const label = `module: ${compilerOptions.module}, ${files.join(' + ')}`;
+    const tsconfig = path.join(
+      workDir,
+      `tsconfig.${compilerOptions.module}.${files.join('+')}.json`,
+    );
     writeFileSync(
       tsconfig,
       JSON.stringify({
@@ -67,7 +72,7 @@ try {
           skipLibCheck: false,
           noEmit: true,
         },
-        files: [file],
+        files,
       }),
     );
     try {
