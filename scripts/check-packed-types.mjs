@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Type-checks the packed tarball of the package in the cwd from a bare consumer project
 // (skipLibCheck: false, no other packages installed), as published packages ship without dependencies.
-// Usage (from a package dir, after build): node ../../scripts/check-packed-types.mjs
+// Usage (from a package dir, after build): node ../../scripts/check-packed-types.mjs [consumer.ts]
+// An optional consumer file is appended to every generated consumer module to check real usage.
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
@@ -24,6 +25,13 @@ const configs = [
   { module: 'nodenext', moduleResolution: 'nodenext', files: ['index.mts'] },
   { module: 'nodenext', moduleResolution: 'nodenext', files: ['index.cts'] },
   { module: 'nodenext', moduleResolution: 'nodenext', files: ['index.mts', 'index.cts'] },
+  // node10 ignores `exports` and resolves through `types`/`typesVersions`
+  {
+    module: 'commonjs',
+    moduleResolution: 'node10',
+    files: ['index.ts'],
+    ignoreDeprecations: '6.0',
+  },
 ];
 
 const workDir = mkdtempSync(path.join(tmpdir(), 'check-packed-types-'));
@@ -43,9 +51,10 @@ try {
     '--strip-components=1',
   ]);
 
-  const source = specifiers
-    .map((spec, i) => `import * as m${i} from '${spec}';\nvoid m${i};\n`)
-    .join('');
+  const consumer = process.argv[2] ? readFileSync(process.argv[2], 'utf8') : '';
+  const source =
+    specifiers.map((spec, i) => `import * as m${i} from '${spec}';\nvoid m${i};\n`).join('') +
+    consumer;
   for (const file of ['index.ts', 'index.mts', 'index.cts']) {
     writeFileSync(path.join(workDir, file), source);
   }

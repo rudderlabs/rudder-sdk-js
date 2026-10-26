@@ -38,7 +38,12 @@
       "cache": true
     },
     "check:pub": {
-      "inputs": ["default", "^default", "{workspaceRoot}/scripts/check-packed-types.mjs"],
+      "inputs": [
+        "default",
+        "^default",
+        "{workspaceRoot}/scripts/check-packed-types.mjs",
+        "{workspaceRoot}/scripts/packed-types-consumers/**"
+      ],
       "cache": true
     },
     "check:circular": {

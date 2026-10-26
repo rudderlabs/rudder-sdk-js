@@ -152,7 +152,7 @@
     "check:support:modern": "NODE_ENV=modern npx browserslist --mobile-to-desktop",
     "check:duplicates": "jscpd src",
     "check:security": "npm audit --audit-level=high",
-    "check:pub": "npx publint && node ../../scripts/check-packed-types.mjs",
+    "check:pub": "npx publint && node ../../scripts/check-packed-types.mjs ../../scripts/packed-types-consumers/analytics-js.ts",
     "package": "npm pack",
     "release": "npm publish"
   },

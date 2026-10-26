@@ -43,7 +43,8 @@ destSDKBaseURL = destSDKBaseURL?.endsWith('/') ? destSDKBaseURL : `${destSDKBase
 const outDirNpmRoot = `dist/npm`;
 
 // index.d.mts and index.d.cts each declare their own RudderAnalytics, so augmenting Window in both
-// conflicts (TS2717) in programs that load both. Move the augmentation to one shared file instead.
+// conflicts (TS2717) in programs that load both. Move the augmentation to one shared file that
+// accepts either format's types, as ESM and CJS consumers construct different classes.
 const sharedGlobalTypes = () => {
   let globalTypes;
   return {
@@ -58,8 +59,12 @@ const sharedGlobalTypes = () => {
       const exported = [...code.matchAll(/^export (?:type )?\{([^}]+)\};$/gm)].flatMap(
         ([, names]) => names.split(',').map(name => name.trim()),
       );
-      const used = exported.filter(name => new RegExp(`\\b${name}\\b`).test(body));
-      globalTypes = `import type { ${used.join(', ')} } from './index.mjs';\n\ndeclare global {\n  interface Window {\n${body}\n  }\n}\n\nexport {};\n`;
+      const sharedBody = exported.reduce(
+        (acc, name) => acc.replace(new RegExp(`\\b${name}\\b`, 'g'), `Esm.${name} | Cjs.${name}`),
+        body,
+      );
+      // An ESM file may import CJS types, so no resolution-mode attribute (TS 5.3+) is needed
+      globalTypes = `import type * as Esm from './index.mjs';\nimport type * as Cjs from './index.cjs';\n\ndeclare global {\n  interface Window {\n${sharedBody}\n  }\n}\n\nexport {};\n`;
       return `/// <reference path="./global.d.ts" />\n${code.replace(block, '\n')}`;
     },
     generateBundle() {
