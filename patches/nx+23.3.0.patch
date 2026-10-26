@@ -61,6 +61,21 @@ index a389729..5e8fee2 100644
          if (this.printsFullOutput || taskStatus === 'failure') {
              // A stopped task was killed part way through; under --verbose or
              // --output-style=static its partial output is shown, which is what
+diff --git a/node_modules/nx/dist/src/tasks-runner/run-command.js b/node_modules/nx/dist/src/tasks-runner/run-command.js
+index f558680..34b7029 100644
+--- a/node_modules/nx/dist/src/tasks-runner/run-command.js
++++ b/node_modules/nx/dist/src/tasks-runner/run-command.js
+@@ -437,7 +437,9 @@ async function runTasksForCommand(taskSelection, currentProjectGraph, { nxJson }
+         // Print the report once, on success or failure (restoreTerminal has run in both
+         // paths). No-ops if a multi-task TUI run already delivered it via the popup; its own
+         // try/catch means it never masks `e`.
+-        (0, performance_life_cycle_1.flushPerformanceReport)();
++        if (nxArgs.silent !== true) {
++            (0, performance_life_cycle_1.flushPerformanceReport)();
++        }
+     }
+ }
+ async function printConfigureAiAgentsDisclaimer() {
 diff --git a/node_modules/nx/dist/src/utils/output.js b/node_modules/nx/dist/src/utils/output.js
 index 600359d..1ff4b82 100644
 --- a/node_modules/nx/dist/src/utils/output.js
