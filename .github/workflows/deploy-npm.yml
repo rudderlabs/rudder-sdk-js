@@ -44,6 +44,8 @@ on:
         required: true
       SLACK_RELEASE_CHANNEL_ID:
         required: true
+      RELEASE_PRIVATE_KEY:
+        required: false
 
 permissions:
   id-token: write # Allows the JWT to be requested from GitHub's OIDC provider
@@ -53,10 +55,22 @@ env:
   NODE_OPTIONS: '--no-warnings'
 
 jobs:
+  validate-actor:
+    permissions:
+      contents: read
+    # Manual runs only from release tags; github.workflow_ref names the caller when invoked via workflow_call
+    if: contains(github.workflow_ref, '/.github/workflows/deploy-npm.yml@') && startsWith(github.ref, 'refs/tags/v')
+    uses: ./.github/workflows/validate-actor.yml
+    with:
+      team_names: 'sdk_team,integrations'
+    secrets:
+      RELEASE_PRIVATE_KEY: ${{ secrets.RELEASE_PRIVATE_KEY }}
+
   determine-affected:
     name: Determine Affected Publishable Projects
+    needs: validate-actor
     runs-on: ubuntu-latest
-    if: ${{ github.workflow_ref != '' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/tags/v')) }}
+    if: ${{ !cancelled() && (needs.validate-actor.result == 'success' || !contains(github.workflow_ref, '/.github/workflows/deploy-npm.yml@')) }}
     outputs:
       projects: ${{ steps.affected-projects.outputs.projects }}
       base_version: ${{ steps.resolve-versions.outputs.base_version }}
@@ -188,7 +202,7 @@ jobs:
   deploy:
     name: Deploy to NPM
     needs: determine-affected
-    if: needs.determine-affected.result == 'success' && needs.determine-affected.outputs.projects != ''
+    if: ${{ !cancelled() && needs.determine-affected.result == 'success' && needs.determine-affected.outputs.projects != '' }}
     # As we publish the NPM package with provenance, we must use GitHub-hosted runners
     runs-on: ubuntu-latest
 
@@ -203,6 +217,14 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.sha }}
+
+      - name: Validate re-run actor
+        if: contains(github.workflow_ref, '/.github/workflows/deploy-npm.yml@')
+        uses: ./.github/actions/assert-rerun-actor
+        with:
+          app_id: ${{ vars.RELEASE_APP_ID }}
+          private_key: ${{ secrets.RELEASE_PRIVATE_KEY }}
+          team_names: 'sdk_team,integrations'
 
       - name: Modify package versions
         if: inputs.version_suffix != ''
@@ -280,9 +302,9 @@ jobs:
       - name: Setup workspace
         env:
           HUSKY: 0
-          REMOTE_MODULES_BASE_PATH: '${{ inputs.base_cdn_url }}/v3/modern/plugins'
+          REMOTE_MODULES_BASE_PATH: "${{ inputs.base_cdn_url || 'https://cdn.rudderlabs.com' }}/v3/modern/plugins"
           BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
-          LOCK_DEPS_VERSION: ${{ inputs.environment == 'production' && 'true' || 'false' }}
+          LOCK_DEPS_VERSION: ${{ (inputs.environment || 'production') == 'production' && 'true' || 'false' }}
           BUGSNAG_RELEASE_STAGE: ${{ inputs.bugsnag_release_stage || 'production' }}
         run: |
           npm run setup:ci
@@ -291,7 +313,7 @@ jobs:
         env:
           BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
           BUGSNAG_RELEASE_STAGE: ${{ inputs.bugsnag_release_stage || 'production' }}
-          LOCK_DEPS_VERSION: ${{ inputs.environment == 'production' && 'true' || 'false' }}
+          LOCK_DEPS_VERSION: ${{ (inputs.environment || 'production') == 'production' && 'true' || 'false' }}
         run: |
           npm run build:package
           npm run build:package:modern

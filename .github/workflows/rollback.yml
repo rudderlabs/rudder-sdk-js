@@ -81,6 +81,13 @@ jobs:
         with:
           ref: main # Production branch
 
+      - name: Validate re-run actor
+        uses: ./.github/actions/assert-rerun-actor
+        with:
+          app_id: ${{ vars.RELEASE_APP_ID }}
+          private_key: ${{ secrets.RELEASE_PRIVATE_KEY }}
+          team_names: 'sdk_team,integrations'
+
       - name: Get current sdk versions
         id: get-current-version
         run: |
