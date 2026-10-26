@@ -202,7 +202,7 @@ jobs:
   deploy:
     name: Deploy to NPM
     needs: determine-affected
-    if: needs.determine-affected.result == 'success' && needs.determine-affected.outputs.projects != ''
+    if: ${{ !cancelled() && needs.determine-affected.result == 'success' && needs.determine-affected.outputs.projects != '' }}
     # As we publish the NPM package with provenance, we must use GitHub-hosted runners
     runs-on: ubuntu-latest
 
