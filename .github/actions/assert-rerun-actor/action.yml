@@ -1,5 +1,5 @@
 name: 'Assert Re-run Actor'
-description: 'Fails a re-run started by someone other than the original actor unless they belong to an allowed team. Partial re-runs skip the validate-actor job, so privileged jobs call this themselves.'
+description: 'Fails any re-run whose triggering actor is not in an allowed team. Partial re-runs skip the validate-actor job, so privileged jobs call this themselves.'
 
 inputs:
   app_id:
@@ -18,7 +18,7 @@ runs:
   steps:
     - name: Generate GitHub App Token
       id: generate-token
-      if: github.run_attempt != '1' && github.triggering_actor != github.actor
+      if: github.run_attempt != '1'
       uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
       with:
         app-id: ${{ inputs.app_id }}
