@@ -7,7 +7,6 @@
   "release": {
     "projects": ["*"],
     "projectsRelationship": "independent",
-    "releaseTagPattern": "{projectName}@{version}",
     "version": {
       "conventionalCommits": true
     },
@@ -15,6 +14,9 @@
       "projectChangelogs": {
         "createRelease": "github"
       }
+    },
+    "releaseTag": {
+      "pattern": "{projectName}@{version}"
     }
   },
   "pluginsConfig": {
