@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@emotion/react": "11.14.0",
-    "dotenv": "18.0.8",
+    "dotenv": "18.0.9",
     "gatsby": "5.16.1",
     "gatsby-plugin-rudderstack": "*",
     "react": "18.3.1",
@@ -29,8 +29,8 @@
   },
   "devDependencies": {
     "@types/node": "26.6.5",
-    "@types/react": "18.3.12",
-    "@types/react-dom": "18.3.1",
+    "@types/react": "18.3.31",
+    "@types/react-dom": "18.3.7",
     "typescript": "7.0.2"
   },
   "overrides": {
