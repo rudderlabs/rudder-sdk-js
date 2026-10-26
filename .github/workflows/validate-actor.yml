@@ -37,7 +37,7 @@ jobs:
           ORG_NAME: rudderlabs
           TEAM_NAMES: ${{ inputs.team_names }}
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
-          ACTOR: ${{ github.actor || github.triggering_actor }}
+          ACTOR: ${{ github.triggering_actor || github.actor }}
         run: |
           actor="$ACTOR"
           allowed=false
