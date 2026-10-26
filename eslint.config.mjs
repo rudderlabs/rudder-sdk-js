@@ -6,7 +6,7 @@ import prettier from 'eslint-config-prettier';
 import compat from 'eslint-plugin-compat';
 import unicorn from 'eslint-plugin-unicorn';
 import nxPlugin from '@nx/eslint-plugin';
-import importPlugin from 'eslint-plugin-import';
+import importPlugin from 'eslint-plugin-import-x';
 import jsoncParser from 'jsonc-eslint-parser';
 
 export default [
@@ -66,7 +66,7 @@ export default [
       'sonarjs': sonarjs,
     },
     settings: {
-      'import/resolver': {
+      'import-x/resolver': {
         typescript: {}
       },
       lintAllEsApis: true,
@@ -121,7 +121,9 @@ export default [
             camelCase: true,
             pascalCase: true,
             kebabCase: true
-          }
+          },
+          // Directory checks are new in unicorn; integration dirs (GA4, VWO) and __tests__ keep their names
+          checkDirectories: false
         }
       ],
       'unicorn/no-instanceof-array': 'error',
@@ -137,7 +139,7 @@ export default [
       'unicorn/prefer-array-flat-map': 'error',
       'unicorn/no-useless-spread': 'error',
       'unicorn/no-useless-length-check': 'error',
-      'unicorn/prefer-export-from': ['error', { ignoreUsedVariables: true }],
+      'unicorn/prefer-export-from': ['error', { checkUsedVariables: false }],
       'sonarjs/prefer-immediate-return': 'off',
       'sonarjs/no-nested-template-literals': 'off',
       'sonarjs/max-switch-cases': 'off',
