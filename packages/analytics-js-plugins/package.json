@@ -95,7 +95,7 @@
     "ramda": "0.32.0"
   },
   "devDependencies": {
-    "@babel/core": "7.29.7",
+    "@babel/core": "8.0.7",
     "@originjs/vite-plugin-federation": "1.4.1",
     "@rollup/plugin-alias": "6.0.1",
     "@rollup/plugin-babel": "7.1.0",
