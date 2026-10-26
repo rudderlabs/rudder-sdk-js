@@ -17,9 +17,10 @@ From the repository root, set the write key, data plane URL and config server ho
 ./scripts/setup-examples-env.sh
 ```
 
-Then install dependencies and start the development server:
+Then install dependencies and start the development server from this directory:
 
 ```bash
+cd examples/integrations/Ninetailed/sample-app
 npm run setup
 npm start
 ```
