@@ -98,20 +98,6 @@ describe('Sentry utilities', () => {
     expect(iteratee({})).toEqual({ in_app: false });
   });
 
-  test('creates legacy RewriteFrames integration when the v11 factory is unavailable', () => {
-    const rewriteFramesConstructor = jest.fn(options => ({ name: 'RewriteFrames', options }));
-    window.Sentry = {
-      Integrations: {
-        RewriteFrames: rewriteFramesConstructor,
-      },
-    };
-
-    const config = buildConfig({ includePaths: [{ includePaths: '^https://app.example.com/' }] });
-
-    expect(rewriteFramesConstructor).toHaveBeenCalledTimes(1);
-    expect(config.integrations).toEqual([{ name: 'RewriteFrames', options: expect.any(Object) }]);
-  });
-
   test('omits RewriteFrames when no include paths are configured', () => {
     const config = buildConfig({ release: '1.0.0' });
 

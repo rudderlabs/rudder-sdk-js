@@ -7,6 +7,7 @@
 > Top-5–8 highest-signal items per category, not exhaustive.
 
 ## TODO/FIXME Density Clusters (RUD-2781)
+
 <!-- linear:RUD-2781 -->
 
 - Plugin lifecycle resilience is explicitly incomplete (retry/timeout/failure handling TODO cluster), increasing risk of partial initialization states (`packages/analytics-js/src/components/pluginsManager/PluginsManager.ts:37`, `packages/analytics-js/src/components/pluginsManager/PluginsManager.ts:83`, `packages/analytics-js/src/components/pluginsManager/PluginsManager.ts:282`).
@@ -16,6 +17,7 @@
 - Legacy v1.1 still carries TODOs in URL validation and queue timing validation, indicating weaker guardrails in older runtime path (`packages/analytics-v1.1/src/utils/cdnPaths.js:16`, `packages/analytics-v1.1/src/utils/xhrModule.js:33`).
 
 ## Security-Adjacent Concerns (RUD-2781)
+
 <!-- linear:RUD-2781 -->
 
 - Dynamic script loading from runtime-computed CDN paths is foundational; misconfiguration or policy drift can affect integrity if hosting controls weaken (`packages/loading-scripts/src/index.ts::window.rudderAnalyticsAddScript`, `packages/analytics-js/src/components/configManager/ConfigManager.ts::ConfigManager.init`).
@@ -24,6 +26,7 @@
 - Hashing choices in integration utilities include `md5`; while used for compatibility with partner SDK expectations, this should remain constrained to non-security-critical hashing use cases (`packages/analytics-js-integrations/src/integrations/Criteo/utils.js:16`, `packages/analytics-js-integrations/package.json:80`).
 
 ## Architectural Smells (RUD-2781)
+
 <!-- linear:RUD-2781 -->
 
 - Dual runtime lines (v3 modern + v1.1 legacy) increase cognitive and release complexity; architectural guidance must keep explicit boundaries to avoid accidental parity assumptions (`packages/analytics-js/project.json:8`, `packages/analytics-v1.1/project.json:6`).
@@ -32,6 +35,7 @@
 - The modern state object spans many cross-domain slices in one mutable graph, which helps coordination but can blur ownership boundaries over time (`packages/analytics-js/src/state/index.ts::state`).
 
 ## Stale/Commented-Out/Compatibility Burden (RUD-2781)
+
 <!-- linear:RUD-2781 -->
 
 - Legacy package still targets IE11-era browser matrix and compatibility constraints, which can limit simplification/refactor options for shared utilities (`packages/analytics-v1.1/package.json:101`).
@@ -39,6 +43,7 @@
 - Service-worker distribution was split to another package (documented deprecation), so contributor assumptions based on older docs can be stale without explicit checks (`README.md:36`).
 
 ## RUD-2781 — Nx Command Preconditions
+
 <!-- linear:RUD-2781 -->
 
 - Root quality commands that delegate to Nx (for example lint/check scripts) depend on the workspace toolchain being installed so `nx` resolves at runtime; without provisioned dependencies these checks fail before actual lint/test evaluation.
@@ -50,3 +55,4 @@
 ## INT-7311 — Sentry Browser Compatibility Split
 
 - Sentry 11.6.0's browser floor is newer than the integrations package's legacy targets, and transpiling Rudder's wrapper cannot make the externally loaded vendor artifact IE11-compatible. Preserve Sentry 6.13.1 for legacy builds rather than changing the package-wide browserslist or silently weakening unrelated integrations' support (`packages/analytics-js-integrations/src/integrations/Sentry/browser.js`, `packages/analytics-js-integrations/package.json`).
+- The instruction to preserve Sentry 6.13.1 above is superseded by reviewer direction to support only the current SDK. Both legacy/default and modern Rudder bundles now load Sentry 11.6.0, so the known browser-floor mismatch remains an accepted compatibility risk in `packages/analytics-js-integrations/src/integrations/Sentry/constants.js` and `packages/analytics-js-integrations/package.json`.
