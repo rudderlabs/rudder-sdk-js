@@ -20,6 +20,7 @@
     "lib": ["ES2022", "dom"],
     "importsNotUsedAsValues": "remove",
     "allowJs": true,
+    "skipLibCheck": true,
     "types": ["user-agent-data-types"]
   },
   "angularCompilerOptions": {
