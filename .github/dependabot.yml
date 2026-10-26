@@ -65,6 +65,24 @@ updates:
         applies-to: security-updates
         patterns:
           - "*"
+    # Majors blocked upstream; drop each rule once its blocker clears.
+    ignore:
+      # @rollup/plugin-babel peers @babel/core ^7; plugin-transform-object-assign has no 8.x
+      - dependency-name: "@babel/*"
+        update-types:
+          - version-update:semver-major
+      # typescript-eslint, ts-jest and @swc-node/register cap TypeScript below 7
+      - dependency-name: "typescript"
+        update-types:
+          - version-update:semver-major
+      # msw 3 is ESM-only; Jest 30 would need --experimental-vm-modules
+      - dependency-name: "msw"
+        update-types:
+          - version-update:semver-major
+      # @jscutlery/semver still expects the v7 preset
+      - dependency-name: "conventional-changelog-conventionalcommits"
+        update-types:
+          - version-update:semver-major
 
   # Sample applications (excluding gatsby), one entry per framework so a failing app
   # only blocks its own framework's PR. Monthly, with majors split out.
