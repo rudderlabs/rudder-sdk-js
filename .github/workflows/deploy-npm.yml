@@ -218,6 +218,14 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.sha }}
 
+      - name: Validate re-run actor
+        if: contains(github.workflow_ref, '/.github/workflows/deploy-npm.yml@')
+        uses: ./.github/actions/assert-rerun-actor
+        with:
+          app_id: ${{ vars.RELEASE_APP_ID }}
+          private_key: ${{ secrets.RELEASE_PRIVATE_KEY }}
+          team_names: 'sdk_team,integrations'
+
       - name: Modify package versions
         if: inputs.version_suffix != ''
         env:

@@ -199,6 +199,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Validate re-run actor
+        uses: ./.github/actions/assert-rerun-actor
+        with:
+          app_id: ${{ vars.RELEASE_APP_ID }}
+          private_key: ${{ secrets.RELEASE_PRIVATE_KEY }}
+          team_names: 'sdk_team,integrations'
+
       - name: Set trigger source
         id: set-trigger-source
         env:

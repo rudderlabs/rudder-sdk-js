@@ -1,0 +1,46 @@
+name: 'Assert Re-run Actor'
+description: 'Fails a re-run started by someone other than the original actor unless they belong to an allowed team. Partial re-runs skip the validate-actor job, so privileged jobs call this themselves.'
+
+inputs:
+  app_id:
+    description: 'GitHub App ID used to read org team membership'
+    required: true
+  private_key:
+    description: 'GitHub App private key'
+    required: true
+  team_names:
+    description: 'Comma-separated list of GitHub team slugs (URL slug, not display name)'
+    required: false
+    default: 'sdk_team'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Generate GitHub App Token
+      id: generate-token
+      if: github.run_attempt != '1' && github.triggering_actor != github.actor
+      uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+      with:
+        app-id: ${{ inputs.app_id }}
+        private-key: ${{ inputs.private_key }}
+        permission-members: read # to check org team membership
+
+    - name: Validate re-run actor
+      if: steps.generate-token.outcome == 'success'
+      shell: bash
+      env:
+        ORG_NAME: rudderlabs
+        TEAM_NAMES: ${{ inputs.team_names }}
+        GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+        ACTOR: ${{ github.triggering_actor }}
+      run: |
+        IFS=',' read -ra TEAMS <<< "$TEAM_NAMES"
+        for TEAM_NAME in "${TEAMS[@]}"; do
+          state=$(gh api "/orgs/$ORG_NAME/teams/$TEAM_NAME/memberships/$ACTOR" -H "X-GitHub-Api-Version: 2022-11-28" --jq '.state' 2>/dev/null || true)
+          if [ "$state" = "active" ]; then
+            echo "Re-run by '$ACTOR' allowed via '@${ORG_NAME}/${TEAM_NAME}'."
+            exit 0
+          fi
+        done
+        echo "::error::Re-run by '$ACTOR' is not allowed: not an active member of any of '${TEAM_NAMES}'."
+        exit 1
