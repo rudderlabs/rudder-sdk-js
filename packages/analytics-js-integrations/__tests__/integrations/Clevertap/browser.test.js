@@ -189,7 +189,7 @@ describe('Clevertap init tests', () => {
     expect(window.clevertap.notifications).toEqual([notification]);
   });
 
-  test.each([undefined, null, false])(
+  test.each([undefined, null, false, 'preloaded', 42, true])(
     'initializes the global and all queues when the global is %p',
     global => {
       window.clevertap = global;
@@ -197,6 +197,7 @@ describe('Clevertap init tests', () => {
 
       clevertap.init();
 
+      expect(typeof window.clevertap).toBe('object');
       expect(window.clevertap.event).toEqual([]);
       expect(window.clevertap.profile).toEqual([]);
       expect(window.clevertap.onUserLogin).toEqual([]);
@@ -205,6 +206,17 @@ describe('Clevertap init tests', () => {
       expect(window.clevertap.privacy).toEqual([{ optOut: false }, { useIP: false }]);
     },
   );
+
+  test('keeps a function global and its queues', () => {
+    const existing = Object.assign(() => {}, { event: ['Order Completed'] });
+    window.clevertap = existing;
+    clevertap = new Clevertap({ accountId: '12567839' }, { loadOnlyIntegrations: {} });
+
+    clevertap.init();
+
+    expect(window.clevertap).toBe(existing);
+    expect(window.clevertap.event).toEqual(['Order Completed']);
+  });
 
   test('preserves the global, every existing queue, and additional properties', () => {
     const existing = {

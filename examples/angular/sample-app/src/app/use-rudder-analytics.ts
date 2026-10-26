@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { type LoadOptions, RudderAnalytics, type RudderAnalyticsPreloader } from '@rudderstack/analytics-js';
-import { environment } from 'src/environments/environment';
+import { environment } from '../environments/environment';
 
 // Shared initialization promise
 let initializationPromise: Promise<RudderAnalytics | RudderAnalyticsPreloader | undefined> | null =

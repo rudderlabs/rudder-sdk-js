@@ -51,6 +51,10 @@
 
 - OpenAI Ads device-mode `page` events intentionally fall back to `{ eventName: 'page_viewed', dataType: EVENT_DATA_SHAPES.page_viewed }` in `resolveEvent` when `message.name` is missing or absent from `eventMappingIndex`; configured page mapping rows still take precedence, while `track` events continue to error on missing or unmapped source keys (`packages/analytics-js-integrations/src/integrations/OpenAIAds/utils.js::resolveEvent`).
 
+## INT-7435 — OpenAI Ads Pre-Hashed Pixel User Data
+
+- OpenAI Ads Measurement Pixel user hashing defaults `isHashRequired` to `true`. When disabled, customer-supplied values for the five `*_sha256` fields must pass the case-insensitive 64-character SHA-256 hex gate and are forwarded lowercase; plaintext is logged and dropped. Use `getDefinedTraits().userIdOnly` to distinguish customer user IDs from `anonymousId` fallbacks: a non-hex anonymous ID remains auto-hashed, while an already-hex anonymous ID passes through lowercase (`packages/analytics-js-integrations/src/integrations/OpenAIAds/utils.js`).
+
 ## RUD-3124 — MoEngage Web Data-Center Resolution
 
 - MoEngage web device mode maps canonical control-plane regions `US`, `EU`, `IND`, `US-DC-04`, `SGP-DC-05`, and `IDN-DC-06` to `dc_1` through `dc_6`; empty regions silently retain the legacy `dc_1` fallback, while non-empty unknown regions warn and then default to `dc_1` (`packages/analytics-js-integrations/src/integrations/MoEngage/utils.js`).
@@ -60,3 +64,7 @@
 ## INT-7215 — Facebook Pixel Scoped PageView
 
 - Facebook Pixel device-mode `page()` must scope `PageView` to the configured pixel with `window.fbq('trackSingle', this.pixelId, 'PageView', properties, { eventID })`; plain `fbq('track', ...)` broadcasts to every Meta pixel initialized on the page. Regression coverage should assert the complete call, including pixel ID, unchanged properties, and derived event ID (`packages/analytics-js-integrations/src/integrations/FacebookPixel/browser.js`, `packages/analytics-js-integrations/__tests__/integrations/FacebookPixel/browser.test.js`).
+
+## SDK-5671 — CleverTap Preloaded Global Normalization
+
+- CleverTap device-mode initialization preserves object-valued preload queues, but resets a truthy primitive `window.clevertap` (such as a string, number, or boolean) to `{}` before adding queue properties; a loaded SDK object is still reset through the existing `getAccountID` path, while function-valued globals keep their queues (`packages/analytics-js-integrations/src/integrations/Clevertap/browser.js`, `packages/analytics-js-integrations/__tests__/integrations/Clevertap/browser.test.js`).

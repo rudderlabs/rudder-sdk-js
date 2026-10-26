@@ -275,17 +275,17 @@ npm run test -- TestIntegrationOne/
 
 In order to allow user to configure your integration via the RudderStack UI (control plane), you'll need to contribute to [`rudder-integrations-config`](https://github.com/rudderlabs/rudder-integrations-config) repository.
 
-Create a new folder for your integration under [`src/configurations/destinations`](https://github.com/rudderlabs/rudder-integrations-config/tree/develop/src/configurations/destinations) and then add the necessary configuration files as following.
+Create a new folder for your integration under [`src/configurations/destinations`](https://github.com/rudderlabs/rudder-integrations-config/tree/main/src/configurations/destinations) and then add the necessary configuration files as following.
 
 **Two approaches for adding UI configurations:**
 
 A. **Automated generation:**
-   Create a placeholder file by changing the values in the template available at [`src/test/configData/inputData.json`](https://github.com/rudderlabs/rudder-integrations-config/blob/develop/test/configData/inputData.json) and then run following command
+   Create a placeholder file by changing the values in the template available at [`src/test/configData/inputData.json`](https://github.com/rudderlabs/rudder-integrations-config/blob/main/test/configData/inputData.json) and then run following command
    ```bash
    python3 scripts/configGenerator.py <path-to-placeholder-file>
    ```
 B. **Manual configuration:**
-   Add config files in `src/configurations/destinations` using the [existing templates](https://github.com/rudderlabs/rudder-integrations-config/blob/develop/test/configData/inputData.json) as reference.
+   Add config files in `src/configurations/destinations` using the [existing templates](https://github.com/rudderlabs/rudder-integrations-config/blob/main/test/configData/inputData.json) as reference.
 * Define the necessary configuration fields, such as API keys or customer IDs
 * `db-config.json`: Define the fields needed for the web source in this file. Field names are immutable and should be intuitive
     * Include the integration's name, display name, supported sources, connection modes, and configuration fields
