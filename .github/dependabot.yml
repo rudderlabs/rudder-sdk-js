@@ -185,6 +185,46 @@ updates:
         update-types:
           - version-update:semver-major
 
+  # React (create-react-app) sample apps
+  - package-ecosystem: "npm"
+    cooldown:
+      default-days: 5
+    directories:
+      - "/examples/reactjs/hooks/sample-app"
+      - "/examples/reactjs/js/sample-app"
+      - "/examples/reactjs/ts/sample-app"
+    schedule:
+      interval: "cron"
+      # 1st of every month at 00:01 UTC
+      cronjob: "1 0 1 * *"
+      timezone: "UTC"
+    labels:
+      - "dependencies"
+      - "sample-apps"
+    open-pull-requests-limit: 10
+    groups:
+      react-cra-sample-apps-npm-deps:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+      react-cra-sample-apps-npm-major-deps:
+        patterns:
+          - "*"
+        update-types:
+          - "major"
+
+      react-cra-sample-apps-security-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"
+    ignore:
+      - dependency-name: "typescript"
+        update-types:
+          - version-update:semver-major
+
   # Serverless sample apps
   - package-ecosystem: "npm"
     cooldown:
