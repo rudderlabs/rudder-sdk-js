@@ -38,7 +38,12 @@
       "cache": true
     },
     "check:pub": {
-      "inputs": ["{projectRoot}/package.json"],
+      "inputs": [
+        "default",
+        "^default",
+        "{workspaceRoot}/scripts/check-packed-types.mjs",
+        "{workspaceRoot}/scripts/packed-types-consumers/**"
+      ],
       "cache": true
     },
     "check:circular": {

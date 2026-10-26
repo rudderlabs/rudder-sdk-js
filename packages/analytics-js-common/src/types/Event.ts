@@ -1,7 +1,14 @@
 import type { ApiCallback, ResetOptions, RudderEventType, Traits } from './EventApi';
 import type { Nullable } from './Nullable';
 import type { ConsentManagement, ConsentOptions } from './Consent';
-import type { AppInfo, LibraryInfo, OSInfo, ScreenInfo, UTMParameters } from './EventContext';
+import type {
+  AppInfo,
+  LibraryInfo,
+  OSInfo,
+  ScreenInfo,
+  UADataValues,
+  UTMParameters,
+} from './EventContext';
 import type { IntegrationOpts } from './Integration';
 import type { ApiObject } from './ApiObject';
 import type { CustomContext, InputCustomContext } from './CustomContext';
