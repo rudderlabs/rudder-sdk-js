@@ -44,5 +44,7 @@
     "typescript": "6.0.3",
     "user-agent-data-types": "^0.4.3"
   },
-  "overrides": {}
+  "overrides": {
+    "vite": "8.3.5"
+  }
 }
