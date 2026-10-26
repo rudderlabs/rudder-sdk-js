@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@emotion/react": "11.14.0",
-    "dotenv": "18.0.9",
+    "dotenv": "18.0.8",
     "gatsby": "5.16.1",
     "gatsby-plugin-rudderstack": "*",
     "react": "18.3.1",
