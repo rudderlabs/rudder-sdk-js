@@ -1,4 +1,6 @@
 version: 2
+# No `target-branch`: develop is the default branch, and setting it makes security updates
+# ignore every option below (groups, ignore, labels).
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -7,7 +9,6 @@ updates:
       # every wednesday at 00:01 UTC
       cronjob: "1 0 * * 3"
       timezone: "UTC"
-    target-branch: "develop"
     labels:
       - "dependencies"
       - "github-actions"
@@ -21,7 +22,7 @@ updates:
   # Prod bumps are committed as `fix(deps):` so the release pipeline's conventional-commit
   # analyzer picks them up and bumps the packages that consume them; dev bumps stay as `chore`.
   # Override the PR title manually when a bump shouldn't trigger a release (e.g. toolchain-only).
-  # Note: Dependabot does not allow two npm entries for the same directory + target-branch,
+  # Note: Dependabot does not allow two npm entries for the same directory,
   # so per-group commit prefixes are not possible — keep this as a single entry.
   - package-ecosystem: "npm"
     cooldown:
@@ -32,7 +33,6 @@ updates:
       # every wednesday at 00:01 UTC
       cronjob: "1 0 * * 3"
       timezone: "UTC"
-    target-branch: "develop"
     labels:
       - "dependencies"
     open-pull-requests-limit: 10
@@ -61,7 +61,13 @@ updates:
           - "major"
         dependency-type: "production"
 
-  # All sample applications managed together (excluding gatsby)
+      npm-security-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"
+
+  # All sample applications managed together (excluding gatsby).
+  # Monthly, with majors split out, so sample-app churn doesn't pile up weekly.
   - package-ecosystem: "npm"
     cooldown:
       default-days: 5
@@ -84,16 +90,29 @@ updates:
       - "/examples/integrations/Ninetailed/sample-apps/app-using-v3-cdn"
     schedule:
       interval: "cron"
-      # every wednesday at 00:01 UTC
-      cronjob: "1 0 * * 3"
+      # 1st of every month at 00:01 UTC
+      cronjob: "1 0 1 * *"
       timezone: "UTC"
-    target-branch: "develop"
     labels:
       - "dependencies"
       - "sample-apps"
     open-pull-requests-limit: 10
     groups:
       sample-apps-npm-deps:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+      sample-apps-npm-major-deps:
+        patterns:
+          - "*"
+        update-types:
+          - "major"
+
+      sample-apps-security-updates:
+        applies-to: security-updates
         patterns:
           - "*"
     ignore:
@@ -110,16 +129,20 @@ updates:
       - "/examples/gatsby/sample-gatsby-site"
     schedule:
       interval: "cron"
-      # every wednesday at 00:01 UTC
-      cronjob: "1 0 * * 3"
+      # 1st of every month at 00:01 UTC
+      cronjob: "1 0 1 * *"
       timezone: "UTC"
-    target-branch: "develop"
     labels:
       - "dependencies"
       - "sample-apps"
     open-pull-requests-limit: 10
     groups:
       gatsby-sample-apps-npm-deps:
+        patterns:
+          - "*"
+
+      gatsby-sample-apps-security-updates:
+        applies-to: security-updates
         patterns:
           - "*"
     ignore:
