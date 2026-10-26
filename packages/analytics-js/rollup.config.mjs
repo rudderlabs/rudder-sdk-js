@@ -468,7 +468,8 @@ const buildEntries = () => {
             },
           ],
         }),
-        dts(),
+        // Published package has no dependencies, so inline the Signal type exposed via the state types
+        dts({ includeExternal: ['@preact/signals-core'] }),
         del({ hook: 'buildEnd', targets: './dist/dts' }),
       ],
       output: [

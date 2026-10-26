@@ -7,7 +7,6 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/npm/index.d.mts",
       "require": {
         "types": "./dist/npm/index.d.cts",
         "default": "./dist/npm/modern/cjs/index.cjs"
@@ -18,7 +17,6 @@
       }
     },
     "./legacy": {
-      "types": "./dist/npm/index.d.mts",
       "require": {
         "types": "./dist/npm/index.d.cts",
         "default": "./dist/npm/legacy/cjs/index.cjs"
@@ -84,7 +82,7 @@
     "check:support:modern": "NODE_ENV=modern npx browserslist --mobile-to-desktop",
     "check:duplicates": "jscpd src",
     "check:security": "npm audit --audit-level=high",
-    "check:pub": "npx publint",
+    "check:pub": "npx publint && node ../../scripts/check-packed-types.mjs",
     "package": "npm pack",
     "release": "npm publish"
   },
