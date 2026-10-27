@@ -27,3 +27,7 @@
 ## DOCS-2581 — Named Integration Build Command
 
 - Build one named device mode integration from `packages/analytics-js-integrations` with `npm run build:integration:cli --intg=<Name>`; the generic `build:integration` and `build:integration:modern` scripts do not consume an integration-name argument — prefix `BROWSERSLIST_ENV=modern` for the modern variant. Output lands in `dist/cdn/<legacy|modern>/js-integrations` as defined in `rollup.config.mjs`.
+
+## SDK-5569 — Independent Example Updater Roots
+
+- When adding updater entries for `/examples/utils/mock-servers` (npm) and `/examples/symfony/sample` (Composer) in `.github/dependabot.yml`, keep their example labels but do not inherit TypeScript/framework-specific ignores from unrelated samples or invent version-update groups for these independent dependency sets.
