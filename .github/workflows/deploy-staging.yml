@@ -10,7 +10,8 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # Queue instead of cancelling: a cancelled run leaves required checks pending on the release PR
+  cancel-in-progress: false
 
 permissions:
   contents: read
