@@ -16,3 +16,7 @@
 ## INT-7435 — Resolve OpenAI Ads Hashing Config at Integration Boundary
 
 - Resolve the default-on `isHashRequired` setting once in the OpenAI Ads browser integration (for example, `this.isHashRequired = this.config.isHashRequired ?? true`) and pass the resulting boolean explicitly to `buildUserData`; keep `buildUserData` and `hashUserValue` parameters required rather than adding duplicate helper-level defaults that can drift (`packages/analytics-js-integrations/src/integrations/OpenAIAds/browser.js`, `packages/analytics-js-integrations/src/integrations/OpenAIAds/utils.js`).
+
+## SDK-5569 — Dependabot Monthly Schedule Syntax
+
+- For monthly schedules in `.github/dependabot.yml`, omit `schedule.day`: numeric `day: 1` is invalid, and `interval: monthly` already selects the first day of the month. Keep focused dependency-policy PRs limited to `.github/dependabot.yml` rather than including repository knowledge edits.
