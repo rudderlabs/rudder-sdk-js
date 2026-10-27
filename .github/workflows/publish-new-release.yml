@@ -112,6 +112,7 @@ jobs:
           token: ${{ steps.generate-token.outputs.token }}
 
       - name: Validate re-run actor
+        id: authorize-rerun
         uses: ./.github/actions/assert-rerun-actor
         with:
           app_id: ${{ vars.RELEASE_APP_ID }}
@@ -240,7 +241,7 @@ jobs:
           echo "ERROR: Release $RELEASE_TAG was not found after 10 attempts"
 
       - name: Create pull request into develop
-        if: always()
+        if: always() && steps.authorize-rerun.outcome == 'success'
         continue-on-error: true
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
@@ -277,7 +278,7 @@ jobs:
 
       - name: Send message to Slack channel
         id: slack
-        if: always()
+        if: always() && steps.authorize-rerun.outcome == 'success'
         continue-on-error: true
         uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d  # v4.0.0
         env:
