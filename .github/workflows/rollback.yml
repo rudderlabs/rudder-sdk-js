@@ -179,7 +179,12 @@ jobs:
 
           # Releases before the versioned copy existed have nothing to restore from
           for artifact in "${artifacts[@]}"; do
-            if ! aws s3api head-object --bucket "${BUCKET_NAME}" --key "${BASE_DIR}/${LOADER_VERSION}/${artifact}" >/dev/null 2>&1; then
+            if ! err=$(aws s3api head-object --bucket "${BUCKET_NAME}" --key "${BASE_DIR}/${LOADER_VERSION}/${artifact}" 2>&1 >/dev/null); then
+              # Only a confirmed 404 means "nothing to restore"; access or service errors must fail the rollback
+              if ! grep -q -E '\(404\)|Not Found' <<< "$err"; then
+                echo "::error::head-object failed for ${BASE_DIR}/${LOADER_VERSION}/${artifact}: ${err}"
+                exit 1
+              fi
               msg="${BASE_DIR}/${LOADER_VERSION}/${artifact} not found; ${BASE_DIR}/latest was NOT rolled back"
               echo "::warning::${msg}"
               echo "- :warning: ${msg}" >> "$GITHUB_STEP_SUMMARY"
