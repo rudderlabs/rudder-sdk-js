@@ -171,7 +171,8 @@ jobs:
           BUCKET_NAME: ${{ secrets.AWS_PROD_S3_BUCKET_NAME }}
           BASE_DIR: ${{ env.LOADER_CDN_BASE_DIR }}
           LOADER_VERSION: ${{ env.LOADER_ROLLBACK_VERSION_VALUE }}
-          CACHE_CONTROL: ${{ env.CACHE_CONTROL_NO_STORE }}
+          # Bare directive: CACHE_CONTROL_NO_STORE carries shell quotes meant for unquoted interpolation
+          CACHE_CONTROL: no-store
         run: |
           src="s3://${BUCKET_NAME}/${BASE_DIR}/${LOADER_VERSION}"
           artifacts=(loader.js loader.min.js loader-gtm.js loader-gtm.min.js)
