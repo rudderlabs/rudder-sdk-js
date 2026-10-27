@@ -112,7 +112,9 @@ runs:
           if ! run_info=$(curl -fsS -H "Authorization: token $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github+json" \
             "https://api.github.com/repos/$REPO/actions/runs/$run_id"); then
-            continue
+            # Don't fall through to an older draft: it may point at a different release thread
+            notice_failed "could not verify the run ($run_id) that uploaded $ARTIFACT_NAME"
+            exit 0
           fi
           if echo "$run_info" | jq -e '.event == "workflow_dispatch" and (.path | startswith(".github/workflows/draft-new-release.yml"))' > /dev/null; then
             artifact_id="${candidate%%:*}"
