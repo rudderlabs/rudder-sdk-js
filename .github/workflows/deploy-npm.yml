@@ -45,7 +45,7 @@ on:
       SLACK_RELEASE_CHANNEL_ID:
         required: true
       RELEASE_PRIVATE_KEY:
-        required: false
+        required: true
 
 permissions:
   id-token: write # Allows the JWT to be requested from GitHub's OIDC provider
@@ -219,7 +219,6 @@ jobs:
           ref: ${{ github.sha }}
 
       - name: Validate re-run actor
-        if: contains(github.workflow_ref, '/.github/workflows/deploy-npm.yml@')
         uses: ./.github/actions/assert-rerun-actor
         with:
           app_id: ${{ vars.RELEASE_APP_ID }}
