@@ -85,87 +85,71 @@ runs:
         REPO: ${{ github.repository }}
         ARTIFACT_NAME: release-info-v${{ inputs.monorepo_release_version }}-${{ inputs.release_ticket_id }}
       run: |
-        # Create directory for artifact
         mkdir -p release-info
-        
-        # Find the workflow run that created this artifact
-        # Look for the draft-new-release workflow runs
+
+        # Non-blocking, but visible: warn in the log and the run summary
+        notice_failed() {
+          echo "::warning title=Release thread notice skipped::$1"
+          echo "- :warning: Release thread notice skipped: $1" >> "$GITHUB_STEP_SUMMARY"
+        }
+
         echo "Searching for artifact: $ARTIFACT_NAME"
-        
-        # Get the workflow ID for draft-new-release
-        workflow_response=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-          "https://api.github.com/repos/$REPO/actions/workflows/draft-new-release.yml")
-        
-        workflow_id=$(echo "$workflow_response" | jq -r '.id')
-        
-        if [ "$workflow_id" = "null" ] || [ -z "$workflow_id" ]; then
-          echo "Could not find draft-new-release workflow"
-          echo "Response: $workflow_response"
-          exit 1
+
+        # Look up by name across the repo; scanning recent draft runs missed older drafts and re-runs
+        if ! artifacts_response=$(curl -fsS -H "Authorization: token $GITHUB_TOKEN" \
+          -H "Accept: application/vnd.github+json" \
+          "https://api.github.com/repos/$REPO/actions/artifacts?name=$ARTIFACT_NAME&per_page=100"); then
+          notice_failed "could not query artifacts API for $ARTIFACT_NAME"
+          exit 0
         fi
-        
-        echo "Found workflow ID: $workflow_id"
-        
-        # Get recent workflow runs (last 50 runs, completed status)
-        runs_response=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-          "https://api.github.com/repos/$REPO/actions/workflows/$workflow_id/runs?per_page=50&status=completed")
-        
-        if [ "$(echo "$runs_response" | jq -r '.total_count')" = "0" ]; then
-          echo "No completed workflow runs found"
-          exit 1
-        fi
-        
-        # Find the run that has our artifact
-        artifact_found=false
-        run_count=$(echo "$runs_response" | jq -r '.workflow_runs | length')
-        echo "Checking $run_count workflow runs for artifact..."
-        
-        for i in $(seq 0 $((run_count - 1))); do
-          run_id=$(echo "$runs_response" | jq -r ".workflow_runs[$i].id")
-          run_name=$(echo "$runs_response" | jq -r ".workflow_runs[$i].name")
-          run_created=$(echo "$runs_response" | jq -r ".workflow_runs[$i].created_at")
-          
-          echo "Checking run $run_id ($run_name) created at $run_created..."
-          
-          artifacts_response=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-            "https://api.github.com/repos/$REPO/actions/runs/$run_id/artifacts")
-          
-          # Check if the response contains our artifact
-          artifact_exists=$(echo "$artifacts_response" | jq -r ".artifacts[] | select(.name == \"$ARTIFACT_NAME\") | .name // empty")
-          
-          if [ "$artifact_exists" = "$ARTIFACT_NAME" ]; then
-            echo "Found artifact in run $run_id"
-            artifact_id=$(echo "$artifacts_response" | jq -r ".artifacts[] | select(.name == \"$ARTIFACT_NAME\") | .id")
-            
-            # Download the artifact
-            download_response=$(curl -L -w "%{http_code}" -H "Authorization: token $GITHUB_TOKEN" \
-              "https://api.github.com/repos/$REPO/actions/artifacts/$artifact_id/zip" \
-              -o release-info.zip)
-            
-            http_code="${download_response: -3}"
-            if [ "$http_code" = "200" ]; then
-              # Extract the artifact
-              unzip -o release-info.zip -d release-info/
-              rm release-info.zip
-              
-              echo "Successfully downloaded and extracted artifact"
-              artifact_found=true
-              break
-            else
-              echo "Failed to download artifact, HTTP code: $http_code"
-            fi
+
+        # Newest non-expired copy uploaded by a dispatched draft-new-release run wins (re-runs upload
+        # duplicates). The name alone isn't trusted: any workflow, e.g. on a PR, could upload a lookalike.
+        artifact_id=""
+        for candidate in $(echo "$artifacts_response" | jq -r --arg name "$ARTIFACT_NAME" \
+          '[.artifacts[] | select(.name == $name and (.expired | not))] | sort_by(.created_at) | reverse | .[] | "\(.id):\(.workflow_run.id)"'); do
+          run_id="${candidate#*:}"
+          if ! run_info=$(curl -fsS -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$REPO/actions/runs/$run_id"); then
+            # Don't fall through to an older draft: it may point at a different release thread
+            notice_failed "could not verify the run ($run_id) that uploaded $ARTIFACT_NAME"
+            exit 0
           fi
+          if echo "$run_info" | jq -e '.event == "workflow_dispatch" and (.path | startswith(".github/workflows/draft-new-release.yml"))' > /dev/null; then
+            artifact_id="${candidate%%:*}"
+            break
+          fi
+          echo "::warning::Ignoring artifact ${candidate%%:*}: run $run_id is not a dispatched draft-new-release run"
         done
-        
-        if [ "$artifact_found" = false ]; then
-          echo "Artifact $ARTIFACT_NAME not found in recent workflow runs"
-          echo "This could mean:"
-          echo "1. The artifact has expired (artifacts expire after 90 days)"
-          echo "2. The artifact was never created"
-          echo "3. The artifact name doesn't match"
-          
-          exit 1
+
+        if [ -z "$artifact_id" ]; then
+          expired_count=$(echo "$artifacts_response" | jq -r --arg name "$ARTIFACT_NAME" \
+            '[.artifacts[] | select(.name == $name and .expired)] | length')
+          if [ "$expired_count" -gt 0 ]; then
+            notice_failed "artifact $ARTIFACT_NAME has expired (see retention-days in draft-new-release.yml)"
+          else
+            notice_failed "artifact $ARTIFACT_NAME not found (never uploaded, purged after expiry, or version/ticket ID mismatch with the draft run)"
+          fi
+          exit 0
         fi
+
+        echo "Found artifact $artifact_id"
+
+        if ! curl -fsSL -H "Authorization: token $GITHUB_TOKEN" \
+          "https://api.github.com/repos/$REPO/actions/artifacts/$artifact_id/zip" \
+          -o release-info.zip; then
+          notice_failed "failed to download artifact $ARTIFACT_NAME ($artifact_id)"
+          exit 0
+        fi
+
+        if ! unzip -o release-info.zip -d release-info/; then
+          notice_failed "failed to extract artifact $ARTIFACT_NAME ($artifact_id)"
+          exit 0
+        fi
+        rm release-info.zip
+
+        echo "Successfully downloaded and extracted artifact"
 
     - name: Extract release info
       id: extract-info
@@ -230,14 +214,19 @@ runs:
             echo "message_url=$message_url" >> $GITHUB_OUTPUT
           else
             echo "Invalid or missing Slack response"
+            echo "::warning title=Release thread notice skipped::invalid Slack API response; no message link to post"
+            echo "- :warning: Release thread notice skipped: invalid Slack API response; no message link to post" >> "$GITHUB_STEP_SUMMARY"
             echo "message_url=" >> $GITHUB_OUTPUT
           fi
         else
           echo "No Slack message URL or API response provided"
+          echo "::warning title=Release thread notice skipped::no Slack message URL or API response provided"
+          echo "- :warning: Release thread notice skipped: no Slack message URL or API response provided" >> "$GITHUB_STEP_SUMMARY"
           echo "message_url=" >> $GITHUB_OUTPUT
         fi
 
     - name: Post deployment link to release thread
+      id: post-notice
       if: ${{ steps.extract-info.outputs.has_thread_info == 'true' && steps.extract-message-url.outputs.message_url != '' }}
       uses: slackapi/slack-github-action@b0fa283ad8fea605de13dc3f449259339835fc52  # v2.1.0
       continue-on-error: true
@@ -260,4 +249,24 @@ runs:
                 }
               }
             ]
-          } 
+          }
+
+    # The Slack action passes on API errors (errors: false), so check ok as well as outcome
+    - name: Report release thread notice failures
+      if: ${{ always() && (steps.download-release-info.outcome == 'failure' || steps.extract-info.outcome == 'failure' || steps.extract-message-url.outcome == 'failure' || (steps.post-notice.outcome != 'skipped' && steps.post-notice.outputs.ok != 'true')) }}
+      shell: bash
+      env:
+        DOWNLOAD_OUTCOME: ${{ steps.download-release-info.outcome }}
+        EXTRACT_OUTCOME: ${{ steps.extract-info.outcome }}
+        MESSAGE_URL_OUTCOME: ${{ steps.extract-message-url.outcome }}
+        POST_OUTCOME: ${{ steps.post-notice.outcome }}
+        POST_RESPONSE: ${{ steps.post-notice.outputs.response }}
+      run: |
+        if [ "$DOWNLOAD_OUTCOME" = "failure" ] || [ "$EXTRACT_OUTCOME" = "failure" ] || [ "$MESSAGE_URL_OUTCOME" = "failure" ]; then
+          reason="release info lookup errored (download: $DOWNLOAD_OUTCOME, extract: $EXTRACT_OUTCOME, message URL: $MESSAGE_URL_OUTCOME)"
+        else
+          slack_error=$(echo "$POST_RESPONSE" | jq -r '.error // empty' 2>/dev/null || true)
+          reason="Slack chat.postMessage failed (${slack_error:-step $POST_OUTCOME})"
+        fi
+        echo "::warning title=Release thread notice failed::$reason"
+        echo "- :warning: Release thread notice failed: $reason" >> "$GITHUB_STEP_SUMMARY"

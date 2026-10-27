@@ -111,6 +111,14 @@ jobs:
           ref: ${{ github.sha }}
           token: ${{ steps.generate-token.outputs.token }}
 
+      - name: Validate re-run actor
+        id: authorize-rerun
+        uses: ./.github/actions/assert-rerun-actor
+        with:
+          app_id: ${{ vars.RELEASE_APP_ID }}
+          private_key: ${{ secrets.RELEASE_PRIVATE_KEY }}
+          team_names: 'sdk_team,integrations'
+
       # Annotated tag object (unsigned) + ref. GitHub's Git Data API for `POST /git/tags`
       # does not accept a signature in its payload; producing a signed tag would require
       # running `git tag -s` locally with a signing key provisioned as a workflow secret,
@@ -233,7 +241,7 @@ jobs:
           echo "ERROR: Release $RELEASE_TAG was not found after 10 attempts"
 
       - name: Create pull request into develop
-        if: always()
+        if: always() && steps.authorize-rerun.outcome == 'success'
         continue-on-error: true
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
@@ -270,7 +278,7 @@ jobs:
 
       - name: Send message to Slack channel
         id: slack
-        if: always()
+        if: always() && steps.authorize-rerun.outcome == 'success'
         continue-on-error: true
         uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d  # v4.0.0
         env:
@@ -411,6 +419,8 @@ jobs:
       RS_PROD_BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
+      RELEASE_PRIVATE_KEY: ${{ secrets.RELEASE_PRIVATE_KEY }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   deprecate-closed-pr-betas:
     needs: [publish-npm-packages]
@@ -427,6 +437,13 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Validate re-run actor
+        uses: ./.github/actions/assert-rerun-actor
+        with:
+          app_id: ${{ vars.RELEASE_APP_ID }}
+          private_key: ${{ secrets.RELEASE_PRIVATE_KEY }}
+          team_names: 'sdk_team,integrations'
 
       - name: Run beta package deprecation
         continue-on-error: true

@@ -57,6 +57,8 @@ on:
         required: true
       BUGSNAG_API_KEY:
         required: true
+      RELEASE_PRIVATE_KEY:
+        required: true
 
 permissions:
   id-token: write # allows the JWT to be requested from GitHub's OIDC provider
@@ -119,6 +121,13 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ steps.getSHA.outputs.SHA }}
+
+      - name: Validate re-run actor
+        uses: ./.github/actions/assert-rerun-actor
+        with:
+          app_id: ${{ vars.RELEASE_APP_ID }}
+          private_key: ${{ secrets.RELEASE_PRIVATE_KEY }}
+          team_names: 'sdk_team,integrations'
 
       - name: Modify package versions
         if: ${{ inputs.version_suffix != '' }}

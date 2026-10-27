@@ -52,6 +52,7 @@ jobs:
       BUGSNAG_API_KEY: ${{ secrets.RS_DEV_BUGSNAG_API_KEY }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
+      RELEASE_PRIVATE_KEY: ${{ secrets.RELEASE_PRIVATE_KEY }}
 
   deploy-sanity-suite:
     name: Deploy sanity suite
@@ -73,6 +74,7 @@ jobs:
       BUGSNAG_API_KEY: ${{ secrets.RS_DEV_BUGSNAG_API_KEY }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
+      RELEASE_PRIVATE_KEY: ${{ secrets.RELEASE_PRIVATE_KEY }}
 
   run-e2e-regression-test-suites:
     uses: ./.github/workflows/run-e2e-regression-test-suites.yml

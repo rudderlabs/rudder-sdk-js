@@ -45,6 +45,8 @@ on:
         required: true
       BUGSNAG_API_KEY:
         required: true
+      RELEASE_PRIVATE_KEY:
+        required: true
       SLACK_BOT_TOKEN:
         required: true
       SLACK_RELEASE_CHANNEL_ID:
@@ -88,6 +90,13 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ steps.getSHA.outputs.SHA }}
+
+      - name: Validate re-run actor
+        uses: ./.github/actions/assert-rerun-actor
+        with:
+          app_id: ${{ vars.RELEASE_APP_ID }}
+          private_key: ${{ secrets.RELEASE_PRIVATE_KEY }}
+          team_names: 'sdk_team,integrations'
 
       - name: Configure deployment options
         id: deployment-options
