@@ -252,6 +252,15 @@ jobs:
               -f "sha=${tag_obj_sha}"
           done
 
+      # Re-derives the bumped set independently and checks the remote, so a skipped or
+      # failed tag never reaches the release PR unnoticed. The monorepo v<version> tag
+      # is created at publish time, so it is not expected here.
+      - name: Verify release tags on remote
+        env:
+          BRANCH_NAME: ${{ steps.create-release.outputs.branch_name }}
+        run: |
+          ./scripts/verify-release-tags.sh "origin/${BRANCH_NAME}" origin/main
+
       - name: Generate packages versions table
         id: packages-versions
         run: |
