@@ -263,8 +263,9 @@ jobs:
       # Versions come from the rollback ref, so the bad release's packages go
       # back to what was latest there; a package the bad release did not
       # publish is re-tagged with the version it already has.
+      # No continue-on-error: a package left on the bad `latest` must fail the rollback
+      # and skip the success announcement. Every package is still attempted first.
       - name: Point the NPM latest dist-tag to the rollback versions
-        continue-on-error: true
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
@@ -369,6 +370,8 @@ jobs:
     uses: ./.github/workflows/run-e2e-regression-test-suites.yml
     name: Run E2E Regression Test Suites
     needs: [get-rollback-inputs, rollback, deploy-sanity-suite]
+    # Still test the restored CDN when a later rollback step (e.g. the npm dist-tag) failed
+    if: ${{ !cancelled() && needs.deploy-sanity-suite.result == 'success' && contains(fromJSON('["success", "failure"]'), needs.rollback.result) }}
     with:
       environment: production
       trigger_source: ${{ needs.get-rollback-inputs.outputs.trigger_source }}
