@@ -46,7 +46,3 @@
 ## AI-1258 — Dependency Lockfile Drift Blocks CI Installs
 
 - In this checkout, `npm ci --prefer-offline --no-audit --include=optional` fails before installing dependencies because `package.json` and `package-lock.json` are out of sync (`typescript@5.9.3` and `conventional-commits-filter@5.0.0` are missing from the lock file); root Jest/Nx validation therefore requires a synchronized lock file or a non-`ci` install path in similar environments.
-
-## SDK-5569 — Symfony Compose Image Coverage Is Unverified
-
-- Do not claim native security-update coverage for Symfony's `compose.yaml` image references from `.github/dependabot.yml` alone: `postgres:${POSTGRES_VERSION:-16}-alpine` interpolates a version, `axllent/mailpit` is untagged, and Dependabot parser/security-update delivery for those references remains unverified. Avoid a speculative `docker-compose` updater root or manifest changes until that coverage is verified.
