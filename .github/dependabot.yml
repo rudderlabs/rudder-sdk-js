@@ -6,7 +6,6 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
-      day: 1
       time: "00:01"
       timezone: "UTC"
     labels:
@@ -33,7 +32,6 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
-      day: 1
       time: "00:01"
       timezone: "UTC"
     labels:
@@ -96,7 +94,6 @@ updates:
       - "/examples/angular/sample-app"
     schedule:
       interval: "monthly"
-      day: 1
       time: "00:01"
       timezone: "UTC"
     labels:
@@ -135,7 +132,6 @@ updates:
       - "/examples/nextjs/ts/sample-app"
     schedule:
       interval: "monthly"
-      day: 1
       time: "00:01"
       timezone: "UTC"
     labels:
@@ -171,7 +167,6 @@ updates:
       - "/examples/reactjs/vite/sample-app"
     schedule:
       interval: "monthly"
-      day: 1
       time: "00:01"
       timezone: "UTC"
     labels:
@@ -209,7 +204,6 @@ updates:
       - "/examples/reactjs/ts/sample-app"
     schedule:
       interval: "monthly"
-      day: 1
       time: "00:01"
       timezone: "UTC"
     labels:
@@ -246,7 +240,6 @@ updates:
       - "/examples/serverless/vercel-edge"
     schedule:
       interval: "monthly"
-      day: 1
       time: "00:01"
       timezone: "UTC"
     labels:
@@ -282,7 +275,6 @@ updates:
       - "/examples/symfony/sample"
     schedule:
       interval: "monthly"
-      day: 1
       time: "00:01"
       timezone: "UTC"
     labels:
@@ -315,7 +307,6 @@ updates:
     directory: "/examples/symfony/sample"
     schedule:
       interval: "monthly"
-      day: 1
       time: "00:01"
       timezone: "UTC"
     labels:
@@ -333,7 +324,6 @@ updates:
       - "/examples/integrations/Ninetailed/sample-app"
     schedule:
       interval: "monthly"
-      day: 1
       time: "00:01"
       timezone: "UTC"
     labels:
@@ -370,7 +360,6 @@ updates:
       - "/examples/gatsby/sample-gatsby-site"
     schedule:
       interval: "monthly"
-      day: 1
       time: "00:01"
       timezone: "UTC"
     labels:
@@ -399,7 +388,6 @@ updates:
     directory: "/examples/utils/mock-servers"
     schedule:
       interval: "monthly"
-      day: 1
       time: "00:01"
       timezone: "UTC"
     labels:
