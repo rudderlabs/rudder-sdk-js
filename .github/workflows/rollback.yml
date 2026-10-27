@@ -23,6 +23,7 @@ env:
   PLUGINS_DIR_NAME: "plugins"
   LATEST_VERSION_DIR_NAME: "v3"
   LEGACY_SDK_LATEST_VERSION_DIR_NAME: "v1.1"
+  LOADER_CDN_BASE_DIR: "js-sdk-loader-scripts"
 
 jobs:
   validate-actor:
@@ -123,6 +124,10 @@ jobs:
           echo "LEGACY_SDK_ROLLBACK_VERSION_VALUE=$legacy_sdk_rollback_version" >> $GITHUB_ENV
           echo "Legacy SDK rollback version: $legacy_sdk_rollback_version"
 
+          loader_rollback_version=$(jq -r .version packages/loading-scripts/package.json)
+          echo "LOADER_ROLLBACK_VERSION_VALUE=$loader_rollback_version" >> "$GITHUB_ENV"
+          echo "Loader scripts rollback version: $loader_rollback_version"
+
           echo "DATE=$(date)" >> $GITHUB_ENV
 
       - name: Copy the core SDK artifacts from the previous version to the latest version directory
@@ -157,6 +162,43 @@ jobs:
 
           aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --id "$invalidation_id"
 
+      # deploy.yml keeps an immutable copy per loading-scripts version; the
+      # first release of a version wins, so it can predate later loader-only
+      # changes that shipped without a version bump.
+      - name: Restore the SDK loader scripts from the rollback version
+        id: restore-loader
+        env:
+          BUCKET_NAME: ${{ secrets.AWS_PROD_S3_BUCKET_NAME }}
+          BASE_DIR: ${{ env.LOADER_CDN_BASE_DIR }}
+          LOADER_VERSION: ${{ env.LOADER_ROLLBACK_VERSION_VALUE }}
+          CACHE_CONTROL: ${{ env.CACHE_CONTROL_NO_STORE }}
+        run: |
+          src="s3://${BUCKET_NAME}/${BASE_DIR}/${LOADER_VERSION}"
+          artifacts=(loader.js loader.min.js loader-gtm.js loader-gtm.min.js)
+
+          # Releases before the versioned copy existed have nothing to restore from
+          for artifact in "${artifacts[@]}"; do
+            if ! aws s3api head-object --bucket "${BUCKET_NAME}" --key "${BASE_DIR}/${LOADER_VERSION}/${artifact}" >/dev/null 2>&1; then
+              msg="${BASE_DIR}/${LOADER_VERSION}/${artifact} not found; ${BASE_DIR}/latest was NOT rolled back"
+              echo "::warning::${msg}"
+              echo "- :warning: ${msg}" >> "$GITHUB_STEP_SUMMARY"
+              echo "restored=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done
+
+          for artifact in "${artifacts[@]}"; do
+            aws s3 cp "${src}/${artifact}" "s3://${BUCKET_NAME}/${BASE_DIR}/latest/${artifact}" --cache-control "${CACHE_CONTROL}" --content-type "text/javascript"
+          done
+          echo "restored=true" >> "$GITHUB_OUTPUT"
+
+      - name: Invalidate CloudFront cache for the SDK loader
+        if: steps.restore-loader.outputs.restored == 'true'
+        run: |
+          invalidation_id=$(AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/${{ env.LOADER_CDN_BASE_DIR }}/latest/*" --query "Invalidation.Id" --output text)
+
+          aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --id "$invalidation_id"
+
       - name: Get Job URL
         id: get-job-url
         continue-on-error: true
@@ -168,35 +210,33 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const rollbackVersion = process.env.LEGACY_SDK_ROLLBACK_VERSION_VALUE;
-            const releaseTag = `@rudderstack/analytics-js@${rollbackVersion}`;
-            
+            const releaseTag = `@rudderstack/analytics-js@${process.env.ROLLBACK_VERSION_VALUE}`;
+
             console.log(`Marking ${releaseTag} as the latest release on GitHub`);
-            
-            // Find the release for the rollback version
-            const releases = await github.rest.repos.listReleases({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            });
-            
-            const rollbackRelease = releases.data.find(release => 
-              release.tag_name === releaseTag || 
-              release.name === releaseTag
-            );
-            
-            if (!rollbackRelease) {
-              console.log(`Release with tag ${releaseTag} not found`);
+
+            // listReleases only returns the newest page, which other packages' releases can crowd out
+            let rollbackRelease;
+            try {
+              ({ data: rollbackRelease } = await github.rest.repos.getReleaseByTag({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                tag: releaseTag,
+              }));
+            } catch (error) {
+              if (error.status !== 404) throw error;
+              const msg = `Release ${releaseTag} not found; the Latest GitHub release was NOT changed`;
+              core.warning(msg);
+              await core.summary.addRaw(`- :warning: ${msg}\n`).write();
               return;
             }
-            
-            // Update the release to set it as the latest
+
             await github.rest.repos.updateRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
               release_id: rollbackRelease.id,
-              make_latest: true
+              make_latest: 'true'
             });
-            
+
             console.log(`Successfully marked ${releaseTag} as the latest release`);
 
       - name: Deprecate the rolled back NPM version
@@ -213,6 +253,31 @@ jobs:
 
           # Note: The legacy SDK is not deprecated as it is deprecated by default with every release.
           # Refer to deploy-npm.yml for more details.
+
+      # Versions come from the rollback ref, so the bad release's packages go
+      # back to what was latest there; a package the bad release did not
+      # publish is re-tagged with the version it already has.
+      - name: Point the NPM latest dist-tag to the rollback versions
+        continue-on-error: true
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          # dist-tag is not covered by trusted publishing (OIDC), so it needs the token
+          npm set //registry.npmjs.org/:_authToken="$NODE_AUTH_TOKEN"
+
+          failed=0
+          for pkg_dir in analytics-js analytics-js-service-worker analytics-js-cookies analytics-v1.1; do
+            name=$(jq -r .name "packages/$pkg_dir/package.json")
+            version=$(jq -r .version "packages/$pkg_dir/package.json")
+            echo "Tagging $name@$version as latest"
+            if ! npm dist-tag add "$name@$version" latest; then
+              msg="Failed to move the NPM latest dist-tag of $name to $version"
+              echo "::warning::$msg"
+              echo "- :warning: $msg" >> "$GITHUB_STEP_SUMMARY"
+              failed=1
+            fi
+          done
+          exit $failed
 
       - name: Send message to Slack channel
         id: slack
