@@ -25,7 +25,7 @@ jobs:
           egress-policy: audit
 
       - name: Check PR title
-        uses: rudderlabs/github-action-check-pr-title@85a9d5e4f87cb2a07dacd2112f81469e4f7a6c62 # v2.0.0
+        uses: rudderlabs/github-action-check-pr-title@18177d0ac48f81458f7eaef449da287fd4a154ad # v2.0.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
