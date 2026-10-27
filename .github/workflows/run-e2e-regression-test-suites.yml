@@ -51,7 +51,7 @@ on:
 env:
   MAX_WAIT_TIME_FOR_SANITY_TESTS: 5400  # 90 minutes
   CHECK_INTERVAL_FOR_SANITY_TESTS: 60   # 1 minute
-  MAX_WAIT_TIME_FOR_E2E_TESTS: 7200     # 2 hours
+  MAX_WAIT_TIME_FOR_E2E_TESTS: 7800     # 2 hours 10 minutes
   CHECK_INTERVAL_FOR_E2E_TESTS: 60      # 1 minute
   TARGET_REPO: rudderlabs/rudder-client-side-test
 

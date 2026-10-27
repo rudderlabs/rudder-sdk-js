@@ -58,7 +58,7 @@ outputs:
     description: 'Boolean indicating if outputs were successfully retrieved from artifact'
     value: ${{ steps.retrieve_outputs.outputs.has_outputs }}
   failure_kind:
-    description: 'Set when the run completed unsuccessfully: "infrastructure" (no tests ran or no results artifact), "tests" (tests ran and some failed), or "unknown" (no outputs_artifact_name to inspect)'
+    description: 'Set when the run completed unsuccessfully: "infrastructure" (no tests ran or no results artifact), "tests" (tests ran and some failed), "post-test" (all tests passed but a later step failed), or "unknown" (no outputs_artifact_name to inspect)'
     value: ${{ steps.classify_failure.outputs.failure_kind }}
 
 runs:
@@ -278,6 +278,7 @@ runs:
         max_attempts=20
         attempt=0
         run_id=""
+        last_filtered_id=""
         last_unfiltered_id=""
         candidate_count=0
         while [ $attempt -lt $max_attempts ] && [ -z "$run_id" ]; do
@@ -290,6 +291,14 @@ runs:
           if [ -n "$correlated_id" ] && [ "$correlated_id" != "null" ]; then
             run_id="$correlated_id"
             candidate_count=1
+          elif [ -n "$correlation_id" ]; then
+            # Keep polling for our own tagged run; time-based candidates are only used after the window
+            if [ -n "$filtered_id" ] && [ "$filtered_id" != "null" ]; then
+              last_filtered_id="$filtered_id"
+            fi
+            if [ -n "$unfiltered_id" ] && [ "$unfiltered_id" != "null" ]; then
+              last_unfiltered_id="$unfiltered_id"
+            fi
           elif [ -n "$filtered_id" ] && [ "$filtered_id" != "null" ]; then
             run_id="$filtered_id"
           elif [ -n "$unfiltered_id" ] && [ "$unfiltered_id" != "null" ]; then
@@ -304,6 +313,12 @@ runs:
             fi
           fi
         done
+
+        # Correlation id never showed up (downstream lacks the run-name): fall back to the branch match
+        if [ -z "$run_id" ] && [ -n "$last_filtered_id" ]; then
+          echo "⚠️  No run carried correlation id $correlation_id; using the head_branch match"
+          run_id="$last_filtered_id"
+        fi
 
         # If we never matched the filter but did see at least one workflow_dispatch
         # run created after dispatch_time, accept that as our run. This covers
@@ -653,8 +668,13 @@ runs:
           kind=infrastructure
           reason="no test scenarios ran (conclusion: $CONCLUSION)"
         else
-          kind=tests
           passed=$(printf '%s' "$JOB_OUTPUTS" | jq -r '.test_status.passed // 0')
+          if [ "$passed" = "$total" ]; then
+            # Every scenario passed; a later step (reporting, upload) or a cancellation failed the run
+            kind=post-test
+          else
+            kind=tests
+          fi
           reason="$passed/$total tests passed (conclusion: $CONCLUSION)"
         fi
 

@@ -82,7 +82,7 @@ A generic composite action for triggering external workflows and waiting for the
 | `conclusion` | Final conclusion (`success`, `failure`, `cancelled`, etc.) |
 | `run_id`     | The workflow run ID                                        |
 | `run_url`    | Direct URL to the workflow run                             |
-| `failure_kind` | On unsuccessful completion: `infrastructure` (no tests ran), `tests`, or `unknown` |
+| `failure_kind` | On unsuccessful completion: `infrastructure` (no tests ran), `tests`, `post-test` (all passed, a later step failed), or `unknown` |
 
 ## Examples
 
