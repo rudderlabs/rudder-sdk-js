@@ -27,7 +27,3 @@
 ## DOCS-2581 — Named Integration Build Command
 
 - Build one named device mode integration from `packages/analytics-js-integrations` with `npm run build:integration:cli --intg=<Name>`; the generic `build:integration` and `build:integration:modern` scripts do not consume an integration-name argument — prefix `BROWSERSLIST_ENV=modern` for the modern variant. Output lands in `dist/cdn/<legacy|modern>/js-integrations` as defined in `rollup.config.mjs`.
-
-## SDK-5569 — Independent Example Updater Roots
-
-- Treat `/examples/utils/mock-servers` (npm) and `/examples/symfony/sample` (Composer) as independent Dependabot manifest roots in `.github/dependabot.yml`. Give them example labels without inheriting unrelated TypeScript/framework ignores or inventing cross-ecosystem version-update groups; retain grouping rules only where a root has a justified existing rule.
