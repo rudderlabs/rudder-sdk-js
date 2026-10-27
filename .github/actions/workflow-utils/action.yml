@@ -256,7 +256,9 @@ runs:
               end) as $c |
              ([.workflow_runs[]?
                 | select(.created_at >= $min_time)
-                | select(.id as $id | ($exclude | index($id)) | not)]) as $all |
+                | select(.id as $id | ($exclude | index($id)) | not)
+                # With a correlation id, never fall back to a run tagged with a different one
+                | select($cid == "" or ((.display_title // "") | test("\\[[^\\]]+\\]$") | not))]) as $all |
              (($all | map(select($branch == "" or .head_branch == $branch)) | sort_by(.created_at) | .[0].id // "") | tostring) as $f |
              (($all | sort_by(.created_at) | .[0].id // "") | tostring) as $u |
              "\($c)|\($f)|\($u)|\($all | length)"' 2>"$jq_stderr"); then
