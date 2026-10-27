@@ -103,9 +103,23 @@ runs:
           exit 0
         fi
 
-        # Newest non-expired copy wins (re-runs of the draft upload duplicates)
-        artifact_id=$(echo "$artifacts_response" | jq -r --arg name "$ARTIFACT_NAME" \
-          '[.artifacts[] | select(.name == $name and (.expired | not))] | sort_by(.created_at) | last | .id // empty')
+        # Newest non-expired copy uploaded by a dispatched draft-new-release run wins (re-runs upload
+        # duplicates). The name alone isn't trusted: any workflow, e.g. on a PR, could upload a lookalike.
+        artifact_id=""
+        for candidate in $(echo "$artifacts_response" | jq -r --arg name "$ARTIFACT_NAME" \
+          '[.artifacts[] | select(.name == $name and (.expired | not))] | sort_by(.created_at) | reverse | .[] | "\(.id):\(.workflow_run.id)"'); do
+          run_id="${candidate#*:}"
+          if ! run_info=$(curl -fsS -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$REPO/actions/runs/$run_id"); then
+            continue
+          fi
+          if echo "$run_info" | jq -e '.event == "workflow_dispatch" and (.path | startswith(".github/workflows/draft-new-release.yml"))' > /dev/null; then
+            artifact_id="${candidate%%:*}"
+            break
+          fi
+          echo "::warning::Ignoring artifact ${candidate%%:*}: run $run_id is not a dispatched draft-new-release run"
+        done
 
         if [ -z "$artifact_id" ]; then
           expired_count=$(echo "$artifacts_response" | jq -r --arg name "$ARTIFACT_NAME" \
