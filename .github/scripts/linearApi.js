@@ -24,8 +24,8 @@ const OPEN_STATE_TYPES = ['triage', 'backlog', 'unstarted', 'started'];
 
 // The rudder-transformer audit files into the same Linear team with [Rudder Transformer].
 // A shared marker would make one audit update the other audit's tickets.
-const MASTER_TITLE_MARKER = 'Integration SDK Version Audit [Rudder SDK JS]';
-const SUBTICKET_TITLE_SUFFIX = 'SDK Version Audit [Rudder SDK JS]';
+const MASTER_TITLE_MARKER = 'Integration SDK Version Audit [JavaScript SDK]';
+const SUBTICKET_TITLE_SUFFIX = 'SDK Version Audit [JavaScript SDK]';
 
 async function getStateId(stateName, teamId) {
   try {

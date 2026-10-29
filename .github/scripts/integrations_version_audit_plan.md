@@ -294,7 +294,7 @@ An Unknown integration gets no subticket. On every run, list it with the reason 
       console.warn('Warning: Could not find current cycle. Ticket will be created without cycle.');
 
     newMasterTicket = await createIssue({
-      title: `Integration SDK Version Audit [Rudder SDK JS] [${runDate}]`, // runDate: today in UTC, DD/MM/YYYY
+      title: `Integration SDK Version Audit [JavaScript SDK] [${runDate}]`, // runDate: today in UTC, DD/MM/YYYY
       description: '', // Placeholder - updated in step 8b once subticket URLs exist
       priority: 3, // Medium priority
       stateId: statusStateId, // Status: Queued
@@ -309,7 +309,7 @@ An Unknown integration gets no subticket. On every run, list it with the reason 
     for (const integration of newIntegrations) {
       console.log(`Creating new subticket for ${integration.name}`);
       await createIssue({
-        title: getSubticketTitle(integration.name), // "<folder name> SDK Version Audit [Rudder SDK JS]"
+        title: getSubticketTitle(integration.name), // "<folder name> SDK Version Audit [JavaScript SDK]"
         description: ticketDescription, // Use Individual Integration Ticket Template (see below)
         parentId: newMasterTicket.id,
         priority: calculatedPriority, // 1-4 based on urgency (1=Urgent, 4=Low)
@@ -322,7 +322,7 @@ An Unknown integration gets no subticket. On every run, list it with the reason 
   }
   ```
 
-- **Title rule**: keep the `[Rudder SDK JS]` marker in every title. The rudder-transformer audit uses `[Rudder Transformer]`, and a shared marker would mix the two audits.
+- **Title rule**: keep the `[JavaScript SDK]` marker in every title. The rudder-transformer audit uses `[Rudder Transformer]`, and a shared marker would mix the two audits.
 - Handle errors gracefully: if one ticket creation or update fails, log the error and continue with the remaining integrations.
 - Consider a small delay between ticket calls to avoid rate limiting.
 - **Verification**: after all tickets are created or updated, verify that:
@@ -616,13 +616,13 @@ Use the existing `.github/scripts/linearApi.js` module for ticket creation and d
 **Duplicate Detection (MUST use before creating tickets):**
 
 - `searchIssues({ titleContains, teamId, stateTypes, limit })` - Search tickets by title substring, optionally filtered by workflow status types. Throws on an API error.
-- `getSubticketTitle(integrationName)` - Build the full subticket title: `<integration name> SDK Version Audit [Rudder SDK JS]`
+- `getSubticketTitle(integrationName)` - Build the full subticket title: `<integration name> SDK Version Audit [JavaScript SDK]`
 - `findOpenAuditMasterTicket()` - Find the newest open master audit ticket of this repository. Returns the ticket object or null.
 - `findOpenSubticketGlobally(integrationName)` - Find an open subticket for one integration across ALL master audit tickets of this repository. Accepts only a full title match under a master of this repository, open or closed. Returns the newest match (including `parentId`) or null.
 
 **Title markers:**
 
-- `MASTER_TITLE_MARKER` - `Integration SDK Version Audit [Rudder SDK JS]`
+- `MASTER_TITLE_MARKER` - `Integration SDK Version Audit [JavaScript SDK]`
 - **Never change the marker to `[Rudder Transformer]`.** That marker belongs to the rudder-transformer audit, and a shared marker would make this audit update that repository's tickets.
 
 **Hardcoded Constants (for every ticket, master and subticket):**
