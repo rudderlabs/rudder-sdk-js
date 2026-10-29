@@ -341,6 +341,7 @@ An Unknown integration gets no subticket. On every run, list it with the reason 
 - **The report master** holds the result of the full run. It is the new master ticket of this run. If this run created no master, it is the newest open master (`findOpenAuditMasterTicket()`). If no open master exists and at least one integration is Unknown, create a master for the report.
 - Build each description from the Master Ticket Description Template.
 - For the report master, fill every section with the results of this run. This includes the No Action, Unknown and Wrappers sections.
+- When the report master existed before this run, keep the work of people: copy each section whose heading is not in the Master Ticket Description Template, unchanged, before the Audit Metadata section.
 - For every other master, rebuild only the four priority sections from its own open subtickets (`state.type` is `triage`, `backlog`, `unstarted` or `started`), and the Audit Metadata section. Leave its other sections unchanged.
 - Read each master with `getIssue` before the update. Add the two labels with `addedLabelIds`, and set the maintenance project only when the master has no project. The label rule of step 8 applies.
 - Add one changelog comment to every master that existed before this run (see Changelog Comment Template). The new master of this run gets no comment.
