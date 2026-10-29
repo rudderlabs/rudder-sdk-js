@@ -37,10 +37,16 @@ jobs:
           CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
           LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
           LINEAR_TEAM_ID: ${{ secrets.LINEAR_TEAM_ID }}
+          LINEAR_MAINTENANCE_PROJECT_ID: ${{ vars.LINEAR_MAINTENANCE_PROJECT_ID }}
+          LINEAR_KTLO_LABEL_ID: ${{ vars.LINEAR_KTLO_LABEL_ID }}
+          LINEAR_VERSION_UPGRADE_LABEL_ID: ${{ vars.LINEAR_VERSION_UPGRADE_LABEL_ID }}
           AUDIT_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           AUDIT_CODE_URL: ${{ github.server_url }}/${{ github.repository }}/blob/${{ github.sha }}
         shell: bash
         run: |
+          # The agent does not run linearApi.js, so its check for missing variables never runs
+          : "${LINEAR_MAINTENANCE_PROJECT_ID:?}" "${LINEAR_KTLO_LABEL_ID:?}" "${LINEAR_VERSION_UPGRADE_LABEL_ID:?}"
+
           cursor-agent -p "⚠️ CRITICAL REQUIREMENTS:
           1. Follow the plan in @.github/scripts/integrations_version_audit_plan.md
           2. You MUST create Linear tickets DIRECTLY using Linear API calls during this execution

@@ -3,21 +3,24 @@
 
 const LINEAR_API_KEY = process.env.LINEAR_API_KEY;
 const LINEAR_TEAM_ID = process.env.LINEAR_TEAM_ID;
+const MAINTENANCE_PROJECT_ID = process.env.LINEAR_MAINTENANCE_PROJECT_ID;
+const KTLO_LABEL_ID = process.env.LINEAR_KTLO_LABEL_ID;
+const VERSION_UPGRADE_LABEL_ID = process.env.LINEAR_VERSION_UPGRADE_LABEL_ID;
 
-if (!LINEAR_API_KEY) {
-  throw new Error('LINEAR_API_KEY environment variable is required');
-}
-if (!LINEAR_TEAM_ID) {
-  throw new Error('LINEAR_TEAM_ID environment variable is required');
+const REQUIRED_ENV_VARS = [
+  'LINEAR_API_KEY',
+  'LINEAR_TEAM_ID',
+  'LINEAR_MAINTENANCE_PROJECT_ID',
+  'LINEAR_KTLO_LABEL_ID',
+  'LINEAR_VERSION_UPGRADE_LABEL_ID',
+];
+const missingEnvVars = REQUIRED_ENV_VARS.filter(name => !process.env[name]);
+if (missingEnvVars.length > 0) {
+  throw new Error(`Required environment variables are missing: ${missingEnvVars.join(', ')}`);
 }
 
 const { LinearClient } = require('@linear/sdk');
 const linearClient = new LinearClient({ apiKey: LINEAR_API_KEY });
-
-// Hardcoded Linear IDs for ticket creation
-const MAINTENANCE_PROJECT_ID = 'f99cafb5-7d4a-4549-8c77-afe2644feba9'; // Integrations: Maintenance Project
-const KTLO_LABEL_ID = '68c1ca4f-cc21-4c28-9ce5-618a8b39c788'; // Type: KTLO
-const VERSION_UPGRADE_LABEL_ID = '2ee64e36-d577-4b4b-9ae4-e7292db061d4'; // KTLO Type: VersionUpgrade
 
 // Status types, not status names: a team can add or rename an open status at any time
 const OPEN_STATE_TYPES = ['triage', 'backlog', 'unstarted', 'started'];

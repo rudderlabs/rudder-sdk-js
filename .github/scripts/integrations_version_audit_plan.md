@@ -16,6 +16,7 @@ Conduct an AI-assisted audit of **every device mode integration in this reposito
 
 - `LINEAR_API_KEY` - Required, Linear API key for authentication
 - `LINEAR_TEAM_ID` - Required, Linear team ID (UUID) where tickets will be created
+- `LINEAR_MAINTENANCE_PROJECT_ID`, `LINEAR_KTLO_LABEL_ID`, `LINEAR_VERSION_UPGRADE_LABEL_ID` - Required, the Linear project and label IDs for every ticket (see "Linear IDs")
 - `AUDIT_RUN_URL` - Set by the workflow, the URL of the CI run. Every ticket description and every changelog comment names it.
 - `AUDIT_CODE_URL` - Set by the workflow, the GitHub URL of the repository files at the audited commit (`https://github.com/<owner>/<repo>/blob/<commit SHA>`). Every file path in a ticket links to it.
 
@@ -625,16 +626,17 @@ Use the existing `.github/scripts/linearApi.js` module for ticket creation and d
 - `MASTER_TITLE_MARKER` - `Integration SDK Version Audit [JavaScript SDK]`
 - **Never change the marker to `[Rudder Transformer]`.** That marker belongs to the rudder-transformer audit, and a shared marker would make this audit update that repository's tickets.
 
-**Hardcoded Constants (for every ticket, master and subticket):**
+**Linear IDs (for every ticket, master and subticket), read from environment variables:**
 
-- `MAINTENANCE_PROJECT_ID` - Project ID for the maintenance project
-- `KTLO_LABEL_ID` - Label ID for KTLO under Type
-- `VERSION_UPGRADE_LABEL_ID` - Label ID for VersionUpgrade under KTLO Type
+- `MAINTENANCE_PROJECT_ID` - from `LINEAR_MAINTENANCE_PROJECT_ID`, the maintenance project
+- `KTLO_LABEL_ID` - from `LINEAR_KTLO_LABEL_ID`, the KTLO label under Type
+- `VERSION_UPGRADE_LABEL_ID` - from `LINEAR_VERSION_UPGRADE_LABEL_ID`, the VersionUpgrade label under KTLO Type
 
 ### Environment Variables Required
 
 - `LINEAR_API_KEY` - Linear API key for authentication (required)
 - `LINEAR_TEAM_ID` - Linear team ID (UUID) where tickets will be created (required)
+- `LINEAR_MAINTENANCE_PROJECT_ID`, `LINEAR_KTLO_LABEL_ID`, `LINEAR_VERSION_UPGRADE_LABEL_ID` - Linear project and label IDs (required)
 
 ### Usage Notes
 
