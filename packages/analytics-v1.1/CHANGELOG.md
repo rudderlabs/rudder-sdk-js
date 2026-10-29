@@ -2,6 +2,25 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [2.53.2](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.53.1...rudder-sdk-js@2.53.2) (2026-10-26)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-integrations` updated to version `3.26.1`
+
+## [2.53.1](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.53.0...rudder-sdk-js@2.53.1) (2026-10-19)
+
+### Dependency Updates
+
+* `@rudderstack/analytics-js-integrations` updated to version `3.26.0`
+
+## [2.53.0](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.52.23...rudder-sdk-js@2.53.0) (2026-10-12)
+
+
+### Features
+
+* add device-mode e2e harness skill ([#3218](https://github.com/rudderlabs/rudder-sdk-js/issues/3218)) ([8b8757a](https://github.com/rudderlabs/rudder-sdk-js/commit/8b8757ae433f6fb15263dcb0b59962925c214a20))
+
 ## [2.52.23](https://github.com/rudderlabs/rudder-sdk-js/compare/rudder-sdk-js@2.52.22...rudder-sdk-js@2.52.23) (2026-09-28)
 
 ### Dependency Updates

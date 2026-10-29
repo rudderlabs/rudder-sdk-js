@@ -23,9 +23,7 @@ function toCamelCase(inputArray) {
   let result = '';
   if (!inputArray) return result;
 
-  for (let i = 0, len = inputArray.length; i < len; i += 1) {
-    const currentStr = inputArray[i];
-
+  inputArray.forEach((currentStr, i) => {
     let tempStr = currentStr.toLowerCase();
 
     if (i !== 0) {
@@ -33,7 +31,7 @@ function toCamelCase(inputArray) {
       tempStr = tempStr.substr(0, 1).toUpperCase() + tempStr.substr(1);
     }
     result += tempStr;
-  }
+  });
   return result;
 }
 

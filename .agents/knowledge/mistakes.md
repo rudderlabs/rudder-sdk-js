@@ -23,3 +23,7 @@
 ## INT-7126 — OpenAI Ads Browser Jest Config
 
 - Run the OpenAI Ads browser integration Jest file from the monorepo root with the package config: `npx --no-install jest --config packages/analytics-js-integrations/jest.config.mjs __tests__/integrations/OpenAIAds/browser.test.js --runInBand`; plain root `npx jest packages/.../browser.test.js` can hit sample-app haste collisions and fail workspace alias resolution such as `@rudderstack/analytics-js-legacy-utilities/ObjectUtils`.
+
+## INT-7435 — Follow-Redirects Lockfile Security Resolution
+
+- After Axios dependency-range changes, verify the production dependency tree rather than relying on the manifest version alone: resolving Axios's `follow-redirects` dependency to `1.16.0` caused `npm audit --audit-level=high --omit=dev` to fail on credential-header exposure advisories GHSA-q3jh-wrc6-jgq8 and GHSA-8r9p-f939-6h3c. Refresh the compatible lockfile resolution to `follow-redirects` `1.16.1` or newer.

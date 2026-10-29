@@ -235,13 +235,27 @@ describe('Utilities: User session manager', () => {
       });
     });
     it('should return newly generated manual session if session id is not provided', () => {
+      defaultLogger.warn = jest.fn();
       const outcome = generateManualTrackingSession(undefined, defaultLogger);
       expect(outcome).toEqual({
         manualTrack: true,
         id: expect.any(Number),
         sessionStart: undefined,
       });
+      expect(defaultLogger.warn).not.toHaveBeenCalled();
     });
+    it.each([false, true])(
+      'should print a error message if the provided session id is %s',
+      sessionId => {
+        defaultLogger.warn = jest.fn();
+        // @ts-expect-error testing invalid input
+        const outcome = generateManualTrackingSession(sessionId, defaultLogger);
+        expect(outcome.id).toEqual(expect.any(Number));
+        expect(defaultLogger.warn).toHaveBeenCalledWith(
+          `UserSessionManager:: The provided session ID (${sessionId}) is either invalid, not a positive integer, or not at least "${MIN_SESSION_ID_LENGTH}" digits long. A new session ID will be auto-generated instead.`,
+        );
+      },
+    );
     it('should print a error message if the provided session id is not a number', () => {
       const sessionId = '1234567890';
       defaultLogger.warn = jest.fn();

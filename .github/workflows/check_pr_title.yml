@@ -5,6 +5,9 @@ on:
     branches: ['main', 'develop', 'hotfix/*']
     types: ['opened', 'reopened', 'edited', 'synchronize']
 
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -13,11 +16,17 @@ jobs:
   check_pr_title:
     name: Check PR title
     runs-on: arc-amd64
+    permissions:
+      pull-requests: read
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
         with:
           egress-policy: audit
 
       - name: Check PR title
-        uses: rudderlabs/github-action-check-pr-title@e5718471c8eebd75c51a10ccce35f2cf33d18c04 # v1.0.12
+        uses: rudderlabs/github-action-check-pr-title@18177d0ac48f81458f7eaef449da287fd4a154ad # v2.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          subjectPattern: ^(?![A-Z]).+$

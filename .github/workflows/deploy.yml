@@ -57,6 +57,8 @@ on:
         required: true
       BUGSNAG_API_KEY:
         required: true
+      RELEASE_PRIVATE_KEY:
+        required: true
 
 permissions:
   id-token: write # allows the JWT to be requested from GitHub's OIDC provider
@@ -87,7 +89,7 @@ jobs:
 
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
         with:
           egress-policy: audit
 
@@ -120,6 +122,13 @@ jobs:
         with:
           ref: ${{ steps.getSHA.outputs.SHA }}
 
+      - name: Validate re-run actor
+        uses: ./.github/actions/assert-rerun-actor
+        with:
+          app_id: ${{ vars.RELEASE_APP_ID }}
+          private_key: ${{ secrets.RELEASE_PRIVATE_KEY }}
+          team_names: 'sdk_team,integrations'
+
       - name: Modify package versions
         if: ${{ inputs.version_suffix != '' }}
         env:
@@ -149,7 +158,7 @@ jobs:
           echo "DATE=$(date)" >> $GITHUB_ENV
 
       - name: Setup Node
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'

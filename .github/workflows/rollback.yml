@@ -23,6 +23,7 @@ env:
   PLUGINS_DIR_NAME: "plugins"
   LATEST_VERSION_DIR_NAME: "v3"
   LEGACY_SDK_LATEST_VERSION_DIR_NAME: "v1.1"
+  LOADER_CDN_BASE_DIR: "js-sdk-loader-scripts"
 
 jobs:
   validate-actor:
@@ -41,7 +42,7 @@ jobs:
       trigger_source: ${{ steps.set-outputs.outputs.trigger_source }}
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
         with:
           egress-policy: audit
 
@@ -63,7 +64,7 @@ jobs:
       contents: write
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
         with:
           egress-policy: audit
 
@@ -80,6 +81,13 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: main # Production branch
+
+      - name: Validate re-run actor
+        uses: ./.github/actions/assert-rerun-actor
+        with:
+          app_id: ${{ vars.RELEASE_APP_ID }}
+          private_key: ${{ secrets.RELEASE_PRIVATE_KEY }}
+          team_names: 'sdk_team,integrations'
 
       - name: Get current sdk versions
         id: get-current-version
@@ -99,7 +107,7 @@ jobs:
           ref: ${{ github.sha }}
 
       - name: Setup Node
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
@@ -115,6 +123,10 @@ jobs:
           legacy_sdk_rollback_version=$(jq -r .version packages/analytics-v1.1/package.json)
           echo "LEGACY_SDK_ROLLBACK_VERSION_VALUE=$legacy_sdk_rollback_version" >> $GITHUB_ENV
           echo "Legacy SDK rollback version: $legacy_sdk_rollback_version"
+
+          loader_rollback_version=$(jq -r .version packages/loading-scripts/package.json)
+          echo "LOADER_ROLLBACK_VERSION_VALUE=$loader_rollback_version" >> "$GITHUB_ENV"
+          echo "Loader scripts rollback version: $loader_rollback_version"
 
           echo "DATE=$(date)" >> $GITHUB_ENV
 
@@ -150,6 +162,49 @@ jobs:
 
           aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --id "$invalidation_id"
 
+      # deploy.yml keeps an immutable copy per loading-scripts version; the
+      # first release of a version wins, so it can predate later loader-only
+      # changes that shipped without a version bump.
+      - name: Restore the SDK loader scripts from the rollback version
+        id: restore-loader
+        env:
+          BUCKET_NAME: ${{ secrets.AWS_PROD_S3_BUCKET_NAME }}
+          BASE_DIR: ${{ env.LOADER_CDN_BASE_DIR }}
+          LOADER_VERSION: ${{ env.LOADER_ROLLBACK_VERSION_VALUE }}
+          # Bare directive: CACHE_CONTROL_NO_STORE carries shell quotes meant for unquoted interpolation
+          CACHE_CONTROL: no-store
+        run: |
+          src="s3://${BUCKET_NAME}/${BASE_DIR}/${LOADER_VERSION}"
+          artifacts=(loader.js loader.min.js loader-gtm.js loader-gtm.min.js)
+
+          # Releases before the versioned copy existed have nothing to restore from
+          for artifact in "${artifacts[@]}"; do
+            if ! err=$(aws s3api head-object --bucket "${BUCKET_NAME}" --key "${BASE_DIR}/${LOADER_VERSION}/${artifact}" 2>&1 >/dev/null); then
+              # Only a confirmed 404 means "nothing to restore"; access or service errors must fail the rollback
+              if ! grep -q -E '\(404\)|Not Found' <<< "$err"; then
+                echo "::error::head-object failed for ${BASE_DIR}/${LOADER_VERSION}/${artifact}: ${err}"
+                exit 1
+              fi
+              msg="${BASE_DIR}/${LOADER_VERSION}/${artifact} not found; ${BASE_DIR}/latest was NOT rolled back"
+              echo "::warning::${msg}"
+              echo "- :warning: ${msg}" >> "$GITHUB_STEP_SUMMARY"
+              echo "restored=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done
+
+          for artifact in "${artifacts[@]}"; do
+            aws s3 cp "${src}/${artifact}" "s3://${BUCKET_NAME}/${BASE_DIR}/latest/${artifact}" --cache-control "${CACHE_CONTROL}" --content-type "text/javascript"
+          done
+          echo "restored=true" >> "$GITHUB_OUTPUT"
+
+      - name: Invalidate CloudFront cache for the SDK loader
+        if: steps.restore-loader.outputs.restored == 'true'
+        run: |
+          invalidation_id=$(AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/${{ env.LOADER_CDN_BASE_DIR }}/latest/*" --query "Invalidation.Id" --output text)
+
+          aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --id "$invalidation_id"
+
       - name: Get Job URL
         id: get-job-url
         continue-on-error: true
@@ -161,35 +216,33 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const rollbackVersion = process.env.LEGACY_SDK_ROLLBACK_VERSION_VALUE;
-            const releaseTag = `@rudderstack/analytics-js@${rollbackVersion}`;
-            
+            const releaseTag = `@rudderstack/analytics-js@${process.env.ROLLBACK_VERSION_VALUE}`;
+
             console.log(`Marking ${releaseTag} as the latest release on GitHub`);
-            
-            // Find the release for the rollback version
-            const releases = await github.rest.repos.listReleases({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            });
-            
-            const rollbackRelease = releases.data.find(release => 
-              release.tag_name === releaseTag || 
-              release.name === releaseTag
-            );
-            
-            if (!rollbackRelease) {
-              console.log(`Release with tag ${releaseTag} not found`);
+
+            // listReleases only returns the newest page, which other packages' releases can crowd out
+            let rollbackRelease;
+            try {
+              ({ data: rollbackRelease } = await github.rest.repos.getReleaseByTag({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                tag: releaseTag,
+              }));
+            } catch (error) {
+              if (error.status !== 404) throw error;
+              const msg = `Release ${releaseTag} not found; the Latest GitHub release was NOT changed`;
+              core.warning(msg);
+              await core.summary.addRaw(`- :warning: ${msg}\n`).write();
               return;
             }
-            
-            // Update the release to set it as the latest
+
             await github.rest.repos.updateRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
               release_id: rollbackRelease.id,
-              make_latest: true
+              make_latest: 'true'
             });
-            
+
             console.log(`Successfully marked ${releaseTag} as the latest release`);
 
       - name: Deprecate the rolled back NPM version
@@ -201,11 +254,37 @@ jobs:
           echo "Deprecating NPM version: $VERSION_TO_DEPRECATE"
 
           # Deprecate the specified version with a message
-          npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
+          npm set //registry.npmjs.org/:_authToken="$NODE_AUTH_TOKEN"
           npm deprecate "@rudderstack/analytics-js@$VERSION_TO_DEPRECATE" "We've identified issues with this version of the package. Please switch to v${{ env.ROLLBACK_VERSION_VALUE }} or the latest version if available."
 
           # Note: The legacy SDK is not deprecated as it is deprecated by default with every release.
           # Refer to deploy-npm.yml for more details.
+
+      # Versions come from the rollback ref, so the bad release's packages go
+      # back to what was latest there; a package the bad release did not
+      # publish is re-tagged with the version it already has.
+      # No continue-on-error: a package left on the bad `latest` must fail the rollback
+      # and skip the success announcement. Every package is still attempted first.
+      - name: Point the NPM latest dist-tag to the rollback versions
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          # dist-tag is not covered by trusted publishing (OIDC), so it needs the token
+          npm set //registry.npmjs.org/:_authToken="$NODE_AUTH_TOKEN"
+
+          failed=0
+          for pkg_dir in analytics-js analytics-js-service-worker analytics-js-cookies analytics-v1.1; do
+            name=$(jq -r .name "packages/$pkg_dir/package.json")
+            version=$(jq -r .version "packages/$pkg_dir/package.json")
+            echo "Tagging $name@$version as latest"
+            if ! npm dist-tag add "$name@$version" latest; then
+              msg="Failed to move the NPM latest dist-tag of $name to $version"
+              echo "::warning::$msg"
+              echo "- :warning: $msg" >> "$GITHUB_STEP_SUMMARY"
+              failed=1
+            fi
+          done
+          exit $failed
 
       - name: Send message to Slack channel
         id: slack
@@ -285,11 +364,14 @@ jobs:
       BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
+      RELEASE_PRIVATE_KEY: ${{ secrets.RELEASE_PRIVATE_KEY }}
 
   run-e2e-regression-test-suites:
     uses: ./.github/workflows/run-e2e-regression-test-suites.yml
     name: Run E2E Regression Test Suites
     needs: [get-rollback-inputs, rollback, deploy-sanity-suite]
+    # Still test the restored CDN when a later rollback step (e.g. the npm dist-tag) failed
+    if: ${{ !cancelled() && needs.deploy-sanity-suite.result == 'success' && contains(fromJSON('["success", "failure"]'), needs.rollback.result) }}
     with:
       environment: production
       trigger_source: ${{ needs.get-rollback-inputs.outputs.trigger_source }}

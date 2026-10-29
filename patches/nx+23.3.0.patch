@@ -1,0 +1,108 @@
+diff --git a/node_modules/nx/dist/src/command-line/run-many/run-many.js b/node_modules/nx/dist/src/command-line/run-many/run-many.js
+index 3cb3818..ff1af88 100644
+--- a/node_modules/nx/dist/src/command-line/run-many/run-many.js
++++ b/node_modules/nx/dist/src/command-line/run-many/run-many.js
+@@ -69,7 +69,7 @@ function projectsToRun(nxArgs, projectGraph) {
+                 selectedProjects[project] = projectGraph.nodes[project];
+             }
+         }
+-        if (invalidProjects.length > 0) {
++        if (invalidProjects.length > 0 && nxArgs.silent !== true) {
+             output_1.output.warn({
+                 title: `The following projects do not have a configuration for any of the provided targets ("${nxArgs.targets.join(', ')}")`,
+                 bodyLines: invalidProjects.map((name) => `- ${name}`),
+diff --git a/node_modules/nx/dist/src/command-line/yargs-utils/shared-options.js b/node_modules/nx/dist/src/command-line/yargs-utils/shared-options.js
+index 92b2afa..9a23007 100644
+--- a/node_modules/nx/dist/src/command-line/yargs-utils/shared-options.js
++++ b/node_modules/nx/dist/src/command-line/yargs-utils/shared-options.js
+@@ -140,6 +140,10 @@ function withRunOptions(yargs) {
+         type: 'boolean',
+         hidden: true,
+         alias: 'agents',
++    })
++        .options('silent', {
++        type: 'boolean',
++        default: false,
+     });
+ }
+ function withTargetAndConfigurationOption(yargs, demandOption = true) {
+diff --git a/node_modules/nx/dist/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js b/node_modules/nx/dist/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
+index a389729..5e8fee2 100644
+--- a/node_modules/nx/dist/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
++++ b/node_modules/nx/dist/src/tasks-runner/life-cycles/static-run-many-terminal-output-life-cycle.js
+@@ -27,6 +27,9 @@ class StaticRunManyTerminalOutputLifeCycle {
+         this.stoppedTasksWithOutput = 0;
+     }
+     startCommand() {
++        if (this.args.silent) {
++            return;
++        }
+         if (this.tasks.length === 0) {
+             return;
+         }
+@@ -54,6 +57,9 @@ class StaticRunManyTerminalOutputLifeCycle {
+         output_1.output.addVerticalSeparatorWithoutNewLines('cyan');
+     }
+     endCommand() {
++        if (this.args.silent) {
++            return;
++        }
+         output_1.output.addNewline();
+         if (this.tasks.length === 0) {
+             output_1.output.logSingleLine(`No tasks were run`);
+@@ -185,6 +191,10 @@ class StaticRunManyTerminalOutputLifeCycle {
+     }
+     printTaskTerminalOutput(task, taskStatus, terminalOutput) {
+         const args = (0, utils_1.getPrintableCommandArgsForTask)(task);
++        if (this.args.silent === true) {
++            output_1.output.logCommandOutput(args.join(' '), taskStatus, terminalOutput, true);
++            return;
++        }
+         if (this.printsFullOutput || taskStatus === 'failure') {
+             // A stopped task was killed part way through; under --verbose or
+             // --output-style=static its partial output is shown, which is what
+diff --git a/node_modules/nx/dist/src/tasks-runner/run-command.js b/node_modules/nx/dist/src/tasks-runner/run-command.js
+index f558680..34b7029 100644
+--- a/node_modules/nx/dist/src/tasks-runner/run-command.js
++++ b/node_modules/nx/dist/src/tasks-runner/run-command.js
+@@ -437,7 +437,9 @@ async function runTasksForCommand(taskSelection, currentProjectGraph, { nxJson }
+         // Print the report once, on success or failure (restoreTerminal has run in both
+         // paths). No-ops if a multi-task TUI run already delivered it via the popup; its own
+         // try/catch means it never masks `e`.
+-        (0, performance_life_cycle_1.flushPerformanceReport)();
++        if (nxArgs.silent !== true) {
++            (0, performance_life_cycle_1.flushPerformanceReport)();
++        }
+     }
+ }
+ async function printConfigureAiAgentsDisclaimer() {
+diff --git a/node_modules/nx/dist/src/utils/output.js b/node_modules/nx/dist/src/utils/output.js
+index 600359d..1ff4b82 100644
+--- a/node_modules/nx/dist/src/utils/output.js
++++ b/node_modules/nx/dist/src/utils/output.js
+@@ -360,17 +360,19 @@ class CLIOutput {
+         this.addNewline();
+         this.addNewline();
+     }
+-    logCommandOutput(message, taskStatus, output) {
++    logCommandOutput(message, taskStatus, output, isSilent) {
+         let commandOutputWithStatus = this.getCommandWithStatus(message, taskStatus);
+-        const grouped = isLogGroupingEnabled();
++        const grouped = isLogGroupingEnabled() && !isSilent;
+         if (grouped) {
+             const icon = this.getStatusIcon(taskStatus);
+             commandOutputWithStatus = `${GH_GROUP_PREFIX}${icon} ${commandOutputWithStatus}`;
+         }
+-        this.addNewline();
+-        this.writeToStream(commandOutputWithStatus);
+-        this.addNewline();
+-        this.addNewline();
++        if (!isSilent) {
++            this.addNewline();
++            this.writeToStream(commandOutputWithStatus);
++            this.addNewline();
++            this.addNewline();
++        }
+         this.writeToStream(output);
+         if (grouped) {
+             // GitHub only recognizes ::endgroup:: as a workflow command when it

@@ -1,7 +1,7 @@
 import type { Signal } from '@preact/signals-core';
 import type { PluginName } from './PluginsManager';
 import type { Nullable } from './Nullable';
-import type { AppInfo, LibraryInfo, OSInfo, ScreenInfo } from './EventContext';
+import type { AppInfo, LibraryInfo, OSInfo, ScreenInfo, UADataValues } from './EventContext';
 import type { ApiCallback, ReadyCallback, Traits } from './EventApi';
 import type { BufferedEvent } from './Event';
 import type { LifecycleStatus } from './ApplicationLifecycle';

@@ -65,19 +65,15 @@ if [ -z "$REPO_SLUG" ]; then
     error "Unable to determine repository slug for GitHub API"
 fi
 
-# Create or update the remote branch ref via GitHub API before any future commits
+# Create the remote branch ref via GitHub API before any future commits
 sha=$(git rev-parse HEAD)
 if gh api "repos/${REPO_SLUG}/git/ref/heads/${FULL_BRANCH_NAME}" >/dev/null 2>&1; then
-    gh api "repos/${REPO_SLUG}/git/refs/heads/${FULL_BRANCH_NAME}" \
-      --method PATCH \
-      -f "sha=${sha}" \
-      -F "force=true"
-else
-    gh api "repos/${REPO_SLUG}/git/refs" \
-      --method POST \
-      -f "ref=refs/heads/${FULL_BRANCH_NAME}" \
-      -f "sha=${sha}"
+    error "Branch ($FULL_BRANCH_NAME) already exists on the remote; refusing to reset it. Pick a different name or delete the existing branch first"
 fi
+gh api "repos/${REPO_SLUG}/git/refs" \
+  --method POST \
+  -f "ref=refs/heads/${FULL_BRANCH_NAME}" \
+  -f "sha=${sha}"
 
 # Get the repository URL for success message
 REPO_URL="https://github.com/$REPO_SLUG"

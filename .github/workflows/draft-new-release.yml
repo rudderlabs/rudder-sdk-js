@@ -40,13 +40,13 @@ jobs:
       contents: read # to checkout repository code
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
         with:
           egress-policy: audit
 
       - name: Generate GitHub App Token
         id: generate-token
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
           app-id: ${{ vars.RELEASE_APP_ID }}
           private-key: ${{ secrets.RELEASE_PRIVATE_KEY }}
@@ -59,8 +59,15 @@ jobs:
           fetch-depth: 0
           token: ${{ steps.generate-token.outputs.token }}
 
+      - name: Validate re-run actor
+        uses: ./.github/actions/assert-rerun-actor
+        with:
+          app_id: ${{ vars.RELEASE_APP_ID }}
+          private_key: ${{ secrets.RELEASE_PRIVATE_KEY }}
+          team_names: 'sdk_team,integrations'
+
       - name: Setup Node
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
@@ -245,6 +252,15 @@ jobs:
               -f "sha=${tag_obj_sha}"
           done
 
+      # Re-derives the bumped set independently and checks the remote, so a skipped or
+      # failed tag never reaches the release PR unnoticed. The monorepo v<version> tag
+      # is created at publish time, so it is not expected here.
+      - name: Verify release tags on remote
+        env:
+          BRANCH_NAME: ${{ steps.create-release.outputs.branch_name }}
+        run: |
+          ./scripts/verify-release-tags.sh "origin/${BRANCH_NAME}" origin/main
+
       - name: Generate packages versions table
         id: packages-versions
         run: |
@@ -363,7 +379,7 @@ jobs:
 
       - name: Upload release info artifact
         if: ${{ steps.slack-info.outputs.thread_ts != '' && steps.slack-info.outputs.channel_id != '' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-info-v${{ env.NEW_VERSION_VALUE }}-${{ github.event.inputs.release_ticket_id }}
           path: release-info/

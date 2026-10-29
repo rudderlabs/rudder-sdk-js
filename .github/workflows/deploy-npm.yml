@@ -44,6 +44,10 @@ on:
         required: true
       SLACK_RELEASE_CHANNEL_ID:
         required: true
+      RELEASE_PRIVATE_KEY:
+        required: true
+      NPM_TOKEN:
+        required: true
 
 permissions:
   id-token: write # Allows the JWT to be requested from GitHub's OIDC provider
@@ -53,17 +57,29 @@ env:
   NODE_OPTIONS: '--no-warnings'
 
 jobs:
+  validate-actor:
+    permissions:
+      contents: read
+    # Manual runs only from release tags; github.workflow_ref names the caller when invoked via workflow_call
+    if: contains(github.workflow_ref, '/.github/workflows/deploy-npm.yml@') && startsWith(github.ref, 'refs/tags/v')
+    uses: ./.github/workflows/validate-actor.yml
+    with:
+      team_names: 'sdk_team,integrations'
+    secrets:
+      RELEASE_PRIVATE_KEY: ${{ secrets.RELEASE_PRIVATE_KEY }}
+
   determine-affected:
     name: Determine Affected Publishable Projects
+    needs: validate-actor
     runs-on: ubuntu-latest
-    if: ${{ github.workflow_ref != '' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/tags/v')) }}
+    if: ${{ !cancelled() && (needs.validate-actor.result == 'success' || !contains(github.workflow_ref, '/.github/workflows/deploy-npm.yml@')) }}
     outputs:
       projects: ${{ steps.affected-projects.outputs.projects }}
       base_version: ${{ steps.resolve-versions.outputs.base_version }}
       head_version: ${{ steps.resolve-versions.outputs.head_version }}
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
         with:
           egress-policy: audit
 
@@ -120,7 +136,7 @@ jobs:
           echo "head_version=$HEAD_VERSION" >> $GITHUB_OUTPUT
 
       - name: Setup Node
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
@@ -188,13 +204,13 @@ jobs:
   deploy:
     name: Deploy to NPM
     needs: determine-affected
-    if: needs.determine-affected.result == 'success' && needs.determine-affected.outputs.projects != ''
+    if: ${{ !cancelled() && needs.determine-affected.result == 'success' && needs.determine-affected.outputs.projects != '' }}
     # As we publish the NPM package with provenance, we must use GitHub-hosted runners
     runs-on: ubuntu-latest
 
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
         with:
           egress-policy: audit
 
@@ -203,6 +219,13 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.sha }}
+
+      - name: Validate re-run actor
+        uses: ./.github/actions/assert-rerun-actor
+        with:
+          app_id: ${{ vars.RELEASE_APP_ID }}
+          private_key: ${{ secrets.RELEASE_PRIVATE_KEY }}
+          team_names: 'sdk_team,integrations'
 
       - name: Modify package versions
         if: inputs.version_suffix != ''
@@ -272,7 +295,7 @@ jobs:
           echo "CURRENT_NPM_VERSION_COOKIE_UTILS=$current_npm_version_cookie_utils" >> $GITHUB_ENV
 
       - name: Setup Node
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
@@ -280,9 +303,9 @@ jobs:
       - name: Setup workspace
         env:
           HUSKY: 0
-          REMOTE_MODULES_BASE_PATH: '${{ inputs.base_cdn_url }}/v3/modern/plugins'
+          REMOTE_MODULES_BASE_PATH: "${{ inputs.base_cdn_url || 'https://cdn.rudderlabs.com' }}/v3/modern/plugins"
           BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
-          LOCK_DEPS_VERSION: ${{ inputs.environment == 'production' && 'true' || 'false' }}
+          LOCK_DEPS_VERSION: ${{ (inputs.environment || 'production') == 'production' && 'true' || 'false' }}
           BUGSNAG_RELEASE_STAGE: ${{ inputs.bugsnag_release_stage || 'production' }}
         run: |
           npm run setup:ci
@@ -291,7 +314,7 @@ jobs:
         env:
           BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
           BUGSNAG_RELEASE_STAGE: ${{ inputs.bugsnag_release_stage || 'production' }}
-          LOCK_DEPS_VERSION: ${{ inputs.environment == 'production' && 'true' || 'false' }}
+          LOCK_DEPS_VERSION: ${{ (inputs.environment || 'production') == 'production' && 'true' || 'false' }}
         run: |
           npm run build:package
           npm run build:package:modern
@@ -321,10 +344,37 @@ jobs:
           git clean -fd
 
       - name: Wait for NPM propagation
+        timeout-minutes: 13
+        env:
+          PUBLISH_PROJECTS: ${{ needs.determine-affected.outputs.projects }}
         run: |
-          # It has been observed that the NPM package is not immediately available after publish.
-          echo "Waiting for NPM propagation..."
-          sleep 15
+          # The registry records a version minutes after npm publish returns (observed up to ~4 min),
+          # so poll for the exact published versions instead of sleeping a fixed time.
+          declare -A versions=(
+            ["@rudderstack/analytics-js"]="$CURRENT_VERSION_VALUE"
+            ["@rudderstack/analytics-js-service-worker"]="$CURRENT_VERSION_SW_VALUE"
+            ["@rudderstack/analytics-js-cookies"]="$CURRENT_VERSION_COOKIE_UTILS_VALUE"
+            ["rudder-sdk-js"]="$CURRENT_VERSION_V1_VALUE"
+          )
+
+          deadline=$((SECONDS + 600))
+          IFS=',' read -ra projects <<< "$PUBLISH_PROJECTS"
+          for project in "${projects[@]}"; do
+            version="${versions[$project]:-}"
+            [ -z "$version" ] && continue
+
+            # npm's own fetch timeout and retries can stall for minutes, so cap each attempt
+            until timeout 30 npm view "$project@$version" version --prefer-online >/dev/null 2>&1; do
+              if [ "$SECONDS" -ge "$deadline" ]; then
+                echo "::warning::$project@$version not visible on NPM after 10 minutes"
+                # Past the deadline, the remaining projects still get one attempt each
+                continue 2
+              fi
+              echo "Waiting for $project@$version..."
+              sleep 20
+            done
+            echo "$project@$version is available"
+          done
 
       - name: Get versions in NPM after publish
         run: |
@@ -354,7 +404,11 @@ jobs:
 
       - name: Deprecate the legacy SDK NPM package
         continue-on-error: true
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
+          # deprecate is not covered by trusted publishing (OIDC), so it needs the token
+          npm set //registry.npmjs.org/:_authToken="$NODE_AUTH_TOKEN"
           npm deprecate rudder-sdk-js "This package is deprecated and no longer maintained. While your events are still being tracked and delivered, we strongly recommend you to migrate to the latest package, @rudderstack/analytics-js (https://www.npmjs.com/package/@rudderstack/analytics-js), for the latest features, security updates, and improved performance. For more details, visit the migration guide: https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/migration-guide/."
 
       - name: Get Job URL

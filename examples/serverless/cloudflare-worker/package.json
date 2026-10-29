@@ -13,13 +13,16 @@
 		"verify": "wrangler deploy --dry-run"
 	},
 	"devDependencies": {
-		"dotenv": "17.4.2",
-		"wrangler": "4.93.1"
+		"dotenv": "18.0.8",
+		"wrangler": "4.151.3"
 	},
 	"dependencies": {
 		"@rudderstack/analytics-js-service-worker": "*",
 		"@vespaiach/axios-fetch-adapter": "0.3.1",
 		"host-proxy": "1.0.2",
 		"http-forward": "0.1.3"
+	},
+	"overrides": {
+		"undici": "7.30.1"
 	}
 }
