@@ -33,9 +33,9 @@ const ScriptLoader = (id, src, options = {}) => {
   }
   // This checking is in place to skip the dataset attribute for some cases(while loading polyfill)
   if (options.skipDatasetAttributes !== true) {
-    js.setAttribute('data-loader', LOAD_ORIGIN);
+    js.dataset.loader = LOAD_ORIGIN;
     if (options.isNonNativeSDK !== undefined) {
-      js.setAttribute('data-isNonNativeSDK', options.isNonNativeSDK);
+      js.dataset.isnonnativesdk = String(options.isNonNativeSDK);
     }
   }
   const headElmColl = document.getElementsByTagName('head');
