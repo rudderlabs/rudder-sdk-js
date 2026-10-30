@@ -97,7 +97,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
           }
 
           const errMessage = INTEGRATION_NOT_SUPPORTED_ERROR(configDest.displayName);
-          errorHandler?.onError({
+          void errorHandler?.onError({
             error: new Error(errMessage),
             context: DEVICE_MODE_DESTINATIONS_PLUGIN,
             category: INTEGRATIONS_ERROR_CATEGORY,
@@ -118,8 +118,19 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
       const intgOpts =
         state.consents.postConsent.value?.integrations ??
         state.nativeDestinations.loadOnlyIntegrations.value;
-      const destinationsToLoad = filterDestinations(intgOpts, configuredDestinations).filter(
-        dest => {
+      const consentedDestinations = filterDestinations(intgOpts, configuredDestinations)
+        .filter(
+          dest =>
+            // Default to consent when no consent manager is configured.
+            pluginsManager.invokeSingle(
+              `consentManager.isDestinationConsented`,
+              state,
+              dest.config,
+              errorHandler,
+              logger,
+            ) ?? true,
+        )
+        .filter(dest => {
           if (
             resolveVendorSdkVersionPolicy(intgOpts, dest.displayName) === 'strict' &&
             (destDisplayNamesToPinSupportMap[dest.displayName] ?? 'none') === 'none' &&
@@ -130,20 +141,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
             return false;
           }
           return true;
-        },
-      );
-
-      const consentedDestinations = destinationsToLoad.filter(
-        dest =>
-          // if consent manager is not configured, then default to load the destination
-          pluginsManager.invokeSingle(
-            `consentManager.isDestinationConsented`,
-            state,
-            dest.config,
-            errorHandler,
-            logger,
-          ) ?? true,
-      );
+        });
 
       // Add the distilled destinations to the active destinations list
       state.nativeDestinations.activeDestinations.value = [
@@ -177,7 +175,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
               ((id: string, err?: SDKError) => {
                 if (err) {
                   const customMessage = INTEGRATION_SDK_LOAD_ERROR(dest.displayName);
-                  errorHandler?.onError({
+                  void errorHandler?.onError({
                     error: err,
                     context: DEVICE_MODE_DESTINATIONS_PLUGIN,
                     customMessage,

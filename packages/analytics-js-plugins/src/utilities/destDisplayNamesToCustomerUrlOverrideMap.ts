@@ -11,19 +11,24 @@ import { DISPLAY_NAME as MixpanelDisplayName } from '@rudderstack/analytics-js-i
 
 declare const MIXPANEL_CUSTOM_LIB_URL: unknown;
 
+/** Check whether the SDK base URL contains more than slashes. */
 const hasSdkBaseUrl = (config: DestinationConfig): boolean =>
-  typeof config.sdkBaseUrl === 'string' && config.sdkBaseUrl.replace(/\/+$/, '').length > 0;
+  typeof config.sdkBaseUrl === 'string' && /[^/]/.test(config.sdkBaseUrl);
 
 const customerUrlOverrides: Partial<Record<string, (config: DestinationConfig) => boolean>> =
   Object.assign(Object.create(null), {
+    /** Mirror Appcues’ nonempty native SDK URL check. */
     [AppcuesDisplayName]: (config: DestinationConfig) =>
       typeof config.nativeSdkUrl === 'string' && config.nativeSdkUrl.length > 0,
     [GA4DisplayName]: hasSdkBaseUrl,
     [GA4_V2DisplayName]: hasSdkBaseUrl,
     [GoogleAdsDisplayName]: hasSdkBaseUrl,
+    /** Mirror Rockerbox’s custom domain check. */
     [RockerboxDisplayName]: (config: DestinationConfig) => Boolean(config.customDomain),
+    /** Mirror Mixpanel’s global override definedness check. */
     [MixpanelDisplayName]: () => typeof MIXPANEL_CUSTOM_LIB_URL !== 'undefined',
   });
 
+/** Detect customer URLs using the native loaders’ existing rules. */
 export const hasCustomerUrlOverride = (destination: Destination): boolean =>
   customerUrlOverrides[destination.displayName]?.(destination.config) ?? false;

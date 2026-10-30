@@ -220,3 +220,21 @@ test('disabled and unconsented destinations stay excluded', () => {
   expect(state.nativeDestinations.activeDestinations.value).toEqual([]);
   expect(defaultLogger.error).not.toHaveBeenCalled();
 });
+
+test.each([false, true])('strict unpinnable destination with consent %s', consented => {
+  state.nativeDestinations.configuredDestinations.value = [makeDestination('rollbar')];
+  state.nativeDestinations.loadOnlyIntegrations.value = {
+    All: { vendorSdkVersionPolicy: 'strict' },
+  };
+  pluginsManager.invokeSingle.mockReturnValue(consented);
+  activate();
+  expect(defaultLogger.error).toHaveBeenCalledTimes(consented ? 1 : 0);
+  if (consented) {
+    expect(defaultLogger.error).toHaveBeenCalledWith(
+      'Skipped rollbar: its vendor script cannot be pinned (strict mode).',
+    );
+  }
+  expect(state.nativeDestinations.activeDestinations.value).toEqual([]);
+  plugin.nativeDestinations.load(state, externalSrcLoader, defaultErrorHandler, defaultLogger);
+  expect(externalSrcLoader.loadJSFile).not.toHaveBeenCalled();
+});
