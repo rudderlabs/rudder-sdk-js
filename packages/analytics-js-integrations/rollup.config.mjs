@@ -66,6 +66,10 @@ export function getDefaultConfig(distName, moduleType = 'cdn') {
       alias({
         entries: [
           {
+            find: '@rudderstack/analytics-js-common',
+            replacement: path.resolve('../analytics-js-common/src'),
+          },
+          {
             find: '@rudderstack/analytics-js-legacy-utilities',
             replacement: path.resolve('../analytics-js-legacy-utilities/src'),
           },
