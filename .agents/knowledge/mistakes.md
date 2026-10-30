@@ -30,4 +30,4 @@
 
 ## SDK-6044 — Vendor SDK pinning
 
-- Adding a device-mode integration that loads a floating vendor URL or omits `VENDOR_SDK_PIN_SUPPORT` fails `packages/analytics-js-integrations/__tests__/constants.test.ts`; declare support and pin per `CONTRIBUTING.md`.
+- New device-mode integrations must declare `VENDOR_SDK_PIN_SUPPORT`; only the existing undeclared baseline is exempt. For `'full'` declarations with flat constants (excluding the existing Amplitude/Sentry SRI loaders), `packages/analytics-js-integrations/__tests__/constants.test.ts` requires an HTTPS pinned URL that differs from `VENDOR_SDK_FLOATING_URL`, contains a full semver `x.y.z` in its path, stays on the floating URL's hostname, and carries a valid SHA-384 integrity value. Declaring `'none'` permits a floating vendor URL; declare support and pin per `CONTRIBUTING.md`.

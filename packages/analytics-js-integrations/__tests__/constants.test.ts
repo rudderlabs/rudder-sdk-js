@@ -124,7 +124,7 @@ describe('Integration Constants', () => {
           }
         });
 
-        it('full declarations carry a valid same-host pin', () => {
+        it('full declarations carry a valid exact-version same-host pin', () => {
           const {
             VENDOR_SDK_PIN_SUPPORT,
             VENDOR_SDK_PINNED_URL,
@@ -132,6 +132,10 @@ describe('Integration Constants', () => {
             VENDOR_SDK_FLOATING_URL,
           } = integrationConstants;
           if (VENDOR_SDK_PIN_SUPPORT === 'full' && !EXISTING_SRI_LOADERS.includes(integration)) {
+            expect(VENDOR_SDK_PINNED_URL).not.toBe(VENDOR_SDK_FLOATING_URL);
+            expect(new URL(VENDOR_SDK_PINNED_URL!).pathname).toMatch(
+              /(?:^|[/@-])v?(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?=$|[/.-])/,
+            );
             expect(new URL(VENDOR_SDK_PINNED_URL!).protocol).toBe('https:');
             expect(VENDOR_SDK_INTEGRITY).toMatch(/^sha384-[A-Za-z0-9+/]{64}$/);
             expect(new URL(VENDOR_SDK_PINNED_URL!).hostname).toBe(
