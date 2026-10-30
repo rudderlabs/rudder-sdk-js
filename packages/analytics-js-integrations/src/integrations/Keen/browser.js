@@ -1,7 +1,14 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable no-template-curly-in-string */
 import { ScriptLoader } from '@rudderstack/analytics-js-legacy-utilities/ScriptLoader';
-import { NAME, DISPLAY_NAME } from './constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+  VENDOR_SDK_PINNED_URL,
+  VENDOR_SDK_INTEGRITY,
+  VENDOR_SDK_FLOATING_URL,
+} from './constants';
+import { resolveVendorSdkVersionPolicy } from '@rudderstack/analytics-js-common/utilities/vendorSdkVersionPolicy';
 import Logger from '../../utils/logger';
 
 const logger = new Logger(DISPLAY_NAME);
@@ -28,7 +35,12 @@ class Keen {
   }
 
   init() {
-    ScriptLoader('keen-integration', 'https://cdn.jsdelivr.net/npm/keen-tracking@4');
+    const policy = resolveVendorSdkVersionPolicy(this.analytics.loadOnlyIntegrations, DISPLAY_NAME);
+    ScriptLoader(
+      'keen-integration',
+      policy === 'floating' ? VENDOR_SDK_FLOATING_URL : VENDOR_SDK_PINNED_URL,
+      policy === 'floating' ? {} : { integrity: VENDOR_SDK_INTEGRITY, crossOrigin: 'anonymous' },
+    );
 
     const check = setInterval(checkAndInitKeen.bind(this), 1000);
     function initKeen(object) {
