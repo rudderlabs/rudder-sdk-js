@@ -1,2 +1,2 @@
 #!/bin/sh
-npm run pre-commit -- --no-stash
+npm run pre-commit
