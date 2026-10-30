@@ -27,3 +27,7 @@
 ## INT-7435 — Follow-Redirects Lockfile Security Resolution
 
 - After Axios dependency-range changes, verify the production dependency tree rather than relying on the manifest version alone: resolving Axios's `follow-redirects` dependency to `1.16.0` caused `npm audit --audit-level=high --omit=dev` to fail on credential-header exposure advisories GHSA-q3jh-wrc6-jgq8 and GHSA-8r9p-f939-6h3c. Refresh the compatible lockfile resolution to `follow-redirects` `1.16.1` or newer.
+
+## SDK-6044 — Vendor SDK pinning
+
+- Adding a device-mode integration that loads a floating vendor URL or omits `VENDOR_SDK_PIN_SUPPORT` fails `packages/analytics-js-integrations/__tests__/constants.test.ts`; declare support and pin per `CONTRIBUTING.md`.

@@ -125,6 +125,21 @@ The repository is a monorepo, with different packages under the `packages` direc
 
 > Before proceeding with the next steps, we recommend drafting a document outlining the requirements of your integration and relevant resources
 
+#### Loading the vendor SDK
+
+Pin vendor scripts and verify them with [Subresource Integrity](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity) so customer pages only run the vendor code we tested.
+
+- Load an exact-version URL whenever the vendor offers one.
+- Stay on the hostname the vendor documents and that the integration already uses, including redirect chains; never add a new hostname.
+- Export `VENDOR_SDK_PIN_SUPPORT` and, for full pin support, `VENDOR_SDK_PINNED_URL`, `VENDOR_SDK_INTEGRITY`, and `VENDOR_SDK_FLOATING_URL` from `constants.js`.
+- Load pinned scripts through `ScriptLoader` with `integrity` and `crossOrigin: 'anonymous'`.
+- Resolve `vendorSdkVersionPolicy` from `analytics.loadOnlyIntegrations` and the destination display name with `resolveVendorSdkVersionPolicy`; under `floating`, use the legacy URL without newly added integrity. Preserve any existing SRI.
+- Compute the SHA-384 hash with `npm run vendor-sdk:hash -- <Integration>` and verify stored pins with `npm run vendor-sdk:hash -- --verify`.
+- If the vendor offers no exact-version URL on its existing host or loads further unpinnable scripts, declare `'none'` and explain why in the PR.
+- Declare `'no-script'` when the integration injects no vendor script.
+- Add a unit test asserting the pinned URL and integrity reach `ScriptLoader`.
+- New integrations must declare support; the undeclared baseline in `packages/analytics-js-integrations/__tests__/constants.test.ts` may only shrink.
+
 Your integration will require several key files:
 
 **Constants definition**
