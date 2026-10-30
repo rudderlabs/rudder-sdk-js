@@ -31,7 +31,7 @@ import {
 } from '../shared-chunks/deviceModeDestinations';
 import { isUndefined } from '../shared-chunks/common';
 import { INTEGRATIONS_ERROR_CATEGORY } from '../utilities/destination';
-import { resolveVendorSdkVersionPolicy } from '@rudderstack/analytics-js-common/utilities/vendorSdkVersionPolicy';
+import { resolveVendorSdkVersionPolicy } from '@rudderstack/analytics-js-integrations/utils/vendorSdkVersionPolicy';
 import { destDisplayNamesToPinSupportMap } from '../utilities/destDisplayNamesToPinSupportMap';
 import { hasCustomerUrlOverride } from '../utilities/destDisplayNamesToCustomerUrlOverrideMap';
 

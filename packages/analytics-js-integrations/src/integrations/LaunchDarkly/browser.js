@@ -7,7 +7,7 @@ import {
   VENDOR_SDK_INTEGRITY,
   VENDOR_SDK_FLOATING_URL,
 } from './constants';
-import { resolveVendorSdkVersionPolicy } from '@rudderstack/analytics-js-common/utilities/vendorSdkVersionPolicy';
+import { resolveVendorSdkVersionPolicy } from '../../utils/vendorSdkVersionPolicy';
 import Logger from '../../utils/logger';
 import { createUser, getDestinationOptions } from './utils';
 

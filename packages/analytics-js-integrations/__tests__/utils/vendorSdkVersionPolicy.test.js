@@ -1,4 +1,4 @@
-import { resolveVendorSdkVersionPolicy } from '../../src/utilities/vendorSdkVersionPolicy';
+import { resolveVendorSdkVersionPolicy } from '../../src/utils/vendorSdkVersionPolicy';
 
 describe('vendor SDK version policy', () => {
   it('resolves destination then All then pinned', () => {
@@ -36,16 +36,13 @@ describe('vendor SDK version policy', () => {
     ]) {
       expect(
         resolveVendorSdkVersionPolicy(
-          { All: { vendorSdkVersionPolicy: 'strict' }, Bugsnag: entry } as any,
+          { All: { vendorSdkVersionPolicy: 'strict' }, Bugsnag: entry },
           'Bugsnag',
         ),
       ).toBe('strict');
     }
     expect(
-      resolveVendorSdkVersionPolicy(
-        { All: { vendorSdkVersionPolicy: 'latest' } } as any,
-        'Bugsnag',
-      ),
+      resolveVendorSdkVersionPolicy({ All: { vendorSdkVersionPolicy: 'latest' } }, 'Bugsnag'),
     ).toBe('pinned');
   });
 });
