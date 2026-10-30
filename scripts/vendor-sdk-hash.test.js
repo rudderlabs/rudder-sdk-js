@@ -4,6 +4,7 @@ const http = require('node:http');
 const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
+const zlib = require('node:zlib');
 const {
   readVendorPins,
   sha384Integrity,
@@ -83,10 +84,10 @@ async function withServer(t, body) {
   await body({ request, routes, counts });
 }
 
-test('discovers exactly the four exported repo pins', () => {
+test('discovers all eight artifacts declared full', () => {
   assert.deepEqual(
     readVendorPins().map(pin => pin.integration),
-    ['Bugsnag', 'Iterable', 'Keen', 'LaunchDarkly'],
+    ['Amplitude', 'Amplitude', 'Bugsnag', 'Iterable', 'Keen', 'LaunchDarkly', 'Sentry', 'Sentry'],
   );
   assert.equal(
     readVendorPins().find(pin => pin.integration === 'LaunchDarkly').pinnedUrl,
@@ -110,7 +111,10 @@ test('generates and verifies two matching downloads', async t =>
     assert.deepEqual(output, [integrity]);
     output.length = 0;
     assert.equal(await runCli(['--verify'], options), 0);
-    assert.deepEqual(output, ['Fixture: OK', 'Verified 1 vendor SDK pins.']);
+    assert.deepEqual(output, [
+      'Fixture: OK (https://vendor.test/pin.js)',
+      'Verified 1 vendor SDK pins.',
+    ]);
     assert.equal(counts['/floating.js'], undefined);
   }));
 
@@ -210,7 +214,11 @@ test('rejects unusable or changing vendor artifacts', async t => {
           res.flushHeaders();
         };
         await assert.rejects(
-          downloadVendorScript('https://vendor.test/stalled.js', { request, timeoutMs: 20 }),
+          downloadVendorScript('https://vendor.test/stalled.js', {
+            request,
+            timeoutMs: 20,
+            retryDelaysMs: [1, 3],
+          }),
           /timeout/,
         );
       },
@@ -227,7 +235,10 @@ test('rejects unusable or changing vendor artifacts', async t => {
       'compressed response',
       async ({ request, routes }) => {
         routes['/encoded.js'] = (_req, res) => {
-          res.writeHead(200, { 'Access-Control-Allow-Origin': '*', 'Content-Encoding': 'gzip' });
+          res.writeHead(200, {
+            'Access-Control-Allow-Origin': '*',
+            'Content-Encoding': 'compress',
+          });
           res.end('compressed');
         };
         await assert.rejects(
@@ -339,4 +350,98 @@ test('redirect responses must allow anonymous CORS before being followed', async
       );
       assert.equal(counts['/pin.js'], undefined);
     }
+  }));
+
+test('retries transient HTTP failures then succeeds', async t =>
+  withServer(t, async ({ request, routes, counts }) => {
+    for (const status of [503, 429]) {
+      counts['/pin.js'] = 0;
+      routes['/pin.js'] = (_req, res) => {
+        if (counts['/pin.js'] < 3) {
+          res.writeHead(status);
+          res.end();
+        } else {
+          res.setHeader('Access-Control-Allow-Origin', '*');
+          res.end('vendor-test');
+        }
+      };
+      assert.equal(
+        await verifyVendorPin(fixturePin, { request, retryDelaysMs: [1, 3] }),
+        integrity,
+      );
+      assert.equal(counts['/pin.js'], 4); // Three attempts, then the second matching download.
+    }
+  }));
+
+test('gives up after three transient failures', async t =>
+  withServer(t, async ({ request, routes, counts }) => {
+    routes['/pin.js'] = (_req, res) => {
+      res.writeHead(503);
+      res.end();
+    };
+    await assert.rejects(
+      verifyVendorPin(fixturePin, { request, retryDelaysMs: [1, 3] }),
+      /HTTP 503/,
+    );
+    assert.equal(counts['/pin.js'], 3);
+  }));
+
+test('does not retry hash mismatch or 404', async t =>
+  withServer(t, async ({ request, counts }) => {
+    await assert.rejects(
+      verifyVendorPin({ ...fixturePin, integrity: staleIntegrity }, { request }),
+      /stored integrity mismatch/,
+    );
+    assert.equal(counts['/pin.js'], 2); // Exactly the required pair, with no retry.
+    await assert.rejects(
+      downloadVendorScript('https://vendor.test/missing.js', { request }),
+      /HTTP 404/,
+    );
+    assert.equal(counts['/missing.js'], 1);
+  }));
+
+test('retries network errors and timeouts at most three times', async t =>
+  withServer(t, async ({ request, routes, counts }) => {
+    routes['/reset.js'] = (req, _res) => req.socket.destroy();
+    routes['/timeout.js'] = (_req, _res) => {};
+    for (const route of ['/reset.js', '/timeout.js']) {
+      await assert.rejects(
+        downloadVendorScript(`https://vendor.test${route}`, {
+          request,
+          timeoutMs: 20,
+          retryDelaysMs: [1, 3],
+        }),
+        /socket hang up|timeout/,
+      );
+      assert.equal(counts[route], 3);
+    }
+  }));
+
+test('verify fails when a full declaration has no registered artifact', async t => {
+  const integrationsDir = fixture(t);
+  const dir = path.join(integrationsDir, 'Future');
+  fs.mkdirSync(dir);
+  fs.writeFileSync(
+    path.join(dir, 'constants.js'),
+    "const VENDOR_SDK_PIN_SUPPORT = 'full';\nexport { VENDOR_SDK_PIN_SUPPORT };\n",
+  );
+  const errors = [];
+  assert.equal(
+    await runCli(['--verify'], { integrationsDir, stderr: line => errors.push(line) }),
+    1,
+  );
+  assert.match(errors.join('\n'), /Future: full pin support has no registered artifact/);
+});
+
+test('verifies decoded gzip bytes as browsers do for existing Amplitude pins', async t =>
+  withServer(t, async ({ request, routes }) => {
+    routes['/pin.js'] = (_req, res) => {
+      res.writeHead(200, { 'Access-Control-Allow-Origin': '*', 'Content-Encoding': 'gzip' });
+      res.end(zlib.gzipSync('vendor-test'));
+    };
+    assert.equal(await verifyVendorPin(fixturePin, { request }), integrity);
+    await assert.rejects(
+      downloadVendorScript(fixturePin.pinnedUrl, { request, maxBytes: 3 }),
+      /byte limit/,
+    );
   }));
