@@ -11,4 +11,6 @@ const CNameMapping = {
   optimizely: NAME,
 };
 
-export { NAME, CNameMapping, DISPLAY_NAME, DIR_NAME };
+const VENDOR_SDK_PIN_SUPPORT = 'no-script';
+
+export { VENDOR_SDK_PIN_SUPPORT, NAME, CNameMapping, DISPLAY_NAME, DIR_NAME };
