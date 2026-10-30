@@ -137,6 +137,7 @@ Pin vendor scripts and verify them with [Subresource Integrity](https://develope
 - Compute the SHA-384 hash with `npm run vendor-sdk:hash -- <Integration>` and verify stored pins with `npm run vendor-sdk:hash -- --verify`.
 - If the vendor offers no exact-version URL on its existing host or loads further unpinnable scripts, declare `'none'` and explain why in the PR.
 - Declare `'no-script'` when the integration injects no vendor script.
+- Register integrations declaring `'full'` or `'no-script'` in `packages/analytics-js-plugins/src/utilities/destDisplayNamesToPinSupportMap.ts`, using their exported `DISPLAY_NAME` and `VENDOR_SDK_PIN_SUPPORT`. The plugin parity test checks that the map matches every integration's constants.
 - Add a unit test asserting the pinned URL and integrity reach `ScriptLoader`.
 - New integrations must declare support; the undeclared baseline in `packages/analytics-js-integrations/__tests__/constants.test.ts` may only shrink.
 
