@@ -23,6 +23,7 @@ import {
   INTEGRATION_NOT_ADDED_TO_CUSTOM_DESTINATION_WARNING,
   INTEGRATION_NOT_SUPPORTED_ERROR,
   INTEGRATION_SDK_LOAD_ERROR,
+  VENDOR_SDK_STRICT_SKIP_ERROR,
 } from './logMessages';
 import {
   destDisplayNamesToFileNamesMap,
@@ -30,6 +31,9 @@ import {
 } from '../shared-chunks/deviceModeDestinations';
 import { isUndefined } from '../shared-chunks/common';
 import { INTEGRATIONS_ERROR_CATEGORY } from '../utilities/destination';
+import { resolveVendorSdkVersionPolicy } from '@rudderstack/analytics-js-common/utilities/vendorSdkVersionPolicy';
+import { destDisplayNamesToPinSupportMap } from '../utilities/destDisplayNamesToPinSupportMap';
+import { hasCustomerUrlOverride } from '../utilities/destDisplayNamesToCustomerUrlOverrideMap';
 
 const pluginName: PluginName = 'DeviceModeDestinations';
 
@@ -111,10 +115,22 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
         : filterDisabledDestinations(configSupportedDestinations);
 
       // Filter destinations that are disabled through load or consent API options
-      const destinationsToLoad = filterDestinations(
+      const intgOpts =
         state.consents.postConsent.value?.integrations ??
-          state.nativeDestinations.loadOnlyIntegrations.value,
-        configuredDestinations,
+        state.nativeDestinations.loadOnlyIntegrations.value;
+      const destinationsToLoad = filterDestinations(intgOpts, configuredDestinations).filter(
+        dest => {
+          if (
+            resolveVendorSdkVersionPolicy(intgOpts, dest.displayName) === 'strict' &&
+            (destDisplayNamesToPinSupportMap[dest.displayName] ?? 'none') === 'none' &&
+            !dest.isCustomIntegration &&
+            !hasCustomerUrlOverride(dest)
+          ) {
+            logger?.error(VENDOR_SDK_STRICT_SKIP_ERROR(dest.displayName));
+            return false;
+          }
+          return true;
+        },
       );
 
       const consentedDestinations = destinationsToLoad.filter(

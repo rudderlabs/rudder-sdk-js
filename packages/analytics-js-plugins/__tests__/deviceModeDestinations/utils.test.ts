@@ -191,6 +191,26 @@ describe('deviceModeDestinations utils', () => {
       delete (window as any).GA4_RS;
     });
 
+    it('constructor receives the consent replacement policy object', () => {
+      state.nativeDestinations.loadOnlyIntegrations.value = {
+        All: { vendorSdkVersionPolicy: 'floating' },
+        Bugsnag: { vendorSdkVersionPolicy: 'floating' },
+      };
+      const destination = { config: {}, id: 'ga4' } as Destination;
+      for (const replacement of [{}, { All: { vendorSdkVersionPolicy: 'strict' as const } }]) {
+        state.consents.postConsent.value = { integrations: replacement };
+        const instance = createIntegrationInstance(
+          destSDKIdentifier,
+          sdkTypeName,
+          destination,
+          state,
+        );
+        expect(instance.analytics.loadOnlyIntegrations).toBe(replacement);
+        expect(instance.analytics.loadOnlyIntegrations.Bugsnag).toBeUndefined();
+      }
+      resetState();
+    });
+
     it('should return an instance of the destination', () => {
       state.lifecycle.writeKey.value = '12345678910'; // write key 2
 
