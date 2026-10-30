@@ -42,7 +42,7 @@ describe('ScriptLoader', () => {
     expect(inserted.hasAttribute('data-loader')).toBe(false);
     const existing = document.createElement('script');
     existing.id = 'existing';
-    document.body.appendChild(existing);
+    document.head.appendChild(existing);
     insertBefore.mockClear();
     ScriptLoader('existing', 'https://vendor.example/replacement.js', { integrity: 'sha384-test' });
     expect(insertBefore).not.toHaveBeenCalled();
