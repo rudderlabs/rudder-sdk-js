@@ -1,6 +1,13 @@
 /* eslint-disable class-methods-use-this */
 import { ScriptLoader } from '@rudderstack/analytics-js-legacy-utilities/ScriptLoader';
-import { NAME, DISPLAY_NAME } from './constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+  VENDOR_SDK_PINNED_URL,
+  VENDOR_SDK_INTEGRITY,
+  VENDOR_SDK_FLOATING_URL,
+} from './constants';
+import { resolveVendorSdkVersionPolicy } from '@rudderstack/analytics-js-common/utilities/vendorSdkVersionPolicy';
 import Logger from '../../utils/logger';
 import { createUser, getDestinationOptions } from './utils';
 
@@ -29,7 +36,12 @@ class LaunchDarkly {
       );
       return;
     }
-    ScriptLoader(null, 'https://unpkg.com/launchdarkly-js-client-sdk@2');
+    const policy = resolveVendorSdkVersionPolicy(this.analytics.loadOnlyIntegrations, DISPLAY_NAME);
+    ScriptLoader(
+      null,
+      policy === 'floating' ? VENDOR_SDK_FLOATING_URL : VENDOR_SDK_PINNED_URL,
+      policy === 'floating' ? {} : { integrity: VENDOR_SDK_INTEGRITY, crossOrigin: 'anonymous' },
+    );
   }
 
   isLoaded() {
