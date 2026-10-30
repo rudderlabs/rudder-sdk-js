@@ -1,7 +1,4 @@
-import {
-  SENTRY_NAME as NAME,
-  SENTRY_DISPLAY_NAME as DISPLAY_NAME,
-} from '../../constants/Destinations';
+import { SENTRY_NAME as NAME } from '../../constants/Destinations';
 
 const DIR_NAME = 'Sentry';
 
@@ -13,4 +10,6 @@ const CNameMapping = {
 
 const VENDOR_SDK_PIN_SUPPORT = 'full';
 
-export { VENDOR_SDK_PIN_SUPPORT, NAME, CNameMapping, DISPLAY_NAME, DIR_NAME };
+export { VENDOR_SDK_PIN_SUPPORT, NAME, CNameMapping, DIR_NAME };
+
+export { SENTRY_DISPLAY_NAME as DISPLAY_NAME } from '../../constants/Destinations';

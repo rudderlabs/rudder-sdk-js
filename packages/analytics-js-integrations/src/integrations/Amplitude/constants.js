@@ -1,4 +1,4 @@
-import { AM_NAME as NAME, AM_DISPLAY_NAME as DISPLAY_NAME } from '../../constants/Destinations';
+import { AM_NAME as NAME } from '../../constants/Destinations';
 
 const DIR_NAME = 'Amplitude';
 const AMPLITUDE_SDK_VERSION_CONFIG_KEY = 'sdkVersion';
@@ -27,7 +27,6 @@ export {
   VENDOR_SDK_PIN_SUPPORT,
   NAME,
   CNameMapping,
-  DISPLAY_NAME,
   DIR_NAME,
   AMPLITUDE_SDK_VERSION_CONFIG_KEY,
   AMPLITUDE_AUTO_CAPTURE_PAGE_VIEWS_CONFIG_KEY,
@@ -42,3 +41,5 @@ export {
   AMPLITUDE_SDK_V1,
   AMPLITUDE_SDK_V2,
 };
+
+export { AM_DISPLAY_NAME as DISPLAY_NAME } from '../../constants/Destinations';

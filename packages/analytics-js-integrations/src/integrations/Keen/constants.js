@@ -1,4 +1,4 @@
-import { KEEN_NAME as NAME, KEEN_DISPLAY_NAME as DISPLAY_NAME } from '../../constants/Destinations';
+import { KEEN_NAME as NAME } from '../../constants/Destinations';
 
 const DIR_NAME = 'Keen';
 
@@ -20,10 +20,11 @@ const VENDOR_SDK_FLOATING_URL = 'https://cdn.jsdelivr.net/npm/keen-tracking@4';
 export {
   NAME,
   CNameMapping,
-  DISPLAY_NAME,
   DIR_NAME,
   VENDOR_SDK_PIN_SUPPORT,
   VENDOR_SDK_PINNED_URL,
   VENDOR_SDK_INTEGRITY,
   VENDOR_SDK_FLOATING_URL,
 };
+
+export { KEEN_DISPLAY_NAME as DISPLAY_NAME } from '../../constants/Destinations';

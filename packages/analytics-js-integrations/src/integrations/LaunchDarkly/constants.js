@@ -1,7 +1,4 @@
-import {
-  LAUNCHDARKLY_NAME as NAME,
-  LAUNCHDARKLY_DISPLAY_NAME as DISPLAY_NAME,
-} from '../../constants/Destinations';
+import { LAUNCHDARKLY_NAME as NAME } from '../../constants/Destinations';
 
 const DIR_NAME = 'LaunchDarkly';
 
@@ -24,10 +21,11 @@ const VENDOR_SDK_FLOATING_URL = 'https://unpkg.com/launchdarkly-js-client-sdk@2'
 export {
   NAME,
   CNameMapping,
-  DISPLAY_NAME,
   DIR_NAME,
   VENDOR_SDK_PIN_SUPPORT,
   VENDOR_SDK_PINNED_URL,
   VENDOR_SDK_INTEGRITY,
   VENDOR_SDK_FLOATING_URL,
 };
+
+export { LAUNCHDARKLY_DISPLAY_NAME as DISPLAY_NAME } from '../../constants/Destinations';

@@ -1,7 +1,4 @@
-import {
-  BUGSNAG_NAME as NAME,
-  BUGSNAG_DISPLAY_NAME as DISPLAY_NAME,
-} from '../../constants/Destinations';
+import { BUGSNAG_NAME as NAME } from '../../constants/Destinations';
 
 const DIR_NAME = 'Bugsnag';
 
@@ -20,10 +17,11 @@ const VENDOR_SDK_FLOATING_URL = 'https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsna
 export {
   NAME,
   CNameMapping,
-  DISPLAY_NAME,
   DIR_NAME,
   VENDOR_SDK_PIN_SUPPORT,
   VENDOR_SDK_PINNED_URL,
   VENDOR_SDK_INTEGRITY,
   VENDOR_SDK_FLOATING_URL,
 };
+
+export { BUGSNAG_DISPLAY_NAME as DISPLAY_NAME } from '../../constants/Destinations';
