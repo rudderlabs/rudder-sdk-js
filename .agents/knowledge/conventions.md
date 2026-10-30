@@ -33,3 +33,4 @@
 ## SDK-6044 — Vendor SDK pinning
 
 - Device-mode vendor scripts use exact same-host URLs and SHA-384 SRI under pinned/strict, with flat `VENDOR_SDK_PIN_SUPPORT` and URL/hash exports; follow `CONTRIBUTING.md` and the guardrail in `packages/analytics-js-integrations/__tests__/constants.test.ts`.
+- Strict mode skips non-custom destinations with pin support `'none'` (the default), including those with customer vendor URLs. Opt out per destination with `loadOnlyIntegrations: { All: { vendorSdkVersionPolicy: 'strict' }, 'Google Analytics 4 (GA4)': { vendorSdkVersionPolicy: 'pinned' } }`; `'pinned'` uses the existing vendor URL when pinning is unsupported.

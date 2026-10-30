@@ -28,8 +28,6 @@ const makeDestination = (
 const plugin = DeviceModeDestinations();
 const pluginsManager = { invokeSingle: jest.fn().mockReturnValue(true) };
 const externalSrcLoader = { loadJSFile: jest.fn() };
-const page = globalThis as typeof window & { MIXPANEL_CUSTOM_LIB_URL?: unknown };
-let original: PropertyDescriptor | undefined;
 const activate = (logger = defaultLogger) =>
   plugin.nativeDestinations.setActiveDestinations(
     state,
@@ -42,12 +40,6 @@ beforeEach(() => {
   resetState();
   jest.clearAllMocks();
   pluginsManager.invokeSingle.mockReturnValue(true);
-  original = Object.getOwnPropertyDescriptor(page, 'MIXPANEL_CUSTOM_LIB_URL');
-  delete page.MIXPANEL_CUSTOM_LIB_URL;
-});
-afterEach(() => {
-  if (original) Object.defineProperty(page, 'MIXPANEL_CUSTOM_LIB_URL', original);
-  else delete page.MIXPANEL_CUSTOM_LIB_URL;
 });
 
 test('strict skips all 73 none declarations before bundle download', () => {
@@ -74,7 +66,7 @@ test('strict skips all 73 none declarations before bundle download', () => {
   );
   expect(defaultLogger.error).toHaveBeenCalledTimes(73);
   expect(defaultLogger.error).toHaveBeenCalledWith(
-    'Skipped rollbar: its vendor script cannot be pinned (strict mode).',
+    'Skipped rollbar: its vendor script cannot be pinned (strict mode). Set its vendorSdkVersionPolicy to "pinned" to load it.',
   );
   plugin.nativeDestinations.load(state, externalSrcLoader, defaultErrorHandler, defaultLogger);
   expect(externalSrcLoader.loadJSFile).toHaveBeenCalledTimes(10);
@@ -126,23 +118,14 @@ test('destination floating overrides All strict while booleans still filter', ()
   }
 });
 
-test('custom and customer URL destinations are exempt', () => {
+test('custom integrations are exempt', () => {
   const destinations = [
     {
       ...makeDestination('Customer Integration'),
       isCustomIntegration: true,
       integration: { isReady: () => true },
     },
-    makeDestination('Appcues', 'appcues', { nativeSdkUrl: 'https://customer.example' }),
-    makeDestination('Google Analytics 4 (GA4)', 'ga4', { sdkBaseUrl: 'https://customer.example' }),
-    makeDestination('Google Analytics 4 (GA4) V2', 'ga4-v2', {
-      sdkBaseUrl: 'https://customer.example',
-    }),
-    makeDestination('Google Ads', 'ads', { sdkBaseUrl: 'https://customer.example' }),
-    makeDestination('Rockerbox', 'rockerbox', { customDomain: 'customer.example' }),
-    makeDestination('Mixpanel'),
   ];
-  page.MIXPANEL_CUSTOM_LIB_URL = '';
   state.nativeDestinations.configuredDestinations.value = [
     ...destinations,
     { ...makeDestination('Missing custom'), isCustomIntegration: true },
@@ -175,36 +158,38 @@ test('consent replaces rather than merges policy', () => {
   expect(state.nativeDestinations.activeDestinations.value).toEqual([]);
 });
 
-test('strict checks effective config for each clone', () => {
+test('strict skips GA4 with a customer vendor URL before bundle download', () => {
   state.nativeDestinations.configuredDestinations.value = [
-    makeDestination('Google Analytics 4 (GA4)', 'ga4'),
+    makeDestination('Google Analytics 4 (GA4)', 'ga4', { sdkBaseUrl: 'https://customer.example' }),
   ];
   state.nativeDestinations.loadOnlyIntegrations.value = {
     All: { vendorSdkVersionPolicy: 'strict' },
   };
-  state.loadOptions.value.sourceConfigurationOverride = {
-    destinations: [
-      { id: 'ga4', config: { sdkBaseUrl: 'https://customer.example' } },
-      { id: 'ga4', config: { sdkBaseUrl: '' } },
-    ],
-  };
-  activate();
-  expect(state.nativeDestinations.activeDestinations.value.map(d => d.id)).toEqual(['ga4_1']);
-  expect(state.nativeDestinations.activeDestinations.value[0].config.sdkBaseUrl).toBe(
-    'https://customer.example',
-  );
-  expect(defaultLogger.error).toHaveBeenCalledWith(
-    'Skipped Google Analytics 4 (GA4): its vendor script cannot be pinned (strict mode).',
-  );
-  state.nativeDestinations.activeDestinations.value = [];
-  state.nativeDestinations.configuredDestinations.value = [
-    makeDestination('Google Analytics 4 (GA4)', 'ga4', { sdkBaseUrl: 'https://customer.example' }),
-  ];
-  state.loadOptions.value.sourceConfigurationOverride = {
-    destinations: [{ id: 'ga4', config: { sdkBaseUrl: '' } }],
-  };
   activate();
   expect(state.nativeDestinations.activeDestinations.value).toEqual([]);
+  expect(defaultLogger.error).toHaveBeenCalledTimes(1);
+  expect(defaultLogger.error).toHaveBeenCalledWith(
+    'Skipped Google Analytics 4 (GA4): its vendor script cannot be pinned (strict mode). Set its vendorSdkVersionPolicy to "pinned" to load it.',
+  );
+  plugin.nativeDestinations.load(state, externalSrcLoader, defaultErrorHandler, defaultLogger);
+  expect(externalSrcLoader.loadJSFile).not.toHaveBeenCalled();
+});
+
+test('GA4 pinned policy opts out of All strict and loads its bundle', () => {
+  const destination = makeDestination('Google Analytics 4 (GA4)', 'ga4', {
+    sdkBaseUrl: 'https://customer.example',
+  });
+  state.nativeDestinations.configuredDestinations.value = [destination];
+  state.nativeDestinations.loadOnlyIntegrations.value = {
+    All: { vendorSdkVersionPolicy: 'strict' },
+    'Google Analytics 4 (GA4)': { vendorSdkVersionPolicy: 'pinned' },
+  };
+  activate();
+  expect(state.nativeDestinations.activeDestinations.value).toEqual([destination]);
+  expect(defaultLogger.error).not.toHaveBeenCalled();
+  plugin.nativeDestinations.load(state, externalSrcLoader, defaultErrorHandler, defaultLogger);
+  expect(externalSrcLoader.loadJSFile).toHaveBeenCalledTimes(1);
+  expect(externalSrcLoader.loadJSFile.mock.calls[0][0].url).toMatch(/\/GA4\.min\.js$/);
 });
 
 test('disabled and unconsented destinations stay excluded', () => {
@@ -231,7 +216,7 @@ test.each([false, true])('strict unpinnable destination with consent %s', consen
   expect(defaultLogger.error).toHaveBeenCalledTimes(consented ? 1 : 0);
   if (consented) {
     expect(defaultLogger.error).toHaveBeenCalledWith(
-      'Skipped rollbar: its vendor script cannot be pinned (strict mode).',
+      'Skipped rollbar: its vendor script cannot be pinned (strict mode). Set its vendorSdkVersionPolicy to "pinned" to load it.',
     );
   }
   expect(state.nativeDestinations.activeDestinations.value).toEqual([]);

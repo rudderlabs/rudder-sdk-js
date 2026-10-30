@@ -1,7 +1,7 @@
 import { LOG_CONTEXT_SEPARATOR } from '../shared-chunks/common';
 
 const VENDOR_SDK_STRICT_SKIP_ERROR = (displayName: string): string =>
-  `Skipped ${displayName}: its vendor script cannot be pinned (strict mode).`;
+  `Skipped ${displayName}: its vendor script cannot be pinned (strict mode). Set its vendorSdkVersionPolicy to "pinned" to load it.`;
 
 const INTEGRATION_NOT_SUPPORTED_ERROR = (destDisplayName: string): string =>
   `Integration for destination "${destDisplayName}" is not supported.`;

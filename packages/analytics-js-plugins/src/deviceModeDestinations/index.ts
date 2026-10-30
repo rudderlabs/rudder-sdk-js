@@ -33,7 +33,6 @@ import { isUndefined } from '../shared-chunks/common';
 import { INTEGRATIONS_ERROR_CATEGORY } from '../utilities/destination';
 import { resolveVendorSdkVersionPolicy } from '@rudderstack/analytics-js-integrations/utils/vendorSdkVersionPolicy';
 import { destDisplayNamesToPinSupportMap } from '../utilities/destDisplayNamesToPinSupportMap';
-import { hasCustomerUrlOverride } from '../utilities/destDisplayNamesToCustomerUrlOverrideMap';
 
 const pluginName: PluginName = 'DeviceModeDestinations';
 
@@ -134,8 +133,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
           if (
             resolveVendorSdkVersionPolicy(intgOpts, dest.displayName) === 'strict' &&
             (destDisplayNamesToPinSupportMap[dest.displayName] ?? 'none') === 'none' &&
-            !dest.isCustomIntegration &&
-            !hasCustomerUrlOverride(dest)
+            !dest.isCustomIntegration
           ) {
             logger?.error(VENDOR_SDK_STRICT_SKIP_ERROR(dest.displayName));
             return false;
