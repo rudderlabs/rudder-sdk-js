@@ -49,9 +49,7 @@ on:
       NPM_TOKEN:
         required: true
 
-permissions:
-  id-token: write # Allows the JWT to be requested from GitHub's OIDC provider
-  contents: read # Required for actions/checkout
+permissions: {}
 
 env:
   NODE_OPTIONS: '--no-warnings'
@@ -77,6 +75,8 @@ jobs:
       projects: ${{ steps.affected-projects.outputs.projects }}
       base_version: ${{ steps.resolve-versions.outputs.base_version }}
       head_version: ${{ steps.resolve-versions.outputs.head_version }}
+    permissions:
+      contents: read # actions/checkout
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
@@ -87,6 +87,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Resolve base and head versions
         id: resolve-versions
@@ -208,6 +209,9 @@ jobs:
     # As we publish the NPM package with provenance, we must use GitHub-hosted runners
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read # actions/checkout
+      id-token: write # npm trusted publishing (OIDC)
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
@@ -217,6 +221,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           fetch-depth: 0
           ref: ${{ github.sha }}
 
