@@ -102,6 +102,11 @@ test.each([
   [null, 'none', 'https://fast.appcues.com/account.js'],
   ['', 'none', 'https://fast.appcues.com/account.js'],
   [42, 'none', 'https://fast.appcues.com/account.js'],
+  ['https://fast.appcues.com', 'none', 'https://fast.appcues.com/account.js'],
+  ['https://FAST.APPCUES.COM:8443/sdk.js', 'none', 'https://FAST.APPCUES.COM:8443/sdk.js'],
+  ['//fast.appcues.com/sdk.js', 'none', '//fast.appcues.com/sdk.js'],
+  ['https://[', 'none', 'https://[/account.js'],
+  ['/sdk.js', 'customer', '/sdk.js'],
   ['https://customer.example/sdk.js', 'customer', 'https://customer.example/sdk.js'],
   ['https://customer.example/', 'customer', 'https://customer.example/account.js'],
   ['https://customer.example', 'customer', 'https://customer.example/account.js'],
@@ -112,37 +117,50 @@ test.each([
   expect(ScriptLoader).toHaveBeenCalledWith('appcues-id', url);
 });
 
-test.each([undefined, null, '', false, 'customer.example', 'getrockerbox.com'])(
-  'Rockerbox support mirrors customDomain %s',
-  customDomain => {
-    for (const enableCookieSync of [false, true]) {
-      delete window.RB;
-      const integration = new Rockerbox({ customDomain, enableCookieSync }, {});
-      expect(integration.getVendorSdkPinSupport()).toBe(customDomain ? 'customer' : 'none');
-      integration.init();
-      const library = customDomain && enableCookieSync ? 'wxyz.rb' : 'wxyz.v2';
-      expect(inserted.at(-1).src).toBe(
-        `https://${customDomain || 'getrockerbox.com'}/assets/${library}.js`,
-      );
-    }
-  },
-);
-
-test.each([undefined, null, '', false, 'https://customer.example/sdk.js'])(
-  'Mixpanel support mirrors defined global %s',
-  customUrl => {
-    window.MIXPANEL_CUSTOM_LIB_URL = customUrl;
-    const integration = new Mixpanel({}, {});
-    expect(integration.getVendorSdkPinSupport()).toBe(
-      customUrl === undefined ? 'none' : 'customer',
-    );
+test.each([
+  [undefined, 'none'],
+  [null, 'none'],
+  ['', 'none'],
+  [false, 'none'],
+  ['customer.example', 'customer'],
+  ['getrockerbox.com', 'none'],
+  ['GETROCKERBOX.COM:8443', 'none'],
+  ['[', 'none'],
+  ['/relative', 'customer'],
+])('Rockerbox support mirrors customDomain %s', (customDomain, support) => {
+  for (const enableCookieSync of [false, true]) {
+    delete window.RB;
+    const integration = new Rockerbox({ customDomain, enableCookieSync }, {});
+    expect(integration.getVendorSdkPinSupport()).toBe(support);
     integration.init();
-    const rawUrl = inserted[0].getAttribute('src');
-    expect(rawUrl).toBe(
-      customUrl === undefined ? '//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js' : String(customUrl),
+    const library = customDomain && enableCookieSync ? 'wxyz.rb' : 'wxyz.v2';
+    expect(inserted.at(-1).getAttribute('src')).toBe(
+      `https://${customDomain || 'getrockerbox.com'}/assets/${library}.js`,
     );
-  },
-);
+  }
+});
+
+test.each([
+  [undefined, 'none'],
+  [null, 'customer'],
+  ['', 'customer'],
+  [false, 'customer'],
+  ['https://customer.example/sdk.js', 'customer'],
+  ['https://cdn.mxpnl.com/libs/mixpanel-2-latest.min.js', 'none'],
+  ['//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js', 'none'],
+  ['https://CDN.MXPNL.COM:8443/custom.js', 'none'],
+  ['https://[', 'none'],
+  ['/sdk.js', 'customer'],
+])('Mixpanel support mirrors effective global URL %s', (customUrl, support) => {
+  window.MIXPANEL_CUSTOM_LIB_URL = customUrl;
+  const integration = new Mixpanel({}, {});
+  expect(integration.getVendorSdkPinSupport()).toBe(support);
+  integration.init();
+  const rawUrl = inserted[0].getAttribute('src');
+  expect(rawUrl).toBe(
+    customUrl === undefined ? '//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js' : String(customUrl),
+  );
+});
 
 test('Mixpanel checks the global at load time, including an absent global', () => {
   delete window.MIXPANEL_CUSTOM_LIB_URL;

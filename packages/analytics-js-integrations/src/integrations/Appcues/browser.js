@@ -3,6 +3,7 @@ import { NAME, DISPLAY_NAME } from './constants';
 import { ScriptLoader } from '@rudderstack/analytics-js-legacy-utilities/ScriptLoader';
 import Logger from '../../utils/logger';
 import { isDefinedAndNotNullAndNotEmpty } from '../../utils/commonUtils';
+import { isCustomerVendorSdkUrl } from '../../utils/customerVendorSdkUrl';
 
 const logger = new Logger(DISPLAY_NAME);
 
@@ -24,15 +25,17 @@ class Appcues {
   }
 
   getVendorSdkPinSupport() {
-    return isDefinedAndNotNullAndNotEmpty(this.nativeSdkUrl) &&
-      typeof this.nativeSdkUrl === 'string'
+    return isCustomerVendorSdkUrl(this.getNativeSdkUrl(), 'https://fast.appcues.com')
       ? 'customer'
       : 'none';
   }
 
-  init() {
+  getNativeSdkUrl() {
     let url = `https://fast.appcues.com/${this.accountId}.js`;
-    if (this.getVendorSdkPinSupport() === 'customer') {
+    if (
+      isDefinedAndNotNullAndNotEmpty(this.nativeSdkUrl) &&
+      typeof this.nativeSdkUrl === 'string'
+    ) {
       if (this.nativeSdkUrl.endsWith('.js')) {
         url = this.nativeSdkUrl;
       } else if (this.nativeSdkUrl.endsWith('/')) {
@@ -41,7 +44,11 @@ class Appcues {
         url = `${this.nativeSdkUrl}/${this.accountId}.js`;
       }
     }
-    ScriptLoader('appcues-id', url);
+    return url;
+  }
+
+  init() {
+    ScriptLoader('appcues-id', this.getNativeSdkUrl());
   }
 
   isLoaded() {

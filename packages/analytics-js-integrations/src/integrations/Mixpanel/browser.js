@@ -21,6 +21,7 @@ import {
   getDestinationOptions,
 } from './util';
 import { loadNativeSdk, usesCustomLibUrl } from './nativeSdkLoader';
+import { isCustomerVendorSdkUrl } from '../../utils/customerVendorSdkUrl';
 
 const logger = new Logger(DISPLAY_NAME);
 
@@ -74,7 +75,10 @@ class Mixpanel {
   }
 
   getVendorSdkPinSupport() {
-    return usesCustomLibUrl() ? 'customer' : 'none';
+    return usesCustomLibUrl() &&
+      isCustomerVendorSdkUrl(MIXPANEL_CUSTOM_LIB_URL, 'https://cdn.mxpnl.com')
+      ? 'customer'
+      : 'none';
   }
 
   init() {
