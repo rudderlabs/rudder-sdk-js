@@ -11,7 +11,6 @@ const CNameMapping = {
   'launch darkly': NAME,
 };
 
-const VENDOR_SDK_PIN_SUPPORT = 'full';
 const VENDOR_SDK_PINNED_URL =
   'https://unpkg.com/launchdarkly-js-client-sdk@2.24.2/dist/ldclient.min.js';
 const VENDOR_SDK_INTEGRITY =
@@ -22,7 +21,6 @@ export {
   NAME,
   CNameMapping,
   DIR_NAME,
-  VENDOR_SDK_PIN_SUPPORT,
   VENDOR_SDK_PINNED_URL,
   VENDOR_SDK_INTEGRITY,
   VENDOR_SDK_FLOATING_URL,

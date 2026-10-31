@@ -23,12 +23,16 @@ class Appcues {
     } = destinationInfo ?? {});
   }
 
+  getVendorSdkPinSupport() {
+    return isDefinedAndNotNullAndNotEmpty(this.nativeSdkUrl) &&
+      typeof this.nativeSdkUrl === 'string'
+      ? 'customer'
+      : 'none';
+  }
+
   init() {
     let url = `https://fast.appcues.com/${this.accountId}.js`;
-    if (
-      isDefinedAndNotNullAndNotEmpty(this.nativeSdkUrl) &&
-      typeof this.nativeSdkUrl === 'string'
-    ) {
+    if (this.getVendorSdkPinSupport() === 'customer') {
       if (this.nativeSdkUrl.endsWith('.js')) {
         url = this.nativeSdkUrl;
       } else if (this.nativeSdkUrl.endsWith('/')) {

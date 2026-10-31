@@ -59,6 +59,10 @@ class Iterable {
     } = destinationInfo ?? {});
   }
 
+  getVendorSdkPinSupport() {
+    return 'full';
+  }
+
   init() {
     const policy = resolveVendorSdkVersionPolicy(this.analytics.loadOnlyIntegrations, DISPLAY_NAME);
     ScriptLoader(

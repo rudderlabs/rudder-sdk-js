@@ -35,17 +35,20 @@ function readVendorPins(
     .sort((a, b) => a.name.localeCompare(b.name))
     .flatMap(entry => {
       const file = path.join(integrationsDir, entry.name, 'constants.js');
-      if (!fs.existsSync(file)) return [];
-      const source = fs.readFileSync(file, 'utf8');
+      const source = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '';
+      const browserFile = path.join(integrationsDir, entry.name, 'browser.js');
+      const browserSource = fs.existsSync(browserFile) ? fs.readFileSync(browserFile, 'utf8') : '';
       const exported = [];
       for (const match of source.matchAll(/export\s*\{([^}]+)\}/g)) {
         exported.push(...match[1].split(',').map(name => name.trim()));
       }
-      const support = source.match(/\bconst\s+VENDOR_SDK_PIN_SUPPORT\s*=\s*(['"])full\1\s*;/);
+      const support = browserSource.match(
+        /\bgetVendorSdkPinSupport\(\)\s*\{\s*return\s*(['"])full\1\s*;/,
+      );
       if (!exported.includes('VENDOR_SDK_PINNED_URL')) {
         if (!support) return [];
         const metadata = existingArtifactSources[entry.name];
-        if (!metadata || !exported.includes('VENDOR_SDK_PIN_SUPPORT'))
+        if (!metadata)
           throw new Error(`${entry.name}: full pin support has no registered artifact`);
         const loader = fs.readFileSync(
           path.join(integrationsDir, entry.name, metadata.file),

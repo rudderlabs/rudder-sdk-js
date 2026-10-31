@@ -1,7 +1,6 @@
 import Bugsnag from '../../../src/integrations/Bugsnag/browser';
 import { ScriptLoader } from '@rudderstack/analytics-js-legacy-utilities/ScriptLoader';
 import {
-  VENDOR_SDK_PIN_SUPPORT,
   VENDOR_SDK_PINNED_URL,
   VENDOR_SDK_FLOATING_URL,
 } from '../../../src/integrations/Bugsnag/constants';
@@ -49,7 +48,7 @@ test('Bugsnag uses the selected vendor artifact', () => {
       {},
     );
   }
-  expect(VENDOR_SDK_PIN_SUPPORT).toBe('full');
+  expect(new Bugsnag({}, {}).getVendorSdkPinSupport()).toBe('full');
   expect(new URL(VENDOR_SDK_PINNED_URL).hostname).toBe(new URL(VENDOR_SDK_FLOATING_URL).hostname);
 });
 

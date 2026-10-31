@@ -1,83 +1,6 @@
 import { readdirSync, statSync } from 'fs';
 import { join } from 'path';
 
-const UNDECLARED_PIN_SUPPORT_BASELINE: readonly string[] = [
-  'ActiveCampaign',
-  'AdobeAnalytics',
-  'Adroll',
-  'Appcues',
-  'Axeptio',
-  'BingAds',
-  'Braze',
-  'Chartbeat',
-  'Clevertap',
-  'CommandBar',
-  'Comscore',
-  'ConvertFlow',
-  'Criteo',
-  'CustomerIO',
-  'DCMFloodlight',
-  'Drip',
-  'Engage',
-  'FacebookPixel',
-  'Fullstory',
-  'GA',
-  'GA360',
-  'GA4',
-  'GA4_V2',
-  'Gainsight_PX',
-  'GoogleAds',
-  'GoogleOptimize',
-  'GoogleTagManager',
-  'Heap',
-  'Hotjar',
-  'HubSpot',
-  'INTERCOM',
-  'June',
-  'Kissmetrics',
-  'Klaviyo',
-  'Lemnisk',
-  'LinkedInInsightTag',
-  'LiveChat',
-  'Lytics',
-  'Matomo',
-  'MicrosoftClarity',
-  'Mixpanel',
-  'MoEngage',
-  'Mouseflow',
-  'Olark',
-  'OpenAIAds',
-  'Pendo',
-  'PinterestTag',
-  'Podsights',
-  'PostAffiliatePro',
-  'Posthog',
-  'ProfitWell',
-  'Qualaroo',
-  'Qualtrics',
-  'QuantumMetric',
-  'QuoraPixel',
-  'RedditPixel',
-  'Refiner',
-  'Rockerbox',
-  'RollBar',
-  'Satismeter',
-  'Sendinblue',
-  'SnapEngage',
-  'SnapPixel',
-  'SpotifyPixel',
-  'Sprig',
-  'TVSquared',
-  'TiktokAds',
-  'Userpilot',
-  'VWO',
-  'Vero',
-  'Woopra',
-  'XPixel',
-  'YandexMetrica',
-];
-const EXISTING_SRI_LOADERS = ['Amplitude', 'Sentry'];
-
 const BaseDir = join(__dirname, '../src');
 
 describe('Integration Constants', () => {
@@ -89,14 +12,6 @@ describe('Integration Constants', () => {
 
   const baseIntegrationDir = join(BaseDir, 'integrations');
   const integrations = readdirSync(baseIntegrationDir);
-  it('baseline lists only undeclared integrations', async () => {
-    for (const integration of UNDECLARED_PIN_SUPPORT_BASELINE) {
-      expect(statSync(join(baseIntegrationDir, integration)).isDirectory()).toBe(true);
-      const constants = await import(join(baseIntegrationDir, integration, 'constants'));
-      expect(constants.VENDOR_SDK_PIN_SUPPORT).toBeUndefined();
-    }
-  });
-
   integrations
     // Skip non integration folders
     .filter(dir => statSync(join(baseIntegrationDir, dir)).isDirectory())
@@ -105,7 +20,6 @@ describe('Integration Constants', () => {
         let integrationConstants: {
           NAME: string;
           DISPLAY_NAME: string;
-          VENDOR_SDK_PIN_SUPPORT?: string;
           VENDOR_SDK_PINNED_URL?: string;
           VENDOR_SDK_INTEGRITY?: string;
           VENDOR_SDK_FLOATING_URL?: string;
@@ -116,22 +30,17 @@ describe('Integration Constants', () => {
           integrationConstants = await import(modulePath);
         });
 
-        it('declares vendor pin support unless baselined', () => {
-          if (!UNDECLARED_PIN_SUPPORT_BASELINE.includes(integration)) {
-            expect(['full', 'none', 'no-script']).toContain(
-              integrationConstants.VENDOR_SDK_PIN_SUPPORT,
+        it('pinned artifacts require full instance support and valid pins', async () => {
+          const { VENDOR_SDK_PINNED_URL, VENDOR_SDK_INTEGRITY, VENDOR_SDK_FLOATING_URL } =
+            integrationConstants;
+          if (
+            'VENDOR_SDK_PINNED_URL' in integrationConstants ||
+            'VENDOR_SDK_INTEGRITY' in integrationConstants
+          ) {
+            const { default: Integration } = await import(
+              join(baseIntegrationDir, integration, 'browser')
             );
-          }
-        });
-
-        it('full declarations carry a valid exact-version same-host pin', () => {
-          const {
-            VENDOR_SDK_PIN_SUPPORT,
-            VENDOR_SDK_PINNED_URL,
-            VENDOR_SDK_INTEGRITY,
-            VENDOR_SDK_FLOATING_URL,
-          } = integrationConstants;
-          if (VENDOR_SDK_PIN_SUPPORT === 'full' && !EXISTING_SRI_LOADERS.includes(integration)) {
+            expect(new Integration({}, {}).getVendorSdkPinSupport()).toBe('full');
             expect(VENDOR_SDK_PINNED_URL).not.toBe(VENDOR_SDK_FLOATING_URL);
             expect(new URL(VENDOR_SDK_PINNED_URL!).pathname).toMatch(
               /(?:^|[/@-])v?(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?=$|[/.-])/,

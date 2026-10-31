@@ -1,7 +1,6 @@
 import Iterable from '../../../src/integrations/Iterable/browser';
 import { ScriptLoader } from '@rudderstack/analytics-js-legacy-utilities/ScriptLoader';
 import {
-  VENDOR_SDK_PIN_SUPPORT,
   VENDOR_SDK_PINNED_URL,
   VENDOR_SDK_FLOATING_URL,
 } from '../../../src/integrations/Iterable/constants';
@@ -48,7 +47,7 @@ test('Iterable uses the selected vendor artifact', () => {
       {},
     );
   }
-  expect(VENDOR_SDK_PIN_SUPPORT).toBe('full');
+  expect(new Iterable({}, {}).getVendorSdkPinSupport()).toBe('full');
   expect(new URL(VENDOR_SDK_PINNED_URL).hostname).toBe(new URL(VENDOR_SDK_FLOATING_URL).hostname);
 });
 

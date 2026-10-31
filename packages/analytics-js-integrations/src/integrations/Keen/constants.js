@@ -10,7 +10,6 @@ const CNameMapping = {
   'keen.io': NAME,
 };
 
-const VENDOR_SDK_PIN_SUPPORT = 'full';
 const VENDOR_SDK_PINNED_URL =
   'https://cdn.jsdelivr.net/npm/keen-tracking@4.5.2/dist/keen-tracking.min.js';
 const VENDOR_SDK_INTEGRITY =
@@ -21,7 +20,6 @@ export {
   NAME,
   CNameMapping,
   DIR_NAME,
-  VENDOR_SDK_PIN_SUPPORT,
   VENDOR_SDK_PINNED_URL,
   VENDOR_SDK_INTEGRITY,
   VENDOR_SDK_FLOATING_URL,

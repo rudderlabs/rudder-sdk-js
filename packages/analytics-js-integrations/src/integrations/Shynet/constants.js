@@ -14,8 +14,6 @@ const CNameMapping = {
   'Shy net': NAME,
 };
 
-const VENDOR_SDK_PIN_SUPPORT = 'no-script';
-
-export { VENDOR_SDK_PIN_SUPPORT, NAME, CNameMapping, DIR_NAME };
+export { NAME, CNameMapping, DIR_NAME };
 
 export { SHYNET_DISPLAY_NAME as DISPLAY_NAME } from '../../constants/Destinations';

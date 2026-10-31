@@ -3,7 +3,7 @@
 import { NAME, DISPLAY_NAME } from './constants';
 import Logger from '../../utils/logger';
 import { getHashFromArray } from '../../utils/commonUtils';
-import { loadNativeSdk } from './nativeSdkLoader';
+import { loadNativeSdk, usesCustomDomain } from './nativeSdkLoader';
 
 const logger = new Logger(DISPLAY_NAME);
 
@@ -24,6 +24,10 @@ class Rockerbox {
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
       destinationId: this.destinationId,
     } = destinationInfo ?? {});
+  }
+
+  getVendorSdkPinSupport() {
+    return usesCustomDomain(this.customDomain) ? 'customer' : 'none';
   }
 
   init() {

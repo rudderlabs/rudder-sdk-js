@@ -8,8 +8,6 @@ const CNameMapping = {
   Sentry: NAME,
 };
 
-const VENDOR_SDK_PIN_SUPPORT = 'full';
-
-export { VENDOR_SDK_PIN_SUPPORT, NAME, CNameMapping, DIR_NAME };
+export { NAME, CNameMapping, DIR_NAME };
 
 export { SENTRY_DISPLAY_NAME as DISPLAY_NAME } from '../../constants/Destinations';

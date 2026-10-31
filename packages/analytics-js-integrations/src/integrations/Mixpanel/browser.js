@@ -20,7 +20,7 @@ import {
   generatePageCustomEventName,
   getDestinationOptions,
 } from './util';
-import { loadNativeSdk } from './nativeSdkLoader';
+import { loadNativeSdk, usesCustomLibUrl } from './nativeSdkLoader';
 
 const logger = new Logger(DISPLAY_NAME);
 
@@ -71,6 +71,10 @@ class Mixpanel {
     this.userDefinedPageEventTemplate = config.userDefinedPageEventTemplate;
     this.sessionReplayPercentage = config.sessionReplayPercentage;
     this.isNativeSDKLoaded = false;
+  }
+
+  getVendorSdkPinSupport() {
+    return usesCustomLibUrl() ? 'customer' : 'none';
   }
 
   init() {

@@ -29,6 +29,10 @@ class LaunchDarkly {
     } = destinationInfo ?? {});
   }
 
+  getVendorSdkPinSupport() {
+    return 'full';
+  }
+
   init() {
     if (!this.clientSideId) {
       logger.error(

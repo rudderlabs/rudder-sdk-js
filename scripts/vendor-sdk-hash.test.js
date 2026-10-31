@@ -84,7 +84,7 @@ async function withServer(t, body) {
   await body({ request, routes, counts });
 }
 
-test('discovers all eight artifacts declared full', () => {
+test('discovers all eight artifacts with full instance support', () => {
   assert.deepEqual(
     readVendorPins().map(pin => pin.integration),
     ['Amplitude', 'Amplitude', 'Bugsnag', 'Iterable', 'Keen', 'LaunchDarkly', 'Sentry', 'Sentry'],
@@ -422,8 +422,8 @@ test('verify fails when a full declaration has no registered artifact', async t 
   const dir = path.join(integrationsDir, 'Future');
   fs.mkdirSync(dir);
   fs.writeFileSync(
-    path.join(dir, 'constants.js'),
-    "const VENDOR_SDK_PIN_SUPPORT = 'full';\nexport { VENDOR_SDK_PIN_SUPPORT };\n",
+    path.join(dir, 'browser.js'),
+    "export default class Future { getVendorSdkPinSupport() { return 'full'; } }\n",
   );
   const errors = [];
   assert.equal(

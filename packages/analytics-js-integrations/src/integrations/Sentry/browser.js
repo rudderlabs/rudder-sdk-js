@@ -33,6 +33,10 @@ class Sentry {
     } = destinationInfo ?? {});
   }
 
+  getVendorSdkPinSupport() {
+    return 'full';
+  }
+
   init() {
     if (!this.dsn) {
       logger.error('DSN is a mandatory field');

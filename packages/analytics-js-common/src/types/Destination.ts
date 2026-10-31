@@ -7,7 +7,7 @@ import type {
 } from './Consent';
 import type { RSAEvent } from './Event';
 import type { IntegrationRSAnalytics } from './IRudderAnalytics';
-import type { IntegrationOpts } from './Integration';
+import type { IntegrationOpts, VendorSdkPinSupport } from './Integration';
 
 export type DestinationConnectionMode = 'hybrid' | 'cloud' | 'device';
 
@@ -16,6 +16,9 @@ export type DestinationEvent = {
 };
 
 export type DeviceModeIntegration = {
+  /** Missing support fails closed under strict vendor SDK policy. */
+  getVendorSdkPinSupport?: () => VendorSdkPinSupport;
+
   name?: string;
   destinationId?: string;
   analytics?: IntegrationRSAnalytics;
