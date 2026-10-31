@@ -53,7 +53,8 @@ async function withServer(t, body) {
     assert.equal(req.headers['accept-encoding'], 'identity');
     assert.equal(req.headers.origin, 'https://www.test-host.com');
     counts[req.url] = (counts[req.url] || 0) + 1;
-    if (routes[req.url]) routes[req.url](req, res);
+    const handler = new Map(Object.entries(routes)).get(req.url);
+    if (handler) handler(req, res);
     else {
       res.writeHead(404);
       res.end();
