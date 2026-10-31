@@ -106,7 +106,7 @@ const isDestinationReady = (dest: Destination, time = 0) =>
       reject(new Error(INTEGRATION_READY_TIMEOUT_ERROR(READY_CHECK_TIMEOUT_MS)));
     } else {
       const curTime = Date.now();
-      wait(READY_CHECK_INTERVAL_MS).then(() => {
+      void wait(READY_CHECK_INTERVAL_MS).then(() => {
         const elapsedTime = Date.now() - curTime;
         isDestinationReady(dest, time + elapsedTime)
           .then(resolve)
@@ -136,7 +136,7 @@ const getCumulativeIntegrationsConfig = (
         ...getSanitizedValue(dest.integration!.getDataForIntegrationsObject()),
       };
     } catch (err) {
-      errorHandler?.onError({
+      void errorHandler?.onError({
         error: err,
         context: DEVICE_MODE_DESTINATIONS_PLUGIN,
         customMessage: INTEGRATIONS_DATA_ERROR(dest.userFriendlyId),
@@ -204,7 +204,7 @@ const initializeDestination = (
           dest,
         ];
 
-        errorHandler?.onError({
+        void errorHandler?.onError({
           error: err,
           context: DEVICE_MODE_DESTINATIONS_PLUGIN,
           customMessage: INTEGRATION_READY_CHECK_ERROR(dest.userFriendlyId),
@@ -218,7 +218,7 @@ const initializeDestination = (
       dest,
     ];
 
-    errorHandler?.onError({
+    void errorHandler?.onError({
       error: err,
       context: DEVICE_MODE_DESTINATIONS_PLUGIN,
       customMessage: INTEGRATION_INIT_ERROR(dest.userFriendlyId),
