@@ -131,16 +131,16 @@ Pin vendor scripts and verify them with [Subresource Integrity](https://develope
 
 - Load an exact-version URL whenever the vendor offers one.
 - Stay on the hostname the vendor documents and that the integration already uses, including redirect chains; never add a new hostname.
-- Export `VENDOR_SDK_PIN_SUPPORT` and, for full pin support, `VENDOR_SDK_PINNED_URL`, `VENDOR_SDK_INTEGRITY`, and `VENDOR_SDK_FLOATING_URL` from `constants.js`.
+- For full pin support, export `VENDOR_SDK_PINNED_URL`, `VENDOR_SDK_INTEGRITY`, and `VENDOR_SDK_FLOATING_URL` from `constants.js`.
 - Load pinned scripts through `ScriptLoader` with `integrity` and `crossOrigin: 'anonymous'`.
 - Resolve `vendorSdkVersionPolicy` from `analytics.loadOnlyIntegrations` and the destination display name with `resolveVendorSdkVersionPolicy` from `packages/analytics-js-integrations/src/utils/vendorSdkVersionPolicy.js`; under `floating`, use the legacy URL without newly added integrity. Preserve any existing SRI.
-- Under `strict`, destinations with pin support `'none'` (including undeclared support) are skipped even when a customer vendor URL is configured. Custom integrations remain exempt. To opt a destination out of strict mode, set its `vendorSdkVersionPolicy` to `'pinned'`, for example `{ All: { vendorSdkVersionPolicy: 'strict' }, 'Google Analytics 4 (GA4)': { vendorSdkVersionPolicy: 'pinned' } }` in `loadOnlyIntegrations`. This loads GA4 using its configured vendor URL; `'pinned'` falls back to the existing URL when pinning is unsupported.
+- Implement the instance method `getVendorSdkPinSupport()` returning `'full'` for registered exact-version artifacts with SRI, `'no-script'` when no vendor script is injected, or `'customer'` when the loader uses a customer-supplied URL. Missing methods and `'none'`/undefined fail closed. Integrations own this knowledge; the plugin has no support map.
+- Return `'customer'` using the same expression/helper or effective URL as the loader. For GA4, GA4_V2, and Google Ads, a configured `sdkBaseUrl` must use a hostname different from the default `www.googletagmanager.com`; a dashboard-stored default never counts. Appcues uses its nonempty string `nativeSdkUrl`, Rockerbox its truthy `customDomain`, and Mixpanel the defined `MIXPANEL_CUSTOM_LIB_URL` global (including empty/null values, matching its loader).
+- Under `strict`, destinations with pin support `'none'` (including undeclared support) are skipped immediately before `init()`, after consent and bundle download. No vendor script is inserted, the destination is marked failed without a ready timeout, and the skip is logged without telemetry. Customer URLs with `'customer'` support are allowed. Custom integrations remain exempt. To opt a destination out of strict mode, set its `vendorSdkVersionPolicy` to `'pinned'`, for example `{ All: { vendorSdkVersionPolicy: 'strict' }, 'Google Analytics 4 (GA4)': { vendorSdkVersionPolicy: 'pinned' } }` in `loadOnlyIntegrations`. This loads GA4 using its configured vendor URL; `'pinned'` falls back to the existing URL when pinning is unsupported.
 - Compute the SHA-384 hash with `npm run vendor-sdk:hash -- <Integration>` and verify stored pins with `npm run vendor-sdk:hash -- --verify`.
-- If the vendor offers no exact-version URL on its existing host or loads further unpinnable scripts, declare `'none'` and explain why in the PR.
-- Declare `'no-script'` when the integration injects no vendor script.
-- Register integrations declaring `'full'` or `'no-script'` in `packages/analytics-js-plugins/src/utilities/destDisplayNamesToPinSupportMap.ts`, using their exported `DISPLAY_NAME` and `VENDOR_SDK_PIN_SUPPORT`. The plugin parity test checks that the map matches every integration's constants.
+- If the vendor offers no exact-version URL on its existing host or loads further unpinnable scripts, omit the method (fail-closed `'none'`) and explain why in the PR.
 - Add a unit test asserting the pinned URL and integrity reach `ScriptLoader`.
-- New integrations must declare support; the undeclared baseline in `packages/analytics-js-integrations/__tests__/constants.test.ts` may only shrink.
+- Every integration exporting pinned URL/integrity constants must implement the method returning `'full'`; `packages/analytics-js-integrations/__tests__/constants.test.ts` enforces this. The hash verifier discovers flat pinned constants and the existing Amplitude/Sentry artifacts, and rejects literal `'full'` methods without registered artifacts.
 
 Your integration will require several key files:
 
