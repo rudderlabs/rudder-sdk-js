@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { clone } from 'ramda';
+import { resolveVendorSdkVersionPolicy } from '@rudderstack/analytics-js-integrations/utils/vendorSdkVersionPolicy';
 import {
   isNonEmptyObject,
   removeUndefinedAndNullValues,
@@ -36,6 +37,7 @@ import {
   READY_CHECK_TIMEOUT_MS,
 } from './constants';
 import {
+  VENDOR_SDK_STRICT_SKIP_ERROR,
   INTEGRATION_INIT_ERROR,
   INTEGRATIONS_DATA_ERROR,
   INTEGRATION_READY_TIMEOUT_ERROR,
@@ -160,6 +162,22 @@ const initializeDestination = (
     if (isUndefined(integration)) {
       integration = createIntegrationInstance(destSDKIdentifier, sdkTypeName, dest, state);
       initializedDestination.integration = integration;
+    }
+
+    const intgOpts =
+      state.consents.postConsent.value?.integrations ??
+      state.nativeDestinations.loadOnlyIntegrations.value;
+    if (
+      resolveVendorSdkVersionPolicy(intgOpts, dest.displayName) === 'strict' &&
+      !dest.isCustomIntegration &&
+      (integration.getVendorSdkPinSupport?.() ?? 'none') === 'none'
+    ) {
+      logger?.error(VENDOR_SDK_STRICT_SKIP_ERROR(dest.displayName));
+      state.nativeDestinations.failedDestinations.value = [
+        ...state.nativeDestinations.failedDestinations.value,
+        dest,
+      ];
+      return;
     }
 
     integration.init?.();

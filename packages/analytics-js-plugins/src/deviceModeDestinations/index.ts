@@ -23,7 +23,6 @@ import {
   INTEGRATION_NOT_ADDED_TO_CUSTOM_DESTINATION_WARNING,
   INTEGRATION_NOT_SUPPORTED_ERROR,
   INTEGRATION_SDK_LOAD_ERROR,
-  VENDOR_SDK_STRICT_SKIP_ERROR,
 } from './logMessages';
 import {
   destDisplayNamesToFileNamesMap,
@@ -31,8 +30,6 @@ import {
 } from '../shared-chunks/deviceModeDestinations';
 import { isUndefined } from '../shared-chunks/common';
 import { INTEGRATIONS_ERROR_CATEGORY } from '../utilities/destination';
-import { resolveVendorSdkVersionPolicy } from '@rudderstack/analytics-js-integrations/utils/vendorSdkVersionPolicy';
-import { destDisplayNamesToPinSupportMap } from '../utilities/destDisplayNamesToPinSupportMap';
 
 const pluginName: PluginName = 'DeviceModeDestinations';
 
@@ -117,29 +114,17 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
       const intgOpts =
         state.consents.postConsent.value?.integrations ??
         state.nativeDestinations.loadOnlyIntegrations.value;
-      const consentedDestinations = filterDestinations(intgOpts, configuredDestinations)
-        .filter(
-          dest =>
-            // Default to consent when no consent manager is configured.
-            pluginsManager.invokeSingle(
-              `consentManager.isDestinationConsented`,
-              state,
-              dest.config,
-              errorHandler,
-              logger,
-            ) ?? true,
-        )
-        .filter(dest => {
-          if (
-            resolveVendorSdkVersionPolicy(intgOpts, dest.displayName) === 'strict' &&
-            (destDisplayNamesToPinSupportMap[dest.displayName] ?? 'none') === 'none' &&
-            !dest.isCustomIntegration
-          ) {
-            logger?.error(VENDOR_SDK_STRICT_SKIP_ERROR(dest.displayName));
-            return false;
-          }
-          return true;
-        });
+      const consentedDestinations = filterDestinations(intgOpts, configuredDestinations).filter(
+        dest =>
+          // Default to consent when no consent manager is configured.
+          pluginsManager.invokeSingle(
+            `consentManager.isDestinationConsented`,
+            state,
+            dest.config,
+            errorHandler,
+            logger,
+          ) ?? true,
+      );
 
       // Add the distilled destinations to the active destinations list
       state.nativeDestinations.activeDestinations.value = [
