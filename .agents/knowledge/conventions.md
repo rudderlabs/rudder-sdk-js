@@ -6,6 +6,7 @@
 > sections are conventionally left untouched by automated runs.
 
 ## Repository Conventions (RUD-2781)
+
 <!-- linear:RUD-2781 -->
 
 - Package-level boundaries are encoded via Nx tags (`type:*`, `scope:*`) and enforced centrally; new modules should preserve this tag taxonomy to keep dependency constraints meaningful (`nx.json:58`, `packages/analytics-js/project.json:7`).
@@ -16,6 +17,7 @@
 - File layout convention is package-local (`src`, `__tests__`, `__fixtures__`, `rollup.config.mjs`), and top-level scripts prefer `nx run-many` / `nx affected` wrappers instead of ad hoc per-package loops (`package.json:8`).
 
 ## RUD-2781 — Automation Guidance Location
+
 <!-- linear:RUD-2781 -->
 
 - Repository automation guidance is anchored in `CLAUDE.md`; no `AGENTS.md` file exists in this repo, so agent workflows should default to `CLAUDE.md` as the canonical instructions source.
@@ -27,3 +29,10 @@
 ## DOCS-2581 — Named Integration Build Command
 
 - Build one named device mode integration from `packages/analytics-js-integrations` with `npm run build:integration:cli --intg=<Name>`; the generic `build:integration` and `build:integration:modern` scripts do not consume an integration-name argument — prefix `BROWSERSLIST_ENV=modern` for the modern variant. Output lands in `dist/cdn/<legacy|modern>/js-integrations` as defined in `rollup.config.mjs`.
+
+## SDK-6044 — Vendor SDK pinning
+
+- Integrations own pin support through the instance method `getVendorSdkPinSupport()`: `'full'` for registered exact-version URL/SRI artifacts, `'no-script'` for no vendor script, and `'customer'` for an effective script hostname different from the default vendor host. Missing methods and `'none'`/undefined fail closed; the plugin has no build-time support map.
+- Customer support means the effective script hostname differs from the default vendor host; reuse the loader's URL construction and `isCustomerVendorSdkUrl`. Defaults: GA4/GA4_V2 and Google Ads `www.googletagmanager.com`; Appcues (`nativeSdkUrl`) `fast.appcues.com`; Rockerbox (`customDomain`) `getrockerbox.com`; Mixpanel (`MIXPANEL_CUSTOM_LIB_URL`) `cdn.mxpnl.com`. Explicit default hosts return `'none'`. Relative URLs resolve like the loader against the page; unparseable URLs fail closed.
+- Strict enforcement runs after consent and integration bundle download, immediately before `init()`. Unsupported destinations log one error and enter failed-destination state immediately, without vendor script insertion, ready timeout, or telemetry. Custom integrations and `'customer'` support are allowed. A destination-level `'pinned'` policy overrides `All` strict and permits the existing vendor URL.
+- Pinned URL/integrity exports require a method returning `'full'`; the constants guardrail checks exact-version HTTPS URLs, same vendor hostname, and SHA-384 integrity. The hash verifier rejects literal `'full'` methods without registered artifacts. See `CONTRIBUTING.md` for the loading contract.

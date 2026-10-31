@@ -24,6 +24,7 @@
     "build:package:modern": "nx run-many -t build:package:modern",
     "package": "nx run-many -t package",
     "test": "nx run-many -t test",
+    "vendor-sdk:hash": "node scripts/vendor-sdk-hash.js",
     "test:release-versioning": "node --test scripts/run-release-version-targets.test.js",
     "test:pre-commit:affected": "nx affected -t test --base=HEAD",
     "test:ci": "nx affected -t test --base=$BASE_REF --configuration=ci --runInBand --maxWorkers=1 --forceExit",

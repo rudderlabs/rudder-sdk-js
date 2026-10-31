@@ -20,7 +20,8 @@ import {
   generatePageCustomEventName,
   getDestinationOptions,
 } from './util';
-import { loadNativeSdk } from './nativeSdkLoader';
+import { loadNativeSdk, usesCustomLibUrl } from './nativeSdkLoader';
+import { isCustomerVendorSdkUrl } from '../../utils/customerVendorSdkUrl';
 
 const logger = new Logger(DISPLAY_NAME);
 
@@ -71,6 +72,13 @@ class Mixpanel {
     this.userDefinedPageEventTemplate = config.userDefinedPageEventTemplate;
     this.sessionReplayPercentage = config.sessionReplayPercentage;
     this.isNativeSDKLoaded = false;
+  }
+
+  getVendorSdkPinSupport() {
+    return usesCustomLibUrl() &&
+      isCustomerVendorSdkUrl(MIXPANEL_CUSTOM_LIB_URL, 'https://cdn.mxpnl.com')
+      ? 'customer'
+      : 'none';
   }
 
   init() {

@@ -15,6 +15,18 @@ describe('Destination Utilities', () => {
       } as unknown as Destination,
     ];
 
+    it('object All enables destinations while destination false still disables', () => {
+      expect(
+        filterDestinations({ All: { vendorSdkVersionPolicy: 'strict' } }, destinations),
+      ).toEqual(destinations);
+      expect(
+        filterDestinations(
+          { All: { vendorSdkVersionPolicy: 'strict' }, Braze: false },
+          destinations,
+        ),
+      ).toEqual([destinations[0]]);
+    });
+
     it('return value should not contain destinations that are specified as false in the load options', () => {
       const loadOptions = {
         All: true,

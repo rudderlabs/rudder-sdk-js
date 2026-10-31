@@ -1,7 +1,14 @@
 /* eslint-disable class-methods-use-this */
 import get from 'get-value';
 import { ScriptLoader } from '@rudderstack/analytics-js-legacy-utilities/ScriptLoader';
-import { NAME, DISPLAY_NAME } from './constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+  VENDOR_SDK_PINNED_URL,
+  VENDOR_SDK_INTEGRITY,
+  VENDOR_SDK_FLOATING_URL,
+} from './constants';
+import { resolveVendorSdkVersionPolicy } from '../../utils/vendorSdkVersionPolicy';
 import Logger from '../../utils/logger';
 import {
   formPurchaseEventPayload,
@@ -52,8 +59,17 @@ class Iterable {
     } = destinationInfo ?? {});
   }
 
+  getVendorSdkPinSupport() {
+    return 'full';
+  }
+
   init() {
-    ScriptLoader('iterable-web', 'https://unpkg.com/@iterable/web-sdk/index.js');
+    const policy = resolveVendorSdkVersionPolicy(this.analytics.loadOnlyIntegrations, DISPLAY_NAME);
+    ScriptLoader(
+      'iterable-web',
+      policy === 'floating' ? VENDOR_SDK_FLOATING_URL : VENDOR_SDK_PINNED_URL,
+      policy === 'floating' ? {} : { integrity: VENDOR_SDK_INTEGRITY, crossOrigin: 'anonymous' },
+    );
   }
 
   isLoaded() {

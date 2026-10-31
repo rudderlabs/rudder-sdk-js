@@ -70,6 +70,10 @@ class Shynet {
     this.scriptCheck = true;
   }
 
+  getVendorSdkPinSupport() {
+    return 'no-script';
+  }
+
   init() {
     return this.scriptCheck;
   }

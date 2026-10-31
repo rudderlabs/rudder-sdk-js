@@ -27,3 +27,10 @@
 ## INT-7435 — Follow-Redirects Lockfile Security Resolution
 
 - After Axios dependency-range changes, verify the production dependency tree rather than relying on the manifest version alone: resolving Axios's `follow-redirects` dependency to `1.16.0` caused `npm audit --audit-level=high --omit=dev` to fail on credential-header exposure advisories GHSA-q3jh-wrc6-jgq8 and GHSA-8r9p-f939-6h3c. Refresh the compatible lockfile resolution to `follow-redirects` `1.16.1` or newer.
+
+## SDK-6044 — Vendor SDK pinning
+
+- Integrations own pin support through the instance method `getVendorSdkPinSupport()`: `'full'` for registered exact-version URL/SRI artifacts, `'no-script'` for no vendor script, and `'customer'` for an effective script hostname different from the default vendor host. Missing methods and `'none'`/undefined fail closed; the plugin has no build-time support map.
+- Customer support means the effective script hostname differs from the default vendor host; reuse the loader's URL construction and `isCustomerVendorSdkUrl`. Defaults: GA4/GA4_V2 and Google Ads `www.googletagmanager.com`; Appcues (`nativeSdkUrl`) `fast.appcues.com`; Rockerbox (`customDomain`) `getrockerbox.com`; Mixpanel (`MIXPANEL_CUSTOM_LIB_URL`) `cdn.mxpnl.com`. Explicit default hosts return `'none'`. Relative URLs resolve like the loader against the page; unparseable URLs fail closed.
+- Strict enforcement runs after consent and integration bundle download, immediately before `init()`. Unsupported destinations log one error and enter failed-destination state immediately, without vendor script insertion, ready timeout, or telemetry. Custom integrations and `'customer'` support are allowed. A destination-level `'pinned'` policy overrides `All` strict and permits the existing vendor URL.
+- Pinned URL/integrity exports require a method returning `'full'`; the constants guardrail checks exact-version HTTPS URLs, same vendor hostname, and SHA-384 integrity. The hash verifier rejects literal `'full'` methods without registered artifacts. See `CONTRIBUTING.md` for the loading contract.

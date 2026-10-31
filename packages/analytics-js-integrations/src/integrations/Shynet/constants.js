@@ -1,7 +1,4 @@
-import {
-  SHYNET_NAME as NAME,
-  SHYNET_DISPLAY_NAME as DISPLAY_NAME,
-} from '../../constants/Destinations';
+import { SHYNET_NAME as NAME } from '../../constants/Destinations';
 
 const DIR_NAME = 'Shynet';
 
@@ -17,4 +14,6 @@ const CNameMapping = {
   'Shy net': NAME,
 };
 
-export { NAME, CNameMapping, DISPLAY_NAME, DIR_NAME };
+export { NAME, CNameMapping, DIR_NAME };
+
+export { SHYNET_DISPLAY_NAME as DISPLAY_NAME } from '../../constants/Destinations';

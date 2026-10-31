@@ -1,8 +1,14 @@
 import { LOAD_ORIGIN } from '@rudderstack/analytics-js-legacy-utilities/constants';
 
+const usesCustomDomain = customDomain => Boolean(customDomain);
+
+const getNativeSdkUrl = (customDomain, enableCookieSync) => {
+  const host = usesCustomDomain(customDomain) ? customDomain : 'getrockerbox.com';
+  const library = usesCustomDomain(customDomain) && enableCookieSync ? 'wxyz.rb' : 'wxyz.v2';
+  return `https://${host}/assets/${library}.js`;
+};
+
 function loadNativeSdk(customDomain, enableCookieSync, clientAuthId) {
-  const host = customDomain ? customDomain : 'getrockerbox.com';
-  const library = customDomain && enableCookieSync ? 'wxyz.rb' : 'wxyz.v2';
   (function (d, RB) {
     if (!window.RB) {
       window.RB = RB;
@@ -18,7 +24,7 @@ function loadNativeSdk(customDomain, enableCookieSync, clientAuthId) {
       const a = d.createElement('script');
       a.type = 'text/javascript';
       a.async = !0;
-      a.src = `https://${host}/assets/${library}.js`;
+      a.src = getNativeSdkUrl(customDomain, enableCookieSync);
       a.dataset.loader = LOAD_ORIGIN;
       const f = d.getElementsByTagName('script')[0];
       f.parentNode.insertBefore(a, f);
@@ -29,4 +35,4 @@ function loadNativeSdk(customDomain, enableCookieSync, clientAuthId) {
   window.RB.initialize(clientAuthId);
 }
 
-export { loadNativeSdk };
+export { loadNativeSdk, getNativeSdkUrl };

@@ -1,7 +1,4 @@
-import {
-  OPTIMIZELY_NAME as NAME,
-  OPTIMIZELY_DISPLAY_NAME as DISPLAY_NAME,
-} from '../../constants/Destinations';
+import { OPTIMIZELY_NAME as NAME } from '../../constants/Destinations';
 
 const DIR_NAME = 'Optimizely';
 
@@ -11,4 +8,6 @@ const CNameMapping = {
   optimizely: NAME,
 };
 
-export { NAME, CNameMapping, DISPLAY_NAME, DIR_NAME };
+export { NAME, CNameMapping, DIR_NAME };
+
+export { OPTIMIZELY_DISPLAY_NAME as DISPLAY_NAME } from '../../constants/Destinations';

@@ -1,5 +1,12 @@
 /* eslint-disable class-methods-use-this */
-import { NAME, DISPLAY_NAME } from './constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+  VENDOR_SDK_PINNED_URL,
+  VENDOR_SDK_INTEGRITY,
+  VENDOR_SDK_FLOATING_URL,
+} from './constants';
+import { resolveVendorSdkVersionPolicy } from '../../utils/vendorSdkVersionPolicy';
 import { ScriptLoader } from '@rudderstack/analytics-js-legacy-utilities/ScriptLoader';
 import Logger from '../../utils/logger';
 
@@ -22,8 +29,17 @@ class Bugsnag {
     } = destinationInfo ?? {});
   }
 
+  getVendorSdkPinSupport() {
+    return 'full';
+  }
+
   init() {
-    ScriptLoader('bugsnag-id', 'https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js');
+    const policy = resolveVendorSdkVersionPolicy(this.analytics.loadOnlyIntegrations, DISPLAY_NAME);
+    ScriptLoader(
+      'bugsnag-id',
+      policy === 'floating' ? VENDOR_SDK_FLOATING_URL : VENDOR_SDK_PINNED_URL,
+      policy === 'floating' ? {} : { integrity: VENDOR_SDK_INTEGRITY, crossOrigin: 'anonymous' },
+    );
 
     this.setIntervalHandler = setInterval(this.initBugsnagClient.bind(this), 1000);
   }

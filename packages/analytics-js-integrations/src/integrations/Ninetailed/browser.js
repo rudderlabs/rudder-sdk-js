@@ -19,6 +19,10 @@ class Ninetailed {
     } = destinationInfo ?? {});
   }
 
+  getVendorSdkPinSupport() {
+    return 'no-script';
+  }
+
   init() {
     // We expect the customer to load the SDK through NPM package
     // Docs: https://docs.ninetailed.io/for-developers/experience-sdk/getting-started

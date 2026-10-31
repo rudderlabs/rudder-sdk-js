@@ -3,6 +3,7 @@ import { NAME, DISPLAY_NAME } from './constants';
 import { ScriptLoader } from '@rudderstack/analytics-js-legacy-utilities/ScriptLoader';
 import Logger from '../../utils/logger';
 import { isDefinedAndNotNullAndNotEmpty } from '../../utils/commonUtils';
+import { isCustomerVendorSdkUrl } from '../../utils/customerVendorSdkUrl';
 
 const logger = new Logger(DISPLAY_NAME);
 
@@ -23,7 +24,13 @@ class Appcues {
     } = destinationInfo ?? {});
   }
 
-  init() {
+  getVendorSdkPinSupport() {
+    return isCustomerVendorSdkUrl(this.getNativeSdkUrl(), 'https://fast.appcues.com')
+      ? 'customer'
+      : 'none';
+  }
+
+  getNativeSdkUrl() {
     let url = `https://fast.appcues.com/${this.accountId}.js`;
     if (
       isDefinedAndNotNullAndNotEmpty(this.nativeSdkUrl) &&
@@ -37,7 +44,11 @@ class Appcues {
         url = `${this.nativeSdkUrl}/${this.accountId}.js`;
       }
     }
-    ScriptLoader('appcues-id', url);
+    return url;
+  }
+
+  init() {
+    ScriptLoader('appcues-id', this.getNativeSdkUrl());
   }
 
   isLoaded() {

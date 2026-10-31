@@ -1,10 +1,26 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable no-template-curly-in-string */
 import { ScriptLoader } from '@rudderstack/analytics-js-legacy-utilities/ScriptLoader';
-import { NAME, DISPLAY_NAME } from './constants';
+import {
+  NAME,
+  DISPLAY_NAME,
+  VENDOR_SDK_PINNED_URL,
+  VENDOR_SDK_INTEGRITY,
+  VENDOR_SDK_FLOATING_URL,
+} from './constants';
+import { resolveVendorSdkVersionPolicy } from '../../utils/vendorSdkVersionPolicy';
 import Logger from '../../utils/logger';
 
 const logger = new Logger(DISPLAY_NAME);
+
+/** Create a Keen client from the integration configuration. */
+function initKeen(object) {
+  const client = new window.KeenTracking({
+    projectId: object.projectID,
+    writeKey: object.writeKey,
+  });
+  return client;
+}
 
 class Keen {
   constructor(config, analytics, destinationInfo) {
@@ -27,19 +43,21 @@ class Keen {
     } = destinationInfo ?? {});
   }
 
+  getVendorSdkPinSupport() {
+    return 'full';
+  }
+
   init() {
-    ScriptLoader('keen-integration', 'https://cdn.jsdelivr.net/npm/keen-tracking@4');
+    const policy = resolveVendorSdkVersionPolicy(this.analytics.loadOnlyIntegrations, DISPLAY_NAME);
+    ScriptLoader(
+      'keen-integration',
+      policy === 'floating' ? VENDOR_SDK_FLOATING_URL : VENDOR_SDK_PINNED_URL,
+      policy === 'floating' ? {} : { integrity: VENDOR_SDK_INTEGRITY, crossOrigin: 'anonymous' },
+    );
 
     const check = setInterval(checkAndInitKeen.bind(this), 1000);
-    function initKeen(object) {
-      const client = new window.KeenTracking({
-        projectId: object.projectID,
-        writeKey: object.writeKey,
-      });
-      return client;
-    }
     function checkAndInitKeen() {
-      if (typeof window.KeenTracking !== 'undefined') {
+      if (window.KeenTracking !== undefined) {
         this.client = initKeen(this);
         clearInterval(check);
       }

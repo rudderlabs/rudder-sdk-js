@@ -1,6 +1,11 @@
 import type { ApiObject } from './ApiObject';
 
-export type DestinationIntgConfig = boolean | undefined | ApiObject;
+export type VendorSdkVersionPolicy = 'pinned' | 'floating' | 'strict';
+export type VendorSdkPinSupport = 'full' | 'none' | 'no-script' | 'customer';
+export type DestinationIntegrationOptions = ApiObject & {
+  vendorSdkVersionPolicy?: VendorSdkVersionPolicy;
+};
+export type DestinationIntgConfig = boolean | undefined | DestinationIntegrationOptions;
 
 /**
  * Represents the integration options object
@@ -12,7 +17,7 @@ export type DestinationIntgConfig = boolean | undefined | ApiObject;
 export type IntegrationOpts = {
   // Defaults to true
   // If set to false, specific integration should be set to true to send the event
-  All?: boolean;
+  All?: DestinationIntgConfig;
   // Destination name: true/false/integration specific information
   [index: string]: DestinationIntgConfig;
 };

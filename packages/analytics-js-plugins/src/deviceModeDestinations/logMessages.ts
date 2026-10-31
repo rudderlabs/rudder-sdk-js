@@ -1,5 +1,8 @@
 import { LOG_CONTEXT_SEPARATOR } from '../shared-chunks/common';
 
+const VENDOR_SDK_STRICT_SKIP_ERROR = (displayName: string): string =>
+  `Skipped ${displayName}: its vendor script cannot be pinned (strict mode). Set its vendorSdkVersionPolicy to "pinned" to load it.`;
+
 const INTEGRATION_NOT_SUPPORTED_ERROR = (destDisplayName: string): string =>
   `Integration for destination "${destDisplayName}" is not supported.`;
 
@@ -37,6 +40,7 @@ const INTEGRATION_NOT_ADDED_TO_CUSTOM_DESTINATION_WARNING = (
   `${context}${LOG_CONTEXT_SEPARATOR}No valid custom integration was added for destination ID "${destinationId}". Ignoring it.`;
 
 export {
+  VENDOR_SDK_STRICT_SKIP_ERROR,
   INTEGRATION_NOT_SUPPORTED_ERROR,
   INTEGRATION_SDK_LOAD_ERROR,
   INTEGRATION_INIT_ERROR,

@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { clone } from 'ramda';
+import { resolveVendorSdkVersionPolicy } from '@rudderstack/analytics-js-integrations/utils/vendorSdkVersionPolicy';
 import {
   isNonEmptyObject,
   removeUndefinedAndNullValues,
@@ -36,6 +37,7 @@ import {
   READY_CHECK_TIMEOUT_MS,
 } from './constants';
 import {
+  VENDOR_SDK_STRICT_SKIP_ERROR,
   INTEGRATION_INIT_ERROR,
   INTEGRATIONS_DATA_ERROR,
   INTEGRATION_READY_TIMEOUT_ERROR,
@@ -104,7 +106,7 @@ const isDestinationReady = (dest: Destination, time = 0) =>
       reject(new Error(INTEGRATION_READY_TIMEOUT_ERROR(READY_CHECK_TIMEOUT_MS)));
     } else {
       const curTime = Date.now();
-      wait(READY_CHECK_INTERVAL_MS).then(() => {
+      void wait(READY_CHECK_INTERVAL_MS).then(() => {
         const elapsedTime = Date.now() - curTime;
         isDestinationReady(dest, time + elapsedTime)
           .then(resolve)
@@ -134,7 +136,7 @@ const getCumulativeIntegrationsConfig = (
         ...getSanitizedValue(dest.integration!.getDataForIntegrationsObject()),
       };
     } catch (err) {
-      errorHandler?.onError({
+      void errorHandler?.onError({
         error: err,
         context: DEVICE_MODE_DESTINATIONS_PLUGIN,
         customMessage: INTEGRATIONS_DATA_ERROR(dest.userFriendlyId),
@@ -162,6 +164,22 @@ const initializeDestination = (
       initializedDestination.integration = integration;
     }
 
+    const intgOpts =
+      state.consents.postConsent.value?.integrations ??
+      state.nativeDestinations.loadOnlyIntegrations.value;
+    if (
+      resolveVendorSdkVersionPolicy(intgOpts, dest.displayName) === 'strict' &&
+      !dest.isCustomIntegration &&
+      (integration.getVendorSdkPinSupport?.() ?? 'none') === 'none'
+    ) {
+      logger?.error(VENDOR_SDK_STRICT_SKIP_ERROR(dest.displayName));
+      state.nativeDestinations.failedDestinations.value = [
+        ...state.nativeDestinations.failedDestinations.value,
+        dest,
+      ];
+      return;
+    }
+
     integration.init?.();
 
     isDestinationReady(initializedDestination)
@@ -186,7 +204,7 @@ const initializeDestination = (
           dest,
         ];
 
-        errorHandler?.onError({
+        void errorHandler?.onError({
           error: err,
           context: DEVICE_MODE_DESTINATIONS_PLUGIN,
           customMessage: INTEGRATION_READY_CHECK_ERROR(dest.userFriendlyId),
@@ -200,7 +218,7 @@ const initializeDestination = (
       dest,
     ];
 
-    errorHandler?.onError({
+    void errorHandler?.onError({
       error: err,
       context: DEVICE_MODE_DESTINATIONS_PLUGIN,
       customMessage: INTEGRATION_INIT_ERROR(dest.userFriendlyId),

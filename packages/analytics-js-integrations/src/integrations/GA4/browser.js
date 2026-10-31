@@ -1,5 +1,6 @@
 /* eslint-disable prefer-rest-params */
 /* eslint-disable class-methods-use-this */
+import { isCustomerVendorSdkUrl } from '../../utils/customerVendorSdkUrl';
 import { ScriptLoader } from '@rudderstack/analytics-js-legacy-utilities/ScriptLoader';
 import { NAME, DISPLAY_NAME } from './constants';
 import { Cookie } from '@rudderstack/analytics-js-legacy-utilities/storage/cookie';
@@ -17,6 +18,8 @@ import {
   filterUserTraits,
   formatAndValidateEventName,
 } from './utils';
+
+const DEFAULT_SDK_BASE_URL = 'https://www.googletagmanager.com';
 
 const logger = new Logger(DISPLAY_NAME);
 
@@ -39,8 +42,7 @@ export default class GA4 {
     this.piiPropertiesToIgnore = config.piiPropertiesToIgnore || [];
     this.extendPageViewParams = config.extendPageViewParams || false;
     this.overrideClientAndSessionId = config.overrideClientAndSessionId || false;
-    this.sdkBaseUrl =
-      removeTrailingSlashes(config.sdkBaseUrl) || 'https://www.googletagmanager.com';
+    this.sdkBaseUrl = removeTrailingSlashes(config.sdkBaseUrl) || DEFAULT_SDK_BASE_URL;
     this.serverContainerUrl = config.serverContainerUrl || null;
     this.isExtendedGa4_V2 = config.isExtendedGa4_V2 || false;
     ({
@@ -139,6 +141,10 @@ export default class GA4 {
     });
 
     ScriptLoader('google-analytics 4', `${sdkBaseUrl}/gtag/js?id=${measurementId}`);
+  }
+
+  getVendorSdkPinSupport() {
+    return isCustomerVendorSdkUrl(this.sdkBaseUrl, DEFAULT_SDK_BASE_URL) ? 'customer' : 'none';
   }
 
   init() {

@@ -17,11 +17,40 @@ describe('Integration Constants', () => {
     .filter(dir => statSync(join(baseIntegrationDir, dir)).isDirectory())
     .forEach(integration => {
       describe(`${integration} Integration`, () => {
-        let integrationConstants: { NAME: string; DISPLAY_NAME: string };
+        let integrationConstants: {
+          NAME: string;
+          DISPLAY_NAME: string;
+          VENDOR_SDK_PINNED_URL?: string;
+          VENDOR_SDK_INTEGRITY?: string;
+          VENDOR_SDK_FLOATING_URL?: string;
+        };
 
         beforeAll(async () => {
           const modulePath = join(baseIntegrationDir, integration, 'constants');
           integrationConstants = await import(modulePath);
+        });
+
+        it('pinned artifacts require full instance support and valid pins', async () => {
+          const { VENDOR_SDK_PINNED_URL, VENDOR_SDK_INTEGRITY, VENDOR_SDK_FLOATING_URL } =
+            integrationConstants;
+          if (
+            'VENDOR_SDK_PINNED_URL' in integrationConstants ||
+            'VENDOR_SDK_INTEGRITY' in integrationConstants
+          ) {
+            const { default: Integration } = await import(
+              join(baseIntegrationDir, integration, 'browser')
+            );
+            expect(new Integration({}, {}).getVendorSdkPinSupport()).toBe('full');
+            expect(VENDOR_SDK_PINNED_URL).not.toBe(VENDOR_SDK_FLOATING_URL);
+            expect(new URL(VENDOR_SDK_PINNED_URL!).pathname).toMatch(
+              /(?:^|[/@-])v?(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?=$|[/.-])/,
+            );
+            expect(new URL(VENDOR_SDK_PINNED_URL!).protocol).toBe('https:');
+            expect(VENDOR_SDK_INTEGRITY).toMatch(/^sha384-[A-Za-z0-9+/]{64}$/);
+            expect(new URL(VENDOR_SDK_PINNED_URL!).hostname).toBe(
+              new URL(VENDOR_SDK_FLOATING_URL!).hostname,
+            );
+          }
         });
 
         it('should have the same NAME as defined in Destination constants', () => {

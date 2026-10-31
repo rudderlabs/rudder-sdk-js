@@ -10,6 +10,8 @@ const defaultAsyncState = true;
  * @param {Boolean} options.async                   Determines script will be loaded asynchronously or not
  * @param {Boolean} options.isNonNativeSDK          Determines whether the script that will be loaded is one of RS's own
  * @param {Boolean} options.skipDatasetAttributes   Determines whether to add or skip dataset attribute
+ * @param {String} options.integrity                Expected script integrity hash
+ * @param {String} options.crossOrigin              Script CORS mode; defaults to anonymous with integrity
  */
 const ScriptLoader = (id, src, options = {}) => {
   const exists = document.getElementById(id);
@@ -23,11 +25,17 @@ const ScriptLoader = (id, src, options = {}) => {
   js.async = options.async === undefined ? defaultAsyncState : options.async;
   js.type = 'text/javascript';
   js.id = id;
+  if (options.integrity) {
+    js.integrity = options.integrity;
+  }
+  if (options.crossOrigin || options.integrity) {
+    js.crossOrigin = options.crossOrigin || 'anonymous';
+  }
   // This checking is in place to skip the dataset attribute for some cases(while loading polyfill)
   if (options.skipDatasetAttributes !== true) {
-    js.setAttribute('data-loader', LOAD_ORIGIN);
+    js.dataset.loader = LOAD_ORIGIN;
     if (options.isNonNativeSDK !== undefined) {
-      js.setAttribute('data-isNonNativeSDK', options.isNonNativeSDK);
+      js.dataset.isnonnativesdk = String(options.isNonNativeSDK);
     }
   }
   const headElmColl = document.getElementsByTagName('head');
