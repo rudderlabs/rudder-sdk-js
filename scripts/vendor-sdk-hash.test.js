@@ -26,6 +26,7 @@ function fixture(
   t,
   fields = fixturePin,
   exported = Object.keys(fields).filter(key => key !== 'integration'),
+  inlineExports = false,
 ) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'vendor-pin-'));
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
@@ -40,8 +41,12 @@ function fixture(
     path.join(constantsDir, 'constants.js'),
     Object.entries(names)
       .filter(([key]) => fields[key] !== undefined)
-      .map(([key, name]) => `const ${name} = '${fields[key]}';`)
-      .join('\n') + `\nexport { ${exported.map(key => names[key]).join(', ')} };\n`,
+      .map(
+        ([key, name]) =>
+          `${inlineExports && exported.includes(key) ? 'export ' : ''}const ${name} = '${fields[key]}';`,
+      )
+      .join('\n') +
+      (inlineExports ? '\n' : `\nexport { ${exported.map(key => names[key]).join(', ')} };\n`),
   );
   return dir;
 }
@@ -53,8 +58,8 @@ async function withServer(t, body) {
     assert.equal(req.headers['accept-encoding'], 'identity');
     assert.equal(req.headers.origin, 'https://www.test-host.com');
     counts[req.url] = (counts[req.url] || 0) + 1;
-    const handler = new Map(Object.entries(routes)).get(req.url);
-    if (handler) handler(req, res);
+    const handler = Object.hasOwn(routes, req.url) ? routes[req.url] : undefined;
+    if (typeof handler === 'function') handler(req, res);
     else {
       res.writeHead(404);
       res.end();
@@ -96,6 +101,63 @@ test('discovers all eight artifacts with full instance support', () => {
   );
   assert.equal(sha384Integrity(Buffer.from('vendor-test')), integrity);
 });
+
+test('discovers exported constants in declaration and export-list forms', t => {
+  for (const inlineExports of [false, true]) {
+    const integrationsDir = fixture(t, fixturePin, undefined, inlineExports);
+    assert.deepEqual(readVendorPins(integrationsDir), [fixturePin]);
+    assert.throws(
+      () => readVendorPins(fixture(t, fixturePin, ['pinnedUrl', 'floatingUrl'], inlineExports)),
+      /missing or nonliteral exported VENDOR_SDK_INTEGRITY/,
+    );
+  }
+});
+
+test('selects every Sentry and Amplitude artifact and rejects ambiguous names', async t =>
+  withServer(t, async ({ request, routes, counts }) => {
+    for (const integration of ['Sentry', 'Amplitude']) {
+      const pins = readVendorPins().filter(pin => pin.integration === integration);
+      const errors = [];
+      assert.equal(await runCli([integration], { stderr: line => errors.push(line) }), 1);
+      const selectors = pins.map(
+        pin => `${integration}/${path.posix.basename(new URL(pin.pinnedUrl).pathname)}`,
+      );
+      assert.equal(
+        errors[0],
+        `Ambiguous integration: ${integration}. Choose: ${selectors.join(', ')}`,
+      );
+      for (const [index, pin] of pins.entries()) {
+        const pathname = new URL(pin.pinnedUrl).pathname;
+        const bytes = Buffer.from(selectors[index]);
+        routes[pathname] = (_req, res) => {
+          res.setHeader('Access-Control-Allow-Origin', '*');
+          res.end(bytes);
+        };
+        const output = [];
+        assert.equal(
+          await runCli([selectors[index]], {
+            downloadOptions: { request },
+            stdout: line => output.push(line),
+          }),
+          0,
+        );
+        assert.deepEqual(output, [sha384Integrity(bytes)]);
+        assert.equal(counts[pathname], 2);
+      }
+    }
+    const bugsnag = readVendorPins().find(pin => pin.integration === 'Bugsnag');
+    const pathname = new URL(bugsnag.pinnedUrl).pathname;
+    routes[pathname] = routes['/pin.js'];
+    const output = [];
+    assert.equal(
+      await runCli(['Bugsnag'], {
+        downloadOptions: { request },
+        stdout: line => output.push(line),
+      }),
+      0,
+    );
+    assert.deepEqual(output, [integrity]);
+  }));
 
 test('generates and verifies two matching downloads', async t =>
   withServer(t, async ({ request, counts }) => {

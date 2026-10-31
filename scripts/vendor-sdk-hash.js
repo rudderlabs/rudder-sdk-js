@@ -39,6 +39,9 @@ function readVendorPins(
       const browserFile = path.join(integrationsDir, entry.name, 'browser.js');
       const browserSource = fs.existsSync(browserFile) ? fs.readFileSync(browserFile, 'utf8') : '';
       const exported = [];
+      for (const match of source.matchAll(/export\s+const\s+(\w+)\s*=/g)) {
+        exported.push(match[1]);
+      }
       for (const match of source.matchAll(/export\s*\{([^}]+)\}/g)) {
         exported.push(...match[1].split(',').map(name => name.trim()));
       }
@@ -252,7 +255,7 @@ async function runCli(args, options = {}) {
   const stderr = options.stderr ?? console.error;
   try {
     if (args.length !== 1)
-      throw new Error('Usage: vendor-sdk-hash <IntegrationDirectoryName> | --verify');
+      throw new Error('Usage: vendor-sdk-hash <Integration[/ArtifactFilename]> | --verify');
     const pins = readVendorPins(options.integrationsDir);
     if (args[0] === '--verify') {
       if (pins.length === 0) throw new Error('No vendor SDK pins found.');
@@ -262,8 +265,18 @@ async function runCli(args, options = {}) {
       }
       stdout(`Verified ${pins.length} vendor SDK pins.`);
     } else {
-      const pin = pins.find(candidate => candidate.integration === args[0]);
-      if (!pin) throw new Error(`Unknown integration: ${args[0]}`);
+      const choices = pins.filter(candidate =>
+        [
+          candidate.integration,
+          `${candidate.integration}/${path.posix.basename(new URL(candidate.pinnedUrl).pathname)}`,
+        ].includes(args[0]),
+      );
+      if (choices.length === 0) throw new Error(`Unknown integration or artifact: ${args[0]}`);
+      if (choices.length > 1)
+        throw new Error(
+          `Ambiguous integration: ${args[0]}. Choose: ${choices.map(candidate => `${candidate.integration}/${path.posix.basename(new URL(candidate.pinnedUrl).pathname)}`).join(', ')}`,
+        );
+      const [pin] = choices;
       stdout(await computeVendorPin(pin, options.downloadOptions));
     }
     return 0;
