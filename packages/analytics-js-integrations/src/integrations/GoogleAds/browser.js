@@ -1,6 +1,5 @@
 /* eslint-disable eqeqeq */
 /* eslint-disable class-methods-use-this */
-import { isCustomerVendorSdkUrl } from '../../utils/customerVendorSdkUrl';
 import { NAME, DISPLAY_NAME } from './constants';
 import Logger from '../../utils/logger';
 import {
@@ -20,8 +19,6 @@ import { loadNativeSdk } from './nativeSdkLoader';
 
 import { prepareParamsAndEventName } from '../GA4/utils';
 import { getValueOrDefault, isValidURL, removeTrailingSlashes } from '../../utils/utils';
-
-const DEFAULT_SDK_BASE_URL = 'https://www.googletagmanager.com/gtag/js';
 
 const logger = new Logger(DISPLAY_NAME);
 
@@ -53,10 +50,11 @@ class GoogleAds {
     this.v2 = getValueOrDefault(config.v2, true);
     this.allowIdentify = config.allowIdentify ?? false;
     const sanitizedSdkBaseUrl = removeTrailingSlashes(config.sdkBaseUrl);
+    this.hasCustomerSdkBaseUrl = Boolean(sanitizedSdkBaseUrl);
     if (sanitizedSdkBaseUrl && !isValidURL(sanitizedSdkBaseUrl)) {
       throw new Error(`Invalid sdkBaseUrl: "${sanitizedSdkBaseUrl}"`);
     }
-    this.sdkBaseUrl = sanitizedSdkBaseUrl || DEFAULT_SDK_BASE_URL;
+    this.sdkBaseUrl = sanitizedSdkBaseUrl || 'https://www.googletagmanager.com/gtag/js';
     this.name = NAME;
     ({
       shouldApplyDeviceModeTransformation: this.shouldApplyDeviceModeTransformation,
@@ -66,7 +64,7 @@ class GoogleAds {
   }
 
   getVendorSdkPinSupport() {
-    return isCustomerVendorSdkUrl(this.sdkBaseUrl, DEFAULT_SDK_BASE_URL) ? 'customer' : 'none';
+    return this.hasCustomerSdkBaseUrl ? 'customer' : 'none';
   }
 
   init() {
@@ -114,8 +112,7 @@ class GoogleAds {
       return;
     }
     const hasEmail = traits.email;
-    const hasFullAddress =
-      traits.firstName && traits.lastName && traits.postalCode && traits.country;
+    const hasFullAddress = traits.firstName && traits.lastName && traits.postalCode && traits.country;
 
     if (!hasEmail && !hasFullAddress) {
       logger.error(

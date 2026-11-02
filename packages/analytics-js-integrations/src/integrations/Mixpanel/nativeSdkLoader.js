@@ -1,7 +1,5 @@
 import { LOAD_ORIGIN } from '@rudderstack/analytics-js-legacy-utilities/constants';
 
-const usesCustomLibUrl = () => 'undefined' !== typeof MIXPANEL_CUSTOM_LIB_URL;
-
 function loadNativeSdk(f, b) {
   (function (f, b) {
     if (!b.__SV) {
@@ -58,7 +56,7 @@ function loadNativeSdk(f, b) {
       e.async = !0;
       e.setAttribute('data-loader', LOAD_ORIGIN);
       e.src =
-        usesCustomLibUrl()
+        'undefined' !== typeof MIXPANEL_CUSTOM_LIB_URL
           ? MIXPANEL_CUSTOM_LIB_URL
           : 'file:' === f.location.protocol &&
             '//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js'.match(/^\/\//)
@@ -70,4 +68,4 @@ function loadNativeSdk(f, b) {
   })(document, window.mixpanel || []);
 }
 
-export { loadNativeSdk, usesCustomLibUrl };
+export { loadNativeSdk };

@@ -16,7 +16,6 @@ import Appcues from '../src/integrations/Appcues/browser';
 import Rockerbox from '../src/integrations/Rockerbox/browser';
 import Mixpanel from '../src/integrations/Mixpanel/browser';
 import { ScriptLoader } from '@rudderstack/analytics-js-legacy-utilities/ScriptLoader';
-import { isCustomerVendorSdkUrl } from '../src/utils/customerVendorSdkUrl';
 
 jest.mock('@rudderstack/analytics-js-legacy-utilities/ScriptLoader', () => ({
   ScriptLoader: jest.fn(),
@@ -70,16 +69,7 @@ test.each([Lotame, Ninetailed, Optimizely, Shynet])(
 );
 
 describe.each([GA4, GA4_V2, GoogleAds])('%p customer URL support', Integration => {
-  test.each([
-    undefined,
-    null,
-    '',
-    'https://www.googletagmanager.com',
-    'https://www.googletagmanager.com/',
-    'https://www.googletagmanager.com/gtag/js',
-    'https://WWW.GOOGLETAGMANAGER.COM/gtag/js///',
-    'https://www.googletagmanager.com:8443/gtag/js',
-  ])('default hostname never counts as customer: %s', sdkBaseUrl => {
+  test.each([undefined, null, '', '/', '///'])('unset sdkBaseUrl: %s', sdkBaseUrl => {
     const integration = new Integration(
       { sdkBaseUrl, measurementId: 'G-123' },
       { getUserId: () => undefined },
@@ -89,25 +79,21 @@ describe.each([GA4, GA4_V2, GoogleAds])('%p customer URL support', Integration =
     const url = Integration === GoogleAds ? inserted[0].src : ScriptLoader.mock.calls[0][1];
     expect(new URL(url).hostname).toBe('www.googletagmanager.com');
   });
-  test.each(['https://customer.example', 'https://customer.example/custom///'])(
-    'customer support agrees with loaded URL: %s',
-    sdkBaseUrl => {
-      const integration = new Integration(
-        { sdkBaseUrl, measurementId: 'G-123' },
-        { getUserId: () => undefined },
-      );
-      expect(integration.getVendorSdkPinSupport()).toBe('customer');
-      integration.init();
-      const url = Integration === GoogleAds ? inserted[0].src : ScriptLoader.mock.calls[0][1];
-      expect(new URL(url).hostname).toBe('customer.example');
-      expect(url).toContain('https://customer.example/');
-    },
-  );
-});
-
-test('invalid URLs fail closed and relative URLs use the page hostname', () => {
-  expect(isCustomerVendorSdkUrl('https://[', 'https://www.googletagmanager.com')).toBe(false);
-  expect(isCustomerVendorSdkUrl('/sdk', 'https://www.googletagmanager.com')).toBe(true);
+  test.each([
+    'https://www.googletagmanager.com',
+    'https://www.googletagmanager.com/gtag/js',
+    'https://customer.example',
+    'https://customer.example/custom///',
+  ])('supplied sdkBaseUrl counts as customer: %s', sdkBaseUrl => {
+    const integration = new Integration(
+      { sdkBaseUrl, measurementId: 'G-123' },
+      { getUserId: () => undefined },
+    );
+    expect(integration.getVendorSdkPinSupport()).toBe('customer');
+    integration.init();
+    const url = Integration === GoogleAds ? inserted[0].src : ScriptLoader.mock.calls[0][1];
+    expect(url).toContain(sdkBaseUrl.replace(/\/+$/, ''));
+  });
 });
 
 test.each([
@@ -115,10 +101,8 @@ test.each([
   [null, 'none', 'https://fast.appcues.com/account.js'],
   ['', 'none', 'https://fast.appcues.com/account.js'],
   [42, 'none', 'https://fast.appcues.com/account.js'],
-  ['https://fast.appcues.com', 'none', 'https://fast.appcues.com/account.js'],
-  ['https://FAST.APPCUES.COM:8443/sdk.js', 'none', 'https://FAST.APPCUES.COM:8443/sdk.js'],
-  ['//fast.appcues.com/sdk.js', 'none', '//fast.appcues.com/sdk.js'],
-  ['https://[', 'none', 'https://[/account.js'],
+  ['https://fast.appcues.com', 'customer', 'https://fast.appcues.com/account.js'],
+  ['https://[', 'customer', 'https://[/account.js'],
   ['/sdk.js', 'customer', '/sdk.js'],
   ['https://customer.example/sdk.js', 'customer', 'https://customer.example/sdk.js'],
   ['https://customer.example/', 'customer', 'https://customer.example/account.js'],
@@ -136,9 +120,8 @@ test.each([
   ['', 'none'],
   [false, 'none'],
   ['customer.example', 'customer'],
-  ['getrockerbox.com', 'none'],
-  ['GETROCKERBOX.COM:8443', 'none'],
-  ['[', 'none'],
+  ['getrockerbox.com', 'customer'],
+  ['[', 'customer'],
   ['/relative', 'customer'],
 ])('Rockerbox support mirrors customDomain %s', (customDomain, support) => {
   for (const enableCookieSync of [false, true]) {
@@ -159,10 +142,8 @@ test.each([
   ['', 'customer'],
   [false, 'customer'],
   ['https://customer.example/sdk.js', 'customer'],
-  ['https://cdn.mxpnl.com/libs/mixpanel-2-latest.min.js', 'none'],
-  ['//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js', 'none'],
-  ['https://CDN.MXPNL.COM:8443/custom.js', 'none'],
-  ['https://[', 'none'],
+  ['https://cdn.mxpnl.com/libs/mixpanel-2-latest.min.js', 'customer'],
+  ['https://[', 'customer'],
   ['/sdk.js', 'customer'],
 ])('Mixpanel support mirrors effective global URL %s', (customUrl, support) => {
   window.MIXPANEL_CUSTOM_LIB_URL = customUrl;

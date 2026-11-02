@@ -20,8 +20,7 @@ import {
   generatePageCustomEventName,
   getDestinationOptions,
 } from './util';
-import { loadNativeSdk, usesCustomLibUrl } from './nativeSdkLoader';
-import { isCustomerVendorSdkUrl } from '../../utils/customerVendorSdkUrl';
+import { loadNativeSdk } from './nativeSdkLoader';
 
 const logger = new Logger(DISPLAY_NAME);
 
@@ -75,10 +74,7 @@ class Mixpanel {
   }
 
   getVendorSdkPinSupport() {
-    return usesCustomLibUrl() &&
-      isCustomerVendorSdkUrl(MIXPANEL_CUSTOM_LIB_URL, 'https://cdn.mxpnl.com')
-      ? 'customer'
-      : 'none';
+    return typeof MIXPANEL_CUSTOM_LIB_URL !== 'undefined' ? 'customer' : 'none';
   }
 
   init() {
