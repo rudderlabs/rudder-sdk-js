@@ -93,7 +93,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
           }
 
           const errMessage = INTEGRATION_NOT_SUPPORTED_ERROR(configDest.displayName);
-          void errorHandler?.onError({
+          errorHandler?.onError({
             error: new Error(errMessage),
             context: DEVICE_MODE_DESTINATIONS_PLUGIN,
             category: INTEGRATIONS_ERROR_CATEGORY,
@@ -111,12 +111,15 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
         : filterDisabledDestinations(configSupportedDestinations);
 
       // Filter destinations that are disabled through load or consent API options
-      const intgOpts =
+      const destinationsToLoad = filterDestinations(
         state.consents.postConsent.value?.integrations ??
-        state.nativeDestinations.loadOnlyIntegrations.value;
-      const consentedDestinations = filterDestinations(intgOpts, configuredDestinations).filter(
+          state.nativeDestinations.loadOnlyIntegrations.value,
+        configuredDestinations,
+      );
+
+      const consentedDestinations = destinationsToLoad.filter(
         dest =>
-          // Default to consent when no consent manager is configured.
+          // if consent manager is not configured, then default to load the destination
           pluginsManager.invokeSingle(
             `consentManager.isDestinationConsented`,
             state,
@@ -158,7 +161,7 @@ const DeviceModeDestinations = (): ExtensionPlugin => ({
               ((id: string, err?: SDKError) => {
                 if (err) {
                   const customMessage = INTEGRATION_SDK_LOAD_ERROR(dest.displayName);
-                  void errorHandler?.onError({
+                  errorHandler?.onError({
                     error: err,
                     context: DEVICE_MODE_DESTINATIONS_PLUGIN,
                     customMessage,
