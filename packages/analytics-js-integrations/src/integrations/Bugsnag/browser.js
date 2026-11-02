@@ -34,7 +34,7 @@ class Bugsnag {
   }
 
   init() {
-    const policy = resolveVendorSdkVersionPolicy(this.analytics.loadOnlyIntegrations, DISPLAY_NAME);
+    const policy = resolveVendorSdkVersionPolicy(this.analytics.loadOnlyIntegrations);
     ScriptLoader(
       'bugsnag-id',
       policy === 'floating' ? VENDOR_SDK_FLOATING_URL : VENDOR_SDK_PINNED_URL,

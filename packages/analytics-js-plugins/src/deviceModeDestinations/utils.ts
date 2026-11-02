@@ -168,7 +168,7 @@ const initializeDestination = (
       state.consents.postConsent.value?.integrations ??
       state.nativeDestinations.loadOnlyIntegrations.value;
     if (
-      resolveVendorSdkVersionPolicy(intgOpts, dest.displayName) === 'strict' &&
+      resolveVendorSdkVersionPolicy(intgOpts) === 'strict' &&
       !dest.isCustomIntegration &&
       (integration.getVendorSdkPinSupport?.() ?? 'none') === 'none'
     ) {

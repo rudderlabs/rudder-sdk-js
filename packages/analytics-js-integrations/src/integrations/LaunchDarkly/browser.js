@@ -40,7 +40,7 @@ class LaunchDarkly {
       );
       return;
     }
-    const policy = resolveVendorSdkVersionPolicy(this.analytics.loadOnlyIntegrations, DISPLAY_NAME);
+    const policy = resolveVendorSdkVersionPolicy(this.analytics.loadOnlyIntegrations);
     ScriptLoader(
       null,
       policy === 'floating' ? VENDOR_SDK_FLOATING_URL : VENDOR_SDK_PINNED_URL,

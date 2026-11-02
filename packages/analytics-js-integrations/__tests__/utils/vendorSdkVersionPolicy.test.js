@@ -1,48 +1,42 @@
 import { resolveVendorSdkVersionPolicy } from '../../src/utils/vendorSdkVersionPolicy';
 
 describe('vendor SDK version policy', () => {
-  it('resolves destination then All then pinned', () => {
-    expect(resolveVendorSdkVersionPolicy(undefined, 'Bugsnag')).toBe('pinned');
-    expect(resolveVendorSdkVersionPolicy({ All: true }, 'Bugsnag')).toBe('pinned');
-    expect(
-      resolveVendorSdkVersionPolicy(
-        {
-          All: { vendorSdkVersionPolicy: 'strict' },
-          Bugsnag: { vendorSdkVersionPolicy: 'floating' },
-        },
-        'Bugsnag',
-      ),
-    ).toBe('floating');
-    expect(
-      resolveVendorSdkVersionPolicy(
-        { All: { vendorSdkVersionPolicy: 'strict' }, GA4: { vendorSdkVersionPolicy: 'floating' } },
-        'Google Analytics 4 (GA4)',
-      ),
-    ).toBe('strict');
+  test.each([undefined, {}, { Bugsnag: { vendorSdkVersionPolicy: 'strict' } }])(
+    'defaults to pinned and ignores destination strict: %p',
+    integrations => {
+      expect(resolveVendorSdkVersionPolicy(integrations)).toBe('pinned');
+    },
+  );
+
+  test.each([
+    undefined,
+    null,
+    true,
+    false,
+    'strict',
+    0,
+    [],
+    {},
+    { vendorSdkVersionPolicy: 'pinned' },
+    { vendorSdkVersionPolicy: 'floating' },
+    { vendorSdkVersionPolicy: 'latest' },
+    { vendorSdkVersionPolicy: 0 },
+  ])('ignores unsupported All entries: %p', All => {
+    expect(resolveVendorSdkVersionPolicy({ All })).toBe('pinned');
   });
 
-  it('inherits All for entries without a valid policy', () => {
-    for (const entry of [
-      true,
-      false,
-      undefined,
-      [],
-      'enabled',
-      {},
-      { apiKey: 'key' },
-      null,
-      { vendorSdkVersionPolicy: 'latest' },
-      { vendorSdkVersionPolicy: 0 },
-    ]) {
-      expect(
-        resolveVendorSdkVersionPolicy(
-          { All: { vendorSdkVersionPolicy: 'strict' }, Bugsnag: entry },
-          'Bugsnag',
-        ),
-      ).toBe('strict');
-    }
+  test.each([
+    undefined,
+    null,
+    true,
+    false,
+    {},
+    { vendorSdkVersionPolicy: 'pinned' },
+    { vendorSdkVersionPolicy: 'floating' },
+    { vendorSdkVersionPolicy: 'strict' },
+  ])('global strict ignores destination entries: %p', Bugsnag => {
     expect(
-      resolveVendorSdkVersionPolicy({ All: { vendorSdkVersionPolicy: 'latest' } }, 'Bugsnag'),
-    ).toBe('pinned');
+      resolveVendorSdkVersionPolicy({ All: { vendorSdkVersionPolicy: 'strict' }, Bugsnag }),
+    ).toBe('strict');
   });
 });

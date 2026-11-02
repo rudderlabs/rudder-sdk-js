@@ -1,3 +1,4 @@
+import * as vendorSdkPolicy from '../../../src/utils/vendorSdkVersionPolicy';
 import Keen from '../../../src/integrations/Keen/browser';
 import { ScriptLoader } from '@rudderstack/analytics-js-legacy-utilities/ScriptLoader';
 import {
@@ -25,6 +26,9 @@ test('Keen uses the selected vendor artifact', () => {
     {},
     { All: { vendorSdkVersionPolicy: 'pinned' } },
     { All: { vendorSdkVersionPolicy: 'strict' }, Keen: {} },
+    { All: { vendorSdkVersionPolicy: 'floating' } },
+    { Keen: { vendorSdkVersionPolicy: 'strict' } },
+    { All: { vendorSdkVersionPolicy: 'strict' }, Keen: { vendorSdkVersionPolicy: 'floating' } },
   ]) {
     new Keen({ projectID: 'project-1', writeKey: 'write-key' }, { loadOnlyIntegrations }).init();
     expect(ScriptLoader).toHaveBeenLastCalledWith(
@@ -36,16 +40,17 @@ test('Keen uses the selected vendor artifact', () => {
       },
     );
   }
-  for (const loadOnlyIntegrations of [
-    { All: { vendorSdkVersionPolicy: 'floating' } },
-    { All: { vendorSdkVersionPolicy: 'strict' }, Keen: { vendorSdkVersionPolicy: 'floating' } },
-  ]) {
-    new Keen({ apiKey: 'key' }, { loadOnlyIntegrations }).init();
+  const resolver = jest.spyOn(vendorSdkPolicy, 'resolveVendorSdkVersionPolicy');
+  resolver.mockReturnValueOnce('floating');
+  try {
+    new Keen({ apiKey: 'key' }, {}).init();
     expect(ScriptLoader).toHaveBeenLastCalledWith(
       'keen-integration',
       'https://cdn.jsdelivr.net/npm/keen-tracking@4',
       {},
     );
+  } finally {
+    resolver.mockRestore();
   }
   expect(new Keen({}, {}).getVendorSdkPinSupport()).toBe('full');
   expect(new URL(VENDOR_SDK_PINNED_URL).hostname).toBe(new URL(VENDOR_SDK_FLOATING_URL).hostname);

@@ -1,3 +1,4 @@
+import * as vendorSdkPolicy from '../../../src/utils/vendorSdkVersionPolicy';
 import { ScriptLoader } from '@rudderstack/analytics-js-legacy-utilities/ScriptLoader';
 import {
   VENDOR_SDK_PINNED_URL,
@@ -166,6 +167,12 @@ test('LaunchDarkly uses the selected vendor artifact', () => {
     {},
     { All: { vendorSdkVersionPolicy: 'pinned' } },
     { All: { vendorSdkVersionPolicy: 'strict' }, LaunchDarkly: {} },
+    { All: { vendorSdkVersionPolicy: 'floating' } },
+    { LaunchDarkly: { vendorSdkVersionPolicy: 'strict' } },
+    {
+      All: { vendorSdkVersionPolicy: 'strict' },
+      LaunchDarkly: { vendorSdkVersionPolicy: 'floating' },
+    },
   ]) {
     new LaunchDarkly({ clientSideId: 'client-1' }, { loadOnlyIntegrations }).init();
     expect(ScriptLoader).toHaveBeenLastCalledWith(
@@ -177,19 +184,17 @@ test('LaunchDarkly uses the selected vendor artifact', () => {
       },
     );
   }
-  for (const loadOnlyIntegrations of [
-    { All: { vendorSdkVersionPolicy: 'floating' } },
-    {
-      All: { vendorSdkVersionPolicy: 'strict' },
-      LaunchDarkly: { vendorSdkVersionPolicy: 'floating' },
-    },
-  ]) {
-    new LaunchDarkly({ clientSideId: 'client-1' }, { loadOnlyIntegrations }).init();
+  const resolver = jest.spyOn(vendorSdkPolicy, 'resolveVendorSdkVersionPolicy');
+  resolver.mockReturnValueOnce('floating');
+  try {
+    new LaunchDarkly({ clientSideId: 'client-1' }, {}).init();
     expect(ScriptLoader).toHaveBeenLastCalledWith(
       null,
       'https://unpkg.com/launchdarkly-js-client-sdk@2',
       {},
     );
+  } finally {
+    resolver.mockRestore();
   }
   expect(new LaunchDarkly({}, {}).getVendorSdkPinSupport()).toBe('full');
   expect(new URL(VENDOR_SDK_PINNED_URL).hostname).toBe(new URL(VENDOR_SDK_FLOATING_URL).hostname);

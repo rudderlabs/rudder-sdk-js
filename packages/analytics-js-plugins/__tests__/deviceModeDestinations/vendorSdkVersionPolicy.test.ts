@@ -87,7 +87,7 @@ test.each(['missing', 'none', 'undefined'])('strict fails closed for %s support'
   expect(isReady).not.toHaveBeenCalled();
   expect(defaultLogger.error).toHaveBeenCalledTimes(1);
   expect(defaultLogger.error).toHaveBeenCalledWith(
-    'Skipped rollbar: its vendor script cannot be pinned (strict mode). Set its vendorSdkVersionPolicy to "pinned" to load it.',
+    'Skipped rollbar: its vendor script cannot be pinned (strict mode).',
   );
   expect(state.nativeDestinations.failedDestinations.value).toEqual([
     state.nativeDestinations.configuredDestinations.value[0],
@@ -126,10 +126,38 @@ test('strict initializes custom integrations without support', async () => {
   expect(defaultLogger.error).not.toHaveBeenCalled();
 });
 
-test.each(['pinned', 'floating'] as const)('destination %s overrides All strict', async policy => {
+test.each(['pinned', 'floating'] as const)('destination %s cannot override All strict', policy => {
+  getVendorSdkPinSupport = jest.fn().mockReturnValue('none');
   state.nativeDestinations.loadOnlyIntegrations.value = {
     All: { vendorSdkVersionPolicy: 'strict' },
+    // @ts-expect-error unsupported public values must still be ignored at runtime
     rollbar: { vendorSdkVersionPolicy: policy },
+  };
+  activateAndLoad();
+  expect(init).not.toHaveBeenCalled();
+  expect(state.nativeDestinations.failedDestinations.value).toHaveLength(1);
+  expect(defaultLogger.error).toHaveBeenCalledWith(
+    'Skipped rollbar: its vendor script cannot be pinned (strict mode).',
+  );
+  expect(defaultErrorHandler.onError).not.toHaveBeenCalled();
+  expect(jest.getTimerCount()).toBe(0);
+});
+
+test('destination strict is ignored without All strict', async () => {
+  state.nativeDestinations.loadOnlyIntegrations.value = {
+    rollbar: { vendorSdkVersionPolicy: 'strict' },
+  };
+  activateAndLoad();
+  await Promise.resolve();
+  expect(init).toHaveBeenCalledTimes(1);
+  expect(state.nativeDestinations.initializedDestinations.value).toHaveLength(1);
+  expect(defaultLogger.error).not.toHaveBeenCalled();
+});
+
+test.each(['pinned', 'floating'] as const)('All %s uses the pinned default', async policy => {
+  state.nativeDestinations.loadOnlyIntegrations.value = {
+    // @ts-expect-error unsupported public values must still be ignored at runtime
+    All: { vendorSdkVersionPolicy: policy },
   };
   activateAndLoad();
   await Promise.resolve();

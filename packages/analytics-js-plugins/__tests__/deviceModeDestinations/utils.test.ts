@@ -193,8 +193,8 @@ describe('deviceModeDestinations utils', () => {
 
     it('constructor receives the consent replacement policy object', () => {
       state.nativeDestinations.loadOnlyIntegrations.value = {
-        All: { vendorSdkVersionPolicy: 'floating' },
-        Bugsnag: { vendorSdkVersionPolicy: 'floating' },
+        All: { vendorSdkVersionPolicy: 'strict' },
+        Bugsnag: { apiKey: 'key' },
       };
       const destination = { config: {}, id: 'ga4' } as Destination;
       for (const replacement of [{}, { All: { vendorSdkVersionPolicy: 'strict' as const } }]) {

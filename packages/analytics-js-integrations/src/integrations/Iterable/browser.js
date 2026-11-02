@@ -64,7 +64,7 @@ class Iterable {
   }
 
   init() {
-    const policy = resolveVendorSdkVersionPolicy(this.analytics.loadOnlyIntegrations, DISPLAY_NAME);
+    const policy = resolveVendorSdkVersionPolicy(this.analytics.loadOnlyIntegrations);
     ScriptLoader(
       'iterable-web',
       policy === 'floating' ? VENDOR_SDK_FLOATING_URL : VENDOR_SDK_PINNED_URL,

@@ -1,8 +1,9 @@
 import type { ApiObject } from './ApiObject';
 
-export type VendorSdkVersionPolicy = 'pinned' | 'floating' | 'strict';
+export type VendorSdkVersionPolicy = 'strict';
 export type VendorSdkPinSupport = 'full' | 'none' | 'no-script' | 'customer';
 export type DestinationIntegrationOptions = ApiObject & {
+  /** Read only under All; destination entries are ignored. */
   vendorSdkVersionPolicy?: VendorSdkVersionPolicy;
 };
 export type DestinationIntgConfig = boolean | undefined | DestinationIntegrationOptions;

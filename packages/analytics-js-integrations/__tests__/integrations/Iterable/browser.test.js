@@ -1,3 +1,4 @@
+import * as vendorSdkPolicy from '../../../src/utils/vendorSdkVersionPolicy';
 import Iterable from '../../../src/integrations/Iterable/browser';
 import { ScriptLoader } from '@rudderstack/analytics-js-legacy-utilities/ScriptLoader';
 import {
@@ -25,6 +26,9 @@ test('Iterable uses the selected vendor artifact', () => {
     {},
     { All: { vendorSdkVersionPolicy: 'pinned' } },
     { All: { vendorSdkVersionPolicy: 'strict' }, Iterable: {} },
+    { All: { vendorSdkVersionPolicy: 'floating' } },
+    { Iterable: { vendorSdkVersionPolicy: 'strict' } },
+    { All: { vendorSdkVersionPolicy: 'strict' }, Iterable: { vendorSdkVersionPolicy: 'floating' } },
   ]) {
     new Iterable({ apiKey: 'key', releaseStage: 'production' }, { loadOnlyIntegrations }).init();
     expect(ScriptLoader).toHaveBeenLastCalledWith(
@@ -36,16 +40,17 @@ test('Iterable uses the selected vendor artifact', () => {
       },
     );
   }
-  for (const loadOnlyIntegrations of [
-    { All: { vendorSdkVersionPolicy: 'floating' } },
-    { All: { vendorSdkVersionPolicy: 'strict' }, Iterable: { vendorSdkVersionPolicy: 'floating' } },
-  ]) {
-    new Iterable({ apiKey: 'key' }, { loadOnlyIntegrations }).init();
+  const resolver = jest.spyOn(vendorSdkPolicy, 'resolveVendorSdkVersionPolicy');
+  resolver.mockReturnValueOnce('floating');
+  try {
+    new Iterable({ apiKey: 'key' }, {}).init();
     expect(ScriptLoader).toHaveBeenLastCalledWith(
       'iterable-web',
       'https://unpkg.com/@iterable/web-sdk/index.js',
       {},
     );
+  } finally {
+    resolver.mockRestore();
   }
   expect(new Iterable({}, {}).getVendorSdkPinSupport()).toBe('full');
   expect(new URL(VENDOR_SDK_PINNED_URL).hostname).toBe(new URL(VENDOR_SDK_FLOATING_URL).hostname);

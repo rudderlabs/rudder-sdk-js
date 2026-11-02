@@ -1,3 +1,4 @@
+import * as vendorSdkPolicy from '../../../src/utils/vendorSdkVersionPolicy';
 import Bugsnag from '../../../src/integrations/Bugsnag/browser';
 import { ScriptLoader } from '@rudderstack/analytics-js-legacy-utilities/ScriptLoader';
 import {
@@ -26,6 +27,9 @@ test('Bugsnag uses the selected vendor artifact', () => {
     {},
     { All: { vendorSdkVersionPolicy: 'pinned' } },
     { All: { vendorSdkVersionPolicy: 'strict' }, Bugsnag: {} },
+    { All: { vendorSdkVersionPolicy: 'floating' } },
+    { Bugsnag: { vendorSdkVersionPolicy: 'strict' } },
+    { All: { vendorSdkVersionPolicy: 'strict' }, Bugsnag: { vendorSdkVersionPolicy: 'floating' } },
   ]) {
     new Bugsnag({ apiKey: 'key', releaseStage: 'production' }, { loadOnlyIntegrations }).init();
     expect(ScriptLoader).toHaveBeenLastCalledWith(
@@ -37,16 +41,17 @@ test('Bugsnag uses the selected vendor artifact', () => {
       },
     );
   }
-  for (const loadOnlyIntegrations of [
-    { All: { vendorSdkVersionPolicy: 'floating' } },
-    { All: { vendorSdkVersionPolicy: 'strict' }, Bugsnag: { vendorSdkVersionPolicy: 'floating' } },
-  ]) {
-    new Bugsnag({ apiKey: 'key' }, { loadOnlyIntegrations }).init();
+  const resolver = jest.spyOn(vendorSdkPolicy, 'resolveVendorSdkVersionPolicy');
+  resolver.mockReturnValueOnce('floating');
+  try {
+    new Bugsnag({ apiKey: 'key' }, {}).init();
     expect(ScriptLoader).toHaveBeenLastCalledWith(
       'bugsnag-id',
       'https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js',
       {},
     );
+  } finally {
+    resolver.mockRestore();
   }
   expect(new Bugsnag({}, {}).getVendorSdkPinSupport()).toBe('full');
   expect(new URL(VENDOR_SDK_PINNED_URL).hostname).toBe(new URL(VENDOR_SDK_FLOATING_URL).hostname);

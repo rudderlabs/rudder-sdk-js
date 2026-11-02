@@ -13,7 +13,7 @@ const policyAnalytics = new PackedRudderAnalytics();
 policyAnalytics.load('writeKey', 'https://dataplane.example.com', {
   integrations: {
     All: { vendorSdkVersionPolicy: 'strict' },
-    Bugsnag: { vendorSdkVersionPolicy: 'floating', apiKey: 'key' },
+    Bugsnag: { apiKey: 'key' },
   },
 });
 policyAnalytics.load('writeKey', 'https://dataplane.example.com', {
@@ -21,9 +21,22 @@ policyAnalytics.load('writeKey', 'https://dataplane.example.com', {
 });
 policyAnalytics.load('writeKey', 'https://dataplane.example.com', {
   integrations: {
-    // @ts-expect-error only pinned, floating and strict are supported
+    // @ts-expect-error only strict is supported
     All: { vendorSdkVersionPolicy: 'latest' },
-    // @ts-expect-error destination policy has the same union as All
+    // @ts-expect-error policy values must be strict
     Bugsnag: { vendorSdkVersionPolicy: 1 },
+  },
+});
+
+policyAnalytics.load('writeKey', 'https://dataplane.example.com', {
+  integrations: {
+    // @ts-expect-error pinned is the default, not a public option
+    All: { vendorSdkVersionPolicy: 'pinned' },
+  },
+});
+policyAnalytics.load('writeKey', 'https://dataplane.example.com', {
+  integrations: {
+    // @ts-expect-error floating is internal, not a public option
+    All: { vendorSdkVersionPolicy: 'floating' },
   },
 });
