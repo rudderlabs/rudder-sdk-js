@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { clone } from 'ramda';
-import { resolveVendorSdkVersionPolicy } from '@rudderstack/analytics-js-integrations/utils/vendorSdkVersionPolicy';
 import {
   isNonEmptyObject,
   removeUndefinedAndNullValues,
@@ -72,22 +71,19 @@ const wait = (time: number) =>
     (globalThis as typeof window).setTimeout(resolve, time);
   });
 
-// Consent API integrations replace the load API ones.
-const getIntegrationOptions = (state: ApplicationState): IntegrationOpts =>
-  state.consents.postConsent.value?.integrations ??
-  state.nativeDestinations.loadOnlyIntegrations.value;
-
 const createIntegrationInstance = (
   destSDKIdentifier: string,
   sdkTypeName: string,
   dest: Destination,
   state: ApplicationState,
-  intgOpts: IntegrationOpts,
 ): DeviceModeIntegration => {
   const analyticsInstance: IntegrationRSAnalytics = {
     loadIntegration: state.nativeDestinations.loadIntegration.value,
     logLevel: state.lifecycle.logLevel.value,
-    loadOnlyIntegrations: intgOpts,
+    loadOnlyIntegrations:
+      state.consents.postConsent.value?.integrations ??
+      state.nativeDestinations.loadOnlyIntegrations.value,
+    vendorSdkVersionPolicy: state.loadOptions.value.vendorSdkVersionPolicy,
     ...(state.lifecycle.safeAnalyticsInstance.value as RSAnalytics),
   };
 
@@ -162,21 +158,14 @@ const initializeDestination = (
 ) => {
   try {
     const initializedDestination = clone(dest);
-    const intgOpts = getIntegrationOptions(state);
     let integration: DeviceModeIntegration | undefined = initializedDestination.integration;
     if (isUndefined(integration)) {
-      integration = createIntegrationInstance(
-        destSDKIdentifier,
-        sdkTypeName,
-        dest,
-        state,
-        intgOpts,
-      );
+      integration = createIntegrationInstance(destSDKIdentifier, sdkTypeName, dest, state);
       initializedDestination.integration = integration;
     }
 
     if (
-      resolveVendorSdkVersionPolicy(intgOpts) === 'strict' &&
+      state.loadOptions.value.vendorSdkVersionPolicy === 'strict' &&
       !dest.isCustomIntegration &&
       (integration.getVendorSdkPinSupport?.() ?? 'none') === 'none'
     ) {
@@ -489,7 +478,6 @@ export {
   isDestinationReady,
   getCumulativeIntegrationsConfig,
   initializeDestination,
-  getIntegrationOptions,
   applySourceConfigurationOverrides,
   applyOverrideToDestination,
   filterDisabledDestinations,

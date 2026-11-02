@@ -1,4 +1,5 @@
 import type { Destination } from '@rudderstack/analytics-js-common/types/Destination';
+import type { LoadOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { VendorSdkPinSupport } from '@rudderstack/analytics-js-common/types/Integration';
 import { defaultLogger } from '@rudderstack/analytics-js-common/__mocks__/Logger';
 import { defaultErrorHandler } from '@rudderstack/analytics-js-common/__mocks__/ErrorHandler';
@@ -58,9 +59,8 @@ beforeEach(() => {
     callback(id);
   });
   state.nativeDestinations.configuredDestinations.value = [makeDestination()];
-  state.nativeDestinations.loadOnlyIntegrations.value = {
-    All: { vendorSdkVersionPolicy: 'strict' },
-  };
+  state.loadOptions.value = { vendorSdkVersionPolicy: 'strict' };
+  state.nativeDestinations.loadOnlyIntegrations.value = { All: true };
 });
 afterEach(() => {
   delete (globalThis as any).RollBar_RS;
@@ -126,11 +126,10 @@ test('strict initializes custom integrations without support', async () => {
   expect(defaultLogger.error).not.toHaveBeenCalled();
 });
 
-test.each(['pinned', 'floating'] as const)('destination %s cannot override All strict', policy => {
+test.each(['pinned', 'floating'] as const)('destination %s cannot override load strict', policy => {
   getVendorSdkPinSupport = jest.fn().mockReturnValue('none');
   state.nativeDestinations.loadOnlyIntegrations.value = {
-    All: { vendorSdkVersionPolicy: 'strict' },
-    // @ts-expect-error unsupported public values must still be ignored at runtime
+    All: true,
     rollbar: { vendorSdkVersionPolicy: policy },
   };
   activateAndLoad();
@@ -143,7 +142,8 @@ test.each(['pinned', 'floating'] as const)('destination %s cannot override All s
   expect(jest.getTimerCount()).toBe(0);
 });
 
-test('destination strict is ignored without All strict', async () => {
+test('destination strict is ignored without load strict', async () => {
+  state.loadOptions.value = {};
   state.nativeDestinations.loadOnlyIntegrations.value = {
     rollbar: { vendorSdkVersionPolicy: 'strict' },
   };
@@ -154,41 +154,64 @@ test('destination strict is ignored without All strict', async () => {
   expect(defaultLogger.error).not.toHaveBeenCalled();
 });
 
-test.each(['pinned', 'floating'] as const)('All %s uses the pinned default', async policy => {
-  state.nativeDestinations.loadOnlyIntegrations.value = {
-    // @ts-expect-error unsupported public values must still be ignored at runtime
-    All: { vendorSdkVersionPolicy: policy },
-  };
-  activateAndLoad();
-  await Promise.resolve();
-  expect(init).toHaveBeenCalledTimes(1);
-  expect(state.nativeDestinations.initializedDestinations.value).toHaveLength(1);
-  expect(defaultLogger.error).not.toHaveBeenCalled();
-});
+test.each(['pinned', 'floating', 'strict'] as const)(
+  'integrations.All policy %s is ignored',
+  async policy => {
+    state.loadOptions.value = {};
+    state.nativeDestinations.loadOnlyIntegrations.value = {
+      // @ts-expect-error legacy object All is ignored as a policy at runtime
+      All: { vendorSdkVersionPolicy: policy },
+    };
+    activateAndLoad();
+    await Promise.resolve();
+    expect(init).toHaveBeenCalledTimes(1);
+    expect(state.nativeDestinations.initializedDestinations.value).toHaveLength(1);
+    expect(defaultLogger.error).not.toHaveBeenCalled();
+  },
+);
 
-test('consent options replace rather than merge strict policy', async () => {
+test.each(['pinned', 'floating', null, true])(
+  'invalid load policy %p uses pinned',
+  async policy => {
+    state.loadOptions.value = { vendorSdkVersionPolicy: policy } as unknown as LoadOptions;
+    activateAndLoad();
+    await Promise.resolve();
+    expect(init).toHaveBeenCalledTimes(1);
+    expect(defaultLogger.error).not.toHaveBeenCalled();
+  },
+);
+
+test('consent integrations cannot replace the strict load policy', () => {
   state.consents.postConsent.value = { integrations: {} };
   activateAndLoad();
-  await Promise.resolve();
   expect(constructed).toHaveBeenCalledWith(
     expect.anything(),
-    expect.objectContaining({
-      loadOnlyIntegrations: {},
-    }),
+    expect.objectContaining({ loadOnlyIntegrations: {}, vendorSdkVersionPolicy: 'strict' }),
   );
-  expect(init).toHaveBeenCalledTimes(1);
-  expect(defaultLogger.error).not.toHaveBeenCalled();
-});
-
-test('post-consent strict policy is enforced at initialization', () => {
-  state.nativeDestinations.loadOnlyIntegrations.value = {};
-  state.consents.postConsent.value = {
-    integrations: { All: { vendorSdkVersionPolicy: 'strict' } },
-  };
-  activateAndLoad();
   expect(init).not.toHaveBeenCalled();
   expect(state.nativeDestinations.failedDestinations.value).toHaveLength(1);
-  expect(defaultLogger.error).toHaveBeenCalledTimes(1);
+});
+
+test('strict works with All false and a destination enabled', () => {
+  state.nativeDestinations.loadOnlyIntegrations.value = { All: false, rollbar: true };
+  activateAndLoad();
+  expect(constructed).toHaveBeenCalledTimes(1);
+  expect(init).not.toHaveBeenCalled();
+  expect(state.nativeDestinations.failedDestinations.value).toHaveLength(1);
+});
+
+test('consent policy is ignored without the strict load option', async () => {
+  state.loadOptions.value = {};
+  state.consents.postConsent.value = {
+    integrations: {
+      // @ts-expect-error legacy consent policy must be ignored at runtime
+      All: { vendorSdkVersionPolicy: 'strict' },
+    },
+  };
+  activateAndLoad();
+  await Promise.resolve();
+  expect(init).toHaveBeenCalledTimes(1);
+  expect(defaultLogger.error).not.toHaveBeenCalled();
 });
 
 test.each(['consent manager', 'consent options', 'disabled'])(
@@ -197,7 +220,7 @@ test.each(['consent manager', 'consent options', 'disabled'])(
     if (exclusion === 'consent manager') pluginsManager.invokeSingle.mockReturnValue(false);
     if (exclusion === 'consent options')
       state.consents.postConsent.value = {
-        integrations: { All: { vendorSdkVersionPolicy: 'strict' }, rollbar: false },
+        integrations: { All: true, rollbar: false },
       };
     if (exclusion === 'disabled')
       state.nativeDestinations.configuredDestinations.value[0]!.enabled = false;

@@ -21,16 +21,8 @@ afterEach(() => {
 });
 
 test('Keen uses the selected vendor artifact', () => {
-  for (const loadOnlyIntegrations of [
-    undefined,
-    {},
-    { All: { vendorSdkVersionPolicy: 'pinned' } },
-    { All: { vendorSdkVersionPolicy: 'strict' }, Keen: {} },
-    { All: { vendorSdkVersionPolicy: 'floating' } },
-    { Keen: { vendorSdkVersionPolicy: 'strict' } },
-    { All: { vendorSdkVersionPolicy: 'strict' }, Keen: { vendorSdkVersionPolicy: 'floating' } },
-  ]) {
-    new Keen({ projectID: 'project-1', writeKey: 'write-key' }, { loadOnlyIntegrations }).init();
+  for (const vendorSdkVersionPolicy of [undefined, 'strict', 'pinned', 'floating', 'latest']) {
+    new Keen({ projectID: 'project-1', writeKey: 'write-key' }, { vendorSdkVersionPolicy }).init();
     expect(ScriptLoader).toHaveBeenLastCalledWith(
       'keen-integration',
       'https://cdn.jsdelivr.net/npm/keen-tracking@4.5.2/dist/keen-tracking.min.js',

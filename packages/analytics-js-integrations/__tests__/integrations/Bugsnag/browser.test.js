@@ -22,16 +22,8 @@ afterEach(() => {
 });
 
 test('Bugsnag uses the selected vendor artifact', () => {
-  for (const loadOnlyIntegrations of [
-    undefined,
-    {},
-    { All: { vendorSdkVersionPolicy: 'pinned' } },
-    { All: { vendorSdkVersionPolicy: 'strict' }, Bugsnag: {} },
-    { All: { vendorSdkVersionPolicy: 'floating' } },
-    { Bugsnag: { vendorSdkVersionPolicy: 'strict' } },
-    { All: { vendorSdkVersionPolicy: 'strict' }, Bugsnag: { vendorSdkVersionPolicy: 'floating' } },
-  ]) {
-    new Bugsnag({ apiKey: 'key', releaseStage: 'production' }, { loadOnlyIntegrations }).init();
+  for (const vendorSdkVersionPolicy of [undefined, 'strict', 'pinned', 'floating', 'latest']) {
+    new Bugsnag({ apiKey: 'key', releaseStage: 'production' }, { vendorSdkVersionPolicy }).init();
     expect(ScriptLoader).toHaveBeenLastCalledWith(
       'bugsnag-id',
       'https://d2wy8f7a9ursnm.cloudfront.net/v6.5.2/bugsnag.min.js',

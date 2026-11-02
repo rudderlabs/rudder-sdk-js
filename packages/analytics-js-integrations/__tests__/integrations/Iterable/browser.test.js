@@ -21,16 +21,8 @@ afterEach(() => {
 });
 
 test('Iterable uses the selected vendor artifact', () => {
-  for (const loadOnlyIntegrations of [
-    undefined,
-    {},
-    { All: { vendorSdkVersionPolicy: 'pinned' } },
-    { All: { vendorSdkVersionPolicy: 'strict' }, Iterable: {} },
-    { All: { vendorSdkVersionPolicy: 'floating' } },
-    { Iterable: { vendorSdkVersionPolicy: 'strict' } },
-    { All: { vendorSdkVersionPolicy: 'strict' }, Iterable: { vendorSdkVersionPolicy: 'floating' } },
-  ]) {
-    new Iterable({ apiKey: 'key', releaseStage: 'production' }, { loadOnlyIntegrations }).init();
+  for (const vendorSdkVersionPolicy of [undefined, 'strict', 'pinned', 'floating', 'latest']) {
+    new Iterable({ apiKey: 'key', releaseStage: 'production' }, { vendorSdkVersionPolicy }).init();
     expect(ScriptLoader).toHaveBeenLastCalledWith(
       'iterable-web',
       'https://unpkg.com/@iterable/web-sdk@2.3.3/index.js',

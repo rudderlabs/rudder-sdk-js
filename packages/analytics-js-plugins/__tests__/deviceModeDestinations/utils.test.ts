@@ -10,7 +10,6 @@ import {
   wait,
   isDestinationReady,
   createIntegrationInstance,
-  getIntegrationOptions,
   isDestinationSDKMounted,
   applySourceConfigurationOverrides,
   applyOverrideToDestination,
@@ -192,21 +191,22 @@ describe('deviceModeDestinations utils', () => {
       delete (window as any).GA4_RS;
     });
 
-    it('constructor receives the consent replacement policy object', () => {
+    it('constructor receives load policy independently of consent integrations', () => {
+      state.loadOptions.value = { vendorSdkVersionPolicy: 'strict' };
       state.nativeDestinations.loadOnlyIntegrations.value = {
-        All: { vendorSdkVersionPolicy: 'strict' },
+        All: true,
         Bugsnag: { apiKey: 'key' },
       };
       const destination = { config: {}, id: 'ga4' } as Destination;
-      for (const replacement of [{}, { All: { vendorSdkVersionPolicy: 'strict' as const } }]) {
+      for (const replacement of [{}, { All: false, GA4: true }]) {
         state.consents.postConsent.value = { integrations: replacement };
         const instance = createIntegrationInstance(
           destSDKIdentifier,
           sdkTypeName,
           destination,
           state,
-          getIntegrationOptions(state),
         );
+        expect(instance.analytics.vendorSdkVersionPolicy).toBe('strict');
         expect(instance.analytics.loadOnlyIntegrations).toBe(replacement);
         expect(instance.analytics.loadOnlyIntegrations.Bugsnag).toBeUndefined();
       }
@@ -229,13 +229,13 @@ describe('deviceModeDestinations utils', () => {
         sdkTypeName,
         destination,
         state,
-        getIntegrationOptions(state),
       );
 
       expect(destinationInstance).toBeInstanceOf((window as any)[destSDKIdentifier][sdkTypeName]);
       expect(destinationInstance.config).toEqual(destination.config);
       expect(destinationInstance.analytics).toEqual({
         loadIntegration: true,
+        vendorSdkVersionPolicy: undefined,
         loadOnlyIntegrations: {},
         logLevel: 'ERROR',
         alias: expect.any(Function),

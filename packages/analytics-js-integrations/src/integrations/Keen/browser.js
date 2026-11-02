@@ -48,7 +48,7 @@ class Keen {
   }
 
   init() {
-    const policy = resolveVendorSdkVersionPolicy(this.analytics.loadOnlyIntegrations);
+    const policy = resolveVendorSdkVersionPolicy(this.analytics.vendorSdkVersionPolicy);
     ScriptLoader(
       'keen-integration',
       policy === 'floating' ? VENDOR_SDK_FLOATING_URL : VENDOR_SDK_PINNED_URL,

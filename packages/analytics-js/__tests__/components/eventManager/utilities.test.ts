@@ -12,6 +12,7 @@ import type {
 import type { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
 import type { RudderContext, RudderEvent } from '@rudderstack/analytics-js-common/types/Event';
 import { EVENT_MANAGER } from '@rudderstack/analytics-js-common/constants/loggerContexts';
+import { normalizeLoadOptions } from '../../../src/components/utilities/loadOptions';
 import { resetState, state } from '../../../src/state';
 import {
   checkForReservedElements,
@@ -975,6 +976,23 @@ describe('Event Manager - Utilities', () => {
     afterEach(() => {
       resetState();
     });
+
+    it.each([{ All: true }, { All: false, X: true }])(
+      'strict load policy preserves event integrations %p',
+      integrations => {
+        state.loadOptions.value = normalizeLoadOptions(state.loadOptions.value, {
+          useGlobalIntegrationsConfigInEvents: true,
+          vendorSdkVersionPolicy: 'strict',
+          integrations,
+        });
+        state.nativeDestinations.loadOnlyIntegrations.value = state.loadOptions.value.integrations!;
+
+        const event = getEnrichedEvent({ type: 'track', event: 'test' }, {}, {}, defaultLogger);
+        expect(event.integrations).toEqual(integrations);
+        expect(typeof event.integrations?.All).toBe('boolean');
+        expect(JSON.stringify(event)).not.toContain('vendorSdkVersionPolicy');
+      },
+    );
 
     it('should return global load API integrations object', () => {
       batch(() => {
