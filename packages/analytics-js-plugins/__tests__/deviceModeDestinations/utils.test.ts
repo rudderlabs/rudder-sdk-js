@@ -10,6 +10,7 @@ import {
   wait,
   isDestinationReady,
   createIntegrationInstance,
+  getIntegrationOptions,
   isDestinationSDKMounted,
   applySourceConfigurationOverrides,
   applyOverrideToDestination,
@@ -204,6 +205,7 @@ describe('deviceModeDestinations utils', () => {
           sdkTypeName,
           destination,
           state,
+          getIntegrationOptions(state),
         );
         expect(instance.analytics.loadOnlyIntegrations).toBe(replacement);
         expect(instance.analytics.loadOnlyIntegrations.Bugsnag).toBeUndefined();
@@ -227,6 +229,7 @@ describe('deviceModeDestinations utils', () => {
         sdkTypeName,
         destination,
         state,
+        getIntegrationOptions(state),
       );
 
       expect(destinationInstance).toBeInstanceOf((window as any)[destSDKIdentifier][sdkTypeName]);

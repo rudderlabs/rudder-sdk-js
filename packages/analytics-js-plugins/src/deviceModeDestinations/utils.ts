@@ -72,18 +72,22 @@ const wait = (time: number) =>
     (globalThis as typeof window).setTimeout(resolve, time);
   });
 
+// Consent API integrations replace the load API ones.
+const getIntegrationOptions = (state: ApplicationState): IntegrationOpts =>
+  state.consents.postConsent.value?.integrations ??
+  state.nativeDestinations.loadOnlyIntegrations.value;
+
 const createIntegrationInstance = (
   destSDKIdentifier: string,
   sdkTypeName: string,
   dest: Destination,
   state: ApplicationState,
+  intgOpts: IntegrationOpts,
 ): DeviceModeIntegration => {
   const analyticsInstance: IntegrationRSAnalytics = {
     loadIntegration: state.nativeDestinations.loadIntegration.value,
     logLevel: state.lifecycle.logLevel.value,
-    loadOnlyIntegrations:
-      state.consents.postConsent.value?.integrations ??
-      state.nativeDestinations.loadOnlyIntegrations.value,
+    loadOnlyIntegrations: intgOpts,
     ...(state.lifecycle.safeAnalyticsInstance.value as RSAnalytics),
   };
 
@@ -158,15 +162,19 @@ const initializeDestination = (
 ) => {
   try {
     const initializedDestination = clone(dest);
+    const intgOpts = getIntegrationOptions(state);
     let integration: DeviceModeIntegration | undefined = initializedDestination.integration;
     if (isUndefined(integration)) {
-      integration = createIntegrationInstance(destSDKIdentifier, sdkTypeName, dest, state);
+      integration = createIntegrationInstance(
+        destSDKIdentifier,
+        sdkTypeName,
+        dest,
+        state,
+        intgOpts,
+      );
       initializedDestination.integration = integration;
     }
 
-    const intgOpts =
-      state.consents.postConsent.value?.integrations ??
-      state.nativeDestinations.loadOnlyIntegrations.value;
     if (
       resolveVendorSdkVersionPolicy(intgOpts) === 'strict' &&
       !dest.isCustomIntegration &&
@@ -481,6 +489,7 @@ export {
   isDestinationReady,
   getCumulativeIntegrationsConfig,
   initializeDestination,
+  getIntegrationOptions,
   applySourceConfigurationOverrides,
   applyOverrideToDestination,
   filterDisabledDestinations,
