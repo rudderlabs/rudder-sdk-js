@@ -10,8 +10,7 @@ on:
 env:
   NODE_OPTIONS: '--no-warnings'
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   get-release-inputs:
@@ -108,6 +107,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
           ref: ${{ github.sha }}
           token: ${{ steps.generate-token.outputs.token }}
 
@@ -380,6 +380,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           ref: ${{ github.sha }}
 
       # The CDN is keyed by the analytics-js package version, not by the
@@ -437,6 +438,8 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Validate re-run actor
         uses: ./.github/actions/assert-rerun-actor

@@ -11,8 +11,7 @@ on:
       RELEASE_PRIVATE_KEY:
         required: true
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   validate-actor:

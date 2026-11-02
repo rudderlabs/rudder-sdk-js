@@ -10,8 +10,7 @@ concurrency:
   group: production-cdn-write
   cancel-in-progress: false
 
-permissions:
-  contents: read
+permissions: {}
 
 env:
   NODE_OPTIONS: "--no-warnings"
@@ -40,6 +39,7 @@ jobs:
     runs-on: arc-amd64
     outputs:
       trigger_source: ${{ steps.set-outputs.outputs.trigger_source }}
+    permissions: {}
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
@@ -80,6 +80,7 @@ jobs:
       - name: Checkout main branch
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           ref: main # Production branch
 
       - name: Validate re-run actor
@@ -104,6 +105,7 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           ref: ${{ github.sha }}
 
       - name: Setup Node
@@ -347,6 +349,9 @@ jobs:
             }
 
   deploy-sanity-suite:
+    permissions:
+      contents: read # deploy-sanity-suite.yml: actions/checkout
+      id-token: write # deploy-sanity-suite.yml: AWS OIDC role
     name: Deploy sanity suite
     needs: [get-rollback-inputs]
     uses: ./.github/workflows/deploy-sanity-suite.yml
@@ -367,6 +372,8 @@ jobs:
       RELEASE_PRIVATE_KEY: ${{ secrets.RELEASE_PRIVATE_KEY }}
 
   run-e2e-regression-test-suites:
+    permissions:
+      contents: read # run-e2e-regression-test-suites.yml: actions/checkout
     uses: ./.github/workflows/run-e2e-regression-test-suites.yml
     name: Run E2E Regression Test Suites
     needs: [get-rollback-inputs, rollback, deploy-sanity-suite]

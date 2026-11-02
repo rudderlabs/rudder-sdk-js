@@ -55,8 +55,7 @@ env:
   CHECK_INTERVAL_FOR_E2E_TESTS: 60      # 1 minute
   TARGET_REPO: rudderlabs/rudder-client-side-test
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   extract-monorepo-version:
@@ -66,6 +65,8 @@ jobs:
     outputs:
       version: ${{ steps.determine_version.outputs.current_version }}
 
+    permissions:
+      contents: read # actions/checkout
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
@@ -86,6 +87,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           ref: ${{ steps.getSHA.outputs.SHA }}
 
       - name: Determine the Monorepo version
@@ -123,6 +125,8 @@ jobs:
 
       - name: Checkout (for composite action)
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Prepare sanity test inputs
         id: prepare_inputs
@@ -219,6 +223,8 @@ jobs:
 
       - name: Checkout (for composite action)
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Prepare E2E test inputs
         id: prepare_inputs
