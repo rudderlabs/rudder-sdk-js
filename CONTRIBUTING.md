@@ -125,6 +125,24 @@ The repository is a monorepo, with different packages under the `packages` direc
 
 > Before proceeding with the next steps, we recommend drafting a document outlining the requirements of your integration and relevant resources
 
+#### Loading the vendor SDK
+
+Pin vendor scripts and verify them with [Subresource Integrity](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity) so customer pages only run the vendor code we tested.
+
+- Load an exact-version URL whenever the vendor offers one.
+- Stay on the hostname the vendor documents and that the integration already uses, including redirect chains; never add a new hostname.
+- For full pin support, export `VENDOR_SDK_PINNED_URL`, `VENDOR_SDK_INTEGRITY`, and `VENDOR_SDK_FLOATING_URL` from `constants.js`.
+- Load pinned scripts through `ScriptLoader` with `integrity` and `crossOrigin: 'anonymous'`.
+- Customers can enable strict mode globally with `rudderanalytics.load(KEY, URL, { vendorSdkVersionPolicy: 'strict' })`. Only `strict` is accepted; missing or invalid values use the pinned default, falling back to the existing URL when pinning is unsupported. Policies in integrations and consent options are ignored.
+- Resolve the policy from `analytics.vendorSdkVersionPolicy` with `resolveVendorSdkVersionPolicy` from `packages/analytics-js-integrations/src/utils/vendorSdkVersionPolicy.js`. Keep the legacy URL branch for internal use, preserving any existing SRI.
+- Implement the instance method `getVendorSdkPinSupport()` returning `'full'` for registered exact-version artifacts with SRI, `'no-script'` when no vendor script is injected, or `'customer'` when the customer supplied the vendor script URL or a part of it. Missing methods and `'none'`/undefined fail closed. Integrations own this knowledge; the plugin has no support map.
+- Return `'customer'` when the customer supplied the vendor script URL or a part of it, including a URL on the default vendor host: non-empty `sdkBaseUrl` after removing trailing slashes for GA4/GA4_V2 and Google Ads; a non-empty string `nativeSdkUrl` for Appcues; truthy `customDomain` for Rockerbox; or defined `MIXPANEL_CUSTOM_LIB_URL` for Mixpanel. Unset settings return `'none'`; strict mode loads `'customer'` integrations without gating.
+- Under `strict`, destinations with pin support `'none'` (including undeclared support) are skipped immediately before `init()`, after consent and bundle download. No vendor script is inserted, the destination is marked failed without a ready timeout, and the skip is logged without telemetry. Customer URLs with `'customer'` support are allowed. Custom integrations remain exempt.
+- Compute the SHA-384 hash with `npm run vendor-sdk:hash -- <Integration>` for single-artifact integrations (for example, `-- Bugsnag`). For multiple artifacts, select the exact filename: `npm run vendor-sdk:hash -- Sentry/bundle.min.js`, `npm run vendor-sdk:hash -- Sentry/rewriteframes.min.js`, `npm run vendor-sdk:hash -- Amplitude/analytics-browser-1.9.1-min.js.gz`, or `npm run vendor-sdk:hash -- Amplitude/analytics-browser-2.32.0-min.js.gz`. An ambiguous integration name reports the available selectors. Verify all stored pins with `npm run vendor-sdk:hash -- --verify`.
+- If the vendor offers no exact-version URL on its existing host or loads further unpinnable scripts, omit the method (fail-closed `'none'`) and explain why in the PR.
+- Add a unit test asserting the pinned URL and integrity reach `ScriptLoader`.
+- Every integration exporting pinned URL/integrity constants must implement the method returning `'full'`; `packages/analytics-js-integrations/__tests__/constants.test.ts` enforces this. The hash verifier discovers flat pinned constants and the existing Amplitude/Sentry artifacts, and rejects literal `'full'` methods without registered artifacts.
+
 Your integration will require several key files:
 
 **Constants definition**

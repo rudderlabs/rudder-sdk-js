@@ -115,6 +115,7 @@ const loadNativeSdk = _rollbarConfig => {
           s = e.getElementsByTagName('script')[0],
           d = s.parentNode;
         (i.crossOrigin = ''),
+          (i.integrity = 'sha384-N3vTA8MX6CX0P+FEjMTyF4XwTphjZbv0A+FChoST0GNR854Ho49z8YvSHSGut84u'),
           (i.src = n.rollbarJsUrl),
           o || (i.async = !0),
           (i.onload = i.onreadystatechange =

@@ -47,6 +47,10 @@ const normalizeLoadOptions = (
     normalizedLoadOpts.uaChTrackLevel = undefined;
   }
 
+  if (normalizedLoadOpts.vendorSdkVersionPolicy !== 'strict') {
+    normalizedLoadOpts.vendorSdkVersionPolicy = undefined;
+  }
+
   normalizedLoadOpts.integrations = getNormalizedObjectValue(normalizedLoadOpts.integrations);
 
   if (!Array.isArray(normalizedLoadOpts.plugins)) {

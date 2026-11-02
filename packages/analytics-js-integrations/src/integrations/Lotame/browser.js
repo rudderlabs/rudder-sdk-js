@@ -30,6 +30,10 @@ class Lotame {
     } = destinationInfo ?? {});
   }
 
+  getVendorSdkPinSupport() {
+    return 'no-script';
+  }
+
   init() {
     window.LOTAME_SYNCH_CALLBACK = () => {};
   }

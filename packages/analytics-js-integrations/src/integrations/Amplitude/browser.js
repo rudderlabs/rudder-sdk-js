@@ -69,6 +69,10 @@ class Amplitude {
     } = destinationInfo ?? {});
   }
 
+  getVendorSdkPinSupport() {
+    return 'full';
+  }
+
   init() {
     if (this.analytics.loadIntegration) {
       if (this.sdkVersion === AMPLITUDE_SDK_V2) {

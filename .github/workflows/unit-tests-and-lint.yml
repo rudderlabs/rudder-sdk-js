@@ -51,6 +51,14 @@ jobs:
         run: |
           npm run test:release-versioning
 
+      - name: Execute vendor SDK hash utility tests
+        run: |
+          node --test scripts/vendor-sdk-hash.test.js
+
+      - name: Verify vendor SDK pins
+        run: |
+          npm run vendor-sdk:hash -- --verify
+
       - name: Check for affected projects
         id: check_affected
         run: |

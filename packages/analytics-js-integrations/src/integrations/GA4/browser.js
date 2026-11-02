@@ -39,6 +39,7 @@ export default class GA4 {
     this.piiPropertiesToIgnore = config.piiPropertiesToIgnore || [];
     this.extendPageViewParams = config.extendPageViewParams || false;
     this.overrideClientAndSessionId = config.overrideClientAndSessionId || false;
+    this.hasCustomerSdkBaseUrl = Boolean(removeTrailingSlashes(config.sdkBaseUrl));
     this.sdkBaseUrl =
       removeTrailingSlashes(config.sdkBaseUrl) || 'https://www.googletagmanager.com';
     this.serverContainerUrl = config.serverContainerUrl || null;
@@ -139,6 +140,10 @@ export default class GA4 {
     });
 
     ScriptLoader('google-analytics 4', `${sdkBaseUrl}/gtag/js?id=${measurementId}`);
+  }
+
+  getVendorSdkPinSupport() {
+    return this.hasCustomerSdkBaseUrl ? 'customer' : 'none';
   }
 
   init() {

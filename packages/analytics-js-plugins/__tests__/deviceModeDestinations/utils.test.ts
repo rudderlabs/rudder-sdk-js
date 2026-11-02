@@ -191,6 +191,28 @@ describe('deviceModeDestinations utils', () => {
       delete (window as any).GA4_RS;
     });
 
+    it('constructor receives load policy independently of consent integrations', () => {
+      state.loadOptions.value = { vendorSdkVersionPolicy: 'strict' };
+      state.nativeDestinations.loadOnlyIntegrations.value = {
+        All: true,
+        Bugsnag: { apiKey: 'key' },
+      };
+      const destination = { config: {}, id: 'ga4' } as Destination;
+      for (const replacement of [{}, { All: false, GA4: true }]) {
+        state.consents.postConsent.value = { integrations: replacement };
+        const instance = createIntegrationInstance(
+          destSDKIdentifier,
+          sdkTypeName,
+          destination,
+          state,
+        );
+        expect(instance.analytics.vendorSdkVersionPolicy).toBe('strict');
+        expect(instance.analytics.loadOnlyIntegrations).toBe(replacement);
+        expect(instance.analytics.loadOnlyIntegrations.Bugsnag).toBeUndefined();
+      }
+      resetState();
+    });
+
     it('should return an instance of the destination', () => {
       state.lifecycle.writeKey.value = '12345678910'; // write key 2
 
@@ -213,6 +235,7 @@ describe('deviceModeDestinations utils', () => {
       expect(destinationInstance.config).toEqual(destination.config);
       expect(destinationInstance.analytics).toEqual({
         loadIntegration: true,
+        vendorSdkVersionPolicy: undefined,
         loadOnlyIntegrations: {},
         logLevel: 'ERROR',
         alias: expect.any(Function),

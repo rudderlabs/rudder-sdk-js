@@ -23,6 +23,13 @@ class Appcues {
     } = destinationInfo ?? {});
   }
 
+  getVendorSdkPinSupport() {
+    return isDefinedAndNotNullAndNotEmpty(this.nativeSdkUrl) &&
+      typeof this.nativeSdkUrl === 'string'
+      ? 'customer'
+      : 'none';
+  }
+
   init() {
     let url = `https://fast.appcues.com/${this.accountId}.js`;
     if (

@@ -2,7 +2,7 @@
 import type { LogLevel } from './Logger';
 import type { Nullable } from './Nullable';
 import type { PluginName } from './PluginsManager';
-import type { IntegrationOpts } from './Integration';
+import type { IntegrationOpts, VendorSdkVersionPolicy } from './Integration';
 import type { ApiOptions } from './EventApi';
 import type { ConsentManagementOptions } from './Consent';
 import type { ApiObject } from './ApiObject';
@@ -165,6 +165,8 @@ export type LoadOptions = {
   context?: InputCustomContext;
   logLevel?: LogLevel; // defaults to ERROR
   integrations?: IntegrationOpts; // defaults to { All : true }
+  /** Load-only policy: strict skips unsupported vendor SDKs; otherwise pinned by default. */
+  vendorSdkVersionPolicy?: VendorSdkVersionPolicy;
   configUrl?: string; // defaults to https://api.rudderstack.com
   queueOptions?: QueueOpts; // defaults to { maxRetryDelay: 540000, minRetryDelay: 1000, backoffFactor: 2, backoffJitter: 0.2, maxAttempts: 30 (~3h of retries), maxItems: 100 }
   loadIntegration?: boolean; // defaults to true.

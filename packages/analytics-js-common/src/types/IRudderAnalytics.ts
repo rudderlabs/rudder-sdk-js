@@ -328,4 +328,5 @@ export type IntegrationRSAnalytics = RSAnalytics & {
   loadIntegration: boolean;
   logLevel: LogLevel;
   loadOnlyIntegrations: IntegrationOpts;
+  vendorSdkVersionPolicy?: LoadOptions['vendorSdkVersionPolicy'];
 };

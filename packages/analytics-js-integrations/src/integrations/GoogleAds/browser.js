@@ -50,6 +50,7 @@ class GoogleAds {
     this.v2 = getValueOrDefault(config.v2, true);
     this.allowIdentify = config.allowIdentify ?? false;
     const sanitizedSdkBaseUrl = removeTrailingSlashes(config.sdkBaseUrl);
+    this.hasCustomerSdkBaseUrl = Boolean(sanitizedSdkBaseUrl);
     if (sanitizedSdkBaseUrl && !isValidURL(sanitizedSdkBaseUrl)) {
       throw new Error(`Invalid sdkBaseUrl: "${sanitizedSdkBaseUrl}"`);
     }
@@ -60,6 +61,10 @@ class GoogleAds {
       propagateEventsUntransformedOnError: this.propagateEventsUntransformedOnError,
       destinationId: this.destinationId,
     } = destinationInfo ?? {});
+  }
+
+  getVendorSdkPinSupport() {
+    return this.hasCustomerSdkBaseUrl ? 'customer' : 'none';
   }
 
   init() {
