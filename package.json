@@ -233,7 +233,8 @@
     },
     "rollup-plugin-filesize": {
       "pacote": "21.5.1"
-    }
+    },
+    "follow-redirects": "1.16.2"
   },
   "lint-staged": {
     "*.{json,js,md,ts}": "prettier --write"
