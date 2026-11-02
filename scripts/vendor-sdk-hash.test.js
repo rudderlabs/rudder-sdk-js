@@ -90,10 +90,20 @@ async function withServer(t, body) {
   await body({ request, routes, counts });
 }
 
-test('discovers all eight artifacts with full instance support', () => {
+test('discovers all nine artifacts with full instance support', () => {
   assert.deepEqual(
     readVendorPins().map(pin => pin.integration),
-    ['Amplitude', 'Amplitude', 'Bugsnag', 'Iterable', 'Keen', 'LaunchDarkly', 'Sentry', 'Sentry'],
+    [
+      'Amplitude',
+      'Amplitude',
+      'Bugsnag',
+      'Iterable',
+      'Keen',
+      'LaunchDarkly',
+      'RollBar',
+      'Sentry',
+      'Sentry',
+    ],
   );
   assert.equal(
     readVendorPins().find(pin => pin.integration === 'LaunchDarkly').pinnedUrl,

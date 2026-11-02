@@ -13,6 +13,11 @@ const existingArtifactSources = {
     file: 'nativeSdkLoader.js',
     pattern: /a\.integrity\s*=\s*'([^']+)'[\s\S]*?a\.src\s*=\s*'([^']+)'/g,
   },
+  RollBar: {
+    file: 'nativeSdkLoader.js',
+    pattern: /'(https:\/\/cdn\.rollbar\.com\/[^']+)'[\s\S]*?i\.integrity\s*=\s*'([^']+)'/g,
+    count: 1,
+  },
   Sentry: {
     file: 'browser.js',
     pattern: /SentryScriptLoader\(\s*'[^']+',\s*`([^`]+)`,\s*`([^`]+)`/g,
@@ -64,7 +69,9 @@ function readVendorPins(
           validatePin(pin);
           return pin;
         });
-        if (pins.length !== 2) throw new Error(`${entry.name}: expected two registered artifacts`);
+        const expected = metadata.count ?? 2;
+        if (pins.length !== expected)
+          throw new Error(`${entry.name}: expected ${expected} registered artifact(s)`);
         return pins;
       }
       /** Read a literal exported pin field. */

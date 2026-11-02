@@ -4,6 +4,7 @@ import Keen from '../src/integrations/Keen/browser';
 import LaunchDarkly from '../src/integrations/LaunchDarkly/browser';
 import Amplitude from '../src/integrations/Amplitude/browser';
 import Sentry from '../src/integrations/Sentry/browser';
+import RollBar from '../src/integrations/RollBar/browser';
 import Lotame from '../src/integrations/Lotame/browser';
 import Ninetailed from '../src/integrations/Ninetailed/browser';
 import Optimizely from '../src/integrations/Optimizely/browser';
@@ -43,12 +44,22 @@ afterEach(() => {
   document.head.innerHTML = '';
 });
 
-test.each([Bugsnag, Iterable, Keen, LaunchDarkly, Amplitude, Sentry])(
+test.each([Bugsnag, Iterable, Keen, LaunchDarkly, Amplitude, Sentry, RollBar])(
   '%p declares full support on its instance',
   Integration => {
     expect(new Integration({}, {}).getVendorSdkPinSupport()).toBe('full');
   },
 );
+test('RollBar loads its pinned script with SRI and anonymous CORS', () => {
+  new RollBar({ accessToken: 'token', ignoredMessages: [] }, {}).init();
+  const script = inserted.find(node => node.src?.includes('cdn.rollbar.com'));
+  expect(script.src).toBe('https://cdn.rollbar.com/rollbarjs/refs/tags/v2.24.0/rollbar.min.js');
+  expect(script.integrity).toBe(
+    'sha384-N3vTA8MX6CX0P+FEjMTyF4XwTphjZbv0A+FChoST0GNR854Ho49z8YvSHSGut84u',
+  );
+  // An empty crossorigin attribute means anonymous CORS.
+  expect(script.getAttribute('crossorigin')).toBe('');
+});
 test.each([Lotame, Ninetailed, Optimizely, Shynet])(
   '%p declares no-script support on its instance',
   Integration => {
