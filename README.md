@@ -38,6 +38,7 @@ The JavaScript SDK lets you track customer event data from your website and send
 - [**Installing the JavaScript SDK**](#installing-the-javascript-sdk)
 - [**Migrating SDK from an older version**](#migrating-sdk-from-an-older-version)
 - [**Loading the SDK**](#loading-the-sdk)
+- [**Security hardening**](#security-hardening)
 - [**Identifying your users**](#identifying-users)
 - [**Tracking user actions**](#tracking-user-actions)
 - [**The `ready` API**](#the-ready-api)
@@ -128,6 +129,81 @@ rudderanalytics.load(<WRITE_KEY>, <DATA_PLANE_URL>, [loadOptions]);
 ```
 
 You can use the [`loadOptions`](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/load-js-sdk/#loading-options) object in the above `load` call to define various [options](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/load-js-sdk/#loading-options) while loading the SDK.
+
+## Security hardening
+
+| For the full guide, see [**Harden the JavaScript SDK**](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/sdk-hardening/). |
+| :-------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+
+You can harden the SDK by reducing its reliance on external resources that could be used to disrupt the event flow or compromise your app. RudderStack recommends installing the SDK using NPM.
+
+[Device mode](https://www.rudderstack.com/docs/destinations/rudderstack-connection-modes/#device-mode) destinations load third-party vendor SDKs into your website, so avoid them and use [cloud mode](https://www.rudderstack.com/docs/destinations/rudderstack-connection-modes/#cloud-mode) destinations instead. Steps 1 to 3 give the most hardened setup, where the SDK loads no device mode destinations. If you must keep device mode destinations, follow step 4 instead of step 2.
+
+1. **Use the bundled NPM export.** The SDK then makes no request to download plugins at runtime. You can also [self-host the plugins and integration SDKs](https://www.rudderstack.com/docs/user-guides/how-to-guides/self-hosting-js-sdk/) or serve the SDK from [your own domain](https://www.rudderstack.com/docs/user-guides/how-to-guides/custom-domains/).
+
+   ```javascript
+   import { RudderAnalytics } from '@rudderstack/analytics-js/bundled';
+   ```
+
+2. **Mock the source configuration.** With a `getSourceConfig` function, the SDK makes no source configuration request. The mocked configuration lists no destinations, so the SDK loads no vendor SDKs. Cloud mode destinations still receive your events, as RudderStack routes them on the server.
+
+3. **Disable polyfills.** Set `polyfillIfRequired` to `false` so the SDK adds no polyfills script from a third-party domain.
+
+4. **If you must keep device mode destinations, use strict mode instead of step 2.** The SDK needs the real source configuration to load device mode destinations, so do not mock it. Set `vendorSdkVersionPolicy` to `strict` so the SDK loads only the vendor SDKs it can pin. Destinations whose vendor scripts cannot be pinned are skipped; destinations without vendor scripts, custom integrations and vendor scripts loaded from URLs you set still load.
+
+   ```javascript
+   rudderAnalytics.load(<WRITE_KEY>, <DATA_PLANE_URL>, {
+     polyfillIfRequired: false,
+     vendorSdkVersionPolicy: 'strict',
+   });
+   ```
+
+Without strict mode, the SDK still loads an exact release of each vendor SDK it can pin (Amplitude, Bugsnag, Iterable, Keen, LaunchDarkly, Rollbar and Sentry), verified with a Subresource Integrity (SRI) hash. If the vendor's file changes, the browser refuses to run it, and only that destination is affected.
+
+The final `load` call for a setup with cloud mode destinations only (steps 1 to 3):
+
+```javascript
+import { RudderAnalytics } from '@rudderstack/analytics-js/bundled';
+
+const rudderAnalytics = new RudderAnalytics();
+
+rudderAnalytics.load(<WRITE_KEY>, <DATA_PLANE_URL>, {
+  polyfillIfRequired: false,
+  getSourceConfig: () => ({
+    updatedAt: new Date().toISOString(),
+    source: {
+      // Use relevant valid values from the RudderStack dashboard
+      name: <SOURCE_NAME>,
+      id: <SOURCE_ID>,
+      workspaceId: <WORKSPACE_ID>,
+      writeKey: <WRITE_KEY>,
+      updatedAt: new Date().toISOString(),
+      config: {
+        statsCollection: {
+          errors: { enabled: false },
+          metrics: { enabled: false },
+        },
+      },
+      enabled: true,
+      destinations: [],
+    },
+  }),
+});
+
+export { rudderAnalytics };
+```
+
+### Hardening the CDN snippet
+
+If you must load the SDK using the CDN snippet, pin `sdkVersion` to an exact release and leave `sdkFileName` unchanged:
+
+```javascript
+var sdkVersion = '<EXACT_SDK_VERSION>'; // For example, '3.36.0'
+```
+
+The SDK derives the plugins and integration SDK paths from its own script URL, so this also pins them, unless you set `destSDKBaseURL` or `pluginsSDKBaseURL` in the `load` options. Update those to the pinned version too, or remove them.
+
+> **IMPORTANT**: A pinned SDK does not receive fixes or security updates automatically. Watch the [releases](https://github.com/rudderlabs/rudder-sdk-js/releases) and update `sdkVersion` with each release.
 
 ## Identifying users
 
