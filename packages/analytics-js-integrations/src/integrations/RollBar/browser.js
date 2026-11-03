@@ -30,6 +30,10 @@ class RollBar {
     } = destinationInfo ?? {});
   }
 
+  getVendorSdkPinSupport() {
+    return 'full';
+  }
+
   init() {
     const _rollbarConfig = {
       accessToken: this.accessToken,

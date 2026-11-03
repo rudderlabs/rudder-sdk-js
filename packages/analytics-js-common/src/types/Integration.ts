@@ -1,5 +1,7 @@
 import type { ApiObject } from './ApiObject';
 
+export type VendorSdkVersionPolicy = 'strict';
+export type VendorSdkPinSupport = 'full' | 'none' | 'no-script' | 'customer';
 export type DestinationIntgConfig = boolean | undefined | ApiObject;
 
 /**

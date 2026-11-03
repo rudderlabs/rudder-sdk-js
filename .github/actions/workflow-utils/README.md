@@ -72,6 +72,7 @@ A generic composite action for triggering external workflows and waiting for the
 | `workflow_inputs` | JSON object with inputs for target workflow | ❌       | `{}`                |
 | `max_wait_time`   | Maximum wait time in seconds                | ✅       | -                   |
 | `check_interval`  | Check interval in seconds                   | ✅       | -                   |
+| `correlation_id_input` | Target input that receives a unique id; matched against the run's `run-name` | ❌ | `''` |
 
 ## Outputs
 
@@ -81,6 +82,7 @@ A generic composite action for triggering external workflows and waiting for the
 | `conclusion` | Final conclusion (`success`, `failure`, `cancelled`, etc.) |
 | `run_id`     | The workflow run ID                                        |
 | `run_url`    | Direct URL to the workflow run                             |
+| `failure_kind` | On unsuccessful completion: `infrastructure` (no tests ran), `tests`, `post-test` (all passed, a later step failed), or `unknown` |
 
 ## Examples
 

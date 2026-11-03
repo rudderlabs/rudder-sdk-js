@@ -17,10 +17,7 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-permissions:
-  id-token: write # allows the JWT to be requested from GitHub's OIDC provider
-  contents: read # This is required for actions/checkout
-  pull-requests: read # This is required to get PR information
+permissions: {}
 
 env:
   NODE_OPTIONS: '--no-warnings'
@@ -44,6 +41,9 @@ jobs:
       pr_url: ${{ steps.pr-info.outputs.pr_url }}
       pr_base_branch: ${{ steps.pr-info.outputs.pr_base_branch }}
       force_deploy_mode: ${{ steps.check-force-deploy.outputs.force_deploy_mode }}
+    permissions:
+      contents: read # actions/checkout
+      pull-requests: read # github-script looks up the PR
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
@@ -53,6 +53,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           fetch-depth: 0
 
       - name: Check force deploy mode
@@ -113,6 +114,9 @@ jobs:
     name: Validate PR Status
     needs: find-pr
     runs-on: arc-amd64
+    permissions:
+      contents: read # actions/checkout
+      pull-requests: read # github-script reads the PR state
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
@@ -122,6 +126,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           fetch-depth: 0
 
       - name: Validate PR
@@ -188,6 +193,8 @@ jobs:
       beta_identifier: ${{ steps.deploy-inputs.outputs.beta_identifier }}
       beta_identifier_for_automation_tests: ${{ steps.deploy-inputs.outputs.beta_identifier_for_automation_tests }}
       trigger_source: ${{ steps.set-trigger-source.outputs.trigger_source }}
+    permissions:
+      contents: read # actions/checkout
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
@@ -197,7 +204,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           fetch-depth: 0
+
+      - name: Validate re-run actor
+        uses: ./.github/actions/assert-rerun-actor
+        with:
+          app_id: ${{ vars.RELEASE_APP_ID }}
+          private_key: ${{ secrets.RELEASE_PRIVATE_KEY }}
+          team_names: 'sdk_team,integrations'
 
       - name: Set trigger source
         id: set-trigger-source
@@ -231,6 +246,9 @@ jobs:
           echo "beta_identifier_for_automation_tests=pr-${{ needs.find-pr.outputs.pr_number }}-$SHA_SHORT" >> $GITHUB_OUTPUT
 
   deploy-cdn:
+    permissions:
+      contents: read # deploy.yml: actions/checkout
+      id-token: write # deploy job: AWS OIDC role
     name: Deploy to CDN
     uses: ./.github/workflows/deploy.yml
     needs: get-deploy-inputs
@@ -249,8 +267,12 @@ jobs:
       BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
+      RELEASE_PRIVATE_KEY: ${{ secrets.RELEASE_PRIVATE_KEY }}
 
   deploy-npm:
+    permissions:
+      contents: read # deploy-npm.yml: actions/checkout
+      id-token: write # deploy-npm.yml: npm trusted publishing (OIDC)
     name: Deploy to NPM
     uses: ./.github/workflows/deploy-npm.yml
     needs: [find-pr, get-deploy-inputs]
@@ -266,8 +288,13 @@ jobs:
       RS_PROD_BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
+      RELEASE_PRIVATE_KEY: ${{ secrets.RELEASE_PRIVATE_KEY }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   deploy-sanity-suite:
+    permissions:
+      contents: read # deploy-sanity-suite.yml: actions/checkout
+      id-token: write # deploy-sanity-suite.yml: AWS OIDC role
     name: Deploy sanity suite
     needs: [get-deploy-inputs]
     uses: ./.github/workflows/deploy-sanity-suite.yml
@@ -286,8 +313,11 @@ jobs:
       BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
+      RELEASE_PRIVATE_KEY: ${{ secrets.RELEASE_PRIVATE_KEY }}
 
   run-e2e-regression-test-suites:
+    permissions:
+      contents: read # run-e2e-regression-test-suites.yml: actions/checkout
     uses: ./.github/workflows/run-e2e-regression-test-suites.yml
     name: Run E2E Regression Test Suites
     needs: [get-deploy-inputs, deploy-sanity-suite, deploy-cdn]

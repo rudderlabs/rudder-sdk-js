@@ -14,8 +14,7 @@ concurrency:
 env:
   NODE_OPTIONS: '--no-warnings'
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   # Detect affected sample apps
@@ -24,6 +23,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       affected-apps: ${{ steps.detect.outputs.affected-apps }}
+    permissions:
+      contents: read # actions/checkout
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
@@ -33,6 +34,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           fetch-depth: 0
 
       - name: Detect affected sample apps
@@ -88,6 +90,8 @@ jobs:
       matrix:
         app: ${{ fromJson(needs.detect-apps.outputs.affected-apps) }}
     
+    permissions:
+      contents: read # actions/checkout
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
@@ -96,6 +100,8 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -126,6 +132,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [detect-apps, verify-sample-apps]
     if: always()
+    permissions: {}
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2

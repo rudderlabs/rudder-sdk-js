@@ -73,6 +73,10 @@ class Mixpanel {
     this.isNativeSDKLoaded = false;
   }
 
+  getVendorSdkPinSupport() {
+    return typeof MIXPANEL_CUSTOM_LIB_URL !== 'undefined' ? 'customer' : 'none';
+  }
+
   init() {
     // eslint-disable-next-line no-var
     loadNativeSdk();

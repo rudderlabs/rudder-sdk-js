@@ -26,6 +26,10 @@ class Rockerbox {
     } = destinationInfo ?? {});
   }
 
+  getVendorSdkPinSupport() {
+    return this.customDomain ? 'customer' : 'none';
+  }
+
   init() {
     loadNativeSdk(this.customDomain, this.enableCookieSync, this.clientAuthId);
   }

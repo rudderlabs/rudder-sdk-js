@@ -57,10 +57,10 @@ on:
         required: true
       BUGSNAG_API_KEY:
         required: true
+      RELEASE_PRIVATE_KEY:
+        required: true
 
-permissions:
-  id-token: write # allows the JWT to be requested from GitHub's OIDC provider
-  contents: read # This is required for actions/checkout
+permissions: {}
 
 env:
   NODE_OPTIONS: "--no-warnings"
@@ -85,6 +85,9 @@ jobs:
     name: Deploy to environment
     runs-on: arc-amd64
 
+    permissions:
+      contents: read # actions/checkout
+      id-token: write # configure-aws-credentials assumes the deploy role through OIDC
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
@@ -118,7 +121,15 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           ref: ${{ steps.getSHA.outputs.SHA }}
+
+      - name: Validate re-run actor
+        uses: ./.github/actions/assert-rerun-actor
+        with:
+          app_id: ${{ vars.RELEASE_APP_ID }}
+          private_key: ${{ secrets.RELEASE_PRIVATE_KEY }}
+          team_names: 'sdk_team,integrations'
 
       - name: Modify package versions
         if: ${{ inputs.version_suffix != '' }}

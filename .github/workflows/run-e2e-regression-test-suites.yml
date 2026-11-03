@@ -32,16 +32,30 @@ on:
       SLACK_BOT_TOKEN:
         description: Slack Bot Token for posting to release threads
         required: false
+    outputs:
+      sanity_run_id:
+        description: Downstream sanity suite run id
+        value: ${{ jobs.trigger-and-wait-sanity-test-suite.outputs.sanity-run-id }}
+      sanity_run_url:
+        description: Downstream sanity suite run URL
+        value: ${{ jobs.trigger-and-wait-sanity-test-suite.outputs.sanity-run-url }}
+      e2e_run_id:
+        description: Downstream full E2E suite run id
+        value: ${{ jobs.trigger-and-wait-e2e-test-suite.outputs.e2e-run-id }}
+      e2e_run_url:
+        description: Downstream full E2E suite run URL
+        value: ${{ jobs.trigger-and-wait-e2e-test-suite.outputs.e2e-run-url }}
 
+# Bounds = slowest observed run (sanity ~20 min, full ~55 min, queue included)
+# + the suites' 60 min BrowserStack-idle wait (max_time) + ~10 min margin.
 env:
-  MAX_WAIT_TIME_FOR_SANITY_TESTS: 18000  # 5 hours
+  MAX_WAIT_TIME_FOR_SANITY_TESTS: 5400  # 90 minutes
   CHECK_INTERVAL_FOR_SANITY_TESTS: 60   # 1 minute
-  MAX_WAIT_TIME_FOR_E2E_TESTS: 18000    # 5 hours
+  MAX_WAIT_TIME_FOR_E2E_TESTS: 7800     # 2 hours 10 minutes
   CHECK_INTERVAL_FOR_E2E_TESTS: 60      # 1 minute
   TARGET_REPO: rudderlabs/rudder-client-side-test
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   extract-monorepo-version:
@@ -51,6 +65,8 @@ jobs:
     outputs:
       version: ${{ steps.determine_version.outputs.current_version }}
 
+    permissions:
+      contents: read # actions/checkout
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
@@ -71,6 +87,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           ref: ${{ steps.getSHA.outputs.SHA }}
 
       - name: Determine the Monorepo version
@@ -88,6 +105,8 @@ jobs:
     outputs:
       sanity-status: ${{ steps.run_sanity_tests.outputs.status }}
       sanity-conclusion: ${{ steps.run_sanity_tests.outputs.conclusion }}
+      sanity-run-id: ${{ steps.run_sanity_tests.outputs.run_id }}
+      sanity-run-url: ${{ steps.run_sanity_tests.outputs.run_url }}
 
     steps:
       - name: Harden the runner (Audit all outbound calls)
@@ -106,6 +125,8 @@ jobs:
 
       - name: Checkout (for composite action)
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Prepare sanity test inputs
         id: prepare_inputs
@@ -138,6 +159,7 @@ jobs:
           max_wait_time: ${{ env.MAX_WAIT_TIME_FOR_SANITY_TESTS }}
           check_interval: ${{ env.CHECK_INTERVAL_FOR_SANITY_TESTS }}
           outputs_artifact_name: job-outputs
+          correlation_id_input: _workflow_correlation_id
 
       - name: Extract sanity test results
         id: extract-sanity-results
@@ -180,6 +202,9 @@ jobs:
     if: needs.trigger-and-wait-sanity-test-suite.outputs.sanity-conclusion == 'success'
     permissions:
       contents: read # to checkout repository code
+    outputs:
+      e2e-run-id: ${{ steps.run_e2e_tests.outputs.run_id }}
+      e2e-run-url: ${{ steps.run_e2e_tests.outputs.run_url }}
 
     steps:
       - name: Harden the runner (Audit all outbound calls)
@@ -198,6 +223,8 @@ jobs:
 
       - name: Checkout (for composite action)
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Prepare E2E test inputs
         id: prepare_inputs
@@ -230,6 +257,7 @@ jobs:
           max_wait_time: ${{ env.MAX_WAIT_TIME_FOR_E2E_TESTS }}
           check_interval: ${{ env.CHECK_INTERVAL_FOR_E2E_TESTS }}
           outputs_artifact_name: job-outputs
+          correlation_id_input: _workflow_correlation_id
 
       - name: Extract E2E test results
         id: extract-e2e-results

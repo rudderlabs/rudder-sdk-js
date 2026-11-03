@@ -33,6 +33,10 @@ class Optimizely {
     } = destinationInfo ?? {});
   }
 
+  getVendorSdkPinSupport() {
+    return 'no-script';
+  }
+
   init() {
     this.initOptimizelyIntegration(this.referrerOverride, this.sendDataToRudder);
   }

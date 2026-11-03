@@ -5,16 +5,18 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "cron"
-      # every wednesday at 00:01 UTC
-      cronjob: "1 0 * * 3"
+      interval: "monthly"
+      time: "00:01"
       timezone: "UTC"
     labels:
       - "dependencies"
       - "github-actions"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
+    cooldown:
+      default-days: 7
     groups:
       github-actions-deps:
+        applies-to: version-updates
         patterns:
           - "*"
 
@@ -26,27 +28,28 @@ updates:
   # so per-group commit prefixes are not possible — keep this as a single entry.
   - package-ecosystem: "npm"
     cooldown:
-      default-days: 5
+      default-days: 7
     directory: "/"
     schedule:
-      interval: "cron"
-      # every wednesday at 00:01 UTC
-      cronjob: "1 0 * * 3"
+      interval: "monthly"
+      time: "00:01"
       timezone: "UTC"
     labels:
       - "dependencies"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     commit-message:
       prefix: "fix"
       prefix-development: "chore"
       include: "scope"
     groups:
       npm-dev-deps:
+        applies-to: version-updates
         patterns:
           - "*"
         dependency-type: "development"
 
       npm-prod-deps:
+        applies-to: version-updates
         patterns:
           - "*"
         update-types:
@@ -55,16 +58,13 @@ updates:
         dependency-type: "production"
 
       npm-prod-major-deps:
+        applies-to: version-updates
         patterns:
           - "*"
         update-types:
           - "major"
         dependency-type: "production"
 
-      npm-security-updates:
-        applies-to: security-updates
-        patterns:
-          - "*"
     # Majors blocked upstream; drop each rule once its blocker clears.
     ignore:
       # @rollup/plugin-babel peers @babel/core ^7; plugin-transform-object-assign has no 8.x
@@ -89,20 +89,20 @@ updates:
   # Angular sample apps
   - package-ecosystem: "npm"
     cooldown:
-      default-days: 5
+      default-days: 7
     directories:
       - "/examples/angular/sample-app"
     schedule:
-      interval: "cron"
-      # 1st of every month at 00:01 UTC
-      cronjob: "1 0 1 * *"
+      interval: "monthly"
+      time: "00:01"
       timezone: "UTC"
     labels:
       - "dependencies"
       - "sample-apps"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     groups:
       angular-sample-apps-npm-deps:
+        applies-to: version-updates
         patterns:
           - "*"
         update-types:
@@ -110,15 +110,12 @@ updates:
           - "patch"
 
       angular-sample-apps-npm-major-deps:
+        applies-to: version-updates
         patterns:
           - "*"
         update-types:
           - "major"
 
-      angular-sample-apps-security-updates:
-        applies-to: security-updates
-        patterns:
-          - "*"
     ignore:
       - dependency-name: "typescript"
         update-types:
@@ -127,23 +124,23 @@ updates:
   # Next.js sample apps
   - package-ecosystem: "npm"
     cooldown:
-      default-days: 5
+      default-days: 7
     directories:
       - "/examples/nextjs/full-stack/sample-app"
       - "/examples/nextjs/hooks/sample-app"
       - "/examples/nextjs/page-router/sample-app"
       - "/examples/nextjs/ts/sample-app"
     schedule:
-      interval: "cron"
-      # 1st of every month at 00:01 UTC
-      cronjob: "1 0 1 * *"
+      interval: "monthly"
+      time: "00:01"
       timezone: "UTC"
     labels:
       - "dependencies"
       - "sample-apps"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     groups:
       nextjs-sample-apps-npm-deps:
+        applies-to: version-updates
         patterns:
           - "*"
         update-types:
@@ -151,15 +148,12 @@ updates:
           - "patch"
 
       nextjs-sample-apps-npm-major-deps:
+        applies-to: version-updates
         patterns:
           - "*"
         update-types:
           - "major"
 
-      nextjs-sample-apps-security-updates:
-        applies-to: security-updates
-        patterns:
-          - "*"
     ignore:
       - dependency-name: "typescript"
         update-types:
@@ -168,20 +162,20 @@ updates:
   # React (Vite) sample apps
   - package-ecosystem: "npm"
     cooldown:
-      default-days: 5
+      default-days: 7
     directories:
       - "/examples/reactjs/vite/sample-app"
     schedule:
-      interval: "cron"
-      # 1st of every month at 00:01 UTC
-      cronjob: "1 0 1 * *"
+      interval: "monthly"
+      time: "00:01"
       timezone: "UTC"
     labels:
       - "dependencies"
       - "sample-apps"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     groups:
       react-sample-apps-npm-deps:
+        applies-to: version-updates
         patterns:
           - "*"
         update-types:
@@ -189,15 +183,12 @@ updates:
           - "patch"
 
       react-sample-apps-npm-major-deps:
+        applies-to: version-updates
         patterns:
           - "*"
         update-types:
           - "major"
 
-      react-sample-apps-security-updates:
-        applies-to: security-updates
-        patterns:
-          - "*"
     ignore:
       - dependency-name: "typescript"
         update-types:
@@ -206,22 +197,22 @@ updates:
   # React (create-react-app) sample apps
   - package-ecosystem: "npm"
     cooldown:
-      default-days: 5
+      default-days: 7
     directories:
       - "/examples/reactjs/hooks/sample-app"
       - "/examples/reactjs/js/sample-app"
       - "/examples/reactjs/ts/sample-app"
     schedule:
-      interval: "cron"
-      # 1st of every month at 00:01 UTC
-      cronjob: "1 0 1 * *"
+      interval: "monthly"
+      time: "00:01"
       timezone: "UTC"
     labels:
       - "dependencies"
       - "sample-apps"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     groups:
       react-cra-sample-apps-npm-deps:
+        applies-to: version-updates
         patterns:
           - "*"
         update-types:
@@ -229,15 +220,12 @@ updates:
           - "patch"
 
       react-cra-sample-apps-npm-major-deps:
+        applies-to: version-updates
         patterns:
           - "*"
         update-types:
           - "major"
 
-      react-cra-sample-apps-security-updates:
-        applies-to: security-updates
-        patterns:
-          - "*"
     ignore:
       - dependency-name: "typescript"
         update-types:
@@ -246,21 +234,21 @@ updates:
   # Serverless sample apps
   - package-ecosystem: "npm"
     cooldown:
-      default-days: 5
+      default-days: 7
     directories:
       - "/examples/serverless/cloudflare-worker"
       - "/examples/serverless/vercel-edge"
     schedule:
-      interval: "cron"
-      # 1st of every month at 00:01 UTC
-      cronjob: "1 0 1 * *"
+      interval: "monthly"
+      time: "00:01"
       timezone: "UTC"
     labels:
       - "dependencies"
       - "sample-apps"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     groups:
       serverless-sample-apps-npm-deps:
+        applies-to: version-updates
         patterns:
           - "*"
         update-types:
@@ -268,15 +256,12 @@ updates:
           - "patch"
 
       serverless-sample-apps-npm-major-deps:
+        applies-to: version-updates
         patterns:
           - "*"
         update-types:
           - "major"
 
-      serverless-sample-apps-security-updates:
-        applies-to: security-updates
-        patterns:
-          - "*"
     ignore:
       - dependency-name: "typescript"
         update-types:
@@ -285,20 +270,20 @@ updates:
   # Symfony sample apps
   - package-ecosystem: "npm"
     cooldown:
-      default-days: 5
+      default-days: 7
     directories:
       - "/examples/symfony/sample"
     schedule:
-      interval: "cron"
-      # 1st of every month at 00:01 UTC
-      cronjob: "1 0 1 * *"
+      interval: "monthly"
+      time: "00:01"
       timezone: "UTC"
     labels:
       - "dependencies"
       - "sample-apps"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     groups:
       symfony-sample-apps-npm-deps:
+        applies-to: version-updates
         patterns:
           - "*"
         update-types:
@@ -306,37 +291,48 @@ updates:
           - "patch"
 
       symfony-sample-apps-npm-major-deps:
+        applies-to: version-updates
         patterns:
           - "*"
         update-types:
           - "major"
 
-      symfony-sample-apps-security-updates:
-        applies-to: security-updates
-        patterns:
-          - "*"
     ignore:
       - dependency-name: "typescript"
         update-types:
           - version-update:semver-major
 
-  # Ninetailed sample apps
-  - package-ecosystem: "npm"
-    cooldown:
-      default-days: 5
-    directories:
-      - "/examples/integrations/Ninetailed/sample-app"
+  # Symfony Composer dependencies are separate from its npm manifest.
+  - package-ecosystem: "composer"
+    directory: "/examples/symfony/sample"
     schedule:
-      interval: "cron"
-      # 1st of every month at 00:01 UTC
-      cronjob: "1 0 1 * *"
+      interval: "monthly"
+      time: "00:01"
       timezone: "UTC"
     labels:
       - "dependencies"
       - "sample-apps"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
+    cooldown:
+      default-days: 7
+
+  # Ninetailed sample apps
+  - package-ecosystem: "npm"
+    cooldown:
+      default-days: 7
+    directories:
+      - "/examples/integrations/Ninetailed/sample-app"
+    schedule:
+      interval: "monthly"
+      time: "00:01"
+      timezone: "UTC"
+    labels:
+      - "dependencies"
+      - "sample-apps"
+    open-pull-requests-limit: 0
     groups:
       ninetailed-sample-apps-npm-deps:
+        applies-to: version-updates
         patterns:
           - "*"
         update-types:
@@ -344,15 +340,12 @@ updates:
           - "patch"
 
       ninetailed-sample-apps-npm-major-deps:
+        applies-to: version-updates
         patterns:
           - "*"
         update-types:
           - "major"
 
-      ninetailed-sample-apps-security-updates:
-        applies-to: security-updates
-        patterns:
-          - "*"
     ignore:
       - dependency-name: "typescript"
         update-types:
@@ -361,28 +354,24 @@ updates:
   # Gatsby sample applications with special dependency ignores
   - package-ecosystem: "npm"
     cooldown:
-      default-days: 5
+      default-days: 7
     directories:
       - "/examples/gatsby/sample-gatsby-plugin-usage"
       - "/examples/gatsby/sample-gatsby-site"
     schedule:
-      interval: "cron"
-      # 1st of every month at 00:01 UTC
-      cronjob: "1 0 1 * *"
+      interval: "monthly"
+      time: "00:01"
       timezone: "UTC"
     labels:
       - "dependencies"
       - "sample-apps"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     groups:
       gatsby-sample-apps-npm-deps:
+        applies-to: version-updates
         patterns:
           - "*"
 
-      gatsby-sample-apps-security-updates:
-        applies-to: security-updates
-        patterns:
-          - "*"
     ignore:
       - dependency-name: "react"
         update-types:
@@ -393,3 +382,17 @@ updates:
       - dependency-name: "@types/react-dom"
         update-types:
           - version-update:semver-major
+
+  # Independent mock servers npm manifest (no tracked lockfile).
+  - package-ecosystem: "npm"
+    directory: "/examples/utils/mock-servers"
+    schedule:
+      interval: "monthly"
+      time: "00:01"
+      timezone: "UTC"
+    labels:
+      - "dependencies"
+      - "sample-apps"
+    open-pull-requests-limit: 0
+    cooldown:
+      default-days: 7

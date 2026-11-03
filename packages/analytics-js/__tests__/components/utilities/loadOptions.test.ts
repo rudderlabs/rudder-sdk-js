@@ -60,6 +60,25 @@ describe('load API options', () => {
   ];
 
   describe('normalizeLoadOptions', () => {
+    describe('vendorSdkVersionPolicy', () => {
+      it('accepts strict as a top-level load option', () => {
+        expect(
+          normalizeLoadOptions(defaultLoadOptions, { vendorSdkVersionPolicy: 'strict' })
+            .vendorSdkVersionPolicy,
+        ).toBe('strict');
+      });
+
+      it.each([undefined, null, 'pinned', 'floating', 'latest', '', true, false, 0, {}, []])(
+        'ignores invalid policy %p',
+        policy => {
+          const options = { vendorSdkVersionPolicy: policy } as unknown as LoadOptions;
+          expect(normalizeLoadOptions(defaultLoadOptions, options)).not.toHaveProperty(
+            'vendorSdkVersionPolicy',
+          );
+        },
+      );
+    });
+
     describe('setCookieDomain', () => {
       const testCaseData: any[] = [
         {

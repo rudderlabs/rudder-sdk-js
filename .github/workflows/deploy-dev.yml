@@ -11,12 +11,15 @@ concurrency:
   group: ${{ github.workflow }}-develop
   cancel-in-progress: true
 
+permissions: {}
+
 jobs:
   get-deploy-inputs:
     name: Get Deploy Inputs
     runs-on: arc-amd64
     outputs:
       trigger_source: ${{ steps.set-outputs.outputs.trigger_source }}
+    permissions: {}
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
@@ -33,6 +36,9 @@ jobs:
         run: echo "trigger_source=PR <${PR_HTML_URL}|#${PR_NUMBER}> merged by <${SERVER_URL}/${ACTOR}|${ACTOR}>" >> $GITHUB_OUTPUT
 
   deploy:
+    permissions:
+      contents: read # deploy.yml: actions/checkout
+      id-token: write # deploy job: AWS OIDC role
     name: Deploy to Development Environment
     needs: [get-deploy-inputs]
     if: github.event.pull_request.merged == true
@@ -52,8 +58,12 @@ jobs:
       BUGSNAG_API_KEY: ${{ secrets.RS_DEV_BUGSNAG_API_KEY }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
+      RELEASE_PRIVATE_KEY: ${{ secrets.RELEASE_PRIVATE_KEY }}
 
   deploy-sanity-suite:
+    permissions:
+      contents: read # deploy-sanity-suite.yml: actions/checkout
+      id-token: write # deploy-sanity-suite.yml: AWS OIDC role
     name: Deploy sanity suite
     if: github.event.pull_request.merged == true
     needs: [get-deploy-inputs]
@@ -73,8 +83,11 @@ jobs:
       BUGSNAG_API_KEY: ${{ secrets.RS_DEV_BUGSNAG_API_KEY }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       SLACK_RELEASE_CHANNEL_ID: ${{ secrets.SLACK_RELEASE_CHANNEL_ID_NON_PROD }}
+      RELEASE_PRIVATE_KEY: ${{ secrets.RELEASE_PRIVATE_KEY }}
 
   run-e2e-regression-test-suites:
+    permissions:
+      contents: read # run-e2e-regression-test-suites.yml: actions/checkout
     uses: ./.github/workflows/run-e2e-regression-test-suites.yml
     name: Run E2E Regression Test Suites
     needs: [get-deploy-inputs, deploy-sanity-suite, deploy]

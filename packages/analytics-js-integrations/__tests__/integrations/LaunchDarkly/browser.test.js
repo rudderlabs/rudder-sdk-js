@@ -1,3 +1,9 @@
+import * as vendorSdkPolicy from '../../../src/utils/vendorSdkVersionPolicy';
+import { ScriptLoader } from '@rudderstack/analytics-js-legacy-utilities/ScriptLoader';
+import {
+  VENDOR_SDK_PINNED_URL,
+  VENDOR_SDK_FLOATING_URL,
+} from '../../../src/integrations/LaunchDarkly/constants';
 import LaunchDarkly from '../../../src/integrations/LaunchDarkly/browser';
 import {
   launchDarklyConfigs,
@@ -11,6 +17,17 @@ import {
   testEvent,
 } from './__fixtures__/data';
 
+jest.mock('@rudderstack/analytics-js-legacy-utilities/ScriptLoader', () => ({
+  ScriptLoader: jest.fn(),
+}));
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+afterEach(() => {
+  delete window.LDClient;
+  delete window.ldclient;
+});
+
 afterAll(() => {
   jest.restoreAllMocks();
 });
@@ -21,15 +38,9 @@ const destinationInfo = {
 };
 
 describe('LaunchDarkly init tests', () => {
-  test('Testing init call of Launch Darkly without client side id', () => {
-    const launchdarkly = new LaunchDarkly(launchDarklyConfigs[0], {}, destinationInfo);
-    try {
-      launchdarkly.init();
-    } catch (error) {
-      expect(error).toEqual(
-        'LAUNCHDARKLY :: Unable to initialize destination - clientSideId is missing in config',
-      );
-    }
+  test('LaunchDarkly does not request a script without clientSideId', () => {
+    new LaunchDarkly({}, {}).init();
+    expect(ScriptLoader).not.toHaveBeenCalled();
   });
 });
 
@@ -148,4 +159,32 @@ describe('LaunchDarkly Alias call tests', () => {
       ...mockTraits,
     });
   });
+});
+
+test('LaunchDarkly uses the selected vendor artifact', () => {
+  for (const vendorSdkVersionPolicy of [undefined, 'strict', 'pinned', 'floating', 'latest']) {
+    new LaunchDarkly({ clientSideId: 'client-1' }, { vendorSdkVersionPolicy }).init();
+    expect(ScriptLoader).toHaveBeenLastCalledWith(
+      null,
+      'https://unpkg.com/launchdarkly-js-client-sdk@2.24.2/dist/ldclient.min.js',
+      {
+        integrity: 'sha384-n/oFkkwm6UKpr8pGEbmNoGKFjm8npB9KfZsG0HT7N89mdKXeIGiTS2r9qTwHl+aI',
+        crossOrigin: 'anonymous',
+      },
+    );
+  }
+  const resolver = jest.spyOn(vendorSdkPolicy, 'resolveVendorSdkVersionPolicy');
+  resolver.mockReturnValueOnce('floating');
+  try {
+    new LaunchDarkly({ clientSideId: 'client-1' }, {}).init();
+    expect(ScriptLoader).toHaveBeenLastCalledWith(
+      null,
+      'https://unpkg.com/launchdarkly-js-client-sdk@2',
+      {},
+    );
+  } finally {
+    resolver.mockRestore();
+  }
+  expect(new LaunchDarkly({}, {}).getVendorSdkPinSupport()).toBe('full');
+  expect(new URL(VENDOR_SDK_PINNED_URL).hostname).toBe(new URL(VENDOR_SDK_FLOATING_URL).hostname);
 });

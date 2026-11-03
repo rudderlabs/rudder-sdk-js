@@ -1,8 +1,10 @@
-## [3.26.2](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.26.1...@rudderstack/analytics-js-integrations@3.26.2) (2026-10-26)
+## [3.27.0](https://github.com/rudderlabs/rudder-sdk-js/compare/@rudderstack/analytics-js-integrations@3.26.2...@rudderstack/analytics-js-integrations@3.27.0) (2026-11-03)
 
-### Bug Fixes
+### Dependency Updates
 
-* guard CleverTap initialization from primitive globals ([#3286](https://github.com/rudderlabs/rudder-sdk-js/issues/3286)) ([962eabb](https://github.com/rudderlabs/rudder-sdk-js/commit/962eabbebc4441d4a2b2eb822a8ff5b654c0bf73))
-* honor OpenAI Ads device-mode hash config ([#3295](https://github.com/rudderlabs/rudder-sdk-js/issues/3295)) ([79e6526](https://github.com/rudderlabs/rudder-sdk-js/commit/79e6526e2316958ee7ce907c35f12553a821bb97))
-* update destination constants ([#3288](https://github.com/rudderlabs/rudder-sdk-js/issues/3288)) ([4e45e51](https://github.com/rudderlabs/rudder-sdk-js/commit/4e45e516e381fc42395d350f424ed64300dee8fa))
+* `@rudderstack/analytics-js-legacy-utilities` updated to version `0.2.0`
+
+### Features
+
+* **monorepo:** pin device mode vendor scripts ([#3329](https://github.com/rudderlabs/rudder-sdk-js/issues/3329)) ([18f5b4a](https://github.com/rudderlabs/rudder-sdk-js/commit/18f5b4ab3e5a830006ca3a8302fb5546faf5af8d))
 

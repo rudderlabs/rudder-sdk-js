@@ -17,8 +17,7 @@ concurrency:
 env:
   NODE_OPTIONS: '--no-warnings'
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   validate-actor:
@@ -57,7 +56,15 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
           token: ${{ steps.generate-token.outputs.token }}
+
+      - name: Validate re-run actor
+        uses: ./.github/actions/assert-rerun-actor
+        with:
+          app_id: ${{ vars.RELEASE_APP_ID }}
+          private_key: ${{ secrets.RELEASE_PRIVATE_KEY }}
+          team_names: 'sdk_team,integrations'
 
       - name: Setup Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -244,6 +251,15 @@ jobs:
               -f "ref=refs/tags/${tag}" \
               -f "sha=${tag_obj_sha}"
           done
+
+      # Re-derives the bumped set independently and checks the remote, so a skipped or
+      # failed tag never reaches the release PR unnoticed. The monorepo v<version> tag
+      # is created at publish time, so it is not expected here.
+      - name: Verify release tags on remote
+        env:
+          BRANCH_NAME: ${{ steps.create-release.outputs.branch_name }}
+        run: |
+          ./scripts/verify-release-tags.sh "origin/${BRANCH_NAME}" origin/main
 
       - name: Generate packages versions table
         id: packages-versions
