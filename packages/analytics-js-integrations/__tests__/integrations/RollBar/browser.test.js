@@ -25,6 +25,7 @@ describe('RollBar script readiness', () => {
   it('stays not ready after the vendor script errors', () => {
     expect(window.Rollbar).toBeDefined();
     script.dispatchEvent(new Event('error'));
+    expect(rollBar.isLoaded()).toBe(false);
     expect(rollBar.isReady()).toBe(false);
   });
 
@@ -34,6 +35,7 @@ describe('RollBar script readiness', () => {
     window.rollbar = jest.fn().mockImplementation(() => ({ configure }));
     window._rollbarDidLoad = true;
     script.dispatchEvent(new Event('load'));
+    expect(rollBar.isLoaded()).toBe(true);
     expect(rollBar.isReady()).toBe(true);
     expect(window._rollbarInitialized).toBe(true);
     rollBar.identify({ message: { userId: 'user-id', context: { traits: {} } } });
