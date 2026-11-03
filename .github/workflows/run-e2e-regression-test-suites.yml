@@ -123,10 +123,14 @@ jobs:
           permission-actions: write # to trigger workflows in target repository
           repositories: rudder-client-side-test # to access cross-repo test repository
 
-      - name: Checkout (for composite action)
+      # The composite actions below get the App token and Slack token, so load
+      # them from the base commit, not the PR head.
+      - name: Checkout trusted actions
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          ref: ${{ inputs.use_pr_head_sha && github.event.pull_request.base.sha || github.sha }}
+          sparse-checkout: .github/actions
 
       - name: Prepare sanity test inputs
         id: prepare_inputs
@@ -221,10 +225,14 @@ jobs:
           permission-actions: write # to trigger workflows in target repository
           repositories: rudder-client-side-test # to access cross-repo test repository
 
-      - name: Checkout (for composite action)
+      # The composite actions below get the App token and Slack token, so load
+      # them from the base commit, not the PR head.
+      - name: Checkout trusted actions
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          ref: ${{ inputs.use_pr_head_sha && github.event.pull_request.base.sha || github.sha }}
+          sparse-checkout: .github/actions
 
       - name: Prepare E2E test inputs
         id: prepare_inputs
