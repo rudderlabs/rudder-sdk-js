@@ -94,6 +94,23 @@ jobs:
         with:
           egress-policy: audit
 
+      # Before any PR-head code is checked out or run: the action below gets the
+      # release App key, so it must come from the base commit, not the PR head.
+      - name: Checkout trusted actions
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ inputs.use_pr_head_sha && github.event.pull_request.base.sha || github.sha }}
+          sparse-checkout: .github/actions
+          path: .trusted
+
+      - name: Validate re-run actor
+        uses: ./.trusted/.github/actions/assert-rerun-actor
+        with:
+          app_id: ${{ vars.RELEASE_APP_ID }}
+          private_key: ${{ secrets.RELEASE_PRIVATE_KEY }}
+          team_names: 'sdk_team,integrations'
+
       - name: Install AWS CLI
         uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c  # master
 
@@ -123,13 +140,6 @@ jobs:
         with:
           persist-credentials: false
           ref: ${{ steps.getSHA.outputs.SHA }}
-
-      - name: Validate re-run actor
-        uses: ./.github/actions/assert-rerun-actor
-        with:
-          app_id: ${{ vars.RELEASE_APP_ID }}
-          private_key: ${{ secrets.RELEASE_PRIVATE_KEY }}
-          team_names: 'sdk_team,integrations'
 
       - name: Modify package versions
         if: ${{ inputs.version_suffix != '' }}
