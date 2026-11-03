@@ -258,16 +258,3 @@ jobs:
                 }
               ]
             }
-
-      - name: Post deployment link to release thread
-        continue-on-error: true
-        uses: ./.github/actions/release-thread-integration
-        if: ${{ steps.slack.outcome == 'success' && inputs.monorepo_release_version != '' && inputs.release_ticket_id != '' }}
-        with:
-          monorepo_release_version: ${{ inputs.monorepo_release_version }}
-          release_ticket_id: ${{ inputs.release_ticket_id }}
-          slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
-          title: ':white_check_mark: Sanity Suite deployment completed'
-          link_text: 'View deployment details'
-          slack_api_response: ${{ steps.slack.outputs.response }}
-          slack_slugs: '<!subteam^S0555JBV36D> <!subteam^S03SW7DM8P3>'
