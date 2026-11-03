@@ -15,7 +15,6 @@ class RollBar {
     }
     this.analytics = analytics;
     this.name = NAME;
-    this.isNativeSDKLoaded = false;
     this.accessToken = config.accessToken;
     this.captureUncaughtException = config.captureUncaughtException;
     this.captureUnhandledRejections = config.captureUnhandledRejections;
@@ -65,9 +64,7 @@ class RollBar {
       _rollbarConfig.ignoredMessages = ret;
     }
 
-    loadNativeSdk(_rollbarConfig, loaded => {
-      this.isNativeSDKLoaded = loaded;
-    });
+    loadNativeSdk(_rollbarConfig);
   }
 
   isLoaded() {
@@ -75,7 +72,8 @@ class RollBar {
   }
 
   isReady() {
-    return this.isNativeSDKLoaded && !!window.Rollbar;
+    // The snippet defines a window.Rollbar shim before load; rollbar.js sets _rollbarDidLoad only once it runs.
+    return window._rollbarDidLoad === true && !!window.Rollbar;
   }
 
   identify(rudderElement) {
