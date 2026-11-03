@@ -15,6 +15,7 @@ class RollBar {
     }
     this.analytics = analytics;
     this.name = NAME;
+    this.isNativeSDKLoaded = false;
     this.accessToken = config.accessToken;
     this.captureUncaughtException = config.captureUncaughtException;
     this.captureUnhandledRejections = config.captureUnhandledRejections;
@@ -64,7 +65,9 @@ class RollBar {
       _rollbarConfig.ignoredMessages = ret;
     }
 
-    loadNativeSdk(_rollbarConfig);
+    loadNativeSdk(_rollbarConfig, loaded => {
+      this.isNativeSDKLoaded = loaded;
+    });
   }
 
   isLoaded() {
@@ -72,7 +75,7 @@ class RollBar {
   }
 
   isReady() {
-    return !!window.Rollbar;
+    return this.isNativeSDKLoaded && !!window.Rollbar;
   }
 
   identify(rudderElement) {

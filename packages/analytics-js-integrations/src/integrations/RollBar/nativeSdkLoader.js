@@ -1,4 +1,4 @@
-const loadNativeSdk = _rollbarConfig => {
+const loadNativeSdk = (_rollbarConfig, onLoadStateChange) => {
   // Rollbar Snippet
   !(function (r) {
     var e = {};
@@ -146,9 +146,13 @@ const loadNativeSdk = _rollbarConfig => {
                             }
                     }
                     'function' == typeof t && t(e);
+                    onLoadStateChange(!e);
                   })();
               }
             })),
+          (i.onerror = function () {
+            onLoadStateChange(false);
+          }),
           d.insertBefore(i, s);
       }),
         (i.prototype.wrap = function (r, e, o) {
