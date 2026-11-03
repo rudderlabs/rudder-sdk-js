@@ -48,7 +48,7 @@ test('Iterable uses the selected vendor artifact', () => {
   expect(new URL(VENDOR_SDK_PINNED_URL).hostname).toBe(new URL(VENDOR_SDK_FLOATING_URL).hostname);
 });
 
-test('Iterable retains initialization, in-app and event contracts', () => {
+test('Iterable retains initialization, in-app and event contracts', async () => {
   const sdk = {
     initialize: jest.fn().mockImplementation(() => ({
       setUserID: jest.fn().mockResolvedValue(undefined),
@@ -73,20 +73,20 @@ test('Iterable retains initialization, in-app and event contracts', () => {
       context: { traits: { email: 'sam@example.com' } },
     },
   };
-  iterable.identify(identify);
+  await iterable.identify(identify);
   expect(sdk.initialize).toHaveBeenCalledWith('key', expect.any(Function));
-  expect(sdk.initialize.mock.calls[0][1]({ Iterable: { jwt_token: 'jwt-test' } })).toBe('jwt-test');
+  await expect(sdk.initialize.mock.calls[0][1]({ userID: 'user-1' })).resolves.toBe('jwt-test');
   expect(sdk.initialize.mock.results[0].value.setUserID).toHaveBeenCalledWith('user-1');
   expect(sdk.getInAppMessages).toHaveBeenCalledWith(
     expect.objectContaining({ count: 20, animationDuration: 400 }),
     { display: 'immediate' },
   );
   expect(iterable.isReady()).toBe(true);
-  iterable.track({
+  await iterable.track({
     message: { event: 'Show Message', userId: 'user-1', properties: {}, context: {} },
   });
   expect(sdk.getInAppMessages.mock.results[0].value.request).toHaveBeenCalledTimes(1);
-  iterable.track({
+  await iterable.track({
     message: {
       event: 'Clicked',
       userId: 'user-1',
@@ -100,7 +100,7 @@ test('Iterable retains initialization, in-app and event contracts', () => {
     eventName: 'Clicked',
     dataFields: { plan: 'pro' },
   });
-  iterable.track({
+  await iterable.track({
     message: {
       event: 'Order Completed',
       properties: {
@@ -116,6 +116,130 @@ test('Iterable retains initialization, in-app and event contracts', () => {
     total: 10,
     items: [{ id: 'product-1', price: 10, quantity: 1 }],
   });
-  new Iterable({ ...config, initialisationIdentifier: 'email' }, {}).identify(identify);
+  await new Iterable({ ...config, initialisationIdentifier: 'email' }, {}).identify(identify);
   expect(sdk.initialize.mock.results[1].value.setEmail).toHaveBeenCalledWith('sam@example.com');
+});
+
+describe('Iterable identity ordering', () => {
+  let sdk;
+  let identity;
+  const identify = {
+    message: {
+      userId: 'user-1',
+      traits: { email: 'sam@example.com' },
+      integrations: { Iterable: { jwt_token: 'jwt-test' } },
+    },
+  };
+
+  beforeEach(() => {
+    identity = {
+      setEmail: jest.fn().mockResolvedValue(undefined),
+      setUserID: jest.fn().mockResolvedValue(undefined),
+    };
+    sdk = {
+      initialize: jest.fn().mockReturnValue(identity),
+      track: jest.fn().mockResolvedValue(undefined),
+      trackPurchase: jest.fn().mockResolvedValue(undefined),
+      getInAppMessages: jest.fn().mockReturnValue({ request: jest.fn() }),
+    };
+    window['@iterable/web-sdk'] = sdk;
+  });
+
+  test.each([
+    ['email', 'setEmail', { email: 'sam@example.com' }],
+    ['userId', 'setUserID', { userID: 'user-1' }],
+  ])(
+    'waits for %s before sending queued events and fetching in-app messages',
+    async (initialisationIdentifier, setter, jwtPayload) => {
+      let resolveIdentity;
+      identity[setter].mockReturnValueOnce(
+        new Promise(resolve => {
+          resolveIdentity = resolve;
+        }),
+      );
+      const iterable = new Iterable(
+        {
+          apiKey: 'key',
+          initialisationIdentifier,
+          getInAppEventMapping: [{ eventName: 'Show Message' }],
+          purchaseEventMapping: [{ eventName: 'Order Completed' }],
+          sendTrackForInapp: true,
+        },
+        {},
+      );
+      const pendingIdentify = iterable.identify(identify);
+      const pendingEvents = [
+        iterable.track({ message: { event: 'Clicked', properties: {} } }),
+        iterable.track({ message: { event: 'Order Completed', properties: { total: 10 } } }),
+        iterable.track({ message: { event: 'Show Message', properties: {} } }),
+      ];
+      await Promise.resolve();
+      expect(identity[setter]).toHaveBeenCalledTimes(1);
+      expect(sdk.track).not.toHaveBeenCalled();
+      expect(sdk.trackPurchase).not.toHaveBeenCalled();
+      expect(sdk.getInAppMessages).not.toHaveBeenCalled();
+      await expect(sdk.initialize.mock.calls[0][1](jwtPayload)).resolves.toBe('jwt-test');
+
+      resolveIdentity();
+      await pendingIdentify;
+      await Promise.all(pendingEvents);
+      expect(sdk.track).toHaveBeenCalledTimes(2);
+      expect(sdk.track.mock.calls.map(([payload]) => payload.eventName)).toEqual([
+        'Clicked',
+        'Track getInAppMessages',
+      ]);
+      expect(sdk.trackPurchase).toHaveBeenCalledTimes(1);
+      expect(sdk.getInAppMessages).toHaveBeenCalledTimes(1);
+      expect(sdk.getInAppMessages.mock.results[0].value.request).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  test.each([undefined, []])(
+    'does not fetch in-app messages without mapping %p',
+    async getInAppEventMapping => {
+      const iterable = new Iterable(
+        { apiKey: 'key', initialisationIdentifier: 'email', getInAppEventMapping },
+        {},
+      );
+      await iterable.identify(identify);
+      expect(sdk.getInAppMessages).not.toHaveBeenCalled();
+      await iterable.track({ message: { event: 'Clicked', properties: {} } });
+      expect(sdk.track).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  test('initializes once and serializes repeated identifies with their JWTs', async () => {
+    let resolveFirstIdentity;
+    identity.setEmail.mockReturnValueOnce(
+      new Promise(resolve => {
+        resolveFirstIdentity = resolve;
+      }),
+    );
+    const iterable = new Iterable({ apiKey: 'key', initialisationIdentifier: 'email' }, {});
+    const firstIdentify = iterable.identify(identify);
+    const firstTrack = iterable.track({ message: { event: 'First', properties: {} } });
+    const secondIdentify = iterable.identify({
+      message: {
+        traits: { email: 'other@example.com' },
+        integrations: { Iterable: { jwt_token: 'jwt-other' } },
+      },
+    });
+    const secondTrack = iterable.track({ message: { event: 'Second', properties: {} } });
+    await Promise.resolve();
+    expect(identity.setEmail).toHaveBeenCalledTimes(1);
+    const generateJWT = sdk.initialize.mock.calls[0][1];
+    await expect(generateJWT({ email: 'sam@example.com' })).resolves.toBe('jwt-test');
+    resolveFirstIdentity();
+    await firstIdentify;
+    await firstTrack;
+    await secondIdentify;
+    await secondTrack;
+    expect(sdk.initialize).toHaveBeenCalledTimes(1);
+    expect(identity.setEmail.mock.calls).toEqual([['sam@example.com'], ['other@example.com']]);
+    await expect(generateJWT({ email: 'other@example.com' })).resolves.toBe('jwt-other');
+    expect(sdk.track.mock.calls.map(([payload]) => payload.eventName)).toEqual(['First', 'Second']);
+    expect(sdk.track.mock.invocationCallOrder[0]).toBeLessThan(
+      identity.setEmail.mock.invocationCallOrder[1],
+    );
+  });
 });

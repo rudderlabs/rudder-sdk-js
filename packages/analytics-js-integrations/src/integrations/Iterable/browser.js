@@ -28,10 +28,11 @@ class Iterable {
     this.apiKey = config.apiKey;
     this.initialisationIdentifier = config.initialisationIdentifier;
     this.fetchAppEvents = undefined;
+    this.sdkCallQueue = Promise.resolve();
     this.name = NAME;
     this.analytics = analytics;
-    this.getInAppEventMapping = config.getInAppEventMapping;
-    this.purchaseEventMapping = config.purchaseEventMapping;
+    this.getInAppEventMapping = config.getInAppEventMapping || [];
+    this.purchaseEventMapping = config.purchaseEventMapping || [];
 
     this.sendTrackForInapp = config.sendTrackForInapp;
     this.animationDuration = config.animationDuration;
@@ -80,6 +81,14 @@ class Iterable {
     return this.isLoaded();
   }
 
+  enqueueSdkCall(callback) {
+    const request = this.sdkCallQueue.then(callback);
+    this.sdkCallQueue = request.catch(error => {
+      logger.error('Iterable SDK call failed', error);
+    });
+    return request;
+  }
+
   identify(rudderElement) {
     const { message } = rudderElement;
     const { integrations, traits, context, userId } = message;
@@ -92,18 +101,28 @@ class Iterable {
       return;
     }
 
-    // Initialize the iterable SDK with the proper apiKey and the passed JWT
-    const wd = window[iterableWebSdk].initialize(this.apiKey, extractJWT);
-
-    if (this.initialisationIdentifier === 'userId') {
-      wd.setUserID(userId).then(() => {
+    return this.enqueueSdkCall(async () => {
+      // Reuse the SDK's interceptors and refresh callback with the current identity's JWT.
+      this.jwtToken = jwtToken;
+      if (!this.webSdk) {
+        this.webSdk = window[iterableWebSdk].initialize(this.apiKey, () =>
+          Promise.resolve(this.jwtToken),
+        );
+      }
+      if (this.initialisationIdentifier === 'userId') {
+        await this.webSdk.setUserID(userId);
         logger.info('userId set');
-      });
-    } else {
-      wd.setEmail(userEmail).then(() => {
+      } else {
+        await this.webSdk.setEmail(userEmail);
         logger.info('userEmail set');
-      });
-    }
+      }
+      if (isNotEmpty(this.getInAppEventMapping)) {
+        this.prepareInAppMessages();
+      }
+    });
+  }
+
+  prepareInAppMessages() {
     /* Available pop-up push notification settings configurable from UI
         this.animationDuration,
         this.displayInterval,
@@ -134,6 +153,10 @@ class Iterable {
   }
 
   track(rudderElement) {
+    return this.enqueueSdkCall(() => this.trackEvent(rudderElement));
+  }
+
+  trackEvent(rudderElement) {
     const { message } = rudderElement;
     const { event, properties } = message;
     const eventPayload = removeUndefinedAndNullValues(properties);
@@ -150,14 +173,14 @@ class Iterable {
       this.fetchAppEvents();
       // send a track call for getinappMessages if option enabled in config
       if (this.sendTrackForInapp) {
-        window[iterableWebSdk]
+        return window[iterableWebSdk]
           .track({
             email: userEmail,
             userId,
             eventName: 'Track getInAppMessages',
             dataFields: eventPayload,
           })
-          .then(logger.info('Web in-app push triggered'));
+          .then(() => logger.info('Web in-app push triggered'));
       }
     } else if (
       isNotEmpty(this.purchaseEventMapping) &&
@@ -165,7 +188,7 @@ class Iterable {
     ) {
       // purchase events
       const purchaseEventPayload = formPurchaseEventPayload(message);
-      window[iterableWebSdk].trackPurchase(purchaseEventPayload);
+      return window[iterableWebSdk].trackPurchase(purchaseEventPayload);
     } else {
       // custom events if event is not mapped
       /* fields available for custom track event
@@ -182,9 +205,9 @@ class Iterable {
         */
       // Either email or userId must be passed in to identify the user.
       // If both are passed in, email takes precedence.
-      window[iterableWebSdk]
+      return window[iterableWebSdk]
         .track({ email: userEmail, userId, eventName: event, dataFields: eventPayload })
-        .then(logger.info('Track a custom event'));
+        .then(() => logger.info('Track a custom event'));
     }
   }
 }
