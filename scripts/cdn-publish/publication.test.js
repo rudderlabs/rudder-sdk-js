@@ -665,6 +665,70 @@ test('archive SHA-384 is independent of source file and directory modes', async 
   }
 });
 
+test('catalog plugin count matches Rollup plugin exposures', async () => {
+  const config = await fs.readFile(
+    path.resolve(__dirname, '../../packages/analytics-js-plugins/rollup.config.mjs'),
+    'utf8',
+  );
+  assert.match(config, /exposes:\s*pluginsMap/);
+  const map = config.match(/const pluginsMap\s*=\s*(\{[\s\S]*?\n\});/);
+  assert.ok(map, 'Rollup plugin exposure map exists');
+  // Parse the literal independently of the catalog's property-name regex.
+  const exposureCount = require('node:vm').runInNewContext(`Object.keys(${map[1]}).length`);
+  assert.ok(exposureCount > 0);
+  assert.equal((await resourceCatalog()).plugins.length, exposureCount);
+});
+
+test('production promotes verified v1.1 listings after moving uploads and before invalidation', async t => {
+  const workflow = await fs.readFile(
+    path.resolve(__dirname, '../../.github/workflows/deploy.yml'),
+    'utf8',
+  );
+  const steps = workflow.split(/^      - name: /m);
+  const index = steps.findIndex(step =>
+    step.startsWith('Promote verified v1.1 integration listings\n'),
+  );
+  assert.ok(index > 0, 'listing promotion step exists');
+  assert.ok(steps[index - 1].startsWith('Copy legacy SDK artifacts to S3\n'));
+  assert.ok(
+    steps[index + 1].startsWith('Invalidate CloudFront cache for all the legacy SDK artifacts\n'),
+  );
+  const step = steps[index];
+  assert.ok(step.includes("if: ${{ inputs.environment == 'production' }}"));
+  assert.ok(step.includes('BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}'));
+  assert.ok(step.includes('S3_DIR_PATH_LEGACY: ${{ inputs.s3_dir_path_legacy }}'));
+  assert.ok(step.includes('LATEST_CACHE_CONTROL: ${{ env.CACHE_CONTROL_NO_STORE }}'));
+  const run = step.split('        run: |\n')[1];
+  assert.ok(run);
+  assert.ok(!run.includes('${{'), 'workflow values enter through env, not shell interpolation');
+  const root = await temp(t);
+  const calls = path.join(root, 'aws-calls');
+  require('node:child_process').execFileSync(
+    'bash',
+    ['-e', '-c', `aws() { printf '%s\\n' "$@" >> "$AWS_CALLS"; }\n${run}`],
+    {
+      env: {
+        ...process.env,
+        AWS_CALLS: calls,
+        BUCKET_NAME: 'test-bucket',
+        S3_DIR_PATH_LEGACY: 'v1.1',
+        LATEST_CACHE_CONTROL: 'no-store',
+      },
+    },
+  );
+  assert.deepEqual(
+    (await fs.readFile(calls, 'utf8')).trim().split('\n'),
+    ['js-integrations', 'modern/js-integrations'].flatMap(dir => [
+      's3',
+      'cp',
+      `.cdn-publication/legacy/${dir}/list.html`,
+      `s3://test-bucket/v1.1/${dir}/list.html`,
+      '--cache-control',
+      'no-store',
+    ]),
+  );
+});
+
 test('catalog gives every integration its SDK name and display name; classifies all resource types', async t => {
   const { resourceCatalog } = require('./publication');
   const catalog = await resourceCatalog();

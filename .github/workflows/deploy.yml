@@ -478,6 +478,17 @@ jobs:
           aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/js-integrations/ $copy_args
           aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
 
+      - name: Promote verified v1.1 integration listings
+        if: ${{ inputs.environment == 'production' }}
+        env:
+          BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
+          S3_DIR_PATH_LEGACY: ${{ inputs.s3_dir_path_legacy }}
+          LATEST_CACHE_CONTROL: ${{ env.CACHE_CONTROL_NO_STORE }}
+        run: |
+          for dir in js-integrations modern/js-integrations; do
+            aws s3 cp ".cdn-publication/legacy/${dir}/list.html" "s3://${BUCKET_NAME}/${S3_DIR_PATH_LEGACY}/${dir}/list.html" --cache-control "${LATEST_CACHE_CONTROL}"
+          done
+
       - name: Invalidate CloudFront cache for all the legacy SDK artifacts
         env:
           S3_DIR_PATH_LEGACY: ${{ inputs.s3_dir_path_legacy }}
