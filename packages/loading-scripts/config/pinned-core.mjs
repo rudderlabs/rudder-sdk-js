@@ -1,35 +1,44 @@
-import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { config } from 'dotenv';
 
-// These are the final CDN outputs, including every Rollup plugin's changes.
+// Core metadata describes the final CDN bytes, including every plugin's changes.
 export function readPinnedCore(
   coreDir = process.env.PINNED_CORE_DIR ||
     fileURLToPath(new URL('../../analytics-js/dist/cdn/', import.meta.url)),
 ) {
   const cdnDir = resolve(coreDir);
-  const readRequired = file => {
+  const readMetadata = variant => {
+    const file = resolve(cdnDir, `${variant}/iife/build-metadata.json`);
+    let metadata;
     try {
-      return readFileSync(file);
+      metadata = JSON.parse(readFileSync(file, 'utf8'));
     } catch (cause) {
       throw new Error(
-        `Pinned loader requires existing release artifacts: cannot read ${file}. Run after the production core build on the artifacts being uploaded.`,
+        `Pinned loader requires valid core metadata: cannot read ${file}. Run after the production core build on the artifacts being uploaded.`,
         { cause },
       );
     }
+    const version = metadata?.package?.version;
+    if (typeof version !== 'string' || !version.trim()) {
+      throw new Error(`Pinned loader requires package.version in ${file}`);
+    }
+    const integrity = metadata?.files?.['rsa.min.js']?.integrity;
+    if (typeof integrity !== 'string' || !/^sha384-[A-Za-z0-9+/]{64}$/.test(integrity)) {
+      throw new Error(`Pinned loader requires rsa.min.js with SHA-384 integrity in ${file}`);
+    }
+    // Read only the required fields; future metadata additions are ignored.
+    return { version, integrity };
   };
-  const packageFile = resolve(cdnDir, '../../package.json');
-  const { version } = JSON.parse(readRequired(packageFile).toString('utf8'));
-  if (typeof version !== 'string' || !version) {
-    throw new Error(`Pinned loader requires a version in ${packageFile}`);
+  const modern = readMetadata('modern');
+  const legacy = readMetadata('legacy');
+  if (modern.version !== legacy.version) {
+    throw new Error(
+      `Pinned loader requires matching package.version in modern and legacy core metadata: ${modern.version} !== ${legacy.version}`,
+    );
   }
-  const integrity = variant => {
-    const file = resolve(cdnDir, `${variant}/iife/rsa.min.js`);
-    return `sha384-${createHash('sha384').update(readRequired(file)).digest('base64')}`;
-  };
-  return { version, modern: integrity('modern'), legacy: integrity('legacy') };
+  return { version: modern.version, modern: modern.integrity, legacy: legacy.integrity };
 }
 
 // Nx runtime inputs include ignored build artifacts, including custom directories.

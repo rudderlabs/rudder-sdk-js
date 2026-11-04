@@ -130,6 +130,7 @@ export function getDefaultConfig(distName, isGtmBuild = false) {
           },
         }),
       isLocalServerEnabled && livereload(),
+      // The hook uses output.dir, keeping floating and pinned inventories separate.
       cdnBuildMetadata(pkg, null),
     ],
   };

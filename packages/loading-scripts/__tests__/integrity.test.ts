@@ -6,7 +6,9 @@ const artifacts = ['loader.js', 'loader.min.js', 'loader-gtm.js', 'loader-gtm.mi
 const coreDir = process.env.PINNED_CORE_DIR
   ? resolve(__dirname, '..', process.env.PINNED_CORE_DIR)
   : join(__dirname, '../../analytics-js/dist/cdn');
-const { version } = JSON.parse(readFileSync(resolve(coreDir, '../../package.json'), 'utf8'));
+const {
+  package: { version },
+} = JSON.parse(readFileSync(join(coreDir, 'modern/iife/build-metadata.json'), 'utf8'));
 const coreIntegrity = (variant: string) =>
   `sha384-${createHash('sha384')
     .update(readFileSync(join(coreDir, `${variant}/iife/rsa.min.js`)))
@@ -14,6 +16,20 @@ const coreIntegrity = (variant: string) =>
 
 // Exercise shipped JavaScript, including minification and build-time branch removal.
 describe.each(['floating', 'pinned'])('%s loaders', build => {
+  it('records its own four final artifacts in build metadata', () => {
+    const directory = join(__dirname, build === 'pinned' ? '../dist-pinned' : '../dist');
+    const metadata = JSON.parse(readFileSync(join(directory, 'build-metadata.json'), 'utf8'));
+    expect(metadata.variant).toBeNull();
+    expect(Object.keys(metadata.files)).toEqual([...artifacts].sort());
+    for (const artifact of artifacts) {
+      const bytes = readFileSync(join(directory, artifact));
+      expect(metadata.files[artifact]).toEqual({
+        integrity: `sha384-${createHash('sha384').update(bytes).digest('base64')}`,
+        size: bytes.length,
+      });
+    }
+  });
+
   describe.each(artifacts)('%s', artifact => {
     const isPinned = build === 'pinned';
     const isGtm = artifact.includes('-gtm');
@@ -46,7 +62,7 @@ describe.each(['floating', 'pinned'])('%s loaders', build => {
       expect(source).not.toMatch(/__IS_(?:PINNED|GTM)_BUILD__|__SDK_/);
       if (isPinned) {
         expect(source).toMatch(
-          new RegExp(`var sdkVersion\\s*=\\s*"${version.replaceAll('.', '\\.')}"`),
+          new RegExp(`var sdkVersion\\s*=\\s*"${version.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`),
         );
         expect(source).toContain(coreIntegrity('modern'));
         expect(source).toContain(coreIntegrity('legacy'));

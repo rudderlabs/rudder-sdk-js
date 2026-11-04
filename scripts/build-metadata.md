@@ -52,10 +52,11 @@ JS bundle changes are introduced.
   so a per-config write hook would race on the shared file. The orchestrator writes
   once after all children succeed.
 - Loaders: every loader output's `writeBundle` hook updates
-  `dist/build-metadata.json` with `variant: null`. Minified and unminified builds
-  can run independently and in any order, including development/start builds
-  that overwrite unminified loaders with `dev-snapshot` bytes. No combined Nx
-  target is added.
+  `dist/build-metadata.json` with `variant: null`. Pinned builds use the same hook
+  to write their own four-file inventory in `dist-pinned/build-metadata.json`.
+  Minified and unminified builds can run independently and in any order,
+  including development/start builds that overwrite unminified loaders with
+  `dev-snapshot` bytes. No combined Nx target is added.
 
 ## Inventory rule
 
