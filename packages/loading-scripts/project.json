@@ -21,16 +21,7 @@
           "codeCoverage": false
         }
       },
-      "dependsOn": [
-        {
-          "projects": ["@rudderstack/analytics-js"],
-          "target": "build:browser"
-        },
-        {
-          "projects": ["@rudderstack/analytics-js"],
-          "target": "build:browser:modern"
-        }
-      ],
+      "dependsOn": ["test:build-core"],
       "inputs": [
         "test",
         "^default",
@@ -48,6 +39,26 @@
           "runtime": "node packages/loading-scripts/config/pinned-core.mjs"
         }
       ]
+    },
+    "test:build-core": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "dependsOn": [
+        {
+          "projects": ["@rudderstack/analytics-js"],
+          "target": "build:browser:dev"
+        }
+      ],
+      "inputs": ["default", "^default"],
+      "outputs": [
+        "{workspaceRoot}/packages/analytics-js/dist/cdn/legacy",
+        "{workspaceRoot}/packages/analytics-js/dist/cdn/modern"
+      ],
+      "options": {
+        "commands": ["npm run build:browser", "npm run build:browser:modern"],
+        "cwd": "packages/analytics-js",
+        "parallel": false
+      }
     },
     "lint": {
       "executor": "@nx/eslint:lint",
