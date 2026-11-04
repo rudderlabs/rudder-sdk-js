@@ -20,7 +20,34 @@
           "ci": true,
           "codeCoverage": false
         }
-      }
+      },
+      "dependsOn": [
+        {
+          "projects": ["@rudderstack/analytics-js"],
+          "target": "build:browser"
+        },
+        {
+          "projects": ["@rudderstack/analytics-js"],
+          "target": "build:browser:modern"
+        }
+      ],
+      "inputs": [
+        "test",
+        "^default",
+        "{projectRoot}/jest.global-setup.cjs",
+        "{projectRoot}/rollup.config.mjs",
+        "{projectRoot}/config/**/*",
+        {
+          "dependentTasksOutputFiles": "**/rsa.min.js",
+          "transitive": false
+        },
+        {
+          "env": "PINNED_CORE_DIR"
+        },
+        {
+          "runtime": "node packages/loading-scripts/config/pinned-core.mjs"
+        }
+      ]
     },
     "lint": {
       "executor": "@nx/eslint:lint",
@@ -54,6 +81,25 @@
         "title": "@rudderstack/analytics-js-loading-scripts@3.4.1",
         "discussion-category": "@rudderstack/analytics-js-loading-scripts@3.4.1",
         "notesFile": "./packages/loading-scripts/CHANGELOG_LATEST.md"
+      }
+    },
+    "build:pinned": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": [
+        "default",
+        "{projectRoot}/config/**/*",
+        {
+          "env": "PINNED_CORE_DIR"
+        },
+        {
+          "runtime": "node packages/loading-scripts/config/pinned-core.mjs"
+        }
+      ],
+      "outputs": ["{projectRoot}/dist-pinned"],
+      "options": {
+        "command": "npm run build:pinned",
+        "cwd": "packages/loading-scripts"
       }
     }
   }

@@ -1,20 +1,20 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <link
-    rel="icon"
-    href="https://www.rudderstack.com/favicon.ico"
-    type="image/x-icon"
-    sizes="48x48" />
+      rel="icon"
+      href="https://www.rudderstack.com/favicon.ico"
+      type="image/x-icon"
+      sizes="48x48" />
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <title>RudderStack JS SDK v3 - Test All Integrations</title>
     <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
-    integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N"
-    crossorigin="anonymous" />
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+      integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N"
+      crossorigin="anonymous" />
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" />
@@ -48,9 +48,10 @@
       }
     </style>
     <script>
+      // prettier-ignore
       (function() {
         "use strict";
-        window.RudderSnippetVersion = "3.1.0";
+        window.RudderSnippetVersion = "3.4.1";
         var identifier = "rudderanalytics";
         if (!window[identifier]) {
           window[identifier] = [];
@@ -83,7 +84,11 @@
             try {
               new Function('class Test{field=()=>{};test({prop=[]}={}){return prop?(prop?.property??[...prop]):import("");}}');
               window.rudderAnalyticsBuildType = "modern";
-            } catch (e) {}
+            } catch (e) {
+              if (!(e instanceof SyntaxError) && typeof Promise !== "undefined" && typeof Promise.any === "function" && "replaceChildren" in Element.prototype) {
+                window.rudderAnalyticsBuildType = "modern";
+              }
+            }
             var head = document.head || document.getElementsByTagName("head")[0];
             var body = document.body || document.getElementsByTagName("body")[0];
             window.rudderAnalyticsAddScript = function(url, extraAttributeKey, extraAttributeVal) {
@@ -125,7 +130,8 @@
                   }
                 }
               })();
-              window.rudderAnalyticsAddScript("".concat(sdkBaseUrl, "/").concat(sdkVersion, "/").concat(window.rudderAnalyticsBuildType, "/").concat(sdkFileName), "data-rsa-write-key", "__WRITE_KEY__");
+              var sdkUrl = "".concat(sdkBaseUrl, "/").concat(sdkVersion, "/").concat(window.rudderAnalyticsBuildType, "/").concat(sdkFileName);
+              window.rudderAnalyticsAddScript(sdkUrl, "data-rsa-write-key", "__WRITE_KEY__");
             };
             if (typeof Promise === "undefined" || typeof globalThis === "undefined") {
               window.rudderAnalyticsAddScript("https://polyfill-fastly.io/v3/polyfill.min.js?version=3.111.0&flags=always%2Cgated&features=Symbol%2CPromise&callback=rudderAnalyticsMount");
@@ -136,14 +142,21 @@
         }
       })();
 
-      async function getAllNonCloudModeSupportedDestinations(baseControlPlaneUrl = 'https://api.rudderstack.com') {
+      async function getAllNonCloudModeSupportedDestinations(
+        baseControlPlaneUrl = 'https://api.rudderstack.com',
+      ) {
         console.debug('Fetching all destination definitions...');
         const response = await fetch(`${baseControlPlaneUrl}/destination-definitions`);
         const data = await response.json();
 
         console.debug('Raw destination definitions fetched:', data);
 
-        const filteredDestinations = data.filter(item => item.category === null && (item.config.supportedConnectionModes?.web?.includes("device") || item.config.supportedConnectionModes?.web?.includes("hybrid")));
+        const filteredDestinations = data.filter(
+          item =>
+            item.category === null &&
+            (item.config.supportedConnectionModes?.web?.includes('device') ||
+              item.config.supportedConnectionModes?.web?.includes('hybrid')),
+        );
 
         console.debug('Web device and hybrid mode supported destinations:', filteredDestinations);
 
@@ -155,7 +168,7 @@
           id: `dest_${item.id}_${Date.now()}`, // Generate unique ID
           destinationDefinition: {
             name: item.name,
-            displayName: item.displayName
+            displayName: item.displayName,
           },
           config: {
             connectionMode: 'device',
@@ -165,7 +178,10 @@
           name: item.displayName,
         }));
 
-        console.debug('Generated destinations for SDK configuration:', destinationsForSDKConfiguration);
+        console.debug(
+          'Generated destinations for SDK configuration:',
+          destinationsForSDKConfiguration,
+        );
 
         return destinationsForSDKConfiguration;
       }
@@ -194,9 +210,9 @@
               source: {
                 id: 'some_id',
                 config: {},
-                destinations
-              }
-            })
+                destinations,
+              },
+            }),
           };
 
           rudderanalytics.load('__WRITE_KEY__', '__DATAPLANE_URL__', loadOptions);
@@ -235,22 +251,29 @@
       // Function to filter and sort data
       function filterAndSortData() {
         const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-        const betaFilter = document.getElementById('betaFilter') ? document.getElementById('betaFilter').value : 'all';
-        const featureFlagFilter = document.getElementById('featureFlagFilter') ? document.getElementById('featureFlagFilter').value : 'all';
+        const betaFilter = document.getElementById('betaFilter')
+          ? document.getElementById('betaFilter').value
+          : 'all';
+        const featureFlagFilter = document.getElementById('featureFlagFilter')
+          ? document.getElementById('featureFlagFilter').value
+          : 'all';
 
         // Filter data
         filteredVisualizerData = allVisualizerData.filter(item => {
-          const matchesSearch = item.name.toLowerCase().includes(searchTerm) || 
-                               item.displayName.toLowerCase().includes(searchTerm) ||
-                               item.id.toLowerCase().includes(searchTerm);
-          
-          const matchesBeta = betaFilter === 'all' || 
-                             (betaFilter === 'beta' && item.isBeta) ||
-                             (betaFilter === 'stable' && !item.isBeta);
-          
-          const matchesFeatureFlag = featureFlagFilter === 'all' ||
-                                     (featureFlagFilter === 'with' && item.featureFlag) ||
-                                     (featureFlagFilter === 'without' && !item.featureFlag);
+          const matchesSearch =
+            item.name.toLowerCase().includes(searchTerm) ||
+            item.displayName.toLowerCase().includes(searchTerm) ||
+            item.id.toLowerCase().includes(searchTerm);
+
+          const matchesBeta =
+            betaFilter === 'all' ||
+            (betaFilter === 'beta' && item.isBeta) ||
+            (betaFilter === 'stable' && !item.isBeta);
+
+          const matchesFeatureFlag =
+            featureFlagFilter === 'all' ||
+            (featureFlagFilter === 'with' && item.featureFlag) ||
+            (featureFlagFilter === 'without' && !item.featureFlag);
 
           return matchesSearch && matchesBeta && matchesFeatureFlag;
         });
@@ -259,7 +282,7 @@
         if (currentSortBy && currentSortOrder) {
           filteredVisualizerData.sort((a, b) => {
             let aValue, bValue;
-            
+
             switch (currentSortBy) {
               case 'name':
                 aValue = a.name.toLowerCase();
@@ -295,7 +318,7 @@
         // Re-number items
         filteredVisualizerData = filteredVisualizerData.map((item, index) => ({
           ...item,
-          sno: index + 1
+          sno: index + 1,
         }));
 
         renderTable();
@@ -306,7 +329,7 @@
         if (!currentSortBy || currentSortBy !== column) {
           return '<i class="bi bi-arrow-down-up text-muted ml-1" style="font-size: 1em;"></i>';
         }
-        return currentSortOrder === 'asc' 
+        return currentSortOrder === 'asc'
           ? '<i class="bi bi-arrow-up text-white ml-1" style="font-size: 1em;"></i>'
           : '<i class="bi bi-arrow-down text-white ml-1" style="font-size: 1em;"></i>';
       }
@@ -314,7 +337,7 @@
       // Function to render the table
       function renderTable() {
         const tableContainer = document.getElementById('tableContainer');
-        
+
         const tableHtml = `
           <div class="table-responsive">
             <table class="table table-sm table-striped table-hover table-bordered">
@@ -340,37 +363,48 @@
                 </tr>
               </thead>
               <tbody>
-                ${filteredVisualizerData.map(item => `
+                ${filteredVisualizerData
+                  .map(
+                    item => `
                   <tr>
                     <td class="text-center text-muted">${item.sno}</td>
                     <td><code class="text-primary">${item.id}</code></td>
                     <td><span class="font-weight-medium">${item.name}</span></td>
                     <td>${item.displayName}</td>
                     <td class="text-center">
-                      ${item.isBeta 
-                        ? '<span class="badge badge-warning">Beta</span>' 
-                        : '<span class="badge badge-success">Stable</span>'}
+                      ${
+                        item.isBeta
+                          ? '<span class="badge badge-warning">Beta</span>'
+                          : '<span class="badge badge-success">Stable</span>'
+                      }
                     </td>
                     <td>
-                      ${item.featureFlag 
-                        ? `<code class="text-info">${item.featureFlag}</code>` 
-                        : '<span class="text-muted">N/A</span>'}
+                      ${
+                        item.featureFlag
+                          ? `<code class="text-info">${item.featureFlag}</code>`
+                          : '<span class="text-muted">N/A</span>'
+                      }
                     </td>
-                    <td class="text-muted small">${new Date(item.lastUpdated).toLocaleString('en-US', {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      hour12: true
-                    })}</td>
+                    <td class="text-muted small">${new Date(item.lastUpdated).toLocaleString(
+                      'en-US',
+                      {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true,
+                      },
+                    )}</td>
                   </tr>
-                `).join('')}
+                `,
+                  )
+                  .join('')}
               </tbody>
             </table>
           </div>
         `;
-        
+
         tableContainer.innerHTML = tableHtml;
       }
 
@@ -378,9 +412,9 @@
       function displayResults(visualizerData) {
         allVisualizerData = visualizerData;
         filteredVisualizerData = [...visualizerData];
-        
+
         const resultsContainer = document.getElementById('results');
-        
+
         // Display controls and table
         const resultsHtml = `
           <div class="row mb-3">
@@ -420,7 +454,7 @@
           </div>
           <div id="tableContainer"></div>
         `;
-        
+
         resultsContainer.innerHTML = resultsHtml;
         filterAndSortData(); // Apply default sort on initial load
       }
@@ -449,13 +483,14 @@
 
       // Override filterAndSortData to update count
       const originalFilterAndSort = filterAndSortData;
-      filterAndSortData = function() {
+      filterAndSortData = function () {
         originalFilterAndSort();
         updateCountBadge();
       };
 
-      $(document).ready(async function() {
-        const destinations = await getAllNonCloudModeSupportedDestinations('__CONFIG_SERVER_HOST__');
+      $(document).ready(async function () {
+        const destinations =
+          await getAllNonCloudModeSupportedDestinations('__CONFIG_SERVER_HOST__');
 
         // Generate visualizer data
         const visualizerData = getVisualizerData(destinations);
@@ -579,7 +614,9 @@
             <div class="col mt-4 pt-2 pb-2">
               <h2>All Non-Cloud Mode Supported Destinations</h2>
               <p>
-                This page fetches all non-cloud mode supported destination definitions from the RudderStack control plane and uses them to create mock destinations in the SDK configuration.
+                This page fetches all non-cloud mode supported destination definitions from the
+                RudderStack control plane and uses them to create mock destinations in the SDK
+                configuration.
               </p>
               <div id="results"></div>
             </div>
@@ -588,10 +625,18 @@
             <div class="col mt-4 pt-2 pb-2">
               <h2>Test SDK Functions</h2>
               <button data-testid="page-btn" onclick="page()" class="btn btn-primary">Page</button>
-              <button data-testid="identify-btn" onclick="identify()" class="btn btn-primary">Identify</button>
-              <button data-testid="track-btn" onclick="track()" class="btn btn-primary">Track</button>
-              <button data-testid="alias-btn" onclick="alias()" class="btn btn-primary">Alias</button>
-              <button data-testid="group-btn" onclick="group()" class="btn btn-primary">Group</button>
+              <button data-testid="identify-btn" onclick="identify()" class="btn btn-primary">
+                Identify
+              </button>
+              <button data-testid="track-btn" onclick="track()" class="btn btn-primary">
+                Track
+              </button>
+              <button data-testid="alias-btn" onclick="alias()" class="btn btn-primary">
+                Alias
+              </button>
+              <button data-testid="group-btn" onclick="group()" class="btn btn-primary">
+                Group
+              </button>
               <p data-testid="action" id="action"></p>
               <p data-testid="payload" id="rudderElement"></p>
             </div>
@@ -600,4 +645,4 @@
       </div>
     </div>
   </body>
-</html> 
+</html>

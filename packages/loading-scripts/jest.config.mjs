@@ -3,6 +3,7 @@ export default {
   displayName: '@rudderstack/analytics-js-loading-scripts',
   preset: '../../jest.preset.js',
   rootDir: './',
+  globalSetup: './jest.global-setup.cjs',
   coverageThreshold: {
     global: {
       branches: 0,

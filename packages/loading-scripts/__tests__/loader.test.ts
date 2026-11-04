@@ -180,8 +180,8 @@ describe('CDN loader', () => {
   it('buffers calls made through the stubs after it runs', async () => {
     await import('../src/index');
 
-    getPreloader().load('write-key', 'https://dataplane.example.com');
-    getPreloader().track('Order Completed', { revenue: 10 });
+    getPreloader().load?.('write-key', 'https://dataplane.example.com');
+    getPreloader().track?.('Order Completed', { revenue: 10 });
 
     expect(getBufferedCalls()).toEqual([
       ['load', 'write-key', 'https://dataplane.example.com'],
@@ -198,7 +198,7 @@ describe('CDN loader', () => {
     const track = jest.fn();
     window.rudderanalytics = { track } as unknown as RudderAnalytics;
 
-    bufferedTrack('Order Completed', { revenue: 10 });
+    bufferedTrack?.('Order Completed', { revenue: 10 });
 
     expect(track).toHaveBeenCalledWith('Order Completed', { revenue: 10 });
   });
