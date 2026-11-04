@@ -31,7 +31,7 @@ RudderStack JavaScript SDK loading script snippet code.
 ## Core script integrity
 
 Deploy must run `npx nx run @rudderstack/analytics-js-loading-scripts:build:pinned` after the production core build, using the same artifacts it uploads; this target never rebuilds the core and writes to `packages/loading-scripts/dist-pinned/`.
-`PINNED_CORE_DIR` selects the core CDN directory (default: `packages/analytics-js/dist/cdn`); it reads `<variant>/iife/rsa.min.js` and that core's `../../package.json`, and fails if required inputs are missing. Relative overrides are resolved from `packages/loading-scripts`.
+`PINNED_CORE_DIR` selects the core CDN directory (default: `packages/analytics-js/dist/cdn`); it reads `package.version` and the `files["rsa.min.js"].integrity` entry from each `<variant>/iife/build-metadata.json`. Missing or invalid metadata and mismatched modern/legacy versions fail the build. Unknown fields are ignored. Relative overrides are resolved from `packages/loading-scripts`.
 
 ## License
 
