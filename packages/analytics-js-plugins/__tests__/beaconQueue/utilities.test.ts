@@ -89,6 +89,15 @@ describe('getDeliveryUrl', () => {
       getDeliveryUrl('https://events.example.com/rs', 'test-key', deliveryPath as string),
     ).toBe('https://events.example.com/rs/beacon/v1/batch?writeKey=test-key');
   });
+
+  it.each(['\\', '/\\', '\\\\evil.example.com'])(
+    'falls back to the default for %p on a root data plane URL',
+    deliveryPath => {
+      expect(getDeliveryUrl('https://events.example.com', 'test-key', deliveryPath)).toBe(
+        'https://events.example.com/beacon/v1/batch?writeKey=test-key',
+      );
+    },
+  );
 });
 
 describe('getNormalizedBeaconQueueOptions', () => {

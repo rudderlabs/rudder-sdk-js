@@ -57,8 +57,13 @@ const isValidDeliveryPath = (dpUrl: URL, deliveryPath: unknown): deliveryPath is
     return false;
   }
   const path = joinPaths(dpUrl.pathname, deliveryPath);
-  const url = new URL(path, dpUrl);
-  return url.pathname === path && !url.search && !url.hash;
+  try {
+    const url = new URL(path, dpUrl);
+    return url.pathname === path && !url.search && !url.hash;
+  } catch {
+    // e.g. "/\" parses as a scheme-relative URL with an empty host
+    return false;
+  }
 };
 
 const getDeliveryUrl = (
