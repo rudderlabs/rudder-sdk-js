@@ -11,6 +11,7 @@ import { configToIntNames } from '../packages/analytics-js-legacy-utilities/src/
 
 const workspace = fileURLToPath(new URL('../', import.meta.url));
 const loaderFiles = ['loader.js', 'loader.min.js', 'loader-gtm.js', 'loader-gtm.min.js'];
+const pluginLeftover = 'unrelated-file.txt';
 const inventories = ['analytics-js', 'analytics-js-plugins', 'analytics-js-integrations'].flatMap(
   name =>
     ['legacy', 'modern'].map(variant => ({
@@ -128,6 +129,13 @@ test(
     await readFile(path.join(coreDirectory, 'rsa.js'));
     await readFile(path.join(coreDirectory, 'rsa.js.map'));
     for (const name of ['analytics-js', 'analytics-js-plugins', 'analytics-js-integrations']) {
+      if (name === 'analytics-js-plugins') {
+        for (const { directory } of inventories.filter(inventory => inventory.name === name)) {
+          const absolute = path.join(workspace, directory);
+          await mkdir(absolute, { recursive: true });
+          await writeFile(path.join(absolute, pluginLeftover), 'unrelated leftover');
+        }
+      }
       await build(name, 'build:browser');
       await build(name, 'build:browser:modern');
     }
@@ -149,7 +157,9 @@ test(
             ? variant === 'legacy'
               ? ['rsa.js', 'rsa.js.map', 'rsa.min.js', 'rsa.min.js.map']
               : ['rsa.min.js', 'rsa.min.js.map']
-            : await discover(absolute);
+            : (await discover(absolute)).filter(
+                file => name !== 'analytics-js-plugins' || file !== pluginLeftover,
+              );
       assert.deepEqual(Object.keys(metadata.files), files, directory);
       assert.ok(files.length > 0);
       assert.ok(!files.some(file => /\.d\.(ts|mts|cts)(\.map)?$/.test(file)));
@@ -172,6 +182,11 @@ test(
             .sort(),
         );
       } else if (name === 'analytics-js-plugins') {
+        assert.equal(
+          await readFile(path.join(absolute, pluginLeftover), 'utf8'),
+          'unrelated leftover',
+        );
+        assert.ok(!Object.hasOwn(metadata.files, pluginLeftover));
         assert.ok(metadata.files['rsa-plugins.js']);
         assert.ok(metadata.files['rsa-plugins-common.min.js']);
         if (variant === 'modern')
