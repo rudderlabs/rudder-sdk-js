@@ -137,7 +137,7 @@ You can use the [`loadOptions`](https://www.rudderstack.com/docs/sources/event-s
 
 You can harden the SDK by reducing its reliance on external resources that could be used to disrupt the event flow or compromise your app. RudderStack recommends installing the SDK using NPM.
 
-[Device mode](https://www.rudderstack.com/docs/destinations/rudderstack-connection-modes/#device-mode) destinations load third-party vendor SDKs into your website, so avoid them and use [cloud mode](https://www.rudderstack.com/docs/destinations/rudderstack-connection-modes/#cloud-mode) destinations instead. Steps 1 to 3 give the most hardened setup, where the SDK loads no device mode destinations. If you must keep device mode destinations, follow step 4 instead of step 2.
+[Device mode](https://www.rudderstack.com/docs/destinations/rudderstack-connection-modes/#device-mode) destinations load third-party vendor SDKs into your website, so avoid them and use [cloud mode](https://www.rudderstack.com/docs/destinations/rudderstack-connection-modes/#cloud-mode) destinations instead. Steps 1 and 2 apply to every setup. In step 3, choose cloud mode destinations only (3a) for the most hardened setup, where the SDK loads no device mode destinations, or strict mode (3b) if you must keep device mode destinations.
 
 1. **Use the bundled NPM export.** The SDK then makes no request to download plugins at runtime. You can also [self-host the plugins and integration SDKs](https://www.rudderstack.com/docs/user-guides/how-to-guides/self-hosting-js-sdk/) or serve the SDK from [your own domain](https://www.rudderstack.com/docs/user-guides/how-to-guides/custom-domains/).
 
@@ -145,11 +145,13 @@ You can harden the SDK by reducing its reliance on external resources that could
    import { RudderAnalytics } from '@rudderstack/analytics-js/bundled';
    ```
 
-2. **Mock the source configuration.** With a `getSourceConfig` function, the SDK makes no source configuration request. The mocked configuration lists no destinations, so the SDK loads no vendor SDKs. Cloud mode destinations still receive your events, as RudderStack routes them on the server.
+2. **Disable polyfills.** Set `polyfillIfRequired` to `false` so the SDK adds no polyfills script from a third-party domain.
 
-3. **Disable polyfills.** Set `polyfillIfRequired` to `false` so the SDK adds no polyfills script from a third-party domain.
+3. **Choose how destinations load:**
 
-4. **If you must keep device mode destinations, use strict mode instead of step 2.** The SDK needs the real source configuration to load device mode destinations, so do not mock it. Set `vendorSdkVersionPolicy` to `strict` so the SDK loads only the vendor SDKs it can pin. Destinations whose vendor scripts cannot be pinned are skipped; destinations without vendor scripts, custom integrations and vendor scripts loaded from URLs you set still load.
+   a. **Cloud mode destinations only: mock the source configuration.** With a `getSourceConfig` function, the SDK makes no source configuration request. The mocked configuration lists no destinations, so the SDK loads no vendor SDKs. Cloud mode destinations still receive your events, as RudderStack routes them on the server. See the full `load` call below.
+
+   b. **Device mode destinations: use strict mode.** The SDK needs the real source configuration to load device mode destinations, so do not mock it. Set `vendorSdkVersionPolicy` to `strict` so the SDK loads only the vendor SDKs it can pin. Destinations whose vendor scripts cannot be pinned are skipped; destinations without vendor scripts, custom integrations and vendor scripts loaded from URLs you set still load.
 
    ```javascript
    rudderAnalytics.load(<WRITE_KEY>, <DATA_PLANE_URL>, {
@@ -160,7 +162,7 @@ You can harden the SDK by reducing its reliance on external resources that could
 
 Without strict mode, the SDK still loads an exact release of each vendor SDK it can pin (Amplitude, Bugsnag, Iterable, Keen, LaunchDarkly, Rollbar and Sentry), verified with a Subresource Integrity (SRI) hash. If the vendor's file changes, the browser refuses to run it, and only that destination is affected.
 
-The final `load` call for a setup with cloud mode destinations only (steps 1 to 3):
+The final `load` call for a setup with cloud mode destinations only (steps 1, 2 and 3a):
 
 ```javascript
 import { RudderAnalytics } from '@rudderstack/analytics-js/bundled';
