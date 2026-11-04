@@ -1,3 +1,4 @@
+import { cdnBuildMetadata } from '../../scripts/build-metadata.mjs';
 import babel from '@rollup/plugin-babel';
 import replace from '@rollup/plugin-replace';
 import terser from '@rollup/plugin-terser';
@@ -7,6 +8,7 @@ import htmlTemplate from 'rollup-plugin-generate-html-template';
 import livereload from 'rollup-plugin-livereload';
 import serve from 'rollup-plugin-serve';
 import * as dotenv from 'dotenv';
+import pkg from './package.json' with { type: 'json' };
 
 dotenv.config({ quiet: true });
 const outDirRoot = `dist`;
@@ -119,6 +121,7 @@ export function getDefaultConfig(distName, isGtmBuild = false) {
           },
         }),
       isLocalServerEnabled && livereload(),
+      process.env.VERSION && !process.env.DEV_SERVER && cdnBuildMetadata(pkg, null),
     ],
   };
 }
