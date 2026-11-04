@@ -94,6 +94,42 @@ test('invalid emitted paths, declarations and symlinks are rejected', async t =>
 
 const loaderFiles = ['loader.js', 'loader.min.js', 'loader-gtm.js', 'loader-gtm.min.js'];
 
+for (const name of ['analytics-js', 'analytics-js-plugins', 'analytics-js-integrations']) {
+  const hook =
+    name === 'analytics-js-integrations' ? 'invalidate-build-metadata' : 'cdn-build-metadata';
+  for (const variant of ['legacy', 'modern']) {
+    test(`${name} ${variant} CDN config registers the ${hook} hook`, async () => {
+      const env = {
+        ...process.env,
+        MODULE_TYPE: 'cdn',
+        BROWSERSLIST_ENV: variant,
+        INTG_NAME: 'GA4',
+      };
+      delete env.DEV_SERVER;
+      const { stdout } = await promisify(execFile)(
+        process.execPath,
+        [
+          '--input-type=module',
+          '-e',
+          `import assert from 'node:assert/strict';
+           import configs from './rollup.config.mjs';
+           const cdnConfigs = configs.filter(config =>
+             [config.output].flat().some(output =>
+               (output.dir ?? output.file).startsWith('dist/cdn/${variant}/')));
+           assert.equal(cdnConfigs.length, 1);
+           for (const config of cdnConfigs) {
+             assert.ok(Array.isArray(config.plugins));
+             assert.ok(config.plugins.some(plugin => plugin?.name === '${hook}'));
+           }
+           console.log('CDN metadata hooks verified');`,
+        ],
+        { cwd: new URL(`../packages/${name}/`, import.meta.url), env },
+      );
+      assert.match(stdout, /CDN metadata hooks verified/);
+    });
+  }
+}
+
 test('npm start loader configs keep the metadata hook with DEV_SERVER and no VERSION', async () => {
   const env = { ...process.env, DEV_SERVER: 'true' };
   delete env.VERSION;

@@ -2,12 +2,28 @@
 
 `scripts/build-metadata.mjs` writes deterministic `build-metadata.json` files:
 
+Each modern and legacy CDN output folder has its own `build-metadata.json` with
+`variant` set to `modern` or `legacy`; the file deploys with that folder.
+
+Modern example (`dist/cdn/modern/iife/build-metadata.json`):
+
 ```json
 {
   "schemaVersion": 1,
   "package": { "name": "@rudderstack/analytics-js", "version": "3.36.0" },
   "variant": "modern",
   "files": { "rsa.min.js": { "integrity": "sha384-...", "size": 123 } }
+}
+```
+
+Legacy example (`dist/cdn/legacy/iife/build-metadata.json`):
+
+```json
+{
+  "schemaVersion": 1,
+  "package": { "name": "@rudderstack/analytics-js", "version": "3.36.0" },
+  "variant": "legacy",
+  "files": { "rsa.min.js": { "integrity": "sha384-...", "size": 456 } }
 }
 ```
 
@@ -32,6 +48,9 @@ JS bundle changes are introduced.
   `dist/cdn/{legacy,modern}/js-integrations`. Each child invalidates any old
   metadata at build start, so failed or single-integration builds cannot leave
   a misleading complete inventory. Child builds never write metadata.
+  The 83 integrations build as separate parallel Rollup processes into one folder,
+  so a per-config write hook would race on the shared file. The orchestrator writes
+  once after all children succeed.
 - Loaders: every loader output's `writeBundle` hook updates
   `dist/build-metadata.json` with `variant: null`. Minified and unminified builds
   can run independently and in any order, including development/start builds
