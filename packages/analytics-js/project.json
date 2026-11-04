@@ -3,16 +3,11 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/analytics-js/src",
   "projectType": "library",
-  "tags": [
-    "type:sdk",
-    "scope:analytics-v3"
-  ],
+  "tags": ["type:sdk", "scope:analytics-v3"],
   "targets": {
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": [
-        "{workspaceRoot}/coverage/{projectRoot}"
-      ],
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
         "jestConfig": "packages/analytics-js/jest.config.mjs",
         "passWithNoTests": true,
@@ -26,15 +21,11 @@
           "codeCoverage": true
         }
       },
-      "dependsOn": [
-        "build:browser:dev"
-      ]
+      "dependsOn": ["build:browser:dev"]
     },
     "lint": {
       "executor": "@nx/eslint:lint",
-      "outputs": [
-        "{options.outputFile}"
-      ],
+      "outputs": ["{options.outputFile}"],
       "options": {
         "hasTypeAwareRules": true,
         "lintFilePatterns": [
@@ -66,6 +57,14 @@
         "discussion-category": "@rudderstack/analytics-js@3.36.0",
         "notesFile": "./packages/analytics-js/CHANGELOG_LATEST.md"
       }
+    },
+    "build:browser": {
+      "outputs": ["{projectRoot}/dist/cdn/legacy"],
+      "inputs": ["default", "^default"]
+    },
+    "build:browser:modern": {
+      "outputs": ["{projectRoot}/dist/cdn/modern"],
+      "inputs": ["default", "^default"]
     }
   }
 }

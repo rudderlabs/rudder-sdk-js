@@ -8,7 +8,7 @@
     <script>
       (function() {
         "use strict";
-        window.RudderSnippetVersion = "3.2.0";
+        window.RudderSnippetVersion = "3.4.1";
         var identifier = "rudderanalytics";
         if (!window[identifier]) {
           window[identifier] = [];
@@ -24,7 +24,7 @@
             var sdkVersion = "v3";
             var sdkFileName = "rsa.min.js";
             var scriptLoadingMode = "async";
-            var methods = [ "setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "setAnonymousId", "startSession", "endSession", "consent", "addCustomIntegration" ];
+            var methods = [ "setDefaultInstanceKey", "load", "ready", "page", "track", "identify", "alias", "group", "reset", "setAnonymousId", "startSession", "endSession", "consent", "addCustomIntegration", "setCustomContext", "clearCustomContext" ];
             for (var i = 0; i < methods.length; i++) {
               var method = methods[i];
               rudderanalytics[method] = function(methodName) {
@@ -33,7 +33,7 @@
                     rudderanalytics.push([ methodName ].concat(Array.prototype.slice.call(arguments)));
                   } else {
                     var _methodName;
-                    (_methodName = window[identifier][methodName]) === null || _methodName === undefined || _methodName.apply(window[identifier], arguments);
+                    (_methodName = window[identifier][methodName]) === null || _methodName === void 0 || _methodName.apply(window[identifier], arguments);
                   }
                 };
               }(method);
@@ -41,7 +41,11 @@
             try {
               new Function('class Test{field=()=>{};test({prop=[]}={}){return prop?(prop?.property??[...prop]):import("");}}');
               window.rudderAnalyticsBuildType = "modern";
-            } catch (e) {}
+            } catch (e) {
+              if (!(e instanceof SyntaxError) && typeof Promise !== "undefined" && typeof Promise.any === "function" && "replaceChildren" in Element.prototype) {
+                window.rudderAnalyticsBuildType = "modern";
+              }
+            }
             var head = document.head || document.getElementsByTagName("head")[0];
             var body = document.body || document.getElementsByTagName("body")[0];
             window.rudderAnalyticsAddScript = function(url, extraAttributeKey, extraAttributeVal) {
@@ -83,7 +87,8 @@
                   }
                 }
               })();
-              window.rudderAnalyticsAddScript("".concat(sdkBaseUrl, "/").concat(sdkVersion, "/").concat(window.rudderAnalyticsBuildType, "/").concat(sdkFileName), "data-rsa-write-key", "__WRITE_KEY__");
+              var sdkUrl = "".concat(sdkBaseUrl, "/").concat(sdkVersion, "/").concat(window.rudderAnalyticsBuildType, "/").concat(sdkFileName);
+              window.rudderAnalyticsAddScript(sdkUrl, "data-rsa-write-key", "__WRITE_KEY__");
             };
             if (typeof Promise === "undefined" || typeof globalThis === "undefined") {
               window.rudderAnalyticsAddScript("https://polyfill-fastly.io/v3/polyfill.min.js?version=3.111.0&flags=always%2Cgated&features=Symbol%2CPromise&callback=rudderAnalyticsMount");

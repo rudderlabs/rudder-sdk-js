@@ -195,10 +195,10 @@ export { rudderAnalytics };
 
 ### Hardening the CDN snippet
 
-If you must load the SDK using the CDN snippet, pin `sdkVersion` to an exact release and leave `sdkFileName` unchanged:
+The standard CDN snippet uses the floating `/v3/` path without integrity. If you must load the SDK using the CDN snippet, pin `sdkVersion` to an exact release and leave `sdkFileName` unchanged:
 
 ```javascript
-var sdkVersion = '<EXACT_SDK_VERSION>'; // For example, '3.36.0'
+var sdkVersion = '<EXACT_SDK_VERSION>';
 ```
 
 The SDK derives the plugins and integration SDK paths from its own script URL, so this also pins them, unless you set `destSDKBaseURL` or `pluginsSDKBaseURL` in the `load` options. Update those to the pinned version too, or remove them.

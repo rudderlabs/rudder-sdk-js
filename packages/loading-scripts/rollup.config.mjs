@@ -9,9 +9,12 @@ import livereload from 'rollup-plugin-livereload';
 import serve from 'rollup-plugin-serve';
 import * as dotenv from 'dotenv';
 import pkg from './package.json' with { type: 'json' };
+import { readPinnedCore } from './config/pinned-core.mjs';
 
 dotenv.config({ quiet: true });
-const outDirRoot = `dist`;
+const isPinnedBuild = process.env.PINNED === 'true';
+const pinnedCore = isPinnedBuild ? readPinnedCore() : null;
+const outDirRoot = isPinnedBuild ? 'dist-pinned' : 'dist';
 const distName = 'loader';
 const modName = 'script';
 const shouldUglify = process.env.UGLIFY === 'true';
@@ -41,11 +44,17 @@ export function getDefaultConfig(distName, isGtmBuild = false) {
       replace({
         preventAssignment: true,
         __IS_GTM_BUILD__: JSON.stringify(isGtmBuild),
+        __IS_PINNED_BUILD__: JSON.stringify(isPinnedBuild),
+        __SDK_VERSION__: JSON.stringify(pinnedCore?.version || ''),
+        __SDK_MODERN_INTEGRITY__: JSON.stringify(pinnedCore?.modern || ''),
+        __SDK_LEGACY_INTEGRITY__: JSON.stringify(pinnedCore?.legacy || ''),
         __PACKAGE_VERSION__: `'${version}'`,
       }),
       typescript({
         tsconfig: './tsconfig.json',
         useTsconfigDeclarationDir: true,
+        tsconfigOverride: { compilerOptions: { declarationDir: `${outDirRoot}/dts` } },
+        check: process.env.TEST_ARTIFACT_BUILD !== 'true',
       }),
       babel({
         compact: true,
