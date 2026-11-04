@@ -121,7 +121,7 @@ export function getDefaultConfig(distName, isGtmBuild = false) {
           },
         }),
       isLocalServerEnabled && livereload(),
-      process.env.VERSION && !process.env.DEV_SERVER && cdnBuildMetadata(pkg, null),
+      cdnBuildMetadata(pkg, null),
     ],
   };
 }

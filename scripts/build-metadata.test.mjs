@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
+import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdir, mkdtemp, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import { promisify } from 'node:util';
 import { rollup } from 'rollup';
 import { cdnBuildMetadata, metadataFilename, writeBuildMetadata } from './build-metadata.mjs';
 
@@ -91,6 +93,30 @@ test('invalid emitted paths, declarations and symlinks are rejected', async t =>
 });
 
 const loaderFiles = ['loader.js', 'loader.min.js', 'loader-gtm.js', 'loader-gtm.min.js'];
+
+test('npm start loader configs keep the metadata hook with DEV_SERVER and no VERSION', async () => {
+  const env = { ...process.env, DEV_SERVER: 'true' };
+  delete env.VERSION;
+  const { stdout } = await promisify(execFile)(
+    process.execPath,
+    [
+      '--input-type=module',
+      '-e',
+      `import assert from 'node:assert/strict';
+       import configs from './rollup.config.mjs';
+       assert.equal(configs.length, 2);
+       for (const config of configs) {
+         assert.ok(config.plugins.some(plugin => plugin?.name === 'cdn-build-metadata'));
+       }
+       console.log('start metadata hooks verified');
+       // Config creation starts the local server; exit before building or opening a browser.
+       process.exit(0);`,
+    ],
+    { cwd: new URL('../packages/loading-scripts/', import.meta.url), env },
+  );
+  assert.match(stdout, /start metadata hooks verified/);
+});
+
 function permutations(files) {
   return files.length === 0
     ? [[]]
@@ -133,47 +159,80 @@ test('Rollup rebuild updates its entries, preserves other outputs and prunes mis
   }
   const before = JSON.parse(await readFile(path.join(directory, metadataFilename), 'utf8'));
   await rm(path.join(directory, 'loader-gtm.min.js'));
+  // An output overwritten outside this write must no longer claim its old hash.
+  await writeFile(path.join(directory, 'loader-gtm.js'), 'dev-snapshot');
   await bundle.write({
     file: path.join(directory, 'loader.js'),
     format: 'iife',
     banner: '// rebuilt',
   });
   const after = JSON.parse(await readFile(path.join(directory, metadataFilename), 'utf8'));
-  assert.deepEqual(
-    Object.keys(after.files),
-    loaderFiles.filter(file => file !== 'loader-gtm.min.js').sort(),
-  );
+  assert.deepEqual(Object.keys(after.files), ['loader.js', 'loader.min.js']);
   assert.notDeepEqual(after.files['loader.js'], before.files['loader.js']);
   assert.deepEqual(after.files['loader.min.js'], before.files['loader.min.js']);
-  assert.deepEqual(after.files['loader-gtm.js'], before.files['loader-gtm.js']);
   const bytes = await readFile(path.join(directory, 'loader.js'));
   assert.deepEqual(after.files['loader.js'], {
     integrity: `sha384-${createHash('sha384').update(bytes).digest('base64')}`,
     size: bytes.length,
   });
   assert.ok(!(await readdir(directory)).some(file => file.endsWith('.tmp')));
-  await assert.rejects(writeBuildMetadata(directory, pkg, null, ['missing.js'], { upsert: true }));
+  await assert.rejects(writeBuildMetadata(directory, pkg, null, ['missing.js']));
   assert.deepEqual(
     JSON.parse(await readFile(path.join(directory, metadataFilename), 'utf8')),
     after,
   );
 });
 
-test('orchestrator writes replace the inventory, and upserts do not retain another package version', async t => {
+test('every write preserves unchanged entries but does not retain another package version', async t => {
   const directory = await fixture(t);
   await writeFile(path.join(directory, 'old.min.js'), 'old');
   await writeFile(path.join(directory, 'new.min.js'), 'new');
   await writeBuildMetadata(directory, pkg, 'modern', ['old.min.js']);
   const metadata = await writeBuildMetadata(directory, pkg, 'modern', ['new.min.js']);
-  assert.deepEqual(Object.keys(metadata.files), ['new.min.js']);
-  const updated = await writeBuildMetadata(
-    directory,
-    { ...pkg, version: '2.0.0' },
-    'modern',
-    ['old.min.js'],
-    { upsert: true },
-  );
+  assert.deepEqual(Object.keys(metadata.files), ['new.min.js', 'old.min.js']);
+  const updated = await writeBuildMetadata(directory, { ...pkg, version: '2.0.0' }, 'modern', [
+    'old.min.js',
+  ]);
   assert.deepEqual(Object.keys(updated.files), ['old.min.js']);
+});
+
+test('rebuild with inline maps retains unchanged leftovers and drops changed obsolete chunks', async t => {
+  const root = await fixture(t);
+  const directory = path.join(root, 'cdn');
+  const source = path.join(root, 'rsa.min.js');
+  await writeFile(source, 'console.log("production");');
+  let emitObsoleteChunk = true;
+  const bundle = await rollup({
+    input: source,
+    plugins: [
+      cdnBuildMetadata(pkg, 'modern'),
+      {
+        name: 'obsolete-plugin-chunk',
+        generateBundle() {
+          if (emitObsoleteChunk)
+            this.emitFile({ type: 'asset', fileName: 'old-plugin.js', source: 'old plugin' });
+        },
+      },
+    ],
+  });
+  t.after(() => bundle.close());
+  await bundle.write({ dir: directory, format: 'iife', sourcemap: true });
+  const before = JSON.parse(await readFile(path.join(directory, metadataFilename), 'utf8'));
+  emitObsoleteChunk = false;
+  await writeFile(path.join(directory, 'old-plugin.js'), 'changed plugin');
+  await bundle.write({ dir: directory, format: 'iife', sourcemap: 'inline' });
+  const after = JSON.parse(await readFile(path.join(directory, metadataFilename), 'utf8'));
+  // Switching map modes leaves an unchanged external map on disk. The rule
+  // retains it because its recorded bytes still match; clean releases remove it.
+  assert.deepEqual(Object.keys(after.files), ['rsa.min.js', 'rsa.min.js.map']);
+  assert.deepEqual(after.files['rsa.min.js.map'], before.files['rsa.min.js.map']);
+  assert.notDeepEqual(after.files['rsa.min.js'], before.files['rsa.min.js']);
+  await readFile(path.join(directory, 'old-plugin.js'));
+  await writeFile(path.join(directory, 'rsa.min.js.map'), 'stale map bytes');
+  await bundle.write({ dir: directory, format: 'iife', sourcemap: 'inline' });
+  const final = JSON.parse(await readFile(path.join(directory, metadataFilename), 'utf8'));
+  assert.deepEqual(Object.keys(final.files), ['rsa.min.js']);
+  await readFile(path.join(directory, 'rsa.min.js.map'));
 });
 
 test('final Rollup output hook includes maps and federation assets and waits for final bytes', async t => {
