@@ -159,9 +159,7 @@ export function getDefaultConfig(distName) {
           },
         }),
       isLocalServerEnabled && livereload(),
-      isCDNPackageBuild &&
-        process.env.ENV === 'prod' &&
-        cdnBuildMetadata(pkg, isLegacyBuild ? 'legacy' : 'modern'),
+      isCDNPackageBuild && cdnBuildMetadata(pkg, isLegacyBuild ? 'legacy' : 'modern'),
     ],
   };
 }

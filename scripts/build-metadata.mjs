@@ -37,33 +37,33 @@ async function isArtifactFile(directory, file) {
 
 // Readers must ignore unknown top-level and per-file fields. Future metadata is
 // additive; integrity is one field, not the purpose or identity of the schema.
-// Only emitted paths are hashed; unrelated files in the directory are ignored.
-export async function writeBuildMetadata(
-  directory,
-  pkg,
-  variant,
-  emittedFiles,
-  { upsert = false } = {},
-) {
+// Emitted paths are upserted; other listed paths survive only if unchanged.
+// Unrelated files in the directory are ignored.
+export async function writeBuildMetadata(directory, pkg, variant, emittedFiles) {
   const expected = [...new Set(emittedFiles)].sort();
   validateFiles(expected);
   const files = {};
-  if (upsert) {
-    let previous;
-    try {
-      previous = JSON.parse(await readFile(path.join(directory, metadataFilename), 'utf8'));
-    } catch (error) {
-      if (error.code !== 'ENOENT') throw error;
-    }
-    if (
-      previous?.package.name === pkg.name &&
-      previous.package.version === pkg.version &&
-      previous.variant === variant
-    ) {
-      const entries = Object.keys(previous.files);
-      if (entries.length > 0) validateFiles(entries);
-      for (const file of entries) {
-        if (!expected.includes(file) && (await isArtifactFile(directory, file))) {
+  let previous;
+  try {
+    previous = JSON.parse(await readFile(path.join(directory, metadataFilename), 'utf8'));
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
+  }
+  if (
+    previous?.package.name === pkg.name &&
+    previous.package.version === pkg.version &&
+    previous.variant === variant
+  ) {
+    const entries = Object.keys(previous.files);
+    if (entries.length > 0) validateFiles(entries);
+    for (const file of entries) {
+      if (!expected.includes(file) && (await isArtifactFile(directory, file))) {
+        const bytes = await readFile(path.join(directory, file));
+        const integrity = `sha384-${createHash('sha384').update(bytes).digest('base64')}`;
+        if (
+          integrity === previous.files[file].integrity &&
+          bytes.length === previous.files[file].size
+        ) {
           files[file] = previous.files[file];
         }
       }
@@ -113,7 +113,6 @@ export function cdnBuildMetadata(pkg, variant) {
           pkg,
           variant,
           Object.keys(bundle),
-          { upsert: true },
         );
       },
     },

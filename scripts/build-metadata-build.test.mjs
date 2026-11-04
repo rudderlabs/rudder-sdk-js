@@ -26,7 +26,7 @@ inventories.push({
 });
 
 // Independently enumerate clean plugin/integration outputs. Core and loaders
-// use known production names so development leftovers are not inventoried.
+// use known names, including core development outputs emitted before production.
 async function discover(directory, prefix = '') {
   const files = [];
   for (const entry of await readdir(directory, { withFileTypes: true })) {
@@ -51,7 +51,8 @@ test(
     const run = promisify(execFile);
     async function build(name, script, extra = []) {
       try {
-        const result = await run('npm', ['run', script, ...extra], {
+        const args = script === 'exec' ? ['exec', ...extra] : ['run', script, ...extra];
+        const result = await run('npm', args, {
           cwd: path.join(workspace, 'packages', name),
           env: { ...process.env, NX_DAEMON: 'false' },
           maxBuffer: 100 * 1024 * 1024,
@@ -93,6 +94,29 @@ test(
     await verifyLoaders(minifiedLoaders);
     await build('loading-scripts', 'build:browser');
     await verifyLoaders(loaderFiles);
+    const productionLoaders = JSON.parse(
+      await readFile(path.join(loaderDirectory, 'build-metadata.json'), 'utf8'),
+    );
+    // Same output configs as npm start, without watch mode or the local server.
+    // Omitting VERSION writes dev-snapshot bytes over the unminified loaders.
+    await build('loading-scripts', 'exec', ['--', 'rollup', '-c']);
+    await verifyLoaders(loaderFiles);
+    const developmentLoaders = JSON.parse(
+      await readFile(path.join(loaderDirectory, 'build-metadata.json'), 'utf8'),
+    );
+    for (const file of loaderFiles) {
+      if (minifiedLoaders.includes(file))
+        assert.deepEqual(developmentLoaders.files[file], productionLoaders.files[file]);
+      else {
+        assert.notDeepEqual(developmentLoaders.files[file], productionLoaders.files[file]);
+        assert.match(await readFile(path.join(loaderDirectory, file), 'utf8'), /dev-snapshot/);
+      }
+    }
+    // Keep an obsolete, modified output on disk. The next write must drop it.
+    await writeFile(path.join(loaderDirectory, 'loader-gtm.min.js'), 'stale loader bytes');
+    await build('loading-scripts', 'build:browser');
+    await verifyLoaders(loaderFiles.filter(file => file !== 'loader-gtm.min.js'));
+    await readFile(path.join(loaderDirectory, 'loader-gtm.min.js'));
     // Rebuild in the other order and prune files removed since the last build.
     for (const file of minifiedLoaders) await rm(path.join(loaderDirectory, file));
     await build('loading-scripts', 'build:browser');
@@ -122,7 +146,9 @@ test(
         name === 'loading-scripts'
           ? [...loaderFiles].sort()
           : name === 'analytics-js'
-            ? ['rsa.min.js', 'rsa.min.js.map']
+            ? variant === 'legacy'
+              ? ['rsa.js', 'rsa.js.map', 'rsa.min.js', 'rsa.min.js.map']
+              : ['rsa.min.js', 'rsa.min.js.map']
             : await discover(absolute);
       assert.deepEqual(Object.keys(metadata.files), files, directory);
       assert.ok(files.length > 0);
@@ -145,8 +171,6 @@ test(
             .flatMap(integration => [`${integration}.min.js`, `${integration}.min.js.map`])
             .sort(),
         );
-      } else if (name === 'analytics-js') {
-        assert.deepEqual(files, ['rsa.min.js', 'rsa.min.js.map']);
       } else if (name === 'analytics-js-plugins') {
         assert.ok(metadata.files['rsa-plugins.js']);
         assert.ok(metadata.files['rsa-plugins-common.min.js']);
