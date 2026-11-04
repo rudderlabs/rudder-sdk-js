@@ -4,6 +4,7 @@ import type { BeaconQueueOpts } from '@rudderstack/analytics-js-common/types/Loa
 import {
   BEACON_QUEUE_STRING_CONVERSION_FAILURE_ERROR,
   BEACON_QUEUE_BLOB_CONVERSION_FAILURE_ERROR,
+  BEACON_QUEUE_INVALID_DELIVERY_PATH_WARNING,
 } from './logMessages';
 import { BEACON_QUEUE_PLUGIN, DEFAULT_BEACON_QUEUE_OPTIONS } from './constants';
 import type { BeaconBatchData } from './types';
@@ -43,14 +44,40 @@ const getBatchDeliveryPayload = (
   return undefined;
 };
 
-const getNormalizedDeliveryPath = (deliveryPath?: string): string =>
-  typeof deliveryPath === 'string' && deliveryPath.trim().length > 0
-    ? deliveryPath
-    : DEFAULT_BEACON_QUEUE_OPTIONS.deliveryPath;
+// Unreserved URL characters only; dot segments would escape the data plane URL's path prefix
+const isValidDeliveryPath = (deliveryPath: unknown): deliveryPath is string => {
+  if (typeof deliveryPath !== 'string' || !/^[\w.~/-]+$/.test(deliveryPath)) {
+    return false;
+  }
+  const segments = deliveryPath.split('/').filter(Boolean);
+  return segments.length > 0 && segments.every(segment => !/^\.+$/.test(segment));
+};
 
-const getNormalizedBeaconQueueOptions = (queueOpts: BeaconQueueOpts): BeaconQueueOpts => {
+const getNormalizedDeliveryPath = (deliveryPath?: string, logger?: ILogger): string => {
+  if (isValidDeliveryPath(deliveryPath)) {
+    return deliveryPath;
+  }
+  if (deliveryPath !== undefined && deliveryPath !== null) {
+    logger?.warn(
+      BEACON_QUEUE_INVALID_DELIVERY_PATH_WARNING(
+        BEACON_QUEUE_PLUGIN,
+        String(deliveryPath),
+        DEFAULT_BEACON_QUEUE_OPTIONS.deliveryPath,
+      ),
+    );
+  }
+  return DEFAULT_BEACON_QUEUE_OPTIONS.deliveryPath;
+};
+
+const getNormalizedBeaconQueueOptions = (
+  queueOpts: BeaconQueueOpts,
+  logger?: ILogger,
+): BeaconQueueOpts => {
   const normalizedOptions = mergeDeepRight(DEFAULT_BEACON_QUEUE_OPTIONS, queueOpts);
-  normalizedOptions.deliveryPath = getNormalizedDeliveryPath(normalizedOptions.deliveryPath);
+  normalizedOptions.deliveryPath = getNormalizedDeliveryPath(
+    normalizedOptions.deliveryPath,
+    logger,
+  );
   return normalizedOptions;
 };
 

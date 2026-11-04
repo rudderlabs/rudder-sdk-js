@@ -1,3 +1,4 @@
+import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import type { BeaconQueueOpts } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import { getDeliveryUrl, getNormalizedBeaconQueueOptions } from '../../src/beaconQueue/utilities';
 
@@ -38,14 +39,37 @@ describe('getDeliveryUrl', () => {
     expect(getDeliveryUrl(dataplaneUrl, 'test-key', deliveryPath)).toBe(expected);
   });
 
-  it.each([undefined, null, '', '  \t\n', 42, false, {}, []])(
-    'falls back to the default for invalid path %p',
-    deliveryPath => {
-      expect(
-        getDeliveryUrl('https://events.example.com/rs', 'test-key', deliveryPath as string),
-      ).toBe('https://events.example.com/rs/beacon/v1/batch?writeKey=test-key');
-    },
-  );
+  it('accepts unreserved characters in segments', () => {
+    expect(getDeliveryUrl('https://events.example.com', 'test-key', '/a-b_c~d/e.f')).toBe(
+      'https://events.example.com/a-b_c~d/e.f?writeKey=test-key',
+    );
+  });
+
+  it.each([
+    undefined,
+    null,
+    '',
+    '  \t\n',
+    42,
+    false,
+    {},
+    [],
+    '///',
+    '/batch?x=1',
+    '/batch#x',
+    '../batch',
+    './batch',
+    '/rs/../batch',
+    '/...',
+    '%2e%2e/batch',
+    '..\\batch',
+    '/a b',
+    'https://evil.example.com/batch',
+  ])('falls back to the default for invalid path %p', deliveryPath => {
+    expect(
+      getDeliveryUrl('https://events.example.com/rs', 'test-key', deliveryPath as string),
+    ).toBe('https://events.example.com/rs/beacon/v1/batch?writeKey=test-key');
+  });
 });
 
 describe('getNormalizedBeaconQueueOptions', () => {
@@ -66,4 +90,18 @@ describe('getNormalizedBeaconQueueOptions', () => {
       expect(options.deliveryPath).toBe(deliveryPath);
     },
   );
+
+  it('warns when a provided path is rejected', () => {
+    const logger = { warn: jest.fn() } as unknown as ILogger;
+    getNormalizedBeaconQueueOptions({ deliveryPath: '../batch' }, logger);
+    expect(logger.warn).toHaveBeenCalledWith(
+      'BeaconQueuePlugin:: The beacon queue delivery path "../batch" is invalid. A path may only contain letters, digits, "-", "_", "~", "." and "/", and no "." or ".." segments. Using the default path "/beacon/v1/batch".',
+    );
+  });
+
+  it.each([undefined, '/rs/batch'])('does not warn for path %p', deliveryPath => {
+    const logger = { warn: jest.fn() } as unknown as ILogger;
+    getNormalizedBeaconQueueOptions({ deliveryPath }, logger);
+    expect(logger.warn).not.toHaveBeenCalled();
+  });
 });

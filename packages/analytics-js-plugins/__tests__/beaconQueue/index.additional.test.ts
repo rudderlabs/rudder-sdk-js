@@ -416,7 +416,7 @@ describe('BeaconQueue Plugin - Additional Tests', () => {
         mockLogger,
       );
 
-      expect(mockGetNormalizedBeaconQueueOptions).toHaveBeenCalledWith({});
+      expect(mockGetNormalizedBeaconQueueOptions).toHaveBeenCalledWith({}, mockLogger);
     });
 
     it('should pass correct queue name with write key', () => {

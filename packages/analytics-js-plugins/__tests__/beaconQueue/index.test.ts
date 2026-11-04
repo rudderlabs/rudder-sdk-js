@@ -222,10 +222,13 @@ describe('BeaconQueue Plugin', () => {
         mockLogger,
       );
 
-      expect(mockGetNormalizedBeaconQueueOptions).toHaveBeenCalledWith({
-        flushQueueInterval: 5000,
-        maxItems: 50,
-      });
+      expect(mockGetNormalizedBeaconQueueOptions).toHaveBeenCalledWith(
+        {
+          flushQueueInterval: 5000,
+          maxItems: 50,
+        },
+        mockLogger,
+      );
 
       expect(mockGetDeliveryUrl).toHaveBeenCalledWith(
         'https://api.rudderstack.com',
@@ -263,7 +266,7 @@ describe('BeaconQueue Plugin', () => {
         mockLogger,
       );
 
-      expect(mockGetNormalizedBeaconQueueOptions).toHaveBeenCalledWith({});
+      expect(mockGetNormalizedBeaconQueueOptions).toHaveBeenCalledWith({}, mockLogger);
     });
   });
 
