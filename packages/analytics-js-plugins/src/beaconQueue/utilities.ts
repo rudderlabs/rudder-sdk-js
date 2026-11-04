@@ -44,51 +44,44 @@ const getBatchDeliveryPayload = (
   return undefined;
 };
 
-// Unreserved URL characters only; dot segments would escape the data plane URL's path prefix
-const isValidDeliveryPath = (deliveryPath: unknown): deliveryPath is string => {
-  if (typeof deliveryPath !== 'string' || !/^[\w.~/-]+$/.test(deliveryPath)) {
+const getNormalizedBeaconQueueOptions = (queueOpts: BeaconQueueOpts): BeaconQueueOpts =>
+  mergeDeepRight(DEFAULT_BEACON_QUEUE_OPTIONS, queueOpts);
+
+const joinPaths = (basePath: string, path: string): string =>
+  removeDuplicateSlashes([basePath, '/', path].join(''));
+
+// Valid only if the URL parser keeps the path as is: dot segments, a query or a fragment would
+// escape the data plane URL's path prefix or move the writeKey out of the query
+const isValidDeliveryPath = (dpUrl: URL, deliveryPath: unknown): deliveryPath is string => {
+  if (typeof deliveryPath !== 'string' || deliveryPath.replace(/\//g, '').trim() === '') {
     return false;
   }
-  const segments = deliveryPath.split('/').filter(Boolean);
-  return segments.length > 0 && segments.every(segment => !/^\.+$/.test(segment));
+  const path = joinPaths(dpUrl.pathname, deliveryPath);
+  const url = new URL(path, dpUrl);
+  return url.pathname === path && !url.search && !url.hash;
 };
 
-const getNormalizedDeliveryPath = (deliveryPath?: string, logger?: ILogger): string => {
-  if (isValidDeliveryPath(deliveryPath)) {
-    return deliveryPath;
-  }
-  if (deliveryPath !== undefined && deliveryPath !== null) {
+const getDeliveryUrl = (
+  dataplaneUrl: string,
+  writeKey: string,
+  deliveryPath?: string,
+  logger?: ILogger,
+): string => {
+  const dpUrl = new URL(dataplaneUrl);
+  const defaultPath = DEFAULT_BEACON_QUEUE_OPTIONS.deliveryPath;
+  let path = defaultPath;
+  if (isValidDeliveryPath(dpUrl, deliveryPath)) {
+    path = deliveryPath;
+  } else if (deliveryPath !== undefined && deliveryPath !== null) {
     logger?.warn(
       BEACON_QUEUE_INVALID_DELIVERY_PATH_WARNING(
         BEACON_QUEUE_PLUGIN,
         String(deliveryPath),
-        DEFAULT_BEACON_QUEUE_OPTIONS.deliveryPath,
+        defaultPath,
       ),
     );
   }
-  return DEFAULT_BEACON_QUEUE_OPTIONS.deliveryPath;
-};
-
-const getNormalizedBeaconQueueOptions = (
-  queueOpts: BeaconQueueOpts,
-  logger?: ILogger,
-): BeaconQueueOpts => {
-  const normalizedOptions = mergeDeepRight(DEFAULT_BEACON_QUEUE_OPTIONS, queueOpts);
-  normalizedOptions.deliveryPath = getNormalizedDeliveryPath(
-    normalizedOptions.deliveryPath,
-    logger,
-  );
-  return normalizedOptions;
-};
-
-const getDeliveryUrl = (dataplaneUrl: string, writeKey: string, deliveryPath?: string): string => {
-  const dpUrl = new URL(dataplaneUrl);
-  return new URL(
-    `${removeDuplicateSlashes(
-      [dpUrl.pathname, '/', getNormalizedDeliveryPath(deliveryPath)].join(''),
-    )}?writeKey=${writeKey}`,
-    dpUrl,
-  ).href;
+  return new URL(`${joinPaths(dpUrl.pathname, path)}?writeKey=${writeKey}`, dpUrl).href;
 };
 
 export { getBatchDeliveryPayload, getDeliveryUrl, getNormalizedBeaconQueueOptions };

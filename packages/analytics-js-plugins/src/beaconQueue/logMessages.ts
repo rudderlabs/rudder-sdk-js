@@ -20,7 +20,7 @@ const BEACON_QUEUE_INVALID_DELIVERY_PATH_WARNING = (
   deliveryPath: string,
   defaultPath: string,
 ): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The beacon queue delivery path "${deliveryPath}" is invalid. A path may only contain letters, digits, "-", "_", "~", "." and "/", and no "." or ".." segments. Using the default path "${defaultPath}".`;
+  `${context}${LOG_CONTEXT_SEPARATOR}The beacon queue delivery path "${deliveryPath}" is invalid. It must be a URL path without a query, a fragment, or "." and ".." segments. Using the default path "${defaultPath}".`;
 
 export {
   BEACON_QUEUE_INVALID_DELIVERY_PATH_WARNING,
