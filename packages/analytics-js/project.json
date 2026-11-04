@@ -57,14 +57,6 @@
         "discussion-category": "@rudderstack/analytics-js@3.36.0",
         "notesFile": "./packages/analytics-js/CHANGELOG_LATEST.md"
       }
-    },
-    "build:browser": {
-      "outputs": ["{projectRoot}/dist/cdn/legacy"],
-      "inputs": ["default", "^default"]
-    },
-    "build:browser:modern": {
-      "outputs": ["{projectRoot}/dist/cdn/modern"],
-      "inputs": ["default", "^default"]
     }
   }
 }
