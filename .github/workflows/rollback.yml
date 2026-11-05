@@ -9,6 +9,7 @@ concurrency:
   # which no invalidation repairs.
   group: production-cdn-write
   cancel-in-progress: false
+  queue: max # match deploy-prod.yml so neither workflow drops the other's pending run
 
 permissions: {}
 
