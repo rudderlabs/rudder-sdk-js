@@ -1,10 +1,11 @@
 name: Deploy to Production Environment
 
+# Runs on push to main, not on pull_request, so the prod deploy role can trust
+# only refs/heads/main: main's ruleset is the gate, and no PR in any repo can
+# assume the role. Non-release pushes are skipped in get-deploy-inputs.
 on:
-  pull_request:
+  push:
     branches: ['main']
-    types:
-      - closed
 
 # A production deploy must never be pre-empted, and two of them must never
 # overlap. The deploy job uploads the pinned plugin directory before it
@@ -13,10 +14,8 @@ on:
 # incomplete pinned plugin directory, a state no invalidation repairs. A
 # queued run is strictly safer than a truncated or racing one.
 #
-# The group is deliberately constant. github.ref here is the pull request's
-# merge ref, which differs per release PR, so including it would put two
-# release merges in separate groups and let them publish to /v3 at the same
-# time -- exactly what this is meant to prevent.
+# The group is deliberately constant so it also queues against rollback.yml,
+# which runs from tags as well as main.
 concurrency:
   # Shared with rollback.yml: both write the same production /v3 paths and
   # invalidate the same distribution, so they have to queue against each
@@ -32,42 +31,62 @@ jobs:
     name: Get Deploy Inputs
     runs-on: arc-amd64
     outputs:
-      trigger_source: ${{ steps.set-outputs.outputs.trigger_source }}
-      release_version: ${{ steps.extract-release-info.outputs.release_version }}
-      release_ticket_id: ${{ steps.extract-release-info.outputs.release_ticket_id }}
-    permissions: {}
+      is_release: ${{ steps.release-info.outputs.is_release }}
+      trigger_source: ${{ steps.release-info.outputs.trigger_source }}
+      release_version: ${{ steps.release-info.outputs.release_version }}
+      release_ticket_id: ${{ steps.release-info.outputs.release_ticket_id }}
+    permissions:
+      contents: read # actions/checkout
+      pull-requests: read # look up the PR this push merged
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
         with:
           egress-policy: audit
 
-      - name: Set outputs
-        id: set-outputs
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ github.sha }}
+          sparse-checkout: package.json
+          sparse-checkout-cone-mode: false
+
+      # Only a merged release or hotfix-release PR deploys. The version comes
+      # from the merged package.json; the ticket from the PR's branch.
+      - name: Resolve release info
+        id: release-info
         env:
-          PR_HTML_URL: ${{ github.event.pull_request.html_url }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
           SERVER_URL: ${{ github.server_url }}
           ACTOR: ${{ github.actor }}
-        run: echo "trigger_source=PR <${PR_HTML_URL}|#${PR_NUMBER}> merged by <${SERVER_URL}/${ACTOR}|${ACTOR}>" >> $GITHUB_OUTPUT
-
-      - name: Extract release info from branch
-        id: extract-release-info
-        if: startsWith(github.event.pull_request.head.ref, 'release/') || startsWith(github.event.pull_request.head.ref, 'hotfix-release/')
-        env:
-          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
         run: |
-          echo "Branch name: $PR_BRANCH"
-          
-          # Extract version and ticket from branch name (format: release/3.2.1-SDK-1234 or hotfix-release/3.2.2-SDK-5678)
-          version=$(echo "$PR_BRANCH" | sed -n 's|.*\/\([0-9]\+\.[0-9]\+\.[0-9]\+\)-.*|\1|p')
-          ticket=$(echo "$PR_BRANCH" | sed -n 's|.*[0-9]\+-\(.*\)$|\1|p')
-          
-          echo "Extracted version: $version"
-          echo "Extracted ticket: $ticket"
-          
-          echo "release_version=$version" >> $GITHUB_OUTPUT
-          echo "release_ticket_id=$ticket" >> $GITHUB_OUTPUT
+          pr=$(gh api "repos/$REPO/commits/$SHA/pulls" \
+            --jq "[.[] | select(.base.ref == \"main\" and .merged_at != null and .merge_commit_sha == \"$SHA\")][0] // empty")
+          branch=$(jq -r '.head.ref // empty' <<< "$pr")
+          echo "PR branch: ${branch:-<none>}"
+
+          if [[ "$branch" != release/* && "$branch" != hotfix-release/* ]]; then
+            echo "Not a release merge; skipping the production deploy."
+            echo "is_release=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          version=$(jq -r .version package.json)
+          # Branch format: release/3.2.1-SDK-1234 or hotfix-release/3.2.2-SDK-5678
+          ticket=$(sed -n 's|.*[0-9]\+-\(.*\)$|\1|p' <<< "$branch")
+          pr_url=$(jq -r .html_url <<< "$pr")
+          pr_number=$(jq -r .number <<< "$pr")
+          echo "Version: $version, ticket: $ticket"
+
+          {
+            echo "is_release=true"
+            echo "release_version=$version"
+            echo "release_ticket_id=$ticket"
+            echo "trigger_source=PR <${pr_url}|#${pr_number}> merged by <${SERVER_URL}/${ACTOR}|${ACTOR}>"
+          } >> "$GITHUB_OUTPUT"
 
   deploy:
     permissions:
@@ -75,7 +94,7 @@ jobs:
       id-token: write
     name: Deploy to production environment
     needs: [get-deploy-inputs]
-    if: (startsWith(github.event.pull_request.head.ref, 'release/') || startsWith(github.event.pull_request.head.ref, 'hotfix-release/')) && github.event.pull_request.merged == true
+    if: needs.get-deploy-inputs.outputs.is_release == 'true'
     uses: ./.github/workflows/deploy.yml
     with:
       environment: 'production'
@@ -101,7 +120,7 @@ jobs:
       id-token: write
     name: Deploy sanity suite
     needs: [get-deploy-inputs]
-    if: (startsWith(github.event.pull_request.head.ref, 'release/') || startsWith(github.event.pull_request.head.ref, 'hotfix-release/')) && github.event.pull_request.merged == true
+    if: needs.get-deploy-inputs.outputs.is_release == 'true'
     uses: ./.github/workflows/deploy-sanity-suite.yml
     with:
       environment: 'production'
