@@ -1,3 +1,4 @@
+import { removeBuildMetadata } from '../../scripts/build-metadata.mjs';
 import path from 'path';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
@@ -58,6 +59,11 @@ export function getDefaultConfig(distName, moduleType = 'cdn') {
       warn(warning);
     },
     plugins: [
+      {
+        name: 'invalidate-build-metadata',
+        // Partial builds cannot leave a previously complete inventory behind.
+        buildStart: () => removeBuildMetadata(outDirCDN),
+      },
       replace({
         preventAssignment: true,
         __PACKAGE_VERSION__: `'${version}'`,

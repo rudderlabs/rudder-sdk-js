@@ -1,3 +1,4 @@
+import { cdnBuildMetadata } from '../../scripts/build-metadata.mjs';
 import path from 'path';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
@@ -22,9 +23,13 @@ import * as dotenv from 'dotenv';
 import pkg from './package.json' with { type: 'json' };
 
 dotenv.config({ quiet: true });
-const baseCdnUrl = process.env.BASE_CDN_URL ? process.env.BASE_CDN_URL.replace(/\/+$/, '') : 'https://cdn.rudderlabs.com';
+const baseCdnUrl = process.env.BASE_CDN_URL
+  ? process.env.BASE_CDN_URL.replace(/\/+$/, '')
+  : 'https://cdn.rudderlabs.com';
 const isLegacyBuild = process.env.BROWSERSLIST_ENV !== 'modern';
-const additionalWatchPaths = isLegacyBuild ? ['../analytics-js-plugins/src/**', '../analytics-js-common/src/**'] : [];
+const additionalWatchPaths = isLegacyBuild
+  ? ['../analytics-js-plugins/src/**', '../analytics-js-common/src/**']
+  : [];
 const variantSubfolder = isLegacyBuild ? '/legacy' : '/modern';
 const isLiteBuild = process.env.LITE_BUILD === 'true';
 const bundledPluginsList = process.env.BUNDLED_PLUGINS;
@@ -35,9 +40,10 @@ const isModuleFederatedBuild = !isDynamicCustomBuild && !isLegacyBuild && !isLit
 const sourceMapType =
   process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
 const cdnPath = isDynamicCustomBuild ? `dynamicCdnBundle` : `cdn`;
-let remotePluginsBasePath =
-  process.env.REMOTE_MODULES_BASE_PATH ?? `${baseCdnUrl}/v3`;
-remotePluginsBasePath = remotePluginsBasePath?.endsWith('/') ? remotePluginsBasePath : `${remotePluginsBasePath}/`;
+let remotePluginsBasePath = process.env.REMOTE_MODULES_BASE_PATH ?? `${baseCdnUrl}/v3`;
+remotePluginsBasePath = remotePluginsBasePath?.endsWith('/')
+  ? remotePluginsBasePath
+  : `${remotePluginsBasePath}/`;
 let destSDKBaseURL = process.env.DEST_SDK_BASE_URL ?? `${baseCdnUrl}/v3`;
 destSDKBaseURL = destSDKBaseURL?.endsWith('/') ? destSDKBaseURL : `${destSDKBaseURL}/`;
 const outDirNpmRoot = `dist/npm`;
@@ -88,7 +94,15 @@ const isCDNPackageBuild = moduleType === 'cdn';
 // build at bundle time with no probe, and the plugins they fetch from the CDN skip their bundler.
 const cdnModernTargets =
   isCDNPackageBuild && !isLegacyBuild && !isDynamicCustomBuild
-    ? { chrome: '80', edge: '80', firefox: '74', safari: '14', ios: '14', opera: '67', samsung: '13' }
+    ? {
+        chrome: '80',
+        edge: '80',
+        firefox: '74',
+        safari: '14',
+        ios: '14',
+        opera: '67',
+        samsung: '13',
+      }
     : undefined;
 let polyfillIoUrl = 'https://polyfill-fastly.io/v3/polyfill.min.js';
 
@@ -234,7 +248,7 @@ const configSummaryOutput = () => {
   if (isLiteBuild) {
     const excludedPlugins = Object.keys(getExternalsConfig());
     console.log(
-      `Lite Bundle. Excluding plugins (via externals config): ${excludedPlugins.join(', ')}`
+      `Lite Bundle. Excluding plugins (via externals config): ${excludedPlugins.join(', ')}`,
     );
   } else if (isDynamicCustomBuild) {
     console.log(`Custom Bundle. Including plugins: ${bundledPluginsList}`);
@@ -397,6 +411,9 @@ export function getDefaultConfig(distName) {
           },
         }),
       isLocalServerEnabled && livereload(),
+      isCDNPackageBuild &&
+        !isDynamicCustomBuild &&
+        cdnBuildMetadata(pkg, isLegacyBuild ? 'legacy' : 'modern'),
     ],
   };
 }
