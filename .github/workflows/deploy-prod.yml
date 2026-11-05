@@ -23,6 +23,9 @@ concurrency:
   # github.workflow, which differs per workflow and would split the group.
   group: production-cdn-write
   cancel-in-progress: false
+  # Pending runs wait instead of replacing each other, so a later push to main
+  # can't drop a queued release or rollback.
+  queue: max
 
 permissions: {}
 
@@ -63,10 +66,22 @@ jobs:
           SERVER_URL: ${{ github.server_url }}
           ACTOR: ${{ github.actor }}
         run: |
-          pr=$(gh api "repos/$REPO/commits/$SHA/pulls" \
-            --jq "[.[] | select(.base.ref == \"main\" and .merged_at != null and .merge_commit_sha == \"$SHA\")][0] // empty")
-          branch=$(jq -r '.head.ref // empty' <<< "$pr")
-          echo "PR branch: ${branch:-<none>}"
+          # The commit-to-PR link can lag the push, so retry; a push with no
+          # merged PR after that fails loudly rather than skipping a release.
+          pr=""
+          for attempt in 1 2 3 4 5; do
+            pr=$(gh api "repos/$REPO/commits/$SHA/pulls" \
+              --jq "[.[] | select(.base.ref == \"main\" and .merged_at != null and .merge_commit_sha == \"$SHA\")][0] // empty") || pr=""
+            [ -n "$pr" ] && break
+            [ "$attempt" -lt 5 ] && sleep 15
+          done
+          if [ -z "$pr" ]; then
+            echo "::error::No merged PR found for $SHA; re-run once GitHub links the commit to its PR."
+            exit 1
+          fi
+
+          branch=$(jq -r '.head.ref' <<< "$pr")
+          echo "PR branch: $branch"
 
           if [[ "$branch" != release/* && "$branch" != hotfix-release/* ]]; then
             echo "Not a release merge; skipping the production deploy."
