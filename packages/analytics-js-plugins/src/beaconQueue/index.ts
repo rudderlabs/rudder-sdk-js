@@ -103,7 +103,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
             done(null);
           }
         } catch (err) {
-          errorHandler?.onError({
+          void errorHandler?.onError({
             error: err,
             context: BEACON_QUEUE_PLUGIN,
             customMessage: BEACON_QUEUE_DELIVERY_ERROR(url),
