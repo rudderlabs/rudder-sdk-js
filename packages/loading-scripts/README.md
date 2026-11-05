@@ -28,6 +28,11 @@ RudderStack JavaScript SDK loading script snippet code.
 
 > For detailed documentation on the RudderStack JavaScript SDK, click [**here**](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/).
 
+## Core script integrity
+
+Deploy must run `npx nx run @rudderstack/analytics-js-loading-scripts:build:pinned` after the production core build, using the same artifacts it uploads; this target never rebuilds the core and writes to `packages/loading-scripts/dist-pinned/`.
+`PINNED_CORE_DIR` selects the core CDN directory (default: `packages/analytics-js/dist/cdn`); it reads `package.version` and the `files["rsa.min.js"].integrity` entry from each `<variant>/iife/build-metadata.json`. Missing or invalid metadata and mismatched modern/legacy versions fail the build. Unknown fields are ignored. Relative overrides are resolved from `packages/loading-scripts`.
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE.md](LICENSE.md) file for details.

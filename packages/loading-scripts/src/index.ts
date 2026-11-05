@@ -22,7 +22,7 @@ if (Array.isArray(rudderanalytics)) {
     window.rudderAnalyticsBuildType = 'legacy';
 
     const sdkBaseUrl = 'https://cdn.rudderlabs.com';
-    const sdkVersion = 'v3';
+    const sdkVersion = __IS_PINNED_BUILD__ ? __SDK_VERSION__ : 'v3';
     const sdkFileName = 'rsa.min.js';
     const scriptLoadingMode = 'async'; // Options: 'async', 'defer', 'none'/'' (empty string)
 
@@ -96,6 +96,20 @@ if (Array.isArray(rudderanalytics)) {
       const scriptTag = document.createElement('script');
       scriptTag.src = url;
       scriptTag.setAttribute('data-loader', 'RS_JS_SDK');
+      // Only the pinned core gets SRI; bootstrap polyfills keep their own URL.
+      // Rollup removes this entire branch from floating loaders.
+      if (__IS_PINNED_BUILD__) {
+        const sdkIntegrity =
+          url === `${sdkBaseUrl}/${sdkVersion}/${window.rudderAnalyticsBuildType}/${sdkFileName}`
+            ? window.rudderAnalyticsBuildType === 'modern'
+              ? __SDK_MODERN_INTEGRITY__
+              : __SDK_LEGACY_INTEGRITY__
+            : '';
+        if (sdkIntegrity) {
+          scriptTag.integrity = sdkIntegrity;
+          scriptTag.crossOrigin = 'anonymous';
+        }
+      }
       if (extraAttributeKey && extraAttributeVal) {
         scriptTag.setAttribute(extraAttributeKey, extraAttributeVal);
       }
