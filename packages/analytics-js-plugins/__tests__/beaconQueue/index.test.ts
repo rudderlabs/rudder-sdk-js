@@ -20,6 +20,7 @@ jest.mock('../../src/beaconQueue/utilities', () => {
     getNormalizedBeaconQueueOptions: jest.fn(options => ({
       flushQueueInterval: 10000,
       maxItems: 100,
+      deliveryPath: '/beacon/v1/batch',
       ...options,
     })),
     getDeliveryUrl: jest.fn((_dataplaneUrl, _writeKey) => 'https://api.rudderstack.com/v1/batch'),
@@ -187,6 +188,31 @@ describe('BeaconQueue Plugin', () => {
   });
 
   describe('Queue Initialization', () => {
+    it('sends batches to the custom delivery URL', () => {
+      const actualUtilities = jest.requireActual('../../src/beaconQueue/utilities');
+      mockGetNormalizedBeaconQueueOptions.mockImplementationOnce(
+        actualUtilities.getNormalizedBeaconQueueOptions,
+      );
+      mockGetDeliveryUrl.mockImplementationOnce(actualUtilities.getDeliveryUrl);
+      mockState.lifecycle.activeDataplaneUrl.value = 'https://events.example.com/rs';
+      mockState.loadOptions.value.beaconQueueOptions = { deliveryPath: '/batch' };
+
+      plugin.dataplaneEventsQueue.init(
+        mockState,
+        mockHttpClient,
+        mockStoreManager,
+        mockErrorHandler,
+        mockLogger,
+      );
+      const processBatch = MockRetryQueue.mock.calls[0]![2];
+      processBatch([{ event: sampleEvent }], jest.fn(), queueProcessCallbackInfo);
+
+      expect(mockSendBeacon).toHaveBeenCalledWith(
+        'https://events.example.com/rs/batch?writeKey=test-write-key',
+        expect.any(Blob),
+      );
+    });
+
     it('should initialize queue with correct configuration', () => {
       const queue = plugin.dataplaneEventsQueue.init(
         mockState,
@@ -204,6 +230,8 @@ describe('BeaconQueue Plugin', () => {
       expect(mockGetDeliveryUrl).toHaveBeenCalledWith(
         'https://api.rudderstack.com',
         'test-write-key',
+        '/beacon/v1/batch',
+        mockLogger,
       );
 
       expect(MockRetryQueue).toHaveBeenCalledWith(
