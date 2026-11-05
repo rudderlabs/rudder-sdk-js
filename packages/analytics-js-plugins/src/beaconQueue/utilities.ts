@@ -81,7 +81,7 @@ const getDeliveryUrl = (
     logger?.warn(
       BEACON_QUEUE_INVALID_DELIVERY_PATH_WARNING(
         BEACON_QUEUE_PLUGIN,
-        String(deliveryPath),
+        typeof deliveryPath === 'string' ? deliveryPath : '[non-string value]',
         defaultPath,
       ),
     );

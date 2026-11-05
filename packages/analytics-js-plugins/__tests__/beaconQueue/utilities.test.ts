@@ -60,6 +60,17 @@ describe('getDeliveryUrl', () => {
     );
   });
 
+  it('warns without stringifying a null-prototype object', () => {
+    const logger = { warn: jest.fn() } as unknown as ILogger;
+    const deliveryPath = Object.create(null) as string;
+    expect(getDeliveryUrl('https://events.example.com', 'test-key', deliveryPath, logger)).toBe(
+      'https://events.example.com/beacon/v1/batch?writeKey=test-key',
+    );
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.stringContaining('delivery path "[non-string value]" is invalid'),
+    );
+  });
+
   it.each([undefined, null, '/rs/batch'])('does not warn for path %p', deliveryPath => {
     const logger = { warn: jest.fn() } as unknown as ILogger;
     getDeliveryUrl('https://events.example.com', 'test-key', deliveryPath as string, logger);
