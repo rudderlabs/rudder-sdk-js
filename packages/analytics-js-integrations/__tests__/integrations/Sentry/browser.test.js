@@ -159,7 +159,11 @@ describe('Sentry initialization', () => {
     (description, sentryGlobal) => {
       window.Sentry = sentryGlobal;
 
-      expect(makeIntegration().isLoaded()).toBe(false);
+      const integration = makeIntegration();
+      integration.init();
+      document.getElementById(SENTRY_SDK_ID).onload();
+      document.getElementById(SENTRY_REWRITE_FRAMES_ID).onload();
+      expect(integration.isLoaded()).toBe(false);
     },
   );
 
@@ -168,6 +172,11 @@ describe('Sentry initialization', () => {
     const sentry = installSentryGlobal();
     const integration = makeIntegration();
 
+    integration.init();
+    expect(integration.isReady()).toBe(false);
+    document.getElementById(SENTRY_SDK_ID).onload();
+    expect(integration.isReady()).toBe(false);
+    document.getElementById(SENTRY_REWRITE_FRAMES_ID).onload();
     expect(integration.isLoaded()).toBe(true);
     expect(integration.isReady()).toBe(true);
     expect(integration.isReady()).toBe(true);
@@ -193,11 +202,15 @@ describe('Sentry initialization', () => {
     const sentry = installSentryGlobal();
     delete sentry.rewriteFramesIntegration;
     const integration = makeIntegration({ includePaths: [] });
-
+    integration.init();
+    expect(integration.isReady()).toBe(false);
+    expect(sentry.init).not.toHaveBeenCalled();
+    const currentSdk = installSentryGlobal();
+    document.getElementById(SENTRY_SDK_ID).onload();
     expect(integration.isLoaded()).toBe(true);
     expect(integration.isReady()).toBe(true);
 
-    expect(sentry.init).toHaveBeenCalledWith(
+    expect(currentSdk.init).toHaveBeenCalledWith(
       expect.not.objectContaining({ integrations: expect.anything() }),
     );
   });

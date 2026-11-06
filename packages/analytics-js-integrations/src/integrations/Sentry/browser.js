@@ -19,6 +19,9 @@ import { getDefinedTraits, isObject } from '../../utils/utils';
 
 const logger = new Logger(DISPLAY_NAME);
 
+const hasLoadedScript = id =>
+  document.getElementById(id)?.getAttribute('data-rudder-sentry-load-status') === 'loaded';
+
 const hasBaseSdk = () =>
   !!(window.Sentry && isObject(window.Sentry) && window.Sentry.init && window.Sentry.setUser);
 
@@ -77,7 +80,12 @@ class Sentry {
   }
 
   isLoaded() {
-    return hasBaseSdk() && (!this.requiresRewriteFrames || hasRewriteFramesIntegration());
+    return (
+      hasLoadedScript(SENTRY_SDK_ID) &&
+      hasBaseSdk() &&
+      (!this.requiresRewriteFrames ||
+        (hasLoadedScript(SENTRY_REWRITE_FRAMES_ID) && hasRewriteFramesIntegration()))
+    );
   }
 
   isReady() {
