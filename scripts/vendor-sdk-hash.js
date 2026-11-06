@@ -19,8 +19,9 @@ const existingArtifactSources = {
     count: 1,
   },
   Sentry: {
-    file: 'browser.js',
-    pattern: /SentryScriptLoader\(\s*'[^']+',\s*`([^`]+)`,\s*`([^`]+)`/g,
+    file: 'constants.js',
+    pattern:
+      /const SENTRY_(?:SDK|REWRITE_FRAMES)_URL = '([^']+)';\s*const SENTRY_(?:SDK|REWRITE_FRAMES)_INTEGRITY =\s*'([^']+)'/g,
   },
 };
 

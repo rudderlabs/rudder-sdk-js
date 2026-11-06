@@ -16,3 +16,7 @@
 ## INT-7435 — Resolve OpenAI Ads Hashing Config at Integration Boundary
 
 - Resolve the default-on `isHashRequired` setting once in the OpenAI Ads browser integration (for example, `this.isHashRequired = this.config.isHashRequired ?? true`) and pass the resulting boolean explicitly to `buildUserData`; keep `buildUserData` and `hashUserValue` parameters required rather than adding duplicate helper-level defaults that can drift (`packages/analytics-js-integrations/src/integrations/OpenAIAds/browser.js`, `packages/analytics-js-integrations/src/integrations/OpenAIAds/utils.js`).
+
+## INT-7311 — Sentry Uses One Current SDK Version
+
+- The Sentry device-mode integration must load only the selected current Sentry SDK version in every integrations build target. Do not preserve an older vendor SDK for the legacy/default build; `packages/analytics-js-integrations/src/integrations/Sentry/constants.js` must expose one version, URL set, and SRI set shared by legacy and modern Rudder bundles.
