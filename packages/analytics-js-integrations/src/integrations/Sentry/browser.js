@@ -67,7 +67,16 @@ class Sentry {
     }
     // Sentry's project loader URL is project-specific and cannot be derived from the existing
     // DSN-only destination contract, so load the versioned browser CDN artifacts directly.
-    SentryScriptLoader(SENTRY_SDK_ID, SENTRY_SDK_URL, SENTRY_SDK_INTEGRITY, hasBaseSdk);
+    const insertedBase = SentryScriptLoader(
+      SENTRY_SDK_ID,
+      SENTRY_SDK_URL,
+      SENTRY_SDK_INTEGRITY,
+      hasBaseSdk,
+    );
+    if (insertedBase) {
+      // A previously queued add-on belongs to the old base script.
+      document.getElementById(SENTRY_REWRITE_FRAMES_ID)?.remove();
+    }
     if (this.requiresRewriteFrames) {
       SentryScriptLoader(
         SENTRY_REWRITE_FRAMES_ID,

@@ -121,6 +121,21 @@ describe('Sentry initialization', () => {
     });
   });
 
+  test('queues a fresh add-on after replacing a failed base', () => {
+    const integration = makeIntegration();
+    integration.init();
+    const pendingAddon = document.getElementById(SENTRY_REWRITE_FRAMES_ID);
+    document.getElementById(SENTRY_SDK_ID).onerror();
+    integration.init();
+    expect(pendingAddon.isConnected).toBe(false);
+    installSentryGlobal();
+    document.getElementById(SENTRY_SDK_ID).onload();
+    pendingAddon.onload();
+    expect(integration.isReady()).toBe(false);
+    document.getElementById(SENTRY_REWRITE_FRAMES_ID).onload();
+    expect(integration.isReady()).toBe(true);
+  });
+
   test('retries a loaded Sentry script when the expected v11 global shape is absent', () => {
     const loadedSdkScript = document.createElement('script');
     loadedSdkScript.id = SENTRY_SDK_ID;
@@ -206,6 +221,7 @@ describe('Sentry initialization', () => {
     expect(integration.isReady()).toBe(false);
     expect(sentry.init).not.toHaveBeenCalled();
     const currentSdk = installSentryGlobal();
+    delete currentSdk.rewriteFramesIntegration;
     document.getElementById(SENTRY_SDK_ID).onload();
     expect(integration.isLoaded()).toBe(true);
     expect(integration.isReady()).toBe(true);

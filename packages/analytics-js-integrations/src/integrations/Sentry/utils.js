@@ -34,7 +34,7 @@ const SentryScriptLoader = (
 ) => {
   const existingScript = document.getElementById(id);
   if (isExpectedSentryScript(existingScript, src, integrity, isScriptReady)) {
-    return;
+    return false;
   }
 
   if (existingScript) {
@@ -66,6 +66,7 @@ const SentryScriptLoader = (
   } else {
     e.parentNode.insertBefore(js, e);
   }
+  return true;
 };
 
 const sentryInit = (
