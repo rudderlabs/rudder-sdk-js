@@ -83,6 +83,7 @@
       "{projectRoot}/package.json",
       "{projectRoot}/project.json",
       "{projectRoot}/rollup.config.mjs",
+      "{projectRoot}/vite.config.mjs",
       "{projectRoot}/babel.config.json",
       "{projectRoot}/tsconfig.json",
       "!{projectRoot}/src/**/*.(spec|test).(j|t)s?(x)",
