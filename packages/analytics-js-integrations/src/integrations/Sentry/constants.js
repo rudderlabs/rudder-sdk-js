@@ -1,7 +1,6 @@
-import {
-  SENTRY_NAME as NAME,
-  SENTRY_DISPLAY_NAME as DISPLAY_NAME,
-} from '../../constants/Destinations';
+import { SENTRY_NAME as NAME } from '../../constants/Destinations';
+
+export { SENTRY_DISPLAY_NAME as DISPLAY_NAME } from '../../constants/Destinations';
 
 const DIR_NAME = 'Sentry';
 const SENTRY_SDK_VERSION = '11.6.0';
@@ -23,7 +22,6 @@ const CNameMapping = {
 export {
   NAME,
   CNameMapping,
-  DISPLAY_NAME,
   DIR_NAME,
   SENTRY_SDK_VERSION,
   SENTRY_SDK_ID,

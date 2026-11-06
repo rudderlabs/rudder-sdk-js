@@ -40,15 +40,12 @@ afterEach(() => {
 describe('Sentry utilities', () => {
   test('convertObjectToArray extracts only defined, non-empty values', () => {
     expect(
-      convertObjectToArray(
-        [
-          { allowUrls: 'app.example.com' },
-          { allowUrls: '' },
-          { allowUrls: null },
-          { other: 'ignored' },
-        ],
-        'allowUrls',
-      ),
+      convertObjectToArray('allowUrls', [
+        { allowUrls: 'app.example.com' },
+        { allowUrls: '' },
+        { allowUrls: null },
+        { other: 'ignored' },
+      ]),
     ).toEqual(['app.example.com']);
   });
 

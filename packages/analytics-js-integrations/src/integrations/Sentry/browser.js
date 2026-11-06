@@ -20,7 +20,7 @@ import { getDefinedTraits, isObject } from '../../utils/utils';
 const logger = new Logger(DISPLAY_NAME);
 
 const hasLoadedScript = id =>
-  document.getElementById(id)?.getAttribute('data-rudder-sentry-load-status') === 'loaded';
+  document.getElementById(id)?.dataset.rudderSentryLoadStatus === 'loaded';
 
 const hasBaseSdk = () =>
   !!(window.Sentry && isObject(window.Sentry) && window.Sentry.init && window.Sentry.setUser);

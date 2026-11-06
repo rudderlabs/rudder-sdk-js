@@ -5,7 +5,7 @@ import { isDefinedAndNotNullAndNotEmpty } from '../../utils/commonUtils';
 
 const logger = new Logger(DISPLAY_NAME);
 
-const convertObjectToArray = (objectInput = [], propertyName) =>
+const convertObjectToArray = (propertyName, objectInput = []) =>
   objectInput
     .map(objectItem => objectItem[propertyName])
     .filter(e => isDefinedAndNotNullAndNotEmpty(e));
@@ -13,8 +13,8 @@ const convertObjectToArray = (objectInput = [], propertyName) =>
 const SENTRY_SCRIPT_LOAD_TIMEOUT_IN_MS = 60000;
 
 const isExpectedSentryScript = (scriptElement, src, integrity, isScriptReady) => {
-  const loadStatus = scriptElement?.getAttribute('data-rudder-sentry-load-status');
-  const loadStartedAt = Number(scriptElement?.getAttribute('data-rudder-sentry-load-started-at'));
+  const loadStatus = scriptElement?.dataset.rudderSentryLoadStatus;
+  const loadStartedAt = Number(scriptElement?.dataset.rudderSentryLoadStartedAt);
   const isStillLoading =
     loadStatus === 'loading' && Date.now() - loadStartedAt < SENTRY_SCRIPT_LOAD_TIMEOUT_IN_MS;
 
@@ -25,13 +25,7 @@ const isExpectedSentryScript = (scriptElement, src, integrity, isScriptReady) =>
   );
 };
 
-const SentryScriptLoader = (
-  id,
-  src,
-  integrity,
-  isScriptReady = () => true,
-  insertAfterScriptId,
-) => {
+const SentryScriptLoader = (id, src, integrity, isScriptReady, insertAfterScriptId) => {
   const existingScript = document.getElementById(id);
   if (isExpectedSentryScript(existingScript, src, integrity, isScriptReady)) {
     return false;
@@ -49,12 +43,14 @@ const SentryScriptLoader = (
   js.async = false;
   js.type = 'text/javascript';
   js.id = id;
-  js.setAttribute('data-loader', LOAD_ORIGIN);
-  js.setAttribute('data-rudder-sentry-load-status', 'loading');
-  js.setAttribute('data-rudder-sentry-load-started-at', Date.now().toString());
-  js.onload = () => js.setAttribute('data-rudder-sentry-load-status', 'loaded');
+  js.dataset.loader = LOAD_ORIGIN;
+  js.dataset.rudderSentryLoadStatus = 'loading';
+  js.dataset.rudderSentryLoadStartedAt = Date.now().toString();
+  js.onload = () => {
+    js.dataset.rudderSentryLoadStatus = 'loaded';
+  };
   js.onerror = () => {
-    js.setAttribute('data-rudder-sentry-load-status', 'failed');
+    js.dataset.rudderSentryLoadStatus = 'failed';
     logger.error(`Failed to load script - ${id}`);
   };
   const e = document.getElementsByTagName('script')[0];
@@ -81,10 +77,10 @@ const sentryInit = (
   environment,
   serverName,
 ) => {
-  const formattedAllowUrls = convertObjectToArray(allowUrls, 'allowUrls');
-  const formattedDenyUrls = convertObjectToArray(denyUrls, 'denyUrls');
-  const formattedIgnoreErrors = convertObjectToArray(ignoreErrors, 'ignoreErrors');
-  const formattedIncludePaths = convertObjectToArray(includePathsArray, 'includePaths');
+  const formattedAllowUrls = convertObjectToArray('allowUrls', allowUrls);
+  const formattedDenyUrls = convertObjectToArray('denyUrls', denyUrls);
+  const formattedIgnoreErrors = convertObjectToArray('ignoreErrors', ignoreErrors);
+  const formattedIncludePaths = convertObjectToArray('includePaths', includePathsArray);
 
   const customRelease = customVersionProperty ? window[customVersionProperty] : null;
 
