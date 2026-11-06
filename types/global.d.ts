@@ -30,3 +30,5 @@ declare const __RS_POLYFILLIO_SDK_URL__: string;
 declare const __RS_BUGSNAG_RELEASE_STAGE__: string;
 
 declare const __REPOSITORY_URL__: string;
+
+declare const __REMOTE_PLUGINS_BASE_PATH__: string;

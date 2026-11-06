@@ -127,7 +127,7 @@
     "@nx/jest": "23.3.0",
     "@nx/js": "23.3.0",
     "@nx/workspace": "23.3.0",
-    "@originjs/vite-plugin-federation": "1.4.1",
+    "@module-federation/vite": "1.23.10",
     "@rollup/plugin-alias": "6.0.1",
     "@rollup/plugin-babel": "7.1.0",
     "@rollup/plugin-commonjs": "29.0.3",
@@ -199,7 +199,8 @@
     "ts-node": "10.9.2",
     "tslib": "2.8.1",
     "typescript": "6.0.3",
-    "user-agent-data-types": "0.4.3"
+    "user-agent-data-types": "0.4.3",
+    "vite": "7.3.7"
   },
   "optionalDependencies": {
     "@linear/sdk": "82.0.0",
