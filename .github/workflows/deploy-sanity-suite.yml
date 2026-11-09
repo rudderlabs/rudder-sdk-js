@@ -72,22 +72,38 @@ jobs:
         with:
           egress-policy: audit
 
-      # Before any PR-head code is checked out or run: the action below gets the
-      # release App key, so it must come from the base commit, not the PR head.
-      - name: Checkout trusted actions
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # Inlined from .github/actions/assert-rerun-actor: these steps get the
+      # release App key, so they must not come from files the job checks out.
+      # A checked-out copy also breaks the token step's post cleanup once the
+      # source checkout below empties the workspace.
+      - name: Generate GitHub App Token
+        id: rerun-actor-token
+        if: github.run_attempt != '1'
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
-          persist-credentials: false
-          ref: ${{ inputs.use_pr_head_sha && github.event.pull_request.base.sha || github.sha }}
-          sparse-checkout: .github/actions
-          path: .trusted
+          app-id: ${{ vars.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_PRIVATE_KEY }}
+          permission-members: read # to check org team membership
 
       - name: Validate re-run actor
-        uses: ./.trusted/.github/actions/assert-rerun-actor
-        with:
-          app_id: ${{ vars.RELEASE_APP_ID }}
-          private_key: ${{ secrets.RELEASE_PRIVATE_KEY }}
-          team_names: 'sdk_team,integrations'
+        if: steps.rerun-actor-token.outcome == 'success'
+        env:
+          ORG_NAME: rudderlabs
+          TEAM_NAMES: 'sdk_team,integrations'
+          GH_TOKEN: ${{ steps.rerun-actor-token.outputs.token }}
+          ACTOR: ${{ github.triggering_actor }}
+        run: |
+          IFS=',' read -ra TEAMS <<< "$TEAM_NAMES"
+          for TEAM_NAME in "${TEAMS[@]}"; do
+            TEAM_NAME="${TEAM_NAME// /}"
+            state=$(gh api "/orgs/$ORG_NAME/teams/$TEAM_NAME/memberships/$ACTOR" -H "X-GitHub-Api-Version: 2022-11-28" --jq '.state' 2>/dev/null || true)
+            if [ "$state" = "active" ]; then
+              echo "Re-run by '$ACTOR' allowed via '@${ORG_NAME}/${TEAM_NAME}'."
+              exit 0
+            fi
+          done
+          echo "::error::Re-run by '$ACTOR' is not allowed: not an active member of any of '${TEAM_NAMES}'."
+          exit 1
 
       - name: Determine checkout SHA
         id: getSHA
