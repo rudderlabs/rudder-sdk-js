@@ -93,15 +93,17 @@ describe('Sentry initialization', () => {
     expect(document.getElementById(SENTRY_REWRITE_FRAMES_ID)).toBeNull();
   });
 
-  test('replaces stale or failed Sentry script elements before retrying the loader', () => {
+  test('replaces stale and failed scripts on browsers without Element.remove', () => {
     const staleSdkScript = document.createElement('script');
     staleSdkScript.id = SENTRY_SDK_ID;
-    staleSdkScript.src = 'https://browser.sentry-cdn.com/11.5.0/bundle.min.js';
+    staleSdkScript.src = 'https://browser.sentry-cdn.com/7.120.3/bundle.es5.min.js';
     staleSdkScript.integrity = 'sha384-old';
+    Object.defineProperty(staleSdkScript, 'remove', { value: undefined });
     document.head.appendChild(staleSdkScript);
 
     const failedRewriteFramesScript = document.createElement('script');
     failedRewriteFramesScript.id = SENTRY_REWRITE_FRAMES_ID;
+    Object.defineProperty(failedRewriteFramesScript, 'remove', { value: undefined });
     failedRewriteFramesScript.src = SENTRY_REWRITE_FRAMES_URL;
     failedRewriteFramesScript.integrity = SENTRY_REWRITE_FRAMES_INTEGRITY;
     failedRewriteFramesScript.setAttribute('data-rudder-sentry-load-status', 'failed');
@@ -136,7 +138,7 @@ describe('Sentry initialization', () => {
     expect(integration.isReady()).toBe(true);
   });
 
-  test('retries a loaded Sentry script when the expected v11 global shape is absent', () => {
+  test('retries a loaded Sentry script when the expected Sentry global shape is absent', () => {
     const loadedSdkScript = document.createElement('script');
     loadedSdkScript.id = SENTRY_SDK_ID;
     loadedSdkScript.src = SENTRY_SDK_URL;

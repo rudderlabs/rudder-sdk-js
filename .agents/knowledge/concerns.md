@@ -54,5 +54,4 @@
 
 ## INT-7311 — Sentry Browser Compatibility Split
 
-- Sentry 11.6.0's browser floor is newer than the integrations package's legacy targets, and transpiling Rudder's wrapper cannot make the externally loaded vendor artifact IE11-compatible. Preserve Sentry 6.13.1 for legacy builds rather than changing the package-wide browserslist or silently weakening unrelated integrations' support (`packages/analytics-js-integrations/src/integrations/Sentry/browser.js`, `packages/analytics-js-integrations/package.json`).
-- The instruction to preserve Sentry 6.13.1 above is superseded by reviewer direction to support only the current SDK. Both legacy/default and modern Rudder bundles now load Sentry 11.6.0, so the known browser-floor mismatch remains an accepted compatibility risk in `packages/analytics-js-integrations/src/integrations/Sentry/constants.js` and `packages/analytics-js-integrations/package.json`.
+- Sentry v8 and later CDN bundles exceed the legacy browser targets. The Sentry destination pins 7.120.4 ES5 artifacts in both build variants to preserve the legacy path. Verify delivery in real IE11 before merge.

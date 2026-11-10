@@ -49,7 +49,7 @@ describe('Sentry utilities', () => {
     ).toEqual(['app.example.com']);
   });
 
-  test('builds Sentry v11 init options and prefers the custom release property', () => {
+  test('builds Sentry init options and prefers the custom release property', () => {
     window.APP_VERSION = '2.0.0';
 
     expect(
@@ -75,7 +75,7 @@ describe('Sentry utilities', () => {
     });
   });
 
-  test('creates the v11 RewriteFrames integration and preserves include-path classification', () => {
+  test('creates the RewriteFrames integration and preserves include-path classification', () => {
     const config = buildConfig({
       includePaths: [{ includePaths: '^https://app.example.com/' }, { includePaths: '[invalid' }],
     });

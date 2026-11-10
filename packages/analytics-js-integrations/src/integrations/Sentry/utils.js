@@ -31,9 +31,7 @@ const SentryScriptLoader = (id, src, integrity, isScriptReady, insertAfterScript
     return false;
   }
 
-  if (existingScript) {
-    existingScript.remove();
-  }
+  existingScript?.parentNode?.removeChild(existingScript);
 
   logger.info(`In script loader - ${id}`);
   const js = document.createElement('script');

@@ -75,7 +75,8 @@ class Sentry {
     );
     if (insertedBase) {
       // A previously queued add-on belongs to the old base script.
-      document.getElementById(SENTRY_REWRITE_FRAMES_ID)?.remove();
+      const existingAddon = document.getElementById(SENTRY_REWRITE_FRAMES_ID);
+      existingAddon?.parentNode?.removeChild(existingAddon);
     }
     if (this.requiresRewriteFrames) {
       SentryScriptLoader(
