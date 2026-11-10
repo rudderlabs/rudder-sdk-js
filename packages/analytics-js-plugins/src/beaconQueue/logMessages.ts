@@ -15,7 +15,15 @@ const BEACON_QUEUE_SEND_ERROR = (context: string, url: string): string =>
 const BEACON_QUEUE_DELIVERY_ERROR = (url: string): string =>
   `Failed to send events batch data to the browser's beacon queue for URL ${url}.`;
 
+const BEACON_QUEUE_INVALID_DELIVERY_PATH_WARNING = (
+  context: string,
+  deliveryPath: string,
+  defaultPath: string,
+): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The beacon queue delivery path "${deliveryPath}" is invalid. It must be a URL path without a query, a fragment, or "." and ".." segments. Using the default path "${defaultPath}".`;
+
 export {
+  BEACON_QUEUE_INVALID_DELIVERY_PATH_WARNING,
   BEACON_PLUGIN_EVENTS_QUEUE_DEBUG,
   BEACON_QUEUE_STRING_CONVERSION_FAILURE_ERROR,
   BEACON_QUEUE_BLOB_CONVERSION_FAILURE_ERROR,

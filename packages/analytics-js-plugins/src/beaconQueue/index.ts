@@ -59,11 +59,10 @@ const BeaconQueue = (): ExtensionPlugin => ({
     ): IQueue {
       const writeKey = state.lifecycle.writeKey.value as string;
       const dataplaneUrl = state.lifecycle.activeDataplaneUrl.value as string;
-      const url = getDeliveryUrl(dataplaneUrl, writeKey);
-
       const finalQOpts: BeaconQueueOpts = getNormalizedBeaconQueueOptions(
         state.loadOptions.value.beaconQueueOptions ?? {},
       );
+      const url = getDeliveryUrl(dataplaneUrl, writeKey, finalQOpts.deliveryPath, logger);
 
       const queueProcessCallback = (
         itemData: BeaconQueueBatchItemData,
@@ -104,7 +103,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
             done(null);
           }
         } catch (err) {
-          errorHandler?.onError({
+          void errorHandler?.onError({
             error: err,
             context: BEACON_QUEUE_PLUGIN,
             customMessage: BEACON_QUEUE_DELIVERY_ERROR(url),

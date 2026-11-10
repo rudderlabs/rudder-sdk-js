@@ -94,6 +94,17 @@ jobs:
         with:
           egress-policy: audit
 
+      # $/ resolves from the workflow's own commit, not the workspace, so the
+      # source checkout below can't delete it before the token step's post
+      # cleanup, and checked-out code can't change the steps that receive the
+      # release App key.
+      - name: Validate re-run actor
+        uses: $/.github/actions/assert-rerun-actor
+        with:
+          app_id: ${{ vars.RELEASE_APP_ID }}
+          private_key: ${{ secrets.RELEASE_PRIVATE_KEY }}
+          team_names: 'sdk_team,integrations'
+
       - name: Install AWS CLI
         uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c  # master
 
@@ -123,13 +134,6 @@ jobs:
         with:
           persist-credentials: false
           ref: ${{ steps.getSHA.outputs.SHA }}
-
-      - name: Validate re-run actor
-        uses: ./.github/actions/assert-rerun-actor
-        with:
-          app_id: ${{ vars.RELEASE_APP_ID }}
-          private_key: ${{ secrets.RELEASE_PRIVATE_KEY }}
-          team_names: 'sdk_team,integrations'
 
       - name: Modify package versions
         if: ${{ inputs.version_suffix != '' }}

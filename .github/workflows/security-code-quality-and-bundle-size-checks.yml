@@ -92,6 +92,8 @@ jobs:
         if: ${{ needs.get-affected-projects.outputs.affected_projects != '' }}
         env:
           HUSKY: 0
+          # Build targets declare no Nx outputs, so a cache hit skips restoring the core's type declarations.
+          NX_SKIP_NX_CACHE: 'true'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           install_script: npm run setup:ci

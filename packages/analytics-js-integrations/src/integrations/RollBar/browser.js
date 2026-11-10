@@ -68,11 +68,12 @@ class RollBar {
   }
 
   isLoaded() {
-    return !!(window.Rollbar && isObject(window.Rollbar));
+    // The snippet defines a window.Rollbar shim before load; rollbar.js sets _rollbarDidLoad only once it runs.
+    return window._rollbarDidLoad === true && !!(window.Rollbar && isObject(window.Rollbar));
   }
 
   isReady() {
-    return !!window.Rollbar;
+    return this.isLoaded();
   }
 
   identify(rudderElement) {

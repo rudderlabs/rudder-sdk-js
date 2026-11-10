@@ -262,7 +262,7 @@ jobs:
     secrets:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_PROD_ACCOUNT_ID }}
       AWS_S3_BUCKET_NAME: ${{ secrets.AWS_PROD_S3_BUCKET_NAME }}
-      AWS_S3_SYNC_ROLE: ${{ secrets.AWS_PROD_S3_SYNC_ROLE }}
+      AWS_S3_SYNC_ROLE: ${{ secrets.AWS_PROD_BETA_S3_SYNC_ROLE }}
       AWS_CF_DISTRIBUTION_ID: ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }}
       BUGSNAG_API_KEY: ${{ secrets.RS_PROD_BUGSNAG_API_KEY }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
@@ -305,7 +305,7 @@ jobs:
     secrets:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_PROD_ACCOUNT_ID }}
       AWS_S3_BUCKET_NAME: ${{ secrets.AWS_PROD_S3_BUCKET_NAME }}
-      AWS_S3_SYNC_ROLE: ${{ secrets.AWS_PROD_S3_SYNC_ROLE }}
+      AWS_S3_SYNC_ROLE: ${{ secrets.AWS_PROD_BETA_S3_SYNC_ROLE }}
       AWS_CF_DISTRIBUTION_ID: ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }}
       SANITY_SUITE_WRITE_KEY: ${{ secrets.SANITY_SUITE_PROD_WRITE_KEY }}
       SANITY_SUITE_DATAPLANE_URL: ${{ secrets.SANITY_SUITE_PROD_DATAPLANE_URL }}

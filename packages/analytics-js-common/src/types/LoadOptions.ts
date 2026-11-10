@@ -52,6 +52,8 @@ export type BeaconQueueOpts = {
   maxItems?: number;
   // Time in milliseconds to flush the queue automatically
   flushQueueInterval?: number;
+  // Path for beacon batch delivery, defaults to /beacon/v1/batch
+  deliveryPath?: string;
 };
 
 export type EventsTransportMode = 'xhr' | 'beacon';

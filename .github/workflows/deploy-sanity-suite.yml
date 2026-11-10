@@ -72,6 +72,17 @@ jobs:
         with:
           egress-policy: audit
 
+      # $/ resolves from the workflow's own commit, not the workspace, so the
+      # source checkout below can't delete it before the token step's post
+      # cleanup, and checked-out code can't change the steps that receive the
+      # release App key.
+      - name: Validate re-run actor
+        uses: $/.github/actions/assert-rerun-actor
+        with:
+          app_id: ${{ vars.RELEASE_APP_ID }}
+          private_key: ${{ secrets.RELEASE_PRIVATE_KEY }}
+          team_names: 'sdk_team,integrations'
+
       - name: Determine checkout SHA
         id: getSHA
         env:
@@ -92,13 +103,6 @@ jobs:
         with:
           persist-credentials: false
           ref: ${{ steps.getSHA.outputs.SHA }}
-
-      - name: Validate re-run actor
-        uses: ./.github/actions/assert-rerun-actor
-        with:
-          app_id: ${{ vars.RELEASE_APP_ID }}
-          private_key: ${{ secrets.RELEASE_PRIVATE_KEY }}
-          team_names: 'sdk_team,integrations'
 
       - name: Configure deployment options
         id: deployment-options
@@ -248,16 +252,3 @@ jobs:
                 }
               ]
             }
-
-      - name: Post deployment link to release thread
-        continue-on-error: true
-        uses: ./.github/actions/release-thread-integration
-        if: ${{ steps.slack.outcome == 'success' && inputs.monorepo_release_version != '' && inputs.release_ticket_id != '' }}
-        with:
-          monorepo_release_version: ${{ inputs.monorepo_release_version }}
-          release_ticket_id: ${{ inputs.release_ticket_id }}
-          slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
-          title: ':white_check_mark: Sanity Suite deployment completed'
-          link_text: 'View deployment details'
-          slack_api_response: ${{ steps.slack.outputs.response }}
-          slack_slugs: '<!subteam^S0555JBV36D> <!subteam^S03SW7DM8P3>'
