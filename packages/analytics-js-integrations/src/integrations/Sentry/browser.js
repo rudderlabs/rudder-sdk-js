@@ -10,7 +10,7 @@ import {
   SENTRY_REWRITE_FRAMES_INTEGRITY,
 } from './constants';
 import Logger from '../../utils/logger';
-import { SentryScriptLoader, sentryInit } from './utils';
+import { SentryScriptLoader, removeSentryScript, sentryInit } from './utils';
 import {
   isDefinedAndNotNullAndNotEmpty,
   removeUndefinedAndNullValues,
@@ -75,8 +75,7 @@ class Sentry {
     );
     if (insertedBase) {
       // A previously queued add-on belongs to the old base script.
-      const existingAddon = document.getElementById(SENTRY_REWRITE_FRAMES_ID);
-      existingAddon?.parentNode?.removeChild(existingAddon);
+      removeSentryScript(document.getElementById(SENTRY_REWRITE_FRAMES_ID));
     }
     if (this.requiresRewriteFrames) {
       SentryScriptLoader(

@@ -25,13 +25,18 @@ const isExpectedSentryScript = (scriptElement, src, integrity, isScriptReady) =>
   );
 };
 
+const removeSentryScript = script => {
+  // IE11 does not provide Element.remove().
+  script?.parentNode?.removeChild(script); // NOSONAR
+};
+
 const SentryScriptLoader = (id, src, integrity, isScriptReady, insertAfterScriptId) => {
   const existingScript = document.getElementById(id);
   if (isExpectedSentryScript(existingScript, src, integrity, isScriptReady)) {
     return false;
   }
 
-  existingScript?.parentNode?.removeChild(existingScript);
+  removeSentryScript(existingScript);
 
   logger.info(`In script loader - ${id}`);
   const js = document.createElement('script');
@@ -115,4 +120,4 @@ const sentryInit = (
   return sentryConfig;
 };
 
-export { SentryScriptLoader, convertObjectToArray, sentryInit };
+export { SentryScriptLoader, convertObjectToArray, removeSentryScript, sentryInit };

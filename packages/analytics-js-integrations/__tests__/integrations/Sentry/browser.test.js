@@ -49,7 +49,7 @@ afterEach(() => {
 });
 
 describe('Sentry initialization', () => {
-  test('loads the Sentry 11 browser bundle and RewriteFrames add-on once when include paths need it', () => {
+  test('loads the Sentry ES5 browser bundle and RewriteFrames add-on once when include paths need it', () => {
     const integration = makeIntegration();
 
     integration.init();
@@ -77,7 +77,7 @@ describe('Sentry initialization', () => {
     });
   });
 
-  test('loads only the base Sentry 11 browser bundle when include paths are not configured', () => {
+  test('loads only the base Sentry ES5 browser bundle when include paths are not configured', () => {
     const integration = makeIntegration({ includePaths: [] });
 
     integration.init();
@@ -184,7 +184,7 @@ describe('Sentry initialization', () => {
     },
   );
 
-  test('initializes Sentry once the v11 global and RewriteFrames factory are available', () => {
+  test('initializes Sentry once the SDK and RewriteFrames are available', () => {
     window.APP_VERSION = '2.0.0';
     const sentry = installSentryGlobal();
     const integration = makeIntegration();
