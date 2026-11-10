@@ -72,18 +72,12 @@ jobs:
         with:
           egress-policy: audit
 
-      # Before any PR-head code is checked out or run: the action below gets the
-      # release App key, so it must come from the base commit, not the PR head.
-      - name: Checkout trusted actions
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-          ref: ${{ inputs.use_pr_head_sha && github.event.pull_request.base.sha || github.sha }}
-          sparse-checkout: .github/actions
-          path: .trusted
-
+      # $/ resolves from the workflow's own commit, not the workspace, so the
+      # source checkout below can't delete it before the token step's post
+      # cleanup, and checked-out code can't change the steps that receive the
+      # release App key.
       - name: Validate re-run actor
-        uses: ./.trusted/.github/actions/assert-rerun-actor
+        uses: $/.github/actions/assert-rerun-actor
         with:
           app_id: ${{ vars.RELEASE_APP_ID }}
           private_key: ${{ secrets.RELEASE_PRIVATE_KEY }}
