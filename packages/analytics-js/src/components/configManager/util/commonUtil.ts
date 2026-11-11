@@ -436,8 +436,6 @@ const updateDataPlaneEventsStateFromLoadOptions = (logger: ILogger) => {
 const getSourceConfigURL = (
   configUrl: string | undefined,
   writeKey: string,
-  lockIntegrationsVersion: boolean,
-  lockPluginsVersion: boolean,
   logger: ILogger,
 ): string => {
   const defSearchParams = new URLSearchParams({
@@ -445,8 +443,6 @@ const getSourceConfigURL = (
     v: APP_VERSION,
     build: BUILD_TYPE,
     writeKey,
-    lockIntegrationsVersion: lockIntegrationsVersion.toString(),
-    lockPluginsVersion: lockPluginsVersion.toString(),
   });
 
   let origin = DEFAULT_CONFIG_BE_URL;

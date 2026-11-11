@@ -108,8 +108,6 @@ const defaultStateValues: ApplicationState = {
     beaconQueueOptions: {},
     destinationsQueueOptions: {},
     queueOptions: {},
-    lockIntegrationsVersion: false,
-    lockPluginsVersion: false,
     uaChTrackLevel: 'none',
     plugins: [],
     useGlobalIntegrationsConfigInEvents: false,

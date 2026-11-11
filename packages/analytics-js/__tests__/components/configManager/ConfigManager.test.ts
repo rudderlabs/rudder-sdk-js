@@ -1,6 +1,6 @@
-/* eslint-disable sonarjs/deprecation */
 import { effect, signal } from '@preact/signals-core';
 import { http, HttpResponse } from 'msw';
+import type { LoadOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { defaultHttpClient } from '../../../src/services/HttpClient';
 import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
@@ -8,6 +8,7 @@ import { defaultLogger, Logger } from '../../../src/services/Logger';
 import { ConfigManager } from '../../../src/components/configManager';
 import { state, resetState } from '../../../src/state';
 import { getSDKUrl } from '../../../src/components/configManager/util/commonUtil';
+import { normalizeLoadOptions } from '../../../src/components/utilities/loadOptions';
 import { server } from '../../../__fixtures__/msw.server';
 import { dummySourceConfigResponse } from '../../../__fixtures__/fixtures';
 import type {
@@ -60,8 +61,6 @@ describe('ConfigManager', () => {
   const sampleDestSDKUrl = 'https://www.sample.url/integrations';
   const sampleConfigUrl = 'https://dummy.dataplane.host.com';
   const sampleScriptURL = 'https://www.dummy.url/fromScript/v3/rsa.min.js';
-  const lockIntegrationsVersion = false;
-  const lockPluginsVersion = false;
   let activeTimers: Array<NodeJS.Timeout> = [];
 
   beforeAll(() => {
@@ -91,6 +90,7 @@ describe('ConfigManager', () => {
     server.events.removeAllListeners();
 
     // Reset state
+    window.__LOCK_DEPS_VERSION__ = false;
     resetState();
 
     // Give a final moment for any cleanup to complete
@@ -109,10 +109,8 @@ describe('ConfigManager', () => {
     state.loadOptions.value.destSDKBaseURL = sampleDestSDKUrl;
     state.loadOptions.value.logLevel = 'DEBUG';
     state.loadOptions.value.configUrl = sampleConfigUrl;
-    state.loadOptions.value.lockIntegrationsVersion = lockIntegrationsVersion;
-    state.loadOptions.value.lockPluginsVersion = lockPluginsVersion;
 
-    const expectedConfigUrl = `${sampleConfigUrl}/sourceConfig/?p=npm&v=0.0.0-test&build=modern&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}&lockPluginsVersion=${lockPluginsVersion}`;
+    const expectedConfigUrl = `${sampleConfigUrl}/sourceConfig/?p=npm&v=0.0.0-test&build=modern&writeKey=${sampleWriteKey}`;
     configManagerInstance.getConfig = jest.fn();
 
     configManagerInstance.init();
@@ -122,8 +120,47 @@ describe('ConfigManager', () => {
     expect(state.lifecycle.sourceConfigUrl.value).toBe(expectedConfigUrl);
     expect(configManagerInstance.getConfig).toHaveBeenCalled();
   });
+  it.each([true, false])('should use build locking (%p) and ignore load options', lockVersion => {
+    window.__LOCK_DEPS_VERSION__ = lockVersion;
+    state.loadOptions.value = normalizeLoadOptions(
+      state.loadOptions.value,
+      // Simulate JavaScript callers passing removed options.
+      {
+        lockIntegrationsVersion: !lockVersion,
+        lockPluginsVersion: !lockVersion,
+      } as Partial<LoadOptions>,
+    );
+    state.lifecycle.writeKey.value = sampleWriteKey;
+    state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
+    configManagerInstance.getConfig = jest.fn();
+
+    configManagerInstance.init();
+
+    const version = lockVersion ? '0.0.0-test' : 'v3';
+    expect(state.lifecycle.integrationsCDNPath.value).toBe(
+      `https://cdn.rudderlabs.com/${version}/modern/js-integrations`,
+    );
+    expect(state.lifecycle.pluginsCDNPath.value).toBe(
+      `https://cdn.rudderlabs.com/${version}/modern/plugins`,
+    );
+  });
+
+  it('should preserve custom base URLs when build locking is enabled', () => {
+    window.__LOCK_DEPS_VERSION__ = true;
+    state.loadOptions.value.destSDKBaseURL = 'https://custom.url/v3/modern/js-integrations/';
+    state.loadOptions.value.pluginsSDKBaseURL = 'https://custom.url/v3/modern/plugins/';
+    configManagerInstance.getConfig = jest.fn();
+
+    configManagerInstance.init();
+
+    expect(state.lifecycle.integrationsCDNPath.value).toBe(
+      'https://custom.url/v3/modern/js-integrations',
+    );
+    expect(state.lifecycle.pluginsCDNPath.value).toBe('https://custom.url/v3/modern/plugins');
+  });
+
   it('should fetch configurations using sourceConfig endpoint', done => {
-    state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfigClone/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}&lockPluginsVersion=${lockPluginsVersion}`;
+    state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfigClone/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=${sampleWriteKey}`;
     configManagerInstance.processConfig = jest.fn();
 
     const counter = signal(0);
@@ -286,7 +323,7 @@ describe('ConfigManager', () => {
   });
 
   it('should fetch the source config and process the response', done => {
-    state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}&lockPluginsVersion=${lockPluginsVersion}`;
+    state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=${sampleWriteKey}`;
     configManagerInstance.processConfig = jest.fn();
     configManagerInstance.getConfig();
     const timer = setTimeout(() => {

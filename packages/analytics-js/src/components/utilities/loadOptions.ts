@@ -111,16 +111,6 @@ const normalizeLoadOptions = (
 
   normalizedLoadOpts.queueOptions = getNormalizedObjectValue(normalizedLoadOpts.queueOptions);
 
-  normalizedLoadOpts.lockIntegrationsVersion = getNormalizedBooleanValue(
-    normalizedLoadOpts.lockIntegrationsVersion,
-    loadOptionsFromState.lockIntegrationsVersion!,
-  );
-
-  normalizedLoadOpts.lockPluginsVersion = getNormalizedBooleanValue(
-    normalizedLoadOpts.lockPluginsVersion,
-    loadOptionsFromState.lockPluginsVersion!,
-  );
-
   if (!isNumber(normalizedLoadOpts.dataPlaneEventsBufferTimeout)) {
     normalizedLoadOpts.dataPlaneEventsBufferTimeout = undefined;
   }
