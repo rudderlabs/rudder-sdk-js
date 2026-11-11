@@ -1,4 +1,3 @@
-/* eslint-disable sonarjs/deprecation */
 import type { LogLevel } from './Logger';
 import type { Nullable } from './Nullable';
 import type { PluginName } from './PluginsManager';
@@ -182,14 +181,6 @@ export type LoadOptions = {
   anonymousIdOptions?: AnonymousIdOptions;
   setCookieDomain?: string; // defaults to current domain.
   sameSiteCookie?: CookieSameSite; // defaults to Lax.
-  /**
-   * @deprecated Ignored. Dependency version locking is determined by the SDK build.
-   */
-  lockIntegrationsVersion?: boolean;
-  /**
-   * @deprecated Ignored. Dependency version locking is determined by the SDK build.
-   */
-  lockPluginsVersion?: boolean;
   polyfillIfRequired?: boolean; // defaults to true. Controls whether the SDK should polyfill unsupported browser API's if they are detected as missing. Legacy build only
   onLoaded?: OnLoadedCallback;
   uaChTrackLevel?: UaChTrackLevel;

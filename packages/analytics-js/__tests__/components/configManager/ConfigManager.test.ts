@@ -1,6 +1,6 @@
-/* eslint-disable sonarjs/deprecation */
 import { effect, signal } from '@preact/signals-core';
 import { http, HttpResponse } from 'msw';
+import type { LoadOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { ResponseDetails } from '@rudderstack/analytics-js-common/types/HttpClient';
 import { defaultHttpClient } from '../../../src/services/HttpClient';
 import { defaultErrorHandler } from '../../../src/services/ErrorHandler';
@@ -111,8 +111,6 @@ describe('ConfigManager', () => {
     state.loadOptions.value.destSDKBaseURL = sampleDestSDKUrl;
     state.loadOptions.value.logLevel = 'DEBUG';
     state.loadOptions.value.configUrl = sampleConfigUrl;
-    state.loadOptions.value.lockIntegrationsVersion = lockIntegrationsVersion;
-    state.loadOptions.value.lockPluginsVersion = lockPluginsVersion;
 
     const expectedConfigUrl = `${sampleConfigUrl}/sourceConfig/?p=npm&v=0.0.0-test&build=modern&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}&lockPluginsVersion=${lockPluginsVersion}`;
     configManagerInstance.getConfig = jest.fn();
@@ -128,10 +126,11 @@ describe('ConfigManager', () => {
     window.__LOCK_DEPS_VERSION__ = lockVersion;
     state.loadOptions.value = normalizeLoadOptions(
       state.loadOptions.value,
+      // Simulate JavaScript callers passing removed options.
       {
         lockIntegrationsVersion: !lockVersion,
         lockPluginsVersion: !lockVersion,
-      },
+      } as Partial<LoadOptions>,
       defaultLogger,
     );
     state.lifecycle.writeKey.value = sampleWriteKey;

@@ -1,4 +1,3 @@
-/* eslint-disable sonarjs/deprecation */
 import { clone } from 'ramda';
 import {
   getNormalizedBooleanValue,
@@ -15,7 +14,7 @@ import type { CookieSameSite } from '@rudderstack/analytics-js-common/types/Stor
 import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { ANALYTICS_CORE } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { DEPRECATED_VERSION_LOCK_OPTION_WARNING } from '../../constants/logMessages';
+import { REMOVED_VERSION_LOCK_OPTION_WARNING } from '../../constants/logMessages';
 import { defaultLogger } from '../../services/Logger';
 import { defaultOptionalPluginsList } from '../pluginsManager/defaultPluginsList';
 import { isNumber } from './number';
@@ -117,10 +116,10 @@ const normalizeLoadOptions = (
   normalizedLoadOpts.queueOptions = getNormalizedObjectValue(normalizedLoadOpts.queueOptions);
 
   (['lockIntegrationsVersion', 'lockPluginsVersion'] as const).forEach(optionName => {
-    if (Object.prototype.hasOwnProperty.call(loadOptions, optionName)) {
-      logger.warn(DEPRECATED_VERSION_LOCK_OPTION_WARNING(ANALYTICS_CORE, optionName));
+    if (Object.prototype.hasOwnProperty.call(loadOptions as Record<string, unknown>, optionName)) {
+      logger.warn(REMOVED_VERSION_LOCK_OPTION_WARNING(ANALYTICS_CORE, optionName));
     }
-    delete normalizedLoadOpts[optionName];
+    delete (normalizedLoadOpts as Record<string, unknown>)[optionName];
   });
 
   if (!isNumber(normalizedLoadOpts.dataPlaneEventsBufferTimeout)) {

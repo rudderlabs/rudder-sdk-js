@@ -251,8 +251,8 @@ const UNSUPPORTED_PRE_CONSENT_EVENTS_DELIVERY_TYPE = (
 ): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}The pre-consent events delivery type "${selectedDeliveryType}" is not supported. Please choose one of the following supported types: "immediate, buffer". The default type "${defaultDeliveryType}" will be used instead.`;
 
-const DEPRECATED_VERSION_LOCK_OPTION_WARNING = (context: string, optionName: string): string =>
-  `${context}${LOG_CONTEXT_SEPARATOR}The "${optionName}" load API option is deprecated and ignored. Dependency version locking is determined by the SDK build.`;
+const REMOVED_VERSION_LOCK_OPTION_WARNING = (context: string, optionName: string): string =>
+  `${context}${LOG_CONTEXT_SEPARATOR}The "${optionName}" load API option has been removed and is ignored. Dependency versions are locked to the SDK version.`;
 
 const DEPRECATED_PLUGIN_WARNING = (context: string, pluginName: string): string =>
   `${context}${LOG_CONTEXT_SEPARATOR}${pluginName} plugin is deprecated. Please exclude it from the load API options.`;
@@ -311,7 +311,7 @@ export {
   TIMEOUT_NOT_RECOMMENDED_WARNING,
   INVALID_SESSION_ID_WARNING,
   DEPRECATED_PLUGIN_WARNING,
-  DEPRECATED_VERSION_LOCK_OPTION_WARNING,
+  REMOVED_VERSION_LOCK_OPTION_WARNING,
   HANDLE_ERROR_FAILURE,
   PLUGIN_NAME_MISSING_ERROR,
   PLUGIN_ALREADY_EXISTS_ERROR,

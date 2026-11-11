@@ -1248,7 +1248,8 @@ describe('load API options', () => {
         'should ignore %p and warn once',
         value => {
           const warnSpy = jest.spyOn(defaultLogger, 'warn').mockImplementation(() => {});
-          const input = { [optionName]: value };
+          // Simulate JavaScript callers passing removed options.
+          const input = { [optionName]: value } as Partial<LoadOptions>;
 
           expect(normalizeLoadOptions(defaultLoadOptions, input)).toEqual({
             ...defaultLoadOptions,
@@ -1256,7 +1257,7 @@ describe('load API options', () => {
           });
           expect(warnSpy).toHaveBeenCalledTimes(1);
           expect(warnSpy).toHaveBeenCalledWith(
-            `AnalyticsCore:: The "${optionName}" load API option is deprecated and ignored. Dependency version locking is determined by the SDK build.`,
+            `AnalyticsCore:: The "${optionName}" load API option has been removed and is ignored. Dependency versions are locked to the SDK version.`,
           );
           expect(input).toHaveProperty(optionName, value);
           warnSpy.mockRestore();
@@ -1264,12 +1265,14 @@ describe('load API options', () => {
       );
     });
 
-    it('should warn once per deprecated option when both are provided', () => {
+    it('should warn once per removed option when both are provided', () => {
       const warnSpy = jest.spyOn(defaultLogger, 'warn').mockImplementation(() => {});
-      const options = normalizeLoadOptions(defaultLoadOptions, {
+      // Simulate JavaScript callers passing removed options.
+      const input = {
         lockIntegrationsVersion: false,
         lockPluginsVersion: false,
-      });
+      } as Partial<LoadOptions>;
+      const options = normalizeLoadOptions(defaultLoadOptions, input);
 
       expect(warnSpy).toHaveBeenCalledTimes(2);
       expect(options).not.toHaveProperty('lockIntegrationsVersion');
@@ -1277,7 +1280,7 @@ describe('load API options', () => {
       warnSpy.mockRestore();
     });
 
-    it('should not warn when deprecated options are absent', () => {
+    it('should not warn when removed options are absent', () => {
       const warnSpy = jest.spyOn(defaultLogger, 'warn').mockImplementation(() => {});
       normalizeLoadOptions(defaultLoadOptions, {});
       expect(warnSpy).not.toHaveBeenCalled();
