@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/deprecation */
 import type { LogLevel } from './Logger';
 import type { Nullable } from './Nullable';
 import type { PluginName } from './PluginsManager';
