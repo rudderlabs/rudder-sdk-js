@@ -111,11 +111,6 @@ const normalizeLoadOptions = (
 
   normalizedLoadOpts.queueOptions = getNormalizedObjectValue(normalizedLoadOpts.queueOptions);
 
-  // Removed options; drop them if JavaScript callers still pass them
-  ['lockIntegrationsVersion', 'lockPluginsVersion'].forEach(optionName => {
-    delete (normalizedLoadOpts as Record<string, unknown>)[optionName];
-  });
-
   if (!isNumber(normalizedLoadOpts.dataPlaneEventsBufferTimeout)) {
     normalizedLoadOpts.dataPlaneEventsBufferTimeout = undefined;
   }

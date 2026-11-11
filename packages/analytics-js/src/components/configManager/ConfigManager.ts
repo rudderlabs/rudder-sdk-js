@@ -110,8 +110,6 @@ class ConfigManager implements IConfigManager {
       state.lifecycle.sourceConfigUrl.value = getSourceConfigURL(
         configUrl,
         state.lifecycle.writeKey.value as string,
-        __LOCK_DEPS_VERSION__,
-        __LOCK_DEPS_VERSION__,
         this.logger,
       );
       state.metrics.metricsServiceUrl.value = `${state.lifecycle.activeDataplaneUrl.value}/${METRICS_SERVICE_ENDPOINT}`;

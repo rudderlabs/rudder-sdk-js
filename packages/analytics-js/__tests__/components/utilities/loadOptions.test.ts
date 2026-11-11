@@ -1242,22 +1242,6 @@ describe('load API options', () => {
       });
     });
 
-    it.each([false, true, undefined, null, 'Invalid', {}])(
-      'should drop the removed lock options when passed %p',
-      value => {
-        // Simulate JavaScript callers passing removed options.
-        const input = {
-          lockIntegrationsVersion: value,
-          lockPluginsVersion: value,
-        } as Partial<LoadOptions>;
-
-        expect(normalizeLoadOptions(defaultLoadOptions, input)).toEqual({
-          ...defaultLoadOptions,
-          plugins: defaultOptionalPluginsList,
-        });
-      },
-    );
-
     describe('dataPlaneEventsBufferTimeout', () => {
       const testCaseData: any[] = [
         {

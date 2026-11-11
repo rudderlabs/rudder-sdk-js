@@ -61,8 +61,6 @@ describe('ConfigManager', () => {
   const sampleDestSDKUrl = 'https://www.sample.url/integrations';
   const sampleConfigUrl = 'https://dummy.dataplane.host.com';
   const sampleScriptURL = 'https://www.dummy.url/fromScript/v3/rsa.min.js';
-  const lockIntegrationsVersion = false;
-  const lockPluginsVersion = false;
   let activeTimers: Array<NodeJS.Timeout> = [];
 
   beforeAll(() => {
@@ -112,7 +110,7 @@ describe('ConfigManager', () => {
     state.loadOptions.value.logLevel = 'DEBUG';
     state.loadOptions.value.configUrl = sampleConfigUrl;
 
-    const expectedConfigUrl = `${sampleConfigUrl}/sourceConfig/?p=npm&v=0.0.0-test&build=modern&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}&lockPluginsVersion=${lockPluginsVersion}`;
+    const expectedConfigUrl = `${sampleConfigUrl}/sourceConfig/?p=npm&v=0.0.0-test&build=modern&writeKey=${sampleWriteKey}`;
     configManagerInstance.getConfig = jest.fn();
 
     configManagerInstance.init();
@@ -145,9 +143,6 @@ describe('ConfigManager', () => {
     expect(state.lifecycle.pluginsCDNPath.value).toBe(
       `https://cdn.rudderlabs.com/${version}/modern/plugins`,
     );
-    const sourceConfigURL = new URL(state.lifecycle.sourceConfigUrl.value);
-    expect(sourceConfigURL.searchParams.get('lockIntegrationsVersion')).toBe(String(lockVersion));
-    expect(sourceConfigURL.searchParams.get('lockPluginsVersion')).toBe(String(lockVersion));
   });
 
   it('should preserve custom base URLs when build locking is enabled', () => {
@@ -162,13 +157,10 @@ describe('ConfigManager', () => {
       'https://custom.url/v3/modern/js-integrations',
     );
     expect(state.lifecycle.pluginsCDNPath.value).toBe('https://custom.url/v3/modern/plugins');
-    const sourceConfigURL = new URL(state.lifecycle.sourceConfigUrl.value);
-    expect(sourceConfigURL.searchParams.get('lockIntegrationsVersion')).toBe('true');
-    expect(sourceConfigURL.searchParams.get('lockPluginsVersion')).toBe('true');
   });
 
   it('should fetch configurations using sourceConfig endpoint', done => {
-    state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfigClone/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}&lockPluginsVersion=${lockPluginsVersion}`;
+    state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfigClone/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=${sampleWriteKey}`;
     configManagerInstance.processConfig = jest.fn();
 
     const counter = signal(0);
@@ -331,7 +323,7 @@ describe('ConfigManager', () => {
   });
 
   it('should fetch the source config and process the response', done => {
-    state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}&lockPluginsVersion=${lockPluginsVersion}`;
+    state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfig/?p=__MODULE_TYPE__&v=__PACKAGE_VERSION__&build=modern&writeKey=${sampleWriteKey}`;
     configManagerInstance.processConfig = jest.fn();
     configManagerInstance.getConfig();
     const timer = setTimeout(() => {

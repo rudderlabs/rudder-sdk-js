@@ -876,27 +876,23 @@ describe('Config Manager Common Utilities', () => {
   });
 
   describe('getSourceConfigURL', () => {
-    it.each([true, false])('should override version lock query parameters with %p', lockVersion => {
-      const sourceConfigURL = new URL(
-        getSourceConfigURL(
-          `https://www.dummy.url/?lockIntegrationsVersion=${!lockVersion}&lockPluginsVersion=${!lockVersion}&abc=def`,
-          'writekey',
-          lockVersion,
-          lockVersion,
-          mockLogger,
-        ),
+    it('should preserve existing query parameters instead of overriding them', () => {
+      const sourceConfigURL = getSourceConfigURL(
+        'https://www.dummy.url/?p=custom&v=1.2.3&build=legacy&writeKey=custom-key&abc=def',
+        'writekey',
+        mockLogger,
       );
 
-      expect(sourceConfigURL.searchParams.get('lockIntegrationsVersion')).toBe(String(lockVersion));
-      expect(sourceConfigURL.searchParams.get('lockPluginsVersion')).toBe(String(lockVersion));
-      expect(sourceConfigURL.searchParams.get('abc')).toBe('def');
+      expect(sourceConfigURL).toBe(
+        'https://www.dummy.url/sourceConfig/?p=custom&v=1.2.3&build=legacy&writeKey=custom-key&abc=def',
+      );
     });
 
     it('should return default source config URL if invalid source config URL is provided', () => {
-      const sourceConfigURL = getSourceConfigURL('invalid-url', 'writekey', true, true, mockLogger);
+      const sourceConfigURL = getSourceConfigURL('invalid-url', 'writekey', mockLogger);
 
       expect(sourceConfigURL).toBe(
-        'https://api.rudderstack.com/sourceConfig/?p=npm&v=0.0.0-test&build=modern&writeKey=writekey&lockIntegrationsVersion=true&lockPluginsVersion=true',
+        'https://api.rudderstack.com/sourceConfig/?p=npm&v=0.0.0-test&build=modern&writeKey=writekey',
       );
 
       expect(mockLogger.warn).toHaveBeenCalledWith(
@@ -905,16 +901,10 @@ describe('Config Manager Common Utilities', () => {
     });
 
     it('should return the source config URL with default endpoint appended if no endpoint is present', () => {
-      const sourceConfigURL = getSourceConfigURL(
-        'https://www.dummy.url',
-        'writekey',
-        false,
-        false,
-        mockLogger,
-      );
+      const sourceConfigURL = getSourceConfigURL('https://www.dummy.url', 'writekey', mockLogger);
 
       expect(sourceConfigURL).toBe(
-        'https://www.dummy.url/sourceConfig/?p=npm&v=0.0.0-test&build=modern&writeKey=writekey&lockIntegrationsVersion=false&lockPluginsVersion=false',
+        'https://www.dummy.url/sourceConfig/?p=npm&v=0.0.0-test&build=modern&writeKey=writekey',
       );
     });
 
@@ -922,13 +912,11 @@ describe('Config Manager Common Utilities', () => {
       const sourceConfigURL = getSourceConfigURL(
         'https://www.dummy.url/some/path',
         'writekey',
-        false,
-        false,
         mockLogger,
       );
 
       expect(sourceConfigURL).toBe(
-        'https://www.dummy.url/some/path/sourceConfig/?p=npm&v=0.0.0-test&build=modern&writeKey=writekey&lockIntegrationsVersion=false&lockPluginsVersion=false',
+        'https://www.dummy.url/some/path/sourceConfig/?p=npm&v=0.0.0-test&build=modern&writeKey=writekey',
       );
     });
 
@@ -936,13 +924,11 @@ describe('Config Manager Common Utilities', () => {
       const sourceConfigURL = getSourceConfigURL(
         'https://www.dummy.url/sourceConfig',
         'writekey',
-        false,
-        false,
         mockLogger,
       );
 
       expect(sourceConfigURL).toBe(
-        'https://www.dummy.url/sourceConfig?p=npm&v=0.0.0-test&build=modern&writeKey=writekey&lockIntegrationsVersion=false&lockPluginsVersion=false',
+        'https://www.dummy.url/sourceConfig?p=npm&v=0.0.0-test&build=modern&writeKey=writekey',
       );
     });
 
@@ -950,13 +936,11 @@ describe('Config Manager Common Utilities', () => {
       const sourceConfigURL = getSourceConfigURL(
         'https://www.dummy.url//sourceConfig',
         'writekey',
-        false,
-        false,
         mockLogger,
       );
 
       expect(sourceConfigURL).toBe(
-        'https://www.dummy.url/sourceConfig?p=npm&v=0.0.0-test&build=modern&writeKey=writekey&lockIntegrationsVersion=false&lockPluginsVersion=false',
+        'https://www.dummy.url/sourceConfig?p=npm&v=0.0.0-test&build=modern&writeKey=writekey',
       );
     });
 
@@ -964,13 +948,11 @@ describe('Config Manager Common Utilities', () => {
       const sourceConfigURL = getSourceConfigURL(
         'https://www.dummy.url/some/path/?abc=def#blog',
         'writekey',
-        false,
-        false,
         mockLogger,
       );
 
       expect(sourceConfigURL).toBe(
-        'https://www.dummy.url/some/path/sourceConfig/?abc=def&p=npm&v=0.0.0-test&build=modern&writeKey=writekey&lockIntegrationsVersion=false&lockPluginsVersion=false#blog',
+        'https://www.dummy.url/some/path/sourceConfig/?abc=def&p=npm&v=0.0.0-test&build=modern&writeKey=writekey#blog',
       );
     });
   });
