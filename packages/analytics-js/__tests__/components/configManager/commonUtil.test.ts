@@ -876,6 +876,22 @@ describe('Config Manager Common Utilities', () => {
   });
 
   describe('getSourceConfigURL', () => {
+    it.each([true, false])('should override version lock query parameters with %p', lockVersion => {
+      const sourceConfigURL = new URL(
+        getSourceConfigURL(
+          `https://www.dummy.url/?lockIntegrationsVersion=${!lockVersion}&lockPluginsVersion=${!lockVersion}&abc=def`,
+          'writekey',
+          lockVersion,
+          lockVersion,
+          mockLogger,
+        ),
+      );
+
+      expect(sourceConfigURL.searchParams.get('lockIntegrationsVersion')).toBe(String(lockVersion));
+      expect(sourceConfigURL.searchParams.get('lockPluginsVersion')).toBe(String(lockVersion));
+      expect(sourceConfigURL.searchParams.get('abc')).toBe('def');
+    });
+
     it('should return default source config URL if invalid source config URL is provided', () => {
       const sourceConfigURL = getSourceConfigURL('invalid-url', 'writekey', true, true, mockLogger);
 

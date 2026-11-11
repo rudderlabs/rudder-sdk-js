@@ -20,7 +20,6 @@ import { state } from '../../../state';
  * @param pathSuffix The path suffix to be appended to the base URL (js-integrations or plugins)
  * @param defaultComponentUrl The default URL to be used if the user has not provided a custom URL
  * @param currentSdkVersion The current version of the SDK
- * @param lockVersion Flag to lock the version of the component
  * @param urlFromLoadOptions The URL provided by the user in the load options
  * @param logger Logger instance
  * @returns The base URL for the integrations or plugins SDK
@@ -30,7 +29,6 @@ const getSDKComponentBaseURL = (
   pathSuffix: string,
   defaultComponentUrl: string,
   currentSdkVersion: string,
-  lockVersion: boolean,
   urlFromLoadOptions: string | undefined,
   logger: ILogger,
 ): Nullable<string> => {
@@ -42,7 +40,7 @@ const getSDKComponentBaseURL = (
       return null;
     }
 
-    sdkComponentBaseURL = removeTrailingSlashes(urlFromLoadOptions) as string;
+    return removeTrailingSlashes(urlFromLoadOptions) as string;
   } else {
     sdkComponentBaseURL = defaultComponentUrl;
 
@@ -60,7 +58,7 @@ const getSDKComponentBaseURL = (
 
   // If the version needs to be locked, then replace the major version in the URL
   // with the current version of the SDK
-  if (lockVersion) {
+  if (__LOCK_DEPS_VERSION__) {
     sdkComponentBaseURL = sdkComponentBaseURL.replace(
       new RegExp(`/${CDN_ARCH_VERSION_DIR}/${BUILD_TYPE}/${pathSuffix}$`),
       `/${currentSdkVersion}/${BUILD_TYPE}/${pathSuffix}`,
@@ -73,14 +71,12 @@ const getSDKComponentBaseURL = (
 /**
  * A function that determines integration SDK loading path
  * @param currentSdkVersion Current SDK version
- * @param lockIntegrationsVersion Flag to lock the integrations version
  * @param integrationsUrlFromLoadOptions URL to load the integrations from as provided by the user
  * @param logger Logger instance
  * @returns
  */
 const getIntegrationsCDNPath = (
   currentSdkVersion: string,
-  lockIntegrationsVersion: boolean,
   integrationsUrlFromLoadOptions: string | undefined,
   logger: ILogger,
 ): Nullable<string> =>
@@ -89,7 +85,6 @@ const getIntegrationsCDNPath = (
     CDN_INT_DIR,
     DEFAULT_INTEGRATION_SDKS_URL,
     currentSdkVersion,
-    lockIntegrationsVersion,
     integrationsUrlFromLoadOptions,
     logger,
   );
@@ -97,14 +92,12 @@ const getIntegrationsCDNPath = (
 /**
  * A function that determines plugins SDK loading path
  * @param currentSdkVersion Current SDK version
- * @param lockPluginsVersion Flag to lock the plugins version
  * @param pluginsUrlFromLoadOptions URL to load the plugins from as provided by the user
  * @param logger Logger instance
  * @returns Final plugins CDN path
  */
 const getPluginsCDNPath = (
   currentSdkVersion: string,
-  lockPluginsVersion: boolean,
   pluginsUrlFromLoadOptions: string | undefined,
   logger: ILogger,
 ): Nullable<string> =>
@@ -113,7 +106,6 @@ const getPluginsCDNPath = (
     CDN_PLUGINS_DIR,
     DEFAULT_PLUGINS_URL,
     currentSdkVersion,
-    lockPluginsVersion,
     pluginsUrlFromLoadOptions,
     logger,
   );

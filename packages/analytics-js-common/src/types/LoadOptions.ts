@@ -183,16 +183,13 @@ export type LoadOptions = {
   setCookieDomain?: string; // defaults to current domain.
   sameSiteCookie?: CookieSameSite; // defaults to Lax.
   /**
-   * @deprecated Integrations version are locked by default. We do not recommend using this option.
+   * @deprecated Ignored. Dependency version locking is determined by the SDK build.
    */
-  lockIntegrationsVersion?: boolean; // defaults to true.
+  lockIntegrationsVersion?: boolean;
   /**
-   * @deprecated Plugins version are locked by default. We do not recommend using this option.
-   *
-   * On a `v3` CDN install, false resolves plugins from a directory that is not refreshed every
-   * release, so the chunks can be far older than the core SDK loading them.
+   * @deprecated Ignored. Dependency version locking is determined by the SDK build.
    */
-  lockPluginsVersion?: boolean; // defaults to true.
+  lockPluginsVersion?: boolean;
   polyfillIfRequired?: boolean; // defaults to true. Controls whether the SDK should polyfill unsupported browser API's if they are detected as missing. Legacy build only
   onLoaded?: OnLoadedCallback;
   uaChTrackLevel?: UaChTrackLevel;

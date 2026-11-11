@@ -144,16 +144,20 @@ class Analytics implements IAnalytics {
       this.customContextStore.set(customContext);
     }
 
+    // set log level as early as possible
+    this.logger.setMinLogLevel(sanitizedLoadOptions.logLevel ?? POST_LOAD_LOG_LEVEL);
+
     // Set initial state values
     batch(() => {
       state.lifecycle.writeKey.value = clone(writeKey);
       state.lifecycle.dataPlaneUrl.value = clone(dataPlaneUrl);
-      state.loadOptions.value = normalizeLoadOptions(state.loadOptions.value, sanitizedLoadOptions);
+      state.loadOptions.value = normalizeLoadOptions(
+        state.loadOptions.value,
+        sanitizedLoadOptions,
+        this.logger,
+      );
       state.lifecycle.status.value = 'mounted';
     });
-
-    // set log level as early as possible
-    this.logger.setMinLogLevel(state.loadOptions.value.logLevel ?? POST_LOAD_LOG_LEVEL);
 
     // Expose state to global objects
     setExposedGlobal('state', state, writeKey);

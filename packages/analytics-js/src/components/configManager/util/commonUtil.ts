@@ -463,7 +463,11 @@ const getSourceConfigURL = (
     configUrlInstance.pathname = removeDuplicateSlashes(configUrlInstance.pathname);
 
     defSearchParams.forEach((value, key) => {
-      if (configUrlInstance.searchParams.get(key) === null) {
+      if (
+        key === 'lockIntegrationsVersion' ||
+        key === 'lockPluginsVersion' ||
+        configUrlInstance.searchParams.get(key) === null
+      ) {
         configUrlInstance.searchParams.set(key, value);
       }
     });

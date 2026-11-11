@@ -1,6 +1,7 @@
 /* eslint-disable compat/compat */
 import type { LoadOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
+import { defaultLogger } from '../../../src/services/Logger';
 import { normalizeLoadOptions } from '../../../src/components/utilities/loadOptions';
 
 describe('load API options', () => {
@@ -21,8 +22,6 @@ describe('load API options', () => {
     beaconQueueOptions: {},
     destinationsQueueOptions: {},
     queueOptions: {},
-    lockIntegrationsVersion: false,
-    lockPluginsVersion: false,
     uaChTrackLevel: 'none',
     plugins: [],
     useGlobalIntegrationsConfigInEvents: false,
@@ -1244,130 +1243,45 @@ describe('load API options', () => {
       });
     });
 
-    describe('lockIntegrationsVersion', () => {
-      const testCaseData: any[] = [
-        {
-          name: 'should consider default value for lockIntegrationsVersion if it is a number',
-          input: { lockIntegrationsVersion: 123 },
-          expected: defaultLoadOptions,
-        },
-        {
-          name: 'should consider default value for lockIntegrationsVersion if it is a string',
-          input: { lockIntegrationsVersion: 'Invalid' },
-          expected: defaultLoadOptions,
-        },
-        {
-          name: 'should consider default value for lockIntegrationsVersion if it is an array',
-          input: { lockIntegrationsVersion: ['rudderstack.com'] },
-          expected: defaultLoadOptions,
-        },
-        {
-          name: 'should consider default value for lockIntegrationsVersion if it is a function',
-          input: { lockIntegrationsVersion: () => {} },
-          expected: defaultLoadOptions,
-        },
-        {
-          name: 'should consider default value for lockIntegrationsVersion if it is a symbol',
-          input: { lockIntegrationsVersion: Symbol('rudderstack.com') },
-          expected: defaultLoadOptions,
-        },
-        {
-          name: 'should consider default value for lockIntegrationsVersion if it is null',
-          input: { lockIntegrationsVersion: null },
-          expected: defaultLoadOptions,
-        },
-        {
-          name: 'should ignore lockIntegrationsVersion if it is undefined',
-          input: { lockIntegrationsVersion: undefined },
-          expected: defaultLoadOptions,
-        },
-        {
-          name: 'should set lockIntegrationsVersion to the input(true) value',
-          input: { lockIntegrationsVersion: true },
-          expected: {
-            ...defaultLoadOptions,
-            lockIntegrationsVersion: true,
-          },
-        },
-        {
-          name: 'should set lockIntegrationsVersion to the input(false) value',
-          input: { lockIntegrationsVersion: false },
-          expected: {
-            ...defaultLoadOptions,
-            lockIntegrationsVersion: false,
-          },
-        },
-      ];
+    describe.each(['lockIntegrationsVersion', 'lockPluginsVersion'])('%s', optionName => {
+      it.each([false, true, undefined, null, 123, 'Invalid', [], {}, () => {}, Symbol('lock')])(
+        'should ignore %p and warn once',
+        value => {
+          const warnSpy = jest.spyOn(defaultLogger, 'warn').mockImplementation(() => {});
+          const input = { [optionName]: value };
 
-      it.each(testCaseData)('$name', ({ input, expected }) => {
-        expect(normalizeLoadOptions(defaultLoadOptions, input as Partial<LoadOptions>)).toEqual({
-          ...expected,
-          plugins: defaultOptionalPluginsList,
-        });
-      });
+          expect(normalizeLoadOptions(defaultLoadOptions, input)).toEqual({
+            ...defaultLoadOptions,
+            plugins: defaultOptionalPluginsList,
+          });
+          expect(warnSpy).toHaveBeenCalledTimes(1);
+          expect(warnSpy).toHaveBeenCalledWith(
+            `AnalyticsCore:: The "${optionName}" load API option is deprecated and ignored. Dependency version locking is determined by the SDK build.`,
+          );
+          expect(input).toHaveProperty(optionName, value);
+          warnSpy.mockRestore();
+        },
+      );
     });
 
-    describe('lockPluginsVersion', () => {
-      const testCaseData: any[] = [
-        {
-          name: 'should consider default value for lockPluginsVersion if it is a number',
-          input: { lockPluginsVersion: 123 },
-          expected: defaultLoadOptions,
-        },
-        {
-          name: 'should consider default value for lockPluginsVersion if it is a string',
-          input: { lockPluginsVersion: 'Invalid' },
-          expected: defaultLoadOptions,
-        },
-        {
-          name: 'should consider default value for lockPluginsVersion if it is an array',
-          input: { lockPluginsVersion: ['rudderstack.com'] },
-          expected: defaultLoadOptions,
-        },
-        {
-          name: 'should consider default value for lockPluginsVersion if it is a function',
-          input: { lockPluginsVersion: () => {} },
-          expected: defaultLoadOptions,
-        },
-        {
-          name: 'should consider default value for lockPluginsVersion if it is a symbol',
-          input: { lockPluginsVersion: Symbol('rudderstack.com') },
-          expected: defaultLoadOptions,
-        },
-        {
-          name: 'should consider default value for lockPluginsVersion if it is null',
-          input: { lockPluginsVersion: null },
-          expected: defaultLoadOptions,
-        },
-        {
-          name: 'should ignore lockPluginsVersion if it is undefined',
-          input: { lockPluginsVersion: undefined },
-          expected: defaultLoadOptions,
-        },
-        {
-          name: 'should set lockPluginsVersion to the input(true) value',
-          input: { lockPluginsVersion: true },
-          expected: {
-            ...defaultLoadOptions,
-            lockPluginsVersion: true,
-          },
-        },
-        {
-          name: 'should set lockPluginsVersion to the input(false) value',
-          input: { lockPluginsVersion: false },
-          expected: {
-            ...defaultLoadOptions,
-            lockPluginsVersion: false,
-          },
-        },
-      ];
-
-      it.each(testCaseData)('$name', ({ input, expected }) => {
-        expect(normalizeLoadOptions(defaultLoadOptions, input as Partial<LoadOptions>)).toEqual({
-          ...expected,
-          plugins: defaultOptionalPluginsList,
-        });
+    it('should warn once per deprecated option when both are provided', () => {
+      const warnSpy = jest.spyOn(defaultLogger, 'warn').mockImplementation(() => {});
+      const options = normalizeLoadOptions(defaultLoadOptions, {
+        lockIntegrationsVersion: false,
+        lockPluginsVersion: false,
       });
+
+      expect(warnSpy).toHaveBeenCalledTimes(2);
+      expect(options).not.toHaveProperty('lockIntegrationsVersion');
+      expect(options).not.toHaveProperty('lockPluginsVersion');
+      warnSpy.mockRestore();
+    });
+
+    it('should not warn when deprecated options are absent', () => {
+      const warnSpy = jest.spyOn(defaultLogger, 'warn').mockImplementation(() => {});
+      normalizeLoadOptions(defaultLoadOptions, {});
+      expect(warnSpy).not.toHaveBeenCalled();
+      warnSpy.mockRestore();
     });
 
     describe('dataPlaneEventsBufferTimeout', () => {

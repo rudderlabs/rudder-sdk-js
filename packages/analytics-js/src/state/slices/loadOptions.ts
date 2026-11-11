@@ -27,8 +27,6 @@ const defaultLoadOptions: LoadOptions = {
   beaconQueueOptions: {},
   destinationsQueueOptions: {},
   queueOptions: {},
-  lockIntegrationsVersion: __LOCK_DEPS_VERSION__,
-  lockPluginsVersion: __LOCK_DEPS_VERSION__,
   uaChTrackLevel: 'none',
   plugins: [],
   useGlobalIntegrationsConfigInEvents: false,

@@ -31,6 +31,7 @@ describe('CDN path utilities', () => {
   });
 
   afterEach(() => {
+    window.__LOCK_DEPS_VERSION__ = false;
     jest.resetAllMocks();
 
     resetState();
@@ -40,9 +41,9 @@ describe('CDN path utilities', () => {
     const dummyCustomURL = 'https://www.dummy.url/integrations/';
 
     it('should return custom URL if it is valid', () => {
+      window.__LOCK_DEPS_VERSION__ = false;
       const integrationsCDNPath = getIntegrationsCDNPath(
         dummyVersion,
-        false,
         dummyCustomURL,
         defaultLogger,
       );
@@ -51,7 +52,8 @@ describe('CDN path utilities', () => {
 
     it('should throw error if invalid custom URL is provided', () => {
       const errorSpy = jest.spyOn(defaultLogger, 'error');
-      const integrationsCDNPath = getIntegrationsCDNPath(dummyVersion, false, '/', defaultLogger);
+      window.__LOCK_DEPS_VERSION__ = false;
+      const integrationsCDNPath = getIntegrationsCDNPath(dummyVersion, '/', defaultLogger);
       expect(integrationsCDNPath).toBeNull();
       expect(errorSpy).toHaveBeenCalledWith(
         'ConfigManager:: The base URL "/" for integrations is not valid.',
@@ -61,24 +63,16 @@ describe('CDN path utilities', () => {
     });
 
     it('should return script src path if script src exists and integrations version is not locked', () => {
-      const integrationsCDNPath = getIntegrationsCDNPath(
-        dummyVersion,
-        false,
-        undefined,
-        defaultLogger,
-      );
+      window.__LOCK_DEPS_VERSION__ = false;
+      const integrationsCDNPath = getIntegrationsCDNPath(dummyVersion, undefined, defaultLogger);
       expect(integrationsCDNPath).toBe(
         'https://www.dummy.url/fromScript/v3/modern/js-integrations',
       );
     });
 
     it('should return script src path with versioned folder if script src exists and integrations version is locked', () => {
-      const integrationsCDNPath = getIntegrationsCDNPath(
-        dummyVersion,
-        true,
-        undefined,
-        defaultLogger,
-      );
+      window.__LOCK_DEPS_VERSION__ = true;
+      const integrationsCDNPath = getIntegrationsCDNPath(dummyVersion, undefined, defaultLogger);
       expect(integrationsCDNPath).toBe(
         'https://www.dummy.url/fromScript/3.x.x/modern/js-integrations',
       );
@@ -87,24 +81,16 @@ describe('CDN path utilities', () => {
     it('should return default path if no script src exists and integrations version is not locked', () => {
       getSDKUrlMock.mockImplementation(() => undefined);
 
-      const integrationsCDNPath = getIntegrationsCDNPath(
-        dummyVersion,
-        false,
-        undefined,
-        defaultLogger,
-      );
+      window.__LOCK_DEPS_VERSION__ = false;
+      const integrationsCDNPath = getIntegrationsCDNPath(dummyVersion, undefined, defaultLogger);
       expect(integrationsCDNPath).toBe('https://cdn.rudderlabs.com/v3/modern/js-integrations');
     });
 
     it('should return default path with versioned folder if no script src exists and integrations version is locked', () => {
       getSDKUrlMock.mockImplementation(() => undefined);
 
-      const integrationsCDNPath = getIntegrationsCDNPath(
-        dummyVersion,
-        true,
-        undefined,
-        defaultLogger,
-      );
+      window.__LOCK_DEPS_VERSION__ = true;
+      const integrationsCDNPath = getIntegrationsCDNPath(dummyVersion, undefined, defaultLogger);
       expect(integrationsCDNPath).toBe(
         `https://cdn.rudderlabs.com/${dummyVersion}/modern/js-integrations`,
       );
@@ -115,12 +101,8 @@ describe('CDN path utilities', () => {
         () => 'https://www.dummy.url/fromScript/v3/custom/rsa.min.js',
       );
 
-      const integrationsCDNPath = getIntegrationsCDNPath(
-        dummyVersion,
-        true,
-        undefined,
-        defaultLogger,
-      );
+      window.__LOCK_DEPS_VERSION__ = true;
+      const integrationsCDNPath = getIntegrationsCDNPath(dummyVersion, undefined, defaultLogger);
       expect(integrationsCDNPath).toBe(
         `https://www.dummy.url/fromScript/v3/custom/js-integrations`,
       );
@@ -132,31 +114,27 @@ describe('CDN path utilities', () => {
         () => 'https://www.dummy.url/fromScript/v3/modern/js-integrations/custom/rsa.min.js',
       );
 
-      const integrationsCDNPath = getIntegrationsCDNPath(
-        dummyVersion,
-        true,
-        undefined,
-        defaultLogger,
-      );
+      window.__LOCK_DEPS_VERSION__ = true;
+      const integrationsCDNPath = getIntegrationsCDNPath(dummyVersion, undefined, defaultLogger);
       expect(integrationsCDNPath).toBe(
         `https://www.dummy.url/fromScript/v3/modern/js-integrations/custom/js-integrations`,
       );
     });
 
-    it('should lock the version on custom URL if it follows the convention', () => {
+    it('should preserve custom URL even if it follows the version lock convention', () => {
+      window.__LOCK_DEPS_VERSION__ = true;
       const integrationsCDNPath = getIntegrationsCDNPath(
         dummyVersion,
-        true,
-        'https://www.dummy.url/v3/modern/js-integrations',
+        'https://www.dummy.url/v3/modern/js-integrations///',
         defaultLogger,
       );
-      expect(integrationsCDNPath).toBe('https://www.dummy.url/3.x.x/modern/js-integrations');
+      expect(integrationsCDNPath).toBe('https://www.dummy.url/v3/modern/js-integrations');
     });
 
     it('should not lock the version on custom URL if it does not follow the convention', () => {
+      window.__LOCK_DEPS_VERSION__ = true;
       const integrationsCDNPath = getIntegrationsCDNPath(
         dummyVersion,
-        true,
         dummyCustomURL,
         defaultLogger,
       );
@@ -167,12 +145,8 @@ describe('CDN path utilities', () => {
       // @ts-expect-error needed for testing
       state.context.app.value.installType = 'npm';
 
-      const integrationsCDNPath = getIntegrationsCDNPath(
-        dummyVersion,
-        false,
-        undefined,
-        defaultLogger,
-      );
+      window.__LOCK_DEPS_VERSION__ = false;
+      const integrationsCDNPath = getIntegrationsCDNPath(dummyVersion, undefined, defaultLogger);
       expect(integrationsCDNPath).toBe('https://cdn.rudderlabs.com/v3/modern/js-integrations');
     });
 
@@ -180,12 +154,8 @@ describe('CDN path utilities', () => {
       // @ts-expect-error needed for testing
       state.context.app.value.installType = 'npm';
 
-      const integrationsCDNPath = getIntegrationsCDNPath(
-        dummyVersion,
-        true,
-        undefined,
-        defaultLogger,
-      );
+      window.__LOCK_DEPS_VERSION__ = true;
+      const integrationsCDNPath = getIntegrationsCDNPath(dummyVersion, undefined, defaultLogger);
       expect(integrationsCDNPath).toBe('https://cdn.rudderlabs.com/3.x.x/modern/js-integrations');
     });
   });
@@ -194,18 +164,15 @@ describe('CDN path utilities', () => {
     const dummyCustomURL = 'https://www.dummy.url/plugins/';
 
     it('should return plugins CDN URL if a valid custom URL is provided', () => {
-      const pluginsCDNPath = getPluginsCDNPath(dummyVersion, false, dummyCustomURL, defaultLogger);
+      window.__LOCK_DEPS_VERSION__ = false;
+      const pluginsCDNPath = getPluginsCDNPath(dummyVersion, dummyCustomURL, defaultLogger);
       expect(pluginsCDNPath).toBe('https://www.dummy.url/plugins');
     });
 
     it('should throw error if invalid custom URL is provided', () => {
       const errorSpy = jest.spyOn(defaultLogger, 'error');
-      const pluginsCDNPath = getPluginsCDNPath(
-        dummyVersion,
-        false,
-        'htp:/some.broken.url',
-        defaultLogger,
-      );
+      window.__LOCK_DEPS_VERSION__ = false;
+      const pluginsCDNPath = getPluginsCDNPath(dummyVersion, 'htp:/some.broken.url', defaultLogger);
       expect(pluginsCDNPath).toBeNull();
       expect(errorSpy).toHaveBeenCalledWith(
         'ConfigManager:: The base URL "htp:/some.broken.url" for plugins is not valid.',
@@ -215,26 +182,30 @@ describe('CDN path utilities', () => {
     });
 
     it('should return script src path if script src exists and plugins version is not locked', () => {
-      const pluginsCDNPath = getPluginsCDNPath(dummyVersion, false, undefined, defaultLogger);
+      window.__LOCK_DEPS_VERSION__ = false;
+      const pluginsCDNPath = getPluginsCDNPath(dummyVersion, undefined, defaultLogger);
       expect(pluginsCDNPath).toBe('https://www.dummy.url/fromScript/v3/modern/plugins');
     });
 
     it('should return script src path with versioned folder if script src exists and plugins version is locked', () => {
-      const pluginsCDNPath = getPluginsCDNPath(dummyVersion, true, undefined, defaultLogger);
+      window.__LOCK_DEPS_VERSION__ = true;
+      const pluginsCDNPath = getPluginsCDNPath(dummyVersion, undefined, defaultLogger);
       expect(pluginsCDNPath).toBe('https://www.dummy.url/fromScript/3.x.x/modern/plugins');
     });
 
     it('should return default path if no script src exists and plugins version is not locked', () => {
       getSDKUrlMock.mockImplementation(() => undefined);
 
-      const pluginsCDNPath = getPluginsCDNPath(dummyVersion, false, undefined, defaultLogger);
+      window.__LOCK_DEPS_VERSION__ = false;
+      const pluginsCDNPath = getPluginsCDNPath(dummyVersion, undefined, defaultLogger);
       expect(pluginsCDNPath).toBe('https://cdn.rudderlabs.com/v3/modern/plugins');
     });
 
     it('should return default path if no script src exists but plugins version is locked', () => {
       getSDKUrlMock.mockImplementation(() => undefined);
 
-      const pluginsCDNPath = getPluginsCDNPath(dummyVersion, true, undefined, defaultLogger);
+      window.__LOCK_DEPS_VERSION__ = true;
+      const pluginsCDNPath = getPluginsCDNPath(dummyVersion, undefined, defaultLogger);
       expect(pluginsCDNPath).toBe('https://cdn.rudderlabs.com/3.x.x/modern/plugins');
     });
 
@@ -243,7 +214,8 @@ describe('CDN path utilities', () => {
         () => 'https://www.dummy.url/fromScript/v3/custom/rsa.min.js',
       );
 
-      const pluginsCDNPath = getPluginsCDNPath(dummyVersion, true, undefined, defaultLogger);
+      window.__LOCK_DEPS_VERSION__ = true;
+      const pluginsCDNPath = getPluginsCDNPath(dummyVersion, undefined, defaultLogger);
       expect(pluginsCDNPath).toBe(`https://www.dummy.url/fromScript/v3/custom/plugins`);
     });
 
@@ -253,24 +225,26 @@ describe('CDN path utilities', () => {
         () => 'https://www.dummy.url/fromScript/v3/modern/plugins/custom/rsa.min.js',
       );
 
-      const pluginsCDNPath = getPluginsCDNPath(dummyVersion, true, undefined, defaultLogger);
+      window.__LOCK_DEPS_VERSION__ = true;
+      const pluginsCDNPath = getPluginsCDNPath(dummyVersion, undefined, defaultLogger);
       expect(pluginsCDNPath).toBe(
         `https://www.dummy.url/fromScript/v3/modern/plugins/custom/plugins`,
       );
     });
 
-    it('should lock the version on custom URL if it follows the convention', () => {
+    it('should preserve custom URL even if it follows the version lock convention', () => {
+      window.__LOCK_DEPS_VERSION__ = true;
       const pluginsCDNPath = getPluginsCDNPath(
         dummyVersion,
-        true,
-        'https://www.dummy.url/v3/modern/plugins',
+        'https://www.dummy.url/v3/modern/plugins///',
         defaultLogger,
       );
-      expect(pluginsCDNPath).toBe('https://www.dummy.url/3.x.x/modern/plugins');
+      expect(pluginsCDNPath).toBe('https://www.dummy.url/v3/modern/plugins');
     });
 
     it('should not lock the version on custom URL if it does not follow the convention', () => {
-      const pluginsCDNPath = getPluginsCDNPath(dummyVersion, true, dummyCustomURL, defaultLogger);
+      window.__LOCK_DEPS_VERSION__ = true;
+      const pluginsCDNPath = getPluginsCDNPath(dummyVersion, dummyCustomURL, defaultLogger);
       expect(pluginsCDNPath).toBe('https://www.dummy.url/plugins');
     });
 
@@ -278,7 +252,8 @@ describe('CDN path utilities', () => {
       // @ts-expect-error needed for testing
       state.context.app.value.installType = 'npm';
 
-      const pluginsCDNPath = getPluginsCDNPath(dummyVersion, false, undefined, defaultLogger);
+      window.__LOCK_DEPS_VERSION__ = false;
+      const pluginsCDNPath = getPluginsCDNPath(dummyVersion, undefined, defaultLogger);
       expect(pluginsCDNPath).toBe('https://cdn.rudderlabs.com/v3/modern/plugins');
     });
 
@@ -286,7 +261,8 @@ describe('CDN path utilities', () => {
       // @ts-expect-error needed for testing
       state.context.app.value.installType = 'npm';
 
-      const pluginsCDNPath = getPluginsCDNPath(dummyVersion, true, undefined, defaultLogger);
+      window.__LOCK_DEPS_VERSION__ = true;
+      const pluginsCDNPath = getPluginsCDNPath(dummyVersion, undefined, defaultLogger);
       expect(pluginsCDNPath).toBe('https://cdn.rudderlabs.com/3.x.x/modern/plugins');
     });
   });

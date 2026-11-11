@@ -65,23 +65,11 @@ class ConfigManager implements IConfigManager {
    * config related information in global state
    */
   init() {
-    const {
-      logLevel,
-      configUrl,
-      lockIntegrationsVersion,
-      lockPluginsVersion,
-      destSDKBaseURL,
-      pluginsSDKBaseURL,
-      integrations,
-    } = state.loadOptions.value;
+    const { logLevel, configUrl, destSDKBaseURL, pluginsSDKBaseURL, integrations } =
+      state.loadOptions.value;
 
     // determine the path to fetch integration SDK from
-    const intgCdnUrl = getIntegrationsCDNPath(
-      APP_VERSION,
-      lockIntegrationsVersion as boolean,
-      destSDKBaseURL,
-      this.logger,
-    );
+    const intgCdnUrl = getIntegrationsCDNPath(APP_VERSION, destSDKBaseURL, this.logger);
 
     if (isNull(intgCdnUrl)) {
       return;
@@ -90,12 +78,7 @@ class ConfigManager implements IConfigManager {
     let pluginsCDNPath: Nullable<string> | undefined;
     if (!__PLUGINS_BUNDLED__) {
       // determine the path to fetch remote plugins from
-      pluginsCDNPath = getPluginsCDNPath(
-        APP_VERSION,
-        lockPluginsVersion as boolean,
-        pluginsSDKBaseURL,
-        this.logger,
-      );
+      pluginsCDNPath = getPluginsCDNPath(APP_VERSION, pluginsSDKBaseURL, this.logger);
     }
 
     if (pluginsCDNPath === null) {
@@ -127,8 +110,8 @@ class ConfigManager implements IConfigManager {
       state.lifecycle.sourceConfigUrl.value = getSourceConfigURL(
         configUrl,
         state.lifecycle.writeKey.value as string,
-        lockIntegrationsVersion as boolean,
-        lockPluginsVersion as boolean,
+        __LOCK_DEPS_VERSION__,
+        __LOCK_DEPS_VERSION__,
         this.logger,
       );
       state.metrics.metricsServiceUrl.value = `${state.lifecycle.activeDataplaneUrl.value}/${METRICS_SERVICE_ENDPOINT}`;
