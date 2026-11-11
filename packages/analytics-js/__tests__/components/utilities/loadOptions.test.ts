@@ -1257,7 +1257,7 @@ describe('load API options', () => {
           });
           expect(warnSpy).toHaveBeenCalledTimes(1);
           expect(warnSpy).toHaveBeenCalledWith(
-            `AnalyticsCore:: The "${optionName}" load API option has been removed and is ignored. Dependency versions are locked to the SDK version.`,
+            `AnalyticsCore:: The "${optionName}" load API option has been removed and is ignored. Dependency version locking is controlled by the SDK build.`,
           );
           expect(input).toHaveProperty(optionName, value);
           warnSpy.mockRestore();
