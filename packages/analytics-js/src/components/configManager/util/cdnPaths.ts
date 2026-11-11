@@ -40,7 +40,7 @@ const getSDKComponentBaseURL = (
       return null;
     }
 
-    return removeTrailingSlashes(urlFromLoadOptions) as string;
+    sdkComponentBaseURL = removeTrailingSlashes(urlFromLoadOptions) as string;
   } else {
     sdkComponentBaseURL = defaultComponentUrl;
 
