@@ -17,6 +17,7 @@ global.window.__RS_BUGSNAG_RELEASE_STAGE__ = 'production';
 global.window.__REPOSITORY_URL__ = 'https://github.com/rudderlabs/rudder-sdk-js.git';
 global.window.__BUILD_VARIANT__ = 'modern';
 global.window.__IS_LITE_BUILD__ = false;
+global.window.__REMOTE_PLUGINS_BASE_PATH__ = 'https://cdn.rudderlabs.com/v3/';
 
 // Only define the mock if it's not already defined (e.g., in a real browser)
 if (typeof PromiseRejectionEvent === 'undefined') {

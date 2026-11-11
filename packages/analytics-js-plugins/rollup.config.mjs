@@ -15,7 +15,6 @@ import { DEFAULT_EXTENSIONS } from '@babel/core';
 import del from 'rollup-plugin-delete';
 import dts from 'rollup-plugin-dts';
 import alias from '@rollup/plugin-alias';
-import federation from '@originjs/vite-plugin-federation';
 import * as dotenv from 'dotenv';
 import pkg from './package.json' with { type: 'json' };
 
@@ -31,6 +30,13 @@ const outDirCDN = `${outDirCDNRoot}${variantSubfolder}/plugins`;
 const distName = 'rsa-plugins';
 const modName = 'rudderAnalyticsRemotePlugins';
 const remotePluginsExportsFilename = `${distName}.js`;
+/**
+ * A function that determines the file name of an exposed plugin in the CDN bundle. The SDK
+ * imports the plugins by this name, so it is fixed (also `.min` in unminified builds).
+ * @param {string} exposeKey Expose key of the plugin, e.g. `./BeaconQueue`
+ * @returns {string} The file name, e.g. `rsa-plugins-remote-BeaconQueue.min.js`
+ */
+const getRemotePluginFileName = exposeKey => `${distName}-remote-${exposeKey.slice(2)}.min.js`;
 const moduleType = process.env.MODULE_TYPE || 'cdn';
 const isNpmPackageBuild = moduleType === 'npm';
 const isCDNPackageBuild = moduleType === 'cdn';
@@ -51,7 +57,36 @@ const pluginsMap = {
   './XhrQueue': './src/xhrQueue/index.ts',
 };
 
-export function getDefaultConfig(distName) {
+// Resolve the workspace packages to their sources
+export const sourceAliasEntries = [
+  {
+    find: '@rudderstack/analytics-js-plugins',
+    replacement: path.resolve('../analytics-js-plugins/src'),
+  },
+  {
+    find: '@rudderstack/analytics-js-common',
+    replacement: path.resolve('../analytics-js-common/src'),
+  },
+  {
+    find: '@rudderstack/analytics-js-cookies',
+    replacement: path.resolve('../analytics-js-cookies/src'),
+  },
+  {
+    find: '@rudderstack/analytics-js-integrations',
+    replacement: path.resolve('../analytics-js-integrations/src'),
+  },
+];
+
+/**
+ * A function that returns the Rollup configuration shared by the builds of the package
+ * @param {string} distName Name of the bundle, used in the visualizer stats
+ * @param {object} [options]
+ * @param {boolean} [options.forVite] The configuration is for the CDN remote built by Vite
+ * (vite.config.mjs) with @module-federation/vite. Vite provides aliasing, node resolution,
+ * CommonJS and JSON support itself, so those plugins are skipped
+ * @returns {import('rollup').RollupOptions} The Rollup configuration
+ */
+export function getDefaultConfig(distName, { forVite = false } = {}) {
   const version = process.env.VERSION || 'dev-snapshot';
   const isLocalServerEnabled = isCDNPackageBuild && process.env.DEV_SERVER;
 
@@ -76,40 +111,21 @@ export function getDefaultConfig(distName) {
         __MODULE_TYPE__: `'${moduleType}'`,
         __RS_BUGSNAG_RELEASE_STAGE__: `'${process.env.BUGSNAG_RELEASE_STAGE || 'production'}'`,
       }),
-      alias({
-        entries: [
-          {
-            find: '@rudderstack/analytics-js-plugins',
-            replacement: path.resolve('../analytics-js-plugins/src'),
-          },
-          {
-            find: '@rudderstack/analytics-js-common',
-            replacement: path.resolve('../analytics-js-common/src'),
-          },
-          {
-            find: '@rudderstack/analytics-js-cookies',
-            replacement: path.resolve('../analytics-js-cookies/src'),
-          },
-          {
-            find: '@rudderstack/analytics-js-integrations',
-            replacement: path.resolve('../analytics-js-integrations/src'),
-          },
-        ],
-      }),
-      resolve({
-        jsnext: true,
-        browser: true,
-        preferBuiltins: false,
-        extensions: ['.js', '.ts', '.mjs'],
-      }),
-      nodePolyfills({
-        include: ['crypto'],
-      }),
-      commonjs({
-        include: /node_modules/,
-        requireReturnsDefault: 'auto',
-      }),
-      json(),
+      !forVite && alias({ entries: sourceAliasEntries }),
+      !forVite &&
+        resolve({
+          jsnext: true,
+          browser: true,
+          preferBuiltins: false,
+          extensions: ['.js', '.ts', '.mjs'],
+        }),
+      { ...nodePolyfills({ include: ['crypto'] }), enforce: 'pre' },
+      !forVite &&
+        commonjs({
+          include: /node_modules/,
+          requireReturnsDefault: 'auto',
+        }),
+      !forVite && json(),
       typescript({
         tsconfig: './tsconfig.json',
         useTsconfigDeclarationDir: true,
@@ -121,13 +137,6 @@ export function getDefaultConfig(distName) {
         extensions: [...DEFAULT_EXTENSIONS, '.ts'],
         sourcemap: sourceMapType,
       }),
-      isCDNPackageBuild &&
-        federation({
-          name: modName,
-          filename: remotePluginsExportsFilename,
-          exposes: pluginsMap,
-          remoteType: 'promise',
-        }),
       process.env.UGLIFY === 'true' &&
         terser({
           safari10: isLegacyBuild,
@@ -221,15 +230,26 @@ const buildConfig = () => {
   };
 };
 
+/**
+ * A function that returns the Rollup build entries: the npm bundles (npm builds only) and the
+ * bundled type declarations
+ * @returns {import('rollup').RollupOptions[]} The Rollup configurations
+ */
 const buildEntries = () => {
-  const outputFiles = isCDNPackageBuild ? outputFilesCdn : outputFilesNpm;
+  // The CDN (federated remote) bundle is built by `vite build` (see vite.config.mjs), which also
+  // emits the declarations to dist/dts; Rollup then only bundles those declarations.
+  const bundleEntries = isCDNPackageBuild
+    ? []
+    : [
+        {
+          ...buildConfig(),
+          input: 'src/index.ts',
+          output: outputFilesNpm,
+        },
+      ];
 
   return [
-    {
-      ...buildConfig(),
-      input: 'src/index.ts',
-      output: outputFiles,
-    },
+    ...bundleEntries,
     {
       input: `dist/dts/packages/analytics-js-plugins/src/index.d.ts`,
       plugins: [
@@ -270,4 +290,17 @@ const buildEntries = () => {
   ];
 };
 
-export default buildEntries();
+export {
+  distName,
+  modName,
+  remotePluginsExportsFilename,
+  getRemotePluginFileName,
+  pluginsMap,
+  outDirCDN,
+  outputFilesCdn,
+  sourceMapType,
+  isLegacyBuild,
+};
+
+// A function, so that importing this file from vite.config.mjs does not instantiate the plugins
+export default () => buildEntries();

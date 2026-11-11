@@ -16,7 +16,6 @@ import { DEFAULT_EXTENSIONS } from '@babel/core';
 import del from 'rollup-plugin-delete';
 import dts from 'rollup-plugin-dts';
 import alias from '@rollup/plugin-alias';
-import federation from '@originjs/vite-plugin-federation';
 import externalGlobals from 'rollup-plugin-external-globals';
 import * as dotenv from 'dotenv';
 import pkg from './package.json' with { type: 'json' };
@@ -77,8 +76,6 @@ let outDirNpm = `${outDirNpmRoot}${variantSubfolder}`;
 const outDirCDN = `${outDirCDNRoot}${variantSubfolder}`;
 const distName = 'rsa';
 const modName = 'rudderanalytics';
-const remotePluginsExportsFilename = `rsa-plugins`;
-const remotePluginsHostPromise = `Promise.resolve(window.RudderStackGlobals && window.RudderStackGlobals.app && window.RudderStackGlobals.app.pluginsCDNPath ? \`\${window.RudderStackGlobals.app.pluginsCDNPath}/${remotePluginsExportsFilename}.js\` : \`${remotePluginsBasePath}/${remotePluginsExportsFilename}.js\`)`;
 const moduleType = process.env.MODULE_TYPE || 'cdn';
 const lockDepsVersion = process.env.LOCK_DEPS_VERSION === 'true';
 const isCDNPackageBuild = moduleType === 'cdn';
@@ -260,7 +257,7 @@ export function getDefaultConfig(distName) {
     watch: {
       include: ['src/**', ...additionalWatchPaths],
     },
-    external: [/rudderAnalyticsRemotePlugins\/.*/, ...Object.keys(pkg.peerDependencies || {})],
+    external: [...Object.keys(pkg.peerDependencies || {})],
     onwarn(warning, warn) {
       // Silence 'this' has been rewritten to 'undefined' warning
       // https://rollupjs.org/guide/en/#error-this-is-undefined
@@ -284,6 +281,8 @@ export function getDefaultConfig(distName) {
         __RS_BUGSNAG_RELEASE_STAGE__: `'${process.env.BUGSNAG_RELEASE_STAGE || 'production'}'`,
         __BASE_CDN_URL__: `'${baseCdnUrl}'`,
         __REPOSITORY_URL__: `'${pkg.repository.url}'`,
+        // Fallback base URL of the remote plugins, see federatedModulesBuildPluginImports.ts
+        __REMOTE_PLUGINS_BASE_PATH__: `'${remotePluginsBasePath}'`,
       }),
       alias({
         entries: [
@@ -336,18 +335,6 @@ export function getDefaultConfig(distName) {
         ...(cdnModernTargets && { targets: cdnModernTargets }),
       }),
       externalGlobals(getExternalsConfig()),
-      !isLegacyBuild &&
-        federation({
-          remotes: {
-            rudderAnalyticsRemotePlugins: {
-              // use promise to set the path to allow override via loadOption value in case of proxy
-              // https://github.com/originjs/vite-plugin-federation#externaltype-urlpromise
-              external: remotePluginsHostPromise,
-              externalType: 'promise',
-              format: 'esm',
-            },
-          },
-        }),
       process.env.UGLIFY === 'true' &&
         terser({
           safari10: isLegacyBuild,
