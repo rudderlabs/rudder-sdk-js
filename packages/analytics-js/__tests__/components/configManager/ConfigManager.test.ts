@@ -145,7 +145,7 @@ describe('ConfigManager', () => {
     );
   });
 
-  it('should preserve custom base URLs when build locking is enabled', () => {
+  it('should lock the version on custom /v3 base URLs when build locking is enabled', () => {
     window.__LOCK_DEPS_VERSION__ = true;
     state.loadOptions.value.destSDKBaseURL = 'https://custom.url/v3/modern/js-integrations/';
     state.loadOptions.value.pluginsSDKBaseURL = 'https://custom.url/v3/modern/plugins/';
@@ -154,9 +154,9 @@ describe('ConfigManager', () => {
     configManagerInstance.init();
 
     expect(state.lifecycle.integrationsCDNPath.value).toBe(
-      'https://custom.url/v3/modern/js-integrations',
+      'https://custom.url/0.0.0-test/modern/js-integrations',
     );
-    expect(state.lifecycle.pluginsCDNPath.value).toBe('https://custom.url/v3/modern/plugins');
+    expect(state.lifecycle.pluginsCDNPath.value).toBe('https://custom.url/0.0.0-test/modern/plugins');
   });
 
   it('should fetch configurations using sourceConfig endpoint', done => {

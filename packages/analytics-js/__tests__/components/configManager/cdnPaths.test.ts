@@ -121,14 +121,14 @@ describe('CDN path utilities', () => {
       );
     });
 
-    it('should preserve custom URL even if it follows the version lock convention', () => {
+    it('should lock the version on custom URL if it follows the version lock convention', () => {
       window.__LOCK_DEPS_VERSION__ = true;
       const integrationsCDNPath = getIntegrationsCDNPath(
         dummyVersion,
         'https://www.dummy.url/v3/modern/js-integrations///',
         defaultLogger,
       );
-      expect(integrationsCDNPath).toBe('https://www.dummy.url/v3/modern/js-integrations');
+      expect(integrationsCDNPath).toBe('https://www.dummy.url/3.x.x/modern/js-integrations');
     });
 
     it('should not lock the version on custom URL if it does not follow the convention', () => {
@@ -232,14 +232,14 @@ describe('CDN path utilities', () => {
       );
     });
 
-    it('should preserve custom URL even if it follows the version lock convention', () => {
+    it('should lock the version on custom URL if it follows the version lock convention', () => {
       window.__LOCK_DEPS_VERSION__ = true;
       const pluginsCDNPath = getPluginsCDNPath(
         dummyVersion,
         'https://www.dummy.url/v3/modern/plugins///',
         defaultLogger,
       );
-      expect(pluginsCDNPath).toBe('https://www.dummy.url/v3/modern/plugins');
+      expect(pluginsCDNPath).toBe('https://www.dummy.url/3.x.x/modern/plugins');
     });
 
     it('should not lock the version on custom URL if it does not follow the convention', () => {
