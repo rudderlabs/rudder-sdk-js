@@ -182,6 +182,14 @@ export type LoadOptions = {
   anonymousIdOptions?: AnonymousIdOptions;
   setCookieDomain?: string; // defaults to current domain.
   sameSiteCookie?: CookieSameSite; // defaults to Lax.
+  /**
+   * @deprecated Ignored. Integrations always load from the folder matching the SDK version. Kept only so existing code compiles; it will be removed in the next major version.
+   */
+  lockIntegrationsVersion?: boolean;
+  /**
+   * @deprecated Ignored. Plugins always load from the folder matching the SDK version. Kept only so existing code compiles; it will be removed in the next major version.
+   */
+  lockPluginsVersion?: boolean;
   polyfillIfRequired?: boolean; // defaults to true. Controls whether the SDK should polyfill unsupported browser API's if they are detected as missing. Legacy build only
   onLoaded?: OnLoadedCallback;
   uaChTrackLevel?: UaChTrackLevel;
