@@ -12,17 +12,12 @@ import type {
 } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { CookieSameSite } from '@rudderstack/analytics-js-common/types/Storage';
 import { isString } from '@rudderstack/analytics-js-common/utilities/checks';
-import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
-import { ANALYTICS_CORE } from '@rudderstack/analytics-js-common/constants/loggerContexts';
-import { REMOVED_VERSION_LOCK_OPTION_WARNING } from '../../constants/logMessages';
-import { defaultLogger } from '../../services/Logger';
 import { defaultOptionalPluginsList } from '../pluginsManager/defaultPluginsList';
 import { isNumber } from './number';
 
 const normalizeLoadOptions = (
   loadOptionsFromState: LoadOptions,
   loadOptions: Partial<LoadOptions>,
-  logger: ILogger = defaultLogger,
 ): LoadOptions => {
   // TODO: Maybe add warnings for invalid values
   const normalizedLoadOpts = clone(loadOptions);
@@ -115,10 +110,8 @@ const normalizeLoadOptions = (
 
   normalizedLoadOpts.queueOptions = getNormalizedObjectValue(normalizedLoadOpts.queueOptions);
 
-  (['lockIntegrationsVersion', 'lockPluginsVersion'] as const).forEach(optionName => {
-    if (Object.prototype.hasOwnProperty.call(loadOptions as Record<string, unknown>, optionName)) {
-      logger.warn(REMOVED_VERSION_LOCK_OPTION_WARNING(ANALYTICS_CORE, optionName));
-    }
+  // Removed options; drop them if JavaScript callers still pass them
+  ['lockIntegrationsVersion', 'lockPluginsVersion'].forEach(optionName => {
     delete (normalizedLoadOpts as Record<string, unknown>)[optionName];
   });
 

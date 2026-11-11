@@ -1,7 +1,6 @@
 /* eslint-disable compat/compat */
 import type { LoadOptions } from '@rudderstack/analytics-js-common/types/LoadOptions';
 import type { PluginName } from '@rudderstack/analytics-js-common/types/PluginsManager';
-import { defaultLogger } from '../../../src/services/Logger';
 import { normalizeLoadOptions } from '../../../src/components/utilities/loadOptions';
 
 describe('load API options', () => {
@@ -1243,49 +1242,21 @@ describe('load API options', () => {
       });
     });
 
-    describe.each(['lockIntegrationsVersion', 'lockPluginsVersion'])('%s', optionName => {
-      it.each([false, true, undefined, null, 123, 'Invalid', [], {}, () => {}, Symbol('lock')])(
-        'should ignore %p and warn once',
-        value => {
-          const warnSpy = jest.spyOn(defaultLogger, 'warn').mockImplementation(() => {});
-          // Simulate JavaScript callers passing removed options.
-          const input = { [optionName]: value } as Partial<LoadOptions>;
+    it.each([false, true, undefined, null, 'Invalid', {}])(
+      'should drop the removed lock options when passed %p',
+      value => {
+        // Simulate JavaScript callers passing removed options.
+        const input = {
+          lockIntegrationsVersion: value,
+          lockPluginsVersion: value,
+        } as Partial<LoadOptions>;
 
-          expect(normalizeLoadOptions(defaultLoadOptions, input)).toEqual({
-            ...defaultLoadOptions,
-            plugins: defaultOptionalPluginsList,
-          });
-          expect(warnSpy).toHaveBeenCalledTimes(1);
-          expect(warnSpy).toHaveBeenCalledWith(
-            `AnalyticsCore:: The "${optionName}" load API option has been removed and is ignored. Dependency version locking is controlled by the SDK build.`,
-          );
-          expect(input).toHaveProperty(optionName, value);
-          warnSpy.mockRestore();
-        },
-      );
-    });
-
-    it('should warn once per removed option when both are provided', () => {
-      const warnSpy = jest.spyOn(defaultLogger, 'warn').mockImplementation(() => {});
-      // Simulate JavaScript callers passing removed options.
-      const input = {
-        lockIntegrationsVersion: false,
-        lockPluginsVersion: false,
-      } as Partial<LoadOptions>;
-      const options = normalizeLoadOptions(defaultLoadOptions, input);
-
-      expect(warnSpy).toHaveBeenCalledTimes(2);
-      expect(options).not.toHaveProperty('lockIntegrationsVersion');
-      expect(options).not.toHaveProperty('lockPluginsVersion');
-      warnSpy.mockRestore();
-    });
-
-    it('should not warn when removed options are absent', () => {
-      const warnSpy = jest.spyOn(defaultLogger, 'warn').mockImplementation(() => {});
-      normalizeLoadOptions(defaultLoadOptions, {});
-      expect(warnSpy).not.toHaveBeenCalled();
-      warnSpy.mockRestore();
-    });
+        expect(normalizeLoadOptions(defaultLoadOptions, input)).toEqual({
+          ...defaultLoadOptions,
+          plugins: defaultOptionalPluginsList,
+        });
+      },
+    );
 
     describe('dataPlaneEventsBufferTimeout', () => {
       const testCaseData: any[] = [

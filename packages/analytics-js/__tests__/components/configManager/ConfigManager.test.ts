@@ -131,7 +131,6 @@ describe('ConfigManager', () => {
         lockIntegrationsVersion: !lockVersion,
         lockPluginsVersion: !lockVersion,
       } as Partial<LoadOptions>,
-      defaultLogger,
     );
     state.lifecycle.writeKey.value = sampleWriteKey;
     state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
@@ -149,7 +148,6 @@ describe('ConfigManager', () => {
     const sourceConfigURL = new URL(state.lifecycle.sourceConfigUrl.value);
     expect(sourceConfigURL.searchParams.get('lockIntegrationsVersion')).toBe(String(lockVersion));
     expect(sourceConfigURL.searchParams.get('lockPluginsVersion')).toBe(String(lockVersion));
-    expect(defaultLogger.warn).toHaveBeenCalledTimes(2);
   });
 
   it('should preserve custom base URLs when build locking is enabled', () => {
