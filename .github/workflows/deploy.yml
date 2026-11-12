@@ -169,6 +169,12 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
+      - name: Validate moving CDN destination inputs
+        env:
+          SDK_DESTINATION: ${{ inputs.s3_dir_path }}
+          LEGACY_DESTINATION: ${{ inputs.s3_dir_path_legacy }}
+        run: node scripts/cdn-publish/cli.js assert-moving "$SDK_DESTINATION" "$LEGACY_DESTINATION"
+
       - name: Setup workspace
         env:
           HUSKY: 0
@@ -188,21 +194,36 @@ jobs:
           npm run build:browser
           npm run build:browser:modern
 
-      - name: Generate zip files for integrations and plugins
-        run: |
-          # Generate a zip file of all the integrations
-          tmp_file="/tmp/legacy_${{ env.INTEGRATIONS_ZIP_FILE }}"
-          tar -czvf "$tmp_file" -C "${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/legacy/js-integrations/" .
-          mv "$tmp_file" "${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/legacy/js-integrations/${{ env.INTEGRATIONS_ZIP_FILE }}"
-          
-          tmp_file="/tmp/modern_${{ env.INTEGRATIONS_ZIP_FILE }}"
-          tar -czvf "$tmp_file" -C "${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/modern/js-integrations/" .
-          mv "$tmp_file" "${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/modern/js-integrations/${{ env.INTEGRATIONS_ZIP_FILE }}"
-          
-          # Generate a zip file of all the plugins
-          tmp_file="/tmp/${{ env.PLUGINS_ZIP_FILE }}"
-          tar -czvf "$tmp_file" -C ${{ env.PLUGINS_ARTIFACTS_BASE_PATH }}/modern/plugins/ .
-          mv "$tmp_file" "${{ env.PLUGINS_ARTIFACTS_BASE_PATH }}/modern/plugins/${{ env.PLUGINS_ZIP_FILE }}"
+      - name: Generate archives for integrations and plugins
+        env:
+          INPUT_ENVIRONMENT: ${{ inputs.environment }}
+        run: node scripts/cdn-publish/cli.js archives
+
+      - name: Assemble versioned publication trees and release manifests
+        if: ${{ inputs.environment == 'production' }}
+        env:
+          BASE_CDN_URL: ${{ inputs.base_cdn_url }}
+        run: node scripts/cdn-publish/cli.js prepare
+
+      - name: Preserve versioned release manifests
+        if: ${{ inputs.environment == 'production' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: cdn-release-manifests
+          path: .cdn-publication/*/manifest.json
+          include-hidden-files: true
+          if-no-files-found: error
+
+      # Every version is checked before any production upload. All versioned trees
+      # must pass S3 key-set and CDN byte verification before moving paths are promoted.
+      - name: Publish and verify immutable SDK, legacy and loader versions
+        if: ${{ inputs.environment == 'production' }}
+        env:
+          BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
+          DISTRIBUTION_ID: ${{ secrets.AWS_CF_DISTRIBUTION_ID }}
+          BASE_CDN_URL: ${{ inputs.base_cdn_url }}
+          VERSIONED_CACHE_CONTROL: ${{ env.CACHE_CONTROL_MAX_AGE }}
+        run: node scripts/cdn-publish/cli.js publish
 
       - name: Copy assets to S3
         if: ${{ inputs.environment == 'production' }}
@@ -226,74 +247,6 @@ jobs:
           else
             echo "CACHE_CONTROL=${{ env.CACHE_CONTROL_MAX_AGE }}" >> $GITHUB_ENV
           fi
-
-      # IMPORTANT: We're deliberately copying the artifacts to versioned directory ahead of
-      # of the common production paths to avoid any downtime in production
-      - name: Copy SDK plugins and integrations artifacts to S3 (versioned directory)
-        if: ${{ inputs.environment == 'production' }}
-        env:
-          BASE_CDN_URL: ${{ inputs.base_cdn_url }}
-        run: |
-          s3_relative_path_prefix="${{ env.CURRENT_VERSION_VALUE }}"
-          s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/$s3_relative_path_prefix"
-          copy_args="--recursive --cache-control ${{ env.CACHE_CONTROL_MAX_AGE }}"
-
-          # Copy all the files to S3
-          aws s3 cp ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/legacy/js-integrations/ $s3_path_prefix/legacy/js-integrations/ $copy_args
-          aws s3 cp ${{ env.PLUGINS_ARTIFACTS_BASE_PATH }}/modern/plugins/ $s3_path_prefix/modern/plugins/ $copy_args
-          aws s3 cp ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
-
-          # Generate the HTML file to list all the integrations
-          ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/legacy/js-integrations ${{ env.INTEGRATIONS_HTML_FILE }} ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/legacy/js-integrations "Device Mode Integrations (Legacy)" ${{ env.INTEGRATIONS_ZIP_FILE }} "$BASE_CDN_URL"
-
-          ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/modern/js-integrations ${{ env.INTEGRATIONS_HTML_FILE }} ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/modern/js-integrations "Device Mode Integrations (Modern)" ${{ env.INTEGRATIONS_ZIP_FILE }} "$BASE_CDN_URL"
-
-          # Generate the HTML file to list all the plugins
-          ./scripts/list-sdk-components.sh ${{ secrets.AWS_S3_BUCKET_NAME }} $s3_relative_path_prefix/modern/plugins ${{ env.PLUGINS_HTML_FILE }} ${{ env.PLUGINS_ARTIFACTS_BASE_PATH }}/modern/plugins "Plugins" ${{ env.PLUGINS_ZIP_FILE }} "$BASE_CDN_URL"
-
-          # Copy the HTML files to S3
-          aws s3 cp ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/legacy/js-integrations/${{ env.INTEGRATIONS_HTML_FILE }} $s3_path_prefix/legacy/js-integrations/${{ env.INTEGRATIONS_HTML_FILE }} --cache-control ${{ env.CACHE_CONTROL_MAX_AGE }}
-          aws s3 cp ${{ env.INTEGRATIONS_ARTIFACTS_BASE_PATH }}/modern/js-integrations/${{ env.INTEGRATIONS_HTML_FILE }} $s3_path_prefix/modern/js-integrations/${{ env.INTEGRATIONS_HTML_FILE }} --cache-control ${{ env.CACHE_CONTROL_MAX_AGE }}
-          aws s3 cp ${{ env.PLUGINS_ARTIFACTS_BASE_PATH }}/modern/plugins/${{ env.PLUGINS_HTML_FILE }} $s3_path_prefix/modern/plugins/${{ env.PLUGINS_HTML_FILE }} --cache-control ${{ env.CACHE_CONTROL_MAX_AGE }}
-
-      - name: Copy SDK core artifacts to S3 (versioned directory)
-        if: ${{ inputs.environment == 'production' }}
-        run: |
-          s3_relative_path_prefix="${{ env.CURRENT_VERSION_VALUE }}"
-          s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/$s3_relative_path_prefix"
-          copy_args="--recursive --cache-control ${{ env.CACHE_CONTROL_MAX_AGE }}"
-
-          # Copy all the files to S3
-          aws s3 cp ${{ env.CORE_ARTIFACTS_BASE_PATH }}/legacy/iife/ $s3_path_prefix/legacy/ $copy_args
-          aws s3 cp ${{ env.CORE_ARTIFACTS_BASE_PATH }}/modern/iife/ $s3_path_prefix/modern/ $copy_args
-
-      # Note: Although, it might seem like this step is not required when a new version is deployed,
-      # as these artifacts are copied for the first time, we're invalidating the cache for the case
-      # where a release only contains changes to the integrations or plugins or both and the new artifacts 
-      # are replaced with the old ones in the versioned directory.
-      - name: Invalidate CloudFront cache for all the SDK artifacts (versioned directory)
-        if: ${{ inputs.environment == 'production' }}
-        run: |
-          invalidation_id=$(AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/${{ env.CURRENT_VERSION_VALUE }}*" --query "Invalidation.Id" --output text)
-
-          aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --id "$invalidation_id"
-
-      # `aws s3 cp` exiting 0 says nothing about whether every chunk landed, and
-      # nothing else in the pipeline ever fetches a published URL. The pinned
-      # plugin directory is what the core will point its remote imports at, and
-      # the integrations beside it are loaded by name at runtime, so a partial
-      # upload has to fail the job here -- deliberately before the core is
-      # copied to the common production path below, which is the ordering the
-      # versioned-first upload above exists to preserve.
-      - name: Verify published SDK plugin and integration artifacts (versioned directory)
-        if: ${{ inputs.environment == 'production' }}
-        uses: ./.github/actions/verify-cdn-artifacts
-        with:
-          base_cdn_url: ${{ inputs.base_cdn_url }}
-          verify_plugins: 'true'
-          verify_integrations: 'true'
-          sdk_version: ${{ env.CURRENT_VERSION_VALUE }}
-          plugins_src: ${{ env.PLUGINS_ARTIFACTS_BASE_PATH }}/modern/plugins
 
       - name: Copy SDK plugins and integrations artifacts to S3
         # IMPORTANT: We're deliberately avoiding copying these artifacts for the production environment
@@ -360,11 +313,7 @@ jobs:
           BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
           BASE_DIR: ${{ env.LOADER_CDN_BASE_DIR }}
           LATEST_CACHE_CONTROL: ${{ env.CACHE_CONTROL }}
-          VERSIONED_CACHE_CONTROL: ${{ env.CACHE_CONTROL_MAX_AGE }}
           SRC: ${{ env.LOADER_ARTIFACTS_BASE_PATH }}
-          # `aws s3 cp` infers this from the extension; `put-object` below does
-          # not, and would default to binary/octet-stream.
-          CONTENT_TYPE: "text/javascript"
         run: |
           case "${ENVIRONMENT}" in
             production) env_prefix="" ;;
@@ -380,48 +329,9 @@ jobs:
             aws s3 cp "${SRC}/${artifact}" "${latest_path}/${artifact}" "${latest_args[@]}"
           done
 
-          # Production also keeps an immutable copy at the loading-scripts
-          # package version, so a pinned URL never moves under a caller.
-          #
-          # The release command skips ci/chore/docs/test commits, so a loader
-          # change can land without bumping that version. The upload is
-          # therefore conditional on the key not existing: S3 itself rejects a
-          # write over an existing pinned copy with PreconditionFailed, which is
-          # the only failure treated as "already published". Anything else --
-          # credentials, throttling, a network blip -- fails the deployment
-          # instead of overwriting.
-          if [ "${ENVIRONMENT}" = "production" ]; then
-            loader_version=$(node -p "require('./packages/loading-scripts/package.json').version")
-
-            for artifact in loader.js loader.min.js loader-gtm.js loader-gtm.min.js; do
-              key="${BASE_DIR}/${loader_version}/${artifact}"
-
-              if put_output=$(aws s3api put-object \
-                   --bucket "${BUCKET_NAME}" \
-                   --key "${key}" \
-                   --body "${SRC}/${artifact}" \
-                   --content-type "${CONTENT_TYPE}" \
-                   --cache-control "${VERSIONED_CACHE_CONTROL}" \
-                   --if-none-match '*' 2>&1); then
-                echo "published ${key}"
-                continue
-              fi
-
-              case "${put_output}" in
-                *PreconditionFailed*)
-                  echo "::warning::${key} already exists and was left untouched. Bump the loading-scripts package version to publish a new pinned copy."
-                  ;;
-                *)
-                  echo "${put_output}" >&2
-                  exit 1
-                  ;;
-              esac
-            done
-          fi
-
       # The loader lives outside the s3_dir_path prefix, so the SDK artifact
-      # invalidation below does not reach it. Only the latest path needs it --
-      # the versioned copies are immutable.
+      # invalidation below does not reach it. Versioned loader invalidation and
+      # verification have already completed in the immutable publication step.
       - name: Invalidate CloudFront cache for the SDK loader
         env:
           ENVIRONMENT: ${{ inputs.environment }}
@@ -560,37 +470,21 @@ jobs:
           aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/js-integrations/ $copy_args
           aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
 
+      - name: Promote verified v1.1 integration listings
+        if: ${{ inputs.environment == 'production' }}
+        env:
+          BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
+          S3_DIR_PATH_LEGACY: ${{ inputs.s3_dir_path_legacy }}
+          LATEST_CACHE_CONTROL: ${{ env.CACHE_CONTROL_NO_STORE }}
+        run: |
+          for dir in js-integrations modern/js-integrations; do
+            aws s3 cp ".cdn-publication/legacy/${dir}/list.html" "s3://${BUCKET_NAME}/${S3_DIR_PATH_LEGACY}/${dir}/list.html" --cache-control "${LATEST_CACHE_CONTROL}"
+          done
+
       - name: Invalidate CloudFront cache for all the legacy SDK artifacts
         env:
           S3_DIR_PATH_LEGACY: ${{ inputs.s3_dir_path_legacy }}
         run: |
           invalidation_id=$(AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/${S3_DIR_PATH_LEGACY}*" --query "Invalidation.Id" --output text)
-
-          aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --id "$invalidation_id"
-
-      - name: Copy legacy SDK artifacts to S3 (versioned directory)
-        if: ${{ inputs.environment == 'production' }}
-        run: |
-          core_sdk_path_prefix="packages/analytics-v1.1/dist/cdn"
-          integration_sdks_path_prefix="packages/analytics-js-integrations/dist/cdn"
-          s3_path_prefix="s3://${{ secrets.AWS_S3_BUCKET_NAME }}/${{ env.CURRENT_VERSION_V1_VALUE }}"
-          copy_args="--recursive --cache-control ${{ env.CACHE_CONTROL_MAX_AGE }}"
-
-          aws s3 cp $core_sdk_path_prefix/legacy/ $s3_path_prefix/ $copy_args
-          aws s3 cp $core_sdk_path_prefix/modern/ $s3_path_prefix/modern/ $copy_args
-
-          aws s3 cp $integration_sdks_path_prefix/legacy/js-integrations/ $s3_path_prefix/js-integrations/ $copy_args
-          aws s3 cp $integration_sdks_path_prefix/modern/js-integrations/ $s3_path_prefix/modern/js-integrations/ $copy_args
-
-      # Note: Although, it might seem like this step is not required when a new version is deployed,
-      # as these artifacts are copied for the first time, we're invalidating the cache for the case
-      # where a release only contains changes to the integrations or plugins or both and the new artifacts 
-      # are replaced with the old ones in the versioned directory.
-      # 
-      # These version directory artifacts of legacy SDK are not actually used in production but to be in parity with the v3 SDK 
-      # we're performing the same operation.
-      - name: Invalidate CloudFront cache for all the legacy SDK artifacts (versioned directory)
-        run: |
-          invalidation_id=$(AWS_MAX_ATTEMPTS=10 aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --paths "/${{ env.CURRENT_VERSION_V1_VALUE }}*" --query "Invalidation.Id" --output text)
 
           aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION_ID }} --id "$invalidation_id"

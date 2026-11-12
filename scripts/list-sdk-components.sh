@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -o pipefail
+
 if [ "$#" -ne 7 ]; then
     echo "Error: Incorrect number of arguments"
     echo "Usage: $0 <BUCKET_NAME> <DIRECTORY_PATH> <OUTPUT_HTML_FILE_NAME> <OUTPUT_HTML_DIR_PATH> <COMPONENT_NAME> <ZIP_FILE_NAME> <CDN_URL_HOST>"
