@@ -8,6 +8,7 @@
 > Every observed idiom includes a `file:line` reference.
 
 ## Core Runtime Patterns (RUD-2781)
+
 <!-- linear:RUD-2781 -->
 
 - Public API guards use `try/catch` with centralized dispatch (`dispatchErrorEvent`) so facade methods fail soft instead of throwing to callers (`packages/analytics-js/src/app/RudderAnalytics.ts::RudderAnalytics.load`).
@@ -26,6 +27,7 @@
 ## AI-1258 — Bing Ads Event ID Deduplication Tests
 
 - For Bing Ads event deduplication, pair browser-level payload tests with direct utility tests for `getEventId` precedence/exclusion so the FacebookPixel-compatible resolution order (`traits.event_id` → `context.traits.event_id` → `properties.event_id` → `messageId`) remains explicit and easier to diagnose if regressions occur (`packages/analytics-js-integrations/__tests__/integrations/BingAds/browser.test.js`, `packages/analytics-js-integrations/__tests__/integrations/BingAds/utils.test.js`).
+
 ## ANA-123 — Sanity Suite SourceConfig Fixture Parity
 
 - Sanity-suite sourceConfig fixtures must mirror live sourceConfig destination configs exactly except explicitly ignored fields; Amplitude web device-mode fixture configs include flattened `config.sdkVersion: 1` after `config.residencyServer` in `packages/sanity-suite/__fixtures__/sourceConfig1.json` and `packages/sanity-suite/__fixtures__/sourceConfigDMT1.json`.
@@ -35,6 +37,7 @@
 - DCM Floodlight device-mode per-event `floodlightActivityTag`, `floodlightGroupTag`, and `floodlightCountingMethod` should be treated as absent when blank or whitespace-only, then resolved independently with `?.trim() ||` the destination-level default (`packages/analytics-js-integrations/src/integrations/DCMFloodlight/browser.js`).
 - Per-track DCM Floodlight overrides should remain local values passed through the track flow rather than being written to `this.*`, so a persistent SPA integration instance does not carry one event's tags or counting method into later events (`packages/analytics-js-integrations/src/integrations/DCMFloodlight/browser.js`).
 - Resolve and trim DCM Floodlight activity/group tags inside `track()`, validate the resolved local tags there, and keep `trackWithGtag()`/`trackWithIframe()` as consumers of already-resolved values instead of duplicating tag validation in those transport helpers (`packages/analytics-js-integrations/src/integrations/DCMFloodlight/browser.js`).
+
 ## INT-6982 — Google Ads Enhanced Conversions Identify Match Keys
 
 - Google Ads device-mode Enhanced Conversions identify validation in `packages/analytics-js-integrations/src/integrations/GoogleAds/browser.js` accepts non-empty traits when either `traits.email` is truthy or the complete address match-key group (`firstName`, `lastName`, `postalCode`, `country`) is truthy; `phone` is optional and is passed through by `generateUserDataPayload` when available.
@@ -68,3 +71,9 @@
 ## SDK-5671 — CleverTap Preloaded Global Normalization
 
 - CleverTap device-mode initialization preserves object-valued preload queues, but resets a truthy primitive `window.clevertap` (such as a string, number, or boolean) to `{}` before adding queue properties; a loaded SDK object is still reset through the existing `getAccountID` path, while function-valued globals keep their queues (`packages/analytics-js-integrations/src/integrations/Clevertap/browser.js`, `packages/analytics-js-integrations/__tests__/integrations/Clevertap/browser.test.js`).
+
+## INT-7311 — Sentry CDN Loading
+
+- Load the versioned Sentry 7.120.4 ES5 bundle before its matching ES5 RewriteFrames add-on. Only load the add-on for non-empty include paths. The add-on exposes the `window.Sentry.rewriteFramesIntegration` factory.
+- Wait for the managed scripts to load before initializing Sentry. Initialize once per destination instance. Use `parentNode.removeChild` to replace stale or failed scripts because IE11 lacks `Element.remove`.
+- Pin both vendor artifacts with the SHA-384 values from Sentry's release registry. Project-specific loader URLs cannot be derived from the existing DSN-only configuration.
