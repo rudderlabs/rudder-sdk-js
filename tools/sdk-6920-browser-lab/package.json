@@ -1,0 +1,11 @@
+{
+  "name": "sdk-6920-browser-lab",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node run.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.65.1"
+  }
+}
