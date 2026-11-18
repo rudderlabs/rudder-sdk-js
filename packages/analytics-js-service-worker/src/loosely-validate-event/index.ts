@@ -1,11 +1,27 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 import type from 'component-type';
 import join from 'join-component';
-import assert from 'assert';
 
 // RudderStack messages can be a maximum of 32kb.
 // eslint-disable-next-line no-bitwise
 const MAX_SIZE = 32 << 10;
+
+const assert = (condition: unknown, message: string): void => {
+  if (condition) {
+    return;
+  }
+
+  const error = new Error(message);
+  error.name = 'AssertionError';
+  throw Object.assign(error, {
+    code: 'ERR_ASSERTION',
+    generatedMessage: false,
+    actual: condition,
+    expected: true,
+    operator: '==',
+    toString: () => `AssertionError [ERR_ASSERTION]: ${error.message}`,
+  });
+};
 
 /**
  * Validate a "track" event.
