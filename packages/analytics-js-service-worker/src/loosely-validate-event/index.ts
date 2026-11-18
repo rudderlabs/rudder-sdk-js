@@ -115,10 +115,7 @@ const validateGenericEvent = (event: any) => {
       rule = [rule];
     }
     const a = rule[0] === 'object' ? 'an' : 'a';
-    assert(
-      rule.some((e: any) => type(val) === e),
-      `"${key}" must be ${a} ${join(rule, 'or')}.`,
-    );
+    assert(rule.includes(type(val)), `"${key}" must be ${a} ${join(rule, 'or')}.`);
   }
 };
 

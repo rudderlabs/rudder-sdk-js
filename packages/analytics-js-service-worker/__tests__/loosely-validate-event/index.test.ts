@@ -26,7 +26,23 @@ describe('Loosely validate event', () => {
   });
 
   it('should require a valid event type', () => {
-    expect(() => looselyValidateEvent({ type: 'foo' })).toThrow('Invalid event type: "foo"');
+    expect.assertions(3);
+
+    try {
+      looselyValidateEvent({ type: 'foo' });
+    } catch (error) {
+      expect(error).toBeInstanceOf(Error);
+      expect(error).toMatchObject({
+        name: 'AssertionError',
+        code: 'ERR_ASSERTION',
+        message: 'Invalid event type: "foo"',
+        actual: 0,
+        expected: true,
+        operator: '==',
+        generatedMessage: false,
+      });
+      expect(String(error)).toBe('AssertionError [ERR_ASSERTION]: Invalid event type: "foo"');
+    }
   });
 
   it('should require anonymousId or userId on track events', () => {
