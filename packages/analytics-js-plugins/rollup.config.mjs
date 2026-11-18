@@ -1,3 +1,4 @@
+import { cdnBuildMetadata } from '../../scripts/build-metadata.mjs';
 import path from 'path';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
@@ -158,6 +159,7 @@ export function getDefaultConfig(distName) {
           },
         }),
       isLocalServerEnabled && livereload(),
+      isCDNPackageBuild && cdnBuildMetadata(pkg, isLegacyBuild ? 'legacy' : 'modern'),
     ],
   };
 }

@@ -59,7 +59,9 @@
     "release:nx": "nx release --skip-publish --verbose --dry-run",
     "release:github": "nx affected --target=github --parallel=1 --skipCommitTypes=docs,ci,chore,test",
     "reset:nx": "nx reset",
-    "deploy:npm": "nx affected --target=deploy --parallel=1 --skipCommitTypes=docs,ci,chore,test"
+    "deploy:npm": "nx affected --target=deploy --parallel=1 --skipCommitTypes=docs,ci,chore,test",
+    "test:build-metadata": "node --test scripts/build-metadata.test.mjs",
+    "test:build-metadata:build": "node --test scripts/build-metadata-build.test.mjs"
   },
   "author": "RudderStack",
   "license": "MIT",

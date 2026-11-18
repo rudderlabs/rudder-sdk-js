@@ -1,6 +1,10 @@
 /* eslint-disable no-console */
 import { exec } from 'child_process';
 import { cpus } from 'os';
+// Shared build tooling lives outside Nx projects.
+// eslint-disable-next-line @nx/enforce-module-boundaries
+import { writeBuildMetadata } from '../../../scripts/build-metadata.mjs';
+import pkg from '../package.json' with { type: 'json' };
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { configToIntNames } from '../../analytics-js-legacy-utilities/src/config_to_integration_names.js';
 
@@ -72,6 +76,12 @@ function buildIntegrations() {
       // Force exit to indicate failure
       process.exit(1);
     }
+    const variant = process.env.BROWSERSLIST_ENV === 'modern' ? 'modern' : 'legacy';
+    const files = intgNamesArr.flatMap(name => [`${name}.min.js`, `${name}.min.js.map`]);
+    writeBuildMetadata(`dist/cdn/${variant}/js-integrations`, pkg, variant, files).catch(error => {
+      console.error(error);
+      process.exitCode = 1;
+    });
   }
 }
 
