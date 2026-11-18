@@ -89,3 +89,6 @@ tsconfig.build.tsbuildinfo
 .angular/
 build/
 vendor/
+
+# Locally assembled CDN publication trees
+.cdn-publication/
