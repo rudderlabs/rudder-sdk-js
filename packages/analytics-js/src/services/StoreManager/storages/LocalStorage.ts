@@ -1,18 +1,27 @@
-import store from 'storejs';
 import type { ILocalStorageOptions, IStorage } from '@rudderstack/analytics-js-common/types/Store';
 import type { ILogger } from '@rudderstack/analytics-js-common/types/Logger';
 import { mergeDeepRight } from '@rudderstack/analytics-js-common/utilities/object';
-import { isUndefined } from '@rudderstack/analytics-js-common/utilities/checks';
 import { LOCAL_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import type { Nullable } from '@rudderstack/analytics-js-common/types/Nullable';
 import { isStorageAvailable } from '@rudderstack/analytics-js-common/utilities/storage';
 import { defaultLogger } from '../../Logger';
+import { LOCAL_STORAGE_PROBE_KEY } from '../../../constants/storage';
 import { getDefaultLocalStorageOptions } from './defaultOptions';
+import { InMemoryStorage } from './InMemoryStorage';
 
-// TODO: can we remove the storejs dependency to save bundle size?
-//  check if the get, set overloads and search methods are used at all
-//  if we do, ensure we provide types to support overloads as per storejs docs
-//  https://www.npmjs.com/package/storejs
+const selectStorage = (): Storage => {
+  try {
+    const storage = window.localStorage;
+    storage.setItem(LOCAL_STORAGE_PROBE_KEY, 'yes');
+    storage.removeItem(LOCAL_STORAGE_PROBE_KEY);
+    return storage;
+  } catch {
+    return new InMemoryStorage();
+  }
+};
+
+const storage = selectStorage();
+
 /**
  * A storage utility to persist values in localstorage via Storage interface
  */
@@ -35,24 +44,36 @@ class LocalStorage implements IStorage {
     return this.options;
   }
 
-  setItem(key: string, value: any) {
-    store.set(key, value);
-    this.length = store.len();
+  setItem(key: string, value: unknown) {
+    if (key) {
+      // Keep the same encoding used by existing SDK storage entries.
+      const encoded =
+        typeof value === 'function' ? String(value) : (JSON.stringify(value) ?? 'undefined');
+      storage.setItem(key, encoded);
+    }
+    this.length = storage.length;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   getItem(key: string): any {
-    const value = store.get(key);
-    return isUndefined(value) ? null : value;
+    const value = storage.getItem(key);
+    if (typeof value !== 'string') {
+      return null;
+    }
+
+    try {
+      return JSON.parse(value);
+    } catch {
+      return value;
+    }
   }
 
   removeItem(key: string) {
-    store.remove(key);
-    this.length = store.len();
+    storage.removeItem(key);
+    this.length = storage.length;
   }
 
   clear() {
-    store.clear();
+    storage.clear();
     this.length = 0;
   }
 
@@ -61,9 +82,16 @@ class LocalStorage implements IStorage {
     return curKeys[index] ?? null;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   keys(): string[] {
-    return store.keys();
+    const keys: string[] = [];
+    const { length } = storage;
+    for (let index = 0; index < length; index += 1) {
+      const key = storage.key(index);
+      if (key !== null) {
+        keys.push(key);
+      }
+    }
+    return keys;
   }
 }
 

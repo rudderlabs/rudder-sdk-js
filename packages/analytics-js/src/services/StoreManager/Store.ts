@@ -126,7 +126,7 @@ class Store implements IStore {
     }
 
     try {
-      // storejs that is used in localstorage engine already stringifies json
+      // The local storage engine JSON-encodes this string before writing it.
       this.engine.setItem(
         validKey,
         this.encrypt(stringifyWithoutCircular(value, false, [], this.logger)),
@@ -172,7 +172,7 @@ class Store implements IStore {
       }
 
       isRetrieved = true;
-      // storejs that is used in localstorage engine already deserializes json strings but swallows errors
+      // The local storage engine has already decoded the outer storage value.
       return JSON.parse(decryptedValue as string);
     } catch (err) {
       // Both encryption plugins, and `crypto` with no decrypt extension point registered, return
@@ -183,7 +183,7 @@ class Store implements IStore {
       // poll, and only while the entry still holds what was read. Web Storage has no conditional
       // delete, so that narrows rather than closes the window in which another tab's write is
       // dropped; the cost there is a restarted reclaim handshake, since queued events are written
-      // only by the context that owns the store. The compare is serialized because storejs
+      // only by the context that owns the store. The compare is serialized because local storage
       // deserializes on every read, and uses `JSON.stringify` because `stringifyWithoutCircular`
       // returns null on failure, which would make two unserializable values compare equal.
       try {
@@ -269,7 +269,7 @@ class Store implements IStore {
    * Handle errors
    */
   onError(error: unknown, customMessage?: string, groupingHash?: string) {
-    this.errorHandler.onError({
+    void this.errorHandler.onError({
       error,
       context: `Store ${this.id}`,
       customMessage,

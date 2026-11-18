@@ -1,4 +1,4 @@
-import is from 'is';
+import { isDate } from '../../utils/typeChecks';
 import { toIso, isDefinedAndNotNull, flattenJson } from '../../utils/commonUtils';
 
 // Heap accepts only string, boolean and number
@@ -11,7 +11,7 @@ const processHeapProperties = propertiesJson => {
     const value = propertiesJsonFlattened[key];
     if (isDefinedAndNotNull(value)) {
       // check if date. Then convert to iso.
-      if (is.date(value)) {
+      if (isDate(value)) {
         processedProperties[key] = toIso(value);
       } else {
         processedProperties[key] = value;

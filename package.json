@@ -90,7 +90,6 @@
     "deep-object-diff": "1.1.9",
     "error-stack-parser": "2.1.4",
     "get-value": "4.1.0",
-    "is": "3.3.2",
     "join-component": "1.1.0",
     "lodash.get": "4.4.2",
     "lodash.isempty": "4.4.0",

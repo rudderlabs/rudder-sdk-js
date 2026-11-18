@@ -173,7 +173,6 @@
     "@rudderstack/analytics-js-common": "*",
     "@rudderstack/analytics-js-cookies": "*",
     "@rudderstack/analytics-js-plugins": "*",
-    "ramda": "0.32.0",
-    "storejs": "2.1.1"
+    "ramda": "0.32.0"
   }
 }

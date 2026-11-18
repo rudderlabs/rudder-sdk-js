@@ -177,3 +177,49 @@ describe('GA init tests', () => {
     });
   });
 });
+
+describe('GA boxed boolean and ecommerce mapping', () => {
+  const previousGa = window.ga;
+
+  afterEach(() => {
+    window.ga = previousGa;
+  });
+
+  it.each([
+    ['Order Completed', false, 'ecommerce:addItem'],
+    ['Checkout Started', true, 'ec:addProduct'],
+    ['Order Completed', true, 'ec:addProduct'],
+    ['Product List Viewed', true, 'ec:addImpression'],
+    ['Product List Filtered', true, 'ec:addImpression'],
+  ])(
+    'maps the product for %s with enhanced ecommerce set to %s',
+    (event, enhancedEcommerce, command) => {
+      window.ga = jest.fn();
+      const integration = new GA(
+        {
+          trackingID: trackingId,
+          enhancedEcommerce,
+          dimensions: [{ from: 'available', to: 'dimension1' }],
+        },
+        {},
+        destinationInfo,
+      );
+      integration.init();
+
+      integration.track({
+        message: {
+          context: {},
+          event,
+          properties: {
+            order_id: 'order-1',
+            currency: 'USD',
+            products: [{ product_id: 'product-1', name: 'Example', available: Object(false) }],
+          },
+        },
+      });
+
+      const expected = enhancedEcommerce ? { dimension1: 'false' } : { name: 'Example' };
+      expect(window.ga).toHaveBeenCalledWith(command, expect.objectContaining(expected));
+    },
+  );
+});

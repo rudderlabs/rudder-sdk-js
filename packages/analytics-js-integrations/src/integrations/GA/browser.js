@@ -1,5 +1,5 @@
 /* eslint-disable class-methods-use-this */
-import is from 'is';
+import { isBoolean } from '../../utils/typeChecks';
 import each from 'component-each';
 import { ScriptLoader } from '@rudderstack/analytics-js-legacy-utilities/ScriptLoader';
 import { NAME, DISPLAY_NAME } from './constants';
@@ -173,7 +173,6 @@ export default class GA {
 
   // eslint-disable-next-line sonarjs/cognitive-complexity
   track(rudderElement) {
-    const self = this;
     // Ecommerce events
     const { event, properties, name, context } = rudderElement.message;
     let { total } = properties;
@@ -225,7 +224,7 @@ export default class GA {
       if (Array.isArray(products)) {
         // products added
         products.forEach(product => {
-          const productTrack = self.createProductTrack(rudderElement, product);
+          const productTrack = this.createProductTrack(rudderElement, product);
 
           window.ga(`${this.trackerName}ecommerce:addItem`, {
             category: productTrack.properties.category,
@@ -250,10 +249,10 @@ export default class GA {
         case 'Order Updated':
           this.loadEnhancedEcommerce(rudderElement);
           each(products, product => {
-            let productTrack = self.createProductTrack(rudderElement, product);
+            let productTrack = this.createProductTrack(rudderElement, product);
             productTrack = { message: productTrack };
 
-            self.enhancedEcommerceTrackProduct(productTrack);
+            this.enhancedEcommerceTrackProduct(productTrack);
           });
 
           window.ga(`${this.trackerName}ec:setAction`, 'checkout', {
@@ -288,9 +287,9 @@ export default class GA {
           this.loadEnhancedEcommerce(rudderElement);
 
           each(products, product => {
-            let productTrack = self.createProductTrack(rudderElement, product);
+            let productTrack = this.createProductTrack(rudderElement, product);
             productTrack = { message: productTrack };
-            self.enhancedEcommerceTrackProduct(productTrack);
+            this.enhancedEcommerceTrackProduct(productTrack);
           });
           window.ga(`${this.trackerName}ec:setAction`, 'purchase', {
             id: orderId,
@@ -387,15 +386,15 @@ export default class GA {
               brand: item.properties.band,
               variant: item.properties.variant,
               price: item.properties.price,
-              position: self.getProductPosition(item, products),
+              position: this.getProductPosition(item, products),
             };
             impressionObj = {
               ...impressionObj,
-              ...self.metricsFunction(
+              ...this.metricsFunction(
                 item.properties,
-                self.dimensionsArray,
-                self.metricsArray,
-                self.contentGroupingsArray,
+                this.dimensionsArray,
+                this.metricsArray,
+                this.contentGroupingsArray,
               ),
             };
             Object.keys(impressionObj).forEach(key => {
@@ -429,16 +428,16 @@ export default class GA {
               brand: props.brand,
               variant: `${filters}::${sorts}`,
               price: item.price,
-              position: self.getProductPosition(item, products),
+              position: this.getProductPosition(item, products),
             };
 
             impressionObj = {
               impressionObj,
-              ...self.metricsFunction(
+              ...this.metricsFunction(
                 item.properties,
-                self.dimensionsArray,
-                self.metricsArray,
-                self.contentGroupingsArray,
+                this.dimensionsArray,
+                this.metricsArray,
+                this.contentGroupingsArray,
               ),
             };
             Object.keys(impressionObj).forEach(key => {
@@ -629,7 +628,7 @@ export default class GA {
     each([metrics, dimensions, contentGroupings], group => {
       each(group, (prop, key) => {
         let value = obj[prop];
-        if (is.boolean(value)) value = value.toString();
+        if (isBoolean(value)) value = value.toString();
         if (value || value === 0) ret[key] = value;
       });
     });

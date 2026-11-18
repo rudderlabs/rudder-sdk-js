@@ -1,4 +1,4 @@
-import is from 'is';
+import { isDate } from '../../utils/typeChecks';
 import get from 'get-value';
 import sha256 from 'crypto-js/sha256';
 import { NAME, DISPLAY_NAME } from './constants';
@@ -123,7 +123,7 @@ const buildPayLoad = (
 
     const isProperyWhiteListed = whitelistPiiPropertiesNames.includes(currPropName);
 
-    const isDateProp = dateFields.includes(currPropName) && is.date(currPropValue);
+    const isDateProp = dateFields.includes(currPropName) && isDate(currPropValue);
 
     if (isDateProp) {
       [acc[currPropName]] = currPropValue.toISOString().split('T');

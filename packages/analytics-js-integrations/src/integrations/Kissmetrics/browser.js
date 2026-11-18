@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import is from 'is';
+import { isArray, isBoolean, isDate, isNumber, isObject } from '../../utils/typeChecks';
 import extend from '@ndhoule/extend';
 import each from 'component-each';
 import { NAME, DISPLAY_NAME } from './constants';
@@ -35,7 +35,7 @@ class Kissmetrics {
   }
 
   isLoaded() {
-    return is.object(window.KM);
+    return isObject(window.KM);
   }
 
   isReady() {
@@ -60,10 +60,10 @@ class Kissmetrics {
     Object.keys(obj).forEach(key => {
       if (Object.prototype.hasOwnProperty.call(obj, key)) {
         const value = obj[key];
-        if (is.date(value)) {
+        if (isDate(value)) {
           // convert date to unix
           ret[key] = this.toUnixTimestamp(value);
-        } else if (is.bool(value) || is.number(value)) {
+        } else if (isBoolean(value) || isNumber(value)) {
           // leave boolean and  numbers as is
           ret[key] = value;
         } else if (value.toString() !== '[object Object]') {
@@ -78,7 +78,7 @@ class Kissmetrics {
 
           // stringify arrays inside nested object to be consistent with top level behavior of arrays
           Object.keys(flattenedObj).forEach(objKey => {
-            if (is.array(flattenedObj[objKey])) {
+            if (isArray(flattenedObj[objKey])) {
               flattenedObj[objKey] = flattenedObj[objKey].toString();
             }
           });
@@ -106,7 +106,7 @@ class Kissmetrics {
       for (const key in object) {
         if (Object.prototype.hasOwnProperty.call(object, key)) {
           const value = object[key];
-          const isarray = safe && is.array(value);
+          const isarray = safe && isArray(value);
           const type = Object.prototype.toString.call(value);
           const isobject = type === '[object Object]' || type === '[object Array]';
           const arr = [];
