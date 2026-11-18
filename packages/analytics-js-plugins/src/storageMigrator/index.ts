@@ -39,7 +39,7 @@ const StorageMigrator = (): ExtensionPlugin => ({
         // Decrypt using the latest encryption method as well
         decryptedVal = decrypt(decryptedVal) as string;
 
-        // storejs that is used in localstorage engine already deserializes json strings but swallows errors
+        // The local storage engine has already decoded the outer storage value.
         currentVal = JSON.parse(decryptedVal);
 
         // Recursively decrypt the value until we reach a point where the value
@@ -56,7 +56,7 @@ const StorageMigrator = (): ExtensionPlugin => ({
             break;
           }
 
-          // storejs that is used in localstorage engine already deserializes json strings but swallows errors
+          // The local storage engine has already decoded the outer storage value.
           currentVal = JSON.parse(decryptedVal);
         }
 

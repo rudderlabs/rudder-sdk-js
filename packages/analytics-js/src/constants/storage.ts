@@ -1,7 +1,7 @@
 import type { UserSessionKey } from '@rudderstack/analytics-js-common/types/UserSessionStorage';
 
 const STORAGE_TEST_TOP_LEVEL_DOMAIN = '__tld__';
-const STOREJS_IS_INCOGNITO = '_Is_Incognit';
+const LOCAL_STORAGE_PROBE_KEY = '_Is_Incognit';
 
 const CLIENT_DATA_STORE_NAME = 'clientData';
 
@@ -24,7 +24,7 @@ const USER_SESSION_KEYS: UserSessionKey[] = [
 
 export {
   STORAGE_TEST_TOP_LEVEL_DOMAIN,
-  STOREJS_IS_INCOGNITO,
+  LOCAL_STORAGE_PROBE_KEY,
   CLIENT_DATA_STORE_NAME,
   CLIENT_DATA_STORE_COOKIE,
   CLIENT_DATA_STORE_LS,
