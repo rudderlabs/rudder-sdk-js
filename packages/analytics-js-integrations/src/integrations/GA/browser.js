@@ -1,5 +1,5 @@
 /* eslint-disable class-methods-use-this */
-import is from 'is';
+import { isBoolean } from '../../utils/typeChecks';
 import each from 'component-each';
 import { ScriptLoader } from '@rudderstack/analytics-js-legacy-utilities/ScriptLoader';
 import { NAME, DISPLAY_NAME } from './constants';
@@ -629,7 +629,7 @@ export default class GA {
     each([metrics, dimensions, contentGroupings], group => {
       each(group, (prop, key) => {
         let value = obj[prop];
-        if (is.boolean(value)) value = value.toString();
+        if (isBoolean(value)) value = value.toString();
         if (value || value === 0) ret[key] = value;
       });
     });
