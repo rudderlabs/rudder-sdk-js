@@ -37,15 +37,34 @@ describe('LocalStorage', () => {
 
     storage.setItem('added', { count: 1 });
 
-    expect(storage.length).toBe(2);
+    expect(storage).toHaveLength(2);
     expect(storage.keys()).toEqual(['existing', 'added']);
     expect(storage.key(1)).toBe('added');
     expect(storage.key(2)).toBeNull();
 
     storage.removeItem('existing');
-    expect(storage.length).toBe(1);
+    expect(storage).toHaveLength(1);
     storage.clear();
-    expect(storage.length).toBe(0);
+    expect(storage).toHaveLength(0);
+    expect(storage.keys()).toEqual([]);
+  });
+
+  it('ignores empty keys and keeps the legacy string encoding for functions', () => {
+    const storage = new LocalStorage();
+    const value = () => 'example';
+
+    storage.setItem('', 'invalid-key');
+    storage.setItem('function', value);
+
+    expect(window.localStorage.getItem('')).toBeNull();
+    expect(storage.getItem('function')).toBe(String(value));
+  });
+
+  it('skips a key that disappears during enumeration', () => {
+    const storage = new LocalStorage();
+    storage.setItem('existing', 'value');
+    jest.spyOn(Storage.prototype, 'key').mockReturnValueOnce(null);
+
     expect(storage.keys()).toEqual([]);
   });
 

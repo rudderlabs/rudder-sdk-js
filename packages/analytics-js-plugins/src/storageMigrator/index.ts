@@ -63,7 +63,7 @@ const StorageMigrator = (): ExtensionPlugin => ({
         return currentVal;
       } catch (err) {
         const customMessage = STORAGE_MIGRATION_ERROR(key);
-        errorHandler?.onError({
+        void errorHandler?.onError({
           error: err,
           context: STORAGE_MIGRATOR_PLUGIN,
           customMessage,

@@ -269,7 +269,7 @@ class Store implements IStore {
    * Handle errors
    */
   onError(error: unknown, customMessage?: string, groupingHash?: string) {
-    this.errorHandler.onError({
+    void this.errorHandler.onError({
       error,
       context: `Store ${this.id}`,
       customMessage,
