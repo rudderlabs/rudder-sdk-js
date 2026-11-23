@@ -5,10 +5,10 @@ export default {
   rootDir: './',
   coverageThreshold: {
     global: {
-      branches: 0,
-      functions: 0,
-      lines: 0,
-      statements: 0,
+      branches: 16,
+      functions: 27,
+      lines: 30,
+      statements: 30,
     },
   },
 };
