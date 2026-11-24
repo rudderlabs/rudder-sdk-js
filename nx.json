@@ -114,7 +114,10 @@
       "{projectRoot}/jest.config.mjs",
       "{workspaceRoot}/jest/**/*",
       "{workspaceRoot}/jest.preset.js",
-      "{projectRoot}/tsconfig.spec.json"
+      "{projectRoot}/tsconfig.spec.json",
+      {
+        "env": "CI"
+      }
     ]
   },
   "tui": {
