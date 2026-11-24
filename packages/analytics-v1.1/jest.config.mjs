@@ -3,12 +3,16 @@ export default {
   displayName: 'rudder-sdk-js',
   preset: '../../jest.preset.js',
   rootDir: './',
-  coverageThreshold: {
-    global: {
-      branches: 16,
-      functions: 27,
-      lines: 30,
-      statements: 30,
-    },
-  },
+  // Enforced in CI only, so focused local runs (`npm run test -- <path>`) do not fail the package-wide minimum.
+  coverageThreshold:
+    process.env.CI === 'true'
+      ? {
+          global: {
+            branches: 16,
+            functions: 27,
+            lines: 30,
+            statements: 30,
+          },
+        }
+      : undefined,
 };

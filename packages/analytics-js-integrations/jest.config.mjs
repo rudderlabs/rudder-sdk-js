@@ -12,12 +12,16 @@ export default {
     'nativeSdkLoader.js',
     '/integrations/.*/index.js',
   ],
-  coverageThreshold: {
-    global: {
-      branches: 51,
-      functions: 57,
-      lines: 63,
-      statements: 64,
-    },
-  },
+  // Enforced in CI only, so focused local runs (`npm run test -- <path>`) do not fail the package-wide minimum.
+  coverageThreshold:
+    process.env.CI === 'true'
+      ? {
+          global: {
+            branches: 51,
+            functions: 57,
+            lines: 63,
+            statements: 64,
+          },
+        }
+      : undefined,
 };
