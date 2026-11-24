@@ -96,6 +96,8 @@ export function getDefaultConfig(distName, moduleType = 'cdn') {
       }),
       process.env.UGLIFY === 'true' &&
         terser({
+          // Integration builds already run concurrently via integrationBuildScript.js.
+          maxWorkers: 1,
           safari10: isLegacyBuild,
           ecma: isLegacyBuild ? 2015 : 2017,
           format: {

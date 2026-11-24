@@ -53,6 +53,7 @@ export function getDefaultConfig(distName, isGtmBuild = false) {
         sourcemap: false,
       }),
       terser({
+        maxWorkers: 4,
         safari10: true,
         ecma: 5,
         keep_fnames: true,

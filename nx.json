@@ -4,6 +4,7 @@
     "libsDir": "packages"
   },
   "defaultBase": "main",
+  "parallel": 3,
   "release": {
     "projects": ["*"],
     "projectsRelationship": "independent",

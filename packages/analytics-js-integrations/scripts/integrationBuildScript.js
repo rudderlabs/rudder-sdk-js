@@ -9,19 +9,16 @@ const totalIntgCount = intgNamesArr.length;
 let passCount = 0;
 let curInt = 0;
 const numCPUs = cpus().length;
+const MAX_CONCURRENT_BUILDS = 4;
 
 let numRunning = 0;
 let index = 0;
 
-// At any given time, create only processes for
-// max CPUs available
-// Intentionally using 1 less CPU and all cpus in github runner
-let maxAtOnce = numCPUs > 1 ? numCPUs - 1 : 1;
+// Cap concurrent integration builds so memory usage does not depend on host vCPU count.
+const availableCPUs = process.env.CI ? Math.max(numCPUs, 1) : Math.max(numCPUs - 1, 1);
+const maxAtOnce = Math.min(availableCPUs, MAX_CONCURRENT_BUILDS);
 
 console.log(`Environment is CI: ${process.env.CI || false}`);
-if (process.env.CI) {
-  maxAtOnce = numCPUs;
-}
 
 console.log(`Total CPUs to use: ${maxAtOnce}`);
 console.log(`Total integrations to build: ${totalIntgCount}`);
