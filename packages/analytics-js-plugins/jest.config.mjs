@@ -4,12 +4,16 @@ export default {
   preset: '../../jest.preset.js',
   rootDir: './',
   coveragePathIgnorePatterns: ['src/errorReporting/event'],
-  coverageThreshold: {
-    global: {
-      branches: 0,
-      functions: 0,
-      lines: 0,
-      statements: 0,
-    },
-  },
+  // Enforced in CI only, so focused local runs (`npm run test -- <path>`) do not fail the package-wide minimum.
+  coverageThreshold:
+    process.env.CI === 'true'
+      ? {
+          global: {
+            branches: 79,
+            functions: 86,
+            lines: 87,
+            statements: 86,
+          },
+        }
+      : undefined,
 };
