@@ -96,6 +96,7 @@ export function getDefaultConfig(distName, moduleType = 'cdn') {
       }),
       process.env.UGLIFY === 'true' &&
         terser({
+          maxWorkers: 4,
           safari10: isLegacyBuild,
           ecma: isLegacyBuild ? 2015 : 2017,
           format: {
