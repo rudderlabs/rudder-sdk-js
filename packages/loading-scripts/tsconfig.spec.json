@@ -4,7 +4,7 @@
     "outDir": "../../dist/out-tsc",
     "module": "commonjs",
     "noEmit": true,
-    "sourceMap": true,
+    "sourceMap": false,
     "inlineSourceMap": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": false,
@@ -17,6 +17,7 @@
     "__mocks__/**/*.ts",
     "__fixtures__/**/*.ts",
     "src/**/*.ts",
-    "src/**/*.d.ts"
+    "src/**/*.d.ts",
+    "../../types/**/*"
   ]
 }

@@ -17,6 +17,7 @@ stats/
 cdnSDK.js
 cdnSDKv3.js
 dist
+dist-pinned
 
 # misc
 .DS_Store
