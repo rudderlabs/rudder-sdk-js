@@ -116,6 +116,7 @@ export function getDefaultConfig(distName) {
       }),
       process.env.UGLIFY === 'true' &&
         terser({
+          maxWorkers: 4,
           format: {
             comments: false,
           },
