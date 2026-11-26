@@ -133,6 +133,13 @@ jobs:
 
           echo "DATE=$(date)" >> $GITHUB_ENV
 
+      - name: Assert rollback writes only to moving prefixes
+        env:
+          SDK_DESTINATION: ${{ env.LATEST_VERSION_DIR_NAME }}/
+          LEGACY_DESTINATION: ${{ env.LEGACY_SDK_LATEST_VERSION_DIR_NAME }}/
+          LOADER_DESTINATION: ${{ env.LOADER_CDN_BASE_DIR }}/latest/
+        run: node scripts/cdn-publish/cli.js assert-rollback "$SDK_DESTINATION" "$LEGACY_DESTINATION" "$LOADER_DESTINATION"
+
       - name: Copy the core SDK artifacts from the previous version to the latest version directory
         run: |
           s3_path_prefix="s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}"
@@ -166,8 +173,7 @@ jobs:
           aws cloudfront wait invalidation-completed --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --id "$invalidation_id"
 
       # deploy.yml keeps an immutable copy per loading-scripts version; the
-      # first release of a version wins, so it can predate later loader-only
-      # changes that shipped without a version bump.
+      # rollback only copies those bytes to the moving latest prefix.
       - name: Restore the SDK loader scripts from the rollback version
         id: restore-loader
         env:
