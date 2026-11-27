@@ -379,7 +379,7 @@ class UserSessionManager implements IUserSessionManager {
    * @param error The error object
    */
   onError(error: unknown, customMessage?: string, groupingHash?: string): void {
-    this.errorHandler.onError({
+    void this.errorHandler.onError({
       error,
       context: USER_SESSION_MANAGER,
       customMessage,

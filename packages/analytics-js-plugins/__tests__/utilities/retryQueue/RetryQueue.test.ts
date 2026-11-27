@@ -1977,7 +1977,7 @@ describe('Queue', () => {
       batchQueue.stop();
     });
 
-    it('should return false when batch criteria is met and main queue storage fails', () => {
+    it('should return false and preserve previously buffered items when batch criteria is met and main queue storage fails', () => {
       const batchQueue = new RetryQueue(
         'batch_met_reject_test',
         { batch: { enabled: true, maxItems: 2 } },
@@ -1998,21 +1998,62 @@ describe('Queue', () => {
         });
 
       expect(batchQueue.addItem('b')).toBe(false);
-
       setSpy.mockRestore();
+
+      expect(batchQueue.getStorageEntry(QueueStatuses.QUEUE)).toEqual([]);
+      expect(batchQueue.getStorageEntry(QueueStatuses.BATCH_QUEUE)).toEqual([
+        expect.objectContaining({ item: 'a' }),
+      ]);
+
       batchQueue.stop();
     });
 
-    it('should report acceptance of the new item based on batch queue storage when size criteria is exceeded', () => {
+    it('should return false and roll back the main queue when batch criteria is met and clearing batchQueue fails', () => {
+      const processCb = jest.fn((_item, done) => done());
+      const batchQueue = new RetryQueue(
+        'batch_met_clear_fail_test',
+        { batch: { enabled: true, maxItems: 2 } },
+        processCb,
+        defaultStoreManager,
+      );
+      batchQueue.start();
+
+      expect(batchQueue.addItem('a')).toBe(true);
+
+      const originalSet = batchQueue.store.set.bind(batchQueue.store);
+      const setSpy = jest
+        .spyOn(batchQueue.store, 'set')
+        .mockImplementation((key: string, value: any) => {
+          if (key === QueueStatuses.BATCH_QUEUE) {
+            return false;
+          }
+          return originalSet(key, value);
+        });
+
+      expect(batchQueue.addItem('b')).toBe(false);
+      setSpy.mockRestore();
+
+      expect(processCb).not.toHaveBeenCalled();
+      expect(batchQueue.getStorageEntry(QueueStatuses.QUEUE)).toEqual([]);
+      expect(batchQueue.getStorageEntry(QueueStatuses.BATCH_QUEUE)).toEqual([
+        expect.objectContaining({ item: 'a' }),
+      ]);
+
+      batchQueue.stop();
+    });
+
+    it('should return false and roll back the main queue when size criteria is exceeded and batchQueue update fails', () => {
+      const processCb = jest.fn((_item, done) => done());
       const batchQueue = new RetryQueue(
         'batch_exceeded_reject_test',
         { batch: { enabled: true, maxSize: 5 } },
-        jest.fn(),
+        processCb,
         defaultStoreManager,
         undefined,
         undefined,
         (items: []) => items.length * 2,
       );
+      batchQueue.start();
 
       expect(batchQueue.addItem('a')).toBe(true);
       expect(batchQueue.addItem('b')).toBe(true);
@@ -2028,8 +2069,51 @@ describe('Queue', () => {
         });
 
       expect(batchQueue.addItem('c')).toBe(false);
-
       setSpy.mockRestore();
+
+      expect(processCb).not.toHaveBeenCalled();
+      expect(batchQueue.getStorageEntry(QueueStatuses.QUEUE)).toEqual([]);
+      expect(batchQueue.getStorageEntry(QueueStatuses.BATCH_QUEUE)).toEqual([
+        expect.objectContaining({ item: 'a' }),
+        expect.objectContaining({ item: 'b' }),
+      ]);
+
+      batchQueue.stop();
+    });
+
+    it('should return false and preserve buffered items when size criteria is exceeded and main queue write fails', () => {
+      const batchQueue = new RetryQueue(
+        'batch_exceeded_main_fail_test',
+        { batch: { enabled: true, maxSize: 5 } },
+        jest.fn(),
+        defaultStoreManager,
+        undefined,
+        undefined,
+        (items: []) => items.length * 2,
+      );
+
+      expect(batchQueue.addItem('a')).toBe(true);
+      expect(batchQueue.addItem('b')).toBe(true);
+
+      const originalSet = batchQueue.store.set.bind(batchQueue.store);
+      const setSpy = jest
+        .spyOn(batchQueue.store, 'set')
+        .mockImplementation((key: string, value: any) => {
+          if (key === QueueStatuses.QUEUE) {
+            return false;
+          }
+          return originalSet(key, value);
+        });
+
+      expect(batchQueue.addItem('c')).toBe(false);
+      setSpy.mockRestore();
+
+      expect(batchQueue.getStorageEntry(QueueStatuses.QUEUE)).toEqual([]);
+      expect(batchQueue.getStorageEntry(QueueStatuses.BATCH_QUEUE)).toEqual([
+        expect.objectContaining({ item: 'a' }),
+        expect.objectContaining({ item: 'b' }),
+      ]);
+
       batchQueue.stop();
     });
   });

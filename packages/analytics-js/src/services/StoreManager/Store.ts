@@ -132,8 +132,21 @@ class Store implements IStore {
         return false;
       }
 
+      const encryptedValue = this.encrypt(serializedValue);
+      // When an encryption plugin throws, PluginsManager.invokeSingle returns null and
+      // Store.crypto maps that to ''. Reject it so we do not overwrite existing data
+      // with an unreadable empty string and falsely report success.
+      if (
+        this.isEncrypted &&
+        !isNullOrUndefined(serializedValue) &&
+        serializedValue !== '' &&
+        encryptedValue === ''
+      ) {
+        return false;
+      }
+
       // storejs that is used in localstorage engine already stringifies json
-      this.engine.setItem(validKey, this.encrypt(serializedValue));
+      this.engine.setItem(validKey, encryptedValue);
       return true;
     } catch (err) {
       if (isStorageQuotaExceeded(err)) {
@@ -274,7 +287,7 @@ class Store implements IStore {
    * Handle errors
    */
   onError(error: unknown, customMessage?: string, groupingHash?: string) {
-    this.errorHandler.onError({
+    void this.errorHandler.onError({
       error,
       context: `Store ${this.id}`,
       customMessage,

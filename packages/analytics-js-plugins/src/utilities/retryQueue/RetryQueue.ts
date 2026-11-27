@@ -348,96 +348,115 @@ class RetryQueue implements IQueue<QueueItemData> {
 
   enqueue(entry: QueueItem<QueueItemData>): boolean {
     if (this.batch.enabled && entry.type === SINGLE_QUEUE_ITEM_TYPE) {
-      const { curEntry, isEntryInBatchQueue, isBatchQueueStored } =
-        this.handleNewItemForBatch(entry);
-
-      if (curEntry) {
-        const isMainQueueStored = this.pushToMainQueue(curEntry);
-        return isEntryInBatchQueue ? isBatchQueueStored : isMainQueueStored;
-      }
-
-      return isBatchQueueStored;
+      return this.handleNewItemForBatch(entry);
     }
 
     return this.pushToMainQueue(entry);
   }
 
-  /**
-   * Handles a new item added to the retry queue when batching is enabled
-   * @param entry New item added to the retry queue
-   * @returns Batch dispatch entry and persistence status for the new item
-   */
-  handleNewItemForBatch(entry: QueueItem<QueueItemData>): {
-    curEntry?: QueueItem<QueueItemData>;
-    isEntryInBatchQueue: boolean;
-    isBatchQueueStored: boolean;
+  private createBatchQueueItem(batchEntries: QueueItem[]): QueueItem<QueueItemData> {
+    const isReclaimed = batchEntries.every(queueItem => queueItem.reclaimed);
+    const batchItems = batchEntries.map(queueItem => queueItem.item);
+    return isReclaimed
+      ? this.genQueueItem(batchItems, BATCH_QUEUE_ITEM_TYPE, true)
+      : this.genQueueItem(batchItems, BATCH_QUEUE_ITEM_TYPE);
+  }
+
+  private writeToMainQueue(curEntry: QueueItem<QueueItemData>): {
+    isStored: boolean;
+    previousQueue: QueueItem<QueueItemData>[];
   } {
-    let curEntry: QueueItem<QueueItemData> | undefined;
-    let isEntryInBatchQueue = true;
-    let batchQueue =
-      (this.getStorageEntry(QueueStatuses.BATCH_QUEUE) as Nullable<QueueItem[]>) ?? [];
+    const previousQueue =
+      (this.getStorageEntry(QueueStatuses.QUEUE) as Nullable<QueueItem<QueueItemData>[]>) ?? [];
 
-    if (!this.batchingInProgress) {
-      this.batchingInProgress = true;
-      batchQueue = batchQueue.slice(-batchQueue.length);
-      batchQueue.push(entry);
+    const retainedQueue = this.maxItems > 1 ? previousQueue.slice(-(this.maxItems - 1)) : [];
+    const nextQueue = [...retainedQueue, curEntry].sort(sortByTime);
 
-      const batchDispatchInfo = this.getBatchDispatchInfo(batchQueue);
-      // if batch criteria is met, queue the batch events to the main queue and clear batch queue
-      if (batchDispatchInfo.criteriaMet || batchDispatchInfo.criteriaExceeded) {
-        let batchEntries;
-        if (batchDispatchInfo.criteriaExceeded) {
-          batchEntries = batchQueue.slice(0, batchQueue.length - 1);
-          batchQueue = [entry];
-          isEntryInBatchQueue = true;
-        } else {
-          batchEntries = batchQueue;
-          batchQueue = [];
-          isEntryInBatchQueue = false;
-        }
-
-        // Don't make any batch request if there are no items
-        if (batchEntries.length > 0) {
-          const isReclaimed = batchEntries.every(queueItem => queueItem.reclaimed);
-          const batchItems = batchEntries.map(queueItem => queueItem.item);
-          if (isReclaimed) {
-            curEntry = this.genQueueItem(batchItems, BATCH_QUEUE_ITEM_TYPE, true);
-          } else {
-            curEntry = this.genQueueItem(batchItems, BATCH_QUEUE_ITEM_TYPE);
-          }
-        }
-
-        // re-attach the timeout handler
-        this.scheduleFlushBatch();
-      }
-      this.batchingInProgress = false;
-    } else {
-      batchQueue.push(entry);
-    }
-
-    // update the batch queue
-    const isBatchQueueStored = this.setStorageEntry(QueueStatuses.BATCH_QUEUE, batchQueue);
     return {
-      curEntry,
-      isEntryInBatchQueue,
-      isBatchQueueStored,
+      isStored: this.setStorageEntry(QueueStatuses.QUEUE, nextQueue),
+      previousQueue,
     };
   }
 
-  pushToMainQueue(curEntry: QueueItem<QueueItemData>): boolean {
-    let queue =
-      (this.getStorageEntry(QueueStatuses.QUEUE) as Nullable<QueueItem<QueueItemData>[]>) ?? [];
-
-    if (this.maxItems > 1) {
-      queue = queue.slice(-(this.maxItems - 1));
-    } else {
-      queue = [];
+  private commitBatchTransfer(
+    batchEntry: QueueItem<QueueItemData> | undefined,
+    nextBatchQueue: QueueItem[],
+    rescheduleFlush: boolean,
+  ): boolean {
+    if (!batchEntry) {
+      const isBatchStored = this.setStorageEntry(QueueStatuses.BATCH_QUEUE, nextBatchQueue);
+      if (isBatchStored && rescheduleFlush) {
+        this.scheduleFlushBatch();
+      }
+      return isBatchStored;
     }
 
-    queue.push(curEntry);
-    queue = queue.sort(sortByTime);
+    // Persist the batch to the main queue before updating BATCH_QUEUE so a main-queue
+    // write failure leaves previously accepted items intact in BATCH_QUEUE.
+    const { isStored: isMainQueueStored, previousQueue } = this.writeToMainQueue(batchEntry);
+    if (!isMainQueueStored) {
+      return false;
+    }
 
-    const isStored = this.setStorageEntry(QueueStatuses.QUEUE, queue);
+    const isBatchQueueStored = this.setStorageEntry(QueueStatuses.BATCH_QUEUE, nextBatchQueue);
+    if (!isBatchQueueStored) {
+      // Roll back the main-queue write before processing starts so already-buffered
+      // items remain only in BATCH_QUEUE and are not dispatched twice.
+      this.setStorageEntry(QueueStatuses.QUEUE, previousQueue);
+      return false;
+    }
+
+    if (rescheduleFlush) {
+      this.scheduleFlushBatch();
+    }
+
+    if (this.scheduleTimeoutActive) {
+      this.processHead();
+    }
+
+    return true;
+  }
+
+  /**
+   * Handles a new item added to the retry queue when batching is enabled
+   * @param entry New item added to the retry queue
+   * @returns Whether the new item was accepted into queue storage
+   */
+  handleNewItemForBatch(entry: QueueItem<QueueItemData>): boolean {
+    const existingBatchQueue =
+      (this.getStorageEntry(QueueStatuses.BATCH_QUEUE) as Nullable<QueueItem[]>) ?? [];
+
+    if (this.batchingInProgress) {
+      return this.setStorageEntry(QueueStatuses.BATCH_QUEUE, [...existingBatchQueue, entry]);
+    }
+
+    this.batchingInProgress = true;
+    const candidateBatchQueue = [...existingBatchQueue, entry];
+    const batchDispatchInfo = this.getBatchDispatchInfo(candidateBatchQueue);
+    const shouldDispatchBatch =
+      batchDispatchInfo.criteriaMet || batchDispatchInfo.criteriaExceeded;
+
+    let batchEntry: QueueItem<QueueItemData> | undefined;
+    let nextBatchQueue = candidateBatchQueue;
+
+    if (shouldDispatchBatch) {
+      const batchEntries = batchDispatchInfo.criteriaExceeded
+        ? candidateBatchQueue.slice(0, -1)
+        : candidateBatchQueue;
+      nextBatchQueue = batchDispatchInfo.criteriaExceeded ? [entry] : [];
+
+      if (batchEntries.length > 0) {
+        batchEntry = this.createBatchQueueItem(batchEntries);
+      }
+    }
+
+    this.batchingInProgress = false;
+
+    return this.commitBatchTransfer(batchEntry, nextBatchQueue, shouldDispatchBatch);
+  }
+
+  pushToMainQueue(curEntry: QueueItem<QueueItemData>): boolean {
+    const { isStored } = this.writeToMainQueue(curEntry);
 
     if (isStored && this.scheduleTimeoutActive) {
       this.processHead();
