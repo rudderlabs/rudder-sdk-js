@@ -146,10 +146,16 @@ class EventRepository implements IEventRepository {
    * Enqueues the event for processing
    * @param event RudderEvent object
    * @param callback API callback function
+   * @param onDataplaneEnqueued Optional hook invoked after data-plane queue acceptance and before the callback
+   * @returns Whether the data-plane queue accepted the event
    */
-  enqueue(event: RudderEvent, callback?: ApiCallback): void {
+  enqueue(
+    event: RudderEvent,
+    callback?: ApiCallback,
+    onDataplaneEnqueued?: () => void,
+  ): boolean {
     const dpQEvent = getFinalEvent(event, state);
-    this.pluginsManager.invokeSingle(
+    const dpEnqueueResult = this.pluginsManager.invokeSingle<boolean | void>(
       `${DATA_PLANE_QUEUE_EXT_POINT_PREFIX}.enqueue`,
       state,
       this.dataplaneEventsQueue,
@@ -157,6 +163,12 @@ class EventRepository implements IEventRepository {
       this.errorHandler,
       this.logger,
     );
+    const isDataplaneEnqueued =
+      Boolean(this.dataplaneEventsQueue) && dpEnqueueResult !== false && dpEnqueueResult !== null;
+
+    if (isDataplaneEnqueued) {
+      onDataplaneEnqueued?.();
+    }
 
     const dQEvent = clone(event);
     this.pluginsManager.invokeSingle(
@@ -171,6 +183,8 @@ class EventRepository implements IEventRepository {
     // Invoke the callback if it exists
     const apiName = `${event.type.charAt(0).toUpperCase()}${event.type.slice(1)}${API_SUFFIX}`;
     safelyInvokeCallback(callback, [dpQEvent], apiName, this.logger);
+
+    return isDataplaneEnqueued;
   }
 }
 

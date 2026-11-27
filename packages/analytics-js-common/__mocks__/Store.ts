@@ -42,21 +42,23 @@ class Store implements IStore {
 
     this.engine = defaultInMemoryStorage;
   };
-  set = (key: string, value: any) => {
+  set = (key: string, value: any): boolean => {
     const validKey = this.createValidKey(key);
     // Mirror the real Store: a quota error falls back to in-memory storage,
     // unless the store opted out of that fallback.
     try {
       this.engine.setItem(validKey, value);
+      return true;
     } catch (err) {
       if ((err as any)?.name !== 'QuotaExceededError') {
         throw err;
       }
       if (this.noSwapOnQuota) {
-        return;
+        return false;
       }
       this.swapQueueStoreToInMemoryEngine();
       this.engine.setItem(validKey, value);
+      return true;
     }
   };
   get = <T = string>(key: string) => {

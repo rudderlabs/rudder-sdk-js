@@ -1952,6 +1952,87 @@ describe('Queue', () => {
       expect(queue.getStorageEntry('batchQueue')).toEqual([]);
     });
   });
+
+  describe('admission result', () => {
+    it('should return false when storing to the main queue fails', () => {
+      const setSpy = jest.spyOn(queue.store, 'set').mockReturnValue(false);
+
+      expect(queue.addItem('a')).toBe(false);
+
+      setSpy.mockRestore();
+    });
+
+    it('should return false when storing to the batch queue fails before batch criteria is met', () => {
+      const batchQueue = new RetryQueue(
+        'batch_reject_test',
+        { batch: { enabled: true, maxItems: 5 } },
+        jest.fn(),
+        defaultStoreManager,
+      );
+      const setSpy = jest.spyOn(batchQueue.store, 'set').mockReturnValue(false);
+
+      expect(batchQueue.addItem('a')).toBe(false);
+
+      setSpy.mockRestore();
+      batchQueue.stop();
+    });
+
+    it('should return false when batch criteria is met and main queue storage fails', () => {
+      const batchQueue = new RetryQueue(
+        'batch_met_reject_test',
+        { batch: { enabled: true, maxItems: 2 } },
+        jest.fn(),
+        defaultStoreManager,
+      );
+
+      expect(batchQueue.addItem('a')).toBe(true);
+
+      const originalSet = batchQueue.store.set.bind(batchQueue.store);
+      const setSpy = jest
+        .spyOn(batchQueue.store, 'set')
+        .mockImplementation((key: string, value: any) => {
+          if (key === QueueStatuses.QUEUE) {
+            return false;
+          }
+          return originalSet(key, value);
+        });
+
+      expect(batchQueue.addItem('b')).toBe(false);
+
+      setSpy.mockRestore();
+      batchQueue.stop();
+    });
+
+    it('should report acceptance of the new item based on batch queue storage when size criteria is exceeded', () => {
+      const batchQueue = new RetryQueue(
+        'batch_exceeded_reject_test',
+        { batch: { enabled: true, maxSize: 5 } },
+        jest.fn(),
+        defaultStoreManager,
+        undefined,
+        undefined,
+        (items: []) => items.length * 2,
+      );
+
+      expect(batchQueue.addItem('a')).toBe(true);
+      expect(batchQueue.addItem('b')).toBe(true);
+
+      const originalSet = batchQueue.store.set.bind(batchQueue.store);
+      const setSpy = jest
+        .spyOn(batchQueue.store, 'set')
+        .mockImplementation((key: string, value: any) => {
+          if (key === QueueStatuses.BATCH_QUEUE) {
+            return false;
+          }
+          return originalSet(key, value);
+        });
+
+      expect(batchQueue.addItem('c')).toBe(false);
+
+      setSpy.mockRestore();
+      batchQueue.stop();
+    });
+  });
 });
 
 describe('end-to-end', () => {

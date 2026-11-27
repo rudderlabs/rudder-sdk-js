@@ -379,8 +379,9 @@ describe('BeaconQueue Plugin', () => {
     it('should enqueue event with sentAt timestamp', () => {
       const eventToEnqueue = { ...sampleEvent };
       delete eventToEnqueue.sentAt;
+      mockEventsQueue.addItem.mockReturnValueOnce(true);
 
-      plugin.dataplaneEventsQueue.enqueue(
+      const accepted = plugin.dataplaneEventsQueue.enqueue(
         mockState,
         mockEventsQueue,
         eventToEnqueue,
@@ -388,11 +389,27 @@ describe('BeaconQueue Plugin', () => {
         mockLogger,
       );
 
+      expect(accepted).toBe(true);
       expect(mockValidateEventPayloadSize).toHaveBeenCalledWith(eventToEnqueue, mockLogger);
       expect(eventToEnqueue.sentAt).toBe('2023-01-01T00:00:00Z');
       expect(mockEventsQueue.addItem).toHaveBeenCalledWith({
         event: eventToEnqueue,
       });
+    });
+
+    it('should return false when queue rejects the event', () => {
+      const eventToEnqueue = { ...sampleEvent };
+      mockEventsQueue.addItem.mockReturnValueOnce(false);
+
+      const accepted = plugin.dataplaneEventsQueue.enqueue(
+        mockState,
+        mockEventsQueue,
+        eventToEnqueue,
+        mockErrorHandler,
+        mockLogger,
+      );
+
+      expect(accepted).toBe(false);
     });
 
     it('should update existing sentAt timestamp', () => {

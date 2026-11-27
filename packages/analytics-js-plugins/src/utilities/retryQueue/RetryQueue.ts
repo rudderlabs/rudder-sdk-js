@@ -213,12 +213,13 @@ class RetryQueue implements IQueue<QueueItemData> {
   setStorageEntry(
     name: string,
     value?: Nullable<QueueItem<QueueItemData>[] | Record<string, any>> | number,
-  ) {
+  ): boolean {
     if (isNullOrUndefined(value)) {
       this.store.remove(name);
-    } else {
-      this.store.set(name, value);
+      return true;
     }
+
+    return this.store.set(name, value) !== false;
   }
 
   /**
@@ -345,27 +346,34 @@ class RetryQueue implements IQueue<QueueItemData> {
     return Math.min(ms, this.backoff.maxRetryDelay);
   }
 
-  enqueue(entry: QueueItem<QueueItemData>) {
-    let curEntry: QueueItem<QueueItemData> | undefined;
+  enqueue(entry: QueueItem<QueueItemData>): boolean {
     if (this.batch.enabled && entry.type === SINGLE_QUEUE_ITEM_TYPE) {
-      curEntry = this.handleNewItemForBatch(entry);
-    } else {
-      curEntry = entry;
+      const { curEntry, isEntryInBatchQueue, isBatchQueueStored } =
+        this.handleNewItemForBatch(entry);
+
+      if (curEntry) {
+        const isMainQueueStored = this.pushToMainQueue(curEntry);
+        return isEntryInBatchQueue ? isBatchQueueStored : isMainQueueStored;
+      }
+
+      return isBatchQueueStored;
     }
 
-    // when batching is enabled, `curEntry` could be `undefined` if the batch criteria is not met
-    if (curEntry) {
-      this.pushToMainQueue(curEntry);
-    }
+    return this.pushToMainQueue(entry);
   }
 
   /**
    * Handles a new item added to the retry queue when batching is enabled
    * @param entry New item added to the retry queue
-   * @returns Undefined or batch entry object
+   * @returns Batch dispatch entry and persistence status for the new item
    */
-  handleNewItemForBatch(entry: QueueItem<QueueItemData>) {
+  handleNewItemForBatch(entry: QueueItem<QueueItemData>): {
+    curEntry?: QueueItem<QueueItemData>;
+    isEntryInBatchQueue: boolean;
+    isBatchQueueStored: boolean;
+  } {
     let curEntry: QueueItem<QueueItemData> | undefined;
+    let isEntryInBatchQueue = true;
     let batchQueue =
       (this.getStorageEntry(QueueStatuses.BATCH_QUEUE) as Nullable<QueueItem[]>) ?? [];
 
@@ -381,9 +389,11 @@ class RetryQueue implements IQueue<QueueItemData> {
         if (batchDispatchInfo.criteriaExceeded) {
           batchEntries = batchQueue.slice(0, batchQueue.length - 1);
           batchQueue = [entry];
+          isEntryInBatchQueue = true;
         } else {
           batchEntries = batchQueue;
           batchQueue = [];
+          isEntryInBatchQueue = false;
         }
 
         // Don't make any batch request if there are no items
@@ -406,11 +416,15 @@ class RetryQueue implements IQueue<QueueItemData> {
     }
 
     // update the batch queue
-    this.setStorageEntry(QueueStatuses.BATCH_QUEUE, batchQueue);
-    return curEntry;
+    const isBatchQueueStored = this.setStorageEntry(QueueStatuses.BATCH_QUEUE, batchQueue);
+    return {
+      curEntry,
+      isEntryInBatchQueue,
+      isBatchQueueStored,
+    };
   }
 
-  pushToMainQueue(curEntry: QueueItem<QueueItemData>) {
+  pushToMainQueue(curEntry: QueueItem<QueueItemData>): boolean {
     let queue =
       (this.getStorageEntry(QueueStatuses.QUEUE) as Nullable<QueueItem<QueueItemData>[]>) ?? [];
 
@@ -423,20 +437,23 @@ class RetryQueue implements IQueue<QueueItemData> {
     queue.push(curEntry);
     queue = queue.sort(sortByTime);
 
-    this.setStorageEntry(QueueStatuses.QUEUE, queue);
+    const isStored = this.setStorageEntry(QueueStatuses.QUEUE, queue);
 
-    if (this.scheduleTimeoutActive) {
+    if (isStored && this.scheduleTimeoutActive) {
       this.processHead();
     }
+
+    return isStored;
   }
 
   /**
    * Adds an item to the queue
    *
    * @param {Object} itemData The item to process
+   * @returns {boolean} Whether the item was accepted into queue storage
    */
-  addItem(itemData: QueueItemData) {
-    this.enqueue(this.genQueueItem(itemData));
+  addItem(itemData: QueueItemData): boolean {
+    return this.enqueue(this.genQueueItem(itemData));
   }
 
   /**

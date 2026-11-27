@@ -275,6 +275,27 @@ describe('User session manager', () => {
         sessionStart: false,
       });
     });
+    it('should normalize legacy stored sessionStart true to false on init', () => {
+      const customData = {
+        rl_session: {
+          id: 1726655503445,
+          expiresAt: Date.now() + 60 * 1000,
+          timeout: 1800000,
+          autoTrack: true,
+          sessionStart: true,
+        },
+      };
+      setDataInCookieStorage(customData);
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.syncStorageDataToState();
+      expect(state.session.sessionInfo.value).toEqual({
+        id: 1726655503445,
+        expiresAt: expect.any(Number),
+        timeout: 1800000,
+        autoTrack: true,
+        sessionStart: false,
+      });
+    });
   });
 
   describe('init', () => {
@@ -1841,7 +1862,7 @@ describe('User session manager', () => {
       expect(state.session.sessionInfo.value).toStrictEqual({});
     });
 
-    it('should return session id and sessionStart when auto tracking is enabled', () => {
+    it('should normalize legacy sessionStart true to false when auto tracking is enabled', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.init();
 
@@ -1863,7 +1884,7 @@ describe('User session manager', () => {
       });
     });
 
-    it('should return session id and sessionStart when manual tracking is enabled', () => {
+    it('should keep sessionStart pending when manual tracking is enabled', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       const manualTrackingSessionId = 1029384756;
       userSessionManager.init();
@@ -1871,12 +1892,12 @@ describe('User session manager', () => {
       userSessionManager.refreshSession();
       expect(state.session.sessionInfo.value).toEqual({
         id: manualTrackingSessionId,
-        sessionStart: true,
+        sessionStart: undefined,
         manualTrack: true,
       });
     });
 
-    it('should generate new session id and sessionStart and return when auto tracking session is expired', () => {
+    it('should generate new session id with pending sessionStart when auto tracking session is expired', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.init();
       const pastTimestamp = Date.now() - 5000;
@@ -1897,7 +1918,7 @@ describe('User session manager', () => {
         timeout: 10 * 60 * 1000,
         id: expect.any(Number),
         expiresAt: expect.any(Number),
-        sessionStart: true,
+        sessionStart: undefined,
         cutOff: {
           enabled: false,
           duration: 12 * 60 * 1000,
@@ -1905,21 +1926,27 @@ describe('User session manager', () => {
       });
     });
 
-    it('should return only session id from the second event of the auto session tracking', () => {
+    it('should keep sessionStart pending across repeated refreshSession calls for auto session tracking until marked started', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.init();
-      userSessionManager.refreshSession(); // sessionInfo For First Event
       userSessionManager.refreshSession();
+      userSessionManager.refreshSession();
+      expect(state.session.sessionInfo.value.sessionStart).toBeUndefined();
+
+      userSessionManager.markSessionStarted(state.session.sessionInfo.value.id);
       expect(state.session.sessionInfo.value.sessionStart).toBe(false);
     });
 
-    it('should return only session id from the second event of the manual session tracking', () => {
+    it('should keep sessionStart pending across repeated refreshSession calls for manual session tracking until marked started', () => {
       state.storage.entries.value = entriesWithOnlyCookieStorage;
       userSessionManager.init();
       const manualTrackingSessionId = 1029384756;
       userSessionManager.start(manualTrackingSessionId);
-      userSessionManager.refreshSession(); // sessionInfo For First Event
       userSessionManager.refreshSession();
+      userSessionManager.refreshSession();
+      expect(state.session.sessionInfo.value.sessionStart).toBeUndefined();
+
+      userSessionManager.markSessionStarted(manualTrackingSessionId);
       expect(state.session.sessionInfo.value.sessionStart).toBe(false);
       userSessionManager.end();
     });
@@ -1955,10 +1982,9 @@ describe('User session manager', () => {
       const syncValueToStorageSpy = jest.spyOn(userSessionManager, 'syncValueToStorage');
       userSessionManager.refreshSession();
 
-      expect(syncValueToStorageSpy).toHaveBeenCalledTimes(3);
+      expect(syncValueToStorageSpy).toHaveBeenCalledTimes(2);
       expect(syncValueToStorageSpy).toHaveBeenNthCalledWith(1, 'sessionInfo');
       expect(syncValueToStorageSpy).toHaveBeenNthCalledWith(2, 'sessionInfo');
-      expect(syncValueToStorageSpy).toHaveBeenNthCalledWith(3, 'sessionInfo');
     });
 
     describe('Race condition with server-side cookie requests', () => {
@@ -2251,6 +2277,42 @@ describe('User session manager', () => {
         userSessionManager.refreshSession();
       });
 
+      expect(state.session.sessionInfo.value).toStrictEqual({});
+    });
+  });
+
+  describe('markSessionStarted', () => {
+    it('should ignore a mismatched session id so a replaced session keeps its pending marker', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+      const activeSessionId = state.session.sessionInfo.value.id as number;
+
+      userSessionManager.markSessionStarted(activeSessionId + 1);
+      expect(state.session.sessionInfo.value.sessionStart).toBeUndefined();
+
+      userSessionManager.markSessionStarted(activeSessionId);
+      expect(state.session.sessionInfo.value.sessionStart).toBe(false);
+    });
+
+    it('should explicitly sync session info to storage when marked started before readyExecuted', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+      state.lifecycle.status.value = 'loaded';
+
+      const syncValueToStorageSpy = jest.spyOn(userSessionManager, 'syncValueToStorage');
+      userSessionManager.markSessionStarted(state.session.sessionInfo.value.id);
+
+      expect(state.session.sessionInfo.value.sessionStart).toBe(false);
+      expect(syncValueToStorageSpy).toHaveBeenCalledWith('sessionInfo');
+    });
+
+    it('should be a no-op when no session is active or session id is missing', () => {
+      state.storage.entries.value = entriesWithOnlyCookieStorage;
+      userSessionManager.init();
+      userSessionManager.end();
+
+      userSessionManager.markSessionStarted(1234567890);
+      userSessionManager.markSessionStarted(undefined);
       expect(state.session.sessionInfo.value).toStrictEqual({});
     });
   });

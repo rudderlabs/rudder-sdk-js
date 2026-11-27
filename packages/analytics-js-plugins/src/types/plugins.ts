@@ -92,9 +92,9 @@ export interface IQueue<T = any> {
   setStorageEntry(
     name?: string,
     value?: Nullable<QueueItem<T>[] | Record<string, any> | number>,
-  ): void;
+  ): boolean;
   start(): void;
   stop(): void;
-  enqueue(item: QueueItem<T>): void;
-  addItem(item: T): void;
+  enqueue(item: QueueItem<T>): boolean;
+  addItem(item: T): boolean;
 }

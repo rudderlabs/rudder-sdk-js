@@ -180,7 +180,11 @@ class UserSessionManager implements IUserSessionManager {
         manualTrack: initialSessionInfo.manualTrack,
         expiresAt: initialSessionInfo.expiresAt,
         id: initialSessionInfo.id,
-        sessionStart: initialSessionInfo.sessionStart,
+        // Legacy SDK versions persisted sessionStart: true after emitting the first event
+        // and flipped it to false on the second event. Normalize it to false so an upgrade
+        // does not emit a duplicate sessionStart marker.
+        sessionStart:
+          initialSessionInfo.sessionStart === true ? false : initialSessionInfo.sessionStart,
       } as SessionInfo;
 
       // If both autoTrack and manualTrack are disabled, reset the session info to default values
@@ -905,19 +909,11 @@ class UserSessionManager implements IUserSessionManager {
         sessionInfo = state.session.sessionInfo.value;
       }
 
-      // Note that if sessionStart is false, then it's an active session.
-      // So, we needn't update the session info.
-      //
-      // For other scenarios,
-      // 1. If sessionStart is undefined, then it's a new session.
-      //   Mark it as sessionStart.
-      // 2. If sessionStart is true, then need to flip it for the future events.
-      if (sessionInfo.sessionStart === undefined) {
-        sessionInfo = {
-          ...sessionInfo,
-          sessionStart: true,
-        };
-      } else if (sessionInfo.sessionStart) {
+      // Keep sessionStart pending (undefined) until an event for this session is
+      // accepted into the data-plane queue. Legacy SDK versions persisted
+      // sessionStart: true after the first event; normalize it to false so an
+      // upgrade or mixed-version tab does not emit a second start marker.
+      if (sessionInfo.sessionStart === true) {
         sessionInfo = {
           ...sessionInfo,
           sessionStart: false,
@@ -932,6 +928,35 @@ class UserSessionManager implements IUserSessionManager {
       // Force update the storage as the 'effect' blocks are not getting triggered
       // when processing preload buffered requests
       this.syncValueToStorage('sessionInfo');
+    }
+  }
+
+  /**
+   * Marks the session start marker as consumed once an event for that session
+   * has been accepted into the data-plane queue.
+   */
+  markSessionStarted(sessionId?: number): void {
+    if (typeof sessionId !== 'number') {
+      return;
+    }
+
+    const sessionInfo = this.getSessionInfo() ?? DEFAULT_USER_SESSION_VALUES.sessionInfo;
+
+    if (
+      (sessionInfo.autoTrack || sessionInfo.manualTrack) &&
+      sessionInfo.id === sessionId &&
+      sessionInfo.sessionStart !== false
+    ) {
+      state.session.sessionInfo.value = {
+        ...sessionInfo,
+        sessionStart: false,
+      };
+
+      if (state.lifecycle.status.value !== 'readyExecuted') {
+        // Force update the storage as the 'effect' blocks are not getting triggered
+        // when processing preload buffered requests
+        this.syncValueToStorage('sessionInfo');
+      }
     }
   }
 
@@ -1068,26 +1093,31 @@ class UserSessionManager implements IUserSessionManager {
    * A function to check for existing session details and depending on that create a new session
    */
   startOrRenewAutoTracking(sessionInfo: SessionInfo) {
-    let finalSessionInfo = sessionInfo;
+    let finalSessionInfo: SessionInfo;
     if (hasSessionExpired(sessionInfo)) {
       finalSessionInfo = generateAutoTrackingSession(sessionInfo);
     } else {
       const timestamp = Date.now();
       const timeout = sessionInfo.timeout as number;
 
-      // Set the expiry time of the session
-      finalSessionInfo.expiresAt = timestamp + timeout;
+      // Set the expiry time of the session without mutating the input object
+      finalSessionInfo = {
+        ...sessionInfo,
+        expiresAt: timestamp + timeout,
+      };
     }
 
-    // Reset cut off expiry timestamp if it is exceeded
-    if (isCutOffTimeExceeded(finalSessionInfo)) {
-      finalSessionInfo.cutOff!.expiresAt = undefined;
-    }
-
-    // If cut off is active, set or retain the expiry time
+    // If cut off is active, reset if exceeded and set or retain the expiry time
     if (finalSessionInfo.cutOff) {
-      const cutOffExpiresAt = getCutOffExpirationTimestamp(finalSessionInfo.cutOff);
-      finalSessionInfo.cutOff.expiresAt = cutOffExpiresAt;
+      const cutOff = {
+        ...finalSessionInfo.cutOff,
+        ...(isCutOffTimeExceeded(finalSessionInfo) ? { expiresAt: undefined } : {}),
+      };
+      cutOff.expiresAt = getCutOffExpirationTimestamp(cutOff);
+      finalSessionInfo = {
+        ...finalSessionInfo,
+        cutOff,
+      };
     }
 
     // Update the session info in the state

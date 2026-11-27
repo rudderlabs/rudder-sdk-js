@@ -55,7 +55,17 @@ class EventManager implements IEventManager {
   addEvent(event: APIEvent, customContext: CustomContext) {
     this.userSessionManager.refreshSession();
     const rudderEvent = this.eventFactory.create(event, customContext);
-    this.eventRepository.enqueue(rudderEvent, event.callback);
+    const sessionId = rudderEvent.context?.sessionId;
+    const shouldMarkSessionStarted =
+      rudderEvent.context?.sessionStart === true && typeof sessionId === 'number';
+
+    if (shouldMarkSessionStarted) {
+      this.eventRepository.enqueue(rudderEvent, event.callback, () => {
+        this.userSessionManager.markSessionStarted(sessionId);
+      });
+    } else {
+      this.eventRepository.enqueue(rudderEvent, event.callback);
+    }
   }
 }
 

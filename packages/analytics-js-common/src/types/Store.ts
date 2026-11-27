@@ -49,7 +49,7 @@ export interface IStore {
   pluginsManager: IPluginsManager;
   createValidKey(key: string): string | undefined;
   swapQueueStoreToInMemoryEngine(): void;
-  set(key: string, value: any): void;
+  set(key: string, value: any): boolean;
   get<T = any>(key: string): Nullable<T>;
   remove(key: string): void;
   getOriginalEngine(): IStorage;
