@@ -117,35 +117,53 @@ class Store implements IStore {
 
   /**
    * Set value by key.
+   * @returns true if the value was stored, false otherwise
    */
-  set(key: string, value: any) {
+  set(key: string, value: any): boolean {
     const validKey = this.createValidKey(key);
 
     if (!validKey) {
-      return;
+      return false;
     }
 
     try {
+      const serializedValue = stringifyWithoutCircular(value, false, [], this.logger);
+      if (isNullOrUndefined(serializedValue) && !isNullOrUndefined(value)) {
+        return false;
+      }
+
+      const encryptedValue = this.encrypt(serializedValue);
+      // When an encryption plugin throws, PluginsManager.invokeSingle returns null and
+      // Store.crypto maps that to ''. Reject it so we do not overwrite existing data
+      // with an unreadable empty string and falsely report success.
+      if (
+        this.isEncrypted &&
+        !isNullOrUndefined(serializedValue) &&
+        serializedValue !== '' &&
+        encryptedValue === ''
+      ) {
+        return false;
+      }
+
       // storejs that is used in localstorage engine already stringifies json
-      this.engine.setItem(
-        validKey,
-        this.encrypt(stringifyWithoutCircular(value, false, [], this.logger)),
-      );
+      this.engine.setItem(validKey, encryptedValue);
+      return true;
     } catch (err) {
       if (isStorageQuotaExceeded(err)) {
         this.logger.warn(STORAGE_QUOTA_EXCEEDED_WARNING(`Store ${this.id}`));
 
         if (this.noSwapOnQuota) {
-          return;
+          return false;
         }
 
         // switch to inMemory engine
         this.swapQueueStoreToInMemoryEngine();
         // and save it there
-        this.set(key, value);
+        return this.set(key, value);
       } else {
         const customMessage = STORE_DATA_SAVE_ERROR(key);
         this.onError(err, customMessage, customMessage);
+        return false;
       }
     }
   }
@@ -269,7 +287,7 @@ class Store implements IStore {
    * Handle errors
    */
   onError(error: unknown, customMessage?: string, groupingHash?: string) {
-    this.errorHandler.onError({
+    void this.errorHandler.onError({
       error,
       context: `Store ${this.id}`,
       customMessage,

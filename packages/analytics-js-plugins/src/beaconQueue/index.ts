@@ -145,7 +145,7 @@ const BeaconQueue = (): ExtensionPlugin => ({
      * @param event RudderEvent object
      * @param errorHandler Error handler instance
      * @param logger Logger instance
-     * @returns none
+     * @returns Whether the event was accepted by the queue
      */
     enqueue(
       state: ApplicationState,
@@ -153,13 +153,13 @@ const BeaconQueue = (): ExtensionPlugin => ({
       event: RudderEvent,
       errorHandler?: IErrorHandler,
       logger?: ILogger,
-    ): void {
+    ): boolean {
       // sentAt is only added here for the validation step
       // It'll be updated to the latest timestamp during actual delivery
       event.sentAt = getCurrentTimeFormatted();
       validateEventPayloadSize(event, logger);
 
-      eventsQueue.addItem({
+      return eventsQueue.addItem({
         event,
       } as BeaconQueueItemData);
     },

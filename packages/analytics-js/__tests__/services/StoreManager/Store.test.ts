@@ -381,7 +381,7 @@ describe('Store', () => {
   describe('.set', () => {
     it('should serialize json', () => {
       Object.values(QueueStatuses).forEach(keyValue => {
-        store.set(keyValue, ['a', 'b', {}]);
+        expect(store.set(keyValue, ['a', 'b', {}])).toBe(true);
         expect(engine.getItem(`name.id.${keyValue}`)).toStrictEqual('"[\\"a\\",\\"b\\",{}]"');
       });
     });
@@ -402,7 +402,7 @@ describe('Store', () => {
       // Spy on the engine's setItem to ensure it's not called for invalid keys
       const setItemSpy = jest.spyOn(testStore.engine, 'setItem');
 
-      testStore.set('invalidKey', 'value');
+      expect(testStore.set('invalidKey', 'value')).toBe(false);
 
       expect(setItemSpy).not.toHaveBeenCalled();
 
@@ -467,7 +467,7 @@ describe('Store', () => {
         throw new Error('Generic storage error');
       });
 
-      store.set(QueueStatuses.QUEUE, 'test-value');
+      expect(store.set(QueueStatuses.QUEUE, 'test-value')).toBe(false);
 
       expect(errorHandlerSpy).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -484,6 +484,65 @@ describe('Store', () => {
       setItemSpy.mockRestore();
     });
 
+    it('should return false without overwriting storage when serialization fails', () => {
+      store.set(QueueStatuses.QUEUE, ['existing']);
+      const setItemSpy = jest.spyOn(store.engine, 'setItem');
+
+      expect(store.set(QueueStatuses.QUEUE, { bad: BigInt(1) })).toBe(false);
+      expect(setItemSpy).not.toHaveBeenCalled();
+      expect(store.get(QueueStatuses.QUEUE)).toStrictEqual(['existing']);
+
+      setItemSpy.mockRestore();
+    });
+
+    it('should return false without overwriting storage when encryption plugin throws', () => {
+      const errorHandlerSpy = jest.spyOn(defaultErrorHandler, 'onError').mockImplementation();
+      const encryptedStore = new Store(
+        {
+          name: 'encryptedSet',
+          id: 'enc1',
+          validKeys: QueueStatuses,
+          isEncrypted: true,
+          errorHandler: defaultErrorHandler,
+          logger: defaultLogger,
+        },
+        getStorageEngine('localStorage'),
+        pluginsManager,
+      );
+
+      let shouldThrow = false;
+      pluginEngine.register(
+        {
+          name: 'FailingEncryptionPlugin',
+          storage: {
+            encrypt: (value: string) => {
+              if (shouldThrow) {
+                throw new Error('Encryption failed');
+              }
+              return `ENC:${value}`;
+            },
+            decrypt: (value: string) => value.replace(/^ENC:/, ''),
+          },
+        } as unknown as ExtensionPlugin,
+        state,
+      );
+
+      try {
+        expect(encryptedStore.set(QueueStatuses.QUEUE, ['existing'])).toBe(true);
+        const setItemSpy = jest.spyOn(encryptedStore.engine, 'setItem');
+
+        shouldThrow = true;
+        expect(encryptedStore.set(QueueStatuses.QUEUE, ['next'])).toBe(false);
+        expect(setItemSpy).not.toHaveBeenCalled();
+        expect(encryptedStore.get(QueueStatuses.QUEUE)).toStrictEqual(['existing']);
+
+        setItemSpy.mockRestore();
+      } finally {
+        pluginEngine.unregister('FailingEncryptionPlugin');
+        errorHandlerSpy.mockRestore();
+      }
+    });
+
     it('should handle quota exceeded error and switch to in-memory storage', () => {
       const loggerWarnSpy = jest.spyOn(defaultLogger, 'warn').mockImplementation();
       const swapEngineSpy = jest.spyOn(store, 'swapQueueStoreToInMemoryEngine');
@@ -493,7 +552,7 @@ describe('Store', () => {
         throw new DOMException('Storage quota exceeded', 'QuotaExceededError');
       });
 
-      store.set(QueueStatuses.QUEUE, 'test-value');
+      expect(store.set(QueueStatuses.QUEUE, 'test-value')).toBe(true);
 
       expect(loggerWarnSpy).toHaveBeenCalledWith(
         expect.stringContaining('The storage is either full or unavailable'),
@@ -708,7 +767,7 @@ describe('Store', () => {
         pluginsManager,
       );
 
-      expect(() => store.set(QueueStatuses.QUEUE, ['event-1'])).not.toThrow();
+      expect(store.set(QueueStatuses.QUEUE, ['event-1'])).toBe(false);
       expect(store.engine).toStrictEqual(quotaEngine);
     });
 

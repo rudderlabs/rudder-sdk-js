@@ -3,7 +3,7 @@ import type { ApiCallback } from '@rudderstack/analytics-js-common/types/EventAp
 
 interface IEventRepository {
   init(): void;
-  enqueue(event: RudderEvent, callback?: ApiCallback): void;
+  enqueue(event: RudderEvent, callback?: ApiCallback, onDataplaneEnqueued?: () => void): boolean;
   resume(): void;
 }
 

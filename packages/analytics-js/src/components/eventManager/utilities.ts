@@ -18,6 +18,7 @@ import { getCurrentTimeFormatted } from '@rudderstack/analytics-js-common/utilit
 import { NO_STORAGE } from '@rudderstack/analytics-js-common/constants/storages';
 import { DEFAULT_INTEGRATIONS_CONFIG } from '@rudderstack/analytics-js-common/constants/integrationsConfig';
 import type { StorageType } from '@rudderstack/analytics-js-common/types/Storage';
+import type { SessionInfo } from '@rudderstack/analytics-js-common/types/Session';
 import { state } from '../../state';
 import {
   INVALID_CUSTOM_CONTEXT_WARNING,
@@ -224,6 +225,22 @@ const getEventIntegrationsConfig = (integrationsConfig?: IntegrationOpts) => {
   return clone(finalIntgConfig);
 };
 
+const getSessionStart = (sessionInfo: SessionInfo): boolean | undefined => {
+  if (sessionInfo.sessionStart === true) {
+    return true;
+  }
+
+  if (
+    sessionInfo.id &&
+    (sessionInfo.autoTrack || sessionInfo.manualTrack) &&
+    sessionInfo.sessionStart === undefined
+  ) {
+    return true;
+  }
+
+  return undefined;
+};
+
 /**
  * Enrich the base event object with data from state and the API options
  * @param rudderEvent RudderEvent object
@@ -244,7 +261,7 @@ const getEnrichedEvent = (
     context: {
       traits: clone(state.session.userTraits.value),
       sessionId: state.session.sessionInfo.value.id || undefined,
-      sessionStart: state.session.sessionInfo.value.sessionStart || undefined,
+      sessionStart: getSessionStart(state.session.sessionInfo.value),
       // Add 'consentManagement' only if consent management is enabled
       ...(state.consents.enabled.value && {
         consentManagement: {

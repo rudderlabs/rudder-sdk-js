@@ -612,4 +612,35 @@ describe('XhrQueue', () => {
     // Clear the queue to avoid affecting other tests
     queue.clear();
   });
+
+  it('should return queue admission status from enqueue', () => {
+    const mockQueue = {
+      addItem: jest.fn().mockReturnValueOnce(true).mockReturnValueOnce(false),
+    };
+    const event = {
+      type: 'track',
+      event: 'test',
+      anonymousId: 'sampleAnonId',
+      messageId: 'test',
+      originalTimestamp: 'test',
+    } as unknown as RudderEvent;
+
+    const firstAccepted = (XhrQueue()?.dataplaneEventsQueue as ExtensionPoint).enqueue?.(
+      state,
+      mockQueue,
+      event,
+      undefined,
+      defaultLogger,
+    );
+    const secondAccepted = (XhrQueue()?.dataplaneEventsQueue as ExtensionPoint).enqueue?.(
+      state,
+      mockQueue,
+      event,
+      undefined,
+      defaultLogger,
+    );
+
+    expect(firstAccepted).toBe(true);
+    expect(secondAccepted).toBe(false);
+  });
 });

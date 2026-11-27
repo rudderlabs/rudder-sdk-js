@@ -346,13 +346,155 @@ describe('EventRepository', () => {
     eventRepository.init();
 
     const mockEventCallback = jest.fn();
-    eventRepository.enqueue(testEvent, mockEventCallback);
+    const accepted = eventRepository.enqueue(testEvent, mockEventCallback);
 
+    expect(accepted).toBe(true);
     expect(mockEventCallback).toHaveBeenCalledTimes(1);
     expect(mockEventCallback).toHaveBeenCalledWith({
       ...testEvent,
       integrations: { All: true },
     });
+  });
+
+  it('should invoke onDataplaneEnqueued before the event callback when data-plane queue accepts', () => {
+    const callOrder: string[] = [];
+    const customPluginsManager = {
+      invokeSingle: jest.fn((extPoint: string) => {
+        if (extPoint === 'dataplaneEventsQueue.init') {
+          return mockDataplaneEventsQueue;
+        }
+        if (extPoint === 'destinationsEventsQueue.init') {
+          return mockDestinationsEventsQueue;
+        }
+        if (extPoint === 'transformEvent.init') {
+          return mockDMTEventsQueue;
+        }
+        if (extPoint === 'dataplaneEventsQueue.enqueue') {
+          callOrder.push('dpQueue');
+          return true;
+        }
+        if (extPoint === 'destinationsEventsQueue.enqueue') {
+          callOrder.push('destQueue');
+          return true;
+        }
+        return undefined;
+      }),
+    } as unknown as IPluginsManager;
+
+    const eventRepository = new EventRepository(
+      customPluginsManager,
+      defaultStoreManager,
+      defaultHttpClient,
+      defaultErrorHandler,
+      defaultLogger,
+    );
+    eventRepository.init();
+
+    const accepted = eventRepository.enqueue(
+      testEvent,
+      () => {
+        callOrder.push('callback');
+      },
+      () => {
+        callOrder.push('onDataplaneEnqueued');
+      },
+    );
+
+    expect(accepted).toBe(true);
+    expect(callOrder).toEqual(['dpQueue', 'onDataplaneEnqueued', 'destQueue', 'callback']);
+  });
+
+  it('should return false and skip onDataplaneEnqueued on partial acceptance when data-plane queue rejects', () => {
+    const onDataplaneEnqueued = jest.fn();
+    const callback = jest.fn();
+    const customPluginsManager = {
+      invokeSingle: jest.fn((extPoint: string) => {
+        if (extPoint === 'dataplaneEventsQueue.init') {
+          return mockDataplaneEventsQueue;
+        }
+        if (extPoint === 'destinationsEventsQueue.init') {
+          return mockDestinationsEventsQueue;
+        }
+        if (extPoint === 'transformEvent.init') {
+          return mockDMTEventsQueue;
+        }
+        if (extPoint === 'dataplaneEventsQueue.enqueue') {
+          return false;
+        }
+        if (extPoint === 'destinationsEventsQueue.enqueue') {
+          return true;
+        }
+        return undefined;
+      }),
+    } as unknown as IPluginsManager;
+
+    const eventRepository = new EventRepository(
+      customPluginsManager,
+      defaultStoreManager,
+      defaultHttpClient,
+      defaultErrorHandler,
+      defaultLogger,
+    );
+    eventRepository.init();
+
+    const accepted = eventRepository.enqueue(testEvent, callback, onDataplaneEnqueued);
+
+    expect(accepted).toBe(false);
+    expect(onDataplaneEnqueued).not.toHaveBeenCalled();
+    expect(customPluginsManager.invokeSingle).toHaveBeenCalledWith(
+      'destinationsEventsQueue.enqueue',
+      state,
+      mockDestinationsEventsQueue,
+      testEvent,
+      defaultErrorHandler,
+      defaultLogger,
+    );
+    expect(callback).toHaveBeenCalledTimes(1);
+  });
+
+  it('should return false and skip onDataplaneEnqueued when data-plane queue plugin returns null after an error', () => {
+    const onDataplaneEnqueued = jest.fn();
+    const customPluginsManager = {
+      invokeSingle: jest.fn((extPoint: string) => {
+        if (extPoint === 'dataplaneEventsQueue.init') {
+          return mockDataplaneEventsQueue;
+        }
+        if (extPoint === 'dataplaneEventsQueue.enqueue') {
+          return null;
+        }
+        return undefined;
+      }),
+    } as unknown as IPluginsManager;
+
+    const eventRepository = new EventRepository(
+      customPluginsManager,
+      defaultStoreManager,
+      defaultHttpClient,
+      defaultErrorHandler,
+      defaultLogger,
+    );
+    eventRepository.init();
+
+    const accepted = eventRepository.enqueue(testEvent, undefined, onDataplaneEnqueued);
+
+    expect(accepted).toBe(false);
+    expect(onDataplaneEnqueued).not.toHaveBeenCalled();
+  });
+
+  it('should return false when dataplaneEventsQueue is not initialized', () => {
+    const onDataplaneEnqueued = jest.fn();
+    const eventRepository = new EventRepository(
+      defaultPluginsManager,
+      defaultStoreManager,
+      defaultHttpClient,
+      defaultErrorHandler,
+      defaultLogger,
+    );
+
+    const accepted = eventRepository.enqueue(testEvent, undefined, onDataplaneEnqueued);
+
+    expect(accepted).toBe(false);
+    expect(onDataplaneEnqueued).not.toHaveBeenCalled();
   });
 
   it('should log an error if the event callback function is not a function', () => {

@@ -144,7 +144,7 @@ const XhrQueue = (): ExtensionPlugin => ({
      * @param event RudderEvent object
      * @param errorHandler Error handler instance
      * @param logger Logger instance
-     * @returns none
+     * @returns Whether the event was accepted by the queue
      */
     enqueue(
       state: ApplicationState,
@@ -152,7 +152,7 @@ const XhrQueue = (): ExtensionPlugin => ({
       event: RudderEvent,
       errorHandler?: IErrorHandler,
       logger?: ILogger,
-    ): void {
+    ): boolean {
       // sentAt is only added here for the validation step
       // It'll be updated to the latest timestamp during actual delivery
       event.sentAt = getCurrentTimeFormatted();
@@ -168,7 +168,7 @@ const XhrQueue = (): ExtensionPlugin => ({
         AnonymousId: toBase64(event.anonymousId),
       };
 
-      eventsQueue.addItem({
+      return eventsQueue.addItem({
         url,
         headers,
         event,
