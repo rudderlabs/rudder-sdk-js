@@ -76,6 +76,7 @@ class RetryQueue implements IQueue<QueueItemData> {
   batch: BatchOpts;
   flushBatchTaskId?: string;
   batchingInProgress?: boolean;
+  pendingBatchQueueSync?: QueueItem[];
   batchSizeCalcCb?: QueueBatchItemsSizeCalculatorCallback<QueueItemData>;
   reclaimStartVal?: Nullable<string>;
   reclaimEndVal?: Nullable<string>;
@@ -283,19 +284,19 @@ class RetryQueue implements IQueue<QueueItemData> {
     if (!this.batchingInProgress) {
       this.isPageAccessible = isAccessible;
       this.batchingInProgress = true;
-      let batchQueue =
-        (this.getStorageEntry(QueueStatuses.BATCH_QUEUE) as Nullable<QueueItem[]>) ?? [];
-      if (batchQueue.length > 0) {
-        batchQueue = batchQueue.slice(-batchQueue.length);
+      if (this.reconcilePendingBatchQueue()) {
+        let batchQueue =
+          (this.getStorageEntry(QueueStatuses.BATCH_QUEUE) as Nullable<QueueItem[]>) ?? [];
+        if (batchQueue.length > 0) {
+          batchQueue = batchQueue.slice(-batchQueue.length);
 
-        const batchEntry = this.genQueueItem(
-          batchQueue.map(queueItem => queueItem.item),
-          BATCH_QUEUE_ITEM_TYPE,
-        );
+          const batchEntry = this.genQueueItem(
+            batchQueue.map(queueItem => queueItem.item),
+            BATCH_QUEUE_ITEM_TYPE,
+          );
 
-        this.setStorageEntry(QueueStatuses.BATCH_QUEUE, []);
-
-        this.pushToMainQueue(batchEntry);
+          this.commitBatchTransfer(batchEntry, [], false, true);
+        }
       }
       this.batchingInProgress = false;
 
@@ -378,10 +379,37 @@ class RetryQueue implements IQueue<QueueItemData> {
     };
   }
 
+  private reconcilePendingBatchQueue(): boolean {
+    if (!this.pendingBatchQueueSync) {
+      return true;
+    }
+
+    const isReconciled = this.setStorageEntry(
+      QueueStatuses.BATCH_QUEUE,
+      this.pendingBatchQueueSync,
+    );
+    if (isReconciled) {
+      this.pendingBatchQueueSync = undefined;
+    }
+
+    return isReconciled;
+  }
+
+  private finalizeBatchTransfer(rescheduleFlush: boolean) {
+    if (rescheduleFlush) {
+      this.scheduleFlushBatch();
+    }
+
+    if (this.scheduleTimeoutActive) {
+      this.processHead();
+    }
+  }
+
   private commitBatchTransfer(
     batchEntry: QueueItem<QueueItemData> | undefined,
     nextBatchQueue: QueueItem[],
     rescheduleFlush: boolean,
+    isEntryInBatchEntry = false,
   ): boolean {
     if (!batchEntry) {
       const isBatchStored = this.setStorageEntry(QueueStatuses.BATCH_QUEUE, nextBatchQueue);
@@ -402,17 +430,20 @@ class RetryQueue implements IQueue<QueueItemData> {
     if (!isBatchQueueStored) {
       // Roll back the main-queue write before processing starts so already-buffered
       // items remain only in BATCH_QUEUE and are not dispatched twice.
-      this.setStorageEntry(QueueStatuses.QUEUE, previousQueue);
-      return false;
+      const isRolledBack = this.setStorageEntry(QueueStatuses.QUEUE, previousQueue);
+      if (isRolledBack) {
+        return false;
+      }
+
+      // Both updating BATCH_QUEUE and rolling back QUEUE failed: batchEntry is already
+      // persisted in QUEUE. Mark BATCH_QUEUE to be cleared before future batch operations
+      // so previously buffered items are not dispatched again once storage recovers.
+      this.pendingBatchQueueSync = [];
+      this.finalizeBatchTransfer(rescheduleFlush);
+      return isEntryInBatchEntry;
     }
 
-    if (rescheduleFlush) {
-      this.scheduleFlushBatch();
-    }
-
-    if (this.scheduleTimeoutActive) {
-      this.processHead();
-    }
+    this.finalizeBatchTransfer(rescheduleFlush);
 
     return true;
   }
@@ -423,6 +454,10 @@ class RetryQueue implements IQueue<QueueItemData> {
    * @returns Whether the new item was accepted into queue storage
    */
   handleNewItemForBatch(entry: QueueItem<QueueItemData>): boolean {
+    if (!this.reconcilePendingBatchQueue()) {
+      return false;
+    }
+
     const existingBatchQueue =
       (this.getStorageEntry(QueueStatuses.BATCH_QUEUE) as Nullable<QueueItem[]>) ?? [];
 
@@ -452,7 +487,13 @@ class RetryQueue implements IQueue<QueueItemData> {
 
     this.batchingInProgress = false;
 
-    return this.commitBatchTransfer(batchEntry, nextBatchQueue, shouldDispatchBatch);
+    const isEntryInBatchEntry = Boolean(batchEntry) && !batchDispatchInfo.criteriaExceeded;
+    return this.commitBatchTransfer(
+      batchEntry,
+      nextBatchQueue,
+      shouldDispatchBatch,
+      isEntryInBatchEntry,
+    );
   }
 
   pushToMainQueue(curEntry: QueueItem<QueueItemData>): boolean {
@@ -570,6 +611,8 @@ class RetryQueue implements IQueue<QueueItemData> {
   }
 
   processHead() {
+    this.reconcilePendingBatchQueue();
+
     // cancel the scheduled task if it exists
     this.schedule.cancel(this.processId);
 
@@ -974,6 +1017,7 @@ class RetryQueue implements IQueue<QueueItemData> {
   }
 
   clear() {
+    this.pendingBatchQueueSync = undefined;
     this.schedule.cancelAll();
     this.setDefaultQueueEntries();
   }

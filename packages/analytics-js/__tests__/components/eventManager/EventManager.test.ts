@@ -275,6 +275,33 @@ describe('EventManager', () => {
       expect(dpEvents[1].context.sessionStart).toBeUndefined();
     });
 
+    it('consumes the SDK sessionStart marker even when event options override context.sessionId', () => {
+      const { dpEvents, eventManager: em } = createSessionHarness();
+
+      em.addEvent(
+        {
+          type: 'track',
+          name: 'Event A with override',
+          options: { context: { sessionId: 9999999999 } },
+        } as APIEvent,
+        {},
+      );
+      em.addEvent(
+        {
+          type: 'track',
+          name: 'Event B with override',
+          options: { context: { sessionId: 9999999999 } },
+        } as APIEvent,
+        {},
+      );
+
+      expect(dpEvents).toHaveLength(2);
+      expect(dpEvents[0].context.sessionId).toBe(9999999999);
+      expect(dpEvents[0].context.sessionStart).toBe(true);
+      expect(dpEvents[1].context.sessionId).toBe(9999999999);
+      expect(dpEvents[1].context.sessionStart).toBeUndefined();
+    });
+
     it('emits sessionStart again after automatic session timeout expiry', () => {
       const { dpEvents, eventManager: em } = createSessionHarness({
         timeout: 60 * 1000,
